@@ -111,12 +111,6 @@ namespace Boo.Lang
 				);
 			
 			block.Add(stmt);
-			block.Add(new BinaryExpression(
-						BinaryOperatorType.Assign,
-						reference.CloneNode(),
-						new NullLiteralExpression()
-						)
-					);
 		}
 		
 		private bool IsAssignmentToReference(Expression expression)

@@ -9,7 +9,6 @@ public final transient class Using0Module(System.Object):
 			if (__disposable__ = (f as System.IDisposable)):
 				__disposable__.Dispose()
 				__disposable__ = null
-			f = null
 
 	private def constructor():
 		super()

@@ -17,4 +17,4 @@ print("before block")
 using f.Bar:
 	print("inside block")
 print("after block")
-Assert.IsNull(f.Bar)
+Assert.IsNotNull(f.Bar)

@@ -23,4 +23,4 @@ print("before block")
 using Disposable(1), d1=Disposable(2):
 	print("inside block")
 print("after block")
-Assert.IsNull(d1)
+Assert.IsNotNull(d1)

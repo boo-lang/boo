@@ -8,4 +8,4 @@ import NUnit.Framework
 
 using disposable=Disposable():
 	disposable.foo()
-Assert.IsNull(disposable)	
+Assert.IsNotNull(disposable)	

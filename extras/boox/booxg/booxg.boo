@@ -175,9 +175,8 @@ class MainWindow(Window):
 		start = date.Now
 		using console=ConsoleCapture():
 			result = compiler.Run()		
-			consoleOutput = console.ToString()
 		self.DisplayErrors(result.Errors)
-		self.AppendOutput(consoleOutput)
+		self.AppendOutput(console.ToString())
 		self.AppendOutput("Complete in ${date.Now-start}.")
 		
 	private def _menuItemNew_Activated(sender, args as EventArgs):
