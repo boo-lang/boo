@@ -75,7 +75,7 @@ class CompletionBox(ListBox):
 				elif member isa MethodInfo:
 					method = member as MethodInfo
 					params = join("${param.Name} as ${getBooTypeName(param.ParameterType)}"
-										for param in method.GetParameters())					
+										for param in method.GetParameters(), ", ")					
 					returnValue = ""
 					returnValue = " as ${getBooTypeName(method.ReturnType)}" if method.ReturnType is not void					
 					members.Add("${member.Name}(${params})${returnValue}")
