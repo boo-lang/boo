@@ -69,9 +69,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			bool found = base.Resolve(targetList, name, flags);
-			if (BaseType.Resolve(targetList, name, flags))
+			if (!found || ContainsMethodsOnly(targetList))
 			{
-				found = true;
+				if (BaseType.Resolve(targetList, name, flags))
+				{
+					found = true;
+				}
 			}
 			return found;
 		}
@@ -113,6 +116,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_constructors = (IConstructor[])constructors.ToArray(typeof(IConstructor));
 			}
 			return _constructors;
+		}
+		
+		bool ContainsMethodsOnly(Boo.Lang.List members)
+		{
+			foreach (IEntity member in members)
+			{
+				if (EntityType.Method != member.EntityType)
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 }

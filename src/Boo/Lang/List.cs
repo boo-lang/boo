@@ -325,7 +325,7 @@ namespace Boo.Lang
 			
 			for (int i=0; i<_count; ++i)
 			{
-				if (!object.Equals(_items[i], rhs[i]))
+				if (!RuntimeServices.op_Equality(_items[i], rhs[i]))
 				{
 					return false;
 				}
@@ -356,21 +356,31 @@ namespace Boo.Lang
 		
 		public bool Contains(object item)
 		{
+			return -1 != IndexOf(item);
+		}
+		
+		public bool Contains(Predicate condition)
+		{
+			return -1 != IndexOf(condition);
+		}
+		
+		public int IndexOf(Predicate condition)
+		{
 			for (int i=0; i<_count; ++i)
 			{
-				if (object.Equals(_items[i], item))
+				if (condition(_items[i]))
 				{
-					return true;
+					return i;
 				}
 			}
-			return false;
+			return -1;
 		}
 		
 		public int IndexOf(object item)
 		{			
 			for (int i=0; i<_count; ++i)
 			{
-				if (object.Equals(_items[i], item))
+				if (RuntimeServices.op_Equality(_items[i], item))
 				{
 					return i;
 				}

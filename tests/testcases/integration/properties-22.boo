@@ -1,7 +1,7 @@
 """
 A.Foo.set
-A.Foo.set
-A.Foo.set
+B.Foo.set
+B.Foo.set
 """
 import NUnit.Framework
 
@@ -16,8 +16,8 @@ class A:
 class B(A):
 
 	override Foo:
-		get:
-			return "B: ${super()}"
+		set:
+			print("B.Foo.set")
 
 a = A()
 a.Foo = "foo"
@@ -25,9 +25,9 @@ Assert.AreEqual("A.Foo", a.Foo)
 
 a = B()
 a.Foo = "foo"
-Assert.AreEqual("B: A.Foo", a.Foo)
+Assert.AreEqual("A.Foo", a.Foo)
 
 b = B()
 b.Foo = "foo"
-Assert.AreEqual("B: A.Foo", b.Foo)
+Assert.AreEqual("A.Foo", b.Foo)
 			

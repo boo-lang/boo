@@ -2016,9 +2016,8 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void SetProperty(Node sourceNode, IProperty property, Expression reference, Expression value, bool leaveValueOnStack)
-		{
-			PropertyInfo pi = GetPropertyInfo(property);			
-			MethodInfo setMethod = pi.GetSetMethod(true);
+		{						
+			MethodInfo setMethod = GetMethodInfo(property.GetSetMethod());
 			
 			if (null != reference)
 			{
@@ -2036,7 +2035,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (leaveValueOnStack)
 			{
 				_il.Emit(OpCodes.Dup);
-				local = _il.DeclareLocal(pi.PropertyType);
+				local = _il.DeclareLocal(GetSystemType(property.Type));
 				_il.Emit(OpCodes.Stloc, local);
 			}
 			

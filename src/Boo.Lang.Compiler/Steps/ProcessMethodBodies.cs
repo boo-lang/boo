@@ -948,7 +948,12 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					property.Modifiers |= TypeMemberModifiers.Override;
+					property.Modifiers |= TypeMemberModifiers.Override;					
+				}
+				
+				if (null == property.Type)
+				{
+					property.Type = CodeBuilder.CreateTypeReference(entity.Override.Type);
 				}
 			}
 		}

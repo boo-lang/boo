@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (tag.Name == name && NameResolutionService.IsFlagSet(flags, tag.EntityType))
 				{
-					targetList.AddUnique(tag);
+					targetList.Add(tag);
 					found = true;
 				}
 			}

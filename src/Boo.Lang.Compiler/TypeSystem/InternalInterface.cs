@@ -97,17 +97,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		int GetMaxBaseInterfaceDepth()
 		{
-			int current = 0;
+			int max = 0;
 			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
 				IType tag = TypeSystemServices.GetType(baseType);
 				int depth = tag.GetTypeDepth();
-				if (depth > current)
+				if (depth > max)
 				{
-					current = depth;
+					max = depth;
 				}
 			}
-			return current;
+			return max;
 		}
 	}
 }
