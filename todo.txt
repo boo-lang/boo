@@ -1,10 +1,13 @@
-﻿* duck typing
-
-* software de blogging para a apresentação
+﻿* software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms
 	* editor RichClient
 	* segurança com par chave pública/privada
+	
+* anonymous callable type notation
+	def map(fn as callable(object) as object, enumerable)
+	def map(fn as (object)->object, enumerable)
+	def map(fn as object->object, enumerable)	
 
 * callable type adaptation
 	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
@@ -24,13 +27,7 @@
 	
 * Exemplo de passo com estatísticas sobre membros utilizados
 	* summary of class status (http://www.go-mono.com/class-status.html)
-
-
-* anonymous callable type notation
-	def map(fn as callable(object) as object, enumerable)
-	def map(fn as (object)->object, enumerable)
-	def map(fn as object->object, enumerable)
-
+	
 * preencher assinatura dos métodos em BindTypeMembers
 	* completar tipo dos parâmetros
 	* completar return type:
