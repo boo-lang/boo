@@ -128,5 +128,29 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("null0.boo");			
 		}
+		
+		[Test]
+		public void SliceProperty()
+		{
+			RunCompilerTestCase("slice_property.boo");
+		}
+		
+		[Test]
+		public void AssignProperty()
+		{
+			RunCompilerTestCase("assign_property.boo");
+		}
+		
+		[Test]
+		public void Len()
+		{
+			RunCompilerTestCase("len.boo");
+		}
+		
+		[Test]
+		public void TupleFunctionTypeInference()
+		{
+			RunCompilerTestCase("tuple_function.boo");
+		}
 	}
 }

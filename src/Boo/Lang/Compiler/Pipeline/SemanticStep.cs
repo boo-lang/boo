@@ -1111,27 +1111,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
-		void BindArithmeticOperator(BinaryExpression node)
-		{
-			ITypeBinding left = GetExpressionType(node.Left);
-			ITypeBinding right = GetExpressionType(node.Right);
-			if (IsNumber(left))
-			{
-				if (IsNumber(right))
-				{
-					BindingManager.Bind(node, GetPromotedNumberType(left, right));
-				}
-				else
-				{
-					InvalidOperatorForTypes(node, node.Operator, left, right);
-				}
-			}
-			else
-			{
-				InvalidOperatorForTypes(node, node.Operator, left, right);
-			}
-		}
-		
 		public override void LeaveBinaryExpression(BinaryExpression node, ref Expression resultingNode)
 		{
 			switch (node.Operator)
@@ -1418,6 +1397,27 @@ namespace Boo.Lang.Compiler.Pipeline
 			BindingManager.Bind(contains, BindingManager.BoolTypeBinding);
 			
 			resultingNode = contains;
+		}
+		
+		void BindArithmeticOperator(BinaryExpression node)
+		{
+			ITypeBinding left = GetExpressionType(node.Left);
+			ITypeBinding right = GetExpressionType(node.Right);
+			if (IsNumber(left))
+			{
+				if (IsNumber(right))
+				{
+					BindingManager.Bind(node, GetPromotedNumberType(left, right));
+				}
+				else
+				{
+					InvalidOperatorForTypes(node, node.Operator, left, right);
+				}
+			}
+			else
+			{
+				InvalidOperatorForTypes(node, node.Operator, left, right);
+			}
 		}
 		
 		bool BindMatchOperator(BinaryExpression node)
@@ -1857,20 +1857,21 @@ namespace Boo.Lang.Compiler.Pipeline
 			return null;
 		}
 		
-		void ResolveOperator(string name, BinaryExpression node)
+		bool ResolveOperator(string name, BinaryExpression node)
 		{
 			ITypeBinding boundType = GetBoundType(node.Left);
 			IBinding binding = boundType.Resolve(name);
 			if (null == binding)
 			{
 				BindingManager.Error(node);
+				return false;
 			}
-			else
-			{
-				// todo: check parameters
-				// todo: resolve when ambiguous
-				BindingManager.Bind(node, binding);
-			}
+			
+			// todo: check parameters
+			// todo: resolve when ambiguous
+			BindingManager.Bind(node, binding);
+			
+			return true;
 		}
 		
 		bool CheckBoolContext(Expression expression)

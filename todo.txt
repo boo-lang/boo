@@ -171,7 +171,8 @@ done * propriedades podem ser declaradas em qualquer ordem
 		* for lists, list.Count
 		* for strings, string.Length
 		* for objects, invocar RuntimeServices.Len()
-	* tuple vira special function para permitir tipagem
+	* SemanticStep deve reconhecer as funçoes tuple(Type, ...) para deduzir o tipo
+	das expressoes de acordo
 	done * zip: versão com dois argumentos
 	* assign to Slicing
 		* hash["foo"] = "bar"
@@ -184,6 +185,7 @@ done * propriedades podem ser declaradas em qualquer ordem
 a informação de dependência de nós para cada nó na lista pending, o método
 ITypeResolver.Resolve só é invocado para um nó quando pelo menos um dos nós
 na lista de dependências tenha sido alterado
+	* BinaryExpression devem participar do mecanismo
 	
 * remover kindof:
 	* remover BinaryOperatorType.TypeTest
@@ -218,11 +220,6 @@ derivada de Control (que tem uma propriedade chamada Size):
 * StatementGroup para permitir o agrupamento de statements com mesmo propósito
 	
 done * override keyword to allow the developer to make sure a method is a override
-
-* melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
-e passa a ser utilizado ReferenceExpression em seu lugar
-(para utilizar a resolução padrão de membros, etc)
-
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------
@@ -281,7 +278,7 @@ done * classes
 done * declara��o de campos
 done * declara��o de propriedades
 done * defini��o de m�todos
-* expressões simples com inteiros
+done * expressões simples com inteiros
 * concatenação de strings
 * concatenação de strings com inteiros
 * classes devem ser serializ�veis

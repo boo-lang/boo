@@ -70,6 +70,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("override0.boo");
 		}
 		
+		[Test]
+		public void Assignment()
+		{
+			RunCompilerTestCase("assign0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
