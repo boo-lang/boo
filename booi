@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/local/bin/mono $HOME/dotnet/boo/build/booi.exe "$@"
+env mono $HOME/dotnet/boo/build/booi.exe "$@"
