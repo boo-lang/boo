@@ -65,7 +65,7 @@ OR
 	
 	<block-comment name = "Block Comment" style = "Comment">
 		<start-regex>/\*</start-regex>
-        	<end-regex>\*/</end-regex>
+        <end-regex>\*/</end-regex>
 	</block-comment>
 
 	<keyword-list name = "Namespace" style = "Preprocessor" case-sensitive="true">
@@ -89,8 +89,10 @@ OR
 		<keyword>uint</keyword>
 		<keyword>long</keyword>
 		<keyword>ulong</keyword>
-		<keyword>object</keyword>		
+		<keyword>object</keyword>
+		<keyword>duck</keyword>		
 		<keyword>string</keyword>
+		<keyword>regex</keyword>
 		<keyword>date</keyword>
 		<keyword>timespan</keyword>
 	</keyword-list>
@@ -114,6 +116,7 @@ OR
 		<keyword>callable</keyword>
 		
 		<keyword>def</keyword>
+		<keyword>do</keyword>
 		<keyword>get</keyword>
 		<keyword>set</keyword>
 		<keyword>event</keyword>
@@ -123,7 +126,7 @@ OR
 	</keyword-list>
 	
 	<pattern-item _name = "Number" style = "Decimal">
-		<regex>\b[0-9][0-9\.]*(m|ms|d|s|f|F|l|L)?\b</regex>
+		<regex>\b[0-9][0-9\.]*(m|ms|d|h|s|f|F|l|L)?\b</regex>
 	</pattern-item>
 
 	<keyword-list _name = "True And False" style = "Decimal" case-sensitive="true">
@@ -167,6 +170,7 @@ OR
 		<keyword>enumerate</keyword>
 		<keyword>filter</keyword>
 		<keyword>len</keyword>
+		<keyword>typeof</keyword>
 		<keyword>map</keyword>
 		<keyword>max</keyword>
 		<keyword>min</keyword>
@@ -179,7 +183,7 @@ OR
 		<keyword>zip</keyword>
 		<keyword>checked</keyword>
 		<keyword>unchecked</keyword>
-		<keyword>rawarrayindexing</keyword>
-		<keyword>normalarrayindexing</keyword>
+		<keyword>rawArrayIndexing</keyword>
+		<keyword>normalArrayIndexing</keyword>
 	</keyword-list>
 </language>
