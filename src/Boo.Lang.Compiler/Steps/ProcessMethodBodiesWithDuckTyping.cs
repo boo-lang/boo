@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		protected IType _runtimeServices;
 		protected IMethod RuntimeServices_Invoke;
+		protected IMethod RuntimeServices_InvokeBinaryOperator;
 		protected IMethod RuntimeServices_SetProperty;
 		protected IMethod RuntimeServices_GetProperty;
 		
@@ -44,6 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 			base.InitializeMemberCache();
 			_runtimeServices = TypeSystemServices.Map(typeof(Boo.Lang.RuntimeServices));
 			RuntimeServices_Invoke = ResolveMethod(_runtimeServices, "Invoke");
+			RuntimeServices_InvokeBinaryOperator = ResolveMethod(_runtimeServices, "InvokeBinaryOperator");
 			RuntimeServices_SetProperty = ResolveMethod(_runtimeServices, "SetProperty");
 			RuntimeServices_GetProperty = ResolveMethod(_runtimeServices, "GetProperty");
 		}
@@ -74,7 +76,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			if (TypeSystemServices.DuckType == node.Target.ExpressionType)
+			if (IsDuckTyped(node.Target))
 			{
 				if (AstUtil.IsTargetOfMethodInvocation(node) || 
 					AstUtil.IsLhsOfAssignment(node))
@@ -90,6 +92,59 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				base.ProcessMemberReferenceExpression(node);
 			}
+		}
+		
+		override protected void BindBinaryExpression(BinaryExpression node)
+		{
+			if ((IsDuckTyped(node.Left) || IsDuckTyped(node.Right)) &&
+				IsOverloadableOperator(node.Operator))
+			{
+				node.ParentNode.Replace(
+					node, 
+					CodeBuilder.CreateMethodInvocation(
+						RuntimeServices_InvokeBinaryOperator,
+						CodeBuilder.CreateStringLiteral(
+							GetMethodNameForOperator(node.Operator)),
+							node.Left, node.Right));
+			}
+			else
+			{
+				base.BindBinaryExpression(node);
+			}
+		}
+		
+		bool IsOverloadableOperator(BinaryOperatorType op)
+		{
+			switch (op)
+			{
+				case BinaryOperatorType.	Addition:
+				case BinaryOperatorType.Subtraction:
+				case BinaryOperatorType.Multiply:
+				case BinaryOperatorType.Division:
+				case BinaryOperatorType.Modulus:
+				case BinaryOperatorType.Exponentiation:
+				case BinaryOperatorType.LessThan:
+				case BinaryOperatorType.LessThanOrEqual:
+				case BinaryOperatorType.GreaterThan:
+				case BinaryOperatorType.GreaterThanOrEqual:
+				case BinaryOperatorType.Match:
+				case BinaryOperatorType.NotMatch:
+				case BinaryOperatorType.Member:
+				case BinaryOperatorType.NotMember:
+				case BinaryOperatorType.Or:
+				case BinaryOperatorType.And:
+				case BinaryOperatorType.BitwiseOr:
+				case BinaryOperatorType.BitwiseAnd:
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		bool IsDuckTyped(Expression expression)
+		{
+			return TypeSystemServices.DuckType == expression.ExpressionType;
 		}
 		
 		bool IsQuackBuiltin(IEntity entity)

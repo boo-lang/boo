@@ -2562,7 +2562,11 @@ namespace Boo.Lang.Compiler.Steps
 				Error(node);
 				return;
 			}
-			
+			BindBinaryExpression(node);
+		}
+		
+		protected virtual void BindBinaryExpression(BinaryExpression node)
+		{			
 			switch (node.Operator)
 			{		
 				case BinaryOperatorType.Assign:
@@ -4190,7 +4194,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		string GetMethodNameForOperator(BinaryOperatorType op)
+		protected string GetMethodNameForOperator(BinaryOperatorType op)
 		{
 			return "op_" + op.ToString();
 		}

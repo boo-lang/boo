@@ -45,6 +45,10 @@ namespace Boo.Lang
 												BindingFlags.Instance;
 									
 		const BindingFlags InvokeBindingFlags = DefaultBindingFlags |
+												BindingFlags.InvokeMethod;
+
+		const BindingFlags InvokeOperatorBindingFlags = BindingFlags.Public |
+												BindingFlags.Static |
 												BindingFlags.InvokeMethod;												
 												
 		const BindingFlags SetPropertyBindingFlags = DefaultBindingFlags |
@@ -88,6 +92,60 @@ namespace Boo.Lang
 			{
 				throw x.InnerException;
 			}				
+		}
+		
+		public static object InvokeBinaryOperator(string operatorName, object lhs, object rhs)
+		{
+			object[] args = new object[] { lhs, rhs };
+			
+			Type lhsType = lhs.GetType();
+			Type rhsType = rhs.GetType();
+			
+			if (lhsType.IsPrimitive && rhsType.IsPrimitive)
+			{
+				return InvokeRuntimeServicesOperator(operatorName, args);
+			}
+			
+			try
+			{
+				return lhsType.InvokeMember(operatorName,
+									InvokeOperatorBindingFlags,
+									null,
+									null,
+									args);
+			}
+			catch (MissingMethodException)
+			{
+				try
+				{
+					return rhsType.InvokeMember(operatorName,
+									InvokeOperatorBindingFlags,
+									null,
+									null,
+									args);
+				}
+				catch (MissingMethodException)
+				{
+					try
+					{
+						return InvokeRuntimeServicesOperator(operatorName, args);
+					}
+					catch (MissingMethodException)
+					{
+					}										
+				}
+				
+				throw; // always throw the original exception
+			}
+		}
+		
+		private static object InvokeRuntimeServicesOperator(string operatorName, object[] args)
+		{
+			return typeof(RuntimeServices).InvokeMember(operatorName,
+										InvokeOperatorBindingFlags,
+										null,
+										null,
+										args);
 		}
 		
 		public static object SetProperty(object target, string name, object value)
@@ -478,6 +536,88 @@ namespace Boo.Lang
 				}
 			}
 			return true;
+		}
+		#endregion
+		
+		#region dynamic operator for primitive types
+		public static long op_Multiply(long lhs, long rhs)
+		{
+			return lhs*rhs;
+		}
+		
+		public static int op_Multiply(int lhs, int rhs)
+		{
+			return lhs*rhs;
+		}
+		
+		public static float op_Multiply(float lhs, float rhs)
+		{
+			return lhs*rhs;
+		}
+		
+		public static double op_Multiply(double lhs, double rhs)
+		{
+			return lhs*rhs;
+		}
+		
+		public static long op_Division(long lhs, long rhs)
+		{
+			return lhs/rhs;
+		}
+		
+		public static int op_Division(int lhs, int rhs)
+		{
+			return lhs/rhs;
+		}
+		
+		public static float op_Division(float lhs, float rhs)
+		{
+			return lhs/rhs;
+		}
+		
+		public static double op_Division(double lhs, double rhs)
+		{
+			return lhs/rhs;
+		}
+		
+		public static long op_Addition(long lhs, long rhs)
+		{
+			return lhs+rhs;
+		}
+		
+		public static int op_Addition(int lhs, int rhs)
+		{
+			return lhs+rhs;
+		}
+		
+		public static float op_Addition(float lhs, float rhs)
+		{
+			return lhs+rhs;
+		}
+		
+		public static double op_Addition(double lhs, double rhs)
+		{
+			return lhs+rhs;
+		}
+		
+		public static long op_Subtraction(long lhs, long rhs)
+		{
+			return lhs-rhs;
+		}
+		
+		public static int op_Subtraction(int lhs, int rhs)
+		{
+			return lhs-rhs;
+		}
+		
+		public static float op_Subtraction(float lhs, float rhs)
+		{
+			return lhs-rhs;
+		}
+		
+		public static double op_Subtraction(double lhs, double rhs)
+		{
+			return lhs-rhs;
 		}
 		#endregion
 		
