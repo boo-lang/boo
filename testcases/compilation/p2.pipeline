@@ -1,4 +1,4 @@
 <?xml version='1.0'?>
 <pipeline extends='p1'>
-	<step type='Boo.Tests.Ast.Compiler.DummyStep2, Boo.Tests' />
+	<step type='Boo.Tests.Lang.Compiler.DummyStep2, Boo.Tests' />
 </pipeline>

@@ -38,7 +38,7 @@ using Boo.Lang.Compiler.Pipeline;
 using NUnit.Framework;
 using Boo.Tests;
 
-namespace Boo.Tests.Ast.Compiler.Processors
+namespace Boo.Tests.Lang.Compiler.Pipeline
 {
 	/// <summary>
 	/// Um exemplo de atributo que adiciona o atributo required
@@ -186,7 +186,7 @@ namespace Boo.Tests.Ast.Compiler.Processors
 		{
 			string actual = @"
 
-import Boo.Tests.Ast.Compiler.Processors
+import Boo.Tests.Lang.Compiler.Pipeline
 
 class Customer:
 	[AllParametersRequired]
@@ -196,7 +196,7 @@ class Customer:
 
 			string expected = @"
 
-import Boo.Tests.Ast.Compiler.Processors
+import Boo.Tests.Lang.Compiler.Pipeline
 
 class Customer:	
 	def constructor(fname as string, lname as string):
@@ -211,7 +211,7 @@ class Customer:
 		public void TestAttributeWithNamedParameter()
 		{
 			string actual = @"
-import Boo.Tests.Ast.Compiler.Processors
+import Boo.Tests.Lang.Compiler.Pipeline
 import System.Web
 
 class MyControl(Control):
@@ -219,7 +219,7 @@ class MyControl(Control):
 	Width as int
 ";
 			string expected = @"
-import Boo.Tests.Ast.Compiler.Processors
+import Boo.Tests.Lang.Compiler.Pipeline
 import System.Web
 
 class MyControl(Control):

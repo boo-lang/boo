@@ -33,7 +33,7 @@ using System.Xml;
 using NUnit.Framework;
 using Boo.Lang.Compiler;
 
-namespace Boo.Tests.Ast.Compiler
+namespace Boo.Tests.Lang.Compiler
 {
 	public class DummyStep : ICompilerStep
 	{
@@ -113,7 +113,7 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			string xml = @"
 			<pipeline>
-				<step type='Boo.Tests.Ast.Compiler.DummyStep, Boo.Tests' />
+				<step type='Boo.Tests.Lang.Compiler.DummyStep, Boo.Tests' />
 			</pipeline>";
 			
 			_pipeline.Configure(LoadXml(xml));
