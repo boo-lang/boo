@@ -39,20 +39,21 @@ class BooVisitor(AbstractASTVisitor):
 	_errors      = Errors()
 	_currentType as TypeDeclaration = null
 	_debugOutput = false
+	_inmacro = false
 	
 	#region IASTVisitor interface implementation
 	override def Visit(node as INode, data as object):
-		_errors.Error(-1, -1, "Visited INode (should NEVER HAPPEN)");
-		Console.WriteLine("Visitor was: " + self.GetType());
-		Console.WriteLine("Node was : " + node.GetType());
-		return node.AcceptChildren(self, data);
+		_errors.Error(-1, -1, "Visited INode (should NEVER HAPPEN)")
+		Console.WriteLine("Visitor was: " + self.GetType())
+		Console.WriteLine("Node was : " + node.GetType())
+		return node.AcceptChildren(self, data)
 	
 	def AppendIndentation():
 		for i in range(_indentLevel):
-			_sourceText.Append("\t");
+			_sourceText.Append("\t")
 	
 	def AppendNewLine():
-		_sourceText.Append(_newLineSep);
+		_sourceText.Append(_newLineSep)
 	
 	def DebugOutput(o as INode):
 		Console.WriteLine(o.ToString()) if _debugOutput
@@ -72,89 +73,99 @@ class BooVisitor(AbstractASTVisitor):
 		_indentLevel -= 1
 	
 	override def Visit(compilationUnit as CompilationUnit, data):
-		DebugOutput(compilationUnit);
-		BooRefactory().Refactor(compilationUnit);
-		compilationUnit.AcceptChildren(self, data);
-		return null;
+		DebugOutput(compilationUnit)
+		BooRefactory().Refactor(compilationUnit)
+		compilationUnit.AcceptChildren(self, data)
+		return null
 	
 	override def Visit(namespaceDeclaration as NamespaceDeclaration, data):
-		DebugOutput(namespaceDeclaration);
-		AppendIndentation();
-		_sourceText.Append("namespace ");
-		_sourceText.Append(namespaceDeclaration.NameSpace);
-		AppendNewLine();
-		namespaceDeclaration.AcceptChildren(self, data);
-		AppendNewLine();
-		return null;
+		DebugOutput(namespaceDeclaration)
+		AppendIndentation()
+		_sourceText.Append("namespace ")
+		_sourceText.Append(namespaceDeclaration.NameSpace)
+		AppendNewLine()
+		namespaceDeclaration.AcceptChildren(self, data)
+		AppendNewLine()
+		return null
 	
 	override def Visit(usingDeclaration as UsingDeclaration, data):
-		DebugOutput(usingDeclaration);
-		AppendIndentation();
-		_sourceText.Append("import ");
-		_sourceText.Append(usingDeclaration.Namespace);
-		AppendNewLine();
-		return null;
+		DebugOutput(usingDeclaration)
+		AppendIndentation()
+		_sourceText.Append("import ")
+		_sourceText.Append(usingDeclaration.Namespace)
+		AppendNewLine()
+		return null
 	
 	override def Visit(usingAliasDeclaration as UsingAliasDeclaration, data):
-		DebugOutput(usingAliasDeclaration);
-		AppendIndentation();
-		_sourceText.Append("import ");
-		_sourceText.Append(usingAliasDeclaration.Namespace);
-		_sourceText.Append(" as ");
-		_sourceText.Append(usingAliasDeclaration.Alias);
-		AppendNewLine();
-		return null;
+		DebugOutput(usingAliasDeclaration)
+		AppendIndentation()
+		_sourceText.Append("import ")
+		_sourceText.Append(usingAliasDeclaration.Namespace)
+		_sourceText.Append(" as ")
+		_sourceText.Append(usingAliasDeclaration.Alias)
+		AppendNewLine()
+		return null
 	
 	override def Visit(attributeSection as AttributeSection, data):
-		DebugOutput(attributeSection);
-		AppendIndentation();
-		_sourceText.Append("[");
+		DebugOutput(attributeSection)
+		AppendIndentation()
+		_sourceText.Append("[")
 		if (attributeSection.AttributeTarget != null and attributeSection.AttributeTarget.Length > 0):
-			_sourceText.Append(attributeSection.AttributeTarget);
-			_sourceText.Append(": ");
+			_sourceText.Append(attributeSection.AttributeTarget)
+			_sourceText.Append(": ")
 		for j in range(attributeSection.Attributes.Count):
-			attr as ICSharpCode.SharpRefactory.Parser.AST.Attribute = attributeSection.Attributes[j];
+			attr as ICSharpCode.SharpRefactory.Parser.AST.Attribute = attributeSection.Attributes[j]
 			
-			_sourceText.Append(attr.Name);
-			_sourceText.Append("(");
+			_sourceText.Append(attr.Name)
+			_sourceText.Append("(")
 			for i in range(attr.PositionalArguments.Count):
-				expr as Expression = attr.PositionalArguments[i];
-				_sourceText.Append(expr.AcceptVisitor(self, data).ToString());
+				expr as Expression = attr.PositionalArguments[i]
+				_sourceText.Append(expr.AcceptVisitor(self, data).ToString())
 				if (i + 1 < attr.PositionalArguments.Count):
-					_sourceText.Append(", ");
+					_sourceText.Append(", ")
 			
 			for i in range(attr.NamedArguments.Count):
-				named as NamedArgument = attr.NamedArguments[i];
-				_sourceText.Append(named.Name);
-				_sourceText.Append(": ");
-				_sourceText.Append(named.Expr.AcceptVisitor(self, data).ToString());
+				named as NamedArgument = attr.NamedArguments[i]
+				_sourceText.Append(named.Name)
+				_sourceText.Append(": ")
+				_sourceText.Append(named.Expr.AcceptVisitor(self, data).ToString())
 				if (i + 1 < attr.NamedArguments.Count):
-					_sourceText.Append(", ");
+					_sourceText.Append(", ")
 			
-			_sourceText.Append(")");
+			_sourceText.Append(")")
 			if (j + 1 < attributeSection.Attributes.Count):
-				_sourceText.Append(", ");
+				_sourceText.Append(", ")
 		
-		_sourceText.Append("]");
-		AppendNewLine();
-		return null;
+		_sourceText.Append("]")
+		AppendNewLine()
+		return null
 	
 	override def Visit(typeDeclaration as TypeDeclaration, data):
-		DebugOutput(typeDeclaration);
-		AppendIndentation();
-		AppendNewLine();
-		AppendAttributes(typeDeclaration.Attributes);
-		modifier = GetModifier(typeDeclaration.Modifier, Modifier.Public);
+		DebugOutput(typeDeclaration)
+		AppendIndentation()
+		AppendNewLine()
+		AppendAttributes(typeDeclaration.Attributes)	
 		
+		//Add a [Module] attribute if this is a class with a Main method
+		if typeDeclaration.Type == Types.Class:
+			for child in typeDeclaration.Children:
+				method = child as MethodDeclaration
+				if method is not null and method.Name == "Main":
+					AppendIndentation()
+					_sourceText.Append("[Module]")
+					AppendNewLine()
+			
+		modifier = GetModifier(typeDeclaration.Modifier, Modifier.Public)
+
 		typeString = "class "
 		
 		typeString = "enum " if typeDeclaration.Type == Types.Enum
 		typeString = "interface " if typeDeclaration.Type == Types.Interface
 		
-		AppendIndentation();
-		_sourceText.Append(modifier);
-		_sourceText.Append(typeString);
-		_sourceText.Append(typeDeclaration.Name);
+		AppendIndentation()
+		_sourceText.Append(modifier)
+		_sourceText.Append(typeString)
+		_sourceText.Append(typeDeclaration.Name)
 		
 		if typeDeclaration.BaseTypes == null:
 			_sourceText.Append("(System.ValueType)") if typeDeclaration.Type == Types.Struct
@@ -169,110 +180,118 @@ class BooVisitor(AbstractASTVisitor):
 				_sourceText.Append(baseType); 
 			_sourceText.Append(")")
 		_sourceText.Append(":")
-		AppendNewLine();
-		AddIndentLevel();
-		oldType as TypeDeclaration = _currentType;
-		_currentType = typeDeclaration;
-		typeDeclaration.AcceptChildren(self, data);
-		_currentType = oldType;
-		RemoveIndentLevel();
-		AppendNewLine();
-		return null;
+		AppendNewLine()
+		AddIndentLevel()
+		oldType as TypeDeclaration = _currentType
+		_currentType = typeDeclaration
+		typeDeclaration.AcceptChildren(self, data)
+		_currentType = oldType
+		RemoveIndentLevel()
+		AppendNewLine()
+		return null
 	
 	override def Visit(delegateDeclaration as DelegateDeclaration, data):
-		DebugOutput(delegateDeclaration);
-		AppendNewLine();
-		AppendAttributes(delegateDeclaration.Attributes);
-		AppendIndentation();
-		_sourceText.Append(GetModifier(delegateDeclaration.Modifier, Modifier.Public));
-		_sourceText.Append("callable ");
-		_sourceText.Append(delegateDeclaration.Name);
-		_sourceText.Append("(");
-		AppendParameters(delegateDeclaration.Parameters);
-		_sourceText.Append(")");
+		DebugOutput(delegateDeclaration)
+		AppendNewLine()
+		AppendAttributes(delegateDeclaration.Attributes)
+		AppendIndentation()
+		_sourceText.Append(GetModifier(delegateDeclaration.Modifier, Modifier.Public))
+		_sourceText.Append("callable ")
+		_sourceText.Append(delegateDeclaration.Name)
+		_sourceText.Append("(")
+		AppendParameters(delegateDeclaration.Parameters)
+		_sourceText.Append(")")
 		if delegateDeclaration.ReturnType.Type != "void":
-			_sourceText.Append(" as ");
-			_sourceText.Append(GetTypeString(delegateDeclaration.ReturnType));
-		AppendNewLine();
-		return null;
+			_sourceText.Append(" as ")
+			_sourceText.Append(GetTypeString(delegateDeclaration.ReturnType))
+		AppendNewLine()
+		return null
 	
 	override def Visit(variableDeclaration as VariableDeclaration, data):
-		AppendIndentation();
-		_sourceText.Append(variableDeclaration.Name);
+		AppendIndentation()
+		_sourceText.Append(variableDeclaration.Name)
 		if (variableDeclaration.Initializer != null):
-			_sourceText.Append(" = ");
-			_sourceText.Append(variableDeclaration.Initializer.AcceptVisitor(self, data));
-		AppendNewLine();
-		return null;
+			_sourceText.Append(" = ")
+			_sourceText.Append(variableDeclaration.Initializer.AcceptVisitor(self, data))
+		AppendNewLine()
+		return null
 	
 	override def Visit(fieldDeclaration as FieldDeclaration, data):
-		DebugOutput(fieldDeclaration);
+		DebugOutput(fieldDeclaration)
 		for field as VariableDeclaration in fieldDeclaration.Fields:
-			AppendAttributes(fieldDeclaration.Attributes);
-			AppendIndentation();
+			AppendAttributes(fieldDeclaration.Attributes)
+			AppendIndentation()
 			// enum fields don't have a type or modifier
 			if fieldDeclaration.TypeReference != null:
-				_sourceText.Append(GetModifier(fieldDeclaration.Modifier, Modifier.Protected));
-			_sourceText.Append(field.Name);
+				_sourceText.Append(GetModifier(fieldDeclaration.Modifier, Modifier.Protected))
+			_sourceText.Append(field.Name)
 			if fieldDeclaration.TypeReference != null:
-				_sourceText.Append(" as ");
-				_sourceText.Append(GetTypeString(fieldDeclaration.TypeReference));
+				_sourceText.Append(" as ")
+				_sourceText.Append(GetTypeString(fieldDeclaration.TypeReference))
 			if (field.Initializer != null):
-				_sourceText.Append(" = ");
-				_sourceText.Append(field.Initializer.AcceptVisitor(self, data).ToString());
-			AppendNewLine();
+				_sourceText.Append(" = ")
+				_sourceText.Append(field.Initializer.AcceptVisitor(self, data).ToString())
+			AppendNewLine()
 		if fieldDeclaration.TypeReference != null:
-			AppendIndentation();
-			AppendNewLine();
-		return null;
+			AppendIndentation()
+			AppendNewLine()
+		return null
 	
 	override def Visit(methodDeclaration as MethodDeclaration, data):
-		DebugOutput(methodDeclaration);
-		AppendAttributes(methodDeclaration.Attributes);
-		AppendIndentation();
-		isFunction as bool = methodDeclaration.TypeReference.Type != "void";
-		_sourceText.Append(GetModifier(methodDeclaration.Modifier, Modifier.Public));
-		_sourceText.Append("def ");
-		_sourceText.Append(methodDeclaration.Name);
-		_sourceText.Append("(");
-		AppendParameters(methodDeclaration.Parameters);
-		_sourceText.Append(")");
+		DebugOutput(methodDeclaration)
+		AppendAttributes(methodDeclaration.Attributes)
+		AppendIndentation()
+		isFunction as bool = methodDeclaration.TypeReference.Type != "void"
+		_sourceText.Append(GetModifier(methodDeclaration.Modifier, Modifier.Public))
+		_sourceText.Append("def ")
+		_sourceText.Append(methodDeclaration.Name)
+		_sourceText.Append("(")
+		AppendParameters(methodDeclaration.Parameters)
+		_sourceText.Append(")")
 		if (isFunction):
-			_sourceText.Append(" as ");
-			_sourceText.Append(GetTypeString(methodDeclaration.TypeReference));
+			_sourceText.Append(" as ")
+			_sourceText.Append(GetTypeString(methodDeclaration.TypeReference))
 		if (_currentType.Type != Types.Interface):
 			if (methodDeclaration.Body != null):
-				_sourceText.Append(":");
-				AppendNewLine();
-				AddIndentLevel();
-				methodDeclaration.Body.AcceptVisitor(self, data);
-				RemoveIndentLevel();
-				AppendIndentation();
-		AppendNewLine();
-		return null;
+				_sourceText.Append(":")
+				AppendNewLine()
+				AddIndentLevel()
+				methodDeclaration.Body.AcceptVisitor(self, data)
+				RemoveIndentLevel()
+				AppendIndentation()
+			else:
+				_sourceText.Append(":")
+				AppendNewLine()
+				AddIndentLevel()
+				AppendIndentation()
+				_sourceText.Append("pass")
+				RemoveIndentLevel()
+				AppendNewLine()
+		AppendNewLine()
+		return null
 	
 	override def Visit(propertyDeclaration as PropertyDeclaration, data):
-		DebugOutput(propertyDeclaration);
-		AppendAttributes(propertyDeclaration.Attributes);
-		AppendIndentation();
-		_sourceText.Append(GetModifier(propertyDeclaration.Modifier, Modifier.Public));
-		_sourceText.Append(propertyDeclaration.Name);
-		_sourceText.Append(" as ");
-		_sourceText.Append(GetTypeString(propertyDeclaration.TypeReference));
-		_sourceText.Append(":");
-		AppendNewLine();
+		DebugOutput(propertyDeclaration)
+		AppendAttributes(propertyDeclaration.Attributes)
+		AppendIndentation()
+		_sourceText.Append(GetModifier(propertyDeclaration.Modifier, Modifier.Public))
+		_sourceText.Append(propertyDeclaration.Name)
+		_sourceText.Append(" as ")
+		_sourceText.Append(GetTypeString(propertyDeclaration.TypeReference))
+		_sourceText.Append(":")
+		AppendNewLine()
 		
-		AddIndentLevel();
+		AddIndentLevel()
 		if (propertyDeclaration.GetRegion != null):
-			propertyDeclaration.GetRegion.AcceptVisitor(self, data);
+			propertyDeclaration.GetRegion.AcceptVisitor(self, data)
 		
 		if (propertyDeclaration.SetRegion != null):
-			propertyDeclaration.SetRegion.AcceptVisitor(self, data);
+			propertyDeclaration.SetRegion.AcceptVisitor(self, data)
 		
-		RemoveIndentLevel();
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+		RemoveIndentLevel()
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(propertyGetRegion as PropertyGetRegion, data):
 		DebugOutput(propertyGetRegion)
@@ -280,6 +299,13 @@ class BooVisitor(AbstractASTVisitor):
 		AppendIndentation()
 		if propertyGetRegion.Block == null:
 			_sourceText.Append("get")
+			if (_currentType.Type != Types.Interface):
+				_sourceText.Append(":")
+				AppendNewLine()
+				AddIndentLevel()
+				AppendIndentation()
+				_sourceText.Append("pass")
+				RemoveIndentLevel()
 			AppendNewLine()
 		else:
 			_sourceText.Append("get:")
@@ -295,6 +321,13 @@ class BooVisitor(AbstractASTVisitor):
 		AppendIndentation()
 		if propertySetRegion.Block == null:
 			_sourceText.Append("set")
+			if (_currentType.Type != Types.Interface):
+				_sourceText.Append(":")
+				AppendNewLine()
+				AddIndentLevel()
+				AppendIndentation()
+				_sourceText.Append("pass")
+				RemoveIndentLevel()
 			AppendNewLine()
 		else:
 			_sourceText.Append("set:")
@@ -361,33 +394,33 @@ class BooVisitor(AbstractASTVisitor):
 		return null
 	
 	override def Visit(constructorDeclaration as ConstructorDeclaration, data):
-		DebugOutput(constructorDeclaration);
-		AppendIndentation();
-		_sourceText.Append(GetModifier(constructorDeclaration.Modifier, Modifier.Public));
-		_sourceText.Append("def constructor");
-		_sourceText.Append("(");
-		AppendParameters(constructorDeclaration.Parameters);
-		_sourceText.Append("):");
-		AppendNewLine();
+		DebugOutput(constructorDeclaration)
+		AppendIndentation()
+		_sourceText.Append(GetModifier(constructorDeclaration.Modifier, Modifier.Public))
+		_sourceText.Append("def constructor")
+		_sourceText.Append("(")
+		AppendParameters(constructorDeclaration.Parameters)
+		_sourceText.Append("):")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		ci = constructorDeclaration.ConstructorInitializer;
+		AddIndentLevel()
+		ci = constructorDeclaration.ConstructorInitializer
 		if (ci != null):
-			AppendIndentation();
+			AppendIndentation()
 			if (ci.ConstructorInitializerType == ConstructorInitializerType.Base):
-				_sourceText.Append("super");
+				_sourceText.Append("super")
 			else:
-				_sourceText.Append("self");
-			_sourceText.Append(GetParameters(ci.Arguments));
-			AppendNewLine();
+				_sourceText.Append("self")
+			_sourceText.Append(GetParameters(ci.Arguments))
+			AppendNewLine()
 		
 		DebugOutput(constructorDeclaration.Body)
-		constructorDeclaration.Body.AcceptChildren(self, data);
-		RemoveIndentLevel();
+		constructorDeclaration.Body.AcceptChildren(self, data)
+		RemoveIndentLevel()
 		
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(destructorDeclaration as DestructorDeclaration, data):
 		DebugOutput(destructorDeclaration)
@@ -450,71 +483,73 @@ class BooVisitor(AbstractASTVisitor):
 		return null
 	
 	override def Visit(indexerDeclaration as IndexerDeclaration, data):
-		DebugOutput(indexerDeclaration);
-		AppendAttributes(indexerDeclaration.Attributes);
-		AppendIndentation();
-		_sourceText.Append(GetModifier(indexerDeclaration.Modifier, Modifier.Public));
-		_sourceText.Append("Indexer(");
-		AppendParameters(indexerDeclaration.Parameters);
-		_sourceText.Append(") as ");
-		_sourceText.Append(GetTypeString(indexerDeclaration.TypeReference));
-		_sourceText.Append(":");
-		AppendNewLine();
+		DebugOutput(indexerDeclaration)
+		AppendAttributes(indexerDeclaration.Attributes)
+		AppendIndentation()
+		_sourceText.Append(GetModifier(indexerDeclaration.Modifier, Modifier.Public))
+		_sourceText.Append("Indexer(")
+		AppendParameters(indexerDeclaration.Parameters)
+		_sourceText.Append(") as ")
+		_sourceText.Append(GetTypeString(indexerDeclaration.TypeReference))
+		_sourceText.Append(":")
+		AppendNewLine()
 		
-		AddIndentLevel();
+		AddIndentLevel()
 		if (indexerDeclaration.GetRegion != null):
-			indexerDeclaration.GetRegion.AcceptVisitor(self, data);
+			indexerDeclaration.GetRegion.AcceptVisitor(self, data)
 		
 		if (indexerDeclaration.SetRegion != null):
-			indexerDeclaration.SetRegion.AcceptVisitor(self, data);
+			indexerDeclaration.SetRegion.AcceptVisitor(self, data)
 		
-		RemoveIndentLevel();
+		RemoveIndentLevel()
 		
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(blockStatement as BlockStatement, data):
-		DebugOutput(blockStatement);
-		blockStatement.AcceptChildren(self, data);
-		return null;
+		DebugOutput(blockStatement)
+		blockStatement.AcceptChildren(self, data)
+		return null
 	
 	override def Visit(statementExpression as StatementExpression, data):
-		DebugOutput(statementExpression);
-		AppendIndentation();
-		_sourceText.Append(statementExpression.Expression.AcceptVisitor(self, statementExpression).ToString());
-		AppendNewLine();
-		return null;
+		DebugOutput(statementExpression)
+		AppendIndentation()
+		_sourceText.Append(statementExpression.Expression.AcceptVisitor(self, statementExpression).ToString())
+		AppendNewLine()
+		return null
 	
 	override def Visit(localVariableDeclaration as LocalVariableDeclaration, data):
-		DebugOutput(localVariableDeclaration);
+		DebugOutput(localVariableDeclaration)
 		for localVar as VariableDeclaration in localVariableDeclaration.Variables:
-			AppendIndentation();
-			_sourceText.Append(GetModifier(localVariableDeclaration.Modifier, Modifier.Private));
-			_sourceText.Append(localVar.Name);
-			_sourceText.Append(" as ");
-			_sourceText.Append(GetTypeString(localVariableDeclaration.Type));
+			if not _inmacro:
+				AppendIndentation()
+			_sourceText.Append(GetModifier(localVariableDeclaration.Modifier, Modifier.Private))
+			_sourceText.Append(localVar.Name)
+			if not _inmacro:
+				_sourceText.Append(" as ")
+				_sourceText.Append(GetTypeString(localVariableDeclaration.Type))
 			if (localVar.Initializer != null):
-				_sourceText.Append(" = ");
-				_sourceText.Append(localVar.Initializer.AcceptVisitor(self, data).ToString());
+				_sourceText.Append(" = ")
+				_sourceText.Append(localVar.Initializer.AcceptVisitor(self, data).ToString())
 			
-			AppendNewLine();
-		return null;
+			AppendNewLine()
+		return null
 	
 	override def Visit(emptyStatement as EmptyStatement, data):
-		DebugOutput(emptyStatement);
-		AppendNewLine();
-		return null;
+		DebugOutput(emptyStatement)
+		AppendNewLine()
+		return null
 	
 	override def Visit(returnStatement as ReturnStatement, data):
-		DebugOutput(returnStatement);
-		AppendIndentation();
-		_sourceText.Append("return");
+		DebugOutput(returnStatement)
+		AppendIndentation()
+		_sourceText.Append("return")
 		if (returnStatement.ReturnExpression != null):
-			_sourceText.Append(" ");
-			_sourceText.Append(returnStatement.ReturnExpression.AcceptVisitor(self, data).ToString());
-		AppendNewLine();
-		return null;
+			_sourceText.Append(" ")
+			_sourceText.Append(returnStatement.ReturnExpression.AcceptVisitor(self, data).ToString())
+		AppendNewLine()
+		return null
 	
 	override def Visit(ifStatement as IfStatement, data):
 		DebugOutput(ifStatement)
@@ -569,41 +604,41 @@ class BooVisitor(AbstractASTVisitor):
 		return null
 	
 	override def Visit(whileStatement as WhileStatement, data):
-		DebugOutput(whileStatement);
-		AppendIndentation();
-		_sourceText.Append("while ");
-		_sourceText.Append(whileStatement.Condition.AcceptVisitor(self, data).ToString());
-		_sourceText.Append(":");
-		AppendNewLine();
+		DebugOutput(whileStatement)
+		AppendIndentation()
+		_sourceText.Append("while ")
+		_sourceText.Append(whileStatement.Condition.AcceptVisitor(self, data).ToString())
+		_sourceText.Append(":")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		whileStatement.EmbeddedStatement.AcceptVisitor(self, data);
-		RemoveIndentLevel();
+		AddIndentLevel()
+		whileStatement.EmbeddedStatement.AcceptVisitor(self, data)
+		RemoveIndentLevel()
 		
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(doWhileStatement as DoWhileStatement, data):
-		DebugOutput(doWhileStatement);
-		AppendIndentation();
-		_sourceText.Append("while true:");
-		AppendNewLine();
+		DebugOutput(doWhileStatement)
+		AppendIndentation()
+		_sourceText.Append("while true:")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		doWhileStatement.EmbeddedStatement.AcceptVisitor(self, data);
-		AppendIndentation();
-		_sourceText.Append("break unless ");
-		_sourceText.Append(doWhileStatement.Condition.AcceptVisitor(self, data).ToString());
-		AppendNewLine();
-		RemoveIndentLevel();
+		AddIndentLevel()
+		doWhileStatement.EmbeddedStatement.AcceptVisitor(self, data)
+		AppendIndentation()
+		_sourceText.Append("break unless ")
+		_sourceText.Append(doWhileStatement.Condition.AcceptVisitor(self, data).ToString())
+		AppendNewLine()
+		RemoveIndentLevel()
 		
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(forStatement as ForStatement, data):
-		DebugOutput(forStatement);
+		DebugOutput(forStatement)
 		// TODO: Simplify simple for(int * = *; * < *, *++) statements
 		// if you do so, do it also in the C#->VB.NET converter
 		
@@ -639,60 +674,60 @@ class BooVisitor(AbstractASTVisitor):
 		return null
 	
 	override def Visit(labelStatement as LabelStatement, data):
-		DebugOutput(labelStatement);
-		AppendIndentation();
-		_sourceText.Append(":");
-		_sourceText.Append(labelStatement.Label);
-		AppendNewLine();
-		return null;
+		DebugOutput(labelStatement)
+		AppendIndentation()
+		_sourceText.Append(":")
+		_sourceText.Append(labelStatement.Label)
+		AppendNewLine()
+		return null
 	
 	override def Visit(gotoStatement as GotoStatement, data):
-		DebugOutput(gotoStatement);
-		AppendIndentation();
-		_sourceText.Append("goto ");
-		_sourceText.Append(gotoStatement.Label);
-		AppendNewLine();
-		return null;
+		DebugOutput(gotoStatement)
+		AppendIndentation()
+		_sourceText.Append("goto ")
+		_sourceText.Append(gotoStatement.Label)
+		AppendNewLine()
+		return null
 	
 	override def Visit(switchStatement as SwitchStatement, data):
 		
-		DebugOutput(switchStatement);
+		DebugOutput(switchStatement)
 		/*
-		AppendIndentation();
-		_sourceText.Append("given ");
-		_sourceText.Append(switchStatement.SwitchExpression.AcceptVisitor(self, data).ToString());
-		_sourceText.Append(":");
-		AppendNewLine();
-		AddIndentLevel();
+		AppendIndentation()
+		_sourceText.Append("given ")
+		_sourceText.Append(switchStatement.SwitchExpression.AcceptVisitor(self, data).ToString())
+		_sourceText.Append(":")
+		AppendNewLine()
+		AddIndentLevel()
 		for section as SwitchSection in switchStatement.SwitchSections:
-			AppendIndentation();
-			_sourceText.Append("when ");
+			AppendIndentation()
+			_sourceText.Append("when ")
 			
 			for i in range(section.SwitchLabels.Count):
-				label as  Expression = section.SwitchLabels[i];
+				label as  Expression = section.SwitchLabels[i]
 				if (label == null):
-					_sourceText.Append("default");
+					_sourceText.Append("default")
 				else:
-					_sourceText.Append(label.AcceptVisitor(self, data));
+					_sourceText.Append(label.AcceptVisitor(self, data))
 					if (i + 1 < section.SwitchLabels.Count):
-						_sourceText.Append(", ");
-			_sourceText.Append(":");
-			AppendNewLine();
+						_sourceText.Append(", ")
+			_sourceText.Append(":")
+			AppendNewLine()
 			
-			AddIndentLevel();
-			section.AcceptVisitor(self, data);
-			RemoveIndentLevel();
-		RemoveIndentLevel();
-		AppendIndentation();
-		AppendNewLine();
+			AddIndentLevel()
+			section.AcceptVisitor(self, data)
+			RemoveIndentLevel()
+		RemoveIndentLevel()
+		AppendIndentation()
+		AppendNewLine()
 		*/
-		AppendIndentation();
-		_sourceText.Append("selector = ");
-		_sourceText.Append(switchStatement.SwitchExpression.AcceptVisitor(self, data).ToString());
-		AppendNewLine();
+		AppendIndentation()
+		_sourceText.Append("selector = ")
+		_sourceText.Append(switchStatement.SwitchExpression.AcceptVisitor(self, data).ToString())
+		AppendNewLine()
 		first = true
 		for section as SwitchSection in switchStatement.SwitchSections:
-			AppendIndentation();
+			AppendIndentation()
 			if first:
 				first = false
 			else:
@@ -711,174 +746,178 @@ class BooVisitor(AbstractASTVisitor):
 						if i + 1 < section.SwitchLabels.Count:
 							_sourceText.Append(" or ")
 			_sourceText.Append(":")
-			AppendNewLine();
-			AddIndentLevel();
-			section.AcceptVisitor(self, data);
-			RemoveIndentLevel();
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+			AppendNewLine()
+			AddIndentLevel()
+			section.AcceptVisitor(self, data)
+			RemoveIndentLevel()
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(breakStatement as BreakStatement, data):
-		DebugOutput(breakStatement);
-		AppendIndentation();
-		_sourceText.Append("break");
-		AppendNewLine();
-		return null;
+		DebugOutput(breakStatement)
+		AppendIndentation()
+		_sourceText.Append("break")
+		AppendNewLine()
+		return null
 	
 	override def Visit(continueStatement as ContinueStatement, data):
-		DebugOutput(continueStatement);
-		AppendIndentation();
-		_sourceText.Append("continue  // WARNING !!! Please check if the converter made an endless loop");
-		AppendNewLine();
-		return null;
+		DebugOutput(continueStatement)
+		AppendIndentation()
+		_sourceText.Append("continue  // WARNING !!! Please check if the converter made an endless loop")
+		AppendNewLine()
+		return null
 	
 	override def Visit(gotoCaseStatement as GotoCaseStatement, data):
-		DebugOutput(gotoCaseStatement);
-		AppendIndentation();
-		_sourceText.Append("goto case ");
+		DebugOutput(gotoCaseStatement)
+		AppendIndentation()
+		_sourceText.Append("goto case ")
 		if (gotoCaseStatement.CaseExpression == null):
-			_sourceText.Append("default");
+			_sourceText.Append("default")
 		else:
-			_sourceText.Append(gotoCaseStatement.CaseExpression.AcceptVisitor(self, data));
-		AppendNewLine();
-		return null;
+			_sourceText.Append(gotoCaseStatement.CaseExpression.AcceptVisitor(self, data))
+		AppendNewLine()
+		return null
 	
 	override def Visit(foreachStatement as ForeachStatement, data):
-		DebugOutput(foreachStatement);
-		AppendIndentation();
-		_sourceText.Append("for ");
-		_sourceText.Append(foreachStatement.VariableName);
-		_sourceText.Append(" as ");
-		_sourceText.Append(self.GetTypeString(foreachStatement.TypeReference));
-		_sourceText.Append(" in ");
-		_sourceText.Append(foreachStatement.Expression.AcceptVisitor(self, data));
-		_sourceText.Append(":");
-		AppendNewLine();
+		DebugOutput(foreachStatement)
+		AppendIndentation()
+		_sourceText.Append("for ")
+		_sourceText.Append(foreachStatement.VariableName)
+		_sourceText.Append(" as ")
+		_sourceText.Append(self.GetTypeString(foreachStatement.TypeReference))
+		_sourceText.Append(" in ")
+		_sourceText.Append(foreachStatement.Expression.AcceptVisitor(self, data))
+		_sourceText.Append(":")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		foreachStatement.EmbeddedStatement.AcceptVisitor(self, data);
-		RemoveIndentLevel();
+		AddIndentLevel()
+		foreachStatement.EmbeddedStatement.AcceptVisitor(self, data)
+		RemoveIndentLevel()
 		
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(lockStatement as LockStatement, data):
-		DebugOutput(lockStatement);
-		AppendIndentation();
-		_sourceText.Append("lock ");
-		_sourceText.Append(lockStatement.LockExpression.AcceptVisitor(self, data));
-		_sourceText.Append(":");
-		AppendNewLine();
+		DebugOutput(lockStatement)
+		AppendIndentation()
+		_sourceText.Append("lock ")
+		_sourceText.Append(lockStatement.LockExpression.AcceptVisitor(self, data))
+		_sourceText.Append(":")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		lockStatement.EmbeddedStatement.AcceptVisitor(self, data);
-		RemoveIndentLevel();
+		AddIndentLevel()
+		lockStatement.EmbeddedStatement.AcceptVisitor(self, data)
+		RemoveIndentLevel()
 		
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(usingStatement as UsingStatement, data):
-		DebugOutput(usingStatement);
-		AppendIndentation();
-		_sourceText.Append("using ");
-		_sourceText.Append(usingStatement.UsingStmnt.AcceptVisitor(self, data));
-		_sourceText.Append(":");
-		AppendNewLine();
+		DebugOutput(usingStatement)
+		AppendIndentation()
+		_sourceText.Append("using ")
+		_inmacro = true
+		usingStatement.UsingStmnt.AcceptVisitor(self, data)
+		_inmacro = false
+		//HACK: [DH] chopped off trailing newline (crlf) here:
+		_sourceText.Remove(_sourceText.Length - 2,2)
+		_sourceText.Append(":")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		usingStatement.EmbeddedStatement.AcceptVisitor(self, data);
-		RemoveIndentLevel();
+		AddIndentLevel()
+		usingStatement.EmbeddedStatement.AcceptVisitor(self, data)
+		RemoveIndentLevel()
 		
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(tryCatchStatement as TryCatchStatement, data):
-		DebugOutput(tryCatchStatement);
-		AppendIndentation();
-		_sourceText.Append("try:");
-		AppendNewLine();
+		DebugOutput(tryCatchStatement)
+		AppendIndentation()
+		_sourceText.Append("try:")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		tryCatchStatement.StatementBlock.AcceptVisitor(self, data);
-		RemoveIndentLevel();
+		AddIndentLevel()
+		tryCatchStatement.StatementBlock.AcceptVisitor(self, data)
+		RemoveIndentLevel()
 		
 		if (tryCatchStatement.CatchClauses != null):
-			generated = 0;
+			generated = 0
 			for catchClause as CatchClause in tryCatchStatement.CatchClauses:
-				AppendIndentation();
-				_sourceText.Append("except");
+				AppendIndentation()
+				_sourceText.Append("except")
 				if (catchClause.Type != null):
-					_sourceText.Append(" ");
+					_sourceText.Append(" ")
 					if (catchClause.VariableName == null):
-						_sourceText.Append("exception");
+						_sourceText.Append("exception")
 						if (tryCatchStatement.CatchClauses.Count > 1):
-							_sourceText.Append(generated.ToString());
-							generated += 1;
+							_sourceText.Append(generated.ToString())
+							generated += 1
 					else:
-						_sourceText.Append(catchClause.VariableName);
-					_sourceText.Append(" as ");
-					_sourceText.Append(catchClause.Type);
+						_sourceText.Append(catchClause.VariableName)
+					_sourceText.Append(" as ")
+					_sourceText.Append(catchClause.Type)
 				
-				_sourceText.Append(":");
-				AppendNewLine();
-				AddIndentLevel();
-				catchClause.StatementBlock.AcceptVisitor(self, data);
-				RemoveIndentLevel();
+				_sourceText.Append(":")
+				AppendNewLine()
+				AddIndentLevel()
+				catchClause.StatementBlock.AcceptVisitor(self, data)
+				RemoveIndentLevel()
 		
 		if (tryCatchStatement.FinallyBlock != null):
-			AppendIndentation();
-			_sourceText.Append("ensure:");
-			AppendNewLine();
+			AppendIndentation()
+			_sourceText.Append("ensure:")
+			AppendNewLine()
 			
-			AddIndentLevel();
-			tryCatchStatement.FinallyBlock.AcceptVisitor(self, data);
-			RemoveIndentLevel();
-		AppendIndentation();
-		AppendNewLine();
-		return null;
+			AddIndentLevel()
+			tryCatchStatement.FinallyBlock.AcceptVisitor(self, data)
+			RemoveIndentLevel()
+		AppendIndentation()
+		AppendNewLine()
+		return null
 	
 	override def Visit(throwStatement as ThrowStatement, data):
-		DebugOutput(throwStatement);
-		AppendIndentation();
-		_sourceText.Append("raise");
+		DebugOutput(throwStatement)
+		AppendIndentation()
+		_sourceText.Append("raise")
 		if throwStatement.ThrowExpression != null:
-			_sourceText.Append(" ");
-			_sourceText.Append(throwStatement.ThrowExpression.AcceptVisitor(self, data).ToString());
-		AppendNewLine();
-		return null;
+			_sourceText.Append(" ")
+			_sourceText.Append(throwStatement.ThrowExpression.AcceptVisitor(self, data).ToString())
+		AppendNewLine()
+		return null
 	
 	override def Visit(fixedStatement as FixedStatement, data):
-		DebugOutput(fixedStatement);
-		_errors.Error(-1, -1, "fixed statement not supported by Boo");
-		return null;
+		DebugOutput(fixedStatement)
+		_errors.Error(-1, -1, "fixed statement not supported by Boo")
+		return null
 	
 	override def Visit(checkedStatement as CheckedStatement, data):
-		DebugOutput(checkedStatement);
+		DebugOutput(checkedStatement)
 		// Supported or not, let's output it
-		AppendIndentation();
-		_sourceText.Append("checked:");
-		AppendNewLine();
+		AppendIndentation()
+		_sourceText.Append("checked:")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		checkedStatement.Block.AcceptVisitor(self, data);
-		RemoveIndentLevel();
-		return null;
+		AddIndentLevel()
+		checkedStatement.Block.AcceptVisitor(self, data)
+		RemoveIndentLevel()
+		return null
 	
 	override def Visit(uncheckedStatement as UncheckedStatement, data):
-		DebugOutput(uncheckedStatement);
+		DebugOutput(uncheckedStatement)
 		// Supported or not, let's output it
-		AppendIndentation();
-		_sourceText.Append("unchecked:");
-		AppendNewLine();
+		AppendIndentation()
+		_sourceText.Append("unchecked:")
+		AppendNewLine()
 		
-		AddIndentLevel();
-		uncheckedStatement.Block.AcceptVisitor(self, data);
-		RemoveIndentLevel();
-		return null;
+		AddIndentLevel()
+		uncheckedStatement.Block.AcceptVisitor(self, data)
+		RemoveIndentLevel()
+		return null
 	
 	def ConvertCharLiteral(ch as Char):
 		b = StringBuilder("Char.Parse('")
@@ -912,7 +951,7 @@ class BooVisitor(AbstractASTVisitor):
 		return b.ToString()
 	
 	override def Visit(primitiveExpression as PrimitiveExpression, data):
-		DebugOutput(primitiveExpression);
+		DebugOutput(primitiveExpression)
 		if (primitiveExpression.Value == null):
 			return "null"
 		if (primitiveExpression.Value isa bool):
@@ -936,16 +975,16 @@ class BooVisitor(AbstractASTVisitor):
 		
 		// TODO: How to express decimals in Boo?
 		/*if (primitiveExpression.Value isa decimal) {
-			return String.Concat(primitiveExpression.Value.ToString(), "D");
+			return String.Concat(primitiveExpression.Value.ToString(), "D")
 		}
 		*/
 		
-		return primitiveExpression.Value;
+		return primitiveExpression.Value
 	
 	override def Visit(binaryOperatorExpression as BinaryOperatorExpression, data):
-		DebugOutput(binaryOperatorExpression);
-		left = binaryOperatorExpression.Left.AcceptVisitor(self, data).ToString();
-		right = binaryOperatorExpression.Right.AcceptVisitor(self, data).ToString();
+		DebugOutput(binaryOperatorExpression)
+		left = binaryOperatorExpression.Left.AcceptVisitor(self, data).ToString()
+		right = binaryOperatorExpression.Right.AcceptVisitor(self, data).ToString()
 		opType = binaryOperatorExpression.Op
 		
 		op = " " + opType.ToString() + " "
@@ -979,8 +1018,8 @@ class BooVisitor(AbstractASTVisitor):
 		return left + op + right
 	
 	override def Visit(parenthesizedExpression as ParenthesizedExpression, data):
-		DebugOutput(parenthesizedExpression);
-		innerExpr = parenthesizedExpression.Expression.AcceptVisitor(self, data).ToString();
+		DebugOutput(parenthesizedExpression)
+		innerExpr = parenthesizedExpression.Expression.AcceptVisitor(self, data).ToString()
 		
 		// parenthesized cast expressions evaluate to a single 'method call' and don't need
 		// to be parenthesized anymore like in C#.
@@ -991,21 +1030,21 @@ class BooVisitor(AbstractASTVisitor):
 			return "(" + innerExpr + ")"
 	
 	override def Visit(invocationExpression as InvocationExpression, data):
-		DebugOutput(invocationExpression);
+		DebugOutput(invocationExpression)
 		target = invocationExpression.TargetObject.AcceptVisitor(self, data)
 		return target + GetParameters(invocationExpression.Parameters)
 	
 	override def Visit(identifierExpression as IdentifierExpression, data):
-		DebugOutput(identifierExpression);
-		return identifierExpression.Identifier;
+		DebugOutput(identifierExpression)
+		return identifierExpression.Identifier
 	
 	override def Visit(typeReferenceExpression as TypeReferenceExpression, data):
-		DebugOutput(typeReferenceExpression);
-		return GetTypeString(typeReferenceExpression.TypeReference);
+		DebugOutput(typeReferenceExpression)
+		return GetTypeString(typeReferenceExpression.TypeReference)
 	
 	override def Visit(unaryOperatorExpression as UnaryOperatorExpression, data):
-		DebugOutput(unaryOperatorExpression);
-		expr = unaryOperatorExpression.Expression.AcceptVisitor(self, data).ToString();
+		DebugOutput(unaryOperatorExpression)
+		expr = unaryOperatorExpression.Expression.AcceptVisitor(self, data).ToString()
 		opType = unaryOperatorExpression.Op
 		op = opType.ToString() + " "
 		
@@ -1026,10 +1065,10 @@ class BooVisitor(AbstractASTVisitor):
 		return op + expr
 	
 	override def Visit(assignmentExpression as AssignmentExpression, data):
-		DebugOutput(assignmentExpression);
-		left = assignmentExpression.Left.AcceptVisitor(self, data).ToString();
-		right = assignmentExpression.Right.AcceptVisitor(self, data).ToString();
-		op as string = null;
+		DebugOutput(assignmentExpression)
+		left = assignmentExpression.Left.AcceptVisitor(self, data).ToString()
+		right = assignmentExpression.Right.AcceptVisitor(self, data).ToString()
+		op as string = null
 		opType = assignmentExpression.Op
 		op = " = "    if opType == AssignmentOperatorType.Assign
 		op = " += "   if opType == AssignmentOperatorType.Add
@@ -1048,67 +1087,67 @@ class BooVisitor(AbstractASTVisitor):
 		return left + " " + opType.ToString() + " " + right
 	
 	override def Visit(sizeOfExpression as SizeOfExpression, data):
-		DebugOutput(sizeOfExpression);
-		_errors.Error(-1, -1, "sizeof expression not supported by Boo");
-		return null;
+		DebugOutput(sizeOfExpression)
+		_errors.Error(-1, -1, "sizeof expression not supported by Boo")
+		return null
 	
 	override def Visit(typeOfExpression as TypeOfExpression, data):
-		DebugOutput(typeOfExpression);
+		DebugOutput(typeOfExpression)
 		return "typeof(" + GetTypeString(typeOfExpression.TypeReference) + ")"
 	
 	override def Visit(checkedExpression as CheckedExpression, data):
-		DebugOutput(checkedExpression);
-		_errors.Error(-1, -1, "checked expression not supported by Boo");
-		return null;
+		DebugOutput(checkedExpression)
+		_errors.Error(-1, -1, "checked expression not supported by Boo")
+		return null
 	
 	override def Visit(uncheckedExpression as UncheckedExpression, data):
-		DebugOutput(uncheckedExpression);
-		_errors.Error(-1, -1, "checked expression not supported by Boo");
-		return null;
+		DebugOutput(uncheckedExpression)
+		_errors.Error(-1, -1, "checked expression not supported by Boo")
+		return null
 	
 	override def Visit(pointerReferenceExpression as PointerReferenceExpression, data):
-		_errors.Error(-1, -1, "pointer reference (->) not supported by Boo");
+		_errors.Error(-1, -1, "pointer reference (->) not supported by Boo")
 		return ""
 	
 	override def Visit(castExpression as CastExpression, data):
-		DebugOutput(castExpression);
+		DebugOutput(castExpression)
 		expression = castExpression.Expression.AcceptVisitor(self, data).ToString()
 		targetType = GetTypeString(castExpression.CastTo)
 		return "cast(${targetType}, ${expression})"
 	
 	override def Visit(stackAllocExpression as StackAllocExpression, data):
-		_errors.Error(-1, -1, "stack alloc expression not supported by Boo");
+		_errors.Error(-1, -1, "stack alloc expression not supported by Boo")
 		return ""
 	
 	override def Visit(indexerExpression as IndexerExpression, data):
-		DebugOutput(indexerExpression);
+		DebugOutput(indexerExpression)
 		target = indexerExpression.TargetObject.AcceptVisitor(self, data)
 		parameters = GetExpressionList(indexerExpression.Indices)
 		return "${target}[${parameters}]"
 	
 	override def Visit(thisReferenceExpression as ThisReferenceExpression, data):
-		DebugOutput(thisReferenceExpression);
-		return "self";
+		DebugOutput(thisReferenceExpression)
+		return "self"
 	
 	override def Visit(baseReferenceExpression as BaseReferenceExpression, data):
-		DebugOutput(baseReferenceExpression);
-		return "super";
+		DebugOutput(baseReferenceExpression)
+		return "super"
 	
 	override def Visit(objectCreateExpression as ObjectCreateExpression, data):
-		DebugOutput(objectCreateExpression);
+		DebugOutput(objectCreateExpression)
 		if (IsEventHandlerCreation(objectCreateExpression)):
-			expr as Expression = objectCreateExpression.Parameters[0];
+			expr as Expression = objectCreateExpression.Parameters[0]
 			if expr isa FieldReferenceExpression:
-				return cast(FieldReferenceExpression, expr).FieldName;
+				return cast(FieldReferenceExpression, expr).FieldName
 			else:
-				return expr.AcceptVisitor(self, data).ToString();
+				return expr.AcceptVisitor(self, data).ToString()
 		else:
 			targetType = GetTypeString(objectCreateExpression.CreateType)
 			parameters = GetParameters(objectCreateExpression.Parameters)
 			return targetType + parameters
 	
 	override def Visit(ace as ArrayCreateExpression, data):
-		DebugOutput(ace);
+		DebugOutput(ace)
 		
 		if (ace.ArrayInitializer != null and ace.ArrayInitializer.CreateExpressions != null):
 			return ace.ArrayInitializer.AcceptVisitor(self, data)
@@ -1116,7 +1155,7 @@ class BooVisitor(AbstractASTVisitor):
 		if (ace.Parameters != null and ace.Parameters.Count > 0):
 			b = StringBuilder("array(")
 			for i in range(ace.Parameters.Count - 1):
-				b.Append("(");
+				b.Append("(")
 			b.Append(GetTypeString(ace.CreateType))
 			for i in range(ace.Parameters.Count - 1):
 				b.Append(")")
@@ -1125,21 +1164,21 @@ class BooVisitor(AbstractASTVisitor):
 			b.Append(")")
 			return b.ToString()
 		else:
-			return "(,)";
+			return "(,)"
 	
 	override def Visit(parameterDeclarationExpression as ParameterDeclarationExpression, data):
 		// should never be called:
-		raise NotImplementedException();
+		raise NotImplementedException()
 	
 	override def Visit(fieldReferenceExpression as FieldReferenceExpression, data):
-		DebugOutput(fieldReferenceExpression);
+		DebugOutput(fieldReferenceExpression)
 		target = fieldReferenceExpression.TargetObject.AcceptVisitor(self, data)
 		return "${target}.${fieldReferenceExpression.FieldName}"
 	
 	override def Visit(directionExpression as DirectionExpression, data):
-		DebugOutput(directionExpression);
+		DebugOutput(directionExpression)
 		// there is nothing in a Boo method call for out & ref
-		return directionExpression.Expression.AcceptVisitor(self, data);
+		return directionExpression.Expression.AcceptVisitor(self, data)
 	
 	override def Visit(arrayInitializerExpression as ArrayInitializerExpression, data):
 		b = StringBuilder("(")
@@ -1166,30 +1205,30 @@ class BooVisitor(AbstractASTVisitor):
 	
 	def GetTypeString(typeRef as TypeReference):
 		if (typeRef == null):
-			_errors.Error(-1, -1, "Got empty type string (internal error, check generated source code for empty types");
-			return "!Got empty type string!";
+			_errors.Error(-1, -1, "Got empty type string (internal error, check generated source code for empty types")
+			return "!Got empty type string!"
 		
-		b = StringBuilder();
+		b = StringBuilder()
 		if (typeRef.RankSpecifier != null):
 			for i in range(typeRef.RankSpecifier.Length):
-				//   b.Append("(");
+				//   b.Append("(")
 				// Emulate multidimensional arrays as jagged arrays
 				for j in range(typeRef.RankSpecifier[i]):
-					b.Append("(");
+					b.Append("(")
 		
 		b.Append(ConvertTypeString(typeRef.Type))
 		
 		if (typeRef.RankSpecifier != null):
 			for i in range(typeRef.RankSpecifier.Length):
 				for j in range(typeRef.RankSpecifier[i]):
-					b.Append(")");
+					b.Append(")")
 		
 		if (typeRef.PointerNestingLevel > 0):
 			// append stars so the problem is visible in the generated source code
 			for i in range(typeRef.PointerNestingLevel):
-				b.Append("*");
-			_errors.Error(-1, -1, "Pointer types are not supported by Boo");
-		return b.ToString();
+				b.Append("*")
+			_errors.Error(-1, -1, "Pointer types are not supported by Boo")
+		return b.ToString()
 	
 	def GetModifier(modifier as Modifier, default as Modifier):
 		builder = StringBuilder()
@@ -1202,7 +1241,7 @@ class BooVisitor(AbstractASTVisitor):
 			builder.Append("internal ")  if default != Modifier.Internal
 		elif ((modifier & Modifier.Protected) == Modifier.Protected):
 			builder.Append("protected ") if default != Modifier.Protected
-		else:
+		elif ((modifier & Modifier.Private) == Modifier.Private):
 			builder.Append("private ")   if default != Modifier.Private
 		
 		builder.Append("static ")    if (modifier & Modifier.Static)   == Modifier.Static
@@ -1211,8 +1250,8 @@ class BooVisitor(AbstractASTVisitor):
 		builder.Append("override ")  if (modifier & Modifier.Override) == Modifier.Override
 		//builder.Append("")         if (modifier & Modifier.New)      == Modifier.New
 		builder.Append("final ")     if (modifier & Modifier.Sealed)   == Modifier.Sealed
-		builder.Append("readonly ")  if (modifier & Modifier.Readonly) == Modifier.Readonly
-		builder.Append("const ")     if (modifier & Modifier.Const)    == Modifier.Const
+		builder.Append("final ")  if (modifier & Modifier.Readonly) == Modifier.Readonly
+		builder.Append("final ")     if (modifier & Modifier.Const)    == Modifier.Const
 		builder.Append("extern ")    if (modifier & Modifier.Extern)   == Modifier.Extern
 		builder.Append("volatile ")  if (modifier & Modifier.Volatile) == Modifier.Volatile
 		builder.Append("unsafe ")    if (modifier & Modifier.Unsafe)   == Modifier.Unsafe
@@ -1228,17 +1267,17 @@ class BooVisitor(AbstractASTVisitor):
 		return builder.ToString()
 	
 	def GetParameters(l as ArrayList):
-		return "(" + GetExpressionList(l) + ")";
+		return "(" + GetExpressionList(l) + ")"
 	
 	def GetExpressionList(l as ArrayList):
 		if (l == null):
 			return ""
-		sb = StringBuilder();
+		sb = StringBuilder()
 		for exp as Expression in l:
 			if sb.Length > 0:
-				sb.Append(", ");
-			sb.Append(exp.AcceptVisitor(self, null));
-		return sb.ToString();
+				sb.Append(", ")
+			sb.Append(exp.AcceptVisitor(self, null))
+		return sb.ToString()
 	
 	def AppendParameters(parameters as ArrayList):
 		return if parameters == null
@@ -1247,69 +1286,69 @@ class BooVisitor(AbstractASTVisitor):
 			if first:
 				first = false
 			else:
-				_sourceText.Append(", ");
-			AppendAttributes(pde.Attributes);
-			// TODO: Translate these to boo
-			_sourceText.Append("ref ")    if (pde.ParamModifiers & ParamModifiers.Ref) == ParamModifiers.Ref
-			_sourceText.Append("out ")    if (pde.ParamModifiers & ParamModifiers.Out) == ParamModifiers.Out
-			_sourceText.Append("params ") if (pde.ParamModifiers & ParamModifiers.Params) == ParamModifiers.Params
+				_sourceText.Append(", ")
+			AppendAttributes(pde.Attributes)
 			
-			_sourceText.Append(pde.ParameterName);
-			_sourceText.Append(" as ");
-			_sourceText.Append(GetTypeString(pde.TypeReference));
+			_sourceText.Append("ref ")    if pde.ParamModifiers == ParamModifiers.Ref
+			_sourceText.Append("out ")    if pde.ParamModifiers == ParamModifiers.Out
+			_sourceText.Append("*")       if pde.ParamModifiers == ParamModifiers.Params
+			
+			_sourceText.Append(pde.ParameterName)
+			_sourceText.Append(" as ")
+			_sourceText.Append(GetTypeString(pde.TypeReference))
 	
 	def AppendAttributes(attr as ArrayList):
 		return if attr == null
 		for section as AttributeSection in attr:
-			section.AcceptVisitor(self, null);
+			section.AcceptVisitor(self, null)
 	
 	def GetEventHandlerRaise(ifStatement as IfStatement) as InvocationExpression:
-		op = ifStatement.Condition as BinaryOperatorExpression;
+		op = ifStatement.Condition as BinaryOperatorExpression
 		if (op != null and op.Op == BinaryOperatorType.InEquality):
 			if op.Left isa IdentifierExpression and op.Right isa PrimitiveExpression and (cast(PrimitiveExpression,op.Right).Value == null):
-				identifier as string = cast(IdentifierExpression,op.Left).Identifier;
-				se as StatementExpression = null;
+				identifier as string = cast(IdentifierExpression,op.Left).Identifier
+				se as StatementExpression = null
 				if (ifStatement.EmbeddedStatement isa StatementExpression):
-					se = ifStatement.EmbeddedStatement;
+					se = ifStatement.EmbeddedStatement
 				elif (ifStatement.EmbeddedStatement.Children.Count == 1):
-					se = ifStatement.EmbeddedStatement.Children[0] as StatementExpression;
+					se = ifStatement.EmbeddedStatement.Children[0] as StatementExpression
 				
 				if se != null:
-					ie = se.Expression as InvocationExpression;
+					ie = se.Expression as InvocationExpression
 					if ie != null:
-						ex as Expression = ie.TargetObject;
-						methodName as string = null;
+						ex as Expression = ie.TargetObject
+						methodName as string = null
 						if (ex isa IdentifierExpression):
-							methodName = cast(IdentifierExpression,ex).Identifier;
+							methodName = cast(IdentifierExpression,ex).Identifier
 						elif (ex isa FieldReferenceExpression):
-							fre as FieldReferenceExpression = ex;
+							fre as FieldReferenceExpression = ex
 							if (fre.TargetObject isa ThisReferenceExpression):
-								methodName = fre.FieldName;
+								methodName = fre.FieldName
 						
 						if methodName != null and methodName == identifier:
 							for o in _currentType.Children:
-								ed = o as EventDeclaration;
+								ed = o as EventDeclaration
 								if ed != null:
 									if (ed.Name == methodName):
-										return ie;
+										return ie
 									for field as VariableDeclaration in ed.VariableDeclarators:
 										if (field.Name == methodName):
-											return ie;
-		return null;
+											return ie
+		return null
 	
 	def IsEventHandlerCreation(expr as Expression):
 		if (expr isa ObjectCreateExpression):
-			oce as ObjectCreateExpression = expr;
+			oce as ObjectCreateExpression = expr
 			if (oce.Parameters.Count == 1):
-				expr = oce.Parameters[0];
-				methodName as string = null;
+				expr = oce.Parameters[0]
+				methodName as string = null
 				if (expr isa IdentifierExpression):
-					methodName = cast(IdentifierExpression,expr).Identifier;
+					methodName = cast(IdentifierExpression,expr).Identifier
 				elif (expr isa FieldReferenceExpression):
-					methodName = cast(FieldReferenceExpression,expr).FieldName;
+					methodName = cast(FieldReferenceExpression,expr).FieldName
 				
 				if (methodName != null):
 					for o in _currentType.Children:
 						if (o isa MethodDeclaration and cast(MethodDeclaration,o).Name == methodName):
-							return true;
+							return true
 		return false;

@@ -57,7 +57,10 @@ types."""
 	
 	def ConvTypeRef(ref as TypeReference):
 		return null if ref == null
-		return CodeTypeReference(ref.ToString())
+		name = ref.ToString()
+		expandedName = BooAmbience.ReverseTypeConversionTable[name]
+		name = expandedName if expandedName != null
+		return CodeTypeReference(name)
 	
 	def OnCompileUnit(node as CompileUnit):
 		for m as Module in node.Modules:
@@ -69,6 +72,8 @@ types."""
 			_compileUnit.Namespaces.Add(_namespace)
 		else:
 			node.Namespace.Accept(self)
+		for i as Import in node.Imports:
+			i.Accept(self)
 		for m as TypeMember in node.Members:
 			m.Accept(self)
 	

@@ -174,11 +174,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 			compileUnit.Accept(visitor)
 			codeCompileUnit = visitor.OutputCompileUnit
 			
-			//writer = StringWriter()
-			//BooCodeProvider().CreateGenerator().GenerateCodeFromCompileUnit(codeCompileUnit, writer, CodeGeneratorOptions())
-			//failedDesignerInitialize = true
-			//compilationErrors = writer.ToString()
-			//return
+			Microsoft.CSharp.CSharpCodeProvider().CreateGenerator().GenerateCodeFromCompileUnit(codeCompileUnit, Console.Out, null);
 			
 			if host != null and c != null:
 				super.host.SetRootFullName(c.FullyQualifiedName)
@@ -189,10 +185,9 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 			baseType as Type = typeof(System.Windows.Forms.Form)
 			for codeNamespace as CodeNamespace in codeCompileUnit.Namespaces:
 				if codeNamespace.Types.Count > 0:
-					baseType = host.GetType(codeCompileUnit.Namespaces[0].Types[0].BaseTypes[0].BaseType)
+					baseType = host.GetType(codeNamespace.Types[0].BaseTypes[0].BaseType)
 					break
 				
-			
 			rootSerializer as CodeDomSerializer = serializationManager.GetRootSerializer(baseType)
 			if rootSerializer == null:
 				raise Exception('No root serializer found')
@@ -230,7 +225,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 		viewContent.IsDirty = dirty
 	
 	protected virtual def AppendUsings(builder as StringBuilder, usings as IUsingCollection):
-		for u as IUsing in c.CompilationUnit.Usings:
+		for u as IUsing in usings:
 			for usingString as string in u.Usings:
 				if usingString.StartsWith('System'):
 					builder.Append('import ' + usingString + '\n')
@@ -238,10 +233,10 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 	private def GenerateClassString(document as IDocument) as string:
 		Reparse(document.TextContent)
 		builder as StringBuilder = StringBuilder()
-		if c.Namespace != null and c.Namespace.Length > 0:
-			builder.Append('namespace ')
-			builder.Append(c.Namespace)
-			builder.Append('\n')
+		//if c.Namespace != null and c.Namespace.Length > 0:
+		//	builder.Append('namespace ')
+		//	builder.Append(c.Namespace)
+		//	builder.Append('\n')
 		AppendUsings(builder, c.CompilationUnit.Usings)
 		className as string = c.Name
 		builder.Append('class ')
@@ -256,9 +251,10 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 			builder.Append('\n')
 		
 		builder.Append('\tdef constructor():\n')
-		builder.Append('\t\tself.')
-		builder.Append(initializeComponents.Name)
-		builder.Append('()\n')
+		builder.Append('\t\tpass\n')
+		//builder.Append('\t\tself.')
+		//builder.Append(initializeComponents.Name)
+		//builder.Append('()\n')
 		builder.Append('\t\n')
 		initializeComponentsString as string = GetInitializeComponentsString(document, initializeComponents)
 		builder.Append(initializeComponentsString)
@@ -308,7 +304,8 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 					self.resources[entry.Key] = DesignerResourceService.ResourceStorage(cast(DesignerResourceService.ResourceStorage, entry.Value))
 				
 			
-		
+		MessageBox.Show(currentForm)
+		/*
 		generatedInfo as IParseInformation = parserService.ParseFile(FileName, currentForm, false)
 		cu as ICompilationUnit = generatedInfo.BestCompilationUnit
 		if cu.Classes == null or cu.Classes.Count == 0:
@@ -364,6 +361,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 		textArea.Document.UndoStack.ClearAll()
 		textArea.EndUpdate()
 		textArea.OptionsChanged()
+		*/
 	
 	protected def Reparse(content as string):
 		parserService as IParserService = ICSharpCode.Core.Services.ServiceManager.Services.GetService(typeof(IParserService))
