@@ -38,13 +38,21 @@ namespace Boo.Lang.Compiler.Ast
 		{
  		}
 		
-		public ArrayTypeReference(TypeReference elementType) : base(elementType)
+		public ArrayTypeReference(TypeReference elementType) : this(LexicalInfo.Empty, elementType)
 		{
 		}
 		
-		public ArrayTypeReference(LexicalInfo lexicalInfo, TypeReference elementType) : base(lexicalInfo, elementType)
+		public ArrayTypeReference(LexicalInfo lexicalInfo, TypeReference elementType) : base(lexicalInfo, elementType, new IntegerLiteralExpression(1))
 		{
 		}
+		
+		public ArrayTypeReference(TypeReference elementType, IntegerLiteralExpression rank) : base(elementType, rank)
+ 		{
+ 		}
+ 		
+		public ArrayTypeReference(LexicalInfo lexicalInfo, TypeReference elementType, IntegerLiteralExpression rank) : base(lexicalInfo, elementType, rank)
+ 		{
+ 		}
 		
 		public ArrayTypeReference(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{

@@ -43,6 +43,7 @@ class SimpleTypeReference(TypeReference):
 
 class ArrayTypeReference(TypeReference):
 	ElementType as TypeReference
+	Rank as IntegerLiteralExpression
 	
 class CallableTypeReference(TypeReference):
 	Parameters as TypeReferenceCollection

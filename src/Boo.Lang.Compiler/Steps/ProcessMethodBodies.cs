@@ -1855,7 +1855,7 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{		
 				TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
-				BindExpressionType(node, TypeSystemServices.GetArrayType(GetMostGenericType(items)));
+				BindExpressionType(node, TypeSystemServices.GetArrayType(GetMostGenericType(items), 1));
 			}
 		}
 		
@@ -3162,7 +3162,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						CheckListLiteralArgumentInArrayConstructor(type,  expression);
 					}
-					inferredType = TypeSystemServices.GetArrayType(type);
+					inferredType = TypeSystemServices.GetArrayType(type, 1);
 				}
 			}
 			else if (Array_EnumerableConstructor == method)
@@ -3170,7 +3170,7 @@ namespace Boo.Lang.Compiler.Steps
 				IType enumeratorItemType = GetEnumeratorItemType(GetExpressionType(expression.Arguments[0]));
 				if (TypeSystemServices.ObjectType != enumeratorItemType)
 				{
-					inferredType = TypeSystemServices.GetArrayType(enumeratorItemType);
+					inferredType = TypeSystemServices.GetArrayType(enumeratorItemType, 1);
 					expression.Target.Entity = Array_TypedEnumerableConstructor;
 					expression.ExpressionType = Array_TypedEnumerableConstructor.ReturnType;
 					expression.Arguments.Insert(0, CodeBuilder.CreateReference(enumeratorItemType));					

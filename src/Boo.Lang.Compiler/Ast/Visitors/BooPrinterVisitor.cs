@@ -344,6 +344,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			Write("(");
 			Visit(t.ElementType);
+			if (null != t.Rank && t.Rank.Value > 1)
+			{
+				Write(", ");
+				t.Rank.Accept(this);
+			}
 			Write(")");
 		}
 		

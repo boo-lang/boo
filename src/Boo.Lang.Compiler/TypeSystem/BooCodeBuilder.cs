@@ -208,7 +208,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (tag.IsArray)
 			{
 				IType elementType = ((IArrayType)tag).GetElementType();
-				typeReference = new ArrayTypeReference(CreateTypeReference(elementType));
+				//typeReference = new ArrayTypeReference();
+				//((ArrayTypeReference)typeReference).ElementType = CreateTypeReference(elementType);
+				// FIXME: This is what it *should* be, but it causes major breakage. ??
+				typeReference = new ArrayTypeReference(CreateTypeReference(elementType), CreateIntegerLiteral(((IArrayType)tag).GetArrayRank()));
 			}
 			else
 			{				

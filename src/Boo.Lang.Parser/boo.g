@@ -876,14 +876,17 @@ array_type_reference returns [ArrayTypeReference atr]
 	{
 		TypeReference tr = null;
 		atr = null;
+		IntegerLiteralExpression rank = null;
 	}:
 	lparen:LPAREN
-	tr=type_reference
-	rparen:RPAREN
 	{
 		atr = new ArrayTypeReference(ToLexicalInfo(lparen));
-		atr.ElementType = tr;
 	}
+	(
+		tr=type_reference { atr.ElementType = tr; }
+		(COMMA rank=integer_literal { atr.Rank = rank; })?
+	)
+	rparen:RPAREN
 	;
 
 protected

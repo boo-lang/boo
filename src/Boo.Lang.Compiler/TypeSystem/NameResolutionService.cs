@@ -225,7 +225,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			else
 			{
-				node.Entity = _context.TypeSystemServices.GetArrayType(elementType);
+				int rank = null == node.Rank ? 1 : (int)node.Rank.Value;
+				node.Entity = _context.TypeSystemServices.GetArrayType(elementType, rank);
 			}
 		}
 		

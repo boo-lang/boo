@@ -194,7 +194,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 						
 			DefaultType = (Context.Parameters.Ducky) ? DuckType : ObjectType;
 			
-			ObjectArrayType = GetArrayType(ObjectType);
+			ObjectArrayType = GetArrayType(ObjectType, 1);
 
 			PreparePrimitives();
 		}
@@ -727,7 +727,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (type.IsArray)
 				{
-					return GetArrayType(Map(type.GetElementType()));
+					return GetArrayType(Map(type.GetElementType()), type.GetArrayRank());
 				}				
 				else
 				{
@@ -745,17 +745,40 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return tag;
 		}
 		
-		public IArrayType GetArrayType(IType elementType)
+		public IArrayType GetArrayType(IType elementType, int rank)
 		{
-			IArrayType tag = (IArrayType)_arrayCache[elementType];
+			ArrayHash key = new ArrayHash(elementType, rank);
+			IArrayType tag = (IArrayType)_arrayCache[key];
 			if (null == tag)
 			{
-				tag = new ArrayType(this, elementType);
-				_arrayCache.Add(elementType, tag);
+				tag = new ArrayType(this, elementType, rank);
+				_arrayCache.Add(key, tag);
 			}
 			return tag;
 		}
-		
+
+		protected class ArrayHash
+		{	
+			IType _type;
+			int _rank;
+
+			public ArrayHash(IType elementType, int rank)
+			{
+				_type = elementType;
+				_rank = rank;
+			}
+			
+			public override int GetHashCode()
+			{
+				return _type.GetHashCode() ^ _rank;
+			}
+
+			public override bool Equals(object obj)
+			{
+				return ((ArrayHash)obj)._type == _type && ((ArrayHash)obj)._rank == _rank;
+			}
+		}
+			
 		public IParameter[] Map(Boo.Lang.Compiler.Ast.ParameterDeclarationCollection parameters)
 		{
 			IParameter[] mapped = new IParameter[parameters.Count];

@@ -37,18 +37,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IType _elementType;
 		
 		IType _array;
+
+		int _rank;
 		
 		public ArrayType(TypeSystemServices tagManager, IType elementType)
 		{
 			_typeSystemServices = tagManager;
 			_array = tagManager.ArrayType;
 			_elementType = elementType;
+			_rank = 1;
 		}
+
+		public ArrayType(TypeSystemServices tagManager, IType elementType, int rank)
+		{
+			_typeSystemServices = tagManager;
+			_array = tagManager.ArrayType;
+			_elementType = elementType;
+			_rank = rank;
+		}
+
 		
 		public string Name
 		{
 			get
 			{
+				if (_rank > 1)
+				{
+					return "(" + _elementType.FullName + ", " + _rank + ")";
+				}
 				return "(" + _elementType.FullName + ")";
 			}
 		}
@@ -148,7 +164,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public int GetArrayRank()
 		{
-			return 1;
+			return _rank;
 		}		
 		
 		public IType GetElementType()
@@ -183,7 +199,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			if (other.IsArray)
 			{
-				IType otherEntityType = ((IArrayType)other).GetElementType();
+				IArrayType otherArray = (IArrayType)other;
+
+				if (otherArray.GetArrayRank() != _rank)
+				{
+					return false;
+				}
+
+				IType otherEntityType = otherArray.GetElementType();
 				if (_elementType.IsValueType || otherEntityType.IsValueType)
 				{
 					return _elementType == otherEntityType;

@@ -445,6 +445,10 @@ namespace Boo.Lang.Compiler.Steps
 			EmitAttributes(builder, node);
 		}
 		
+		override public void OnArrayTypeReference(ArrayTypeReference node)
+		{
+		}
+
 		override public void OnClassDefinition(ClassDefinition node)
 		{
 			EmitTypeDefinition(node);
@@ -1545,7 +1549,7 @@ namespace Boo.Lang.Compiler.Steps
 					Visit(node.Arguments[1]);
 					EmitCastIfNeeded(TypeSystemServices.IntType, PopType());					
 					_il.Emit(OpCodes.Newarr, GetSystemType(type));
-					PushType(TypeSystemServices.GetArrayType(type));
+					PushType(TypeSystemServices.GetArrayType(type, 1));
 					return true;
 				}
 			}			
@@ -1561,7 +1565,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (null != items)
 					{
 						EmitArray(type, items.Items);
-						PushType(TypeSystemServices.GetArrayType(type));
+						PushType(TypeSystemServices.GetArrayType(type, 1));
 						return true;
 					}
 				}
@@ -3039,8 +3043,14 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							//type = Type.GetType(typeName, true);
-							type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), 0).GetType();
+							if (arrayType.GetArrayRank() > 1)
+							{
+								type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), new int[arrayType.GetArrayRank()]).GetType();
+							}
+							else
+							{
+								type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), 0).GetType();
+							}
 						}
 					}
 					else
@@ -3089,8 +3099,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsArray)
 			{
-				GetArrayTypeName(buffer, ((IArrayType)tag).GetElementType());
-				buffer.Append("[]");
+				IArrayType array = (IArrayType)tag;
+				GetArrayTypeName(buffer, array.GetElementType());
+				buffer.Append("[");
+				for (int i = 1; i < array.GetArrayRank(); i++)
+				{
+					buffer.Append(",");
+				}
+				buffer.Append("]");
 			}
 			else
 			{
