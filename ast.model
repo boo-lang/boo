@@ -344,7 +344,9 @@ package Boo.Ast
 		Divide
 		Modulus
 		LessThan
+		LessEqualThan
 		GreaterThan
+		GreaterEqualThan
 		Equality
 		Inequality
 		Match
@@ -361,10 +363,12 @@ package Boo.Ast
 		NotMember
 		Or
 		And
+		BitwiseOr
 	end
 	
 	<<enum>>
 	class UnaryOperatorType
+		None
 		ArithmeticNegate
 		Increment
 		Decrement

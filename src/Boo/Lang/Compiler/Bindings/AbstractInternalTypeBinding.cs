@@ -178,6 +178,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsEnum
+		{
+			get
+			{
+				return NodeType.EnumDefinition == _typeDefinition.NodeType;
+			}
+		}
+		
 		public bool IsValueType
 		{
 			get

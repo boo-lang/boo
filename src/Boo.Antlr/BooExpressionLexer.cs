@@ -118,28 +118,30 @@ namespace Boo.Antlr
 		public const int RPAREN = 86;
 		public const int COLON = 87;
 		public const int QMARK = 88;
-		public const int SUM_OPERATOR = 89;
-		public const int MULT_OPERATOR = 90;
-		public const int INCREMENT = 91;
-		public const int DECREMENT = 92;
-		public const int CMP_OPERATOR = 93;
-		public const int DOT = 94;
-		public const int INT = 95;
-		public const int DOUBLE_QUOTED_STRING = 96;
-		public const int SINGLE_QUOTED_STRING = 97;
-		public const int LBRACE = 98;
-		public const int RBRACE = 99;
-		public const int RE_LITERAL = 100;
-		public const int SL_COMMENT = 101;
-		public const int WS = 102;
-		public const int ESCAPED_EXPRESSION = 103;
-		public const int DQS_ESC = 104;
-		public const int SQS_ESC = 105;
-		public const int SESC = 106;
-		public const int RE_CHAR = 107;
-		public const int RE_ESC = 108;
-		public const int ID_LETTER = 109;
-		public const int DIGIT = 110;
+		public const int ADD = 89;
+		public const int SUBTRACT = 90;
+		public const int BITWISE_OR = 91;
+		public const int MULT_OPERATOR = 92;
+		public const int INCREMENT = 93;
+		public const int DECREMENT = 94;
+		public const int CMP_OPERATOR = 95;
+		public const int DOT = 96;
+		public const int INT = 97;
+		public const int DOUBLE_QUOTED_STRING = 98;
+		public const int SINGLE_QUOTED_STRING = 99;
+		public const int LBRACE = 100;
+		public const int RBRACE = 101;
+		public const int RE_LITERAL = 102;
+		public const int SL_COMMENT = 103;
+		public const int WS = 104;
+		public const int ESCAPED_EXPRESSION = 105;
+		public const int DQS_ESC = 106;
+		public const int SQS_ESC = 107;
+		public const int SESC = 108;
+		public const int RE_CHAR = 109;
+		public const int RE_ESC = 110;
+		public const int ID_LETTER = 111;
+		public const int DIGIT = 112;
 		
 		
 	
@@ -262,12 +264,6 @@ tryAgain:
 							theRetToken = returnToken_;
 							break;
 						}
-						case '.':
-						{
-							mDOT(true);
-							theRetToken = returnToken_;
-							break;
-						}
 						case '0':  case '1':  case '2':  case '3':
 						case '4':  case '5':  case '6':  case '7':
 						case '8':  case '9':
@@ -276,9 +272,9 @@ tryAgain:
 							theRetToken = returnToken_;
 							break;
 						}
-						case ',':
+						case '.':
 						{
-							mCOMMA(true);
+							mDOT(true);
 							theRetToken = returnToken_;
 							break;
 						}
@@ -288,9 +284,9 @@ tryAgain:
 							theRetToken = returnToken_;
 							break;
 						}
-						case '?':
+						case '|':
 						{
-							mQMARK(true);
+							mBITWISE_OR(true);
 							theRetToken = returnToken_;
 							break;
 						}
@@ -318,6 +314,24 @@ tryAgain:
 							theRetToken = returnToken_;
 							break;
 						}
+						case '{':
+						{
+							mLBRACE(true);
+							theRetToken = returnToken_;
+							break;
+						}
+						case '}':
+						{
+							mRBRACE(true);
+							theRetToken = returnToken_;
+							break;
+						}
+						case '?':
+						{
+							mQMARK(true);
+							theRetToken = returnToken_;
+							break;
+						}
 						case '%':  case '*':  case '/':
 						{
 							mMULT_OPERATOR(true);
@@ -342,12 +356,6 @@ tryAgain:
 							theRetToken = returnToken_;
 							break;
 						}
-						case '}':
-						{
-							mRBRACE(true);
-							theRetToken = returnToken_;
-							break;
-						}
 						case '\'':
 						{
 							mSINGLE_QUOTED_STRING(true);
@@ -364,8 +372,12 @@ tryAgain:
 								mDECREMENT(true);
 								theRetToken = returnToken_;
 							}
-							else if ((LA(1)=='+'||LA(1)=='-') && (true)) {
-								mSUM_OPERATOR(true);
+							else if ((LA(1)=='+') && (true)) {
+								mADD(true);
+								theRetToken = returnToken_;
+							}
+							else if ((LA(1)=='-') && (true)) {
+								mSUBTRACT(true);
 								theRetToken = returnToken_;
 							}
 						else
@@ -510,27 +522,13 @@ _loop3_breakloop:			;
 		returnToken_ = _token;
 	}
 	
-	public void mDOT(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
-{
-		int _ttype; Token _token=null; int _begin=text.Length;
-		_ttype = DOT;
-		
-		match('.');
-		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
-		{
-			_token = makeToken(_ttype);
-			_token.setText(text.ToString(_begin, text.Length-_begin));
-		}
-		returnToken_ = _token;
-	}
-	
 	public void mINT(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
 {
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = INT;
 		
 		{ // ( ... )+
-		int _cnt7=0;
+		int _cnt6=0;
 		for (;;)
 		{
 			if (((LA(1) >= '0' && LA(1) <= '9')))
@@ -539,13 +537,113 @@ _loop3_breakloop:			;
 			}
 			else
 			{
-				if (_cnt7 >= 1) { goto _loop7_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+				if (_cnt6 >= 1) { goto _loop6_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 			}
 			
-			_cnt7++;
+			_cnt6++;
 		}
-_loop7_breakloop:		;
+_loop6_breakloop:		;
 		}    // ( ... )+
+		{
+			if ((LA(1)=='L'||LA(1)=='l'))
+			{
+				{
+					switch ( LA(1) )
+					{
+					case 'l':
+					{
+						match('l');
+						break;
+					}
+					case 'L':
+					{
+						match('L');
+						break;
+					}
+					default:
+					{
+						throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
+					}
+					 }
+				}
+				_ttype = LONG;
+			}
+			else {
+				{
+					{
+						if (((LA(1)=='.'))&&(BooLexer.IsDigit(LA(2))))
+						{
+							{
+								match('.');
+								{ // ( ... )+
+								int _cnt13=0;
+								for (;;)
+								{
+									if (((LA(1) >= '0' && LA(1) <= '9')))
+									{
+										mDIGIT(false);
+									}
+									else
+									{
+										if (_cnt13 >= 1) { goto _loop13_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+									}
+									
+									_cnt13++;
+								}
+_loop13_breakloop:								;
+								}    // ( ... )+
+							}
+							_ttype = REAL;
+						}
+						else {
+						}
+						
+					}
+					{
+						if ((LA(1)=='d'||LA(1)=='h'||LA(1)=='m'||LA(1)=='s'))
+						{
+							{
+								switch ( LA(1) )
+								{
+								case 's':
+								{
+									match('s');
+									break;
+								}
+								case 'h':
+								{
+									match('h');
+									break;
+								}
+								case 'd':
+								{
+									match('d');
+									break;
+								}
+								default:
+									if ((LA(1)=='m') && (LA(2)=='s'))
+									{
+										match("ms");
+									}
+									else if ((LA(1)=='m') && (true)) {
+										match('m');
+									}
+								else
+								{
+									throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
+								}
+								break; }
+							}
+							_ttype = TIMESPAN;
+						}
+						else {
+						}
+						
+					}
+				}
+			}
+			
+		}
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -554,12 +652,38 @@ _loop7_breakloop:		;
 		returnToken_ = _token;
 	}
 	
-	public void mCOMMA(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+	public void mDOT(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
 {
 		int _ttype; Token _token=null; int _begin=text.Length;
-		_ttype = COMMA;
+		_ttype = DOT;
 		
-		match(',');
+		match('.');
+		{
+			if (((LA(1) >= '0' && LA(1) <= '9')))
+			{
+				{ // ( ... )+
+				int _cnt19=0;
+				for (;;)
+				{
+					if (((LA(1) >= '0' && LA(1) <= '9')))
+					{
+						mDIGIT(false);
+					}
+					else
+					{
+						if (_cnt19 >= 1) { goto _loop19_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+					}
+					
+					_cnt19++;
+				}
+_loop19_breakloop:				;
+				}    // ( ... )+
+				_ttype = REAL;
+			}
+			else {
+			}
+			
+		}
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -582,12 +706,12 @@ _loop7_breakloop:		;
 		returnToken_ = _token;
 	}
 	
-	public void mQMARK(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+	public void mBITWISE_OR(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
 {
 		int _ttype; Token _token=null; int _begin=text.Length;
-		_ttype = QMARK;
+		_ttype = BITWISE_OR;
 		
-		match('?');
+		match('|');
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -652,6 +776,48 @@ _loop7_breakloop:		;
 		returnToken_ = _token;
 	}
 	
+	public void mLBRACE(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = LBRACE;
+		
+		match('{');
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	public void mRBRACE(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = RBRACE;
+		
+		match('}');
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	public void mQMARK(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = QMARK;
+		
+		match('?');
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
 	public void mINCREMENT(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
 {
 		int _ttype; Token _token=null; int _begin=text.Length;
@@ -680,28 +846,50 @@ _loop7_breakloop:		;
 		returnToken_ = _token;
 	}
 	
-	public void mSUM_OPERATOR(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+	public void mADD(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
 {
 		int _ttype; Token _token=null; int _begin=text.Length;
-		_ttype = SUM_OPERATOR;
+		_ttype = ADD;
 		
-		switch ( LA(1) )
-		{
-		case '+':
 		{
 			match('+');
-			break;
 		}
-		case '-':
+		{
+			if ((LA(1)=='='))
+			{
+				match('=');
+				_ttype = ASSIGN;
+			}
+			else {
+			}
+			
+		}
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	public void mSUBTRACT(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = SUBTRACT;
+		
 		{
 			match('-');
-			break;
 		}
-		default:
 		{
-			throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
+			if ((LA(1)=='='))
+			{
+				match('=');
+				_ttype = ASSIGN;
+			}
+			else {
+			}
+			
 		}
-		 }
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -830,7 +1018,7 @@ _loop7_breakloop:		;
 		_ttype = WS;
 		
 		{ // ( ... )+
-		int _cnt25=0;
+		int _cnt44=0;
 		for (;;)
 		{
 			switch ( LA(1) )
@@ -843,6 +1031,7 @@ _loop7_breakloop:		;
 			case '\t':
 			{
 				match('\t');
+				tab();
 				break;
 			}
 			case '\r':
@@ -858,28 +1047,14 @@ _loop7_breakloop:		;
 			}
 			default:
 			{
-				if (_cnt25 >= 1) { goto _loop25_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+				if (_cnt44 >= 1) { goto _loop44_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 			}
 			break; }
-			_cnt25++;
+			_cnt44++;
 		}
-_loop25_breakloop:		;
+_loop44_breakloop:		;
 		}    // ( ... )+
 		_ttype = Token.SKIP;
-		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
-		{
-			_token = makeToken(_ttype);
-			_token.setText(text.ToString(_begin, text.Length-_begin));
-		}
-		returnToken_ = _token;
-	}
-	
-	public void mRBRACE(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
-{
-		int _ttype; Token _token=null; int _begin=text.Length;
-		_ttype = RBRACE;
-		
-		match('}');
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -911,11 +1086,11 @@ _loop25_breakloop:		;
 				}
 				else
 				{
-					goto _loop30_breakloop;
+					goto _loop48_breakloop;
 				}
 				
 			}
-_loop30_breakloop:			;
+_loop48_breakloop:			;
 		}    // ( ... )*
 		_saveIndex = text.Length;
 		match('\'');

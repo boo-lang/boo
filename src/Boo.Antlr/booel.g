@@ -35,7 +35,7 @@ options
 	defaultErrorHandler = false;
 	testLiterals = false;
 	importVocab = Boo;	
-	k = 2;
+	k = 3;
 	charVocabulary='\u0003'..'\uFFFF';
 	// without inlining some bitset tests, ANTLR couldn't do unicode;
 	// They need to make ANTLR generate smaller bitsets;
@@ -54,31 +54,47 @@ options
 		throw new SemanticException("Unterminated formatting expression!", getFilename(), getLine(), getColumn());
 	}
 }
-ID options { testLiterals = true; }: ID_LETTER (ID_LETTER | DIGIT)*;
+ID options { testLiterals = true; }:
+	ID_LETTER (ID_LETTER | DIGIT)*
+	;
 
-DOT : '.';
+INT : (DIGIT)+
+	(
+		('l' | 'L') { $setType(LONG); } |
+		(
+	({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(REAL); })?
+	(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+		)
+	)
+	;
 
-INT : (DIGIT)+;
-
-COMMA : ',';
+DOT : '.' ((DIGIT)+ {$setType(REAL);})?;
 
 COLON : ':';
 
-QMARK : '?';
+BITWISE_OR: '|';
 
 LPAREN : '(';
-
+	
 RPAREN : ')';
 
 LBRACK : '[';
 
 RBRACK : ']';
 
+LBRACE : '{';
+	
+RBRACE : '}';
+
+QMARK : '?';
+
 INCREMENT: "++";
 
 DECREMENT: "--";
 
-SUM_OPERATOR : '+' | '-' ;
+ADD: ('+') ('=' { $setType(ASSIGN); })?;
+
+SUBTRACT: ('-') ('=' { $setType(ASSIGN); })?;
 
 MULT_OPERATOR: '%' | '/' | '*';
 
@@ -86,9 +102,7 @@ CMP_OPERATOR : '<' | "<=" | '>' | ">=" | "!~" | "!=";
 
 ASSIGN : '=' ( ('=' | '~') { $setType(CMP_OPERATOR); } )?;
 
-WS: (' ' | '\t' | '\r' | '\n' { newline(); })+ { $setType(Token.SKIP); };
-
-RBRACE: '}';
+WS: (' ' | '\t' { tab(); } | '\r' | '\n' { newline(); })+ { $setType(Token.SKIP); };
 
 SINGLE_QUOTED_STRING :
 		'\''!

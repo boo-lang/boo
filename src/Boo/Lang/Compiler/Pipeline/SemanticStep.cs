@@ -1285,6 +1285,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.BitwiseOr:
+				{
+					BindBitwiseOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.InPlaceAdd:
 				{
 					IBinding binding = GetBinding(node.Left);
@@ -1319,17 +1325,47 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 			}
-		}	
+		}
+		
+		ITypeBinding GetMostGenericType(BinaryExpression node)
+		{
+			ExpressionCollection args = new ExpressionCollection();
+			args.Add(node.Left);
+			args.Add(node.Right);
+			return GetMostGenericType(args);
+		}
+		
+		void BindBitwiseOperator(BinaryExpression node)
+		{
+			ITypeBinding lhs = GetExpressionType(node.Left);
+			ITypeBinding rhs = GetExpressionType(node.Right);
+			
+			if (IsIntegerNumber(lhs) && IsIntegerNumber(rhs))
+			{
+				Bind(node, GetPromotedNumberType(lhs, rhs));
+			}
+			else
+			{
+				if (lhs.IsEnum && rhs == lhs)
+				{
+					Bind(node, lhs);
+				}
+				else
+				{
+					Error(node,
+						CompilerErrorFactory.InvalidOperatorForTypes(node,
+							GetBinaryOperatorText(node.Operator),
+							lhs.FullName, rhs.FullName));
+				}
+			}
+		}
 		
 		void BindLogicalOperator(BinaryExpression node)
 		{
 			if (CheckBoolContext(node.Left) &&
 				CheckBoolContext(node.Right))
-			{
-				ExpressionCollection args = new ExpressionCollection();
-				args.Add(node.Left);
-				args.Add(node.Right);
-				BindingManager.Bind(node, GetMostGenericType(args));
+			{				
+				BindingManager.Bind(node, GetMostGenericType(node));
 			}
 			else
 			{
@@ -2150,11 +2186,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			return left;
 		}
 		
-		bool IsNumber(ITypeBinding type)
+		bool IsIntegerNumber(ITypeBinding type)
 		{
 			return
 				type == BindingManager.IntTypeBinding ||
 				type == BindingManager.LongTypeBinding ||
+				type == BindingManager.ByteTypeBinding;
+		}
+		
+		bool IsNumber(ITypeBinding type)
+		{
+			return
+				IsIntegerNumber(type) ||
 				type == BindingManager.RealTypeBinding ||
 				type == BindingManager.SingleTypeBinding;
 		}

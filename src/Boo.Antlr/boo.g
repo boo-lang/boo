@@ -149,21 +149,13 @@ tokens
 		switch (op)
 		{
 			case "<": return BinaryOperatorType.LessThan;
+			case "<=": return BinaryOperatorType.LessEqualThan;
 			case ">": return BinaryOperatorType.GreaterThan;
+			case ">=": return BinaryOperatorType.GreaterEqualThan;
 			case "==": return BinaryOperatorType.Equality;
 			case "!=": return BinaryOperatorType.Inequality;
 			case "=~": return BinaryOperatorType.Match;
 			case "!~": return BinaryOperatorType.NotMatch;
-		}
-		throw new ArgumentException("op");
-	}
-
-	protected BinaryOperatorType ParseSumOperator(string op)
-	{
-		switch (op)
-		{
-			case "+": return BinaryOperatorType.Add;
-			case "-": return BinaryOperatorType.Subtract;
 		}
 		throw new ArgumentException("op");
 	}
@@ -190,17 +182,6 @@ tokens
 			case "*=": return BinaryOperatorType.InPlaceMultiply;
 		}
 		throw new ArgumentException(op, "op");
-	}
-
-	protected UnaryOperatorType ParseUnaryOperator(string op)
-	{
-		switch (op)
-		{
-			case "++": return UnaryOperatorType.Increment;
-			case "--": return UnaryOperatorType.Decrement;
-			case "-": return UnaryOperatorType.ArithmeticNegate;
-		}
-		throw new ArgumentException("op");
 	}
 
 	protected TimeSpan ParseTimeSpan(string text)
@@ -278,7 +259,7 @@ start returns [Module module]
 		module.LexicalInfo = new LexicalInfo(getFilename(), 0, 0, 0);
 	}:
 	docstring[module]
-	(options { greedy=true;}: EOS)*			 
+	(options { greedy=true;}: EOS!)*			 
 	(namespace_directive[module])?
 	(import_directive[module])*
 	(type_member[module.Members])*
@@ -289,12 +270,12 @@ start returns [Module module]
 protected docstring[Node node]:
 	(
 		doc:TRIPLE_QUOTED_STRING { node.Documentation = MassageDocString(doc.getText()); }
-		(EOS)*
+		(EOS!)*
 	)?
 	;
 			
 protected
-eos : (options { greedy = true; }: EOS)+;
+eos : (options { greedy = true; }: EOS!)+;
 
 protected
 import_directive[Module container]
@@ -309,14 +290,14 @@ import_directive[Module container]
 		container.Imports.Add(usingNode);
 	}
 	(
-		FROM id=identifier
+		FROM! id=identifier
 		{
 			usingNode.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id));
 			usingNode.AssemblyReference.Name = id.getText();
 		}				
 	)?
 	(
-		AS alias:ID
+		AS! alias:ID
 		{
 			usingNode.Alias = new ReferenceExpression(ToLexicalInfo(alias));
 			usingNode.Alias.Name = alias.getText();
@@ -441,7 +422,7 @@ class_definition [TypeMemberCollection container]
 	{
 		ClassDefinition cd = null;
 	}:
-	c:CLASS id:ID
+	c:CLASS! id:ID
 	{
 		cd = new ClassDefinition(ToLexicalInfo(c));
 		cd.Name = id.getText();
@@ -454,7 +435,7 @@ class_definition [TypeMemberCollection container]
 	(
 		(PASS! eos) |
 		(
-			(EOS)*
+			(EOS!)*
 			attributes
 			modifiers
 			(						
@@ -500,9 +481,9 @@ base_types[TypeReferenceCollection container]
 	{
 		TypeReference tr = null;
 	}:
-	LPAREN tr=type_reference { container.Add(tr); }
-	(COMMA tr=type_reference { container.Add(tr); })*
-	RPAREN
+	LPAREN! tr=type_reference { container.Add(tr); }
+	(COMMA! tr=type_reference { container.Add(tr); })*
+	RPAREN!
 	;
 			
 protected
@@ -521,7 +502,7 @@ interface_method [TypeMemberCollection container]
 	LPAREN! parameter_declaration_list[m.Parameters] RPAREN!
 	(AS! rt=type_reference { m.ReturnType=rt; })?			
 	(
-		eos | (empty_block (EOS)*)
+		eos | (empty_block (EOS!)*)
 	)
 	;
 			
@@ -542,7 +523,7 @@ interface_property [TypeMemberCollection container]
 	begin!
 		(interface_property_accessor[p])+
 	end!
-	(EOS)*
+	(EOS!)*
 	;
 			
 protected
@@ -584,7 +565,7 @@ method [TypeMemberCollection container]
 		Method m = null;
 		TypeReference rt = null;
 	}: 
-	t:DEF
+	t:DEF!
 	(
 		id:ID { m = new Method(ToLexicalInfo(t)); m.Name = id.getText(); } |
 		c:CONSTRUCTOR { m = new Constructor(ToLexicalInfo(t)); m.Name = c.getText(); }
@@ -674,13 +655,13 @@ property_accessor[Property p]
 	
 protected
 globals[Module container]:	
-	(EOS)*
+	(EOS!)*
 	(stmt[container.Globals.Statements])*
 	;
 	
 protected
 block[StatementCollection container]:
-	(EOS)* 
+	(EOS!)* 
 	(
 		(PASS! eos) |
 		(			
@@ -702,7 +683,7 @@ modifiers
 		INTERNAL! { _modifiers |= TypeMemberModifiers.Internal; } |			
 		FINAL! { _modifiers |= TypeMemberModifiers.Final; } |
 		TRANSIENT! { _modifiers |= TypeMemberModifiers.Transient; } |
-		OVERRIDE { _modifiers |= TypeMemberModifiers.Override; }
+		OVERRIDE! { _modifiers |= TypeMemberModifiers.Override; }
 	)*
 	;
 	
@@ -734,9 +715,9 @@ type_reference returns [TypeReference tr]
 		Token id = null;
 	}: 
 	(
-		lparen:LPAREN
+		lparen:LPAREN!
 		tr=type_reference
-		rparen:RPAREN
+		rparen:RPAREN!
 		{
 			TupleTypeReference ttr = new TupleTypeReference(ToLexicalInfo(lparen));
 			ttr.ElementType = tr;
@@ -755,20 +736,20 @@ type_reference returns [TypeReference tr]
 	;
 
 protected
-begin : COLON INDENT;
+begin : COLON! INDENT!;
 
 protected
-begin_with_doc[Node node]: COLON (EOS docstring[node])? INDENT;
+begin_with_doc[Node node]: COLON! (EOS! docstring[node])? INDENT!;
 
 protected
-end : DEDENT;
+end : DEDENT!;
 
 protected
 compound_stmt[StatementCollection c] :
 		begin
 			block[c]
 		end
-		(options { greedy=true; }: EOS)*
+		(options { greedy=true; }: EOS!)*
 		;
 		
 protected
@@ -827,10 +808,10 @@ stmt_modifier returns [StatementModifier m]
 		StatementModifierType type = StatementModifierType.Uninitialized;
 	}:
 	(
-		i:IF { t = i; type = StatementModifierType.If; } |
-		u:UNLESS { t = u; type = StatementModifierType.Unless; } |
-		w:WHILE { t = w; type = StatementModifierType.While; } |
-		ut:UNTIL { t = ut; type = StatementModifierType.Until; }
+		i:IF! { t = i; type = StatementModifierType.If; } |
+		u:UNLESS! { t = u; type = StatementModifierType.Unless; } |
+		w:WHILE! { t = w; type = StatementModifierType.While; } |
+		ut:UNTIL! { t = ut; type = StatementModifierType.Until; }
 	)
 	e=expression
 	{
@@ -879,7 +860,7 @@ exception_handler [TryStatement t]
 		ExceptionHandler eh = null;		
 		TypeReference tr = null;
 	}:
-	c:EXCEPT x:ID (AS tr=type_reference)?
+	c:EXCEPT! x:ID (AS tr=type_reference)?
 	{
 		eh = new ExceptionHandler(ToLexicalInfo(c));
 		eh.Declaration = new Declaration(ToLexicalInfo(x));
@@ -942,7 +923,7 @@ return_stmt returns [ReturnStatement s]
 		s = null;
 		Expression e = null;
 	}:
-	r:RETURN (e=tuple_or_expression)?
+	r:RETURN! (e=tuple_or_expression)?
 	{
 		s = new ReturnStatement(ToLexicalInfo(r));
 		s.Expression = e;
@@ -965,14 +946,14 @@ yield_stmt returns [YieldStatement s]
 protected
 break_stmt returns [BreakStatement s]
 	{ s = null; }:
-	b:BREAK
+	b:BREAK!
 	{ s = new BreakStatement(ToLexicalInfo(b)); }
 	;
 
 protected
 continue_stmt returns [Statement s]
 	{ s = null; }:
-	c:CONTINUE
+	c:CONTINUE!
 	{ s = new ContinueStatement(ToLexicalInfo(c)); }
 	;
 	
@@ -1062,7 +1043,7 @@ if_stmt returns [IfStatement s]
 	}
 	compound_stmt[s.TrueBlock.Statements]
 	(
-		et:ELSE { s.FalseBlock = new Block(ToLexicalInfo(et)); }
+		et:ELSE! { s.FalseBlock = new Block(ToLexicalInfo(et)); }
 		compound_stmt[s.FalseBlock.Statements]
 	)?
 	;
@@ -1179,7 +1160,7 @@ boolean_expression returns [Expression e]
 	}
 	:
 	(
-		nt:NOT
+		nt:NOT!
 		e=boolean_expression
 		{
 			UnaryExpression ue = new UnaryExpression(ToLexicalInfo(nt));
@@ -1192,7 +1173,7 @@ boolean_expression returns [Expression e]
 	(
 		e=boolean_term
 		(
-			ot:OR
+			ot:OR!
 			r=boolean_term
 			{
 				BinaryExpression be = new BinaryExpression(ToLexicalInfo(ot));
@@ -1214,7 +1195,7 @@ boolean_term returns [Expression e]
 	:
 	e=ternary_expression
 	(
-		at:AND
+		at:AND!
 		r=ternary_expression
 		{
 			BinaryExpression be = new BinaryExpression(ToLexicalInfo(at));
@@ -1235,8 +1216,8 @@ ternary_expression returns [Expression e]
 	}:
 	e=assignment_expression	
 	( options { greedy = true; } :
-		t:QMARK
-		te=ternary_expression COLON
+		t:QMARK!
+		te=ternary_expression COLON!
 		fe=assignment_expression
 		{
 			TernaryExpression finalExpression = new TernaryExpression(ToLexicalInfo(t));
@@ -1294,14 +1275,20 @@ sum returns [Expression e]
 	{
 		e = null;
 		Expression r = null;
+		Token op = null;
+		BinaryOperatorType bOperator = BinaryOperatorType.None;
 	}:
 	e=term
 	( options { greedy = true; } :
-		op:SUM_OPERATOR
+		(
+			add:ADD! { op=add; bOperator = BinaryOperatorType.Add; } |
+			sub:SUBTRACT! { op=sub; bOperator = BinaryOperatorType.Subtract; } |
+			bitor:BITWISE_OR! { op=bitor; bOperator = BinaryOperatorType.BitwiseOr; }
+		)
 		r=term
 		{
 			BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
-			be.Operator = ParseSumOperator(op.getText());
+			be.Operator = bOperator;
 			be.Left = e;
 			be.Right = r;
 			e = be;
@@ -1334,18 +1321,19 @@ unary_expression returns [Expression e]
 	{
 			e = null;
 			Token op = null;
+			UnaryOperatorType uOperator = UnaryOperatorType.None;
 	}: 
 	(
-		sum_op:SUM_OPERATOR { op = sum_op; } |
-		inc:INCREMENT { op = inc; } |
-		dec:DECREMENT { op = dec; }
+		sub:SUBTRACT! { op = sub; uOperator = UnaryOperatorType.ArithmeticNegate; } |
+		inc:INCREMENT! { op = inc; uOperator = UnaryOperatorType.Increment; } |
+		dec:DECREMENT! { op = dec; uOperator = UnaryOperatorType.Decrement; }
 	)?
 	e=slicing_expression
 	{
 		if (null != op)
 		{
 			UnaryExpression ue = new UnaryExpression(ToLexicalInfo(op));
-			ue.Operator = ParseUnaryOperator(op.getText());
+			ue.Operator = uOperator;
 			ue.Operand = e;
 			e = ue; 
 		}
@@ -1355,12 +1343,12 @@ unary_expression returns [Expression e]
 protected
 cmp_operator returns [BinaryOperatorType op] { op = BinaryOperatorType.None; }:
 	(t:CMP_OPERATOR { op = ParseCmpOperator(t.getText()); } ) |
-	(IS { op = BinaryOperatorType.ReferenceEquality; }
-		(NOT { op = BinaryOperatorType.ReferenceInequality; })?
+	(IS! { op = BinaryOperatorType.ReferenceEquality; }
+		(NOT! { op = BinaryOperatorType.ReferenceInequality; })?
 		) |	
-	(ISA { op = BinaryOperatorType.TypeTest; }) |
-	(IN { op = BinaryOperatorType.Member; } ) |
-	(NOT IN { op = BinaryOperatorType.NotMember; })
+	(ISA! { op = BinaryOperatorType.TypeTest; }) |
+	(IN! { op = BinaryOperatorType.Member; } ) |
+	(NOT! IN! { op = BinaryOperatorType.NotMember; })
 	;
 
 protected
@@ -1594,7 +1582,7 @@ string_formatting returns [StringFormattingExpression e]
 	}
 	(  options { greedy = true; } :
 		
-		ESEPARATOR param=expression
+		ESEPARATOR! param=expression
 		{ e.Arguments.Add(param); }
 	)*
 	;
@@ -1728,7 +1716,7 @@ identifier returns [Token value]
 		value = id1;
 	}				
 	( options { greedy = true; } :
-		DOT
+		DOT!
 		id2:ID
 		{ _sbuilder.Append('.'); _sbuilder.Append(id2.getText()); }
 	)*
@@ -1807,7 +1795,7 @@ INT : (DIGIT)+
 	(
 		('l' | 'L') { $setType(LONG); } |
 		(
-	({IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(REAL); })?
+	({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(REAL); })?
 	(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
 		)
 	)
@@ -1816,6 +1804,8 @@ INT : (DIGIT)+
 DOT : '.' ((DIGIT)+ {$setType(REAL);})?;
 
 COLON : ':';
+
+BITWISE_OR: '|';
 
 LPAREN : '(' { EnterSkipWhitespaceRegion(); };
 	
@@ -1835,10 +1825,9 @@ INCREMENT: "++";
 
 DECREMENT: "--";
 
-SUM_OPERATOR :
-	('+' | '-')
-	('=' { $setType(ASSIGN); })?
-	;
+ADD: ('+') ('=' { $setType(ASSIGN); })?;
+
+SUBTRACT: ('-') ('=' { $setType(ASSIGN); })?;
 
 MULT_OPERATOR :
 	'%'| 

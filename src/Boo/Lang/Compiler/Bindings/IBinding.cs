@@ -182,6 +182,11 @@ namespace Boo.Lang.Compiler.Bindings
 			get;
 		}
 		
+		bool IsEnum
+		{
+			get;
+		}
+		
 		bool IsValueType
 		{
 			get;

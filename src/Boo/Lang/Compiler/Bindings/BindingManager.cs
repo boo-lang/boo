@@ -143,8 +143,13 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 		
 		public static bool IsError(Node node)
-		{
-			return IsError(GetBinding(node));
+		{			
+			ITypedBinding binding = GetBinding(node) as ITypedBinding;
+			if (null != binding)
+			{
+				return IsError(binding.BoundType);
+			}
+			return false;
 		}
 		
 		public static bool IsErrorAny(NodeCollection collection)

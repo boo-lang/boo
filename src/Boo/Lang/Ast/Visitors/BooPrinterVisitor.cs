@@ -738,9 +738,19 @@ namespace Boo.Lang.Ast.Visitors
 					return ">";
 				}
 				
+				case BinaryOperatorType.GreaterEqualThan:
+				{
+					return ">=";
+				}
+				
 				case BinaryOperatorType.LessThan:
 				{
 					return "<";
+				}
+				
+				case BinaryOperatorType.LessEqualThan:
+				{
+					return "<=";
 				}
 				
 				case BinaryOperatorType.Modulus:
@@ -770,7 +780,7 @@ namespace Boo.Lang.Ast.Visitors
 				
 				case BinaryOperatorType.TypeTest:
 				{
-					return "is";
+					return "isa";
 				}
 				
 				case BinaryOperatorType.Or:
@@ -781,6 +791,11 @@ namespace Boo.Lang.Ast.Visitors
 				case BinaryOperatorType.And:
 				{
 					return "and";
+				}
+				
+				case BinaryOperatorType.BitwiseOr:
+				{
+					return "|";
 				}
 			}
 			throw new NotImplementedException(op.ToString());

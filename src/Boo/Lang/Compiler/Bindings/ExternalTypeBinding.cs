@@ -132,6 +132,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsEnum
+		{
+			get
+			{
+				return _type.IsEnum;
+			}			
+		}
+		
 		public bool IsValueType
 		{
 			get

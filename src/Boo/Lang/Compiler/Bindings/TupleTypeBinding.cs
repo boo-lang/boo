@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public virtual ITypeBinding BoundType
+		public ITypeBinding BoundType
 		{
 			get
 			{
@@ -78,7 +78,15 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public virtual bool IsClass
+		public bool IsClass
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
+		public bool IsEnum
 		{
 			get
 			{

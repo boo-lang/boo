@@ -892,10 +892,31 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(type);
 		}
 		
+		void EmitBitwiseOperator(BinaryExpression node)
+		{
+			ITypeBinding type = GetBoundType(node);
+			
+			Switch(node.Left);
+			EmitCastIfNeeded(type, PopType());
+			
+			Switch(node.Right);
+			EmitCastIfNeeded(type, PopType());
+			
+			_il.Emit(OpCodes.Or);
+			
+			PushType(type);
+		}
+		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{				
 			switch (node.Operator)
 			{
+				case BinaryOperatorType.BitwiseOr:
+				{
+					EmitBitwiseOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.Or:
 				{
 					EmitOr(node);
