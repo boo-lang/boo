@@ -1067,7 +1067,10 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnSimpleTypeReference(SimpleTypeReference node)
 		{
 			NameResolutionService.ResolveSimpleTypeReference(node);
-			EnsureRelatedNodeWasVisited(node.Entity);
+			if (node.Entity is InternalCallableType)
+			{
+				EnsureRelatedNodeWasVisited(node.Entity);
+			}
 		}
 		
 		override public void LeaveCallableTypeReference(CallableTypeReference node)
