@@ -87,6 +87,11 @@ class InteractiveInterpreterTestFixture:
 		assert "3" == _interpreter.GetValue("value")
 		
 	[Test]
+	[ExpectedException(System.Reflection.TargetInvocationException)]
+	def RaiseInsideEval():
+		Eval("raise System.ApplicationException()")
+		
+	[Test]
 	def MethodDef():
 		
 		_interpreter.SetValue("eggs", "eggs")

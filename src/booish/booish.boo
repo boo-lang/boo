@@ -229,7 +229,7 @@ class InteractiveInterpreter:
 		
 		InitializeModuleInterpreter(asm, module)
 		
-		result.GeneratedAssemblyEntryPoint.Invoke(null, (null,)) if hasStatements			
+		result.GeneratedAssemblyEntryPoint.Invoke(null, (null,)) if hasStatements
 		return result
 		
 	def Parse(code as string):
@@ -274,6 +274,8 @@ while line=prompt(">>> "):
 			pos = error.LexicalInfo.StartColumn
 			print("---" + "-" * pos + "^") if pos > 0
 			print("ERROR: ${error.Message}")
+	except x as System.Reflection.TargetInvocationException:
+		print(x.InnerException)
 	except x:
 		print(x)
 	
