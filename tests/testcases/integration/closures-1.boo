@@ -1,7 +1,7 @@
 import System
 import NUnit.Framework
 
-a = do (a):
+a = def (a):
 	print("closure")
 	return a.ToString()
 

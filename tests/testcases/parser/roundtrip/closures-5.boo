@@ -1,8 +1,8 @@
 """
-c1 = do (item):
+c1 = def (item):
 	print(item)
 
-c2 = do (item as int):
+c2 = def (item as int):
 	print((item * 2))
 """
 c1 = <item|print(item)>

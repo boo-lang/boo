@@ -3,7 +3,7 @@ before
 closure
 after
 """
-a = do:
+a = def:
 	print("closure")
 	
 print("before")

@@ -1,8 +1,8 @@
 """
-p = do (text):
+p = def (text):
 	print(text)
 
-tp = do (text as string):
+tp = def (text as string):
 	print(text)
 
 if (2 > 3):
@@ -10,9 +10,9 @@ if (2 > 3):
 p('Hello')
 tp('World!')
 """
-p = do (text):
+p = def (text):
 	print(text)
-tp = do (text as string):
+tp = def (text as string):
 	print(text)
 if 2 > 3:
 	print("dough!")

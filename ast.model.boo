@@ -347,6 +347,11 @@ class BinaryExpression(Expression):
 	Operator as BinaryOperatorType
 	Left as Expression
 	Right as Expression
+	
+class TernaryExpression(Expression):
+	Condition as Expression
+	TrueValue as Expression
+	FalseValue as Expression
 
 class ReferenceExpression(Expression):
 	Name as string

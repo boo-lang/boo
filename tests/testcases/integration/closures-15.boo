@@ -18,7 +18,7 @@ def each(items, action as Action):
      for item in items:
           action(item)
 
-a = do (item):
+a = def (item):
     print("do: ${item}")
 
 b = <item | print("closure: ${item}")>

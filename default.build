@@ -211,7 +211,8 @@
 	<target name="upload-distro" depends="distro">
 		<exec program="scp">
 			<arg value="-B" />
-			<arg value="boo-${distro-version}-*.zip" />
+			<arg file="boo-${distro-version}-bin.zip" />
+			<arg file="boo-${distro-version}-src.zip" />
 			<arg value="${distro-user}@beaver.codehaus.org:/home/projects/boo/dist/distributions/" />
 		</exec>
 	</target>

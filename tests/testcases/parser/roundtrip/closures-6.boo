@@ -1,5 +1,5 @@
 """
-c = do ():
+c = def ():
 	print('Hello!')
 """
 c = <print("Hello!")>
