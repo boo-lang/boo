@@ -36,36 +36,48 @@ class AssemblyResolver:
 
 	_cache = {}
 	
-	def AssemblyResolve(sender, args as ResolveEventArgs) as Assembly:
-		parts = /,\s*/.Split(args.Name)
-		simpleName = parts[0]
+	def AddAssembly([required] asm as Assembly):
+		_cache[GetSimpleName(asm.FullName)] = asm
+	
+	def AssemblyResolve(sender, args as ResolveEventArgs) as Assembly:		
+		simpleName = GetSimpleName(args.Name)
 		
 		asm as Assembly = _cache[simpleName]
 		if asm is null:
 			basePath = Path.GetFullPath(simpleName)
-			asm = probeFile(basePath + ".dll")
+			asm = ProbeFile(basePath + ".dll")
 			if asm is null:
-				asm = probeFile(basePath + ".exe")
+				asm = ProbeFile(basePath + ".exe")
 			_cache[simpleName] = asm
 			
 		return asm
 		
-	def probeFile(fname as string):	
+	private def GetSimpleName(name as string):
+		return /,\s*/.Split(name)[0]
+		
+	private def ProbeFile(fname as string):	
 		return Assembly.LoadFrom(fname) if File.Exists(fname)
 
+def consume(reader as TextReader):
+	lines = []
+	for line in reader:
+		lines.Add(line)
+	return join(lines, "\n")	
 
 def main(argv as (string)):
 	compiler = BooCompiler()
-	if "-" == argv[0]:
-		compiler.Parameters.Input.Add(ReaderInput("<stdin>", System.Console.In))
-	else:
-		compiler.Parameters.Input.Add(FileInput(argv[0]))
 		
 	// boo memory pipeline
 	// compiles the code in memory only
 	compiler.Parameters.Pipeline.Load("boom")
 	
-	AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver().AssemblyResolve
+	if "-" == argv[0]:
+		compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))
+	else:
+		compiler.Parameters.Input.Add(FileInput(argv[0]))
+	
+	resolver = AssemblyResolver()
+	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
 	result = compiler.Run()
 	if len(result.Errors):
 		for error as CompilerError in result.Errors:
@@ -73,6 +85,7 @@ def main(argv as (string)):
 		return -1
 	else:	
 		try: 
+			resolver.AddAssembly(result.GeneratedAssembly)
 			result.GeneratedAssemblyEntryPoint.Invoke(null, (argv[1:],))			
 		except x as TargetInvocationException:
 			print(x.InnerException)

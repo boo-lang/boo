@@ -95,6 +95,18 @@ namespace BooC
 			}			
 			return resultCode;
 		}
+		
+		static string Consume(TextReader reader)
+		{
+			StringWriter writer = new StringWriter();
+			string line = reader.ReadLine();
+			while (null != line)
+			{
+				writer.WriteLine(line);
+				line = reader.ReadLine();
+			}
+			return writer.ToString();
+		}
 
 		static void ParseOptions(string[] args, CompilerParameters options)
 		{
@@ -104,7 +116,7 @@ namespace BooC
 			{
 				if ("-" == arg)
 				{
-					options.Input.Add(new ReaderInput("<stdin>", Console.In));
+					options.Input.Add(new StringInput("<stdin>", Consume(Console.In)));
 				}
 				else
 				{

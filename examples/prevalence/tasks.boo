@@ -1,6 +1,5 @@
 import System
-import System.Reflection
-import Bamboo.Prevalence
+import Bamboo.Prevalence from Bamboo.Prevalence
 
 class Task:
 
@@ -24,15 +23,6 @@ class TaskList(MarshalByRefObject):
 	
 	def Add([required] task as Task):
 		_tasks.Add(task)
-		
-def ResolveAssembly(sender, args as ResolveEventArgs) as Assembly:
-	if args.Name.StartsWith("Bamboo.Prevalence"):
-		return typeof(PrevalenceEngine).Assembly
-	if args.Name.StartsWith("tasks"):
-		return Assembly.GetExecutingAssembly()
-	return null
-	
-AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly
 		
 engine = PrevalenceActivator.CreateTransparentEngine(TaskList, "c:\\temp\\data")
 tasks as TaskList = engine.PrevalentSystem
