@@ -3,7 +3,7 @@
 
 	<property name="db4o.bin" value="${path::get-full-path('build')}" />
 	<property name="boo.base" value="${path::get-full-path('../../..')}" />
-	<property name="boo.bin" value="${boo.base}/build" />
+	<property name="boo.bin" value="${boo.base}/bin" />
 	
 	<include buildfile="../../../tests/nunit.inc" />
 	

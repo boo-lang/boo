@@ -22,6 +22,6 @@
 	</target>
 	
 	<target name="init">
-		<loadtasks assembly="../../build/Boo.NAnt.Tasks.dll" />
+		<loadtasks assembly="../../bin/Boo.NAnt.Tasks.dll" />
 	</target>
 </project>

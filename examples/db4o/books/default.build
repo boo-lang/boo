@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <project name="db4o sample" default="build">
 
-	<property name="db4o.bin" value="../../../../../dotnet/db4o30/dll" />
-	<property name="boo.bin" value="../../../build" />
+	<property name="db4o.bin" value="../../../../../dotnet/db4o-4.3/dll" />
+	<property name="boo.bin" value="../../../bin" />
 
 	<target name="build" depends="init">
 		<booc target="exe" output="build/books.exe">
