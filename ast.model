@@ -339,15 +339,15 @@ package Boo.Ast
 	<<enum>>
 	class BinaryOperatorType
 		None
-		Add
-		Subtract
+		Addition
+		Subtraction
 		Multiply
-		Divide
+		Division
 		Modulus
 		LessThan
-		LessEqualThan
+		LessThanOrEqual
 		GreaterThan
-		GreaterEqualThan
+		GreaterThanOrEqual
 		Equality
 		Inequality
 		Match
@@ -370,10 +370,10 @@ package Boo.Ast
 	<<enum>>
 	class UnaryOperatorType
 		None
-		ArithmeticNegate
+		UnaryNegation
 		Increment
 		Decrement
-		Not
+		LogicalNot
 	end
 	
 	class UnaryExpression(Expression)

@@ -655,12 +655,12 @@ namespace Boo.Lang.Ast.Visitors
 					return "--";
 				}
 					
-				case UnaryOperatorType.ArithmeticNegate:
+				case UnaryOperatorType.UnaryNegation:
 				{
 					return "-";
 				}
 				
-				case UnaryOperatorType.Not:
+				case UnaryOperatorType.LogicalNot:
 				{
 					return "not ";
 				}
@@ -692,7 +692,7 @@ namespace Boo.Lang.Ast.Visitors
 					return "!=";
 				}
 				
-				case BinaryOperatorType.Add:
+				case BinaryOperatorType.Addition:
 				{
 					return "+";
 				}
@@ -717,7 +717,7 @@ namespace Boo.Lang.Ast.Visitors
 					return "/=";
 				}
 				
-				case BinaryOperatorType.Subtract:
+				case BinaryOperatorType.Subtraction:
 				{
 					return "-";
 				}
@@ -727,7 +727,7 @@ namespace Boo.Lang.Ast.Visitors
 					return "*";
 				}
 				
-				case BinaryOperatorType.Divide:
+				case BinaryOperatorType.Division:
 				{
 					return "/";
 				}
@@ -737,7 +737,7 @@ namespace Boo.Lang.Ast.Visitors
 					return ">";
 				}
 				
-				case BinaryOperatorType.GreaterEqualThan:
+				case BinaryOperatorType.GreaterThanOrEqual:
 				{
 					return ">=";
 				}
@@ -747,7 +747,7 @@ namespace Boo.Lang.Ast.Visitors
 					return "<";
 				}
 				
-				case BinaryOperatorType.LessEqualThan:
+				case BinaryOperatorType.LessThanOrEqual:
 				{
 					return "<=";
 				}

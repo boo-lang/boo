@@ -1234,7 +1234,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			switch (node.Operator)
 			{
-				case UnaryOperatorType.Not:					
+				case UnaryOperatorType.LogicalNot:					
 				{
 					IBinding binding = ErrorBinding.Default;					
 					if (CheckBoolContext(node.Operand))
@@ -1316,13 +1316,13 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.Add:
+				case BinaryOperatorType.Addition:
 				{
 					BindArithmeticOperator(node);
 					break;
 				}
 				
-				case BinaryOperatorType.Subtract:
+				case BinaryOperatorType.Subtraction:
 				{
 					BindArithmeticOperator(node);
 					break;
@@ -1334,7 +1334,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.Divide:
+				case BinaryOperatorType.Division:
 				{
 					BindArithmeticOperator(node);
 					break;
@@ -1440,7 +1440,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.GreaterEqualThan:
+				case BinaryOperatorType.GreaterThanOrEqual:
 				{
 					BindCmpOperator(node);
 					break;
@@ -1452,7 +1452,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.LessEqualThan:
+				case BinaryOperatorType.LessThanOrEqual:
 				{
 					BindCmpOperator(node);
 					break;
@@ -1503,10 +1503,13 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					Error(node,
-						CompilerErrorFactory.InvalidOperatorForTypes(node,
-							GetBinaryOperatorText(node.Operator),
-							lhs.FullName, rhs.FullName));
+					if (!ResolveOperator(node))
+					{
+						Error(node,
+							CompilerErrorFactory.InvalidOperatorForTypes(node,
+								GetBinaryOperatorText(node.Operator),
+								lhs.FullName, rhs.FullName));
+					}
 				}
 			}
 		}
@@ -1813,7 +1816,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			UnaryExpression notNode = new UnaryExpression();
 			notNode.LexicalInfo = node.LexicalInfo;
 			notNode.Operand = node;
-			notNode.Operator = UnaryOperatorType.Not;
+			notNode.Operator = UnaryOperatorType.LogicalNot;
 			
 			Bind(notNode, BindingManager.BoolTypeBinding);
 			return notNode;
@@ -2108,16 +2111,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			switch (op)
 			{
 				case BinaryOperatorType.InPlaceAdd:
-					return BinaryOperatorType.Add;
+					return BinaryOperatorType.Addition;
 					
 				case BinaryOperatorType.InPlaceSubtract:
-					return BinaryOperatorType.Subtract;
+					return BinaryOperatorType.Subtraction;
 					
 				case BinaryOperatorType.InPlaceMultiply:
 					return BinaryOperatorType.Multiply;
 					
 				case BinaryOperatorType.InPlaceDivide:
-					return BinaryOperatorType.Divide;
+					return BinaryOperatorType.Division;
 			}
 			throw new ArgumentException("op");
 		}
@@ -2126,18 +2129,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			ITypeBinding left = GetExpressionType(node.Left);
 			ITypeBinding right = GetExpressionType(node.Right);
-			if (IsNumber(left))
+			if (IsNumber(left) && IsNumber(right))
 			{
-				if (IsNumber(right))
-				{
-					Bind(node, BindingManager.GetPromotedNumberType(left, right));
-				}
-				else
-				{
-					InvalidOperatorForTypes(node, node.Operator, left, right);
-				}
+				Bind(node, BindingManager.GetPromotedNumberType(left, right));
 			}
-			else
+			else if (!ResolveOperator(node))
 			{
 				InvalidOperatorForTypes(node, node.Operator, left, right);
 			}
@@ -2322,9 +2318,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				ITypeBinding expressionType = GetExpressionType(args[i]);
 				ITypeBinding parameterType = method.GetParameterType(i);
-				if (!IsAssignableFrom(parameterType, expressionType))
-				{
-					
+				if (!IsAssignableFrom(parameterType, expressionType) &&
+					!(IsNumber(expressionType) && IsNumber(parameterType)))
+				{					
 					return false;
 				}
 			}
@@ -2637,19 +2633,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		string GetMethodNameForOperator(BinaryOperatorType op)
 		{
-			switch (op)
-			{
-				case BinaryOperatorType.Equality:
-				{
-					return "op_Equality";
-				}
-				
-				case BinaryOperatorType.Inequality:
-				{
-					return "op_Inequality";
-				}
-			}
-			return null;
+			return "op_" + op.ToString();
 		}
 		
 		bool ResolveOperator(BinaryExpression node)

@@ -469,7 +469,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void EmitBranchTrue(UnaryExpression expression, Label label)
 		{
-			if (UnaryOperatorType.Not == expression.Operator)
+			if (UnaryOperatorType.LogicalNot == expression.Operator)
 			{
 				EmitBranchTrue(expression.Operand, label);
 			}
@@ -608,7 +608,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			switch (expression.Operator)
 			{
-				case UnaryOperatorType.Not:
+				case UnaryOperatorType.LogicalNot:
 				{
 					EmitBranchTrue(expression.Operand, label);
 					break;
@@ -678,7 +678,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			switch (node.Operator)
 			{
-				case UnaryOperatorType.Not:
+				case UnaryOperatorType.LogicalNot:
 				{
 					node.Operand.Switch(this);
 					ITypeBinding typeOnStack = PopType();
@@ -859,7 +859,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushBool();
 		}
 		
-		void OnGreaterEqualThan(BinaryExpression node)
+		void OnGreaterThanOrEqual(BinaryExpression node)
 		{
 			OnLessThan(node);
 			EmitIntNot();
@@ -872,7 +872,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushBool();
 		}
 		
-		void OnLessEqualThan(BinaryExpression node)
+		void OnLessThanOrEqual(BinaryExpression node)
 		{
 			OnGreaterThan(node);
 			EmitIntNot();
@@ -1029,13 +1029,13 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.Add:
+				case BinaryOperatorType.Addition:
 				{
 					OnArithmeticOperator(node);
 					break;
 				}
 				
-				case BinaryOperatorType.Subtract:
+				case BinaryOperatorType.Subtraction:
 				{
 					OnArithmeticOperator(node);
 					break;
@@ -1047,7 +1047,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.Divide:
+				case BinaryOperatorType.Division:
 				{
 					OnArithmeticOperator(node);
 					break;
@@ -1083,15 +1083,15 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.GreaterEqualThan:
+				case BinaryOperatorType.GreaterThanOrEqual:
 				{
-					OnGreaterEqualThan(node);
+					OnGreaterThanOrEqual(node);
 					break;
 				}
 				
-				case BinaryOperatorType.LessEqualThan:
+				case BinaryOperatorType.LessThanOrEqual:
 				{
-					OnLessEqualThan(node);
+					OnLessThanOrEqual(node);
 					break;
 				}
 				
@@ -1965,20 +1965,20 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				switch (op)
 				{
-					case BinaryOperatorType.Add: return OpCodes.Add_Ovf;
-					case BinaryOperatorType.Subtract: return OpCodes.Sub_Ovf;
+					case BinaryOperatorType.Addition: return OpCodes.Add_Ovf;
+					case BinaryOperatorType.Subtraction: return OpCodes.Sub_Ovf;
 					case BinaryOperatorType.Multiply: return OpCodes.Mul_Ovf;
-					case BinaryOperatorType.Divide: return OpCodes.Div;
+					case BinaryOperatorType.Division: return OpCodes.Div;
 				}
 			}
 			else
 			{
 				switch (op)
 				{
-					case BinaryOperatorType.Add: return OpCodes.Add;
-					case BinaryOperatorType.Subtract: return OpCodes.Sub;
+					case BinaryOperatorType.Addition: return OpCodes.Add;
+					case BinaryOperatorType.Subtraction: return OpCodes.Sub;
 					case BinaryOperatorType.Multiply: return OpCodes.Mul;
-					case BinaryOperatorType.Divide: return OpCodes.Div;
+					case BinaryOperatorType.Division: return OpCodes.Div;
 				}
 			}
 			throw new ArgumentException("op");

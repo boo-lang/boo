@@ -254,12 +254,12 @@ namespace Boo.Lang.Ast.Visitors
 		{
 			switch (o)
 			{
-				case BinaryOperatorType.Add:
+				case BinaryOperatorType.Addition:
 				{
 					return "+";
 				}
 
-				case BinaryOperatorType.Subtract:
+				case BinaryOperatorType.Subtraction:
 				{
 					return "-";
 				}
@@ -269,7 +269,7 @@ namespace Boo.Lang.Ast.Visitors
 					return "*";
 				}
 
-				case BinaryOperatorType.Divide:
+				case BinaryOperatorType.Division:
 				{
 					return "/";
 				}

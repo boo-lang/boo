@@ -210,7 +210,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void LeaveUnaryExpression(UnaryExpression node, ref Expression resultingNode)
 		{
-			if (UnaryOperatorType.ArithmeticNegate == node.Operator)
+			if (UnaryOperatorType.UnaryNegation == node.Operator)
 			{
 				if (NodeType.IntegerLiteralExpression == node.Operand.NodeType)
 				{

@@ -163,9 +163,9 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		switch (op)
 		{
 			case "<": return BinaryOperatorType.LessThan;
-			case "<=": return BinaryOperatorType.LessEqualThan;
+			case "<=": return BinaryOperatorType.LessThanOrEqual;
 			case ">": return BinaryOperatorType.GreaterThan;
-			case ">=": return BinaryOperatorType.GreaterEqualThan;
+			case ">=": return BinaryOperatorType.GreaterThanOrEqual;
 			case "==": return BinaryOperatorType.Equality;
 			case "!=": return BinaryOperatorType.Inequality;
 			case "=~": return BinaryOperatorType.Match;
@@ -179,7 +179,7 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		switch (op)
 		{
 			case "*": return BinaryOperatorType.Multiply;
-			case "/": return BinaryOperatorType.Divide;
+			case "/": return BinaryOperatorType.Division;
 			case "%": return BinaryOperatorType.Modulus;
 		}
 		throw new ArgumentException("op");
@@ -4595,7 +4595,7 @@ _loop169_breakloop:				;
 					{
 						
 									UnaryExpression ue = new UnaryExpression(ToLexicalInfo(nt));
-									ue.Operator = UnaryOperatorType.Not;
+									ue.Operator = UnaryOperatorType.LogicalNot;
 									ue.Operand = e;
 									e = ue;
 								
@@ -4932,7 +4932,7 @@ _loop198_breakloop:				;
 								match(ADD);
 								if (0==inputState.guessing)
 								{
-									op=add; bOperator = BinaryOperatorType.Add;
+									op=add; bOperator = BinaryOperatorType.Addition;
 								}
 								break;
 							}
@@ -4942,7 +4942,7 @@ _loop198_breakloop:				;
 								match(SUBTRACT);
 								if (0==inputState.guessing)
 								{
-									op=sub; bOperator = BinaryOperatorType.Subtract;
+									op=sub; bOperator = BinaryOperatorType.Subtraction;
 								}
 								break;
 							}
@@ -5208,7 +5208,7 @@ _loop205_breakloop:				;
 					match(SUBTRACT);
 					if (0==inputState.guessing)
 					{
-						op = sub; uOperator = UnaryOperatorType.ArithmeticNegate;
+						op = sub; uOperator = UnaryOperatorType.UnaryNegation;
 					}
 					break;
 				}

@@ -147,9 +147,9 @@ tokens
 		switch (op)
 		{
 			case "<": return BinaryOperatorType.LessThan;
-			case "<=": return BinaryOperatorType.LessEqualThan;
+			case "<=": return BinaryOperatorType.LessThanOrEqual;
 			case ">": return BinaryOperatorType.GreaterThan;
-			case ">=": return BinaryOperatorType.GreaterEqualThan;
+			case ">=": return BinaryOperatorType.GreaterThanOrEqual;
 			case "==": return BinaryOperatorType.Equality;
 			case "!=": return BinaryOperatorType.Inequality;
 			case "=~": return BinaryOperatorType.Match;
@@ -163,7 +163,7 @@ tokens
 		switch (op)
 		{
 			case "*": return BinaryOperatorType.Multiply;
-			case "/": return BinaryOperatorType.Divide;
+			case "/": return BinaryOperatorType.Division;
 			case "%": return BinaryOperatorType.Modulus;
 		}
 		throw new ArgumentException("op");
@@ -1175,7 +1175,7 @@ boolean_expression returns [Expression e]
 		e=boolean_expression
 		{
 			UnaryExpression ue = new UnaryExpression(ToLexicalInfo(nt));
-			ue.Operator = UnaryOperatorType.Not;
+			ue.Operator = UnaryOperatorType.LogicalNot;
 			ue.Operand = e;
 			e = ue;
 		}
@@ -1292,8 +1292,8 @@ sum returns [Expression e]
 	e=term
 	( options { greedy = true; } :
 		(
-			add:ADD! { op=add; bOperator = BinaryOperatorType.Add; } |
-			sub:SUBTRACT! { op=sub; bOperator = BinaryOperatorType.Subtract; } |
+			add:ADD! { op=add; bOperator = BinaryOperatorType.Addition; } |
+			sub:SUBTRACT! { op=sub; bOperator = BinaryOperatorType.Subtraction; } |
 			bitor:BITWISE_OR! { op=bitor; bOperator = BinaryOperatorType.BitwiseOr; }
 		)
 		r=term
@@ -1335,7 +1335,7 @@ unary_expression returns [Expression e]
 			UnaryOperatorType uOperator = UnaryOperatorType.None;
 	}: 
 	(
-		sub:SUBTRACT! { op = sub; uOperator = UnaryOperatorType.ArithmeticNegate; } |
+		sub:SUBTRACT! { op = sub; uOperator = UnaryOperatorType.UnaryNegation; } |
 		inc:INCREMENT! { op = inc; uOperator = UnaryOperatorType.Increment; } |
 		dec:DECREMENT! { op = dec; uOperator = UnaryOperatorType.Decrement; }
 	)?

@@ -218,7 +218,7 @@ namespace Boo.Tests.Ast.Parsing
 			bs = rs.Expression as BinaryExpression;
 			Assert.IsNotNull(bs, "bs");
 
-			Assert.AreEqual(BinaryOperatorType.Add, bs.Operator);			
+			Assert.AreEqual(BinaryOperatorType.Addition, bs.Operator);			
 			Assert.AreEqual("x", ((ReferenceExpression)bs.Left).Name);
 			Assert.AreEqual("y", ((ReferenceExpression)bs.Right).Name);
 		}
@@ -236,7 +236,7 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.AreEqual(1, mce.Arguments.Count);
 
 			BinaryExpression be = (BinaryExpression)mce.Arguments[0];
-			Assert.AreEqual(BinaryOperatorType.Add, be.Operator);
+			Assert.AreEqual(BinaryOperatorType.Addition, be.Operator);
 
 			mce = (MethodInvocationExpression)be.Left;
 			IntegerLiteralExpression ile = (IntegerLiteralExpression)mce.Arguments[0];
@@ -272,7 +272,7 @@ namespace Boo.Tests.Ast.Parsing
 			BinaryExpression a = (BinaryExpression)s.Expression;			
 			Assert.AreEqual(BinaryOperatorType.Assign, a.Operator);
 			Assert.AreEqual("f", ((ReferenceExpression)a.Left).Name);
-			Assert.AreEqual(BinaryOperatorType.Divide, ((BinaryExpression)a.Right).Operator);
+			Assert.AreEqual(BinaryOperatorType.Division, ((BinaryExpression)a.Right).Operator);
 		}
 
 		[Test]
