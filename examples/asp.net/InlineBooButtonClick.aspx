@@ -1,7 +1,7 @@
 <html>
     <script language="Boo" runat="server">
-    def ButtonClick(Sender as System.Object, E as EventArgs) :
-        Message.Text = Edit1.Text    
+    def ButtonClick():
+        Message.Text = Edit1.Text
     </script>
     <body>
     <form runat="server">
