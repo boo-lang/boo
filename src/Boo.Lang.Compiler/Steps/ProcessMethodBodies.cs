@@ -1178,6 +1178,8 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Filter);			
 			Visit(node.Expression);
 			LeaveNamespace();
+			
+			BindExpressionType(node, TypeSystemServices.IEnumerableType);
 		}
 		
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)
