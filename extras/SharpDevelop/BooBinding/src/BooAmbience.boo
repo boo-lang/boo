@@ -352,7 +352,7 @@ class BooAmbience(AbstractAmbience):
 		
 		builder.Append(')')
 		
-		if m.ReturnType != null and ShowReturnType:
+		if m.ReturnType != null and ShowReturnType and not m.IsConstructor:
 			builder.Append(' as ')
 			builder.Append(Convert(m.ReturnType))
 		
@@ -399,20 +399,17 @@ class BooAmbience(AbstractAmbience):
 		//if linkSet:
 		//	builder.Append('</a>')
 		
-		for i in range(returnType.PointerNestingLevel):
-			builder.Append('*')
+		if returnType.PointerNestingLevel > 0:
+			// Sometimes there are negative pointer nesting levels
+			// (especially in exception constructors in the BCL
+			for i in range(returnType.PointerNestingLevel):
+				builder.Append('*')
 		
 		for i in range(returnType.ArrayCount):
+			if returnType.ArrayDimensions[i] > 1:
+				builder.Append(',')
+				builder.Append(returnType.ArrayDimensions[i])
 			builder.Append(')')
-			/*
-			builder.Append(Char.Parse('['))
-			j as int = 1
-			while j < returnType.ArrayDimensions[i]:
-				builder.Append(Char.Parse(','))
-				++j
-			
-			builder.Append(Char.Parse(']'))
-			*/
 		
 		return builder.ToString()
 	
