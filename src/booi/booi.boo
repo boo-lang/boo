@@ -29,6 +29,7 @@
 import System
 import System.IO
 import System.Reflection
+import System.Security.Permissions
 import System.Threading
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
@@ -96,5 +97,9 @@ def Main(argv as (string)):
 			print(x.InnerException)
 			return -1
 	return 0
+	
+[assembly: SecurityPermission(
+						SecurityAction.RequestMinimum,
+						ControlAppDomain: true)] 
 	
 

@@ -1811,7 +1811,17 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveCastExpression(CastExpression node)
 		{
-			IType toType = GetType(node.Type);
+			IType fromType = GetExpressionType(node.Target);
+			IType toType = GetType(node.Type);			
+			if (!TypeSystemServices.AreTypesRelated(toType, fromType) &&
+				!(fromType.IsEnum && TypeSystemServices.IsIntegerNumber(toType)))
+			{
+				Error(
+					CompilerErrorFactory.IncompatibleExpressionType(
+						node,
+						toType.FullName,
+						fromType.FullName));
+			}
 			BindExpressionType(node, toType);
 		}
 		

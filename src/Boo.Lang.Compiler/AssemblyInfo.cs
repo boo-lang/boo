@@ -28,6 +28,11 @@
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Permissions;
+
+[assembly: ReflectionPermission(SecurityAction.RequestMinimum,
+								ReflectionEmit=true,
+								TypeInformation=true)]
 
 //
 // General Information about an assembly is controlled through the following 
