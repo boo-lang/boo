@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <project name="Boo asp.net examples" default="build">
 
-	<property name="booc" value="../../build/booc.exe" />
-	<property name="Boo.dll" value="../../build/Boo.dll" />
-	<property name="Boo.Lang.Compiler.dll" value="../../build/Boo.Lang.Compiler.dll" />
-	<property name="Boo.CodeDom.dll" value="../../build/Boo.CodeDom.dll" />
-	<property name="Boo.Lang.Parser.dll" value="../../build/Boo.Lang.Parser.dll" />
-	<property name="Boo.NAnt.Tasks.dll" value="../../build/Boo.NAnt.Tasks.dll" />
+	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
+	
+	<property name="Boo.dll" value="${boo.dir}/Boo.dll" />
+	<property name="Boo.Lang.Compiler.dll" value="${boo.dir}/Boo.Lang.Compiler.dll" />
+	<property name="Boo.CodeDom.dll" value="${boo.dir}/Boo.CodeDom.dll" />
+	<property name="Boo.Lang.Parser.dll" value="${boo.dir}/Boo.Lang.Parser.dll" />
+	<property name="Boo.NAnt.Tasks.dll" value="${boo.dir}/Boo.NAnt.Tasks.dll" />
 	
 	<target name="rebuild" depends="clean, build" />
 	
@@ -49,7 +50,7 @@
 	</target>
 	
 	<target name="run" depends="build">
-		<exec program="cassiniwebserver.exe">
+		<exec program="CassiniWebserver.exe">
 			<arg file="output" />
 			<arg value="8088" />
 		</exec>
