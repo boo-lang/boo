@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project name="db4o sample" default="build">
+
+	<property name="db4o.bin" value="../../../../dotnet/db4o30/dll" />
+
+	<target name="build" depends="init">
+		<booc target="exe" output="build/books.exe">
+			<sources basedir=".">
+				<include name="books.boo" />
+			</sources>
+			<references basedir="build">
+				<include name="db4o.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="init">
+		<mkdir dir="build" />
+		<copy todir="build">
+			<fileset basedir="../../build">
+				<include name="Boo.dll" />
+			</fileset>
+		</copy>
+		<copy todir="build">
+			<fileset basedir="${db4o.bin}/${framework::get-family(framework::get-target-framework())}">
+				<include name="db4o.dll" />
+			</fileset>
+		</copy>
+		
+		<loadtasks assembly="../../build/Boo.NAnt.dll" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+	
+</project>
