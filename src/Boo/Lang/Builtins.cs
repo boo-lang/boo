@@ -115,6 +115,11 @@ namespace Boo.Lang
 			return Array.CreateInstance(elementType, length);
 		}
 		
+		public static IEnumerable iterator(object enumerable)
+		{
+			return RuntimeServices.GetEnumerable(enumerable);
+		}
+		
 		[EnumeratorItemType(typeof(object[]))]
 		public static IEnumerable enumerate(object enumerable)
 		{			

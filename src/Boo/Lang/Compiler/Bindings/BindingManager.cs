@@ -339,7 +339,11 @@ namespace Boo.Lang.Compiler.Bindings
 				}
 				return new AmbiguousBinding(bindings);
 			}
-			return AsBinding(info[0]);
+			if (info.Length > 0)
+			{
+				return AsBinding(info[0]);
+			}
+			return null;
 		}
 		
 		public IBinding AsBinding(System.Reflection.MemberInfo mi)

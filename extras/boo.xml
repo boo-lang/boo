@@ -176,6 +176,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD3>map</KEYWORD3>
 			<KEYWORD3>join</KEYWORD3>
 			<KEYWORD3>cat</KEYWORD3>
+			<KEYWORD3>iterator</KEYWORD3>
 			
 			<!-- standard macros and attributes -->
 			<KEYWORD3>using</KEYWORD3>
