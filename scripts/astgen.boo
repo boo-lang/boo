@@ -83,17 +83,10 @@ namespace Boo.Lang.Compiler.Ast
 """)
 
 def FormatParameterList(fields as List):
-	buffer = System.Text.StringBuilder()
-	last = fields[-1]
-	
-	for field as Field in fields:
-		buffer.Append(field.Type)
-		buffer.Append(" ")
-		buffer.Append(GetParameterName(field))
-		if field is not last:
-			buffer.Append(", ")
-			
-	return buffer.ToString()
+	return join(
+			"${field.Type} ${GetParameterName(field)}"
+			for field as Field in fields,
+			", ")
 	
 def GetParameterName(field as Field):
 	name = field.Name
@@ -726,33 +719,26 @@ def GetPrivateName(field as Field):
 	
 def GetSimpleFields(node as ClassDefinition):
 	
-	fields = []
-	for field as Field in node.Members:
-		if IsCollectionField(field) or field.Attributes.Contains("auto"):
-			continue
-		fields.Add(field)
-	return fields
+	return [field
+			for field as Field in node.Members
+			unless IsCollectionField(field) or field.Attributes.Contains("auto")]
 	
 def GetAllFields(node as ClassDefinition):
 	fields = []
-	module as Module = node.ParentNode
 	
 	for item as TypeDefinition in GetTypeHierarchy(node):
-		for field as Field in item.Members:
-			fields.Add(field)
+		fields.Extend(item.Members)
+			
 	return fields
 
 def GetAcceptableFields(item as ClassDefinition):
-	fields = []
 	
-	module as Module = item.ParentNode
+	fields = []
 	
 	for item as TypeDefinition in GetTypeHierarchy(item):	
 		for field as Field in item.Members:
 			type = ResolveFieldType(field)
-			if type:
-				if not IsEnum(type):
-					fields.Add(field)
+			fields.Add(field) if type and not IsEnum(type)
 	
 	return fields
 

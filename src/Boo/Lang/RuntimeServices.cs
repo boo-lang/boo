@@ -37,17 +37,18 @@ namespace Boo.Lang
 
 	public class RuntimeServices
 	{
-		const BindingFlags InvokeBindingFlags = BindingFlags.Public|
-												BindingFlags.InvokeMethod|
+		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
+												BindingFlags.OptionalParamBinding |
 												BindingFlags.Instance;
+									
+		const BindingFlags InvokeBindingFlags = DefaultBindingFlags |
+												BindingFlags.InvokeMethod;												
 												
-		const BindingFlags SetPropertyBindingFlags = BindingFlags.Public|
-												BindingFlags.SetProperty|
-												BindingFlags.Instance;
+		const BindingFlags SetPropertyBindingFlags = DefaultBindingFlags |
+												BindingFlags.SetProperty;
 												
-		const BindingFlags GetPropertyBindingFlags = BindingFlags.Public|
-												BindingFlags.GetProperty|
-												BindingFlags.Instance;
+		const BindingFlags GetPropertyBindingFlags = DefaultBindingFlags |
+												BindingFlags.GetProperty;
 			
 		public static object Invoke(object target, string name, object[] args)
 		{

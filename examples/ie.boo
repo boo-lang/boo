@@ -1,7 +1,7 @@
 import System.Threading
 
 def CreateInstance(progid):
-	type = System.Type.GetTypeFromProgID(progid)
+	type = System.Type.GetTypeFromProgID(progid)	
 	return type()	
 
 ie as duck = CreateInstance("InternetExplorer.Application")
