@@ -748,6 +748,12 @@ namespace Boo.Tests.Ast.Parsing
 			RunParserTestCase("nested_comments.boo");
 		}
 		
+		[Test]
+		public void LineContinuation()
+		{
+			RunParserTestCase("line_continuation0.boo");
+		}
+		
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{
