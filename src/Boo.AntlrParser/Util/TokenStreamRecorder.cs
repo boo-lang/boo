@@ -63,14 +63,29 @@ namespace Boo.AntlrParser.Util
 			 return (Token)_queue.Dequeue();
 		}
 	
-		public int RecordUntil(TokenStream stream, int ttype)
+		public int RecordUntil(TokenStream stream, int closeToken, int openToken)
 		{
 			int cTokens = 0;
 		
 			ods("> RecordUntil");
+			
+			int expectedCount = 1;
 			Token token = stream.nextToken();
-			while (ttype != token.Type)
+			while (true)
 			{			
+				if (closeToken == token.Type)
+				{
+					--expectedCount;
+					if (0 == expectedCount)
+					{
+						break;
+					}
+				}
+				if (openToken == token.Type)
+				{
+					++expectedCount;
+				}
+				
 				if (token.Type < Token.MIN_USER_TYPE)
 				{
 					break;

@@ -2046,7 +2046,7 @@ expression_interpolation returns [ExpressionInterpolationExpression e]
 	(  options { greedy = true; } :
 		
 		ESEPARATOR		
-		param=expression { e.Expressions.Add(param); }
+		param=expression { if (null != param) { e.Expressions.Add(param); } }
 		ESEPARATOR
 	)*
 	;
@@ -2463,7 +2463,7 @@ protected
 ESCAPED_EXPRESSION : "${"!
 	{		
 		_erecorder.Enqueue(makeESEPARATOR());
-		if (0 == _erecorder.RecordUntil(_el, RBRACE))
+		if (0 == _erecorder.RecordUntil(_el, RBRACE, LBRACE))
 		{	
 			_erecorder.Dequeue();			
 		}
