@@ -90,6 +90,7 @@
 				<include name="${reladdin.dir}/*.dll"/>
 			</fileset>
 		</zip>
+		<copy file="../../booish.gui/src/PromptBox.boo" todir="src" />
 		<zip zipfile="BooBindingSource.zip" ziplevel="9" includeemptydirs="false">
 			<fileset basedir=".">
 				<include name="**/*.xft"/>
@@ -104,5 +105,6 @@
 				<include name="**/*.png"/>
 			</fileset>
 		</zip>
+		<delete file="src/PromptBox.boo" />
 	</target>
 </project>

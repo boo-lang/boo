@@ -412,7 +412,6 @@ class BooVisitor(AbstractASTVisitor):
 	
 	override def Visit(indexerDeclaration as IndexerDeclaration, data):
 		DebugOutput(indexerDeclaration);
-		// TODO: Add [DefaultMember("h")] to class
 		AppendAttributes(indexerDeclaration.Attributes);
 		AppendIndentation();
 		_sourceText.Append(GetModifier(indexerDeclaration.Modifier, Modifier.Public));
@@ -911,8 +910,7 @@ class BooVisitor(AbstractASTVisitor):
 		right = binaryOperatorExpression.Right.AcceptVisitor(self, data).ToString();
 		opType = binaryOperatorExpression.Op
 		
-		// op = " " + opType.ToString() + " " // TODO compiler bug: BOO-178
-		op = " ??? "
+		op = " " + opType.ToString() + " "
 		
 		op = " + "    if opType == BinaryOperatorType.Add
 		op = " - "    if opType == BinaryOperatorType.Subtract
@@ -971,8 +969,8 @@ class BooVisitor(AbstractASTVisitor):
 		DebugOutput(unaryOperatorExpression);
 		expr = unaryOperatorExpression.Expression.AcceptVisitor(self, data).ToString();
 		opType = unaryOperatorExpression.Op
-		//op = opType.ToString() + " " // TODO compiler bug: BOO-178
-		op = "?? "
+		op = opType.ToString() + " "
+		
 		// TODO: Bitwise not operator
 		op = "~"    if opType == UnaryOperatorType.BitNot
 		op = "--"   if opType == UnaryOperatorType.Decrement
@@ -1009,8 +1007,7 @@ class BooVisitor(AbstractASTVisitor):
 		op = " & "   if opType == AssignmentOperatorType.BitwiseAnd
 		op = " | "   if opType == AssignmentOperatorType.BitwiseOr
 		return left + " = " + left + op + right if op != null
-		//return left + " " + opType.ToString() + " " + right // TODO compiler bug: BOO-178
-		return left + " ??= " + right
+		return left + " " + opType.ToString() + " " + right
 	
 	override def Visit(sizeOfExpression as SizeOfExpression, data):
 		DebugOutput(sizeOfExpression);
