@@ -379,7 +379,8 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
-		{			
+		{	
+			/*
 			string fname = module.LexicalInfo.FileName;
 			if (null != fname)
 			{
@@ -389,6 +390,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_symbolDocWriter = null;
 			}
+			*/
 			Visit(module.Members);
 		}
 		
