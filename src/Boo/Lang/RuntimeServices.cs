@@ -145,16 +145,10 @@ namespace Boo.Lang
 		}
 		
 		public static Array GetRange2(Array source, int begin, int end)
-		{
-			if (begin < 0)
-			{
-				begin += source.Length;
-			}
-			if (end < 0)
-			{
-				end += source.Length;
-			}
-			
+		{			
+			int sourceLen = source.Length;
+			begin = NormalizeIndex(sourceLen, begin);
+			end = NormalizeIndex(sourceLen, end);
 			int targetLen = end-begin;
 			Array target = Array.CreateInstance(source.GetType().GetElementType(), targetLen);
 			Array.Copy(source, begin, target, 0, targetLen);
@@ -173,14 +167,34 @@ namespace Boo.Lang
 			}
 		}
 		
+		public static int NormalizeIndex(int len, int index)
+		{
+			if (index < 0)
+			{
+				index += len;
+			}
+			
+			if (index < 0)
+			{
+				return 0;
+			}
+			
+			if (index > len)
+			{
+				return len;
+			}
+			
+			return index;
+		}
+		
 		public static int NormalizeArrayIndex(Array array, int index)
 		{
-			return index < 0 ? array.Length + index : index;
+			return NormalizeIndex(array.Length, index);
 		}
 		
 		public static int NormalizeStringIndex(string s, int index)
 		{
-			return index < 0 ? s.Length + index : index;
+			return NormalizeIndex(s.Length, index);
 		}
 		
 		public static IEnumerable GetEnumerable(object enumerable)
