@@ -1,0 +1,140 @@
+* a lista de tarefas migrou para http://bamboo.is-a-geek.org:8080/boo/wiki/TodoList
+
+Geração de Código
+=================
+
+Milestone 1 (hello.boo)
+-----------------------
+
+Análise Semantica
+.................
+
+Esta fase pode ser vista como uma pipeline composta por vários componentes,
+cada um responsável por uma atribuição bem específica tal como: resolver mixins e
+processar a AST de acordo, resolver atributos e processar a AST de acordo, normalizar
+a AST, otimizar a AST (const unfolding, etc), resolver nomes e tipos.
+
+A pipeline tem a seguinte ordem:
+
+	* AstMixinProcessor: resolve e aplica mixins aos nós adequados;
+	* AstAttributeProcessor: resolve e aplica ATAs;
+	* AstNormalizationProcessor:  normaliza expressões e sentenças;
+	* AstOptimizerProcessor:
+
+Ap�s todos os passos serem executados com sucesso, um gerador de c�digo
+pode ser invocado. A gera��o de c�digo, neste ponto, � trivial pois
+a �rvore est� com o layout normalizado, e pode ser executada em
+uma navega��o simples do topo �s folhas. Dois geradores de
+c�digo est�o previstos, um que gera IL textual e ser� o primeiro
+a ser desenvolvido, e um segundo que utiliza a API Reflection.Emit
+(e permite que boo seja utilizado como uma linguagem de script j�
+que assemblies tempor�rios podem ser gerados com facilidade).
+
+Passos
+......
+
+- O primeiro passo é criar uma classe para representar o m�dulo e transferir
+o m�todos globais para esta classe. Os statements globais devem ir para 
+um m�todo especial de nome ModuleMain.
+
+- O segundo passo � a normaliza��o da estrutura da �rvore, neste passo
+todos os statement modifiers s�o transformados em blocos if/unless/while
+equivalentes. Neste passo tb�m, todos os membros de todas as classes tem
+seu modifiers conferidos e normalizados (atributos recebem visibilidade
+protected por default, propriedades e m�todos, p�blica). Todos as 
+defini��es de tipo recebem tb�m a informa��o de namespace.
+
+- Antes que o processo de resolu��o de nomes (tipo e m�todos) se inicie
+todos os nomes globais s�o registrados com o objeto TypeResolver (symbol table), 
+um tree walker � capaz de implementar esta funcionalidade.
+
+- O pr�ximo passo deve ser a resolu��o dos tipos utilizados em express�es j�
+que a resolu��o de m�todos depende desta an�lise. O objeto TypeResolver �
+utilizado para resolu��o de tipos. Nenhum tratamento de escopo � necess�rio
+pois todos os nomes de tipo s�o globais. Novamente um tree walker � suficiente.
+Este passo pode executar o processo de resolu��o de express�es composta
+de literais.
+
+- certas transforma��es que s�o melhor executadas com informa��o de tipo
+podem ser executadas: unpacking.
+
+- Neste passo, os assignments e declara��es (como em um for, por exemplo)
+s�o analisados e as vari�veis locais apropriadas s�o criadas. As tabelas
+de escopo de nomes (associados a n�s BLOCK) s�o criadas.
+
+- Neste ponto, todas as refer�ncias podem ser resolvidas. Um tree walker
+com um pilha para escopos � suficiente.
+
+- Todo os m�todos podem ser resolvidos aqui.
+
+- Tudo pronto para a gera��o de c�digo.
+
+
+Milestone 2 (debug)
+-------------------
+
+* line numbers na vers�o de depura��o
+* depurar com o mscordbg
+
+Milestone 3 (grep.boo)
+----------------------
+
+* express�es simples com inteiros
+* concatena��o de strings
+* concatena��o de strings com inteiros
+* defini��o de m�todos do m�dulo
+* chamada de m�todos do m�dulo
+* native regular expression support:
+	* re expression /foo/
+	* match operator ~=
+* for item in enumerator
+* statement modifiers:
+	* if
+	* unless
+	* while
+	* until
+* unpacking
+
+Milestone 4
+-----------
+
+* classes
+* declara��o de campos
+* declara��o de propriedades
+* defini��o de m�todos
+* classes devem ser serializ�veis
+* chamada de m�todos est�ticos (classes internas)
+* cria��o de objetos (classes internas)
+* chamada de m�todos instance
+* null expression
+* assert statement
+* tuples (arrays) - operador v�rgula => a = 3, 5
+* tuple unpacking - a, b  = 3, 5
+* tuple indexing (a[0] = 1)
+* for item in tuple
+* property access
+* property assignment
+* list creation [1, 2, 3]
+* list indexing
+* bool (true, false)
+* operadores de convers�o (operator bool, operator string, etc)
+
+Milestone 5 (delegate support)
+------------------------------
+
+* automatic delegation instance creation
+* automatic delegation interface adaptation
+
+Milestone 6
+-----------
+
+* enum
+* interface
+* property
+
+Otimiza��es
+-----------
+* const expression unfolding
+* proper tail recursion (fatorial)
+* for item in array/tuple => traduzir indexa��o direta do array com checagem de
+bounds, o JIT � capaz de detectar esses patterns e otimizar o c�digo de acordo

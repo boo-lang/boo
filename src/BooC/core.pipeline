@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<pipeline>
+
+	<step type='Boo.Ast.Compilation.Steps.BooParsingStep, Boo' />
+	<step type='Boo.Ast.Compilation.Steps.AstAttributesStep, Boo' />
+	<step type='Boo.Ast.Compilation.Steps.ModuleStep, Boo' />
+
+</pipeline>

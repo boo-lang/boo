@@ -1,0 +1,34 @@
+<project name="si" default="build">
+
+	<property file="build.properties" />
+
+	<property name="antlr.home" location="../../lib/antlr-2.7.2" />	
+	<property name="antlr.runtime.dll" location="${antlr.home}/bin/antlr.runtime.dll" />
+	<property name="antlr.exe" location="${antlr.home}/bin/antlr.exe" />
+	
+	<target name="build" depends="compile-grammars">
+		<csc
+			targettype="exe"
+			destfile="si.exe"
+			srcdir="."
+			references="${antlr.runtime.dll};" />		
+	</target>
+
+	<target name="compile-grammars" depends="init">
+		<exec executable="${antlr.exe}" failonerror="true">
+			<!-- arg value="-traceParser" / -->
+			<!-- arg value="-traceLexer" / -->
+			<arg path="si.g" />
+		</exec>
+		
+		<exec executable="${antlr.exe}" failonerror="true">
+			<!-- arg value="-traceLexer" / -->
+			<arg path="esi.g" />
+		</exec>
+	</target>
+	
+	<target name="init">
+		<copy todir="." file="${antlr.runtime.dll}" />
+	</target>
+	
+</project>

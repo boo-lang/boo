@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Module xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Modifiers>None</Modifiers>
+  <Name>expressions_3</Name>
+  <Attributes />  
+  <Members />
+  <BaseTypes />
+  <Using />
+  <Globals>
+    <Statements>
+      <Statement xsi:type="ExpressionStatement">
+        <Expression xsi:type="BinaryExpression">
+			<Operator>Assign</Operator>
+          <Left xsi:type="ReferenceExpression">
+            <Name>i</Name>
+          </Left>
+          <Right xsi:type="IntegerLiteralExpression">
+            <Value>0</Value>
+          </Right>
+        </Expression>
+      </Statement>
+      <Statement xsi:type="ExpressionStatement">
+        <Expression xsi:type="BinaryExpression">
+			<Operator>Assign</Operator>
+          <Left xsi:type="ReferenceExpression">
+            <Name>a</Name>
+          </Left>
+          <Right xsi:type="BinaryExpression">
+            <Operator>Multiply</Operator>
+            <Left xsi:type="IntegerLiteralExpression">
+              <Value>3</Value>
+            </Left>
+            <Right xsi:type="UnaryExpression">
+              <Operator>Increment</Operator>
+              <Operand xsi:type="ReferenceExpression">
+                <Name>i</Name>
+              </Operand>
+            </Right>
+          </Right>
+        </Expression>
+      </Statement>
+      <Statement xsi:type="ExpressionStatement">
+        <Expression xsi:type="BinaryExpression">
+			<Operator>Assign</Operator>
+          <Left xsi:type="ReferenceExpression">
+            <Name>b</Name>
+          </Left>
+          <Right xsi:type="BinaryExpression">
+            <Operator>Multiply</Operator>
+            <Left xsi:type="UnaryExpression">
+              <Operator>Decrement</Operator>
+              <Operand xsi:type="ReferenceExpression">
+                <Name>i</Name>
+              </Operand>
+            </Left>
+            <Right xsi:type="IntegerLiteralExpression">
+              <Value>2</Value>
+            </Right>
+          </Right>
+        </Expression>
+      </Statement>
+      <Statement xsi:type="ExpressionStatement">
+        <Expression xsi:type="BinaryExpression">
+			<Operator>Assign</Operator>
+          <Left xsi:type="ReferenceExpression">
+            <Name>c</Name>
+          </Left>
+          <Right xsi:type="BinaryExpression">
+            <Operator>Subtract</Operator>
+            <Left xsi:type="BinaryExpression">
+              <Operator>Add</Operator>
+              <Left xsi:type="IntegerLiteralExpression">
+                <Value>1</Value>
+              </Left>
+              <Right xsi:type="UnaryExpression">
+                <Operator>Increment</Operator>
+                <Operand xsi:type="ReferenceExpression">
+                  <Name>i</Name>
+                </Operand>
+              </Right>
+            </Left>
+            <Right xsi:type="IntegerLiteralExpression">
+              <Value>2</Value>
+            </Right>
+          </Right>
+        </Expression>
+      </Statement>
+    </Statements>
+  </Globals>
+</Module>

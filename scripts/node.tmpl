@@ -1,0 +1,69 @@
+#import csharp as cs
+#def initializer()
+	#for field in $item.fields
+		#if cs.isCollection($model.resolve($field.type))
+			$cs.toPrivateName($field.name) = new ${field.type}(this);
+		#end if
+		#if "auto" in $field.attributes
+			$field.name = new ${field.type}();
+		#end if
+	#end for
+#end def
+#def formatParameters(fields): #echo ", ".join([$cs.toLocalName(f.name) for f in fields])
+#def constructorParameters(fields)
+	#for field in $fields
+$field.type $cs.toLocalName(field.name)#slurp
+	#if $field != $fields[-1]
+, #slurp
+	#end if
+	#end for
+#end def
+#def abstract(item)
+	#if "abstract" in $item.attributes
+abstract #slurp
+	#end if
+#end def
+#def getTargetFileName(): src/Boo/Ast/${item.name}.cs
+using System;
+using Boo.Ast.Impl;
+
+namespace Boo.Ast
+{
+#for derivedType in $cs.getDerivedTypes($item)
+	[System.Xml.Serialization.XmlInclude(typeof($derivedType))]
+#end for
+	[Serializable]
+	public ${abstract($item)}class $item.name : ${item.name}Impl
+	{		
+		public ${item.name}()
+		{
+$initializer() #slurp
+		}
+		#set simpleFields=list(cs.getNonAutoFields($item.fields))
+		#if $simpleFields
+		
+		public ${item.name}($constructorParameters($simpleFields)) : base($formatParameters($simpleFields))
+		{
+		}
+		
+		public ${item.name}(antlr.Token token, $constructorParameters($simpleFields)) : base(token, $formatParameters($simpleFields))
+		{
+		}
+		#end if
+		
+		internal ${item.name}(antlr.Token token) : base(token)
+		{
+		}
+		
+		internal ${item.name}(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		{
+		}
+		#unless "abstract" in $item.attributes
+		
+		public override void Switch(IAstSwitcher switcher)
+		{
+			switcher.On${item.name}(this);
+		}
+		#end unless		
+	}
+}

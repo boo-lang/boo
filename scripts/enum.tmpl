@@ -1,0 +1,22 @@
+#from CSharpTemplate import CSharpTemplate
+#extends CSharpTemplate
+#implements body
+	public enum $item.name
+	{
+	#set last = $item.fields[-1]
+	#for field in $item.fields
+		#if $field == $last
+			#if $field.initializer
+		$field.name = $field.initializer
+			#else
+		$field.name
+			#end if
+		#else
+			#if $field.initializer
+		$field.name = $field.initializer,
+			#else
+		$field.name,
+			#end if
+		#end if
+	#end for
+	}

@@ -1,0 +1,46 @@
+#def getTargetFileName(): src/Boo/Ast/DepthFirstSwitcher.cs
+using System;
+
+namespace Boo.Ast
+{
+	public class DepthFirstSwitcher : IAstSwitcher
+	{
+		public void Switch(Boo.Util.ISwitchable switchable)
+		{
+			if (null != switchable)
+			{			
+				switchable.Switch(this);
+			}
+		}
+		
+		#for item in $model
+			#unless $item.stereotype in ("collection", "enum") or "abstract" in $item.attributes
+				#set switchableFields = list(cs.getSwitchableFields(cs.getAllFields($item)))
+		public virtual void On${item.name}(${item.name} node)
+		{			
+				#if switchableFields
+			if (Enter${item.name}(node))
+			{		
+					#for field in switchableFields
+				Switch(node.${field.name});
+					#end for
+			}
+			Leave${item.name}(node);
+				#end if
+		}
+		
+				#if switchableFields
+		public virtual bool Enter${item.name}(${item.name} node)
+		{
+			return true;
+		}
+		
+		public virtual void Leave${item.name}(${item.name} node)
+		{
+		}
+		
+				#end if
+			#end unless
+		#end for
+	}
+}

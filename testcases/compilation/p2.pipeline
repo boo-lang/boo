@@ -1,0 +1,3 @@
+<pipeline extends='p1'>
+	<step type='Boo.Tests.Ast.Compilation.DummyStep2, Boo.Tests' />
+</pipeline>

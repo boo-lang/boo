@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Module xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Modifiers>None</Modifiers>
+  <Name>expressions_2</Name>
+  <Attributes />  
+  <Members />
+  <BaseTypes />
+  <Using />
+  <Globals>
+    <Statements>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>Assign</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>a</Name>
+				</Left>		
+				<Right xsi:type="MethodInvocationExpression">
+					<Target xsi:type="ReferenceExpression">
+						<Name>int</Name>
+					</Target>
+					<Arguments>
+						<Expression xsi:type="MethodInvocationExpression">
+							<Target xsi:type="ReferenceExpression">
+								<Name>prompt</Name>
+							</Target>
+							<Arguments>
+								<Expression xsi:type="StringLiteralExpression">
+									<Value>outro? </Value>
+								</Expression>
+							</Arguments>
+							<NamedArguments />
+						</Expression>
+					</Arguments>
+					<NamedArguments />
+				</Right>
+			</Expression>
+		</Statement>
+      <Statement xsi:type="IfStatement">
+        <Expression xsi:type="BinaryExpression">
+          <Operator>GreaterThan</Operator>
+          <Left xsi:type="BinaryExpression">
+            <Operator>Subtract</Operator>
+            <Left xsi:type="ReferenceExpression">
+              <Name>a</Name>
+            </Left>
+            <Right xsi:type="IntegerLiteralExpression">
+              <Value>5</Value>
+            </Right>
+          </Left>
+          <Right xsi:type="IntegerLiteralExpression">
+            <Value>3</Value>
+          </Right>
+        </Expression>
+        <TrueBlock>
+          <Statements>
+            <Statement xsi:type="ExpressionStatement">
+              <Expression xsi:type="BinaryExpression">
+			  	<Operator>Assign</Operator>
+                <Left xsi:type="ReferenceExpression">
+                  <Name>b</Name>
+                </Left>
+                <Right xsi:type="BinaryExpression">
+                  <Operator>Add</Operator>
+                  <Left xsi:type="BinaryExpression">
+                    <Operator>Multiply</Operator>
+                    <Left xsi:type="IntegerLiteralExpression">
+                      <Value>3</Value>
+                    </Left>
+                    <Right xsi:type="ReferenceExpression">
+                      <Name>a</Name>
+                    </Right>
+                  </Left>
+                  <Right xsi:type="IntegerLiteralExpression">
+                    <Value>5</Value>
+                  </Right>
+                </Right>
+              </Expression>
+            </Statement>
+          </Statements>
+        </TrueBlock>
+        <FalseBlock>
+          <Statements>
+            <Statement xsi:type="ExpressionStatement">
+              <Expression xsi:type="BinaryExpression">
+			  	<Operator>Assign</Operator>
+                <Left xsi:type="ReferenceExpression">
+                  <Name>b</Name>
+                </Left>
+                <Right xsi:type="BinaryExpression">
+                  <Operator>Multiply</Operator>
+                  <Left xsi:type="IntegerLiteralExpression">
+                    <Value>2</Value>
+                  </Left>
+                  <Right xsi:type="ReferenceExpression">
+                    <Name>a</Name>
+                  </Right>
+                </Right>
+              </Expression>
+            </Statement>
+          </Statements>
+        </FalseBlock>
+      </Statement>
+    </Statements>
+  </Globals>
+</Module>

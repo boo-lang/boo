@@ -1,0 +1,261 @@
+using System;
+using System.IO;
+using Boo.Lang;
+using Boo.Ast;
+using Boo.Ast.Parsing;
+using Boo.Ast.Compilation;
+using Boo.Ast.Compilation.IO;
+using Boo.Ast.Compilation.Steps;
+using NUnit.Framework;
+using Boo.Tests;
+
+namespace Boo.Tests.Ast.Compilation.Processors
+{
+	/// <summary>
+	/// Um exemplo de atributo que adiciona o atributo required
+	/// a todos os atributos de um mtodo.
+	/// </summary>
+	public class AllParametersRequiredAttribute : AstAttribute
+	{
+		public AllParametersRequiredAttribute()
+		{
+		}
+
+		public override void Apply(Node node)
+		{
+			Method m = node as Method;
+			if (null == m)
+			{
+				throw new ApplicationException("Este parmetro s pode ser aplicado a mtodos.");
+			}
+
+			foreach (ParameterDeclaration pd in m.Parameters)
+			{
+				pd.Attributes.Add(new Boo.Ast.Attribute("required"));
+			}
+		}
+	}
+
+	public class ViewStateAttribute : AstAttribute
+	{
+		Expression _default;
+
+		public ViewStateAttribute()
+		{
+		}
+
+		/// <summary>
+		/// Valor do campo quando no existe ou  nulo no ViewState.
+		/// </summary>
+		public Expression Default
+		{
+			get
+			{
+				return _default;
+			}
+
+			set
+			{
+				_default = value;
+			}
+		}
+
+		public override void Apply(Node node)
+		{
+			Field f = (Field)node;
+
+			Property p = new Property();
+			p.Name = f.Name;
+			p.Type = f.Type;
+			p.Setter = CreateSetter(f);
+			p.Getter = CreateGetter(f);
+
+			((TypeDefinition)f.ParentNode).Members.Replace(f, p);			
+		}
+
+		Method CreateSetter(Field f)
+		{
+			Method m = new Method();
+			m.Name = "set";
+			m.Body.Statements.Add(
+				new ExpressionStatement(
+					new BinaryExpression(
+						BinaryOperatorType.Assign,
+						CreateViewStateSlice(f),
+						new ReferenceExpression("value")
+					)
+				)
+			);
+			return m;
+		}
+
+		Method CreateGetter(Field f)
+		{
+			Method m = new Method();
+			m.Name = "get";
+
+			// value = ViewState["<f.Name>"]
+			m.Body.Statements.Add(
+				new ExpressionStatement(
+					new BinaryExpression(
+						BinaryOperatorType.Assign,
+						new ReferenceExpression("value"),
+						CreateViewStateSlice(f)
+					)
+				)
+			);
+
+			if (null != _default)
+			{
+				// return <_default> unless value
+				ReturnStatement rs = new ReturnStatement(_default);
+				rs.Modifier = new StatementModifier(StatementModifierType.Unless, new ReferenceExpression("value"));
+				m.Body.Statements.Add(rs);
+			}
+
+			// return value
+			m.Body.Statements.Add(
+				new ReturnStatement(
+					new ReferenceExpression("value")
+				)
+			);
+
+			return m;
+		}
+
+		Expression CreateViewStateSlice(Field f)
+		{
+			// ViewState["<f.Name>"]
+			return new SlicingExpression(
+				new ReferenceExpression("ViewState"),
+				new StringLiteralExpression(f.Name),
+				null, 
+				null
+				);
+		}
+	}
+
+	/// <summary>	
+	/// </summary>
+	[TestFixture]
+	public class AstAttributesStepTestCase : Assertion
+	{
+		[Test]
+		public void TestRequiredAttribute()
+		{
+			RunTestCase("AttributeProcessor_1_expected.boo", "AttributeProcessor_1.boo");
+		}
+
+		[Test]
+		public void TestGetterAttribute()
+		{
+			RunTestCase("AttributeProcessor_2_expected.boo", "AttributeProcessor_2.boo");
+		}
+
+		[Test]
+		public void TestAttributeGeneratingAttribute()
+		{
+			string actual = @"
+
+using Boo.Tests.Ast.Compilation.Processors
+
+class Customer:
+	[AllParametersRequired]
+	def constructor(fname as string, lname as string):
+		pass
+";
+
+			string expected = @"
+
+using Boo.Tests.Ast.Compilation.Processors
+
+class Customer:	
+	def constructor(fname as string, lname as string):
+		raise ArgumentNullException('fname') unless fname
+		raise ArgumentNullException('lname') unless lname
+";
+			RunStringTestCase("[ata gerando ata]", expected, actual);
+			
+		}
+
+		[Test]
+		public void TestAttributeWithNamedParameter()
+		{
+			string actual = @"
+using Boo.Tests.Ast.Compilation.Processors
+using System.Web
+
+class MyControl(Control):
+	[ViewState(Default: 70)]
+	Width as int
+";
+			string expected = @"
+using Boo.Tests.Ast.Compilation.Processors
+using System.Web
+
+class MyControl(Control):
+	Width as int:
+		get:
+			value = ViewState['Width']	
+			return 70 unless value
+			return value
+		set:
+			ViewState['Width'] = value
+";
+			RunStringTestCase("[atributo com parmetro nomeado]", expected, actual);
+		}
+
+		public void RunTestCase(string expectedFile, string actualFile)
+		{
+			CompileUnit cu = RunCompiler(new FileInput(GetTestCasePath(actualFile)));
+			cu.Modules[0].Name = BooParser.CreateModuleName(expectedFile);
+			AssertEquals("[required]", ParseTestCase(expectedFile), cu);
+		}		
+
+		public void RunStringTestCase(string message, string expected, string actual)
+		{
+			CompileUnit cu = RunCompiler(new StringInput("<actual>", actual));
+			cu.Modules[0].Name = BooParser.CreateModuleName("<expected>");
+			AssertEquals(message, ParseString("<expected>", expected), cu);
+		}
+
+		CompileUnit RunCompiler(ICompilerInput input)
+		{
+			Compiler compiler = new Compiler();
+			CompilerParameters options = compiler.Parameters;
+			options.Input.Add(input);
+			options.Pipeline.Add(new BooParsingStep());
+			options.Pipeline.Add(new AstAttributesStep());
+			options.References.Add(GetType().Assembly);
+			
+			CompilerContext context = compiler.Run();
+
+			if (context.Errors.Count > 0)
+			{
+				Fail(context.Errors[0].ToString());
+			}
+
+			return context.CompileUnit;
+		}
+
+		void AssertEquals(string message, CompileUnit expected, CompileUnit actual)
+		{
+			BooTestCaseUtil.AssertEquals(message, expected, actual);
+		}
+
+		CompileUnit ParseTestCase(string fname)
+		{
+			return BooParser.ParseFile(GetTestCasePath(fname));
+		}
+
+		CompileUnit ParseString(string name, string text)
+		{
+			return BooParser.ParseReader(name, new StringReader(text));
+		}
+
+		string GetTestCasePath(string fname)
+		{
+			return Path.Combine(BooTestCaseUtil.GetTestCasePath("compilation"), fname);
+		}
+	}
+}

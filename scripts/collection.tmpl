@@ -1,0 +1,16 @@
+#def getTargetFileName(): src/Boo/Ast/${item.name}.cs
+using System;
+
+namespace Boo.Ast
+{
+	public class ${item.name} : Boo.Ast.Impl.${item.name}Impl
+	{
+		public ${item.name}()
+		{
+		}
+		
+		public ${item.name}(Boo.Ast.Node parent) : base(parent)
+		{
+		}
+	}
+}

@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE MODE SYSTEM "xmode.dtd">
+
+<!-- boo mode, by Rodrigo B. de Oliveira based on python mode -->
+<!-- by Slava Pestov. Based on PythonTokenMarker by -->
+<!-- Jonathan Revusky -->
+
+<MODE>
+	<PROPS>
+		<PROPERTY NAME="indentNextLines" VALUE="\s*[^#]{3,}:\s*(#.*)?" />
+		<PROPERTY NAME="lineComment" VALUE="(#|//)" />
+		<PROPERTY NAME="wordBreakChars" VALUE="([{" />
+	</PROPS>
+	<RULES
+		ESCAPE="\" IGNORE_CASE="FALSE"
+		HIGHLIGHT_DIGITS="TRUE"
+		DIGIT_RE="\d+(l|(ms)|s|m|h|d)"
+		>
+		<!-- Comment -->
+		<EOL_SPAN TYPE="COMMENT1">#</EOL_SPAN>
+		<EOL_SPAN TYPE="COMMENT1">//</EOL_SPAN>
+
+		<!-- Triple-quotes -->
+		<SPAN TYPE="LITERAL2">
+			<BEGIN>"""</BEGIN>
+			<END>"""</END>
+		</SPAN>
+
+		<SPAN TYPE="LITERAL2">
+			<BEGIN>'''</BEGIN>
+			<END>'''</END>
+		</SPAN>
+
+		<!-- Standard literals -->
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>"</BEGIN>
+			<END>"</END>
+		</SPAN>
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>'</BEGIN>
+			<END>'</END>
+		</SPAN>
+		
+		<SEQ_REGEXP TYPE="MARKUP"
+                        HASH_CHAR="/"
+                        AT_WORD_START="TRUE"
+                >/[^[:blank:]]*?[^\\]/</SEQ_REGEXP>
+
+		
+		<SEQ TYPE="OPERATOR">=~</SEQ>
+		<SEQ TYPE="OPERATOR">=</SEQ>
+		<SEQ TYPE="OPERATOR">!=</SEQ>
+		<SEQ TYPE="OPERATOR">!</SEQ>
+		<SEQ TYPE="OPERATOR">&gt;=</SEQ>
+		<SEQ TYPE="OPERATOR">&lt;=</SEQ>
+		<SEQ TYPE="OPERATOR">++</SEQ>
+		<SEQ TYPE="OPERATOR">--</SEQ>		
+		<SEQ TYPE="OPERATOR">+</SEQ>
+		<SEQ TYPE="OPERATOR">-</SEQ>
+		<SEQ TYPE="OPERATOR">+=</SEQ>
+		<SEQ TYPE="OPERATOR">-=</SEQ>
+		<SEQ TYPE="OPERATOR">?</SEQ>
+		<SEQ TYPE="OPERATOR">/</SEQ>
+		<SEQ TYPE="OPERATOR">%</SEQ>
+		<SEQ TYPE="OPERATOR">*</SEQ>
+		<SEQ TYPE="OPERATOR">/=</SEQ>
+		<SEQ TYPE="OPERATOR">%=</SEQ>
+		<SEQ TYPE="OPERATOR">*=</SEQ>
+		<SEQ TYPE="OPERATOR">&gt;</SEQ>
+		<SEQ TYPE="OPERATOR">&lt;</SEQ>
+		<SEQ TYPE="OPERATOR">%</SEQ>
+		<SEQ TYPE="OPERATOR">&amp;</SEQ>
+		<SEQ TYPE="OPERATOR">|</SEQ>
+		<SEQ TYPE="OPERATOR">^</SEQ>
+
+		<MARK_PREVIOUS TYPE="FUNCTION"
+			EXCLUDE_MATCH="TRUE">(</MARK_PREVIOUS>
+
+		<KEYWORDS>
+			<!--  Reserved Words  -->
+			<KEYWORD1>and</KEYWORD1>
+			<KEYWORD1>as</KEYWORD1>			
+			<KEYWORD1>break</KEYWORD1>
+			<KEYWORD1>catch</KEYWORD1>
+			<KEYWORD1>class</KEYWORD1>
+			<KEYWORD1>const</KEYWORD1>
+			<KEYWORD1>constructor</KEYWORD1>
+			<KEYWORD1>continue</KEYWORD1>
+			<KEYWORD1>def</KEYWORD1>
+			<KEYWORD1>do</KEYWORD1>
+			<KEYWORD1>else</KEYWORD1>
+			<KEYWORD1>enum</KEYWORD1>
+			<KEYWORD1>ensure</KEYWORD1>
+			<KEYWORD1>final</KEYWORD1>
+			<KEYWORD1>for</KEYWORD1>
+			<KEYWORD1>from</KEYWORD1>
+			<KEYWORD1>given</KEYWORD1>
+			<KEYWORD1>get</KEYWORD1>
+			<KEYWORD1>if</KEYWORD1>			
+			<KEYWORD1>interface</KEYWORD1>
+			<KEYWORD1>in</KEYWORD1>
+			<KEYWORD1>include</KEYWORD1>
+			<KEYWORD1>is</KEYWORD1>
+			<KEYWORD1>kindof</KEYWORD1>
+			<KEYWORD1>mixin</KEYWORD1>
+			<KEYWORD1>not</KEYWORD1>
+			<KEYWORD1>or</KEYWORD1>
+			<KEYWORD1>otherwise</KEYWORD1>			
+			<KEYWORD1>package</KEYWORD1>
+			<KEYWORD1>pass</KEYWORD1>
+			<KEYWORD1>raise</KEYWORD1>
+			<KEYWORD1>retry</KEYWORD1>
+			<KEYWORD1>self</KEYWORD1>
+			<KEYWORD1>super</KEYWORD1>
+			<KEYWORD1>return</KEYWORD1>
+			<KEYWORD1>set</KEYWORD1>
+			<KEYWORD1>success</KEYWORD1>
+			<KEYWORD1>try</KEYWORD1>
+			<KEYWORD1>transient</KEYWORD1>
+			<KEYWORD1>typeof</KEYWORD1>
+			<KEYWORD1>using</KEYWORD1>
+			<KEYWORD1>while</KEYWORD1>
+			<KEYWORD1>when</KEYWORD1>			
+			<KEYWORD1>unless</KEYWORD1>
+			<KEYWORD1>yield</KEYWORD1>
+			
+			<KEYWORD1>public</KEYWORD1>
+			<KEYWORD1>protected</KEYWORD1>
+			<KEYWORD1>private</KEYWORD1>
+			<KEYWORD1>internal</KEYWORD1>
+			<KEYWORD1>static</KEYWORD1>
+			
+			<KEYWORD2>bool</KEYWORD2>
+			<KEYWORD2>string</KEYWORD2>
+			<KEYWORD2>object</KEYWORD2>
+			<KEYWORD2>int</KEYWORD2>
+			<KEYWORD2>float</KEYWORD2>
+			<KEYWORD2>double</KEYWORD2>
+			<KEYWORD2>date</KEYWORD2>
+			<KEYWORD2>timespan</KEYWORD2>
+			<KEYWORD2>regex</KEYWORD2>
+			<KEYWORD2>dictionary</KEYWORD2>
+			<KEYWORD2>list</KEYWORD2>
+			<KEYWORD2>tuple</KEYWORD2>
+			<KEYWORD2>void</KEYWORD2>
+
+			<!-- builtins -->
+			<KEYWORD3>assert</KEYWORD3>
+			<KEYWORD3>print</KEYWORD3>
+			<KEYWORD3>gets</KEYWORD3>
+			<KEYWORD3>prompt</KEYWORD3>
+			<KEYWORD3>enumerate</KEYWORD3>
+			<KEYWORD3>zip</KEYWORD3>
+			<KEYWORD3>filter</KEYWORD3>
+			<KEYWORD3>map</KEYWORD3>
+			<KEYWORD3>cat</KEYWORD3>
+
+			<!-- exceptions -->
+			<!-- KEYWORD3>ArithmeticError</KEYWORD3 -->
+			
+			<LITERAL2>false</LITERAL2>
+			<LITERAL2>null</LITERAL2>
+			<LITERAL2>self</LITERAL2>
+			<LITERAL2>true</LITERAL2>
+		</KEYWORDS>
+	</RULES>
+</MODE>
+

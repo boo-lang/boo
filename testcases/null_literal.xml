@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Module xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Modifiers>None</Modifiers>
+  <Name>null_literal</Name>
+  <Attributes />
+  <Members />
+  <BaseTypes />
+  <Using />
+  <Globals>
+    <Statements>
+      <Statement xsi:type="ExpressionStatement">
+        <Expression xsi:type="BinaryExpression">
+			<Operator>Assign</Operator>
+          <Left xsi:type="ReferenceExpression">
+            <Name>a</Name>
+          </Left>
+          <Right xsi:type="NullLiteralExpression" />
+        </Expression>
+      </Statement>
+    </Statements>
+  </Globals>
+</Module>

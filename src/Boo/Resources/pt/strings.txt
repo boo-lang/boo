@@ -1,0 +1,30 @@
+﻿;Compiler Error Messages
+NamedParameterMustBeReference=Nome do parâmetro deve ser um identificador.
+AmbiguousName=Referência ambígua {0}: {1}.
+UnknownName=Identificador desconhecido: {0}.
+NotAPublicFieldOrProperty=O nome {0} não representa um campo ou propriedade pública do tipo {1}.
+MissingConstructor=O tipo {0} não possui nenhum constructor com a assinatura {1}.
+AttributeResolution=Erro durante a aplicação do atributo {0}: {1}.
+StepExecution=Erro durante a execução do passo {0}: {1}.
+ICompilerStepInterface=O tipo {0} não implementa a interface ICompilerStep.
+RequiredAttribute=O elemento {0} deve conter um atributo de nome {1}.
+InvalidAssemblySetup=AssemblyBuilder não foi configurado corretamente.
+TypeManager.UnresolvedNode=Nó não resolvido.
+MethodArgumentCount=Nenhuma versão do método {0} aceita {1} parâmetros.
+
+;Attribute Messages
+InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.
+
+;Mensagens do ANTLR
+NoViableAltException=Token inesperado: {0}.
+
+;BooC Messages
+BooC.Errors={0} erro(s).
+BooC.ProcessingTime={0} módulo(s) processado(s) em {1}ms.
+BooC.FatalError=Erro fatal: {0}.
+BooC.InvalidOption=Opção inválida: {0}.
+BooC.UnableToLoadAssembly=Não foi possível carregar a montagem {0}.
+BooC.UnableToLoadPipeline=Não foi possível carregar a pipeline {0}, causa: {1}.
+BooC.NoPipeline=Nenhuma pipeline de compilação especificada (/p:<PIPELINE>)
+BooC.NoInputSpecified=Nenhum fonte especificado
+BooC.NoOutputSpecified=Arquivo de saída não especificado

@@ -1,0 +1,14 @@
+#def getTargetFileName(): src/Boo/Ast/IAstSwitcher.cs
+using System;
+
+namespace Boo.Ast
+{
+	public interface IAstSwitcher : Boo.Util.ISwitcher
+	{
+		#for item in $model
+			#unless $item.stereotype in ("collection", "enum") or "abstract" in $item.attributes 
+		void On${item.name}(${item.name} node);
+			#end unless
+		#end for
+	}
+}

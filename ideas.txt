@@ -1,0 +1,10 @@
+* Utilizar um TreeWalker para passos do compilador, como por exemplo, resolu��o
+de express�es compostas de constantes, cria��o do m�dulo principal, um tree
+walker pode inclusive ser utilizado para a gera��o de IL quando todos os
+atributos da �rvore tiverem sido resolvidos (assinaturas de m�todos, etc)
+
+* modelar a linguagem baseado no princ�pio do m�nimo stress e m�nima surpresa
+
+* operator * (multiplica��o) pode ser utilizado para multiplicar
+fun��es (representando composi��o funcional): o resultado �
+uma nova fun��o que aplica sequencialmente as fun��

@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<project name="boo" default="all">
+
+	<property name="debug" value="true" />
+	<property name="optimize" value="false" />
+	<property name="skip.tests" value="false" />
+
+	<property name="antlr.home" value="lib/antlr-2.7.2" />
+	
+	<property name="antlr.runtime.dll" value="${antlr.home}/bin/antlr.runtime.dll" />
+	<property name="antlr.exe" value="${antlr.home}/bin/antlr.exe" />
+	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
+	
+	<property name="build.dir" value="build" />
+
+	<target name="all" depends="booc">
+	</target>
+	
+	<target name="booc" depends="Boo, run-tests">
+		<csc target="exe" output="build/booc.exe" debug="${debug}" optimize="${optimize}">
+			<sources basedir="src/booc">
+				<includes name="*.cs" />
+			</sources>
+
+			<references>
+				<includes name="build/Boo.dll" />
+			</references>
+		</csc>
+		<copy todir="build">
+			<fileset basedir="src/booc">
+				<includes name="*.pipeline" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name='run-tests' depends="Boo.Tests" unless='${skip.tests}'>
+
+		<nunit2>
+			<formatter type="Plain" />
+			<test assemblyname="build/Boo.Tests.dll" />
+		</nunit2>
+		
+	</target>
+	
+	<target name="Boo.Tests" depends="Boo">
+		<csc
+			target="library"
+			output="build/Boo.Tests.dll"
+			debug="true"
+			optimize="false">
+
+			<sources basedir="src/Boo.Tests">
+				<includes name="**/*.cs" />
+			</sources>
+
+			<references>
+				<includes name="${antlr.runtime.dll}" />
+				<includes name="${nunit.framework.dll}" />
+				<includes name="build/Boo.dll" />
+			</references>
+		</csc>
+	</target>
+
+	<target name="Boo" depends="compile-grammar, generate-ast, satellites">
+
+		<resgen
+			input="src/Boo/Resources/strings.txt"
+			output="string.resources"
+			todir="build" />
+
+		<csc
+			target="library"
+			output="build/Boo.dll"
+			debug="${debug}"
+			optimize="${optimize}">
+
+			<sources basedir="src/Boo">
+				<includes name="**/*.cs" />
+			</sources>
+
+			<references>
+				<includes name="${antlr.runtime.dll}" />
+			</references>			
+			
+			<arg value="/res:build\string.resources,strings.resources" />
+		</csc>
+	</target>
+	
+	<target name="satellites" depends="init">
+		<mkdir dir="${build.dir}/pt" />
+
+		<resgen
+			input="src/Boo/Resources/pt/strings.txt"
+			output="strings.pt.resources"
+			todir="build/pt" />
+
+		<al target="lib" culture="pt" output="build/pt/Boo.resources.dll">
+			<sources basedir="build/pt">
+				<includes name="strings.pt.resources" />
+			</sources>
+		</al>
+	</target>
+
+	<target name="compile-grammar" depends="init">
+
+		<ifnot comparefile="boo.g" uptodatefile="src/Boo/Ast/Parsing/BooParserBase.cs">
+			<exec program="${antlr.exe}" failonerror="true">
+				<arg value="-o" />
+				<arg value="src/Boo/Ast/Parsing" />
+				<arg value="boo.g" />
+			</exec>
+		</ifnot>
+		
+		<ifnot comparefile="booel.g" uptodatefile="src/Boo/Ast/Parsing/BooExpressionLexer.cs">
+			<exec program="${antlr.exe}" failonerror="true">
+				<arg value="-o" />
+				<arg value="src/Boo/Ast/Parsing" />
+				<arg value="booel.g" />
+			</exec>
+		</ifnot>
+	</target>
+	
+	<target name="generate-ast" depends="init">
+		<ifnot comparefile="ast.model" uptodatefile="src/Boo/Ast/CompileUnit.cs">
+			<exec program="python" failonerror="true">
+				<arg value="scripts\ast.py" />
+				<arg value="ast.model" />
+			</exec>
+		</ifnot>
+	</target>
+
+	<target name="rebuild" depends="clean, all" />
+	
+	<target name="clean">
+		<delete dir="build" failonerror="false" />
+	</target>
+
+	<target name="init">
+		<mkdir dir="build" />
+		<copy file="${antlr.runtime.dll}" todir="build" />
+		<copy file="${nunit.framework.dll}" todir="build" />
+	</target>
+
+</project>

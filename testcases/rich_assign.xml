@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Modifiers>None</Modifiers>
+  <Name>rich_assign</Name>
+  <Attributes />
+  <Members />
+  <BaseTypes />
+  <Using />
+  <Globals>
+  	<Statements>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>Assign</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>a</Name>
+				</Left>
+				<Right xsi:type="BinaryExpression">
+					<Operator>Add</Operator>
+					<Left xsi:type="IntegerLiteralExpression">
+						<Value>3</Value>
+					</Left>
+					<Right xsi:type="IntegerLiteralExpression">
+						<Value>2</Value>
+					</Right>
+				</Right>
+			</Expression>
+		</Statement>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>InPlaceAdd</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>a</Name>
+				</Left>
+				<Right xsi:type="BinaryExpression">
+					<Operator>Multiply</Operator>
+					<Left xsi:type="IntegerLiteralExpression">
+						<Value>5</Value>
+					</Left>
+					<Right xsi:type="IntegerLiteralExpression">
+						<Value>2</Value>
+					</Right>
+				</Right>
+			</Expression>
+		</Statement>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>InPlaceDivide</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>a</Name>
+				</Left>
+				<Right xsi:type="UnaryExpression">
+					<Operator>ArithmeticNegate</Operator>
+					<Operand xsi:type="IntegerLiteralExpression">
+						<Value>1</Value>
+					</Operand>
+				</Right>
+			</Expression>
+		</Statement>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>InPlaceMultiply</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>a</Name>
+				</Left>
+				<Right xsi:type="IntegerLiteralExpression">
+					<Value>2</Value>
+				</Right>
+			</Expression>
+		</Statement>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>InPlaceSubtract</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>a</Name>
+				</Left>
+				<Right xsi:type="IntegerLiteralExpression">
+					<Value>3</Value>
+				</Right>
+			</Expression>
+		</Statement>
+	</Statements>
+  </Globals>
+</Module>

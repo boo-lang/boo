@@ -1,0 +1,90 @@
+#def getTargetFileName(): src/Boo/Ast/Impl/${item.name}Impl.cs
+#def initializer()
+	#for field in $item.fields
+		#if cs.isCollection($model.resolve($field.type))
+			$cs.toPrivateName($field.name) = new ${field.type}(this);
+		#end if
+		#if "auto" in $field.attributes
+			$field.name = new ${field.type}();
+		#end if
+	#end for
+#end def
+#def constructorParameters(fields)
+	#for field in $fields
+$field.type $cs.toLocalName(field.name)#slurp
+	#if $field != $fields[-1]
+, #slurp
+	#end if
+	#end for
+#end def
+using System;
+
+namespace Boo.Ast.Impl
+{
+	[Serializable]
+	public abstract class ${item.name}Impl : #echo ", ".join($item.baseTypes)
+	{
+		#for field in $item.fields		
+		protected $field.type $cs.toPrivateName($field.name);
+		#end for
+		
+		protected ${item.name}Impl()
+		{
+$initializer() #slurp
+		}
+		#set simpleFields=list(cs.getNonAutoFields($item.fields))
+		#if $simpleFields
+		
+		protected ${item.name}Impl($constructorParameters($simpleFields))
+		{
+$initializer() #slurp
+			#for field in $simpleFields
+			$field.name = $cs.toLocalName($field.name);
+			#end for
+		}
+		
+		protected ${item.name}Impl(antlr.Token token, $constructorParameters($simpleFields)) : base(token)
+		{
+$initializer() #slurp
+			#for field in $simpleFields
+			$field.name = $cs.toLocalName($field.name);
+			#end for
+		}
+		#end if
+		
+		internal ${item.name}Impl(antlr.Token token) : base(token)
+		{
+$initializer() #slurp
+		}
+		
+		internal ${item.name}Impl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		{
+$initializer() #slurp
+		}
+		#for field in $item.fields
+		#set fieldName=$cs.toPrivateName($field.name)
+		#set fieldType=$model.resolve($field.type)
+		
+		public $field.type $field.name
+		{
+			get
+			{
+				return ${fieldName};
+			}
+			
+			set
+			{
+				$fieldName = value;
+				#if $fieldType
+					#if $fieldType.extends("Node") or "collection" == $fieldType.stereotype
+				if (null != ${fieldName})
+				{
+					${fieldName}.InitializeParent(this);
+				}
+					#end if
+				#end if
+			}
+		}
+		#end for		
+	}
+}

@@ -1,0 +1,67 @@
+#def getTargetFileName(): src/Boo/Ast/Impl/${item.name}Impl.cs
+#set itemType = $item.attributes['ItemType']
+using System;
+using Boo.Ast;
+
+namespace Boo.Ast.Impl
+{
+	/// <summary>
+	/// Implements a strongly typed collection of <see cref="$itemType"/> elements.
+	/// </summary>
+	/// <remarks>
+	/// <b>${item.name}</b> provides an <see cref="System.Collections.ArrayList"/> 
+	/// that is strongly typed for <see cref="$itemType"/> elements.
+	/// </remarks> 
+	[Serializable]
+	public class ${item.name}Impl : NodeCollection
+	{
+		protected ${item.name}Impl()
+		{
+		}
+		
+		protected ${item.name}Impl(Node parent) : base(parent)
+		{
+		}
+		
+		public $itemType this[int index]
+		{
+			get
+			{
+				return ($itemType)InnerList[index];
+			}
+		}
+
+		public void Add($itemType item)
+		{
+			base.Add(item);			
+		}
+		
+		public void Add(params ${itemType}[] items)
+		{
+			base.Add(items);			
+		}
+		
+		public void Add(System.Collections.ICollection items)
+		{
+			foreach ($itemType item in items)
+			{
+				base.Add(item);
+			}
+		}
+		
+		public void Insert(int index, $itemType item)
+		{
+			base.Insert(index, item);
+		}
+		
+		public void Replace($itemType existing, $itemType newItem)
+		{
+			base.Replace(existing, newItem);
+		}
+		
+		public ${itemType}[] ToArray()
+		{
+			return (${itemType}[])InnerList.ToArray(typeof(${itemType}));
+		}
+	}
+}

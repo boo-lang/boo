@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Modifiers>None</Modifiers>
+  <Name>try_catch_retry</Name>
+  <Attributes />
+  <Members />
+  <BaseTypes />
+  <Using>
+  	<Using>
+		<Namespace>System.IO</Namespace>
+	</Using>
+  </Using>
+  <Globals>
+  	<Statements>
+		<Statement xsi:type="DeclarationStatement">
+			<Declaration>
+				<Name>fname</Name>
+				<Type>
+					<Name>string</Name>
+				</Type>
+			</Declaration>
+		</Statement>
+		<Statement xsi:type="TryStatement">
+			<ProtectedBlock>
+				<Statements>
+					<Statement xsi:type="ExpressionStatement">
+						<Expression xsi:type="BinaryExpression">
+							<Operator>Assign</Operator>
+							<Left xsi:type="ReferenceExpression">
+								<Name>fname</Name>
+							</Left>
+							<Right xsi:type="MethodInvocationExpression">
+								<Target xsi:type="ReferenceExpression">
+									<Name>prompt</Name>
+								</Target>
+								<Arguments>
+									<Expression xsi:type="StringLiteralExpression">
+										<Value>nome de um arquivo: </Value>
+									</Expression>
+								</Arguments>
+								<NamedArguments />
+							</Right>
+						</Expression>
+					</Statement>
+					<Statement xsi:type="RaiseStatement">
+						<Modifier>
+							<Type>Unless</Type>
+							<Condition xsi:type="ReferenceExpression">
+								<Name>fname</Name>
+							</Condition>
+						</Modifier>
+						<Exception xsi:type="StringLiteralExpression">
+							<Value>Você deve selecionar um arquivo!</Value>
+						</Exception>
+					</Statement>
+				</Statements>
+			</ProtectedBlock>
+			<ExceptionHandlers>
+				<ExceptionHandler>
+					<Statements>
+						<Statement xsi:type="ExpressionStatement">
+							<Expression xsi:type="MethodInvocationExpression">
+								<Target xsi:type="ReferenceExpression">
+									<Name>print</Name>
+								</Target>
+								<Arguments>
+									<Expression xsi:type="MemberReferenceExpression">
+										<Name>Message</Name>
+										<Target xsi:type="ReferenceExpression">
+											<Name>x</Name>
+										</Target>
+									</Expression>
+								</Arguments>
+								<NamedArguments />
+							</Expression>
+						</Statement>
+						<Statement xsi:type="RetryStatement" />
+					</Statements>
+					<Declaration>
+						<Name>x</Name>
+						<Type>
+							<Name>ApplicationException</Name>
+						</Type>
+					</Declaration>
+				</ExceptionHandler>
+			</ExceptionHandlers>
+			<SuccessBlock>
+				<Statements>
+					<Statement xsi:type="DeclarationStatement">
+						<Declaration>
+							<Name>f</Name>
+							<Type>
+								<Name>TextReader</Name>
+							</Type>
+						</Declaration>
+					</Statement>
+					<Statement xsi:type="TryStatement">
+						<ProtectedBlock>
+							<Statements>
+								<Statement xsi:type="ExpressionStatement">
+									<Expression xsi:type="BinaryExpression">
+										<Operator>Assign</Operator>
+										<Left xsi:type="ReferenceExpression">
+											<Name>f</Name>
+										</Left>
+										<Right xsi:type="MethodInvocationExpression">
+											<Target xsi:type="MemberReferenceExpression">
+												<Name>OpenText</Name>
+												<Target xsi:type="ReferenceExpression">
+													<Name>File</Name>
+												</Target>
+											</Target>
+											<Arguments>
+												<Expression xsi:type="ReferenceExpression">
+													<Name>fname</Name>
+												</Expression>
+											</Arguments>
+											<NamedArguments />
+										</Right>
+									</Expression>
+								</Statement>								
+								<Statement xsi:type="ExpressionStatement">
+									<Expression xsi:type="MethodInvocationExpression">
+										<Target xsi:type="ReferenceExpression">
+											<Name>print</Name>
+										</Target>
+										<Arguments>
+											<Expression xsi:type="MethodInvocationExpression">
+												<Target xsi:type="MemberReferenceExpression">
+													<Name>ReadLine</Name>
+													<Target xsi:type="ReferenceExpression">
+														<Name>f</Name>
+													</Target>
+												</Target>
+												<Arguments />
+												<NamedArguments />
+											</Expression>
+										</Arguments>
+										<NamedArguments />
+									</Expression>
+								</Statement>
+							</Statements>
+						</ProtectedBlock>
+						<ExceptionHandlers>
+							<ExceptionHandler>
+								<Statements>									
+									<Statement xsi:type="ExpressionStatement">
+										<Expression xsi:type="MethodInvocationExpression">
+											<Target xsi:type="ReferenceExpression">
+												<Name>print</Name>
+											</Target>
+											<Arguments>
+												<Expression xsi:type="StringFormattingExpression">
+													<Template>Não foi possível abrir o arquivo {0}: {1}!</Template>
+													<Arguments>
+														<Expression xsi:type="ReferenceExpression">
+															<Name>fname</Name>
+														</Expression>
+														<Expression xsi:type="MemberReferenceExpression">
+															<Name>Message</Name>
+															<Target xsi:type="ReferenceExpression">
+																<Name>x</Name>
+															</Target>
+														</Expression>
+													</Arguments>
+												</Expression>
+											</Arguments>
+											<NamedArguments />
+										</Expression>
+									</Statement>
+								</Statements>
+								<Declaration>
+									<Name>x</Name>
+									<Type>
+										<Name>IOException</Name>
+									</Type>
+								</Declaration>
+							</ExceptionHandler>
+						</ExceptionHandlers>
+						<EnsureBlock>
+							<Statements>
+								<Statement xsi:type="ExpressionStatement">
+									<Modifier>
+										<Type>If</Type>
+										<Condition xsi:type="ReferenceExpression">
+											<Name>f</Name>
+										</Condition>
+									</Modifier>
+									<Expression xsi:type="MethodInvocationExpression">
+										<Target xsi:type="MemberReferenceExpression">
+											<Name>Close</Name>
+											<Target xsi:type="ReferenceExpression">
+												<Name>f</Name>
+											</Target>
+										</Target>
+										<Arguments />
+										<NamedArguments />
+									</Expression>
+								</Statement>
+							</Statements>
+						</EnsureBlock>
+					</Statement>
+				</Statements>
+			</SuccessBlock>
+		</Statement>
+	</Statements>
+  </Globals>
+</Module>

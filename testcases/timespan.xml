@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Modifiers>None</Modifiers>
+  <Name>timespan</Name>
+  <Attributes />
+  <Members />
+  <BaseTypes />
+  <Using />
+  <Globals>
+  	<Statements>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>Assign</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>ms</Name>
+				</Left>
+				<Right xsi:type="TimeSpanLiteralExpression">
+					<Value>10ms</Value>
+				</Right>
+			</Expression>
+		</Statement>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>Assign</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>s</Name>
+				</Left>
+				<Right xsi:type="TimeSpanLiteralExpression">
+					<Value>10s</Value>
+				</Right>
+			</Expression>
+		</Statement>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>Assign</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>m</Name>
+				</Left>
+				<Right xsi:type="TimeSpanLiteralExpression">
+					<Value>10m</Value>
+				</Right>
+			</Expression>
+		</Statement>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>Assign</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>h</Name>
+				</Left>
+				<Right xsi:type="TimeSpanLiteralExpression">
+					<Value>1h</Value>
+				</Right>
+			</Expression>
+		</Statement>
+		<Statement xsi:type="ExpressionStatement">
+			<Expression xsi:type="BinaryExpression">
+				<Operator>Assign</Operator>
+				<Left xsi:type="ReferenceExpression">
+					<Name>d</Name>
+				</Left>
+				<Right xsi:type="TimeSpanLiteralExpression">
+					<Value>2d</Value>
+				</Right>
+			</Expression>
+		</Statement>
+	</Statements>
+  </Globals>
+</Module>

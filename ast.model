@@ -1,0 +1,414 @@
+package Boo.Ast
+
+	class CompileUnit(Node)
+		Modules as ModuleCollection
+	end
+	
+	<<enum>>
+	class TypeMemberModifiers
+		None = 0
+		Public = 1
+		Protected = 2
+		Private = 4
+		Internal = 8
+		Static = 16
+		Final = 32
+		Transient = 64
+	end
+	
+	[abstract]
+	class TypeMember(Node, INodeWithAttributes)
+		Modifiers as TypeMemberModifiers
+		Name as string
+		Attributes as AttributeCollection
+	end
+	
+	[ItemType(TypeMember)]
+	<<collection>>
+	class TypeMemberCollection
+	end
+	
+	class TypeReference(Node)
+		Name as string
+	end	
+	
+	[ItemType(TypeReference)]
+	<<collection>>
+	class TypeReferenceCollection
+	end
+	
+	[abstract]
+	class TypeDefinition(TypeMember)
+		Members as TypeMemberCollection
+		BaseTypes as TypeReferenceCollection
+	end
+	
+	[ItemType(TypeDefinition)]
+	<<collection>>
+	class TypeDefinitionCollection
+	end
+	
+	class Package(Node)
+		Name as string
+	end
+	
+	class Using(Node)
+		Namespace as string
+		AssemblyReference as ReferenceExpression
+		Alias as ReferenceExpression
+	end
+	
+	[ItemType(Using)]
+	<<collection>>
+	class UsingCollection
+	end
+	
+	class Module(TypeDefinition)
+		Package as Package
+		Using as UsingCollection
+		[auto]
+		Globals as Block
+	end
+	
+	[ItemType(Module)]
+	<<collection>>
+	class ModuleCollection
+	end
+	
+	class ClassDefinition(TypeDefinition)
+	end
+	
+	class InterfaceDefinition(TypeDefinition)
+	end
+	
+	class EnumDefinition(TypeDefinition)
+	end
+	
+	class EnumMember(TypeMember)
+		Initializer as IntegerLiteralExpression
+	end
+	
+	class Field(TypeMember)
+		Type as TypeReference
+	end
+	
+	class Property(TypeMember)
+		Getter as Method
+		Setter as Method
+		Type as TypeReference
+	end
+	
+	class Method(TypeMember)
+		Parameters as ParameterDeclarationCollection
+		ReturnType as TypeReference
+		ReturnTypeAttributes as AttributeCollection
+		[auto]
+		Body as Block
+	end
+	
+	class Constructor(Method)
+	end
+	
+	class ParameterDeclaration(Node, INodeWithAttributes)
+		Name as string
+		Type as TypeReference
+		Attributes as AttributeCollection
+	end
+	
+	[ItemType(ParameterDeclaration)]
+	<<collection>>
+	class ParameterDeclarationCollection
+	end
+	
+	class Declaration(Node)
+		Name as string
+		Type as TypeReference
+	end
+	
+	[ItemType(Declaration)]
+	<<collection>>
+	class DeclarationCollection
+	end
+	
+	class Block(Node)
+		Statements as StatementCollection
+	end	
+		
+	class Attribute(Node, INodeWithArguments)
+		Name as string
+		Arguments as ExpressionCollection
+		NamedArguments as ExpressionPairCollection
+	end
+	
+	[ItemType(Attribute)]
+	<<collection>>
+	class AttributeCollection
+	end
+	
+	<<enum>>
+	class StatementModifierType
+		Uninitialized
+		If
+		Unless
+		While
+		Until
+	end
+	
+	class StatementModifier(Node)
+		Type as StatementModifierType
+		Condition as Expression
+	end
+	
+	[abstract]
+	class Statement(Node)
+		Modifier as StatementModifier
+	end
+	
+	[ItemType(Statement)]
+	<<collection>>
+	class StatementCollection
+	end
+	
+	class DeclarationStatement(Statement)
+		Declaration as Declaration
+		Initializer as Expression
+	end
+	
+	class AssertStatement(Statement)
+		Condition as Expression
+		Message as Expression
+	end
+	
+	class TryStatement(Statement)
+		[auto]
+		ProtectedBlock as Block
+		ExceptionHandlers as ExceptionHandlerCollection
+		SuccessBlock as Block
+		EnsureBlock as Block		
+	end
+		
+	class ExceptionHandler(Block)
+		Declaration as Declaration
+	end
+	
+	[ItemType(ExceptionHandler)]
+	<<collection>>
+	class ExceptionHandlerCollection
+	end
+	
+	class IfStatement(Statement)
+		Expression as Expression
+		TrueBlock as Block
+		FalseBlock as Block
+	end
+	
+	class ForStatement(Statement)
+		Declarations as DeclarationCollection
+		Iterator as Expression
+		Statements as StatementCollection
+	end
+	
+	class WhileStatement(Statement)
+		Condition as Expression
+		Statements as StatementCollection
+	end
+	
+	class GivenStatement(Statement)
+		Expression as Expression
+		WhenClauses as WhenClauseCollection
+		OtherwiseBlock as Block
+	end
+	
+	class WhenClause(Block)
+		Condition as Expression
+	end	
+	
+	[ItemType(WhenClause)]
+	<<collection>>
+	class WhenClauseCollection
+	end
+	
+	class BreakStatement(Statement)
+	end
+	
+	class ContinueStatement(Statement)
+	end
+	
+	class RetryStatement(Statement)
+	end
+	
+	class ReturnStatement(Statement)
+		Expression as Expression
+	end
+	
+	class YieldStatement(Statement)
+		Expression as Expression
+	end
+	
+	class RaiseStatement(Statement)
+		Exception as Expression 
+	end
+	
+	class UnpackStatement(Statement)
+		Declarations as DeclarationCollection
+		Expression as Expression
+	end
+	
+	class ExpressionStatement(Statement)
+		Expression as Expression
+	end
+	
+	[abstract]
+	class Expression(Node)
+	end
+	
+	[ItemType(Expression)]
+	<<collection>>
+	class ExpressionCollection
+	end
+	
+	<<ignored>>
+	class OmittedExpression(Expression)
+	end
+	
+	class ExpressionPair(Node)
+		First as Expression
+		Second as Expression
+	end
+	
+	[ItemType(ExpressionPair)]
+	<<collection>>
+	class ExpressionPairCollection
+	end
+	
+	class MethodInvocationExpression(Expression, INodeWithArguments)
+		Target as Expression
+		Arguments as ExpressionCollection
+		NamedArguments as ExpressionPairCollection
+	end
+	
+	<<enum>>
+	class BinaryOperatorType
+		Add
+		Subtract
+		Multiply
+		Divide
+		Modulus
+		LessThan
+		GreaterThan
+		Equality
+		Inequality
+		Match
+		Assign
+		InPlaceAdd
+		InPlaceSubtract
+		InPlaceMultiply
+		InPlaceDivide
+		ReferenceEquality
+		TypeTest
+		MembershipTest
+		Or
+		And
+	end
+	
+	<<enum>>
+	class UnaryOperatorType
+		ArithmeticNegate
+		Increment
+		Decrement
+		Not
+	end
+	
+	class UnaryExpression(Expression)
+		Operator as UnaryOperatorType
+		Operand as Expression
+	end
+	
+	class BinaryExpression(Expression)
+		Operator as BinaryOperatorType
+		Left as Expression
+		Right as Expression
+	end
+	
+	class TernaryExpression(Expression)
+		Condition as Expression
+		TrueExpression as Expression
+		FalseExpression as Expression
+	end
+	
+	class ReferenceExpression(Expression)
+		Name as string
+	end
+	
+	class MemberReferenceExpression(ReferenceExpression)
+		Target as Expression
+	end
+	
+	class LiteralExpression(Expression)
+	end
+	
+	class StringLiteralExpression(LiteralExpression)
+		Value as string
+	end
+	
+	class TimeSpanLiteralExpression(LiteralExpression)
+		Value as string
+	end
+	
+	class IntegerLiteralExpression(LiteralExpression)
+		Value as string
+	end
+	
+	class NullLiteralExpression(LiteralExpression)
+	end
+	
+	class SelfLiteralExpression(LiteralExpression)
+	end
+	
+	class SuperLiteralExpression(LiteralExpression)
+	end
+	
+	class BoolLiteralExpression(LiteralExpression)
+		Value as bool
+	end
+	
+	class RELiteralExpression(LiteralExpression)
+		Value as string
+	end
+	
+	class StringFormattingExpression(Expression)
+		Template as string
+		Arguments as ExpressionCollection
+	end
+	
+	class HashLiteralExpression(LiteralExpression)
+		Items as ExpressionPairCollection
+	end
+	
+	class ListLiteralExpression(LiteralExpression)
+		Items as ExpressionCollection
+	end
+	
+	class TupleLiteralExpression(ListLiteralExpression)
+	end
+	
+	class ListDisplayExpression(Expression)
+		Expression as Expression
+		Declarations as DeclarationCollection
+		Iterator as Expression
+		Filter as StatementModifier
+	end
+	
+	class SlicingExpression(Expression)
+		Target as Expression
+		Begin as Expression
+		End as Expression
+		Step as Expression
+	end
+	
+	class AsExpression(Expression)
+		Target as Expression
+		Type as TypeReference
+	end
+	
+end

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<pipeline extends='core'>
+	
+	<step type='Boo.Ast.Compilation.Steps.AssemblySetupStep, Boo' />
+	<step type='Boo.Ast.Compilation.Steps.SemanticStep, Boo' />
+	<step type='Boo.Ast.Compilation.Steps.EmitAssemblyStep, Boo' />
+	<step type='Boo.Ast.Compilation.Steps.SaveAssemblyStep, Boo' />
+	
+</pipeline>

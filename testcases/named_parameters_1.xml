@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Modifiers>None</Modifiers>
+  <Name>named_parameters_1</Name>
+  <Attributes />  
+  <Members>
+	<TypeMember xsi:type="ClassDefinition">
+	  <Modifiers>None</Modifiers>
+	  <Name>Customer</Name>	  
+	  <Attributes /> 
+	  <Members>
+		<TypeMember xsi:type="Field">
+		  <Modifiers>None</Modifiers>
+		  <Name>_fname</Name>		  
+		  <Attributes>
+			<Attribute>
+			  <Name>Property</Name>
+			  <Arguments>
+				<Expression xsi:type="ReferenceExpression">
+				  <Name>FirstName</Name>
+				</Expression>                    
+			  </Arguments>
+			  <NamedArguments>
+				<ExpressionPair>
+					<First xsi:type="ReferenceExpression">
+						<Name>Default</Name>
+					</First>
+					<Second xsi:type="StringLiteralExpression">
+						<Value />
+					</Second>
+				</ExpressionPair>
+			  </NamedArguments>
+			</Attribute>
+		  </Attributes>
+		  <Type>
+			<Name>string</Name>
+		  </Type>
+		</TypeMember>
+	  </Members>
+	  <BaseTypes />
+	</TypeMember>
+  </Members>
+  <BaseTypes />
+  <Using />
+  <Globals>
+	<Statements />
+  </Globals>
+</Module>

@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<!DOCTYPE MODE SYSTEM "xmode.dtd">
+<!--
+  ** Catalog entry: <MODE NAME="antlr" FILE="antlr.xml" FILE_NAME_GLOB="*.g"/>
+  -->
+<MODE>
+	<PROPS>
+		<PROPERTY NAME="indentOpenBrackets" VALUE="{(" />
+		<PROPERTY NAME="indentCloseBrackets" VALUE=")}" />
+		<!-- set this to 'true' if you want to use GNU coding style -->
+		<PROPERTY NAME="doubleBracketIndent" VALUE="false" />
+		<PROPERTY NAME="commentStart" VALUE="/*" />
+		<PROPERTY NAME="commentEnd" VALUE="*/" />
+		<PROPERTY NAME="lineComment" VALUE="//" />
+		<PROPERTY NAME="wordBreakChars" VALUE=",+-=&lt;&gt;|/?^&amp;*" />
+	</PROPS>
+   
+   <RULES DEFAULT="KEYWORD1">
+		<!-- whitespace: (space and tab) -->
+		<WHITESPACE> </WHITESPACE>
+		<WHITESPACE>	</WHITESPACE>
+
+      <!-- antlr specific rules -->
+      <SPAN DELEGATE="java::MAIN" TYPE="KEYWORD1">
+         <BEGIN>header{</BEGIN>
+         <END>}</END>
+      </SPAN>
+      <SPAN DELEGATE="java::MAIN" TYPE="KEYWORD1">
+         <BEGIN>header {</BEGIN>
+         <END>}</END>
+      </SPAN>
+      <SPAN DELEGATE="java::MAIN" TYPE="KEYWORD1">
+      <BEGIN>header	{</BEGIN>
+         <END>}</END>
+      </SPAN>
+      <SPAN DELEGATE="KEYVALUE" TYPE="KEYWORD1">
+         <BEGIN>tokens</BEGIN>
+         <END>}</END>
+      </SPAN>
+      <SPAN DELEGATE="KEYVALUE" TYPE="KEYWORD1">
+         <BEGIN>options</BEGIN>
+         <END>}</END>
+      </SPAN>
+      <SPAN TYPE="KEYWORD3">
+         <BEGIN>[</BEGIN>
+         <END>]</END>
+      </SPAN>
+      <SPAN DELEGATE="java::MAIN" TYPE="KEYWORD1">
+         <BEGIN>{</BEGIN>
+         <END>}</END>
+      </SPAN>
+		<!-- Silly comment -->
+		<SEQ TYPE="COMMENT1">/**/</SEQ>
+
+		<!-- Javadoc comment -->
+		<SPAN TYPE="COMMENT2" DELEGATE="java::JAVADOC">
+			<BEGIN>/**</BEGIN>
+			<END>*/</END>
+		</SPAN>
+
+		<!-- Java comment (C style) -->
+		<SPAN TYPE="COMMENT1">
+			<BEGIN>/*</BEGIN>
+			<END>*/</END>
+		</SPAN>
+		<EOL_SPAN TYPE="COMMENT1">//</EOL_SPAN>
+
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>"</BEGIN>
+			<END>"</END>
+		</SPAN>
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>'</BEGIN>
+			<END>'</END>
+		</SPAN>
+
+      <!-- element options -->
+      <SPAN TYPE="KEYWORD2">
+         <BEGIN>&lt;</BEGIN>
+         <END>&gt;</END>
+      </SPAN>
+
+      <!-- Productions -->
+      <SPAN DELEGATE="PRODUCTION">
+         <BEGIN>:</BEGIN>
+         <END>;</END>
+      </SPAN>
+
+      <!-- ANTLR keywords -->
+      <KEYWORDS IGNORE_CASE="FALSE">
+         <KEYWORD2>class</KEYWORD2>
+         <KEYWORD2>extends</KEYWORD2>
+         <KEYWORD2>returns</KEYWORD2>
+         <KEYWORD2>private</KEYWORD2>
+         <KEYWORD2>protected</KEYWORD2>
+      </KEYWORDS>
+   </RULES>
+   
+   <RULES DEFAULT="KEYWORD2" SET="PRODUCTION">
+		<!-- whitespace: (space and tab) -->
+		<WHITESPACE> </WHITESPACE>
+		<WHITESPACE>	</WHITESPACE>
+		<!-- Silly comment -->
+		<SEQ TYPE="COMMENT1">/**/</SEQ>
+
+		<!-- Javadoc comment -->
+		<SPAN TYPE="COMMENT2" DELEGATE="java::JAVADOC">
+			<BEGIN>/**</BEGIN>
+			<END>*/</END>
+		</SPAN>
+
+		<!-- Java comment (C style) -->
+		<SPAN TYPE="COMMENT1">
+			<BEGIN>/*</BEGIN>
+			<END>*/</END>
+		</SPAN>
+		<EOL_SPAN TYPE="COMMENT1">//</EOL_SPAN>
+
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>"</BEGIN>
+			<END>"</END>
+		</SPAN>
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>'</BEGIN>
+			<END>'</END>
+		</SPAN>
+      <SPAN TYPE="KEYWORD3">
+         <BEGIN>[</BEGIN>
+         <END>]</END>
+      </SPAN>
+      <SPAN DELEGATE="java::MAIN" TYPE="KEYWORD1">
+         <BEGIN>{</BEGIN>
+         <END>}</END>
+      </SPAN>
+
+      <SEQ TYPE="KEYWORD1">=&gt;</SEQ>
+      <SEQ TYPE="KEYWORD1">|</SEQ>
+      <SEQ TYPE="OPERATOR">#</SEQ>
+      <SEQ TYPE="OPERATOR">!</SEQ>
+      <SEQ TYPE="OPERATOR">?</SEQ>
+      <SEQ TYPE="OPERATOR">^</SEQ>
+      <SEQ TYPE="OPERATOR">+</SEQ>
+      <SEQ TYPE="OPERATOR">*</SEQ>
+      <SEQ TYPE="OPERATOR">(</SEQ>
+      <SEQ TYPE="OPERATOR">)</SEQ>
+
+      <MARK_PREVIOUS EXCLUDE_MATCH="FALSE" TYPE="KEYWORD3">=</MARK_PREVIOUS>
+      <MARK_PREVIOUS EXCLUDE_MATCH="FALSE" TYPE="KEYWORD3">:</MARK_PREVIOUS>
+   </RULES>
+
+   <RULES SET="KEYVALUE">
+		<!-- whitespace: (space and tab) -->
+		<WHITESPACE> </WHITESPACE>
+		<WHITESPACE>	</WHITESPACE>
+      
+      <SEQ TYPE="KEYWORD1">{</SEQ>
+      
+		<!-- Silly comment -->
+		<SEQ TYPE="COMMENT1">/**/</SEQ>
+
+		<!-- Javadoc comment -->
+		<SPAN TYPE="COMMENT2" DELEGATE="java::JAVADOC">
+			<BEGIN>/**</BEGIN>
+			<END>*/</END>
+		</SPAN>
+
+		<!-- Java comment (C style) -->
+		<SPAN TYPE="COMMENT1">
+			<BEGIN>/*</BEGIN>
+			<END>*/</END>
+		</SPAN>
+
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>"</BEGIN>
+			<END>"</END>
+		</SPAN>
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>'</BEGIN>
+			<END>'</END>
+		</SPAN>
+      
+      <SPAN TYPE="KEYWORD2">
+         <BEGIN>&lt;</BEGIN>
+         <END>&gt;</END>
+      </SPAN>
+
+		<EOL_SPAN TYPE="COMMENT1">//</EOL_SPAN>
+
+      <!-- ANTLR options -->
+      <KEYWORDS IGNORE_CASE="FALSE">
+         <KEYWORD1>language</KEYWORD1>
+         <KEYWORD1>k</KEYWORD1>
+         <KEYWORD1>importVocab</KEYWORD1>
+         <KEYWORD1>exportVocab</KEYWORD1>
+         <KEYWORD1>testLiterals</KEYWORD1>
+         <KEYWORD1>defaultErrorHandler</KEYWORD1>
+         <KEYWORD1>codeGenMakeSwitchThreshold</KEYWORD1>
+         <KEYWORD1>codeGenBitsetTestThreshold</KEYWORD1>
+         <KEYWORD1>buildAST</KEYWORD1>
+         <KEYWORD1>analyzerDebug</KEYWORD1>
+         <KEYWORD1>codeGenDebug</KEYWORD1>
+         <KEYWORD1>ASTLabelType</KEYWORD1>
+         <KEYWORD1>charVocabulary</KEYWORD1>
+         <KEYWORD1>interactive</KEYWORD1>
+         <KEYWORD1>caseSensitive</KEYWORD1>
+         <KEYWORD1>ignore</KEYWORD1>
+         <KEYWORD1>paraphrase</KEYWORD1>
+         <KEYWORD1>caseSensitiveLiterals</KEYWORD1>
+         <KEYWORD1>classHeaderPrefix</KEYWORD1>
+         <KEYWORD1>classHeaderSuffix</KEYWORD1>
+         <KEYWORD1>mangleLiteralPrefix</KEYWORD1>
+         <KEYWORD1>warnWhenFollowAmbig</KEYWORD1>
+         <KEYWORD1>generateAmbigWarnings</KEYWORD1>
+         <KEYWORD1>filter</KEYWORD1>
+         <KEYWORD1>namespace</KEYWORD1>
+         <KEYWORD1>namespaceStd</KEYWORD1>
+         <KEYWORD1>namespaceAntlr</KEYWORD1>
+         <KEYWORD1>genHashLines</KEYWORD1>
+         <KEYWORD1>greedy</KEYWORD1>
+         <KEYWORD1>true</KEYWORD1>
+         <KEYWORD1>false</KEYWORD1>
+      </KEYWORDS>
+   </RULES>
+</MODE>
+
