@@ -36,7 +36,7 @@ using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipeline;
 using NUnit.Framework;
 
-namespace Boo.Tests.Ast.Compiler
+namespace Boo.Tests.Lang.Compiler
 {
 	public enum TestEnum
 	{

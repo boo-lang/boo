@@ -27,7 +27,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Tests.Ast.Compiler
+namespace Boo.Tests.Lang.Compiler
 {
 	using System;
 	using System.Diagnostics;
@@ -127,7 +127,10 @@ namespace Boo.Tests.Ast.Compiler
 				
 				if (context.Errors.Count > 0)
 				{
-					Assert.Fail(GetFirstInputName(context) + ": " + context.Errors.ToString(false));
+					if (!IgnoreErrors)
+					{
+						Assert.Fail(GetFirstInputName(context) + ": " + context.Errors.ToString(false));
+					}
 				}
 				return console.ToString().Replace("\r\n", "\n");
 			}
@@ -138,6 +141,14 @@ namespace Boo.Tests.Ast.Compiler
 				{
 					Console.SetIn(oldStdIn);
 				}
+			}
+		}
+		
+		protected virtual bool IgnoreErrors
+		{
+			get
+			{
+				return false;
 			}
 		}
 		

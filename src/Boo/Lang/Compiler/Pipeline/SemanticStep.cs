@@ -697,7 +697,26 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (null != node.Expression)
 			{
-				_currentMethodBinding.ReturnStatements.Add(node);
+				ITypeBinding returnType = _currentMethodBinding.BoundType;
+				if (IsUnknown(returnType))
+				{
+					_currentMethodBinding.ReturnStatements.Add(node);
+				}
+				else
+				{
+					ITypeBinding expressionType = GetBoundType(node.Expression);
+					if (!IsAssignableFrom(returnType, expressionType) &&
+						!CanBeReachedByDownCastOrPromotion(returnType, expressionType))
+					{
+						Errors.Add(
+							CompilerErrorFactory.IncompatibleExpressionType(
+								node.Expression,
+								returnType.FullName,
+								expressionType.FullName
+								)
+							);
+					}
+				}
 			}
 		}
 		

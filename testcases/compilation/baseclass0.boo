@@ -2,7 +2,7 @@
 BaseClass.Method0
 BaseClass.Method1
 """
-import Boo.Tests.Ast.Compiler from Boo.Tests
+import Boo.Tests.Lang.Compiler from Boo.Tests
 
 class A(BaseClass):
 	def constructor():

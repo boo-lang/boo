@@ -117,7 +117,7 @@ done * código de erro para todas as mensagens
 
 done * mover todas as mensagens de errors para CompilerErrorFactory
 
-* criar mecanismo de teste para mensagens de erro
+done * criar mecanismo de teste para mensagens de erro
 
 * null
 
