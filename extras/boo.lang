@@ -18,6 +18,10 @@ text/x-boo
 3) add the following text to /usr/share/mime-info/gtksourceview-sharp.mime
 text/x-boo
 	ext: boo
+	
+4) copy the file boo-mime-info.xml to /usr/share/mime/packages
+
+5) run update-mime-database /usr/share/mime
 
 -->
 <language name="Boo" version="1.0" _section="Sources" mimetypes="text/x-boo">
