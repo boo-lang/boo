@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Method method = new Method(node.Globals.LexicalInfo);
 				method.Parameters.Add(new ParameterDeclaration("argv", new ArrayTypeReference(new SimpleTypeReference("string"))));
-				method.ReturnType = CreateTypeReference(TypeSystemServices.VoidType);
+				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 				method.Body = node.Globals;
 				method.Name = MainModuleMethodName;
 				method.Modifiers = TypeMemberModifiers.Static | TypeMemberModifiers.Private;				

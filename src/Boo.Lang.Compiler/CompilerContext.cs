@@ -47,7 +47,9 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerErrorCollection _errors;
 		
-		protected readonly TypeSystem.TypeSystemServices _typeSystemServices;		
+		protected readonly TypeSystem.TypeSystemServices _typeSystemServices;
+
+		protected readonly TypeSystem.BooCodeBuilder _codeBuilder;		
 		
 		protected readonly TypeSystem.NameResolutionService _nameResolutionService;
 		
@@ -86,6 +88,7 @@ namespace Boo.Lang.Compiler
 			_assemblyReferences = options.References;
 			_parameters = options;
 			_typeSystemServices = new TypeSystem.TypeSystemServices(this);
+			_codeBuilder = _typeSystemServices.CodeBuilder;
 			_nameResolutionService = new TypeSystem.NameResolutionService(this); 
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
@@ -151,6 +154,14 @@ namespace Boo.Lang.Compiler
 				return _typeSystemServices;
 			}
 		}		
+		
+		public TypeSystem.BooCodeBuilder CodeBuilder
+		{
+			get
+			{
+				return _codeBuilder;
+			}
+		}
 		
 		public TypeSystem.NameResolutionService NameResolutionService
 		{

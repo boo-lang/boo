@@ -50,6 +50,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		protected BooCodeBuilder CodeBuilder
+		{
+			get
+			{
+				return _context.CodeBuilder;
+			}
+		}
+		
 		protected NameResolutionService NameResolutionService
 		{
 			get
@@ -119,12 +127,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected IType GetType(Node node)
 		{
 			return TypeSystemServices.GetType(node);
-		}	
-		
-		protected Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(IType tag)
-		{
-			return TypeSystemServices.CreateTypeReference(tag);
-		}
+		}		
 		
 		public virtual void Initialize(CompilerContext context)
 		{

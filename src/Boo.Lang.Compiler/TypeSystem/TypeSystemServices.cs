@@ -117,6 +117,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly IType ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
 		
+		public readonly BooCodeBuilder CodeBuilder;
+		
 		StringBuilder _buffer = new StringBuilder();
 		
 		Boo.Lang.Compiler.Ast.Module _anonymousTypesModule;
@@ -135,6 +137,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			
 			_context = context;
+
+			CodeBuilder = new BooCodeBuilder(this);			
 			
 			Cache(typeof(Boo.Lang.Builtins.duck), DuckType = new DuckTypeImpl(this));
 			Cache(VoidType = new VoidTypeImpl(this));
@@ -174,29 +178,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ObjectArrayType = GetArrayType(ObjectType);
 			
 			PreparePrimitives();
-		}
-		
-		public Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(System.Type type)
-		{
-			return CreateTypeReference(Map(type));
-		}
-		
-		public Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(IType tag)
-		{
-			TypeReference typeReference = null;
-			
-			if (tag.IsArray)
-			{
-				IType elementType = ((IArrayType)tag).GetElementType();
-				typeReference = new ArrayTypeReference(CreateTypeReference(elementType));
-			}
-			else
-			{				
-				typeReference = new SimpleTypeReference(tag.FullName);				
-			}
-			
-			typeReference.Entity = tag;
-			return typeReference;
 		}
 		
 		public IType GetPromotedNumberType(IType left, IType right)
@@ -274,11 +255,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type;
 		}
 		
-		public ParameterDeclaration CreateParameterDeclaration(int index, string name, IType type)
+		public void MapToConcreteExpressionTypes(ExpressionCollection items)
 		{
-			ParameterDeclaration parameter = new ParameterDeclaration(name, CreateTypeReference(type));
-			parameter.Entity = new InternalParameter(parameter, index);
-			return parameter;
+			foreach (Expression item in items)
+			{
+				GetConcreteExpressionType(item);
+			}
 		}
 		
 		public Boo.Lang.Compiler.Ast.Module GetAnonymousTypesModule()
@@ -297,8 +279,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ClassDefinition CreateCallableDefinition(string name)
 		{
 			ClassDefinition cd = new ClassDefinition();
-			cd.BaseTypes.Add(CreateTypeReference(this.MulticastDelegateType));
-			cd.BaseTypes.Add(CreateTypeReference(this.ICallableType));
+			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(this.MulticastDelegateType));
+			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(this.ICallableType));
 			cd.Name = name;
 			cd.Modifiers = TypeMemberModifiers.Final;
 			cd.Members.Add(CreateCallableConstructor());
@@ -311,8 +293,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			Method method = new Method("Call");
 			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.Parameters.Add(CreateParameterDeclaration(1, "args", ObjectArrayType));
-			method.ReturnType = CreateTypeReference(ObjectType);
+			method.Parameters.Add(CodeBuilder.CreateParameterDeclaration(1, "args", ObjectArrayType));
+			method.ReturnType = CodeBuilder.CreateTypeReference(ObjectType);
 			method.Entity = new InternalMethod(this, method);
 			return method;
 		}
@@ -323,9 +305,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			constructor.Modifiers = TypeMemberModifiers.Public;
 			constructor.ImplementationFlags = MethodImplementationFlags.Runtime;
 			constructor.Parameters.Add(
-						CreateParameterDeclaration(1, "instance", ObjectType));
+						CodeBuilder.CreateParameterDeclaration(1, "instance", ObjectType));
 			constructor.Parameters.Add(
-						CreateParameterDeclaration(2, "method", IntPtrType));
+						CodeBuilder.CreateParameterDeclaration(2, "method", IntPtrType));
 			constructor.Entity = new InternalConstructor(this, constructor);						
 			return constructor;
 		}
@@ -732,43 +714,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public Method CreateBeginInvokeMethod(ICallableType anonymousType)
 		{
-			Method method = CreateRuntimeMethod("BeginInvoke", Map(typeof(IAsyncResult)),
+			Method method = CodeBuilder.CreateRuntimeMethod("BeginInvoke", Map(typeof(IAsyncResult)),
 												anonymousType.GetSignature().Parameters);
 												
 			int delta=method.Parameters.Count;
 			method.Parameters.Add(
-					CreateParameterDeclaration(delta+1, "callback", Map(typeof(AsyncCallback))));
+					CodeBuilder.CreateParameterDeclaration(delta+1, "callback", Map(typeof(AsyncCallback))));
 			method.Parameters.Add(
-					CreateParameterDeclaration(delta+1, "asyncState", ObjectType));
+					CodeBuilder.CreateParameterDeclaration(delta+1, "asyncState", ObjectType));
 			return method;
 		}
 		
 		public Method CreateEndInvokeMethod(ICallableType anonymousType)
 		{
 			CallableSignature signature = anonymousType.GetSignature();
-			Method method = CreateRuntimeMethod("EndInvoke", signature.ReturnType);
+			Method method = CodeBuilder.CreateRuntimeMethod("EndInvoke", signature.ReturnType);
 			int delta=method.Parameters.Count;
 			method.Parameters.Add(
-				CreateParameterDeclaration(delta+1, "result", Map(typeof(IAsyncResult))));
+				CodeBuilder.CreateParameterDeclaration(delta+1, "result", Map(typeof(IAsyncResult))));
 			return method;
 		}
 		
 		Method CreateInvokeMethod(AnonymousCallableType anonymousType)
 		{
 			CallableSignature signature = anonymousType.GetSignature();
-			return CreateRuntimeMethod("Invoke", signature.ReturnType, signature.Parameters);
-		}
-		
-		Method CreateRuntimeMethod(string name, IType returnType, IParameter[] parameters)
-		{
-			Method method = CreateRuntimeMethod(name, returnType);
-			for (int i=0; i<parameters.Length; ++i)
-			{
-				method.Parameters.Add(CreateParameterDeclaration(i,
-									"arg" + i,
-									parameters[i].Type));
-			}
-			return method;
+			return CodeBuilder.CreateRuntimeMethod("Invoke", signature.ReturnType, signature.Parameters);
 		}
 		
 		public IConstructor GetDefaultConstructor(IType type)
@@ -783,51 +753,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			return null;
-		}
-		
-		public MethodInvocationExpression CreateConstructorInvocation(IConstructor constructor, Expression arg)
-		{
-			MethodInvocationExpression mie = CreateConstructorInvocation(constructor);
-			mie.LexicalInfo = arg.LexicalInfo;
-			mie.Arguments.Add(arg);
-			return mie;
-		}
-		
-		public MethodInvocationExpression CreateConstructorInvocation(IConstructor constructor)
-		{
-			MethodInvocationExpression mie = new MethodInvocationExpression();
-			mie.Target = new ReferenceExpression(constructor.DeclaringType.FullName);			
-			mie.Target.Entity = constructor;
-			mie.ExpressionType = constructor.DeclaringType;
-			return mie;
-		}
-		
-		public Statement CreateSuperConstructorInvocation(IType baseType)
-		{			
-			IConstructor defaultConstructor = GetDefaultConstructor(baseType);
-			Debug.Assert(null != defaultConstructor);
-			
-			MethodInvocationExpression call = new MethodInvocationExpression(new SuperLiteralExpression());			
-			call.Target.Entity = defaultConstructor;
-			call.ExpressionType = VoidType;
-			
-			return new ExpressionStatement(call);
-		}
-		
-		public Method CreateVirtualMethod(string name, IType returnType)
-		{
-			Method method = new Method(name);
-			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.ReturnType = CreateTypeReference(returnType);
-			method.Entity = new InternalMethod(this, method);
-			return method;
-		}
-		
-		Method CreateRuntimeMethod(string name, IType returnType)
-		{
-			Method method = CreateVirtualMethod(name, returnType);
-			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
-			return method;
 		}
 		
 		void CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
@@ -871,6 +796,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{	
 				return false;
 			}	
+			
+			override public bool IsSubclassOf(IType other)
+			{
+				return false;
+			}
+			
+			override public bool IsAssignableFrom(IType other)
+			{
+				return false;
+			}
 		}
 
 		#endregion

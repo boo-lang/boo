@@ -148,7 +148,7 @@ class TypeSystemFixture:
 		AssertCallableAssignableFrom(c4, c1)
 		AssertCallableAssignableFrom(c2, c4)
 		AssertCallableAssignableFrom(c4, c2)
-		AssertCallableAssignableFrom(c4, c3)
+		AssertCallableNotAssignableFrom(c4, c3)
 		AssertCallableNotAssignableFrom(c3, c4)
 		
 		c5 = GetCallableType("BoolFunction")

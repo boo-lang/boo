@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			node.Members.Add(CreateAbstractMethod(interfaceReference, tag));
+			node.Members.Add(CodeBuilder.CreateAbstractMethod(interfaceReference.LexicalInfo, tag));
 			node.Modifiers |= TypeMemberModifiers.Abstract;
 		}
 		
@@ -143,24 +143,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-		}
-		
-		Method CreateAbstractMethod(Node sourceNode, IMethod baseMethod)
-		{
-			Method method = new Method(sourceNode.LexicalInfo);
-			method.Name = baseMethod.Name;
-			method.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
-			
-			IParameter[] parameters = baseMethod.GetParameters();
-			for (int i=0; i<parameters.Length; ++i)
-			{
-				method.Parameters.Add(new ParameterDeclaration("arg" + i, CreateTypeReference(parameters[i].Type)));
-			}
-			method.ReturnType = CreateTypeReference(baseMethod.ReturnType);
-			
-			Bind(method, new InternalMethod(TypeSystemServices, method));
-			return method;
-		}
+		}		
 		
 		bool CheckPropertyAccessors(IProperty expected, IProperty actual)
 		{			

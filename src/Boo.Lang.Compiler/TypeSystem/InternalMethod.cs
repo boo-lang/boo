@@ -64,11 +64,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (_method.DeclaringType.NodeType == NodeType.ClassDefinition)
 					{
-						_method.ReturnType = _typeSystemServices.CreateTypeReference(Unknown.Default);
+						_method.ReturnType = _typeSystemServices.CodeBuilder.CreateTypeReference(Unknown.Default);
 					}
 					else
 					{
-						_method.ReturnType = _typeSystemServices.CreateTypeReference(_typeSystemServices.VoidType);
+						_method.ReturnType = _typeSystemServices.CodeBuilder.CreateTypeReference(_typeSystemServices.VoidType);
 					}
 				}
 			}

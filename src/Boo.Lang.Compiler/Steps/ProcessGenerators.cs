@@ -202,8 +202,8 @@ namespace Boo.Lang.Compiler.Steps
 		void CreateAnonymousGeneratorType()
 		{	
 			_enumeratorType = CreateClassDefinition("Enumerator");
-			_enumeratorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.IEnumeratorType));
-			_enumeratorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.Map(typeof(ICloneable))));			
+			_enumeratorType.BaseTypes.Add(CodeBuilder.CreateTypeReference(TypeSystemServices.IEnumeratorType));
+			_enumeratorType.BaseTypes.Add(CodeBuilder.CreateTypeReference(TypeSystemServices.Map(typeof(ICloneable))));			
 			
 			DeclareEnumeratorFields();
 			
@@ -219,7 +219,7 @@ namespace Boo.Lang.Compiler.Steps
 			string name = string.Format("__generator{0}__", parent.Members.Count);
 			
 			_enumerableType = CreateClassDefinition(name);
-			_enumerableType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.IEnumerableType));
+			_enumerableType.BaseTypes.Add(CodeBuilder.CreateTypeReference(TypeSystemServices.IEnumerableType));
 			_enumerableType.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Final;
 			_enumerableType.LexicalInfo = _generator.LexicalInfo;
 			
@@ -237,14 +237,16 @@ namespace Boo.Lang.Compiler.Steps
 			ClassDefinition cd = new ClassDefinition();
 			cd.Name = name;
 			cd.Entity = new InternalType(TypeSystemServices, cd);
-			cd.BaseTypes.Add(CreateTypeReference(TypeSystemServices.ObjectType));
+			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType));
 			return cd;
 		}
 		
 		void DeclareEnumeratorFields()
 		{
-			_enumeratorType.Members.Add(_enumeratorField = CreateField("__enumerator__", TypeSystemServices.IEnumeratorType));
-			_enumeratorType.Members.Add(_currentField = CreateField("__current__", TypeSystemServices.ObjectType));
+			_enumeratorType.Members.Add(
+				_enumeratorField = CodeBuilder.CreateField("__enumerator__", TypeSystemServices.IEnumeratorType));
+			_enumeratorType.Members.Add(
+				_currentField = CodeBuilder.CreateField("__current__", TypeSystemServices.ObjectType));
 			DeclareRegularFields(_enumeratorType);
 		}
 		
@@ -257,19 +259,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (ITypedEntity entity in Builtins.array(_uniqueReferences.Keys))
 			{
-				Field field = CreateField("__" + entity.Name, entity.Type);
+				Field field = CodeBuilder.CreateField("__" + entity.Name, entity.Type);
 				cd.Members.Add(field);
 				_uniqueReferences[entity] = field.Entity;
 			}
-		}
-		
-		Field CreateField(string name, IType type)
-		{
-			Field field = new Field();
-			field.Name = name;
-			field.Type = CreateTypeReference(type);
-			field.Entity = new InternalField(TypeSystemServices, field);
-			return field;
 		}
 		
 		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
@@ -285,7 +278,7 @@ namespace Boo.Lang.Compiler.Steps
 		MethodInvocationExpression CreateConstructorInvocation(ClassDefinition cd)
 		{
 			IConstructor constructor = ((IType)cd.Entity).GetConstructors()[0];
-			return TypeSystemServices.CreateConstructorInvocation(constructor);
+			return CodeBuilder.CreateConstructorInvocation(constructor);
 		}
 		
 		Expression CreateEntityReference(IEntity entity)
@@ -294,7 +287,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case EntityType.Field:
 				{
-					return CreateMemberReference((InternalField)entity);
+					return CodeBuilder.CreateReference((InternalField)entity);
 				}
 				
 				default:
@@ -333,20 +326,20 @@ namespace Boo.Lang.Compiler.Steps
 			constructor.Modifiers = TypeMemberModifiers.Public;
 			constructor.Entity = new InternalConstructor(TypeSystemServices, constructor);
 			constructor.Body.Add(
-				TypeSystemServices.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));
+				CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));
 				
 			int paramIndex=0;
 			foreach (ITypedEntity entity in _uniqueReferences.Keys)
 			{
-				ParameterDeclaration parameter = TypeSystemServices.CreateParameterDeclaration(++paramIndex,
+				ParameterDeclaration parameter = CodeBuilder.CreateParameterDeclaration(++paramIndex,
 										entity.Name,
 										entity.Type);
 				constructor.Parameters.Add(parameter);
 										
 				InternalField field = (InternalField)_uniqueReferences[entity];
 				constructor.Body.Add(
-					CreateAssignment(CreateFieldReference(field),
-									CreateReference((InternalParameter)parameter.Entity)));
+					CodeBuilder.CreateAssignment(CodeBuilder.CreateReference(field),
+									CodeBuilder.CreateReference(parameter)));
 			}			
 			return constructor;
 		}
@@ -355,14 +348,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IMethod method = (IMethod)((Method)cd.Members[name]).Entity;
 			MethodInvocationExpression mie = new MethodInvocationExpression();
-			mie.Target = CreateMemberReference(method);
+			mie.Target = CodeBuilder.CreateMemberReference(method);
 			mie.ExpressionType = method.ReturnType;
 			return mie;
 		}
 		
 		Method CreateGetEnumerator()
 		{	
-			Method method = CreateMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
+			Method method = CodeBuilder.CreateVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
 			
 			MethodInvocationExpression mie = CreateConstructorInvocation(_enumeratorType);
 			foreach (TypeMember member in _enumerableType.Members)
@@ -370,7 +363,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (NodeType.Field == member.NodeType)
 				{
 					IField field = (IField)member.Entity;
-					mie.Arguments.Add(CreateMemberReference(field));
+					mie.Arguments.Add(CodeBuilder.CreateMemberReference(field));
 				}
 			}			
 			
@@ -387,11 +380,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Method CreateClone()
 		{			
-			Method method = CreateMethod("Clone", TypeSystemServices.ObjectType);
+			Method method = CodeBuilder.CreateVirtualMethod("Clone", TypeSystemServices.ObjectType);
 			method.Body.Add(
 				new ReturnStatement(
-					CreateMethodInvocation(
-						CreateSelfLiteral((IType)_enumeratorType.Entity),
+					CodeBuilder.CreateMethodInvocation(
+						CodeBuilder.CreateSelfReference((IType)_enumeratorType.Entity),
 						GetMemberwiseCloneMethod())));					
 									
 			return method;
@@ -399,11 +392,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Method CreateReset()
 		{
-			Method method = CreateMethod("Reset", TypeSystemServices.VoidType);
+			Method method = CodeBuilder.CreateVirtualMethod("Reset", TypeSystemServices.VoidType);
 			method.Body.Add(
-				CreateAssignment(
-					CreateFieldReference((InternalField)_enumeratorField.Entity),
-					CreateMethodInvocation(_generator.Iterator,
+				CodeBuilder.CreateAssignment(
+					CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
+					CodeBuilder.CreateMethodInvocation(_generator.Iterator,
 						TypeSystemServices.Map(Types.IEnumerable.GetMethod("GetEnumerator")))));
 			return method;
 		}
@@ -412,56 +405,25 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Property property = new Property("Current");
 			property.Modifiers = TypeMemberModifiers.Public;
-			property.Type = CreateTypeReference(TypeSystemServices.ObjectType);
+			property.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
 			property.Entity = new InternalProperty(TypeSystemServices, property);
-			property.Getter = CreateMethod("get_Current", TypeSystemServices.ObjectType);
+			property.Getter = CodeBuilder.CreateVirtualMethod("get_Current", TypeSystemServices.ObjectType);
 			property.Getter.Body.Add(
-				new ReturnStatement(CreateFieldReference((InternalField)_currentField.Entity)));
+				new ReturnStatement(
+					CodeBuilder.CreateReference((InternalField)_currentField.Entity)));
 			return property;
-		}
-		
-		Expression CreateAssignment(Expression lhs, Expression rhs)
-		{
-			BinaryExpression expression = new BinaryExpression(BinaryOperatorType.Assign,
-												lhs,
-												rhs);
-												
-			//expression.ExpressionType
-			return expression;
-		}
-		
-		Expression CreateFieldReference(InternalField field)
-		{		
-			return CreateMemberReference(field);
-		}
-		
-		Expression CreateSelfLiteral(IType type)
-		{
-			SelfLiteralExpression expression = new SelfLiteralExpression();
-			expression.ExpressionType = type;
-			return expression;
-		}
-		
-		Expression CreateMemberReference(IMember entity)
-		{
-			MemberReferenceExpression reference = new MemberReferenceExpression();
-			reference.Target = CreateSelfLiteral(entity.DeclaringType);
-			reference.Name = entity.Name;
-			reference.Entity = entity;
-			reference.ExpressionType = entity.Type;
-			return reference;
 		}
 		
 		Method CreateMoveNext()
 		{
-			Method method = CreateMethod("MoveNext", TypeSystemServices.BoolType);
+			Method method = CodeBuilder.CreateVirtualMethod("MoveNext", TypeSystemServices.BoolType);
 			
-			Expression moveNext = CreateMethodInvocation(
-												CreateFieldReference((InternalField)_enumeratorField.Entity),
+			Expression moveNext = CodeBuilder.CreateMethodInvocation(
+												CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
 												TypeSystemServices.Map(Types.IEnumerator.GetMethod("MoveNext")));
 												
-			Expression current = CreateMethodInvocation(
-									CreateFieldReference((InternalField)_enumeratorField.Entity),
+			Expression current = CodeBuilder.CreateMethodInvocation(
+									CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
 									TypeSystemServices.Map(Types.IEnumerator.GetProperty("Current").GetGetMethod()));
 			
 			Statement filter = null;
@@ -517,7 +479,7 @@ namespace Boo.Lang.Compiler.Steps
 				LocalVariable local = (LocalVariable)declarations[0].Entity;
 				method.Locals.Add(local.Local);
 				
-				outerBlock.Add(CreateAssignment(
+				outerBlock.Add(CodeBuilder.CreateAssignment(
 								CreateReference(local),
 								current));
 			}
@@ -527,8 +489,8 @@ namespace Boo.Lang.Compiler.Steps
 				outerBlock.Add(filter);
 			}
 			
-			innerBlock.Add(CreateAssignment(
-								CreateFieldReference((InternalField)_currentField.Entity),
+			innerBlock.Add(CodeBuilder.CreateAssignment(
+								CodeBuilder.CreateReference((InternalField)_currentField.Entity),
 								_generator.Expression));
 			innerBlock.Add(new ReturnStatement(new BoolLiteralExpression(true)));
 			
@@ -536,11 +498,6 @@ namespace Boo.Lang.Compiler.Steps
 			method.Body.Add(new ReturnStatement(new BoolLiteralExpression(false)));
 			
 			return method;
-		}
-		
-		Method CreateMethod(string name, IType returnType)
-		{
-			return TypeSystemServices.CreateVirtualMethod(name, returnType);
 		}
 		
 		void AdjustReferences()

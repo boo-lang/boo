@@ -170,7 +170,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool IsSubclassOf(IType other)
 		{
 			ExternalType external = other as ExternalType;
-			if (null == external)
+			if (null == external /*|| _typeSystemServices.VoidType == other*/)
 			{
 				return false;
 			}
@@ -190,6 +190,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 					return !IsValueType;
 				}
 				return other.IsSubclassOf(this);
+			}
+			if (other == _typeSystemServices.VoidType)
+			{
+				return false;
 			}
 			return _type.IsAssignableFrom(external._type);
 		}

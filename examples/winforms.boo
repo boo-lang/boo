@@ -33,16 +33,13 @@ class App:
 	[getter(Times)]
 	_times as int
 	
-	private def OnClick(sender, args as EventArgs):
+	private def OnClick():
 		print("clicked!")	
 		++_times
-		
-	private def OnClosed(sender, args as EventArgs):
-		Application.Exit()
 	
 	def Run():
 		f = Form(Text: "My first boo winforms app",
-				Closed: OnClosed)
+				Closed: Application.Exit)
 		
 		f.Controls.Add(
 				Button(Text: "click me!",

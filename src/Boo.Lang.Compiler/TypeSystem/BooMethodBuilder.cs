@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,65 +26,102 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Steps
-{
+namespace Boo.Lang.Compiler.TypeSystem
+{	
 	using System;
-	using System.Diagnostics;
-	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class ImplementICallableOnCallableDefinitions : AbstractVisitorCompilerStep
+	public class BooMethodBuilder
 	{
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
+		BooCodeBuilder _codeBuilder;
+		Method _method;
 		
-		override public void OnModule(Module node)
+		public BooMethodBuilder(BooCodeBuilder codeBuilder, string name, IType returnType)
 		{
-			Visit(node.Members, NodeType.ClassDefinition);
-		}
-		
-		override public void OnClassDefinition(ClassDefinition node)
-		{
-			Visit(node.Members, NodeType.ClassDefinition);
-			
-			InternalCallableType type = node.Entity as InternalCallableType;
-			if (null != type)
+			if (null == codeBuilder)
 			{
-				ImplementICallableCall(type, node);
+				throw new ArgumentNullException("codeBuilder");
 			}
-		}
-		
-		void ImplementICallableCall(InternalCallableType type, ClassDefinition node)
-		{
-			Method call = (Method)node.Members["Call"];
-			Debug.Assert(null != call);
-			Debug.Assert(0 == call.Body.Statements.Count);
-			
-			CallableSignature signature = type.GetSignature();
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(CodeBuilder.CreateSelfReference(type),
-													type.GetInvokeMethod());
-							
-			IParameter[] parameters = signature.Parameters;
-			if (parameters.Length > 0)
+			if (null == name)
 			{
-				ReferenceExpression args = CodeBuilder.CreateReference(call.Parameters[0]);
-				for (int i=0; i<parameters.Length; ++i)
-				{
-					mie.Arguments.Add(CodeBuilder.CreateSlicing(args.CloneNode(), i));
-				}
+				throw new ArgumentNullException("name");
 			}
 			
-			if (TypeSystemServices.VoidType == signature.ReturnType)
+			_codeBuilder = codeBuilder;			
+			_method = _codeBuilder.CreateMethod(name, 
+									_codeBuilder.CreateTypeReference(returnType),
+									TypeMemberModifiers.Public);
+		}
+		
+		public BooMethodBuilder(BooCodeBuilder codeBuilder, Method method)
+		{
+			if (null == codeBuilder)
 			{
-				call.Body.Add(mie);
+				throw new ArgumentNullException("codeBuilder");
 			}
-			else
+			if (null == method)
 			{
-				call.Body.Add(new ReturnStatement(mie));
+				throw new ArgumentNullException("method");
+			}			
+			_codeBuilder = codeBuilder;
+			_method = method;
+		}
+		
+		public Method Method
+		{
+			get
+			{
+				return _method;
 			}
-		}		
+		}
+		
+		public IMethod Entity
+		{
+			get
+			{
+				return (IMethod)_method.Entity;
+			}
+		}
+		
+		public Block Body
+		{
+			get
+			{
+				return _method.Body;
+			}
+		}
+		
+		public ParameterDeclarationCollection Parameters
+		{
+			get
+			{
+				return _method.Parameters;
+			}
+		}
+		
+		public TypeMemberModifiers Modifiers
+		{
+			get
+			{
+				return _method.Modifiers;
+			}
+			
+			set
+			{
+				_method.Modifiers = value;
+			}
+		}
+		
+		public ParameterDeclaration AddParameter(string name, IType type)
+		{
+			ParameterDeclaration pd = _codeBuilder.CreateParameterDeclaration(GetNextParameterIndex(), name, type);
+			_method.Parameters.Add(pd);
+			return pd;
+		}
+		
+		int GetNextParameterIndex()
+		{
+			return (_method.IsStatic ? 0 : 1) + _method.Parameters.Count;
+		}
 	}
 }

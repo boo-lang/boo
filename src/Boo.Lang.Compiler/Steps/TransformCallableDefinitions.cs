@@ -53,14 +53,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.ReturnType)
 			{
-				node.ReturnType = CreateTypeReference(TypeSystemServices.VoidType);
+				node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 			}
 			
 			foreach (ParameterDeclaration parameter in node.Parameters)
 			{
 				if (null == parameter.Type)
 				{
-					parameter.Type = CreateTypeReference(TypeSystemServices.ObjectType);
+					parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
 				}
 			}
 			
@@ -82,14 +82,14 @@ namespace Boo.Lang.Compiler.Steps
 		Method CreateBeginInvokeMethod(CallableDefinition node)
 		{
 			Method method = CreateRuntimeMethod("BeginInvoke",
-						TypeSystemServices.CreateTypeReference(typeof(IAsyncResult)));
+						CodeBuilder.CreateTypeReference(typeof(IAsyncResult)));
 			method.Parameters.ExtendWithClones(node.Parameters);
 			method.Parameters.Add(
 				new ParameterDeclaration("callback",
-					TypeSystemServices.CreateTypeReference(typeof(AsyncCallback))));
+					CodeBuilder.CreateTypeReference(typeof(AsyncCallback))));
 			method.Parameters.Add(
 				new ParameterDeclaration("asyncState",
-					TypeSystemServices.CreateTypeReference(TypeSystemServices.ObjectType)));
+					CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType)));
 			return method;
 		}
 		
@@ -98,16 +98,17 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = CreateRuntimeMethod("EndInvoke", node.ReturnType);
 			method.Parameters.Add(
 				new ParameterDeclaration("asyncResult",
-					TypeSystemServices.CreateTypeReference(typeof(IAsyncResult))));
+					CodeBuilder.CreateTypeReference(typeof(IAsyncResult))));
 			return method;
 		}
 		
 		Method CreateRuntimeMethod(string name, TypeReference returnType)
 		{
-			Method method = new Method(name);
-			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
+			Method method = new Method();
+			method.Name = name;
 			method.ReturnType = returnType;
+			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
+			method.ImplementationFlags = MethodImplementationFlags.Runtime;
 			return method;
 		}
 	}

@@ -68,7 +68,7 @@ namespace Boo.Lang.Compiler.Steps
 				ParameterDeclaration parameter = parameters[i];
 				if (null == parameter.Type)
 				{
-					parameter.Type = CreateTypeReference(TypeSystemServices.ObjectType);
+					parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
 				}
 				else
 				{

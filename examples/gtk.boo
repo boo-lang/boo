@@ -29,7 +29,7 @@
 import System
 import Gtk from "gtk-sharp"
 
-def button_Clicked(sender, args as EventArgs):
+def button_Clicked():
 	print("button clicked!")
 	
 def window_Delete(sender, args as DeleteEventArgs):

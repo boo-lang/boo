@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod _asyncResultTypeAsyncDelegateGetter;
 		
+		Boo.Lang.List _adaptors;
+		
 		override public void Run()
 		{
 			if (0 == Errors.Count)
@@ -55,12 +57,14 @@ namespace Boo.Lang.Compiler.Steps
 			Type type = typeof( System.Runtime.Remoting.Messaging.AsyncResult);
 			_asyncResultType = TypeSystemServices.Map(type);
 			_asyncResultTypeAsyncDelegateGetter = (IMethod)TypeSystemServices.Map(type.GetProperty("AsyncDelegate").GetGetMethod());
+			_adaptors = new Boo.Lang.List();
 		}
 		
 		override public void Dispose()
 		{
 			_asyncResultType = null;
 			_asyncResultTypeAsyncDelegateGetter = null;
+			_adaptors = null;
 			base.Dispose();
 		}
 		
@@ -214,8 +218,9 @@ namespace Boo.Lang.Compiler.Steps
 					ICallableType argumentType = (ICallableType)GetExpressionType(argument);
 					if (argumentType.GetSignature() != 
 						((ICallableType)expectedType).GetSignature())
-					{
-						ConversionNotImplemented(argument, expectedType, argumentType);
+					{						
+						return Adapt((ICallableType)expectedType,
+							CreateDelegate(GetConcreteExpressionType(argument), argument));
 					}
 					return CreateDelegate(expectedType, argument);
 				}
@@ -230,19 +235,118 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					IType argumentType = GetExpressionType(argument);
 					if (Null.Default != argumentType && expectedType != argumentType)
-					{
-						ConversionNotImplemented(argument, expectedType, argumentType);
+					{						
+						return Adapt((ICallableType)expectedType, argument);
 					}
 				}
 			}
 			return null;
 		}
 		
-		void ConversionNotImplemented(Node anchor, IType expected, IType actual)
+		Expression Adapt(ICallableType expected, Expression callable)
 		{
-			NotImplemented(anchor,
-							string.Format("conversion from {0} to {1}",
-								actual, expected));
+			ICallableType actual = (ICallableType)GetExpressionType(callable);
+			ClassDefinition adaptor = GetAdaptor(expected, actual);
+			Method adapt = (Method)adaptor.Members["Adapt"];						
+			return CodeBuilder.CreateMethodInvocation((IMethod)adapt.Entity, callable);
+		}
+		
+		ClassDefinition GetAdaptor(ICallableType to, ICallableType from)
+		{
+			ClassDefinition adaptor = FindAdaptor(to, from);
+			if (null == adaptor)
+			{
+				adaptor = CreateAdaptor(to, from);
+			}
+			return adaptor;
+		}
+		
+		class AdaptorRecord
+		{
+			public readonly ICallableType From;
+			public readonly ICallableType To;
+			public readonly ClassDefinition Adaptor;
+			
+			public AdaptorRecord(ICallableType to, ICallableType from, ClassDefinition adaptor)
+			{
+				From = from;
+				To = to;
+				Adaptor = adaptor;
+			}
+		}
+		
+		ClassDefinition FindAdaptor(ICallableType to, ICallableType from)
+		{
+			foreach (AdaptorRecord record in _adaptors)
+			{
+				if (from == record.From && to == record.To)
+				{
+					return record.Adaptor;
+				}
+			}
+			return null;
+		}
+		
+		ClassDefinition CreateAdaptor(ICallableType to, ICallableType from)
+		{
+			BooClassBuilder adaptor = CodeBuilder.CreateClass("__adaptor" + _adaptors.Count + "__");
+			adaptor.AddBaseType(TypeSystemServices.ObjectType);
+			adaptor.Modifiers = TypeMemberModifiers.Final|TypeMemberModifiers.Internal;
+			
+			Field callable = adaptor.AddField("__callable", from);
+			
+			BooMethodBuilder constructor = adaptor.AddConstructor();
+			ParameterDeclaration param = constructor.AddParameter("from", from);			
+			constructor.Body.Add(
+				CodeBuilder.CreateAssignment(
+					CodeBuilder.CreateReference(callable),
+					CodeBuilder.CreateReference(param)));			
+					
+			CallableSignature signature = to.GetSignature();
+			BooMethodBuilder invoke = adaptor.AddMethod("Invoke", signature.ReturnType);
+			foreach (IParameter parameter in signature.Parameters)
+			{
+				invoke.AddParameter(parameter.Name, parameter.Type);
+			}
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+							CodeBuilder.CreateReference(callable),
+							GetInvokeMethod(from));
+			int fromParameterCount = from.GetSignature().Parameters.Length;
+			for (int i=0; i<fromParameterCount; ++i)
+			{
+				mie.Arguments.Add(
+					CodeBuilder.CreateReference(invoke.Parameters[i]));
+			}							
+			if (signature.ReturnType != TypeSystemServices.VoidType)
+			{
+				invoke.Body.Add(new ReturnStatement(mie));
+			}			
+			else
+			{
+				invoke.Body.Add(mie);
+			}
+			
+			BooMethodBuilder adapt = adaptor.AddMethod("Adapt", to);
+			adapt.Modifiers = TypeMemberModifiers.Static|TypeMemberModifiers.Public;
+			param = adapt.AddParameter("from", from);
+			adapt.Body.Add(
+				new ReturnStatement(
+					CodeBuilder.CreateConstructorInvocation(
+						to.GetConstructors()[0],
+						CodeBuilder.CreateConstructorInvocation(
+							(IConstructor)constructor.Entity,
+							CodeBuilder.CreateReference(param)),
+						CodeBuilder.CreateAddressOfExpression(invoke.Entity))));					
+			
+			RegisterAdaptor(to, from, adaptor.ClassDefinition);
+			
+			return adaptor.ClassDefinition;
+		}
+		
+		void RegisterAdaptor(ICallableType to, ICallableType from, ClassDefinition adaptor)
+		{
+			_adaptors.Add(new AdaptorRecord(to, from, adaptor));
+			TypeSystemServices.GetAnonymousTypesModule().Members.Add(adaptor);
 		}
 		
 		bool IsEndInvokeOnStandaloneMethodReference(MemberReferenceExpression node)
@@ -255,24 +359,15 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
-		CastExpression CreateCast(IType type, Expression target)
-		{
-			CastExpression expression = new CastExpression();
-			expression.Type = CreateTypeReference(type);
-			expression.Target = target;
-			BindExpressionType(expression, type);
-			return expression;
-		}
-		
 		void ReplaceEndInvokeTargetByGetAsyncDelegate(MethodInvocationExpression node)
 		{
 			Expression asyncResult = node.Arguments[0];
 			MemberReferenceExpression endInvoke = (MemberReferenceExpression)node.Target;
 			IType callableType = ((IMember)endInvoke.Entity).DeclaringType;
 			
-			endInvoke.Target = CreateCast(callableType,
-									CreateMethodInvocation(
-										CreateCast(_asyncResultType, asyncResult.CloneNode()),
+			endInvoke.Target = CodeBuilder.CreateCast(callableType,
+									CodeBuilder.CreateMethodInvocation(
+										CodeBuilder.CreateCast(_asyncResultType, asyncResult.CloneNode()),
 										_asyncResultTypeAsyncDelegateGetter));
 										
 		}
@@ -303,33 +398,16 @@ namespace Boo.Lang.Compiler.Steps
 				constructor.Arguments.Add(((MemberReferenceExpression)source).Target);
 			}
 			
-			constructor.Arguments.Add(CreateAddressOfExpression(method));
+			constructor.Arguments.Add(CodeBuilder.CreateAddressOfExpression(method));
 			Bind(constructor.Target, type.GetConstructors()[0]);
 			BindExpressionType(constructor, type);
 			
 			return constructor;
 		}
 		
-		ReferenceExpression CreateReference(IType type)
+		IMethod GetInvokeMethod(ICallableType type)
 		{
-			ReferenceExpression reference = new ReferenceExpression(type.FullName);
-			reference.Entity = type;
-			return reference;
-		}
-		
-		Expression CreateMethodReference(IMethod method)
-		{			
-			return CreateMemberReference(CreateReference(method.DeclaringType), method);
-		}
-		
-		Expression CreateAddressOfExpression(IMethod method)
-		{
-			MethodInvocationExpression mie = new MethodInvocationExpression();
-			mie.Target = new ReferenceExpression("__addressof__");
-			mie.Arguments.Add(CreateMethodReference(method));
-			Bind(mie.Target, TypeSystemServices.ResolvePrimitive("__addressof__"));
-			BindExpressionType(mie, TypeSystemServices.IntPtrType);
-			return mie;
+			return NameResolutionService.ResolveMethod(type, "Invoke");
 		}
 	}
 }

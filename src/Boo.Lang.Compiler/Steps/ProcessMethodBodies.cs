@@ -99,42 +99,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		InfoFilter IsPublicFieldPropertyEventFilter;
 		
-		Boo.Lang.List _buffer = new Boo.Lang.List();
-		
 		public ProcessMethodBodies()
 		{
 			IsPublicFieldPropertyEventFilter = new InfoFilter(IsPublicFieldPropertyEvent);
 			IsPublicEventFilter = new InfoFilter(IsPublicEvent);
-		}
-		
-		protected IMethod ResolveMethod(IType type, string name)
-		{
-			return (IMethod)ResolveMember(type, name, EntityType.Method);
-		}
-		
-		protected IProperty ResolveProperty(IType type, string name)
-		{
-			return (IProperty)ResolveMember(type, name, EntityType.Property);
-		}
-		
-		protected IEntity ResolveMember(IType type, string name, EntityType elementType)
-		{
-			_buffer.Clear();
-			type.Resolve(_buffer, name, elementType);
-			System.Diagnostics.Debug.Assert(1 == _buffer.Count);
-			return (IEntity)_buffer[0];
-		}
-		
-		protected IEntity Resolve(INamespace ns, string name, EntityType elementType)
-		{
-			_buffer.Clear();
-			ns.Resolve(_buffer, name, elementType);
-			return NameResolutionService.GetEntityFromList(_buffer);
-		}
-		
-		protected IEntity Resolve(INamespace ns, string name)
-		{
-			return Resolve(ns, name, EntityType.Any);
 		}
 		
 		override public void Run()
@@ -155,6 +123,16 @@ namespace Boo.Lang.Compiler.Steps
 			InitializeMemberCache();
 			
 			Visit(CompileUnit);
+		}
+		
+		protected IMethod ResolveMethod(IType type, string name)
+		{
+			return NameResolutionService.ResolveMethod(type, name);
+		}
+		
+		protected IProperty ResolveProperty(IType type, string name)
+		{
+			return NameResolutionService.ResolveProperty(type, name);
 		}
 		
 		virtual protected void InitializeMemberCache()
@@ -329,7 +307,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					typeInfo = TypeSystemServices.ObjectType;
 				}
-				node.Type = CreateTypeReference(typeInfo);
+				node.Type = CodeBuilder.CreateTypeReference(typeInfo);
 			}
 			
 			if (null != setter)
@@ -340,7 +318,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				ParameterDeclaration parameter = new ParameterDeclaration();
-				parameter.Type = CreateTypeReference(typeInfo);
+				parameter.Type = CodeBuilder.CreateTypeReference(typeInfo);
 				parameter.Name = "value";
 				parameter.Entity = new InternalParameter(parameter, node.Parameters.Count+GetFirstParameterIndex(setter));
 				setter.Parameters.ExtendWithClones(node.Parameters);
@@ -374,11 +352,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null == node.Initializer)
 				{
-					node.Type = CreateTypeReference(TypeSystemServices.ObjectType);
+					node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
 				}
 				else
 				{
-					node.Type = CreateTypeReference(initializerType);
+					node.Type = CodeBuilder.CreateTypeReference(initializerType);
 				}
 			}
 			else
@@ -516,16 +494,16 @@ namespace Boo.Lang.Compiler.Steps
 			Expression context = null;
 			if (node.IsStatic)
 			{
-				context = CreateReference(node.LexicalInfo, fieldEntity.DeclaringType);				
+				context = CodeBuilder.CreateReference(node.LexicalInfo, fieldEntity.DeclaringType);				
 			}
 			else
 			{
-				context = CreateSelfReference(fieldEntity.Type);
+				context = CodeBuilder.CreateSelfReference(fieldEntity.Type);
 			}			
 			
 			// <node.Name> = <node.Initializer>
 			stmt.Expression = new BinaryExpression(BinaryOperatorType.Assign,
-									CreateMemberReference(context, fieldEntity),
+									CodeBuilder.CreateMemberReference(context, fieldEntity),
 									node.Initializer);
 			BindExpressionType(stmt.Expression, fieldEntity.Type);
 			
@@ -566,7 +544,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (!tag.HasSuperCall && !node.IsStatic)
 				{
 					node.Body.Statements.Insert(0, 
-						TypeSystemServices.CreateSuperConstructorInvocation(tag.DeclaringType.BaseType));
+						CodeBuilder.CreateSuperConstructorInvocation(tag.DeclaringType.BaseType));
 				}
 			}
 			LeaveNamespace();
@@ -702,7 +680,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType baseType = tag.DeclaringType.BaseType;			
 			Method method = tag.Method;			
-			IEntity baseMethods = Resolve(baseType, tag.Name, EntityType.Method);
+			IEntity baseMethods = NameResolutionService.Resolve(baseType, tag.Name, EntityType.Method);
 			
 			if (null != baseMethods)
 			{
@@ -744,7 +722,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (TypeSystemServices.IsUnknown(tag.ReturnType))
 					{
-						tag.Method.ReturnType = CreateTypeReference(baseMethod.ReturnType);
+						tag.Method.ReturnType = CodeBuilder.CreateTypeReference(baseMethod.ReturnType);
 					}
 					else
 					{
@@ -798,7 +776,7 @@ namespace Boo.Lang.Compiler.Steps
 			ExpressionCollection returnExpressions = tag.ReturnExpressions;
 			if (0 == returnExpressions.Count)
 			{					
-				method.ReturnType = CreateTypeReference(TypeSystemServices.VoidType);
+				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 			}		
 			else
 			{					
@@ -807,7 +785,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					type = TypeSystemServices.ObjectType; 
 				}
-				method.ReturnType = CreateTypeReference(type);
+				method.ReturnType = CodeBuilder.CreateTypeReference(type);
 			}
 			TraceReturnType(method, tag);	
 		}
@@ -959,11 +937,9 @@ namespace Boo.Lang.Compiler.Steps
 			return null != node.End || null != node.Step || OmittedExpression.Default == node.Begin;
 		}
 		
-		protected StringLiteralExpression CreateStringLiteral(string value)
+		protected MethodInvocationExpression CreateEquals(BinaryExpression node)
 		{
-			StringLiteralExpression expression = new StringLiteralExpression(value);
-			BindExpressionType(expression, TypeSystemServices.StringType);
-			return expression;
+			return CodeBuilder.CreateMethodInvocation(Object_StaticEquals, node.Left, node.Right);
 		}
 		
 		IntegerLiteralExpression CreateIntegerLiteral(long value)
@@ -1014,12 +990,12 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null == node.End || node.End == OmittedExpression.Default)
 				{
-					mie = CreateMethodInvocation(node.Target, List_GetRange1);
+					mie = CodeBuilder.CreateMethodInvocation(node.Target, List_GetRange1);
 					mie.Arguments.Add(node.Begin);
 				}
 				else
 				{				
-					mie = CreateMethodInvocation(node.Target, List_GetRange2);
+					mie = CodeBuilder.CreateMethodInvocation(node.Target, List_GetRange2);
 					mie.Arguments.Add(node.Begin);
 					mie.Arguments.Add(node.End);
 				}
@@ -1035,11 +1011,11 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null == node.End || node.End == OmittedExpression.Default)
 				{
-					mie = CreateMethodInvocation(RuntimeServices_GetRange1, node.Target, node.Begin);
+					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange1, node.Target, node.Begin);
 				}
 				else
 				{
-					mie = CreateMethodInvocation(RuntimeServices_GetRange2, node.Target, node.Begin, node.End);
+					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange2, node.Target, node.Begin, node.End);
 				}				
 				
 				BindExpressionType(mie, GetExpressionType(node.Target));
@@ -1055,12 +1031,12 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null == node.End || node.End == OmittedExpression.Default)
 				{
-					mie = CreateMethodInvocation(node.Target, String_Substring_Int);
+					mie = CodeBuilder.CreateMethodInvocation(node.Target, String_Substring_Int);
 					mie.Arguments.Add(node.Begin);
 				}
 				else
 				{	
-					mie = CreateMethodInvocation(RuntimeServices_Mid, node.Target, node.Begin, node.End);
+					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_Mid, node.Target, node.Begin, node.End);
 				}
 				
 				node.ParentNode.Replace(node, mie);
@@ -1187,7 +1163,7 @@ namespace Boo.Lang.Compiler.Steps
 						target = ((MemberReferenceExpression)node.Target).Target;						
 					}
 					
-					mie.Target = CreateMemberReference(target, getter);
+					mie.Target = CodeBuilder.CreateMemberReference(target, getter);
 					BindExpressionType(mie, getter.ReturnType);
 					
 					node.ParentNode.Replace(node, mie);
@@ -1211,15 +1187,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveListLiteralExpression(ListLiteralExpression node)
 		{			
 			BindExpressionType(node, TypeSystemServices.ListType);
-			MapToConcreteExpressionTypes(node.Items);
-		}
-		
-		void MapToConcreteExpressionTypes(ExpressionCollection items)
-		{
-			foreach (Expression item in items)
-			{
-				GetConcreteExpressionType(item);
-			}
+			TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
 		}
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)
@@ -1396,7 +1364,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Field field = new Field(node.LexicalInfo);
 			field.Name = fieldName;
-			field.Type = CreateTypeReference(type);
+			field.Type = CodeBuilder.CreateTypeReference(type);
 			field.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Static;
 			field.Initializer = node;
 			
@@ -1406,8 +1374,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			AddFieldInitializerToStaticConstructor(0, field);
 			
-			parent.Replace(node, CreateMemberReference(
-									CreateReference(node.LexicalInfo, _currentMethodInfo.DeclaringType),
+			parent.Replace(node, CodeBuilder.CreateMemberReference(
+									CodeBuilder.CreateReference(node.LexicalInfo, _currentMethodInfo.DeclaringType),
 									tag));
 		}
 		
@@ -1536,7 +1504,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == member)
 			{
 				INamespace ns = GetReferenceNamespace(node);				
-				member = Resolve(ns, node.Name);
+				member = NameResolutionService.Resolve(ns, node.Name);
 				if (null == member)
 				{										
 					Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
@@ -1576,7 +1544,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IProperty)member).GetGetMethod()));
+						node.ParentNode.Replace(node, CodeBuilder.CreateMethodInvocation(node.Target, ((IProperty)member).GetGetMethod()));
 						return;
 					}
 				}
@@ -1659,11 +1627,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (IsTextReader(iteratorType))
 				{					
-					return TypeSystemServices.CreateConstructorInvocation(TextReaderEnumerator_Constructor, iterator);
+					return CodeBuilder.CreateConstructorInvocation(TextReaderEnumerator_Constructor, iterator);
 				}
 				else
 				{
-					return CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
+					return CodeBuilder.CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
 				}
 			}
 			
@@ -1712,7 +1680,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IEntity tag = Resolve(_currentMethodInfo, d.Name);
+					IEntity tag = NameResolutionService.Resolve(_currentMethodInfo, d.Name);
 					if (null != tag)
 					{
 						Bind(d, tag);
@@ -1753,13 +1721,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Declaration = new Declaration(node.LexicalInfo,
 												"__exception__",
-												CreateTypeReference(TypeSystemServices.ExceptionType));
+												CodeBuilder.CreateTypeReference(TypeSystemServices.ExceptionType));
 			}
 			else
 			{
 				if (null == node.Declaration.Type)
 				{
-					node.Declaration.Type = CreateTypeReference(TypeSystemServices.ExceptionType);
+					node.Declaration.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ExceptionType);
 				}
 				else
 				{
@@ -2120,7 +2088,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						Expression expression = CreateEquals(node);
 						Node parent = node.ParentNode;
-						parent.Replace(node, CreateNotExpression(expression));
+						parent.Replace(node, CodeBuilder.CreateNotExpression(expression));
 						break;
 					}
 					
@@ -2185,54 +2153,15 @@ namespace Boo.Lang.Compiler.Steps
 								eventInfo.GetAddMethod() :
 								eventInfo.GetRemoveMethod();
 								
-			ITypedEntity expressionInfo = (ITypedEntity)GetEntity(node.Right);
-			CheckDelegateArgument(node, eventInfo, expressionInfo);
+			IType rtype = GetExpressionType(node.Right);
+			CheckDelegateArgument(node, eventInfo, rtype);
 			
-			MethodInvocationExpression mie = CreateMethodInvocation(
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 												((MemberReferenceExpression)node.Left).Target,
 												method,
 												node.Right);
 			
 			node.ParentNode.Replace(node, mie);
-		}
-		
-		protected MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag, Expression arg)
-		{
-			MethodInvocationExpression mie = CreateMethodInvocation(target, tag);
-			mie.Arguments.Add(arg);
-			return mie;
-		}
-		
-		protected ReferenceExpression CreateReference(LexicalInfo info, IType type)
-		{
-			ReferenceExpression expression = new ReferenceExpression(info, type.FullName);
-			Bind(expression, type);
-			return expression;
-		}		
-		
-		protected MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg)
-		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
-			mie.Target = new ReferenceExpression(staticMethod.FullName);
-			mie.Arguments.Add(arg);
-			
-			Bind(mie.Target, staticMethod);
-			BindExpressionType(mie, staticMethod.ReturnType);
-			return mie;
-		}
-		
-		protected MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1)
-		{
-			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0);
-			mie.Arguments.Add(arg1);
-			return mie;
-		}
-		
-		protected MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1, Expression arg2)
-		{
-			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0, arg1);
-			mie.Arguments.Add(arg2);
-			return mie;
 		}
 		
 		virtual protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)
@@ -2327,19 +2256,19 @@ namespace Boo.Lang.Compiler.Steps
 				IType type = GetExpressionType(target);
 				if (TypeSystemServices.IsSystemObject(type))
 				{
-					resultingNode = CreateMethodInvocation(RuntimeServices_Len, target);
+					resultingNode = CodeBuilder.CreateMethodInvocation(RuntimeServices_Len, target);
 				}
 				else if (TypeSystemServices.StringType == type)
 				{
-					resultingNode = CreateMethodInvocation(target, String_get_Length);
+					resultingNode = CodeBuilder.CreateMethodInvocation(target, String_get_Length);
 				}
 				else if (TypeSystemServices.ArrayType.IsAssignableFrom(type))
 				{
-					resultingNode = CreateMethodInvocation(target, Array_get_Length);
+					resultingNode = CodeBuilder.CreateMethodInvocation(target, Array_get_Length);
 				}
 				else if (TypeSystemServices.ICollectionType.IsAssignableFrom(type))
 				{
-					resultingNode = CreateMethodInvocation(target, ICollection_get_Count);
+					resultingNode = CodeBuilder.CreateMethodInvocation(target, ICollection_get_Count);
 				}	
 				else
 				{
@@ -2362,12 +2291,8 @@ namespace Boo.Lang.Compiler.Steps
 				
 				IType returnType = TypeSystemServices.GetArrayType(GetType(expression.Arguments[0]));
 				
-				CastExpression cast = new CastExpression(expression.LexicalInfo);
-				cast.Type = CreateTypeReference(returnType);
-				cast.Target = expression;
-				BindExpressionType(cast, returnType);
-				
-				parent.Replace(expression, cast);
+				parent.Replace(expression,
+								CodeBuilder.CreateCast(returnType, expression));
 			}
 		}
 		
@@ -2494,34 +2419,16 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 			}
-		}	
-		
-		MethodInvocationExpression CreateEvalInvocation(LexicalInfo li)
-		{
-			MethodInvocationExpression eval = new MethodInvocationExpression(li);
-			eval.Target = new ReferenceExpression("__eval__");
-			Bind(eval.Target, BuiltinFunction.Eval);
-			return eval;
-		}
-		
-		BinaryExpression CreateAssignment(Expression lhs, Expression rhs)
-		{
-			BinaryExpression assignment = new BinaryExpression(
-											BinaryOperatorType.Assign,
-											lhs,
-											rhs);
-			BindExpressionType(assignment, GetExpressionType(lhs));
-			return assignment;
 		}
 		
 		void ReplaceTypeInvocationByEval(IType type, MethodInvocationExpression node)
 		{
 			Node parent = node.ParentNode;
 			
-			MethodInvocationExpression eval = CreateEvalInvocation(node.LexicalInfo);
+			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
 			ReferenceExpression local = CreateTempLocal(node.Target.LexicalInfo, type);
 			
-			eval.Arguments.Add(CreateAssignment(local.CloneNode(), node));
+			eval.Arguments.Add(CodeBuilder.CreateAssignment(local.CloneNode(), node));
 			foreach (ExpressionPair pair in node.NamedArguments)
 			{
 				IEntity entity = GetEntity(pair.First);
@@ -2530,7 +2437,7 @@ namespace Boo.Lang.Compiler.Steps
 					case EntityType.Event:
 					{
 						IEvent member = (IEvent)entity;						
-						eval.Arguments.Add(CreateMethodInvocation(
+						eval.Arguments.Add(CodeBuilder.CreateMethodInvocation(
 											local.CloneNode(),
 											member.GetAddMethod(),
 											pair.Second));
@@ -2539,8 +2446,8 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case EntityType.Field:
 					{
-						eval.Arguments.Add(CreateAssignment(
-											CreateMemberReference(
+						eval.Arguments.Add(CodeBuilder.CreateAssignment(
+											CodeBuilder.CreateMemberReference(
 												local.CloneNode(),
 												(IMember)entity),
 												pair.Second));
@@ -2559,7 +2466,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							eval.Arguments.Add(CreateMethodInvocation(
+							eval.Arguments.Add(CodeBuilder.CreateMethodInvocation(
 											local.CloneNode(),
 											setter,
 											pair.Second));
@@ -2625,14 +2532,14 @@ namespace Boo.Lang.Compiler.Steps
 				if (CheckParameters(node.Target, delegateType, delegateType, node.Arguments))
 				{	
 					IMethod invoke = ResolveMethod(delegateType, "Invoke");
-					node.Target = CreateMemberReference(node.Target, invoke);
+					node.Target = CodeBuilder.CreateMemberReference(node.Target, invoke);
 					BindExpressionType(node, invoke.ReturnType);						
 				}
 			}
 			else if (TypeSystemServices.ICallableType.IsAssignableFrom(type))
 			{
-				node.Target = CreateMemberReference(node.Target, ICallable_Call);
-				ArrayLiteralExpression arg = CreateObjectArray(node.Arguments);							
+				node.Target = CodeBuilder.CreateMemberReference(node.Target, ICallable_Call);
+				ArrayLiteralExpression arg = CodeBuilder.CreateObjectArray(node.Arguments);							
 				node.Arguments.Clear();
 				node.Arguments.Add(arg);
 				
@@ -2645,7 +2552,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Target = new ReferenceExpression(targetType.LexicalInfo,
 											"System.Activator.CreateInstance");
 										
-				ArrayLiteralExpression args = CreateObjectArray(node.Arguments);
+				ArrayLiteralExpression args = CodeBuilder.CreateObjectArray(node.Arguments);
 				
 				node.Arguments.Clear();
 				node.Arguments.Add(targetType);
@@ -2658,31 +2565,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				NotImplemented(node, "Method invocation on type '" + type + "'.");
 			}
-		}
-		
-		protected ArrayLiteralExpression CreateObjectArray(ExpressionCollection items)
-		{
-			ArrayLiteralExpression array = new ArrayLiteralExpression();
-			BindExpressionType(array, TypeSystemServices.ObjectArrayType);
-			array.Items.Extend(items);
-			MapToConcreteExpressionTypes(array.Items);
-			return array;
-		}
-		
-		MethodInvocationExpression CreateEquals(BinaryExpression node)
-		{
-			return CreateMethodInvocation(Object_StaticEquals, node.Left, node.Right);
-		}
-		
-		UnaryExpression CreateNotExpression(Expression node)
-		{
-			UnaryExpression notNode = new UnaryExpression();
-			notNode.LexicalInfo = node.LexicalInfo;
-			notNode.Operand = node;
-			notNode.Operator = UnaryOperatorType.LogicalNot;
-			
-			BindExpressionType(notNode, TypeSystemServices.BoolType);
-			return notNode;
 		}
 		
 		bool CheckIdentifierName(Node node, string name)
@@ -2788,7 +2670,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{	
-				mie.Target = CreateMemberReference(slice.Target, setter);
+				mie.Target = CodeBuilder.CreateMemberReference(slice.Target, setter);
 				BindExpressionType(mie, setter.ReturnType);	
 				node.ParentNode.Replace(node, mie);
 			}
@@ -2942,7 +2824,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Node parent = node.ParentNode;
 			node.Operator = newOperator;
-			parent.Replace(node, CreateNotExpression(node));
+			parent.Replace(node, CodeBuilder.CreateNotExpression(node));
 		}
 		
 		static string GetBinaryOperatorText(BinaryOperatorType op)
@@ -2993,7 +2875,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMember ResolvePublicFieldPropertyEvent(Node sourceNode, IType type, string name)
 		{
-			IEntity candidate = Resolve(type, name, EntityType.Property|EntityType.Event|EntityType.Field);
+			IEntity candidate = NameResolutionService.Resolve(type, name, EntityType.Property|EntityType.Event|EntityType.Field);
 			if (null != candidate)
 			{	
 				if (IsPublicFieldPropertyEvent(candidate))
@@ -3048,7 +2930,7 @@ namespace Boo.Lang.Compiler.Steps
 				IType memberType = member.Type;				
 				if (member.EntityType == EntityType.Event)
 				{
-					CheckDelegateArgument(arg.First, member, (ITypedEntity)GetEntity(arg.Second));
+					CheckDelegateArgument(arg.First, member, GetExpressionType(arg.Second));
 				}
 				else
 				{						
@@ -3069,11 +2951,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckDelegateArgument(Node sourceNode, ITypedEntity delegateMember, ITypedEntity argumentInfo)
 		{
-			ICallableType delegateType = (ICallableType)delegateMember.Type;
-			if (argumentInfo.EntityType != EntityType.Method ||
-					    !CheckCallableSignature(delegateType, ((IMethod)argumentInfo).CallableType))
+			if (!delegateMember.Type.IsAssignableFrom(argumentInfo.Type))
 			{
-				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.FullName, delegateType.FullName));
+				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.FullName, delegateMember.Type.FullName));
 				return false;
 			}
 			return true;
@@ -3486,7 +3366,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool ResolveOperator(BinaryExpression node, IType type, string operatorName, MethodInvocationExpression mie)
 		{
-			IEntity tag = Resolve(type, operatorName, EntityType.Method);
+			IEntity tag = NameResolutionService.Resolve(type, operatorName, EntityType.Method);
 			if (null == tag)
 			{
 				return false;
@@ -3745,7 +3625,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else				
 			{
-				d.Type = CreateTypeReference(defaultDeclarationType);
+				d.Type = CodeBuilder.CreateTypeReference(defaultDeclarationType);
 			}
 		}
 		

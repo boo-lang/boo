@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null == baseClass)
 			{
-				node.BaseTypes.Insert(0, CreateTypeReference(TypeSystemServices.ObjectType)	);
+				node.BaseTypes.Insert(0, CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType)	);
 			}
 		}
 		

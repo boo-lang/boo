@@ -99,11 +99,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ProcessQuackPropertyGet(MemberReferenceExpression node)
 		{
-			MethodInvocationExpression mie = CreateMethodInvocation(
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 												RuntimeServices_GetProperty,
 												node.Target,
-												CreateStringLiteral(node.Name),
-												CreateNullLiteral());
+												CodeBuilder.CreateStringLiteral(node.Name),
+												CodeBuilder.CreateNullLiteral());
 			BindExpressionType(mie, TypeSystemServices.DuckType);
 			node.ParentNode.Replace(node, mie);
 		}
@@ -112,10 +112,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Left;
 			
-			MethodInvocationExpression mie = CreateMethodInvocation(
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 												RuntimeServices_SetProperty,
 												target.Target,
-												CreateStringLiteral(target.Name),
+												CodeBuilder.CreateStringLiteral(target.Name),
 												node.Right);
 			
 			BindExpressionType(mie, TypeSystemServices.DuckType);
@@ -125,23 +125,16 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessQuackInvocation(MethodInvocationExpression node)
 		{
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Target;
-			node.Target = CreateMemberReference(
-								CreateReference(node.LexicalInfo, _runtimeServices),
+			node.Target = CodeBuilder.CreateMemberReference(
+								CodeBuilder.CreateReference(node.LexicalInfo, _runtimeServices),
 								RuntimeServices_Invoke);
 			
-			Expression args = CreateObjectArray(node.Arguments);
+			Expression args = CodeBuilder.CreateObjectArray(node.Arguments);
 			node.Arguments.Clear();
 			node.Arguments.Add(target.Target);
-			node.Arguments.Add(CreateStringLiteral(target.Name));
+			node.Arguments.Add(CodeBuilder.CreateStringLiteral(target.Name));
 			node.Arguments.Add(args);
 			BindExpressionType(node, TypeSystemServices.DuckType);
-		}
-		
-		NullLiteralExpression CreateNullLiteral()
-		{
-			NullLiteralExpression expression = new NullLiteralExpression();
-			BindExpressionType(expression, Null.Default);
-			return expression;
-		}
+		}		
 	}
 }

@@ -259,6 +259,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 			node.Entity = info;
 		}
 		
+		public IMethod ResolveMethod(IType type, string name)
+		{
+			return (IMethod)ResolveMember(type, name, EntityType.Method);
+		}
+		
+		public IProperty ResolveProperty(IType type, string name)
+		{
+			return (IProperty)ResolveMember(type, name, EntityType.Property);
+		}
+		
+		public IEntity ResolveMember(IType type, string name, EntityType elementType)
+		{
+			_buffer.Clear();
+			type.Resolve(_buffer, name, elementType);
+			System.Diagnostics.Debug.Assert(1 == _buffer.Count);
+			return (IEntity)_buffer[0];
+		}
+		
+		public IEntity Resolve(INamespace ns, string name, EntityType elementType)
+		{
+			_buffer.Clear();
+			ns.Resolve(_buffer, name, elementType);
+			return GetEntityFromList(_buffer);
+		}
+		
+		public IEntity Resolve(INamespace ns, string name)
+		{
+			return Resolve(ns, name, EntityType.Any);
+		}
+		
 		IEntity GetEntityFromBuffer()
 		{
 			return GetEntityFromList(_buffer);
