@@ -2489,8 +2489,12 @@ namespace Boo.Lang.Compiler.Steps
 						expression.Target = node.Target;
 						expression.Name = "Invoke";
 						node.Target = expression;
-						Bind(expression, ResolveMethod(delegateType, "Invoke"));
-						BindExpressionType(node, delegateType.GetSignature().ReturnType);						
+						
+						IMethod invoke = ResolveMethod(delegateType, "Invoke");
+						Bind(expression, invoke);
+						BindExpressionType(expression, invoke.Type); 
+						Bind(node, Unknown.Default);
+						BindExpressionType(node, invoke.ReturnType);						
 					}
 				}
 				else
