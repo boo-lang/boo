@@ -32,12 +32,30 @@ namespace Boo.Lang.Compiler
 	using System.IO;
 	using System.Collections;
 	
+	public class CompilerStepEventArgs : EventArgs
+	{
+		public CompilerContext Context;
+		public ICompilerStep Step;
+		
+		public CompilerStepEventArgs(CompilerContext context, ICompilerStep step)
+		{
+			this.Context = context;
+			this.Step = step;
+		}
+	}
+	
+	public delegate void CompilerStepEventHandler(object sender, CompilerStepEventArgs args);
+	
 	/// <summary>
 	/// A ordered set of <see cref="ICompilerStep"/> implementations
 	/// that should be executed in sequence.
 	/// </summary>
 	public class CompilerPipeline : System.MarshalByRefObject
 	{	
+		public event CompilerStepEventHandler BeforeStep;
+		
+		public event CompilerStepEventHandler AfterStep;
+		
 		public static CompilerPipeline GetPipeline(string name)
 		{
 			switch (name)
@@ -167,21 +185,27 @@ namespace Boo.Lang.Compiler
 			_items.Clear();
 		}
 		
-		virtual protected void OnEnterStep(CompilerContext context, ICompilerStep step)
+		virtual protected void OnBeforeStep(CompilerContext context, ICompilerStep step)
 		{
-			context.TraceEnter("Entering {0}", step);
+			if (null != BeforeStep)
+			{
+				BeforeStep(this, new CompilerStepEventArgs(context, step));
+			}
 		}
 		
-		virtual protected void OnLeaveStep(CompilerContext context, ICompilerStep step)
+		virtual protected void OnAfterStep(CompilerContext context, ICompilerStep step)
 		{
-			context.TraceLeave("Left {0}.", step);
+			if (null != AfterStep)
+			{
+				AfterStep(this, new CompilerStepEventArgs(context, step));
+			}
 		}
 
 		virtual public void Run(CompilerContext context)
 		{
 			foreach (ICompilerStep step in _items)
 			{				
-				OnEnterStep(context, step);		
+				OnBeforeStep(context, step);		
 				
 				step.Initialize(context);
 				try
@@ -198,7 +222,7 @@ namespace Boo.Lang.Compiler
 				}
 				finally
 				{				
-					OnLeaveStep(context, step);
+					OnAfterStep(context, step);
 				}
 			}
 			

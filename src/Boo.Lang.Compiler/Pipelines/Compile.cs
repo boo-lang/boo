@@ -35,6 +35,7 @@ namespace Boo.Lang.Compiler.Pipelines
 	{
 		public Compile()
 		{			
+			Add(new InitializeTypeSystemServices());
 			Add(new PreErrorChecking());
 			Add(new InitializeNameResolutionService());
 			Add(new IntroduceGlobalNamespaces());

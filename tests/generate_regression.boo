@@ -150,6 +150,7 @@ namespace BooCompiler.Tests
 		override protected CompilerPipeline SetUpCompilerPipeline()
 		{
 			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Parse();
+			pipeline.Add(new InitializeTypeSystemServices());
 			pipeline.Add(new InitializeNameResolutionService());
 			pipeline.Add(new IntroduceGlobalNamespaces());	
 			pipeline.Add(new BindNamespaces());

@@ -981,7 +981,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		protected virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			if (null == anonymousType.ConcreteType)
 			{
@@ -990,7 +990,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return anonymousType.ConcreteType;
 		}
 		
-		void CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		protected virtual void CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			Boo.Lang.Compiler.Ast.Module module = GetAnonymousTypesModule();
 			

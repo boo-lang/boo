@@ -74,9 +74,7 @@ class InteractiveInterpreter:
 		_compiler.Parameters.Pipeline = pipeline		
 		_parser.Parameters.Pipeline = Pipelines.Parse()
 		
-		SetValue("dir", dir)
-		SetValue("help", help)
-		SetValue("print", { value | _print(value) })
+		InitializeStandardReferences()
 		
 	LastValue:
 		get:
@@ -166,6 +164,11 @@ class InteractiveInterpreter:
 		
 		value = GetValue(name)
 		return value.GetType() if value is not null
+		
+	def Reset():
+		_declarations.Clear()
+		_values.Clear()
+		InitializeStandardReferences()
 
 	def SetValue(name as string, value):
 		_values[name] = value
@@ -193,6 +196,12 @@ class InteractiveInterpreter:
 		_print("class ${type.Name}(${join(baseTypes, ', ')}):")		
 		for member in dir(obj):
 			_print("    ${member}")
+			
+	private def InitializeStandardReferences():
+		SetValue("interpreter", self)
+		SetValue("dir", dir)
+		SetValue("help", help)
+		SetValue("print", { value | _print(value) })
 
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
 										module as Module):
@@ -338,10 +347,15 @@ class InteractiveInterpreter:
 	
 		_namespace as InterpreterNamespace
 		_interpreter as InteractiveInterpreter
-		_isEntryPoint = false
+		_entryPoint as Method
 	
 		def constructor(interpreter):
 			_interpreter = interpreter
+			
+		InEntryPoint:
+			get:
+				return _currentMethod.Method is _entryPoint if (
+					_entryPoint is not null)
 	
 		override def Initialize(context as CompilerContext):
 			super(context)
@@ -351,25 +365,19 @@ class InteractiveInterpreter:
 								TypeSystemServices,
 								NameResolutionService.GlobalNamespace)
 			NameResolutionService.GlobalNamespace = _namespace
+			_entryPoint = Steps.ContextAnnotations.GetEntryPoint(Context)
 			
 		override def Dispose():
 			_namespace = null
 			
-		override def OnConstructor(node as Constructor):
-			OnMethod(node)
-			
-		override def OnMethod(node as Method):
-			_isEntryPoint = node is Steps.ContextAnnotations.GetEntryPoint(Context);
-			super(node)
-			
 		override def LeaveExpressionStatement(node as ExpressionStatement):
 			# force standalone method references types to be completely
 			# resolved
-			GetConcreteExpressionType(node.Expression)
+			GetConcreteExpressionType(node.Expression) if InEntryPoint
 			super(node)
 			
 		override def HasSideEffect(node as Expression):
-			return true if _interpreter.RememberLastValue
+			return true if _interpreter.RememberLastValue and InEntryPoint
 			return super(node)
 	
 		override def CheckLValue(node as Node):
@@ -377,8 +385,8 @@ class InteractiveInterpreter:
 			return true if InterpreterEntity.IsInterpreterEntity(node)
 			return super(node) 
 	
-		override def DeclareLocal(name as string, type as IType, privateScope as bool):
-			return super(name, type, privateScope) if privateScope or not _isEntryPoint
+		override def DeclareLocal(name as string, type as IType, privateScope as bool):			
+			return super(name, type, privateScope) if privateScope or not InEntryPoint
 			
 			external = type as ExternalType
 			_interpreter.Declare(name, external.ActualType) if external

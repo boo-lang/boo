@@ -46,10 +46,12 @@ namespace Boo.Lang
 												BindingFlags.InvokeMethod;												
 												
 		const BindingFlags SetPropertyBindingFlags = DefaultBindingFlags |
-												BindingFlags.SetProperty;
+												BindingFlags.SetProperty |
+												BindingFlags.SetField;
 												
 		const BindingFlags GetPropertyBindingFlags = DefaultBindingFlags |
-												BindingFlags.GetProperty;
+												BindingFlags.GetProperty |
+												BindingFlags.GetField;
 												
 			
 		public static object Invoke(object target, string name, object[] args)

@@ -45,9 +45,9 @@ namespace Boo.Lang.Compiler.Steps
 	{	
 		static readonly ExpressionCollection EmptyExpressionCollection = new ExpressionCollection();
 		
-		Stack _methodStack;
+		protected Stack _methodStack;
 		
-		InternalMethod _currentMethod;
+		protected InternalMethod _currentMethod;
 		
 		Hash _visited;
 		
@@ -109,9 +109,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		InfoFilter IsPublicFieldPropertyEventFilter;
 		
-		MethodBodyState _methodBodyState;
+		protected MethodBodyState _methodBodyState;
 		
-		struct MethodBodyState
+		protected struct MethodBodyState
 		{
 			public int LoopDepth;
 		

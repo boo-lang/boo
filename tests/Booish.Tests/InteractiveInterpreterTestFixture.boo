@@ -165,6 +165,29 @@ def spam():
 		assert 'eggs' == _interpreter.GetValue("value")
 		
 	[Test]
+	def InterpreterReference():
+		
+		assert _interpreter.GetValue("interpreter") is _interpreter 
+		
+	[Test]
+	def Reset():
+		
+		_interpreter.RememberLastValue = true
+		
+		Eval("a as int = 3")
+		
+		assert 3 == _interpreter.LastValue
+		assert 3 == _interpreter.GetValue("a")
+		assert _interpreter.Lookup("a") is int
+		
+		_interpreter.Reset()
+		
+		assert _interpreter.LastValue is null
+		assert _interpreter.GetValue("a") is null
+		assert _interpreter.Lookup("a") is null
+		
+		
+	[Test]
 	def TypeDef():
 		
 		_interpreter.SetValue("DefaultName", "boo")
@@ -190,7 +213,7 @@ class Language:
 		assert 1 == len(errors)
 		assert "BCE0034" == errors[0].Code
 		
-	/*
+
 	[Test]
 	def BeginInvokeEndInvoke():
 		Eval("""
@@ -200,10 +223,31 @@ def foo():
 handle = foo.BeginInvoke()
 result = foo.EndInvoke(handle)
 """)
-		Assert.AreEqual(42, _interpreter.GetValue("result"))
-		
+
 		handle as duck = _interpreter.GetValue("handle")
 		assert handle is not null
+		assert handle.IsCompleted
+		assert handle.EndInvokeCalled
+		
+		Assert.AreEqual(42, _interpreter.GetValue("result"))
+		
+	/*
+	[Test]
+	def BeginInvokeEndInvokeInSequentialEvals():
+		Eval("""
+def foo():
+	return 42
+
+handle = foo.BeginInvoke()
+""")
+		handle as duck = _interpreter.GetValue("handle")
+		assert handle is not null
+		assert not handle.EndInvokeCalled
+
+		Eval("result = foo.EndInvoke(handle)")
+
+		Assert.AreEqual(42, _interpreter.GetValue("result"))
+		
 		assert handle.IsCompleted
 		assert handle.EndInvokeCalled
 	*/
