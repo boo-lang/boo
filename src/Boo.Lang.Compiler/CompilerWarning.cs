@@ -38,9 +38,9 @@ namespace Boo.Lang.Compiler
 	[Serializable]
 	public class CompilerWarning
 	{
-		string _code = "";
+		string _code;
 		
-		string _message = "";
+		string _message;
 		
 		LexicalInfo _lexicalInfo;
 		

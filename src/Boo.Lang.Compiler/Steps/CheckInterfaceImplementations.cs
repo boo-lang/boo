@@ -29,20 +29,38 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
+	using System.Collections;
 	using System.Diagnostics;
+	using Boo.Lang;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class CheckInterfaceImplementations : AbstractVisitorCompilerStep
 	{
+		Hashtable _visited = new Hashtable();
+		List _newAbstractClasses = new List();
+		
 		override public void Run()
 		{
 			Visit(CompileUnit.Modules);
 		}
 		
+		override public void Dispose()
+		{
+			_visited.Clear();
+			_newAbstractClasses.Clear();
+			base.Dispose();
+		}
+		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
+			if (_visited.ContainsKey(node))
+			{
+				return;
+			}
+			
+			MarkVisited(node);
 			Visit(node.Members, NodeType.ClassDefinition);
 			
 			foreach (TypeReference baseType in node.BaseTypes)
@@ -51,6 +69,10 @@ namespace Boo.Lang.Compiler.Steps
 				if (tag.IsInterface)
 				{
 					ResolveClassInterfaceMembers(node, baseType, tag);
+				}
+				else
+				{
+					EnsureVisited(tag);
 				}
 			}
 		}
@@ -83,14 +105,11 @@ namespace Boo.Lang.Compiler.Steps
 				if (null == member)
 				{
 					node.Members.Add(CreateAbstractProperty(interfaceReference, tag));
-					node.Modifiers |= TypeMemberModifiers.Abstract;
-					Warnings.Add(
-						CompilerWarningFactory.AbstractMemberNotImplemented(interfaceReference,
-																					node.FullName, tag.FullName)); 
+					AbstractMemberNotImplemented(node, interfaceReference, tag);
 				}
 				else
 				{
-					// error
+					NotImplemented(interfaceReference, "member name conflict");
 				}
 			}
 		}
@@ -124,24 +143,34 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			TypeMember member = node.Members[tag.Name];
-			if (null != member && NodeType.Method == member.NodeType)
-			{							
-				Method method = (Method)member;
-				if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), tag))
-				{
-					// TODO: check return type here
-					if (!method.IsOverride && !method.IsVirtual)
+			foreach (TypeMember member in node.Members)
+			{
+				if (tag.Name == member.Name && NodeType.Method == member.NodeType)
+				{							
+					Method method = (Method)member;
+					if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), tag))
 					{
-						method.Modifiers |= TypeMemberModifiers.Virtual;
+						// TODO: check return type here
+						if (!method.IsOverride && !method.IsVirtual)
+						{
+							method.Modifiers |= TypeMemberModifiers.Virtual;
+						}
+						
+						_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, tag);
+						return;
 					}
-					
-					_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, tag);
-					return;
 				}
 			}
 			
 			node.Members.Add(CodeBuilder.CreateAbstractMethod(interfaceReference.LexicalInfo, tag));
+			AbstractMemberNotImplemented(node, interfaceReference, tag); 			
+		}
+		
+		void AbstractMemberNotImplemented(ClassDefinition node, TypeReference interfaceReference, IMember member)
+		{
+			Warnings.Add(
+						CompilerWarningFactory.AbstractMemberNotImplemented(interfaceReference,
+																					node.FullName, member.FullName));
 			node.Modifiers |= TypeMemberModifiers.Abstract;
 		}
 		
@@ -201,6 +230,24 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnModule(Module node)
 		{
 			Visit(node.Members, NodeType.ClassDefinition);
+		}
+		
+		void EnsureVisited(IType type)
+		{
+			InternalType internalType = type as InternalType;
+			if (null != internalType)
+			{
+				TypeDefinition typedef = internalType.TypeDefinition;
+				if (!_visited.ContainsKey(typedef))
+				{
+					Visit(typedef);
+				}
+			}
+		}
+		
+		void MarkVisited(ClassDefinition node)
+		{
+			_visited.Add(node, null);
 		}
 	}
 }
