@@ -846,6 +846,7 @@ stmt [StatementCollection container]
 		s=given_stmt |
 		{IsValidMacroArgument(LA(2))}? s=macro_stmt |
 		(slicing_expression ASSIGN CALLABLE)=> s=assignment_stmt |
+		(RETURN CALLABLE) => s=return_callable_stmt |
 		(		
 			(				
 				s=return_stmt |
@@ -1028,6 +1029,19 @@ return_stmt returns [ReturnStatement s]
 		Expression e = null;
 	}:
 	r:RETURN! (e=array_or_expression)?
+	{
+		s = new ReturnStatement(ToLexicalInfo(r));
+		s.Expression = e;
+	}
+	;
+	
+protected
+return_callable_stmt returns [ReturnStatement s]
+	{
+		s = null;
+		Expression e = null;
+	}:
+	r:RETURN! e=callable_expression
 	{
 		s = new ReturnStatement(ToLexicalInfo(r));
 		s.Expression = e;
