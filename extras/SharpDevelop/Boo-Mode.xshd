@@ -27,16 +27,20 @@
 		<RuleSet ignorecase="false" >
 			<Delimiters>&amp;&lt;&gt;~!@%^*()-+=|\#/{}[]:;"' ,	.?</Delimiters>
 
-			<Span name="DocLineComment" stopateol="false" bold="false" italic="true" color="Green" >
+			<Span name="DocLineComment" stopateol="false" bold="false" italic="false" color="Green" >
 				<Begin >"""</Begin>
 				<End >"""</End>
 			</Span>
 
-			<Span name="LineComment" stopateol="true" bold="false" italic="true" color="Green" >
+			<Span name="LineComment" stopateol="true" bold="false" italic="false" color="Gray" >
 				<Begin >#</Begin>
 			</Span>
 
-			<Span name="BlockComment" stopateol="false" bold="false" italic="true" color="Green" >
+			<Span name="LineComment2" stopateol="true" bold="false" italic="false" color="#999999" >
+				<Begin >//</Begin>
+			</Span>
+
+			<Span name="BlockComment" stopateol="false" bold="false" italic="false" color="Green" >
 				<Begin >/*</Begin>
 				<End >*/</End>
 			</Span>
@@ -56,11 +60,7 @@
 				<End >'</End>
 			</Span>
 
-			<Span name="LineComment2" stopateol="true" bold="false" italic="true" color="Green" >
-				<Begin >@//@!/</Begin>
-			</Span>
-
-			<MarkPrevious bold="true" italic="false" color="MidnightBlue" >(</MarkPrevious>
+			<MarkPrevious bold="false" italic="false" color="MidnightBlue" >(</MarkPrevious>
 
 			<KeyWords name="Punctuation" bold="false" italic="false" color="DarkGreen" >
 				<Key word="?"/>
@@ -94,8 +94,8 @@
 			</KeyWords>
 
 			<KeyWords name="OperatorKeywords" bold="true" italic="false" color="DarkCyan" >
-				<Key word="as"/>
 				<Key word="is"/>
+				<Key word="isa"/>
 				<Key word="true"/>
 				<Key word="false"/>
 				<Key word="kindof"/>
@@ -110,10 +110,10 @@
 				<Key word="given"/>
 				<Key word="when"/>
 				<Key word="unless"/>
+				<Key word="otherwise"/>
 			</KeyWords>
 
 			<KeyWords name="IterationStatements" bold="true" italic="false" color="Blue" >
-				<Key word="do"/>
 				<Key word="for"/>
 				<Key word="in"/>
 				<Key word="while"/>
@@ -145,19 +145,20 @@
 				<Key word="unsafe"/>
 			</KeyWords>
 
-			<KeyWords name="ValueTypes" bold="true" italic="false" color="Red" >
+			<KeyWords name="ValueTypes" bold="true" italic="false" color="Purple" >
 				<Key word="bool"/>
 				<Key word="double"/>
 				<Key word="float"/>
+				<Key word="byte"/>
 				<Key word="int"/>
 				<Key word="long"/>
-			</KeyWords>
-
-			<KeyWords name="ReferenceTypes" bold="true" italic="false" color="Red" >
-				<Key word="object"/>
-				<Key word="string"/>
 				<Key word="date"/>
 				<Key word="timespan"/>
+			</KeyWords>
+
+			<KeyWords name="ReferenceTypes" bold="true" italic="false" color="Purple" >
+				<Key word="object"/>
+				<Key word="string"/>
 				<Key word="regex"/>
 				<Key word="hash"/>
 				<Key word="list"/>
@@ -169,8 +170,9 @@
 				<Key word="void"/>
 			</KeyWords>
 
-			<KeyWords name="ConversionKeyWords" bold="true" italic="false" color="Pink" >
+			<KeyWords name="ConversionKeyWords" bold="true" italic="false" color="Blue" >
 				<Key word="cast"/>
+				<Key word="as"/>
 			</KeyWords>
 
 			<KeyWords name="MethodParameters" bold="true" italic="false" color="DeepPink" >
@@ -197,6 +199,7 @@
 			<KeyWords name="NameSpaces" bold="true" italic="false" color="Green" >
 				<Key word="namespace"/>
 				<Key word="import"/>
+				<Key word="from"/>
 			</KeyWords>
 
 			<KeyWords name="GetSet" bold="false" italic="false" color="SaddleBrown" >
@@ -207,14 +210,18 @@
 			<KeyWords name="Literals" bold="true" italic="false" color="Black" >
 				<Key word="null"/>
 				<Key word="value"/>
+				<Key word="true"/>
+				<Key word="false"/>
 			</KeyWords>
 
 			<KeyWords name="DefaultMacros" bold="false" italic="false" color="Maroon" >
 				<Key word="using"/>
 				<Key word="lock"/>
+				<Key word="getter"/>
+				<Key word="required"/>
 			</KeyWords>
 
-			<KeyWords name="Builtins" bold="false" italic="false" color="SystemColors.WindowText" >
+			<KeyWords name="Builtins" bold="false" italic="false" color="Purple" >
 				<Key word="assert"/>
 				<Key word="print"/>
 				<Key word="gets"/>
@@ -226,12 +233,7 @@
 				<Key word="cat"/>
 			</KeyWords>
 
-			<KeyWords name="Unknown" bold="false" italic="false" color="SystemColors.WindowText" >
-				<Key word="otherwise"/>
-				<Key word="from"/>
-			</KeyWords>
-
-			<KeyWords name="Methods" bold="true" italic="false" color="Black" >
+			<KeyWords name="Methods" bold="true" italic="false" color="Blue" >
 				<Key word="constructor"/>
 				<Key word="def"/>
 				<Key word="include"/>
@@ -241,7 +243,7 @@
 				<Key word="pass"/>
 			</KeyWords>
 
-			<KeyWords name="TypesDef" bold="true" italic="false" color="Black" >
+			<KeyWords name="TypesDef" bold="true" italic="false" color="Blue" >
 				<Key word="enum"/>
 				<Key word="class"/>
 				<Key word="interface"/>
