@@ -1,3 +1,4 @@
+
 <Project name="Boo" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
     <File name=".\AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -193,12 +194,13 @@
     <File name=".\Lang\Compiler\AssemblyCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\BooCompiler.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\CompilerContext.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerError.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerErrorCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerErrorFactory.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\CompilerInputCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\CompilerOutputType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\CompilerParameters.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\CompilerPipeline.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Compiler\Error.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Compiler\ErrorCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\IAstAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\IAstMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\ICompilerComponent.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -246,7 +248,6 @@
     <File name=".\Lang\Compiler\Pipeline\XmlStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\TaskList.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Compiler\CompilerErrorFactory.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />
