@@ -251,12 +251,26 @@ class InteractiveInterpreter:
 		for imp in imports:
 			imp.AssemblyReference = null
 			_imports.Add(imp) 
+			
+def ReadBlock(line as string):
+	newLine = System.Environment.NewLine
+	buffer = System.Text.StringBuilder()
+	buffer.Append(line)
+	buffer.Append(newLine)
+	while line=prompt("... "):
+		break if 0 == len(line)
+		buffer.Append(line)
+		buffer.Append(newLine)
+	return buffer.ToString()
 
 interpreter = InteractiveInterpreter()
 while line=prompt(">>> "):
 	try:		
+		line = ReadBlock(line) if line.EndsWith(":")
 		result = interpreter.Eval(line)
 		for error in result.Errors:
+			pos = error.LexicalInfo.StartColumn
+			print("---" + "-" * pos + "^") if pos > 0
 			print("ERROR: ${error.Message}")
 	except x:
 		print(x)
