@@ -39,6 +39,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IParameter[] _parameters;
 		
+		ICallableType _type;
+		
 		internal ExternalMethod(TypeSystemServices manager, MethodBase mi)
 		{
 			_typeSystemServices = manager;
@@ -113,7 +115,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return null;
+				if (null == _type)
+				{
+					_type = _typeSystemServices.GetCallableType(this);
+				}
+				return _type;
 			}
 		}
 		
@@ -121,7 +127,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return ReturnType;
+				return CallableType;
 			}
 		}
 		

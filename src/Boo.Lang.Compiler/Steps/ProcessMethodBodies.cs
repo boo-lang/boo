@@ -621,7 +621,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (parentIsClass)
 			{
-				if (TypeSystemServices.IsUnknown(tag.Type))
+				if (TypeSystemServices.IsUnknown(tag.ReturnType))
 				{
 					if (CanResolveReturnType(tag))
 					{
@@ -659,7 +659,7 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckMethodOverride(InternalMethod tag)
 		{		
 			IMethod baseMethod = FindMethodOverride(tag);
-			if (null == baseMethod || tag.Type != baseMethod.ReturnType)
+			if (null == baseMethod || tag.ReturnType != baseMethod.ReturnType)
 			{
 				foreach (Expression super in tag.SuperExpressions)
 				{
@@ -719,19 +719,19 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (TypeSystemServices.IsUnknown(tag.Type))
+					if (TypeSystemServices.IsUnknown(tag.ReturnType))
 					{
 						tag.Method.ReturnType = CreateTypeReference(baseMethod.ReturnType);
 					}
 					else
 					{
-						if (baseMethod.ReturnType != tag.Type)
+						if (baseMethod.ReturnType != tag.ReturnType)
 						{
 							Error(CompilerErrorFactory.InvalidOverrideReturnType(
 											tag.Method.ReturnType,
 											baseMethod.FullName,
 											baseMethod.ReturnType.FullName,
-											tag.Type.FullName));
+											tag.ReturnType.FullName));
 						}
 					}
 					SetOverride(tag, baseMethod);
@@ -1548,7 +1548,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null != node.Expression)
 			{
-				IType returnType = _currentMethodInfo.Type;
+				IType returnType = _currentMethodInfo.ReturnType;
 				if (TypeSystemServices.IsUnknown(returnType))
 				{
 					_currentMethodInfo.ReturnExpressions.Add(node.Expression);
@@ -3534,7 +3534,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void TraceReturnType(Method method, IMethod tag)
 		{
-			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, tag.Type);
+			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, tag.ReturnType);
 		}		
 	}
 }

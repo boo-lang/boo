@@ -32,13 +32,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	
-	public class AnonymousCallableType : AbstractType
+	public class AnonymousCallableType : AbstractType, ICallableType
 	{
 		TypeSystemServices _typeSystemServices;
 		CallableSignature _signature;
 		
 		internal AnonymousCallableType(TypeSystemServices services, CallableSignature signature)
 		{
+			if (null == services)
+			{
+				throw new ArgumentNullException("services");
+			}
+			if (null == signature)
+			{
+				throw new ArgumentNullException("signature");
+			}
+			_typeSystemServices = services;
+			_signature = signature;
+		}
+		
+		public IParameter[] GetParameters()
+		{
+			return _signature.Parameters;
+		}
+		
+		public IType ReturnType
+		{
+			get
+			{
+				return _signature.ReturnType;
+			}
 		}
 		
 		override public string Name

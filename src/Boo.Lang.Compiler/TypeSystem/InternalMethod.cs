@@ -40,6 +40,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IMethod _override;
 		
+		ICallableType _type;
+		
 		IType _declaringType;
 		
 		IParameter[] _parameters;
@@ -144,7 +146,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return null;
+				if (null == _type)
+				{
+					_type = _typeSystemServices.GetCallableType(this);
+				}
+				return _type;
 			}
 		}
 		
@@ -152,7 +158,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return ReturnType;
+				return CallableType;
 			}
 		}
 		

@@ -265,10 +265,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			
 			if (IsInterface)
-			{
+			{				
 				if (_typeSystemServices.ObjectType.Resolve(targetList, name, flags))
 				{
 					found = true;
+				}
+				
+				foreach (IType baseInterface in GetInterfaces())
+				{
+					found |= baseInterface.Resolve(targetList, name, flags);
 				}
 			}
 			return found;

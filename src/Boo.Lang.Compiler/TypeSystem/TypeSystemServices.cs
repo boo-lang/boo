@@ -99,6 +99,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		System.Collections.Hashtable _arrayCache = new System.Collections.Hashtable();
 		
+		System.Collections.Hashtable _anonymousCallableTypes = new System.Collections.Hashtable();
+		
 		static readonly IEntity _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
 		
 		public static readonly IType ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
@@ -180,6 +182,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ShortType;
 			}
 			return left;
+		}
+		
+		public ICallableType GetCallableType(IMethod method)
+		{
+			CallableSignature signature = new CallableSignature(method);
+			ICallableType type = (ICallableType)_anonymousCallableTypes[signature];
+			if (null == type)
+			{
+				type = new AnonymousCallableType(this, signature);
+				_anonymousCallableTypes.Add(signature, type);
+			}
+			return type;
 		}
 		
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
