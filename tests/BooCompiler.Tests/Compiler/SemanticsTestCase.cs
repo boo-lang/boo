@@ -223,12 +223,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void CallableStaticMethods()
-		{
-			RunCompilerTestCase("callable0.boo");
-		}
-		
-		[Test]
 		public void InterfaceMethodsTurnIntoAbstractMethodsWhenNotImplemented()
 		{
 			RunCompilerTestCase("interface0.boo");

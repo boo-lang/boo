@@ -1293,6 +1293,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void MethodCanBeAssignedToObjectVariable()
+		{
+			RunCompilerTestCase("callable8.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");
