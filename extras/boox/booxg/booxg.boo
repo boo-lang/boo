@@ -97,7 +97,7 @@ class MainWindow(Window):
 		_notebookOutline.AppendPage(CreateScrolled(_documentOutline), Label("Document Outline"))		
 		_notebookHelpers.AppendPage(CreateScrolled(_output), Label("Output"))
 				
-		vbox = VBox(false, 1)
+		vbox = VBox(false, 2)
 		vbox.PackStart(CreateMenuBar(), false, false, 0)		
 		
 		editPanel = VPaned()
