@@ -662,5 +662,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("slicing3.boo");
 		}
+		
+		[Test]
+		public void SliceListNegative()
+		{
+			RunCompilerTestCase("slicing4.boo");
+		}
 	}
 }

@@ -104,6 +104,10 @@ namespace Boo.Lang
 		{
 			get
 			{
+				if (index < 0)
+				{
+					index += _list.Count;
+				}
 				return _list[index];
 			}
 		}
