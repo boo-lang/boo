@@ -66,6 +66,11 @@ namespace Boo.Ast.Compilation
 			Add(error);
 		}
 		
+		public void AmbiguousTypeReference(Node node, List types)
+		{
+			Add(new Error(node, Format("AmbiguousTypeReference", ToAssemblyQualifiedNameList(types))));
+		}
+		
 		public void UnableToLoadAssembly(Node node, string assemblyName, Exception cause)
 		{
 			Add(new Error(node, Boo.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName), cause));
@@ -150,6 +155,18 @@ namespace Boo.Ast.Compilation
 			{
 				Add(new Error(data, error.Message, error));
 			}
+		}
+		
+		string ToAssemblyQualifiedNameList(List types)
+		{
+			StringBuilder builder = new StringBuilder();
+			builder.Append(((Type)types[0]).AssemblyQualifiedName);			
+			for (int i=1; i<types.Count; ++i)
+			{
+				builder.Append(", ");
+				builder.Append(((Type)types[i]).AssemblyQualifiedName);
+			}
+			return builder.ToString();
 		}
 
 		void ParserError(LexicalInfo data, antlr.NoViableAltException error)

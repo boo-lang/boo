@@ -29,7 +29,8 @@ namespace Boo.Ast.Compilation
 			_input = new CompilerInputCollection();
 			_assemblyReferences = new AssemblyCollection();
 			_assemblyReferences.Add(GetType().Assembly);
-			_assemblyReferences.Add(typeof(string).Assembly);
+			_assemblyReferences.Add(typeof(string).Assembly); // corlib
+			_assemblyReferences.Add(System.Reflection.Assembly.LoadWithPartialName("System")); // System
 			_verbose = false;
 			_maxAttributeSteps = 2;
 			_outputAssembly = string.Empty;

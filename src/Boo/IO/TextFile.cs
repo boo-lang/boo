@@ -13,5 +13,21 @@ namespace Boo.IO
 		{
 			return new StreamReaderEnumerator(this);
 		}
+		
+		public static string ReadFile(string fname)
+		{
+			using (StreamReader reader=File.OpenText(fname))
+			{
+				return reader.ReadToEnd(); 
+			}
+		}
+		
+		public static void WriteFile(string fname, string contents)
+		{
+			using (StreamWriter writer=new StreamWriter(fname))
+			{
+				writer.Write(contents);
+			}
+		}
 	}
 }

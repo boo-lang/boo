@@ -336,15 +336,6 @@ namespace Boo.Ast.Compilation.Steps
 				Errors.UnknownName(node, name);			
 				return false;
 			}
-			else
-			{
-				if (info.BindingType == BindingType.Ambiguous)
-				{
-					//Errors.AmbiguousName(node, name, info);
-					//return false;
-					throw new NotImplementedException();
-				}
-			}
 			return true;
 		}
 		

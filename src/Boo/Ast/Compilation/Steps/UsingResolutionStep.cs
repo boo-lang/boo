@@ -4,6 +4,7 @@ using System.Reflection;
 using List=Boo.Lang.List;
 using Boo.Ast;
 using Boo.Ast.Compilation;
+using Boo.Ast.Compilation.Binding;
 using AssemblyInfo=Boo.Ast.Compilation.Binding.NamespaceBinding.AssemblyInfo;
 
 namespace Boo.Ast.Compilation.Steps
@@ -12,33 +13,49 @@ namespace Boo.Ast.Compilation.Steps
 	{
 		Hashtable _externalNamespaces = new Hashtable();
 		
+		Hashtable _externalTypes = new Hashtable();
+		
 		public override void Run()
 		{
 			ResolveUsingAssemblyReferences();
 			OrganizeNamespaces();
-			CompileUnit.Modules.Switch(this);
-		}
-		
-		public override void OnModule(Boo.Ast.Module node)
-		{
-			node.Using.Switch(this);
-		}
-		
-		public override void OnUsing(Boo.Ast.Using node)
-		{
-			List assemblies = (List)_externalNamespaces[node.Namespace];
-			if (null == assemblies)
+			foreach (Module module in CompileUnit.Modules)
 			{
-				Errors.InvalidNamespace(node);
-				BindingManager.Error(node);
-			}
-			else
-			{
-				if (null != node.AssemblyReference)
-				{	
-					// todo:
+				foreach (Using using_ in module.Using)
+				{
+					IBinding binding = ErrorBinding.Default;
+					
+					List assemblies = (List)_externalNamespaces[using_.Namespace];
+					if (null == assemblies)
+					{
+						List types = (List)_externalTypes[using_.Namespace];
+						if (null != types)
+						{
+							if (types.Count > 1)
+							{
+								Errors.AmbiguousTypeReference(using_, types);								
+							}
+							else
+							{
+								binding = BindingManager.ToTypeBinding((Type)types[0]);
+							}
+						}
+						else
+						{
+							Errors.InvalidNamespace(using_);
+						}
+					}
+					else
+					{
+						if (null != using_.AssemblyReference)
+						{	
+							// todo:
+						}
+						binding = new Binding.NamespaceBinding(BindingManager, using_, (AssemblyInfo[])assemblies.ToArray(typeof(AssemblyInfo)));
+					}
+					
+					BindingManager.Bind(using_, binding);
 				}
-				BindingManager.Bind(node, new Binding.NamespaceBinding(BindingManager, node, (AssemblyInfo[])assemblies.ToArray(typeof(AssemblyInfo))));
 			}
 		}
 		
@@ -82,15 +99,24 @@ namespace Boo.Ast.Compilation.Steps
 					{
 						ns = string.Empty;
 					}
-					List assemblies = (List)_externalNamespaces[ns];
-					if (null == assemblies)
-					{
-						assemblies = new List();
-						_externalNamespaces[ns] = assemblies;
-					}
+					List assemblies = GetList(_externalNamespaces, ns);
 					assemblies.AddUnique(new AssemblyInfo(asm, types));
-				}
+					
+					List typeList = GetList(_externalTypes, type.FullName);
+					typeList.Add(type);
+				}				
 			}
+		}
+		
+		List GetList(Hashtable hash, string key)
+		{
+			List list = (List)hash[key];
+			if (null == list)
+			{
+				list = new List();
+				hash[key] = list;
+			}
+			return list;
 		}
 	}
 }

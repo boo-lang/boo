@@ -20,6 +20,7 @@ IncompatibleExpressionType=Expression type '{1}' not compatible with target ('{0
 NoApropriateOverloadFound=No apropriate version for the arguments '{0}' was found.
 InvalidArray=Only unidimensional arrays are supported.
 BoolExpressionRequired={0} cannot be used in bool context.
+AmbiguousTypeReference=Ambiguous type reference, it could be any of the following: {0}.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.
