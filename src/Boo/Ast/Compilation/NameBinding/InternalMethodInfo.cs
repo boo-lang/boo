@@ -4,26 +4,26 @@ using System.Reflection.Emit;
 
 namespace Boo.Ast.Compilation.NameBinding
 {
-	public class InternalMethodInfo : IMethodInfo
+	public class InternalMethodBinding : IMethodBinding
 	{
-		TypeManager _manager;
+		BindingManager _manager;
 		
 		Boo.Ast.Method _method;
 		
 		MethodBuilder _builder;
 		
-		internal InternalMethodInfo(TypeManager manager, Boo.Ast.Method method, MethodBuilder builder)
+		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method, MethodBuilder builder)
 		{
 			_manager = manager;
 			_method = method;
 			_builder = builder;
 		}
 		
-		public NameInfoType InfoType
+		public NameBindingType BindingType
 		{
 			get
 			{
-				return NameInfoType.Method;
+				return NameBindingType.Method;
 			}
 		}
 		
@@ -35,11 +35,11 @@ namespace Boo.Ast.Compilation.NameBinding
 			}
 		}
 		
-		public ITypeInfo ReturnType
+		public ITypeBinding ReturnType
 		{
 			get
 			{
-				return _manager.GetTypeInfo(_method.ReturnType);
+				return _manager.GetTypeBinding(_method.ReturnType);
 			}
 		}
 		

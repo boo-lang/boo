@@ -18,7 +18,7 @@ namespace Boo.Ast.Compilation
 
 		protected ErrorCollection _errors;
 		
-		protected NameBinding.TypeManager _typeManager;
+		protected NameBinding.BindingManager _bindingManager;
 
 		public CompilerContext(CompileUnit unit) : this(new CompilerParameters(), unit)
 		{				
@@ -40,7 +40,7 @@ namespace Boo.Ast.Compilation
 			_errors = new ErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_typeManager = new NameBinding.TypeManager();
+			_bindingManager = new NameBinding.BindingManager();
 		}	
 
 		public CompilerParameters CompilerParameters
@@ -75,11 +75,11 @@ namespace Boo.Ast.Compilation
 			}
 		}
 		
-		public NameBinding.TypeManager TypeManager
+		public NameBinding.BindingManager BindingManager
 		{
 			get
 			{
-				return _typeManager;
+				return _bindingManager;
 			}
 		}
 

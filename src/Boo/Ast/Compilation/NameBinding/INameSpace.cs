@@ -4,7 +4,7 @@ using BindingFlags = System.Reflection.BindingFlags;
 
 namespace Boo.Ast.Compilation.NameBinding
 {
-	public enum NameInfoType
+	public enum NameBindingType
 	{
 		Type,
 		Method,		
@@ -13,15 +13,15 @@ namespace Boo.Ast.Compilation.NameBinding
 		AmbiguousName
 	}
 	
-	public interface INameInfo
+	public interface INameBinding
 	{		
-		NameInfoType InfoType
+		NameBindingType BindingType
 		{
 			get;
 		}
 	}	
 	
-	public interface ITypeInfo : INameInfo
+	public interface ITypeBinding : INameBinding
 	{
 		System.Type Type
 		{
@@ -29,7 +29,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		}
 	}
 	
-	public interface IMethodInfo : INameInfo
+	public interface IMethodBinding : INameBinding
 	{
 		int ParameterCount
 		{
@@ -41,34 +41,31 @@ namespace Boo.Ast.Compilation.NameBinding
 			get;
 		}
 		
-		ITypeInfo ReturnType
+		ITypeBinding ReturnType
 		{
 			get;
 		}
 	}
 	
-	public class LocalInfo : INameInfo
-	{
-		TypeManager _manager;
-		
+	public class LocalBinding : INameBinding
+	{		
 		Local _local;
 		
-		ITypeInfo _typeInfo;
+		ITypeBinding _typeInfo;
 		
 		System.Reflection.Emit.LocalBuilder _builder;
 		
-		public LocalInfo(TypeManager manager, Local local, ITypeInfo typeInfo)
-		{
-			_manager = manager;
+		public LocalBinding(Local local, ITypeBinding typeInfo)
+		{			
 			_local = local;
 			_typeInfo = typeInfo;
 		}
 		
-		public NameInfoType InfoType
+		public NameBindingType BindingType
 		{
 			get
 			{
-				return NameInfoType.Local;
+				return NameBindingType.Local;
 			}
 		}
 		
@@ -80,7 +77,7 @@ namespace Boo.Ast.Compilation.NameBinding
 			}
 		}
 		
-		public ITypeInfo TypeInfo
+		public ITypeBinding BoundType
 		{
 			get
 			{
@@ -110,26 +107,26 @@ namespace Boo.Ast.Compilation.NameBinding
 		}
 	}
 	
-	public class ParameterInfo : INameInfo
+	public class ParameterBinding : INameBinding
 	{
 		ParameterDeclaration _parameter;
 		
-		ITypeInfo _type;
+		ITypeBinding _type;
 		
 		int _index;
 		
-		public ParameterInfo(ParameterDeclaration parameter, ITypeInfo type, int index)
+		public ParameterBinding(ParameterDeclaration parameter, ITypeBinding type, int index)
 		{
 			_parameter = parameter;
 			_type = type;
 			_index = index;
 		}
 		
-		public NameInfoType InfoType
+		public NameBindingType BindingType
 		{
 			get
 			{
-				return NameInfoType.Parameter;
+				return NameBindingType.Parameter;
 			}
 		}
 		
@@ -141,7 +138,7 @@ namespace Boo.Ast.Compilation.NameBinding
 			}
 		}
 		
-		public ITypeInfo Type
+		public ITypeBinding Type
 		{
 			get
 			{
@@ -159,46 +156,33 @@ namespace Boo.Ast.Compilation.NameBinding
 	}
 	
 	public interface INameSpace
-	{
-		INameSpace Parent
-		{
-			get;
-		}
-		
-		INameInfo Resolve(string name);
+	{		
+		INameBinding Resolve(string name);
 	}
 	
 	class TypeNameSpace : INameSpace
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
 		
-		TypeManager _typeManager;
+		BindingManager _bindingManager;
 		
 		INameSpace _parent;
 		
 		Type _type;
 		
-		public TypeNameSpace(TypeManager typeManager, INameSpace parent, Type type)
+		public TypeNameSpace(BindingManager bindingManager, INameSpace parent, Type type)
 		{
-			_typeManager = typeManager;
+			_bindingManager = bindingManager;
 			_parent = parent;
 			_type = type;
-		}		
-		
-		public INameSpace Parent
-		{
-			get
-			{
-				return _parent;
-			}
 		}
 		
-		public INameInfo Resolve(string name)
+		public INameBinding Resolve(string name)
 		{
 			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
 			if (members.Length > 0)
 			{				
-				return _typeManager.ToNameInfo(members);
+				return _bindingManager.ToBinding(members);
 			}
 			
 			if (null != _parent)
@@ -216,30 +200,22 @@ namespace Boo.Ast.Compilation.NameBinding
 		
 		Method _method;
 		
-		TypeManager _manager;
+		BindingManager _manager;
 		
-		public MethodNameSpace(TypeManager manager, INameSpace parent, Method method)
+		public MethodNameSpace(BindingManager manager, INameSpace parent, Method method)
 		{
 			_manager = manager;
 			_method = method;
 			_parent = parent;
 		}
 		
-		public INameSpace Parent
-		{
-			get
-			{
-				return _parent;
-			}
-		}
-		
-		public INameInfo Resolve(string name)
+		public INameBinding Resolve(string name)
 		{
 			foreach (Local local in _method.Locals)
 			{
 				if (name == local.Name)
 				{
-					return _manager.GetNameInfo(local);
+					return _manager.GetBinding(local);
 				}
 			}
 			
@@ -247,7 +223,7 @@ namespace Boo.Ast.Compilation.NameBinding
 			{
 				if (name == parameter.Name)
 				{
-					return _manager.GetNameInfo(parameter);
+					return _manager.GetBinding(parameter);
 				}
 			}
 			return _parent.Resolve(name);
@@ -260,30 +236,22 @@ namespace Boo.Ast.Compilation.NameBinding
 		
 		TypeDefinition _typeDefinition;
 		
-		TypeManager _typeManager;
+		BindingManager _bindingManager;
 		
-		public TypeDefinitionNameSpace(TypeManager typeManager, INameSpace parent, TypeDefinition typeDefinition)
+		public TypeDefinitionNameSpace(BindingManager bindingManager, INameSpace parent, TypeDefinition typeDefinition)
 		{
-			_typeManager = typeManager;
+			_bindingManager = bindingManager;
 			_parent = parent;
 			_typeDefinition = typeDefinition;
 		}
 		
-		public INameSpace Parent
-		{
-			get
-			{
-				return _parent;
-			}
-		}
-		
-		public INameInfo Resolve(string name)
+		public INameBinding Resolve(string name)
 		{			
 			foreach (TypeMember member in _typeDefinition.Members)
 			{
 				if (name == member.Name)
 				{
-					return _typeManager.GetNameInfo(member);
+					return _bindingManager.GetBinding(member);
 				}
 			}			
 			if (null != _parent)

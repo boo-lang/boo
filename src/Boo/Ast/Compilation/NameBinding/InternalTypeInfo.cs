@@ -4,24 +4,24 @@ using System.Reflection.Emit;
 
 namespace Boo.Ast.Compilation.NameBinding
 {
-	public class InternalTypeInfo : ITypeInfo
+	public class InternalTypeBinding : ITypeBinding
 	{		
-		TypeManager _manager;
+		BindingManager _manager;
 		TypeDefinition _typeDefinition;
 		TypeBuilder _builder;
 		
-		internal InternalTypeInfo(TypeManager manager, TypeDefinition typeDefinition, TypeBuilder builder)
+		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition, TypeBuilder builder)
 		{
 			_manager = manager;
 			_typeDefinition = typeDefinition;
 			_builder = builder;
 		}
 		
-		public NameInfoType InfoType
+		public NameBindingType BindingType
 		{
 			get
 			{
-				return NameInfoType.Type;
+				return NameBindingType.Type;
 			}
 		}
 		

@@ -5,7 +5,7 @@ using Boo.Ast;
 
 namespace Boo.Ast.Compilation.NameBinding
 {
-	public class TypeManager
+	public class BindingManager
 	{
 		public static readonly Type ObjectType = typeof(object);
 		
@@ -15,12 +15,12 @@ namespace Boo.Ast.Compilation.NameBinding
 		
 		public static readonly Type StringType = typeof(string);
 		
-		public bool HasNameInfo(Node node)
+		public bool IsBound(Node node)
 		{
-			return null != node[NameInfoKey];
+			return null != node[NameBindingKey];
 		}
 		
-		public void SetNameInfo(Node node, INameInfo mi)
+		public void Bind(Node node, INameBinding mi)
 		{
 			if (null == node)
 			{
@@ -31,60 +31,60 @@ namespace Boo.Ast.Compilation.NameBinding
 				throw new ArgumentNullException("mi");
 			}
 			
-			node[NameInfoKey] = mi;
+			node[NameBindingKey] = mi;
 		}
 		
-		public void SetNameInfo(TypeDefinition type, TypeBuilder builder)
+		public void Bind(TypeDefinition type, TypeBuilder builder)
 		{
-			SetNameInfo(type, new InternalTypeInfo(this, type, builder));
+			Bind(type, new InternalTypeBinding(this, type, builder));
 		}
 		
-		public void SetNameInfo(Method method, MethodBuilder builder)
+		public void Bind(Method method, MethodBuilder builder)
 		{
-			SetNameInfo(method, new InternalMethodInfo(this, method, builder));
+			Bind(method, new InternalMethodBinding(this, method, builder));
 		}
 		
-		public void SetNameInfo(Expression expression, Type type)
+		public void Bind(Expression expression, Type type)
 		{
-			SetNameInfo(expression, ToTypeInfo(type));
+			Bind(expression, ToTypeBinding(type));
 		}		
 		
-		public INameInfo GetNameInfo(Node node)
+		public INameBinding GetBinding(Node node)
 		{
 			if (null == node)
 			{
 				throw new ArgumentNullException("node");
 			}
 			
-			INameInfo info = (INameInfo)node[NameInfoKey];
-			if (null == info)
+			INameBinding binding = (INameBinding)node[NameBindingKey];
+			if (null == binding)
 			{
-				throw new Error(node, ResourceManager.GetString("TypeManager.UnresolvedNode"));
+				throw new Error(node, ResourceManager.Format("BindingManager.UnboundNode", node, node.LexicalInfo));
 			}
-			return info;
+			return binding;
 		}	
 		
-		public ITypeInfo ToTypeInfo(System.Type type)
+		public ITypeBinding ToTypeBinding(System.Type type)
 		{
-			return new ExternalTypeInfo(this, type);
+			return new ExternalTypeBinding(this, type);
 		}
 		
-		public INameInfo ToNameInfo(System.Reflection.MemberInfo[] info)
+		public INameBinding ToBinding(System.Reflection.MemberInfo[] info)
 		{
 			if (info.Length > 1)
 			{
 				throw new NotImplementedException();
 			}
-			return ToNameInfo(info[0]);
+			return ToBinding(info[0]);
 		}
 		
-		public INameInfo ToNameInfo(System.Reflection.MemberInfo mi)
+		public INameBinding ToBinding(System.Reflection.MemberInfo mi)
 		{
 			switch (mi.MemberType)
 			{
 				case MemberTypes.Method:
 				{
-					return new ExternalMethodInfo(this, (System.Reflection.MethodInfo)mi);
+					return new ExternalMethodBinding(this, (System.Reflection.MethodInfo)mi);
 					break;
 				}
 				
@@ -97,34 +97,34 @@ namespace Boo.Ast.Compilation.NameBinding
 		
 		public TypeBuilder GetTypeBuilder(TypeDefinition type)
 		{
-			return ((InternalTypeInfo)GetNameInfo(type)).TypeBuilder;
+			return ((InternalTypeBinding)GetBinding(type)).TypeBuilder;
 		}
 		
 		public MethodBuilder GetMethodBuilder(Method method)
 		{
-			return ((InternalMethodInfo)GetNameInfo(method)).MethodBuilder;
+			return ((InternalMethodBinding)GetBinding(method)).MethodBuilder;
 		}
 		
 		public MethodInfo GetMethodInfo(Node node)
 		{
-			return ((IMethodInfo)GetNameInfo(node)).MethodInfo;
+			return ((IMethodBinding)GetBinding(node)).MethodInfo;
 		}
 		
-		public ITypeInfo GetTypeInfo(Node node)
+		public ITypeBinding GetTypeBinding(Node node)
 		{
-			return (ITypeInfo)GetNameInfo(node);
+			return (ITypeBinding)GetBinding(node);
 		}
 		
-		public System.Type GetType(Node node)
+		public System.Type GetBoundType(Node node)
 		{
-			return GetTypeInfo(node).Type;
+			return GetTypeBinding(node).Type;
 		}		
 		
-		public LocalInfo GetLocalInfo(Local local)
+		public LocalBinding GetLocalBinding(Local local)
 		{
-			return (LocalInfo)GetNameInfo(local);
+			return (LocalBinding)GetBinding(local);
 		}
 		
-		static object NameInfoKey = new object();
+		static object NameBindingKey = new object();
 	}
 }

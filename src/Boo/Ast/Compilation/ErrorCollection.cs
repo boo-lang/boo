@@ -70,7 +70,7 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, msg, cause));
 		}
 		
-		public void MethodArgumentCount(MethodInvocationExpression mie, NameBinding.IMethodInfo method)
+		public void MethodArgumentCount(MethodInvocationExpression mie, NameBinding.IMethodBinding method)
 		{
 			Add(new Error(mie, Format("MethodArgumentCount", method, mie.Arguments.Count)));
 		}

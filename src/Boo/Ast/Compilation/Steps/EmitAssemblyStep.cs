@@ -18,7 +18,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static object EntryPointKey = new object();
 		
-		MethodInfo StringFormatMethodInfo = TypeManager.StringType.GetMethod("Format", new Type[] { TypeManager.StringType, TypeManager.ObjectArrayType });
+		MethodInfo StringFormatMethodInfo = BindingManager.StringType.GetMethod("Format", new Type[] { BindingManager.StringType, BindingManager.ObjectArrayType });
 		
 		AssemblyBuilder _asmBuilder;
 		
@@ -51,13 +51,13 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveModule(Boo.Ast.Module module)
 		{			
-			TypeBuilder typeBuilder = TypeManager.GetTypeBuilder(module);
+			TypeBuilder typeBuilder = BindingManager.GetTypeBuilder(module);
 			typeBuilder.CreateType();
 		}		
 		
 		public override void OnMethod(Method method)
 		{			
-			MethodBuilder methodBuilder = TypeManager.GetMethodBuilder(method);
+			MethodBuilder methodBuilder = BindingManager.GetMethodBuilder(method);
 			_il = methodBuilder.GetILGenerator();
 			method.Locals.Switch(this);
 			method.Body.Switch(this);
@@ -66,7 +66,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnLocal(Local local)
 		{			
-			LocalInfo info = TypeManager.GetLocalInfo(local);
+			LocalBinding info = BindingManager.GetLocalBinding(local);
 			LocalBuilder builder = _il.DeclareLocal(info.Type);
 			builder.SetLocalSymInfo(local.Name);
 			info.LocalBuilder = builder;
@@ -80,12 +80,12 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node)
 		{
-			Type type = (Type)TypeManager.GetType(node.Expression);
+			Type type = (Type)BindingManager.GetBoundType(node.Expression);
 			
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
-			if (type != NameBinding.TypeManager.VoidType)
+			if (type != NameBinding.BindingManager.VoidType)
 			{
 				_il.Emit(OpCodes.Pop);
 			}
@@ -95,7 +95,7 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
-				LocalInfo local = TypeManager.GetNameInfo(node.Left) as LocalInfo;
+				LocalBinding local = BindingManager.GetBinding(node.Left) as LocalBinding;
 				if (null == local)
 				{
 					throw new NotImplementedException();
@@ -115,7 +115,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			MethodInfo mi = TypeManager.GetMethodInfo(node.Target);
+			MethodInfo mi = BindingManager.GetMethodInfo(node.Target);
 					
 			// Empilha os argumentos
 			node.Arguments.Switch(this);
@@ -133,7 +133,7 @@ namespace Boo.Ast.Compilation.Steps
 			
 			// new object[node.Arguments.Count]
 			_il.Emit(OpCodes.Ldc_I4, node.Arguments.Count);
-			_il.Emit(OpCodes.Newarr, TypeManager.ObjectType);
+			_il.Emit(OpCodes.Newarr, BindingManager.ObjectType);
 			
 			ExpressionCollection args = node.Arguments;
 			for (int i=0; i<args.Count; ++i)
@@ -149,19 +149,19 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
-			INameInfo info = TypeManager.GetNameInfo(node);
-			switch (info.InfoType)
+			INameBinding info = BindingManager.GetBinding(node);
+			switch (info.BindingType)
 			{
-				case NameInfoType.Local:
+				case NameBindingType.Local:
 				{
-					LocalInfo local = (LocalInfo)info;
+					LocalBinding local = (LocalBinding)info;
 					_il.Emit(OpCodes.Ldloc, local.LocalBuilder);
 					break;
 				}
 				
-				case NameInfoType.Parameter:
+				case NameBindingType.Parameter:
 				{
-					NameBinding.ParameterInfo param = (NameBinding.ParameterInfo)info;
+					NameBinding.ParameterBinding param = (NameBinding.ParameterBinding)info;
 					_il.Emit(OpCodes.Ldarg, param.Index);
 					break;
 				}

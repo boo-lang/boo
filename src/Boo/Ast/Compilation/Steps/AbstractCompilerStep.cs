@@ -44,11 +44,11 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		protected NameBinding.TypeManager TypeManager
+		protected NameBinding.BindingManager BindingManager
 		{
 			get
 			{
-				return _context.TypeManager;
+				return _context.BindingManager;
 			}
 		}
 		

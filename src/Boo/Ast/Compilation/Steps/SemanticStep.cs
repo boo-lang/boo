@@ -32,7 +32,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override bool EnterCompileUnit(CompileUnit cu)
 		{			
 			// builtins resolution at the highest level
-			_namespace = new TypeNameSpace(TypeManager, null, typeof(Boo.Lang.Builtins));
+			_namespace = new TypeNameSpace(BindingManager, null, typeof(Boo.Lang.Builtins));
 			return true;
 		}
 		
@@ -41,9 +41,9 @@ namespace Boo.Ast.Compilation.Steps
 			TypeAttributes attributes = TypeAttributes.Public|TypeAttributes.Sealed;
 			_typeBuilder = _moduleBuilder.DefineType(module.FullyQualifiedName, attributes);
 			
-			TypeManager.SetNameInfo(module, _typeBuilder);
+			BindingManager.Bind(module, _typeBuilder);
 			
-			_namespace = new TypeDefinitionNameSpace(TypeManager, _namespace, module);
+			_namespace = new TypeDefinitionNameSpace(BindingManager, _namespace, module);
 			return true;
 		}
 		
@@ -54,29 +54,29 @@ namespace Boo.Ast.Compilation.Steps
 			ProcessParameters(method);
 			ProcessReturnType(method);
 			
-			_namespace = new MethodNameSpace(TypeManager, _namespace, _method);			
+			_namespace = new MethodNameSpace(BindingManager, _namespace, _method);			
 			
 			MethodBuilder mbuilder = _typeBuilder.DefineMethod(method.Name,
 				                     MethodAttributes.Static|MethodAttributes.Private,
-				                     TypeManager.GetType(method.ReturnType),
+				                     BindingManager.GetBoundType(method.ReturnType),
 				                     GetParameterTypes(method));
-			TypeManager.SetNameInfo(method, mbuilder);
+			BindingManager.Bind(method, mbuilder);
 			
 			method.Body.Switch(this);
 		}
 		
 		public override void OnTypeReference(TypeReference node)
 		{
-			INameInfo info = ResolveName(node, node.Name);
+			INameBinding info = ResolveName(node, node.Name);
 			if (null != info)
 			{
-				if (NameInfoType.Type != info.InfoType)
+				if (NameBindingType.Type != info.BindingType)
 				{
 					Errors.NameNotType(node, node.Name);
 				}
 				else
 				{
-					TypeManager.SetNameInfo(node, info);
+					BindingManager.Bind(node, info);
 				}
 			}
 		}
@@ -90,14 +90,14 @@ namespace Boo.Ast.Compilation.Steps
 				if (null == parameter.Type)
 				{
 					parameter.Type = new TypeReference("object");
-					TypeManager.SetNameInfo(parameter.Type, TypeManager.ToTypeInfo(TypeManager.ObjectType));
+					BindingManager.Bind(parameter.Type, BindingManager.ToTypeBinding(BindingManager.ObjectType));
 				}		
 				else
 				{
 					parameter.Type.Switch(this);
 				}
-				NameBinding.ParameterInfo info = new NameBinding.ParameterInfo(parameter, TypeManager.GetTypeInfo(parameter.Type), i);
-				TypeManager.SetNameInfo(parameter, info);
+				NameBinding.ParameterBinding info = new NameBinding.ParameterBinding(parameter, BindingManager.GetTypeBinding(parameter.Type), i);
+				BindingManager.Bind(parameter, info);
 			}
 		}
 		
@@ -107,11 +107,11 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				// Por enquanto, valor de retorno apenas void
 				method.ReturnType = new TypeReference("void");
-				TypeManager.SetNameInfo(method.ReturnType, TypeManager.ToTypeInfo(TypeManager.VoidType));
+				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeBinding(BindingManager.VoidType));
 			}
 			else
 			{
-				if (!TypeManager.HasNameInfo(method.ReturnType))
+				if (!BindingManager.IsBound(method.ReturnType))
 				{
 					method.ReturnType.Switch(this);
 				}
@@ -120,15 +120,15 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
-			TypeManager.SetNameInfo(node, TypeManager.StringType);
+			BindingManager.Bind(node, BindingManager.StringType);
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
-			INameInfo info = ResolveName(node, node.Name);
+			INameBinding info = ResolveName(node, node.Name);
 			if (null != info)
 			{
-				TypeManager.SetNameInfo(node, info);
+				BindingManager.Bind(node, info);
 			}
 		}
 		
@@ -144,24 +144,24 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					node.Right.Switch(this);
 					
-					ITypeInfo expressionTypeInfo = TypeManager.GetTypeInfo(node.Right);
+					ITypeBinding expressionTypeInfo = BindingManager.GetTypeBinding(node.Right);
 					
-					INameInfo info = _namespace.Resolve(reference.Name);					
+					INameBinding info = _namespace.Resolve(reference.Name);					
 					if (null == info)
 					{
 						Local local = new Local(reference);
-						LocalInfo localInfo = new LocalInfo(TypeManager, local, expressionTypeInfo);
-						TypeManager.SetNameInfo(local, localInfo);
+						LocalBinding localInfo = new LocalBinding(local, expressionTypeInfo);
+						BindingManager.Bind(local, localInfo);
 						
 						_method.Locals.Add(local);
-						TypeManager.SetNameInfo(reference, localInfo);
+						BindingManager.Bind(reference, localInfo);
 					}
 					else
 					{
 						// default reference resolution
 						if (CheckNameResolution(reference, reference.Name, info))
 						{
-							TypeManager.SetNameInfo(reference, info);
+							BindingManager.Bind(reference, info);
 						}
 					}
 					
@@ -181,20 +181,20 @@ namespace Boo.Ast.Compilation.Steps
 		public override void LeaveBinaryExpression(BinaryExpression node)
 		{
 			// expression type is the same as the right expression's
-			TypeManager.SetNameInfo(node, TypeManager.GetNameInfo(node.Right));
+			BindingManager.Bind(node, BindingManager.GetBinding(node.Right));
 		}
 		
 		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			INameInfo targetType = TypeManager.GetNameInfo(node.Target);			
-			if (targetType.InfoType == NameInfoType.Method)
+			INameBinding targetType = BindingManager.GetBinding(node.Target);			
+			if (targetType.BindingType == NameBindingType.Method)
 			{				
-				IMethodInfo targetMethod = (IMethodInfo)targetType;
+				IMethodBinding targetMethod = (IMethodBinding)targetType;
 				CheckParameters(targetMethod, node);
 				
 				// 1) conferir número de parâmetros ao método
 				// 2) conferir compatibilidade dos parâmetros				
-				TypeManager.SetNameInfo(node, targetMethod.ReturnType);
+				BindingManager.Bind(node, targetMethod.ReturnType);
 			}
 			else
 			{
@@ -202,20 +202,20 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		INameInfo ResolveName(Node node, string name)
+		INameBinding ResolveName(Node node, string name)
 		{
-			INameInfo info = null;
+			INameBinding info = null;
 			switch (name)
 			{
 				case "void":
 				{
-					info = TypeManager.ToTypeInfo(TypeManager.VoidType);
+					info = BindingManager.ToTypeBinding(BindingManager.VoidType);
 					break;
 				}
 				
 				case "string":
 				{
-					info = TypeManager.ToTypeInfo(TypeManager.StringType);
+					info = BindingManager.ToTypeBinding(BindingManager.StringType);
 					break;
 				}
 				
@@ -229,7 +229,7 @@ namespace Boo.Ast.Compilation.Steps
 			return info;
 		}
 		
-		bool CheckNameResolution(Node node, string name, INameInfo info)
+		bool CheckNameResolution(Node node, string name, INameBinding info)
 		{
 			if (null == info)
 			{
@@ -238,7 +238,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
-				if (info.InfoType == NameInfoType.AmbiguousName)
+				if (info.BindingType == NameBindingType.AmbiguousName)
 				{
 					//Errors.AmbiguousName(node, name, info);
 					//return false;
@@ -248,7 +248,7 @@ namespace Boo.Ast.Compilation.Steps
 			return true;
 		}
 		
-		void CheckParameters(IMethodInfo method, MethodInvocationExpression mie)
+		void CheckParameters(IMethodBinding method, MethodInvocationExpression mie)
 		{			
 			if (method.ParameterCount != mie.Arguments.Count)
 			{
@@ -262,7 +262,7 @@ namespace Boo.Ast.Compilation.Steps
 			Type[] types = new Type[parameters.Count];
 			for (int i=0; i<types.Length; ++i)
 			{
-				types[i] = TypeManager.GetType(parameters[i].Type);
+				types[i] = BindingManager.GetBoundType(parameters[i].Type);
 			}
 			return types;
 		}

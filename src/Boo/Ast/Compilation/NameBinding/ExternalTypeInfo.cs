@@ -3,23 +3,23 @@ using System.Reflection;
 
 namespace Boo.Ast.Compilation.NameBinding
 {
-	public class ExternalTypeInfo : ITypeInfo
+	public class ExternalTypeBinding : ITypeBinding
 	{
-		TypeManager _manager;
+		BindingManager _manager;
 		
 		Type _type;
 		
-		internal ExternalTypeInfo(TypeManager manager, Type type)
+		internal ExternalTypeBinding(BindingManager manager, Type type)
 		{
 			_manager = manager;
 			_type = type;
 		}
 		
-		public NameInfoType InfoType
+		public NameBindingType BindingType
 		{
 			get
 			{
-				return NameInfoType.Type;
+				return NameBindingType.Type;
 			}
 		}
 		

@@ -3,23 +3,23 @@ using System.Reflection;
 
 namespace Boo.Ast.Compilation.NameBinding
 {
-	public class ExternalMethodInfo : IMethodInfo
+	public class ExternalMethodBinding : IMethodBinding
 	{
-		TypeManager _manager;
+		BindingManager _manager;
 		
 		MethodInfo _mi;
 		
-		internal ExternalMethodInfo(TypeManager manager, MethodInfo mi)
+		internal ExternalMethodBinding(BindingManager manager, MethodInfo mi)
 		{
 			_manager = manager;
 			_mi = mi;
 		}
 		
-		public NameInfoType InfoType
+		public NameBindingType BindingType
 		{
 			get
 			{
-				return NameInfoType.Method;
+				return NameBindingType.Method;
 			}
 		}
 		
@@ -31,11 +31,11 @@ namespace Boo.Ast.Compilation.NameBinding
 			}
 		}
 		
-		public ITypeInfo ReturnType
+		public ITypeBinding ReturnType
 		{
 			get
 			{
-				return _manager.ToTypeInfo(_mi.ReturnType);
+				return _manager.ToTypeBinding(_mi.ReturnType);
 			}
 		}
 		
