@@ -113,6 +113,7 @@
 	</target>
 	
 	<target name="init">
+		<delete dir="build" if="${directory::exists('build')}" />
 		<mkdir dir="build" />
 		<copy todir="build">
 			<fileset basedir="../build">
