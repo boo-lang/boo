@@ -697,11 +697,13 @@ namespace Boo.CodeDom
 				
 				Output.WriteLine (")");
 			};
-			GenerateStatements (constructor.Statements);
-			if ((constructor.Statements.Count) == 0 ){
-				Output.WriteLine ("pass");
+			GenerateStatements(constructor.Statements);
+			if ((constructor.Statements.Count) == 0 
+				&& constructor.BaseConstructorArgs.Count == 0
+				&& constructor.ChainedConstructorArgs.Count > 0 ) {
+				Output.WriteLine("pass");
 			}
-			Indent--;			
+			Indent--;
 		}
 		
 		protected override void GenerateTypeConstructor (
@@ -713,7 +715,7 @@ namespace Boo.CodeDom
 			if ((constructor.Statements.Count) == 0 ){
 				Output.WriteLine ("pass");
 			}
-			Indent--;			
+			Indent--;
 		}
 
 		protected override void GenerateTypeStart (
@@ -768,12 +770,12 @@ namespace Boo.CodeDom
 		}
 
 		protected override void GenerateTypeEnd ( CodeTypeDeclaration declaration )
-		{			
+		{
 			if (declaration is CodeTypeDelegate) {
 				Output.WriteLine ( );
-			} 			
+			}
 			--Indent;
-			currentType = "";	
+			currentType = "";
 		}
 
 		protected override void GenerateNamespaceStart ( CodeNamespace ns )
@@ -784,7 +786,7 @@ namespace Boo.CodeDom
 			if ( name != null && name != "" ) {
 				output.Write( "namespace " );
 				output.Write( GetSafeName (name) );
-				output.WriteLine( );				
+				output.WriteLine( );
 			}
 		}
 
@@ -792,7 +794,7 @@ namespace Boo.CodeDom
 		{
 			string name = ns.Name;
 			if ( name != null && name != "" ) {
-				--Indent;				
+				--Indent;
 			}
 		}
 
