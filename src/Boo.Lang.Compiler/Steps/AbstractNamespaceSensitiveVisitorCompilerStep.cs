@@ -68,17 +68,17 @@ namespace Boo.Lang.Compiler.Steps
 			_nameResolution.PopNamespace();
 		}
 		
-		protected IInfo Resolve(Node sourceNode, string name, InfoType bindings)
+		protected IElement Resolve(Node sourceNode, string name, ElementType tags)
 		{
-			return _nameResolution.Resolve(sourceNode, name, bindings);
+			return _nameResolution.Resolve(sourceNode, name, tags);
 		}
 		
-		protected IInfo Resolve(Node sourceNode, string name)
+		protected IElement Resolve(Node sourceNode, string name)
 		{
 			return _nameResolution.Resolve(sourceNode, name);
 		}
 		
-		protected IInfo ResolveQualifiedName(Node sourceNode, string name)
+		protected IElement ResolveQualifiedName(Node sourceNode, string name)
 		{
 			return _nameResolution.ResolveQualifiedName(sourceNode, name);
 		}
@@ -90,33 +90,33 @@ namespace Boo.Lang.Compiler.Steps
 	
 		protected InternalType GetInternalType(TypeDefinition node)
 		{
-			InternalType binding = (InternalType)TaxonomyManager.GetOptionalInfo(node);
-			if (null == binding)
+			InternalType tag = (InternalType)TagService.GetOptionalInfo(node);
+			if (null == tag)
 			{
-				binding = new InternalType(TaxonomyManager, node);
-				Bind(node, binding);
+				tag = new InternalType(TagService, node);
+				Bind(node, tag);
 			}
-			return binding;
+			return tag;
 		}
 		
-		protected IInfo ResolveSimpleTypeReference(SimpleTypeReference node)
+		protected IElement ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
-			if (TaxonomyManager.IsBound(node))
+			if (TagService.IsBound(node))
 			{
 				return null;
 			}
 			
-			IInfo info = null;
+			IElement info = null;
 			if (IsQualifiedName(node.Name))
 			{
 				info = ResolveQualifiedName(node, node.Name);
 			}
 			else
 			{
-				info = Resolve(node, node.Name, InfoType.TypeReference);
+				info = Resolve(node, node.Name, ElementType.TypeReference);
 			}
 			
-			if (null == info || InfoType.TypeReference != info.InfoType)
+			if (null == info || ElementType.TypeReference != info.ElementType)
 			{
 				Error(CompilerErrorFactory.NameNotType(node, node.Name));
 				Error(node);

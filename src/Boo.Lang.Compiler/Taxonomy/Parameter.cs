@@ -30,15 +30,15 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class ParameterInfo : ITypedInfo
+	public class InternalParameter : IParameter
 	{
 		ParameterDeclaration _parameter;
 		
-		ITypeInfo _type;
+		IType _type;
 		
 		int _index;
 		
-		public ParameterInfo(ParameterDeclaration parameter, ITypeInfo type)
+		public InternalParameter(ParameterDeclaration parameter, IType type)
 		{
 			_parameter = parameter;
 			_type = type;
@@ -61,11 +61,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Parameter;
+				return ElementType.Parameter;
 			}
 		}
 		
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{

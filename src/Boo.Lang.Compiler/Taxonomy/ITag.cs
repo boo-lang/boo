@@ -33,7 +33,7 @@ using Boo.Lang.Compiler.Ast;
 namespace Boo.Lang.Compiler.Taxonomy
 {
 	[Flags]
-	public enum InfoType
+	public enum ElementType
 	{
 		CompileUnit = 0x00,
 		Module = 0x01,
@@ -50,57 +50,51 @@ namespace Boo.Lang.Compiler.Taxonomy
 		Namespace = 0x800,
 		Ambiguous = 0x1000,
 		Array = 0x2000,
-		SpecialFunction = 0x4000,
+		BuiltinFunction = 0x4000,
 		MethodReference,
 		Unknown,
 		Null,
 		Error,
 		Any = 0xFFFF
-	}	
-	
-	public interface IInternalInfo
-	{
-		Boo.Lang.Compiler.Ast.Node Node
-		{
-			get;
-		}
-		
-		bool Visited
-		{
-			get;
-			set;
-		}
 	}
 	
-	public interface IInfo
+	public interface IElement
 	{	
-		string FullName
-		{
-			get;
-		}
-		
 		string Name
 		{
 			get;
 		}
 		
-		InfoType InfoType
+		string FullName
+		{
+			get;
+		}
+		
+		ElementType ElementType
 		{
 			get;
 		}
 	}
 	
-	public interface ITypedInfo : IInfo
+	public interface IInternalElement : IElement
 	{
-		ITypeInfo BoundType
+		Boo.Lang.Compiler.Ast.Node Node
+		{
+			get;
+		}
+	}
+	
+	public interface ITypedElement : IElement
+	{
+		IType Type
 		{
 			get;			
 		}
 	}
 	
-	public interface IMemberInfo : ITypedInfo
+	public interface IMember : ITypedElement
 	{
-		ITypeInfo DeclaringType
+		IType DeclaringType
 		{
 			get;
 		}
@@ -116,11 +110,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 	}
 	
-	public interface IEventInfo : IMemberInfo
+	public interface IEvent : IMember
 	{		
 	}
 	
-	public interface IFieldInfo : IMemberInfo
+	public interface IFieldInfo : IMember
 	{	
 		bool IsLiteral
 		{
@@ -133,16 +127,16 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 	}
 	
-	public interface IPropertyInfo : IMemberInfo
+	public interface IProperty : IMember
 	{
-		ITypeInfo[] GetIndexParameters();
+		IParameter[] GetParameters();
 		
-		IMethodInfo GetGetMethod();
+		IMethod GetGetMethod();
 		
-		IMethodInfo GetSetMethod();
+		IMethod GetSetMethod();
 	}
 	
-	public interface ITypeInfo : ITypedInfo, INamespace
+	public interface IType : ITypedElement, INamespace
 	{	
 		bool IsClass
 		{
@@ -155,6 +149,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 		
 		bool IsEnum
+		{
+			get;
+		}
+		
+		bool IsByRef
 		{
 			get;
 		}
@@ -173,44 +172,35 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		int GetArrayRank();
 		
-		ITypeInfo GetElementType();
+		IType GetElementType();
 		
-		ITypeInfo BaseType
+		IType BaseType
 		{
 			get;
 		}
 		
-		IInfo GetDefaultMember();
+		IElement GetDefaultMember();
 		
-		IInfo[] GetMembers();
+		IElement[] GetMembers();
 		
-		IConstructorInfo[] GetConstructors();
+		IConstructor[] GetConstructors();
 		
-		ITypeInfo[] GetInterfaces();
+		IType[] GetInterfaces();
 		
-		bool IsSubclassOf(ITypeInfo other);
+		bool IsSubclassOf(IType other);
 		
-		bool IsAssignableFrom(ITypeInfo other);
+		bool IsAssignableFrom(IType other);
 	}
 	
-	public interface IParameterInfo : ITypedInfo
+	public interface IParameter : ITypedElement
 	{		
-		int Position
-		{
-			get;
-		}
 	}
 	
-	public interface IMethodInfo : IMemberInfo
+	public interface IMethod : IMember
 	{
-		int ParameterCount
-		{
-			get;
-		}
+		IParameter[] GetParameters();		
 		
-		ITypeInfo GetParameterType(int parameterIndex);		
-		
-		ITypeInfo ReturnType
+		IType ReturnType
 		{
 			get;
 		}
@@ -226,7 +216,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 	}
 	
-	public interface IConstructorInfo : IMethodInfo
+	public interface IConstructor : IMethod
 	{		
 	}
 }

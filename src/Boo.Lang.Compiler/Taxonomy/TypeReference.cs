@@ -28,11 +28,11 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class TypeReferenceInfo : ITypedInfo, INamespace
+	public class TypeReference : ITypedElement, INamespace
 	{
-		ITypeInfo _type;
+		IType _type;
 		
-		public TypeReferenceInfo(ITypeInfo type)
+		public TypeReference(IType type)
 		{
 			_type = type;
 		}
@@ -53,15 +53,15 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.TypeReference;
+				return ElementType.TypeReference;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType BoundType
 		{
 			get
 			{
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
 			return  _type.Resolve(name);
 		}

@@ -30,40 +30,39 @@ namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 	using System.Reflection;
-	using Boo.Lang.Compiler.Services;
 
-	public class ExternalType : NamespaceInfoCache, ITypeInfo
+	public class ExternalType : NamespaceCache, IType
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
 												BindingFlags.NonPublic |
 												BindingFlags.Static |
 												BindingFlags.Instance;
 		
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		Type _type;
 		
-		IConstructorInfo[] _constructors;
+		IConstructor[] _constructors;
 		
-		ITypeInfo[] _interfaces;
+		IType[] _interfaces;
 		
-		IInfo[] _members;
+		IElement[] _members;
 		
-		ITypeInfo _elementType;
+		IType _elementType;
 		
 		int _typeDepth = -1;
 		
-		internal ExternalType(TaxonomyManager manager, Type type)
+		internal ExternalType(TagService manager, Type type)
 		{
 			if (null == type)
 			{
 				throw new ArgumentException("type");
 			}
-			_bindingService = manager;
+			_tagService = manager;
 			_type = type;
 			if (_type.IsArray)
 			{
-				_elementType = _bindingService.AsTypeInfo(type.GetElementType());
+				_elementType = _tagService.Map(type.GetElementType());
 			}
 		}
 		
@@ -83,15 +82,15 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Type;
+				return ElementType.Type;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType BoundType
 		{
 			get
 			{
@@ -144,22 +143,22 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return _type.GetArrayRank();
 		}		
 		
-		public ITypeInfo GetElementType()
+		public IType GetElementType()
 		{
 			return _elementType;
 		}
 		
-		public ITypeInfo BaseType
+		public IType BaseType
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_type.BaseType);
+				return _tagService.Map(_type.BaseType);
 			}
 		}
 		
-		public IInfo GetDefaultMember()
+		public IElement GetDefaultMember()
 		{			
-			return _bindingService.AsInfo(_type.GetDefaultMembers());
+			return _tagService.Map(_type.GetDefaultMembers());
 		}
 		
 		public Type Type
@@ -170,7 +169,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public bool IsSubclassOf(ITypeInfo other)
+		public bool IsSubclassOf(IType other)
 		{
 			ExternalType external = other as ExternalType;
 			if (null == external)
@@ -183,12 +182,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 				;
 		}
 		
-		public bool IsAssignableFrom(ITypeInfo other)
+		public bool IsAssignableFrom(IType other)
 		{
 			ExternalType external = other as ExternalType;
 			if (null == external)
 			{
-				if (InfoType.Null == other.InfoType)
+				if (ElementType.Null == other.ElementType)
 				{
 					return !IsValueType;
 				}
@@ -197,45 +196,45 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return _type.IsAssignableFrom(external._type);
 		}
 		
-		public IConstructorInfo[] GetConstructors()
+		public IConstructor[] GetConstructors()
 		{
 			if (null == _constructors)
 			{
 				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 				ConstructorInfo[] ctors = _type.GetConstructors(flags);
-				_constructors = new IConstructorInfo[ctors.Length];
+				_constructors = new IConstructor[ctors.Length];
 				for (int i=0; i<_constructors.Length; ++i)
 				{
-					_constructors[i] = new ExternalConstructorInfo(_bindingService, ctors[i]);
+					_constructors[i] = new ExternalConstructor(_tagService, ctors[i]);
 				}
 			}
 			return _constructors;
 		}
 		
-		public ITypeInfo[] GetInterfaces()
+		public IType[] GetInterfaces()
 		{
 			if (null == _interfaces)
 			{
 				Type[] interfaces = _type.GetInterfaces();
-				_interfaces = new ITypeInfo[interfaces.Length];
+				_interfaces = new IType[interfaces.Length];
 				for (int i=0; i<_interfaces.Length; ++i)
 				{
-					_interfaces[i] = _bindingService.AsTypeInfo(interfaces[i]);
+					_interfaces[i] = _tagService.AsTypeInfo(interfaces[i]);
 				}
 			}
 			return _interfaces;
 		}
 		
-		public IInfo[] GetMembers()
+		public IElement[] GetMembers()
 		{
 			if (null == _members)
 			{
 				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 				MemberInfo[] members = _type.GetMembers(flags);
-				_members = new IMemberInfo[members.Length];
+				_members = new IMember[members.Length];
 				for (int i=0; i<members.Length; ++i)
 				{
-					_members[i] = _bindingService.AsInfo(members[i]);
+					_members[i] = _tagService.AsInfo(members[i]);
 				}
 			}
 			return _members;
@@ -258,24 +257,24 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public virtual IInfo Resolve(string name)
+		public virtual IElement Resolve(string name)
 		{						
 			bool found;
-			IInfo binding = ResolveFromCache(name, out found);
+			IElement tag = ResolveFromCache(name, out found);
 			if (!found)
 			{				
 				System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
 				if (members.Length > 0)
 				{				
-					binding = _bindingService.AsInfo(members);
+					tag = _tagService.Map(members);
 				}
 				else if (_type.IsInterface)
 				{
-					binding = _bindingService.ObjectTypeInfo.Resolve(name);
+					tag = _tagService.ObjectType.Resolve(name);
 				}
-				binding = Cache(name, binding);
+				tag = Cache(name, tag);
 			}
-			return binding;
+			return tag;
 		}
 		
 		override public string ToString()

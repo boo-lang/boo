@@ -27,21 +27,19 @@
 #endregion
 
 namespace Boo.Lang.Compiler.Taxonomy
-{
-	using Boo.Lang.Compiler.Ast;
-	
-	public class LocalInfo : ITypedInfo
+{	
+	public class Local : ITypedElement
 	{		
-		Local _local;
+		Boo.Lang.Ast.Local _local;
 		
-		ITypeInfo _typeInfo;
+		IType _type;
 		
 		System.Reflection.Emit.LocalBuilder _builder;
 		
-		public LocalInfo(Local local, ITypeInfo typeInfo)
+		public Local(Boo.Lang.Ast.Local local, IType type)
 		{			
 			_local = local;
-			_typeInfo = typeInfo;
+			_type = type;
 		}
 		
 		public string Name
@@ -60,11 +58,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Local;
+				return ElementType.Local;
 			}
 		}
 		
@@ -76,7 +74,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public Local Local
+		public Boo.Lang.Ast.Local Local
 		{
 			get
 			{
@@ -84,11 +82,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
-				return _typeInfo;
+				return _type;
 			}
 		}
 		

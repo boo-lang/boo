@@ -62,15 +62,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
-				ModuleInfo moduleInfo = new ModuleInfo(TaxonomyManager, module);
-				TaxonomyManager.Bind(module, moduleInfo);
+				ModuleInfo moduleInfo = new ModuleInfo(TagService, module);
+				TagService.Bind(module, moduleInfo);
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
 				if (null != namespaceDeclaration)
 				{
 					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
 				}
-				GetNamespaceInfo(moduleInfo.Namespace).AddModule(moduleInfo);
+				GetNamespace(moduleInfo.Namespace).AddModule(moduleInfo);
 			}
 		}
 		
@@ -84,35 +84,35 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				foreach (Import import in module.Imports)
 				{
-					IInfo binding = ResolveQualifiedName(import.Namespace);					
-					if (null == binding)
+					IElement tag = ResolveQualifiedName(import.Namespace);					
+					if (null == tag)
 					{
-						binding = ErrorInfo.Default;
+						tag = ErrorInfo.Default;
 						Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
 					}
 					else
 					{
 						if (null != import.AssemblyReference)
 						{	
-							NamespaceInfo nsInfo = binding as NamespaceInfo;
+							Namespace nsInfo = tag as Namespace;
 							if (null == nsInfo)
 							{
 								Errors.Add(CompilerErrorFactory.NotImplemented(import, "assembly qualified type references"));
 							}
 							else
 							{								
-								binding = new AssemblyQualifiedNamespaceInfo(GetBoundAssembly(import.AssemblyReference), nsInfo);
+								tag = new AssemblyQualifiedNamespace(GetBoundAssembly(import.AssemblyReference), nsInfo);
 							}
 						}
 						if (null != import.Alias)
 						{
-							binding = new AliasedNamespaceInfo(import.Alias.Name, binding);
-							TaxonomyManager.Bind(import.Alias, binding);
+							tag = new AliasedNamespace(import.Alias.Name, tag);
+							TagService.Bind(import.Alias, tag);
 						}
 					}
 					
-					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, binding.Name);
-					TaxonomyManager.Bind(import, binding);
+					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, tag.Name);
+					TagService.Bind(import, tag);
 				}
 			}			
 		}
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							Parameters.References.Add(asm);
-							TaxonomyManager.Bind(reference, new Taxonomy.AssemblyInfo(asm));
+							TagService.Bind(reference, new Taxonomy.AssemblyInfo(asm));
 						}
 						catch (Exception x)
 						{
@@ -147,7 +147,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Assembly GetBoundAssembly(ReferenceExpression reference)
 		{
-			return ((AssemblyInfo)TaxonomyManager.GetInfo(reference)).Assembly;
+			return ((AssemblyInfo)TagService.GetTag(reference)).Assembly;
 		}
 		
 		public INamespace ParentNamespace
@@ -158,21 +158,21 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
-			IInfo binding = (IInfo)_namespaces[name];
-			if (null == binding)
+			IElement tag = (IElement)_namespaces[name];
+			if (null == tag)
 			{
 				INamespace globalns = (INamespace)_namespaces[""];
 				if (null != globalns)
 				{
-					binding = globalns.Resolve(name);
+					tag = globalns.Resolve(name);
 				}
 			}			
-			return binding;
+			return tag;
 		}
 		
-		IInfo ResolveQualifiedName(string name)
+		IElement ResolveQualifiedName(string name)
 		{
 			string[] parts = name.Split('.');
 			string topLevel = parts[0];
@@ -189,7 +189,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			return (IInfo)ns;
+			return (IElement)ns;
 		}
 		
 		void OrganizeExternalNamespaces()
@@ -205,7 +205,7 @@ namespace Boo.Lang.Compiler.Steps
 						ns = string.Empty;
 					}					
 					
-					GetNamespaceInfo(ns).Add(type);
+					GetNamespace(ns).Add(type);
 					
 					List typeList = GetList(_externalTypes, type.FullName);
 					typeList.Add(type);
@@ -213,12 +213,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Taxonomy.NamespaceInfo GetNamespaceInfo(string ns)
+		Taxonomy.Namespace GetNamespace(string ns)
 		{
 			string[] namespaceHierarchy = ns.Split('.');
 			string topLevelName = namespaceHierarchy[0];
-			Taxonomy.NamespaceInfo topLevel = GetTopLevelNamespaceInfo(topLevelName);
-			Taxonomy.NamespaceInfo current = topLevel;
+			Taxonomy.Namespace topLevel = GetTopLevelNamespace(topLevelName);
+			Taxonomy.Namespace current = topLevel;
 			for (int i=1; i<namespaceHierarchy.Length; ++i)
 			{
 				current = current.GetChildNamespace(namespaceHierarchy[i]);
@@ -226,14 +226,14 @@ namespace Boo.Lang.Compiler.Steps
 			return current;
 		}
 		
-		Taxonomy.NamespaceInfo GetTopLevelNamespaceInfo(string topLevelName)
+		Taxonomy.Namespace GetTopLevelNamespace(string topLevelName)
 		{
-			Taxonomy.NamespaceInfo binding = (Taxonomy.NamespaceInfo)_namespaces[topLevelName];	
-			if (null == binding)
+			Taxonomy.Namespace tag = (Taxonomy.Namespace)_namespaces[topLevelName];	
+			if (null == tag)
 			{
-				_namespaces[topLevelName] = binding = new Taxonomy.NamespaceInfo(this, TaxonomyManager, topLevelName);
+				_namespaces[topLevelName] = tag = new Taxonomy.Namespace(this, TagService, topLevelName);
 			}
-			return binding;
+			return tag;
 		}
 		
 		List GetList(Hashtable hash, string key)

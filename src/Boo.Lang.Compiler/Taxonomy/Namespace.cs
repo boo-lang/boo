@@ -31,11 +31,10 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System;
 	using System.Reflection;
 	using System.Collections;
-	using Boo.Lang.Compiler.Services;
 
-	public class NamespaceInfo : IInfo, INamespace
+	public class Namespace : IElement, INamespace
 	{		
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		INamespace _parent;
 		
@@ -47,10 +46,10 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		ArrayList _moduleNamespaces;
 		
-		public NamespaceInfo(INamespace parent, TaxonomyManager bindingManager, string name)
+		public Namespace(INamespace parent, TagService tagManager, string name)
 		{			
 			_parent = parent;
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_name = name;
 			_assemblies = new Hashtable();
 			_childrenNamespaces = new Hashtable();
@@ -74,17 +73,17 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Namespace;
+				return ElementType.Namespace;
 			}
 		}
 		
 		public void Add(Type type)
 		{
-			Assembly assembly = type.Assembly;
+			System.Reflection.Assembly assembly = type.Assembly;
 			ArrayList types = (ArrayList)_assemblies[assembly];
 			if (null == types)
 			{
@@ -99,23 +98,23 @@ namespace Boo.Lang.Compiler.Taxonomy
 			_moduleNamespaces.Add(module);
 		}
 		
-		public NamespaceInfo GetChildNamespace(string name)
+		public Namespace GetChildNamespace(string name)
 		{
-			NamespaceInfo binding = (NamespaceInfo)_childrenNamespaces[name];
-			if (null == binding)
+			Namespace tag = (Namespace)_childrenNamespaces[name];
+			if (null == tag)
 			{				
-				binding = new NamespaceInfo(this, _bindingService, _name + "." + name);
-				_childrenNamespaces[name] = binding;
+				tag = new Namespace(this, _tagService, _name + "." + name);
+				_childrenNamespaces[name] = tag;
 			}
-			return binding;
+			return tag;
 		}
 		
-		internal IInfo Resolve(string name, Assembly assembly)
+		internal IElement Resolve(string name, System.Reflection.Assembly assembly)
 		{
-			NamespaceInfo binding = (NamespaceInfo)_childrenNamespaces[name];
-			if (null != binding)
+			Namespace tag = (Namespace)_childrenNamespaces[name];
+			if (null != tag)
 			{
-				return new AssemblyQualifiedNamespaceInfo(assembly, binding);
+				return new AssemblyQualifiedNamespace(assembly, tag);
 			}
 			
 			ArrayList types = (ArrayList)_assemblies[assembly];			                
@@ -125,7 +124,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				{
 					if (name == type.Name)
 					{
-						return _bindingService.AsTypeReference(type);
+						return _tagService.GetTypeReference(type);
 					}
 				}
 			}
@@ -140,49 +139,49 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{	
-			IInfo binding = (IInfo)_childrenNamespaces[name];
-			if (null == binding)
+			IElement tag = (IElement)_childrenNamespaces[name];
+			if (null == tag)
 			{
-				binding = ResolveInternalType(name);
-				if (null == binding)
+				tag = ResolveInternalType(name);
+				if (null == tag)
 				{
-					binding = ResolveExternalType(name);
+					tag = ResolveExternalType(name);
 				}				
 			}
-			return binding;
+			return tag;
 		}
 		
-		IInfo ResolveInternalType(string name)
+		IElement ResolveInternalType(string name)
 		{
-			IInfo binding = null;
+			IElement tag = null;
 			foreach (ModuleInfo ns in _moduleNamespaces)
 			{
-				binding = ns.ResolveMember(name);
-				if (null != binding)
+				tag = ns.ResolveMember(name);
+				if (null != tag)
 				{
 					break;
 				}
 			}
-			return binding;
+			return tag;
 		}
 		
-		IInfo ResolveExternalType(string name)
+		IElement ResolveExternalType(string name)
 		{
-			IInfo binding = null;
+			IElement tag = null;
 			foreach (ArrayList types in _assemblies.Values)
 			{
 				foreach (Type type in types)
 				{
 					if (name == type.Name)
 					{
-						binding = _bindingService.AsTypeReference(type);
+						tag = _tagService.GetTypeReference(type);
 						break;
 					}
 				}
 			}
-			return binding;
+			return tag;
 		}
 		
 		override public string ToString()
@@ -191,12 +190,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 	}
 	
-	public class AssemblyQualifiedNamespaceInfo : IInfo, INamespace
+	public class AssemblyQualifiedNamespace : IElement, INamespace
 	{
-		Assembly _assembly;
-		NamespaceInfo _subject;
+		System.Reflection.Assembly _assembly;
+		Namespace _subject;
 		
-		public AssemblyQualifiedNamespaceInfo(Assembly assembly, NamespaceInfo subject)
+		public AssemblyQualifiedNamespace(System.Reflection.Assembly assembly, Namespace subject)
 		{
 			_assembly = assembly;
 			_subject = subject;
@@ -218,11 +217,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Namespace;
+				return ElementType.Namespace;
 			}
 		}
 		
@@ -234,18 +233,18 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
 			return _subject.Resolve(name, _assembly);
 		}
 	}
 	
-	public class AliasedNamespaceInfo : IInfo, INamespace
+	public class AliasedNamespace : IElement, INamespace
 	{
 		string _alias;
-		IInfo _subject;
+		IElement _subject;
 		
-		public AliasedNamespaceInfo(string alias, IInfo subject)
+		public AliasedNamespace(string alias, IElement subject)
 		{
 			_alias = alias;			
 			_subject = subject;
@@ -267,11 +266,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Namespace;
+				return ElementType.Namespace;
 			}
 		}
 		
@@ -283,7 +282,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
 			if (name == _alias)
 			{

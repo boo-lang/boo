@@ -75,17 +75,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected TaxonomyManager TaxonomyManager
+		protected TagService TagService
 		{
 			get
 			{
-				return _context.TaxonomyManager;
+				return _context.TagService;
 			}
 		}
 		
 		protected void Error(Node node, CompilerError error)
 		{
-			TaxonomyManager.Error(node);
+			TagService.Error(node);
 			Errors.Add(error);
 		}
 		
@@ -96,33 +96,33 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node)
 		{
-			TaxonomyManager.Error(node);
+			TagService.Error(node);
 		}
 
-		protected void Bind(Node node, IInfo binding)
+		protected void Bind(Node node, IElement tag)
 		{
-			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, binding);
-			node.Info = binding;
+			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, tag);
+			node.Info = tag;
 		}		
 		
-		public IInfo GetInfo(Node node)
+		public IElement GetTag(Node node)
 		{
-			return TaxonomyManager.GetInfo(node);
+			return TagService.GetTag(node);
 		}
 		
-		public ITypeInfo GetBoundType(Node node)
+		public IType GetBoundType(Node node)
 		{
-			return TaxonomyManager.GetBoundType(node);
+			return TagService.GetBoundType(node);
 		}		
 		
 		public LocalInfo GetLocalInfo(Node local)
 		{
-			return (LocalInfo)GetInfo(local);
+			return (LocalInfo)GetTag(local);
 		}
 		
-		protected TypeReference CreateBoundTypeReference(ITypeInfo binding)
+		protected TypeReference CreateTypeReference(IType tag)
 		{
-			return TaxonomyManager.CreateBoundTypeReference(binding);
+			return TagService.CreateTypeReference(tag);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{
-			PushNamespace((INamespace)GetInfo(module));
+			PushNamespace((INamespace)GetTag(module));
 			Accept(module.Members);
 			PopNamespace();
 		}
@@ -68,10 +68,10 @@ namespace Boo.Lang.Compiler.Steps
 			visited.Add(node);
 			foreach (SimpleTypeReference type in node.BaseTypes)
 			{                            
-				TypeReferenceInfo binding = ResolveSimpleTypeReference(type) as TypeReferenceInfo;
-				if (null != binding)
+				TypeReference tag = ResolveSimpleTypeReference(type) as TypeReference;
+				if (null != tag)
 				{
-					InternalType internalType = binding.BoundType as InternalType;
+					InternalType internalType = tag.BoundType as InternalType;
 					if (null != internalType)
 					{
 						if (visited.Contains(internalType.TypeDefinition))

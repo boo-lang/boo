@@ -47,9 +47,9 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerErrorCollection _errors;
 		
-		protected Services.TaxonomyManager _bindingService;		
+		protected Taxonomy.TagService _tagService;		
 		
-		protected INameResolutionService _nameResolutionService;
+		protected Taxonomy.NameResolutionService _nameResolutionService;
 		
 		protected TraceSwitch _traceSwitch;
 
@@ -81,7 +81,8 @@ namespace Boo.Lang.Compiler
 			_errors = new CompilerErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_bindingService = new Services.TaxonomyManager();
+			_tagService = new Taxonomy.TagService();
+			_nameResolutionService = new Taxonomy.NameResolutionService(); 
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
 		}	
@@ -91,6 +92,19 @@ namespace Boo.Lang.Compiler
 			get
 			{
 				return _properties;
+			}
+		}
+		
+		public object this[object key]
+		{
+			get
+			{
+				return _properties[key];
+			}
+			
+			set
+			{
+				_properties[key] = value;
 			}
 		}
 
@@ -126,15 +140,15 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public Services.TaxonomyManager TaxonomyManager
+		public Taxonomy.TagService TagService
 		{
 			get
 			{
-				return _bindingService;
+				return _tagService;
 			}
 		}		
 		
-		public INameResolutionService NameResolutionService
+		public Taxonomy.NameResolutionService NameResolutionService
 		{
 			get
 			{

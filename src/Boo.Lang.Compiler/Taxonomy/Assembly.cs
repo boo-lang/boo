@@ -28,11 +28,11 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class AssemblyInfo : IInfo
+	public class Assembly : IElement
 	{
 		System.Reflection.Assembly _assembly;
 		
-		public AssemblyInfo(System.Reflection.Assembly assembly)
+		public Assembly(System.Reflection.Assembly assembly)
 		{
 			if (null == assembly)
 			{
@@ -53,15 +53,15 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return Name;
+				return _assembly.FullName;
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Assembly;
+				return ElementType.Assembly;
 			}
 		}
 		

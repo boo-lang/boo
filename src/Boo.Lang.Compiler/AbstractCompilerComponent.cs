@@ -74,15 +74,15 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected Services.TaxonomyManager TaxonomyManager
+		protected Taxonomy.TagService TagService
 		{
 			get
 			{
-				return _context.TaxonomyManager;
+				return _context.TagService;
 			}
 		}
 		
-		protected INameResolutionService NameResolutionService
+		protected Taxonomy.NameResolutionService NameResolutionService
 		{
 			get
 			{
@@ -90,9 +90,13 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public IInfo GetInfo(Node node)
+		public IElement GetTag(Node node)
 		{
-			return Services.TaxonomyManager.GetInfo(node);
+			if (null == node.Tag)
+			{
+				throw CompilerErrorFactory.NodeNotTagged(node);
+			}
+			return node;
 		}		
 		
 		public virtual void Initialize(CompilerContext context)

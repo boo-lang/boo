@@ -27,26 +27,24 @@
 #endregion
 
 namespace Boo.Lang.Compiler.Taxonomy
-{
-	using Boo.Lang.Compiler.Services;
-	
-	public class ExternalFieldInfo : IFieldInfo
+{	
+	public class ExternalField : IFieldInfo
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		System.Reflection.FieldInfo _field;
 		
-		public ExternalFieldInfo(TaxonomyManager bindingManager, System.Reflection.FieldInfo field)
+		public ExternalField(TagService tagManager, System.Reflection.FieldInfo field)
 		{
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_field = field;
 		}
 		
-		public ITypeInfo DeclaringType
+		public IType DeclaringType
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_field.DeclaringType);
+				return _tagService.Map(_field.DeclaringType);
 			}
 		}
 		
@@ -90,27 +88,19 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Field;
+				return ElementType.Field;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_field.FieldType);
-			}
-		}
-		
-		public System.Type Type
-		{
-			get
-			{
-				return _field.FieldType;
+				return _tagService.Map(_field.FieldType);
 			}
 		}
 		

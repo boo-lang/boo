@@ -34,168 +34,169 @@ namespace Boo.Lang.Compiler.Services
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Taxonomy;
 
-	public class TaxonomyManager
+	public class TagService
 	{			
-		public ExternalType ExceptionTypeInfo;
+		public ExternalType ExceptionType;
 		
-		public ExternalType ApplicationExceptionInfo;
+		public ExternalType ApplicationExceptionType;
 		
-		public ExternalType ObjectTypeInfo;
+		public ExternalType ObjectType;
 		
-		public ExternalType EnumTypeInfo;
+		public ExternalType EnumType;
 		
-		public ExternalType ArrayTypeInfo;
+		public ExternalType ArrayType;
 		
-		public ExternalType TypeTypeInfo;
+		public ExternalType TypeType;
 		
-		public ITypeInfo ObjectArrayInfo;
+		public IType ObjectArrayType;
 	
-		public ExternalType VoidTypeInfo;
+		public ExternalType VoidType;
 		
-		public ExternalType StringTypeInfo;
+		public ExternalType StringType;
 		
-		public ExternalType BoolTypeInfo;
+		public ExternalType BoolType;
 		
-		public ExternalType ByteTypeInfo;
+		public ExternalType ByteType;
 		
-		public ExternalType ShortTypeInfo;
+		public ExternalType ShortType;
 		
-		public ExternalType IntTypeInfo;
+		public ExternalType IntType;
 		
-		public ExternalType LongTypeInfo;
+		public ExternalType LongType;
 		
-		public ExternalType SingleTypeInfo;
+		public ExternalType SingleType;
 		
-		public ExternalType DoubleTypeInfo;
+		public ExternalType DoubleType;
 		
-		public ExternalType TimeSpanTypeInfo;
+		public ExternalType TimeSpanType;
 		
-		public ExternalType DateTimeTypeInfo;
+		public ExternalType DateTimeType;
 		
-		public ExternalType RuntimeServicesInfo;
+		public ExternalType RuntimeServicesType;
 		
-		public ExternalType BuiltinsInfo;
+		public ExternalType BuiltinsType;
 		
-		public ExternalType ListTypeInfo;
+		public ExternalType ListType;
 		
-		public ExternalType HashTypeInfo;
+		public ExternalType HashType;
 		
-		public ExternalType ICallableTypeInfo;
+		public ExternalType ICallableType;
 		
-		public ExternalType IEnumerableTypeInfo;
+		public ExternalType IEnumerableType;
 		
-		public ExternalType ICollectionTypeInfo;
+		public ExternalType ICollectionType;
 		
-		public ExternalType IListTypeInfo;
+		public ExternalType IListType;
 		
-		public ExternalType IDictionaryTypeInfo;
+		public ExternalType IDictionaryType;
 		
 		System.Collections.Hashtable _primitives = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
+		System.Collections.Hashtable _tagCache = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _arrayInfoCache = new System.Collections.Hashtable();
+		System.Collections.Hashtable _arrayCache = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
-		static readonly IInfo _lenInfo = new BuiltinFunction(SpecialFunction.Len);
+		static readonly IElement _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
 		
-		public TaxonomyManager()		
+		public TagService()		
 		{			
-			Cache(VoidTypeInfo = new VoidTypeInfoImpl(this));
-			Cache(ObjectTypeInfo = new ExternalType(this, Types.Object));
-			Cache(EnumTypeInfo = new ExternalType(this, typeof(System.Enum)));
-			Cache(ArrayTypeInfo = new ExternalType(this, Types.Array));
-			Cache(TypeTypeInfo = new ExternalType(this, Types.Type));
-			Cache(StringTypeInfo = new ExternalType(this, Types.String));
-			Cache(BoolTypeInfo = new ExternalType(this, Types.Bool));
-			Cache(ByteTypeInfo = new ExternalType(this, Types.Byte));
-			Cache(ShortTypeInfo = new ExternalType(this, Types.Short));
-			Cache(IntTypeInfo = new ExternalType(this, Types.Int));
-			Cache(LongTypeInfo = new ExternalType(this, Types.Long));
-			Cache(SingleTypeInfo = new ExternalType(this, Types.Single));
-			Cache(DoubleTypeInfo = new ExternalType(this, Types.Double));
-			Cache(TimeSpanTypeInfo = new ExternalType(this, Types.TimeSpan));
-			Cache(DateTimeTypeInfo = new ExternalType(this, Types.DateTime));
-			Cache(RuntimeServicesInfo = new ExternalType(this, Types.RuntimeServices));
-			Cache(BuiltinsInfo = new ExternalType(this, Types.Builtins));
-			Cache(ListTypeInfo = new ExternalType(this, Types.List));
-			Cache(HashTypeInfo = new ExternalType(this, Types.Hash));
-			Cache(ICallableTypeInfo = new ExternalType(this, Types.ICallable));
-			Cache(IEnumerableTypeInfo = new ExternalType(this, Types.IEnumerable));
-			Cache(ICollectionTypeInfo = new ExternalType(this, Types.ICollection));
-			Cache(IListTypeInfo = new ExternalType(this, Types.IList));
-			Cache(IDictionaryTypeInfo = new ExternalType(this, Types.IDictionary));
-			Cache(ApplicationExceptionInfo = new ExternalType(this, Types.ApplicationException));
-			Cache(ExceptionTypeInfo = new ExternalType(this, Types.Exception));
+			Cache(VoidType = new VoidTypeImpl(this));
+			Cache(ObjectType = new ExternalType(this, Types.Object));
+			Cache(EnumType = new ExternalType(this, typeof(System.Enum)));
+			Cache(ArrayType = new ExternalType(this, Types.Array));
+			Cache(TypeType = new ExternalType(this, Types.Type));
+			Cache(StringType = new ExternalType(this, Types.String));
+			Cache(BoolType = new ExternalType(this, Types.Bool));
+			Cache(ByteType = new ExternalType(this, Types.Byte));
+			Cache(ShortType = new ExternalType(this, Types.Short));
+			Cache(IntType = new ExternalType(this, Types.Int));
+			Cache(LongType = new ExternalType(this, Types.Long));
+			Cache(SingleType = new ExternalType(this, Types.Single));
+			Cache(DoubleType = new ExternalType(this, Types.Double));
+			Cache(TimeSpanType = new ExternalType(this, Types.TimeSpan));
+			Cache(DateTimeType = new ExternalType(this, Types.DateTime));
+			Cache(RuntimeServicesType = new ExternalType(this, Types.RuntimeServices));
+			Cache(BuiltinsType = new ExternalType(this, Types.Builtins));
+			Cache(ListType = new ExternalType(this, Types.List));
+			Cache(HashType = new ExternalType(this, Types.Hash));
+			Cache(ICallableType = new ExternalType(this, Types.ICallable));
+			Cache(IEnumerableType = new ExternalType(this, Types.IEnumerable));
+			Cache(ICollectionType = new ExternalType(this, Types.ICollection));
+			Cache(IListType = new ExternalType(this, Types.IList));
+			Cache(IDictionaryType = new ExternalType(this, Types.IDictionary));
+			Cache(ApplicationExceptionType = new ExternalType(this, Types.ApplicationException));
+			Cache(ExceptionType = new ExternalType(this, Types.Exception));
 			
-			ObjectArrayInfo = AsArrayInfo(ObjectTypeInfo);
+			ObjectArrayType = AsArrayInfo(ObjectType);
 			
 			PreparePrimitives();
 		}
 		
-		public Boo.Lang.Compiler.Ast.TypeReference CreateBoundTypeReference(ITypeInfo binding)
+		public Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(IType tag)
 		{
 			TypeReference typeReference = null;
 			
-			if (binding.IsArray)
+			if (tag.IsArray)
 			{
-				typeReference = new ArrayTypeReference(CreateBoundTypeReference(binding.GetElementType()));
+				typeReference = new ArrayTypeReference(CreateTypeReference(tag.GetElementType()));
 			}
 			else
 			{				
-				typeReference = new SimpleTypeReference(binding.FullName);				
+				typeReference = new SimpleTypeReference(tag.FullName);				
 			}
-			Bind(typeReference, AsTypeReference(binding));
+			
+			typeReference.Tag = AsTypeReference(tag);
 			return typeReference;
 		}
 		
-		public ITypeInfo GetPromotedNumberType(ITypeInfo left, ITypeInfo right)
+		public IType GetPromotedNumberType(IType left, IType right)
 		{
-			if (left == DoubleTypeInfo ||
-				right == DoubleTypeInfo)
+			if (left == DoubleType ||
+				right == DoubleType)
 			{
-				return DoubleTypeInfo;
+				return DoubleType;
 			}
-			if (left == SingleTypeInfo ||
-				right == SingleTypeInfo)
+			if (left == SingleType ||
+				right == SingleType)
 			{
-				return SingleTypeInfo;
+				return SingleType;
 			}
-			if (left == LongTypeInfo ||
-				right == LongTypeInfo)
+			if (left == LongType ||
+				right == LongType)
 			{
-				return LongTypeInfo;
+				return LongType;
 			}
-			if (left == ShortTypeInfo ||
-				right == ShortTypeInfo)
+			if (left == ShortType ||
+				right == ShortType)
 			{
-				return ShortTypeInfo;
+				return ShortType;
 			}
 			return left;
 		}
 		
 		public static bool IsUnknown(Node node)
 		{
-			ITypedInfo binding = GetInfo(node) as ITypedInfo;
-			if (null != binding)
+			ITypedElement tag = GetTag(node) as ITypedElement;
+			if (null != tag)
 			{
-				return IsUnknown(binding.BoundType);
+				return IsUnknown(tag.Type);
 			}
 			return false;
 		}
 		
-		public static bool IsUnknown(ITypeInfo binding)
+		public static bool IsUnknown(IType tag)
 		{
-			return InfoType.Unknown == binding.InfoType;
+			return ElementType.Unknown == tag.ElementType;
 		}
 		
 		public static bool IsError(Node node)
 		{			
-			ITypedInfo binding = GetInfo(node) as ITypedInfo;
-			if (null != binding)
+			ITypedElement tag = GetTag(node) as ITypedElement;
+			if (null != tag)
 			{
-				return IsError(binding.BoundType);
+				return IsError(tag.Type);
 			}
 			return false;
 		}
@@ -212,174 +213,154 @@ namespace Boo.Lang.Compiler.Services
 			return false;
 		}
 		
-		public static bool IsError(IInfo binding)
+		public static bool IsError(IElement tag)
 		{
-			return InfoType.Error == binding.InfoType;
-		}		
-		
-		public static bool IsBound(Node node)
-		{
-			return null != node.Info;
+			return ElementType.Error == tag.ElementType;
 		}
 		
-		public static void Unbind(Node node)
-		{
-			node.Info = null;
-		}
-		
-		public static void Bind(Node node, IInfo binding)
-		{
-			if (null == node)
-			{
-				throw new ArgumentNullException("node");
-			}
-			if (null == binding)
-			{
-				throw new ArgumentNullException("binding");
-			}
-			
-			node.Info = binding;
-		}
-		
-		public void Bind(TypeDefinition type)
-		{
-			Bind(type, AsTypeInfo(type));
-		}
-		
-		public static void Error(Node node)
-		{
-			Bind(node, ErrorInfo.Default);
-		}
-		
-		public static IInfo GetInfo(Node node)
+		public static IElement GetTag(Node node)
 		{
 			if (null == node)
 			{
 				throw new ArgumentNullException("node");
 			}
 			
-			IInfo binding = node.Info;
-			if (null == binding)
+			IElement tag = node.Tag;
+			if (null == tag)
 			{
-				NodeNotBound(node);
+				NodeNotTagged(node);
 			}
-			return binding;
+			return tag;
 		}	
 		
-		public ITypeInfo GetBoundType(Node node)
+		public IType GetType(Node node)
 		{
-			return ((ITypedInfo)GetInfo(node)).BoundType;
+			return ((ITypedElement)GetTag(node)).Type;
 		}
 		
-		public ITypeInfo AsTypeInfo(System.Type type)
-		{
-			if (type.IsArray)
-			{
-				return AsArrayInfo(AsTypeInfo(type.GetElementType()));
+		public IType Map(System.Type type)
+		{			
+			ExternalType tag = (ExternalType)_tagCache[type];
+			if (null == tag)
+			{	
+				if (type.IsArray)
+				{
+					tag = GetArrayType(Map(type.GetElementType()));
+				}
+				else
+				{
+					tag = new ExternalType(this, type);
+				}
+				Cache(tag);
 			}
-			
-			ExternalType binding = (ExternalType)_bindingCache[type];
-			if (null == binding)
-			{
-				Cache(binding = new ExternalType(this, type));
-			}
-			return binding;
+			return tag;
 		}
 		
-		public ITypeInfo AsTypeInfo(TypeDefinition typeDefinition)
+		public IType GetArrayType(IType elementType)
 		{
-			ITypeInfo binding = (ITypeInfo)_bindingCache[typeDefinition];
-			if (null == binding)
+			IType tag = (IType)_arrayCache[elementType];
+			if (null == tag)
 			{
-				Cache(typeDefinition, binding = new InternalType(this, typeDefinition));
+				tag = new ArrayType(this, elementType);
+				_arrayCache.Add(elementType, tag);
 			}
-			return binding;
+			return tag;
 		}
 		
-		public ITypeInfo AsArrayInfo(ITypeInfo elementType)
+		public ITypedElement GetTypeReference(IType type)
 		{
-			ITypeInfo binding = (ITypeInfo)_arrayInfoCache[elementType];
-			if (null == binding)
+			ITypedElement tag = (ITypedElement)_referenceCache[type];
+			if (null == tag)
 			{
-				_arrayInfoCache.Add(elementType, binding = new ArrayTypeInfo(this, elementType));
+				tag = new TypeReference(type);
+				_referenceCache[type] = tag;
 			}
-			return binding;
+			return tag;
 		}
 		
-		public ITypedInfo AsTypeReference(ITypeInfo type)
+		public ITypedElement GetTypeReference(System.Type type)
 		{
-			ITypedInfo cached = (ITypedInfo)_referenceCache[type];
-			if (null == cached)
+			return GetTypeReference(GetType(type));
+		}
+		
+		public IParameter[] Map(Boo.Lang.Ast.ParameterDeclarationCollection parameters)
+		{
+			IParameter[] mapped = new IParameter[_method.Parameters.Count];
+			for (int i=0; i<_parameters.Length; ++i)
 			{
-				cached = new TypeReferenceInfo(type);
-				_referenceCache[type] = cached;
+				mapped[i] = (IParameter)GetTag(_method.Parameters[i]);
 			}
-			return cached;
+			return mapped;
 		}
 		
-		public ITypedInfo AsTypeReference(System.Type type)
-		{
-			return AsTypeReference(AsTypeInfo(type));
+		public IParameter[] Map(System.Reflection.ParameterInfo[] parameters)
+		{			
+			IParameter[] mapped = new IParameter[parameters.Length];
+			for (int i=0; i<parameters.Length; ++i)
+			{
+				mapped[i] = new ExternalParameter(this, parameters[i]);
+			}
+			return mapped;
 		}
 		
-		public IInfo AsInfo(System.Reflection.MemberInfo[] info)
+		public IElement Map(System.Reflection.MemberInfo[] info)
 		{
 			if (info.Length > 1)
 			{
-				IInfo[] bindings = new IInfo[info.Length];
-				for (int i=0; i<bindings.Length; ++i)
+				IElement[] tags = new IElement[info.Length];
+				for (int i=0; i<tags.Length; ++i)
 				{
-					bindings[i] = AsInfo(info[i]);
+					tags[i] = GetElement(info[i]);
 				}
-				return new Ambiguous(bindings);
+				return new Ambiguous(tags);
 			}
 			if (info.Length > 0)
 			{
-				return AsInfo(info[0]);
+				return GetElement(info[0]);
 			}
 			return null;
 		}
 		
-		public IInfo AsInfo(System.Reflection.MemberInfo mi)
+		public IElement Map(System.Reflection.MemberInfo mi)
 		{
-			IInfo binding = (IInfo)_bindingCache[mi];
-			if (null == binding)
+			IElement tag = (IElement)_tagCache[mi];
+			if (null == tag)
 			{			
 				switch (mi.MemberType)
 				{
 					case MemberTypes.Method:
 					{
-						binding = new ExternalMethod(this, (System.Reflection.MethodInfo)mi);
+						tag = new ExternalMethod(this, (System.Reflection.MethodInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Constructor:
 					{
-						binding = new ExternalConstructorInfo(this, (System.Reflection.ConstructorInfo)mi);
+						tag = new ExternalConstructor(this, (System.Reflection.ConstructorInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Field:
 					{
-						binding = new ExternalFieldInfo(this, (System.Reflection.FieldInfo)mi);
+						tag = new ExternalField(this, (System.Reflection.FieldInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Property:
 					{
-						binding = new ExternalProperty(this, (System.Reflection.PropertyInfo)mi);
+						tag = new ExternalProperty(this, (System.Reflection.PropertyInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Event:
 					{
-						binding = new ExternalEvent(this, (System.Reflection.EventInfo)mi);
+						tag = new ExternalEvent(this, (System.Reflection.EventInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.TypeInfo:
 					{
-						return AsTypeInfo((Type)mi);
+						return Map((System.Type)mi);
 					}
 					
 					default:
@@ -387,14 +368,14 @@ namespace Boo.Lang.Compiler.Services
 						throw new NotImplementedException(mi.ToString());
 					}
 				}
-				_bindingCache.Add(mi, binding);
+				_tagCache.Add(mi, tag);
 			}
-			return binding;
+			return tag;
 		}
 		
-		public IInfo ResolvePrimitive(string name)
+		public IElement ResolvePrimitive(string name)
 		{
-			return (IInfo)_primitives[name];
+			return (IElement)_primitives[name];
 		}
 		
 		public bool IsPrimitive(string name)
@@ -404,16 +385,16 @@ namespace Boo.Lang.Compiler.Services
 		
 		void PreparePrimitives()
 		{
-			AddPrimitiveType("void", VoidTypeInfo);
-			AddPrimitiveType("bool", BoolTypeInfo);
-			AddPrimitiveType("date", DateTimeTypeInfo);
-			AddPrimitiveType("string", StringTypeInfo);
-			AddPrimitiveType("object", ObjectTypeInfo);
-			AddPrimitiveType("byte", ByteTypeInfo);
-			AddPrimitiveType("int", IntTypeInfo);
-			AddPrimitiveType("long", LongTypeInfo);
-			AddPrimitiveType("float", SingleTypeInfo);
-			AddPrimitiveType("double", DoubleTypeInfo);
+			AddPrimitiveType("void", VoidType);
+			AddPrimitiveType("bool", BoolType);
+			AddPrimitiveType("date", DateTimeType);
+			AddPrimitiveType("string", StringType);
+			AddPrimitiveType("object", ObjectType);
+			AddPrimitiveType("byte", ByteType);
+			AddPrimitiveType("int", IntType);
+			AddPrimitiveType("long", LongType);
+			AddPrimitiveType("single", SingleType);
+			AddPrimitiveType("double", DoubleType);
 			AddPrimitive("len", _lenInfo);
 		}
 		
@@ -422,61 +403,34 @@ namespace Boo.Lang.Compiler.Services
 			_primitives[name] = AsTypeReference(type);
 		}
 		
-		void AddPrimitive(string name, IInfo binding)
+		void AddPrimitive(string name, IElement tag)
 		{
-			_primitives[name] = binding;
+			_primitives[name] = tag;
 		}
 		
-		void Cache(ExternalType binding)
+		void Cache(ExternalType tag)
 		{
-			_bindingCache[binding.Type] = binding;
+			_tagCache[tag.Type] = tag;
 		}
 		
-		void Cache(object key, ITypeInfo binding)
+		void Cache(object key, IType tag)
 		{
-			_bindingCache[key] = binding;
+			_tagCache[key] = tag;
 		}
 		
-		public static string GetSignature(IMethodInfo binding)
-		{			
-			System.Text.StringBuilder sb = new System.Text.StringBuilder(binding.DeclaringType.FullName);
-			sb.Append(".");
-			sb.Append(binding.Name);
-			sb.Append("(");
-			for (int i=0; i<binding.ParameterCount; ++i)
-			{				
-				if (i>0) 
-				{
-					sb.Append(", ");
-				}
-				sb.Append(binding.GetParameterType(i).FullName);
-			}
-			sb.Append(")");
-			
-			/*
-			ITypeInfo rt = binding.ReturnType;
-			if (null != rt)
-			{
-				sb.Append(" as ");
-				sb.Append(rt.FullName);
-			}
-			*/
-			return sb.ToString();
-		}
-		
-		private static void NodeNotBound(Node node)
+		private static void NodeNotTagged(Node node)
 		{
-			throw CompilerErrorFactory.NodeNotBound(node);
+			throw CompilerErrorFactory.NodeNotTagged(node);
 		}		
 		
-		#region VoidTypeInfoImpl
-		class VoidTypeInfoImpl : ExternalType
+		#region VoidTypeImpl
+		class VoidTypeImpl : ExternalType
 		{			
-			internal VoidTypeInfoImpl(TaxonomyManager manager) : base(manager, Types.Void)
+			internal VoidTypeImpl(TagService manager) : base(manager, Types.Void)
 			{				
 			}		
 			
-			override public IInfo Resolve(string name)
+			override public IElement Resolve(string name)
 			{	
 				return null;
 			}	

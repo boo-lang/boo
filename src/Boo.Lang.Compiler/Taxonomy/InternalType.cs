@@ -34,42 +34,42 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using Boo.Lang.Compiler.Services;
 	using System.Reflection;
 
-	public class EnumTypeInfo : AbstractInternalType
+	public class EnumType : AbstractInternalType
 	{
-		internal EnumTypeInfo(TaxonomyManager bindingManager, EnumDefinition enumDefinition) :
-			base(bindingManager, enumDefinition)
+		internal EnumType(TagService tagManager, EnumDefinition enumDefinition) :
+			base(tagManager, enumDefinition)
 		{
 		}
 		
-		override public ITypeInfo BaseType
+		override public IType BaseType
 		{
 			get
 			{
-				return _bindingService.EnumTypeInfo;
+				return _tagService.EnumType;
 			}
 		}
 		
-		override public bool IsSubclassOf(ITypeInfo type)
+		override public bool IsSubclassOf(IType type)
 		{
-			return type == _bindingService.EnumTypeInfo ||
-				_bindingService.EnumTypeInfo.IsSubclassOf(type);
+			return type == _tagService.EnumType ||
+				_tagService.EnumType.IsSubclassOf(type);
 		}
 	}
 	
 	public class InternalType : AbstractInternalType
 	{		
-		IConstructorInfo[] _constructors;
+		IConstructor[] _constructors;
 		
-		ITypeInfo _baseType;
+		IType _baseType;
 		
 		int _typeDepth = -1;
 		
-		internal InternalType(TaxonomyManager manager, TypeDefinition typeDefinition) :
+		internal InternalType(TagService manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
 		}		
 		
-		override public ITypeInfo BaseType
+		override public IType BaseType
 		{
 			get
 			{
@@ -79,17 +79,17 @@ namespace Boo.Lang.Compiler.Taxonomy
 					{
 						foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 						{
-							ITypeInfo binding = _bindingService.GetBoundType(baseType);
-							if (binding.IsClass)
+							IType tag = _tagService.GetType(baseType);
+							if (tag.IsClass)
 							{
-								_baseType = binding;
+								_baseType = tag;
 								break;
 							}
 						}
 					}
 					else if (IsInterface)
 					{
-						_baseType = _bindingService.ObjectTypeInfo;
+						_baseType = _tagService.ObjectType;
 					}
 				}
 				return _baseType;
@@ -105,11 +105,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return _typeDepth;
 		}
 		
-		override public bool IsSubclassOf(ITypeInfo type)
+		override public bool IsSubclassOf(IType type)
 		{				
 			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
 			{
-				ITypeInfo baseType = _bindingService.GetBoundType(baseTypeReference);
+				IType baseType = _tagService.GetType(baseTypeReference);
 				if (type == baseType || baseType.IsSubclassOf(type))
 				{
 					return true;
@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return false;
 		}
 		
-		override public IConstructorInfo[] GetConstructors()
+		override public IConstructor[] GetConstructors()
 		{
 			if (null == _constructors)
 			{
@@ -126,17 +126,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 				foreach (TypeMember member in _typeDefinition.Members)
 				{					
 					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
-					{
-						IInfo binding = member.Info;
-						if (null == binding)
-						{
-							binding = new InternalConstructorInfo(_bindingService, (Constructor)member);
-							TaxonomyManager.Bind(member, binding);
-						}
-						constructors.Add(binding);
+					{						
+						constructors.Add(_tagService.GetTag(member));
 					}
 				}
-				_constructors = (IConstructorInfo[])constructors.ToArray(typeof(IConstructorInfo));
+				_constructors = (IConstructor[])constructors.ToArray(typeof(IConstructor));
 			}
 			return _constructors;
 		}
@@ -155,8 +149,8 @@ namespace Boo.Lang.Compiler.Taxonomy
 			int current = 0;
 			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				ITypeInfo binding = _bindingService.GetBoundType(baseType);
-				int depth = binding.GetTypeDepth();
+				IType tag = _tagService.GetBoundType(baseType);
+				int depth = tag.GetTypeDepth();
 				if (depth > current)
 				{
 					current = depth;

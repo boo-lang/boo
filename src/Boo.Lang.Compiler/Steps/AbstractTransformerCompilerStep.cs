@@ -75,27 +75,27 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected TaxonomyManager TaxonomyManager
+		protected TagService TagService
 		{
 			get
 			{
-				return _context.TaxonomyManager;
+				return _context.TagService;
 			}
 		}
 		
-		public IInfo GetInfo(Node node)
+		public IElement GetTag(Node node)
 		{
-			return TaxonomyManager.GetInfo(node);
+			return TagService.GetTag(node);
 		}
 		
-		protected ITypeInfo GetBoundType(Node node)
+		protected IType GetBoundType(Node node)
 		{
-			return TaxonomyManager.GetBoundType(node);
+			return TagService.GetBoundType(node);
 		}	
 		
-		protected TypeReference CreateBoundTypeReference(ITypeInfo binding)
+		protected TypeReference CreateTypeReference(IType tag)
 		{
-			return TaxonomyManager.CreateBoundTypeReference(binding);
+			return TagService.CreateTypeReference(tag);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

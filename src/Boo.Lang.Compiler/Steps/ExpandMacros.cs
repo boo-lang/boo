@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)TaxonomyManager.GetInfo(module));
+			PushNamespace((INamespace)TagService.GetTag(module));
 			Accept(module.Members);
 			Accept(module.Globals);			
 			PopNamespace();
@@ -59,25 +59,25 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Node replacement = null;
 			
-			IInfo binding = ResolveQualifiedName(node, node.Name);
-			if (null == binding)
+			IElement tag = ResolveQualifiedName(node, node.Name);
+			if (null == tag)
 			{
-				binding = ResolveQualifiedName(node, BuildMacroTypeName(node.Name));
+				tag = ResolveQualifiedName(node, BuildMacroTypeName(node.Name));
 			}
 			
-			if (null == binding)
+			if (null == tag)
 			{
 				Errors.Add(CompilerErrorFactory.UnknownMacro(node, node.Name));
 			}
 			else
 			{
-				if (InfoType.TypeReference != binding.InfoType)
+				if (ElementType.TypeReference != tag.ElementType)
 				{
 					Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
 				}
 				else
 				{
-					ITypeInfo macroType = ((TypeReferenceInfo)binding).BoundType;
+					IType macroType = ((TypeReference)tag).BoundType;
 					ExternalType type = macroType as ExternalType;
 					if (null == type)
 					{

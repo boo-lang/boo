@@ -29,14 +29,12 @@
 namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Services;
 
-	public class ModuleInfo : INamespace, IInfo
+	public class Module : INamespace, IElement
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
-		Module _module;
+		Boo.Lang.Ast.Module _module;
 		
 		INamespace _moduleClassNamespace = NullNamespace.Default;
 		
@@ -44,9 +42,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		string _namespace;
 		
-		public ModuleInfo(TaxonomyManager bindingManager, Module module)
+		public ModuleInfo(TagService tagManager, Boo.Lang.Ast.Module module)
 		{
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_module = module;			
 			if (null == module.Namespace)
 			{
@@ -58,11 +56,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Module;
+				return ElementType.Module;
 			}
 		}
 		
@@ -90,75 +88,62 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo ResolveMember(string name)
+		public IElement ResolveMember(string name)
 		{
-			IInfo binding = ResolveModuleMember(name);
-			if (null == binding)
+			IElement tag = ResolveModuleMember(name);
+			if (null == tag)
 			{
-				binding = ResolveModuleClassMember(name);
+				tag = ResolveModuleClassMember(name);
 			}
-			return binding;
+			return tag;
 		}
 		
 		public INamespace ParentNamespace
 		{
 			get
 			{
-				return (INamespace)TaxonomyManager.GetInfo(_module.ParentNode);
+				return (INamespace)TagService.GetTag(_module.ParentNode);
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
-			IInfo binding = ResolveMember(name);
-			if (null == binding)
+			IElement tag = ResolveMember(name);
+			if (null == tag)
 			{	
 				if (null == _using)
 				{
 					_using = new INamespace[_module.Imports.Count];
 					for (int i=0; i<_using.Length; ++i)
 					{
-						_using[i] = (INamespace)TaxonomyManager.GetInfo(_module.Imports[i]);
+						_using[i] = (INamespace)TagService.GetTag(_module.Imports[i]);
 					}
 				}
 				
 				foreach (INamespace ns in _using)
 				{
 					// todo: resolve name in all namespaces...
-					binding = ns.Resolve(name);
-					if (null != binding)
+					tag = ns.Resolve(name);
+					if (null != tag)
 					{					
 						break;
 					}
 				}
 			}
-			return binding;
+			return tag;
 		}
 		
-		IInfo ResolveModuleMember(string name)
+		IElement ResolveModuleMember(string name)
 		{
-			TypeMember member = _module.Members[name];
+			Boo.Lang.Ast.TypeMember member = _module.Members[name];
 			if (null != member)
-			{
-				ITypeInfo typeInfo = (ITypeInfo)member.Info;
-				if (null == typeInfo)
-				{
-					if (NodeType.EnumDefinition == member.NodeType)
-					{
-						typeInfo = new EnumTypeInfo(_bindingService, (EnumDefinition)member);
-					}
-					else
-					{
-						typeInfo = new InternalType(_bindingService, (TypeDefinition)member);
-					}
-					TaxonomyManager.Bind(member, typeInfo);
-				}
-				return _bindingService.AsTypeReference(typeInfo);
+			{			
+				return _tagService.GetTypeReference((IType)_tagService.GetTag(member));
 			}
 			return null;
 		}
 		
-		IInfo ResolveModuleClassMember(string name)
+		IElement ResolveModuleClassMember(string name)
 		{
 			return _moduleClassNamespace.Resolve(name);
 		}

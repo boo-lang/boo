@@ -32,14 +32,14 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using Boo.Lang.Compiler.Services;
 	using Boo.Lang.Compiler.Ast;
 	
-	public class InternalFieldInfo : AbstractInternalInfo, IFieldInfo
+	public class InternalField : IInternalElement, IField
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		Field _field;
 		
-		public InternalFieldInfo(TaxonomyManager bindingManager, Field field)
+		public InternalField(TagService tagManager, Field field)
 		{
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_field = field;
 		}
 		
@@ -75,27 +75,27 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Field;
+				return ElementType.Field;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
-				return _bindingService.GetBoundType(_field.Type);
+				return (IType)_tagService.GetTag(_field.Type);
 			}
 		}
 		
-		public ITypeInfo DeclaringType
+		public IType DeclaringType
 		{
 			get
 			{
-				return (ITypeInfo)TaxonomyManager.GetInfo(_field.ParentNode);
+				return (IType)TagService.GetTag(_field.ParentNode);
 			}
 		}
 		
@@ -115,7 +115,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		override public Node Node
+		public Node Node
 		{
 			get
 			{

@@ -177,9 +177,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 		
-		ITypeInfo _astAttributeInterface;
+		IType _astAttributeInterface;
 		
-		ITypeInfo _systemAttributeBaseClass;
+		IType _systemAttributeBaseClass;
 
 		public BindAndApplyAttributes()
 		{			
@@ -188,8 +188,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void Run()
 		{
-			_astAttributeInterface = TaxonomyManager.AsTypeInfo(typeof(IAstAttribute));
-			_systemAttributeBaseClass = TaxonomyManager.AsTypeInfo(typeof(System.Attribute));
+			_astAttributeInterface = TagService.AsTypeInfo(typeof(IAstAttribute));
+			_systemAttributeBaseClass = TagService.AsTypeInfo(typeof(System.Attribute));
 			
 			int step = 0;
 			while (step < Parameters.MaxAttributeSteps)
@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)TaxonomyManager.GetInfo(module));
+			PushNamespace((INamespace)TagService.GetTag(module));
 
 			// do mdulo precisamos apenas visitar os membros
 			Accept(module.Members);
@@ -223,35 +223,35 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
 		{			
-			if (TaxonomyManager.IsBound(attribute))
+			if (TagService.IsBound(attribute))
 			{
 				return;
 			}
 			
-			IInfo binding = ResolveQualifiedName(attribute, attribute.Name);
-			if (null == binding)
+			IElement tag = ResolveQualifiedName(attribute, attribute.Name);
+			if (null == tag)
 			{
-				binding = ResolveQualifiedName(attribute, BuildAttributeName(attribute.Name));
+				tag = ResolveQualifiedName(attribute, BuildAttributeName(attribute.Name));
 			}
 
-			if (null != binding)
+			if (null != tag)
 			{
-				if (InfoType.Ambiguous == binding.InfoType)
+				if (ElementType.Ambiguous == tag.ElementType)
 				{
 					Error(attribute, CompilerErrorFactory.AmbiguousReference(
 									attribute,
 									attribute.Name,
-									((Ambiguous)binding).Taxonomy));
+									((Ambiguous)tag).Taxonomy));
 				}
 				else
 				{
-					if (InfoType.TypeReference != binding.InfoType)
+					if (ElementType.TypeReference != tag.ElementType)
 					{
 						Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name));
 					}
 					else
 					{
-						ITypeInfo attributeType = ((ITypedInfo)binding).BoundType;
+						IType attributeType = ((ITypedElement)tag).BoundType;
 						if (IsAstAttribute(attributeType))
 						{
 							ExternalType externalType = attributeType as ExternalType;
@@ -276,7 +276,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								// remember the attribute's type
 								attribute.Name = attributeType.FullName;
-								TaxonomyManager.Bind(attribute, attributeType);
+								TagService.Bind(attribute, attributeType);
 							}
 						}
 					}
@@ -290,7 +290,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void Error(Boo.Lang.Compiler.Ast.Attribute attribute, CompilerError error)
 		{
-			TaxonomyManager.Error(attribute);
+			TagService.Error(attribute);
 			Errors.Add(error);
 		}
 
@@ -316,12 +316,12 @@ namespace Boo.Lang.Compiler.Steps
 			return _buffer.ToString();
 		}
 		
-		bool IsSystemAttribute(ITypeInfo type)
+		bool IsSystemAttribute(IType type)
 		{
 			return type.IsSubclassOf(_systemAttributeBaseClass);
 		}
 
-		bool IsAstAttribute(ITypeInfo type)
+		bool IsAstAttribute(IType type)
 		{
 			return _astAttributeInterface.IsAssignableFrom(type);
 		}

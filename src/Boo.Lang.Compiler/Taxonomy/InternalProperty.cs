@@ -29,27 +29,26 @@
 namespace Boo.Lang.Compiler.Taxonomy
 {
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Services;
 	
-	public class InternalProperty : AbstractInternalInfo, IPropertyInfo
+	public class InternalProperty : IInternalElement, IProperty
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		Property _property;
 		
-		ITypeInfo[] _indexParameters;
+		IParameter[] _parameters;
 		
-		public InternalProperty(TaxonomyManager bindingManager, Property property)
+		public InternalProperty(TagService tagManager, Property property)
 		{
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_property = property;
 		}
 		
-		public ITypeInfo DeclaringType
+		public IType DeclaringType
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_property.DeclaringType);
+				return _tagService.AsTypeInfo(_property.DeclaringType);
 			}
 		}
 		
@@ -85,55 +84,50 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Property;
+				return ElementType.Property;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
-				return _bindingService.GetBoundType(_property.Type);
+				return _tagService.GetType(_property.Type);
 			}
 		}
 		
-		public ITypeInfo[] GetIndexParameters()
+		public IType[] GetParameters()
 		{
-			if (null == _indexParameters)
+			if (null == _parameters)
 			{
-				ParameterDeclarationCollection parameters = _property.Parameters;
-				_indexParameters = new ITypeInfo[parameters.Count];
-				for (int i=0; i<_indexParameters.Length; ++i)
-				{
-					_indexParameters[i] = _bindingService.GetBoundType(parameters[i]);
-				}
+				_parameters = _tagService.Map(_property.Parameters);				
 			}
-			return _indexParameters;
+			return _parameters;
 		}
 
-		public IMethodInfo GetGetMethod()
+		public IMethod GetGetMethod()
 		{
 			if (null != _property.Getter)
 			{
-				return (IMethodInfo)TaxonomyManager.GetInfo(_property.Getter);
+				return (IMethod)TagService.GetTag(_property.Getter);
 			}
 			return null;
 		}
 		
-		public IMethodInfo GetSetMethod()
+		public IMethod GetSetMethod()
 		{
 			if (null != _property.Setter)
 			{
-				return (IMethodInfo)TaxonomyManager.GetInfo(_property.Setter);
+				return (IMethod)TagService.GetTag(_property.Setter);
 			}
 			return null;
 		}
 		
-		override public Node Node
+		public Node Node
 		{
 			get
 			{

@@ -31,18 +31,18 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System;
 	using Boo.Lang.Compiler.Services;
 	
-	public class ArrayTypeInfo : ITypeInfo, INamespace
+	public class ArrayType : IType, INamespace
 	{	
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
-		ITypeInfo _elementType;
+		IType _elementType;
 		
-		ITypeInfo _array;
+		IType _array;
 		
-		public ArrayTypeInfo(TaxonomyManager bindingManager, ITypeInfo elementType)
+		public ArrayType(TagService tagManager, IType elementType)
 		{
-			_bindingService = bindingManager;
-			_array = bindingManager.ArrayTypeInfo;
+			_tagService = tagManager;
+			_array = tagManager.ArrayType;
 			_elementType = elementType;
 		}
 		
@@ -50,15 +50,15 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return string.Format("({0})", _elementType.FullName);
+				return "(" + _elementType.FullName + ")";
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get			
 			{
-				return InfoType.Array;
+				return ElementType.Array;
 			}
 		}
 		
@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType BoundType
 		{
 			get
 			{
@@ -128,12 +128,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return 1;
 		}		
 		
-		public ITypeInfo GetElementType()
+		public IType GetElementType()
 		{
 			return _elementType;
 		}
 		
-		public ITypeInfo BaseType
+		public IType BaseType
 		{
 			get
 			{
@@ -141,17 +141,17 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo GetDefaultMember()
+		public IElement GetDefaultMember()
 		{
 			return null;
 		}
 		
-		public virtual bool IsSubclassOf(ITypeInfo other)
+		public virtual bool IsSubclassOf(IType other)
 		{
 			return other.IsAssignableFrom(_array);
 		}
 		
-		public virtual bool IsAssignableFrom(ITypeInfo other)
+		public virtual bool IsAssignableFrom(IType other)
 		{			
 			if (other == this)
 			{
@@ -160,7 +160,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			
 			if (other.IsArray)
 			{
-				ITypeInfo otherElementType = other.GetElementType();
+				IType otherElementType = other.GetElementType();
 				if (_elementType.IsValueType || otherElementType.IsValueType)
 				{
 					return _elementType == otherElementType;
@@ -170,17 +170,17 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return false;
 		}
 		
-		public IConstructorInfo[] GetConstructors()
+		public IConstructor[] GetConstructors()
 		{
-			return new IConstructorInfo[0];
+			return new IConstructor[0];
 		}
 		
-		public ITypeInfo[] GetInterfaces()
+		public IType[] GetInterfaces()
 		{
 			return null;
 		}
 		
-		public IInfo[] GetMembers()
+		public IElement[] GetMembers()
 		{
 			return null;
 		}
@@ -193,7 +193,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
 			return _array.Resolve(name);
 		}

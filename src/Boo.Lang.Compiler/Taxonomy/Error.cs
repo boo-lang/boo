@@ -28,14 +28,14 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public abstract class AbstractTypeInfo : ITypeInfo, INamespace
+	public abstract class AbstractType : IType, INamespace
 	{	
 		public abstract string Name
 		{
 			get;
 		}
 		
-		public abstract InfoType InfoType
+		public abstract ElementType ElementType
 		{
 			get;
 		}
@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public virtual ITypeInfo BoundType
+		public virtual IType Type
 		{
 			get
 			{
@@ -101,12 +101,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return 0;
 		}		
 		
-		public ITypeInfo GetElementType()
+		public IType GetElementType()
 		{
 			return null;
 		}
 		
-		public ITypeInfo BaseType
+		public IType BaseType
 		{
 			get
 			{
@@ -114,7 +114,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo GetDefaultMember()
+		public IElement GetDefaultMember()
 		{
 			return null;
 		}
@@ -124,29 +124,29 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return 0;
 		}
 		
-		public virtual bool IsSubclassOf(ITypeInfo other)
+		public virtual bool IsSubclassOf(IType other)
 		{
 			return false;
 		}
 		
-		public virtual bool IsAssignableFrom(ITypeInfo other)
+		public virtual bool IsAssignableFrom(IType other)
 		{
 			return false;
 		}
 		
-		public IConstructorInfo[] GetConstructors()
+		public IConstructor[] GetConstructors()
 		{
-			return new IConstructorInfo[0];
+			return new IConstructor[0];
 		}
 		
-		public ITypeInfo[] GetInterfaces()
+		public IType[] GetInterfaces()
 		{
-			return new ITypeInfo[0];
+			return new IType[0];
 		}
 		
-		public IInfo[] GetMembers()
+		public IElement[] GetMembers()
 		{
-			return new IInfo[0];
+			return new IElement[0];
 		}
 		
 		public INamespace ParentNamespace
@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
 			return null;
 		}
@@ -168,11 +168,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 	}
 	
-	public class NullInfo : AbstractTypeInfo
+	public class Null : AbstractType
 	{
-		public static NullInfo Default = new NullInfo();
+		public static Null Default = new Null();
 		
-		private NullInfo()
+		private Null()
 		{
 		}
 		
@@ -184,20 +184,20 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		override public InfoType InfoType
+		override public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Null;
+				return ElementType.Null;
 			}
 		}
 	}
 	
-	public class UnknownInfo : AbstractTypeInfo
+	public class Unknown : AbstractType
 	{
-		public static UnknownInfo Default = new UnknownInfo();
+		public static Unknown Default = new Unknown();
 		
-		private UnknownInfo()
+		private Unknown()
 		{
 		}
 		
@@ -209,20 +209,20 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		override public InfoType InfoType
+		override public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Unknown;
+				return ElementType.Unknown;
 			}
 		}
 	}
 	
-	public class ErrorInfo : AbstractTypeInfo
+	public class Error : AbstractType
 	{
-		public static ErrorInfo Default = new ErrorInfo();
+		public static Error Default = new Error();
 		
-		private ErrorInfo()
+		private Error()
 		{			
 		}	
 		
@@ -234,11 +234,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		override public InfoType InfoType
+		override public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Error;
+				return ElementType.Error;
 			}
 		}
 	}

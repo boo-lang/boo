@@ -30,25 +30,26 @@ namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 	using System.Reflection;
-	using Boo.Lang.Compiler.Services;
 	
-	public class ExternalMethod : IMethodInfo
+	public class ExternalMethod : IMethod
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		MethodBase _mi;
 		
-		internal ExternalMethod(TaxonomyManager manager, MethodBase mi)
+		IParameter[] _parameters;
+		
+		internal ExternalMethod(TagService manager, MethodBase mi)
 		{
-			_bindingService = manager;
+			_tagService = manager;
 			_mi = mi;
 		}
 		
-		public ITypeInfo DeclaringType
+		public IType DeclaringType
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_mi.DeclaringType);
+				return _tagService.Map(_mi.DeclaringType);
 			}
 		}
 		
@@ -100,15 +101,15 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public virtual InfoType InfoType
+		public virtual ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Method;
+				return ElementType.Method;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
@@ -116,27 +117,23 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public int ParameterCount
+		public IParameter[] GetParameters()
 		{
-			get
+			if (null == _parameters)
 			{
-				return _mi.GetParameters().Length;
+				_parameters = _tagService.Map(_mi.GetParameters());
 			}
+			return _parameters;
 		}
 		
-		public ITypeInfo GetParameterType(int parameterIndex)
-		{
-			return _bindingService.AsTypeInfo(_mi.GetParameters()[parameterIndex].ParameterType);
-		}
-		
-		public ITypeInfo ReturnType
+		public IType ReturnType
 		{
 			get
 			{
 				MethodInfo mi = _mi as MethodInfo;
 				if (null != mi)
 				{
-					return _bindingService.AsTypeInfo(mi.ReturnType);
+					return _tagService.Map(mi.ReturnType);
 				}
 				return null;
 			}
@@ -152,21 +149,21 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		override public string ToString()
 		{
-			return TaxonomyManager.GetSignature(this);
+			return ElementUtil.GetSignature(this);
 		}
 	}
 	
-	public class ExternalConstructorInfo : ExternalMethod, IConstructorInfo
+	public class ExternalConstructor : ExternalMethod, IConstructor
 	{
-		public ExternalConstructorInfo(TaxonomyManager manager, ConstructorInfo ci) : base(manager, ci)
+		public ExternalConstructor(TagService manager, ConstructorInfo ci) : base(manager, ci)
 		{			
 		}
 		
-		override public InfoType InfoType
+		override public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Constructor;
+				return ElementType.Constructor;
 			}
 		}
 		

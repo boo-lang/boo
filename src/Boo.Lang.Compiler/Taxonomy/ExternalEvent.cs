@@ -29,25 +29,24 @@
 namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
-	using Boo.Lang.Compiler.Services;
 	
-	public class ExternalEvent : IEventInfo
+	public class ExternalEvent : IEvent
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		System.Reflection.EventInfo _event;
 		
-		public ExternalEvent(TaxonomyManager bindingManager, System.Reflection.EventInfo event_)
+		public ExternalEvent(TagService tagManager, System.Reflection.EventInfo event_)
 		{
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_event = event_;
 		}
 		
-		public ITypeInfo DeclaringType
+		public IType DeclaringType
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_event.DeclaringType);
+				return _tagService.Map(_event.DeclaringType);
 			}
 		}
 		
@@ -83,19 +82,19 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Event;
+				return ElementType.Event;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_event.EventHandlerType);
+				return _tagService.Map(_event.EventHandlerType);
 			}
 		}
 		

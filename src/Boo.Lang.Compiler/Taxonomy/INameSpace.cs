@@ -30,9 +30,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 	using System.Collections;
-	using Boo.Lang.Compiler.Services;
 	using Boo.Lang.Compiler.Ast;
-	using BindingFlags = System.Reflection.BindingFlags;
 	
 	public interface INamespace
 	{			
@@ -40,7 +38,8 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get;
 		}
-		IInfo Resolve(string name);
+		
+		IElement Resolve(string name);
 	}
 	
 	public class NullNamespace : INamespace
@@ -59,7 +58,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
 			return null;
 		}
@@ -68,20 +67,20 @@ namespace Boo.Lang.Compiler.Taxonomy
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		DeclarationCollection _declarations;
 		
-		public DeclarationsNamespace(INamespace parent, TaxonomyManager bindingManager, DeclarationCollection declarations)
+		public DeclarationsNamespace(INamespace parent, TagService tagManager, DeclarationCollection declarations)
 		{
 			_parent = parent;
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_declarations = declarations;
 		}
 		
-		public DeclarationsNamespace(INamespace parent, TaxonomyManager bindingManager, Declaration declaration)
+		public DeclarationsNamespace(INamespace parent, TagService tagManager, Declaration declaration)
 		{
 			_parent = parent;
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_declarations = new DeclarationCollection();
 			_declarations.Add(declaration);
 		}
@@ -94,12 +93,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
 			Declaration d = _declarations[name];
 			if (null != d)
 			{
-				return TaxonomyManager.GetInfo(d);
+				return TagService.GetTag(d);
 			}
 			return null;
 		}

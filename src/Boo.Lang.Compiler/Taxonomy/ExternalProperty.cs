@@ -27,28 +27,26 @@
 #endregion
 
 namespace Boo.Lang.Compiler.Taxonomy
-{
-	using Boo.Lang.Compiler.Services;
-	
-	public class ExternalProperty : IPropertyInfo
+{	
+	public class ExternalProperty : IProperty
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		System.Reflection.PropertyInfo _property;
 		
-		ITypeInfo[] _indexParameters;
+		IParameter[] _parameters;
 		
-		public ExternalProperty(TaxonomyManager bindingManager, System.Reflection.PropertyInfo property)
+		public ExternalProperty(TagService tagManager, System.Reflection.PropertyInfo property)
 		{
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_property = property;
 		}
 		
-		public ITypeInfo DeclaringType
+		public IType DeclaringType
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_property.DeclaringType);
+				return _tagService.Map(_property.DeclaringType);
 			}
 		}
 		
@@ -84,27 +82,19 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Property;
+				return ElementType.Property;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_property.PropertyType);
-			}
-		}
-		
-		public System.Type Type
-		{
-			get
-			{
-				return _property.PropertyType;
+				return _tagService.Map(_property.PropertyType);
 			}
 		}
 		
@@ -116,36 +106,31 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public ITypeInfo[] GetIndexParameters()
+		public IParameter[] GetParameters()
 		{
-			if (null == _indexParameters)
+			if (null == _parameters)
 			{
-				System.Reflection.ParameterInfo[] parameters = _property.GetIndexParameters();
-				_indexParameters = new ITypeInfo[parameters.Length];
-				for (int i=0; i<_indexParameters.Length; ++i)
-				{
-					_indexParameters[i] = _bindingService.AsTypeInfo(parameters[i].ParameterType);
-				}
+				_parameters = _tagServices.Map(_property.GetIndexParameters());
 			}
-			return _indexParameters;
+			return _parameters;
 		}
 		
-		public IMethodInfo GetGetMethod()
+		public IMethod GetGetMethod()
 		{
 			System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
 			if (null != getter)
 			{
-				return (IMethodInfo)_bindingService.AsInfo(getter);
+				return (IMethod)_tagService.Map(getter);
 			}
 			return null;
 		}
 		
-		public IMethodInfo GetSetMethod()
+		public IMethod GetSetMethod()
 		{
 			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
 			if (null != setter)
 			{
-				return (IMethodInfo)_bindingService.AsInfo(setter);
+				return (IMethod)_tagService.Map(setter);
 			}
 			return null;
 		}

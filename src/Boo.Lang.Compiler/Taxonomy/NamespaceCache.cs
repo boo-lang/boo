@@ -31,28 +31,28 @@ using System.Collections;
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class NamespaceInfoCache
+	public class NamespaceCache
 	{
-		protected Hashtable _bindingCache = new Hashtable();
+		protected Hashtable _tagCache = new Hashtable();
 		
-		public IInfo ResolveFromCache(string name, out bool found)
+		public IElement ResolveFromCache(string name, out bool found)
 		{
-			IInfo binding = (IInfo)_bindingCache[name];
-			if (null == binding)
+			IElement tag = (IElement)_tagCache[name];
+			if (null == tag)
 			{
-				found = _bindingCache.ContainsKey(name);
+				found = _tagCache.ContainsKey(name);
 			}
 			else
 			{
 				found = true;
 			}
-			return binding;
+			return tag;
 		}
 		
-		public IInfo Cache(string name, IInfo binding)
+		public IElement Cache(string name, IElement tag)
 		{
-			_bindingCache[name] = binding;
-			return binding;
+			_tagCache[name] = tag;
+			return tag;
 		}
 	}
 }

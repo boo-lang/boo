@@ -30,61 +30,27 @@ namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 	using System.Collections;
-	using Boo.Lang.Compiler.Services;
 	using Boo.Lang.Compiler.Ast;
 	
-	public abstract class AbstractInternalInfo : IInternalInfo
-	{
-		protected bool _visited;
-		
-		public AbstractInternalInfo()
-		{
-			_visited = false;
-		}
-		
-		public AbstractInternalInfo(bool visited)
-		{
-			_visited = visited;
-		}
-		
-		public abstract Node Node
-		{
-			get;
-		}
-		
-		public bool Visited
-		{
-			get
-			{
-				return _visited;
-			}
-			
-			set
-			{
-				_visited = value;
-			}
-		}		
-	}
-	
-	public abstract class AbstractInternalType : AbstractInternalInfo, ITypeInfo, INamespace
+	public abstract class AbstractInternalType : IInternalElement, IType, INamespace
 	{		
-		protected TaxonomyManager _bindingService;
+		protected TagService _tagService;
 		
 		protected TypeDefinition _typeDefinition;
 		
-		protected IInfo[] _members;
+		protected IElement[] _members;
 		
-		protected ITypeInfo[] _interfaces;
+		protected IType[] _interfaces;
 		
 		protected INamespace _parentNamespace;
 		
 		protected List _buffer = new List();
 		
-		protected AbstractInternalType(TaxonomyManager bindingManager, TypeDefinition typeDefinition)
+		protected AbstractInternalType(TagService tagManager, TypeDefinition typeDefinition)
 		{
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_typeDefinition = typeDefinition;
-			_parentNamespace = (INamespace)TaxonomyManager.GetInfo(_typeDefinition.ParentNode);
+			_parentNamespace = (INamespace)TagService.GetTag(_typeDefinition.ParentNode);
 		}
 		
 		public string FullName
@@ -103,7 +69,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}	
 		
-		override public Node Node
+		public Node Node
 		{
 			get
 			{
@@ -119,37 +85,34 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public virtual IInfo Resolve(string name)
+		public virtual IElement Resolve(string name)
 		{			
 			_buffer.Clear();			
 			
-			foreach (IInfo binding in GetMembers())
+			foreach (IElement tag in GetMembers())
 			{
-				if (binding.Name == name)
+				if (tag.Name == name)
 				{
-					_buffer.Add(binding);
+					_buffer.Add(tag);
 				}
 			}
 			
-			if (0 == _buffer.Count)
+			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+				IElement tag = _tagService.GetBoundType(baseType).Resolve(name);
+				if (null != tag)
 				{
-					IInfo binding = _bindingService.GetBoundType(baseType).Resolve(name);
-					if (null != binding)
-					{
-						_buffer.AddUnique(binding);
-					}
+					_buffer.AddUnique(tag);
 				}
+			}
 				
-				if (IsInterface)
+			if (IsInterface)
+			{
+				// also look in System.Object
+				IElement tag = _tagService.ObjectType.Resolve(name);
+				if (null != tag)
 				{
-					// also look in System.Object
-					IInfo binding = _bindingService.ObjectTypeInfo.Resolve(name);
-					if (null != binding)
-					{
-						_buffer.AddUnique(binding);						
-					}
+					_buffer.AddUnique(tag);						
 				}
 			}
 			
@@ -157,54 +120,54 @@ namespace Boo.Lang.Compiler.Taxonomy
 			{
 				if (_buffer.Count > 1)
 				{
-					return new Ambiguous((IInfo[])_buffer.ToArray(typeof(IInfo)));
+					return new Ambiguous((IElement[])_buffer.ToArray(typeof(IElement)));
 				}
 				else
 				{
-					return (IInfo)_buffer[0];
+					return (IElement)_buffer[0];
 				}
 			}
 			return null;
 		}
 		
-		IInfo CreateCorrectInfo(TypeMember member)
+		IElement CreateCorrectElement(TypeMember member)
 		{
 			switch (member.NodeType)
 			{
 				case NodeType.Method:
 				{
-					return new InternalMethod(_bindingService, (Method)member);
+					return new InternalMethod(_tagService, (Method)member);
 				}
 				
 				case NodeType.Constructor:
 				{
-					return new InternalConstructorInfo(_bindingService, (Constructor)member);
+					return new InternalConstructor(_tagService, (Constructor)member);
 				}
 				
 				case NodeType.Field:
 				{
-					return new InternalFieldInfo(_bindingService, (Field)member);
+					return new InternalField(_tagService, (Field)member);
 				}
 				
 				case NodeType.EnumDefinition:
 				{
-					return new EnumTypeInfo(_bindingService, (EnumDefinition)member);
+					return new EnumType(_tagService, (EnumDefinition)member);
 				}
 				
 				case NodeType.EnumMember:
 				{
-					return new InternalEnumMember(_bindingService, (EnumMember)member);
+					return new InternalEnumMember(_tagService, (EnumMember)member);
 				}
 				
 				case NodeType.Property:
 				{
-					return new InternalProperty(_bindingService, (Property)member);
+					return new InternalProperty(_tagService, (Property)member);
 				}
 			}
 			throw new NotImplementedException(member.GetType().ToString());
 		}
 		
-		public virtual ITypeInfo BaseType
+		public virtual IType BaseType
 		{
 			get
 			{
@@ -220,7 +183,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
@@ -278,20 +241,20 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return 0;
 		}
 		
-		public ITypeInfo GetElementType()
+		public IType GetElementType()
 		{
 			return null;
 		}
 		
-		public IInfo GetDefaultMember()
+		public IElement GetDefaultMember()
 		{
-			ITypeInfo defaultMemberAttribute = _bindingService.AsTypeInfo(typeof(System.Reflection.DefaultMemberAttribute));
+			IType defaultMemberAttribute = _tagService.Map(typeof(System.Reflection.DefaultMemberAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
 			{
-				IConstructorInfo binding = TaxonomyManager.GetInfo(attribute) as IConstructorInfo;
-				if (null != binding)
+				IConstructor tag = TagService.GetTag(attribute) as IConstructor;
+				if (null != tag)
 				{
-					if (defaultMemberAttribute == binding.DeclaringType)
+					if (defaultMemberAttribute == tag.DeclaringType)
 					{
 						StringLiteralExpression memberName = attribute.Arguments[0] as StringLiteralExpression;
 						if (null != memberName)
@@ -304,32 +267,32 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return null;
 		}
 		
-		public virtual InfoType InfoType
+		public virtual ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Type;
+				return ElementType.Type;
 			}
 		}
 		
-		public virtual bool IsSubclassOf(ITypeInfo other)
+		public virtual bool IsSubclassOf(IType other)
 		{
 			return false;
 		}
 		
-		public virtual bool IsAssignableFrom(ITypeInfo other)
+		public virtual bool IsAssignableFrom(IType other)
 		{
 			return this == other ||
 					(!this.IsValueType && NullInfo.Default == other) ||
 					other.IsSubclassOf(this);
 		}
 		
-		public virtual IConstructorInfo[] GetConstructors()
+		public virtual IConstructor[] GetConstructors()
 		{
-			return new IConstructorInfo[0];
+			return new IConstructor[0];
 		}
 		
-		public ITypeInfo[] GetInterfaces()
+		public IType[] GetInterfaces()
 		{
 			if (null == _interfaces)
 			{
@@ -337,40 +300,40 @@ namespace Boo.Lang.Compiler.Taxonomy
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					ITypeInfo binding = (ITypeInfo)_bindingService.GetBoundType(baseType);
-					if (binding.IsInterface)
+					IType tag = (IType)_tagService.GetBoundType(baseType);
+					if (tag.IsInterface)
 					{
-						_buffer.AddUnique(binding);
+						_buffer.AddUnique(tag);
 					}
 				}
 				
-				_interfaces = (ITypeInfo[])_buffer.ToArray(typeof(ITypeInfo));
+				_interfaces = (IType[])_buffer.ToArray(typeof(IType));
 			}
 			return _interfaces;
 		}
 		
-		public virtual IInfo[] GetMembers()
+		public virtual IElement[] GetMembers()
 		{
 			if (null == _members)
 			{
 				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
-					IInfo binding = member.Info;
-					if (null == binding)
+					IElement tag = member.Info;
+					if (null == tag)
 					{						
-						binding = CreateCorrectInfo(member);
-						TaxonomyManager.Bind(member, binding);
+						tag = CreateCorrectElement(member);
+						member.Tag = tag;
 					}	
 					
-					if (InfoType.Type == binding.InfoType)
+					if (ElementType.Type == tag.ElementType)
 					{
-						binding = _bindingService.AsTypeReference((ITypeInfo)binding);
+						tag = _tagService.GetTypeReference((IType)tag);
 					}
-					_buffer.Add(binding);
+					_buffer.Add(tag);
 				}
 
-				_members = (IInfo[])_buffer.ToArray(typeof(IInfo));
+				_members = (IElement[])_buffer.ToArray(typeof(IElement));
 				_buffer.Clear();				
 			}
 			return _members;

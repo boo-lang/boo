@@ -28,14 +28,14 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public enum SpecialFunction
+	public enum BuiltinFunctionType
 	{
 		Len
 	}
 	
-	public class BuiltinFunction : IInfo
+	public class BuiltinFunction : IElement
 	{
-		SpecialFunction _function;
+		BuiltinFunctionType _function;
 		
 		public BuiltinFunction(SpecialFunction f)
 		{
@@ -58,15 +58,15 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.SpecialFunction;
+				return ElementType.BuiltinFunction;
 			}
 		}
 		
-		public SpecialFunction Function
+		public BuiltinFunctionType FunctionType
 		{
 			get
 			{

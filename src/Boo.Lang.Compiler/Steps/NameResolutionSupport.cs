@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context = context;
 			
-			PushNamespace((INamespace)TaxonomyManager.GetInfo(context.CompileUnit));
+			PushNamespace((INamespace)TagService.GetTag(context.CompileUnit));
 		}
 		
 		public INamespace CurrentNamespace
@@ -62,29 +62,29 @@ namespace Boo.Lang.Compiler.Steps
 			_current = null;
 		}
 		
-		public IInfo Resolve(Node sourceNode, string name)
+		public IElement Resolve(Node sourceNode, string name)
 		{
-			return Resolve(sourceNode, name, InfoType.Any);
+			return Resolve(sourceNode, name, ElementType.Any);
 		}
 		
-		public IInfo Resolve(Node sourceNode, string name, InfoType bindings)
+		public IElement Resolve(Node sourceNode, string name, ElementType tags)
 		{
 			if (null == sourceNode)
 			{
 				throw new ArgumentNullException("sourceNode");
 			}
 			
-			IInfo binding = _context.TaxonomyManager.ResolvePrimitive(name);
-			if (null == binding)
+			IElement tag = _context.TagService.ResolvePrimitive(name);
+			if (null == tag)
 			{
 				INamespace ns = _current;
 				while (null != ns)
 				{
 					_context.TraceVerbose("Trying to resolve {0} against {1}...", name, ns);
-					binding = ns.Resolve(name);
-					if (null != binding)
+					tag = ns.Resolve(name);
+					if (null != tag)
 					{
-						if (IsFlagSet(bindings, binding.InfoType))
+						if (IsFlagSet(tags, tag.ElementType))
 						{
 							break;
 						}
@@ -93,34 +93,34 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			if (null != binding)
+			if (null != tag)
 			{
-				_context.TraceInfo("{0}: {1} bound to {2}.", sourceNode.LexicalInfo, name, binding);
+				_context.TraceInfo("{0}: {1} bound to {2}.", sourceNode.LexicalInfo, name, tag);
 			}
-			return binding;
+			return tag;
 		}
 		
-		public IInfo ResolveQualifiedName(Node sourceNode, string name)
+		public IElement ResolveQualifiedName(Node sourceNode, string name)
 		{			
 			string[] parts = name.Split(DotArray);
 			string topLevel = parts[0];
-			IInfo binding = Resolve(sourceNode, topLevel);
+			IElement tag = Resolve(sourceNode, topLevel);
 			for (int i=1; i<parts.Length; ++i)				
 			{				
-				INamespace ns = binding as INamespace;
+				INamespace ns = tag as INamespace;
 				if (null == ns)
 				{
-					binding = null;
+					tag = null;
 					break;
 				}
-				binding = ns.Resolve(parts[i]);
+				tag = ns.Resolve(parts[i]);
 			}
-			return binding;
+			return tag;
 		}
 		
-		static bool IsFlagSet(InfoType bindings, InfoType binding)
+		static bool IsFlagSet(ElementType tags, ElementType tag)
 		{
-			return binding == (bindings & binding);
+			return tag == (tags & tag);
 		}
 		
 		public void Restore(INamespace saved)

@@ -31,30 +31,30 @@ using System.Collections;
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public delegate bool InfoFilter(IInfo binding);
+	public delegate bool InfoFilter(IElement tag);
 	
-	public class Ambiguous : IInfo
+	public class Ambiguous : IElement
 	{
-		IInfo[] _bindings;
+		IElement[] _tags;
 		
-		public Ambiguous(IInfo[] bindings)
+		public Ambiguous(IElement[] tags)
 		{
-			if (null == bindings)
+			if (null == tags)
 			{
-				throw new ArgumentNullException("bindings");
+				throw new ArgumentNullException("tags");
 			}
-			if (0 == bindings.Length)
+			if (0 == tags.Length)
 			{
-				throw new ArgumentException("bindings");
+				throw new ArgumentException("tags");
 			}
-			_bindings = bindings;
+			_tags = tags;
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _bindings[0].Name;
+				return _tags[0].Name;
 			}
 		}
 		
@@ -62,34 +62,34 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return _bindings[0].FullName;
+				return _tags[0].FullName;
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Ambiguous;
+				return ElementType.Ambiguous;
 			}
 		}
 		
-		public IInfo[] Taxonomy
+		public IElement[] Elements
 		{
 			get
 			{
-				return _bindings;
+				return _tags;
 			}
 		}
 		
 		public Boo.Lang.List Filter(InfoFilter condition)
 		{
 			Boo.Lang.List found = new Boo.Lang.List();
-			foreach (IInfo binding in _bindings)
+			foreach (IElement tag in _tags)
 			{
-				if (condition(binding))
+				if (condition(tag))
 				{
-					found.Add(binding);
+					found.Add(tag);
 				}
 			}
 			return found;

@@ -31,29 +31,28 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System;
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Services;
 
-	public class InternalMethod : AbstractInternalInfo, IMethodInfo, INamespace
+	public class InternalMethod : IInternalElement, IMethod, INamespace
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		Boo.Lang.Compiler.Ast.Method _method;
 		
-		IMethodInfo _override;
+		IMethod _override;
 		
-		ITypeInfo _declaringType;
+		IType _declaringType;
 		
 		public ExpressionCollection ReturnExpressions;
 		
 		public ExpressionCollection SuperExpressions;
 		
-		internal InternalMethod(TaxonomyManager manager, Method method) : this(manager, method, false)
+		internal InternalMethod(TagService manager, Method method) : this(manager, method, false)
 		{
 		}
 		
-		internal InternalMethod(TaxonomyManager manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
+		internal InternalMethod(TagService manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
 		{			
-			_bindingService = manager;
+			_tagService = manager;
 			_method = method;
 			if (method.NodeType != NodeType.Constructor)
 			{
@@ -63,25 +62,23 @@ namespace Boo.Lang.Compiler.Taxonomy
 				{
 					if (_method.DeclaringType.NodeType == NodeType.ClassDefinition)
 					{
-						_method.ReturnType = new SimpleTypeReference("unknown");
-						TaxonomyManager.Bind(_method.ReturnType, UnknownInfo.Default);
+						_method.ReturnType = _tagService.CreateTypeReference(Unknown.Default);
 					}
 					else
 					{
-						_method.ReturnType = new SimpleTypeReference("System.Void");
-						TaxonomyManager.Bind(_method.ReturnType, _bindingService.VoidTypeInfo);
+						_method.ReturnType = _tagService.CreateTypeReference(_tagService.VoidType);
 					}
 				}
 			}
 		}
 		
-		public ITypeInfo DeclaringType
+		public IType DeclaringType
 		{
 			get
 			{
 				if (null == _declaringType)
 				{
-					_declaringType = (ITypeInfo)TaxonomyManager.GetInfo(_method.DeclaringType);
+					_declaringType = (IType)TagService.GetTag(_method.DeclaringType);
 				}
 				return _declaringType;
 			}
@@ -135,27 +132,19 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public virtual InfoType InfoType
+		public virtual ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Method;
+				return ElementType.Method;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType BoundType
 		{
 			get
 			{
 				return ReturnType;
-			}
-		}
-		
-		public int ParameterCount
-		{
-			get
-			{
-				return _method.Parameters.Count;
 			}
 		}
 		
@@ -175,7 +164,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IMethodInfo Override
+		public IMethod Override
 		{
 			get
 			{
@@ -188,16 +177,20 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public ITypeInfo GetParameterType(int parameterIndex)
+		public IParameter[] GetParameters()
 		{
-			return _bindingService.GetBoundType(_method.Parameters[parameterIndex].Type);
+			if (null == _parameters)
+			{
+				_parameters = _tagService.Map(_method.Parameters);				
+			}
+			return _parameters;
 		}
 		
-		public ITypeInfo ReturnType
+		public IType ReturnType
 		{
 			get
 			{					
-				return _bindingService.GetBoundType(_method.ReturnType);
+				return _tagService.GetType(_method.ReturnType);
 			}
 		}
 		
@@ -209,9 +202,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
-			foreach (Local local in _method.Locals)
+			foreach (Boo.Lang.Ast.Local local in _method.Locals)
 			{
 				if (local.PrivateScope)
 				{
@@ -220,7 +213,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				
 				if (name == local.Name)
 				{
-					return TaxonomyManager.GetInfo(local);
+					return TagService.GetTag(local);
 				}
 			}
 			
@@ -228,7 +221,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			{
 				if (name == parameter.Name)
 				{
-					return TaxonomyManager.GetInfo(parameter);
+					return TagService.GetTag(parameter);
 				}
 			}
 			return null;
@@ -266,18 +259,18 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 	}
 	
-	public class InternalConstructorInfo : InternalMethod, IConstructorInfo
+	public class InternalConstructor : InternalMethod, IConstructor
 	{
 		bool _hasSuperCall = false;
 		
-		public InternalConstructorInfo(TaxonomyManager bindingManager,
-		                                  Constructor constructor) : base(bindingManager, constructor)
+		public InternalConstructor(TagService tagManager,
+		                                  Constructor constructor) : base(tagManager, constructor)
 		  {
 		  }
 		  
-		public InternalConstructorInfo(TaxonomyManager bindingManager,
+		public InternalConstructor(TagService tagManager,
 		                                  Constructor constructor,
-										  bool visited) : base(bindingManager, constructor, visited)
+										  bool visited) : base(tagManager, constructor, visited)
 		  {
 		  }
 		  
@@ -294,11 +287,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 	      
-	    override public InfoType InfoType
+	    override public ElementType ElementType
 	    {
 	    	get
 	    	{
-	    		return InfoType.Constructor;
+	    		return ElementType.Constructor;
 	    	}
 	    }
 	}

@@ -28,18 +28,17 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
+	using System;	
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class CompileUnitInfo : IInfo, INamespace
+	public class CompileUnit : IElement, INamespace
 	{
 		INamespace _parent;
 		
 		INamespace[] _namespaces;
 		
-		public CompileUnitInfo(INamespace parent)
+		public CompileUnit(INamespace parent)
 		{
 			// Global names at the highest level
 			_parent = parent;
@@ -54,11 +53,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			_namespaces[1] = boolang;
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.CompileUnit;
+				return ElementType.CompileUnit;
 			}
 		}
 		
@@ -86,14 +85,14 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public IElement Resolve(string name)
 		{
 			foreach (INamespace ns in _namespaces)
 			{
-				IInfo binding = ns.Resolve(name);
-				if (null != binding)
+				IElement tag = ns.Resolve(name);
+				if (null != tag)
 				{
-					return binding;
+					return tag;
 				}
 			}
 			return null;

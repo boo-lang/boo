@@ -34,13 +34,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class InternalEnumMember : AbstractInternalInfo, IFieldInfo
 	{
-		TaxonomyManager _bindingService;
+		TagService _tagService;
 		
 		EnumMember _member;
 		
-		public InternalEnumMember(TaxonomyManager bindingManager, EnumMember member)
+		public InternalEnumMember(TagService tagManager, EnumMember member)
 		{
-			_bindingService = bindingManager;
+			_tagService = tagManager;
 			_member = member;
 		}
 		
@@ -84,15 +84,15 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public InfoType InfoType
+		public ElementType ElementType
 		{
 			get
 			{
-				return InfoType.Field;
+				return ElementType.Field;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public IType Type
 		{
 			get
 			{
@@ -100,11 +100,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public ITypeInfo DeclaringType
+		public IType DeclaringType
 		{
 			get
 			{
-				return (ITypeInfo)TaxonomyManager.GetInfo(_member.ParentNode);
+				return (IType)TagService.GetTag(_member.ParentNode);
 			}
 		}
 		

@@ -50,12 +50,12 @@ namespace Boo.Lang.Compiler.Steps
 			_nameResolution.Dispose();
 		}
 		
-		protected IInfo Resolve(Node sourceNode, string name)
+		protected IElement Resolve(Node sourceNode, string name)
 		{
 			return _nameResolution.Resolve(sourceNode, name);
 		}
 		
-		protected IInfo ResolveQualifiedName(Node sourceNode, string name)
+		protected IElement ResolveQualifiedName(Node sourceNode, string name)
 		{			
 			return _nameResolution.Resolve(sourceNode, name);
 		}
