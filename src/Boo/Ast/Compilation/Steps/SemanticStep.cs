@@ -387,7 +387,7 @@ namespace Boo.Ast.Compilation.Steps
 				Type expressionType = BindingManager.GetBoundType(args[i]);
 				Type parameterType = method.GetParameterType(i);
 				if (!IsAssignableFrom(parameterType, expressionType) &&
-				    !CanBeReachedByDownCast(parameterType, expressionType))
+				    !CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
 				{
 					Errors.MethodSignature(sourceNode, GetSignature(args), GetSignature(method));
 					return false;
@@ -431,10 +431,21 @@ namespace Boo.Ast.Compilation.Steps
 			return expectedType.IsAssignableFrom(actualType);
 		}
 		
-		static bool CanBeReachedByDownCast(Type expectedType, Type actualType)
+		static bool CanBeReachedByDownCastOrPromotion(Type expectedType, Type actualType)
 		{
+			if (expectedType.IsValueType)
+			{
+				return IsNumber(expectedType) && IsNumber(actualType);
+			}
 			return actualType.IsAssignableFrom(expectedType);
 		}		
+		
+		static bool IsNumber(Type type)
+		{
+			return
+				type == BindingManager.IntType ||
+				type == BindingManager.SingleType;
+		}
 		
 		IConstructorBinding FindCorrectConstructor(ITypeBinding typeBinding, MethodInvocationExpression mie)
 		{
@@ -490,7 +501,7 @@ namespace Boo.Ast.Compilation.Steps
 								// upcast scores 2
 								score += 2;
 							}
-							else if (CanBeReachedByDownCast(parameterType, expressionType))
+							else if (CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
 							{
 								// downcast scores 1
 								score += 1;

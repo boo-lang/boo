@@ -1,3 +1,4 @@
+using System
 using System.Drawing from System.Drawing
 using System.Windows.Forms from System.Windows.Forms
 
@@ -14,11 +15,11 @@ splitter = Splitter(Dock: DockStyle.Bottom, TabIndex: 1, TabStop: false)
 
 fileTab = TabControl(Dock: DockStyle.Fill)
 textTab = TabPage(TabIndex: 0, Text: "FileName goes here")
-richText = RichTextBox(Dock: DockStyle.Fill)
+richText = RichTextBox(Dock: DockStyle.Fill, AcceptsTab: true, Font: Font("Lucida Console", 12))
 textTab.Controls.Add(richText)
 fileTab.Controls.Add(textTab)
 
-f = Form(Text: "Visual Grep Utility")
+f = Form(Text: "Visual Grep Utility", Font: Font("Tahoma", 8))
 
 f.Controls.Add(fileTab)
 f.Controls.Add(splitter)

@@ -23,6 +23,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public static readonly Type IntType = typeof(int);
 		
+		public static readonly Type SingleType = typeof(float);
+		
 		public static readonly Type DateType = typeof(System.DateTime);
 		
 		public static readonly Type BoolType = typeof(bool);

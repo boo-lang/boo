@@ -573,8 +573,16 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				if (expectedType.IsValueType)
 				{
-					_il.Emit(OpCodes.Unbox, expectedType);
-					_il.Emit(OpCodes.Ldobj, expectedType);
+					if (actualType.IsValueType)
+					{
+						// numeric promotion
+						_il.Emit(GetNumericPromotionOpCode(expectedType));
+					}
+					else
+					{
+						_il.Emit(OpCodes.Unbox, expectedType);
+						_il.Emit(OpCodes.Ldobj, expectedType);
+					}
 				}
 				else
 				{
@@ -590,6 +598,22 @@ namespace Boo.Ast.Compilation.Steps
 						_il.Emit(OpCodes.Box, actualType);
 					}
 				}
+			}
+		}
+		
+		OpCode GetNumericPromotionOpCode(Type type)
+		{
+			if (type == BindingManager.IntType)
+			{
+				return OpCodes.Conv_I4;
+			}
+			else if (type == BindingManager.SingleType)
+			{
+				return OpCodes.Conv_R4;
+			}
+			else
+			{
+				throw new NotImplementedException(string.Format("Numeric promotion for {0} not implemented!", type));
 			}
 		}
 		
