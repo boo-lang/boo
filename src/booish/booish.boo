@@ -29,13 +29,15 @@
 namespace booish
 
 import System
+import System.Collections
+import System.IO
 import Boo.Lang
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Compiler.IO
 
-class InteractiveInterpreter:	
+class InteractiveInterpreter:
 
 	_compiler = BooCompiler()
 	
@@ -48,6 +50,8 @@ class InteractiveInterpreter:
 	_imports = ImportCollection()
 	
 	_referenceProcessor = ProcessInterpreterReferences(self)
+	
+	_representers = []
 	
 	[property(Print, value is not null)]
 	_print as callable(object) = print
@@ -184,8 +188,11 @@ class InteractiveInterpreter:
 				and method.IsSpecialName)
 		
 	def help(obj):
+		type = (obj as Type) or obj.GetType()
+		baseTypes = [type.BaseType].Extend(type.GetInterfaces())
+		_print("class ${type.Name}(${join(baseTypes, ', ')}):")		
 		for member in dir(obj):
-			_print(member)
+			_print("    ${member}")
 
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
 										module as Module):
@@ -199,6 +206,70 @@ class InteractiveInterpreter:
 			
 	private def IsSimpleReference(s as string):
 		return /^\s*[_a-zA-Z][_a-zA-Z\d]*\s*$/.IsMatch(s)
+		
+	def repr(value):
+		writer = System.IO.StringWriter()
+		repr(value, writer)
+		return writer.ToString()
+	
+	def repr(value, writer as System.IO.TextWriter):
+		return unless value is not null
+		InitializeRepresenters() if 0 == len(_representers)
+		GetBestRepresenter(value.GetType())(value, writer)
+
+	private def InitializeRepresenters():
+		AddRepresenter(string) do (value as string, writer as TextWriter):
+			Visitors.BooPrinterVisitor.WriteStringLiteral(value, writer)
+			
+		AddRepresenter(bool) do (value as bool, writer as TextWriter):
+			writer.Write(("false", "true")[value])
+			
+		AddRepresenter(Array) do (a as Array, writer as TextWriter):
+			writer.Write("(")
+			RepresentItems(a, writer)
+			writer.Write(")")
+				
+		AddRepresenter(Delegate) do (d as Delegate, writer as TextWriter):
+			method = d.Method
+			writer.Write(method.DeclaringType.FullName)
+			writer.Write(".")
+			writer.Write(method.Name)
+		
+		AddRepresenter(IDictionary) do (value as IDictionary, writer as TextWriter):
+			writer.Write("{")
+			i = 0
+			for item as DictionaryEntry in value:
+				writer.Write(", ") if i
+				repr(item.Key, writer)
+				writer.Write(": ")
+				repr(item.Value, writer)
+				++i
+			writer.Write("}")
+			
+		AddRepresenter(IList) do (value as IList, writer as TextWriter):
+			writer.Write("[")
+			RepresentItems(value, writer)
+			writer.Write("]")
+				
+		AddRepresenter(object) do (value, writer as TextWriter):
+			writer.Write(value)
+			
+	private def RepresentItems(items, writer as TextWriter):
+		i = 0
+		for item in items:
+			writer.Write(", ") if i > 0				
+			repr(item, writer)
+			++i
+			
+	callable Representer(value, writer as TextWriter)
+	
+	private def AddRepresenter(type as Type, value as Representer):
+		_representers.Add((type, value))
+		
+	def GetBestRepresenter(type as Type) as Representer:
+		for key as Type, value in _representers:
+			return value if key.IsAssignableFrom(type)
+		assert false, "An appropriate representer could not be found!"
 		
 	class InterpreterEntity(ITypedEntity):
 
@@ -412,37 +483,7 @@ class InteractiveInterpreter:
 			if NodeType.ExpressionStatement == srcNode.ParentNode.NodeType:
 				return expression
 				
-			return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)
-			
-def repr(value):
-	writer = System.IO.StringWriter()
-	WriteRepr(writer, value)
-	return writer.ToString()
-
-def WriteRepr(writer as System.IO.TextWriter, value):
-	code = Type.GetTypeCode(value.GetType())
-	if TypeCode.String == code:
-		Visitors.BooPrinterVisitor.WriteStringLiteral(value, writer)
-	elif TypeCode.Object == code:
-		a = value as Array
-		if a is not null:
-			writer.Write("(")
-			for i in range(len(a)):
-				writer.Write(", ") if i > 0				
-				WriteRepr(writer, a.GetValue(i))
-			writer.Write(", ") if 1 == len(a)
-			writer.Write(")")
-		else:
-			c = value as Delegate
-			if c is not null:
-				method = c.Method
-				writer.Write(method.DeclaringType.FullName)
-				writer.Write(".")
-				writer.Write(method.Name)
-			else:
-				writer.Write(value)
-	else:		
-		writer.Write(value)
+			return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)			
 			
 def ReadBlock(line as string):
 	newLine = System.Environment.NewLine
