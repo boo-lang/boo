@@ -204,6 +204,12 @@ namespace Boo.Lang.Compiler.Tests
 			RunCompilerTestCase("abstract0.boo");
 		}
 		
+		[Test]
+		public void EventParameterListCompatibility()
+		{
+			RunCompilerTestCase("event0.boo");
+		}
+		
 		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
 			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Compile();

@@ -1970,7 +1970,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			IEvent eventInfo = (IEvent)tag;
 			ITypedElement expressionInfo = (ITypedElement)GetTag(node.Right);
-			CheckDelegateArgument(node.Left, eventInfo, expressionInfo);
+			CheckDelegateArgument(node, eventInfo, expressionInfo);
 			
 			Bind(node, TypeSystemServices.VoidType);
 		}
@@ -2639,9 +2639,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType delegateType = delegateMember.Type;
 			if (argumentInfo.ElementType != ElementType.Method ||
-					    !CheckDelegateParameterList(delegateType, (IMethod)argumentInfo))
+					    !CheckDelegateSignature(delegateType, (IMethod)argumentInfo))
 			{
-				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.Name, delegateType.FullName));
+				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.FullName, delegateType.FullName));
 				return false;
 			}
 			return true;
@@ -2696,13 +2696,18 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		
-		bool CheckDelegateParameterList(IType delegateType, IMethod target)
+		bool CheckDelegateSignature(IType delegateType, IMethod target)
 		{
 			IMethod invoke = ResolveMethod(delegateType, "Invoke");
 			if (null == invoke)
 			{
 				throw new ArgumentException(string.Format("{0} is not a valid delegate type!", delegateType), "delegateType");
 			}			
+			
+			if (invoke.ReturnType != target.ReturnType)
+			{
+				return false;
+			}
 			
 			IParameter[] delegateParameters = invoke.GetParameters();
 			IParameter[] targetParameters = target.GetParameters();
