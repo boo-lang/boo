@@ -44,8 +44,11 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 		_returnClass = null
 		_returnType = r
 	
-	private def Debug(node as Node):
-		print "${node.ToString()} - ${node.GetType().FullName}"
+	private def Debug(node):
+		if node == null:
+			print "-- null --"
+		else:
+			print "${node.ToString()} - ${node.GetType().FullName}"
 	
 	override def OnSimpleTypeReference(node as SimpleTypeReference):
 		Debug(node)
@@ -135,7 +138,11 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	
 	override def OnReferenceExpression(node as ReferenceExpression):
 		// Resolve reference (to a variable, field, parameter or type)
-		// currently only references to types or fields are supported
+		rt = _resolver.GetTypeFromLocal(node.Name)
+		Debug(rt)
+		if rt != null:
+			SetReturnType(rt)
+			return
 		return if ProcessMember(node.Name, _resolver.CallingClass)
 		CreateReturnType(_resolver.SearchType(node.Name))
 	
