@@ -112,7 +112,9 @@
 			<formatter type="Plain" />
 			<test>
 				<assemblies basedir="build">
-					<includes name="*.Tests.dll" />
+					<includes name="Boo.Lang.Compiler.Tests.dll" />
+					<includes name="Boo.Tests.dll" />
+					<includes name="Boo.AntlrParser.Tests.dll" />
 				</assemblies>
 			</test>
 		</nunit2>
@@ -147,6 +149,23 @@
 				<includes name="Boo.dll" />
 				<includes name="Boo.Lang.Compiler.dll" />
 			</references>
+		</csc>
+		
+		<csc
+			target="library"
+			output="build/Boo.AntlrParser.Tests.dll">
+			
+			<sources basedir="src/Boo.AntlrParser.Tests">
+				<includes name="**/*.cs" />
+			</sources>
+			
+			<references basedir="build">
+				<includes name="${nunit.framework.dll}" />
+				<includes name="Boo.Lang.Compiler.dll" />
+				<includes name="Boo.Lang.Compiler.Tests.dll" />
+				<includes name="Boo.AntlrParser.dll" />
+				<includes name="antlr.runtime.dll" />
+			</references>			
 		</csc>
 	</target>
 	

@@ -35,7 +35,6 @@ using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipeline;
 using Boo.Lang.Compiler.Pipeline.Definitions;
 using NUnit.Framework;
-using Boo.Tests;
 
 namespace Boo.Lang.Compiler.Tests
 {

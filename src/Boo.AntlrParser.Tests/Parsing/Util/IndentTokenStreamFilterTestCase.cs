@@ -32,7 +32,7 @@ using Boo.AntlrParser.Util;
 using NUnit.Framework;
 using antlr;
 
-namespace Boo.Tests.Ast.Parsing.Util
+namespace Boo.AntlrParser.Tests.Util
 {
 	class FakeStream : antlr.TokenStream
 	{

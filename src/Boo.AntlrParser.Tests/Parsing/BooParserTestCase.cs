@@ -36,9 +36,8 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipeline;
 using Boo.AntlrParser;
-using Boo.Tests;
 
-namespace Boo.Tests.Ast.Parsing
+namespace Boo.AntlrParser.Tests
 {
 	/// <summary>
 	/// Test cases for the BooParser class.
@@ -46,10 +45,22 @@ namespace Boo.Tests.Ast.Parsing
 	[TestFixture]
 	public class BooParserTestCase
 	{
+		string GetTestCasePath(string fname)
+		{
+			return Path.Combine(
+						Boo.Lang.Compiler.Tests.BooTestCaseUtil.GetTestCasePath("parser"),
+						fname);
+		}
+		
+		Boo.Lang.Compiler.Ast.Module ParseTestCase(string fname)
+		{
+			return BooParser.ParseFile(GetTestCasePath(fname)).Modules[0];
+		}
+		
 		[Test]
 		public void TestSimple()
 		{
-			string fname = BooTestCaseUtil.GetTestCasePath("simple.boo");
+			string fname = GetTestCasePath("simple.boo");
 			CompileUnit cu = BooParser.ParseFile(fname);
 			Assert.IsNotNull(cu);
 			
@@ -71,7 +82,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestSimpleClasses()
 		{
-			string fname = BooTestCaseUtil.GetTestCasePath("simple_classes.boo");
+			string fname = GetTestCasePath("simple_classes.boo");
 
 			Boo.Lang.Compiler.Ast.Module module = BooParser.ParseFile(fname).Modules[0];
 			Assert.AreEqual("Foo.Bar", module.Namespace.Name);
@@ -92,7 +103,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestSimpleClassMethods()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_class_methods.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("simple_class_methods.boo");
 			Assert.AreEqual("ITL.Content", module.Namespace.Name);
 			Assert.AreEqual(1, module.Imports.Count);
 
@@ -125,7 +136,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestSimpleClassFields()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_class_fields.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("simple_class_fields.boo");
 
 			Assert.AreEqual(1, module.Members.Count);
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
@@ -159,7 +170,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestSimpleGlobalDefs()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_global_defs.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("simple_global_defs.boo");
 			Assert.AreEqual("Math", module.Namespace.Name);
 			Assert.AreEqual(3, module.Members.Count);
 			Assert.AreEqual("Rational", module.Members[0].Name);
@@ -171,7 +182,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestGlobalDefs2()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("global_defs_2.boo");			
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("global_defs_2.boo");			
 
 			Method m = (Method)module.Members[0];
 			Assert.AreEqual("square", m.Name);
@@ -225,7 +236,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestGlobalStmts1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("global_stmts_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("global_stmts_1.boo");
 			
 			Block g = module.Globals;
 			Assert.AreEqual(1, g.Statements.Count);
@@ -249,7 +260,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestStmtModifiers1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("stmt_modifiers_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("stmt_modifiers_1.boo");
 
 			Method m = (Method)module.Members[0];
 			ReturnStatement rs = (ReturnStatement)m.Body.Statements[0];
@@ -265,7 +276,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestStmtModifiers2()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("stmt_modifiers_2.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("stmt_modifiers_2.boo");
 
 			ExpressionStatement s = (ExpressionStatement)module.Globals.Statements[0];
 			BinaryExpression a = (BinaryExpression)s.Expression;			
@@ -277,7 +288,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestStaticMethod()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("static_method.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("static_method.boo");
 			Assert.AreEqual(1, module.Members.Count);
 
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
@@ -293,7 +304,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestClass2()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("class_2.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("class_2.boo");
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
 
 			Assert.AreEqual(6, cd.Members.Count);
@@ -307,7 +318,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestForStmt1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("for_stmt_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("for_stmt_1.boo");
 
 			ForStatement fs = (ForStatement)module.Globals.Statements[0];
 			Assert.AreEqual(1, fs.Declarations.Count);
@@ -330,7 +341,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestRELiteral1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("re_literal_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("re_literal_1.boo");
 			Assert.AreEqual(2, module.Globals.Statements.Count);
 
 			ExpressionStatement es = (ExpressionStatement)module.Globals.Statements[1];
@@ -347,7 +358,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestRELiteral2()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("re_literal_2.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("re_literal_2.boo");
 
 			StatementCollection stmts = module.Globals.Statements;
 			Assert.AreEqual(2, stmts.Count);
@@ -364,7 +375,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestIfElse1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("if_else_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("if_else_1.boo");
 
 			StatementCollection stmts = module.Globals.Statements;
 			Assert.AreEqual(1, stmts.Count);
@@ -390,7 +401,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestInterface1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("interface_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("interface_1.boo");
 
 			Assert.AreEqual(1, module.Members.Count);
 
@@ -424,7 +435,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestEnum1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("enum_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("enum_1.boo");
 
 			Assert.AreEqual(2, module.Members.Count);
 
@@ -448,7 +459,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestProperties1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("properties_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("properties_1.boo");
 
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
 			Assert.AreEqual("Person", cd.Name);
@@ -482,7 +493,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestWhileStmt1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("while_stmt_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("while_stmt_1.boo");
 
 			WhileStatement ws = (WhileStatement)module.Globals.Statements[3];
 			Assert.AreEqual(true, ((BoolLiteralExpression)ws.Condition).Value); 
@@ -496,14 +507,14 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestCppComments()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("cpp_comments.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("cpp_comments.boo");
 			Assert.AreEqual("CPlusPlusStyleComments", module.Namespace.Name);
 		}
 
 		[Test]
 		public void TestUnpackStmt1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("unpack_stmt_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("unpack_stmt_1.boo");
 			UnpackStatement us = (UnpackStatement)module.Globals.Statements[0];
 			Assert.AreEqual(2, us.Declarations.Count);
 			Assert.AreEqual("arg0", us.Declarations[0].Name);
@@ -518,7 +529,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestYieldStmt1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("yield_stmt_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("yield_stmt_1.boo");
 
 			Method m = (Method)module.Members[0];
 			ForStatement fs = (ForStatement)m.Body.Statements[0];
@@ -531,7 +542,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestNonSignificantWhitespaceRegions1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("nonsignificant_ws_regions_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("nonsignificant_ws_regions_1.boo");
 
 			StatementCollection stmts = module.Globals.Statements;
 			Assert.AreEqual(2, stmts.Count);
@@ -553,7 +564,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestArrays1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("arrays_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("arrays_1.boo");
 
 			StatementCollection sc = module.Globals.Statements;
 			Assert.AreEqual(4, sc.Count);
@@ -777,7 +788,7 @@ namespace Boo.Tests.Ast.Parsing
 				StringWriter stdout = new StringWriter();
 				Console.SetOut(stdout);
 			
-				_compiler.Parameters.Input.Add(new FileInput(BooTestCaseUtil.GetTestCasePath(testfile)));
+				_compiler.Parameters.Input.Add(new FileInput(GetTestCasePath(testfile)));
 				CompilerContext context = _compiler.Run();
 				if (context.Errors.Count > 0)
 				{
