@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -29,6 +29,7 @@
 namespace Boo.Lang
 {
 	using System;
+	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	
 	public class LockAttribute : Boo.Lang.Compiler.AbstractAstAttribute
@@ -67,8 +68,9 @@ namespace Boo.Lang
 		
 		Block CreateLockedBlock(Block body)
 		{
-			using (LockMacro macro = new LockMacro(_context))
+			using (LockMacro macro = new LockMacro())
 			{
+				macro.Initialize(_context);
 				return macro.CreateLockedBlock(_monitor, body);
 			}
 		}
@@ -78,7 +80,7 @@ namespace Boo.Lang
 	/// lock obj1, obj2:
 	///		obj1.Foo(obj2)
 	/// </summary>
-	public class LockMacro : Boo.Lang.Compiler.IAstMacro
+	public class LockMacro : AbstractAstMacro
 	{
 		public const string MonitorLocalName = "__monitor{0}__";
 		
@@ -86,34 +88,8 @@ namespace Boo.Lang
 		
 		static Expression Monitor_Exit = AstUtil.CreateReferenceExpression("System.Threading.Monitor.Exit");
 		
-		Boo.Lang.Compiler.CompilerContext _context;
-		
-		public LockMacro()
-		{
-		}
-		
-		public LockMacro(Boo.Lang.Compiler.CompilerContext context)
-		{
-			_context = context;
-		}
-		
-		public void Initialize(Boo.Lang.Compiler.CompilerContext context)
-		{			
-			_context = context;
-		}
-		
-		public void Dispose()
-		{			
-			_context = null;
-		}
-		
-		public Statement Expand(MacroStatement macro)
+		public override Statement Expand(MacroStatement macro)
 		{				
-			if (null == _context)
-			{
-				throw new InvalidOperationException("macro was not property initialized!");
-			}
-			
 			if (0 == macro.Arguments.Count)
 			{
 				throw Boo.Lang.Compiler.CompilerErrorFactory.InvalidLockMacroArguments(macro);

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -32,9 +32,9 @@ namespace Boo.Lang
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	
-	public abstract class AbstractPrintMacro : AbstractCompilerComponent, IAstMacro
+	public abstract class AbstractPrintMacro : AbstractAstMacro
 	{
-		public abstract Statement Expand(MacroStatement macro);
+		public abstract override Statement Expand(MacroStatement macro);
 		
 		protected Statement Expand(MacroStatement macro,
 								Expression writePrototype,

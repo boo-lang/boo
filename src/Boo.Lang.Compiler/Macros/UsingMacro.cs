@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -36,11 +36,11 @@ namespace Boo.Lang
 	/// using file=File.OpenText(fname):
 	///		print(file.ReadLine())
 	/// </summary>
-	public class UsingMacro : AbstractCompilerComponent, IAstMacro
+	public class UsingMacro : AbstractAstMacro
 	{
 		private const string DisposableLocalName = "__disposable__";
 		
-		public Statement Expand(MacroStatement macro)
+		public override Statement Expand(MacroStatement macro)
 		{
 			// try:
 			//		assignment

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -37,12 +37,12 @@ namespace Boo.Lang
 	/// <summary>
 	/// assert condition[, message]
 	/// </summary>
-	public class AssertMacro : AbstractCompilerComponent, IAstMacro
+	public class AssertMacro : AbstractAstMacro
 	{		
 		private static Expression ExceptionTypeReference = 
 			AstUtil.CreateReferenceExpression("Boo.AssertionFailedException");
 		
-		public Statement Expand(MacroStatement macro)
+		public override Statement Expand(MacroStatement macro)
 		{
 			int argc = macro.Arguments.Count;
 			if (argc != 1 && argc != 2)
