@@ -304,6 +304,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 			
+			binding.Visited = true;
 			PushMethodBinding(binding);
 			PushNamespace(binding);
 			return true;
@@ -318,7 +319,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			InternalMethodBinding binding = _currentMethodBinding;
 			
-			binding.Visited = true;
 			PopNamespace();
 			PopMethodBinding();
 			BindParameterIndexes(method);			
@@ -1321,10 +1321,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (!internalMethod.Visited)
 				{
 					_context.TraceVerbose("Method {0} needs resolving.", binding.Name);
-					if (!IsInMethodBindingStack(internalMethod))
-					{
-						Switch(internalMethod.Method);
-					}
+					Switch(internalMethod.Method);
 				}
 			}
 		}
@@ -1459,11 +1456,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		void PopMethodBinding()
 		{
 			_currentMethodBinding = (InternalMethodBinding)_methodBindingStack.Pop();
-		}
-		
-		bool IsInMethodBindingStack(InternalMethodBinding binding)
-		{			
-			return _methodBindingStack.Contains(binding);
 		}
 		
 		static bool HasSideEffect(Expression node)

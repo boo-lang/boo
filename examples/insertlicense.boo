@@ -1,3 +1,7 @@
+"""
+Makes sure that every csharp file in the src tree starts
+with the license.
+"""
 import Boo.IO
 import System.IO
 		
