@@ -1,7 +1,7 @@
 ﻿* fix ICallable for callable types
-	* callable7.boo
 	* callable8.boo
 	* callable9.boo
+	* callable10.boo
 	
 * software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence

@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class InjectConversions : AbstractTransformerCompilerStep
+	public class InjectCallableConversions : AbstractTransformerCompilerStep
 	{
 		IMethod _current;
 		
