@@ -81,6 +81,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsLiteral
+		{
+			get
+			{
+				return _field.IsLiteral;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get

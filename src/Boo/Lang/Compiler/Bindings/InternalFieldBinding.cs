@@ -99,6 +99,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsLiteral
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public object StaticValue
 		{
 			get

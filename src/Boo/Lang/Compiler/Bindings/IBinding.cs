@@ -169,7 +169,12 @@ namespace Boo.Lang.Compiler.Bindings
 	}
 	
 	public interface IFieldBinding : IMemberBinding
-	{		
+	{	
+		bool IsLiteral
+		{
+			get;
+		}
+		
 		object StaticValue
 		{
 			get;

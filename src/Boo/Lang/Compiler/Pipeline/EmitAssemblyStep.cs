@@ -1639,9 +1639,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (fieldBinding.IsStatic)
 			{
-				if (fieldBinding.DeclaringType.IsEnum)
+				if (fieldBinding.IsLiteral)
 				{
-					_il.Emit(OpCodes.Ldc_I4, Convert.ToInt32(fieldBinding.StaticValue));							
+					EmitLoadLiteralField(self, fieldBinding);												
 				}
 				else
 				{
@@ -1654,6 +1654,57 @@ namespace Boo.Lang.Compiler.Pipeline
 				_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldBinding));						
 			}
 			PushType(fieldBinding.BoundType);
+		}
+		
+		void EmitLoadLiteralField(Node node, IFieldBinding fieldBinding)
+		{
+			object value = fieldBinding.StaticValue;
+			if (null == value)
+			{
+				_il.Emit(OpCodes.Ldnull);
+			}
+			else
+			{			
+				TypeCode type = Type.GetTypeCode(value.GetType());
+				switch (type)
+				{
+					case TypeCode.Int32:
+					{
+						_il.Emit(OpCodes.Ldc_I4, (int)value);
+						break;
+					}
+					
+					case TypeCode.Int64:
+					{
+						_il.Emit(OpCodes.Ldc_I8, (long)value);
+						break;
+					}
+					
+					case TypeCode.Single:
+					{
+						_il.Emit(OpCodes.Ldc_R4, (float)value);
+						break;
+					}
+					
+					case TypeCode.Double:
+					{
+						_il.Emit(OpCodes.Ldc_R8, (double)value);
+						break;
+					}
+					
+					case TypeCode.String:
+					{
+						_il.Emit(OpCodes.Ldstr, (string)value);
+						break;
+					}
+					
+					default:
+					{
+						NotImplemented(node, "Literal: " + type.ToString());
+						break;
+					}
+				}
+			}
 		}
 		
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
@@ -2690,12 +2741,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(typeDefinition.FullName,
 											GetTypeAttributes(typeDefinition),
-											typeof(int));
+											typeof(long));
 											
 				
 				foreach (EnumMember member in typeDefinition.Members)
 				{
-					enumBuilder.DefineLiteral(member.Name, (int)member.Initializer.Value);
+					enumBuilder.DefineLiteral(member.Name, (long)member.Initializer.Value);
 				}				
 				SetBuilder(typeDefinition, enumBuilder);
 			}
@@ -2847,7 +2898,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					else if (BindingType.Field == binding.BindingType)
 					{
 						IFieldBinding field = (IFieldBinding)binding;
-						if (field.DeclaringType.IsEnum)
+						if (field.IsLiteral)
 						{
 							return field.StaticValue;
 						}
