@@ -13,7 +13,7 @@ class DocumentOutline(Content):
 	_tree as TreeView
 	_imageList as ImageList
 	_treeViewVisitor as TreeViewVisitor
-	_timer = Timer(Tick: _timer_Tick, Interval: 5s.TotalMilliseconds)
+	_timer = Timer(Tick: _timer_Tick, Interval: 3s.TotalMilliseconds)
 	_module as Module
 	
 	def constructor():

@@ -15,7 +15,7 @@ class MainForm(Form):
 	_timer as Timer
 
 	[getter(DocumentOutline)]
-	_classBrowser = BooExplorer.DocumentOutline()
+	_documentOutline = BooExplorer.DocumentOutline()
 
 	[getter(TaskList)]
 	_taskList = BooExplorer.TaskList()
@@ -50,10 +50,9 @@ class MainForm(Form):
 		Controls.Add(_dockManager)
 		Controls.Add(_status)
 		ResumeLayout(false)
-
-		if len(_argv) > 0:
-			_timer = Timer(Tick: _timer_Tick, Interval: 50ms.TotalMilliseconds)
-			_timer.Enabled = true
+		
+		_timer = Timer(Tick: _timer_Tick, Interval: 50ms.TotalMilliseconds)
+		_timer.Enabled = true
 
 	private def CreateMainMenu():
 
@@ -106,10 +105,14 @@ class MainForm(Form):
 		_timer.Enabled = false
 		for fname in _argv:
 			OpenDocument(fname)
+		ShowDocumentOutline()
 
 	StatusText as string:
 		set:
 			_statusPanel1.Text = value
+			
+	def ShowDocumentOutline():
+		_documentOutline.Show(_dockManager)
 
 	def NewDocument():
 		editor = BooEditor(self)
@@ -132,7 +135,7 @@ class MainForm(Form):
 	def _dockManager_ActiveDocumentChanged(sender, args as EventArgs):
 		document = _dockManager.ActiveDocument
 		editor = document as BooEditor
-		_classBrowser.ActiveDocument = editor
+		_documentOutline.ActiveDocument = editor
 		_menuItemClose.Enabled = document is not null
 		_menuItemSaveAs.Enabled = _menuItemSave.Enabled = document is not null
 
@@ -155,7 +158,7 @@ class MainForm(Form):
 		_dockManager.ActiveDocument.Close()
 
 	def _menuItemDocumentOutline_Click(sender, args as EventArgs):
-		_classBrowser.Show(_dockManager)
+		ShowDocumentOutline()
 
 	def _menuItemTaskList_Click(sender, args as EventArgs):
 		_taskList.Show(_dockManager)
