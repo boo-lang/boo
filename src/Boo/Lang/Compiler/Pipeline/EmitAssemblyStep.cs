@@ -2239,6 +2239,14 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					return OpCodes.Ldelem_I8;
 				}
+				if (BindingManager.SingleTypeBinding == binding)
+				{
+					return OpCodes.Ldelem_R4;
+				}
+				if (BindingManager.DoubleTypeBinding == binding)
+				{
+					return OpCodes.Ldelem_R8;
+				}
 				NotImplemented("LoadElementOpCode(" + binding + ")");
 			}
 			return OpCodes.Ldelem_Ref;
@@ -2255,6 +2263,14 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (BindingManager.LongTypeBinding == binding)
 				{
 					return OpCodes.Stelem_I8;
+				}
+				if (BindingManager.SingleTypeBinding == binding)
+				{
+					return OpCodes.Stelem_R4;
+				}
+				if (BindingManager.DoubleTypeBinding == binding)
+				{
+					return OpCodes.Stelem_R8;
 				}
 				NotImplemented("GetStoreElementOpCode(" + binding + ")");				
 			}

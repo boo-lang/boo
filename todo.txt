@@ -1,6 +1,10 @@
-﻿* const (literal fields)
+﻿done * const (literal fields)
 
 * check return types for method overrides
+
+* check visibility for override
+
+* abstract method makes class abstract
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:
@@ -38,6 +42,10 @@
 * tipos callable implementam equivalência estrutural, assim, um tipo callable
 que é wrapper sobre um método qualquer, lembra o método, seus tipos de parâmetro e
 valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc
+
+* promoção de bool para int32 e conversão automática de int32 para bool:
+	* and
+	* or
 
 * nomes de tipo primitivo podem ser utilizados em conversões:
 

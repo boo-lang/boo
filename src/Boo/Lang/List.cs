@@ -26,12 +26,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Collections;
-using System.Text;
-
 namespace Boo.Lang
 {
+	using System;
+	using System.Collections;
+	using System.Text;
+
 	// as (object, object)->bool
 	public delegate bool Predicate(object item);
 
@@ -234,7 +234,13 @@ namespace Boo.Lang
 		
 		public List Sort()
 		{
-			Array.Sort(_items, 0, _count);
+			Array.Sort(_items, 0, _count, BooComparer.Default);
+			return this;
+		}
+		
+		public List Sort(IComparer comparer)
+		{
+			Array.Sort(_items, 0, _count, comparer);
 			return this;
 		}
 

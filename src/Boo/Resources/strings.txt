@@ -87,3 +87,4 @@ CantEnumerateNull=Can't enumerate null.
 UnpackListOfWrongSize=Unpack list of wrong size.
 CantUnpackNull=Can't unpack null.
 UnpackArrayOfWrongSize=Unpack array of wrong size (expected={0}, actual={1}).
+CantCompareItems=At least one side must implement IComparable or both sides should implement IEnumerable.

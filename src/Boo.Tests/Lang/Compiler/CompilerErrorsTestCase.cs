@@ -96,6 +96,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void OverrideWithDifferentReturnType()
+		{
+			RunCompilerTestCase("override2.boo");
+		}
+		
+		[Test]
 		public void Assignment()
 		{
 			RunCompilerTestCase("assign0.boo");

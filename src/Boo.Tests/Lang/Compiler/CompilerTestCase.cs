@@ -1328,5 +1328,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("const0.boo");
 		}
+		
+		[Test]
+		public void TupleComparisonsInSort()
+		{
+			RunCompilerTestCase("tuplecomparisons0.boo");
+		}
+		
+		[Test]
+		public void ListSort()
+		{
+			RunCompilerTestCase("sort.boo");
+		}
 	}
 }
