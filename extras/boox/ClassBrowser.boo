@@ -69,18 +69,23 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		Switch(node.Members)
 		
 	override def OnProperty(node as Property):
-		_current.Nodes.Add(node.Name)
+		Add(node.Name, node)		
 		
 	override def OnField(node as Field):
-		_current.Nodes.Add(node.Name)
+		Add(node.Name, node)
 		
 	override def OnClassDefinition(node as ClassDefinition):
 		saved = _current
 		
-		_current = _current.Nodes.Add(node.Name)
+		_current = Add(node.Name, node)
 		Switch(node.Members)
 		
 		_current = saved
 		
 	override def OnMethod(node as Method):		
-		_current.Nodes.Add(node.Name)
+		Add(node.Name, node)
+		
+	def Add(text as string, data):
+		node = _current.Nodes.Add(node.Name)
+		node.Tag = data
+		return node
