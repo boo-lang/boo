@@ -84,6 +84,7 @@ internal class CodeCompletionDataProvider(ICompletionDataProvider):
 		values = {}
 		for item in _codeCompletion:			
 			continue if IsSpecial(item)
+			continue if not IsPublic(item)
 			
 			data as CodeCompletionData
 			data = values[item.Name]
@@ -99,6 +100,10 @@ internal class CodeCompletionDataProvider(ICompletionDataProvider):
 	def IsSpecial(entity as IEntity):
 		for prefix in ".", "___", "add_", "remove_", "get_", "set_":
 			return true if entity.Name.StartsWith(prefix)
+			
+	def IsPublic(entity as IEntity):
+		member = entity as IMember
+		return member is null or member.IsPublic
 		
 	def GetImageIndex(entity as IEntity):		
 		return 0
