@@ -31,7 +31,7 @@ using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[System.Xml.Serialization.XmlInclude(typeof(TupleLiteralExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(ArrayLiteralExpression))]
 	[Serializable]
 	public class ListLiteralExpression : ListLiteralExpressionImpl
 	{		

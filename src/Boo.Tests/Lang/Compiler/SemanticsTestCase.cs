@@ -213,9 +213,9 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void TupleFunctionTypeInference()
+		public void ArrayFunctionTypeInference()
 		{
-			RunCompilerTestCase("tuple_function.boo");
+			RunCompilerTestCase("array_function.boo");
 		}
 		
 		[Test]

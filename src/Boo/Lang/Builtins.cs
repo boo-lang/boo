@@ -88,12 +88,12 @@ namespace Boo.Lang
 			return new MapEnumerator(function, GetEnumerator(enumerable));
 		}
 		
-		public static object[] tuple(IEnumerable enumerable)
+		public static object[] array(IEnumerable enumerable)
 		{
-			return (object[])tuple(typeof(object), enumerable);
+			return (object[])array(typeof(object), enumerable);
 		}
 		
-		public static Array tuple(Type elementType, ICollection collection)
+		public static Array array(Type elementType, ICollection collection)
 		{ 
 			if (null == collection)
 			{
@@ -109,7 +109,7 @@ namespace Boo.Lang
 			return array;
 		}
 		
-		public static Array tuple(Type elementType, IEnumerable enumerable)
+		public static Array array(Type elementType, IEnumerable enumerable)
 		{
 			if (null == enumerable)
 			{
@@ -122,7 +122,7 @@ namespace Boo.Lang
 			return new List(enumerable).ToArray(elementType); 
 		}
 		
-		public static Array tuple(Type elementType, int length)
+		public static Array array(Type elementType, int length)
 		{
 			if (null == elementType)
 			{

@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (node.Globals.Statements.Count > 0)
 			{
 				Method method = new Method(node.Globals.LexicalInfo);
-				method.Parameters.Add(new ParameterDeclaration("argv", new TupleTypeReference(new SimpleTypeReference("string"))));
+				method.Parameters.Add(new ParameterDeclaration("argv", new ArrayTypeReference(new SimpleTypeReference("string"))));
 				method.ReturnType = CreateBoundTypeReference(BindingManager.VoidTypeBinding);
 				method.Body = node.Globals;
 				method.Name = MainModuleMethodName;

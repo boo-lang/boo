@@ -76,11 +76,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding IDictionary_Contains;
 		
-		IMethodBinding Tuple_TypedEnumerableConstructor;
+		IMethodBinding Array_TypedEnumerableConstructor;
 		
-		IMethodBinding Tuple_TypedCollectionConstructor;
+		IMethodBinding Array_TypedCollectionConstructor;
 		
-		IMethodBinding Tuple_TypedConstructor2;
+		IMethodBinding Array_TypedConstructor2;
 		
 		IMethodBinding ICallable_Call;
 		
@@ -122,9 +122,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
 			IList_Contains = (IMethodBinding)BindingManager.IListTypeBinding.Resolve("Contains");
 			IDictionary_Contains = (IMethodBinding)BindingManager.IDictionaryTypeBinding.Resolve("Contains");
-			Tuple_TypedEnumerableConstructor = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.IEnumerable }));
-			Tuple_TypedCollectionConstructor= (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.ICollection }));
-			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.Int }));
+			Array_TypedEnumerableConstructor = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
+			Array_TypedCollectionConstructor= (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
+			Array_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
 			ICallable_Call = (IMethodBinding)BindingManager.ICallableTypeBinding.Resolve("Call");
 			Activator_CreateInstance = (IMethodBinding)BindingManager.AsBinding(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
 			TextReaderEnumerator_Constructor = (IConstructorBinding)BindingManager.AsBinding(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
@@ -1003,7 +1003,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		override public void OnTupleTypeReference(TupleTypeReference node)
+		override public void OnArrayTypeReference(ArrayTypeReference node)
 		{
 			if (BindingManager.IsBound(node))
 			{
@@ -1019,8 +1019,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				ITypeBinding tupleType = BindingManager.AsTupleBinding(elementType);
-				Bind(node, tupleType);
+				ITypeBinding arrayType = BindingManager.AsArrayBinding(elementType);
+				Bind(node, arrayType);
 			}
 		}
 		
@@ -1347,16 +1347,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			Bind(node, BindingManager.HashTypeBinding);
 		}
 		
-		override public void LeaveTupleLiteralExpression(TupleLiteralExpression node)
+		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
 		{
 			ExpressionCollection items = node.Items;
 			if (0 == items.Count)
 			{
-				Bind(node, BindingManager.ObjectTupleBinding);
+				Bind(node, BindingManager.ObjectArrayBinding);
 			}
 			else
 			{
-				Bind(node, BindingManager.AsTupleBinding(GetMostGenericType(items)));
+				Bind(node, BindingManager.AsArrayBinding(GetMostGenericType(items)));
 			}
 		}
 		
@@ -2399,13 +2399,13 @@ namespace Boo.Lang.Compiler.Pipeline
 							node.Target = new MemberReferenceExpression(node.Target.LexicalInfo,
 												node.Target,
 												"Call");
-							TupleLiteralExpression arg = new TupleLiteralExpression();
+							ArrayLiteralExpression arg = new ArrayLiteralExpression();
 							arg.Items.Extend(node.Arguments);
 							
 							node.Arguments.Clear();
 							node.Arguments.Add(arg);
 							
-							Bind(arg, BindingManager.ObjectTupleBinding);
+							Bind(arg, BindingManager.ObjectArrayBinding);
 							
 							Bind(node.Target, ICallable_Call);
 							Bind(node, ICallable_Call);
@@ -2418,14 +2418,14 @@ namespace Boo.Lang.Compiler.Pipeline
 							node.Target = new ReferenceExpression(targetType.LexicalInfo,
 														"System.Activator.CreateInstance");
 													
-							TupleLiteralExpression constructorArgs = new TupleLiteralExpression();
+							ArrayLiteralExpression constructorArgs = new ArrayLiteralExpression();
 							constructorArgs.Items.Extend(node.Arguments);
 							
 							node.Arguments.Clear();
 							node.Arguments.Add(targetType);
 							node.Arguments.Add(constructorArgs);							
 							
-							Bind(constructorArgs, BindingManager.ObjectTupleBinding);
+							Bind(constructorArgs, BindingManager.ObjectArrayBinding);
 							
 							Bind(node.Target, Activator_CreateInstance);
 							Bind(node, Activator_CreateInstance);
@@ -3576,11 +3576,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			*/
 			
 			ITypedBinding binding = (ITypedBinding)GetBinding(node);
-			if (Tuple_TypedEnumerableConstructor == binding ||
-				Tuple_TypedCollectionConstructor == binding ||				
-				Tuple_TypedConstructor2 == binding)
+			if (Array_TypedEnumerableConstructor == binding ||
+				Array_TypedCollectionConstructor == binding ||				
+				Array_TypedConstructor2 == binding)
 			{
-				return BindingManager.AsTupleBinding(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
+				return BindingManager.AsArrayBinding(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
 			}
 			return binding.BoundType;
 		}

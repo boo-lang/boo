@@ -469,57 +469,57 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void TupleLiteral()
+		public void ArrayLiteral()
 		{
-			RunCompilerTestCase("tuple0.boo");
+			RunCompilerTestCase("array0.boo");
 		}
 		
 		[Test]
-		public void TupleUnpacking()
+		public void ArrayUnpacking()
 		{
-			RunCompilerTestCase("tuple1.boo");
+			RunCompilerTestCase("array1.boo");
 		}
 		
 		[Test]
-		public void TupleAsArgument()
+		public void ArrayAsArgument()
 		{
-			RunCompilerTestCase("tuple2.boo");
+			RunCompilerTestCase("array2.boo");
 		}
 		
 		[Test]
-		public void TupleTypeReferences()
+		public void ArrayTypeReferences()
 		{
-			RunCompilerTestCase("tuple3.boo");
+			RunCompilerTestCase("array3.boo");
 		}
 		
 		[Test]
-		public void TupleTypeInference()
+		public void ArrayTypeInference()
 		{
-			RunCompilerTestCase("tuple4.boo");
+			RunCompilerTestCase("array4.boo");
 		}
 		
 		[Test]
-		public void TupleBuiltin()
+		public void ArrayBuiltin()
 		{
-			RunCompilerTestCase("tuple5.boo");
+			RunCompilerTestCase("array5.boo");
 		}
 		
 		[Test]
-		public void TupleForInternalType()
+		public void ArrayForInternalType()
 		{
-			RunCompilerTestCase("tuple6.boo");
+			RunCompilerTestCase("array6.boo");
 		}
 		
 		[Test]
-		public void TupleZip()
+		public void ArrayZip()
 		{
-			RunCompilerTestCase("tuple7.boo");
+			RunCompilerTestCase("array7.boo");
 		}
 		
 		[Test]
-		public void ReturnEmptyTuple()
+		public void ReturnEmptyArray()
 		{
-			RunCompilerTestCase("tuple8.boo");
+			RunCompilerTestCase("array8.boo");
 		}
 
 		[Test]
@@ -721,13 +721,13 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void TupleMember()
+		public void ArrayMember()
 		{
 			RunCompilerTestCase("in0.boo");
 		}
 		
 		[Test]
-		public void TupleNotMember()
+		public void ArrayNotMember()
 		{
 			RunCompilerTestCase("in1.boo");
 		}
@@ -739,7 +739,7 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void TypeofForTupleTypes()
+		public void TypeofForArrayTypes()
 		{
 			RunCompilerTestCase("typeof1.boo");
 		}
@@ -841,7 +841,7 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void SliceOverTuple()
+		public void SliceOverArray()
 		{
 			RunCompilerTestCase("slicing7.boo");
 		}
@@ -1375,9 +1375,9 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void TupleComparisonsInSort()
+		public void ArrayComparisonsInSort()
 		{
-			RunCompilerTestCase("tuplecomparisons0.boo");
+			RunCompilerTestCase("arraycomparisons0.boo");
 		}
 		
 		[Test]

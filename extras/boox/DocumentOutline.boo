@@ -75,18 +75,13 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		
 	override def OnModule(node as Module):
 		
-		if node.Namespace:
-			name = node.Namespace.Name
-		else:
-			name = node.Name
-
 		_current = TreeNode("root")
 		Switch(node.Members)
 		
 		_tree.BeginUpdate()
 		_tree.Nodes.Clear()
 		if len(_current.Nodes):
-			_tree.Nodes.AddRange(tuple(TreeNode, _current.Nodes))
+			_tree.Nodes.AddRange(array(TreeNode, _current.Nodes))
 			_tree.ExpandAll()
 			_tree.Nodes[0].EnsureVisible()
 		_tree.EndUpdate()

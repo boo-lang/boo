@@ -152,7 +152,7 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 	
 	protected TypeMemberModifiers _modifiers = TypeMemberModifiers.None;
 
-	protected bool _inTuple;	
+	protected bool _inArray;	
 	
 	protected void ResetMemberData()
 	{
@@ -2394,7 +2394,7 @@ _loop72_breakloop:				;
 					if (0==inputState.guessing)
 					{
 						
-									TupleTypeReference ttr = new TupleTypeReference(ToLexicalInfo(lparen));
+									ArrayTypeReference ttr = new ArrayTypeReference(ToLexicalInfo(lparen));
 									ttr.ElementType = tr;
 									tr = ttr;
 								
@@ -3428,7 +3428,7 @@ _loop287_breakloop:						;
 			}
 			declaration_list(fs.Declarations);
 			match(IN);
-			iterator=tuple_or_expression();
+			iterator=array_or_expression();
 			if (0==inputState.guessing)
 			{
 				fs.Iterator = iterator;
@@ -3845,7 +3845,7 @@ _loop150_breakloop:				;
 				{
 					when = LT(1);
 					match(WHEN);
-					e=tuple_or_expression();
+					e=array_or_expression();
 					if (0==inputState.guessing)
 					{
 						
@@ -3950,7 +3950,7 @@ _loop169_breakloop:			;
 				case LBRACE:
 				case RE_LITERAL:
 				{
-					e=tuple_or_expression();
+					e=array_or_expression();
 					break;
 				}
 				case IF:
@@ -4003,7 +4003,7 @@ _loop169_breakloop:			;
 		try {      // for error handling
 			yt = LT(1);
 			match(YIELD);
-			e=tuple_or_expression();
+			e=array_or_expression();
 			if (0==inputState.guessing)
 			{
 				
@@ -4234,7 +4234,7 @@ _loop169_breakloop:			;
 			declaration_list(s.Declarations);
 			t = LT(1);
 			match(ASSIGN);
-			e=tuple_or_expression();
+			e=array_or_expression();
 			if (0==inputState.guessing)
 			{
 				
@@ -4281,7 +4281,7 @@ _loop169_breakloop:			;
 				case ASSIGN:
 				{
 					match(ASSIGN);
-					initializer=tuple_or_expression();
+					initializer=array_or_expression();
 					break;
 				}
 				case IF:
@@ -4620,7 +4620,7 @@ _loop254_breakloop:				;
 			lhs=slicing_expression();
 			op = LT(1);
 			match(ASSIGN);
-			rhs=tuple_or_expression();
+			rhs=array_or_expression();
 			if (0==inputState.guessing)
 			{
 				
@@ -4829,7 +4829,7 @@ _loop254_breakloop:				;
 		}
 	}
 	
-	protected Expression  tuple_or_expression() //throws RecognitionException, TokenStreamException
+	protected Expression  array_or_expression() //throws RecognitionException, TokenStreamException
 {
 		Expression e;
 		
@@ -4837,7 +4837,7 @@ _loop254_breakloop:				;
 		Token  t = null;
 		
 				e = null;
-				TupleLiteralExpression tle = null;
+				ArrayLiteralExpression tle = null;
 			
 		
 		try {      // for error handling
@@ -4850,7 +4850,7 @@ _loop254_breakloop:				;
 					match(COMMA);
 					if (0==inputState.guessing)
 					{
-						e = new TupleLiteralExpression(ToLexicalInfo(c));
+						e = new ArrayLiteralExpression(ToLexicalInfo(c));
 					}
 				}
 				break;
@@ -4889,7 +4889,7 @@ _loop254_breakloop:				;
 							if (0==inputState.guessing)
 							{
 													
-													tle = new TupleLiteralExpression(e.LexicalInfo);
+													tle = new ArrayLiteralExpression(e.LexicalInfo);
 													tle.Items.Add(e);		
 												
 							}
@@ -5460,7 +5460,7 @@ _loop200_breakloop:				;
 										}
 										 }
 									}
-									r=tuple_or_expression();
+									r=array_or_expression();
 								}
 								break;
 							}
@@ -6071,7 +6071,7 @@ _loop228_breakloop:				;
 		
 		try {      // for error handling
 			match(LPAREN);
-			e=tuple_or_expression();
+			e=array_or_expression();
 			match(RPAREN);
 		}
 		catch (RecognitionException ex)
@@ -6171,13 +6171,13 @@ _loop228_breakloop:				;
 		return e;
 	}
 	
-	protected Expression  tuple() //throws RecognitionException, TokenStreamException
+	protected Expression  array() //throws RecognitionException, TokenStreamException
 {
 		Expression e;
 		
 		Token  t = null;
 		
-				TupleLiteralExpression tle = null;
+				ArrayLiteralExpression tle = null;
 				e = null;
 			
 		
@@ -6194,7 +6194,7 @@ _loop228_breakloop:				;
 					if (0==inputState.guessing)
 					{
 						
-									tle = new TupleLiteralExpression(ToLexicalInfo(t));
+									tle = new ArrayLiteralExpression(ToLexicalInfo(t));
 									tle.Items.Add(e);
 								
 					}

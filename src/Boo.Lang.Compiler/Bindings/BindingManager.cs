@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding TypeTypeBinding;
 		
-		public ITypeBinding ObjectTupleBinding;
+		public ITypeBinding ObjectArrayBinding;
 	
 		public ExternalTypeBinding VoidTypeBinding;
 		
@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _tupleBindingCache = new System.Collections.Hashtable();
+		System.Collections.Hashtable _arrayBindingCache = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
@@ -127,7 +127,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
 			Cache(ExceptionTypeBinding = new ExternalTypeBinding(this, Types.Exception));
 			
-			ObjectTupleBinding = AsTupleBinding(ObjectTypeBinding);
+			ObjectArrayBinding = AsArrayBinding(ObjectTypeBinding);
 			
 			PreparePrimitives();
 		}
@@ -138,7 +138,7 @@ namespace Boo.Lang.Compiler.Bindings
 			
 			if (binding.IsArray)
 			{
-				typeReference = new TupleTypeReference(CreateBoundTypeReference(binding.GetElementType()));
+				typeReference = new ArrayTypeReference(CreateBoundTypeReference(binding.GetElementType()));
 			}
 			else
 			{				
@@ -278,7 +278,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			if (type.IsArray)
 			{
-				return AsTupleBinding(AsTypeBinding(type.GetElementType()));
+				return AsArrayBinding(AsTypeBinding(type.GetElementType()));
 			}
 			
 			ExternalTypeBinding binding = (ExternalTypeBinding)_bindingCache[type];
@@ -299,12 +299,12 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		public ITypeBinding AsTupleBinding(ITypeBinding elementType)
+		public ITypeBinding AsArrayBinding(ITypeBinding elementType)
 		{
-			ITypeBinding binding = (ITypeBinding)_tupleBindingCache[elementType];
+			ITypeBinding binding = (ITypeBinding)_arrayBindingCache[elementType];
 			if (null == binding)
 			{
-				_tupleBindingCache.Add(elementType, binding = new TupleTypeBinding(this, elementType));
+				_arrayBindingCache.Add(elementType, binding = new ArrayTypeBinding(this, elementType));
 			}
 			return binding;
 		}

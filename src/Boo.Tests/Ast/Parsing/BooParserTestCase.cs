@@ -551,9 +551,9 @@ namespace Boo.Tests.Ast.Parsing
 		}
 
 		[Test]
-		public void TestTuples1()
+		public void TestArrays1()
 		{
-			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("tuples_1.boo");
+			Boo.Lang.Compiler.Ast.Module module = BooTestCaseUtil.ParseTestCase("arrays_1.boo");
 
 			StatementCollection sc = module.Globals.Statements;
 			Assert.AreEqual(4, sc.Count);
@@ -561,15 +561,15 @@ namespace Boo.Tests.Ast.Parsing
 			BinaryExpression ae = (BinaryExpression)((ExpressionStatement)sc[0]).Expression;
 			Assert.AreEqual("names", ((ReferenceExpression)ae.Left).Name);
 
-			TupleLiteralExpression tle = (TupleLiteralExpression)ae.Right;
+			ArrayLiteralExpression tle = (ArrayLiteralExpression)ae.Right;
 			Assert.AreEqual(3, tle.Items.Count);
 
 			ae = (BinaryExpression)((ExpressionStatement)sc[1]).Expression;
-			tle = (TupleLiteralExpression)ae.Right;
+			tle = (ArrayLiteralExpression)ae.Right;
 			Assert.AreEqual(3, tle.Items.Count);
 
 			ae = (BinaryExpression)((ExpressionStatement)sc[3]).Expression;
-			tle = (TupleLiteralExpression)ae.Right;
+			tle = (ArrayLiteralExpression)ae.Right;
 			Assert.AreEqual(1, tle.Items.Count);
 		}
 
@@ -670,15 +670,15 @@ namespace Boo.Tests.Ast.Parsing
 		}
 
 		[Test]
-		public void TestTuples2()
+		public void TestArrays2()
 		{
-			RunParserTestCase("tuples_2.boo");
+			RunParserTestCase("arrays_2.boo");
 		}
 		
 		[Test]
-		public void Tuples3()
+		public void Arrays3()
 		{
-			RunParserTestCase("tuples_3.boo");
+			RunParserTestCase("arrays_3.boo");
 		}
 
 		[Test]

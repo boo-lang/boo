@@ -61,8 +61,8 @@ class BooEditor(Content):
 	def GoTo(line as int):
 		document = _editor.Document
 		segment = document.GetLineSegment(line)
-		ws = /\s*/.Match(document.GetText(segment)).Groups[0].Value
-		_editor.ActiveTextAreaControl.JumpTo(line, len(ws))
+		wsLen = /\s*/.Match(document.GetText(segment)).Groups[0].Length
+		_editor.ActiveTextAreaControl.JumpTo(line, wsLen)
 
 	def Save():
 		if _fname:
@@ -131,6 +131,7 @@ class BooEditor(Content):
 			self.Cursor = savedCursor
 
 	private def Run():
+		
 		compiler = BooCompiler()
 		compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
 		compiler.Parameters.Pipeline.Load(BoomPipelineDefinition)

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -32,32 +32,19 @@ using Boo.Lang.Compiler.Ast.Impl;
 namespace Boo.Lang.Compiler.Ast
 {
 	[Serializable]
-	public class TupleTypeReference : TupleTypeReferenceImpl
+	public class ArrayLiteralExpression : ArrayLiteralExpressionImpl
 	{		
-		public TupleTypeReference()
-		{
- 		}
-		
-		public TupleTypeReference(TypeReference elementType) : base(elementType)
+		public ArrayLiteralExpression()
 		{
 		}
 		
-		public TupleTypeReference(LexicalInfo lexicalInfo, TypeReference elementType) : base(lexicalInfo, elementType)
-		{
-		}
-		
-		public TupleTypeReference(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public ArrayLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		
 		override public void Switch(IAstSwitcher switcher)
 		{
-			switcher.OnTupleTypeReference(this);
-		}
-		
-		override public string ToString()
-		{
-			return "(" + _elementType + ")";
+			switcher.OnArrayLiteralExpression(this);
 		}
 	}
 }

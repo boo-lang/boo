@@ -50,7 +50,7 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			 Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Error));
 
-			string booAssemblyPath = typeof(BooCompiler).Assembly.Location;
+			string booAssemblyPath = typeof(Boo.Lang.List).Assembly.Location;
 			string thisAssemblyPath = GetType().Assembly.Location;
 			File.Copy(booAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(booAssemblyPath)), true);
 			File.Copy(thisAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(thisAssemblyPath)), true);

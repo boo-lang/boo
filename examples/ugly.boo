@@ -16,7 +16,7 @@ def ugly(max as int):
 		
 		dict.Remove(counter)
 		
-		keys = tuple(long, dict.Count)
+		keys = array(long, dict.Count)
 		dict.Keys.CopyTo(keys, 0)
 		System.Array.Sort(keys)
 		

@@ -130,7 +130,7 @@ tokens
 	
 	protected TypeMemberModifiers _modifiers = TypeMemberModifiers.None;
 
-	protected bool _inTuple;	
+	protected bool _inArray;	
 	
 	protected void ResetMemberData()
 	{
@@ -734,7 +734,7 @@ type_reference returns [TypeReference tr]
 		tr=type_reference
 		rparen:RPAREN!
 		{
-			TupleTypeReference ttr = new TupleTypeReference(ToLexicalInfo(lparen));
+			ArrayTypeReference ttr = new ArrayTypeReference(ToLexicalInfo(lparen));
 			ttr.ElementType = tr;
 			tr = ttr;
 		}
@@ -920,7 +920,7 @@ declaration_stmt returns [DeclarationStatement s]
 		TypeReference tr = null;
 		Expression initializer = null;
 	}:
-	id:ID AS! tr=type_reference (ASSIGN! initializer=tuple_or_expression)?
+	id:ID AS! tr=type_reference (ASSIGN! initializer=array_or_expression)?
 	{
 		Declaration d = new Declaration(ToLexicalInfo(id));
 		d.Name = id.getText();
@@ -950,7 +950,7 @@ return_stmt returns [ReturnStatement s]
 		s = null;
 		Expression e = null;
 	}:
-	r:RETURN! (e=tuple_or_expression)?
+	r:RETURN! (e=array_or_expression)?
 	{
 		s = new ReturnStatement(ToLexicalInfo(r));
 		s.Expression = e;
@@ -963,7 +963,7 @@ yield_stmt returns [YieldStatement s]
 		s = null;
 		Expression e = null;
 	}:
-	yt:YIELD! e=tuple_or_expression
+	yt:YIELD! e=array_or_expression
 	{
 		s = new YieldStatement(ToLexicalInfo(yt));
 		s.Expression = e;
@@ -1005,7 +1005,7 @@ for_stmt returns [ForStatement fs]
 		Expression iterator = null;
 	}:
 	f:FOR! { fs = new ForStatement(ToLexicalInfo(f)); }
-		declaration_list[fs.Declarations] IN! iterator=tuple_or_expression
+		declaration_list[fs.Declarations] IN! iterator=array_or_expression
 		{ fs.Iterator = iterator; }
 		compound_stmt[fs.Block.Statements]
 	;
@@ -1038,7 +1038,7 @@ given_stmt returns [GivenStatement gs]
 	}
 	begin!
 		(
-			when:WHEN! e=tuple_or_expression
+			when:WHEN! e=array_or_expression
 			{
 				wc = new WhenClause(ToLexicalInfo(when));
 				wc.Condition = e;
@@ -1081,7 +1081,7 @@ unpack_stmt returns [UnpackStatement s]
 		s = new UnpackStatement();
 		Expression e = null;
 	}:
-	declaration_list[s.Declarations] t:ASSIGN! e=tuple_or_expression
+	declaration_list[s.Declarations] t:ASSIGN! e=array_or_expression
 	{
 		s.Expression = e;
 		s.LexicalInfo = ToLexicalInfo(t);
@@ -1112,21 +1112,21 @@ declaration returns [Declaration d]
 	;
 	
 protected
-tuple_or_expression returns [Expression e]
+array_or_expression returns [Expression e]
 	{
 		e = null;
-		TupleLiteralExpression tle = null;
+		ArrayLiteralExpression tle = null;
 	} :
 		(
 			// tupla vazia: , ou (,)
-			c:COMMA! { e = new TupleLiteralExpression(ToLexicalInfo(c)); }
+			c:COMMA! { e = new ArrayLiteralExpression(ToLexicalInfo(c)); }
 		) |
 		(
 			e=expression
 			( options { greedy=true; }:
 				t:COMMA!
 				{					
-					tle = new TupleLiteralExpression(e.LexicalInfo);
+					tle = new ArrayLiteralExpression(e.LexicalInfo);
 					tle.Items.Add(e);		
 				}
 				( options { greedy=true; }:
@@ -1268,7 +1268,7 @@ assignment_stmt returns [Statement stmt]
 		Expression lhs = null;
 		Expression rhs = null;		
 	}:
-	lhs=slicing_expression op:ASSIGN rhs=tuple_or_expression
+	lhs=slicing_expression op:ASSIGN rhs=array_or_expression
 	{
 		stmt = new ExpressionStatement(
 							new BinaryExpression(ToLexicalInfo(op),
@@ -1324,7 +1324,7 @@ conditional_expression returns [Expression e]
 			(tin:IN! { op = BinaryOperatorType.Member; token = tin; } ) |
 			(tnint:NOT! IN! { op = BinaryOperatorType.NotMember; token = tnint; })
 		)		
-		r=tuple_or_expression
+		r=array_or_expression
 	  )
 	)
 	{
@@ -1485,13 +1485,13 @@ reference_expression returns [ReferenceExpression e] { e = null; }:
 	
 protected
 paren_expression returns [Expression e] { e = null; }:
-	LPAREN! e=tuple_or_expression RPAREN!
+	LPAREN! e=array_or_expression RPAREN!
 	;
 
 protected
-tuple returns [Expression e]
+array returns [Expression e]
 	{
-		TupleLiteralExpression tle = null;
+		ArrayLiteralExpression tle = null;
 		e = null;
 	}:
 	t:LPAREN!
@@ -1499,7 +1499,7 @@ tuple returns [Expression e]
 	(
 		COMMA!
 		{
-			tle = new TupleLiteralExpression(ToLexicalInfo(t));
+			tle = new ArrayLiteralExpression(ToLexicalInfo(t));
 			tle.Items.Add(e);
 		}
 		(

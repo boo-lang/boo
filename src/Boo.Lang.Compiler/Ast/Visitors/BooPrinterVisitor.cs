@@ -241,7 +241,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(t.Name);
 		}
 		
-		override public void OnTupleTypeReference(TupleTypeReference t)
+		override public void OnArrayTypeReference(ArrayTypeReference t)
 		{
 			Write("(");
 			Switch(t.ElementType);
@@ -399,9 +399,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(")");
 		}
 		
-		override public void OnTupleLiteralExpression(TupleLiteralExpression node)
+		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			WriteTuple(node.Items);
+			WriteArray(node.Items);
 		}
 		
 		override public void OnListLiteralExpression(ListLiteralExpression node)
@@ -914,7 +914,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 		}
 		
-		void WriteTuple(ExpressionCollection items)
+		void WriteArray(ExpressionCollection items)
 		{
 			Write("(");
 			if (items.Count > 1)

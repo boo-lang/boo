@@ -1528,7 +1528,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.ListTypeBinding);
 		}
 		
-		override public void OnTupleLiteralExpression(TupleLiteralExpression node)
+		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
 			ITypeBinding type = GetBoundType(node);
 			EmitArray(type.GetElementType(), node.Items);

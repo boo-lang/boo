@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	using System;
 	
-	public class TupleTypeBinding : ITypeBinding, INamespace
+	public class ArrayTypeBinding : ITypeBinding, INamespace
 	{	
 		BindingManager _bindingManager;
 		
@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		ITypeBinding _array;
 		
-		public TupleTypeBinding(BindingManager bindingManager, ITypeBinding elementType)
+		public ArrayTypeBinding(BindingManager bindingManager, ITypeBinding elementType)
 		{
 			_bindingManager = bindingManager;
 			_array = bindingManager.ArrayTypeBinding;
@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get			
 			{
-				return BindingType.Tuple;
+				return BindingType.Array;
 			}
 		}
 		

@@ -212,7 +212,7 @@ Exemplos/Artigos
 Otimiza��es
 -----------
 * otimização para chamadas a array.Length
-* tuple unpacking trocar unpacking for vários expressionstatement(binary expression):
+* array unpacking trocar unpacking for vários expressionstatement(binary expression):
 	a, b, = 1, 2
 	por
 	a = 1
@@ -232,5 +232,5 @@ saberia que sempre estaria lidando com um array e poderia gerar um unpacking
 otimizado, etc);
 * const expression unfolding
 * proper tail recursion (fatorial)
-done * for item in array/tuple => traduzir indexaçãoo direta do array com checagem de
+done * for item in array/array => traduzir indexaçãoo direta do array com checagem de
 bounds, o JIT é capaz de detectar esses patterns e otimizar o c�digo de acordo

@@ -16,14 +16,14 @@ class Vector3:
 		return System.Math.Sqrt(dx*dx+dy*dy+dz*dz)
 		#return 1.0
 		
-def createTuple(count as int):
+def createArray(count as int):
 	l = []
 	for i in range(count):
 		l.Add(Vector3())
 	return l.ToArray(Vector3) as (Vector3)
 
-// array as (Vector3) = tuple(Vector3() for i in range(length))
-array = createTuple(25000)
+// array as (Vector3) = array(Vector3() for i in range(length))
+array = createArray(25000)
 
 start = date.Now
 

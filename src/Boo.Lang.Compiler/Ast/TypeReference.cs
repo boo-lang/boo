@@ -32,7 +32,7 @@ using Boo.Lang.Compiler.Ast.Impl;
 namespace Boo.Lang.Compiler.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(SimpleTypeReference))]
-	[System.Xml.Serialization.XmlInclude(typeof(TupleTypeReference))]
+	[System.Xml.Serialization.XmlInclude(typeof(ArrayTypeReference))]
 	[Serializable]
 	public abstract class TypeReference : TypeReferenceImpl
 	{		

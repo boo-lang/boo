@@ -167,7 +167,7 @@
 				<Key word="regex"/>
 				<Key word="hash"/>
 				<Key word="list"/>
-				<Key word="tuple"/>
+				<Key word="array"/>
 				<Key word="type"/>
 			</KeyWords>
 

@@ -37,7 +37,7 @@ abstract class TypeReference(Node):
 class SimpleTypeReference(TypeReference):
 	Name as string
 
-class TupleTypeReference(TypeReference):
+class ArrayTypeReference(TypeReference):
 	ElementType as TypeReference
 
 [collection(TypeReference)]
@@ -379,7 +379,7 @@ class HashLiteralExpression(LiteralExpression):
 class ListLiteralExpression(LiteralExpression):
 	Items as ExpressionCollection
 
-class TupleLiteralExpression(ListLiteralExpression):
+class ArrayLiteralExpression(ListLiteralExpression):
 	pass
 
 class IteratorExpression(Expression):
