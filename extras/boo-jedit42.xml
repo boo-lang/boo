@@ -173,6 +173,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit42.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD2>ulong</KEYWORD2>
 			<KEYWORD2>single</KEYWORD2>
 			<KEYWORD2>double</KEYWORD2>
+			<KEYWORD2>decimal</KEYWORD2>
 			<KEYWORD2>date</KEYWORD2>
 			<KEYWORD2>timespan</KEYWORD2>
 			<KEYWORD2>array</KEYWORD2>

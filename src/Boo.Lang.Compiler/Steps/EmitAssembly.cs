@@ -66,7 +66,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
 		
-		static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
+		static MethodInfo RuntimeServices_ToBool_Object = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Object });
+
+		static MethodInfo RuntimeServices_ToBool_Decimal = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Decimal });
 
 		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
 		
@@ -1253,7 +1255,12 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.ObjectType == topOfStack ||
 				TypeSystemServices.DuckType == topOfStack)
 			{
-				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool, null);
+				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Object, null);
+				return true;
+			}
+			if (TypeSystemServices.DecimalType == topOfStack)
+			{
+				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Decimal, null);
 				return true;
 			}
 			return false;
@@ -1284,6 +1291,7 @@ namespace Boo.Lang.Compiler.Steps
 				Label end = _il.DefineLabel();
 				
 				_il.Emit(OpCodes.Dup);
+				EmitToBoolIfNeeded(lhsType);	// may need to convert decimal to bool
 				_il.Emit(brForValueType, evalRhs);
 				EmitCastIfNeeded(type, lhsType);				
 				_il.Emit(OpCodes.Br, end);			
@@ -2504,6 +2512,36 @@ namespace Boo.Lang.Compiler.Steps
 				type == TypeSystemServices.ByteType;
 		}
 		
+		MethodInfo GetToDecimalConversionMethod(IType type)
+		{
+			MethodInfo method = 
+				typeof(System.Decimal).GetMethod("op_Implicit", new Type[] { GetSystemType(type) });
+			
+			if (method == null)
+			{
+				method =
+					typeof(System.Decimal).GetMethod("op_Explicit", new Type[] { GetSystemType(type) });
+				if (method == null)
+				{
+					NotImplemented(string.Format("Numeric promotion for {0} to decimal not implemented!", type));
+				}
+			}
+			return method;
+		}
+		
+		MethodInfo GetFromDecimalConversionMethod(IType type)
+		{
+			string toType = "To" + type.ToString().Replace("System.", "");
+
+			MethodInfo method =
+				typeof(System.Decimal).GetMethod(toType, new Type[] { typeof(System.Decimal) });
+			if (method == null)
+			{
+				NotImplemented(string.Format("Numeric promotion for decimal to {0} not implemented!", type));
+			}
+			return method;
+		}
+		
 		OpCode GetArithmeticOpCode(IType type, BinaryOperatorType op)
 		{
 			if (IsInteger(type) && _checked)
@@ -2617,7 +2655,18 @@ namespace Boo.Lang.Compiler.Steps
 					if (actualType.IsValueType)
 					{
 						// numeric promotion
-						_il.Emit(GetNumericPromotionOpCode(expectedType));
+						if (TypeSystemServices.DecimalType == expectedType)
+						{
+							_il.EmitCall(OpCodes.Call, GetToDecimalConversionMethod(actualType), null);
+						}
+						else if (TypeSystemServices.DecimalType == actualType)
+						{
+							_il.EmitCall(OpCodes.Call, GetFromDecimalConversionMethod(expectedType), null);
+						}
+						else
+						{
+							_il.Emit(GetNumericPromotionOpCode(expectedType));
+						}
 					}
 					else
 					{
@@ -2707,6 +2756,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return "UnboxDouble";
 			}
+			else if (type == TypeSystemServices.DecimalType)
+			{
+				return "UnboxDecimal";
+			}
 			else if (type == TypeSystemServices.BoolType)
 			{
 				return "UnboxBoolean";
@@ -2781,7 +2834,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Type systemType = GetSystemType(elementType);
 				_il.Emit(OpCodes.Ldelema, systemType);
-				value.Accept(this); PopType();
+				value.Accept(this);
+				EmitCastIfNeeded(elementType, PopType());	// might need to cast to decimal
 				_il.Emit(opcode, systemType);
 			}
 			else

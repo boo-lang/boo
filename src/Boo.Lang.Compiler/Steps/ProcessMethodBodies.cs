@@ -2572,13 +2572,13 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case UnaryOperatorType.UnaryNegation:
 				{
-					if (!IsNumber(node.Operand))
-					{
-						InvalidOperatorForType(node);
-					}
-					else
+					if (IsPrimitiveNumber(node.Operand))
 					{
 						BindExpressionType(node, GetExpressionType(node.Operand));
+					}
+					else if (! ResolveOperator(node))
+					{
+						InvalidOperatorForType(node);
 					}
 					break;
 				}
@@ -2852,7 +2852,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType lhs = GetExpressionType(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			
-			if (IsNumber(lhs) && IsNumber(rhs))
+			if (IsPrimitiveNumber(lhs) && IsPrimitiveNumber(rhs))
 			{
 				BindExpressionType(node, TypeSystemServices.BoolType);
 			}
@@ -3746,7 +3746,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType left = GetExpressionType(node.Left);
 			IType right = GetExpressionType(node.Right);
-			if (IsNumber(left) && IsNumber(right))
+			if (IsPrimitiveNumber(left) && IsPrimitiveNumber(right))
 			{
 				BindExpressionType(node, TypeSystemServices.GetPromotedNumberType(left, right));
 			}
@@ -4042,6 +4042,16 @@ namespace Boo.Lang.Compiler.Steps
 			return IsNumber(GetExpressionType(expression));
 		}
 		
+		bool IsPrimitiveNumber(IType type)
+		{
+			return TypeSystemServices.IsPrimitiveNumber(type);
+		}
+		
+		bool IsPrimitiveNumber(Expression expression)
+		{
+			return IsPrimitiveNumber(GetExpressionType(expression));
+		}
+		
 		bool IsString(Expression expression)
 		{
 			return TypeSystemServices.StringType == GetExpressionType(expression);
@@ -4310,6 +4320,25 @@ namespace Boo.Lang.Compiler.Steps
 			return "op_" + op.ToString();
 		}
 		
+		protected string GetMethodNameForOperator(UnaryOperatorType op)
+		{
+			return "op_" + op.ToString();
+		}
+		
+		bool ResolveOperator(UnaryExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
+			mie.Arguments.Add(node.Operand);
+			
+			string operatorName = GetMethodNameForOperator(node.Operator);
+			IType operand = GetExpressionType(node.Operand);
+			if (ResolveOperator(node, operand, operatorName, mie))
+			{
+				return true;
+			}
+			return ResolveOperator(node, TypeSystemServices.RuntimeServicesType, operatorName, mie);
+		}
+		
 		bool ResolveOperator(BinaryExpression node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
@@ -4376,7 +4405,7 @@ namespace Boo.Lang.Compiler.Steps
 			return method;
 		}
 		
-		bool ResolveOperator(BinaryExpression node, IType type, string operatorName, MethodInvocationExpression mie)
+		bool ResolveOperator(Expression node, IType type, string operatorName, MethodInvocationExpression mie)
 		{
 			IMethod tag = FindOperator(type, operatorName, mie.Arguments);
 			if (null == tag)

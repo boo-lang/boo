@@ -37,6 +37,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected IType _runtimeServices;
 		protected IMethod RuntimeServices_Invoke;
 		protected IMethod RuntimeServices_InvokeBinaryOperator;
+		protected IMethod RuntimeServices_InvokeUnaryOperator;
 		protected IMethod RuntimeServices_SetProperty;
 		protected IMethod RuntimeServices_GetProperty;
 		
@@ -46,6 +47,7 @@ namespace Boo.Lang.Compiler.Steps
 			_runtimeServices = TypeSystemServices.Map(typeof(Boo.Lang.RuntimeServices));
 			RuntimeServices_Invoke = ResolveMethod(_runtimeServices, "Invoke");
 			RuntimeServices_InvokeBinaryOperator = ResolveMethod(_runtimeServices, "InvokeBinaryOperator");
+			RuntimeServices_InvokeUnaryOperator = ResolveMethod(_runtimeServices, "InvokeUnaryOperator");
 			RuntimeServices_SetProperty = ResolveMethod(_runtimeServices, "SetProperty");
 			RuntimeServices_GetProperty = ResolveMethod(_runtimeServices, "GetProperty");
 		}
@@ -91,6 +93,28 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				base.ProcessMemberReferenceExpression(node);
+			}
+		}
+		
+		override public void LeaveUnaryExpression(UnaryExpression node)
+		{
+			if (IsDuckTyped(node.Operand) &&
+			   node.Operator == UnaryOperatorType.UnaryNegation)
+			{
+				MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+						RuntimeServices_InvokeUnaryOperator,
+						CodeBuilder.CreateStringLiteral(
+							GetMethodNameForOperator(node.Operator)),
+							node.Operand);							
+				BindExpressionType(mie, TypeSystemServices.DuckType);
+			
+				node.ParentNode.Replace(
+					node,
+					mie);
+			}
+			else
+			{
+				base.LeaveUnaryExpression(node);
 			}
 		}
 		

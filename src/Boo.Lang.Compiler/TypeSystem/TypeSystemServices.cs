@@ -243,27 +243,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType GetPromotedNumberType(IType left, IType right)
 		{
-/* Don't know if we ever want to support decimals
- * If so, the arg exception will have to be handled properly
-			if (left == DecimalType)
+			if (left == DecimalType ||
+				right == DecimalType)
 			{
-				if (right == DoubleType ||
-				    right == SingleType)
-				{
-					throw new ArgumentException("decimal <op> " + right);
-				}
 				return DecimalType;
 			}
-			if (right == DecimalType)
-			{
-				if (left == DoubleType ||
-				    left == SingleType)
-				{
-					throw new ArgumentException(left + " <op> decimal");
-				}
-				return DecimalType;
-			}
-*/
 			if (left == DoubleType ||
 				right == DoubleType)
 			{
@@ -588,17 +572,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		public static bool IsPrimitiveTypeOrString(IType type)
-		{
-			ExternalType external = type as ExternalType;
-			if (null != external)
-			{
-				Type actual = external.ActualType;
-				return actual.IsPrimitive || Types.String == actual;
-			}
-			return false;
-		}
-		
 		public bool IsIntegerNumber(IType type)
 		{
 			return
@@ -625,8 +598,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool IsNumber(IType type)
 		{
 			return
+				IsPrimitiveNumber(type) ||
+				type == this.DecimalType;
+		}
+		
+		public bool IsPrimitiveNumber(IType type)
+		{
+			return
 				IsIntegerNumber(type) ||
-				//IsUnsignedNumber(type) ||
 				type == this.DoubleType ||
 				type == this.SingleType;
 		}

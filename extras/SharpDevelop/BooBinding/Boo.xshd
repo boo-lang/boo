@@ -165,6 +165,7 @@
 				<Key word="ulong"/>
 				<Key word="date"/>
 				<Key word="timespan" />
+				<Key word="decimal" />
 			</KeyWords>
 
 			<KeyWords name="ReferenceTypes" bold="true" italic="false" color="Purple" >

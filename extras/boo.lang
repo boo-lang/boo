@@ -80,6 +80,7 @@ OR
 		<keyword>byte</keyword>
 		<keyword>sbyte</keyword>
 		<keyword>double</keyword>
+		<keyword>decimal</keyword>
 		<keyword>single</keyword>
 		<keyword>short</keyword>
 		<keyword>ushort</keyword>

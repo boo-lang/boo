@@ -211,6 +211,55 @@ namespace Boo.Lang
 			}
 		}
 
+		public static object InvokeUnaryOperator(string operatorName, object operand)
+		{
+			Type operandType = operand.GetType();
+			TypeCode operandTypeCode = Type.GetTypeCode(operandType);
+
+			if (IsNumeric(operandTypeCode))
+			{
+				// HACK: optimization to get to the correct operators faster
+				// is it worthy?
+				switch (((int)operatorName[3] << 8) + (int)operatorName[operatorName.Length - 1])
+				{
+					case ((int)'U' << 8) + (int)'n':			// op_UnaryNegation
+						return op_UnaryNegation(operand, operandTypeCode);
+					default:
+						throw new ArgumentException(operatorName + " " + operand);
+				}
+			}
+			else
+			{
+				object[] args = new object[] { operand };
+				IQuackFu duck = operand as IQuackFu;
+				if (null != duck)
+				{
+					return duck.QuackInvoke(operatorName, args);
+				}
+
+				try
+				{
+					return operandType.InvokeMember(operatorName,
+										InvokeOperatorBindingFlags,
+										null,
+										null,
+										args);
+				}
+				catch (MissingMethodException)
+				{
+					try
+					{
+						return InvokeRuntimeServicesOperator(operatorName, args);
+					}
+					catch (MissingMethodException)
+					{
+					}
+
+					throw; // always throw the original exception
+				}
+			}
+		}
+
 		private static object InvokeRuntimeServicesOperator(string operatorName, object[] args)
 		{
 			return RuntimeServicesType.InvokeMember(operatorName,
@@ -657,7 +706,8 @@ namespace Boo.Lang
 			{
 				if (TypeCode.Double == rhsTypeCode || TypeCode.Single == rhsTypeCode)
 				{
-					throw new ArgumentException("decimal <op> " + rhsTypeCode);
+//					throw new ArgumentException("decimal <op> " + rhsTypeCode);
+					return TypeCode.Decimal;	// not per ECMA spec
 				}
 				return TypeCode.Decimal;
 			}
@@ -1039,6 +1089,30 @@ namespace Boo.Lang
 			}
 		}
 
+		private static object op_UnaryNegation(object operand, TypeCode operandTypeCode)
+		{
+			IConvertible operandConvertible = (IConvertible)operand;
+
+			switch (operandTypeCode)
+			{
+				case TypeCode.Decimal:
+					return -operandConvertible.ToDecimal(null);
+				case TypeCode.Double:
+					return -operandConvertible.ToDouble(null);
+				case TypeCode.Single:
+					return -operandConvertible.ToSingle(null);
+				case TypeCode.UInt64:
+					return -operandConvertible.ToInt64(null);
+				case TypeCode.Int64:
+					return -operandConvertible.ToInt64(null);
+				case TypeCode.UInt32:
+					return -operandConvertible.ToInt64(null);
+				case TypeCode.Int32:
+				default:
+					return -operandConvertible.ToInt32(null);
+			}
+		}
+
 		#endregion
 
 		internal static bool IsPromotableNumeric(TypeCode code)
@@ -1056,6 +1130,7 @@ namespace Boo.Lang
 				case TypeCode.Single: return true;
 				case TypeCode.Double: return true;
 				case TypeCode.Boolean: return true;
+				case TypeCode.Decimal: return true;
 			}
 			return false;
 		}
@@ -1160,11 +1235,20 @@ namespace Boo.Lang
 			return CheckNumericPromotion(value).ToDouble(null);
 		}
 
-		public static bool UnboxBoolean(object value)
+		public static Decimal UnboxDecimal(object value)
 		{
-			if (value is bool)
+			if (value is Decimal)
 			{
-				return (bool)value;
+				return (Decimal)value;
+			}
+			return CheckNumericPromotion(value).ToDecimal(null);
+		}
+
+		public static Boolean UnboxBoolean(object value)
+		{
+			if (value is Boolean)
+			{
+				return (Boolean)value;
 			}
 			return CheckNumericPromotion(value).ToBoolean(null);
 		}
@@ -1182,6 +1266,11 @@ namespace Boo.Lang
 			}
 
 			return true;
+		}
+
+		public static bool ToBool(decimal value)
+		{
+			return 0 != value;
 		}
 
 		static void Error(string name, params object[] args)
