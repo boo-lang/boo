@@ -120,6 +120,12 @@ class MainForm(Form):
 			MenuItem(Text: "New Project",
 					Click: NewProject))
 		sender.MenuItems.Add(MenuItem("-"))
+		
+		if _current is not null:
+			sender.MenuItems.Add(
+				MenuItem(Text: "Stop '${_current}'",
+						Click: FlushCurrentActivity))
+						
 		sender.MenuItems.Add(
 			MenuItem(Text: "Quit",
 					Click: Application.Exit))
