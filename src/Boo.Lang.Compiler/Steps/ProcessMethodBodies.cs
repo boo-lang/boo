@@ -99,8 +99,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Boo.Lang.List _buffer = new Boo.Lang.List();
 		
-		Boo.Lang.Compiler.Ast.Module _anonymousTypesModule;
-		
 		public ProcessMethodBodies()
 		{
 			IsPublicFieldPropertyEventFilter = new InfoFilter(IsPublicFieldPropertyEvent);
@@ -183,7 +181,6 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethodInfo = null;
 			_methodInfoStack = null;
 			_visited = null;
-			_anonymousTypesModule = null;
 		}
 		
 		void EnterLoop()
@@ -1443,7 +1440,7 @@ namespace Boo.Lang.Compiler.Steps
 			INamespace ns = target.ExpressionType;
 			if (null != ns)
 			{
-				return ns;
+				return GetConcreteExpressionType(target);
 			}
 			return (INamespace)GetEntity(target);
 		}
@@ -1738,67 +1735,6 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 			}
-		}	
-		
-		Boo.Lang.Compiler.Ast.Module GetAnonymousTypesModule()
-		{
-			if (null == _anonymousTypesModule)
-			{
-				_anonymousTypesModule = new Boo.Lang.Compiler.Ast.Module(); 
-				//module.Entity = new ModuleEntity(NameResolutionService, TypeSystemServices, module);
-				CompileUnit.Modules.Add(_anonymousTypesModule);
-			}
-			return _anonymousTypesModule;
-		}
-		
-		Method CreateInvokeMethod(AnonymousCallableType anonymousType)
-		{
-			CallableSignature signature = anonymousType.GetSignature();
-			IParameter[] parameters = signature.Parameters;
-			
-			Method method = new Method("Invoke");
-			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
-			method.ReturnType = CreateTypeReference(signature.ReturnType);
-			
-			for (int i=0; i<parameters.Length; ++i)
-			{
-				method.Parameters.Add(TypeSystemServices.CreateParameterDeclaration(i,
-									"arg" + i,
-									parameters[i].Type));
-			}
-			method.Entity = new InternalMethod(TypeSystemServices, method);
-			return method;			
-		}
-		
-		void CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
-		{
-			Boo.Lang.Compiler.Ast.Module module = GetAnonymousTypesModule();
-			
-			string name = string.Format("__anonymous{0}__", module.Members.Count);
-			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(name);
-			cd.Modifiers |= TypeMemberModifiers.Public;
-			cd.LexicalInfo = sourceNode.LexicalInfo;
-			cd.Members.Add(CreateInvokeMethod(anonymousType));
-			_anonymousTypesModule.Members.Add(cd);
-			
-			anonymousType.ConcreteType = (IType)cd.Entity;
-		}
-		
-		IType GetConcreteExpressionType(Expression expression)
-		{
-			IType type = GetExpressionType(expression);
-			AnonymousCallableType anonymousType = type as AnonymousCallableType;
-			if (null != anonymousType)
-			{
-				if (null == anonymousType.ConcreteType)
-				{
-					CreateConcreteCallableType(expression, anonymousType);
-				}
-				BindExpressionType(expression, anonymousType.ConcreteType);
-				return anonymousType.ConcreteType;
-			}
-			return type;
 		}
 		
 		override public bool EnterBinaryExpression(BinaryExpression node)

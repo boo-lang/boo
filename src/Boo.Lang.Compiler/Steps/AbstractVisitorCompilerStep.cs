@@ -123,14 +123,14 @@ namespace Boo.Lang.Compiler.Steps
 			node.ExpressionType = type;
 		}
 		
+		protected IType GetConcreteExpressionType(Expression expression)
+		{
+			return TypeSystemServices.GetConcreteExpressionType(expression);
+		}
+		
 		protected IType GetExpressionType(Expression node)
 		{			
-			IType type = node.ExpressionType;
-			if (null == type)
-			{
-				throw CompilerErrorFactory.InvalidNode(node);
-			}
-			return type;
+			return TypeSystemServices.GetExpressionType(node);
 		}
 		
 		public IType GetType(Node node)

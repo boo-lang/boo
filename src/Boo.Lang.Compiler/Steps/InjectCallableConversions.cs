@@ -86,7 +86,7 @@ namespace Boo.Lang.Compiler.Steps
 				Expression expression = node.Expression;
 				if (null != expression)
 				{
-					Expression newExpression = Cast(_current.ReturnType, expression);
+					Expression newExpression = Convert(_current.ReturnType, expression);
 					if (null != newExpression)
 					{
 						node.Expression = newExpression;
@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.Steps
 			ExpressionCollection arguments = node.Arguments;
 			for (int i=0; i<parameters.Length; ++i)
 			{
-				Expression newArgument = Cast(parameters[i].Type, arguments[i]);
+				Expression newArgument = Convert(parameters[i].Type, arguments[i]);
 				if (null != newArgument)
 				{
 					arguments.ReplaceAt(i, newArgument);
@@ -119,7 +119,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
-				Expression newRight = Cast(node.Left.ExpressionType, node.Right);
+				Expression newRight = Convert(node.Left.ExpressionType, node.Right);
 				if (null != newRight)
 				{
 					node.Right = newRight;
@@ -127,7 +127,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Expression Cast(IType expectedType, Expression argument)
+		Expression Convert(IType expectedType, Expression argument)
 		{
 			if (IsStandaloneMethodReference(argument))
 			{

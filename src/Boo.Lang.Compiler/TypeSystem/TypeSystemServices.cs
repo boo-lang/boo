@@ -106,8 +106,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		StringBuilder _buffer = new StringBuilder();
 		
-		public TypeSystemServices()		
+		Boo.Lang.Compiler.Ast.Module _anonymousTypesModule;
+		
+		CompileUnit _compileUnit;
+		
+		public TypeSystemServices() : this(new CompileUnit())
+		{
+		}
+		
+		public TypeSystemServices(CompileUnit unit)		
 		{			
+			if (null == unit)
+			{
+				throw new ArgumentNullException("unit");
+			}
+			
+			_compileUnit = unit;
+			
 			Cache(VoidType = new VoidTypeImpl(this));
 			Cache(ObjectType = new ExternalType(this, Types.Object));
 			Cache(EnumType = new ExternalType(this, typeof(System.Enum)));
@@ -202,7 +217,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_anonymousCallableTypes.Add(signature, type);
 			}
 			return type;
-		}		
+		}
+		
+		public IType GetExpressionType(Expression node)
+		{			
+			IType type = node.ExpressionType;
+			if (null == type)
+			{
+				throw CompilerErrorFactory.InvalidNode(node);
+			}
+			return type;
+		}
+		
+		public IType GetConcreteExpressionType(Expression expression)
+		{
+			IType type = GetExpressionType(expression);
+			AnonymousCallableType anonymousType = type as AnonymousCallableType;
+			if (null != anonymousType)
+			{
+				if (null == anonymousType.ConcreteType)
+				{
+					CreateConcreteCallableType(expression, anonymousType);
+				}
+				expression.ExpressionType = anonymousType.ConcreteType;
+				return anonymousType.ConcreteType;
+			}
+			return type;
+		}
 		
 		public ParameterDeclaration CreateParameterDeclaration(int index, string name, IType type)
 		{
@@ -544,6 +585,50 @@ namespace Boo.Lang.Compiler.TypeSystem
 		void Cache(object key, IType tag)
 		{
 			_entityCache[key] = tag;
+		}
+		
+		Boo.Lang.Compiler.Ast.Module GetAnonymousTypesModule()
+		{
+			if (null == _anonymousTypesModule)
+			{
+				_anonymousTypesModule = new Boo.Lang.Compiler.Ast.Module();
+				_compileUnit.Modules.Add(_anonymousTypesModule);
+			}
+			return _anonymousTypesModule;
+		}
+		
+		Method CreateInvokeMethod(AnonymousCallableType anonymousType)
+		{
+			CallableSignature signature = anonymousType.GetSignature();
+			IParameter[] parameters = signature.Parameters;
+			
+			Method method = new Method("Invoke");
+			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
+			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
+			method.ReturnType = CreateTypeReference(signature.ReturnType);
+			
+			for (int i=0; i<parameters.Length; ++i)
+			{
+				method.Parameters.Add(CreateParameterDeclaration(i,
+									"arg" + i,
+									parameters[i].Type));
+			}
+			method.Entity = new InternalMethod(this, method);
+			return method;			
+		}
+		
+		void CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		{
+			Boo.Lang.Compiler.Ast.Module module = GetAnonymousTypesModule();
+			
+			string name = string.Format("__anonymous{0}__", module.Members.Count);
+			ClassDefinition cd = CreateCallableDefinition(name);
+			cd.Modifiers |= TypeMemberModifiers.Public;
+			cd.LexicalInfo = sourceNode.LexicalInfo;
+			cd.Members.Add(CreateInvokeMethod(anonymousType));
+			_anonymousTypesModule.Members.Add(cd);
+			
+			anonymousType.ConcreteType = (IType)cd.Entity;
 		}
 		
 		private static void InvalidNode(Node node)

@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler
 			_errors = new CompilerErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_typeSystemServices = new TypeSystem.TypeSystemServices();
+			_typeSystemServices = new TypeSystem.TypeSystemServices(unit);
 			_nameResolutionService = new TypeSystem.NameResolutionService(this); 
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
