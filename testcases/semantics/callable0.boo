@@ -16,15 +16,15 @@ public final transient class Callable0Module(System.Object):
 		private Instance as Callable0Module.__Callable1__
 
 		public virtual def Call(args as (System.Object)) as System.Object:
-			if (1 != args.Length):
-				raise Boo.Lang.ArgumentCountException('Callable0Module.ToUpper', 1, args.Length)
+			if (1 != args.get_Length()):
+				raise Boo.Lang.ArgumentCountException('Callable0Module.ToUpper', 1, args.get_Length())
 			return Callable0Module.ToUpper(args[0])
 
 		private def constructor():
 			super()
 			
 		public static def constructor():
-			Callable0Module.__Callable__1.Instance = Callable0Module.__Callable1__()
+			Callable0Module.__Callable1__.Instance = Callable0Module.__Callable1__()
 
 """
 def ToUpper(item as string):

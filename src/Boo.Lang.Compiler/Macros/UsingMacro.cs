@@ -29,35 +29,40 @@
 namespace Boo.Lang
 {
 	using System;
+	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	
 	/// <summary>
 	/// using file=File.OpenText(fname):
 	///		print(file.ReadLine())
 	/// </summary>
-	public class UsingMacro : Boo.Lang.Compiler.IAstMacro
+	public class UsingMacro : AbstractCompilerComponent, IAstMacro
 	{
 		public const string DisposableLocalName = "__disposable__";
 		
-		public void Initialize(Boo.Lang.Compiler.CompilerContext context)
-		{			
-		}
-		
-		public void Dispose()
-		{			
-		}
-		
 		public Statement Expand(MacroStatement macro)
-		{			
-			// only single assignments are supported
-			// right now
-			if (macro.Arguments.Count != 1 ||
-				!IsAssignmentToReference(macro.Arguments[0]))
+		{	
+			if (macro.Arguments.Count != 1)
 			{
 				throw new NotImplementedException();
-			}
+			}			
 			
-			BinaryExpression expression = (BinaryExpression)macro.Arguments[0];
+			Expression expression = macro.Arguments[0];
+			Expression reference = null;
+			
+			if (IsAssignmentToReference(expression))
+			{
+				reference = ((BinaryExpression)expression).Left;
+			}
+			else
+			{
+				reference = new ReferenceExpression(expression.LexicalInfo,
+								   string.Format("__using{0}__", _context.AllocIndex()));
+				expression = new BinaryExpression(expression.LexicalInfo,
+									BinaryOperatorType.Assign,
+									reference,
+									expression);
+			}
 
 			// try:
 			//		assignment
@@ -67,12 +72,12 @@ namespace Boo.Lang
 			TryStatement stmt = new TryStatement(macro.LexicalInfo);
 			stmt.ProtectedBlock.Add(expression);
 			stmt.ProtectedBlock.Add(macro.Block);
-			stmt.EnsureBlock = CreateEnsureBlock((ReferenceExpression)expression.Left);
+			stmt.EnsureBlock = CreateEnsureBlock(reference);
 			
 			return stmt;
 		}
 		
-		Block CreateEnsureBlock(ReferenceExpression reference)
+		Block CreateEnsureBlock(Expression reference)
 		{
 			Block block = new Block(reference.LexicalInfo);
 			
@@ -105,6 +110,12 @@ namespace Boo.Lang
 				);
 			
 			block.Add(stmt);
+			block.Add(new BinaryExpression(
+						BinaryOperatorType.Assign,
+						reference.CloneNode(),
+						new NullLiteralExpression()
+						)
+					);
 			return block;
 		}
 		

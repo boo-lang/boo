@@ -13,11 +13,13 @@ public final transient class Using1Module(System.Object):
 				if (__disposable__ = (f2 as System.IDisposable)):
 					__disposable__.Dispose()
 					__disposable__ = null
+				f2 = null
 			Boo.Lang.Builtins.print(f1.ReadLine())
 		ensure:
 			if (__disposable__ = (f1 as System.IDisposable)):
 				__disposable__.Dispose()
 				__disposable__ = null
+			f1 = null
 
 	private def constructor():
 		super()

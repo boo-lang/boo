@@ -8,7 +8,7 @@ import System.IO
 def InsertLicense(fname as string, license as string):
 	print(fname)
 	contents = TextFile.ReadFile(fname)
-	using writer = StreamWriter(fname, false, System.Text.Encoding.UTF8):
+	using writer=StreamWriter(fname, false, System.Text.Encoding.UTF8):
 		writer.WriteLine(license)
 		writer.WriteLine()
 		writer.Write(contents)
@@ -21,7 +21,7 @@ def ScanDirectory(name as string, license as string):
 		ScanDirectory(dir, license)
 		
 def GetFirstLine(fname as string):
-	using f = TextFile(fname):
+	using f=File.OpenText(fname):
 		return f.ReadLine()
 
 license = TextFile.ReadFile("license.txt")

@@ -263,6 +263,16 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(")");
 		}
 		
+		override public void OnCastExpression(CastExpression node)
+		{
+			WriteKeyword("cast");
+			Write("(");
+			Switch(node.Type);
+			Write(", ");
+			Switch(node.Target);
+			Write(")");
+		}
+		
 		override public void OnNullLiteralExpression(NullLiteralExpression node)
 		{
 			WriteKeyword("null");

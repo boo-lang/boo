@@ -75,7 +75,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		protected INamespace _parentNamespace;
 		
-		protected ArrayList _memberBuffer = new ArrayList();
+		protected List _memberBuffer = new List();
 		
 		protected AbstractInternalTypeBinding(BindingManager bindingManager, TypeDefinition typeDefinition)
 		{
@@ -135,7 +135,7 @@ namespace Boo.Lang.Compiler.Bindings
 					IBinding binding = _bindingManager.GetBoundType(baseType).Resolve(name);
 					if (null != binding)
 					{
-						_memberBuffer.Add(binding);
+						_memberBuffer.AddUnique(binding);
 					}
 				}
 			}

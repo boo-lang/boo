@@ -1181,6 +1181,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void MethodCanBePassedAsParameter()
+		{
+			RunCompilerTestCase("callable3.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");
@@ -1196,6 +1202,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void InnerClassSimple()
 		{
 			RunCompilerTestCase("innerclass0.boo");
+		}
+		
+		[Test]
+		public void InnerClassWithInterface()
+		{
+			RunCompilerTestCase("innerclass1.boo");
 		}
 		
 		[Test]
