@@ -282,7 +282,7 @@ namespace Boo.Lang
 
 		override public string ToString()
 		{
-			return Join(", ");
+			return "[" + Join(", ") + "]";
 		}
 		
 		public string Join(string separator)

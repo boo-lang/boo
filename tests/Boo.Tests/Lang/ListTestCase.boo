@@ -144,7 +144,7 @@ class ListTestCase:
 
 	[Test]
 	def TestToString():
-		Assert.AreEqual("um, dois, tres", _list.ToString())
+		Assert.AreEqual("[um, dois, tres]", _list.ToString())
 		
 	[Test]
 	def Pop():

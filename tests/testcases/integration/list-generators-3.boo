@@ -1,5 +1,5 @@
 """
-Homer, Bart
+[Homer, Bart]
 """
 class Foo:
 	[getter(Name)] _name as string

@@ -1,7 +1,7 @@
 """
 6
-foo, bar, baz, 0, 1, 2
-foo, bar, baz, 0, 1, 2, 3
+[foo, bar, baz, 0, 1, 2]
+[foo, bar, baz, 0, 1, 2, 3]
 
 """
 import System.Console
