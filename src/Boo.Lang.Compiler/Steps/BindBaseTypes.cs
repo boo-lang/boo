@@ -41,8 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void Run()
-		{			
-			NameResolutionService.Reset();
+		{		
 			Visit(CompileUnit.Modules);
 		}
 		

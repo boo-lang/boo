@@ -35,12 +35,13 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Referenced assemblies collection.
 	/// </summary>
+	[Boo.Lang.EnumeratorItemType(typeof(Assembly))]
 	public class AssemblyCollection : CollectionBase
 	{
 		public AssemblyCollection()
 		{
 		}
-
+	
 		public void Add(Assembly assembly)
 		{
 			if (null == assembly)

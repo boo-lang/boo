@@ -103,10 +103,14 @@ namespace Boo.Lang.Compiler.Steps
 		void OrganizeExternalNamespaces()
 		{
 			foreach (Assembly asm in Parameters.References)
-			{
-				Type[] types = asm.GetExportedTypes();
+			{				
+				Type[] types = asm.GetTypes();				
 				foreach (Type type in types)
 				{
+					if (type.IsNotPublic)
+					{
+						continue;
+					}
 					string ns = type.Namespace;
 					if (null == ns)
 					{

@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// boo compilation context.
 	/// </summary>
-	public class CompilerContext : System.MarshalByRefObject
+	public class CompilerContext// : System.MarshalByRefObject
 	{				
 		protected CompilerParameters _parameters;
 
@@ -47,9 +47,9 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerErrorCollection _errors;
 		
-		protected TypeSystem.TypeSystemServices _typeSystemServices;		
+		protected readonly TypeSystem.TypeSystemServices _typeSystemServices;		
 		
-		protected TypeSystem.NameResolutionService _nameResolutionService;
+		protected readonly TypeSystem.NameResolutionService _nameResolutionService;
 		
 		protected TraceSwitch _traceSwitch;
 

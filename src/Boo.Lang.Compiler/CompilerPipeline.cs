@@ -140,12 +140,22 @@ namespace Boo.Lang.Compiler
 		{
 			_items.Clear();
 		}
+		
+		virtual protected void OnEnterStep(CompilerContext context, ICompilerStep step)
+		{
+			context.TraceEnter("Entering {0}...", step);
+		}
+		
+		virtual protected void OnLeaveStep(CompilerContext context, ICompilerStep step)
+		{
+			context.TraceLeave("Left {0}.", step);
+		}
 
 		virtual public void Run(CompilerContext context)
 		{
 			foreach (ICompilerStep step in _items)
 			{				
-				context.TraceEnter("Entering {0}...", step);			
+				OnEnterStep(context, step);		
 				
 				step.Initialize(context);
 				try
@@ -156,11 +166,14 @@ namespace Boo.Lang.Compiler
 				{
 					context.Errors.Add(error);
 				}
-				catch (Exception x)
+				catch (System.Exception x)
 				{
 					context.Errors.Add(CompilerErrorFactory.StepExecutionError(x, step));
 				}
-				context.TraceLeave("Left {0}.", step);
+				finally
+				{				
+					OnLeaveStep(context, step);
+				}
 			}
 			
 			foreach (ICompilerStep step in _items)

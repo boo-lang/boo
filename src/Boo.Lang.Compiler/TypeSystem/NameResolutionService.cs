@@ -64,6 +64,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			set
 			{
+				if (null == value)
+				{
+					throw new ArgumentNullException("GlobalNamespace");
+				}
 				_global = value;
 			}
 		}		

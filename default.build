@@ -111,13 +111,14 @@
 		<mkdir dir="bin" />
 		<copy todir="bin">
 			<fileset basedir="build">
+				<include name="pt/Boo.resources.dll" />
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.NAnt.dll" />
 				<include name="Boo.AntlrParser.dll" />
 				<include name="antlr.runtime.dll" />
 				<include name="booc.exe" />
-				<include name="booi.exe" />
+				<include name="booi.exe" />				
 			</fileset>
 		</copy>
 	</target>
