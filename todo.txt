@@ -12,6 +12,9 @@
 	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
 	parâmetros
 	
+* refactorar todos os métodos relacionados a definição de tipos do ProcessGenerators
+e criar um ClassDefinitionBuilder;
+	
 * boox
 	* assembly search path
 	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código

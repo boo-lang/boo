@@ -324,14 +324,24 @@ namespace Boo.Lang.Compiler.Steps
 												new Block(),
 												null);
 												
+			Expression current = CreateMethodInvocation(
+									CreateFieldReference((InternalField)_enumeratorField.Entity),
+									TypeSystemServices.Map(Types.IEnumerator.GetProperty("Current").GetGetMethod()));
+												
 			DeclarationCollection declarations = _generator.Declarations;
 			if (declarations.Count > 1)
 			{
+				UnpackStatement unpack = new UnpackStatement();
+				
 				foreach (Declaration declaration in declarations)
 				{
 					LocalVariable local = (LocalVariable)declaration.Entity;
 					method.Locals.Add(local.Local);
+					unpack.Declarations.Add(declaration);
 				}
+				
+				unpack.Expression = current;
+				stmt.TrueBlock.Add(unpack);
 			}
 			else
 			{
@@ -340,9 +350,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				stmt.TrueBlock.Add(CreateAssignment(
 								CreateReference(local),
-								CreateMethodInvocation(
-									CreateFieldReference((InternalField)_enumeratorField.Entity),
-									TypeSystemServices.Map(Types.IEnumerator.GetProperty("Current").GetGetMethod()))));
+								current));
 			}
 			
 			stmt.TrueBlock.Add(CreateAssignment(
