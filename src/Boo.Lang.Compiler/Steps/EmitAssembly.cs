@@ -386,7 +386,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_symbolDocWriter = _moduleBuilder.DefineDocument(
 										fname,
-										SymDocumentType.Text,
+										Guid.Empty,
 										Guid.Empty,
 										Guid.Empty);
 			}

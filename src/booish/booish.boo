@@ -95,6 +95,16 @@ class InteractiveInterpreter:
 	References:
 		get:
 			return _compiler.Parameters.References
+
+	def ConsoleLoopEval():			
+		while line=prompt(">>> "):
+			try:		
+				line = ReadBlock(line) if line[-1:] in ":", "\\"
+				LoopEval(line)
+			except x as System.Reflection.TargetInvocationException:
+				print(x.InnerException)
+			except x:
+				print(x)
 			
 	def LoopEval(code as string):
 		result = self.Eval(code)
@@ -198,6 +208,9 @@ class InteractiveInterpreter:
 				member for member in type.GetMembers()
 				unless (method=(member as System.Reflection.MethodInfo))
 				and method.IsSpecialName)
+				
+	def load([required] path as string):
+		References.Add(System.Reflection.Assembly.LoadFrom(path))
 		
 	def help(obj):		
 		type = (obj as Type) or obj.GetType()
@@ -284,6 +297,7 @@ class InteractiveInterpreter:
 		SetValue("dir", dir)
 		SetValue("help", help)
 		SetValue("print", { value | _print(value) })
+		SetValue("load", load)
 
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
 										module as Module):
@@ -638,14 +652,7 @@ if "--print-modules" in argv:
 if "--debug" in argv:
 	Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
 
-while line=prompt(">>> "):
-	try:		
-		line = ReadBlock(line) if line[-1:] in ":", "\\"
-		interpreter.LoopEval(line)
-	except x as System.Reflection.TargetInvocationException:
-		print(x.InnerException)
-	except x:
-		print(x)
+interpreter.ConsoleLoopEval()
 	
 
 
