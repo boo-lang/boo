@@ -15,7 +15,7 @@ done * artigo "Estendendo o compilador utilizando pipelines",
 		done * stylechecker step,
 		done * trace step
 		
-* recursos
+done * recursos
 		
 * trocar o modelo utilizado IAstTransformer para um modelo mais simples
 que possa ser utilizado no BooInBoo:

@@ -24,6 +24,7 @@ class DocumentOutline(Content):
 	_treeViewVisitor as TreeViewVisitor
 	_timer = Timer(Tick: _timer_Tick, Interval: 3s.TotalMilliseconds)
 	_module as Module
+	_resourceManager = System.Resources.ResourceManager(DocumentOutline)
 
 	def constructor():
 		InitImageList()
@@ -49,23 +50,7 @@ class DocumentOutline(Content):
 
 	def InitImageList():		
 		_imageList = ImageList()
-
-		images = (
-					"namespace.png",
-					"class.png",
-					"interface.png",
-					"enum.png",
-					"field.png",
-					"property.png",
-					"method.png"
-				)
-				
-		appPath = Path.GetDirectoryName(Application.ExecutablePath)
-		try:
-			for image in images:
-				_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, image)))
-		except x as FileNotFoundException:
-			print(x)
+		_imageList.ImageStream = _resourceManager.GetObject("_imageList")
 
 	def InitTreeView():
 		_tree = TreeView(Dock: DockStyle.Fill,

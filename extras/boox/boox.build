@@ -16,18 +16,22 @@
 			<fileset>
 				<includes name="boox.build" />
 				<includes name="src/*.boo" />
-				<includes name="build/*.dll" />				
-				<includes name="build/*.png" />
+				<includes name="resources/**/*.png" />
+				<includes name="build/*.dll" />
 				<includes name="build/boox.exe" />
 			</fileset>
 		</zip>
 	</target>
 	
-	<target name="compile" depends="init">
+	<target name="compile" depends="init, create-resources">
 		<booc output="build/boox.exe">
 			<sources basedir="src">
 				<includes name="*.boo" />
 			</sources> 
+			
+			<resources basedir="build">
+				<includes name="*.resources" />
+			</resources>
 			
 			<references basedir="build">
 				<includes name="ICSharpCode.TextEditor.dll" />
@@ -39,6 +43,38 @@
 		</booc>
 	</target>
 	
+	<target name="create-resources" depends="init">
+		<boo>
+		import System.IO
+		import System.Resources
+		import System.Windows.Forms from System.Windows.Forms
+		import System.Drawing from System.Drawing
+		
+		def MapPath(path):
+			return Path.Combine(Project.BaseDirectory, path)
+					
+		def CreateImageList():
+			imageList = ImageList()
+			images = (
+					"namespace.png",
+					"class.png",
+					"interface.png",
+					"enum.png",
+					"field.png",
+					"property.png",
+					"method.png"
+				)
+			for image in images:
+				fname = MapPath("resources/ClassBrowserIcons/${image}")
+				imageList.Images.Add(Image.FromFile(fname))
+			return imageList
+		
+		using imageList=CreateImageList():
+			using writer=ResourceWriter(MapPath("build/BooExplorer.DocumentOutline.resources")):
+				writer.AddResource("_imageList", imageList.ImageStream)
+		</boo>
+	</target>
+	
 	<target name="init">
 		<mkdir dir="build" />
 		
@@ -46,12 +82,6 @@
 		
 		<call target="update-sharpd-libs" if="${directory::exists(sharpd.dir)}" />
 		
-		<copy todir="build">
-			<fileset basedir="resources/ClassBrowserIcons/">
-				<includes name="*.png" />
-			</fileset>
-		</copy>
-			
 		<loadtasks assembly="build/Boo.NAnt.dll" />
 	</target>
 	
