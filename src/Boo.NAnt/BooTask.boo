@@ -87,7 +87,7 @@ class BooTask(AbstractBooTask):
 		set:
 			_src = value
 			
-	override protected def ExecuteTask():
+	override def ExecuteTask():
 		
 		compiler = BooCompiler()
 		parameters = compiler.Parameters

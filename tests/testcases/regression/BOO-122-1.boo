@@ -12,7 +12,7 @@ import Boo.Lang.Compiler.Pipelines
 
 def run(src as string, references):
 	compiler = BooCompiler()
-	compiler.Parameters.Input.Add(StringInput("src", src))
+	compiler.Parameters.Input.Add(StringInput("level${len(references)+1}", src))
 	compiler.Parameters.References.Extend(references)
 	compiler.Parameters.Pipeline = Run()
 	result = compiler.Run()

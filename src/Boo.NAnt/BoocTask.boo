@@ -99,7 +99,7 @@ class BoocTask(AbstractBooTask):
 		set:
 			_pipeline = value
 			
-	override protected def ExecuteTask():
+	override def ExecuteTask():
 		files = _sourceFiles.FileNames
 		LogInfo("Compiling ${len(files)} file(s) to ${_output}.")
 		

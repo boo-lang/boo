@@ -742,6 +742,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		void PreparePrimitives()
 		{
+			AddPrimitiveType("duck", DuckType);
 			AddPrimitiveType("void", VoidType);
 			AddPrimitiveType("bool", BoolType);
 			AddPrimitiveType("date", DateTimeType);
