@@ -34,13 +34,16 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 
-	class ClosurePostProcessor : AbstractTransformerCompilerStep
+	public class ProcessClosures : AbstractTransformerCompilerStep
 	{
 		Method _currentMethod;
 		
 		override public void Run()
 		{
-			Visit(CompileUnit);
+			if (0 == Errors.Count)
+			{
+				Visit(CompileUnit);
+			}
 		}
 		
 		override public void OnMethod(Method node)

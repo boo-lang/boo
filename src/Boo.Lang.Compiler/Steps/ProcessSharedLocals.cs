@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class ProcessClosures : AbstractTransformerCompilerStep
+	public class ProcessSharedLocals : AbstractTransformerCompilerStep
 	{
 		Method _currentMethod;
 		
@@ -53,12 +53,6 @@ namespace Boo.Lang.Compiler.Steps
 			if (0 == Errors.Count)
 			{
 				Visit(CompileUnit);
-				
-				using (ClosurePostProcessor pp = new ClosurePostProcessor())
-				{
-					pp.Initialize(_context);
-					pp.Run();
-				}
 			}
 		}
 		
@@ -91,6 +85,18 @@ namespace Boo.Lang.Compiler.Steps
 			++_closureDepth;
 			Visit(node.Body);
 			--_closureDepth;
+		}
+		
+		override public void OnGeneratorExpression(GeneratorExpression node)
+		{			
+			if (!AstUtil.IsListGenerator(node.ParentNode))
+			{
+				++_closureDepth;
+				Visit(node.Iterator);
+				Visit(node.Expression);
+				Visit(node.Filter);
+				--_closureDepth;
+			}
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
