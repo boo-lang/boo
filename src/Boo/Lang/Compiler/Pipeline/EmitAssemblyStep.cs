@@ -686,6 +686,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		public override void OnContinueStatement(ContinueStatement node)
+		{
+			if (InTryInLoop())
+			{
+				_il.Emit(OpCodes.Leave, _currentLoopInfo.ContinueLabel);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Br, _currentLoopInfo.ContinueLabel);
+			}
+		}
+		
 		public override void OnWhileStatement(WhileStatement node)
 		{
 			EmitDebugInfo(node);
@@ -1146,6 +1158,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				
 				case BinaryOperatorType.Division:
+				{
+					OnArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Modulus:
 				{
 					OnArithmeticOperator(node);
 					break;
@@ -1908,6 +1926,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{			
 			Label labelTest = _il.DefineLabel();
 			Label labelBody = _il.DefineLabel();
+			Label breakLabel = _il.DefineLabel();
 			
 			LocalBuilder localIterator = _il.DeclareLocal(Types.IEnumerator);
 			EmitGetEnumerableIfNeeded(iteratorType);			
@@ -1920,19 +1939,25 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
 			EmitUnpackForDeclarations(node.Declarations, BindingManager.ObjectTypeBinding);
 			
+			EnterLoop(breakLabel, labelTest);
 			Switch(node.Block);
+			LeaveLoop();
 			
 			// iterator.MoveNext()			
 			_il.MarkLabel(labelTest);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_MoveNext, null);
 			_il.Emit(OpCodes.Brtrue, labelBody);
+			
+			_il.MarkLabel(breakLabel);
 		}
 		
 		void EmitArrayBasedFor(ForStatement node, ITypeBinding iteratorTypeBinding)
 		{				
 			Label labelTest = _il.DefineLabel();
 			Label labelBody = _il.DefineLabel();
+			Label continueLabel = _il.DefineLabel();
+			Label breakLabel = _il.DefineLabel();
 			
 			OpCode ldelem = GetLoadElementOpCode(iteratorTypeBinding.GetElementType());
 			
@@ -1956,7 +1981,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			EmitUnpackForDeclarations(node.Declarations, iteratorTypeBinding.GetElementType());
 			
+			EnterLoop(breakLabel, continueLabel);
 			Switch(node.Block);
+			LeaveLoop();
+			
+			_il.MarkLabel(continueLabel);
 			
 			// ++i			
 			_il.Emit(OpCodes.Ldloc, localIndex);
@@ -1971,6 +2000,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ldlen);
 			_il.Emit(OpCodes.Conv_I4);
 			_il.Emit(OpCodes.Blt, labelBody);
+			
+			_il.MarkLabel(breakLabel);
 		}
 		
 		void EmitUnpackForDeclarations(DeclarationCollection decls, ITypeBinding topOfStack)
@@ -2081,6 +2112,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					case BinaryOperatorType.Subtraction: return OpCodes.Sub_Ovf;
 					case BinaryOperatorType.Multiply: return OpCodes.Mul_Ovf;
 					case BinaryOperatorType.Division: return OpCodes.Div;
+					case BinaryOperatorType.Modulus: return OpCodes.Rem;
 				}
 			}
 			else
@@ -2091,6 +2123,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					case BinaryOperatorType.Subtraction: return OpCodes.Sub;
 					case BinaryOperatorType.Multiply: return OpCodes.Mul;
 					case BinaryOperatorType.Division: return OpCodes.Div;
+					case BinaryOperatorType.Modulus: return OpCodes.Rem;
 				}
 			}
 			throw new ArgumentException("op");

@@ -164,6 +164,9 @@ using Boo.Antlr.Util;
 	
 	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, string tokenObjectClass)
 	{
+		setTabSize(tabSize);
+		setTokenObjectClass(tokenObjectClass);
+		
 		_selector = selector;
 		_el = new BooExpressionLexer(getInputState());
 		_el.setTabSize(tabSize);
@@ -1314,85 +1317,71 @@ _loop378_breakloop:		;
 			{
 				// nongreedy exit test
 				if ((LA(1)=='"') && (LA(2)=='"') && (LA(3)=='"')) goto _loop345_breakloop;
-				switch ( LA(1) )
+				bool synPredMatched341 = false;
+				if (((LA(1)=='$') && (LA(2)=='{') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
 				{
-				case '\n':
-				{
-					match('\n');
-					if (0==inputState.guessing)
-					{
-						newline();
+					int _m341 = mark();
+					synPredMatched341 = true;
+					inputState.guessing++;
+					try {
+						{
+							match("${");
+						}
 					}
-					break;
-				}
-				case '\t':
-				{
-					match('\t');
-					if (0==inputState.guessing)
+					catch (RecognitionException)
 					{
-						tab();
+						synPredMatched341 = false;
 					}
-					break;
+					rewind(_m341);
+					inputState.guessing--;
 				}
-				default:
-					bool synPredMatched341 = false;
-					if (((LA(1)=='$') && (LA(2)=='{') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
+				if ( synPredMatched341 )
+				{
+					mESCAPED_EXPRESSION(false);
+				}
+				else {
+					bool synPredMatched343 = false;
+					if (((LA(1)=='\\') && (LA(2)=='$') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
 					{
-						int _m341 = mark();
-						synPredMatched341 = true;
+						int _m343 = mark();
+						synPredMatched343 = true;
 						inputState.guessing++;
 						try {
 							{
-								match("${");
+								match("\\$");
 							}
 						}
 						catch (RecognitionException)
 						{
-							synPredMatched341 = false;
+							synPredMatched343 = false;
 						}
-						rewind(_m341);
+						rewind(_m343);
 						inputState.guessing--;
 					}
-					if ( synPredMatched341 )
+					if ( synPredMatched343 )
 					{
-						mESCAPED_EXPRESSION(false);
+						_saveIndex = text.Length;
+						match('\\');
+						text.Length = _saveIndex;
+						match('$');
 					}
-					else {
-						bool synPredMatched343 = false;
-						if (((LA(1)=='\\') && (LA(2)=='$') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
+					else if ((tokenSet_3_.member(LA(1))) && ((LA(2) >= '\u0003' && LA(2) <= '\uffff')) && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))) {
 						{
-							int _m343 = mark();
-							synPredMatched343 = true;
-							inputState.guessing++;
-							try {
-								{
-									match("\\$");
-								}
-							}
-							catch (RecognitionException)
-							{
-								synPredMatched343 = false;
-							}
-							rewind(_m343);
-							inputState.guessing--;
+							match(tokenSet_3_);
 						}
-						if ( synPredMatched343 )
+					}
+					else if ((LA(1)=='\n')) {
+						match('\n');
+						if (0==inputState.guessing)
 						{
-							_saveIndex = text.Length;
-							match('\\');
-							text.Length = _saveIndex;
-							match('$');
+							newline();
 						}
-						else if ((tokenSet_3_.member(LA(1))) && ((LA(2) >= '\u0003' && LA(2) <= '\uffff')) && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))) {
-							{
-								match(tokenSet_3_);
-							}
-						}
+					}
 					else
 					{
 						goto _loop345_breakloop;
 					}
-					}break; }
+					}
 				}
 _loop345_breakloop:				;
 			}    // ( ... )*
@@ -1961,7 +1950,7 @@ _loop364_breakloop:		;
 	private static long[] mk_tokenSet_3_()
 	{
 		long[] data = new long[2048];
-		data[0]=-1544L;
+		data[0]=-1032L;
 		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;

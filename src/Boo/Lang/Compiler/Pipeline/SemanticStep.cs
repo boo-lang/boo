@@ -1313,6 +1313,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		public override void OnContinueStatement(ContinueStatement node)
+		{
+			if (!InLoop())
+			{
+				Error(CompilerErrorFactory.NoEnclosingLoop(node));
+			}
+		}
+		
 		public override bool EnterWhileStatement(WhileStatement node)
 		{
 			EnterLoop();
@@ -1351,7 +1359,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
 			PushNamespace(new DeclarationsNamespace(BindingManager, node.Declarations));
+			EnterLoop();
 			Switch(node.Block);
+			LeaveLoop();
 			PopNamespace();
 		}
 		
@@ -1518,6 +1528,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				
 				case BinaryOperatorType.Division:
+				{
+					BindArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Modulus:
 				{
 					BindArithmeticOperator(node);
 					break;

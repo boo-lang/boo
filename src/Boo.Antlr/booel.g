@@ -72,6 +72,8 @@ DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
 
 COLON : ':';
 
+COMMA : ',';
+
 BITWISE_OR: '|';
 
 LPAREN : '(';

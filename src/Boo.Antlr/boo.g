@@ -789,7 +789,8 @@ stmt [StatementCollection container]
 			(				
 				s=return_stmt |
 				s=yield_stmt |
-				s=break_stmt |				
+				s=break_stmt |
+				s=continue_stmt |				
 				s=raise_stmt |
 				s=retry_stmt |
 				(declaration COMMA)=> s=unpack_stmt |
@@ -1790,6 +1791,9 @@ options
 	
 	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, string tokenObjectClass)
 	{
+		setTabSize(tabSize);
+		setTokenObjectClass(tokenObjectClass);
+		
 		_selector = selector;
 		_el = new BooExpressionLexer(getInputState());
 		_el.setTabSize(tabSize);
@@ -1902,9 +1906,8 @@ TRIPLE_QUOTED_STRING :
 	options { greedy=false; }:		
 		("${")=>ESCAPED_EXPRESSION |
 		("\\$")=>'\\'! '$' |
-		~('\n' | '\t') |
-		'\n' { newline(); } |
-		'\t' { tab(); }		
+		~('\n') |
+		'\n' { newline(); }
 	)*
 	"\"\"\""!
 	{

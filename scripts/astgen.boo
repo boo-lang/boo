@@ -3,6 +3,28 @@ import System.IO
 import Boo.Antlr from Boo.Antlr
 import Boo.Lang.Ast
 
+def WriteNodeTypeEnum(module as Module):
+	using writer=OpenFile(GetPath("NodeType.cs")):
+		WriteLicense(writer)
+		WriteWarning(writer)
+		writer.WriteLine("""
+namespace Boo.Lang.Ast
+{
+	[Serializable]
+	public enum NodeType
+	{""")
+	
+		nodes = GetConcreteAstNodes(module)
+		last = nodes[-1]
+		for item as TypeDefinition in nodes:
+			writer.Write("\t\t${item.Name}")
+			if item is not last:
+				writer.WriteLine(", ")
+	
+		writer.Write("""
+	}
+}""")
+
 def WriteEnum(node as EnumDefinition):
 	using writer=OpenFile(GetPathFromNode(node)):
 		WriteLicense(writer)
@@ -28,18 +50,70 @@ namespace Boo.Lang.Ast
 	}
 }
 """)
+
+def WriteClassImpl(node as ClassDefinition):
+	using writer=OpenFile(GetPath("Impl/${node.Name}Impl.cs")):
+		WriteLicense(writer)
+		WriteWarning(writer)
+		writer.Write("""
+namespace Boo.Lang.Ast.Impl
+{
+	using System;
+	using Boo.Lang.Ast;
 	
-def WriteCollection(node as ClassDefinition):
-	path = GetPath("${node.Name}.cs")
+	[Serializable]
+	public abstract class ${node.Name}Impl : ${join(node.BaseTypes, ', ')}
+	{
+		protected ${node.Name}Impl()
+		{
+			InitializeFields();
+		}
+		
+		protected ${node.Name}Impl(LexicalInfo info) : base(info)
+		{
+			InitializeFields();
+		}
+	}
+}
+		""")
+		
+
+def WriteClass(node as ClassDefinition):
+	path = GetPathFromNode(node);
 	return if File.Exists(path)
 	
 	using writer=OpenFile(path):
 		WriteLicense(writer)
 		writer.Write("""
-using System;
-
 namespace Boo.Lang.Ast
 {
+	using System;
+	
+	[Serializable]
+	public class ${node.Name} : Boo.Lang.Ast.Impl.${node.Name}Impl
+	{
+		public ${node.Name}()
+		{
+		}
+		
+		public ${node.Name}(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
+	}
+}
+""")
+	
+def WriteCollection(node as ClassDefinition):
+	path = GetPathFromNode(node)
+	return if File.Exists(path)
+	
+	using writer=OpenFile(path):
+		WriteLicense(writer)
+		writer.Write("""
+namespace Boo.Lang.Ast
+{
+	using System;
+	
 	public class ${node.Name} : Boo.Lang.Ast.Impl.${node.Name}Impl
 	{
 		public ${node.Name}()
@@ -144,9 +218,6 @@ def GetPath(fname as string):
 def GetPathFromNode(node as TypeMember):
 	return GetPath("${node.Name}.cs")
 	
-def WriteClass(node as ClassDefinition):
-	print("class ${node.Name}")
-	
 def IsCollection(node as TypeMember):
 	return node.Attributes.Contains("collection")
 	
@@ -155,6 +226,12 @@ def IsEnum(node as TypeMember):
 	
 def IsAbstract(member as TypeMember):
 	return member.IsModifierSet(TypeMemberModifiers.Abstract)
+	
+def GetConcreteAstNodes(module as Module):
+	nodes = []
+	for member in module.Members:
+		nodes.Add(member) if IsConcreteAstNode(member)
+	return nodes
 	
 def IsConcreteAstNode(member as TypeMember):
 	return not (IsCollection(member) or IsEnum(member) or IsAbstract(member))
@@ -236,6 +313,9 @@ def ProcessTypeHierarchy(types as List, item as ClassDefinition):
 		if baseType = module.Members[baseTypeRef.Name]:
 			ProcessTypeHierarchy(types, baseType)
 	types.Add(item)
+	
+def GetPrivateName(name as string):
+	return "_" + name[0:1].ToLower() + name[1:]
 
 def GetSwitchableFields(item as ClassDefinition):
 	fields = []
@@ -347,7 +427,12 @@ module = BooParser.ParseFile("ast.model.boo").Modules[0]
 
 WriteSwitcher(module)
 WriteDepthFirstSwitcher(module)
+WriteNodeTypeEnum(module)
 for member as TypeMember in module.Members:
+
+	if member.Attributes.Contains("ignore"):
+		continue
+		
 	if IsEnum(member):
 		WriteEnum(member)
 	else:
@@ -356,6 +441,7 @@ for member as TypeMember in module.Members:
 			WriteCollectionImpl(member)
 		else:
 			WriteClass(member)
+			WriteClassImpl(member)
 			
 stop = date.Now
 print("ast classes generated in ${stop-start}.")

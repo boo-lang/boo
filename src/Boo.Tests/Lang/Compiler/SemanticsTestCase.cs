@@ -224,5 +224,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("interface0.boo");
 		}
+		
+		[Test]
+		public void SliceString()
+		{
+			RunCompilerTestCase("stringslice0.boo");
+		}
 	}
 }

@@ -77,9 +77,7 @@ namespace Boo.Antlr
 			antlr.TokenStreamSelector selector = new antlr.TokenStreamSelector();
 		
 			BooLexer lexer = new BooLexer(reader);
-			lexer.setTabSize(TabSize);
 			lexer.setFilename(readerName);
-			lexer.setTokenObjectClass(TokenObjectClass);
 			lexer.Initialize(selector, TabSize, TokenObjectClass);
 		
 			IndentTokenStreamFilter filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOS);

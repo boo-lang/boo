@@ -1023,6 +1023,18 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void ContinueFor()
+		{
+			RunCompilerTestCase("continue0.boo");
+		}
+		
+		[Test]
+		public void ContinueWhile()
+		{
+			RunCompilerTestCase("continue1.boo");
+		}
+		
+		[Test]
 		public void StringFormattingWithTripleQuotedString()
 		{
 			RunCompilerTestCase("formatting0.boo");

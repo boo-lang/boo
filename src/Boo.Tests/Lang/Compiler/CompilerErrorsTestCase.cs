@@ -120,6 +120,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("for0.boo");
 		}
 		
+		[Test]
+		public void ContinueWithoutLoop()
+		{
+			RunCompilerTestCase("continue0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
