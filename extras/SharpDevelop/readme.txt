@@ -1,0 +1,1 @@
+* copy boo.xshd to Documents and Settings/Application data/.ICSharpCode-SharpDevelop/modes
