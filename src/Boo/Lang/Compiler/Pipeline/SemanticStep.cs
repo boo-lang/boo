@@ -851,16 +851,16 @@ namespace Boo.Lang.Compiler.Pipeline
 				return;
 			}
 			
-			if (targetType.IsArray)
+			IBinding binding = GetBinding(node.Target);
+			if (IsIndexedProperty(binding))
 			{
-				Bind(node, targetType.GetElementType());
+				SliceMember(node, binding, false);
 			}
 			else
-			{				
-				IBinding binding = GetBinding(node.Target);
-				if (IsIndexedProperty(binding))
+			{
+				if (targetType.IsArray)
 				{
-					SliceMember(node, binding, false);
+					Bind(node, targetType.GetElementType());
 				}
 				else
 				{

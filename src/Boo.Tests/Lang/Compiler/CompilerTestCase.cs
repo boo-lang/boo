@@ -729,6 +729,18 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void SliceArrayArray()
+		{
+			RunCompilerTestCase("slice_array.boo");
+		}
+		
+		[Test]
+		public void SliceIndexedArrayProperty()
+		{
+			RunCompilerTestCase("slice_indexed_array_property.boo");
+		}
+		
+		[Test]
 		public void SliceListSimple()
 		{
 			RunCompilerTestCase("slicing1.boo");
