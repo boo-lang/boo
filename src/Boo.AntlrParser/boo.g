@@ -1847,7 +1847,7 @@ options
 	testLiterals = false;
 	exportVocab = Boo;	
 	k = 3;
-	charVocabulary='\u0003'..'\uFFFF';
+	charVocabulary='\u0003'..'\uFFFE';
 	// without inlining some bitset tests, ANTLR couldn't do unicode;
 	// They need to make ANTLR generate smaller bitsets;
 	codeGenBitsetTestThreshold=20;
@@ -1971,7 +1971,7 @@ DIVISION:
 	("/*")=> ML_COMMENT { $setType(Token.SKIP); } |
 	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |	
 	'/' (
-			('/' (~('\r'|'\n'))* { $setType(Token.SKIP); }) |			
+		('/' (~('\r'|'\n'))* { $setType(Token.SKIP); }) |			
 			('=' { $setType(ASSIGN); }) |
 		)
 	;

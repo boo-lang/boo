@@ -1166,7 +1166,7 @@ _loop317_breakloop:				;
 		_ttype = DIVISION;
 		
 		bool synPredMatched340 = false;
-		if (((LA(1)=='/') && (LA(2)=='*') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
+		if (((LA(1)=='/') && (LA(2)=='*') && ((LA(3) >= '\u0003' && LA(3) <= '\ufffe'))))
 		{
 			int _m340 = mark();
 			synPredMatched340 = true;
@@ -1290,13 +1290,13 @@ _loop347_breakloop:								;
 		{    // ( ... )*
 			for (;;)
 			{
-				if (((LA(1)=='*') && ((LA(2) >= '\u0003' && LA(2) <= '\uffff')) && ((LA(3) >= '\u0003' && LA(3) <= '\uffff')))&&( LA(2) != '/' ))
+				if (((LA(1)=='*') && ((LA(2) >= '\u0003' && LA(2) <= '\ufffe')) && ((LA(3) >= '\u0003' && LA(3) <= '\ufffe')))&&( LA(2) != '/' ))
 				{
 					match('*');
 				}
 				else {
 					bool synPredMatched381 = false;
-					if (((LA(1)=='/') && (LA(2)=='*') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
+					if (((LA(1)=='/') && (LA(2)=='*') && ((LA(3) >= '\u0003' && LA(3) <= '\ufffe'))))
 					{
 						int _m381 = mark();
 						synPredMatched381 = true;
@@ -1317,7 +1317,7 @@ _loop347_breakloop:								;
 					{
 						mML_COMMENT(false);
 					}
-					else if ((tokenSet_3_.member(LA(1))) && ((LA(2) >= '\u0003' && LA(2) <= '\uffff')) && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))) {
+					else if ((tokenSet_3_.member(LA(1))) && ((LA(2) >= '\u0003' && LA(2) <= '\ufffe')) && ((LA(3) >= '\u0003' && LA(3) <= '\ufffe'))) {
 						{
 							match(tokenSet_3_);
 						}
@@ -1489,7 +1489,7 @@ _loop404_breakloop:		;
 				// nongreedy exit test
 				if ((LA(1)=='"') && (LA(2)=='"') && (LA(3)=='"')) goto _loop361_breakloop;
 				bool synPredMatched357 = false;
-				if (((LA(1)=='$') && (LA(2)=='{') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
+				if (((LA(1)=='$') && (LA(2)=='{') && ((LA(3) >= '\u0003' && LA(3) <= '\ufffe'))))
 				{
 					int _m357 = mark();
 					synPredMatched357 = true;
@@ -1512,7 +1512,7 @@ _loop404_breakloop:		;
 				}
 				else {
 					bool synPredMatched359 = false;
-					if (((LA(1)=='\\') && (LA(2)=='$') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
+					if (((LA(1)=='\\') && (LA(2)=='$') && ((LA(3) >= '\u0003' && LA(3) <= '\ufffe'))))
 					{
 						int _m359 = mark();
 						synPredMatched359 = true;
@@ -1536,7 +1536,7 @@ _loop404_breakloop:		;
 						text.Length = _saveIndex;
 						match('$');
 					}
-					else if ((tokenSet_2_.member(LA(1))) && ((LA(2) >= '\u0003' && LA(2) <= '\uffff')) && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))) {
+					else if ((tokenSet_2_.member(LA(1))) && ((LA(2) >= '\u0003' && LA(2) <= '\ufffe')) && ((LA(3) >= '\u0003' && LA(3) <= '\ufffe'))) {
 						{
 							match(tokenSet_2_);
 						}
@@ -1608,7 +1608,7 @@ _loop361_breakloop:				;
 		match('"');
 		text.Length = _saveIndex;
 		{
-			if (((LA(1)=='"') && (LA(2)=='"') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff')))&&(LA(1)=='"' && LA(2)=='"'))
+			if (((LA(1)=='"') && (LA(2)=='"') && ((LA(3) >= '\u0003' && LA(3) <= '\ufffe')))&&(LA(1)=='"' && LA(2)=='"'))
 			{
 				mTRIPLE_QUOTED_STRING(false);
 				if (0==inputState.guessing)
@@ -2110,7 +2110,8 @@ _loop386_breakloop:		;
 	{
 		long[] data = new long[2048];
 		data[0]=-140741783332360L;
-		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -2119,7 +2120,8 @@ _loop386_breakloop:		;
 	{
 		long[] data = new long[2048];
 		data[0]=-4294977032L;
-		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -2128,7 +2130,8 @@ _loop386_breakloop:		;
 	{
 		long[] data = new long[2048];
 		data[0]=-9224L;
-		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -2137,7 +2140,8 @@ _loop386_breakloop:		;
 	{
 		long[] data = new long[2048];
 		data[0]=-4398046520328L;
-		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -2147,7 +2151,8 @@ _loop386_breakloop:		;
 		long[] data = new long[2048];
 		data[0]=-17179878408L;
 		data[1]=-268435457L;
-		for (int i = 2; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -2157,7 +2162,8 @@ _loop386_breakloop:		;
 		long[] data = new long[2048];
 		data[0]=-549755823112L;
 		data[1]=-268435457L;
-		for (int i = 2; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -2167,7 +2173,8 @@ _loop386_breakloop:		;
 		long[] data = new long[2048];
 		data[0]=-140741783332360L;
 		data[1]=-268435457L;
-		for (int i = 2; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}

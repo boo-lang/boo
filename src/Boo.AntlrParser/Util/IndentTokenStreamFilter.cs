@@ -125,7 +125,9 @@ namespace Boo.AntlrParser.Util
 				return (antlr.Token)_pendingTokens.Dequeue();
 			}
 
+			//Console.WriteLine("Waiting on lexer...");
 			antlr.Token token = _istream.nextToken();
+			//Console.WriteLine("done.");
 			while (null != token)
 			{
 				if (antlr.Token.SKIP == token.Type)

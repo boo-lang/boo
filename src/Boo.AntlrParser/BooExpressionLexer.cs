@@ -1536,7 +1536,8 @@ _loop55_breakloop:			;
 	{
 		long[] data = new long[2048];
 		data[0]=-140741783332360L;
-		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -1545,7 +1546,8 @@ _loop55_breakloop:			;
 	{
 		long[] data = new long[2048];
 		data[0]=-4294977032L;
-		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -1555,7 +1557,8 @@ _loop55_breakloop:			;
 		long[] data = new long[2048];
 		data[0]=-549755823112L;
 		data[1]=-268435457L;
-		for (int i = 2; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
@@ -1565,7 +1568,8 @@ _loop55_breakloop:			;
 		long[] data = new long[2048];
 		data[0]=-140741783332360L;
 		data[1]=-268435457L;
-		for (int i = 2; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}

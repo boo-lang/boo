@@ -76,7 +76,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding IDictionary_Contains;
 		
-		IMethodBinding Tuple_TypedConstructor1;
+		IMethodBinding Tuple_TypedEnumerableConstructor;
+		
+		IMethodBinding Tuple_TypedCollectionConstructor;
 		
 		IMethodBinding Tuple_TypedConstructor2;
 		
@@ -120,7 +122,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
 			IList_Contains = (IMethodBinding)BindingManager.IListTypeBinding.Resolve("Contains");
 			IDictionary_Contains = (IMethodBinding)BindingManager.IDictionaryTypeBinding.Resolve("Contains");
-			Tuple_TypedConstructor1 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.IEnumerable }));
+			Tuple_TypedEnumerableConstructor = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.IEnumerable }));
+			Tuple_TypedCollectionConstructor= (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.ICollection }));
 			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.Int }));
 			ICallable_Call = (IMethodBinding)BindingManager.ICallableTypeBinding.Resolve("Call");
 			Activator_CreateInstance = (IMethodBinding)BindingManager.AsBinding(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
@@ -3573,7 +3576,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			*/
 			
 			ITypedBinding binding = (ITypedBinding)GetBinding(node);
-			if (Tuple_TypedConstructor1 == binding ||				
+			if (Tuple_TypedEnumerableConstructor == binding ||
+				Tuple_TypedCollectionConstructor == binding ||				
 				Tuple_TypedConstructor2 == binding)
 			{
 				return BindingManager.AsTupleBinding(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
