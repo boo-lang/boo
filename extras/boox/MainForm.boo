@@ -165,9 +165,11 @@ class MainForm(Form):
 
 	def _menuItemOpen_Click(sender, args as EventArgs):
 		dlg = OpenFileDialog(
-					Filter: "boo files (*.boo)|*.boo|All files (*.*)|*.*")
+					Filter: "boo files (*.boo)|*.boo|All files (*.*)|*.*",
+					Multiselect: true)
 		if DialogResult.OK == dlg.ShowDialog(self):
-			OpenDocument(dlg.FileName)
+			for fname in dlg.FileNames:
+				OpenDocument(fname)
 
 	def _menuItemNew_Click(sender, args as EventArgs):
 		NewDocument()
