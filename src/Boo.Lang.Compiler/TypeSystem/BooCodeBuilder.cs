@@ -521,13 +521,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public Method CreateRuntimeMethod(string name, IType returnType, IParameter[] parameters)
 		{
 			Method method = CreateRuntimeMethod(name, returnType);
+			DeclareParameters(method, 0, parameters);
+			return method;
+		}
+		
+		public void DeclareParameters(Method method, int parameterIndexDelta, IParameter[] parameters)
+		{
 			for (int i=0; i<parameters.Length; ++i)
 			{
-				method.Parameters.Add(CreateParameterDeclaration(i,
-									"arg" + i,
-									parameters[i].Type));
+				IParameter p = parameters[i];
+				method.Parameters.Add(
+					CreateParameterDeclaration(parameterIndexDelta + i,
+						p.Name,
+						p.Type));
 			}
-			return method;
 		}
 		
 		public Method CreateAbstractMethod(LexicalInfo lexicalInfo, IMethod baseMethod)

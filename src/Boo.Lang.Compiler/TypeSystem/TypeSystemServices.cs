@@ -854,7 +854,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_entityCache[key] = tag;
 		}
 		
-		public Method CreateBeginInvokeMethod(ICallableType anonymousType)
+		Method CreateBeginInvokeMethod(ICallableType anonymousType)
 		{
 			Method method = CodeBuilder.CreateRuntimeMethod("BeginInvoke", Map(typeof(IAsyncResult)),
 												anonymousType.GetSignature().Parameters);
@@ -865,6 +865,32 @@ namespace Boo.Lang.Compiler.TypeSystem
 			method.Parameters.Add(
 					CodeBuilder.CreateParameterDeclaration(delta+1, "asyncState", ObjectType));
 			return method;
+		}
+		
+		Method CreateBeginInvokeSimplerOverload(ICallableType anonymousType, Method beginInvoke)
+		{
+			InternalMethod beginInvokeEntity = (InternalMethod)beginInvoke.Entity;
+			
+			Method overload = CodeBuilder.CreateMethod("BeginInvoke", Map(typeof(IAsyncResult)),
+										TypeMemberModifiers.Public);
+			CodeBuilder.DeclareParameters(overload, 1, anonymousType.GetSignature().Parameters);
+			overload.Parameters.Add(
+				CodeBuilder.CreateParameterDeclaration(overload.Parameters.Count+1,
+										"callback", Map(typeof(AsyncCallback))));
+			
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+						CodeBuilder.CreateSelfReference(beginInvokeEntity.DeclaringType),
+						beginInvokeEntity);
+						
+			foreach (ParameterDeclaration parameter in overload.Parameters)
+			{
+				mie.Arguments.Add(CodeBuilder.CreateReference(parameter));
+			}
+			
+			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
+			
+			overload.Body.Add(new ReturnStatement(mie));
+			return overload;
 		}
 		
 		public Method CreateEndInvokeMethod(ICallableType anonymousType)
@@ -950,7 +976,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			cd.LexicalInfo = sourceNode.LexicalInfo;
 			
 			cd.Members.Add(CreateInvokeMethod(anonymousType));
-			cd.Members.Add(CreateBeginInvokeMethod(anonymousType));
+			
+			Method beginInvoke = CreateBeginInvokeMethod(anonymousType);
+			cd.Members.Add(beginInvoke);
+			cd.Members.Add(CreateBeginInvokeSimplerOverload(anonymousType, beginInvoke));
+			
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
 			_anonymousTypesModule.Members.Add(cd);
 			
