@@ -31,31 +31,14 @@ using System.Collections;
 
 namespace Boo.AntlrParser.Util
 {
-	public class SimpleToken : antlr.Token
-	{
-		protected string _buffer;
-
-		public SimpleToken(int type, string txt) : base(type, txt)
-		{
-		}
-
-		override public void setText(string txt)
-		{
-			_buffer = txt;
-		}
-
-		override public string getText()
-		{
-			return _buffer;
-		}
-	}
-
 	/// <summary>
 	/// Process whitespace tokens and generate INDENT, DEDENT
 	/// virtual tokens as needed.
 	/// </summary>
 	public class IndentTokenStreamFilter : antlr.TokenStream
 	{
+		static readonly char[] NewLineCharArray = new char[] { '\r', '\n' };
+		
 		/// <summary>
 		/// token input stream.
 		/// </summary>
@@ -155,7 +138,7 @@ namespace Boo.AntlrParser.Util
 			if (0 != _buffer.Length)
 			{
 				string text = _buffer.ToString();
-				string[] lines = text.Split('\r', '\n');					
+				string[] lines = text.Split(NewLineCharArray);					
 
 				if (lines.Length > 1)
 				{

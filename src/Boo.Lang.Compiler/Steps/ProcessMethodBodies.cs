@@ -261,6 +261,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}			
 			MarkVisited(node);
+			VisitBaseTypes(node);
 			
 			InternalType tag = GetInternalType(node);			
 			EnterNamespace(tag);
@@ -271,6 +272,18 @@ namespace Boo.Lang.Compiler.Steps
 			
 			ProcessInheritedAbstractMembers(node);
 		}		
+		
+		void VisitBaseTypes(ClassDefinition node)
+		{
+			foreach (TypeReference baseTypeRef in node.BaseTypes)
+			{
+				InternalType type = baseTypeRef.Entity as InternalType;
+				if (null != type && type.IsClass)
+				{
+					EnsureRelatedNodeWasVisited(type);
+				}
+			}
+		}
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
@@ -435,9 +448,11 @@ namespace Boo.Lang.Compiler.Steps
 			Method getter = node.Getter;
 			
 			Visit(node.Attributes);			
-			Visit(node.Type);
-			
+			Visit(node.Type);			
 			Visit(node.Parameters);
+			
+			ResolvePropertyOverride(node);
+			
 			if (null != getter)
 			{
 				if (null != node.Type)
@@ -484,10 +499,9 @@ namespace Boo.Lang.Compiler.Steps
 				parameter.Name = "value";
 				parameter.Entity = new InternalParameter(parameter, node.Parameters.Count+GetFirstParameterIndex(setter));
 				setter.Parameters.ExtendWithClones(node.Parameters);
-				setter.Parameters.Add(parameter);				
+				setter.Parameters.Add(parameter);
+				setter.Name = "set_" + node.Name;				
 				Visit(setter);
-				
-				setter.Name = "set_" + node.Name;
 			}
 		}
 		
@@ -501,6 +515,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (property.IsVirtual)
 			{
 				accessor.Modifiers |= TypeMemberModifiers.Virtual;
+			}
+			
+			if (property.IsOverride)
+			{
+				accessor.Modifiers |= TypeMemberModifiers.Override;
 			}
 		}
 		
@@ -912,31 +931,53 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
-		{			
-			InternalMethod entity = (InternalMethod)accessor.Entity;
+		void ResolvePropertyOverride(Property property)
+		{
+			InternalProperty entity = (InternalProperty)property.Entity;
 			IType baseType = entity.DeclaringType.BaseType;
 			IEntity baseProperties = NameResolutionService.Resolve(baseType, property.Name, EntityType.Property);
 			if (null != baseProperties)
 			{
 				if (EntityType.Property == baseProperties.EntityType)
-				{
-					IProperty baseProperty = (IProperty)baseProperties;
-					IMethod baseMethod = null;
-					if (property.Getter == accessor)
-					{
-						baseMethod = baseProperty.GetGetMethod();
-					}
-					else
-					{
-						baseMethod = baseProperty.GetSetMethod();
-					}
-					if (TypeSystemServices.CheckOverrideSignature(entity, baseMethod))
-					{
-						return baseMethod;
-					}
+				{					
+					entity.Override = (IProperty)baseProperties;
 				}
-			}		
+			}
+			
+			if (null != entity.Override)
+			{
+				if (property.IsOverride)
+				{
+					// TODO: check type and signature
+				}
+				else
+				{
+					property.Modifiers |= TypeMemberModifiers.Override;
+				}
+			}
+		}
+		
+		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
+		{				
+			IProperty baseProperty = ((InternalProperty)property.Entity).Override;
+			if (null != baseProperty)
+			{
+				IMethod baseMethod = null;
+				if (property.Getter == accessor)
+				{
+					baseMethod = baseProperty.GetGetMethod();
+				}
+				else
+				{
+					baseMethod = baseProperty.GetSetMethod();
+				}
+				
+				IMethod accessorEntity = (IMethod)accessor.Entity;
+				if (TypeSystemServices.CheckOverrideSignature(accessorEntity, baseMethod))
+				{
+					return baseMethod;
+				}
+			}
 			return null;
 		}
 		
@@ -4218,8 +4259,7 @@ namespace Boo.Lang.Compiler.Steps
 					ResolveInterfaceMembers(node, baseTypeRef, baseType);
 				}
 				else
-				{
-					EnsureRelatedNodeWasVisited(baseType);
+				{					
 					if (IsAbstract(baseType))
 					{
 						ResolveAbstractMembers(node, baseTypeRef, baseType);

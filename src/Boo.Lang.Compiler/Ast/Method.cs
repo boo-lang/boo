@@ -48,14 +48,6 @@ namespace Boo.Lang.Compiler.Ast
 			Name = name;
 		}
 		
-		public bool IsOverride
-		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Override);
-			}
-		}
-		
 		public bool IsRuntime
 		{
 			get

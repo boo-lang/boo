@@ -104,24 +104,37 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Assembly asm in Parameters.References)
 			{				
-				Type[] types = asm.GetTypes();				
-				foreach (Type type in types)
+				try
 				{
-					if (!type.IsPublic)
-					{
-						continue;
-					}
-					string ns = type.Namespace;
-					if (null == ns)
-					{
-						ns = string.Empty;
-					}					
+					OrganizeAssemblyTypes(asm);
+				}
+				catch (Exception x)
+				{
+					Errors.Add(
+						CompilerErrorFactory.InternalError(CompileUnit, x));
+				}
+			}
+		}
+		
+		void OrganizeAssemblyTypes(Assembly asm)
+		{
+			Type[] types = asm.GetTypes();				
+			foreach (Type type in types)
+			{
+				if (!type.IsPublic)
+				{
+					continue;
+				}
+				string ns = type.Namespace;
+				if (null == ns)
+				{
+					ns = string.Empty;
+				}					
+				
+				GetNamespace(ns).Add(type);
 					
-					GetNamespace(ns).Add(type);
-						
-					List typeList = GetList(_externalTypes, type.FullName);
-					typeList.Add(type);
-				}				
+				List typeList = GetList(_externalTypes, type.FullName);
+				typeList.Add(type);
 			}
 		}
 		

@@ -53,6 +53,14 @@ namespace Boo.Lang.Compiler
 				InnerList.Add(assembly);
 			}
 		}
+
+		public void Extend(IEnumerable assemblies)
+		{
+			foreach (Assembly assembly in assemblies)
+			{
+				Add(assembly);
+			}
+		}
 		
 		public bool Contains(Assembly assembly)
 		{

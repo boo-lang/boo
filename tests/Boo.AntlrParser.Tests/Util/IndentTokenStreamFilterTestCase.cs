@@ -52,6 +52,25 @@ namespace Boo.AntlrParser.Tests.Util
 			return null;
 		}
 	}
+	
+		public class SimpleToken : antlr.Token
+	{
+		protected string _buffer;
+
+		public SimpleToken(int type, string txt) : base(type, txt)
+		{
+		}
+
+		override public void setText(string txt)
+		{
+			_buffer = txt;
+		}
+
+		override public string getText()
+		{
+			return _buffer;
+		}
+	}
 
 	/// <summary>
 	/// Summary description for Class1.

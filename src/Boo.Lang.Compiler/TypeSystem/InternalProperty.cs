@@ -38,6 +38,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IParameter[] _parameters;
 		
+		IProperty _override;
+		
 		public InternalProperty(TypeSystemServices tagManager, Property property)
 		{
 			_typeSystemServices = tagManager;
@@ -108,12 +110,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _parameters;
 		}
+		
+		public IProperty Override
+		{
+			get
+			{
+				return _override;
+			}
+			
+			set
+			{
+				_override = value;
+			}
+		}
 
 		public IMethod GetGetMethod()
 		{
 			if (null != _property.Getter)
 			{
 				return (IMethod)TypeSystemServices.GetEntity(_property.Getter);
+			}
+			if (null != _override)
+			{
+				return _override.GetGetMethod();
 			}
 			return null;
 		}
@@ -123,6 +142,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null != _property.Setter)
 			{
 				return (IMethod)TypeSystemServices.GetEntity(_property.Setter);
+			}
+			if (null != _override)
+			{
+				return _override.GetSetMethod();
 			}
 			return null;
 		}
