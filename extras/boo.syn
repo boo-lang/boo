@@ -13,8 +13,8 @@ OperatorChars = -+*/<>!~%^&|=.?
 PreprocStart =
 SyntaxStart =
 SyntaxEnd =
-CommentStart = /*
-CommentEnd = */
+CommentStart = """
+CommentEnd = """
 CommentStartAlt =
 CommentEndAlt =
 SingleComment = //
