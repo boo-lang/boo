@@ -27,11 +27,11 @@
 			<formatter type="Plain" />
 			<test>
 				<assemblies basedir="build">
-					<includes name="Boo.AntlrParser.Tests.dll" />
-					<includes name="Boo.Tests.dll" />
-					<includes name="Boo.Lang.Compiler.Tests.dll" />
-					<includes name="BooCompiler.Tests.dll" />					
-					<includes name="BooCompilerResources.Tests.dll" />					
+					<include name="Boo.AntlrParser.Tests.dll" />
+					<include name="Boo.Tests.dll" />
+					<include name="Boo.Lang.Compiler.Tests.dll" />
+					<include name="BooCompiler.Tests.dll" />					
+					<include name="BooCompilerResources.Tests.dll" />					
 				</assemblies>
 			</test>
 		</nunit2>
@@ -45,11 +45,11 @@
 			output="build/Boo.Tests.dll">
 
 			<sources basedir="Boo.Tests">
-				<includes name="**/*.boo" />
+				<include name="**/*.boo" />
 			</sources>
 
 			<references>
-				<includes name="${nunit.framework.dll}" />
+				<include name="${nunit.framework.dll}" />
 			</references>
 		</booc>
 		
@@ -58,11 +58,11 @@
 			output="build/Boo.Lang.Compiler.Tests.dll">
 			
 			<sources basedir="Boo.Lang.Compiler.Tests">
-				<includes name="**/*.boo" />
+				<include name="**/*.boo" />
 			</sources>
 			
 			<references>
-				<includes name="${nunit.framework.dll}" />
+				<include name="${nunit.framework.dll}" />
 			</references>
 		</booc>
 		
@@ -71,11 +71,11 @@
 			output="build/BooCompilerResources.Tests.dll">
 			
 			<sources basedir="BooCompilerResources.Tests">
-				<includes name="**/*.boo" />
+				<include name="**/*.boo" />
 			</sources>
 			
 			<references>
-				<includes name="${nunit.framework.dll}" />
+				<include name="${nunit.framework.dll}" />
 			</references>
 		</booc>
 		
@@ -84,13 +84,13 @@
 			output="build/BooCompiler.Tests.dll">
 			
 			<sources basedir="BooCompiler.Tests">
-				<includes name="**/*.cs" />
+				<include name="**/*.cs" />
 			</sources>
 			
 			<references basedir="build">
-				<includes name="${nunit.framework.dll}" />
-				<includes name="Boo.dll" />
-				<includes name="Boo.Lang.Compiler.dll" />
+				<include name="${nunit.framework.dll}" />
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</csc>
 		
@@ -99,15 +99,15 @@
 			output="build/Boo.AntlrParser.Tests.dll">
 			
 			<sources basedir="Boo.AntlrParser.Tests">
-				<includes name="**/*.cs" />
+				<include name="**/*.cs" />
 			</sources>
 			
 			<references basedir="build">
-				<includes name="${nunit.framework.dll}" />
-				<includes name="BooCompiler.Tests.dll" />
-				<includes name="Boo.Lang.Compiler.dll" />				
-				<includes name="Boo.AntlrParser.dll" />
-				<includes name="antlr.runtime.dll" />
+				<include name="${nunit.framework.dll}" />
+				<include name="BooCompiler.Tests.dll" />
+				<include name="Boo.Lang.Compiler.dll" />				
+				<include name="Boo.AntlrParser.dll" />
+				<include name="antlr.runtime.dll" />
 			</references>			
 		</csc>
 	</target>
@@ -116,8 +116,8 @@
 		<mkdir dir="build" />
 		<copy todir="build">
 			<fileset basedir="../build">
-				<includes name="*.dll" />
-				<includes name="pt/*.dll" />
+				<include name="*.dll" />
+				<include name="pt/*.dll" />
 			</fileset>
 		</copy>
 		<copy todir="build" file="${nunit.framework.dll}" />

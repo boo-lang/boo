@@ -12,6 +12,9 @@
 	
 * array generators
 
+* IExpando/IQuack/IAmADuck interface que permite aos objetos participarem do sistema
+de duck typing (a runtime invocaria o objeto no caso de um MemberNotFoundException)
+
 * reescrever documento de pipeline em inglês
 
 * software de blogging para a apresentação

@@ -34,17 +34,17 @@
 	</target>
 	
 	<target name="booi" depends="Boo.NAnt">
-		
+
 		<booc
 			target="exe"
 			output="build/booi.exe"
 			tracelevel="Verbose">
 			
 			<sources basedir="src/booi">
-				<includes name="*.boo" />
+				<include name="*.boo" />
 			</sources>
 		</booc>		
-		
+
 		<boo>
 		//for p as System.Collections.DictionaryEntry in Project.Properties:
 			//print("${p.Key}: ${p.Value}")		
@@ -59,10 +59,10 @@
 		
 		<uptodate property="Boo.NAnt-is-uptodate">
 			<sourcefiles basedir="src/Boo.NAnt">
-				<includes name="*.boo" />
+				<include name="*.boo" />
 			</sourcefiles>
 			<targetfiles>
-				<includes name="build/Boo.NAnt.dll" />
+				<include name="build/Boo.NAnt.dll" />
 			</targetfiles>
 		</uptodate>
 		
@@ -81,12 +81,12 @@
 	<target name="booc" depends="core">
 		<csc target="exe" output="build/booc.exe" debug="${debug}" optimize="${optimize}">
 			<sources basedir="src/booc">
-				<includes name="*.cs" />
+				<include name="*.cs" />
 			</sources>
 
 			<references>
-				<includes name="build/Boo.dll" />
-				<includes name="build/Boo.Lang.Compiler.dll" />
+				<include name="build/Boo.dll" />
+				<include name="build/Boo.Lang.Compiler.dll" />
 			</references>
 		</csc>
 		
@@ -106,13 +106,13 @@
 		<mkdir dir="bin" />
 		<copy todir="bin">
 			<fileset basedir="build">
-				<includes name="Boo.dll" />
-				<includes name="Boo.Lang.Compiler.dll" />
-				<includes name="Boo.NAnt.dll" />
-				<includes name="Boo.AntlrParser.dll" />
-				<includes name="antlr.runtime.dll" />
-				<includes name="booc.exe" />
-				<includes name="booi.exe" />
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.NAnt.dll" />
+				<include name="Boo.AntlrParser.dll" />
+				<include name="antlr.runtime.dll" />
+				<include name="booc.exe" />
+				<include name="booi.exe" />
 			</fileset>
 		</copy>
 	</target>
@@ -124,11 +124,11 @@
 			optimize="${optimize}">
 			
 			<sources basedir="src/Boo.Lang.Compiler">
-				<includes name="**/*.cs" />
+				<include name="**/*.cs" />
 			</sources>
 			
 			<references>
-				<includes name="build/Boo.dll" />
+				<include name="build/Boo.dll" />
 			</references>
 		</csc>
 	</target>
@@ -146,11 +146,11 @@
 			optimize="${optimize}">
 
 			<sources basedir="src/Boo">
-				<includes name="**/*.cs" />
+				<include name="**/*.cs" />
 			</sources>
 			
 			<resources basedir="build">
-				<includes name="strings.resources" />
+				<include name="strings.resources" />
 			</resources>
 		</csc>
 	</target>
@@ -159,12 +159,12 @@
 		<csc target="library" output="build/Boo.AntlrParser.dll"
 			debug="${debug}" optimize="${optimize}">
 			<sources basedir="src/Boo.AntlrParser">
-				<includes name="**/*.cs" />
+				<include name="**/*.cs" />
 			</sources>
 			<references>
-				<includes name="build/Boo.dll" />
-				<includes name="build/Boo.Lang.Compiler.dll" />
-				<includes name="build/antlr.runtime.dll" />
+				<include name="build/Boo.dll" />
+				<include name="build/Boo.Lang.Compiler.dll" />
+				<include name="build/antlr.runtime.dll" />
 			</references>
 		</csc>
 	</target>
@@ -178,27 +178,27 @@
 	<target name="bin-distro">
 		<zip zipfile="boo-bin.zip" ziplevel="9">
 			<fileset>
-				<includes name="readme.txt" />
-				<includes name="license.txt" />
-				<includes name="ast.model.boo" />
-				<includes name="docs/**/*.boo" />
-				<includes name="docs/**/*.build" />
-				<includes name="docs/**/*.sxw" />
-				<includes name="bin/*.dll" />
-				<includes name="bin/*.exe" />
+				<include name="readme.txt" />
+				<include name="license.txt" />
+				<include name="ast.model.boo" />
+				<include name="docs/**/*.boo" />
+				<include name="docs/**/*.build" />
+				<include name="docs/**/*.sxw" />
+				<include name="bin/*.dll" />
+				<include name="bin/*.exe" />
 				
-				<includes name="extras/boo.xml" />
-				<includes name="extras/SharpDevelop/boo.xshd" />
-				<includes name="extras/boox/build/*.dll" />
-				<includes name="extras/boox/build/*.exe" />
-				<includes name="extras/boox/**/*.boo" />
-				<includes name="extras/boox/**/*.build" />
-				<includes name="extras/boox/resources/**/*.png" />
+				<include name="extras/boo.xml" />
+				<include name="extras/SharpDevelop/boo.xshd" />
+				<include name="extras/boox/build/*.dll" />
+				<include name="extras/boox/build/*.exe" />
+				<include name="extras/boox/**/*.boo" />
+				<include name="extras/boox/**/*.build" />
+				<include name="extras/boox/resources/**/*.png" />
 				
-				<includes name="examples/**/*.boo" />
-				<includes name="examples/**/*.aspx" />
-				<includes name="examples/**/*.build" />
-				<includes name="examples/**/*.config" />
+				<include name="examples/**/*.boo" />
+				<include name="examples/**/*.aspx" />
+				<include name="examples/**/*.build" />
+				<include name="examples/**/*.config" />
 			</fileset>
 		</zip>
 	</target>
@@ -206,46 +206,46 @@
 	<target name="src-distro" depends="insert-notice">
 		<zip zipfile="boo-src.zip" ziplevel="9">
 			<fileset>
-				<includes name="readme.txt" />
-				<includes name="license.txt" />
-				<includes name="notice.txt" />
-				<includes name="ast.model.boo" />
-				<includes name="docs/**/*.boo" />
-				<includes name="docs/**/*.build" />
-				<includes name="docs/**/*.sxw" />
-				<includes name="bin/*.dll" />
-				<includes name="bin/*.exe" />
+				<include name="readme.txt" />
+				<include name="license.txt" />
+				<include name="notice.txt" />
+				<include name="ast.model.boo" />
+				<include name="docs/**/*.boo" />
+				<include name="docs/**/*.build" />
+				<include name="docs/**/*.sxw" />
+				<include name="bin/*.dll" />
+				<include name="bin/*.exe" />
 				
-				<includes name="extras/boo.xml" />
-				<includes name="extras/SharpDevelop/boo.xshd" />
-				<includes name="extras/boox/build/*.dll" />
-				<includes name="extras/boox/build/*.exe" />
-				<includes name="extras/boox/**/*.boo" />
-				<includes name="extras/boox/**/*.build" />
-				<includes name="extras/boox/resources/**/*.png" />
+				<include name="extras/boo.xml" />
+				<include name="extras/SharpDevelop/boo.xshd" />
+				<include name="extras/boox/build/*.dll" />
+				<include name="extras/boox/build/*.exe" />
+				<include name="extras/boox/**/*.boo" />
+				<include name="extras/boox/**/*.build" />
+				<include name="extras/boox/resources/**/*.png" />
 				
-				<includes name="examples/**/*.boo" />
-				<includes name="examples/**/*.aspx" />
-				<includes name="examples/**/*.build" />
-				<includes name="examples/**/*.config" />
+				<include name="examples/**/*.boo" />
+				<include name="examples/**/*.aspx" />
+				<include name="examples/**/*.build" />
+				<include name="examples/**/*.config" />
 				
-				<includes name="default.build" />
-				<includes name="scripts/*.boo" />				
-				<includes name="lib/**/*.jar" />
-				<includes name="lib/**/*.dll" />
+				<include name="default.build" />
+				<include name="scripts/*.boo" />				
+				<include name="lib/**/*.jar" />
+				<include name="lib/**/*.dll" />
 				
-				<includes name="src/**/*.cs" />
-				<includes name="src/**/*.boo" />
-				<includes name="src/**/*.g" />
-				<includes name="src/**/*.prjx" />
-				<includes name="src/Boo/Resources/strings.txt" />
-				<includes name="src/Boo/Resources/pt/strings.txt" />
+				<include name="src/**/*.cs" />
+				<include name="src/**/*.boo" />
+				<include name="src/**/*.g" />
+				<include name="src/**/*.prjx" />
+				<include name="src/Boo/Resources/strings.txt" />
+				<include name="src/Boo/Resources/pt/strings.txt" />
 				
-				<includes name="tests/**/*.boo" />
-				<includes name="tests/**/*.cs" />
-				<includes name="tests/**/*.txt" />
-				<includes name="tests/**/*.build" />
-				<includes name="tests/**/*.prjx" />
+				<include name="tests/**/*.boo" />
+				<include name="tests/**/*.cs" />
+				<include name="tests/**/*.txt" />
+				<include name="tests/**/*.build" />
+				<include name="tests/**/*.prjx" />
 			</fileset>
 		</zip>
 	</target>
@@ -259,7 +259,7 @@
 
 		<al target="lib" culture="pt" output="build/pt/Boo.resources.dll">
 			<sources basedir="build/pt">
-				<includes name="strings.pt.resources" />
+				<include name="strings.pt.resources" />
 			</sources>
 		</al>
 	</target>
@@ -268,12 +268,12 @@
 	
 		<uptodate property="parser-is-uptodate">
 			<sourcefiles basedir="src/Boo.AntlrParser">
-				<includes name="boo.g" />
-				<includes name="booel.g" />
+				<include name="boo.g" />
+				<include name="booel.g" />
 			</sourcefiles>
 			<targetfiles basedir="src/Boo.AntlrParser">
-				<includes name="BooParserBase.cs" />
-				<includes name="BooExpressionLexer.cs" />
+				<include name="BooParserBase.cs" />
+				<include name="BooExpressionLexer.cs" />
 			</targetfiles>
 		</uptodate>
 
@@ -281,7 +281,7 @@
 		
 			<delete>
 				<fileset basedir="src/Boo.AntlrParser">
-					<includes name="*TokenTypes.*" />
+					<include name="*TokenTypes.*" />
 				</fileset>
 			</delete>			 
 			
@@ -311,11 +311,11 @@
 	
 		<uptodate property="ast-is-uptodate">
 			<sourcefiles>
-				<includes name="ast.model.boo" />
-				<includes name="scripts/astgen.boo" />
+				<include name="ast.model.boo" />
+				<include name="scripts/astgen.boo" />
 			</sourcefiles>
 			<targetfiles>
-				<includes name="src/Boo.Lang.Compiler/Ast/Impl/CompileUnitImpl.cs" />
+				<include name="src/Boo.Lang.Compiler/Ast/Impl/CompileUnitImpl.cs" />
 			</targetfiles>
 		</uptodate>
 				
