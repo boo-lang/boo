@@ -1,35 +1,10 @@
-﻿* module namespace testcases
-
-* CheckInterfaceImplementations:
-	* move from ProcessMethodBodies
-	
-* InjectCasts
+﻿* InjectCasts
 	* simplificar EmitAssembly
+	
+* += e -= para delegates (ver Boo.NAnt.AbstractBooTask)
 
 * criar todos os passos novos e fazer passar todos os testes atuais
-
-* nova pipeline:
-			/*		
-		pipeline.Add(IntroduceBindingService())		
-		pipeline.Add(IntroduceNameResolutionService())
-		pipeline.Add(IntroduceGlobalNamespaces())
-		pipeline.Add(BindTypeDefinitions())
-		pipeline.Add(BindNamespaces())		
-		pipeline.Add(BindAndApplyAttributes())
-		pipeline.Add(ExpandMacros())
-		pipeline.Add(IntroduceModuleClasses())
-		pipeline.Add(NormalizeTypeMembers())
-		pipeline.Add(NormalizeStatementModifiers())
-		pipeline.Add(BindTypeDefinitions())
-		pipeline.Add(BindTypeMembers())
-		pipeline.Add(CheckTypeMemberDeclarations())
-		pipeline.Add(PreOptimizeExpressions())
-		pipeline.Add(IntroduceCallableResolutionService())
-		pipeline.Add(ProcessMethodBodies())
-		pipeline.Add(ProcessGenerators()) // for and yield
-		pipeline.Add(CheckInterfaceImplementations())
-		pipeline.Add(InjectCasts())
-		*/
+	* module namespace testcases
 
 * preencher assinatura dos métodos em BindTypeMembers
 
@@ -43,18 +18,28 @@
 
 * map(callable, enumerable)
 
+* final fields: se for um value type nativo fica como literal, senao fica
+como campo readonly
+
+* um novo passo para checagem de visibilidade de acesso de membros
+
+* check visibility for override
+
+* generator expressions
+	return i*3 for i in range(10)
+	
+* promoção de bool para int32 e conversão automática de int32 para bool:
+	* and
+	* or
+	
+* += para eventos vira add_Event(DelegateConstructor(..., ...))
+
+* ref, out parameters
+
 * cache da resolução de nomes entre compilações
 
 * operador de escopo :: para acessar nomes a partir do namespace global
 
-* final fields: se for um value type nativo fica como literal, senao fica
-como campo readonly
-
-* um novo passo para checagem de visibilidade de acesso de membros	
-
-* generator expressions
-	return i*3 for i in range(10)
-		
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock
 
@@ -66,8 +51,6 @@ como campo readonly
 			
 	método fica marcado como private...
 
-* check visibility for override
-
 * booi: opçoes e um único script
 	* booi /c:pt-BR /r:Foo.dll /i:aux.boo foo.boo 1 2 3
 		argv do script seria (1, 2, 3), os argumentos que ocorrem
@@ -77,10 +60,6 @@ como campo readonly
 * tipos callable implementam equivalência estrutural, assim, um tipo callable
 que é wrapper sobre um método qualquer, lembra o método, seus tipos de parâmetro e
 valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc
-
-* promoção de bool para int32 e conversão automática de int32 para bool:
-	* and
-	* or
 
 * nomes de tipo primitivo podem ser utilizados em conversões:
 
@@ -114,10 +93,6 @@ que precisarem? Isso iria permitir remover os casts de EmitAssemblyStep
 		override def Base.Method():
 			super()
 
-* += para eventos vira add_Event(DelegateConstructor(..., ...))
-
-* ref, out parameters
-
 * assembly attributes: [assembly: AssemblyVersion("foo")]
 
 * module attributes: [module: ]
@@ -128,16 +103,11 @@ que precisarem? Isso iria permitir remover os casts de EmitAssemblyStep
 	except:
 		raise // reraise current exception
 
-* remover DepthFirstTransformer pois não é mais necessário e só confunde...
-
 * modo MACRO de compilação (ver macro.boo)
 
 * macros para o SharpDevelop em boo
 
 * unboxing deve fazer conversão numérica
-	
-* remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
-SemanticStep que deverá criar CastExpression sempre que necessário
 
 * BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais?
 
@@ -190,9 +160,9 @@ done * inheritance cycles (A(B), B(C), C(A))
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
 	
-Milestone 4 (delegate support)
+Milestone 4 (documentation)
 ------------------------------
-* automatic delegate interface adaptation
+* documentation step: generates .xml files for ndoc
 * docbook Step (generates docbook files with all the documentation)
 
 Milestone 4.3 (algumas otimizações)
@@ -215,8 +185,7 @@ e declarar os tipos de acordo
 Milestone 5
 -----------
 
-* assert macro
-* operadores de convers�o (operator bool, operator string, etc)
+* operadores de conversão (operator bool, operator string, etc)
 
 Milestone 6 (dynamic behavior)
 ------------------------------

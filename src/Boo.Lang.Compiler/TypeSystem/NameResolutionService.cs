@@ -127,7 +127,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{			
-			IElement tag = _context.TagService.ResolvePrimitive(name);
+			IElement tag = _context.TypeSystemServices.ResolvePrimitive(name);
 			if (null != tag)
 			{
 				targetList.Add(tag);
@@ -218,14 +218,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			ResolveTypeReference(node.ElementType);
 			
-			IType elementType = TagService.GetType(node.ElementType);
-			if (TagService.IsError(elementType))
+			IType elementType = TypeSystemServices.GetType(node.ElementType);
+			if (TypeSystemServices.IsError(elementType))
 			{
-				node.Tag = TagService.ErrorTag;
+				node.Tag = TypeSystemServices.ErrorTag;
 			}
 			else
 			{
-				node.Tag = _context.TagService.GetArrayType(elementType);
+				node.Tag = _context.TypeSystemServices.GetArrayType(elementType);
 			}
 		}
 		
@@ -249,7 +249,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == info || ElementType.TypeReference != info.ElementType)
 			{
 				_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));
-				info = TagService.ErrorTag;
+				info = TypeSystemServices.ErrorTag;
 			}
 			else
 			{

@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Tag)
 			{
-				node.Tag = new InternalMethod(TagService, node);
+				node.Tag = new InternalMethod(TypeSystemServices, node);
 				BindParameters(node, node.Parameters);
 			}
 		}
@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.Steps
 				ParameterDeclaration parameter = parameters[i];
 				if (null == parameter.Type)
 				{
-					parameter.Type = CreateTypeReference(TagService.ObjectType);
+					parameter.Type = CreateTypeReference(TypeSystemServices.ObjectType);
 				}
 				else
 				{
@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Tag)
 			{
-				node.Tag = new InternalConstructor(TagService, node);
+				node.Tag = new InternalConstructor(TypeSystemServices, node);
 				BindParameters(node, node.Parameters);
 			}
 		}
@@ -79,7 +79,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Tag)
 			{
-				node.Tag = new InternalField(TagService, node);
+				node.Tag = new InternalField(TypeSystemServices, node);
 			}
 		}
 		
@@ -87,7 +87,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Tag)
 			{				
-				node.Tag = new InternalProperty(TagService, node);
+				node.Tag = new InternalProperty(TypeSystemServices, node);
 				BindParameters(node, node.Parameters);
 			}
 			

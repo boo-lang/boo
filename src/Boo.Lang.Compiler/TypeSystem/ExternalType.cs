@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 												BindingFlags.Static |
 												BindingFlags.Instance;
 		
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		Type _type;
 		
@@ -52,7 +52,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		int _typeDepth = -1;
 		
-		internal ExternalType(TagService manager, Type type)
+		internal ExternalType(TypeSystemServices manager, Type type)
 		{
 			if (null == type)
 			{

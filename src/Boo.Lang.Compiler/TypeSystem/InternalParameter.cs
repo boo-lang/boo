@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return TagService.GetType(_parameter.Type);
+				return TypeSystemServices.GetType(_parameter.Type);
 			}
 		}
 		

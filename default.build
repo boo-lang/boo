@@ -47,7 +47,7 @@
 		
 		<boo>
 		print("Hello from boo task!")		
-		print(Project.TargetFramework.FrameworkAssemblyDirectory)
+		print("Framework directory: ${Project.TargetFramework.FrameworkAssemblyDirectory}")
 		</boo>
 		
 	</target>

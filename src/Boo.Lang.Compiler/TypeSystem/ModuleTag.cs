@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		NameResolutionService _nameResolutionService;
 		
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		Boo.Lang.Compiler.Ast.Module _module;
 		
@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		string _namespace;
 		
-		public ModuleTag(NameResolutionService nameResolutionService, TagService tagManager, Boo.Lang.Compiler.Ast.Module module)
+		public ModuleTag(NameResolutionService nameResolutionService, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Module module)
 		{
 			_nameResolutionService = nameResolutionService;
 			_tagService = tagManager;
@@ -123,7 +123,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_using = new INamespace[_module.Imports.Count];
 				for (int i=0; i<_using.Length; ++i)
 				{
-					_using[i] = (INamespace)TagService.GetTag(_module.Imports[i]);
+					_using[i] = (INamespace)TypeSystemServices.GetTag(_module.Imports[i]);
 				}
 			}
 				
@@ -143,7 +143,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Boo.Lang.Compiler.Ast.TypeMember member = _module.Members[name];
 			if (null != member)
 			{			
-				return _tagService.GetTypeReference((IType)TagService.GetTag(member));
+				return _tagService.GetTypeReference((IType)TypeSystemServices.GetTag(member));
 			}
 			return null;
 		}

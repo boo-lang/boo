@@ -74,11 +74,11 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected TypeSystem.TagService TagService
+		protected TypeSystem.TypeSystemServices TypeSystemServices
 		{
 			get
 			{
-				return _context.TagService;
+				return _context.TypeSystemServices;
 			}
 		}
 		

@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ArrayType : IType, INamespace
 	{	
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		IType _elementType;
 		
 		IType _array;
 		
-		public ArrayType(TagService tagManager, IType elementType)
+		public ArrayType(TypeSystemServices tagManager, IType elementType)
 		{
 			_tagService = tagManager;
 			_array = tagManager.ArrayType;

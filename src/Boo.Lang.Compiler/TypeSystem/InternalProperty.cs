@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class InternalProperty : IInternalElement, IProperty
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		Property _property;
 		
 		IParameter[] _parameters;
 		
-		public InternalProperty(TagService tagManager, Property property)
+		public InternalProperty(TypeSystemServices tagManager, Property property)
 		{
 			_tagService = tagManager;
 			_property = property;
@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return (IType)TagService.GetTag(_property.DeclaringType);
+				return (IType)TypeSystemServices.GetTag(_property.DeclaringType);
 			}
 		}
 		
@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return TagService.GetType(_property.Type);
+				return TypeSystemServices.GetType(_property.Type);
 			}
 		}
 		
@@ -113,7 +113,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null != _property.Getter)
 			{
-				return (IMethod)TagService.GetTag(_property.Getter);
+				return (IMethod)TypeSystemServices.GetTag(_property.Getter);
 			}
 			return null;
 		}
@@ -122,7 +122,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null != _property.Setter)
 			{
-				return (IMethod)TagService.GetTag(_property.Setter);
+				return (IMethod)TypeSystemServices.GetTag(_property.Setter);
 			}
 			return null;
 		}

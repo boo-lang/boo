@@ -82,11 +82,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected TagService TagService
+		protected TypeSystemServices TypeSystemServices
 		{
 			get
 			{
-				return _context.TagService;
+				return _context.TypeSystemServices;
 			}
 		}
 		
@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node)
 		{
-			node.Tag = TagService.ErrorTag;
+			node.Tag = TypeSystemServices.ErrorTag;
 		}
 
 		protected void Bind(Node node, IElement tag)
@@ -114,12 +114,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public IElement GetTag(Node node)
 		{
-			return TagService.GetTag(node);
+			return TypeSystemServices.GetTag(node);
 		}
 		
 		public IType GetType(Node node)
 		{
-			return TagService.GetType(node);
+			return TypeSystemServices.GetType(node);
 		}		
 		
 		public LocalVariable GetLocalVariable(Node local)
@@ -129,7 +129,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(IType tag)
 		{
-			return TagService.CreateTypeReference(tag);
+			return TypeSystemServices.CreateTypeReference(tag);
+		}
+		
+		protected void NotImplemented(Node node, string feature)
+		{
+			throw CompilerErrorFactory.NotImplemented(node, feature);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

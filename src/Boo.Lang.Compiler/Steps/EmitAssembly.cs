@@ -142,12 +142,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void PushBool()
 		{
-			PushType(TagService.BoolType);
+			PushType(TypeSystemServices.BoolType);
 		}
 		
 		void PushVoid()
 		{
-			PushType(TagService.VoidType);
+			PushType(TypeSystemServices.VoidType);
 		}
 		
 		IType PopType()
@@ -352,7 +352,7 @@ namespace Boo.Lang.Compiler.Steps
 			_returnLabel = _il.DefineLabel();
 			
 			_returnType = ((IMethod)GetTag(method)).ReturnType;
-			if (TagService.VoidType != _returnType)
+			if (TypeSystemServices.VoidType != _returnType)
 			{
 				_returnValueLocal = _il.DeclareLocal(GetSystemType(_returnType));
 			}
@@ -470,7 +470,7 @@ namespace Boo.Lang.Compiler.Steps
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
-			if (PopType() != TagService.VoidType)
+			if (PopType() != TypeSystemServices.VoidType)
 			{				
 				_il.Emit(OpCodes.Pop);				
 			}
@@ -812,7 +812,7 @@ namespace Boo.Lang.Compiler.Steps
 					node.Operand.Accept(this);
 					IType type = PopType();
 					_il.Emit(OpCodes.Ldc_I4, -1);
-					EmitCastIfNeeded(type, TagService.IntType);
+					EmitCastIfNeeded(type, TypeSystemServices.IntType);
 					_il.Emit(OpCodes.Mul);
 					PushType(type);
 					break;
@@ -888,7 +888,7 @@ namespace Boo.Lang.Compiler.Steps
 			// when the parent is not a statement we need to leave
 			// the value on the stack
 			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);				
-			IElement tag = TagService.GetTag(node.Left);
+			IElement tag = TypeSystemServices.GetTag(node.Left);
 			switch (tag.ElementType)
 			{
 				case ElementType.Local:
@@ -965,7 +965,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType lhs = GetType(node.Left);
 			IType rhs = GetType(node.Right);
 			
-			IType type = TagService.GetPromotedNumberType(lhs, rhs);
+			IType type = TypeSystemServices.GetPromotedNumberType(lhs, rhs);
 			Accept(node.Left);
 			EmitCastIfNeeded(type, PopType());
 			Accept(node.Right);
@@ -1016,11 +1016,11 @@ namespace Boo.Lang.Compiler.Steps
 		void OnExponentiation(BinaryExpression node)
 		{
 			Accept(node.Left);
-			EmitCastIfNeeded(TagService.DoubleType, PopType());
+			EmitCastIfNeeded(TypeSystemServices.DoubleType, PopType());
 			Accept(node.Right);
-			EmitCastIfNeeded(TagService.DoubleType, PopType());
+			EmitCastIfNeeded(TypeSystemServices.DoubleType, PopType());
 			_il.EmitCall(OpCodes.Call, Math_Pow, null);
-			PushType(TagService.DoubleType);			
+			PushType(TypeSystemServices.DoubleType);			
 		}
 		                        
 		void OnArithmeticOperator(BinaryExpression node)
@@ -1034,7 +1034,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitToBoolIfNeeded(IType topOfStack)
 		{
-			if (TagService.ObjectType == topOfStack)
+			if (TypeSystemServices.ObjectType == topOfStack)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool, null);
 			}
@@ -1358,12 +1358,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Ldtoken, type);
 			_il.EmitCall(OpCodes.Call, Type_GetTypeFromHandle, null);
-			PushType(TagService.TypeType);
+			PushType(TypeSystemServices.TypeType);
 		}
 		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{				
-			IElement tag = TagService.GetTag(node.Target);
+			IElement tag = TypeSystemServices.GetTag(node.Target);
 			switch (tag.ElementType)
 			{
 				case ElementType.Method:
@@ -1404,7 +1404,7 @@ namespace Boo.Lang.Compiler.Steps
 							// object reference
 							_il.Emit(OpCodes.Dup);
 							
-							IElement memberInfo = TagService.GetTag(pair.First);						
+							IElement memberInfo = TypeSystemServices.GetTag(pair.First);						
 							// field/property reference						
 							InitializeMember(node, memberInfo, pair.Second);
 						}
@@ -1427,7 +1427,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Ldc_I8, node.Value.Ticks);
 			_il.Emit(OpCodes.Newobj, TimeSpan_LongConstructor);
-			PushType(TagService.TimeSpanType);
+			PushType(TypeSystemServices.TimeSpanType);
 		}
 		
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
@@ -1435,7 +1435,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.IsLong)
 			{
 				_il.Emit(OpCodes.Ldc_I8, node.Value);
-				PushType(TagService.LongType);
+				PushType(TypeSystemServices.LongType);
 			}
 			else
 			{
@@ -1459,14 +1459,14 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 				}				
-				PushType(TagService.IntType);
+				PushType(TypeSystemServices.IntType);
 			}			
 		}
 		
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldc_R8, node.Value);
-			PushType(TagService.DoubleType);
+			PushType(TypeSystemServices.DoubleType);
 		}
 		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -1486,7 +1486,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Newobj, Hash_Constructor);
 			
-			IType objType = TagService.ObjectType;
+			IType objType = TypeSystemServices.ObjectType;
 			foreach (ExpressionPair pair in node.Items)
 			{
 				_il.Emit(OpCodes.Dup);
@@ -1497,7 +1497,7 @@ namespace Boo.Lang.Compiler.Steps
 				EmitCastIfNeeded(objType, PopType());
 				_il.EmitCall(OpCodes.Call, Hash_Add, null);
 			}
-			PushType(TagService.HashType);
+			PushType(TypeSystemServices.HashType);
 		}
 		
 		bool IsListGenerator(ListLiteralExpression node)
@@ -1530,7 +1530,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_il.Emit(OpCodes.Newobj, List_EmptyConstructor);			
 			}
-			PushType(TagService.ListType);
+			PushType(TypeSystemServices.ListType);
 		}
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
@@ -1550,7 +1550,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
-			PushType(TagService.StringType);
+			PushType(TypeSystemServices.StringType);
 		}
 		
 		override public void OnSlicingExpression(SlicingExpression node)
@@ -1611,7 +1611,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitLoadInt(Expression expression)
 		{
 			Accept(expression);
-			EmitCastIfNeeded(TagService.IntType, PopType());
+			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
 		}
 		
 		static Regex _interpolatedExpression = new Regex(@"\{(\d+)\}", RegexOptions.Compiled|RegexOptions.CultureInvariant);
@@ -1630,18 +1630,18 @@ namespace Boo.Lang.Compiler.Steps
 				Accept(arg);
 				
 				IType argType = PopType();
-				if (TagService.StringType == argType)
+				if (TypeSystemServices.StringType == argType)
 				{
 					_il.EmitCall(OpCodes.Call, appendString, null);
 				}
 				else
 				{
-					EmitCastIfNeeded(TagService.ObjectType, argType);
+					EmitCastIfNeeded(TypeSystemServices.ObjectType, argType);
 					_il.EmitCall(OpCodes.Call, appendObject, null);
 				}
 			}
 			_il.EmitCall(OpCodes.Call, stringBuilderType.GetMethod("ToString", new Type[0]), null);
-			PushType(TagService.StringType);
+			PushType(TypeSystemServices.StringType);
 		}
 		
 		void EmitLoadField(Expression self, IField fieldInfo)
@@ -1718,7 +1718,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{			
-			IElement tag = TagService.GetTag(node);
+			IElement tag = TypeSystemServices.GetTag(node);
 			switch (tag.ElementType)
 			{				
 				case ElementType.Method:
@@ -1790,7 +1790,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{	
-			IElement info = TagService.GetTag(node);
+			IElement info = TypeSystemServices.GetTag(node);
 			switch (info.ElementType)
 			{
 				case ElementType.Local:
@@ -2052,7 +2052,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(labelBody);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(display.Declarations, TagService.ObjectType);			
+			EmitUnpackForDeclarations(display.Declarations, TypeSystemServices.ObjectType);			
 			
 			StatementModifier filter = display.Filter; 
 			if (null != filter)
@@ -2069,7 +2069,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_il.Emit(OpCodes.Ldloc, list);
 			Accept(display.Expression);
-			EmitCastIfNeeded(TagService.ObjectType, PopType());
+			EmitCastIfNeeded(TypeSystemServices.ObjectType, PopType());
 			_il.EmitCall(OpCodes.Call, List_Add, null);
 			_il.Emit(OpCodes.Pop);
 			
@@ -2095,7 +2095,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(labelBody);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(node.Declarations, TagService.ObjectType);
+			EmitUnpackForDeclarations(node.Declarations, TypeSystemServices.ObjectType);
 			
 			EnterLoop(breakLabel, labelTest);
 			Accept(node.Block);
@@ -2200,7 +2200,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						_il.Emit(OpCodes.Dup);
 						_il.EmitCall(OpCodes.Call, RuntimeServices_MoveNext, null);				
-						StoreLocal(TagService.ObjectType, GetLocalVariable(d));				
+						StoreLocal(TypeSystemServices.ObjectType, GetLocalVariable(d));				
 					}					
 				}
 				_il.Emit(OpCodes.Pop);
@@ -2217,13 +2217,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsBoolOrInt(IType type)
 		{
-			return TagService.BoolType == type ||
-				TagService.IntType == type;
+			return TypeSystemServices.BoolType == type ||
+				TypeSystemServices.IntType == type;
 		}
 		
 		bool IsIEnumerableCompatible(IType type)
 		{
-			return TagService.IEnumerableType.IsAssignableFrom(type);
+			return TypeSystemServices.IEnumerableType.IsAssignableFrom(type);
 		}
 		
 		void PushArguments(IMethod tag, ExpressionCollection args)
@@ -2239,7 +2239,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitObjectArray(ExpressionCollection items)
 		{
-			EmitArray(TagService.ObjectType, items);
+			EmitArray(TypeSystemServices.ObjectType, items);
 		}
 		
 		void EmitArray(IType type, ExpressionCollection items)
@@ -2256,9 +2256,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsInteger(IType type)
 		{
-			return type == TagService.IntType ||
-				type == TagService.LongType ||
-				type == TagService.ByteType;
+			return type == TypeSystemServices.IntType ||
+				type == TypeSystemServices.LongType ||
+				type == TypeSystemServices.ByteType;
 		}
 		
 		OpCode GetArithmeticOpCode(IType type, BinaryOperatorType op)
@@ -2292,19 +2292,19 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsValueType)
 			{
-				if (TagService.IntType == tag)
+				if (TypeSystemServices.IntType == tag)
 				{
 					return OpCodes.Ldelem_I4;
 				}
-				if (TagService.LongType == tag)
+				if (TypeSystemServices.LongType == tag)
 				{
 					return OpCodes.Ldelem_I8;
 				}
-				if (TagService.SingleType == tag)
+				if (TypeSystemServices.SingleType == tag)
 				{
 					return OpCodes.Ldelem_R4;
 				}
-				if (TagService.DoubleType == tag)
+				if (TypeSystemServices.DoubleType == tag)
 				{
 					return OpCodes.Ldelem_R8;
 				}
@@ -2317,19 +2317,19 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsValueType)
 			{
-				if (TagService.IntType == tag)
+				if (TypeSystemServices.IntType == tag)
 				{
 					return OpCodes.Stelem_I4;
 				}
-				if (TagService.LongType == tag)
+				if (TypeSystemServices.LongType == tag)
 				{
 					return OpCodes.Stelem_I8;
 				}
-				if (TagService.SingleType == tag)
+				if (TypeSystemServices.SingleType == tag)
 				{
 					return OpCodes.Stelem_R4;
 				}
-				if (TagService.DoubleType == tag)
+				if (TypeSystemServices.DoubleType == tag)
 				{
 					return OpCodes.Stelem_R8;
 				}
@@ -2369,7 +2369,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (expectedType == TagService.ObjectType)
+				if (expectedType == TypeSystemServices.ObjectType)
 				{
 					if (actualType.IsValueType)
 					{
@@ -2381,19 +2381,19 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetNumericPromotionOpCode(IType type)
 		{
-			if (type == TagService.IntType)
+			if (type == TypeSystemServices.IntType)
 			{
 				return OpCodes.Conv_I4;
 			}
-			else if (type == TagService.LongType)
+			else if (type == TypeSystemServices.LongType)
 			{
 				return OpCodes.Conv_I8;
 			}
-			else if (type == TagService.SingleType)
+			else if (type == TypeSystemServices.SingleType)
 			{
 				return OpCodes.Conv_R4;
 			}
-			else if (type == TagService.DoubleType)
+			else if (type == TypeSystemServices.DoubleType)
 			{
 				return OpCodes.Conv_R8;
 			}
@@ -2550,7 +2550,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IType Map(Type type)
 		{
-			return TagService.Map(type);
+			return TypeSystemServices.Map(type);
 		}
 		
 		Type GetSystemType(Node node)
@@ -2874,11 +2874,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				typeBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
-		}
-		
-		void NotImplemented(Node node, string feature)
-		{
-			throw CompilerErrorFactory.NotImplemented(node, feature);
 		}
 		
 		void NotImplemented(string feature)

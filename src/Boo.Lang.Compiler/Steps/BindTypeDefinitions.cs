@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			if (null == node.Tag)
 			{				
-				node.Tag = new InternalType(TagService, node);				
+				node.Tag = new InternalType(TypeSystemServices, node);				
 			}			
 			
 			NormalizeVisibility(node);
@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			
 			NormalizeVisibility(node);
-			node.Tag = new InternalType(TagService, node);
+			node.Tag = new InternalType(TypeSystemServices, node);
 		}
 		
 		override public void OnEnumDefinition(EnumDefinition node)
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			NormalizeVisibility(node);
-			node.Tag = new EnumType(TagService, node);			
+			node.Tag = new EnumType(TypeSystemServices, node);			
 			
 			long lastValue = 0;
 			foreach (EnumMember member in node.Members)
@@ -90,7 +90,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null == member.Tag)
 				{
-					member.Tag = new InternalEnumMember(TagService, member);
+					member.Tag = new InternalEnumMember(TypeSystemServices, member);
 				}
 			}
 		}

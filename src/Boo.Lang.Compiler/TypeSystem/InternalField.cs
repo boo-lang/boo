@@ -33,10 +33,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class InternalField : IInternalElement, IField
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		Field _field;
 		
-		public InternalField(TagService tagManager, Field field)
+		public InternalField(TypeSystemServices tagManager, Field field)
 		{
 			_tagService = tagManager;
 			_field = field;
@@ -86,7 +86,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return TagService.GetType(_field.Type);
+				return TypeSystemServices.GetType(_field.Type);
 			}
 		}
 		
@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return (IType)TagService.GetTag(_field.ParentNode);
+				return (IType)TypeSystemServices.GetTag(_field.ParentNode);
 			}
 		}
 		

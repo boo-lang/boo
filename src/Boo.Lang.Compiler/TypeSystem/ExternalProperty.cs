@@ -30,13 +30,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class ExternalProperty : IProperty
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		System.Reflection.PropertyInfo _property;
 		
 		IParameter[] _parameters;
 		
-		public ExternalProperty(TagService tagManager, System.Reflection.PropertyInfo property)
+		public ExternalProperty(TypeSystemServices tagManager, System.Reflection.PropertyInfo property)
 		{
 			_tagService = tagManager;
 			_property = property;

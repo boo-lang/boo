@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Boo.Lang.Compiler;	
 	using Boo.Lang.Compiler.Ast;
 
-	public class TagService
+	public class TypeSystemServices
 	{			
 		public ExternalType ExceptionType;
 		
@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly IElement ErrorTag = Boo.Lang.Compiler.TypeSystem.Error.Default;
 		
-		public TagService()		
+		public TypeSystemServices()		
 		{			
 			Cache(VoidType = new VoidTypeImpl(this));
 			Cache(ObjectType = new ExternalType(this, Types.Object));
@@ -175,6 +175,54 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ShortType;
 			}
 			return left;
+		}
+		
+		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
+		{
+			IParameter[] implParameters = impl.GetParameters();
+			IParameter[] baseParameters = baseMethod.GetParameters();
+			
+			if (implParameters.Length == baseParameters.Length)
+			{
+				for (int i=0; i<implParameters.Length; ++i)
+				{
+					if (implParameters[i].Type != baseParameters[i].Type)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		public static string GetSignature(IMethod tag)
+		{			
+			System.Text.StringBuilder sb = new System.Text.StringBuilder(tag.DeclaringType.FullName);
+			sb.Append(".");
+			sb.Append(tag.Name);
+			sb.Append("(");
+			
+			IParameter[] parameters = tag.GetParameters();
+			for (int i=0; i<parameters.Length; ++i)
+			{				
+				if (i>0) 
+				{
+					sb.Append(", ");
+				}
+				sb.Append(parameters[i].Type.FullName);
+			}
+			sb.Append(")");
+			
+			/*
+			IType rt = tag.ReturnType;
+			if (null != rt)
+			{
+				sb.Append(" as ");
+				sb.Append(rt.FullName);
+			}
+			*/
+			return sb.ToString();
 		}
 		
 		public static bool IsUnknown(Node node)
@@ -427,7 +475,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		#region VoidTypeImpl
 		class VoidTypeImpl : ExternalType
 		{			
-			internal VoidTypeImpl(TagService manager) : base(manager, Types.Void)
+			internal VoidTypeImpl(TypeSystemServices manager) : base(manager, Types.Void)
 			{				
 			}		
 			

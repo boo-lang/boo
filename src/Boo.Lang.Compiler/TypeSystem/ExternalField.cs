@@ -30,11 +30,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class ExternalField : IField
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		System.Reflection.FieldInfo _field;
 		
-		public ExternalField(TagService tagManager, System.Reflection.FieldInfo field)
+		public ExternalField(TypeSystemServices tagManager, System.Reflection.FieldInfo field)
 		{
 			_tagService = tagManager;
 			_field = field;

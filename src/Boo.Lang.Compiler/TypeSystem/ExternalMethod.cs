@@ -33,13 +33,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ExternalMethod : IMethod
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		MethodBase _mi;
 		
 		IParameter[] _parameters;
 		
-		internal ExternalMethod(TagService manager, MethodBase mi)
+		internal ExternalMethod(TypeSystemServices manager, MethodBase mi)
 		{
 			_tagService = manager;
 			_mi = mi;
@@ -149,13 +149,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public string ToString()
 		{
-			return ElementUtil.GetSignature(this);
+			return TypeSystemServices.GetSignature(this);
 		}
 	}
 	
 	public class ExternalConstructor : ExternalMethod, IConstructor
 	{
-		public ExternalConstructor(TagService manager, ConstructorInfo ci) : base(manager, ci)
+		public ExternalConstructor(TypeSystemServices manager, ConstructorInfo ci) : base(manager, ci)
 		{			
 		}
 		

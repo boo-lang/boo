@@ -28,6 +28,7 @@
 
 namespace Boo.NAnt
 
+import System
 import System.Diagnostics
 import System.IO
 import NAnt.Core
@@ -36,6 +37,21 @@ import NAnt.Core.Types
 import Boo.Lang.Compiler
 
 abstract class AbstractBooTask(Task):
+	
+	protected def RunCompiler(compiler as BooCompiler):
+		
+		domain = AppDomain.CurrentDomain
+		try:
+			//domain.AssemblyResolve += AppDomain_AssemblyResolve
+			result = compiler.Run()
+			CheckCompilationResult(result)
+			return result
+		ensure:
+			pass
+			//domain.AssemblyResolve -= AppDomain_AssemblyResolve
+			
+	private def AppDomain_AssemblyResolve(sender, args as ResolveEventArgs):
+		return null
 	
 	protected def CheckCompilationResult(context as CompilerContext):
 		errors = context.Errors

@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			INamespace[] globals = new INamespace[2];
 			globals[0] = (INamespace)NameResolutionService.ResolveQualifiedName("Boo.Lang");
-			globals[1] = TagService.BuiltinsType;
+			globals[1] = TypeSystemServices.BuiltinsType;
 			
 			NameResolutionService.GlobalNamespace = new NamespaceDelegator(
 															NameResolutionService.GlobalNamespace,

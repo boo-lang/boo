@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Steps
 					IElement tag = NameResolutionService.ResolveQualifiedName(import.Namespace);					
 					if (null == tag)
 					{
-						tag = TagService.ErrorTag;
+						tag = TypeSystemServices.ErrorTag;
 						Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
 					}
 					else
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Assembly GetBoundAssembly(ReferenceExpression reference)
 		{
-			return ((AssemblyReference)TagService.GetTag(reference)).Assembly;
+			return ((AssemblyReference)TypeSystemServices.GetTag(reference)).Assembly;
 		}
 	}
 }

@@ -33,11 +33,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class InternalEnumMember : IInternalElement, IField
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		EnumMember _member;
 		
-		public InternalEnumMember(TagService tagManager, EnumMember member)
+		public InternalEnumMember(TypeSystemServices tagManager, EnumMember member)
 		{
 			_tagService = tagManager;
 			_member = member;
@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return (IType)TagService.GetTag(_member.ParentNode);
+				return (IType)TypeSystemServices.GetTag(_member.ParentNode);
 			}
 		}
 		

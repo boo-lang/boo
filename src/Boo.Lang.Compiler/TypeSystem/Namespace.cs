@@ -212,17 +212,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		Boo.Lang.Compiler.Ast.DeclarationCollection _declarations;
 		
-		public DeclarationsNamespace(INamespace parent, TagService tagManager, Boo.Lang.Compiler.Ast.DeclarationCollection declarations)
+		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.DeclarationCollection declarations)
 		{
 			_parent = parent;
 			_tagService = tagManager;
 			_declarations = declarations;
 		}
 		
-		public DeclarationsNamespace(INamespace parent, TagService tagManager, Boo.Lang.Compiler.Ast.Declaration declaration)
+		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Declaration declaration)
 		{
 			_parent = parent;
 			_tagService = tagManager;
@@ -243,7 +243,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Boo.Lang.Compiler.Ast.Declaration found = _declarations[name];
 			if (null != found)
 			{
-				IElement element = TagService.GetTag(found);
+				IElement element = TypeSystemServices.GetTag(found);
 				if (NameResolutionService.IsFlagSet(flags, element.ElementType))
 				{
 					targetList.Add(element);

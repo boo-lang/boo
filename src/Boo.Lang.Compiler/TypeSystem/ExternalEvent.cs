@@ -32,11 +32,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ExternalEvent : IEvent
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		System.Reflection.EventInfo _event;
 		
-		public ExternalEvent(TagService tagManager, System.Reflection.EventInfo event_)
+		public ExternalEvent(TypeSystemServices tagManager, System.Reflection.EventInfo event_)
 		{
 			_tagService = tagManager;
 			_event = event_;

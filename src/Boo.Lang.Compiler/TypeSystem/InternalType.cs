@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class EnumType : AbstractInternalType
 	{
-		internal EnumType(TagService tagManager, EnumDefinition enumDefinition) :
+		internal EnumType(TypeSystemServices tagManager, EnumDefinition enumDefinition) :
 			base(tagManager, enumDefinition)
 		{
 		}
@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		int _typeDepth = -1;
 		
-		internal InternalType(TagService manager, TypeDefinition typeDefinition) :
+		internal InternalType(TypeSystemServices manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
 		}		
@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					{
 						foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 						{
-							IType tag = TagService.GetType(baseType);
+							IType tag = TypeSystemServices.GetType(baseType);
 							if (tag.IsClass)
 							{
 								_baseType = tag;
@@ -108,7 +108,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{				
 			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
 			{
-				IType baseType = TagService.GetType(baseTypeReference);
+				IType baseType = TypeSystemServices.GetType(baseTypeReference);
 				if (type == baseType || baseType.IsSubclassOf(type))
 				{
 					return true;
@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{					
 					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
 					{						
-						constructors.Add(TagService.GetTag(member));
+						constructors.Add(TypeSystemServices.GetTag(member));
 					}
 				}
 				_constructors = (IConstructor[])constructors.ToArray(typeof(IConstructor));
@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			int current = 0;
 			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				IType tag = TagService.GetType(baseType);
+				IType tag = TypeSystemServices.GetType(baseType);
 				int depth = tag.GetTypeDepth();
 				if (depth > current)
 				{

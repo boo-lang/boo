@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
-				TypeSystem.ModuleTag moduleTag = new TypeSystem.ModuleTag(NameResolutionService, TagService, module);
+				TypeSystem.ModuleTag moduleTag = new TypeSystem.ModuleTag(NameResolutionService, TypeSystemServices, module);
 				module.Tag = moduleTag;
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
@@ -139,7 +139,7 @@ namespace Boo.Lang.Compiler.Steps
 			NamespaceTag tag = (NamespaceTag)_namespaces[topLevelName];	
 			if (null == tag)
 			{
-				_namespaces[topLevelName] = tag = new NamespaceTag(null, TagService, topLevelName);
+				_namespaces[topLevelName] = tag = new NamespaceTag(null, TypeSystemServices, topLevelName);
 			}
 			return tag;
 		}

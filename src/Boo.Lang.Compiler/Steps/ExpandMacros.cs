@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
-			EnterNamespace((INamespace)TagService.GetTag(module));
+			EnterNamespace((INamespace)TypeSystemServices.GetTag(module));
 			Accept(module.Members);
 			Accept(module.Globals);			
 			LeaveNamespace();

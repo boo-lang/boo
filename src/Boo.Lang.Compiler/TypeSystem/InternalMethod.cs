@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class InternalMethod : IInternalElement, IMethod, INamespace
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		Boo.Lang.Compiler.Ast.Method _method;
 		
@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExpressionCollection SuperExpressions;
 		
-		internal InternalMethod(TagService manager, Boo.Lang.Compiler.Ast.Method method)
+		internal InternalMethod(TypeSystemServices manager, Boo.Lang.Compiler.Ast.Method method)
 		{			
 			_tagService = manager;
 			_method = method;
@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (null == _declaringType)
 				{
-					_declaringType = (IType)TagService.GetTag(_method.DeclaringType);
+					_declaringType = (IType)TypeSystemServices.GetTag(_method.DeclaringType);
 				}
 				return _declaringType;
 			}
@@ -188,7 +188,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{					
-				return TagService.GetType(_method.ReturnType);
+				return TypeSystemServices.GetType(_method.ReturnType);
 			}
 		}
 		
@@ -236,7 +236,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				Boo.Lang.Compiler.Ast.Local local = ResolveLocal(name);
 				if (null != local)
 				{
-					targetList.Add(TagService.GetTag(local));
+					targetList.Add(TypeSystemServices.GetTag(local));
 					return true;
 				}
 			}
@@ -246,7 +246,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				ParameterDeclaration parameter = ResolveParameter(name);
 				if (null != parameter)
 				{
-					targetList.Add(TagService.GetTag(parameter));
+					targetList.Add(TypeSystemServices.GetTag(parameter));
 					return true;
 				}
 			}
@@ -255,7 +255,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public string ToString()
 		{
-			return ElementUtil.GetSignature(this);
+			return TypeSystemServices.GetSignature(this);
 		}
 	}
 	
@@ -263,7 +263,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		bool _hasSuperCall = false;
 		
-		public InternalConstructor(TagService tagManager,
+		public InternalConstructor(TypeSystemServices tagManager,
 		                                  Constructor constructor) : base(tagManager, constructor)
 		{
 		}

@@ -4,10 +4,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ExternalParameter : IParameter
 	{
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		ParameterInfo _parameter;
 		
-		public ExternalParameter(TagService service, ParameterInfo parameter)
+		public ExternalParameter(TypeSystemServices service, ParameterInfo parameter)
 		{
 			_tagService = service;
 			_parameter = parameter;

@@ -5,7 +5,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class NamespaceTag : IElement, INamespace
 	{		
-		TagService _tagService;
+		TypeSystemServices _tagService;
 		
 		INamespace _parent;
 		
@@ -17,7 +17,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		Boo.Lang.List _moduleNamespaces;
 		
-		public NamespaceTag(INamespace parent, TagService tagManager, string name)
+		public NamespaceTag(INamespace parent, TypeSystemServices tagManager, string name)
 		{			
 			_parent = parent;
 			_tagService = tagManager;

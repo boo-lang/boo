@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public abstract class AbstractInternalType : IInternalElement, IType, INamespace
 	{		
-		protected TagService _tagService;
+		protected TypeSystemServices _tagService;
 		
 		protected TypeDefinition _typeDefinition;
 		
@@ -46,11 +46,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected Boo.Lang.List _buffer = new Boo.Lang.List();
 		
-		protected AbstractInternalType(TagService tagManager, TypeDefinition typeDefinition)
+		protected AbstractInternalType(TypeSystemServices tagManager, TypeDefinition typeDefinition)
 		{
 			_tagService = tagManager;
 			_typeDefinition = typeDefinition;
-			_parentNamespace = (INamespace)TagService.GetTag(_typeDefinition.ParentNode);
+			_parentNamespace = (INamespace)TypeSystemServices.GetTag(_typeDefinition.ParentNode);
 		}
 		
 		public string FullName
@@ -102,7 +102,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{			
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					if (TagService.GetType(baseType).Resolve(targetList, name, flags))
+					if (TypeSystemServices.GetType(baseType).Resolve(targetList, name, flags))
 					{
 						found = true;
 					}
@@ -213,7 +213,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IType defaultMemberAttribute = _tagService.Map(typeof(System.Reflection.DefaultMemberAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
 			{
-				IConstructor tag = TagService.GetTag(attribute) as IConstructor;
+				IConstructor tag = TypeSystemServices.GetTag(attribute) as IConstructor;
 				if (null != tag)
 				{
 					if (defaultMemberAttribute == tag.DeclaringType)
@@ -264,7 +264,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					IType tag = TagService.GetType(baseType);
+					IType tag = TypeSystemServices.GetType(baseType);
 					if (tag.IsInterface)
 					{
 						_buffer.AddUnique(tag);
@@ -283,7 +283,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
-					IElement tag = TagService.GetTag(member);
+					IElement tag = TypeSystemServices.GetTag(member);
 					if (ElementType.Type == tag.ElementType)
 					{
 						tag = _tagService.GetTypeReference((IType)tag);

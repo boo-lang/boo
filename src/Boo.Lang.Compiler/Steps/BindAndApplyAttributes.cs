@@ -190,8 +190,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void Run()
 		{
-			_astAttributeInterface = TagService.Map(typeof(IAstAttribute));
-			_systemAttributeBaseClass = TagService.Map(typeof(System.Attribute));
+			_astAttributeInterface = TypeSystemServices.Map(typeof(IAstAttribute));
+			_systemAttributeBaseClass = TypeSystemServices.Map(typeof(System.Attribute));
 			
 			int step = 0;
 			while (step < Parameters.MaxAttributeSteps)
@@ -208,7 +208,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
-			EnterNamespace((INamespace)TagService.GetTag(module));
+			EnterNamespace((INamespace)TypeSystemServices.GetTag(module));
 			Accept(module.Members);
 			LeaveNamespace();
 		}

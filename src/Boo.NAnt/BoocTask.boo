@@ -132,7 +132,7 @@ class BoocTask(AbstractBooTask):
 			
 		AddReferences(parameters)		
 			
-		CheckCompilationResult(compiler.Run())
+		RunCompiler(compiler)
 		
 		
 	protected def AddReferences(parameters as CompilerParameters):
