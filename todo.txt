@@ -56,6 +56,11 @@ Milestone 3.3 (replace.boo)
 done * using Type (using Boo.IO.TextFile)
 done * if string compare
 
+Milestone 3.4 (grepr.boo)
+-------------------------
+* recursive functions
+* namespace resolution for MemberReferenceExpression
+
 Milestone 3.5 (revisão)
 -----------------------
 * expressões simples com inteiros
@@ -114,6 +119,8 @@ Milestone 6
 
 Otimiza��es
 -----------
+* tail call prefix para funçoes recursivas com a ScanDirectories do rgrep.boo
+
 * os métodos com yield e métodos que retornam iterators como enumerate devem
 marcar o tipo retornado por IEnumerator.Current de forma que o compilador
 possa otimizar a utilizaçao de tais itens (no caso do enumerate, o compilador

@@ -1596,11 +1596,15 @@ options
 	
 	antlr.TokenStreamSelector _selector;
 	
-	internal void Initialize(antlr.TokenStreamSelector selector)
+	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, string tokenObjectClass)
 	{
 		_selector = selector;
 		_el = new BooExpressionLexer(getInputState());
+		_el.setTabSize(tabSize);
+		_el.setTokenObjectClass(tokenObjectClass);
+		
 		_erecorder = new TokenStreamRecorder(selector);
+		
 	}
 	
 	bool SkipWhitespace

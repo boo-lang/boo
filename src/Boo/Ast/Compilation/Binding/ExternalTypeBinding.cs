@@ -19,6 +19,14 @@ namespace Boo.Ast.Compilation.Binding
 			_type = type;
 		}
 		
+		public string Name
+		{
+			get
+			{
+				return _type.Name;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get

@@ -17,10 +17,11 @@ NameNotType=O nome {0} não denota um tipo válido.
 MemberNotFound=Membro '{0}' não encontrado.
 InvalidNamespace=Espaço {0} não encontrado, talvez você tenha esquecido de adicionar uma referência?
 IncompatibleExpressionType=Tipo da expressão '{1}' incompatível com destino ('{0}').
-NoApropriateOverloadFound=Nenhuma versão compatível com os argumentos '{0}' foi encontrada.
+NoApropriateOverloadFound=Nenhuma versão apropriada de '{1}' para a lista de argumentos '{0}' foi encontrada.
 InvalidArray=Somente arrays unidimensionais são suportados.
 BoolExpressionRequired={0} não pode ser utilizado em um contexto booleano.
 AmbiguousTypeReference=Referência de tipo ambígua: {0}.
+NoEntryPoint=O módulo {0} não possui um ponto de entrada.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

@@ -85,6 +85,16 @@ namespace Boo.Ast.Compilation.Binding
 			return binding;
 		}	
 		
+		public ITypeBinding GetTypeBinding(Node node)
+		{
+			return ((ITypedBinding)GetBinding(node)).BoundType;
+		}
+		
+		public System.Type GetBoundType(Node node)
+		{
+			return GetTypeBinding(node).Type;
+		}	
+		
 		public ITypeBinding ToTypeBinding(System.Type type)
 		{
 			return new ExternalTypeBinding(this, type);
@@ -128,37 +138,7 @@ namespace Boo.Ast.Compilation.Binding
 					throw new NotImplementedException(mi.ToString());
 				}
 			}
-		}
-		
-		public TypeBuilder GetTypeBuilder(TypeDefinition type)
-		{
-			return ((InternalTypeBinding)GetBinding(type)).TypeBuilder;
-		}
-		
-		public MethodBuilder GetMethodBuilder(Method method)
-		{
-			return ((InternalMethodBinding)GetBinding(method)).MethodBuilder;
-		}
-		
-		public MethodInfo GetMethodInfo(Node node)
-		{
-			return (MethodInfo)((IMethodBinding)GetBinding(node)).MethodInfo;
-		}
-		
-		public ITypeBinding GetTypeBinding(Node node)
-		{
-			return (ITypeBinding)GetBinding(node);
-		}
-		
-		public System.Type GetBoundType(Node node)
-		{
-			return ((ITypedBinding)GetBinding(node)).BoundType.Type;
-		}		
-		
-		public LocalBinding GetLocalBinding(Local local)
-		{
-			return (LocalBinding)GetBinding(local);
-		}
+		}	
 		
 		public static string GetSignature(IMethodBinding binding)
 		{

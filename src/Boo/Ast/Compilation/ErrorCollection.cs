@@ -45,6 +45,11 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("NameNotType", name)));
 		}
 		
+		public void NoEntryPoint(Module module)
+		{
+			Add(new Error(module, Format("NoEntryPoint", module.Name)));
+		}
+		
 		public void MemberNotFound(MemberReferenceExpression node)
 		{
 			Add(new Error(node, Format("MemberNotFound", node.Name)));
@@ -55,9 +60,9 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("BoolExpressionRequired", type)));
 		}
 		
-		public void NoApropriateOverloadFound(Node node, string signature)
+		public void NoApropriateOverloadFound(Node node, string args, string name)
 		{
-			Add(new Error(node, Format("NoApropriateOverloadFound", signature)));
+			Add(new Error(node, Format("NoApropriateOverloadFound", args, name)));
 		}
 		
 		public void UnknownName(Node node, string name)
@@ -155,6 +160,20 @@ namespace Boo.Ast.Compilation
 			{
 				Add(new Error(data, error.Message, error));
 			}
+		}
+		
+		string ToStringList(System.Collections.IEnumerable names)
+		{
+			StringBuilder builder = new StringBuilder();
+			foreach (object name in names)
+			{
+				if (builder.Length > 0)
+				{
+					builder.Append(", ");
+				}
+				builder.Append(name.ToString());
+			}
+			return builder.ToString();
 		}
 		
 		string ToAssemblyQualifiedNameList(List types)

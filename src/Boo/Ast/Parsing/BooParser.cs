@@ -7,6 +7,10 @@ namespace Boo.Ast.Parsing
 {
 	public class BooParser : BooParserBase
 	{	
+		const int TabSize = 4;
+		
+		const string TokenObjectClass = "Boo.Ast.Parsing.BooToken";
+		
 		protected ParserErrorHandler Error;
 
 		public BooParser(antlr.TokenStream lexer) : base(lexer)
@@ -38,10 +42,10 @@ namespace Boo.Ast.Parsing
 			antlr.TokenStreamSelector selector = new antlr.TokenStreamSelector();
 		
 			BooLexer lexer = new BooLexer(reader);
-			lexer.setTabSize(4);
+			lexer.setTabSize(TabSize);
 			lexer.setFilename(readerName);
-			lexer.setTokenObjectClass("Boo.Ast.Parsing.BooToken");
-			lexer.Initialize(selector);
+			lexer.setTokenObjectClass(TokenObjectClass);
+			lexer.Initialize(selector, TabSize, TokenObjectClass);
 		
 			IndentTokenStreamFilter filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOS);
 			selector.select(filter);

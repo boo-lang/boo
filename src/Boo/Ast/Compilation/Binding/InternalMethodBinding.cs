@@ -19,6 +19,14 @@ namespace Boo.Ast.Compilation.Binding
 			_builder = builder;
 		}
 		
+		public string Name
+		{
+			get
+			{
+				return _method.Name;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get

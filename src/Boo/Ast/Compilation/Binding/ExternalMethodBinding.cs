@@ -15,6 +15,14 @@ namespace Boo.Ast.Compilation.Binding
 			_mi = mi;
 		}
 		
+		public string Name
+		{
+			get
+			{
+				return _mi.Name;
+			}
+		}
+		
 		public virtual BindingType BindingType
 		{
 			get

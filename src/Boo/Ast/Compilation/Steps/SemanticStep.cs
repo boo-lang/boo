@@ -147,7 +147,7 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			node.Iterator.Switch(this);
 			
-			ITypeBinding iteratorType = (ITypeBinding)GetBinding(node.Iterator);
+			ITypeBinding iteratorType = GetTypeBinding(node.Iterator);
 			CheckIterator(node.Iterator, iteratorType);
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
@@ -502,10 +502,11 @@ namespace Boo.Ast.Compilation.Steps
 								score = -1;
 								break;
 							}
-						}
+						}						
 						
-						if (score > 0)
+						if (score >= 0)
 						{
+							// only positive scores are compatible
 							scores.Add(new BindingScore(binding, score));						
 						}
 					}
@@ -534,7 +535,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
-				Errors.NoApropriateOverloadFound(node, GetSignature(args));
+				Errors.NoApropriateOverloadFound(node, GetSignature(args), bindings[0].Name);
 			}
 			BindingManager.Error(node);	
 			return null;
@@ -667,11 +668,6 @@ namespace Boo.Ast.Compilation.Steps
 		void PopNamespace()
 		{
 			_namespaces.Pop();
-		}
-		
-		IBinding GetBinding(Node node)
-		{
-			return BindingManager.GetBinding(node);
 		}
 	}
 }

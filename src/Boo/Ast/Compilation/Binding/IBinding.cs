@@ -18,7 +18,11 @@ namespace Boo.Ast.Compilation.Binding
 	}
 	
 	public interface IBinding
-	{				
+	{	
+		string Name
+		{
+			get;
+		}
 		BindingType BindingType
 		{
 			get;
@@ -95,6 +99,14 @@ namespace Boo.Ast.Compilation.Binding
 			_bindings = bindings;
 		}
 		
+		public string Name
+		{
+			get
+			{
+				return _bindings[0].Name;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get
@@ -127,6 +139,14 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			_bindingManager = bindingManager;
 			_field = field;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _field.Name;
+			}
 		}
 		
 		public BindingType BindingType
@@ -172,6 +192,14 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			_bindingManager = bindingManager;
 			_property = property;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _property.Name;
+			}
 		}
 		
 		public BindingType BindingType
@@ -245,6 +273,14 @@ namespace Boo.Ast.Compilation.Binding
 			_assemblies = assemblies;
 		}
 		
+		public string Name
+		{
+			get
+			{
+				return _using.Namespace;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get
@@ -294,6 +330,14 @@ namespace Boo.Ast.Compilation.Binding
 			_assembly = assembly;
 		}
 		
+		public string Name
+		{
+			get
+			{
+				return _assembly.FullName;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get
@@ -323,6 +367,14 @@ namespace Boo.Ast.Compilation.Binding
 		{			
 			_local = local;
 			_typeInfo = typeInfo;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _local.Name;
+			}
 		}
 		
 		public BindingType BindingType
@@ -386,6 +438,14 @@ namespace Boo.Ast.Compilation.Binding
 			_index = index;
 		}
 		
+		public string Name
+		{
+			get
+			{
+				return _parameter.Name;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get
@@ -433,6 +493,14 @@ namespace Boo.Ast.Compilation.Binding
 		
 		private ErrorBinding()
 		{			
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return "Error";
+			}
 		}
 		
 		public BindingType BindingType

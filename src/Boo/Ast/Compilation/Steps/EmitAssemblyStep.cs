@@ -42,7 +42,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void Run()
 		{				
-			if (Errors.Count > 0)
+			if (Errors.Count > 0 || 0 == CompileUnit.Modules.Count)
 			{
 				return;				
 			}
@@ -63,13 +63,13 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveModule(Boo.Ast.Module module)
 		{			
-			TypeBuilder typeBuilder = BindingManager.GetTypeBuilder(module);
+			TypeBuilder typeBuilder = GetTypeBuilder(module);
 			typeBuilder.CreateType();
 		}		
 		
 		public override void OnMethod(Method method)
 		{			
-			MethodBuilder methodBuilder = BindingManager.GetMethodBuilder(method);
+			MethodBuilder methodBuilder = GetMethodBuilder(method);
 			_il = methodBuilder.GetILGenerator();
 			method.Locals.Switch(this);
 			method.Body.Switch(this);
@@ -78,7 +78,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnLocal(Local local)
 		{			
-			LocalBinding info = BindingManager.GetLocalBinding(local);
+			LocalBinding info = GetLocalBinding(local);
 			info.LocalBuilder = _il.DeclareLocal(info.Type);
 			info.LocalBuilder.SetLocalSymInfo(local.Name);			
 		}
@@ -327,31 +327,7 @@ namespace Boo.Ast.Compilation.Steps
 					throw new ArgumentException("binding");
 				}				
 			}
-		}
-		
-		ITypeBinding GetTypeBinding(Node node)
-		{
-			return BindingManager.GetTypeBinding(node);
-		}
-		
-		LocalBuilder GetLocalBuilder(Node node)
-		{
-			return ((LocalBinding)BindingManager.GetBinding(node)).LocalBuilder;
-		}
-		
-		void DefineEntryPoint()
-		{
-			if (CompilerOutputType.Library != CompilerParameters.OutputType)
-			{
-				Module main = CompileUnit.Modules[0];
-				Method method = ModuleStep.GetMainMethod(main);
-				Type type = _asmBuilder.GetType(main.FullyQualifiedName, true);
-				MethodInfo mi = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.NonPublic);
-				
-				_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
-				CompileUnit[EntryPointKey] = mi;
-			}
-		}		
+		}			
 		
 		void EmitDebugInfo(Node node)
 		{
@@ -518,11 +494,28 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Ldc_I4, index); // element index
 			value.Switch(this); // value
 			_il.Emit(OpCodes.Stelem_Ref);
-		}
+		}		
 		
-		Type GetBoundType(Node node)
+		void DefineEntryPoint()
 		{
-			return BindingManager.GetBoundType(node);
-		}
+			if (CompilerOutputType.Library != CompilerParameters.OutputType)
+			{
+				Module main = CompileUnit.Modules[0];
+				Method method = ModuleStep.GetMainMethod(main);
+				if (null != method)
+				{
+					Type type = _asmBuilder.GetType(main.FullyQualifiedName, true);
+					MethodInfo mi = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.NonPublic);
+					
+					_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
+					CompileUnit[EntryPointKey] = mi;
+				}
+				else
+				{
+					Errors.NoEntryPoint(main);
+				}
+			}
+		}	
+
 	}
 }
