@@ -65,6 +65,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding ICollection_get_Count;
 		
+		IMethodBinding Tuple_TypedConstructor;
+		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
 		/*
@@ -92,6 +94,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
+			Tuple_TypedConstructor = (IMethodBinding)BindingManager.ToBinding(Types.Builtins.GetMethod("tuple", new Type[] { typeof(Type), typeof(IEnumerable) }));
 			
 			ApplicationException_StringConstructor =
 					(IConstructorBinding)BindingManager.ToBinding(
@@ -427,7 +430,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					_pending.Add(method, new ReturnTypeResolver(binding), binding.ReturnExpressions);
+					_pending.Add(method, new ReturnTypeResolver(binding));
 				}
 			}
 			else
@@ -751,6 +754,13 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
+					if (IsLhsOfAssignment(node))
+					{
+						// leave it to LeaveBinaryExpression to resolve
+						BindingManager.Bind(node, member);
+						return;
+					}
+					
 					MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
 					mie.Arguments.Add(node.Begin);
 					
@@ -960,7 +970,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			Switch(node.Iterator);
 			
-			ITypeBinding iteratorType = GetBoundType(node.Iterator);
+			ITypeBinding iteratorType = GetExpressionType(node.Iterator);
 			CheckIterator(node.Iterator, iteratorType);
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
@@ -1010,11 +1020,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			IBinding result = ErrorBinding.Default;
 			IBinding binding = GetBinding(node.Operand);
-			if (!IsLValue(binding))
-			{
-				Error(CompilerErrorFactory.LValueExpected(node.Operand));
-			}
-			else
+			if (CheckLValue(node.Operand, binding))
 			{
 				ITypedBinding typed = (ITypedBinding)binding;
 				if (!IsNumber(typed.BoundType))
@@ -1093,6 +1099,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			switch (node.Operator)
 			{		
+				case BinaryOperatorType.Assign:
+				{
+					BindAssignment(node, ref resultingNode);
+					break;
+				}
+				
 				case BinaryOperatorType.Add:
 				{
 					BindArithmeticOperator(node);
@@ -1340,7 +1352,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					if (IsUnknown(targetMethod.ReturnType))
 					{
 						InternalMethodBinding internalMethod = ((InternalMethodBinding)targetMethod);
-						_pending.Add(node, new MethodInvocationResolver(internalMethod), internalMethod.Method); 
+						_pending.Add(node, new MethodInvocationResolver(internalMethod)); 
 					}
 					
 					break;
@@ -1418,6 +1430,74 @@ namespace Boo.Lang.Compiler.Pipeline
 				return false;
 			}
 			return true;
+		}
+		
+		void BindAssignment(BinaryExpression node, ref Expression resultingNode)
+		{
+			IBinding resultingType = ErrorBinding.Default;
+			
+			if (NodeType.SlicingExpression == node.Left.NodeType)
+			{
+				IBinding lhs = GetBinding(node.Left);
+				ITypeBinding rhs = GetExpressionType(node.Right);
+				IMethodBinding setter = null;
+				SlicingExpression slice = (SlicingExpression)node.Left;
+				
+				if (BindingType.Property == lhs.BindingType)
+				{
+					IMethodBinding setMethod = ((IPropertyBinding)lhs).GetSetMethod();
+					if (2 != setMethod.ParameterCount)
+					{
+						Error(CompilerErrorFactory.MethodArgumentCount(node.Left, setMethod.FullName, 2));
+					}
+					else
+					{
+						if (CheckTypeCompatibility(slice.Begin, setMethod.GetParameterType(0), GetExpressionType(slice.Begin)) &&
+							CheckTypeCompatibility(node.Right, setMethod.GetParameterType(1), rhs))
+						{
+							setter = setMethod;
+						}
+					}
+				}
+				else if (BindingType.Ambiguous == lhs.BindingType)
+				{					
+				}
+				
+				if (null == setter)
+				{
+					Error(CompilerErrorFactory.LValueExpected(node.Left));
+				}
+				else
+				{	
+					MemberReferenceExpression target = new MemberReferenceExpression(slice.Target.LexicalInfo);
+					target.Target = slice.Target;
+					target.Name = setter.Name;
+					
+					MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
+					mie.Target = target; 
+					mie.Arguments.Add(slice.Begin);
+					mie.Arguments.Add(node.Right);
+					
+					BindingManager.Bind(target, setter);
+					BindingManager.Bind(mie, setter);
+					
+					resultingNode = mie;
+				}
+			}
+			else
+			{
+				IBinding lhs = GetBinding(node.Left);
+				if (CheckLValue(node.Left, lhs))
+				{
+					ITypeBinding lhsType = GetBoundType(node.Left);
+					if (CheckTypeCompatibility(node.Right, lhsType, GetExpressionType(node.Right)))
+					{
+						resultingType = lhsType;							
+					}
+				}
+			}
+			
+			BindingManager.Bind(node, resultingType);
 		}
 		
 		bool BindReferenceEquality(BinaryExpression node)
@@ -1723,6 +1803,20 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			return actualType.IsAssignableFrom(expectedType);
 		}
+		
+		bool IsLhsOfAssignment(SlicingExpression node)
+		{
+			if (NodeType.BinaryExpression == node.ParentNode.NodeType)
+			{
+				BinaryExpression be = (BinaryExpression)node.ParentNode;
+				if (BinaryOperatorType.Assign == be.Operator &&
+					node == be.Left)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 
 		bool IsLValue(IBinding binding)
 		{
@@ -1731,6 +1825,16 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BindingType.Local:
 				{
 					return !((LocalBinding)binding).IsPrivateScope;
+				}
+				
+				case BindingType.Property:
+				{
+					return true;
+				}
+				
+				case BindingType.Field:
+				{
+					return true;
 				}
 			}
 			return false;
@@ -1925,6 +2029,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
+		bool CheckLValue(Node node, IBinding binding)
+		{
+			if (!IsLValue(binding))
+			{
+				Error(CompilerErrorFactory.LValueExpected(node));
+				return false;
+			}
+			return true;
+		}
+		
 		bool CheckBoolContext(Expression expression)
 		{
 			ITypeBinding type = GetBoundType(expression);
@@ -2023,10 +2137,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		protected ITypeBinding GetExpressionType(Node node)
 		{
 			ITypedBinding binding = (ITypedBinding)GetBinding(node);
-			if (BindingType.TypeReference == binding.BindingType &&
+			BindingType bindingType = binding.BindingType;
+			if (BindingType.TypeReference == bindingType &&
 				IsStandaloneTypeReference(node))
 			{
 				return BindingManager.TypeTypeBinding;
+			}
+			if (Tuple_TypedConstructor == binding)
+			{
+				return BindingManager.ToTupleBinding(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
 			}
 			return binding.BoundType;
 		}

@@ -172,6 +172,7 @@ namespace Boo.Lang.Compiler.Bindings
 	public interface IPropertyBinding : IMemberBinding
 	{
 		IMethodBinding GetGetMethod();		
+		IMethodBinding GetSetMethod();
 	}
 	
 	public interface ITypeBinding : ITypedBinding, INamespace

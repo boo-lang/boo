@@ -85,9 +85,7 @@ class BooC(Task):
 			raise BuildException("boo compilation error", Location)
 		
 	private def AddReferences(parameters as CompilerParameters):
-		if not _references.BaseDirectory:
-			_references.BaseDirectory = Project.BaseDirectory
-			
+		
 		baseDir = _references.BaseDirectory.ToString()
 		frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.ToString()
 		for reference as string in _references.Includes:

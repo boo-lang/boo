@@ -31,11 +31,12 @@ count = 0
 
 for v1 in array:
 	for v2 in array:
-		total += v2.Distance(v1)
+		#total += v2.Distance(v1)
+		total = total + v2.Distance(v1)
 		++count
 
 elapsed = date.Now.Subtract(start) 
 print("Total... ${total}.")
 
-// a good ips value is: 13000000
+// a good ips value is: 13.000.000
 print("Done ${count} in ${elapsed.TotalSeconds} secs - ${count/elapsed.TotalSeconds} ips.")

@@ -65,6 +65,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding RuntimeServicesBinding;
 		
+		public ExternalTypeBinding BuiltinsBinding;
+		
 		public ExternalTypeBinding ListTypeBinding;
 		
 		public ExternalTypeBinding IEnumerableTypeBinding;
@@ -96,6 +98,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(TimeSpanTypeBinding = new ExternalTypeBinding(this, Types.TimeSpan));
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
+			Cache(BuiltinsBinding = new ExternalTypeBinding(this, Types.Builtins));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
 			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));
 			Cache(ICollectionTypeBinding = new ExternalTypeBinding(this, Types.ICollection));
@@ -242,38 +245,49 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public IBinding ToBinding(System.Reflection.MemberInfo mi)
 		{
-			switch (mi.MemberType)
-			{
-				case MemberTypes.Method:
+			IBinding binding = (IBinding)_bindingCache[mi];
+			if (null == binding)
+			{			
+				switch (mi.MemberType)
 				{
-					return new ExternalMethodBinding(this, (System.Reflection.MethodInfo)mi);
+					case MemberTypes.Method:
+					{
+						binding = new ExternalMethodBinding(this, (System.Reflection.MethodInfo)mi);
+						break;
+					}
+					
+					case MemberTypes.Constructor:
+					{
+						binding = new ExternalConstructorBinding(this, (System.Reflection.ConstructorInfo)mi);
+						break;
+					}
+					
+					case MemberTypes.Field:
+					{
+						binding = new ExternalFieldBinding(this, (System.Reflection.FieldInfo)mi);
+						break;
+					}
+					
+					case MemberTypes.Property:
+					{
+						binding = new ExternalPropertyBinding(this, (System.Reflection.PropertyInfo)mi);
+						break;
+					}
+					
+					case MemberTypes.Event:
+					{
+						binding = new ExternalEventBinding(this, (System.Reflection.EventInfo)mi);
+						break;
+					}
+					
+					default:
+					{
+						throw new NotImplementedException(mi.ToString());
+					}
 				}
-				
-				case MemberTypes.Constructor:
-				{
-					return new ExternalConstructorBinding(this, (System.Reflection.ConstructorInfo)mi);
-				}
-				
-				case MemberTypes.Field:
-				{
-					return new ExternalFieldBinding(this, (System.Reflection.FieldInfo)mi);
-				}
-				
-				case MemberTypes.Property:
-				{
-					return new ExternalPropertyBinding(this, (System.Reflection.PropertyInfo)mi);
-				}
-				
-				case MemberTypes.Event:
-				{
-					return new ExternalEventBinding(this, (System.Reflection.EventInfo)mi);
-				}
-				
-				default:
-				{
-					throw new NotImplementedException(mi.ToString());
-				}
+				_bindingCache.Add(mi, binding);
 			}
+			return binding;
 		}
 		
 		public IBinding ResolvePrimitive(string name)

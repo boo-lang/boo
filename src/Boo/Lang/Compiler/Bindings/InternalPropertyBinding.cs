@@ -104,6 +104,11 @@ namespace Boo.Lang.Compiler.Bindings
 			return (IMethodBinding)BindingManager.GetBinding(_property.Getter);
 		}
 		
+		public IMethodBinding GetSetMethod()
+		{
+			return (IMethodBinding)BindingManager.GetBinding(_property.Setter);
+		}
+		
 		public override Node Node
 		{
 			get

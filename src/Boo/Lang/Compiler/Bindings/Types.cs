@@ -35,6 +35,8 @@ namespace Boo.Lang.Compiler.Bindings
 	{
 		public static readonly Type RuntimeServices = typeof(Boo.Lang.RuntimeServices);
 		
+		public static readonly Type Builtins = typeof(Boo.Lang.Builtins);
+		
 		public static readonly Type Exception = typeof(System.Exception);
 		
 		public static readonly Type ApplicationException = typeof(System.ApplicationException);

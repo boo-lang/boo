@@ -26,34 +26,20 @@ namespace Boo.Lang.Compiler.Pipeline
 	class GraphNode
 	{
 		public readonly Node Node;
-		
-		public Node[] Dependencies;
 
 		ITypeResolver _resolver;
-		
-		bool _changed = false;
 
-		public GraphNode(Node node, ITypeResolver resolver, Node[] deps)
+		public GraphNode(Node node, ITypeResolver resolver)
 		{
 			Node = node;
 			_resolver = resolver;
-			Dependencies = deps;
-		}
-		
-		public bool Changed
-		{
-			get
-			{
-				return _changed;
-			}
 		}
 		
 		public bool Resolve(SemanticStep parent)
 		{			
 			IBinding binding = ((ITypedBinding)BindingManager.GetBinding(Node)).BoundType;
 			IBinding resolved = _resolver.Resolve(parent);
-			_changed = binding != resolved;
-			return _changed;
+			return binding != resolved;
 		}
 		
 		public void OnResolved(SemanticStep parent)
@@ -77,12 +63,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_context = context;
 		}
 		
-		public void Add(Node node, ITypeResolver resolver, params Node[] nodes)
-		{
-			Add(node, resolver, (IEnumerable)nodes);
-		}
-		
-		public void Add(Node node, ITypeResolver resolver, IEnumerable dependencies)
+		public void Add(Node node, ITypeResolver resolver)
 		{				
 			if (_nodeMap.ContainsKey(node))
 			{
@@ -95,22 +76,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			_context.TraceInfo("{0}: Node '{1}' added to the dependency graph.", node.LexicalInfo, node);
 			
-			GraphNode gnode = new GraphNode(node, resolver, FilterDependencies(dependencies));			
+			GraphNode gnode = new GraphNode(node, resolver);			
 			_nodes.Add(gnode);
 			_nodeMap.Add(node, gnode);
-		}
-		
-		Node[] FilterDependencies(IEnumerable nodes)
-		{
-			_buffer.Clear();
-			foreach (Node node in nodes)
-			{
-				if (IsUnknown(node))
-				{
-					_buffer.Add(node);
-				}
-			}
-			return (Node[])_buffer.ToArray(typeof(Node));
 		}
 		
 		bool IsUnknown(Node node)
@@ -127,9 +95,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			int iterations = 1;
 			while (true)
-			{				
-				bool changed = false;
-				
+			{	
+				bool changed = false;			
 				foreach (GraphNode node in _nodes)
 				{
 					if (node.Resolve(parent))
@@ -137,11 +104,10 @@ namespace Boo.Lang.Compiler.Pipeline
 						changed = true;
 					}
 				}
-				
 				if (!changed)
 				{
-					break;					
-				}
+					break;
+				}				
 				++iterations;
 			}
 			
@@ -151,28 +117,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			return iterations;
-		}
-		
-		GraphNode GetGraphNode(Node node)
-		{
-			GraphNode found = (GraphNode)_nodeMap[node];
-			if (null == found)
-			{
-				throw new ApplicationException(string.Format("{0}: Node '{1}' not found in dependency graph!", node.LexicalInfo, node));
-			}
-			return found;
-		}
-		
-		bool AnyNodeChanged(Node[] nodes)
-		{
-			foreach (Node node in nodes)
-			{				
-				if (GetGraphNode(node).Changed)
-				{
-					return true;
-				}
-			}
-			return false;
 		}
 	}
 }

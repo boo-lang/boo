@@ -171,11 +171,11 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done * for lists, list.Count
 		done * for strings, string.Length
 		done * for objects, invocar RuntimeServices.Len()
-	* SemanticStep deve reconhecer as funçoes tuple(Type, ...) para deduzir o tipo
+	done * SemanticStep deve reconhecer as funçoes tuple(Type, ...) para deduzir o tipo
 	das expressoes de acordo
 	done * zip: versão com dois argumentos
 	* assign to Slicing
-		* hash["foo"] = "bar"
+		done * hash["foo"] = "bar"
 		* hash[0] = "bar"
 	* implementação de interfaces
 		* pelo menos suporte a propriedades
@@ -241,7 +241,8 @@ done * raise
 Milestone 3.9 (better error checking)
 -------------------------------------
 * constructors can't have a return value
-* unused local variable
+* WARNING: unused local variable
+* WARNING: unreachable code detected
 * method override with different accessibility
 * override accessibility checks
 * inheritance cycles (A(B), B(C), C(A))

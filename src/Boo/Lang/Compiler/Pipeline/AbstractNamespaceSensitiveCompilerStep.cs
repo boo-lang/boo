@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushNamespace(ImportResolutionStep.GetBooLangNamespace(CompilerContext));
 			                           
 			// then builtins resolution			
-			PushNamespace(new ExternalTypeBinding(BindingManager, typeof(Boo.Lang.Builtins)));
+			PushNamespace(BindingManager.BuiltinsBinding);
 			return true;
 		}
 		

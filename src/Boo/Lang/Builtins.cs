@@ -60,10 +60,10 @@ namespace Boo.Lang
 		
 		public static object[] tuple(IEnumerable enumerable)
 		{
-			return (object[])tuple(enumerable, typeof(object));
+			return (object[])tuple(typeof(object), enumerable);
 		}
 		
-		public static Array tuple(IEnumerable enumerable, Type elementType)
+		public static Array tuple(Type elementType, IEnumerable enumerable)
 		{
 			if (null == enumerable)
 			{
