@@ -116,6 +116,15 @@
 				<include name="antlr.runtime.dll" />
 			</references>			
 		</csc>
+		
+		<booc 
+			target="library"
+			output="build/BooModule.dll">
+			
+			<sources basedir="BooModule">
+				<include name="*.boo" />
+			</sources>
+		</booc>
 	</target>
 	
 	<target name="init">

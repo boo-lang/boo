@@ -100,4 +100,18 @@ namespace BooCompiler.Tests
 	{
 """)
 
+GenerateTestFixture("testcases/parser/roundtrip", "Boo.AntlrParser.Tests/ParserRoundtripTestFixture.cs", """
+namespace Boo.AntlrParser.Tests
+{
+	using NUnit.Framework;
+	
+	[TestFixture]
+	public class ParserRoundtripTestFixture : AbstractParserTestFixture
+	{
+		void RunCompilerTestCase(string fname)
+		{
+			RunParserTestCase(fname);
+		}
+""")
+
 	

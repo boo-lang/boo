@@ -565,8 +565,15 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented(node.Name);
 			Write(" ");
 			WriteCommaSeparatedList(node.Arguments);
-			WriteLine(":");
-			WriteBlock(node.Block);
+			if (node.Block.Statements.Count > 0)
+			{
+				WriteLine(":");
+				WriteBlock(node.Block);
+			}
+			else
+			{
+				WriteLine();
+			}
 		}
 		
 		override public void OnForStatement(ForStatement fs)
