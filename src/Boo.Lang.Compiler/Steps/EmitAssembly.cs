@@ -203,6 +203,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Assembly OnTypeResolve(object sender, ResolveEventArgs args)
 		{
+			// TODO: Implement enum resolution here
 			_context.TraceVerbose("OnTypeResolve('{0}')", args.Name);
 			return null;
 		}
