@@ -362,15 +362,12 @@ namespace Boo.Lang.Ast.Visitors
 			Write(")");
 		}
 
-		public override bool EnterRaiseStatement(RaiseStatement rs)
+		public override void OnRaiseStatement(RaiseStatement rs)
 		{
 			WriteIndented();
 			WriteKeyword("raise ");
-			return true;
-		}
-
-		public override void LeaveRaiseStatement(RaiseStatement rs)
-		{
+			Switch(rs.Exception);
+			Switch(rs.Modifier);
 			WriteLine();
 		}
 
@@ -475,14 +472,11 @@ namespace Boo.Lang.Ast.Visitors
 			Write(node.Name);
 		}
 
-		public override bool EnterExpressionStatement(ExpressionStatement es)
+		public override void OnExpressionStatement(ExpressionStatement node)
 		{
 			WriteIndented();
-			return true;
-		}
-
-		public override void LeaveExpressionStatement(ExpressionStatement es)
-		{
+			Switch(node.Expression);
+			Switch(node.Modifier);
 			WriteLine();
 		}
 
@@ -619,15 +613,12 @@ namespace Boo.Lang.Ast.Visitors
 			WriteTypeReference(d.Type);
 		}
 
-		public override bool EnterReturnStatement(ReturnStatement r)
+		public override void OnReturnStatement(ReturnStatement r)
 		{
 			WriteIndented();
 			WriteKeyword("return ");
-			return true;
-		}
-
-		public override void LeaveReturnStatement(ReturnStatement r)
-		{
+			Switch(r.Expression);
+			Switch(r.Modifier);
 			WriteLine();
 		}
 

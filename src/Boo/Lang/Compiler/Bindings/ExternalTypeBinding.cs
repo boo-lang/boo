@@ -63,14 +63,6 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public bool IsResolved
-		{
-			get
-			{
-				return true;
-			}
-		}
-		
 		public string FullName
 		{
 			get
@@ -142,6 +134,11 @@ namespace Boo.Lang.Compiler.Bindings
 				return _type.IsArray;
 			}
 		}
+		
+		public int GetArrayRank()
+		{
+			return _type.GetArrayRank();
+		}		
 		
 		public ITypeBinding GetElementType()
 		{

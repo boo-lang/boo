@@ -216,6 +216,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public int GetArrayRank()
+		{
+			return 0;
+		}
+		
 		public ITypeBinding GetElementType()
 		{
 			return null;

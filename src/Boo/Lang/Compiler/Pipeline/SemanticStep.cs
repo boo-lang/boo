@@ -2465,18 +2465,22 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;			
 		}
 		
-		void CheckIterator(Expression iterator, ITypeBinding binding)
+		void CheckIterator(Expression iterator, ITypeBinding type)
 		{						
-			ExternalTypeBinding externalType = binding as ExternalTypeBinding;
-			if (null != externalType)
-			{
-				Type type = externalType.Type;
-				if (type.IsArray)
+			if (type.IsArray)
+			{				
+				if (type.GetArrayRank() != 1)
 				{
-					if (type.GetArrayRank() > 1)
-					{
-						Error(CompilerErrorFactory.InvalidArray(iterator));
-					}
+					Error(CompilerErrorFactory.InvalidArray(iterator));
+				}
+			}
+			else
+			{
+				ITypeBinding enumerable = BindingManager.IEnumerableTypeBinding;
+				if (!enumerable.IsAssignableFrom(type) &&
+					!type.IsAssignableFrom(enumerable))
+				{
+					Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
 				}
 			}
 		}		

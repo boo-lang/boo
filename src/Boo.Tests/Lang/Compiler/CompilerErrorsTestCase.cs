@@ -114,6 +114,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("as0.boo");
 		}
 		
+		[Test]
+		public void ForIterator()
+		{
+			RunCompilerTestCase("for0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
