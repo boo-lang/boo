@@ -1,4 +1,5 @@
 """
+[Boo.Lang.BooModuleAttribute]
 public final transient class Null0Module(System.Object):
 
 	public static def foo(n as System.Boolean) as System.String:

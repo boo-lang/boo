@@ -1,6 +1,7 @@
 """
 import System.IO
 
+[Boo.Lang.BooModuleAttribute]
 public final transient class Using1Module(System.Object):
 
 	private static def __Main__(argv as (System.String)) as System.Void:

@@ -2703,7 +2703,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
 					attributes |= TypeAttributes.Class;
-					attributes |= TypeAttributes.Serializable;
+					
+					if (!type.IsTransient)
+					{
+						attributes |= TypeAttributes.Serializable;
+					}
 					if (type.IsAbstract)
 					{
 						attributes |= TypeAttributes.Abstract;
@@ -2821,6 +2825,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (field.IsStatic)
 			{
 				attributes |= FieldAttributes.Static;
+			}
+			if (field.IsTransient)
+			{
+				attributes |= FieldAttributes.NotSerialized;
 			}
 			return attributes;
 		}

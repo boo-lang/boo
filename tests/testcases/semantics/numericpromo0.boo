@@ -1,4 +1,5 @@
 """
+[Boo.Lang.BooModuleAttribute]
 public final transient class Numericpromo0Module(System.Object):
 
 	public static def d() as System.Double:

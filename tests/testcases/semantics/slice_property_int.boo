@@ -1,4 +1,5 @@
 """
+[Boo.Lang.BooModuleAttribute]
 public final transient class Slice_property_intModule(System.Object):
 
 	private static def __Main__(argv as (System.String)) as System.Void:

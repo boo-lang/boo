@@ -1,4 +1,5 @@
 """
+[Boo.Lang.BooModuleAttribute]
 public final transient class Method6Module(System.Object):
 
 	public static def greeting(who as System.String) as System.String:

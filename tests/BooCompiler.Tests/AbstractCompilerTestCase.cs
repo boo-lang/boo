@@ -53,10 +53,7 @@ namespace BooCompiler.Tests
 		{
 			Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Error));
 			
-			CopyAssembly(typeof(Boo.Lang.List).Assembly);
-			CopyAssembly(typeof(Boo.Lang.Compiler.BooCompiler).Assembly);
-			CopyAssembly(GetType().Assembly);
-			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
+			CopyDependencies();
 			
 			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, "compilation");
 			
@@ -70,8 +67,20 @@ namespace BooCompiler.Tests
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 		}
 		
+		protected virtual void CopyDependencies()
+		{
+			CopyAssembly(typeof(Boo.Lang.List).Assembly);
+			CopyAssembly(typeof(Boo.Lang.Compiler.BooCompiler).Assembly);
+			CopyAssembly(GetType().Assembly);
+			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
+		}
+		
 		public void CopyAssembly(System.Reflection.Assembly assembly)
 		{
+			if (null == assembly)
+			{
+				throw new ArgumentNullException("assembly");
+			}
 			string location = assembly.Location;
 			File.Copy(location, Path.Combine(Path.GetTempPath(), Path.GetFileName(location)), true);			
 		}

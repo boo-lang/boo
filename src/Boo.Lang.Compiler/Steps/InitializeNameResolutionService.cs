@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Steps
 					}					
 					
 					GetNamespace(ns).Add(type);
-					
+						
 					List typeList = GetList(_externalTypes, type.FullName);
 					typeList.Add(type);
 				}				

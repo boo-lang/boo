@@ -37,9 +37,23 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		public const string MainModuleMethodName = "__Main__";
 		
-		override public void Run()
+		protected IType _booModuleAttributeType;
+		
+		override public void Initialize(CompilerContext context)
 		{
+			base.Initialize(context);
+			_booModuleAttributeType = TypeSystemServices.Map(typeof(Boo.Lang.BooModuleAttribute));
+		}
+		
+		override public void Run()
+		{			
 			Visit(CompileUnit.Modules);
+		}
+		
+		override public void Dispose()
+		{
+			_booModuleAttributeType = null;
+			base.Dispose();			
 		}
 		
 		override public void OnModule(Module node)
@@ -82,10 +96,18 @@ namespace Boo.Lang.Compiler.Steps
 				moduleClass.Modifiers = TypeMemberModifiers.Public |
 										TypeMemberModifiers.Final |
 										TypeMemberModifiers.Transient;
+				moduleClass.Attributes.Add(CreateBooModuleAttribute());
 				node.Members.Add(moduleClass);
 				
 				((ModuleEntity)node.Entity).InitializeModuleClass(moduleClass);				
 			}
+		}
+		
+		Boo.Lang.Compiler.Ast.Attribute CreateBooModuleAttribute()
+		{
+			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute("Boo.Lang.BooModuleAttribute");
+			attribute.Entity = _booModuleAttributeType;
+			return attribute;
 		}
 		
 		string BuildModuleClassName(Module module)

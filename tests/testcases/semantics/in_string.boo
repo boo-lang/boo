@@ -1,4 +1,5 @@
 """
+[Boo.Lang.BooModuleAttribute]
 public final transient class In_stringModule(System.Object):
 
 	private static def __Main__(argv as (System.String)) as System.Void:

@@ -12,6 +12,7 @@ public class Person(System.Object):
 	public def constructor():
 		super()
 
+[Boo.Lang.BooModuleAttribute]
 public final transient class Assign_propertyModule(System.Object):
 
 	private static def __Main__(argv as (System.String)) as System.Void:

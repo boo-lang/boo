@@ -119,9 +119,9 @@
 		
 		<booc 
 			target="library"
-			output="build/BooModule.dll">
+			output="build/BooModules.dll">
 			
-			<sources basedir="BooModule">
+			<sources basedir="BooModules">
 				<include name="*.boo" />
 			</sources>
 		</booc>
