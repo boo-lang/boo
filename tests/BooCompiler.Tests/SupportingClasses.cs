@@ -258,4 +258,11 @@ namespace BooCompiler.Tests
 			output = value;
 		}
 	}
+	
+	public class NoParameterlessConstructor
+	{
+		public NoParameterlessConstructor(object param)
+		{
+		}
+	}
 }

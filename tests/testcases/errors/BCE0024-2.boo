@@ -5,6 +5,6 @@ class Foo:
 	def constructor(item):
 		pass
 		
-class Bar:
+class Bar(Foo):
 	def constructor():
 		pass

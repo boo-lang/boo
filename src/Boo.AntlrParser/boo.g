@@ -481,9 +481,9 @@ class_definition [TypeMemberCollection container]
 	{
 		ClassDefinition cd = null;
 	}:
-	c:CLASS! id:ID
+	CLASS! id:ID
 	{
-		cd = new ClassDefinition(ToLexicalInfo(c));
+		cd = new ClassDefinition(ToLexicalInfo(id));
 		cd.Name = id.getText();
 		cd.Modifiers = _modifiers;
 		AddAttributes(cd.Attributes);
@@ -513,9 +513,9 @@ interface_definition [TypeMemberCollection container]
 	{
 		InterfaceDefinition itf = null;
 	} :
-	it:INTERFACE! id:ID
+	INTERFACE! id:ID
 	{
-		itf = new InterfaceDefinition(ToLexicalInfo(it));
+		itf = new InterfaceDefinition(ToLexicalInfo(id));
 		itf.Name = id.getText();
 		itf.Modifiers = _modifiers;
 		AddAttributes(itf.Attributes);
