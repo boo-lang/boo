@@ -33,8 +33,9 @@ namespace Boo.Lang
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 
-	public class NormalarrayindexingMacro : AbstractAstMacro
+	public class NormalArrayIndexingMacro : AbstractAstMacro
 	{
+		
 		public override Statement Expand(MacroStatement macro)
 		{
 			Debug.Assert(0 == macro.Arguments.Count);
@@ -43,7 +44,7 @@ namespace Boo.Lang
 		}
 	}
 
-	public class RawarrayindexingMacro : AbstractAstMacro
+	public class RawArrayIndexingMacro : AbstractAstMacro
 	{
 		public override Statement Expand(MacroStatement macro)
 		{
