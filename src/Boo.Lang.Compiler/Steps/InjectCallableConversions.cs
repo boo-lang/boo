@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void Initialize()
 		{
-			Type type = typeof( System.Runtime.Remoting.Messaging.AsyncResult);
+			Type type = typeof(System.Runtime.Remoting.Messaging.AsyncResult);
 			_asyncResultType = TypeSystemServices.Map(type);
 			_asyncResultTypeAsyncDelegateGetter = (IMethod)TypeSystemServices.Map(type.GetProperty("AsyncDelegate").GetGetMethod());
 			_adaptors = new Boo.Lang.List();
@@ -236,8 +236,8 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveGeneratorExpression(GeneratorExpression node)
 		{
 			Expression newExpression = Convert(
-																GetConcreteExpressionType(node.Expression),
-																node.Expression);
+										GetConcreteExpressionType(node.Expression),
+										node.Expression);
 			if (null != newExpression)
 			{
 				node.Expression = newExpression;
