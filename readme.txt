@@ -1,5 +1,9 @@
 The boo programming language
-(c) 2004 Rodrigo Barreto de Oliveira (rbo@acm.org)
+(c) 2004 Rodrigo Barreto de Oliveira
+rbo@acm.org
+
+Building
+========
 
 Just type:
 	
@@ -15,6 +19,9 @@ will also run all the unit tests.
 	
 will also cause the ast classes and parser
 to be regenerated (needs a java vm).
+
+How to Start
+============
 
 For a brief description of the project and its goals
 take a look at docs/introduction.sxw.
@@ -33,6 +40,9 @@ lib/ contains project dependencies such as antlr.
 
 bin/ contains the latest version that passed all the tests
 and could be successfully used to rebuild the system.
+
+Running and compiling code
+==========================
 
 To execute a boo script run:
 
