@@ -1868,6 +1868,16 @@ method_invocation_with_block returns [Statement s]
 	;
 	
 protected
+member returns [Token name]
+	{
+		name = null;
+	}:
+	id:ID { name=id; } |
+	set:SET { name=set; } |
+	get:GET { name=get; }	
+	;
+	
+protected
 slicing_expression returns [Expression e]
 	{
 		e = null;
@@ -1875,6 +1885,7 @@ slicing_expression returns [Expression e]
 		Expression end = null;
 		Expression step = null;		
 		MethodInvocationExpression mce = null;
+		Token memberName = null;
 	} :
 	e=atom
 	( options { greedy=true; }:
@@ -1925,11 +1936,11 @@ slicing_expression returns [Expression e]
 		)
 		|
 		(
-			DOT id:ID
+			DOT memberName=member
 				{
-					MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(id));
+					MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(memberName));
 					mre.Target = e;
-					mre.Name = id.getText();
+					mre.Name = memberName.getText();
 					e = mre;
 				}
 		)
