@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class InternalMethod : IInternalEntity, IMethod, INamespace
 	{
-		public static readonly GotoStatement[] EmptyGotoStatementArray = new GotoStatement[0];
+		public static readonly ReferenceExpression[] EmptyReferenceExpressionArray = new ReferenceExpression[0];
 		
 		public static readonly InternalLabel[] EmptyInternalLabelArray = new InternalLabel[0];
 		
@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected ExpressionCollection _superExpressions;
 		
-		protected Boo.Lang.List _gotos;
+		protected Boo.Lang.List _labelReferences;
 		
 		protected Boo.Lang.List _labels;
 		
@@ -270,15 +270,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public GotoStatement[] GotoStatements
+		public ReferenceExpression[] LabelReferences
 		{
 			get
 			{
-				if (null == _gotos)
+				if (null == _labelReferences)
 				{
-					return EmptyGotoStatementArray;
+					return EmptyReferenceExpressionArray;
 				}
-				return (GotoStatement[])_gotos.ToArray(typeof(GotoStatement));
+				return (ReferenceExpression[])_labelReferences.ToArray(typeof(ReferenceExpression));
 			}
 		}
 		
@@ -321,13 +321,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_superExpressions.Add(expression);
 		}
 		
-		public void AddGoto(GotoStatement node)
+		public void AddLabelReference(ReferenceExpression node)
 		{
-			if (null == _gotos)
+			if (null == _labelReferences)
 			{
-				_gotos = new Boo.Lang.List();
+				_labelReferences = new Boo.Lang.List();
 			}
-			_gotos.Add(node);
+			_labelReferences.Add(node);
 		}
 		
 		public void AddLabel(InternalLabel node)
@@ -389,7 +389,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
-		{
+		{			
 			if (NameResolutionService.IsFlagSet(flags, EntityType.Local))
 			{
 				Boo.Lang.Compiler.Ast.Local local = ResolveLocal(name);
@@ -409,6 +409,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					return true;
 				}
 			}
+
 			return false;
 		}
 		

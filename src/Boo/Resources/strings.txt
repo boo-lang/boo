@@ -96,6 +96,7 @@ BCE0094=Cannot branch into exception handler.
 BCE0095=No such label '{0}'.
 BCE0096=Method '{0}' already has a label '{1}'.
 BCE0097=Cannot branch into try block.
+BCE0098=Invalid arguments for __switch__.
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract

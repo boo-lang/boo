@@ -516,6 +516,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0097", node.LexicalInfo);
 		}
 		
+		public static CompilerError InvalidSwitch(Node node)
+		{
+			return new CompilerError("BCE0098", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -787,6 +787,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddBuiltin(BuiltinFunction.Len);
 			AddBuiltin(BuiltinFunction.AddressOf);
 			AddBuiltin(BuiltinFunction.Eval);
+			AddBuiltin(BuiltinFunction.Switch);
 		}
 		
 		void AddPrimitiveType(string name, ExternalType type)

@@ -33,7 +33,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Len,
 		AddressOf,
 		Eval,
-		Quack // duck typing support
+		Quack, // duck typing support,
+		Switch // switch IL opcode
 	}
 	
 	public class BuiltinFunction : IEntity
@@ -45,6 +46,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static BuiltinFunction AddressOf = new BuiltinFunction("__addressof__", BuiltinFunctionType.AddressOf);
 		
 		public static BuiltinFunction Eval = new BuiltinFunction("__eval__", BuiltinFunctionType.Eval);
+		
+		public static BuiltinFunction Switch = new BuiltinFunction("__switch__", BuiltinFunctionType.Switch);
 		
 		BuiltinFunctionType _function;
 		

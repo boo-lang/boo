@@ -908,11 +908,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ResolveGotoStatements(InternalMethod entity)
+		void ResolveLabelReferences(InternalMethod entity)
 		{
-			foreach (GotoStatement node in entity.GotoStatements)
+			foreach (ReferenceExpression reference in entity.LabelReferences)
 			{
-				ReferenceExpression reference = node.Label;
 				InternalLabel label = entity.ResolveLabel(reference.Name);
 				if (null == label)
 				{
@@ -934,7 +933,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessMethodBody(InternalMethod tag, INamespace ns)
 		{
 			ProcessNodeInMethodContext(tag, ns, tag.Method.Body);
-			ResolveGotoStatements(tag);
+			ResolveLabelReferences(tag);
 		}
 		
 		void ProcessNodeInMethodContext(InternalMethod tag, INamespace ns, Node node)
@@ -2082,7 +2081,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			ContextAnnotations.SetTryBlockDepth(node, _tryBlockDepth);
 			
-			_currentMethod.AddGoto(node);
+			_currentMethod.AddLabelReference(node.Label);
 		}
 		
 		override public void OnBreakStatement(BreakStatement node)
@@ -2756,6 +2755,45 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void ProcessSwitchInvocation(MethodInvocationExpression node)
+		{
+			if (CheckSwitchArguments(node))
+			{				
+				for (int i=1; i<node.Arguments.Count; ++i)
+				{
+					ReferenceExpression label = (ReferenceExpression)node.Arguments[i];					
+					_currentMethod.AddLabelReference(label);
+					label.ExpressionType = Unknown.Default;
+				}
+			}
+			else
+			{
+				Error(node,
+					CompilerErrorFactory.InvalidSwitch(node.Target));
+			}
+		}
+		
+		bool CheckSwitchArguments(MethodInvocationExpression node)
+		{
+			ExpressionCollection args = node.Arguments;
+			if (args.Count > 1)
+			{
+				 Visit(args[0]);
+				 if (TypeSystemServices.IsIntegerNumber(GetExpressionType(args[0])))
+				 {
+					 for (int i=1; i<args.Count; ++i)
+					{
+						 if (NodeType.ReferenceExpression != args[i].NodeType)
+						 {
+							 return false;
+						 }
+					 }
+					 return true;
+				 }	
+			}
+			return false;
+		}
+		
 		void ProcessEvalInvocation(MethodInvocationExpression node)
 		{
 			if (node.Arguments.Count > 0)
@@ -2907,17 +2945,24 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Visit(node.Target);			
-			Visit(node.Arguments);			
+			Visit(node.Target);
+			
+			IEntity targetInfo = node.Target.Entity;
+			if (BuiltinFunction.Switch == targetInfo)
+			{
+				ProcessSwitchInvocation(node);
+				return;
+			}
+			
+			Visit(node.Arguments);		
 			
 			if (TypeSystemServices.IsError(node.Target) ||
 				TypeSystemServices.IsErrorAny(node.Arguments))
 			{
 				Error(node);
 				return;
-			}
+			}			
 			
-			IEntity targetInfo = node.Target.Entity;
 			if (null == targetInfo)
 			{
 				ProcessGenericMethodInvocation(node);
@@ -2935,13 +2980,12 @@ namespace Boo.Lang.Compiler.Steps
 			}	
 			
 			switch (targetInfo.EntityType)
-			{		
+			{	
 				case EntityType.BuiltinFunction:
 				{
 					ProcessBuiltinInvocation((BuiltinFunction)targetInfo, node);
 					break;
 				}
-				
 				case EntityType.Event:
 				{
 					ProcessEventInvocation((IEvent)targetInfo, node);

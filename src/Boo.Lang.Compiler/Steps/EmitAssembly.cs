@@ -1525,6 +1525,22 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(TypeSystemServices.TypeType);
 		}
 		
+		void OnSwitch(MethodInvocationExpression node)
+		{
+			ExpressionCollection args = node.Arguments;
+			Visit(args[0]); 
+			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
+			
+			Label[] labels = new Label[args.Count-1];
+			for (int i=0; i<labels.Length; ++i)
+			{
+				labels[i] = ((InternalLabel)args[i+1].Entity).Label;
+			}
+			_il.Emit(OpCodes.Switch, labels);
+			
+			PushVoid();
+		}
+		
 		void OnEval(MethodInvocationExpression node)
 		{
 			int allButLast = node.Arguments.Count-1;
@@ -1547,6 +1563,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (function.FunctionType)
 			{
+				case BuiltinFunctionType.Switch:
+				{
+					OnSwitch(node);
+					break;
+				}
+				
 				case BuiltinFunctionType.AddressOf:
 				{
 					OnAddressOf(node);

@@ -235,6 +235,8 @@
 				<Key word="filter"/>
 				<Key word="map"/>
 				<Key word="cat"/>
+				<Key word="__eval__" />
+				<Key word="__switch__" />
 			</KeyWords>
 
 			<KeyWords name="Methods" bold="true" italic="false" color="Blue" >

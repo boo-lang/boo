@@ -622,13 +622,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnLabelStatement(LabelStatement node)
 		{
-			Write(":");
+			WriteIndented(":");
 			WriteLine(node.Name);
 		}
 		
 		override public void OnGotoStatement(GotoStatement node)
 		{
-			Write("goto ");
+			WriteIndented();
+			WriteKeyword("goto ");
 			Visit(node.Label);
 			Visit(node.Modifier);
 			WriteLine();

@@ -172,8 +172,9 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit41.xml" FILE_NAME_GLOB="*.b
 			<!-- builtins -->			
 			<KEYWORD1>iif</KEYWORD1>
 			<KEYWORD3>len</KEYWORD3>
-			<KEYWORD3>__addressof__</KEYWORD3>
+			<KEYWORD3>__addressof__</KEYWORD3>			
 			<KEYWORD3>__eval__</KEYWORD3>
+			<KEYWORD3>__switch__</KEYWORD3>
 			<KEYWORD3>typeof</KEYWORD3>
 			<KEYWORD3>assert</KEYWORD3>
 			<KEYWORD3>print</KEYWORD3>

@@ -155,6 +155,8 @@ OR
 	</keyword-list>
 
 	<keyword-list name = "Builtins" style = "Others" case-sensitive="true">
+		<keyword>__eval__</keyword>
+		<keyword>__switch__</keyword>
 		<keyword>enumerate</keyword>
 		<keyword>filter</keyword>
 		<keyword>len</keyword>
