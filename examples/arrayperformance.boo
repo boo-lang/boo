@@ -34,12 +34,10 @@ def test():
 	collect = []
 	
 	start = date.Now
-	for i as int in range(items):
+	for i in range(items):
 		collect.Add(a[i])
-		
-	elapsed = date.Now.Subtract(start)
 	
-	print("${elapsed.TotalMilliseconds} elapsed.")
+	print("${(date.Now-start).TotalMilliseconds} elapsed.")
 	
 test()
 test()
