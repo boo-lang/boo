@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<project name="boox" default="run">
+
+	<property name="boo.dir" value="${path::get-full-path('../../build')}" />
+	<property name="sharpd.dir" value="${path::get-full-path('/dotnet/SharpWT/SharpDevelop/bin')}" />
+	
+	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
+
+	<target name="run" depends="compile">
+		<exec program="build/boox.exe" useruntimeengine="true">
+		</exec>
+	</target>
+	
+	<target name="compile" depends="init">
+		<booc output="build/boox.exe">
+			<sources>
+				<includes name="boox.boo" />
+			</sources> 
+			
+			<references basedir="build">
+				<includes name="ICSharpCode.TextEditor.dll" />
+				<includes name="System.Windows.Forms.dll" />
+				<includes name="System.Drawing.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="init">
+		<mkdir dir="build" />
+		<copy todir="build">
+			<fileset basedir="${boo.dir}">
+				<includes name="*.dll" />
+			</fileset>
+		</copy>
+		<copy todir="build">
+			<fileset basedir="${sharpd.dir}">
+				<includes name="ICSharpCode.TextEditor.dll" />
+			</fileset>
+		</copy>
+		<copy todir="build" file="../SharpDevelop/boo.xshd">
+		</copy>
+			
+		<loadtasks assembly="build/Boo.NAnt.dll" />
+	</target>
+
+</project>
