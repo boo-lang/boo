@@ -863,7 +863,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{			
-			Bind(node, _currentMethod);
+			node.Entity = _currentMethod;
+			node.ExpressionType = _currentMethod.DeclaringType.BaseType;
 			if (EntityType.Constructor != _currentMethod.EntityType)
 			{
 				_currentMethod.SuperExpressions.Add(node);

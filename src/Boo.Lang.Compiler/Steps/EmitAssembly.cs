@@ -1313,7 +1313,6 @@ namespace Boo.Lang.Compiler.Steps
 				IType targetType = target.ExpressionType;
 				if (targetType.IsValueType)
 				{	
-					
 					if (mi.DeclaringType == Types.Object)
 					{
 						Visit(node.Target); 
@@ -1334,7 +1333,13 @@ namespace Boo.Lang.Compiler.Steps
 					// pushes target reference
 					Visit(node.Target); PopType();					
 				}
+				
+				if (NodeType.SuperLiteralExpression == target.NodeType)
+				{
+					code = OpCodes.Call;
+				}
 			}
+			
 			PushArguments(methodInfo, node.Arguments);
 			_il.EmitCall(code, mi, null);
 			
@@ -1856,6 +1861,12 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
+		{
+			_il.Emit(OpCodes.Ldarg_0);
+			PushType(node.ExpressionType);
+		}
+		
+		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldarg_0);
 			PushType(node.ExpressionType);
