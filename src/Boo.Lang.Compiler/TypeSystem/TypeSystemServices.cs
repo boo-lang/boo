@@ -176,6 +176,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			PreparePrimitives();
 		}
 		
+		public Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(System.Type type)
+		{
+			return CreateTypeReference(Map(type));
+		}
+		
 		public Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(IType tag)
 		{
 			TypeReference typeReference = null;
@@ -654,7 +659,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_entityCache[key] = tag;
 		}
 		
-		Method CreateBeginInvokeMethod(AnonymousCallableType anonymousType)
+		public Method CreateBeginInvokeMethod(ICallableType anonymousType)
 		{
 			Method method = CreateRuntimeMethod("BeginInvoke", Map(typeof(IAsyncResult)),
 												anonymousType.GetSignature().Parameters);
@@ -667,7 +672,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 		
-		Method CreateEndInvokeMethod(AnonymousCallableType anonymousType)
+		public Method CreateEndInvokeMethod(ICallableType anonymousType)
 		{
 			CallableSignature signature = anonymousType.GetSignature();
 			Method method = CreateRuntimeMethod("EndInvoke", signature.ReturnType);

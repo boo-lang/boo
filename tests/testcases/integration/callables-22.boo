@@ -1,13 +1,21 @@
 import NUnit.Framework
 
-callable StringFunction() as string
+callable OutputHandler(message as string) as string
 
-def foo():
-	return "foo"
-   
-a = foo
-Assert.AreEqual("foo", a())
+class Printer:
+	
+	_prefix as string
+	
+	def constructor(prefix):
+		self._prefix = prefix
+		
+	def print(message as string):
+		return "${_prefix}${message}"
+	
+handler as OutputHandler
+handler = Printer("-").print
+call = handler.BeginInvoke("Testing...", null, null)
+call.AsyncWaitHandle.WaitOne()
+value = handler.EndInvoke(call)
 
-fn as StringFunction
-fn = a
-Assert.AreEqual("foo", fn())
+Assert.AreEqual("-Testing...", value)

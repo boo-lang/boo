@@ -161,6 +161,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		override public bool Equals(object other)
+		{
+			ExternalMethod rhs = other as ExternalMethod;
+			if (null == rhs)
+			{
+				return false;
+			}
+			return object.Equals(_mi, rhs._mi);
+		}
+		
+		override public int GetHashCode()
+		{
+			return _mi.GetHashCode();
+		}
+		
 		override public string ToString()
 		{
 			return _typeSystemServices.GetSignature(this);

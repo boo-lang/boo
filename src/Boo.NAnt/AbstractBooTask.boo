@@ -50,14 +50,14 @@ abstract class AbstractBooTask(Task):
 		get:
 			return _references
 		set:
-			_references = value			
+			_references = value
 	
 	protected def RunCompiler(compiler as BooCompiler):
 		AddReferences(compiler.Parameters)		
 		result = compiler.Run()
 		CheckCompilationResult(result)
 		return result
-		
+			
 	protected def AddReferences(parameters as CompilerParameters):
 		
 		if _references.BaseDirectory is not null:

@@ -29,8 +29,9 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
-	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler;	
 	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class TransformCallableDefinitions : AbstractTransformerCompilerStep
 	{
@@ -66,17 +67,47 @@ namespace Boo.Lang.Compiler.Steps
 			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(node.Name);			
 			cd.LexicalInfo = node.LexicalInfo;
 			cd.Members.Add(CreateInvokeMethod(node));
-			
-			ReplaceCurrentNode(cd);			
+			cd.Members.Add(CreateBeginInvokeMethod(node));
+			cd.Members.Add(CreateEndInvokeMethod(node));
+			ReplaceCurrentNode(cd);
 		}
 		
 		Method CreateInvokeMethod(CallableDefinition node)
 		{
-			Method method = new Method("Invoke");
-			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.ImplementationFlags = MethodImplementationFlags.Runtime;
+			Method method = CreateRuntimeMethod("Invoke", node.ReturnType);
 			method.Parameters = node.Parameters;
-			method.ReturnType = node.ReturnType;
+			return method;
+		}
+		
+		Method CreateBeginInvokeMethod(CallableDefinition node)
+		{
+			Method method = CreateRuntimeMethod("BeginInvoke",
+						TypeSystemServices.CreateTypeReference(typeof(IAsyncResult)));
+			method.Parameters.ExtendWithClones(node.Parameters);
+			method.Parameters.Add(
+				new ParameterDeclaration("callback",
+					TypeSystemServices.CreateTypeReference(typeof(AsyncCallback))));
+			method.Parameters.Add(
+				new ParameterDeclaration("asyncState",
+					TypeSystemServices.CreateTypeReference(TypeSystemServices.ObjectType)));
+			return method;
+		}
+		
+		Method CreateEndInvokeMethod(CallableDefinition node)
+		{			
+			Method method = CreateRuntimeMethod("EndInvoke", node.ReturnType);
+			method.Parameters.Add(
+				new ParameterDeclaration("asyncResult",
+					TypeSystemServices.CreateTypeReference(typeof(IAsyncResult))));
+			return method;
+		}
+		
+		Method CreateRuntimeMethod(string name, TypeReference returnType)
+		{
+			Method method = new Method(name);
+			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
+			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
+			method.ReturnType = returnType;
 			return method;
 		}
 	}
