@@ -120,6 +120,7 @@
 				<includes name="pt/*.dll" />
 			</fileset>
 		</copy>
+		<copy todir="build" file="${nunit.framework.dll}" />
 		<loadtasks assembly="build/Boo.NAnt.dll" />
 	</target>
 </project>
