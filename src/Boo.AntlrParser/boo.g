@@ -476,6 +476,7 @@ class_definition [TypeMemberCollection container]
 			modifiers
 			(						
 				method[cd.Members] |
+				event_declaration[cd.Members] |
 				field_or_property[cd.Members] |
 				type_definition[cd.Members]
 			)
@@ -597,6 +598,22 @@ empty_block:
 			PASS! eos
 		end!
 		;
+		
+protected
+event_declaration [TypeMemberCollection container]
+	{
+		Event e = null;
+		TypeReference tr = null;
+	}:
+	t:EVENT!
+	id:ID AS! tr=type_reference eos
+	{
+		e = new Event(ToLexicalInfo(t), id.getText(), tr);
+		e.Modifiers = _modifiers;
+		AddAttributes(e.Attributes);
+		container.Add(e);
+	}
+	;
 
 protected
 method [TypeMemberCollection container]

@@ -41,6 +41,12 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public Event(LexicalInfo lexicalInfo, string name, TypeReference type) : base(lexicalInfo)
+		{
+			this.Name = name;
+			this.Type = type;
+		}
+		
 		override public void Accept(IAstVisitor visitor)
 		{
 			visitor.OnEvent(this);

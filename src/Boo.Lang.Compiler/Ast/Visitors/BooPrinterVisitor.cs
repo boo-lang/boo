@@ -163,6 +163,16 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteTypeDefinition("enum", ed);
 		}
+		
+		override public void OnEvent(Event node)
+		{
+			WriteAttributes(node.Attributes, true);
+			WriteModifiers(node);
+			WriteKeyword("event ");
+			Write(node.Name);
+			WriteTypeReference(node.Type);
+			WriteLine();
+		}
 
 		override public void OnField(Field f)
 		{
