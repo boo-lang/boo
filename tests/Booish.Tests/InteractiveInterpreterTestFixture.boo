@@ -62,6 +62,7 @@ class InteractiveInterpreterTestFixture:
 	[Test]
 	def DefaultValues():
 		assert false == _interpreter.RememberLastValue
+		assert _interpreter.LastValue is null
 		
 	[Test]
 	def UseInterpreterValues():
@@ -116,7 +117,7 @@ class InteractiveInterpreterTestFixture:
 		Eval("import Booish.Tests from Booish.Tests")
 		
 		Eval("value = InteractiveInterpreterTestFixture.LifeTheUniverseAndEverything")
-		assert 42 == _interpreter.GetValue("value")
+		assert 42 == _interpreter.GetValue("value")		
 		
 	[Test]
 	def AssignmentPreservesType():
@@ -175,6 +176,7 @@ def spam():
 		_interpreter.RememberLastValue = true
 		
 		Eval("a as int = 3")
+		Eval("a")		
 		
 		assert 3 == _interpreter.LastValue
 		assert 3 == _interpreter.GetValue("a")

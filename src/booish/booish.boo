@@ -409,8 +409,7 @@ class InteractiveInterpreter:
 			
 		InEntryPoint:
 			get:
-				return _currentMethod.Method is _entryPoint if (
-					_entryPoint is not null)
+				return _currentMethod.Method is _entryPoint
 	
 		override def Initialize(context as CompilerContext):
 			super(context)
