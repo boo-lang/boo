@@ -11,6 +11,17 @@
 		</exec>
 	</target>
 	
+	<target name="distro" depends="compile">
+		<zip zipfile="boox.zip">
+			<fileset>
+				<includes name="src/*.boo" />
+				<includes name="build/*.dll" />
+				<includes name="build/*.png" />
+				<includes name="build/boox.exe" />
+			</fileset>
+		</zip>
+	</target>
+	
 	<target name="compile" depends="init">
 		<booc output="build/boox.exe">
 			<sources>
