@@ -107,7 +107,7 @@ namespace Boo.Lang
 
 		public static object[] array(IEnumerable enumerable)
 		{
-			return (object[])array(typeof(object), enumerable);
+			return new List(enumerable).ToArray();
 		}
 
 		public static Array array(Type elementType, ICollection collection)

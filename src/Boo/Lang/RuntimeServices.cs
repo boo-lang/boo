@@ -302,6 +302,16 @@ namespace Boo.Lang
 			return !op_Match(input, pattern);
 		}
 		
+		public static string op_Modulus(string lhs, IEnumerable rhs)
+ 		{
+			return string.Format(lhs, Boo.Lang.Builtins.array(rhs));
+ 		}
+		
+		public static string op_Modulus(string lhs, object[] rhs)
+		{
+			return string.Format(lhs, rhs);
+		}
+		
 		public static bool op_Member(object lhs, IList rhs)
 		{
 			if (null == rhs)

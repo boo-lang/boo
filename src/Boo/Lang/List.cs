@@ -106,6 +106,11 @@ namespace Boo.Lang
 			return result;
 		}
 		
+		public static string operator%(string format, List rhs)
+		{
+			return string.Format(format, rhs.ToArray());
+		}
+		
 		public List Multiply(int count)
 		{
 			if (count < 0)
