@@ -93,6 +93,22 @@ namespace Boo.Lang
 			return (object[])tuple(typeof(object), enumerable);
 		}
 		
+		public static Array tuple(Type elementType, ICollection collection)
+		{ 
+			if (null == collection)
+			{
+				throw new ArgumentNullException("collection");
+			}
+			if (null == elementType)
+			{
+				throw new ArgumentNullException("elementType");
+			}
+			
+			Array array = Array.CreateInstance(elementType, collection.Count);
+			collection.CopyTo(array, 0);
+			return array;
+		}
+		
 		public static Array tuple(Type elementType, IEnumerable enumerable)
 		{
 			if (null == enumerable)
