@@ -451,6 +451,21 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0084", node.LexicalInfo);
 		}
 		
+		public static CompilerError CantCreateInstanceOfAbstractType(Node node, string typeName)
+		{
+			return new CompilerError("BCE0085", node.LexicalInfo, typeName);
+		}
+		
+		public static CompilerError CantCreateInstanceOfInterface(Node node, string typeName)
+		{
+			return new CompilerError("BCE0086", node.LexicalInfo, typeName);
+		}
+		
+		public static CompilerError CantCreateInstanceOfEnum(Node node, string typeName)
+		{
+			return new CompilerError("BCE0087", node.LexicalInfo, typeName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -74,8 +74,8 @@ namespace BooCompiler.Tests
 				
 				CompilerErrorCollection errors = compiler.Run().Errors;
 	
-				Assertion.AssertEquals(1, errors.Count);
-				Assertion.AssertEquals(message, errors[0].Message);
+				Assert.AreEqual(1, errors.Count);
+				Assert.AreEqual(message, errors[0].Message);
 			}
 			finally
 			{

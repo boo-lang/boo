@@ -72,6 +72,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public virtual bool IsAbstract
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public virtual bool IsInterface
 		{
 			get

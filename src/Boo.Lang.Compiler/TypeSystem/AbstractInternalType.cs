@@ -177,6 +177,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsAbstract
+		{
+			get
+			{
+				return _typeDefinition.IsAbstract;
+			}
+		}
+		
 		public bool IsInterface
 		{
 			get

@@ -101,6 +101,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsAbstract
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public bool IsEnum
 		{
 			get

@@ -2798,7 +2798,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ProcessTypeInvocation(MethodInvocationExpression node)
 		{
-			IType type = (IType)node.Target.Entity;					
+			IType type = (IType)node.Target.Entity;
+			if (!CheckCanCreateInstance(node.Target, type))
+			{
+				Error(node);
+				return;
+			}
 			ResolveNamedArguments(node, type, node.NamedArguments);
 			
 			IConstructor ctor = FindCorrectConstructor(node, type, node.Arguments);
@@ -3904,6 +3909,26 @@ namespace Boo.Lang.Compiler.Steps
 						BinaryOperatorType.InPlaceSubtract == binaryOperator;
 			}
 			return false;
+		}
+		
+		bool CheckCanCreateInstance(Node sourceNode, IType type)
+		{
+			if (type.IsInterface)
+			{
+				Error(CompilerErrorFactory.CantCreateInstanceOfInterface(sourceNode, type.FullName));
+				return false;
+			}
+			if (type.IsAbstract)
+			{
+				Error(CompilerErrorFactory.CantCreateInstanceOfAbstractType(sourceNode, type.FullName));
+				return false;
+			}
+			if (type.IsEnum)
+			{
+				Error(CompilerErrorFactory.CantCreateInstanceOfEnum(sourceNode, type.FullName));
+				return false;
+			}
+			return true;
 		}
 		
 		bool CheckDeclarationName(Declaration d)

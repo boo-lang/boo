@@ -125,6 +125,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 		
+		bool IsAbstract
+		{
+			get;
+		}
+		
 		bool IsInterface
 		{
 			get;

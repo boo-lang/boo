@@ -83,6 +83,10 @@ BCE0081=Sentença raise sem argumentos não é permitida fora de um tratador de 
 BCE0082=O tipo '{0}' não é callable. Somente tipos callable podem ser utilizados em eventos..
 BCE0083=Construtores estáticos devem ser públicos.
 BCE0084=Construtores estáticos não podem declarar parâmetros.
+BCE0085=Não é possível criar uma instância da classe abstrata '{0}'.
+BCE0086=Não é possível criar uma instância da interface '{0}'.
+BCE0087=Não é possível criar uma instância do enum '{0}'.
+
 
 ; BooC Command Line Errors
 BCE0500=Arquivo '{0}' listado mais de uma vez.
