@@ -40,6 +40,7 @@ BooC.NoOutputSpecified=Arquivo de saída não especificado
 
 ;Boo.Lang
 ArgumentNotEnumerable=Argumento não é enumerável (não implementa System.Collections.IEnumerable).
+CantEnumerateNull=null não é enumerável.
 UnpackListOfWrongSize=Desempacotamento de lista de tamanho errado.
 CantUnpackNull=null não pode ser desempacotado.
 UnpackArrayOfWrongSize=Desempacotamento de array de tamanho errado. (esperado={0}, real={1}).

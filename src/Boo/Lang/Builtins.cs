@@ -26,18 +26,8 @@ namespace Boo.Lang
 		
 		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
 		public static IEnumerable enumerate(object enumerable)
-		{
-			if (null == enumerable)
-			{
-				throw new ArgumentNullException("enumerable");
-			}
-			
-			IEnumerable iterator = enumerable as IEnumerable;
-			if (null == iterator)
-			{
-				throw new ArgumentException(GetString("ArgumentNotEnumerable"), "enumerable");
-			}
-			return new EnumerateEnumerator(iterator.GetEnumerator());
+		{			
+			return new EnumerateEnumerator(RuntimeServices.GetEnumerable(enumerable).GetEnumerator());
 		}
 		
 		public static void assert(string message, bool condition)

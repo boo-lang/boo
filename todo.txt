@@ -40,7 +40,7 @@ done * for item in array
 done * for index, item in enumerate(array)
 done * melhor mensagem de erro para array unpacking (checar length do array antes de acessá-lo 
 e emitir exception "Unpack list of wrong size")
-* Quando o argumento do For ou Unpack for do tipo System.Object, não fazer simplesmente cast
+done * Quando o argumento do For ou Unpack for do tipo System.Object, não fazer simplesmente cast
 mas invocar RuntimeServices.GetEnumerable(object) que tenta encontrar a melhor versão de 
 um enumerável para o objeto passado e, no caso de falha, exibe mensagem de erro mais adequada
 * RuntimeServices.GetEnumerable(object) deve suportar StreamReader

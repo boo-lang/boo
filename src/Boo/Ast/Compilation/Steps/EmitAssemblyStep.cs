@@ -24,6 +24,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static MethodInfo RuntimeServices_CheckArrayUnpack = Binding.BindingManager.RuntimeServicesType.GetMethod("CheckArrayUnpack");
 		
+		static MethodInfo RuntimeServices_GetEnumerable = Binding.BindingManager.RuntimeServicesType.GetMethod("GetEnumerable");
+		
 		static MethodInfo IEnumerable_GetEnumerator = Binding.BindingManager.IEnumerableType.GetMethod("GetEnumerator");
 		
 		static MethodInfo IEnumerator_MoveNext = Binding.BindingManager.IEnumeratorType.GetMethod("MoveNext");
@@ -356,11 +358,8 @@ namespace Boo.Ast.Compilation.Steps
 			Label labelTest = _il.DefineLabel();
 			Label labelEnd = _il.DefineLabel();
 			
-			LocalBuilder localIterator = _il.DeclareLocal(Binding.BindingManager.IEnumeratorType);			
-			if (!IsIEnumerableCompatible(iteratorBinding.Type))
-			{
-				_il.Emit(OpCodes.Castclass, BindingManager.IEnumerableType);
-			}
+			LocalBuilder localIterator = _il.DeclareLocal(Binding.BindingManager.IEnumeratorType);
+			EmitGetEnumerableIfNeeded(iteratorBinding.Type);			
 			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
 			_il.Emit(OpCodes.Stloc, localIterator);
 			
@@ -450,7 +449,7 @@ namespace Boo.Ast.Compilation.Steps
 				}
 				else
 				{
-					_il.Emit(OpCodes.Castclass, BindingManager.IEnumerableType);
+					EmitGetEnumerableIfNeeded(topOfStack);
 					_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
 					
 					foreach (Declaration d in decls)
@@ -461,6 +460,14 @@ namespace Boo.Ast.Compilation.Steps
 					}					
 				}
 				_il.Emit(OpCodes.Pop);
+			}
+		}
+		
+		void EmitGetEnumerableIfNeeded(Type topOfStack)
+		{
+			if (!IsIEnumerableCompatible(topOfStack))
+			{
+				_il.EmitCall(OpCodes.Call, RuntimeServices_GetEnumerable, null);
 			}
 		}
 		

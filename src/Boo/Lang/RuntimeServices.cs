@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.IO;
 
 namespace Boo.Lang
 {
@@ -9,11 +10,11 @@ namespace Boo.Lang
 		{
 			if (null == enumerator)
 			{
-				throw new ApplicationException(GetString("CantUnpackNull"));
+				Error("CantUnpackNull");
 			}
 			if (!enumerator.MoveNext())
 			{
-				throw new ApplicationException(GetString("UnpackListOfWrongSize"));
+				Error("UnpackListOfWrongSize");
 			}
 			return enumerator.Current;
 		}
@@ -22,12 +23,35 @@ namespace Boo.Lang
 		{
 			if (null == array)
 			{
-				throw new ApplicationException(GetString("CantUnpackNull"));
+				Error("CantUnpackNull");
 			}			
 			if (expected != array.Length)
 			{
-				throw new ApplicationException(Format("UnpackArrayOfWrongSize", expected, array.Length));
+				Error("UnpackArrayOfWrongSize", expected, array.Length);
 			}
+		}
+		
+		public static IEnumerable GetEnumerable(object enumerable)
+		{
+			if (null == enumerable)
+			{
+				Error("CantEnumerateNull");
+			}
+			
+			IEnumerable iterator = enumerable as IEnumerable;
+			if (null == iterator)
+			{
+				StreamReader reader = enumerable as StreamReader;
+				if (null != reader)
+				{
+					iterator = new Boo.IO.StreamReaderEnumerator(reader);
+				}
+				else
+				{
+					Error("ArgumentNotEnumerable");
+				}
+			}
+			return iterator;
 		}
 		
 		public static bool IsMatch(string input, object pattern)
@@ -35,14 +59,14 @@ namespace Boo.Lang
 			return System.Text.RegularExpressions.Regex.IsMatch(input, (string)pattern);
 		}
 		
-		static string GetString(string name)
+		static void Error(string name, params object[] args)
 		{
-			return Boo.ResourceManager.GetString(name);
+			throw new ApplicationException(Boo.ResourceManager.Format(name, args));
 		}
 		
-		static string Format(string name, params object[] args)
+		static void Error(string name)
 		{
-			return Boo.ResourceManager.Format(name, args);
+			throw new ApplicationException(Boo.ResourceManager.GetString(name));
 		}
 	}
 }

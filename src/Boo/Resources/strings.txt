@@ -40,6 +40,7 @@ BooC.NoOutputSpecified=No output specified
 
 ;Boo.Lang
 ArgumentNotEnumerable=Argument is not enumerable (does not implement System.Collections.IEnumerable).
+CantEnumerateNull=Can't enumerate null.
 UnpackListOfWrongSize=Unpack list of wrong size.
 CantUnpackNull=Can't unpack null.
 UnpackArrayOfWrongSize=Unpack array of wrong size (expected={0}, actual={1}).
