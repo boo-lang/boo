@@ -29,7 +29,7 @@
 using System;
 using Boo.Lang.Compiler;
 
-namespace Boo.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Steps
 {
 	/// <summary>	
 	/// </summary>

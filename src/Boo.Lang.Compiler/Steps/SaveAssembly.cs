@@ -33,7 +33,7 @@ using System.Reflection.Emit;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 
-namespace Boo.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Steps
 {
 	public class SaveAssembly : AbstractCompilerStep
 	{

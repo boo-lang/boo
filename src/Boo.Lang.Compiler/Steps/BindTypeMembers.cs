@@ -1,4 +1,4 @@
-namespace Boo.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Steps
 {
 	public class BindTypeMembers : AbstractSwitcherCompilerStep
 	{

@@ -34,7 +34,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
 
-namespace Boo.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Steps
 {	
 	// todo: CompilerParameters.References.Changed += OnChanged
 	// recalculate namespaces on reference changes

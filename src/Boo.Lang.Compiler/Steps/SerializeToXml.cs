@@ -31,7 +31,7 @@ using System.Xml.Serialization;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 
-namespace Boo.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Steps
 {
 	/// <summary>
 	/// Writes a xml representation of the AST to the console.

@@ -32,8 +32,8 @@ namespace Boo.Lang.Compiler.Tests
 	using System.IO;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Pipeline;
-	using Boo.Lang.Compiler.Pipeline.Definitions;
+	using Boo.Lang.Compiler.Steps;
+	using Boo.Lang.Compiler.Stepss;
 	using NUnit.Framework;
 	
 	[TestFixture]

@@ -31,7 +31,7 @@ using System.Globalization;
 using System.Threading;
 using NUnit.Framework;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Pipeline.Definitions;
+using Boo.Lang.Compiler.Stepss;
 
 namespace Boo.Lang.Compiler.Tests
 {

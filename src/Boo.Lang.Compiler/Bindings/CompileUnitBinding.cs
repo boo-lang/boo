@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Bindings
 	using System;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Pipeline;
+	using Boo.Lang.Compiler.Steps;
 	
 	public class CompileUnitBinding : IBinding, INamespace
 	{

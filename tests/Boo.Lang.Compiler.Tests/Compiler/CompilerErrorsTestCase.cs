@@ -34,8 +34,8 @@ namespace Boo.Lang.Compiler.Tests
 	using System.Threading;
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Pipeline;
-	using Boo.Lang.Compiler.Pipeline.Definitions;
+	using Boo.Lang.Compiler.Steps;
+	using Boo.Lang.Compiler.Stepss;
 	
 	public class ErrorPrinterStep : AbstractCompilerComponent, ICompilerStep
 	{

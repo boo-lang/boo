@@ -161,7 +161,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			if (null == _moduleClassNamespace)
 			{
-				ClassDefinition moduleClass = Boo.Lang.Compiler.Pipeline.AstAnnotations.GetModuleClass(_module);
+				ClassDefinition moduleClass = Boo.Lang.Compiler.Steps.AstAnnotations.GetModuleClass(_module);
 				if (null != moduleClass)
 				{
 					_moduleClassNamespace = (INamespace)ResolveModuleMember(moduleClass.Name);

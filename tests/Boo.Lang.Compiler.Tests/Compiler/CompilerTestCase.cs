@@ -33,8 +33,8 @@ using System.Reflection;
 using System.Security.Policy;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
-using Boo.Lang.Compiler.Pipeline;
-using Boo.Lang.Compiler.Pipeline.Definitions;
+using Boo.Lang.Compiler.Steps;
+using Boo.Lang.Compiler.Stepss;
 using NUnit.Framework;
 
 namespace Boo.Lang.Compiler.Tests

@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler
 	using System;
 	using System.IO;
 	using System.Collections;
-	using Boo.Lang.Compiler.Pipeline.Definitions;
+	using Boo.Lang.Compiler.Stepss;
 
 	/// <summary>
 	/// An item in the compilation pipeline. Associates

@@ -26,10 +26,10 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Pipeline.Definitions
+namespace Boo.Lang.Compiler.Stepss
 {
 	using System;
-	using Boo.Lang.Compiler.Pipeline;
+	using Boo.Lang.Compiler.Steps;
 	
 	public class BooiPipelineDefinition : CorePipelineDefinition
 	{

@@ -30,7 +30,7 @@ using System;
 using System.Diagnostics;
 using Boo.Lang.Compiler;
 
-namespace Boo.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Steps
 {
 	public class PEVerify : AbstractCompilerStep
 	{
