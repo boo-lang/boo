@@ -53,10 +53,13 @@ class MainWindow(Window):
 
 	_status = Statusbar(HasResizeGrip: false)
 	_notebookEditors = Notebook(TabPos: PositionType.Top, Scrollable: true)
-	_notebookHelpers = Notebook(TabPos: PositionType.Top, Scrollable: true)
+	_notebookHelpers = Notebook(TabPos: PositionType.Bottom, Scrollable: true)
 	_notebookOutline = Notebook(TabPos: PositionType.Bottom, Scrollable: true)
 	
 	_documentOutline = TreeView()
+	
+	_output = TextView()
+	_outputBuffer = _output.Buffer
 		
 	_accelGroup = AccelGroup()	
 	_editors = [] # workaround for gtk# bug #61703
@@ -69,9 +72,8 @@ class MainWindow(Window):
 		self.DeleteEvent += OnDelete		
 		
 		_documentOutline.AppendColumn("Name", CellRendererText (), ("text", 0))		
-		sw = ScrolledWindow()
-		sw.Add(_documentOutline)
-		_notebookOutline.AppendPage(sw, Label("Document Outline"))
+		_notebookOutline.AppendPage(CreateScrolled(_documentOutline), Label("Document Outline"))		
+		_notebookHelpers.AppendPage(CreateScrolled(_output), Label("Output"))
 				
 		vbox = VBox(false, 1)
 		vbox.PackStart(CreateMenuBar(), false, false, 0)		
@@ -90,6 +92,11 @@ class MainWindow(Window):
 		self.Add(vbox)
 		
 		self.NewDocument()
+		
+	private def CreateScrolled(widget):
+		sw = ScrolledWindow()
+		sw.Add(widget)
+		return sw
 		
 	private def AppendEditor(editor as BooEditor):
 		_notebookEditors.AppendPage(editor, Label(editor.Label))
@@ -145,16 +152,23 @@ class MainWindow(Window):
 			// editor as BooEditor = _notebookEditors.CurrentPageWidget
 			// because of gtk# bug #61703
 			return _editors[_notebookEditors.CurrentPage]
+			
+	def AppendOutput(text as string):
+		_outputBuffer.Insert(_outputBuffer.EndIter, text)
 		
 	private def _menuItemExecute_Activated(sender, args as EventArgs):	
 		
+		_outputBuffer.Clear()
+		self.AppendOutput("${_outputBuffer.Text}****** Compiling ${CurrentEditor.FileName} *******\n")	
 		compiler = Boo.Lang.Compiler.BooCompiler()
 		compiler.Parameters.Input.Add(
 						StringInput(CurrentEditor.Label, 								CurrentEditor.Buffer.Text))
 		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Run()
 		
-		result = compiler.Run()
-		print(result.Errors.ToString()) if len(result.Errors)
+		start = date.Now
+		result = compiler.Run()		
+		self.AppendOutput(result.Errors.ToString(true)) if (len(result.Errors))
+		self.AppendOutput("Complete in ${date.Now-start}.")
 		
 	private def _menuItemNew_Activated(sender, args as EventArgs):
 		self.NewDocument()
