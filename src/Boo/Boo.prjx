@@ -5,6 +5,7 @@
     <File name=".\IO\TextFile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IO\TextReaderEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Builtins.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\EnumeratorItemTypeAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\GetterAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Hash.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\ICallable.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -103,6 +104,7 @@
     <File name=".\Lang\Ast\TypeMember.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TypeMemberCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TypeMemberModifiers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\TypeofExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TypeReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TypeReferenceCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\UnaryExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -187,6 +189,7 @@
     <File name=".\Lang\Ast\Impl\TypeDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TypeMemberCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TypeMemberImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Impl\TypeofExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TypeReferenceCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TypeReferenceImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\UnaryExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -261,10 +264,10 @@
     <File name=".\Lang\Compiler\Pipeline\RunAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\SaveAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\SemanticStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\TypeHierarchyResolver.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\XmlStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\TaskList.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name="..\..\build\strings.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
     <File name=".\Resources\xml.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
     <File name=".\Resources\boo.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
     <File name=".\Resources\booc.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
@@ -272,22 +275,23 @@
     <File name=".\Resources\core.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
     <File name=".\Resources\parse.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
     <File name=".\Resources\roundtrip.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name="..\..\build\strings.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="False" name="Debug">
-    <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+    <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
     <Execution commandlineparameters="" consolepause="False" />
     <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
   </Configuration>
   <Configurations active="Debug">
     <Configuration runwithwarnings="False" name="Debug">
-      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+      <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
       <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>
     <Configuration runwithwarnings="False" name="Release">
-      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+      <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
       <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>
