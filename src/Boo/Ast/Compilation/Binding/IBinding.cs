@@ -99,7 +99,7 @@ namespace Boo.Ast.Compilation.Binding
 		}
 	}
 	
-	public class TypeReferenceBinding : ITypedBinding
+	public class TypeReferenceBinding : ITypedBinding, INameSpace
 	{
 		ITypeBinding _type;
 		
@@ -130,6 +130,11 @@ namespace Boo.Ast.Compilation.Binding
 			{
 				return _type;
 			}
+		}
+		
+		public IBinding Resolve(string name)
+		{
+			return  _type.Resolve(name);
 		}
 	}
 	

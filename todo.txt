@@ -60,7 +60,7 @@ Milestone 3.4 (rgrep.boo)
 -------------------------
 done * recursive functions
 done * namespace resolution for MemberReferenceExpression
-* using namespace as
+done * using namespace as
 
 Milestone 3.5 (revisão)
 -----------------------
