@@ -180,6 +180,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void LeaveCastExpression(CastExpression node)
+		{
+			Expression newExpression = Convert(node.ExpressionType, node.Target);
+			if (null != newExpression)
+			{
+				node.ParentNode.Replace(node, newExpression);
+			}
+		}
+		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
 			if (BinaryOperatorType.Assign == node.Operator)

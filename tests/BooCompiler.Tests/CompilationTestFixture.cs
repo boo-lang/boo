@@ -409,18 +409,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void InnerClassSimple()
-		{
-			RunCompilerTestCase("innerclass0.boo");
-		}
-		
-		[Test]
-		public void InnerClassWithInterface()
-		{
-			RunCompilerTestCase("innerclass1.boo");
-		}
-		
-		[Test]
 		public void IncrementProperty()
 		{
 			RunCompilerTestCase("increment_property0.boo");

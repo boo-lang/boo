@@ -2709,8 +2709,37 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				buffer.Append(tag.FullName);
+				AppendFullTypeName(buffer, tag);
 			}
+		}
+		
+		void AppendFullTypeName(System.Text.StringBuilder buffer, IType type)
+		{
+			AbstractInternalType internalType = (AbstractInternalType)type;
+			AppendFullTypeName(buffer, internalType.TypeDefinition);
+		}
+		
+		void AppendFullTypeName(System.Text.StringBuilder buffer, TypeDefinition type)
+		{
+			TypeDefinition parent = type.DeclaringType;
+			if (null != parent)
+			{
+				if (NodeType.Module == parent.NodeType)
+				{
+					NamespaceDeclaration ns = parent.EnclosingNamespace;
+					if (null != ns)
+					{
+						buffer.Append(ns.Name);
+						buffer.Append('.');
+					}
+				}
+				else
+				{
+					AppendFullTypeName(buffer, parent);
+					buffer.Append('+'); // nested type
+				}
+			}
+			buffer.Append(type.Name);
 		}
 		
 		TypeAttributes GetNestedTypeAttributes(TypeMember type)

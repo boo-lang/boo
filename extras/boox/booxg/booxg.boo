@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,7 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-﻿import System
+import System
 import System.IO
 import Boo.IO
 import Boo.Lang.Compiler
@@ -221,9 +221,8 @@ class MainWindow(Window):
 		
 		_outputBuffer.Clear()
 		self.AppendOutput("${_outputBuffer.Text}****** Compiling ${CurrentEditor.Label} *******\n")	
-		compiler = Boo.Lang.Compiler.BooCompiler()
-		compiler.Parameters.Input.Add(StringInput(CurrentEditor.Label, 								CurrentEditor.Buffer.Text))
-		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Run()
+		compiler = CreateCompiler(Boo.Lang.Compiler.Pipelines.Run())
+		compiler.Parameters.Input.Add(StringInput(CurrentEditor.Label, CurrentEditor.Buffer.Text))
 		
 		start = date.Now
 		using console=ConsoleCapture():
@@ -257,14 +256,19 @@ class MainWindow(Window):
 	private def _menuItemExpand_Activated(sender, args as EventArgs):
 		editor = CurrentEditor
 		
-		compiler = BooCompiler()
+		compiler = CreateCompiler(Boo.Lang.Compiler.Pipelines.CompileToBoo())
 		compiler.Parameters.OutputWriter = StringWriter()
-		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToBoo()
 		compiler.Parameters.Input.Add(StringInput(editor.Label, editor.Buffer.Text))		
 		result = compiler.Run()	
 		self.DisplayErrors(result.Errors)
 		unless len(result.Errors):		
 			NewDocument().Buffer.Text = compiler.Parameters.OutputWriter.ToString()
+			
+	private def CreateCompiler(pipeline):
+		compiler = BooCompiler()
+		compiler.Parameters.Pipeline = pipeline
+		compiler.Parameters.References.Add(System.Reflection.Assembly.LoadWithPartialName("nunit.framework"))
+		return compiler
 	
 	private def _menuItemSave_Activated(sender, args as EventArgs):
 		editor = CurrentEditor

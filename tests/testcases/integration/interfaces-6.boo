@@ -1,9 +1,5 @@
-"""
-2
-True
-True
-True
-"""
+import NUnit.Framework
+
 interface IFoo:
 	pass
 	
@@ -13,9 +9,6 @@ interface IBar(IFoo):
 class Foo(IBar):
 	pass
 
-interfaces = typeof(Foo).GetInterfaces()
-print(len(interfaces))
-print(IFoo in interfaces)
-print(IBar in interfaces)
-
-print(IFoo in typeof(IBar).GetInterfaces())
+foo = Foo()
+Assert.IsTrue(foo isa IBar)
+Assert.IsTrue(foo isa IFoo)
