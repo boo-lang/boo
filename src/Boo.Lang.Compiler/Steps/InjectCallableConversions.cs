@@ -262,15 +262,15 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		class AdaptorRecord
-		{
-			public readonly ICallableType From;
+		{			
 			public readonly ICallableType To;
+			public readonly ICallableType From;
 			public readonly ClassDefinition Adaptor;
 			
 			public AdaptorRecord(ICallableType to, ICallableType from, ClassDefinition adaptor)
 			{
-				From = from;
 				To = to;
+				From = from;				
 				Adaptor = adaptor;
 			}
 		}
@@ -296,7 +296,9 @@ namespace Boo.Lang.Compiler.Steps
 			Field callable = adaptor.AddField("__callable", from);
 			
 			BooMethodBuilder constructor = adaptor.AddConstructor();
-			ParameterDeclaration param = constructor.AddParameter("from", from);			
+			ParameterDeclaration param = constructor.AddParameter("from", from);
+			constructor.Body.Add(
+				CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));			
 			constructor.Body.Add(
 				CodeBuilder.CreateAssignment(
 					CodeBuilder.CreateReference(callable),
