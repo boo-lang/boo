@@ -362,6 +362,14 @@ namespace Boo.Lang
 		}
 		#endregion
 		
+		/*
+		public static int UnboxToInt(object value)
+		{
+			CheckNumericPromotion(value);
+			return ((IConvertible)value).ToInt32();
+		}
+		*/
+		
 		public static bool ToBool(object value)
 		{
 			if (null == value)

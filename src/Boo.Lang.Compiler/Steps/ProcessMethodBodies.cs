@@ -1003,39 +1003,9 @@ namespace Boo.Lang.Compiler.Steps
 			return type;
 		}
 		
-		IType GetMostGenericType(IType current, IType candidate)
+		IType GetMostGenericType(IType lhs, IType rhs)
 		{
-			if (IsAssignableFrom(current, candidate))
-			{
-				return current;
-			}
-			
-			if (IsAssignableFrom(candidate, current))
-			{
-				return candidate;
-			}
-			
-			if (IsNumber(current) && IsNumber(candidate))
-			{
-				return TypeSystemServices.GetPromotedNumberType(current, candidate);
-			}
-			
-			IType obj = TypeSystemServices.ObjectType;
-			
-			if (current.IsClass && candidate.IsClass)
-			{
-				if (current ==  obj || candidate == obj)
-				{
-					return obj;
-				}
-				if (current.GetTypeDepth() < candidate.GetTypeDepth())
-				{
-					return GetMostGenericType(current.BaseType, candidate);
-				}			
-				return GetMostGenericType(current, candidate.BaseType);
-			}
-			
-			return obj;
+			return TypeSystemServices.GetMostGenericType(lhs, rhs);
 		}
 		
 		IType GetMostGenericType(ExpressionCollection args)

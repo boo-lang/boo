@@ -183,6 +183,39 @@ namespace Boo.Lang.Compiler.TypeSystem
 			PreparePrimitives();
 		}
 		
+		public IType GetMostGenericType(IType current, IType candidate)
+		{
+			if (current.IsAssignableFrom(candidate))
+			{
+				return current;
+			}
+			
+			if (candidate.IsAssignableFrom(current))
+			{
+				return candidate;
+			}
+			
+			if (IsNumberOrBool(current) && IsNumberOrBool(candidate))
+			{
+				return GetPromotedNumberType(current, candidate);
+			}
+			
+			IType obj = ObjectType;			
+			if (current.IsClass && candidate.IsClass)
+			{
+				if (current ==  obj || candidate == obj)
+				{
+					return obj;
+				}
+				if (current.GetTypeDepth() < candidate.GetTypeDepth())
+				{
+					return GetMostGenericType(current.BaseType, candidate);
+				}			
+				return GetMostGenericType(current, candidate.BaseType);
+			}			
+			return obj;
+		}
+		
 		public IType GetPromotedNumberType(IType left, IType right)
 		{
 			if (left == DoubleType ||
@@ -417,6 +450,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type == this.UShortType ||
 				type == this.UIntType ||
 				type == this.ULongType;
+		}
+		
+		public bool IsNumberOrBool(IType type)
+		{
+			return BoolType == type || IsNumber(type);
 		}
 		
 		public bool IsNumber(IType type)

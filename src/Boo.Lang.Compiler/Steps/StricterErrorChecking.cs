@@ -58,7 +58,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
+		override public void LeaveYieldStatement(YieldStatement node)
+		{
+			NotImplemented(node, "yield");
+		}
+		
+		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			if (IsAddressOfBuiltin(node.Target))
 			{
@@ -76,21 +81,15 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (IsDelegateConstructorInvocation(mie))
 				{
-					return mie.Arguments[2] == node;
+					return mie.Arguments[1] == node;
 				}
 			}
 			return false;
 		}
 		
-		bool IsConstructorReference(Expression expression)
-		{
-			return expression is ReferenceExpression &&
-				EntityType.Constructor == expression.Entity.EntityType;
-		}
-		
 		bool IsDelegateConstructorInvocation(MethodInvocationExpression node)
 		{
-			IConstructor constructor = node.Target as IConstructor;
+			IConstructor constructor = node.Target.Entity as IConstructor;
 			if (null != constructor)
 			{
 				return constructor.DeclaringType is ICallableType;
@@ -100,8 +99,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsAddressOfBuiltin(Expression node)
 		{
-			BuiltinFunction function = node.Entity as BuiltinFunction; 
-			return null != function && BuiltinFunctionType.AddressOf == function.FunctionType;
+			return BuiltinFunction.AddressOf == node.Entity;
 		}
 	}
 }

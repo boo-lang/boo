@@ -36,7 +36,7 @@ import NUnit.Framework
 [TestFixture]
 class TypeSystemFixture:
 	
-	_services as TypeSystemServices
+	_tss as TypeSystemServices
 	
 	def IntAsBool(i as int) as bool:
 		pass
@@ -46,13 +46,31 @@ class TypeSystemFixture:
 	
 	[TestFixtureSetUp]
 	def SetUpFixture():
-		_services = TypeSystemServices()
+		_tss = TypeSystemServices()
 		
 	def GetMethod(name as string) as IMethod:
-		return _services.Map(GetType().GetMethod(name))
+		return _tss.Map(GetType().GetMethod(name))
 		
 	def GetCallableType(methodName as string) as ICallableType:
-		return _services.GetCallableType(GetMethod(methodName))
+		return _tss.GetCallableType(GetMethod(methodName))
+		
+	[Test]
+	def TestMostGenericType():
+		Assert.AreSame(_tss.LongType,
+				_tss.GetMostGenericType(_tss.IntType, _tss.LongType),
+				"long > int")
+		Assert.AreSame(_tss.IntType,
+				_tss.GetMostGenericType(_tss.ShortType, _tss.IntType),
+				"int > short")
+		Assert.AreSame(_tss.DoubleType,
+				_tss.GetMostGenericType(_tss.DoubleType, _tss.IntType),
+				"double > int")
+		Assert.AreSame(_tss.BoolType,
+				_tss.GetMostGenericType(_tss.BoolType, _tss.BoolType),
+				"bool == bool")
+		Assert.AreSame(_tss.IntType,
+				_tss.GetMostGenericType(_tss.BoolType, _tss.IntType),
+				"int > bool")
 		
 	[Test]
 	def ExternalMethodType():
@@ -60,11 +78,11 @@ class TypeSystemFixture:
 		
 		Assert.IsNotNull(method)
 		Assert.AreEqual("IntAsBool", method.Name)
-		Assert.AreSame(_services.BoolType, method.ReturnType, "ReturnType")
+		Assert.AreSame(_tss.BoolType, method.ReturnType, "ReturnType")
 		
 		parameters = method.GetParameters()
 		Assert.AreEqual(1, len(parameters))
-		Assert.AreSame(_services.IntType, parameters[0].Type)
+		Assert.AreSame(_tss.IntType, parameters[0].Type)
 		Assert.AreEqual("i", parameters[0].Name)
 		
 		type = method.Type
@@ -90,34 +108,34 @@ class TypeSystemFixture:
 		
 	[Test]
 	def ResolveFromExternalTypesDontAddDuplicatedMethods():
-		type1 = _services.ICallableType
-		type2 = _services.MulticastDelegateType
+		type1 = _tss.ICallableType
+		type2 = _tss.MulticastDelegateType
 		
 		methods = []
 		type1.Resolve(methods, "GetType", EntityType.Method)
 		type2.Resolve(methods, "GetType", EntityType.Method)
 		
 		Assert.AreEqual(1, len(methods))
-		Assert.AreSame(_services.Map(typeof(object).GetMethod("GetType")),
+		Assert.AreSame(_tss.Map(typeof(object).GetMethod("GetType")),
 					methods[0])
 					
 	[Test]
 	def ExternalInterfaceDepth():
-		Assert.AreEqual(1, _services.ICallableType.GetTypeDepth())
+		Assert.AreEqual(1, _tss.ICallableType.GetTypeDepth())
 		
 	[Test]
 	def ExternalTypeDepth():
-		Assert.AreEqual(0, _services.ObjectType.GetTypeDepth())
-		Assert.AreEqual(2, _services.MulticastDelegateType.GetTypeDepth())
+		Assert.AreEqual(0, _tss.ObjectType.GetTypeDepth())
+		Assert.AreEqual(2, _tss.MulticastDelegateType.GetTypeDepth())
 		
 	[Test]
 	def CallableTypeDepth():
-		type = _services.GetCallableType(GetMethod("IntAsBool"))
+		type = _tss.GetCallableType(GetMethod("IntAsBool"))
 		Assert.AreEqual(3, type.GetTypeDepth())
 		
 	[Test]
 	def CreateCallableDefinition():
-		cd = _services.CreateCallableDefinition("Function")
+		cd = _tss.CreateCallableDefinition("Function")
 		Assert.AreEqual(3, cast(IType, cd.Entity).GetTypeDepth())
 		
 	def Function() as void:
@@ -158,11 +176,11 @@ class TypeSystemFixture:
 		AssertCallableNotAssignableFrom(c5, c3) # return type
 		
 	def AssertCallableAssignableFrom(lvalue, rvalue):
-		Assert.IsTrue(_services.IsCallableTypeAssignableFrom(lvalue, rvalue),
+		Assert.IsTrue(_tss.IsCallableTypeAssignableFrom(lvalue, rvalue),
 					"${lvalue} should be assignable from ${rvalue}")
 					
 	def AssertCallableNotAssignableFrom(lvalue, rvalue):
-		Assert.IsFalse(_services.IsCallableTypeAssignableFrom(lvalue, rvalue),
+		Assert.IsFalse(_tss.IsCallableTypeAssignableFrom(lvalue, rvalue),
 					"${lvalue} should NOT be assignable from ${rvalue}")
 		
 		

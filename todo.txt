@@ -118,10 +118,6 @@ derivada de Control (que tem uma propriedade chamada Size):
 		((reference is value1) or (reference is value2))
 		etc
 * operadores de conversão (operator bool, operator string, etc)
-* array equality even for object references:
-	a1 as object = (1, 2)
-	a2 as object = (1, 2)
-	assert a1 == a2
 * PreAttribute:
 
 	[pre(n > 0)]
