@@ -50,17 +50,24 @@ class KeyChar:
 	public static Back = chr(Keys.Back)
 	
 	public static Esc = chr(Keys.Escape)
+	
+	public static Del = chr(Keys.Delete)
 
 class CompletionBox(ListBox):
 	
 	_interpreter as InteractiveInterpreter
 	
+	_currentCodeCompletion = ""
+	
+	_codeCompletionArchive = []
+	
+	_upsideDown = false
+	
 	def constructor(interpreter):
-		self._interpreter = interpreter
+		self._interpreter = interpreter		
 		self.Visible = false
 		
-	def Fill(type as System.Type):
-		
+	def Fill(type as System.Type):		
 		members = []
 		for member in type.GetMembers():
 			if IsValidSuggestion(member):
@@ -81,12 +88,29 @@ class CompletionBox(ListBox):
 					members.Add("${member.Name}(${params})${returnValue}")
 					
 		Items.Clear()
+		_codeCompletionArchive.Clear()
 		for item in members.Sort():
-			Items.Add(item)
+			Items.Add(item) if not _upsideDown
+			Items.Insert(0, item) if _upsideDown
+			_codeCompletionArchive.Add(item)
+		self.SelectedIndex = (0, self.Items.Count - 1)[_upsideDown and self.Items.Count > 1]
 			
 	def Show(pos as Point):
+		//Ensure that this listbox won't extend past the bottom of the screen.
+		//(Most common use-case.)
 		self.Location = pos
-		self.Visible = true
+		_upsideDown = self.Bottom > Parent.Bottom
+		if _upsideDown:
+			par = cast(PromptBox, Parent)
+			//FIXME: Here's the deal - I don't know how to get the size of the caret,
+			//So the code completion box will always be "just so" off
+			//and prove to be visually distracting.
+			//TODO: The FIXME above. ;)
+			caretDis = Parent.Bottom - par.CaretPos.Y		
+			caretDis -= self.Font.Height		
+			self.Location =  Point(self.Location.X, (self.Location.Y - (self.Bottom - Parent.Bottom) ) - caretDis )
+		 		
+		self.Visible = true		
 		self.Focus()
 		
 	private def IsValidSuggestion(member as MemberInfo):
@@ -110,17 +134,47 @@ class CompletionBox(ListBox):
 		self.Visible = false
 		super(args)
 		
-	override def OnKeyPress(args as KeyPressEventArgs):
+	override def OnKeyPress(args as KeyPressEventArgs):			
 		finish = def ():
 			Parent.Focus()
-			args.Handled = true
+			_currentCodeCompletion = ""
+			args.Handled = true	
+		// Adjust listview to _currentCodeCompletion
+		// Also, adjust to focus if _upsideDown!
+		smartComplete = def():
+			self.Items.Clear()
+			self.Items.Add("${_currentCodeCompletion} (*)")
+			for data as string in _codeCompletionArchive:
+				if data.ToLower().StartsWith(_currentCodeCompletion.ToLower()):
+					self.Items.Add(data) if not _upsideDown
+					self.Items.Insert(0, data) if _upsideDown
+			// Make sure one member is always selected by de funk.
+			// Always show the user what he's been typing, meanwhile.
+			self.SelectedIndex = (0, 1)[self.Items.Count > 1] if not _upsideDown
+			self.SelectedIndex = (self.Items.Count - 1, self.Items.Count - 2)[self.Items.Count > 1] if _upsideDown
 			
 		if args.KeyChar in KeyChar.Esc, KeyChar.Back:
-			finish()
-		elif KeyChar.Enter == args.KeyChar:
-			cast(TextBox, Parent).SelectedText = /\w+/.Match(SelectedItem).Groups[0].Value
-			finish()
-		else:			
+			par = cast(PromptBox, Parent)
+			if args.KeyChar == KeyChar.Esc:
+				par.Text += _currentCodeCompletion				
+				par.SelectionStart = par.Text.Length
+				finish()
+			elif _currentCodeCompletion == "":				
+				finish()
+			else:
+				_currentCodeCompletion = _currentCodeCompletion.Remove(
+					_currentCodeCompletion.Length - 1, 1)				
+				smartComplete()
+		elif KeyChar.Enter == args.KeyChar or KeyChar.Dot == args.KeyChar:
+			try:
+				cast(TextBox, Parent).SelectedText = /\w+/.Match(SelectedItem).Groups[0].Value
+			except e: //User did NOT select an item before triggering condition.
+				pass
+			ensure:
+				finish()
+		else:
+			_currentCodeCompletion += args.KeyChar			
+			smartComplete()
 			super(args)
 			
 	private def getBooTypeName(type as System.Type):
@@ -189,18 +243,31 @@ class PromptBox(TextBox):
 			_block.WriteLine(code)
 		
 	override def OnKeyPress(args as KeyPressEventArgs):
-		if KeyChar.Enter == args.KeyChar:			
+		// These blocks of code:
+		// *keeps the user from deleting the ">>>" and screwing up the interpretor.
+		// *keeps the user from "going up" and editing already inputted text.		
+		// Keep user from selecting-and-deleting.
+		
+		currentPrompt = Text.Length - (Lines[-1][4:].Length)		
+		if SelectedText != "" and SelectionStart < currentPrompt:			
+			args.Handled = true
+		//Make sure user's cursor hasn't drifted beyond ">>> "
+		elif SelectedText == "" and args.KeyChar == KeyChar.Back:			
+			if SelectionStart <= currentPrompt:				
+				args.Handled = true
+		elif KeyChar.Enter == args.KeyChar:
 			try:
 				(SingleLineInputState, BlockInputState)[_state]()
 			except x:				
 				print(x)
 			prompt()
-			args.Handled = true
+			args.Handled = true			
+		//print "Did we get this far, yet?"
 		elif KeyChar.Dot == args.KeyChar:
 			self.SelectedText = "."
-			DotComplete()
-			args.Handled = true
-			
+			DotComplete()			
+			args.Handled = true	
+		
 		super(args)
 		
 	override def OnResize(args as EventArgs):
@@ -214,9 +281,9 @@ class PromptBox(TextBox):
 			expression = m.Groups[1].Value
 			if /^\w+$/.IsMatch(expression):	
 				type = _interpreter.Lookup(expression)
-				if type is not null:
-					_completionBox.Fill(type)
+				if type is not null:					
 					_completionBox.Show(CaretPos)	
+					_completionBox.Fill(type)
 		
 	def Eval(code as string):
 		saved = Console.Out
