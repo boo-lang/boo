@@ -1,4 +1,4 @@
-namespace BooInBoo.Services
+namespace MetaBoo.Services
 
 class NameResolutionService:
 	pass

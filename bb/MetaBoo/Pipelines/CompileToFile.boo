@@ -1,6 +1,6 @@
-namespace BooInBoo.Pipelines
+namespace MetaBoo.Pipelines
 
-import BooInBoo
+import MetaBoo
 
 class ParsePipeline(CompilerPipeline):
 	static _defaultParserStepType = System.Type.GetType("Boo.AntlrParser.BooParsingStep, Boo.AntlrParser", true)

@@ -1,4 +1,4 @@
-namespace BooInBoo
+namespace MetaBoo
 
 import System
 

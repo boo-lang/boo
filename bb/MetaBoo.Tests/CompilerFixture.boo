@@ -1,10 +1,10 @@
-namespace BooInBoo.Tests
+namespace MetaBoo.Tests
 
 import System.IO
 import NUnit.Framework
-import BooInBoo
-import BooInBoo.Pipelines
-import BooInBoo.PipelineSteps
+import MetaBoo
+import MetaBoo.Pipelines
+import MetaBoo.PipelineSteps
 
 abstract class AbstractCompilerFixture:
 	virtual def GetTestCasePath():
@@ -24,7 +24,7 @@ class CompilerFixture(AbstractCompilerFixture):
 		return Path.Combine(super(), "compilation")
 							
 [TestFixture]
-class BooInBooSemanticsTestCase(AbstractCompilerFixture):
+class MetaBooSemanticsTestCase(AbstractCompilerFixture):
 	override def CreatePipeline():
 		pipeline = CompilePipeline()
 		pipeline.Add(PrintBoo())

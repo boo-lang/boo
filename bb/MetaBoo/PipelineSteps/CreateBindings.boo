@@ -1,6 +1,6 @@
-namespace BooInBoo.PipelineSteps
+namespace MetaBoo.PipelineSteps
 
-import BooInBoo
+import MetaBoo
 
 enum BindingType:
 	CompileUnit
