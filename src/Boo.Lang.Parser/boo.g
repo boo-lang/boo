@@ -152,11 +152,9 @@ tokens
 
 	protected LexicalInfo ToLexicalInfo(antlr.Token token)
 	{
-		int line = token.getLine();
-		int startColumn = token.getColumn();
-		int endColumn = token.getColumn() + token.getText().Length;
-		string filename = token.getFilename();
-		return new LexicalInfo(filename, line, startColumn, endColumn);
+		return new LexicalInfo(token.getFilename(),
+								token.getLine(),
+								token.getColumn());
 	}
 
 	protected BinaryOperatorType ParseCmpOperator(string op)
@@ -288,7 +286,7 @@ protected
 start[CompileUnit cu] returns [Module module]
 	{
 		module = new Module();		
-		module.LexicalInfo = new LexicalInfo(getFilename(), 0, 0, 0);
+		module.LexicalInfo = new LexicalInfo(getFilename(), 1, 1);
 		
 		cu.Modules.Add(module);
 	}:
@@ -771,7 +769,7 @@ property_accessor[Property p]
 		AddAttributes(m.Attributes);
 		m.Modifiers = _modifiers;
 	}
-	compound_stmt[m.Body.Statements]
+	compound_stmt[m.Body]
 	;
 	
 protected
@@ -921,9 +919,9 @@ protected
 end : DEDENT (options { greedy=true; }: EOS)*;
 
 protected
-compound_stmt[StatementCollection c] :
+compound_stmt[Block b] :
 		begin
-			block[c]
+			block[b.Statements]
 		end
 		;
 		
@@ -951,7 +949,7 @@ macro_stmt returns [MacroStatement returnValue]
 	}:
 	id:ID expression_list[macro.Arguments]
 	(
-		compound_stmt[macro.Block.Statements] |
+		compound_stmt[macro.Block] |
 		eos |
 		modifier=stmt_modifier eos { macro.Modifier = modifier; }
 	)
@@ -1135,7 +1133,7 @@ callable_expression returns [Expression e]
 		LPAREN parameter_declaration_list[cbe.Parameters] RPAREN
 		(AS rt=type_reference { cbe.ReturnType = rt; })?
 	)?
-		compound_stmt[cbe.Body.Statements]
+		compound_stmt[cbe.Body]
 	;
 	
 	
@@ -1155,18 +1153,18 @@ try_stmt returns [TryStatement s]
 		Block eblock = null;
 	}:
 	t:TRY { s = new TryStatement(ToLexicalInfo(t)); }
-		compound_stmt[s.ProtectedBlock.Statements]
+		compound_stmt[s.ProtectedBlock]
 	(
 		exception_handler[s]
 	)*
 	(
 		stoken:SUCCESS { sblock = new Block(ToLexicalInfo(stoken)); }
-			compound_stmt[sblock.Statements]
+			compound_stmt[sblock]
 		{ s.SuccessBlock = sblock; }
 	)?
 	(
 		etoken:ENSURE { eblock = new Block(ToLexicalInfo(etoken)); }
-			compound_stmt[eblock.Statements]
+			compound_stmt[eblock]
 		{ s.EnsureBlock = eblock; }
 	)?
 	;
@@ -1188,7 +1186,7 @@ exception_handler [TryStatement t]
 			eh.Declaration.Type = tr;
 		}
 	}		
-	compound_stmt[eh.Block.Statements]
+	compound_stmt[eh.Block]
 	{
 		t.ExceptionHandlers.Add(eh);
 	}
@@ -1323,7 +1321,7 @@ unless_stmt returns [UnlessStatement us]
 		us = new UnlessStatement(ToLexicalInfo(u));
 		us.Condition = condition;
 	}
-	compound_stmt[us.Block.Statements]
+	compound_stmt[us.Block]
 	;
 
 protected
@@ -1335,7 +1333,7 @@ for_stmt returns [ForStatement fs]
 	f:FOR { fs = new ForStatement(ToLexicalInfo(f)); }
 		declaration_list[fs.Declarations] IN iterator=array_or_expression
 		{ fs.Iterator = iterator; }
-		compound_stmt[fs.Block.Statements]
+		compound_stmt[fs.Block]
 	;
 		
 protected
@@ -1349,7 +1347,7 @@ while_stmt returns [WhileStatement ws]
 		ws = new WhileStatement(ToLexicalInfo(w));
 		ws.Condition = e;
 	}
-	compound_stmt[ws.Block.Statements]
+	compound_stmt[ws.Block]
 	;
 		
 protected
@@ -1372,14 +1370,14 @@ given_stmt returns [GivenStatement gs]
 				wc.Condition = e;
 				gs.WhenClauses.Add(wc);
 			}				
-				compound_stmt[wc.Block.Statements]
+				compound_stmt[wc.Block]
 		)+
 		(
 			otherwise:OTHERWISE
 			{
 				gs.OtherwiseBlock = new Block(ToLexicalInfo(otherwise));
 			}
-			compound_stmt[gs.OtherwiseBlock.Statements]
+			compound_stmt[gs.OtherwiseBlock]
 		)?
 	end
 	;
@@ -1398,7 +1396,7 @@ if_stmt returns [IfStatement returnValue]
 		s.Condition = e;
 		s.TrueBlock = new Block();
 	}
-	compound_stmt[s.TrueBlock.Statements]
+	compound_stmt[s.TrueBlock]
 	(
 		ei:ELIF e=expression
 		{
@@ -1411,11 +1409,11 @@ if_stmt returns [IfStatement returnValue]
 			s.FalseBlock.Add(elif);
 			s = elif;
 		}
-		compound_stmt[s.TrueBlock.Statements]
+		compound_stmt[s.TrueBlock]
 	)*
 	(
 		et:ELSE { s.FalseBlock = new Block(ToLexicalInfo(et)); }
-		compound_stmt[s.FalseBlock.Statements]
+		compound_stmt[s.FalseBlock]
 	)?
 	;
 		

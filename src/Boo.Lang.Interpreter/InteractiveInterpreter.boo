@@ -197,7 +197,7 @@ class InteractiveInterpreter:
 		
 	def DisplayErrors(errors as CompilerErrorCollection):
 		for error in errors:
-			pos = error.LexicalInfo.StartColumn
+			pos = error.LexicalInfo.Column
 			_print("---" + "-" * pos + "^") if pos > 0
 			_print("ERROR: ${error.Message}")
 			

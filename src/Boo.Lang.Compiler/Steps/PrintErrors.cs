@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (CompilerError error in Errors)
 			{
 				OutputWriter.Write(Path.GetFileName(error.LexicalInfo.FileName));
-				OutputWriter.Write("({0},{1}): ", error.LexicalInfo.Line, error.LexicalInfo.StartColumn);
+				OutputWriter.Write("({0},{1}): ", error.LexicalInfo.Line, error.LexicalInfo.Column);
 				OutputWriter.Write("{0}: ", error.Code);
 				OutputWriter.WriteLine(error.Message);
 			}

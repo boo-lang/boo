@@ -58,7 +58,7 @@ namespace Boo.Lang.Parser.Tests
 
 			Assert.AreEqual("Empty", module.Namespace.Name);
 			Assert.AreEqual(4, module.Namespace.LexicalInfo.Line);
-			Assert.AreEqual(1, module.Namespace.LexicalInfo.StartColumn);
+			Assert.AreEqual(1, module.Namespace.LexicalInfo.Column);
 			Assert.AreEqual(fname, module.Namespace.LexicalInfo.FileName);
 		}
 

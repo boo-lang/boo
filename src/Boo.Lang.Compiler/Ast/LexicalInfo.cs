@@ -29,32 +29,25 @@
 using System;
 
 namespace Boo.Lang.Compiler.Ast
-{
+{	 
 	public class LexicalInfo
 	{
-		public static readonly LexicalInfo Empty = new LexicalInfo(null, -1, -1, -1);
+		public static readonly LexicalInfo Empty = new LexicalInfo(null, -1, -1);
 
 		protected int _line;
 
-		protected int _startColumn;
-		
-		protected int _endColumn;
+		protected int _column;
 
 		protected string _filename;
 		
-		public LexicalInfo(string filename, int line, int startColumn, int endColumn)
+		public LexicalInfo(string filename, int line, int column)
 		{
-			if (endColumn < startColumn)
-			{
-				throw new ArgumentException("endColum must be >= startColumn", "endColumn");
-			}
 			_filename = filename;
 			_line = line;
-			_startColumn = startColumn;
-			_endColumn = endColumn;
+			_column = column;
 		}
 
-		public LexicalInfo(string filename) : this(filename, -1, -1, -1)
+		public LexicalInfo(string filename) : this(filename, -1, -1)
 		{
 		}
 		
@@ -64,8 +57,7 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				return null != _filename &&
 						(_line > 0) &&
-						(_startColumn > 0) &&
-						(_endColumn > 0);
+						(_column > 0);
 			}
 		}
 
@@ -85,25 +77,17 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 
-		public int StartColumn
+		public int Column
 		{
 			get
 			{
-				return _startColumn;
-			}
-		}
-		
-		public int EndColumn
-		{
-			get
-			{
-				return _endColumn;
+				return _column;
 			}
 		}
 
 		override public string ToString()
 		{
-			return string.Format("{0}({1},{2})", _filename, _line, _startColumn);
+			return string.Format("{0}({1},{2})", _filename, _line, _column);
 		}
 	}
 }

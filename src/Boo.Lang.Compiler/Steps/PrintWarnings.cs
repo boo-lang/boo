@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (CompilerWarning warning in Warnings)
 			{
 				OutputWriter.Write(Path.GetFileName(warning.LexicalInfo.FileName));
-				OutputWriter.Write("({0},{1}): ", warning.LexicalInfo.Line, warning.LexicalInfo.StartColumn);
+				OutputWriter.Write("({0},{1}): ", warning.LexicalInfo.Line, warning.LexicalInfo.Column);
 				OutputWriter.Write("{0}: ", warning.Code);
 				OutputWriter.WriteLine(warning.Message);
 			}

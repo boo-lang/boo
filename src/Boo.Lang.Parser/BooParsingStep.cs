@@ -90,7 +90,7 @@ namespace Boo.Lang.Parser
 
 		void OnParserError(antlr.RecognitionException error)
 		{			
-			LexicalInfo data = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn(), error.getColumn());
+			LexicalInfo data = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn());
 
 			antlr.NoViableAltException nvae = error as antlr.NoViableAltException;
 			if (null != nvae)

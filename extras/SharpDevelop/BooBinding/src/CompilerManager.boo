@@ -133,7 +133,7 @@ class BooBindingCompilerManager:
 					error.IsWarning   = true
 					error.ErrorNumber = warning.Code
 					error.ErrorText   = warning.Message
-				error.Column   = info.StartColumn
+				error.Column   = info.Column
 				error.Line     = info.Line
 				error.FileName = Path.GetFullPath(info.FileName)
 				cr.Errors.Add(error)
