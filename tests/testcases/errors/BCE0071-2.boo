@@ -1,5 +1,5 @@
 """
-basetypes1.boo(10,14): BCE0071: Inheritance cycle detected: 'IA'.
+BCE0071-2.boo(10,14): BCE0071: Inheritance cycle detected: 'IA'.
 """
 interface IA(IB):
 	pass

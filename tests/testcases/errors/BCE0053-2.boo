@@ -1,5 +1,5 @@
 """
-readonly_property.boo(15,1): BCE0053: Property 'Person.Name' is read only.
+BCE0053-2.boo(15,1): BCE0053: Property 'Person.Name' is read only.
 """
 class Person:
 	_name as string

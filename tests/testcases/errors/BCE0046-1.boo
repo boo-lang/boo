@@ -1,7 +1,7 @@
 """
-is0.boo(8,12): BCE0046: 'is' can't be used with a value type ('System.Int32')
-is0.boo(9,6): BCE0046: 'is' can't be used with a value type ('System.Int32')
-is0.boo(10,6): BCE0046: 'is not' can't be used with a value type ('System.Int32')
+BCE0046-1.boo(8,12): BCE0046: 'is' can't be used with a value type ('System.Int32')
+BCE0046-1.boo(9,6): BCE0046: 'is' can't be used with a value type ('System.Int32')
+BCE0046-1.boo(10,6): BCE0046: 'is not' can't be used with a value type ('System.Int32')
 """
 o1 = object()
 o2 = 3

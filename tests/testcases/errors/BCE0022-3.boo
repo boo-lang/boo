@@ -1,5 +1,5 @@
 """
-return0.boo(5,12): BCE0022: Cannot convert 'System.Int32' to 'System.String'.
+BCE0022-3.boo(5,12): BCE0022: Cannot convert 'System.Int32' to 'System.String'.
 """
 def foo() as string:
 	return 3
