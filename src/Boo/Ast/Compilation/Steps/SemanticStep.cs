@@ -201,27 +201,45 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveBinaryExpression(BinaryExpression node)
 		{			
-			if (BinaryOperatorType.Match == node.Operator)
+			switch (node.Operator)
 			{		
-				ExpressionCollection args = new ExpressionCollection();
-				args.Add(node.Left);
-				args.Add(node.Right);
+				case BinaryOperatorType.Match:
+				{
+					ExpressionCollection args = new ExpressionCollection();
+					args.Add(node.Left);
+					args.Add(node.Right);
+					
+					if (CheckParameters(node, RuntimeServices_IsMatchBinding, args))
+					{
+						// todo; trocar Bind e BindOperator por um 
+						// unico Bind(node, new OperatorBinding())
+						BindingManager.Bind(node, RuntimeServices_IsMatchBinding);					
+					}
+					else
+					{
+						BindingManager.Error(node);
+					}
+					break;
+				}
 				
-				if (CheckParameters(node, RuntimeServices_IsMatchBinding, args))
+				case BinaryOperatorType.Inequality:
 				{
-					// todo; trocar Bind e BindOperator por um 
-					// unico Bind(node, new OperatorBinding())
-					BindingManager.Bind(node, RuntimeServices_IsMatchBinding);					
+					ResolveOperator("op_Inequality", node);
+					break;
 				}
-				else
+				
+				case BinaryOperatorType.Equality:
 				{
-					BindingManager.Error(node);
+					ResolveOperator("op_Equality", node);
+					break;
 				}
-			}
-			else
-			{
-				// expression type is the same as the right expression's
-				BindingManager.Bind(node, BindingManager.GetBinding(node.Right));
+				
+				default:
+				{
+					// expression type is the same as the right expression's
+					BindingManager.Bind(node, BindingManager.GetBinding(node.Right));
+					break;
+				}
 			}
 		}		
 		
@@ -520,6 +538,22 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			BindingManager.Error(node);	
 			return null;
+		}
+		
+		void ResolveOperator(string name, BinaryExpression node)
+		{
+			ITypeBinding boundType = ((ITypedBinding)BindingManager.GetBinding(node.Left)).BoundType;
+			IBinding binding = boundType.Resolve(name);
+			if (null == binding)
+			{
+				BindingManager.Error(node);
+			}
+			else
+			{
+				// todo: check parameters
+				// todo: resolve when ambiguous
+				BindingManager.Bind(node, binding);
+			}
 		}
 		
 		void DeclareLocal(Node sourceNode, Local local, ITypeBinding localType)

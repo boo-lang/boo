@@ -54,7 +54,7 @@ done * if stmt modifier
 Milestone 3.3 (replace.boo)
 ---------------------------
 done * using Type (using Boo.IO.TextFile)
-* if string compare
+done * if string compare
 
 Milestone 3.5 (revisão)
 -----------------------

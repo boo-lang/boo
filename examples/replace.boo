@@ -11,7 +11,7 @@ Examples:
 using System
 using System.Text.RegularExpressions
 using System.IO
-using Boo.IO.TextFile
+using Boo.IO.TextFile // static members of TextFile will be available in the global scope
 
 _, glob, expression, replacement = Environment.GetCommandLineArgs()
 
@@ -21,6 +21,6 @@ for fname in Directory.GetFiles(".", glob):
 	newContents = re.Replace(contents, replacement)
 	if newContents != contents:
 		print(fname)
-		WriteFile(fname, contents)
+		WriteFile(fname, newContents)
 		
 		
