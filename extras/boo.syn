@@ -1,0 +1,130 @@
+; TextPad syntax definitions for BOO
+
+; by Georges Benatti Jr, based in c# definition file
+
+C=1
+
+[Syntax]
+IgnoreCase = No
+InitKeyWordChars = A-Za-z_
+KeyWordChars = A-Za-z0-9_
+BracketChars = {[()]}
+OperatorChars = -+*/<>!~%^&|=.?
+PreprocStart =
+SyntaxStart =
+SyntaxEnd =
+CommentStart = /*
+CommentEnd = */
+CommentStartAlt =
+CommentEndAlt =
+SingleComment = //
+SingleCommentCol = 
+SingleCommentAlt = #
+SingleCommentColAlt =
+StringStart = "
+StringEnd = "
+StringAlt =
+StringEsc = \
+CharStart = '
+CharEnd = '
+CharEsc = \
+
+[Keywords 1]
+and
+as
+break
+class
+const
+constructor
+continue
+def
+do
+else
+end
+enum
+ensure
+except
+final
+for
+from
+given
+get
+if
+interface
+in
+include
+import
+is
+kindof
+mixin
+namespace
+not
+or
+otherwise
+pass
+raise
+retry
+self
+return
+set
+success
+try
+transient
+type
+while
+when
+unless
+yield
+
+[Keywords 2]
+bool
+string
+object
+int
+float
+double
+date
+timespan
+regex
+hash
+list
+tuple
+void
+
+[Keywords 3]
+assert
+print
+gets
+prompt
+enumerate
+zip
+filter
+map
+cat
+
+[Keywords 4]
+public
+protected
+private
+internal
+static
+
+[Preprocessor keywords]
+#region
+#endregion
+
+
+
+			
+			<!-- standard macros -->
+			<KEYWORD3>using</KEYWORD3>
+			<KEYWORD3>lock</KEYWORD3>
+
+			<!-- exceptions -->
+			<!-- KEYWORD3>ArithmeticError</KEYWORD3 -->
+			
+			<LITERAL2>false</LITERAL2>
+			<LITERAL2>null</LITERAL2>
+			<LITERAL2>self</LITERAL2>
+			<KEYWORD2>super</KEYWORD2>
+			<LITERAL2>true</LITERAL2>
