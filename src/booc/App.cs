@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Globalization;
@@ -38,6 +39,9 @@ namespace BooC
 	/// </summary>
 	class App
 	{
+        private static ArrayList responseFileList = new ArrayList();
+        private static CompilerParameters options = null;
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -51,7 +55,7 @@ namespace BooC
 				DateTime start = DateTime.Now;
 				
 				BooCompiler compiler = new BooCompiler();
-				CompilerParameters options = compiler.Parameters;
+				options = compiler.Parameters;
 				
 				ParseOptions(args, options);
 				if (0 == options.Input.Count)
@@ -232,7 +236,33 @@ namespace BooC
 					}
 					else
 					{
-						options.Input.Add(new FileInput(Path.GetFullPath(arg)));
+                        // more likely NOT to be a response file
+                        if (!arg.StartsWith("@"))
+						{
+							options.Input.Add(new FileInput(Path.GetFullPath(arg)));
+                        }
+						else
+						{
+                            if (responseFileList.Contains(arg))
+							{
+                                throw new ApplicationException(
+										Boo.ResourceManager.Format("BCE0500", arg));
+                            }
+
+							try
+							{
+								LoadResponseFile(Path.GetFullPath(arg.Substring(1)));
+							}
+							catch (Exception x)
+							{
+                                throw new ApplicationException(
+												Boo.ResourceManager.Format("BCE0502", arg),
+												x);
+                            }
+
+                            responseFileList.Add(arg);
+                        }
+                            
 					}
 				}
 			}
@@ -243,13 +273,29 @@ namespace BooC
 			}
 		}
 
+        static void LoadResponseFile(string file)
+        {
+            if (!File.Exists(file))
+			{
+                throw new ApplicationException(Boo.ResourceManager.Format("BCE0501", file));
+            }
+			
+			using (StreamReader sr = new StreamReader(file))
+			{
+				string line = null;
+				while ((line = sr.ReadLine()) != null)
+				{
+					options.Input.Add(new FileInput(Path.GetFullPath(line)));
+				}
+			}
+        }
+
 		static Assembly LoadAssembly(string assemblyName)
 		{
 			Assembly reference = Assembly.LoadWithPartialName(assemblyName);
 			if (null == reference)
 			{
-				string fname = Path.GetFullPath(assemblyName);
-				reference = Assembly.LoadFrom(assemblyName);
+				reference = Assembly.LoadFrom(Path.GetFullPath(assemblyName));
 				if (null == reference)
 				{
 					throw new ApplicationException(Boo.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName));
@@ -265,19 +311,19 @@ namespace BooC
 
 		static bool IsFlag(string arg)
 		{
-			return arg[0] == '-';
+            return arg[0] == '-';
 		}
 
 		static void AddFilesForPath(string path, CompilerParameters options)
 		{
-			foreach (string filename in Directory.GetFiles(path, "*.boo"))
+			foreach (string fname in Directory.GetFiles(path, "*.boo"))
 			{
-				options.Input.Add(new FileInput(Path.GetFullPath(filename)));
+				options.Input.Add(new FileInput(Path.GetFullPath(fname)));
 			}
 								
-			foreach (string dirname in Directory.GetDirectories(path))
+			foreach (string dirName in Directory.GetDirectories(path))
 			{
-				AddFilesForPath(dirname, options);
+				AddFilesForPath(dirName, options);
 			}
 		}
 		
