@@ -60,7 +60,7 @@ namespace Boo.AntlrParser
 			{
 				ParserErrorHandler errorHandler = new ParserErrorHandler(OnParserError);
 
-				foreach (ICompilerInput input in _context.CompilerParameters.Input)
+				foreach (ICompilerInput input in _context.Parameters.Input)
 				{
 					try
 					{

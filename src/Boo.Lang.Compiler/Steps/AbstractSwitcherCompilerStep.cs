@@ -31,6 +31,7 @@ using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
+using Boo.Lang.Compiler.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -74,7 +75,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected Bindings.BindingService BindingService
+		protected DefaultBindingService BindingService
 		{
 			get
 			{
@@ -84,7 +85,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node, CompilerError error)
 		{
-			BindingService.Error(node);
+			DefaultBindingService.Error(node);
 			Errors.Add(error);
 		}
 		
@@ -95,23 +96,23 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node)
 		{
-			BindingService.Error(node);
+			DefaultBindingService.Error(node);
 		}
 
 		protected void Bind(Node node, IBinding binding)
 		{
 			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, binding);
-			BindingService.Bind(node, binding);
+			node.Binding = binding;
 		}		
 		
 		public IBinding GetBinding(Node node)
 		{
-			return BindingService.GetBinding(node);
+			return DefaultBindingService.GetBinding(node);
 		}
 		
 		public ITypeBinding GetBoundType(Node node)
 		{
-			return BindingService.GetBoundType(node);
+			return DefaultBindingService.GetBoundType(node);
 		}		
 		
 		public LocalBinding GetLocalBinding(Node local)
@@ -121,7 +122,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected TypeReference CreateBoundTypeReference(ITypeBinding binding)
 		{
-			return BindingService.CreateBoundTypeReference(binding);
+			return DefaultBindingService.CreateBoundTypeReference(binding);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

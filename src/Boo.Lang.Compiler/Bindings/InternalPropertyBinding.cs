@@ -29,18 +29,19 @@
 namespace Boo.Lang.Compiler.Bindings
 {
 	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.Services;
 	
 	public class InternalPropertyBinding : AbstractInternalBinding, IPropertyBinding
 	{
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		
 		Property _property;
 		
 		ITypeBinding[] _indexParameters;
 		
-		public InternalPropertyBinding(BindingService bindingManager, Property property)
+		public InternalPropertyBinding(DefaultBindingService bindingManager, Property property)
 		{
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_property = property;
 		}
 		
@@ -48,7 +49,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.AsTypeBinding(_property.DeclaringType);
+				return _bindingService.AsTypeBinding(_property.DeclaringType);
 			}
 		}
 		
@@ -96,7 +97,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.GetBoundType(_property.Type);
+				return _bindingService.GetBoundType(_property.Type);
 			}
 		}
 		
@@ -108,7 +109,7 @@ namespace Boo.Lang.Compiler.Bindings
 				_indexParameters = new ITypeBinding[parameters.Count];
 				for (int i=0; i<_indexParameters.Length; ++i)
 				{
-					_indexParameters[i] = _bindingManager.GetBoundType(parameters[i]);
+					_indexParameters[i] = _bindingService.GetBoundType(parameters[i]);
 				}
 			}
 			return _indexParameters;
@@ -118,7 +119,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			if (null != _property.Getter)
 			{
-				return (IMethodBinding)BindingService.GetBinding(_property.Getter);
+				return (IMethodBinding)DefaultBindingService.GetBinding(_property.Getter);
 			}
 			return null;
 		}
@@ -127,7 +128,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			if (null != _property.Setter)
 			{
-				return (IMethodBinding)BindingService.GetBinding(_property.Setter);
+				return (IMethodBinding)DefaultBindingService.GetBinding(_property.Setter);
 			}
 			return null;
 		}

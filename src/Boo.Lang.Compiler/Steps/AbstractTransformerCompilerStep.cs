@@ -31,6 +31,7 @@ using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
+using Boo.Lang.Compiler.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -74,7 +75,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected Bindings.BindingService BindingService
+		protected DefaultBindingService BindingService
 		{
 			get
 			{
@@ -84,18 +85,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public IBinding GetBinding(Node node)
 		{
-			return BindingService.GetBinding(node);
-		}
-		
-		public IBinding GetOptionalBinding(Node node)
-		{
-			return BindingService.GetOptionalBinding(node);
+			return DefaultBindingService.GetBinding(node);
 		}
 		
 		protected ITypeBinding GetBoundType(Node node)
 		{
 			return BindingService.GetBoundType(node);
-		}		
+		}	
+		
 		protected TypeReference CreateBoundTypeReference(ITypeBinding binding)
 		{
 			return BindingService.CreateBoundTypeReference(binding);

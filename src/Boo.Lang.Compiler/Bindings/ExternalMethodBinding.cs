@@ -26,20 +26,21 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Reflection;
-
 namespace Boo.Lang.Compiler.Bindings
 {
+	using System;
+	using System.Reflection;
+	using Boo.Lang.Compiler.Services;
+	
 	public class ExternalMethodBinding : IMethodBinding
 	{
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		
 		MethodBase _mi;
 		
-		internal ExternalMethodBinding(BindingService manager, MethodBase mi)
+		internal ExternalMethodBinding(DefaultBindingService manager, MethodBase mi)
 		{
-			_bindingManager = manager;
+			_bindingService = manager;
 			_mi = mi;
 		}
 		
@@ -47,7 +48,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.AsTypeBinding(_mi.DeclaringType);
+				return _bindingService.AsTypeBinding(_mi.DeclaringType);
 			}
 		}
 		
@@ -125,7 +126,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ITypeBinding GetParameterType(int parameterIndex)
 		{
-			return _bindingManager.AsTypeBinding(_mi.GetParameters()[parameterIndex].ParameterType);
+			return _bindingService.AsTypeBinding(_mi.GetParameters()[parameterIndex].ParameterType);
 		}
 		
 		public ITypeBinding ReturnType
@@ -135,7 +136,7 @@ namespace Boo.Lang.Compiler.Bindings
 				MethodInfo mi = _mi as MethodInfo;
 				if (null != mi)
 				{
-					return _bindingManager.AsTypeBinding(mi.ReturnType);
+					return _bindingService.AsTypeBinding(mi.ReturnType);
 				}
 				return null;
 			}
@@ -151,13 +152,13 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		override public string ToString()
 		{
-			return BindingService.GetSignature(this);
+			return DefaultBindingService.GetSignature(this);
 		}
 	}
 	
 	public class ExternalConstructorBinding : ExternalMethodBinding, IConstructorBinding
 	{
-		public ExternalConstructorBinding(BindingService manager, ConstructorInfo ci) : base(manager, ci)
+		public ExternalConstructorBinding(DefaultBindingService manager, ConstructorInfo ci) : base(manager, ci)
 		{			
 		}
 		

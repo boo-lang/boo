@@ -29,16 +29,17 @@
 namespace Boo.Lang.Compiler.Bindings
 {
 	using System;
+	using Boo.Lang.Compiler.Services;
 	using Boo.Lang.Compiler.Ast;
 	
 	public class InternalFieldBinding : AbstractInternalBinding, IFieldBinding
 	{
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		Field _field;
 		
-		public InternalFieldBinding(BindingService bindingManager, Field field)
+		public InternalFieldBinding(DefaultBindingService bindingManager, Field field)
 		{
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_field = field;
 		}
 		
@@ -86,7 +87,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.GetBoundType(_field.Type);
+				return _bindingService.GetBoundType(_field.Type);
 			}
 		}
 		
@@ -94,7 +95,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (ITypeBinding)BindingService.GetBinding(_field.ParentNode);
+				return (ITypeBinding)DefaultBindingService.GetBinding(_field.ParentNode);
 			}
 		}
 		

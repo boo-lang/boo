@@ -26,11 +26,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Reflection;
-
 namespace Boo.Lang.Compiler.Bindings
 {
+	using System;
+	using System.Reflection;
+	using Boo.Lang.Compiler.Services;
+
 	public class ExternalTypeBinding : NamespaceBindingCache, ITypeBinding
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
@@ -38,7 +39,7 @@ namespace Boo.Lang.Compiler.Bindings
 												BindingFlags.Static |
 												BindingFlags.Instance;
 		
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		
 		Type _type;
 		
@@ -52,17 +53,17 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		int _typeDepth = -1;
 		
-		internal ExternalTypeBinding(BindingService manager, Type type)
+		internal ExternalTypeBinding(DefaultBindingService manager, Type type)
 		{
 			if (null == type)
 			{
 				throw new ArgumentException("type");
 			}
-			_bindingManager = manager;
+			_bindingService = manager;
 			_type = type;
 			if (_type.IsArray)
 			{
-				_elementType = _bindingManager.AsTypeBinding(type.GetElementType());
+				_elementType = _bindingService.AsTypeBinding(type.GetElementType());
 			}
 		}
 		
@@ -152,13 +153,13 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.AsTypeBinding(_type.BaseType);
+				return _bindingService.AsTypeBinding(_type.BaseType);
 			}
 		}
 		
 		public IBinding GetDefaultMember()
 		{			
-			return _bindingManager.AsBinding(_type.GetDefaultMembers());
+			return _bindingService.AsBinding(_type.GetDefaultMembers());
 		}
 		
 		public Type Type
@@ -205,7 +206,7 @@ namespace Boo.Lang.Compiler.Bindings
 				_constructors = new IConstructorBinding[ctors.Length];
 				for (int i=0; i<_constructors.Length; ++i)
 				{
-					_constructors[i] = new ExternalConstructorBinding(_bindingManager, ctors[i]);
+					_constructors[i] = new ExternalConstructorBinding(_bindingService, ctors[i]);
 				}
 			}
 			return _constructors;
@@ -219,7 +220,7 @@ namespace Boo.Lang.Compiler.Bindings
 				_interfaces = new ITypeBinding[interfaces.Length];
 				for (int i=0; i<_interfaces.Length; ++i)
 				{
-					_interfaces[i] = _bindingManager.AsTypeBinding(interfaces[i]);
+					_interfaces[i] = _bindingService.AsTypeBinding(interfaces[i]);
 				}
 			}
 			return _interfaces;
@@ -234,7 +235,7 @@ namespace Boo.Lang.Compiler.Bindings
 				_members = new IMemberBinding[members.Length];
 				for (int i=0; i<members.Length; ++i)
 				{
-					_members[i] = _bindingManager.AsBinding(members[i]);
+					_members[i] = _bindingService.AsBinding(members[i]);
 				}
 			}
 			return _members;
@@ -266,11 +267,11 @@ namespace Boo.Lang.Compiler.Bindings
 				System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
 				if (members.Length > 0)
 				{				
-					binding = _bindingManager.AsBinding(members);
+					binding = _bindingService.AsBinding(members);
 				}
 				else if (_type.IsInterface)
 				{
-					binding = _bindingManager.ObjectTypeBinding.Resolve(name);
+					binding = _bindingService.ObjectTypeBinding.Resolve(name);
 				}
 				binding = Cache(name, binding);
 			}

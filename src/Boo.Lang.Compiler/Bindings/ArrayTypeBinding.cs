@@ -29,18 +29,19 @@
 namespace Boo.Lang.Compiler.Bindings
 {
 	using System;
+	using Boo.Lang.Compiler.Services;
 	
 	public class ArrayTypeBinding : ITypeBinding, INamespace
 	{	
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		
 		ITypeBinding _elementType;
 		
 		ITypeBinding _array;
 		
-		public ArrayTypeBinding(BindingService bindingManager, ITypeBinding elementType)
+		public ArrayTypeBinding(DefaultBindingService bindingManager, ITypeBinding elementType)
 		{
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_array = bindingManager.ArrayTypeBinding;
 			_elementType = elementType;
 		}

@@ -39,7 +39,7 @@ abstract class AbstractBooTask(Task):
 	
 	protected def CheckCompilationResult(context as CompilerContext):
 		errors = context.Errors
-		verbose = context.CompilerParameters.TraceSwitch.TraceInfo
+		verbose = context.Parameters.TraceSwitch.TraceInfo
 		for error as CompilerError in errors:
 			LogError(error.ToString(verbose))
 			

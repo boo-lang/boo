@@ -28,17 +28,19 @@
 
 namespace Boo.Lang.Compiler.Bindings
 {
+	using Boo.Lang.Compiler.Services;
+	
 	public class ExternalPropertyBinding : IPropertyBinding
 	{
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		
 		System.Reflection.PropertyInfo _property;
 		
 		ITypeBinding[] _indexParameters;
 		
-		public ExternalPropertyBinding(BindingService bindingManager, System.Reflection.PropertyInfo property)
+		public ExternalPropertyBinding(DefaultBindingService bindingManager, System.Reflection.PropertyInfo property)
 		{
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_property = property;
 		}
 		
@@ -46,7 +48,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.AsTypeBinding(_property.DeclaringType);
+				return _bindingService.AsTypeBinding(_property.DeclaringType);
 			}
 		}
 		
@@ -94,7 +96,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.AsTypeBinding(_property.PropertyType);
+				return _bindingService.AsTypeBinding(_property.PropertyType);
 			}
 		}
 		
@@ -122,7 +124,7 @@ namespace Boo.Lang.Compiler.Bindings
 				_indexParameters = new ITypeBinding[parameters.Length];
 				for (int i=0; i<_indexParameters.Length; ++i)
 				{
-					_indexParameters[i] = _bindingManager.AsTypeBinding(parameters[i].ParameterType);
+					_indexParameters[i] = _bindingService.AsTypeBinding(parameters[i].ParameterType);
 				}
 			}
 			return _indexParameters;
@@ -133,7 +135,7 @@ namespace Boo.Lang.Compiler.Bindings
 			System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
 			if (null != getter)
 			{
-				return (IMethodBinding)_bindingManager.AsBinding(getter);
+				return (IMethodBinding)_bindingService.AsBinding(getter);
 			}
 			return null;
 		}
@@ -143,7 +145,7 @@ namespace Boo.Lang.Compiler.Bindings
 			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
 			if (null != setter)
 			{
-				return (IMethodBinding)_bindingManager.AsBinding(setter);
+				return (IMethodBinding)_bindingService.AsBinding(setter);
 			}
 			return null;
 		}

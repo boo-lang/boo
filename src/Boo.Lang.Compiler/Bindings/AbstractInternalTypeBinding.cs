@@ -30,6 +30,7 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	using System;
 	using System.Collections;
+	using Boo.Lang.Compiler.Services;
 	using Boo.Lang.Compiler.Ast;
 	
 	public abstract class AbstractInternalBinding : IInternalBinding
@@ -67,7 +68,7 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public abstract class AbstractInternalTypeBinding : AbstractInternalBinding, ITypeBinding, INamespace
 	{		
-		protected BindingService _bindingManager;
+		protected DefaultBindingService _bindingService;
 		
 		protected TypeDefinition _typeDefinition;
 		
@@ -79,11 +80,11 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		protected List _buffer = new List();
 		
-		protected AbstractInternalTypeBinding(BindingService bindingManager, TypeDefinition typeDefinition)
+		protected AbstractInternalTypeBinding(DefaultBindingService bindingManager, TypeDefinition typeDefinition)
 		{
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_typeDefinition = typeDefinition;
-			_parentNamespace = (INamespace)BindingService.GetBinding(_typeDefinition.ParentNode);
+			_parentNamespace = (INamespace)DefaultBindingService.GetBinding(_typeDefinition.ParentNode);
 		}
 		
 		public string FullName
@@ -134,7 +135,7 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					IBinding binding = _bindingManager.GetBoundType(baseType).Resolve(name);
+					IBinding binding = _bindingService.GetBoundType(baseType).Resolve(name);
 					if (null != binding)
 					{
 						_buffer.AddUnique(binding);
@@ -144,7 +145,7 @@ namespace Boo.Lang.Compiler.Bindings
 				if (IsInterface)
 				{
 					// also look in System.Object
-					IBinding binding = _bindingManager.ObjectTypeBinding.Resolve(name);
+					IBinding binding = _bindingService.ObjectTypeBinding.Resolve(name);
 					if (null != binding)
 					{
 						_buffer.AddUnique(binding);						
@@ -172,32 +173,32 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				case NodeType.Method:
 				{
-					return new InternalMethodBinding(_bindingManager, (Method)member);
+					return new InternalMethodBinding(_bindingService, (Method)member);
 				}
 				
 				case NodeType.Constructor:
 				{
-					return new InternalConstructorBinding(_bindingManager, (Constructor)member);
+					return new InternalConstructorBinding(_bindingService, (Constructor)member);
 				}
 				
 				case NodeType.Field:
 				{
-					return new InternalFieldBinding(_bindingManager, (Field)member);
+					return new InternalFieldBinding(_bindingService, (Field)member);
 				}
 				
 				case NodeType.EnumDefinition:
 				{
-					return new EnumTypeBinding(_bindingManager, (EnumDefinition)member);
+					return new EnumTypeBinding(_bindingService, (EnumDefinition)member);
 				}
 				
 				case NodeType.EnumMember:
 				{
-					return new InternalEnumMemberBinding(_bindingManager, (EnumMember)member);
+					return new InternalEnumMemberBinding(_bindingService, (EnumMember)member);
 				}
 				
 				case NodeType.Property:
 				{
-					return new InternalPropertyBinding(_bindingManager, (Property)member);
+					return new InternalPropertyBinding(_bindingService, (Property)member);
 				}
 			}
 			throw new NotImplementedException(member.GetType().ToString());
@@ -284,10 +285,10 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public IBinding GetDefaultMember()
 		{
-			ITypeBinding defaultMemberAttribute = _bindingManager.AsTypeBinding(typeof(System.Reflection.DefaultMemberAttribute));
+			ITypeBinding defaultMemberAttribute = _bindingService.AsTypeBinding(typeof(System.Reflection.DefaultMemberAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
 			{
-				IConstructorBinding binding = BindingService.GetBinding(attribute) as IConstructorBinding;
+				IConstructorBinding binding = DefaultBindingService.GetBinding(attribute) as IConstructorBinding;
 				if (null != binding)
 				{
 					if (defaultMemberAttribute == binding.DeclaringType)
@@ -336,7 +337,7 @@ namespace Boo.Lang.Compiler.Bindings
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					ITypeBinding binding = (ITypeBinding)_bindingManager.GetBoundType(baseType);
+					ITypeBinding binding = (ITypeBinding)_bindingService.GetBoundType(baseType);
 					if (binding.IsInterface)
 					{
 						_buffer.AddUnique(binding);
@@ -355,16 +356,16 @@ namespace Boo.Lang.Compiler.Bindings
 				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
-					IBinding binding = BindingService.GetOptionalBinding(member);
+					IBinding binding = member.Binding;
 					if (null == binding)
 					{						
 						binding = CreateCorrectBinding(member);
-						BindingService.Bind(member, binding);
+						DefaultBindingService.Bind(member, binding);
 					}	
 					
 					if (BindingType.Type == binding.BindingType)
 					{
-						binding = _bindingManager.AsTypeReference((ITypeBinding)binding);
+						binding = _bindingService.AsTypeReference((ITypeBinding)binding);
 					}
 					_buffer.Add(binding);
 				}

@@ -26,14 +26,15 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using Boo.Lang.Compiler.Ast;
-
 namespace Boo.Lang.Compiler.Bindings
 {
+	using System;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.Services;
+
 	public class ModuleBinding : INamespace, IBinding
 	{
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		
 		Module _module;
 		
@@ -43,9 +44,9 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		string _namespace;
 		
-		public ModuleBinding(BindingService bindingManager, Module module)
+		public ModuleBinding(DefaultBindingService bindingManager, Module module)
 		{
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_module = module;			
 			if (null == module.Namespace)
 			{
@@ -103,7 +104,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (INamespace)BindingService.GetBinding(_module.ParentNode);
+				return (INamespace)DefaultBindingService.GetBinding(_module.ParentNode);
 			}
 		}
 		
@@ -117,7 +118,7 @@ namespace Boo.Lang.Compiler.Bindings
 					_using = new INamespace[_module.Imports.Count];
 					for (int i=0; i<_using.Length; ++i)
 					{
-						_using[i] = (INamespace)BindingService.GetBinding(_module.Imports[i]);
+						_using[i] = (INamespace)DefaultBindingService.GetBinding(_module.Imports[i]);
 					}
 				}
 				
@@ -139,20 +140,20 @@ namespace Boo.Lang.Compiler.Bindings
 			TypeMember member = _module.Members[name];
 			if (null != member)
 			{
-				ITypeBinding typeBinding = (ITypeBinding)BindingService.GetOptionalBinding(member);
+				ITypeBinding typeBinding = (ITypeBinding)member.Binding;
 				if (null == typeBinding)
 				{
 					if (NodeType.EnumDefinition == member.NodeType)
 					{
-						typeBinding = new EnumTypeBinding(_bindingManager, (EnumDefinition)member);
+						typeBinding = new EnumTypeBinding(_bindingService, (EnumDefinition)member);
 					}
 					else
 					{
-						typeBinding = new InternalTypeBinding(_bindingManager, (TypeDefinition)member);
+						typeBinding = new InternalTypeBinding(_bindingService, (TypeDefinition)member);
 					}
-					BindingService.Bind(member, typeBinding);
+					DefaultBindingService.Bind(member, typeBinding);
 				}
-				return _bindingManager.AsTypeReference(typeBinding);
+				return _bindingService.AsTypeReference(typeBinding);
 			}
 			return null;
 		}

@@ -26,13 +26,15 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Reflection;
-using Boo.Lang.Compiler.Ast;
-
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Services
 {
-	public class BindingService
+	using System;
+	using System.Reflection;
+	using Boo.Lang.Compiler;	
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.Bindings;
+
+	public class DefaultBindingService
 	{			
 		public ExternalTypeBinding ExceptionTypeBinding;
 		
@@ -98,7 +100,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		static readonly IBinding _lenBinding = new SpecialFunctionBinding(SpecialFunction.Len);
 		
-		public BindingService()		
+		public DefaultBindingService()		
 		{			
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
@@ -249,19 +251,14 @@ namespace Boo.Lang.Compiler.Bindings
 			Bind(node, ErrorBinding.Default);
 		}
 		
-		public static IBinding GetOptionalBinding(Node node)
+		public static IBinding GetBinding(Node node)
 		{
 			if (null == node)
 			{
 				throw new ArgumentNullException("node");
 			}
 			
-			return node.Binding;
-		}
-		
-		public static IBinding GetBinding(Node node)
-		{
-			IBinding binding = GetOptionalBinding(node);
+			IBinding binding = node.Binding;
 			if (null == binding)
 			{
 				NodeNotBound(node);
@@ -475,7 +472,7 @@ namespace Boo.Lang.Compiler.Bindings
 		#region VoidTypeBindingImpl
 		class VoidTypeBindingImpl : ExternalTypeBinding
 		{			
-			internal VoidTypeBindingImpl(BindingService manager) : base(manager, Types.Void)
+			internal VoidTypeBindingImpl(DefaultBindingService manager) : base(manager, Types.Void)
 			{				
 			}		
 			

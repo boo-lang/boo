@@ -26,13 +26,14 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Collections;
-using Boo.Lang.Compiler.Ast;
-using BindingFlags = System.Reflection.BindingFlags;
-
 namespace Boo.Lang.Compiler.Bindings
-{	
+{
+	using System;
+	using System.Collections;
+	using Boo.Lang.Compiler.Services;
+	using Boo.Lang.Compiler.Ast;
+	using BindingFlags = System.Reflection.BindingFlags;
+	
 	public interface INamespace
 	{			
 		INamespace ParentNamespace
@@ -67,20 +68,20 @@ namespace Boo.Lang.Compiler.Bindings
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		DeclarationCollection _declarations;
 		
-		public DeclarationsNamespace(INamespace parent, BindingService bindingManager, DeclarationCollection declarations)
+		public DeclarationsNamespace(INamespace parent, DefaultBindingService bindingManager, DeclarationCollection declarations)
 		{
 			_parent = parent;
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_declarations = declarations;
 		}
 		
-		public DeclarationsNamespace(INamespace parent, BindingService bindingManager, Declaration declaration)
+		public DeclarationsNamespace(INamespace parent, DefaultBindingService bindingManager, Declaration declaration)
 		{
 			_parent = parent;
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_declarations = new DeclarationCollection();
 			_declarations.Add(declaration);
 		}
@@ -98,7 +99,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Declaration d = _declarations[name];
 			if (null != d)
 			{
-				return BindingService.GetBinding(d);
+				return DefaultBindingService.GetBinding(d);
 			}
 			return null;
 		}

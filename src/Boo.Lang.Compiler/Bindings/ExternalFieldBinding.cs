@@ -28,15 +28,17 @@
 
 namespace Boo.Lang.Compiler.Bindings
 {
+	using Boo.Lang.Compiler.Services;
+	
 	public class ExternalFieldBinding : IFieldBinding
 	{
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		
 		System.Reflection.FieldInfo _field;
 		
-		public ExternalFieldBinding(BindingService bindingManager, System.Reflection.FieldInfo field)
+		public ExternalFieldBinding(DefaultBindingService bindingManager, System.Reflection.FieldInfo field)
 		{
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_field = field;
 		}
 		
@@ -44,7 +46,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.AsTypeBinding(_field.DeclaringType);
+				return _bindingService.AsTypeBinding(_field.DeclaringType);
 			}
 		}
 		
@@ -100,7 +102,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.AsTypeBinding(_field.FieldType);
+				return _bindingService.AsTypeBinding(_field.FieldType);
 			}
 		}
 		

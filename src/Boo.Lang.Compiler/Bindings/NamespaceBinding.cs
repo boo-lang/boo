@@ -26,15 +26,16 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Reflection;
-using System.Collections;
-
 namespace Boo.Lang.Compiler.Bindings
 {
+	using System;
+	using System.Reflection;
+	using System.Collections;
+	using Boo.Lang.Compiler.Services;
+
 	public class NamespaceBinding : IBinding, INamespace
 	{		
-		BindingService _bindingManager;
+		DefaultBindingService _bindingService;
 		
 		INamespace _parent;
 		
@@ -46,10 +47,10 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		ArrayList _moduleNamespaces;
 		
-		public NamespaceBinding(INamespace parent, BindingService bindingManager, string name)
+		public NamespaceBinding(INamespace parent, DefaultBindingService bindingManager, string name)
 		{			
 			_parent = parent;
-			_bindingManager = bindingManager;
+			_bindingService = bindingManager;
 			_name = name;
 			_assemblies = new Hashtable();
 			_childrenNamespaces = new Hashtable();
@@ -103,7 +104,7 @@ namespace Boo.Lang.Compiler.Bindings
 			NamespaceBinding binding = (NamespaceBinding)_childrenNamespaces[name];
 			if (null == binding)
 			{				
-				binding = new NamespaceBinding(this, _bindingManager, _name + "." + name);
+				binding = new NamespaceBinding(this, _bindingService, _name + "." + name);
 				_childrenNamespaces[name] = binding;
 			}
 			return binding;
@@ -124,7 +125,7 @@ namespace Boo.Lang.Compiler.Bindings
 				{
 					if (name == type.Name)
 					{
-						return _bindingManager.AsTypeReference(type);
+						return _bindingService.AsTypeReference(type);
 					}
 				}
 			}
@@ -176,7 +177,7 @@ namespace Boo.Lang.Compiler.Bindings
 				{
 					if (name == type.Name)
 					{
-						binding = _bindingManager.AsTypeReference(type);
+						binding = _bindingService.AsTypeReference(type);
 						break;
 					}
 				}

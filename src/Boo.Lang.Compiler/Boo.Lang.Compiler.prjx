@@ -14,13 +14,13 @@
     <File name=".\CompilerParameters.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\CompilerPipeline.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\CompilerResourceCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\FileResource.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IAstAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IAstMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerComponent.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerResource.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\INameResolutionService.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ArrayLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ArrayTypeReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\AsExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -215,7 +215,6 @@
     <File name=".\Bindings\AbstractInternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Bindings\AmbiguousBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Bindings\AssemblyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Bindings\BindingManager.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Bindings\CompileUnitBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Bindings\ErrorBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Bindings\ExternalEventBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -252,6 +251,8 @@
     <File name=".\Pipelines\ParseAndPrint.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Pipelines\ParseAndPrintXml.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Pipelines\Run.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Resources\FileResource.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Services\DefaultBindingService.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -260,6 +261,7 @@
     <File name=".\Steps\AstAnnotations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindAndApplyAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindBaseTypes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\BindModules.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindTypeDefinitions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -267,7 +269,9 @@
     <File name=".\Steps\EmitAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\ExpandMacros.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\InjectCasts.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\IntroduceGlobalNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\IntroduceModuleClasses.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\IntroduceNameResolutionService.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\NameResolutionSupport.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\NormalizeStatementModifiers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\NormalizeTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

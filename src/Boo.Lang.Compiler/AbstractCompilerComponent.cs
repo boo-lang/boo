@@ -74,7 +74,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected Bindings.BindingService BindingService
+		protected Services.DefaultBindingService BindingService
 		{
 			get
 			{
@@ -82,9 +82,17 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		protected INameResolutionService NameResolutionService
+		{
+			get
+			{
+				return _context.NameResolutionService;
+			}
+		}
+		
 		public IBinding GetBinding(Node node)
 		{
-			return BindingService.GetBinding(node);
+			return Services.DefaultBindingService.GetBinding(node);
 		}		
 		
 		public virtual void Initialize(CompilerContext context)

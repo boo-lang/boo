@@ -82,9 +82,9 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IList Filter(BindingFilter condition)
+		public Boo.Lang.List Filter(BindingFilter condition)
 		{
-			ArrayList found = new ArrayList();
+			Boo.Lang.List found = new Boo.Lang.List();
 			foreach (IBinding binding in _bindings)
 			{
 				if (condition(binding))

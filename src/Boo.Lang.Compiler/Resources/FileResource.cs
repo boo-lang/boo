@@ -26,11 +26,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler
+namespace Boo.Lang.Compiler.Resources
 {
 	using System;
 	using System.Resources;
 	using System.Collections;
+	using Boo.Lang.Compiler;
 	
 	public class FileResource : ICompilerResource
 	{

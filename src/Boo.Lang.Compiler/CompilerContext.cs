@@ -47,7 +47,9 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerErrorCollection _errors;
 		
-		protected Bindings.BindingService _bindingManager;		
+		protected Services.DefaultBindingService _bindingService;		
+		
+		protected INameResolutionService _nameResolutionService;
 		
 		protected TraceSwitch _traceSwitch;
 
@@ -79,7 +81,7 @@ namespace Boo.Lang.Compiler
 			_errors = new CompilerErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_bindingManager = new Bindings.BindingService();
+			_bindingService = new Services.DefaultBindingService();
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
 		}	
@@ -124,13 +126,26 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public Bindings.BindingService BindingService
+		public Services.DefaultBindingService BindingService
 		{
 			get
 			{
-				return _bindingManager;
+				return _bindingService;
 			}
 		}		
+		
+		public INameResolutionService NameResolutionService
+		{
+			get
+			{
+				return _nameResolutionService;
+			}
+			
+			set
+			{
+				_nameResolutionService = value;
+			}
+		}
 		
 		public Assembly GeneratedAssembly
 		{

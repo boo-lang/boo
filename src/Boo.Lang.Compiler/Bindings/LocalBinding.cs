@@ -26,10 +26,10 @@
 // mailto:rbo@acm.org
 #endregion
 
-using Boo.Lang.Compiler.Ast;
-
 namespace Boo.Lang.Compiler.Bindings
 {
+	using Boo.Lang.Compiler.Ast;
+	
 	public class LocalBinding : ITypedBinding
 	{		
 		Local _local;
