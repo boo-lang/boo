@@ -201,23 +201,23 @@ class MainWindow(Window):
 		get:
 			return CurrentEditor.Buffer
 			
-	private def _menuItemClose_Activated(sender, args as EventArgs):
+	private def _menuItemClose_Activated():
 		_editors.RemoveAt(_notebookEditors.CurrentPage)
 		_notebookEditors.RemovePage(_notebookEditors.CurrentPage)
 		
-	private def _menuItemCut_Activated(sender, args as EventArgs):	
+	private def _menuItemCut_Activated():	
 		CurrentBuffer.CutClipboard(GetClipboard(), true)
 		
-	private def _menuItemCopy_Activated(sender, args as EventArgs):	
+	private def _menuItemCopy_Activated():	
 		CurrentBuffer.CopyClipboard(GetClipboard())
 
-	private def _menuItemPaste_Activated(sender, args as EventArgs):	
+	private def _menuItemPaste_Activated():	
 		CurrentBuffer.PasteClipboard(GetClipboard())
 
-	private def _menuItemDelete_Activated(sender, args as EventArgs):	
+	private def _menuItemDelete_Activated():	
 		pass
 
-	private def _menuItemExecute_Activated(sender, args as EventArgs):	
+	private def _menuItemExecute_Activated():	
 		
 		_outputBuffer.Clear()
 		self.AppendOutput("${_outputBuffer.Text}****** Compiling ${CurrentEditor.Label} *******\n")	
@@ -231,10 +231,10 @@ class MainWindow(Window):
 		self.AppendOutput(console.ToString())
 		self.AppendOutput("Complete in ${date.Now-start}.")
 		
-	private def _menuItemNew_Activated(sender, args as EventArgs):
+	private def _menuItemNew_Activated():
 		self.NewDocument()
 				
-	private def _menuItemOpen_Activated(sender, args as EventArgs):
+	private def _menuItemOpen_Activated():
 		fs = FileSelection("Open file", SelectMultiple: true)
 		fs.Complete("*.boo")
 		try:			
@@ -253,7 +253,7 @@ class MainWindow(Window):
 			pass
 		return true // to match Gdk.Function signature
 		
-	private def _menuItemExpand_Activated(sender, args as EventArgs):
+	private def _menuItemExpand_Activated():
 		editor = CurrentEditor
 		
 		compiler = CreateCompiler(Boo.Lang.Compiler.Pipelines.CompileToBoo())
@@ -270,7 +270,7 @@ class MainWindow(Window):
 		compiler.Parameters.References.Add(System.Reflection.Assembly.LoadWithPartialName("nunit.framework"))
 		return compiler
 	
-	private def _menuItemSave_Activated(sender, args as EventArgs):
+	private def _menuItemSave_Activated():
 		editor = CurrentEditor
 		
 		fname = editor.FileName
@@ -283,13 +283,13 @@ class MainWindow(Window):
 		editor.SaveAs(fname)		
 		_notebookEditors.SetTabLabelText(editor, editor.Label)
 		
-	private def _menuItemUndo_Activated(sender, args as EventArgs):
+	private def _menuItemUndo_Activated():
 		CurrentEditor.Undo()
 	
-	private def _menuItemRedo_Activated(sender, args as EventArgs):
+	private def _menuItemRedo_Activated():
 		CurrentEditor.Redo()
 		
-	private def _menuItemExit_Activated(sender, args as EventArgs):
+	private def _menuItemExit_Activated():
 		Application.Quit()
 		
 	def OnDelete(sender, args as DeleteEventArgs):
