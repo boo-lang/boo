@@ -125,7 +125,7 @@ class MainForm(Form):
 					
 	def CreateProjectMenuItem(project as Project):
 		menu = MenuItem(Text: project.Name)
-		for t in _system.QueryTasksByProject(project):
+		for t in _system.QueryTasks(project):
 			menu.MenuItems.Add(
 				MenuItem(Text: t.Name, Click: { StartTask(t) }))
 				
