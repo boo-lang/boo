@@ -330,7 +330,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return constructor;
 		}
 		
-		public static bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
+		public bool AreTypesRelated(IType lhs, IType rhs)
+		{
+			return lhs.IsAssignableFrom(rhs) ||
+				CanBeReachedByDownCastOrPromotion(lhs, rhs);
+		}
+		
+		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
 		{
 			if (lhs == rhs || Null.Default == rhs)
 			{
@@ -340,7 +346,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ICallableType other = rhs as ICallableType;
 			if (null != other)
 			{			
-				return lhs.GetSignature() == other.GetSignature(); 
+				CallableSignature lvalue = lhs.GetSignature();
+				CallableSignature rvalue = other.GetSignature(); 
+				if (lvalue == rvalue)
+				{
+					return true;
+				}
+				
+				IParameter[] lparams = lvalue.Parameters;
+				IParameter[] rparams = rvalue.Parameters;
+				if (lparams.Length >= rparams.Length)
+				{
+					for (int i=0; i<rparams.Length; ++i)
+					{
+						IType lparamType = lparams[i].Type;
+						IType rparamType = rparams[i].Type;
+						if (!AreTypesRelated(lparamType, rparamType))
+						{
+							return false;
+						}
+					}
+					
+					if (VoidType != lvalue.ReturnType)
+					{				
+						return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
+					}
+					
+					return true;
+				}
 			}
 			return false;
 		}
@@ -362,6 +395,44 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			}
 			return false;
+		}
+		
+		public bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
+		{			
+			if (actualType.IsAssignableFrom(expectedType))
+			{
+				return true;
+			}
+			if (expectedType.IsValueType)
+			{
+				return IsNumber(expectedType) && IsNumber(actualType);
+			}
+			return false;
+		}
+		
+		public bool IsIntegerNumber(IType type)
+		{
+			return
+				type == this.ShortType ||
+				type == this.IntType ||
+				type == this.LongType ||
+				type == this.ByteType;
+		}
+		
+		public bool IsUnsignedNumber(IType type)
+		{
+			return type == this.UShortType ||
+				type == this.UIntType ||
+				type == this.ULongType;
+		}
+		
+		public bool IsNumber(IType type)
+		{
+			return
+				IsIntegerNumber(type) ||
+				IsUnsignedNumber(type) ||
+				type == this.DoubleType ||
+				type == this.SingleType;
 		}
 		
 		public static bool IsUnknown(Expression node)

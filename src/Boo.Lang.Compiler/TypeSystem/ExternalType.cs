@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 												BindingFlags.Static |
 												BindingFlags.Instance;
 		
-		TypeSystemServices _typeSystemServices;
+		protected TypeSystemServices _typeSystemServices;
 		
 		Type _type;
 		

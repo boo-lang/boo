@@ -100,5 +100,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return EntityType.Type;
 			}
 		}
+		
+		override public int GetTypeDepth()
+		{
+			return 3;
+		}
 	}
 }

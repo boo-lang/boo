@@ -209,11 +209,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (IsStandaloneMethodReference(argument))
 			{
-				// todo: criar o delegate sempre, ainda
-				// que o tipo esperado não seja callable, nesse
-				// caso criar com o próprio tipo do método
 				if (IsCallableType(expectedType))
 				{
+					ICallableType argumentType = (ICallableType)GetExpressionType(argument);
+					if (argumentType.GetSignature() != 
+						((ICallableType)expectedType).GetSignature())
+					{
+						ConversionNotImplemented(argument, expectedType, argumentType);
+					}
 					return CreateDelegate(expectedType, argument);
 				}
 				else
@@ -221,7 +224,25 @@ namespace Boo.Lang.Compiler.Steps
 					return CreateDelegate(GetConcreteExpressionType(argument), argument);
 				}
 			}
+			else
+			{				
+				if (IsCallableType(expectedType))
+				{
+					IType argumentType = GetExpressionType(argument);
+					if (Null.Default != argumentType && expectedType != argumentType)
+					{
+						ConversionNotImplemented(argument, expectedType, argumentType);
+					}
+				}
+			}
 			return null;
+		}
+		
+		void ConversionNotImplemented(Node anchor, IType expected, IType actual)
+		{
+			NotImplemented(anchor,
+							string.Format("conversion from {0} to {1}",
+								actual, expected));
 		}
 		
 		bool IsEndInvokeOnStandaloneMethodReference(MemberReferenceExpression node)

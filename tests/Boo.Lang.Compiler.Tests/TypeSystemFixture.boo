@@ -51,6 +51,9 @@ class TypeSystemFixture:
 	def GetMethod(name as string) as IMethod:
 		return _services.Map(GetType().GetMethod(name))
 		
+	def GetCallableType(methodName as string) as ICallableType:
+		return _services.GetCallableType(GetMethod(methodName))
+		
 	[Test]
 	def ExternalMethodType():
 		method = GetMethod("IntAsBool")
@@ -71,8 +74,8 @@ class TypeSystemFixture:
 		
 	[Test]
 	def GetCallableTypeReturnsTheSameObjectForCompatibleMethods():
-		type1 = _services.GetCallableType(GetMethod("IntAsBool"))
-		type2 = _services.GetCallableType(GetMethod("IntAsBool2"))
+		type1 = GetCallableType("IntAsBool")
+		type2 = GetCallableType("IntAsBool2")
 		Assert.AreSame(type1, type2)
 		
 		Assert.AreSame(GetMethod("IntAsBool").CallableType,
@@ -94,9 +97,74 @@ class TypeSystemFixture:
 		type1.Resolve(methods, "GetType", EntityType.Method)
 		type2.Resolve(methods, "GetType", EntityType.Method)
 		
-		Assert.AreEqual(2, len(methods))
+		Assert.AreEqual(1, len(methods))
 		Assert.AreSame(_services.Map(typeof(object).GetMethod("GetType")),
 					methods[0])
+					
+	[Test]
+	def ExternalInterfaceDepth():
+		Assert.AreEqual(1, _services.ICallableType.GetTypeDepth())
+		
+	[Test]
+	def ExternalTypeDepth():
+		Assert.AreEqual(0, _services.ObjectType.GetTypeDepth())
+		Assert.AreEqual(2, _services.MulticastDelegateType.GetTypeDepth())
+		
+	[Test]
+	def CallableTypeDepth():
+		type = _services.GetCallableType(GetMethod("IntAsBool"))
+		Assert.AreEqual(3, type.GetTypeDepth())
+		
+	[Test]
+	def CreateCallableDefinition():
+		cd = _services.CreateCallableDefinition("Function")
+		Assert.AreEqual(3, cast(IType, cd.Entity).GetTypeDepth())
+		
+	def Function() as void:
+		pass
+		
+	def BoolFunction() as bool:
+		pass
+		
+	def SingleArg(item as object) as object:
+		pass
+		
+	[Test]
+	def IsCallableTypeAssignableFrom():
+		c1 = GetCallableType("IntAsBool")
+		c2 = GetCallableType("IntAsBool2")		
+		
+		AssertCallableAssignableFrom(c1, c2)
+		AssertCallableAssignableFrom(c2, c1)
+		
+		c3 = GetCallableType("Function")
+		AssertCallableNotAssignableFrom(c1, c3)
+		AssertCallableNotAssignableFrom(c3, c1)
+		AssertCallableNotAssignableFrom(c2, c3)
+		AssertCallableNotAssignableFrom(c3, c2)
+		
+		c4 = GetCallableType("SingleArg")
+		AssertCallableAssignableFrom(c1, c4)
+		AssertCallableAssignableFrom(c4, c1)
+		AssertCallableAssignableFrom(c2, c4)
+		AssertCallableAssignableFrom(c4, c2)
+		AssertCallableAssignableFrom(c4, c3)
+		AssertCallableNotAssignableFrom(c3, c4)
+		
+		c5 = GetCallableType("BoolFunction")
+		AssertCallableAssignableFrom(c1, c5)
+		AssertCallableAssignableFrom(c2, c5)
+		AssertCallableAssignableFrom(c3, c5)
+		AssertCallableNotAssignableFrom(c5, c3) # return type
+		
+	def AssertCallableAssignableFrom(lvalue, rvalue):
+		Assert.IsTrue(_services.IsCallableTypeAssignableFrom(lvalue, rvalue),
+					"${lvalue} should be assignable from ${rvalue}")
+					
+	def AssertCallableNotAssignableFrom(lvalue, rvalue):
+		Assert.IsFalse(_services.IsCallableTypeAssignableFrom(lvalue, rvalue),
+					"${lvalue} should NOT be assignable from ${rvalue}")
+		
 		
 		
 		

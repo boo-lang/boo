@@ -168,12 +168,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return false;
 			}
-			return object.Equals(_mi, rhs._mi);
+			return _mi.MethodHandle.Value == rhs._mi.MethodHandle.Value;
 		}
 		
 		override public int GetHashCode()
 		{
-			return _mi.GetHashCode();
+			return _mi.MethodHandle.Value.GetHashCode();
 		}
 		
 		override public string ToString()

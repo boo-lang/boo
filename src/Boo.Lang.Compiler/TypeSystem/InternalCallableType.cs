@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public bool IsAssignableFrom(IType other)
 		{
-			return TypeSystemServices.IsCallableTypeAssignableFrom(this, other);
+			return _typeSystemServices.IsCallableTypeAssignableFrom(this, other);
 		}
 		
 		override public string ToString()

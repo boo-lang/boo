@@ -2064,7 +2064,8 @@ namespace Boo.Lang.Compiler.Steps
 			IType lhs = GetExpressionType(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			
-			if (IsIntegerNumber(lhs) && IsIntegerNumber(rhs))
+			if (TypeSystemServices.IsIntegerNumber(lhs) &&
+				TypeSystemServices.IsIntegerNumber(rhs))
 			{
 				BindExpressionType(node, TypeSystemServices.GetPromotedNumberType(lhs, rhs));
 			}
@@ -3058,8 +3059,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
 		{
-			if (!IsAssignableFrom(expectedType, actualType) &&
-				!CanBeReachedByDownCastOrPromotion(expectedType, actualType))
+			if (!TypeSystemServices.AreTypesRelated(expectedType, actualType))
 			{
 				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.FullName, actualType.FullName));
 				return false;
@@ -3107,8 +3107,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				IType expressionType = GetExpressionType(args[i]);
 				IType parameterType = parameters[i].Type;
-				if (!IsAssignableFrom(parameterType, expressionType) &&
-				    !CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
+				if (!TypeSystemServices.AreTypesRelated(parameterType, expressionType))
 				{
 					return false;
 				}
@@ -3206,42 +3205,9 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.Map(expectedType).IsAssignableFrom(actualType);
 		}
 		
-		bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
-		{			
-			if (actualType.IsAssignableFrom(expectedType))
-			{
-				return true;
-			}
-			if (expectedType.IsValueType)
-			{
-				return IsNumber(expectedType) && IsNumber(actualType);
-			}
-			return false;
-		}
-		
-		bool IsIntegerNumber(IType type)
-		{
-			return
-				type == TypeSystemServices.ShortType ||
-				type == TypeSystemServices.IntType ||
-				type == TypeSystemServices.LongType ||
-				type == TypeSystemServices.ByteType;
-		}
-		
-		bool IsUnsignedNumber(IType type)
-		{
-			return type == TypeSystemServices.UShortType ||
-				type == TypeSystemServices.UIntType ||
-				type == TypeSystemServices.ULongType;
-		}
-		
 		bool IsNumber(IType type)
 		{
-			return
-				IsIntegerNumber(type) ||
-				IsUnsignedNumber(type) ||
-				type == TypeSystemServices.DoubleType ||
-				type == TypeSystemServices.SingleType;
+			return TypeSystemServices.IsNumber(type);
 		}
 		
 		bool IsNumber(Expression expression)
@@ -3282,6 +3248,21 @@ namespace Boo.Lang.Compiler.Steps
 			public int CompareTo(object other)
 			{
 				return ((CallableScore)other).Score-Score;
+			}
+			
+			override public int GetHashCode()
+			{
+				return Info.GetHashCode();
+			}
+			
+			override public bool Equals(object other)
+			{
+				CallableScore score = other as CallableScore;
+				if (null == score)
+				{
+					return false;
+				}
+				return object.Equals(Info, score.Info);
 			}
 			
 			override public string ToString()
@@ -3390,7 +3371,7 @@ namespace Boo.Lang.Compiler.Steps
 								// upcast scores 2
 								score += 2;
 							}
-							else if (CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
+							else if (TypeSystemServices.CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
 							{
 								// downcast scores 1
 								score += 1;
