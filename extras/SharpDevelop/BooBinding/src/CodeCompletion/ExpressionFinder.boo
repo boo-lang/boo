@@ -55,6 +55,10 @@ class ExpressionFinder(IExpressionFinder):
 			if forbidden.IndexOf(c) >= 0:
 				print "Quickfind failed: got ${c}"
 				break
+			if Char.IsWhiteSpace(c) and i > 4:
+				if inText.Substring(i - 3, 3) == " as":
+					start = i + 1
+					break
 		if start >= 0:
 			return GetExpression(inText, start, offset + 1)
 		

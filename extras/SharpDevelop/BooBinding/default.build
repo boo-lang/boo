@@ -106,6 +106,7 @@
 				<include name="${reladdin.dir}/*.addin"/>
 				<include name="${reladdin.dir}/*.dll"/>
 				<include name="${reladdin.dir}/*.exe"/>
+				<include name="${reladdin.dir}/*.rsp"/>
 			</fileset>
 		</zip>
 		<zip zipfile="BooBindingSource.zip" ziplevel="9" includeemptydirs="false">

@@ -108,7 +108,10 @@ class BooParser(IParser):
 		compilePipe.BreakOnErrors = false
 		compiler.Parameters.Pipeline = compilePipe
 		
-		compiler.Run()
+		try:
+			compiler.Run()
+		except e:
+			print e
 		
 		// somehow the SD parser thread goes into an endless loop if this flag is not set
 		visitor.Cu.ErrorsDuringCompile = true //context.Errors.Count > 0
@@ -120,6 +123,10 @@ class BooParser(IParser):
 	
 	def Resolve(parserService as IParserService, expression as string, caretLineNumber as int, caretColumn as int, fileName as string, fileContent as string) as ResolveResult:
 		print "Resolve ${expression} (${caretLineNumber}/${caretColumn})"
-		return Resolver().Resolve(parserService, expression, caretLineNumber, caretColumn, fileName, fileContent)
+		try:
+			return Resolver().Resolve(parserService, expression, caretLineNumber, caretColumn, fileName, fileContent)
+		except e:
+			print e
+			return null
 
 

@@ -18,9 +18,6 @@ class Resolver:
 	def CtrlSpace(parserService as IParserService, caretLine as int, caretColumn as int, fileName as string) as ArrayList:
 		_parserService = parserService
 		result = ArrayList(BooAmbience.TypeConversionTable.Values)
-		// Add special boo types (types defined in Boo.dll)
-		result.Add("hash")
-		result.Add("list")
 		result.Add("System") // system namespace can be used everywhere
 		
 		parseInfo = parserService.GetParseInformation(fileName)
@@ -48,6 +45,12 @@ class Resolver:
 		if expression == null or expression == '':
 			return null
 		
+		if expression.StartsWith("import "):
+			expression = expression.Substring(7).Trim()
+			if parserService.NamespaceExists(expression):
+				return ResolveResult(parserService.GetNamespaceList(expression))
+			return null
+		
 		_parserService = parserService
 		try:
 			int.Parse(expression)
@@ -61,8 +64,28 @@ class Resolver:
 			print "BooResolver: No parse information!"
 			return null
 		
-		callingClass as Class = parserService.GetInnermostClass(cu, caretLine, caretColumn)
-		returnClass as Class = null
-		returnClass = callingClass if expression == "self"
+		callingClass as IClass = parserService.GetInnermostClass(cu, caretLine, caretColumn)
+		returnClass as IClass = null
+		if expression == "self":
+			returnClass = callingClass
+		elif expression == "super":
+			if callingClass.BaseTypes.Count > 0:
+				print callingClass.BaseTypes[0]
+				returnClass = parserService.SearchType(callingClass.BaseTypes[0], callingClass, caretLine, caretColumn)
+		else:
+			// try looking if the expression is the name of a class
+			expressionClass = parserService.SearchType(expression, callingClass, caretLine, caretColumn)
+			if expressionClass != null:
+				return ResolveResult(expressionClass, parserService.ListMembers(ArrayList(), expressionClass, callingClass, true))
+			expandedExpression = BooAmbience.ReverseTypeConversionTable[expression]
+			if expandedExpression != null:
+				expressionClass = parserService.GetClass(expandedExpression)
+				if expressionClass != null:
+					return ResolveResult(expressionClass, parserService.ListMembers(ArrayList(), expressionClass, callingClass, true))
+			
+			// try if it is the name of a namespace
+			if parserService.NamespaceExists(expression):
+				return ResolveResult(array(string, 0), parserService.GetNamespaceContents(expression))
+		
 		return null if returnClass == null
 		return ResolveResult(returnClass, parserService.ListMembers(ArrayList(), returnClass, callingClass, false))

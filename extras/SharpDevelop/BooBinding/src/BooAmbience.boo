@@ -15,9 +15,9 @@ class BooAmbience(AbstractAmbience):
 		'System.Object'  : 'object',
 		'System.Boolean' : 'bool',
 		'System.Byte'    : 'byte',
-		//'System.SByte' : 'sbyte',
-		//'System.Char' : 'char',
-		//'System.Enum' : 'enum',
+		//'System.SByte'  : 'sbyte',
+		//'System.Char'   : 'char',
+		//'System.Enum'   : 'enum',
 		'System.Int16'  : 'short',
 		'System.Int32'  : 'int',
 		'System.Int64'  : 'long',
@@ -26,13 +26,25 @@ class BooAmbience(AbstractAmbience):
 		'System.UInt64' : 'ulong',
 		'System.Single' : 'single',
 		'System.Double' : 'double',
-		// 'System.Decimal' : 'decimal',
+		'System.Decimal' : 'decimal',
 		'System.String' : 'string',
 		'System.DateTime' : 'date',
+		'System.TimeSpan' : 'timespan',
 		'System.Type'  : 'type',
 		'System.Array' : 'array',
 		'System.Text.RegularExpressions.Regex' : 'regex'
 		}
+	
+	static _reverseTypeConversionTable as Hashtable
+	
+	static ReverseTypeConversionTable:
+		get:
+			if _reverseTypeConversionTable == null:
+				_reverseTypeConversionTable = Hashtable()
+				for e as DictionaryEntry in _typeConversionTable:
+					_reverseTypeConversionTable.Add(e.Value, e.Key)
+			return _reverseTypeConversionTable
+	
 	
 	private def ModifierIsSet(modifier as ModifierEnum, query as ModifierEnum) as bool:
 		return (modifier & query) == query
