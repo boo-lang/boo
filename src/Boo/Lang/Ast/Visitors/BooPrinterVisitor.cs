@@ -698,6 +698,11 @@ namespace Boo.Lang.Ast.Visitors
 					return "+";
 				}
 				
+				case BinaryOperatorType.Exponentiation:
+				{
+					return "**";
+				}
+				
 				case BinaryOperatorType.InPlaceAdd:
 				{
 					return "+=";

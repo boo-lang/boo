@@ -95,26 +95,27 @@ namespace Boo.Antlr
 		public const int MULTIPLY = 90;
 		public const int DIVISION = 91;
 		public const int MODULUS = 92;
-		public const int INCREMENT = 93;
-		public const int DECREMENT = 94;
-		public const int CMP_OPERATOR = 95;
-		public const int DOT = 96;
-		public const int INT = 97;
-		public const int DOUBLE_QUOTED_STRING = 98;
-		public const int SINGLE_QUOTED_STRING = 99;
-		public const int LBRACE = 100;
-		public const int RBRACE = 101;
-		public const int RE_LITERAL = 102;
-		public const int SL_COMMENT = 103;
-		public const int WS = 104;
-		public const int ESCAPED_EXPRESSION = 105;
-		public const int DQS_ESC = 106;
-		public const int SQS_ESC = 107;
-		public const int SESC = 108;
-		public const int RE_CHAR = 109;
-		public const int RE_ESC = 110;
-		public const int ID_LETTER = 111;
-		public const int DIGIT = 112;
+		public const int EXPONENTIATION = 93;
+		public const int INCREMENT = 94;
+		public const int DECREMENT = 95;
+		public const int CMP_OPERATOR = 96;
+		public const int DOT = 97;
+		public const int INT = 98;
+		public const int DOUBLE_QUOTED_STRING = 99;
+		public const int SINGLE_QUOTED_STRING = 100;
+		public const int LBRACE = 101;
+		public const int RBRACE = 102;
+		public const int RE_LITERAL = 103;
+		public const int SL_COMMENT = 104;
+		public const int WS = 105;
+		public const int ESCAPED_EXPRESSION = 106;
+		public const int DQS_ESC = 107;
+		public const int SQS_ESC = 108;
+		public const int SESC = 109;
+		public const int RE_CHAR = 110;
+		public const int RE_ESC = 111;
+		public const int ID_LETTER = 112;
+		public const int DIGIT = 113;
 		
 	}
 }

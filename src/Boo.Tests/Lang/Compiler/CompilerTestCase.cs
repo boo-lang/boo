@@ -967,5 +967,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("customer_addresses.boo");
 		}
+		
+		[Test]
+		public void NumberExponentiation()
+		{
+			RunCompilerTestCase("pow0.boo");
+		}
 	}
 }

@@ -342,8 +342,9 @@ package Boo.Ast
 		Addition
 		Subtraction
 		Multiply
-		Division
+		Division		
 		Modulus
+		Exponentiation
 		LessThan
 		LessThanOrEqual
 		GreaterThan

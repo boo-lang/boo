@@ -65,6 +65,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
 		
+		static MethodInfo Math_Pow = typeof(Math).GetMethod("Pow");
+		
 		static ConstructorInfo List_EmptyConstructor = Types.List.GetConstructor(Type.EmptyTypes);
 		
 		static ConstructorInfo List_IntConstructor = Types.List.GetConstructor(new Type[] { typeof(int) });
@@ -847,6 +849,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			EmitIntNot();
 		}
 		
+		void OnExponentiation(BinaryExpression node)
+		{
+			Switch(node.Left);
+			EmitCastIfNeeded(BindingManager.DoubleTypeBinding, PopType());
+			Switch(node.Right);
+			EmitCastIfNeeded(BindingManager.DoubleTypeBinding, PopType());
+			_il.EmitCall(OpCodes.Call, Math_Pow, null);
+			PushType(BindingManager.DoubleTypeBinding);			
+		}
+		
 		void OnArithmeticOperator(BinaryExpression node)
 		{
 			ITypeBinding type = GetBoundType(node);
@@ -1019,6 +1031,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BinaryOperatorType.Division:
 				{
 					OnArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Exponentiation:
+				{
+					OnExponentiation(node);
 					break;
 				}
 				

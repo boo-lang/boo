@@ -1309,14 +1309,14 @@ term returns [Expression e]
 		Token token = null;
 		BinaryOperatorType op = BinaryOperatorType.None; 
 	}:
-	e=unary_expression
+	e=exponentiation
 	( options { greedy = true; } :
 	 	(
-		 m:MULTIPLY { op=BinaryOperatorType.Multiply; token=m; } |
-		 d:DIVISION { op=BinaryOperatorType.Division; token=d; } |
-		 md:MODULUS { op=BinaryOperatorType.Modulus; token=md; }
+		 m:MULTIPLY! { op=BinaryOperatorType.Multiply; token=m; } |
+		 d:DIVISION! { op=BinaryOperatorType.Division; token=d; } |
+		 md:MODULUS! { op=BinaryOperatorType.Modulus; token=md; }
 		 )
-		r=unary_expression
+		r=exponentiation
 		{
 			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
 			be.Operator = op;
@@ -1326,6 +1326,27 @@ term returns [Expression e]
 		}
 	)*
 	;
+	
+protected
+exponentiation returns [Expression e]
+	{
+		e = null;
+		Expression r = null;
+	}:
+	e=unary_expression
+	( options { greedy = true; }:
+	 	token:EXPONENTIATION!
+		r=exponentiation
+		{
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
+			be.Operator = BinaryOperatorType.Exponentiation;
+			be.Left = e;
+			be.Right = r;
+			e = be;
+		}
+	)*
+	;
+	
 	
 protected
 unary_expression returns [Expression e]
@@ -1842,7 +1863,11 @@ SUBTRACT: ('-') ('=' { $setType(ASSIGN); })?;
 
 MODULUS: '%';
 
-MULTIPLY: '*' ('=' { $setType(ASSIGN); })?;
+MULTIPLY: '*' (
+					'=' { $setType(ASSIGN); } |
+					'*' { $setType(EXPONENTIATION); } | 
+				);
+
 
 DIVISION: 
 	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |

@@ -1336,6 +1336,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.Exponentiation:
+				{
+					BindArithmeticOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.TypeTest:
 				{
 					BindTypeTest(node);

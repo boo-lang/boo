@@ -98,7 +98,10 @@ SUBTRACT: ('-') ('=' { $setType(ASSIGN); })?;
 
 MODULUS: '%';
 
-MULTIPLY: '*' ('=' { $setType(ASSIGN); })?;
+MULTIPLY: '*' (
+					'=' { $setType(ASSIGN); } |
+					'*' { $setType(EXPONENTIATION); } | 
+				);
 
 DIVISION: 
 	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |
