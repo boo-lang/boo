@@ -224,6 +224,11 @@ namespace Boo.Lang.Compiler.Pipeline
 
 		override public void OnAttribute(Boo.Lang.Ast.Attribute attribute, ref Boo.Lang.Ast.Attribute resultingNode)
 		{			
+			if (BindingManager.IsBound(attribute))
+			{
+				return;
+			}
+			
 			IBinding binding = ResolveQualifiedName(attribute, attribute.Name);
 			if (null == binding)
 			{

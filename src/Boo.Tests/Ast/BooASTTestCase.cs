@@ -89,5 +89,19 @@ namespace Boo.Tests
 				AssertSame("DeclaringMethod", _method, pd.ParentNode);
 			}
 		}
+		
+		[Test]
+		public void TestCloneBinaryExpression()
+		{
+			BinaryExpression be = new BinaryExpression(BinaryOperatorType.Assign,
+			                                new ReferenceExpression("foo"),
+			                                new StringLiteralExpression("bar"));
+			AssertSame(be, be.Left.ParentNode);
+			AssertSame(be, be.Right.ParentNode);
+			
+			BinaryExpression clone = be.CloneNode();
+			AssertSame("clone.Left", clone, clone.Left.ParentNode);
+			AssertSame("clone.Right", clone, clone.Right.ParentNode);
+		}
 	}
 }

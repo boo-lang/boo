@@ -77,8 +77,24 @@ namespace Boo.Lang
 			// do parmetro no cdigo fonte
 			rs.LexicalInfo = LexicalInfo;
 
-			Method method = (Method)pd.ParentNode;
-			method.Body.Statements.Insert(0, rs);
+			Method method = pd.ParentNode as Method;
+			if (null != method)
+			{
+				method.Body.Statements.Insert(0, rs);
+			}
+			else
+			{
+				Property property = (Property)pd.ParentNode;
+				if (null != property.Getter)
+				{
+					property.Getter.Body.Statements.Insert(0, rs);
+				}
+				if (null != property.Setter)
+				{
+					property.Setter.Body.Statements.Insert(0, rs.CloneNode());
+				}
+			}
+			
 		}
 	}
 }

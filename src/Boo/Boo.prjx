@@ -265,6 +265,13 @@
     <File name=".\Lang\Compiler\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\TaskList.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="..\..\build\strings.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\Resources\xml.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\Resources\boo.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\Resources\booc.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\Resources\booi.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\Resources\core.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\Resources\parse.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\Resources\roundtrip.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />

@@ -240,6 +240,7 @@ namespace Boo.Lang.Ast.Impl
 			if (null != ${fieldName})
 			{
 				clone.${fieldName} = ((${field.Type})${fieldName}.Clone());
+				clone.${fieldName}.InitializeParent(clone);
 			}""")
 				else:
 					writer.WriteLine("""

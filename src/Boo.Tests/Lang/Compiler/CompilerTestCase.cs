@@ -927,6 +927,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void IndexPropertyWithSyntacticAttribute()
+		{
+			RunCompilerTestCase("indexed2.boo");
+		}
+		
+		[Test]
 		public void ImportInternalNamespace()
 		{
 			RunMultiFileTestCase("multifile0.boo", "character.boo");
