@@ -8,7 +8,7 @@ class Factory:
 		_prefix = prefix
 		
 	def Create(suffix):
-		return <item|return "${_prefix}${item}${suffix}">
+		return { item | return "${_prefix}${item}${suffix}" }
 		
 c1 = Factory("<").Create(">")
 c2 = Factory("{{").Create("}}")

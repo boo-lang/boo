@@ -21,11 +21,11 @@ def each(items, action as Action):
 a = def (item):
     print("do: ${item}")
 
-b = <item | print("closure: ${item}")>
+b = { item | print("closure: ${item}") }
 
 each(range(3), a)
 each(range(3), b)
-each(range(3), <item|print("inline: ${item}")>)
+each(range(3), { item | print("inline: ${item}") })
 
 each(range(3)) do (item):
      print("block: ${item}")

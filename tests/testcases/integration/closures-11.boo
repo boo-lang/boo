@@ -6,7 +6,7 @@ after
 import BooCompiler.Tests
 
 c = Clickable()
-c.Click += <print("clicked!!!")>
+c.Click += { print("clicked!!!") }
 
 print("before")
 c.RaiseClick()

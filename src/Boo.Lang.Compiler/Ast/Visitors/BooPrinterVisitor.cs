@@ -236,13 +236,55 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			OnMethod(c);
 		}
 		
+		bool IsSimpleClosure(CallableBlockExpression node)
+		{
+			if (1 == node.Body.Statements.Count)
+			{
+				switch (node.Body.Statements[0].NodeType)
+				{
+					case NodeType.IfStatement:
+					{
+						return false;
+					}
+					
+					case NodeType.WhileStatement:
+					{
+						return false;
+					}
+					
+					case NodeType.ForStatement:
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+		
 		override public void OnCallableBlockExpression(CallableBlockExpression node)
 		{
-			WriteKeyword("def ");
-			WriteParameterList(node.Parameters, false);
-			WriteTypeReference(node.ReturnType);
-			WriteLine(":");
-			WriteBlock(node.Body);
+			if (IsSimpleClosure(node))
+			{
+				DisableNewLine();
+				Write("{ ");
+				if (node.Parameters.Count > 0)
+				{
+					WriteCommaSeparatedList(node.Parameters);
+					Write(" | ");
+				}				
+				Visit(node.Body.Statements);
+				Write(" }");
+				EnableNewLine();
+			}			
+			else
+			{
+				WriteKeyword("def ");
+				WriteParameterList(node.Parameters, false);
+				WriteTypeReference(node.ReturnType);
+				WriteLine(":");
+				WriteBlock(node.Body);
+			}
 		}
 		
 		void WriteCallableDefinitionHeader(string keyword, CallableDefinition node)

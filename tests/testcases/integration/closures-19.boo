@@ -3,8 +3,8 @@ import NUnit.Framework
 a = 2
 b = do ():
 	c = 4
-	r as callable = <return a*c>
-	w as callable = <value | c = value>
+	r as callable = { return a*c }
+	w as callable = { value | c = value }
 	return r, w
 	
 reader, writer = b()

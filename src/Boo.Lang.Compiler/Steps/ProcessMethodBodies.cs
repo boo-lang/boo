@@ -1595,7 +1595,8 @@ namespace Boo.Lang.Compiler.Steps
 				BindExpressionType(node, TypeSystemServices.ObjectArrayType);
 			}
 			else
-			{				
+			{		
+				TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
 				BindExpressionType(node, TypeSystemServices.GetArrayType(GetMostGenericType(items)));
 			}
 		}

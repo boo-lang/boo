@@ -25,5 +25,5 @@ class Observable:
 			
 o = Observable()
 o.RaiseChanged()
-o.Changed += <print("got it!")>
+o.Changed += { print("got it!") }
 o.RaiseChanged()

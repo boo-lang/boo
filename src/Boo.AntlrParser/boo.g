@@ -1002,7 +1002,7 @@ closure_expression returns [Expression e]
 		ParameterDeclarationCollection parameters = null;
 		Statement stmt = null;		
 	}:
-	anchorBegin:LESS_THAN
+	anchorBegin:LBRACE
 		{
 			e = cbe = new CallableBlockExpression(ToLexicalInfo(anchorBegin));
 			parameters = cbe.Parameters;
@@ -1021,7 +1021,7 @@ closure_expression returns [Expression e]
 			)
 			{ cbe.Body.Add(stmt); }
 		)
-	anchorEnd:GREATER_THAN
+	anchorEnd:RBRACE
 	;
 	
 protected
@@ -1665,8 +1665,7 @@ atom returns [Expression e]
 		e=reference_expression |
 		e=paren_expression |
 		e=cast_expression |
-		e=typeof_expression |
-		e=closure_expression
+		e=typeof_expression
 	)
 	;
 	
@@ -1841,7 +1840,8 @@ literal returns [Expression e]
 		e=integer_literal |
 		e=string_literal |
 		e=list_literal |
-		e=hash_literal |
+		(hash_literal_test)=>e=hash_literal |
+		e=closure_expression |
 		e=re_literal |
 		e=bool_literal |
 		e=null_literal |
@@ -1961,6 +1961,11 @@ list_literal returns [Expression e]
 		{ e = new ListLiteralExpression(ToLexicalInfo(lbrack)); }
 	)
 	RBRACK
+	;
+	
+protected
+hash_literal_test:
+	LBRACE	(RBRACE|(expression COLON))
 	;
 		
 protected

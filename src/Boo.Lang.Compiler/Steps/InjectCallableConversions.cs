@@ -140,7 +140,15 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			ConvertExpressions(node.Items);
+			IType elementType = ((IArrayType)GetExpressionType(node)).GetElementType();
+			for (int i=0; i<node.Items.Count; ++i)
+			{
+				Expression converted = Convert(elementType, node.Items[i]);
+				if (null != converted)
+				{
+					node.Items.ReplaceAt(i, converted);
+				}
+			}
 		}
 		
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)

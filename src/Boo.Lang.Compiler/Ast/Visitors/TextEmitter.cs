@@ -42,6 +42,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		protected string _indentText = "\t";
 		
 		protected bool _needsIndenting = true;
+		
+		protected int _disableNewLine = 0;
 
 		public TextEmitter(TextWriter writer)
 		{
@@ -98,8 +100,25 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		public virtual void WriteLine()
 		{
-			_writer.WriteLine();
-			_needsIndenting = true;
+			if (0 == _disableNewLine)
+			{
+				_writer.WriteLine();
+				_needsIndenting = true;
+			}
+		}
+		
+		protected void DisableNewLine()
+		{
+			++_disableNewLine;
+		}
+		
+		protected void EnableNewLine()
+		{
+			if (0 == _disableNewLine)
+			{
+				throw new InvalidOperationException();
+			}
+			--_disableNewLine;
 		}
 		
 		public virtual void Write(string s)

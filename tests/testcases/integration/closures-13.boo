@@ -8,7 +8,7 @@ class App:
 	
 	def Run():
 		button = Clickable()
-		button.Click += <++_times>
+		button.Click += { ++_times }
 			
 		button.RaiseClick()
 		button.RaiseClick()

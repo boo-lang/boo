@@ -1,7 +1,7 @@
 import NUnit.Framework
 
 def adder(amount as int):
-	return <value as int | return amount+value>
+	return { value as int | return amount+value }
 
 a1 = adder(3)
 a2 = adder(5)

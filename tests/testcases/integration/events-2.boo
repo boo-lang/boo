@@ -24,7 +24,7 @@ print("before subscribers")
 b.RaiseClick()
 print("nothing printed")
 
-b.Click += do (sender, args):
+b.Click += def (sender, args):
 	print("clicked!")
 	Assert.AreSame(sender, b)
 	Assert.AreSame(EventArgs.Empty, args)
