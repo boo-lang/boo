@@ -86,7 +86,7 @@ class BooTask(AbstractBooTask):
 		parameters.Pipeline = CompileToMemory()
 		parameters.Pipeline.Insert(1, PrepareScriptStep())
 		parameters.Input.Add(StringInput("boo", reindent(code)))
-		parameters.References.Add(typeof(BooTask).Assembly)
+		parameters.References.Add(GetType().Assembly)
 		parameters.References.Add(typeof(NAnt.Core.Project).Assembly)
 		
 		result = RunCompiler(compiler)		
