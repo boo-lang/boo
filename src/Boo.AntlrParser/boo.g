@@ -131,7 +131,7 @@ tokens
 	
 	protected TypeMemberModifiers _modifiers = TypeMemberModifiers.None;
 
-	protected bool _inArray;	
+	protected bool _inArray;
 	
 	protected void ResetMemberData()
 	{
@@ -958,12 +958,16 @@ exception_handler [TryStatement t]
 		ExceptionHandler eh = null;		
 		TypeReference tr = null;
 	}:
-	c:EXCEPT! x:ID (AS tr=type_reference)?
+	c:EXCEPT! (x:ID (AS tr=type_reference)?)?
 	{
 		eh = new ExceptionHandler(ToLexicalInfo(c));
-		eh.Declaration = new Declaration(ToLexicalInfo(x));
-		eh.Declaration.Name = x.getText();		
-		eh.Declaration.Type = tr;
+		
+		if (x != null)
+		{
+			eh.Declaration = new Declaration(ToLexicalInfo(x));
+			eh.Declaration.Name = x.getText();		
+			eh.Declaration.Type = tr;
+		}
 	}		
 	compound_stmt[eh.Block.Statements]
 	{
@@ -977,7 +981,7 @@ raise_stmt returns [RaiseStatement s]
 		s = null;
 		Expression e = null;
 	}:
-	t:RAISE! e=expression
+	t:RAISE! (e=expression)?
 	{
 		s = new RaiseStatement(ToLexicalInfo(t));
 		s.Exception = e;

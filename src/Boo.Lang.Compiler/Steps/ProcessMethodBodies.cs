@@ -51,6 +51,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		int _loopDepth;
 		
+		int _exceptionHandlerDepth;
+		
 		IMethod RuntimeServices_Len;
 		
 		IMethod RuntimeServices_Mid;
@@ -148,6 +150,7 @@ namespace Boo.Lang.Compiler.Steps
 			_methodInfoStack = new Stack();
 			_visited = new Hash();
 			_loopDepth = 0;
+			_exceptionHandlerDepth = 0;
 						
 			InitializeMemberCache();
 			
@@ -205,6 +208,21 @@ namespace Boo.Lang.Compiler.Steps
 		void LeaveLoop()
 		{
 			--_loopDepth;
+		}
+		
+		void EnterExceptionHandler()
+		{
+			++_exceptionHandlerDepth;
+		}
+		
+		bool InExceptionHandler()
+		{
+			return _exceptionHandlerDepth > 0;
+		}
+		
+		void LeaveExceptionHandler()
+		{
+			--_exceptionHandlerDepth;
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
@@ -1707,33 +1725,60 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveRaiseStatement(RaiseStatement node)
 		{
-			if (TypeSystemServices.StringType == GetExpressionType(node.Exception))
+			if (node.Exception != null)
 			{
-				MethodInvocationExpression expression = new MethodInvocationExpression(node.Exception.LexicalInfo);
-				expression.Arguments.Add(node.Exception);
-				expression.Target = new ReferenceExpression("System.ApplicationException");
-				Bind(expression.Target, ApplicationException_StringConstructor);
-				BindExpressionType(expression, TypeSystemServices.ApplicationExceptionType);
+				if (TypeSystemServices.StringType == GetExpressionType(node.Exception))
+				{
+					MethodInvocationExpression expression = new MethodInvocationExpression(node.Exception.LexicalInfo);
+					expression.Arguments.Add(node.Exception);
+					expression.Target = new ReferenceExpression("System.ApplicationException");
+					Bind(expression.Target, ApplicationException_StringConstructor);
+					BindExpressionType(expression, TypeSystemServices.ApplicationExceptionType);
 
-				node.Exception = expression;				
+					node.Exception = expression;				
+				}
+			}
+			else
+			{
+				if (!InExceptionHandler())		
+				{
+					Error(CompilerErrorFactory.ReRaiseOutsideExceptionHandler(node));
+				}
 			}
 		}
 		
 		override public void OnExceptionHandler(ExceptionHandler node)
 		{
-			if (null == node.Declaration.Type)
+			if (null == node.Declaration)
 			{
-				node.Declaration.Type = CreateTypeReference(TypeSystemServices.ExceptionType);				
+				node.Declaration = new Declaration(node.LexicalInfo,
+												"__exception__",
+												CreateTypeReference(TypeSystemServices.ExceptionType));
 			}
 			else
 			{
-				Visit(node.Declaration.Type);
+				if (null == node.Declaration.Type)
+				{
+					node.Declaration.Type = CreateTypeReference(TypeSystemServices.ExceptionType);
+				}
+				else
+				{
+					Visit(node.Declaration.Type);
+				}
 			}
 			
 			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetType(node.Declaration.Type));
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
-			Visit(node.Block);
-			LeaveNamespace();
+			EnterExceptionHandler();
+			try
+			{
+				Visit(node.Block);
+			}
+			finally
+			{
+				LeaveExceptionHandler();
+				LeaveNamespace();
+			}
 		}
 		
 		void OnIncrementDecrement(UnaryExpression node)

@@ -431,6 +431,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0080", node.LexicalInfo, name);
 		}
 		
+		public static CompilerError ReRaiseOutsideExceptionHandler(Node node)
+		{
+			return new CompilerError("BCE0081", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

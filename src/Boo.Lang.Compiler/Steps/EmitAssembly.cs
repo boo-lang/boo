@@ -451,8 +451,15 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnRaiseStatement(RaiseStatement node)
 		{
-			Visit(node.Exception); PopType();
-			_il.Emit(OpCodes.Throw);
+			if (node.Exception == null)
+			{
+				_il.Emit(OpCodes.Rethrow);				
+			}
+			else
+			{
+				Visit(node.Exception); PopType();
+				_il.Emit(OpCodes.Throw);
+			}
 		}
 		
 		override public void OnTryStatement(TryStatement node)

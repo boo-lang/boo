@@ -79,6 +79,7 @@ BCE0077=Não é possível invocar uma expressão de tipo '{0}'.
 BCE0078=Uma referência a um método era esperada.
 BCE0079=Função embutida __addressof__ só pode ser utilizada em construtores de delegates.
 BCE0080=Função embutida '{0}' não pode ser utilizada como expressão.
+BCE0081=Sentença raise sem argumentos não é permitida fora de um tratador de exceção (except).
 
 ; BooC Command Line Errors
 BCE0500=Arquivo '{0}' listado mais de uma vez.

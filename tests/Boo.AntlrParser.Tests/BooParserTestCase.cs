@@ -710,6 +710,18 @@ namespace Boo.AntlrParser.Tests
 		}
 
 		[Test]
+		public void TestExceptNoAsClause()
+		{
+			RunParserTestCase("except0.boo");
+		}
+
+		[Test]
+		public void TestExceptNoDecleration()
+		{
+			RunParserTestCase("except1.boo");
+		}
+
+		[Test]
 		public void TestRichAssign()
 		{
 			RunParserTestCase("rich_assign.boo");
