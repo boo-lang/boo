@@ -93,6 +93,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public virtual INamespace ParentNamespace
+		{
+			get
+			{
+				return (INamespace)BindingManager.GetBinding(_typeDefinition.ParentNode);
+			}
+		}
+		
 		public virtual IBinding Resolve(string name)
 		{			
 			foreach (TypeMember member in _typeDefinition.Members)

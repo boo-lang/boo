@@ -36,6 +36,10 @@ namespace Boo.Lang.Compiler.Bindings
 {	
 	public interface INamespace
 	{			
+		INamespace ParentNamespace
+		{
+			get;
+		}
 		IBinding Resolve(string name);
 	}
 	
@@ -47,6 +51,14 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 		}
 		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return null;
+			}
+		}
+		
 		public IBinding Resolve(string name)
 		{
 			return null;
@@ -55,20 +67,31 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	class DeclarationsNamespace : INamespace
 	{
+		INamespace _parent;
 		BindingManager _bindingManager;
 		DeclarationCollection _declarations;
 		
-		public DeclarationsNamespace(BindingManager bindingManager, DeclarationCollection declarations)
+		public DeclarationsNamespace(INamespace parent, BindingManager bindingManager, DeclarationCollection declarations)
 		{
+			_parent = parent;
 			_bindingManager = bindingManager;
 			_declarations = declarations;
 		}
 		
-		public DeclarationsNamespace(BindingManager bindingManager, Declaration declaration)
+		public DeclarationsNamespace(INamespace parent, BindingManager bindingManager, Declaration declaration)
 		{
+			_parent = parent;
 			_bindingManager = bindingManager;
 			_declarations = new DeclarationCollection();
 			_declarations.Add(declaration);
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return _parent;
+			}
 		}
 		
 		public IBinding Resolve(string name)

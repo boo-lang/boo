@@ -225,6 +225,14 @@ namespace Boo.Lang.Compiler.Bindings
 			return _members;
 		}
 		
+		public virtual INamespace ParentNamespace
+		{
+			get
+			{
+				return null;
+			}
+		}
+		
 		public virtual IBinding Resolve(string name)
 		{						
 			bool found;

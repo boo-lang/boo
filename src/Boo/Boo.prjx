@@ -219,6 +219,7 @@
     <File name=".\Lang\Compiler\Bindings\AmbiguousBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\AssemblyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\BindingManager.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\CompileUnitBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\ErrorBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\ExternalEventBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\ExternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

@@ -207,7 +207,7 @@ namespace Boo.Lang.Compiler.Pipeline
 
 		override public void OnModule(Module module, ref Module resultingModule)
 		{			
-			PushNamespace(ImportResolutionStep.GetModuleNamespace(module));
+			PushNamespace((INamespace)BindingManager.GetBinding(module));
 
 			// do mdulo precisamos apenas visitar os membros
 			Switch(module.Members);

@@ -271,7 +271,7 @@ done * lock attribute para getters/setters:
 		get:
 			return _foo
 
-* resoluçao de nomes na visitação recursiva de métodos e classes
+done * resoluçao de nomes na visitação recursiva de métodos e classes
 	eg:
 	
 		def foo():
@@ -280,6 +280,18 @@ done * lock attribute para getters/setters:
 			
 		def bar():
 			print(local) #<----
+			
+	done * todo namespace tem uma ligação com o namespace pai
+	done * declarations namespace ganha uma ligaçao artifical com o namespace corrente
+	done * CompileUnitBinding para ser o namespace Global
+	
+* ModuleNamespace => ModuleBinding
+	
+* Quebrar INamespace em INamespace e IChildNamespace
+
+* Cache parent namespace in InternalMethodBinding constructor
+
+* Cache parent namespace in InternalTypeBinding constructor
 
 * map(callable, enumerable)
 

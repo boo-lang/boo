@@ -30,7 +30,6 @@
 namespace Boo.Lang.Compiler.Pipeline
 {
 	using System;
-	using System.Collections;
 	using Boo.Lang.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Bindings;
@@ -39,28 +38,29 @@ namespace Boo.Lang.Compiler.Pipeline
 	{
 		static readonly char[] DotArray = new char[] { '.' };
 		
-		protected Stack _namespaces = new Stack();
-		
 		protected CompilerContext _context;
+		
+		protected INamespace _current;
 		
 		public void Initialize(CompilerContext context)
 		{
 			_context = context;
 			
-			// Global names at the highest level
-			PushNamespace(ImportResolutionStep.GetGlobalNamespace(_context));
-			
-			// then Boo.Lang
-			PushNamespace(ImportResolutionStep.GetBooLangNamespace(_context));
-			                           
-			// then builtins resolution			
-			PushNamespace(_context.BindingManager.BuiltinsBinding);
+			PushNamespace((INamespace)BindingManager.GetBinding(context.CompileUnit));
 		}
+		
+		public INamespace CurrentNamespace
+		{
+			get
+			{
+				return _current;
+			}
+		}		
 		
 		public void Dispose()
 		{
 			_context = null;
-			_namespaces.Clear();
+			_current = null;
 		}
 		
 		public IBinding Resolve(Node sourceNode, string name)
@@ -78,17 +78,19 @@ namespace Boo.Lang.Compiler.Pipeline
 			IBinding binding = _context.BindingManager.ResolvePrimitive(name);
 			if (null == binding)
 			{
-				foreach (INamespace ns in _namespaces)
+				INamespace ns = _current;
+				while (null != ns)
 				{
 					_context.TraceVerbose("Trying to resolve {0} against {1}...", name, ns);
 					binding = ns.Resolve(name);
 					if (null != binding)
 					{
-						if (IsSet(bindings, binding.BindingType))
+						if (IsFlagSet(bindings, binding.BindingType))
 						{
 							break;
 						}
 					}
+					ns = ns.ParentNamespace;
 				}
 			}
 			
@@ -117,10 +119,15 @@ namespace Boo.Lang.Compiler.Pipeline
 			return binding;
 		}
 		
-		static bool IsSet(BindingType bindings, BindingType binding)
+		static bool IsFlagSet(BindingType bindings, BindingType binding)
 		{
 			return binding == (bindings & binding);
 		}
+		
+		public void Restore(INamespace saved)
+		{
+			_current = saved;
+		}		
 		
 		public void PushNamespace(INamespace ns)
 		{
@@ -128,12 +135,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				throw new ArgumentNullException("ns");
 			}
-			_namespaces.Push(ns);
+			_current = ns;
 		}
 		
 		public void PopNamespace()
 		{
-			_namespaces.Pop();
+			_current = _current.ParentNamespace;
 		}		
 	}
 }

@@ -32,7 +32,7 @@ using Boo.Lang.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
 {
-	public class ModuleNamespace : INamespace
+	public class ModuleNamespace : INamespace, IBinding
 	{
 		BindingManager _bindingManager;
 		
@@ -58,6 +58,30 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Module;
+			}
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _module.Name;
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _module.FullName;
+			}
+		}
+		
 		public string Namespace
 		{
 			get
@@ -74,6 +98,14 @@ namespace Boo.Lang.Compiler.Bindings
 				binding = ResolveModuleClassMember(name);
 			}
 			return binding;
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return (INamespace)BindingManager.GetBinding(_module.ParentNode);
+			}
 		}
 		
 		public IBinding Resolve(string name)

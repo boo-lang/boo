@@ -258,6 +258,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			_nameResolution.PushNamespace(ns);
 		}
 		
+		INamespace CurrentNamespace
+		{
+			get
+			{
+				return _nameResolution.CurrentNamespace;
+			}
+		}
+		
 		void PopNamespace()
 		{
 			_nameResolution.PopNamespace();
@@ -285,7 +293,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void OnModule(Boo.Lang.Ast.Module module)
 		{				
-			PushNamespace(ImportResolutionStep.GetModuleNamespace(module));			
+			PushNamespace((INamespace)BindingManager.GetBinding(module));			
 			
 			Switch(module.Members);
 			
@@ -1479,7 +1487,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			CheckIterator(node.Iterator, iteratorType);
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
-			PushNamespace(new DeclarationsNamespace(BindingManager, node.Declarations));
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declarations));
 			EnterLoop();
 			Switch(node.Block);
 			LeaveLoop();
@@ -1518,7 +1526,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetBoundType(node.Declaration.Type));
-			PushNamespace(new DeclarationsNamespace(BindingManager, node.Declaration));
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declaration));
 			Switch(node.Block);
 			PopNamespace();
 		}
@@ -2782,12 +2790,20 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					_context.TraceVerbose("Binding {0} needs resolving.", binding.Name);
 					
-					TypeMember member = internalBinding.Node as TypeMember;
-					if (null != member)
+					INamespace saved = _nameResolution.CurrentNamespace;
+					try
 					{
-						Switch(member.ParentNode);
+						TypeMember member = internalBinding.Node as TypeMember;
+						if (null != member)
+						{
+							Switch(member.ParentNode);
+						}
+						Switch(internalBinding.Node);
 					}
-					Switch(internalBinding.Node);
+					finally
+					{
+						_nameResolution.Restore(saved);
+					}
 				}
 			}
 		}

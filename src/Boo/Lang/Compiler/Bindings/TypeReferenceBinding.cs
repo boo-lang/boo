@@ -70,6 +70,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return _type.ParentNamespace;
+			}
+		}
+		
 		public IBinding Resolve(string name)
 		{
 			return  _type.Resolve(name);

@@ -37,6 +37,8 @@ namespace Boo.Lang.Compiler.Bindings
 	{		
 		BindingManager _bindingManager;
 		
+		INamespace _parent;
+		
 		string _name;
 		
 		Hashtable _assemblies;
@@ -45,8 +47,9 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		ArrayList _moduleNamespaces;
 		
-		public NamespaceBinding(BindingManager bindingManager, string name)
+		public NamespaceBinding(INamespace parent, BindingManager bindingManager, string name)
 		{			
+			_parent = parent;
 			_bindingManager = bindingManager;
 			_name = name;
 			_assemblies = new Hashtable();
@@ -101,7 +104,7 @@ namespace Boo.Lang.Compiler.Bindings
 			NamespaceBinding binding = (NamespaceBinding)_childrenNamespaces[name];
 			if (null == binding)
 			{				
-				binding = new NamespaceBinding(_bindingManager, _name + "." + name);
+				binding = new NamespaceBinding(this, _bindingManager, _name + "." + name);
 				_childrenNamespaces[name] = binding;
 			}
 			return binding;
@@ -127,6 +130,14 @@ namespace Boo.Lang.Compiler.Bindings
 				}
 			}
 			return null;
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return _parent;
+			}
 		}
 		
 		public IBinding Resolve(string name)
@@ -215,6 +226,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return _subject.ParentNamespace;
+			}
+		}
+		
 		public IBinding Resolve(string name)
 		{
 			return _subject.Resolve(name, _assembly);
@@ -228,7 +247,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public AliasedNamespaceBinding(string alias, IBinding subject)
 		{
-			_alias = alias;
+			_alias = alias;			
 			_subject = subject;
 		}
 		
@@ -253,6 +272,14 @@ namespace Boo.Lang.Compiler.Bindings
 			get
 			{
 				return BindingType.Namespace;
+			}
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return ((INamespace)_subject).ParentNamespace;
 			}
 		}
 		

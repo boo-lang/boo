@@ -140,6 +140,14 @@ namespace Boo.Lang.Compiler.Bindings
 			return new IBinding[0];
 		}
 		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return null;
+			}
+		}
+		
 		public IBinding Resolve(string name)
 		{
 			return null;

@@ -175,6 +175,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return (INamespace)BindingManager.GetBinding(_method.DeclaringType);
+			}
+		}
+		
 		public IBinding Resolve(string name)
 		{
 			foreach (Local local in _method.Locals)

@@ -42,37 +42,17 @@ namespace Boo.Lang.Compiler.Pipeline
 	// todo: optimize this class so it only reescans
 	// the references when they change
 	public class ImportResolutionStep : AbstractCompilerComponent, INamespace, ICompilerStep
-	{
-		static object ModuleNamespaceKey = new object();
-		
-		static object GlobalNamespaceKey = new object();
-		
-		static object BooLangNamespaceKey = new object();
-		
+	{		
 		Hashtable _namespaces = new Hashtable();
 		
-		Hashtable _externalTypes = new Hashtable();
-		
-		public static INamespace GetGlobalNamespace(CompilerContext context)
-		{
-			return (INamespace)context.CompileUnit[GlobalNamespaceKey];
-		}		
-		
-		public static INamespace GetBooLangNamespace(CompilerContext context)
-		{
-			return (INamespace)context.CompileUnit[BooLangNamespaceKey];
-		}
-		
-		public static ModuleNamespace GetModuleNamespace(Boo.Lang.Ast.Module module)
-		{
-			return (ModuleNamespace)module[ModuleNamespaceKey];
-		}
+		Hashtable _externalTypes = new Hashtable();		
 		
 		public void Run()
 		{
 			ResolveNamespaces();
-			CompileUnit[GlobalNamespaceKey] = this;
-			CompileUnit[BooLangNamespaceKey] = ResolveQualifiedName("Boo.Lang");
+			
+			CompileUnitBinding binding = new CompileUnitBinding(this);			
+			BindingManager.Bind(CompileUnit, binding);
 		}
 		
 		override public void Dispose()
@@ -87,7 +67,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
 				ModuleNamespace moduleNamespace = new ModuleNamespace(BindingManager, module);
-				module[ModuleNamespaceKey] = moduleNamespace;
+				BindingManager.Bind(module, moduleNamespace);
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
 				if (null != namespaceDeclaration)
@@ -174,6 +154,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			return ((AssemblyBinding)BindingManager.GetBinding(reference)).Assembly;
 		}
 		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return null;
+			}
+		}
+		
 		public IBinding Resolve(string name)
 		{
 			IBinding binding = (IBinding)_namespaces[name];
@@ -247,7 +235,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			Bindings.NamespaceBinding binding = (Bindings.NamespaceBinding)_namespaces[topLevelName];	
 			if (null == binding)
 			{
-				_namespaces[topLevelName] = binding = new Bindings.NamespaceBinding(BindingManager, topLevelName);
+				_namespaces[topLevelName] = binding = new Bindings.NamespaceBinding(this, BindingManager, topLevelName);
 			}
 			return binding;
 		}

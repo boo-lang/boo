@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler.Bindings
 	[Flags]
 	public enum BindingType
 	{
+		CompileUnit = 0x00,
 		Module = 0x01,
 		Type = 0x02,
 		TypeReference = 0x04,
