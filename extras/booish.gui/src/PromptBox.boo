@@ -106,8 +106,7 @@ class PromptBox(TextBox):
 		f.Controls.Add(PropertyGrid(
 							Dock: DockStyle.Fill,
 							SelectedObject: obj,
-							Font: Font,
-							PropertySort: PropertySort.Alphabetical))
+							Font: Font))
 		f.Show()
 		return f
 			
