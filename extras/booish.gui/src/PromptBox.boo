@@ -34,13 +34,80 @@ namespace booish.gui
 
 import System
 import System.IO
+import System.Reflection
 import booish
 import System.Windows.Forms
 import System.Drawing
+import System.Runtime.InteropServices
+
+class KeyChar:
+	
+	public static Enter = chr(Keys.Enter)
+	
+	public static Dot = chr('.')
+	
+	public static Back = chr(Keys.Back)
+	
+	public static Esc = chr(Keys.Escape)
+
+class CompletionBox(ListBox):
+	
+	def constructor():
+		self.Visible = false
+		
+	def Fill(type as System.Type):
+		
+		members = {}
+		for member in type.GetMembers():
+			if member.Name not in members:
+				if IsValidSuggestion(member):
+					members.Add(member.Name, member)
+				
+		Items.Clear()
+		for item in List(members.Keys).Sort():
+			Items.Add(item)
+			
+	def Show(pos as Point):
+		self.Location = pos
+		self.Visible = true
+		self.Focus()
+		
+	private def IsValidSuggestion(member as MemberInfo):
+		return false if not IsPublic(member)		
+		method = member as MethodBase
+		if method is not null:
+			return false if method.IsSpecialName
+		return true
+		
+	private def IsPublic(member as MemberInfo):
+		if MemberTypes.Method == member.MemberType:
+			return cast(MethodBase, member).IsPublic
+		if MemberTypes.Property == member.MemberType:
+			p as PropertyInfo = member
+			return (p.GetGetMethod() or p.GetSetMethod()).IsPublic
+		if MemberTypes.Field == member.MemberType:
+			return cast(FieldInfo, member).IsPublic
+		return true
+	
+	override def OnLostFocus(args as EventArgs):
+		self.Visible = false
+		super(args)
+		
+	override def OnKeyPress(args as KeyPressEventArgs):
+		finish = def ():
+			Parent.Focus()
+			args.Handled = true
+			
+		if args.KeyChar in KeyChar.Esc, KeyChar.Back:
+			finish()
+		elif KeyChar.Enter == args.KeyChar:
+			cast(TextBox, Parent).SelectedText = SelectedItem
+			finish()
+		else:			
+			super(args)
+		
 
 class PromptBox(TextBox):
-	
-	static Enter = chr(13)
 	
 	enum InputState:
 		SingleLine = 0
@@ -56,6 +123,8 @@ class PromptBox(TextBox):
 	_interpreter = InteractiveInterpreter(
 								RememberLastValue: true,
 								Print: print)
+								
+	_completionBox = CompletionBox()
 	
 	def constructor():
 		self.Dock = DockStyle.Fill
@@ -66,7 +135,15 @@ class PromptBox(TextBox):
 		_interpreter.References.Add(typeof(Font).Assembly)
 		_interpreter.SetValue("inspect", inspect)
 		
+		Controls.Add(_completionBox)
+		
 		prompt()
+		
+	CaretPos:
+		get:
+			p as Point
+			assert booish.gui.externs.User32.GetCaretPos(p)
+			return p
 		
 	def GetCurrentLine():
 		line = Lines[-1][4:]	
@@ -92,14 +169,34 @@ class PromptBox(TextBox):
 			_block.WriteLine(code)
 		
 	override def OnKeyPress(args as KeyPressEventArgs):
-		if Enter == args.KeyChar:			
+		if KeyChar.Enter == args.KeyChar:			
 			try:
 				(SingleLineInputState, BlockInputState)[_state]()
 			except x:				
 				print(x)
 			prompt()
 			args.Handled = true
+		elif KeyChar.Dot == args.KeyChar:
+			self.SelectedText = "."
+			DotComplete()
+			args.Handled = true
+			
 		super(args)
+		
+	override def OnResize(args as EventArgs):
+		_completionBox.Size = System.Drawing.Size(Width*.5, Height*.4)
+		super(args)
+		
+	def DotComplete():		
+		m = /((\w|\.)+)\.$/.Match(self.Lines[-1])		
+		if m.Success:
+			// only simple identifiers right now
+			expression = m.Groups[1].Value
+			if /^\w+$/.IsMatch(expression):	
+				type = _interpreter.Lookup(expression)
+				if type is not null:
+					_completionBox.Fill(type)
+					_completionBox.Show(CaretPos)	
 		
 	def Eval(code as string):
 		saved = Console.Out
@@ -129,7 +226,9 @@ class PromptBox(TextBox):
 	def prompt():
 		AppendText((">>> ", "... ")[_state])
 		
-	static def chr(value as int):
-		return cast(IConvertible, value).ToChar(null)
-
-
+def chr(key as Keys):
+	return cast(IConvertible, cast(int, key)).ToChar(null)
+		
+def chr(s as string):
+	assert len(s) == 1
+	return s[0]

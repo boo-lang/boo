@@ -11,12 +11,19 @@
 	</target>
 
 	<target name="build" depends="init">
+		<csc target="library" output="build/booish.gui.externs.dll">
+			<sources basedir="src">
+				<include name="*.cs" />
+			</sources>
+		</csc>
+		
 		<booc target="winexe" output="build/booish.gui.exe">
 			<sources basedir="src">
 				<include name="*.boo" />
 			</sources>
 			<references basedir="build">
 				<include name="booish.exe" />
+				<include name="booish.gui.externs.dll" />
 				<include name="System.Windows.Forms.dll" />
 				<include name="System.Drawing.dll" />
 			</references>

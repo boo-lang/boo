@@ -32,6 +32,16 @@
 	
 	<target name="compile" depends="init, resources">
 		<mkdir dir="${addin.dir}"/>
+		
+		<nant buildfile="../../booish.gui/default.build" target="build" />
+		
+		<copy todir="${addin.dir}">
+			<fileset basedir="../../booish.gui/build">
+				<include name="booish.gui.externs.dll" />
+				<include name="booish.gui.exe" />
+			</fileset>
+		</copy>
+		
 		<booc target="library" output="${addin.dir}/BooBinding.dll">
 			<references>
 				<include name="${sharp.dir}/ICSharpCode.Core.Dll" />
@@ -42,10 +52,10 @@
 				<include name="System.Drawing.dll" />
 				<include name="System.Xml.dll" />
 				<include name="${boo.dir}/booish.exe" />
+				<include name="${addin.dir}/booish.gui.exe" />
 			</references>
 			<sources basedir=".">
 				<include name = "src/**/*.boo" />
-				<include name = "../../booish.gui/src/PromptBox.boo" />
 			</sources>
 			<resources>
 				<include name = "icons/*.resources" />
