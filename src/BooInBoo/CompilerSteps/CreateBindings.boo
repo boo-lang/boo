@@ -4,6 +4,19 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Pipeline
 
+enum BindingType:
+	CompileUnit
+	Module
+	Class
+	Interface
+	Enum
+	Callable
+	Constructor
+	Method
+	Field
+	Property
+	Namespace
+
 interface IBinding:
 	ParentNamespace as INamespace:
 		get

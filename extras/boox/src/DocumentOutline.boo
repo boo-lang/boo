@@ -114,42 +114,6 @@ class TreeViewVisitor(DepthFirstSwitcher):
 
 	def constructor(tree):
 		_tree = tree
-		
-	def SaveTreeViewState():
-		return SaveTreeViewState([], _tree.Nodes)
-		
-	def SaveTreeViewState(state as List, nodes as TreeNodeCollection):
-		for node in nodes:
-			SaveTreeViewState(state, node)
-		return state
-		
-	def SaveTreeViewState(state as List, node as TreeNode):
-		if len(node.Nodes):
-			state.Add((node.FullPath, node.IsExpanded))
-			SaveTreeViewState(state, node.Nodes)
-		
-	def RestoreTreeViewState(state as List):		
-		for fullpath as string, expanded as bool  in state:
-			if not expanded:
-				node = SelectNode(fullpath)
-				node.Collapse() if node
-				
-	def SelectNode(fullpath as string):
-		parts = /\//.Split(fullpath)
-		
-		nodes = _tree.Nodes
-		for part in parts:
-			node = SelectNode(nodes, part)
-			break if node is null
-			nodes = node.Nodes
-			
-		return node
-		
-	def SelectNode(nodes as TreeNodeCollection, text as string):
-		for node as TreeNode in nodes:
-			if node.Text == text:
-				return node
-		return null
 
 	override def OnModule(node as Module):
 
@@ -158,16 +122,12 @@ class TreeViewVisitor(DepthFirstSwitcher):
 
 		_tree.BeginUpdate()
 		
-		state = SaveTreeViewState() if len(_current.Nodes)
-		
+		//state = SaveTreeViewState() if len(_current.Nodes)		
 		_tree.Nodes.Clear()
 		if len(_current.Nodes):
 			_tree.Nodes.AddRange(array(TreeNode, _current.Nodes))
 			_tree.ExpandAll()
-			if len(state):
-				RestoreTreeViewState(state)
-			else:
-				_tree.ExpandAll()
+			//RestoreTreeViewState(state) if len(state)
 		_tree.EndUpdate()
 
 	override def OnProperty(node as Property):
@@ -216,4 +176,40 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		node.ImageIndex = imageIndex
 		node.SelectedImageIndex = selectedImageIndex
 		return node
+		
+	def SaveTreeViewState():
+		return SaveTreeViewState([], _tree.Nodes)
+		
+	def SaveTreeViewState(state as List, nodes as TreeNodeCollection):
+		for node in nodes:
+			SaveTreeViewState(state, node)
+		return state
+		
+	def SaveTreeViewState(state as List, node as TreeNode):
+		if len(node.Nodes):
+			state.Add((node.FullPath, node.IsExpanded))
+			SaveTreeViewState(state, node.Nodes)
+		
+	def RestoreTreeViewState(state):		
+		for fullpath as string, expanded as bool in state:
+			if not expanded:
+				node = SelectNode(fullpath)
+				node.Collapse() if node
+				
+	def SelectNode(fullpath as string):
+		parts = /\//.Split(fullpath)
+		
+		nodes = _tree.Nodes
+		for part in parts:
+			node = SelectNode(nodes, part)
+			break if node is null
+			nodes = node.Nodes
+			
+		return node
+		
+	def SelectNode(nodes as TreeNodeCollection, text as string):
+		for node as TreeNode in nodes:
+			if node.Text == text:
+				return node
+		return null
 

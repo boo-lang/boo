@@ -105,7 +105,10 @@ class MainForm(Form):
 
 		_timer.Enabled = false
 		for fname in _argv:
-			OpenDocument(fname)
+			try:
+				OpenDocument(fname)
+			except x:
+				print(x)
 		ShowDocumentOutline()
 
 	StatusText as string:
