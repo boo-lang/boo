@@ -373,6 +373,12 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("list1.boo");
 		}
+
+		[Test]
+		public void TestReturnEmptyList()
+		{
+			RunCompilerTestCase("list2.boo");
+		}
 		
 		[Test]
 		public void EnumUsage()
@@ -494,6 +500,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("tuple7.boo");
 		}
 		
+		[Test]
+		public void ReturnEmptyTuple()
+		{
+			RunCompilerTestCase("tuple8.boo");
+		}
+
 		[Test]
 		public void TestMatch0()
 		{
