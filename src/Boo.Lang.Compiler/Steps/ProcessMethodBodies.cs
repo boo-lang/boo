@@ -74,6 +74,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod IList_Contains;
 		
+		IMethod List_GetRange1;
+		
+		IMethod List_GetRange2;
+		
 		IMethod IDictionary_Contains;
 		
 		IMethod Array_TypedEnumerableConstructor;
@@ -155,7 +159,9 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		virtual protected void InitializeMemberCache()
-		{			
+		{
+			List_GetRange1 = (IMethod)TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));
+			List_GetRange2 = (IMethod)TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) })); 			
 			RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
 			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
 			RuntimeServices_GetRange = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange");
@@ -172,7 +178,7 @@ namespace Boo.Lang.Compiler.Steps
 			Array_TypedConstructor2 = (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
 			ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
 			Activator_CreateInstance = (IMethod)TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
-			TextReaderEnumerator_Constructor = (IConstructor)TypeSystemServices.Map(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
+			TextReaderEnumerator_Constructor = (IConstructor)TypeSystemServices.Map(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));			
 			
 			ApplicationException_StringConstructor =
 					(IConstructor)TypeSystemServices.Map(
@@ -975,6 +981,27 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
+		void BindComplexListSlicing(SlicingExpression node)
+		{
+			if (CheckComplexSlicingParameters(node))
+			{
+				MethodInvocationExpression mie = null;
+				
+				if (null == node.End || node.End == OmittedExpression.Default)
+				{
+					mie = CreateMethodInvocation(node.Target, List_GetRange1);
+					mie.Arguments.Add(node.Begin);
+				}
+				else
+				{				
+					mie = CreateMethodInvocation(node.Target, List_GetRange2);
+					mie.Arguments.Add(node.Begin);
+					mie.Arguments.Add(node.End);
+				}
+				node.ParentNode.Replace(node, mie);				
+			}
+		}
+		
 		void BindComplexArraySlicing(SlicingExpression node)
 		{			
 			if (CheckComplexSlicingParameters(node))
@@ -1065,7 +1092,14 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							NotImplemented(node, "complex slicing for anything but arrays and strings");
+							if (TypeSystemServices.ListType.IsAssignableFrom(targetType))
+							{
+								BindComplexListSlicing(node);
+							}
+							else
+							{
+								NotImplemented(node, "complex slicing for anything but lists, arrays and strings");
+							}
 						}
 					}
 					else

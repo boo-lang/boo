@@ -28,6 +28,7 @@
 
 namespace Boo.Lang.Tests
 
+import System
 import NUnit.Framework
 
 [TestFixture]
@@ -37,6 +38,35 @@ class ListTestCase:
 	[SetUp]
 	def SetUp():
 		_list = ["um", "dois", "tres"]
+		
+	[Test]
+	def Slicing():
+		Assert.AreEqual(["um"], _list[:1])
+		Assert.AreEqual(["um", "dois"], _list[:2])
+		Assert.AreEqual(["dois"], _list[1:2])
+		Assert.AreEqual(["tres"], _list[-1:])
+		Assert.AreEqual(["dois", "tres"], _list[-2:])
+		Assert.AreEqual(["dois"], _list[-2:-1])
+		Assert.AreEqual(["um", "dois", "tres"], _list[:])
+		
+	[Test]
+	def Indexing():
+		Assert.AreEqual("um", _list[0])
+		Assert.AreEqual("um", _list[-3])
+		Assert.AreEqual("dois", _list[1])
+		Assert.AreEqual("dois", _list[-2])
+		Assert.AreEqual("tres", _list[2])
+		Assert.AreEqual("tres", _list[-1])
+		
+	[Test]
+	[ExpectedException(IndexOutOfRangeException)]
+	def NegativeIndexOutOfRange():
+		Assert.IsNull(_list[-4])
+		
+	[Test]
+	[ExpectedException(IndexOutOfRangeException)]
+	def PositiveIndexOutOfRange():
+		Assert.IsNull(_list[3])
 		
 	[Test]
 	def TestEquals():

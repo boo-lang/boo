@@ -9,7 +9,7 @@
 
 * boox
 	* assembly search path
-	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código
+	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código	
 
 * rever os exemplos de pipeline
 	* escrever documento em inglês
