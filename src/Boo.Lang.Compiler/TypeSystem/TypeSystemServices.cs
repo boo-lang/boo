@@ -592,7 +592,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == _anonymousTypesModule)
 			{
 				_anonymousTypesModule = new Boo.Lang.Compiler.Ast.Module();
-				_compileUnit.Modules.Add(_anonymousTypesModule);
+				//_compileUnit.Modules.Add(_anonymousTypesModule);
 			}
 			return _anonymousTypesModule;
 		}

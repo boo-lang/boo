@@ -1320,9 +1320,21 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void UseFunctionReferenceAsDelegateInstance()
+		public void BeginInvokeOnFunctionReference()
 		{
 			RunCompilerTestCase("callable10.boo");
+		}
+		
+		[Test]
+		public void InvokeOnFunctionReference()
+		{
+			RunCompilerTestCase("callable11.boo");
+		}            
+		
+		[Test]
+		public void InvokeOnMemberReference()
+		{
+			RunCompilerTestCase("callable12.boo");
 		}
 		
 		[Test]

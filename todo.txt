@@ -1,5 +1,4 @@
 ﻿* fix ICallable for callable types
-	* callable9.boo
 	* callable10.boo
 	
 * software de blogging para a apresentação
