@@ -29,7 +29,7 @@
 using System;
 using System.Collections;
 
-namespace Boo.Lang.Compiler.Taxonomy
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	public delegate bool InfoFilter(IElement tag);
 	

@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Taxonomy
+namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class LocalVariable : ITypedElement
 	{		

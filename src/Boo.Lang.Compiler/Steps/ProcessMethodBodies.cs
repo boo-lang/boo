@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Taxonomy;
+	using Boo.Lang.Compiler.TypeSystem;
 
 	/// <summary>
 	/// AST semantic evaluation.

@@ -1,4 +1,4 @@
-namespace Boo.Lang.Compiler.Taxonomy
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Collections;
@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			types.Add(type);			
 		}
 		
-		public void AddModule(Boo.Lang.Compiler.Taxonomy.ModuleTag module)
+		public void AddModule(Boo.Lang.Compiler.TypeSystem.ModuleTag module)
 		{
 			_moduleNamespaces.Add(module);
 		}

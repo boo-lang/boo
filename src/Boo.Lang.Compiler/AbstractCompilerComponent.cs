@@ -30,7 +30,7 @@ using System;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Taxonomy;
+using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler
 {
@@ -74,7 +74,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected Taxonomy.TagService TagService
+		protected TypeSystem.TagService TagService
 		{
 			get
 			{
@@ -82,7 +82,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected Taxonomy.NameResolutionService NameResolutionService
+		protected TypeSystem.NameResolutionService NameResolutionService
 		{
 			get
 			{

@@ -29,7 +29,7 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Taxonomy;
+	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class IntroduceGlobalNamespaces : AbstractVisitorCompilerStep
 	{

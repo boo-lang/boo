@@ -30,7 +30,7 @@ using System;
 using System.Collections;
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.Taxonomy
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	public interface IElement
 	{	

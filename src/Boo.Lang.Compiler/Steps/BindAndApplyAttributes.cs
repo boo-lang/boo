@@ -29,7 +29,7 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Taxonomy;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang;
 using Reflection = System.Reflection;

@@ -1,4 +1,6 @@
-﻿* CheckInterfaceImplementations:
+﻿* module namespace testcases
+
+* CheckInterfaceImplementations:
 	* move from ProcessMethodBodies
 	
 * InjectCasts
@@ -31,9 +33,13 @@
 
 * preencher assinatura dos métodos em BindTypeMembers
 
-* CallableTypeBinding
+* CallableType
 	* para funçoes
-	* para delegates (o tipo de um evento seria o CallableTypeBinding equivalente ao delegate)
+	* para delegates (o tipo de um evento seria o CallableType equivalente ao delegate)
+	
+* declarar novos delegates
+
+* usar os delegates declarados
 
 * map(callable, enumerable)
 

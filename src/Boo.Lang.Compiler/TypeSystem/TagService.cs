@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Taxonomy
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Reflection;
@@ -99,7 +99,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		static readonly IElement _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
 		
-		public static readonly IElement ErrorTag = Boo.Lang.Compiler.Taxonomy.Error.Default;
+		public static readonly IElement ErrorTag = Boo.Lang.Compiler.TypeSystem.Error.Default;
 		
 		public TagService()		
 		{			

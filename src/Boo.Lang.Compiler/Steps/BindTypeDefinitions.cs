@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.Steps
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Taxonomy;
+	using Boo.Lang.Compiler.TypeSystem;
 	
 	[Serializable]
 	public class BindTypeDefinitions : AbstractVisitorCompilerStep

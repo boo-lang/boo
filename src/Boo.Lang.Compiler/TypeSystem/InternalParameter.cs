@@ -28,7 +28,7 @@
 
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.Taxonomy
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	public class InternalParameter : IParameter
 	{

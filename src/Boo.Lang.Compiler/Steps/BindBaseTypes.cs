@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.Steps
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Taxonomy;
+	using Boo.Lang.Compiler.TypeSystem;
 	
 	[Serializable]
 	public class BindBaseTypes : AbstractNamespaceSensitiveVisitorCompilerStep
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (SimpleTypeReference type in node.BaseTypes.ToArray())
 			{                            
 				NameResolutionService.ResolveSimpleTypeReference(type);
-				TypeReferenceTag tag = type.Tag as Taxonomy.TypeReferenceTag;
+				TypeReferenceTag tag = type.Tag as TypeSystem.TypeReferenceTag;
 				
 				if (null != tag)
 				{

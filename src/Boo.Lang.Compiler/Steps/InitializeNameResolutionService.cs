@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Taxonomy;
+	using Boo.Lang.Compiler.TypeSystem;
 	using System;
 	using System.Reflection;
 	using System.Collections;
@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
-				Taxonomy.ModuleTag moduleTag = new Taxonomy.ModuleTag(NameResolutionService, TagService, module);
+				TypeSystem.ModuleTag moduleTag = new TypeSystem.ModuleTag(NameResolutionService, TagService, module);
 				module.Tag = moduleTag;
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
@@ -88,7 +88,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							Parameters.References.Add(asm);
-							reference.Tag = new Taxonomy.AssemblyReference(asm);
+							reference.Tag = new TypeSystem.AssemblyReference(asm);
 						}
 						catch (Exception x)
 						{

@@ -1,4 +1,4 @@
-namespace Boo.Lang.Compiler.Taxonomy
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System.Reflection;
 	

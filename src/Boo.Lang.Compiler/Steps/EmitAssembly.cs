@@ -37,7 +37,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Taxonomy;
+using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -1804,7 +1804,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case ElementType.Parameter:
 				{
-					Taxonomy.InternalParameter param = (Taxonomy.InternalParameter)info;
+					TypeSystem.InternalParameter param = (TypeSystem.InternalParameter)info;
 					int index = param.Index;
 					switch (index)
 					{
