@@ -27,12 +27,14 @@
     <File name=".\CodeCompletion\VariableLookupVisitor.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
-    <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.Core.dll" localcopy="False" />
-    <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.SharpRefactory.dll" localcopy="False" />
-    <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.TextEditor.dll" localcopy="False" />
-    <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\SharpDevelop.Base.dll" localcopy="False" />
     <Reference type="Assembly" refto="..\..\..\..\bin\Boo.Lang.Compiler.dll" localcopy="True" />
     <Reference type="Assembly" refto="..\..\..\..\bin\Boo.Lang.Parser.dll" localcopy="True" />
+	<Reference type="Assembly" refto="..\..\..\..\bin\Boo.Lang.Interpreter.dll" localcopy="True" />
+    <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.TextEditor.dll" localcopy="True" />
+    <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\SharpDevelop.Base.dll" localcopy="True" />
+    <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.Core.dll" localcopy="True" />
+    <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.SharpRefactory.dll" localcopy="True" />    
+    <Reference type="Assembly" refto="..\..\..\booish.gui\build\booish.gui.exe" localcopy="True" />
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="True" name="Debug">
