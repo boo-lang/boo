@@ -123,8 +123,8 @@ SemanticStep que deverá criar AsExpression sempre que necessário
 
 Milestone 3.8
 -------------
-* try/catch/ensure
-* raise
+done * try/catch/ensure
+done * raise
 * ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
 * statement modifiers:
 	* unless

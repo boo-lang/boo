@@ -39,26 +39,48 @@ using List=Boo.Lang.List;
 
 namespace Boo.Ast.Compilation.Steps
 {		
+	class SemanticMethodInfo
+	{
+		public static readonly SemanticMethodInfo Null = new SemanticMethodInfo(null, null);
+		
+		public Method Method;
+		public ArrayList ReturnStatements;
+		
+		public SemanticMethodInfo(Method method, ArrayList returnStatements)
+		{
+			Method = method;
+			ReturnStatements = returnStatements;
+		}
+	}
+	
 	/// <summary>
 	/// Step 4.
 	/// </summary>
 	public class SemanticStep : AbstractNamespaceSensitiveCompilerStep
 	{
-		Stack _methodStack;
+		Stack _methodInfoStack;
 		
-		Method _currentMethod;		
+		SemanticMethodInfo _currentMethodInfo;
 		
 		IMethodBinding RuntimeServices_IsMatchBinding;
 		
 		public override void Run()
-		{			
-			_currentMethod = null;
-			_methodStack = new Stack();
+		{					
+			_currentMethodInfo = SemanticMethodInfo.Null;
+			_methodInfoStack = new Stack();
 			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			
 			Switch(CompileUnit);
 		}		
+		
+		public override void Dispose()
+		{
+			base.Dispose();
+			
+			_currentMethodInfo = null;
+			_methodInfoStack = null;
+		}
 		
 		public override void OnModule(Boo.Ast.Module module, ref Boo.Ast.Module resultingNode)
 		{			
@@ -131,18 +153,38 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveMethod(Method method, ref Method resultingNode)
 		{
+			if (null == method.ReturnType)
+			{
+				IBinding returnTypeBinding = null;
+				
+				ArrayList returnStatements = _currentMethodInfo.ReturnStatements;
+				if (0 == returnStatements.Count)
+				{					
+					method.ReturnType = new TypeReference("void");
+					BindingManager.Bind(method.ReturnType, returnTypeBinding = BindingManager.ToTypeReference(BindingManager.VoidTypeBinding));
+				}
+				else
+				{					
+					if (1 == returnStatements.Count)
+					{
+						ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
+						method.ReturnType = new TypeReference(type.FullName);
+						BindingManager.Bind(method.ReturnType, returnTypeBinding = BindingManager.ToTypeReference(type));
+					}
+					else
+					{
+						throw new NotImplementedException();
+					}
+				}
+				
+				_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, returnTypeBinding);
+			}
+			
+			((InternalMethodBinding)GetBinding(method)).Resolved();
+			
 			PopNamespace();
 			PopMethod();
 			BindParameterIndexes(method);
-			
-			if (null == method.ReturnType)
-			{
-				// Por enquanto, valor de retorno apenas void
-				method.ReturnType = new TypeReference("void");
-				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeReference(BindingManager.VoidTypeBinding));
-			}
-			
-			((InternalMethodBinding)GetBinding(method)).IsResolved = true;
 		}
 		
 		void BindParameterIndexes(Method method)
@@ -213,7 +255,7 @@ namespace Boo.Ast.Compilation.Steps
 				binding = GetBoundType(node.Declaration.Type);			
 			}
 			
-			LocalBinding localBinding = DeclareLocal(node, new Local(node.Declaration), binding);
+			LocalBinding localBinding = DeclareLocal(node, new Local(node.Declaration, false), binding);
 			if (null != node.Initializer)
 			{
 				ReferenceExpression var = new ReferenceExpression(node.Declaration.LexicalInfo);
@@ -279,6 +321,14 @@ namespace Boo.Ast.Compilation.Steps
 			CheckBoolContext(node.Expression);			
 		}
 		
+		public override void LeaveReturnStatement(ReturnStatement node, ref Statement resultingNode)
+		{
+			if (null != node.Expression)
+			{
+				_currentMethodInfo.ReturnStatements.Add(node);
+			}
+		}
+		
 		public override void OnForStatement(ForStatement node, ref Statement resultingNode)
 		{
 			Switch(node.Iterator);
@@ -310,7 +360,7 @@ namespace Boo.Ast.Compilation.Steps
 				Switch(node.Declaration.Type);
 			}
 			
-			DeclareLocal(node.Declaration, new Local(node.Declaration), GetBoundType(node.Declaration.Type));
+			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetBoundType(node.Declaration.Type));
 			PushNamespace(new DeclarationsNamespace(BindingManager, node.Declaration));
 			Switch(node.Block);
 			PopNamespace();
@@ -356,7 +406,7 @@ namespace Boo.Ast.Compilation.Steps
 				IBinding info = Resolve(node, reference.Name);					
 				if (null == info)
 				{
-					DeclareLocal(reference, new Local(reference), expressionTypeInfo);
+					DeclareLocal(reference, new Local(reference, false), expressionTypeInfo);
 				}
 				else
 				{
@@ -726,11 +776,10 @@ namespace Boo.Ast.Compilation.Steps
 				if (!internalMethod.IsResolved)
 				{
 					_context.TraceVerbose("Method {0} needs resolving.", binding.Name);
-					if (_methodStack.Contains(internalMethod.Method))
+					if (!IsInMethodInfoStack(internalMethod.Method))
 					{
-						throw new NotImplementedException();
+						Switch(internalMethod.Method);
 					}
-					Switch(internalMethod.Method);
 				}
 			}
 		}
@@ -845,7 +894,7 @@ namespace Boo.Ast.Compilation.Steps
 			LocalBinding binding = new LocalBinding(local, localType);
 			BindingManager.Bind(local, binding);
 			
-			_currentMethod.Locals.Add(local);
+			_currentMethodInfo.Method.Locals.Add(local);
 			BindingManager.Bind(sourceNode, binding);
 			
 			return binding;
@@ -853,13 +902,27 @@ namespace Boo.Ast.Compilation.Steps
 		
 		void PushMethod(Method method)
 		{
-			_methodStack.Push(_currentMethod);
-			_currentMethod = method;
+			_methodInfoStack.Push(_currentMethodInfo);
+			
+			// todo: alloc ArrayList from a pool
+			_currentMethodInfo = new SemanticMethodInfo(method, new ArrayList());
 		}
 		
 		void PopMethod()
 		{
-			_currentMethod = (Method)_methodStack.Pop();
+			_currentMethodInfo = (SemanticMethodInfo)_methodInfoStack.Pop();
+		}
+		
+		bool IsInMethodInfoStack(Method method)
+		{			
+			foreach (SemanticMethodInfo info in _methodInfoStack)
+			{				
+				if (method == info.Method)
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
@@ -889,7 +952,7 @@ namespace Boo.Ast.Compilation.Steps
 					// todo: check types here
 				}
 				
-				DeclareLocal(d, new Local(d), BindingManager.GetBoundType(d.Type));
+				DeclareLocal(d, new Local(d, declarePrivateLocals), BindingManager.GetBoundType(d.Type));
 			}
 		}		
 		

@@ -45,7 +45,8 @@ namespace Boo.Ast.Compilation.Binding
 		Assembly,
 		Namespace,
 		Ambiguous,
-		Error
+		Error,
+		Unresolved
 	}
 	
 	public interface IBinding
@@ -128,4 +129,42 @@ namespace Boo.Ast.Compilation.Binding
 	public interface IConstructorBinding : IMethodBinding
 	{		
 	}	
+	
+	public class UnresolvedBinding : NullBinding
+	{
+		IBinding _resolved;
+		
+		public UnresolvedBinding()
+		{
+		}
+		
+		public override string Name
+		{
+			get
+			{
+				return "Unresolved";
+			}
+		}
+		
+		public override BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Unresolved;
+			}
+		}
+		
+		public IBinding Resolved
+		{
+			get
+			{
+				return _resolved;
+			}
+			
+			set
+			{
+				_resolved = value;
+			}
+		}
+	}
 }

@@ -15,8 +15,8 @@ def ScanFile(fname as string, pattern as string):
 def ScanDirectory(path as string, glob as string, pattern as string):
 	for fname in Directory.GetFiles(path, glob):
 		ScanFile(fname, pattern)
-	for path in Directory.GetDirectories(path):
-		ScanDirectory(path, glob, pattern)
+	for dir in Directory.GetDirectories(path):
+		ScanDirectory(dir, glob, pattern)
 
 _, glob, pattern = Environment.GetCommandLineArgs()
 ScanDirectory(".", glob, pattern)

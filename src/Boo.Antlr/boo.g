@@ -42,14 +42,14 @@ tokens
 	AND="and";
 	AS="as";		
 	BREAK="break";
-	CONTINUE="continue";
-	CATCH="catch";
+	CONTINUE="continue";	
 	CLASS="class";
 	CONSTRUCTOR="constructor";	
 	DEF="def";	
 	ELSE="else";
 	ENSURE="ensure";
 	ENUM="enum";
+	EXCEPT="except";
 	FAILURE="failure";
 	FINAL="final";	
 	FROM="from";
@@ -777,7 +777,7 @@ exception_handler [TryStatement t]
 		ExceptionHandler eh = null;		
 		TypeReference tr = null;
 	}:
-	c:CATCH x:ID (AS tr=type_reference)?
+	c:EXCEPT x:ID (AS tr=type_reference)?
 	{
 		eh = new ExceptionHandler(ToLexicalInfo(c));
 		eh.Declaration = new Declaration(ToLexicalInfo(x));

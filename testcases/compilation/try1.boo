@@ -7,7 +7,7 @@ should end up here!
 try:
 	raise System.ApplicationException("caught!")
 	print("should not get here!")
-catch x:
+except x:
 	print(x.Message)
 ensure:
 	print("should have passed here first!")

@@ -450,7 +450,7 @@ namespace Boo.Ast.Visitors
 		
 		public override void OnExceptionHandler(ExceptionHandler node)
 		{
-			WriteIndented("catch");
+			WriteIndented("except");
 			if (null != node.Declaration)
 			{
 				Write(" ");

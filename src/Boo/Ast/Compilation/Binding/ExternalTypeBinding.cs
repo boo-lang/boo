@@ -105,7 +105,7 @@ namespace Boo.Ast.Compilation.Binding
 			ExternalTypeBinding external = other as ExternalTypeBinding;
 			if (null == external)
 			{
-				throw new NotImplementedException();
+				throw new NotImplementedException(other.ToString());
 			}
 			return _type.IsSubclassOf(external._type);
 		}
@@ -115,7 +115,7 @@ namespace Boo.Ast.Compilation.Binding
 			ExternalTypeBinding external = other as ExternalTypeBinding;
 			if (null == external)
 			{
-				throw new NotImplementedException();
+				throw new NotImplementedException(other.ToString());
 			}
 			return _type.IsAssignableFrom(external._type);
 		}

@@ -35,16 +35,28 @@ namespace Boo.Ast
 	[Serializable]
 	public class Local : LocalImpl
 	{		
-		public Local(ReferenceExpression reference)
+		protected bool _privateScope;
+		
+		public Local(ReferenceExpression reference, bool privateScope)
 		{
 			_name = reference.Name;
 			LexicalInfo = reference.LexicalInfo;
+			_privateScope = privateScope;
  		}
  		
- 		public Local(Declaration declaration)
+ 		public Local(Declaration declaration, bool privateScope)
  		{
  			_name = declaration.Name;
  			LexicalInfo = declaration.LexicalInfo;
+ 			_privateScope = privateScope;
+ 		}
+ 		
+ 		public bool PrivateScope
+ 		{
+ 			get
+ 			{
+ 				return _privateScope;
+ 			}
  		}
 		
 		public override void Switch(IAstSwitcher switcher)

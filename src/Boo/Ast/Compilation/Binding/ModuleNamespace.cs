@@ -60,6 +60,7 @@ namespace Boo.Ast.Compilation.Binding
 					if (null == binding)
 					{						
 						binding = CreateCorrectBinding(member);
+						_bindingManager.Bind(member, binding);
 					}	
 					
 					if (BindingType.Type == binding.BindingType)

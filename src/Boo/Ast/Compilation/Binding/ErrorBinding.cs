@@ -29,12 +29,16 @@
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class ErrorBinding : ITypeBinding, INamespace
-	{
-		public static ErrorBinding Default = new ErrorBinding();
+	public abstract class NullBinding : ITypeBinding, INamespace
+	{	
+		public abstract string Name
+		{
+			get;
+		}
 		
-		private ErrorBinding()
-		{			
+		public abstract BindingType BindingType
+		{
+			get;
 		}
 		
 		public string FullName
@@ -42,22 +46,6 @@ namespace Boo.Ast.Compilation.Binding
 			get
 			{
 				return Name;
-			}
-		}
-		
-		public string Name
-		{
-			get
-			{
-				return "Error";
-			}
-		}
-		
-		public BindingType BindingType
-		{
-			get
-			{
-				return BindingType.Error;
 			}
 		}
 		
@@ -95,6 +83,31 @@ namespace Boo.Ast.Compilation.Binding
 		public IBinding Resolve(string name)
 		{
 			return null;
+		}
+	}
+	
+	public class ErrorBinding : NullBinding
+	{
+		public static ErrorBinding Default = new ErrorBinding();
+		
+		private ErrorBinding()
+		{			
+		}	
+		
+		public override string Name
+		{
+			get
+			{
+				return "Error";
+			}
+		}
+		
+		public override BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Error;
+			}
 		}
 	}
 }

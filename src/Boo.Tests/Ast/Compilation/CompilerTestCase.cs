@@ -240,6 +240,12 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
+		public void TestPrivateForVariables()
+		{
+			RunCompilerTestCase("for3.boo", "for message in message:");
+		}
+		
+		[Test]
 		public void TestIfModifier0()
 		{
 			RunCompilerTestCase("if0.boo", "write() if true");
@@ -393,6 +399,18 @@ namespace Boo.Tests.Ast.Compilation
 		public void TestMethod4()
 		{
 			RunCompilerTestCase("method4.boo", "method locals");
+		}
+		
+		[Test]
+		public void TestMethod5()
+		{
+			RunCompilerTestCase("method5.boo", "simple recursive method");
+		}
+		
+		[Test]
+		public void TestMethod6()
+		{
+			RunCompilerTestCase("method6.boo", "mutually recursive methods");
 		}
 	
 		void RunCompilerTestCase(string name, string description)

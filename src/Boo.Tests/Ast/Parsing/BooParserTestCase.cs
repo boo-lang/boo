@@ -653,7 +653,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestTryCatchRetry()
 		{
-			RunParserTestCase("try_catch_retry.boo");
+			RunParserTestCase("try_except_retry.boo");
 		}
 
 		[Test]

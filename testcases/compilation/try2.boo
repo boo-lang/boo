@@ -7,14 +7,14 @@ second!
 """
 using System
 
-try:
+try:	
 	raise ApplicationException("got here first!")
 	print("never here!");
-catch x as ApplicationException:
+except x as ApplicationException:
 	print(x.Message)
 	try:
 		raise ApplicationException("nested!");
-	catch x:
+	except x:
 		print(x.Message)
 	ensure:
 		print("first!")

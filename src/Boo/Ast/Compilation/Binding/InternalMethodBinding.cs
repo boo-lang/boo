@@ -39,10 +39,16 @@ namespace Boo.Ast.Compilation.Binding
 		
 		bool _resolved;
 		
+		ITypeBinding _returnType;
+		
 		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method)
 		{
 			_bindingManager = manager;
 			_method = method;
+			if (null == _method.ReturnType)
+			{
+				_returnType = new UnresolvedBinding();
+			}
 		}
 		
 		public ITypeBinding DeclaringType
@@ -58,11 +64,6 @@ namespace Boo.Ast.Compilation.Binding
 			get
 			{
 				return _resolved;
-			}
-			
-			set
-			{
-				_resolved = value;
 			}
 		}
 		
@@ -122,15 +123,39 @@ namespace Boo.Ast.Compilation.Binding
 		public ITypeBinding ReturnType
 		{
 			get
-			{
-				return _bindingManager.GetBoundType(_method.ReturnType);
+			{				
+				if (null == _returnType)
+				{
+					_returnType = _bindingManager.GetBoundType(_method.ReturnType);
+				}
+				return _returnType;
 			}
+		}
+		
+		public void Resolved()
+		{
+			ITypeBinding resolvedReturnType = _bindingManager.GetBoundType(_method.ReturnType);
+			_resolved = true;
+			
+			if (null != _returnType)
+			{
+				if (BindingType.Unresolved == _returnType.BindingType)
+				{
+					((UnresolvedBinding)_returnType).Resolved = resolvedReturnType;
+				}
+			}
+			_returnType = resolvedReturnType;
 		}
 		
 		public IBinding Resolve(string name)
 		{
 			foreach (Local local in _method.Locals)
 			{
+				if (local.PrivateScope)
+				{
+					continue;
+				}
+				
 				if (name == local.Name)
 				{
 					return _bindingManager.GetBinding(local);
