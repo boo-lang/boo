@@ -37,7 +37,7 @@ window = Window("Button Tester",
 				DeleteEvent: Application.Quit)
 				
 window.Add(Button("Click Me!",
-				Clicked: <print("button clicked!")>))
+				Clicked: { print("button clicked!") }))
 window.ShowAll()
 
 Application.Run()

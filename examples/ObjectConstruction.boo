@@ -42,7 +42,7 @@ class Button:
 
 # you can set property and field values and even
 # bind to events when constructing an object
-b = Button(Text: "Click me", Width: 10, Click: <print("clicked!")>)
+b = Button(Text: "Click me", Width: 10, Click: { print("clicked!") })
 print(b.Text)
 print(b.Width)
 b.RaiseClick()

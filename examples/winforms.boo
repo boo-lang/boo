@@ -38,7 +38,7 @@ class App:
 		f = Form(Text: "My first boo winforms app")
 				
 		button = Button(Text: "click me!")
-		button.Click += do:
+		button.Click += def:
 			print("clicked!")
 			++_times
 		

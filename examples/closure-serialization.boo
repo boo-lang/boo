@@ -40,7 +40,7 @@ def load(data as (byte)):
 	return BinaryFormatter().Deserialize(MemoryStream(data))
 
 def make_counter(value as int):
-	return <return ++value>
+	return { return ++value }
 	
 c1 = make_counter(10)
 c2 = make_counter(20)

@@ -34,7 +34,7 @@ tb = ToolBar(ShowToolTips: true,
 			TabIndex: 0,
 			Appearance: ToolBarAppearance.Flat,
 			Cursor: Cursors.Hand,
-			Click: <MessageBox.Show("Cool or what?")>)
+			Click: { MessageBox.Show("Cool or what?") })
 			
 tb.Buttons.Add(ToolBarButton(Text: "Click Me!", ToolTipText: "You heard me."))
 
