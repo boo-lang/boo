@@ -63,6 +63,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding RuntimeServices_Len;
 		
+		IMethodBinding Object_StaticEquals;
+		
 		IMethodBinding Array_get_Length;
 		
 		IMethodBinding String_get_Length;
@@ -102,13 +104,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			RuntimeServices_Contains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Contains");
 			RuntimeServices_StringContains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("StringContains");
 			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
+			Object_StaticEquals = (IMethodBinding)BindingManager.AsBinding(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
 			IList_Contains = (IMethodBinding)BindingManager.IListTypeBinding.Resolve("Contains");
 			IDictionary_Contains = (IMethodBinding)BindingManager.IDictionaryTypeBinding.Resolve("Contains");
-			Tuple_TypedConstructor1 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { typeof(Type), typeof(IEnumerable) }));
-			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { typeof(Type), typeof(int) }));
+			Tuple_TypedConstructor1 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.IEnumerable }));
+			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.Int }));
 			
 			ApplicationException_StringConstructor =
 					(IConstructorBinding)BindingManager.AsBinding(
@@ -426,8 +429,20 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		public override bool EnterConstructor(Constructor node)
-		{
-			InternalConstructorBinding binding = new InternalConstructorBinding(BindingManager, node);
+		{			
+			InternalConstructorBinding binding = (InternalConstructorBinding)BindingManager.GetOptionalBinding(node);
+			if (null == binding)
+			{
+				binding = new InternalConstructorBinding(BindingManager, node);
+			}
+			else
+			{
+				if (binding.Visited)
+				{
+					return false;
+				}
+			}
+			
 			binding.Visited = true;
 			
 			Bind(node, binding);
@@ -1006,7 +1021,14 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
-			Bind(node, BindingManager.GetBinding(_currentMethodBinding.Method.DeclaringType));
+			if (_currentMethodBinding.IsStatic)
+			{
+				Error(node, CompilerErrorFactory.ObjectRequired(node));
+			}
+			else
+			{
+				Bind(node, BindingManager.GetBinding(_currentMethodBinding.Method.DeclaringType));
+			}
 		}
 		
 		public override void LeaveAsExpression(AsExpression node)
@@ -1044,11 +1066,10 @@ namespace Boo.Lang.Compiler.Pipeline
 						MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
 						memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
 						memberRef.Name = node.Name;
-						Bind(memberRef, member);
-						
-						Switch(memberRef.Target);
 						
 						node.ParentNode.Replace(node, memberRef);
+						
+						Switch(memberRef);
 					}
 					else
 					{
@@ -1325,6 +1346,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.NotMatch:
+				{
+					BindMatchOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.Member:
 				{
 					BindMember(node);
@@ -1352,12 +1379,6 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BinaryOperatorType.ReferenceInequality:
 				{
 					BindReferenceEquality(node);
-					break;
-				}
-				
-				case BinaryOperatorType.NotMatch:
-				{
-					BindMatchOperator(node);
 					break;
 				}
 				
@@ -1439,13 +1460,13 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BinaryOperatorType.Inequality:
 				{
-					ResolveOperator("op_Inequality", node);
+					BindCmpOperator(node);
 					break;
 				}
 				
 				case BinaryOperatorType.Equality:
 				{
-					ResolveOperator("op_Equality", node);
+					BindCmpOperator(node);
 					break;
 				}
 				
@@ -1499,12 +1520,34 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				BindingManager.Bind(node, BindingManager.BoolTypeBinding);
 			}
-			else
+			else if (!ResolveOperator(node))
 			{
-				Error(node,
-						CompilerErrorFactory.InvalidOperatorForTypes(node,
-							GetBinaryOperatorText(node.Operator),
-							lhs.FullName, rhs.FullName));
+				switch (node.Operator)
+				{
+					case BinaryOperatorType.Equality:
+					{
+						Expression expression = CreateEquals(node);
+						node.ParentNode.Replace(node, expression);
+						break;
+					}
+					
+					case BinaryOperatorType.Inequality:
+					{
+						Expression expression = CreateEquals(node);
+						Node parent = node.ParentNode;
+						parent.Replace(node, CreateNotExpression(expression));
+						break;
+					}
+					
+					default:
+					{
+						Error(node,
+								CompilerErrorFactory.InvalidOperatorForTypes(node,
+									GetBinaryOperatorText(node.Operator),
+									lhs.FullName, rhs.FullName));
+						break;
+					}
+				}
 			}
 		}
 		
@@ -1753,6 +1796,17 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 		}	
+		
+		MethodInvocationExpression CreateEquals(BinaryExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
+			mie.Target = new ReferenceExpression(Object_StaticEquals.FullName);
+			mie.Arguments.Add(node.Left);
+			mie.Arguments.Add(node.Right);
+			Bind(mie, Object_StaticEquals);
+			Bind(mie.Target, Object_StaticEquals);
+			return mie;
+		}
 		
 		UnaryExpression CreateNotExpression(Expression node)
 		{
@@ -2098,23 +2152,28 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void BindMatchOperator(BinaryExpression node)
 		{
-			ExpressionCollection args = new ExpressionCollection();
+			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);			
+			ExpressionCollection args = mie.Arguments;
 			args.Add(node.Left);
 			args.Add(node.Right);
 			
-			if (CheckParameters(node, RuntimeServices_IsMatchBinding, args))
+			if (CheckParameterTypesStrictly(RuntimeServices_IsMatchBinding, args))
 			{
-				// todo; trocar Bind e BindOperator por um 
-				// unico Bind(node, new OperatorBinding())
-				Bind(node, RuntimeServices_IsMatchBinding);
+				mie.Target = new ReferenceExpression(RuntimeServices_IsMatchBinding.FullName);				
+				Bind(mie, RuntimeServices_IsMatchBinding);
+				Bind(mie.Target, RuntimeServices_IsMatchBinding);				
 				if (BinaryOperatorType.NotMatch == node.Operator)
 				{
-					Negate(node, BinaryOperatorType.Match);
+					node.ParentNode.Replace(node, CreateNotExpression(mie));					
+				}
+				else
+				{
+					node.ParentNode.Replace(node, mie);
 				}
 			}
 			else
 			{
-				Error(node);
+				InvalidOperatorForTypes(node, node.Operator, GetExpressionType(node.Left), GetExpressionType(node.Right));
 			}
 		}
 		
@@ -2257,6 +2316,37 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
+		bool CheckParameterTypesStrictly(IMethodBinding method, ExpressionCollection args)
+		{
+			for (int i=0; i<args.Count; ++i)
+			{
+				ITypeBinding expressionType = GetExpressionType(args[i]);
+				ITypeBinding parameterType = method.GetParameterType(i);
+				if (!IsAssignableFrom(parameterType, expressionType))
+				{
+					
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		bool CheckParameterTypes(IMethodBinding method, ExpressionCollection args)
+		{
+			for (int i=0; i<args.Count; ++i)
+			{
+				ITypeBinding expressionType = GetExpressionType(args[i]);
+				ITypeBinding parameterType = method.GetParameterType(i);
+				if (!IsAssignableFrom(parameterType, expressionType) &&
+				    !CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
+				{
+					
+					return false;
+				}
+			}
+			return true;
+		}
+		
 		bool CheckParameters(Node sourceNode, IMethodBinding method, ExpressionCollection args)
 		{				
 			if (method.ParameterCount != args.Count)
@@ -2265,18 +2355,10 @@ namespace Boo.Lang.Compiler.Pipeline
 				return false;
 			}	
 			
-			for (int i=0; i<args.Count; ++i)
+			if (!CheckParameterTypes(method, args))
 			{
-				ITypeBinding expressionType = GetExpressionType(args[i]);
-				ITypeBinding parameterType = method.GetParameterType(i);
-				if (!IsAssignableFrom(parameterType, expressionType) &&
-				    !CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
-				{
-					Error(CompilerErrorFactory.MethodSignature(sourceNode, GetSignature(method), GetSignature(args)));
-					return false;
-				}
+				Error(CompilerErrorFactory.MethodSignature(sourceNode, GetSignature(method), GetSignature(args)));
 			}
-			
 			return true;
 		}
 		
@@ -2553,21 +2635,53 @@ namespace Boo.Lang.Compiler.Pipeline
 			return null;
 		}
 		
-		bool ResolveOperator(string name, BinaryExpression node)
+		string GetMethodNameForOperator(BinaryOperatorType op)
 		{
-			ITypeBinding boundType = GetBoundType(node.Left);
-			IBinding binding = boundType.Resolve(name);
-			if (null == binding)
+			switch (op)
 			{
-				Error(node);
-				return false;
+				case BinaryOperatorType.Equality:
+				{
+					return "op_Equality";
+				}
+				
+				case BinaryOperatorType.Inequality:
+				{
+					return "op_Inequality";
+				}
 			}
-			
-			// todo: check parameters
-			// todo: resolve when ambiguous
-			Bind(node, binding);
-			
-			return true;
+			return null;
+		}
+		
+		bool ResolveOperator(BinaryExpression node)
+		{
+			string operatorName = GetMethodNameForOperator(node.Operator);
+			if (null != operatorName)
+			{
+				ITypeBinding boundType = GetBoundType(node.Left);
+				IBinding binding = boundType.Resolve(operatorName);
+				if (null != binding)
+				{
+					if (BindingType.Method == binding.BindingType)
+					{
+						MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
+						mie.Arguments.Add(node.Left);
+						mie.Arguments.Add(node.Right);
+						
+						if (CheckParameterTypesStrictly((IMethodBinding)binding, mie.Arguments))
+						{
+							mie.Target = new ReferenceExpression(binding.FullName);
+							
+							Bind(mie, binding);
+							Bind(mie.Target, binding);
+							
+							node.ParentNode.Replace(node, mie);
+							
+							return true;
+						}
+					}
+				}
+			}
+			return false;
 		}
 		
 		bool CheckLValue(Node node, IBinding binding)

@@ -111,7 +111,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				moduleClass.Modifiers = TypeMemberModifiers.Public |
 										TypeMemberModifiers.Final |
 										TypeMemberModifiers.Transient;
-				node.Members.Insert(0, moduleClass);
+				node.Members.Add(moduleClass);
 				
 				SetModuleClass(node, moduleClass);
 			}

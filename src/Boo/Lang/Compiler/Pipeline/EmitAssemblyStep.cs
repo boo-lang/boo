@@ -838,6 +838,20 @@ namespace Boo.Lang.Compiler.Pipeline
 			EmitCastIfNeeded(type, PopType());
 		}
 		
+		void OnEquality(BinaryExpression node)
+		{
+			LoadCmpOperands(node);
+			_il.Emit(OpCodes.Ceq);
+			PushBool();
+		}
+		
+		void OnInequality(BinaryExpression node)
+		{
+			LoadCmpOperands(node);
+			_il.Emit(OpCodes.Ceq);
+			EmitIntNot();
+		}
+		
 		void OnGreaterThan(BinaryExpression node)
 		{
 			LoadCmpOperands(node);
@@ -1045,6 +1059,18 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.Equality:
+				{
+					OnEquality(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Inequality:
+				{
+					OnInequality(node);
+					break;
+				}
+				
 				case BinaryOperatorType.GreaterThan:
 				{
 					OnGreaterThan(node);
@@ -1097,22 +1123,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{				
-					IBinding binding = BindingManager.GetBinding(node);
-					if (BindingType.Method == binding.BindingType)
-					{
-						// operator
-						IMethodBinding methodBinding = (IMethodBinding)binding;
-						node.Left.Switch(this);
-						EmitCastIfNeeded(methodBinding.GetParameterType(0), PopType());
-						node.Right.Switch(this);
-						EmitCastIfNeeded(methodBinding.GetParameterType(1), PopType());
-						_il.EmitCall(OpCodes.Call, GetMethodInfo(methodBinding), null);
-						PushType(methodBinding.ReturnType);
-					}
-					else
-					{
-						NotImplemented(node, binding.ToString());
-					}
+					NotImplemented(node, node.Operator.ToString());
 					break;
 				}
 			}
@@ -1454,33 +1465,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{			
 			IBinding binding = BindingManager.GetBinding(node);
 			switch (binding.BindingType)
-			{
-				case BindingType.Property:
-				{
-					OpCode code = OpCodes.Call;
-					PropertyInfo property = GetPropertyInfo(binding);
-					MethodInfo getMethod = property.GetGetMethod(true);
-					if (!getMethod.IsStatic)
-					{	
-						ITypeBinding targetType = GetBoundType(node.Target);
-						if (targetType.IsValueType)
-						{
-							LoadAddress(node.Target);
-						}
-						else
-						{
-							node.Target.Switch(this); PopType();
-						}
-						if (getMethod.IsVirtual)
-						{
-							code = OpCodes.Callvirt;
-						}
-					}
-					_il.EmitCall(code, getMethod, null);					
-					PushType(((ITypedBinding)binding).BoundType);
-					break;
-				}
-				
+			{				
 				case BindingType.Method:
 				{
 					node.Target.Switch(this);

@@ -109,14 +109,14 @@ namespace Boo.Lang.Compiler.Bindings
 				{					
 					if (member.NodeType == NodeType.Constructor)
 					{
-						/*IBinding binding = BindingManager.GetOptionalBinding(member);
+						IBinding binding = BindingManager.GetOptionalBinding(member);
 						if (null == binding)
 						{
 							binding = new InternalConstructorBinding(_bindingManager, (Constructor)member);
 							BindingManager.Bind(member, binding);
 						}
-						constructors.Add(binding);*/
-						constructors.Add(BindingManager.GetBinding(member));
+						constructors.Add(binding);
+						//constructors.Add(BindingManager.GetBinding(member));
 					}
 				}
 				_constructors = (IConstructorBinding[])constructors.ToArray(typeof(IConstructorBinding));

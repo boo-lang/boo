@@ -233,6 +233,11 @@ done * usar métodos definidos em outros módulos no mesmo namespace
 
 done * ERROR: can't redefine primitive: 'string'
 
+done * operador '=='
+	done * para números é mapeado para instrução il ceq
+	done * para objetos que sobrecarregam o operador op_Equality
+	done * para o restante é mapeado para object.Equals 
+
 * assembly attributes: [assembly: AssemblyVersion("foo")]
 
 * remover DepthFirstTransformer pois não é mais necessário e só confunde...

@@ -56,6 +56,7 @@ BCE0054='isa' espera uma referência a um tipo, uma instância de System.Type ou
 BCE0055=Erro interno ao compilador: {0}.
 BCE0056=O arquivo '{0}' não foi encontrado.
 BCE0057=A primitiva '{0}' não pode ser redefinido.
+BCE0058=Objeto esperado.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

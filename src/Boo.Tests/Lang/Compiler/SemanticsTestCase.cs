@@ -58,6 +58,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void EqualityOperator()
+		{
+			RunCompilerTestCase("equality0.boo");
+		}
+		
+		[Test]
 		public void EnumSemantics()
 		{
 			RunCompilerTestCase("enum0.boo");

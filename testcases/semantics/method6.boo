@@ -2,7 +2,7 @@
 public final transient class Method6Module(System.Object):
 
 	public static def greeting(who as System.String) as System.String:
-		if (who != 'bamboo'):
+		if System.String.op_Inequality(who, 'bamboo'):
 			return 'wassup, g?'
 		return Method6Module.g()
 
