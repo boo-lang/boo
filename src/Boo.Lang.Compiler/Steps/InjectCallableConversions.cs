@@ -115,6 +115,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+		{
+			Expression newTarget = Convert(node.Target.ExpressionType, node.Target);
+			if (null != newTarget)
+			{
+				node.Target = newTarget;
+			}
+		}
+		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
 			if (BinaryOperatorType.Assign == node.Operator)

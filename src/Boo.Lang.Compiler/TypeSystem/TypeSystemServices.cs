@@ -108,20 +108,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		Boo.Lang.Compiler.Ast.Module _anonymousTypesModule;
 		
-		CompileUnit _compileUnit;
+		CompilerContext _context;
 		
-		public TypeSystemServices() : this(new CompileUnit())
+		public TypeSystemServices() : this(new CompilerContext())
 		{
 		}
 		
-		public TypeSystemServices(CompileUnit unit)		
+		public TypeSystemServices(CompilerContext context)		
 		{			
-			if (null == unit)
+			if (null == context)
 			{
-				throw new ArgumentNullException("unit");
+				throw new ArgumentNullException("context");
 			}
 			
-			_compileUnit = unit;
+			_context = context;
 			
 			Cache(VoidType = new VoidTypeImpl(this));
 			Cache(ObjectType = new ExternalType(this, Types.Object));
@@ -592,29 +592,63 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == _anonymousTypesModule)
 			{
 				_anonymousTypesModule = new Boo.Lang.Compiler.Ast.Module();
-				//_compileUnit.Modules.Add(_anonymousTypesModule);
+				_anonymousTypesModule.Entity = new ModuleEntity(_context.NameResolutionService, 
+																this,
+																_anonymousTypesModule);
+				_context.CompileUnit.Modules.Add(_anonymousTypesModule);
 			}
 			return _anonymousTypesModule;
+		}
+		
+		Method CreateBeginInvokeMethod(AnonymousCallableType anonymousType)
+		{
+			Method method = CreateRuntimeMethod("BeginInvoke", Map(typeof(IAsyncResult)),
+												anonymousType.GetSignature().Parameters);
+												
+			int delta=method.Parameters.Count;
+			method.Parameters.Add(
+					CreateParameterDeclaration(delta+1, "callback", Map(typeof(AsyncCallback))));
+			method.Parameters.Add(
+					CreateParameterDeclaration(delta+1, "asyncState", ObjectType));
+			return method;
+		}
+		
+		Method CreateEndInvokeMethod(AnonymousCallableType anonymousType)
+		{
+			CallableSignature signature = anonymousType.GetSignature();
+			Method method = CreateRuntimeMethod("EndInvoke", signature.ReturnType);
+			int delta=method.Parameters.Count;
+			method.Parameters.Add(
+				CreateParameterDeclaration(delta+1, "result", Map(typeof(IAsyncResult))));
+			return method;
 		}
 		
 		Method CreateInvokeMethod(AnonymousCallableType anonymousType)
 		{
 			CallableSignature signature = anonymousType.GetSignature();
-			IParameter[] parameters = signature.Parameters;
-			
-			Method method = new Method("Invoke");
-			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
-			method.ReturnType = CreateTypeReference(signature.ReturnType);
-			
+			return CreateRuntimeMethod("Invoke", signature.ReturnType, signature.Parameters);
+		}
+		
+		Method CreateRuntimeMethod(string name, IType returnType, IParameter[] parameters)
+		{
+			Method method = CreateRuntimeMethod(name, returnType);
 			for (int i=0; i<parameters.Length; ++i)
 			{
 				method.Parameters.Add(CreateParameterDeclaration(i,
 									"arg" + i,
 									parameters[i].Type));
 			}
+			return method;
+		}
+		
+		Method CreateRuntimeMethod(string name, IType returnType)
+		{
+			Method method = new Method(name);
+			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
+			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
+			method.ReturnType = CreateTypeReference(returnType);
 			method.Entity = new InternalMethod(this, method);
-			return method;			
+			return method;
 		}
 		
 		void CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
@@ -625,7 +659,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ClassDefinition cd = CreateCallableDefinition(name);
 			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;
+			
 			cd.Members.Add(CreateInvokeMethod(anonymousType));
+			cd.Members.Add(CreateBeginInvokeMethod(anonymousType));
+			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
 			_anonymousTypesModule.Members.Add(cd);
 			
 			anonymousType.ConcreteType = (IType)cd.Entity;

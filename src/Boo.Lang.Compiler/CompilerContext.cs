@@ -60,6 +60,10 @@ namespace Boo.Lang.Compiler
 		protected Assembly _generatedAssembly;
 		
 		protected Hash _properties;
+		
+		public CompilerContext() : this(new CompileUnit())
+		{
+		}
 
 		public CompilerContext(CompileUnit unit) : this(new CompilerParameters(), unit)
 		{				
@@ -81,7 +85,7 @@ namespace Boo.Lang.Compiler
 			_errors = new CompilerErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_typeSystemServices = new TypeSystem.TypeSystemServices(unit);
+			_typeSystemServices = new TypeSystem.TypeSystemServices(this);
 			_nameResolutionService = new TypeSystem.NameResolutionService(this); 
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
