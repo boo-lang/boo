@@ -76,12 +76,12 @@ class ReturnType(AbstractReturnType):
 			if ar.ElementType isa AST.SimpleTypeReference:
 				super.FullyQualifiedName = cast(AST.SimpleTypeReference, ar.ElementType).Name
 			else:
-				print ("Got unknown TypeReference in Array: ${t} (${t.GetType().FullName})")
+				print ("Got unknown TypeReference in Array: ${t}")
 				super.FullyQualifiedName = "<Error>"
 		else:
 			super.arrayDimensions = array(int, 0)
 			super.FullyQualifiedName = "<Error>"
-			print ("Got unknown TypeReference ${t} (${t.GetType().FullName})")
+			print ("Got unknown TypeReference ${t}")
 		
 	
 	def constructor(t as AST.TypeDefinition):

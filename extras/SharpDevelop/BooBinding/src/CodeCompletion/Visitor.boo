@@ -74,24 +74,35 @@ class Visitor(AbstractVisitorCompilerStep):
 	private def GetRegion(m as AST.Node):
 		l = m.LexicalInfo
 		return null if (l.Line < 0)
-		if m isa AST.Method:
-			stat = cast(AST.Method, m).Body.Statements
-			if stat.Count > 0:
-				return DefaultRegion(l.Line, l.Column, l.Line, GetLineEnd(l.Line))
-		elif m isa AST.TypeDefinition:
-			print "${m}: LexInfo=${l}; EndSourceLoc=${m.EndSourceLocation}"
-		return null
+		return DefaultRegion(l.Line, 0 /*l.Column*/, l.Line, GetLineEnd(l.Line))
 	
-	private def GetClientRegion(m as AST.Node):
+	private def GetClientRegion(m as AST.Node) as DefaultRegion:
 		l = m.LexicalInfo
-		return null if (l.Line < 0)
+		return null if l.Line < 0
+		l2 as AST.SourceLocation = null
 		if m isa AST.Method:
-			stat = cast(AST.Method, m).Body.Statements
-			if stat.Count > 0:
-				l2 = stat[stat.Count - 1].LexicalInfo
-				print "GetClientRegion for ${m}: ${l.Line}, ${GetLineEnd(l.Line)}; ${l2.Line}, ${GetLineEnd(l2.Line)}"
-				return DefaultRegion(l.Line, GetLineEnd(l.Line), l2.Line, GetLineEnd(l2.Line))
-		return null
+			l2 = cast(AST.Method, m).Body.EndSourceLocation
+		elif m isa AST.Property:
+			p as AST.Property = m
+			if p.Getter != null and p.Getter.Body != null:
+				l2 = cast(AST.Property, m).Getter.Body.EndSourceLocation
+				if p.Setter != null and p.Setter.Body != null:
+					l3 = cast(AST.Property, m).Setter.Body.EndSourceLocation
+					l2 = l3 if l3.Line > l2.Line
+			elif p.Setter != null and p.Setter.Body != null:
+				l2 = cast(AST.Property, m).Setter.Body.EndSourceLocation
+		elif m isa AST.TypeDefinition:
+			best as DefaultRegion = null
+			for member as AST.Node in cast(AST.TypeDefinition, m).Members:
+				reg = GetClientRegion(member)
+				best = reg if reg != null and (best == null or reg.EndLine > best.EndLine)
+			if best != null:
+				return DefaultRegion(l.Line, GetLineEnd(l.Line), best.EndLine, GetLineEnd(best.EndLine))
+		else:
+			l2 = m.EndSourceLocation
+		return null if l2 == null or l2.Line < 0 or l.Line == l2.Line
+		// TODO: use l.Column / l2.Column when the tab-bug has been fixed
+		return DefaultRegion(l.Line, GetLineEnd(l.Line), l2.Line, GetLineEnd(l2.Line))
 	
 	override def OnImport(p as AST.Import):
 		u = Using()
@@ -136,7 +147,7 @@ class Visitor(AbstractVisitorCompilerStep):
 	private def EnterTypeDefinition(node as AST.TypeDefinition, classType as ClassType):
 		try:
 			print "Enter ${node.GetType().Name} (${node.FullName})"
-			region = GetRegion(node)
+			region = GetClientRegion(node)
 			modifier = GetModifier(node)
 			c = Class(_cu, classType, modifier, region)
 			c.FullyQualifiedName = node.FullName
@@ -174,10 +185,14 @@ class Visitor(AbstractVisitorCompilerStep):
 		c.UpdateModifier()
 	
 	override def OnMethod(node as AST.Method):
-		print "Method: ${node.FullName}"
-		method = Method(node.Name, ReturnType(node.ReturnType), GetModifier(node), GetRegion(node), GetClientRegion(node))
-		method.Parameters = GetParameters(node.Parameters)
-		cast(Class, _currentClass.Peek()).Methods.Add(method)
+		try:
+			print "Method: ${node.FullName}"
+			method = Method(node.Name, ReturnType(node.ReturnType), GetModifier(node), GetRegion(node), GetClientRegion(node))
+			method.Parameters = GetParameters(node.Parameters)
+			cast(Class, _currentClass.Peek()).Methods.Add(method)
+		except ex:
+			print ex.ToString()
+			raise
 	
 	private def GetParameters(params as AST.ParameterDeclarationCollection):
 		parameters = ParameterCollection()
@@ -195,7 +210,6 @@ class Visitor(AbstractVisitorCompilerStep):
 	override def OnField(node as AST.Field):
 		try:
 			print "Field ${node.Name}"
-			return if node.Type == null
 			c as Class = _currentClass.Peek()
 			field = Field(ReturnType(node.Type), node.Name, GetModifier(node), GetRegion(node))
 			if c.ClassType == ClassType.Enum:
@@ -206,9 +220,13 @@ class Visitor(AbstractVisitorCompilerStep):
 			raise
 	
 	override def OnProperty(node as AST.Property):
-		print "Property ${node.Name}"
-		property = Property(node.Name, ReturnType(node.Type), GetModifier(node), GetRegion(node), GetClientRegion(node))
-		cast(Class, _currentClass.Peek()).Properties.Add(property)
+		try:
+			print "Property ${node.Name}"
+			property = Property(node.Name, ReturnType(node.Type), GetModifier(node), GetRegion(node), GetClientRegion(node))
+			cast(Class, _currentClass.Peek()).Properties.Add(property)
+		except ex:
+			print ex.ToString()
+			raise
 	
 	/*
 	// TODO: Event Declaration
