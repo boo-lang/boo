@@ -77,6 +77,10 @@ class InteractiveInterpreterTestFixture:
 		assert 1 == _interpreter.GetValue("a")
 		assert 2 == _interpreter.GetValue("b")
 		
+		Eval("a, b = b, a")
+		assert 2 == _interpreter.GetValue("a")
+		assert 1 == _interpreter.GetValue("b")
+		
 	[Test]
 	def ArraySlicing():
 		Eval("a = 1, 2, 3")

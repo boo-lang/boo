@@ -2280,11 +2280,11 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IEntity tag = NameResolutionService.Resolve(d.Name, 
-										EntityType.Local|EntityType.Parameter) as ILocalEntity;
+					IEntity tag = NameResolutionService.Resolve(d.Name);
 					if (null != tag)
-					{
+					{						
 						Bind(d, tag);
+						CheckLValue(d);
 						continue;
 					}
 				}
