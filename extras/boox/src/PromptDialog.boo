@@ -1,3 +1,5 @@
+namespace BooExplorer
+
 import System.Windows.Forms
 import System.Drawing
 import System
