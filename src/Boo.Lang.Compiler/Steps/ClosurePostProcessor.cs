@@ -76,10 +76,10 @@ namespace Boo.Lang.Compiler.Steps
 			TypeDefinition parent = method.DeclaringType;
 			parent.Members.Remove(method);
 			
-			BooClassBuilder builder = collector.CreateSkeletonClass(method.Name);					
+			BooClassBuilder builder = collector.CreateSkeletonClass(method.Name);
+			parent.Members.Add(builder.ClassDefinition);
 			builder.ClassDefinition.Members.Add(method);			
-			method.Name = "Invoke";			
-			parent.Members.Add(builder.ClassDefinition);	
+			method.Name = "Invoke";	
 			
 			if (method.IsStatic)
 			{	

@@ -167,7 +167,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
 			{
 				Field field = builder.AddField("__" + entity.Name, entity.Type);
-				field.Modifiers = TypeMemberModifiers.Public;				
+				field.Modifiers = TypeMemberModifiers.Internal;				
 				_referencedEntities[entity] = field.Entity;
 			}
 			

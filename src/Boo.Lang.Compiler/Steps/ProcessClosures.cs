@@ -97,11 +97,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (_closureDepth > 0)
 			{
-				LocalVariable local = node.Entity as LocalVariable;
+				ILocalEntity local = node.Entity as ILocalEntity;
 				if (null != local)
 				{
 					if (!local.IsPrivateScope &&
-						_currentMethod.Locals.ContainsEntity(local))
+						(
+							_currentMethod.Locals.ContainsEntity(local) ||
+							_currentMethod.Parameters.ContainsEntity(local)
+						))
 					{
 						local.IsShared = true;						
 					}
@@ -127,11 +130,13 @@ namespace Boo.Lang.Compiler.Steps
 							mapped));
 				}
 			}
-				
-			_currentMethod.Body.Insert(0,
-				CodeBuilder.CreateAssignment(
-					CodeBuilder.CreateReference(locals),
-					CodeBuilder.CreateConstructorInvocation(type.GetConstructors()[0])));
+			
+			Block initializationBlock = new Block();
+			initializationBlock.Add(CodeBuilder.CreateAssignment(
+						CodeBuilder.CreateReference(locals),
+						CodeBuilder.CreateConstructorInvocation(type.GetConstructors()[0])));
+			InitializeSharedParameters(initializationBlock, locals);
+			_currentMethod.Body.Statements.Insert(0, initializationBlock);			
 						
 			foreach (IEntity entity in _mappings.Keys)
 			{
@@ -139,18 +144,29 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void InitializeSharedParameters(Block block, LocalVariable locals)
+		{			
+			foreach (Node node in _currentMethod.Parameters)
+			{
+				InternalParameter param = (InternalParameter)node.Entity;
+				if (param.IsShared)
+				{
+					block.Add(
+						CodeBuilder.CreateAssignment(
+							CodeBuilder.CreateMemberReference(
+								CodeBuilder.CreateReference(locals),
+								(IField)_mappings[param]),
+							CodeBuilder.CreateReference(param)));
+				}
+			}
+		}
+		
 		void CreateSharedLocalsClass()
 		{
 			_shared.Clear();
 			
-			foreach (Local local in _currentMethod.Locals)
-			{
-				LocalVariable var = (LocalVariable)local.Entity;
-				if (var.IsShared)
-				{
-					_shared.Add(var);
-				}
-			}
+			CollectSharedLocalEntities(_currentMethod.Locals);
+			CollectSharedLocalEntities(_currentMethod.Parameters);			
 			
 			if (_shared.Count > 0)
 			{
@@ -159,21 +175,33 @@ namespace Boo.Lang.Compiler.Steps
 				builder.AddBaseType(TypeSystemServices.ObjectType);
 				
 				int i=0;
-				foreach (LocalVariable var in _shared)
+				foreach (ILocalEntity local in _shared)
 				{
 					Field field = builder.AddField(
-									string.Format("__{0}_{1}", var.Name, i),
-									var.Type);
-					field.Modifiers = TypeMemberModifiers.Public;
+									string.Format("__{0}_{1}", local.Name, i),
+									local.Type);
+					field.Modifiers = TypeMemberModifiers.Internal;
 					++i;
 					
-					_mappings[var] = field.Entity;
+					_mappings[local] = field.Entity;
 				}
 				
 				builder.AddConstructor().Body.Add(
 					CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));
 					
 				_sharedLocalsClass = builder.ClassDefinition;
+			}
+		}
+		
+		void CollectSharedLocalEntities(NodeCollection nodes)
+		{
+			foreach (Node node in nodes)
+			{
+				ILocalEntity local = (ILocalEntity)node.Entity;
+				if (local.IsShared)
+				{
+					_shared.Add(local);
+				}
 			}
 		}
 	}

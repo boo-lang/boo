@@ -30,11 +30,13 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public class InternalParameter : IParameter
+	public class InternalParameter : IParameter, ILocalEntity
 	{
 		ParameterDeclaration _parameter;
 		
 		int _index;
+		
+		bool _shared;
 		
 		public InternalParameter(ParameterDeclaration parameter, int index)
 		{
@@ -92,6 +94,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 			set
 			{
 				_index = value;
+			}
+		}
+		
+		public bool IsPrivateScope
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
+		public bool IsShared
+		{
+			get
+			{
+				return _shared;
+			}
+			
+			set
+			{
+				_shared = true;
 			}
 		}
 	}

@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {	
-	public class LocalVariable : ITypedEntity
+	public class LocalVariable : ITypedEntity, ILocalEntity
 	{		
 		Boo.Lang.Compiler.Ast.Local _local;
 		
@@ -77,9 +77,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		/// <summary>
-		/// Is this variable shared among closures?
-		/// </summary>
 		public bool IsShared
 		{
 			get

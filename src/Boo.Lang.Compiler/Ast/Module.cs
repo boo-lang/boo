@@ -50,6 +50,18 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
+		override public string FullName
+		{
+			get
+			{
+				if (null != _namespace)
+				{
+					return _namespace.Name + "." + Name;
+				}
+				return Name;
+			}
+		}
+		
 		override public void Accept(IAstVisitor visitor)
 		{
 			visitor.OnModule(this);

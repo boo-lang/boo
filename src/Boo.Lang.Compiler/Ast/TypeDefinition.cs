@@ -50,10 +50,21 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get
 			{
-				NamespaceDeclaration ns = EnclosingNamespace;
-				if (null != ns)
+				Node parent = ParentNode;
+				if (null != parent)
 				{
-					return ns.Name + "." + Name;
+					if (NodeType.Module == parent.NodeType)
+					{
+						NamespaceDeclaration ns = EnclosingNamespace;
+						if (null != ns)
+						{
+							return ns.Name + "." + Name;
+						}
+					}
+					else
+					{
+						return ((TypeDefinition)parent).FullName + "." + Name;
+					}
 				}
 				return Name;
 			}

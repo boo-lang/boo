@@ -175,6 +175,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IType GetElementType();
 	}
 	
+	public interface ILocalEntity : ITypedEntity
+	{
+		bool IsPrivateScope
+		{
+			get;
+		}
+		
+		/// <summary>
+		/// Is this variable shared among closures?
+		/// </summary>
+		bool IsShared
+		{
+			get;
+			set;
+		}
+	}
+	
 	public interface IParameter : ITypedEntity
 	{		
 	}
