@@ -182,6 +182,17 @@ namespace Boo.AntlrParser.Tests
 		[Test]
 		public void StatementModifiersOnUnpackStatement()
 		{
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("stmt_modifiers_3.boo");
+			
+			Block body = module.Globals;
+			Assert.AreEqual(2, body.Statements.Count);
+			
+			UnpackStatement stmt = (UnpackStatement)body.Statements[0];
+			Assert.IsNotNull(stmt.Modifier, "Modifier");
+			Assert.AreEqual(StatementModifierType.If, stmt.Modifier.Type);
+			Assert.IsTrue(stmt.Modifier.Condition is BoolLiteralExpression);
+			Assert.AreEqual(true, ((BoolLiteralExpression)stmt.Modifier.Condition).Value);
+			
 			RunParserTestCase("stmt_modifiers_3.boo");
 		}
 		

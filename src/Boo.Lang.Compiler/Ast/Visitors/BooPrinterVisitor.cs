@@ -682,6 +682,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			WriteOperator(" = ");
 			Visit(us.Expression);
+			Visit(us.Modifier);
 			WriteLine();
 		}
 
