@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -33,6 +33,9 @@ using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using Boo.Ast;
+using Boo.Ast.Compilation;
+using Boo.Ast.Compilation.IO;
+using Boo.Ast.Compilation.Steps;
 using Boo.Ast.Parsing;
 using Boo.Tests;
 
@@ -42,28 +45,28 @@ namespace Boo.Tests.Ast.Parsing
 	/// Test cases for the BooParser class.
 	/// </summary>
 	[TestFixture]
-	public class BooParserTestCase : Assertion
+	public class BooParserTestCase
 	{
 		[Test]
 		public void TestSimple()
 		{
 			string fname = BooTestCaseUtil.GetTestCasePath("simple.boo");
 			CompileUnit cu = BooParser.ParseFile(fname);
-			AssertNotNull(cu);
-
+			Assert.IsNotNull(cu);
+			
 			Boo.Ast.Module module = cu.Modules[0];
-			AssertNotNull(module);
-			AssertEquals("simple", module.Name);
-			AssertEquals("module doc string", module.Documentation);
-			AssertEquals("Empty.simple", module.FullyQualifiedName);
-			AssertEquals(fname, module.LexicalInfo.FileName);
+			Assert.IsNotNull(module);
+			Assert.AreEqual("simple", module.Name);
+			Assert.AreEqual("module doc string", module.Documentation);
+			Assert.AreEqual("Empty.simple", module.FullyQualifiedName);
+			Assert.AreEqual(fname, module.LexicalInfo.FileName);
 
-			AssertNotNull(module.Package);
+			Assert.IsNotNull(module.Package);
 
-			AssertEquals("Empty", module.Package.Name);
-			AssertEquals(4, module.Package.LexicalInfo.Line);
-			AssertEquals(1, module.Package.LexicalInfo.StartColumn);
-			AssertEquals(fname, module.Package.LexicalInfo.FileName);
+			Assert.AreEqual("Empty", module.Package.Name);
+			Assert.AreEqual(4, module.Package.LexicalInfo.Line);
+			Assert.AreEqual(1, module.Package.LexicalInfo.StartColumn);
+			Assert.AreEqual(fname, module.Package.LexicalInfo.FileName);
 		}
 
 		[Test]
@@ -72,53 +75,52 @@ namespace Boo.Tests.Ast.Parsing
 			string fname = BooTestCaseUtil.GetTestCasePath("simple_classes.boo");
 
 			Boo.Ast.Module module = BooParser.ParseFile(fname).Modules[0];
-			AssertEquals("Foo.Bar", module.Package.Name);
+			Assert.AreEqual("Foo.Bar", module.Package.Name);
 			
-			AssertNotNull(module.Members);
-			AssertEquals(2, module.Members.Count);
+			Assert.IsNotNull(module.Members);
+			Assert.AreEqual(2, module.Members.Count);
 
 			TypeMember cd = module.Members[0];
-			Assert(cd is ClassDefinition);
-			AssertEquals("Customer", cd.Name);
-			AssertEquals("Foo.Bar.Customer", ((TypeDefinition)cd).FullyQualifiedName);
-			AssertSame(module.Package, ((TypeDefinition)cd).EnclosingPackage);
+			Assert.IsTrue(cd is ClassDefinition);
+			Assert.AreEqual("Customer", cd.Name);
+			Assert.AreEqual("Foo.Bar.Customer", ((TypeDefinition)cd).FullyQualifiedName);
+			Assert.AreSame(module.Package, ((TypeDefinition)cd).EnclosingPackage);
 
 			cd = module.Members[1];
-			AssertEquals("Person", cd.Name);
+			Assert.AreEqual("Person", cd.Name);
 		}
 
 		[Test]
 		public void TestSimpleClassMethods()
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_class_methods.boo");
-			AssertEquals("ITL.Content", module.Package.Name);
-			AssertEquals(1, module.Using.Count);
+			Assert.AreEqual("ITL.Content", module.Package.Name);
+			Assert.AreEqual(1, module.Using.Count);
 
 			Using i = module.Using[0];
-			AssertEquals("System", i.Namespace);
-			AssertEquals(3, i.LexicalInfo.Line);
+			Assert.AreEqual("System", i.Namespace);
+			Assert.AreEqual(3, i.LexicalInfo.Line);
 
-			AssertEquals(1, module.Members.Count);
+			Assert.AreEqual(1, module.Members.Count);
 
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
-			AssertEquals("Article", cd.Name);
+			Assert.AreEqual("Article", cd.Name);
 
-			AssertEquals(3, cd.Members.Count);
+			Assert.AreEqual(3, cd.Members.Count);
 			
 			Method m = (Method)cd.Members[0];
-			AssertEquals("getTitle", m.Name);
-			AssertNotNull("ReturnType", m.ReturnType);
-			AssertEquals("string", m.ReturnType.Name);
+			Assert.AreEqual("getTitle", m.Name);
+			Assert.IsNotNull(m.ReturnType, "ReturnType");
+			Assert.AreEqual("string", m.ReturnType.Name);
 
 			m = (Method)cd.Members[1];
-			AssertEquals("getBody", m.Name);
-			AssertNotNull("ReturnType", m.ReturnType);
-			AssertEquals("string", m.ReturnType.Name);
+			Assert.AreEqual("getBody", m.Name);
+			Assert.IsNotNull(m.ReturnType, "ReturnType");
+			Assert.AreEqual("string", m.ReturnType.Name);
 
 			m = (Method)cd.Members[2];
-			AssertEquals("getTag", m.Name);
-			AssertNull("M�todos sem tipo de retorno deve ter refer�ncia ReturnType nula!", 
-				m.ReturnType);
+			Assert.AreEqual("getTag", m.Name);
+			Assert.IsNull(m.ReturnType, "methods without a return type must have ReturnType set to null!");
 		}
 
 		[Test]
@@ -126,53 +128,46 @@ namespace Boo.Tests.Ast.Parsing
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_class_fields.boo");
 
-			AssertEquals(1, module.Members.Count);
+			Assert.AreEqual(1, module.Members.Count);
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
 			
-			AssertEquals("Members", 3, cd.Members.Count);
+			Assert.AreEqual(3, cd.Members.Count, "Members");
 
 			Field f = (Field)cd.Members[0];
-			AssertEquals("_name", f.Name);
-			AssertNotNull("Field.Type", f.Type);
-			AssertEquals("string", f.Type.Name);
+			Assert.AreEqual("_name", f.Name);
+			Assert.IsNotNull(f.Type, "Field.Type");
+			Assert.AreEqual("string", f.Type.Name);
 
 			Constructor c = (Constructor)cd.Members[1];
-			AssertEquals("constructor", c.Name);
-			AssertNull(c.ReturnType);
-			AssertEquals("Parameters.Count", 1, c.Parameters.Count);
-			AssertEquals("name", c.Parameters[0].Name);
-			AssertEquals("string", c.Parameters[0].Type.Name);
+			Assert.AreEqual("constructor", c.Name);
+			Assert.IsNull(c.ReturnType);
+			Assert.AreEqual(1, c.Parameters.Count, "Parameters.Count");
+			Assert.AreEqual("name", c.Parameters[0].Name);
+			Assert.AreEqual("string", c.Parameters[0].Type.Name);
 
 			Method m = (Method)cd.Members[2];
-			AssertEquals("getName", m.Name);
-			AssertNull(m.ReturnType);
-			AssertEquals(0, m.Parameters.Count);
-			AssertNotNull("Body", m.Body);
-			AssertEquals(1, m.Body.Statements.Count);
+			Assert.AreEqual("getName", m.Name);
+			Assert.IsNull(m.ReturnType);
+			Assert.AreEqual(0, m.Parameters.Count);
+			Assert.IsNotNull(m.Body, "Body");
+			Assert.AreEqual(1, m.Body.Statements.Count);
 
 			ReturnStatement rs = (ReturnStatement)m.Body.Statements[0];
 			ReferenceExpression i = (ReferenceExpression)rs.Expression;
-			AssertEquals("_name", i.Name);
+			Assert.AreEqual("_name", i.Name);
 		}
 
 		[Test]
 		public void TestSimpleGlobalDefs()
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_global_defs.boo");
-			AssertEquals("Math", module.Package.Name);
-			AssertEquals(3, module.Members.Count);
-			AssertEquals("Rational", module.Members[0].Name);
-			AssertEquals("pi", module.Members[1].Name);
-			AssertEquals("rationalPI", module.Members[2].Name);
-			AssertEquals(0, module.Globals.Statements.Count);
+			Assert.AreEqual("Math", module.Package.Name);
+			Assert.AreEqual(3, module.Members.Count);
+			Assert.AreEqual("Rational", module.Members[0].Name);
+			Assert.AreEqual("pi", module.Members[1].Name);
+			Assert.AreEqual("rationalPI", module.Members[2].Name);
+			Assert.AreEqual(0, module.Globals.Statements.Count);
 		}
-
-		/* s6.boo n�o traz nada de novo
-		[Test]
-		public void TestS6()
-		{
-		}
-		*/
 
 		[Test]
 		public void TestGlobalDefs2()
@@ -180,52 +175,52 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("global_defs_2.boo");			
 
 			Method m = (Method)module.Members[0];
-			AssertEquals("square", m.Name);
-			AssertEquals(1, m.Parameters.Count);
-			AssertEquals("x", m.Parameters[0].Name);
-			AssertEquals("int", m.Parameters[0].Type.Name);
-			AssertEquals("int", m.ReturnType.Name);
+			Assert.AreEqual("square", m.Name);
+			Assert.AreEqual(1, m.Parameters.Count);
+			Assert.AreEqual("x", m.Parameters[0].Name);
+			Assert.AreEqual("int", m.Parameters[0].Type.Name);
+			Assert.AreEqual("int", m.ReturnType.Name);
 			
 			Block b = m.Body;
-			AssertEquals(1, b.Statements.Count);
+			Assert.AreEqual(1, b.Statements.Count);
 
 			ReturnStatement rs = b.Statements[0] as ReturnStatement;
-			AssertNotNull("ReturnStatement", rs);
+			Assert.IsNotNull(rs, "ReturnStatement");
 
 			BinaryExpression bs = rs.Expression as BinaryExpression;
-			AssertNotNull("BinaryExpression", bs);
+			Assert.IsNotNull(bs, "BinaryExpression");
 
-			AssertEquals(BinaryOperatorType.Multiply, bs.Operator);
-			Assert(bs.Left is ReferenceExpression);
-			Assert(bs.Right is ReferenceExpression);
-			AssertEquals("x", ((ReferenceExpression)bs.Left).Name);
-			AssertEquals("x", ((ReferenceExpression)bs.Right).Name);
+			Assert.AreEqual(BinaryOperatorType.Multiply, bs.Operator);
+			Assert.IsTrue(bs.Left is ReferenceExpression);
+			Assert.IsTrue(bs.Right is ReferenceExpression);
+			Assert.AreEqual("x", ((ReferenceExpression)bs.Left).Name);
+			Assert.AreEqual("x", ((ReferenceExpression)bs.Right).Name);
 
 			m = (Method)module.Members[1];
 			b = m.Body;
 
-			AssertEquals(2, b.Statements.Count);
+			Assert.AreEqual(2, b.Statements.Count);
 
 			ExpressionStatement es = b.Statements[0] as ExpressionStatement;
-			AssertNotNull("ExpressionStatement", es);
+			Assert.IsNotNull(es, "ExpressionStatement");
 
 			MethodInvocationExpression mce = es.Expression as MethodInvocationExpression;
-			AssertNotNull("MethodInvocationExpression", mce);
-			AssertEquals("print", ((ReferenceExpression)mce.Target).Name);
-			AssertEquals(1, mce.Arguments.Count);
-			Assert(mce.Arguments[0] is MethodInvocationExpression);
+			Assert.IsNotNull(mce, "MethodInvocationExpression");
+			Assert.AreEqual("print", ((ReferenceExpression)mce.Target).Name);
+			Assert.AreEqual(1, mce.Arguments.Count);
+			Assert.IsTrue(mce.Arguments[0] is MethodInvocationExpression);
 			mce = (MethodInvocationExpression)mce.Arguments[0];
-			AssertEquals(3, mce.Arguments.Count);
-			AssertEquals("x = {0}, y = {1}", ((StringLiteralExpression)mce.Arguments[0]).Value);
+			Assert.AreEqual(3, mce.Arguments.Count);
+			Assert.AreEqual("x = {0}, y = {1}", ((StringLiteralExpression)mce.Arguments[0]).Value);
 
 			rs = b.Statements[1] as ReturnStatement;
-			AssertNotNull("rs", rs);
+			Assert.IsNotNull(rs, "rs");
 			bs = rs.Expression as BinaryExpression;
-			AssertNotNull("bs", bs);
+			Assert.IsNotNull(bs, "bs");
 
-			AssertEquals(BinaryOperatorType.Add, bs.Operator);			
-			AssertEquals("x", ((ReferenceExpression)bs.Left).Name);
-			AssertEquals("y", ((ReferenceExpression)bs.Right).Name);
+			Assert.AreEqual(BinaryOperatorType.Add, bs.Operator);			
+			Assert.AreEqual("x", ((ReferenceExpression)bs.Left).Name);
+			Assert.AreEqual("y", ((ReferenceExpression)bs.Right).Name);
 		}
 
 		[Test]
@@ -234,22 +229,22 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("global_stmts_1.boo");
 			
 			Block g = module.Globals;
-			AssertEquals(1, g.Statements.Count);
+			Assert.AreEqual(1, g.Statements.Count);
 
 			ExpressionStatement es = (ExpressionStatement)g.Statements[0];
 			MethodInvocationExpression mce = (MethodInvocationExpression)es.Expression;
-			AssertEquals(1, mce.Arguments.Count);
+			Assert.AreEqual(1, mce.Arguments.Count);
 
 			BinaryExpression be = (BinaryExpression)mce.Arguments[0];
-			AssertEquals(BinaryOperatorType.Add, be.Operator);
+			Assert.AreEqual(BinaryOperatorType.Add, be.Operator);
 
 			mce = (MethodInvocationExpression)be.Left;
 			IntegerLiteralExpression ile = (IntegerLiteralExpression)mce.Arguments[0];
-			AssertEquals("3", ile.Value);
+			Assert.AreEqual("3", ile.Value);
 
 			mce = (MethodInvocationExpression)be.Right;
 			ile = (IntegerLiteralExpression)mce.Arguments[0];
-			AssertEquals("5", ile.Value);
+			Assert.AreEqual("5", ile.Value);
 		}
 
 		[Test]
@@ -259,13 +254,13 @@ namespace Boo.Tests.Ast.Parsing
 
 			Method m = (Method)module.Members[0];
 			ReturnStatement rs = (ReturnStatement)m.Body.Statements[0];
-			AssertNotNull("Modifier", rs.Modifier);
-			AssertEquals(StatementModifierType.If, rs.Modifier.Type);
+			Assert.IsNotNull(rs.Modifier, "Modifier");
+			Assert.AreEqual(StatementModifierType.If, rs.Modifier.Type);
 
 			BinaryExpression be = (BinaryExpression)rs.Modifier.Condition;
-			AssertEquals(BinaryOperatorType.LessThan, be.Operator);
-			AssertEquals("n", ((ReferenceExpression)be.Left).Name);
-			AssertEquals("2", ((IntegerLiteralExpression)be.Right).Value);
+			Assert.AreEqual(BinaryOperatorType.LessThan, be.Operator);
+			Assert.AreEqual("n", ((ReferenceExpression)be.Left).Name);
+			Assert.AreEqual("2", ((IntegerLiteralExpression)be.Right).Value);
 		}
 
 		[Test]
@@ -275,34 +270,26 @@ namespace Boo.Tests.Ast.Parsing
 
 			ExpressionStatement s = (ExpressionStatement)module.Globals.Statements[0];
 			BinaryExpression a = (BinaryExpression)s.Expression;			
-			AssertEquals(BinaryOperatorType.Assign, a.Operator);
-			AssertEquals("f", ((ReferenceExpression)a.Left).Name);
-			AssertEquals(BinaryOperatorType.Divide, ((BinaryExpression)a.Right).Operator);
+			Assert.AreEqual(BinaryOperatorType.Assign, a.Operator);
+			Assert.AreEqual("f", ((ReferenceExpression)a.Left).Name);
+			Assert.AreEqual(BinaryOperatorType.Divide, ((BinaryExpression)a.Right).Operator);
 		}
 
 		[Test]
 		public void TestStaticMethod()
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("static_method.boo");
-			AssertEquals(1, module.Members.Count);
+			Assert.AreEqual(1, module.Members.Count);
 
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
-			AssertEquals("Math", cd.Name);
-			AssertEquals(1, cd.Members.Count);
+			Assert.AreEqual("Math", cd.Name);
+			Assert.AreEqual(1, cd.Members.Count);
 
 			Method m = (Method)cd.Members[0];
-			AssertEquals(TypeMemberModifiers.Static, m.Modifiers);
-			AssertEquals("square", m.Name);
-			AssertEquals("int", m.ReturnType.Name);
+			Assert.AreEqual(TypeMemberModifiers.Static, m.Modifiers);
+			Assert.AreEqual("square", m.Name);
+			Assert.AreEqual("int", m.ReturnType.Name);
 		}
-
-		/*
-		 * Nada de novo
-		[Test]
-		public void TestS12()
-		{
-		}
-		*/
 
 		[Test]
 		public void TestClass2()
@@ -310,12 +297,12 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("class_2.boo");
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
 
-			AssertEquals(6, cd.Members.Count);
+			Assert.AreEqual(6, cd.Members.Count);
 			for (int i=0; i<5; ++i)
 			{
-				AssertEquals(TypeMemberModifiers.None, cd.Members[i].Modifiers);
+				Assert.AreEqual(TypeMemberModifiers.None, cd.Members[i].Modifiers);
 			}
-			AssertEquals(TypeMemberModifiers.Public | TypeMemberModifiers.Static, cd.Members[5].Modifiers);
+			Assert.AreEqual(TypeMemberModifiers.Public | TypeMemberModifiers.Static, cd.Members[5].Modifiers);
 		}
 
 		[Test]
@@ -324,38 +311,38 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("for_stmt_1.boo");
 
 			ForStatement fs = (ForStatement)module.Globals.Statements[0];
-			AssertEquals(1, fs.Declarations.Count);
+			Assert.AreEqual(1, fs.Declarations.Count);
 			
 			Declaration d = fs.Declarations[0];
-			AssertEquals("i", d.Name);
-			AssertNull(d.Type);
+			Assert.AreEqual("i", d.Name);
+			Assert.IsNull(d.Type);
 
 			ListLiteralExpression lle = (ListLiteralExpression)fs.Iterator;
-			AssertEquals(3, lle.Items.Count);
+			Assert.AreEqual(3, lle.Items.Count);
 			for (int i=0; i<3; ++i)
 			{
-				AssertEquals((i+1).ToString(), ((IntegerLiteralExpression)lle.Items[i]).Value);
+				Assert.AreEqual((i+1).ToString(), ((IntegerLiteralExpression)lle.Items[i]).Value);
 			}
 
-			AssertEquals(1, fs.Statements.Count);
-			AssertEquals("print", ((ReferenceExpression)((MethodInvocationExpression)((ExpressionStatement)fs.Statements[0]).Expression).Target).Name);
+			Assert.AreEqual(1, fs.Statements.Count);
+			Assert.AreEqual("print", ((ReferenceExpression)((MethodInvocationExpression)((ExpressionStatement)fs.Statements[0]).Expression).Target).Name);
 		}
 
 		[Test]
 		public void TestRELiteral1()
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("re_literal_1.boo");
-			AssertEquals(2, module.Globals.Statements.Count);
+			Assert.AreEqual(2, module.Globals.Statements.Count);
 
 			ExpressionStatement es = (ExpressionStatement)module.Globals.Statements[1];
-			AssertEquals("print", ((ReferenceExpression)((MethodInvocationExpression)es.Expression).Target).Name);
+			Assert.AreEqual("print", ((ReferenceExpression)((MethodInvocationExpression)es.Expression).Target).Name);
 
-			AssertEquals(StatementModifierType.If, es.Modifier.Type);
+			Assert.AreEqual(StatementModifierType.If, es.Modifier.Type);
 			
 			BinaryExpression be = (BinaryExpression)es.Modifier.Condition;
-			AssertEquals(BinaryOperatorType.Match, be.Operator);
-			AssertEquals("s", ((ReferenceExpression)be.Left).Name);
-			AssertEquals("/foo/", ((RELiteralExpression)be.Right).Value);
+			Assert.AreEqual(BinaryOperatorType.Match, be.Operator);
+			Assert.AreEqual("s", ((ReferenceExpression)be.Left).Name);
+			Assert.AreEqual("/foo/", ((RELiteralExpression)be.Right).Value);
 		}
 
 		[Test]
@@ -364,15 +351,15 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("re_literal_2.boo");
 
 			StatementCollection stmts = module.Globals.Statements;
-			AssertEquals(2, stmts.Count);
+			Assert.AreEqual(2, stmts.Count);
 
 			BinaryExpression ae = (BinaryExpression)((ExpressionStatement)stmts[0]).Expression;
-			AssertEquals(BinaryOperatorType.Assign, ae.Operator);
-			AssertEquals("\\\"Bamboo\\\"\\n", ((StringLiteralExpression)ae.Right).Value);
+			Assert.AreEqual(BinaryOperatorType.Assign, ae.Operator);
+			Assert.AreEqual("\\\"Bamboo\\\"\\n", ((StringLiteralExpression)ae.Right).Value);
 
 			ae = (BinaryExpression)((ExpressionStatement)stmts[1]).Expression;
-			AssertEquals(BinaryOperatorType.Assign, ae.Operator);
-			AssertEquals("/foo\\(bar\\)/", ((RELiteralExpression)ae.Right).Value);
+			Assert.AreEqual(BinaryOperatorType.Assign, ae.Operator);
+			Assert.AreEqual("/foo\\(bar\\)/", ((RELiteralExpression)ae.Right).Value);
 		}
 
 		[Test]
@@ -381,24 +368,24 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("if_else_1.boo");
 
 			StatementCollection stmts = module.Globals.Statements;
-			AssertEquals(1, stmts.Count);
+			Assert.AreEqual(1, stmts.Count);
 
 			IfStatement s = (IfStatement)stmts[0];
 			BinaryExpression be = (BinaryExpression)s.Expression;
-			AssertEquals(BinaryOperatorType.Match, be.Operator);
-			AssertEquals("gets", ((ReferenceExpression)((MethodInvocationExpression)be.Left).Target).Name);
-			AssertEquals("/foo/", ((RELiteralExpression)be.Right).Value);
-			AssertEquals(3, s.TrueBlock.Statements.Count);
-			AssertNull(s.FalseBlock);
+			Assert.AreEqual(BinaryOperatorType.Match, be.Operator);
+			Assert.AreEqual("gets", ((ReferenceExpression)((MethodInvocationExpression)be.Left).Target).Name);
+			Assert.AreEqual("/foo/", ((RELiteralExpression)be.Right).Value);
+			Assert.AreEqual(3, s.TrueBlock.Statements.Count);
+			Assert.IsNull(s.FalseBlock);
 
 			s = (IfStatement)s.TrueBlock.Statements[2];
 			be = (BinaryExpression)s.Expression;
-			AssertEquals("/bar/", ((RELiteralExpression)be.Right).Value);
-			AssertEquals(1, s.TrueBlock.Statements.Count);
-			AssertNotNull(s.FalseBlock);
-			AssertEquals(1, s.FalseBlock.Statements.Count);
-			AssertEquals("foobar, eh?", ((StringLiteralExpression)((MethodInvocationExpression)((ExpressionStatement)s.TrueBlock.Statements[0]).Expression).Arguments[0]).Value);
-			AssertEquals("nah?", ((StringLiteralExpression)((MethodInvocationExpression)((ExpressionStatement)s.FalseBlock.Statements[0]).Expression).Arguments[0]).Value);
+			Assert.AreEqual("/bar/", ((RELiteralExpression)be.Right).Value);
+			Assert.AreEqual(1, s.TrueBlock.Statements.Count);
+			Assert.IsNotNull(s.FalseBlock);
+			Assert.AreEqual(1, s.FalseBlock.Statements.Count);
+			Assert.AreEqual("foobar, eh?", ((StringLiteralExpression)((MethodInvocationExpression)((ExpressionStatement)s.TrueBlock.Statements[0]).Expression).Arguments[0]).Value);
+			Assert.AreEqual("nah?", ((StringLiteralExpression)((MethodInvocationExpression)((ExpressionStatement)s.FalseBlock.Statements[0]).Expression).Arguments[0]).Value);
 		}
 
 		[Test]
@@ -406,33 +393,33 @@ namespace Boo.Tests.Ast.Parsing
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("interface_1.boo");
 
-			AssertEquals(1, module.Members.Count);
+			Assert.AreEqual(1, module.Members.Count);
 
 			InterfaceDefinition id = (InterfaceDefinition)module.Members[0];
-			AssertEquals("IContentItem", id.Name);
+			Assert.AreEqual("IContentItem", id.Name);
 
-			AssertEquals(5, id.Members.Count);
+			Assert.AreEqual(5, id.Members.Count);
 			
 			Property p = (Property)id.Members[0];
-			AssertEquals("Parent", p.Name);
-			AssertEquals("IContentItem", p.Type.Name);
-			AssertNotNull("Getter", p.Getter);
-			AssertNull("Setter", p.Setter);
+			Assert.AreEqual("Parent", p.Name);
+			Assert.AreEqual("IContentItem", p.Type.Name);
+			Assert.IsNotNull(p.Getter, "Getter");
+			Assert.IsNull(p.Setter, "Setter");
 
 			p = (Property)id.Members[1];
-			AssertEquals("Name", p.Name);
-			AssertEquals("string", p.Type.Name);
-			AssertNotNull("Getter", p.Getter);
-			AssertNotNull("Setter", p.Setter);
+			Assert.AreEqual("Name", p.Name);
+			Assert.AreEqual("string", p.Type.Name);
+			Assert.IsNotNull(p.Getter, "Getter");
+			Assert.IsNotNull(p.Setter, "Setter");
 
 			Method m = (Method)id.Members[2];
-			AssertEquals("SelectItem", m.Name);
-			AssertEquals("IContentItem", m.ReturnType.Name);
-			AssertEquals("expression", m.Parameters[0].Name);
-			AssertEquals("string", m.Parameters[0].Type.Name);
+			Assert.AreEqual("SelectItem", m.Name);
+			Assert.AreEqual("IContentItem", m.ReturnType.Name);
+			Assert.AreEqual("expression", m.Parameters[0].Name);
+			Assert.AreEqual("string", m.Parameters[0].Type.Name);
 
-			AssertEquals("Validate", ((Method)id.Members[3]).Name);
-			AssertEquals("OnRemove", ((Method)id.Members[4]).Name);
+			Assert.AreEqual("Validate", ((Method)id.Members[3]).Name);
+			Assert.AreEqual("OnRemove", ((Method)id.Members[4]).Name);
 		}
 
 		[Test]
@@ -440,23 +427,23 @@ namespace Boo.Tests.Ast.Parsing
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("enum_1.boo");
 
-			AssertEquals(2, module.Members.Count);
+			Assert.AreEqual(2, module.Members.Count);
 
 			EnumDefinition ed = (EnumDefinition)module.Members[0];
-			AssertEquals("Priority", ed.Name);
-			AssertEquals(3, ed.Members.Count);
-			AssertEquals("Low", ed.Members[0].Name);
-			AssertEquals("Normal", ed.Members[1].Name);
-			AssertEquals("High", ed.Members[2].Name);
+			Assert.AreEqual("Priority", ed.Name);
+			Assert.AreEqual(3, ed.Members.Count);
+			Assert.AreEqual("Low", ed.Members[0].Name);
+			Assert.AreEqual("Normal", ed.Members[1].Name);
+			Assert.AreEqual("High", ed.Members[2].Name);
 
 			ed = (EnumDefinition)module.Members[1];
-			AssertEquals(3, ed.Members.Count);
-			AssertEquals("Easy", ed.Members[0].Name);
-			AssertEquals("0", ((EnumMember)ed.Members[0]).Initializer.Value);
-			AssertEquals("Normal", ed.Members[1].Name);
-			AssertEquals("5", ((EnumMember)ed.Members[1]).Initializer.Value);
-			AssertEquals("Hard", ed.Members[2].Name);
-			AssertNull("Initializer", ((EnumMember)ed.Members[2]).Initializer);
+			Assert.AreEqual(3, ed.Members.Count);
+			Assert.AreEqual("Easy", ed.Members[0].Name);
+			Assert.AreEqual("0", ((EnumMember)ed.Members[0]).Initializer.Value);
+			Assert.AreEqual("Normal", ed.Members[1].Name);
+			Assert.AreEqual("5", ((EnumMember)ed.Members[1]).Initializer.Value);
+			Assert.AreEqual("Hard", ed.Members[2].Name);
+			Assert.IsNull(((EnumMember)ed.Members[2]).Initializer, "Initializer");
 		}
 
 		[Test]
@@ -465,32 +452,32 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("properties_1.boo");
 
 			ClassDefinition cd = (ClassDefinition)module.Members[0];
-			AssertEquals("Person", cd.Name);
-			AssertEquals("_id", cd.Members[0].Name);
-			AssertEquals("_name", cd.Members[1].Name);
+			Assert.AreEqual("Person", cd.Name);
+			Assert.AreEqual("_id", cd.Members[0].Name);
+			Assert.AreEqual("_name", cd.Members[1].Name);
 
 			Property p = (Property)cd.Members[3];
-			AssertEquals("ID", p.Name);
-			AssertEquals("string", p.Type.Name);
-			AssertNotNull("Getter", p.Getter);
-			AssertEquals(1, p.Getter.Body.Statements.Count);
-			AssertEquals("_id", ((ReferenceExpression)((ReturnStatement)p.Getter.Body.Statements[0]).Expression).Name);
-			AssertNull("Setter", p.Setter);
+			Assert.AreEqual("ID", p.Name);
+			Assert.AreEqual("string", p.Type.Name);
+			Assert.IsNotNull(p.Getter, "Getter");
+			Assert.AreEqual(1, p.Getter.Body.Statements.Count);
+			Assert.AreEqual("_id", ((ReferenceExpression)((ReturnStatement)p.Getter.Body.Statements[0]).Expression).Name);
+			Assert.IsNull(p.Setter, "Setter");
 
 			p = (Property)cd.Members[4];
-			AssertEquals("Name", p.Name);
-			AssertEquals("string", p.Type.Name);
-			AssertNotNull("Getter ", p.Getter);
-			AssertEquals(1, p.Getter.Body.Statements.Count);
-			AssertEquals("_name", ((ReferenceExpression)((ReturnStatement)p.Getter.Body.Statements[0]).Expression).Name);
+			Assert.AreEqual("Name", p.Name);
+			Assert.AreEqual("string", p.Type.Name);
+			Assert.IsNotNull(p.Getter, "Getter ");
+			Assert.AreEqual(1, p.Getter.Body.Statements.Count);
+			Assert.AreEqual("_name", ((ReferenceExpression)((ReturnStatement)p.Getter.Body.Statements[0]).Expression).Name);
 
-			AssertNotNull("Setter", p.Setter);
-			AssertEquals(1, p.Setter.Body.Statements.Count);
+			Assert.IsNotNull(p.Setter, "Setter");
+			Assert.AreEqual(1, p.Setter.Body.Statements.Count);
 
 			BinaryExpression a = (BinaryExpression)((ExpressionStatement)p.Setter.Body.Statements[0]).Expression;
-			AssertEquals(BinaryOperatorType.Assign, a.Operator);
-			AssertEquals("_name", ((ReferenceExpression)a.Left).Name);
-			AssertEquals("value", ((ReferenceExpression)a.Right).Name);
+			Assert.AreEqual(BinaryOperatorType.Assign, a.Operator);
+			Assert.AreEqual("_name", ((ReferenceExpression)a.Left).Name);
+			Assert.AreEqual("value", ((ReferenceExpression)a.Right).Name);
 		}
 
 		[Test]
@@ -500,22 +487,22 @@ namespace Boo.Tests.Ast.Parsing
 
 			WhileStatement ws = (WhileStatement)module.Globals.Statements[3];
 			BinaryExpression condition = (BinaryExpression)ws.Condition;
-			AssertEquals(BinaryOperatorType.Inequality, condition.Operator);
-			AssertEquals("guess", ((ReferenceExpression)condition.Left).Name);
-			AssertEquals("number", ((ReferenceExpression)condition.Right).Name);
+			Assert.AreEqual(BinaryOperatorType.Inequality, condition.Operator);
+			Assert.AreEqual("guess", ((ReferenceExpression)condition.Left).Name);
+			Assert.AreEqual("number", ((ReferenceExpression)condition.Right).Name);
 
-			AssertEquals(4, ws.Statements.Count);
+			Assert.AreEqual(4, ws.Statements.Count);
 
 			BreakStatement bs = (BreakStatement)ws.Statements[3];
 			condition = (BinaryExpression)bs.Modifier.Condition;
-			AssertEquals(BinaryOperatorType.Equality, condition.Operator);
+			Assert.AreEqual(BinaryOperatorType.Equality, condition.Operator);
 		}
 
 		[Test]
 		public void TestCppComments()
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("cpp_comments.boo");
-			AssertEquals("CPlusPlusStyleComments", module.Package.Name);
+			Assert.AreEqual("CPlusPlusStyleComments", module.Package.Name);
 		}
 
 		[Test]
@@ -523,14 +510,14 @@ namespace Boo.Tests.Ast.Parsing
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("unpack_stmt_1.boo");
 			UnpackStatement us = (UnpackStatement)module.Globals.Statements[0];
-			AssertEquals(2, us.Declarations.Count);
-			AssertEquals("arg0", us.Declarations[0].Name);
-			AssertEquals("arg1", us.Declarations[1].Name);
+			Assert.AreEqual(2, us.Declarations.Count);
+			Assert.AreEqual("arg0", us.Declarations[0].Name);
+			Assert.AreEqual("arg1", us.Declarations[1].Name);
 
 			MethodInvocationExpression mce = (MethodInvocationExpression)us.Expression;
 			MemberReferenceExpression mre = ((MemberReferenceExpression)mce.Target);
-			AssertEquals("GetCommandLineArgs", mre.Name);
-			AssertEquals("Environment", ((ReferenceExpression)mre.Target).Name);
+			Assert.AreEqual("GetCommandLineArgs", mre.Name);
+			Assert.AreEqual("Environment", ((ReferenceExpression)mre.Target).Name);
 		}
 
 		[Test]
@@ -541,8 +528,8 @@ namespace Boo.Tests.Ast.Parsing
 			Method m = (Method)module.Members[0];
 			ForStatement fs = (ForStatement)m.Body.Statements[0];
 			YieldStatement ys = (YieldStatement)fs.Statements[0];
-			AssertEquals("i", ((ReferenceExpression)ys.Expression).Name);
-			AssertEquals(StatementModifierType.If, ys.Modifier.Type);
+			Assert.AreEqual("i", ((ReferenceExpression)ys.Expression).Name);
+			Assert.AreEqual(StatementModifierType.If, ys.Modifier.Type);
 
 		}
 
@@ -552,20 +539,20 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("nonsignificant_ws_regions_1.boo");
 
 			StatementCollection stmts = module.Globals.Statements;
-			AssertEquals(2, stmts.Count);
+			Assert.AreEqual(2, stmts.Count);
 
 			ExpressionStatement es = (ExpressionStatement)stmts[0];
 			BinaryExpression ae = (BinaryExpression)es.Expression;
-			AssertEquals(BinaryOperatorType.Assign, ae.Operator);
-			AssertEquals("a", ((ReferenceExpression)ae.Left).Name);
-			AssertEquals(2, ((ListLiteralExpression)ae.Right).Items.Count);
+			Assert.AreEqual(BinaryOperatorType.Assign, ae.Operator);
+			Assert.AreEqual("a", ((ReferenceExpression)ae.Left).Name);
+			Assert.AreEqual(2, ((ListLiteralExpression)ae.Right).Items.Count);
 
 			ForStatement fs = (ForStatement)stmts[1];
 			MethodInvocationExpression mce = (MethodInvocationExpression)fs.Iterator;
-			AssertEquals("map", ((ReferenceExpression)mce.Target).Name);
-			AssertEquals(2, mce.Arguments.Count);
+			Assert.AreEqual("map", ((ReferenceExpression)mce.Target).Name);
+			Assert.AreEqual(2, mce.Arguments.Count);
 
-			AssertEquals(1, fs.Statements.Count);
+			Assert.AreEqual(1, fs.Statements.Count);
 		}
 
 		[Test]
@@ -574,21 +561,21 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("tuples_1.boo");
 
 			StatementCollection sc = module.Globals.Statements;
-			AssertEquals(4, sc.Count);
+			Assert.AreEqual(4, sc.Count);
 
 			BinaryExpression ae = (BinaryExpression)((ExpressionStatement)sc[0]).Expression;
-			AssertEquals("names", ((ReferenceExpression)ae.Left).Name);
+			Assert.AreEqual("names", ((ReferenceExpression)ae.Left).Name);
 
 			TupleLiteralExpression tle = (TupleLiteralExpression)ae.Right;
-			AssertEquals(3, tle.Items.Count);
+			Assert.AreEqual(3, tle.Items.Count);
 
 			ae = (BinaryExpression)((ExpressionStatement)sc[1]).Expression;
 			tle = (TupleLiteralExpression)ae.Right;
-			AssertEquals(3, tle.Items.Count);
+			Assert.AreEqual(3, tle.Items.Count);
 
 			ae = (BinaryExpression)((ExpressionStatement)sc[3]).Expression;
 			tle = (TupleLiteralExpression)ae.Right;
-			AssertEquals(1, tle.Items.Count);
+			Assert.AreEqual(1, tle.Items.Count);
 		}
 
 		[Test]
@@ -654,7 +641,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestAssert()
 		{
-			RunXmlTestCase("assert.boo");
+			RunParserTestCase("assert.boo");
 		}
 
 		[Test]
@@ -721,6 +708,48 @@ namespace Boo.Tests.Ast.Parsing
 		public void TestUsing()
 		{
 			RunXmlTestCase("using.boo");
+		}
+		
+		[TestFixtureSetUp]
+		public void SetUpFixture()
+		{
+			_compiler = new Compiler();
+			_compiler.Parameters.Pipeline.Add(new BooParsingStep());
+			_compiler.Parameters.Pipeline.Add(new BooPrinterStep());			
+		}
+		
+		[SetUp]
+		public void SetUp()
+		{
+			_compiler.Parameters.Input.Clear();
+		}
+		
+		Compiler _compiler;
+		
+		void RunParserTestCase(string testfile)
+		{			
+			TextWriter oldStdOut = Console.Out;
+			try
+			{
+				StringWriter stdout = new StringWriter();
+				Console.SetOut(stdout);
+			
+				_compiler.Parameters.Input.Add(new FileInput(BooTestCaseUtil.GetTestCasePath(testfile)));
+				CompilerContext context = _compiler.Run();
+				if (context.Errors.Count > 0)
+				{
+					Assert.Fail(context.Errors.ToString());
+				}
+				
+				Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");
+				
+				string expected = context.CompileUnit.Modules[0].Documentation;
+				Assert.AreEqual(expected, stdout.ToString().Replace("\r\n", "\n"), testfile);				
+			}
+			finally
+			{
+				Console.SetOut(oldStdOut);
+			}
 		}
 
 		void RunXmlTestCase(string sample)

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -158,12 +158,26 @@ namespace Boo.Ast.Visiting
 			Write(".");
 			Write(e.Name);
 		}
+		
+		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
+		{
+			if (node.Value)
+			{
+				Write("true");
+			}
+			else
+			{
+				Write("false");
+			}
+		}
 
 		public override void OnBinaryExpression(BinaryExpression e)
 		{
+			Write("(");
 			Switch(e.Left);
 			WriteOperator(e.Operator);
 			Switch(e.Right);
+			Write(")");
 		}
 
 		public override void OnProperty(Property node)
@@ -282,12 +296,8 @@ namespace Boo.Ast.Visiting
 
 		public override void OnStringFormattingExpression(StringFormattingExpression sfe)
 		{
-			Write("string.Format('{0}'", sfe.Template);
-			foreach (Expression e in sfe.Arguments)
-			{
-				Write(", ");
-				Switch(e);
-			}
+			Write("string.Format('{0}', ", sfe.Template);
+			WriteTuple(sfe.Arguments);
 			Write(")");
 		}
 
@@ -378,7 +388,44 @@ namespace Boo.Ast.Visiting
 					Write(" =~ ");
 					break;
 				}
+				
+				case BinaryOperatorType.Equality:
+				{
+					Write(" == ");
+					break;
+				}
+				
+				case BinaryOperatorType.Add:
+				{
+					Write(" + ");
+					break;
+				}
 			}
+		}
+		
+		void WriteTuple(ExpressionCollection items)
+		{
+			Write("(");
+			if (items.Count > 1)
+			{
+				for (int i=0; i<items.Count; ++i)
+				{
+					if (i>0)
+					{
+						Write(", ");
+					}
+					Switch(items[i]);
+				}
+			}
+			else
+			{
+				if (items.Count > 0)
+				{
+					Switch(items[0]);
+				}
+				Write(",");
+			}
+			Write(")");
 		}
 
 		void WriteTypeDefinition(string keyword, TypeDefinition td)

@@ -117,7 +117,7 @@ namespace Boo.Tests.Ast.Compilation
 			File.Copy(booAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(booAssemblyPath)), true);
 			File.Copy(thisAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(thisAssemblyPath)), true);
 			
-			_testCasesPath = Path.Combine(GetBaseBooDirectory(), "testcases/compilation");
+			_testCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, "compilation");
 			
 			_compiler = new Compiler();
 			_parameters = _compiler.Parameters;
@@ -389,13 +389,6 @@ namespace Boo.Tests.Ast.Compilation
 		string GetTestCasePath(string fname)
 		{
 			return Path.Combine(_testCasesPath, fname);
-		}
-		
-		string GetBaseBooDirectory()
-		{
-			return Path.GetDirectoryName(
-			         Path.GetDirectoryName(GetType().Assembly.Location)
-			         );
 		}
 	}
 }
