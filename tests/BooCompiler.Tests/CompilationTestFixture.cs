@@ -35,30 +35,6 @@ namespace BooCompiler.Tests
 	public class CompilationTestFixture : AbstractCompilerTestCase
 	{				
 		[Test]
-		public void ComplexFieldInitializer()
-		{
-			RunCompilerTestCase("ComplexFieldInitializer.boo");
-		}
-		
-		[Test]
-		public void UnsignedToSignedConversion()
-		{
-			RunCompilerTestCase("unsigned0.boo");
-		}
-		
-		[Test]
-		public void SignedToUnsignedConversion()
-		{
-			RunCompilerTestCase("unsigned1.boo");
-		}
-		
-		[Test]
-		public void EvalExpressionGroup()
-		{
-			RunCompilerTestCase("__eval__.boo");
-		}
-		
-		[Test]
 		public void TestHello()
 		{
 			Assert.AreEqual("Hello!\n", RunString("print('Hello!')"));
@@ -73,40 +49,10 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void ExpressionInterpolation()
-		{
-			RunCompilerTestCase("expression_interpolation0.boo");
-		}
-		
-		[Test]
 		public void TypeReferenceRepresentsType()
 		{
 			RunCompilerTestCase("typereference0.boo");
 		}		
-		
-		[Test]
-		public void TestSimpleFor()
-		{
-			RunCompilerTestCase("for0.boo");
-		}
-		
-		[Test]
-		public void TestTypedFor()
-		{
-			RunCompilerTestCase("for1.boo");
-		}
-		
-		[Test]
-		public void TestUnpackFor()
-		{
-			RunCompilerTestCase("for2.boo");
-		}
-		
-		[Test]
-		public void TestPrivateForVariables()
-		{
-			RunCompilerTestCase("for3.boo");
-		}
 		
 		[Test]
 		public void TestIfModifier0()
@@ -114,18 +60,6 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase("if0.boo");
 		}
 		
-		[Test]
-		public void TestVar0()
-		{
-			RunCompilerTestCase("var0.boo");
-		}
-		
-		[Test]
-		public void TestVar1()
-		{
-			RunCompilerTestCase("var1.boo");
-		}
-
 		[Test]
 		public void TimeSpanLiteral()
 		{
@@ -217,24 +151,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void Or()
-		{
-			RunCompilerTestCase("or0.boo");
-		}
-		
-		[Test]
-		public void OrShortCircuit()
-		{
-			RunCompilerTestCase("or1.boo");
-		}
-		
-		[Test]
-		public void OrWithObjectReferences()
-		{
-			RunCompilerTestCase("or2.boo");
-		}
-		
-		[Test]
 		public void BooleanFromBoxedValueTypes()
 		{
 			RunCompilerTestCase("bool0.boo");
@@ -262,13 +178,7 @@ namespace BooCompiler.Tests
 		public void LessThanEqualForInts()
 		{
 			RunCompilerTestCase("lte_int.boo");
-		}
-		
-		[Test]
-		public void HashLiteral()
-		{
-			RunCompilerTestCase("hash0.boo");
-		}
+		}		
 		
 		[Test]
 		public void IndexedProperty()
@@ -355,30 +265,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void BreakForWhile()
-		{
-			RunCompilerTestCase("break0.boo");
-		}
-		
-		[Test]
-		public void BreakOutOfTry()
-		{
-			RunCompilerTestCase("break1.boo");
-		}
-		
-		[Test]
-		public void ContinueFor()
-		{
-			RunCompilerTestCase("continue0.boo");
-		}
-		
-		[Test]
-		public void ContinueWhile()
-		{
-			RunCompilerTestCase("continue1.boo");
-		}
-		
-		[Test]
 		public void StringFormattingWithTripleQuotedString()
 		{
 			RunCompilerTestCase("formatting0.boo");
@@ -424,36 +310,6 @@ namespace BooCompiler.Tests
 		public void EnumComparisons()
 		{
 			RunCompilerTestCase("enum_comparisons.boo");
-		}
-		
-		[Test]
-		public void Overloading()
-		{
-			RunCompilerTestCase("overloading0.boo");
-		}
-		
-		[Test]
-		public void OverloadingSelectionWithExternalTypeHierarchy()
-		{
-			RunCompilerTestCase("overloading1.boo");
-		}
-		
-		[Test]
-		public void OverloadingWithNewMethod()
-		{
-			RunCompilerTestCase("overloading2.boo");
-		}
-		
-		[Test]
-		public void OverloadingSelectionWithInternalTypeHierarchy()
-		{
-			RunCompilerTestCase("overloading3.boo");
-		}
-		
-		[Test]
-		public void OverloadingSelectionByInternalInterfaceHierarchy()
-		{
-			RunCompilerTestCase("overloading4.boo");
 		}
 		
 		[Test]
