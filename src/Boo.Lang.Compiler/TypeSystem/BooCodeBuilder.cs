@@ -426,6 +426,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 		
+		public Expression CreateNotNullTest(Expression target)
+		{
+			BinaryExpression test = new BinaryExpression(target.LexicalInfo,
+											BinaryOperatorType.ReferenceInequality,
+											target,
+											CreateNullLiteral());
+			test.ExpressionType = _tss.BoolType;
+			return test;
+		}
+		
 		public void BindParameterDeclarations(bool isStatic, ParameterDeclarationCollection parameters)
 		{
 			// arg0 is the this pointer when member is not static			

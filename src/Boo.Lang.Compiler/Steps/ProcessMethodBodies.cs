@@ -95,6 +95,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IConstructor TextReaderEnumerator_Constructor;
 		
+		IMethod Delegate_Combine;
+		
+		IMethod Delegate_Remove;
+		
 		InfoFilter IsPublicEventFilter;
 		
 		InfoFilter IsPublicFieldPropertyEventFilter;
@@ -156,7 +160,12 @@ namespace Boo.Lang.Compiler.Steps
 			Array_TypedConstructor2 = (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
 			ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
 			Activator_CreateInstance = (IMethod)TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
-			TextReaderEnumerator_Constructor = (IConstructor)TypeSystemServices.Map(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));			
+			TextReaderEnumerator_Constructor = (IConstructor)TypeSystemServices.Map(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
+			
+			Type delegateType = Types.Delegate;
+			Type[] delegates = new Type[] { delegateType, delegateType };
+			Delegate_Combine = TypeSystemServices.Map(delegateType.GetMethod("Combine", delegates));
+			Delegate_Remove = TypeSystemServices.Map(delegateType.GetMethod("Remove", delegates));			
 			
 			ApplicationException_StringConstructor =
 					(IConstructor)TypeSystemServices.Map(
@@ -272,16 +281,68 @@ namespace Boo.Lang.Compiler.Steps
 			return method;
 		}
 		
-		Method CreateEventAddMethod(Event node)
+		Method CreateEventAddMethod(Event node, Field backingField)
 		{
 			Method m = CreateEventMethod(node, "add_");
+			m.Body.Add(
+				CodeBuilder.CreateAssignment(
+					CodeBuilder.CreateReference(backingField),
+					CodeBuilder.CreateMethodInvocation(
+						Delegate_Combine,
+						CodeBuilder.CreateReference(backingField),
+						CodeBuilder.CreateReference(m.Parameters[0]))));
 			return m;
 		}
 		
-		Method CreateEventRemoveMethod(Event node)
+		Method CreateEventRemoveMethod(Event node, Field backingField)
 		{
 			Method m = CreateEventMethod(node, "remove_");
+			m.Body.Add(
+				CodeBuilder.CreateAssignment(
+					CodeBuilder.CreateReference(backingField),
+					CodeBuilder.CreateMethodInvocation(
+						Delegate_Remove,
+						CodeBuilder.CreateReference(backingField),
+						CodeBuilder.CreateReference(m.Parameters[0]))));
 			return m;
+		}
+		
+		Method CreateEventRaiseMethod(Event node, Field backingField)
+		{
+			Method method = CodeBuilder.CreateMethod("raise_" + node.Name,
+													TypeSystemServices.VoidType,
+													node.Modifiers);
+													
+			ICallableType type = GetEntity(node.Type) as ICallableType;
+			if (null != type)
+			{
+				int index = 1;
+				foreach (IParameter parameter in type.GetSignature().Parameters)
+				{
+					method.Parameters.Add(
+						CodeBuilder.CreateParameterDeclaration(
+							index,
+							parameter.Name,
+							parameter.Type));
+					++index;
+				}
+			}
+			
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+							CodeBuilder.CreateReference(backingField),
+							ResolveMethod(GetType(backingField.Type), "Invoke"));
+			foreach (ParameterDeclaration parameter in method.Parameters)
+			{
+				mie.Arguments.Add(CodeBuilder.CreateReference(parameter));
+			}
+			
+			IfStatement stmt = new IfStatement(node.LexicalInfo);
+			stmt.Condition = CodeBuilder.CreateNotNullTest(
+								CodeBuilder.CreateReference(backingField));
+			stmt.TrueBlock = new Block();
+			stmt.TrueBlock.Add(mie);
+			method.Body.Add(stmt);
+			return method;
 		}
 		
 		override public void OnEvent(Event node)
@@ -295,9 +356,21 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Attributes);
 			Visit(node.Type);
 			
+			IType type = GetType(node.Type);
+			bool typeIsCallable = type is ICallableType;
+			if (!typeIsCallable)
+			{
+				Errors.Add(
+					CompilerErrorFactory.EventTypeIsNotCallable(node.Type,
+						type.FullName));
+			}
+			
+			Field backingField = CodeBuilder.CreateField("__" + node.Name, type);
+			node.DeclaringType.Members.Add(backingField);
+			
 			if (null == node.Add)
 			{
-				node.Add = CreateEventAddMethod(node);
+				node.Add = CreateEventAddMethod(node, backingField);
 			}
 			else
 			{
@@ -306,11 +379,23 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null == node.Remove)
 			{
-				node.Remove = CreateEventRemoveMethod(node);
+				node.Remove = CreateEventRemoveMethod(node, backingField);
 			}
 			else
 			{
 				Visit(node.Remove);
+			}
+			
+			if (null == node.Raise)
+			{
+				if (typeIsCallable)
+				{
+					node.Raise = CreateEventRaiseMethod(node, backingField);
+				}
+			}
+			else
+			{
+				Visit(node.Raise);
 			}
 		}
 		
@@ -2520,7 +2605,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case EntityType.Event:
 				{
-					NotImplemented(node, "Event invocation.");
+					ProcessEventInvocation((IEvent)targetInfo, node);
 					break;
 				}
 				
@@ -2645,6 +2730,14 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(eval, type);
 			
 			parent.Replace(node, eval);
+		}
+		
+		void ProcessEventInvocation(IEvent ev, MethodInvocationExpression node)
+		{
+			IMethod method = ev.GetRaiseMethod();
+			node.Target = CodeBuilder.CreateMemberReference(
+						((MemberReferenceExpression)node.Target).Target,
+						method);
 		}
 		
 		void ProcessTypeInvocation(MethodInvocationExpression node)

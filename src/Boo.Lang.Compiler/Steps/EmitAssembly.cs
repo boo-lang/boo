@@ -2900,6 +2900,7 @@ namespace Boo.Lang.Compiler.Steps
 			MethodAttributes attribs = GetPropertyMethodAttributes(node);
 			builder.SetAddOnMethod(DefineMethod(typeBuilder, node.Add, attribs));
 			builder.SetRemoveOnMethod(DefineMethod(typeBuilder, node.Remove, attribs));
+			builder.SetRaiseMethod(DefineMethod(typeBuilder, node.Raise, attribs));
 			SetBuilder(node, builder);
 		}
 		

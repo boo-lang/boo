@@ -61,6 +61,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (IMethod)TypeSystemServices.GetEntity(_event.Remove);
 		}
 		
+		public IMethod GetRaiseMethod()
+		{
+			return (IMethod)TypeSystemServices.GetEntity(_event.Raise);
+		}
+		
 		public Event Event
 		{
 			get

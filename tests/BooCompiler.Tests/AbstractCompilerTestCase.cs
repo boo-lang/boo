@@ -109,17 +109,28 @@ namespace BooCompiler.Tests
 		{
 			CompilerPipeline pipeline = null;
 			
-			/*if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
+			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported &&
+				GetEnvironmentFlag("boo.peverify", true))
 			{			
 				pipeline = new CompileToFileAndVerify();				
 			}
-			else*/
+			else
 			{
 				pipeline = new CompileToMemory();
 			}			
 			
 			pipeline.Add(new RunAssembly());
 			return pipeline;
+		}
+		
+		bool GetEnvironmentFlag(string name, bool defaultValue)
+		{
+			string value = Environment.GetEnvironmentVariable(name);
+			if (null == value)
+			{
+				return defaultValue;
+			}
+			return bool.Parse(value);
 		}
 		
 		protected void RunCompilerTestCase(string name)

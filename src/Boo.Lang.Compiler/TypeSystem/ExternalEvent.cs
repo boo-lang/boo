@@ -60,6 +60,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (IMethod)_typeSystemServices.Map(_event.GetRemoveMethod());
 		}
 		
+		public IMethod GetRaiseMethod()
+		{
+			return (IMethod)_typeSystemServices.Map(_event.GetRaiseMethod());
+		}
+		
 		public System.Reflection.EventInfo EventInfo
 		{
 			get

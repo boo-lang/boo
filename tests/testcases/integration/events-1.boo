@@ -28,5 +28,5 @@ assert raiseMethod.ReturnType is void
 assert raiseMethod.IsPublic
 assert raiseMethod.IsSpecialName
 assert 2 == len(raiseMethod.GetParameters())
-assert raiseMethod.GetParameters()[0] is object
-assert raiseMethod.GetParameters()[1] is EventArgs
+assert raiseMethod.GetParameters()[0].ParameterType is object
+assert raiseMethod.GetParameters()[1].ParameterType is EventArgs

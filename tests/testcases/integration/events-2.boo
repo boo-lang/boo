@@ -1,4 +1,6 @@
 """
+before subscribers
+nothing printed
 clicked!
 clicked!
 clicked again!
@@ -13,10 +15,15 @@ class Button:
 	def RaiseClick():
 		Click(self, EventArgs.Empty)
 	
-def click():
+def click(sender, args as EventArgs):
 	print("clicked again!")
 
 b = Button()
+
+print("before subscribers")
+b.RaiseClick()
+print("nothing printed")
+
 b.Click += do (sender, args):
 	print("clicked!")
 	Assert.AreSame(sender, b)
