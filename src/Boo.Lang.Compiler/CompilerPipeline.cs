@@ -262,8 +262,8 @@ namespace Boo.Lang.Compiler
 			{
 				ICompilerPipelineDefinition definition = GetDefinition(name);
 				if (null == definition)
-				{
-					definition = (ICompilerPipelineDefinition)Type.GetType(name, true);
+				{					
+					definition = (ICompilerPipelineDefinition)Activator.CreateInstance(Type.GetType(name, true));
 				}
 				definition.Define(this);
 			}

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Pipeline Example" default="compile-example">
 
-	<property name="boo.dir" value="../../../build" />
+	<property name="boo.dir" value="../../build" />
 	
 	<target name="compile-pipeline" depends="init">
 	
@@ -14,10 +14,10 @@
 		</booc>
 	</target>
 	
-	<target name="compile-example" depends="init"> 
+	<target name="compile-example" depends="compile-pipeline"> 
 		<booc target="exe"
 			output="build/Example.exe"
-			pipeline="Boo.Docs.Articles.Pipeline.StyleCheckingPipelineDefinition, StyleChecker"
+			pipeline="Boo.Docs.Pipeline.StyleCheckingPipelineDefinition, StyleChecker"
 			tracelevel="Verbose">
 			
 			<sources basedir=".">

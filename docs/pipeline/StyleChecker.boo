@@ -1,4 +1,4 @@
-namespace Boo.Docs.Articles.Pipeline
+namespace Boo.Docs.Pipeline
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Pipeline.Definitions
