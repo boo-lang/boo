@@ -30,21 +30,50 @@ using System;
 
 namespace Boo.Lang.Compiler.Ast
 {	 
-	public class LexicalInfo
+	public class SourceLocation
 	{
-		public static readonly LexicalInfo Empty = new LexicalInfo(null, -1, -1);
-
 		protected int _line;
 
 		protected int _column;
+		
+		public SourceLocation(int line, int column)
+		{
+			_line = line;
+			_column = column;
+		}
+		
+		public int Line
+		{
+			get
+			{
+				return _line;
+			}
+		}
 
+		public int Column
+		{
+			get
+			{
+				return _column;
+			}
+		}
+		
+		override public string ToString()
+		{
+			return string.Format("({0},{1})", _line, _column);
+		}
+	}
+	
+	public class LexicalInfo : SourceLocation
+	{
+		public static readonly LexicalInfo Empty = new LexicalInfo(null, -1, -1);
+		
 		protected string _filename;
 		
 		public LexicalInfo(string filename, int line, int column)
+			: base(line, column)
 		{
-			_filename = filename;
-			_line = line;
-			_column = column;
+			_filename = filename;			
 		}
 
 		public LexicalInfo(string filename) : this(filename, -1, -1)
@@ -66,22 +95,6 @@ namespace Boo.Lang.Compiler.Ast
 			get
 			{
 				return _filename;
-			}
-		}
-
-		public int Line
-		{
-			get
-			{
-				return _line;
-			}
-		}
-
-		public int Column
-		{
-			get
-			{
-				return _column;
 			}
 		}
 

@@ -33,12 +33,12 @@ namespace Boo.Lang.Compiler.Ast
 {
 	[Serializable]
 	public class Block : BlockImpl
-	{		
+	{	
 		public Block()
 		{
  		}	
 		
-		public Block(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public Block(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		

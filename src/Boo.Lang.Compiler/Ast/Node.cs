@@ -39,6 +39,8 @@ namespace Boo.Lang.Compiler.Ast
 	public abstract class Node : ICloneable
 	{
 		protected LexicalInfo _lexicalInfo = LexicalInfo.Empty;
+		
+		protected SourceLocation _endSourceLocation = LexicalInfo.Empty;
 
 		protected Node _parent;
 		
@@ -154,17 +156,7 @@ namespace Boo.Lang.Compiler.Ast
 		public LexicalInfo LexicalInfo
 		{
 			get
-			{			
-				/*
-				if (LexicalInfo.Empty != _lexicalInfo)
-				{
-					return _lexicalInfo;
-				}
-				if (null != _parent)
-				{
-					return _parent.LexicalInfo;
-				}
-				*/
+			{	
 				return _lexicalInfo;
 			}
 
@@ -175,6 +167,29 @@ namespace Boo.Lang.Compiler.Ast
 					throw new ArgumentNullException("LexicalInfo");
 				}
 				_lexicalInfo = value;
+			}
+		}
+		
+		/// <summary>
+		/// Where this element ends in the source file.
+		/// This information is generally available and/or accurate
+		/// only for blocks and type definitions.
+		/// </summary>
+		[System.Xml.Serialization.XmlIgnore]
+		public virtual SourceLocation EndSourceLocation
+		{
+			get
+			{
+				return _endSourceLocation;
+			}
+			
+			set
+			{
+				if (null == value)
+				{
+					throw new ArgumentNullException("EndSourceLocation");
+				}
+				_endSourceLocation = value;
 			}
 		}
 		

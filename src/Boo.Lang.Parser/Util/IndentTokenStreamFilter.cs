@@ -74,6 +74,11 @@ namespace Boo.Lang.Parser.Util
 		/// </summary>
 		protected Queue _pendingTokens;
 		
+		/// <summary>
+		/// last non whitespace token for accurate location information
+		/// </summary>
+		protected antlr.Token _lastNonWsToken;
+		
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
 		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsTokenType, int indentTokenType, int dedentTokenType, int eosTokenType)
@@ -117,7 +122,7 @@ namespace Boo.Lang.Parser.Util
 				
 			antlr.Token token = null;
 			while (true)
-			{			
+			{	
 				token = _istream.nextToken();
 				
 				int ttype = token.Type;
@@ -153,7 +158,7 @@ namespace Boo.Lang.Parser.Util
 						EnqueueEOS(token);
 						do 
 						{
-							EnqueueDedent(token);
+							EnqueueDedent();
 							_indentStack.Pop();
 						}
 						while (lastLine.Length < CurrentIndentLevel);
@@ -170,11 +175,12 @@ namespace Boo.Lang.Parser.Util
 				EnqueueEOS(token);	
 				while (CurrentIndentLevel > 0)
 				{
-					EnqueueDedent(token);
+					EnqueueDedent();
 					_indentStack.Pop();					
 				}
 			}
 			
+			_lastNonWsToken = token;
 			Enqueue(token);
 		}
 		
@@ -188,9 +194,9 @@ namespace Boo.Lang.Parser.Util
 			_pendingTokens.Enqueue(CreateToken(originalToken, _indentTokenType, "<INDENT>"));
 		}
 
-		void EnqueueDedent(antlr.Token originalToken)
+		void EnqueueDedent()
 		{
-			_pendingTokens.Enqueue(CreateToken(originalToken, _dedentTokenType, "<DEDENT>"));
+			_pendingTokens.Enqueue(CreateToken(_lastNonWsToken, _dedentTokenType, "<DEDENT>"));
 		}		
 
 		void EnqueueEOS(antlr.Token originalToken)

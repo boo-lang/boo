@@ -36,17 +36,20 @@ namespace Boo.Lang.Parser
 {
 	public class BooParser : BooParserBase
 	{	
-		const int TabSize = 4;
-		
-		const string TokenObjectClass = "Boo.Lang.Parser.BooToken";
+		public const int DefaultTabSize = 4;
 		
 		protected ParserErrorHandler Error;
 
 		public BooParser(antlr.TokenStream lexer) : base(lexer)
 		{
 		}
-
+		
 		public static CompileUnit ParseFile(string fname)
+		{
+			return ParseFile(DefaultTabSize, fname);
+		}
+
+		public static CompileUnit ParseFile(int tabSize, string fname)
 		{
 			if (null == fname)
 			{
@@ -55,7 +58,7 @@ namespace Boo.Lang.Parser
 	
 			using (StreamReader reader = File.OpenText(fname))
 			{
-				return ParseReader(fname, reader);
+				return ParseReader(tabSize, fname, reader);
 			}
 		}
 		
@@ -63,17 +66,22 @@ namespace Boo.Lang.Parser
 		{
 			return ParseReader(name, new StringReader(text));
 		}
-
+		
 		public static CompileUnit ParseReader(string readerName, TextReader reader)
+		{
+			return ParseReader(DefaultTabSize, readerName, reader);
+		}
+
+		public static CompileUnit ParseReader(int tabSize, string readerName, TextReader reader)
 		{		
 			CompileUnit cu = new CompileUnit();
-			cu.Modules.Add(ParseModule(cu, readerName, reader, null));
+			cu.Modules.Add(ParseModule(tabSize, cu, readerName, reader, null));
 			return cu;
 		}
 	
-		public static Module ParseModule(CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler errorHandler)
+		public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler errorHandler)
 		{		
-			BooParser parser = new BooParser(CreateBooLexer(readerName, reader));
+			BooParser parser = new BooParser(CreateBooLexer(tabSize, readerName, reader));
 			parser.setFilename(readerName);
 			parser.Error += errorHandler;
 		
@@ -82,13 +90,13 @@ namespace Boo.Lang.Parser
 			return module;
 		}
 		
-		public static antlr.TokenStream CreateBooLexer(string readerName, TextReader reader)
+		public static antlr.TokenStream CreateBooLexer(int tabSize, string readerName, TextReader reader)
 		{
 			antlr.TokenStreamSelector selector = new antlr.TokenStreamSelector();
 		
 			BooLexer lexer = new BooLexer(reader);
 			lexer.setFilename(readerName);
-			lexer.Initialize(selector, TabSize, BooToken.Creator);
+			lexer.Initialize(selector, tabSize, BooToken.Creator);
 		
 			IndentTokenStreamFilter filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOS);
 			selector.select(filter);

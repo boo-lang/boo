@@ -38,9 +38,28 @@ namespace Boo.Lang.Parser
 	public class BooParsingStep : ICompilerStep
 	{
 		CompilerContext _context;
+		
+		int _tabSize = BooParser.DefaultTabSize;
 
 		public BooParsingStep()
 		{
+		}
+		
+		public int TabSize
+		{
+			get
+			{
+				return _tabSize;
+			}
+			
+			set
+			{
+				if (value < 1)
+				{
+					throw new ArgumentOutOfRangeException("TabSize");
+				}
+				_tabSize = value;
+			}
 		}
 		
 		public void Initialize(CompilerContext context)
@@ -55,36 +74,29 @@ namespace Boo.Lang.Parser
 
 		public void Run()
 		{		
-			try
-			{
-				ParserErrorHandler errorHandler = new ParserErrorHandler(OnParserError);
+			ParserErrorHandler errorHandler = new ParserErrorHandler(OnParserError);
 				
-				foreach (ICompilerInput input in _context.Parameters.Input)
-				{
-					try
-					{
-						using (System.IO.TextReader reader = input.Open())
-						{
-							BooParser.ParseModule(_context.CompileUnit, input.Name, reader, errorHandler);
-						}
-					}				
-					catch (CompilerError error)
-					{
-						_context.Errors.Add(error);
-					}
-					catch (antlr.TokenStreamRecognitionException x)
-					{
-						OnParserError(x.recog);
-					}
-					catch (Exception x)
-					{
-						_context.Errors.Add(CompilerErrorFactory.InputError(input.Name, x));
-					}
-				}
-			}
-			finally
+			foreach (ICompilerInput input in _context.Parameters.Input)
 			{
-				_context = null;
+				try
+				{
+					using (System.IO.TextReader reader = input.Open())
+					{
+						BooParser.ParseModule(_tabSize, _context.CompileUnit, input.Name, reader, errorHandler);
+					}
+				}				
+				catch (CompilerError error)
+				{
+					_context.Errors.Add(error);
+				}
+				catch (antlr.TokenStreamRecognitionException x)
+				{
+					OnParserError(x.recog);
+				}
+				catch (Exception x)
+				{
+					_context.Errors.Add(CompilerErrorFactory.InputError(input.Name, x));
+				}
 			}
 		}
 

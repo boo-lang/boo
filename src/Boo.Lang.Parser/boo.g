@@ -156,6 +156,11 @@ tokens
 								token.getLine(),
 								token.getColumn());
 	}
+	
+	protected SourceLocation ToSourceLocation(antlr.Token token)
+	{
+		return new SourceLocation(token.getLine(), token.getColumn()+token.getText().Length-1);
+	}
 
 	protected BinaryOperatorType ParseCmpOperator(string op)
 	{
@@ -418,7 +423,7 @@ enum_definition [TypeMemberCollection container]
 	(
 		(enum_member[ed])+
 	)
-	end
+	end[ed]
 	;
 	
 protected
@@ -525,7 +530,7 @@ class_definition [TypeMemberCollection container]
 			)
 		)+
 	)
-	end
+	end[td]
 	;
 			
 protected
@@ -553,7 +558,7 @@ interface_definition [TypeMemberCollection container]
 			)
 		)+
 	)
-	end
+	end[itf]
 	;
 			
 protected
@@ -585,7 +590,7 @@ interface_method [TypeMemberCollection container]
 	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 	(AS rt=type_reference { m.ReturnType=rt; })?			
 	(
-		(eos docstring[m]) | (empty_block (EOS)*)
+		(eos docstring[m]) | (empty_block[m] (EOS)*)
 	)
 	;
 			
@@ -605,7 +610,7 @@ interface_property [TypeMemberCollection container]
 	}
 	begin_with_doc[p]
 		(interface_property_accessor[p])+
-	end
+	end[p]
 	;
 			
 protected
@@ -627,7 +632,7 @@ interface_property_accessor[Property p]
 		)				
 	)
 	(
-		eos | empty_block
+		eos | empty_block[m]
 	)
 	{
 		AddAttributes(m.Attributes);
@@ -635,10 +640,10 @@ interface_property_accessor[Property p]
 	;
 			
 protected
-empty_block: 
+empty_block[Node node]: 
 		begin
 			PASS eos
-		end
+		end[node]
 		;
 		
 protected
@@ -675,9 +680,9 @@ method [TypeMemberCollection container]
 	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 			(AS rt=type_reference { m.ReturnType = rt; })?
 			attributes { AddAttributes(m.ReturnTypeAttributes); }
-			begin_with_doc[m]
+			begin_block_with_doc[m, m.Body]
 				block[m.Body.Statements]
-			end
+			end[m.Body]
 	{ 
 		container.Add(m);
 	}
@@ -712,7 +717,7 @@ field_or_property [TypeMemberCollection container]
 			}		
 			begin_with_doc[p]
 				(property_accessor[p])+
-			end
+			end[p]
 		)
 		|
 		(
@@ -910,19 +915,31 @@ type_name returns [Token id]
 	;
 
 protected
-begin : COLON INDENT;
+begin: COLON INDENT;
 
 protected
 begin_with_doc[Node node]: COLON (EOS docstring[node])? INDENT;
+	
+protected
+begin_block_with_doc[Node node, Block block]:
+	COLON (EOS docstring[node])?
+	begin:INDENT
+	{
+		block.LexicalInfo = ToLexicalInfo(begin);
+	}
+	;
 
 protected
-end : DEDENT (options { greedy=true; }: EOS)*;
+end[Node node] :
+	t:DEDENT { node.EndSourceLocation = ToSourceLocation(t); }
+	(options { greedy=true; }: EOS)*
+	;
 
 protected
 compound_stmt[Block b] :
-		begin
+		COLON begin:INDENT { b.LexicalInfo = ToLexicalInfo(begin); }
 			block[b.Statements]
-		end
+		end[b]
 		;
 		
 protected
@@ -1379,7 +1396,7 @@ given_stmt returns [GivenStatement gs]
 			}
 			compound_stmt[gs.OtherwiseBlock]
 		)?
-	end
+	end[gs]
 	;
 		
 protected
