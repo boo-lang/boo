@@ -18,7 +18,7 @@ class MainForm(Form):
 	_documentOutline = BooExplorer.DocumentOutline()
 
 	[getter(TaskList)]
-	_taskList = BooExplorer.TaskList()
+	_taskList = BooExplorer.TaskList(self)
 	
 	[getter(OutputPane)]
 	_outputPane = BooExplorer.OutputPane()
@@ -140,9 +140,11 @@ class MainForm(Form):
 			editor.Open(filename)
 			editor.Show(_dockManager)
 			editor.TextArea.Focus()
+			return editor
 		else:
 			content.Show(_dockManager)
 			content.TextArea.Focus()
+			return content
 
 
 	def _dockManager_ActiveDocumentChanged(sender, args as EventArgs):
@@ -178,9 +180,12 @@ class MainForm(Form):
 
 	def ShowTaskList():
 		_taskList.Show(_dockManager)
+		
+	def ShowOutputPane():
+		_outputPane.Show(_dockManager)
 
 	def _menuItemOutputPane_Click(sender, args as EventArgs):
-		_outputPane.Show(_dockManager)
+		ShowOutputPane()
 
 	def _menuItemOpen_Click(sender, args as EventArgs):
 		dlg = OpenFileDialog(

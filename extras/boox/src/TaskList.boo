@@ -4,17 +4,20 @@ import WeifenLuo.WinFormsUI
 import System
 import System.Windows.Forms
 import System.Drawing
-import System.Text.RegularExpressions
+import Boo.Lang.Compiler
 
 class TaskList(Content):
 	
 	_list as ListView
+	_main as MainForm
 	
-	def constructor():
+	def constructor(main as MainForm):
+		_main = main
 		_list = ListView(Dock: DockStyle.Fill,
 						View: View.Details,
 						FullRowSelect: true,
-						GridLines: true)
+						GridLines: true,
+						Click: _list_Click)
 					 
 		_list.Columns.Add("line"       , 50, HorizontalAlignment.Left)
 		_list.Columns.Add("column"     , 50, HorizontalAlignment.Left)
@@ -40,13 +43,20 @@ class TaskList(Content):
 		
 	def Clear():
 		_list.Items.Clear()
-
-	def Add(itemText as string):
-		parsedLine = ParseLine(itemText)
-		item = _list.Items.Add(parsedLine[2])
-		item.SubItems.AddRange((parsedLine[3], parsedLine[4], parsedLine[5], parsedLine[1]))
-	
-	def ParseLine(itemText as string):
-		re = Regex("""(\S+)\((\d+),(\d+)\): (\w+): (.+)""")
-		return array(string, [g.ToString() for g as Group in re.Match(itemText).Groups])
 		
+	def AddCompilerError(error as CompilerError):
+		item = _list.Items.Add(error.LexicalInfo.Line.ToString())
+		item.SubItems.AddRange((
+				error.LexicalInfo.StartColumn.ToString(),
+				error.Code,
+				error.Message,
+				error.LexicalInfo.FileName))
+		item.Tag = error
+		
+	def _list_Click(sender, args as EventArgs):
+		selected = _list.SelectedItems
+		return unless len(selected) > 0
+		
+		error as CompilerError = selected[0].Tag
+		document as BooEditor = _main.OpenDocument(error.LexicalInfo.FileName)
+		document.GoTo(error.LexicalInfo.Line-1)
