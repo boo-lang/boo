@@ -62,7 +62,12 @@ done * recursive functions
 done * namespace resolution for MemberReferenceExpression
 done * using namespace as
 
-Milestone 3.5 (revisão)
+Milestone 3.5
+-------------
+* melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
+e passa a ser utilizado ReferenceExpression em seu lugar (para utilizar a resolução padrão de membros, etc)
+
+Milestone 3.6 (revisão)
 -----------------------
 * expressões simples com inteiros
 * boxing (print e StringFormatting)
@@ -71,7 +76,7 @@ e declarar os tipos de acordo
 * criar ModuleBinding e unificar com ModuleNamespace;
 * ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
 
-Milestone 3.7
+Milestone 3.8
 -------------
 * raise
 * concatena��o de strings

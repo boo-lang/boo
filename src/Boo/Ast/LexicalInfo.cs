@@ -4,15 +4,17 @@ namespace Boo.Ast
 {
 	public class LexicalInfo
 	{
-		public static readonly LexicalInfo Empty = new LexicalInfo(null, -1, -1);
+		public static readonly LexicalInfo Empty = new LexicalInfo(null, -1, -1, -1);
 
 		protected int _line;
 
-		protected int _column;
+		protected int _startColumn;
+		
+		protected int _endColumn;
 
 		protected string _filename;
 
-		public LexicalInfo(antlr.Token token)
+		internal LexicalInfo(antlr.Token token)
 		{
 			if (null == token)
 			{
@@ -20,18 +22,24 @@ namespace Boo.Ast
 			}
 
 			_line = token.getLine();
-			_column = token.getColumn();
+			_startColumn = token.getColumn();
+			_endColumn = token.getColumn() + token.getText().Length;
 			_filename = token.getFilename();
 		}
 
-		public LexicalInfo(string filename, int line, int column)
+		public LexicalInfo(string filename, int line, int startColumn, int endColumn)
 		{
+			if (endColumn < startColumn)
+			{
+				throw new ArgumentException("endColum must be greater than startColumn");
+			}
 			_filename = filename;
 			_line = line;
-			_column = column;
+			_startColumn = startColumn;
+			_endColumn = endColumn;
 		}
 
-		public LexicalInfo(string filename) : this(filename, 0, 0)
+		public LexicalInfo(string filename) : this(filename, 0, 0, 0)
 		{
 		}
 
@@ -51,17 +59,25 @@ namespace Boo.Ast
 			}
 		}
 
-		public int Column
+		public int StartColumn
 		{
 			get
 			{
-				return _column;
+				return _startColumn;
+			}
+		}
+		
+		public int EndColumn
+		{
+			get
+			{
+				return _endColumn;
 			}
 		}
 
 		public override string ToString()
 		{
-			return string.Format("{0}({1},{2})", _filename, _line, _column);
+			return string.Format("{0}({1},{2})", _filename, _line, _startColumn);
 		}
 	}
 }

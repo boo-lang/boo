@@ -1,6 +1,7 @@
 using System;
 using Boo.Ast;
 using Boo.Ast.Compilation;
+using Boo.Ast.Compilation.Binding;
 using Boo.Ast.Compilation.Util;
 using Boo.Lang;
 using Reflection = System.Reflection;
@@ -145,19 +146,14 @@ namespace Boo.Ast.Compilation.Steps
 	/// <summary>
 	/// Step 2. Processes AST attributes.
 	/// </summary>
-	public class AstAttributesStep : AbstractCompilerStep
-	{
-		Predicate _astAttributeFilter;
-
-		UsingCollection _currentImports;
-
+	public class AstAttributesStep : AbstractNamespaceSensitiveCompilerStep
+	{				
 		TaskList _tasks;
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
 		public AstAttributesStep()
-		{
-			_astAttributeFilter = new Predicate(IsAstAttribute);
+		{			
 			_tasks = new TaskList();
 		}
 
@@ -175,14 +171,16 @@ namespace Boo.Ast.Compilation.Steps
 				_tasks.Flush();
 				++step;
 			}
-		}
+		}		
 
 		public override void OnModule(Module module)
-		{
-			_currentImports = module.Using;
+		{			
+			PushNamespace(new ModuleNameSpace(BindingManager, module));
 
 			// do mdulo precisamos apenas visitar os membros
 			module.Members.Switch(this);
+			
+			PopNamespace();
 		}
 
 		public override void OnBlock(Block node)
@@ -192,25 +190,39 @@ namespace Boo.Ast.Compilation.Steps
 			// rpido
 		}
 
-		public override void OnAttribute(Attribute attribute)
+		public override void OnAttribute(Boo.Ast.Attribute attribute)
 		{
 			// Neste primeiro passo tentamos apenas
 			// resolver ast attributes.
 			// Um passo posterior (resoluo de nomes e tipos) ir
 			// assegurar que todos os nomes tenham sido resolvidos e colocar
 			// mensagens de erro de acordo
-			List resolved = _context.ResolveExternalType(attribute.Name, _currentImports, _astAttributeFilter);
-			_context.ResolveExternalType(resolved, BuildAttributeName(attribute.Name), _currentImports, _astAttributeFilter);
-
-			if (resolved.Count > 0)
+			IBinding binding = ResolveQualifiedName(attribute.Name);
+			if (null == binding)
 			{
-				if (resolved.Count > 1)
+				binding = ResolveQualifiedName(BuildAttributeName(attribute.Name));
+			}
+
+			if (null != binding)
+			{
+				if (BindingType.Ambiguous == binding.BindingType)
 				{
-					_context.Errors.AmbiguousName(attribute, attribute.Name, resolved);
+					Errors.AmbiguousName(attribute, attribute.Name, ((AmbiguousBinding)binding).Bindings);
 				}
 				else
 				{
-					ScheduleAttributeApplication(attribute, (Type)resolved[0]);
+					if (BindingType.TypeReference != binding.BindingType)
+					{
+						Errors.NameNotType(attribute, attribute.Name);
+					}
+					else
+					{
+						Type attributeType = ((ITypedBinding)binding).BoundType.Type;
+						if (IsAstAttribute(attributeType))
+						{						
+							ScheduleAttributeApplication(attribute, attributeType);
+						}
+					}
 				}
 			}
 		}
@@ -237,9 +249,9 @@ namespace Boo.Ast.Compilation.Steps
 			return _buffer.ToString();
 		}
 
-		public static bool IsAstAttribute(object obj)
+		public static bool IsAstAttribute(Type type)
 		{
-			return typeof(AstAttribute).IsAssignableFrom((Type)obj);
+			return typeof(AstAttribute).IsAssignableFrom(type);
 		}
 	}
 }

@@ -14,15 +14,13 @@ namespace Boo.Ast.Compilation.Steps
 	/// <summary>
 	/// Step 4.
 	/// </summary>
-	public class SemanticStep : AbstractCompilerStep
+	public class SemanticStep : AbstractNamespaceSensitiveCompilerStep
 	{
 		ModuleBuilder _moduleBuilder;
 		
 		TypeBuilder _typeBuilder;
 		
-		Method _method;
-		
-		Stack _namespaces = new Stack();
+		Method _method;		
 		
 		IMethodBinding RuntimeServices_IsMatchBinding;
 		
@@ -33,20 +31,7 @@ namespace Boo.Ast.Compilation.Steps
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			
 			Switch(CompileUnit);
-		}
-		
-		public override bool EnterCompileUnit(CompileUnit cu)
-		{
-			// Global names at the highest level
-			PushNamespace(UsingResolutionStep.GetGlobalNamespace(CompilerContext));
-			
-			// then Boo.Lang
-			// todo:
-			                           
-			// then builtins resolution			
-			PushNamespace(new ExternalTypeBinding(BindingManager, typeof(Boo.Lang.Builtins)));
-			return true;
-		}
+		}		
 		
 		public override void OnModule(Boo.Ast.Module module)
 		{
@@ -330,20 +315,7 @@ namespace Boo.Ast.Compilation.Steps
 					throw new NotImplementedException(node.ToString());
 				}
 			}
-		}
-		
-		IBinding Resolve(string name)
-		{
-			foreach (INameSpace ns in _namespaces)
-			{
-				IBinding binding = ns.Resolve(name);
-				if (null != binding)
-				{
-					return binding;
-				}
-			}
-			return null;
-		}
+		}	
 		
 		IBinding ResolveName(Node node, string name)
 		{
@@ -700,16 +672,6 @@ namespace Boo.Ast.Compilation.Steps
 		string GetSignature(IMethodBinding binding)
 		{
 			return BindingManager.GetSignature(binding);
-		}
-		
-		void PushNamespace(INameSpace ns)
-		{
-			_namespaces.Push(ns);
-		}
-		
-		void PopNamespace()
-		{
-			_namespaces.Pop();
-		}
+		}		
 	}
 }

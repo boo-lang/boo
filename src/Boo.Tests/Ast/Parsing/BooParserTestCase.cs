@@ -32,7 +32,7 @@ namespace Boo.Tests.Ast.Parsing
 
 			AssertEquals("Empty", module.Package.Name);
 			AssertEquals(1, module.Package.LexicalInfo.Line);
-			AssertEquals(1, module.Package.LexicalInfo.Column);
+			AssertEquals(1, module.Package.LexicalInfo.StartColumn);
 			AssertEquals(fname, module.Package.LexicalInfo.FileName);
 		}
 

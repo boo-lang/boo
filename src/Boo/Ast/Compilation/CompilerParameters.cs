@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections;
 using System.IO;
 
@@ -22,6 +23,8 @@ namespace Boo.Ast.Compilation
 		string _outputAssembly;
 		
 		CompilerOutputType _outputType;
+		
+		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
 
 		public CompilerParameters()
 		{

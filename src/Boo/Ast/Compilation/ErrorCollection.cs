@@ -96,9 +96,9 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("InvalidNamespace", node.Namespace)));
 		}
 
-		public void AmbiguousName(Node node, string name, List resolvedNames)
+		public void AmbiguousName(Node node, string name, System.Collections.IList resolvedNames)
 		{
-			string msg = Format("AmbiguousName", name, resolvedNames);
+			string msg = Format("AmbiguousName", name, ToStringList(resolvedNames));
 			Add(new Error(node, msg));
 		}
 
@@ -149,12 +149,12 @@ namespace Boo.Ast.Compilation
 
 		public void InputError(ICompilerInput input, Exception error)
 		{
-			Add(new Error(new LexicalInfo(input.Name, -1, -1), error.Message, error));
+			Add(new Error(LexicalInfo.Empty, error.Message, error));
 		}
 
 		public void ParserError(antlr.RecognitionException error)
 		{
-			LexicalInfo data = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn());
+			LexicalInfo data = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn(), error.getColumn());
 
 			antlr.NoViableAltException nvae = error as antlr.NoViableAltException;
 			if (null != nvae)

@@ -225,6 +225,7 @@ class MyControl(Control):
 			CompilerParameters options = compiler.Parameters;
 			options.Input.Add(input);
 			options.Pipeline.Add(new BooParsingStep());
+			options.Pipeline.Add(new UsingResolutionStep());
 			options.Pipeline.Add(new AstAttributesStep());
 			options.References.Add(GetType().Assembly);
 			

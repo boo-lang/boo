@@ -3,8 +3,8 @@ using System;
 namespace Boo.Ast.Parsing
 {
 	/// <summary>
-	/// O token armazena também o nome do arquivo que
-	/// o gerou para diagnóstico.
+	/// O token armazena tambm o nome do arquivo que
+	/// o gerou para diagnstico.
 	/// </summary>
 	public class BooToken : antlr.CommonToken
 	{

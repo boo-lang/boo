@@ -56,7 +56,7 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override bool EnterModule(Boo.Ast.Module module)
-		{
+		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);
 			return true;
 		}
@@ -69,7 +69,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnMethod(Method method)
 		{			
-			MethodBuilder methodBuilder = GetMethodBuilder(method);
+			MethodBuilder methodBuilder = GetMethodBuilder(method);			
 			_il = methodBuilder.GetILGenerator();
 			method.Locals.Switch(this);
 			method.Body.Switch(this);
@@ -87,7 +87,8 @@ namespace Boo.Ast.Compilation.Steps
 		{			
 			ITypeBinding binding = GetTypeBinding(node.Iterator);			
 			
-			EmitDebugInfo(node.Iterator);
+			EmitDebugInfo(node, node.Iterator);
+			
 			// iterator = <node.Iterator>;
 			node.Iterator.Switch(this);
 			
@@ -107,17 +108,11 @@ namespace Boo.Ast.Compilation.Steps
 			
 			ITypeBinding binding = GetTypeBinding(node.Expression);
 			
-			EmitDebugInfo(node);						
+			EmitDebugInfo(decls[0], node.Expression);						
 			node.Expression.Switch(this);
 			
 			EmitUnpackForDeclarations(node.Declarations, binding.Type);			
-		}
-		
-		public override bool EnterExpressionStatement(ExpressionStatement node)
-		{
-			EmitDebugInfo(node);			
-			return true;
-		}		
+		}	
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node)
 		{
@@ -134,6 +129,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnIfStatement(IfStatement node)
 		{
+			EmitDebugInfo(node, node.Expression);
+			
 			node.Expression.Switch(this);
 			
 			Label endLabel = _il.DefineLabel();
@@ -144,6 +141,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{
+			EmitDebugInfo(node.Left, node.Right);
+			
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
 				LocalBinding local = BindingManager.GetBinding(node.Left) as LocalBinding;
@@ -179,6 +178,15 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
+			if (node.Arguments.Count > 0)
+			{
+				EmitDebugInfo(node.Target, node.Arguments[node.Arguments.Count-1]);
+			}
+			else
+			{
+				EmitDebugInfo(node.Target, node);
+			}
+			              
 			IBinding binding = BindingManager.GetBinding(node.Target);
 			switch (binding.BindingType)
 			{
@@ -231,7 +239,9 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void OnStringFormattingExpression(StringFormattingExpression node)
-		{
+		{			
+			EmitDebugInfo(node);
+			              
 			_il.Emit(OpCodes.Ldstr, node.Template);
 			
 			// new object[node.Arguments.Count]
@@ -249,6 +259,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
+			EmitDebugInfo(node.Target, node);
+			
 			node.Target.Switch(this);			
 			IBinding binding = BindingManager.GetBinding(node);
 			switch (binding.BindingType)
@@ -274,6 +286,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
+			EmitDebugInfo(node);
+			
 			IBinding info = BindingManager.GetBinding(node);
 			switch (info.BindingType)
 			{
@@ -333,12 +347,18 @@ namespace Boo.Ast.Compilation.Steps
 					throw new ArgumentException("binding");
 				}				
 			}
-		}			
+		}				
 		
 		void EmitDebugInfo(Node node)
 		{
-			LexicalInfo info = node.LexicalInfo;
-			_il.MarkSequencePoint(_symbolDocWriter, info.Line, info.Column-1, info.Line, info.Column-1);
+			EmitDebugInfo(node, node);
+		}
+		
+		void EmitDebugInfo(Node startNode, Node endNode)
+		{
+			LexicalInfo start = startNode.LexicalInfo;
+			LexicalInfo end = endNode.LexicalInfo;
+			_il.MarkSequencePoint(_symbolDocWriter, start.Line, start.StartColumn, end.Line, end.EndColumn);
 		}
 		
 		void EmitEnumerableBasedFor(ForStatement node, ITypeBinding iteratorBinding)
@@ -351,8 +371,7 @@ namespace Boo.Ast.Compilation.Steps
 			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
 			_il.Emit(OpCodes.Stloc, localIterator);
 			
-			// iterator.MoveNext()
-			EmitDebugInfo(node.Iterator);
+			// iterator.MoveNext()			
 			_il.MarkLabel(labelTest);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_MoveNext, null);
@@ -386,9 +405,8 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Ldloc, localIndex);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.Emit(OpCodes.Ldlen);
-			_il.Emit(OpCodes.Bge, labelEnd);			
+			_il.Emit(OpCodes.Bge, labelEnd);		
 			
-			EmitDebugInfo(node.Iterator);
 			// value = iterator[i]
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.Emit(OpCodes.Ldloc, localIndex);

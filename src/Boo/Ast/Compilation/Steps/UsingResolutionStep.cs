@@ -13,6 +13,8 @@ namespace Boo.Ast.Compilation.Steps
 	{
 		static object GlobalNamespaceKey = new object();
 		
+		static object BooLangNamespaceKey = new object();
+		
 		Hashtable _namespaces = new Hashtable();
 		
 		Hashtable _externalTypes = new Hashtable();
@@ -21,6 +23,11 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			return (INameSpace)context.CompileUnit[GlobalNamespaceKey];
 		}		
+		
+		public static INameSpace GetBooLangNamespace(CompilerContext context)
+		{
+			return (INameSpace)context.CompileUnit[BooLangNamespaceKey];
+		}
 		
 		public override void Run()
 		{
@@ -32,7 +39,7 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					IBinding binding = ErrorBinding.Default;
 					
-					IBinding ns = ResolveFullName(using_.Namespace);					
+					IBinding ns = ResolveQualifiedName(using_.Namespace);					
 					if (null == ns)
 					{
 						Errors.InvalidNamespace(using_);
@@ -56,6 +63,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			
 			CompileUnit[GlobalNamespaceKey] = this;
+			CompileUnit[BooLangNamespaceKey] = ResolveQualifiedName("Boo.Lang");
 		}
 		
 		void ResolveUsingAssemblyReferences()
@@ -96,7 +104,7 @@ namespace Boo.Ast.Compilation.Steps
 			return binding;
 		}
 		
-		IBinding ResolveFullName(string name)
+		IBinding ResolveQualifiedName(string name)
 		{
 			string[] parts = name.Split('.');
 			string topLevel = parts[0];
