@@ -229,7 +229,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 				MemberInfo[] members = _type.GetMembers(flags);
-				_members = new IMember[members.Length];
+				_members = new IEntity[members.Length];
 				for (int i=0; i<members.Length; ++i)
 				{
 					_members[i] = _typeSystemServices.Map(members[i]);

@@ -1299,15 +1299,23 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (member.IsStatic)
 			{
-				memberRef.Target = new ReferenceExpression(node.LexicalInfo, member.DeclaringType.FullName);				
-				BindExpressionType(memberRef.Target, member.DeclaringType);
+				memberRef.Target = new ReferenceExpression(node.LexicalInfo, member.DeclaringType.FullName);
+				BindExpressionType(memberRef, member.Type);
 			}
 			else
 			{
 				memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
-			}						
+			}
+			
+			Bind(memberRef, member);
+			BindExpressionType(memberRef.Target, member.DeclaringType);			
+			
 			node.ParentNode.Replace(node, memberRef);
-			Visit(memberRef);
+			
+			if (EntityType.Method != member.EntityType)
+			{
+				Visit(memberRef);
+			}
 		}
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
@@ -2223,6 +2231,26 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, Ambiguous entity)
+		{
+			IEntity[] entities = ((Ambiguous)entity).Entities;
+			IEntity resolved = ResolveCallableReference(node, node.Arguments, entities, true);				
+			if (null != resolved)
+			{			
+				IMember member = (IMember)resolved;
+				if (NodeType.ReferenceExpression == node.Target.NodeType)
+				{
+					ResolveMemberInfo((ReferenceExpression)node.Target, member);
+				}
+				else
+				{
+					Bind(node.Target, member);
+					BindExpressionType(node.Target, member.Type);
+				}
+			}
+			return resolved;
+		}
+		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
 			if (null != node.ExpressionType)
@@ -2243,19 +2271,12 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity targetInfo = GetEntity(node.Target);
 			if (EntityType.Ambiguous == targetInfo.EntityType)
 			{		
-				IEntity[] tags = ((Ambiguous)targetInfo).Entities;
-				targetInfo = ResolveCallableReference(node, node.Arguments, tags, true);				
+				targetInfo = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetInfo);
 				if (null == targetInfo)
 				{
 					Error(node);
 					return;
 				}
-				
-				if (NodeType.ReferenceExpression == node.Target.NodeType)
-				{
-					ResolveMemberInfo((ReferenceExpression)node.Target, (IMember)targetInfo);
-				}
-				Bind(node.Target, targetInfo);
 			}	
 			
 			switch (targetInfo.EntityType)

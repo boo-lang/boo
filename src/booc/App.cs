@@ -306,6 +306,12 @@ namespace BooC
 				case "roundtrip": return new ParseAndPrint();
 				case "boo": return new CompileToBoo();
 				case "xml": return new ParseAndPrintXml();
+				case "dumpreferences":
+				{
+					CompilerPipeline pipeline = new CompileToBoo();
+					pipeline.Add(new Boo.Lang.Compiler.Steps.DumpReferences());
+					return pipeline;
+				}
 			}
 			return null;
 		}

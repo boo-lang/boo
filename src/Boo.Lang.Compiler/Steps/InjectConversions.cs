@@ -109,17 +109,22 @@ namespace Boo.Lang.Compiler.Steps
 			return EntityType.Null == type.EntityType;
 		}
 		
+		bool IsStandaloneMethodReference(Expression argument)
+		{
+			if (argument is ReferenceExpression)
+			{
+				return EntityType.Method == argument.Entity.EntityType;
+			}
+			return false;
+		}
+		
 		Expression Cast(IType expectedType, Expression argument)
 		{
 			if (IsCallableType(expectedType))
 			{					
-				IType argumentType = GetExpressionType(argument);
-				if (!IsNull(argumentType))
+				if (IsStandaloneMethodReference(argument))
 				{
-					if (expectedType != argumentType)
-					{
-						return CreateDelegate(expectedType, argument);  
-					}
+					return CreateDelegate(expectedType, argument);				
 				}
 			}
 			return null;
