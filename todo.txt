@@ -35,7 +35,7 @@ Milestone 3.1 (grep.boo)
 done * definição de métodos do módulo
 done * chamada de métodos do módulo
 done * checagem de parametros estrita nas invocaçoes de método
-* array unpacking
+done * array unpacking
 * for item in enumerator
 * native regular expression support:
 	* re expression /foo/
