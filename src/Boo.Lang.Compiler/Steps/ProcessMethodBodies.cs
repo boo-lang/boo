@@ -65,7 +65,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod RuntimeServices_GetEnumerable;
 		
-		IMethod Object_StaticEquals;
+		IMethod RuntimeServices_op_Equality;
 		
 		IMethod Array_get_Length;
 		
@@ -154,7 +154,7 @@ namespace Boo.Lang.Compiler.Steps
 			RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
 			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");			
 			RuntimeServices_GetEnumerable = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");			
-			Object_StaticEquals = (IMethod)TypeSystemServices.Map(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
+			RuntimeServices_op_Equality = (IMethod)TypeSystemServices.Map(Types.RuntimeServices.GetMethod("op_Equality", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
 			String_get_Length = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
 			String_Substring_Int = (IMethod)TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
@@ -1147,7 +1147,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected MethodInvocationExpression CreateEquals(BinaryExpression node)
 		{
-			return CodeBuilder.CreateMethodInvocation(Object_StaticEquals, node.Left, node.Right);
+			return CodeBuilder.CreateMethodInvocation(RuntimeServices_op_Equality, node.Left, node.Right);
 		}
 		
 		IntegerLiteralExpression CreateIntegerLiteral(long value)

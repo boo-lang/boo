@@ -31,6 +31,7 @@ namespace Boo.Lang
 	using System;
 	using System.Reflection;
 	using System.Collections;
+	using System.Globalization;
 	using System.IO;
 	using System.Text;
 	using System.Text.RegularExpressions;
@@ -49,6 +50,8 @@ namespace Boo.Lang
 												
 		const BindingFlags GetPropertyBindingFlags = DefaultBindingFlags |
 												BindingFlags.GetProperty;
+												
+		static CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
 			
 		public static object Invoke(object target, string name, object[] args)
 		{
@@ -329,7 +332,7 @@ namespace Boo.Lang
 			return !op_Member(lhs, rhs);
 		}
 		
-		public static bool op_Equality(Array lhs, Array rhs)
+		public static bool op_Equality(object lhs, object rhs)
 		{
 			if (lhs == rhs)
 			{
@@ -341,6 +344,34 @@ namespace Boo.Lang
 				return false;
 			}
 			
+			Array lhsa = lhs as Array;
+			if (null != lhsa)
+			{
+				Array rhsa = rhs as Array;
+				if (null != rhsa)
+				{
+					return ArrayEqualityImpl(lhsa, rhsa);
+				}
+			}
+			return lhs.Equals(rhs);
+		}
+		
+		public static bool op_Equality(Array lhs, Array rhs)
+		{
+			if (lhs == rhs)
+			{
+				return true;
+			}
+			
+			if (null == lhs || null == rhs)
+			{
+				return false;
+			}
+			return ArrayEqualityImpl(lhs, rhs);
+		}
+		
+		static bool ArrayEqualityImpl(Array lhs, Array rhs)
+		{			
 			if (1 != lhs.Rank || 1 != rhs.Rank)
 			{
 				throw new ArgumentException("array rank must be 1"); 
@@ -353,7 +384,7 @@ namespace Boo.Lang
 			
 			for (int i=0; i<lhs.Length; ++i)
 			{
-				if (!Object.Equals(lhs.GetValue(i), rhs.GetValue(i)))
+				if (!op_Equality(lhs.GetValue(i), rhs.GetValue(i)))
 				{
 					return false;
 				}
@@ -362,13 +393,70 @@ namespace Boo.Lang
 		}
 		#endregion
 		
-		/*
-		public static int UnboxToInt(object value)
+		public static IConvertible CheckNumericPromotion(object value)
 		{
-			CheckNumericPromotion(value);
-			return ((IConvertible)value).ToInt32();
+			IConvertible convertible = (IConvertible)value;
+			switch (convertible.GetTypeCode())
+			{
+				case TypeCode.Byte: return convertible;
+				case TypeCode.SByte: return convertible;
+				case TypeCode.Int16: return convertible;
+				case TypeCode.Int32: return convertible;
+				case TypeCode.Int64: return convertible;
+				case TypeCode.UInt16: return convertible;
+				case TypeCode.UInt32: return convertible;
+				case TypeCode.UInt64: return convertible;
+				case TypeCode.Single: return convertible;
+				case TypeCode.Double: return convertible;
+				case TypeCode.Boolean: return convertible;
+			}
+			throw new InvalidCastException();
 		}
-		*/
+		
+		public static Int16 UnboxInt16(object value)
+		{
+			return CheckNumericPromotion(value).ToInt16(InvariantCulture);
+		}
+		
+		public static UInt16 UnboxUInt16(object value)
+		{
+			return CheckNumericPromotion(value).ToUInt16(InvariantCulture);
+		}
+		
+		public static Int32 UnboxInt32(object value)
+		{
+			return CheckNumericPromotion(value).ToInt32(InvariantCulture);
+		}
+		
+		public static UInt32 UnboxUInt32(object value)
+		{
+			return CheckNumericPromotion(value).ToUInt32(InvariantCulture);
+		}
+		
+		public static Int64 UnboxInt64(object value)
+		{
+			return CheckNumericPromotion(value).ToInt64(InvariantCulture);
+		}
+		
+		public static UInt64 UnboxUInt64(object value)
+		{
+			return CheckNumericPromotion(value).ToUInt64(InvariantCulture);
+		}
+		
+		public static Single UnboxSingle(object value)
+		{
+			return CheckNumericPromotion(value).ToSingle(InvariantCulture);
+		}
+		
+		public static Double UnboxDouble(object value)
+		{
+			return CheckNumericPromotion(value).ToDouble(InvariantCulture);
+		}
+		
+		public static bool UnboxBoolean(object value)
+		{
+			return CheckNumericPromotion(value).ToBoolean(InvariantCulture);
+		}
 		
 		public static bool ToBool(object value)
 		{
@@ -379,18 +467,7 @@ namespace Boo.Lang
 			
 			if (value is ValueType)
 			{		
-				if (value is bool)
-				{
-					return ((bool)value);
-				}
-				if (value is int)
-				{
-					return 0 != ((int)value);
-				}
-				if (value is long)
-				{
-					return 0 != ((long)value);
-				}
+				return CheckNumericPromotion(value).ToBoolean(CultureInfo.InvariantCulture);
 			}
 			
 			return true;

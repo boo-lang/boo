@@ -7,9 +7,9 @@ public final transient class Equality0Module(System.Object):
 		o2 = System.Object()
 		Boo.Lang.Builtins.print(System.String.op_Equality('foo', 'bar'))
 		Boo.Lang.Builtins.print((3 == 3.0))
-		Boo.Lang.Builtins.print(System.Object.Equals(o1, o2))
-		Boo.Lang.Builtins.print(System.Object.Equals('foo', o2))
-		Boo.Lang.Builtins.print(System.Object.Equals(3.0, o1))
+		Boo.Lang.Builtins.print(Boo.Lang.RuntimeServices.op_Equality(o1, o2))
+		Boo.Lang.Builtins.print(Boo.Lang.RuntimeServices.op_Equality('foo', o2))
+		Boo.Lang.Builtins.print(Boo.Lang.RuntimeServices.op_Equality(3.0, o1))
 
 	private def constructor():
 		super()
