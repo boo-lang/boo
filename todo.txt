@@ -1,9 +1,6 @@
-﻿* anonymous callable types:
-	* callable1.boo
-	* callable2.boo
-	* callable4.boo
-	
-* addressof cannot be used outside delegate constructors
+﻿* addressof cannot be used outside delegate constructors
+
+* callable type adaptation
 
 * anonymous callable type notation
 	def map(fn as callable(object) as object, enumerable)

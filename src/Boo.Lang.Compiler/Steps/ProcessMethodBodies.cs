@@ -2411,6 +2411,7 @@ namespace Boo.Lang.Compiler.Steps
 						Bind(node.Target, ctorInfo);
 						// expression result type is a new object
 						// of type
+						Bind(node, Unknown.Default);
 						BindExpressionType(node, typeInfo);
 					}
 					else
