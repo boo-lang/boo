@@ -102,8 +102,7 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 												RuntimeServices_GetProperty,
 												node.Target,
-												CodeBuilder.CreateStringLiteral(node.Name),
-												CodeBuilder.CreateNullLiteral());
+												CodeBuilder.CreateStringLiteral(node.Name));
 			BindExpressionType(mie, TypeSystemServices.DuckType);
 			node.ParentNode.Replace(node, mie);
 		}
@@ -111,13 +110,11 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessQuackPropertySet(BinaryExpression node)
 		{
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Left;
-			
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 												RuntimeServices_SetProperty,
 												target.Target,
 												CodeBuilder.CreateStringLiteral(target.Name),
 												node.Right);
-			
 			BindExpressionType(mie, TypeSystemServices.DuckType);
 			node.ParentNode.Replace(node, mie);
 		}

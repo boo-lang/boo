@@ -58,6 +58,12 @@ namespace Boo.Lang
 			
 		public static object Invoke(object target, string name, object[] args)
 		{
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck)
+			{
+				return duck.QuackInvoke(name, args);
+			}
+			
 			try
 			{
 				Type type = target as Type;
@@ -86,6 +92,12 @@ namespace Boo.Lang
 		
 		public static object SetProperty(object target, string name, object value)
 		{
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck)
+			{
+				return duck.QuackSet(name, value);
+			}
+			
 			try
 			{
 				Type type = target as Type;
@@ -113,8 +125,14 @@ namespace Boo.Lang
 			}
 		}
 		
-		public static object GetProperty(object target, string name, object[] args)
+		public static object GetProperty(object target, string name)
 		{
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck)
+			{
+				return duck.QuackGet(name);
+			}
+			
 			try
 			{
 				Type type = target as Type;
@@ -124,7 +142,7 @@ namespace Boo.Lang
 										GetPropertyBindingFlags,
 										null, 
 										target,
-										args);
+										null);
 				}
 				else
 				{	// static member
@@ -132,7 +150,7 @@ namespace Boo.Lang
 										GetPropertyBindingFlags,
 										null, 
 										null,
-										args);
+										null);
 				}
 			}
 			catch (TargetInvocationException x)
