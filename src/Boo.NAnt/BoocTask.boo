@@ -48,8 +48,6 @@ class BoocTask(AbstractBooTask):
 	
 	_resources = FileSet()
 	
-	_pipeline as string
-	
 	_traceLevel = System.Diagnostics.TraceLevel.Off
 	
 	[BuildElement("resources")]
@@ -91,14 +89,7 @@ class BoocTask(AbstractBooTask):
 			return _sourceFiles
 		set:
 			_sourceFiles = value
-			
-	[TaskAttribute("pipeline")]
-	Pipeline:
-		get:
-			return _pipeline
-		set:
-			_pipeline = value
-			
+	
 	override def ExecuteTask():
 		files = _sourceFiles.FileNames
 		LogInfo("Compiling ${len(files)} file(s) to ${_output}.")
@@ -108,10 +99,6 @@ class BoocTask(AbstractBooTask):
 		parameters.TraceSwitch.Level = _traceLevel
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
-		if _pipeline:
-			parameters.Pipeline = CompilerPipeline.GetPipeline(_pipeline)
-		else:
-			parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToFile()
 		
 		for fname as string in files:
 			print("source: ${fname}")
@@ -122,6 +109,9 @@ class BoocTask(AbstractBooTask):
 			parameters.Resources.Add(FileResource(fname))
 			
 		RunCompiler(compiler)
+		
+	override def GetDefaultPipeline():
+		return Boo.Lang.Compiler.Pipelines.CompileToFile()
 
 	private def GetOutputType():
 		if "exe" == _target:

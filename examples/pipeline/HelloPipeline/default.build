@@ -21,6 +21,10 @@
 			<sources basedir=".">
 				<include name="HelloWorld.boo" />
 			</sources>
+			
+			<references basedir="build">
+				<include name="HelloPipeline.dll" />
+			</references>
 		</booc>
 	</target>
 	

@@ -21,6 +21,10 @@
 			<sources basedir=".">
 				<include name="Example.boo" />
 			</sources>
+			
+			<references basedir="build">
+				<include name="StyleChecker.dll" />
+			</references>
 		</booc>
 	</target>
 	
