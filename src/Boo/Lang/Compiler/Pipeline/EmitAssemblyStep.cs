@@ -28,6 +28,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Reflection;
@@ -158,6 +159,10 @@ namespace Boo.Lang.Compiler.Pipeline
 			_returnType = null;
 			_tryBlock = 0;
 			_types.Clear();
+		}
+		
+		public override void OnAttribute(Boo.Lang.Ast.Attribute node)
+		{
 		}
 		
 		public override void OnModule(Boo.Lang.Ast.Module module)
@@ -1345,6 +1350,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				MethodBuilder setterBuilder = DefineMethod(typeBuilder, setter, MethodAttributes.SpecialName);
 				builder.SetSetMethod(setterBuilder);
 			}
+			
+			foreach (Boo.Lang.Ast.Attribute attribute in property.Attributes)
+			{
+				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+			}
+			
 			SetBuilder(property, builder);
 		}
 		
@@ -1399,7 +1410,95 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 			
+			foreach (Boo.Lang.Ast.Attribute attribute in typeDefinition.Attributes)
+			{
+				typeBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+			}
+			
 			return typeBuilder;
+		}
+		
+		CustomAttributeBuilder GetCustomAttributeBuilder(Boo.Lang.Ast.Attribute node)
+		{
+			IConstructorBinding constructor = (IConstructorBinding)GetBinding(node);
+			ConstructorInfo constructorInfo = GetConstructorInfo(constructor);
+			object[] constructorArgs = GetValues(node.Arguments);
+			
+			ExpressionPairCollection namedArgs = node.NamedArguments;
+			if (namedArgs.Count > 0)
+			{
+				PropertyInfo[] namedProperties;
+				object[] propertyValues;
+				FieldInfo[] namedFields;
+				object[] fieldValues;
+				GetNamedValues(namedArgs,
+								out namedProperties, out propertyValues,
+								out namedFields, out fieldValues);
+				return new CustomAttributeBuilder(
+								constructorInfo, constructorArgs,
+								namedProperties, propertyValues,
+								namedFields, fieldValues);
+			}			
+			return new CustomAttributeBuilder(constructorInfo, constructorArgs);
+		}
+		
+		void GetNamedValues(ExpressionPairCollection values, 
+							out PropertyInfo[] outNamedProperties,
+							out object[] outPropertyValues,
+							out FieldInfo[] outNamedFields,
+							out object[] outFieldValues)
+		{
+			ArrayList namedProperties = new ArrayList();
+			ArrayList propertyValues = new ArrayList();
+			ArrayList namedFields = new ArrayList();
+			ArrayList fieldValues = new ArrayList();
+			foreach (ExpressionPair pair in values)
+			{
+				IBinding binding = GetBinding(pair.First);
+				if (BindingType.Property == binding.BindingType)
+				{
+					namedProperties.Add(GetPropertyInfo(binding));
+					propertyValues.Add(GetValue(pair.Second));
+				}
+				else
+				{
+					namedFields.Add(GetFieldInfo((IFieldBinding)binding));
+					fieldValues.Add(GetValue(pair.Second));
+				}
+			}
+			
+			outNamedProperties = (PropertyInfo[])namedProperties.ToArray(typeof(PropertyInfo));
+			outPropertyValues = (object[])propertyValues.ToArray();
+			outNamedFields = (FieldInfo[])namedFields.ToArray(typeof(FieldInfo));
+			outFieldValues = (object[])fieldValues.ToArray();
+		}
+		
+		object[] GetValues(ExpressionCollection expressions)
+		{
+			object[] values = new object[expressions.Count];
+			for (int i=0; i<values.Length; ++i)
+			{
+				values[i] = GetValue(expressions[i]);
+			}
+			return values;
+		}
+		
+		object GetValue(Expression expression)
+		{
+			switch (expression.NodeType)
+			{
+				case NodeType.StringLiteralExpression:
+				{
+					return ((StringLiteralExpression)expression).Value;
+				}
+				
+				case NodeType.BoolLiteralExpression:
+				{
+					return ((BoolLiteralExpression)expression).Value;
+				}
+			}
+			Errors.NotImplemented(expression, "Expression value");
+			return null;
 		}
 		
 		void DefineMembers(TypeBuilder typeBuilder, TypeMemberCollection members)

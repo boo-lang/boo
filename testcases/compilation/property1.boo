@@ -2,7 +2,7 @@
 Si
 """
 using System
-using Boo.Tests.Ast.Compilation from Boo.Tests
+using Boo.Tests.Ast.Compiler from Boo.Tests
 
 p = Person(LastName: "Simpson")
 

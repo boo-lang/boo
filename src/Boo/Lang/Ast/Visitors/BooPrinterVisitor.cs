@@ -632,6 +632,11 @@ namespace Boo.Lang.Ast.Visitors
 					return ">";
 				}
 				
+				case BinaryOperatorType.LessThan:
+				{
+					return "<";
+				}
+				
 				case BinaryOperatorType.Modulus:
 				{
 					return "%";

@@ -144,8 +144,25 @@ namespace Boo.Lang.Compiler.Pipeline
 			InternalTypeBinding binding = new InternalTypeBinding(BindingManager, node);
 			BindingManager.Bind(node, binding);
 			PushNamespace(binding);
+			Switch(node.Attributes);
 			Switch(node.Members);
 			PopNamespace();
+		}
+		
+		public override void OnAttribute(Boo.Lang.Ast.Attribute node, ref Boo.Lang.Ast.Attribute resultingNode)
+		{
+			ITypeBinding binding = (ITypeBinding)BindingManager.GetOptionalBinding(node);
+			if (null != binding)
+			{				
+				Switch(node.Arguments);
+				ResolveNamedArguments(node, binding, node.NamedArguments);
+				
+				IConstructorBinding constructor = FindCorrectConstructor(node, binding, node.Arguments);
+				if (null != constructor)
+				{
+					BindingManager.Bind(node, constructor);
+				}
+			}
 		}
 		
 		public override void OnProperty(Property node, ref Property resultingNode)
@@ -480,6 +497,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				BindingManager.Bind(node, info);
 				
+				// todo: treat ambiguous binding here!!!!
 				IMemberBinding binding = info as IMemberBinding;
 				if (null != binding)
 				{
@@ -780,9 +798,9 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BindingType.TypeReference:
 				{					
 					ITypeBinding typeBinding = ((ITypedBinding)targetBinding).BoundType;
-					ResolveNamedArguments(typeBinding, node);
+					ResolveNamedArguments(node, typeBinding, node.NamedArguments);
 					
-					IConstructorBinding ctorBinding = FindCorrectConstructor(typeBinding, node);
+					IConstructorBinding ctorBinding = FindCorrectConstructor(node, typeBinding, node.Arguments);
 					if (null != ctorBinding)
 					{
 						// rebind the target now we know
@@ -900,9 +918,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			return null;
 		}
 		
-		void ResolveNamedArguments(ITypeBinding typeBinding, MethodInvocationExpression node)
+		void ResolveNamedArguments(Node sourceNode, ITypeBinding typeBinding, ExpressionPairCollection arguments)
 		{
-			foreach (ExpressionPair arg in node.NamedArguments)
+			foreach (ExpressionPair arg in arguments)
 			{			
 				arg.Second = Switch(arg.Second);				
 				
@@ -911,9 +929,8 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					Errors.NamedParameterMustBeReference(arg);
 					continue;				
-				}				
+				}
 				
-				// todo: lidar com ambiguous binding here
 				IMemberBinding member = ResolvePublicFieldPropertyEvent(name, typeBinding, name.Name);
 				if (null == member)				    
 				{					
@@ -1053,15 +1070,16 @@ namespace Boo.Lang.Compiler.Pipeline
 				type == BindingManager.SingleTypeBinding;
 		}
 		
-		IConstructorBinding FindCorrectConstructor(ITypeBinding typeBinding, MethodInvocationExpression mie)
+		IConstructorBinding FindCorrectConstructor(Node sourceNode, ITypeBinding typeBinding, ExpressionCollection arguments)
 		{
-			if (BindingType.Error != typeBinding.BindingType)
+			IConstructorBinding[] constructors = typeBinding.GetConstructors();
+			if (constructors.Length > 0)
 			{
-				IConstructorBinding[] constructors = typeBinding.GetConstructors();
-				if (constructors.Length > 0)
-				{
-					return (IConstructorBinding)ResolveMethodReference(mie, mie.Arguments, constructors);			
-				}			
+				return (IConstructorBinding)ResolveMethodReference(sourceNode, arguments, constructors);				
+			}
+			else
+			{
+				Errors.NoApropriateConstructorFound(sourceNode, typeBinding.FullName, GetSignature(arguments));
 			}
 			return null;
 		}

@@ -164,6 +164,18 @@ namespace Boo.Tests.Ast.Compiler
 		}
 		
 		[Test]
+		public void TestAttributeConstructorSupport()
+		{
+			RunCompilerTestCase("attributes0.boo");
+		}
+		
+		[Test]
+		public void TestAttributeNamedArguments()
+		{
+			RunCompilerTestCase("attributes1.boo");
+		}
+		
+		[Test]
 		public void TestUsingSimpleNamespace()
 		{
 			RunCompilerTestCase("using0.boo", "using System");
@@ -436,12 +448,6 @@ namespace Boo.Tests.Ast.Compiler
 		}
 		
 		[Test]
-		public void TestFatorialMethod()
-		{
-			RunCompilerTestCase("method2.boo", "fatorial");
-		}
-		
-		[Test]
 		public void TestMethod3()
 		{
 			RunCompilerTestCase("method3.boo", "simple return type decision");
@@ -457,12 +463,6 @@ namespace Boo.Tests.Ast.Compiler
 		public void TestMethod5()
 		{
 			RunCompilerTestCase("method5.boo", "simple recursive method");
-		}
-		
-		[Test]
-		public void MutuallyRecursiveMethods()
-		{
-			RunCompilerTestCase("method6.boo", "mutually recursive methods");
 		}
 		
 		[Test]

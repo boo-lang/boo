@@ -22,6 +22,7 @@ MemberNeedsInstance='{0}' não pode ser utilizado sem uma instância.
 InvalidNamespace=Espaço {0} não encontrado, talvez você tenha esquecido de adicionar uma referência?
 IncompatibleExpressionType=Tipo da expressão '{1}' incompatível com destino ('{0}').
 NoApropriateOverloadFound=Nenhuma versão apropriada de '{1}' para a lista de argumentos '{0}' foi encontrada.
+NoApropriateConstructorFound=O tipo '{0}' não tem um constructor visível compatível com a assinatura '{1}'.
 InvalidArray=Somente arrays unidimensionais são suportados.
 BoolExpressionRequired={0} não pode ser utilizado em um contexto booleano.
 AmbiguousTypeReference=Referência de tipo ambígua: {0}.
@@ -30,6 +31,7 @@ MoreThanOneEntryPoint=Mais de um ponto de entrada encontrado.
 NodeNotInCollection=O nó {0} não está na coleção.
 NotImplemented=Característica ainda não implementada: {0}.
 EventArgumentMustBeAMethod=O evento '{0}' exige uma referência a um método compatível com '{1}'.
+TypeNotAttribute=O tipo '{0}' não é um atributo.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

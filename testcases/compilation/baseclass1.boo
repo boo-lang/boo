@@ -4,7 +4,7 @@ BaseClass.Method1
 A.Method2
 
 """
-using Boo.Tests.Ast.Compilation from Boo.Tests
+using Boo.Tests.Ast.Compiler from Boo.Tests
 
 class A(BaseClass):
 	def Method0():

@@ -166,12 +166,15 @@ namespace Boo.Lang.Compiler.Pipeline
 			string topLevel = parts[0];
 			
 			INamespace ns = (INamespace)_namespaces[topLevel];
-			for (int i=1; i<parts.Length; ++i)
+			if (null != ns)
 			{
-				ns = (INamespace)ns.Resolve(parts[i]);
-				if (null == ns)
+				for (int i=1; i<parts.Length; ++i)
 				{
-					break;
+					ns = (INamespace)ns.Resolve(parts[i]);
+					if (null == ns)
+					{
+						break;
+					}
 				}
 			}
 			return (IBinding)ns;

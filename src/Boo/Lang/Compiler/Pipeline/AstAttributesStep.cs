@@ -175,6 +175,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 		
 		ITypeBinding _astAttributeBaseClass;
+		
+		ITypeBinding _systemAttributeBaseClass;
 
 		public AstAttributesStep()
 		{			
@@ -184,6 +186,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void Run()
 		{
 			_astAttributeBaseClass = BindingManager.ToTypeBinding(typeof(AstAttribute));
+			_systemAttributeBaseClass = BindingManager.ToTypeBinding(typeof(System.Attribute));
 			
 			int step = 0;
 			while (step < CompilerParameters.MaxAttributeSteps)
@@ -259,6 +262,18 @@ namespace Boo.Lang.Compiler.Pipeline
 								resultingNode = null;
 							}
 						}
+						else
+						{
+							if (!IsSystemAttribute(attributeType))
+							{
+								Errors.TypeNotAttribute(attribute, attributeType.FullName);
+							}
+							else
+							{
+								// remember the attribute's type
+								BindingManager.Bind(attribute, attributeType);
+							}
+						}
 					}
 				}
 			}
@@ -284,6 +299,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				_buffer.Append("Attribute");
 			}
 			return _buffer.ToString();
+		}
+		
+		bool IsSystemAttribute(ITypeBinding type)
+		{
+			return type.IsSubclassOf(_systemAttributeBaseClass);
 		}
 
 		bool IsAstAttribute(ITypeBinding type)

@@ -22,8 +22,5 @@ def ScanDirectory(name as string, license as string):
 
 license = TextFile.ReadFile("license.txt")
 ScanDirectory("src", license)
-
-Boo.IO.Directory.Walk(".") do (dirName, files):
-	
 	
 	

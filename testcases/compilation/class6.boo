@@ -2,7 +2,7 @@
 clicked from app!
 
 """
-using Boo.Tests.Ast.Compilation from Boo.Tests
+using Boo.Tests.Ast.Compiler from Boo.Tests
 
 class App:
 

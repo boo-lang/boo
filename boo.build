@@ -169,7 +169,7 @@
 	</target>
 	
 	<target name="generate-ast" depends="init" unless="${skip.ast}">
-		<if test="${not file::up-to-date('ast.model', 'src/Boo/Ast/Impl/CompileUnitImpl.cs')}">
+		<if test="${not file::up-to-date('ast.model', 'src/Boo/Lang/Ast/Impl/CompileUnitImpl.cs')}">
 			<exec program="python" failonerror="true">
 				<arg value="scripts/ast.py" />
 				<arg value="ast.model" />

@@ -115,6 +115,11 @@ namespace Boo.Lang.Compiler
 			Add(new Error(sourceNode, Format("EventArgumentMustBeAMethod", name, signature)));
 		}
 		
+		public void TypeNotAttribute(Node node, string name)
+		{
+			Add(new Error(node, Format("TypeNotAttribute", name)));
+		}
+		
 		public void NameNotType(Node node, string name)
 		{
 			Add(new Error(node, Format("NameNotType", name)));
@@ -148,6 +153,11 @@ namespace Boo.Lang.Compiler
 		public void NoApropriateOverloadFound(Node node, string args, string name)
 		{
 			Add(new Error(node, Format("NoApropriateOverloadFound", args, name)));
+		}
+		
+		public void NoApropriateConstructorFound(Node node, string typeName, string args)
+		{
+			Add(new Error(node, Format("NoApropriateConstructorFound", typeName, args)));
 		}
 		
 		public void UnknownName(Node node, string name)
