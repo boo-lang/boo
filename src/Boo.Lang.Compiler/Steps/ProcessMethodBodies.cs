@@ -2281,6 +2281,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 					}
 					
+					Bind(node, Unknown.Default);
 					BindExpressionType(node, targetMethod.ReturnType);
 					ApplyBuiltinMethodTypeInference(node, targetMethod);
 					

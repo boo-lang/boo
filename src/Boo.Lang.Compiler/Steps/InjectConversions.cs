@@ -35,12 +35,41 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class InjectConversions : AbstractVisitorCompilerStep
 	{
+		IMethod _current;
+		
 		override public void Run()
 		{
 			if (0 == Errors.Count)
 			{
 				Visit(CompileUnit);
 			}
+		}
+		
+		override public void OnMethod(Method node)
+		{
+			_current = (IMethod)GetEntity(node);
+			Visit(node.Body);
+		}
+		
+		bool HasReturnType(IMethod method)
+		{
+			return TypeSystemServices.VoidType != method.ReturnType;
+		}
+		
+		override public void LeaveReturnStatement(ReturnStatement node)
+		{
+			if (HasReturnType(_current))
+			{
+				Expression expression = node.Expression;
+				if (null != expression)
+				{
+					Expression newExpression = Cast(_current.ReturnType, expression);
+					if (null != newExpression)
+					{
+						node.Expression = newExpression;
+					}
+				}
+			}			
 		}
 		
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)

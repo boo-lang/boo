@@ -1,5 +1,4 @@
 ﻿* usar delegates externos
-	* delegate8.boo
 	* delegate10.boo
 	
 * internal delegates
