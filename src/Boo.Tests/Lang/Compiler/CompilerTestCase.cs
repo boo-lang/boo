@@ -423,6 +423,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void GetterFromTypedPropertyGetItsTypeFromTheProperty()
+		{
+			RunCompilerTestCase("property2.boo");
+		}
+		
+		[Test]
 		public void TimeSpanLiteral()
 		{
 			RunCompilerTestCase("timespan0.boo");
@@ -1047,6 +1053,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void TypeIsCompatibleWithInterfacesDeclaredByBaseType()
+		{
+			RunCompilerTestCase("interface6.boo");
+		}
+		
+		[Test]
 		public void ArrayEquality()
 		{
 			RunCompilerTestCase("array_equality.boo");
@@ -1218,6 +1230,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void EnumCanBeCastToInt()
 		{
 			RunCompilerTestCase("enum_can_be_cast_to_int.boo");
+		}
+		
+		[Test]
+		public void CaseInsensitiveHash()
+		{
+			RunCompilerTestCase("caseinsensitivehash.boo");
 		}
 	}
 }

@@ -41,5 +41,9 @@ namespace Boo.Lang
 		public Hash()
 		{
 		}
+		
+		public Hash(bool caseInsensitive) : base(CaseInsensitiveHashCodeProvider.Default, CaseInsensitiveComparer.Default)
+		{
+		}
 	}
 }

@@ -7,7 +7,7 @@
 class Table:
 	_table = ((0, 0), (0,0))
 	
-	Row(index as int) as (object):
+	Row(index as int):
 		get:
 			return _table[index]
 	

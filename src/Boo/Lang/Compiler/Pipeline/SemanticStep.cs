@@ -464,6 +464,10 @@ namespace Boo.Lang.Compiler.Pipeline
 			Switch(node.Parameters);
 			if (null != getter)
 			{
+				if (null != node.Type)
+				{
+					getter.ReturnType = node.Type.CloneNode();
+				}
 				getter.Name = "get_" + node.Name;
 				getter.Parameters.ExtendWithClones(node.Parameters);
 				Switch(getter);
@@ -720,7 +724,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					if (CanResolveReturnType(binding))
 					{
-						ResolveResolvableReturnType(binding);
+						ResolveReturnType(binding);
 						ResolveMethodOverride(binding);
 					}
 					else
@@ -856,45 +860,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
-		internal void ResolveReturnType(InternalMethodBinding binding)
-		{			
-			ITypeBinding type = binding.BoundType;
-			if (BindingManager.ObjectTypeBinding == type)
-			{
-				// can go no further than System.Object
-				return;
-			}
-			
-			Method method = binding.Method;
-			foreach (Expression rsExpression in binding.ReturnExpressions)
-			{
-				ITypeBinding newType = GetBoundType(rsExpression);
-				if (BindingManager.IsUnknown(type))
-				{
-					type = newType;
-					continue;
-				}
-				
-				if (BindingManager.IsUnknown(newType) || type == newType)
-				{
-					continue;
-				}
-				
-				type = GetMostGenericType(type, newType);
-				if (type == BindingManager.ObjectTypeBinding)
-				{
-					break;
-				}
-			}
-			
-			if (binding.BoundType != type)
-			{
-				method.ReturnType = CreateBoundTypeReference(type);
-				TraceReturnType(method, binding);
-			}
-		}
-		
-		void ResolveResolvableReturnType(InternalMethodBinding binding)
+		void ResolveReturnType(InternalMethodBinding binding)
 		{				
 			Method method = binding.Method;
 			ExpressionCollection returnExpressions = binding.ReturnExpressions;
@@ -904,7 +870,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			}		
 			else
 			{					
-				method.ReturnType = CreateBoundTypeReference(GetMostGenericType(returnExpressions));
+				ITypeBinding type = GetMostGenericType(returnExpressions);
+				if (NullBinding.Default == type)
+				{
+					type = BindingManager.ObjectTypeBinding; 
+				}
+				method.ReturnType = CreateBoundTypeReference(type);
 			}
 			TraceReturnType(method, binding);	
 		}
@@ -3064,7 +3035,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			{	
 				if (treatErrors)
 				{
-					Error(node, CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), bindings[0].Name));
+					IBinding binding = bindings[0];
+					IConstructorBinding constructor = binding as IConstructorBinding;
+					if (null != constructor)
+					{
+						Error(node, CompilerErrorFactory.NoApropriateConstructorFound(node, constructor.DeclaringType.FullName, GetSignature(args)));
+					}
+					else
+					{
+						Error(node, CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), binding.Name));
+					}
 				}
 			}
 			return null;

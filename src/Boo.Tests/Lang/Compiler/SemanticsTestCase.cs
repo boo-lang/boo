@@ -166,6 +166,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void ReturnNullOnlyIsTypedObject()
+		{
+			RunCompilerTestCase("null1.boo");
+		}
+		
+		[Test]
 		public void InString()
 		{
 			RunCompilerTestCase("in_string.boo");

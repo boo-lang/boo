@@ -173,7 +173,10 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				return false;
 			}
-			return _type.IsSubclassOf(external._type);
+			
+			return _type.IsSubclassOf(external._type) ||
+				(external.IsInterface && external._type.IsAssignableFrom(_type))
+				;
 		}
 		
 		public bool IsAssignableFrom(ITypeBinding other)

@@ -103,6 +103,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void PropertyTypeChecking()
+		{
+			RunCompilerTestCase("property0.boo");
+		}
+		
+		[Test]
 		public void BreakWithoutLoop()
 		{
 			RunCompilerTestCase("break0.boo");
@@ -160,6 +166,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void RecursiveMethodsMustDeclareTheirReturnType()
 		{
 			RunCompilerTestCase("recursive0.boo");
+		}
+		
+		[Test]
+		public void NoCompatibleConstructor()
+		{
+			RunCompilerTestCase("constructor0.boo");
 		}
 		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)

@@ -1,4 +1,4 @@
-// $ANTLR 2.7.3rc2: "src/Boo.AntlrParserParser/booel.g" -> "BooExpressionLexer.cs"$
+// $ANTLR 2.7.3rc2: "src/Boo.AntlrParser/booel.g" -> "BooExpressionLexer.cs"$
 
 namespace Boo.AntlrParser
 {

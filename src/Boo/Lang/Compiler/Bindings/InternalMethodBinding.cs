@@ -239,7 +239,14 @@ namespace Boo.Lang.Compiler.Bindings
 				{
 					++i;
 				}
-				builder.Append(parameter.Type.ToString());	
+				if (null == parameter.Type)
+				{
+					builder.Append("System.Object");
+				}
+				else
+				{
+					builder.Append(parameter.Type.ToString());
+				}
 			}
 			
 			builder.Append(")");

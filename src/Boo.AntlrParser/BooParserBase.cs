@@ -1,4 +1,4 @@
-// $ANTLR 2.7.3rc2: "src/Boo.AntlrParserParser/boo.g" -> "BooParserBase.cs"$
+// $ANTLR 2.7.3rc2: "src/Boo.AntlrParser/boo.g" -> "BooParserBase.cs"$
 
 namespace Boo.AntlrParser
 {
@@ -247,7 +247,12 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 			{
 				length--;
 			}
-			return s.Substring(startIndex, length);
+			
+			if (length > 0)
+			{
+				return s.Substring(startIndex, length);
+			}
+			return string.Empty;
 		}
 		return s;
 	}

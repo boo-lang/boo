@@ -27,12 +27,12 @@
 options
 {
 	language = "CSharp";
-	namespace = "Boo.Antlr";
+	namespace = "Boo.AntlrParser";
 }
 
 {
 using Boo.Lang.Ast;
-using Boo.Antlr.Util;
+using Boo.AntlrParser.Util;
 
 public delegate void ParserErrorHandler(antlr.RecognitionException x);
 }
@@ -228,7 +228,12 @@ tokens
 			{
 				length--;
 			}
-			return s.Substring(startIndex, length);
+			
+			if (length > 0)
+			{
+				return s.Substring(startIndex, length);
+			}
+			return string.Empty;
 		}
 		return s;
 	}
@@ -1801,7 +1806,7 @@ identifier returns [Token value]
 	{ value.setText(_sbuilder.ToString()); }
 	;	 
 {
-using Boo.Antlr.Util;
+using Boo.AntlrParser.Util;
 }
 class BooLexer extends Lexer;
 options
