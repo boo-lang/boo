@@ -308,6 +308,10 @@ namespace Boo.Lang.Compiler.Steps
 			{	
 				Trace("OnTypeResolve('{0}') during '{1}' creation.", args.Name, _current);
 				
+				// TypeResolve is generated whenever a type
+				// contains fields of a value type not created yet.
+				// All we need to do is look for value type fields
+				// and create them all.
 				ClassDefinition classdef = _current as ClassDefinition;
 				foreach (TypeMember member in classdef.Members)
 				{

@@ -1199,7 +1199,10 @@ return_stmt returns [ReturnStatement s]
 			(
 				e=callable_expression
 			) |
-			eos
+			(
+				(modifier=stmt_modifier)?
+				eos
+			)
 		)
 	{
 		s = new ReturnStatement(ToLexicalInfo(r));
