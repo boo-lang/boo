@@ -39,16 +39,6 @@ super APÓS qualquer validação:
 		* validação de parâmetros pode ser inserida com prioridade 0
 		* chamada ao constructor super com prioriedade 1
 
-* múltiplos modifiers por sentença:
-
-	Thread.Sleep(50ms) while ie.Busy if ie
-
-	Para implementar é só fazer unrolling de fora para dentro:
-	
-	if ie:
-		while ie.Busy:
-			Thread.Sleep(50ms)
-
 * cache da resolução de nomes entre compilações
 
 * booi: opçoes e um único script
@@ -63,15 +53,10 @@ super APÓS qualquer validação:
 
 * ITypeBinding.GetDefaultMember() as IBinding => ITypeBinding.GetDefaultMembers() as (IBinding)
 
-* print macro
-
 * private base method implementations:
 	class Foo(Base):
 		override def Base.Method():
 			super()
-
-* modo MACRO de compilação (ver macro.boo)
-
 * macros para o SharpDevelop em boo
 
 * resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
