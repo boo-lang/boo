@@ -97,6 +97,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_moduleNamespaces.Add(module);
 		}
 		
+		public IEntity[] GetMembers()
+		{
+			Boo.Lang.List members = new Boo.Lang.List();
+			members.Extend(_childrenNamespaces.Values);
+			foreach (Boo.Lang.List types in _assemblies.Values)
+			{
+				members.Extend(types);
+			}
+			return (IEntity[])members.ToArray(typeof(IEntity));
+		}
+		
 		public NamespaceEntity GetChildNamespace(string name)
 		{
 			NamespaceEntity tag = (NamespaceEntity)_childrenNamespaces[name];

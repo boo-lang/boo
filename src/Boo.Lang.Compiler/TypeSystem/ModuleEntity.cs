@@ -161,5 +161,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return found;
 		}
+		
+		public IEntity[] GetMembers()
+		{
+			return _moduleClassNamespace.GetMembers();
+		}
 	}
 }

@@ -17,26 +17,30 @@ class CodeCompletionHunter(ProcessMethodBodies):
 		compiler.Parameters.OutputWriter = StringWriter()
 		compiler.Parameters.Pipeline = MakePipeline(hunter)
 		compiler.Parameters.Input.Add(StringInput("none", source))
-		compiler.Run()
-	
-		return array(IEntity, 0) unless hunter.Target
-		return hunter.Target.GetMembers()
+		result = compiler.Run()
+		print(result.Errors.ToString(true))
+		
+		return hunter.Members
 
-	[getter(Target)]
-	_type as IType
+	[getter(Members)]
+	_members = array(IEntity, 0)
 	
 	override protected def ProcessMemberReferenceExpression(node as MemberReferenceExpression):
 		if node.Name == '__codecomplete__':
-			_type = cast(IType, MyGetReferenceNamespace(node))
-
+			_members = MyGetReferenceNamespace(node).GetMembers()
+				
 		super(node)
 		
-	protected def MyGetReferenceNamespace(expression as MemberReferenceExpression) as INamespace:
+	protected def MyGetReferenceNamespace(expression as MemberReferenceExpression) as INamespace:		
 		target as Expression = expression.Target
-		ns as INamespace = target.ExpressionType
-		if ns is not null:
-			return GetConcreteExpressionType(target)
-		return cast(INamespace, GetEntity(target))
+		
+		print("ExpressionType: ${target.ExpressionType}")
+		print("Entity: ${target.Entity}")
+		
+		if target.ExpressionType is not null:
+			if target.ExpressionType.EntityType != EntityType.Error:
+				return cast(INamespace, target.ExpressionType)
+		return cast(INamespace, target.Entity)
 	
 	protected static def MakePipeline(hunter):
 		pipeline = Compile()

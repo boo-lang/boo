@@ -2862,6 +2862,11 @@ namespace Boo.Lang.Compiler.Steps
 			FieldBuilder builder = typeBuilder.DefineField(field.Name, 
 			                                               GetSystemType(field), 
 			                                               GetFieldAttributes(field));
+														   
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in field.Attributes)
+			{
+				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+			}
 			SetBuilder(field, builder);
 		}
 		

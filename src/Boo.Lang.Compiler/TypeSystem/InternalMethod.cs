@@ -269,6 +269,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
+		IEntity[] INamespace.GetMembers()
+		{
+			return NullNamespace.EmptyEntityArray;
+		}
+		
 		override public string ToString()
 		{
 			return _typeSystemServices.GetSignature(this);

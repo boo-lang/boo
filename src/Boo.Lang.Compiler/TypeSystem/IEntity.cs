@@ -153,8 +153,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IEntity GetDefaultMember();
 		
-		IEntity[] GetMembers();
-		
 		IConstructor[] GetConstructors();
 		
 		IType[] GetInterfaces();

@@ -58,11 +58,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// otherwise.
 		/// </returns>
 		bool Resolve(Boo.Lang.List targetList, string name, EntityType filter);
+		
+		/// <summary>
+		/// Returns all members of this namespace.
+		/// </summary>
+		IEntity[] GetMembers();
 	}
 	
 	public class NullNamespace : INamespace
 	{
 		public static readonly INamespace Default = new NullNamespace();
+		
+		public static readonly IEntity[] EmptyEntityArray = new IEntity[0];
 		
 		private NullNamespace()
 		{
@@ -79,6 +86,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			return false;
+		}
+		
+		public IEntity[] GetMembers()
+		{
+			return NullNamespace.EmptyEntityArray;
 		}
 	}
 }

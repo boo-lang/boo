@@ -65,6 +65,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return false;
 		}
+		
+		public virtual IEntity[] GetMembers()
+		{
+			return (IEntity[])Builtins.array(typeof(IEntity), _children.Values);
+		}
 	}
 	
 	public class GlobalNamespace : SimpleNamespace
@@ -137,6 +142,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return _subject.Resolve(targetList, name, _assembly, flags);
 		}
+		
+		public IEntity[] GetMembers()
+		{
+			return _subject.GetMembers();
+		}
 	}
 	
 	public class AliasedNamespace : IEntity, INamespace
@@ -191,6 +201,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return false;
 		}
+		
+		public IEntity[] GetMembers()
+		{
+			return ((INamespace)_subject).GetMembers();
+		}
 	}
 	
 	public class NamespaceDelegator : INamespace
@@ -224,6 +239,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			return found;
+		}
+		
+		public IEntity[] GetMembers()
+		{
+			// TODO: implement this
+			return NullNamespace.EmptyEntityArray;
 		}
 	}
 	
@@ -269,6 +290,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			return false;
+		}
+		
+		public IEntity[] GetMembers()
+		{
+			return NullNamespace.EmptyEntityArray;
 		}
 	}
 
