@@ -1809,9 +1809,10 @@ namespace Boo.Lang.Compiler.Steps
 												(IMethod)TypeSystemServices.Map(
 													typeof(Array).GetMethod("GetValue", new Type[] { typeof(int[]) })),
 												ale);
+			
+			IType elementType = arrayType.GetElementType();
 			BindExpressionType(ale, TypeSystemServices.Map(typeof(int[])));
-			BindExpressionType(mie, arrayType.GetElementType());
-			node.ParentNode.Replace(node, mie);
+			node.ParentNode.Replace(node, CodeBuilder.CreateCast(elementType, mie));
 		}
 
 		void SliceMember(SlicingExpression node, IEntity member)
