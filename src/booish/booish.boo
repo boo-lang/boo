@@ -71,7 +71,8 @@ class InterpreterNamespace(INamespace):
 		_parent = parent
 
 	def Declare(name as string, type as IType):
-		_declarations.Add(name, entity=InterpreterEntity(name, type))
+		entity = InterpreterEntity(name, type)
+		_declarations.Add(name, entity)
 		return entity
 
 	def Resolve(targetList as List, name as string, flags as EntityType) as bool:
@@ -79,9 +80,12 @@ class InterpreterNamespace(INamespace):
 
 		entity as IEntity = _declarations[name]
 		if entity is null:
-			value = _interpreter.GetValue(name)
-			if value is not null:
-				entity = Declare(name, _tss.Map(value.GetType()))
+			type = _interpreter.Lookup(name)
+			if type is not null:
+				if type is object:
+					entity = Declare(name, _tss.DuckType)
+				else:
+					entity = Declare(name, _tss.Map(type))
 
 		if entity is not null:
 			targetList.Add(entity)
@@ -120,6 +124,10 @@ class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 
 	override def DeclareLocal(name as string, type as IType, privateScope as bool):
 		return super(name, type, privateScope) if privateScope
+		
+		external = type as ExternalType
+		_interpreter.Declare(name, external.ActualType) if external
+		
 		return _namespace.Declare(name, type)
 
 class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
@@ -183,6 +191,8 @@ class InteractiveInterpreter:
 
 	_values = {}
 	
+	_declarations = {}
+	
 	_imports = ImportCollection()
 
 	def constructor():
@@ -236,6 +246,17 @@ class InteractiveInterpreter:
 		_parser.Parameters.Input.Clear()
 		_parser.Parameters.Input.Add(StringInput("src", code))
 		return _parser.Run()
+		
+	def Declare([required] name as string,
+				[required] type as System.Type):
+		_declarations.Add(name, type)
+		
+	def Lookup([required] name as string):
+		type as System.Type = _declarations[name]
+		return type if type
+		
+		value = GetValue(name)
+		return value.GetType() if value
 
 	def SetValue(name as string, value):
 		_values[name] = value

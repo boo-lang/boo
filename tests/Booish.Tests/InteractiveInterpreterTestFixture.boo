@@ -92,6 +92,24 @@ class InteractiveInterpreterTestFixture:
 		Eval("raise System.ApplicationException()")
 		
 	[Test]
+	def TreatObjectsAsDucks():
+		Eval("""
+class Person:
+	[property(Name)] _name = ''
+	
+p as object = Person(Name: 'John')
+""")
+		Eval("name = p.Name")
+		assert "John" == _interpreter.GetValue("name")
+		
+	[Test]
+	def InterpreterRememberDeclaredTypes():
+		Eval("i as object = 3")
+		assert 3 == _interpreter.GetValue("i")
+		Eval("i = '3' # is is typed object")
+		assert "3" == _interpreter.GetValue("i")
+		
+	[Test]
 	def MethodDef():
 		
 		_interpreter.SetValue("eggs", "eggs")
