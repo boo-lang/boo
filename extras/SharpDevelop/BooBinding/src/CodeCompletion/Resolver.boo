@@ -56,15 +56,30 @@ class Resolver:
 				return p if p.SetterRegion.IsInside(_caretLine, _caretColumn)*/
 		return null
 	
+	_localTypes as Hashtable = {}
+	
 	def GetTypeFromLocal(name as string) as IReturnType:
 		// gets the type of a local variable or method parameter
 		print "Trying to get local variable ${name}..."
+		return _localTypes[name] if _localTypes.ContainsKey(name)
+		_localTypes[name] = null // prevent stack overflow by caching null first
+		rt = InnerGetTypeFromLocal(name)
+		_localTypes[name] = rt
+		return rt
+	
+	def InnerGetTypeFromLocal(name as string) as IReturnType:
 		member = self.CurrentMember
 		Print("member", member)
-		if member isa IMethod:
-			method as IMethod = member
+		if member isa Method:
+			method as Method = member
 			for para as IParameter in method.Parameters:
 				return para.ReturnType if para.Name == name
+			if method.Node != null and method.Node.Body != null:
+				varLookup = VariableLookupVisitor(Resolver: self, LookFor: name)
+				print "Visiting method body..."
+				varLookup.Visit(method.Node.Body)
+				print "Finished visiting method body!"
+				return varLookup.ReturnType
 		elif member isa IProperty:
 			property as IProperty = member
 			return property.ReturnType if name == "value"

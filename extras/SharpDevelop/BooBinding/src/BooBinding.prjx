@@ -24,6 +24,7 @@
     <File name=".\BooAmbience.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\CodeCompletion\ExpressionTypeVisitor.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\CodeCompletion\ReturnType.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\CodeCompletion\VariableLookupVisitor.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.Core.dll" localcopy="False" />

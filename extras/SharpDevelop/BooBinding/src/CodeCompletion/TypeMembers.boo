@@ -21,6 +21,7 @@ namespace BooBinding.CodeCompletion
 
 import System
 import SharpDevelop.Internal.Parser
+import Boo.Lang.Compiler.Ast as AST
 
 /////////////////////////////////////
 ///          Constructor          ///
@@ -101,6 +102,9 @@ class Indexer(AbstractIndexer):
 ///            Method             ///
 /////////////////////////////////////
 class Method(AbstractMethod):
+	[Property(Node)]
+	_node as AST.Method
+	
 	def AddModifier(m as ModifierEnum):
 		modifiers = modifiers | m
 	
@@ -116,6 +120,9 @@ class Method(AbstractMethod):
 ///           Property            ///
 /////////////////////////////////////
 class Property(AbstractProperty):
+	[Property(Node)]
+	_node as AST.Property
+	
 	def AddModifier(m as ModifierEnum):
 		modifiers = modifiers | m
 	

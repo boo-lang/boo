@@ -50,33 +50,9 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 		else:
 			print "${node.ToString()} - ${node.GetType().FullName}"
 	
-	override def OnSimpleTypeReference(node as SimpleTypeReference):
-		Debug(node)
-		super(node)
-	
-	override def OnArrayTypeReference(node as ArrayTypeReference):
-		Debug(node)
-		super(node)
-	
-	override def OnCallableTypeReference(node as CallableTypeReference):
-		Debug(node)
-		super(node)
-	
-	override def OnLocal(node as Local):
-		Debug(node)
-		super(node)
-	
 	override def OnCallableBlockExpression(node as CallableBlockExpression):
 		Debug(node)
 		CreateReturnType("System.Delegate")
-	
-	override def OnExpressionStatement(node as ExpressionStatement):
-		Debug(node)
-		super(node)
-	
-	override def OnExpressionPair(node as ExpressionPair):
-		Debug(node)
-		super(node)
 	
 	override def OnMethodInvocationExpression(node as MethodInvocationExpression):
 		Debug(node)
@@ -121,10 +97,6 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 					possibleOverloads.Add(m)
 		return possibleOverloads
 	
-	override def OnUnaryExpression(node as UnaryExpression):
-		Debug(node)
-		super(node)
-	
 	override def OnBinaryExpression(node as BinaryExpression):
 		Debug(node)
 		CombineTypes(node.Left, node.Right)
@@ -139,7 +111,6 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	override def OnReferenceExpression(node as ReferenceExpression):
 		// Resolve reference (to a variable, field, parameter or type)
 		rt = _resolver.GetTypeFromLocal(node.Name)
-		Debug(rt)
 		if rt != null:
 			SetReturnType(rt)
 			return
@@ -187,6 +158,9 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	override def OnNullLiteralExpression(node as NullLiteralExpression):
 		CreateReturnType("System.Object")
 	
+	override def OnStringLiteralExpression(node as StringLiteralExpression):
+		CreateReturnType("System.String")
+	
 	override def OnSelfLiteralExpression(node as SelfLiteralExpression):
 		CreateReturnType(_resolver.CallingClass)
 	
@@ -199,10 +173,6 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	override def OnRELiteralExpression(node as RELiteralExpression):
 		CreateReturnType("System.Text.RegularExpressions.Regex")
 	
-	override def OnExpressionInterpolationExpression(node as ExpressionInterpolationExpression):
-		Debug(node)
-		super(node)
-	
 	override def OnHashLiteralExpression(node as HashLiteralExpression):
 		CreateReturnType("System.Collections.Hashtable")
 	
@@ -211,14 +181,6 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	
 	override def OnArrayLiteralExpression(node as ArrayLiteralExpression):
 		CreateReturnType("System.Array")
-	
-	override def OnGeneratorExpression(node as GeneratorExpression):
-		Debug(node)
-		super(node)
-	
-	override def OnSlicingExpression(node as SlicingExpression):
-		Debug(node)
-		super(node)
 	
 	override def OnAsExpression(node as AsExpression):
 		CreateReturnType(node.Type)

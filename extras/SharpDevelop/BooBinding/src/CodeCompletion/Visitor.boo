@@ -180,6 +180,7 @@ class Visitor(AbstractVisitorCompilerStep):
 			print "Method: ${node.FullName}"
 			method = Method(node.Name, ReturnType(node.ReturnType), GetModifier(node), GetRegion(node), GetClientRegion(node))
 			method.Parameters = GetParameters(node.Parameters)
+			method.Node = node
 			cast(Class, _currentClass.Peek()).Methods.Add(method)
 		except ex:
 			print ex.ToString()
@@ -214,6 +215,7 @@ class Visitor(AbstractVisitorCompilerStep):
 		try:
 			print "Property ${node.Name}"
 			property = Property(node.Name, ReturnType(node.Type), GetModifier(node), GetRegion(node), GetClientRegion(node))
+			property.Node = node
 			cast(Class, _currentClass.Peek()).Properties.Add(property)
 		except ex:
 			print ex.ToString()
