@@ -736,6 +736,12 @@ namespace Boo.Tests.Ast.Parsing
 			RunParserTestCase("double0.boo");
 		}
 		
+		[Test]
+		public void CommentsBetweenClassesAndGlobalMethods()
+		{
+			RunParserTestCase("comments0.boo");
+		}
+		
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{

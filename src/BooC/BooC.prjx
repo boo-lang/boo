@@ -1,4 +1,4 @@
-<Project name="BooC" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
+<Project name="BooC" standardNamespace="NewProject" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
     <File name=".\App.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
