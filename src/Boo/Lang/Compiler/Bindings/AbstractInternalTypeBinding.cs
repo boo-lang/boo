@@ -30,6 +30,7 @@
 namespace Boo.Lang.Compiler.Bindings
 {
 	using System;
+	using System.Collections;
 	using Boo.Lang.Ast;
 	
 	public abstract class AbstractInternalBinding : IInternalBinding
@@ -64,6 +65,8 @@ namespace Boo.Lang.Compiler.Bindings
 		protected IBinding[] _members;
 		
 		protected INamespace _parentNamespace;
+		
+		protected ArrayList _memberBuffer = new ArrayList();
 		
 		protected AbstractInternalTypeBinding(BindingManager bindingManager, TypeDefinition typeDefinition)
 		{
@@ -106,6 +109,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public virtual IBinding Resolve(string name)
 		{			
+			_memberBuffer.Clear();			
+			
 			foreach (TypeMember member in _typeDefinition.Members)
 			{
 				if (name == member.Name)
@@ -121,16 +126,31 @@ namespace Boo.Lang.Compiler.Bindings
 					{
 						binding = _bindingManager.AsTypeReference((ITypeBinding)binding);
 					}
-					return binding;
+					_memberBuffer.Add(binding);
 				}
 			}
 			
-			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			if (0 == _memberBuffer.Count)
 			{
-				IBinding binding = _bindingManager.GetBoundType(baseType).Resolve(name);
-				if (null != binding)
+				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					return binding;
+					IBinding binding = _bindingManager.GetBoundType(baseType).Resolve(name);
+					if (null != binding)
+					{
+						_memberBuffer.Add(binding);
+					}
+				}
+			}
+			
+			if (_memberBuffer.Count > 0)
+			{
+				if (_memberBuffer.Count > 1)
+				{
+					return new AmbiguousBinding((IBinding[])_memberBuffer.ToArray(typeof(IBinding)));
+				}
+				else
+				{
+					return (IBinding)_memberBuffer[0];
 				}
 			}
 			return null;
