@@ -85,6 +85,32 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
+		public object this[object key]
+		{
+			get
+			{
+				if (null == _properties)
+				{
+					return null;
+				}
+				return _properties[key];
+			}
+			
+			set
+			{
+				if (null == key)
+				{
+					throw new ArgumentNullException("key");
+				}
+				
+				if (null == _properties)
+				{
+					_properties = new Hashtable();
+				}
+				_properties[key] = value;
+			}
+		}
+		
 		public Node ParentNode
 		{
 			get

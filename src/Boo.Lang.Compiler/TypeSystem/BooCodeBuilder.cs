@@ -53,6 +53,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public Boo.Lang.Compiler.Ast.Attribute CreateAttribute(IConstructor constructor, Expression arg)
+		{
+			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute();
+			attribute.Name = constructor.DeclaringType.FullName;
+			attribute.Entity = constructor;
+			attribute.Arguments.Add(arg);
+			return attribute;
+		}
+		
 		public BooClassBuilder CreateClass(string name)
 		{
 			return new BooClassBuilder(this, name);
@@ -71,6 +80,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			expression.Type = CreateTypeReference(type);
 			expression.Target = target;
 			expression.ExpressionType = type;
+			return expression;
+		}
+		
+		public Expression CreateTypeofExpression(IType type)
+		{
+			TypeofExpression expression = new TypeofExpression();
+			expression.Type = CreateTypeReference(type);
+			expression.ExpressionType = _tss.TypeType;
+			expression.Entity = type;
 			return expression;
 		}
 		

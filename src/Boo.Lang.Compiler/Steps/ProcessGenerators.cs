@@ -146,18 +146,11 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_collector.AdjustReferences();
 			
-			TypeDefinition parent = _collector.ForeignMethod.DeclaringType;
-			string name = string.Format("__generator{0}__", parent.Members.Count);
-			
-			_enumerableType = _collector.CreateSkeletonClass(name);
-			_enumerableType.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Final;
-			_enumerableType.AddBaseType(TypeSystemServices.IEnumerableType);	
-			_enumerableType.LexicalInfo = _generator.LexicalInfo;
+			_enumerableType = (BooClassBuilder)_generator["ClassBuilder"];
+			_collector.DeclareFieldsAndConstructor(_enumerableType);
 			
 			CreateGetEnumerator();
 			_enumerableType.ClassDefinition.Members.Add(_enumeratorType.ClassDefinition);
-			
-			parent.Members.Add(_enumerableType.ClassDefinition);
 		}
 		
 		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
@@ -188,7 +181,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateGetEnumerator()
 		{	
-			BooMethodBuilder method = _enumerableType.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
+			BooMethodBuilder method = (BooMethodBuilder)_generator["GetEnumeratorBuilder"];
 			
 			MethodInvocationExpression mie = CreateConstructorInvocation(_enumeratorType.ClassDefinition);
 			foreach (TypeMember member in _enumerableType.ClassDefinition.Members)

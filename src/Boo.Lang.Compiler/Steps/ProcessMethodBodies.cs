@@ -99,6 +99,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IConstructor TextReaderEnumerator_Constructor;
 		
+		IConstructor EnumeratorItemType_Constructor;
+		
 		IMethod Delegate_Combine;
 		
 		IMethod Delegate_Remove;
@@ -166,6 +168,7 @@ namespace Boo.Lang.Compiler.Steps
 			ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
 			Activator_CreateInstance = (IMethod)TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
 			TextReaderEnumerator_Constructor = (IConstructor)TypeSystemServices.Map(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
+			EnumeratorItemType_Constructor = TypeSystemServices.Map(typeof(Boo.Lang.EnumeratorItemTypeAttribute)).GetConstructors()[0];
 			
 			Type delegateType = Types.Delegate;
 			Type[] delegates = new Type[] { delegateType, delegateType };
@@ -985,14 +988,19 @@ namespace Boo.Lang.Compiler.Steps
 			}		
 			else
 			{					
-				IType type = GetMostGenericType(returnExpressions);
-				if (Null.Default == type)
-				{
-					type = TypeSystemServices.ObjectType; 
-				}
+				IType type = MapNullToObject(GetMostGenericType(returnExpressions));
 				method.ReturnType = CodeBuilder.CreateTypeReference(type);
 			}
 			TraceReturnType(method, tag);	
+		}
+		
+		IType MapNullToObject(IType type)
+		{
+			if (Null.Default == type)
+			{
+					return TypeSystemServices.ObjectType; 
+			}
+			return type;
 		}
 		
 		IType GetMostGenericType(IType current, IType candidate)
@@ -1427,7 +1435,33 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Expression);
 			LeaveNamespace();
 			
-			BindExpressionType(node, TypeSystemServices.IEnumerableType);
+			if (!AstUtil.IsListGenerator(node.ParentNode))
+			{
+				CreateGeneratorSkeleton(node);
+			}
+			else
+			{
+				BindExpressionType(node, TypeSystemServices.IEnumerableType);
+			}
+		}
+		
+		void CreateGeneratorSkeleton(GeneratorExpression node)
+		{
+			// create the class skeleton for type inference to work
+			BooClassBuilder builder = CodeBuilder.CreateClass(
+														string.Format("__generator{0}__", _context.AllocIndex()),
+														TypeMemberModifiers.Private|TypeMemberModifiers.Final);
+			builder.AddBaseType(TypeSystemServices.Map(typeof(Boo.Lang.AbstractGenerator)));
+			builder.AddAttribute(CodeBuilder.CreateAttribute(
+												EnumeratorItemType_Constructor,
+												CodeBuilder.CreateTypeofExpression(GetConcreteExpressionType(node.Expression))));
+			builder.LexicalInfo = node.LexicalInfo;
+			node["ClassBuilder"] = builder;
+			node["GetEnumeratorBuilder"] = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
+			
+			_currentMethod.Method.DeclaringType.Members.Add(builder.ClassDefinition);
+			
+			BindExpressionType(node, builder.Entity);
 		}
 		
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)
@@ -2070,7 +2104,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (null == info || TypeSystemServices.IsBuiltin(info))
 				{
 					Visit(node.Right);
-					IType expressionType = GetConcreteExpressionType(node.Right);
+					IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
 					CheckIsResolvedType(expressionType, node.Right);
 					DeclareLocal(reference, new Local(reference, false), expressionType);
 					BindExpressionType(node.Left, expressionType);
@@ -3259,8 +3293,8 @@ namespace Boo.Lang.Compiler.Steps
 				Expression arg = args[i];
 				IType expressionType = GetExpressionType(arg);
 				IType parameterType = parameters[i].Type;
-				if (!TypeSystemServices.AreTypesRelated(parameterType, expressionType) &&
-					!IsValidByRefArg(parameterType, expressionType, arg))
+				if (!TypeSystemServices.AreTypesRelated(parameterType, expressionType) ||
+					(parameterType.IsByRef && !IsValidByRefArg(parameterType, expressionType, arg)))
 				{
 					return false;
 				}

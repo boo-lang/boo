@@ -101,10 +101,10 @@ abstract class AbstractBooTask(Task):
 		LogVerbose(message)
 
 	def LogInfo(message):
-		self.Log(Level.Info, "${LogPrefix}${message}")
+		self.Log(Level.Info, "${message}")
 		
 	def LogVerbose(message):
-		self.Log(Level.Verbose, "${LogPrefix}${message}")
+		self.Log(Level.Verbose, "${message}")
 		
 	def LogError(message):
-		self.Log(Level.Error, "${LogPrefix}${message}")
+		self.Log(Level.Error, "${message}")

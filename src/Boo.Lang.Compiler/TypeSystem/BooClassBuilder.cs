@@ -103,6 +103,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public void AddAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
+		{
+			_cd.Attributes.Add(attribute);
+		}
+		
 		public void AddBaseType(IType type)
 		{			
 			_cd.BaseTypes.Add(_codeBuilder.CreateTypeReference(type));

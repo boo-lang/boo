@@ -162,7 +162,12 @@ namespace Boo.Lang.Compiler.Steps
 			
 			BooClassBuilder builder = CodeBuilder.CreateClass(name);
 			builder.AddBaseType(baseType);
-			
+			DeclareFieldsAndConstructor(builder);
+			return builder;
+		}
+		
+		public void DeclareFieldsAndConstructor(BooClassBuilder builder)
+		{	
 			// referenced entities turn into fields			
 			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
 			{
@@ -173,7 +178,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			// single constructor taking all referenced entities
 			BooMethodBuilder constructor = builder.AddConstructor();			
-			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(baseType));			
+			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));			
 			foreach (ITypedEntity entity in _referencedEntities.Keys)
 			{
 				ParameterDeclaration parameter = constructor.AddParameter(entity.Name, entity.Type);										
@@ -182,8 +187,6 @@ namespace Boo.Lang.Compiler.Steps
 					CodeBuilder.CreateAssignment(CodeBuilder.CreateReference(field),
 									CodeBuilder.CreateReference(parameter)));
 			}
-			
-			return builder;
 		}
 		
 		public void AdjustReferences()
