@@ -66,6 +66,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				throw new ArgumentNullException("sourceNode");
 			}
+			
 			IBinding binding = BindingManager.ResolvePrimitive(name);
 			if (null == binding)
 			{

@@ -89,6 +89,11 @@ namespace Boo.Lang.Compiler
 			Add(new Error(node, GetString("InvalidSuper")));
 		}
 		
+		public void InvalidTypeof(Node node)
+		{
+			Add(new Error(node, GetString("InvalidTypeof")));
+		}
+		
 		public void MultipleClassInheritance(Node node, string className, string baseClass)
 		{
 			Add(new Error(node,

@@ -62,6 +62,8 @@ namespace Boo.Lang.Compiler.Bindings
 		public static readonly Type Bool = typeof(bool);
 		
 		public static readonly Type IntPtr = typeof(IntPtr);
+		
+		public static readonly Type Type = typeof(System.Type);
 
 	}
 }

@@ -494,5 +494,11 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			RunCompilerTestCase("in1.boo");
 		}
+		
+		[Test]
+		public void Typeof()
+		{
+			RunCompilerTestCase("typeof0.boo");
+		}
 	}
 }

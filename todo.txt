@@ -107,16 +107,18 @@ done * criar um nó Unless
 
 done * booc nant task (em boo, obviamente)
 
-done * super
+done * typeof
+
+* super
 
 * EnsureMethodIsResolved => EnsureMemberIsResolved
 	* utilizar um grafo de dependências ao invés do sistema de eventos
 
-* type
-
 * field initializers
 
 * null
+
+* is
 
 * AstAttribute vira IAstAttribute que implementa ICompilerStep
 

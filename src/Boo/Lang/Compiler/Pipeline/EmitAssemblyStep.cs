@@ -100,6 +100,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static MethodInfo List_Add = Types.List.GetMethod("Add", new Type[] { Types.Object });
 		
+		static MethodInfo Type_GetTypeFromHandle = Types.Type.GetMethod("GetTypeFromHandle");
+		
 		static Type[] DelegateConstructorTypes = new Type[] { Types.Object, Types.IntPtr };
 		
 		AssemblyBuilder _asmBuilder;
@@ -568,11 +570,25 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(superMI.ReturnType);
 		}
 		
+		void OnSpecialFunction(IBinding binding, MethodInvocationExpression node)
+		{
+			Type type = GetType(node.Arguments[0]);
+			_il.Emit(OpCodes.Ldtoken, type);
+			_il.EmitCall(OpCodes.Call, Type_GetTypeFromHandle, null);
+			PushType(Types.Type);
+		}
+		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{				
 			IBinding binding = BindingManager.GetBinding(node.Target);
 			switch (binding.BindingType)
 			{
+				case BindingType.SpecialFunction:
+				{
+					OnSpecialFunction(binding, node);
+					break;
+				}
+				
 				case BindingType.Method:
 				{	
 					IMethodBinding methodBinding = (IMethodBinding)binding;

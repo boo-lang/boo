@@ -540,6 +540,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
+				
 				BindingManager.Error(node);
 			}
 		}
@@ -775,7 +776,20 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 			}
-		}		
+		}	
+		
+		public void OnSpecialFunction(IBinding binding, MethodInvocationExpression node)
+		{
+			if (node.Arguments.Count != 1 ||
+			    GetBinding(node.Arguments[0]).BindingType != BindingType.TypeReference)
+		    {
+		    	Errors.InvalidTypeof(node);
+		    }
+		    else
+		    {
+		    	BindingManager.Bind(node, BindingManager.ToTypeBinding(Types.Type));
+		    }
+		}
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node, ref Expression resultingNode)
 		{			
@@ -795,7 +809,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			}	
 			
 			switch (targetBinding.BindingType)
-			{				
+			{		
+				case BindingType.SpecialFunction:
+				{
+					OnSpecialFunction(targetBinding, node);
+					break;
+				}
+				
 				case BindingType.Method:
 				{				
 					IBinding nodeBinding = ErrorBinding.Default;

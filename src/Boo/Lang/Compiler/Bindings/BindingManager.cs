@@ -59,8 +59,12 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
-		public BindingManager()
+		IBinding _typeOfBinding;
+		
+		public BindingManager()		
 		{
+			_typeOfBinding = new SpecialFunctionBinding(SpecialFunction.Typeof);
+			
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));
@@ -214,9 +218,9 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypedBinding ResolvePrimitive(string name)
+		public IBinding ResolvePrimitive(string name)
 		{
-			ITypedBinding binding = null;
+			IBinding binding = null;
 			switch (name)
 			{
 				case "void":
@@ -252,6 +256,12 @@ namespace Boo.Lang.Compiler.Bindings
 				case "int":
 				{
 					binding = ToTypeReference(IntTypeBinding);
+					break;
+				}
+				
+				case "typeof":
+				{
+					binding = _typeOfBinding;
 					break;
 				}
 			}

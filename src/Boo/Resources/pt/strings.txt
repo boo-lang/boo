@@ -34,6 +34,7 @@ EventArgumentMustBeAMethod=O evento '{0}' exige uma referência a um método com
 TypeNotAttribute=O tipo '{0}' não é um atributo.
 ExpressionStatementMustHaveSideEffect=Expressões em sentenças devem ser executadas apenas por seus efeitos colaterais.
 InvalidSuper=super só pode ser utilizado em métodos sobreescritos.
+InvalidTypeof=typeof deve ser utilizado com um tipo como seu único argumento.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

@@ -48,6 +48,7 @@ namespace Boo.Lang.Compiler.Bindings
 		Assembly = 0x400,
 		Namespace = 0x800,
 		Ambiguous = 0x1000,
+		SpecialFunction,
 		Error
 	}	
 	
@@ -61,6 +62,45 @@ namespace Boo.Lang.Compiler.Bindings
 		BindingType BindingType
 		{
 			get;
+		}
+	}
+	
+	public enum SpecialFunction
+	{
+		Typeof
+	}
+	
+	public class SpecialFunctionBinding : IBinding
+	{
+		SpecialFunction _function;
+		
+		public SpecialFunctionBinding(SpecialFunction f)
+		{
+			_function = f;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _function.ToString();
+			}
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.SpecialFunction;
+			}
+		}
+		
+		public SpecialFunction Function
+		{
+			get
+			{
+				return _function;
+			}
 		}
 	}
 	

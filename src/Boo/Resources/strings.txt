@@ -34,6 +34,7 @@ EventArgumentMustBeAMethod=The event '{0}' demands a method reference compatible
 TypeNotAttribute=The type '{0}' is not a valid attribute.
 ExpressionStatementMustHaveSideEffect=Expressions in statements must only be executed for their side-effects.
 InvalidSuper=super is valid only on method overrides.
+InvalidTypeof=typeof must be used with a type reference as its single argument.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.
