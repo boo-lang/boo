@@ -98,7 +98,7 @@ class BooTask(AbstractBooTask):
 		if _src:
 			parameters.Input.Add(FileInput(_src.ToString()))
 		else:
-			parameters.Input.Add(StringInput("boo", reindent(self.XmlNode.InnerText)))
+			parameters.Input.Add(StringInput("boo", reindent(getSourceCode())))
 		parameters.References.Add(GetType().Assembly)
 		parameters.References.Add(typeof(NAnt.Core.Project).Assembly)
 		
@@ -115,7 +115,11 @@ class BooTask(AbstractBooTask):
 		except x:
 			raise BuildException(x.Message, Location, x)
 			
-	def reindent(code as string):
+	private def getSourceCode():
+		codeNode = self.XmlNode.SelectSingleNode("code")
+		return (codeNode or self.XmlNode).InnerText
+			
+	private def reindent(code as string):
 		lines = /\n/.Split(code.Replace("\r\n", "\n"))
 		lines = [line for line in lines if len(line.Trim())].ToArray(string)
 	

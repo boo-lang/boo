@@ -38,15 +38,51 @@ import Boo.Lang.Compiler
 
 abstract class AbstractBooTask(Task):
 	
+	_references = FileSet()
+	
 	def constructor():
 		baseAssemblyFolder = Path.GetDirectoryName(GetType().Assembly.Location)
 		System.Reflection.Assembly.LoadFrom(
 			Path.Combine(baseAssemblyFolder, "Boo.AntlrParser.dll"))
+			
+	[BuildElement("references")]
+	References:
+		get:
+			return _references
+		set:
+			_references = value			
 	
-	protected def RunCompiler(compiler as BooCompiler):		
+	protected def RunCompiler(compiler as BooCompiler):
+		AddReferences(compiler.Parameters)		
 		result = compiler.Run()
 		CheckCompilationResult(result)
 		return result
+		
+	protected def AddReferences(parameters as CompilerParameters):
+		
+		if _references.BaseDirectory is not null:
+			baseDir = _references.BaseDirectory.ToString()
+		else:
+			baseDir = Project.BaseDirectory
+			
+		frameworkDir = GetFrameworkDirectory()
+		for reference as string in _references.Includes:
+			
+			path = reference
+			if not Path.IsPathRooted(path):
+				path = Path.Combine(baseDir, reference)
+				if not File.Exists(path):
+					print("${path} doesn't exist.")
+					path = Path.Combine(frameworkDir, reference)
+					
+			print("reference: ${path}")		
+			try:
+				parameters.References.Add(System.Reflection.Assembly.LoadFrom(path))
+			except x:
+				raise BuildException(
+					Boo.ResourceManager.Format("BCE0041", reference),
+					Location,
+					x)
 	
 	protected def CheckCompilationResult(context as CompilerContext):
 		errors = context.Errors

@@ -52,15 +52,6 @@ class BoocTask(AbstractBooTask):
 	
 	_traceLevel = System.Diagnostics.TraceLevel.Off
 	
-	_references = FileSet()
-	
-	[BuildElement("references")]
-	References:
-		get:
-			return _references
-		set:
-			_references = value
-	
 	[BuildElement("resources")]
 	Resources:
 		get:
@@ -130,36 +121,7 @@ class BoocTask(AbstractBooTask):
 			LogVerbose(fname)
 			parameters.Resources.Add(FileResource(fname))
 			
-		AddReferences(parameters)		
-			
 		RunCompiler(compiler)
-		
-		
-	protected def AddReferences(parameters as CompilerParameters):
-		
-		if _references.BaseDirectory is not null:
-			baseDir = _references.BaseDirectory.ToString()
-		else:
-			baseDir = Project.BaseDirectory
-			
-		frameworkDir = GetFrameworkDirectory()
-		for reference as string in _references.Includes:
-			
-			path = reference
-			if not Path.IsPathRooted(path):
-				path = Path.Combine(baseDir, reference)
-				if not File.Exists(path):
-					print("${path} doesn't exist.")
-					path = Path.Combine(frameworkDir, reference)
-					
-			print("reference: ${path}")		
-			try:
-				parameters.References.Add(System.Reflection.Assembly.LoadFrom(path))
-			except x:
-				raise BuildException(
-					Boo.ResourceManager.Format("BCE0041", reference),
-					Location,
-					x)
 
 	private def GetOutputType():
 		if "exe" == _target:
