@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<project name="boolog" default="all">
+
+	<property name="Bamboo.Prevalence.dll" value="../../../Bamboo.Prevalence/bin/Bamboo.Prevalence.dll" />
+
+	<target name="all" depends="web">
+	</target>
+	
+	<target name="run" depends="all">
+		<exec program="cassiniwebserver.exe" useruntimeengine="true">
+			<arg file="build/web" />
+			<arg value="8888" />
+		</exec>
+	</target>
+	
+	<target name="web" depends="compile">
+	
+		<mkdir dir="build/web" />
+		<mkdir dir="build/web/bin" />
+		
+		<copy todir="build/web/bin">
+			<fileset basedir="build">
+				<includes name="Boo.dll" />
+				<includes name="BooLog.dll" />
+				<includes name="Bamboo.Prevalence.dll" />
+			</fileset>
+		</copy>
+		
+		<booc target="library"
+			output="build/web/bin/BooLog.Web.dll">
+			
+			<sources basedir="web">
+				<includes name="**/*.boo" />
+			</sources>
+			
+			<references basedir="build/web/bin">
+				<includes name="BooLog.dll" />
+				<includes name="Bamboo.Prevalence.dll" />
+				<includes name="System.Web.dll" />
+			</references>
+		</booc>
+		
+		<copy todir="build/web">
+			<fileset basedir="web">
+				<includes name="*.aspx" />
+				<includes name="*.asax" />
+				<includes name="*.config" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="compile" depends="init">
+		<booc target="library"
+			output="build/BooLog.dll">
+			
+			<sources basedir="src">
+				<includes name="*.boo" />
+			</sources>
+			
+			<references basedir="build">
+				<includes name="Bamboo.Prevalence.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="init">
+		<mkdir dir="build" />
+		<copy todir="build" file="${Bamboo.Prevalence.dll}" />
+		<copy todir="build">
+			<fileset basedir="../../bin">
+				<includes name="*.dll" />
+			</fileset>
+		</copy>
+		<loadtasks assembly="build/Boo.NAnt.dll" />
+	</target>
+
+</project>
