@@ -83,8 +83,10 @@ done * boxing (print e StringFormatting)
 done * GPL license for all source files
 
 * trocar todos os testes do parser para ao invés de utilizarem xml como base de comparação (o
-que falha no mono já que os xmls gerados são diferentes), utilizar o BooPrinter para gerar a 
+que falha no mono já que os xmls gerados são diferentes), utilizar o BooPrinter para gerar a
 forma canônica, dessa forma, BooPrinter também será testado.
+
+* renomear ListDisplayExpression for IteratorDisplayExpression
 
 * todos as construçoes que suportam blocos (for, while, if, given, try, catch, etc) não devem possuir
 uma StatementCollection diretamente como filha mas utilizar um Block ao invés, isso facilita o tratamento

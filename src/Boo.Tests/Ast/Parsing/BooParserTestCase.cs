@@ -581,19 +581,19 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestExpressions1()
 		{
-			RunXmlTestCase("expressions_1.boo");
+			RunParserTestCase("expressions_1.boo");
 		}
 
 		[Test]
 		public void TestExpressions2()
 		{
-			RunXmlTestCase("expressions_2.boo");
+			RunParserTestCase("expressions_2.boo");
 		}
 
 		[Test]
 		public void TestExpressions3()
 		{
-			RunXmlTestCase("expressions_3.boo");
+			RunParserTestCase("expressions_3.boo");
 		}
 
 		[Test]
@@ -605,37 +605,37 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestNullLiteral()
 		{
-			RunXmlTestCase("null_literal.boo");
+			RunParserTestCase("null_literal.boo");
 		}
 
 		[Test]
 		public void TestSelf()
 		{
-			RunXmlTestCase("self.boo");
+			RunParserTestCase("self.boo");
 		}
 
 		[Test]
 		public void TestTernaryOperator()
 		{
-			RunXmlTestCase("ternary_operator.boo");
+			RunParserTestCase("ternary_operator.boo");
 		}
 
 		[Test]
 		public void TestStringInterpolation()
 		{
-			RunXmlTestCase("string_interpolation.boo");
+			RunParserTestCase("string_interpolation.boo");
 		}
 
 		[Test]
 		public void TestBaseMembers()
 		{
-			RunXmlTestCase("base_types.boo");
+			RunParserTestCase("base_types.boo");
 		}
 
 		[Test]
 		public void TestTimeSpanLiteral()
 		{
-			RunXmlTestCase("timespan.boo");
+			RunParserTestCase("timespan.boo");
 		}
 
 		[Test]
@@ -647,67 +647,67 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestRichAssign()
 		{
-			RunXmlTestCase("rich_assign.boo");
+			RunParserTestCase("rich_assign.boo");
 		}
 
 		[Test]
 		public void TestTryCatchRetry()
 		{
-			RunXmlTestCase("try_catch_retry.boo");
+			RunParserTestCase("try_catch_retry.boo");
 		}
 
 		[Test]
 		public void TestSlicing()
 		{
-			RunXmlTestCase("slicing.boo");
+			RunParserTestCase("slicing.boo");
 		}
 
 		[Test]
 		public void TestDict()
 		{
-			RunXmlTestCase("dict.boo");
+			RunParserTestCase("dict.boo");
 		}
 
 		[Test]
 		public void TestListDisplay()
 		{
-			RunXmlTestCase("list_display.boo");
+			RunParserTestCase("list_display.boo");
 		}
 
 		[Test]
 		public void TestTuples2()
 		{
-			RunXmlTestCase("tuples_2.boo");
+			RunParserTestCase("tuples_2.boo");
 		}
 
 		[Test]
 		public void TestMethodCalls()
 		{
-			RunXmlTestCase("method_calls.boo");
+			RunParserTestCase("method_calls.boo");
 		}
 
 		[Test]
 		public void TestAttributes()
 		{
-			RunXmlTestCase("attributes.boo");
+			RunParserTestCase("attributes.boo");
 		}
 
 		[Test]
 		public void TestAttributeWithNamedParameters()
 		{
-			RunXmlTestCase("named_parameters_1.boo");
+			RunParserTestCase("named_parameters_1.boo");
 		}
 
 		[Test]
 		public void TestConstructorWithNamedParameters()
 		{
-			RunXmlTestCase("named_parameters_2.boo");
+			RunParserTestCase("named_parameters_2.boo");
 		}
 
 		[Test]
 		public void TestUsing()
 		{
-			RunXmlTestCase("using.boo");
+			RunParserTestCase("using.boo");
 		}
 		
 		[TestFixtureSetUp]
@@ -738,23 +738,22 @@ namespace Boo.Tests.Ast.Parsing
 				CompilerContext context = _compiler.Run();
 				if (context.Errors.Count > 0)
 				{
-					Assert.Fail(context.Errors.ToString());
+					Assert.Fail(context.Errors.ToString(true));
 				}
 				
-				Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");
+				Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");				
 				
 				string expected = context.CompileUnit.Modules[0].Documentation;
-				Assert.AreEqual(expected.Trim(), stdout.ToString().Trim().Replace("\r\n", "\n"), testfile);				
+				if (null == expected)
+				{
+					Assert.Fail(string.Format("Test case '{0}' does not have a docstring!", testfile));
+				}
+				Assert.AreEqual(expected.Trim().Replace("\t", "  "), stdout.ToString().Trim().Replace("\r\n", "\n"), testfile);				
 			}
 			finally
 			{
 				Console.SetOut(oldStdOut);
 			}
-		}
-
-		void RunXmlTestCase(string sample)
-		{
-			BooTestCaseUtil.RunXmlTestCase(sample);			
 		}
 	}
 }

@@ -1,3 +1,10 @@
+"""
+names = ('Georges', 'Rodrigo', 'Wenderson')
+nicknames = ('gb', 'bamboo', 'jontex')
+for i in (1, 2, 3):
+	print(string.Format('{0}: {1}', (names[i], nicknames[i])))
+	
+"""	
 names = "Georges", "Rodrigo", "Wenderson"
 nicknames = "gb", "bamboo", "jontex"
 for i in 1, 2, 3:

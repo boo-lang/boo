@@ -64,14 +64,8 @@ namespace Boo.Tests
 			{
 				return BooParser.ParseModule(sample, reader, new ParserErrorHandler(OnError));
 			}
-		}	
-
-		public static void RunXmlTestCase(string sample)
-		{
-			Boo.Ast.Module module = ParseTestCase(sample);
-			AssertEqualsByLine(sample, LoadSample(Path.ChangeExtension(sample, ".xml")), ToXmlString(module));
 		}
-
+		
 		public static void AssertEqualsByLine(string sample, string expected, string actual)
 		{
 			string[] eLines = expected.Split('\n');

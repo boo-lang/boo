@@ -741,15 +741,14 @@ retry_stmt returns [RetryStatement rs]
 protected
 try_stmt returns [TryStatement s]
 	{
-		s = null;
-		ExceptionHandler eh = null;
+		s = null;		
 		Block sblock = null;
 		Block eblock = null;
 	}:
 	t:TRY! { s = new TryStatement(t); }
 		compound_stmt[s.ProtectedBlock.Statements]
 	(
-		eh=exception_handler { s.ExceptionHandlers.Add(eh); }
+		exception_handler[s]
 	)*
 	(
 		stoken:SUCCESS! { sblock = new Block(stoken); }
@@ -764,26 +763,22 @@ try_stmt returns [TryStatement s]
 	;
 	
 protected
-exception_handler returns [ExceptionHandler eh]
+exception_handler [TryStatement t]
 	{
-		eh = null;		
+		ExceptionHandler eh = null;		
 		TypeReference tr = null;
 	}:
-	c:CATCH tr=type_reference (x:ID)?
+	c:CATCH x:ID (AS tr=type_reference)?
 	{
 		eh = new ExceptionHandler(c);
-		if (null != x)
-		{
-			eh.Declaration = new Declaration(x);
-			eh.Declaration.Name = x.getText();
-		}
-		else
-		{
-			eh.Declaration = new Declaration(tr);
-		}
+		eh.Declaration = new Declaration(x);
+		eh.Declaration.Name = x.getText();		
 		eh.Declaration.Type = tr;
 	}		
 	compound_stmt[eh.Statements]
+	{
+		t.ExceptionHandlers.Add(eh);
+	}
 	;
 	
 protected
@@ -1019,6 +1014,10 @@ expression returns [Expression e]
 	{
 		e = null;
 		TypeReference tr = null;
+		
+		ListDisplayExpression lde = null;
+		StatementModifier filter = null;
+		Expression iterator = null;
 	} :
 	e=boolean_expression
 	(
@@ -1030,6 +1029,21 @@ expression returns [Expression e]
 			ae.Type = tr;
 			e = ae; 
 		}
+	)?
+		
+	( options { greedy = true; } :
+		f:FOR!
+		{
+			lde = new ListDisplayExpression(f);
+			lde.Expression = e;
+		}
+		declaration_list[lde.Declarations]
+		IN!
+		iterator=expression { lde.Iterator = iterator; }
+		(
+			filter=stmt_modifier { lde.Filter = filter; }
+		)?
+		{ e = lde; }
 	)?
 	;
 	
@@ -1454,31 +1468,13 @@ list_literal returns [Expression e]
 	{
 		e = null;
 		ListLiteralExpression lle = null;
-		ListDisplayExpression lde = null;
 		Expression item = null;
-		Expression iterator = null;
-		StatementModifier filter = null;
 	}:
 	lbrack:LBRACK!
 	(
 		(
 			item=expression
 			(
-				(
-					f:FOR!
-					{
-						lde = new ListDisplayExpression(f);
-						lde.Expression = item;
-					}
-					declaration_list[lde.Declarations]
-					IN!
-					iterator=expression { lde.Iterator = iterator; }
-					(
-						filter=stmt_modifier { lde.Filter = filter; }
-					)?
-					{ e = lde; } 						
-				)
-				|
 				{
 					e = lle = new ListLiteralExpression(lbrack);
 					lle.Items.Add(item);

@@ -60,7 +60,11 @@ namespace Boo.Ast.Visiting
 				WriteLine();
 			}
 
-			Switch(m.Members);
+			foreach (TypeMember member in m.Members)
+			{
+				Switch(member);
+				WriteLine();
+			}
 
 			// m.Globals iria causar um Indent()
 			// invlido
@@ -75,7 +79,18 @@ namespace Boo.Ast.Visiting
 
 		public override void OnUsing(Using p)
 		{
-			WriteLine("using {0}", p.Namespace);
+			Write("using {0}", p.Namespace);
+			if (null != p.AssemblyReference)
+			{
+				Write(" from ");
+				Write(p.AssemblyReference.Name);
+			}
+			if (null != p.Alias)
+			{
+				Write(" as ");
+				Write(p.Alias.Name);
+			}
+			WriteLine();
 		}
 
 		public override bool EnterBlock(Block b)
@@ -110,8 +125,43 @@ namespace Boo.Ast.Visiting
 
 		public override void OnField(Field f)
 		{
+			WriteAttributes(f.Attributes, true);
 			WriteIndented(f.Name);
 			Switch(f.Type);
+			WriteLine();
+		}
+		
+		public override void OnProperty(Property node)
+		{
+			WriteAttributes(node.Attributes, true);
+			WriteIndented(node.Name);
+			Switch(node.Type);
+			WriteLine(":");
+			Indent();
+			if (null != node.Getter)
+			{
+				WriteAttributes(node.Getter.Attributes, true);
+				WriteLine("get:");
+				OnBlock(node.Getter.Body);
+			}
+			if (null != node.Setter)
+			{
+				WriteAttributes(node.Setter.Attributes, true);
+				WriteLine("set:");
+				OnBlock(node.Setter.Body);
+			}
+			Dedent();
+		}
+		
+		public override void OnEnumMember(EnumMember node)
+		{
+			WriteAttributes(node.Attributes, true);
+			WriteIndented(node.Name);
+			if (null != node.Initializer)
+			{
+				Write(" = ");
+				Switch(node.Initializer);
+			}
 			WriteLine();
 		}
 
@@ -122,6 +172,7 @@ namespace Boo.Ast.Visiting
 
 		public override void OnMethod(Method m)
 		{
+			WriteAttributes(m.Attributes, true);
 			WriteIndented("def ");
 			Write(m.Name);
 			Write("(");
@@ -135,19 +186,24 @@ namespace Boo.Ast.Visiting
 			}
 			Write(")");
 			Switch(m.ReturnType);
+			if (m.ReturnTypeAttributes.Count > 0)
+			{
+				Write(" ");
+				WriteAttributes(m.ReturnTypeAttributes, false);
+			}
 			WriteLine(":");
-			OnBlock(m.Body);	
-			WriteLine();
+			OnBlock(m.Body);
 		}
 
 		public override void OnParameterDeclaration(ParameterDeclaration p)
 		{
+			WriteAttributes(p.Attributes, false);
 			Write(p.Name);
 			Switch(p.Type);
 		}
 
 		public override void OnTypeReference(TypeReference t)
-		{
+		{			
 			Write(" as ");
 			Write(t.Name);
 		}
@@ -157,6 +213,21 @@ namespace Boo.Ast.Visiting
 			Switch(e.Target);
 			Write(".");
 			Write(e.Name);
+		}
+		
+		public override void OnNullLiteralExpression(NullLiteralExpression node)
+		{
+			Write("null");
+		}
+		
+		public override void OnSelfLiteralExpression(SelfLiteralExpression node)
+		{
+			Write("self");
+		}
+		
+		public override void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
+		{
+			Write(node.Value);
 		}
 		
 		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -170,34 +241,42 @@ namespace Boo.Ast.Visiting
 				Write("false");
 			}
 		}
+		
+		public override void OnUnaryExpression(UnaryExpression node)
+		{
+			Write("(");
+			Write(GetUnaryOperator(node.Operator));
+			Switch(node.Operand);
+			Write(")");			
+		}
 
 		public override void OnBinaryExpression(BinaryExpression e)
 		{
-			Write("(");
+			bool needsParens = !(e.ParentNode is ExpressionStatement);
+			if (needsParens)
+			{
+				Write("(");
+			}
 			Switch(e.Left);
-			WriteOperator(e.Operator);
+			Write(" ");
+			Write(GetBinaryOperator(e.Operator));
+			Write(" ");
 			Switch(e.Right);
-			Write(")");
+			if (needsParens)
+			{
+				Write(")");
+			}
 		}
-
-		public override void OnProperty(Property node)
-		{
-			WriteIndented(node.Name);
-			OnTypeReference(node.Type);
-			WriteLine(":");
-			Indent();
-			if (null != node.Getter)
-			{
-				WriteLine("get:");
-				OnBlock(node.Getter.Body);
-			}
-			if (null != node.Setter)
-			{
-				WriteLine("set:");
-				OnBlock(node.Setter.Body);
-			}
-			Dedent();
-			WriteLine();
+		
+		public override void OnTernaryExpression(TernaryExpression node)
+		{			
+			Write("(");
+			Switch(node.Condition);
+			Write(" ? ");
+			Switch(node.TrueExpression);
+			Write(" : ");
+			Switch(node.FalseExpression);
+			Write(")");
 		}
 
 		public override bool EnterRaiseStatement(RaiseStatement rs)
@@ -215,31 +294,39 @@ namespace Boo.Ast.Visiting
 		{
 			Switch(e.Target);
 			Write("(");
-			bool commaNeeded = false;
-			for (int i=0; i<e.Arguments.Count; ++i)
+			WriteCommaSeparatedList(e.Arguments);
+			if (e.NamedArguments.Count > 0)
 			{
-				if (commaNeeded)
+				if (e.Arguments.Count > 0)
 				{
 					Write(", ");
 				}
-				else
-				{
-					commaNeeded = true;
-				}
-				Switch(e.Arguments[i]);
-			}
-			for (int i=0; i<e.NamedArguments.Count; ++i)
-			{
-				if (commaNeeded)
-				{
-					Write(", ");
-				}
-				else
-				{
-					commaNeeded = true;
-				}
-				OnExpressionPair(e.NamedArguments[i]);
-			}
+				WriteCommaSeparatedList(e.NamedArguments);
+			}			
+			Write(")");
+		}
+		
+		public override void OnTupleLiteralExpression(TupleLiteralExpression node)
+		{
+			WriteTuple(node.Items);
+		}
+		
+		public override void OnListLiteralExpression(ListLiteralExpression node)
+		{			
+			Write("[");
+			WriteCommaSeparatedList(node.Items);
+			Write("]");
+		}
+		
+		public override void OnListDisplayExpression(ListDisplayExpression node)
+		{			
+			Write("(");
+			Switch(node.Expression);
+			Write(" for ");
+			WriteCommaSeparatedList(node.Declarations);
+			Write(" in ");
+			Switch(node.Iterator);
+			Switch(node.Filter);
 			Write(")");
 		}
 
@@ -248,17 +335,29 @@ namespace Boo.Ast.Visiting
 			Switch(node.Target);
 			Write("[");
 			Switch(node.Begin);
-			if (null != node.End)
+			if (null != node.End || WasOmitted(node.Begin))
 			{
 				Write(":");
-				Switch(node.End);
-			}
+			}			
+			Switch(node.End);			
 			if (null != node.Step)
 			{
 				Write(":");
 				Switch(node.Step);
-			}
+			}			
 			Write("]");
+		}
+		
+		public override void OnHashLiteralExpression(HashLiteralExpression node)
+		{			
+			Write("{");
+			if (node.Items.Count > 0)
+			{
+				Write(" ");
+				WriteCommaSeparatedList(node.Items);
+				Write(" ");
+			}
+			Write("}");
 		}
 
 		public override void OnExpressionPair(ExpressionPair pair)
@@ -324,6 +423,46 @@ namespace Boo.Ast.Visiting
 			Switch(fs.Statements);
 			Dedent();
 		}
+		
+		public override void OnRetryStatement(RetryStatement node)
+		{
+			WriteIndented("retry");
+			WriteLine();
+		}
+		
+		public override void OnTryStatement(TryStatement node)
+		{
+			WriteIndented("try:");
+			WriteLine();
+			Switch(node.ProtectedBlock);
+			Switch(node.ExceptionHandlers);
+			if (null != node.SuccessBlock)
+			{
+				WriteIndented("success:");
+				WriteLine();
+				Switch(node.SuccessBlock);
+			}
+			if (null != node.EnsureBlock)
+			{
+				WriteIndented("ensure:");
+				WriteLine();
+				Switch(node.EnsureBlock);
+			}
+		}
+		
+		public override void OnExceptionHandler(ExceptionHandler node)
+		{
+			WriteIndented("catch");
+			if (null != node.Declaration)
+			{
+				Write(" ");
+				Switch(node.Declaration);
+			}			
+			WriteLine(":");
+			Indent();
+			Switch(node.Statements);			
+			Dedent();
+		}
 
 		public override void OnIfStatement(IfStatement ifs)
 		{
@@ -336,6 +475,17 @@ namespace Boo.Ast.Visiting
 				WriteLine("else:");
 				OnBlock(ifs.FalseBlock);
 			}
+		}
+		
+		public override bool EnterDeclarationStatement(DeclarationStatement node)
+		{
+			WriteIndented();
+			return true;
+		}
+		
+		public override void LeaveDeclarationStatement(DeclarationStatement node)
+		{
+			WriteLine();
 		}
 
 		public override void OnDeclaration(Declaration d)
@@ -372,40 +522,120 @@ namespace Boo.Ast.Visiting
 		}
 
 		#endregion
+		
+		string GetUnaryOperator(UnaryOperatorType op)
+		{
+			switch (op)
+			{
+				case UnaryOperatorType.Increment:
+				{
+					return "++";
+				}
+					
+				case UnaryOperatorType.Decrement:
+				{
+					return "--";
+				}
+					
+				case UnaryOperatorType.ArithmeticNegate:
+				{
+					return "-";
+				}
+				
+				case UnaryOperatorType.Not:
+				{
+					return "not";
+				}
+			}
+			throw new ArgumentException("op");
+		}
 
-		void WriteOperator(BinaryOperatorType op)
+		string GetBinaryOperator(BinaryOperatorType op)
 		{
 			switch (op)
 			{
 				case BinaryOperatorType.Assign:
 				{					
-					Write(" = ");
-					break;
+					return "=";
 				}
 
 				case BinaryOperatorType.Match:
 				{
-					Write(" =~ ");
-					break;
+					return "=~";
 				}
 				
 				case BinaryOperatorType.Equality:
 				{
-					Write(" == ");
-					break;
+					return "==";
+				}
+				
+				case BinaryOperatorType.Inequality:
+				{
+					return "!=";
 				}
 				
 				case BinaryOperatorType.Add:
 				{
-					Write(" + ");
-					break;
+					return "+";
+				}
+				
+				case BinaryOperatorType.InPlaceAdd:
+				{
+					return "+=";
+				}
+				
+				case BinaryOperatorType.InPlaceSubtract:
+				{
+					return "-=";
+				}
+				
+				case BinaryOperatorType.InPlaceMultiply:
+				{
+					return "*=";
+				}
+				
+				case BinaryOperatorType.InPlaceDivide:
+				{
+					return "/=";
+				}
+				
+				case BinaryOperatorType.Subtract:
+				{
+					return "-";
+				}
+				
+				case BinaryOperatorType.Multiply:
+				{
+					return "*";
+				}
+				
+				case BinaryOperatorType.Divide:
+				{
+					return "/";
+				}
+				
+				case BinaryOperatorType.GreaterThan:
+				{
+					return ">";
 				}
 				
 				case BinaryOperatorType.Modulus:
 				{
-					Write(" % ");
-					break;
+					return "%";
 				}
+			}
+			throw new NotImplementedException(op.ToString());
+		}
+		
+		void WriteCommaSeparatedList(NodeCollection items)
+		{			
+			for (int i=0; i<items.Count; ++i)
+			{
+				if (i > 0)
+				{
+					Write(", ");
+				}
+				Switch(items.GetNodeAt(i));
 			}
 		}
 		
@@ -433,9 +663,43 @@ namespace Boo.Ast.Visiting
 			}
 			Write(")");
 		}
+		
+		void WriteAttributes(AttributeCollection attributes, bool addNewLines)
+		{
+			foreach (Attribute attribute in attributes)
+			{
+				WriteIndented("[");
+				Write(attribute.Name);
+				if (attribute.Arguments.Count > 0 ||
+				    attribute.NamedArguments.Count > 0)
+				{
+					Write("(");
+					WriteCommaSeparatedList(attribute.Arguments);
+					if (attribute.NamedArguments.Count > 0)
+					{
+						if (attribute.Arguments.Count > 0)
+						{
+							Write(", ");
+						}
+						WriteCommaSeparatedList(attribute.NamedArguments);
+					}
+					Write(")");
+				}
+				Write("]");
+				if (addNewLines)
+				{
+					WriteLine();
+				}
+				else
+				{
+					Write(" ");
+				}
+			}			
+		}
 
 		void WriteTypeDefinition(string keyword, TypeDefinition td)
 		{
+			WriteAttributes(td.Attributes, true);
 			WriteIndented(keyword);
 			Write(" ");
 			Write(td.Name);
@@ -451,8 +715,26 @@ namespace Boo.Ast.Visiting
 			}
 			WriteLine(":");
 			Indent();
-			Switch(td.Members);
+			if (td.Members.Count > 0)
+			{				
+				foreach (TypeMember member in td.Members)
+				{
+					WriteLine();
+					Switch(member);
+				}
+			}
+			else
+			{
+				WriteIndented("pass");
+				WriteLine();
+			}
 			Dedent();
+		}
+		
+		bool WasOmitted(Expression node)
+		{
+			return null != node &&
+				NodeType.OmittedExpression == node.NodeType;
 		}
 	}
 }

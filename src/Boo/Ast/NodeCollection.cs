@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -92,6 +92,11 @@ namespace Boo.Ast
 		public Node[] ToArray()
 		{
 			return (Node[])_innerList.ToArray(typeof(Node));
+		}
+		
+		public Node GetNodeAt(int index)
+		{
+			return (Node)_innerList[index];
 		}
 		
 		protected ArrayList InnerList
