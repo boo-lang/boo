@@ -13,9 +13,11 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 <MODE>
 	<PROPS>
 		<PROPERTY NAME="indentNextLines" VALUE="\s*[^#]{3,}:\s*(#.*)?" />
+		<PROPERTY NAME="commentStart" VALUE="/*" />
+		<PROPERTY NAME="commentEnd" VALUE="*/" />		
 		<PROPERTY NAME="lineComment" VALUE="(#|//)" />
 		<PROPERTY NAME="wordBreakChars" VALUE="([{" />
-	</PROPS>
+	</PROPS>	
 	<RULES
 		ESCAPE="\" IGNORE_CASE="FALSE"
 		HIGHLIGHT_DIGITS="TRUE"
@@ -24,9 +26,13 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 		<!-- Comment -->
 		<EOL_SPAN TYPE="COMMENT1">#</EOL_SPAN>
 		<EOL_SPAN TYPE="COMMENT1">//</EOL_SPAN>
+		<SPAN TYPE="COMMENT2">
+			<BEGIN>/*</BEGIN>
+			<END>*/</END>
+		</SPAN>
 
 		<!-- Triple-quotes -->
-		<SPAN TYPE="LITERAL2">
+		<SPAN TYPE="LITERAL1" DELEGATE="string">
 			<BEGIN>"""</BEGIN>
 			<END>"""</END>
 		</SPAN>
@@ -37,11 +43,11 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 		</SPAN>
 
 		<!-- Standard literals -->
-		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE" DELEGATE="string">
 			<BEGIN>"</BEGIN>
 			<END>"</END>
 		</SPAN>
-		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+		<SPAN TYPE="LITERAL2" NO_LINE_BREAK="TRUE">
 			<BEGIN>'</BEGIN>
 			<END>'</END>
 		</SPAN>
@@ -200,6 +206,13 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD2>super</KEYWORD2>
 			<LITERAL2>true</LITERAL2>
 		</KEYWORDS>
+	</RULES>
+	
+	<RULES SET="string" DEFAULT="LITERAL1">
+		<SPAN TYPE="LITERAL3">
+			<BEGIN>${</BEGIN>
+			<END>}</END>
+		</SPAN>
 	</RULES>
 </MODE>
 
