@@ -1,9 +1,6 @@
-﻿* fix property handling with __eval__
-
-* fix ICallable for callable types
+﻿* fix ICallable for callable types
 	* callable7.boo
 	* callable8.boo
-	* callable6.boo
 	* callable9.boo
 	
 * software de blogging para a apresentação
@@ -13,6 +10,8 @@
 	* segurança com par chave pública/privada
 
 * callable type adaptation
+
+* fix property handling with __eval__
 
 * addressof cannot be used outside delegate constructors
 
