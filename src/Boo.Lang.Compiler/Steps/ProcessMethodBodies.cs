@@ -477,7 +477,7 @@ namespace Boo.Lang.Compiler.Steps
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CreateTypeReference(typeInfo);
 				parameter.Name = "value";
-				parameter.Tag = new InternalParameter(parameter, GetFirstParameterIndex(setter));
+				parameter.Tag = new InternalParameter(parameter, node.Parameters.Count+GetFirstParameterIndex(setter));
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
 				Accept(setter);

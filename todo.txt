@@ -1,18 +1,4 @@
-﻿* remover CompileUnitBinding e trocar por IntroduceGlobalNamespaces e
-IntroduceNameResolutionService
-
-* INameResolutionService
-
-	* resolução de nome em 5 níveis:
-		* GlobalNamespaces
-		* CompileUnit
-		* Module
-		* Tipo
-		* Método
-		
-* cache da resolução de nomes entre compilações
-
-* criar todos os passos novos e fazer passar todos os testes atuais
+﻿* criar todos os passos novos e fazer passar todos os testes atuais
 
 * nova pipeline:
 			/*		
@@ -42,18 +28,20 @@ um passo anterior vai navegar por todos os nós associando os
 InternalBindings apropriados, todas as assinaturas de métodos já
 serao preenchidas sempre que possível
 
-* operador de escopo :: para acessar nomes a partir do namespace global
-
-* final fields: se for um value type nativo fica como literal, senao fica
-como campo readonly
-
-* um novo passo para checagem de visibilidade de acesso de membros
-	
 * CallableTypeBinding
 	* para funçoes
 	* para delegates (o tipo de um evento seria o CallableTypeBinding equivalente ao delegate)
 
 * map(callable, enumerable)
+
+* cache da resolução de nomes entre compilações
+
+* operador de escopo :: para acessar nomes a partir do namespace global
+
+* final fields: se for um value type nativo fica como literal, senao fica
+como campo readonly
+
+* um novo passo para checagem de visibilidade de acesso de membros	
 
 * generator expressions
 	return i*3 for i in range(10)
