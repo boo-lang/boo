@@ -59,7 +59,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ProcessClosures());
 			Add(new ProcessGenerators());
 			
-			Add(new CheckAbstractMembers());
 			Add(new InjectCallableConversions());
 			Add(new ImplementICallableOnCallableDefinitions());			
 		}
