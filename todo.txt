@@ -1,8 +1,4 @@
-﻿* fix ICallable for callable types
-	* callable10.boo
-	* callable11.boo
-	
-* software de blogging para a apresentação
+﻿* software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms
 	* editor RichClient
