@@ -54,29 +54,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				TypeMember member = (TypeMember)node;
 				NameResolutionService.Restore((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
-				BindParameters(member, node.Parameters);
+				CodeBuilder.BindParameterDeclarations(member.IsStatic, node.Parameters);
 			}
 		}
 		
-		void BindParameters(TypeMember member, ParameterDeclarationCollection parameters)
-		{			
-			// arg0 is the this pointer when member is not static			
-			int delta = member.IsStatic ? 0 : 1;
-			
-			for (int i=0; i<parameters.Count; ++i)
-			{
-				ParameterDeclaration parameter = parameters[i];
-				if (null == parameter.Type)
-				{
-					parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
-				}
-				else
-				{
-					NameResolutionService.ResolveTypeReference(parameter.Type);
-				}
-				parameter.Entity = new InternalParameter(parameter, i + delta);
-			}
-		}
 		
 		override public void OnConstructor(Constructor node)
 		{

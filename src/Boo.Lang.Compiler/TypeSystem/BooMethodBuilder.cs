@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			_codeBuilder = codeBuilder;			
 			_method = _codeBuilder.CreateMethod(name, 
-									_codeBuilder.CreateTypeReference(returnType),
+									returnType,
 									TypeMemberModifiers.Public);
 		}
 		

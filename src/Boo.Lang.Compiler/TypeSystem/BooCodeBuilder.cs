@@ -335,6 +335,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 							TypeMemberModifiers.Public|TypeMemberModifiers.Virtual);
 		}
 		
+		public Method CreateMethod(string name, IType returnType, TypeMemberModifiers modifiers)
+		{
+			return CreateMethod(name, CreateTypeReference(returnType), modifiers);
+		}
+		
 		public Method CreateMethod(string name, TypeReference returnType, TypeMemberModifiers modifiers)
 		{
 			Method method = new Method(name);
@@ -392,6 +397,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			method.ReturnType = CreateTypeReference(baseMethod.ReturnType);			
 			method.Entity = new InternalMethod(_tss, method);
 			return method;
+		}
+		
+		public void BindParameterDeclarations(bool isStatic, ParameterDeclarationCollection parameters)
+		{
+			// arg0 is the this pointer when member is not static			
+			int delta = isStatic ? 0 : 1; 
+			for (int i=0; i<parameters.Count; ++i)
+			{
+				ParameterDeclaration parameter = parameters[i];
+				if (null == parameter.Type)
+				{
+					parameter.Type = CreateTypeReference(_tss.ObjectType);
+				}
+				parameter.Entity = new InternalParameter(parameter, i + delta);
+			}
 		}
 	}
 }

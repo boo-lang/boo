@@ -43,9 +43,9 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class ProcessMethodBodies : AbstractNamespaceSensitiveVisitorCompilerStep
 	{	
-		Stack _methodInfoStack;
+		Stack _methodStack;
 		
-		InternalMethod _currentMethodInfo;
+		InternalMethod _currentMethod;
 		
 		Hash _visited;
 		
@@ -114,8 +114,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			NameResolutionService.Reset();
 			
-			_currentMethodInfo = null;
-			_methodInfoStack = new Stack();
+			_currentMethod = null;
+			_methodStack = new Stack();
 			_visited = new Hash();
 			_loopDepth = 0;
 			_exceptionHandlerDepth = 0;
@@ -168,8 +168,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.Dispose();
 			
-			_currentMethodInfo = null;
-			_methodInfoStack = null;
+			_currentMethod = null;
+			_methodStack = null;
 			_visited = null;
 		}
 		
@@ -540,7 +540,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				InternalConstructor tag = (InternalConstructor)_currentMethodInfo;
+				InternalConstructor tag = (InternalConstructor)_currentMethod;
 				if (!tag.HasSuperCall && !node.IsStatic)
 				{
 					node.Body.Statements.Insert(0, 
@@ -558,7 +558,36 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnCallableBlockExpression(CallableBlockExpression node)
 		{
-			NotImplemented(node, "closures");
+			TypeMemberModifiers modifiers = TypeMemberModifiers.Internal;
+			if (_currentMethod.IsStatic)
+			{
+				modifiers |= TypeMemberModifiers.Static;
+			}
+			
+			Method closure = CodeBuilder.CreateMethod(
+								"__closure" + _context.AllocIndex() + "__",
+								Unknown.Default,
+								modifiers);
+			InternalMethod closureEntity = (InternalMethod)closure.Entity;
+							
+			closure.LexicalInfo = node.LexicalInfo;
+			closure.Parameters = node.Parameters;
+			closure.Body = node.Body;
+			
+			InternalMethod current = _currentMethod;
+			current.Method.DeclaringType.Members.Add(closure);
+			
+			CodeBuilder.BindParameterDeclarations(current.IsStatic, closure.Parameters);
+			
+			// check for invalid names and 
+			// resolve parameter types 
+			Visit(closure.Parameters);
+			ProcessMethodBody(closureEntity);
+			TryToResolveReturnType(closureEntity);
+			
+			node.ParentNode.Replace(
+					node,
+					CodeBuilder.CreateMemberReference(closureEntity));
 		}
 		
 		override public void OnMethod(Method method)
@@ -617,27 +646,13 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			PushMethodInfo(tag);
-			EnterNamespace(tag);
-			
-			Visit(method.Body);
-			
-			LeaveNamespace();
-			PopMethodInfo();			
+			ProcessMethodBody(tag);
 			
 			if (parentIsClass)
 			{
 				if (TypeSystemServices.IsUnknown(tag.ReturnType))
 				{
-					if (CanResolveReturnType(tag))
-					{
-						ResolveReturnType(tag);
-						CheckMethodOverride(tag);
-					}
-					else
-					{
-						Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(method));
-					}
+					TryToResolveReturnType(tag);					
 				}
 				else
 				{
@@ -649,12 +664,43 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void ProcessMethodBody(InternalMethod tag)
+		{
+			PushMethodInfo(tag);
+			
+			INamespace saved = NameResolutionService.CurrentNamespace;
+			EnterNamespace(tag);
+			
+			try
+			{
+				Visit(tag.Method.Body);
+			}
+			finally
+			{			
+				NameResolutionService.Restore(saved);
+				PopMethodInfo();
+			}
+		}
+		
+		void TryToResolveReturnType(InternalMethod tag)
+		{
+			if (CanResolveReturnType(tag))
+			{
+				ResolveReturnType(tag);
+				CheckMethodOverride(tag);
+			}
+			else
+			{
+				Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(tag.Method));
+			}
+		}
+		
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{			
-			Bind(node, _currentMethodInfo);
-			if (EntityType.Constructor != _currentMethodInfo.EntityType)
+			Bind(node, _currentMethod);
+			if (EntityType.Constructor != _currentMethod.EntityType)
 			{
-				_currentMethodInfo.SuperExpressions.Add(node);
+				_currentMethod.SuperExpressions.Add(node);
 			}
 		}
 		
@@ -1278,19 +1324,19 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
-			if (null == _currentMethodInfo)
+			if (null == _currentMethod)
 			{
 				Error(node, CompilerErrorFactory.SelfOutsideMethod(node));
 			}
 			else
 			{			
-				if (_currentMethodInfo.IsStatic)
+				if (_currentMethod.IsStatic)
 				{
 					Error(node, CompilerErrorFactory.ObjectRequired(node));
 				}
 				else
 				{
-					TypeDefinition typedef = _currentMethodInfo.Method.DeclaringType;
+					TypeDefinition typedef = _currentMethod.Method.DeclaringType;
 					IType type = (IType)TypeSystemServices.GetEntity(typedef);
 					BindExpressionType(node, type);
 				}
@@ -1373,14 +1419,14 @@ namespace Boo.Lang.Compiler.Steps
 			field.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Static;
 			field.Initializer = node;
 			
-			_currentMethodInfo.Method.DeclaringType.Members.Add(field);
+			_currentMethod.Method.DeclaringType.Members.Add(field);
 			InternalField tag = new InternalField(TypeSystemServices, field);
 			Bind(field, tag);
 			
 			AddFieldInitializerToStaticConstructor(0, field);
 			
 			parent.Replace(node, CodeBuilder.CreateMemberReference(
-									CodeBuilder.CreateReference(node.LexicalInfo, _currentMethodInfo.DeclaringType),
+									CodeBuilder.CreateReference(node.LexicalInfo, _currentMethod.DeclaringType),
 									tag));
 		}
 		
@@ -1601,7 +1647,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null != node.Expression)
 			{				
-				IType returnType = _currentMethodInfo.ReturnType;
+				IType returnType = _currentMethod.ReturnType;
 				
 				// forces anonymous types to be correctly
 				// instantiated
@@ -1609,7 +1655,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (TypeSystemServices.IsUnknown(returnType))
 				{
-					_currentMethodInfo.ReturnExpressions.Add(node.Expression);
+					_currentMethod.ReturnExpressions.Add(node.Expression);
 				}
 				else
 				{
@@ -1685,7 +1731,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IEntity tag = NameResolutionService.Resolve(_currentMethodInfo, d.Name);
+					IEntity tag = NameResolutionService.Resolve(_currentMethod, d.Name);
 					if (null != tag)
 					{
 						Bind(d, tag);
@@ -3475,7 +3521,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ReferenceExpression CreateTempLocal(LexicalInfo li, IType type)
 		{
-			string name = string.Format("__temp{0}__", _currentMethodInfo.Method.Locals.Count);
+			string name = string.Format("__temp{0}__", _currentMethod.Method.Locals.Count);
 			
 			ReferenceExpression reference = new ReferenceExpression(li, name);
 			BindExpressionType(reference, type);
@@ -3490,7 +3536,7 @@ namespace Boo.Lang.Compiler.Steps
 			LocalVariable tag = new LocalVariable(local, localType);
 			Bind(local, tag);
 			
-			_currentMethodInfo.Method.Locals.Add(local);
+			_currentMethod.Method.Locals.Add(local);
 			Bind(sourceNode, tag);
 			
 			return tag;
@@ -3498,14 +3544,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void PushMethodInfo(InternalMethod tag)
 		{
-			_methodInfoStack.Push(_currentMethodInfo);
+			_methodStack.Push(_currentMethod);
 			
-			_currentMethodInfo = tag;
+			_currentMethod = tag;
 		}
 		
 		void PopMethodInfo()
 		{
-			_currentMethodInfo = (InternalMethod)_methodInfoStack.Pop();
+			_currentMethod = (InternalMethod)_methodStack.Pop();
 		}
 		
 		void CheckHasSideEffect(Expression expression)
@@ -3558,8 +3604,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckUniqueLocal(Declaration d)
 		{			
-			if (null == _currentMethodInfo.ResolveLocal(d.Name) &&
-				null == _currentMethodInfo.ResolveParameter(d.Name))
+			if (null == _currentMethod.ResolveLocal(d.Name) &&
+				null == _currentMethod.ResolveParameter(d.Name))
 			{
 				return true;
 			}
