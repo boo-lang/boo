@@ -35,6 +35,7 @@ namespace Boo.Lang.Compiler.Pipelines
 	{
 		public ParseAndPrint()
 		{			
+			BreakOnErrors = false;
 			Add(new PrintBoo());
 		}
 	}

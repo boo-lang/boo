@@ -4680,7 +4680,7 @@ namespace Boo.Lang.Compiler.Steps
 											TypeReference baseTypeRef,
 											IType baseType)
 		{
-			foreach (IMember member in baseType.GetMembers())
+			foreach (IEntity member in baseType.GetMembers())
 			{
 				switch (member.EntityType)
 				{

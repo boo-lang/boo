@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Steps
 	public class PrintBoo : AbstractCompilerStep
 	{
 		public PrintBoo()
-		{
+		{			
 		}
 		
 		override public void Run()
