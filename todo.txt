@@ -264,6 +264,8 @@ done * procurar uma versão dos operadores em RuntimeServices para unificar a in
 * remover DepthFirstTransformer pois não é mais necessário e só confunde...
 
 * internal method overloading resolution
+
+* unboxing deve fazer conversão numérica
 	
 * remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário

@@ -2049,6 +2049,10 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					return OpCodes.Ldelem_I4;
 				}
+				if (BindingManager.LongTypeBinding == binding)
+				{
+					return OpCodes.Ldelem_I8;
+				}
 				NotImplemented("LoadElementOpCode(" + binding + ")");
 			}
 			return OpCodes.Ldelem_Ref;
@@ -2061,6 +2065,10 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (BindingManager.IntTypeBinding == binding)
 				{
 					return OpCodes.Stelem_I4;
+				}
+				if (BindingManager.LongTypeBinding == binding)
+				{
+					return OpCodes.Stelem_I8;
 				}
 				NotImplemented("GetStoreElementOpCode(" + binding + ")");				
 			}
