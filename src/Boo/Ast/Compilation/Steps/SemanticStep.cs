@@ -364,6 +364,20 @@ namespace Boo.Ast.Compilation.Steps
 			BindingManager.Bind(node, BindingManager.GetBinding(_currentMethodInfo.Method.DeclaringType));
 		}
 		
+		public override void LeaveAsExpression(AsExpression node, ref Expression resultingNode)
+		{
+			ITypeBinding toType = GetBoundType(node.Type);
+			if (toType.IsValueType)
+			{
+				Errors.CantCastToValueType(node, toType.FullName);
+				BindingManager.Error(node);
+			}
+			else
+			{
+				BindingManager.Bind(node, toType);
+			}
+		}
+		
 		public override void OnReferenceExpression(ReferenceExpression node, ref Expression resultingNode)
 		{
 			IBinding info = ResolveName(node, node.Name);
@@ -1012,12 +1026,13 @@ namespace Boo.Ast.Compilation.Steps
 		bool CheckBoolContext(Expression expression)
 		{
 			ITypeBinding type = GetBoundType(expression);
-			if (BindingManager.BoolTypeBinding != type)
+			if (BindingManager.BoolTypeBinding == type ||
+			    !type.IsValueType)
 			{
-				Errors.BoolExpressionRequired(expression, type.FullName);
-				return false;
+				return true;
 			}
-			return true;
+			Errors.BoolExpressionRequired(expression, type.FullName);
+			return false;
 		}
 		
 		LocalBinding DeclareLocal(Node sourceNode, Local local, ITypeBinding localType)

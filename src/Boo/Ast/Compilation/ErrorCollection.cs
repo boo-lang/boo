@@ -83,6 +83,11 @@ namespace Boo.Ast.Compilation
 			throw new Error(node, Format("NotImplemented", message));
 		}
 		
+		public void CantCastToValueType(Node node, string typeName)
+		{
+			Add(new Error(node, Format("CantCastToValueType", typeName)));
+		}
+		
 		public void NamedParametersNotAllowed(Node node)
 		{
 			Add(new Error(node, GetString("NamedParametersNotAllowed")));

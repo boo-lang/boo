@@ -378,9 +378,15 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
-		public void TestAs0()
+		public void TestSimpleCast()
 		{
 			RunCompilerTestCase("cast0.boo", "(a as string).Substring()");
+		}
+		
+		[Test]
+		public void TestTypeTest()
+		{
+			RunCompilerTestCase("cast1.boo", "reference as string");
 		}
 		
 		[Test]

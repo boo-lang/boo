@@ -3,6 +3,7 @@ NamedParameterMustBeReference=Parameter name must be an identifier.
 NamedParametersNotAllowed=Named arguments are only allowed for constructors.
 AmbiguousName=Ambiguous reference {0}: {1}.
 UnknownName=Unknown identifier: {0}.
+CantCastToValueType='{0}' is a value type. The 'as' operator can only be used with reference types.
 NotAPublicFieldOrProperty=The name {0} does not refer to a public property or field of the type {1}.
 MissingConstructor=The {0} type does not have a constructor with the signature {1}.
 AttributeResolution=An error occurred during the resolution of the {0} ast attribute: {1}.

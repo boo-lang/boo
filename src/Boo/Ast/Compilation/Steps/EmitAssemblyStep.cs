@@ -482,6 +482,15 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void OnAsExpression(AsExpression node)
+		{
+			Type type = GetType(node.Type);
+			
+			node.Target.Switch(this); PopType();			
+			_il.Emit(OpCodes.Isinst, type);
+			PushType(type);
+		}
+		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{				
 			IBinding binding = BindingManager.GetBinding(node.Target);

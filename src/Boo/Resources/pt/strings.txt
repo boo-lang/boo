@@ -3,6 +3,7 @@ NamedParameterMustBeReference=Nome do parâmetro deve ser um identificador.
 NamedParametersNotAllowed=Parâmetros são permitidos apenas com construtores.
 AmbiguousName=Referência ambígua {0}: {1}.
 UnknownName=Identificador desconhecido: {0}.
+CantCastToValueType='{0}' é um tipo-valor. O operador 'as' pode ser utilizado somente com tipos referência.
 NotAPublicFieldOrProperty=O nome {0} não representa um campo ou propriedade pública do tipo {1}.
 MissingConstructor=O tipo {0} não possui nenhum constructor com a assinatura {1}.
 AttributeResolution=Erro durante a aplicação do atributo {0}: {1}.

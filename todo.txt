@@ -105,6 +105,8 @@ done * unificar SetupAssemblyStep com EmitAssemblyStep
 
 done * criar um nó Unless
 
+* EnsureMethodIsResolved => EnsureMemberIsResolved
+
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 
 * AstAttribute vira IAstAttribute que implementa ICompilerStep
