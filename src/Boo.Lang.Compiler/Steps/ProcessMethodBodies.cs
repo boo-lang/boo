@@ -225,6 +225,7 @@ namespace Boo.Lang.Compiler.Steps
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));			
 			
 			Visit(module.Members);
+			Visit(module.AssemblyAttributes);
 			
 			LeaveNamespace();
 		}

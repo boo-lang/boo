@@ -281,10 +281,12 @@ tokens
 }
 
 protected
-start returns [Module module]
+start[CompileUnit cu] returns [Module module]
 	{
 		module = new Module();		
 		module.LexicalInfo = new LexicalInfo(getFilename(), 0, 0, 0);
+		
+		cu.Modules.Add(module);
 	}:
 	(options { greedy=true;}: EOS!)*
 	docstring[module]
@@ -293,6 +295,7 @@ start returns [Module module]
 	(import_directive[module])*
 	(type_member[module.Members])*	
 	globals[module]
+	(assembly_attribute[module] eos)*
 	EOF!
 	;
 			
@@ -461,12 +464,10 @@ attribute
 	{		
 		antlr.Token id = null;
 		Boo.Lang.Compiler.Ast.Attribute attr = null;
-	}
-	:	
+	}:	
 	id=identifier
 	{
-		attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id));
-		attr.Name = id.getText();
+		attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id), id.getText());
 		_attributes.Add(attr);
 	} 
 	(
@@ -474,6 +475,23 @@ attribute
 		parameter_list[attr]
 		RPAREN!
 	)?
+	;
+	
+protected
+assembly_attribute[Module module]
+	{
+		antlr.Token id = null;
+		Boo.Lang.Compiler.Ast.Attribute attr = null;
+	}:
+	ASSEMBLY_ATTRIBUTE_BEGIN!
+	id=identifier { attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id), id.getText()); }
+	(
+		LPAREN!
+		parameter_list[attr]
+		RPAREN!
+	)?
+	RBRACK!
+	{ module.AssemblyAttributes.Add(attr); }
 	;
 			
 protected
@@ -2153,7 +2171,14 @@ LPAREN : '(' { EnterSkipWhitespaceRegion(); };
 	
 RPAREN : ')' { LeaveSkipWhitespaceRegion(); };
 
-LBRACK : '[' { EnterSkipWhitespaceRegion(); };
+protected
+ASSEMBLY_ATTRIBUTE_BEGIN: "assembly:";
+
+LBRACK : '[' { EnterSkipWhitespaceRegion(); }
+	(
+		("assembly:")=> "assembly:" { $setType(ASSEMBLY_ATTRIBUTE_BEGIN); } |
+	)
+	;
 
 RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
 

@@ -67,17 +67,17 @@ namespace Boo.AntlrParser
 		public static CompileUnit ParseReader(string readerName, TextReader reader)
 		{		
 			CompileUnit cu = new CompileUnit();
-			cu.Modules.Add(ParseModule(readerName, reader, null));
+			cu.Modules.Add(ParseModule(cu, readerName, reader, null));
 			return cu;
 		}
 	
-		public static Module ParseModule(string readerName, TextReader reader, ParserErrorHandler errorHandler)
+		public static Module ParseModule(CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler errorHandler)
 		{		
 			BooParser parser = new BooParser(CreateBooLexer(readerName, reader));
 			parser.setFilename(readerName);
 			parser.Error += errorHandler;
 		
-			Module module = parser.start();
+			Module module = parser.start(cu);
 			module.Name = CreateModuleName(readerName);
 			return module;
 		}

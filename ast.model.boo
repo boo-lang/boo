@@ -7,7 +7,7 @@ by a boo script.
 namespace Boo.Ast
 
 class CompileUnit(Node):
-	Modules as ModuleCollection
+	Modules as ModuleCollection	
 
 enum TypeMemberModifiers:
 	None = 0
@@ -83,6 +83,7 @@ class Module(TypeDefinition):
 	Imports as ImportCollection
 	[auto]
 	Globals as Block
+	AssemblyAttributes as AttributeCollection
 
 [collection(Module)]
 class ModuleCollection:

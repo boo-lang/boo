@@ -206,10 +206,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}		
 
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
+		override public bool EnterModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
-			Visit(module.Members);
+			return true;			
+		}
+		
+		override public void LeaveModule(Boo.Lang.Compiler.Ast.Module module)
+		{			
 			LeaveNamespace();
 		}
 

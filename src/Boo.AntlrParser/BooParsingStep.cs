@@ -58,18 +58,14 @@ namespace Boo.AntlrParser
 			try
 			{
 				ParserErrorHandler errorHandler = new ParserErrorHandler(OnParserError);
-
+				
 				foreach (ICompilerInput input in _context.Parameters.Input)
 				{
 					try
 					{
 						using (System.IO.TextReader reader = input.Open())
 						{
-							Module module = BooParser.ParseModule(input.Name, reader, errorHandler);
-							if (null != module)
-							{
-								_context.CompileUnit.Modules.Add(module);
-							}
+							BooParser.ParseModule(_context.CompileUnit, input.Name, reader, errorHandler);
 						}
 					}				
 					catch (CompilerError error)

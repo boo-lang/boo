@@ -181,6 +181,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			DefineTypes();			
 			DefineResources();
+			DefineAssemblyAttributes();
 			DefineEntryPoint();			
 		}
 		
@@ -2553,6 +2554,17 @@ namespace Boo.Lang.Compiler.Steps
 			EmitCastIfNeeded(elementType, PopType());
 			_il.Emit(opcode);
 		}		
+		
+		void DefineAssemblyAttributes()
+		{
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
+			{
+				foreach (Boo.Lang.Compiler.Ast.Attribute attribute in module.AssemblyAttributes)
+				{
+					_asmBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+				}
+			}
+		}
 		
 		void DefineEntryPoint()
 		{

@@ -42,7 +42,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public Attribute(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public Attribute(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
+		
+		public Attribute(LexicalInfo lexicalInfo, string name) : base(lexicalInfo, name)
 		{
 		}
 		
