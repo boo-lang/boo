@@ -86,6 +86,21 @@ class Resolver:
 			// try if it is the name of a namespace
 			if parserService.NamespaceExists(expression):
 				return ResolveResult(array(string, 0), parserService.GetNamespaceContents(expression))
+			
+			expr = Boo.Lang.Parser.BooParser.ParseExpression("expression", expression)
+			visitor = ExpressionTypeVisitor()
+			visitor.Visit(expr)
+			Print ("result", visitor.ReturnType)
+			if visitor.ReturnType != null:
+				returnClass = parserService.SearchType(visitor.ReturnType.FullyQualifiedName, callingClass, caretLine, caretColumn)
 		
 		return null if returnClass == null
 		return ResolveResult(returnClass, parserService.ListMembers(ArrayList(), returnClass, callingClass, false))
+	
+	private def Print(name as string, obj):
+		Console.Write(name);
+		Console.Write(' = ');
+		if obj == null:
+			Console.WriteLine('null')
+		else:
+			Console.WriteLine('{0} ({1})', obj, obj.GetType().FullName)

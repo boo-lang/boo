@@ -38,13 +38,16 @@ class ExpressionFinder(IExpressionFinder):
 	// implementation note: the text after offset is irrelevant, so
 	// every operation on the string aborts after reaching offset
 	
+	static _closingBrackets = '}])'
+	static _openingBrackets = '{[('
+	
 	def FindExpression(inText as string, offset as int) as string:
 		return null if inText == null
 		print "Trying quickfind for ${offset}"
 		// OK, first try a kind of "quick find"
 		i = offset + 1
 		forbidden = '"\'/#)]}'
-		finish = '\n\r([{='
+		finish = '([{=+*<'
 		start = -1
 		while i > 0:
 			i -= 1
@@ -55,16 +58,42 @@ class ExpressionFinder(IExpressionFinder):
 			if forbidden.IndexOf(c) >= 0:
 				print "Quickfind failed: got ${c}"
 				break
-			if Char.IsWhiteSpace(c) and i > 4:
-				if inText.Substring(i - 3, 3) == " as":
-					start = i + 1
-					break
+			if Char.IsWhiteSpace(c):
+				if i > 6 and inText.Substring(i - 6, 6) == "import":
+					i -= 7 // include 'import' in the expression
+				start = i + 1
+				break
 		if start >= 0:
 			return GetExpression(inText, start, offset + 1)
 		
-		//inText = SimplifyCode(inText, offset)
-		return null if inText == null
+		inText = SimplifyCode(inText, offset)
+		if inText == null:
+			print 'SimplifyCode returned null (cursor is in comment/string???)'
+			return null
+		// inText now has no comments or string literals, but the same meaning in
+		// terms of the type system
+		// Now go back until a finish-character or a whitespace character
+		bracketStack = StringBuilder() // use Stack<char> instead in .NET 2.0
+		i = inText.Length
+		while i > 0:
+			i -= 1
+			c = inText[i]
+			if bracketStack.Length == 0 and (finish.IndexOf(c) >= 0 or Char.IsWhiteSpace(c)):
+				return GetExpression(inText, i + 1, inText.Length)
+			if _closingBrackets.IndexOf(c) >= 0:
+				bracketStack.Append(c)
+			bracket = _openingBrackets.IndexOf(c)
+			if bracket >= 0:
+				while Pop(bracketStack) > bracket:
+					pass
+		
 		return null
+	
+	private def Pop(bracketStack as StringBuilder):
+		return -1 if bracketStack.Length == 0
+		c = bracketStack[bracketStack.Length - 1]
+		bracketStack.Length -= 1
+		return _closingBrackets.IndexOf(c)
 	
 	private def GetExpression(inText as string, start as int, end as int):
 		b = StringBuilder()
@@ -128,7 +157,8 @@ class ExpressionFinder(IExpressionFinder):
 		inputTable[ 42] = 9 // *
 		for i in range(offset + 1):
 			c as Char = inText[i]
-			charNum as int = 0 //c
+			// TODO: Direct char->int conversion
+			charNum as int = Encoding.ASCII.GetBytes((c,))[0]
 			if charNum > 127:
 				input = _elseIndex
 			else:
@@ -150,6 +180,7 @@ class ExpressionFinder(IExpressionFinder):
 					result.Append("string.Empty")
 				if state == 0 or state == 2 or state == 12:
 					result.Append(c)
+				state = action
 			else:
 				state = action
 		if state == 0 or state == 2 or state == 12:

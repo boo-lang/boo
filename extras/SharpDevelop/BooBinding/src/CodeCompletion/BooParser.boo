@@ -23,6 +23,7 @@ import System
 import System.Collections
 import System.Diagnostics
 import System.IO
+import ICSharpCode.Core.Services
 import ICSharpCode.SharpDevelop.Services
 import ICSharpCode.SharpDevelop.Internal.Project
 import SharpDevelop.Internal.Parser
@@ -119,14 +120,22 @@ class BooParser(IParser):
 	
 	def CtrlSpace(parserService as IParserService, caretLine as int, caretColumn as int, fileName as string) as ArrayList:
 		print "Ctrl-Space (${caretLine}/${caretColumn})"
-		return Resolver().CtrlSpace(parserService, caretLine, caretColumn, fileName)
+		try:
+			return Resolver().CtrlSpace(parserService, caretLine, caretColumn, fileName)
+		except e:
+			ShowException(e)
+			return null
 	
 	def Resolve(parserService as IParserService, expression as string, caretLineNumber as int, caretColumn as int, fileName as string, fileContent as string) as ResolveResult:
 		print "Resolve ${expression} (${caretLineNumber}/${caretColumn})"
 		try:
 			return Resolver().Resolve(parserService, expression, caretLineNumber, caretColumn, fileName, fileContent)
 		except e:
-			print e
+			ShowException(e)
 			return null
+	
+	static def ShowException(e as Exception):
+		messageService as IMessageService = ServiceManager.Services.GetService(typeof(IMessageService))
+		messageService.ShowError(e.ToString())
 
 
