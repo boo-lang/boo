@@ -1,10 +1,6 @@
-﻿done * Pipeline.InsertBefore, Pipeline.InsertAfter
-	<pipeline extends='core'>
-		<step id='stylechecker' insertAfter='parser' type='..' />
-		<step id='trace' insertBefore='emit' type='..' />
-	</pipeline>
-	
-done * pipeline.xsd
+﻿* const (literal fields)
+
+* check return types for method overrides
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:
@@ -14,9 +10,22 @@ done * pipeline.xsd
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock
 	
-* check return types for method overrides
+* CallableTypeBinding
+	* para funçoes
+	* para delegates (o tipo de um evento seria o CallableTypeBinding equivalente ao delegate)
 
 * map(callable, enumerable)
+
+* private interface implementations
+
+	class Foo(IDisposable):
+		def IDisposable.Dispose():
+			print("Dispose")
+			
+	método fica marcado como private...
+	
+* iterator expressions
+	return i*3 for i in range(10)
 
 * isolar Boo.Lang.Compiler em seu próprio assembly
 

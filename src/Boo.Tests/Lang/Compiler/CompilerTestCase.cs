@@ -211,6 +211,13 @@ namespace Boo.Tests.Lang.Compiler
 		}
 	}
 	
+	public class Constants
+	{
+		public const string StringConstant = "Foo";
+		
+		public const int IntegerConstant = 14;
+	}
+	
 	[TestFixture]
 	public class CompilerTestCase : AbstractCompilerTestCase
 	{
@@ -1314,6 +1321,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void RedefineBuiltin()
 		{
 			RunCompilerTestCase("redefine_builtin.boo");
+		}
+		
+		[Test]
+		public void ExternalConstants()
+		{
+			RunCompilerTestCase("const0.boo");
 		}
 	}
 }
