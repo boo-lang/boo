@@ -33,7 +33,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Steps;
-using Boo.Lang.Compiler.Stepss;
+using Boo.Lang.Compiler.Pipelines;
 using NUnit.Framework;
 
 namespace Boo.Lang.Compiler.Tests
@@ -197,12 +197,13 @@ namespace Boo.Lang.Compiler.Tests
 					fname);
 		}
 		
-		override protected void SetUpCompilerPipeline(CompilerPipeline pipeline)
+		override protected CompilerPipeline SetUpCompilerPipeline()
 		{
-			pipeline.Load(typeof(Parse));
+			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Parse();
 			pipeline.Add(new BindNamespaces());
 			pipeline.Add(new BindAndApplyAttributes());
 			pipeline.Add(new PrintBoo());
+			return pipeline;
 		}
 	}
 }

@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Tests
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Steps;
-	using Boo.Lang.Compiler.Stepss;
+	using Boo.Lang.Compiler.Pipelines;
 	
 	public class ErrorPrinterStep : AbstractCompilerComponent, ICompilerStep
 	{
@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.Tests
 		
 		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
-			CompilerPipeline pipeline = new CorePipeline();
+			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Compile();
 			pipeline.Add(new ErrorPrinterStep());
 			return pipeline;
 		}

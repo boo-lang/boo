@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 	/// <summary>
 	/// AST semantic evaluation.
 	/// </summary>
-	public class ProcessMethodBodies : AbstractSwitcherCompilerStep
+	public class ProcessMethodBodies : AbstractNamespaceSensitiveVisitorCompilerStep
 	{	
 		Stack _methodBindingStack;
 		

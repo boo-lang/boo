@@ -225,6 +225,10 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			clone._lexicalInfo = _lexicalInfo;
 			clone._documentation = _documentation;
 			clone._tag = _tag;
+			if (null != _properties)
+			{
+				clone._properties = (System.Collections.Hashtable)_properties.Clone();
+			}
 			""")
 			
 			for field as Field in allFields:

@@ -35,7 +35,7 @@ using System.Xml;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
-using Boo.Lang.Compiler.Stepss;
+using Boo.Lang.Compiler.Pipelines;
 
 namespace BooC
 {
@@ -110,8 +110,6 @@ namespace BooC
 
 		static void ParseOptions(string[] args, CompilerParameters options)
 		{
-			bool hasPipeline = false;
-			
 			foreach (string arg in args)
 			{
 				if ("-" == arg)
@@ -200,16 +198,7 @@ namespace BooC
 							case 'p':
 							{
 								string pipelineName = arg.Substring(3);
-								ICompilerPipelineDefinition definition = GetPipelineDefinition(pipelineName);
-								if (null == definition)
-								{
-									options.Pipeline.Load(pipelineName);
-								}
-								else
-								{
-									definition.Define(options.Pipeline);
-								}
-								hasPipeline = true;
+								options.Pipeline = GetPipelineDefinition(pipelineName);
 								break;
 							}
 
@@ -254,9 +243,9 @@ namespace BooC
 				}
 			}
 			
-			if (!hasPipeline)
+			if (null == options.Pipeline)
 			{
-				options.Pipeline.Load(typeof(CompileToFile));
+				options.Pipeline = new CompileToFile();
 			}
 		}
 
@@ -305,17 +294,17 @@ namespace BooC
 			}
 		}
 		
-		static ICompilerPipelineDefinition GetPipelineDefinition(string name)
+		static CompilerPipeline GetPipelineDefinition(string name)
 		{
 			switch (name)
 			{
 				case "parse": return new Parse();
-				case "core": return new CorePipelineDefinition();
+				case "core": return new Compile();
 				case "boom": return new CompileToMemory();
 				case "booi": return new Run();
 				case "booc": return new CompileToFile();
-				case "roundtrip": return new RoundtripPipelineDefinition();
-				case "boo": return new ParseAndPrint();
+				case "roundtrip": return new ParseAndPrint();
+				case "boo": return new CompileToBoo();
 				case "xml": return new ParseAndPrintXml();
 			}
 			return null;

@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Process p = Boo.Lang.Builtins.shellp("peverify.exe", CompilerParameters.OutputAssembly);
+			Process p = Boo.Lang.Builtins.shellp("peverify.exe", Parameters.OutputAssembly);
 			p.WaitForExit();
 			if (0 != p.ExitCode)
 			{

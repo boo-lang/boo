@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Stepss
+namespace Boo.Lang.Compiler.Pipelines
 {
 	using System;
 	using Boo.Lang.Compiler.Steps;
@@ -35,14 +35,12 @@ namespace Boo.Lang.Compiler.Stepss
 	/// Standard compilation pipeline: parses input files and go all
 	/// the way to assembly emission.
 	/// </summary>
-	public class CompileToFile : CorePipelineDefinition
+	public class CompileToFile : CompileToMemory
 	{
-		override public void Define(CompilerPipeline pipeline)
-		{			
-			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
-			pipeline.Add(new CompilerPipelineItem("save", new SaveAssembly()));
-			pipeline.Add(new CompilerPipelineItem("peverify", new PEVerify()));
+		public CompileToFile()
+		{				
+			Add(new SaveAssembly());
+			Add(new PEVerify());
 		}
 	}
 }

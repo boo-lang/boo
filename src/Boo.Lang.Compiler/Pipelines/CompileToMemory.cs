@@ -26,17 +26,16 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Stepss
+namespace Boo.Lang.Compiler.Pipelines
 {
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class CompileToMemory : CorePipelineDefinition
+	public class CompileToMemory : Compile
 	{
-		override public void Define(CompilerPipeline pipeline)
+		public CompileToMemory()
 		{			
-			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
+			Add(new EmitAssembly());
 		}
 	}
 }

@@ -35,18 +35,14 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Bindings;
 	
 	[Serializable]
-	public class BindBaseTypes : AbstractSwitcherCompilerStep
-	{
-		protected NameResolutionSupport _nameResolution = new NameResolutionSupport();
-		
+	public class BindBaseTypes : AbstractNamespaceSensitiveVisitorCompilerStep
+	{	
 		public BindBaseTypes()
 		{
 		}
 		
 		override public void Run()
-		{
-			_nameResolution.Initialize(_context);
-			
+		{			
 			Accept(CompileUnit.Modules);
 		}
 		
@@ -89,93 +85,6 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-		}
-		
-		override public void Dispose()
-		{
-			base.Dispose();
-			
-			_nameResolution.Dispose();
-		}
-		
-		protected void PushNamespace(INamespace ns)
-		{
-			_nameResolution.PushNamespace(ns);
-		}
-		
-		protected INamespace CurrentNamespace
-		{
-			get
-			{
-				return _nameResolution.CurrentNamespace;
-			}
-		}
-		
-		protected void PopNamespace()
-		{
-			_nameResolution.PopNamespace();
-		}
-		
-		protected IBinding Resolve(Node sourceNode, string name, BindingType bindings)
-		{
-			return _nameResolution.Resolve(sourceNode, name, bindings);
-		}
-		
-		protected IBinding Resolve(Node sourceNode, string name)
-		{
-			return _nameResolution.Resolve(sourceNode, name);
-		}
-		
-		protected bool IsQualifiedName(string name)
-		{
-			return name.IndexOf('.') > 0;
-		}
-		
-		protected IBinding ResolveQualifiedName(Node sourceNode, string name)
-		{
-			return _nameResolution.ResolveQualifiedName(sourceNode, name);
-		}
-		
-		protected InternalTypeBinding GetInternalTypeBinding(TypeDefinition node)
-		{
-			InternalTypeBinding binding = (InternalTypeBinding)BindingManager.GetOptionalBinding(node);
-			if (null == binding)
-			{
-				binding = new InternalTypeBinding(BindingManager, node);
-				Bind(node, binding);
-			}
-			return binding;
-		}
-		
-		protected IBinding ResolveSimpleTypeReference(SimpleTypeReference node)
-		{
-			if (BindingManager.IsBound(node))
-			{
-				return null;
-			}
-			
-			IBinding info = null;
-			if (IsQualifiedName(node.Name))
-			{
-				info = ResolveQualifiedName(node, node.Name);
-			}
-			else
-			{
-				info = Resolve(node, node.Name, BindingType.TypeReference);
-			}
-			
-			if (null == info || BindingType.TypeReference != info.BindingType)
-			{
-				Error(CompilerErrorFactory.NameNotType(node, node.Name));
-				Error(node);
-			}
-			else
-			{
-				node.Name = info.Name;
-				Bind(node, info);
-			}
-			
-			return info;
 		}
 	}
 }

@@ -188,10 +188,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void Run()
 		{
-			using (BindTypeDefinitions resolver = new BindTypeDefinitions())
+			using (BindBaseTypes binder = new BindBaseTypes())
 			{
-				resolver.Initialize(_context);
-				resolver.Run();
+				binder.Initialize(_context);
+				binder.Run();
 			}
 			
 			_astAttributeInterface = BindingManager.AsTypeBinding(typeof(IAstAttribute));
@@ -210,7 +210,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}		
 
-		override public void OnModule(Module module, ref Module resultingModule)
+		override public void OnModule(Module module)
 		{			
 			PushNamespace((INamespace)BindingManager.GetBinding(module));
 
@@ -220,14 +220,14 @@ namespace Boo.Lang.Compiler.Steps
 			PopNamespace();
 		}
 
-		override public void OnBlock(Block node, ref Statement resultingNode)
+		override public void OnBlock(Block node)
 		{
 			// No precisamos visitar blocos, isso
 			// vai deixar o processamento um pouco mais
 			// rpido
 		}
 
-		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute, ref Boo.Lang.Compiler.Ast.Attribute resultingNode)
+		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
 		{			
 			if (BindingManager.IsBound(attribute))
 			{
@@ -269,8 +269,7 @@ namespace Boo.Lang.Compiler.Steps
 							{							
 								ScheduleAttributeApplication(attribute, externalType.Type);
 								
-								// remove it from parent
-								resultingNode = null;
+								RemoveCurrentNode();
 							}
 						}
 						else

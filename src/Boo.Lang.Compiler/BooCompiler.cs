@@ -55,6 +55,10 @@ namespace Boo.Lang.Compiler
 
 		public CompilerContext Run()
 		{
+			if (null == _parameters.Pipeline)
+			{
+				throw new InvalidOperationException(Boo.ResourceManager.GetString("BooC.CantRunWithoutPipeline"));
+			}
 			CompilerContext context = new CompilerContext(_parameters, new CompileUnit());
 			_parameters.Pipeline.Run(context);
 			return context;

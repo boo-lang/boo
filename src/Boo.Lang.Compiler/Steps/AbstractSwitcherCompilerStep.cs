@@ -34,11 +34,11 @@ using Boo.Lang.Compiler.Bindings;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public abstract class AbstractSwitcherCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstVisitor, ICompilerStep
+	public abstract class AbstractVisitorCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstVisitor, ICompilerStep
 	{
 		protected CompilerContext _context;
 		
-		protected AbstractSwitcherCompilerStep()
+		protected AbstractVisitorCompilerStep()
 		{			
 		}
 		

@@ -34,7 +34,7 @@ using System.Security.Policy;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Steps;
-using Boo.Lang.Compiler.Stepss;
+using Boo.Lang.Compiler.Pipelines;
 using NUnit.Framework;
 
 namespace Boo.Lang.Compiler.Tests
@@ -99,7 +99,7 @@ namespace Boo.Lang.Compiler.Tests
 			
 			CompilerContext context = _compiler.Run();
 			Assert.IsNotNull(context);
-			Assert.IsSame(context, capture.Context);
+			Assert.AreSame(context, capture.Context);
 		}
 		
 		[Test]

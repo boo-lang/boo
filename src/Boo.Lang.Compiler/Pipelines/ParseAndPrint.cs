@@ -26,17 +26,16 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Stepss
+namespace Boo.Lang.Compiler.Pipelines
 {
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class RoundtripPipelineDefinition : Parse
+	public class ParseAndPrint : Parse
 	{
-		override public void Define(CompilerPipeline pipeline)
+		public ParseAndPrint()
 		{			
-			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("booprinter", new PrintBoo()));
+			Add(new PrintBoo());
 		}
 	}
 }

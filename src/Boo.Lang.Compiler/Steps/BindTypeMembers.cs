@@ -1,6 +1,6 @@
 namespace Boo.Lang.Compiler.Steps
 {
-	public class BindTypeMembers : AbstractSwitcherCompilerStep
+	public class BindTypeMembers : AbstractVisitorCompilerStep
 	{
 		public BindTypeMembers()
 		{

@@ -36,8 +36,8 @@ import NAnt.Core.Types
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.Pipeline
-import Boo.Lang.Compiler.Pipeline.Definitions
+import Boo.Lang.Compiler.Pipelines
+import Boo.Lang.Compiler.Steps
 
 class AbstractScript:
 	
@@ -83,8 +83,8 @@ class BooTask(AbstractBooTask):
 		compiler = BooCompiler()
 		parameters = compiler.Parameters
 		parameters.OutputType = CompilerOutputType.Library
-		parameters.Pipeline.Load(BooInMemoryPipelineDefinition)
-		parameters.Pipeline.InsertAfter("parse", PrepareScriptStep())
+		parameters.Pipeline = CompileToMemory()
+		parameters.Pipeline.Insert(1, PrepareScriptStep())
 		parameters.Input.Add(StringInput("boo", reindent(code)))
 		parameters.References.Add(typeof(BooTask).Assembly)
 		parameters.References.Add(typeof(NAnt.Core.Project).Assembly)

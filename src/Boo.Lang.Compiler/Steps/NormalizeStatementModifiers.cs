@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 			Accept(CompileUnit.Modules);
 		}
 		
-		override public void OnModule(Module node, ref Module resultingNode)
+		override public void OnModule(Module node)
 		{
 			ClassDefinition moduleClass = new ClassDefinition();
 			
@@ -98,17 +98,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveEnumDefinition(EnumDefinition node, ref EnumDefinition resultingNode)
+		override public void LeaveEnumDefinition(EnumDefinition node)
 		{
 			LeaveTypeDefinition(node);
 		}
 		
-		override public void LeaveInterfaceDefinition(InterfaceDefinition node, ref InterfaceDefinition resultingNode)
+		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
 		{
 			LeaveTypeDefinition(node);
 		}
 		
-		override public void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		override public void LeaveClassDefinition(ClassDefinition node)
 		{
 			LeaveTypeDefinition(node);
 			
@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveField(Field node, ref Field resultingNode)
+		override public void LeaveField(Field node)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveProperty(Property node, ref Property resultingNode)
+		override public void LeaveProperty(Property node)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -134,7 +134,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveMethod(Method node, ref Method resultingNode)
+		override public void LeaveMethod(Method node)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -142,7 +142,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveConstructor(Constructor node, ref Constructor resultingNode)
+		override public void LeaveConstructor(Constructor node)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -150,32 +150,32 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}		
 		
-		override public void LeaveExpressionStatement(ExpressionStatement node, ref Statement resultingNode)
+		override public void LeaveExpressionStatement(ExpressionStatement node)
 		{
-			LeaveStatement(node, ref resultingNode);
+			LeaveStatement(node);
 		}
 		
-		override public void LeaveRaiseStatement(RaiseStatement node, ref Statement resultingNode)
+		override public void LeaveRaiseStatement(RaiseStatement node)
 		{
-			LeaveStatement(node, ref resultingNode);
+			LeaveStatement(node);
 		}
 		
-		override public void LeaveReturnStatement(ReturnStatement node, ref Statement resultingNode)
+		override public void LeaveReturnStatement(ReturnStatement node)
 		{
-			LeaveStatement(node, ref resultingNode);
+			LeaveStatement(node);
 		}
 		
-		override public void LeaveBreakStatement(BreakStatement node, ref Statement resultingNode)
+		override public void LeaveBreakStatement(BreakStatement node)
 		{
-			LeaveStatement(node, ref resultingNode);
+			LeaveStatement(node);
 		}
 		
-		override public void LeaveContinueStatement(ContinueStatement node, ref Statement resultingNode)
+		override public void LeaveContinueStatement(ContinueStatement node)
 		{
-			LeaveStatement(node, ref resultingNode);
+			LeaveStatement(node);
 		}
 		
-		public void LeaveStatement(Statement node, ref Statement resultingNode)
+		public void LeaveStatement(Statement node)
 		{
 			if (null != node.Modifier)
 			{
@@ -189,7 +189,7 @@ namespace Boo.Lang.Compiler.Steps
 						stmt.TrueBlock.Statements.Add(node);						
 						node.Modifier = null;
 						
-						resultingNode = stmt;
+						ReplaceCurrentNode(stmt);
 						
 						break;
 					}
@@ -201,7 +201,7 @@ namespace Boo.Lang.Compiler.Steps
 						stmt.Block.Statements.Add(node);
 						node.Modifier = null;
 						
-						resultingNode = stmt;
+						ReplaceCurrentNode(stmt);
 						break;
 					}
 					
@@ -212,7 +212,7 @@ namespace Boo.Lang.Compiler.Steps
 						stmt.Block.Statements.Add(node);
 						node.Modifier = null;
 						
-						resultingNode = stmt;
+						ReplaceCurrentNode(stmt);
 						break;
 					}
 						
@@ -225,7 +225,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveUnaryExpression(UnaryExpression node, ref Expression resultingNode)
+		override public void LeaveUnaryExpression(UnaryExpression node)
 		{
 			if (UnaryOperatorType.UnaryNegation == node.Operator)
 			{
@@ -234,7 +234,7 @@ namespace Boo.Lang.Compiler.Steps
 					IntegerLiteralExpression integer = (IntegerLiteralExpression)node.Operand;
 					integer.Value *= -1;
 					integer.LexicalInfo = node.LexicalInfo;
-					resultingNode = integer;
+					ReplaceCurrentNode(integer);
 				}
 			}
 		}

@@ -44,8 +44,8 @@
     <File name=".\Ast\Declaration.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\DeclarationCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\DeclarationStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\DepthFirstSwitcher.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\DepthFirstTransformer.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\DepthFirstVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\DoubleLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\EnumDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\EnumMember.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -62,8 +62,7 @@
     <File name=".\Ast\GeneratorExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\GivenStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\HashLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\IAstSwitcher.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\IAstTransformer.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\IAstVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\IfStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Import.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ImportCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -246,33 +245,34 @@
     <File name=".\IO\StringInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Macros\LockMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Macros\UsingMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\AstAnnotations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\BindAndApplyAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\BindNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\BindTypeDefinitions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\BindTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\EmitAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\ExpandMacros.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\NameResolutionSupport.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\NormalizeStatementModifiers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\PEVerify.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\PrintBoo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\ProcessMethodBodies.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\RunAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\SaveAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\SerializeToXml.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\Definitions\BoocPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\Definitions\BooInMemoryPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\Definitions\BooiPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\Definitions\BooPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\Definitions\CorePipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\Definitions\ParsePipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\Definitions\RoundtripPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\Definitions\XmlPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\Compile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\CompileToBoo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\CompileToFile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\CompileToMemory.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\Parse.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\ParseAndPrint.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\ParseAndPrintXml.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\Run.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\AstAnnotations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\BindAndApplyAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\BindBaseTypes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\BindNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\BindTypeDefinitions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\BindTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\EmitAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\ExpandMacros.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\NameResolutionSupport.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\NormalizeStatementModifiers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\PEVerify.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\PrintBoo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\ProcessMethodBodies.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\RunAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\SaveAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\SerializeToXml.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Util\MarshalByRefCollectionBase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Util\MarshalByRefEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

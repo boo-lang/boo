@@ -135,7 +135,7 @@ namespace Boo.Lang.Compiler.Steps
 						try
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
-							CompilerParameters.References.Add(asm);
+							Parameters.References.Add(asm);
 							BindingManager.Bind(reference, new Bindings.AssemblyBinding(asm));
 						}
 						catch (Exception x)
@@ -197,7 +197,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void OrganizeExternalNamespaces()
 		{
-			foreach (Assembly asm in CompilerParameters.References)
+			foreach (Assembly asm in Parameters.References)
 			{
 				Type[] types = asm.GetTypes();
 				foreach (Type type in types)

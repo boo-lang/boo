@@ -5,8 +5,8 @@ import System.IO
 import System.Reflection
 import System.Resources
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Pipeline
-import Boo.Lang.Compiler.Pipeline.Definitions
+import Boo.Lang.Compiler.Pipelines
+import Boo.Lang.Compiler.Steps
 
 class TestResource(ICompilerResource):
 	Name:
@@ -47,7 +47,7 @@ class CompilerResourcesFixture:
 		parameters.OutputType = CompilerOutputType.Library
 		parameters.OutputAssembly = MapPath(outputAssembly)
 		parameters.Resources.Add(resource)
-		parameters.Pipeline.Load(BoocPipelineDefinition)
+		parameters.Pipeline = CompileToFile()
 		context = compiler.Run()
 		Assert.AreEqual(0, len(context.Errors), context.Errors.ToString())
 		

@@ -32,17 +32,15 @@ namespace Boo.Lang.Compiler.Tests
 	using System.IO;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Steps;
-	using Boo.Lang.Compiler.Stepss;
+	using Boo.Lang.Compiler.Pipelines;
 	using NUnit.Framework;
 	
 	[TestFixture]
 	public class SemanticsTestCase : AbstractCompilerTestCase
 	{
-		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
+		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
-			pipeline.Load(typeof(CorePipelineDefinition));
-			pipeline.Add(new PrintBoo());
+			return new CompileToBoo();
 		}
 		
 		protected override string GetTestCasePath(string name)

@@ -26,17 +26,16 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Stepss
+namespace Boo.Lang.Compiler.Pipelines
 {
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
 	public class ParseAndPrintXml : Parse
 	{
-		override public void Define(CompilerPipeline pipeline)
-		{
-			base.Define(pipeline);
-			pipeline.Add(new XmlSerializationStep());
+		public ParseAndPrintXml()
+		{			
+			Add(new SerializeToXml());
 		}
 	}
 }

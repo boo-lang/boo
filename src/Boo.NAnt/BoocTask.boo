@@ -35,7 +35,6 @@ import NAnt.Core.Attributes
 import NAnt.Core.Types
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Pipeline.Definitions
 
 [TaskName("booc")]
 class BoocTask(AbstractBooTask):
@@ -118,9 +117,9 @@ class BoocTask(AbstractBooTask):
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
 		if _pipeline:
-			parameters.Pipeline.Load(_pipeline)
+			parameters.Pipeline = GetPipeline(_pipeline)
 		else:
-			parameters.Pipeline.Load(BoocPipelineDefinition)
+			parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToFile()
 		
 		for fname as string in files:
 			LogVerbose(fname)
@@ -160,6 +159,10 @@ class BoocTask(AbstractBooTask):
 					Boo.ResourceManager.Format("BCE0041", reference),
 					Location,
 					x)
+					
+	private def GetPipeline(pipeline as string):
+		type = System.Type.GetType(pipeline, true)
+		return type()
 
 	private def GetOutputType():
 		if "exe" == _target:

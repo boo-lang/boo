@@ -35,21 +35,21 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Bindings;
 	
 	[Serializable]
-	public class BindTypeDefinitions : AbstractSwitcherCompilerStep
+	public class BindTypeDefinitions : AbstractVisitorCompilerStep
 	{
 		override public void Run()
 		{
 			Accept(CompileUnit.Modules);
 		}
 		
-		override public void OnModule(Module module)
+		override public void OnModule(Module node)
 		{			
-			Accept(module.Members);
+			Accept(node.Members);
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{	
-			Accept(module.Members);
+			Accept(node.Members);
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)

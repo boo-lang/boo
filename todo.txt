@@ -17,6 +17,16 @@ done * artigo "Estendendo o compilador utilizando pipelines",
 		
 done * recursos
 
+* trocar o modelo utilizado IAstTransformer para um modelo mais simples
+que possa ser utilizado no BooInBoo:
+
+	* Remover Switch(node, ref resultingNode) dos nós
+	* unificar modelo com IAstSwitcher
+	* remover parametro ref dos OnXXX:
+		* OnXXX(node as XXX) com métodos:
+			RemoveCurrentNode()
+			ReplaceCurrentNode(newNode as Node)
+
 * remover ICompilerPipelineDefinition, trocar tudo por herança de pipeline
 
 * remover CompileUnitBinding e trocar por IntroduceGlobalNamespaces e
@@ -58,16 +68,6 @@ serao preenchidas sempre que possível
 como campo readonly
 
 * um novo passo para checagem de visibilidade de acesso de membros
-
-* trocar o modelo utilizado IAstTransformer para um modelo mais simples
-que possa ser utilizado no BooInBoo:
-
-	* Remover Switch(node, ref resultingNode) dos nós
-	* unificar modelo com IAstSwitcher
-	* remover parametro ref dos OnXXX:
-		* OnXXX(node as XXX) com métodos:
-			RemoveCurrentNode()
-			ReplaceCurrentNode(newNode as Node)
 	
 * CallableTypeBinding
 	* para funçoes

@@ -26,18 +26,16 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Stepss
+namespace Boo.Lang.Compiler.Pipelines
 {
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class Run : CorePipelineDefinition
+	public class Run : CompileToMemory
 	{
-		override public void Define(CompilerPipeline pipeline)
-		{			
-			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
-			pipeline.Add(new CompilerPipelineItem("run", new RunAssembly()));
+		public Run()
+		{				
+			Add(new RunAssembly());
 		}
 	}
 }

@@ -45,6 +45,8 @@ namespace Boo.Lang.Compiler.Ast
 		protected string _documentation;
 		
 		protected object _tag;
+		
+		protected System.Collections.Hashtable _properties;
 
 		protected Node()
 		{
@@ -75,6 +77,27 @@ namespace Boo.Lang.Compiler.Ast
 			get
 			{
 				return _parent;
+			}
+		}
+		
+		public object this[object key]
+		{
+			get
+			{
+				if (null == _properties)
+				{
+					return null;
+				}
+				return _properties[key];
+			}
+			
+			set
+			{
+				if (null == _properties)
+				{
+					_properties = new System.Collections.Hashtable();
+				}
+				_properties[key] = value;
 			}
 		}
 		

@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 	}
 	
-	public class EmitAssembly : AbstractSwitcherCompilerStep
+	public class EmitAssembly : AbstractVisitorCompilerStep
 	{	
 		static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		

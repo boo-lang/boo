@@ -32,8 +32,8 @@ import System.Reflection
 import System.Threading
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Pipeline
-import Boo.Lang.Compiler.Pipeline.Definitions
+import Boo.Lang.Compiler.Pipelines
+import Boo.Lang.Compiler.Steps
 
 class AssemblyResolver:
 
@@ -74,8 +74,7 @@ def main(argv as (string)):
 		
 	// boo memory pipeline
 	// compiles the code in memory only
-	pipeline = compiler.Parameters.Pipeline
-	pipeline.Load(BooInMemoryPipelineDefinition)	
+	compiler.Parameters.Pipeline = CompileToMemory()	
 	
 	if "-" == argv[0]:
 		compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))

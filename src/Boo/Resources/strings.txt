@@ -79,6 +79,7 @@ BooC.Errors={0} error(s).
 BooC.ProcessingTime={0} module(s) processed in {1}ms after {2}ms of environment setup.
 BooC.FatalError=Fatal error: {0}.
 BooC.InvalidOption=Invalid option: {0}.
+BooC.CantRunWithoutPipeline=A pipeline must be specified!
 BooC.UnableToLoadPipeline=Failed to load pipeline {0}, cause: {1}.
 BooC.NoPipeline=No compilation pipeline specified (/p:<PIPELINE>)
 BooC.NoInputSpecified=No inputs specified

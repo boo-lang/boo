@@ -889,8 +889,7 @@ interface ICustomer:
 		public void SetUpFixture()
 		{
 			_compiler = new BooCompiler();
-			_compiler.Parameters.Pipeline.Add(new BooParsingStep());
-			_compiler.Parameters.Pipeline.Add(new PrintBoo());			
+			_compiler.Parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.ParseAndPrint();			
 		}
 		
 		[SetUp]

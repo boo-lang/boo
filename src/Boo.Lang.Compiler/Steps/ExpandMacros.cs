@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Steps
 			Accept(CompileUnit);
 		}
 		
-		override public void OnModule(Module module, ref Module resultingModule)
+		override public void OnModule(Module module)
 		{			
 			PushNamespace((INamespace)BindingManager.GetBinding(module));
 			Accept(module.Members);
@@ -52,12 +52,12 @@ namespace Boo.Lang.Compiler.Steps
 			PopNamespace();
 		}
 		
-		override public void OnMacroStatement(MacroStatement node, ref Statement resultingNode)
+		override public void OnMacroStatement(MacroStatement node)
 		{
 			Accept(node.Block);
 			Accept(node.Arguments);
 			
-			resultingNode = null;
+			Node replacement = null;
 			
 			IBinding binding = ResolveQualifiedName(node, node.Name);
 			if (null == binding)
@@ -97,7 +97,7 @@ namespace Boo.Lang.Compiler.Steps
 								using (IAstMacro macro = ((IAstMacro)macroInstance))
 								{
 									macro.Initialize(_context);
-									resultingNode = macro.Expand(node);
+									replacement = macro.Expand(node);
 								}
 							}
 							catch (Exception error)
@@ -108,6 +108,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
+			ReplaceCurrentNode(replacement);
 		}
 		
 		string BuildMacroTypeName(string name)

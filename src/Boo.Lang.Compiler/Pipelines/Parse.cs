@@ -26,12 +26,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Stepss
+namespace Boo.Lang.Compiler.Pipelines
 {
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class Parse : ICompilerPipelineDefinition
+	public class Parse : CompilerPipeline
 	{
 		static Type _defaultParserStepType = Type.GetType("Boo.AntlrParser.BooParsingStep, Boo.AntlrParser");
 		
@@ -40,9 +40,9 @@ namespace Boo.Lang.Compiler.Stepss
 			return (ICompilerStep)Activator.CreateInstance(_defaultParserStepType);
 		}
 		
-		virtual public void Define(CompilerPipeline pipeline)
-		{							
-			pipeline.Add(new CompilerPipelineItem("parse", NewParserStep()));
+		public Parse()
+		{	
+			Add(NewParserStep());
 		}
 	}
 }

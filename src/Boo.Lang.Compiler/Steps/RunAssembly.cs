@@ -34,14 +34,14 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			if (Errors.Count > 0 || CompilerOutputType.Library == CompilerParameters.OutputType)
+			if (Errors.Count > 0 || CompilerOutputType.Library == Parameters.OutputType)
 			{
 				return;
 			}
 			
 			try
 			{
-				CompilerContext.GeneratedAssemblyEntryPoint.Invoke(null, new object[] { new string[0] });
+				Context.GeneratedAssemblyEntryPoint.Invoke(null, new object[] { new string[0] });
 			}
 			catch (System.Reflection.TargetInvocationException x)
 			{				

@@ -31,63 +31,6 @@ namespace Boo.Lang.Compiler
 	using System;
 	using System.IO;
 	using System.Collections;
-	using Boo.Lang.Compiler.Stepss;
-
-	/// <summary>
-	/// An item in the compilation pipeline. Associates
-	/// an ID to an ICompilerStep implementation.
-	/// </summary>
-	public class CompilerPipelineItem
-	{
-		string _id;
-		ICompilerStep _step;
-		
-		public CompilerPipelineItem(ICompilerStep step)
-		{
-			if (null == step)
-			{
-				throw new ArgumentNullException("step");
-			}
-			
-			_id = Guid.NewGuid().ToString();
-			_step = step;
-		}
-		
-		public CompilerPipelineItem(string id, ICompilerStep step)
-		{
-			if (null == id)
-			{
-				throw new ArgumentNullException("id");
-			}
-			if (null == step)
-			{
-				throw new ArgumentNullException("step");
-			}
-			if (0 == id.Length)
-			{
-				throw new ArgumentException("id");
-			}
-			
-			_id = id;
-			_step = step;
-		}
-		
-		public string ID
-		{
-			get
-			{
-				return _id;
-			}
-		}
-		
-		public ICompilerStep CompilerStep
-		{
-			get
-			{
-				return _step;
-			}
-		}
-	}
 	
 	/// <summary>
 	/// A ordered set of <see cref="ICompilerStep"/> implementations
@@ -102,96 +45,25 @@ namespace Boo.Lang.Compiler
 			_items = new ArrayList();
 		}
 		
-		public CompilerPipeline Add(CompilerPipelineItem item)
-		{
-			if (null == item)
-			{
-				throw new ArgumentNullException("item");
-			}
-			
-			_items.Add(Validate(item));
-			return this;
-		}
-
 		public CompilerPipeline Add(ICompilerStep step)
 		{
-			return Add(new CompilerPipelineItem(step));
+			if (null == step)
+			{
+				throw new ArgumentNullException("step");
+			}
+			
+			_items.Add(step);
+			return this;
 		}
 		
 		public CompilerPipeline Insert(int index, ICompilerStep step)
 		{
-			return Insert(index, new CompilerPipelineItem(step));
-		}
-		
-		public CompilerPipeline Insert(int index, CompilerPipelineItem item)
-		{
-			if (null == item)
+			if (null == step)
 			{
-				throw new ArgumentNullException("item");
+				throw new ArgumentNullException("step");
 			}
-			_items.Insert(index, Validate(item));
-			return this;
-		}
-		
-		public CompilerPipeline InsertBefore(string id, ICompilerStep step)
-		{			
-			return InsertBefore(id, new CompilerPipelineItem(step));
-		}
-		
-		public CompilerPipeline InsertBefore(string id, CompilerPipelineItem item)
-		{		
-			if (null == id)
-			{
-				throw new ArgumentNullException("id");
-			}
-			if (null == item)
-			{
-				throw new ArgumentNullException("item");
-			}
-			_items.Insert(FindIndex(id), Validate(item));
-			return this;
-		}
-		
-		public CompilerPipeline InsertAfter(string id, ICompilerStep step)
-		{
-			return InsertAfter(id, new CompilerPipelineItem(step));
-		}
-		
-		public CompilerPipeline InsertAfter(string id, CompilerPipelineItem item)
-		{
-			if (null == id)
-			{
-				throw new ArgumentNullException("id");
-			}
-			if (null == item)
-			{
-				throw new ArgumentNullException("item");
-			}
-			_items.Insert(FindIndex(id)+1, Validate(item));
-			return this;
-		}
-		
-		public CompilerPipeline Remove(string id)
-		{
-			if (null == id)
-			{
-				throw new ArgumentNullException("id");
-			}
-			_items.RemoveAt(FindIndex(id));
-			return this;
-		}
-		
-		public CompilerPipeline Replace(string id, CompilerPipelineItem item)
-		{
-			if (null == id)
-			{
-				throw new ArgumentNullException("id");
-			}
-			if (null == item)
-			{
-				throw new ArgumentNullException("item");
-			}
-			_items[FindIndex(id)] = Validate(item);
+			
+			_items.Insert(index, step);
 			return this;
 		}
 
@@ -203,60 +75,23 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		public CompilerPipelineItem this[int index]
+		public ICompilerStep this[int index]
 		{
 			get
 			{
-				return (CompilerPipelineItem)_items[index];
+				return (ICompilerStep)_items[index];
 			}
 		}
 		
-		public void Clear()
+		virtual public void Clear()
 		{
 			_items.Clear();
 		}
-		
-		public void Load(Type pipelineDefinition)
-		{
-			if (null == pipelineDefinition)
-			{
-				throw new ArgumentNullException("pipelineDefinition");
-			}
-			
-			try
-			{
-				((ICompilerPipelineDefinition)Activator.CreateInstance(pipelineDefinition)).Define(this);
-			}
-			catch (Exception x)
-			{
-				UnableToLoadPipeline(x, pipelineDefinition.FullName);
-			}
-		}
-		
-		public void Load(string name)
-		{	
-			if (null == name)
-			{
-				throw new ArgumentNullException("name");
-			}
-			
-			try
-			{
-				ICompilerPipelineDefinition definition = (ICompilerPipelineDefinition)Activator.CreateInstance(Type.GetType(name, true));
-				definition.Define(this);
-			}
-			catch (Exception x)
-			{
-				UnableToLoadPipeline(x, name);
-			}
-		}
 
-		public void Run(CompilerContext context)
+		virtual public void Run(CompilerContext context)
 		{
-			foreach (CompilerPipelineItem item in _items)
-			{
-				ICompilerStep step = item.CompilerStep;
-				
+			foreach (ICompilerStep step in _items)
+			{				
 				context.TraceEnter("Entering {0}...", step);			
 				
 				step.Initialize(context);
@@ -275,46 +110,10 @@ namespace Boo.Lang.Compiler
 				context.TraceLeave("Left {0}.", step);
 			}
 			
-			foreach (CompilerPipelineItem item in _items)
+			foreach (ICompilerStep step in _items)
 			{
-				item.CompilerStep.Dispose();
+				step.Dispose();
 			}
-		}
-		
-		int FindIndex(string id)
-		{
-			int index = FindIndexNoException(id);
-			if (-1 == index)
-			{
-				throw new ArgumentException("id");
-			}
-			return index;
-		}
-		
-		int FindIndexNoException(string id)
-		{
-			for (int i=0; i<_items.Count; ++i)
-			{
-				if (id == ((CompilerPipelineItem)_items[i]).ID)
-				{
-					return i;
-				}
-			}
-			return -1;
-		}
-		
-		CompilerPipelineItem Validate(CompilerPipelineItem item)
-		{
-			if (-1 != FindIndexNoException(item.ID))
-			{
-				throw new ArgumentException("item");
-			}
-			return item;
-		}
-		
-		void UnableToLoadPipeline(Exception cause, string name)
-		{
-			throw new ApplicationException(Boo.ResourceManager.Format("BooC.UnableToLoadPipeline", name, cause.Message), cause);
 		}
 	}
 }

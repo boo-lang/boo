@@ -52,11 +52,11 @@ namespace Boo.Lang.Compiler
 		
 		CompilerOutputType _outputType;
 		
-		public readonly TraceSwitch TraceSwitch = new TraceAccept("booc", "boo compiler");
+		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
 
 		public CompilerParameters()
 		{
-			_pipeline = new CompilerPipeline();
+			_pipeline = null;
 			_input = new CompilerInputCollection();
 			_resources = new CompilerResourceCollection();
 			_assemblyReferences = new AssemblyCollection();
@@ -117,6 +117,11 @@ namespace Boo.Lang.Compiler
 			get
 			{
 				return _pipeline;
+			}
+			
+			set
+			{
+				_pipeline = value;
 			}
 		}
 		
