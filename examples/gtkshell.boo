@@ -11,8 +11,8 @@ class PromptView(TextView):
 	def constructor():
 		
 		self.ModifyFont(
-			Pango.FontDescription(Family: "Lucida Console", Size: 12))
-		
+			Pango.FontDescription(Family: "Courier New"))
+			
 		_interpreter.References.Add(typeof(TextView).Assembly)
 		_interpreter.References.Add(typeof(Gdk.Key).Assembly)
 		_interpreter.SetValue("print", print)
