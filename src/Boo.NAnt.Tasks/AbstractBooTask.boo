@@ -77,8 +77,7 @@ abstract class AbstractBooTask(Task):
 			baseDir = _references.BaseDirectory.ToString()
 		else:
 			baseDir = Project.BaseDirectory
-			
-		frameworkDir = GetFrameworkDirectory()
+		
 		for reference as string in _references.Includes:
 			
 			path = reference
