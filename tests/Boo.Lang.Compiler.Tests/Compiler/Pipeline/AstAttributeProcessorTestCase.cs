@@ -200,9 +200,9 @@ namespace Boo.Lang.Compiler.Tests
 		override protected void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.Load(typeof(ParsePipelineDefinition));
-			pipeline.Add(new ImportResolutionStep());
-			pipeline.Add(new AstAttributesStep());
-			pipeline.Add(new BooPrinterStep());
+			pipeline.Add(new BindNamespaces());
+			pipeline.Add(new BindAndApplyAttributes());
+			pipeline.Add(new PrintBoo());
 		}
 	}
 }

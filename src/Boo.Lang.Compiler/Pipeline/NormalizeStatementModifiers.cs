@@ -33,7 +33,7 @@ using Boo.Lang.Compiler;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public class AstNormalizationStep : AbstractTransformerCompilerStep
+	public class NormalizeStatementModifiers : AbstractTransformerCompilerStep
 	{
 		public const string MainModuleMethodName = "__Main__";
 		

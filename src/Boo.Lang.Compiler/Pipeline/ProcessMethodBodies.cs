@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Pipeline
 	/// <summary>
 	/// AST semantic evaluation.
 	/// </summary>
-	public class SemanticStep : TypeHierarchyResolver
+	public class ProcessMethodBodies : AbstractSwitcherCompilerStep
 	{	
 		Stack _methodBindingStack;
 		
@@ -97,7 +97,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		BindingFilter IsPublicFieldPropertyEventFilter;
 		
-		public SemanticStep()
+		public ProcessMethodBodies()
 		{
 			IsPublicFieldPropertyEventFilter = new BindingFilter(IsPublicFieldPropertyEvent);
 			IsPublicEventFilter = new BindingFilter(IsPublicEvent);

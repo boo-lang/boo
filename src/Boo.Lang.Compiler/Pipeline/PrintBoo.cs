@@ -27,26 +27,22 @@
 #endregion
 
 using System;
-using System.IO;
-using System.Reflection;
-using System.Reflection.Emit;
-using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public class SaveAssemblyStep : AbstractCompilerStep
+	/// <summary>	
+	/// </summary>
+	public class PrintBoo : AbstractCompilerStep
 	{
-		override public void Run()
+		public PrintBoo()
 		{
-			if (_context.Errors.Count > 0)
-			{
-				return;
-			}
-			
-			AssemblyBuilder builder = AstAnnotations.GetAssemblyBuilder(CompileUnit);
-			
-			builder.Save(Path.GetFileName(CompilerParameters.OutputAssembly));
-		}	
+		}
+		
+		override public void Run()
+		{		
+			Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor visitor = new Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor(Console.Out);
+			visitor.Print(CompileUnit);
+		}
 	}
 }

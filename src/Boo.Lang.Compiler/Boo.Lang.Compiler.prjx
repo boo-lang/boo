@@ -13,11 +13,14 @@
     <File name=".\CompilerOutputType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\CompilerParameters.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\CompilerPipeline.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\CompilerResourceCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\FileResource.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IAstAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IAstMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerComponent.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\ICompilerResource.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ArrayLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ArrayTypeReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -32,6 +35,7 @@
     <File name=".\Ast\Block.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\BoolLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\BreakStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\CallableBlockExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\CastExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ClassDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\CompileUnit.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -55,6 +59,7 @@
     <File name=".\Ast\ExpressionStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Field.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ForStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\GeneratorExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\GivenStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\HashLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\IAstSwitcher.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -66,7 +71,6 @@
     <File name=".\Ast\INodeWithAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\IntegerLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\InterfaceDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\IteratorExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\LexicalInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ListLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\LiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -129,6 +133,7 @@
     <File name=".\Ast\Impl\BlockImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\BoolLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\BreakStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Impl\CallableBlockExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\CastExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ClassDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\CompileUnitImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -150,6 +155,7 @@
     <File name=".\Ast\Impl\ExpressionStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\FieldImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ForStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Impl\GeneratorExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\GivenStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\HashLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\IfStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -157,7 +163,6 @@
     <File name=".\Ast\Impl\ImportImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\IntegerLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\InterfaceDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Impl\IteratorExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ListLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\LiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\LocalCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -246,20 +251,20 @@
     <File name=".\Pipeline\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Pipeline\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Pipeline\AstAnnotations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\CreateBindingsStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\ImportResolutionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\MacroExpansionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\BindAndApplyAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\BindNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\BindTypeDefinitions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\BindTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\EmitAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\ExpandMacros.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Pipeline\NameResolutionSupport.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\PEVerifyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\RunAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\SaveAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\SemanticStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\TypeHierarchyResolver.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Pipeline\XmlSerializationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\NormalizeStatementModifiers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\PEVerify.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\PrintBoo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\ProcessMethodBodies.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\RunAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\SaveAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipeline\SerializeToXml.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Pipeline\Definitions\BoocPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Pipeline\Definitions\BooInMemoryPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Pipeline\Definitions\BooiPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

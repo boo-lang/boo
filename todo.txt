@@ -17,10 +17,38 @@ done * artigo "Estendendo o compilador utilizando pipelines",
 		
 done * recursos
 
+* remover ICompilerPipelineDefinition, trocar tudo por herança de pipeline
+
+* criar todos os passos novos e fazer passar todos os testes atuais
+
+* nova pipeline:
+			/*		
+		pipeline.Add(IntroduceBindingService())
+		pipeline.Add(BindNamespaces())
+		pipeline.Add(IntroduceNameResolutionService())
+		pipeline.Add(IntroduceGlobalNamespaces())
+		pipeline.Add(BindAndApplyAttributes())
+		pipeline.Add(ExpandMacros())
+		pipeline.Add(IntroduceModuleClasses())
+		pipeline.Add(NormalizeTypeMembers())
+		pipeline.Add(NormalizeStatementModifiers())
+		pipeline.Add(BindTypeDefinitions())
+		pipeline.Add(BindTypeMembers())
+		pipeline.Add(CheckTypeMemberDeclarations())
+		pipeline.Add(PreOptimizeExpressions())
+		pipeline.Add(IntroduceCallableResolutionService())
+		pipeline.Add(ProcessMethodBodies())
+		pipeline.Add(ProcessGenerators()) // for and yield
+		pipeline.Add(CheckInterfaceImplementations())
+		pipeline.Add(InjectCasts())
+		*/
+
 * separar o binding dos elementos do semantic step:
 um passo anterior vai navegar por todos os nós associando os 
 InternalBindings apropriados, todas as assinaturas de métodos já
 serao preenchidas sempre que possível
+
+* novo modelo de pipeline baseado em herança
 
 * final fields: se for um value type nativo fica como literal, senao fica
 como campo readonly

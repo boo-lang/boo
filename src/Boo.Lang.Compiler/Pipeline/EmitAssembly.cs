@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 	}
 	
-	public class EmitAssemblyStep : AbstractSwitcherCompilerStep
+	public class EmitAssembly : AbstractSwitcherCompilerStep
 	{	
 		static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		
@@ -2435,7 +2435,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					// bogus assemblies
 					_asmBuilder.SetEntryPoint(methodBuilder, (PEFileKinds)CompilerParameters.OutputType);
 					
-					// for the rest of the world (like RunAssemblyStep)
+					// for the rest of the world (like RunAssembly)
 					// the created method is the way to go
 					CompilerContext.GeneratedAssemblyEntryPoint = createdMethod;
 				}

@@ -36,12 +36,20 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 		override public void Define(CompilerPipeline pipeline)
 		{			
 			base.Define(pipeline);			
-			pipeline.Add(new CompilerPipelineItem("import", new ImportResolutionStep()));
-			pipeline.Add(new CompilerPipelineItem("attributes", new AstAttributesStep()));
-			pipeline.Add(new CompilerPipelineItem("macros", new MacroExpansionStep()));
-			pipeline.Add(new CompilerPipelineItem("normalization", new AstNormalizationStep()));
-			pipeline.Add(new CompilerPipelineItem("bindings", new CreateBindingsStep()));
-			pipeline.Add(new CompilerPipelineItem("semantics", new SemanticStep()));
+			pipeline.Add(new CompilerPipelineItem("BindNamespaces", new BindNamespaces()));
+			pipeline.Add(new CompilerPipelineItem("BindAndApplyAttributes", new BindAndApplyAttributes()));
+			pipeline.Add(new CompilerPipelineItem("ExpandMacros", new ExpandMacros()));
+			pipeline.Add(new CompilerPipelineItem("IntroduceModuleClasses", new IntroduceModuleClasses()));
+			pipeline.Add(new CompilerPipelineItem("NormalizeTypeMembers", new NormalizeTypeMembers()));
+			pipeline.Add(new CompilerPipelineItem("NormalizeStatementModifiers", new NormalizeStatementModifiers()));
+			pipeline.Add(new CompilerPipelineItem("BindTypeDefinitions", new BindTypeDefinitions()));
+			pipeline.Add(new CompilerPipelineItem("BindBaseTypes", new BindBaseTypes()));
+			pipeline.Add(new CompilerPipelineItem("BindTypeMembers", new BindTypeMembers()));
+			pipeline.Add(new CompilerPipelineItem("ProcessMethodBodies", new ProcessMethodBodies()));
+			pipeline.Add(new CompilerPipelineItem("ProcessGenerators", new ProcessGenerators()));
+			pipeline.Add(new CompilerPipelineItem("CheckInterfaceImplementations", new CheckInterfaceImplementations()));
+			pipeline.Add(new CompilerPipelineItem("InjectCasts", new InjectCasts()));
+			
 		}
 	}
 }

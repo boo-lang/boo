@@ -890,7 +890,7 @@ interface ICustomer:
 		{
 			_compiler = new BooCompiler();
 			_compiler.Parameters.Pipeline.Add(new BooParsingStep());
-			_compiler.Parameters.Pipeline.Add(new BooPrinterStep());			
+			_compiler.Parameters.Pipeline.Add(new PrintBoo());			
 		}
 		
 		[SetUp]

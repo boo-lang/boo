@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Tests
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.Load(typeof(CorePipelineDefinition));
-			pipeline.Add(new BooPrinterStep());
+			pipeline.Add(new PrintBoo());
 		}
 		
 		protected override string GetTestCasePath(string name)

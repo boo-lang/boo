@@ -32,7 +32,7 @@ using Boo.Lang.Compiler;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public class PEVerifyStep : AbstractCompilerStep
+	public class PEVerify : AbstractCompilerStep
 	{
 		override public void Run()
 		{			
@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (128 == (int)System.Environment.OSVersion.Platform)
 			{
-				_context.TraceWarning("PEVerifyStep can't run on linux");
+				_context.TraceWarning("PEVerify can't run on linux");
 				// linux
 				return;
 			}

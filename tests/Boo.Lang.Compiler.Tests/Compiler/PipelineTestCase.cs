@@ -98,55 +98,6 @@ namespace Boo.Lang.Compiler.Tests
 			_pipeline.Add(p);
 			Assert.AreEqual(1, _pipeline.Count);
 		}
-		
-		[Test]
-		[ExpectedException(typeof(ArgumentException))]
-		public void CantAddStepWithTheSameID()
-		{
-			_pipeline.Add(new CompilerPipelineItem("dummy", new DummyStep()));
-			_pipeline.Add(new CompilerPipelineItem("dummy", new DummyStep()));
-		}
-		
-		[Test]
-		public void InsertBefore()
-		{
-			DummyStep first = new DummyStep();
-			DummyStep second = new DummyStep();
-			
-			_pipeline.Add(new CompilerPipelineItem("first", first));
-			_pipeline.Add(new CompilerPipelineItem("second", second));
-			
-			AssertPipeline(first, second);
-			
-			DummyStep before1 = new DummyStep();
-			_pipeline.InsertBefore("first", before1);
-			
-			AssertPipeline(before1, first, second);
-			
-			DummyStep before2 = new DummyStep();
-			_pipeline.InsertBefore("second", before2);
-			
-			AssertPipeline(before1, first, before2, second);
-		}
-		
-		[Test]
-		public void InsertAfter()
-		{
-			DummyStep first = new DummyStep();
-			_pipeline.Add(new CompilerPipelineItem("first", first));
-			
-			DummyStep second = new DummyStep();
-			_pipeline.InsertAfter("first", second);
-			AssertPipeline(first, second);
-			
-			DummyStep third = new DummyStep();
-			_pipeline.InsertAfter("first", new CompilerPipelineItem("third", third));
-			AssertPipeline(first, third, second);
-			
-			DummyStep fourth = new DummyStep();
-			_pipeline.InsertAfter("third", fourth);
-			AssertPipeline(first, third, fourth, second);
-		}
 
 		[Test]
 		public void TestRun()
@@ -169,7 +120,7 @@ namespace Boo.Lang.Compiler.Tests
 			Assert.AreEqual(expected.Length, _pipeline.Count);
 			for (int i=0; i<expected.Length; ++i)
 			{
-				Assert.AreSame(expected[i], _pipeline[i].CompilerStep);
+				Assert.AreSame(expected[i], _pipeline[i]);
 			}
 		}
 	}

@@ -26,18 +26,27 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Pipeline.Definitions
+namespace Boo.Lang.Compiler.Pipeline
 {
 	using System;
-	using Boo.Lang.Compiler.Pipeline;
 	
-	public class BooiPipelineDefinition : CorePipelineDefinition
+	public class RunAssembly : AbstractCompilerStep
 	{
-		override public void Define(CompilerPipeline pipeline)
-		{			
-			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
-			pipeline.Add(new CompilerPipelineItem("run", new RunAssembly()));
+		override public void Run()
+		{
+			if (Errors.Count > 0 || CompilerOutputType.Library == CompilerParameters.OutputType)
+			{
+				return;
+			}
+			
+			try
+			{
+				CompilerContext.GeneratedAssemblyEntryPoint.Invoke(null, new object[] { new string[0] });
+			}
+			catch (System.Reflection.TargetInvocationException x)
+			{				
+				throw x.InnerException;
+			}
 		}
 	}
 }

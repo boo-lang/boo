@@ -40,9 +40,9 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 		override public void Define(CompilerPipeline pipeline)
 		{			
 			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssemblyStep()));
-			pipeline.Add(new CompilerPipelineItem("save", new SaveAssemblyStep()));
-			pipeline.Add(new CompilerPipelineItem("peverify", new PEVerifyStep()));
+			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
+			pipeline.Add(new CompilerPipelineItem("save", new SaveAssembly()));
+			pipeline.Add(new CompilerPipelineItem("peverify", new PEVerify()));
 		}
 	}
 }

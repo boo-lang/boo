@@ -171,7 +171,7 @@ namespace Boo.Lang.Compiler.Pipeline
 	/// <summary>
 	/// Step 2. Processes AST attributes.
 	/// </summary>
-	public class AstAttributesStep : AbstractNamespaceSensitiveCompilerStep
+	public class BindAndApplyAttributes : AbstractNamespaceSensitiveCompilerStep
 	{				
 		TaskList _tasks;
 
@@ -181,14 +181,14 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		ITypeBinding _systemAttributeBaseClass;
 
-		public AstAttributesStep()
+		public BindAndApplyAttributes()
 		{			
 			_tasks = new TaskList();
 		}
 
 		override public void Run()
 		{
-			using (TypeHierarchyResolver resolver = new TypeHierarchyResolver())
+			using (BindTypeDefinitions resolver = new BindTypeDefinitions())
 			{
 				resolver.Initialize(_context);
 				resolver.Run();

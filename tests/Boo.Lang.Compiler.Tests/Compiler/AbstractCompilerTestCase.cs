@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Tests
 			_parameters = _compiler.Parameters;
 			//_parameters.TraceSwitch.Level = TraceLevel.Verbose;
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
-			SetUpCompilerPipeline(_parameters.Pipeline);
+			_parameters.Pipeline = SetUpCompilerPipeline();
 			
 		}
 		
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.Tests
 			current.CurrentCulture = current.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;			
 		}		
 		
-		protected abstract void SetUpCompilerPipeline(CompilerPipeline pipeline);
+		protected abstract CompilerPipeline SetUpCompilerPipeline();
 		
 		protected void RunCompilerTestCase(string name)
 		{					

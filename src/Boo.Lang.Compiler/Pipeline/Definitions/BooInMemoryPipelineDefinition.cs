@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 		override public void Define(CompilerPipeline pipeline)
 		{			
 			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssemblyStep()));
+			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
 		}
 	}
 }

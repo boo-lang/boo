@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 		override public void Define(CompilerPipeline pipeline)
 		{			
 			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("booprinter", new BooPrinterStep()));
+			pipeline.Add(new CompilerPipelineItem("booprinter", new PrintBoo()));
 		}
 	}
 }

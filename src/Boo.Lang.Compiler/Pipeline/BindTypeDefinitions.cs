@@ -29,24 +29,47 @@
 namespace Boo.Lang.Compiler.Pipeline
 {
 	using System;
+	using System.Collections;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Bindings;
 	
-	public class RunAssemblyStep : AbstractCompilerStep
+	[Serializable]
+	public class BindTypeDefinitions : AbstractSwitcherCompilerStep
 	{
 		override public void Run()
 		{
-			if (Errors.Count > 0 || CompilerOutputType.Library == CompilerParameters.OutputType)
-			{
-				return;
-			}
-			
-			try
-			{
-				CompilerContext.GeneratedAssemblyEntryPoint.Invoke(null, new object[] { new string[0] });
-			}
-			catch (System.Reflection.TargetInvocationException x)
-			{				
-				throw x.InnerException;
-			}
+			Switch(CompileUnit.Modules);
+		}
+		
+		override public void OnModule(Module module)
+		{			
+			Switch(module.Members);
+		}
+		
+		override public void OnClassDefinition(ClassDefinition node)
+		{	
+			Switch(module.Members);
+		}
+		
+		override public void OnInterfaceDefinition(InterfaceDefinition node)
+		{
+		}
+		
+		override public void OnEnumDefinition(EnumDefinition node)
+		{
+		}
+		
+		override public void OnMethod(Method method)
+		{
+		}
+		
+		override public void OnProperty(Property property)
+		{
+		}
+		
+		override public void OnField(Field field)
+		{
 		}
 	}
 }

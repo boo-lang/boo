@@ -90,7 +90,7 @@ namespace Boo.Lang.Compiler
 	}
 	
 	/// <summary>
-	/// A ordered set of <see cref="ICompilerComponent"/> implementations
+	/// A ordered set of <see cref="ICompilerStep"/> implementations
 	/// that should be executed in sequence.
 	/// </summary>
 	public class CompilerPipeline : System.MarshalByRefObject

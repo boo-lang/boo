@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Pipeline
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Bindings;
 	
-	public class MacroExpansionStep : AbstractNamespaceSensitiveCompilerStep
+	public class ExpandMacros : AbstractNamespaceSensitiveCompilerStep
 	{
 		StringBuilder _buffer = new StringBuilder();
 		

@@ -204,10 +204,11 @@ namespace Boo.Lang.Compiler.Tests
 			RunCompilerTestCase("abstract0.boo");
 		}
 		
-		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
+		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
-			pipeline.Load(typeof(CorePipelineDefinition));
+			CompilerPipeline pipeline = new CorePipeline();
 			pipeline.Add(new ErrorPrinterStep());
+			return pipeline;
 		}
 		
 		protected override bool IgnoreErrors

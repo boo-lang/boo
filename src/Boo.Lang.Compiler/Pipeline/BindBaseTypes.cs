@@ -35,11 +35,11 @@ namespace Boo.Lang.Compiler.Pipeline
 	using Boo.Lang.Compiler.Bindings;
 	
 	[Serializable]
-	public class TypeHierarchyResolver : AbstractSwitcherCompilerStep
+	public class BindBaseTypes : AbstractSwitcherCompilerStep
 	{
 		protected NameResolutionSupport _nameResolution = new NameResolutionSupport();
 		
-		public TypeHierarchyResolver()
+		public BindBaseTypes()
 		{
 		}
 		
@@ -47,10 +47,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			_nameResolution.Initialize(_context);
 			
-			foreach (Module module in CompileUnit.Modules)
-			{
-				Switch(module);
-			}
+			Switch(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Module module)
