@@ -1421,6 +1421,12 @@ namespace Boo.Lang.Compiler.Tests
 		}
 		
 		[Test]
+		public void FilterCanIntroduceVariables()
+		{
+			RunCompilerTestCase("listdisplay2.boo");
+		}
+		
+		[Test]
 		public void CustomCollection()
 		{
 			RunCompilerTestCase("CustomCollection.boo");
