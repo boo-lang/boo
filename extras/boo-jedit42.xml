@@ -164,6 +164,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit42.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD2>string</KEYWORD2>
 			<KEYWORD2>object</KEYWORD2>
 			<KEYWORD2>byte</KEYWORD2>
+			<KEYWORD2>sbyte</KEYWORD2>
 			<KEYWORD2>short</KEYWORD2>
 			<KEYWORD2>ushort</KEYWORD2>
 			<KEYWORD2>int</KEYWORD2>

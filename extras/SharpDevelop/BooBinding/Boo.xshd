@@ -156,6 +156,7 @@
 				<Key word="double"/>
 				<Key word="single"/>
 				<Key word="byte"/>
+				<Key word="sbyte"/>
 				<Key word="short"/>
 				<Key word="ushort"/>
 				<Key word="int"/>
