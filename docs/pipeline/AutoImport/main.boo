@@ -13,7 +13,7 @@ class AutoImport(AbstractVisitorCompilerStep):
 		errors = self.Errors
 		
 		for reference in references:
-			simpleName = /, /.Split(reference.FullName)[0]
+			simpleName = @/, /.Split(reference.FullName)[0]
 			return if simpleName == node.Namespace			
 		
 		result = compile("${node.Namespace}.boo", CompilerOutputType.Library)
