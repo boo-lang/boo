@@ -41,7 +41,7 @@ namespace Boo.Lang
 	[Serializable]
 	public class List : IList
 	{
-		ArrayList _list;
+		protected ArrayList _list;
 		
 		public List()
 		{

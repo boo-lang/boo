@@ -207,17 +207,20 @@ namespace Boo.Lang.Compiler.Bindings
 		{						
 			bool found;
 			IBinding binding = ResolveFromCache(name, out found);
-			if (found)
-			{
-				return binding;
-			}			
-			
-			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
-			if (members.Length > 0)
+			if (!found)
 			{				
-				binding = _bindingManager.AsBinding(members);
+				System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
+				if (members.Length > 0)
+				{				
+					binding = _bindingManager.AsBinding(members);
+				}
+				else if (_type.IsInterface)
+				{
+					binding = _bindingManager.ObjectTypeBinding.Resolve(name);
+				}
+				binding = Cache(name, binding);
 			}
-			return Cache(name, binding);
+			return binding;
 		}
 		
 		public override string ToString()

@@ -973,5 +973,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("pow0.boo");
 		}
+		
+		[Test]
+		public void InterfaceContainsObjectMethods()
+		{
+			RunCompilerTestCase("interface0.boo");
+		}
 	}
 }
