@@ -179,6 +179,17 @@ namespace Boo.Lang.Compiler.Pipeline
 						resultingNode = stmt;
 						break;
 					}
+					
+					case StatementModifierType.While:
+					{
+						WhileStatement stmt = new WhileStatement(node.Modifier.LexicalInfo);
+						stmt.Condition = node.Modifier.Condition;
+						stmt.Block.Statements.Add(node);
+						node.Modifier = null;
+						
+						resultingNode = stmt;
+						break;
+					}
 						
 					default:
 					{							
