@@ -53,7 +53,16 @@
 	
 	<target name="compile" depends="create-resources, copy-scripts">
 	
-		<property name="booish.gui" value="${path::get-full-path('../../booish.gui')}" />	
+		<property name="booish.gui" value="${path::get-full-path('../../booish.gui')}" />
+		
+		<nant buildfile="${booish.gui}/default.build" target="build" />
+		
+		<copy todir="${build.dir}">
+			<fileset basedir="${booish.gui}/build">
+				<include name="booish.gui.exe" />
+				<include name="booish.gui.externs.dll" />
+			</fileset>
+		</copy>
 	
 		<booc
 			output="${build.dir}/booxw.exe"
@@ -61,7 +70,6 @@
 			tracelevel="Info">
 			<sources basedir="src">
 				<include name="*.boo" />
-				<include name="${booish.gui}/src/PromptBox.boo" />
 			</sources> 
 			
 			<resources basedir="${build.dir}">
@@ -70,6 +78,7 @@
 			
 			<references basedir="${build.dir}">
 				<include name="booish.exe" />
+				<include name="booish.gui.exe" />
 				<include name="ICSharpCode.TextEditor.dll" />
 				<include name="WeifenLuo.WinFormsUI.dll" />
 				<include name="System.Windows.Forms.dll" />
