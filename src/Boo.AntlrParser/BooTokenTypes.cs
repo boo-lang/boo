@@ -1,4 +1,4 @@
-// $ANTLR 2.7.4rc1: "src/Boo.AntlrParser/boo.g" -> "BooParserBase.cs"$
+// $ANTLR 2.7.4rc1: "boo.g" -> "BooParserBase.cs"$
 
 namespace Boo.AntlrParser
 {
