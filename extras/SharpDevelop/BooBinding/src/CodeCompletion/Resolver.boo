@@ -41,6 +41,7 @@ class Resolver:
 	#region Helper methods
 	private def ResolveCurrentMember() as IMember:
 		print "Getting current method... caretLine = ${_caretLine}, caretColumn = ${_caretColumn}"
+		return null if _callingClass == null
 		best as IMember = null
 		line = 0
 		for m as IMember in _callingClass.Methods:
@@ -103,6 +104,17 @@ class Resolver:
 		expandedName = BooAmbience.ReverseTypeConversionTable[name]
 		return _parserService.GetClass(expandedName) if expandedName != null
 		return _parserService.SearchType(name, _callingClass, _caretLine, _caretColumn)
+	
+	builtinClass as IClass
+	
+	BuiltinClass as IClass:
+		get:
+			builtinClass = _parserService.GetClass("Boo.Lang.Builtins") if builtinClass == null
+			return builtinClass
+	
+	def IsNamespace(name as string) as bool:
+		return _parserService.NamespaceExists(name)
+	
 	#endregion
 	
 	#region CtrlSpace-Completion
@@ -112,6 +124,11 @@ class Resolver:
 		_caretColumn = caretColumn
 		result = ArrayList(BooAmbience.TypeConversionTable.Values)
 		result.Add("System") // system namespace can be used everywhere
+		
+		builtinClass = self.BuiltinClass
+		if builtinClass != null:
+			for method as IMethod in builtinClass.Methods:
+				result.Add(method)
 		
 		parseInfo = parserService.GetParseInformation(fileName)
 		cu = parseInfo.MostRecentCompilationUnit as CompilationUnit

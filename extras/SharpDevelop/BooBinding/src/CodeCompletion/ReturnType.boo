@@ -10,19 +10,11 @@ import Boo.Lang.Compiler.Ast as AST
 ///          Return Type          ///
 /////////////////////////////////////
 class ReturnType(AbstractReturnType):
-	PointerNestingLevel as int:
-		get:
-			return super.pointerNestingLevel
-	
-	ArrayDimensions as (int):
-		get:
-			return super.arrayDimensions
-	
 	def constructor(fullyQualifiedName as string):
-		self.FullyQualifiedName = fullyQualifiedName
+		self(fullyQualifiedName, array(int, 0), 0)
 	
 	def constructor(fullyQualifiedName as string, arrayDimensions as (int), pointerNestingLevel as int):
-		self(fullyQualifiedName)
+		self.FullyQualifiedName = fullyQualifiedName
 		self.arrayDimensions = arrayDimensions
 		self.pointerNestingLevel = pointerNestingLevel
 	
@@ -55,17 +47,25 @@ class ReturnType(AbstractReturnType):
 			print ("Got unknown TypeReference ${t}")
 	
 	def constructor(t as AST.TypeDefinition):
-		super.FullyQualifiedName = t.FullName
-		super.arrayDimensions = array(int, 0)
-		super.pointerNestingLevel = 0
+		self(t.FullName)
 	
 	def constructor(c as IClass):
-		super.FullyQualifiedName = c.FullyQualifiedName
-		super.arrayDimensions = array(int, 0)
-		super.pointerNestingLevel = 0
+		self(c.FullyQualifiedName)
 	
 	def Clone() as ReturnType:
 		return ReturnType(FullyQualifiedName, arrayDimensions, pointerNestingLevel)
+	
+	override def ToString():
+		return "[${GetType().Name} Name=${FullyQualifiedName}]"
+
+/////////////////////////////////////
+///     Namespace Return Type     ///
+/////////////////////////////////////
+class NamespaceReturnType(AbstractReturnType):
+	def constructor(fullyQualifiedName as string):
+		self.FullyQualifiedName = fullyQualifiedName
+		self.arrayDimensions = array(int, 0)
+		self.pointerNestingLevel = 0
 	
 	override def ToString():
 		return "[${GetType().Name} Name=${FullyQualifiedName}]"

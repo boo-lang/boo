@@ -58,7 +58,7 @@ class Event(AbstractEvent):
 	def AddModifier(m as ModifierEnum):
 		modifiers = modifiers | m
 	
-	def constructor(name as string, rtype as ReturnType, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
+	def constructor(name as string, rtype as IReturnType, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
 		FullyQualifiedName = name
 		returnType = rtype
 		self.region = region
@@ -73,7 +73,7 @@ class Field(AbstractField):
 	def AddModifier(m as ModifierEnum):
 		modifiers = modifiers | m
 	
-	def constructor(rtype as ReturnType, fullyQualifiedName as string, m as ModifierEnum, region as IRegion):
+	def constructor(rtype as IReturnType, fullyQualifiedName as string, m as ModifierEnum, region as IRegion):
 		self.returnType = rtype
 		self.FullyQualifiedName = fullyQualifiedName
 		self.region = region
@@ -90,7 +90,7 @@ class Indexer(AbstractIndexer):
 	def AddModifier(m as ModifierEnum):
 		modifiers = modifiers | m
 	
-	def constructor(rtype as ReturnType, parameters as ParameterCollection, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
+	def constructor(rtype as IReturnType, parameters as ParameterCollection, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
 		returnType = rtype
 		self.Parameters = parameters
 		self.region = region
@@ -102,7 +102,7 @@ class Indexer(AbstractIndexer):
 ///            Method             ///
 /////////////////////////////////////
 class Method(BooAbstractMethod):
-	def constructor(name as string, rtype as ReturnType, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
+	def constructor(name as string, rtype as IReturnType, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
 		FullyQualifiedName = name
 		self.returnType = rtype
 		self.region = region
@@ -120,7 +120,7 @@ class Property(AbstractProperty):
 	def AddModifier(m as ModifierEnum):
 		modifiers = modifiers | m
 	
-	def constructor(fullyQualifiedName as string, rtype as ReturnType, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
+	def constructor(fullyQualifiedName as string, rtype as IReturnType, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
 		self.FullyQualifiedName = fullyQualifiedName
 		self.returnType = rtype
 		self.region = region

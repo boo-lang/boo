@@ -64,14 +64,19 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 			if _returnClass == null and _returnType != null:
 				_returnClass = _resolver.SearchType(_returnType.FullyQualifiedName)
 			return if ProcessMethod(node, mre.Name, _returnClass)
+			// try if the MemberReferenceExpression is a fully qualified class name (constructor call)
+			ProcessMemberReferenceExpression(mre.Name)
+			CreateReturnType(_returnClass)
 		elif node.Target isa ReferenceExpression:
 			re as ReferenceExpression = node.Target
 			// try if it is a method on the current object
 			return if ProcessMethod(node, re.Name, _resolver.CallingClass)
+			// try if it is a builtin method
+			return if ProcessMethod(node, re.Name, _resolver.BuiltinClass)
 			// try if it is a class name -> constructor
 			CreateReturnType(_resolver.SearchType(re.Name))
-			return
-		SetReturnType(null)
+		else:
+			SetReturnType(null)
 	
 	private def ProcessMethod(node as MethodInvocationExpression, name as string, c as IClass) as bool:
 		return false if c == null
@@ -115,14 +120,29 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 			SetReturnType(rt)
 			return
 		return if ProcessMember(node.Name, _resolver.CallingClass)
-		CreateReturnType(_resolver.SearchType(node.Name))
+		if _resolver.IsNamespace(node.Name):
+			SetReturnType(NamespaceReturnType(node.Name))
+		else:
+			CreateReturnType(_resolver.SearchType(node.Name))
 	
 	override def OnMemberReferenceExpression(node as MemberReferenceExpression):
 		Debug(node)
 		Visit(node.Target)
+		ProcessMemberReferenceExpression(node.Name)
+	
+	private def ProcessMemberReferenceExpression(name as string):
+	"""Gets the return type of the MemberReferenceExpression with the specified name
+	on the current return type."""
+		if _returnType isa NamespaceReturnType:
+			name = _returnType.FullyQualifiedName + '.' + name
+			if _resolver.IsNamespace(name):
+				SetReturnType(NamespaceReturnType(name))
+			else:
+				CreateReturnType(_resolver.SearchType(name))
+			return
 		if _returnClass == null and _returnType != null:
 			_returnClass = _resolver.SearchType(_returnType.FullyQualifiedName)
-		return if ProcessMember(node.Name, _returnClass)
+		return if ProcessMember(name, _returnClass)
 		SetReturnType(null)
 	
 	private def ProcessMember(name as string, parentClass as IClass):
