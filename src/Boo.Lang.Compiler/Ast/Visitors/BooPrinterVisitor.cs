@@ -574,7 +574,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				}
 				else
 				{
-					WriteStringLiteralContents(s.Value, _writer);
+					WriteStringLiteralContents(s.Value, _writer, false);
 				}
 			}
 			Write("\"");
@@ -986,6 +986,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		public static void WriteStringLiteralContents(string text, TextWriter writer)
 		{
+			WriteStringLiteralContents(text, writer, true);
+		}
+		
+		public static void WriteStringLiteralContents(string text, TextWriter writer, bool single)
+		{
 			foreach (char ch in text)
 			{
 				switch (ch)
@@ -1011,6 +1016,32 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					case '\\':
 					{
 						writer.Write("\\\\");
+						break;
+					}
+					
+					case '\'':
+					{
+						if (single)
+						{
+							writer.Write("\\'");
+						}
+						else
+						{
+							writer.Write(ch);
+						}
+						break;
+					}
+					
+					case '"':
+					{
+						if (!single)
+						{
+							writer.Write("\\\"");
+						}
+						else
+						{
+							writer.Write(ch);
+						}
 						break;
 					}
 					

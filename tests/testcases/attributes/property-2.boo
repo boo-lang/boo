@@ -7,7 +7,7 @@ class Customer:
 		get:
 			return _fname
 		set:
-			raise System.ArgumentException('FirstName') unless (value is not null)
+			raise System.ArgumentException('precondition \'(value is not null)\' failed:') unless (value is not null)
 			_fname = value
 """
 class Customer:
