@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<pipeline extends="booc">
+	<step id="style-checker"
+		insertAfter="parse"
+		type="Boo.Docs.Articles.Pipeline.StyleChecker, StyleChecker" />
+</pipeline>
