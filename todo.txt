@@ -111,6 +111,10 @@ done * booc nant task (em boo, obviamente)
 
 * type
 
+* field initializers
+
+* null
+
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 
 * AstAttribute vira IAstAttribute que implementa ICompilerStep
@@ -144,7 +148,7 @@ Milestone 3.7 (macro infraestructure)
 * lock macro
 
 
-Milestone 3.9
+Milestone 3.8
 -------------
 done * try/catch/ensure
 done * raise
@@ -153,6 +157,10 @@ done * raise
 	* unless
 	* while
 	* until
+	
+Milestone 3.9 (better error checking)
+-------------------------------------
+* constructors can't have a return value
 	
 Milestone 4 (delegate support)
 ------------------------------

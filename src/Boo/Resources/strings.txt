@@ -32,7 +32,7 @@ NodeNotInCollection=The node {0} is not in the collection.
 NotImplemented=Language feature still not implemented: {0}.
 EventArgumentMustBeAMethod=The event '{0}' demands a method reference compatible with '{1}'.
 TypeNotAttribute=The type '{0}' is not a valid attribute.
-ExpressionStatementMustHaveSideEffect=Expressions in statements must be executed for their side-effects.
+ExpressionStatementMustHaveSideEffect=Expressions in statements must only be executed for their side-effects.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

@@ -28,21 +28,6 @@
 			</references>
 			
 		</booc>
-		
-		<!--
-		<booc
-			output='output/bin/Boo.Examples.Web.dll'
-			target='library'>
-			
-			<sources basedir='.'>
-				<includes name='*.boo' />
-			</sources>
-			
-			<references>
-				<includes name='System.Web' />
-			</references>
-		</booc>
-		-->
 
 		<copy todir="output">			
 			<fileset basedir=".">

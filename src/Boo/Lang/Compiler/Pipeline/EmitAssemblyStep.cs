@@ -1112,10 +1112,17 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (null != method)
 				{
 					Type type = _asmBuilder.GetType(method.DeclaringType.FullName, true);
-					MethodInfo mi = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic);
+					MethodInfo createdMethod = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic);
+					MethodInfo methodBuilder = GetMethodInfo((IMethodBinding)GetBinding(method));
 					
-					_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
-					CompileUnit[EntryPointKey] = mi;
+					// the mono implementation expects the first argument to 
+					// SetEntryPoint to be a MethodBuilder, otherwise it generates
+					// bogus assemblies
+					_asmBuilder.SetEntryPoint(methodBuilder, (PEFileKinds)CompilerParameters.OutputType);
+					
+					// for the rest of the world (like RunAssemblyStep)
+					// the created method is the way to go
+					CompileUnit[EntryPointKey] = createdMethod;
 				}
 				else
 				{
