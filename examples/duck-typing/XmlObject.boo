@@ -34,11 +34,18 @@ transparent access to xml elements.
 
 import System
 import System.Xml from System.Xml
+import System.Reflection
 
+[DefaultMember("Item")]
 class XmlObject(IQuackFu):
 	
 	_element as XmlElement
 	
+	Item([required] key):
+		get:
+			item = _element.Attributes.GetNamedItem(key)
+			return item.InnerText if item
+			
 	def constructor(element as XmlElement):
 		_element = element
 		
@@ -54,8 +61,10 @@ class XmlObject(IQuackFu):
 		pass
 		
 	def QuackGet(name as string) as object:
-		element = _element.SelectSingleNode(name)
-		return XmlObject(element) if element is not null
+		elements = _element.SelectNodes(name)
+		if elements is not null:
+			return XmlObject(elements[0]) if elements.Count == 1
+			return XmlObject(e) for e in elements
 		
 	override def ToString():
 		return _element.InnerText
@@ -65,12 +74,16 @@ xml = """
 <Person>
 	<FirstName>John</FirstName>
 	<LastName>Cleese</LastName>
+	<Phone place="home">1111-111-111</Phone>
+	<Phone place="work">2222-222-222</Phone>
 </Person>
 """
 
 person as duck = XmlObject(xml)
 print person.FirstName
 print person.LastName
+for phone as XmlObject in person.Phone:
+	print phone['place'], phone
 		
 		
 
