@@ -182,7 +182,8 @@ class MainWindow(Window):
 			return _editors[_notebookEditors.CurrentPage]
 			
 	def AppendOutput(text as string):
-		_outputBuffer.Insert(_outputBuffer.EndIter, text)
+		target = _outputBuffer.EndIter
+		_outputBuffer.Insert(target, text)
 		
 	def DisplayErrors(errors as CompilerErrorCollection):
 		self.AppendOutput(errors.ToString(true)) if (len(errors))
@@ -315,7 +316,7 @@ class DocumentOutlineProcessor:
 				
 	def UpdateType(parent, type as TypeDefinition):
 		for member in type.Members:
-			iter = _store.AppendValues(parent, (member.Name,))			
+			_store.AppendValues(parent, (member.Name,))			
 	
 		
 Application.Init()
