@@ -64,6 +64,19 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public override bool IsSubclassOf(ITypeBinding type)
+		{			
+			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
+			{
+				ITypeBinding baseType = _bindingManager.GetBoundType(baseTypeReference);
+				if (type == baseType || baseType.IsSubclassOf(type))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		public override IConstructorBinding[] GetConstructors()
 		{
 			if (null == _constructors)

@@ -131,15 +131,7 @@ namespace Boo.Ast.Compilation.Binding
 			ExternalTypeBinding external = other as ExternalTypeBinding;
 			if (null == external)
 			{
-				TypeDefinition internalType = ((InternalTypeBinding)other).TypeDefinition;
-				foreach (TypeReference baseTypeReference in internalType.BaseTypes)
-				{
-					if (IsAssignableFrom(_bindingManager.GetBoundType(baseTypeReference)))
-					{
-						return true;
-					}
-				}
-				return false;
+				return other.IsSubclassOf(this);
 			}
 			return _type.IsAssignableFrom(external._type);
 		}
