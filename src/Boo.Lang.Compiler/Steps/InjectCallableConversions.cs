@@ -312,7 +312,7 @@ namespace Boo.Lang.Compiler.Steps
 			Field callable = adaptor.AddField("__callable", from);
 			
 			BooMethodBuilder constructor = adaptor.AddConstructor();
-			ParameterDeclaration param = constructor.AddParameter("from", from);
+			ParameterDeclaration param = constructor.AddParameter("from_", from);
 			constructor.Body.Add(
 				CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));			
 			constructor.Body.Add(
@@ -346,7 +346,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			BooMethodBuilder adapt = adaptor.AddMethod("Adapt", to);
 			adapt.Modifiers = TypeMemberModifiers.Static|TypeMemberModifiers.Public;
-			param = adapt.AddParameter("from", from);
+			param = adapt.AddParameter("from_", from);
 			adapt.Body.Add(
 				new ReturnStatement(
 					CodeBuilder.CreateConstructorInvocation(
