@@ -342,7 +342,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public Expression CreateMethodReference(IMethod method)
 		{			
-			return CreateMemberReference(CreateReference(method.DeclaringType), method);
+			return CreateMemberReference(method);
 		}
 		
 		public BoolLiteralExpression CreateBoolLiteral(bool value)

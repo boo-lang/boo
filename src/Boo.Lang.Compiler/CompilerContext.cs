@@ -61,6 +61,8 @@ namespace Boo.Lang.Compiler
 		
 		protected Assembly _generatedAssembly;
 		
+		protected string _generatedAssemblyFileName;
+		
 		protected Hash _properties;
 		
 		public CompilerContext() : this(new CompileUnit())
@@ -98,6 +100,23 @@ namespace Boo.Lang.Compiler
 			get
 			{
 				return _properties;
+			}
+		}
+		
+		public string GeneratedAssemblyFileName
+		{
+			get
+			{
+				return _generatedAssemblyFileName;
+			}
+			
+			set
+			{
+				if (null == value || 0 == value.Length)
+				{
+					throw new ArgumentException("GeneratedAssemblyFileName");
+				}
+				_generatedAssemblyFileName = value;
 			}
 		}
 		

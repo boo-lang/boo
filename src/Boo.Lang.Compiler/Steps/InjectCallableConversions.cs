@@ -348,7 +348,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ClassDefinition CreateAdaptor(ICallableType to, ICallableType from)
 		{
-			BooClassBuilder adaptor = CodeBuilder.CreateClass("__adaptor" + _adaptors.Count + "__");
+			BooClassBuilder adaptor = CodeBuilder.CreateClass("___adaptor" + _adaptors.Count);
 			adaptor.AddBaseType(TypeSystemServices.ObjectType);
 			adaptor.Modifiers = TypeMemberModifiers.Final|TypeMemberModifiers.Internal;
 			
@@ -414,8 +414,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (IsStandaloneMethodReference(node.Target))
 			{
-				InternalCallableType type = (InternalCallableType)node.Target.ExpressionType;
-				return type.GetEndInvokeMethod() == node.Entity;
+				return node.Entity.Name == "EndInvoke";
 			}
 			return false;
 		}

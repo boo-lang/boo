@@ -985,12 +985,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == anonymousType.ConcreteType)
 			{
-				CreateConcreteCallableType(sourceNode, anonymousType);
+				anonymousType.ConcreteType = CreateConcreteCallableType(sourceNode, anonymousType);
 			}
 			return anonymousType.ConcreteType;
 		}
 		
-		protected virtual void CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		protected virtual IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			Boo.Lang.Compiler.Ast.Module module = GetAnonymousTypesModule();
 			
@@ -1009,7 +1009,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
 			_anonymousTypesModule.Members.Add(cd);
 			
-			anonymousType.ConcreteType = (IType)cd.Entity;
+			return (IType)cd.Entity;
 		}
 		
 		private static void InvalidNode(Node node)

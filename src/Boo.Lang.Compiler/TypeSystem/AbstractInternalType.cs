@@ -46,6 +46,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected Boo.Lang.List _buffer = new Boo.Lang.List();
 		
+		protected System.Type _generatedType;
+		
 		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition)
 		{
 			_typeSystemServices = typeSystemServices;
@@ -297,6 +299,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_buffer.Clear();				
 			}
 			return _members;
+		}
+		
+		public System.Type GeneratedType
+		{
+			get
+			{
+				return _generatedType;
+			}
+			
+			set
+			{
+				_generatedType = value;
+			}
 		}
 		
 		override public string ToString()

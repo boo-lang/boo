@@ -229,9 +229,8 @@ result = foo.EndInvoke(handle)
 		assert handle.IsCompleted
 		assert handle.EndInvokeCalled
 		
-		Assert.AreEqual(42, _interpreter.GetValue("result"))
-		
-	/*
+		Assert.AreEqual(42, _interpreter.GetValue("result"))		
+
 	[Test]
 	def BeginInvokeEndInvokeInSequentialEvals():
 		Eval("""
@@ -250,7 +249,36 @@ handle = foo.BeginInvoke()
 		
 		assert handle.IsCompleted
 		assert handle.EndInvokeCalled
-	*/
+		
+	[Test]
+	def MethodReferences():
+		Eval("""
+def foo():
+	return 42""")
+	
+		Eval("f1 = foo")
+		Eval("f2 = foo")
+		
+		f1 as callable = _interpreter.GetValue("f1")
+		f2 as callable = _interpreter.GetValue("f2")
+		assert f1 is not null
+		assert 42 == f1()
+		
+		assert f2 is not null
+		assert 42 == f2()
+		
+	[Test]
+	def EvalSimpleLiterals():
+		
+		_interpreter.RememberLastValue = true
+		Eval("true")
+		assert true == _interpreter.LastValue
+		
+		Eval("false")
+		assert false == _interpreter.LastValue
+		
+		Eval("null")
+		assert _interpreter.LastValue is null
 	
 	[Test]
 	def RememberLastValue():

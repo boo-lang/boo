@@ -280,7 +280,8 @@ namespace Boo.Lang.Compiler.Steps
 							}
 						}
 					}
-					_emitter.GetTypeBuilder(type).CreateType();
+					
+					((AbstractInternalType)type.Entity).GeneratedType = _emitter.GetTypeBuilder(type).CreateType();					 
 					
 					Trace("type '{0}' successfully created", type);
 					
@@ -2925,6 +2926,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				attributes |= MethodAttributes.Private;
 			}
+			else if (method.IsInternal)
+			{
+				attributes |= MethodAttributes.Assembly;
+			}
 			
 			if (method.IsStatic)
 			{
@@ -3315,9 +3320,8 @@ namespace Boo.Lang.Compiler.Steps
 			return Path.GetDirectoryName(Path.GetFullPath(fname));
 		}
 		
-		string BuildOutputAssemblyName()
+		string BuildOutputAssemblyName(string fname)
 		{				
-			string fname = Parameters.OutputAssembly;
 			if (!Path.HasExtension(fname))
 			{
 				if (CompilerOutputType.Library == Parameters.OutputType)
@@ -3344,18 +3348,19 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void SetUpAssembly()
 		{
-			if (0 == Parameters.OutputAssembly.Length)
+			string fname = Parameters.OutputAssembly;
+			if (0 == fname.Length)
 			{				
-				Parameters.OutputAssembly = CompileUnit.Modules[0].Name;			
+				fname = CompileUnit.Modules[0].Name;			
 			}
 			
-			Parameters.OutputAssembly = BuildOutputAssemblyName();
+			Context.GeneratedAssemblyFileName = BuildOutputAssemblyName(fname);
 			
 			AssemblyName asmName = new AssemblyName();
-			asmName.Name = GetAssemblyName(Parameters.OutputAssembly);
+			asmName.Name = GetAssemblyName(Context.GeneratedAssemblyFileName);
 			
-			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(Parameters.OutputAssembly));
-			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(Parameters.OutputAssembly), true);			
+			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(Context.GeneratedAssemblyFileName));
+			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(Context.GeneratedAssemblyFileName), true);			
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 		}
 	}

@@ -52,14 +52,14 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (!IsSupported)
 			{
-				_context.TraceWarning("PEVerify is not supported on this platform.");
+				Warnings.Add(new CompilerWarning("PEVerify is not supported on this platform."));
 				// linux
 				return;
 			}
 			
 			try
 			{
-				Process p = Boo.Lang.Builtins.shellp("peverify.exe", Parameters.OutputAssembly);
+				Process p = Boo.Lang.Builtins.shellp("peverify.exe", Context.GeneratedAssemblyFileName);
 				p.WaitForExit();
 				if (0 != p.ExitCode)
 				{

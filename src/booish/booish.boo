@@ -30,6 +30,7 @@ namespace booish
 
 import System
 import System.Collections
+import System.Diagnostics
 import System.IO
 import Boo.Lang
 import Boo.Lang.Compiler
@@ -59,17 +60,24 @@ class InteractiveInterpreter:
 	[property(RememberLastValue)]
 	_rememberLastValue = false
 	
+	_inputId = 0
+	
 	def constructor():
 		
 		pipeline = Pipelines.CompileToMemory()
 		pipeline.RemoveAt(0)
-		
-		index = pipeline.Find(Steps.ProcessMethodBodiesWithDuckTyping)
-		pipeline[index] = ProcessVariableDeclarations(self)
+				
+		pipeline.Replace(Steps.ProcessMethodBodiesWithDuckTyping,
+						ProcessVariableDeclarations(self))
 		pipeline.InsertBefore(Steps.EmitAssembly, _referenceProcessor)
 		
 		index = pipeline.Find(Steps.IntroduceModuleClasses)
 		cast(Steps.IntroduceModuleClasses, pipeline[index]).ForceModuleClass = true
+		
+		// avoid InvalidCastExceptions by always
+		// defining callable types only once per run
+		pipeline.Replace(Steps.InitializeTypeSystemServices, InitializeTypeSystemServices())
+		pipeline.Add(CacheCallableTypes())
 		
 		_compiler.Parameters.Pipeline = pipeline		
 		_parser.Parameters.Pipeline = Pipelines.Parse()
@@ -127,9 +135,10 @@ class InteractiveInterpreter:
 				# simple references will be parsed as macros
 				# but we want them to be evaluated
 				# as references...
-				ms as MacroStatement = module.Globals.Statements[0]
-				module.Globals.Statements.ReplaceAt(0,
-					ExpressionStatement(						
+				ms = module.Globals.Statements[0] as MacroStatement
+				if ms is not null:
+					module.Globals.Statements.ReplaceAt(0,
+						ExpressionStatement(						
 							ReferenceExpression(ms.LexicalInfo, ms.Name)))
 			_compiler.Parameters.OutputType = CompilerOutputType.ConsoleApplication
 		else:
@@ -151,7 +160,7 @@ class InteractiveInterpreter:
 		
 	def Parse(code as string):
 		_parser.Parameters.Input.Clear()
-		_parser.Parameters.Input.Add(StringInput("interactive", code))
+		_parser.Parameters.Input.Add(StringInput("input${++_inputId}", code))
 		return _parser.Run()
 		
 	def Declare([required] name as string,
@@ -205,7 +214,8 @@ class InteractiveInterpreter:
 
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
 										module as Module):
-		moduleType = asm.GetType(cast(ModuleEntity, module.Entity).ModuleClass.FullName)
+		moduleType = cast(AbstractInternalType,
+						cast(ModuleEntity, module.Entity).ModuleClass.Entity).GeneratedType
 		moduleType.GetField("ParentInterpreter").SetValue(null, self)
 		
 	private def RecordImports(imports as ImportCollection):
@@ -341,7 +351,51 @@ class InteractiveInterpreter:
 	
 		def GetMembers():
 			return array(IEntity, 0)
+			
+	class InterpreterTypeSystemServices(TypeSystemServices):
 	
+		[getter(CachedCallableTypes)]
+		_cachedCallableTypes as List
+		
+		[getter(GeneratedCallableTypes)]
+		_generatedCallableTypes = []
+		
+		def constructor(context, cache):
+			super(context)
+			_cachedCallableTypes = cache			
+		
+		override def CreateConcreteCallableType(sourceNode as Node, 
+											anonymousType as AnonymousCallableType):
+												
+			for type as System.Type in _cachedCallableTypes:
+				cached = Map(type) as ExternalCallableType
+				if anonymousType.GetSignature() == cached.GetSignature():
+					return cached
+					
+			new = super(sourceNode, anonymousType)
+			_generatedCallableTypes.Add(new)
+			return new
+			
+	class InitializeTypeSystemServices(Steps.AbstractCompilerStep):
+		
+		_cachedCallableTypes = []
+		
+		override def Run():			
+			Context.TypeSystemServices = InterpreterTypeSystemServices(Context, _cachedCallableTypes)
+			
+	class CacheCallableTypes(Steps.AbstractCompilerStep):
+		
+		override def Run():
+			return if len(Errors)			
+			
+			services as InterpreterTypeSystemServices = self.TypeSystemServices
+			types = services.GeneratedCallableTypes
+			return unless len(types)
+			
+			debug "caching", len(types), "callable types"
+			for type as InternalCallableType in types:
+				debug type
+				services.CachedCallableTypes.Add(type.GeneratedType)
 	
 	class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 	
@@ -508,6 +562,9 @@ interpreter = InteractiveInterpreter(RememberLastValue: true)
 
 if "--print-modules" in argv:
 	interpreter.Pipeline.Add(Steps.PrintBoo())
+	
+if "--debug" in argv:
+	Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
 
 while line=prompt(">>> "):
 	try:		
