@@ -26,13 +26,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Services
+namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 	using System.Reflection;
 	using Boo.Lang.Compiler;	
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Taxonomy;
 
 	public class TagService
 	{			
@@ -283,7 +282,7 @@ namespace Boo.Lang.Compiler.Services
 			return GetTypeReference(GetType(type));
 		}
 		
-		public IParameter[] Map(Boo.Lang.Ast.ParameterDeclarationCollection parameters)
+		public IParameter[] Map(Boo.Lang.Compiler.Ast.ParameterDeclarationCollection parameters)
 		{
 			IParameter[] mapped = new IParameter[_method.Parameters.Count];
 			for (int i=0; i<_parameters.Length; ++i)

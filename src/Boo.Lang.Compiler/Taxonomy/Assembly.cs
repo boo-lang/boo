@@ -28,11 +28,11 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class Assembly : IElement
+	public class AssemblyReference : IElement
 	{
 		System.Reflection.Assembly _assembly;
 		
-		public Assembly(System.Reflection.Assembly assembly)
+		public AssemblyReference(System.Reflection.Assembly assembly)
 		{
 			if (null == assembly)
 			{

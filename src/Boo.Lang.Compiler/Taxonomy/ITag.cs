@@ -114,7 +114,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 	{		
 	}
 	
-	public interface IFieldInfo : IMember
+	public interface IField : IMember
 	{	
 		bool IsLiteral
 		{

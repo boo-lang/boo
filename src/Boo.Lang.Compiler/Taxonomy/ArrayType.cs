@@ -29,7 +29,6 @@
 namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
-	using Boo.Lang.Compiler.Services;
 	
 	public class ArrayType : IType, INamespace
 	{	

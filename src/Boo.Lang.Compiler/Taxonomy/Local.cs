@@ -28,15 +28,15 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {	
-	public class Local : ITypedElement
+	public class LocalVariable : ITypedElement
 	{		
-		Boo.Lang.Ast.Local _local;
+		Boo.Lang.Compiler.Ast.Local _local;
 		
 		IType _type;
 		
 		System.Reflection.Emit.LocalBuilder _builder;
 		
-		public Local(Boo.Lang.Ast.Local local, IType type)
+		public LocalVariable(Boo.Lang.Compiler.Ast.Local local, IType type)
 		{			
 			_local = local;
 			_type = type;
@@ -74,7 +74,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public Boo.Lang.Ast.Local Local
+		public Boo.Lang.Compiler.Ast.Local Local
 		{
 			get
 			{

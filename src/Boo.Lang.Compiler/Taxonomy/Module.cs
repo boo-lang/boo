@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 	{
 		TagService _tagService;
 		
-		Boo.Lang.Ast.Module _module;
+		Boo.Lang.Compiler.Ast.Module _module;
 		
 		INamespace _moduleClassNamespace = NullNamespace.Default;
 		
@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		string _namespace;
 		
-		public ModuleInfo(TagService tagManager, Boo.Lang.Ast.Module module)
+		public Module(TagService tagManager, Boo.Lang.Compiler.Ast.Module module)
 		{
 			_tagService = tagManager;
 			_module = module;			

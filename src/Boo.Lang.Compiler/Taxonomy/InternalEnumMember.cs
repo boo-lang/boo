@@ -30,9 +30,8 @@ namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Services;
 	
-	public class InternalEnumMember : AbstractInternalInfo, IFieldInfo
+	public class InternalEnumMember : IInternalElement, IField
 	{
 		TagService _tagService;
 		
@@ -116,7 +115,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		override public Node Node
+		public Node Node
 		{
 			get
 			{

@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			types.Add(type);			
 		}
 		
-		public void AddModule(ModuleInfo module)
+		public void AddModule(Boo.Lang.Compiler.Ast.Module module)
 		{
 			_moduleNamespaces.Add(module);
 		}

@@ -29,7 +29,6 @@
 namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
-	using Boo.Lang.Compiler.Services;
 	using Boo.Lang.Compiler.Ast;
 	
 	public class InternalField : IInternalElement, IField

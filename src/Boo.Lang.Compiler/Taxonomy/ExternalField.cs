@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {	
-	public class ExternalField : IFieldInfo
+	public class ExternalField : IField
 	{
 		TagService _tagService;
 		

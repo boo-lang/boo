@@ -31,7 +31,6 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System;
 	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Services;
 	using System.Reflection;
 
 	public class EnumType : AbstractInternalType
@@ -149,7 +148,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			int current = 0;
 			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				IType tag = _tagService.GetBoundType(baseType);
+				IType tag = _tagService.GetType(baseType);
 				int depth = tag.GetTypeDepth();
 				if (depth > current)
 				{

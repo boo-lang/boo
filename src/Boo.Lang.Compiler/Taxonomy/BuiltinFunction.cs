@@ -37,9 +37,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 	{
 		BuiltinFunctionType _function;
 		
-		public BuiltinFunction(SpecialFunction f)
+		public BuiltinFunction(BuiltinFunctionType type)
 		{
-			_function = f;
+			_function = type;
 		}
 		
 		public string Name
