@@ -111,6 +111,7 @@ BCE0108=Campos de estruturas não podem ter inicializadores.
 ;Compiler warnings
 BCW0001=AVISO: O tipo '{0}' não possui uma implementação para '{1}' e será marcado como abstrato.
 BCW0002=AVISO: Modificadores de sentença não afetam rótulos.
+BCW0003=AVISO: Variável local não utilizada '{0}'.
 
 ; BooC Command Line Errors
 BCE0500=Arquivo '{0}' listado mais de uma vez.

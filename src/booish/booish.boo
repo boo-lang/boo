@@ -531,8 +531,8 @@ class InteractiveInterpreter:
 			return true if InterpreterEntity.IsInterpreterEntity(node)
 			return super(node) 
 	
-		override def DeclareLocal(name as string, type as IType, privateScope as bool):			
-			return super(name, type, privateScope) if privateScope or not InEntryPoint
+		override def DeclareLocal(sourceNode as Node, name as string, type as IType, privateScope as bool):			
+			return super(sourceNode, name, type, privateScope) if privateScope or not InEntryPoint
 			
 			external = type as ExternalType
 			_interpreter.Declare(name, external.ActualType) if external

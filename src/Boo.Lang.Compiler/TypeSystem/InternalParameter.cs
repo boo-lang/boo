@@ -29,40 +29,7 @@
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
-{
-	public abstract class AbstractLocalEntity
-	{
-		protected bool _shared = false;
-		
-		protected bool _used = false;
-		
-		public bool IsUsed
-		{
-			get
-			{
-				return _used;
-			}
-			
-			set
-			{
-				_used = value;
-			}
-		}
-		
-		public bool IsShared
-		{
-			get
-			{
-				return _shared;
-			}
-			
-			set
-			{
-				_shared = value;
-			}
-		}
-	}
-	
+{	
 	public class InternalParameter : AbstractLocalEntity, IParameter, ILocalEntity
 	{
 		ParameterDeclaration _parameter;

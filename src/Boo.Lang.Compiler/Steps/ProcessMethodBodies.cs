@@ -1792,7 +1792,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			CheckDeclarationName(node.Declaration);
 			
-			IEntity localInfo = DeclareLocal(node.Declaration.Name, type);
+			IEntity localInfo = DeclareLocal(node, node.Declaration.Name, type);
 			if (null != node.Initializer)
 			{
 				CheckTypeCompatibility(node.Initializer, type, GetExpressionType(node.Initializer));
@@ -2395,7 +2395,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			node.Declaration.Entity = DeclareLocal(node.Declaration.Name, GetType(node.Declaration.Type), true);
+			node.Declaration.Entity = DeclareLocal(node.Declaration, node.Declaration.Name, GetType(node.Declaration.Type), true);
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
 			EnterExceptionHandler();
 			try
@@ -2506,7 +2506,7 @@ namespace Boo.Lang.Compiler.Steps
 					Visit(node.Right);
 					IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
 					CheckIsResolvedType(expressionType, node.Right);
-					IEntity local = DeclareLocal(reference.Name, expressionType);
+					IEntity local = DeclareLocal(reference, reference.Name, expressionType);
 					reference.Entity = local;
 					BindExpressionType(node.Left, expressionType);
 					BindExpressionType(node, expressionType);
@@ -4342,14 +4342,15 @@ namespace Boo.Lang.Compiler.Steps
 			return CodeBuilder.DeclareTempLocal(_currentMethod.Method, localType);
 		}
 		
-		IEntity DeclareLocal(string name, IType localType)
+		IEntity DeclareLocal(Node sourceNode, string name, IType localType)
 		{
-			return DeclareLocal(name, localType, false);
+			return DeclareLocal(sourceNode, name, localType, false);
 		}
 		
-		virtual protected IEntity DeclareLocal(string name, IType localType, bool privateScope)
+		virtual protected IEntity DeclareLocal(Node sourceNode, string name, IType localType, bool privateScope)
 		{			
 			Local local = new Local(name, privateScope);
+			local.LexicalInfo = sourceNode.LexicalInfo;
 			InternalLocal entity = new InternalLocal(local, localType);
 			local.Entity = entity;			
 			_currentMethod.Method.Locals.Add(local);
@@ -4472,7 +4473,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (CheckIdentifierName(d, d.Name))
 			{					
-				d.Entity = DeclareLocal(d.Name, GetType(d.Type), privateScope);
+				d.Entity = DeclareLocal(d, d.Name, GetType(d.Type), privateScope);
 			}
 		}
 		

@@ -26,31 +26,40 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler
+using Boo.Lang.Compiler.Ast;
+
+namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using System.Text;
-	using Boo.Lang.Compiler.Ast;
-	
-	public class CompilerWarningFactory
+	public abstract class AbstractLocalEntity
 	{
-		private CompilerWarningFactory()
+		protected bool _shared = false;
+		
+		protected bool _used = false;
+		
+		public bool IsUsed
 		{
+			get
+			{
+				return _used;
+			}
+			
+			set
+			{
+				_used = value;
+			}
 		}
 		
-		public static CompilerWarning AbstractMemberNotImplemented(Node node, string typeName, string memberName)
+		public bool IsShared
 		{
-			return new CompilerWarning("BCW0001", node.LexicalInfo, typeName, memberName);
-		}
-		
-		public static CompilerWarning ModifiersInLabelsHaveNoEffect(Node node)
-		{
-			return new CompilerWarning("BCW0002", node.LexicalInfo);
-		}
-		
-		public static CompilerWarning UnusedLocalVariable(Node node, string name)
-		{
-			return new CompilerWarning("BCW0003", node.LexicalInfo, name);
+			get
+			{
+				return _shared;
+			}
+			
+			set
+			{
+				_shared = value;
+			}
 		}
 	}
 }

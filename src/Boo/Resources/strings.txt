@@ -111,6 +111,7 @@ BCE0108=Value type fields cannot have initializers.
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
 BCW0002=WARNING: Statement modifiers have no effect in labels.
+BCW0003=WARNING: Unused local variable '{0}'.
 
 
 ; BooC Command Line Errors

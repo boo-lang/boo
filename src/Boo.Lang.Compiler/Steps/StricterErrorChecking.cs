@@ -235,6 +235,20 @@ namespace Boo.Lang.Compiler.Steps
 								superAccess));
 				}
 			}
+			
+			CheckUnusedLocals(node);
+		}
+		
+		void CheckUnusedLocals(Method node)
+		{
+			foreach (Local local in node.Locals)
+			{
+				InternalLocal entity = (InternalLocal)local.Entity;
+				if (!entity.IsPrivateScope && !entity.IsUsed)
+				{
+					Warnings.Add(CompilerWarningFactory.UnusedLocalVariable(local, local.Name));
+				}
+			}
 		}
 		
 		override public void LeaveConstructor(Constructor node)
