@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 		
-		public abstract ElementType ElementType
+		public abstract EntityType EntityType
 		{
 			get;
 		}
@@ -112,7 +112,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IElement GetDefaultMember()
+		public IEntity GetDefaultMember()
 		{
 			return null;
 		}
@@ -142,9 +142,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new IType[0];
 		}
 		
-		public IElement[] GetMembers()
+		public IEntity[] GetMembers()
 		{
-			return new IElement[0];
+			return new IEntity[0];
 		}
 		
 		public INamespace ParentNamespace
@@ -155,7 +155,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			return false;
 		}
@@ -182,11 +182,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		override public ElementType ElementType
+		override public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Null;
+				return EntityType.Null;
 			}
 		}
 	}
@@ -207,11 +207,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		override public ElementType ElementType
+		override public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Unknown;
+				return EntityType.Unknown;
 			}
 		}
 	}
@@ -232,11 +232,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		override public ElementType ElementType
+		override public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Error;
+				return EntityType.Error;
 			}
 		}
 	}

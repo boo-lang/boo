@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ArrayType : IArrayType
 	{	
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		IType _elementType;
 		
@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ArrayType(TypeSystemServices tagManager, IType elementType)
 		{
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_array = tagManager.ArrayType;
 			_elementType = elementType;
 		}
@@ -53,11 +53,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get			
 			{
-				return ElementType.Array;
+				return EntityType.Array;
 			}
 		}
 		
@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IElement GetDefaultMember()
+		public IEntity GetDefaultMember()
 		{
 			return null;
 		}
@@ -167,12 +167,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			if (other.IsArray)
 			{
-				IType otherElementType = ((IArrayType)other).GetElementType();
-				if (_elementType.IsValueType || otherElementType.IsValueType)
+				IType otherEntityType = ((IArrayType)other).GetElementType();
+				if (_elementType.IsValueType || otherEntityType.IsValueType)
 				{
-					return _elementType == otherElementType;
+					return _elementType == otherEntityType;
 				}
-				return _elementType.IsAssignableFrom(otherElementType);
+				return _elementType.IsAssignableFrom(otherEntityType);
 			}
 			return false;
 		}
@@ -187,7 +187,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public IElement[] GetMembers()
+		public IEntity[] GetMembers()
 		{
 			return null;
 		}
@@ -200,7 +200,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			return _array.Resolve(targetList, name, flags);
 		}

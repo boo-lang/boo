@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 										TypeMemberModifiers.Transient;
 				node.Members.Add(moduleClass);
 				
-				((ModuleTag)node.Tag).InitializeModuleClass(moduleClass);				
+				((ModuleEntity)node.Entity).InitializeModuleClass(moduleClass);				
 			}
 		}
 		

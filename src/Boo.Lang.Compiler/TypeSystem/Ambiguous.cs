@@ -31,13 +31,13 @@ using System.Collections;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public delegate bool InfoFilter(IElement tag);
+	public delegate bool InfoFilter(IEntity tag);
 	
-	public class Ambiguous : IElement
+	public class Ambiguous : IEntity
 	{
-		IElement[] _tags;
+		IEntity[] _entitys;
 		
-		public Ambiguous(IElement[] tags)
+		public Ambiguous(IEntity[] tags)
 		{
 			if (null == tags)
 			{
@@ -47,14 +47,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				throw new ArgumentException("tags");
 			}
-			_tags = tags;
+			_entitys = tags;
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _tags[0].Name;
+				return _entitys[0].Name;
 			}
 		}
 		
@@ -62,30 +62,30 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tags[0].FullName;
+				return _entitys[0].FullName;
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Ambiguous;
+				return EntityType.Ambiguous;
 			}
 		}
 		
-		public IElement[] Elements
+		public IEntity[] Entitys
 		{
 			get
 			{
-				return _tags;
+				return _entitys;
 			}
 		}
 		
 		public Boo.Lang.List Filter(InfoFilter condition)
 		{
 			Boo.Lang.List found = new Boo.Lang.List();
-			foreach (IElement tag in _tags)
+			foreach (IEntity tag in _entitys)
 			{
 				if (condition(tag))
 				{

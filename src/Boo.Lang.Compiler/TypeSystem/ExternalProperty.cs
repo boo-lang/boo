@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class ExternalProperty : IProperty
 	{
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		System.Reflection.PropertyInfo _property;
 		
@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalProperty(TypeSystemServices tagManager, System.Reflection.PropertyInfo property)
 		{
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_property = property;
 		}
 		
@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_property.DeclaringType);
+				return _typeSystemServices.Map(_property.DeclaringType);
 			}
 		}
 		
@@ -82,11 +82,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Property;
+				return EntityType.Property;
 			}
 		}
 		
@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_property.PropertyType);
+				return _typeSystemServices.Map(_property.PropertyType);
 			}
 		}
 		
@@ -110,7 +110,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _parameters)
 			{
-				_parameters = _tagService.Map(_property.GetIndexParameters());
+				_parameters = _typeSystemServices.Map(_property.GetIndexParameters());
 			}
 			return _parameters;
 		}
@@ -120,7 +120,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
 			if (null != getter)
 			{
-				return (IMethod)_tagService.Map(getter);
+				return (IMethod)_typeSystemServices.Map(getter);
 			}
 			return null;
 		}
@@ -130,7 +130,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
 			if (null != setter)
 			{
-				return (IMethod)_tagService.Map(setter);
+				return (IMethod)_typeSystemServices.Map(setter);
 			}
 			return null;
 		}

@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ExternalEvent : IEvent
 	{
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		System.Reflection.EventInfo _event;
 		
 		public ExternalEvent(TypeSystemServices tagManager, System.Reflection.EventInfo event_)
 		{
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_event = event_;
 		}
 		
@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_event.DeclaringType);
+				return _typeSystemServices.Map(_event.DeclaringType);
 			}
 		}
 		
@@ -82,11 +82,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Event;
+				return EntityType.Event;
 			}
 		}
 		
@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_event.EventHandlerType);
+				return _typeSystemServices.Map(_event.EventHandlerType);
 			}
 		}
 		

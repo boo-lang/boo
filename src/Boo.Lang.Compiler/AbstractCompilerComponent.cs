@@ -90,13 +90,13 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public IElement GetTag(Node node)
+		public IEntity GetEntity(Node node)
 		{
-			if (null == node.Tag)
+			if (null == node.Entity)
 			{
-				throw CompilerErrorFactory.NodeNotTagged(node);
+				throw CompilerErrorFactory.NodeNotEntityged(node);
 			}
-			return node.Tag;
+			return node.Entity;
 		}		
 		
 		public virtual void Initialize(CompilerContext context)

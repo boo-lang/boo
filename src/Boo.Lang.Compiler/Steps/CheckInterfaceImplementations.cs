@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (tag.Type == GetType(member))
 				{
-					if (CheckPropertyAccessors(tag, (IProperty)GetTag(member)))
+					if (CheckPropertyAccessors(tag, (IProperty)GetEntity(member)))
 					{
 						Property p = (Property)member;
 						if (null != p.Getter)
@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != member && NodeType.Method == member.NodeType)
 			{							
 				Method method = (Method)member;
-				if (TypeSystemServices.CheckOverrideSignature((IMethod)GetTag(method), tag))
+				if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), tag))
 				{
 					// TODO: check return type here
 					if (!method.IsOverride && !method.IsVirtual)
@@ -122,15 +122,15 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (IMember tag in interfaceInfo.GetMembers())
 			{
-				switch (tag.ElementType)
+				switch (tag.EntityType)
 				{
-					case ElementType.Method:
+					case EntityType.Method:
 					{
 						ResolveClassInterfaceMethod(node, interfaceReference, (IMethod)tag);
 						break;
 					}
 					
-					case ElementType.Property:
+					case EntityType.Property:
 					{
 						ResolveClassInterfaceProperty(node, interfaceReference, (IProperty)tag);
 						break;

@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// true if at least one element was added to the targetList, false
 		/// otherwise.
 		/// </returns>
-		bool Resolve(Boo.Lang.List targetList, string name, ElementType filter);
+		bool Resolve(Boo.Lang.List targetList, string name, EntityType filter);
 	}
 	
 	public class NullNamespace : INamespace
@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			return false;
 		}

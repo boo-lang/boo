@@ -32,17 +32,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class CompileUnitTag : IElement
+	public class CompileUnitEntity : IEntity
 	{		
-		public CompileUnitTag()
+		public CompileUnitEntity()
 		{
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.CompileUnit;
+				return EntityType.CompileUnit;
 			}
 		}
 		

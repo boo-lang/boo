@@ -351,7 +351,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il = methodBuilder.GetILGenerator();
 			_returnLabel = _il.DefineLabel();
 			
-			_returnType = ((IMethod)GetTag(method)).ReturnType;
+			_returnType = ((IMethod)GetEntity(method)).ReturnType;
 			if (TypeSystemServices.VoidType != _returnType)
 			{
 				_returnValueLocal = _il.DeclareLocal(GetSystemType(_returnType));
@@ -375,7 +375,7 @@ namespace Boo.Lang.Compiler.Steps
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
 			_il = builder.GetILGenerator();
 
-			InternalConstructor tag = (InternalConstructor)GetTag(constructor);
+			InternalConstructor tag = (InternalConstructor)GetEntity(constructor);
 			Accept(constructor.Locals);
 			Accept(constructor.Body);
 			_il.Emit(OpCodes.Ret);
@@ -864,7 +864,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Stloc, temp);				
 			}
 			
-			_il.Emit(GetStoreElementOpCode(elementType));
+			_il.Emit(GetStoreEntityOpCode(elementType));
 			
 			if (leaveValueOnStack)
 			{
@@ -888,16 +888,16 @@ namespace Boo.Lang.Compiler.Steps
 			// when the parent is not a statement we need to leave
 			// the value on the stack
 			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);				
-			IElement tag = TypeSystemServices.GetTag(node.Left);
-			switch (tag.ElementType)
+			IEntity tag = TypeSystemServices.GetEntity(node.Left);
+			switch (tag.EntityType)
 			{
-				case ElementType.Local:
+				case EntityType.Local:
 				{
 					SetLocal(node, (LocalVariable)tag, leaveValueOnStack);
 					break;
 				}
 				
-				case ElementType.Parameter:
+				case EntityType.Parameter:
 				{
 					InternalParameter param = (InternalParameter)tag;
 					
@@ -913,14 +913,14 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case ElementType.Field:
+				case EntityType.Field:
 				{
 					IField field = (IField)tag;
 					SetField(node, field, node.Left, node.Right, leaveValueOnStack);
 					break;
 				}
 				
-				case ElementType.Property:
+				case EntityType.Property:
 				{
 					SetProperty(node, (IProperty)tag, node.Left, node.Right, leaveValueOnStack);
 					break;
@@ -1273,7 +1273,7 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.InPlaceAdd:
 				{
 					Accept(((MemberReferenceExpression)node.Left).Target); PopType();
-					SubscribeEvent(node, GetTag(node.Left), node.Right);
+					SubscribeEvent(node, GetEntity(node.Left), node.Right);
 					PushVoid();
 					break;
 				}
@@ -1281,7 +1281,7 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.InPlaceSubtract:
 				{
 					Accept(((MemberReferenceExpression)node.Left).Target); PopType();
-					UnsubscribeEvent(node, GetTag(node.Left), node.Right);
+					UnsubscribeEvent(node, GetEntity(node.Left), node.Right);
 					PushVoid();
 					break;
 				}
@@ -1371,10 +1371,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{				
-			IElement tag = TypeSystemServices.GetTag(node.Target);
-			switch (tag.ElementType)
+			IEntity tag = TypeSystemServices.GetEntity(node.Target);
+			switch (tag.EntityType)
 			{
-				case ElementType.Method:
+				case EntityType.Method:
 				{	
 					IMethod methodInfo = (IMethod)tag;
 					
@@ -1390,7 +1390,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case ElementType.Constructor:
+				case EntityType.Constructor:
 				{
 					IConstructor constructorInfo = (IConstructor)tag;
 					ConstructorInfo ci = GetConstructorInfo(constructorInfo);
@@ -1412,7 +1412,7 @@ namespace Boo.Lang.Compiler.Steps
 							// object reference
 							_il.Emit(OpCodes.Dup);
 							
-							IElement memberInfo = TypeSystemServices.GetTag(pair.First);						
+							IEntity memberInfo = TypeSystemServices.GetEntity(pair.First);						
 							// field/property reference						
 							InitializeMember(node, memberInfo, pair.Second);
 						}
@@ -1572,7 +1572,7 @@ namespace Boo.Lang.Compiler.Steps
 			IArrayType type = (IArrayType)PopType();
 
 			EmitNormalizedArrayIndex(node.Begin);
-			_il.Emit(GetLoadElementOpCode(type.GetElementType()));			
+			_il.Emit(GetLoadEntityOpCode(type.GetElementType()));			
 			
 			PushType(type.GetElementType());
 		}
@@ -1726,22 +1726,22 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{			
-			IElement tag = TypeSystemServices.GetTag(node);
-			switch (tag.ElementType)
+			IEntity tag = TypeSystemServices.GetEntity(node);
+			switch (tag.EntityType)
 			{				
-				case ElementType.Method:
+				case EntityType.Method:
 				{
 					node.Target.Accept(this);
 					break;
 				}
 				
-				case ElementType.Field:
+				case EntityType.Field:
 				{
 					EmitLoadField(node.Target, (IField)tag);
 					break;
 				}
 				
-				case ElementType.TypeReference:
+				case EntityType.TypeReference:
 				{
 					EmitGetTypeFromHandle(GetSystemType(node));
 					break;
@@ -1757,16 +1757,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void LoadAddress(Expression expression)
 		{
-			IElement tag = GetTag(expression);
-			switch (tag.ElementType)
+			IEntity tag = GetEntity(expression);
+			switch (tag.EntityType)
 			{
-				case ElementType.Local:
+				case EntityType.Local:
 				{				
 					_il.Emit(OpCodes.Ldloca, ((LocalVariable)tag).LocalBuilder);
 					break;
 				}
 				
-				case ElementType.Parameter:
+				case EntityType.Parameter:
 				{
 					_il.Emit(OpCodes.Ldarga, ((InternalParameter)tag).Index);
 					break;
@@ -1798,10 +1798,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{	
-			IElement info = TypeSystemServices.GetTag(node);
-			switch (info.ElementType)
+			IEntity info = TypeSystemServices.GetEntity(node);
+			switch (info.EntityType)
 			{
-				case ElementType.Local:
+				case EntityType.Local:
 				{
 					LocalVariable local = (LocalVariable)info;
 					LocalBuilder builder = local.LocalBuilder;
@@ -1810,7 +1810,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case ElementType.Parameter:
+				case EntityType.Parameter:
 				{
 					TypeSystem.InternalParameter param = (TypeSystem.InternalParameter)info;
 					int index = param.Index;
@@ -1857,7 +1857,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case ElementType.TypeReference:
+				case EntityType.TypeReference:
 				{
 					EmitGetTypeFromHandle(GetSystemType(node));
 					break;
@@ -1969,7 +1969,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitCreateDelegate(Type delegateType, Expression value)
 		{
-			MethodBase mi = GetMethodInfo((IMethod)GetTag(value));
+			MethodBase mi = GetMethodInfo((IMethod)GetEntity(value));
 			if (mi.IsStatic)
 			{
 				_il.Emit(OpCodes.Ldnull);
@@ -1982,38 +1982,38 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Newobj, GetDelegateConstructor(delegateType));
 		}
 		
-		void SubscribeEvent(Node sourceNode, IElement eventInfo, Expression value)
+		void SubscribeEvent(Node sourceNode, IEntity eventInfo, Expression value)
 		{
 			EventInfo ei = ((ExternalEvent)eventInfo).EventInfo;
 			EmitCreateDelegate(ei.EventHandlerType, value);								
 			_il.EmitCall(OpCodes.Callvirt, ei.GetAddMethod(true), null);
 		}
 		
-		void UnsubscribeEvent(Node sourceNode, IElement eventInfo, Expression value)
+		void UnsubscribeEvent(Node sourceNode, IEntity eventInfo, Expression value)
 		{
 			EventInfo ei = ((ExternalEvent)eventInfo).EventInfo;
 			EmitCreateDelegate(ei.EventHandlerType, value);								
 			_il.EmitCall(OpCodes.Callvirt, ei.GetRemoveMethod(true), null);
 		}
 		
-		void InitializeMember(Node sourceNode, IElement tag, Expression value)
+		void InitializeMember(Node sourceNode, IEntity tag, Expression value)
 		{
-			switch (tag.ElementType)
+			switch (tag.EntityType)
 			{
-				case ElementType.Property:
+				case EntityType.Property:
 				{
 					IProperty property = (IProperty)tag;
 					SetProperty(sourceNode, property, null, value, false);					
 					break;
 				}
 				
-				case ElementType.Event:
+				case EntityType.Event:
 				{
 					SubscribeEvent(sourceNode, tag, value);
 					break;
 				}
 					
-				case ElementType.Field:
+				case EntityType.Field:
 				{
 					SetField(sourceNode, (IField)tag, null, value, false);
 					break;					
@@ -2135,7 +2135,7 @@ namespace Boo.Lang.Compiler.Steps
 			Label continueLabel = _il.DefineLabel();
 			Label breakLabel = _il.DefineLabel();
 			
-			OpCode ldelem = GetLoadElementOpCode(iteratorTypeInfo.GetElementType());
+			OpCode ldelem = GetLoadEntityOpCode(iteratorTypeInfo.GetElementType());
 			
 			Type iteratorType = GetSystemType(iteratorTypeInfo);
 			LocalBuilder localIterator = _il.DeclareLocal(iteratorType);
@@ -2198,7 +2198,7 @@ namespace Boo.Lang.Compiler.Steps
 					_il.Emit(OpCodes.Ldc_I4, decls.Count);					
 					_il.EmitCall(OpCodes.Call, RuntimeServices_CheckArrayUnpack, null);
 					
-					OpCode ldelem = GetLoadElementOpCode(elementTypeInfo);
+					OpCode ldelem = GetLoadEntityOpCode(elementTypeInfo);
 					for (int i=0; i<decls.Count; ++i)
 					{
 						// local = array[i]
@@ -2265,10 +2265,10 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Ldc_I4, items.Count);
 			_il.Emit(OpCodes.Newarr, GetSystemType(type));
 			
-			OpCode opcode = GetStoreElementOpCode(type);
+			OpCode opcode = GetStoreEntityOpCode(type);
 			for (int i=0; i<items.Count; ++i)
 			{			
-				StoreElement(opcode, i, items[i], type);				
+				StoreEntity(opcode, i, items[i], type);				
 			}
 		}
 		
@@ -2306,7 +2306,7 @@ namespace Boo.Lang.Compiler.Steps
 			throw new ArgumentException("op");
 		}
 		
-		OpCode GetLoadElementOpCode(IType tag)
+		OpCode GetLoadEntityOpCode(IType tag)
 		{
 			if (tag.IsValueType)
 			{
@@ -2326,12 +2326,12 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldelem_R8;
 				}
-				NotImplemented("LoadElementOpCode(" + tag + ")");
+				NotImplemented("LoadEntityOpCode(" + tag + ")");
 			}
 			return OpCodes.Ldelem_Ref;
 		}		
 		
-		OpCode GetStoreElementOpCode(IType tag)
+		OpCode GetStoreEntityOpCode(IType tag)
 		{
 			if (tag.IsValueType)
 			{
@@ -2351,7 +2351,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Stelem_R8;
 				}
-				NotImplemented("GetStoreElementOpCode(" + tag + ")");				
+				NotImplemented("GetStoreEntityOpCode(" + tag + ")");				
 			}
 			return OpCodes.Stelem_Ref;
 		}
@@ -2427,7 +2427,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Stloc, local.LocalBuilder);
 		}
 		
-		void StoreElement(OpCode opcode, int index, Node value, IType elementType)
+		void StoreEntity(OpCode opcode, int index, Node value, IType elementType)
 		{
 			_il.Emit(OpCodes.Dup);	// array reference
 			_il.Emit(OpCodes.Ldc_I4, index); // element index
@@ -2447,7 +2447,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Type type = _asmBuilder.GetType(method.DeclaringType.FullName, true);
 					MethodInfo createdMethod = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic);
-					MethodInfo methodBuilder = GetMethodInfo((IMethod)GetTag(method));
+					MethodInfo methodBuilder = GetMethodInfo((IMethod)GetEntity(method));
 					
 					// the mono implementation expects the first argument to 
 					// SetEntryPoint to be a MethodBuilder, otherwise it generates
@@ -2526,7 +2526,7 @@ namespace Boo.Lang.Compiler.Steps
 			return GetLocalVariable(local).LocalBuilder;
 		}
 		
-		PropertyInfo GetPropertyInfo(IElement tag)
+		PropertyInfo GetPropertyInfo(IEntity tag)
 		{
 			ExternalProperty external = tag as ExternalProperty;
 			if (null != external)
@@ -2591,8 +2591,8 @@ namespace Boo.Lang.Compiler.Steps
 					if (tag.IsArray)
 					{				
 						IArrayType arrayType = (IArrayType)tag;
-						IType elementType = GetSimpleElementType(arrayType);						
-						if (elementType is IInternalElement)
+						IType elementType = GetSimpleEntityType(arrayType);						
+						if (elementType is IInternalEntity)
 						{
 							string typeName = GetArrayTypeName(arrayType);
 							type = _moduleBuilder.GetType(typeName, true);
@@ -2624,16 +2624,16 @@ namespace Boo.Lang.Compiler.Steps
 			return type;
 		}
 		
-		IType GetSimpleElementType(IArrayType tag)
+		IType GetSimpleEntityType(IArrayType tag)
 		{
-			return GetSimpleElementType(tag.GetElementType());
+			return GetSimpleEntityType(tag.GetElementType());
 		}
 		
-		IType GetSimpleElementType(IType tag)
+		IType GetSimpleEntityType(IType tag)
 		{
 			if (tag.IsArray)
 			{
-				return GetSimpleElementType(((IArrayType)tag).GetElementType());
+				return GetSimpleEntityType(((IArrayType)tag).GetElementType());
 			}
 			return tag;
 		}
@@ -2907,7 +2907,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		CustomAttributeBuilder GetCustomAttributeBuilder(Boo.Lang.Compiler.Ast.Attribute node)
 		{
-			IConstructor constructor = (IConstructor)GetTag(node);
+			IConstructor constructor = (IConstructor)GetEntity(node);
 			ConstructorInfo constructorInfo = GetConstructorInfo(constructor);
 			object[] constructorArgs = GetValues(node.Arguments);
 			
@@ -2941,8 +2941,8 @@ namespace Boo.Lang.Compiler.Steps
 			ArrayList fieldValues = new ArrayList();
 			foreach (ExpressionPair pair in values)
 			{
-				IElement tag = GetTag(pair.First);
-				if (ElementType.Property == tag.ElementType)
+				IEntity tag = GetEntity(pair.First);
+				if (EntityType.Property == tag.EntityType)
 				{
 					namedProperties.Add(GetPropertyInfo(tag));
 					propertyValues.Add(GetValue(pair.Second));
@@ -2991,12 +2991,12 @@ namespace Boo.Lang.Compiler.Steps
 				
 				default:
 				{
-					IElement tag = GetTag(expression);
-					if (ElementType.TypeReference == tag.ElementType)
+					IEntity tag = GetEntity(expression);
+					if (EntityType.TypeReference == tag.EntityType)
 					{
 						return GetSystemType(expression);
 					}
-					else if (ElementType.Field == tag.ElementType)
+					else if (EntityType.Field == tag.EntityType)
 					{
 						IField field = (IField)tag;
 						if (field.IsLiteral)

@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Len
 	}
 	
-	public class BuiltinFunction : IElement
+	public class BuiltinFunction : IEntity
 	{
 		BuiltinFunctionType _function;
 		
@@ -58,11 +58,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.BuiltinFunction;
+				return EntityType.BuiltinFunction;
 			}
 		}
 		

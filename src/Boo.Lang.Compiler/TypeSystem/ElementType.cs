@@ -3,7 +3,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	
 	[Flags]
-	public enum ElementType
+	public enum EntityType
 	{
 		CompileUnit = 0x00,
 		Module = 0x01,

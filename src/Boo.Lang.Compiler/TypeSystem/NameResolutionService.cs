@@ -108,26 +108,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_current = _current.ParentNamespace;
 		}
 		
-		public IElement Resolve(string name)
+		public IEntity Resolve(string name)
 		{
-			return Resolve(name, ElementType.Any);
+			return Resolve(name, EntityType.Any);
 		}
 		
-		public IElement Resolve(string name, ElementType flags)
+		public IEntity Resolve(string name, EntityType flags)
 		{			
 			_buffer.Clear();
 			Resolve(_buffer, name, flags);
-			return GetElementFromBuffer();
+			return GetEntityFromBuffer();
 		}
 		
 		public bool Resolve(Boo.Lang.List targetList, string name)
 		{
-			return Resolve(targetList, name, ElementType.Any);
+			return Resolve(targetList, name, EntityType.Any);
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{			
-			IElement tag = _context.TypeSystemServices.ResolvePrimitive(name);
+			IEntity tag = _context.TypeSystemServices.ResolvePrimitive(name);
 			if (null != tag)
 			{
 				targetList.Add(tag);
@@ -148,19 +148,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		public IElement ResolveQualifiedName(string name)
+		public IEntity ResolveQualifiedName(string name)
 		{			
 			_buffer.Clear();
 			ResolveQualifiedName(_buffer, name);
-			return GetElementFromBuffer();
+			return GetEntityFromBuffer();
 		}
 		
 		public bool ResolveQualifiedName(Boo.Lang.List targetList, string name)
 		{
-			return ResolveQualifiedName(targetList, name, ElementType.Any);
+			return ResolveQualifiedName(targetList, name, EntityType.Any);
 		}
 		
-		public bool ResolveQualifiedName(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool ResolveQualifiedName(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			if (!IsQualifiedName(name))
 			{
@@ -180,7 +180,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					for (int i=1; i<last; ++i)				
 					{	
 						_innerBuffer.Clear();
-						if (!ns.Resolve(_innerBuffer, parts[i], ElementType.Any) ||
+						if (!ns.Resolve(_innerBuffer, parts[i], EntityType.Any) ||
 							1 != _innerBuffer.Count)
 						{
 							return false;
@@ -211,7 +211,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public void ResolveArrayTypeReference(ArrayTypeReference node)
 		{
-			if (node.Tag != null)
+			if (node.Entity != null)
 			{
 				return;
 			}
@@ -221,61 +221,61 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IType elementType = TypeSystemServices.GetType(node.ElementType);
 			if (TypeSystemServices.IsError(elementType))
 			{
-				node.Tag = TypeSystemServices.ErrorTag;
+				node.Entity = TypeSystemServices.ErrorEntity;
 			}
 			else
 			{
-				node.Tag = _context.TypeSystemServices.GetArrayType(elementType);
+				node.Entity = _context.TypeSystemServices.GetArrayType(elementType);
 			}
 		}
 		
 		public void ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
-			if (null != node.Tag)
+			if (null != node.Entity)
 			{
 				return;
 			}
 			
-			IElement info = null;
+			IEntity info = null;
 			if (IsQualifiedName(node.Name))
 			{
 				info = ResolveQualifiedName(node.Name);
 			}
 			else
 			{
-				info = Resolve(node.Name, ElementType.TypeReference);
+				info = Resolve(node.Name, EntityType.TypeReference);
 			}
 			
-			if (null == info || ElementType.TypeReference != info.ElementType)
+			if (null == info || EntityType.TypeReference != info.EntityType)
 			{
 				_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));
-				info = TypeSystemServices.ErrorTag;
+				info = TypeSystemServices.ErrorEntity;
 			}
 			else
 			{
 				node.Name = info.Name;
 			}
 			
-			node.Tag = info;
+			node.Entity = info;
 		}
 		
-		IElement GetElementFromBuffer()
+		IEntity GetEntityFromBuffer()
 		{
-			return GetElementFromList(_buffer);
+			return GetEntityFromList(_buffer);
 		}
 		
-		public static IElement GetElementFromList(Boo.Lang.List list)
+		public static IEntity GetEntityFromList(Boo.Lang.List list)
 		{
-			IElement element = null;
+			IEntity element = null;
 			if (list.Count > 0)
 			{
 				if (list.Count > 1)
 				{
-					element = new Ambiguous((IElement[])list.ToArray(typeof(IElement)));
+					element = new Ambiguous((IEntity[])list.ToArray(typeof(IEntity)));
 				}
 				else
 				{
-					element = (IElement)list[0];
+					element = (IEntity)list[0];
 				}
 				list.Clear();
 			}
@@ -287,7 +287,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return name.IndexOf('.') > 0;
 		}	
 		
-		public static bool IsFlagSet(ElementType flags, ElementType flag)
+		public static bool IsFlagSet(EntityType flags, EntityType flag)
 		{
 			return flag == (flags & flag);
 		}		

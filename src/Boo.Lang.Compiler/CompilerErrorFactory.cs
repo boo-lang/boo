@@ -121,7 +121,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0014", node.LexicalInfo);
 		}
 		
-		public static CompilerError NodeNotTagged(Node node)
+		public static CompilerError NodeNotEntityged(Node node)
 		{
 			return new CompilerError("BCE0015", node.LexicalInfo, node);
 		}

@@ -32,7 +32,7 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public interface IElement
+	public interface IEntity
 	{	
 		string Name
 		{
@@ -44,13 +44,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 		
-		ElementType ElementType
+		EntityType EntityType
 		{
 			get;
 		}
 	}
 	
-	public interface IInternalElement : IElement
+	public interface IInternalEntity : IEntity
 	{
 		Boo.Lang.Compiler.Ast.Node Node
 		{
@@ -58,7 +58,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
-	public interface ITypedElement : IElement
+	public interface ITypedEntity : IEntity
 	{
 		IType Type
 		{
@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
-	public interface IMember : ITypedElement
+	public interface IMember : ITypedEntity
 	{
 		IType DeclaringType
 		{
@@ -110,7 +110,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IMethod GetSetMethod();
 	}
 	
-	public interface IType : ITypedElement, INamespace
+	public interface IType : ITypedEntity, INamespace
 	{	
 		bool IsClass
 		{
@@ -149,9 +149,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 		
-		IElement GetDefaultMember();
+		IEntity GetDefaultMember();
 		
-		IElement[] GetMembers();
+		IEntity[] GetMembers();
 		
 		IConstructor[] GetConstructors();
 		
@@ -162,6 +162,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool IsAssignableFrom(IType other);
 	}
 	
+	public interface ICallableType : IType
+	{
+		IParameter[] GetParameters();		
+		
+		IType ReturnType
+		{
+			get;
+		}
+	}
+	
 	public interface IArrayType : IType
 	{
 		int GetArrayRank();
@@ -169,15 +179,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IType GetElementType();
 	}
 	
-	public interface IParameter : ITypedElement
+	public interface IParameter : ITypedEntity
 	{		
 	}
 	
 	public interface IMethod : IMember
-	{
+	{		
 		IParameter[] GetParameters();		
 		
 		IType ReturnType
+		{
+			get;
+		}
+		
+		ICallableType CallableType
 		{
 			get;
 		}

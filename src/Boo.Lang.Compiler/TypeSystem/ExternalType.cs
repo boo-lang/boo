@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 												BindingFlags.Static |
 												BindingFlags.Instance;
 		
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		Type _type;
 		
@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IType[] _interfaces;
 		
-		IElement[] _members;
+		IEntity[] _members;
 		
 		IType _elementType;
 		
@@ -58,11 +58,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				throw new ArgumentException("type");
 			}
-			_tagService = manager;
+			_typeSystemServices = manager;
 			_type = type;
 			if (_type.IsArray)
 			{
-				_elementType = _tagService.Map(type.GetElementType());
+				_elementType = _typeSystemServices.Map(type.GetElementType());
 			}
 		}
 		
@@ -82,11 +82,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Type;
+				return EntityType.Type;
 			}
 		}
 		
@@ -150,13 +150,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_type.BaseType);
+				return _typeSystemServices.Map(_type.BaseType);
 			}
 		}
 		
-		public IElement GetDefaultMember()
+		public IEntity GetDefaultMember()
 		{			
-			return _tagService.Map(_type.GetDefaultMembers());
+			return _typeSystemServices.Map(_type.GetDefaultMembers());
 		}
 		
 		public Type ActualType
@@ -185,7 +185,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ExternalType external = other as ExternalType;
 			if (null == external)
 			{
-				if (ElementType.Null == other.ElementType)
+				if (EntityType.Null == other.EntityType)
 				{
 					return !IsValueType;
 				}
@@ -203,7 +203,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_constructors = new IConstructor[ctors.Length];
 				for (int i=0; i<_constructors.Length; ++i)
 				{
-					_constructors[i] = new ExternalConstructor(_tagService, ctors[i]);
+					_constructors[i] = new ExternalConstructor(_typeSystemServices, ctors[i]);
 				}
 			}
 			return _constructors;
@@ -217,13 +217,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_interfaces = new IType[interfaces.Length];
 				for (int i=0; i<_interfaces.Length; ++i)
 				{
-					_interfaces[i] = _tagService.Map(interfaces[i]);
+					_interfaces[i] = _typeSystemServices.Map(interfaces[i]);
 				}
 			}
 			return _interfaces;
 		}
 		
-		public IElement[] GetMembers()
+		public IEntity[] GetMembers()
 		{
 			if (null == _members)
 			{
@@ -232,7 +232,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_members = new IMember[members.Length];
 				for (int i=0; i<members.Length; ++i)
 				{
-					_members[i] = _tagService.Map(members[i]);
+					_members[i] = _typeSystemServices.Map(members[i]);
 				}
 			}
 			return _members;
@@ -255,18 +255,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public virtual bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public virtual bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{					
 			bool found = false;
 			foreach (System.Reflection.MemberInfo member in _type.GetMember(name, DefaultBindingFlags))
 			{
-				targetList.AddUnique(_tagService.Map(member));
+				targetList.AddUnique(_typeSystemServices.Map(member));
 				found = true;
 			}
 			
 			if (IsInterface)
 			{
-				if (_tagService.ObjectType.Resolve(targetList, name, flags))
+				if (_typeSystemServices.ObjectType.Resolve(targetList, name, flags))
 				{
 					found = true;
 				}

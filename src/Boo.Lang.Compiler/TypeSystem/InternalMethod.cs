@@ -32,9 +32,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 
-	public class InternalMethod : IInternalElement, IMethod, INamespace
+	public class InternalMethod : IInternalEntity, IMethod, INamespace
 	{
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		Boo.Lang.Compiler.Ast.Method _method;
 		
@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		internal InternalMethod(TypeSystemServices manager, Boo.Lang.Compiler.Ast.Method method)
 		{			
-			_tagService = manager;
+			_typeSystemServices = manager;
 			_method = method;
 			if (method.NodeType != NodeType.Constructor)
 			{
@@ -60,11 +60,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (_method.DeclaringType.NodeType == NodeType.ClassDefinition)
 					{
-						_method.ReturnType = _tagService.CreateTypeReference(Unknown.Default);
+						_method.ReturnType = _typeSystemServices.CreateTypeReference(Unknown.Default);
 					}
 					else
 					{
-						_method.ReturnType = _tagService.CreateTypeReference(_tagService.VoidType);
+						_method.ReturnType = _typeSystemServices.CreateTypeReference(_typeSystemServices.VoidType);
 					}
 				}
 			}
@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (null == _declaringType)
 				{
-					_declaringType = (IType)TypeSystemServices.GetTag(_method.DeclaringType);
+					_declaringType = (IType)TypeSystemServices.GetEntity(_method.DeclaringType);
 				}
 				return _declaringType;
 			}
@@ -130,11 +130,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public virtual ElementType ElementType
+		public virtual EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Method;
+				return EntityType.Method;
+			}
+		}
+		
+		public ICallableType CallableType
+		{
+			get
+			{
+				return null;
 			}
 		}
 		
@@ -179,7 +187,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _parameters)
 			{
-				_parameters = _tagService.Map(_method.Parameters);				
+				_parameters = _typeSystemServices.Map(_method.Parameters);				
 			}
 			return _parameters;
 		}
@@ -229,24 +237,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
-			if (NameResolutionService.IsFlagSet(flags, ElementType.Local))
+			if (NameResolutionService.IsFlagSet(flags, EntityType.Local))
 			{
 				Boo.Lang.Compiler.Ast.Local local = ResolveLocal(name);
 				if (null != local)
 				{
-					targetList.Add(TypeSystemServices.GetTag(local));
+					targetList.Add(TypeSystemServices.GetEntity(local));
 					return true;
 				}
 			}
 			
-			if (NameResolutionService.IsFlagSet(flags, ElementType.Parameter))
+			if (NameResolutionService.IsFlagSet(flags, EntityType.Parameter))
 			{
 				ParameterDeclaration parameter = ResolveParameter(name);
 				if (null != parameter)
 				{
-					targetList.Add(TypeSystemServices.GetTag(parameter));
+					targetList.Add(TypeSystemServices.GetEntity(parameter));
 					return true;
 				}
 			}
@@ -281,11 +289,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 	      
-	    override public ElementType ElementType
+	    override public EntityType EntityType
 	    {
 	    	get
 	    	{
-	    		return ElementType.Constructor;
+	    		return EntityType.Constructor;
 	    	}
 	    }
 	}

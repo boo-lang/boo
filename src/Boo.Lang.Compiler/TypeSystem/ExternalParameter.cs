@@ -4,12 +4,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ExternalParameter : IParameter
 	{
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		ParameterInfo _parameter;
 		
 		public ExternalParameter(TypeSystemServices service, ParameterInfo parameter)
 		{
-			_tagService = service;
+			_typeSystemServices = service;
 			_parameter = parameter;
 		}
 		
@@ -29,11 +29,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Parameter;
+				return EntityType.Parameter;
 			}
 		}
 		
@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_parameter.ParameterType);
+				return _typeSystemServices.Map(_parameter.ParameterType);
 			}
 		}
 	}

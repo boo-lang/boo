@@ -30,9 +30,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using Boo.Lang.Compiler.Ast;
 	
-	public class InternalProperty : IInternalElement, IProperty
+	public class InternalProperty : IInternalEntity, IProperty
 	{
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		Property _property;
 		
@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public InternalProperty(TypeSystemServices tagManager, Property property)
 		{
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_property = property;
 		}
 		
@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return (IType)TypeSystemServices.GetTag(_property.DeclaringType);
+				return (IType)TypeSystemServices.GetEntity(_property.DeclaringType);
 			}
 		}
 		
@@ -84,11 +84,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Property;
+				return EntityType.Property;
 			}
 		}
 		
@@ -104,7 +104,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _parameters)
 			{
-				_parameters = _tagService.Map(_property.Parameters);				
+				_parameters = _typeSystemServices.Map(_property.Parameters);				
 			}
 			return _parameters;
 		}
@@ -113,7 +113,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null != _property.Getter)
 			{
-				return (IMethod)TypeSystemServices.GetTag(_property.Getter);
+				return (IMethod)TypeSystemServices.GetEntity(_property.Getter);
 			}
 			return null;
 		}
@@ -122,7 +122,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null != _property.Setter)
 			{
-				return (IMethod)TypeSystemServices.GetTag(_property.Setter);
+				return (IMethod)TypeSystemServices.GetEntity(_property.Setter);
 			}
 			return null;
 		}

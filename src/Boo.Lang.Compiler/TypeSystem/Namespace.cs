@@ -55,10 +55,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public virtual bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public virtual bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
-			IElement element = (IElement)_children[name];
-			if (null != element && NameResolutionService.IsFlagSet(flags, element.ElementType))
+			IEntity element = (IEntity)_children[name];
+			if (null != element && NameResolutionService.IsFlagSet(flags, element.EntityType))
 			{
 				targetList.Add(element);
 				return true;
@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_empty = (INamespace)children[""];
 		}
 		
-		override public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			if (!base.Resolve(targetList, name, flags))
 			{
@@ -86,12 +86,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
-	public class AssemblyQualifiedNamespaceTag : IElement, INamespace
+	public class AssemblyQualifiedNamespaceEntity : IEntity, INamespace
 	{
 		System.Reflection.Assembly _assembly;
-		NamespaceTag _subject;
+		NamespaceEntity _subject;
 		
-		public AssemblyQualifiedNamespaceTag(System.Reflection.Assembly assembly, NamespaceTag subject)
+		public AssemblyQualifiedNamespaceEntity(System.Reflection.Assembly assembly, NamespaceEntity subject)
 		{
 			_assembly = assembly;
 			_subject = subject;
@@ -113,11 +113,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Namespace;
+				return EntityType.Namespace;
 			}
 		}
 		
@@ -129,18 +129,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			return _subject.Resolve(targetList, name, _assembly, flags);
 		}
 	}
 	
-	public class AliasedNamespace : IElement, INamespace
+	public class AliasedNamespace : IEntity, INamespace
 	{
 		string _alias;
-		IElement _subject;
+		IEntity _subject;
 		
-		public AliasedNamespace(string alias, IElement subject)
+		public AliasedNamespace(string alias, IEntity subject)
 		{
 			_alias = alias;			
 			_subject = subject;
@@ -162,11 +162,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Namespace;
+				return EntityType.Namespace;
 			}
 		}
 		
@@ -178,9 +178,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
-			if (name == _alias && NameResolutionService.IsFlagSet(flags, _subject.ElementType))
+			if (name == _alias && NameResolutionService.IsFlagSet(flags, _subject.EntityType))
 			{
 				targetList.Add(_subject);
 				return true;
@@ -209,7 +209,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			bool found = false;
 			foreach (INamespace ns in _namespaces)
@@ -226,20 +226,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		Boo.Lang.Compiler.Ast.DeclarationCollection _declarations;
 		
 		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.DeclarationCollection declarations)
 		{
 			_parent = parent;
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_declarations = declarations;
 		}
 		
 		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Declaration declaration)
 		{
 			_parent = parent;
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_declarations = new Boo.Lang.Compiler.Ast.DeclarationCollection();
 			_declarations.Add(declaration);
 		}
@@ -252,13 +252,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			Boo.Lang.Compiler.Ast.Declaration found = _declarations[name];
 			if (null != found)
 			{
-				IElement element = TypeSystemServices.GetTag(found);
-				if (NameResolutionService.IsFlagSet(flags, element.ElementType))
+				IEntity element = TypeSystemServices.GetEntity(found);
+				if (NameResolutionService.IsFlagSet(flags, element.EntityType))
 				{
 					targetList.Add(element);
 					return true;

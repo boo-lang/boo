@@ -28,11 +28,11 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public class TypeReferenceTag : ITypedElement, INamespace
+	public class TypeReferenceEntity : ITypedEntity, INamespace
 	{
 		IType _type;
 		
-		public TypeReferenceTag(IType type)
+		public TypeReferenceEntity(IType type)
 		{
 			_type = type;
 		}
@@ -53,11 +53,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.TypeReference;
+				return EntityType.TypeReference;
 			}
 		}
 		
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			return _type.Resolve(targetList, name, flags);
 		}

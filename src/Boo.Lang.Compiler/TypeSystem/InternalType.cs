@@ -44,14 +44,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.EnumType;
+				return _typeSystemServices.EnumType;
 			}
 		}
 		
 		override public bool IsSubclassOf(IType type)
 		{
-			return type == _tagService.EnumType ||
-				_tagService.EnumType.IsSubclassOf(type);
+			return type == _typeSystemServices.EnumType ||
+				_typeSystemServices.EnumType.IsSubclassOf(type);
 		}
 	}
 	
@@ -88,7 +88,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 					else if (IsInterface)
 					{
-						_baseType = _tagService.ObjectType;
+						_baseType = _typeSystemServices.ObjectType;
 					}
 				}
 				return _baseType;
@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{					
 					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
 					{						
-						constructors.Add(TypeSystemServices.GetTag(member));
+						constructors.Add(TypeSystemServices.GetEntity(member));
 					}
 				}
 				_constructors = (IConstructor[])constructors.ToArray(typeof(IConstructor));

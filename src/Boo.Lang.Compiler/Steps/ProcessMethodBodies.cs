@@ -107,32 +107,32 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod ResolveMethod(IType type, string name)
 		{
-			return (IMethod)ResolveMember(type, name, ElementType.Method);
+			return (IMethod)ResolveMember(type, name, EntityType.Method);
 		}
 		
 		IProperty ResolveProperty(IType type, string name)
 		{
-			return (IProperty)ResolveMember(type, name, ElementType.Property);
+			return (IProperty)ResolveMember(type, name, EntityType.Property);
 		}
 		
-		IElement ResolveMember(IType type, string name, ElementType elementType)
+		IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
 			_buffer.Clear();
 			type.Resolve(_buffer, name, elementType);
 			System.Diagnostics.Debug.Assert(1 == _buffer.Count);
-			return (IElement)_buffer[0];
+			return (IEntity)_buffer[0];
 		}
 		
-		IElement Resolve(INamespace ns, string name, ElementType elementType)
+		IEntity Resolve(INamespace ns, string name, EntityType elementType)
 		{
 			_buffer.Clear();
 			ns.Resolve(_buffer, name, elementType);
-			return NameResolutionService.GetElementFromList(_buffer);
+			return NameResolutionService.GetEntityFromList(_buffer);
 		}
 		
-		IElement Resolve(INamespace ns, string name)
+		IEntity Resolve(INamespace ns, string name)
 		{
-			return Resolve(ns, name, ElementType.Any);
+			return Resolve(ns, name, EntityType.Any);
 		}
 		
 		override public void Run()
@@ -200,7 +200,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{				
-			EnterNamespace((INamespace)TypeSystemServices.GetTag(module));			
+			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));			
 			
 			Accept(module.Members);
 			
@@ -262,7 +262,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			MarkVisited(node);
 			
-			InternalProperty tag = (InternalProperty)GetTag(node);
+			InternalProperty tag = (InternalProperty)GetEntity(node);
 			
 			Method setter = node.Setter;
 			Method getter = node.Getter;
@@ -305,7 +305,7 @@ namespace Boo.Lang.Compiler.Steps
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CreateTypeReference(typeInfo);
 				parameter.Name = "value";
-				parameter.Tag = new InternalParameter(parameter, node.Parameters.Count+GetFirstParameterIndex(setter));
+				parameter.Entity = new InternalParameter(parameter, node.Parameters.Count+GetFirstParameterIndex(setter));
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
 				Accept(setter);
@@ -327,7 +327,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			MarkVisited(node);
 			
-			InternalField tag = (InternalField)GetTag(node);
+			InternalField tag = (InternalField)GetEntity(node);
 			
 			Accept(node.Attributes);			
 			
@@ -410,7 +410,7 @@ namespace Boo.Lang.Compiler.Steps
 				try
 				{
 					type.Members.Add(method);
-					method.Tag = new InternalMethod(TypeSystemServices, method);
+					method.Entity = new InternalMethod(TypeSystemServices, method);
 					Accept(method);
 				}
 				finally
@@ -469,7 +469,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Statement CreateFieldAssignment(Field node)
 		{
-			InternalField tag = (InternalField)GetTag(node);
+			InternalField tag = (InternalField)GetEntity(node);
 			
 			ExpressionStatement stmt = new ExpressionStatement(node.Initializer.LexicalInfo);
 			
@@ -517,7 +517,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			MarkVisited(node);
 			
-			InternalConstructor tag = (InternalConstructor)GetTag(node);
+			InternalConstructor tag = (InternalConstructor)GetEntity(node);
 			PushMethodInfo(tag);
 			EnterNamespace(tag);
 			return true;
@@ -547,7 +547,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			MarkVisited(method);
 			
-			InternalMethod tag = (InternalMethod)GetTag(method);
+			InternalMethod tag = (InternalMethod)GetEntity(method);
 			
 			bool parentIsClass = method.DeclaringType.NodeType == NodeType.ClassDefinition;
 			Accept(method.Attributes);
@@ -618,7 +618,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{			
 			Bind(node, _currentMethodInfo);
-			if (ElementType.Constructor != _currentMethodInfo.ElementType)
+			if (EntityType.Constructor != _currentMethodInfo.EntityType)
 			{
 				_currentMethodInfo.SuperExpressions.Add(node);
 			}
@@ -651,11 +651,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType baseType = tag.DeclaringType.BaseType;			
 			Method method = tag.Method;			
-			IElement baseMethods = Resolve(baseType, tag.Name, ElementType.Method);
+			IEntity baseMethods = Resolve(baseType, tag.Name, EntityType.Method);
 			
 			if (null != baseMethods)
 			{
-				if (ElementType.Method == baseMethods.ElementType)
+				if (EntityType.Method == baseMethods.EntityType)
 				{
 					IMethod baseMethod = (IMethod)baseMethods;
 					if (TypeSystemServices.CheckOverrideSignature(tag, baseMethod))
@@ -663,9 +663,9 @@ namespace Boo.Lang.Compiler.Steps
 						return baseMethod;
 					}
 				}
-				else if (ElementType.Ambiguous == baseMethods.ElementType)
+				else if (EntityType.Ambiguous == baseMethods.EntityType)
 				{
-					IElement[] tags = ((Ambiguous)baseMethods).Elements;
+					IEntity[] tags = ((Ambiguous)baseMethods).Entitys;
 					IMethod baseMethod = (IMethod)ResolveCallableReference(method, method.Parameters, tags, false);
 					if (null != baseMethod)
 					{
@@ -725,7 +725,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IType GetBaseType(TypeDefinition typeDefinition)
 		{
-			return ((IType)GetTag(typeDefinition)).BaseType;
+			return ((IType)GetEntity(typeDefinition)).BaseType;
 		}
 		
 		bool CanResolveReturnType(InternalMethod tag)
@@ -858,7 +858,7 @@ namespace Boo.Lang.Compiler.Steps
 			Bind(node, TypeSystemServices.StringType);
 		}
 		
-		IElement[] GetSetMethods(IElement[] tags)
+		IEntity[] GetSetMethods(IEntity[] tags)
 		{
 			Boo.Lang.List setMethods = new Boo.Lang.List();
 			for (int i=0; i<tags.Length; ++i)
@@ -873,10 +873,10 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			return (IElement[])setMethods.ToArray(typeof(IElement));
+			return (IEntity[])setMethods.ToArray(typeof(IEntity));
 		}
 		
-		IElement[] GetGetMethods(IElement[] tags)
+		IEntity[] GetGetMethods(IEntity[] tags)
 		{
 			Boo.Lang.List getMethods = new Boo.Lang.List();
 			for (int i=0; i<tags.Length; ++i)
@@ -891,7 +891,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			return (IElement[])getMethods.ToArray(typeof(IElement));
+			return (IEntity[])getMethods.ToArray(typeof(IEntity));
 		}
 		
 		void CheckNoComplexSlicing(SlicingExpression node)
@@ -999,7 +999,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			IElement tag = GetTag(node.Target);
+			IEntity tag = GetEntity(node.Target);
 			if (IsIndexedProperty(tag))
 			{
 				CheckNoComplexSlicing(node);
@@ -1040,7 +1040,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						IElement member = targetType.GetDefaultMember();
+						IEntity member = targetType.GetDefaultMember();
 						if (null == member)
 						{
 							Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
@@ -1054,13 +1054,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		bool IsIndexedProperty(IElement tag)
+		bool IsIndexedProperty(IEntity tag)
 		{
-			return ElementType.Property == tag.ElementType &&
+			return EntityType.Property == tag.EntityType &&
 				((IProperty)tag).GetParameters().Length > 0;
 		}
 		
-		void SliceMember(SlicingExpression node, IElement member, bool defaultMember)
+		void SliceMember(SlicingExpression node, IEntity member, bool defaultMember)
 		{
 			if (AstUtil.IsLhsOfAssignment(node))
 			{
@@ -1074,12 +1074,12 @@ namespace Boo.Lang.Compiler.Steps
 			
 			IMethod getter = null;
 			
-			if (ElementType.Ambiguous == member.ElementType)
+			if (EntityType.Ambiguous == member.EntityType)
 			{
-				IElement[] tags = GetGetMethods(((Ambiguous)member).Elements);
+				IEntity[] tags = GetGetMethods(((Ambiguous)member).Entitys);
 				getter = (IMethod)ResolveCallableReference(node, mie.Arguments, tags, true);						
 			}
-			else if (ElementType.Property == member.ElementType)
+			else if (EntityType.Property == member.EntityType)
 			{
 				getter = ((IProperty)member).GetGetMethod();
 			}
@@ -1218,7 +1218,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					Bind(node, TypeSystemServices.GetTag(_currentMethodInfo.Method.DeclaringType));
+					Bind(node, TypeSystemServices.GetEntity(_currentMethodInfo.Method.DeclaringType));
 				}
 			}
 		}
@@ -1280,7 +1280,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
 		{			
-			if (null != node.Tag)
+			if (null != node.Entity)
 			{
 				return;
 			}
@@ -1320,15 +1320,15 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			if (null != node.Tag)
+			if (null != node.Entity)
 			{
 				return;
 			}
 			
-			IElement tag = ResolveName(node, node.Name);
+			IEntity tag = ResolveName(node, node.Name);
 			if (null != tag)
 			{
-				node.Tag = tag;
+				node.Entity = tag;
 				
 				EnsureRelatedNodeWasVisited(tag);
 				
@@ -1339,7 +1339,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (ElementType.TypeReference == tag.ElementType)
+					if (EntityType.TypeReference == tag.EntityType)
 					{
 						node.Name = tag.FullName;
 					}
@@ -1353,13 +1353,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			return null == node.Tag;
+			return null == node.Entity;
 		}
 		
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			IElement tag = GetTag(node.Target);
-			ITypedElement typedInfo = tag as ITypedElement;
+			IEntity tag = GetEntity(node.Target);
+			ITypedEntity typedInfo = tag as ITypedEntity;
 			if (null != typedInfo)
 			{
 				tag = typedInfo.Type;
@@ -1371,7 +1371,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				IElement member = Resolve((INamespace)tag, node.Name);				
+				IEntity member = Resolve((INamespace)tag, node.Name);				
 				if (null == member)
 				{										
 					Error(node, CompilerErrorFactory.MemberNotFound(node, tag.FullName));
@@ -1390,7 +1390,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 					EnsureRelatedNodeWasVisited(member);
 					
-					if (ElementType.Property == member.ElementType)
+					if (EntityType.Property == member.EntityType)
 					{
 						if (!AstUtil.IsLhsOfAssignment(node) &&
 							!IsPreIncDec(node.ParentNode))
@@ -1564,17 +1564,17 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void OnIncrementDecrement(UnaryExpression node)
 		{			
-			IElement tag = GetTag(node.Operand);
+			IEntity tag = GetEntity(node.Operand);
 			if (CheckLValue(node.Operand, tag))
 			{
-				ITypedElement typed = (ITypedElement)tag;
+				ITypedEntity typed = (ITypedEntity)tag;
 				if (!IsNumber(typed.Type))
 				{
 					InvalidOperatorForType(node);					
 				}
 				else
 				{
-					node.Operand.Tag = null;
+					node.Operand.Entity = null;
 					
 					BinaryExpression addition = new BinaryExpression(
 														node.Operator == UnaryOperatorType.Increment ?
@@ -1603,7 +1603,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case UnaryOperatorType.LogicalNot:					
 				{
-					IElement tag = TypeSystemServices.ErrorTag;					
+					IEntity tag = TypeSystemServices.ErrorEntity;					
 					if (CheckBoolContext(node.Operand))
 					{
 						tag = TypeSystemServices.BoolType;
@@ -1654,7 +1654,7 @@ namespace Boo.Lang.Compiler.Steps
 				// assign to unknown reference implies local
 				// declaration
 				ReferenceExpression reference = (ReferenceExpression)node.Left;
-				IElement info = NameResolutionService.Resolve(reference.Name);					
+				IEntity info = NameResolutionService.Resolve(reference.Name);					
 				if (null == info || IsBuiltin(info))
 				{
 					Accept(node.Right);
@@ -1667,9 +1667,9 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool IsBuiltin(IElement tag)
+		bool IsBuiltin(IEntity tag)
 		{
-			if (ElementType.Method == tag.ElementType)
+			if (EntityType.Method == tag.EntityType)
 			{
 				return TypeSystemServices.BuiltinsType == ((IMethod)tag).DeclaringType;
 			}
@@ -1937,9 +1937,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindInPlaceAddSubtract(BinaryExpression node)
 		{
-			ElementType elementType = GetTag(node.Left).ElementType;
-			if (ElementType.Event == elementType ||
-				ElementType.Ambiguous == elementType)
+			EntityType elementType = GetEntity(node.Left).EntityType;
+			if (EntityType.Event == elementType ||
+				EntityType.Ambiguous == elementType)
 			{
 				BindEventSubscription(node);
 			}
@@ -1951,10 +1951,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindEventSubscription(BinaryExpression node)
 		{
-			IElement tag = GetTag(node.Left);
-			if (ElementType.Event != tag.ElementType)
+			IEntity tag = GetEntity(node.Left);
+			if (EntityType.Event != tag.EntityType)
 			{						
-				if (ElementType.Ambiguous == tag.ElementType)
+				if (EntityType.Ambiguous == tag.EntityType)
 				{
 					IList found = ((Ambiguous)tag).Filter(IsPublicEventFilter);
 					if (found.Count != 1)
@@ -1963,14 +1963,14 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						tag = (IElement)found[0];
+						tag = (IEntity)found[0];
 						Bind(node.Left, tag);
 					}
 				}
 			}
 			
 			IEvent eventInfo = (IEvent)tag;
-			ITypedElement expressionInfo = (ITypedElement)GetTag(node.Right);
+			ITypedEntity expressionInfo = (ITypedEntity)GetEntity(node.Right);
 			CheckDelegateArgument(node, eventInfo, expressionInfo);
 			
 			Bind(node, TypeSystemServices.VoidType);
@@ -2022,7 +2022,7 @@ namespace Boo.Lang.Compiler.Steps
 			return mie;
 		}
 		
-		public void OnSpecialFunction(IElement tag, MethodInvocationExpression node)
+		public void OnSpecialFunction(IEntity tag, MethodInvocationExpression node)
 		{
 			BuiltinFunction sf = (BuiltinFunction)tag;
 			switch (sf.FunctionType)
@@ -2077,7 +2077,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			if (null != node.Tag)
+			if (null != node.Entity)
 			{
 				return;
 			}
@@ -2085,7 +2085,7 @@ namespace Boo.Lang.Compiler.Steps
 			Accept(node.Target);			
 			Accept(node.Arguments);
 			
-			IElement targetInfo = GetTag(node.Target);
+			IEntity targetInfo = GetEntity(node.Target);
 			if (TypeSystemServices.IsError(targetInfo) ||
 				TypeSystemServices.IsErrorAny(node.Arguments))
 			{
@@ -2093,9 +2093,9 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			if (ElementType.Ambiguous == targetInfo.ElementType)
+			if (EntityType.Ambiguous == targetInfo.EntityType)
 			{		
-				IElement[] tags = ((Ambiguous)targetInfo).Elements;
+				IEntity[] tags = ((Ambiguous)targetInfo).Entitys;
 				targetInfo = ResolveCallableReference(node, node.Arguments, tags, true);				
 				if (null == targetInfo)
 				{
@@ -2109,17 +2109,17 @@ namespace Boo.Lang.Compiler.Steps
 				Bind(node.Target, targetInfo);
 			}	
 			
-			switch (targetInfo.ElementType)
+			switch (targetInfo.EntityType)
 			{		
-				case ElementType.BuiltinFunction:
+				case EntityType.BuiltinFunction:
 				{
 					OnSpecialFunction(targetInfo, node);
 					break;
 				}
 				
-				case ElementType.Method:
+				case EntityType.Method:
 				{				
-					IElement nodeInfo = TypeSystemServices.ErrorTag;
+					IEntity nodeInfo = TypeSystemServices.ErrorEntity;
 					
 					IMethod targetMethod = (IMethod)targetInfo;
 					if (CheckParameters(node, targetMethod, node.Arguments))
@@ -2141,7 +2141,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case ElementType.Constructor:
+				case EntityType.Constructor:
 				{					
 					InternalConstructor constructorInfo = targetInfo as InternalConstructor;
 					if (null != constructorInfo)
@@ -2160,9 +2160,9 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case ElementType.TypeReference:
+				case EntityType.TypeReference:
 				{					
-					IType typeInfo = ((ITypedElement)targetInfo).Type;					
+					IType typeInfo = ((ITypedEntity)targetInfo).Type;					
 					ResolveNamedArguments(node, typeInfo, node.NamedArguments);
 					
 					IConstructor ctorInfo = FindCorrectConstructor(node, typeInfo, node.Arguments);
@@ -2182,7 +2182,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case ElementType.Error:
+				case EntityType.Error:
 				{
 					Error(node);
 					break;
@@ -2190,7 +2190,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				default:
 				{
-					ITypedElement typedInfo = targetInfo as ITypedElement;
+					ITypedEntity typedInfo = targetInfo as ITypedEntity;
 					if (null != typedInfo)
 					{
 						IType type = typedInfo.Type;
@@ -2312,7 +2312,7 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceProperty(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
-			IElement lhs = GetTag(node.Left);
+			IEntity lhs = GetEntity(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			IMethod setter = null;
 
@@ -2320,7 +2320,7 @@ namespace Boo.Lang.Compiler.Steps
 			mie.Arguments.Add(slice.Begin);
 			mie.Arguments.Add(node.Right);			
 			
-			if (ElementType.Property == lhs.ElementType)
+			if (EntityType.Property == lhs.EntityType)
 			{
 				IMethod setMethod = ((IProperty)lhs).GetSetMethod();
 				if (null == setMethod)
@@ -2346,9 +2346,9 @@ namespace Boo.Lang.Compiler.Steps
 					setter = setMethod;
 				}
 			}
-			else if (ElementType.Ambiguous == lhs.ElementType)
+			else if (EntityType.Ambiguous == lhs.EntityType)
 			{		
-				setter = (IMethod)ResolveCallableReference(node.Left, mie.Arguments, GetSetMethods(((Ambiguous)lhs).Elements), false);
+				setter = (IMethod)ResolveCallableReference(node.Left, mie.Arguments, GetSetMethods(((Ambiguous)lhs).Entitys), false);
 			}
 			
 			if (null == setter)
@@ -2378,9 +2378,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				IElement resultingType = TypeSystemServices.ErrorTag;
+				IEntity resultingType = TypeSystemServices.ErrorEntity;
 				
-				IElement lhs = GetTag(node.Left);
+				IEntity lhs = GetEntity(node.Left);
 				if (CheckLValue(node.Left, lhs))
 				{
 					IType lhsType = GetType(node.Left);
@@ -2388,13 +2388,13 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						resultingType = lhsType;
 						
-						if (ElementType.Property == lhs.ElementType)
+						if (EntityType.Property == lhs.EntityType)
 						{
 							IProperty property = (IProperty)lhs;
 							if (IsIndexedProperty(property))
 							{
 								Error(CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node.Left), property.FullName));
-								resultingType = TypeSystemServices.ErrorTag;
+								resultingType = TypeSystemServices.ErrorEntity;
 							}	
 						}						
 					}
@@ -2519,14 +2519,14 @@ namespace Boo.Lang.Compiler.Steps
 			return Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetUnaryOperatorText(op);
 		}
 		
-		IElement ResolveName(Node node, string name)
+		IEntity ResolveName(Node node, string name)
 		{
-			IElement tag = NameResolutionService.Resolve(name);
+			IEntity tag = NameResolutionService.Resolve(name);
 			CheckNameResolution(node, name, tag);
 			return tag;
 		}
 		
-		bool CheckNameResolution(Node node, string name, IElement tag)
+		bool CheckNameResolution(Node node, string name, IEntity tag)
 		{
 			if (null == tag)
 			{
@@ -2536,19 +2536,19 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}	
 		
-		bool IsPublicEvent(IElement tag)
+		bool IsPublicEvent(IEntity tag)
 		{
-			if (ElementType.Event == tag.ElementType)
+			if (EntityType.Event == tag.EntityType)
 			{
 				return ((IMember)tag).IsPublic;
 			}
 			return false;
 		}
 		
-		bool IsPublicFieldPropertyEvent(IElement tag)
+		bool IsPublicFieldPropertyEvent(IEntity tag)
 		{
-			ElementType flags = ElementType.Field|ElementType.Property|ElementType.Event;
-			if ((flags & tag.ElementType) > 0)
+			EntityType flags = EntityType.Field|EntityType.Property|EntityType.Event;
+			if ((flags & tag.EntityType) > 0)
 			{
 				IMember member = (IMember)tag;
 				return member.IsPublic;
@@ -2558,7 +2558,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMember ResolvePublicFieldPropertyEvent(Node sourceNode, IType type, string name)
 		{
-			IElement candidate = Resolve(type, name, ElementType.Property|ElementType.Event|ElementType.Field);
+			IEntity candidate = Resolve(type, name, EntityType.Property|EntityType.Event|EntityType.Field);
 			if (null != candidate)
 			{	
 				if (IsPublicFieldPropertyEvent(candidate))
@@ -2567,7 +2567,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (candidate.ElementType == ElementType.Ambiguous)
+					if (candidate.EntityType == EntityType.Ambiguous)
 					{
 						IList found = ((Ambiguous)candidate).Filter(IsPublicFieldPropertyEventFilter);
 						if (found.Count > 0)
@@ -2611,9 +2611,9 @@ namespace Boo.Lang.Compiler.Steps
 				Bind(arg.First, member);
 				
 				IType memberType = member.Type;
-				ITypedElement expressionInfo = (ITypedElement)GetTag(arg.Second);				
+				ITypedEntity expressionInfo = (ITypedEntity)GetEntity(arg.Second);				
 				
-				if (member.ElementType == ElementType.Event)
+				if (member.EntityType == EntityType.Event)
 				{
 					CheckDelegateArgument(arg.First, member, expressionInfo);
 				}
@@ -2636,10 +2636,10 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool CheckDelegateArgument(Node sourceNode, ITypedElement delegateMember, ITypedElement argumentInfo)
+		bool CheckDelegateArgument(Node sourceNode, ITypedEntity delegateMember, ITypedEntity argumentInfo)
 		{
 			IType delegateType = delegateMember.Type;
-			if (argumentInfo.ElementType != ElementType.Method ||
+			if (argumentInfo.EntityType != EntityType.Method ||
 					    !CheckDelegateSignature(delegateType, (IMethod)argumentInfo))
 			{
 				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.FullName, delegateType.FullName));
@@ -2770,7 +2770,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (NodeType.MemberReferenceExpression == targetContext.NodeType)
 				{				
 					Expression targetReference = ((MemberReferenceExpression)targetContext).Target;
-					if (ElementType.TypeReference == GetTag(targetReference).ElementType)
+					if (EntityType.TypeReference == GetEntity(targetReference).EntityType)
 					{						
 						Error(CompilerErrorFactory.MemberNeedsInstance(targetContext, member.FullName));
 						return false;
@@ -2880,22 +2880,22 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void EnsureRelatedNodeWasVisited(IElement tag)
+		void EnsureRelatedNodeWasVisited(IEntity tag)
 		{
-			if (tag.ElementType == ElementType.TypeReference)
+			if (tag.EntityType == EntityType.TypeReference)
 			{
-				tag = ((TypeReferenceTag)tag).Type;
+				tag = ((TypeReferenceEntity)tag).Type;
 			}		
-			else if (tag.ElementType == ElementType.Ambiguous)
+			else if (tag.EntityType == EntityType.Ambiguous)
 			{
-				foreach (IElement item in ((Ambiguous)tag).Elements)
+				foreach (IEntity item in ((Ambiguous)tag).Entitys)
 				{
 					EnsureRelatedNodeWasVisited(item);
 				}
 				return;
 			}
 			
-			IInternalElement internalInfo = tag as IInternalElement;
+			IInternalEntity internalInfo = tag as IInternalEntity;
 			if (null != internalInfo)
 			{
 				if (!Visited(internalInfo.Node))
@@ -2958,12 +2958,12 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 		}
 		
-		IElement ResolveCallableReference(Node node, NodeCollection args, IElement[] tags, bool treatErrors)
+		IEntity ResolveCallableReference(Node node, NodeCollection args, IEntity[] tags, bool treatErrors)
 		{
 			List scores = new List();
 			for (int i=0; i<tags.Length; ++i)
 			{				
-				IElement tag = tags[i];
+				IEntity tag = tags[i];
 				IMethod mb = tag as IMethod;
 				if (null != mb)
 				{			
@@ -3036,7 +3036,7 @@ namespace Boo.Lang.Compiler.Steps
 			{	
 				if (treatErrors)
 				{
-					IElement tag = tags[0];
+					IEntity tag = tags[0];
 					IConstructor constructor = tag as IConstructor;
 					if (null != constructor)
 					{
@@ -3077,9 +3077,9 @@ namespace Boo.Lang.Compiler.Steps
 			return ResolveOperator(node, TypeSystemServices.RuntimeServicesType, operatorName, mie);
 		}
 		
-		IMethod ResolveAmbiguousOperator(IElement[] tags, ExpressionCollection args)
+		IMethod ResolveAmbiguousOperator(IEntity[] tags, ExpressionCollection args)
 		{
-			foreach (IElement tag in tags)
+			foreach (IEntity tag in tags)
 			{
 				IMethod method = tag as IMethod;
 				if (null != method)
@@ -3101,21 +3101,21 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool ResolveOperator(BinaryExpression node, IType type, string operatorName, MethodInvocationExpression mie)
 		{
-			IElement tag = Resolve(type, operatorName, ElementType.Method);
+			IEntity tag = Resolve(type, operatorName, EntityType.Method);
 			if (null == tag)
 			{
 				return false;
 			}
 			
-			if (ElementType.Ambiguous == tag.ElementType)
+			if (EntityType.Ambiguous == tag.EntityType)
 			{	
-				tag = ResolveAmbiguousOperator(((Ambiguous)tag).Elements, mie.Arguments);
+				tag = ResolveAmbiguousOperator(((Ambiguous)tag).Entitys, mie.Arguments);
 				if (null == tag)
 				{
 					return false;
 				}
 			}
-			else if (ElementType.Method == tag.ElementType)
+			else if (EntityType.Method == tag.EntityType)
 			{					
 				IMethod method = (IMethod)tag;
 				
@@ -3145,21 +3145,21 @@ namespace Boo.Lang.Compiler.Steps
 			return member != null ? member.Target : node;
 		}
 		
-		bool CheckLValue(Node node, IElement tag)
+		bool CheckLValue(Node node, IEntity tag)
 		{
-			switch (tag.ElementType)
+			switch (tag.EntityType)
 			{
-				case ElementType.Parameter:
+				case EntityType.Parameter:
 				{
 					return true;
 				}
 				
-				case ElementType.Local:
+				case EntityType.Local:
 				{
 					return !((LocalVariable)tag).IsPrivateScope;
 				}
 				
-				case ElementType.Property:
+				case EntityType.Property:
 				{
 					if (null == ((IProperty)tag).GetSetMethod())
 					{
@@ -3169,7 +3169,7 @@ namespace Boo.Lang.Compiler.Steps
 					return true;
 				}
 				
-				case ElementType.Field:
+				case EntityType.Field:
 				{
 					return true;
 				}
@@ -3292,7 +3292,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType enumeratorItemTypeAttribute = TypeSystemServices.Map(typeof(EnumeratorItemTypeAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
 			{				
-				IConstructor constructor = GetTag(attribute) as IConstructor;
+				IConstructor constructor = GetEntity(attribute) as IConstructor;
 				if (null != constructor)
 				{
 					if (constructor.DeclaringType == enumeratorItemTypeAttribute)
@@ -3354,7 +3354,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						IElement tag = Resolve(_currentMethodInfo, d.Name);
+						IEntity tag = Resolve(_currentMethodInfo, d.Name);
 						if (null != tag)
 						{
 							Bind(d, tag);
@@ -3382,11 +3382,11 @@ namespace Boo.Lang.Compiler.Steps
 			/*
 			if (IsStandaloneMethodReference(node))
 			{
-				return TypeSystemServices.GetMethodReference(GetTag(node));
+				return TypeSystemServices.GetMethodReference(GetEntity(node));
 			}
 			*/
 			
-			ITypedElement tag = (ITypedElement)GetTag(node);
+			ITypedEntity tag = (ITypedEntity)GetEntity(node);
 			if (Array_TypedEnumerableConstructor == tag ||
 				Array_TypedCollectionConstructor == tag ||				
 				Array_TypedConstructor2 == tag)
@@ -3399,7 +3399,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsStandaloneTypeReference(Node node)
 		{
 			return node.ParentNode.NodeType != NodeType.MemberReferenceExpression &&
-					GetTag(node).ElementType == ElementType.TypeReference;
+					GetEntity(node).EntityType == EntityType.TypeReference;
 		}
 		
 		string GetSignature(NodeCollection args)

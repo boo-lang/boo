@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
-			EnterNamespace((INamespace)TypeSystemServices.GetTag(module));
+			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
 			Accept(module.Members);
 			Accept(module.Globals);			
 			LeaveNamespace();
@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Node replacement = null;
 			
-			IElement tag = NameResolutionService.ResolveQualifiedName(node.Name);
+			IEntity tag = NameResolutionService.ResolveQualifiedName(node.Name);
 			if (null == tag)
 			{
 				tag = NameResolutionService.ResolveQualifiedName(BuildMacroTypeName(node.Name));
@@ -71,13 +71,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (ElementType.TypeReference != tag.ElementType)
+				if (EntityType.TypeReference != tag.EntityType)
 				{
 					Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
 				}
 				else
 				{
-					IType macroType = ((TypeReferenceTag)tag).Type;
+					IType macroType = ((TypeReferenceEntity)tag).Type;
 					ExternalType type = macroType as ExternalType;
 					if (null == type)
 					{

@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ExternalMethod : IMethod
 	{
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		MethodBase _mi;
 		
@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		internal ExternalMethod(TypeSystemServices manager, MethodBase mi)
 		{
-			_tagService = manager;
+			_typeSystemServices = manager;
 			_mi = mi;
 		}
 		
@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_mi.DeclaringType);
+				return _typeSystemServices.Map(_mi.DeclaringType);
 			}
 		}
 		
@@ -101,11 +101,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public virtual ElementType ElementType
+		public virtual EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Method;
+				return EntityType.Method;
+			}
+		}
+		
+		public ICallableType CallableType
+		{
+			get
+			{
+				return null;
 			}
 		}
 		
@@ -121,7 +129,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _parameters)
 			{
-				_parameters = _tagService.Map(_mi.GetParameters());
+				_parameters = _typeSystemServices.Map(_mi.GetParameters());
 			}
 			return _parameters;
 		}
@@ -133,7 +141,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				MethodInfo mi = _mi as MethodInfo;
 				if (null != mi)
 				{
-					return _tagService.Map(mi.ReturnType);
+					return _typeSystemServices.Map(mi.ReturnType);
 				}
 				return null;
 			}
@@ -159,11 +167,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{			
 		}
 		
-		override public ElementType ElementType
+		override public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Constructor;
+				return EntityType.Constructor;
 			}
 		}
 		

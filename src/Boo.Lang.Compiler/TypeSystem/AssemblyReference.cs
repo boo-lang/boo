@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public class AssemblyReference : IElement
+	public class AssemblyReference : IEntity
 	{
 		System.Reflection.Assembly _assembly;
 		
@@ -57,11 +57,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Assembly;
+				return EntityType.Assembly;
 			}
 		}
 		

@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 
-	public class ModuleTag : INamespace, IElement
+	public class ModuleEntity : INamespace, IEntity
 	{
 		NameResolutionService _nameResolutionService;
 		
@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		string _namespace;
 		
-		public ModuleTag(NameResolutionService nameResolutionService, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Module module)
+		public ModuleEntity(NameResolutionService nameResolutionService, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Module module)
 		{
 			_nameResolutionService = nameResolutionService;
 			_typeSystemServices = tagManager;
@@ -59,11 +59,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Module;
+				return EntityType.Module;
 			}
 		}
 		
@@ -93,14 +93,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public void InitializeModuleClass(Boo.Lang.Compiler.Ast.ClassDefinition moduleClass)
 		{
-			if (null == moduleClass.Tag)
+			if (null == moduleClass.Entity)
 			{
-				moduleClass.Tag = new InternalType(_typeSystemServices, moduleClass);
+				moduleClass.Entity = new InternalType(_typeSystemServices, moduleClass);
 			}
-			_moduleClassNamespace = (INamespace)moduleClass.Tag;
+			_moduleClassNamespace = (INamespace)moduleClass.Entity;
 		}
 		
-		public bool ResolveMember(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool ResolveMember(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			if (ResolveModuleMember(targetList, name, flags))
 			{
@@ -117,7 +117,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			if (ResolveMember(targetList, name, flags))
 			{
@@ -129,7 +129,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_using = new INamespace[_module.Imports.Count];
 				for (int i=0; i<_using.Length; ++i)
 				{
-					_using[i] = (INamespace)TypeSystemServices.GetTag(_module.Imports[i]);
+					_using[i] = (INamespace)TypeSystemServices.GetEntity(_module.Imports[i]);
 				}
 			}
 				
@@ -144,15 +144,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return found;
 		}
 		
-		bool ResolveModuleMember(Boo.Lang.List targetList, string name, ElementType flags)
+		bool ResolveModuleMember(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			bool found=false;
 			foreach (Boo.Lang.Compiler.Ast.TypeMember member in _module.Members)
 			{
 				if (name == member.Name)
 				{
-					IElement tag = _typeSystemServices.GetTypeReference((IType)TypeSystemServices.GetTag(member));
-					if (NameResolutionService.IsFlagSet(flags, tag.ElementType))
+					IEntity tag = _typeSystemServices.GetTypeReference((IType)TypeSystemServices.GetEntity(member));
+					if (NameResolutionService.IsFlagSet(flags, tag.EntityType))
 					{
 						targetList.Add(tag);
 						found = true;

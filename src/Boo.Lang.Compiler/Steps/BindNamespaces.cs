@@ -46,42 +46,42 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				foreach (Import import in module.Imports)
 				{
-					IElement tag = NameResolutionService.ResolveQualifiedName(import.Namespace);					
+					IEntity tag = NameResolutionService.ResolveQualifiedName(import.Namespace);					
 					if (null == tag)
 					{
-						tag = TypeSystemServices.ErrorTag;
+						tag = TypeSystemServices.ErrorEntity;
 						Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
 					}
 					else
 					{
 						if (null != import.AssemblyReference)
 						{	
-							NamespaceTag nsInfo = tag as NamespaceTag;
+							NamespaceEntity nsInfo = tag as NamespaceEntity;
 							if (null == nsInfo)
 							{
 								Errors.Add(CompilerErrorFactory.NotImplemented(import, "assembly qualified type references"));
 							}
 							else
 							{								
-								tag = new AssemblyQualifiedNamespaceTag(GetBoundAssembly(import.AssemblyReference), nsInfo);
+								tag = new AssemblyQualifiedNamespaceEntity(GetBoundAssembly(import.AssemblyReference), nsInfo);
 							}
 						}
 						if (null != import.Alias)
 						{
 							tag = new AliasedNamespace(import.Alias.Name, tag);
-							import.Alias.Tag = tag;
+							import.Alias.Entity = tag;
 						}
 					}
 					
 					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, tag.Name);
-					import.Tag = tag;
+					import.Entity = tag;
 				}
 			}			
 		}
 		
 		Assembly GetBoundAssembly(ReferenceExpression reference)
 		{
-			return ((AssemblyReference)TypeSystemServices.GetTag(reference)).Assembly;
+			return ((AssemblyReference)TypeSystemServices.GetEntity(reference)).Assembly;
 		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿* CallableType
+﻿* separar Node.Entity de Expression.ResultType
+
+* CallableType
 	* para funçoes
 	* para delegates (o tipo de um evento seria o CallableType equivalente ao delegate)
 	
@@ -19,6 +21,9 @@
 
 * InjectCasts
 	* simplificar EmitAssembly
+	
+* ProcessMethodBodies.LeaveConstructor deve inserir a chamado ao constructor
+super APÓS qualquer validação
 
 * final fields: se for um value type nativo fica como literal, senao fica
 como campo readonly

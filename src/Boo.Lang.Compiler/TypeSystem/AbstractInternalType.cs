@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	
-	public abstract class AbstractInternalType : IInternalElement, IType, INamespace
+	public abstract class AbstractInternalType : IInternalEntity, IType, INamespace
 	{		
-		protected TypeSystemServices _tagService;
+		protected TypeSystemServices _typeSystemServices;
 		
 		protected TypeDefinition _typeDefinition;
 		
-		protected IElement[] _members;
+		protected IEntity[] _members;
 		
 		protected IType[] _interfaces;
 		
@@ -48,9 +48,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected AbstractInternalType(TypeSystemServices tagManager, TypeDefinition typeDefinition)
 		{
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_typeDefinition = typeDefinition;
-			_parentNamespace = (INamespace)TypeSystemServices.GetTag(_typeDefinition.ParentNode);
+			_parentNamespace = (INamespace)TypeSystemServices.GetEntity(_typeDefinition.ParentNode);
 		}
 		
 		public string FullName
@@ -85,13 +85,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public virtual bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public virtual bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{			
 			bool found = false;
 			
-			foreach (IElement tag in GetMembers())
+			foreach (IEntity tag in GetMembers())
 			{
-				if (tag.Name == name && NameResolutionService.IsFlagSet(flags, tag.ElementType))
+				if (tag.Name == name && NameResolutionService.IsFlagSet(flags, tag.EntityType))
 				{
 					targetList.AddUnique(tag);
 					found = true;
@@ -111,7 +111,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (IsInterface)
 				{
 					// also look in System.Object
-					if (_tagService.ObjectType.Resolve(targetList, name, flags))
+					if (_typeSystemServices.ObjectType.Resolve(targetList, name, flags))
 					{
 						found = true;
 					}
@@ -198,12 +198,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return 1;
 		}
 		
-		public IElement GetDefaultMember()
+		public IEntity GetDefaultMember()
 		{
-			IType defaultMemberAttribute = _tagService.Map(typeof(System.Reflection.DefaultMemberAttribute));
+			IType defaultMemberAttribute = _typeSystemServices.Map(typeof(System.Reflection.DefaultMemberAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
 			{
-				IConstructor tag = TypeSystemServices.GetTag(attribute) as IConstructor;
+				IConstructor tag = TypeSystemServices.GetEntity(attribute) as IConstructor;
 				if (null != tag)
 				{
 					if (defaultMemberAttribute == tag.DeclaringType)
@@ -212,8 +212,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 						if (null != memberName)
 						{
 							_buffer.Clear();
-							Resolve(_buffer, memberName.Value, ElementType.Any);
-							return NameResolutionService.GetElementFromList(_buffer);
+							Resolve(_buffer, memberName.Value, EntityType.Any);
+							return NameResolutionService.GetEntityFromList(_buffer);
 						}
 					}
 				}
@@ -221,11 +221,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public virtual ElementType ElementType
+		public virtual EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Type;
+				return EntityType.Type;
 			}
 		}
 		
@@ -266,22 +266,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _interfaces;
 		}
 		
-		public virtual IElement[] GetMembers()
+		public virtual IEntity[] GetMembers()
 		{
 			if (null == _members)
 			{
 				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
-					IElement tag = TypeSystemServices.GetTag(member);
-					if (ElementType.Type == tag.ElementType)
+					IEntity tag = TypeSystemServices.GetEntity(member);
+					if (EntityType.Type == tag.EntityType)
 					{
-						tag = _tagService.GetTypeReference((IType)tag);
+						tag = _typeSystemServices.GetTypeReference((IType)tag);
 					}
 					_buffer.Add(tag);
 				}
 
-				_members = (IElement[])_buffer.ToArray(typeof(IElement));
+				_members = (IEntity[])_buffer.ToArray(typeof(IEntity));
 				_buffer.Clear();				
 			}
 			return _members;

@@ -60,15 +60,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
-				TypeSystem.ModuleTag moduleTag = new TypeSystem.ModuleTag(NameResolutionService, TypeSystemServices, module);
-				module.Tag = moduleTag;
+				TypeSystem.ModuleEntity moduleEntity = new TypeSystem.ModuleEntity(NameResolutionService, TypeSystemServices, module);
+				module.Entity = moduleEntity;
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
 				if (null != namespaceDeclaration)
 				{
 					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
 				}
-				GetNamespace(moduleTag.Namespace).AddModule(moduleTag);
+				GetNamespace(moduleEntity.Namespace).AddModule(moduleEntity);
 			}
 		}
 		
@@ -88,7 +88,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							Parameters.References.Add(asm);
-							reference.Tag = new TypeSystem.AssemblyReference(asm);
+							reference.Entity = new TypeSystem.AssemblyReference(asm);
 						}
 						catch (Exception x)
 						{
@@ -121,12 +121,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		NamespaceTag GetNamespace(string ns)
+		NamespaceEntity GetNamespace(string ns)
 		{
 			string[] namespaceHierarchy = ns.Split('.');
 			string topLevelName = namespaceHierarchy[0];
-			NamespaceTag topLevel = GetTopLevelNamespace(topLevelName);
-			NamespaceTag current = topLevel;
+			NamespaceEntity topLevel = GetTopLevelNamespace(topLevelName);
+			NamespaceEntity current = topLevel;
 			for (int i=1; i<namespaceHierarchy.Length; ++i)
 			{
 				current = current.GetChildNamespace(namespaceHierarchy[i]);
@@ -134,12 +134,12 @@ namespace Boo.Lang.Compiler.Steps
 			return current;
 		}
 		
-		NamespaceTag GetTopLevelNamespace(string topLevelName)
+		NamespaceEntity GetTopLevelNamespace(string topLevelName)
 		{
-			NamespaceTag tag = (NamespaceTag)_namespaces[topLevelName];	
+			NamespaceEntity tag = (NamespaceEntity)_namespaces[topLevelName];	
 			if (null == tag)
 			{
-				_namespaces[topLevelName] = tag = new NamespaceTag(null, TypeSystemServices, topLevelName);
+				_namespaces[topLevelName] = tag = new NamespaceEntity(null, TypeSystemServices, topLevelName);
 			}
 			return tag;
 		}

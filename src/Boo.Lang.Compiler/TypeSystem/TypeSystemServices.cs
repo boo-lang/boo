@@ -91,15 +91,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		System.Collections.Hashtable _primitives = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _tagCache = new System.Collections.Hashtable();
+		System.Collections.Hashtable _entityCache = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _arrayCache = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
-		static readonly IElement _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
+		static readonly IEntity _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
 		
-		public static readonly IElement ErrorTag = Boo.Lang.Compiler.TypeSystem.Error.Default;
+		public static readonly IEntity ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
 		
 		public TypeSystemServices()		
 		{			
@@ -149,7 +149,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				typeReference = new SimpleTypeReference(tag.FullName);				
 			}
 			
-			typeReference.Tag = GetTypeReference(tag);
+			typeReference.Entity = GetTypeReference(tag);
 			return typeReference;
 		}
 		
@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static bool IsUnknown(Node node)
 		{
-			ITypedElement tag = GetTag(node) as ITypedElement;
+			ITypedEntity tag = GetEntity(node) as ITypedEntity;
 			if (null != tag)
 			{
 				return IsUnknown(tag.Type);
@@ -238,12 +238,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static bool IsUnknown(IType tag)
 		{
-			return ElementType.Unknown == tag.ElementType;
+			return EntityType.Unknown == tag.EntityType;
 		}
 		
 		public static bool IsError(Node node)
 		{			
-			ITypedElement tag = GetTag(node) as ITypedElement;
+			ITypedEntity tag = GetEntity(node) as ITypedEntity;
 			if (null != tag)
 			{
 				return IsError(tag.Type);
@@ -263,34 +263,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		public static bool IsError(IElement tag)
+		public static bool IsError(IEntity tag)
 		{
-			return ElementType.Error == tag.ElementType;
+			return EntityType.Error == tag.EntityType;
 		}
 		
-		public static IElement GetTag(Node node)
+		public static IEntity GetEntity(Node node)
 		{
 			if (null == node)
 			{
 				throw new ArgumentNullException("node");
 			}
 			
-			IElement tag = node.Tag;
+			IEntity tag = node.Entity;
 			if (null == tag)
 			{
-				NodeNotTagged(node);
+				NodeNotEntityged(node);
 			}
 			return tag;
 		}	
 		
 		public static IType GetType(Node node)
 		{
-			return ((ITypedElement)GetTag(node)).Type;
+			return ((ITypedEntity)GetEntity(node)).Type;
 		}
 		
 		public IType Map(System.Type type)
 		{				
-			ExternalType tag = (ExternalType)_tagCache[type];
+			ExternalType tag = (ExternalType)_entityCache[type];
 			if (null == tag)
 			{
 				if (type.IsArray)
@@ -317,18 +317,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return tag;
 		}
 		
-		public ITypedElement GetTypeReference(IType type)
+		public ITypedEntity GetTypeReference(IType type)
 		{
-			ITypedElement tag = (ITypedElement)_referenceCache[type];
+			ITypedEntity tag = (ITypedEntity)_referenceCache[type];
 			if (null == tag)
 			{
-				tag = new TypeReferenceTag(type);
+				tag = new TypeReferenceEntity(type);
 				_referenceCache[type] = tag;
 			}
 			return tag;
 		}
 		
-		public ITypedElement GetTypeReference(System.Type type)
+		public ITypedEntity GetTypeReference(System.Type type)
 		{
 			return GetTypeReference(Map(type));
 		}
@@ -338,7 +338,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IParameter[] mapped = new IParameter[parameters.Count];
 			for (int i=0; i<mapped.Length; ++i)
 			{
-				mapped[i] = (IParameter)GetTag(parameters[i]);
+				mapped[i] = (IParameter)GetEntity(parameters[i]);
 			}
 			return mapped;
 		}
@@ -353,11 +353,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return mapped;
 		}
 		
-		public IElement Map(System.Reflection.MemberInfo[] info)
+		public IEntity Map(System.Reflection.MemberInfo[] info)
 		{
 			if (info.Length > 1)
 			{
-				IElement[] tags = new IElement[info.Length];
+				IEntity[] tags = new IEntity[info.Length];
 				for (int i=0; i<tags.Length; ++i)
 				{
 					tags[i] = Map(info[i]);
@@ -371,9 +371,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public IElement Map(System.Reflection.MemberInfo mi)
+		public IEntity Map(System.Reflection.MemberInfo mi)
 		{
-			IElement tag = (IElement)_tagCache[mi];
+			IEntity tag = (IEntity)_entityCache[mi];
 			if (null == tag)
 			{			
 				switch (mi.MemberType)
@@ -418,14 +418,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 						throw new NotImplementedException(mi.ToString());
 					}
 				}
-				_tagCache.Add(mi, tag);
+				_entityCache.Add(mi, tag);
 			}
 			return tag;
 		}
 		
-		public IElement ResolvePrimitive(string name)
+		public IEntity ResolvePrimitive(string name)
 		{
-			return (IElement)_primitives[name];
+			return (IEntity)_primitives[name];
 		}
 		
 		public bool IsPrimitive(string name)
@@ -453,24 +453,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_primitives[name] = GetTypeReference(type);
 		}
 		
-		void AddPrimitive(string name, IElement tag)
+		void AddPrimitive(string name, IEntity tag)
 		{
 			_primitives[name] = tag;
 		}
 		
 		void Cache(ExternalType tag)
 		{
-			_tagCache[tag.ActualType] = tag;
+			_entityCache[tag.ActualType] = tag;
 		}
 		
 		void Cache(object key, IType tag)
 		{
-			_tagCache[key] = tag;
+			_entityCache[key] = tag;
 		}
 		
-		private static void NodeNotTagged(Node node)
+		private static void NodeNotEntityged(Node node)
 		{
-			throw CompilerErrorFactory.NodeNotTagged(node);
+			throw CompilerErrorFactory.NodeNotEntityged(node);
 		}		
 		
 		#region VoidTypeImpl
@@ -480,7 +480,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{				
 			}		
 			
-			override public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+			override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 			{	
 				return false;
 			}	

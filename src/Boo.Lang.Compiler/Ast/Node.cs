@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		protected string _documentation;
 		
-		protected Boo.Lang.Compiler.TypeSystem.IElement _tag;
+		protected Boo.Lang.Compiler.TypeSystem.IEntity _entity;
 		
 		protected System.Collections.Hashtable _properties;
 
@@ -72,16 +72,16 @@ namespace Boo.Lang.Compiler.Ast
 			return (Node)Clone();
 		}
 		
-		public Boo.Lang.Compiler.TypeSystem.IElement Tag
+		public Boo.Lang.Compiler.TypeSystem.IEntity Entity
 		{
 			get
 			{
-				return _tag;
+				return _entity;
 			}
 			
 			set
 			{
-				_tag = value;
+				_entity = value;
 			}
 		}
 		

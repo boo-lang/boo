@@ -208,7 +208,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
-			EnterNamespace((INamespace)TypeSystemServices.GetTag(module));
+			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
 			Accept(module.Members);
 			LeaveNamespace();
 		}
@@ -220,7 +220,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
 		{			
-			if (null != attribute.Tag)
+			if (null != attribute.Entity)
 			{
 				return;
 			}
@@ -243,14 +243,14 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IElement tag = (IElement)_elements[0];
-					if (ElementType.TypeReference != tag.ElementType)
+					IEntity tag = (IEntity)_elements[0];
+					if (EntityType.TypeReference != tag.EntityType)
 					{
 						Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name));
 					}
 					else
 					{
-						IType attributeType = ((ITypedElement)tag).Type;
+						IType attributeType = ((ITypedEntity)tag).Type;
 						if (IsAstAttribute(attributeType))
 						{
 							ExternalType externalType = attributeType as ExternalType;
@@ -275,7 +275,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								// remember the attribute's type
 								attribute.Name = attributeType.FullName;
-								attribute.Tag = attributeType;
+								attribute.Entity = attributeType;
 							}
 						}
 					}

@@ -3,9 +3,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using System.Collections;
 	
-	public class NamespaceTag : IElement, INamespace
+	public class NamespaceEntity : IEntity, INamespace
 	{		
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		INamespace _parent;
 		
@@ -17,10 +17,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		Boo.Lang.List _moduleNamespaces;
 		
-		public NamespaceTag(INamespace parent, TypeSystemServices tagManager, string name)
+		public NamespaceEntity(INamespace parent, TypeSystemServices tagManager, string name)
 		{			
 			_parent = parent;
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_name = name;
 			_assemblies = new Hashtable();
 			_childrenNamespaces = new Hashtable();
@@ -44,11 +44,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Namespace;
+				return EntityType.Namespace;
 			}
 		}
 		
@@ -64,28 +64,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 			types.Add(type);			
 		}
 		
-		public void AddModule(Boo.Lang.Compiler.TypeSystem.ModuleTag module)
+		public void AddModule(Boo.Lang.Compiler.TypeSystem.ModuleEntity module)
 		{
 			_moduleNamespaces.Add(module);
 		}
 		
-		public NamespaceTag GetChildNamespace(string name)
+		public NamespaceEntity GetChildNamespace(string name)
 		{
-			NamespaceTag tag = (NamespaceTag)_childrenNamespaces[name];
+			NamespaceEntity tag = (NamespaceEntity)_childrenNamespaces[name];
 			if (null == tag)
 			{				
-				tag = new NamespaceTag(this, _tagService, _name + "." + name);
+				tag = new NamespaceEntity(this, _typeSystemServices, _name + "." + name);
 				_childrenNamespaces[name] = tag;
 			}
 			return tag;
 		}
 		
-		internal bool Resolve(Boo.Lang.List targetList, string name, System.Reflection.Assembly assembly, ElementType flags)
+		internal bool Resolve(Boo.Lang.List targetList, string name, System.Reflection.Assembly assembly, EntityType flags)
 		{
-			NamespaceTag tag = (NamespaceTag)_childrenNamespaces[name];
+			NamespaceEntity tag = (NamespaceEntity)_childrenNamespaces[name];
 			if (null != tag)
 			{
-				targetList.Add(new AssemblyQualifiedNamespaceTag(assembly, tag));
+				targetList.Add(new AssemblyQualifiedNamespaceEntity(assembly, tag));
 				return true;
 			}
 			
@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (name == type.Name)
 					{
-						targetList.Add(_tagService.GetTypeReference(type));
+						targetList.Add(_typeSystemServices.GetTypeReference(type));
 						return true;
 					}
 				}
@@ -112,9 +112,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{	
-			IElement tag = (IElement)_childrenNamespaces[name];
+			IEntity tag = (IEntity)_childrenNamespaces[name];
 			if (null != tag)
 			{
 				targetList.Add(tag);
@@ -128,9 +128,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		bool ResolveInternalType(Boo.Lang.List targetList, string name, ElementType flags)
+		bool ResolveInternalType(Boo.Lang.List targetList, string name, EntityType flags)
 		{
-			foreach (ModuleTag ns in _moduleNamespaces)
+			foreach (ModuleEntity ns in _moduleNamespaces)
 			{
 				ns.ResolveMember(targetList, name, flags);
 			}
@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (name == type.Name)
 					{
-						targetList.Add(_tagService.GetTypeReference(type));
+						targetList.Add(_typeSystemServices.GetTypeReference(type));
 						return true;
 					}
 				}

@@ -31,14 +31,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using Boo.Lang.Compiler.Ast;
 	
-	public class InternalField : IInternalElement, IField
+	public class InternalField : IInternalEntity, IField
 	{
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		Field _field;
 		
 		public InternalField(TypeSystemServices tagManager, Field field)
 		{
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_field = field;
 		}
 		
@@ -74,11 +74,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Field;
+				return EntityType.Field;
 			}
 		}
 		
@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return (IType)TypeSystemServices.GetTag(_field.ParentNode);
+				return (IType)TypeSystemServices.GetEntity(_field.ParentNode);
 			}
 		}
 		

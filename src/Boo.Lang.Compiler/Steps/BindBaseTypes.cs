@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
-			EnterNamespace((INamespace)GetTag(module));
+			EnterNamespace((INamespace)GetEntity(module));
 			Accept(module.Members);
 			LeaveNamespace();
 		}
@@ -120,7 +120,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (SimpleTypeReference type in node.BaseTypes.ToArray())
 			{                            
 				NameResolutionService.ResolveSimpleTypeReference(type);
-				TypeReferenceTag tag = type.Tag as TypeSystem.TypeReferenceTag;
+				TypeReferenceEntity tag = type.Entity as TypeSystem.TypeReferenceEntity;
 				
 				if (null != tag)
 				{

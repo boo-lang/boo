@@ -30,13 +30,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class ExternalField : IField
 	{
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		System.Reflection.FieldInfo _field;
 		
 		public ExternalField(TypeSystemServices tagManager, System.Reflection.FieldInfo field)
 		{
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_field = field;
 		}
 		
@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_field.DeclaringType);
+				return _typeSystemServices.Map(_field.DeclaringType);
 			}
 		}
 		
@@ -88,11 +88,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Field;
+				return EntityType.Field;
 			}
 		}
 		
@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _tagService.Map(_field.FieldType);
+				return _typeSystemServices.Map(_field.FieldType);
 			}
 		}
 		

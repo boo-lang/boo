@@ -103,18 +103,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node)
 		{
-			node.Tag = TypeSystemServices.ErrorTag;
+			node.Entity = TypeSystemServices.ErrorEntity;
 		}
 
-		protected void Bind(Node node, IElement tag)
+		protected void Bind(Node node, IEntity tag)
 		{
 			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, tag);
-			node.Tag = tag;
+			node.Entity = tag;
 		}
 		
-		public IElement GetTag(Node node)
+		public IEntity GetEntity(Node node)
 		{
-			return TypeSystemServices.GetTag(node);
+			return TypeSystemServices.GetEntity(node);
 		}
 		
 		protected IType GetType(Node node)

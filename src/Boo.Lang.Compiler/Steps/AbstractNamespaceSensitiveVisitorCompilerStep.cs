@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Steps
 	
 		protected InternalType GetInternalType(TypeDefinition node)
 		{
-			return (InternalType)node.Tag;
+			return (InternalType)node.Entity;
 		}
 	}
 }

@@ -224,7 +224,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			${node.Name} clone = FormatterServices.GetUninitializedObject(typeof(${node.Name})) as ${node.Name};
 			clone._lexicalInfo = _lexicalInfo;
 			clone._documentation = _documentation;
-			clone._tag = _tag;
+			clone._entity = _entity;
 			""")
 			
 			for field as Field in allFields:

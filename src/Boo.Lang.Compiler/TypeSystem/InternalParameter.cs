@@ -58,11 +58,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Parameter;
+				return EntityType.Parameter;
 			}
 		}
 		

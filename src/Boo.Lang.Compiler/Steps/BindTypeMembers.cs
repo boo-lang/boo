@@ -41,9 +41,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethod(Method node)
 		{
-			if (null == node.Tag)
+			if (null == node.Entity)
 			{
-				node.Tag = new InternalMethod(TypeSystemServices, node);
+				node.Entity = new InternalMethod(TypeSystemServices, node);
 				_parameters.Add(node);
 			}
 		}
@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (INodeWithParameters node in _parameters)
 			{
 				TypeMember member = (TypeMember)node;
-				NameResolutionService.Restore((INamespace)TypeSystemServices.GetTag(member.DeclaringType));
+				NameResolutionService.Restore((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
 				BindParameters(member, node.Parameters);
 			}
 		}
@@ -74,32 +74,32 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					NameResolutionService.ResolveTypeReference(parameter.Type);
 				}
-				parameter.Tag = new InternalParameter(parameter, i + delta);
+				parameter.Entity = new InternalParameter(parameter, i + delta);
 			}
 		}
 		
 		override public void OnConstructor(Constructor node)
 		{
-			if (null == node.Tag)
+			if (null == node.Entity)
 			{
-				node.Tag = new InternalConstructor(TypeSystemServices, node);
+				node.Entity = new InternalConstructor(TypeSystemServices, node);
 				_parameters.Add(node);
 			}
 		}
 		
 		override public void OnField(Field node)
 		{
-			if (null == node.Tag)
+			if (null == node.Entity)
 			{
-				node.Tag = new InternalField(TypeSystemServices, node);
+				node.Entity = new InternalField(TypeSystemServices, node);
 			}
 		}
 		
 		override public void OnProperty(Property node)
 		{
-			if (null == node.Tag)
+			if (null == node.Entity)
 			{				
-				node.Tag = new InternalProperty(TypeSystemServices, node);
+				node.Entity = new InternalProperty(TypeSystemServices, node);
 				_parameters.Add(node);
 			}
 			

@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerErrorCollection _errors;
 		
-		protected TypeSystem.TypeSystemServices _tagService;		
+		protected TypeSystem.TypeSystemServices _typeSystemServices;		
 		
 		protected TypeSystem.NameResolutionService _nameResolutionService;
 		
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler
 			_errors = new CompilerErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_tagService = new TypeSystem.TypeSystemServices();
+			_typeSystemServices = new TypeSystem.TypeSystemServices();
 			_nameResolutionService = new TypeSystem.NameResolutionService(this); 
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
@@ -144,7 +144,7 @@ namespace Boo.Lang.Compiler
 		{
 			get
 			{
-				return _tagService;
+				return _typeSystemServices;
 			}
 		}		
 		

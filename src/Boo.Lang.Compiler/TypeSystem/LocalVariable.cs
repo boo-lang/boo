@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {	
-	public class LocalVariable : ITypedElement
+	public class LocalVariable : ITypedEntity
 	{		
 		Boo.Lang.Compiler.Ast.Local _local;
 		
@@ -58,11 +58,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ElementType ElementType
+		public EntityType EntityType
 		{
 			get
 			{
-				return ElementType.Local;
+				return EntityType.Local;
 			}
 		}
 		
