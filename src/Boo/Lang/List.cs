@@ -34,6 +34,8 @@ namespace Boo.Lang
 
 	// callable Predicate(item) as bool
 	public delegate bool Predicate(object item);
+	
+	public delegate int Comparer(object lhs, object rhs); 
 
 	/// <summary>
 	/// List.
@@ -247,6 +249,30 @@ namespace Boo.Lang
 		{
 			Array.Sort(_items, 0, _count, comparer);
 			return this;
+		}
+		
+		private class ComparerImpl : IComparer
+		{
+			Comparer _comparer;
+			
+			public ComparerImpl(Comparer comparer)
+			{
+				_comparer = comparer;
+			}
+			
+			public int Compare(object lhs, object rhs)
+			{
+				return _comparer(lhs, rhs);
+			}
+		}
+		
+		public List Sort(Comparer comparer)
+		{
+			if (null == comparer)
+			{
+				throw new ArgumentNullException("comparer");
+			}
+			return Sort(new ComparerImpl(comparer));
 		}
 
 		override public string ToString()

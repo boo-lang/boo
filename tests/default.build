@@ -61,7 +61,7 @@
 				<include name="build/RegressionTestFixture.cs" />
 				<include name="build/CompilerErrorsTestFixture.cs" />
 				<include name="build/IntegrationTestFixture.cs" />
-				<include name="build/BuiltinsTestFixture.cs" />
+				<include name="build/StdlibTestFixture.cs" />
 				<include name="build/AttributesTestFixture.cs" />
 			</sources>
 			

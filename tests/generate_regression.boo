@@ -100,13 +100,13 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("testcases/builtins", "build/BuiltinsTestFixture.cs", """
+GenerateTestFixture("testcases/stdlib", "build/StdlibTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
 
 	[TestFixture]
-	public class BuiltinsTestFixture : AbstractCompilerTestCase
+	public class StdlibTestFixture : AbstractCompilerTestCase
 	{
 """)
 
