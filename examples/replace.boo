@@ -26,6 +26,8 @@ re = Regex(expression)
 for fname in Directory.GetFiles(".", glob):
 	contents = read(fname)
 	newContents = re.Replace(contents, replacement)
-	write(fname, contents)
+	if newContents != contents:
+		print(fname)
+		write(fname, contents)
 		
 		
