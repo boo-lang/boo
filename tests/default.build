@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<project name="tests" default="run">
+
+	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
+
+	<!-- build environment checking -->
+	<if test="${not property::exists('nant.tasks.nunit2')}">
+		<echo>nunit2 task is not available. Unit tests won't be executed.</echo>
+		<property name="nant.tasks.nunit2" value="False" />
+	</if>	
+	
+	<target name="run" depends="compile" if='${nant.tasks.nunit2}'>
+
+		<nunit2>       
+			<formatter type="Plain" />
+			<test>
+				<assemblies basedir="build">
+					<includes name="Boo.Lang.Compiler.Tests.dll" />
+					<includes name="Boo.Tests.dll" />
+					<includes name="Boo.AntlrParser.Tests.dll" />
+				</assemblies>
+			</test>
+		</nunit2>
+		
+	</target>
+	
+	<target name="compile" depends="init">
+	
+		<booc
+			target="library"
+			output="build/Boo.Tests.dll">
+
+			<sources basedir="Boo.Tests">
+				<includes name="**/*.boo" />
+			</sources>
+
+			<references>
+				<includes name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+		
+		<csc
+			target="library"
+			output="build/Boo.Lang.Compiler.Tests.dll">
+			
+			<sources basedir="Boo.Lang.Compiler.Tests">
+				<includes name="**/*.cs" />
+			</sources>
+			
+			<references basedir="build">
+				<includes name="${nunit.framework.dll}" />
+				<includes name="Boo.dll" />
+				<includes name="Boo.Lang.Compiler.dll" />
+			</references>
+		</csc>
+		
+		<csc
+			target="library"
+			output="build/Boo.AntlrParser.Tests.dll">
+			
+			<sources basedir="Boo.AntlrParser.Tests">
+				<includes name="**/*.cs" />
+			</sources>
+			
+			<references basedir="build">
+				<includes name="${nunit.framework.dll}" />
+				<includes name="Boo.Lang.Compiler.dll" />
+				<includes name="Boo.Lang.Compiler.Tests.dll" />
+				<includes name="Boo.AntlrParser.dll" />
+				<includes name="antlr.runtime.dll" />
+			</references>			
+		</csc>
+		
+		<booc
+			target="library"
+			output="build/BooInBoo.Tests.dll">
+			
+			<sources basedir="BooInBoo.Tests">
+				<includes name="**/*.boo" />
+			</sources>
+			
+			<references basedir="build">
+				<includes name="BooInBoo.dll" />
+				<includes name="Boo.Lang.Compiler.Tests.dll" />
+				<includes name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="init">
+		<mkdir dir="build" />
+		<copy todir="build">
+			<fileset basedir="../build">
+				<includes name="*.dll" />
+				<includes name="pt/*.dll" />
+			</fileset>
+		</copy>
+		<loadtasks assembly="build/Boo.NAnt.dll" />
+	</target>
+</project>

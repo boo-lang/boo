@@ -26,20 +26,7 @@
 			</sources>
 		</booc>
 		
-		<booc
-			target="library"
-			output="${build.dir}/BooInBoo.Tests.dll">
-			
-			<sources basedir="src/BooInBoo.Tests">
-				<includes name="**/*.boo" />
-			</sources>
-			
-			<references basedir="${build.dir}">
-				<includes name="BooInBoo.dll" />
-				<includes name="Boo.Lang.Compiler.Tests.dll" />
-				<includes name="${nunit.framework.dll}" />
-			</references>
-		</booc>
+		
 	
 	</target>
 	
