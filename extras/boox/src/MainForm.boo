@@ -247,9 +247,9 @@ class MainForm(Form):
 		super(args)
 		if not args.Cancel:			
 			dirtyDocuments = [
-							cast(BooEditor, editor).GetSafeFileName()
-							for editor in _dockPanel.Documents
-							if editor isa BooEditor and cast(BooEditor, editor).IsDirty
+							editor.GetSafeFileName()
+							for document in _dockPanel.Documents
+							if (editor=(document as BooEditor)) and editor.IsDirty
 							]
 			return unless len(dirtyDocuments)
 			
