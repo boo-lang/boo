@@ -928,7 +928,8 @@ callable_or_expression returns [Expression e]
 
 protected
 closure_parameters_test:
-	(ID! (AS! type_reference)?)+
+	(ID! (AS! type_reference)?)
+	(COMMA! ID (AS! type_reference)?)*
 	BITWISE_OR!
 	;
 	

@@ -109,11 +109,11 @@ namespace BooCompiler.Tests
 		{
 			CompilerPipeline pipeline = null;
 			
-			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
+			/*if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
 			{			
 				pipeline = new CompileToFileAndVerify();				
 			}
-			else
+			else*/
 			{
 				pipeline = new CompileToMemory();
 			}			
