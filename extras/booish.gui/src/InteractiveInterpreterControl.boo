@@ -168,6 +168,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 								RememberLastValue: true,
 								Print: print)
 		self._interpreter.SetValue("cls", cls)
+		self._interpreter.SetValue("exec", exec)
 		self._lineHistory = LineHistory(CurrentLineChanged: _lineHistory_CurrentLineChanged)
 		self.Document.HighlightingStrategy = GetBooHighlighting()
 		self.EnableFolding =  false
@@ -217,27 +218,32 @@ class InteractiveInterpreterControl(TextEditorControl):
 		
 	private def SingleLineInputState():
 		code = ConsumeCurrentLine()
-		
 		if code[-1:] in ":", "\\":
 			_state = InputState.Block
 			_block.GetStringBuilder().Length = 0
 			_block.WriteLine(code)
 		else:
 			Eval(code)
-		
+			
 	private def BlockInputState():
 		code = ConsumeCurrentLine()
 		if 0 == len(code):
 			Eval(_block.ToString())			
 		else:
 			_block.WriteLine(code)
-			
+
 	def print(msg):
 		AppendText("${msg}\r\n")		
 				
 	def prompt():
 		AppendText((">>> ", "... ")[_state])
-		
+
+	def ClearLine():
+		segment = GetLastLineSegment()
+		self.Document.Replace(segment.Offset + 4,
+			self.CurrentLineText.Length,
+			"")
+
 	def AppendText(text as string):
 		segment = GetLastLineSegment()
 		self.Document.Insert(segment.Offset + segment.TotalLength, text)
@@ -321,6 +327,10 @@ class InteractiveInterpreterControl(TextEditorControl):
 			MoveCaretToOffset(GetLastLineSegment().Offset + 4)
 			return true
 			
+		if key == Keys.Escape:
+			ClearLine()
+			return true
+			
 		if key in Keys.Back, Keys.Left:
 			if self.CaretColumn < 5:
 				return true
@@ -344,7 +354,10 @@ class InteractiveInterpreterControl(TextEditorControl):
 	private def cls():
 		self.Document.TextContent = ""
 		self.ActiveTextAreaControl.Refresh()
-		
+	
+	private def exec(scriptName as string):
+		_interpreter.Eval(Boo.IO.TextFile.ReadFile(scriptName))
+
 	private def _lineHistory_CurrentLineChanged():
 		segment = GetLastLineSegment()
 		self.Document.Replace(segment.Offset + 4,
