@@ -206,7 +206,9 @@ class BooEditor(DockContent):
 		
 				_main.UpdateTaskList(result.Errors)
 				
-				unless len(result.Errors):
+				if len(result.Errors):
+					UpdateOutputPane(result.Errors.ToString(true))
+				else:
 					
 					AppDomain_AssemblyResolve = def (sender, args as ResolveEventArgs):
 						name = GetSimpleName(args.Name)
@@ -220,9 +222,8 @@ class BooEditor(DockContent):
 					except x:
 						print(x)		
 					ensure:
-						current.AssemblyResolve -= AppDomain_AssemblyResolve
-				
-				UpdateOutputPane(console.ToString())
+						current.AssemblyResolve -= AppDomain_AssemblyResolve				
+					UpdateOutputPane(console.ToString())
 		ensure:
 			_compiler.Parameters.Input.Clear()
 			
