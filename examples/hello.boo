@@ -1,6 +1,3 @@
-name = prompt("Seu nome? ")
-print("Olá, ${name}!")
-
 """
 Passo 1: resolver using
 
@@ -37,3 +34,5 @@ Passo 5: geração de IL
 	* variáveis globais são campos;
 	* sentenças globais são colocadas em um entry point public static void Main();
 """
+name = prompt("Seu nome? ")
+print("Olá, ${name}!")

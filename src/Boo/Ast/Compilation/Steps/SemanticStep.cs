@@ -18,7 +18,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		TypeBuilder _typeBuilder;
 		
-		INameResolver _resolver;
+		INameSpace _namespace;
 		
 		public override void Run()
 		{
@@ -29,7 +29,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override bool EnterCompileUnit(CompileUnit cu)
 		{			
-			_resolver = new TypeNameResolver(null, typeof(Boo.Lang.Builtins));
+			// builtins resolution at the highest level
+			_namespace = new TypeNameSpace(TypeManager, null, typeof(Boo.Lang.Builtins));
 			return true;
 		}
 		
@@ -38,46 +39,50 @@ namespace Boo.Ast.Compilation.Steps
 			TypeAttributes attributes = TypeAttributes.Public|TypeAttributes.Sealed;
 			_typeBuilder = _moduleBuilder.DefineType(module.FullyQualifiedName, attributes);
 			
-			TypeManager.SetMemberInfo(module, _typeBuilder);
+			TypeManager.SetNameInfo(module, _typeBuilder);
 			
-			_resolver = new TypeDefinitionNameResolver(TypeManager, _resolver, module);
+			_namespace = new TypeDefinitionNameSpace(TypeManager, _namespace, module);
 			return true;
 		}
 		
 		public override void LeaveMethod(Method method)
 		{
+			// Por enquanto, valor de retorno apenas void
+			method.ReturnType = new TypeReference("void");
+			TypeManager.SetNameInfo(method.ReturnType, TypeManager.ToTypeInfo(TypeManager.VoidType));
+			
 			MethodBuilder mbuilder = _typeBuilder.DefineMethod(method.Name,
 				                     MethodAttributes.Static|MethodAttributes.Public,
 				                     TypeManager.VoidType,
 				                     new Type[0]);
-			TypeManager.SetMemberInfo(method, mbuilder);
+			TypeManager.SetNameInfo(method, mbuilder);
 		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
-			SetMemberInfo(node, TypeManager.StringType);
+			TypeManager.SetNameInfo(node, TypeManager.StringType);
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
-			MemberInfo info = ResolveName(node, node.Name);
+			INameInfo info = ResolveName(node, node.Name);
 			if (null != info)
 			{
-				SetMemberInfo(node, info);
+				TypeManager.SetNameInfo(node, info);
 			}
 		}
 		
 		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			MemberInfo targetType = GetMemberInfo(node.Target);			
-			if (targetType.MemberType == MemberTypes.Method)
+			INameInfo targetType = TypeManager.GetNameInfo(node.Target);			
+			if (targetType.InfoType == NameInfoType.MethodInfo)
 			{				
-				MethodInfo targetMethod = (MethodInfo)targetType;
+				IMethodInfo targetMethod = (IMethodInfo)targetType;
 				CheckParameters(targetMethod, node);
 				
 				// 1) conferir número de parâmetros ao método
 				// 2) conferir compatibilidade dos parâmetros				
-				SetMemberInfo(node, targetMethod.ReturnType);
+				TypeManager.SetNameInfo(node, targetMethod.ReturnType);
 			}
 			else
 			{
@@ -85,39 +90,27 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		void SetMemberInfo(Node node, MemberInfo mi)
+		INameInfo ResolveName(Node node, string name)
 		{
-			TypeManager.SetMemberInfo(node, mi);
-		}
-		
-		MemberInfo GetMemberInfo(Node node)
-		{
-			return TypeManager.GetMemberInfo(node);
-		}
-		
-		MemberInfo ResolveName(Node node, string name)
-		{
-			System.Reflection.MemberInfo[] mi = _resolver.Resolve(name);
-			if (1 == mi.Length)
-			{
-				return mi[0];
-			}
-			
-			if (0 == mi.Length)
+			INameInfo info = _namespace.Resolve(name);
+			if (null == info)
 			{
 				Errors.UnknownName(node, name);			
 			}
 			else
 			{
-				Errors.AmbiguousName(node, name, mi);
+				if (info.InfoType == NameInfoType.AmbiguousNameInfo)
+				{
+					//Errors.AmbiguousName(node, name, info);
+					throw new NotImplementedException();
+				}
 			}
-			return null;
+			return info;
 		}
 		
-		void CheckParameters(MethodInfo method, MethodInvocationExpression mie)
-		{
-			ParameterInfo[] parameters = method.GetParameters();
-			if (parameters.Length != mie.Arguments.Count)
+		void CheckParameters(IMethodInfo method, MethodInvocationExpression mie)
+		{			
+			if (method.ParameterCount != mie.Arguments.Count)
 			{
 				Errors.MethodArgumentCount(mie, method);
 			}

@@ -1,27 +1,72 @@
 using System;
+using BindingFlags = System.Reflection.BindingFlags;
 
 namespace Boo.Ast.Compilation.NameBinding
 {
-	interface INameSpace
+	public enum NameInfoType
+	{
+		TypeInfo,
+		MethodInfo,
+		AmbiguousNameInfo
+	}
+	
+	public interface INameInfo
+	{		
+		NameInfoType InfoType
+		{
+			get;
+		}
+	}
+	
+	public interface ITypeInfo : INameInfo
+	{
+		System.Type Type
+		{
+			get;
+		}
+	}
+	
+	public interface IMethodInfo : INameInfo
+	{
+		int ParameterCount
+		{
+			get;
+		}
+		
+		System.Reflection.MethodInfo MethodInfo
+		{
+			get;
+		}
+		
+		ITypeInfo ReturnType
+		{
+			get;
+		}
+	}
+	
+	public interface INameSpace
 	{
 		INameSpace Parent
 		{
 			get;
 		}
 		
-		INameInfo[] Resolve(string name);
+		INameInfo Resolve(string name);
 	}
 	
 	class TypeNameSpace : INameSpace
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
 		
+		TypeManager _typeManager;
+		
 		INameSpace _parent;
 		
 		Type _type;
 		
-		public TypeNameSpace(INameSpace parent, Type type)
+		public TypeNameSpace(TypeManager typeManager, INameSpace parent, Type type)
 		{
+			_typeManager = typeManager;
 			_parent = parent;
 			_type = type;
 		}		
@@ -34,12 +79,12 @@ namespace Boo.Ast.Compilation.NameBinding
 			}
 		}
 		
-		public INameInfo[] Resolve(string name)
+		public INameInfo Resolve(string name)
 		{
-			MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
+			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
 			if (members.Length > 0)
-			{
-				return Wrap(members);
+			{				
+				return _typeManager.ToNameInfo(members);
 			}
 			
 			if (null != _parent)
@@ -51,22 +96,22 @@ namespace Boo.Ast.Compilation.NameBinding
 		}
 	}
 	
-	class TypeDefinitionNameResolver : INameResolver
+	class TypeDefinitionNameSpace : INameSpace
 	{
-		INameResolver _parent;
+		INameSpace _parent;
 		
 		TypeDefinition _typeDefinition;
 		
 		TypeManager _typeManager;
 		
-		public TypeDefinitionNameResolver(TypeManager typeManager, INameResolver parent, TypeDefinition typeDefinition)
+		public TypeDefinitionNameSpace(TypeManager typeManager, INameSpace parent, TypeDefinition typeDefinition)
 		{
 			_typeManager = typeManager;
 			_parent = parent;
 			_typeDefinition = typeDefinition;
 		}
 		
-		public INameResolver Parent
+		public INameSpace Parent
 		{
 			get
 			{
@@ -74,20 +119,20 @@ namespace Boo.Ast.Compilation.NameBinding
 			}
 		}
 		
-		public MemberInfo[] Resolve(string name)
+		public INameInfo Resolve(string name)
 		{			
 			foreach (TypeMember member in _typeDefinition.Members)
 			{
 				if (name == member.Name)
 				{
-					return new MemberInfo[] { _typeManager.GetMemberInfo(member) };
+					return _typeManager.GetNameInfo(member);
 				}
 			}			
 			if (null != _parent)
 			{
 				return _parent.Resolve(name);
 			}
-			return new MemberInfo[0];
+			return null;
 		}
 	}
 

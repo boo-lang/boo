@@ -44,7 +44,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		protected TypeManager TypeManager
+		protected NameBinding.TypeManager TypeManager
 		{
 			get
 			{

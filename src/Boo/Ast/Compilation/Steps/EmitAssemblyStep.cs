@@ -27,13 +27,13 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveModule(Boo.Ast.Module module)
 		{			
-			TypeBuilder typeBuilder = (TypeBuilder)TypeManager.GetMemberInfo(module);
+			TypeBuilder typeBuilder = TypeManager.GetTypeBuilder(module);
 			typeBuilder.CreateType();
 		}
 		
 		public override void OnMethod(Method method)
 		{			
-			MethodBuilder methodBuilder = (MethodBuilder)TypeManager.GetMemberInfo(method);
+			MethodBuilder methodBuilder = TypeManager.GetMethodBuilder(method);
 			_il = methodBuilder.GetILGenerator();
 			method.Body.Switch(this);
 			_il.Emit(OpCodes.Ret);			
@@ -41,12 +41,12 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node)
 		{
-			Type type = (Type)TypeManager.GetMemberInfo(node.Expression);
+			Type type = (Type)TypeManager.GetType(node.Expression);
 			
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
-			if (type != TypeManager.VoidType)
+			if (type != NameBinding.TypeManager.VoidType)
 			{
 				_il.Emit(OpCodes.Pop);
 			}
@@ -54,7 +54,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			MethodInfo mi = (MethodInfo)TypeManager.GetMemberInfo(node.Target);
+			MethodInfo mi = TypeManager.GetMethodInfo(node.Target);
 					
 			// Empilha os argumentos
 			node.Arguments.Switch(this);
@@ -71,7 +71,7 @@ namespace Boo.Ast.Compilation.Steps
 			if (CompilerOutputType.Library != CompilerParameters.OutputType)
 			{
 				Method method = ModuleStep.GetMainMethod(CompileUnit.Modules[0]);
-				MethodInfo mi = (MethodInfo)TypeManager.GetMemberInfo(method);
+				MethodInfo mi = TypeManager.GetMethodInfo(method);
 				
 				_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
 			}
