@@ -1338,6 +1338,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BeginInvokeEndInvokeOnSavedMemberReference()
+		{
+			RunCompilerTestCase("callable13.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");

@@ -10,9 +10,9 @@ class Computer:
 		return "${_prefix} 42"
 	
 
-c = Computer("The answer is")
-handle = c.Compute.BeginInvoke(null, null)
+compute = Computer("The answer is").Compute
+handle = compute.BeginInvoke(null, null)
 
-Assert.AreEqual("The answer is 42", c.Compute.EndInvoke(handle))
+Assert.AreEqual("The answer is 42", compute.EndInvoke(handle))
 	
 	

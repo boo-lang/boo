@@ -181,18 +181,30 @@ namespace Boo.Lang.Compiler.Steps
 				constructor.Arguments.Add(((MemberReferenceExpression)source).Target);
 			}
 			
-			constructor.Arguments.Add(CreateAddressOfExpression(source));
+			constructor.Arguments.Add(CreateAddressOfExpression(method));
 			Bind(constructor.Target, type.GetConstructors()[0]);
 			BindExpressionType(constructor, type);
 			
 			return constructor;
 		}
 		
-		Expression CreateAddressOfExpression(Expression arg)
+		ReferenceExpression CreateReference(IType type)
 		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
+			ReferenceExpression reference = new ReferenceExpression(type.FullName);
+			reference.Entity = type;
+			return reference;
+		}
+		
+		Expression CreateMethodReference(IMethod method)
+		{			
+			return CreateMemberReference(CreateReference(method.DeclaringType), method);
+		}
+		
+		Expression CreateAddressOfExpression(IMethod method)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression();
 			mie.Target = new ReferenceExpression("__addressof__");
-			mie.Arguments.Add(arg);
+			mie.Arguments.Add(CreateMethodReference(method));
 			Bind(mie.Target, TypeSystemServices.ResolvePrimitive("__addressof__"));
 			BindExpressionType(mie, TypeSystemServices.IntPtrType);
 			return mie;
