@@ -202,15 +202,24 @@ class Visitor(AbstractVisitorCompilerStep):
 		ctor.Node = node
 		ctor.Documentation = node.Documentation
 		cast(Class, _currentClass.Peek()).Methods.Add(ctor)
+		
+	override def OnEnumMember(node as AST.EnumMember):
+		try:
+			c as Class = _currentClass.Peek()
+			field = Field(ReturnType(c), node.Name, GetModifier(node), GetRegion(node))
+			field.Documentation = node.Documentation
+			field.SetModifiers(ModifierEnum.Const | ModifierEnum.SpecialName)
+			c.Fields.Add(field)
+		except x:
+			print x
+			raise
 	
 	override def OnField(node as AST.Field):
 		try:
 			print "Field ${node.Name}"
 			c as Class = _currentClass.Peek()
 			field = Field(ReturnType(node.Type), node.Name, GetModifier(node), GetRegion(node))
-			field.Documentation = node.Documentation
-			if c.ClassType == ClassType.Enum:
-				field.SetModifiers(ModifierEnum.Const | ModifierEnum.SpecialName)
+			field.Documentation = node.Documentation			
 			c.Fields.Add(field)
 		except ex:
 			print ex.ToString()
