@@ -7,6 +7,8 @@ for open issues.
 All the issues on this file will be eventually moved there.
 
 
+* break InternalType in InternalClass and InternalInterface
+* InternalClass::Resolve will remove the overriden members from the list 
 
 
 

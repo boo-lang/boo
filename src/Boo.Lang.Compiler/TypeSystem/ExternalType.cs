@@ -33,11 +33,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class ExternalType : IType
 	{
-		protected const BindingFlags DefaultBindingFlags = BindingFlags.Public |
-												BindingFlags.NonPublic |
-												BindingFlags.Static |
-												BindingFlags.Instance;
-		
 		protected TypeSystemServices _typeSystemServices;
 		
 		Type _type;
@@ -244,12 +239,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _members)
 			{
-				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 				MemberInfo[] members = _type.GetMembers(flags);
-				_members = new IEntity[members.Length];
-				for (int i=0; i<members.Length; ++i)
+				Type[] nested = _type.GetNestedTypes();
+				_members = new IEntity[members.Length+nested.Length];
+				int i = 0;
+				for (i=0; i<members.Length; ++i)
 				{
 					_members[i] = _typeSystemServices.Map(members[i]);
+				}
+				for (int j=0; j<nested.Length; ++j)
+				{
+					_members[i++] = _typeSystemServices.Map(nested[j]);
 				}
 			}
 			return _members;
@@ -275,10 +276,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{					
 			bool found = false;
-			foreach (System.Reflection.MemberInfo member in _type.GetMember(name, DefaultBindingFlags))
+			foreach (IEntity member in GetMembers())
 			{
-				targetList.AddUnique(_typeSystemServices.Map(member));
-				found = true;
+				if (member.Name == name && NameResolutionService.IsFlagSet(flags, member.EntityType))
+				{
+					targetList.AddUnique(member);
+					found = true;
+				}
 			}
 			
 			if (IsInterface)
