@@ -183,10 +183,28 @@ namespace Boo.Lang.Compiler.Steps
 			
 			SetUpAssembly();
 			
-			DefineTypes();			
+			ResolveEventHandler resolveHandler = new ResolveEventHandler(OnTypeResolve);
+			AppDomain current = System.Threading.Thread.GetDomain();
+			
+			try
+			{
+				current.TypeResolve += resolveHandler;
+				DefineTypes();
+			}
+			finally
+			{
+				current.TypeResolve -= resolveHandler;
+			}
+			
 			DefineResources();
 			DefineAssemblyAttributes();
 			DefineEntryPoint();			
+		}
+		
+		Assembly OnTypeResolve(object sender, ResolveEventArgs args)
+		{
+			_context.TraceVerbose("OnTypeResolve({0}, {1})", sender, args.Name);
+			return null;
 		}
 		
 		void DefineTypes()
