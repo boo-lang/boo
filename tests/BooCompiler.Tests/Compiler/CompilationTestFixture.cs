@@ -1299,6 +1299,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void StaticMethodCanBeUsedAsICallable()
+		{
+			RunCompilerTestCase("callable9.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");
