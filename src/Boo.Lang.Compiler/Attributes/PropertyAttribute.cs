@@ -37,14 +37,21 @@ namespace Boo.Lang
 	public class PropertyAttribute : Boo.Lang.Compiler.AbstractAstAttribute
 	{
 		protected ReferenceExpression _propertyName;
+		
+		protected Expression _setPreCondition;
 
-		public PropertyAttribute(ReferenceExpression propertyName)
+		public PropertyAttribute(ReferenceExpression propertyName) : this(propertyName, null)
+		{
+		}
+		
+		public PropertyAttribute(ReferenceExpression propertyName, Expression setPreCondition)
 		{
 			if (null == propertyName)
 			{
 				throw new ArgumentNullException("propertyName");
 			}
 			_propertyName = propertyName;
+			_setPreCondition = setPreCondition;
 		}
 		
 		override public void Apply(Node node)
@@ -87,6 +94,18 @@ namespace Boo.Lang
 		{
 			Method setter = new Method();
 			setter.Name = "set";
+			
+			if (null != _setPreCondition)
+			{
+				setter.Body.Add(
+					new RaiseStatement(
+						AstUtil.CreateMethodInvocationExpression(
+							AstUtil.CreateReferenceExpression("System.ArgumentException"),
+							new StringLiteralExpression(_propertyName.Name)),
+						new StatementModifier(
+							StatementModifierType.Unless,
+							_setPreCondition)));						
+			}
 			setter.Body.Add(
 				new BinaryExpression(
 					BinaryOperatorType.Assign,

@@ -50,6 +50,14 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		protected BooCodeBuilder CodeBuilder
+		{
+			get
+			{
+				return _context.CodeBuilder;
+			}
+		}
+		
 		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
 		{
 			get

@@ -221,6 +221,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 			}
+			if (null != BaseType)
+			{
+				return BaseType.GetDefaultMember();
+			}
 			return null;
 		}
 		

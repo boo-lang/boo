@@ -44,8 +44,19 @@ namespace Boo.Lang
 	//[AstAttributeTarget(typeof(ParameterDeclaration))]
 	public class RequiredAttribute : Boo.Lang.Compiler.AbstractAstAttribute
 	{
+		protected Expression _condition;
+		
 		public RequiredAttribute()
 		{
+		}
+		
+		public RequiredAttribute(Expression condition)
+		{
+			if (null == condition)
+			{
+				throw new ArgumentNullException("condition");
+			}
+			_condition = condition;
 		}
 
 		override public void Apply(Boo.Lang.Compiler.Ast.Node node)
@@ -57,20 +68,32 @@ namespace Boo.Lang
 				return;
 			}
 
-			// raise ArgumentNullException("<pd.Name>") if <pd.Name> is null
+			string exceptionClass = null;
+			StatementModifier modifier = null;			
+			if (null == _condition)
+			{
+				exceptionClass = "ArgumentNullException";
+				modifier = new StatementModifier(
+						StatementModifierType.If,
+						new BinaryExpression(BinaryOperatorType.ReferenceEquality,
+							new ReferenceExpression(pd.Name),
+							new NullLiteralExpression()));
+			}
+			else
+			{
+				exceptionClass = "ArgumentException";
+				modifier = new StatementModifier(
+						StatementModifierType.Unless,
+						_condition);
+			}
+			
 			MethodInvocationExpression x = new MethodInvocationExpression();
 			x.Target = new MemberReferenceExpression(
 								new ReferenceExpression("System"),
-								"ArgumentNullException");
+								exceptionClass);
 			x.Arguments.Add(new StringLiteralExpression(pd.Name));
-			RaiseStatement rs = new RaiseStatement(x);
-
-			rs.Modifier = new StatementModifier(
-				StatementModifierType.If,
-				new BinaryExpression(BinaryOperatorType.ReferenceEquality,
-					new ReferenceExpression(pd.Name),
-					new NullLiteralExpression())
-				);
+			
+			RaiseStatement rs = new RaiseStatement(x, modifier);
 
 			// associa mensagens de erro com a posio
 			// do parmetro no cdigo fonte

@@ -110,6 +110,27 @@ namespace BooCompiler.Tests
 	{
 """)
 
+GenerateTestFixture("testcases/attributes", "build/AttributesTestFixture.cs", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Steps;
+	
+	[TestFixture]
+	public class AttributesTestFixture : AbstractCompilerTestCase
+	{
+		override protected CompilerPipeline SetUpCompilerPipeline()
+		{
+			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Parse();
+			pipeline.Add(new InitializeNameResolutionService());
+			pipeline.Add(new IntroduceGlobalNamespaces());	
+			pipeline.Add(new BindNamespaces());
+			pipeline.Add(new BindAndApplyAttributes());
+			pipeline.Add(new PrintBoo());
+			return pipeline;
+		}
+""")
 
 GenerateTestFixture("testcases/parser/roundtrip", "build/ParserRoundtripTestFixture.cs", """
 namespace Boo.AntlrParser.Tests
@@ -124,5 +145,6 @@ namespace Boo.AntlrParser.Tests
 			RunParserTestCase(fname);
 		}
 """)
+
 
 	

@@ -156,10 +156,8 @@ tokens
 	protected BinaryOperatorType ParseCmpOperator(string op)
 	{
 		switch (op)
-		{
-			case "<": return BinaryOperatorType.LessThan;
-			case "<=": return BinaryOperatorType.LessThanOrEqual;
-			case ">": return BinaryOperatorType.GreaterThan;
+		{		
+			case "<=": return BinaryOperatorType.LessThanOrEqual;		
 			case ">=": return BinaryOperatorType.GreaterThanOrEqual;
 			case "==": return BinaryOperatorType.Equality;
 			case "!=": return BinaryOperatorType.Inequality;
@@ -271,7 +269,7 @@ start returns [Module module]
 protected docstring[Node node]:
 	(
 		doc:TRIPLE_QUOTED_STRING { node.Documentation = MassageDocString(doc.getText()); }
-		(EOS!)*
+		(options { greedy=true; }: EOS!)*
 	)?
 	;
 			
@@ -803,7 +801,7 @@ protected
 begin_with_doc[Node node]: COLON! (EOS! docstring[node])? INDENT!;
 
 protected
-end : DEDENT! (EOS!)*;
+end : DEDENT! (options { greedy=true; }: EOS!)*;
 
 protected
 compound_stmt[StatementCollection c] :
@@ -902,6 +900,39 @@ callable_or_expression returns [Expression e]
 	}:
 	e=callable_expression|
 	e=array_or_expression
+	;
+	
+
+protected
+closure_parameters_test:
+	(ID! (AS! type_reference)?)+
+	BITWISE_OR!
+	;
+	
+protected
+closure_expression returns [Expression e]
+	{
+		e = null;
+		CallableBlockExpression cbe = null;
+		Statement stmt = null;		
+	}:
+	anchorBegin:LESS_THAN!
+		{ e = cbe = new CallableBlockExpression(ToLexicalInfo(anchorBegin)); }
+		
+		(
+			(closure_parameters_test)=>(
+				parameter_declaration_list[cbe.Parameters]
+				BITWISE_OR!
+			) |
+		)
+		(
+			(
+				stmt=return_stmt |
+				stmt=expression_stmt
+			)
+			{ cbe.Body.Add(stmt); }
+		)
+	anchorEnd:GREATER_THAN!
 	;
 	
 protected
@@ -1016,7 +1047,8 @@ expression_stmt returns [ExpressionStatement s]
 		s = null;
 		Expression e = null;
 	}:
-	e=expression
+	//e=expression
+	e=assignment_expression
 	{
 		s = new ExpressionStatement(e);
 	}
@@ -1380,6 +1412,8 @@ conditional_expression returns [Expression e]
 	  (
 		 (
 			(t:CMP_OPERATOR { op = ParseCmpOperator(t.getText()); token = t; } ) |
+			(tgt:GREATER_THAN { op = BinaryOperatorType.GreaterThan; token = tgt; } ) |
+			(tlt:LESS_THAN { op = BinaryOperatorType.LessThan; token = tlt; }) |
 			(
 				tis:IS! { op = BinaryOperatorType.ReferenceEquality; token = tis; }
 				(NOT! { op = BinaryOperatorType.ReferenceInequality; })?
@@ -1513,7 +1547,8 @@ atom returns [Expression e]
 		e=reference_expression |
 		e=paren_expression |
 		e=cast_expression |
-		e=typeof_expression
+		e=typeof_expression |
+		e=closure_expression
 	)
 	;
 	
@@ -2040,7 +2075,11 @@ DIVISION:
 		)
 	;
 
-CMP_OPERATOR : '<' | "<=" | '>' | ">=" | "!~" | "!=";
+LESS_THAN: '<';
+
+GREATER_THAN: '>';
+
+CMP_OPERATOR :  "<=" | ">=" | "!~" | "!=";
 
 ASSIGN : '=' ( ('=' | '~') { $setType(CMP_OPERATOR); } )?;
 
