@@ -42,14 +42,16 @@ namespace Boo.Lang
 	[Serializable]
 	public class List : IList
 	{	
-		const int DefaultCapacity = 16;
+		static readonly object[] EmptyObjectArray = new object[0];
 		
 		protected object[] _items;
 		
 		protected int _count;
 		
-		public List() : this(DefaultCapacity)
+		public List()
 		{
+			_items = EmptyObjectArray;
+			_count = 0;
 		}
 		
 		public List(IEnumerable enumerable) : this()
@@ -59,16 +61,21 @@ namespace Boo.Lang
 		
 		public List(int initialCapacity)
 		{
+			if (initialCapacity < 0)
+			{
+				throw new ArgumentOutOfRangeException("initialCapacity");
+			}
 			_items = new object[initialCapacity];
 			_count = 0;
-		}		                                     
-
-		public List(params object[] items) : this(items, false)
-		{
 		}
 		
-		protected List(object[] items, bool takeOwnership)
+		public List(object[] items, bool takeOwnership)
 		{
+			if (null == items)
+			{
+				throw new ArgumentNullException("items");
+			}
+			
 			if (takeOwnership)
 			{
 				_items = items;
@@ -351,7 +358,7 @@ namespace Boo.Lang
 		
 		object[] NewArray(int minCapacity)
 		{
-			int newLen = _items.Length*2;				
+			int newLen = Math.Max(1, _items.Length)*2;				
 			return new object[Math.Max(newLen, minCapacity)];
 		}		
 		

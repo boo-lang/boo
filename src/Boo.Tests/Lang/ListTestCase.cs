@@ -43,7 +43,7 @@ namespace Boo.Tests.Lang
 		[SetUp]
 		public void SetUp()
 		{
-			_list = new List("um", "dois", "tres");
+			_list = new List().Add("um").Add("dois").Add("tres");
 		}
 
 		[Test]

@@ -79,7 +79,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static ConstructorInfo List_EmptyConstructor = Types.List.GetConstructor(Type.EmptyTypes);
 		
-		static ConstructorInfo List_IntConstructor = Types.List.GetConstructor(new Type[] { typeof(int) });
+		static ConstructorInfo List_ArrayBoolConstructor = Types.List.GetConstructor(new Type[] { Types.ObjectArray, Types.Bool });
 		
 		static ConstructorInfo Hash_Constructor = Types.Hash.GetConstructor(new Type[0]);
 		
@@ -1492,16 +1492,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (node.Items.Count > 0)
 			{
-				_il.Emit(OpCodes.Ldc_I4, node.Items.Count);
-				_il.Emit(OpCodes.Newobj, List_IntConstructor);
-				
-				foreach (Expression item in node.Items)
-				{					
-					item.Switch(this);
-					EmitCastIfNeeded(BindingManager.ObjectTypeBinding, PopType());
-					_il.EmitCall(OpCodes.Call, List_Add, null);
-					// List_Add will return the list itself
-				}
+				EmitObjectArray(node.Items);
+				_il.Emit(OpCodes.Ldc_I4_1);
+				_il.Emit(OpCodes.Newobj, List_ArrayBoolConstructor);
 			}
 			else
 			{
