@@ -28,11 +28,11 @@
 
 using System;
 using System.Collections;
-using Boo.AntlrParser.Util;
+using Boo.Lang.Parser.Util;
 using NUnit.Framework;
 using antlr;
 
-namespace Boo.AntlrParser.Tests.Util
+namespace Boo.Lang.Parser.Tests.Util
 {
 	class FakeStream : antlr.TokenStream
 	{

@@ -8,9 +8,9 @@
 		<nunit2>       
 			<formatter type="Plain" />
 			<test>
-				<assemblies basedir="build">
-					<include name="Boo.AntlrParser.Tests.dll" />
+				<assemblies basedir="build">				
 					<include name="Boo.Tests.dll" />
+					<include name="Boo.Lang.Parser.Tests.dll" />
 					<include name="Boo.Lang.Compiler.Tests.dll" />
 					<include name="BooCompiler.Tests.dll" />					
 					<include name="BooCompilerResources.Tests.dll" />					
@@ -114,10 +114,10 @@
 		
 		<csc
 			target="library"
-			output="build/Boo.AntlrParser.Tests.dll">
+			output="build/Boo.Lang.Parser.Tests.dll">
 			
 			<sources>
-				<include name="Boo.AntlrParser.Tests/**/*.cs" />
+				<include name="Boo.Lang.Parser.Tests/**/*.cs" />
 				<include name="build/ParserRoundtripTestFixture.cs" />
 			</sources>
 			
@@ -125,7 +125,7 @@
 				<include name="${nunit.framework.dll}" />
 				<include name="BooCompiler.Tests.dll" />
 				<include name="Boo.Lang.Compiler.dll" />				
-				<include name="Boo.AntlrParser.dll" />
+				<include name="Boo.Lang.Parser.dll" />
 			</references>			
 		</csc>
 	</target>

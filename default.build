@@ -114,12 +114,12 @@
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='build/Boo.dll' />
 			<arg file='build/Boo.Lang.Compiler.dll' />			
-			<arg file='build/Boo.AntlrParser.dll' />
+			<arg file='build/Boo.Lang.Parser.dll' />
 			<arg file='build/booc.exe' />
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo, Boo.Lang.Compiler, Boo.AntlrParser">
+	<target name="core" depends="Boo, Boo.Lang.Compiler, Boo.Lang.Parser">
 	</target>
 	
 	<target name="update-bin" depends="all">
@@ -130,7 +130,7 @@
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.NAnt.Tasks.dll" />
-				<include name="Boo.AntlrParser.dll" />
+				<include name="Boo.Lang.Parser.dll" />
 				<include name="booc.exe" />
 				<include name="booc.rsp" />
 				<include name="booi.exe" />
@@ -177,10 +177,10 @@
 		</csc>
 	</target>
 	
-	<target name="Boo.AntlrParser" depends="Boo.Lang.Compiler, compile-grammar">
-		<csc target="library" output="build/Boo.AntlrParser.dll"
+	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">
+		<csc target="library" output="build/Boo.Lang.Parser.dll"
 			debug="${debug}" optimize="${optimize}">
-			<sources basedir="src/Boo.AntlrParser">
+			<sources basedir="src/Boo.Lang.Parser">
 				<include name="**/*.cs" />
 			</sources>
 			<references>
@@ -345,11 +345,11 @@
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
 	
 		<uptodate property="parser-is-uptodate">
-			<sourcefiles basedir="src/Boo.AntlrParser">
+			<sourcefiles basedir="src/Boo.Lang.Parser">
 				<include name="boo.g" />
 				<include name="booel.g" />
 			</sourcefiles>
-			<targetfiles basedir="src/Boo.AntlrParser">
+			<targetfiles basedir="src/Boo.Lang.Parser">
 				<include name="BooParserBase.cs" />
 				<include name="BooExpressionLexer.cs" />
 			</targetfiles>
@@ -358,7 +358,7 @@
 		<if test="${not parser-is-uptodate}">
 		
 			<delete>
-				<fileset basedir="src/Boo.AntlrParser">
+				<fileset basedir="src/Boo.Lang.Parser">
 					<include name="*TokenTypes.*" />
 				</fileset>
 			</delete>			 
@@ -369,8 +369,8 @@
 				<arg value="antlr.Tool" />
 				<!-- <arg value="-traceParser" /> -->
 				<arg value="-o" />
-				<arg value="src/Boo.AntlrParser/" />
-				<arg value="src/Boo.AntlrParser/boo.g" />
+				<arg value="src/Boo.Lang.Parser/" />
+				<arg value="src/Boo.Lang.Parser/boo.g" />
 			</exec>
 			
 			<exec program="${java}" failonerror="true">
@@ -378,11 +378,11 @@
 				<arg value="${antlr.jar}" />
 				<arg value="antlr.Tool" />
 				<arg value="-o" />
-				<arg value="src/Boo.AntlrParser/" />
-				<arg value="src/Boo.AntlrParser/booel.g" />
+				<arg value="src/Boo.Lang.Parser/" />
+				<arg value="src/Boo.Lang.Parser/booel.g" />
 			</exec>
 			
-			<touch file="src/Boo.AntlrParser/BooParserBase.cs" />
+			<touch file="src/Boo.Lang.Parser/BooParserBase.cs" />
 		</if>
 	</target>
 	
@@ -412,8 +412,8 @@
 	<target name="rebuild" depends="clean">
 		
 		<touch file="ast.model.boo" />
-		<touch file="src/Boo.AntlrParser/boo.g" />
-		<touch file="src/Boo.AntlrParser/booel.g" />
+		<touch file="src/Boo.Lang.Parser/boo.g" />
+		<touch file="src/Boo.Lang.Parser/booel.g" />
 		
 		<call target="all" />		
 	</target>

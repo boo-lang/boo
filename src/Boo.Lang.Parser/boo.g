@@ -32,7 +32,7 @@ options
 
 {
 using Boo.Lang.Compiler.Ast;
-using Boo.AntlrParser.Util;
+using Boo.Lang.Parser.Util;
 using System.Globalization;
 
 public delegate void ParserErrorHandler(antlr.RecognitionException x);
@@ -2241,7 +2241,7 @@ identifier returns [Token value]
 	{ value.setText(_sbuilder.ToString()); }
 	;	 
 {
-using Boo.AntlrParser.Util;
+using Boo.Lang.Parser.Util;
 }
 class BooLexer extends Lexer;
 options

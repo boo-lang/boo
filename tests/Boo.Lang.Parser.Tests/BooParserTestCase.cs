@@ -32,7 +32,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.AntlrParser.Tests
+namespace Boo.Lang.Parser.Tests
 {
 	/// <summary>
 	/// Test cases for the BooParser class.

@@ -171,7 +171,7 @@ namespace BooCompiler.Tests
 """)
 
 GenerateTestFixture("testcases/parser/roundtrip", "build/ParserRoundtripTestFixture.cs", """
-namespace Boo.AntlrParser.Tests
+namespace Boo.Lang.Parser.Tests
 {
 	using NUnit.Framework;
 	

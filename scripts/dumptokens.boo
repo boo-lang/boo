@@ -29,7 +29,7 @@
 import System
 import System.IO
 import antlr from antlr.runtime
-import Boo.AntlrParser from Boo.AntlrParser
+import Boo.Lang.Parser from Boo.Lang.Parser
 
 def Consume(reader as TextReader):
 	writer = StringWriter()

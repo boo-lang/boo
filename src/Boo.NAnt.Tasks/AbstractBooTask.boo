@@ -45,7 +45,7 @@ abstract class AbstractBooTask(Task):
 	def constructor():
 		baseAssemblyFolder = Path.GetDirectoryName(GetType().Assembly.Location)
 		System.Reflection.Assembly.LoadFrom(
-			Path.Combine(baseAssemblyFolder, "Boo.AntlrParser.dll"))
+			Path.Combine(baseAssemblyFolder, "Boo.Lang.Parser.dll"))
 			
 	[BuildElement("references")]
 	References:

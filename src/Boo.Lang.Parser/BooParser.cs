@@ -38,7 +38,7 @@ namespace Boo.Lang.Parser
 	{	
 		const int TabSize = 4;
 		
-		const string TokenObjectClass = "Boo.AntlrParser.BooToken";
+		const string TokenObjectClass = "Boo.Lang.Parser.BooToken";
 		
 		protected ParserErrorHandler Error;
 

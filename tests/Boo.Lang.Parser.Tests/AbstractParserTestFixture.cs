@@ -1,11 +1,11 @@
-namespace Boo.AntlrParser.Tests
+namespace Boo.Lang.Parser.Tests
 {
 	using System;
 	using System.IO;
 	using NUnit.Framework;	
 	using Boo.Lang.Compiler.IO;
 	using Boo.Lang.Compiler.Steps;
-	using Boo.AntlrParser;
+	using Boo.Lang.Parser;
 
 	public class AbstractParserTestFixture
 	{

@@ -68,7 +68,7 @@ namespace Boo.Lang.Parser
 			{
 				get
 				{
-					return "Boo.AntlrParser.BooToken";
+					return "Boo.Lang.Parser.BooToken";
 				}
 			}
 			

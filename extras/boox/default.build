@@ -51,7 +51,7 @@
 			<fileset basedir="${boo.dir}">
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
-				<include name="Boo.AntlrParser.dll" />
+				<include name="Boo.Lang.Parser.dll" />
 				<include name="booish.exe" />
 			</fileset>
 		</copy>

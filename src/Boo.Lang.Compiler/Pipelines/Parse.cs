@@ -39,8 +39,7 @@ namespace Boo.Lang.Compiler.Pipelines
 		{
 			if (null == _defaultParserStepType)
 			{				
-				 _defaultParserStepType = Type.GetType("Boo.AntlrParser.BooParsingStep, Boo.AntlrParser", true);
-				 //_defaultParserStepType = System.Reflection.Assembly.Load("Boo.AntlrParser").GetType("Boo.AntlrParser.BooParsingStep");
+				 _defaultParserStepType = Type.GetType("Boo.Lang.Parser.BooParsingStep, Boo.Lang.Parser", true);				 
 			}
 			return (ICompilerStep)Activator.CreateInstance(_defaultParserStepType);
 		}
