@@ -2153,18 +2153,21 @@ namespace Boo.Lang.Compiler.Steps
 			return mie;
 		}
 		
+		MemberReferenceExpression CreateMemberReference(Expression target, IMember member)
+		{
+			MemberReferenceExpression reference = new MemberReferenceExpression(target.LexicalInfo);
+			reference.Target = target;
+			reference.Name = member.Name;
+			Bind(reference, member);
+			BindExpressionType(reference, member.Type);
+			return reference;
+		}
+		
 		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag)
 		{
-			MemberReferenceExpression member = new MemberReferenceExpression(target.LexicalInfo);
-			member.Target = target;
-			member.Name = tag.Name;			
-			
 			MethodInvocationExpression mie = new MethodInvocationExpression(target.LexicalInfo);
-			mie.Target = member;
-			Bind(mie.Target, tag);
-			BindExpressionType(mie.Target, tag.Type);
-			BindExpressionType(mie, tag.ReturnType);
-			
+			mie.Target = CreateMemberReference(target, tag);			
+			BindExpressionType(mie, tag.ReturnType);			
 			return mie;			
 		}
 		
@@ -2407,7 +2410,6 @@ namespace Boo.Lang.Compiler.Steps
 						}
 					}
 					
-					Bind(node, Unknown.Default);
 					BindExpressionType(node, targetMethod.ReturnType);
 					ApplyBuiltinMethodTypeInference(node, targetMethod);
 					
@@ -2435,24 +2437,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case EntityType.Type:
 				{					
-					IType typeInfo = ((ITypedEntity)targetInfo).Type;					
-					ResolveNamedArguments(node, typeInfo, node.NamedArguments);
-					
-					IConstructor ctorInfo = FindCorrectConstructor(node, typeInfo, node.Arguments);
-					if (null != ctorInfo)
-					{
-						// rebind the target now we know
-						// it is a constructor call
-						Bind(node.Target, ctorInfo);
-						// expression result type is a new object
-						// of type
-						Bind(node, Unknown.Default);
-						BindExpressionType(node, typeInfo);
-					}
-					else
-					{
-						Error(node);
-					}
+					ProcessTypeInvocation(node);
 					break;
 				}
 				
@@ -2469,6 +2454,101 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}	
+		
+		MethodInvocationExpression CreateEvalInvocation(LexicalInfo li)
+		{
+			MethodInvocationExpression eval = new MethodInvocationExpression(li);
+			eval.Target = new ReferenceExpression("__eval__");
+			Bind(eval.Target, TypeSystemServices.ResolvePrimitive("__eval__"));
+			return eval;
+		}
+		
+		BinaryExpression CreateAssignment(Expression lhs, Expression rhs)
+		{
+			BinaryExpression assignment = new BinaryExpression(
+											BinaryOperatorType.Assign,
+											lhs,
+											rhs);
+			BindExpressionType(assignment, GetExpressionType(lhs));
+			return assignment;
+		}
+		
+		void ReplaceTypeInvocationByEval(IType type, MethodInvocationExpression node)
+		{
+			Node parent = node.ParentNode;
+			
+			MethodInvocationExpression eval = CreateEvalInvocation(node.LexicalInfo);
+			ReferenceExpression local = CreateTempLocal(node.Target.LexicalInfo, type);
+			
+			eval.Arguments.Add(CreateAssignment(local.CloneNode(), node));
+			foreach (ExpressionPair pair in node.NamedArguments)
+			{
+				IEntity entity = GetEntity(pair.First);
+				switch (entity.EntityType)
+				{
+					case EntityType.Event:
+					{
+						IEvent member = (IEvent)entity;						
+						eval.Arguments.Add(CreateMethodInvocation(
+											local.CloneNode(),
+											member.GetAddMethod(),
+											pair.Second));
+						break;
+					}
+					
+					case EntityType.Field:
+					{
+						eval.Arguments.Add(CreateAssignment(
+											CreateMemberReference(
+												local.CloneNode(),
+												(IMember)entity),
+												pair.Second));
+						break;
+					}
+					
+					case EntityType.Property:
+					{
+						IProperty property = (IProperty)entity;
+						eval.Arguments.Add(CreateMethodInvocation(
+											local.CloneNode(),
+											property.GetSetMethod(),
+											pair.Second));
+						break;
+					}
+				}
+			}
+			node.NamedArguments.Clear();
+			
+			eval.Arguments.Add(local);
+			
+			BindExpressionType(eval, type);
+			
+			parent.Replace(node, eval);
+		}
+		
+		void ProcessTypeInvocation(MethodInvocationExpression node)
+		{
+			IType type = (IType)node.Target.Entity;					
+			ResolveNamedArguments(node, type, node.NamedArguments);
+			
+			IConstructor ctor = FindCorrectConstructor(node, type, node.Arguments);
+			if (null != ctor)
+			{
+				// rebind the target now we know
+				// it is a constructor call
+				Bind(node.Target, ctor);
+				BindExpressionType(node, type);
+				
+				if (node.NamedArguments.Count > 0)
+				{
+					ReplaceTypeInvocationByEval(type, node);
+				}
+			}
+			else
+			{
+				Error(node);
+			}
+		}
 		
 		void ProcessGenericMethodInvocation(MethodInvocationExpression node)
 		{
@@ -2500,8 +2580,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 					IMethod invoke = ResolveMethod(delegateType, "Invoke");
 					Bind(expression, invoke);
-					BindExpressionType(expression, invoke.Type); 
-					Bind(node, Unknown.Default);
+					BindExpressionType(expression, invoke.Type);
 					BindExpressionType(node, invoke.ReturnType);						
 				}
 			}
@@ -3483,6 +3562,18 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			// reference types can be used in bool context
 			return true;
+		}
+		
+		ReferenceExpression CreateTempLocal(LexicalInfo li, IType type)
+		{
+			string name = string.Format("__temp{0}__", _currentMethodInfo.Method.Locals.Count);
+			
+			ReferenceExpression reference = new ReferenceExpression(li, name);
+			BindExpressionType(reference, type);
+			
+			Local local = new Local(reference, true);			
+			DeclareLocal(reference, local, type);
+			return reference;
 		}
 		
 		LocalVariable DeclareLocal(Node sourceNode, Local local, IType localType)

@@ -1469,15 +1469,6 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						PushArguments(constructorInfo, node.Arguments);
 						_il.Emit(OpCodes.Newobj, ci);
-						foreach (ExpressionPair pair in node.NamedArguments)
-						{
-							// object reference
-							_il.Emit(OpCodes.Dup);
-							
-							IEntity memberInfo = TypeSystemServices.GetEntity(pair.First);						
-							// field/property reference						
-							InitializeMember(node, memberInfo, pair.Second);
-						}
 						
 						// constructor invocation resulting type is
 						PushType(constructorInfo.DeclaringType);
@@ -2026,70 +2017,6 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Ldloc, local);
 				PushType(property.Type);
 			}
-		}
-		
-		void EmitCreateDelegate(Type delegateType, Expression value)
-		{
-			MethodBase mi = GetMethodInfo((IMethod)GetEntity(value));
-			if (mi.IsStatic)
-			{
-				_il.Emit(OpCodes.Ldnull);
-			}
-			else
-			{
-				Visit(((MemberReferenceExpression)value).Target); PopType();
-			}
-			_il.Emit(OpCodes.Ldftn, (MethodInfo)mi);
-			_il.Emit(OpCodes.Newobj, GetDelegateConstructor(delegateType));
-		}
-		
-		void SubscribeEvent(Node sourceNode, IEntity eventInfo, Expression value)
-		{
-			EventInfo ei = ((ExternalEvent)eventInfo).EventInfo;
-			EmitCreateDelegate(ei.EventHandlerType, value);								
-			_il.EmitCall(OpCodes.Callvirt, ei.GetAddMethod(true), null);
-		}
-		
-		void UnsubscribeEvent(Node sourceNode, IEntity eventInfo, Expression value)
-		{
-			EventInfo ei = ((ExternalEvent)eventInfo).EventInfo;
-			EmitCreateDelegate(ei.EventHandlerType, value);								
-			_il.EmitCall(OpCodes.Callvirt, ei.GetRemoveMethod(true), null);
-		}
-		
-		void InitializeMember(Node sourceNode, IEntity tag, Expression value)
-		{
-			switch (tag.EntityType)
-			{
-				case EntityType.Property:
-				{
-					IProperty property = (IProperty)tag;
-					SetProperty(sourceNode, property, null, value, false);					
-					break;
-				}
-				
-				case EntityType.Event:
-				{
-					SubscribeEvent(sourceNode, tag, value);
-					break;
-				}
-					
-				case EntityType.Field:
-				{
-					SetField(sourceNode, (IField)tag, null, value, false);
-					break;					
-				}
-				
-				default:
-				{
-					throw new ArgumentException("tag");
-				}				
-			}
-		}			
-		
-		ConstructorInfo GetDelegateConstructor(Type delegateType)
-		{
-			return delegateType.GetConstructor(DelegateConstructorTypes);
 		}
 		
 		void EmitDebugInfo(Node node)

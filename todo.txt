@@ -1,5 +1,7 @@
 ﻿* fix event handling
 	* delegate0.boo
+	
+* fix property handling with __eval__
 
 * fix ICallable for callable types
 	* callable7.boo
