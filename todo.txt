@@ -1,4 +1,8 @@
-﻿* callable type adaptation
+﻿* instalar wiki no sourceforge
+
+* colocar website no sourceforge
+
+* callable type adaptation
 	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
 	parâmetros
 
