@@ -38,6 +38,7 @@
 			</resources>
 			
 			<references basedir="${build.dir}">
+				<include name="booish.exe" />
 				<include name="ICSharpCode.TextEditor.dll" />
 				<include name="WeifenLuo.WinFormsUI.dll" />
 				<include name="System.Windows.Forms.dll" />

@@ -30,10 +30,27 @@
 Interactive Forms-based Console
 """
 
+namespace BooExplorer
+
 import System
-import booish from booish
-import System.Windows.Forms from System.Windows.Forms
-import System.Drawing from System.Drawing
+import booish
+import System.Windows.Forms
+import System.Drawing
+import WeifenLuo.WinFormsUI
+
+class InteractiveConsole(DockContent):
+	
+	def constructor(mainForm as MainForm):
+	
+		self.Text = "Interactive Console"
+		self.Controls.Add(console=PromptBox(Dock: DockStyle.Fill,
+					Font: System.Drawing.Font("Lucida Console", 12)))
+					
+		console.Interpreter.SetValue("MainForm", mainForm)
+		
+	
+	override def GetPersistString():
+		return "InteractiveConsole|"
 
 class PromptBox(TextBox):
 	
@@ -47,6 +64,7 @@ class PromptBox(TextBox):
 	
 	_block = System.IO.StringWriter()
 	
+	[getter(Interpreter)]
 	_interpreter = InteractiveInterpreter(
 								RememberLastValue: true,
 								Print: print)
@@ -102,16 +120,4 @@ class PromptBox(TextBox):
 	static def chr(value as int):
 		return cast(IConvertible, value).ToChar(null)
 
-class MainForm(Form):
-	
-	def constructor():
-		self.Text = "booish"
-		Controls.Add(PromptBox(Dock: DockStyle.Fill,
-							Font: System.Drawing.Font("Lucida Console", 12)))
 
-[STAThread]
-def Main(argv as (string)):
-	if Application.MessageLoop:
-		MainForm().ShowDialog()
-	else:
-		Application.Run(MainForm())
