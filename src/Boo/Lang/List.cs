@@ -126,10 +126,15 @@ namespace Boo.Lang
 
 		public override string ToString()
 		{
+			return Join(", ");
+		}
+		
+		public string Join(string separator)
+		{
 			StringBuilder sb = new StringBuilder();			
 			for (int i=0; i<_list.Count; ++i)
 			{
-				if (i>0) { sb.Append(", "); }
+				if (i>0) { sb.Append(separator); }
 				sb.Append(_list[i]);
 			}
 			return sb.ToString();

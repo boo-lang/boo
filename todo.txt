@@ -78,6 +78,7 @@ done * unit tests para o compilador/interpretador
 	que contém a saída esperada
 	done * o teste executa todos os passos da compilação normal e verifica o arquivo final com peverify
 done * mover todos as constantes de tipo de BindingManager para Types
+done * testes para enum (Criar enum em Boo.Tests e escrever alguns test cases)
 * LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression()) de assignment
 e declara a variável
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o SemanticStep que deverá

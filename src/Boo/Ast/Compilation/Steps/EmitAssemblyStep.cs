@@ -181,9 +181,14 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					case BindingType.Local:
 					{
-						node.Right.Switch(this); // leaves type on stack			
+						node.Right.Switch(this); // leaves type on stack	
 						_il.Emit(OpCodes.Dup);
-						_il.Emit(OpCodes.Stloc, ((LocalBinding)binding).LocalBuilder);
+						
+						// todo: assignment result must be type on the left in the
+						// case of casting
+						LocalBuilder local = ((LocalBinding)binding).LocalBuilder;
+						EmitCastIfNeeded(local.LocalType, PeekTypeOnStack());
+						_il.Emit(OpCodes.Stloc, local);
 						break;
 					}
 						

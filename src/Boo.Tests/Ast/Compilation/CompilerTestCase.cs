@@ -9,6 +9,13 @@ using NUnit.Framework;
 
 namespace Boo.Tests.Ast.Compilation
 {
+	public enum TestEnum
+	{
+		Foo = 5,
+		Bar = 10,
+		Baz = 11
+	}
+	
 	[TestFixture]
 	public class CompilerTestCase
 	{
@@ -169,6 +176,24 @@ namespace Boo.Tests.Ast.Compilation
 		public void TestList1()
 		{
 			RunCompilerTestCase("list1.boo", "[1, 2, 3]");
+		}
+		
+		[Test]
+		public void TestEnum0()
+		{
+			RunCompilerTestCase("enum0.boo", "TestEnum.Foo");
+		}
+		
+		[Test]
+		public void TestVar0()
+		{
+			RunCompilerTestCase("var0.boo", "var as string");
+		}
+		
+		[Test]
+		public void TestVar1()
+		{
+			RunCompilerTestCase("var1.boo", "var as string = expression");
 		}
 	
 		void RunCompilerTestCase(string name, string description)

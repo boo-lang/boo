@@ -107,6 +107,35 @@ namespace Boo.Ast.Compilation.Steps
 			BindingManager.Bind(node, BindingManager.ListTypeBinding);
 		}
 		
+		public override void LeaveDeclarationStatement(DeclarationStatement node, ref Statement resultingNode)
+		{
+			ITypeBinding binding = BindingManager.ObjectTypeBinding;
+			if (null != node.Declaration.Type)
+			{
+				binding = GetTypeBinding(node.Declaration.Type);			
+			}
+			
+			LocalBinding localBinding = DeclareLocal(node, new Local(node.Declaration), binding);
+			if (null != node.Initializer)
+			{
+				ReferenceExpression var = new ReferenceExpression(node.Declaration);
+				var.Name = node.Declaration.Name;
+				BindingManager.Bind(var, localBinding);				
+				
+				BinaryExpression assign = new BinaryExpression(node);
+				assign.Operator = BinaryOperatorType.Assign;
+				assign.Left = var;
+				assign.Right = node.Initializer;
+				BindingManager.Bind(assign, GetBinding(assign.Right));				
+				
+				resultingNode = new ExpressionStatement(assign);
+			}
+			else
+			{
+				resultingNode = null;
+			}
+		}
+		
 		public override void OnReferenceExpression(ReferenceExpression node, ref Expression resultingNode)
 		{
 			IBinding info = ResolveName(node, node.Name);
@@ -570,13 +599,15 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		void DeclareLocal(Node sourceNode, Local local, ITypeBinding localType)
+		LocalBinding DeclareLocal(Node sourceNode, Local local, ITypeBinding localType)
 		{			
 			LocalBinding binding = new LocalBinding(local, localType);
 			BindingManager.Bind(local, binding);
 			
 			_method.Locals.Add(local);
 			BindingManager.Bind(sourceNode, binding);
+			
+			return binding;
 		}
 		
 		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
