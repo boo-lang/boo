@@ -139,9 +139,19 @@ namespace Boo.Lang.Compiler.Pipeline
 			_nameResolution.PopNamespace();
 		}
 		
+		IBinding Resolve(Node sourceNode, string name, BindingType bindings)
+		{
+			return _nameResolution.Resolve(sourceNode, name, bindings);
+		}
+		
 		IBinding Resolve(Node sourceNode, string name)
 		{
 			return _nameResolution.Resolve(sourceNode, name);
+		}
+		
+		bool IsQualifiedName(string name)
+		{
+			return name.IndexOf('.') > 0;
 		}
 		
 		IBinding ResolveQualifiedName(Node sourceNode, string name)
@@ -756,7 +766,16 @@ namespace Boo.Lang.Compiler.Pipeline
 				return;
 			}
 			
-			IBinding info = ResolveQualifiedName(node, node.Name);
+			IBinding info = null;
+			if (IsQualifiedName(node.Name))
+			{
+				info = ResolveQualifiedName(node, node.Name);
+			}
+			else
+			{
+				info = Resolve(node, node.Name, BindingType.TypeReference);
+			}
+			
 			if (null == info || BindingType.TypeReference != info.BindingType)
 			{
 				Error(CompilerErrorFactory.NameNotType(node, node.Name));

@@ -33,6 +33,7 @@ using Boo.Lang.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
 {
+	[Flags]
 	public enum BindingType
 	{
 		Module = 0x01,
@@ -48,11 +49,12 @@ namespace Boo.Lang.Compiler.Bindings
 		Assembly = 0x400,
 		Namespace = 0x800,
 		Ambiguous = 0x1000,
-		Tuple,
-		SpecialFunction,
+		Tuple = 0x2000,
+		SpecialFunction = 0x4000,
 		Unknown,
 		Null,
-		Error
+		Error,
+		Any = 0xFFFF
 	}	
 	
 	public interface IInternalBinding

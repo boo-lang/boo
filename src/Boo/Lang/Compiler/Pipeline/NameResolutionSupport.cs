@@ -65,6 +65,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public IBinding Resolve(Node sourceNode, string name)
 		{
+			return Resolve(sourceNode, name, BindingType.Any);
+		}
+		
+		public IBinding Resolve(Node sourceNode, string name, BindingType bindings)
+		{
 			if (null == sourceNode)
 			{
 				throw new ArgumentNullException("sourceNode");
@@ -79,7 +84,10 @@ namespace Boo.Lang.Compiler.Pipeline
 					binding = ns.Resolve(name);
 					if (null != binding)
 					{
-						break;
+						if (IsSet(bindings, binding.BindingType))
+						{
+							break;
+						}
 					}
 				}
 			}
@@ -107,6 +115,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				binding = ns.Resolve(parts[i]);
 			}
 			return binding;
+		}
+		
+		static bool IsSet(BindingType bindings, BindingType binding)
+		{
+			return binding == (bindings & binding);
 		}
 		
 		public void PushNamespace(INamespace ns)

@@ -1,6 +1,8 @@
 """
 namespace TypeResolution
 
+import TypeResolution
+
 public class Item(System.Object):
 
 	public def constructor():

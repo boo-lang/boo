@@ -35,13 +35,13 @@ using BindingFlags = System.Reflection.BindingFlags;
 namespace Boo.Lang.Compiler.Bindings
 {	
 	public interface INamespace
-	{				
+	{			
 		IBinding Resolve(string name);
 	}
 	
 	public class NullNamespace : INamespace
 	{
-		public static INamespace Default = new NullNamespace();
+		public static readonly INamespace Default = new NullNamespace();
 		
 		private NullNamespace()
 		{
