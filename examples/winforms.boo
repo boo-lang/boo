@@ -48,8 +48,7 @@ class App:
 			# if we are running inside boox
 			# just show a dialog
 			f.ShowDialog()
-		else:
-			f.Closed += Application.Exit
+		else:			
 			Application.Run(f)
 
 app = App()

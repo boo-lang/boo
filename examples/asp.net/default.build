@@ -28,19 +28,21 @@
 		<booc output="output/bin/Boo.Examples.Web.dll" target="library">
 		
 			<sources basedir=".">
-				<includes name="*.boo" />
+				<include name="*.boo" />
 			</sources>
 			
 			<references>
-				<includes name="System.Web.dll" />
-				<includes name="${Boo.AntlrParser.dll}" />
+				<include name="System.Web.dll" />
+				<include name="System.Web.Services.dll" />
+				<include name="${Boo.AntlrParser.dll}" />
 			</references>
 			
 		</booc>
 
 		<copy todir="output">			
 			<fileset basedir=".">
-				<includes name="*.aspx" />
+				<include name="*.aspx" />
+				<include name="*.asmx" />
 			</fileset>
 		</copy>
 		

@@ -33,7 +33,6 @@ import System.Threading
 url, local = argv
 
 client = WebClient()
-
 call = client.DownloadFile.BeginInvoke(url, local)
 while not call.IsCompleted:
 	Console.Write(".")
