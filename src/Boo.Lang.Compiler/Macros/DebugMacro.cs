@@ -31,21 +31,52 @@ namespace Boo.Lang
 	using System;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
-	
+
 	/// <summary>
-	/// print foo, bar
-	/// print
-	/// print "Hello"
+	/// debug foo, bar
+	/// debug
+	/// debug "Hello"
+	///
+	/// You can view debug messages by:
+	/// A. Pass the "-d" option to booi, if you have the patched booi version.
+	///    *Note* debug is already on by default in booi and booc.  This option just
+	///    prints debug messages to System.Console.Error as well.  To turn debugging
+	///    completely OFF, pass "-d-" or "-debug-" to booi or booc.
+	/// B. In Windows: using DebugView
+	///     http://www.sysinternals.com/ntw2k/freeware/debugview.shtml
+	/// C. In Mono (not tested): export MONO_TRACE=debug=Console.Out
+	/// D. In your boo script: add a few lines like:
+	///    import System.Diagnostics
+	///    Debug.Listeners.Add(TextWriterTraceListener(System.Console.Error))
+	///    #Trace.Listeners.Add(TextWriterTraceListener(System.Console.Error)) 
+	///      #(if you want to print Trace messages as well)
+	///
+	/// To turn debugging off in booc or booi, use the "-d-" or "-debug-" command-line option
+	/// ("-d" or "-debug+" turns debugging on, but it is already on by default)
+	///
 	/// </summary>
-	public class PrintMacro : AbstractPrintMacro
+	public class DebugMacro : AbstractPrintMacro
 	{
-		static Expression Console_Write = AstUtil.CreateReferenceExpression("System.Console.Write");
+		static Expression Debug_WriteLine = AstUtil.CreateReferenceExpression("System.Diagnostics.Debug.WriteLine");
 		
-		static Expression Console_WriteLine = AstUtil.CreateReferenceExpression("System.Console.WriteLine");
+		static Expression Debug_Write = AstUtil.CreateReferenceExpression("System.Diagnostics.Debug.Write");
 		
 		override public Statement Expand(MacroStatement macro)
-		{			
-			return Expand(macro, Console_Write, Console_WriteLine);
+		{
+			if (!Context.Parameters.Debug)
+			{
+				return null;
+			}
+			
+			if (0 == macro.Arguments.Count)
+			{
+				return new ExpressionStatement(
+					AstUtil.CreateMethodInvocationExpression(
+						Debug_WriteLine.CloneNode(),
+						new StringLiteralExpression("<debug>")));
+			}
+			
+			return Expand(macro, Debug_Write, Debug_WriteLine);
 		}
 	}
 }

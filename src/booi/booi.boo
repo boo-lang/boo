@@ -64,9 +64,13 @@ class AssemblyResolver:
 def consume(reader as TextReader):
 	return join(line for line in reader, "\n")
 
-def main(argv as (string)):
-	Thread.CurrentThread.ApartmentState = ApartmentState.STA
+[STAThread]
+def Main(argv as (string)):
 	
+	if len(argv) < 1:
+		print("booi <script.boo>") 
+		return -1
+		
 	compiler = BooCompiler()
 		
 	// boo memory pipeline
@@ -93,7 +97,4 @@ def main(argv as (string)):
 			return -1
 	return 0
 	
-if len(argv) > 0:
-	Environment.Exit(main(argv))
-else:
-	print("booi <script.boo>")
+

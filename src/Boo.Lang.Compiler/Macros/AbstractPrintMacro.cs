@@ -32,20 +32,40 @@ namespace Boo.Lang
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	
-	/// <summary>
-	/// print foo, bar
-	/// print
-	/// print "Hello"
-	/// </summary>
-	public class PrintMacro : AbstractPrintMacro
+	public abstract class AbstractPrintMacro : AbstractCompilerComponent, IAstMacro
 	{
-		static Expression Console_Write = AstUtil.CreateReferenceExpression("System.Console.Write");
+		public abstract Statement Expand(MacroStatement macro);
 		
-		static Expression Console_WriteLine = AstUtil.CreateReferenceExpression("System.Console.WriteLine");
-		
-		override public Statement Expand(MacroStatement macro)
+		protected Statement Expand(MacroStatement macro,
+								Expression writePrototype,
+								Expression writeLinePrototype)
 		{			
-			return Expand(macro, Console_Write, Console_WriteLine);
+			int argc = macro.Arguments.Count;
+			if (argc < 2)
+			{
+				MethodInvocationExpression mie = new MethodInvocationExpression(
+													writeLinePrototype.CloneNode());
+				mie.Arguments = macro.Arguments;
+				return new ExpressionStatement(mie);
+			}
+			
+			Block block = new Block(macro.LexicalInfo);
+			for (int i=0; i<argc-1; ++i)
+			{
+				block.Add(
+					AstUtil.CreateMethodInvocationExpression(
+						writePrototype.CloneNode(),
+						macro.Arguments[i]));
+				block.Add(
+					AstUtil.CreateMethodInvocationExpression(
+						writePrototype.CloneNode(),
+						new StringLiteralExpression(" ")));
+			}
+			block.Add(
+				AstUtil.CreateMethodInvocationExpression(
+					writeLinePrototype.CloneNode(),
+					macro.Arguments[-1]));
+			return block;
 		}
 	}
 }
