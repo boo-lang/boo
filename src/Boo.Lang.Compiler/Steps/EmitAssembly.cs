@@ -1740,9 +1740,35 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 					
+					case TypeCode.UInt32:
+					{
+						uint uValue = (uint)value;
+						if (uValue > int.MaxValue)
+						{
+							_il.Emit(OpCodes.Ldc_I8, (long)uValue);
+						}
+						else
+						{
+							_il.Emit(OpCodes.Ldc_I4, (int)uValue);
+						}
+						_il.Emit(OpCodes.Conv_U4);
+						break;
+					}
+					
 					case TypeCode.Int64:
 					{
 						_il.Emit(OpCodes.Ldc_I8, (long)value);
+						break;
+					}
+					
+					case TypeCode.UInt64:
+					{
+						ulong uValue = (ulong)value;						
+						checked
+						{							
+							_il.Emit(OpCodes.Ldc_I8, (long)uValue);							
+						}
+						_il.Emit(OpCodes.Conv_U8);
 						break;
 					}
 					
@@ -2387,9 +2413,17 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return OpCodes.Conv_I4;
 			}
+			else if (type == TypeSystemServices.UIntType)
+			{
+				return OpCodes.Conv_U4;
+			}
 			else if (type == TypeSystemServices.LongType)
 			{
 				return OpCodes.Conv_I8;
+			}
+			else if (type == TypeSystemServices.ULongType)
+			{
+				return OpCodes.Conv_U8;
 			}
 			else if (type == TypeSystemServices.SingleType)
 			{

@@ -3149,10 +3149,18 @@ namespace Boo.Lang.Compiler.Steps
 				type == TypeSystemServices.ByteType;
 		}
 		
+		bool IsUnsignedNumber(IType type)
+		{
+			return type == TypeSystemServices.UShortType ||
+				type == TypeSystemServices.UIntType ||
+				type == TypeSystemServices.ULongType;
+		}
+		
 		bool IsNumber(IType type)
 		{
 			return
 				IsIntegerNumber(type) ||
+				IsUnsignedNumber(type) ||
 				type == TypeSystemServices.DoubleType ||
 				type == TypeSystemServices.SingleType;
 		}

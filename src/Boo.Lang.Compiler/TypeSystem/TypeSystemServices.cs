@@ -62,9 +62,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType ShortType;
 		
+		public ExternalType UShortType;
+		
 		public ExternalType IntType;
 		
+		public ExternalType UIntType;
+		
 		public ExternalType LongType;
+		
+		public ExternalType ULongType;
 		
 		public ExternalType SingleType;
 		
@@ -135,6 +141,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(ShortType = new ExternalType(this, Types.Short));
 			Cache(IntType = new ExternalType(this, Types.Int));
 			Cache(LongType = new ExternalType(this, Types.Long));
+			Cache(UShortType = new ExternalType(this, Types.UShort));
+			Cache(UIntType = new ExternalType(this, Types.UInt));
+			Cache(ULongType = new ExternalType(this, Types.ULong));
 			Cache(SingleType = new ExternalType(this, Types.Single));
 			Cache(DoubleType = new ExternalType(this, Types.Double));
 			Cache(TimeSpanType = new ExternalType(this, Types.TimeSpan));

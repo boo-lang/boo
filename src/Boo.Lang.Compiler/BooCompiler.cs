@@ -29,7 +29,7 @@ using Boo.Lang.Compiler;
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
-	/// The compiler: a faÃ§ade to the CompilerParameters/CompilerContext/Pipeline subsystem.
+	/// The compiler: a facade to the CompilerParameters/CompilerContext/Pipeline subsystem.
 	/// </summary>
 	public class BooCompiler : System.MarshalByRefObject
 	{

@@ -46,9 +46,23 @@ namespace BooCompiler.Tests
 	{
 		string _fname;
 		string _lname;
+		uint _age;
 		
 		public Person()
 		{			
+		}
+		
+		public uint Age
+		{
+			get
+			{
+				return _age;
+			}
+			
+			set
+			{
+				_age = value;
+			}
 		}
 		
 		public string FirstName
@@ -220,6 +234,10 @@ namespace BooCompiler.Tests
 		public const string StringConstant = "Foo";
 		
 		public const int IntegerConstant = 14;
+		
+		public const uint UnsignedInt = 255;
+		
+		public const ulong UnsignedLong = 297;
 	}
 	
 	[TestFixture]
@@ -248,6 +266,18 @@ namespace BooCompiler.Tests
 		public void ComplexFieldInitializer()
 		{
 			RunCompilerTestCase("ComplexFieldInitializer.boo");
+		}
+		
+		[Test]
+		public void UnsignedToSignedConversion()
+		{
+			RunCompilerTestCase("unsigned0.boo");
+		}
+		
+		[Test]
+		public void SignedToUnsignedConversion()
+		{
+			RunCompilerTestCase("unsigned1.boo");
 		}
 		
 		[Test]

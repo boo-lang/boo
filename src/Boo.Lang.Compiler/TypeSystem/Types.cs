@@ -69,6 +69,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly Type Long = typeof(long);
 		
+		public static readonly Type UShort = typeof(ushort);
+		
+		public static readonly Type UInt = typeof(uint);
+		
+		public static readonly Type ULong = typeof(ulong);
+		
 		public static readonly Type TimeSpan = typeof(TimeSpan);
 		
 		public static readonly Type DateTime = typeof(DateTime);
