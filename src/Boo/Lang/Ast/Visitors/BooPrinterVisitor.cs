@@ -30,6 +30,7 @@
 namespace Boo.Lang.Ast.Visitors
 {
 	using System;
+	using System.Text.RegularExpressions;
 	using System.Globalization;
 	using System.IO;
 	using Boo.Lang.Ast;
@@ -257,8 +258,10 @@ namespace Boo.Lang.Ast.Visitors
 		
 		override public void OnAsExpression(AsExpression e)
 		{
+			Write("(");
 			Switch(e.Target);
 			WriteTypeReference(e.Type);
+			Write(")");
 		}
 		
 		override public void OnNullLiteralExpression(NullLiteralExpression node)
@@ -480,13 +483,26 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine();
 		}
 
-		override public void OnStringFormattingExpression(StringFormattingExpression sfe)
+		override public void OnStringFormattingExpression(StringFormattingExpression node)
 		{
-			Write("string.Format(");
-			WriteStringLiteral(sfe.Template);
-			Write(", ");
-			WriteTuple(sfe.Arguments);
-			Write(")");
+			string template = node.Template;
+			
+			int current = 0;
+			Match m = Regex.Match(template, @"\{(\d+)\}");
+			
+			Write("\"");
+			foreach (Expression arg in node.Arguments)
+			{	
+				WriteStringLiteralContents(RuntimeServices.Mid(template, current, m.Index), _writer);				
+				current = m.Index + m.Length;
+
+				Write("${");
+				Switch(arg);
+				Write("}");
+				m = m.NextMatch();
+			}
+			WriteStringLiteralContents(RuntimeServices.Mid(template, current, template.Length), _writer);
+			Write("\"");
 		}
 
 		override public void OnStatementModifier(StatementModifier sm)
@@ -589,7 +605,8 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine(":");
 			WriteBlock(ifs.TrueBlock);
 			if (null != ifs.FalseBlock)
-			{				
+			{			
+				WriteIndented();
 				WriteKeyword("else:");
 				WriteLine();
 				WriteBlock(ifs.FalseBlock);
@@ -812,6 +829,12 @@ namespace Boo.Lang.Ast.Visitors
 		public static void WriteStringLiteral(string text, TextWriter writer)
 		{
 			writer.Write("'");
+			WriteStringLiteralContents(text, writer);
+			writer.Write("'");
+		}
+		
+		public static void WriteStringLiteralContents(string text, TextWriter writer)
+		{
 			foreach (char ch in text)
 			{
 				switch (ch)
@@ -847,7 +870,6 @@ namespace Boo.Lang.Ast.Visitors
 					}
 				}				
 			}
-			writer.Write("'");
 		}
 		
 		void WriteConditionalBlock(string keyword, Expression condition, Block block)

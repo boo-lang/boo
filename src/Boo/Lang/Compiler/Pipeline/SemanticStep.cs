@@ -3125,14 +3125,21 @@ namespace Boo.Lang.Compiler.Pipeline
 		}		
 		
 		protected ITypeBinding GetExpressionType(Node node)
-		{
-			ITypedBinding binding = (ITypedBinding)GetBinding(node);
-			BindingType bindingType = binding.BindingType;
+		{			
 			if (IsStandaloneTypeReference(node))
 			{
 				return BindingManager.TypeTypeBinding;
 			}
-			if (Tuple_TypedConstructor1 == binding ||
+			
+			/*
+			if (IsStandaloneMethodReference(node))
+			{
+				return BindingManager.GetMethodReference(GetBinding(node));
+			}
+			*/
+			
+			ITypedBinding binding = (ITypedBinding)GetBinding(node);
+			if (Tuple_TypedConstructor1 == binding ||				
 				Tuple_TypedConstructor2 == binding)
 			{
 				return BindingManager.AsTupleBinding(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));

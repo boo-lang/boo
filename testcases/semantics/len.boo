@@ -5,7 +5,7 @@ public final transient class LenModule(System.Object):
 		l = []
 		t = (,)
 		s = ''
-		o = '' as System.Object
+		o = ('' as System.Object)
 		Boo.Lang.Builtins.print(l.get_Count())
 		Boo.Lang.Builtins.print(t.get_Length())
 		Boo.Lang.Builtins.print(s.get_Length())

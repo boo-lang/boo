@@ -14,7 +14,7 @@ success:
 		f = File.OpenText(fname)
 		print(f.ReadLine())
 	except x as IOException:
-		print(string.Format('couldn't open the file {0}: {1}!', (fname, x.Message)))
+		print("couldn't open the file \${fname}: \${x.Message}!")
 	ensure:
 		f.Close() if f
 

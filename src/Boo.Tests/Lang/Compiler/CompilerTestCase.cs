@@ -1051,5 +1051,23 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("unpack_locals.boo");
 		}
+		
+		[Test]
+		public void ICallableCanBeInvoked()
+		{
+			RunCompilerTestCase("callable0.boo");
+		}
+		
+		[Test]
+		public void MethodReferenceCanBeAssignedToLocalAndLaterInvoked()
+		{
+			RunCompilerTestCase("callable1.boo");
+		}
+		
+		[Test]
+		public void MethodReferenceCanBeSelected()
+		{
+			RunCompilerTestCase("callable2.boo");
+		}
 	}
 }

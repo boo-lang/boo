@@ -52,6 +52,7 @@ namespace Boo.Lang.Compiler.Bindings
 		Ambiguous = 0x1000,
 		Tuple = 0x2000,
 		SpecialFunction = 0x4000,
+		MethodReference,
 		Unknown,
 		Null,
 		Error,

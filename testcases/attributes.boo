@@ -36,7 +36,7 @@ class Person:
 	[before((null != _fname))]
 	[before((null != _lname))]
 	def GetName() as string [capitalize] :
-		return string.Format('{0} {1}', (_fname, _lname))
+		return "\${_fname} \${_lname}"
 
 	[XmlAttribute]
 	Age as int:
