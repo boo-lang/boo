@@ -143,10 +143,6 @@
 			<references>
 				<includes name="build/Boo.dll" />
 			</references>
-			
-			<resources basedir="src/Boo.Lang.Compiler/Resources">
-				<includes name="*.pipeline" />
-			</resources>
 		</csc>
 	</target>
 

@@ -295,7 +295,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
-			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);			
+			string fname = module.LexicalInfo.FileName;
+			if (null != fname)
+			{
+				_symbolDocWriter = _moduleBuilder.DefineDocument(fname, Guid.Empty, Guid.Empty, Guid.Empty);
+			}
+			else
+			{
+				_symbolDocWriter = null;
+			}
 			Switch(module.Members);
 		}
 		

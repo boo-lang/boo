@@ -26,13 +26,13 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.IO;
-using System.Collections;
-using System.Xml;
-
 namespace Boo.Lang.Compiler
 {
+	using System;
+	using System.IO;
+	using System.Collections;
+	using Boo.Lang.Compiler.Pipeline.Definitions;
+
 	/// <summary>
 	/// An item in the compilation pipeline. Associates
 	/// an ID to an ICompilerStep implementation.
@@ -90,11 +90,51 @@ namespace Boo.Lang.Compiler
 	}
 	
 	/// <summary>
-	/// A group of <see cref="ICompilerComponent"/> implementations
+	/// A ordered set of <see cref="ICompilerComponent"/> implementations
 	/// that should be executed in sequence.
 	/// </summary>
 	public class CompilerPipeline : System.MarshalByRefObject
 	{	
+		static Hash _definitions = new Hash(true);
+		
+		public void AddDefinition(string name, ICompilerPipelineDefinition definition)
+		{
+			if (null == name)
+			{
+				throw new ArgumentNullException("name");
+			}
+			
+			if (null == definition)
+			{
+				throw new ArgumentNullException("definition");
+			}
+			
+			lock (_definitions)
+			{
+				_definitions.Add(name, definition);
+			}
+		}
+		
+		public ICompilerPipelineDefinition GetDefinition(string name)
+		{
+			lock (_definitions)
+			{
+				return _definitions[name] as ICompilerPipelineDefinition;
+			}
+		}
+		
+		static CompilerPipeline()
+		{
+			_definitions.Add("parse", new ParsePipelineDefinition());
+			_definitions.Add("core", new CorePipelineDefinition());
+			_definitions.Add("boom", new BoomPipelineDefinition());
+			_definitions.Add("booi", new BooiPipelineDefinition());
+			_definitions.Add("booc", new BoocPipelineDefinition());
+			_definitions.Add("rountrip", new RoundtripPipelineDefinition());
+			_definitions.Add("boo", new BooPipelineDefinition());
+			_definitions.Add("xml", new XmlPipelineDefinition());
+		}
+		
 		ArrayList _items;
 		
 		string _baseDirectory = ".";
@@ -118,6 +158,21 @@ namespace Boo.Lang.Compiler
 		public CompilerPipeline Add(ICompilerStep step)
 		{
 			return Add(new CompilerPipelineItem(step));
+		}
+		
+		public CompilerPipeline Insert(int index, ICompilerStep step)
+		{
+			return Insert(index, new CompilerPipelineItem(step));
+		}
+		
+		public CompilerPipeline Insert(int index, CompilerPipelineItem item)
+		{
+			if (null == item)
+			{
+				throw new ArgumentNullException("item");
+			}
+			_items.Insert(index, Validate(item));
+			return this;
 		}
 		
 		public CompilerPipeline InsertBefore(string id, ICompilerStep step)
@@ -191,22 +246,26 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public void Configure(System.Xml.XmlElement configuration)
+		public void Clear()
 		{
-			if (null == configuration)
-			{
-				throw new ArgumentNullException("configuration");
-			}
-			
 			_items.Clear();
-			InnerConfigure(configuration);
 		}
 		
 		public void Load(string name)
 		{	
+			if (null == name)
+			{
+				throw new ArgumentNullException("name");
+			}
+			
 			try
 			{
-				Configure(LoadXmlDocument(name));
+				ICompilerPipelineDefinition definition = GetDefinition(name);
+				if (null == definition)
+				{
+					definition = (ICompilerPipelineDefinition)Type.GetType(name, true);
+				}
+				definition.SetUp(this);
 			}
 			catch (Exception x)
 			{
@@ -242,107 +301,6 @@ namespace Boo.Lang.Compiler
 			{
 				item.CompilerStep.Dispose();
 			}
-		}
-		
-		string GetRequiredAttribute(XmlElement element, string attributeName)
-		{
-			XmlAttribute attribute = element.GetAttributeNode(attributeName);
-			if (null == attribute || 0 == attribute.Value.Length)
-			{
-				throw CompilerErrorFactory.AttributeNotFound(element.Name, attributeName);
-				
-			}
-			return attribute.Value;
-		}
-		
-		string GetOptionalAttribute(XmlElement element, string attributeName)
-		{
-			XmlAttribute attribute = element.GetAttributeNode(attributeName);
-			if (null != attribute)
-			{
-				return attribute.Value;
-			}
-			return null;
-		}
-
-		void InnerConfigure(XmlElement configuration)
-		{
-			string extends = configuration.GetAttribute("extends");
-			if (extends.Length > 0)
-			{
-				InnerConfigure(LoadXmlDocument(extends));
-			}
-
-			foreach (XmlElement element in configuration.SelectNodes("step"))
-			{
-				string typeName = GetRequiredAttribute(element, "type");
-				Type type = Type.GetType(typeName, true);
-				if (!typeof(ICompilerStep).IsAssignableFrom(type))
-				{
-					throw CompilerErrorFactory.TypeMustImplementICompilerStep(typeName);
-				}
-				
-				ICompilerStep step = (ICompilerStep)Activator.CreateInstance(type);
-				
-				string id = element.GetAttribute("id");
-				
-				CompilerPipelineItem item = null;
-				if (id.Length > 0)
-				{
-					item = new CompilerPipelineItem(id, step);
-				}
-				else
-				{
-					item = new CompilerPipelineItem(step);					
-				}
-				
-				string insertBeforeId = GetOptionalAttribute(element, "insertBefore");
-				if (null != insertBeforeId)
-				{
-					InsertBefore(insertBeforeId, item);
-				}
-				else
-				{
-					string insertAfterId = GetOptionalAttribute(element, "insertAfter");
-					if (null != insertAfterId)
-					{
-						InsertAfter(insertAfterId, item);
-					}
-					else
-					{
-						_items.Add(item);
-					}
-				}
-			}
-		}
-		
-		XmlElement LoadXmlFromResource(string name)
-		{
-			XmlDocument doc = new XmlDocument();
-			doc.Load(GetType().Assembly.GetManifestResourceStream(name));
-			return doc.DocumentElement;
-		}
-		
-		XmlElement LoadXmlDocument(string name)
-		{
-			if (!name.EndsWith(".pipeline"))
-			{				
-				name += ".pipeline";				
-			}
-			
-			if (!Path.IsPathRooted(name))
-			{
-				string path = Path.Combine(_baseDirectory, name);
-				if (!File.Exists(path))
-				{
-					return LoadXmlFromResource(name);
-				}
-				name = path;
-			}
-			
-			XmlDocument doc = new XmlDocument();
-			doc.Load(name);
-			return doc.DocumentElement;
 		}
 		
 		int FindIndex(string id)

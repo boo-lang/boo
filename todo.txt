@@ -3,10 +3,17 @@
 done * check return types for method overrides
 
 done * abstract method makes class abstract
+
+done * definição de pipelines em código:
+	interface ICompilerPipelineDefinition:
+		def Define(pipeline as CompilerPipeline)
+		
+	[PipelineDefinition("booi")]
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:
-		stylechecker step,
+		codegenerator step
+		stylechecker step,		
 		trace step
 		
 * artigo "Estendendo a linguagem utilizando macros e atributos"

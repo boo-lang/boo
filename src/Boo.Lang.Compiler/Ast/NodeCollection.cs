@@ -142,22 +142,22 @@ namespace Boo.Lang.Compiler.Ast
 			Initialize(newItem);			
 		}
 
-		protected void Add(Node item)
+		protected void AddNode(Node item)
 		{
 			Initialize(item);
 			_list.Add(item);
 		}
 
-		protected void Add(Node[] items)
+		protected void AddNodes(Node[] items)
 		{
 			Assert.AssertNotNull("items", items);
 			foreach (Node item in items)
 			{
-				Add(item);
+				AddNode(item);
 			}
 		}
 
-		protected bool Replace(Node existing, Node newItem)
+		protected bool ReplaceNode(Node existing, Node newItem)
 		{
 			Assert.AssertNotNull("existing", existing);			
 			for (int i=0; i<_list.Count; ++i)
@@ -178,7 +178,7 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 
-		protected void Insert(int index, Node item)
+		protected void InsertNode(int index, Node item)
 		{			
 			Initialize(item);
 			InnerList.Insert(index, item);

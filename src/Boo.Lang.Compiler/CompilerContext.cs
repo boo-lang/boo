@@ -233,10 +233,5 @@ namespace Boo.Lang.Compiler
 				Trace.WriteLine(message);
 			}
 		}	
-
-		internal void Run()
-		{			
-			_parameters.Pipeline.Run(this);
-		}	
 	}
 }

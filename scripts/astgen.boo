@@ -423,19 +423,19 @@ namespace Boo.Lang.Compiler.Ast.Impl
 
 		public void Add(${itemType} item)
 		{
-			base.Add(item);			
+			base.AddNode(item);			
 		}
 		
 		public void Extend(params ${itemType}[] items)
 		{
-			base.Add(items);			
+			base.AddNodes(items);			
 		}
 		
 		public void Extend(System.Collections.ICollection items)
 		{
 			foreach (${itemType} item in items)
 			{
-				base.Add(item);
+				base.AddNode(item);
 			}
 		}
 		
@@ -443,18 +443,18 @@ namespace Boo.Lang.Compiler.Ast.Impl
 		{
 			foreach (${itemType} item in items)
 			{
-				base.Add(item.CloneNode());
+				base.AddNode(item.CloneNode());
 			}
 		}
 		
 		public void Insert(int index, ${itemType} item)
 		{
-			base.Insert(index, item);
+			base.InsertNode(index, item);
 		}
 		
 		public bool Replace(${itemType} existing, ${itemType} newItem)
 		{
-			return base.Replace(existing, newItem);
+			return base.ReplaceNode(existing, newItem);
 		}
 		
 		public new ${itemType}[] ToArray()

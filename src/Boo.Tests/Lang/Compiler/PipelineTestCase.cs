@@ -164,42 +164,6 @@ namespace Boo.Tests.Lang.Compiler
 			Assert.AreEqual(1, p1.RunCount);
 			Assert.AreEqual(1, p2.RunCount);
 		}
-
-		[Test]
-		public void SimpleXmlConfiguration()
-		{
-			string xml = @"
-			<pipeline>
-				<step type='Boo.Tests.Lang.Compiler.DummyStep, Boo.Tests' />
-			</pipeline>";
-			
-			_pipeline.Configure(LoadXml(xml));
-			
-			Assert.AreEqual(1, _pipeline.Count);
-			Assert.IsTrue(_pipeline[0] is DummyStep, "Expected a DummyStep!");
-		}
-
-		[Test]
-		public void XmlConfigurationExtends()
-		{				
-			_pipeline.Load("p2");
-
-			Assert.AreEqual(2, _pipeline.Count);
-			Assert.AreEqual(typeof(DummyStep), _pipeline[0].GetType(), "Expected a DummyStep!");
-			Assert.AreEqual(typeof(DummyStep2), _pipeline[1].GetType(), "Expected a DummyStep2!");
-		}
-		
-		[Test]
-		public void ExtendedXmlConfiguration()
-		{			
-			_pipeline.Load("p3");
-			
-			Assert.AreEqual(4, _pipeline.Count);
-			Assert.AreEqual(typeof(DummyStep3), _pipeline[0].GetType());
-			Assert.AreEqual(typeof(DummyStep), _pipeline[1].GetType());
-			Assert.AreEqual(typeof(DummyStep4), _pipeline[2].GetType());
-			Assert.AreEqual(typeof(DummyStep2), _pipeline[3].GetType());
-		}
 		
 		void AssertPipeline(params ICompilerStep[] expected)
 		{

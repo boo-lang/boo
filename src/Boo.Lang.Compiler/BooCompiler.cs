@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler
 		public CompilerContext Run()
 		{
 			CompilerContext context = new CompilerContext(_parameters, new CompileUnit());
-			context.Run();
+			_parameters.Pipeline.Run(context);
 			return context;
 		}		
 	}

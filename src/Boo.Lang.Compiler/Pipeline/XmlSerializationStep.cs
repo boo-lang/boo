@@ -36,11 +36,11 @@ namespace Boo.Lang.Compiler.Pipeline
 	/// <summary>
 	/// Writes a xml representation of the AST to the console.
 	/// </summary>
-	public class XmlStep : ICompilerStep
+	public class XmlSerializationStep : ICompilerStep
 	{
 		CompilerContext _context;
 		
-		public XmlStep()
+		public XmlSerializationStep()
 		{
 		}
 		

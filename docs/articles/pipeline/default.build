@@ -3,7 +3,8 @@
 
 	<property name="boo.dir" value="../../../build" />
 	
-	<target name="compile-step" depends="init">
+	<target name="compile-pipeline" depends="init">
+	
 		<booc target="library"
 			output="build/StyleChecker.dll">
 			
@@ -13,10 +14,10 @@
 		</booc>
 	</target>
 	
-	<target name="compile-example" depends="compile-step">
+	<target name="compile-example" depends="compile-pipeline">
 		<booc target="exe"
 			output="build/Example.exe"
-			pipeline="style-checker"
+			pipeline="Boo.Docs.Articles.Pipeline.StyleCheckingPipelineDefinition, StyleChecker"
 			tracelevel="Verbose">
 			
 			<sources basedir=".">

@@ -1341,5 +1341,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("sort.boo");
 		}
+		
+		[Test]
+		public void SimpleListDisplay()
+		{
+			RunCompilerTestCase("listdisplay0.boo");
+		}
 	}
 }

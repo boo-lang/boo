@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<pipeline extends='core'>	
-	
-	<step id="emit" type='Boo.Lang.Compiler.Pipeline.EmitAssemblyStep, Boo.Lang.Compiler' />
-	<step id="save" type='Boo.Lang.Compiler.Pipeline.SaveAssemblyStep, Boo.Lang.Compiler' />
-	<step id="peverify" type='Boo.Lang.Compiler.Pipeline.PEVerifyStep, Boo.Lang.Compiler' />
-	
-</pipeline>

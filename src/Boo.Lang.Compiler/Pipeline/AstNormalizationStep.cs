@@ -231,10 +231,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			return constructor;
 		}
 		
-		string BuildModuleClassName(Module node)
+		string BuildModuleClassName(Module module)
 		{
-			string name = node.Name;
-			return name.Substring(0, 1).ToUpper() + name.Substring(1) + "Module";
+			string name = module.Name;
+			if (null != name)
+			{
+				name = name.Substring(0, 1).ToUpper() + name.Substring(1) + "Module";
+			}
+			else
+			{
+				module.Name = name = string.Format("__Module{0}__", _context.AllocIndex());
+			}
+			return name;
 		}
 	}
 }
