@@ -145,6 +145,38 @@ namespace BooC
 								options.OutputAssembly = arg.Substring(arg.IndexOf(":")+1);
 								break;									
 							}
+							
+							case 't':
+							{
+								string targetType = arg.Substring(arg.IndexOf(":")+1);
+								switch (targetType)
+								{
+									case "library":
+									{
+										options.OutputType = CompilerOutputType.Library;
+										break;
+									}
+									
+									case "exe":
+									{
+										options.OutputType = CompilerOutputType.ConsoleApplication;
+										break;
+									}
+									
+									case "winexe":
+									{
+										options.OutputType = CompilerOutputType.WindowsApplication;
+										break;
+									}
+									
+									default:
+									{
+										InvalidOption(arg);
+										break;
+									}
+								}
+								break;
+							}
 
 							case 'p':
 							{
@@ -162,7 +194,7 @@ namespace BooC
 
 							default:
 							{
-								Console.WriteLine(Boo.ResourceManager.Format("BooC.InvalidOption", arg));
+								InvalidOption(arg);								
 								break;
 							}
 						}
@@ -214,6 +246,11 @@ namespace BooC
 			{
 				throw new ApplicationException(Boo.ResourceManager.Format("BooC.UnableToLoadPipeline", name, x.Message));
 			}
+		}
+		
+		static void InvalidOption(string arg)
+		{
+			Console.WriteLine(Boo.ResourceManager.Format("BooC.InvalidOption", arg));
 		}
 
 		static bool IsFlag(string arg)

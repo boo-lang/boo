@@ -52,7 +52,7 @@ namespace Boo.Tests
 			_unit = new CompileUnit();
 			_unit.Modules.Add(_module = new Module());
 			_module.Name = "Module";
-			_module.Package = new Package("Foo.Bar");
+			_module.Namespace = new NamespaceDeclaration("Foo.Bar");
 
 			_module.Members.Add(_method = new Method());
 			_method.Name = "test";
@@ -67,9 +67,9 @@ namespace Boo.Tests
 		}
 		
 		[Test]
-		public void TestEnclosingPackage()
+		public void TestEnclosingNamespace()
 		{
-			AssertSame(_module.Package, _module.EnclosingPackage);
+			AssertSame(_module.Namespace, _module.EnclosingNamespace);
 		}
 
 		[Test]

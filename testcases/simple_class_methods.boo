@@ -1,4 +1,4 @@
-package ITL.Content
+namespace ITL.Content
 
 using System
 

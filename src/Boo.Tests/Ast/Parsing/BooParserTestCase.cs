@@ -61,12 +61,12 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.AreEqual("Empty.simple", module.FullName);
 			Assert.AreEqual(fname, module.LexicalInfo.FileName);
 
-			Assert.IsNotNull(module.Package);
+			Assert.IsNotNull(module.Namespace);
 
-			Assert.AreEqual("Empty", module.Package.Name);
-			Assert.AreEqual(4, module.Package.LexicalInfo.Line);
-			Assert.AreEqual(1, module.Package.LexicalInfo.StartColumn);
-			Assert.AreEqual(fname, module.Package.LexicalInfo.FileName);
+			Assert.AreEqual("Empty", module.Namespace.Name);
+			Assert.AreEqual(4, module.Namespace.LexicalInfo.Line);
+			Assert.AreEqual(1, module.Namespace.LexicalInfo.StartColumn);
+			Assert.AreEqual(fname, module.Namespace.LexicalInfo.FileName);
 		}
 
 		[Test]
@@ -75,7 +75,7 @@ namespace Boo.Tests.Ast.Parsing
 			string fname = BooTestCaseUtil.GetTestCasePath("simple_classes.boo");
 
 			Boo.Ast.Module module = BooParser.ParseFile(fname).Modules[0];
-			Assert.AreEqual("Foo.Bar", module.Package.Name);
+			Assert.AreEqual("Foo.Bar", module.Namespace.Name);
 			
 			Assert.IsNotNull(module.Members);
 			Assert.AreEqual(2, module.Members.Count);
@@ -84,7 +84,7 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.IsTrue(cd is ClassDefinition);
 			Assert.AreEqual("Customer", cd.Name);
 			Assert.AreEqual("Foo.Bar.Customer", ((TypeDefinition)cd).FullName);
-			Assert.AreSame(module.Package, ((TypeDefinition)cd).EnclosingPackage);
+			Assert.AreSame(module.Namespace, ((TypeDefinition)cd).EnclosingNamespace);
 
 			cd = module.Members[1];
 			Assert.AreEqual("Person", cd.Name);
@@ -94,7 +94,7 @@ namespace Boo.Tests.Ast.Parsing
 		public void TestSimpleClassMethods()
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_class_methods.boo");
-			Assert.AreEqual("ITL.Content", module.Package.Name);
+			Assert.AreEqual("ITL.Content", module.Namespace.Name);
 			Assert.AreEqual(1, module.Using.Count);
 
 			Using i = module.Using[0];
@@ -161,7 +161,7 @@ namespace Boo.Tests.Ast.Parsing
 		public void TestSimpleGlobalDefs()
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_global_defs.boo");
-			Assert.AreEqual("Math", module.Package.Name);
+			Assert.AreEqual("Math", module.Namespace.Name);
 			Assert.AreEqual(3, module.Members.Count);
 			Assert.AreEqual("Rational", module.Members[0].Name);
 			Assert.AreEqual("pi", module.Members[1].Name);
@@ -502,7 +502,7 @@ namespace Boo.Tests.Ast.Parsing
 		public void TestCppComments()
 		{
 			Boo.Ast.Module module = BooTestCaseUtil.ParseTestCase("cpp_comments.boo");
-			Assert.AreEqual("CPlusPlusStyleComments", module.Package.Name);
+			Assert.AreEqual("CPlusPlusStyleComments", module.Namespace.Name);
 		}
 
 		[Test]

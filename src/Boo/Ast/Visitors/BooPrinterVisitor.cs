@@ -52,7 +52,7 @@ namespace Boo.Ast.Visitors
 
 		public override void OnModule(Module m)
 		{
-			Switch(m.Package);
+			Switch(m.Namespace);
 
 			if (m.Using.Count > 0)
 			{
@@ -71,9 +71,9 @@ namespace Boo.Ast.Visitors
 			Switch(m.Globals.Statements);
 		}
 
-		public override void OnPackage(Package p)
+		public override void OnNamespaceDeclaration(NamespaceDeclaration node)
 		{
-			WriteLine("package {0}", p.Name);
+			WriteLine("namespace {0}", node.Name);
 			WriteLine();
 		}
 

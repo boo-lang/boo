@@ -1,4 +1,4 @@
-package Foo.Bar
+namespace Foo.Bar
 
 class Customer:
 	pass

@@ -36,8 +36,7 @@ namespace Boo.Ast
 	public class IteratorExpression : IteratorExpressionImpl
 	{		
 		public IteratorExpression()
-		{
-			_declarations = new DeclarationCollection(this);
+		{			
  		}
 		
 		public IteratorExpression(Expression expression, Expression iterator, StatementModifier filter) : base(expression, iterator, filter)

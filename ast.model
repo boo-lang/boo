@@ -49,7 +49,7 @@ package Boo.Ast
 	class TypeDefinitionCollection
 	end
 	
-	class Package(Node)
+	class NamespaceDeclaration(Node)
 		Name as string
 	end
 	
@@ -65,7 +65,7 @@ package Boo.Ast
 	end
 	
 	class Module(TypeDefinition)
-		Package as Package
+		Namespace as NamespaceDeclaration
 		Using as UsingCollection
 		[auto]
 		Globals as Block

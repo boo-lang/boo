@@ -1,4 +1,4 @@
-package Math
+namespace Math
 
 def sqrt(x) as float:
 	pass

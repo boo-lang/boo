@@ -1,4 +1,4 @@
-package ITL
+namespace ITL
 
 class Math:
 	static def square(x as int) as int:

@@ -1,3 +1,3 @@
-package Empty
+namespace Empty
 
 

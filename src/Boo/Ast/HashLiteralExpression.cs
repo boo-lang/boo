@@ -36,8 +36,7 @@ namespace Boo.Ast
 	public class HashLiteralExpression : HashLiteralExpressionImpl
 	{		
 		public HashLiteralExpression()
-		{
-			_items = new ExpressionPairCollection(this);
+		{			
  		}
 		
 		public HashLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)

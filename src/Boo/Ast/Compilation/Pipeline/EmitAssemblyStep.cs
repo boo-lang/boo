@@ -164,7 +164,14 @@ namespace Boo.Ast.Compilation.Pipeline
 		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);
 			
-			EmitTypeDefinition(module);		
+			if (module.HasMethods)
+			{
+				EmitTypeDefinition(module);
+			}
+			else
+			{
+				module.Members.Switch(this);
+			}
 		}
 		
 		public override void OnClassDefinition(ClassDefinition node)

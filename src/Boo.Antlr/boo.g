@@ -68,7 +68,7 @@ tokens
 	OR="or";
 	OTHERWISE="otherwise";	
 	PASS="pass";
-	PACKAGE="package";
+	NAMESPACE="namespace";
 	PROPERTY="property";
 	PUBLIC="public";
 	PROTECTED="protected";
@@ -209,7 +209,7 @@ start returns [Module module]
 	}:
 	docstring[module]
 	(options { greedy=true;}: EOS)*			 
-	(package_directive[module])?
+	(namespace_directive[module])?
 	(using_directive[module])*
 	(type_member[module.Members])*
 	globals[module]
@@ -256,16 +256,16 @@ using_directive[Module container]
 	;
 
 protected
-package_directive[Module container]
+namespace_directive[Module container]
 	{
 		Token id;
-		Package p = null;
+		NamespaceDeclaration p = null;
 	}:
-	t:PACKAGE! id=identifier
+	t:NAMESPACE! id=identifier
 	{
-		p = new Package(ToLexicalInfo(t));
+		p = new NamespaceDeclaration(ToLexicalInfo(t));
 		p.Name = id.getText();
-		container.Package = p; 
+		container.Namespace = p; 
 	}
 	eos
 	docstring[p]

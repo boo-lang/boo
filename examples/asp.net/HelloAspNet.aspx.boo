@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -27,37 +27,17 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using Boo.Ast.Impl;
+namespace Boo.Examples.Web
 
-namespace Boo.Ast
-{
-	[Serializable]
-	public class Module : ModuleImpl
-	{		
-		public Module()
-		{			
- 		}
+using System
+using System.Web
+using System.Web.UI
+using System.Web.UI.WebControls
+
+class HelloAspNet(Page):
+	
+	_message as Label
+	
+	def Page_Load(sender, args as EventArgs):
+		_message.Text = "Hello, asp.net!"
 		
-		public Module(NamespaceDeclaration namespaceDeclaration) : base(namespaceDeclaration)
-		{
-		}
-		
-		public Module(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-		}
-		
-		public override NamespaceDeclaration EnclosingNamespace
-		{
-			get
-			{
-				return _namespace;
-			}
-		}
-		
-		public override void Switch(IAstSwitcher switcher)
-		{
-			switcher.OnModule(this);
-		}
-	}
-}

@@ -1,6 +1,6 @@
 """
 module doc string
 """
-package Empty
+namespace Empty
 
 

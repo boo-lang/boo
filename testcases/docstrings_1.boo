@@ -1,9 +1,9 @@
 """
 Este módulo implementa várias classes interessantes.
 """
-package Foo.Bar
+namespace Foo.Bar
 """
-Esta é a docstring do package.
+Esta é a docstring do namespace.
 """
 
 class Person:

@@ -47,14 +47,7 @@ namespace Boo.Ast
 		{
 			get
 			{
-				foreach (TypeMember member in _members)
-				{
-					if (NodeType.Constructor == member.NodeType)
-					{
-						return true;
-					}
-				}
-				return false;
+				return HasMemberOfType(NodeType.Constructor);
 			}
 		}
 		

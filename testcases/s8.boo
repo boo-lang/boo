@@ -1,4 +1,4 @@
-package Math
+namespace Math
 
 def square(x as int) as int:
 	return x*x

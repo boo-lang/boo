@@ -37,8 +37,6 @@ namespace Boo.Ast
 	{		
 		public TryStatement()
 		{
-			ProtectedBlock = new Block();
-			_exceptionHandlers = new ExceptionHandlerCollection(this);
  		}
 		
 		public TryStatement(Block successBlock, Block ensureBlock) : base(successBlock, ensureBlock)

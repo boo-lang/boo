@@ -37,8 +37,6 @@ namespace Boo.Ast
 	{		
 		public Attribute()
 		{
-			_arguments = new ExpressionCollection(this);
-			_namedArguments = new ExpressionPairCollection(this);
  		}
 		
 		public Attribute(string name) : base(name)

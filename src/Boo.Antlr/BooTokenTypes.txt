@@ -48,7 +48,7 @@ NULL="null"=48
 OR="or"=49
 OTHERWISE="otherwise"=50
 PASS="pass"=51
-PACKAGE="package"=52
+NAMESPACE="namespace"=52
 PROPERTY="property"=53
 PUBLIC="public"=54
 PROTECTED="protected"=55

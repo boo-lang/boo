@@ -41,8 +41,6 @@ namespace Boo.Ast
 	{		
 		protected TypeDefinition()
 		{
-			_members = new TypeMemberCollection(this);
-			_baseTypes = new TypeReferenceCollection(this);
  		}	
 		
 		protected TypeDefinition(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
@@ -53,16 +51,36 @@ namespace Boo.Ast
 		{
 			get
 			{
-				Package package = EnclosingPackage;
-				if (null != package)
+				NamespaceDeclaration ns = EnclosingNamespace;
+				if (null != ns)
 				{
-					return package.Name + "." + Name;
+					return ns.Name + "." + Name;
 				}
 				return Name;
 			}
 		}
 		
-		public virtual Package EnclosingPackage
+		public bool HasMethods
+		{
+			get
+			{
+				return HasMemberOfType(NodeType.Method);
+			}
+		}
+		
+		public bool HasMemberOfType(NodeType memberType)
+		{
+			foreach (TypeMember member in _members)
+			{
+				if (memberType == member.NodeType)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		public virtual NamespaceDeclaration EnclosingNamespace
 		{
 			get
 			{
@@ -72,7 +90,7 @@ namespace Boo.Ast
 					Module module = parent as Module;
 					if (null != module)
 					{
-						return module.Package;
+						return module.Namespace;
 					}
 					parent = parent.ParentNode;
 				}

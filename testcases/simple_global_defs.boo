@@ -1,4 +1,4 @@
-package Math
+namespace Math
 
 class Rational:
 	pass

@@ -76,7 +76,7 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		public const int OR = 49;
 		public const int OTHERWISE = 50;
 		public const int PASS = 51;
-		public const int PACKAGE = 52;
+		public const int NAMESPACE = 52;
 		public const int PROPERTY = 53;
 		public const int PUBLIC = 54;
 		public const int PROTECTED = 55;
@@ -298,9 +298,9 @@ _loop3_breakloop:				;
 			{
 				switch ( LA(1) )
 				{
-				case PACKAGE:
+				case NAMESPACE:
 				{
-					package_directive(module);
+					namespace_directive(module);
 					break;
 				}
 				case EOF:
@@ -462,7 +462,7 @@ _loop12_breakloop:						;
 		}
 	}
 	
-	protected void package_directive(
+	protected void namespace_directive(
 		Module container
 	) //throws RecognitionException, TokenStreamException
 {
@@ -470,19 +470,19 @@ _loop12_breakloop:						;
 		Token  t = null;
 		
 				Token id;
-				Package p = null;
+				NamespaceDeclaration p = null;
 			
 		
 		try {      // for error handling
 			t = LT(1);
-			match(PACKAGE);
+			match(NAMESPACE);
 			id=identifier();
 			if (0==inputState.guessing)
 			{
 				
-						p = new Package(ToLexicalInfo(t));
+						p = new NamespaceDeclaration(ToLexicalInfo(t));
 						p.Name = id.getText();
-						container.Package = p; 
+						container.Namespace = p; 
 					
 			}
 			eos();
@@ -6225,7 +6225,7 @@ _loop246_breakloop:						;
 		@"""or""",
 		@"""otherwise""",
 		@"""pass""",
-		@"""package""",
+		@"""namespace""",
 		@"""property""",
 		@"""public""",
 		@"""protected""",

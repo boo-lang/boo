@@ -54,7 +54,7 @@ namespace Boo.Antlr
 		public const int OR = 49;
 		public const int OTHERWISE = 50;
 		public const int PASS = 51;
-		public const int PACKAGE = 52;
+		public const int NAMESPACE = 52;
 		public const int PROPERTY = 53;
 		public const int PUBLIC = 54;
 		public const int PROTECTED = 55;

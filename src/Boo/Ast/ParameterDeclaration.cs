@@ -36,8 +36,7 @@ namespace Boo.Ast
 	public class ParameterDeclaration : ParameterDeclarationImpl
 	{		
 		public ParameterDeclaration()
-		{
-			_attributes = new AttributeCollection(this);
+		{			
  		}
 		
 		public ParameterDeclaration(string name, TypeReference type) : base(name, type)

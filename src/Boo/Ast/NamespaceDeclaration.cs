@@ -33,23 +33,23 @@ using Boo.Ast.Impl;
 namespace Boo.Ast
 {
 	[Serializable]
-	public class Package : PackageImpl
+	public class NamespaceDeclaration : NamespaceDeclarationImpl
 	{		
-		public Package()
+		public NamespaceDeclaration()
 		{
  		}
 		
-		public Package(string name) : base(name)
+		public NamespaceDeclaration(string name) : base(name)
 		{
 		}
 		
-		public Package(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public NamespaceDeclaration(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		
 		public override void Switch(IAstSwitcher switcher)
 		{
-			switcher.OnPackage(this);
+			switcher.OnNamespaceDeclaration(this);
 		}
 	}
 }

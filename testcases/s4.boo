@@ -1,4 +1,4 @@
-package ITL.PM
+namespace ITL.PM
 
 class Project:
 

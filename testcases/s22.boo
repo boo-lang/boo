@@ -1,1 +1,1 @@
-package CPlusPlusStyleComments // Um comentário C++
+namespace CPlusPlusStyleComments // Um comentário C++
