@@ -130,12 +130,19 @@ class BooBindingCompilerManager:
 					error.ErrorText   = booError.Message
 				else:
 					warning as BooWarning = o
+					info = warning.LexicalInfo
 					error.IsWarning   = true
 					error.ErrorNumber = warning.Code
-					error.ErrorText   = warning.Message
-				error.Column   = info.Column
-				error.Line     = info.Line
-				error.FileName = Path.GetFullPath(info.FileName) unless info.FileName == null
+					if warning.Message != null and warning.Message.StartsWith("WARNING: "):
+						error.ErrorText = warning.Message[9:]
+					else:
+						error.ErrorText = warning.Message
+					
+				if info != null and info.Line >= 0:
+					error.Column   = info.Column
+					error.Line     = info.Line
+				if info != null and info.FileName != null:
+					error.FileName = Path.GetFullPath(info.FileName)
 				cr.Errors.Add(error)
 			
 			compiler = null
