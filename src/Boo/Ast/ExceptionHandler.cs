@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -38,14 +38,6 @@ namespace Boo.Ast
 		public ExceptionHandler()
 		{
  		}
-		
-		public ExceptionHandler(Declaration declaration) : base(declaration)
-		{
-		}
-		
-		public ExceptionHandler(antlr.Token token, Declaration declaration) : base(token, declaration)
-		{
-		}
 		
 		internal ExceptionHandler(antlr.Token token) : base(token)
 		{

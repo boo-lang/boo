@@ -775,7 +775,7 @@ exception_handler [TryStatement t]
 		eh.Declaration.Name = x.getText();		
 		eh.Declaration.Type = tr;
 	}		
-	compound_stmt[eh.Statements]
+	compound_stmt[eh.Block.Statements]
 	{
 		t.ExceptionHandlers.Add(eh);
 	}
@@ -875,7 +875,7 @@ for_stmt returns [ForStatement fs]
 	f:FOR! { fs = new ForStatement(f); }
 		declaration_list[fs.Declarations] IN! iterator=tuple_or_expression
 		{ fs.Iterator = iterator; }
-		compound_stmt[fs.Statements]
+		compound_stmt[fs.Block.Statements]
 	;
 		
 protected
@@ -889,7 +889,7 @@ while_stmt returns [WhileStatement ws]
 		ws = new WhileStatement(w);
 		ws.Condition = e;
 	}
-	compound_stmt[ws.Statements]
+	compound_stmt[ws.Block.Statements]
 	;
 		
 protected
@@ -912,7 +912,7 @@ given_stmt returns [GivenStatement gs]
 				wc.Condition = e;
 				gs.WhenClauses.Add(wc);
 			}				
-				compound_stmt[wc.Statements]
+				compound_stmt[wc.Block.Statements]
 		)+
 		(
 			otherwise:OTHERWISE!

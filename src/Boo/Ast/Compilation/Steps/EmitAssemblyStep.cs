@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -646,7 +646,7 @@ namespace Boo.Ast.Compilation.Steps
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
 			EmitUnpackForDeclarations(node.Declarations, Binding.Types.Object);
 			
-			node.Statements.Switch(this);
+			Switch(node.Block);
 			_il.Emit(OpCodes.Br, labelTest);
 			
 			_il.MarkLabel(labelEnd);			
@@ -679,7 +679,7 @@ namespace Boo.Ast.Compilation.Steps
 			
 			EmitUnpackForDeclarations(node.Declarations, iteratorType.GetElementType());
 			
-			node.Statements.Switch(this);
+			Switch(node.Block);
 			
 			// ++i
 			_il.Emit(OpCodes.Ldc_I4_1);

@@ -88,7 +88,7 @@ forma canônica, dessa forma, BooPrinter também será testado.
 
 done * renomear ListDisplayExpression for IteratorDisplayExpression
 
-* todos as construçoes que suportam blocos (for, while, if, given, try, catch, etc) não devem possuir
+done * todos as construçoes que suportam blocos (for, while, if, given, try, catch, etc) não devem possuir
 uma StatementCollection diretamente como filha mas utilizar um Block ao invés, isso facilita o tratamento
 genérico de blocos nos passos (facilitar mover/trocar blocos inteiros de lugar)
 
@@ -109,7 +109,7 @@ exigidas pela linguagem, permitindo múltiplos backends de geraçao de código
 e passa a ser utilizado ReferenceExpression em seu lugar (para utilizar a resolução padrão de membros, etc)
 	
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
-SemanticStep que deverá criar CastExpression sempre que necessário
+SemanticStep que deverá criar AsExpression sempre que necessário
 
 
 Milestone 3.8
@@ -187,5 +187,5 @@ saberia que sempre estaria lidando com um array e poderia gerar um unpacking
 otimizado, etc);
 * const expression unfolding
 * proper tail recursion (fatorial)
-* for item in array/tuple => traduzir indexaçãoo direta do array com checagem de
+done * for item in array/tuple => traduzir indexaçãoo direta do array com checagem de
 bounds, o JIT é capaz de detectar esses patterns e otimizar o c�digo de acordo

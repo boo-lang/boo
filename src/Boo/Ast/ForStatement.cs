@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -37,15 +37,9 @@ namespace Boo.Ast
 	{		
 		public ForStatement()
 		{
-			_declarations = new DeclarationCollection(this);
-			_statements = new StatementCollection(this);
  		}
 		
 		public ForStatement(Expression iterator) : base(iterator)
-		{
-		}
-		
-		public ForStatement(antlr.Token token, Expression iterator) : base(token, iterator)
 		{
 		}
 		

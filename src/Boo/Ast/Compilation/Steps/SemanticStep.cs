@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -228,7 +228,7 @@ namespace Boo.Ast.Compilation.Steps
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
 			PushNamespace(new DeclarationsNamespace(BindingManager, node.Declarations));
-			Switch(node.Statements);
+			Switch(node.Block);
 			PopNamespace();
 		}
 		

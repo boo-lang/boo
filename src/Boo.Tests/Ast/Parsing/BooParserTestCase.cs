@@ -324,8 +324,8 @@ namespace Boo.Tests.Ast.Parsing
 				Assert.AreEqual((i+1).ToString(), ((IntegerLiteralExpression)lle.Items[i]).Value);
 			}
 
-			Assert.AreEqual(1, fs.Statements.Count);
-			Assert.AreEqual("print", ((ReferenceExpression)((MethodInvocationExpression)((ExpressionStatement)fs.Statements[0]).Expression).Target).Name);
+			Assert.AreEqual(1, fs.Block.Statements.Count);
+			Assert.AreEqual("print", ((ReferenceExpression)((MethodInvocationExpression)((ExpressionStatement)fs.Block.Statements[0]).Expression).Target).Name);
 		}
 
 		[Test]
@@ -491,9 +491,9 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.AreEqual("guess", ((ReferenceExpression)condition.Left).Name);
 			Assert.AreEqual("number", ((ReferenceExpression)condition.Right).Name);
 
-			Assert.AreEqual(4, ws.Statements.Count);
+			Assert.AreEqual(4, ws.Block.Statements.Count);
 
-			BreakStatement bs = (BreakStatement)ws.Statements[3];
+			BreakStatement bs = (BreakStatement)ws.Block.Statements[3];
 			condition = (BinaryExpression)bs.Modifier.Condition;
 			Assert.AreEqual(BinaryOperatorType.Equality, condition.Operator);
 		}
@@ -527,7 +527,7 @@ namespace Boo.Tests.Ast.Parsing
 
 			Method m = (Method)module.Members[0];
 			ForStatement fs = (ForStatement)m.Body.Statements[0];
-			YieldStatement ys = (YieldStatement)fs.Statements[0];
+			YieldStatement ys = (YieldStatement)fs.Block.Statements[0];
 			Assert.AreEqual("i", ((ReferenceExpression)ys.Expression).Name);
 			Assert.AreEqual(StatementModifierType.If, ys.Modifier.Type);
 
@@ -552,7 +552,7 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.AreEqual("map", ((ReferenceExpression)mce.Target).Name);
 			Assert.AreEqual(2, mce.Arguments.Count);
 
-			Assert.AreEqual(1, fs.Statements.Count);
+			Assert.AreEqual(1, fs.Block.Statements.Count);
 		}
 
 		[Test]

@@ -198,8 +198,11 @@ package Boo.Ast
 		EnsureBlock as Block		
 	end
 		
-	class ExceptionHandler(Block)
+	class ExceptionHandler(Node)
 		Declaration as Declaration
+		
+		[auto]
+		Block as Block
 	end
 	
 	[ItemType(ExceptionHandler)]
@@ -216,12 +219,16 @@ package Boo.Ast
 	class ForStatement(Statement)
 		Declarations as DeclarationCollection
 		Iterator as Expression
-		Statements as StatementCollection
+		
+		[auto]
+		Block as Block
 	end
 	
 	class WhileStatement(Statement)
 		Condition as Expression
-		Statements as StatementCollection
+		
+		[auto]
+		Block as Block
 	end
 	
 	class GivenStatement(Statement)
@@ -230,8 +237,11 @@ package Boo.Ast
 		OtherwiseBlock as Block
 	end
 	
-	class WhenClause(Block)
+	class WhenClause(Node)
 		Condition as Expression
+		
+		[auto]
+		Block as Block
 	end	
 	
 	[ItemType(WhenClause)]

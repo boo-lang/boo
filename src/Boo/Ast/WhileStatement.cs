@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -36,15 +36,10 @@ namespace Boo.Ast
 	public class WhileStatement : WhileStatementImpl
 	{		
 		public WhileStatement()
-		{
-			_statements = new StatementCollection(this);
+		{			
  		}
 		
 		public WhileStatement(Expression condition) : base(condition)
-		{
-		}
-		
-		public WhileStatement(antlr.Token token, Expression condition) : base(token, condition)
 		{
 		}
 		

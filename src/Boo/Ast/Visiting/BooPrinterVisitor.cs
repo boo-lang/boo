@@ -419,9 +419,7 @@ namespace Boo.Ast.Visiting
 			Write(" in ");
 			Switch(fs.Iterator);
 			WriteLine(":");
-			Indent();
-			Switch(fs.Statements);
-			Dedent();
+			Switch(fs.Block);
 		}
 		
 		public override void OnRetryStatement(RetryStatement node)
@@ -459,9 +457,7 @@ namespace Boo.Ast.Visiting
 				Switch(node.Declaration);
 			}			
 			WriteLine(":");
-			Indent();
-			Switch(node.Statements);			
-			Dedent();
+			Switch(node.Block);
 		}
 
 		public override void OnIfStatement(IfStatement ifs)

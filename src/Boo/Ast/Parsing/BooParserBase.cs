@@ -2831,7 +2831,7 @@ _loop117_breakloop:				;
 			{
 				fs.Iterator = iterator;
 			}
-			compound_stmt(fs.Statements);
+			compound_stmt(fs.Block.Statements);
 		}
 		catch (RecognitionException ex)
 		{
@@ -2870,7 +2870,7 @@ _loop117_breakloop:				;
 						ws.Condition = e;
 					
 			}
-			compound_stmt(ws.Statements);
+			compound_stmt(ws.Block.Statements);
 		}
 		catch (RecognitionException ex)
 		{
@@ -3195,7 +3195,7 @@ _loop130_breakloop:				;
 										gs.WhenClauses.Add(wc);
 									
 					}
-					compound_stmt(wc.Statements);
+					compound_stmt(wc.Block.Statements);
 				}
 				else
 				{
@@ -3912,7 +3912,7 @@ _loop148_breakloop:			;
 						eh.Declaration.Type = tr;
 					
 			}
-			compound_stmt(eh.Statements);
+			compound_stmt(eh.Block.Statements);
 			if (0==inputState.guessing)
 			{
 				

@@ -41,8 +41,8 @@
     <File name=".\Ast\INodeWithAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\IntegerLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\InterfaceDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\IteratorExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\LexicalInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\ListDisplayExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ListLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\LiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Local.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -106,14 +106,26 @@
     <File name=".\Ast\Compilation\ICompilerInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\ICompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Pipeline.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\AmbiguousBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\AssemblyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\BindingManager.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ErrorBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ExternalEventBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ExternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\ExternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ExternalPropertyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\ExternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\IBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\INameSpace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\InternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\InternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\LocalBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ModuleNamespace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\NamespaceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\NamespaceBindingCache.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ParameterBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\TypeReferenceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\IO\FileInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\IO\ReaderInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\IO\StringInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -167,7 +179,7 @@
     <File name=".\Ast\Impl\IfStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\IntegerLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\InterfaceDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Impl\ListDisplayExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Impl\IteratorExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ListLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\LiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\LocalCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -234,21 +246,9 @@
     <File name=".\Lang\List.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RequiredAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\TypeReferenceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\AmbiguousBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\ExternalEventBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\ExternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\ExternalPropertyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\AssemblyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\ParameterBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\LocalBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\ModuleNamespace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\NamespaceBindingCache.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\ErrorBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
-    <Reference type="Assembly" refto="d:\dev\boo\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
+    <Reference type="Assembly" refto="..\..\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="False" name="Debug">

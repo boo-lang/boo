@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -40,10 +40,6 @@ namespace Boo.Ast
  		}
 		
 		public WhenClause(Expression condition) : base(condition)
-		{
-		}
-		
-		public WhenClause(antlr.Token token, Expression condition) : base(token, condition)
 		{
 		}
 		
