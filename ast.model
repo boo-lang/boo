@@ -311,6 +311,7 @@ package Boo.Ast
 		Equality
 		Inequality
 		Match
+		NotMatch
 		Assign
 		InPlaceAdd
 		InPlaceSubtract

@@ -250,19 +250,22 @@ namespace Boo.Ast.Compilation.Steps
 			{		
 				case BinaryOperatorType.Match:
 				{
-					ExpressionCollection args = new ExpressionCollection();
-					args.Add(node.Left);
-					args.Add(node.Right);
-					
-					if (CheckParameters(node, RuntimeServices_IsMatchBinding, args))
+					BindMatchOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.NotMatch:
+				{
+					if (BindMatchOperator(node))					
 					{
-						// todo; trocar Bind e BindOperator por um 
-						// unico Bind(node, new OperatorBinding())
-						BindingManager.Bind(node, RuntimeServices_IsMatchBinding);					
-					}
-					else
-					{
-						BindingManager.Error(node);
+						UnaryExpression notMatch = new UnaryExpression();
+						notMatch.LexicalInfo = node.LexicalInfo;
+						notMatch.Operand = node;
+						notMatch.Operator = UnaryOperatorType.Not;
+						
+						BindingManager.Bind(notMatch, BindingManager.BoolTypeBinding);
+						
+						resultingNode = notMatch;
 					}
 					break;
 				}
@@ -362,6 +365,26 @@ namespace Boo.Ast.Compilation.Steps
 				}
 			}
 		}	
+		
+		bool BindMatchOperator(BinaryExpression node)
+		{
+			ExpressionCollection args = new ExpressionCollection();
+			args.Add(node.Left);
+			args.Add(node.Right);
+			
+			if (CheckParameters(node, RuntimeServices_IsMatchBinding, args))
+			{
+				// todo; trocar Bind e BindOperator por um 
+				// unico Bind(node, new OperatorBinding())
+				BindingManager.Bind(node, RuntimeServices_IsMatchBinding);					
+			}
+			else
+			{
+				BindingManager.Error(node);
+				return false;
+			}
+			return true;
+		}
 		
 		IBinding ResolveName(Node node, string name)
 		{

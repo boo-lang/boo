@@ -282,6 +282,18 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			RunCompilerTestCase("tuple2.boo", "string.Format(template, tuple)");
 		}
+		
+		[Test]
+		public void TestMatch0()
+		{
+			RunCompilerTestCase("match0.boo", "string =~ string");
+		}
+		
+		[Test]
+		public void TestMatch1()
+		{
+			RunCompilerTestCase("match1.boo", "string !~ string");
+		}
 	
 		void RunCompilerTestCase(string name, string description)
 		{			

@@ -54,9 +54,9 @@ namespace Boo.Lang
 			return iterator;
 		}
 		
-		public static bool IsMatch(string input, object pattern)
-		{		
-			return System.Text.RegularExpressions.Regex.IsMatch(input, (string)pattern);
+		public static bool IsMatch(string input, string pattern)
+		{			
+			return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
 		}
 		
 		static void Error(string name, params object[] args)

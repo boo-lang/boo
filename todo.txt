@@ -82,6 +82,9 @@ done * LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression
 Milestone 3.6 (revisão)
 -----------------------
 done * boxing (print e StringFormatting)
+* GPL license for all source files
+* mover toda dependência no ANTLR para outro assembly e remover qualquer referência aos simbolos
+antlr dos fontes de Boo.dll e Boo.Tests.dll
 * ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 * trocar todos os testes do parser para ao invés de utilizarem xml como base de comparação (o

@@ -115,6 +115,7 @@ tokens
 			case "==": return BinaryOperatorType.Equality;
 			case "!=": return BinaryOperatorType.Inequality;
 			case "=~": return BinaryOperatorType.Match;
+			case "!~": return BinaryOperatorType.NotMatch;
 			case "kindof": return BinaryOperatorType.TypeTest;
 		}
 		throw new ArgumentException("op");

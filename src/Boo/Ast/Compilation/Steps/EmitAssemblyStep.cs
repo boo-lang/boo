@@ -174,6 +174,24 @@ namespace Boo.Ast.Compilation.Steps
 			_il.MarkLabel(endLabel);
 		}
 		
+		public override void LeaveUnaryExpression(UnaryExpression node)
+		{
+			switch (node.Operator)
+			{
+				case UnaryOperatorType.Not:
+				{		
+					_il.Emit(OpCodes.Not);
+					break;
+				}
+				
+				default:
+				{
+					Errors.NotImplemented(node, "unary operator not supported");
+					break;
+				}
+			}
+		}
+		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{			
 			if (BinaryOperatorType.Assign == node.Operator)
