@@ -182,6 +182,7 @@ tokens
 			case "-=": return BinaryOperatorType.InPlaceSubtract;
 			case "/=": return BinaryOperatorType.InPlaceDivide;
 			case "*=": return BinaryOperatorType.InPlaceMultiply;
+			case "^=": return BinaryOperatorType.InPlaceExclusiveOr;
 		}
 		throw new ArgumentException(op, "op");
 	}
@@ -1720,7 +1721,8 @@ sum returns [Expression e]
 		(
 			add:ADD { op=add; bOperator = BinaryOperatorType.Addition; } |
 			sub:SUBTRACT { op=sub; bOperator = BinaryOperatorType.Subtraction; } |
-			bitor:BITWISE_OR { op=bitor; bOperator = BinaryOperatorType.BitwiseOr; }
+			bitor:BITWISE_OR { op=bitor; bOperator = BinaryOperatorType.BitwiseOr; } |
+			eo:EXCLUSIVE_OR { op=eo; bOperator = BinaryOperatorType.ExclusiveOr; }
 		)
 		r=term
 		{
@@ -2341,6 +2343,8 @@ COLON : ':';
 BITWISE_OR: '|';
 
 BITWISE_AND: '&';
+
+EXCLUSIVE_OR: '^' ('=' { $setType(ASSIGN); })?;
 
 LPAREN : '(' { EnterSkipWhitespaceRegion(); };
 	

@@ -2996,6 +2996,10 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						attributes |= TypeAttributes.Sealed;
 					}
+					if (((IType)type.Entity).IsValueType)
+					{
+						attributes |= TypeAttributes.SequentialLayout;
+					}
 					break;
 				}
 				
@@ -3269,9 +3273,23 @@ namespace Boo.Lang.Compiler.Steps
 			SetBuilder(typeDefinition, typeBuilder);
 		}
 		
+		bool IsValueType(TypeMember type)
+		{
+			IType entity = type.Entity as IType;
+			return null != entity && entity.IsValueType;
+		}
+		
 		TypeBuilder CreateTypeBuilder(TypeMember type)
 		{
-			Type baseType = IsEnumDefinition(type) ? typeof(System.Enum) : null;
+			Type baseType = null;
+			if (IsEnumDefinition(type))
+			{
+				baseType = typeof(System.Enum);
+			}
+			else if (IsValueType(type))
+			{
+				baseType = typeof(System.ValueType);
+			}
 
 			TypeBuilder typeBuilder = null;
 			ClassDefinition  enclosingType = type.ParentNode as ClassDefinition;

@@ -852,6 +852,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					return "*=";
 				}
 				
+				case BinaryOperatorType.InPlaceExclusiveOr:
+				{
+					return "^=";
+				}
+				
 				case BinaryOperatorType.InPlaceDivide:
 				{
 					return "/=";
@@ -940,6 +945,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				case BinaryOperatorType.BitwiseAnd:
 				{
 					return "&";
+				}
+				
+				case BinaryOperatorType.ExclusiveOr:
+				{
+					return "^";
 				}
 			}
 			throw new NotImplementedException(op.ToString());

@@ -340,6 +340,8 @@ enum BinaryOperatorType:
 	And
 	BitwiseOr
 	BitwiseAnd
+	ExclusiveOr
+	InPlaceExclusiveOr
 
 enum UnaryOperatorType:
 	None

@@ -80,6 +80,8 @@ BITWISE_OR: '|';
 
 BITWISE_AND: '&';
 
+EXCLUSIVE_OR: '^' ('=' { $setType(ASSIGN); })?;
+
 LPAREN : '(';
 	
 RPAREN : ')';

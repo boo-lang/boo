@@ -3176,11 +3176,11 @@ namespace Boo.Lang.Compiler.Steps
 							targetType = constructorInfo.DeclaringType;
 						}
 
-						IConstructor superConstructorInfo = FindCorrectConstructor(node, targetType, node.Arguments);
-						if (null != superConstructorInfo)
+						IConstructor targetConstructorInfo = FindCorrectConstructor(node, targetType, node.Arguments);
+						if (null != targetConstructorInfo)
 						{
-							Bind(node.Target, superConstructorInfo);
-							BindExpressionType(node, superConstructorInfo.ReturnType);
+							Bind(node.Target, targetConstructorInfo);
+							BindExpressionType(node, targetConstructorInfo.ReturnType);
 						}
 					}
 					break;
