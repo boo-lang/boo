@@ -256,6 +256,13 @@ namespace Boo.Lang.Compiler.Pipeline
 						break;
 					}
 					
+					case NodeType.InterfaceDefinition:
+					{
+						types.Add(member);
+						CollectTypes(types, ((TypeDefinition)member).Members);
+						break;
+					}
+					
 					case NodeType.EnumDefinition:
 					{
 						types.Add(member);
@@ -301,6 +308,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
+		{
+			EmitTypeDefinition(node);
+		}
+		
+		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
 			EmitTypeDefinition(node);
 		}
@@ -2500,7 +2512,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case NodeType.InterfaceDefinition:
 				{
-					attributes |= TypeAttributes.Interface;
+					attributes |= (TypeAttributes.Interface | TypeAttributes.Abstract);
 					break;
 				}
 				
@@ -2688,12 +2700,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, TypeBuilder typeBuilder)
-		{
+		{			
 			foreach (TypeReference baseType in typeDefinition.BaseTypes)
 			{
 				Type type = GetType(baseType);
 				if (type.IsClass)
-				{
+				{					
 					typeBuilder.SetParent(type);
 				}
 				else

@@ -111,21 +111,10 @@ namespace Boo.Lang.Compiler.Bindings
 		{			
 			_memberBuffer.Clear();			
 			
-			foreach (TypeMember member in _typeDefinition.Members)
+			foreach (IBinding binding in GetMembers())
 			{
-				if (name == member.Name)
-				{					
-					IBinding binding = BindingManager.GetOptionalBinding(member);
-					if (null == binding)
-					{						
-						binding = CreateCorrectBinding(member);
-						BindingManager.Bind(member, binding);
-					}	
-					
-					if (BindingType.Type == binding.BindingType)
-					{
-						binding = _bindingManager.AsTypeReference((ITypeBinding)binding);
-					}
+				if (binding.Name == name)
+				{
 					_memberBuffer.Add(binding);
 				}
 			}
@@ -165,6 +154,11 @@ namespace Boo.Lang.Compiler.Bindings
 					return new InternalMethodBinding(_bindingManager, (Method)member);
 				}
 				
+				case NodeType.Constructor:
+				{
+					return new InternalConstructorBinding(_bindingManager, (Constructor)member);
+				}
+				
 				case NodeType.Field:
 				{
 					return new InternalFieldBinding(_bindingManager, (Field)member);
@@ -185,7 +179,7 @@ namespace Boo.Lang.Compiler.Bindings
 					return new InternalPropertyBinding(_bindingManager, (Property)member);
 				}
 			}
-			throw new NotImplementedException();
+			throw new NotImplementedException(member.GetType().ToString());
 		}
 		
 		public virtual ITypeBinding BaseType
@@ -310,7 +304,25 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			if (null == _members)
 			{
-				// TODO:
+				_memberBuffer.Clear();
+				foreach (TypeMember member in _typeDefinition.Members)
+				{
+					IBinding binding = BindingManager.GetOptionalBinding(member);
+					if (null == binding)
+					{						
+						binding = CreateCorrectBinding(member);
+						BindingManager.Bind(member, binding);
+					}	
+					
+					if (BindingType.Type == binding.BindingType)
+					{
+						binding = _bindingManager.AsTypeReference((ITypeBinding)binding);
+					}
+					_memberBuffer.Add(binding);
+				}
+
+				_members = (IBinding[])_memberBuffer.ToArray(typeof(IBinding));
+				_memberBuffer.Clear();				
 			}
 			return _members;
 		}

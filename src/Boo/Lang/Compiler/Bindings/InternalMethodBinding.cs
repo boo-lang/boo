@@ -216,7 +216,26 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		override public string ToString()
 		{
-			return BindingManager.GetSignature(this);
+			System.Text.StringBuilder builder = new System.Text.StringBuilder();
+			builder.Append(_method.FullName);
+			builder.Append("(");
+			
+			int i=0;
+			foreach (ParameterDeclaration parameter in _method.Parameters)
+			{
+				if (i > 0)
+				{
+					builder.Append(", ");					
+				}
+				else
+				{
+					++i;
+				}
+				builder.Append(parameter.Type.ToString());	
+			}
+			
+			builder.Append(")");
+			return builder.ToString();
 		}
 	}
 	

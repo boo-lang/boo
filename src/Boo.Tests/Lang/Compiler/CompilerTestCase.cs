@@ -1017,6 +1017,18 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void InternalInterfaceWithNoMethods()
+		{
+			RunCompilerTestCase("interface2.boo");
+		}
+		
+		[Test]
+		public void InternalInterfaceWithNoMethodsImplemented()
+		{
+			RunCompilerTestCase("interface3.boo");
+		}
+		
+		[Test]
 		public void ArrayEquality()
 		{
 			RunCompilerTestCase("array_equality.boo");
