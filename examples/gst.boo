@@ -7,16 +7,15 @@ def window_Delete(sender, args as DeleteEventArgs):
 	args.RetVal = true
 
 Application.Init()
+	
+booSourceLanguage = SourceLanguagesManager().GetLanguageFromMimeType("text/x-boo")
+buffer = SourceBuffer(booSourceLanguage, Highlight: true)	
+sourceView = SourceView(buffer, ShowLineNumbers: true, AutoIndent: true)
 
 window = Window("Simple Boo Editor",
 				DefaultWidth:  600,
 				DefaultHeight: 400,
 				DeleteEvent: window_Delete)
-	
-boo = SourceLanguagesManager().GetLanguageFromMimeType("text/x-boo")
-buffer = SourceBuffer(boo, Highlight: true)	
-sourceView = SourceView(buffer)
-				
 window.Add(sourceView)
 window.ShowAll()
 
