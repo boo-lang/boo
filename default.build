@@ -79,6 +79,7 @@
 			<arg value="-out:build/Boo.Lang.Interpreter.dll" />
 			<arg value="src/Boo.Lang.Interpreter/AssemblyInfo.boo" />
 			<arg value="src/Boo.Lang.Interpreter/InteractiveInterpreter.boo" />
+			<arg value="src/Boo.Lang.Interpreter/AbstractInterpreter.boo" />
 		</exec>
 		<!--
 		* mono doesn't seem to be able to load Boo.Lang.Interpreter.dll

@@ -1223,7 +1223,8 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					IEntity[] tags = ((Ambiguous)baseMethods).Entities;
 					baseMethod = (IMethod)ResolveCallableReference(method, method.Parameters, tags, false);
-				}				
+				}	
+				EnsureRelatedNodeWasVisited(baseMethod);
 				if (TypeSystemServices.CheckOverrideSignature(tag, baseMethod))
 				{	
 					return baseMethod;
