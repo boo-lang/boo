@@ -57,6 +57,12 @@ namespace Boo.Lang.Compiler.Ast
  			LexicalInfo = declaration.LexicalInfo;
  			_privateScope = privateScope;
  		}
+		
+		public Local(string name, bool privateScope)
+		{
+			_name = name;
+			_privateScope = privateScope;
+		}
  		
  		public bool PrivateScope
  		{

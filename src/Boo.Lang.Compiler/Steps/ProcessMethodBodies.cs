@@ -1749,7 +1749,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			CheckDeclarationName(node.Declaration);
 			
-			InternalLocal localInfo = DeclareLocal(node, new Local(node.Declaration, false), type);
+			IEntity localInfo = DeclareLocal(node.Declaration.Name, type);
 			if (null != node.Initializer)
 			{
 				CheckTypeCompatibility(node.Initializer, type, GetExpressionType(node.Initializer));
@@ -2342,7 +2342,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetType(node.Declaration.Type));
+			node.Declaration.Entity = DeclareLocal(node.Declaration.Name, GetType(node.Declaration.Type), true);
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
 			EnterExceptionHandler();
 			try
@@ -2453,7 +2453,7 @@ namespace Boo.Lang.Compiler.Steps
 					Visit(node.Right);
 					IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
 					CheckIsResolvedType(expressionType, node.Right);
-					DeclareLocal(reference, new Local(reference, false), expressionType);
+					reference.Entity = DeclareLocal(reference.Name, expressionType);
 					BindExpressionType(node.Left, expressionType);
 					BindExpressionType(node, expressionType);
 					return false;
@@ -4240,13 +4240,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ReferenceExpression CreateTempLocal(LexicalInfo li, IType type)
 		{
-			string name = string.Format("___temp{0}", _currentMethod.Method.Locals.Count);
-			
-			ReferenceExpression reference = new ReferenceExpression(li, name);
-			BindExpressionType(reference, type);
-			
-			Local local = new Local(reference, true);			
-			DeclareLocal(reference, local, type);
+			InternalLocal local = DeclareTempLocal(type);			
+			ReferenceExpression reference = new ReferenceExpression(li, local.Name);
+			reference.Entity = local;
+			reference.ExpressionType = type;
 			return reference;
 		}
 		
@@ -4255,15 +4252,18 @@ namespace Boo.Lang.Compiler.Steps
 			return CodeBuilder.DeclareTempLocal(_currentMethod.Method, localType);
 		}
 		
-		InternalLocal DeclareLocal(Node sourceNode, Local local, IType localType)
+		IEntity DeclareLocal(string name, IType localType)
+		{
+			return DeclareLocal(name, localType, false);
+		}
+		
+		virtual protected IEntity DeclareLocal(string name, IType localType, bool privateScope)
 		{			
-			InternalLocal tag = new InternalLocal(local, localType);
-			Bind(local, tag);
-			
+			Local local = new Local(name, privateScope);
+			InternalLocal entity = new InternalLocal(local, localType);
+			local.Entity = entity;			
 			_currentMethod.Method.Locals.Add(local);
-			Bind(sourceNode, tag);
-			
-			return tag;
+			return entity;
 		}
 		
 		IType CurrentType
@@ -4382,7 +4382,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (CheckIdentifierName(d, d.Name))
 			{					
-				DeclareLocal(d, new Local(d, privateScope), GetType(d.Type));
+				d.Entity = DeclareLocal(d.Name, GetType(d.Type), privateScope);
 			}
 		}
 		
