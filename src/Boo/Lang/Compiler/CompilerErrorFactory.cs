@@ -302,6 +302,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0054", node.LexicalInfo);
 		}
 		
+		public static CompilerError InternalError(Node node, Exception error)
+		{
+			return new CompilerError("BCE0055", node.LexicalInfo, error, error.Message);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -842,7 +842,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ITypeBinding type = GetBoundType(node);
 			node.Left.Switch(this); EmitCastIfNeeded(type, PopType());
 			node.Right.Switch(this); EmitCastIfNeeded(type, PopType());
-			_il.Emit(GetArithmeticOpCode(node.Operator));
+			_il.Emit(GetArithmeticOpCode(type, node.Operator));
 			PushType(type);
 		}
 		
@@ -1105,34 +1105,28 @@ namespace Boo.Lang.Compiler.Pipeline
 			MethodInfo mi = GetMethodInfo(methodBinding);
 			OpCode code = OpCodes.Call;
 			if (!mi.IsStatic)
-			{
-				// pushes target reference
-				node.Target.Switch(this);
-				
-				ITypeBinding targetType = PopType();
-				
-				bool declaringTypeIsValueType = mi.DeclaringType.IsValueType;
-				bool targetTypeIsValueType = targetType.IsValueType; 
-				if (!declaringTypeIsValueType &&
-					!targetTypeIsValueType)
-				{
-					if (mi.IsVirtual)
+			{				
+				Expression target = ((MemberReferenceExpression)node.Target).Target;
+				ITypeBinding targetType = GetBoundType(target);
+				if (targetType.IsValueType)
+				{				
+					if (mi.DeclaringType == Types.Object)
 					{
-						code = OpCodes.Callvirt;
+						Switch(node.Target); 
+						_il.Emit(OpCodes.Box, GetType(PopType()));
+					}
+					else
+					{
+						LoadAddress(target);
 					}
 				}
 				else
 				{
-					if (declaringTypeIsValueType)
+					// pushes target reference
+					Switch(node.Target); PopType();
+					if (mi.IsVirtual)
 					{
-						// declare local to hold value type
-						LocalBuilder temp = _il.DeclareLocal(GetType(targetType));
-						_il.Emit(OpCodes.Stloc, temp);
-						_il.Emit(OpCodes.Ldloca, temp);
-					}
-					else
-					{
-						_il.Emit(OpCodes.Box, GetType(targetType));
+						code = OpCodes.Callvirt;
 					}
 				}
 			}
@@ -1426,7 +1420,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						ITypeBinding targetType = GetBoundType(node.Target);
 						if (targetType.IsValueType)
 						{
-							LoadAddress(node.Target, targetType);
+							LoadAddress(node.Target);
 						}
 						else
 						{
@@ -1486,7 +1480,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		void LoadAddress(Expression expression, ITypeBinding type)
+		void LoadAddress(Expression expression)
 		{
 			IBinding binding = GetBinding(expression);
 			switch (binding.BindingType)
@@ -1505,7 +1499,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					NotImplemented(expression, "property access for value types");
+					// declare local to hold value type
+					Switch(expression); 
+					LocalBuilder temp = _il.DeclareLocal(GetType(PopType()));
+					_il.Emit(OpCodes.Stloc, temp);
+					_il.Emit(OpCodes.Ldloca, temp);
 					break;
 				}
 			}
@@ -1925,14 +1923,34 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		OpCode GetArithmeticOpCode(BinaryOperatorType op)
+		bool IsInteger(ITypeBinding type)
 		{
-			switch (op)
+			return type == BindingManager.IntTypeBinding ||
+				type == BindingManager.LongTypeBinding ||
+				type == BindingManager.ByteTypeBinding;
+		}
+		
+		OpCode GetArithmeticOpCode(ITypeBinding type, BinaryOperatorType op)
+		{
+			if (IsInteger(type))
 			{
-				case BinaryOperatorType.Add: return OpCodes.Add;
-				case BinaryOperatorType.Subtract: return OpCodes.Sub;
-				case BinaryOperatorType.Multiply: return OpCodes.Mul;
-				case BinaryOperatorType.Divide: return OpCodes.Div;
+				switch (op)
+				{
+					case BinaryOperatorType.Add: return OpCodes.Add_Ovf;
+					case BinaryOperatorType.Subtract: return OpCodes.Sub_Ovf;
+					case BinaryOperatorType.Multiply: return OpCodes.Mul_Ovf;
+					case BinaryOperatorType.Divide: return OpCodes.Div;
+				}
+			}
+			else
+			{
+				switch (op)
+				{
+					case BinaryOperatorType.Add: return OpCodes.Add;
+					case BinaryOperatorType.Subtract: return OpCodes.Sub;
+					case BinaryOperatorType.Multiply: return OpCodes.Mul;
+					case BinaryOperatorType.Divide: return OpCodes.Div;
+				}
 			}
 			throw new ArgumentException("op");
 		}

@@ -208,13 +208,26 @@ done * long literals
 
 done * promoção automática de int para long
 
-done * promoção numérica na inferência de tipos de retorno
-	
+done * promoção numérica na inferência de tipos de retorno	
+
 done * (parcialmente) implementação de interfaces
-		
+
+* indexed properties:
+	Item(key as string):
+		get:
+			return _hash[key]
+		set:
+			_hash[key] = value
+
+* enum
+
+* usar classes definidas na mesma CompileUnit
+
 * usar métodos definidos em outros módulos no namespace global
 
 * usar métodos definidos em outros módulos no mesmo namespace
+
+* assembly attributes: [assembly: AssemblyVersion("foo")]
 	
 * remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário
@@ -260,6 +273,7 @@ Milestone 3.9 (better error checking)
 * can't create instance of interface 'XXX'
 * can't create instance of abstract class 'XXX'
 * can't create instance of enum 'XXX'
+* class 'XXX' already has a definition for a member 'YYY' with the signature 'ZZZ'
 * WARNING: unused local variable
 * WARNING: unreachable code detected
 * WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?

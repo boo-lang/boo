@@ -44,11 +44,22 @@ namespace Boo.Lang.Ast
 	public class DepthFirstSwitcher : IAstSwitcher
 	{
 		public bool Switch(Node node)
-		{
+		{			
 			if (null != node)
-			{			
-				node.Switch(this);
-				return true;
+			{
+				try
+				{
+					node.Switch(this);
+					return true;
+				}
+				catch (Boo.Lang.Compiler.CompilerError)
+				{
+					throw;
+				}
+				catch (Exception error)
+				{
+					throw Boo.Lang.Compiler.CompilerErrorFactory.InternalError(node, error);
+				}
 			}
 			return false;
 		}
@@ -67,7 +78,7 @@ namespace Boo.Lang.Ast
 			#unless $item.stereotype in ("collection", "enum") or "abstract" in $item.attributes
 				#set switchableFields = list(cs.getSwitchableFields(cs.getAllFields($item)))
 		public virtual void On${item.name}(${item.name} node)
-		{			
+		{				
 				#if switchableFields
 			if (Enter${item.name}(node))
 			{		
