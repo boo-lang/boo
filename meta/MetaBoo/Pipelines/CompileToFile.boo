@@ -11,11 +11,11 @@ class ParsePipeline(CompilerPipeline):
 class CompilePipeline(ParsePipeline):
 	override def Initialize():
 		pass
-		/*
-		pipeline.Add(IntroduceGlobalNamespaces())
+		/*		
 		pipeline.Add(IntroduceBindingService())
 		pipeline.Add(BindNamespaces())
 		pipeline.Add(IntroduceNameResolutionService())
+		pipeline.Add(IntroduceGlobalNamespaces())
 		pipeline.Add(BindAndApplyAttributes())
 		pipeline.Add(ExpandMacros())
 		pipeline.Add(IntroduceModuleClasses())

@@ -2185,6 +2185,11 @@ _loop406_breakloop:				;
 				match(')');
 				break;
 			}
+			case '|':
+			{
+				match('|');
+				break;
+			}
 			case '.':
 			{
 				match('.');

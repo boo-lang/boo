@@ -1617,6 +1617,11 @@ _loop72_breakloop:				;
 				match(')');
 				break;
 			}
+			case '|':
+			{
+				match('|');
+				break;
+			}
 			case '.':
 			{
 				match('.');
