@@ -2920,18 +2920,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		/*
-		int GetInterfaceDepth(IType type)
-		{
-			IType[] interfaces = type.GetInterfaces();
-			int[] depths = new int[interfaces.Length];
-			for (int i=0; i<interfaces.Length; ++i)
-			{
-				depths[i] = interf
-			}
-		}
-		*/
-		
 		InfoScore GetBiggerScore(List scores)
 		{
 			scores.Sort();
