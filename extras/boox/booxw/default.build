@@ -38,7 +38,6 @@
 				<include name="boo.xshd" />
 				<include name="booxw.exe" />
 				<include name="booish.gui.exe" />
-				<include name="booish.gui.externs.dll" />
 				<include name="scripts/*.int" />
 			</fileset>
 		</zip>
@@ -61,7 +60,6 @@
 		<copy todir="${build.dir}">
 			<fileset basedir="${booish.gui}/build">
 				<include name="booish.gui.exe" />
-				<include name="booish.gui.externs.dll" />
 			</fileset>
 		</copy>
 	

@@ -33,10 +33,9 @@ import WeifenLuo.WinFormsUI
 class InteractiveConsole(DockContent):
 	
 	def constructor(mainForm as MainForm):
-	
 		self.Text = "Interactive Console"
-		self.Controls.Add(console=booish.gui.PromptBox(Font: mainForm.Settings.TextFont))
-					
+		self.DockPadding.Top = 2
+		self.Controls.Add(console=booish.gui.InteractiveInterpreterControl(Font: mainForm.Settings.TextFont))					
 		console.Interpreter.SetValue("MainForm", mainForm)				
 	
 	override def GetPersistString():

@@ -73,7 +73,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 	def constructor():
 		self._interpreter = Boo.Lang.Interpreter.InteractiveInterpreter(
 								RememberLastValue: true,
-								Print: print)		
+								Print: print)
 		self.Document.HighlightingStrategy = GetBooHighlighting()
 		self.EnableFolding =  false
 		self.ShowLineNumbers =  false
@@ -81,6 +81,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 		self.ShowTabs =  true
 		self.ShowEOLMarkers = false
 		self.ShowInvalidLines = false
+		self.Dock = DockStyle.Fill
 		
 	CaretColumn:
 		get:
