@@ -792,7 +792,7 @@ type_reference returns [TypeReference tr]
 	)
 	|
 	(
-		id=identifier
+		(id=identifier | c:CALLABLE! { id=c; })
 		{
 			SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
 			str.Name = id.getText();

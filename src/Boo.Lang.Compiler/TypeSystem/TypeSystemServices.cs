@@ -685,6 +685,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("ulong", ULongType);
 			AddPrimitiveType("single", SingleType);
 			AddPrimitiveType("double", DoubleType);
+			AddPrimitiveType("callable", ICallableType);
 			AddBuiltin(BuiltinFunction.Len);
 			AddBuiltin(BuiltinFunction.AddressOf);
 			AddBuiltin(BuiltinFunction.Eval);
