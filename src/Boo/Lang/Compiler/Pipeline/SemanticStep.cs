@@ -306,6 +306,21 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopNamespace();
 		}
 		
+		void BindBaseInterfaceTypes(InterfaceDefinition node)
+		{
+			Switch(node.BaseTypes);
+			
+			foreach (TypeReference baseType in node.BaseTypes)
+			{
+				ITypeBinding baseBinding = GetBoundType(baseType);
+				EnsureRelatedNodeWasVisited(baseBinding);
+				if (!baseBinding.IsInterface)
+				{
+					Error(CompilerErrorFactory.InterfaceCanOnlyInheritFromInterface(baseType, node.FullName, baseBinding.FullName));
+				}
+			}
+		}
+		
 		void BindBaseTypes(ClassDefinition node)
 		{
 			Switch(node.BaseTypes);
@@ -370,6 +385,31 @@ namespace Boo.Lang.Compiler.Pipeline
 				Switch(member.Initializer);
 				lastValue = member.Initializer.Value + 1;
 			}
+		}
+		
+		override public void OnInterfaceDefinition(InterfaceDefinition node)
+		{
+			InternalTypeBinding binding = (InternalTypeBinding)BindingManager.GetOptionalBinding(node);
+			if (null == binding)
+			{
+				binding = new InternalTypeBinding(BindingManager, node);
+				Bind(node, binding);				
+			}
+			else
+			{
+				if (binding.Visited)
+				{
+					return;
+				}
+			}
+			
+			binding.Visited = true;
+			BindBaseInterfaceTypes(node);
+			
+			PushNamespace(binding);
+			Switch(node.Attributes);
+			Switch(node.Members);
+			PopNamespace();
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
@@ -693,21 +733,24 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopMethodBinding();
 			BindParameterIndexes(method);			
 			
-			if (BindingManager.IsUnknown(binding.BoundType))
+			if (method.DeclaringType.NodeType == NodeType.ClassDefinition)
 			{
-				if (CanResolveReturnType(binding))
+				if (BindingManager.IsUnknown(binding.BoundType))
 				{
-					ResolveResolvableReturnType(binding);
-					ResolveMethodOverride(binding);
+					if (CanResolveReturnType(binding))
+					{
+						ResolveResolvableReturnType(binding);
+						ResolveMethodOverride(binding);
+					}
+					else
+					{
+						_pending.Add(method, new ReturnTypeResolver(binding));
+					}
 				}
 				else
 				{
-					_pending.Add(method, new ReturnTypeResolver(binding));
+					ResolveMethodOverride(binding);
 				}
-			}
-			else
-			{
-				ResolveMethodOverride(binding);
 			}
 		}
 		

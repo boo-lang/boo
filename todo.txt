@@ -310,7 +310,7 @@ done * static field initializers
 
 * map(callable, enumerable)
 
-* System.Type must be invocable
+done * System.Type must be invocable
 
 * primitiva cast:
 

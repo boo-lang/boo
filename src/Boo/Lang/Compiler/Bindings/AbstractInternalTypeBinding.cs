@@ -292,7 +292,9 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public virtual bool IsAssignableFrom(ITypeBinding other)
 		{
-			return this == other;
+			return this == other ||
+					(!this.IsValueType && NullBinding.Default == other) ||
+					other.IsSubclassOf(this);
 		}
 		
 		public virtual IConstructorBinding[] GetConstructors()
@@ -325,6 +327,11 @@ namespace Boo.Lang.Compiler.Bindings
 				_memberBuffer.Clear();				
 			}
 			return _members;
+		}
+		
+		override public string ToString()
+		{
+			return FullName;
 		}
 	}
 

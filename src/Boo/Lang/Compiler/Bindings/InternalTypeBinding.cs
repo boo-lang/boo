@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				if (null == _baseType)
+				if (IsClass && null == _baseType)
 				{
 					foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 					{
@@ -121,11 +121,6 @@ namespace Boo.Lang.Compiler.Bindings
 				_constructors = (IConstructorBinding[])constructors.ToArray(typeof(IConstructorBinding));
 			}
 			return _constructors;
-		}
-		
-		override public string ToString()
-		{
-			return string.Format("InternalTypeBinding<TypeDefinition={0}>", _typeDefinition);
 		}
 	}
 }

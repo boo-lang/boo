@@ -55,10 +55,18 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				SuperExpressions = new ExpressionCollection();
 				ReturnExpressions = new ExpressionCollection();
-				if (null == method.ReturnType)
+				if (null == _method.ReturnType)
 				{
-					method.ReturnType = new SimpleTypeReference("unknown");
-					BindingManager.Bind(method.ReturnType, UnknownBinding.Default);
+					if (_method.DeclaringType.NodeType == NodeType.ClassDefinition)
+					{
+						_method.ReturnType = new SimpleTypeReference("unknown");
+						BindingManager.Bind(_method.ReturnType, UnknownBinding.Default);
+					}
+					else
+					{
+						_method.ReturnType = new SimpleTypeReference("System.Void");
+						BindingManager.Bind(_method.ReturnType, _bindingManager.VoidTypeBinding);
+					}
 				}
 			}
 		}
@@ -176,7 +184,7 @@ namespace Boo.Lang.Compiler.Bindings
 		public ITypeBinding ReturnType
 		{
 			get
-			{				
+			{					
 				return _bindingManager.GetBoundType(_method.ReturnType);
 			}
 		}

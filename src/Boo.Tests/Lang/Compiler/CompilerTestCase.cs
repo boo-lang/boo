@@ -1029,6 +1029,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void InternalInterfaceWithMethods()
+		{
+			RunCompilerTestCase("interface4.boo");
+		}
+		
+		[Test]
 		public void ArrayEquality()
 		{
 			RunCompilerTestCase("array_equality.boo");
@@ -1170,6 +1176,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void ParameterAsLValue()
 		{
 			RunCompilerTestCase("parameter_as_lvalue.boo");
+		}
+		
+		[Test]
+		public void NullIsCompatibleWithInternalClasses()
+		{
+			RunCompilerTestCase("null0.boo");
 		}
 	}
 }

@@ -154,7 +154,7 @@ namespace Boo.Tests.Lang.Compiler
 		public void DeclarationTypeError()
 		{
 			RunCompilerTestCase("declaration3.boo");
-		}
+		}		
 		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{

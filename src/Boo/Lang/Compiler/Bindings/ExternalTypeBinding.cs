@@ -171,7 +171,7 @@ namespace Boo.Lang.Compiler.Bindings
 			ExternalTypeBinding external = other as ExternalTypeBinding;
 			if (null == external)
 			{
-				throw new NotImplementedException(other.ToString());
+				return false;
 			}
 			return _type.IsSubclassOf(external._type);
 		}

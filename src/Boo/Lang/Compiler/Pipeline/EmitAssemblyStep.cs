@@ -314,7 +314,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			EmitTypeDefinition(node);
+			TypeBuilder builder = GetTypeBuilder(node);
+			EmitAttributes(builder, node);
 		}
 		
 		void EmitTypeDefinition(TypeDefinition node)
@@ -2627,23 +2628,21 @@ namespace Boo.Lang.Compiler.Pipeline
 		{			
 			ParameterDeclarationCollection parameters = method.Parameters;
 			
+			MethodAttributes methodAttributes = GetMethodAttributes(method) | attributes;
+			if (typeBuilder.IsInterface)
+			{
+				methodAttributes |= (MethodAttributes.Virtual | MethodAttributes.Abstract);
+			}
+			
 			MethodBuilder builder = typeBuilder.DefineMethod(method.Name, 
-                                        GetMethodAttributes(method) | attributes,
+                                        methodAttributes,
                                         GetType(method.ReturnType),                             
 										GetParameterTypes(parameters));
 			for (int i=0; i<parameters.Count; ++i)
 			{
 				builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
-			}
+			}			
 			
-			/*
-			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(method);
-			IMethodBinding overriden = binding.Override;
-			if (null != overriden)
-			{
-				typeBuilder.DefineMethodOverride(builder, GetMethodInfo(overriden));
-			}
-			*/
 			SetBuilder(method, builder);
 			foreach (Boo.Lang.Ast.Attribute attribute in method.Attributes)
 			{
@@ -2713,7 +2712,11 @@ namespace Boo.Lang.Compiler.Pipeline
 					typeBuilder.AddInterfaceImplementation(type);
 				}
 			}
-			
+			EmitAttributes(typeBuilder, typeDefinition);
+		}
+		
+		void EmitAttributes(TypeBuilder typeBuilder, TypeDefinition typeDefinition)
+		{			
 			foreach (Boo.Lang.Ast.Attribute attribute in typeDefinition.Attributes)
 			{
 				typeBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));

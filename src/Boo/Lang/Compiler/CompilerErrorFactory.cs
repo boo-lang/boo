@@ -372,6 +372,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0068", node.LexicalInfo, name);
 		}
 		
+		public static CompilerError InterfaceCanOnlyInheritFromInterface(Node node, string interfaceName, string baseType)
+		{
+			return new CompilerError("BCE0069", node.LexicalInfo, interfaceName, baseType);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
