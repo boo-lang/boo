@@ -483,14 +483,17 @@ namespace Boo.Lang
 			return new List();
 		}
 		
-		int NormalizeAndCheckIndex(int index)
-		{
-			return CheckIndex(NormalizeIndex(index));
-		}
-		
 		int AdjustIndex(int index)
 		{
-			return index > _count ? _count : index;
+			if (index > _count)
+			{
+				return _count;
+			}
+			if (index < 0)
+			{
+				return 0;
+			}
+			return index;
 		}
 		
 		int CheckIndex(int index)

@@ -55,6 +55,10 @@ class ListTestCase:
 		Assert.AreEqual([], _list[10:])		
 		Assert.AreEqual(["tres"], _list[2:10])
 		
+		Assert.AreEqual(["um", "dois", "tres"], _list[-4:])
+		Assert.AreEqual(["um"], _list[-4:-2])
+		Assert.AreEqual(["um", "dois", "tres"], _list[-10:10])
+		
 	[Test]
 	def Indexing():
 		Assert.AreEqual("um", _list[0])
