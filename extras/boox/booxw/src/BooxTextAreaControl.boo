@@ -33,7 +33,7 @@ class BooxTextAreaControl(TextEditorControl):
 					Editor.Main, 
 					self, 
 					Editor.GetSafeFileName(),
-					CodeCompletionDataProvider(CodeCompletion(GetCompletionSource())), 
+					CodeCompletionDataProvider(CodeCompletionHunter.GetCompletion(GetCompletionSource())), 
 					ch)
 
 	private def GetCompletionSource():

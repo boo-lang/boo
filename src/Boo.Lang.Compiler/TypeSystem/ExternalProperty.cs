@@ -135,6 +135,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
+		override public string ToString()
+		{
+			return _property.ToString();
+		}
+		
 		System.Reflection.MethodInfo GetAccessor()
 		{
 			System.Reflection.MethodInfo mi = _property.GetGetMethod(true);

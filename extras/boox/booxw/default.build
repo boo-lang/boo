@@ -4,7 +4,7 @@
 	<property name="boo.dir" value="${path::get-full-path('../../../bin')}" />
 	<property name="build.dir" value="${path::get-full-path('../build')}" />
 	
-	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
+	<include buildfile="../build.properties" if="${file::exists('../build.properties')}" />
 
 	<target name="run" depends="compile">
 		<exec program="${build.dir}/boox.exe" useruntimeengine="true">

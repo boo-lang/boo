@@ -119,5 +119,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _field;
 			}
 		}
+		
+		override public string ToString()
+		{
+			return _field.ToString();
+		}
 	}
 }

@@ -46,7 +46,7 @@ class CodeCompletionData(ICompletionData, IComparable):
 
 class CodeCompletionDataProvider(ICompletionDataProvider):
 
-	_codeCompletion as CodeCompletion
+	_codeCompletion as (Boo.Lang.Compiler.TypeSystem.IEntity)
 
 	ImageList as System.Windows.Forms.ImageList:
 		get:
@@ -56,12 +56,12 @@ class CodeCompletionDataProvider(ICompletionDataProvider):
 		get:
 			return null
 	
-	def constructor(codeCompletion as CodeCompletion):
+	def constructor(codeCompletion):
 		_codeCompletion = codeCompletion
 
 	def GenerateCompletionData(fileName as string, textArea as TextArea, charTyped as System.Char) as (ICompletionData):
 		values = {}
-		for item in _codeCompletion.Members:
+		for item in _codeCompletion:
 			if not "." in item.Name:
 				if not values[item.Name]:
 					values[item.Name] = CodeCompletionData(item.Name, item.ToString())
