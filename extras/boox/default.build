@@ -18,6 +18,7 @@
 	</target>
 	
 	<target name="booxw" depends="BooExplorer.Common">
+		<nant buildfile="booxw/default.build" />
 	</target>
 	
 	<target name="BooExplorer.Common" depends="init">

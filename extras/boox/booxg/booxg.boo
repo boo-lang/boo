@@ -59,7 +59,7 @@ class MainWindow(Window):
 	
 	_documentOutline = TreeView()
 	
-	_output = TextView()
+	_output = TextView(Editable: false)
 	_outputBuffer = _output.Buffer
 		
 	_accelGroup = AccelGroup()	
@@ -93,6 +93,8 @@ class MainWindow(Window):
 		self.Add(vbox)
 		
 		self.NewDocument()
+		
+		Timeout.Add(3s.TotalMilliseconds, self.UpdateDocumentOutline)
 		
 	private def CreateScrolled(widget):
 		sw = ScrolledWindow()
@@ -129,10 +131,10 @@ class MainWindow(Window):
 		edit.Append(ImageMenuItem(Stock.Undo, _accelGroup, Activated: _menuItemUndo_Activated))
 		edit.Append(ImageMenuItem(Stock.Redo, _accelGroup, Activated: _menuItemRedo_Activated))
 		edit.Append(SeparatorMenuItem())
-		edit.Append(ImageMenuItem(Stock.Cut, _accelGroup))
-		edit.Append(ImageMenuItem(Stock.Copy, _accelGroup))
-		edit.Append(ImageMenuItem(Stock.Paste, _accelGroup))
-		edit.Append(ImageMenuItem(Stock.Delete, _accelGroup))
+		edit.Append(ImageMenuItem(Stock.Cut, _accelGroup, Activated: _menuItemCut_Activated))
+		edit.Append(ImageMenuItem(Stock.Copy, _accelGroup, Activated: _menuItemCopy_Activated))
+		edit.Append(ImageMenuItem(Stock.Paste, _accelGroup, Activated: _menuItemPaste_Activated))
+		edit.Append(ImageMenuItem(Stock.Delete, _accelGroup, Activated: _menuItemDelete_Activated))
 		edit.Append(SeparatorMenuItem())
 		edit.Append(ImageMenuItem(Stock.Preferences, _accelGroup))		
 		
@@ -143,7 +145,7 @@ class MainWindow(Window):
 		miExpand.AddAccelerator("activate", _accelGroup, AccelKey(Gdk.Key.E, Gdk.ModifierType.ControlMask, AccelFlags.Visible))
 		
 		documents = Menu()
-		documents.Append(ImageMenuItem(Stock.Close, _accelGroup))
+		documents.Append(ImageMenuItem(Stock.Close, _accelGroup, Activated: _menuItemClose_Activated))
 				
 		mb.Append(MenuItem("_File", Submenu: file))
 		mb.Append(MenuItem("_Edit", Submenu: edit))
@@ -164,6 +166,29 @@ class MainWindow(Window):
 	def DisplayErrors(errors as CompilerErrorCollection):
 		self.AppendOutput(errors.ToString(true)) if (len(errors))
 		
+	private def GetClipboard():
+		return Clipboard.Get(Gdk.Selection.Clipboard)
+		
+	CurrentBuffer:
+		get:
+			return CurrentEditor.Buffer
+			
+	private def _menuItemClose_Activated(sender, args as EventArgs):
+		_editors.RemoveAt(_notebookEditors.CurrentPage)
+		_notebookEditors.RemovePage(_notebookEditors.CurrentPage)
+		
+	private def _menuItemCut_Activated(sender, args as EventArgs):	
+		CurrentBuffer.CutClipboard(GetClipboard(), true)
+		
+	private def _menuItemCopy_Activated(sender, args as EventArgs):	
+		CurrentBuffer.CopyClipboard(GetClipboard())
+
+	private def _menuItemPaste_Activated(sender, args as EventArgs):	
+		CurrentBuffer.PasteClipboard(GetClipboard())
+
+	private def _menuItemDelete_Activated(sender, args as EventArgs):	
+		pass
+
 	private def _menuItemExecute_Activated(sender, args as EventArgs):	
 		
 		_outputBuffer.Clear()
@@ -196,6 +221,7 @@ class MainWindow(Window):
 		
 	private def UpdateDocumentOutline():
 		DocumentOutlineProcessor(_documentOutline, CurrentEditor).Update()	
+		return true // to match Gdk.Function signature
 		
 	private def _menuItemExpand_Activated(sender, args as EventArgs):
 		editor = CurrentEditor
@@ -211,6 +237,7 @@ class MainWindow(Window):
 	
 	private def _menuItemSave_Activated(sender, args as EventArgs):
 		editor = CurrentEditor
+		
 		fname = editor.FileName
 		if fname is null:
 			fs = FileSelection("Save As", SelectMultiple: false)
@@ -241,7 +268,7 @@ class DocumentOutlineProcessor:
 	_module as Boo.Lang.Compiler.Ast.Module
 	
 	def constructor(documentOutline, editor as BooEditor):
-		_module = Parse(editor.FileName, editor.Buffer.Text)
+		_module = Parse(editor.Label, editor.Buffer.Text)
 		_documentOutline = documentOutline
 		
 	def Parse(fname, text):
