@@ -116,14 +116,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveListLiteralExpression(ListLiteralExpression node)
 		{
-			for (int i=0; i<node.Items.Count; ++i)
-			{
-				Expression converted = ConvertExpression(node.Items[i]);
-				if (null != converted)
-				{
-					node.Items.ReplaceAt(i, converted);
-				}
-			}
+			ConvertExpressions(node.Items);
+		}
+		
+		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
+		{
+			ConvertExpressions(node.Items);
 		}
 		
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
@@ -171,6 +169,18 @@ namespace Boo.Lang.Compiler.Steps
 				if (null != newRight)
 				{
 					node.Right = newRight;
+				}
+			}
+		}
+		
+		void ConvertExpressions(ExpressionCollection items)
+		{
+			for (int i=0; i<items.Count; ++i)
+			{
+				Expression converted = ConvertExpression(items[i]);
+				if (null != converted)
+				{
+					items.ReplaceAt(i, converted);
 				}
 			}
 		}

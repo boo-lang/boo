@@ -823,10 +823,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IType GetMostGenericType(ExpressionCollection args)
 		{
-			IType type = GetExpressionType(args[0]);
+			IType type = GetConcreteExpressionType(args[0]);
 			for (int i=1; i<args.Count; ++i)
 			{	
-				IType newType = GetExpressionType(args[i]);
+				IType newType = GetConcreteExpressionType(args[i]);
 				
 				if (type == newType)
 				{
@@ -1195,7 +1195,7 @@ namespace Boo.Lang.Compiler.Steps
 				BindExpressionType(node, TypeSystemServices.ObjectArrayType);
 			}
 			else
-			{
+			{				
 				BindExpressionType(node, TypeSystemServices.GetArrayType(GetMostGenericType(items)));
 			}
 		}
@@ -2511,9 +2511,7 @@ namespace Boo.Lang.Compiler.Steps
 			else if (TypeSystemServices.ICallableType.IsAssignableFrom(type))
 			{
 				node.Target = CreateMemberReference(node.Target, ICallable_Call);
-				ArrayLiteralExpression arg = new ArrayLiteralExpression();
-				BindExpressionType(arg, TypeSystemServices.ObjectArrayType);
-				arg.Items.Extend(node.Arguments);							
+				ArrayLiteralExpression arg = CreateObjectArray(node.Arguments);							
 				node.Arguments.Clear();
 				node.Arguments.Add(arg);
 				
@@ -2526,13 +2524,11 @@ namespace Boo.Lang.Compiler.Steps
 				node.Target = new ReferenceExpression(targetType.LexicalInfo,
 											"System.Activator.CreateInstance");
 										
-				ArrayLiteralExpression constructorArgs = new ArrayLiteralExpression();
-				BindExpressionType(constructorArgs, TypeSystemServices.ObjectArrayType);
-				constructorArgs.Items.Extend(node.Arguments);
+				ArrayLiteralExpression args = CreateObjectArray(node.Arguments);
 				
 				node.Arguments.Clear();
 				node.Arguments.Add(targetType);
-				node.Arguments.Add(constructorArgs);							
+				node.Arguments.Add(args);							
 				
 				Bind(node.Target, Activator_CreateInstance);
 				BindExpressionType(node, Activator_CreateInstance.ReturnType);
@@ -2541,6 +2537,15 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				NotImplemented(node, "Method invocation on type '" + type + "'.");
 			}
+		}
+		
+		ArrayLiteralExpression CreateObjectArray(ExpressionCollection items)
+		{
+			ArrayLiteralExpression array = new ArrayLiteralExpression();
+			BindExpressionType(array, TypeSystemServices.ObjectArrayType);
+			array.Items.Extend(items);
+			MapToConcreteExpressionTypes(array.Items);
+			return array;
 		}
 		
 		MethodInvocationExpression CreateEquals(BinaryExpression node)

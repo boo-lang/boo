@@ -1350,6 +1350,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void CallableArray()
+		{
+			RunCompilerTestCase("callable15.boo");
+		}
+		
+		[Test]
+		public void UseFunctionAsICallableCallArgument()
+		{
+			RunCompilerTestCase("callable16.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");
