@@ -38,7 +38,7 @@ done * checagem de parametros estrita nas invocaçoes de método
 done * array unpacking
 done * for item in array
 done * for index, item in enumerate(array)
-* melhor mensagem de erro para array unpacking (checar length do array antes de acessá-lo 
+done * melhor mensagem de erro para array unpacking (checar length do array antes de acessá-lo 
 e emitir exception "Unpack list of wrong size")
 * Quando o argumento do For ou Unpack for do tipo System.Object, não fazer simplesmente cast
 mas invocar RuntimeServices.GetEnumerable(object) que tenta encontrar a melhor versão de 
@@ -46,8 +46,8 @@ um enumerável para o objeto passado e, no caso de falha, exibe mensagem de erro
 * RuntimeServices.GetEnumerable(object) deve suportar StreamReader
 * native regular expression support:
 	* re expression /foo/
-	* match operator ~=
-* if stmt modifier
+	done * match operator ~=
+done * if stmt modifier
 * expressões simples com inteiros
 * boxing (print e StringFormatting)
 * compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator

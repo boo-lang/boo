@@ -20,7 +20,9 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Binding.BindingManager.StringType, Binding.BindingManager.ObjectArrayType });
 		
-		static MethodInfo RuntimeServices_MoveNext = typeof(Boo.Lang.RuntimeServices).GetMethod("MoveNext");
+		static MethodInfo RuntimeServices_MoveNext = Binding.BindingManager.RuntimeServicesType.GetMethod("MoveNext");
+		
+		static MethodInfo RuntimeServices_CheckArrayUnpack = Binding.BindingManager.RuntimeServicesType.GetMethod("CheckArrayUnpack");
 		
 		static MethodInfo IEnumerable_GetEnumerator = Binding.BindingManager.IEnumerableType.GetMethod("GetEnumerator");
 		
@@ -133,8 +135,7 @@ namespace Boo.Ast.Compilation.Steps
 			node.Expression.Switch(this);
 			
 			Label endLabel = _il.DefineLabel();
-			_il.Emit(OpCodes.Brfalse, endLabel);
-			
+			_il.Emit(OpCodes.Brfalse, endLabel);			
 			node.TrueBlock.Switch(this);
 			_il.MarkLabel(endLabel);
 		}
@@ -432,7 +433,12 @@ namespace Boo.Ast.Compilation.Steps
 			else
 			{
 				if (topOfStack.IsArray)
-				{										
+				{					
+					// RuntimeServices.CheckArrayUnpack(array, decls.Count);					
+					_il.Emit(OpCodes.Dup);
+					_il.Emit(OpCodes.Ldc_I4, decls.Count);					
+					_il.EmitCall(OpCodes.Call, RuntimeServices_CheckArrayUnpack, null);
+					
 					for (int i=0; i<decls.Count; ++i)
 					{
 						// local = array[i]
