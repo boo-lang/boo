@@ -7,4 +7,4 @@ c = do:
 	Assert.AreEqual(4, value)
 	
 c()
-Assert.AreEqual(3, value, "closure cant change local variables")
+Assert.AreEqual(4, value, "local variables must be shared")
