@@ -292,6 +292,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Visit(node.Add);
 			}
+			
 			if (null == node.Remove)
 			{
 				Method remove = CreateEventMethod(node, "remove_");
@@ -2507,6 +2508,12 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
+				case EntityType.Event:
+				{
+					NotImplemented(node, "Event invocation.");
+					break;
+				}
+				
 				case EntityType.Method:
 				{				
 					IMethod targetMethod = (IMethod)targetInfo;
@@ -3377,7 +3384,7 @@ namespace Boo.Lang.Compiler.Steps
 				IEntity tag = tags[i];
 				IMethod mb = tag as IMethod;
 				if (null != mb)
-				{			
+				{	
 					IParameter[] parameters = mb.GetParameters();
 					if (args.Count == parameters.Length)
 					{

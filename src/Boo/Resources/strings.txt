@@ -80,6 +80,7 @@ BCE0078=A method reference was expected.
 BCE0079=__addressof__ builtin function can only be used in delegate constructors.
 BCE0080='{0}' builtin function cannot be used as an expression.
 BCE0081=A raise statement with no arguments is not allowed outside an exception handler.
+BCE0082=Event '{0}' can not be externally raised.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.

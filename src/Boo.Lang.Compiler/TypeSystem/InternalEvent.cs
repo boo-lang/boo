@@ -53,12 +53,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IMethod GetAddMethod()
 		{
-			return null;
+			return (IMethod)TypeSystemServices.GetEntity(_event.Add);
 		}
 		
 		public IMethod GetRemoveMethod()
 		{
-			return null;
+			return (IMethod)TypeSystemServices.GetEntity(_event.Remove);
 		}
 		
 		public Event Event
