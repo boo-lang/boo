@@ -49,22 +49,14 @@ namespace Boo.Lang
 			{
 				// TODO: localize this message
 				throw new System.ArgumentException(
-					String.Format(
-						"expecting 1 or 2 args to assert; got {0}", argc));
-			}
-			
-			// if not in debug mode then expand to nothing
-			// TODO: do we really want that? what about assert with side effects?
-			if (!Context.Parameters.Debug)
-			{
-				return null;
+					Boo.ResourceManager.Format("AssertArgCount", argc));
 			}
 			
 			// figure out the msg for the exception
 			Expression condition = macro.Arguments[0];
 			Expression message = (argc == 1) ?
 				new StringLiteralExpression(
-					condition.LexicalInfo, NodeToString(condition)) : 
+					condition.LexicalInfo, condition.ToString()) : 
 				macro.Arguments[1];
 				
 			// unless <condition>:
@@ -80,15 +72,5 @@ namespace Boo.Lang
 			
 			return stmt;
 		}
-
-		private string NodeToString(Node node)
-		{
-			using (StringWriter writer = new StringWriter())
-			{
-				BooPrinterVisitor printer = new BooPrinterVisitor(writer);
-				printer.Visit(node);
-				return writer.ToString();
-			}
-		}	
 	}	
 }

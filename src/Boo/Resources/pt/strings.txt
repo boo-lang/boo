@@ -139,3 +139,4 @@ UnpackListOfWrongSize=Desempacotamento de lista de tamanho errado.
 CantUnpackNull=null não pode ser desempacotado.
 UnpackArrayOfWrongSize=Desempacotamento de array de tamanho errado. (esperado={0}, real={1}).
 CantCompareItems=Pelo menos um lado deve implementar IComparable ou ambos devem implementar IEnumerable..
+AssertArgCount=macro assert espera 1 ou 2 argumentos; aplicados: {0}

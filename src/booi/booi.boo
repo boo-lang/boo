@@ -73,9 +73,7 @@ def Main(argv as (string)):
 		return -1
 		
 	compiler = BooCompiler()
-		
-	// boo memory pipeline
-	// compiles the code in memory only
+	
 	compiler.Parameters.Pipeline = CompileToMemory()	
 	
 	if "-" == argv[0]:

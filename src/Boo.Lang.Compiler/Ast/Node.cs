@@ -180,6 +180,13 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get;
 		}
+		
+		override public string ToString()
+		{
+			System.IO.StringWriter writer = new System.IO.StringWriter();
+			new Visitors.BooPrinterVisitor(writer).Visit(this);
+			return writer.ToString();
+		}
 	}
 
 }
