@@ -436,6 +436,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return test;
 		}
 		
+		public LocalVariable DeclareLocal(Method node, string name, IType type)
+		{
+			Local local = new Local(node.LexicalInfo, name);
+			LocalVariable entity = new LocalVariable(local, type);
+			local.Entity = entity;
+			node.Locals.Add(local);
+			return entity;
+		}
+		
 		public void BindParameterDeclarations(bool isStatic, ParameterDeclarationCollection parameters)
 		{
 			// arg0 is the this pointer when member is not static			

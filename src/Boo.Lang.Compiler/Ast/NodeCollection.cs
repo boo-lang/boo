@@ -126,6 +126,20 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
+		public Node RemoveByEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
+		{
+			for (int i=0; i<_list.Count; ++i)
+			{
+				Node node = (Node)_list[i];
+				if (entity == node.Entity)
+				{
+					_list.RemoveAt(i);
+					return node;
+				}
+			}
+			return null;
+		}
+		
 		public Node GetNodeAt(int index)
 		{
 			return (Node)_list[index];

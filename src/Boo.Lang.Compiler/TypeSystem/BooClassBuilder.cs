@@ -53,6 +53,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_cd.Entity = new InternalType(_codeBuilder.TypeSystemServices, _cd);
 		}
 		
+		public BooCodeBuilder CodeBuilder
+		{
+			get
+			{
+				return _codeBuilder;
+			}
+		}
+		
 		public ClassDefinition ClassDefinition
 		{
 			get

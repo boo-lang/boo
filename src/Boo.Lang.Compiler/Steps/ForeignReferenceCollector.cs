@@ -36,6 +36,8 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class ForeignReferenceCollector : DepthFirstVisitor, IDisposable, ICompilerComponent
 	{
+		Node _sourceNode;
+		
 		Method _foreignMethod;
 		
 		List _references;
@@ -51,6 +53,19 @@ namespace Boo.Lang.Compiler.Steps
 			_references = new List();
 			_referencedEntities = new Hash();
 		}		
+		
+		public Node SourceNode
+		{
+			get
+			{
+				return _sourceNode;
+			}
+			
+			set
+			{
+				_sourceNode = value;
+			}
+		}
 		
 		public Method ForeignMethod
 		{
@@ -151,7 +166,8 @@ namespace Boo.Lang.Compiler.Steps
 			// referenced entities turn into fields			
 			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
 			{
-				Field field = builder.AddField("__" + entity.Name, entity.Type);				
+				Field field = builder.AddField("__" + entity.Name, entity.Type);
+				field.Modifiers = TypeMemberModifiers.Public;				
 				_referencedEntities[entity] = field.Entity;
 			}
 			

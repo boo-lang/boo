@@ -36,10 +36,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		System.Reflection.Emit.LocalBuilder _builder;
 		
+		bool _shared;
+		
 		public LocalVariable(Boo.Lang.Compiler.Ast.Local local, IType type)
 		{			
 			_local = local;
 			_type = type;
+			_shared = false;
 		}
 		
 		public string Name
@@ -71,6 +74,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return _local.PrivateScope;
+			}
+		}
+		
+		/// <summary>
+		/// Is this variable shared among closures?
+		/// </summary>
+		public bool IsShared
+		{
+			get
+			{
+				return _shared;
+			}
+			
+			set
+			{
+				_shared = true;
 			}
 		}
 		

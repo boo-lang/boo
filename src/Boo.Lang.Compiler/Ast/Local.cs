@@ -40,6 +40,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public Local(LexicalInfo lexicalInfo, string name) : base(lexicalInfo, name)
+		{
+		}
+		
 		public Local(ReferenceExpression reference, bool privateScope)
 		{
 			_name = reference.Name;
