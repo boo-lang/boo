@@ -6,7 +6,7 @@ added
 clicked!
 removed
 """
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests
 
 class Application:
 	

@@ -86,6 +86,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public interface IEvent : IMember
 	{		
+		IMethod GetAddMethod();
+		IMethod GetRemoveMethod();
 	}
 	
 	public interface IField : IMember

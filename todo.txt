@@ -1,9 +1,5 @@
 ﻿* fix event handling
-	* __eval__
-	* delegate1.boo
-	* delegate2.boo
-	* delegate3.boo
-	* delegate4.boo
+	* delegate0.boo
 
 * fix ICallable for callable types
 	* callable7.boo

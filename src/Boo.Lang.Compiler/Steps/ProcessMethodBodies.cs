@@ -2131,10 +2131,19 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			IEvent eventInfo = (IEvent)tag;
+			IMethod method = node.Operator == BinaryOperatorType.InPlaceAdd ? 
+								eventInfo.GetAddMethod() :
+								eventInfo.GetRemoveMethod();
+								
 			ITypedEntity expressionInfo = (ITypedEntity)GetEntity(node.Right);
 			CheckDelegateArgument(node, eventInfo, expressionInfo);
 			
-			BindExpressionType(node, TypeSystemServices.VoidType);
+			MethodInvocationExpression mie = CreateMethodInvocation(
+												((MemberReferenceExpression)node.Left).Target,
+												method,
+												node.Right);
+			
+			node.ParentNode.Replace(node, mie);
 		}
 		
 		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag, Expression arg)

@@ -50,6 +50,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public IMethod GetAddMethod()
+		{
+			return (IMethod)_typeSystemServices.Map(_event.GetAddMethod());
+		}
+		
+		public IMethod GetRemoveMethod()
+		{
+			return (IMethod)_typeSystemServices.Map(_event.GetRemoveMethod());
+		}
+		
 		public System.Reflection.EventInfo EventInfo
 		{
 			get

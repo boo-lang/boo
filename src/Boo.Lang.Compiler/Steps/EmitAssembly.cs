@@ -1298,22 +1298,6 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case BinaryOperatorType.InPlaceAdd:
-				{
-					Visit(((MemberReferenceExpression)node.Left).Target); PopType();
-					SubscribeEvent(node, GetEntity(node.Left), node.Right);
-					PushVoid();
-					break;
-				}
-				
-				case BinaryOperatorType.InPlaceSubtract:
-				{
-					Visit(((MemberReferenceExpression)node.Left).Target); PopType();
-					UnsubscribeEvent(node, GetEntity(node.Left), node.Right);
-					PushVoid();
-					break;
-				}
-				
 				default:
 				{				
 					NotImplemented(node, node.Operator.ToString());
