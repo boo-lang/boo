@@ -40,6 +40,14 @@ namespace Boo.Ast.Impl
 			_arguments = new ExpressionCollection(this);
 			_namedArguments = new ExpressionPairCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.Attribute;
+			}
+		}
 		public string Name
 		{
 			get

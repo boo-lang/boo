@@ -6,6 +6,10 @@
 <!-- by Slava Pestov. Based on PythonTokenMarker by -->
 <!-- Jonathan Revusky -->
 
+<!--
+JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
+-->
+
 <MODE>
 	<PROPS>
 		<PROPERTY NAME="indentNextLines" VALUE="\s*[^#]{3,}:\s*(#.*)?" />
@@ -111,8 +115,7 @@
 			<KEYWORD1>pass</KEYWORD1>
 			<KEYWORD1>raise</KEYWORD1>
 			<KEYWORD1>retry</KEYWORD1>
-			<KEYWORD1>self</KEYWORD1>
-			<KEYWORD1>super</KEYWORD1>
+			<KEYWORD1>self</KEYWORD1>			
 			<KEYWORD1>return</KEYWORD1>
 			<KEYWORD1>set</KEYWORD1>
 			<KEYWORD1>success</KEYWORD1>
@@ -140,7 +143,7 @@
 			<KEYWORD2>date</KEYWORD2>
 			<KEYWORD2>timespan</KEYWORD2>
 			<KEYWORD2>regex</KEYWORD2>
-			<KEYWORD2>dictionary</KEYWORD2>
+			<KEYWORD2>hash</KEYWORD2>
 			<KEYWORD2>list</KEYWORD2>
 			<KEYWORD2>tuple</KEYWORD2>
 			<KEYWORD2>void</KEYWORD2>
@@ -162,6 +165,7 @@
 			<LITERAL2>false</LITERAL2>
 			<LITERAL2>null</LITERAL2>
 			<LITERAL2>self</LITERAL2>
+			<KEYWORD1>super</KEYWORD1>
 			<LITERAL2>true</LITERAL2>
 		</KEYWORDS>
 	</RULES>

@@ -21,6 +21,14 @@ namespace Boo.Ast.Impl
 		{
 			_statements = new StatementCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.Block;
+			}
+		}
 		public StatementCollection Statements
 		{
 			get

@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal TypeReferenceImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.TypeReference;
+			}
+		}
 		public string Name
 		{
 			get

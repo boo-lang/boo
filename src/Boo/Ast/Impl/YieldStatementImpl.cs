@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal YieldStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.YieldStatement;
+			}
+		}
 		public Expression Expression
 		{
 			get

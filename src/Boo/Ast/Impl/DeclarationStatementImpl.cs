@@ -31,6 +31,14 @@ namespace Boo.Ast.Impl
 		internal DeclarationStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.DeclarationStatement;
+			}
+		}
 		public Declaration Declaration
 		{
 			get

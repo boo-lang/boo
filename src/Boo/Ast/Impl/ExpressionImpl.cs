@@ -17,5 +17,6 @@ namespace Boo.Ast.Impl
 		internal ExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
 	}
 }

@@ -34,6 +34,14 @@ namespace Boo.Ast.Impl
 		internal PropertyImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.Property;
+			}
+		}
 		public Method Getter
 		{
 			get

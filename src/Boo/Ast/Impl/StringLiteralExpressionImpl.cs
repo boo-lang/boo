@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal StringLiteralExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.StringLiteralExpression;
+			}
+		}
 		public string Value
 		{
 			get

@@ -22,10 +22,10 @@ namespace Boo.Ast.Compilation.Steps
 		
 		Method _method;
 		
-		Stack _namespaces = new Stack();
+		Stack _namespaces = new Stack();		
 		
 		public override void Run()
-		{
+		{			
 			_moduleBuilder = AssemblySetupStep.GetModuleBuilder(CompilerContext);
 			
 			Switch(CompileUnit);
@@ -90,53 +90,16 @@ namespace Boo.Ast.Compilation.Steps
 					BindingManager.Bind(node, info);
 				}
 			}
-		}
-		
-		void ProcessParameters(Method method)
-		{
-			ParameterDeclarationCollection parameters = method.Parameters;
-			for (int i=0; i<parameters.Count; ++i)
-			{
-				ParameterDeclaration parameter = parameters[i];
-				if (null == parameter.Type)
-				{
-					parameter.Type = new TypeReference("object");
-					BindingManager.Bind(parameter.Type, BindingManager.ToTypeBinding(BindingManager.ObjectType));
-				}		
-				else
-				{
-					parameter.Type.Switch(this);
-				}
-				Binding.ParameterBinding info = new Binding.ParameterBinding(parameter, BindingManager.GetTypeBinding(parameter.Type), i);
-				BindingManager.Bind(parameter, info);
-			}
-		}
-		
-		void ProcessReturnType(Method method)
-		{
-			if (null == method.ReturnType)
-			{
-				// Por enquanto, valor de retorno apenas void
-				method.ReturnType = new TypeReference("void");
-				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeBinding(BindingManager.VoidType));
-			}
-			else
-			{
-				if (!BindingManager.IsBound(method.ReturnType))
-				{
-					method.ReturnType.Switch(this);
-				}
-			}
-		}
+		}	
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
-			BindingManager.Bind(node, BindingManager.StringType);
+			BindingManager.Bind(node, BindingManager.StringTypeBinding);
 		}
 		
 		public override void LeaveStringFormattingExpression(StringFormattingExpression node)
 		{
-			BindingManager.Bind(node, BindingManager.StringType);
+			BindingManager.Bind(node, BindingManager.StringTypeBinding);
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
@@ -162,45 +125,63 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void OnUnpackStatement(UnpackStatement node)
+		{
+			node.Expression.Switch(this);
+			
+			ITypeBinding expressionType = (ITypeBinding)GetBinding(node.Expression);
+			ITypeBinding defaultDeclType = BindingManager.ObjectTypeBinding;
+			
+			if (expressionType.Type.IsArray)
+			{		
+				defaultDeclType = BindingManager.ToTypeBinding(expressionType.Type.GetElementType());
+			}
+			
+			foreach (Declaration d in node.Declarations)
+			{				
+				if (null == d.Type)
+				{
+					d.Type = new TypeReference(defaultDeclType.Type.FullName);
+					BindingManager.Bind(d.Type, defaultDeclType);
+				}
+				else
+				{
+					d.Type.Switch(this);
+					// todo: check types here
+				}
+				
+				DeclareLocal(d, new Local(d), BindingManager.GetTypeBinding(d.Type));
+			}
+		}
+		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{
-			if (node.Operator == BinaryOperatorType.Assign)
+			if (node.Operator == BinaryOperatorType.Assign &&
+			    NodeType.ReferenceExpression == node.Left.NodeType)
 			{
 				// Auto local declaration:
 				// assign to unknown reference implies local
 				// declaration
-				ReferenceExpression reference = node.Left as ReferenceExpression;
-				if (null != reference)
+				ReferenceExpression reference = (ReferenceExpression)node.Left;
+				node.Right.Switch(this);
+					
+				ITypeBinding expressionTypeInfo = BindingManager.GetTypeBinding(node.Right);
+				
+				IBinding info = Resolve(reference.Name);					
+				if (null == info)
 				{
-					node.Right.Switch(this);
-					
-					ITypeBinding expressionTypeInfo = BindingManager.GetTypeBinding(node.Right);
-					
-					IBinding info = Resolve(reference.Name);					
-					if (null == info)
-					{
-						Local local = new Local(reference);
-						LocalBinding localInfo = new LocalBinding(local, expressionTypeInfo);
-						BindingManager.Bind(local, localInfo);
-						
-						_method.Locals.Add(local);
-						BindingManager.Bind(reference, localInfo);
-					}
-					else
-					{
-						// default reference resolution
-						if (CheckNameResolution(reference, reference.Name, info))
-						{
-							BindingManager.Bind(reference, info);
-						}
-					}
-					
-					LeaveBinaryExpression(node);
+					DeclareLocal(reference, new Local(reference), expressionTypeInfo);
 				}
 				else
 				{
-					throw new NotImplementedException();
+					// default reference resolution
+					if (CheckNameResolution(reference, reference.Name, info))
+					{
+						BindingManager.Bind(reference, info);
+					}
 				}
+				
+				LeaveBinaryExpression(node);
 			}
 			else
 			{
@@ -448,6 +429,52 @@ namespace Boo.Ast.Compilation.Steps
 			return null;
 		}
 		
+		void DeclareLocal(Node sourceNode, Local local, ITypeBinding localType)
+		{			
+			LocalBinding binding = new LocalBinding(local, localType);
+			BindingManager.Bind(local, binding);
+			
+			_method.Locals.Add(local);
+			BindingManager.Bind(sourceNode, binding);
+		}
+		
+		void ProcessParameters(Method method)
+		{
+			ParameterDeclarationCollection parameters = method.Parameters;
+			for (int i=0; i<parameters.Count; ++i)
+			{
+				ParameterDeclaration parameter = parameters[i];
+				if (null == parameter.Type)
+				{
+					parameter.Type = new TypeReference("object");
+					BindingManager.Bind(parameter.Type, BindingManager.ToTypeBinding(BindingManager.ObjectType));
+				}		
+				else
+				{
+					parameter.Type.Switch(this);
+				}
+				Binding.ParameterBinding info = new Binding.ParameterBinding(parameter, BindingManager.GetTypeBinding(parameter.Type), i);
+				BindingManager.Bind(parameter, info);
+			}
+		}
+		
+		void ProcessReturnType(Method method)
+		{
+			if (null == method.ReturnType)
+			{
+				// Por enquanto, valor de retorno apenas void
+				method.ReturnType = new TypeReference("void");
+				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeBinding(BindingManager.VoidType));
+			}
+			else
+			{
+				if (!BindingManager.IsBound(method.ReturnType))
+				{
+					method.ReturnType.Switch(this);
+				}
+			}
+		}
+		
 		Type[] GetParameterTypes(Method method)
 		{
 			ParameterDeclarationCollection parameters = method.Parameters;
@@ -487,6 +514,11 @@ namespace Boo.Ast.Compilation.Steps
 		void PopNamespace()
 		{
 			_namespaces.Pop();
+		}
+		
+		IBinding GetBinding(Node node)
+		{
+			return BindingManager.GetBinding(node);
 		}
 	}
 }

@@ -21,6 +21,14 @@ namespace Boo.Ast.Impl
 		{
 			_items = new ExpressionCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.ListLiteralExpression;
+			}
+		}
 		public ExpressionCollection Items
 		{
 			get

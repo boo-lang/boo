@@ -72,11 +72,40 @@ namespace Boo.Ast.Compilation.Steps
 			info.LocalBuilder = builder;
 		}
 		
+		public override void OnUnpackStatement(UnpackStatement node)
+		{
+			DeclarationCollection decls = node.Declarations;
+			
+			ITypeBinding binding = GetTypeBinding(node.Expression);
+			if (!binding.Type.IsArray)
+			{
+				throw new NotImplementedException("only unpack for arrays right now!");
+			}
+			
+			EmitDebugInfo(node.LexicalInfo);
+			
+			node.Expression.Switch(this);
+			// the line above puts an
+			// array reference in the stack...
+			// we still need decls.Count-1 references
+			for (int i=1; i<decls.Count; ++i)
+			{
+				_il.Emit(OpCodes.Dup);
+			}		
+			
+			for (int i=0; i<decls.Count; ++i)
+			{
+				_il.Emit(OpCodes.Ldc_I4, i); // element index			
+				_il.Emit(OpCodes.Ldelem_Ref);
+				_il.Emit(OpCodes.Stloc, GetLocalBuilder(decls[i]));
+			}
+		}
+		
 		public override bool EnterExpressionStatement(ExpressionStatement node)
 		{
 			EmitDebugInfo(node.LexicalInfo);			
 			return true;
-		}
+		}		
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node)
 		{
@@ -170,10 +199,7 @@ namespace Boo.Ast.Compilation.Steps
 			ExpressionCollection args = node.Arguments;
 			for (int i=0; i<args.Count; ++i)
 			{			
-				_il.Emit(OpCodes.Dup);	// array reference
-				_il.Emit(OpCodes.Ldc_I4, i); // element index
-				args[i].Switch(this); // value
-				_il.Emit(OpCodes.Stelem_Ref);
+				StoreElementReference(i, args[i]);				
 			}
 			
 			_il.EmitCall(OpCodes.Call, StringFormatMethodInfo, null);
@@ -251,8 +277,7 @@ namespace Boo.Ast.Compilation.Steps
 					
 				case BindingType.Field:
 				{
-					throw new NotImplementedException();
-					break;
+					throw new NotImplementedException();					
 				}
 				
 				default:
@@ -260,6 +285,16 @@ namespace Boo.Ast.Compilation.Steps
 					throw new ArgumentException("binding");
 				}				
 			}
+		}
+		
+		ITypeBinding GetTypeBinding(Node node)
+		{
+			return BindingManager.GetTypeBinding(node);
+		}
+		
+		LocalBuilder GetLocalBuilder(Node node)
+		{
+			return ((LocalBinding)BindingManager.GetBinding(node)).LocalBuilder;
 		}
 		
 		void DefineEntryPoint()
@@ -279,6 +314,14 @@ namespace Boo.Ast.Compilation.Steps
 		void EmitDebugInfo(LexicalInfo info)
 		{
 			_il.MarkSequencePoint(_symbolDocWriter, info.Line, info.Column-1, info.Line, info.Column-1);
+		}
+		
+		void StoreElementReference(int index, Node value)
+		{
+			_il.Emit(OpCodes.Dup);	// array reference
+			_il.Emit(OpCodes.Ldc_I4, index); // element index
+			value.Switch(this); // value
+			_il.Emit(OpCodes.Stelem_Ref);
 		}
 	}
 }

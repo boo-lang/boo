@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal EnumMemberImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.EnumMember;
+			}
+		}
 		public IntegerLiteralExpression Initializer
 		{
 			get

@@ -31,6 +31,14 @@ namespace Boo.Ast.Impl
 		internal StatementModifierImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.StatementModifier;
+			}
+		}
 		public StatementModifierType Type
 		{
 			get

@@ -25,6 +25,7 @@ namespace Boo.Ast.Impl
 			_members = new TypeMemberCollection(this);
 			_baseTypes = new TypeReferenceCollection(this);
  		}
+		
 		public TypeMemberCollection Members
 		{
 			get

@@ -34,6 +34,14 @@ namespace Boo.Ast.Impl
 		{
 			_arguments = new ExpressionCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.StringFormattingExpression;
+			}
+		}
 		public string Template
 		{
 			get

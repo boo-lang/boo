@@ -37,6 +37,14 @@ namespace Boo.Ast.Impl
 		{
 			_attributes = new AttributeCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.ParameterDeclaration;
+			}
+		}
 		public string Name
 		{
 			get

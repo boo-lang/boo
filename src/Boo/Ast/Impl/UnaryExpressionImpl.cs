@@ -31,6 +31,14 @@ namespace Boo.Ast.Impl
 		internal UnaryExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.UnaryExpression;
+			}
+		}
 		public UnaryOperatorType Operator
 		{
 			get

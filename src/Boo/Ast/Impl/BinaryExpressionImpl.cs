@@ -34,6 +34,14 @@ namespace Boo.Ast.Impl
 		internal BinaryExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.BinaryExpression;
+			}
+		}
 		public BinaryOperatorType Operator
 		{
 			get

@@ -1,0 +1,21 @@
+#def getTargetFileName(): src/Boo/Ast/NodeType.cs
+#def commaIfNotSame(rhs, lhs)
+#unless rhs==lhs
+,#slurp
+#end unless
+#end def
+using System;
+
+namespace Boo.Ast
+{
+	public enum NodeType
+	{
+		#set items=list($model)
+		#set last=$items[-1]
+		#for item in items
+			#unless $item.stereotype in ("collection", "enum") or "abstract" in $item.attributes 
+		${item.name}${commaIfNotSame($item, $last)}
+			#end unless
+		#end for
+	}
+}

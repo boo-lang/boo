@@ -34,6 +34,14 @@ namespace Boo.Ast.Impl
 		internal IfStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.IfStatement;
+			}
+		}
 		public Expression Expression
 		{
 			get

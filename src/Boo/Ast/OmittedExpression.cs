@@ -15,6 +15,14 @@ namespace Boo.Ast
 		public OmittedExpression()
 		{
 		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.OmittedExpression;
+			}
+		}
 
 		public override void Switch(IAstSwitcher switcher)
 		{

@@ -31,6 +31,14 @@ namespace Boo.Ast.Impl
 		internal AssertStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.AssertStatement;
+			}
+		}
 		public Expression Condition
 		{
 			get

@@ -37,6 +37,14 @@ namespace Boo.Ast.Impl
 		internal SlicingExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.SlicingExpression;
+			}
+		}
 		public Expression Target
 		{
 			get

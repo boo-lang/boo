@@ -37,6 +37,14 @@ namespace Boo.Ast.Impl
 		{
 			_whenClauses = new WhenClauseCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.GivenStatement;
+			}
+		}
 		public Expression Expression
 		{
 			get

@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal PackageImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.Package;
+			}
+		}
 		public string Name
 		{
 			get

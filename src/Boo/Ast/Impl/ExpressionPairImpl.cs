@@ -31,6 +31,14 @@ namespace Boo.Ast.Impl
 		internal ExpressionPairImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.ExpressionPair;
+			}
+		}
 		public Expression First
 		{
 			get

@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal WhenClauseImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.WhenClause;
+			}
+		}
 		public Expression Condition
 		{
 			get

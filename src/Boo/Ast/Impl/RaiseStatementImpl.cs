@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal RaiseStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.RaiseStatement;
+			}
+		}
 		public Expression Exception
 		{
 			get

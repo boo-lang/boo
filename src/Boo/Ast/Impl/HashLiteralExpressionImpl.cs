@@ -21,6 +21,14 @@ namespace Boo.Ast.Impl
 		{
 			_items = new ExpressionPairCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.HashLiteralExpression;
+			}
+		}
 		public ExpressionPairCollection Items
 		{
 			get

@@ -17,5 +17,13 @@ namespace Boo.Ast.Impl
 		internal EnumDefinitionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.EnumDefinition;
+			}
+		}
 	}
 }

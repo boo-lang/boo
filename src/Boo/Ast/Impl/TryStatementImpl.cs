@@ -43,6 +43,14 @@ namespace Boo.Ast.Impl
 			ProtectedBlock = new Block();
 			_exceptionHandlers = new ExceptionHandlerCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.TryStatement;
+			}
+		}
 		public Block ProtectedBlock
 		{
 			get

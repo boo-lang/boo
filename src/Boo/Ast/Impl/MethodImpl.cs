@@ -47,6 +47,14 @@ namespace Boo.Ast.Impl
 			_returnTypeAttributes = new AttributeCollection(this);
 			Body = new Block();
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.Method;
+			}
+		}
 		public ParameterDeclarationCollection Parameters
 		{
 			get

@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal TimeSpanLiteralExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.TimeSpanLiteralExpression;
+			}
+		}
 		public string Value
 		{
 			get

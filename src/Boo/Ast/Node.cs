@@ -37,6 +37,11 @@ namespace Boo.Ast
 		{
 			_lexicalData = other.LexicalInfo;
 		}
+		
+		public abstract NodeType NodeType
+		{
+			get;
+		}
 
 		public Node ParentNode
 		{

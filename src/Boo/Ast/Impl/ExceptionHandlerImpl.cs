@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal ExceptionHandlerImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.ExceptionHandler;
+			}
+		}
 		public Declaration Declaration
 		{
 			get

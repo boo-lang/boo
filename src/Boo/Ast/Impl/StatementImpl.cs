@@ -28,6 +28,7 @@ namespace Boo.Ast.Impl
 		internal StatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
 		public StatementModifier Modifier
 		{
 			get

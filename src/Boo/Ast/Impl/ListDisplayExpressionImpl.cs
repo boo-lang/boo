@@ -40,6 +40,14 @@ namespace Boo.Ast.Impl
 		{
 			_declarations = new DeclarationCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.ListDisplayExpression;
+			}
+		}
 		public Expression Expression
 		{
 			get

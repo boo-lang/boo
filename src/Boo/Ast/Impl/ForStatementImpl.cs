@@ -40,6 +40,14 @@ namespace Boo.Ast.Impl
 			_declarations = new DeclarationCollection(this);
 			_statements = new StatementCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.ForStatement;
+			}
+		}
 		public DeclarationCollection Declarations
 		{
 			get

@@ -17,5 +17,13 @@ namespace Boo.Ast.Impl
 		internal RetryStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.RetryStatement;
+			}
+		}
 	}
 }

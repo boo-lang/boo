@@ -10,6 +10,11 @@ namespace Boo.Ast
 		{
 			_name = reference.Name;
  		}
+ 		
+ 		public Local(Declaration declaration) : base(declaration)
+ 		{
+ 			_name = declaration.Name;
+ 		}
 		
 		public override void Switch(IAstSwitcher switcher)
 		{

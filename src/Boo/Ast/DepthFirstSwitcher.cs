@@ -4,12 +4,14 @@ namespace Boo.Ast
 {
 	public class DepthFirstSwitcher : IAstSwitcher
 	{
-		public void Switch(Boo.Util.ISwitchable switchable)
+		public bool Switch(Boo.Util.ISwitchable switchable)
 		{
 			if (null != switchable)
 			{			
 				switchable.Switch(this);
+				return true;
 			}
+			return false;
 		}
 		
 		public virtual void OnCompileUnit(CompileUnit node)

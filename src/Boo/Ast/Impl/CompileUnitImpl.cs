@@ -21,6 +21,14 @@ namespace Boo.Ast.Impl
 		{
 			_modules = new ModuleCollection(this);
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.CompileUnit;
+			}
+		}
 		public ModuleCollection Modules
 		{
 			get

@@ -40,6 +40,14 @@ namespace Boo.Ast.Impl
 			_using = new UsingCollection(this);
 			Globals = new Block();
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.Module;
+			}
+		}
 		public Package Package
 		{
 			get

@@ -17,5 +17,13 @@ namespace Boo.Ast.Impl
 		internal ConstructorImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.Constructor;
+			}
+		}
 	}
 }

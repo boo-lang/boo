@@ -15,6 +15,16 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public static readonly Type StringType = typeof(string);
 		
+		public ITypeBinding ObjectTypeBinding;
+		
+		public ITypeBinding StringTypeBinding;
+		
+		public BindingManager()
+		{
+			ObjectTypeBinding = ToTypeBinding(ObjectType);
+			StringTypeBinding = ToTypeBinding(StringType);
+		}
+		
 		public bool IsBound(Node node)
 		{
 			return null != node[BindingKey];
@@ -38,11 +48,6 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			Bind(type, new InternalTypeBinding(this, type, builder));
 		}
-		
-		public void Bind(Expression expression, Type type)
-		{
-			Bind(expression, ToTypeBinding(type));
-		}	
 		
 		public void Error(Node node)
 		{

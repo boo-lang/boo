@@ -17,6 +17,7 @@ project.items.extend([
 	CheetahCodelet("node.tmpl", overwrite=False, condition=isNode),
 	CheetahCodelet("nodeImpl.tmpl", condition=isNode),
 	CheetahCodelet("switcher.tmpl", scope=Scope.Model),
+	CheetahCodelet("NodeType.tmpl", scope=Scope.Model),
 	CheetahCodelet("DepthFirstAdapter.tmpl", scope=Scope.Model)
 ])
 

@@ -30,6 +30,14 @@ namespace Boo.Ast.Impl
 		internal ExpressionStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.ExpressionStatement;
+			}
+		}
 		public Expression Expression
 		{
 			get

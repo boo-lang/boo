@@ -28,6 +28,14 @@ namespace Boo.Ast.Impl
 		internal MemberReferenceExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
+		
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.MemberReferenceExpression;
+			}
+		}
 		public Expression Target
 		{
 			get

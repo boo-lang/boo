@@ -69,6 +69,16 @@ $initializer() #slurp
 		{
 $initializer() #slurp
 		}
+		
+		#unless "abstract" in $item.attributes
+		public override NodeType NodeType
+		{
+			get
+			{
+				return NodeType.${item.name};
+			}
+		}
+		#end unless
 		#for field in $item.fields
 		#set fieldName=$cs.toPrivateName($field.name)
 		#set fieldType=$model.resolve($field.type)
