@@ -1137,6 +1137,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			CheckBoolContext(node.Expression);			
 		}
+
+		public override void LeaveWhileStatement(WhileStatement node)
+		{
+			CheckBoolContext(node.Condition);
+		}
 		
 		public override void LeaveReturnStatement(ReturnStatement node)
 		{

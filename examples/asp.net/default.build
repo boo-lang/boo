@@ -47,7 +47,7 @@
 	<target name="run" depends="build">
 		<exec program="cassiniwebserver.exe">
 			<arg file="output" />
-			<arg value="80" />
+			<arg value="8088" />
 		</exec>
 	</target>
 	

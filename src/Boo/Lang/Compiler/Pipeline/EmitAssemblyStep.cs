@@ -600,6 +600,22 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Brfalse, label);
 		}
 		
+		public override void OnWhileStatement(WhileStatement node)
+		{
+			EmitDebugInfo(node);
+			
+			Label topLabel = _il.DefineLabel();
+			_il.MarkLabel(topLabel);
+
+			Label endLabel = _il.DefineLabel();
+			EmitBranchFalse(node.Condition, endLabel);
+			node.Block.Switch(this);
+
+			_il.Emit(OpCodes.Br, topLabel);
+			
+			_il.MarkLabel(endLabel);
+		}
+
 		void EmitIncrementDecrement(UnaryExpression node)
 		{
 			node.Operand.Switch(this);

@@ -973,6 +973,18 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("pow0.boo");
 		}
+
+		[Test]
+		public void SimpleWhile()
+		{
+			RunCompilerTestCase("while0.boo");
+		}
+
+		[Test]
+		public void WhileFalse()
+		{
+			RunCompilerTestCase("while1.boo");
+		}
 		
 		[Test]
 		public void InterfaceContainsObjectMethods()
