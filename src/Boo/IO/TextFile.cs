@@ -40,7 +40,7 @@ namespace Boo.IO
 		
 		public System.Collections.IEnumerator GetEnumerator()
 		{
-			return new StreamReaderEnumerator(this);
+			return new TextReaderEnumerator(this);
 		}
 		
 		public static string ReadFile(string fname)

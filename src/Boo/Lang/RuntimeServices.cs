@@ -124,10 +124,10 @@ namespace Boo.Lang
 			IEnumerable iterator = enumerable as IEnumerable;
 			if (null == iterator)
 			{
-				StreamReader reader = enumerable as StreamReader;
+				TextReader reader = enumerable as TextReader;
 				if (null != reader)
 				{
-					iterator = new Boo.IO.StreamReaderEnumerator(reader);
+					iterator = new Boo.IO.TextReaderEnumerator(reader);
 				}
 				else
 				{

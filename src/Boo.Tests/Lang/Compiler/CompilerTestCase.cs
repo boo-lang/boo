@@ -1189,5 +1189,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("null0.boo");
 		}
+		
+		[Test]
+		public void TextReaderIsEnumerable()
+		{
+			RunCompilerTestCase("textreaderisenumerable.boo");
+		}
 	}
 }

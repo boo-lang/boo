@@ -33,6 +33,7 @@ using System.Text;
 
 namespace Boo.Lang
 {
+	// as (object, object)->bool
 	public delegate bool Predicate(object item);
 
 	/// <summary>

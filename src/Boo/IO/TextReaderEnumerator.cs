@@ -32,13 +32,13 @@ using System.IO;
 
 namespace Boo.IO
 {
-	public class StreamReaderEnumerator : System.Collections.IEnumerator, System.Collections.IEnumerable
+	public class TextReaderEnumerator : System.Collections.IEnumerator, System.Collections.IEnumerable
 	{
-		StreamReader _reader;
+		TextReader _reader;
 		
 		string _currentLine;
 		
-		public StreamReaderEnumerator(StreamReader reader)
+		public TextReaderEnumerator(TextReader reader)
 		{
 			if (null == reader)
 			{
@@ -54,8 +54,16 @@ namespace Boo.IO
 		
 		public void Reset()
 		{
-			_reader.BaseStream.Position = 0;
-			_reader.DiscardBufferedData();
+			StreamReader sreader = _reader as StreamReader;
+			if (null != sreader)
+			{
+				sreader.BaseStream.Position = 0;
+				sreader.DiscardBufferedData();
+			}
+			else
+			{
+				throw new NotSupportedException();
+			}
 		}
 		
 		public bool MoveNext()
