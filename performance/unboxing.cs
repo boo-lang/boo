@@ -56,12 +56,32 @@ public class App
 			Foo(UnboxInt32X(o));
 		}
 		Report("boo long->int(X)", start);
+		
+		o = "3";
+		start = DateTime.Now;
+		for (int i=0; i<1000; ++i)
+		{
+			try { Foo((int)o); } catch (InvalidCastException) {} 
+		}
+		Report("raw failed cast", start, 1000);
+		
+		start = DateTime.Now;
+		for (int i=0; i<1000; ++i)
+		{
+			try { UnboxInt32X(o); } catch (InvalidCastException) {}
+		}
+		Report("boo failed cast", start, 1000);		
 	}
 	
 	static void Report(string name, DateTime start)
 	{
+		Report(name, start, Iterations);
+	}
+	
+	static void Report(string name, DateTime start, int iterations)
+	{
 		TimeSpan elapsed = DateTime.Now - start;
-		Console.WriteLine("{0}:\t{1}\t{2} ops/ms", name, elapsed, Iterations/elapsed.TotalMilliseconds);
+		Console.WriteLine("{0}:\t{1}\t{2} ops/ms", name, elapsed, iterations/elapsed.TotalMilliseconds);
 	}
 	
 	static IConvertible CheckNumericPromotion(object value)
