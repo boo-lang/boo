@@ -1,5 +1,6 @@
 import System
 import Boo.IO.TextFile
+import Gdk from "gdk-sharp" as Gdk
 import Gtk from "gtk-sharp"
 import GtkSourceView from "gtksourceview-sharp"
 
@@ -98,14 +99,19 @@ class MainWindow(Window):
 		edit.Append(ImageMenuItem(Stock.Paste, _accelGroup))
 		edit.Append(ImageMenuItem(Stock.Delete, _accelGroup))
 		edit.Append(SeparatorMenuItem())
-		edit.Append(ImageMenuItem(Stock.Preferences, _accelGroup))
+		edit.Append(ImageMenuItem(Stock.Preferences, _accelGroup))		
 		
 		tools = Menu()
-		tools.Append(ImageMenuItem(Stock.Execute, _accelGroup, Activated: _menuItemExecute_Activated))
+		tools.Append(mi=ImageMenuItem(Stock.Execute, _accelGroup, Activated: _menuItemExecute_Activated))
+		mi.AddAccelerator("activate", _accelGroup, AccelKey(Gdk.Key.F5, Gdk.ModifierType.ControlMask, AccelFlags.Visible))
+		
+		documents = Menu()
+		documents.Append(ImageMenuItem(Stock.Close, _accelGroup))
 				
 		mb.Append(MenuItem("_File", Submenu: file))
 		mb.Append(MenuItem("_Edit", Submenu: edit))
 		mb.Append(MenuItem("_Tools", Submenu: tools))
+		mb.Append(MenuItem("_Documents", Submenu: documents))
 		return mb
 		
 	CurrentEditor as BooEditor:
@@ -130,9 +136,12 @@ class MainWindow(Window):
 				
 	private def _menuItemOpen_Activated(sender, args as EventArgs):
 		fs = FileSelection("Select a file", SelectMultiple: true)
-		if cast(int, ResponseType.Ok) == fs.Run():
-			for fname in fs.Selections:
-				self.OpenDocument(fname)
+		try:
+			if cast(int, ResponseType.Ok) == fs.Run():
+				for fname in fs.Selections:
+					self.OpenDocument(fname)
+		ensure:
+			fs.Hide()
 	
 	private def _menuItemSave_Activated(sender, args as EventArgs):
 		pass
