@@ -103,6 +103,7 @@ package Boo.Ast
 	end
 	
 	class Property(TypeMember)
+		Parameters as ParameterDeclarationCollection
 		Getter as Method
 		Setter as Method
 		Type as TypeReference

@@ -58,6 +58,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void HashInOperator()
+		{
+			RunCompilerTestCase("hash0.boo");
+		}
+		
+		[Test]
 		public void ModuleMustBecomePrivateFinalClassWithPrivateConstructor()
 		{
 			RunCompilerTestCase("module0.boo");

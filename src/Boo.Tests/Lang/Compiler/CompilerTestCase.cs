@@ -873,5 +873,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("lte_int.boo");
 		}
+		
+		[Test]
+		public void HashLiteral()
+		{
+			RunCompilerTestCase("hash0.boo");
+		}
 	}
 }

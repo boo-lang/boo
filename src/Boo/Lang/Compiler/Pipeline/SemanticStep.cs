@@ -67,6 +67,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding ICollection_get_Count;
 		
+		IMethodBinding IList_Contains;
+		
+		IMethodBinding IDictionary_Contains;
+		
 		IMethodBinding Tuple_TypedConstructor1;
 		IMethodBinding Tuple_TypedConstructor2;
 		
@@ -98,6 +102,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
+			IList_Contains = (IMethodBinding)BindingManager.IListTypeBinding.Resolve("Contains");
+			IDictionary_Contains = (IMethodBinding)BindingManager.IDictionaryTypeBinding.Resolve("Contains");
 			Tuple_TypedConstructor1 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { typeof(Type), typeof(IEnumerable) }));
 			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { typeof(Type), typeof(int) }));
 			
@@ -858,6 +864,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void LeaveListLiteralExpression(ListLiteralExpression node)
 		{			
 			Bind(node, BindingManager.ListTypeBinding);
+		}
+		
+		public override void LeaveHashLiteralExpression(HashLiteralExpression node)
+		{
+			Bind(node, BindingManager.HashTypeBinding);
 		}
 		
 		public override void LeaveTupleLiteralExpression(TupleLiteralExpression node)
@@ -1830,25 +1841,55 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		bool IsDictionary(ITypeBinding type)
+		{
+			return BindingManager.IDictionaryTypeBinding.IsAssignableFrom(type);
+		}
+		
+		bool IsList(ITypeBinding type)
+		{
+			return BindingManager.IListTypeBinding.IsAssignableFrom(type);
+		}
+		
 		void BindMember(BinaryExpression node)
 		{
-			// todo: generate better/faster expressions for
-			// arrays and IList implementations
+			Node parent = node.ParentNode;
+			
 			MethodInvocationExpression contains = new MethodInvocationExpression();
 			contains.LexicalInfo = node.LexicalInfo;
-			contains.Arguments.Add(node.Left);
-			contains.Arguments.Add(node.Right);
-			contains.Target = new ReferenceExpression("Boo.Lang.RuntimeServices.Contains");
-			Bind(contains.Target, RuntimeServices_Contains);
-			Bind(contains, BindingManager.BoolTypeBinding);
 			
-			if (BinaryOperatorType.NotMember == node.Operator)
+			ITypeBinding rhs = GetExpressionType(node.Right);
+			if (IsDictionary(rhs))
 			{
-				node.ReplaceBy(CreateNotExpression(contains));
+				contains.Target = new MemberReferenceExpression(node.Right.LexicalInfo, node.Right, "Contains");
+				contains.Arguments.Add(node.Left);
+				Bind(contains.Target, IDictionary_Contains);
+			}
+			else if (IsList(rhs))
+			{
+				contains.Target = new MemberReferenceExpression(node.Right.LexicalInfo, node.Right, "Contains");
+				contains.Arguments.Add(node.Left);
+				Bind(contains.Target, IList_Contains);
 			}
 			else
 			{
-				node.ReplaceBy(contains);
+				// todo: generate better/faster expressions for
+				// arrays and IList implementations
+				
+				contains.Arguments.Add(node.Left);
+				contains.Arguments.Add(node.Right);
+				contains.Target = new ReferenceExpression("Boo.Lang.RuntimeServices.Contains");
+				Bind(contains.Target, RuntimeServices_Contains);
+			}
+			
+			Bind(contains, BindingManager.BoolTypeBinding);			
+			if (BinaryOperatorType.NotMember == node.Operator)
+			{
+				parent.Replace(node, CreateNotExpression(contains));
+			}
+			else
+			{
+				parent.Replace(node, contains);
 			}
 		}
 		

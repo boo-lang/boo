@@ -100,6 +100,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static ConstructorInfo List_IntConstructor = Types.List.GetConstructor(new Type[] { typeof(int) });
 		
+		static ConstructorInfo Hash_Constructor = Types.Hash.GetConstructor(new Type[0]);
+		
+		static MethodInfo Hash_Add = Types.Hash.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
+		
 		static ConstructorInfo TimeSpan_LongConstructor = Types.TimeSpan.GetConstructor(new Type[] { typeof(long) });
 		
 		static ConstructorInfo Object_Constructor = Types.Object.GetConstructor(new Type[0]);
@@ -1264,6 +1268,24 @@ namespace Boo.Lang.Compiler.Pipeline
 				_il.Emit(OpCodes.Ldc_I4_0);
 			}
 			PushBool();
+		}
+		
+		public override void OnHashLiteralExpression(HashLiteralExpression node)
+		{
+			_il.Emit(OpCodes.Newobj, Hash_Constructor);
+			
+			ITypeBinding objType = BindingManager.ObjectTypeBinding;
+			foreach (ExpressionPair pair in node.Items)
+			{
+				_il.Emit(OpCodes.Dup);
+				Switch(pair.First);
+				EmitCastIfNeeded(objType, PopType());
+				
+				Switch(pair.Second);
+				EmitCastIfNeeded(objType, PopType());
+				_il.EmitCall(OpCodes.Call, Hash_Add, null);
+			}
+			PushType(BindingManager.HashTypeBinding);
 		}
 		
 		public override void OnListLiteralExpression(ListLiteralExpression node)

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -38,7 +38,8 @@ namespace Boo.Lang
 	/// <summary>
 	/// List.
 	/// </summary>
-	public class List : ICollection
+	[Serializable]
+	public class List : IList
 	{
 		ArrayList _list;
 		
@@ -181,6 +182,57 @@ namespace Boo.Lang
 				sb.Append(_list[i]);
 			}
 			return sb.ToString();
+		}
+		
+		public void Clear()
+		{
+			_list.Clear();
+		}
+		
+		public bool Contains(object item)
+		{
+			return _list.Contains(item);
+		}
+		
+		public int IndexOf(object item)
+		{			
+			return _list.IndexOf(item);
+		}
+		
+		void IList.Insert(int index, object item)
+		{
+			_list.Insert(index, item);
+		}
+		
+		void IList.Remove(object item)
+		{			
+			_list.Remove(item);
+		}
+		
+		void IList.RemoveAt(int index)
+		{
+			_list.RemoveAt(index);
+		}
+		
+		int IList.Add(object item)
+		{			
+			return _list.Add(item);
+		}
+		
+		bool IList.IsReadOnly
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
+		bool IList.IsFixedSize
+		{
+			get
+			{
+				return false;
+			}
 		}
 
 		void InnerCollect(List target, Predicate condition)

@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -28,34 +28,18 @@
 #endregion
 
 using System;
-using Boo.Lang.Ast.Impl;
+using System.Collections;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang
 {
+	/// <summary>
+	/// Hash.
+	/// </summary>
 	[Serializable]
-	public class MemberReferenceExpression : MemberReferenceExpressionImpl
-	{		
-		public MemberReferenceExpression()
+	public class Hash : Hashtable
+	{
+		public Hash()
 		{
- 		}
-		
-		public MemberReferenceExpression(LexicalInfo lexicalInfo, Expression target, string name) : base(lexicalInfo, target)
-		{
-			Name = name;
-		}
-		
-		public MemberReferenceExpression(Expression target, string name) : base(target)
-		{
-			Name = name;
-		}
-		
-		public MemberReferenceExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-		}
-		
-		public override void Switch(IAstSwitcher switcher)
-		{
-			switcher.OnMemberReferenceExpression(this);
 		}
 	}
 }

@@ -7,6 +7,7 @@
     <File name=".\IO\TextFile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Builtins.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\GetterAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Hash.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\List.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RequiredAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
