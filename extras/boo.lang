@@ -120,8 +120,9 @@ OR
 		<keyword>false</keyword>
 	</keyword-list>
 	
-	<keyword-list _name = "Literals" style="Keyword" case-sensitive="true">
+	<keyword-list _name = "Literals" style="Keyword" case-sensitive="true">	
 		<keyword>null</keyword>		
+		<keyword>self</keyword>
 		<keyword>super</keyword>
 	</keyword-list>
 
