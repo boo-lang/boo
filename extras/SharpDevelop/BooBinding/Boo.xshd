@@ -166,6 +166,7 @@
 				<Key word="date"/>
 				<Key word="timespan" />
 				<Key word="decimal" />
+				<Key word="char" />
 			</KeyWords>
 
 			<KeyWords name="ReferenceTypes" bold="true" italic="false" color="Purple" >

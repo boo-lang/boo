@@ -2784,7 +2784,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return OpCodes.Conv_I2;
 			}
-			else if (type == TypeSystemServices.UShortType)
+			else if (type == TypeSystemServices.UShortType ||
+					type == TypeSystemServices.CharType)
 			{
 				return OpCodes.Conv_U2;
 			}	

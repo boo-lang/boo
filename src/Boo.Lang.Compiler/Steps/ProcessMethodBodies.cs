@@ -1948,7 +1948,8 @@ namespace Boo.Lang.Compiler.Steps
 			IType toType = GetType(node.Type);			
 			if (!TypeSystemServices.AreTypesRelated(toType, fromType) &&
 				!(toType.IsInterface && !fromType.IsFinal) &&
-				!(fromType.IsEnum && TypeSystemServices.IsIntegerNumber(toType)))
+				!(TypeSystemServices.IsIntegerNumber(toType) && TypeSystemServices.CanBeExplicitlyCastToInteger(fromType)) &&
+				!(TypeSystemServices.IsIntegerNumber(fromType) && TypeSystemServices.CanBeExplicitlyCastToInteger(toType)))
 			{
 				IMethod explicitOperator = FindExplicitConversionOperator(fromType, toType);
 				if (null != explicitOperator)

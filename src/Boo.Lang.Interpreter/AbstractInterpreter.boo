@@ -137,11 +137,13 @@ class AbstractInterpreter:
 		return code
 		
 	def Eval(code as string):
-		
 		result = Parse(code)
 		return result if len(result.Errors)
+		return EvalCompileUnit(result.CompileUnit)
 		
-		cu = result.CompileUnit
+	def EvalCompileUnit(cu as CompileUnit):
+		assert 1 == len(cu.Modules)
+		
 		module = cu.Modules[0]
 		
 		# remember the state of the module as of after parsing
@@ -155,13 +157,13 @@ class AbstractInterpreter:
 		if ((not hasStatements) and
 			(not hasMembers) and
 			0 == len(module.Imports)):
-			return result
+			return CompilerContext(cu)
 		
 		savedImports = module.Imports.Clone()
 		module.Imports.ExtendWithClones(_imports)
 		
 		if hasStatements:	
-			if IsSimpleReference(code):
+			if IsSingleEmptyMacroStatement(module):
 				# simple references will be parsed as macros
 				# but we want them to be evaluated
 				# as references...
@@ -204,8 +206,11 @@ class AbstractInterpreter:
 			imp.AssemblyReference = null
 			_imports.Add(imp)
 			
-	private def IsSimpleReference(s as string):
-		return /^\s*[_a-zA-Z][_a-zA-Z\d]*\s*$/.IsMatch(s)
+	private def IsSingleEmptyMacroStatement(m as Module):
+		if 1 == len(m.Globals.Statements):
+			macro = m.Globals.Statements[0] as MacroStatement
+			if macro is not null:
+				return 0 == len(macro.Arguments) and 0 == len(macro.Block.Statements)
 		
 	class InterpreterEntity(ITypedEntity):
 

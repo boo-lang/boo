@@ -572,6 +572,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
+		public bool CanBeExplicitlyCastToInteger(IType type)
+		{
+			return type.IsEnum || type == this.CharType; 
+		}
+		
 		public bool IsIntegerNumber(IType type)
 		{
 			return
@@ -917,6 +922,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("duck", DuckType);
 			AddPrimitiveType("void", VoidType);
 			AddPrimitiveType("bool", BoolType);
+			AddPrimitiveType("char", CharType);
 			AddPrimitiveType("date", DateTimeType);
 			AddPrimitiveType("timespan", TimeSpanType);
 			AddPrimitiveType("string", StringType);

@@ -85,6 +85,7 @@ OR
 		<keyword>short</keyword>
 		<keyword>ushort</keyword>
 		<keyword>int</keyword>
+		<keyword>char</keyword>
 		<keyword>uint</keyword>
 		<keyword>long</keyword>
 		<keyword>ulong</keyword>

@@ -214,6 +214,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 		return "void" if void is type
 		return "bool" if bool is type		
 		return "byte" if byte is type
+		return "char" if char is type
 		return "sbyte" if sbyte is type
 		return "short" if short is type
 		return "ushort" if ushort is type
