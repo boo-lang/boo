@@ -479,6 +479,12 @@ for i, j in ((1, 2), (3, 4)):
 		assert suggestion is not null
 		assert System.Console is (suggestion as ExternalType).ActualType
 		
+	[Test]
+	def SuggestCodeCompletionForImportStatement():
+		suggestion = _interpreter.SuggestCodeCompletion("import    System.__codecomplete__")
+		assert suggestion is not null
+		assert suggestion.EntityType == EntityType.Namespace
+		
 	def Eval(code as string):
 		result = _interpreter.Eval(code)
 		assert 0 == len(result.Errors), result.Errors.ToString(true)

@@ -145,11 +145,16 @@ class InteractiveInterpreter:
 	"""
 		compiler = GetSuggestionCompiler()
 		try:
-			compiler.Parameters.Input.Add(StringInput("<code>", code))
+			compiler.Parameters.Input.Add(StringInput("<code>", PreProcessImportLine(code)))
 			result = compiler.Run()
 			return result["suggestion"]			
 		ensure:
 			compiler.Parameters.Input.Clear()
+			
+	private def PreProcessImportLine(code as string):
+		if code.StartsWith("import "):
+			return @/import\s+/.Split(code)[-1]
+		return code
 		
 	def Eval(code as string):
 		

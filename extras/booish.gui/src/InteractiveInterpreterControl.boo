@@ -210,8 +210,10 @@ class InteractiveInterpreterControl(TextEditorControl):
 					CodeCompletionDataProvider(_imageProvider, GetSuggestions()), 
 					ch)
 					
-	private def GetSuggestions():
-		suggestion = _interpreter.SuggestCodeCompletion(CurrentLineText + ".__codecomplete__")
+	private def GetSuggestions():		
+		code = CurrentLineText.Insert(self.CaretColumn-4, ".__codecomplete__")
+		code = code.Insert(0, _block.ToString()) if InputState.Block == _state
+		suggestion = _interpreter.SuggestCodeCompletion(code)
 		return array(IEntity, 0) if suggestion is null
 		return (suggestion as INamespace).GetMembers()
 		
