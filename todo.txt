@@ -1,8 +1,8 @@
 ﻿done * const (literal fields)
 
-* check return types for method overrides
+done * check return types for method overrides
 
-* abstract method makes class abstract
+done * abstract method makes class abstract
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:
