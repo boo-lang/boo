@@ -219,26 +219,19 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				created.Add(type, type);
 				
-				if (IsEnumDefinition(type))
-				{				
-					GetEnumBuilder(type).CreateType();
-				}
-				else
+				TypeDefinition typedef = type as TypeDefinition;
+				if (null != typedef)
 				{
-					TypeDefinition typedef = type as TypeDefinition;
-					if (null != typedef)
+					foreach (TypeReference baseTypeRef in typedef.BaseTypes)
 					{
-						foreach (TypeReference baseTypeRef in typedef.BaseTypes)
+						InternalType tag = GetType(baseTypeRef) as InternalType;
+						if (null != tag)
 						{
-							InternalType tag = GetType(baseTypeRef) as InternalType;
-							if (null != tag)
-							{
-								CreateType(created, tag.TypeDefinition);
-							}
+							CreateType(created, tag.TypeDefinition);
 						}
 					}
-					GetTypeBuilder(type).CreateType();
 				}
+				GetTypeBuilder(type).CreateType();
 			}
 		}
 		
@@ -317,11 +310,25 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			EnumBuilder builder = GetEnumBuilder(node);
-			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in node.Attributes)
+			Type baseType = typeof(long);
+			
+			TypeBuilder builder = GetTypeBuilder(node);		
+			
+			builder.DefineField("value__", baseType,
+					FieldAttributes.Public |
+					FieldAttributes.SpecialName |
+					FieldAttributes.RTSpecialName);
+			
+			foreach (EnumMember member in node.Members)
 			{
-				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+				//enumBuilder.DefineLiteral(member.Name, (long)member.Initializer.Value);
+				FieldBuilder field = builder.DefineField(member.Name, baseType,
+									FieldAttributes.Public |
+									FieldAttributes.Static |
+									FieldAttributes.Literal);
+				field.SetConstant((long)member.Initializer.Value);
 			}
+			EmitAttributes(builder, node);
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
@@ -2468,11 +2475,6 @@ namespace Boo.Lang.Compiler.Steps
 			return _builders[node];
 		}
 		
-		EnumBuilder GetEnumBuilder(Node node)
-		{
-			return (EnumBuilder)_builders[node];
-		}
-		
 		TypeBuilder GetTypeBuilder(Node node)
 		{
 			return (TypeBuilder)_builders[node];
@@ -2648,8 +2650,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		TypeAttributes GetExtendedTypeAttributes(TypeAttributes attributes, TypeMember type)
-		{
-			
+		{			
 			switch (type.NodeType)
 			{				
 				case NodeType.ClassDefinition:
@@ -2665,6 +2666,13 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						attributes |= TypeAttributes.Sealed;
 					}
+					break;
+				}
+				
+				case NodeType.EnumDefinition:
+				{
+					attributes |= TypeAttributes.Sealed;
+					attributes |= TypeAttributes.Serializable;
 					break;
 				}
 				
@@ -2853,24 +2861,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefineType(TypeDefinition typeDefinition)
 		{
-			if (IsEnumDefinition(typeDefinition))
-			{				
-				EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(typeDefinition.FullName,
-											GetTypeAttributes(typeDefinition),
-											typeof(long));
-											
-				
-				foreach (EnumMember member in typeDefinition.Members)
-				{
-					enumBuilder.DefineLiteral(member.Name, (long)member.Initializer.Value);
-				}				
-				SetBuilder(typeDefinition, enumBuilder);
-			}
-			else
-			{					
-				TypeBuilder typeBuilder = CreateTypeBuilder(typeDefinition);
-				SetBuilder(typeDefinition, typeBuilder);
-			}
+			TypeBuilder typeBuilder = CreateTypeBuilder(typeDefinition);
+			SetBuilder(typeDefinition, typeBuilder);
 		}
 		
 		TypeBuilder CreateTypeBuilder(TypeMember type)
@@ -2886,6 +2878,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(type.Name,
 																GetNestedTypeAttributes(type));
+			}
+			if (IsEnumDefinition(type))
+			{
+				typeBuilder.SetParent(typeof(System.Enum));
 			}
 			return typeBuilder;
 		}
