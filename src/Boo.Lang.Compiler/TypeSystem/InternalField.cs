@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -35,6 +35,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		TypeSystemServices _typeSystemServices;
 		Field _field;
+		object _staticValue;
 		
 		public InternalField(TypeSystemServices tagManager, Field field)
 		{
@@ -110,7 +111,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return false;
+				//return IsStatic && IsInitOnly && TypeSystemServices.IsPrimitiveTypeOrString(Type);
+				return null != _staticValue;
 			}
 		}
 		
@@ -126,7 +128,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				throw new NotImplementedException();
+				return _staticValue;
+			}
+			
+			set
+			{
+				_staticValue = value;
 			}
 		}
 		

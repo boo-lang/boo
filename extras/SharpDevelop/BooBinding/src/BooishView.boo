@@ -49,8 +49,9 @@ class BooPromptControl(TextEditorControl):
 	_codeCompletionWindow as CodeCompletionWindow
 	
 	def constructor():
-		self.Encoding = System.Text.Encoding.UTF8
 		self.Document.HighlightingStrategy = GetBooHighlighting()
+		self.Document.FormattingStrategy = BooFormattingStrategy()
+		self.IndentStyle = IndentStyle.Smart
 		self.EnableFolding =  false
 		self.ShowLineNumbers = false
 		self.ShowSpaces = true
@@ -83,7 +84,7 @@ class BooPromptControl(TextEditorControl):
 		
 	def GetCurrentLine():		
 		segment = GetLastLineSegment()
-		text = self.Document.GetText(segment)[4:]	
+		text = self.Document.GetText(segment)[4:]
 		print("")
 		return text
 		

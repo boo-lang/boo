@@ -598,9 +598,53 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}	
 		
+		bool IsValidLiteralInitializer(Expression e)
+		{
+			switch (e.NodeType)
+			{
+				case NodeType.BoolLiteralExpression:
+				case NodeType.IntegerLiteralExpression:
+				case NodeType.DoubleLiteralExpression:
+				case NodeType.NullLiteralExpression:
+				case NodeType.StringLiteralExpression:
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		void ProcessLiteralField(Field node)
+		{
+			Visit(node.Initializer);
+			ProcessFieldInitializerType(node, node.Initializer.ExpressionType);
+			((InternalField)node.Entity).StaticValue = node.Initializer;
+			node.Initializer = null;
+		}
+		
+		void ProcessFieldInitializerType(Field node, IType initializerType)
+		{
+			if (null == node.Type)
+			{
+				node.Type = CodeBuilder.CreateTypeReference(initializerType);
+			}
+			else
+			{			
+				CheckTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
+			}
+		}
+		
 		void ProcessFieldInitializer(Field node)
 		{			
 			Expression initializer = node.Initializer;
+			if (node.IsFinal && node.IsStatic)
+			{
+				if (IsValidLiteralInitializer(initializer))
+				{
+					ProcessLiteralField(node);
+					return;
+				}
+			}
 			
 			Method method = GetFieldsInitializerMethod(node);
 			InternalMethod entity = (InternalMethod)method.Entity;
@@ -617,14 +661,7 @@ namespace Boo.Lang.Compiler.Steps
 			method.Locals.RemoveByEntity(temp.Entity);
 				
 			IType initializerType = ((ITypedEntity)temp.Entity).Type;
-			if (null == node.Type)
-			{
-				node.Type = CodeBuilder.CreateTypeReference(initializerType);
-			}
-			else
-			{			
-				CheckTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
-			}
+			ProcessFieldInitializerType(node, initializerType);			
 			assignment.Left = CodeBuilder.CreateReference(node);
 			node.Initializer = null;			
 		}

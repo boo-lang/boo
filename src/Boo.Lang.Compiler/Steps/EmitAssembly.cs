@@ -446,6 +446,15 @@ namespace Boo.Lang.Compiler.Steps
 			EmitTypeDefinition(node);
 		}
 		
+		override public void OnField(Field node)
+		{
+			FieldBuilder builder = GetFieldBuilder(node);
+			if (builder.IsLiteral)
+			{
+				builder.SetConstant(GetInternalFieldStaticValue((InternalField)node.Entity));
+			}
+		}
+		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
 			TypeBuilder builder = GetTypeBuilder(node);
@@ -1989,9 +1998,24 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(fieldInfo.Type);
 		}
 		
+		object GetStaticValue(IField field)
+		{
+			InternalField internalField = field as InternalField;
+			if (null != internalField)
+			{
+				return GetInternalFieldStaticValue(internalField);
+			}
+			return field.StaticValue;
+		}
+		
+		object GetInternalFieldStaticValue(InternalField field)
+		{
+			return GetValue(field.Type, (Expression)field.StaticValue);
+		}
+		
 		void EmitLoadLiteralField(Node node, IField fieldInfo)
 		{
-			object value = fieldInfo.StaticValue;
+			object value = GetStaticValue(fieldInfo);
 			if (null == value)
 			{
 				_il.Emit(OpCodes.Ldnull);
@@ -3181,6 +3205,18 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				attributes |= FieldAttributes.NotSerialized;
 			}
+			if (field.IsFinal)
+			{
+				IField entity = (IField)field.Entity;
+				if (entity.IsLiteral)
+				{
+					attributes |= FieldAttributes.Literal;
+				}
+				else
+				{
+					attributes |= FieldAttributes.InitOnly;
+				}
+			}
 			return attributes;
 		}
 		
@@ -3232,7 +3268,6 @@ namespace Boo.Lang.Compiler.Steps
 			FieldBuilder builder = typeBuilder.DefineField(field.Name, 
 			                                               GetSystemType(field), 
 			                                               GetFieldAttributes(field));
-														   
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in field.Attributes)
 			{
 				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));

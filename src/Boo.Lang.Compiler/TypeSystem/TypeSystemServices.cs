@@ -585,6 +585,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
+		public static bool IsPrimitiveTypeOrString(IType type)
+		{
+			ExternalType external = type as ExternalType;
+			if (null != external)
+			{
+				Type actual = external.ActualType;
+				return actual.IsPrimitive || Types.String == actual;
+			}
+			return false;
+		}
+		
 		public bool IsIntegerNumber(IType type)
 		{
 			return
