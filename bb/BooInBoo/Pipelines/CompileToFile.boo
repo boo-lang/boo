@@ -27,6 +27,7 @@ class CompilePipeline(ParsePipeline):
 		pipeline.Add(PreOptimizeExpressions())
 		pipeline.Add(IntroduceCallableResolutionService())
 		pipeline.Add(ProcessMethodBodies())
+		pipeline.Add(ProcessGenerators()) // for and yield
 		pipeline.Add(CheckInterfaceImplementations())
 		pipeline.Add(InjectCasts())
 		*/

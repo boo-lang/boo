@@ -145,14 +145,48 @@ RE_CHAR : RE_ESC | ~('/' | '\\' | ' ' | '\t' | '\r' | '\n');
 
 protected
 RE_ESC : '\\' (
-				'd' | /* digit group */
-				's' | /* whitespace */
-				'w' | /* word char */
-				'\\' |
-				'/' |
-				'r'	|
-				'n' |
+	
+	// character scapes
+	// ms-help://MS.NETFrameworkSDKv1.1/cpgenref/html/cpconcharacterescapes.htm
+	
+				'a' |
+				'b' |
+				'c' 'A'..'Z' |
 				't' |
+				'r' |
+				'v' |
+				'f' |
+				'n' |
+				'e' |
+				(DIGIT)+ |
+				'x' DIGIT DIGIT |
+				'u' DIGIT DIGIT DIGIT DIGIT |
+				'\\' |
+				
+	// character classes
+	// ms-help://MS.NETFrameworkSDKv1.1/cpgenref/html/cpconcharacterclasses.htm
+	// /\w\W\s\S\d\D/
+	
+				'w' |
+				'W' |
+				's' |
+				'S' |
+				'd' |
+				'D' |
+				'p' |
+				'P' |
+				
+	// atomic zero-width assertions
+	// ms-help://MS.NETFrameworkSDKv1.1/cpgenref/html/cpconatomiczero-widthassertions.htm
+				'A' |
+				'z' |
+				'Z' |
+				'g' |
+				'B' |
+				
+				'k' |
+				
+				'/' |
 				'(' |
 				')' |
 				'.' |

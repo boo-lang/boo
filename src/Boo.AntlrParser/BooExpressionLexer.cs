@@ -1442,29 +1442,25 @@ _loop54_breakloop:			;
 		{
 			switch ( LA(1) )
 			{
-			case 'd':
+			case 'a':
 			{
-				match('d');
+				match('a');
 				break;
 			}
-			case 's':
+			case 'b':
 			{
-				match('s');
+				match('b');
 				break;
 			}
-			case 'w':
+			case 'c':
 			{
-				match('w');
+				match('c');
+				matchRange('A','Z');
 				break;
 			}
-			case '\\':
+			case 't':
 			{
-				match('\\');
-				break;
-			}
-			case '/':
-			{
-				match('/');
+				match('t');
 				break;
 			}
 			case 'r':
@@ -1472,14 +1468,143 @@ _loop54_breakloop:			;
 				match('r');
 				break;
 			}
+			case 'v':
+			{
+				match('v');
+				break;
+			}
+			case 'f':
+			{
+				match('f');
+				break;
+			}
 			case 'n':
 			{
 				match('n');
 				break;
 			}
-			case 't':
+			case 'e':
 			{
-				match('t');
+				match('e');
+				break;
+			}
+			case '0':  case '1':  case '2':  case '3':
+			case '4':  case '5':  case '6':  case '7':
+			case '8':  case '9':
+			{
+				{ // ( ... )+
+				int _cnt72=0;
+				for (;;)
+				{
+					if (((LA(1) >= '0' && LA(1) <= '9')) && (tokenSet_3_.member(LA(2))))
+					{
+						mDIGIT(false);
+					}
+					else
+					{
+						if (_cnt72 >= 1) { goto _loop72_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+					}
+					
+					_cnt72++;
+				}
+_loop72_breakloop:				;
+				}    // ( ... )+
+				break;
+			}
+			case 'x':
+			{
+				match('x');
+				mDIGIT(false);
+				mDIGIT(false);
+				break;
+			}
+			case 'u':
+			{
+				match('u');
+				mDIGIT(false);
+				mDIGIT(false);
+				mDIGIT(false);
+				mDIGIT(false);
+				break;
+			}
+			case '\\':
+			{
+				match('\\');
+				break;
+			}
+			case 'w':
+			{
+				match('w');
+				break;
+			}
+			case 'W':
+			{
+				match('W');
+				break;
+			}
+			case 's':
+			{
+				match('s');
+				break;
+			}
+			case 'S':
+			{
+				match('S');
+				break;
+			}
+			case 'd':
+			{
+				match('d');
+				break;
+			}
+			case 'D':
+			{
+				match('D');
+				break;
+			}
+			case 'p':
+			{
+				match('p');
+				break;
+			}
+			case 'P':
+			{
+				match('P');
+				break;
+			}
+			case 'A':
+			{
+				match('A');
+				break;
+			}
+			case 'z':
+			{
+				match('z');
+				break;
+			}
+			case 'Z':
+			{
+				match('Z');
+				break;
+			}
+			case 'g':
+			{
+				match('g');
+				break;
+			}
+			case 'B':
+			{
+				match('B');
+				break;
+			}
+			case 'k':
+			{
+				match('k');
+				break;
+			}
+			case '/':
+			{
+				match('/');
 				break;
 			}
 			case '(':
@@ -1574,6 +1699,16 @@ _loop54_breakloop:			;
 		return data;
 	}
 	public static readonly BitSet tokenSet_2_ = new BitSet(mk_tokenSet_2_());
+	private static long[] mk_tokenSet_3_()
+	{
+		long[] data = new long[2048];
+		data[0]=-4294977032L;
+		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
+		data[1023]=9223372036854775807L;
+		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
+		return data;
+	}
+	public static readonly BitSet tokenSet_3_ = new BitSet(mk_tokenSet_3_());
 	
 }
 }

@@ -186,6 +186,12 @@ namespace Boo.AntlrParser.Tests
 		}
 		
 		[Test]
+		public void RegularExpressionEscapeSequences()
+		{
+			RunParserTestCase("RegularExpressionEscapeSequences.boo");
+		}
+		
+		[Test]
 		public void InlineIf()
 		{
 			RunParserTestCase("inlineif.boo");
