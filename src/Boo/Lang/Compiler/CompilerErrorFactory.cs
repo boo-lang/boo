@@ -382,6 +382,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0070", node.LexicalInfo);
 		}
 		
+		public static CompilerError InheritanceCycle(Node node, string typeName)
+		{
+			return new CompilerError("BCE0071", node.LexicalInfo, typeName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

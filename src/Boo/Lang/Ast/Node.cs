@@ -161,30 +161,6 @@ namespace Boo.Lang.Ast
 			_parent = parent;
 		}
 
-		override public int GetHashCode()
-		{
-			return base.GetHashCode();
-		}
-
-		override public bool Equals(object rhs)
-		{
-			Node other = rhs as Node;
-			if (null == other)
-			{
-				return false;
-			}
-			if (GetType() != other.GetType())
-			{
-				return false;
-			}
-			return Equals(other);
-		}
-
-		protected virtual bool Equals(Node rhs)
-		{
-			return true;
-		}
-
 		protected string GetString(string name)
 		{
 			return ResourceManager.GetString(name);

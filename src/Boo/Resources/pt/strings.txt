@@ -69,6 +69,7 @@ BCE0067=Já existe uma variável local de nome '{0}'.
 BCE0068=A propriedade '{0}' exige parâmetros.
 BCE0069=A interface '{0}' só pode estender uma outra interface mas o tipo '{1}' não é uma interface.
 BCE0070=Métodos recursivos ou mutuamente recursivos devem declarar seus tipos de retorno.
+BCE0071=Ciclo na estrutura de herança detectado: '{0}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

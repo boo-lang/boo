@@ -37,20 +37,31 @@ namespace Boo.Lang.Compiler.Pipeline
 			ResolveBaseTypes(new ArrayList(), node);
 		}
 		
+		override public void OnInterfaceDefinition(InterfaceDefinition node)
+		{
+			ResolveBaseTypes(new ArrayList(), node);
+		}
+		
 		protected void ResolveBaseTypes(ArrayList visited, TypeDefinition node)
 		{
-			if (visited.Contains(node))
-			{
-				throw new CompilerError(node.LexicalInfo, "inheritance cycle deteced!");
-			}
-			
 			visited.Add(node);
 			foreach (SimpleTypeReference type in node.BaseTypes)
 			{                            
-				InternalTypeBinding binding = ResolveSimpleTypeReference(type) as InternalTypeBinding;
+				TypeReferenceBinding binding = ResolveSimpleTypeReference(type) as TypeReferenceBinding;
 				if (null != binding)
 				{
-					ResolveBaseTypes(visited, binding.TypeDefinition);
+					InternalTypeBinding internalType = binding.BoundType as InternalTypeBinding;
+					if (null != internalType)
+					{
+						if (visited.Contains(internalType.TypeDefinition))
+						{
+							Error(CompilerErrorFactory.InheritanceCycle(type, internalType.FullName));
+						}
+						else
+						{
+							ResolveBaseTypes(visited, internalType.TypeDefinition);
+						}
+					}
 				}
 			}
 		}

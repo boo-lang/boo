@@ -180,6 +180,18 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("constructor0.boo");
 		}
 		
+		[Test]
+		public void BaseClassCycle()
+		{
+			RunCompilerTestCase("basetypes0.boo");
+		}
+		
+		[Test]
+		public void BaseInterfaceCycle()
+		{
+			RunCompilerTestCase("basetypes1.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
