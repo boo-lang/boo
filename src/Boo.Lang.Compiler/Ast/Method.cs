@@ -37,11 +37,7 @@ namespace Boo.Lang.Compiler.Ast
 	{	
 		public Method()
 		{			
- 		}		
- 		
- 		public Method(TypeReference returnType) : base(returnType)
-		{
-		}
+ 		}
 		
 		public Method(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{

@@ -1,0 +1,28 @@
+Test List
+=========
+
+Compiler
+--------
+
+* Em um compilador recém-criado:
+	* os parametros:
+		* não contém entradas
+		* contém apenas referências para o assemblies:
+			* System.dll
+			* corlib.dll
+			* Boo.dll
+		* OutputType está marcado como CompilerOutputType.ConsoleApplication 
+	* a Pipeline está nula
+	
+* Rodar um compilador sem pipeline
+	* gera InvalidOperationException
+	
+* Atribuir uma pipeline nula gera:
+	* ArgumentNullException
+	
+* Executar o compilador, executa a pipeline e retorna o contexto
+de compilaçao utilizado
+
+* o contexto de compilação passado para a pipeline:
+	* deve possuir o mesmo objeto Parameters do Compiler
+	* deve possuir uma coleção de erros vazia

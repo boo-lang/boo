@@ -72,6 +72,7 @@ tokens
 	AS="as";		
 	BREAK="break";
 	CONTINUE="continue";
+	CALLABLE="callable";
 	CAST="cast";	
 	CLASS="class";
 	CONSTRUCTOR="constructor";	
@@ -522,8 +523,7 @@ interface_property [TypeMemberCollection container]
 	}
 	begin_with_doc[p]!
 		(interface_property_accessor[p])+
-	end!
-	(EOS!)*
+	end
 	;
 			
 protected
@@ -751,7 +751,7 @@ type_reference returns [TypeReference tr]
 	;
 
 protected
-begin : COLON! INDENT!;
+begin : COLON INDENT;
 
 protected
 begin_with_doc[Node node]: COLON! (EOS! docstring[node])? INDENT!;
@@ -764,7 +764,6 @@ compound_stmt[StatementCollection c] :
 		begin
 			block[c]
 		end
-		(options { greedy=true; }: EOS!)*
 		;
 		
 protected
@@ -800,6 +799,7 @@ stmt [StatementCollection container]
 		s=try_stmt |
 		s=given_stmt |
 		{IsValidMacroArgument(LA(2))}? s=macro_stmt |
+		(slicing_expression ASSIGN CALLABLE)=> s=assignment_stmt |
 		(		
 			(				
 				s=return_stmt |
@@ -846,6 +846,31 @@ stmt_modifier returns [StatementModifier m]
 		m.Type = type;
 		m.Condition = e;
 	}
+	;
+	
+protected
+callable_or_expression returns [Expression e]
+	{
+		e = null;
+	}:
+	e=callable_expression|
+	e=array_or_expression
+	;
+	
+protected
+callable_expression returns [Expression e]
+	{
+		e = null;
+		CallableBlockExpression cbe = null;
+		TypeReference rt = null;
+	}:
+	anchor:CALLABLE!
+	{
+		e = cbe = new CallableBlockExpression(ToLexicalInfo(anchor));
+	}
+	LPAREN! parameter_declaration_list[cbe.Parameters] RPAREN!
+			(AS! rt=type_reference { cbe.ReturnType = rt; })?			
+			compound_stmt[cbe.Body.Statements]
 	;
 	
 	
@@ -1246,7 +1271,7 @@ assignment_stmt returns [Statement stmt]
 		Expression lhs = null;
 		Expression rhs = null;		
 	}:
-	lhs=slicing_expression op:ASSIGN rhs=array_or_expression
+	lhs=slicing_expression op:ASSIGN rhs=callable_or_expression
 	{
 		stmt = new ExpressionStatement(
 							new BinaryExpression(ToLexicalInfo(op),

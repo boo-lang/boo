@@ -102,6 +102,12 @@ class Local(Node):
 [collection(Local)]
 class LocalCollection:
 	pass
+	
+class CallableBlockExpression(Expression):
+	Parameters as ParameterDeclarationCollection
+	ReturnType as TypeReference
+	[auto]
+	Body as Block
 
 class Method(TypeMember):
 	Parameters as ParameterDeclarationCollection
@@ -110,6 +116,7 @@ class Method(TypeMember):
 	[auto]
 	Body as Block
 	Locals as LocalCollection
+	VariableArguments as bool
 
 class Constructor(Method):
 	pass

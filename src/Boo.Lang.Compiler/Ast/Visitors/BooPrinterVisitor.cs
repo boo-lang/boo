@@ -202,6 +202,15 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			OnMethod(c);
 		}
+		
+		override public void OnCallableBlockExpression(CallableBlockExpression node)
+		{
+			WriteKeyword("callable");
+			WriteParameterList(node.Parameters);
+			WriteTypeReference(node.ReturnType);
+			WriteLine(":");
+			WriteBlock(node.Body);
+		}
 
 		override public void OnMethod(Method m)
 		{
