@@ -10,6 +10,8 @@ namespace Boo.Ast.Compilation.Steps
 {
 	public class EmitAssemblyStep : AbstractCompilerStep
 	{		
+		MethodInfo StringFormatMethodInfo = TypeManager.StringType.GetMethod("Format", new Type[] { TypeManager.StringType, TypeManager.ObjectArrayType });
+		
 		AssemblyBuilder _asmBuilder;
 		
 		ModuleBuilder _moduleBuilder;
@@ -96,6 +98,26 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
+		}
+		
+		public override void OnStringFormattingExpression(StringFormattingExpression node)
+		{
+			_il.Emit(OpCodes.Ldstr, node.Template);
+			
+			// new object[node.Arguments.Count]
+			_il.Emit(OpCodes.Ldc_I4, node.Arguments.Count);
+			_il.Emit(OpCodes.Newarr, TypeManager.ObjectType);
+			
+			ExpressionCollection args = node.Arguments;
+			for (int i=0; i<args.Count; ++i)
+			{			
+				_il.Emit(OpCodes.Dup);	// array reference
+				_il.Emit(OpCodes.Ldc_I4, i); // element index
+				args[i].Switch(this); // value
+				_il.Emit(OpCodes.Stelem_Ref);
+			}
+			
+			_il.EmitCall(OpCodes.Call, StringFormatMethodInfo, null);
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node)

@@ -7,6 +7,10 @@ namespace Boo.Ast.Compilation.NameBinding
 {
 	public class TypeManager
 	{
+		public static readonly Type ObjectType = typeof(object);
+		
+		public static readonly Type ObjectArrayType = Type.GetType("System.Object[]");
+		
 		public static readonly Type VoidType = typeof(void);
 		
 		public static readonly Type StringType = typeof(string);
