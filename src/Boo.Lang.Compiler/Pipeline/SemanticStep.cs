@@ -521,7 +521,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					AddFieldInitializerToConstructors(instanceFieldIndex, f);
+					AddFieldInitializerToInstanceConstructors(instanceFieldIndex, f);
 					++instanceFieldIndex;
 				}
 			}
@@ -587,15 +587,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			node.Initializer = null;
 		}
 		
-		void AddFieldInitializerToConstructors(int index, Field node)
+		void AddFieldInitializerToInstanceConstructors(int index, Field node)
 		{
 			foreach (TypeMember member in node.DeclaringType.Members)
 			{
 				if (NodeType.Constructor == member.NodeType)
 				{
 					Constructor constructor = (Constructor)member;
-					Statement stmt = CreateFieldAssignment(node);
-					constructor.Body.Statements.Insert(index, stmt);
+					if (!constructor.IsStatic)
+					{
+						Statement stmt = CreateFieldAssignment(node);
+						constructor.Body.Statements.Insert(index, stmt);
+					}
 				}
 			}
 			node.Initializer = null;

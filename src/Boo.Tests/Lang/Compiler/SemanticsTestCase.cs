@@ -111,6 +111,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void StaticFieldInitializerAndNonStaticFieldInitializer()
+		{
+			RunCompilerTestCase("field3.boo");
+		}
+		
+		[Test]
 		public void TestFatorialMethod()
 		{
 			RunCompilerTestCase("method2.boo");
