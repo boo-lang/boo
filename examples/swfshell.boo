@@ -38,8 +38,8 @@ class PromptBox(TextBox):
 	_interpreter = InteractiveInterpreter(RememberLastValue: true, Print: print)
 	
 	def constructor():
-		self.Multiline = true
-		
+		self.Multiline = true		
+		self.ScrollBars = ScrollBars.Vertical
 		_interpreter.References.Add(typeof(TextBox).Assembly)
 		_interpreter.References.Add(typeof(Font).Assembly)
 		
@@ -55,6 +55,7 @@ class PromptBox(TextBox):
 				print(x)
 			prompt()
 			args.Handled = true
+		super(args)
 			
 	def print(msg):
 		AppendText("${msg}\r\n")
