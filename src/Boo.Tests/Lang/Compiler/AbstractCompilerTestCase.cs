@@ -77,7 +77,8 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			_parameters.Input.Clear();
 			
-			System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+			System.Threading.Thread current = System.Threading.Thread.CurrentThread;
+			current.CurrentCulture = current.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;			
 		}		
 		
 		protected abstract void SetUpCompilerPipeline(CompilerPipeline pipeline);
