@@ -935,10 +935,9 @@ stmt [StatementCollection container]
 		s=given_stmt |
 		{IsValidMacroArgument(LA(2))}? s=macro_stmt |
 		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
-		(RETURN (DO|DEF)) => s=return_callable_stmt |
+		s=return_stmt |
 		(		
-			(				
-				s=return_stmt |
+			(
 				s=yield_stmt |
 				s=break_stmt |
 				s=continue_stmt |				
@@ -1022,7 +1021,7 @@ closure_expression returns [Expression e]
 		)
 		(
 			(
-				stmt=return_stmt |
+				stmt=return_expression_stmt |
 				stmt=expression_stmt
 			)
 			{ cbe.Body.Add(stmt); }
@@ -1152,29 +1151,46 @@ expression_stmt returns [ExpressionStatement s]
 		s = new ExpressionStatement(e);
 	}
 	;	
+protected
+return_expression_stmt returns [ReturnStatement s]
+	{
+		s = null;
+		Expression e = null;
+		StatementModifier modifier = null;
+	}:
+	r:RETURN (e=array_or_expression)?
+	(modifier=stmt_modifier)?
+	{
+		s = new ReturnStatement(ToLexicalInfo(r));
+		s.Modifier = modifier;
+		s.Expression = e;
+	}
+	;
 
 protected
 return_stmt returns [ReturnStatement s]
 	{
 		s = null;
 		Expression e = null;
+		StatementModifier modifier = null;
 	}:
-	r:RETURN (e=array_or_expression)?
+	r:RETURN 
+		(
+			(
+				e=array_or_expression
+				(
+					(DO)=>method_invocation_block[e] |
+					((modifier=stmt_modifier)? eos)
+				)
+			) |
+			(
+				e=callable_expression
+			) |
+			eos
+		)
 	{
 		s = new ReturnStatement(ToLexicalInfo(r));
-		s.Expression = e;
-	}
-	;
-	
-protected
-return_callable_stmt returns [ReturnStatement s]
-	{
-		s = null;
-		Expression e = null;
-	}:
-	r:RETURN e=callable_expression
-	{
-		s = new ReturnStatement(ToLexicalInfo(r));
+		s.Modifier = modifier;
 		s.Expression = e;
 	}
 	;
