@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -111,7 +111,7 @@ namespace Boo.Ast.Compilation.Steps
 						}
 					}
 					
-					_context.TraceVerbose("Node {0} at {1} bound to {2}", using_, using_.LexicalInfo, binding.Name);
+					_context.TraceInfo("{1}: using reference '{0}' bound to {2}.", using_, using_.LexicalInfo, binding.Name);
 					BindingManager.Bind(using_, binding);
 				}
 			}			

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -44,7 +44,7 @@ namespace Boo.Ast.Compilation.Steps
 			
 			if (128 == (int)System.Environment.OSVersion.Platform)
 			{
-				_context.TraceVerbose("PEVerifyStep can't run on linux");
+				_context.TraceWarning("PEVerifyStep can't run on linux");
 				// linux
 				return;
 			}

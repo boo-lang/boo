@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -108,11 +108,29 @@ namespace BooC
 						{
 							case 'v':
 							{
+								Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
 								options.Verbose = true;
+								
 								if (arg.Length > 2)
 								{
-									options.TraceSwitch.Level = TraceLevel.Verbose;
-									Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
+									switch (arg.Substring(1))
+									{
+										case "vv":
+										{
+											options.TraceSwitch.Level = TraceLevel.Info;
+											break;
+										}
+										
+										case "vvv":
+										{
+											options.TraceSwitch.Level = TraceLevel.Verbose;
+											break;
+										}										
+									}
+								}
+								else
+								{
+									options.TraceSwitch.Level = TraceLevel.Warning;
 								}
 								break;
 							}

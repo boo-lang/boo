@@ -77,7 +77,7 @@ done * mover todos as constantes de tipo de BindingManager para Types
 done * testes para enum (Criar enum em Boo.Tests e escrever alguns test cases)
 done * LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression()) de assignment e declara a variável
 
-Milestone 3.6 (revisão)
+Milestone 3.6 (faxina)
 -----------------------
 done * boxing (print e StringFormatting)
 done * GPL license for all source files
@@ -92,6 +92,10 @@ genérico de blocos nos passos (facilitar mover/trocar blocos inteiros de lugar)
 
 * mover toda dependência no ANTLR para outro assembly e remover qualquer referência aos simbolos
 antlr dos fontes de Boo.dll e Boo.Tests.dll (incluíndo AST, etc)
+
+* Remover toda e qualquer menção à Assembly.Emit do SemanticStep (e considerar a possibilidade de
+remover o AssemblySetupStep): SemanticStep deve lidar exclusivamente com as semânticas e transformaçoes
+exigidas pela linguagem, permitindo múltiplos backends de geraçao de código
 
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 

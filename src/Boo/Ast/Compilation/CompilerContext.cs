@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -114,11 +114,11 @@ namespace Boo.Ast.Compilation
 			{
 				return _bindingManager;
 			}
-		}			
+		}		
 		
 		public void TraceEnter(string format, object param)
 		{
-			if (_traceSwitch.TraceVerbose)
+			if (_traceSwitch.TraceInfo)
 			{
 				Trace.WriteLine(string.Format(format, param));
 				++Trace.IndentLevel;
@@ -127,10 +127,34 @@ namespace Boo.Ast.Compilation
 		
 		public void TraceLeave(string format, object param)
 		{
-			if (_traceSwitch.TraceVerbose)
+			if (_traceSwitch.TraceInfo)
 			{
 				--Trace.IndentLevel;
 				Trace.WriteLine(string.Format(format, param));
+			}
+		}
+		
+		public void TraceInfo(string format, params object[] args)
+		{			
+			if (_traceSwitch.TraceInfo)
+			{
+				Trace.WriteLine(string.Format(format, args));
+			}			
+		}
+		
+		public void TraceInfo(string message)
+		{
+			if (_traceSwitch.TraceInfo)
+			{
+				Trace.WriteLine(message);
+			}
+		}
+		
+		public void TraceWarning(string message)
+		{
+			if (_traceSwitch.TraceWarning)
+			{
+				Trace.WriteLine(message);
 			}
 		}
 		
