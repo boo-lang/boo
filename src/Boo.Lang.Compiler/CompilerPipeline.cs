@@ -94,6 +94,11 @@ namespace Boo.Lang.Compiler
 			return Insert(Find(stepExactType)+1, step);
 		}
 		
+		public CompilerPipeline InsertBefore(Type stepExactType, ICompilerStep step)
+		{
+			return Insert(Find(stepExactType)-1, step);
+		}
+		
 		public CompilerPipeline Replace(Type stepExactType, ICompilerStep step)
 		{
 			if (null == step)

@@ -2457,7 +2457,7 @@ namespace Boo.Lang.Compiler.Steps
 					reference.Entity = local;
 					BindExpressionType(node.Left, expressionType);
 					BindExpressionType(node, expressionType);
-					return EntityType.Local != local.EntityType;
+					return false;
 				}
 			}
 			return true;

@@ -22,6 +22,9 @@ class InterpreterEntity(ITypedEntity):
 	EntityType:
 		get:
 			return TypeSystem.EntityType.Custom
+			
+	static def IsInterpreterEntity(node as Node):
+		return node.Entity is not null and TypeSystem.EntityType.Custom == node.Entity.EntityType
 
 class InterpreterNamespace(INamespace):
 
@@ -62,14 +65,10 @@ class InterpreterNamespace(INamespace):
 		return array(IEntity, 0)
 
 
-class ProcessInterpreterReferences(Steps.ProcessMethodBodiesWithDuckTyping):
-
-	static InteractiveInterpreter_GetValue = typeof(InteractiveInterpreter).GetMethod("GetValue")
-	static InteractiveInterpreter_SetValue = typeof(InteractiveInterpreter).GetMethod("SetValue")
-
-	_interpreter as InteractiveInterpreter
+class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
+	
 	_namespace as InterpreterNamespace
-	_interpreterField as Field
+	_interpreter as InteractiveInterpreter
 
 	def constructor(interpreter):
 		_interpreter = interpreter
@@ -82,12 +81,33 @@ class ProcessInterpreterReferences(Steps.ProcessMethodBodiesWithDuckTyping):
 							TypeSystemServices,
 							NameResolutionService.GlobalNamespace)
 		NameResolutionService.GlobalNamespace = _namespace
+		
+	override def ProcessAssignment(node as BinaryExpression):
+		super(node) unless InterpreterEntity.IsInterpreterEntity(node.Left)
+	
+	override def DeclareLocal(name as string, type as IType, privateScope as bool):
+		return super(name, type, privateScope) if privateScope
+		return _namespace.Declare(name, type)
+	
+class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 
+	static InteractiveInterpreter_GetValue = typeof(InteractiveInterpreter).GetMethod("GetValue")
+	static InteractiveInterpreter_SetValue = typeof(InteractiveInterpreter).GetMethod("SetValue")
+	
+	_interpreterField as Field
+	_namespace as InterpreterNamespace
+	_interpreter as InteractiveInterpreter
+
+	def constructor(interpreter):
+		_interpreter = interpreter
+
+	override def Run():
+		Visit(CompileUnit) if 0 == len(Errors)
 
 	override def OnModule(node as Module):
 
 		module = cast(ModuleEntity, node.Entity).ModuleClass
-		assert module
+		return unless module
 
 		_interpreterField = CodeBuilder.CreateField("ParentInterpreter", TypeSystemServices.Map(InteractiveInterpreter))
 		_interpreterField.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Static
@@ -97,40 +117,29 @@ class ProcessInterpreterReferences(Steps.ProcessMethodBodiesWithDuckTyping):
 
 	override def OnReferenceExpression(node as ReferenceExpression):
 		super(node)
-		return unless IsInterpreterEntity(node) and not AstUtil.IsLhsOfAssignment(node)
+		return unless InterpreterEntity.IsInterpreterEntity(node) and not AstUtil.IsLhsOfAssignment(node)
 
-		ReplaceReferenceByGetValue(node)
+		ReplaceCurrentNode(CreateGetValue(node))
 		
-	def ReplaceReferenceByGetValue(node as ReferenceExpression):
-		node.ParentNode.Replace(node,
-			CodeBuilder.CreateCast(
+	override def LeaveBinaryExpression(node as BinaryExpression):
+		if InterpreterEntity.IsInterpreterEntity(node.Left):
+			ReplaceCurrentNode(CreateSetValue(node))
+		
+	def CreateGetValue(node as ReferenceExpression):
+		return CodeBuilder.CreateCast(
 				node.ExpressionType,
 				CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateReference(_interpreterField),
 					TypeSystemServices.Map(InteractiveInterpreter_GetValue),
-					CodeBuilder.CreateStringLiteral(node.Name))))
+					CodeBuilder.CreateStringLiteral(node.Name)))
 					
-	def ReplaceAssignmentBySetValue(node as BinaryExpression):
-		node.ParentNode.Replace(
-				node,
-				CodeBuilder.CreateMethodInvocation(
+	def CreateSetValue(node as BinaryExpression):
+		return CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateReference(_interpreterField),
 					TypeSystemServices.Map(InteractiveInterpreter_SetValue),
 					CodeBuilder.CreateStringLiteral(cast(ReferenceExpression, node.Left).Name),
-					node.Right))
-
-	override def ProcessAssignment(node as BinaryExpression):
-		if IsInterpreterEntity(node.Left):
-			ReplaceAssignmentBySetValue(node)
-		else:
-			super(node)
-
-	override def DeclareLocal(name as string, type as IType, privateScope as bool):
-		return super(name, type, privateScope) if privateScope
-		return _namespace.Declare(name, type)
-
-	def IsInterpreterEntity(node as Node):
-		return node.Entity is not null and EntityType.Custom == node.Entity.EntityType
+					node.Right)
+	
 
 class InteractiveInterpreter:
 
@@ -140,7 +149,9 @@ class InteractiveInterpreter:
 
 	def constructor():
 		pipeline = Pipelines.CompileToMemory()
-		pipeline.Replace(Steps.ProcessMethodBodiesWithDuckTyping, ProcessInterpreterReferences(self))
+		index = pipeline.Find(Steps.ProcessMethodBodiesWithDuckTyping)
+		pipeline[index] = ProcessVariableDeclarations(self)
+		pipeline.InsertBefore(Steps.EmitAssembly, ProcessInterpreterReferences(self))
 		//pipeline.Add(Steps.PrintBoo())
 
 		_compiler.Parameters.Pipeline = pipeline
@@ -184,10 +195,13 @@ print(value*2)
 
 assert 3 == interpreter.GetValue("value")
 
-interpreter.Eval("x2 = { return value }")
+interpreter.Eval("x2 = { v as int | return v*2 }")
 
 x2 as callable = interpreter.GetValue("x2")
-assert 3 == x2()
+assert 4 == x2(2)
+
+interpreter.Eval("e = i*2 for i in range(value)")
+assert array(interpreter.GetValue("e")) == (0, 2, 4)
 
 
 
