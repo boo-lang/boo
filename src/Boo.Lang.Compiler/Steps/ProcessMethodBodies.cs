@@ -1656,7 +1656,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsIndexedProperty(node.Target))
 			{
 				CheckNoComplexSlicing(node);
-				SliceMember(node, node.Target.Entity, false);
+				SliceMember(node, node.Target.Entity);
 			}
 			else
 			{
@@ -1710,8 +1710,12 @@ namespace Boo.Lang.Compiler.Steps
 							Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
 						}
 						else
-						{						
-							SliceMember(node, member, true);
+						{	
+							node.Target = new MemberReferenceExpression(node.Target, member.Name);
+							node.Target.Entity = member;
+							// to be resolved later
+							node.Target.ExpressionType = Null.Default;
+							SliceMember(node, member);
 						}
 					}
 				}
@@ -1724,7 +1728,7 @@ namespace Boo.Lang.Compiler.Steps
 				((IProperty)tag).GetParameters().Length > 0;
 		}
 		
-		void SliceMember(SlicingExpression node, IEntity member, bool defaultMember)
+		void SliceMember(SlicingExpression node, IEntity member)
 		{
 			if (AstUtil.IsLhsOfAssignment(node))
 			{
@@ -1756,11 +1760,7 @@ namespace Boo.Lang.Compiler.Steps
 			{	
 				if (CheckParameters(node, getter, mie.Arguments))
 				{
-					Expression target = node.Target;
-					if (!defaultMember)
-					{
-						target = ((MemberReferenceExpression)node.Target).Target;						
-					}
+					Expression target = ((MemberReferenceExpression)node.Target).Target;
 					
 					mie.Target = CodeBuilder.CreateMemberReference(target, getter);
 					BindExpressionType(mie, getter.ReturnType);
@@ -3557,14 +3557,16 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceProperty(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
-			Slice index = slice.Indices[0];
 			
 			IEntity lhs = GetEntity(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			IMethod setter = null;
 
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
-			mie.Arguments.Add(index.Begin);
+			foreach (Slice index in slice.Indices)
+			{
+				mie.Arguments.Add(index.Begin);
+			}
 			mie.Arguments.Add(node.Right);			
 			
 			if (EntityType.Property == lhs.EntityType)
@@ -3575,21 +3577,8 @@ namespace Boo.Lang.Compiler.Steps
 					Error(node, CompilerErrorFactory.PropertyIsReadOnly(slice.Target, lhs.FullName));
 					return;
 				}
-				 
-				IParameter[] parameters = setMethod.GetParameters();
-				if (2 != parameters.Length)
+				if (CheckParameters(node.Left, setMethod, mie.Arguments))
 				{
-					Error(node, CompilerErrorFactory.MethodArgumentCount(node.Left, setMethod.FullName, 2));
-					return;
-				}
-				else
-				{
-					if (!CheckTypeCompatibility(index.Begin, parameters[0].Type, GetExpressionType(index.Begin)) ||
-						!CheckTypeCompatibility(node.Right, parameters[1].Type, rhs))
-					{					
-						Error(node);
-						return;
-					}
 					setter = setMethod;
 				}
 			}
@@ -3604,7 +3593,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{	
-				mie.Target = CodeBuilder.CreateMemberReference(slice.Target, setter);
+				mie.Target = CodeBuilder.CreateMemberReference(
+											((MemberReferenceExpression)slice.Target).Target,
+											setter);
 				BindExpressionType(mie, setter.ReturnType);	
 				node.ParentNode.Replace(node, mie);
 			}
