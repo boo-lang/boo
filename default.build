@@ -203,7 +203,7 @@
 		</zip>
 	</target>
 	
-	<target name="src-distro" depends="insert-license">
+	<target name="src-distro" depends="insert-notice">
 		<zip zipfile="boo-src.zip" ziplevel="9">
 			<fileset>
 				<includes name="readme.txt" />
