@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Resources;
@@ -115,6 +116,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		System.Collections.Stack _loopInfoStack = new System.Collections.Stack();
 		
+		AttributeCollection _assemblyAttributes = new AttributeCollection();
+		
 		LoopInfo _currentLoopInfo;
 		
 		void EnterLoop(Label breakLabel, Label continueLabel)
@@ -174,6 +177,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;				
 			}
 			
+			GatherAssemblyAttributes();
 			SetUpAssembly();
 			
 			DefineTypes();
@@ -181,6 +185,17 @@ namespace Boo.Lang.Compiler.Steps
 			DefineResources();
 			DefineAssemblyAttributes();
 			DefineEntryPoint();			
+		}
+		
+		void GatherAssemblyAttributes()
+		{			
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
+			{
+				foreach (Boo.Lang.Compiler.Ast.Attribute attribute in module.AssemblyAttributes)
+				{
+					_assemblyAttributes.Add(attribute);	
+				}
+			}
 		}
 		
 		void DefineTypes()
@@ -379,6 +394,7 @@ namespace Boo.Lang.Compiler.Steps
 			_types.Clear();
 			_typeCache.Clear();
 			_builders.Clear();
+			_assemblyAttributes.Clear();
 		}
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
@@ -2729,12 +2745,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefineAssemblyAttributes()
 		{
-			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _assemblyAttributes)
 			{
-				foreach (Boo.Lang.Compiler.Ast.Attribute attribute in module.AssemblyAttributes)
-				{
-					_asmBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
-				}
+				_asmBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
 			
 			if (Parameters.Debug)
@@ -3589,10 +3602,68 @@ namespace Boo.Lang.Compiler.Steps
 			
 			AssemblyName asmName = new AssemblyName();
 			asmName.Name = GetAssemblyName(Context.GeneratedAssemblyFileName);
+			asmName.Version = GetAssemblyVersion();
+			asmName.KeyPair = GetAssemblyKeyPair();
 			
 			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(Context.GeneratedAssemblyFileName));
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(Context.GeneratedAssemblyFileName), true);			
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
+		}
+		
+		StrongNameKeyPair GetAssemblyKeyPair()
+		{
+			string fname = GetAssemblyAttributeValue("System.Reflection.AssemblyKeyFileAttribute");
+			if (null != fname)
+			{
+				if (!Path.IsPathRooted(fname))
+				{
+					fname = MakeRelativeToOutputAssembly(fname);
+				}				
+				using (FileStream stream = File.OpenRead(fname))
+				{
+					return new StrongNameKeyPair(stream);
+				}
+			}
+			return null;
+		}
+		
+		string MakeRelativeToOutputAssembly(string fname)
+		{
+			return Path.GetFullPath(
+						Path.Combine(
+							Path.GetDirectoryName(Context.GeneratedAssemblyFileName),
+							fname));
+		}
+		
+		Version GetAssemblyVersion()
+		{
+			string version = GetAssemblyAttributeValue("System.Reflection.AssemblyVersionAttribute");
+			if (null != version)
+			{
+				return new Version(version);
+			}
+			return null;
+		}
+		
+		string GetAssemblyAttributeValue(string name)
+		{
+			Boo.Lang.Compiler.Ast.Attribute attribute = GetAssemblyAttribute(name);
+			if (null != attribute)
+			{
+				return ((StringLiteralExpression)attribute.Arguments[0]).Value;
+			}
+			return null;
+		}
+		
+		Boo.Lang.Compiler.Ast.Attribute GetAssemblyAttribute(string name)
+		{
+			Boo.Lang.Compiler.Ast.Attribute[] attributes = _assemblyAttributes.Get(name);
+			if (attributes.Length > 0)
+			{
+				Debug.Assert(1 == attributes.Length);
+				return attributes[0];
+			}
+			return null;
 		}
 	}
 }
