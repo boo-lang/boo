@@ -1386,6 +1386,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		override public void LeaveCastExpression(CastExpression node)
+		{
+			ITypeBinding toType = GetBoundType(node.Type);
+			Bind(node, toType);
+		}
+		
 		override public void LeaveAsExpression(AsExpression node)
 		{
 			ITypeBinding target = GetExpressionType(node.Target);

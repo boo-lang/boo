@@ -34,7 +34,7 @@ namespace Boo.Tests.Lang.Compiler
 	using Boo.Lang.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Pipeline;
-	using Boo.Antlr;
+	using Boo.AntlrParser;
 	using NUnit.Framework;
 	
 	[TestFixture]
@@ -43,7 +43,7 @@ namespace Boo.Tests.Lang.Compiler
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
-					Add(new Boo.Antlr.BooParsingStep()).
+					Add(new Boo.AntlrParser.BooParsingStep()).
 					Add(new ImportResolutionStep()).
 					Add(new AstAttributesStep()).
 					Add(new MacroExpansionStep()).

@@ -29,7 +29,7 @@
 
 using System;
 
-namespace Boo.Antlr
+namespace Boo.AntlrParser
 {
 	/// <summary>
 	/// O token armazena tambm o nome do arquivo que

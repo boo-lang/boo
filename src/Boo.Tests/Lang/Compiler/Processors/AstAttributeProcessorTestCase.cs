@@ -31,7 +31,7 @@ using System;
 using System.IO;
 using Boo.Lang;
 using Boo.Lang.Ast;
-using Boo.Antlr;
+using Boo.AntlrParser;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipeline;

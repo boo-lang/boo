@@ -1263,6 +1263,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		override public void OnCastExpression(CastExpression node)
+		{
+			ITypeBinding type = GetBoundType(node.Type);
+			Switch(node.Target);
+			EmitCastIfNeeded(type, PopType());
+			PushType(type);
+		}
+		
 		override public void OnAsExpression(AsExpression node)
 		{
 			Type type = GetType(node.Type);

@@ -71,7 +71,8 @@ tokens
 	AND="and";
 	AS="as";		
 	BREAK="break";
-	CONTINUE="continue";	
+	CONTINUE="continue";
+	CAST="cast";	
 	CLASS="class";
 	CONSTRUCTOR="constructor";	
 	DEF="def";	
@@ -1416,8 +1417,22 @@ atom returns [Expression e]
 	(
 		e=literal |	
 		e=reference_expression |
-		e=paren_expression
+		e=paren_expression |
+		e=cast_expression
 	)
+	;
+	
+protected
+cast_expression returns [Expression e]
+	{
+		e = null;
+		TypeReference tr = null;
+		Expression target = null;
+	}:
+	t:CAST! LPAREN! tr=type_reference COMMA! target=expression RPAREN!
+	{
+		e = new CastExpression(ToLexicalInfo(t), tr, target);
+	}
 	;
 	
 

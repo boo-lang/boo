@@ -31,15 +31,15 @@ using System;
 using System.IO;
 using System.Text;
 using Boo.Lang.Ast;
-using Boo.Antlr.Util;
+using Boo.AntlrParser.Util;
 
-namespace Boo.Antlr
+namespace Boo.AntlrParser
 {
 	public class BooParser : BooParserBase
 	{	
 		const int TabSize = 4;
 		
-		const string TokenObjectClass = "Boo.Antlr.BooToken";
+		const string TokenObjectClass = "Boo.AntlrParser.BooToken";
 		
 		protected ParserErrorHandler Error;
 

@@ -31,7 +31,7 @@ using System;
 using Boo.Lang.Ast;
 using Boo.Lang.Compiler;
 
-namespace Boo.Antlr
+namespace Boo.AntlrParser
 {
 	/// <summary>
 	/// Step 1. Parses any input fed to the compiler.

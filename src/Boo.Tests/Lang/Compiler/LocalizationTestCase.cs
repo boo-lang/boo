@@ -70,7 +70,7 @@ namespace Boo.Tests.Lang.Compiler
 				BooCompiler compiler = new BooCompiler();
 				CompilerParameters options = compiler.Parameters;
 				options.Input.Add(new Boo.Lang.Compiler.IO.StringInput("testcase", TestCase));
-				options.Pipeline.Add(new Boo.Antlr.BooParsingStep());
+				options.Pipeline.Add(new Boo.AntlrParser.BooParsingStep());
 				
 				CompilerErrorCollection errors = compiler.Run().Errors;
 	

@@ -217,7 +217,7 @@ namespace Boo.Tests.Lang.Compiler
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
-					Add(new Boo.Antlr.BooParsingStep()).
+					Add(new Boo.AntlrParser.BooParsingStep()).
 					Add(new ImportResolutionStep()).
 					Add(new AstAttributesStep()).
 					Add(new MacroExpansionStep()).
