@@ -53,12 +53,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		List _newAbstractClasses;
 		
-		int _loopDepth;
-		
-		int _tryBlockDepth;
-		
-		int _exceptionHandlerDepth;
-		
 		IMethod RuntimeServices_Len;
 		
 		IMethod RuntimeServices_Mid;
@@ -115,6 +109,17 @@ namespace Boo.Lang.Compiler.Steps
 		
 		InfoFilter IsPublicFieldPropertyEventFilter;
 		
+		MethodBodyState _methodBodyState;
+		
+		struct MethodBodyState
+		{
+			public int LoopDepth;
+		
+			public int TryBlockDepth;
+		
+			public int ExceptionHandlerDepth;
+		};
+		
 		public ProcessMethodBodies()
 		{
 			IsPublicFieldPropertyEventFilter = new InfoFilter(IsPublicFieldPropertyEvent);
@@ -134,9 +139,7 @@ namespace Boo.Lang.Compiler.Steps
 			_methodStack = new Stack();
 			_visited = new Hash();
 			_newAbstractClasses = new List();
-			_loopDepth = 0;
-			_exceptionHandlerDepth = 0;
-			_tryBlockDepth = 0;
+			_methodBodyState = new MethodBodyState();
 						
 			InitializeMemberCache();
 			
@@ -202,34 +205,52 @@ namespace Boo.Lang.Compiler.Steps
 			_newAbstractClasses = null;
 		}
 		
+		void EnterTryBlock()
+		{
+			++_methodBodyState.TryBlockDepth;
+		}
+		
+		void LeaveTryBlock()
+		{
+			--_methodBodyState.TryBlockDepth;
+		}
+		
+		int CurrentTryBlockDepth
+		{
+			get
+			{
+				return _methodBodyState.TryBlockDepth;
+			}
+		}
+		
 		void EnterLoop()
 		{
-			++_loopDepth;
+			++_methodBodyState.LoopDepth;
 		}
 		
 		bool InLoop()
 		{
-			return _loopDepth > 0;
+			return _methodBodyState.LoopDepth > 0;
 		}
 		
 		void LeaveLoop()
 		{
-			--_loopDepth;
+			--_methodBodyState.LoopDepth;
 		}
 		
 		void EnterExceptionHandler()
 		{
-			++_exceptionHandlerDepth;
+			++_methodBodyState.ExceptionHandlerDepth;
 		}
 		
 		bool InExceptionHandler()
 		{
-			return _exceptionHandlerDepth > 0;
+			return _methodBodyState.ExceptionHandlerDepth > 0;
 		}
 		
 		void LeaveExceptionHandler()
 		{
-			--_exceptionHandlerDepth;
+			--_methodBodyState.ExceptionHandlerDepth;
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
@@ -941,12 +962,15 @@ namespace Boo.Lang.Compiler.Steps
 			PushMethodInfo(tag);
 			EnterNamespace(ns);
 			
+			MethodBodyState saved = _methodBodyState;			
+			_methodBodyState = new MethodBodyState();
 			try
 			{
 				Visit(node);
 			}
 			finally
-			{			
+			{
+				_methodBodyState = saved;
 				LeaveNamespace();
 				PopMethodInfo();
 			}
@@ -2071,7 +2095,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnLabelStatement(LabelStatement node)
 		{
-			ContextAnnotations.SetTryBlockDepth(node, _tryBlockDepth);
+			ContextAnnotations.SetTryBlockDepth(node, CurrentTryBlockDepth);
 			
 			if (null == _currentMethod.ResolveLabel(node.Name))
 			{
@@ -2088,7 +2112,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnGotoStatement(GotoStatement node)
 		{
-			ContextAnnotations.SetTryBlockDepth(node, _tryBlockDepth);
+			ContextAnnotations.SetTryBlockDepth(node, CurrentTryBlockDepth);
 			
 			_currentMethod.AddLabelReference(node.Label);
 		}
@@ -2124,6 +2148,11 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveYieldStatement(YieldStatement node)
 		{
 			_currentMethod.AddYieldExpression(node.Expression);
+			
+			if (CurrentTryBlockDepth > 0)
+			{
+				Error(CompilerErrorFactory.YieldInsideTryBlock(node));
+			}
 		}
 		
 		override public void LeaveReturnStatement(ReturnStatement node)
@@ -2257,18 +2286,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnTryStatement(TryStatement node)
 		{
-			++_tryBlockDepth;
+			EnterTryBlock();
 			Visit(node.ProtectedBlock);
 			
-			++_tryBlockDepth;
+			EnterTryBlock();
 			Visit(node.ExceptionHandlers);
 			
-			++_tryBlockDepth;
+			EnterTryBlock();
 			Visit(node.EnsureBlock);
-			--_tryBlockDepth;
+			LeaveTryBlock();
 			
-			--_tryBlockDepth;			
-			--_tryBlockDepth;
+			LeaveTryBlock();			
+			LeaveTryBlock();
 		}
 		
 		override public void OnExceptionHandler(ExceptionHandler node)
@@ -3191,6 +3220,10 @@ namespace Boo.Lang.Compiler.Steps
 					IMethod invoke = ResolveMethod(delegateType, "Invoke");
 					node.Target = CodeBuilder.CreateMemberReference(node.Target, invoke);
 					BindExpressionType(node, invoke.ReturnType);						
+				}
+				else
+				{
+					Error(node);
 				}
 			}
 			else if (TypeSystemServices.ICallableType.IsAssignableFrom(type))

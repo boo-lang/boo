@@ -521,6 +521,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0098", node.LexicalInfo);
 		}
 		
+		public static CompilerError YieldInsideTryBlock(Node node)
+		{
+			return new CompilerError("BCE0099", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

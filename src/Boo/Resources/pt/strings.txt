@@ -97,6 +97,7 @@ BCE0095=Label '{0}' não existe.
 BCE0096=Método '{0}' já possui um rótulo '{1}'.
 BCE0097=Não é possível saltar para dentro de um bloco try.
 BCE0098=Argumentos inválidos para __switch__.
+BCE0099=yield não pode ser utilizado dentro de blocos try, except ou ensure block.
 
 ;Compiler warnings
 BCW0001=AVISO: O tipo '{0}' não possui uma implementação para '{1}' e será marcado como abstrato.
