@@ -91,6 +91,12 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			RunCompilerTestCase("method6.boo");
 		}
+		
+		[Test]
+		public void MutuallyRecursiveMethodsAndMore()
+		{
+			RunCompilerTestCase("method7.boo");
+		}
 
 	}
 }

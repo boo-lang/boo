@@ -220,7 +220,6 @@
     <File name=".\Lang\Compiler\Bindings\ParameterBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\TypeReferenceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Compiler\Bindings\UnresolvedBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\IO\FileInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\IO\ReaderInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\IO\StringInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

@@ -33,6 +33,7 @@ NotImplemented=Característica ainda não implementada: {0}.
 EventArgumentMustBeAMethod=O evento '{0}' exige uma referência a um método compatível com '{1}'.
 TypeNotAttribute=O tipo '{0}' não é um atributo.
 ExpressionStatementMustHaveSideEffect=Expressões em sentenças devem ser executadas apenas por seus efeitos colaterais.
+InvalidSuper=super só pode ser utilizado em métodos sobreescritos.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Bindings
 			_using = new INamespace[module.Using.Count];
 			for (int i=0; i<_using.Length; ++i)
 			{
-				_using[i] = (INamespace)bindingManager.GetBinding(module.Using[i]);
+				_using[i] = (INamespace)BindingManager.GetBinding(module.Using[i]);
 			}
 		}
 		
@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Bindings
 			if (null != member)
 			{
 				return _bindingManager.ToTypeReference(
-						(ITypeBinding)_bindingManager.GetBinding(member)
+						(ITypeBinding)BindingManager.GetBinding(member)
 						);
 			}
 			

@@ -28,6 +28,8 @@
 #endregion
 
 using System;
+using System.Collections;
+using Boo.Lang.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
 {
@@ -46,9 +48,8 @@ namespace Boo.Lang.Compiler.Bindings
 		Assembly = 0x400,
 		Namespace = 0x800,
 		Ambiguous = 0x1000,
-		Error,
-		Unresolved
-	}
+		Error
+	}	
 	
 	public interface IBinding
 	{	
@@ -61,7 +62,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get;
 		}
-	}	
+	}
 	
 	public interface ITypedBinding : IBinding
 	{

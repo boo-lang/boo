@@ -1,5 +1,5 @@
 """
-public final transient class Method6Module(System.Object):
+public final transient class Method7Module(System.Object):
 
 	public static def greeting(who as System.String) as System.Object:
 		if (who != 'bamboo'):

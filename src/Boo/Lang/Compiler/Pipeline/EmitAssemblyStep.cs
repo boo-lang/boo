@@ -516,52 +516,76 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(type);
 		}
 		
+		void InvokeMethod(IMethodBinding methodBinding, MethodInvocationExpression node)
+		{			
+			MethodInfo mi = GetMethodInfo(methodBinding);
+			OpCode code = OpCodes.Call;
+			if (!mi.IsStatic)
+			{
+				// pushes target reference
+				node.Target.Switch(this);
+				
+				Type targetType = PopType();
+				
+				bool declaringTypeIsValueType = mi.DeclaringType.IsValueType;
+				bool targetTypeIsValueType = targetType.IsValueType; 
+				if (!declaringTypeIsValueType &&
+					!targetTypeIsValueType)
+				{
+					if (mi.IsVirtual)
+					{
+						code = OpCodes.Callvirt;
+					}
+				}
+				else
+				{
+					if (declaringTypeIsValueType)
+					{
+						// declare local to hold value type
+						LocalBuilder temp = _il.DeclareLocal(targetType);
+						_il.Emit(OpCodes.Stloc, temp);
+						_il.Emit(OpCodes.Ldloca, temp);
+					}
+					else
+					{
+						_il.Emit(OpCodes.Box, targetType);
+					}
+				}
+			}
+			PushArguments(methodBinding, node.Arguments);
+			_il.EmitCall(code, mi, null);
+			
+			PushType(mi.ReturnType);
+		}
+		
+		void InvokeSuperMethod(IMethodBinding methodBinding, MethodInvocationExpression node)
+		{
+			IMethodBinding super = ((InternalMethodBinding)methodBinding).Override;
+			MethodInfo superMI = GetMethodInfo(super);
+			_il.Emit(OpCodes.Ldarg_0); // this
+			PushArguments(super, node.Arguments);
+			_il.EmitCall(OpCodes.Call, superMI, null);
+			PushType(superMI.ReturnType);
+		}
+		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{				
 			IBinding binding = BindingManager.GetBinding(node.Target);
 			switch (binding.BindingType)
 			{
 				case BindingType.Method:
-				{										
+				{	
 					IMethodBinding methodBinding = (IMethodBinding)binding;
-					MethodInfo mi = GetMethodInfo(methodBinding);
-					OpCode code = OpCodes.Call;
-					if (!mi.IsStatic)
-					{
-						// pushes target reference
-						node.Target.Switch(this);
-						
-						Type targetType = PopType();
-						
-						bool declaringTypeIsValueType = mi.DeclaringType.IsValueType;
-						bool targetTypeIsValueType = targetType.IsValueType; 
-						if (!declaringTypeIsValueType &&
-						    !targetTypeIsValueType)
-						{
-							if (mi.IsVirtual)
-							{
-								code = OpCodes.Callvirt;
-							}
-						}
-						else
-						{
-							if (declaringTypeIsValueType)
-							{
-								// declare local to hold value type
-								LocalBuilder temp = _il.DeclareLocal(targetType);
-								_il.Emit(OpCodes.Stloc, temp);
-								_il.Emit(OpCodes.Ldloca, temp);
-							}
-							else
-							{
-								_il.Emit(OpCodes.Box, targetType);
-							}
-						}
-					}
-					PushArguments(methodBinding, node.Arguments);
-					_il.EmitCall(code, mi, null);
 					
-					PushType(mi.ReturnType);
+					if (node.Target.NodeType == NodeType.SuperLiteralExpression)
+					{
+						InvokeSuperMethod(methodBinding, node);
+					}
+					else
+					{						
+						InvokeMethod(methodBinding, node);
+					}
+					
 					break;
 				}
 				
@@ -1456,12 +1480,14 @@ namespace Boo.Lang.Compiler.Pipeline
                                         GetMethodAttributes(method) | attributes,
                                         GetType(method.ReturnType),
                                         GetParameterTypes(method));
+			/*
 			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(method);
 			IMethodBinding overriden = binding.Override;
 			if (null != overriden)
 			{
 				typeBuilder.DefineMethodOverride(builder, GetMethodInfo(overriden));
 			}
+			*/
 			SetBuilder(method, builder);			
 			return builder;
 		}

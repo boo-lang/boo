@@ -28,7 +28,7 @@ def getNonAutoFields(fields):
 	for field in fields:
 		if isNotCollectionField(field) and not "auto" in field.attributes:
 			yield field
-			
+
 def getResultTransformerNode(item):
 	expression = item.model.resolve("Expression")
 	statement = item.model.resolve("Statement")

@@ -55,6 +55,37 @@ namespace Boo.Lang.Compiler.Bindings
 			_type = type;
 		}
 		
+		public bool IsResolved
+		{
+			get
+			{
+				return true;
+			}
+		}
+		
+		public void AddDependent(Boo.Lang.Ast.Node node)
+		{
+			throw new NotSupportedException();
+		}
+		
+		public bool ContainsDependent(Boo.Lang.Ast.Node node)
+		{
+			return false;
+		}
+		
+		public event EventHandler Resolved
+		{
+			add
+			{
+				throw new NotSupportedException();
+			}
+			
+			remove
+			{
+				throw new NotSupportedException();
+			}
+		}
+		
 		public string FullName
 		{
 			get

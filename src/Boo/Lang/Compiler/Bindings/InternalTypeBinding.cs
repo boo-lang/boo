@@ -87,7 +87,7 @@ namespace Boo.Lang.Compiler.Bindings
 				{					
 					if (member.NodeType == NodeType.Constructor)
 					{
-						constructors.Add(_bindingManager.GetBinding(member));
+						constructors.Add(BindingManager.GetBinding(member));
 					}
 				}
 				_constructors = (IConstructorBinding[])constructors.ToArray(typeof(IConstructorBinding));

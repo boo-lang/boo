@@ -84,6 +84,11 @@ namespace Boo.Lang.Compiler
 			throw new Error(node, Format("NotImplemented", message));
 		}
 		
+		public void InvalidSuper(Node node)
+		{
+			Add(new Error(node, GetString("InvalidSuper")));
+		}
+		
 		public void MultipleClassInheritance(Node node, string className, string baseClass)
 		{
 			Add(new Error(node,

@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (node.Globals.Statements.Count > 0)
 			{
 				Method method = new Method(node.Globals.LexicalInfo);
-				method.ReturnType = new TypeReference("void");
+				method.ReturnType = CreateBoundTypeReference(BindingManager.VoidTypeBinding);
 				method.Body = node.Globals;
 				method.Name = MainModuleMethodName;
 				method.Modifiers = TypeMemberModifiers.Static | TypeMemberModifiers.Private;				

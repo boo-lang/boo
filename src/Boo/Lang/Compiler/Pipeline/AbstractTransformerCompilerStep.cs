@@ -96,7 +96,14 @@ namespace Boo.Lang.Compiler.Pipeline
 		public ITypeBinding GetBoundType(Node node)
 		{
 			return BindingManager.GetBoundType(node);
-		}		
+		}
+
+		protected TypeReference CreateBoundTypeReference(ITypeBinding binding)
+		{
+			TypeReference typeReference = new TypeReference(binding.FullName);
+			BindingManager.Bind(typeReference, BindingManager.ToTypeReference(binding));
+			return typeReference;
+		}				
 		
 		public virtual void Initialize(CompilerContext context)
 		{

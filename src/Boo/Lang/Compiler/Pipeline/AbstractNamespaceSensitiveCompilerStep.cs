@@ -116,6 +116,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		protected void PopNamespace()
 		{
 			_namespaces.Pop();
-		}
+		}		
 	}
 }

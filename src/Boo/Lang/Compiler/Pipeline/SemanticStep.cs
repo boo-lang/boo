@@ -1318,13 +1318,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			return false;
 		}
 		
-		TypeReference CreateBoundTypeReference(ITypeBinding binding)
-		{
-			TypeReference typeReference = new TypeReference(binding.FullName);
-			BindingManager.Bind(typeReference, BindingManager.ToTypeReference(binding));
-			return typeReference;
-		}
-		
 		bool HasSideEffect(Expression node)
 		{
 			return node.NodeType == NodeType.MethodInvocationExpression ||

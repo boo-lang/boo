@@ -107,15 +107,16 @@ done * criar um nó Unless
 
 done * booc nant task (em boo, obviamente)
 
-* super
+done * super
+
+* EnsureMethodIsResolved => EnsureMemberIsResolved
+	* utilizar um grafo de dependências ao invés do sistema de eventos
 
 * type
 
 * field initializers
 
 * null
-
-* transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 
 * AstAttribute vira IAstAttribute que implementa ICompilerStep
 
@@ -129,8 +130,6 @@ e passa a ser utilizado ReferenceExpression em seu lugar
 SemanticStep que deverá criar AsExpression sempre que necessário
 
 * BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais
-
-* EnsureMethodIsResolved => EnsureMemberIsResolved
 
 * resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
 escopo mas que não resolve para um tipo, exemplo, tipo Size dentro de um classe
@@ -161,6 +160,7 @@ done * raise
 Milestone 3.9 (better error checking)
 -------------------------------------
 * constructors can't have a return value
+* unused local variable
 	
 Milestone 4 (delegate support)
 ------------------------------

@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Declaration d = _declarations[name];
 			if (null != d)
 			{
-				return _bindingManager.GetBinding(d);
+				return BindingManager.GetBinding(d);
 			}
 			return null;
 		}

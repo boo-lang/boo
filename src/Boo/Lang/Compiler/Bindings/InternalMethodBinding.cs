@@ -28,6 +28,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using Boo.Lang.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
@@ -38,20 +39,16 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		Boo.Lang.Ast.Method _method;
 		
-		bool _resolved;
-		
-		ITypeBinding _returnType;
-		
 		IMethodBinding _override;
+		
+		bool _isResolved = false;
+		
+		public ArrayList ReturnStatements = new ArrayList();
 		
 		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Ast.Method method)
 		{
 			_bindingManager = manager;
 			_method = method;
-			if (null == _method.ReturnType)
-			{
-				_returnType = new UnresolvedBinding();
-			}
 		}
 		
 		public ITypeBinding DeclaringType
@@ -59,14 +56,6 @@ namespace Boo.Lang.Compiler.Bindings
 			get
 			{
 				return _bindingManager.ToTypeBinding((TypeDefinition)_method.ParentNode);
-			}
-		}
-		
-		public bool IsResolved
-		{
-			get
-			{
-				return _resolved;
 			}
 		}
 		
@@ -135,8 +124,21 @@ namespace Boo.Lang.Compiler.Bindings
 			
 			set
 			{
-				_override = null;
+				_override = value;
 			}
+		}
+		
+		public bool IsResolved
+		{
+			get
+			{
+				return _isResolved;
+			}
+		}
+		
+		public void Resolved()
+		{
+			_isResolved = true;
 		}
 		
 		public ITypeBinding GetParameterType(int parameterIndex)
@@ -148,27 +150,8 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{				
-				if (null == _returnType)
-				{
-					_returnType = _bindingManager.GetBoundType(_method.ReturnType);
-				}
-				return _returnType;
+				return _bindingManager.GetBoundType(_method.ReturnType);
 			}
-		}
-		
-		public void Resolved()
-		{
-			ITypeBinding resolvedReturnType = _bindingManager.GetBoundType(_method.ReturnType);
-			_resolved = true;
-			
-			if (null != _returnType)
-			{
-				if (BindingType.Unresolved == _returnType.BindingType)
-				{
-					((UnresolvedBinding)_returnType).Resolved = resolvedReturnType;
-				}
-			}
-			_returnType = resolvedReturnType;
 		}
 		
 		public IBinding Resolve(string name)
@@ -182,7 +165,7 @@ namespace Boo.Lang.Compiler.Bindings
 				
 				if (name == local.Name)
 				{
-					return _bindingManager.GetBinding(local);
+					return BindingManager.GetBinding(local);
 				}
 			}
 			
@@ -190,7 +173,7 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				if (name == parameter.Name)
 				{
-					return _bindingManager.GetBinding(parameter);
+					return BindingManager.GetBinding(parameter);
 				}
 			}
 			return null;
