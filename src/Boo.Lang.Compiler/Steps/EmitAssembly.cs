@@ -629,7 +629,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnGotoStatement(GotoStatement node)
 		{
-			_il.Emit(OpCodes.Br, ((InternalLabel)node.Label.Entity).Label);
+			InternalLabel label = (InternalLabel)node.Label.Entity;
+			int gotoDepth = ContextAnnotations.GetTryBlockDepth(node);
+			int targetDepth = ContextAnnotations.GetTryBlockDepth(label.LabelStatement);
+	
+			if (targetDepth == gotoDepth)
+			{
+				_il.Emit(OpCodes.Br, label.Label);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Leave, label.Label);
+			}
 		}
 		
 		override public void OnLabelStatement(LabelStatement node)

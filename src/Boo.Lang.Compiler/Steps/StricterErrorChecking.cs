@@ -182,30 +182,41 @@ namespace Boo.Lang.Compiler.Steps
 			int targetDepth = ContextAnnotations.GetTryBlockDepth(target);
 			if (gotoDepth < targetDepth)
 			{
-				Node parent = AstUtil.GetParentTryExceptEnsure(target);
-				switch (parent.NodeType)
+				BranchError(node, target);
+			}
+			else if (gotoDepth == targetDepth)
+			{
+				Node gotoParent = AstUtil.GetParentTryExceptEnsure(node);
+				Node labelParent = AstUtil.GetParentTryExceptEnsure(target);
+				if (gotoParent != labelParent)
 				{
-					case NodeType.TryStatement:
-					{
-						Error(CompilerErrorFactory.CannotBranchIntoTry(node.Label));
-						break;
-					}
-					
-					case NodeType.ExceptionHandler:
-					{
-						Error(CompilerErrorFactory.CannotBranchIntoExcept(node.Label));
-						break;
-					}
-					
-					case NodeType.Block:
-					{
-						Error(CompilerErrorFactory.CannotBranchIntoEnsure(node.Label));
-						break;
-					}
+					BranchError(node, target);
 				}
 			}
-			else if (gotoDepth > targetDepth)
+		}
+		
+		void BranchError(GotoStatement node, LabelStatement target)
+		{
+			Node parent = AstUtil.GetParentTryExceptEnsure(target);
+			switch (parent.NodeType)
 			{
+				case NodeType.TryStatement:
+				{
+					Error(CompilerErrorFactory.CannotBranchIntoTry(node.Label));
+					break;
+				}
+				
+				case NodeType.ExceptionHandler:
+				{
+					Error(CompilerErrorFactory.CannotBranchIntoExcept(node.Label));
+					break;
+				}
+				
+				case NodeType.Block:
+				{
+					Error(CompilerErrorFactory.CannotBranchIntoEnsure(node.Label));
+					break;
+				}
 			}
 		}
 		
