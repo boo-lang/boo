@@ -64,7 +64,11 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod RuntimeServices_GetRange1;
 		
 		IMethod RuntimeServices_GetRange2;
+	
+		IMethod RuntimeServices_GetMultiDimensionalRange1;
 		
+		IMethod RuntimeServices_SetMultiDimensionalRange1;
+
 		IMethod RuntimeServices_GetEnumerable;
 		
 		IMethod RuntimeServices_op_Equality;
@@ -164,6 +168,8 @@ namespace Boo.Lang.Compiler.Steps
 			RuntimeServices_AddArrays = ResolveMethod(TypeSystemServices.RuntimeServicesType, "AddArrays");
 			RuntimeServices_GetRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
 			RuntimeServices_GetRange2 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2"); 			
+			RuntimeServices_GetMultiDimensionalRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetMultiDimensionalRange1"); 			
+			RuntimeServices_SetMultiDimensionalRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "SetMultiDimensionalRange1"); 			
 			RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
 			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
 			RuntimeServices_NormalizeStringIndex = ResolveMethod(TypeSystemServices.RuntimeServicesType, "NormalizeStringIndex");			
@@ -1500,6 +1506,18 @@ namespace Boo.Lang.Compiler.Steps
 			return expression;
 		}
 		
+		bool CheckComplexSlicingParameters(SlicingExpression node)
+		{				
+			foreach (Slice slice in node.Indices)
+			{
+				if (!CheckComplexSlicingParameters(slice))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
 		bool CheckComplexSlicingParameters(Slice node)
 		{				
 			if (null != node.Step)
@@ -1556,23 +1574,69 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindComplexArraySlicing(SlicingExpression node)
 		{			
-			Slice slice = node.Indices[0];
-			
-			if (CheckComplexSlicingParameters(slice))
+			if (AstUtil.IsLhsOfAssignment(node))
 			{
-				MethodInvocationExpression mie = null; 
-				
-				if (null == slice.End || slice.End == OmittedExpression.Default)
+				return;
+			}
+
+			if (CheckComplexSlicingParameters(node))
+			{
+				if (node.Indices.Count > 1)
 				{
-					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange1, node.Target, slice.Begin);
+					IArrayType arrayType = (IArrayType)GetExpressionType(node.Target);
+					MethodInvocationExpression mie = null; 
+					ArrayLiteralExpression collapse = new ArrayLiteralExpression();
+					ArrayLiteralExpression ranges = new ArrayLiteralExpression();
+					int collapseCount = 0;
+					for (int i = 0; i < node.Indices.Count; i++)
+					{
+						ranges.Items.Add(node.Indices[i].Begin);
+						if (node.Indices[i].End == null ||
+							node.Indices[i].End == OmittedExpression.Default)
+						{
+							BinaryExpression end = new BinaryExpression(BinaryOperatorType.Addition,
+												node.Indices[i].Begin,
+												new IntegerLiteralExpression(1));
+							ranges.Items.Add(end);
+							BindExpressionType(end, GetExpressionType(node.Indices[i].Begin));
+							collapse.Items.Add(new BoolLiteralExpression(true));
+							collapseCount++;
+						}
+						else
+						{
+							ranges.Items.Add(node.Indices[i].End);
+							collapse.Items.Add(new BoolLiteralExpression(false));
+						}
+					}
+					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetMultiDimensionalRange1, node.Target, ranges);
+					mie.Arguments.Add(collapse);
+					
+					BindExpressionType(ranges, TypeSystemServices.Map(typeof(int[])));
+					BindExpressionType(collapse, TypeSystemServices.Map(typeof(bool[])));
+					BindExpressionType(mie, TypeSystemServices.GetArrayType(arrayType.GetElementType(), node.Indices.Count - collapseCount));
+					node.ParentNode.Replace(node, mie);
 				}
 				else
 				{
-					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange2, node.Target, slice.Begin, slice.End);
-				}				
-				
-				BindExpressionType(mie, GetExpressionType(node.Target));
-				node.ParentNode.Replace(node, mie);
+					Slice slice = node.Indices[0];
+					
+					if (CheckComplexSlicingParameters(slice))
+					{
+						MethodInvocationExpression mie = null; 
+						
+						if (null == slice.End || slice.End == OmittedExpression.Default)
+						{
+							mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange1, node.Target, slice.Begin);
+						}
+						else
+						{
+							mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange2, node.Target, slice.Begin, slice.End);
+						}				
+						
+						BindExpressionType(mie, GetExpressionType(node.Target));
+						node.ParentNode.Replace(node, mie);
+					}
+				}
 			}
 		}
 		
@@ -1639,14 +1703,6 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
-		void AssertSingleSlice(SlicingExpression node)
-		{
-			if (1 != node.Indices.Count)
-			{
-				NotImplemented(node, "multi dimensional slicing");
-			}
-		}
-		
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
 			IType targetType = GetExpressionType(node.Target);
@@ -1665,30 +1721,32 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (targetType.IsArray)
 				{
-					AssertSingleSlice(node);
-					
-					IArrayType arrayType = (IArrayType)targetType;
-					if (arrayType.GetArrayRank() != 1)
+					IArrayType arrayType = (IArrayType)targetType;					
+					if (arrayType.GetArrayRank() != node.Indices.Count)
 					{
-						Error(node, CompilerErrorFactory.InvalidArray(node.Target));
-						return;
+						Error(node, CompilerErrorFactory.InvalidArrayRank(node, node.Target.ToString(), arrayType.GetArrayRank(), node.Indices.Count));
 					}
-					
+
 					if (IsComplexSlicing(node))
 					{
 						BindComplexArraySlicing(node);
 					}
 					else
 					{
-						BindExpressionType(node, arrayType.GetElementType());
+						if (arrayType.GetArrayRank() > 1)
+						{
+							BindMultiDimensionalArraySlicing(node);
+						}
+						else
+						{
+							BindExpressionType(node, arrayType.GetElementType());
+						}
 					}
 				}
 				else
 				{
 					if (IsComplexSlicing(node))
 					{
-						AssertSingleSlice(node);
-						
 						if (TypeSystemServices.StringType == targetType)
 						{
 							BindComplexStringSlicing(node);
@@ -1731,6 +1789,31 @@ namespace Boo.Lang.Compiler.Steps
 				((IProperty)tag).GetParameters().Length > 0;
 		}
 		
+		void BindMultiDimensionalArraySlicing(SlicingExpression node)
+		{
+			if (AstUtil.IsLhsOfAssignment(node))
+			{
+				// leave it to LeaveBinaryExpression to resolve
+				return;
+			}
+
+			IArrayType arrayType = (IArrayType)GetExpressionType(node.Target);
+			ArrayLiteralExpression ale = new ArrayLiteralExpression();
+			for (int i = 0; i < node.Indices.Count; i++)
+			{
+				ale.Items.Add(node.Indices[i].Begin);
+			}
+			
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+												node.Target,
+												(IMethod)TypeSystemServices.Map(
+													typeof(Array).GetMethod("GetValue", new Type[] { typeof(int[]) })),
+												ale);
+			BindExpressionType(ale, TypeSystemServices.Map(typeof(int[])));
+			BindExpressionType(mie, arrayType.GetElementType());
+			node.ParentNode.Replace(node, mie);
+		}
+
 		void SliceMember(SlicingExpression node, IEntity member)
 		{
 			if (AstUtil.IsLhsOfAssignment(node))
@@ -1740,15 +1823,13 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
 			foreach (Slice index in node.Indices)
 			{
 				mie.Arguments.Add(index.Begin);
 			}
 			
-			IMethod getter = null;
-			
+			IMethod getter = null;			
 			if (EntityType.Ambiguous == member.EntityType)
 			{
 				IEntity[] tags = GetGetMethods(((Ambiguous)member).Entities);
@@ -3618,19 +3699,100 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceArray(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
-			Slice index = slice.Indices[0];
 			
 			IArrayType sliceTargetType = (IArrayType)GetExpressionType(slice.Target);
 			IType lhsType = GetExpressionType(node.Right);
 			
-			if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType) ||
-				!CheckTypeCompatibility(index.Begin, TypeSystemServices.IntType, GetExpressionType(index.Begin)))
+			foreach (Slice item in slice.Indices)
 			{
-				Error(node);
-				return;
+				if (!CheckTypeCompatibility(item.Begin, TypeSystemServices.IntType, GetExpressionType(item.Begin)))
+				{
+					Error(node);
+					return;
+				}
 			}
-			
-			node.ExpressionType = sliceTargetType.GetElementType();
+
+			if (slice.Indices.Count > 1)
+			{
+				if (IsComplexSlicing(slice))
+				{
+					// FIXME: Check type compatibility
+					BindAssignmentToComplexSliceArray(node);
+				}
+				else
+				{
+				if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType))
+				{
+					Error(node);
+					return;
+				}
+					BindAssignmentToSimpleSliceArray(node);
+				}
+			}
+			else
+			{
+				if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType))
+				{
+					Error(node);
+					return;
+				}
+				node.ExpressionType = sliceTargetType.GetElementType();
+			}
+		}
+
+		void BindAssignmentToSimpleSliceArray(BinaryExpression node)
+		{
+			SlicingExpression slice = (SlicingExpression)node.Left;
+			ArrayLiteralExpression ale = new ArrayLiteralExpression();
+			for (int i = 0; i < slice.Indices.Count; i++)
+			{
+				ale.Items.Add(slice.Indices[i].Begin);
+			}
+								
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+								slice.Target,
+								(IMethod)TypeSystemServices.Map(typeof(Array).GetMethod("SetValue", new Type[] { typeof(object), typeof(int[]) })),
+								node.Right,
+								ale);
+								
+			BindExpressionType(mie, TypeSystemServices.VoidType);
+			BindExpressionType(ale, TypeSystemServices.Map(typeof(int[])));
+			node.ParentNode.Replace(node, mie);
+		}
+
+		void BindAssignmentToComplexSliceArray(BinaryExpression node)
+		{
+			SlicingExpression slice = (SlicingExpression)node.Left;
+			ArrayLiteralExpression ale = new ArrayLiteralExpression();
+			ArrayLiteralExpression collapse = new ArrayLiteralExpression();
+			for (int i = 0; i < slice.Indices.Count; i++)
+			{
+				ale.Items.Add(slice.Indices[i].Begin);
+				if (null == slice.Indices[i].End ||
+					OmittedExpression.Default == slice.Indices[i].End)
+				{
+					ale.Items.Add(new IntegerLiteralExpression(1 + (int)((IntegerLiteralExpression)slice.Indices[i].Begin).Value));
+					collapse.Items.Add(new BoolLiteralExpression(true));
+				}
+				else
+				{
+					ale.Items.Add(slice.Indices[i].End);
+					collapse.Items.Add(new BoolLiteralExpression(false));
+				}
+			}
+								
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+								RuntimeServices_SetMultiDimensionalRange1,
+								node.Right,
+								slice.Target,
+								ale);
+								
+			mie.Arguments.Add(collapse);
+
+			BindExpressionType(mie, TypeSystemServices.VoidType);
+			BindExpressionType(ale, TypeSystemServices.Map(typeof(int[])));
+			BindExpressionType(collapse, TypeSystemServices.Map(typeof(bool[])));
+			node.ParentNode.Replace(node, mie);
 		}
 		
 		void BindAssignmentToSliceProperty(BinaryExpression node)
@@ -4073,24 +4235,14 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckIterator(Expression iterator, IType type, out bool runtimeIterator)
 		{	
 			runtimeIterator = false;
-			
-			if (type.IsArray)
-			{				
-				if (((IArrayType)type).GetArrayRank() != 1)
-				{
-					Error(CompilerErrorFactory.InvalidArray(iterator));
-				}
-			}
-			else
+			IType enumerable = TypeSystemServices.IEnumerableType;
+
+			if (!enumerable.IsAssignableFrom(type))
 			{
-				IType enumerable = TypeSystemServices.IEnumerableType;
-				if (!enumerable.IsAssignableFrom(type))
+				runtimeIterator = IsRuntimeIterator(type);
+				if (!runtimeIterator)
 				{
-					runtimeIterator = IsRuntimeIterator(type);
-					if (!runtimeIterator)
-					{
-						Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
-					}
+					Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
 				}
 			}
 		}		

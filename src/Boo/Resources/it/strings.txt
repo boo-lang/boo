@@ -107,6 +107,7 @@ BCE0105='abstract' puo' essere applicato solo a classi, metodi, proprieta' e def
 BCE0106=Impossibile accedere ai tipi definiti nell'assembly '{0}'.
 BCE0107=un value type non possono dichiarare costruttori senza parametri.
 BCE0108=un value type non puo' avere inizializzatori per i prorpi campi.
+BCE0109=Array '{0}' is rank '{1}', not rank '{2}'.
 
 ;Compiler warnings
 BCW0001=WARNING: Il tipo '{0}' non fornisce una implementazione per '{1}' e' verra' marcato come abstract

@@ -571,6 +571,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0108", node.LexicalInfo);
 		}
 		
+		public static CompilerError InvalidArrayRank(Node node, string arrayName, int real, int given)
+		{
+			return new CompilerError("BCE0109", node.LexicalInfo, arrayName, real, given);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

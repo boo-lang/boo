@@ -392,6 +392,159 @@ namespace Boo.Lang
 			return target;
 		}
 
+	        public static void SetMultiDimensionalRange1 (Array source, Array dest, int[] ranges, bool[] collapse)
+	        {
+	                if (dest.Rank != ranges.Length / 2)
+			{
+	                        throw new Exception("invalid range passed: " + ranges.Length/2 + ", expected " + dest.Rank * 2);
+			}
+	
+			for (int i = 0; i < dest.Rank; i++)
+			{
+				if (ranges[2*i] > 0 ||
+					ranges[2*i] > dest.GetLength(i) ||
+					ranges[2*i+1] > dest.GetLength(i) ||
+					ranges[2*i+1] < ranges[2*i])
+				{
+					// FIXME: Better error reporting
+					Error("InvalidArray");
+				}
+			}
+
+			int sourceRank = 0;
+			foreach (bool val in collapse)
+			{
+				if (!val)
+				{
+					sourceRank++;
+				}
+			}
+
+			if (source.Rank != sourceRank)
+			{
+				// FIXME: Better error reporting
+				Error("InvalidArray");
+			}
+
+			int[] lensDest = new int[dest.Rank];
+			int[] lensSrc = new int[sourceRank];
+			int rankIndex = 0;
+			for (int i = 0; i < dest.Rank; i++)
+			{
+				lensDest[i]= ranges[2*i+1] - ranges[2*i];
+				if (!collapse[i])
+				{
+					lensSrc[rankIndex]= lensDest[i] - ranges[2*i];
+					if (lensSrc[rankIndex] != source.GetLength(rankIndex))
+					{
+						// FIXME: Better error reporting
+						Error("InvalidArray");
+					}
+					rankIndex++;
+				}
+			}
+
+			int[] modInd = new int[dest.Rank];
+			for (int i = 0; i < dest.Rank; i++)
+			{
+				if (i == 0)
+				{
+					modInd[i] = source.Length / lensDest[lensDest.Length - 1];
+				}
+				else
+				{
+					modInd[i] = modInd[i-1] / lensDest[i - 1];
+				}
+			}
+
+			int counter;
+			int[] indexDest = new int[dest.Rank];
+			int[] indexSrc = new int[sourceRank];
+			for (int i = 0; i < source.Length; i++)
+			{
+				counter = 0;
+				for (int j = 0; j < dest.Rank; j++)
+				{
+					int index = (i % modInd[j]) / (modInd[j] / lensDest[j]);
+					indexDest[j] = index;
+					if (!collapse[j])
+					{
+						indexSrc[counter] = indexDest[j] + ranges[2*j];
+						counter++;
+					}
+	                        	dest.SetValue(source.GetValue(indexSrc), indexDest);
+				}
+			}
+	        }
+
+		public static Array GetMultiDimensionalRange1(Array source, int[] ranges, bool[] collapse)
+		{
+			int rankSrc = source.Rank;
+			int collapseSize = 0;
+
+			foreach (bool val in collapse)
+			{
+				if (val)
+				{
+					collapseSize++;
+				}
+			}
+
+			int rankDest = rankSrc - collapseSize;
+			int[] lensDest = new int[rankDest];
+			int[] lensSrc = new int[rankSrc];
+	
+			int rankIndex = 0;
+			for (int i = 0; i < rankSrc; i++)
+			{
+				ranges[2*i] = NormalizeIndex(source.GetLength(i), ranges[2*i]);
+				ranges[2*i+1] = NormalizeIndex(source.GetLength(i), ranges[2*i+1]);
+
+				lensSrc[i]=ranges[2*i+1]-ranges[2*i];
+				if (!collapse[i])
+				{
+					lensDest[rankIndex]=ranges[2*i+1]-ranges[2*i];
+					rankIndex++;
+				}
+			}
+	
+			Array dest = Array.CreateInstance(source.GetType().GetElementType(), lensDest);
+
+			int[] modInd = new int[rankSrc];
+			int[] indicesDest = new int[rankDest];
+			int[] indicesSrc = new int[rankSrc];
+
+			for (int i = 0; i < rankSrc; i++)
+			{
+				if (i == 0)
+				{
+					modInd[i] = dest.Length;
+				}
+				else
+				{
+					modInd[i] = modInd[i-1] / lensSrc[i - 1];
+				}
+			}
+
+			for (int i = 0; i < dest.Length; i++)
+			{
+				int destIndex = 0;
+				for (int j = 0; j < rankSrc; j++)
+				{
+					int index = (i % modInd[j]) / (modInd[j] / lensSrc[j]);
+					indicesSrc[j]= ranges[2*j] + index;
+					if (!collapse[j])
+					{
+						indicesDest[destIndex]= indicesSrc[j] - ranges[2*j];
+						destIndex++;
+					}
+				}
+				dest.SetValue(source.GetValue(indicesSrc), indicesDest);
+			}
+	
+			return dest;
+		}
+
 		public static void CheckArrayUnpack(Array array, int expected)
 		{
 			if (null == array)
