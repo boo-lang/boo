@@ -26,14 +26,14 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Tests.Lang.Compiler
+namespace Boo.Lang.Compiler.Tests
 {
 	using System;
 	using System.IO;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Pipeline;
-	using Boo.AntlrParser;
+	using Boo.Lang.Compiler.Pipeline.Definitions;
 	using NUnit.Framework;
 	
 	[TestFixture]
@@ -41,14 +41,8 @@ namespace Boo.Tests.Lang.Compiler
 	{
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
-			pipeline.
-					Add(new Boo.AntlrParser.BooParsingStep()).
-					Add(new ImportResolutionStep()).
-					Add(new AstAttributesStep()).
-					Add(new MacroExpansionStep()).
-					Add(new AstNormalizationStep()).							
-					Add(new SemanticStep()).
-					Add(new BooPrinterStep());
+			pipeline.Load(typeof(CorePipelineDefinition));
+			pipeline.Add(new BooPrinterStep());
 		}
 		
 		protected override string GetTestCasePath(string name)

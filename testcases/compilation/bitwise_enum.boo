@@ -1,8 +1,8 @@
 """
-Boo.Tests.Lang.Compiler.TestEnum
+Boo.Lang.Compiler.Tests.TestEnum
 Foo, Bar
 """
-import Boo.Tests.Lang.Compiler
+import Boo.Lang.Compiler.Tests
 
 a = TestEnum.Foo|TestEnum.Bar
 print(a.GetType())

@@ -30,19 +30,15 @@ using System;
 using System.IO;
 using Boo.Lang;
 using Boo.Lang.Compiler.Ast;
-using Boo.AntlrParser;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipeline;
+using Boo.Lang.Compiler.Pipeline.Definitions;
 using NUnit.Framework;
 using Boo.Tests;
 
-namespace Boo.Tests.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Tests
 {
-	/// <summary>
-	/// Um exemplo de atributo que adiciona o atributo required
-	/// a todos os atributos de um mtodo.
-	/// </summary>
 	public class AllParametersRequiredAttribute : AbstractAstAttribute
 	{
 		public AllParametersRequiredAttribute()
@@ -72,9 +68,6 @@ namespace Boo.Tests.Lang.Compiler.Pipeline
 		{
 		}
 
-		/// <summary>
-		/// Valor do campo quando no existe ou  nulo no ViewState.
-		/// </summary>
 		public Expression Default
 		{
 			get
@@ -166,125 +159,51 @@ namespace Boo.Tests.Lang.Compiler.Pipeline
 	/// <summary>	
 	/// </summary>
 	[TestFixture]
-	public class AstAttributesStepTestCase : Assertion
+	public class AttributesTestCase : AbstractCompilerTestCase
 	{
 		[Test]
-		public void TestRequiredAttribute()
+		public void RequiredAttribute()
 		{
-			RunTestCase("AttributeProcessor_1_expected.boo", "AttributeProcessor_1.boo");
+			RunCompilerTestCase("required.boo");
 		}
 
 		[Test]
-		public void TestGetterAttribute()
+		public void GetterAttribute()
 		{
-			RunTestCase("AttributeProcessor_2_expected.boo", "AttributeProcessor_2.boo");
+			RunCompilerTestCase("getter.boo");
+		}
+		
+		[Test]
+		public void PropertyAttribute()
+		{
+			RunCompilerTestCase("property.boo");
 		}
 
 		[Test]
-		public void TestAttributeGeneratingAttribute()
+		public void AttributeGeneratingAttribute()
 		{
-			string actual = @"
-
-import Boo.Tests.Lang.Compiler.Pipeline
-
-class Customer:
-	[AllParametersRequired]
-	def constructor(fname as string, lname as string):
-		pass
-";
-
-			string expected = @"
-
-import Boo.Tests.Lang.Compiler.Pipeline
-
-class Customer:	
-	def constructor(fname as string, lname as string):
-		raise System.ArgumentNullException('fname') if fname is null
-		raise System.ArgumentNullException('lname') if lname is null
-";
-			RunStringTestCase("[ata generating ata]", expected, actual);
-			
+			RunCompilerTestCase("allparametersrequired.boo");
 		}
 
 		[Test]
-		public void TestAttributeWithNamedParameter()
+		public void AttributeWithNamedParameter()
 		{
-			string actual = @"
-import Boo.Tests.Lang.Compiler.Pipeline
-import System.Web.UI from System.Web
-
-class MyControl(System.Web.UI.Control):
-	[ViewState(Default: 70)]
-	Width as int
-";
-			string expected = @"
-import Boo.Tests.Lang.Compiler.Pipeline
-import System.Web.UI from System.Web
-
-class MyControl(System.Web.UI.Control):
-	Width as int:
-		get:
-			value = ViewState['Width']	
-			return 70 unless value
-			return value
-		set:
-			ViewState['Width'] = value
-";
-			RunStringTestCase("[atributo com parmetro nomeado]", expected, actual);
+			RunCompilerTestCase("viewstate.boo");
 		}
-
-		public void RunTestCase(string expectedFile, string actualFile)
+		
+		override protected string GetTestCasePath(string fname)
 		{
-			CompileUnit cu = RunCompiler(new FileInput(GetTestCasePath(actualFile)));
-			cu.Modules[0].Name = BooParser.CreateModuleName(expectedFile);
-			AssertEquals("[required]", ParseTestCase(expectedFile), cu);
-		}		
-
-		public void RunStringTestCase(string message, string expected, string actual)
-		{
-			CompileUnit cu = RunCompiler(new StringInput("<actual>", actual));
-			cu.Modules[0].Name = BooParser.CreateModuleName("<expected>");
-			AssertEquals(message, ParseString("<expected>", expected), cu);
+			return Path.Combine(
+					Path.Combine(BooTestCaseUtil.TestCasesPath, "attributes"),
+					fname);
 		}
-
-		CompileUnit RunCompiler(ICompilerInput input)
+		
+		override protected void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
-			BooCompiler compiler = new BooCompiler();
-			CompilerParameters options = compiler.Parameters;
-			options.Input.Add(input);
-			options.Pipeline.Add(new BooParsingStep());
-			options.Pipeline.Add(new ImportResolutionStep());
-			options.Pipeline.Add(new AstAttributesStep());
-			options.References.Add(GetType().Assembly);
-			
-			CompilerContext context = compiler.Run();
-
-			if (context.Errors.Count > 0)
-			{
-				Fail(context.Errors[0].ToString());
-			}
-
-			return context.CompileUnit;
-		}
-
-		void AssertEquals(string message, CompileUnit expected, CompileUnit actual)
-		{
-			BooTestCaseUtil.AssertEquals(message, expected, actual);
-		}
-
-		CompileUnit ParseTestCase(string fname)
-		{
-			return BooParser.ParseFile(GetTestCasePath(fname));
-		}
-
-		CompileUnit ParseString(string name, string text)
-		{
-			return BooParser.ParseReader(name, new StringReader(text));
-		}
-
-		string GetTestCasePath(string fname)
-		{
-			return Path.Combine(BooTestCaseUtil.GetTestCasePath("compilation"), fname);
+			pipeline.Load(typeof(ParsePipelineDefinition));
+			pipeline.Add(new ImportResolutionStep());
+			pipeline.Add(new AstAttributesStep());
+			pipeline.Add(new BooPrinterStep());
 		}
 	}
 }

@@ -3,7 +3,7 @@ Homer
 Idle
 Simpson
 """
-import Boo.Tests.Lang.Compiler from Boo.Tests
+import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
 
 people = PersonCollection()
 people.Add(Person(FirstName: "Homer", LastName: "Simpson"))

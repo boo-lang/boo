@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Tests.Lang.Compiler
+namespace Boo.Lang.Compiler.Tests
 {
 	using System;
 	using System.IO;
@@ -35,6 +35,7 @@ namespace Boo.Tests.Lang.Compiler
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Pipeline;
+	using Boo.Lang.Compiler.Pipeline.Definitions;
 	
 	public class ErrorPrinterStep : AbstractCompilerComponent, ICompilerStep
 	{
@@ -205,14 +206,8 @@ namespace Boo.Tests.Lang.Compiler
 		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
-			pipeline.
-					Add(new Boo.AntlrParser.BooParsingStep()).
-					Add(new ImportResolutionStep()).
-					Add(new AstAttributesStep()).
-					Add(new MacroExpansionStep()).
-					Add(new AstNormalizationStep()).							
-					Add(new SemanticStep()).
-					Add(new ErrorPrinterStep());
+			pipeline.Load(typeof(CorePipelineDefinition));
+			pipeline.Add(new ErrorPrinterStep());
 		}
 		
 		protected override bool IgnoreErrors

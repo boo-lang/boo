@@ -3,7 +3,7 @@ clicked!
 clicked!
 
 """
-import Boo.Tests.Lang.Compiler from Boo.Tests
+import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
 
 def clicked(sender, args as System.EventArgs):
 	print("clicked!")

@@ -34,9 +34,10 @@ using System.Security.Policy;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipeline;
+using Boo.Lang.Compiler.Pipeline.Definitions;
 using NUnit.Framework;
 
-namespace Boo.Tests.Lang.Compiler
+namespace Boo.Lang.Compiler.Tests
 {
 	[Flags]
 	public enum TestEnum
@@ -231,17 +232,8 @@ namespace Boo.Tests.Lang.Compiler
 	{
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
-			pipeline.
-					Add(new Boo.AntlrParser.BooParsingStep()).
-					Add(new ImportResolutionStep()).
-					Add(new AstAttributesStep()).
-					Add(new MacroExpansionStep()).
-					Add(new AstNormalizationStep()).					
-					Add(new SemanticStep()).
-					Add(new EmitAssemblyStep()).
-					Add(new SaveAssemblyStep()).
-					Add(new PEVerifyStep()).
-					Add(new RunAssemblyStep());
+			pipeline.Load(typeof(BoocPipelineDefinition));
+			pipeline.Add(new RunAssemblyStep());
 		}
 		
 		[Test]

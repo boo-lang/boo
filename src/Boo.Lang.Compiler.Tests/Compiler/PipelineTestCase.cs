@@ -32,7 +32,7 @@ using System.Xml;
 using NUnit.Framework;
 using Boo.Lang.Compiler;
 
-namespace Boo.Tests.Lang.Compiler
+namespace Boo.Lang.Compiler.Tests
 {
 	public class DummyStep : ICompilerStep
 	{		

@@ -3,7 +3,7 @@ DerivedClass
 """
 import System
 import System.Xml.Serialization from System.Xml
-import Boo.Tests.Lang.Compiler from Boo.Tests
+import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
 
 class C:
 	[XmlInclude(DerivedClass)]	

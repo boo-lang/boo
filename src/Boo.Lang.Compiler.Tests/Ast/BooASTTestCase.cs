@@ -30,7 +30,7 @@ using System;
 using Boo.Lang.Compiler.Ast;
 using NUnit.Framework;
 
-namespace Boo.Tests
+namespace Boo.Lang.Compiler.Tests.Ast
 {
 	/// <summary>
 	/// Teste case para as classes que compem a 

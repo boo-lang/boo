@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Tests.Lang.Compiler
+namespace Boo.Lang.Compiler.Tests
 {
 	using System;
 	using System.Diagnostics;

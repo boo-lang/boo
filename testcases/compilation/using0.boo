@@ -3,7 +3,7 @@ Disposable.constructor
 Disposable.foo
 Disposable.Dispose
 """
-import Boo.Tests.Lang.Compiler from Boo.Tests
+import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
 
 using disposable=Disposable():
 	disposable.foo()

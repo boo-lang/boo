@@ -106,32 +106,46 @@
 		</copy>
 	</target>
 	
-	<target name='test' depends="Boo.Tests" if='${nant.tasks.nunit2}'>
+	<target name='test' depends="compile-tests" if='${nant.tasks.nunit2}'>
 
 		<nunit2>       
 			<formatter type="Plain" />
-			<test assemblyname="build/Boo.Tests.dll" />
+			<test>
+				<assemblies basedir="build">
+					<includes name="*.Tests.dll" />
+				</assemblies>
+			</test>
 		</nunit2>
 		
 	</target>
 	
-	<target name="Boo.Tests" depends="Boo.Lang.Compiler, Boo.AntlrParser">
-		<csc
+	<target name="compile-tests" depends="all">
+	
+		<booc
 			target="library"
-			output="build/Boo.Tests.dll"
-			debug="true"
-			optimize="false">
+			output="build/Boo.Tests.dll">
 
 			<sources basedir="src/Boo.Tests">
-				<includes name="**/*.cs" />
+				<includes name="**/*.boo" />
 			</sources>
 
 			<references>
 				<includes name="${nunit.framework.dll}" />
-				<includes name="build/Boo.dll" />
-				<includes name="build/Boo.Lang.Compiler.dll" />
-				<includes name="build/Boo.AntlrParser.dll" />
-				<includes name="${antlr.runtime.dll}" />
+			</references>
+		</booc>
+		
+		<csc
+			target="library"
+			output="build/Boo.Lang.Compiler.Tests.dll">
+			
+			<sources basedir="src/Boo.Lang.Compiler.Tests">
+				<includes name="**/*.cs" />
+			</sources>
+			
+			<references basedir="build">
+				<includes name="${nunit.framework.dll}" />
+				<includes name="Boo.dll" />
+				<includes name="Boo.Lang.Compiler.dll" />
 			</references>
 		</csc>
 	</target>

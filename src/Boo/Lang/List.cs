@@ -254,6 +254,49 @@ namespace Boo.Lang
 			return Builtins.join(this, separator);
 		}
 		
+		override public int GetHashCode()
+		{
+			int hash = _count;
+			
+			for (int i=0; i<_count; ++i)
+			{
+				object item = _items[i];
+				if (null != item)
+				{
+					hash ^= item.GetHashCode();
+				}
+			}
+			return hash;
+		}
+		
+		override public bool Equals(object other)
+		{
+			if (other == this)
+			{
+				return true;
+			}
+			
+			List rhs = other as List;
+			if (null == rhs)
+			{
+				return false;
+			}
+			
+			if (_count != rhs.Count)
+			{
+				return false;
+			}
+			
+			for (int i=0; i<_count; ++i)
+			{
+				if (!object.Equals(_items[i], rhs[i]))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		
 		public void Clear()
 		{
 			_count = 0;

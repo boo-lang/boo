@@ -2,7 +2,7 @@
 clicked from app!
 
 """
-import Boo.Tests.Lang.Compiler from Boo.Tests
+import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
 
 class App:
 

@@ -31,11 +31,10 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
-using Boo.AntlrParser;
 using Boo.Lang.Compiler.Ast;
 using NUnit.Framework;
 
-namespace Boo.Tests
+namespace Boo.Lang.Compiler.Tests
 {
 	/// <summary>
 	/// Helper methods for testing the boo libraries.
@@ -55,14 +54,6 @@ namespace Boo.Tests
 		public static string GetTestCasePath(string sample)
 		{
 			return Path.Combine(TestCasesPath, sample);
-		}
-
-		public static Boo.Lang.Compiler.Ast.Module ParseTestCase(string sample)
-		{			
-			using (StreamReader reader = File.OpenText(GetTestCasePath(sample)))
-			{
-				return BooParser.ParseModule(sample, reader, new ParserErrorHandler(OnError));
-			}
 		}
 		
 		public static void AssertEqualsByLine(string sample, string expected, string actual)
@@ -98,11 +89,6 @@ namespace Boo.Tests
 			{
 				return sr.ReadToEnd();
 			}
-		}
-
-		static void OnError(antlr.RecognitionException x)
-		{
-			Assertion.Fail(x.ToString());
 		}
 	}
 }

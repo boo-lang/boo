@@ -1,8 +1,8 @@
 """
 Disposable.constructor
-Boo.Tests.Lang.Compiler.Disposable
+Boo.Lang.Compiler.Tests.Disposable
 """
-import Boo.Tests.Lang.Compiler from Boo.Tests
+import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
 
 d as System.IDisposable = Disposable()
 print(d.GetType())
