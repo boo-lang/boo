@@ -219,7 +219,7 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity entity = GetSelfEntity();
 			node.Entity = entity;
 			_references.Add(node);			
-			_referencedEntities.Add(entity, null);
+			_referencedEntities[entity] = null;
 		}
 		
 		bool IsForeignReference(ReferenceExpression node)
