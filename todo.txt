@@ -1,6 +1,15 @@
-* boox
-	* prompt must be redirected to a InputBox
-	* assembly search path
+Please refer to our issue tracker at
+
+ 	http://jira.codehaus.org/secure/BrowseProject.jspa?id=10671
+ 	
+for open issues.
+
+All the issues on this file will be eventually moved there.
+
+
+
+
+
 
 * refactorar todos os métodos relacionados a definição de tipos do ProcessGenerators
 e criar um ClassDefinitionBuilder;
@@ -78,8 +87,6 @@ super APÓS qualquer validação:
 
 * macros para o SharpDevelop em boo
 
-* BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais?
-
 * resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
 escopo mas que não resolve para um tipo, exemplo, tipo Size dentro de um classe
 derivada de Control (que tem uma propriedade chamada Size):
@@ -91,28 +98,12 @@ derivada de Control (que tem uma propriedade chamada Size):
 		de ser chamado ou não);
 
 * StatementGroup para permitir o agrupamento de statements com mesmo propósito
-
-
-Milestone 3.8
--------------
 * float literals: 3.0f
 * binary literals: 0b001
-
-Milestone 3.9 (better error checking)
--------------------------------------
 * WARNING: property getter should return a value
-* WARNING: expressions in iterators can't have locally visible side-effects
-	def foo(value as int):
-		return ++value*i for i in range(10)
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
-
-Milestone 4 (documentation)
-------------------------------
 * docbook Step (generates docbook files with all the documentation)
-
-Milestone 4.3 (algumas otimizações)
----------------------------
 * statically typed IEnumerator pattern
 * compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator
 e declarar os tipos de acordo
@@ -126,24 +117,11 @@ e declarar os tipos de acordo
 		((reference == value1) or (reference == value2))
 		((reference is value1) or (reference is value2))
 		etc
-
-
-Milestone 5
------------
-
 * operadores de conversão (operator bool, operator string, etc)
-
-Milestone 6 (dynamic behavior)
-------------------------------
-
 * array equality even for object references:
 	a1 as object = (1, 2)
 	a2 as object = (1, 2)
 	assert a1 == a2
-
-Exemplos/Artigos
-----------------
-
 * PreAttribute:
 
 	[pre(n > 0)]

@@ -63,13 +63,21 @@ namespace Boo.Lang.Compiler.Ast
 			if (NodeType.BinaryExpression == node.ParentNode.NodeType)
 			{
 				BinaryExpression be = (BinaryExpression)node.ParentNode;
-				if (BinaryOperatorType.Assign == be.Operator &&
-					node == be.Left)
+				if (node == be.Left)
 				{
-					return true;
+					return IsAssignmentOperator(be.Operator);
 				}
 			}
 			return false;
+		}
+		
+		public static bool IsAssignmentOperator(BinaryOperatorType op)
+		{
+			return BinaryOperatorType.Assign == op ||
+					BinaryOperatorType.InPlaceAdd == op ||
+					BinaryOperatorType.InPlaceSubtract == op ||
+					BinaryOperatorType.InPlaceMultiply == op ||
+					BinaryOperatorType.InPlaceDivide == op;
 		}
 		
 		public static Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)

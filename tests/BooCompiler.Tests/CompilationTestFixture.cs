@@ -263,6 +263,13 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void InPlaceAddWithProperty()
+		{
+			// jira issue BOO-54
+			RunCompilerTestCase("property3.boo");
+		}
+		
+		[Test]
 		public void ComplexFieldInitializer()
 		{
 			RunCompilerTestCase("ComplexFieldInitializer.boo");

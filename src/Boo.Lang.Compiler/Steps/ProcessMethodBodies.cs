@@ -2824,11 +2824,18 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Node parent = node.ParentNode;
 			
+			// if target is a property force a rebinding
+			Expression target = node.Left;
+			if (EntityType.Property == target.Entity.EntityType)
+			{
+				target.Entity = null;
+				target.ExpressionType = null;
+			}			
+			
 			BinaryExpression assign = new BinaryExpression(node.LexicalInfo);
 			assign.Operator = BinaryOperatorType.Assign;
-			assign.Left = node.Left.CloneNode();
-			assign.Right = node;
-			
+			assign.Left = target.CloneNode();
+			assign.Right = node;			
 			node.Operator = GetRelatedBinaryOperatorForInPlaceOperator(node.Operator);
 			
 			parent.Replace(node, assign);
