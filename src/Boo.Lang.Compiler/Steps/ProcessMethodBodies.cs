@@ -1154,22 +1154,19 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != baseMethods)
 			{
+				IMethod baseMethod = null;
 				if (EntityType.Method == baseMethods.EntityType)
 				{
-					IMethod baseMethod = (IMethod)baseMethods;
-					if (TypeSystemServices.CheckOverrideSignature(tag, baseMethod))
-					{	
-						return baseMethod;
-					}
+					baseMethod = (IMethod)baseMethods;
 				}
 				else if (EntityType.Ambiguous == baseMethods.EntityType)
 				{
 					IEntity[] tags = ((Ambiguous)baseMethods).Entities;
-					IMethod baseMethod = (IMethod)ResolveCallableReference(method, method.Parameters, tags, false);
-					if (null != baseMethod)
-					{
-						return baseMethod;
-					}
+					baseMethod = (IMethod)ResolveCallableReference(method, method.Parameters, tags, false);
+				}				
+				if (TypeSystemServices.CheckOverrideSignature(tag, baseMethod))
+				{	
+					return baseMethod;
 				}
 			}
 			return null;

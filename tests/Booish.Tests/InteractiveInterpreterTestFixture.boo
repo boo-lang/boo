@@ -380,7 +380,7 @@ dummy()""")
 		event Changed as System.EventHandler
 		
 		def constructor(name as string):
-			_name = name
+			_fname = name
 		
 		def constructor():
 			pass
