@@ -54,6 +54,7 @@ BCE0052=Type '{0}' is not a valid argument for 'len'.
 BCE0053=Property '{0}' is read only.
 BCE0054='isa' expects a type reference, a System.Type instance or a type tuple.
 BCE0055=Internal compiler error: {0}.
+BCE0056=File '{0}' was not found.
 
 
 ;Attribute Messages

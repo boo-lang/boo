@@ -34,6 +34,28 @@ using System.Reflection;
 
 namespace Boo.Lang.Compiler.Bindings
 {
+	public class EnumTypeBinding : AbstractInternalTypeBinding
+	{
+		internal EnumTypeBinding(BindingManager bindingManager, EnumDefinition enumDefinition) :
+			base(bindingManager, enumDefinition)
+		{
+		}
+		
+		public override ITypeBinding BaseType
+		{
+			get
+			{
+				return _bindingManager.EnumTypeBinding;
+			}
+		}
+		
+		public override bool IsSubclassOf(ITypeBinding type)
+		{
+			return type == _bindingManager.EnumTypeBinding ||
+				_bindingManager.EnumTypeBinding.IsSubclassOf(type);
+		}
+	}
+	
 	public class InternalTypeBinding : AbstractInternalTypeBinding
 	{		
 		IConstructorBinding[] _constructors;
@@ -66,7 +88,7 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 		
 		public override bool IsSubclassOf(ITypeBinding type)
-		{			
+		{				
 			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
 			{
 				ITypeBinding baseType = _bindingManager.GetBoundType(baseTypeReference);

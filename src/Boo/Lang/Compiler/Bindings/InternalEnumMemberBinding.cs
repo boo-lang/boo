@@ -27,62 +27,93 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using Boo.Lang.Ast;
-
 namespace Boo.Lang.Compiler.Bindings
 {
-	public class ModuleNamespace : INamespace
+	using System;
+	using Boo.Lang.Ast;
+	
+	public class InternalEnumMemberBinding : AbstractInternalBinding, IFieldBinding
 	{
 		BindingManager _bindingManager;
 		
-		TypeMemberCollection _members;
+		EnumMember _member;
 		
-		INamespace[] _using;
-		
-		public ModuleNamespace(BindingManager bindingManager, Module module)
+		public InternalEnumMemberBinding(BindingManager bindingManager, EnumMember member)
 		{
 			_bindingManager = bindingManager;
-			_members = module.Members;
-			_using = new INamespace[module.Imports.Count];
-			for (int i=0; i<_using.Length; ++i)
+			_member = member;
+		}
+		
+		public string Name
+		{
+			get
 			{
-				_using[i] = (INamespace)BindingManager.GetBinding(module.Imports[i]);
+				return _member.Name;
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public string FullName
 		{
-			TypeMember member = _members[name];
-			if (null != member)
+			get
 			{
-				ITypeBinding typeBinding = (ITypeBinding)BindingManager.GetOptionalBinding(member);
-				if (null == typeBinding)
-				{
-					if (NodeType.EnumDefinition == member.NodeType)
-					{
-						typeBinding = new EnumTypeBinding(_bindingManager, (EnumDefinition)member);
-					}
-					else
-					{
-						typeBinding = new InternalTypeBinding(_bindingManager, (TypeDefinition)member);
-					}
-					BindingManager.Bind(member, typeBinding);
-				}
-				return _bindingManager.AsTypeReference(typeBinding);
+				return _member.DeclaringType.FullName + "." + _member.Name;
 			}
-			
-			IBinding binding = null;
-			foreach (INamespace ns in _using)
+		}
+		
+		public bool IsStatic
+		{
+			get
 			{
-				// todo: resolve name in all namespaces...
-				binding = ns.Resolve(name);
-				if (null != binding)
-				{					
-					break;
-				}
+				return true;
 			}
-			return binding;
+		}
+		
+		public bool IsPublic
+		{
+			get
+			{
+				return true;
+			}
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Field;
+			}
+		}
+		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return DeclaringType;
+			}
+		}
+		
+		public ITypeBinding DeclaringType
+		{
+			get
+			{
+				return (ITypeBinding)BindingManager.GetBinding(_member.ParentNode);
+			}
+		}
+		
+		public object StaticValue
+		{
+			get
+			{
+				return _member.Initializer.Value;
+			}
+		}
+		
+		public override Node Node
+		{
+			get
+			{
+				return _member;
+			}
 		}
 	}
 }

@@ -54,6 +54,7 @@ BCE0052='{0}' não é um argumento válido para 'len'.
 BCE0053=A propriedade '{0}' não pode ser alterada.
 BCE0054='isa' espera uma referência a um tipo, uma instância de System.Type ou uma tupla de tipos.
 BCE0055=Erro interno ao compilador: {0}.
+BCE0056=O arquivo '{0}' não foi encontrado.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

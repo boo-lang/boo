@@ -59,6 +59,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding RuntimeServices_Contains;
 		
+		IMethodBinding RuntimeServices_StringContains;
+		
 		IMethodBinding RuntimeServices_Len;
 		
 		IMethodBinding Array_get_Length;
@@ -98,6 +100,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			RuntimeServices_Contains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Contains");
+			RuntimeServices_StringContains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("StringContains");
 			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
@@ -192,6 +195,28 @@ namespace Boo.Lang.Compiler.Pipeline
 				node.BaseTypes.Add(
 					CreateBoundTypeReference(BindingManager.ObjectTypeBinding)
 				);
+			}
+		}
+		
+		public override void OnEnumDefinition(EnumDefinition node)
+		{
+			if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= TypeMemberModifiers.Public;
+			}
+			
+			Switch(node.Attributes);
+			
+			long lastValue = 0;
+			foreach (EnumMember member in node.Members)
+			{
+				if (null == member.Initializer)
+				{
+					member.Initializer = new IntegerLiteralExpression(lastValue);
+				}
+				Switch(member.Attributes);
+				Switch(member.Initializer);
+				lastValue = member.Initializer.Value + 1;
 			}
 		}
 		
@@ -1886,6 +1911,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			return BindingManager.IListTypeBinding.IsAssignableFrom(type);
 		}
 		
+		bool CanBeString(ITypeBinding type)
+		{
+			return BindingManager.ObjectTypeBinding == type ||
+				BindingManager.StringTypeBinding == type;
+		}
+		
 		void BindMember(BinaryExpression node)
 		{
 			Node parent = node.ParentNode;
@@ -1905,16 +1936,31 @@ namespace Boo.Lang.Compiler.Pipeline
 				contains.Target = new MemberReferenceExpression(node.Right.LexicalInfo, node.Right, "Contains");
 				contains.Arguments.Add(node.Left);
 				Bind(contains.Target, IList_Contains);
-			}
+			}					
 			else
 			{
-				// todo: generate better/faster expressions for
-				// arrays and IList implementations
+				IMethodBinding containsMethod = RuntimeServices_Contains;
+				if (BindingManager.StringTypeBinding == rhs)
+				{
+					ITypeBinding lhs = GetExpressionType(node.Left);
+					if (CanBeString(lhs))
+					{
+						containsMethod = RuntimeServices_StringContains;
+					}
+					else
+					{
+						Error(node,
+							CompilerErrorFactory.InvalidOperatorForTypes(node,
+								GetBinaryOperatorText(node.Operator),
+								lhs.FullName, rhs.FullName));
+						return;
+					}
+				}
 				
-				contains.Arguments.Add(node.Left);
 				contains.Arguments.Add(node.Right);
-				contains.Target = new ReferenceExpression("Boo.Lang.RuntimeServices.Contains");
-				Bind(contains.Target, RuntimeServices_Contains);
+				contains.Arguments.Add(node.Left);
+				contains.Target = new ReferenceExpression(containsMethod.FullName);				
+				Bind(contains.Target, containsMethod);
 			}
 			
 			Bind(contains, BindingManager.BoolTypeBinding);			

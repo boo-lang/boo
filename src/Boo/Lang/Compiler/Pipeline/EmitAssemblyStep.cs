@@ -209,19 +209,27 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		void CreateType(Hashtable created, TypeDefinition type)
-		{				
+		{	
 			if (!created.ContainsKey(type))
 			{
 				created.Add(type, type);
-				foreach (TypeReference baseTypeRef in type.BaseTypes)
+				
+				if (IsEnumDefinition(type))
+				{				
+					GetEnumBuilder(type).CreateType();
+				}
+				else
 				{
-					InternalTypeBinding binding = GetBoundType(baseTypeRef) as InternalTypeBinding;
-					if (null != binding)
+					foreach (TypeReference baseTypeRef in type.BaseTypes)
 					{
-						CreateType(created, binding.TypeDefinition);
-					}
-				}				
-				GetTypeBuilder(type).CreateType();
+						InternalTypeBinding binding = GetBoundType(baseTypeRef) as InternalTypeBinding;
+						if (null != binding)
+						{
+							CreateType(created, binding.TypeDefinition);
+						}
+					}				
+					GetTypeBuilder(type).CreateType();
+				}
 			}
 		}
 		
@@ -245,6 +253,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					{
 						types.Add(member);
 						CollectTypes(types, ((TypeDefinition)member).Members);
+						break;
+					}
+					
+					case NodeType.EnumDefinition:
+					{
+						types.Add(member);
 						break;
 					}
 				}
@@ -275,6 +289,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);			
 			module.Members.Switch(this);
+		}
+		
+		public override void OnEnumDefinition(EnumDefinition node)
+		{
+			EnumBuilder builder = GetEnumBuilder(node);
+			foreach (Boo.Lang.Ast.Attribute attribute in node.Attributes)
+			{
+				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+			}
 		}
 		
 		public override void OnClassDefinition(ClassDefinition node)
@@ -1467,22 +1490,21 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BindingType.Field:
 				{
 					IFieldBinding fieldBinding = (IFieldBinding)binding;
-					FieldInfo fieldInfo = GetFieldInfo(fieldBinding);
 					if (fieldBinding.IsStatic)
 					{
-						if (fieldInfo.DeclaringType.IsEnum)
+						if (fieldBinding.DeclaringType.IsEnum)
 						{
-							_il.Emit(OpCodes.Ldc_I4, (int)GetFieldInfo(fieldBinding).GetValue(null));							
+							_il.Emit(OpCodes.Ldc_I4, Convert.ToInt32(fieldBinding.StaticValue));							
 						}
 						else
 						{
-							_il.Emit(OpCodes.Ldsfld, fieldInfo);							
+							_il.Emit(OpCodes.Ldsfld, GetFieldInfo(fieldBinding));							
 						}
 					}
 					else
 					{						
 						node.Target.Switch(this); PopType();
-						_il.Emit(OpCodes.Ldfld, fieldInfo);						
+						_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldBinding));						
 					}
 					PushType(fieldBinding.BoundType);
 					break;
@@ -2122,14 +2144,18 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static object EmitInfoKey = new object();
 		
-		void SetType(TypeDefinition typeDef, Type type)
-		{
-			typeDef[EmitInfoKey] = type;
-		}
-		
 		void SetBuilder(Node node, object builder)
 		{
+			if (null == builder)
+			{
+				throw new ArgumentNullException("type");
+			}
 			node[EmitInfoKey] = builder;
+		}
+		
+		EnumBuilder GetEnumBuilder(Node node)
+		{
+			return (EnumBuilder)node[EmitInfoKey];
 		}
 		
 		TypeBuilder GetTypeBuilder(Node node)
@@ -2241,9 +2267,13 @@ namespace Boo.Lang.Compiler.Pipeline
 						}
 						else
 						{
-							type = GetTypeBuilder(((InternalTypeBinding)binding).TypeDefinition);
+							type = (Type)((AbstractInternalTypeBinding)binding).TypeDefinition[EmitInfoKey];
 						}
 					}
+				}
+				if (null == type)
+				{
+					throw new InvalidOperationException(string.Format("Could not find a Type for {0}.", binding));
 				}
 				_typeCache.Add(binding, type);
 			}
@@ -2286,20 +2316,13 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		TypeAttributes GetTypeAttributes(TypeDefinition type)
 		{
-			TypeAttributes attributes = TypeAttributes.AnsiClass | TypeAttributes.AutoLayout;
-			if (type.IsPublic)
-			{
-				attributes |= TypeAttributes.Public;
-			}
-			else
-			{
-				attributes |= TypeAttributes.NotPublic;
-			}
+			TypeAttributes attributes = type.IsPublic ? TypeAttributes.Public : TypeAttributes.NotPublic;
 			
 			switch (type.NodeType)
 			{
 				case NodeType.ClassDefinition:
 				{
+					attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
 					attributes |= TypeAttributes.Class;
 					attributes |= TypeAttributes.Serializable;
 					break;
@@ -2451,11 +2474,30 @@ namespace Boo.Lang.Compiler.Pipeline
 			SetBuilder(constructor, builder);
 		}
 		
+		bool IsEnumDefinition(TypeDefinition type)
+		{
+			return NodeType.EnumDefinition == type.NodeType;
+		}
+		
 		void DefineType(TypeDefinition typeDefinition)
 		{
-			TypeBuilder typeBuilder = _moduleBuilder.DefineType(typeDefinition.FullName,
-										GetTypeAttributes(typeDefinition));			
-			SetType(typeDefinition, typeBuilder);
+			if (IsEnumDefinition(typeDefinition))
+			{
+				EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(typeDefinition.FullName,
+											GetTypeAttributes(typeDefinition),
+											typeof(int));
+				foreach (EnumMember member in typeDefinition.Members)
+				{
+					enumBuilder.DefineLiteral(member.Name, (int)member.Initializer.Value);
+				}				
+				SetBuilder(typeDefinition, enumBuilder);
+			}
+			else
+			{
+				TypeBuilder typeBuilder = _moduleBuilder.DefineType(typeDefinition.FullName,
+											GetTypeAttributes(typeDefinition));			
+				SetBuilder(typeDefinition, typeBuilder);
+			}
 		}
 		
 		void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, TypeBuilder typeBuilder)
@@ -2584,6 +2626,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void DefineTypeMembers(TypeDefinition typeDefinition)
 		{
+			if (IsEnumDefinition(typeDefinition))
+			{
+				return;
+			}
 			TypeBuilder typeBuilder = GetTypeBuilder(typeDefinition);
 			TypeMemberCollection members = typeDefinition.Members;
 			foreach (TypeMember member in members)

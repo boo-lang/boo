@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding ObjectTypeBinding;
 		
+		public ExternalTypeBinding EnumTypeBinding;
+		
 		public ExternalTypeBinding ArrayTypeBinding;
 		
 		public ExternalTypeBinding TypeTypeBinding;
@@ -95,6 +97,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{			
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
+			Cache(EnumTypeBinding = new ExternalTypeBinding(this, typeof(System.Enum)));
 			Cache(ArrayTypeBinding = new ExternalTypeBinding(this, Types.Array));
 			Cache(TypeTypeBinding = new ExternalTypeBinding(this, Types.Type));
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));

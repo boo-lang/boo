@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -57,6 +57,10 @@ namespace Boo.Lang.Compiler.IO
 
 		public System.IO.TextReader Open()
 		{
+			if (!System.IO.File.Exists(_fname))
+			{
+				throw CompilerErrorFactory.FileNotFound(_fname);
+			}
 			return System.IO.File.OpenText(_fname);
 		}
 	}

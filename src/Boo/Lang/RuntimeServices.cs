@@ -111,7 +111,16 @@ namespace Boo.Lang
 			return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
 		}
 		
-		public static bool Contains(object value, object container)
+		public static bool StringContains(string s, string what)
+		{			
+			if (null == s)
+			{
+				return false;
+			}
+			return s.IndexOf(what) > -1;
+		}
+		
+		public static bool Contains(object container, object value)
 		{
 			IEnumerable iterator = GetEnumerable(container);
 			

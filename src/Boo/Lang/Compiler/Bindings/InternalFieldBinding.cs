@@ -99,6 +99,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public object StaticValue
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+		
 		public override Node Node
 		{
 			get

@@ -72,7 +72,11 @@ namespace Boo.Antlr
 								_context.CompileUnit.Modules.Add(module);
 							}
 						}
-					}					
+					}				
+					catch (CompilerError error)
+					{
+						_context.Errors.Add(error);
+					}
 					catch (antlr.TokenStreamRecognitionException x)
 					{
 						OnParserError(x.recog);

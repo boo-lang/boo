@@ -130,7 +130,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public virtual bool IsSubclassOf(ITypeBinding other)
 		{
-			return other == _array || _array.IsSubclassOf(other);
+			return other.IsAssignableFrom(_array);
 		}
 		
 		public virtual bool IsAssignableFrom(ITypeBinding other)

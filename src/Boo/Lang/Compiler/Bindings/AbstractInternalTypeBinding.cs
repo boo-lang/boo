@@ -52,8 +52,7 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				_visited = value;
 			}
-		}
-		
+		}		
 	}
 	
 	public abstract class AbstractInternalTypeBinding : AbstractInternalBinding, ITypeBinding, INamespace
@@ -138,6 +137,11 @@ namespace Boo.Lang.Compiler.Bindings
 					return new InternalFieldBinding(_bindingManager, (Field)member);
 				}
 				
+				case NodeType.EnumMember:
+				{
+					return new InternalEnumMemberBinding(_bindingManager, (EnumMember)member);
+				}
+				
 				case NodeType.Property:
 				{
 					return new InternalPropertyBinding(_bindingManager, (Property)member);
@@ -190,7 +194,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return false;
+				return IsEnum;
 			}
 		}
 		

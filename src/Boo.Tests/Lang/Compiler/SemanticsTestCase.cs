@@ -58,6 +58,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void EnumSemantics()
+		{
+			RunCompilerTestCase("enum0.boo");
+		}
+		
+		[Test]
 		public void HashInOperator()
 		{
 			RunCompilerTestCase("hash0.boo");
@@ -133,6 +139,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void ReturnNull()
 		{
 			RunCompilerTestCase("null0.boo");			
+		}
+		
+		[Test]
+		public void InString()
+		{
+			RunCompilerTestCase("in_string.boo");
 		}
 		
 		[Test]

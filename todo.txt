@@ -219,7 +219,7 @@ done * indexed properties:
 		set:
 			_hash[key] = value
 
-* enum
+done * enum
 
 * usar classes definidas na mesma CompileUnit
 

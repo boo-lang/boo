@@ -105,6 +105,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public object StaticValue
+		{
+			get
+			{
+				return _field.GetValue(null);
+			}
+		}
+		
 		public System.Reflection.FieldInfo FieldInfo
 		{
 			get

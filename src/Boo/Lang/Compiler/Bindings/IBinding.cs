@@ -167,6 +167,10 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public interface IFieldBinding : IMemberBinding
 	{		
+		object StaticValue
+		{
+			get;
+		}
 	}
 	
 	public interface IPropertyBinding : IMemberBinding

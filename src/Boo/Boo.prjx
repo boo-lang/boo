@@ -225,6 +225,7 @@
     <File name=".\Lang\Compiler\Bindings\ExternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\IBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\INameSpace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\InternalEnumMemberBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\InternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\InternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\InternalPropertyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
