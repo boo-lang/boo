@@ -234,8 +234,8 @@ namespace BooCompiler.Tests
 		{
 			CompilerPipeline pipeline = null;			
 			
-			pipeline = new CompileToMemory();
-			/*
+			//pipeline = new CompileToMemory();
+			
 			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
 			{			
 				pipeline = new CompileToFile();				
@@ -244,9 +244,15 @@ namespace BooCompiler.Tests
 			{
 				pipeline = new CompileToMemory();
 			}
-			*/
+			
 			pipeline.Add(new RunAssembly());
 			return pipeline;
+		}
+		
+		[Test]
+		public void ComplexFieldInitializer()
+		{
+			RunCompilerTestCase("ComplexFieldInitializer.boo");
 		}
 		
 		[Test]

@@ -334,7 +334,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Visit(node.Attributes);			
 			
-			ProcessFieldInitializer(node);			
+			IType initializerType = InferFieldInitializerType(node);			
 			
 			if (null == node.Type)
 			{
@@ -344,7 +344,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					node.Type = CreateTypeReference(GetExpressionType(node.Initializer));
+					node.Type = CreateTypeReference(initializerType);
 				}
 			}
 			else
@@ -353,7 +353,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null != node.Initializer)
 				{
-					CheckTypeCompatibility(node.Initializer, GetType(node.Type), GetExpressionType(node.Initializer));
+					CheckTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
 				}
 			}
 		}
@@ -391,8 +391,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}		
 		
-		void ProcessFieldInitializer(Field node)
+		IType InferFieldInitializerType(Field node)
 		{
+			IType initializerType = null;
 			Expression initializer = node.Initializer;
 			if (null != initializer)
 			{
@@ -405,7 +406,7 @@ namespace Boo.Lang.Compiler.Steps
 						node.LexicalInfo,
 						BinaryOperatorType.Assign,
 						new ReferenceExpression("__temp__"),
-						initializer);
+						initializer.CloneNode());
 						
 				method.Body.Add(assignment);
 				
@@ -418,10 +419,12 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				finally
 				{
-					node.Initializer = assignment.Right;
+					//node.Initializer = assignment.Right;
+					initializerType = GetConcreteExpressionType(assignment.Right);
 					type.Members.Remove(method);
 				}
 			}
+			return initializerType;
 		}
 		
 		Constructor GetStaticConstructor(TypeDefinition type)
@@ -445,7 +448,7 @@ namespace Boo.Lang.Compiler.Steps
 				constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
 				node.DeclaringType.Members.Add(constructor);				
 				Bind(constructor, new InternalConstructor(TypeSystemServices, constructor));
-				MarkVisited(constructor);
+				//MarkVisited(constructor);
 			}
 			
 			Statement stmt = CreateFieldAssignment(node);
@@ -2572,15 +2575,9 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != delegateType)
 			{
 				if (CheckParameters(node.Target, delegateType, node.Arguments))
-				{
-					MemberReferenceExpression expression = new MemberReferenceExpression(node.Target.LexicalInfo);
-					expression.Target = node.Target;
-					expression.Name = "Invoke";
-					node.Target = expression;
-					
+				{	
 					IMethod invoke = ResolveMethod(delegateType, "Invoke");
-					Bind(expression, invoke);
-					BindExpressionType(expression, invoke.Type);
+					node.Target = CreateMemberReference(node.Target, invoke);
 					BindExpressionType(node, invoke.ReturnType);						
 				}
 			}
@@ -2741,17 +2738,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{	
-				MemberReferenceExpression target = new MemberReferenceExpression(slice.Target.LexicalInfo);
-				target.Target = slice.Target;
-				target.Name = setter.Name;				
-				
-				mie.Target = target;
-				
-				Bind(target, setter);
-				BindExpressionType(target, setter.Type);
-				Bind(mie, setter);
-				BindExpressionType(mie, setter.ReturnType);
-				
+				mie.Target = CreateMemberReference(slice.Target, setter);
+				BindExpressionType(mie, setter.ReturnType);	
 				node.ParentNode.Replace(node, mie);
 			}
 		}
