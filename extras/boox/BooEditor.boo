@@ -36,7 +36,6 @@ class BooEditor(Content):
 			
 	def GoTo(line as int):
 		_editor.ActiveTextAreaControl.JumpTo(line, 1)
-		_editor.ActiveTextAreaControl.Focus()
 		
 	def LoadFile(fname as string):
 		self.Text = fname

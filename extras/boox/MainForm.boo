@@ -4,6 +4,9 @@ import System
 import System.Windows.Forms
 import System.Drawing
 import WeifenLuo.WinFormsUI
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.IO
+import Boo.Lang.Compiler.Pipeline.Definitions
 
 class MainForm(Form):	
 	
@@ -13,11 +16,15 @@ class MainForm(Form):
 	[getter(DocumentOutline)]
 	_classBrowser = BooExplorer.DocumentOutline()
 	
+	_menuItemRun as MenuItem
+	
 	def constructor():		
 		_dockManager = DockManager(Dock: DockStyle.Fill,
 						ActiveAutoHideContent: null,
 						TabIndex: 1,
-						ActiveDocumentChanged: _dockManager_ActiveDocumentChanged)
+						ActiveDocumentChanged: _dockManager_ActiveDocumentChanged,
+						ContentAdded: _dockManager_ContentAdded,
+						ContentRemoved: _dockManager_ContentRemoved)
 						
 		_status = StatusBar(ShowPanels: true, TabIndex: 2)
 
@@ -36,13 +43,23 @@ class MainForm(Form):
 		
 		menu = MainMenu()
 		file = MenuItem(Text: "&File")
-		file.MenuItems.Add(MenuItem(Text: "&Open...", Click: _menuItemOpen_Click))
-		file.MenuItems.Add(MenuItem(Text: "&New", Click: _menuItemNew_Click))
+		file.MenuItems.Add(MenuItem(Text: "&Open...",
+									Click: _menuItemOpen_Click,
+									Shortcut: Shortcut.CtrlO))
+		file.MenuItems.Add(MenuItem(Text: "&New",
+									Click: _menuItemNew_Click,
+									Shortcut: Shortcut.CtrlN))
 		
 		tools = MenuItem(Text: "&Tools")
 		tools.MenuItems.Add(MenuItem(Text: "Document Outline", Click: _menuItemDocumentOutline_Click))
 		
-		menu.MenuItems.AddRange((file, tools))
+		debug = MenuItem(Text: "&Debug")
+		debug.MenuItems.Add(_menuItemRun = MenuItem(Text: "Run",
+									Enabled: false,
+									Click: _menuItemRun_Click,
+									Shortcut: Shortcut.F5))
+		
+		menu.MenuItems.AddRange((file, tools, debug))
 		return menu
 		
 	def NewDocument():
@@ -51,6 +68,39 @@ class MainForm(Form):
 	def _dockManager_ActiveDocumentChanged(sender, args as EventArgs):
 		editor = _dockManager.ActiveDocument as BooEditor		
 		_classBrowser.ActiveDocument = editor
+		_menuItemRun.Enabled = editor is not null
+		
+	def _dockManager_ContentAdded(sender, args as ContentEventArgs):
+		pass
+		
+	def _dockManager_ContentRemoved(sender, args as ContentEventArgs):
+		pass
+		
+	def _menuItemRun_Click(sender, args as EventArgs):
+		editor = _dockManager.ActiveDocument as BooEditor
+		return unless editor
+		
+		savedCursor = Cursor
+		self.Cursor = Cursors.WaitCursor
+		
+		compiler = BooCompiler()
+		compiler.Parameters.Input.Add(StringInput(editor.Text, editor.TextContent))
+		compiler.Parameters.Pipeline.Load(BoomPipelineDefinition)
+		
+		started = date.Now
+		result = compiler.Run()
+		finished = date.Now
+		print("compilation time: ${finished-started}.")
+		
+		if len(result.Errors):
+			print(join(result.Errors, "\n"))
+		else:
+			try:
+				result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
+			except x:
+				print(x)
+				
+		self.Cursor = savedCursor
 		
 	def _menuItemDocumentOutline_Click(sender, args as EventArgs):
 		_classBrowser.Show(_dockManager)
