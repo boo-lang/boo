@@ -1,4 +1,0 @@
-<?xml version='1.0'?>
-<pipeline>
-	<step id="dummy1" type='Boo.Tests.Lang.Compiler.DummyStep, Boo.Tests' />
-</pipeline>
