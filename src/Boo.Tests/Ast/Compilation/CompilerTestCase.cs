@@ -500,5 +500,17 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			RunCompilerTestCase("typeof0.boo");
 		}
+		
+		[Test]
+		public void ExplicitSignatureOverride()
+		{
+			RunCompilerTestCase("override1.boo");
+		}
+		
+		[Test]
+		public void InferedSignatureOverride()
+		{
+			RunCompilerTestCase("override2.boo");
+		}
 	}
 }

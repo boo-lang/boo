@@ -334,6 +334,10 @@ namespace Boo.Lang.Compiler.Pipeline
 					Defer(new ReturnTypeResolver(binding));
 				}
 			}
+			else
+			{
+				ResolveMethodOverride(binding);
+			}
 		}
 		
 		void Defer(ITypeResolver resolver)

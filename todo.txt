@@ -117,12 +117,12 @@ done * Criar AbstractAstAttribute extends AbstractCompilerStep
 
 * is/is not
 
-* super
+done * super
 
-* recursive methods
+done * recursive methods
 
-* EnsureMethodIsResolved => EnsureMemberIsResolved
-	* utilizar um grafo de dependências ao invés do sistema de eventos
+done * EnsureMethodIsResolved => EnsureMemberIsResolved
+	done * utilizar um grafo de dependências ao invés do sistema de eventos
 
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar
