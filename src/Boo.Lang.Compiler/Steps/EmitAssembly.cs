@@ -957,7 +957,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitGenericNot()
 		{
 			// bool codification:
-			// value_on_stack ? 1 : 0
+			// value_on_stack ? 0 : 1
 			Label wasTrue = _il.DefineLabel();
 			Label wasFalse = _il.DefineLabel();
 			_il.Emit(OpCodes.Brfalse, wasFalse);
@@ -976,7 +976,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					node.Operand.Accept(this);
 					IType typeOnStack = PopType();
-					if (IsBoolOrInt(typeOnStack))
+					if (IsBoolOrInt(typeOnStack) || EmitToBoolIfNeeded(typeOnStack))
 					{
 						EmitIntNot();
 					}
@@ -1239,13 +1239,15 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(type);
 		}
 		
-		void EmitToBoolIfNeeded(IType topOfStack)
+		bool EmitToBoolIfNeeded(IType topOfStack)
 		{
 			if (TypeSystemServices.ObjectType == topOfStack ||
 				TypeSystemServices.DuckType == topOfStack)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool, null);
+				return true;
 			}
+			return false;
 		}
 		
 		void EmitAnd(BinaryExpression node)
