@@ -99,7 +99,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		static readonly IEntity _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
 		
-		public static readonly IEntity ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
+		public static readonly IType ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
 		
 		public TypeSystemServices()		
 		{			
@@ -226,12 +226,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return sb.ToString();
 		}
 		
-		public static bool IsUnknown(Node node)
+		public static bool IsUnknown(Expression node)
 		{
-			ITypedEntity tag = GetEntity(node) as ITypedEntity;
-			if (null != tag)
+			IType type = node.ExpressionType;
+			if (null != type)
 			{
-				return IsUnknown(tag.Type);
+				return IsUnknown(type);
 			}
 			return false;
 		}
@@ -241,19 +241,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return EntityType.Unknown == tag.EntityType;
 		}
 		
-		public static bool IsError(Node node)
-		{			
-			ITypedEntity tag = GetEntity(node) as ITypedEntity;
-			if (null != tag)
+		public static bool IsError(Expression node)
+		{				 
+			IType type = node.ExpressionType;
+			if (null != type)
 			{
-				return IsError(tag.Type);
+				return IsError(type);
 			}
 			return false;
 		}
 		
-		public static bool IsErrorAny(NodeCollection collection)
+		public static bool IsErrorAny(ExpressionCollection collection)
 		{
-			foreach (Node n in collection)
+			foreach (Expression n in collection)
 			{
 				if (IsError(n))
 				{
@@ -262,6 +262,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return false;
 		}
+		
+		public bool IsBuiltin(IEntity tag)
+		{
+			if (EntityType.Method == tag.EntityType)
+			{
+				return BuiltinsType == ((IMethod)tag).DeclaringType;
+			}
+			return false;
+		}		
 		
 		public static bool IsError(IEntity tag)
 		{
@@ -278,7 +287,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IEntity tag = node.Entity;
 			if (null == tag)
 			{
-				NodeNotEntityged(node);
+				InvalidNode(node);
 			}
 			return tag;
 		}	
@@ -468,9 +477,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_entityCache[key] = tag;
 		}
 		
-		private static void NodeNotEntityged(Node node)
+		private static void InvalidNode(Node node)
 		{
-			throw CompilerErrorFactory.NodeNotEntityged(node);
+			throw CompilerErrorFactory.InvalidNode(node);
 		}		
 		
 		#region VoidTypeImpl

@@ -286,6 +286,12 @@ namespace Boo.Lang.Compiler.Steps
 				Error(attribute, CompilerErrorFactory.UnknownAttribute(attribute, attribute.Name));
 			}
 		}
+		
+		void Error(Boo.Lang.Compiler.Ast.Attribute node, CompilerError error)
+		{
+			node.Entity = TypeSystemServices.ErrorEntity;
+			Errors.Add(error);
+		}
 
 		void ScheduleAttributeApplication(Boo.Lang.Compiler.Ast.Attribute attribute, Type type)
 		{

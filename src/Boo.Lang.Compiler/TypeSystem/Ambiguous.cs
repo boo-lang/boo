@@ -74,7 +74,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IEntity[] Entitys
+		public IEntity[] Entities
 		{
 			get
 			{

@@ -73,6 +73,7 @@ BCE0071=Inheritance cycle detected: '{0}'.
 BCE0072=Overriden method '{0}' has a return type of '{1}' not '{2}'.
 BCE0073=Abstract method '{0}' cannot have a body.
 BCE0074='self' can't be used outside a method.
+BCE0075='{0}' is a namespace. Namespaces can't be used as expressions.
 
 ;Boo.Lang.Compiler
 Boo.Lang.Compiler.GlobalNamespaceIsNotSet=Global namespace is not set!

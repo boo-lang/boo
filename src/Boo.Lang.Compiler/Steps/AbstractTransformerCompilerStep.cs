@@ -89,26 +89,9 @@ namespace Boo.Lang.Compiler.Steps
 				return _context.TypeSystemServices;
 			}
 		}
-		
-		protected void Error(Node node, CompilerError error)
-		{
-			Error(node);
-			Errors.Add(error);
-		}
-		
-		protected void Error(CompilerError error)
-		{
-			Errors.Add(error);
-		}
-		
-		protected void Error(Node node)
-		{
-			node.Entity = TypeSystemServices.ErrorEntity;
-		}
 
 		protected void Bind(Node node, IEntity tag)
-		{
-			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, tag);
+		{			
 			node.Entity = tag;
 		}
 		

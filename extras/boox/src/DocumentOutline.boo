@@ -118,7 +118,7 @@ class DocumentOutline(DockContent):
 	def UpdateTree(module as Module):
 		if module is not _module:
 			_module = module
-			_treeViewVisitor.Accept(_module)
+			_treeViewVisitor.Visit(_module)
 			
 	def GoToNode([required] treeNode as TreeNode):
 		return unless _activeDocument
@@ -150,7 +150,7 @@ class TreeViewVisitor(DepthFirstVisitor):
 	override def OnModule(node as Module):
 
 		_current = TreeNode("root")
-		Accept(node.Members)
+		Visit(node.Members)
 
 		_tree.BeginUpdate()
 		
@@ -185,7 +185,7 @@ class TreeViewVisitor(DepthFirstVisitor):
 		saved = _current
 
 		_current = Add(node.Name, imageIndex, imageIndex, node)
-		Accept(node.Members)
+		Visit(node.Members)
 
 		_current = saved
 

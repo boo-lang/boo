@@ -179,9 +179,16 @@ namespace Boo.Lang.Compiler.Steps
 			
 			SetUpAssembly();
 			
+			DefineTypes();			
+			DefineResources();
+			DefineEntryPoint();			
+		}
+		
+		void DefineTypes()
+		{
 			if (CompileUnit.Modules.Count > 0)
 			{			
-				ArrayList types = CollectTypes();
+				Boo.Lang.List types = CollectTypes();
 				
 				foreach (TypeDefinition type in types)
 				{
@@ -200,12 +207,9 @@ namespace Boo.Lang.Compiler.Steps
 				
 				CreateTypes(types);
 			}
-			
-			DefineResources();
-			DefineEntryPoint();			
 		}
 		
-		void CreateTypes(ArrayList types)
+		void CreateTypes(Boo.Lang.List types)
 		{
 			Hashtable created = new Hashtable();
 			foreach (TypeDefinition type in types)
@@ -239,9 +243,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		ArrayList CollectTypes()
+		Boo.Lang.List CollectTypes()
 		{
-			ArrayList types = new ArrayList();
+			Boo.Lang.List types = new Boo.Lang.List();
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{				 
 				CollectTypes(types, module.Members);
@@ -249,7 +253,7 @@ namespace Boo.Lang.Compiler.Steps
 			return types;
 		}
 		
-		void CollectTypes(ArrayList types, TypeMemberCollection members)
+		void CollectTypes(Boo.Lang.List types, TypeMemberCollection members)
 		{
 			foreach (TypeMember member in members)
 			{
@@ -962,8 +966,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void LoadCmpOperands(BinaryExpression node)
 		{
-			IType lhs = GetType(node.Left);
-			IType rhs = GetType(node.Right);
+			IType lhs = node.Left.ExpressionType;
+			IType rhs = node.Right.ExpressionType;
 			
 			IType type = TypeSystemServices.GetPromotedNumberType(lhs, rhs);
 			Visit(node.Left);
@@ -1025,7 +1029,7 @@ namespace Boo.Lang.Compiler.Steps
 		                        
 		void OnArithmeticOperator(BinaryExpression node)
 		{
-			IType type = GetType(node);
+			IType type = node.ExpressionType;
 			node.Left.Accept(this); EmitCastIfNeeded(type, PopType());
 			node.Right.Accept(this); EmitCastIfNeeded(type, PopType());
 			_il.Emit(GetArithmeticOpCode(type, node.Operator));
@@ -1092,7 +1096,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitLogicalOperator(BinaryExpression node, OpCode brForValueType, OpCode brForRefType)
 		{
-			IType type = GetType(node);
+			IType type = node.ExpressionType;
 			Visit(node.Left);
 			
 			IType lhsType = PopType();
@@ -1139,7 +1143,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitBitwiseOperator(BinaryExpression node)
 		{
-			IType type = GetType(node);
+			IType type = node.ExpressionType;
 			
 			Visit(node.Left);
 			EmitCastIfNeeded(type, PopType());
@@ -1313,7 +1317,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.Target.Accept(this); PopType();			
 			_il.Emit(OpCodes.Isinst, type);
-			PushType(GetType(node));
+			PushType(node.ExpressionType);
 		}
 		
 		void InvokeMethod(IMethod methodInfo, MethodInvocationExpression node)
@@ -1323,7 +1327,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (!mi.IsStatic)
 			{				
 				Expression target = ((MemberReferenceExpression)node.Target).Target;
-				IType targetType = GetType(target);
+				IType targetType = target.ExpressionType;
 				if (targetType.IsValueType)
 				{				
 					if (mi.DeclaringType == Types.Object)
@@ -1543,7 +1547,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			IArrayType type = (IArrayType)GetType(node);
+			IArrayType type = (IArrayType)node.ExpressionType;
 			EmitArray(type.GetElementType(), node.Items);
 			PushType(type);
 		}
@@ -1552,7 +1556,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Ldstr, RuntimeServices.Mid(node.Value, 1, -1));
 			_il.Emit(OpCodes.Newobj, Regex_Constructor);
-			PushType(GetType(node));
+			PushType(node.ExpressionType);
 		}
 		
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
@@ -1757,37 +1761,36 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void LoadAddress(Expression expression)
 		{
-			IEntity tag = GetEntity(expression);
-			switch (tag.EntityType)
+			IEntity tag = expression.Entity;
+			if (null != tag)
 			{
-				case EntityType.Local:
-				{				
-					_il.Emit(OpCodes.Ldloca, ((LocalVariable)tag).LocalBuilder);
-					break;
-				}
-				
-				case EntityType.Parameter:
+				switch (tag.EntityType)
 				{
-					_il.Emit(OpCodes.Ldarga, ((InternalParameter)tag).Index);
-					break;
-				}
+					case EntityType.Local:
+					{				
+						_il.Emit(OpCodes.Ldloca, ((LocalVariable)tag).LocalBuilder);
+						return;
+					}
 				
-				default:
-				{
-					// declare local to hold value type
-					Visit(expression); 
-					LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
-					_il.Emit(OpCodes.Stloc, temp);
-					_il.Emit(OpCodes.Ldloca, temp);
-					break;
+					case EntityType.Parameter:
+					{
+						_il.Emit(OpCodes.Ldarga, ((InternalParameter)tag).Index);
+						return;
+					}
 				}
 			}
+			
+			// declare local to hold value type
+			Visit(expression);
+			LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
+			_il.Emit(OpCodes.Stloc, temp);
+			_il.Emit(OpCodes.Ldloca, temp);
 		}
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldarg_0);
-			PushType(GetType(node));
+			PushType(node.ExpressionType);
 		}
 		
 		override public void OnNullLiteralExpression(NullLiteralExpression node)
@@ -2935,10 +2938,10 @@ namespace Boo.Lang.Compiler.Steps
 							out FieldInfo[] outNamedFields,
 							out object[] outFieldValues)
 		{
-			ArrayList namedProperties = new ArrayList();
-			ArrayList propertyValues = new ArrayList();
-			ArrayList namedFields = new ArrayList();
-			ArrayList fieldValues = new ArrayList();
+			Boo.Lang.List namedProperties = new Boo.Lang.List();
+			Boo.Lang.List propertyValues = new Boo.Lang.List();
+			Boo.Lang.List namedFields = new Boo.Lang.List();
+			Boo.Lang.List fieldValues = new Boo.Lang.List();
 			foreach (ExpressionPair pair in values)
 			{
 				IEntity tag = GetEntity(pair.First);

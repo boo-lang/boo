@@ -227,6 +227,11 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			clone._entity = _entity;
 			""")
 			
+			if IsExpression(node):
+				writer.WriteLine("""
+			clone._expressionType = _expressionType;
+			""");
+			
 			for field as Field in allFields:
 				fieldType = ResolveFieldType(field)
 				fieldName = GetPrivateName(field)
@@ -365,6 +370,9 @@ def GetCollectionItemType(node as ClassDefinition):
 	
 def ResolveFieldType(field as Field):
 	return field.DeclaringType.DeclaringType.Members[(field.Type as SimpleTypeReference).Name]
+	
+def IsExpression(node as ClassDefinition):
+	return IsSubclassOf(node, "Expression")
 	
 def GetResultingTransformerNode(node as ClassDefinition):
 	for subclass in "Statement", "Expression", "TypeReference":

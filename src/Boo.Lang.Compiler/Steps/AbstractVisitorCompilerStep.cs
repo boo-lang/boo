@@ -90,7 +90,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected void Error(Node node, CompilerError error)
+		protected void Error(Expression node, CompilerError error)
 		{
 			Error(node);
 			Errors.Add(error);
@@ -101,9 +101,9 @@ namespace Boo.Lang.Compiler.Steps
 			Errors.Add(error);
 		}
 		
-		protected void Error(Node node)
+		protected void Error(Expression node)
 		{
-			node.Entity = TypeSystemServices.ErrorEntity;
+			node.ExpressionType = TypeSystemServices.ErrorEntity;
 		}
 
 		protected void Bind(Node node, IEntity tag)

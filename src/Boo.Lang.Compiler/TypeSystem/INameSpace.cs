@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// A namespace.
 	/// </summary>
 	public interface INamespace
-	{			
+	{					
 		/// <summary>
 		/// The parent namespace.
 		/// </summary>

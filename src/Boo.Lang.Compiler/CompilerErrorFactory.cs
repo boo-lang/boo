@@ -121,7 +121,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0014", node.LexicalInfo);
 		}
 		
-		public static CompilerError NodeNotEntityged(Node node)
+		public static CompilerError InvalidNode(Node node)
 		{
 			return new CompilerError("BCE0015", node.LexicalInfo, node);
 		}
@@ -401,6 +401,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0074", node.LexicalInfo);
 		}
 		
+		public static CompilerError NamespaceIsNotAnExpression(Node node, string name)
+		{
+			return new CompilerError("BCE0075", node.LexicalInfo, name);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
@@ -432,7 +437,10 @@ namespace Boo.Lang.Compiler
 			StringBuilder sb = new StringBuilder("(");
 			for (int i=0; i<parameters.Length; ++i)
 			{
-				if (i>0) { sb.Append(", "); }
+				if (i>0)
+				{
+					sb.Append(", ");
+				}
 				if (null != parameters)
 				{
 					sb.Append(parameters[i].GetType());

@@ -44,12 +44,28 @@ namespace Boo.Lang.Compiler.Ast
 	[Serializable]
 	public abstract class Expression : ExpressionImpl
 	{		
+		protected Boo.Lang.Compiler.TypeSystem.IType _expressionType;
+		
 		public Expression()
 		{
  		}
  		
 		public Expression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
+		}
+		
+		[System.Xml.Serialization.XmlIgnore]
+		public Boo.Lang.Compiler.TypeSystem.IType ExpressionType
+		{
+			get
+			{
+				return _expressionType;
+			}
+			
+			set
+			{
+				_expressionType = value;
+			}
 		}
 	}
 }

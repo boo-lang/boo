@@ -30,6 +30,11 @@ namespace Boo.Lang.Compiler.Ast
 {	
 	public class AstUtil
 	{
+		public static bool IsTargetOfMethodInvocation(Expression node)
+		{
+			return node.ParentNode.NodeType == NodeType.MethodInvocationExpression;
+		}
+		
 		public static bool IsTargetOfSlicing(Expression node)
 		{
 			if (NodeType.SlicingExpression == node.ParentNode.NodeType)

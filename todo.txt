@@ -1,4 +1,7 @@
 ﻿* separar Node.Entity de Expression.ResultType
+	* IsError(node) deve agir no tipo
+	* Error(node) deve aceitar apenas expressoes
+	* IsUnknown(node) deve agir no tipo
 
 * CallableType
 	* para funçoes

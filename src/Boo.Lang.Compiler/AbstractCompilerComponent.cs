@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler
 		{
 			if (null == node.Entity)
 			{
-				throw CompilerErrorFactory.NodeNotEntityged(node);
+				throw CompilerErrorFactory.InvalidNode(node);
 			}
 			return node.Entity;
 		}		
