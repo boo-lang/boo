@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -44,6 +44,16 @@ namespace Boo.Lang.Parser
 		{
 		}
 		
+		public static Expression ParseExpression(int tabSize, string name, string text, ParserErrorHandler errorHandler)
+		{
+			return CreateParser(tabSize, name, new StringReader(text), errorHandler).expression();
+		}
+		
+		public static Expression ParseExpression(string name, string text)
+		{
+			return ParseExpression(1, name, text, null);
+		}
+		
 		public static CompileUnit ParseFile(string fname)
 		{
 			return ParseFile(DefaultTabSize, fname);
@@ -81,13 +91,19 @@ namespace Boo.Lang.Parser
 	
 		public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler errorHandler)
 		{		
-			BooParser parser = new BooParser(CreateBooLexer(tabSize, readerName, reader));
-			parser.setFilename(readerName);
-			parser.Error += errorHandler;
+			BooParser parser = CreateParser(tabSize, readerName, reader, errorHandler);
 		
 			Module module = parser.start(cu);
 			module.Name = CreateModuleName(readerName);
 			return module;
+		}
+		
+		public static BooParser CreateParser(int tabSize, string readerName, TextReader reader, ParserErrorHandler errorHandler)
+		{
+			BooParser parser = new BooParser(CreateBooLexer(tabSize, readerName, reader));
+			parser.setFilename(readerName);
+			parser.Error += errorHandler;
+			return parser;
 		}
 		
 		public static antlr.TokenStream CreateBooLexer(int tabSize, string readerName, TextReader reader)

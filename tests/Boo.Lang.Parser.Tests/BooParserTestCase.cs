@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -40,6 +40,14 @@ namespace Boo.Lang.Parser.Tests
 	[TestFixture]
 	public class BooParserTestCase : AbstractParserTestFixture
 	{
+		[Test]
+		public void TestParseExpression()
+		{
+			string code = @"3 + 2 * 5";
+			Expression e = BooParser.ParseExpression("test", code);
+			Assert.AreEqual("(3 + (2 * 5))", e.ToString());
+		}
+		
 		[Test]
 		public void TestSimple()
 		{
