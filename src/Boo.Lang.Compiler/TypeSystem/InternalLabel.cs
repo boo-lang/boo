@@ -47,6 +47,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_labelStatement.Entity = this;
 		}
 		
+		public LabelStatement LabelStatement
+		{
+			get
+			{
+				return _labelStatement;
+			}
+		}
+		
 		public EntityType EntityType
 		{
 			get

@@ -37,6 +37,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		static object AssemblyBuilderKey = new object();
 		
+		static object TryBlockDepthKey = new object();
+		
 		public static Method GetEntryPoint(CompilerContext context)
 		{
 			if (null == context)
@@ -82,6 +84,16 @@ namespace Boo.Lang.Compiler.Steps
 				throw new ArgumentNullException("builder");
 			}
 			context.Properties[AssemblyBuilderKey] = builder;
+		}
+		
+		public static void SetTryBlockDepth(Node node, int depth)
+		{
+			node[TryBlockDepthKey] = depth;
+		}
+		
+		public static int GetTryBlockDepth(Node node)
+		{
+			return (int)node[TryBlockDepthKey];
 		}
 		
 		private ContextAnnotations()

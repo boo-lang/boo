@@ -30,6 +30,41 @@ namespace Boo.Lang.Compiler.Ast
 {	
 	public class AstUtil
 	{
+		public static Node GetParentTryExceptEnsure(Node node)
+		{
+			Node parent = node.ParentNode;
+			while (null != parent)
+			{
+				switch (parent.NodeType)
+				{
+					case NodeType.TryStatement:
+					case NodeType.ExceptionHandler:
+					{
+						return parent;
+					}
+					
+					case NodeType.Block:
+					{
+						if (NodeType.TryStatement == parent.ParentNode.NodeType)
+						{
+							if (parent == ((TryStatement)parent.ParentNode).EnsureBlock)
+							{
+								return parent;
+							}
+						}
+						break;
+					}
+					
+					case NodeType.Method:
+					{
+						return null;
+					}
+				}
+				parent = parent.ParentNode;
+			}
+			return null;
+		}
+		
 		public static bool IsListGenerator(Node node)
 		{			
 			if (NodeType.ListLiteralExpression == node.NodeType)

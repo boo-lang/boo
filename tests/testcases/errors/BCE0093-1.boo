@@ -1,8 +1,9 @@
 """
-BCE0093-1.boo(5,5): BCE0093: Cannot branch into ensure block.  
+BCE0093-1.boo(4,6): BCE0093: Cannot branch into ensure block.  
 """
+goto label
 try:
-	goto label
+	pass
 ensure:
 	:label
 

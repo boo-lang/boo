@@ -1,5 +1,5 @@
 """
-BCE0097-1.boo(4,1): BCE0097: Cannot branch into try block.
+BCE0097-1.boo(4,6): BCE0097: Cannot branch into try block.
 """
 goto start
 try:	

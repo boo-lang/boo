@@ -174,6 +174,41 @@ namespace Boo.Lang.Compiler.Steps
 			return list;
 		}
 		
+		override public void OnGotoStatement(GotoStatement node)
+		{			
+			LabelStatement target = ((InternalLabel)node.Label.Entity).LabelStatement; 
+					
+			int gotoDepth = ContextAnnotations.GetTryBlockDepth(node);
+			int targetDepth = ContextAnnotations.GetTryBlockDepth(target);
+			if (gotoDepth < targetDepth)
+			{
+				Node parent = AstUtil.GetParentTryExceptEnsure(target);
+				switch (parent.NodeType)
+				{
+					case NodeType.TryStatement:
+					{
+						Error(CompilerErrorFactory.CannotBranchIntoTry(node.Label));
+						break;
+					}
+					
+					case NodeType.ExceptionHandler:
+					{
+						Error(CompilerErrorFactory.CannotBranchIntoExcept(node.Label));
+						break;
+					}
+					
+					case NodeType.Block:
+					{
+						Error(CompilerErrorFactory.CannotBranchIntoEnsure(node.Label));
+						break;
+					}
+				}
+			}
+			else if (gotoDepth > targetDepth)
+			{
+			}
+		}
+		
 		override public void LeaveMethod(Method node)
 		{
 			InternalMethod derived = (InternalMethod)node.Entity;

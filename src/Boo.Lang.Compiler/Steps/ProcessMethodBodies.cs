@@ -55,6 +55,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		int _loopDepth;
 		
+		int _tryBlockDepth;
+		
 		int _exceptionHandlerDepth;
 		
 		IMethod RuntimeServices_Len;
@@ -134,6 +136,7 @@ namespace Boo.Lang.Compiler.Steps
 			_newAbstractClasses = new List();
 			_loopDepth = 0;
 			_exceptionHandlerDepth = 0;
+			_tryBlockDepth = 0;
 						
 			InitializeMemberCache();
 			
@@ -918,7 +921,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					reference.Entity = label; 
+					reference.Entity = label;
 				}
 			}
 		}
@@ -2032,6 +2035,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnLabelStatement(LabelStatement node)
 		{
+			ContextAnnotations.SetTryBlockDepth(node, _tryBlockDepth);
+			
 			if (null == _currentMethod.ResolveLabel(node.Name))
 			{
 				_currentMethod.AddLabel(new InternalLabel(node));
@@ -2047,6 +2052,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnGotoStatement(GotoStatement node)
 		{
+			ContextAnnotations.SetTryBlockDepth(node, _tryBlockDepth);
+			
 			_currentMethod.AddGoto(node);
 		}
 		
@@ -2205,6 +2212,22 @@ namespace Boo.Lang.Compiler.Steps
 					Error(CompilerErrorFactory.ReRaiseOutsideExceptionHandler(node));
 				}
 			}
+		}
+		
+		override public void OnTryStatement(TryStatement node)
+		{
+			++_tryBlockDepth;
+			Visit(node.ProtectedBlock);
+			
+			++_tryBlockDepth;
+			Visit(node.ExceptionHandlers);
+			
+			++_tryBlockDepth;
+			Visit(node.EnsureBlock);
+			--_tryBlockDepth;
+			
+			--_tryBlockDepth;			
+			--_tryBlockDepth;
 		}
 		
 		override public void OnExceptionHandler(ExceptionHandler node)
