@@ -11,6 +11,7 @@
     <File name="./Lang/ICallable.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Lang/List.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Lang/RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="../../build/strings.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />
