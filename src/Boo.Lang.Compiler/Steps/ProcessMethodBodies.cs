@@ -617,19 +617,19 @@ namespace Boo.Lang.Compiler.Steps
 			
 			BooClassBuilder builder = collector.CreateSkeletonClass(method.Name);					
 			builder.ClassDefinition.Members.Add(method);			
-			method.Name = "Invoke";
+			method.Name = "Invoke";			
 			parent.Members.Add(builder.ClassDefinition);	
 			
 			if (method.IsStatic)
-			{				
-				method.Modifiers = TypeMemberModifiers.Internal;
-				
+			{	
 				// need to adjust paremeter indexes (parameter 0 is now self)
 				foreach (ParameterDeclaration parameter in method.Parameters)
 				{
 					((InternalParameter)parameter.Entity).Index += 1;
 				}
 			}
+			
+			method.Modifiers = TypeMemberModifiers.Public;
 			
 			collector.AdjustReferences();
 			return CodeBuilder.CreateMemberReference(
