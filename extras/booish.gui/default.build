@@ -4,26 +4,22 @@
 	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
 	
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
+	<include buildfile="../SharpDevelop/BooBinding/build.properties" />
 	
 	<target name="run" depends="build">
 		<exec program="build/booish.gui.exe" useruntimeengine="true">
 		</exec>
 	</target>
 
-	<target name="build" depends="init">
-		<csc target="library" output="build/booish.gui.externs.dll">
-			<sources basedir="src">
-				<include name="*.cs" />
-			</sources>
-		</csc>
-		
+	<target name="build" depends="init">		
 		<booc target="winexe" output="build/booish.gui.exe">
 			<sources basedir="src">
 				<include name="*.boo" />
 			</sources>
 			<references basedir="build">
 				<include name="Boo.Lang.Interpreter.dll" />
-				<include name="booish.gui.externs.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="ICSharpCode.TextEditor.dll" />
 				<include name="System.Windows.Forms.dll" />
 				<include name="System.Drawing.dll" />
 			</references>
@@ -43,6 +39,8 @@
 				<include name="Boo.Lang.Interpreter.dll" />
 			</fileset>
 		</copy>
+		<copy todir="build" file="../SharpDevelop/BooBinding/Boo.xshd" />
+		<copy todir="build" file="${sharpdevelop.dir}/bin/ICSharpCode.TextEditor.dll" />
 		<loadtasks assembly="${boo.dir}/Boo.NAnt.Tasks.dll" />
 	</target>
 	

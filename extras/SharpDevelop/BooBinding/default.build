@@ -38,6 +38,10 @@
 	<target name="compile" depends="init, resources">
 		<mkdir dir="${addin.dir}"/>
 		
+		<nant buildfile="../../booish.gui/default.build" target="build" />
+		
+		<copy todir="${addin.dir}" file="../../booish.gui/build/booish.gui.exe" />
+		
 		<copy todir="${addin.dir}">
 			<fileset basedir="${boo.dir}">
 				<include name="Boo.dll" />
@@ -61,6 +65,7 @@
 				<include name="${addin.dir}/Boo.Lang.Compiler.dll" />
 				<include name="${addin.dir}/Boo.Lang.Parser.dll" />
 				<include name="${addin.dir}/Boo.Lang.Interpreter.dll" />
+				<include name="${addin.dir}/booish.gui.exe" />
 			</references>
 			<sources basedir=".">
 				<include name = "src/**/*.boo" />
