@@ -48,6 +48,7 @@ namespace Boo.Lang.Compiler.Bindings
 		Assembly = 0x400,
 		Namespace = 0x800,
 		Ambiguous = 0x1000,
+		Tuple,
 		SpecialFunction,
 		Unknown,
 		Null,

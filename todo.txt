@@ -145,7 +145,7 @@ done * propriedades podem ser declaradas em qualquer ordem
 	done * atributos para métodos
 	* indexers (eg: collection[0], collection["rodrigob"])
 		done * tuple indexer
-		* negative tuple indexer
+		done * negative tuple indexer
 		* generic indexer (DefaultMemberAttribute)
 	* timespan literals
 	* tuples should be of the most generic type for its elements:

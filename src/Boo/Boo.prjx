@@ -1,3 +1,4 @@
+
 <Project name="Boo" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
     <File name=".\AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -230,6 +231,7 @@
     <File name=".\Lang\Compiler\Bindings\NamespaceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\NamespaceBindingCache.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\ParameterBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\TupleTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\TypeReferenceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Bindings\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\IO\FileInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

@@ -702,12 +702,25 @@ type_reference returns [TypeReference tr]
 		tr=null;
 		Token id = null;
 	}: 
-	id=identifier
-	{
-		SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
-		str.Name = id.getText();
-		tr = str;
-	}
+	(
+		lparen:LPAREN
+		tr=type_reference
+		rparen:RPAREN
+		{
+			TupleTypeReference ttr = new TupleTypeReference(ToLexicalInfo(lparen));
+			ttr.ElementType = tr;
+			tr = ttr;
+		}
+	)
+	|
+	(
+		id=identifier
+		{
+			SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
+			str.Name = id.getText();
+			tr = str;
+		}
+	)
 	;
 
 protected

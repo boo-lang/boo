@@ -1,10 +1,12 @@
-array = List(range(1000)).ToArray(int)
+items = 5000000
+
+array as (object) = List(range(items)).ToArray(object)
 
 collect = []
 
 start = date.Now
-for i in range(1000):
-	collect.Add(array[i])
-	
+for i in range(items):
+	collect.Add(array[i])	
 elapsed = date.Now.Subtract(start)
+
 print("${elapsed.TotalMilliseconds} elapsed.")

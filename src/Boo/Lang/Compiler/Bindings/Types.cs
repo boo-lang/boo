@@ -47,6 +47,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static readonly Type Object = typeof(object);
 		
+		public static readonly Type Array = typeof(Array);
+		
 		public static readonly Type ObjectArray = Type.GetType("System.Object[]");
 		
 		public static readonly Type Void = typeof(void);

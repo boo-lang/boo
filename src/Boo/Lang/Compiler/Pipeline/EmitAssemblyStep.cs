@@ -120,6 +120,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		LocalBuilder _returnValueLocal; // returnValueLocal
 		ITypeBinding _returnType;
 		int _tryBlock; // are we in a try block?
+		Hashtable _typeCache = new Hashtable();
 		
 		// keeps track of types on the IL stack
 		System.Collections.Stack _types = new System.Collections.Stack();
@@ -250,6 +251,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_returnType = null;
 			_tryBlock = 0;
 			_types.Clear();
+			_typeCache.Clear();
 		}
 		
 		public override void OnAttribute(Boo.Lang.Ast.Attribute node)
@@ -918,20 +920,19 @@ namespace Boo.Lang.Compiler.Pipeline
 					PropertyInfo property = GetPropertyInfo(binding);
 					MethodInfo getMethod = property.GetGetMethod(true);
 					if (!getMethod.IsStatic)
-					{
-						node.Target.Switch(this);
-						
-						ITypeBinding targetType = PopType();
+					{	
+						ITypeBinding targetType = GetBoundType(node.Target);
+						if (targetType.IsValueType)
+						{
+							LoadAddress(node.Target, targetType);
+						}
+						else
+						{
+							node.Target.Switch(this); PopType();
+						}
 						if (getMethod.IsVirtual)
 						{
-							if (targetType.IsValueType)
-							{
-								Errors.Add(CompilerErrorFactory.NotImplemented(node, "property access for value types"));
-							}
-							else
-							{
-								code = OpCodes.Callvirt;
-							}
+							code = OpCodes.Callvirt;
 						}
 					}
 					_il.EmitCall(code, getMethod, null);					
@@ -978,6 +979,31 @@ namespace Boo.Lang.Compiler.Pipeline
 				default:
 				{
 					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
+					break;
+				}
+			}
+		}
+		
+		void LoadAddress(Expression expression, ITypeBinding type)
+		{
+			IBinding binding = GetBinding(expression);
+			switch (binding.BindingType)
+			{
+				case BindingType.Local:
+				{				
+					_il.Emit(OpCodes.Ldloca, ((LocalBinding)binding).LocalBuilder);
+					break;
+				}
+				
+				case BindingType.Parameter:
+				{
+					_il.Emit(OpCodes.Ldarga, ((ParameterBinding)binding).Index);
+					break;
+				}
+				
+				default:
+				{
+					throw CompilerErrorFactory.NotImplemented(expression, "property access for value types");
 					break;
 				}
 			}
@@ -1543,12 +1569,31 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		Type GetType(ITypeBinding binding)
 		{
-			ExternalTypeBinding external = binding as ExternalTypeBinding;
-			if (null != external)
+			Type type = (Type)_typeCache[binding];
+			if (null == type)
 			{
-				return external.Type;
+				ExternalTypeBinding external = binding as ExternalTypeBinding;
+				if (null != external)
+				{
+					type = external.Type;
+				}
+				else
+				{
+					if (binding.IsArray)
+					{
+						// todo: find a way to create the proper types here
+						//string typeName = GetType(binding.GetElementType()) + "[]";
+						//type = Type.GetType(typeName, true);
+						type = Array.CreateInstance(GetType(binding.GetElementType()), 0).GetType();
+					}
+					else
+					{
+						type = GetTypeBuilder(((InternalTypeBinding)binding).TypeDefinition);
+					}
+				}
+				_typeCache.Add(binding, type);
 			}
-			return GetTypeBuilder(((InternalTypeBinding)binding).TypeDefinition);
+			return type;
 		}
 		
 		Type GetType(Node node)

@@ -545,6 +545,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			return BindingType.Unknown == binding.BindingType;
 		}
 		
+		static bool IsError(IBinding binding)
+		{
+			return BindingType.Error == binding.BindingType;
+		}
+		
 		bool CanResolveReturnType(InternalMethodBinding binding)
 		{
 			foreach (ReturnStatement rs in binding.ReturnStatements)
@@ -658,6 +663,27 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		public override void OnTupleTypeReference(TupleTypeReference node, ref TypeReference resultingNode)
+		{
+			if (BindingManager.IsBound(node))
+			{
+				return;
+			}
+
+			Switch(node.ElementType);
+			
+			ITypeBinding elementType = GetBoundType(node.ElementType);
+			if (IsError(elementType))
+			{
+				BindingManager.Bind(node, elementType);
+			}
+			else
+			{
+				ITypeBinding tupleType = BindingManager.ToTupleBinding(elementType);
+				BindingManager.Bind(node, tupleType);
+			}
+		}
+		
 		public override void OnSimpleTypeReference(SimpleTypeReference node, ref TypeReference resultingNode)
 		{
 			if (BindingManager.IsBound(node))
@@ -721,7 +747,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void LeaveTupleLiteralExpression(TupleLiteralExpression node, ref Expression resultingNode)
 		{
-			BindingManager.Bind(node, BindingManager.ObjectArrayBinding);
+			BindingManager.Bind(node, BindingManager.ObjectTupleBinding);
 		}
 		
 		public override void LeaveDeclarationStatement(DeclarationStatement node, ref Statement resultingNode)
@@ -823,7 +849,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			IBinding nodeBinding = ErrorBinding.Default;
 			
 			IBinding binding = GetBinding(node.Target);
-			if (BindingType.Error != binding.BindingType)
+			if (!IsError(binding))
 			{
 				ITypedBinding typedBinding = binding as ITypedBinding;
 				if (null != typedBinding)

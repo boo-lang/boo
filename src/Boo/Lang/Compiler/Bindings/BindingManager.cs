@@ -41,9 +41,11 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding ObjectTypeBinding;
 		
+		public ExternalTypeBinding ArrayTypeBinding;
+		
 		public ExternalTypeBinding TypeTypeBinding;
 		
-		public ExternalTypeBinding ObjectArrayBinding;
+		public ITypeBinding ObjectTupleBinding;
 	
 		public ExternalTypeBinding VoidTypeBinding;
 		
@@ -63,6 +65,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
+		System.Collections.Hashtable _tupleBindingCache = new System.Collections.Hashtable();
+		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
 		IBinding _typeOfBinding;
@@ -73,6 +77,7 @@ namespace Boo.Lang.Compiler.Bindings
 			
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
+			Cache(ArrayTypeBinding = new ExternalTypeBinding(this, Types.Array));
 			Cache(TypeTypeBinding = new ExternalTypeBinding(this, Types.Type));
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));
 			Cache(BoolTypeBinding = new ExternalTypeBinding(this, Types.Bool));
@@ -81,10 +86,11 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
-			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));
-			Cache(ObjectArrayBinding = new ExternalTypeBinding(this, Types.ObjectArray));
+			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));			
 			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
 			Cache(ExceptionTypeBinding = new ExternalTypeBinding(this, Types.Exception));
+			
+			ObjectTupleBinding = ToTupleBinding(ObjectTypeBinding);
 		}
 		
 		public Boo.Lang.Ast.TypeReference CreateBoundTypeReference(ITypeBinding binding)
@@ -159,6 +165,11 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ITypeBinding ToTypeBinding(System.Type type)
 		{
+			if (type.IsArray)
+			{
+				return ToTupleBinding(ToTypeBinding(type.GetElementType()));
+			}
+			
 			ExternalTypeBinding binding = (ExternalTypeBinding)_bindingCache[type];
 			if (null == binding)
 			{
@@ -173,6 +184,16 @@ namespace Boo.Lang.Compiler.Bindings
 			if (null == binding)
 			{
 				Cache(typeDefinition, binding = new InternalTypeBinding(this, typeDefinition));
+			}
+			return binding;
+		}
+		
+		public ITypeBinding ToTupleBinding(ITypeBinding elementType)
+		{
+			ITypeBinding binding = (ITypeBinding)_tupleBindingCache[elementType];
+			if (null == binding)
+			{
+				_tupleBindingCache.Add(elementType, binding = new TupleTypeBinding(this, elementType));
 			}
 			return binding;
 		}

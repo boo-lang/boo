@@ -362,21 +362,27 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void TestTuple0()
+		public void TupleLiteral()
 		{
 			RunCompilerTestCase("tuple0.boo", "simple tuple creation");
 		}
 		
 		[Test]
-		public void TestTuple1()
+		public void TupleUnpacking()
 		{
 			RunCompilerTestCase("tuple1.boo", "tuple unpacking");
 		}
 		
 		[Test]
-		public void TestTuple3()
+		public void TupleAsArgument()
 		{
 			RunCompilerTestCase("tuple2.boo", "string.Format(template, tuple)");
+		}
+		
+		[Test]
+		public void TupleTypeReferences()
+		{
+			RunCompilerTestCase("tuple3.boo");
 		}
 		
 		[Test]
