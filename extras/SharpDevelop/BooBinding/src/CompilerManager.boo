@@ -111,16 +111,27 @@ class BooBindingCompilerManager:
 		error = ""
 		Executor.ExecWaitWithCapture(outstr, Path.GetFullPath(compilerparameters.OutputDirectory), tf, output, error)
 		
-		result = ParseOutput(tf, output)
+		result = ParseOutput(tf, output)		
 		
-		try:
-			File.Copy(booDir + "Boo.dll", Path.Combine(Path.GetDirectoryName(outputFile), "Boo.dll"))
-		except:
-			pass
+		outputDirectory = Path.GetDirectoryName(outputFile)
+		
+		CopyToDirIgnoringErrors(Path.Combine(booDir, "Boo.dll"), outputDirectory)
+		for lib as ProjectReference in p.ProjectReferences:
+			if lib.LocalCopy:
+				CopyToDirIgnoringErrors(
+					lib.GetReferencedFileName(p),
+					outputDirectory)
 		
 		File.Delete(output)
 		File.Delete(error)
 		return result
+		
+	def CopyToDirIgnoringErrors(fname as string, outputDirectory as string):
+		try:
+			File.Copy(fname, Path.Combine(outputDirectory, Path.GetFileName(fname)))
+		except:
+			pass
+		
 	
 	def CompileFile(fileName as string, compilerparameters as BooCompilerParameters) as ICompilerResult:
 		compilerparameters.OutputDirectory = Path.GetDirectoryName(fileName)
