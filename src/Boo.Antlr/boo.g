@@ -338,7 +338,7 @@ enum_definition [TypeMemberCollection container]
 		ed = new EnumDefinition(ToLexicalInfo(id));
 		ed.Name = id.getText();
 		ed.Modifiers = _modifiers;
-		ed.Attributes.Add(_attributes);
+		ed.Attributes.Extend(_attributes);
 		container.Add(ed);
 	}
 	(
@@ -358,7 +358,7 @@ enum_member [EnumDefinition container]
 		EnumMember em = new EnumMember(ToLexicalInfo(id));
 		em.Name = id.getText();
 		em.Initializer = initializer;
-		em.Attributes.Add(_attributes);
+		em.Attributes.Extend(_attributes);
 		container.Members.Add(em);
 	}
 	eos
@@ -413,7 +413,7 @@ class_definition [TypeMemberCollection container]
 		cd = new ClassDefinition(ToLexicalInfo(c));
 		cd.Name = id.getText();
 		cd.Modifiers = _modifiers;
-		cd.Attributes.Add(_attributes);
+		cd.Attributes.Extend(_attributes);
 		container.Add(cd);
 	}
 	(base_types[cd.BaseTypes])?
@@ -444,7 +444,7 @@ interface_definition [TypeMemberCollection container]
 		itf = new InterfaceDefinition(ToLexicalInfo(it));
 		itf.Name = id.getText();
 		itf.Modifiers = _modifiers;
-		itf.Attributes.Add(_attributes);
+		itf.Attributes.Extend(_attributes);
 		container.Add(itf);
 	}
 	(base_types[itf.BaseTypes])?
@@ -482,7 +482,7 @@ interface_method [TypeMemberCollection container]
 	{
 		m = new Method(ToLexicalInfo(t));
 		m.Name = id.getText();
-		m.Attributes.Add(_attributes);
+		m.Attributes.Extend(_attributes);
 		container.Add(m);
 	}
 	LPAREN! parameter_declaration_list[m.Parameters] RPAREN!
@@ -503,7 +503,7 @@ interface_property [TypeMemberCollection container]
 		p = new Property(ToLexicalInfo(id));
 		p.Name = id.getText();
 		p.Type = tr;
-		p.Attributes.Add(_attributes);
+		p.Attributes.Extend(_attributes);
 		container.Add(p);
 	}
 	begin!
@@ -534,7 +534,7 @@ interface_property_accessor[Property p]
 		eos | empty_block
 	)
 	{
-		m.Attributes.Add(_attributes);
+		m.Attributes.Extend(_attributes);
 	}
 	;
 			
@@ -558,11 +558,11 @@ method [TypeMemberCollection container]
 	)	
 	{
 		m.Modifiers = _modifiers;
-		m.Attributes.Add(_attributes);
+		m.Attributes.Extend(_attributes);
 	}
 	LPAREN! parameter_declaration_list[m.Parameters] RPAREN!
 			(AS! rt=type_reference { m.ReturnType = rt; })?
-			attributes { m.ReturnTypeAttributes.Add(_attributes); }
+			attributes { m.ReturnTypeAttributes.Extend(_attributes); }
 			begin_with_doc[m]
 				block[m.Body.Statements]
 			end
@@ -594,7 +594,7 @@ field_or_property [TypeMemberCollection container]
 				tm = p;
 				tm.Name = id.getText();
 				tm.Modifiers = _modifiers;
-				tm.Attributes.Add(_attributes);
+				tm.Attributes.Extend(_attributes);
 			}		
 			begin_with_doc[p]
 				(property_accessor[p])+
@@ -611,7 +611,7 @@ field_or_property [TypeMemberCollection container]
 				tm = field;
 				tm.Name = id.getText();
 				tm.Modifiers = _modifiers;
-				tm.Attributes.Add(_attributes);
+				tm.Attributes.Extend(_attributes);
 			}
 			docstring[tm]
 		)
@@ -646,7 +646,7 @@ property_accessor[Property p]
 		)
 	)
 	{
-		m.Attributes.Add(_attributes);
+		m.Attributes.Extend(_attributes);
 		m.Modifiers = _modifiers;
 	}
 	compound_stmt[m.Body.Statements]
@@ -703,7 +703,7 @@ parameter_declaration[ParameterDeclarationCollection c]
 		ParameterDeclaration pd = new ParameterDeclaration(ToLexicalInfo(id));
 		pd.Name = id.getText();
 		pd.Type = tr;
-		pd.Attributes.Add(_attributes);
+		pd.Attributes.Extend(_attributes);
 		c.Add(pd);
 	} 
 	;

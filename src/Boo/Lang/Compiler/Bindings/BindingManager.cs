@@ -79,6 +79,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding HashTypeBinding;
 		
+		public ExternalTypeBinding ICallableTypeBinding;
+		
 		public ExternalTypeBinding IEnumerableTypeBinding;
 		
 		public ExternalTypeBinding ICollectionTypeBinding;
@@ -120,6 +122,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(BuiltinsBinding = new ExternalTypeBinding(this, Types.Builtins));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
 			Cache(HashTypeBinding = new ExternalTypeBinding(this, Types.Hash));
+			Cache(ICallableTypeBinding = new ExternalTypeBinding(this, Types.ICallable));
 			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));
 			Cache(ICollectionTypeBinding = new ExternalTypeBinding(this, Types.ICollection));
 			Cache(IListTypeBinding = new ExternalTypeBinding(this, Types.IList));

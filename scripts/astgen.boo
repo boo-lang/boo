@@ -394,12 +394,12 @@ namespace Boo.Lang.Ast.Impl
 			base.Add(item);			
 		}
 		
-		public void Add(params ${itemType}[] items)
+		public void Extend(params ${itemType}[] items)
 		{
 			base.Add(items);			
 		}
 		
-		public void Add(System.Collections.ICollection items)
+		public void Extend(System.Collections.ICollection items)
 		{
 			foreach (${itemType} item in items)
 			{
@@ -407,7 +407,7 @@ namespace Boo.Lang.Ast.Impl
 			}
 		}
 		
-		public void AddClones(System.Collections.ICollection items)
+		public void ExtendWithClones(System.Collections.ICollection items)
 		{
 			foreach (${itemType} item in items)
 			{

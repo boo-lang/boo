@@ -83,6 +83,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding Tuple_TypedConstructor2;
 		
+		IMethodBinding ICallable_Call;
+		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
 		/*
@@ -119,6 +121,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			IDictionary_Contains = (IMethodBinding)BindingManager.IDictionaryTypeBinding.Resolve("Contains");
 			Tuple_TypedConstructor1 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.IEnumerable }));
 			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.Int }));
+			ICallable_Call = (IMethodBinding)BindingManager.ICallableTypeBinding.Resolve("Call");
 			
 			ApplicationException_StringConstructor =
 					(IConstructorBinding)BindingManager.AsBinding(
@@ -437,7 +440,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (null != getter)
 			{
 				getter.Name = "get_" + node.Name;
-				getter.Parameters.AddClones(node.Parameters);
+				getter.Parameters.ExtendWithClones(node.Parameters);
 				Switch(getter);
 			}
 			
@@ -464,7 +467,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CreateBoundTypeReference(typeBinding);
 				parameter.Name = "value";
-				setter.Parameters.AddClones(node.Parameters);
+				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
 				Switch(setter);
 				
@@ -2123,6 +2126,27 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
+					ITypedBinding typedBinding = targetBinding as ITypedBinding;
+					if (null != typedBinding)
+					{
+						ITypeBinding type = typedBinding.BoundType;
+						if (BindingManager.ICallableTypeBinding.IsAssignableFrom(type))
+						{
+							node.Target = new MemberReferenceExpression(node.Target.LexicalInfo,
+												node.Target,
+												"Call");
+							TupleLiteralExpression arg = new TupleLiteralExpression();
+							arg.Items.Extend(node.Arguments);
+							
+							node.Arguments.Clear();
+							node.Arguments.Add(arg);
+							
+							Bind(arg, BindingManager.ObjectTupleBinding);
+							Bind(node.Target, ICallable_Call);
+							Bind(node, ICallable_Call);
+							return;
+						}
+					}
 					NotImplemented(node, targetBinding.ToString());
 					break;
 				}

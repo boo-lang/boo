@@ -1121,7 +1121,7 @@ _loop113_breakloop:				;
 			{
 				
 						m.Modifiers = _modifiers;
-						m.Attributes.Add(_attributes);
+						m.Attributes.Extend(_attributes);
 					
 			}
 			match(LPAREN);
@@ -1154,7 +1154,7 @@ _loop113_breakloop:				;
 			attributes();
 			if (0==inputState.guessing)
 			{
-				m.ReturnTypeAttributes.Add(_attributes);
+				m.ReturnTypeAttributes.Extend(_attributes);
 			}
 			begin_with_doc(m);
 			block(m.Body.Statements);
@@ -1201,7 +1201,7 @@ _loop113_breakloop:				;
 						cd = new ClassDefinition(ToLexicalInfo(c));
 						cd.Name = id.getText();
 						cd.Modifiers = _modifiers;
-						cd.Attributes.Add(_attributes);
+						cd.Attributes.Extend(_attributes);
 						container.Add(cd);
 					
 			}
@@ -1358,7 +1358,7 @@ _loop48_breakloop:					;
 						itf = new InterfaceDefinition(ToLexicalInfo(it));
 						itf.Name = id.getText();
 						itf.Modifiers = _modifiers;
-						itf.Attributes.Add(_attributes);
+						itf.Attributes.Extend(_attributes);
 						container.Add(itf);
 					
 			}
@@ -1478,7 +1478,7 @@ _loop55_breakloop:					;
 						ed = new EnumDefinition(ToLexicalInfo(id));
 						ed.Name = id.getText();
 						ed.Modifiers = _modifiers;
-						ed.Attributes.Add(_attributes);
+						ed.Attributes.Extend(_attributes);
 						container.Add(ed);
 					
 			}
@@ -1580,7 +1580,7 @@ _loop27_breakloop:				;
 						EnumMember em = new EnumMember(ToLexicalInfo(id));
 						em.Name = id.getText();
 						em.Initializer = initializer;
-						em.Attributes.Add(_attributes);
+						em.Attributes.Extend(_attributes);
 						container.Members.Add(em);
 					
 			}
@@ -2003,7 +2003,7 @@ _loop58_breakloop:				;
 											tm = p;
 											tm.Name = id.getText();
 											tm.Modifiers = _modifiers;
-											tm.Attributes.Add(_attributes);
+											tm.Attributes.Extend(_attributes);
 										
 						}
 						begin_with_doc(p);
@@ -2078,7 +2078,7 @@ _loop91_breakloop:						;
 											tm = field;
 											tm.Name = id.getText();
 											tm.Modifiers = _modifiers;
-											tm.Attributes.Add(_attributes);
+											tm.Attributes.Extend(_attributes);
 										
 						}
 						docstring(tm);
@@ -2132,7 +2132,7 @@ _loop91_breakloop:						;
 				
 						m = new Method(ToLexicalInfo(t));
 						m.Name = id.getText();
-						m.Attributes.Add(_attributes);
+						m.Attributes.Extend(_attributes);
 						container.Add(m);
 					
 			}
@@ -2254,7 +2254,7 @@ _loop64_breakloop:							;
 						p = new Property(ToLexicalInfo(id));
 						p.Name = id.getText();
 						p.Type = tr;
-						p.Attributes.Add(_attributes);
+						p.Attributes.Extend(_attributes);
 						container.Add(p);
 					
 			}
@@ -2524,7 +2524,7 @@ _loop117_breakloop:						;
 			if (0==inputState.guessing)
 			{
 				
-						m.Attributes.Add(_attributes);
+						m.Attributes.Extend(_attributes);
 					
 			}
 		}
@@ -2762,7 +2762,7 @@ _loop110_breakloop:					;
 			if (0==inputState.guessing)
 			{
 				
-						m.Attributes.Add(_attributes);
+						m.Attributes.Extend(_attributes);
 						m.Modifiers = _modifiers;
 					
 			}
@@ -3171,7 +3171,7 @@ _loop129_breakloop:				;
 						ParameterDeclaration pd = new ParameterDeclaration(ToLexicalInfo(id));
 						pd.Name = id.getText();
 						pd.Type = tr;
-						pd.Attributes.Add(_attributes);
+						pd.Attributes.Extend(_attributes);
 						c.Add(pd);
 					
 			}

@@ -322,7 +322,13 @@ que precisarem? Isso iria permitir remover os casts
 
 	__box__(3.0)
 	__unbox__(reference, int)
-	__assertIsReference__(expression) # para uso por macros como lock por exemplo	
+	__assertIsReference__(expression) # para uso por macros como lock por exemplo
+
+* += para eventos vira add_Event(DelegateConstructor(..., ...))
+
+* tipos callable implementam equivalência estrutural, assim, um tipo callable
+que é wrapper sobre um método qualquer, lembra o método, seus tipos de parâmetro e
+valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc
 
 * ref, out parameters
 

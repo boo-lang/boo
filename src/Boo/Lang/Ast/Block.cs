@@ -55,7 +55,7 @@ namespace Boo.Lang.Ast
 		
 		public void Add(Block block)
 		{
-			_statements.Add(block.Statements);
+			_statements.Extend(block.Statements);
 		}
 		
 		public void Add(Expression expression)
