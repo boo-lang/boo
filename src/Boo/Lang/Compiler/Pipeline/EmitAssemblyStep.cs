@@ -567,8 +567,48 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.BoolTypeBinding);
 		}
 		
+		void OnAssignmentToSlice(BinaryExpression node)
+		{
+			SlicingExpression slice = (SlicingExpression)node.Left;
+			Switch(slice.Target); 
+			
+			ITypeBinding arrayType = PopType();
+			ITypeBinding elementType = arrayType.GetElementType();
+			EmitNormalizedArrayIndex(slice.Begin);			
+			
+			Switch(node.Right);
+			EmitCastIfNeeded(elementType, PopType());
+			
+			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);
+			LocalBuilder temp = null;
+			if (leaveValueOnStack)
+			{
+				_il.Emit(OpCodes.Dup);
+				temp = _il.DeclareLocal(GetType(elementType));
+				_il.Emit(OpCodes.Stloc, temp);				
+			}
+			
+			_il.Emit(GetStoreElementOpCode(elementType));
+			
+			if (leaveValueOnStack)
+			{
+				_il.Emit(OpCodes.Ldloc, temp);
+				PushType(elementType);
+			}
+			else
+			{
+				PushVoid();
+			}
+		}
+		
 		void OnAssignment(BinaryExpression node)
 		{
+			if (NodeType.SlicingExpression == node.Left.NodeType)
+			{
+				OnAssignmentToSlice(node);
+				return;
+			}
+			
 			// when the parent is not a statement we need to leave
 			// the value on the stack
 			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);				
@@ -903,33 +943,43 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnSlicingExpression(SlicingExpression node)
 		{			
+			if (AstUtil.IsLhsOfAssignment(node))
+			{
+				return;
+			}
+			
 			Switch(node.Target); 			
 			ITypeBinding type = PopType();
 
+			EmitNormalizedArrayIndex(node.Begin);
+			_il.Emit(GetLoadElementOpCode(type.GetElementType()));			
+			
+			PushType(type.GetElementType());
+		}
+		
+		void EmitNormalizedArrayIndex(Expression index)
+		{
 			bool isNegative = false;
-			if (CanBeNegative(node.Begin, ref isNegative))
+			if (CanBeNegative(index, ref isNegative))
 			{					
 				if (isNegative)
 				{							
 					_il.Emit(OpCodes.Dup);
 					_il.Emit(OpCodes.Ldlen);
-					LoadInt(node.Begin);
+					EmitLoadInt(index);
 					_il.Emit(OpCodes.Add);
 				}
 				else
 				{	
 					_il.Emit(OpCodes.Dup);					
-					LoadInt(node.Begin);					
+					EmitLoadInt(index);					
 					_il.EmitCall(OpCodes.Call, RuntimeServices_NormalizeArrayIndex, null);
 				}
 			}
 			else
 			{				
-				LoadInt(node.Begin);
+				EmitLoadInt(index);
 			}
-			_il.Emit(GetLoadElementOpCode(type.GetElementType()));			
-			
-			PushType(type.GetElementType());
 		}
 		
 		bool CanBeNegative(Expression expression, ref bool isNegative)
@@ -946,7 +996,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
-		void LoadInt(Expression expression)
+		void EmitLoadInt(Expression expression)
 		{
 			Switch(expression);
 			EmitCastIfNeeded(BindingManager.IntTypeBinding, PopType());

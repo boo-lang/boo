@@ -705,6 +705,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void IsNotIsType()
+		{
+			RunCompilerTestCase("is1.boo");
+		}
+		
+		[Test]
 		public void SliceArraySimple()
 		{
 			RunCompilerTestCase("slicing0.boo");
@@ -744,6 +750,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void SliceOverloadAssignment()
 		{
 			RunCompilerTestCase("slicing6.boo");
+		}
+		
+		[Test]
+		public void SliceOverTuple()
+		{
+			RunCompilerTestCase("slicing7.boo");
 		}
 		
 		[Test]

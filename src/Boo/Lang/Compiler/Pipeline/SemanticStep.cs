@@ -755,6 +755,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			ITypeBinding targetType = GetBoundType(node.Target);
+			if (BindingManager.IsError(targetType))
+			{
+				BindingManager.Error(node);
+				return;
+			}
+			
 			if (targetType.IsArray)
 			{
 				Bind(node, targetType.GetElementType());
@@ -764,11 +770,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				IBinding member = targetType.GetDefaultMember();
 				if (null == member)
 				{
-					Error(CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
+					Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
 				}
 				else
 				{
-					if (IsLhsOfAssignment(node))
+					if (AstUtil.IsLhsOfAssignment(node))
 					{
 						// leave it to LeaveBinaryExpression to resolve
 						Bind(node, member);
@@ -954,7 +960,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 					if (BindingType.Property == member.BindingType)
 					{
-						if (!IsLhsOfAssignment(node))
+						if (!AstUtil.IsLhsOfAssignment(node))
 						{
 							node.ReplaceBy(CreateMethodInvocation(node.Target, ((IPropertyBinding)member).GetGetMethod()));
 							return;
@@ -1478,10 +1484,40 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void BindAssignmentToSlice(BinaryExpression node)
 		{
+			SlicingExpression slice = (SlicingExpression)node.Left;
+			
+			if (GetExpressionType(slice.Target).IsArray)
+			{
+				BindAssignmentToSliceArray(node);
+			}
+			else
+			{
+				BindAssignmentToSliceProperty(node);
+			}
+		}
+		
+		void BindAssignmentToSliceArray(BinaryExpression node)
+		{
+			SlicingExpression slice = (SlicingExpression)node.Left;
+			ITypeBinding sliceTargetType = GetExpressionType(slice.Target);
+			ITypeBinding lhsType = GetExpressionType(node.Right);
+			
+			if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType) ||
+				!CheckTypeCompatibility(slice.Begin, BindingManager.IntTypeBinding, GetExpressionType(slice.Begin)))
+			{
+				BindingManager.Error(node);
+				return;
+			}
+			
+			BindingManager.Bind(node, sliceTargetType.GetElementType());
+		}
+		
+		void BindAssignmentToSliceProperty(BinaryExpression node)
+		{
+			SlicingExpression slice = (SlicingExpression)node.Left;
 			IBinding lhs = GetBinding(node.Left);
 			ITypeBinding rhs = GetExpressionType(node.Right);
-			IMethodBinding setter = null;
-			SlicingExpression slice = (SlicingExpression)node.Left;
+			IMethodBinding setter = null;			
 			
 			if (BindingType.Property == lhs.BindingType)
 			{
@@ -1897,20 +1933,6 @@ namespace Boo.Lang.Compiler.Pipeline
 				return IsNumber(expectedType) && IsNumber(actualType);
 			}
 			return actualType.IsAssignableFrom(expectedType);
-		}
-		
-		bool IsLhsOfAssignment(Expression node)
-		{
-			if (NodeType.BinaryExpression == node.ParentNode.NodeType)
-			{
-				BinaryExpression be = (BinaryExpression)node.ParentNode;
-				if (BinaryOperatorType.Assign == be.Operator &&
-					node == be.Left)
-				{
-					return true;
-				}
-			}
-			return false;
 		}
 
 		bool IsLValue(IBinding binding)

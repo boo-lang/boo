@@ -76,6 +76,15 @@ namespace Boo.Lang
 			return new List(enumerable).ToArray(elementType); 
 		}
 		
+		public static Array tuple(Type elementType, int length)
+		{
+			if (null == elementType)
+			{
+				throw new ArgumentNullException("elementType");
+			}
+			return Array.CreateInstance(elementType, length);
+		}
+		
 		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
 		public static IEnumerable enumerate(object enumerable)
 		{			
