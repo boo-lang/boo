@@ -9,6 +9,11 @@
 		<Import assembly = "BooBinding.dll"/>
 	</Runtime>
 	
+	<Extension path = "/SharpDevelop/Workbench/Views">
+		<Class id = "booish"
+			class = "BooBinding.BooishView" />
+	</Extension>
+	
 	<Extension path = "/SharpDevelop/Workbench/FileFilter">
 		<FileFilter id = "Boo"
 		            insertbefore = "AllFiles"

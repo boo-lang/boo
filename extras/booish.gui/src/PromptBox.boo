@@ -33,6 +33,7 @@ Interactive Forms-based Console
 namespace booish.gui
 
 import System
+import System.IO
 import booish
 import System.Windows.Forms
 import System.Drawing
@@ -48,6 +49,8 @@ class PromptBox(TextBox):
 	_state = InputState.SingleLine
 	
 	_block = System.IO.StringWriter()
+	
+	_console = StringWriter()
 	
 	[getter(Interpreter)]
 	_interpreter = InteractiveInterpreter(
@@ -78,12 +81,12 @@ class PromptBox(TextBox):
 			_block.GetStringBuilder().Length = 0
 			_block.WriteLine(code)
 		else:
-			_interpreter.LoopEval(code)
+			Eval(code)
 		
 	def BlockInputState():
 		code = GetCurrentLine()
 		if 0 == len(code):
-			_interpreter.LoopEval(_block.ToString())
+			Eval(_block.ToString())
 			_state = InputState.SingleLine
 		else:
 			_block.WriteLine(code)
@@ -97,6 +100,19 @@ class PromptBox(TextBox):
 			prompt()
 			args.Handled = true
 		super(args)
+		
+	def Eval(code as string):
+		saved = Console.Out
+		Console.SetOut(_console)
+		try:
+			_interpreter.LoopEval(code)			
+		ensure:
+			FlushConsole()
+			Console.SetOut(saved)
+			
+	def FlushConsole():
+		AppendText(_console.ToString())
+		_console.GetStringBuilder().Length = 0
 			
 	def print(msg):
 		AppendText("${msg}\r\n")

@@ -41,9 +41,11 @@
 				<include name="System.Windows.Forms.dll" />
 				<include name="System.Drawing.dll" />
 				<include name="System.Xml.dll" />
+				<include name="${boo.dir}/booish.exe" />
 			</references>
 			<sources basedir=".">
 				<include name = "src/**/*.boo" />
+				<include name = "../../booish.gui/src/PromptBox.boo" />
 			</sources>
 			<resources>
 				<include name = "icons/*.resources" />
@@ -61,7 +63,15 @@
 				<include name="*.xft"/>
 			</fileset>
 		</copy>
-		<copy file="${boo.dir}/Boo.dll" todir="${addin.dir}" />
+		<copy todir="${addin.dir}">
+			<fileset basedir="${boo.dir}">
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.AntlrParser.dll" />
+				<include name="antlr.runtime.dll" />
+				<include name="booish.exe" />
+			</fileset>
+		</copy>
 		<copy file="Boo.xshd" todir="${sharpdevelop.dir}/data/modes" />
 	</target>
 	
