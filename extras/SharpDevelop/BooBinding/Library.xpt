@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<Template originator   = "Daniel Grunwald"
+          created      = "11/10/2004"
+          lastModified = "11/10/2004">
+	
+	<!-- Template Header -->
+	<TemplateConfiguration>
+		<Name>${res:Templates.Project.ClassLibrary.Name}</Name>
+		<Category>Boo</Category>
+		<Icon>Boo.Project.EmptyProject</Icon>
+		<LanguageName>Boo</LanguageName>
+		<Description>${res:Templates.Project.ClassLibrary.Description}</Description>
+	</TemplateConfiguration>
+	
+	<!-- Actions -->
+	<Actions>
+		<Open filename = "MyClass.boo"/>
+	</Actions>
+	
+	<!-- Template Content -->
+	<Combine name = "${ProjectName}" directory = ".">
+		<Options>
+			<StartupProject>${ProjectName}</StartupProject>
+		</Options>
+		
+		<Project name = "${ProjectName}" directory = ".">
+			<Options Target = "Library" PauseConsoleOutput = "False" />
+			<Files>
+				<File name="MyClass.boo"><![CDATA[namespace ${StandardNamespace}
+
+import System
+
+class MyClass:
+	def constructor():
+		pass
+
+]]></File>
+			</Files>
+		</Project>
+	</Combine>
+</Template>

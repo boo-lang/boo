@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Template originator   = "Daniel Grunwald"
+          created      = "11/08/2004"
+          lastModified = "11/10/2004">
+	
+	<!-- Template Header -->
+	<TemplateConfiguration>
+		<Name>${res:Templates.Project.ConsoleProject.Name}</Name>
+		<Category>Boo</Category>
+		<Icon>Boo.Project.EmptyProject</Icon>
+		<LanguageName>Boo</LanguageName>
+		<Description>${res:Templates.Project.ConsoleProject.Description}</Description>
+	</TemplateConfiguration>
+	
+	<!-- Actions -->
+	<Actions>
+		<Open filename = "Main.boo"/>
+	</Actions>
+	
+	<!-- Template Content -->
+	<Combine name = "${ProjectName}" directory = ".">
+		<Options>
+			<StartupProject>${ProjectName}</StartupProject>
+		</Options>
+		
+		<Project name = "${ProjectName}" directory = ".">
+			<Options/>
+			<Files>
+				<File name="Main.boo">print("Hello, world!")
+</File>
+			</Files>
+		</Project>
+	</Combine>
+</Template>

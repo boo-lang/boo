@@ -1,1 +1,0 @@
-SharpDevelop.FileFilter.BooFiles=Boo Files (*.boo)
