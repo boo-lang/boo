@@ -115,12 +115,13 @@ namespace Boo.Lang
 			return Array.CreateInstance(elementType, length);
 		}
 		
-		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
+		[EnumeratorItemType(typeof(object[]))]
 		public static IEnumerable enumerate(object enumerable)
 		{			
 			return new EnumerateEnumerator(GetEnumerator(enumerable));
 		}
 		
+		[EnumeratorItemType(typeof(int))]
 		public static IEnumerable range(int max)
 		{
 			if (max < 0)
@@ -131,6 +132,7 @@ namespace Boo.Lang
 			return new RangeEnumerator(0, max, 1);
 		}
 		
+		[EnumeratorItemType(typeof(int))]
 		public static IEnumerable range(int min, int max)
 		{
 			if (max < min || max < 0)
@@ -140,6 +142,7 @@ namespace Boo.Lang
 			return new RangeEnumerator(min, max, 1);
 		}
 		
+		[EnumeratorItemType(typeof(int))]
 		public static IEnumerable range(int min, int max, int step)
 		{
 			if (step < 0)
@@ -154,7 +157,7 @@ namespace Boo.Lang
 			return new RangeEnumerator(min, max, step);
 		}
 		
-		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
+		[EnumeratorItemType(typeof(object[]))]
 		public static IEnumerable zip(object first, object second)
 		{
 			return new ZipEnumerator(GetEnumerator(first),

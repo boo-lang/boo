@@ -1071,6 +1071,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void ClassImplementsMethodsFromBaseInterfaceBaseInterface()
+		{
+			RunCompilerTestCase("interface7.boo");
+		}
+		
+		[Test]
 		public void ArrayEquality()
 		{
 			RunCompilerTestCase("array_equality.boo");
@@ -1248,6 +1254,24 @@ namespace Boo.Tests.Lang.Compiler
 		public void CaseInsensitiveHash()
 		{
 			RunCompilerTestCase("caseinsensitivehash.boo");
+		}
+		
+		[Test]
+		public void EnumeratorItemTypeForClasses()
+		{
+			RunCompilerTestCase("enumeratoritemtype0.boo");
+		}
+		
+		[Test]
+		public void EnumeratorItemTypeForInternalClasses()
+		{
+			RunCompilerTestCase("enumeratoritemtype1.boo");
+		}
+		
+		[Test]
+		public void EnumeratorItemTypeForMethods()
+		{
+			RunCompilerTestCase("enumeratoritemtype2.boo");
 		}
 	}
 }

@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections;
+using System.Runtime.Serialization;
 
 namespace Boo.Lang
 {
@@ -43,6 +44,10 @@ namespace Boo.Lang
 		}
 		
 		public Hash(bool caseInsensitive) : base(CaseInsensitiveHashCodeProvider.Default, CaseInsensitiveComparer.Default)
+		{
+		}
+		
+		public Hash(SerializationInfo info, StreamingContext context) : base(info, context)
 		{
 		}
 	}

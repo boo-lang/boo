@@ -116,6 +116,7 @@ tokens
 	TRANSIENT="transient";
 	TRUE="true";
 	UNLESS="unless";
+	VIRTUAL="virtual";
 	WHEN="when";
 	WHILE="while";
 	YIELD="yield";
@@ -694,7 +695,8 @@ modifiers
 		FINAL! { _modifiers |= TypeMemberModifiers.Final; } |
 		TRANSIENT! { _modifiers |= TypeMemberModifiers.Transient; } |
 		OVERRIDE! { _modifiers |= TypeMemberModifiers.Override; } |
-		ABSTRACT! { _modifiers |= TypeMemberModifiers.Abstract; }
+		ABSTRACT! { _modifiers |= TypeMemberModifiers.Abstract; } |
+		VIRTUAL! { _modifiers |= TypeMemberModifiers.Virtual; }
 	)*
 	;
 	

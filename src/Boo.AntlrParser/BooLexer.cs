@@ -1,3 +1,32 @@
+﻿#region license
+// boo - an extensible programming language for the CLI
+// Copyright (C) 2004 Rodrigo B. de Oliveira
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
+// As a special exception, if you link this library with other files to
+// produce an executable, this library does not by itself cause the
+// resulting executable to be covered by the GNU General Public License.
+// This exception does not however invalidate any other reasons why the
+// executable file might be covered by the GNU General Public License.
+//
+// Contact Information
+//
+// mailto:rbo@acm.org
+#endregion
+
 // $ANTLR 2.7.3rc2: "src/Boo.AntlrParser/boo.g" -> "BooLexer.cs"$
 
 namespace Boo.AntlrParser
@@ -105,47 +134,48 @@ using Boo.AntlrParser.Util;
 		public const int TRANSIENT = 71;
 		public const int TRUE = 72;
 		public const int UNLESS = 73;
-		public const int WHEN = 74;
-		public const int WHILE = 75;
-		public const int YIELD = 76;
-		public const int EOS = 77;
-		public const int TRIPLE_QUOTED_STRING = 78;
-		public const int ID = 79;
-		public const int ASSIGN = 80;
-		public const int LBRACK = 81;
-		public const int COMMA = 82;
-		public const int RBRACK = 83;
-		public const int LPAREN = 84;
-		public const int RPAREN = 85;
-		public const int COLON = 86;
-		public const int QMARK = 87;
-		public const int CMP_OPERATOR = 88;
-		public const int ADD = 89;
-		public const int SUBTRACT = 90;
-		public const int BITWISE_OR = 91;
-		public const int MULTIPLY = 92;
-		public const int DIVISION = 93;
-		public const int MODULUS = 94;
-		public const int EXPONENTIATION = 95;
-		public const int INCREMENT = 96;
-		public const int DECREMENT = 97;
-		public const int DOT = 98;
-		public const int INT = 99;
-		public const int DOUBLE_QUOTED_STRING = 100;
-		public const int SINGLE_QUOTED_STRING = 101;
-		public const int LBRACE = 102;
-		public const int RBRACE = 103;
-		public const int RE_LITERAL = 104;
-		public const int SL_COMMENT = 105;
-		public const int WS = 106;
-		public const int ESCAPED_EXPRESSION = 107;
-		public const int DQS_ESC = 108;
-		public const int SQS_ESC = 109;
-		public const int SESC = 110;
-		public const int RE_CHAR = 111;
-		public const int RE_ESC = 112;
-		public const int ID_LETTER = 113;
-		public const int DIGIT = 114;
+		public const int VIRTUAL = 74;
+		public const int WHEN = 75;
+		public const int WHILE = 76;
+		public const int YIELD = 77;
+		public const int EOS = 78;
+		public const int TRIPLE_QUOTED_STRING = 79;
+		public const int ID = 80;
+		public const int ASSIGN = 81;
+		public const int LBRACK = 82;
+		public const int COMMA = 83;
+		public const int RBRACK = 84;
+		public const int LPAREN = 85;
+		public const int RPAREN = 86;
+		public const int COLON = 87;
+		public const int QMARK = 88;
+		public const int CMP_OPERATOR = 89;
+		public const int ADD = 90;
+		public const int SUBTRACT = 91;
+		public const int BITWISE_OR = 92;
+		public const int MULTIPLY = 93;
+		public const int DIVISION = 94;
+		public const int MODULUS = 95;
+		public const int EXPONENTIATION = 96;
+		public const int INCREMENT = 97;
+		public const int DECREMENT = 98;
+		public const int DOT = 99;
+		public const int INT = 100;
+		public const int DOUBLE_QUOTED_STRING = 101;
+		public const int SINGLE_QUOTED_STRING = 102;
+		public const int LBRACE = 103;
+		public const int RBRACE = 104;
+		public const int RE_LITERAL = 105;
+		public const int SL_COMMENT = 106;
+		public const int WS = 107;
+		public const int ESCAPED_EXPRESSION = 108;
+		public const int DQS_ESC = 109;
+		public const int SQS_ESC = 110;
+		public const int SESC = 111;
+		public const int RE_CHAR = 112;
+		public const int RE_ESC = 113;
+		public const int ID_LETTER = 114;
+		public const int DIGIT = 115;
 		
 		
 	protected int _skipWhitespaceRegion = 0;
@@ -231,7 +261,7 @@ using Boo.AntlrParser.Util;
 			literals.Add("public", 59);
 			literals.Add("namespace", 58);
 			literals.Add("break", 28);
-			literals.Add("while", 75);
+			literals.Add("while", 76);
 			literals.Add("otherwise", 55);
 			literals.Add("raise", 62);
 			literals.Add("and", 26);
@@ -245,7 +275,7 @@ using Boo.AntlrParser.Util;
 			literals.Add("given", 44);
 			literals.Add("protected", 60);
 			literals.Add("retry", 64);
-			literals.Add("when", 74);
+			literals.Add("when", 75);
 			literals.Add("class", 31);
 			literals.Add("except", 37);
 			literals.Add("unless", 73);
@@ -257,7 +287,7 @@ using Boo.AntlrParser.Util;
 			literals.Add("is", 48);
 			literals.Add("internal", 47);
 			literals.Add("final", 39);
-			literals.Add("yield", 76);
+			literals.Add("yield", 77);
 			literals.Add("or", 54);
 			literals.Add("if", 50);
 			literals.Add("success", 69);
@@ -280,6 +310,7 @@ using Boo.AntlrParser.Util;
 			literals.Add("self", 66);
 			literals.Add("ensure", 35);
 			literals.Add("true", 72);
+			literals.Add("virtual", 74);
 		}
 		
 		override public Token nextToken()			//throws TokenStreamException
