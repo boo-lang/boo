@@ -14,8 +14,6 @@ import Boo.Lang.Compiler.Pipeline.Definitions
 
 class BooEditor(Content):
 	
-	static NewFileName = "untitled.boo"
-	
 	_editor as TextEditorControl
 	_main as MainForm
 	
@@ -40,7 +38,7 @@ class BooEditor(Content):
 		Controls.Add(_editor)
 		self.HideOnClose = true
 		self.AllowedStates = ContentStates.Document
-		self.Text = NewFileName
+		self.Text = GetSafeFileName()
 		self.DockPadding.All = 1
 		self.Menu = CreateMenu()
 		ResumeLayout(false)
@@ -125,9 +123,8 @@ class BooEditor(Content):
 				args.Cancel = DialogResult.Cancel == result
 		
 	def GetSafeFileName():
-		if _fname:
-			return _fname
-		return NewFileName
+		return _fname if _fname
+		return "untitled.boo"
 		
 	def CreateMenu():
 		menu = MainMenu()

@@ -14,6 +14,9 @@ class MainForm(Form):
 	
 	[getter(DocumentOutline)]
 	_classBrowser = BooExplorer.DocumentOutline()
+	
+	[getter(TaskList)]
+	_taskList = BooExplorer.TaskList()
 
 	_menuItemClose as MenuItem
 	_menuItemSave as MenuItem
@@ -54,6 +57,8 @@ class MainForm(Form):
 									Click: _menuItemNew_Click,
 									Shortcut: Shortcut.CtrlN))
 									
+		file.MenuItems.Add(MenuItem("-"))
+									
 		file.MenuItems.Add(_menuItemSave = MenuItem(Text: "&Save",
 									Enabled: false,
 									Click: _menuItemSave_Click,
@@ -67,15 +72,20 @@ class MainForm(Form):
 									Shortcut: Shortcut.CtrlW,
 									Enabled: false))
 									
-		file.MenuItems.Add(MenuItem(Text: "-"))
+		file.MenuItems.Add(MenuItem("-"))
 		file.MenuItems.Add(MenuItem(Text: "E&xit",
 									Shortcut: Shortcut.CtrlQ,
 									Click: _menuItemExit_Click))
 		
-		tools = MenuItem(Text: "&View")
-		tools.MenuItems.Add(MenuItem(Text: "Document Outline", Click: _menuItemDocumentOutline_Click))
+		view = MenuItem(Text: "&View")
+		view.MenuItems.AddRange(
+			(
+				MenuItem(Text: "Document Outline", Click: _menuItemDocumentOutline_Click),
+				MenuItem(Text: "Task List", Click: _menuItemTaskList_Click)
+			))
 		
-		menu.MenuItems.AddRange((file, tools))
+		
+		menu.MenuItems.AddRange((file, view))
 		return menu
 		
 	StatusText as string:
@@ -114,6 +124,9 @@ class MainForm(Form):
 		
 	def _menuItemDocumentOutline_Click(sender, args as EventArgs):
 		_classBrowser.Show(_dockManager)
+		
+	def _menuItemTaskList_Click(sender, args as EventArgs):
+		_taskList.Show(_dockManager)
 		
 	def _menuItemOpen_Click(sender, args as EventArgs):
 		dlg = OpenFileDialog(
