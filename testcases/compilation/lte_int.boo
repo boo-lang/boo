@@ -6,6 +6,7 @@ False
 True
 False
 True
+True
 """
 a = 3
 b = 4
@@ -16,4 +17,5 @@ print(a < c)
 print(c < a)
 print(a <= c)
 print(b <= a)
+print(a <= b)
 print(a <= a)

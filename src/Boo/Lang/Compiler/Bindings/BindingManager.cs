@@ -127,6 +127,26 @@ namespace Boo.Lang.Compiler.Bindings
 			return typeReference;
 		}
 		
+		public ITypeBinding GetPromotedNumberType(ITypeBinding left, ITypeBinding right)
+		{
+			if (left == RealTypeBinding ||
+				right == RealTypeBinding)
+			{
+				return RealTypeBinding;
+			}
+			if (left == SingleTypeBinding ||
+				right == SingleTypeBinding)
+			{
+				return SingleTypeBinding;
+			}
+			if (left == LongTypeBinding ||
+				right == LongTypeBinding)
+			{
+				return LongTypeBinding;
+			}
+			return left;
+		}
+		
 		public static bool IsUnknown(Node node)
 		{
 			ITypedBinding binding = GetBinding(node) as ITypedBinding;

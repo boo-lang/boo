@@ -134,6 +134,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			_types.Push(type);
 		}
 		
+		void PushBool()
+		{
+			PushType(BindingManager.BoolTypeBinding);
+		}
+		
 		void PushVoid()
 		{
 			PushType(BindingManager.VoidTypeBinding);
@@ -620,6 +625,26 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				_il.Emit(OpCodes.Sub);
 			}
+		}		
+		
+		void EmitIntNot()
+		{
+			_il.Emit(OpCodes.Ldc_I4_0);
+			_il.Emit(OpCodes.Ceq);
+		}
+		
+		void EmitGenericNot()
+		{
+			// bool codification:
+			// value_on_stack ? 1 : 0
+			Label wasTrue = _il.DefineLabel();
+			Label wasFalse = _il.DefineLabel();
+			_il.Emit(OpCodes.Brfalse, wasFalse);
+			_il.Emit(OpCodes.Ldc_I4_0);
+			_il.Emit(OpCodes.Br, wasTrue);
+			_il.MarkLabel(wasFalse);
+			_il.Emit(OpCodes.Ldc_I4_1);
+			_il.MarkLabel(wasTrue);
 		}
 		
 		public override void OnUnaryExpression(UnaryExpression node)
@@ -628,20 +653,17 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				case UnaryOperatorType.Not:
 				{
-					node.Operand.Switch(this); PopType();
-					
-					// bool codification:
-					// value_on_stack ? 1 : 0
-					Label wasTrue = _il.DefineLabel();
-					Label wasFalse = _il.DefineLabel();
-					_il.Emit(OpCodes.Brfalse, wasFalse);
-					_il.Emit(OpCodes.Ldc_I4_0);
-					_il.Emit(OpCodes.Br, wasTrue);
-					_il.MarkLabel(wasFalse);
-					_il.Emit(OpCodes.Ldc_I4_1);
-					_il.MarkLabel(wasTrue);
-					
-					PushType(BindingManager.BoolTypeBinding);
+					node.Operand.Switch(this);
+					ITypeBinding typeOnStack = PopType();
+					if (IsBoolOrInt(typeOnStack))
+					{
+						EmitIntNot();
+					}
+					else
+					{
+						EmitGenericNot();
+					}
+					PushBool();
 					break;
 				}
 				
@@ -677,10 +699,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ceq);
 			if (BinaryOperatorType.ReferenceInequality == node.Operator)
 			{
-				_il.Emit(OpCodes.Ldc_I4_0);
-				_il.Emit(OpCodes.Ceq);
+				EmitIntNot();
 			}
-			PushType(BindingManager.BoolTypeBinding);
+			PushBool();
 		}
 		
 		void OnAssignmentToSlice(BinaryExpression node)
@@ -775,7 +796,45 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ldc_I4_1);
 			_il.MarkLabel(isFalse);
 			
-			PushType(BindingManager.BoolTypeBinding);
+			PushBool();
+		}
+		
+		void LoadCmpOperands(BinaryExpression node)
+		{
+			ITypeBinding lhs = GetBoundType(node.Left);
+			ITypeBinding rhs = GetBoundType(node.Right);
+			
+			ITypeBinding type = BindingManager.GetPromotedNumberType(lhs, rhs);
+			Switch(node.Left);
+			EmitCastIfNeeded(type, PopType());
+			Switch(node.Right);
+			EmitCastIfNeeded(type, PopType());
+		}
+		
+		void OnGreaterThan(BinaryExpression node)
+		{
+			LoadCmpOperands(node);
+			_il.Emit(OpCodes.Cgt);
+			PushBool();
+		}
+		
+		void OnGreaterEqualThan(BinaryExpression node)
+		{
+			OnLessThan(node);
+			EmitIntNot();
+		}
+		
+		void OnLessThan(BinaryExpression node)
+		{
+			LoadCmpOperands(node);
+			_il.Emit(OpCodes.Clt);
+			PushBool();
+		}
+		
+		void OnLessEqualThan(BinaryExpression node)
+		{
+			OnGreaterThan(node);
+			EmitIntNot();
 		}
 		
 		void OnArithmeticOperator(BinaryExpression node)
@@ -956,6 +1015,30 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BinaryOperatorType.Assign:
 				{
 					OnAssignment(node);
+					break;
+				}
+				
+				case BinaryOperatorType.GreaterThan:
+				{
+					OnGreaterThan(node);
+					break;
+				}
+				
+				case BinaryOperatorType.LessThan:
+				{
+					OnLessThan(node);
+					break;
+				}
+				
+				case BinaryOperatorType.GreaterEqualThan:
+				{
+					OnGreaterEqualThan(node);
+					break;
+				}
+				
+				case BinaryOperatorType.LessEqualThan:
+				{
+					OnLessEqualThan(node);
 					break;
 				}
 				
@@ -1186,7 +1269,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				_il.Emit(OpCodes.Ldc_I4_0);
 			}
-			PushType(BindingManager.BoolTypeBinding);
+			PushBool();
 		}
 		
 		public override void OnListLiteralExpression(ListLiteralExpression node)
@@ -1802,6 +1885,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_GetEnumerable, null);
 			}
+		}
+		
+		bool IsBoolOrInt(ITypeBinding type)
+		{
+			return BindingManager.BoolTypeBinding == type ||
+				BindingManager.IntTypeBinding == type;
 		}
 		
 		bool IsIEnumerableCompatible(ITypeBinding type)

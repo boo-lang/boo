@@ -1261,18 +1261,6 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.LessThan:
-				{
-					BindComparisonOperator(node);
-					break;
-				}
-				
-				case BinaryOperatorType.GreaterThan:
-				{
-					BindComparisonOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Or:
 				{
 					BindLogicalOperator(node);
@@ -1304,6 +1292,30 @@ namespace Boo.Lang.Compiler.Pipeline
 					{
 						BindInPlaceArithmeticOperator(node);
 					}
+					break;
+				}
+				
+				case BinaryOperatorType.GreaterThan:
+				{
+					BindCmpOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.GreaterEqualThan:
+				{
+					BindCmpOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.LessThan:
+				{
+					BindCmpOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.LessEqualThan:
+				{
+					BindCmpOperator(node);
 					break;
 				}
 				
@@ -1342,7 +1354,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (IsIntegerNumber(lhs) && IsIntegerNumber(rhs))
 			{
-				Bind(node, GetPromotedNumberType(lhs, rhs));
+				Bind(node, BindingManager.GetPromotedNumberType(lhs, rhs));
 			}
 			else
 			{
@@ -1360,6 +1372,24 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		void BindCmpOperator(BinaryExpression node)
+		{
+			ITypeBinding lhs = GetExpressionType(node.Left);
+			ITypeBinding rhs = GetExpressionType(node.Right);
+			
+			if (IsNumber(lhs) && IsNumber(rhs))
+			{
+				BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+			}
+			else
+			{
+				Error(node,
+						CompilerErrorFactory.InvalidOperatorForTypes(node,
+							GetBinaryOperatorText(node.Operator),
+							lhs.FullName, rhs.FullName));
+			}
+		}
+		
 		void BindLogicalOperator(BinaryExpression node)
 		{
 			if (CheckBoolContext(node.Left) &&
@@ -1371,11 +1401,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				Error(node);
 			}
-		}
-		
-		void BindComparisonOperator(BinaryExpression node)
-		{
-			BindingManager.Bind(node, BindingManager.BoolTypeBinding);
 		}
 		
 		void BindInPlaceAddEvent(BinaryExpression node)
@@ -1865,7 +1890,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				if (IsNumber(right))
 				{
-					Bind(node, GetPromotedNumberType(left, right));
+					Bind(node, BindingManager.GetPromotedNumberType(left, right));
 				}
 				else
 				{
@@ -2164,26 +2189,6 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 			return false;
-		}
-		
-		ITypeBinding GetPromotedNumberType(ITypeBinding left, ITypeBinding right)
-		{
-			if (left == BindingManager.RealTypeBinding ||
-				right == BindingManager.RealTypeBinding)
-			{
-				return BindingManager.RealTypeBinding;
-			}
-			if (left == BindingManager.SingleTypeBinding ||
-				right == BindingManager.SingleTypeBinding)
-			{
-				return BindingManager.SingleTypeBinding;
-			}
-			if (left == BindingManager.LongTypeBinding ||
-				right == BindingManager.LongTypeBinding)
-			{
-				return BindingManager.LongTypeBinding;
-			}
-			return left;
 		}
 		
 		bool IsIntegerNumber(ITypeBinding type)
