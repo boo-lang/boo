@@ -15,4 +15,3 @@ def Select(upper as bool):
 a = "Foo"
 print(Select(true)(a))
 print(Select(false)(a))
-

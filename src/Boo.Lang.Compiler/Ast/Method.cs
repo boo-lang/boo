@@ -43,6 +43,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public Method(string name)
+		{
+			Name = name;
+		}
+		
 		public bool IsOverride
 		{
 			get
@@ -59,11 +64,13 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
-		public bool IsAbstract
+		public bool IsRuntime
 		{
 			get
 			{
-				return IsModifierSet(TypeMemberModifiers.Abstract);
+				return 
+					MethodImplementationFlags.Runtime ==
+						(_implementationFlags & MethodImplementationFlags.Runtime);
 			}
 		}
 		

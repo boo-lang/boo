@@ -28,7 +28,7 @@ def CheckDelegate(name as string, parameters as (ParamInfo), returnType as Type)
 	actualParameters = constructors[0].GetParameters()
 	Assert.AreEqual(2, len(actualParameters), "${name} constructor parameters")
 	Assert.AreSame(object, actualParameters[0].ParameterType, "constructor parameter")
-	Assert.AreEqual("object", actualParameters[0].Name, "constructor parameter name")
+	Assert.AreEqual("instance", actualParameters[0].Name, "constructor parameter name")
 	Assert.AreSame(IntPtr, actualParameters[1].ParameterType, "constructor parameter")
 	Assert.AreEqual("method", actualParameters[1].Name, "constructor parameter name")
 	

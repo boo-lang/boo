@@ -37,6 +37,7 @@ namespace Boo.Lang.Compiler.Pipelines
 		{			
 			Add(new InitializeNameResolutionService());
 			Add(new IntroduceGlobalNamespaces());
+			Add(new TransformCallableDefinitions());
 			Add(new BindTypeDefinitions());			
 			Add(new BindNamespaces());
 			Add(new BindBaseTypes());
@@ -46,9 +47,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new NormalizeTypeMembers());
 			Add(new NormalizeStatementModifiers());
 			
-			// todo: run this 2 steps again only if
-			// any attributes or mixins were 
-			// applied
 			Add(new BindTypeDefinitions());
 			Add(new BindBaseTypes());
 			

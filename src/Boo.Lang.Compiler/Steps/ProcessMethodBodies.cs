@@ -524,12 +524,27 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
+		void CheckRuntimeMethod(Method method)
+		{
+			if (method.Body.Statements.Count > 0)
+			{
+				Error(CompilerErrorFactory.RuntimeMethodBodyMustBeEmpty(method, method.FullName));
+			}
+		}
+		
 		override public void LeaveConstructor(Constructor node)
 		{
-			InternalConstructor tag = (InternalConstructor)_currentMethodInfo;
-			if (!tag.HasSuperCall && !node.IsStatic)
+			if (node.IsRuntime)
 			{
-				node.Body.Statements.Insert(0, CreateDefaultConstructorCall(node, tag));
+				CheckRuntimeMethod(node);
+			}
+			else
+			{
+				InternalConstructor tag = (InternalConstructor)_currentMethodInfo;
+				if (!tag.HasSuperCall && !node.IsStatic)
+				{
+					node.Body.Statements.Insert(0, CreateDefaultConstructorCall(node, tag));
+				}
 			}
 			LeaveNamespace();
 			PopMethodInfo();
@@ -548,14 +563,26 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			MarkVisited(method);
 			
-			InternalMethod tag = (InternalMethod)GetEntity(method);
-			
-			bool parentIsClass = method.DeclaringType.NodeType == NodeType.ClassDefinition;
 			Visit(method.Attributes);
 			Visit(method.Parameters);
 			Visit(method.ReturnType);
 			Visit(method.ReturnTypeAttributes);
 			
+			if (method.IsRuntime)
+			{
+				CheckRuntimeMethod(method);
+			}
+			else
+			{
+				ProcessRegularMethod(method);
+			}
+		}
+		
+		void ProcessRegularMethod(Method method)
+		{
+			bool parentIsClass = method.DeclaringType.NodeType == NodeType.ClassDefinition;
+			
+			InternalMethod tag = (InternalMethod)GetEntity(method);
 			if (method.IsOverride)
 			{
 				if (parentIsClass)

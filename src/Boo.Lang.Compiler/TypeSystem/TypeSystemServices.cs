@@ -39,6 +39,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType ApplicationExceptionType;
 		
+		public ExternalType MulticastDelegateType;
+		
+		public ExternalType IntPtrType;
+		
 		public ExternalType ObjectType;
 		
 		public ExternalType EnumType;
@@ -127,6 +131,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(IDictionaryType = new ExternalType(this, Types.IDictionary));
 			Cache(ApplicationExceptionType = new ExternalType(this, Types.ApplicationException));
 			Cache(ExceptionType = new ExternalType(this, Types.Exception));
+			Cache(IntPtrType = new ExternalType(this, Types.IntPtr));
+			Cache(MulticastDelegateType = new ExternalType(this, Types.MulticastDelegate));
 			
 			ObjectArrayType = GetArrayType(ObjectType);
 			

@@ -97,6 +97,14 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
+		public bool IsAbstract
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Abstract);
+			}			
+		}
+		
 		public bool IsStatic
 		{
 			get

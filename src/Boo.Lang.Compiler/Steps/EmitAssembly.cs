@@ -190,18 +190,14 @@ namespace Boo.Lang.Compiler.Steps
 			{			
 				Boo.Lang.List types = CollectTypes();
 				
-				foreach (TypeMember member in types)
+				foreach (TypeDefinition type in types)
 				{
-					DefineType(member);
+					DefineType(type);
 				}
 				
-				foreach (TypeMember member in types)
+				foreach (TypeDefinition type in types)
 				{
-					TypeDefinition type = member as TypeDefinition;
-					if (null != type)
-					{
-						DefineTypeMembers(type);
-					}
+					DefineTypeMembers(type);
 				}
 				
 				foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
@@ -286,12 +282,6 @@ namespace Boo.Lang.Compiler.Steps
 						types.Insert(0, member);
 						break;
 					}
-					
-					case NodeType.CallableDefinition:
-					{
-						types.Insert(0, member);
-						break;
-					}
 				}
 			}
 		}
@@ -356,13 +346,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnCallableDefinition(CallableDefinition node)
 		{
-			TypeBuilder builder = GetTypeBuilder(node);
-			MethodBuilder method = builder.DefineMethod("Invoke", 
-											MethodAttributes.Public|MethodAttributes.Virtual,
-											GetSystemType(node.ReturnType),
-											GetParameterTypes(node.Parameters));
-			DefineParameters(method, node.Parameters);
-			method.SetImplementationFlags(MethodImplAttributes.Runtime|MethodImplAttributes.Managed);
+			NotImplemented(node, "Unexpected callable definition!");
 		}
 		
 		void EmitTypeDefinition(TypeDefinition node)
@@ -376,6 +360,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethod(Method method)
 		{			
+			if (method.IsRuntime)
+			{
+				return;				
+			}
+			
 			MethodBuilder methodBuilder = GetMethodBuilder(method);			
 			_il = methodBuilder.GetILGenerator();
 			_returnLabel = _il.DefineLabel();
@@ -401,6 +390,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnConstructor(Constructor constructor)
 		{
+			if (constructor.IsRuntime)
+			{
+				return;
+			}
+			
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
 			_il = builder.GetILGenerator();
 
@@ -2702,23 +2696,19 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			
 			switch (type.NodeType)
-			{
-				case NodeType.CallableDefinition:
-				{
-					attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
-					attributes |= TypeAttributes.Class;
-					attributes |= TypeAttributes.Sealed;
-					break;
-				}
-				
+			{				
 				case NodeType.ClassDefinition:
 				{
 					attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
 					attributes |= TypeAttributes.Class;
 					attributes |= TypeAttributes.Serializable;
-					if (type.IsModifierSet(TypeMemberModifiers.Abstract))
+					if (type.IsAbstract)
 					{
 						attributes |= TypeAttributes.Abstract;
+					}
+					if (type.IsFinal)
+					{
+						attributes |= TypeAttributes.Sealed;
 					}
 					break;
 				}
@@ -2844,6 +2834,24 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void DefineParameters(ConstructorBuilder builder, ParameterDeclarationCollection parameters)
+		{
+			for (int i=0; i<parameters.Count; ++i)
+			{
+				builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+			}
+		}
+		
+		MethodImplAttributes GetImplementationFlags(Method method)
+		{
+			MethodImplAttributes flags = MethodImplAttributes.Managed;
+			if (method.IsRuntime)
+			{
+				flags |= MethodImplAttributes.Runtime;
+			}
+			return flags;
+		}
+		
 		MethodBuilder DefineMethod(TypeBuilder typeBuilder, Method method, MethodAttributes attributes)
 		{			
 			ParameterDeclarationCollection parameters = method.Parameters;
@@ -2858,6 +2866,9 @@ namespace Boo.Lang.Compiler.Steps
                                         methodAttributes,
                                         GetSystemType(method.ReturnType),                             
 										GetParameterTypes(parameters));
+
+			builder.SetImplementationFlags(GetImplementationFlags(method));										
+			
 			DefineParameters(builder, parameters);				
 			
 			SetBuilder(method, builder);
@@ -2873,6 +2884,10 @@ namespace Boo.Lang.Compiler.Steps
 			ConstructorBuilder builder = typeBuilder.DefineConstructor(GetMethodAttributes(constructor),
 			                               CallingConventions.Standard, 
 			                               GetParameterTypes(constructor.Parameters));
+										   
+			builder.SetImplementationFlags(GetImplementationFlags(constructor));
+			DefineParameters(builder, constructor.Parameters);
+			
 			SetBuilder(constructor, builder);
 		}
 		
@@ -2881,48 +2896,25 @@ namespace Boo.Lang.Compiler.Steps
 			return NodeType.EnumDefinition == type.NodeType;
 		}
 		
-		void DefineCallable(CallableDefinition type)
+		void DefineType(TypeDefinition typeDefinition)
 		{
-			TypeBuilder typeBuilder = CreateTypeBuilder(type);
-			typeBuilder.SetParent(typeof(System.MulticastDelegate));
-			
-			ConstructorBuilder builder = typeBuilder.DefineConstructor(
-											MethodAttributes.Public,
-			                               CallingConventions.Standard, 
-			                               DelegateConstructorTypes);
-			builder.SetImplementationFlags(MethodImplAttributes.Runtime|MethodImplAttributes.Managed);
-			builder.DefineParameter(1, ParameterAttributes.None, "object");
-			builder.DefineParameter(2, ParameterAttributes.None, "method");
-			SetBuilder(type, typeBuilder);
-		}
-		
-		void DefineType(TypeMember type)
-		{
-			TypeDefinition typeDefinition = type as TypeDefinition;
-			if (null == typeDefinition)
-			{
-				DefineCallable((CallableDefinition)type);
+			if (IsEnumDefinition(typeDefinition))
+			{				
+				EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(typeDefinition.FullName,
+											GetTypeAttributes(typeDefinition),
+											typeof(long));
+											
+				
+				foreach (EnumMember member in typeDefinition.Members)
+				{
+					enumBuilder.DefineLiteral(member.Name, (long)member.Initializer.Value);
+				}				
+				SetBuilder(typeDefinition, enumBuilder);
 			}
 			else
-			{
-				if (IsEnumDefinition(typeDefinition))
-				{				
-					EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(typeDefinition.FullName,
-												GetTypeAttributes(typeDefinition),
-												typeof(long));
-												
-					
-					foreach (EnumMember member in typeDefinition.Members)
-					{
-						enumBuilder.DefineLiteral(member.Name, (long)member.Initializer.Value);
-					}				
-					SetBuilder(typeDefinition, enumBuilder);
-				}
-				else
-				{					
-					TypeBuilder typeBuilder = CreateTypeBuilder(type);
-					SetBuilder(typeDefinition, typeBuilder);
-				}
+			{					
+				TypeBuilder typeBuilder = CreateTypeBuilder(typeDefinition);
+				SetBuilder(typeDefinition, typeBuilder);
 			}
 		}
 		

@@ -406,6 +406,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0075", node.LexicalInfo, name);
 		}
 		
+		public static CompilerError RuntimeMethodBodyMustBeEmpty(Node node, string name)
+		{
+			return new CompilerError("BCE0076", node.LexicalInfo, name);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

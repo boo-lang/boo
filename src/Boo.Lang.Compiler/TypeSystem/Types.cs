@@ -89,6 +89,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static readonly Type IntPtr = typeof(IntPtr);
 		
 		public static readonly Type Type = typeof(System.Type);
+		
+		public static readonly Type MulticastDelegate = typeof(System.MulticastDelegate);
 
 	}
 }

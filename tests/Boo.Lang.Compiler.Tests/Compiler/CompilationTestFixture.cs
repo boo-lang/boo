@@ -438,6 +438,30 @@ namespace Boo.Lang.Compiler.Tests
 		}
 		
 		[Test]
+		public void DelegateVariableFromMethod()
+		{
+			RunCompilerTestCase("delegate5.boo");
+		}
+		
+		[Test]
+		public void InvokeOnDelegateVariable()
+		{
+			RunCompilerTestCase("delegate6.boo");
+		}
+		
+		[Test]
+		public void BeginInvokeOnDelegateVariable()
+		{
+			RunCompilerTestCase("delegate7.boo");
+		}
+		
+		[Test]
+		public void DelegateAsParameter()
+		{
+			RunCompilerTestCase("delegate8.boo");
+		}
+		
+		[Test]
 		public void TestProperty0()
 		{
 			RunCompilerTestCase("property0.boo");

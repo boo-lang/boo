@@ -21,6 +21,10 @@ enum TypeMemberModifiers:
 	Virtual = 128
 	Override = 256
 	Abstract = 512
+	
+enum MethodImplementationFlags:
+	None = 0
+	Runtime = 1
 
 abstract class TypeMember(Node, INodeWithAttributes):
 	Modifiers as TypeMemberModifiers
@@ -119,6 +123,7 @@ class Method(CallableDefinition):
 	[auto]
 	Body as Block
 	Locals as LocalCollection
+	ImplementationFlags as MethodImplementationFlags
 
 class Constructor(Method):
 	pass

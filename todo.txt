@@ -1,4 +1,10 @@
-﻿* usar os delegates declarados
+﻿* usar delegates externos
+	* delegate5.boo
+	* delegate6.boo
+	* delegate7.boo
+	* delegate8.boo
+
+* usar os delegates declarados
 
 * CallableType
 	* para funçoes
