@@ -232,8 +232,8 @@ namespace BooCompiler.Tests
 	{
 		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
-			//CompilerPipeline pipeline = new CompileToFile();
-			CompilerPipeline pipeline = new CompileToMemory();
+			CompilerPipeline pipeline = new CompileToFile();
+			//CompilerPipeline pipeline = new CompileToMemory();
 			pipeline.Add(new RunAssembly());
 			return pipeline;
 		}
@@ -1504,12 +1504,6 @@ namespace BooCompiler.Tests
 		public void CallableTypeDefinitionWithMember()
 		{
 			RunCompilerTestCase("CallableTypeDefinitionWithMember.boo");
-		}
-		
-		[Test]
-		public void AddressOfSpecialFunction()
-		{
-			RunCompilerTestCase("addressof.boo");
 		}
 	}
 }

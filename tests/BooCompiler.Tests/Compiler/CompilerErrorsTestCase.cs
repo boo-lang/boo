@@ -208,6 +208,12 @@ namespace BooCompiler.Tests
 		public void EventParameterListCompatibility()
 		{
 			RunCompilerTestCase("event0.boo");
+		}		
+		
+		[Test]
+		public void AddressOfCanOnlyBeUsedInDelegateConstructors()
+		{
+			RunCompilerTestCase("addressof.boo");
 		}
 		
 		protected override CompilerPipeline SetUpCompilerPipeline()

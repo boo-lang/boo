@@ -1,4 +1,6 @@
-﻿* anonymous callable types:
+﻿* addressof cannot be used outside delegate constructors
+
+* anonymous callable types:
 	* callable1.boo
 	* callable2.boo
 	* callable4.boo
