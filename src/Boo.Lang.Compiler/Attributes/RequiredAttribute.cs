@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -32,8 +32,7 @@ using Boo.Lang.Compiler.Ast;
 namespace Boo.Lang
 {
 	/// <summary>
-	/// Assegura que uma referncia nula no seja passada como
-	/// parmetro para um mtodo.
+	/// Parameter validation.
 	/// </summary>
 	/// <example>
 	/// <pre>
@@ -62,6 +61,8 @@ namespace Boo.Lang
 		override public void Apply(Boo.Lang.Compiler.Ast.Node node)
 		{
 			ParameterDeclaration pd = node as ParameterDeclaration;
+			string errorMessage = null;
+			
 			if (null == pd)
 			{
 				InvalidNodeForAttribute("ParameterDeclaration");
@@ -85,18 +86,20 @@ namespace Boo.Lang
 				modifier = new StatementModifier(
 						StatementModifierType.Unless,
 						_condition);
+				errorMessage = "Expected: " + _condition.ToString();
 			}
 			
 			MethodInvocationExpression x = new MethodInvocationExpression();
 			x.Target = new MemberReferenceExpression(
 								new ReferenceExpression("System"),
 								exceptionClass);
+			if (null != errorMessage)
+			{
+				x.Arguments.Add(new StringLiteralExpression(errorMessage));
+			}
 			x.Arguments.Add(new StringLiteralExpression(pd.Name));
 			
 			RaiseStatement rs = new RaiseStatement(x, modifier);
-
-			// associa mensagens de erro com a posio
-			// do parmetro no cdigo fonte
 			rs.LexicalInfo = LexicalInfo;
 
 			Method method = pd.ParentNode as Method;
