@@ -915,15 +915,32 @@ compound_stmt[StatementCollection c] :
 		;
 		
 protected
-macro_stmt returns [MacroStatement returnValue]
+closure_macro_stmt returns [MacroStatement returnValue]
 	{
 		returnValue = null;
 		MacroStatement macro = new MacroStatement();
 	}:
 	id:ID expression_list[macro.Arguments]
+	{
+		macro.Name = id.getText();
+		macro.LexicalInfo = ToLexicalInfo(id);		
+		returnValue = macro;
+	}
+;
+
+		
+protected
+macro_stmt returns [MacroStatement returnValue]
+	{
+		returnValue = null;
+		MacroStatement macro = new MacroStatement();
+		StatementModifier modifier = null;
+	}:
+	id:ID expression_list[macro.Arguments]
 	(
 		compound_stmt[macro.Block.Statements] |
-		eos
+		eos |
+		modifier=stmt_modifier eos { macro.Modifier = modifier; }
 	)
 	{
 		macro.Name = id.getText();
@@ -1047,9 +1064,10 @@ internal_closure_stmt returns [Statement stmt]
 	(
 		(
 			(declaration COMMA)=>stmt=unpack_stmt |
+			{IsValidMacroArgument(LA(2))}? stmt=closure_macro_stmt | 
 			stmt=expression_stmt |
 			stmt=raise_stmt |
-			stmt=yield_stmt
+			stmt=yield_stmt			
 		)
 		(modifier=stmt_modifier { stmt.Modifier = modifier; })?		
 	)

@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ModuleBuilder _moduleBuilder;
 		
-		//ISymbolDocumentWriter _symbolDocWriter;
+		ISymbolDocumentWriter _symbolDocWriter;
 		
 		TypeBuilder _typeBuilder;
 		
@@ -364,7 +364,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_asmBuilder = null;		
 			_moduleBuilder = null;		
-			//_symbolDocWriter = null;
+			_symbolDocWriter = null;
 			_typeBuilder = null;
 			_il = null;		
 			_returnValueLocal = null;
@@ -380,18 +380,20 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
-		{	
-			/*
+		{				
 			string fname = module.LexicalInfo.FileName;
 			if (null != fname)
 			{
-				_symbolDocWriter = _moduleBuilder.DefineDocument(fname, Guid.Empty, Guid.Empty, Guid.Empty);
+				_symbolDocWriter = _moduleBuilder.DefineDocument(
+										fname,
+										SymDocumentType.Text,
+										Guid.Empty,
+										Guid.Empty);
 			}
 			else
 			{
 				_symbolDocWriter = null;
 			}
-			*/
 			Visit(module.Members);
 		}
 		
@@ -505,7 +507,7 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			InternalLocal info = GetInternalLocal(local);
 			info.LocalBuilder = _il.DeclareLocal(GetSystemType(local));
-			//info.LocalBuilder.SetLocalSymInfo(local.Name);			
+			info.LocalBuilder.SetLocalSymInfo(local.Name);			
 		}
 		
 		override public void OnForStatement(ForStatement node)
@@ -515,6 +517,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReturnStatement(ReturnStatement node)
 		{
+			EmitDebugInfo(node);
+			
 			OpCode retOpCode = _tryBlock > 0 ? OpCodes.Leave : OpCodes.Br;
 			
 			if (null != node.Expression)
@@ -528,6 +532,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnRaiseStatement(RaiseStatement node)
 		{
+			EmitDebugInfo(node);
 			if (node.Exception == null)
 			{
 				_il.Emit(OpCodes.Rethrow);				
@@ -2250,7 +2255,14 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Stloc, local);
 			}
 			
-			_il.EmitCall(OpCodes.Callvirt, setMethod, null);
+			if (property.IsStatic)
+			{
+				_il.EmitCall(OpCodes.Call, setMethod, null);
+			}
+			else
+			{
+				_il.EmitCall(OpCodes.Callvirt, setMethod, null);
+			}
 			
 			if (leaveValueOnStack)
 			{
@@ -2265,15 +2277,25 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void EmitDebugInfo(Node startNode, Node endNode)
-		{
-			/*
-			LexicalInfo start = startNode.LexicalInfo;
-			LexicalInfo end = endNode.LexicalInfo;
-			if (start != LexicalInfo.Empty && end != LexicalInfo.Empty)
+		{			
+			if (null == _symbolDocWriter)
 			{
-				_il.MarkSequencePoint(_symbolDocWriter, start.Line, start.StartColumn, end.Line, end.EndColumn);
+				return;
 			}
-			*/
+			
+			LexicalInfo start = startNode.LexicalInfo;
+			if (start.IsValid)
+			{
+				try
+				{
+					_il.Emit(OpCodes.Nop);
+					_il.MarkSequencePoint(_symbolDocWriter, start.Line, 0, start.Line+1, 0);
+				}
+				catch (Exception x)
+				{
+					Error(CompilerErrorFactory.InternalError(startNode, x));
+				}
+			}			
 		}		
 		
 		bool IsBoolOrInt(IType type)

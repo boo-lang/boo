@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		bool ResolveModuleMember(Boo.Lang.List targetList, string name, EntityType flags)
 		{
-			bool found=false;
+			bool found = false;
 			foreach (Boo.Lang.Compiler.Ast.TypeMember member in _module.Members)
 			{
 				if (name == member.Name)

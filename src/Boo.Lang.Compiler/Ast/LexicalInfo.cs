@@ -54,8 +54,19 @@ namespace Boo.Lang.Compiler.Ast
 			_endColumn = endColumn;
 		}
 
-		public LexicalInfo(string filename) : this(filename, 0, 0, 0)
+		public LexicalInfo(string filename) : this(filename, -1, -1, -1)
 		{
+		}
+		
+		public bool IsValid
+		{
+			get
+			{
+				return null != _filename &&
+						(_line > 0) &&
+						(_startColumn > 0) &&
+						(_endColumn > 0);
+			}
 		}
 
 		public string FileName

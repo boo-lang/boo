@@ -615,6 +615,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			else
 			{
+				Visit(node.Modifier);
 				WriteLine();
 			}
 		}

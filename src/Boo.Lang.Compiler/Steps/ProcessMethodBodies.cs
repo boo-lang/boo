@@ -337,7 +337,7 @@ namespace Boo.Lang.Compiler.Steps
 													node.Modifiers);
 			method.Parameters.Add(
 					CodeBuilder.CreateParameterDeclaration(
-						1,
+						GetFirstParameterIndex(node),
 						"handler",
 						GetType(node.Type)));
 			return method;
@@ -378,7 +378,7 @@ namespace Boo.Lang.Compiler.Steps
 			ICallableType type = GetEntity(node.Type) as ICallableType;
 			if (null != type)
 			{
-				int index = 1;
+				int index = GetFirstParameterIndex(node);
 				foreach (IParameter parameter in type.GetSignature().Parameters)
 				{
 					method.Parameters.Add(
@@ -431,6 +431,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.IsTransient)
 			{
 				backingField.Modifiers |= TypeMemberModifiers.Transient;
+			}
+			if (node.IsStatic)
+			{
+				backingField.Modifiers |= TypeMemberModifiers.Static;
 			}
 			node.DeclaringType.Members.Add(backingField);
 			
