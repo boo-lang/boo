@@ -1660,19 +1660,27 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void BindTypeTest(BinaryExpression node)
 		{			
-			if (BinaryOperatorType.ReferenceInequality == node.Operator)
-			{
-				Negate(node, BinaryOperatorType.TypeTest);
+			if (CheckIsNotValueType(node, node.Left))
+			{				
+				if (BinaryOperatorType.ReferenceInequality == node.Operator)
+				{
+					Negate(node, BinaryOperatorType.TypeTest);
+				}
+				else
+				{
+					node.Operator = BinaryOperatorType.TypeTest;
+					Bind(node, BindingManager.BoolTypeBinding);
+				}
 			}
 			else
 			{
-				node.Operator = BinaryOperatorType.TypeTest;
-				Bind(node, BindingManager.BoolTypeBinding);
+				Error(node);
 			}
 		}
 		
 		void BindReferenceEquality(BinaryExpression node)
 		{
+			
 			if (IsTypeTest(node))
 			{
 				BindTypeTest(node);
