@@ -10,6 +10,8 @@ class PromptView(TextView):
 	
 	def constructor():
 		
+		self.WrapMode = Gtk.WrapMode.Word
+		
 		if Environment.OSVersion.Platform in PlatformID.Win32NT, PlatformID.Win32Windows:
 			self.ModifyFont(
 				Pango.FontDescription(Family: "Lucida Console", Size: 12))
@@ -49,12 +51,10 @@ class PromptView(TextView):
 		
 	def dir([required] obj):
 		type = (obj as Type) or obj.GetType()
-		for member in type.GetMembers():
-			method = member as System.Reflection.MethodInfo
-			if method is not null:
-				yield method if method.IsPublic and not method.IsSpecialName
-			else:
-				yield member
+		return [
+				member for member in type.GetMembers()
+				unless (method=(member as System.Reflection.MethodInfo))
+				and method.IsSpecialName]
 		
 	def help(obj):
 		print(join(dir(obj), "\n"))
