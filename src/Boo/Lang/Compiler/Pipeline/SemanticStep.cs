@@ -257,9 +257,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			Method setter = node.Setter;
 			Method getter = node.Getter;
 			
-			Switch(node.Attributes);
+			Switch(node.Attributes);			
 			Switch(node.Type);
-			Switch(getter);
+			
+			Switch(node.Parameters);
+			if (null != getter)
+			{
+				getter.Name = "get_" + node.Name;
+				getter.Parameters.AddClones(node.Parameters);
+				Switch(getter);
+			}
 			
 			ITypeBinding typeBinding = null;
 			if (null != node.Type)
@@ -284,15 +291,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CreateBoundTypeReference(typeBinding);
 				parameter.Name = "value";
+				setter.Parameters.AddClones(node.Parameters);
 				setter.Parameters.Add(parameter);
 				Switch(setter);
 				
 				setter.Name = "set_" + node.Name;
-			}
-			
-			if (null != getter)
-			{
-				getter.Name = "get_" + node.Name;
 			}
 		}
 		
@@ -406,6 +409,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopNamespace();
 			PopMethodBinding();
 			BindParameterIndexes(node);
+		}
+		
+		public override bool EnterParameterDeclaration(ParameterDeclaration parameter)
+		{
+			return !BindingManager.IsBound(parameter);
 		}
 		
 		public override void LeaveParameterDeclaration(ParameterDeclaration parameter)

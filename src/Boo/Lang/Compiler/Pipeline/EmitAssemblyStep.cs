@@ -2110,9 +2110,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}	
 		
-		Type[] GetParameterTypes(Method method)
+		Type[] GetParameterTypes(ParameterDeclarationCollection parameters)
 		{
-			ParameterDeclarationCollection parameters = method.Parameters;
 			Type[] types = new Type[parameters.Count];
 			for (int i=0; i<types.Length; ++i)
 			{
@@ -2384,7 +2383,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PropertyBuilder builder = typeBuilder.DefineProperty(property.Name, 
 			                                            GetPropertyAttributes(property),
 			                                            GetType(property.Type),
-			                                            new Type[0]);
+			                                            GetParameterTypes(property.Parameters));
 			Method getter = property.Getter;
 			Method setter = property.Setter;
 			
@@ -2417,10 +2416,17 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		MethodBuilder DefineMethod(TypeBuilder typeBuilder, Method method, MethodAttributes attributes)
 		{			
+			ParameterDeclarationCollection parameters = method.Parameters;
+			
 			MethodBuilder builder = typeBuilder.DefineMethod(method.Name, 
                                         GetMethodAttributes(method) | attributes,
-                                        GetType(method.ReturnType),
-                                        GetParameterTypes(method));
+                                        GetType(method.ReturnType),                             
+										GetParameterTypes(parameters));
+			for (int i=0; i<parameters.Count; ++i)
+			{
+				builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+			}
+			
 			/*
 			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(method);
 			IMethodBinding overriden = binding.Override;
@@ -2441,7 +2447,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			ConstructorBuilder builder = typeBuilder.DefineConstructor(GetMethodAttributes(constructor),
 			                               CallingConventions.Standard, 
-			                               GetParameterTypes(constructor));
+			                               GetParameterTypes(constructor.Parameters));
 			SetBuilder(constructor, builder);
 		}
 		

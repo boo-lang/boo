@@ -212,7 +212,7 @@ done * promoção numérica na inferência de tipos de retorno
 
 done * (parcialmente) implementação de interfaces
 
-* indexed properties:
+done * indexed properties:
 	Item(key as string):
 		get:
 			return _hash[key]

@@ -268,6 +268,7 @@ namespace Boo.Lang.Compiler.Pipeline
 							else
 							{
 								// remember the attribute's type
+								attribute.Name = attributeType.FullName;
 								BindingManager.Bind(attribute, attributeType);
 							}
 						}

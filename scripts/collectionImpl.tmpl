@@ -86,6 +86,14 @@ namespace Boo.Lang.Ast.Impl
 			}
 		}
 		
+		public void AddClones(System.Collections.ICollection items)
+		{
+			foreach ($itemType item in items)
+			{
+				base.Add(item.CloneNode());
+			}
+		}
+		
 		public void Insert(int index, $itemType item)
 		{
 			base.Insert(index, item);

@@ -99,7 +99,6 @@ tokens
 	OVERRIDE="override";	
 	PASS="pass";
 	NAMESPACE="namespace";
-	PROPERTY="property";
 	PUBLIC="public";
 	PROTECTED="protected";
 	PRIVATE="private";
@@ -116,7 +115,6 @@ tokens
 	TRUE="true";
 	UNLESS="unless";
 	UNTIL="until";
-	VOID="void";	
 	WHEN="when";
 	WHILE="while";
 	YIELD="yield";
@@ -584,6 +582,12 @@ method [TypeMemberCollection container]
 	;	
 	
 protected
+property_header:	
+	LPAREN! |
+	((AS! type_reference)? COLON!)
+	;
+	
+protected
 field_or_property [TypeMemberCollection container]
 	{
 		TypeMember tm = null;
@@ -591,31 +595,38 @@ field_or_property [TypeMemberCollection container]
 		Property p = null;
 		Expression initializer = null;
 	}: 
-	id:ID (AS! tr=type_reference)? (ASSIGN! initializer=expression)?
-	(
-		eos
-		{
-			Field field = new Field(ToLexicalInfo(id));
-			field.Type = tr;
-			field.Initializer = initializer;
-			tm = field;
-			tm.Name = id.getText();
-			tm.Modifiers = _modifiers;
-			tm.Attributes.Add(_attributes);
-		}
-		docstring[tm]
-		|		
-		{
-			p = new Property(ToLexicalInfo(id));			
-			p.Type = tr;
-			tm = p;
-			tm.Name = id.getText();
-			tm.Modifiers = _modifiers;
-			tm.Attributes.Add(_attributes);
-		}		
-		begin_with_doc[p]
-			(property_accessor[p])+
-		end
+	id:ID
+	(		
+		(property_header)=>(
+			{ p = new Property(ToLexicalInfo(id)); }			
+			(LPAREN! parameter_declaration_list[p.Parameters] RPAREN!)?
+			(AS! tr=type_reference)?
+			{							
+				p.Type = tr;
+				tm = p;
+				tm.Name = id.getText();
+				tm.Modifiers = _modifiers;
+				tm.Attributes.Add(_attributes);
+			}		
+			begin_with_doc[p]
+				(property_accessor[p])+
+			end
+		)
+		|
+		(
+			(AS! tr=type_reference)? (ASSIGN! initializer=expression)?
+			eos
+			{
+				Field field = new Field(ToLexicalInfo(id));
+				field.Type = tr;
+				field.Initializer = initializer;
+				tm = field;
+				tm.Name = id.getText();
+				tm.Modifiers = _modifiers;
+				tm.Attributes.Add(_attributes);
+			}
+			docstring[tm]
+		)
 	)
 	{ container.Add(tm); }
 	;

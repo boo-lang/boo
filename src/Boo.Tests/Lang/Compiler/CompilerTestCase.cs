@@ -369,9 +369,15 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void TestEnum0()
+		public void EnumUsage()
 		{
 			RunCompilerTestCase("enum0.boo", "TestEnum.Foo");
+		}
+		
+		[Test]
+		public void EnumDefinition()
+		{
+			RunCompilerTestCase("enum1.boo");
 		}
 		
 		[Test]
@@ -878,6 +884,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void HashLiteral()
 		{
 			RunCompilerTestCase("hash0.boo");
+		}
+		
+		[Test]
+		public void IndexedProperty()
+		{
+			RunCompilerTestCase("indexed.boo");
 		}
 	}
 }

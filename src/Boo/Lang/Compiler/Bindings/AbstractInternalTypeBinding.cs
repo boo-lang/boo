@@ -209,6 +209,22 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public IBinding GetDefaultMember()
 		{
+			ITypeBinding defaultMemberAttribute = _bindingManager.AsTypeBinding(typeof(System.Reflection.DefaultMemberAttribute));
+			foreach (Boo.Lang.Ast.Attribute attribute in _typeDefinition.Attributes)
+			{
+				IConstructorBinding binding = BindingManager.GetBinding(attribute) as IConstructorBinding;
+				if (null != binding)
+				{
+					if (defaultMemberAttribute == binding.DeclaringType)
+					{
+						StringLiteralExpression memberName = attribute.Arguments[0] as StringLiteralExpression;
+						if (null != memberName)
+						{
+							return Resolve(memberName.Value);
+						}
+					}
+				}
+			}
 			return null;
 		}
 		

@@ -1,32 +1,3 @@
-﻿#region license
-// boo - an extensible programming language for the CLI
-// Copyright (C) 2004 Rodrigo B. de Oliveira
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// As a special exception, if you link this library with other files to
-// produce an executable, this library does not by itself cause the
-// resulting executable to be covered by the GNU General Public License.
-// This exception does not however invalidate any other reasons why the
-// executable file might be covered by the GNU General Public License.
-//
-// Contact Information
-//
-// mailto:rbo@acm.org
-#endregion
-
 // $ANTLR 2.7.2: "src/Boo.Antlr/booel.g" -> "BooExpressionLexer.cs"$
 
 namespace Boo.Antlr
@@ -115,62 +86,60 @@ namespace Boo.Antlr
 		public const int OVERRIDE = 54;
 		public const int PASS = 55;
 		public const int NAMESPACE = 56;
-		public const int PROPERTY = 57;
-		public const int PUBLIC = 58;
-		public const int PROTECTED = 59;
-		public const int PRIVATE = 60;
-		public const int RAISE = 61;
-		public const int RETURN = 62;
-		public const int RETRY = 63;
-		public const int SET = 64;
-		public const int SELF = 65;
-		public const int SUPER = 66;
-		public const int STATIC = 67;
-		public const int SUCCESS = 68;
-		public const int TRY = 69;
-		public const int TRANSIENT = 70;
-		public const int TRUE = 71;
-		public const int UNLESS = 72;
-		public const int UNTIL = 73;
-		public const int VOID = 74;
-		public const int WHEN = 75;
-		public const int WHILE = 76;
-		public const int YIELD = 77;
-		public const int EOS = 78;
-		public const int TRIPLE_QUOTED_STRING = 79;
-		public const int ID = 80;
-		public const int ASSIGN = 81;
-		public const int LBRACK = 82;
-		public const int COMMA = 83;
-		public const int RBRACK = 84;
-		public const int LPAREN = 85;
-		public const int RPAREN = 86;
-		public const int COLON = 87;
-		public const int QMARK = 88;
-		public const int ADD = 89;
-		public const int SUBTRACT = 90;
-		public const int BITWISE_OR = 91;
-		public const int MULT_OPERATOR = 92;
-		public const int INCREMENT = 93;
-		public const int DECREMENT = 94;
-		public const int CMP_OPERATOR = 95;
-		public const int DOT = 96;
-		public const int INT = 97;
-		public const int DOUBLE_QUOTED_STRING = 98;
-		public const int SINGLE_QUOTED_STRING = 99;
-		public const int LBRACE = 100;
-		public const int RBRACE = 101;
-		public const int RE_LITERAL = 102;
-		public const int SL_COMMENT = 103;
-		public const int WS = 104;
-		public const int ESCAPED_EXPRESSION = 105;
-		public const int DQS_ESC = 106;
-		public const int SQS_ESC = 107;
-		public const int SESC = 108;
-		public const int RE_CHAR = 109;
-		public const int RE_ESC = 110;
-		public const int ID_LETTER = 111;
-		public const int DIGIT = 112;
+		public const int PUBLIC = 57;
+		public const int PROTECTED = 58;
+		public const int PRIVATE = 59;
+		public const int RAISE = 60;
+		public const int RETURN = 61;
+		public const int RETRY = 62;
+		public const int SET = 63;
+		public const int SELF = 64;
+		public const int SUPER = 65;
+		public const int STATIC = 66;
+		public const int SUCCESS = 67;
+		public const int TRY = 68;
+		public const int TRANSIENT = 69;
+		public const int TRUE = 70;
+		public const int UNLESS = 71;
+		public const int UNTIL = 72;
+		public const int WHEN = 73;
+		public const int WHILE = 74;
+		public const int YIELD = 75;
+		public const int EOS = 76;
+		public const int TRIPLE_QUOTED_STRING = 77;
+		public const int ID = 78;
+		public const int ASSIGN = 79;
+		public const int LBRACK = 80;
+		public const int COMMA = 81;
+		public const int RBRACK = 82;
+		public const int LPAREN = 83;
+		public const int RPAREN = 84;
+		public const int COLON = 85;
+		public const int QMARK = 86;
+		public const int ADD = 87;
+		public const int SUBTRACT = 88;
+		public const int BITWISE_OR = 89;
+		public const int MULT_OPERATOR = 90;
+		public const int INCREMENT = 91;
+		public const int DECREMENT = 92;
+		public const int CMP_OPERATOR = 93;
+		public const int DOT = 94;
+		public const int INT = 95;
+		public const int DOUBLE_QUOTED_STRING = 96;
+		public const int SINGLE_QUOTED_STRING = 97;
+		public const int LBRACE = 98;
+		public const int RBRACE = 99;
+		public const int RE_LITERAL = 100;
+		public const int SL_COMMENT = 101;
+		public const int WS = 102;
+		public const int ESCAPED_EXPRESSION = 103;
+		public const int DQS_ESC = 104;
+		public const int SQS_ESC = 105;
+		public const int SESC = 106;
+		public const int RE_CHAR = 107;
+		public const int RE_ESC = 108;
+		public const int ID_LETTER = 109;
+		public const int DIGIT = 110;
 		
 		
 	
@@ -205,57 +174,55 @@ namespace Boo.Antlr
 			setCaseSensitive(true);
 			literals = new Hashtable(null, Comparer.Default);
 			literals.Add("otherwise", 53);
-			literals.Add("retry", 63);
+			literals.Add("retry", 62);
 			literals.Add("internal", 45);
 			literals.Add("failure", 36);
 			literals.Add("class", 29);
-			literals.Add("private", 60);
+			literals.Add("private", 59);
 			literals.Add("def", 31);
 			literals.Add("if", 48);
 			literals.Add("pass", 55);
 			literals.Add("ensure", 33);
 			literals.Add("override", 54);
-			literals.Add("unless", 72);
+			literals.Add("unless", 71);
 			literals.Add("isa", 47);
-			literals.Add("self", 65);
-			literals.Add("when", 75);
-			literals.Add("success", 68);
+			literals.Add("self", 64);
+			literals.Add("when", 73);
+			literals.Add("success", 67);
 			literals.Add("in", 49);
 			literals.Add("enum", 34);
 			literals.Add("continue", 28);
 			literals.Add("from", 38);
 			literals.Add("given", 42);
 			literals.Add("import", 43);
-			literals.Add("while", 76);
+			literals.Add("while", 74);
 			literals.Add("as", 26);
 			literals.Add("not", 50);
 			literals.Add("false", 40);
 			literals.Add("namespace", 56);
-			literals.Add("super", 66);
-			literals.Add("protected", 59);
+			literals.Add("super", 65);
+			literals.Add("protected", 58);
 			literals.Add("null", 51);
 			literals.Add("or", 52);
 			literals.Add("constructor", 30);
-			literals.Add("true", 71);
-			literals.Add("void", 74);
+			literals.Add("true", 70);
 			literals.Add("interface", 44);
-			literals.Add("raise", 61);
+			literals.Add("raise", 60);
 			literals.Add("break", 27);
 			literals.Add("final", 37);
 			literals.Add("for", 39);
-			literals.Add("try", 69);
+			literals.Add("try", 68);
 			literals.Add("except", 35);
-			literals.Add("yield", 77);
+			literals.Add("yield", 75);
 			literals.Add("else", 32);
-			literals.Add("return", 62);
-			literals.Add("public", 58);
-			literals.Add("static", 67);
-			literals.Add("transient", 70);
+			literals.Add("return", 61);
+			literals.Add("public", 57);
+			literals.Add("static", 66);
+			literals.Add("transient", 69);
 			literals.Add("is", 46);
 			literals.Add("and", 25);
-			literals.Add("property", 57);
-			literals.Add("until", 73);
-			literals.Add("set", 64);
+			literals.Add("until", 72);
+			literals.Add("set", 63);
 			literals.Add("get", 41);
 		}
 		

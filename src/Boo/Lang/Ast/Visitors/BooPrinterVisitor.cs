@@ -160,6 +160,10 @@ namespace Boo.Lang.Ast.Visitors
 			WriteAttributes(node.Attributes, true);			
 			WriteModifiers(node);
 			WriteIndented(node.Name);
+			if (node.Parameters.Count > 0)
+			{
+				WriteParameterList(node.Parameters);
+			}
 			WriteTypeReference(node.Type);
 			WriteLine(":");
 			Indent();
@@ -205,16 +209,7 @@ namespace Boo.Lang.Ast.Visitors
 			WriteModifiers(m);
 			WriteKeyword("def ");
 			Write(m.Name);
-			Write("(");
-			for (int i=0; i<m.Parameters.Count; ++i)
-			{
-				if (i > 0)
-				{
-					Write(", ");
-				}
-				OnParameterDeclaration(m.Parameters[i]);
-			}
-			Write(")");
+			WriteParameterList(m.Parameters);
 			WriteTypeReference(m.ReturnType);
 			if (m.ReturnTypeAttributes.Count > 0)
 			{
@@ -849,6 +844,13 @@ namespace Boo.Lang.Ast.Visitors
 				}				
 			}
 			writer.Write("'");
+		}
+		
+		void WriteParameterList(ParameterDeclarationCollection items)
+		{
+			Write("(");
+			WriteCommaSeparatedList(items);
+			Write(")");
 		}
 		
 		void WriteCommaSeparatedList(NodeCollection items)
