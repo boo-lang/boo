@@ -491,13 +491,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			BindExpressionType(context, fieldEntity.DeclaringType);
 			
-			MemberReferenceExpression member = new MemberReferenceExpression(context, node.Name);
-			Bind(member, fieldEntity);
-			BindExpressionType(member, fieldEntity.Type);
-			
 			// <node.Name> = <node.Initializer>
 			stmt.Expression = new BinaryExpression(BinaryOperatorType.Assign,
-									member,
+									CreateMemberReference(context, fieldEntity),
 									node.Initializer);
 			BindExpressionType(stmt.Expression, fieldEntity.Type);
 			
@@ -1132,18 +1128,13 @@ namespace Boo.Lang.Compiler.Steps
 			{	
 				if (CheckParameters(node, getter, mie.Arguments))
 				{
-					if (defaultMember)
+					Expression target = node.Target;
+					if (!defaultMember)
 					{
-						mie.Target = new MemberReferenceExpression(node.Target, getter.Name);
-					}
-					else
-					{
-						Expression target = ((MemberReferenceExpression)node.Target).Target;
-						mie.Target = new MemberReferenceExpression(target, getter.Name);
+						target = ((MemberReferenceExpression)node.Target).Target;						
 					}
 					
-					Bind(mie.Target, getter);
-					BindExpressionType(mie.Target, getter.Type);
+					mie.Target = CreateMemberReference(target, getter);
 					BindExpressionType(mie, getter.ReturnType);
 					
 					node.ParentNode.Replace(node, mie);
@@ -1353,15 +1344,10 @@ namespace Boo.Lang.Compiler.Steps
 			Bind(field, tag);
 			
 			AddFieldInitializerToStaticConstructor(0, field);
-
-			MemberReferenceExpression reference = new MemberReferenceExpression(node.LexicalInfo);
-			reference.Target = new ReferenceExpression(field.DeclaringType.FullName);
-			reference.Name = field.Name;
-			BindExpressionType(reference.Target, _currentMethodInfo.DeclaringType);
-			Bind(reference, tag);			
-			BindExpressionType(reference, tag.Type);
 			
-			parent.Replace(node, reference);
+			parent.Replace(node, CreateMemberReference(
+									CreateReference(node.LexicalInfo, _currentMethodInfo.DeclaringType),
+									tag));
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -2156,6 +2142,13 @@ namespace Boo.Lang.Compiler.Steps
 			return mie;
 		}
 		
+		ReferenceExpression CreateReference(LexicalInfo info, IType type)
+		{
+			ReferenceExpression expression = new ReferenceExpression(info, type.FullName);
+			Bind(expression, type);
+			return expression;
+		}
+		
 		MemberReferenceExpression CreateMemberReference(Expression target, IMember member)
 		{
 			MemberReferenceExpression reference = new MemberReferenceExpression(target.LexicalInfo);
@@ -2583,16 +2576,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (TypeSystemServices.ICallableType.IsAssignableFrom(type))
 			{
-				node.Target = new MemberReferenceExpression(node.Target.LexicalInfo,
-									node.Target,
-									"Call");
+				node.Target = CreateMemberReference(node.Target, ICallable_Call);
 				ArrayLiteralExpression arg = new ArrayLiteralExpression();
 				BindExpressionType(arg, TypeSystemServices.ObjectArrayType);
 				arg.Items.Extend(node.Arguments);							
 				node.Arguments.Clear();
-				node.Arguments.Add(arg);							
+				node.Arguments.Add(arg);
 				
-				Bind(node.Target, ICallable_Call);
 				BindExpressionType(node, ICallable_Call.ReturnType);
 			}
 			else if (TypeSystemServices.TypeType == type)

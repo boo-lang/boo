@@ -1,6 +1,4 @@
-﻿* fix field initializer with __eval__
-
-* fix property handling with __eval__
+﻿* fix property handling with __eval__
 
 * fix ICallable for callable types
 	* callable7.boo
@@ -29,6 +27,9 @@
 
 * generator expressions
 	return i*3 for i in range(10)
+	
+* boox:
+	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código
 	
 * Exemplo de passo com estatísticas sobre membros utilizados
 	* summary of class status (http://www.go-mono.com/class-status.html)

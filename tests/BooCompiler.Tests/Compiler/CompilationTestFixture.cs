@@ -1320,6 +1320,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void UseFunctionReferenceAsDelegateInstance()
+		{
+			RunCompilerTestCase("callable10.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");
