@@ -1,0 +1,3 @@
+import globals
+
+print(Foo())
