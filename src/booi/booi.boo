@@ -79,10 +79,12 @@ def Main(argv as (string)):
 	for arg in argv:
 		if "-" == arg:
 			compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))
+			break
 		elif "-ducky" == arg:
 			compiler.Parameters.Ducky = true
 		else:
 			compiler.Parameters.Input.Add(FileInput(arg))
+			break
 	
 	resolver = AssemblyResolver()
 	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
