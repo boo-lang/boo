@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Boo.Ast;
 using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.NameBinding;
+using Boo.Ast.Compilation.Binding;
 
 namespace Boo.Ast.Compilation.Steps
 {
@@ -85,7 +85,7 @@ namespace Boo.Ast.Compilation.Steps
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
-			if (type != NameBinding.BindingManager.VoidType)
+			if (type != Binding.BindingManager.VoidType)
 			{
 				_il.Emit(OpCodes.Pop);
 			}
@@ -149,19 +149,19 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
-			INameBinding info = BindingManager.GetBinding(node);
+			IBinding info = BindingManager.GetBinding(node);
 			switch (info.BindingType)
 			{
-				case NameBindingType.Local:
+				case BindingType.Local:
 				{
 					LocalBinding local = (LocalBinding)info;
 					_il.Emit(OpCodes.Ldloc, local.LocalBuilder);
 					break;
 				}
 				
-				case NameBindingType.Parameter:
+				case BindingType.Parameter:
 				{
-					NameBinding.ParameterBinding param = (NameBinding.ParameterBinding)info;
+					Binding.ParameterBinding param = (Binding.ParameterBinding)info;
 					_il.Emit(OpCodes.Ldarg, param.Index);
 					break;
 				}

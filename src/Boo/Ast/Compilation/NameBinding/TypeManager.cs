@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Boo.Ast;
 
-namespace Boo.Ast.Compilation.NameBinding
+namespace Boo.Ast.Compilation.Binding
 {
 	public class BindingManager
 	{
@@ -17,10 +17,10 @@ namespace Boo.Ast.Compilation.NameBinding
 		
 		public bool IsBound(Node node)
 		{
-			return null != node[NameBindingKey];
+			return null != node[BindingKey];
 		}
 		
-		public void Bind(Node node, INameBinding mi)
+		public void Bind(Node node, IBinding mi)
 		{
 			if (null == node)
 			{
@@ -31,7 +31,7 @@ namespace Boo.Ast.Compilation.NameBinding
 				throw new ArgumentNullException("mi");
 			}
 			
-			node[NameBindingKey] = mi;
+			node[BindingKey] = mi;
 		}
 		
 		public void Bind(TypeDefinition type, TypeBuilder builder)
@@ -49,14 +49,14 @@ namespace Boo.Ast.Compilation.NameBinding
 			Bind(expression, ToTypeBinding(type));
 		}		
 		
-		public INameBinding GetBinding(Node node)
+		public IBinding GetBinding(Node node)
 		{
 			if (null == node)
 			{
 				throw new ArgumentNullException("node");
 			}
 			
-			INameBinding binding = (INameBinding)node[NameBindingKey];
+			IBinding binding = (IBinding)node[BindingKey];
 			if (null == binding)
 			{
 				throw new Error(node, ResourceManager.Format("BindingManager.UnboundNode", node, node.LexicalInfo));
@@ -69,7 +69,7 @@ namespace Boo.Ast.Compilation.NameBinding
 			return new ExternalTypeBinding(this, type);
 		}
 		
-		public INameBinding ToBinding(System.Reflection.MemberInfo[] info)
+		public IBinding ToBinding(System.Reflection.MemberInfo[] info)
 		{
 			if (info.Length > 1)
 			{
@@ -78,7 +78,7 @@ namespace Boo.Ast.Compilation.NameBinding
 			return ToBinding(info[0]);
 		}
 		
-		public INameBinding ToBinding(System.Reflection.MemberInfo mi)
+		public IBinding ToBinding(System.Reflection.MemberInfo mi)
 		{
 			switch (mi.MemberType)
 			{
@@ -125,6 +125,6 @@ namespace Boo.Ast.Compilation.NameBinding
 			return (LocalBinding)GetBinding(local);
 		}
 		
-		static object NameBindingKey = new object();
+		static object BindingKey = new object();
 	}
 }

@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using Boo;
 using Boo.Ast;
 using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.NameBinding;
+using Boo.Ast.Compilation.Binding;
 
 namespace Boo.Ast.Compilation.Steps
 {		
@@ -67,10 +67,10 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnTypeReference(TypeReference node)
 		{
-			INameBinding info = ResolveName(node, node.Name);
+			IBinding info = ResolveName(node, node.Name);
 			if (null != info)
 			{
-				if (NameBindingType.Type != info.BindingType)
+				if (BindingType.Type != info.BindingType)
 				{
 					Errors.NameNotType(node, node.Name);
 				}
@@ -96,7 +96,7 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					parameter.Type.Switch(this);
 				}
-				NameBinding.ParameterBinding info = new NameBinding.ParameterBinding(parameter, BindingManager.GetTypeBinding(parameter.Type), i);
+				Binding.ParameterBinding info = new Binding.ParameterBinding(parameter, BindingManager.GetTypeBinding(parameter.Type), i);
 				BindingManager.Bind(parameter, info);
 			}
 		}
@@ -125,7 +125,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
-			INameBinding info = ResolveName(node, node.Name);
+			IBinding info = ResolveName(node, node.Name);
 			if (null != info)
 			{
 				BindingManager.Bind(node, info);
@@ -146,7 +146,7 @@ namespace Boo.Ast.Compilation.Steps
 					
 					ITypeBinding expressionTypeInfo = BindingManager.GetTypeBinding(node.Right);
 					
-					INameBinding info = _namespace.Resolve(reference.Name);					
+					IBinding info = _namespace.Resolve(reference.Name);					
 					if (null == info)
 					{
 						Local local = new Local(reference);
@@ -186,8 +186,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			INameBinding targetType = BindingManager.GetBinding(node.Target);			
-			if (targetType.BindingType == NameBindingType.Method)
+			IBinding targetType = BindingManager.GetBinding(node.Target);			
+			if (targetType.BindingType == BindingType.Method)
 			{				
 				IMethodBinding targetMethod = (IMethodBinding)targetType;
 				CheckParameters(targetMethod, node);
@@ -202,9 +202,9 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		INameBinding ResolveName(Node node, string name)
+		IBinding ResolveName(Node node, string name)
 		{
-			INameBinding info = null;
+			IBinding info = null;
 			switch (name)
 			{
 				case "void":
@@ -229,7 +229,7 @@ namespace Boo.Ast.Compilation.Steps
 			return info;
 		}
 		
-		bool CheckNameResolution(Node node, string name, INameBinding info)
+		bool CheckNameResolution(Node node, string name, IBinding info)
 		{
 			if (null == info)
 			{
@@ -238,7 +238,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
-				if (info.BindingType == NameBindingType.AmbiguousName)
+				if (info.BindingType == BindingType.AmbiguousName)
 				{
 					//Errors.AmbiguousName(node, name, info);
 					//return false;

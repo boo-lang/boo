@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Boo.Ast.Compilation.NameBinding
+namespace Boo.Ast.Compilation.Binding
 {
 	public class ExternalMethodBinding : IMethodBinding
 	{
@@ -15,11 +15,11 @@ namespace Boo.Ast.Compilation.NameBinding
 			_mi = mi;
 		}
 		
-		public NameBindingType BindingType
+		public BindingType BindingType
 		{
 			get
 			{
-				return NameBindingType.Method;
+				return BindingType.Method;
 			}
 		}
 		

@@ -2,9 +2,9 @@ using System;
 using Boo.Ast;
 using BindingFlags = System.Reflection.BindingFlags;
 
-namespace Boo.Ast.Compilation.NameBinding
+namespace Boo.Ast.Compilation.Binding
 {
-	public enum NameBindingType
+	public enum BindingType
 	{
 		Type,
 		Method,		
@@ -13,15 +13,15 @@ namespace Boo.Ast.Compilation.NameBinding
 		AmbiguousName
 	}
 	
-	public interface INameBinding
+	public interface IBinding
 	{		
-		NameBindingType BindingType
+		BindingType BindingType
 		{
 			get;
 		}
 	}	
 	
-	public interface ITypeBinding : INameBinding
+	public interface ITypeBinding : IBinding
 	{
 		System.Type Type
 		{
@@ -29,7 +29,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		}
 	}
 	
-	public interface IMethodBinding : INameBinding
+	public interface IMethodBinding : IBinding
 	{
 		int ParameterCount
 		{
@@ -47,7 +47,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		}
 	}
 	
-	public class LocalBinding : INameBinding
+	public class LocalBinding : IBinding
 	{		
 		Local _local;
 		
@@ -61,11 +61,11 @@ namespace Boo.Ast.Compilation.NameBinding
 			_typeInfo = typeInfo;
 		}
 		
-		public NameBindingType BindingType
+		public BindingType BindingType
 		{
 			get
 			{
-				return NameBindingType.Local;
+				return BindingType.Local;
 			}
 		}
 		
@@ -107,7 +107,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		}
 	}
 	
-	public class ParameterBinding : INameBinding
+	public class ParameterBinding : IBinding
 	{
 		ParameterDeclaration _parameter;
 		
@@ -122,11 +122,11 @@ namespace Boo.Ast.Compilation.NameBinding
 			_index = index;
 		}
 		
-		public NameBindingType BindingType
+		public BindingType BindingType
 		{
 			get
 			{
-				return NameBindingType.Parameter;
+				return BindingType.Parameter;
 			}
 		}
 		
@@ -157,7 +157,7 @@ namespace Boo.Ast.Compilation.NameBinding
 	
 	public interface INameSpace
 	{		
-		INameBinding Resolve(string name);
+		IBinding Resolve(string name);
 	}
 	
 	class TypeNameSpace : INameSpace
@@ -177,7 +177,7 @@ namespace Boo.Ast.Compilation.NameBinding
 			_type = type;
 		}
 		
-		public INameBinding Resolve(string name)
+		public IBinding Resolve(string name)
 		{
 			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
 			if (members.Length > 0)
@@ -209,7 +209,7 @@ namespace Boo.Ast.Compilation.NameBinding
 			_parent = parent;
 		}
 		
-		public INameBinding Resolve(string name)
+		public IBinding Resolve(string name)
 		{
 			foreach (Local local in _method.Locals)
 			{
@@ -245,7 +245,7 @@ namespace Boo.Ast.Compilation.NameBinding
 			_typeDefinition = typeDefinition;
 		}
 		
-		public INameBinding Resolve(string name)
+		public IBinding Resolve(string name)
 		{			
 			foreach (TypeMember member in _typeDefinition.Members)
 			{

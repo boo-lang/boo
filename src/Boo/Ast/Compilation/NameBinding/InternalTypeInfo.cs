@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Boo.Ast.Compilation.NameBinding
+namespace Boo.Ast.Compilation.Binding
 {
 	public class InternalTypeBinding : ITypeBinding
 	{		
@@ -17,11 +17,11 @@ namespace Boo.Ast.Compilation.NameBinding
 			_builder = builder;
 		}
 		
-		public NameBindingType BindingType
+		public BindingType BindingType
 		{
 			get
 			{
-				return NameBindingType.Type;
+				return BindingType.Type;
 			}
 		}
 		

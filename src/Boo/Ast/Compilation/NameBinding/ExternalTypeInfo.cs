@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Boo.Ast.Compilation.NameBinding
+namespace Boo.Ast.Compilation.Binding
 {
 	public class ExternalTypeBinding : ITypeBinding
 	{
@@ -15,11 +15,11 @@ namespace Boo.Ast.Compilation.NameBinding
 			_type = type;
 		}
 		
-		public NameBindingType BindingType
+		public BindingType BindingType
 		{
 			get
 			{
-				return NameBindingType.Type;
+				return BindingType.Type;
 			}
 		}
 		

@@ -44,7 +44,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		protected NameBinding.BindingManager BindingManager
+		protected Binding.BindingManager BindingManager
 		{
 			get
 			{
