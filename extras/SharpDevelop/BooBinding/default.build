@@ -3,15 +3,15 @@
 
 	<!-- customizable properties -->
 	<property name="boo.dir" value="${path::get-full-path('../../../build')}" />
-	<property name="sharpd.dir" value = "C:\Arquivos de programas\SharpDevelop\bin" />
-	<property name="antlr.runtime.dll" value="${boo.dir}/antlr.runtime.dll" />
+	<property name="sharpd.dir" value = "C:\Arquivos de programas\SharpDevelop\bin" />	
 
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
-
-	<property name="booc" value="${boo.dir}/booc.exe" />
+	
 	<property name="Boo.dll" value="${boo.dir}/Boo.dll" />
+	<property name="Boo.Lang.Compiler.dll" value="${boo.dir}/Boo.Lang.Compiler.dll" />
 	<property name="Boo.AntlrParser.dll" value="${boo.dir}/Boo.AntlrParser.dll" />	
 	<property name="Boo.NAnt.dll" value="${boo.dir}/Boo.NAnt.dll" />		
+	<property name="antlr.runtime.dll" value="${boo.dir}/antlr.runtime.dll" />
 	
 	<target name="rebuild" depends="clean, build" />
 	
@@ -19,14 +19,13 @@
 		<delete dir="bin" if="${directory::exists('bin')}" />
 	</target>
 
-	<target name="build">
-		<mkdir dir="bin" />
-		<copy todir="bin" file="${Boo.dll}" />
-		<loadtasks assembly="${Boo.NAnt.dll}" />
-		<booc output="bin/BooBinding.dll" target="library" verbose="true">
+	<target name="build" depends="init">		
+		<csc
+			output="bin/BooBinding.dll"
+			target="library">
 		
 			<sources basedir=".">
-				<includes name="**/*.boo" />
+				<includes name="**/*.cs" />
 			</sources>
 			
 			<references basedir="${sharpd.dir}">
@@ -37,6 +36,10 @@
 				<!--includes name="ICSharpCode.SharpRefactory.dll"/-->
 				<includes name="${Boo.AntlrParser.dll}" />
 			</references>
-		</booc>
+		</csc>
+	</target>
+	
+	<target name="init">
+		<mkdir dir="bin" />
 	</target>
 </project>
