@@ -302,15 +302,20 @@
 		</exec>
 	</target>
 	
-	<target name="distro" depends="check-distro-version, src-distro, bin-distro">
+	<target name="distro" depends="check-distro-version, src-distro">
 	</target>
 	
 	<target name="check-distro-version" unless="${property::exists('distro-version')}">
 		<fail>You must specify the distro-version property!</fail>
 	</target>
 	
-	<target name="bin-distro">
-		<zip zipfile="boo-${distro-version}-bin.zip" ziplevel="9">
+	<target name="prepare-bin-distro" depends="insert-license">
+		<property name="distro.dir" value="build/distro" />
+		
+		<delete dir="${distro.dir}" if="${directory::exists(distro.dir)}" />
+		<mkdir dir="${distro.dir}" />
+		
+		<copy todir="${distro.dir}">
 			<fileset>
 				<include name="readme.txt" />
 				<include name="license.txt" />
@@ -322,14 +327,20 @@
 				<include name="bin/*.exe" />
 				<include name="bin/*.rsp" />
 				
-				<include name="extras/boo.lang" />
+				<include name="extras/**/*.boo" />
+				<include name="extras/**/*.cs" />
+				<include name="extras/**/*.png" />
+				<include name="extras/**/*.ico" />
+				<include name="extras/**/*.prjx" />
+				<include name="extras/**/*.xml" />
+				<include name="extras/**/*.build" />
+				<include name="extras/**/*.lang" />
 				<include name="extras/install-gtksourceview-mode" />
-				<include name="extras/boo*.xml" />
-				<include name="extras/SharpDevelop/boo.xshd" />
-				<include name="extras/boox/**/*.boo" />
-				<include name="extras/boox/**/*.build" />
-				<include name="extras/boox/resources/**/*.png" />
-				<include name="extras/boox/resources/**/*.ico" />
+				<include name="extras/SharpDevelop/**/*.xshd" />
+				<include name="extras/SharpDevelop/**/*.xft" />
+				<include name="extras/SharpDevelop/**/*.xpt" />
+				<include name="extras/SharpDevelop/**/*.txtres" />
+				<include name="extras/SharpDevelop/**/*.addin" />
 				
 				<include name="examples/**/*.boo" />
 				<include name="examples/**/*.xml" />
@@ -337,56 +348,47 @@
 				<include name="examples/**/*.build" />
 				<include name="examples/**/*.config" />
 			</fileset>
+		</copy>
+	</target>
+	
+	<target name="bin-distro" depends="prepare-bin-distro">
+		<zip zipfile="boo-${distro-version}-bin.zip" ziplevel="9">
+			<fileset basedir="${distro.dir}">
+				<include name="**" />
+			</fileset>
 		</zip>
 	</target>
 	
-	<target name="src-distro" depends="insert-license">
-		<zip zipfile="boo-${distro-version}-src.zip" ziplevel="9">
-			<fileset>
-				<include name="readme.txt" />
-				<include name="license.txt" />
-				<include name="notice.txt" />
-				<include name="ast.model.boo" />
-				<include name="docs/**/*.boo" />
-				<include name="docs/**/*.build" />
-				<include name="docs/**/*.sxw" />
-				<include name="bin/**/*.dll" />
-				<include name="bin/*.exe" />
-				<include name="bin/*.rsp" />
-				
-				<include name="extras/boo.lang" />
-				<include name="extras/install-gtksourceview-mode" />
-				<include name="extras/boo*.xml" />
-				<include name="extras/SharpDevelop/boo.xshd" />
-				<include name="extras/boox/**/*.boo" />
-				<include name="extras/boox/**/*.build" />
-				<include name="extras/boox/resources/**/*.png" />
-				<include name="extras/boox/resources/**/*.ico" />
-				
-				<include name="examples/**/*.boo" />
-				<include name="examples/**/*.xml" />
-				<include name="examples/**/*.aspx" />
-				<include name="examples/**/*.build" />
-				<include name="examples/**/*.config" />
-				
+	<target name="prepare-src-distro" depends="bin-distro">
+		<copy todir="${distro.dir}">
+			<fileset>				
 				<include name="default.build" />
 				<include name="scripts/*.boo" />				
 				<include name="lib/**/*.jar" />
 				<include name="lib/**/*.dll" />
+				<include name="lib/**/*.txt" />
 				
 				<include name="src/**/*.cs" />
 				<include name="src/**/*.boo" />
 				<include name="src/**/*.rsp" />
 				<include name="src/**/*.g" />
 				<include name="src/**/*.prjx" />
-				<include name="src/Boo/Resources/strings.txt" />
-				<include name="src/Boo/Resources/pt/strings.txt" />
+				<include name="src/**/*.cmbx" />
+				<include name="src/Boo/Resources/**/*.txt" />
 				
 				<include name="tests/**/*.boo" />
 				<include name="tests/**/*.cs" />
 				<include name="tests/**/*.txt" />
 				<include name="tests/**/*.build" />
 				<include name="tests/**/*.prjx" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="src-distro" depends="prepare-src-distro">
+		<zip zipfile="boo-${distro-version}-src.zip" ziplevel="9">
+			<fileset basedir="${distro.dir}">
+				<include name="**" />
 			</fileset>
 		</zip>
 	</target>
