@@ -790,6 +790,24 @@ parameter_declaration[ParameterDeclarationCollection c]
 		c.Add(pd);
 	} 
 	;
+	
+protected
+callable_type_reference returns [CallableTypeReference ctr]
+	{
+		ctr = null;
+		TypeReference tr = null;
+	}:	
+	c:CALLABLE! LPAREN!
+	{
+		ctr = new CallableTypeReference(ToLexicalInfo(c));
+	}
+	(
+		tr=type_reference { ctr.Parameters.Add(tr); }
+		(COMMA! tr=type_reference { ctr.Parameters.Add(tr); })*
+	)?
+	RPAREN!
+	(AS! tr=type_reference { ctr.ReturnType = tr; })?
+	;
 
 protected
 type_reference returns [TypeReference tr]
@@ -807,6 +825,8 @@ type_reference returns [TypeReference tr]
 			tr = ttr;
 		}
 	)
+	|
+	(CALLABLE LPAREN)=>(tr=callable_type_reference)
 	|
 	(
 		(id=identifier | c:CALLABLE! { id=c; })

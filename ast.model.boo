@@ -43,6 +43,10 @@ class SimpleTypeReference(TypeReference):
 
 class ArrayTypeReference(TypeReference):
 	ElementType as TypeReference
+	
+class CallableTypeReference(TypeReference):
+	Parameters as TypeReferenceCollection
+	ReturnType as TypeReference
 
 [collection(TypeReference)]
 class TypeReferenceCollection:

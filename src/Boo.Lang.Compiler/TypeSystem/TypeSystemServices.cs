@@ -220,16 +220,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 				(type is Boo.Lang.Compiler.TypeSystem.ICallableType);
 		}
 		
-		public ICallableType GetCallableType(IMethod method)
+		public AnonymousCallableType GetCallableType(IMethod method)
 		{
 			CallableSignature signature = new CallableSignature(method);
-			ICallableType type = (ICallableType)_anonymousCallableTypes[signature];
+			return GetCallableType(signature);
+		}
+		
+		public AnonymousCallableType GetCallableType(CallableSignature signature)
+		{
+			AnonymousCallableType type = (AnonymousCallableType)_anonymousCallableTypes[signature];
 			if (null == type)
 			{
 				type = new AnonymousCallableType(this, signature);
 				_anonymousCallableTypes.Add(signature, type);
 			}
 			return type;
+		}
+		
+		public IType GetConcreteCallableType(Node sourceNode, CallableSignature signature)
+		{
+			AnonymousCallableType type = GetCallableType(signature);
+			return GetConcreteCallableType(sourceNode, type);
 		}
 		
 		public IType GetExpressionType(Expression node)
@@ -248,12 +259,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AnonymousCallableType anonymousType = type as AnonymousCallableType;
 			if (null != anonymousType)
 			{
-				if (null == anonymousType.ConcreteType)
-				{
-					CreateConcreteCallableType(expression, anonymousType);
-				}
-				expression.ExpressionType = anonymousType.ConcreteType;
-				return anonymousType.ConcreteType;
+				IType concreteType = GetConcreteCallableType(expression, anonymousType);
+				expression.ExpressionType = concreteType;
+				return concreteType;
 			}
 			return type;
 		}
@@ -757,6 +765,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			return null;
+		}
+		
+		IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		{
+			if (null == anonymousType.ConcreteType)
+			{
+				CreateConcreteCallableType(sourceNode, anonymousType);
+			}
+			return anonymousType.ConcreteType;
 		}
 		
 		void CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)

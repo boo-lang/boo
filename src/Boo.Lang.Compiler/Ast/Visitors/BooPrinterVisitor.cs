@@ -299,6 +299,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Visit(t.ElementType);
 			Write(")");
 		}
+		
+		override public void OnCallableTypeReference(CallableTypeReference node)
+		{
+			Write("callable(");
+			WriteCommaSeparatedList(node.Parameters);
+			Write(")");
+			WriteTypeReference(node.ReturnType);
+		}
 
 		override public void OnMemberReferenceExpression(MemberReferenceExpression e)
 		{

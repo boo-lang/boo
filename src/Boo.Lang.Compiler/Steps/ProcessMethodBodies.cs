@@ -1098,6 +1098,27 @@ namespace Boo.Lang.Compiler.Steps
 			NameResolutionService.ResolveSimpleTypeReference(node);
 		}
 		
+		override public void LeaveCallableTypeReference(CallableTypeReference node)
+		{
+			IParameter[] parameters = new IParameter[node.Parameters.Count];
+			for (int i=0; i<parameters.Length; ++i)
+			{
+				parameters[i] = new SimpleParameter("arg" + i, GetType(node.Parameters[i]));
+			}
+			
+			IType returnType = null;
+			if (null != node.ReturnType)
+			{
+				returnType = GetType(node.ReturnType);
+			}
+			else
+			{
+				returnType = TypeSystemServices.VoidType;
+			}
+			
+			node.Entity = TypeSystemServices.GetConcreteCallableType(node, new CallableSignature(parameters, returnType));
+		}
+		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
 			BindExpressionType(node, TypeSystemServices.BoolType);

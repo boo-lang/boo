@@ -110,7 +110,7 @@ namespace BooCompiler.Tests
 			CompilerPipeline pipeline = null;
 			
 			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported &&
-				GetEnvironmentFlag("boo.peverify", true))
+				GetEnvironmentFlag("peverify", true))
 			{			
 				pipeline = new CompileToFileAndVerify();				
 			}

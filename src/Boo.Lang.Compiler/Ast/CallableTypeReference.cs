@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,89 +26,24 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
 	
-	public class AnonymousCallableType : AbstractType, ICallableType
+	[Serializable]
+	public class CallableTypeReference : Boo.Lang.Compiler.Ast.Impl.CallableTypeReferenceImpl
 	{
-		TypeSystemServices _typeSystemServices;
-		CallableSignature _signature;
-		IType _concreteType;
-		
-		internal AnonymousCallableType(TypeSystemServices services, CallableSignature signature)
+		public CallableTypeReference()
 		{
-			if (null == services)
-			{
-				throw new ArgumentNullException("services");
-			}
-			if (null == signature)
-			{
-				throw new ArgumentNullException("signature");
-			}
-			_typeSystemServices = services;
-			_signature = signature;
 		}
 		
-		public IType ConcreteType
+		public CallableTypeReference(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-			get
-			{
-				return _concreteType;
-			}
-			
-			set
-			{
-				System.Diagnostics.Debug.Assert(null != value);
-				_concreteType = value;
-			}
 		}
 		
-		override public IType BaseType
+		override public void Accept(IAstVisitor visitor)
 		{
-			get
-			{
-				return _typeSystemServices.MulticastDelegateType;
-			}
-		}
-		
-		override public bool IsSubclassOf(IType other)
-		{			
-			return BaseType.IsSubclassOf(other) || other == BaseType ||
-				other == _typeSystemServices.ICallableType;				
-		}
-		
-		override public bool IsAssignableFrom(IType other)
-		{
-			return _typeSystemServices.IsCallableTypeAssignableFrom(this, other);
-		}
-		
-		public CallableSignature GetSignature()
-		{
-			return _signature;
-		}
-		
-		override public string Name
-		{
-			get
-			{				
-				return _signature.ToString(); 
-			}
-		}
-		
-		override public EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Type;
-			}
-		}
-		
-		override public int GetTypeDepth()
-		{
-			return 3;
+			visitor.OnCallableTypeReference(this);
 		}
 	}
 }
