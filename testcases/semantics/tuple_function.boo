@@ -6,6 +6,8 @@ public final transient class Tuple_functionModule(System.Object):
 			Boo.Lang.Builtins.print(a)
 		for a as System.Object in Boo.Lang.Builtins.tuple(Boo.Lang.Builtins.range(10)):
 			Boo.Lang.Builtins.print(a)
+		for a as System.String in Boo.Lang.Builtins.tuple(System.String, ['foo', 'bar']):
+			Boo.Lang.Builtins.print(a)
 
 	private def constructor():
 		super()
@@ -14,4 +16,7 @@ for a in tuple(int, range(10)):
 	print(a)
 	
 for a in tuple(range(10)):
+	print(a)
+
+for a in tuple(string, ["foo", "bar"]):
 	print(a)
