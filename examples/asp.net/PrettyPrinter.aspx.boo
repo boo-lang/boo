@@ -49,6 +49,10 @@ class PrettyPrinter(BooPrinterVisitor):
 	def Write(text as string):
 		Server.HtmlEncode(text, _writer)
 		
+	def WriteLine():		
+		_writer.Write("<br />")
+		super()
+		
 	def WriteKeyword(text as string):
 		_writer.Write("<span class='keyword'>${text}</span>")
 		
@@ -62,20 +66,25 @@ class PrettyPrinter(BooPrinterVisitor):
 		Server.HtmlEncode(buffer.ToString(), _writer)
 		_writer.Write("</span>")
 		
+	def OnIntegerLiteralExpression(node as IntegerLiteralExpression):
+		_writer.Write("<span class='integer'>${node.Value}</span>")
+		
 
 class PrettyPrinterPage(Page):
 	
-	_srcCode as TextBox
-	_printedCode as HtmlContainerControl
+	_src as TextBox
+	_pretty as HtmlContainerControl
 	
 	def Page_Load(sender, args as EventArgs):
 		PrintIt() if Page.IsPostBack
 		
-	def PrintIt():
-		cu = BooParser.ParseReader("<string>", StringReader(_srcCode.Text.Trim()))
+	def PrintIt():		
 		printer = PrettyPrinter(StringWriter(), IndentText: "&nbsp;&nbsp;")
-		printer.Print(cu)
-		_printedCode.InnerHtml = printer.Writer.ToString().Replace("\n", "<br />");
+		printer.Print(Parse())
+		_pretty.InnerHtml = printer.Writer.ToString()
+		
+	def Parse():
+		return BooParser.ParseString("<string>", _src.Text)
 
 			
 		
