@@ -165,5 +165,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _property;
 			}
 		}
+		
+		override public string ToString()
+		{
+			return string.Format("{0} as {1}", Name, Type);
+		}
 	}
 }

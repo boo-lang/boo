@@ -3,8 +3,6 @@
 
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
-	
-	<property name="skip.satellites" value="false" />
 
 	<property name="antlr.home" value="lib/antlr-2.7.4" />
 	<property name="java" value="java" />
@@ -183,12 +181,7 @@
 		</csc>
 	</target>
 
-	<target name="Boo" depends="compile-grammar, satellites">
-
-		<resgen
-			input="src/Boo/Resources/strings.txt"
-			output="build/strings.resources" />
-
+	<target name="Boo" depends="resources">
 		<csc
 			target="library"
 			output="build/Boo.dll"
@@ -201,6 +194,12 @@
 			
 			<resources basedir="build">
 				<include name="strings.resources" />
+			</resources>
+			<resources basedir="build/pt">
+				<include name="strings.pt.resources" />
+			</resources>
+			<resources basedir="build/it">
+				<include name="strings.it.resources" />
 			</resources>
 		</csc>
 	</target>
@@ -346,39 +345,27 @@
 		</zip>
 	</target>
 	
-	<target name="satellites" depends="init" unless="${skip.satellites}">
+	<target name="resources" depends="init">
+	
+		<resgen
+			input="src/Boo/Resources/strings.txt"
+			output="build/strings.resources" />
 	
 		<property name="locale" value="pt" />
-		<call target="build-satellite" />
+		<call target="build-resource" />
 		
 		<property name="locale" value="it" />
-		<call target="build-satellite" />
+		<call target="build-resource" />
 		
 	</target>
 	
-	<target name="build-satellite">
+	<target name="build-resource">
 	
 		<mkdir dir="${build.dir}/${locale}" />
-
 		<resgen
 			input="src/Boo/Resources/${locale}/strings.txt"
 			output="build/${locale}/strings.${locale}.resources" />
-
-		<al target="lib"
-			culture="${locale}"
-			output="build/${locale}/Boo.resources.dll"
-			if="${nant.platform.win32}">
-			<sources basedir="build/${locale}">
-				<include name="strings.${locale}.resources" />
-			</sources>
-		</al>
-		
-		<exec program="${path::combine(nant.settings.currentframework.sdkdirectory, 'al')}" if="${nant.platform.unix}">
-			<arg value="/target:lib" />
-			<arg value="/culture:${locale}" />
-			<arg value="/out:build/${locale}/Boo.resources.dll" />
-			<arg value="/embed:build/${locale}/strings.${locale}.resources" />
-		</exec>
+			
 	</target>
 
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">

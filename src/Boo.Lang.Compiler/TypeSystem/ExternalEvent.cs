@@ -120,5 +120,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _event.GetAddMethod().IsStatic;
 			}
 		}
+		
+		override public string ToString()
+		{
+			return _event.ToString();
+		}
 	}
 }

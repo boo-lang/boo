@@ -20,9 +20,6 @@ All the issues on this file will be eventually moved there.
 
 
 
-* Exemplo de passo com estatísticas sobre membros utilizados
-	* summary of class status (http://www.go-mono.com/class-status.html)
-	
 * fix property handling with __eval__
 
 * fix MethodReference.EndInvoke with __eval__ para o parametro asyncresult
@@ -40,12 +37,6 @@ super APÓS qualquer validação:
 		* chamada ao constructor super com prioriedade 1
 
 * cache da resolução de nomes entre compilações
-
-* booi: opçoes e um único script
-	* booi /c:pt-BR /r:Foo.dll /i:aux.boo foo.boo 1 2 3
-		argv do script seria (1, 2, 3), os argumentos que ocorrem
-		antes do primeiro nome simples de arquivo (foo.boo) seriam
-		consumidos pelo próprio booi
 
 * nomes de tipo primitivo podem ser utilizados em conversões:
 

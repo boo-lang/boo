@@ -62,7 +62,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return GetAccessor().IsPublic;
+				return (null != _property.GetGetMethod() ||
+						null != _property.GetSetMethod());
 			}
 		}
 		
