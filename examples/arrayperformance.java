@@ -1,4 +1,4 @@
-#region license
+//#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo Barreto de Oliveira
 //
@@ -19,7 +19,7 @@
 // Contact Information
 //
 // mailto:rbo@acm.org
-#endregion
+//#endregion
 
 import java.util.ArrayList;
 import java.util.Iterator;
