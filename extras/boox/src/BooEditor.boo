@@ -154,6 +154,7 @@ class BooEditor(Content):
 		if len(result.Errors):
 			UpdateTaskList(result.Errors)
 		else:
+			ClearTaskList()
 			try:
 				result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
 			except x:
@@ -169,8 +170,12 @@ class BooEditor(Content):
 		
 	def UpdateTaskList(errors as CompilerErrorCollection):
 		_main.TaskList.Clear()
+		_main.ShowTaskList()
 		for error in errors:
 			_main.TaskList.Add(error.ToString())
+
+	def ClearTaskList():
+		_main.TaskList.Clear()
 
 	def UpdateModule():
 		return unless _moduleDirty

@@ -102,13 +102,16 @@ class MainForm(Form):
 		return menu
 
 	def _timer_Tick(sender, args as EventArgs):
-
 		_timer.Enabled = false
+
+		NewDocument() unless len(_argv)
+		
 		for fname in _argv:
 			try:
 				OpenDocument(fname)
 			except x:
 				print(x)
+				
 		ShowDocumentOutline()
 
 	StatusText as string:
@@ -165,6 +168,9 @@ class MainForm(Form):
 		ShowDocumentOutline()
 
 	def _menuItemTaskList_Click(sender, args as EventArgs):
+		ShowTaskList()
+
+	def ShowTaskList():
 		_taskList.Show(_dockManager)
 
 	def _menuItemOpen_Click(sender, args as EventArgs):
