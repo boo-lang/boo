@@ -208,6 +208,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return LongType;
 			}
+			if (left == IntType ||
+				right == IntType)
+			{
+				return IntType;
+			}
 			if (left == ShortType ||
 				right == ShortType)
 			{
@@ -608,8 +613,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("string", StringType);
 			AddPrimitiveType("object", ObjectType);
 			AddPrimitiveType("byte", ByteType);
+			AddPrimitiveType("short", ShortType);
+			AddPrimitiveType("ushort", UShortType);
 			AddPrimitiveType("int", IntType);
+			AddPrimitiveType("uint", UIntType);
 			AddPrimitiveType("long", LongType);
+			AddPrimitiveType("ulong", ULongType);
 			AddPrimitiveType("single", SingleType);
 			AddPrimitiveType("double", DoubleType);
 			AddBuiltin(BuiltinFunction.Len);

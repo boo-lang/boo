@@ -153,12 +153,15 @@
 			<KeyWords name="ValueTypes" bold="true" italic="false" color="Purple" >
 				<Key word="bool"/>
 				<Key word="double"/>
-				<Key word="float"/>
+				<Key word="single"/>
 				<Key word="byte"/>
+				<Key word="short"/>
+				<Key word="ushort"/>
 				<Key word="int"/>
+				<Key word="uint"/>
 				<Key word="long"/>
+				<Key word="ulong"/>
 				<Key word="date"/>
-				<Key word="timespan"/>
 			</KeyWords>
 
 			<KeyWords name="ReferenceTypes" bold="true" italic="false" color="Purple" >
