@@ -736,14 +736,15 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 		}
 		
-		override public bool EnterDeclarationStatement(DeclarationStatement node)
+		override public void OnDeclarationStatement(DeclarationStatement d)
 		{
 			WriteIndented();
-			return true;
-		}
-		
-		override public void LeaveDeclarationStatement(DeclarationStatement node)
-		{
+			Visit(d.Declaration);
+			if (null != d.Initializer)
+			{
+				WriteOperator(" = ");
+				Visit(d.Initializer);
+			}
 			WriteLine();
 		}
 
