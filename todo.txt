@@ -5,19 +5,9 @@
 * refactorar todos os métodos relacionados a definição de tipos do ProcessGenerators
 e criar um ClassDefinitionBuilder;
 
-* mover apelidos de pipeline para BooCompiler.GetStandardPipelineDefinition
-
 * Exemplo de passo com estatísticas sobre membros utilizados
 	* summary of class status (http://www.go-mono.com/class-status.html)
 	
-* importar módulos externos escritos em boo:
-	* todas as funçoes dos módulos deveria estar visível
-	
-* anonymous callable type notation
-	def map(fn as callable(object) as object, enumerable)
-	def map(fn as (object)->object, enumerable)
-	def map(fn as object->object, enumerable)
-
 * fix property handling with __eval__
 
 * fix MethodReference.EndInvoke with __eval__ para o parametro asyncresult
@@ -50,31 +40,15 @@ super APÓS qualquer validação:
 		while ie.Busy:
 			Thread.Sleep(50ms)
 
-
-* um novo passo para checagem de visibilidade de acesso de membros
-
-* promoção de bool para int32 e conversão automática de int32 para bool:
-	* and
-	* or
-
 * ref, out parameters
 
 * cache da resolução de nomes entre compilações
-
-* operador de escopo :: para acessar nomes a partir do namespace global
-
-* artigo "Estendendo a linguagem utilizando macros e atributos"
-	using, lock
 
 * booi: opçoes e um único script
 	* booi /c:pt-BR /r:Foo.dll /i:aux.boo foo.boo 1 2 3
 		argv do script seria (1, 2, 3), os argumentos que ocorrem
 		antes do primeiro nome simples de arquivo (foo.boo) seriam
 		consumidos pelo próprio booi
-
-* tipos callable implementam equivalência estrutural, assim, um tipo callable
-que é wrapper sobre um método qualquer, lembra o método, seus tipos de parâmetro e
-valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc
 
 * nomes de tipo primitivo podem ser utilizados em conversões:
 
@@ -104,8 +78,6 @@ valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc
 
 * macros para o SharpDevelop em boo
 
-* unboxing deve fazer conversão numérica
-
 * BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais?
 
 * resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
@@ -123,43 +95,20 @@ derivada de Control (que tem uma propriedade chamada Size):
 
 Milestone 3.8
 -------------
-* ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
 * float literals: 3.0f
-* hexadecimal integer literals: 0x01
 * binary literals: 0b001
 
 Milestone 3.9 (better error checking)
 -------------------------------------
-* constructors can't return values
-* constructors can't yield values
-* static constructors must be public
-* static constructors cannot declare parameters
-* can't create instance of interface 'XXX'
-* can't create instance of abstract class 'XXX'
-* can't create instance of enum 'XXX'
-* class 'XXX' already has a definition for a member 'YYY' with the signature 'ZZZ'
-* symbols starting with '__', 'get_', 'set_', 'add_' and 'remove_' are reserved by the compiler
-* WARNING: unused local variable
-* WARNING: local 'xx' is used before initialization
 * WARNING: property getter should return a value
-* WARNING: unreachable code detected
-* WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?
-* WARNING: performance hit: equality operator with object references
 * WARNING: expressions in iterators can't have locally visible side-effects
 	def foo(value as int):
 		return ++value*i for i in range(10)
-* WARNING: class does not override abstract member 'XXX.YYY' and will be marked abstract
-* WARNING: class does not implement interface member 'XXX.YYY' and will be marked abstract
-
-* method override with different accessibility
-* override accessibility checks
-done * inheritance cycles (A(B), B(C), C(A))
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
 
 Milestone 4 (documentation)
 ------------------------------
-* documentation step: generates .xml files for ndoc
 * docbook Step (generates docbook files with all the documentation)
 
 Milestone 4.3 (algumas otimizações)
@@ -202,18 +151,9 @@ Exemplos/Artigos
 		return n*fatorial(n-1) if n > 1
 		return 1
 
-Otimiza��es
+Optimizations
 -----------
 * otimização para chamadas a array.Length
-
 * tail call prefix para funçoes recursivas com a ScanDirectories do rgrep.boo
-
-* os métodos com yield e métodos que retornam iterators como enumerate devem
-marcar o tipo retornado por IEnumerator.Current de forma que o compilador
-possa otimizar a utilizaçao de tais itens (no caso do enumerate, o compilador
-saberia que sempre estaria lidando com um array e poderia gerar um unpacking
-otimizado, etc);
 * const expression unfolding
 * proper tail recursion (fatorial)
-done * for item in array/array => traduzir indexaçãoo direta do array com checagem de
-bounds, o JIT é capaz de detectar esses patterns e otimizar o c�digo de acordo
