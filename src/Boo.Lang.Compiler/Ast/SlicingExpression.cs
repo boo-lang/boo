@@ -40,7 +40,11 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public SlicingExpression(Expression target, Expression begin, Expression end, Expression step) : base(target, begin, end, step)
 		{
-		}	
+		}
+		
+		public SlicingExpression(Expression target, Expression begin) : this(target, begin, null, null)
+		{
+		}
 		
 		public SlicingExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{

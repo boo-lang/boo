@@ -18,6 +18,7 @@ def CheckDelegate(name as string, parameters as (ParamInfo), returnType as Type)
 	Assert.IsNotNull(type, name)
 	Assert.IsTrue(type.IsSealed, "${name}.IsSealed")
 	Assert.IsTrue(type.IsSubclassOf(System.MulticastDelegate), "${name}.IsSubclassOf(System.MulticastDelegate)")
+	Assert.IsTrue(typeof(ICallable).IsAssignableFrom(type), "${name} must implement ICallable!")
 	
 	expectedImplAttributes = MethodImplAttributes.Runtime|MethodImplAttributes.Managed
 	

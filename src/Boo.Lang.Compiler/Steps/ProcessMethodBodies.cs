@@ -2447,7 +2447,25 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessMethodInvocationOnCallableExpression(MethodInvocationExpression node)
 		{
 			IType type = node.Target.ExpressionType;
-			if (TypeSystemServices.ICallableType.IsAssignableFrom(type))
+			
+			ICallableType delegateType = type as ICallableType;
+			if (null != delegateType)
+			{
+				if (CheckParameters(node.Target, delegateType, node.Arguments))
+				{
+					MemberReferenceExpression expression = new MemberReferenceExpression(node.Target.LexicalInfo);
+					expression.Target = node.Target;
+					expression.Name = "Invoke";
+					node.Target = expression;
+					
+					IMethod invoke = ResolveMethod(delegateType, "Invoke");
+					Bind(expression, invoke);
+					BindExpressionType(expression, invoke.Type); 
+					Bind(node, Unknown.Default);
+					BindExpressionType(node, invoke.ReturnType);						
+				}
+			}
+			else if (TypeSystemServices.ICallableType.IsAssignableFrom(type))
 			{
 				node.Target = new MemberReferenceExpression(node.Target.LexicalInfo,
 									node.Target,
@@ -2481,27 +2499,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				ICallableType delegateType = type as ICallableType;
-				if (null != delegateType)
-				{
-					if (CheckParameters(node.Target, delegateType, node.Arguments))
-					{
-						MemberReferenceExpression expression = new MemberReferenceExpression(node.Target.LexicalInfo);
-						expression.Target = node.Target;
-						expression.Name = "Invoke";
-						node.Target = expression;
-						
-						IMethod invoke = ResolveMethod(delegateType, "Invoke");
-						Bind(expression, invoke);
-						BindExpressionType(expression, invoke.Type); 
-						Bind(node, Unknown.Default);
-						BindExpressionType(node, invoke.ReturnType);						
-					}
-				}
-				else
-				{
-					NotImplemented(node, "Method invocation on type '" + type + "'.");
-				}
+				NotImplemented(node, "Method invocation on type '" + type + "'.");
 			}
 		}
 		
