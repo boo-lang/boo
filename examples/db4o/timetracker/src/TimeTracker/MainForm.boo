@@ -52,13 +52,19 @@ class MainForm(Form):
 	
 	_view = ListView(View: View.Details, Dock: DockStyle.Fill)
 	
+	_timer = System.Windows.Forms.Timer(_components,
+										Tick: UpdateNotifyText,
+										Interval: 30000)
+										
+	_notify as NotifyIcon
+	
 	def constructor():
 		self.Text = "Boo Time Tracker (powered by db4o)"
 		self.ShowInTaskbar = false		
 		self.MinimizeBox = false
 		Minimize()
 
-		notify = NotifyIcon(_components,
+		_notify = NotifyIcon(_components,
 				Text: self.Text,
 				Icon: self.Icon,
 				Visible: true,
@@ -82,7 +88,16 @@ class MainForm(Form):
 		promptPage.Controls.Add(prompt)
 		_tabs.TabPages.AddRange((activitiesPage, promptPage))
 			
-		self.Controls.Add(_tabs)	
+		self.Controls.Add(_tabs)
+		
+		_timer.Start()
+		
+	def UpdateNotifyText():
+		if _current is null:
+			_notify.Text = self.Text
+		else:
+			_current.Finished = date.Now
+			_notify.Text = _current.ToString()
 		
 	override def OnClosing(args as CancelEventArgs):
 		Minimize()
@@ -134,6 +149,7 @@ class MainForm(Form):
 	def StartTask(task as Task):
 		FlushCurrentActivity()		
 		_current = Activity(Task: task, Started: date.Now)
+		UpdateNotifyText()
 		
 	def NewTask(project as Project):
 		name = Prompt("New Task", "Task Name: ")
