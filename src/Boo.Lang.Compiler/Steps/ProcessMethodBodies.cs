@@ -1331,7 +1331,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (member.IsStatic)
 			{
 				memberRef.Target = new ReferenceExpression(node.LexicalInfo, member.DeclaringType.FullName);
-				Bind(memberRef.Target, member.DeclaringType);
+				Bind(memberRef.Target, member.DeclaringType);				
 				BindExpressionType(memberRef, member.Type);
 			}
 			else
@@ -1339,15 +1339,11 @@ namespace Boo.Lang.Compiler.Steps
 				memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
 			}
 			
-			Bind(memberRef, member);
+			Bind(memberRef, member);						
 			BindExpressionType(memberRef.Target, member.DeclaringType);			
 			
 			node.ParentNode.Replace(node, memberRef);
-			
-			if (EntityType.Method != member.EntityType)
-			{
-				Visit(memberRef);
-			}
+			Visit(memberRef);
 		}
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
@@ -1508,55 +1504,58 @@ namespace Boo.Lang.Compiler.Steps
 		
 		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
 		{				
-			INamespace ns = GetReferenceNamespace(node);				
-			IEntity member = Resolve(ns, node.Name);				
+			IEntity member = node.Entity;
 			if (null == member)
-			{										
-				Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
-			}
-			else
 			{
-				EnsureRelatedNodeWasVisited(member);
-				
-				IMember memberInfo = member as IMember;
-				if (null != memberInfo)
-				{
-					// methods will be checked later
-					if (EntityType.Method != memberInfo.EntityType)
-					{
-						if (!CheckTargetContext(node, memberInfo))
-						{
-							Error(node);
-							return;
-						}
-					}
-					BindExpressionType(node, memberInfo.Type);
+				INamespace ns = GetReferenceNamespace(node);				
+				member = Resolve(ns, node.Name);
+				if (null == member)
+				{										
+					Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
+					return;
 				}
-				
-				if (EntityType.Property == member.EntityType)
-				{
-					if (!AstUtil.IsLhsOfAssignment(node) &&
-						!IsPreIncDec(node.ParentNode))
-					{
-						if (IsIndexedProperty(member))
-						{
-							if (!AstUtil.IsTargetOfSlicing(node))
-							{
-								Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), member.FullName));
-								return;
-							}
-						}
-						else
-						{
-							node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IProperty)member).GetGetMethod()));
-							return;
-						}
-					}
-				}
-				
-				Bind(node, member);
-				PostProcessReferenceExpression(node);
 			}
+			
+			EnsureRelatedNodeWasVisited(member);
+			
+			IMember memberInfo = member as IMember;
+			if (null != memberInfo)
+			{
+				// methods will be checked later
+				if (EntityType.Method != memberInfo.EntityType)
+				{
+					if (!CheckTargetContext(node, memberInfo))
+					{
+						Error(node);
+						return;
+					}
+				}
+				BindExpressionType(node, memberInfo.Type);
+			}
+			
+			if (EntityType.Property == member.EntityType)
+			{
+				if (!AstUtil.IsLhsOfAssignment(node) &&
+					!IsPreIncDec(node.ParentNode))
+				{
+					if (IsIndexedProperty(member))
+					{
+						if (!AstUtil.IsTargetOfSlicing(node))
+						{
+							Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), member.FullName));
+							return;
+						}
+					}
+					else
+					{
+						node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IProperty)member).GetGetMethod()));
+						return;
+					}
+				}
+			}
+			
+			Bind(node, member);
+			PostProcessReferenceExpression(node);
 		}
 		
 		override public void LeaveUnlessStatement(UnlessStatement node)
@@ -2318,7 +2317,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, Ambiguous entity)
 		{
-			IEntity[] entities = ((Ambiguous)entity).Entities;
+			_context.TraceVerbose("{0}: resolving ambigous method invocation: {1}", node.LexicalInfo, entity);
+			
+			IEntity[] entities = entity.Entities;
 			IEntity resolved = ResolveCallableReference(node, node.Arguments, entities, true);				
 			if (null != resolved)
 			{			
@@ -2340,6 +2341,7 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			if (null != node.ExpressionType)
 			{
+				_context.TraceVerbose("{0}: Method invocation already bound.", node.LexicalInfo);
 				return;
 			}
 			

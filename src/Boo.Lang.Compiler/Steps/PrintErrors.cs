@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,78 +26,22 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Collections;
-
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.Steps
 {
-	public delegate bool InfoFilter(IEntity tag);
+	using System.IO;
+	using Boo.Lang.Compiler;
 	
-	public class Ambiguous : IEntity
+	public class PrintErrors : AbstractCompilerComponent, ICompilerStep
 	{
-		IEntity[] _entities;
-		
-		public Ambiguous(IEntity[] tags)
+		public void Run()
 		{
-			if (null == tags)
+			foreach (CompilerError error in Errors)
 			{
-				throw new ArgumentNullException("tags");
+				OutputWriter.Write(Path.GetFileName(error.LexicalInfo.FileName));
+				OutputWriter.Write("({0},{1}): ", error.LexicalInfo.Line, error.LexicalInfo.StartColumn);
+				OutputWriter.Write("{0}: ", error.Code);
+				OutputWriter.WriteLine(error.Message);
 			}
-			if (0 == tags.Length)
-			{
-				throw new ArgumentException("tags");
-			}
-			_entities = tags;
-		}
-		
-		public string Name
-		{
-			get
-			{
-				return _entities[0].Name;
-			}
-		}
-		
-		public string FullName
-		{
-			get
-			{
-				return _entities[0].FullName;
-			}
-		}
-		
-		public EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Ambiguous;
-			}
-		}
-		
-		public IEntity[] Entities
-		{
-			get
-			{
-				return _entities;
-			}
-		}
-		
-		public Boo.Lang.List Filter(InfoFilter condition)
-		{
-			Boo.Lang.List found = new Boo.Lang.List();
-			foreach (IEntity tag in _entities)
-			{
-				if (condition(tag))
-				{
-					found.Add(tag);
-				}
-			}
-			return found;
-		}
-		
-		override public string ToString()
-		{
-			return string.Format("Ambiguous<{0}>", Boo.Lang.Builtins.join(_entities, ", "));
 		}
 	}
 }
