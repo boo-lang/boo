@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler
 			}
 		}		
 		
-		public int AllocLocalIndex()
+		public int AllocIndex()
 		{
 			return ++_localIndex;
 		}

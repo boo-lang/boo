@@ -1,32 +1,3 @@
-﻿#region license
-// boo - an extensible programming language for the CLI
-// Copyright (C) 2004 Rodrigo B. de Oliveira
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// As a special exception, if you link this library with other files to
-// produce an executable, this library does not by itself cause the
-// resulting executable to be covered by the GNU General Public License.
-// This exception does not however invalidate any other reasons why the
-// executable file might be covered by the GNU General Public License.
-//
-// Contact Information
-//
-// mailto:rbo@acm.org
-#endregion
-
 // $ANTLR 2.7.3rc2: "src/Boo.AntlrParser/boo.g" -> "BooLexer.cs"$
 
 namespace Boo.AntlrParser
@@ -133,49 +104,50 @@ using Boo.AntlrParser.Util;
 		public const int TRY = 70;
 		public const int TRANSIENT = 71;
 		public const int TRUE = 72;
-		public const int UNLESS = 73;
-		public const int VIRTUAL = 74;
-		public const int WHEN = 75;
-		public const int WHILE = 76;
-		public const int YIELD = 77;
-		public const int EOS = 78;
-		public const int TRIPLE_QUOTED_STRING = 79;
-		public const int ID = 80;
-		public const int ASSIGN = 81;
-		public const int LBRACK = 82;
-		public const int COMMA = 83;
-		public const int RBRACK = 84;
-		public const int LPAREN = 85;
-		public const int RPAREN = 86;
-		public const int COLON = 87;
-		public const int QMARK = 88;
-		public const int CMP_OPERATOR = 89;
-		public const int ADD = 90;
-		public const int SUBTRACT = 91;
-		public const int BITWISE_OR = 92;
-		public const int MULTIPLY = 93;
-		public const int DIVISION = 94;
-		public const int MODULUS = 95;
-		public const int EXPONENTIATION = 96;
-		public const int INCREMENT = 97;
-		public const int DECREMENT = 98;
-		public const int DOT = 99;
-		public const int INT = 100;
-		public const int DOUBLE_QUOTED_STRING = 101;
-		public const int SINGLE_QUOTED_STRING = 102;
-		public const int LBRACE = 103;
-		public const int RBRACE = 104;
-		public const int RE_LITERAL = 105;
-		public const int SL_COMMENT = 106;
-		public const int WS = 107;
-		public const int ESCAPED_EXPRESSION = 108;
-		public const int DQS_ESC = 109;
-		public const int SQS_ESC = 110;
-		public const int SESC = 111;
-		public const int RE_CHAR = 112;
-		public const int RE_ESC = 113;
-		public const int ID_LETTER = 114;
-		public const int DIGIT = 115;
+		public const int TYPEOF = 73;
+		public const int UNLESS = 74;
+		public const int VIRTUAL = 75;
+		public const int WHEN = 76;
+		public const int WHILE = 77;
+		public const int YIELD = 78;
+		public const int EOS = 79;
+		public const int TRIPLE_QUOTED_STRING = 80;
+		public const int ID = 81;
+		public const int ASSIGN = 82;
+		public const int LBRACK = 83;
+		public const int COMMA = 84;
+		public const int RBRACK = 85;
+		public const int LPAREN = 86;
+		public const int RPAREN = 87;
+		public const int COLON = 88;
+		public const int QMARK = 89;
+		public const int CMP_OPERATOR = 90;
+		public const int ADD = 91;
+		public const int SUBTRACT = 92;
+		public const int BITWISE_OR = 93;
+		public const int MULTIPLY = 94;
+		public const int DIVISION = 95;
+		public const int MODULUS = 96;
+		public const int EXPONENTIATION = 97;
+		public const int INCREMENT = 98;
+		public const int DECREMENT = 99;
+		public const int DOT = 100;
+		public const int INT = 101;
+		public const int DOUBLE_QUOTED_STRING = 102;
+		public const int SINGLE_QUOTED_STRING = 103;
+		public const int LBRACE = 104;
+		public const int RBRACE = 105;
+		public const int RE_LITERAL = 106;
+		public const int SL_COMMENT = 107;
+		public const int WS = 108;
+		public const int ESCAPED_EXPRESSION = 109;
+		public const int DQS_ESC = 110;
+		public const int SQS_ESC = 111;
+		public const int SESC = 112;
+		public const int RE_CHAR = 113;
+		public const int RE_ESC = 114;
+		public const int ID_LETTER = 115;
+		public const int DIGIT = 116;
 		
 		
 	protected int _skipWhitespaceRegion = 0;
@@ -261,9 +233,10 @@ using Boo.AntlrParser.Util;
 			literals.Add("public", 59);
 			literals.Add("namespace", 58);
 			literals.Add("break", 28);
-			literals.Add("while", 76);
+			literals.Add("while", 77);
 			literals.Add("otherwise", 55);
 			literals.Add("raise", 62);
+			literals.Add("typeof", 73);
 			literals.Add("and", 26);
 			literals.Add("failure", 38);
 			literals.Add("not", 52);
@@ -275,10 +248,10 @@ using Boo.AntlrParser.Util;
 			literals.Add("given", 44);
 			literals.Add("protected", 60);
 			literals.Add("retry", 64);
-			literals.Add("when", 75);
+			literals.Add("when", 76);
 			literals.Add("class", 31);
 			literals.Add("except", 37);
-			literals.Add("unless", 73);
+			literals.Add("unless", 74);
 			literals.Add("super", 67);
 			literals.Add("set", 65);
 			literals.Add("transient", 71);
@@ -287,7 +260,7 @@ using Boo.AntlrParser.Util;
 			literals.Add("is", 48);
 			literals.Add("internal", 47);
 			literals.Add("final", 39);
-			literals.Add("yield", 77);
+			literals.Add("yield", 78);
 			literals.Add("or", 54);
 			literals.Add("if", 50);
 			literals.Add("success", 69);
@@ -310,7 +283,7 @@ using Boo.AntlrParser.Util;
 			literals.Add("self", 66);
 			literals.Add("ensure", 35);
 			literals.Add("true", 72);
-			literals.Add("virtual", 74);
+			literals.Add("virtual", 75);
 		}
 		
 		override public Token nextToken()			//throws TokenStreamException
@@ -564,11 +537,11 @@ tryAgain:
 				}
 				default:
 				{
-					goto _loop295_breakloop;
+					goto _loop296_breakloop;
 				}
 				 }
 			}
-_loop295_breakloop:			;
+_loop296_breakloop:			;
 		}    // ( ... )*
 		_ttype = testLiteralsTable(_ttype);
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
@@ -648,7 +621,7 @@ _loop295_breakloop:			;
 		_ttype = INT;
 		
 		{ // ( ... )+
-		int _cnt298=0;
+		int _cnt299=0;
 		for (;;)
 		{
 			if (((LA(1) >= '0' && LA(1) <= '9')))
@@ -657,12 +630,12 @@ _loop295_breakloop:			;
 			}
 			else
 			{
-				if (_cnt298 >= 1) { goto _loop298_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+				if (_cnt299 >= 1) { goto _loop299_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 			}
 			
-			_cnt298++;
+			_cnt299++;
 		}
-_loop298_breakloop:		;
+_loop299_breakloop:		;
 		}    // ( ... )+
 		{
 			if ((LA(1)=='L'||LA(1)=='l'))
@@ -699,7 +672,7 @@ _loop298_breakloop:		;
 							{
 								match('.');
 								{ // ( ... )+
-								int _cnt305=0;
+								int _cnt306=0;
 								for (;;)
 								{
 									if (((LA(1) >= '0' && LA(1) <= '9')))
@@ -708,12 +681,12 @@ _loop298_breakloop:		;
 									}
 									else
 									{
-										if (_cnt305 >= 1) { goto _loop305_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+										if (_cnt306 >= 1) { goto _loop306_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 									}
 									
-									_cnt305++;
+									_cnt306++;
 								}
-_loop305_breakloop:								;
+_loop306_breakloop:								;
 								}    // ( ... )+
 							}
 							if (0==inputState.guessing)
@@ -791,7 +764,7 @@ _loop305_breakloop:								;
 			if (((LA(1) >= '0' && LA(1) <= '9')))
 			{
 				{ // ( ... )+
-				int _cnt311=0;
+				int _cnt312=0;
 				for (;;)
 				{
 					if (((LA(1) >= '0' && LA(1) <= '9')))
@@ -800,12 +773,12 @@ _loop305_breakloop:								;
 					}
 					else
 					{
-						if (_cnt311 >= 1) { goto _loop311_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+						if (_cnt312 >= 1) { goto _loop312_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 					}
 					
-					_cnt311++;
+					_cnt312++;
 				}
-_loop311_breakloop:				;
+_loop312_breakloop:				;
 				}    // ( ... )+
 				if (0==inputState.guessing)
 				{
@@ -1119,11 +1092,11 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = DIVISION;
 		
-		bool synPredMatched334 = false;
+		bool synPredMatched335 = false;
 		if (((LA(1)=='/') && (tokenSet_0_.member(LA(2))) && (tokenSet_1_.member(LA(3)))))
 		{
-			int _m334 = mark();
-			synPredMatched334 = true;
+			int _m335 = mark();
+			synPredMatched335 = true;
 			inputState.guessing++;
 			try {
 				{
@@ -1132,12 +1105,12 @@ _loop311_breakloop:				;
 			}
 			catch (RecognitionException)
 			{
-				synPredMatched334 = false;
+				synPredMatched335 = false;
 			}
-			rewind(_m334);
+			rewind(_m335);
 			inputState.guessing--;
 		}
-		if ( synPredMatched334 )
+		if ( synPredMatched335 )
 		{
 			mRE_LITERAL(false);
 			if (0==inputState.guessing)
@@ -1165,11 +1138,11 @@ _loop311_breakloop:				;
 								}
 								else
 								{
-									goto _loop339_breakloop;
+									goto _loop340_breakloop;
 								}
 								
 							}
-_loop339_breakloop:							;
+_loop340_breakloop:							;
 						}    // ( ... )*
 						if (0==inputState.guessing)
 						{
@@ -1215,7 +1188,7 @@ _loop339_breakloop:							;
 		
 		match('/');
 		{ // ( ... )+
-		int _cnt386=0;
+		int _cnt387=0;
 		for (;;)
 		{
 			if ((tokenSet_0_.member(LA(1))))
@@ -1224,12 +1197,12 @@ _loop339_breakloop:							;
 			}
 			else
 			{
-				if (_cnt386 >= 1) { goto _loop386_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+				if (_cnt387 >= 1) { goto _loop387_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 			}
 			
-			_cnt386++;
+			_cnt387++;
 		}
-_loop386_breakloop:		;
+_loop387_breakloop:		;
 		}    // ( ... )+
 		match('/');
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
@@ -1349,12 +1322,12 @@ _loop386_breakloop:		;
 			for (;;)
 			{
 				// nongreedy exit test
-				if ((LA(1)=='"') && (LA(2)=='"') && (LA(3)=='"')) goto _loop353_breakloop;
-				bool synPredMatched349 = false;
+				if ((LA(1)=='"') && (LA(2)=='"') && (LA(3)=='"')) goto _loop354_breakloop;
+				bool synPredMatched350 = false;
 				if (((LA(1)=='$') && (LA(2)=='{') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
 				{
-					int _m349 = mark();
-					synPredMatched349 = true;
+					int _m350 = mark();
+					synPredMatched350 = true;
 					inputState.guessing++;
 					try {
 						{
@@ -1363,21 +1336,21 @@ _loop386_breakloop:		;
 					}
 					catch (RecognitionException)
 					{
-						synPredMatched349 = false;
+						synPredMatched350 = false;
 					}
-					rewind(_m349);
+					rewind(_m350);
 					inputState.guessing--;
 				}
-				if ( synPredMatched349 )
+				if ( synPredMatched350 )
 				{
 					mESCAPED_EXPRESSION(false);
 				}
 				else {
-					bool synPredMatched351 = false;
+					bool synPredMatched352 = false;
 					if (((LA(1)=='\\') && (LA(2)=='$') && ((LA(3) >= '\u0003' && LA(3) <= '\uffff'))))
 					{
-						int _m351 = mark();
-						synPredMatched351 = true;
+						int _m352 = mark();
+						synPredMatched352 = true;
 						inputState.guessing++;
 						try {
 							{
@@ -1386,12 +1359,12 @@ _loop386_breakloop:		;
 						}
 						catch (RecognitionException)
 						{
-							synPredMatched351 = false;
+							synPredMatched352 = false;
 						}
-						rewind(_m351);
+						rewind(_m352);
 						inputState.guessing--;
 					}
-					if ( synPredMatched351 )
+					if ( synPredMatched352 )
 					{
 						_saveIndex = text.Length;
 						match('\\');
@@ -1412,11 +1385,11 @@ _loop386_breakloop:		;
 					}
 					else
 					{
-						goto _loop353_breakloop;
+						goto _loop354_breakloop;
 					}
 					}
 				}
-_loop353_breakloop:				;
+_loop354_breakloop:				;
 			}    // ( ... )*
 			_saveIndex = text.Length;
 			match("\"\"\"");
@@ -1487,11 +1460,11 @@ _loop353_breakloop:				;
 					{    // ( ... )*
 						for (;;)
 						{
-							bool synPredMatched359 = false;
+							bool synPredMatched360 = false;
 							if (((LA(1)=='$') && (LA(2)=='{') && (tokenSet_2_.member(LA(3)))))
 							{
-								int _m359 = mark();
-								synPredMatched359 = true;
+								int _m360 = mark();
+								synPredMatched360 = true;
 								inputState.guessing++;
 								try {
 									{
@@ -1500,12 +1473,12 @@ _loop353_breakloop:				;
 								}
 								catch (RecognitionException)
 								{
-									synPredMatched359 = false;
+									synPredMatched360 = false;
 								}
-								rewind(_m359);
+								rewind(_m360);
 								inputState.guessing--;
 							}
-							if ( synPredMatched359 )
+							if ( synPredMatched360 )
 							{
 								mESCAPED_EXPRESSION(false);
 							}
@@ -1519,11 +1492,11 @@ _loop353_breakloop:				;
 							}
 							else
 							{
-								goto _loop361_breakloop;
+								goto _loop362_breakloop;
 							}
 							
 						}
-_loop361_breakloop:						;
+_loop362_breakloop:						;
 					}    // ( ... )*
 					_saveIndex = text.Length;
 					match('"');
@@ -1614,11 +1587,11 @@ _loop361_breakloop:						;
 				}
 				else
 				{
-					goto _loop365_breakloop;
+					goto _loop366_breakloop;
 				}
 				
 			}
-_loop365_breakloop:			;
+_loop366_breakloop:			;
 		}    // ( ... )*
 		_saveIndex = text.Length;
 		match('\'');
@@ -1684,11 +1657,11 @@ _loop365_breakloop:			;
 				}
 				else
 				{
-					goto _loop369_breakloop;
+					goto _loop370_breakloop;
 				}
 				
 			}
-_loop369_breakloop:			;
+_loop370_breakloop:			;
 		}    // ( ... )*
 		if (0==inputState.guessing)
 		{
@@ -1708,7 +1681,7 @@ _loop369_breakloop:			;
 		_ttype = WS;
 		
 		{ // ( ... )+
-		int _cnt372=0;
+		int _cnt373=0;
 		for (;;)
 		{
 			switch ( LA(1) )
@@ -1744,12 +1717,12 @@ _loop369_breakloop:			;
 			}
 			default:
 			{
-				if (_cnt372 >= 1) { goto _loop372_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+				if (_cnt373 >= 1) { goto _loop373_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 			}
 			break; }
-			_cnt372++;
+			_cnt373++;
 		}
-_loop372_breakloop:		;
+_loop373_breakloop:		;
 		}    // ( ... )+
 		if (0==inputState.guessing)
 		{

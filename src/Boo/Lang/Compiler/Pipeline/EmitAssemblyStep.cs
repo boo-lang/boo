@@ -795,6 +795,17 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case UnaryOperatorType.UnaryNegation:
+				{					
+					node.Operand.Switch(this);
+					ITypeBinding type = PopType();
+					_il.Emit(OpCodes.Ldc_I4, -1);
+					EmitCastIfNeeded(type, BindingManager.IntTypeBinding);
+					_il.Emit(OpCodes.Mul);
+					PushType(type);
+					break;
+				}
+				
 				default:
 				{
 					NotImplemented(node, "unary operator not supported");
@@ -1263,6 +1274,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		override public void OnTypeofExpression(TypeofExpression node)
+		{			
+			EmitGetTypeFromHandle(GetType(node.Type));
+		}
+		
 		override public void OnCastExpression(CastExpression node)
 		{
 			ITypeBinding type = GetBoundType(node.Type);
@@ -1326,11 +1342,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(super.ReturnType);
 		}
 		
-		void OnSpecialFunction(IBinding binding, MethodInvocationExpression node)
-		{
-			EmitGetTypeFromHandle(GetType(node.Arguments[0]));
-		}
-		
 		void EmitGetTypeFromHandle(Type type)
 		{
 			_il.Emit(OpCodes.Ldtoken, type);
@@ -1343,12 +1354,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			IBinding binding = BindingManager.GetBinding(node.Target);
 			switch (binding.BindingType)
 			{
-				case BindingType.SpecialFunction:
-				{
-					OnSpecialFunction(binding, node);
-					break;
-				}
-				
 				case BindingType.Method:
 				{	
 					IMethodBinding methodBinding = (IMethodBinding)binding;
@@ -2830,6 +2835,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				case NodeType.BoolLiteralExpression:
 				{
 					return ((BoolLiteralExpression)expression).Value;
+				}
+				
+				case NodeType.TypeofExpression:
+				{
+					return GetType(((TypeofExpression)expression).Type);
 				}
 				
 				default:

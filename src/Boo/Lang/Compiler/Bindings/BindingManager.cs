@@ -97,8 +97,6 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
-		static readonly IBinding _typeOfBinding = new SpecialFunctionBinding(SpecialFunction.Typeof);
-		
 		static readonly IBinding _lenBinding = new SpecialFunctionBinding(SpecialFunction.Len);
 		
 		public BindingManager()		
@@ -420,7 +418,6 @@ namespace Boo.Lang.Compiler.Bindings
 			AddPrimitiveType("long", LongTypeBinding);
 			AddPrimitiveType("float", SingleTypeBinding);
 			AddPrimitiveType("double", DoubleTypeBinding);
-			AddPrimitive("typeof", _typeOfBinding);
 			AddPrimitive("len", _lenBinding);
 		}
 		

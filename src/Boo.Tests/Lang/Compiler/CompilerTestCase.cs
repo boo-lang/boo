@@ -1279,5 +1279,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("enumeratoritemtype2.boo");
 		}
+		
+		[Test]
+		public void UnaryMinusWithLocal()
+		{
+			RunCompilerTestCase("unary0.boo");
+		}
 	}
 }

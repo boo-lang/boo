@@ -49,15 +49,8 @@ namespace Boo.Lang.Compiler.Pipeline
 				return;
 			}
 			
-			Process p = new Process();
-			p.StartInfo.Arguments = CompilerParameters.OutputAssembly;
-			p.StartInfo.CreateNoWindow = true;
-			p.StartInfo.UseShellExecute = false;
-			p.StartInfo.RedirectStandardOutput = true;
-			p.StartInfo.FileName = "peverify.exe";
-			p.Start();
+			Process p = Boo.Lang.Builtins.shellp("peverify.exe", CompilerParameters.OutputAssembly);
 			p.WaitForExit();
-			
 			if (0 != p.ExitCode)
 			{
 				Errors.Add(new CompilerError(Boo.Lang.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));

@@ -142,7 +142,7 @@ namespace Boo.Lang
 		
 		ReferenceExpression CreateMonitorReference(LexicalInfo lexicalInfo)
 		{
-			int localIndex = _context.AllocLocalIndex();
+			int localIndex = _context.AllocIndex();
 			return new ReferenceExpression(lexicalInfo,
 							string.Format(MonitorLocalName, localIndex));
 		}

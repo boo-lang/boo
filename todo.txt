@@ -308,7 +308,7 @@ done * overload de métodos internos
 
 done * static field initializers
 
-* shell(commandName) as (string)
+done * shell(commandName) as string
 
 * argv para __Main__
 

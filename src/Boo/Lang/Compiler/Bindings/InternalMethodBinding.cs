@@ -47,8 +47,12 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExpressionCollection SuperExpressions;
 		
-		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Ast.Method method)
+		internal InternalMethodBinding(BindingManager manager, Method method) : this(manager, method, false)
 		{
+		}
+		
+		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Ast.Method method, bool visited) : base(visited)
+		{			
 			_bindingManager = manager;
 			_method = method;
 			if (method.NodeType != NodeType.Constructor)
@@ -260,6 +264,12 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public InternalConstructorBinding(BindingManager bindingManager,
 		                                  Constructor constructor) : base(bindingManager, constructor)
+		  {
+		  }
+		  
+		public InternalConstructorBinding(BindingManager bindingManager,
+		                                  Constructor constructor,
+										  bool visited) : base(bindingManager, constructor, visited)
 		  {
 		  }
 		  

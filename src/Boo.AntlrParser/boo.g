@@ -115,6 +115,7 @@ tokens
 	TRY="try";
 	TRANSIENT="transient";
 	TRUE="true";
+	TYPEOF="typeof";
 	UNLESS="unless";
 	VIRTUAL="virtual";
 	WHEN="when";
@@ -1430,7 +1431,8 @@ atom returns [Expression e]
 		e=literal |	
 		e=reference_expression |
 		e=paren_expression |
-		e=cast_expression
+		e=cast_expression |
+		e=typeof_expression
 	)
 	;
 	
@@ -1444,6 +1446,18 @@ cast_expression returns [Expression e]
 	t:CAST! LPAREN! tr=type_reference COMMA! target=expression RPAREN!
 	{
 		e = new CastExpression(ToLexicalInfo(t), tr, target);
+	}
+	;
+	
+protected
+typeof_expression returns [Expression e]
+	{
+		e = null;
+		TypeReference tr = null;
+	}:
+	t:TYPEOF! LPAREN! tr=type_reference RPAREN!
+	{
+		e = new TypeofExpression(ToLexicalInfo(t), tr);
 	}
 	;
 	

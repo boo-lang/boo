@@ -41,31 +41,43 @@ namespace Boo.Lang
 	/// </summary>
 	[Serializable]
 	public class List : IList
-	{
-		protected ArrayList _list;
+	{	
+		const int DefaultCapacity = 16;
 		
-		public List()
+		protected object[] _items;
+		
+		protected int _count;
+		
+		public List() : this(DefaultCapacity)
 		{
-			_list = new ArrayList();
 		}
 		
-		public List(IEnumerable enumerable)
+		public List(IEnumerable enumerable) : this()
 		{
-			_list = new ArrayList();
-			foreach (object item in enumerable)
-			{
-				_list.Add(item);
-			}
+			Extend(enumerable);
 		}
 		
 		public List(int initialCapacity)
 		{
-			_list = new ArrayList(initialCapacity);
+			_items = new object[initialCapacity];
+			_count = 0;
 		}		                                     
 
-		public List(params object[] items)
+		public List(params object[] items) : this(items, false)
 		{
-			_list = new ArrayList(items);
+		}
+		
+		protected List(object[] items, bool takeOwnership)
+		{
+			if (takeOwnership)
+			{
+				_items = items;
+			}
+			else
+			{
+				_items = (object[])items.Clone();
+			}
+			_count = items.Length;
 		}
 		
 		public static List operator*(List lhs, int count)
@@ -93,30 +105,30 @@ namespace Boo.Lang
 				throw new ArgumentOutOfRangeException("count");
 			}
 			
-			List result = new List(_list.Count*count);
+			object[] items = new object[_count*count];			
 			for (int i=0; i<count; ++i)
 			{
-				result.Extend(_list);
+				Array.Copy(_items, 0, items, i*_count, _count);
 			}
-			return result;
+			return new List(items, true);
 		}
 		
 		public int Count
 		{
 			get
 			{
-				return _list.Count;
+				return _count;
 			}
 		}
 		
 		public IEnumerator GetEnumerator()
 		{
-			return _list.GetEnumerator();
+			return new ListEnumerator(this);
 		}
 		
 		public void CopyTo(Array target, int index)
 		{
-			_list.CopyTo(target, index);
+			Array.Copy(_items, 0, target, index, _count);
 		}
 		
 		public bool IsSynchronized
@@ -131,7 +143,7 @@ namespace Boo.Lang
 		{
 			get
 			{
-				return this;
+				return _items;
 			}
 		}
 
@@ -139,26 +151,28 @@ namespace Boo.Lang
 		{
 			get
 			{				
-				return _list[NormalizeIndex(index)];
+				return _items[CheckIndex(NormalizeIndex(index))];
 			}
 			
 			set
 			{
-				_list[NormalizeIndex(index)] = value;
+				_items[CheckIndex(NormalizeIndex(index))] = value;
 			}
 		}
 
 		public List Add(object item)
 		{
-			_list.Add(item);
+			EnsureCapacity(_count+1);
+			_items[_count] = item;
+			++_count;
 			return this;
 		}
 
 		public List AddUnique(object item)
 		{
-			if (!_list.Contains(item))
+			if (!Contains(item))
 			{
-				_list.Add(item);
+				Add(item);
 			}
 			return this;
 		}
@@ -167,7 +181,7 @@ namespace Boo.Lang
 		{
 			foreach (object item in enumerable)
 			{
-				_list.Add(item);
+				Add(item);
 			}
 			return this;
 		}
@@ -202,7 +216,9 @@ namespace Boo.Lang
 		
 		public Array ToArray(System.Type targetType)
 		{
-			return _list.ToArray(targetType);
+			Array target = Array.CreateInstance(targetType, _count);
+			CopyTo(target, 0);
+			return target;
 		}
 		
 		public object[] ToArray()
@@ -212,7 +228,7 @@ namespace Boo.Lang
 		
 		public List Sort()
 		{
-			_list.Sort();
+			Array.Sort(_items, 0, _count);
 			return this;
 		}
 
@@ -228,55 +244,83 @@ namespace Boo.Lang
 		
 		public void Clear()
 		{
-			_list.Clear();
+			_count = 0;
 		}
 		
 		public bool Contains(object item)
 		{
-			return _list.Contains(item);
+			for (int i=0; i<_count; ++i)
+			{
+				if (object.Equals(_items[i], item))
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		public int IndexOf(object item)
 		{			
-			return _list.IndexOf(item);
+			for (int i=0; i<_count; ++i)
+			{
+				if (object.Equals(_items[i], item))
+				{
+					return i;
+				}
+			}
+			return -1;
 		}
 		
 		public List Insert(int index, object item)
 		{
-			_list.Insert(index, item);
+			int actual = NormalizeIndex(index);			
+			EnsureCapacity(Math.Max(_count, actual) + 1);
+			
+			if (actual < _count)
+			{
+				Array.Copy(_items, actual, _items, actual+1, _count-actual);
+			}
+			
+			_items[actual] = item;
+			++_count;
 			return this;
 		}
 		
 		public List Remove(object item)
 		{
-			_list.Remove(item);
+			int index = IndexOf(item);
+			if (index != -1)
+			{
+				InnerRemoveAt(index);
+			}
 			return this;
 		}
 		
 		public List RemoveAt(int index)
 		{
-			_list.RemoveAt(index);
+			InnerRemoveAt(CheckIndex(NormalizeIndex(index)));
 			return this;
 		}
 		
 		void IList.Insert(int index, object item)
 		{
-			_list.Insert(index, item);
+			Insert(index, item);
 		}
 		
 		void IList.Remove(object item)
 		{			
-			_list.Remove(item);
+			//_items.Remove(item);
 		}
 		
 		void IList.RemoveAt(int index)
 		{
-			_list.RemoveAt(index);
+			//_items.RemoveAt(index);
 		}
 		
 		int IList.Add(object item)
 		{			
-			return _list.Add(item);
+			Add(item);
+			return _count-1;
 		}
 		
 		bool IList.IsReadOnly
@@ -294,11 +338,38 @@ namespace Boo.Lang
 				return false;
 			}
 		}
+		
+		void EnsureCapacity(int minCapacity)
+		{
+			if (minCapacity > _items.Length)
+			{
+				object[] items = NewArray(minCapacity);
+				Array.Copy(_items, 0, items, 0, _count);
+				_items = items;
+			}
+		}
+		
+		object[] NewArray(int minCapacity)
+		{
+			int newLen = _items.Length*2;				
+			return new object[Math.Max(newLen, minCapacity)];
+		}		
+		
+		void InnerRemoveAt(int index)
+		{
+			--_count;
+			
+			if (index != _count)
+			{
+				Array.Copy(_items, index+1, _items, index, _count-index);
+			}
+		}
 
 		void InnerCollect(List target, Predicate condition)
 		{
-			foreach (object item in _list)
+			for (int i=0; i<_count; ++i)
 			{
+				object item = _items[i];
 				if (condition(item))
 				{
 					target.Add(item);
@@ -306,13 +377,69 @@ namespace Boo.Lang
 			}
 		}
 		
+		int CheckIndex(int index)
+		{
+			if (index >= _count)
+			{
+				throw new IndexOutOfRangeException();
+			}
+			return index;
+		}
+		
 		int NormalizeIndex(int index)
 		{
 			if (index < 0)
 			{
-				index += _list.Count;
-			}
+				index += _count;
+			}			
 			return index;
+		}
+		
+		class ListEnumerator : IEnumerator
+		{
+			List _list;
+			object[] _items;
+			int _count;
+			int _index;
+			object _current;
+			
+			public ListEnumerator(List list)
+			{
+				_list = list;
+				_items = list._items;
+				_count = list._count;
+				_index = 0;
+			}
+			
+			public void Reset()
+			{
+				_index = 0;
+			}
+			
+			public bool MoveNext()
+			{
+				if (_count != _list.Count || _items != _list._items)
+				{
+					// TODO: collection was modified
+					throw new InvalidOperationException();
+				}
+				
+				if (_index < _count)
+				{
+					_current = _items[_index];
+					++_index;
+					return true;
+				}
+				return false;
+			}
+			
+			public object Current
+			{
+				get
+				{
+					return _current;
+				}
+			}
 		}
 	}
 }

@@ -33,6 +33,7 @@ namespace Boo.Lang
 	using System.Collections;
 	using System.IO;
 	using System.Text;
+	using System.Text.RegularExpressions;
 
 	public class RuntimeServices
 	{
@@ -217,9 +218,14 @@ namespace Boo.Lang
 			return rhs.IndexOf(lhs) > -1;
 		}
 		
+		public static bool op_Match(string input, Regex pattern)
+		{
+			return pattern.IsMatch(input);
+		}
+		
 		public static bool op_Match(string input, string pattern)
 		{			
-			return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
+			return Regex.IsMatch(input, pattern);
 		}
 		
 		public static bool op_NotMatch(string input, string pattern)

@@ -578,7 +578,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				constructor = new Constructor(node.LexicalInfo);
 				constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
-				node.DeclaringType.Members.Add(constructor);
+				node.DeclaringType.Members.Add(constructor);				
+				Bind(constructor, new InternalConstructorBinding(BindingManager, constructor, true));
 			}
 			
 			Statement stmt = CreateFieldAssignment(node);
@@ -606,21 +607,31 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		Statement CreateFieldAssignment(Field node)
 		{
+			InternalFieldBinding binding = (InternalFieldBinding)GetBinding(node);
+			
 			ExpressionStatement stmt = new ExpressionStatement(node.Initializer.LexicalInfo);
 			
 			Expression context = null;
 			if (node.IsStatic)
 			{
-				context = new ReferenceExpression(node.DeclaringType.Name);
+				context = new ReferenceExpression(node.DeclaringType.Name);				
 			}
 			else
 			{
 				context = new SelfLiteralExpression();
 			}			
+			
+			Bind(context, binding.DeclaringType);
+			
+			MemberReferenceExpression member = new MemberReferenceExpression(context, node.Name);
+			Bind(member, binding);
+			
 			// <node.Name> = <node.Initializer>
 			stmt.Expression = new BinaryExpression(BinaryOperatorType.Assign,
-									new MemberReferenceExpression(context, node.Name),
+									member,
 									node.Initializer);
+			Bind(stmt.Expression, binding.BoundType);
+			
 			return stmt;
 		}
 		
@@ -1360,6 +1371,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		override public void LeaveTypeofExpression(TypeofExpression node)
+		{
+			if (BindingManager.IsError(node.Type))
+			{
+				Error(node);
+			}
+			else
+			{
+				Bind(node, BindingManager.TypeTypeBinding);
+			}
+		}
+		
 		override public void LeaveCastExpression(CastExpression node)
 		{
 			ITypeBinding toType = GetBoundType(node.Type);
@@ -1405,7 +1428,42 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
 		{			
-			Bind(node, BindingManager.AsBinding(typeof(System.Text.RegularExpressions.Regex)));
+			if (BindingManager.IsBound(node))
+			{
+				return;
+			}
+			
+			ITypeBinding type = BindingManager.AsTypeBinding(typeof(System.Text.RegularExpressions.Regex));
+			Bind(node, type);
+			
+			if (NodeType.Field != node.ParentNode.NodeType)
+			{		
+				ReplaceByStaticFieldReference(node, "__re" + _context.AllocIndex() + "__", type);				
+			}
+		}
+		
+		void ReplaceByStaticFieldReference(Expression node, string fieldName, ITypeBinding type)
+		{
+			Node parent = node.ParentNode;
+			
+			Field field = new Field(node.LexicalInfo);
+			field.Name = fieldName;
+			field.Type = CreateBoundTypeReference(type);
+			field.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Static;
+			field.Initializer = node;
+			
+			_currentMethodBinding.Method.DeclaringType.Members.Add(field);
+			InternalFieldBinding binding = new InternalFieldBinding(BindingManager, field);
+			Bind(field, binding);
+			
+			AddFieldInitializerToStaticConstructor(field);
+
+			MemberReferenceExpression reference = new MemberReferenceExpression(node.LexicalInfo);
+			reference.Target = new ReferenceExpression(field.DeclaringType.FullName);
+			reference.Name = field.Name;
+			Bind(reference, binding);
+			
+			parent.Replace(node, reference);
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -1573,8 +1631,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			ITypeBinding iteratorType = GetExpressionType(iterator);
 			
-			bool runtimeIterator;
-			CheckIterator(iterator, iteratorType, out runtimeIterator);
+			bool runtimeIterator = false;
+			
+			if (!BindingManager.IsError(iteratorType))
+			{
+				CheckIterator(iterator, iteratorType, out runtimeIterator);
+			}
 			ProcessDeclarationsForIterator(declarations, iteratorType, declarePrivateScopeLocals);			
 			if (runtimeIterator)
 			{
@@ -1651,9 +1713,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				ITypedBinding typed = (ITypedBinding)binding;
 				if (!IsNumber(typed.BoundType))
 				{
-					Error(node, CompilerErrorFactory.InvalidOperatorForType(node,
-							GetUnaryOperatorText(node.Operator),
-							typed.BoundType.FullName));
+					InvalidOperatorForType(node);					
 				}
 				else
 				{
@@ -1703,6 +1763,19 @@ namespace Boo.Lang.Compiler.Pipeline
 				case UnaryOperatorType.Decrement:
 				{
 					OnIncrementDecrement(node);
+					break;
+				}
+				
+				case UnaryOperatorType.UnaryNegation:
+				{
+					if (!IsNumber(node.Operand))
+					{
+						InvalidOperatorForType(node);
+					}
+					else
+					{
+						Bind(node, GetExpressionType(node.Operand));
+					}
 					break;
 				}
 					
@@ -2085,20 +2158,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			SpecialFunctionBinding sf = (SpecialFunctionBinding)binding;
 			switch (sf.Function)
 			{
-				case SpecialFunction.Typeof:
-				{
-					if (node.Arguments.Count != 1 ||
-						GetBinding(node.Arguments[0]).BindingType != BindingType.TypeReference)
-					{
-						Error(CompilerErrorFactory.InvalidTypeof(node));
-					}
-					else
-					{
-						Bind(node, BindingManager.AsTypeBinding(Types.Type));
-					}
-					break;
-				}
-				
 				case SpecialFunction.Len:
 				{
 					if (node.Arguments.Count != 1)
@@ -2136,6 +2195,12 @@ namespace Boo.Lang.Compiler.Pipeline
 							node.ParentNode.Replace(node, resultingNode);
 						}
 					}
+					break;
+				}
+				
+				default:
+				{
+					NotImplemented(node, "SpecialFunction: " + sf.Function);
 					break;
 				}
 			}
@@ -3389,6 +3454,13 @@ namespace Boo.Lang.Compiler.Pipeline
 		void NotImplemented(Node node, string feature)
 		{
 			throw CompilerErrorFactory.NotImplemented(node, feature);
+		}
+		
+		void InvalidOperatorForType(UnaryExpression node)
+		{
+			Error(node, CompilerErrorFactory.InvalidOperatorForType(node,
+							GetUnaryOperatorText(node.Operator),
+							GetExpressionType(node.Operand).FullName));
 		}
 		
 		void InvalidOperatorForTypes(BinaryExpression node)

@@ -35,7 +35,17 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public abstract class AbstractInternalBinding : IInternalBinding
 	{
-		protected bool _visited = false;
+		protected bool _visited;
+		
+		public AbstractInternalBinding()
+		{
+			_visited = false;
+		}
+		
+		public AbstractInternalBinding(bool visited)
+		{
+			_visited = visited;
+		}
 		
 		public abstract Node Node
 		{

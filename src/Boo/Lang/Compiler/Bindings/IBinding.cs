@@ -93,7 +93,6 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public enum SpecialFunction
 	{
-		Typeof,
 		Len
 	}
 	

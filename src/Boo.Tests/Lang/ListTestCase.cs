@@ -43,7 +43,7 @@ namespace Boo.Tests.Lang
 		[SetUp]
 		public void SetUp()
 		{
-			_list = new List("um", "dois", "trs");
+			_list = new List("um", "dois", "tres");
 		}
 
 		[Test]
@@ -51,18 +51,51 @@ namespace Boo.Tests.Lang
 		{
 			AssertEquals(3, _list.Count);
 		}
+		
+		[Test]
+		public void Remove()
+		{
+			_list.Remove("dois");
+			AssertItems("um", "tres");
+			_list.Remove("um");
+			AssertItems("tres");
+			_list.Remove("tres");
+			AssertItems();
+		}
+		
+		[Test]
+		public void RemoveAt()
+		{
+			_list.RemoveAt(2);
+			AssertItems("um", "dois");
+			_list.RemoveAt(0);
+			AssertItems("dois");
+			_list.RemoveAt(-1);
+			AssertItems();
+		}
+		
+		[Test]
+		public void Insert()
+		{
+			_list.Insert(-1, "foo");
+			AssertItems("um", "dois", "foo", "tres");
+			_list.Insert(0, "bar");
+			AssertItems("bar", "um", "dois", "foo", "tres");
+			_list.Insert(1, "baz");
+			AssertItems("bar", "baz", "um", "dois", "foo", "tres");
+		}
 
 		[Test]
 		public void TestAddUnique()
 		{
 			_list.AddUnique("dois");
-			AssertItems("um", "dois", "trs");
+			AssertItems("um", "dois", "tres");
 		}
 
 		[Test]
 		public void TestToString()
 		{
-			AssertEquals("um, dois, trs", _list.ToString());
+			AssertEquals("um, dois, tres", _list.ToString());
 		}
 
 		void AssertItems(params object[] items)

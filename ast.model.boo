@@ -401,3 +401,7 @@ class AsExpression(Expression):
 class CastExpression(Expression):
 	Type as TypeReference
 	Target as Expression
+	
+class TypeofExpression(Expression):
+	Type as TypeReference
+

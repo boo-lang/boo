@@ -450,6 +450,11 @@ namespace Boo.Lang.Ast.Visitors
 			Write(": ");
 			Switch(pair.Second);
 		}
+		
+		override public void OnRELiteralExpression(RELiteralExpression e)
+		{			
+			Write(e.Value);
+		}
 
 		override public void OnStringLiteralExpression(StringLiteralExpression e)
 		{			
