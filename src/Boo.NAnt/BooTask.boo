@@ -73,7 +73,6 @@ class PrepareScriptStep(AbstractCompilerStep):
 		
 		module.Members.Clear()
 		module.Members.Add(script)		
-
 	
 
 [TaskName("boo")]

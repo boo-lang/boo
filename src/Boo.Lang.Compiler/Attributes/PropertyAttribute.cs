@@ -31,6 +31,9 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang
 {
+	/// <summary>
+	/// Creates a property over a field.
+	/// </summary>
 	public class PropertyAttribute : Boo.Lang.Compiler.AbstractAstAttribute
 	{
 		protected ReferenceExpression _propertyName;
