@@ -1,8 +1,5 @@
 ﻿* usar os delegates declarados
 
-* Exemplo de passo com estatísticas sobre membros utilizados
-	* summary of class status (http://www.go-mono.com/class-status.html)
-
 * CallableType
 	* para funçoes
 	* para delegates (o tipo de um evento seria o CallableType equivalente ao delegate)
@@ -11,6 +8,9 @@
 
 * generator expressions
 	return i*3 for i in range(10)
+	
+* Exemplo de passo com estatísticas sobre membros utilizados
+	* summary of class status (http://www.go-mono.com/class-status.html)
 
 * preencher assinatura dos métodos em BindTypeMembers
 	* completar tipo dos parâmetros
