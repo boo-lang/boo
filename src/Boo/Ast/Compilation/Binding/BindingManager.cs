@@ -6,29 +6,7 @@ using Boo.Ast;
 namespace Boo.Ast.Compilation.Binding
 {
 	public class BindingManager
-	{
-		public static readonly Type RuntimeServicesType = typeof(Boo.Lang.RuntimeServices);
-		
-		public static readonly Type IEnumerableType = typeof(System.Collections.IEnumerable);
-		
-		public static readonly Type IEnumeratorType = typeof(System.Collections.IEnumerator);
-		
-		public static readonly Type ObjectType = typeof(object);
-		
-		public static readonly Type ObjectArrayType = Type.GetType("System.Object[]");
-		
-		public static readonly Type VoidType = typeof(void);
-		
-		public static readonly Type StringType = typeof(string);
-		
-		public static readonly Type IntType = typeof(int);
-		
-		public static readonly Type SingleType = typeof(float);
-		
-		public static readonly Type DateType = typeof(System.DateTime);
-		
-		public static readonly Type BoolType = typeof(bool);
-		
+	{		
 		public ITypeBinding ObjectTypeBinding;
 	
 		public ITypeBinding VoidTypeBinding;
@@ -46,12 +24,12 @@ namespace Boo.Ast.Compilation.Binding
 		public BindingManager()
 		{
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl());
-			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, ObjectType));
-			Cache(StringTypeBinding = new ExternalTypeBinding(this, StringType));
-			Cache(BoolTypeBinding = new ExternalTypeBinding(this, BoolType));
-			Cache(IntTypeBinding = new ExternalTypeBinding(this, IntType));
-			Cache(new ExternalTypeBinding(this, DateType));
-			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, RuntimeServicesType));
+			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
+			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));
+			Cache(BoolTypeBinding = new ExternalTypeBinding(this, Types.Bool));
+			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
+			Cache(new ExternalTypeBinding(this, Types.Date));
+			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 		}
 		
 		public bool IsBound(Node node)
@@ -196,7 +174,7 @@ namespace Boo.Ast.Compilation.Binding
 				
 				case "date":
 				{
-					binding = ToTypeReference(DateType);
+					binding = ToTypeReference(Types.Date);
 					break;
 				}
 				
@@ -282,7 +260,7 @@ namespace Boo.Ast.Compilation.Binding
 			{
 				get
 				{
-					return BindingManager.VoidType;
+					return Types.Void;
 				}
 			}
 			

@@ -15,7 +15,7 @@ namespace Boo.Ast.Compilation.Binding
 		
 		internal ExternalTypeBinding(BindingManager manager, Type type)
 		{
-			if (BindingManager.VoidType == type)
+			if (Types.Void == type)
 			{
 				throw new ArgumentException("type");
 			}

@@ -18,19 +18,19 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static object EntryPointKey = new object();
 		
-		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Binding.BindingManager.StringType, Binding.BindingManager.ObjectArrayType });
+		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Binding.Types.String, Binding.Types.ObjectArray });
 		
-		static MethodInfo RuntimeServices_MoveNext = Binding.BindingManager.RuntimeServicesType.GetMethod("MoveNext");
+		static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		
-		static MethodInfo RuntimeServices_CheckArrayUnpack = Binding.BindingManager.RuntimeServicesType.GetMethod("CheckArrayUnpack");
+		static MethodInfo RuntimeServices_CheckArrayUnpack = Types.RuntimeServices.GetMethod("CheckArrayUnpack");
 		
-		static MethodInfo RuntimeServices_GetEnumerable = Binding.BindingManager.RuntimeServicesType.GetMethod("GetEnumerable");
+		static MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
 		
-		static MethodInfo IEnumerable_GetEnumerator = Binding.BindingManager.IEnumerableType.GetMethod("GetEnumerator");
+		static MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
 		
-		static MethodInfo IEnumerator_MoveNext = Binding.BindingManager.IEnumeratorType.GetMethod("MoveNext");
+		static MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
 		
-		static MethodInfo IEnumerator_get_Current = Binding.BindingManager.IEnumeratorType.GetProperty("Current").GetGetMethod();
+		static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
 		
 		AssemblyBuilder _asmBuilder;
 		
@@ -148,7 +148,7 @@ namespace Boo.Ast.Compilation.Steps
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
-			if (PopType() != Binding.BindingManager.VoidType)
+			if (PopType() != Binding.Types.Void)
 			{
 				_il.Emit(OpCodes.Pop);
 			}
@@ -291,7 +291,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldc_I4, int.Parse(node.Value));
-			PushType(BindingManager.IntType);
+			PushType(Types.Int);
 		}
 		
 		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -304,13 +304,13 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				_il.Emit(OpCodes.Ldc_I4_0);
 			}
-			PushType(BindingManager.BoolType);
+			PushType(Types.Bool);
 		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
-			PushType(BindingManager.StringType);
+			PushType(Types.String);
 		}
 		
 		public override void OnStringFormattingExpression(StringFormattingExpression node)
@@ -319,16 +319,16 @@ namespace Boo.Ast.Compilation.Steps
 			
 			// new object[node.Arguments.Count]
 			_il.Emit(OpCodes.Ldc_I4, node.Arguments.Count);
-			_il.Emit(OpCodes.Newarr, BindingManager.ObjectType);
+			_il.Emit(OpCodes.Newarr, Types.Object);
 			
 			ExpressionCollection args = node.Arguments;
 			for (int i=0; i<args.Count; ++i)
 			{			
-				StoreElementReference(i, args[i], BindingManager.ObjectType);				
+				StoreElementReference(i, args[i], Types.Object);				
 			}
 			
 			_il.EmitCall(OpCodes.Call, String_Format, null);
-			PushType(BindingManager.StringType);
+			PushType(Types.String);
 		}
 		
 		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
@@ -377,14 +377,13 @@ namespace Boo.Ast.Compilation.Steps
 					{
 						if (fieldInfo.DeclaringType.IsEnum)
 						{
-							_il.Emit(OpCodes.Ldc_I4, (int)fieldBinding.FieldInfo.GetValue(null));
-							PushType(BindingManager.IntType);
+							_il.Emit(OpCodes.Ldc_I4, (int)fieldBinding.FieldInfo.GetValue(null));							
 						}
 						else
 						{
-							_il.Emit(OpCodes.Ldsfld, fieldInfo);
-							PushType(fieldInfo.FieldType);
+							_il.Emit(OpCodes.Ldsfld, fieldInfo);							
 						}
+						PushType(fieldInfo.FieldType);
 					}
 					else
 					{						
@@ -474,7 +473,7 @@ namespace Boo.Ast.Compilation.Steps
 			Label labelTest = _il.DefineLabel();
 			Label labelEnd = _il.DefineLabel();
 			
-			LocalBuilder localIterator = _il.DeclareLocal(Binding.BindingManager.IEnumeratorType);
+			LocalBuilder localIterator = _il.DeclareLocal(Types.IEnumerator);
 			EmitGetEnumerableIfNeeded(iteratorType);			
 			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
 			_il.Emit(OpCodes.Stloc, localIterator);
@@ -487,7 +486,7 @@ namespace Boo.Ast.Compilation.Steps
 			
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(node.Declarations, Binding.BindingManager.ObjectType);
+			EmitUnpackForDeclarations(node.Declarations, Binding.Types.Object);
 			
 			node.Statements.Switch(this);
 			_il.Emit(OpCodes.Br, labelTest);
@@ -504,7 +503,7 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Stloc, localIterator);
 			
 			// i = 0;
-			LocalBuilder localIndex = _il.DeclareLocal(BindingManager.IntType);
+			LocalBuilder localIndex = _il.DeclareLocal(Types.Int);
 			_il.Emit(OpCodes.Ldc_I4_0);
 			_il.Emit(OpCodes.Stloc, localIndex);			
 			
@@ -572,7 +571,7 @@ namespace Boo.Ast.Compilation.Steps
 					{
 						_il.Emit(OpCodes.Dup);
 						_il.EmitCall(OpCodes.Call, RuntimeServices_MoveNext, null);				
-						StoreLocal(BindingManager.ObjectType, GetLocalBuilder(d));				
+						StoreLocal(Types.Object, GetLocalBuilder(d));				
 					}					
 				}
 				_il.Emit(OpCodes.Pop);
@@ -589,7 +588,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		bool IsIEnumerableCompatible(Type type)
 		{
-			return Binding.BindingManager.IEnumerableType.IsAssignableFrom(type);
+			return Types.IEnumerable.IsAssignableFrom(type);
 		}
 		
 		void PushArguments(IMethodBinding binding, ExpressionCollection args)
@@ -628,7 +627,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
-				if (expectedType == BindingManager.ObjectType)
+				if (expectedType == Types.Object)
 				{
 					if (actualType.IsValueType)
 					{
@@ -640,11 +639,11 @@ namespace Boo.Ast.Compilation.Steps
 		
 		OpCode GetNumericPromotionOpCode(Type type)
 		{
-			if (type == BindingManager.IntType)
+			if (type == Types.Int)
 			{
 				return OpCodes.Conv_I4;
 			}
-			else if (type == BindingManager.SingleType)
+			else if (type == Types.Single)
 			{
 				return OpCodes.Conv_R4;
 			}

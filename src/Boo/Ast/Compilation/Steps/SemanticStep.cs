@@ -145,7 +145,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override void LeaveIfStatement(IfStatement node)
 		{
 			Type type = BindingManager.GetBoundType(node.Expression);
-			if (BindingManager.BoolType != type)
+			if (Types.Bool != type)
 			{
 				Errors.BoolExpressionRequired(node.Expression, type);
 			}
@@ -443,8 +443,8 @@ namespace Boo.Ast.Compilation.Steps
 		static bool IsNumber(Type type)
 		{
 			return
-				type == BindingManager.IntType ||
-				type == BindingManager.SingleType;
+				type == Types.Int ||
+				type == Types.Single;
 		}
 		
 		IConstructorBinding FindCorrectConstructor(ITypeBinding typeBinding, MethodInvocationExpression mie)

@@ -569,7 +569,7 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			get
 			{
-				return BindingManager.VoidType;
+				return Types.Void;
 			}
 		}
 		
