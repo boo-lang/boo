@@ -32,25 +32,31 @@ namespace Boo.Lang
 	using System;
 	using Boo.Lang.Ast;
 	
+	/// <summary>
+	/// using file=File.OpenText(fname):
+	///		print(file.ReadLine())
+	/// </summary>
 	public class UsingMacro : IAstMacro
 	{
 		public Statement Expand(MacroStatement macro)
-		{
+		{			
+			// only single assignments are supported
+			// right now
 			if (macro.Arguments.Count != 1 ||
-				NodeType.BinaryExpression != macro.Arguments[0].NodeType)
+				!IsAssignmentToReference(macro.Arguments[0]))
 			{
 				throw new NotImplementedException();
 			}
 			
 			BinaryExpression expression = (BinaryExpression)macro.Arguments[0];
-			if (BinaryOperatorType.Assign != expression.Operator ||
-				NodeType.ReferenceExpression != expression.Left.NodeType)
-			{
-				throw new NotImplementedException();
-			}
-			
+
+			// try:
+			//		assignment
+			// 		<the rest>
+			// ensure:
+			//		...			
 			TryStatement stmt = new TryStatement(macro.LexicalInfo);
-			stmt.ProtectedBlock.Add(new ExpressionStatement(expression));
+			stmt.ProtectedBlock.Add(expression);
 			stmt.ProtectedBlock.Add(macro.Block);
 			stmt.EnsureBlock = CreateEnsureBlock((ReferenceExpression)expression.Left);
 			
@@ -62,14 +68,15 @@ namespace Boo.Lang
 			Block block = new Block(reference.LexicalInfo);
 			
 			// if __disposable = <reference> as System.IDisposable:
-			IfStatement stmt = new IfStatement();
-			stmt.TrueBlock = new Block();
+			IfStatement stmt = new IfStatement();			
 			stmt.Expression = new BinaryExpression(
 								BinaryOperatorType.Assign,
 								new ReferenceExpression("__disposable"),
 								new AsExpression(reference, new TypeReference("System.IDisposable"))
-								);
-							
+								);			
+			
+			stmt.TrueBlock = new Block();
+			
 			// __disposable.Dispose()
 			stmt.TrueBlock.Add(
 				new MethodInvocationExpression(
@@ -90,6 +97,19 @@ namespace Boo.Lang
 			
 			block.Add(stmt);
 			return block;
+		}
+		
+		bool IsAssignmentToReference(Expression expression)
+		{
+			if (NodeType.BinaryExpression != expression.NodeType)
+			{
+				return false;
+			}
+			
+			BinaryExpression binaryExpression = (BinaryExpression)expression;
+			return
+				BinaryOperatorType.Assign == binaryExpression.Operator &&
+				NodeType.ReferenceExpression == binaryExpression.Left.NodeType;
 		}
 	}
 }

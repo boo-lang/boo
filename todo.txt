@@ -120,7 +120,7 @@ done * typeof
 
 * null
 
-* is
+* is/is not
 
 * AstAttribute vira IAstAttribute que implementa ICompilerStep
 
@@ -147,7 +147,8 @@ derivada de Control (que tem uma propriedade chamada Size):
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------
-* using macro
+done * macro infrastructure
+done * using macro
 * lock macro
 
 
