@@ -2,11 +2,11 @@
 public final transient class Array_functionModule(System.Object):
 
 	private static def __Main__(argv as (System.String)) as System.Void:
-		for a as System.Int32 in Boo.Lang.Builtins.array(System.Int32, Boo.Lang.Builtins.range(10)):
+		for a as System.Int32 in cast((System.Int32), Boo.Lang.Builtins.array(System.Int32, Boo.Lang.Builtins.range(10))):
 			Boo.Lang.Builtins.print(a)
 		for a as System.Object in Boo.Lang.Builtins.array(Boo.Lang.Builtins.range(10)):
 			Boo.Lang.Builtins.print(a)
-		for a as System.String in Boo.Lang.Builtins.array(System.String, ['foo', 'bar']):
+		for a as System.String in cast((System.String), Boo.Lang.Builtins.array(System.String, ['foo', 'bar'])):
 			Boo.Lang.Builtins.print(a)
 
 	private def constructor():

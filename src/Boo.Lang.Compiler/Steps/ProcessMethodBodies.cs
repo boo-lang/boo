@@ -2126,20 +2126,26 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 			}
-		}
+		}		
 		
-		/*
-		IType GetInferedReturnType(MethodInvocationExpression expression, IMethod method)
+		void ApplyBuiltinMethodTypeInference(MethodInvocationExpression expression, IMethod method)
 		{
 			if (Array_TypedEnumerableConstructor == method ||
 				Array_TypedCollectionConstructor == method ||				
 				Array_TypedConstructor2 == method)
-			{
-				return TypeSystemServices.GetArrayType(GetType(expression.Arguments[0]));
+			{				
+				Node parent = expression.ParentNode;
+				
+				IType returnType = TypeSystemServices.GetArrayType(GetType(expression.Arguments[0]));
+				
+				CastExpression cast = new CastExpression(expression.LexicalInfo);
+				cast.Type = CreateTypeReference(returnType);
+				cast.Target = expression;
+				BindExpressionType(cast, returnType);
+				
+				parent.Replace(expression, cast);
 			}
-			return method.ReturnType;
 		}
-		*/
 		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
@@ -2200,6 +2206,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					
 					BindExpressionType(node, targetMethod.ReturnType);
+					ApplyBuiltinMethodTypeInference(node, targetMethod);
 					
 					break;
 				}
@@ -2217,7 +2224,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (null != superConstructorInfo)
 						{
 							Bind(node.Target, superConstructorInfo);
-							Bind(node, superConstructorInfo);
+							BindExpressionType(node, superConstructorInfo.ReturnType);
 						}
 					}
 					break;
