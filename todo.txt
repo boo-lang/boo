@@ -4,6 +4,8 @@
 	* delegate7.boo
 	* delegate8.boo
 	
+* fix event handling
+	
 * software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms

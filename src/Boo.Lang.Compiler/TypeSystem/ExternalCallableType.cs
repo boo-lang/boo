@@ -52,5 +52,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _invoke.ReturnType;
 			}
 		}
+		
+		override public bool IsAssignableFrom(IType other)
+		{
+			return this == other;
+		}
 	}
 }

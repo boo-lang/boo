@@ -240,7 +240,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
-			IType tag = TypeSystemServices.GetType(node);
+			IType tag = node.Entity as IType;
 			if (null != tag && !TypeSystemServices.IsError(tag))
 			{			
 				Visit(node.Arguments);
