@@ -777,7 +777,7 @@ namespace Boo.AntlrParser.Tests
 		}
 		
 		[Test]
-		public void ImportDoubeQuotedString()
+		public void ImportQuotedString()
 		{
 			RunParserTestCase("importquotedstring.boo");
 		}
