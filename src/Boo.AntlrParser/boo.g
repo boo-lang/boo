@@ -79,6 +79,7 @@ tokens
 	CONSTRUCTOR="constructor";	
 	DEF="def";
 	DO="do";	
+	ELIF="elif";
 	ELSE="else";
 	ENSURE="ensure";
 	ENUM="enum";
@@ -1353,18 +1354,34 @@ given_stmt returns [GivenStatement gs]
 	;
 		
 protected
-if_stmt returns [IfStatement s]
+if_stmt returns [IfStatement returnValue]
 	{
-		s = null;
+		returnValue = null;
+		
+		IfStatement s = null;
 		Expression e = null;
 	}:
 	it:IF e=expression
 	{
-		s = new IfStatement(ToLexicalInfo(it));
+		returnValue = s = new IfStatement(ToLexicalInfo(it));
 		s.Condition = e;
 		s.TrueBlock = new Block();
 	}
 	compound_stmt[s.TrueBlock.Statements]
+	(
+		ei:ELIF e=expression
+		{
+			s.FalseBlock = new Block();
+			
+			IfStatement elif = new IfStatement(ToLexicalInfo(ei));
+			elif.TrueBlock = new Block();
+			elif.Condition = e;
+			
+			s.FalseBlock.Add(elif);
+			s = elif;
+		}
+		compound_stmt[s.TrueBlock.Statements]
+	)*
 	(
 		et:ELSE { s.FalseBlock = new Block(ToLexicalInfo(et)); }
 		compound_stmt[s.FalseBlock.Statements]

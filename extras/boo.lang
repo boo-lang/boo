@@ -136,6 +136,7 @@ OR
 		<keyword>break</keyword>
 		<keyword>cast</keyword>
 		<keyword>continue</keyword>
+		<keyword>elif</keyword>
 		<keyword>else</keyword>
 		<keyword>except</keyword>
 		<keyword>ensure</keyword>

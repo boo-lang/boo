@@ -111,6 +111,7 @@
 
 			<KeyWords name="SelectionStatements" bold="true" italic="false" color="Blue" >
 				<Key word="else"/>
+				<Key word="elif"/>
 				<Key word="if"/>
 				<Key word="given"/>
 				<Key word="when"/>
