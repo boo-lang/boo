@@ -52,7 +52,7 @@
     <File name=".\Ast\ModuleCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Node.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\NodeCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-	<File name=".\Ast\NodeType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\NodeType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\NullLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\OmittedExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Package.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -228,6 +228,7 @@
     <File name=".\Ast\Compilation\Steps\UsingResolutionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IO" subtype="Directory" buildaction="Compile" dependson="" data="" />
     <File name=".\IO\TextFile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Assembly" refto="..\..\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />

@@ -18,6 +18,7 @@ MemberNotFound=Membro '{0}' não encontrado.
 InvalidNamespace=Espaço {0} não encontrado, talvez você tenha esquecido de adicionar uma referência?
 IncompatibleExpressionType=Tipo da expressão '{1}' incompatível com destino ('{0}').
 NoApropriateOverloadFound=Nenhuma versão compatível com os argumentos '{0}' foi encontrada.
+InvalidArray=Somente arrays unidimensionais são suportados.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.
@@ -35,3 +36,7 @@ BooC.UnableToLoadPipeline=Não foi possível carregar a pipeline {0}, causa: {1}
 BooC.NoPipeline=Nenhuma pipeline de compilação especificada (/p:<PIPELINE>)
 BooC.NoInputSpecified=Nenhum fonte especificado
 BooC.NoOutputSpecified=Arquivo de saída não especificado
+
+;Boo.Lang
+ArgumentNotEnumerable=Argumento não é enumerável (não implementa System.Collections.IEnumerable).
+UnpackListOfWrongSize=Desempacotamento de lista de tamanho errado.

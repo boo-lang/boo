@@ -18,6 +18,7 @@ MemberNotFound=Member '{0}' not found.
 InvalidNamespace=Namespace {0} not found, maybe you forgot to add an assembly reference?
 IncompatibleExpressionType=Expression type '{1}' not compatible with target ('{0}' expected).
 NoApropriateOverloadFound=No apropriate version for the arguments '{0}' was found.
+InvalidArray=Only unidimensional arrays are supported.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.
@@ -35,3 +36,7 @@ BooC.UnableToLoadPipeline=Failed to load pipeline {0}, cause: {1}.
 BooC.NoPipeline=No compilation pipeline specified (/p:<PIPELINE>)
 BooC.NoInputSpecified=No inputs specified
 BooC.NoOutputSpecified=No output specified
+
+;Boo.Lang
+ArgumentNotEnumerable=Argument is not enumerable (does not implement System.Collections.IEnumerable).
+UnpackListOfWrongSize=Unpack list of wrong size.

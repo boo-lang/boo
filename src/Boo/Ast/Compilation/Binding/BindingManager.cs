@@ -7,6 +7,10 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public class BindingManager
 	{
+		public static readonly Type IEnumerableType = typeof(System.Collections.IEnumerable);
+		
+		public static readonly Type IEnumeratorType = typeof(System.Collections.IEnumerator);
+		
 		public static readonly Type ObjectType = typeof(object);
 		
 		public static readonly Type ObjectArrayType = Type.GetType("System.Object[]");

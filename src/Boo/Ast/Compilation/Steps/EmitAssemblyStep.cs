@@ -18,7 +18,15 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static object EntryPointKey = new object();
 		
-		MethodInfo StringFormatMethodInfo = Boo.Ast.Compilation.Binding.BindingManager.StringType.GetMethod("Format", new Type[] { Binding.BindingManager.StringType, Binding.BindingManager.ObjectArrayType });
+		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Binding.BindingManager.StringType, Binding.BindingManager.ObjectArrayType });
+		
+		static MethodInfo Runtime_MoveNext = typeof(Boo.Lang.RuntimeServices).GetMethod("MoveNext");
+		
+		static MethodInfo IEnumerable_GetEnumerator = Binding.BindingManager.IEnumerableType.GetMethod("GetEnumerator");
+		
+		static MethodInfo IEnumerator_MoveNext = Binding.BindingManager.IEnumeratorType.GetMethod("MoveNext");
+		
+		static MethodInfo IEnumerator_get_Current = Binding.BindingManager.IEnumeratorType.GetProperty("Current").GetGetMethod();
 		
 		AssemblyBuilder _asmBuilder;
 		
@@ -72,56 +80,21 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void OnForStatement(ForStatement node)
-		{
-			DeclarationCollection decls = node.Declarations;
-			
-			ITypeBinding binding = GetTypeBinding(node.Iterator);
-			if (!binding.Type.IsArray || 1 != decls.Count)
-			{
-				throw new NotImplementedException();
-			}			
+		{			
+			ITypeBinding binding = GetTypeBinding(node.Iterator);			
 			
 			EmitDebugInfo(node.Iterator);
 			// iterator = <node.Iterator>;
-			node.Iterator.Switch(this);			
+			node.Iterator.Switch(this);
 			
-			Label labelTest = _il.DefineLabel();
-			Label labelEnd = _il.DefineLabel();
-			
-			LocalBuilder localIterator = _il.DeclareLocal(binding.Type);
-			_il.Emit(OpCodes.Stloc, localIterator);
-			
-			// i = 0;
-			LocalBuilder localIndex = _il.DeclareLocal(BindingManager.IntType);
-			_il.Emit(OpCodes.Ldc_I4_0);
-			_il.Emit(OpCodes.Stloc, localIndex);			
-			
-			// i<iterator.Length			
-			_il.MarkLabel(labelTest);			
-			_il.Emit(OpCodes.Ldloc, localIndex);
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.Emit(OpCodes.Ldlen);
-			_il.Emit(OpCodes.Bge, labelEnd);
-			
-			LocalBuilder localValue = GetLocalBuilder(decls[0]);			
-			
-			EmitDebugInfo(decls[0]);
-			// value = iterator[i]
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.Emit(OpCodes.Ldloc, localIndex);
-			_il.Emit(OpCodes.Ldelem_Ref);
-			_il.Emit(OpCodes.Stloc, localValue);
-			node.Statements.Switch(this);
-			
-			// ++i
-			_il.Emit(OpCodes.Ldc_I4_1);
-			_il.Emit(OpCodes.Ldloc, localIndex);
-			_il.Emit(OpCodes.Add);
-			_il.Emit(OpCodes.Stloc, localIndex);
-			_il.Emit(OpCodes.Br, labelTest);
-			
-			_il.MarkLabel(labelEnd);
-			
+			if (binding.Type.IsArray)
+			{
+				EmitArrayBasedFor(node, binding);
+			}
+			else
+			{
+				EmitEnumerableBasedFor(node, binding);
+			}			
 		}
 		
 		public override void OnUnpackStatement(UnpackStatement node)
@@ -254,7 +227,7 @@ namespace Boo.Ast.Compilation.Steps
 				StoreElementReference(i, args[i]);				
 			}
 			
-			_il.EmitCall(OpCodes.Call, StringFormatMethodInfo, null);
+			_il.EmitCall(OpCodes.Call, String_Format, null);
 		}
 		
 		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
@@ -367,6 +340,105 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			LexicalInfo info = node.LexicalInfo;
 			_il.MarkSequencePoint(_symbolDocWriter, info.Line, info.Column-1, info.Line, info.Column-1);
+		}
+		
+		void EmitEnumerableBasedFor(ForStatement node, ITypeBinding iteratorBinding)
+		{			
+			Label labelTest = _il.DefineLabel();
+			Label labelEnd = _il.DefineLabel();
+			
+			LocalBuilder localIterator = _il.DeclareLocal(Binding.BindingManager.IEnumeratorType);			
+			if (!IsIEnumerableCompatible(iteratorBinding.Type))
+			{
+				_il.Emit(OpCodes.Castclass, BindingManager.IEnumerableType);
+			}
+			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
+			_il.Emit(OpCodes.Stloc, localIterator);
+			
+			// iterator.MoveNext()
+			EmitDebugInfo(node.Iterator);
+			_il.MarkLabel(labelTest);
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.EmitCall(OpCodes.Callvirt, IEnumerator_MoveNext, null);
+			_il.Emit(OpCodes.Brfalse, labelEnd);			
+			
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
+			EmitUnpackForDeclarations(node.Declarations);
+			
+			node.Statements.Switch(this);
+			_il.Emit(OpCodes.Br, labelTest);
+			
+			_il.MarkLabel(labelEnd);			
+		}
+		
+		void EmitArrayBasedFor(ForStatement node, ITypeBinding iteratorBinding)
+		{			
+			Label labelTest = _il.DefineLabel();
+			Label labelEnd = _il.DefineLabel();
+			
+			LocalBuilder localIterator = _il.DeclareLocal(iteratorBinding.Type);
+			_il.Emit(OpCodes.Stloc, localIterator);
+			
+			// i = 0;
+			LocalBuilder localIndex = _il.DeclareLocal(BindingManager.IntType);
+			_il.Emit(OpCodes.Ldc_I4_0);
+			_il.Emit(OpCodes.Stloc, localIndex);			
+			
+			// i<iterator.Length			
+			_il.MarkLabel(labelTest);			
+			_il.Emit(OpCodes.Ldloc, localIndex);
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.Emit(OpCodes.Ldlen);
+			_il.Emit(OpCodes.Bge, labelEnd);			
+			
+			EmitDebugInfo(node.Iterator);
+			// value = iterator[i]
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.Emit(OpCodes.Ldloc, localIndex);
+			_il.Emit(OpCodes.Ldelem_Ref);
+			
+			EmitUnpackForDeclarations(node.Declarations);
+			
+			node.Statements.Switch(this);
+			
+			// ++i
+			_il.Emit(OpCodes.Ldc_I4_1);
+			_il.Emit(OpCodes.Ldloc, localIndex);
+			_il.Emit(OpCodes.Add);
+			_il.Emit(OpCodes.Stloc, localIndex);
+			_il.Emit(OpCodes.Br, labelTest);
+			
+			_il.MarkLabel(labelEnd);
+		}
+		
+		void EmitUnpackForDeclarations(DeclarationCollection decls)
+		{
+			if (1 == decls.Count)
+			{
+				LocalBuilder localValue = GetLocalBuilder(decls[0]);
+				EmitDebugInfo(decls[0]);
+				_il.Emit(OpCodes.Stloc, localValue);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Castclass, BindingManager.IEnumerableType);
+				_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
+				
+				foreach (Declaration d in decls)
+				{
+					_il.Emit(OpCodes.Dup);
+					_il.EmitCall(OpCodes.Call, Runtime_MoveNext, null);				
+					_il.Emit(OpCodes.Stloc, GetLocalBuilder(d));				
+				}
+				
+				_il.Emit(OpCodes.Pop);
+			}
+		}
+		
+		bool IsIEnumerableCompatible(Type type)
+		{
+			return Binding.BindingManager.IEnumerableType.IsAssignableFrom(type);
 		}
 		
 		void StoreElementReference(int index, Node value)

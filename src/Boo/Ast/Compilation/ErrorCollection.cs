@@ -66,6 +66,11 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Boo.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName), cause));
 		}
 		
+		public void InvalidArray(Node node)
+		{
+			Add(new Error(node, GetString("InvalidArray")));
+		}
+		
 		public void InvalidNamespace(Using node)
 		{
 			Add(new Error(node, Format("InvalidNamespace", node.Namespace)));

@@ -36,7 +36,10 @@ done * definição de métodos do módulo
 done * chamada de métodos do módulo
 done * checagem de parametros estrita nas invocaçoes de método
 done * array unpacking
-* for item in enumerator
+done * for item in array
+done * for index, item in enumerate(array)
+* melhor mensagem de erro para array unpacking (checar length do array antes de acessá-lo 
+e emitir exception "Unpack list of wrong size")
 * native regular expression support:
 	* re expression /foo/
 	* match operator ~=

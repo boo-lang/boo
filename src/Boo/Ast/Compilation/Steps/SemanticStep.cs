@@ -109,6 +109,10 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				BindingManager.Bind(node, info);
 			}
+			else
+			{
+				BindingManager.Error(node);
+			}
 		}
 		
 		public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
@@ -121,6 +125,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
+				BindingManager.Error(node);
 				Errors.MemberNotFound(node);
 			}
 		}
@@ -130,6 +135,7 @@ namespace Boo.Ast.Compilation.Steps
 			node.Iterator.Switch(this);
 			
 			ITypeBinding iteratorType = (ITypeBinding)GetBinding(node.Iterator);
+			CheckIterator(node.Iterator, iteratorType);
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
 			PushNamespace(new DeclarationsNameSpace(BindingManager, node.Declarations));
@@ -239,6 +245,7 @@ namespace Boo.Ast.Compilation.Steps
 				
 				case BindingType.Error:
 				{
+					BindingManager.Error(node);
 					break;
 				}
 				
@@ -356,6 +363,18 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					Errors.MethodSignature(mie, GetSignature(mie), GetSignature(method));
 					break;
+				}
+			}
+		}
+		
+		void CheckIterator(Expression iterator, ITypeBinding binding)
+		{			
+			Type type = binding.Type;
+			if (type.IsArray)
+			{
+				if (type.GetArrayRank() > 1)
+				{
+					Errors.InvalidArray(iterator);
 				}
 			}
 		}
