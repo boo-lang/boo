@@ -26,96 +26,103 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.TypeSystem
 {
+	using System;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class BindTypeMembers : AbstractVisitorCompilerStep
+	public class InternalEvent : IEvent, IInternalEntity
 	{
-		Boo.Lang.List _parameters = new Boo.Lang.List();
+		TypeSystemServices _typeSystemServices;
 		
-		public BindTypeMembers()
+		Event _event;
+		
+		public InternalEvent(TypeSystemServices tagManager, Event event_)
 		{
+			_typeSystemServices = tagManager;
+			_event = event_;
 		}
 		
-		override public void OnMethod(Method node)
+		public IType DeclaringType
 		{
-			if (null == node.Entity)
+			get
 			{
-				node.Entity = new InternalMethod(TypeSystemServices, node);
-				_parameters.Add(node);
+				return (IType)TypeSystemServices.GetEntity(_event.DeclaringType);
 			}
 		}
 		
-		void BindAllParameters()
+		public IMethod GetAddMethod()
 		{
-			foreach (INodeWithParameters node in _parameters)
+			return null;
+		}
+		
+		public IMethod GetRemoveMethod()
+		{
+			return null;
+		}
+		
+		public Event Event
+		{
+			get
 			{
-				TypeMember member = (TypeMember)node;
-				NameResolutionService.Restore((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
-				CodeBuilder.BindParameterDeclarations(member.IsStatic, node.Parameters);
+				return _event;
 			}
 		}
 		
-		override public void OnConstructor(Constructor node)
+		public Node Node
 		{
-			if (null == node.Entity)
+			get
 			{
-				node.Entity = new InternalConstructor(TypeSystemServices, node);
-				_parameters.Add(node);
+				return _event;
 			}
 		}
 		
-		override public void OnField(Field node)
+		public bool IsPublic
 		{
-			if (null == node.Entity)
+			get
 			{
-				node.Entity = new InternalField(TypeSystemServices, node);
+				return _event.IsPublic;
 			}
 		}
 		
-		override public void OnProperty(Property node)
+		public string Name
 		{
-			if (null == node.Entity)
-			{				
-				node.Entity = new InternalProperty(TypeSystemServices, node);
-				_parameters.Add(node);
-			}
-			
-			Visit(node.Getter);
-			Visit(node.Setter);
-		}	
-		
-		override public void OnEvent(Event node)
-		{
-			if (null == node.Entity)
+			get
 			{
-				node.Entity = new InternalEvent(TypeSystemServices, node);
+				return _event.Name;
 			}
 		}
 		
-		override public void OnClassDefinition(ClassDefinition node)
+		public string FullName
 		{
-			Visit(node.Members);
+			get
+			{
+				return _event.DeclaringType.FullName + "." + _event.Name;
+			}
 		}
 		
-		override public void OnModule(Module node)
+		public EntityType EntityType
 		{
-			Visit(node.Members);
+			get
+			{
+				return EntityType.Event;
+			}
 		}
 		
-		override public void Run()
-		{			
-			NameResolutionService.Reset();
-			Visit(CompileUnit.Modules);
-			BindAllParameters();
+		public IType Type
+		{
+			get
+			{
+				return (IType)TypeSystemServices.GetEntity(_event.Type);
+			}
 		}
 		
-		override public void Dispose()
+		public bool IsStatic
 		{
-			base.Dispose();
-			_parameters.Clear();
+			get
+			{
+				return false;
+			}
 		}
 	}
 }

@@ -2805,9 +2805,9 @@ namespace Boo.Lang.Compiler.Steps
 			return PropertyAttributes.None;
 		}
 		
-		MethodAttributes GetPropertyMethodAttributes(Property property)
+		MethodAttributes GetPropertyMethodAttributes(TypeMember property)
 		{
-			MethodAttributes attributes = MethodAttributes.HideBySig;
+			MethodAttributes attributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
 			if (property.IsPublic)
 			{
 				attributes |= MethodAttributes.Public;			
@@ -2892,6 +2892,17 @@ namespace Boo.Lang.Compiler.Steps
 			return attributes;
 		}
 		
+		void DefineEvent(TypeBuilder typeBuilder, Event node)
+		{
+			EventBuilder builder = typeBuilder.DefineEvent(node.Name,
+													EventAttributes.None,
+													GetSystemType(node.Type));
+			MethodAttributes attribs = GetPropertyMethodAttributes(node);
+			builder.SetAddOnMethod(DefineMethod(typeBuilder, node.Add, attribs));
+			builder.SetRemoveOnMethod(DefineMethod(typeBuilder, node.Remove, attribs));
+			SetBuilder(node, builder);
+		}
+		
 		void DefineProperty(TypeBuilder typeBuilder, Property property)
 		{
 			PropertyBuilder builder = typeBuilder.DefineProperty(property.Name, 
@@ -2901,8 +2912,7 @@ namespace Boo.Lang.Compiler.Steps
 			Method getter = property.Getter;
 			Method setter = property.Setter;
 			
-			MethodAttributes attribs = GetPropertyMethodAttributes(property);
-			attribs |= MethodAttributes.SpecialName;
+			MethodAttributes attribs = GetPropertyMethodAttributes(property);			
 			if (null != getter)
 			{
 				MethodBuilder getterBuilder = 
@@ -3203,6 +3213,12 @@ namespace Boo.Lang.Compiler.Steps
 					case NodeType.Property:
 					{
 						DefineProperty(typeBuilder, (Property)member);
+						break;
+					}
+					
+					case NodeType.Event:
+					{
+						DefineEvent(typeBuilder, (Event)member);
 						break;
 					}
 				}

@@ -89,6 +89,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void LeaveEvent(Event node)
+		{
+			if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= TypeMemberModifiers.Public;
+			}
+		}
+		
 		override public void LeaveMethod(Method node)
 		{
 			if (!node.IsVisibilitySet)

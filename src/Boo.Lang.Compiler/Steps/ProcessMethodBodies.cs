@@ -259,6 +259,50 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		Method CreateEventMethod(Event node, string prefix)
+		{
+			Method method = CodeBuilder.CreateMethod(prefix + node.Name,
+													TypeSystemServices.VoidType,
+													node.Modifiers);
+			method.Parameters.Add(
+					CodeBuilder.CreateParameterDeclaration(
+						1,
+						"handler",
+						GetType(node.Type)));
+			return method;
+		}
+		
+		override public void OnEvent(Event node)
+		{
+			if (Visited(node))
+			{
+				return;
+			}
+			MarkVisited(node);
+			
+			Visit(node.Attributes);
+			Visit(node.Type);
+			
+			if (null == node.Add)
+			{
+				Method add = CreateEventMethod(node, "add_");
+				node.Add = add;
+			}
+			else
+			{
+				Visit(node.Add);
+			}
+			if (null == node.Remove)
+			{
+				Method remove = CreateEventMethod(node, "remove_");
+				node.Remove = remove;
+			}
+			else
+			{
+				Visit(node.Remove);
+			}
+		}
+		
 		override public void OnProperty(Property node)
 		{
 			if (Visited(node))
