@@ -1,3 +1,22 @@
+MetaBoo
+=======
+
+done * criar branch metaboo
+	done * copiar bin
+	done * copiar ast.model.boo
+	done * copiar scripts
+	
+* build
+	
+* código da AST deve ser código boo
+	* testcases básicos para AST
+	* alterar scripts/astgen para gerar codigo boo em MetaBoo/Ast
+
+* MetaBoo/Ast/Visitors/BooPrinterVisitor
+
+* Boo.AntlrParser 
+	
+	
 Test List
 =========
 
@@ -22,3 +41,39 @@ Compiler
 * o contexto de compilação passado para a pipeline:
 	* deve possuir o mesmo objeto Parameters do Compiler
 	* deve possuir uma coleção de erros vazia
+	
+Pipeline
+--------
+
+* CompilerPipeline recém criada é vazia
+* Add adiciona o item e o item fica disponível como primeiro item
+* Add adiciona novo item e item fica disponível como segundo item
+* Insert() insere item na posiçao designada
+
+
+Steps
+-----
+
+* IntroduceBindingService: coloca implementação default de IBindingService no contexto
+* BindTypeDefinitions: faz binding de todos os tipos, CompileUnit e Module para permitir a resolução de nomes que virá depois
+* BindNamespaces: resolve todas as clausulas import
+* IntroduceNameResolutionService: coloca implementação default de INameResolutionService no contexto
+* IntroduceGlobalNamespaces: 
+* BindAndApplyAttributes: 
+* ExpandMacros:
+* IntroduceModuleClasses:
+* NormalizeTypeMembers:
+* NormalizeStatementModifiers: 
+* BindTypeDefinitions: 
+* BindTypeMembers: 
+* CheckTypeMemberDeclarations:
+* PreOptimizeExpressions:
+* IntroduceCallableResolutionService:
+* ProcessMethodBodies:
+* ProcessGenerators: 
+* CheckInterfaceImplementations:
+* InjectCasts:
+
+
+
+

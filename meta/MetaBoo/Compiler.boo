@@ -40,9 +40,6 @@ class CompilerPipeline:
 	def Add([required] step as ICompilerPipelineStep):
 		pass
 		
-	virtual def Initialize():
-		pass
-		
 class CompilerContext:
 	CompileUnit as Boo.Lang.Compiler.Ast.CompileUnit:
 		get:

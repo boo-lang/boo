@@ -5,11 +5,11 @@ import MetaBoo
 class ParsePipeline(CompilerPipeline):
 	static _defaultParserStepType = System.Type.GetType("Boo.AntlrParser.BooParsingStep, Boo.AntlrParser", true)
 		
-	override def Initialize():
+	def constructor():
 		Add(_defaultParserStepType())
 
 class CompilePipeline(ParsePipeline):
-	override def Initialize():
+	def constructor():
 		pass
 		/*		
 		pipeline.Add(IntroduceBindingService())
@@ -34,5 +34,5 @@ class CompilePipeline(ParsePipeline):
 
 class CompileToFilePipeline(CompilePipeline):
 
-	override def Initialize():
+	def constructor():
 		pass
