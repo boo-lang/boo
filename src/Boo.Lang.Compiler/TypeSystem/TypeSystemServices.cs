@@ -187,7 +187,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool IsCallable(IType type)
 		{
 			return (TypeType == type) ||
-				(ICallableType.IsAssignableFrom(type));
+				(ICallableType.IsAssignableFrom(type)) ||
+				(type is Boo.Lang.Compiler.TypeSystem.ICallableType);
 		}
 		
 		public ICallableType GetCallableType(IMethod method)

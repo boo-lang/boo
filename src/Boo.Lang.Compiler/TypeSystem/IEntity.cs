@@ -164,12 +164,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public interface ICallableType : IType
 	{
-		IParameter[] GetParameters();		
-		
-		IType ReturnType
-		{
-			get;
-		}
+		CallableSignature GetSignature();
 	}
 	
 	public interface IArrayType : IType

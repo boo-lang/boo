@@ -2339,7 +2339,23 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				NotImplemented(node, "Method invocation on type '" + type + "'.");
+				ICallableType delegateType = type as ICallableType;
+				if (null != delegateType)
+				{
+					if (CheckParameters(node.Target, delegateType, node.Arguments))
+					{
+						MemberReferenceExpression expression = new MemberReferenceExpression(node.Target.LexicalInfo);
+						expression.Target = node.Target;
+						expression.Name = "Invoke";
+						node.Target = expression;
+						Bind(expression, ResolveMethod(delegateType, "Invoke"));
+						BindExpressionType(node, delegateType.GetSignature().ReturnType);						
+					}
+				}
+				else
+				{
+					NotImplemented(node, "Method invocation on type '" + type + "'.");
+				}
 			}
 		}
 		
@@ -2739,9 +2755,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckDelegateArgument(Node sourceNode, ITypedEntity delegateMember, ITypedEntity argumentInfo)
 		{
-			IType delegateType = delegateMember.Type;
+			ICallableType delegateType = (ICallableType)delegateMember.Type;
 			if (argumentInfo.EntityType != EntityType.Method ||
-					    !CheckDelegateSignature(delegateType, (IMethod)argumentInfo))
+					    !CheckCallableSignature(delegateType, ((IMethod)argumentInfo).CallableType))
 			{
 				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.FullName, delegateType.FullName));
 				return false;
@@ -2767,7 +2783,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckParameterTypes(IMethod method, ExpressionCollection args)
 		{
-			IParameter[] parameters = method.GetParameters();
+			return CheckParameterTypes(method.CallableType, args);
+		}
+		
+		bool CheckParameterTypes(ICallableType method, ExpressionCollection args)
+		{
+			IParameter[] parameters = method.GetSignature().Parameters;
 			for (int i=0; i<args.Count; ++i)
 			{
 				IType expressionType = GetExpressionType(args[i]);
@@ -2775,7 +2796,6 @@ namespace Boo.Lang.Compiler.Steps
 				if (!IsAssignableFrom(parameterType, expressionType) &&
 				    !CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
 				{
-					
 					return false;
 				}
 			}
@@ -2783,8 +2803,13 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		bool CheckParameters(Node sourceNode, IMethod method, ExpressionCollection args)
+		{
+			return CheckParameters(sourceNode, method.CallableType, args);
+		}
+		
+		bool CheckParameters(Node sourceNode, ICallableType method, ExpressionCollection args)
 		{				
-			if (method.GetParameters().Length != args.Count)
+			if (method.GetSignature().Parameters.Length != args.Count)
 			{
 				Error(CompilerErrorFactory.MethodArgumentCount(sourceNode, method.Name, args.Count));
 				return false;
@@ -2792,40 +2817,15 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (!CheckParameterTypes(method, args))
 			{
-				Error(CompilerErrorFactory.MethodSignature(sourceNode, GetSignature(method), GetSignature(args)));
+				Error(CompilerErrorFactory.MethodSignature(sourceNode, method.ToString(), GetSignature(args)));
 			}
 			return true;
 		}
 		
 		
-		bool CheckDelegateSignature(IType delegateType, IMethod target)
+		bool CheckCallableSignature(ICallableType expected, ICallableType actual)
 		{
-			IMethod invoke = ResolveMethod(delegateType, "Invoke");
-			if (null == invoke)
-			{
-				throw new ArgumentException(string.Format("{0} is not a valid delegate type!", delegateType), "delegateType");
-			}			
-			
-			if (invoke.ReturnType != target.ReturnType)
-			{
-				return false;
-			}
-			
-			IParameter[] delegateParameters = invoke.GetParameters();
-			IParameter[] targetParameters = target.GetParameters();
-			if (delegateParameters.Length != targetParameters.Length)
-			{				
-				return false;
-			}
-			
-			for (int i=0; i<targetParameters.Length; ++i)
-			{
-				if (delegateParameters[i].Type != targetParameters[i].Type)
-				{
-					return false;
-				}
-			}
-			return true;			
+			return expected.GetSignature() == actual.GetSignature();			
 		}
 		
 		bool IsRuntimeIterator(IType type)

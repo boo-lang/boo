@@ -40,22 +40,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_invoke = (IMethod)typeSystemServices.Map(type.GetMethod("Invoke"));
 		}
 		
-		public IParameter[] GetParameters()
+		public CallableSignature GetSignature()
 		{
-			return _invoke.GetParameters();
-		}
-		
-		public IType ReturnType
-		{
-			get
-			{
-				return _invoke.ReturnType;
-			}
+			return _invoke.CallableType.GetSignature();
 		}
 		
 		override public bool IsAssignableFrom(IType other)
 		{
-			return this == other;
+			if (this == other || Null.Default == other)
+			{
+				return true;
+			}
+			
+			ICallableType rhs = other as ICallableType;
+			if (null != rhs)
+			{			
+				return GetSignature() == rhs.GetSignature(); 
+			}
+			return false;
 		}
 	}
 }

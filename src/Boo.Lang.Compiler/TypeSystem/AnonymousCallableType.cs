@@ -51,17 +51,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_signature = signature;
 		}
 		
-		public IParameter[] GetParameters()
+		public CallableSignature GetSignature()
 		{
-			return _signature.Parameters;
-		}
-		
-		public IType ReturnType
-		{
-			get
-			{
-				return _signature.ReturnType;
-			}
+			return _signature;
 		}
 		
 		override public string Name
