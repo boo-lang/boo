@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ProcessMethodBodies());
 			Add(new ProcessGenerators());
 			Add(new CheckInterfaceImplementations());
-			Add(new InjectCasts());			
+			Add(new InjectConversions());			
 		}
 	}
 }

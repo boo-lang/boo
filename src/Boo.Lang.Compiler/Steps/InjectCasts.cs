@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class InjectCasts : AbstractVisitorCompilerStep
+	public class InjectConversions : AbstractVisitorCompilerStep
 	{
 		override public void Run()
 		{
