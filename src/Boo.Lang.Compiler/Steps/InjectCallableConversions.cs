@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class InjectCallableConversions : AbstractTransformerCompilerStep
+	public class InjectCallableConversions : AbstractVisitorCompilerStep
 	{
 		IMethod _current;
 		
@@ -137,6 +137,10 @@ namespace Boo.Lang.Compiler.Steps
 				if (IsCallableType(expectedType))
 				{
 					return CreateDelegate(expectedType, argument);
+				}
+				else
+				{
+					return CreateDelegate(GetConcreteExpressionType(argument), argument);
 				}
 			}
 			return null;

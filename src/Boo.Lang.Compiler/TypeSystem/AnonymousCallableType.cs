@@ -66,6 +66,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		override public IType BaseType
+		{
+			get
+			{
+				return _typeSystemServices.MulticastDelegateType;
+			}
+		}
+		
+		override public bool IsSubclassOf(IType other)
+		{			
+			return BaseType.IsSubclassOf(other) || other == BaseType;				
+		}
+		
 		public CallableSignature GetSignature()
 		{
 			return _signature;
