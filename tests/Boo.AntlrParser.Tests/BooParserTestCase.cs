@@ -912,6 +912,7 @@ interface ICustomer:
 		public void SetUpFixture()
 		{
 			_compiler = new Boo.Lang.Compiler.BooCompiler();
+			_compiler.Parameters.OutputWriter = new StringWriter();
 			_compiler.Parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.ParseAndPrint();			
 		}
 		
@@ -919,38 +920,30 @@ interface ICustomer:
 		public void SetUp()
 		{
 			_compiler.Parameters.Input.Clear();
+			((StringWriter)_compiler.Parameters.OutputWriter).GetStringBuilder().Length = 0;
 		}
 		
 		Boo.Lang.Compiler.BooCompiler _compiler;
 		
 		void RunParserTestCase(string testfile)
-		{			
-			TextWriter oldStdOut = Console.Out;
-			try
+		{
+			_compiler.Parameters.Input.Add(new FileInput(GetTestCasePath(testfile)));
+			CompilerContext context = _compiler.Run();
+			if (context.Errors.Count > 0)
 			{
-				StringWriter stdout = new StringWriter();
-				Console.SetOut(stdout);
+				Assert.Fail(context.Errors.ToString(true));
+			}
+				
+			Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");				
+				
+			string expected = context.CompileUnit.Modules[0].Documentation;
+			if (null == expected)
+			{
+				Assert.Fail(string.Format("Test case '{0}' does not have a docstring!", testfile));
+			}
 			
-				_compiler.Parameters.Input.Add(new FileInput(GetTestCasePath(testfile)));
-				CompilerContext context = _compiler.Run();
-				if (context.Errors.Count > 0)
-				{
-					Assert.Fail(context.Errors.ToString(true));
-				}
-				
-				Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");				
-				
-				string expected = context.CompileUnit.Modules[0].Documentation;
-				if (null == expected)
-				{
-					Assert.Fail(string.Format("Test case '{0}' does not have a docstring!", testfile));
-				}
-				Assert.AreEqual(expected.Trim(), stdout.ToString().Trim().Replace("\r\n", "\n"), testfile);				
-			}
-			finally
-			{
-				Console.SetOut(oldStdOut);
-			}
+			string output = _compiler.Parameters.OutputWriter.ToString();
+			Assert.AreEqual(expected.Trim(), output.ToString().Trim().Replace("\r\n", "\n"), testfile);
 		}
 	}
 }

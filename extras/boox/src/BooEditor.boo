@@ -85,6 +85,9 @@ class BooEditor(DockContent):
 	TextContent:
 		get:
 			return _editor.Document.TextContent
+			
+		set:
+			_editor.Document.TextContent = value
 
 	def GoTo(line as int):
 		document = _editor.Document
@@ -155,11 +158,19 @@ class BooEditor(DockContent):
 	def _menuItemRun_Click(sender, args as EventArgs):
 		using WaitCursor(self):
 			Run()
-
+			
+	def _menuItemExpand_Click(sender, args as EventArgs):
+		using WaitCursor(self):
+			Expand()
+			
+	private def Expand():
+		_main.Expand(self.GetSafeFileName(), self.TextContent)
+		
 	private def Run():
 		
 		if _compiler is null:
 			_compiler = BooCompiler()		
+			// enable duck typing
 			_compiler.Parameters.Pipeline = Quack.MakeItQuack(CompileToMemory())
 			_compiler.Parameters.References.Add(typeof(Form).Assembly)
 			_compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
@@ -175,10 +186,9 @@ class BooEditor(DockContent):
 				finished = date.Now
 				_main.StatusText = "Compilation finished in ${finished-started} with ${len(result.Errors)} error(s)."
 		
-				ClearTaskList()
-				if len(result.Errors):
-					UpdateTaskList(result.Errors)
-				else:			
+				_main.UpdateTaskList(result.Errors)
+				
+				unless len(result.Errors):
 					try:
 						result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
 					except x:
@@ -191,15 +201,6 @@ class BooEditor(DockContent):
 	def UpdateOutputPane(text as string):
 		_main.OutputPane.SetBuildText(text)
 		_main.ShowOutputPane() if len(text)
-		
-	def UpdateTaskList(errors as CompilerErrorCollection):
-		_main.TaskList.Clear()		
-		for error in errors:
-			_main.TaskList.AddCompilerError(error)
-		_main.ShowTaskList()
-
-	def ClearTaskList():
-		_main.TaskList.Clear()
 
 	def UpdateModule():
 		return unless _moduleDirty
@@ -257,12 +258,18 @@ class BooEditor(DockContent):
 				MenuItem("Remove trailing whitespace", Click: _menuItemRemoveTrailingWS_Click)
 			))
 
-		script = MenuItem(Text: "&Script", MergeOrder: 2)
-		script.MenuItems.Add(MenuItem(Text: "Run",
-									Click: _menuItemRun_Click,
-									Shortcut: Shortcut.F5))
+		tools = MenuItem(Text: "&Tools", MergeOrder: 2)
+		tools.MenuItems.AddRange(
+			(
+				MenuItem(Text: "Run",
+						Click: _menuItemRun_Click,
+						Shortcut: Shortcut.F5),
+				MenuItem(Text: "Expand",
+						Click: _menuItemExpand_Click,
+						Shortcut: Shortcut.CtrlE)
+			))
 
-		menu.MenuItems.AddRange((edit, script))
+		menu.MenuItems.AddRange((edit, tools))
 		return menu
 
 	def GetBooHighlighting():

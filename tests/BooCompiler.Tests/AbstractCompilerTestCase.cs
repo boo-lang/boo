@@ -45,6 +45,8 @@ namespace BooCompiler.Tests
 		
 		protected string _baseTestCasesPath;
 		
+		protected StringWriter _output;
+		
 		[TestFixtureSetUp]
 		public virtual void SetUpFixture()
 		{
@@ -60,6 +62,7 @@ namespace BooCompiler.Tests
 			_compiler = new BooCompiler();
 			_parameters = _compiler.Parameters;
 			//_parameters.TraceSwitch.Level = TraceLevel.Verbose;
+			_parameters.OutputWriter = _output = new StringWriter();
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			_parameters.Pipeline = SetUpCompilerPipeline();
 			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);			
@@ -131,14 +134,13 @@ namespace BooCompiler.Tests
 		}
 		
 		protected string Run(string stdin, out CompilerContext context)
-		{
+		{		
 			TextWriter oldStdOut = Console.Out;
 			TextReader oldStdIn = Console.In;
 			
 			try
 			{
-				StringWriter console = new StringWriter();
-				Console.SetOut(console);
+				Console.SetOut(_output);
 				if (null != stdin)
 				{
 					Console.SetIn(new StringReader(stdin));
@@ -153,15 +155,14 @@ namespace BooCompiler.Tests
 						Assert.Fail(GetFirstInputName(context) + ": " + context.Errors.ToString(false));
 					}
 				}
-				return console.ToString().Replace("\r\n", "\n");
+				return _output.ToString().Replace("\r\n", "\n");
 			}
 			finally
 			{				
+				_output.GetStringBuilder().Length = 0;
+				
 				Console.SetOut(oldStdOut);
-				if (null != stdin)
-				{
-					Console.SetIn(oldStdIn);
-				}
+				Console.SetIn(oldStdIn);
 			}
 		}
 		

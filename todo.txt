@@ -8,8 +8,7 @@
 * terminar documento introdutório
 
 * boox
-	* assembly search path
-	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código	
+	* assembly search path	
 
 * reescrever documento de pipeline em inglês
 	

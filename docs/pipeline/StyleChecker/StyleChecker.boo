@@ -26,7 +26,7 @@ class StyleCheckerStep(AbstractVisitorCompilerStep):
 	def Error(node as Node, message as string):
 		Errors.Add(CompilerError(node, message))		
 
-class StyleCheckerPipelineDefinition(CompileToFile):
+class StyleCheckerPipeline(CompileToFile):
 	
 	def constructor():
 		self.Insert(1, StyleCheckerStep())

@@ -46,6 +46,15 @@ class TaskList(DockContent):
 	def Clear():
 		_list.Items.Clear()
 		
+	def Update(errors as CompilerErrorCollection):
+		_list.BeginUpdate()
+		_list.Items.Clear()
+		try:
+			for error in errors:
+				self.AddCompilerError(error)
+		ensure:
+			_list.EndUpdate()
+		
 	def AddCompilerError(error as CompilerError):
 		item = _list.Items.Add(error.LexicalInfo.Line.ToString())
 		item.SubItems.AddRange((

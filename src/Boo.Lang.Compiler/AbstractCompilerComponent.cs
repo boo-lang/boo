@@ -66,6 +66,14 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		protected System.IO.TextWriter OutputWriter
+		{
+			get
+			{
+				return _context.Parameters.OutputWriter;
+			}
+		}
+		
 		protected CompilerErrorCollection Errors
 		{
 			get

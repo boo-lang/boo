@@ -47,7 +47,7 @@ class MainForm(Form):
 		_status = StatusBar(ShowPanels: true, TabIndex: 2)
 		_status.Panels.Add(_statusPanel1)
 		
-		_parser.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Parse()
+		_parser.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Parse()		
 
 		SuspendLayout()
 
@@ -137,6 +137,18 @@ class MainForm(Form):
 		ensure:
 			_parser.Parameters.Input.Clear()
 			
+	def Expand(fname as string, code as string):
+		compiler = BooCompiler()
+		compiler.Parameters.OutputWriter = StringWriter()
+		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToBoo()
+		compiler.Parameters.Input.Add(StringInput(fname, code))
+		
+		result = compiler.Run()
+		self.UpdateTaskList(result.Errors)
+		
+		NewDocument().TextContent = compiler.Parameters.OutputWriter.ToString()
+			
+			
 	def ShowDocumentOutline():
 		ShowContent(_documentOutline)
 		
@@ -149,6 +161,7 @@ class MainForm(Form):
 		editor = BooEditor(self)
 		editor.Show(_dockPanel)
 		editor.TextArea.Focus()
+		return editor
 		
 	def OpenDocuments([required] fnames):
 		for fname in fnames:
@@ -199,6 +212,10 @@ class MainForm(Form):
 
 	def _menuItemTaskList_Click(sender, args as EventArgs):
 		ShowTaskList()
+		
+	def UpdateTaskList(errors as CompilerErrorCollection):
+		_taskList.Update(errors)
+		ShowTaskList() if len(errors)
 
 	def ShowTaskList():
 		ShowContent(_taskList)

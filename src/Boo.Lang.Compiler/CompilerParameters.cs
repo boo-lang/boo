@@ -38,6 +38,8 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerParameters : System.MarshalByRefObject
 	{
+		TextWriter _outputWriter;
+		
 		CompilerPipeline _pipeline;
 
 		CompilerInputCollection _input;
@@ -67,6 +69,7 @@ namespace Boo.Lang.Compiler
 			_maxAttributeSteps = 2;
 			_outputAssembly = string.Empty;
 			_outputType = CompilerOutputType.ConsoleApplication;
+			_outputWriter = System.Console.Out;
 		}
 
 		/// <summary>
@@ -164,6 +167,23 @@ namespace Boo.Lang.Compiler
 			set
 			{
 				_outputType = value;
+			}
+		}
+		
+		public TextWriter OutputWriter
+		{
+			get
+			{
+				return _outputWriter;
+			}
+			
+			set
+			{
+				if (null == value)
+				{
+					throw new ArgumentNullException("OutputWriter");
+				}
+				_outputWriter = value;
 			}
 		}
 	}

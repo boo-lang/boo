@@ -26,11 +26,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using Boo.Lang.Compiler;
-
 namespace Boo.Lang.Compiler.Steps
 {
+	using System;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Ast.Visitors;
+
 	/// <summary>	
 	/// </summary>
 	public class PrintBoo : AbstractCompilerStep
@@ -41,7 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{		
-			Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor visitor = new Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor(Console.Out);
+			BooPrinterVisitor visitor = new BooPrinterVisitor(OutputWriter);
 			visitor.Print(CompileUnit);
 		}
 	}
