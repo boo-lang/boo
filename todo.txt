@@ -308,6 +308,16 @@ done * overload de métodos internos
 
 done * static field initializers
 
+* shell(commandName) as (string)
+
+* argv para __Main__
+
+* builtins podem ser redefinidos como variáveis locais em assignments
+
+* booi: opçoes e um único script
+
+* regular expressions viram campos estáticos do módulo/classe onde forem utilizados
+
 * map(callable, enumerable)
 
 done * System.Type must be invocable
@@ -366,6 +376,10 @@ done * recriar o gerador de AST em boo
 * remover DepthFirstTransformer pois não é mais necessário e só confunde...
 
 * internal method overloading resolution
+
+* modo MACRO de compilação (ver macro.boo)
+
+* macros para o SharpDevelop em boo
 
 * unboxing deve fazer conversão numérica
 	
