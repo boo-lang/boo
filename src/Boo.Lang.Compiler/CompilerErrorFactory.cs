@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler
 {
 	using System;
 	using System.Text;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	
 	public class CompilerErrorFactory
 	{
@@ -88,7 +88,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0008", node.LexicalInfo, error, type, GetSignature(parameters));
 		}
 		
-		public static CompilerError AttributeApplicationError(Exception error, Boo.Lang.Ast.Attribute attribute, Type attributeType)
+		public static CompilerError AttributeApplicationError(Exception error, Boo.Lang.Compiler.Ast.Attribute attribute, Type attributeType)
 		{
 			return new CompilerError("BCE0009",
 					                  attribute.LexicalInfo,

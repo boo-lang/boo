@@ -31,7 +31,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 using List=Boo.Lang.List;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
 
@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void ResolveInternalModules()
 		{
-			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
 				ModuleBinding moduleBinding = new ModuleBinding(BindingManager, module);
 				BindingManager.Bind(module, moduleBinding);
@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ResolveInternalModules();
 			OrganizeExternalNamespaces();
 			
-			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
 				foreach (Import import in module.Imports)
 				{
@@ -123,7 +123,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void ResolveImportAssemblyReferences()
 		{
-			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
 				ImportCollection imports = module.Imports;
 				Import[] importArray = imports.ToArray();

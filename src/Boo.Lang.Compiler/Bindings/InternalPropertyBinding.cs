@@ -29,7 +29,7 @@
 
 namespace Boo.Lang.Compiler.Bindings
 {
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	
 	public class InternalPropertyBinding : AbstractInternalBinding, IPropertyBinding
 	{

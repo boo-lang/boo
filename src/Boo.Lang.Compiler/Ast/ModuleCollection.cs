@@ -28,15 +28,15 @@
 
 using System;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
-	public class ModuleCollection : Boo.Lang.Ast.Impl.ModuleCollectionImpl
+	public class ModuleCollection : Boo.Lang.Compiler.Ast.Impl.ModuleCollectionImpl
 	{
 		public ModuleCollection()
 		{
 		}
 		
-		public ModuleCollection(Boo.Lang.Ast.Node parent) : base(parent)
+		public ModuleCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
 	}

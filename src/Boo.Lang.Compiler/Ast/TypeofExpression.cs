@@ -26,12 +26,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
 	[Serializable]
-	public class TypeofExpression : Boo.Lang.Ast.Impl.TypeofExpressionImpl
+	public class TypeofExpression : Boo.Lang.Compiler.Ast.Impl.TypeofExpressionImpl
 	{
 		public TypeofExpression()
 		{

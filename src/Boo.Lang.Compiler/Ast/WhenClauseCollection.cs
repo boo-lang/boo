@@ -28,15 +28,15 @@
 
 using System;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
-	public class WhenClauseCollection : Boo.Lang.Ast.Impl.WhenClauseCollectionImpl
+	public class WhenClauseCollection : Boo.Lang.Compiler.Ast.Impl.WhenClauseCollectionImpl
 	{
 		public WhenClauseCollection()
 		{
 		}
 		
-		public WhenClauseCollection(Boo.Lang.Ast.Node parent) : base(parent)
+		public WhenClauseCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
 	}

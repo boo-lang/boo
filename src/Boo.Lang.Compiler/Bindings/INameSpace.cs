@@ -29,7 +29,7 @@
 
 using System;
 using System.Collections;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using BindingFlags = System.Reflection.BindingFlags;
 
 namespace Boo.Lang.Compiler.Bindings

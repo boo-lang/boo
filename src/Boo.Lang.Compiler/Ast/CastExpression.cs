@@ -26,12 +26,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
 	[Serializable]
-	public class CastExpression : Boo.Lang.Ast.Impl.CastExpressionImpl
+	public class CastExpression : Boo.Lang.Compiler.Ast.Impl.CastExpressionImpl
 	{
 		public CastExpression()
 		{

@@ -29,11 +29,11 @@
 using System;
 using System.IO;
 
-namespace Boo.Lang.Ast.Visitors
+namespace Boo.Lang.Compiler.Ast.Visitors
 {
 	/// <summary>	
 	/// </summary>
-	public class TextEmitter : Boo.Lang.Ast.DepthFirstSwitcher
+	public class TextEmitter : Boo.Lang.Compiler.Ast.DepthFirstSwitcher
 	{
 		protected TextWriter _writer;
 		

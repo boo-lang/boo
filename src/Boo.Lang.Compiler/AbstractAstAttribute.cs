@@ -33,9 +33,9 @@ namespace Boo.Lang.Compiler
 	
 	public abstract class AbstractAstAttribute : AbstractCompilerComponent, IAstAttribute
 	{
-		protected Boo.Lang.Ast.Attribute _attribute;
+		protected Boo.Lang.Compiler.Ast.Attribute _attribute;
 		
-		public Boo.Lang.Ast.Attribute Attribute
+		public Boo.Lang.Compiler.Ast.Attribute Attribute
 		{
 			set
 			{				
@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		public Boo.Lang.Ast.LexicalInfo LexicalInfo
+		public Boo.Lang.Compiler.Ast.LexicalInfo LexicalInfo
 		{
 			get
 			{
@@ -56,6 +56,6 @@ namespace Boo.Lang.Compiler
 			Errors.Add(CompilerErrorFactory.InvalidNodeForAttribute(LexicalInfo, GetType().FullName, expectedNodeTypes));
 		}
 		
-		public abstract void Apply(Boo.Lang.Ast.Node targetNode);
+		public abstract void Apply(Boo.Lang.Compiler.Ast.Node targetNode);
 	}
 }

@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.Pipeline
 	using System;
 	using System.Text;
 	using Boo.Lang;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Bindings;
 	

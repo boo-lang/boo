@@ -80,7 +80,7 @@
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo, Boo.AntlrParser, deploy">
+	<target name="core" depends="Boo, Boo.Lang.Compiler, Boo.AntlrParser, deploy">
 	</target>
 	
 	<target name="deploy" depends="run-tests" unless="${skip.tests}">
@@ -105,7 +105,7 @@
 		
 	</target>
 	
-	<target name="Boo.Tests" depends="Boo, Boo.AntlrParser">
+	<target name="Boo.Tests" depends="Boo, Boo.Lang.Compiler, Boo.AntlrParser">
 		<csc
 			target="library"
 			output="build/Boo.Tests.dll"
@@ -124,8 +124,24 @@
 			</references>
 		</csc>
 	</target>
+	
+	<target name="Boo.Lang.Compiler" depends="Boo, generate-ast">
+		<csc target="library"
+			output="build/Boo.Lang.Compiler.dll"
+			debug="${debug}"
+			optimize="${optimize}">
+			
+			<sources basedir="src/Boo.Lang.Compiler">
+				<includes name="**/*.cs" />
+			</sources>
+			
+			<references>
+				<includes name="build/Boo.dll" />
+			</references>
+		</csc>
+	</target>
 
-	<target name="Boo" depends="compile-grammar, generate-ast, satellites">
+	<target name="Boo" depends="compile-grammar, satellites">
 
 		<resgen
 			input="src/Boo/Resources/strings.txt"
@@ -151,7 +167,7 @@
 		</csc>
 	</target>
 	
-	<target name="Boo.AntlrParser" depends="Boo, compile-grammar">
+	<target name="Boo.AntlrParser" depends="Boo.Lang.Compiler, compile-grammar">
 		<csc target="library" output="build/Boo.AntlrParser.dll"
 			debug="${debug}" optimize="${optimize}">
 			<sources basedir="src/Boo.AntlrParser">
@@ -159,6 +175,7 @@
 			</sources>
 			<references>
 				<includes name="build/Boo.dll" />
+				<includes name="build/Boo.Lang.Compiler.dll" />
 				<includes name="build/antlr.runtime.dll" />
 			</references>
 		</csc>
@@ -211,9 +228,9 @@
 	</target>
 	
 	<target name="generate-ast" depends="init" unless="${skip.ast}">
-		<if test="${not file::up-to-date('ast.model.boo', 'src/Boo/Lang/Ast/Impl/CompileUnitImpl.cs')}">
+		<if test="${not file::up-to-date('ast.model.boo', 'src/Boo.Lang.Compiler/Ast/Impl/CompileUnitImpl.cs')}">
 		
-			<mkdir dir="src/Boo/Lang/Ast/Impl" />
+			<mkdir dir="src/Boo.Lang.Compiler/Ast/Impl" />
 			<exec program="bin/booi.exe" useruntimeengine="true">
 				<arg value="scripts/astgen.boo" />
 			</exec>

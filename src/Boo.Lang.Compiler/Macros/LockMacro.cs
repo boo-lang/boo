@@ -29,7 +29,7 @@
 namespace Boo.Lang
 {
 	using System;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	
 	public class LockAttribute : Boo.Lang.Compiler.AbstractAstAttribute
 	{

@@ -35,7 +35,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
 
@@ -191,7 +191,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				DefineTypeMembers(type);
 			}
 			
-			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
 				OnModule(module);
 			}
@@ -238,7 +238,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		ArrayList CollectTypes()
 		{
 			ArrayList types = new ArrayList();
-			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{				 
 				CollectTypes(types, module.Members);
 			}
@@ -290,11 +290,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			_typeCache.Clear();
 		}
 		
-		override public void OnAttribute(Boo.Lang.Ast.Attribute node)
+		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
 		}
 		
-		override public void OnModule(Boo.Lang.Ast.Module module)
+		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);			
 			Switch(module.Members);
@@ -303,7 +303,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
 			EnumBuilder builder = GetEnumBuilder(node);
-			foreach (Boo.Lang.Ast.Attribute attribute in node.Attributes)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in node.Attributes)
 			{
 				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
@@ -2695,7 +2695,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				builder.SetSetMethod(setterBuilder);
 			}
 			
-			foreach (Boo.Lang.Ast.Attribute attribute in property.Attributes)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in property.Attributes)
 			{
 				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
@@ -2731,7 +2731,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}			
 			
 			SetBuilder(method, builder);
-			foreach (Boo.Lang.Ast.Attribute attribute in method.Attributes)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in method.Attributes)
 			{
 				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}			
@@ -2804,7 +2804,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void EmitAttributes(TypeBuilder typeBuilder, TypeDefinition typeDefinition)
 		{			
-			foreach (Boo.Lang.Ast.Attribute attribute in typeDefinition.Attributes)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in typeDefinition.Attributes)
 			{
 				typeBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
@@ -2820,7 +2820,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			throw new NotImplementedException(feature);
 		}
 		
-		CustomAttributeBuilder GetCustomAttributeBuilder(Boo.Lang.Ast.Attribute node)
+		CustomAttributeBuilder GetCustomAttributeBuilder(Boo.Lang.Compiler.Ast.Attribute node)
 		{
 			IConstructorBinding constructor = (IConstructorBinding)GetBinding(node);
 			ConstructorInfo constructorInfo = GetConstructorInfo(constructor);

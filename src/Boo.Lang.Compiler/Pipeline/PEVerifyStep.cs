@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			p.WaitForExit();
 			if (0 != p.ExitCode)
 			{
-				Errors.Add(new CompilerError(Boo.Lang.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
+				Errors.Add(new CompilerError(Boo.Lang.Compiler.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
 			}
 		}
 	}

@@ -30,7 +30,7 @@ using System;
 using System.Collections;
 using System.IO;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	/// <summary>
 	/// Classe base para todos os ns da AST que mantm

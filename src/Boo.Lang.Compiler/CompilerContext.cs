@@ -30,7 +30,7 @@
 using System;
 using System.Diagnostics;
 using Boo.Lang;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Assembly = System.Reflection.Assembly;
 
 namespace Boo.Lang.Compiler

@@ -30,7 +30,7 @@
 namespace Boo.Lang.Compiler.Bindings
 {
 	using System;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	
 	public class InternalFieldBinding : AbstractInternalBinding, IFieldBinding
 	{

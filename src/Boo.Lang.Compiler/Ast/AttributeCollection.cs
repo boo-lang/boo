@@ -29,21 +29,21 @@
 using System;
 using System.Collections;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
-	public class AttributeCollection : Boo.Lang.Ast.Impl.AttributeCollectionImpl
+	public class AttributeCollection : Boo.Lang.Compiler.Ast.Impl.AttributeCollectionImpl
 	{
 		public AttributeCollection()
 		{
 		}
 		
-		public AttributeCollection(Boo.Lang.Ast.Node parent) : base(parent)
+		public AttributeCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
 		
 		public bool Contains(string attributeName)
 		{
-			foreach (Boo.Lang.Ast.Attribute attribute in this)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in this)
 			{
 				if (attributeName == attribute.Name)
 				{
@@ -53,17 +53,17 @@ namespace Boo.Lang.Ast
 			return false;
 		}
 		
-		public Boo.Lang.Ast.Attribute[] Get(string attributeName)
+		public Boo.Lang.Compiler.Ast.Attribute[] Get(string attributeName)
 		{
 			ArrayList attributes = new ArrayList();
-			foreach (Boo.Lang.Ast.Attribute attribute in this)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in this)
 			{
 				if (0 == string.Compare(attributeName, attribute.Name, true))
 				{
 					attributes.Add(attribute);
 				}
 			}
-			return (Boo.Lang.Ast.Attribute[])attributes.ToArray(typeof(Boo.Lang.Ast.Attribute));
+			return (Boo.Lang.Compiler.Ast.Attribute[])attributes.ToArray(typeof(Boo.Lang.Compiler.Ast.Attribute));
 		}
 	}
 }

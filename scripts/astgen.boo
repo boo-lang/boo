@@ -37,7 +37,7 @@ def WriteNodeTypeEnum(module as Module):
 		WriteLicense(writer)
 		WriteWarning(writer)
 		writer.WriteLine("""
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
@@ -60,7 +60,7 @@ def WriteEnum(node as EnumDefinition):
 	using writer=OpenFile(GetPathFromNode(node)):
 		WriteLicense(writer)
 		writer.Write("""
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 
@@ -115,9 +115,9 @@ def WriteClassImpl(node as ClassDefinition):
 		WriteLicense(writer)
 		WriteWarning(writer)
 		writer.WriteLine("""
-namespace Boo.Lang.Ast.Impl
+namespace Boo.Lang.Compiler.Ast.Impl
 {	
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	using System.Collections;
 	using System.Runtime.Serialization;
 	
@@ -323,12 +323,12 @@ def WriteClass(node as ClassDefinition):
 	using writer=OpenFile(path):
 		WriteLicense(writer)
 		writer.Write("""
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
 	[Serializable]
-	public class ${node.Name} : Boo.Lang.Ast.Impl.${node.Name}Impl
+	public class ${node.Name} : Boo.Lang.Compiler.Ast.Impl.${node.Name}Impl
 	{
 		public ${node.Name}()
 		{
@@ -348,18 +348,18 @@ def WriteCollection(node as ClassDefinition):
 	using writer=OpenFile(path):
 		WriteLicense(writer)
 		writer.Write("""
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
 	[Serializable]
-	public class ${node.Name} : Boo.Lang.Ast.Impl.${node.Name}Impl
+	public class ${node.Name} : Boo.Lang.Compiler.Ast.Impl.${node.Name}Impl
 	{
 		public ${node.Name}()
 		{
 		}
 		
-		public ${node.Name}(Boo.Lang.Ast.Node parent) : base(parent)
+		public ${node.Name}(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
 	}
@@ -395,12 +395,12 @@ def WriteCollectionImpl(node as ClassDefinition):
 		WriteLicense(writer)
 		WriteWarning(writer)
 		
-		itemType = "Boo.Lang.Ast." + GetCollectionItemType(node)
+		itemType = "Boo.Lang.Compiler.Ast." + GetCollectionItemType(node)
 		writer.Write("""
-namespace Boo.Lang.Ast.Impl
+namespace Boo.Lang.Compiler.Ast.Impl
 {
 	using System;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public class ${node.Name}Impl : NodeCollection
@@ -470,7 +470,7 @@ def OpenFile(fname as string):
 	return StreamWriter(fname, false, System.Text.Encoding.UTF8)
 	
 def GetPath(fname as string):
-	return Path.Combine("src/Boo/Lang/Ast", fname)
+	return Path.Combine("src/Boo.Lang.Compiler/Ast", fname)
 	
 def GetPathFromNode(node as TypeMember):
 	return GetPath("${node.Name}.cs")
@@ -543,14 +543,14 @@ def WriteTransformer(module as Module):
 		WriteLicense(writer)
 		WriteWarning(writer)
 		writer.Write("""
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	public interface IAstTransformer
 	{""")
 		for member as TypeMember in module.Members:
 			if IsConcreteAstNode(member):
 				writer.WriteLine("""			
-		void On${member.Name}(Boo.Lang.Ast.${member.Name} node, ref Boo.Lang.Ast.${GetResultingTransformerNode(member)} newNode);""")
+		void On${member.Name}(Boo.Lang.Compiler.Ast.${member.Name} node, ref Boo.Lang.Compiler.Ast.${GetResultingTransformerNode(member)} newNode);""")
 			
 		writer.Write("""
 	}
@@ -562,7 +562,7 @@ def WriteDepthFirstTransformer(module as Module):
 		WriteLicense(writer)
 		WriteWarning(writer)
 		writer.Write("""
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
@@ -576,7 +576,7 @@ namespace Boo.Lang.Ast
 			resultingNodeType = GetResultingTransformerNode(item)
 			
 			writer.WriteLine("""
-		public virtual void On${item.Name}(Boo.Lang.Ast.${item.Name} node, ref Boo.Lang.Ast.${resultingNodeType} resultingNode)
+		public virtual void On${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node, ref Boo.Lang.Compiler.Ast.${resultingNodeType} resultingNode)
 		{""")
 		
 			if len(switchableFields):
@@ -606,12 +606,12 @@ namespace Boo.Lang.Ast
 		
 			if len(switchableFields):
 				writer.WriteLine("""				
-		public virtual bool Enter${item.Name}(Boo.Lang.Ast.${item.Name} node, ref Boo.Lang.Ast.${resultingNodeType} resultingNode)
+		public virtual bool Enter${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node, ref Boo.Lang.Compiler.Ast.${resultingNodeType} resultingNode)
 		{
 			return true;
 		}
 		
-		public virtual void Leave${item.Name}(Boo.Lang.Ast.${item.Name} node, ref Boo.Lang.Ast.${resultingNodeType} resultingNode)
+		public virtual void Leave${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node, ref Boo.Lang.Compiler.Ast.${resultingNodeType} resultingNode)
 		{
 		}""")
 		
@@ -692,7 +692,7 @@ def WriteSwitcher(module as Module):
 		WriteWarning(writer)
 		writer.Write(
 """
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
@@ -762,7 +762,7 @@ def WriteDepthFirstSwitch(writer as TextWriter, item as ClassDefinition):
 	
 	if len(fields):
 		writer.WriteLine("""
-		public virtual void On${item.Name}(Boo.Lang.Ast.${item.Name} node)
+		public virtual void On${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{				
 			if (Enter${item.Name}(node))
 			{""")
@@ -775,18 +775,18 @@ def WriteDepthFirstSwitch(writer as TextWriter, item as ClassDefinition):
 			}
 		}
 			
-		public virtual bool Enter${item.Name}(Boo.Lang.Ast.${item.Name} node)
+		public virtual bool Enter${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{
 			return true;
 		}
 		
-		public virtual void Leave${item.Name}(Boo.Lang.Ast.${item.Name} node)
+		public virtual void Leave${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{
 		}
 			""")
 	else:
 		writer.Write("""
-		public virtual void On${item.Name}(Boo.Lang.Ast.${item.Name} node)
+		public virtual void On${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{
 		}
 			""")
@@ -797,7 +797,7 @@ def WriteDepthFirstSwitcher(module as Module):
 		WriteWarning(writer)
 		writer.Write(
 """
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	

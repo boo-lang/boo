@@ -29,7 +29,7 @@
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	
 	public class AstAnnotations
 	{		

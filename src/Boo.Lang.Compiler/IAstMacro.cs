@@ -31,6 +31,6 @@ namespace Boo.Lang.Compiler
 {
 	public interface IAstMacro : ICompilerComponent
 	{
-		Boo.Lang.Ast.Statement Expand(Boo.Lang.Ast.MacroStatement statement);
+		Boo.Lang.Compiler.Ast.Statement Expand(Boo.Lang.Compiler.Ast.MacroStatement statement);
 	}
 }

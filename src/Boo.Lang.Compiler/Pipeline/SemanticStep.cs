@@ -32,7 +32,7 @@ using System.Text;
 using System.Collections;
 using System.Reflection;
 using Boo;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
 using List=Boo.Lang.List;
@@ -240,7 +240,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			--_loopDepth;
 		}
 		
-		override public void OnModule(Boo.Lang.Ast.Module module)
+		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{				
 			PushNamespace((INamespace)BindingManager.GetBinding(module));			
 			
@@ -367,7 +367,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopNamespace();
 		}
 		
-		override public void OnAttribute(Boo.Lang.Ast.Attribute node)
+		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
 			ITypeBinding binding = BindingManager.GetBoundType(node);
 			if (null != binding && !BindingManager.IsError(binding))
@@ -2579,11 +2579,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static string GetBinaryOperatorText(BinaryOperatorType op)
 		{
-			return Boo.Lang.Ast.Visitors.BooPrinterVisitor.GetBinaryOperatorText(op);
+			return Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetBinaryOperatorText(op);
 		}
 		static string GetUnaryOperatorText(UnaryOperatorType op)
 		{
-			return Boo.Lang.Ast.Visitors.BooPrinterVisitor.GetUnaryOperatorText(op);
+			return Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetUnaryOperatorText(op);
 		}
 		
 		IBinding ResolveName(Node node, string name)
@@ -3307,7 +3307,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			ITypeBinding enumeratorItemTypeAttribute = BindingManager.AsTypeBinding(typeof(EnumeratorItemTypeAttribute));
-			foreach (Boo.Lang.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
 			{				
 				IConstructorBinding constructor = GetBinding(attribute) as IConstructorBinding;
 				if (null != constructor)

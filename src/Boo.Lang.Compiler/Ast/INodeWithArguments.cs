@@ -28,7 +28,7 @@
 
 using System;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	/// <summary>
 	/// Uma AST para ns que armazenam parmetros como atributos e

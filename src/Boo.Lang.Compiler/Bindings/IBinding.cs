@@ -29,7 +29,7 @@
 
 using System;
 using System.Collections;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
 {
@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public interface IInternalBinding
 	{
-		Boo.Lang.Ast.Node Node
+		Boo.Lang.Compiler.Ast.Node Node
 		{
 			get;
 		}

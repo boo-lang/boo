@@ -29,7 +29,7 @@
 
 using System;
 using System.Reflection;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
 {
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Bindings
 			PreparePrimitives();
 		}
 		
-		public Boo.Lang.Ast.TypeReference CreateBoundTypeReference(ITypeBinding binding)
+		public Boo.Lang.Compiler.Ast.TypeReference CreateBoundTypeReference(ITypeBinding binding)
 		{
 			TypeReference typeReference = null;
 			

@@ -29,7 +29,7 @@
 
 using System;
 using System.IO;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 
 namespace Boo.Lang.Compiler

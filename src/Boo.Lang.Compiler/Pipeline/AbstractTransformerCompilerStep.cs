@@ -29,13 +29,13 @@
 
 using System;
 using System.Reflection;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public abstract class AbstractTransformerCompilerStep : Boo.Lang.Ast.DepthFirstTransformer, ICompilerStep
+	public abstract class AbstractTransformerCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstTransformer, ICompilerStep
 	{
 		protected CompilerContext _context;
 		

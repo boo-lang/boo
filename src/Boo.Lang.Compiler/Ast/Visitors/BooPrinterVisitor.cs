@@ -26,13 +26,13 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Ast.Visitors
+namespace Boo.Lang.Compiler.Ast.Visitors
 {
 	using System;
 	using System.Text.RegularExpressions;
 	using System.Globalization;
 	using System.IO;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 
 	/// <summary>
 	/// Imprime uma AST boo em boo.
@@ -931,7 +931,7 @@ namespace Boo.Lang.Ast.Visitors
 		
 		void WriteAttributes(AttributeCollection attributes, bool addNewLines)
 		{
-			foreach (Boo.Lang.Ast.Attribute attribute in attributes)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in attributes)
 			{
 				WriteIndented("[");
 				Write(attribute.Name);

@@ -27,9 +27,9 @@
 #endregion
 
 using System;
-using Boo.Lang.Ast.Impl;
+using Boo.Lang.Compiler.Ast.Impl;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(Module))]
 	[System.Xml.Serialization.XmlInclude(typeof(ClassDefinition))]

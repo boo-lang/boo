@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void Run()
 		{		
-			Boo.Lang.Ast.Visitors.BooPrinterVisitor visitor = new Boo.Lang.Ast.Visitors.BooPrinterVisitor(Console.Out);
+			Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor visitor = new Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor(Console.Out);
 			visitor.Print(CompileUnit);
 		}
 	}

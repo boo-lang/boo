@@ -29,7 +29,7 @@
 namespace Boo.Lang
 {
 	using System;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	
 	/// <summary>
 	/// using file=File.OpenText(fname):

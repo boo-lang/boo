@@ -31,11 +31,11 @@ namespace Boo.Lang.Compiler
 {	
 	public interface IAstAttribute : ICompilerComponent
 	{
-		Boo.Lang.Ast.Attribute Attribute
+		Boo.Lang.Compiler.Ast.Attribute Attribute
 		{
 			set;
 		}
 		
-		void Apply(Boo.Lang.Ast.Node targetNode);
+		void Apply(Boo.Lang.Compiler.Ast.Node targetNode);
 	}
 }

@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	using System;
 	using System.Collections;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	
 	public abstract class AbstractInternalBinding : IInternalBinding
 	{
@@ -269,7 +269,7 @@ namespace Boo.Lang.Compiler.Bindings
 		public IBinding GetDefaultMember()
 		{
 			ITypeBinding defaultMemberAttribute = _bindingManager.AsTypeBinding(typeof(System.Reflection.DefaultMemberAttribute));
-			foreach (Boo.Lang.Ast.Attribute attribute in _typeDefinition.Attributes)
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
 			{
 				IConstructorBinding binding = BindingManager.GetBinding(attribute) as IConstructorBinding;
 				if (null != binding)

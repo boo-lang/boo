@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 

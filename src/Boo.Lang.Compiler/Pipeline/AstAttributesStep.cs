@@ -28,7 +28,7 @@
 #endregion
 
 using System;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
 using Boo.Lang.Compiler.Util;
@@ -41,11 +41,11 @@ namespace Boo.Lang.Compiler.Pipeline
 	{
 		CompilerContext _context;
 
-		Boo.Lang.Ast.Attribute _attribute;
+		Boo.Lang.Compiler.Ast.Attribute _attribute;
 
 		Type _type;
 
-		public ApplyAttributeTask(CompilerContext context, Boo.Lang.Ast.Attribute attribute, Type type)
+		public ApplyAttributeTask(CompilerContext context, Boo.Lang.Compiler.Ast.Attribute attribute, Type type)
 		{
 			_context = context;
 			_attribute = attribute;
@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			// rpido
 		}
 
-		override public void OnAttribute(Boo.Lang.Ast.Attribute attribute, ref Boo.Lang.Ast.Attribute resultingNode)
+		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute, ref Boo.Lang.Compiler.Ast.Attribute resultingNode)
 		{			
 			if (BindingManager.IsBound(attribute))
 			{
@@ -296,13 +296,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		void Error(Boo.Lang.Ast.Attribute attribute, CompilerError error)
+		void Error(Boo.Lang.Compiler.Ast.Attribute attribute, CompilerError error)
 		{
 			BindingManager.Error(attribute);
 			Errors.Add(error);
 		}
 
-		void ScheduleAttributeApplication(Boo.Lang.Ast.Attribute attribute, Type type)
+		void ScheduleAttributeApplication(Boo.Lang.Compiler.Ast.Attribute attribute, Type type)
 		{
 			_tasks.Add(new ApplyAttributeTask(_context, attribute, type));
 		}

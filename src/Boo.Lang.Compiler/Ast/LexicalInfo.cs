@@ -28,7 +28,7 @@
 
 using System;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
 	public class LexicalInfo
 	{

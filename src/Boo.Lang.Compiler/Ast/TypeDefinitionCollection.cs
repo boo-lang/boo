@@ -28,15 +28,15 @@
 
 using System;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
-	public class TypeDefinitionCollection : Boo.Lang.Ast.Impl.TypeDefinitionCollectionImpl
+	public class TypeDefinitionCollection : Boo.Lang.Compiler.Ast.Impl.TypeDefinitionCollectionImpl
 	{
 		public TypeDefinitionCollection()
 		{
 		}
 		
-		public TypeDefinitionCollection(Boo.Lang.Ast.Node parent) : base(parent)
+		public TypeDefinitionCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
 	}

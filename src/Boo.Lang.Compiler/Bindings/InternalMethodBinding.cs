@@ -29,7 +29,7 @@
 
 using System;
 using System.Collections;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
 {
@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Bindings
 	{
 		BindingManager _bindingManager;
 		
-		Boo.Lang.Ast.Method _method;
+		Boo.Lang.Compiler.Ast.Method _method;
 		
 		IMethodBinding _override;
 		
@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 		}
 		
-		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Ast.Method method, bool visited) : base(visited)
+		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
 		{			
 			_bindingManager = manager;
 			_method = method;

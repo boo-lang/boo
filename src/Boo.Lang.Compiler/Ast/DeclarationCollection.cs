@@ -28,15 +28,15 @@
 
 using System;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
-	public class DeclarationCollection : Boo.Lang.Ast.Impl.DeclarationCollectionImpl
+	public class DeclarationCollection : Boo.Lang.Compiler.Ast.Impl.DeclarationCollectionImpl
 	{
 		public DeclarationCollection()
 		{
 		}
 		
-		public DeclarationCollection(Boo.Lang.Ast.Node parent) : base(parent)
+		public DeclarationCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
 		

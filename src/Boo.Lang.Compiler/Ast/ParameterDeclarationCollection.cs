@@ -28,15 +28,15 @@
 
 using System;
 
-namespace Boo.Lang.Ast
+namespace Boo.Lang.Compiler.Ast
 {
-	public class ParameterDeclarationCollection : Boo.Lang.Ast.Impl.ParameterDeclarationCollectionImpl
+	public class ParameterDeclarationCollection : Boo.Lang.Compiler.Ast.Impl.ParameterDeclarationCollectionImpl
 	{
 		public ParameterDeclarationCollection()
 		{
 		}
 		
-		public ParameterDeclarationCollection(Boo.Lang.Ast.Node parent) : base(parent)
+		public ParameterDeclarationCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
 	}
