@@ -820,6 +820,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 				else if (
+					!entity.HasSelfCall	&&
 					!entity.HasSuperCall &&
 					!entity.IsStatic)
 				{
@@ -1859,9 +1860,8 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					TypeDefinition typedef = _currentMethod.Method.DeclaringType;
-					IType type = (IType)TypeSystemServices.GetEntity(typedef);
-					BindExpressionType(node, type);
+					node.Entity = _currentMethod;
+					node.ExpressionType = _currentMethod.DeclaringType;
 				}
 			}
 		}
@@ -3164,11 +3164,19 @@ namespace Boo.Lang.Compiler.Steps
 					InternalConstructor constructorInfo = targetInfo as InternalConstructor;
 					if (null != constructorInfo)
 					{
-						// super constructor call					
-						constructorInfo.HasSuperCall = true;
-						
-						IType baseType = constructorInfo.DeclaringType.BaseType;
-						IConstructor superConstructorInfo = FindCorrectConstructor(node, baseType, node.Arguments);
+						IType targetType = null;
+						if (NodeType.SuperLiteralExpression == node.Target.NodeType)
+						{
+							constructorInfo.HasSuperCall = true;
+							targetType = constructorInfo.DeclaringType.BaseType;
+						}
+						else if (node.Target.NodeType == NodeType.SelfLiteralExpression)
+						{
+							constructorInfo.HasSelfCall = true;
+							targetType = constructorInfo.DeclaringType;
+						}
+
+						IConstructor superConstructorInfo = FindCorrectConstructor(node, targetType, node.Arguments);
 						if (null != superConstructorInfo)
 						{
 							Bind(node.Target, superConstructorInfo);

@@ -34,7 +34,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public class InternalConstructor : InternalMethod, IConstructor
 	{
 		bool _hasSuperCall = false;
-		
+		bool _hasSelfCall = false;
+
 		public InternalConstructor(TypeSystemServices typeSystemServices,
 		                                  Constructor constructor) : base(typeSystemServices, constructor)
 		{
@@ -52,7 +53,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_hasSuperCall = value;
 			}
 		}
-		
+
+
+		public bool HasSelfCall
+		{
+			get
+			{
+				return _hasSelfCall;
+			}
+
+			set
+			{
+				_hasSelfCall = value;
+			}
+		}
+
 		override public IType ReturnType
 		{
 			get

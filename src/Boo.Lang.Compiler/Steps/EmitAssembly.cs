@@ -1660,7 +1660,7 @@ namespace Boo.Lang.Compiler.Steps
 					IConstructor constructorInfo = (IConstructor)tag;
 					ConstructorInfo ci = GetConstructorInfo(constructorInfo);
 					
-					if (NodeType.SuperLiteralExpression == node.Target.NodeType)
+					if (NodeType.SuperLiteralExpression == node.Target.NodeType || node.Target.NodeType == NodeType.SelfLiteralExpression)
 					{
 						// super constructor call
 						_il.Emit(OpCodes.Ldarg_0);
