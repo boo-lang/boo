@@ -83,4 +83,11 @@
 		          label = "From C# to Boo"
 		          class = "BooBinding.CSharpConvertProjectToBoo"/>
 	</Extension>
+	
+	<Extension path = "/SharpDevelop/Workbench/DisplayBindings">
+		<DisplayBinding id           = "BooDesigner"
+		                insertbefore = "Browser,Text"
+		                supportedformats = "Windows Forms/UserControls"
+		                class            = "BooBinding.BooDesignerDisplayBinding" />
+	</Extension>
 </AddIn>

@@ -48,10 +48,13 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="Boo.CodeDom.dll" />
 				<include name="booc.exe" />
 				<include name="booc.rsp" />
 			</fileset>
 		</copy>
+		
+		<copy todir="${addin.dir}" file="${sharpdevelop.dir}/AddIns/AddIns/DisplayBindings/ICSharpCode.FormDesigner.dll" />
 		
 		<booc target="library" output="${addin.dir}/BooBinding.dll">
 			<references>
@@ -59,12 +62,16 @@
 				<include name="${sharp.dir}/SharpDevelop.Base.Dll" />
 				<include name="${sharp.dir}/ICSharpCode.TextEditor.dll" />
 				<include name="${sharp.dir}/ICSharpCode.SharpRefactory.dll" />
+				<include name="${sharp.dir}/SharpDevelop.DefaultTexteditor.dll" />
+				<include name="${sharpdevelop.dir}/AddIns/AddIns/DisplayBindings/ICSharpCode.FormDesigner.dll" />
 				<include name="System.Windows.Forms.dll" />
 				<include name="System.Drawing.dll" />
 				<include name="System.Xml.dll" />
+				<include name="System.Design.dll" />
 				<include name="${addin.dir}/Boo.Lang.Compiler.dll" />
 				<include name="${addin.dir}/Boo.Lang.Parser.dll" />
 				<include name="${addin.dir}/Boo.Lang.Interpreter.dll" />
+				<include name="${addin.dir}/Boo.CodeDom.dll" />
 				<include name="${addin.dir}/booish.gui.exe" />
 			</references>
 			<sources basedir=".">

@@ -29,6 +29,9 @@ import System.Windows.Forms
 
 class ${ClassName}(Form):
 	def constructor():
+		self.InitializeComponent()
+		
+	private def InitializeComponent():
 		self.Text = "${ClassName}"
 		self.Controls.Add(Button(Text: "Click Me!",
 		                         Dock: DockStyle.Fill,
