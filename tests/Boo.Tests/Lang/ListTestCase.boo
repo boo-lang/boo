@@ -50,6 +50,12 @@ class ListTestCase:
 		Assert.AreEqual(["um", "dois", "tres"], _list[:])
 		
 	[Test]
+	def OutOfRangeSlicing():		
+		Assert.AreEqual(["um", "dois", "tres"], _list[:10])		
+		Assert.AreEqual([], _list[10:])		
+		Assert.AreEqual(["tres"], _list[2:10])
+		
+	[Test]
 	def Indexing():
 		Assert.AreEqual("um", _list[0])
 		Assert.AreEqual("um", _list[-3])

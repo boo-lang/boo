@@ -313,14 +313,14 @@ namespace Boo.Lang
 		
 		public List GetRange(int begin)
 		{
-			return InnerGetRange(CheckIndex(NormalizeIndex(begin)), _count);
+			return InnerGetRange(AdjustIndex(NormalizeIndex(begin)), _count);
 		}
 		
 		public List GetRange(int begin, int end)
 		{
 			return InnerGetRange(
-					CheckIndex(NormalizeIndex(begin)),
-					CheckIndex(NormalizeIndex(end)));
+					AdjustIndex(NormalizeIndex(begin)),
+					AdjustIndex(NormalizeIndex(end)));
 		}
 		
 		public bool Contains(object item)
@@ -474,14 +474,23 @@ namespace Boo.Lang
 		List InnerGetRange(int begin, int end)
 		{
 			int targetLen = end-begin;
-			object[] target = new object[targetLen];
-			Array.Copy(_items, begin, target, 0, targetLen);
-			return new List(target, true);
+			if (targetLen > 0)
+			{
+				object[] target = new object[targetLen];
+				Array.Copy(_items, begin, target, 0, targetLen);
+				return new List(target, true);
+			}
+			return new List();
 		}
 		
 		int NormalizeAndCheckIndex(int index)
 		{
 			return CheckIndex(NormalizeIndex(index));
+		}
+		
+		int AdjustIndex(int index)
+		{
+			return index > _count ? _count : index;
 		}
 		
 		int CheckIndex(int index)
