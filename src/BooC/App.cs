@@ -186,7 +186,7 @@ namespace BooC
 
 							case 'p':
 							{
-								LoadPipeline(options.Pipeline, arg.Substring(3));								
+								options.Pipeline.Load(AppDomain.CurrentDomain.BaseDirectory, arg.Substring(3));								
 								hasPipeline = true;
 								break;
 							}
@@ -214,7 +214,7 @@ namespace BooC
 			
 			if (!hasPipeline)
 			{
-				LoadPipeline(options.Pipeline, "booc");
+				options.Pipeline.Load(AppDomain.CurrentDomain.BaseDirectory, "booc");
 			}
 		}
 
@@ -231,28 +231,7 @@ namespace BooC
 				}
 			}
 			return reference;
-		}
-		
-		static void LoadPipeline(CompilerPipeline pipeline, string name)
-		{			
-			if (!name.EndsWith(".pipeline"))
-			{				
-				name += ".pipeline";
-				if (!File.Exists(name) && !Path.IsPathRooted(name))
-				{
-					name = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, name);
-				}
-			}
-			
-			try
-			{
-				pipeline.Configure(LoadXmlDocument(name));
-			}
-			catch (Exception x)
-			{
-				throw new ApplicationException(Boo.ResourceManager.Format("BooC.UnableToLoadPipeline", name, x.Message));
-			}
-		}
+		}		
 		
 		static void InvalidOption(string arg)
 		{

@@ -2,6 +2,8 @@
 <project name="Boo asp.net examples" default="build">
 
 	<property name="booc" value="../../build/booc.exe" />
+	<property name="Boo.dll" value="../../build/Boo.dll" />
+	<property name="Boo.NAnt.dll" value="../../build/Boo.NAnt.dll" />
 	
 	<target name="rebuild" depends="clean, build" />
 	
@@ -13,13 +15,19 @@
 		<mkdir dir="output" />
 		<mkdir dir="output/bin" />
 		
-		<exec program="${booc}" useruntimeengine="true">
-			<arg value="/r:System.Web" />
-			<arg value="/out:output/bin/Boo.Examples.Web.dll" />
-			<arg value="/target:library" />
-			<arg file="HelloAspNet.aspx.boo" />
-			<arg file="YourName.aspx.boo" />			
-		</exec>
+		<loadtasks assembly="${Boo.NAnt.dll}" />
+		
+		<booc output="output/bin/Boo.Examples.Web.dll" target="library">
+		
+			<sources basedir=".">
+				<includes name="*.boo" />
+			</sources>
+			
+			<references>
+				<includes name="System.Web.dll" />
+			</references>
+			
+		</booc>
 		
 		<!--
 		<booc
@@ -42,11 +50,7 @@
 			</fileset>
 		</copy>
 		
-		<copy todir="output/bin">
-			<fileset basedir="../../build">
-				<includes name="Boo.dll" />
-			</fileset>
-		</copy>
+		<copy todir="output/bin" file="${Boo.dll}" />
 		
 	</target>
 	

@@ -51,5 +51,10 @@ namespace Boo
 		{
 			return string.Format(GetString(name), args);
 		}
+		
+		public static string Format(string name, object param)
+		{
+			return string.Format(GetString(name), param);
+		}
 	}
 }

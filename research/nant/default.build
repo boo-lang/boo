@@ -12,32 +12,12 @@
 		<copy todir="." file="${nant.location}NAnt.Core.dll" />
 		
 		<exec program="${booc}" useruntimeengine="true">
-			<arg value="/out:Boo.NAnt.dll" />
+			<arg value="/out:UserTasks.dll" />
 			<arg value="/target:library" />
 			<arg value="/r:${NAnt.Core.dll}" />
-			<arg value="BooC.boo" />
+			<arg value="UserTask.boo" />
 			<arg value="-v" />
 		</exec>
-		
-		<loadtasks assembly="Boo.NAnt.dll" />
-		
-		<booc output="UserTasks.dll" target="library">
-			<!--		
-			<sources basedir=".">
-				<includes name="*.boo" />
-			</sources>
-			-->
-		</booc>
-	<!--
-        <csc target="library" output="UserTasks.dll">
-            <sources>
-                <includes name="UserTask.cs"/>
-            </sources>
-            <references basedir="${nant.location}">
-                <includes name="NAnt.Core.dll"/>
-            </references>
-        </csc>
-	-->
     </target>
 
     <target name="test" depends="build">

@@ -105,7 +105,7 @@ done * unificar SetupAssemblyStep com EmitAssemblyStep
 
 done * criar um nó Unless
 
-* booc nant task (em boo, obviamente)
+done * booc nant task (em boo, obviamente)
 
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 

@@ -28,6 +28,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Collections;
 using System.Xml;
 
@@ -81,7 +82,34 @@ namespace Boo.Lang.Compiler
 
 			_steps.Clear();
 			InnerConfigure(configuration);
-		}		
+		}	
+		
+		public void Load(string baseDirectory, string name)
+		{			
+			if (!name.EndsWith(".pipeline"))
+			{				
+				name += ".pipeline";				
+			}
+			
+			if (!Path.IsPathRooted(name))
+			{
+				string path = Path.Combine(baseDirectory, name);
+				if (!File.Exists(path))
+				{
+					path = Path.Combine(CodeBase, name);
+				}
+				name = path;
+			}
+			
+			try
+			{
+				Configure(LoadXmlDocument(name));
+			}
+			catch (Exception x)
+			{
+				throw new ApplicationException(Boo.ResourceManager.Format("BooC.UnableToLoadPipeline", name, x.Message), x);
+			}
+		}
 
 		public void Run(CompilerContext context)
 		{
@@ -108,6 +136,14 @@ namespace Boo.Lang.Compiler
 			foreach (ICompilerStep step in _steps)
 			{
 				step.Dispose();
+			}
+		}
+		
+		string CodeBase
+		{
+			get
+			{
+				return Path.GetDirectoryName(GetType().Assembly.Location);
 			}
 		}
 
@@ -148,8 +184,13 @@ namespace Boo.Lang.Compiler
 				name += ".pipeline";
 			}
 			Uri baseUri = new Uri(rel.OwnerDocument.BaseURI);
+			return LoadXmlDocument(new Uri(baseUri, name).AbsoluteUri);
+		}
+		
+		XmlElement LoadXmlDocument(string path)
+		{
 			XmlDocument doc = new XmlDocument();
-			doc.Load(new Uri(baseUri, name).AbsoluteUri);
+			doc.Load(path);
 			return doc.DocumentElement;
 		}
 	}

@@ -172,7 +172,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public override string ToString()
 		{
-			return _type.AssemblyQualifiedName;
+			return FullName;
 		}
 	}
 }

@@ -125,10 +125,7 @@ namespace Boo.Tests.Ast.Compiler
 		[Test]
 		public void TestXmlConfigurationExtends()
 		{		
-			XmlDocument doc = new XmlDocument();
-			doc.Load(GetTestCasePath("p2.pipeline"));
-
-			_pipeline.Configure(doc.DocumentElement);
+			_pipeline.Load(BooTestCaseUtil.GetTestCasePath("compilation"), "p2");
 
 			AssertEquals(2, _pipeline.Count);
 			Assert("Expected a DummyStep!", _pipeline[0] is DummyStep);
