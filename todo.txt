@@ -1,6 +1,4 @@
-﻿* change EnumBuilder to appropriate TypeBuilder replacement to circunvent mono bugs
-
-* callable type adaptation
+﻿* callable type adaptation
 	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
 	parâmetros
 
