@@ -92,6 +92,8 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod Array_TypedCollectionConstructor;
 		
 		IMethod Array_TypedConstructor2;
+
+		IMethod MultiDimensionalArray_TypedConstructor;
 		
 		IMethod ICallable_Call;
 		
@@ -177,6 +179,7 @@ namespace Boo.Lang.Compiler.Steps
 			Array_TypedEnumerableConstructor = (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
 			Array_TypedCollectionConstructor= (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
 			Array_TypedConstructor2 = (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
+			MultiDimensionalArray_TypedConstructor = (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));
 			ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
 			Activator_CreateInstance = (IMethod)TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
 			TextReaderEnumerator_Constructor = (IConstructor)TypeSystemServices.Map(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
@@ -3163,6 +3166,14 @@ namespace Boo.Lang.Compiler.Steps
 						CheckListLiteralArgumentInArrayConstructor(type,  expression);
 					}
 					inferredType = TypeSystemServices.GetArrayType(type, 1);
+				}
+			}
+			else if (MultiDimensionalArray_TypedConstructor == method)
+			{
+				IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
+				if (null != type)
+				{				
+					inferredType = TypeSystemServices.GetArrayType(type, ((ArrayLiteralExpression)expression.Arguments[1]).Items.Count);
 				}
 			}
 			else if (Array_EnumerableConstructor == method)

@@ -173,14 +173,19 @@ namespace Boo.Lang
 			}
 			return l.ToArray(elementType);
 		}
-
+		
 		public static Array array(Type elementType, int length)
+		{
+			return matrix(elementType, length);
+		}
+
+		public static Array matrix(Type elementType, params int[] lengths)
 		{
 			if (null == elementType)
 			{
 				throw new ArgumentNullException("elementType");
 			}
-			return Array.CreateInstance(elementType, length);
+			return Array.CreateInstance(elementType, lengths);
 		}
 
 		public static IEnumerable iterator(object enumerable)
