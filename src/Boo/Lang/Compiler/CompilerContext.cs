@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler
 
 		protected AssemblyCollection _assemblyReferences;
 
-		protected ErrorCollection _errors;
+		protected CompilerErrorCollection _errors;
 		
 		protected Bindings.BindingManager _bindingManager;		
 		
@@ -69,7 +69,7 @@ namespace Boo.Lang.Compiler
 			}
 
 			_unit = unit;
-			_errors = new ErrorCollection();
+			_errors = new CompilerErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
 			_bindingManager = new Bindings.BindingManager();
@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		public ErrorCollection Errors
+		public CompilerErrorCollection Errors
 		{
 			get
 			{

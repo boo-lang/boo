@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			catch (Exception x)
 			{
-				_context.Errors.AttributeResolution(_attribute, _type, x);
+				_context.Errors.Add(CompilerErrorFactory.AttributeApplicationError(x, _attribute, _type));
 			}			
 		}
 
@@ -79,7 +79,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			catch (MissingMethodException x)
 			{
-				_context.Errors.MissingConstructor(_attribute, _type, parameters, x);
+				_context.Errors.Add(CompilerErrorFactory.MissingConstructor(x, _attribute, _type, parameters));
 				return null;
 			}
 
@@ -112,7 +112,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ReferenceExpression name = p.First as ReferenceExpression;
 			if (null == name)
 			{
-				_context.Errors.NamedParameterMustBeReference(p);
+				_context.Errors.Add(CompilerErrorFactory.NamedParameterMustBeIdentifier(p));
 				return false;
 			}
 			else
@@ -129,7 +129,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						// como ainda no tenho certeza de que o modelo 
 						// IL no permita dois membros diferentes com mesmo
 						// nome vou deixar aqui
-						_context.Errors.AmbiguousName(p, name.Name, members);
+						_context.Errors.Add(CompilerErrorFactory.AmbiguousReference(name, members));
 						return false;
 					}
 					else
@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					_context.Errors.NotAPublicFieldOrProperty(name, _type.FullName, name.Name);
+					_context.Errors.Add(CompilerErrorFactory.NotAPublicFieldOrProperty(name, name.Name, _type.FullName));
 					return false;
 				}
 			}
@@ -230,13 +230,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				if (BindingType.Ambiguous == binding.BindingType)
 				{
-					Errors.AmbiguousName(attribute, attribute.Name, ((AmbiguousBinding)binding).Bindings);
+					Errors.Add(CompilerErrorFactory.AmbiguousReference(
+									attribute,
+									attribute.Name,
+									((AmbiguousBinding)binding).Bindings));
 				}
 				else
 				{
 					if (BindingType.TypeReference != binding.BindingType)
 					{
-						Errors.NameNotType(attribute, attribute.Name);
+						Errors.Add(CompilerErrorFactory.NameNotType(attribute, attribute.Name));
 					}
 					else
 					{
@@ -246,7 +249,7 @@ namespace Boo.Lang.Compiler.Pipeline
 							ExternalTypeBinding externalType = attributeType as ExternalTypeBinding;
 							if (null == externalType)
 							{
-								Errors.AstAttributeMustBeExternal(attribute, attributeType);
+								Errors.Add(CompilerErrorFactory.AstAttributeMustBeExternal(attribute, attributeType.FullName));
 							}
 							else
 							{							
@@ -260,7 +263,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						{
 							if (!IsSystemAttribute(attributeType))
 							{
-								Errors.TypeNotAttribute(attribute, attributeType.FullName);
+								Errors.Add(CompilerErrorFactory.TypeNotAttribute(attribute, attributeType.FullName));
 							}
 							else
 							{

@@ -113,6 +113,12 @@ done * AstAttribute vira IAstAttribute que implementa ICompilerStep
 
 done * Criar AbstractAstAttribute extends AbstractCompilerStep
 
+done * código de erro para todas as mensagens
+
+done * mover todas as mensagens de errors para CompilerErrorFactory
+
+* criar mecanismo de teste para mensagens de erro
+
 * null
 
 * is/is not
@@ -129,6 +135,11 @@ e passa a ser utilizado ReferenceExpression em seu lugar
 (para utilizar a resolução padrão de membros, etc)
 
 * field initializers
+
+* mecanismo de inferência de tipos deve utilizar um Grafo mais completo contendo
+a informação de dependência de nós para cada nó na lista pending, o método
+ITypeResolver.Resolve só é invocado para um nó quando pelo menos um dos nós
+na lista de dependências tenha sido alterado
 	
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário

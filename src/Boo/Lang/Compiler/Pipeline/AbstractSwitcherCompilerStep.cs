@@ -67,7 +67,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		protected ErrorCollection Errors
+		protected CompilerErrorCollection Errors
 		{
 			get
 			{

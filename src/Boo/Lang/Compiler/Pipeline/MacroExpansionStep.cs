@@ -68,28 +68,28 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (null == binding)
 			{
-				Errors.UnknownMacro(node, node.Name);
+				Errors.Add(CompilerErrorFactory.UnknownMacro(node, node.Name));
 			}
 			else
 			{
 				if (BindingType.TypeReference != binding.BindingType)
 				{
-					Errors.InvalidMacro(node, node.Name);
+					Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
 				}
 				else
 				{
-					ExternalTypeBinding type = ((TypeReferenceBinding)binding).BoundType
-										as ExternalTypeBinding;
+					ITypeBinding macroType = ((TypeReferenceBinding)binding).BoundType;
+					ExternalTypeBinding type = macroType as ExternalTypeBinding;
 					if (null == type)
 					{
-						Errors.InternalMacro(node, node.Name);
+						Errors.Add(CompilerErrorFactory.AstMacroMustBeExternal(node, macroType.FullName));
 					}
 					else
 					{
 						object macro = Activator.CreateInstance(type.Type);
 						if (!(macro is IAstMacro))
 						{
-							Errors.InvalidMacro(node, node.Name);
+							Errors.Add(CompilerErrorFactory.InvalidMacro(node, macroType.FullName));
 						}
 						else
 						{

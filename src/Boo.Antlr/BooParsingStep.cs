@@ -75,7 +75,7 @@ namespace Boo.Antlr
 					}
 					catch (Exception x)
 					{
-						_context.Errors.InputError(input, x);
+						_context.Errors.Add(CompilerErrorFactory.InputError(input.Name, x));
 					}
 				}
 			}
@@ -96,14 +96,13 @@ namespace Boo.Antlr
 			}
 			else
 			{
-				_context.Errors.Add(new Error(data, error.Message, error));
+				_context.Errors.Add(CompilerErrorFactory.GenericParserError(data, error));
 			}
 		}
 		
 		void ParserError(LexicalInfo data, antlr.NoViableAltException error)
-		{
-			string msg = Boo.ResourceManager.Format("NoViableAltException", error.token.getText());
-			_context.Errors.Add(new Error(data, msg, error));
+		{			
+			_context.Errors.Add(CompilerErrorFactory.UnexpectedToken(data, error, error.token.getText()));
 		}
 
 	}

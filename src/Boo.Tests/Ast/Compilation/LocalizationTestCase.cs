@@ -72,7 +72,7 @@ namespace Boo.Tests.Ast.Compiler
 				options.Input.Add(new Boo.Lang.Compiler.IO.StringInput("testcase", TestCase));
 				options.Pipeline.Add(new Boo.Antlr.BooParsingStep());
 				
-				ErrorCollection errors = compiler.Run().Errors;
+				CompilerErrorCollection errors = compiler.Run().Errors;
 	
 				Assertion.AssertEquals(1, errors.Count);
 				Assertion.AssertEquals(message, errors[0].Message);

@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			AssemblyBuilder builder = (AssemblyBuilder)context.CompileUnit[AssemblyBuilderKey];
 			if (null == builder)
 			{
-				throw new ApplicationException(Boo.ResourceManager.GetString("InvalidAssemblySetup"));
+				throw new ApplicationException(Boo.ResourceManager.GetString("BC0014"));
 			}
 			return builder;
 		}
@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ModuleBuilder builder = (ModuleBuilder)context.CompileUnit[ModuleBuilderKey];
 			if (null == builder)
 			{
-				throw new ApplicationException(Boo.ResourceManager.GetString("InvalidAssemblySetup"));
+				throw new ApplicationException(Boo.ResourceManager.GetString("BC0014"));
 			}
 			return builder;
 		}
@@ -433,7 +433,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					Errors.NotImplemented(node, "unary operator not supported");
+					Errors.Add(CompilerErrorFactory.NotImplemented(node, "unary operator not supported"));
 					break;
 				}
 			}
@@ -474,7 +474,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 				default:
 				{
-					Errors.NotImplemented(node, binding.ToString());
+					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
 					break;
 				}
 			}		
@@ -513,7 +513,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					Errors.NotImplemented(node, binding.ToString());
+					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
 				}
 			}
 		}
@@ -638,7 +638,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					Errors.NotImplemented(node, binding.ToString());
+					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
 					break;
 				}
 			}
@@ -759,7 +759,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						{
 							if (targetType.IsValueType)
 							{
-								Errors.NotImplemented(node, "property access for value types");
+								Errors.Add(CompilerErrorFactory.NotImplemented(node, "property access for value types"));
 							}
 							else
 							{
@@ -804,7 +804,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					Errors.NotImplemented(node, binding.ToString());
+					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
 					break;
 				}
 			}
@@ -840,7 +840,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					Errors.NotImplemented(node, info.ToString());
+					Errors.Add(CompilerErrorFactory.NotImplemented(node, info.ToString()));
 					break;
 				}
 				
@@ -1247,7 +1247,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					Errors.NoEntryPoint();
+					Errors.Add(CompilerErrorFactory.NoEntryPoint());
 				}
 			}
 		}	
@@ -1631,7 +1631,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					return ((BoolLiteralExpression)expression).Value;
 				}
 			}
-			Errors.NotImplemented(expression, "Expression value");
+			Errors.Add(CompilerErrorFactory.NotImplemented(expression, "Expression value"));
 			return null;
 		}
 		

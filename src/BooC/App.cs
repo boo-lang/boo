@@ -72,7 +72,7 @@ namespace BooC
 				
 				if (context.Errors.Count > 0)
 				{
-					foreach (Error error in context.Errors)
+					foreach (CompilerError error in context.Errors)
 					{
 						Console.WriteLine(error.ToString(options.TraceSwitch.TraceInfo));
 					}

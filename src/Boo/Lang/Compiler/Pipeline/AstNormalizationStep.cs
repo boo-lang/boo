@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			Method current = (Method)CompileUnit[EntryPointKey];
 			if (null != current)
 			{
-				Errors.MoreThanOneEntryPoint(method);
+				Errors.Add(CompilerErrorFactory.MoreThanOneEntryPoint(method));
 			}
 			CompileUnit[EntryPointKey] = method;
 		}
@@ -187,7 +187,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						
 					default:
 					{							
-						Errors.NotImplemented(node, "only if supported");
+						Errors.Add(CompilerErrorFactory.NotImplemented(node, "only if supported"));
 						break;
 					}
 				}

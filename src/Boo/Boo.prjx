@@ -246,6 +246,7 @@
     <File name=".\Lang\Compiler\Pipeline\XmlStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\TaskList.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerErrorFactory.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />

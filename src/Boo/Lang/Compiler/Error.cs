@@ -34,49 +34,95 @@ using Boo.Lang.Ast;
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
-	/// Representa um erro de compilao.
+	/// A compilation error.
 	/// </summary>
 	[Serializable]
-	public class Error : ApplicationException
+	public class CompilerError : ApplicationException
 	{
-		LexicalInfo _ldata;
-
-		public Error(LexicalInfo data, string message, Exception cause) : base(message, cause)
+		LexicalInfo _lexicalInfo;
+		
+		string _code;
+		
+		public CompilerError(string code, LexicalInfo lexicalInfo, Exception cause, params object[] args) : base(ResourceManager.Format(code, args), cause)
 		{
-			if (null == data)
+			if (null == lexicalInfo)
 			{
-				throw new ArgumentNullException("data");
+				throw new ArgumentNullException("lexicalInfo");
 			}
-
-			if (null == message)
+			_code = code;
+			_lexicalInfo = lexicalInfo;
+		}
+		
+		public CompilerError(string code, Exception cause, params object[] args) : this(code, LexicalInfo.Empty, cause, args)
+		{
+		}
+		
+		public CompilerError(string code, LexicalInfo lexicalInfo, params object[] args) : base(ResourceManager.Format(code, args))
+		{
+			if (null == lexicalInfo)
 			{
-				throw new ArgumentNullException("message");
+				throw new ArgumentNullException("lexicalInfo");
 			}
-
-			_ldata = data;
+			_code = code;
+			_lexicalInfo = lexicalInfo;
 		}
-
-		public Error(Node node, string message, Exception cause) : this(node.LexicalInfo, message, cause)
+		
+		public CompilerError(string code, LexicalInfo lexicalInfo) : base(ResourceManager.GetString(code))
+		{
+			if (null == lexicalInfo)
+			{
+				throw new ArgumentNullException("lexicalInfo");
+			}
+			_code = code;
+			_lexicalInfo = lexicalInfo;
+		}
+		
+		public CompilerError(string code, LexicalInfo lexicalInfo, string message, Exception cause) : base(message, cause)
+		{
+			if (null == lexicalInfo)
+			{
+				throw new ArgumentNullException("lexicalInfo");
+			}
+			_code = code;
+			_lexicalInfo = lexicalInfo;
+		}
+		
+		public CompilerError(LexicalInfo lexicalInfo, string message, Exception cause) : this("BC0040", lexicalInfo, message, cause)
+		{
+		}
+		
+		public CompilerError(Node node, string message, Exception cause) : this(node.LexicalInfo, message, cause)
 		{
 		}
 
-		public Error(Node node, string message) : this(node, message, null)
+		public CompilerError(Node node, string message) : this(node, message, null)
 		{
 		}
 
-		public Error(LexicalInfo data, string message) : this(data, message, null)
+		public CompilerError(LexicalInfo data, string message) : this(data, message, null)
 		{
 		}
 
-		public Error(LexicalInfo data, Exception cause) : this(data, cause.Message, cause)
+		public CompilerError(LexicalInfo data, Exception cause) : this(data, cause.Message, cause)
 		{
+		}
+		
+		/// <summary>
+		/// Error code.
+		/// </summary>
+		public string Code
+		{
+			get
+			{
+				return _code;
+			}
 		}
 
 		public LexicalInfo LexicalInfo
 		{
 			get
 			{
-				return _ldata;
+				return _lexicalInfo;
 			}
 		}
 
@@ -88,11 +134,13 @@ namespace Boo.Lang.Compiler
 		public string ToString(bool verbose)
 		{
 			StringBuilder sb = new StringBuilder();
-			if (_ldata.Line > 0)
+			if (_lexicalInfo.Line > 0)
 			{
-				sb.Append(_ldata);
+				sb.Append(_lexicalInfo);
 				sb.Append(": ");
 			}
+			sb.Append(_code);
+			sb.Append(": ");
 			if (verbose)
 			{
 				sb.Append(base.ToString());

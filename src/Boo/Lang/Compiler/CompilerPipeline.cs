@@ -122,13 +122,13 @@ namespace Boo.Lang.Compiler
 				{
 					step.Run();
 				}
-				catch (Boo.Lang.Compiler.Error error)
+				catch (Boo.Lang.Compiler.CompilerError error)
 				{
 					context.Errors.Add(error);
 				}
 				catch (Exception x)
 				{
-					context.Errors.StepExecution(step, x);
+					context.Errors.Add(CompilerErrorFactory.StepExecutionError(x, step));
 				}
 				context.TraceLeave("Left {0}.", step);
 			}
@@ -147,12 +147,12 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		string GetRequiredAttribute(XmlElement element, string attributeName)
+		string GetBC0013(XmlElement element, string attributeName)
 		{
 			XmlAttribute attribute = element.GetAttributeNode(attributeName);
 			if (null == attribute || 0 == attribute.Value.Length)
 			{
-				throw new ArgumentException(ResourceManager.Format("RequiredAttribute", element.Name, attributeName));
+				throw new ArgumentException(ResourceManager.Format("BC0013", element.Name, attributeName));
 			}
 			return attribute.Value;
 		}
@@ -167,7 +167,7 @@ namespace Boo.Lang.Compiler
 
 			foreach (XmlElement element in configuration.SelectNodes("step"))
 			{
-				string typeName = GetRequiredAttribute(element, "type");
+				string typeName = GetBC0013(element, "type");
 				Type type = Type.GetType(typeName, true);
 				if (!typeof(ICompilerComponent).IsAssignableFrom(type))
 				{

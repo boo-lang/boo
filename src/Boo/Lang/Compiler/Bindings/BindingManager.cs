@@ -306,7 +306,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		private static void NodeNotBound(Node node)
 		{
-			throw new Error(node, ResourceManager.Format("BindingManager.UnboundNode", node, node.LexicalInfo));
+			throw new CompilerError("BC0015", node.LexicalInfo, node);
 		}
 		
 		static object BindingKey = new object();		

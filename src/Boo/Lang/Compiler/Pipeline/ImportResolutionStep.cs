@@ -88,7 +88,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					if (null == binding)
 					{
 						binding = ErrorBinding.Default;
-						Errors.InvalidNamespace(import);
+						Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
 					}
 					else
 					{
@@ -97,7 +97,7 @@ namespace Boo.Lang.Compiler.Pipeline
 							NamespaceBinding nsBinding = binding as NamespaceBinding;
 							if (null == nsBinding)
 							{
-								Errors.NotImplemented(import, "assembly qualified type references");
+								Errors.Add(CompilerErrorFactory.NotImplemented(import, "assembly qualified type references"));
 							}
 							else
 							{								
@@ -137,7 +137,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						}
 						catch (Exception x)
 						{
-							Errors.UnableToLoadAssembly(reference, reference.Name, x);
+							Errors.Add(CompilerErrorFactory.UnableToLoadAssembly(reference, reference.Name, x));
 							imports.RemoveAt(i);							
 						}
 					}
