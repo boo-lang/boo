@@ -347,26 +347,37 @@
 	</target>
 	
 	<target name="satellites" depends="init" unless="${skip.satellites}">
-		<mkdir dir="${build.dir}/pt" />
+	
+		<property name="locale" value="pt" />
+		<call target="build-satellite" />
+		
+		<property name="locale" value="it" />
+		<call target="build-satellite" />
+		
+	</target>
+	
+	<target name="build-satellite">
+	
+		<mkdir dir="${build.dir}/${locale}" />
 
 		<resgen
-			input="src/Boo/Resources/pt/strings.txt"
-			output="build/pt/strings.pt.resources" />
+			input="src/Boo/Resources/${locale}/strings.txt"
+			output="build/${locale}/strings.${locale}.resources" />
 
 		<al target="lib"
-			culture="pt"
-			output="build/pt/Boo.resources.dll"
+			culture="${locale}"
+			output="build/${locale}/Boo.resources.dll"
 			if="${nant.platform.win32}">
-			<sources basedir="build/pt">
-				<include name="strings.pt.resources" />
+			<sources basedir="build/${locale}">
+				<include name="strings.${locale}.resources" />
 			</sources>
 		</al>
 		
 		<exec program="${path::combine(nant.settings.currentframework.sdkdirectory, 'al')}" if="${nant.platform.unix}">
 			<arg value="/target:lib" />
-			<arg value="/culture:pt" />
-			<arg value="/out:build/pt/Boo.resources.dll" />
-			<arg value="/embed:build/pt/strings.pt.resources" />
+			<arg value="/culture:${locale}" />
+			<arg value="/out:build/${locale}/Boo.resources.dll" />
+			<arg value="/embed:build/${locale}/strings.${locale}.resources" />
 		</exec>
 	</target>
 
