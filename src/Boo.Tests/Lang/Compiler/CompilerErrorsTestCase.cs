@@ -132,6 +132,30 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("nameresolution0.boo");
 		}
 		
+		[Test]
+		public void DeclarationAlreadyExists()
+		{
+			RunCompilerTestCase("declaration0.boo");
+		}
+		
+		[Test]
+		public void DeclarationInUnpackAlreadyExists()
+		{
+			RunCompilerTestCase("declaration1.boo");
+		}
+		
+		[Test]
+		public void DeclarationConflictsWithParameter()
+		{
+			RunCompilerTestCase("declaration2.boo");
+		}
+		
+		[Test]
+		public void DeclarationTypeError()
+		{
+			RunCompilerTestCase("declaration3.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.

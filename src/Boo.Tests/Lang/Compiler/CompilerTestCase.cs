@@ -1045,5 +1045,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("formatting0.boo");
 		}
+		
+		[Test]
+		public void UnpackLocals()
+		{
+			RunCompilerTestCase("unpack_locals.boo");
+		}
 	}
 }

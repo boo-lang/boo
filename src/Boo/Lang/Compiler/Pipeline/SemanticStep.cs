@@ -1250,22 +1250,21 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		override public void LeaveDeclaration(Declaration node)
-		{
-			CheckIdentifierName(node, node.Name);
-		}
-		
 		override public void LeaveDeclarationStatement(DeclarationStatement node)
 		{
 			ITypeBinding binding = BindingManager.ObjectTypeBinding;
 			if (null != node.Declaration.Type)
 			{
 				binding = GetBoundType(node.Declaration.Type);			
-			}
+			}			
+			
+			CheckDeclarationName(node.Declaration);
 			
 			LocalBinding localBinding = DeclareLocal(node, new Local(node.Declaration, false), binding);
 			if (null != node.Initializer)
 			{
+				CheckTypeCompatibility(node.Initializer, binding, GetExpressionType(node.Initializer));
+				
 				ReferenceExpression var = new ReferenceExpression(node.Declaration.LexicalInfo);
 				var.Name = node.Declaration.Name;
 				Bind(var, localBinding);				
@@ -1274,7 +1273,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				assign.Operator = BinaryOperatorType.Assign;
 				assign.Left = var;
 				assign.Right = node.Initializer;
-				Bind(assign, GetBinding(assign.Right));				
+				Bind(assign, binding);				
 				
 				node.ReplaceBy(new ExpressionStatement(assign));
 			}
@@ -3058,6 +3057,25 @@ namespace Boo.Lang.Compiler.Pipeline
 			return false;
 		}
 		
+		bool CheckDeclarationName(Declaration d)
+		{			
+			if (CheckIdentifierName(d, d.Name))
+			{
+				return CheckUniqueLocal(d);
+			}
+			return false;
+		}
+		
+		bool CheckUniqueLocal(Declaration d)
+		{
+			if (null == _currentMethodBinding.Resolve(d.Name))
+			{
+				return true;
+			}
+			Error(CompilerErrorFactory.LocalAlreadyExists(d, d.Name));
+			return false;
+		}
+		
 		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
 		{
 			ITypeBinding defaultDeclType = BindingManager.ObjectTypeBinding;
@@ -3068,18 +3086,39 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			foreach (Declaration d in declarations)
-			{				
-				if (null == d.Type)
-				{
-					d.Type = CreateBoundTypeReference(defaultDeclType);
-				}
-				else
+			{	
+				bool declareNewVariable = declarePrivateLocals || null != d.Type;
+				
+				if (null != d.Type)
 				{
 					Switch(d.Type);
-					// todo: check types here
+					CheckTypeCompatibility(d, GetBoundType(d.Type), defaultDeclType);					
 				}
+				
 				if (CheckIdentifierName(d, d.Name))
 				{
+					if (declareNewVariable)
+					{
+						if (!declarePrivateLocals)
+						{
+							CheckUniqueLocal(d);
+						}
+					}
+					else
+					{
+						IBinding binding = _currentMethodBinding.Resolve(d.Name);
+						if (null != binding)
+						{
+							Bind(d, binding);
+							continue;
+						}
+					}
+					
+					if (null == d.Type)
+					{
+						d.Type = CreateBoundTypeReference(defaultDeclType);
+					}
+					
 					DeclareLocal(d, new Local(d, declarePrivateLocals), GetBoundType(d.Type));
 				}
 			}

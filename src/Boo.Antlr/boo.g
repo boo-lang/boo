@@ -789,6 +789,7 @@ stmt [StatementCollection container]
 				s=retry_stmt |
 				(declaration COMMA)=> s=unpack_stmt |
 				s=declaration_stmt |
+				(slicing_expression ASSIGN)=> s=assignment_stmt |
 				s=expression_stmt				
 			)
 			(			
@@ -1125,6 +1126,7 @@ expression returns [Expression e]
 		IteratorExpression lde = null;
 		StatementModifier filter = null;
 		Expression iterator = null;
+		DeclarationCollection declarations = null;
 	} :
 	e=boolean_expression
 	(
@@ -1143,8 +1145,10 @@ expression returns [Expression e]
 		{
 			lde = new IteratorExpression(ToLexicalInfo(f));
 			lde.Expression = e;
+			
+			declarations = lde.Declarations;
 		}
-		declaration_list[lde.Declarations]
+		declaration_list[declarations]
 		IN!
 		iterator=expression { lde.Iterator = iterator; }
 		(
@@ -1232,6 +1236,22 @@ ternary_expression returns [Expression e]
 	;
 	
 protected
+assignment_stmt returns [Statement stmt]
+	{
+		stmt = null;
+		Expression lhs = null;
+		Expression rhs = null;		
+	}:
+	lhs=slicing_expression op:ASSIGN rhs=tuple_or_expression
+	{
+		stmt = new ExpressionStatement(
+							new BinaryExpression(ToLexicalInfo(op),
+								ParseAssignOperator(op.getText()),
+								lhs, rhs));
+	}
+	;
+	
+protected
 assignment_expression returns [Expression e]
 	{
 		e = null;
@@ -1240,7 +1260,7 @@ assignment_expression returns [Expression e]
 	e=conditional_expression
 	(
 		op:ASSIGN
-		r=tuple_or_expression
+		r=conditional_expression
 		{
 			BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
 			be.Operator = ParseAssignOperator(op.getText());

@@ -39,13 +39,17 @@ namespace Boo.Lang.Ast
 		{
  		}
 		
-		public BinaryExpression(BinaryOperatorType operator_, Expression left, Expression right) : base(operator_, left, right)
+		public BinaryExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}		
 		
-		public BinaryExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public BinaryExpression(BinaryOperatorType operator_, Expression left, Expression right) : base(operator_, left, right)
 		{
 		}
+
+		public BinaryExpression(LexicalInfo lexicalInfoProvider, BinaryOperatorType operator_, Expression left, Expression right) : base(lexicalInfoProvider, operator_, left, right)
+		{
+		}				
 		
 		override public void Switch(IAstSwitcher switcher)
 		{

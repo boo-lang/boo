@@ -362,6 +362,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0066", info, attributeName, expectedNodeTypes);
 		}
 		
+		public static CompilerError LocalAlreadyExists(Node node, string name)
+		{
+			return new CompilerError("BCE0067", node.LexicalInfo, name);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -293,7 +293,7 @@ done * Cache parent namespace in InternalTypeBinding constructor
 
 * map(callable, enumerable)
 
-* controlar o consumo de vírgulas na declaração de tuplas:
+done * controlar o consumo de vírgulas na declaração de tuplas:
 
 	a = 1, b=2, 3 => a = (1, (b=2), 3)
 	lock foo=bar(), baz=bam(): => lock (foo=bar()), (baz=bam())
