@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class IntroduceModuleClasses : AbstractVisitorCompilerStep
 	{
-		public const string MainModuleMethodName = "__Main__";
+		public const string EntryPointMethodName = "Main";
 		
 		protected IType _booModuleAttributeType;
 		
@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
-			_booModuleAttributeType = TypeSystemServices.Map(typeof(Boo.Lang.BooModuleAttribute));
+			_booModuleAttributeType = TypeSystemServices.Map(typeof(Boo.Lang.ModuleAttribute));
 		}
 		
 		override public void Run()
@@ -72,8 +72,16 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnModule(Module node)
-		{		
-			ClassDefinition moduleClass = new ClassDefinition();
+		{	
+			bool hasModuleClass = true;
+			ClassDefinition moduleClass = FindModuleClass(node);
+			if (null == moduleClass)
+			{
+				moduleClass = new ClassDefinition();
+				hasModuleClass = false;
+			}
+			
+			Method entryPoint = moduleClass.Members["Main"] as Method;
 			
 			int removed = 0;			
 			TypeMember[] members = node.Members.ToArray();
@@ -82,6 +90,10 @@ namespace Boo.Lang.Compiler.Steps
 				TypeMember member = members[i];
 				if (member.NodeType == NodeType.Method)
 				{
+					if (EntryPointMethodName == member.Name)
+					{
+						entryPoint = (Method)member;
+					}
 					member.Modifiers |= TypeMemberModifiers.Static;
 					node.Members.RemoveAt(i-removed);
 					moduleClass.Members.Add(member);
@@ -95,32 +107,62 @@ namespace Boo.Lang.Compiler.Steps
 				method.Parameters.Add(new ParameterDeclaration("argv", new ArrayTypeReference(new SimpleTypeReference("string"))));
 				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 				method.Body = node.Globals;
-				method.Name = MainModuleMethodName;
+				method.Name = EntryPointMethodName;
 				method.Modifiers = TypeMemberModifiers.Static | TypeMemberModifiers.Private;				
 				moduleClass.Members.Add(method);
 				
 				node.Globals = null;
-				ContextAnnotations.SetEntryPoint(Context, method);
+				entryPoint = method;
 			}
 			
-			if (_forceModuleClass || (moduleClass.Members.Count > 0))
+			if (null != entryPoint)
 			{
-				moduleClass.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Private));
+				ContextAnnotations.SetEntryPoint(Context, entryPoint);
+			}
 			
-				moduleClass.Name = BuildModuleClassName(node);
+			if (hasModuleClass || _forceModuleClass || (moduleClass.Members.Count > 0))
+			{
+				if (!hasModuleClass)
+				{
+					moduleClass.Name = BuildModuleClassName(node);
+					moduleClass.Attributes.Add(CreateBooModuleAttribute());
+					node.Members.Add(moduleClass);
+				}
+				
+				moduleClass.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Private));			
 				moduleClass.Modifiers = TypeMemberModifiers.Public |
 										TypeMemberModifiers.Final |
-										TypeMemberModifiers.Transient;
-				moduleClass.Attributes.Add(CreateBooModuleAttribute());
-				node.Members.Add(moduleClass);
+										TypeMemberModifiers.Transient;				
 				
 				((ModuleEntity)node.Entity).InitializeModuleClass(moduleClass);				
 			}
 		}
 		
+		ClassDefinition FindModuleClass(Module node)
+		{
+			ClassDefinition found = null;
+			
+			foreach (TypeMember member in node.Members)
+			{
+				if (NodeType.ClassDefinition == member.NodeType &&
+					member.Attributes.Contains("Boo.Lang.ModuleAttribute"))
+				{
+					if (null == found)
+					{
+						found = (ClassDefinition)member;
+					}
+					else
+					{
+						// ERROR: only a single module class is allowed per module
+					}
+				}
+			}
+			return found;
+		}
+		
 		Boo.Lang.Compiler.Ast.Attribute CreateBooModuleAttribute()
 		{
-			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute("Boo.Lang.BooModuleAttribute");
+			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute("Boo.Lang.ModuleAttribute");
 			attribute.Entity = _booModuleAttributeType;
 			return attribute;
 		}

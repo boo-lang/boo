@@ -34,9 +34,9 @@ namespace Boo.Lang
 	/// Marks a type as a boo module.
 	/// </summary>
 	[Serializable]
-	public class BooModuleAttribute : Attribute
+	public class ModuleAttribute : Attribute
 	{
-		public BooModuleAttribute()
+		public ModuleAttribute()
 		{
 		}
 	}

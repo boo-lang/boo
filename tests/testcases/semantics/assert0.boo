@@ -1,8 +1,8 @@
 """
-[Boo.Lang.BooModuleAttribute]
+[Boo.Lang.ModuleAttribute]
 public final transient class Assert0Module(System.Object):
 
-	private static def __Main__(argv as (System.String)) as System.Void:
+	private static def Main(argv as (System.String)) as System.Void:
 		unless (true and false):
 			raise Boo.AssertionFailedException('assert message')
 

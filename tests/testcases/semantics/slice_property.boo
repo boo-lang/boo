@@ -1,10 +1,10 @@
 """
 import System.Collections
 
-[Boo.Lang.BooModuleAttribute]
+[Boo.Lang.ModuleAttribute]
 public final transient class Slice_propertyModule(System.Object):
 
-	private static def __Main__(argv as (System.String)) as System.Void:
+	private static def Main(argv as (System.String)) as System.Void:
 		h = System.Collections.Hashtable()
 		h.set_Item('foo', 'bar')
 		Boo.Lang.Builtins.print(h.get_Item('foo'))

@@ -102,7 +102,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		bool IsModule(Type type)
 		{
-			return System.Attribute.IsDefined(type, typeof(Boo.Lang.BooModuleAttribute));
+			return System.Attribute.IsDefined(type, typeof(Boo.Lang.ModuleAttribute));
 		}		
 		
 		public void AddModule(Boo.Lang.Compiler.TypeSystem.ModuleEntity module)

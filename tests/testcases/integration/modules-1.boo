@@ -6,7 +6,7 @@ def AssertModule(type as Type):
 	Assert.IsNotNull(type)
 	Assert.IsTrue(type.Name.EndsWith("Module"), "Module type name must end with Module!")
 	
-	attribute = Attribute.GetCustomAttribute(type, BooModuleAttribute)
+	attribute = Attribute.GetCustomAttribute(type, ModuleAttribute)
 	Assert.IsNotNull(attribute, "Module must be marked with BooModuleAttribute!")
 	
 	Assert.IsTrue(type.IsSealed, "Module must be sealed!")

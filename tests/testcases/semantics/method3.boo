@@ -1,5 +1,5 @@
 """
-[Boo.Lang.BooModuleAttribute]
+[Boo.Lang.ModuleAttribute]
 public final transient class Method3Module(System.Object):
 
 	public static def fatorial(n as System.Int32) as System.Int32:

@@ -12,10 +12,10 @@ public class Person(System.Object):
 	public def constructor():
 		super()
 
-[Boo.Lang.BooModuleAttribute]
+[Boo.Lang.ModuleAttribute]
 public final transient class Assign_propertyModule(System.Object):
 
-	private static def __Main__(argv as (System.String)) as System.Void:
+	private static def Main(argv as (System.String)) as System.Void:
 		p = Person()
 		p.Name = 'boo'
 		Boo.Lang.Builtins.print(p.get_Name())

@@ -1,8 +1,8 @@
 """
-[Boo.Lang.BooModuleAttribute]
+[Boo.Lang.ModuleAttribute]
 public final transient class Equality0Module(System.Object):
 
-	private static def __Main__(argv as (System.String)) as System.Void:
+	private static def Main(argv as (System.String)) as System.Void:
 		o1 = System.Object()
 		o2 = System.Object()
 		Boo.Lang.Builtins.print(System.String.op_Equality('foo', 'bar'))
