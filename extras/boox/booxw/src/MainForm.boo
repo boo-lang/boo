@@ -38,6 +38,8 @@ class MainForm(Form):
 	_menuItemSaveAs as MenuItem
 	
 	_parser = BooCompiler()
+	
+	_resourceManager = System.Resources.ResourceManager(MainForm)
 
 	def constructor(argv as (string)):
 		_argv = argv
@@ -55,6 +57,7 @@ class MainForm(Form):
 
 		SuspendLayout()
 
+		self.Icon = _resourceManager.GetObject("_icon")
 		self.Size = System.Drawing.Size(800, 600)
 		self.Menu = CreateMainMenu()
 		self.Text = "Boo Explorer"

@@ -87,13 +87,15 @@
 					"privatemethod.png"
 				)
 			for image in images:
-				fname = MapPath("resources/ClassBrowserIcons/${image}")
+				fname = MapPath("../resources/ClassBrowserIcons/${image}")
 				imageList.Images.Add(Image.FromFile(fname))
 			return imageList
 		
-		using imageList=CreateImageList():
-			using writer=ResourceWriter(MapPath("../build/BooExplorer.DocumentOutline.resources")):
+		using writer=ResourceWriter(MapPath("../build/BooExplorer.DocumentOutline.resources")):
+			using imageList=CreateImageList():			
 				writer.AddResource("_imageList", imageList.ImageStream)
+		using writer=ResourceWriter(MapPath("../build/BooExplorer.MainForm.resources")):
+			writer.AddResource("_icon", Icon(MapPath("../resources/boo.ico"))) 
 		</boo>
 	</target>
 	
