@@ -31,7 +31,7 @@ using System;
 using System.Globalization;
 using System.Threading;
 using NUnit.Framework;
-using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Compiler;
 
 namespace Boo.Tests.Ast.Compiler
 {
@@ -67,9 +67,9 @@ namespace Boo.Tests.Ast.Compiler
 
 			try
 			{
-				Compiler compiler = new Compiler();
+				BooCompiler compiler = new BooCompiler();
 				CompilerParameters options = compiler.Parameters;
-				options.Input.Add(new Boo.Lang.Ast.Compiler.IO.StringInput("testcase", TestCase));
+				options.Input.Add(new Boo.Lang.Compiler.IO.StringInput("testcase", TestCase));
 				options.Pipeline.Add(new Boo.Antlr.BooParsingStep());
 				
 				ErrorCollection errors = compiler.Run().Errors;

@@ -31,7 +31,7 @@ using System;
 using NUnit.Framework;
 using Boo.Lang;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Compiler;
 
 namespace Boo.Tests.Ast.Compiler
 {

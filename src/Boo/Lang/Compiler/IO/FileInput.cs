@@ -29,12 +29,12 @@
 
 using System;
 
-namespace Boo.Lang.Ast.Compiler.IO
+namespace Boo.Lang.Compiler.IO
 {
 	/// <summary>
 	/// File based compiler input.
 	/// </summary>
-	public class FileInput : Boo.Lang.Ast.Compiler.ICompilerInput
+	public class FileInput : Boo.Lang.Compiler.ICompilerInput
 	{
 		string _fname;
 

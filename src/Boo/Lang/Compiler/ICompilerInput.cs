@@ -29,7 +29,7 @@
 
 using System;
 
-namespace Boo.Lang.Ast.Compiler
+namespace Boo.Lang.Compiler
 {
 	/// <summary>
 	/// An input to the compiler.

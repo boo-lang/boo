@@ -3,8 +3,8 @@ namespace Boo.Tests.Ast.Compiler
 	using System;
 	using System.IO;
 	using Boo.Lang.Ast;
-	using Boo.Lang.Ast.Compiler;
-	using Boo.Lang.Ast.Compiler.Pipeline;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Pipeline;
 	using Boo.Antlr;
 	using NUnit.Framework;
 	

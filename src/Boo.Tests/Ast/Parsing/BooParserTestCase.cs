@@ -33,9 +33,9 @@ using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
-using Boo.Lang.Ast.Compiler.IO;
-using Boo.Lang.Ast.Compiler.Pipeline;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.IO;
+using Boo.Lang.Compiler.Pipeline;
 using Boo.Antlr;
 using Boo.Tests;
 
@@ -719,7 +719,7 @@ namespace Boo.Tests.Ast.Parsing
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{
-			_compiler = new Compiler();
+			_compiler = new BooCompiler();
 			_compiler.Parameters.Pipeline.Add(new BooParsingStep());
 			_compiler.Parameters.Pipeline.Add(new BooPrinterStep());			
 		}
@@ -730,7 +730,7 @@ namespace Boo.Tests.Ast.Parsing
 			_compiler.Parameters.Input.Clear();
 		}
 		
-		Boo.Lang.Ast.Compiler.Compiler _compiler;
+		BooCompiler _compiler;
 		
 		void RunParserTestCase(string testfile)
 		{			

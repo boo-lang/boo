@@ -29,23 +29,23 @@
 
 using System;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
-using Boo.Lang.Ast.Compiler.Bindings;
-using Boo.Lang.Ast.Compiler.Util;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Bindings;
+using Boo.Lang.Compiler.Util;
 using Boo.Lang;
 using Reflection = System.Reflection;
 
-namespace Boo.Lang.Ast.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Pipeline
 {
 	class ApplyAttributeTask : ITask
 	{
 		CompilerContext _context;
 
-		Attribute _attribute;
+		Boo.Lang.Ast.Attribute _attribute;
 
 		Type _type;
 
-		public ApplyAttributeTask(CompilerContext context, Attribute attribute, Type type)
+		public ApplyAttributeTask(CompilerContext context, Boo.Lang.Ast.Attribute attribute, Type type)
 		{
 			_context = context;
 			_attribute = attribute;
@@ -264,7 +264,7 @@ namespace Boo.Lang.Ast.Compiler.Pipeline
 			}
 		}
 
-		void ScheduleAttributeApplication(Attribute attribute, Type type)
+		void ScheduleAttributeApplication(Boo.Lang.Ast.Attribute attribute, Type type)
 		{
 			_tasks.Add(new ApplyAttributeTask(_context, attribute, type));
 		}

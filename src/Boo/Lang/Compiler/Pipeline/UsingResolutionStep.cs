@@ -32,10 +32,10 @@ using System.Collections;
 using System.Reflection;
 using List=Boo.Lang.List;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
-using Boo.Lang.Ast.Compiler.Bindings;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Bindings;
 
-namespace Boo.Lang.Ast.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Pipeline
 {	
 	// todo: CompilerParameters.References.Changed += OnChanged
 	// recalculate namespaces on reference changes
@@ -80,7 +80,7 @@ namespace Boo.Lang.Ast.Compiler.Pipeline
 			ResolveUsingAssemblyReferences();
 			OrganizeNamespaces();
 			
-			foreach (Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
 				foreach (Using using_ in module.Using)
 				{

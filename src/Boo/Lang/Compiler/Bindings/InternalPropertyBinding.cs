@@ -27,8 +27,10 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Ast.Compiler.Bindings
+namespace Boo.Lang.Compiler.Bindings
 {
+	using Boo.Lang.Ast;
+	
 	public class InternalPropertyBinding : IPropertyBinding
 	{
 		BindingManager _bindingManager;

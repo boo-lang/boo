@@ -105,60 +105,6 @@
     <File name=".\Lang\Ast\WhenClauseCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\WhileStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\YieldStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\AssemblyCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Compiler.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\CompilerContext.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\CompilerInputCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\CompilerOutputType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\CompilerParameters.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\CompilerPipeline.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Error.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\ErrorCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\ICompilerInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\ICompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\AbstractInternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\AmbiguousBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\AssemblyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\BindingManager.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\ErrorBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\ExternalEventBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\ExternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\ExternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\ExternalPropertyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\ExternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\IBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\INameSpace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\InternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\InternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\InternalPropertyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\InternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\LocalBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\ModuleNamespace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\NamespaceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\NamespaceBindingCache.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\ParameterBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\TypeReferenceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Bindings\UnresolvedBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\IO\FileInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\IO\ReaderInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\IO\StringInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\PEVerifyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\RunAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\SaveAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\SemanticStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\UsingResolutionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Pipeline\XmlStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Compiler\Util\TaskList.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\AsExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\AssertStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\AttributeCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -241,6 +187,60 @@
     <File name=".\Lang\Ast\Visitors\PseudoCSharpPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Visitors\TextEmitter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Visitors\TreePrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\AssemblyCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Compiler.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerContext.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerInputCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerOutputType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerParameters.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\CompilerPipeline.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Error.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\ErrorCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\ICompilerInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\ICompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\AbstractInternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\AmbiguousBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\AssemblyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\BindingManager.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\ErrorBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\ExternalEventBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\ExternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\ExternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\ExternalPropertyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\ExternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\IBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\INameSpace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\InternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\InternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\InternalPropertyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\InternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\LocalBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\ModuleNamespace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\NamespaceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\NamespaceBindingCache.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\ParameterBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\TypeReferenceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Bindings\UnresolvedBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\IO\FileInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\IO\ReaderInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\IO\StringInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\PEVerifyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\RunAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\SaveAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\SemanticStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\UsingResolutionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\XmlStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Util\TaskList.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />

@@ -29,9 +29,9 @@
 
 using System;
 using System.Diagnostics;
-using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Compiler;
 
-namespace Boo.Lang.Ast.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Pipeline
 {
 	public class PEVerifyStep : AbstractCompilerStep
 	{
@@ -60,7 +60,7 @@ namespace Boo.Lang.Ast.Compiler.Pipeline
 			
 			if (0 != p.ExitCode)
 			{
-				Errors.Add(new Error(LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
+				Errors.Add(new Error(Boo.Lang.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
 			}
 		}
 	}

@@ -30,8 +30,9 @@
 using System;
 using System.Text;
 using Boo.Lang;
+using Boo.Lang.Ast;
 
-namespace Boo.Lang.Ast.Compiler
+namespace Boo.Lang.Compiler
 {
 	/// <summary>
 	/// Compiler errors.
@@ -209,13 +210,13 @@ namespace Boo.Lang.Ast.Compiler
 			Add(new Error(node, Format("MethodSignature", actualSignature, expectedSignature)));
 		}
 
-		public void AttributeResolution(Attribute attribute, Type type, Exception cause)
+		public void AttributeResolution(Boo.Lang.Ast.Attribute attribute, Type type, Exception cause)
 		{
 			string msg = Format("AttributeResolution", type, cause.Message);
 			Add(new Error(attribute, msg, cause));
 		}
 		
-		public void AstAttributeMustBeExternal(Attribute attribute, Bindings.ITypeBinding resolvedType)
+		public void AstAttributeMustBeExternal(Boo.Lang.Ast.Attribute attribute, Bindings.ITypeBinding resolvedType)
 		{
 			Add(new Error(attribute, Format("AstAttributeMustBeExternal", resolvedType.FullName)));
 		}

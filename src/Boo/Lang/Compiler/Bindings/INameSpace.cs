@@ -32,7 +32,7 @@ using System.Collections;
 using Boo.Lang.Ast;
 using BindingFlags = System.Reflection.BindingFlags;
 
-namespace Boo.Lang.Ast.Compiler.Bindings
+namespace Boo.Lang.Compiler.Bindings
 {	
 	public interface INamespace
 	{				

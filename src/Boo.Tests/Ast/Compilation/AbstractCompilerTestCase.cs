@@ -4,14 +4,14 @@ namespace Boo.Tests.Ast.Compiler
 	using System.Diagnostics;
 	using System.IO;
 	using Boo.Lang.Ast;
-	using Boo.Lang.Ast.Compiler;
-	using Boo.Lang.Ast.Compiler.IO;
-	using Boo.Lang.Ast.Compiler.Pipeline;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.IO;
+	using Boo.Lang.Compiler.Pipeline;
 	using NUnit.Framework;
 	
 	public abstract class AbstractCompilerTestCase
 	{
-		protected Compiler _compiler;
+		protected BooCompiler _compiler;
 		
 		protected CompilerParameters _parameters;
 		
@@ -22,14 +22,14 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			 Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Error));
 
-			string booAssemblyPath = typeof(Compiler).Assembly.Location;
+			string booAssemblyPath = typeof(BooCompiler).Assembly.Location;
 			string thisAssemblyPath = GetType().Assembly.Location;
 			File.Copy(booAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(booAssemblyPath)), true);
 			File.Copy(thisAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(thisAssemblyPath)), true);
 			
 			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, "compilation");
 			
-			_compiler = new Compiler();
+			_compiler = new BooCompiler();
 			_parameters = _compiler.Parameters;
 			//_parameters.TraceSwitch.Level = TraceLevel.Verbose;
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");

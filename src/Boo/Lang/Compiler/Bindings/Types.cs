@@ -29,7 +29,7 @@
 
 using System;
 
-namespace Boo.Lang.Ast.Compiler.Bindings
+namespace Boo.Lang.Compiler.Bindings
 {
 	public class Types
 	{

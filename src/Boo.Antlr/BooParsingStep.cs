@@ -29,7 +29,7 @@
 
 using System;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Compiler;
 
 namespace Boo.Antlr
 {

@@ -29,7 +29,7 @@
 
 using System;
 
-namespace Boo.Lang.Ast.Compiler.IO
+namespace Boo.Lang.Compiler.IO
 {
 	/// <summary>
 	/// String based compiler input.

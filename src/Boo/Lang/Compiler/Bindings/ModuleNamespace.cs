@@ -28,8 +28,9 @@
 #endregion
 
 using System;
+using Boo.Lang.Ast;
 
-namespace Boo.Lang.Ast.Compiler.Bindings
+namespace Boo.Lang.Compiler.Bindings
 {
 	public class ModuleNamespace : INamespace
 	{

@@ -31,8 +31,8 @@ using System;
 using NUnit.Framework;
 using Boo.Tests;
 using Boo.Antlr;
-using Boo.Lang.Ast.Compiler;
-using Boo.Lang.Ast.Compiler.Pipeline;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Pipeline;
 
 namespace Boo.Tests.Ast.Compiler.Processors
 {

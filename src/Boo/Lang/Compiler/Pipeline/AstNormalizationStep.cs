@@ -30,9 +30,9 @@
 using System;
 using System.Collections;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Compiler;
 
-namespace Boo.Lang.Ast.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Pipeline
 {
 	public class AstNormalizationStep : AbstractTransformerCompilerStep
 	{

@@ -1,4 +1,4 @@
-namespace Boo.Lang.Ast.Compiler.Bindings
+namespace Boo.Lang.Compiler.Bindings
 {
 	using System;
 	using Boo.Lang.Ast;

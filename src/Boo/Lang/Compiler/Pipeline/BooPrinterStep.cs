@@ -28,9 +28,9 @@
 #endregion
 
 using System;
-using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Compiler;
 
-namespace Boo.Lang.Ast.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Pipeline
 {
 	/// <summary>	
 	/// </summary>

@@ -27,7 +27,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Ast.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Pipeline
 {
 	public class RunAssemblyStep : AbstractCompilerStep
 	{

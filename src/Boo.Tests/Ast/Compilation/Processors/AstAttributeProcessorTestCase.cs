@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -32,9 +32,9 @@ using System.IO;
 using Boo.Lang;
 using Boo.Lang.Ast;
 using Boo.Antlr;
-using Boo.Lang.Ast.Compiler;
-using Boo.Lang.Ast.Compiler.IO;
-using Boo.Lang.Ast.Compiler.Pipeline;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.IO;
+using Boo.Lang.Compiler.Pipeline;
 using NUnit.Framework;
 using Boo.Tests;
 
@@ -250,7 +250,7 @@ class MyControl(Control):
 
 		CompileUnit RunCompiler(ICompilerInput input)
 		{
-			Compiler compiler = new Compiler();
+			BooCompiler compiler = new BooCompiler();
 			CompilerParameters options = compiler.Parameters;
 			options.Input.Add(input);
 			options.Pipeline.Add(new BooParsingStep());

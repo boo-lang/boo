@@ -33,10 +33,10 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
-using Boo.Lang.Ast.Compiler.Bindings;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Bindings;
 
-namespace Boo.Lang.Ast.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Pipeline
 {
 	public class EmitAssemblyStep : AbstractSwitcherCompilerStep
 	{		

@@ -27,7 +27,9 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Ast.Compiler.Bindings
+using Boo.Lang.Ast;
+
+namespace Boo.Lang.Compiler.Bindings
 {
 	public class ParameterBinding : ITypedBinding
 	{

@@ -29,7 +29,7 @@
 
 using System.Reflection.Emit;
 
-namespace Boo.Lang.Ast.Compiler
+namespace Boo.Lang.Compiler
 {
 	public enum CompilerOutputType
 	{

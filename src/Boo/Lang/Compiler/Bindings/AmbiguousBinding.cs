@@ -30,7 +30,7 @@
 using System;
 using System.Collections;
 
-namespace Boo.Lang.Ast.Compiler.Bindings
+namespace Boo.Lang.Compiler.Bindings
 {
 	public delegate bool BindingFilter(IBinding binding);
 	

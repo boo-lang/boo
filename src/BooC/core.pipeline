@@ -2,9 +2,9 @@
 <pipeline>
 
 	<step type='Boo.Antlr.BooParsingStep, Boo.Antlr' />
-	<step type='Boo.Lang.Ast.Compilation.Pipeline.UsingResolutionStep, Boo' />
-	<step type='Boo.Lang.Ast.Compilation.Pipeline.AstAttributesStep, Boo' />
-	<step type='Boo.Lang.Ast.Compilation.Pipeline.AstNormalizationStep, Boo' />
-	<step type='Boo.Lang.Ast.Compilation.Pipeline.SemanticStep, Boo' />
+	<step type='Boo.Lang.Compiler.Pipeline.UsingResolutionStep, Boo' />
+	<step type='Boo.Lang.Compiler.Pipeline.AstAttributesStep, Boo' />
+	<step type='Boo.Lang.Compiler.Pipeline.AstNormalizationStep, Boo' />
+	<step type='Boo.Lang.Compiler.Pipeline.SemanticStep, Boo' />
 
 </pipeline>

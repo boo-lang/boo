@@ -33,7 +33,7 @@ using Boo.Lang;
 using Boo.Lang.Ast;
 using Assembly = System.Reflection.Assembly;
 
-namespace Boo.Lang.Ast.Compiler
+namespace Boo.Lang.Compiler
 {
 	/// <summary>
 	/// Contexto de compilao boo.

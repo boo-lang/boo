@@ -34,8 +34,8 @@ using System.Globalization;
 using System.Threading;
 using System.Xml;
 using Assembly = System.Reflection.Assembly;
-using Boo.Lang.Ast.Compiler;
-using Boo.Lang.Ast.Compiler.IO;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.IO;
 
 namespace BooC
 {
@@ -56,7 +56,7 @@ namespace BooC
 			{
 				DateTime start = DateTime.Now;
 				
-				Compiler compiler = new Compiler();
+				BooCompiler compiler = new BooCompiler();
 				CompilerParameters options = compiler.Parameters;
 				ParseOptions(args, options);
 				if (0 == options.Input.Count)

@@ -31,7 +31,7 @@ using System;
 using System.Reflection;
 using System.Collections;
 
-namespace Boo.Lang.Ast.Compiler.Bindings
+namespace Boo.Lang.Compiler.Bindings
 {
 	public class NamespaceBinding : IBinding, INamespace
 	{		

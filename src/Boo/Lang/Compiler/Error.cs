@@ -31,7 +31,7 @@ using System;
 using System.Text;
 using Boo.Lang.Ast;
 
-namespace Boo.Lang.Ast.Compiler
+namespace Boo.Lang.Compiler
 {
 	/// <summary>
 	/// Representa um erro de compilao.

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -30,18 +30,18 @@
 using System;
 using System.IO;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Compiler;
 
-namespace Boo.Lang.Ast.Compiler
+namespace Boo.Lang.Compiler
 {
 	/// <summary>
 	/// The compiler: a façade to the CompilerParameters/CompilerContext/Pipeline subsystem.
 	/// </summary>
-	public class Compiler
+	public class BooCompiler
 	{
 		CompilerParameters _parameters;
 
-		public Compiler()
+		public BooCompiler()
 		{
 			_parameters = new CompilerParameters();
 		}

@@ -31,7 +31,7 @@ using System;
 using System.Collections;
 using Assembly = System.Reflection.Assembly;
 
-namespace Boo.Lang.Ast.Compiler
+namespace Boo.Lang.Compiler
 {
 	/// <summary>
 	/// Referenced assemblies collection.

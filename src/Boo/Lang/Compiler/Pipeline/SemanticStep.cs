@@ -33,11 +33,11 @@ using System.Collections;
 using System.Reflection;
 using Boo;
 using Boo.Lang.Ast;
-using Boo.Lang.Ast.Compiler;
-using Boo.Lang.Ast.Compiler.Bindings;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Bindings;
 using List=Boo.Lang.List;
 
-namespace Boo.Lang.Ast.Compiler.Pipeline
+namespace Boo.Lang.Compiler.Pipeline
 {		
 	class SemanticMethodInfo
 	{

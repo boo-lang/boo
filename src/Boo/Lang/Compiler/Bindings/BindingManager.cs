@@ -31,7 +31,7 @@ using System;
 using System.Reflection;
 using Boo.Lang.Ast;
 
-namespace Boo.Lang.Ast.Compiler.Bindings
+namespace Boo.Lang.Compiler.Bindings
 {
 	public class BindingManager
 	{		
