@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Compiler errors.
 	/// </summary>
+	[EnumeratorItemType(typeof(CompilerError))]
 	public class CompilerErrorCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
 	{
 		public CompilerErrorCollection()

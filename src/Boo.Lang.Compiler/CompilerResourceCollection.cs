@@ -34,6 +34,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// A collection of <see cref="CompilerResource"/> objects.
 	/// </summary>
+	[EnumeratorItemType(typeof(ICompilerResource))]
 	public class CompilerResourceCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
 	{
 		public ICompilerResource this[int index]

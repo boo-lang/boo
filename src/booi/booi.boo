@@ -85,7 +85,7 @@ def main(argv as (string)):
 	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
 	result = compiler.Run()
 	if len(result.Errors):
-		for error as CompilerError in result.Errors:
+		for error in result.Errors:
 			print(error.ToString(true))
 		return -1
 	else:	

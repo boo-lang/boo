@@ -349,7 +349,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
+	[Serializable]	
 	public class ${node.Name} : Boo.Lang.Compiler.Ast.Impl.${node.Name}Impl
 	{
 		public ${node.Name}()
@@ -403,6 +403,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
+	[Boo.Lang.EnumeratorItemType(typeof(${itemType}))]
 	public class ${node.Name}Impl : NodeCollection
 	{
 		protected ${node.Name}Impl()
