@@ -166,6 +166,11 @@ namespace Boo.Ast.Compilation.Binding
 					return new ExternalPropertyBinding(this, (System.Reflection.PropertyInfo)mi);
 				}
 				
+				case MemberTypes.Event:
+				{
+					return new ExternalEventBinding(this, (System.Reflection.EventInfo)mi);
+				}
+				
 				default:
 				{
 					throw new NotImplementedException(mi.ToString());

@@ -30,6 +30,11 @@ namespace Boo.Ast.Compilation
 			InnerList.Add(error);
 		}		
 		
+		public void NotImplemented(Node node, string message)
+		{
+			throw new Error(node, Format("NotImplemented", message));
+		}
+		
 		public void NamedParametersNotAllowed(Node node)
 		{
 			Add(new Error(node, GetString("NamedParametersNotAllowed")));

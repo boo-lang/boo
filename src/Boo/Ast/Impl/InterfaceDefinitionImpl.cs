@@ -25,5 +25,11 @@ namespace Boo.Ast.Impl
 				return NodeType.InterfaceDefinition;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			InterfaceDefinition resultingTypedNode;
+			transformer.OnInterfaceDefinition((InterfaceDefinition)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

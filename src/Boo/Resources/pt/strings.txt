@@ -24,6 +24,7 @@ BoolExpressionRequired={0} não pode ser utilizado em um contexto booleano.
 AmbiguousTypeReference=Referência de tipo ambígua: {0}.
 NoEntryPoint=O módulo {0} não possui um ponto de entrada.
 NodeNotInCollection=O nó {0} não está na coleção.
+NotImplemented=Característica ainda não implementada: {0}.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

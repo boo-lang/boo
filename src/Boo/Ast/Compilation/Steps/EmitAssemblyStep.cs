@@ -9,7 +9,7 @@ using Boo.Ast.Compilation.Binding;
 
 namespace Boo.Ast.Compilation.Steps
 {
-	public class EmitAssemblyStep : AbstractCompilerStep
+	public class EmitAssemblyStep : AbstractSwitcherCompilerStep
 	{		
 		public static MethodInfo GetEntryPoint(CompileUnit cu)
 		{
@@ -164,7 +164,8 @@ namespace Boo.Ast.Compilation.Steps
 						
 					default:
 					{
-						throw new NotImplementedException();
+						Errors.NotImplemented(node, binding.ToString());
+						break;
 					}
 				}				
 			}
@@ -182,7 +183,7 @@ namespace Boo.Ast.Compilation.Steps
 				}
 				else
 				{
-					throw new NotImplementedException();
+					Errors.NotImplemented(node, binding.ToString());
 				}
 			}
 		}
@@ -242,14 +243,15 @@ namespace Boo.Ast.Compilation.Steps
 						// value
 						pair.Second.Switch(this);
 						// field/property reference						
-						SetFieldOrProperty(BindingManager.GetBinding(pair.First));
+						SetFieldOrProperty(node, BindingManager.GetBinding(pair.First));
 					}
 					break;
 				}
 				
 				default:
 				{
-					throw new NotImplementedException(binding.ToString());
+					Errors.NotImplemented(node, binding.ToString());
+					break;
 				}
 			}
 		}
@@ -331,9 +333,32 @@ namespace Boo.Ast.Compilation.Steps
 					break;
 				}
 				
+				case BindingType.Field:
+				{
+					IFieldBinding fieldBinding = (IFieldBinding)binding;
+					FieldInfo fieldInfo = fieldBinding.FieldInfo;
+					if (fieldBinding.IsStatic)
+					{
+						if (fieldInfo.DeclaringType.IsEnum)
+						{
+							_il.Emit(OpCodes.Ldc_I4, (int)fieldBinding.FieldInfo.GetValue(null));
+						}
+						else
+						{
+							_il.Emit(OpCodes.Ldsfld, fieldInfo);
+						}
+					}
+					else
+					{						
+						Errors.NotImplemented(node, binding.ToString());
+					}
+					break;
+				}
+				
 				default:
 				{
-					throw new NotImplementedException(binding.ToString());
+					Errors.NotImplemented(node, binding.ToString());
+					break;
 				}
 			}
 		}
@@ -361,13 +386,14 @@ namespace Boo.Ast.Compilation.Steps
 				
 				default:
 				{
-					throw new NotImplementedException(info.ToString());
+					Errors.NotImplemented(node, info.ToString());
+					break;
 				}
 				
 			}			
 		}
 		
-		void SetFieldOrProperty(IBinding binding)
+		void SetFieldOrProperty(Node sourceNode, IBinding binding)
 		{
 			switch (binding.BindingType)
 			{
@@ -381,7 +407,8 @@ namespace Boo.Ast.Compilation.Steps
 					
 				case BindingType.Field:
 				{
-					throw new NotImplementedException();					
+					Errors.NotImplemented(sourceNode, binding.ToString());
+					break;					
 				}
 				
 				default:

@@ -2,7 +2,7 @@ using System;
 
 namespace Boo.Ast
 {
-	public interface IAstSwitcher : Boo.Util.ISwitcher
+	public interface IAstSwitcher
 	{
 		void OnCompileUnit(CompileUnit node);
 		void OnTypeReference(TypeReference node);

@@ -10,7 +10,7 @@ namespace Boo.Ast
 	/// detalhes lxicos.
 	/// </summary>
 	[Serializable]
-	public abstract class Node : Boo.Util.ISwitchable
+	public abstract class Node
 	{
 		protected LexicalInfo _lexicalData;
 
@@ -133,12 +133,9 @@ namespace Boo.Ast
 			return ResourceManager.GetString(name);
 		}
 
-		public virtual void Switch(Boo.Util.ISwitcher switcher)
-		{
-			Switch((IAstSwitcher)switcher);
-		}
-
 		public abstract void Switch(IAstSwitcher switcher);
+		
+		public abstract void Switch(IAstTransformer transformer, out Node resultingNode);
 	}
 
 }

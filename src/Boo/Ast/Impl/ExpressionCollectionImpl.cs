@@ -57,7 +57,7 @@ namespace Boo.Ast.Impl
 			base.Replace(existing, newItem);
 		}
 		
-		public Expression[] ToArray()
+		public new Expression[] ToArray()
 		{
 			return (Expression[])InnerList.ToArray(typeof(Expression));
 		}

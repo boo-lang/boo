@@ -25,5 +25,11 @@ namespace Boo.Ast.Impl
 				return NodeType.ContinueStatement;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Statement resultingTypedNode;
+			transformer.OnContinueStatement((ContinueStatement)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

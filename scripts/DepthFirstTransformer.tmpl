@@ -1,0 +1,95 @@
+#import csharp as cs
+#def getTargetFileName(): src/Boo/Ast/DepthFirstTransformer.cs
+using System;
+
+namespace Boo.Ast
+{
+	public class DepthFirstTransformer : IAstTransformer
+	{
+		public bool Switch(Node node, out Node resultingNode)
+		{
+			resultingNode = node;
+			if (null != node)
+			{			
+				node.Switch(this, out resultingNode);
+				return true;
+			}
+			return false;
+		}
+		
+		public bool Switch(NodeCollection collection)
+		{
+			if (null != collection)
+			{
+				int removed = 0;
+				
+				Node[] nodes = collection.ToArray();
+				for (int i=0; i<nodes.Length; ++i)
+				{
+					Node resultingNode;
+					Node currentNode = nodes[i];
+					currentNode.Switch(this, out resultingNode);
+					if (currentNode != resultingNode)
+					{
+						int actualIndex = i-removed;
+						if (null == resultingNode)
+						{
+							collection.RemoveAt(actualIndex);
+						}
+						else
+						{
+							collection.ReplaceAt(actualIndex, resultingNode);
+						}
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		#for item in $model
+			#unless $item.stereotype in ("collection", "enum") or "abstract" in $item.attributes
+				#set switchableFields = list(cs.getSwitchableFields(cs.getAllFields($item)))
+				#set resultNodeType = $cs.getResultTransformerNode($item)
+		public virtual void On${item.name}(${item.name} node, out $resultNodeType resultingNode)
+		{				
+			$resultNodeType result = node;
+			
+				#if switchableFields
+			if (Enter${item.name}(node, ref result))
+			{		
+					#for field in switchableFields
+						#if cs.isCollectionField($field)
+				Switch(node.${field.name});
+						#else
+				${field.type} current${field.name}Value = node.${field.name};
+				Node resulting${field.name}Value;
+				Switch(current${field.name}Value, out resulting${field.name}Value);
+				if (current${field.name}Value != resulting${field.name}Value)
+				{
+					node.${field.name} = (${field.type})resulting${field.name}Value;
+				}
+						#end if
+					#end for
+			}
+			Leave${item.name}(node, ref result);
+				#end if
+				
+			resultingNode = result;
+		}
+		
+				#if switchableFields
+		public virtual bool Enter${item.name}(${item.name} node, ref $resultNodeType resultingNode)
+		{
+			return true;
+		}
+		
+		public virtual void Leave${item.name}(${item.name} node, ref $resultNodeType resultingNode)
+		{
+		}
+		
+				#end if
+			#end unless
+		#end for
+	}
+}

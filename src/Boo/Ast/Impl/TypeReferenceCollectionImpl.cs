@@ -57,7 +57,7 @@ namespace Boo.Ast.Impl
 			base.Replace(existing, newItem);
 		}
 		
-		public TypeReference[] ToArray()
+		public new TypeReference[] ToArray()
 		{
 			return (TypeReference[])InnerList.ToArray(typeof(TypeReference));
 		}

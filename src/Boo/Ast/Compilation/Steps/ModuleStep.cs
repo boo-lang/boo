@@ -19,26 +19,24 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void Run()
 		{			
-			CompileUnit.Modules.Switch(this);
-		}	
-		
-		public override void OnModule(Module module)
-		{
-			foreach (TypeMember member in module.Members)
+			foreach (Module module in CompileUnit.Modules)
 			{
-				member.Modifiers |= TypeMemberModifiers.Static;
-			}		
-			
-			if (module.Globals.Statements.Count > 0)
-			{
-				Method method = new Method();
-				method.ReturnType = new TypeReference("void");
-				method.Body = module.Globals;
-				method.Name = MainMethodName;
-				method.Modifiers = TypeMemberModifiers.Static;
-				module.Members.Add(method);				
-			
-				module.Globals = new Block();
+				foreach (TypeMember member in module.Members)
+				{
+					member.Modifiers |= TypeMemberModifiers.Static;
+				}		
+				
+				if (module.Globals.Statements.Count > 0)
+				{
+					Method method = new Method();
+					method.ReturnType = new TypeReference("void");
+					method.Body = module.Globals;
+					method.Name = MainMethodName;
+					method.Modifiers = TypeMemberModifiers.Static;
+					module.Members.Add(method);				
+				
+					module.Globals = new Block();
+				}
 			}
 		}
 	}

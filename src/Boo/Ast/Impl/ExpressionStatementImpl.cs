@@ -55,5 +55,11 @@ namespace Boo.Ast.Impl
 				LexicalInfo = value.LexicalInfo;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Statement resultingTypedNode;
+			transformer.OnExpressionStatement((ExpressionStatement)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

@@ -4,11 +4,13 @@ using System.Collections;
 namespace Boo.Ast
 {
 	/// <summary>
-	/// Classe base para colees de ns.
+	/// Node collection base class.
 	/// </summary>
-	public class NodeCollection : CollectionBase, Boo.Util.ISwitchable
+	public class NodeCollection : ICollection
 	{
 		protected Node _parent;
+		
+		protected ArrayList _innerList = new ArrayList();
 
 		protected NodeCollection(Node parent)
 		{			
@@ -19,6 +21,58 @@ namespace Boo.Ast
 		{
 		}
 
+		public int Count
+		{
+			get
+			{
+				return _innerList.Count;
+			}
+		}
+		
+		public bool IsSynchronized
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
+		public object SyncRoot
+		{
+			get
+			{
+				return this;
+			}
+		}
+		
+		public void CopyTo(Array array, int index)
+		{
+			_innerList.CopyTo(array, index);
+		}
+		
+		public IEnumerator GetEnumerator()
+		{
+			return _innerList.GetEnumerator();
+		}
+		
+		public void Clear()
+		{			
+			_innerList.Clear();
+		}
+		
+		public Node[] ToArray()
+		{
+			return (Node[])_innerList.ToArray(typeof(Node));
+		}
+		
+		protected ArrayList InnerList
+		{
+			get
+			{
+				return _innerList;
+			}
+		}
+
 		internal void InitializeParent(Node parent)
 		{
 			_parent = parent;
@@ -26,6 +80,21 @@ namespace Boo.Ast
 			{
 				node.InitializeParent(_parent);
 			}
+		}
+		
+		public void RemoveAt(int index)
+		{
+			//Node existing = (Node)InnerList[index];
+			//existing.InitializeParent(null);
+			InnerList.RemoveAt(index);
+		}
+		
+		internal void ReplaceAt(int i, Node newItem)
+		{
+			//Node existing = (Node)InnerList[i];
+			//existing.InitializeParent(null);
+			_innerList[i] = newItem;
+			Initialize(newItem);			
 		}
 
 		protected void Add(Node item)
@@ -47,13 +116,11 @@ namespace Boo.Ast
 		{
 			Assert.AssertNotNull("existing", existing);
 			Assert.AssertNotNull("newItem", newItem);
-			for (int i=0; i<InnerList.Count; ++i)
+			for (int i=0; i<_innerList.Count; ++i)
 			{
-				if (InnerList[i] == existing)
+				if (_innerList[i] == existing)
 				{
-					InnerList[i] = newItem;
-					Initialize(newItem);
-					existing.InitializeParent(null);
+					ReplaceAt(i, newItem);
 					return;
 				}
 			}			
@@ -69,11 +136,6 @@ namespace Boo.Ast
 		public void Remove(Node item)
 		{
 			InnerList.Remove(item);
-		}
-
-		public void Switch(Boo.Util.ISwitcher switcher)
-		{
-			Switch((IAstSwitcher)switcher);
 		}
 
 		public void Switch(IAstSwitcher switcher)

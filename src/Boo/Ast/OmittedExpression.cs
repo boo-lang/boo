@@ -28,6 +28,12 @@ namespace Boo.Ast
 		{
 			switcher.OnOmittedExpression(this);
 		}
-
+		
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Expression result;
+			transformer.OnOmittedExpression(this, out result);
+			resultingNode = result;
+		}
 	}	
 }

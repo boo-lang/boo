@@ -57,7 +57,7 @@ namespace Boo.Ast.Impl
 			base.Replace(existing, newItem);
 		}
 		
-		public ExceptionHandler[] ToArray()
+		public new ExceptionHandler[] ToArray()
 		{
 			return (ExceptionHandler[])InnerList.ToArray(typeof(ExceptionHandler));
 		}

@@ -9,7 +9,7 @@ using System.IO // Directory
 using Boo.IO // TextFile
 
 def ScanFile(fname as string, pattern as string):	
-	for index as int, line as string in enumerate(TextFile(fname)):
+	for index, line as string in enumerate(TextFile(fname)):
 		print("${fname}(${index}): ${line.Trim()}") if line =~ pattern
 		
 def ScanDirectory(path as string, glob as string, pattern as string):

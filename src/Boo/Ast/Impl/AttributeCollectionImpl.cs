@@ -57,7 +57,7 @@ namespace Boo.Ast.Impl
 			base.Replace(existing, newItem);
 		}
 		
-		public Attribute[] ToArray()
+		public new Attribute[] ToArray()
 		{
 			return (Attribute[])InnerList.ToArray(typeof(Attribute));
 		}

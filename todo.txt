@@ -64,13 +64,24 @@ done * using namespace as
 
 Milestone 3.5
 -------------
+done * IAstTransformer: uma maneira mais integrada de alterar os nós da AST em uma visita
+DepthFirst, a interface é parecida com IAstSwitcher com a diferença de que cada método,
+tem um valor de entrada e DE SAÍDA que é o novo nó a ser colocado no lugar do nó visitado:
+	void OnModule(Module module, ref Module newModule);
+	void OnIfStatement(IfStatement statement, ref Statement newStatement)
+	void OnBinaryExpression(BinaryExpression expression, ref Expression newExpression)
+* matar Boo.Util.ISwitch/ISwitcher, eles não agregam valor algum no momento
+* AstAttribute vira IAstAttribute que implementa ICompilerStep
+done * quebrar AbstractCompilerStep em AbstractAstSwitcherStep extends AbstractCompilerStep
+done * criar AbstractAstTransformerStep extends AbstractCompilerStep
+* Criar AbstractAstAttribute extends AbstractCompilerStep
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar (para utilizar a resolução padrão de membros, etc)
 
 Milestone 3.6 (revisão)
 -----------------------
 * expressões simples com inteiros
-* boxing (print e StringFormatting)
+done * boxing (print e StringFormatting)
 * compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator
 e declarar os tipos de acordo
 * criar ModuleBinding e unificar com ModuleNamespace;

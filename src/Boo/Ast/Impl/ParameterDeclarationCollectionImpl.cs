@@ -57,7 +57,7 @@ namespace Boo.Ast.Impl
 			base.Replace(existing, newItem);
 		}
 		
-		public ParameterDeclaration[] ToArray()
+		public new ParameterDeclaration[] ToArray()
 		{
 			return (ParameterDeclaration[])InnerList.ToArray(typeof(ParameterDeclaration));
 		}

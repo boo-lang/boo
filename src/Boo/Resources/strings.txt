@@ -13,7 +13,7 @@ InvalidAssemblySetup=AssemblyBuilder wasn't correctly set up.
 BindingManager.UnboundNode=Node {0} at {1} is not bound.
 MethodArgumentCount=No overload of the method {0} takes {1} parameter(s).
 MethodSignature=The best overload for the method '{1}' is not compatible with the argument list '{0}'.
-NameNotType=The name {0} does not denote a type.
+NameNotType=The name {0} does not denote a valid type.
 MemberNotFound='{0}' is not a member of '{1}'.
 MemberNeedsInstance='{0}' can't be used without an instance.
 InvalidNamespace=Namespace {0} not found, maybe you forgot to add an assembly reference?
@@ -24,6 +24,7 @@ BoolExpressionRequired={0} cannot be used in bool context.
 AmbiguousTypeReference=Ambiguous type reference, it could be any of the following: {0}.
 NoEntryPoint=The module {0} does not have an entry point.
 NodeNotInCollection=The node {0} is not in the collection.
+NotImplemented=Language feature still not implemented: {0}.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

@@ -25,5 +25,11 @@ namespace Boo.Ast.Impl
 				return NodeType.EnumDefinition;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			EnumDefinition resultingTypedNode;
+			transformer.OnEnumDefinition((EnumDefinition)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

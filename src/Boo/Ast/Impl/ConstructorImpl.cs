@@ -25,5 +25,11 @@ namespace Boo.Ast.Impl
 				return NodeType.Constructor;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Constructor resultingTypedNode;
+			transformer.OnConstructor((Constructor)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

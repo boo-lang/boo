@@ -4,11 +4,21 @@ namespace Boo.Ast
 {
 	public class DepthFirstSwitcher : IAstSwitcher
 	{
-		public bool Switch(Boo.Util.ISwitchable switchable)
+		public bool Switch(Node node)
 		{
-			if (null != switchable)
+			if (null != node)
 			{			
-				switchable.Switch(this);
+				node.Switch(this);
+				return true;
+			}
+			return false;
+		}
+		
+		public bool Switch(NodeCollection collection)
+		{
+			if (null != collection)
+			{
+				collection.Switch(this);
 				return true;
 			}
 			return false;

@@ -115,5 +115,11 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Statement resultingTypedNode;
+			transformer.OnTryStatement((TryStatement)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

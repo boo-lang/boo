@@ -6,7 +6,7 @@ using Boo.Ast.Compilation.Binding;
 
 namespace Boo.Ast.Compilation.Steps
 {
-	public abstract class AbstractNamespaceSensitiveCompilerStep : AbstractCompilerStep
+	public abstract class AbstractNamespaceSensitiveCompilerStep : AbstractSwitcherCompilerStep
 	{
 		static readonly char[] DotArray = new char[] { '.' };
 		
@@ -53,7 +53,7 @@ namespace Boo.Ast.Compilation.Steps
 		{			
 			string[] parts = name.Split(DotArray);
 			string topLevel = parts[0];
-			IBinding binding = Resolve(name);
+			IBinding binding = Resolve(topLevel);
 			for (int i=1; i<parts.Length; ++i)				
 			{				
 				INameSpace ns = binding as INameSpace;
@@ -62,7 +62,7 @@ namespace Boo.Ast.Compilation.Steps
 					binding = null;
 					break;
 				}
-				binding = ns.Resolve(name);
+				binding = ns.Resolve(parts[i]);
 			}
 			return binding;
 		}

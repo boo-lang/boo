@@ -25,5 +25,11 @@ namespace Boo.Ast.Impl
 				return NodeType.BreakStatement;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Statement resultingTypedNode;
+			transformer.OnBreakStatement((BreakStatement)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

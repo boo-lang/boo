@@ -25,5 +25,11 @@ namespace Boo.Ast.Impl
 				return NodeType.SelfLiteralExpression;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Expression resultingTypedNode;
+			transformer.OnSelfLiteralExpression((SelfLiteralExpression)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

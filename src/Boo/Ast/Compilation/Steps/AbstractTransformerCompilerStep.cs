@@ -7,11 +7,11 @@ using Boo.Ast.Compilation.Binding;
 
 namespace Boo.Ast.Compilation.Steps
 {
-	public abstract class AbstractCompilerStep : ICompilerStep
+	public abstract class AbstractTransformerCompilerStep : Boo.Ast.DepthFirstTransformer, ICompilerStep
 	{
 		protected CompilerContext _context;
 		
-		protected AbstractCompilerStep()
+		protected AbstractTransformerCompilerStep()
 		{			
 		}
 		

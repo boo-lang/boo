@@ -121,5 +121,13 @@ $initializer() #slurp
 		}
 			#end if
 		#end for		
+		#unless "abstract" in $item.attributes 
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			$cs.getResultTransformerNode($item) resultingTypedNode;
+			transformer.On${item.name}((${item.name})this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
+		#end unless
 	}
 }

@@ -3,7 +3,7 @@ using System;
 
 namespace Boo.Ast
 {
-	public interface IAstSwitcher : Boo.Util.ISwitcher
+	public interface IAstSwitcher
 	{
 		#for item in $model
 			#unless $item.stereotype in ("collection", "enum") or "abstract" in $item.attributes 

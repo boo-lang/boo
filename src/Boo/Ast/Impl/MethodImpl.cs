@@ -131,5 +131,11 @@ namespace Boo.Ast.Impl
 				return _locals;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Method resultingTypedNode;
+			transformer.OnMethod((Method)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }

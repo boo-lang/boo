@@ -57,7 +57,7 @@ namespace Boo.Ast.Impl
 			base.Replace(existing, newItem);
 		}
 		
-		public WhenClause[] ToArray()
+		public new WhenClause[] ToArray()
 		{
 			return (WhenClause[])InnerList.ToArray(typeof(WhenClause));
 		}

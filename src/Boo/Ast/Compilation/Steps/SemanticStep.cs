@@ -71,16 +71,14 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnTypeReference(TypeReference node)
 		{
 			IBinding info = ResolveQualifiedName(node.Name);
-			if (null != info)
+			if (null == info || BindingType.TypeReference != info.BindingType)
 			{
-				if (BindingType.TypeReference != info.BindingType)
-				{
-					Errors.NameNotType(node, node.Name);
-				}
-				else
-				{
-					BindingManager.Bind(node, info);
-				}
+				Errors.NameNotType(node, node.Name);
+				BindingManager.Error(node);
+			}
+			else
+			{
+				BindingManager.Bind(node, info);
 			}
 		}
 		
@@ -322,7 +320,8 @@ namespace Boo.Ast.Compilation.Steps
 				
 				default:
 				{
-					throw new NotImplementedException(node.ToString());
+					Errors.NotImplemented(node, targetBinding.ToString());
+					break;
 				}
 			}
 		}	

@@ -25,5 +25,11 @@ namespace Boo.Ast.Impl
 				return NodeType.RetryStatement;
 			}
 		}
+		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Statement resultingTypedNode;
+			transformer.OnRetryStatement((RetryStatement)this, out resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}
 	}
 }
