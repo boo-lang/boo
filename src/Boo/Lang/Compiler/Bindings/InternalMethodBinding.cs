@@ -43,19 +43,27 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		bool _visited = false;
 		
-		public ArrayList ReturnStatements = new ArrayList();
+		public ArrayList ReturnStatements;
 		
 		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Ast.Method method)
 		{
 			_bindingManager = manager;
 			_method = method;
+			if (method.NodeType != NodeType.Constructor)
+			{
+				 ReturnStatements = new ArrayList();
+				if (null == method.ReturnType)
+				{
+					method.ReturnType = manager.CreateBoundTypeReference(UnknownBinding.Default);
+				}
+			}
 		}
 		
 		public ITypeBinding DeclaringType
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding((TypeDefinition)_method.ParentNode);
+				return (ITypeBinding)BindingManager.GetBinding(_method.DeclaringType);
 			}
 		}
 		
@@ -95,7 +103,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return null == _method.ReturnType ? UnknownBinding.Default : ReturnType;
+				return ReturnType;
 			}
 		}
 		

@@ -100,9 +100,7 @@ namespace Boo.Lang.Compiler.Pipeline
 
 		protected TypeReference CreateBoundTypeReference(ITypeBinding binding)
 		{
-			TypeReference typeReference = new TypeReference(binding.FullName);
-			BindingManager.Bind(typeReference, BindingManager.ToTypeReference(binding));
-			return typeReference;
+			return BindingManager.CreateBoundTypeReference(binding);
 		}				
 		
 		public virtual void Initialize(CompilerContext context)

@@ -82,7 +82,7 @@ namespace Boo.Tests.Ast.Compiler
 		
 		protected void RunCompilerTestCase(string name)
 		{
-			RunCompilerTestCase(name, string.Empty);
+			RunCompilerTestCase(name, GetTestCasePath(name));
 		}
 		
 		protected void RunCompilerTestCase(string name, string description)
@@ -127,7 +127,7 @@ namespace Boo.Tests.Ast.Compiler
 				
 				if (context.Errors.Count > 0)
 				{
-					Assert.Fail(context.Errors.ToString(false));
+					Assert.Fail(GetFirstInputName(context) + ": " + context.Errors.ToString(false));
 				}
 				return console.ToString().Replace("\r\n", "\n");
 			}
@@ -139,6 +139,11 @@ namespace Boo.Tests.Ast.Compiler
 					Console.SetIn(oldStdIn);
 				}
 			}
+		}
+		
+		string GetFirstInputName(CompilerContext context)
+		{
+			return context.CompilerParameters.Input[0].Name;
 		}
 		
 		protected virtual string GetTestCasePath(string fname)

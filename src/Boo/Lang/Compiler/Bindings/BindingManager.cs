@@ -78,6 +78,13 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
 		}
 		
+		public Boo.Lang.Ast.TypeReference CreateBoundTypeReference(ITypeBinding binding)
+		{
+			TypeReference typeReference = new TypeReference(binding.FullName);
+			Bind(typeReference, ToTypeReference(binding));
+			return typeReference;
+		}
+		
 		public bool IsBound(Node node)
 		{
 			return null != node[BindingKey];

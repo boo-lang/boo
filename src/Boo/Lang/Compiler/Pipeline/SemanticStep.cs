@@ -38,12 +38,14 @@ using Boo.Lang.Compiler.Bindings;
 using List=Boo.Lang.List;
 
 namespace Boo.Lang.Compiler.Pipeline
-{	
+{		
 	/// <summary>
-	/// Step 4.
+	/// AST semantic evaluation.
 	/// </summary>
 	public class SemanticStep : AbstractNamespaceSensitiveCompilerStep
 	{
+		ArrayList _pending;
+		
 		Stack _methodBindingStack;
 		
 		InternalMethodBinding _currentMethodBinding;
@@ -73,7 +75,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void Run()
 		{					
 			_currentMethodBinding = null;
-			_methodBindingStack = new Stack();			
+			_methodBindingStack = new Stack();
+			_pending = new ArrayList();
 			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			RuntimeServices_Contains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Contains");
@@ -82,7 +85,45 @@ namespace Boo.Lang.Compiler.Pipeline
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
 			Switch(CompileUnit);
+			
+			ResolvePendingTypes();
 		}		
+		
+		void ResolvePendingTypes()
+		{
+			if (0 == _pending.Count)
+			{
+				return;
+			}
+			
+			const int maxIterations = 5;
+			
+			int currentIteration = 0;						
+			while (true)
+			{				
+				bool changed = false;
+				foreach (ITypeResolver resolver in _pending)
+				{
+					if (resolver.Resolve(this))
+					{
+						changed = true;
+					}					
+				}
+				
+				if (!changed)
+				{
+					_context.TraceInfo("Type inference concluded in {0} iteration(s).", currentIteration+1);
+					break;
+				}
+				
+				++currentIteration;
+				if (currentIteration > maxIterations)
+				{
+					_context.TraceWarning("Max numbers of iterations for type resolution exceeded!");
+					break;
+				}
+			}
+		}
 		
 		public override void Dispose()
 		{
@@ -90,6 +131,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			_currentMethodBinding = null;
 			_methodBindingStack = null;
+			_pending = null;
 		}
 		
 		public override void OnModule(Boo.Lang.Ast.Module module, ref Boo.Lang.Ast.Module resultingNode)
@@ -273,30 +315,43 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void LeaveMethod(Method method, ref Method resultingNode)
 		{
-			if (null == method.ReturnType)
-			{
-				method.ReturnType = ResolveReturnType(_currentMethodBinding.ReturnStatements);
-				_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, GetBinding(method.ReturnType));
-			}
+			InternalMethodBinding binding = _currentMethodBinding;
 			
-			_currentMethodBinding.Visited = true;
+			binding.Visited = true;
 			PopNamespace();
 			PopMethodBinding();
 			BindParameterIndexes(method);			
 			
-			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(method);
-			ResolveMethodOverride(method, binding);
+			if (IsUnknown(binding.BoundType))
+			{
+				if (CanResolveReturnType(binding))
+				{
+					ResolveResolvableReturnType(binding);
+					ResolveMethodOverride(binding);
+				}
+				else
+				{
+					Defer(new ReturnTypeResolver(binding));
+				}
+			}
 		}
 		
-		void ResolveMethodOverride(Method method, InternalMethodBinding binding)
+		void Defer(ITypeResolver resolver)
 		{
-			ITypeBinding baseType = GetBaseType(method.DeclaringType);
+			_pending.Add(resolver);
+		}
+		
+		internal void ResolveMethodOverride(InternalMethodBinding binding)
+		{
+			ITypeBinding baseType = binding.DeclaringType.BaseType;
 			if (null == baseType)
 			{
 				return;
 			}
 			
-			IBinding baseMethods = baseType.Resolve(method.Name);
+			Method method = binding.Method;
+			
+			IBinding baseMethods = baseType.Resolve(binding.Name);
 			if (null != baseMethods)
 			{
 				if (BindingType.Method == baseMethods.BindingType)
@@ -314,11 +369,6 @@ namespace Boo.Lang.Compiler.Pipeline
 					// todo:
 				}
 			}
-		}
-		
-		void TraceOverride(Method method, IMethodBinding baseMethod)
-		{
-			_context.TraceInfo("{0}: Method '{1}' overrides '{2}'", method.LexicalInfo, method.Name, baseMethod);
 		}
 		
 		bool CheckOverrideSignature(IMethodBinding impl, IMethodBinding baseMethod)
@@ -347,28 +397,38 @@ namespace Boo.Lang.Compiler.Pipeline
 			return BindingType.Unknown == binding.BindingType;
 		}
 		
-		TypeReference ResolveReturnType(ArrayList returnStatements)
-		{			
-			if (0 == returnStatements.Count)
-			{					
-				return CreateBoundTypeReference(BindingManager.VoidTypeBinding);
-			}		
-			
-			ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
-			if (IsUnknown(type))
+		bool CanResolveReturnType(InternalMethodBinding binding)
+		{
+			foreach (ReturnStatement rs in binding.ReturnStatements)
 			{
-				return null;
+				if (IsUnknown(GetBoundType(rs.Expression)))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		internal void ResolveReturnType(InternalMethodBinding binding)
+		{			
+			ITypeBinding type = binding.BoundType;
+			if (BindingManager.ObjectTypeBinding == type)
+			{
+				// can go no further than System.Object
+				return;
 			}
 			
-			for (int i=1; i<returnStatements.Count; ++i)
-			{	
-				ITypeBinding newType = GetBoundType(((ReturnStatement)returnStatements[i]).Expression);
+			Method method = binding.Method;
+			foreach (ReturnStatement rs in binding.ReturnStatements)
+			{
+				ITypeBinding newType = GetBoundType(rs.Expression);
 				if (IsUnknown(type))
 				{
-					return null;
+					type = newType;
+					continue;
 				}
 				
-				if (type == newType)
+				if (IsUnknown(newType) || type == newType)
 				{
 					continue;
 				}
@@ -380,7 +440,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				if (IsAssignableFrom(newType, type))
 				{
-					newType = type;
+					type = newType;
 					continue;
 				}
 				
@@ -388,7 +448,50 @@ namespace Boo.Lang.Compiler.Pipeline
 				break;
 			}
 			
-			return CreateBoundTypeReference(type);
+			if (binding.BoundType != type)
+			{
+				method.ReturnType = CreateBoundTypeReference(type);
+				TraceReturnType(method, binding);
+			}
+		}
+		
+		void ResolveResolvableReturnType(InternalMethodBinding binding)
+		{				
+			Method method = binding.Method;
+			ArrayList returnStatements = binding.ReturnStatements;
+			if (0 == returnStatements.Count)
+			{					
+				method.ReturnType = CreateBoundTypeReference(BindingManager.VoidTypeBinding);
+			}		
+			else
+			{			
+				ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
+				for (int i=1; i<returnStatements.Count; ++i)
+				{	
+					ITypeBinding newType = GetBoundType(((ReturnStatement)returnStatements[i]).Expression);
+					
+					if (type == newType)
+					{
+						continue;
+					}
+					
+					if (IsAssignableFrom(type, newType))
+					{
+						continue;
+					}
+					
+					if (IsAssignableFrom(newType, type))
+					{
+						type = newType;
+						continue;
+					}
+					
+					type = BindingManager.ObjectTypeBinding;
+					break;
+				}
+				method.ReturnType = CreateBoundTypeReference(type);
+			}
+			TraceReturnType(method, binding);	
 		}
 		
 		void BindParameterIndexes(Method method)
@@ -835,7 +938,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						{			
 							if (CheckTargetContext(node.Target, targetMethod))
 							{
-								nodeBinding = targetMethod.BoundType;
+								nodeBinding = targetMethod;
 							}
 						}
 					}
@@ -1124,7 +1227,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
-		bool IsAssignableFrom(ITypeBinding expectedType, ITypeBinding actualType)
+		static bool IsAssignableFrom(ITypeBinding expectedType, ITypeBinding actualType)
 		{
 			return expectedType.IsAssignableFrom(actualType);
 		}
@@ -1400,6 +1503,55 @@ namespace Boo.Lang.Compiler.Pipeline
 		string GetSignature(IMethodBinding binding)
 		{
 			return BindingManager.GetSignature(binding);
-		}	
+		}		
+		
+		void TraceOverride(Method method, IMethodBinding baseMethod)
+		{
+			_context.TraceInfo("{0}: Method '{1}' overrides '{2}'", method.LexicalInfo, method.Name, baseMethod);
+		}
+		
+		void TraceReturnType(Method method, IMethodBinding binding)
+		{
+			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, binding.BoundType);
+		}		
 	}
+	
+	/// <summary>
+	/// Resolves the type of an expression or method.
+	/// </summary>
+	interface ITypeResolver
+	{
+		/// <summary>
+		/// Resolves the type of the expression and returns true
+		/// if the type has changed since the last iteration.
+		/// </summary>
+		bool Resolve(SemanticStep parent);
+	}
+	
+	class ReturnTypeResolver : ITypeResolver
+	{
+		InternalMethodBinding _binding;
+		
+		ITypeBinding _current;
+		
+		public ReturnTypeResolver(InternalMethodBinding binding) 
+		{
+			_binding = binding;
+			_current = binding.BoundType;
+		}
+		
+		public bool Resolve(SemanticStep parent)
+		{
+			parent.ResolveReturnType(_binding);
+			
+			bool changed = _current != _binding.BoundType;
+			if (changed)
+			{
+				parent.ResolveMethodOverride(_binding);
+				_current = _binding.BoundType;
+			}			
+			return changed;
+		}
+	}
+	
 }
