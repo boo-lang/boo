@@ -169,7 +169,7 @@ namespace Boo.Lang.Compiler
 		
 		virtual protected void OnEnterStep(CompilerContext context, ICompilerStep step)
 		{
-			context.TraceEnter("Entering {0}...", step);
+			context.TraceEnter("Entering {0}", step);
 		}
 		
 		virtual protected void OnLeaveStep(CompilerContext context, ICompilerStep step)

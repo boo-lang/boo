@@ -209,8 +209,8 @@ class InteractiveInterpreter:
 		hasMembers = module.Members.Count > 0
 		hasStatements = module.Globals.Statements.Count > 0
 		
-		_imports.ExtendWithClones(module.Imports)
-		module.Imports = _imports.Clone()
+		savedImports = module.Imports.Clone()
+		module.Imports.ExtendWithClones(_imports)
 		
 		if hasStatements:
 			_compiler.Parameters.OutputType = CompilerOutputType.ConsoleApplication
@@ -219,6 +219,8 @@ class InteractiveInterpreter:
 		
 		result = _compiler.Run(cu)
 		return result if len(result.Errors)
+		
+		RecordImports(savedImports)
 		
 		asm = result.GeneratedAssembly
 		_compiler.Parameters.References.Add(asm) if hasMembers
@@ -244,6 +246,11 @@ class InteractiveInterpreter:
 										module as Module):
 		moduleType = asm.GetType(cast(ModuleEntity, module.Entity).ModuleClass.FullName)
 		moduleType.GetField("ParentInterpreter").SetValue(null, self)
+		
+	private def RecordImports(imports as ImportCollection):
+		for imp in imports:
+			imp.AssemblyReference = null
+			_imports.Add(imp) 
 
 interpreter = InteractiveInterpreter()
 while line=prompt(">>> "):
