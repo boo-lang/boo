@@ -23,8 +23,6 @@
     <File name="./Ast/ArrayLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/ArrayTypeReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/AsExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name="./Ast/Assert.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name="./Ast/AssertStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/AstUtil.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/Attribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/AttributeCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -124,7 +122,6 @@
     <File name="./Ast/Impl/ArrayLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/Impl/ArrayTypeReferenceImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/Impl/AsExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name="./Ast/Impl/AssertStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/Impl/AttributeCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/Impl/AttributeImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Ast/Impl/BinaryExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -215,6 +212,7 @@
     <File name="./IO/FileInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./IO/ReaderInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./IO/StringInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./Macros/AssertMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Macros/LockMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Macros/UsingMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Pipelines/Compile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

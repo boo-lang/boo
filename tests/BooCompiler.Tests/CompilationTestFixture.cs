@@ -860,6 +860,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void AssertBasicTest()
+		{
+			RunCompilerTestCase("assert0.boo");
+		}
+		
+		[Test]
 		public void UsingAssignmentToReference()
 		{
 			RunCompilerTestCase("using0.boo");

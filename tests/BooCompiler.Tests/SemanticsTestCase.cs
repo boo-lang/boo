@@ -128,6 +128,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void AssertMacroWithMessage()
+		{
+			RunCompilerTestCase("assert0.boo");
+		}
+		
+		[Test]
+		public void AssertMacroWithoutMessage()
+		{
+			RunCompilerTestCase("assert1.boo");
+		}
+		
+		[Test]
 		public void UsingMacroWithBinaryExpressionArgument()
 		{
 			RunCompilerTestCase("using0.boo");

@@ -72,6 +72,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void DefaultDebugSetting()
+		{
+			Assert.AreEqual(true, _compiler.Parameters.Debug, "Debug must be true by default");
+		}
+		
+		[Test]
 		public void DefaultPipeline()
 		{
 			Assert.IsNull(_compiler.Parameters.Pipeline, "Pipeline must be null!");

@@ -204,16 +204,6 @@ namespace Boo.Lang
 									GetEnumerator(second));
 		}
 
-		public static void assert(string message, bool condition)
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public static void assert(bool condition)
-		{
-			throw new System.NotImplementedException();
-		}
-
 		private class MapEnumerator : IEnumerator, IEnumerable
 		{
 			IEnumerator _enumerator;

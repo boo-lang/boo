@@ -27,7 +27,6 @@ using Boo.Lang.Compiler.Ast.Impl;
 namespace Boo.Lang.Compiler.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(DeclarationStatement))]
-	[System.Xml.Serialization.XmlInclude(typeof(AssertStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(TryStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(IfStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(ForStatement))]

@@ -126,14 +126,6 @@ namespace Boo.Lang
 			return resulting;
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(Expression target, Expression arg)
-		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
-			mie.Target = (Expression)target.Clone();			
-			mie.Arguments.Add((Expression)arg.Clone());
-			return mie;
-		}
-		
 		ReferenceExpression CreateMonitorReference(LexicalInfo lexicalInfo)
 		{
 			int localIndex = _context.AllocIndex();
@@ -153,7 +145,7 @@ namespace Boo.Lang
 										monitor));
 
 			// System.Threading.Monitor.Enter(__monitorN__)			
-			block.Add(CreateMethodInvocation(Monitor_Enter, monitorReference));	
+			block.Add(AstUtil.CreateMethodInvocationExpression(Monitor_Enter, monitorReference));	
 			
 			// try:			
 			// 		<the rest>
@@ -163,7 +155,7 @@ namespace Boo.Lang
 			stmt.ProtectedBlock = body;
 			stmt.EnsureBlock = new Block();
 			stmt.EnsureBlock.Add(
-				CreateMethodInvocation(Monitor_Exit, monitorReference));
+				AstUtil.CreateMethodInvocationExpression(Monitor_Exit, monitorReference));
 				
 			block.Add(stmt);
 			

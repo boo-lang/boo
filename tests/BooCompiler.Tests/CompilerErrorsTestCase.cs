@@ -48,7 +48,7 @@ namespace BooCompiler.Tests
 	
 	[TestFixture]
 	public class CompilerErrorsTestCase : AbstractCompilerTestCase
-	{		
+	{	
 		[Test]
 		public void BCE0023()
 		{

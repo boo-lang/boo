@@ -178,10 +178,6 @@ class DeclarationStatement(Statement):
 	Declaration as Declaration
 	Initializer as Expression
 
-class AssertStatement(Statement):
-	Condition as Expression
-	Message as Expression
-
 class MacroStatement(Statement):
 	Name as string
 	Arguments as ExpressionCollection

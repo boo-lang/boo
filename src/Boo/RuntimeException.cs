@@ -21,29 +21,26 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using Boo.Lang.Compiler.Ast.Impl;
-
-namespace Boo.Lang.Compiler.Ast
+namespace Boo
 {
+	using System;
+	using System.Runtime.Serialization;
+	
+	/// <summary>
+	/// Base exception for the Boo runtime.
+	/// </summary>
 	[Serializable]
-	public class AssertStatement : AssertStatementImpl
-	{		
-		public AssertStatement()
-		{
- 		}
-		
-		public AssertStatement(Expression condition, Expression message) : base(condition, message)
+	public class RuntimeException : System.Exception
+	{
+		public RuntimeException(string message) : base(message)
 		{
 		}
 		
-		public AssertStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		protected RuntimeException(
+			SerializationInfo si, StreamingContext sc) : base(si, sc)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnAssertStatement(this);
-		}
-	}
+		}		
+	}	
 }
+
+

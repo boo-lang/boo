@@ -227,6 +227,32 @@ namespace BooC
 								break;
 							}
 
+							case 'd':
+							{
+								switch (arg.Substring(1))
+								{
+									case "debug":
+									case "debug+":
+									{
+										options.Debug = true;
+										break;
+									}
+									
+									case "debug-":
+									{
+										options.Debug = false;
+										break;
+									}
+									
+									default:
+									{
+										InvalidOption(arg);								
+										break;
+									}
+								}
+								break;
+							}
+							
 							default:
 							{
 								InvalidOption(arg);								

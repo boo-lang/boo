@@ -98,6 +98,14 @@ namespace Boo.Lang.Compiler.Ast
 			return expression;
 		}
 		
+		public static MethodInvocationExpression CreateMethodInvocationExpression(Expression target, Expression arg)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
+			mie.Target = (Expression)target.Clone();			
+			mie.Arguments.Add((Expression)arg.Clone());
+			return mie;
+		}
+		
 		private AstUtil()
 		{
 		}

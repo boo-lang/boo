@@ -49,6 +49,8 @@ namespace Boo.Lang.Compiler
 		
 		CompilerOutputType _outputType;
 		
+		bool _debug;
+		
 		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
 
 		public CompilerParameters()
@@ -65,6 +67,7 @@ namespace Boo.Lang.Compiler
 			_outputAssembly = string.Empty;
 			_outputType = CompilerOutputType.ConsoleApplication;
 			_outputWriter = System.Console.Out;
+			_debug = true;
 		}
 
 		/// <summary>
@@ -179,6 +182,19 @@ namespace Boo.Lang.Compiler
 					throw new ArgumentNullException("OutputWriter");
 				}
 				_outputWriter = value;
+			}
+		}
+		
+		public bool Debug
+		{
+			get
+			{
+				return _debug;
+			}
+			
+			set
+			{
+				_debug = value;
 			}
 		}
 	}

@@ -165,7 +165,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		protected void AddNodes(Node[] items)
 		{
-			Assert.AssertNotNull("items", items);
+			AssertNotNull("items", items);
 			foreach (Node item in items)
 			{
 				AddNode(item);
@@ -174,7 +174,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		protected bool ReplaceNode(Node existing, Node newItem)
 		{
-			Assert.AssertNotNull("existing", existing);			
+			AssertNotNull("existing", existing);			
 			for (int i=0; i<_list.Count; ++i)
 			{
 				if (_list[i] == existing)
@@ -232,11 +232,21 @@ namespace Boo.Lang.Compiler.Ast
 
 		void Initialize(Node item)
 		{
-			Assert.AssertNotNull("item", item);
+			AssertNotNull("item", item);
 			if (null != _parent)
 			{
 				item.InitializeParent(_parent);
 			}
 		}
+		
+		private void AssertNotNull(string descrip, object o)
+		{
+			if (o == null)
+			{
+				throw new ArgumentException(
+					String.Format("null reference for: {0}", descrip));
+			}
+		}
+		
 	}
 }

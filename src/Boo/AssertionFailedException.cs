@@ -20,22 +20,29 @@
 //
 // mailto:rbo@acm.org
 #endregion
-using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
-namespace Boo.Lang.Compiler.Ast
+namespace Boo
 {
+	using System;
+	using System.Runtime.Serialization;
+	
 	/// <summary>
-	/// Summary description for Assert.
+	/// Raised when an assertion fails.
+	/// The AssertMacro injects code to raise this exception if the provided
+	/// condition evaluates to false.
 	/// </summary>
-	internal sealed class Assert
-	{
-		public static void AssertNotNull(string message, object reference)
+	[Serializable]
+	public class AssertionFailedException : RuntimeException
+	{		
+		public AssertionFailedException(string message) : base(message)
 		{
-			if (null == reference)
-			{
-				throw new ArgumentNullException(message);
-			}
 		}
-	}
+		
+		protected AssertionFailedException(
+			SerializationInfo si, StreamingContext sc) : base(si, sc)
+		{
+		}		
+	}	
 }
+
+
