@@ -59,6 +59,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public bool IsPublic
+		{
+			get
+			{
+				return _event.GetAddMethod().IsPublic;
+			}
+		}
+		
 		public string Name
 		{
 			get

@@ -48,8 +48,10 @@ namespace BooC
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static void Main(string[] args)
+		static int Main(string[] args)
 		{
+			int resultCode = -1;
+			
 			try
 			{
 				DateTime start = DateTime.Now;
@@ -76,6 +78,10 @@ namespace BooC
 					}
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.Errors", context.Errors.Count));
 				}
+				else
+				{
+					resultCode = 0;
+				}
 				
 				if (options.Verbose)
 				{			
@@ -86,6 +92,7 @@ namespace BooC
 			{
 				Console.WriteLine(Boo.ResourceManager.Format("BooC.FatalError", x.Message));
 			}			
+			return resultCode;
 		}
 
 		static void ParseOptions(string[] args, CompilerParameters options)

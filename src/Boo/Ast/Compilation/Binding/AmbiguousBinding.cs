@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -28,9 +28,12 @@
 #endregion
 
 using System;
+using System.Collections;
 
 namespace Boo.Ast.Compilation.Binding
 {
+	public delegate bool BindingFilter(IBinding binding);
+	
 	public class AmbiguousBinding : IBinding
 	{
 		IBinding[] _bindings;
@@ -70,6 +73,19 @@ namespace Boo.Ast.Compilation.Binding
 			{
 				return _bindings;
 			}
+		}
+		
+		public IList Filter(BindingFilter condition)
+		{
+			ArrayList found = new ArrayList();
+			foreach (IBinding binding in _bindings)
+			{
+				if (condition(binding))
+				{
+					found.Add(binding);
+				}
+			}
+			return found;
 		}
 		
 		public override string ToString()

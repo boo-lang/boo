@@ -66,6 +66,16 @@ namespace Boo.Ast.Compilation.Pipeline
 		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
+		BindingFilter IsPublicEventFilter;
+		
+		BindingFilter IsPublicFieldPropertyEventFilter;
+		
+		public SemanticStep()
+		{
+			IsPublicFieldPropertyEventFilter = new BindingFilter(IsPublicFieldPropertyEvent);
+			IsPublicEventFilter = new BindingFilter(IsPublicEvent);
+		}
+		
 		public override void Run()
 		{					
 			_currentMethodInfo = SemanticMethodInfo.Null;
@@ -668,6 +678,27 @@ namespace Boo.Ast.Compilation.Pipeline
 				{
 					IBinding binding = GetBinding(node.Left);
 					if (BindingType.Event != binding.BindingType)
+					{						
+						if (BindingType.Ambiguous == binding.BindingType)
+						{
+							IList found = ((AmbiguousBinding)binding).Filter(IsPublicEventFilter);
+							if (found.Count != 1)
+							{
+								binding = null;
+							}
+							else
+							{
+								binding = (IBinding)found[0];
+								BindingManager.Bind(node.Left, binding);
+							}
+						}
+						else
+						{
+							binding = null;
+						}
+					}
+					
+					if (null == binding)
 					{
 						Errors.NotImplemented(node, "InPlaceAdd");
 					}
@@ -813,6 +844,60 @@ namespace Boo.Ast.Compilation.Pipeline
 				return false;
 			}
 			return true;
+		}	
+		
+		bool IsPublicEvent(IBinding binding)
+		{
+			if (BindingType.Event == binding.BindingType)
+			{
+				return ((IMemberBinding)binding).IsPublic;
+			}
+			return false;
+		}
+		
+		bool IsPublicFieldPropertyEvent(IBinding binding)
+		{
+			BindingType flags = BindingType.Field|BindingType.Property|BindingType.Event;
+			if ((flags & binding.BindingType) > 0)
+			{
+				IMemberBinding member = (IMemberBinding)binding;
+				return member.IsPublic;
+			}
+			return false;
+		}
+		
+		IMemberBinding ResolvePublicFieldPropertyEvent(Node sourceNode, ITypeBinding type, string name)
+		{
+			IBinding candidate = type.Resolve(name);
+			if (null != candidate)
+			{					
+				
+				if (IsPublicFieldPropertyEvent(candidate))
+				{
+					return (IMemberBinding)candidate;
+				}
+				else
+				{
+					if (candidate.BindingType == BindingType.Ambiguous)
+					{
+						IList found = ((AmbiguousBinding)candidate).Filter(IsPublicFieldPropertyEventFilter);
+						if (found.Count > 0)
+						{
+							if (found.Count > 1)
+							{
+								Errors.AmbiguousName(sourceNode, name, found);
+								return null;
+							}
+							else
+							{
+								return (IMemberBinding)found[0];
+							}
+						}					
+					}
+				}
+			}
+			Errors.NotAPublicFieldOrProperty(sourceNode, type.FullName, name);			
+			return null;
 		}
 		
 		void ResolveNamedArguments(ITypeBinding typeBinding, MethodInvocationExpression node)
@@ -828,13 +913,10 @@ namespace Boo.Ast.Compilation.Pipeline
 					continue;				
 				}				
 				
-				IMemberBinding member = (IMemberBinding)typeBinding.Resolve(name.Name);
-				if (null == member ||
-				    (member.BindingType != BindingType.Property &&
-				    member.BindingType != BindingType.Field &&
-				    member.BindingType != BindingType.Event))				    
-				{
-					Errors.NotAPublicFieldOrProperty(node, typeBinding.FullName, name.Name);
+				// todo: lidar com ambiguous binding here
+				IMemberBinding member = ResolvePublicFieldPropertyEvent(name, typeBinding, name.Name);
+				if (null == member)				    
+				{					
 					continue;
 				}
 				
@@ -1117,13 +1199,18 @@ namespace Boo.Ast.Compilation.Pipeline
 		bool CheckBoolContext(Expression expression)
 		{
 			ITypeBinding type = GetBoundType(expression);
-			if (BindingManager.BoolTypeBinding == type ||
-			    !type.IsValueType)
+			if (type.IsValueType)
 			{
-				return true;
+				if (type == BindingManager.BoolTypeBinding ||
+				    type == BindingManager.IntTypeBinding)
+			    {
+			    	return true;
+			    }
+			    Errors.BoolExpressionRequired(expression, type.FullName);
+				return false;
 			}
-			Errors.BoolExpressionRequired(expression, type.FullName);
-			return false;
+			// reference types can be used in bool context
+			return true;
 		}
 		
 		LocalBinding DeclareLocal(Node sourceNode, Local local, ITypeBinding localType)

@@ -53,12 +53,15 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			get
 			{
-				System.Reflection.MethodInfo mi = _property.GetGetMethod();
-				if (null != mi)
-				{
-					return mi.IsStatic;
-				}
-				return _property.GetSetMethod().IsStatic;
+				return GetAccessor().IsStatic;
+			}
+		}
+		
+		public bool IsPublic
+		{
+			get
+			{
+				return GetAccessor().IsPublic;
 			}
 		}
 		
@@ -101,5 +104,15 @@ namespace Boo.Ast.Compilation.Binding
 				return _property;
 			}
 		}
+		
+		System.Reflection.MethodInfo GetAccessor()
+		{
+			System.Reflection.MethodInfo mi = _property.GetGetMethod();
+			if (null != mi)
+			{
+				return mi;
+			}
+			return _property.GetSetMethod()
+;		}
 	}
 }

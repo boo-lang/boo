@@ -81,7 +81,7 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public bool IsSubclassOf(ITypeBinding other)
+		public virtual bool IsSubclassOf(ITypeBinding other)
 		{
 			return false;
 		}

@@ -34,7 +34,10 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public class ExternalTypeBinding : NamespaceBindingCache, ITypeBinding
 	{
-		const BindingFlags DefaultBindingFlags = BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
+		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
+												BindingFlags.NonPublic |
+												BindingFlags.Static |
+												BindingFlags.Instance;
 		
 		BindingManager _bindingManager;
 		

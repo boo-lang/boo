@@ -33,19 +33,19 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public enum BindingType
 	{
-		Module,
-		Type,
-		TypeReference,
-		Method,		
-		Constructor,
-		Field,
-		Property,
-		Event,
-		Local,		
-		Parameter,
-		Assembly,
-		Namespace,
-		Ambiguous,
+		Module = 0x01,
+		Type = 0x02,
+		TypeReference = 0x04,
+		Method = 0x08,		
+		Constructor = 0x10,
+		Field = 0x20,
+		Property = 0x40,
+		Event = 0x80,
+		Local = 0x100,		
+		Parameter = 0x200,
+		Assembly = 0x400,
+		Namespace = 0x800,
+		Ambiguous = 0x1000,
 		Error,
 		Unresolved
 	}
@@ -79,6 +79,11 @@ namespace Boo.Ast.Compilation.Binding
 		}
 		
 		bool IsStatic
+		{
+			get;
+		}
+		
+		bool IsPublic
 		{
 			get;
 		}
@@ -143,43 +148,5 @@ namespace Boo.Ast.Compilation.Binding
 	
 	public interface IConstructorBinding : IMethodBinding
 	{		
-	}	
-	
-	public class UnresolvedBinding : NullBinding
-	{
-		IBinding _resolved;
-		
-		public UnresolvedBinding()
-		{
-		}
-		
-		public override string Name
-		{
-			get
-			{
-				return "Unresolved";
-			}
-		}
-		
-		public override BindingType BindingType
-		{
-			get
-			{
-				return BindingType.Unresolved;
-			}
-		}
-		
-		public IBinding Resolved
-		{
-			get
-			{
-				return _resolved;
-			}
-			
-			set
-			{
-				_resolved = value;
-			}
-		}
 	}
 }

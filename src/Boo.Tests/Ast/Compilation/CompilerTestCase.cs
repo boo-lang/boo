@@ -100,7 +100,7 @@ namespace Boo.Tests.Ast.Compilation
 	
 	public class BaseClass
 	{
-		public BaseClass()
+		protected BaseClass()
 		{			
 		}
 		

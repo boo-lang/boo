@@ -60,6 +60,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public bool IsPublic
+		{
+			get
+			{
+				return _mi.IsPublic;
+			}
+		}
+		
 		public string Name
 		{
 			get

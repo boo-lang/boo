@@ -214,7 +214,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
 			_il = builder.GetILGenerator();			
 			_il.Emit(OpCodes.Ldarg_0);			
-			_il.Emit(OpCodes.Call, _typeBuilder.BaseType.GetConstructor(new Type[0]));
+			_il.Emit(OpCodes.Call, GetDefaultConstructor(_typeBuilder.BaseType));
 			constructor.Locals.Switch(this);
 			constructor.Body.Switch(this);
 			_il.Emit(OpCodes.Ret);
@@ -1221,6 +1221,15 @@ namespace Boo.Ast.Compilation.Pipeline
 		Type GetType(Node node)
 		{
 			return GetType(GetBoundType(node));
+		}
+		
+		ConstructorInfo GetDefaultConstructor(Type type)
+		{
+			return type.GetConstructor(
+									BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance,
+									null, 
+									new Type[0],
+									null);
 		}
 		
 		TypeAttributes GetTypeAttributes(TypeDefinition type)
