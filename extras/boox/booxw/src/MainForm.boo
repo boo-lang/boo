@@ -252,9 +252,8 @@ class MainForm(Form):
 	def SaveDockState():
 		_dockPanel.SaveAsXml(GetDockStateXmlFileName())
 		
-	def LoadDockState():
-		delegate = Delegate.CreateDelegate(DeserializeDockContent, self, "OnDeserializeDockContent")
-		_dockPanel.LoadFromXml(GetDockStateXmlFileName(), delegate)
+	def LoadDockState():		
+		_dockPanel.LoadFromXml(GetDockStateXmlFileName(), OnDeserializeDockContent)
 		
 	def OnDeserializeDockContent(persistString as string) as DockContent:
 		type, content = /\|/.Split(persistString)
