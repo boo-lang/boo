@@ -75,6 +75,13 @@ public class App
 	
 	public static Int32 UnboxInt32(object value)
 	{
-		return CheckNumericPromotion(value).ToInt32(InvariantCulture);
+		try
+		{
+			return (Int32)value;
+		}
+		catch (InvalidCastException)
+		{
+			return CheckNumericPromotion(value).ToInt32(null);
+		}
 	}
 }
