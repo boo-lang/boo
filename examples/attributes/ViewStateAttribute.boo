@@ -29,33 +29,26 @@
 namespace Boo.Web
 
 import Boo.Ast
+import Boo.Lang.Compiler
 
-class ViewStateAttribute(AstAttribute):
+class ViewStateAttribute(AbstractAstAttribute):
 
+	[property(Default)]
 	_default as Expression
-	
-	Default:
-		get:
-			return _default
-			
-		set:
-			_default = value
 			
 	// Invocado pelo compilador, recebe como parâmetro
 	// o nó da AST ao qual foi aplicado
 	def Apply(node):
 		
-		assert("ViewState pode ser aplicado somente a campos!", node isa Field)			
+		assert node isa Field, "ViewState pode ser aplicado somente a campos!"			
 		
 		f as Field = node
 		
-		p = Property()
-		p.Name = f.Name
-		p.Type = f.Type
+		p = Property(Name: f.Name, Type: f.Type)
 		p.Getter = CreateGetter(f)
 		p.Setter = CreateSetter(f)
 
-		f.ReplaceBy(p)
+		f.ParentNode.Replace(f, p)
 
 	protected def CreateGetter(f as Field):
 

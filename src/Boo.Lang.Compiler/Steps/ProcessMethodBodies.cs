@@ -3293,10 +3293,19 @@ namespace Boo.Lang.Compiler.Steps
 				Expression arg = args[i];
 				IType expressionType = GetExpressionType(arg);
 				IType parameterType = parameters[i].Type;
-				if (!TypeSystemServices.AreTypesRelated(parameterType, expressionType) ||
-					(parameterType.IsByRef && !IsValidByRefArg(parameterType, expressionType, arg)))
+				if (parameterType.IsByRef)
 				{
-					return false;
+					if (!IsValidByRefArg(parameterType, expressionType, arg))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if (!TypeSystemServices.AreTypesRelated(parameterType, expressionType))
+					{
+						return false;
+					}
 				}
 			}
 			return true;
@@ -3533,7 +3542,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsValidByRefArg(IType parameterType, IType argType, Node arg)
 		{
 			return parameterType.IsByRef && 
-					argType == parameterType.GetElementType() &&
+					(argType == parameterType.GetElementType()) &&
 					CanLoadAddress(arg);
 		}
 		

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -27,17 +27,17 @@
 #endregion
 
 import System
-import Gtk from "gtk-sharp"
+import System.Net
+import System.Threading
 
-Application.Init()
+url, local = argv
 
-window = Window("Button Tester",
-				DefaultWidth:  200,
-				DefaultHeight: 150,
-				DeleteEvent: Application.Quit)
-				
-window.Add(Button("Click Me!",
-				Clicked: <print("button clicked!")>))
-window.ShowAll()
+client = WebClient()
+downloadFile = client.DownloadFile
 
-Application.Run()
+call = downloadFile.BeginInvoke(url, local, null, null)
+while not call.IsCompleted:
+	Console.Write(".")
+	Thread.Sleep(50ms)
+Console.WriteLine()
+	

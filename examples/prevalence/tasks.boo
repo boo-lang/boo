@@ -36,11 +36,13 @@ class Task:
 	
 	[getter(Name)]
 	_name as string
+	
+	[property(Done)]
+	_done = false
 
 	def constructor(name):
 		_name = name
 
-		
 class TaskList(MarshalByRefObject):
 
 	_tasks = []
@@ -48,6 +50,10 @@ class TaskList(MarshalByRefObject):
 	Tasks as (Task):
 		get:
 			return _tasks.ToArray(Task)
+			
+	PendingTasks:
+		get:
+			return array(Task, task for task in _tasks if task.Done)
 	
 	def Add([required] task as Task):
 		_tasks.Add(task)
@@ -60,7 +66,6 @@ for task in tasks.Tasks:
 
 name = prompt("Nova task: ")
 tasks.Add(Task(name)) if len(name) > 0
-
 		
 	
 		
