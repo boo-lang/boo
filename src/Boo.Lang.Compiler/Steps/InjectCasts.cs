@@ -31,11 +31,70 @@ namespace Boo.Lang.Compiler.Steps
 	using System;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class InjectCasts : AbstractCompilerStep
+	public class InjectCasts : AbstractVisitorCompilerStep
 	{
 		override public void Run()
 		{
+			if (0 == Errors.Count)
+			{
+				Visit(CompileUnit);
+			}
+		}
+		
+		override public void LeaveBinaryExpression(BinaryExpression node)
+		{
+			if (BinaryOperatorType.Assign == node.Operator)
+			{
+				IType lhsType = node.Left.ExpressionType;
+				if (IsCallableType(lhsType))
+				{					
+					IType rhsType = GetExpressionType(node.Right);
+					if (lhsType != rhsType)
+					{
+						node.Right = CreateDelegate(lhsType, node.Right);  
+					}
+				}
+			}
+		}
+		
+		bool IsCallableType(IType type)
+		{
+			return type is ICallableType;
+		}
+		
+		Expression CreateDelegate(IType type, Expression source)
+		{
+			IMethod method = (IMethod)GetEntity(source);
+			
+			MethodInvocationExpression constructor = new MethodInvocationExpression(source.LexicalInfo);
+			constructor.Target = new ReferenceExpression(type.FullName);
+			
+			if (method.IsStatic)
+			{
+				constructor.Arguments.Add(new NullLiteralExpression());
+			}
+			else
+			{
+				constructor.Arguments.Add(((MemberReferenceExpression)source).Target);
+			}
+			
+			constructor.Arguments.Add(CreateAddressOfExpression(source));
+			Bind(constructor.Target, type.GetConstructors()[0]);
+			BindExpressionType(constructor, type);
+			
+			return constructor;
+		}
+		
+		Expression CreateAddressOfExpression(Expression arg)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
+			mie.Target = new ReferenceExpression("__addressof__");
+			mie.Arguments.Add(arg);
+			Bind(mie.Target, TypeSystemServices.ResolvePrimitive("__addressof__"));
+			BindExpressionType(mie, TypeSystemServices.IntPtrType);
+			return mie;
 		}
 	}
 }

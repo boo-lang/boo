@@ -117,6 +117,21 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.GetEntity(node);
 		}
 		
+		protected void BindExpressionType(Expression node, IType type)
+		{
+			node.ExpressionType = type;
+		}
+		
+		protected IType GetExpressionType(Expression node)
+		{			
+			IType type = node.ExpressionType;
+			if (null == type)
+			{
+				throw CompilerErrorFactory.InvalidNode(node);
+			}
+			return type;
+		}
+		
 		public IType GetType(Node node)
 		{
 			return TypeSystemServices.GetType(node);

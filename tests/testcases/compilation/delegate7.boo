@@ -1,7 +1,7 @@
 """
 before assignment...
 before invocation...
-foo
+foo!
 done.
 """
 import System.Threading
@@ -10,7 +10,7 @@ def foo():
 	print("foo!")
 	
 function as ThreadStart
-print("before assignmemnt...")
+print("before assignment...")
 function = foo
 print("before invocation...")
 result = function.BeginInvoke(null, null)

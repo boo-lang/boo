@@ -3517,21 +3517,6 @@ namespace Boo.Lang.Compiler.Steps
 					DeclareLocal(d, new Local(d, declarePrivateLocals), GetType(d.Type));
 				}
 			}
-		}		
-		
-		void BindExpressionType(Expression node, IType type)
-		{
-			node.ExpressionType = type;
-		}
-		
-		protected IType GetExpressionType(Expression node)
-		{			
-			IType type = node.ExpressionType;
-			if (null == type)
-			{
-				throw CompilerErrorFactory.InvalidNode(node);
-			}
-			return type;
 		}
 		
 		bool IsStandaloneReference(Node node)
