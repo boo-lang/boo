@@ -141,14 +141,12 @@ namespace Boo.Lang
 			return output;
 		}
 		
-		[EnumeratorItemType(typeof(object[]))]
-		public static IEnumerable enumerate(object enumerable)
+		public static EnumerateEnumerator enumerate(object enumerable)
 		{			
 			return new EnumerateEnumerator(GetEnumerator(enumerable));
 		}
 		
-		[EnumeratorItemType(typeof(int))]
-		public static IEnumerable range(int max)
+		public static RangeEnumerator range(int max)
 		{
 			if (max < 0)
 			{
@@ -158,8 +156,7 @@ namespace Boo.Lang
 			return new RangeEnumerator(0, max, 1);
 		}
 		
-		[EnumeratorItemType(typeof(int))]
-		public static IEnumerable range(int begin, int end)
+		public static RangeEnumerator range(int begin, int end)
 		{
 			int step = 1;
 			if (begin > end)
@@ -169,8 +166,7 @@ namespace Boo.Lang
 			return new RangeEnumerator(begin, end, step);
 		}
 		
-		[EnumeratorItemType(typeof(int))]
-		public static IEnumerable range(int begin, int end, int step)
+		public static RangeEnumerator range(int begin, int end, int step)
 		{
 			if (step < 0)
 			{
@@ -187,10 +183,9 @@ namespace Boo.Lang
 				}
 			}
 			return new RangeEnumerator(begin, end, step);
-		}
+		}		
 		
-		[EnumeratorItemType(typeof(object[]))]
-		public static IEnumerable zip(object first, object second)
+		public static ZipEnumerator zip(object first, object second)
 		{
 			return new ZipEnumerator(GetEnumerator(first),
 									GetEnumerator(second));
@@ -252,11 +247,12 @@ namespace Boo.Lang
 			}
 		}
 		
-		private class ZipEnumerator : IEnumerator, IEnumerable
+		[EnumeratorItemType(typeof(object[]))]
+		public class ZipEnumerator : IEnumerator, IEnumerable
 		{
 			IEnumerator[] _enumerators;
 			
-			public ZipEnumerator(params IEnumerator[] enumerators)
+			internal ZipEnumerator(params IEnumerator[] enumerators)
 			{
 				_enumerators = enumerators;
 			}
@@ -300,14 +296,15 @@ namespace Boo.Lang
 			}
 		}
 		
-		private class RangeEnumerator : IEnumerator, IEnumerable
+		[EnumeratorItemType(typeof(int))]
+		public class RangeEnumerator : IEnumerator, IEnumerable
 		{
 			int _index;
 			int _begin;
 			int _end;
 			int _step;
 			
-			public RangeEnumerator(int begin, int end, int step)
+			internal RangeEnumerator(int begin, int end, int step)
 			{	
 				if (step > 0)
 				{
@@ -354,13 +351,14 @@ namespace Boo.Lang
 			}
 		}
 		
-		private class EnumerateEnumerator : IEnumerator, IEnumerable
+		[EnumeratorItemType(typeof(object[]))]
+		public class EnumerateEnumerator : IEnumerator, IEnumerable
 		{
 			int _index = -1;
 			
 			IEnumerator _enumerator;
 			
-			public EnumerateEnumerator(IEnumerator enumerator)
+			internal EnumerateEnumerator(IEnumerator enumerator)
 			{
 				if (null == enumerator)
 				{

@@ -29,9 +29,11 @@
 
 using System;
 using System.IO;
+using Boo.Lang;
 
 namespace Boo.IO
 {
+	[EnumeratorItemType(typeof(string))]
 	public class TextReaderEnumerator : System.Collections.IEnumerator, System.Collections.IEnumerable
 	{
 		TextReader _reader;

@@ -767,15 +767,21 @@ compound_stmt[StatementCollection c] :
 		;
 		
 protected
-macro_stmt returns [MacroStatement macro]
+macro_stmt returns [MacroStatement returnValue]
 	{
-		macro = new MacroStatement();
+		returnValue = null;
+		MacroStatement macro = new MacroStatement();
 	}:
 	id:ID expression_list[macro.Arguments]
-	(compound_stmt[macro.Block.Statements])?
+	(
+		compound_stmt[macro.Block.Statements] |
+		eos
+	)
 	{
 		macro.Name = id.getText();
 		macro.LexicalInfo = ToLexicalInfo(id);
+		
+		returnValue = macro;
 	}
 ;
 
@@ -812,7 +818,12 @@ stmt [StatementCollection container]
 			eos
 		)
 	)
-	{ container.Add(s); }
+	{
+		if (null != s)
+		{
+			container.Add(s);
+		}
+	}
 	;		
 
 protected

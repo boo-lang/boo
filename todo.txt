@@ -1,338 +1,8 @@
-﻿Geração de Código
-=================
-
-Milestone 1 (hello.boo)
------------------------
-
-done * bultins
-done * local variables
-done * expression interpolation (string formatting)
- 
-Milestone 2 (debug)
--------------------
-
-done * line numbers na vers�o de depura��o
-done * depurar com o mscordbg
-
-Milestone 3 (helloforms.boo - using, métodos estáticos, criação de objetos)
----------------------------------------------------------------------------
-done * using XXX from XXX
-done * criar objeto (ConstructorBinding)
-done * membros de instancia (f.Show())
-done * argumentos nomeados na criação de objetos
-done * membros estáticos Application.Run()
-done * resolução de métodos por argumentos de tipo compatível
-done * simplificar código:
-	done * InternalTypeBinding e ExternalTypeBinding implements INameSpace: unificar codigo;
-	done * o mesmo para InternalMethodBinding;
-done * propriedades simples (f.Controls)
-
-Milestone 3.1 (grep.boo)
-----------------------
-
-done * definição de métodos do módulo
-done * chamada de métodos do módulo
-done * checagem de parametros estrita nas invocaçoes de método
-done * array unpacking
-done * for item in array
-done * for index, item in enumerate(array)
-done * melhor mensagem de erro para array unpacking (checar length do array antes de acessá-lo 
-e emitir exception "Unpack list of wrong size")
-done * Quando o argumento do For ou Unpack for do tipo System.Object, não fazer simplesmente cast
-mas invocar RuntimeServices.GetEnumerable(object) que tenta encontrar a melhor versão de 
-um enumerável para o objeto passado e, no caso de falha, exibe mensagem de erro mais adequada
-done * RuntimeServices.GetEnumerable(object) deve suportar StreamReader
-done * resolução de métodos
-done * downcast (peverify grep)
-done * match operator ~=
-done * if stmt modifier
-
-Milestone 3.3 (replace.boo)
----------------------------
-done * using Type (using Boo.IO.TextFile)
-done * if string compare
-
-Milestone 3.4 (rgrep.boo)
--------------------------
-done * recursive functions
-done * namespace resolution for MemberReferenceExpression
-done * using namespace as
-
-Milestone 3.5
--------------
-done * IAstTransformer: uma maneira mais integrada de alterar os nós da AST em uma visita
-DepthFirst, a interface é parecida com IAstSwitcher com a diferença de que cada método,
-tem um valor de entrada e DE SAÍDA que é o novo nó a ser colocado no lugar do nó visitado:
-	void OnModule(Module module, ref Module newModule);
-	void OnIfStatement(IfStatement statement, ref Statement newStatement)
-	void OnBinaryExpression(BinaryExpression expression, ref Expression newExpression)
-done * matar Boo.Util.ISwitch/ISwitcher, eles não agregam valor algum no momento
-done * quebrar AbstractCompilerStep em AbstractAstSwitcherStep extends AbstractCompilerStep
-done * criar AbstractAstTransformerStep extends AbstractCompilerStep
-done * unit tests para o compilador/interpretador
-	done * criar uma pasta onde cada arquivo .boo é um testcase com um equivalente .out
-	que contém a saída esperada
-	done * o teste executa todos os passos da compilação normal e verifica o arquivo final com peverify
-done * mover todos as constantes de tipo de BindingManager para Types
-done * testes para enum (Criar enum em Boo.Tests e escrever alguns test cases)
-done * LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression()) de assignment e declara a variável
-
-Milestone 3.6 (faxina)
------------------------
-done * boxing (print e StringFormatting)
-done * GPL license for all source files
-
-done * trocar todos os testes do parser para ao invés de utilizarem xml como base de comparação (o
-que falha no mono já que os xmls gerados são diferentes), utilizar o BooPrinter para gerar a
-forma canônica, dessa forma, BooPrinter também será testado.
-
-done * renomear ListDisplayExpression for IteratorDisplayExpression
-
-done * todos as construçoes que suportam blocos (for, while, if, given, try, catch, etc) não devem possuir
-uma StatementCollection diretamente como filha mas utilizar um Block ao invés, isso facilita o tratamento
-genérico de blocos nos passos (facilitar mover/trocar blocos inteiros de lugar)
-
-done * mover toda dependência no ANTLR para outro assembly e remover qualquer referência aos simbolos
-antlr dos fontes de Boo.dll e Boo.Tests.dll (incluíndo AST, etc)
-
-done * mover boo.g e booel.g para src/Boo.Antlr
-
-done * Remover toda e qualquer menção à Assembly.Emit do SemanticStep (e considerar a possibilidade de
-remover o AssemblySetupStep): SemanticStep deve lidar exclusivamente com as semânticas e transformaçoes
-exigidas pela linguagem, permitindo múltiplos backends de geraçao de código
-
-done * unificar SetupAssemblyStep com EmitAssemblyStep
-
-done * criar um nó Unless
-
-done * booc nant task (em boo, obviamente)
-
-done * typeof
-
-done * AstAttribute vira IAstAttribute que implementa ICompilerStep
-
-done * Criar AbstractAstAttribute extends AbstractCompilerStep
-
-done * código de erro para todas as mensagens
-
-done * mover todas as mensagens de errors para CompilerErrorFactory
-
-done * criar mecanismo de teste para mensagens de erro
-
-done * null
-
-done * is/is not
-
-done * super
-
-done * recursive methods
-
-done * EnsureMethodIsResolved => EnsureMemberIsResolved
-	done * utilizar um grafo de dependências ao invés do sistema de eventos
-	
-done * field initializers
-
-done * mover default super constructor call para SemanticStep
-
-done * classes podem ser declaradas em qualquer ordem
-
-done * campos podem ser declarados em qualquer ordem
-
-done * propriedades podem ser declaradas em qualquer ordem
-
-done * portar todos os testes em ITL.Security.Tests para boo
-	done * usar tipos em atributos (sem precisar do typeof)
-	done * atributos para métodos
-	done * indexers (eg: collection[0], collection["rodrigob"])
-		done * tuple indexer
-		done * negative tuple indexer
-		done * generic indexer (DefaultMemberAttribute)
-	done * (byte)
-	done * timespan literals
-	done * tuples should be of the most generic type for its elements:
-		done eg:
-			done ("rodrigo", "bamboo") should be (string) <= string[]
-			done ("foo", 3) should be object
-	done * RealLiteralExpression:
-		done * 1.5
-		done * .0
-	done * real type
-	done * unary operators
-		done * ++
-	done * binary operators		
-		done * -
-		done * +
-		done * *
-		done * /		
-	done * len special function:
-		done * for tuples, array.Length
-		done * for lists, list.Count
-		done * for strings, string.Length
-		done * for objects, invocar RuntimeServices.Len()
-	done * SemanticStep deve reconhecer as funçoes tuple(Type, ...) para deduzir o tipo
-	das expressoes de acordo
-	done * zip: versão com dois argumentos
-	done * assign to Slicing
-		done * hash["foo"] = "bar"
-		done * hash[0] = "bar"
-		done * array[0] = "foo"
-		done * ambiguous slicing
-	done * rich assignments
-		done * +=
-		
-done * mecanismo de inferência de tipos deve utilizar um Grafo mais completo contendo
-a informação de dependência de nós para cada nó na lista pending, o método
-ITypeResolver.Resolve só é invocado para um nó quando pelo menos um dos nós
-na lista de dependências tenha sido alterado
-	done * criar Node.Replace(existing, newNode) e ReplaceBy(newNode) = ParentNode.Replace(this, newNode)
-	done * trocar BinaryExpression resulting = newNode por node.ReplaceBy(newNode)
-	done * BinaryExpression devem participar do mecanismo
-		done * BinaryExpressionResolver
-			done * Resolve só age enquanto a BinaryExpression not bound to Error
-			done * e só age quando !IsUnknown(node.Left) && !IsUnknown(node.Right)
-			done * if IsError(node.Left) or IsError(node.Right), Error(this)
-	
-done * trocar kindof por isa
-
-done * logical operators
-	done * or
-	done * and
-	
-done * bitwise | para inteiros e enums de mesmo tipo
-
-done * comparison operators para números:
-	done * >, >=
-	done * <, <=
-	
-done * long literals
-
-done * promoção automática de int para long
-
-done * promoção numérica na inferência de tipos de retorno	
-
-done * (parcialmente) implementação de interfaces
-
-done * indexed properties:
-	Item(key as string):
-		get:
-			return _hash[key]
-		set:
-			_hash[key] = value
-
-done * enum
-
-done * usar classes definidas na mesma CompileUnit
-
-done * usar classes em módulos diferentes, no mesmo namespace, sem precisar importar o namespace
-
-done * usar métodos definidos em outros módulos no namespace global
-
-done * usar métodos definidos no mesmo módulo em uma classe
-
-done * usar métodos definidos em outros módulos no mesmo namespace
-
-done * ERROR: can't redefine primitive: 'string'
-
-done * operador '=='
-	done * para números é mapeado para instrução il ceq
-	done * para objetos que sobrecarregam o operador op_Equality
-	done * para o restante é mapeado para object.Equals
-	
-done * resolução de operadores sobrecarregados
-
-done * string operators: + and *
-
-done * renomear real para double e criar float
-
-done * resolução de operadores sobrecarregados:
-	eg: 2*[1, 2] == [1, 2]*2
-	
-done * procurar uma versão dos operadores em RuntimeServices para unificar a inclusão de novos operadores:
-	done * RuntimeServices.op_Multiply(int, string)
-	done * RuntimeServices.op_Multiply(string, int)
-	done * RuntimeServices.op_Addition(string, object)
-	done * RuntimeServices.op_Addition(object, string)	
-	done * RuntimeServices.op_Multiply(int, Array)
-	done * RuntimeServices.op_Multiply(Array, int)	
-	done * RuntimeServices.op_Member(string, string)
-	done * RuntimeServices.op_NotMember(string, string)
-	
-done * comportamento de 'as' com value types: erro
-
-done * implementação de interfaces
-
-done * string complex slicing
-
-done * array complex slicing
-
-done * lock attribute para getters/setters:
-	Foo:
-		[lock]
-		get:
-			return _foo
-
-done * resoluçao de nomes na visitação recursiva de métodos e classes
-	eg:
-	
-		def foo():
-			local = "foo"
-			bar()
-			
-		def bar():
-			print(local) #<----
-			
-	done * todo namespace tem uma ligação com o namespace pai
-	done * declarations namespace ganha uma ligaçao artifical com o namespace corrente
-	done * CompileUnitBinding para ser o namespace Global
-	
-done * ModuleNamespace => ModuleBinding
-
-done * Cache parent namespace in InternalMethodBinding constructor
-
-done * Cache parent namespace in InternalTypeBinding constructor
-
-done * controlar o consumo de vírgulas na declaração de tuplas:
-
-	a = 1, b=2, 3 => a = (1, (b=2), 3)
-	lock foo=bar(), baz=bam(): => lock (foo=bar()), (baz=bam())
-
-done * static fields
-
-done * static constructors
-
-done * inner classes
-
-done * comparação de enums
-
-done * overload de métodos internos
-
-done * static field initializers
-
-done * shell(commandName) as string
-
-done * argv para __Main__
-
-done * builtins podem ser redefinidos como variáveis locais em assignments
-
-* booi: opçoes e um único script
-
-done * regular expressions viram campos estáticos do módulo/classe onde forem utilizados
+﻿* booi: opçoes e um único script
 
 * map(callable, enumerable)
 
-done * System.Type must be invocable
-
-done * integrar nova versão do antlr
-
-done * primitiva cast (CastExpression):
-
-	a = cast(ILogger, _log)
-	
-done * métodos recursivos ou mutuamente recursivos devem declarar o tipo de retorno
-
 * check return types for method overrides
-
-done * field initializers can be declared in any order
 
 * tipos callable implementam equivalência estrutural, assim, um tipo callable
 que é wrapper sobre um método qualquer, lembra o método, seus tipos de parâmetro e
@@ -365,8 +35,6 @@ que precisarem? Isso iria permitir remover os casts de EmitAssemblyStep
 	except:
 		pass
 
-done * recriar o gerador de AST em boo
-
 * += para eventos vira add_Event(DelegateConstructor(..., ...))
 
 * ref, out parameters
@@ -376,8 +44,6 @@ done * recriar o gerador de AST em boo
 * module attributes: [module: ]
 
 * remover DepthFirstTransformer pois não é mais necessário e só confunde...
-
-done * internal method overloading resolution
 
 * modo MACRO de compilação (ver macro.boo)
 
@@ -399,28 +65,13 @@ derivada de Control (que tem uma propriedade chamada Size):
 		para todas as suas possibilidades; assim, temos um AmbiguousBinding
 		que pode ser resolvido (levando em conta primariamente a capacidade
 		de ser chamado ou não);
-		
-done * Statement and Block should be polymorphic?
 
 * StatementGroup para permitir o agrupamento de statements com mesmo propósito
-	
-done * override keyword to allow the developer to make sure a method is a override
-
-Milestone 3.7 (macro infraestructure)
--------------------------------------
-done * macro infrastructure
-done * using macro
-done * lock macro
 
 
 Milestone 3.8
 -------------
-done * try/catch/ensure
-done * raise
 * ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
-* statement modifiers:
-	done * unless
-	done * while
 * float literals: 3.0f
 * hexadecimal integer literals: 0x01
 * binary literals: 0b001
@@ -450,11 +101,7 @@ Milestone 3.9 (better error checking)
 	
 Milestone 4 (delegate support)
 ------------------------------
-
-done * automatic delegate instance creation
 * automatic delegate interface adaptation
-done * native regular expression support:
-	done * re expression /foo/
 
 Milestone 4.3 (algumas otimizações)
 ---------------------------
@@ -475,28 +122,7 @@ e declarar os tipos de acordo
 Milestone 5
 -----------
 
-done * classes
-done * declara��o de campos
-done * declara��o de propriedades
-done * defini��o de m�todos
-done * expressões simples com inteiros
-done * concatenação de strings
-done * concatenação de strings com inteiros
-done * classes devem ser serializ�veis
-done * cria��o de objetos (classes internas)
-done * chamada de m�todos est�ticos (classes internas)
-done * chamada de m�todos instance
-done * null expression
 * assert macro
-done * tuples (arrays) - operador v�rgula => a = 3, 5
-done * tuple unpacking - a, b  = 3, 5
-done * tuple indexing (a[0] = 1)
-done * for item in tuple
-done * property access
-done * property assignment
-done * list creation [1, 2, 3]
-done * list indexing
-done * bool (true, false)
 * operadores de convers�o (operator bool, operator string, etc)
 
 Milestone 6 (dynamic behavior)

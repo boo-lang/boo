@@ -87,6 +87,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
+		IConstructorBinding TextReaderEnumerator_Constructor;
+		
 		/*
 		 * Useful filters.
 		 */
@@ -123,6 +125,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.Int }));
 			ICallable_Call = (IMethodBinding)BindingManager.ICallableTypeBinding.Resolve("Call");
 			Activator_CreateInstance = (IMethodBinding)BindingManager.AsBinding(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
+			TextReaderEnumerator_Constructor = (IConstructorBinding)BindingManager.AsBinding(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
 			
 			ApplicationException_StringConstructor =
 					(IConstructorBinding)BindingManager.AsBinding(
@@ -1548,21 +1551,30 @@ namespace Boo.Lang.Compiler.Pipeline
 		/// </summary>
 		Expression ProcessIterator(Expression iterator, DeclarationCollection declarations, bool declarePrivateScopeLocals)
 		{
-			ITypeBinding iteratorType = GetExpressionType(iterator);
+			Expression newIterator = null;
 			
-			bool runtimeIterator = false;
-			
+			ITypeBinding iteratorType = GetExpressionType(iterator);			
+			bool runtimeIterator = false;			
 			if (!BindingManager.IsError(iteratorType))
 			{
 				CheckIterator(iterator, iteratorType, out runtimeIterator);
-			}
-			ProcessDeclarationsForIterator(declarations, iteratorType, declarePrivateScopeLocals);			
+			}			
 			if (runtimeIterator)
 			{
-				return CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
+				if (IsTextReader(iteratorType))
+				{
+					iteratorType = TextReaderEnumerator_Constructor.DeclaringType;
+					newIterator = CreateMethodInvocation(TextReaderEnumerator_Constructor, iterator);
+				}
+				else
+				{
+					newIterator = CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
+				}
 			}
 			
-			return null;
+			ProcessDeclarationsForIterator(declarations, iteratorType, declarePrivateScopeLocals);
+			
+			return newIterator;
 		}
 		
 		override public void OnForStatement(ForStatement node)
@@ -2779,7 +2791,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		bool IsRuntimeIterator(ITypeBinding type)
 		{
 			return  BindingManager.ObjectTypeBinding == type ||
-					IsAssignableFrom(typeof(System.IO.TextReader), type);
+					IsTextReader(type);					
+		}
+		
+		bool IsTextReader(ITypeBinding type)
+		{
+			return IsAssignableFrom(typeof(System.IO.TextReader), type);
 		}
 		
 		void CheckIterator(Expression iterator, ITypeBinding type, out bool runtimeIterator)
@@ -3272,14 +3289,63 @@ namespace Boo.Lang.Compiler.Pipeline
 			return false;
 		}
 		
-		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
+		ITypeBinding GetExternalEnumeratorItemType(ITypeBinding iteratorType)
 		{
-			ITypeBinding defaultDeclType = BindingManager.ObjectTypeBinding;
+			Type type = ((ExternalTypeBinding)iteratorType).Type;
+			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)System.Attribute.GetCustomAttribute(type, typeof(EnumeratorItemTypeAttribute));
+			if (null != attribute)
+			{
+				return BindingManager.AsTypeBinding(attribute.ItemType);
+			}
+			return null;
+		}
+		
+		ITypeBinding GetEnumeratorItemTypeFromAttribute(ITypeBinding iteratorType)
+		{
+			InternalTypeBinding internalType = iteratorType as InternalTypeBinding;
+			if (null == internalType)
+			{
+				return GetExternalEnumeratorItemType(iteratorType);
+			}
 			
+			ITypeBinding enumeratorItemTypeAttribute = BindingManager.AsTypeBinding(typeof(EnumeratorItemTypeAttribute));
+			foreach (Boo.Lang.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
+			{				
+				IConstructorBinding constructor = GetBinding(attribute) as IConstructorBinding;
+				if (null != constructor)
+				{
+					if (constructor.DeclaringType == enumeratorItemTypeAttribute)
+					{
+						return GetBoundType(attribute.Arguments[0]);
+					}
+				}
+			}
+			return null;
+		}
+		
+		ITypeBinding GetEnumeratorItemType(ITypeBinding iteratorType)
+		{
 			if (iteratorType.IsArray)
 			{
-				defaultDeclType = iteratorType.GetElementType();
+				return iteratorType.GetElementType();
 			}
+			else
+			{
+				if (iteratorType.IsClass)
+				{
+					ITypeBinding enumeratorItemType = GetEnumeratorItemTypeFromAttribute(iteratorType);
+					if (null != enumeratorItemType)
+					{
+						return enumeratorItemType;
+					}
+				}
+			}
+			return BindingManager.ObjectTypeBinding;
+		}
+		
+		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
+		{
+			ITypeBinding defaultDeclType = GetEnumeratorItemType(iteratorType);
 			
 			foreach (Declaration d in declarations)
 			{	
