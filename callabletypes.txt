@@ -1,0 +1,18 @@
+Automatic callable type conversions
+===================================
+
+Type t => ICallable
+
+	Boo.Lang.RuntimeServices.CallableType(t)
+	
+instance Method reference => ICallable or System.Object
+
+	new instance of a private ICallable implementation that
+	takes original object reference in constructor and calls
+	the apropriate method in ICallable.Call
+	
+static Method reference => ICallable or System.Object
+
+	singleton instance of a private ICallable implementation
+	that calls apropriate method in ICallable.Call 
+

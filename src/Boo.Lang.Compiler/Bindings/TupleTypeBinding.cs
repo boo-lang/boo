@@ -117,6 +117,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public int GetTypeDepth()
+		{
+			return 2;
+		}
+		
 		public int GetArrayRank()
 		{
 			return 1;

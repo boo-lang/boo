@@ -216,6 +216,8 @@ namespace Boo.Lang.Compiler.Bindings
 			get;
 		}
 		
+		int GetTypeDepth();
+		
 		int GetArrayRank();
 		
 		ITypeBinding GetElementType();

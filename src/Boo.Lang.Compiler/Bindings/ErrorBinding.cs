@@ -119,6 +119,11 @@ namespace Boo.Lang.Compiler.Bindings
 			return null;
 		}
 		
+		public virtual int GetTypeDepth()
+		{
+			return 0;
+		}
+		
 		public virtual bool IsSubclassOf(ITypeBinding other)
 		{
 			return false;

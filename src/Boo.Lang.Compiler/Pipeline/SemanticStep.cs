@@ -3048,10 +3048,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		class BindingScore : IComparable
 		{
-			public IBinding Binding;
+			public IMethodBinding Binding;
 			public int Score;
 			
-			public BindingScore(IBinding binding, int score)
+			public BindingScore(IMethodBinding binding, int score)
 			{
 				Binding = binding;
 				Score = score;
@@ -3108,6 +3108,44 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		/*
+		int GetInterfaceDepth(ITypeBinding type)
+		{
+			ITypeBinding[] interfaces = type.GetInterfaces();
+			int[] depths = new int[interfaces.Length];
+			for (int i=0; i<interfaces.Length; ++i)
+			{
+				depths[i] = interf
+			}
+		}
+		*/
+		
+		BindingScore GetBiggerScore(List scores)
+		{
+			scores.Sort();
+			BindingScore first = (BindingScore)scores[0];
+			BindingScore second = (BindingScore)scores[1];
+			if (first.Score > second.Score)
+			{
+				return first;
+			}
+			return null;
+		}
+		
+		void ReScoreByHierarchyDepth(List scores)
+		{
+			foreach (BindingScore score in scores)
+			{
+				score.Score += score.Binding.DeclaringType.GetTypeDepth();
+				
+				int count = score.Binding.ParameterCount;
+				for (int i=0; i<count; ++i)
+				{
+					score.Score += score.Binding.GetParameterType(i).GetTypeDepth();
+				}
+			}			
+		}
+		
 		IBinding ResolveMethodReference(Node node, NodeCollection args, IBinding[] bindings, bool treatErrors)
 		{
 			List scores = new List();
@@ -3150,7 +3188,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						if (score >= 0)
 						{
 							// only positive scores are compatible
-							scores.Add(new BindingScore(binding, score));						
+							scores.Add(new BindingScore(mb, score));						
 						}
 					}
 				}
@@ -3163,20 +3201,22 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (scores.Count > 1)
 			{
-				scores.Sort();
-				
-				BindingScore first = (BindingScore)scores[0];
-				BindingScore second = (BindingScore)scores[1];
-				if (first.Score > second.Score)
+				BindingScore score = GetBiggerScore(scores);
+				if (null != score)
 				{
-					return first.Binding;
+					return score.Binding;
 				}
-				// todo: remove from scores, all the lesser
-				// scored bindings
+				
+				ReScoreByHierarchyDepth(scores);
+				score = GetBiggerScore(scores);
+				if (null != score)
+				{
+					return score.Binding;					
+				}
 				
 				if (treatErrors)
 				{
-					Error(node, CompilerErrorFactory.AmbiguousReference(node, first.Binding.Name, scores));
+					Error(node, CompilerErrorFactory.AmbiguousReference(node, bindings[0].Name, scores));
 				}
 			}
 			else

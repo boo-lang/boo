@@ -18,8 +18,6 @@ done * artigo "Estendendo o compilador utilizando pipelines",
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock
 	
-* recursos
-	
 * CallableTypeBinding
 	* para funçoes
 	* para delegates (o tipo de um evento seria o CallableTypeBinding equivalente ao delegate)
@@ -36,6 +34,8 @@ done * artigo "Estendendo o compilador utilizando pipelines",
 	
 * iterator expressions
 	return i*3 for i in range(10)
+	
+* recursos
 
 done * isolar Boo.Lang.Compiler em seu próprio assembly
 
@@ -128,11 +128,10 @@ Milestone 3.8
 * float literals: 3.0f
 * hexadecimal integer literals: 0x01
 * binary literals: 0b001
-* docbook Step (generates docbook files with all the documentation)
 	
 Milestone 3.9 (better error checking)
 -------------------------------------
-* constructors can't have a return value
+* constructors can't return values
 * constructors can't yield values
 * static constructors must be public
 * static constructors cannot declare parameters
@@ -140,12 +139,17 @@ Milestone 3.9 (better error checking)
 * can't create instance of abstract class 'XXX'
 * can't create instance of enum 'XXX'
 * class 'XXX' already has a definition for a member 'YYY' with the signature 'ZZZ'
+* symbols starting with '__', 'get_', 'set_', 'add_' and 'remove_' are reserved by the compiler
 * WARNING: unused local variable
 * WARNING: local 'xx' is used before initialization
 * WARNING: property getter should return a value
 * WARNING: unreachable code detected
 * WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?
 * WARNING: performance hit: equality operator with object references
+* WARNING: expressions in iterators can't have locally visible side-effects
+	def foo(value as int):
+		return ++value*i for i in range(10)
+
 * method override with different accessibility
 * override accessibility checks
 done * inheritance cycles (A(B), B(C), C(A))
@@ -155,9 +159,11 @@ done * inheritance cycles (A(B), B(C), C(A))
 Milestone 4 (delegate support)
 ------------------------------
 * automatic delegate interface adaptation
+* docbook Step (generates docbook files with all the documentation)
 
 Milestone 4.3 (algumas otimizações)
 ---------------------------
+* statically typed IEnumerator pattern
 * compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator
 e declarar os tipos de acordo
 *  patterns ((in|is|isa) (not)?) (value1, value2), em outras palavras:

@@ -48,6 +48,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		ITypeBinding _elementType;
 		
+		int _typeDepth = -1;
+		
 		internal ExternalTypeBinding(BindingManager manager, Type type)
 		{
 			if (null == type)
@@ -222,6 +224,15 @@ namespace Boo.Lang.Compiler.Bindings
 			return _members;
 		}
 		
+		public int GetTypeDepth()
+		{
+			if (-1 == _typeDepth)
+			{
+				_typeDepth = GetTypeDepth(_type);
+			}
+			return _typeDepth;
+		}
+		
 		public virtual INamespace ParentNamespace
 		{
 			get
@@ -253,6 +264,48 @@ namespace Boo.Lang.Compiler.Bindings
 		override public string ToString()
 		{
 			return FullName;
+		}
+		
+		static int GetTypeDepth(Type type)
+		{
+			if (type.IsInterface)
+			{
+				return GetInterfaceDepth(type);
+			}
+			return GetClassDepth(type);
+		}
+		
+		static int GetClassDepth(Type type)
+		{
+			int depth = 0;			
+			Type objectType = Types.Object;
+			while (type != objectType)
+			{
+				type = type.BaseType;
+				++depth;
+			}
+			return depth;
+		}
+		
+		static int GetInterfaceDepth(Type type)
+		{
+			Type[] interfaces = type.GetInterfaces();
+			if (interfaces.Length > 0)
+			{			
+				if (1 == interfaces.Length)
+				{
+					return 1+GetInterfaceDepth(interfaces[0]);
+				}
+				
+				int[] depths = new int[interfaces.Length];
+				for (int i=0; i<interfaces.Length; ++i)
+				{
+					depths[i] = GetInterfaceDepth(interfaces[i]);
+				}
+				Array.Sort(depths);
+				return 1+depths[depths.Length-1];
+			}
+			return 1;
 		}
 	}
 }

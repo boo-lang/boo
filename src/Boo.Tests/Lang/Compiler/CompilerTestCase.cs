@@ -193,6 +193,14 @@ namespace Boo.Tests.Lang.Compiler
 		}
 	}
 	
+	public class ClassWithNewMethod : DerivedClass
+	{
+		new public void Method2()
+		{
+			Console.WriteLine("ClassWithNewMethod.Method2");
+		}
+	}	
+	
 	public class Disposable : System.IDisposable
 	{
 		public Disposable()
@@ -1238,6 +1246,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void OverloadingSelection()
 		{
 			RunCompilerTestCase("overloading1.boo");
+		}
+		
+		[Test]
+		public void OverloadingWithNewMethod()
+		{
+			RunCompilerTestCase("overloading2.boo");
 		}
 		
 		[Test]
