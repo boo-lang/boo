@@ -56,6 +56,8 @@ namespace Boo.Lang.Compiler
 		
 		bool _debug;
 		
+		bool _ducky;
+		
 		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
 
 		public CompilerParameters()
@@ -209,6 +211,22 @@ namespace Boo.Lang.Compiler
 			set
 			{
 				_debug = value;
+			}
+		}
+		
+		/// <summary>
+		/// Use duck instead of object as the most generic type.
+		/// </summary>
+		public bool Ducky
+		{
+			get
+			{
+				return _ducky;
+			}
+			
+			set
+			{
+				_ducky = value;
 			}
 		}
 	}

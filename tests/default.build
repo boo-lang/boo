@@ -49,6 +49,7 @@
 				<include name="build/AttributesTestFixture.cs" />
 				<include name="build/SemanticsTestFixture.cs" />
 				<include name="build/MacrosTestFixture.cs" />
+				<include name="build/DuckyTestFixture.cs" />
 			</sources>
 			
 			<references basedir="build">

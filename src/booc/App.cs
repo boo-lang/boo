@@ -292,6 +292,12 @@ namespace BooC
 										break;
 									}
 									
+									case "ducky":
+									{
+										_options.Ducky = true;
+										break;
+									}
+									
 									default:
 									{
 										InvalidOption(arg);								

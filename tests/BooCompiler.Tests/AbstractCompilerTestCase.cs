@@ -74,6 +74,11 @@ namespace BooCompiler.Tests
 			_parameters.Pipeline = SetUpCompilerPipeline();
 			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
+			CustomizeCompilerParameters();
+		}
+		
+		protected virtual void CustomizeCompilerParameters()
+		{
 		}
 		
 		protected virtual void CopyDependencies()

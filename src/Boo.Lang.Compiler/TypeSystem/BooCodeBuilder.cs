@@ -626,7 +626,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 					else
 					{
-						parameter.Type = CreateTypeReference(_tss.ObjectType);
+						parameter.Type = CreateTypeReference(_tss.DefaultType);
 					}
 				}
 				parameter.Entity = new InternalParameter(parameter, i + delta);

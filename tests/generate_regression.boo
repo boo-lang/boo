@@ -200,5 +200,21 @@ namespace BooCompiler.Tests
 		}
 """)
 
+GenerateTestFixture("testcases/ducky", "build/DuckyTestFixture.cs", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Pipelines;
+	
+	[TestFixture]
+	public class DuckyTestFixture : AbstractCompilerTestCase
+	{
+		protected override void CustomizeCompilerParameters()
+		{
+			_parameters.Ducky = true;
+		}
+""")
+
 
 	

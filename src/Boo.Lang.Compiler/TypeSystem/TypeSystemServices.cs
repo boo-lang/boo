@@ -135,6 +135,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		CompilerContext _context;
 		
+		public IType DefaultType;
+		
 		public TypeSystemServices() : this(new CompilerContext())
 		{
 		}
@@ -189,9 +191,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(IntPtrType = new ExternalType(this, Types.IntPtr));
 			Cache(MulticastDelegateType = new ExternalType(this, Types.MulticastDelegate));
 			Cache(DelegateType = new ExternalType(this, Types.Delegate));
+						
+			DefaultType = (Context.Parameters.Ducky) ? DuckType : ObjectType;
 			
 			ObjectArrayType = GetArrayType(ObjectType);
-			
+
 			PreparePrimitives();
 		}
 		
@@ -225,12 +229,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ICallableType;
 			}
 			
-			IType obj = ObjectType;			
 			if (current.IsClass && candidate.IsClass)
 			{
-				if (current ==  obj || candidate == obj)
+				if (current ==  DefaultType || candidate == DefaultType)
 				{
-					return obj;
+					return DefaultType;
 				}
 				if (current.GetTypeDepth() < candidate.GetTypeDepth())
 				{
@@ -238,7 +241,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}			
 				return GetMostGenericType(current, candidate.BaseType);
 			}			
-			return obj;
+			return DefaultType;
 		}
 		
 		public IType GetPromotedNumberType(IType left, IType right)
@@ -408,7 +411,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 			}
-			return ObjectType;
+			return DefaultType;
 		}
 		
 		public IType GetExpressionType(Expression node)
