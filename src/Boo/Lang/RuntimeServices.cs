@@ -50,8 +50,6 @@ namespace Boo.Lang
 												
 		const BindingFlags GetPropertyBindingFlags = DefaultBindingFlags |
 												BindingFlags.GetProperty;
-												
-		static CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
 			
 		public static object Invoke(object target, string name, object[] args)
 		{
@@ -415,47 +413,83 @@ namespace Boo.Lang
 		
 		public static Int16 UnboxInt16(object value)
 		{
-			return CheckNumericPromotion(value).ToInt16(InvariantCulture);
+			if (value is Int16)
+			{
+				return (Int16)value;
+			}
+			return CheckNumericPromotion(value).ToInt16(null);
 		}
 		
 		public static UInt16 UnboxUInt16(object value)
 		{
-			return CheckNumericPromotion(value).ToUInt16(InvariantCulture);
+			if (value is UInt16)
+			{
+				return (UInt16)value;
+			}
+			return CheckNumericPromotion(value).ToUInt16(null);
 		}
 		
 		public static Int32 UnboxInt32(object value)
 		{
-			return CheckNumericPromotion(value).ToInt32(InvariantCulture);
+			if (value is Int32)
+			{
+				return (Int32)value;
+			}
+			return CheckNumericPromotion(value).ToInt32(null);
 		}
 		
 		public static UInt32 UnboxUInt32(object value)
 		{
-			return CheckNumericPromotion(value).ToUInt32(InvariantCulture);
+			if (value is UInt32)
+			{
+				return (UInt32)value;
+			}
+			return CheckNumericPromotion(value).ToUInt32(null);
 		}
 		
 		public static Int64 UnboxInt64(object value)
 		{
-			return CheckNumericPromotion(value).ToInt64(InvariantCulture);
+			if (value is Int64)
+			{
+				return (Int64)value;
+			}
+			return CheckNumericPromotion(value).ToInt64(null);
 		}
 		
 		public static UInt64 UnboxUInt64(object value)
 		{
-			return CheckNumericPromotion(value).ToUInt64(InvariantCulture);
+			if (value is UInt64)
+			{
+				return (UInt64)value;
+			}
+			return CheckNumericPromotion(value).ToUInt64(null);
 		}
 		
 		public static Single UnboxSingle(object value)
 		{
-			return CheckNumericPromotion(value).ToSingle(InvariantCulture);
+			if (value is Single)
+			{
+				return (Single)value;
+			}
+			return CheckNumericPromotion(value).ToSingle(null);
 		}
 		
 		public static Double UnboxDouble(object value)
 		{
-			return CheckNumericPromotion(value).ToDouble(InvariantCulture);
+			if (value is Double)
+			{
+				return (Double)value;
+			}
+			return CheckNumericPromotion(value).ToDouble(null);
 		}
 		
 		public static bool UnboxBoolean(object value)
 		{
-			return CheckNumericPromotion(value).ToBoolean(InvariantCulture);
+			if (value is bool)
+			{
+				return (bool)value;
+			}
+			return CheckNumericPromotion(value).ToBoolean(null);
 		}
 		
 		public static bool ToBool(object value)
@@ -467,7 +501,7 @@ namespace Boo.Lang
 			
 			if (value is ValueType)
 			{		
-				return CheckNumericPromotion(value).ToBoolean(CultureInfo.InvariantCulture);
+				return UnboxBoolean(value);
 			}
 			
 			return true;
