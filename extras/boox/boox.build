@@ -2,7 +2,6 @@
 <project name="boox" default="run">
 
 	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
-	<property name="sharpd.dir" value="${path::get-full-path('/dotnet/SharpWT/SharpDevelop/bin')}" />
 	
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
@@ -95,14 +94,15 @@
 		</boo>
 	</target>
 	
-	<target name="init">
-
-		<echo if="${not directory::exists(sharpd.dir)}">
+	<target name="check-sharp-dir" if="${not property::exists('sharpd.dir')}">
+		<fail>
 		Please, create a file named build.properties and define the
 		property sharpd.dir pointing to the bin folder of the SharpDevelop
-		distribution or manually copy the files ICSharpCode.TextEditor.dll and
-		WeinfenLuo.WinFormsUI.dll to the build folder.
-		</echo>
+		distribution.
+		</fail>
+	</target>
+	
+	<target name="init" depends="check-sharp-dir">
 		
 		<mkdir dir="build" />
 		
