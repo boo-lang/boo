@@ -43,13 +43,20 @@ class Resolver:
 		best as IMember = null
 		line = 0
 		for m as IMember in _callingClass.Methods:
-			if m.Region.BeginLine <= _caretLine and m.Region.BeginLine > line:
-				line = m.Region.BeginLine
-				best = m
+			if m.Region != null:
+				if m.Region.BeginLine <= _caretLine and m.Region.BeginLine > line:
+					line = m.Region.BeginLine
+					best = m
 		for m as IMember in _callingClass.Properties:
-			if m.Region.BeginLine <= _caretLine and m.Region.BeginLine > line:
-				line = m.Region.BeginLine
-				best = m
+			if m.Region != null:
+				if m.Region.BeginLine <= _caretLine and m.Region.BeginLine > line:
+					line = m.Region.BeginLine
+					best = m
+		if _callingClass.Region == null:
+			for m as IMember in _callingClass.Methods:
+				if m.Region == null:
+					if best == null or best.Region.EndLine < _caretLine:
+						return m
 		return best
 	
 	_localTypes as Hashtable = {}
@@ -142,9 +149,14 @@ class Resolver:
 		if cu == null:
 			print "BooResolver: No parse information!"
 			return null
-		
 		callingClass as IClass = parserService.GetInnermostClass(cu, caretLine, caretColumn)
-		return null if callingClass == null
+		if callingClass == null:
+			print "parserServer could not find active class, using last class"
+			return null if cu.Classes.Count == 0
+			callingClass = cu.Classes[cu.Classes.Count - 1]
+			print "last class is ${callingClass}, ${callingClass.FullyQualifiedName}"
+			if callingClass.Region != null:
+				return null if callingClass.Region.BeginLine > caretLine
 		_callingClass = callingClass
 		returnClass as IClass = null
 		if expression == "self":
@@ -162,10 +174,13 @@ class Resolver:
 				return ResolveResult(array(string, 0), parserService.GetNamespaceContents(expression))
 			
 			expr = Boo.Lang.Parser.BooParser.ParseExpression("expression", expression)
+			return null if expr isa AST.IntegerLiteralExpression
 			visitor = ExpressionTypeVisitor(Resolver : self)
 			visitor.Visit(expr)
 			Print ("result", visitor.ReturnType)
-			if visitor.ReturnType != null:
+			if visitor.ReturnClass != null:
+				returnClass = visitor.ReturnClass
+			elif visitor.ReturnType != null:
 				returnClass = parserService.SearchType(visitor.ReturnType.FullyQualifiedName, callingClass, caretLine, caretColumn)
 		
 		return null if returnClass == null

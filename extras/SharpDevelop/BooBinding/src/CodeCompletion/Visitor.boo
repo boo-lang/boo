@@ -142,6 +142,7 @@ class Visitor(AbstractVisitorCompilerStep):
 			modifier = GetModifier(node)
 			c = Class(_cu, classType, modifier, region)
 			c.FullyQualifiedName = node.FullName
+			c.Documentation = node.Documentation
 			if _currentClass.Count > 0:
 				cast(Class, _currentClass.Peek()).InnerClasses.Add(c)
 			else:
@@ -181,6 +182,7 @@ class Visitor(AbstractVisitorCompilerStep):
 			method = Method(node.Name, ReturnType(node.ReturnType), GetModifier(node), GetRegion(node), GetClientRegion(node))
 			method.Parameters = GetParameters(node.Parameters)
 			method.Node = node
+			method.Documentation = node.Documentation
 			cast(Class, _currentClass.Peek()).Methods.Add(method)
 		except ex:
 			print ex.ToString()
@@ -198,6 +200,7 @@ class Visitor(AbstractVisitorCompilerStep):
 		ctor = Constructor(GetModifier(node), GetRegion(node), GetClientRegion(node))
 		ctor.Parameters = GetParameters(node.Parameters)
 		ctor.Node = node
+		ctor.Documentation = node.Documentation
 		cast(Class, _currentClass.Peek()).Methods.Add(ctor)
 	
 	override def OnField(node as AST.Field):
@@ -205,6 +208,7 @@ class Visitor(AbstractVisitorCompilerStep):
 			print "Field ${node.Name}"
 			c as Class = _currentClass.Peek()
 			field = Field(ReturnType(node.Type), node.Name, GetModifier(node), GetRegion(node))
+			field.Documentation = node.Documentation
 			if c.ClassType == ClassType.Enum:
 				field.SetModifiers(ModifierEnum.Const | ModifierEnum.SpecialName)
 			c.Fields.Add(field)
@@ -216,6 +220,7 @@ class Visitor(AbstractVisitorCompilerStep):
 		try:
 			print "Property ${node.Name}"
 			property = Property(node.Name, ReturnType(node.Type), GetModifier(node), GetRegion(node), GetClientRegion(node))
+			property.Documentation = node.Documentation
 			property.Node = node
 			cast(Class, _currentClass.Peek()).Properties.Add(property)
 		except ex:

@@ -47,7 +47,7 @@ class ExpressionFinder(IExpressionFinder):
 		// OK, first try a kind of "quick find"
 		i = offset + 1
 		forbidden = '"\'/#)]}'
-		finish = '([{=+*<'
+		finish = '([{=+*<,:'
 		start = -1
 		while i > 0:
 			i -= 1
@@ -64,7 +64,8 @@ class ExpressionFinder(IExpressionFinder):
 				start = i + 1
 				break
 		if start >= 0:
-			return GetExpression(inText, start, offset + 1)
+			if CheckString(inText, start, '/#"\'', '\r\n'):
+				return GetExpression(inText, start, offset + 1)
 		
 		inText = SimplifyCode(inText, offset)
 		if inText == null:
@@ -88,6 +89,15 @@ class ExpressionFinder(IExpressionFinder):
 					pass
 		
 		return null
+	
+	private def CheckString(text as string, offset as int, forbidden as string, finish as string):
+		i = offset
+		while i > 0:
+			i -= 1
+			c = text[i]
+			return false if forbidden.IndexOf(c) >= 0
+			return true if finish.IndexOf(c) >= 0
+		return true
 	
 	private def Pop(bracketStack as StringBuilder):
 		return -1 if bracketStack.Length == 0
@@ -139,6 +149,7 @@ class ExpressionFinder(IExpressionFinder):
 	
 	def SimplifyCode(inText as string, offset as int):
 		result = StringBuilder()
+		inStringResult = StringBuilder(' ')
 		state = 0
 		commentblocks = 0
 		inputTable = array(int, 128)
@@ -175,6 +186,12 @@ class ExpressionFinder(IExpressionFinder):
 					state = 0
 				else:
 					state = 14
+			elif action == 9:
+				if state == 9:
+					inStringResult.Append(c)
+				else:
+					inStringResult.Length = 1
+				state = action
 			elif action == 0 or action == 12:
 				if state == 2 or (state >= 6 and state <= 11):
 					result.Append("string.Empty")
@@ -185,5 +202,7 @@ class ExpressionFinder(IExpressionFinder):
 				state = action
 		if state == 0 or state == 2 or state == 12:
 			return result.ToString()
+		elif state == 9:
+			return inStringResult.ToString()
 		else:
 			return null
