@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Tests
+namespace Boo.Lang.Tests
 
 import NUnit.Framework
 

@@ -42,6 +42,19 @@ namespace Boo.Lang
 		{
 		}
 		
+		public Hash(IEnumerable enumerable)
+		{
+			if (null == enumerable)
+			{
+				throw new ArgumentNullException("enumerable");
+			}
+			
+			foreach (Array tuple in enumerable)
+			{
+				Add(tuple.GetValue(0), tuple.GetValue(1));
+			}
+		}
+		
 		public Hash(bool caseInsensitive) : base(CaseInsensitiveHashCodeProvider.Default, CaseInsensitiveComparer.Default)
 		{
 		}
