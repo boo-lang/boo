@@ -36,11 +36,14 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override bool EnterCompileUnit(CompileUnit cu)
-		{			
-			// Boo.Lang at the highest level
-			//_namespace = new NamespaceBinding(BindingManager, )
+		{
+			// Global names at the highest level
+			PushNamespace(UsingResolutionStep.GetGlobalNamespace(CompilerContext));
+			
+			// then Boo.Lang
+			// todo:
 			                           
-			// then builtins resolution
+			// then builtins resolution			
 			PushNamespace(new ExternalTypeBinding(BindingManager, typeof(Boo.Lang.Builtins)));
 			return true;
 		}
@@ -120,20 +123,27 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
-		{			
+		{
+			IBinding nodeBinding = ErrorBinding.Default;
+			
 			IBinding binding = GetBinding(node.Target);
-			if (binding is ITypedBinding)
+			if (BindingType.Error != binding.BindingType)
 			{
-				binding = ((ITypedBinding)binding).BoundType;
-			}
+				ITypedBinding typedBinding = binding as ITypedBinding;
+				if (null != typedBinding)
+				{
+					binding = typedBinding.BoundType;
+				}
 			
-			IBinding member = ((INameSpace)binding).Resolve(node.Name);
-			
-			IBinding nodeBinding = member;
-			if (null == member)
-			{					
-				nodeBinding = ErrorBinding.Default;
-				Errors.MemberNotFound(node, binding.Name);
+				IBinding member = ((INameSpace)binding).Resolve(node.Name);				
+				if (null == member)
+				{										
+					Errors.MemberNotFound(node, binding.Name);
+				}
+				else
+				{
+					nodeBinding = member;
+				}
 			}
 			
 			BindingManager.Bind(node, nodeBinding);
@@ -416,7 +426,7 @@ namespace Boo.Ast.Compilation.Steps
 				Type expressionType = BindingManager.GetBoundType(args[i]);
 				Type parameterType = method.GetParameterType(i);
 				if (!IsAssignableFrom(parameterType, expressionType) &&
-				    !CanReachByDownCast(parameterType, expressionType))
+				    !CanBeReachedByDownCast(parameterType, expressionType))
 				{
 					Errors.MethodSignature(sourceNode, GetSignature(args), GetSignature(method));
 					return false;
@@ -460,7 +470,7 @@ namespace Boo.Ast.Compilation.Steps
 			return expectedType.IsAssignableFrom(actualType);
 		}
 		
-		static bool CanReachByDownCast(Type expectedType, Type actualType)
+		static bool CanBeReachedByDownCast(Type expectedType, Type actualType)
 		{
 			return actualType.IsAssignableFrom(expectedType);
 		}		
@@ -524,7 +534,7 @@ namespace Boo.Ast.Compilation.Steps
 								// upcast scores 2
 								score += 2;
 							}
-							else if (CanReachByDownCast(parameterType, expressionType))
+							else if (CanBeReachedByDownCast(parameterType, expressionType))
 							{
 								// downcast scores 1
 								score += 1;

@@ -70,10 +70,6 @@ namespace Boo.Ast.Compilation
 				{
 					context.Errors.StepExecution(step, x);
 				}
-				finally
-				{
-					step.Dispose();
-				}
 			}
 		}
 

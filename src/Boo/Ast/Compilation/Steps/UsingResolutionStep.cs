@@ -8,12 +8,19 @@ using Boo.Ast.Compilation.Binding;
 using AssemblyInfo=Boo.Ast.Compilation.Binding.NamespaceBinding.AssemblyInfo;
 
 namespace Boo.Ast.Compilation.Steps
-{
-	public class UsingResolutionStep : AbstractCompilerStep
+{	
+	public class UsingResolutionStep : AbstractCompilerStep, INameSpace
 	{
-		Hashtable _externalNamespaces = new Hashtable();
+		static object GlobalNamespaceKey = new object();
+		
+		Hashtable _namespaces = new Hashtable();
 		
 		Hashtable _externalTypes = new Hashtable();
+		
+		public static INameSpace GetGlobalNamespace(CompilerContext context)
+		{
+			return (INameSpace)context.CompileUnit[GlobalNamespaceKey];
+		}		
 		
 		public override void Run()
 		{
@@ -25,25 +32,10 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					IBinding binding = ErrorBinding.Default;
 					
-					List assemblies = (List)_externalNamespaces[using_.Namespace];
-					if (null == assemblies)
+					IBinding ns = ResolveFullName(using_.Namespace);					
+					if (null == ns)
 					{
-						List types = (List)_externalTypes[using_.Namespace];
-						if (null != types)
-						{
-							if (types.Count > 1)
-							{
-								Errors.AmbiguousTypeReference(using_, types);								
-							}
-							else
-							{
-								binding = BindingManager.ToTypeBinding((Type)types[0]);
-							}
-						}
-						else
-						{
-							Errors.InvalidNamespace(using_);
-						}
+						Errors.InvalidNamespace(using_);
 					}
 					else
 					{
@@ -51,12 +43,14 @@ namespace Boo.Ast.Compilation.Steps
 						{	
 							// todo:
 						}
-						binding = new Binding.NamespaceBinding(BindingManager, using_, (AssemblyInfo[])assemblies.ToArray(typeof(AssemblyInfo)));
+						binding = ns;
 					}
 					
 					BindingManager.Bind(using_, binding);
 				}
 			}
+			
+			CompileUnit[GlobalNamespaceKey] = this;
 		}
 		
 		void ResolveUsingAssemblyReferences()
@@ -87,6 +81,33 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public IBinding Resolve(string name)
+		{
+			IBinding binding = (IBinding)_namespaces[name];
+			if (null == binding)
+			{
+				// todo: resolve from externalTypes here
+			}			
+			return binding;
+		}
+		
+		IBinding ResolveFullName(string name)
+		{
+			string[] parts = name.Split('.');
+			string topLevel = parts[0];
+			
+			INameSpace ns = (INameSpace)_namespaces[topLevel];
+			for (int i=1; i<parts.Length; ++i)
+			{
+				ns = (INameSpace)ns.Resolve(parts[i]);
+				if (null == ns)
+				{
+					break;
+				}
+			}
+			return (IBinding)ns;
+		}
+		
 		void OrganizeNamespaces()
 		{
 			foreach (Assembly asm in CompilerParameters.References)
@@ -99,13 +120,32 @@ namespace Boo.Ast.Compilation.Steps
 					{
 						ns = string.Empty;
 					}
-					List assemblies = GetList(_externalNamespaces, ns);
-					assemblies.AddUnique(new AssemblyInfo(asm, types));
+					
+					string[] namespaceHierarchy = ns.Split('.');
+					string topLevelName = namespaceHierarchy[0];
+					Binding.NamespaceBinding topLevel = GetNamespaceBinding(topLevelName);
+					Binding.NamespaceBinding current = topLevel;
+					for (int i=1; i<namespaceHierarchy.Length; ++i)
+					{
+						current = current.GetChildNamespace(namespaceHierarchy[i]);
+						// Trace(current);
+					}					
+					current.Add(new AssemblyInfo(asm, types));
 					
 					List typeList = GetList(_externalTypes, type.FullName);
 					typeList.Add(type);
 				}				
 			}
+		}
+		
+		Binding.NamespaceBinding GetNamespaceBinding(string name)
+		{
+			Binding.NamespaceBinding binding = (Binding.NamespaceBinding)_namespaces[name];	
+			if (null == binding)
+			{
+				_namespaces[name] = binding = new Binding.NamespaceBinding(BindingManager, name);
+			}
+			return binding;
 		}
 		
 		List GetList(Hashtable hash, string key)

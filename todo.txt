@@ -59,8 +59,8 @@ done * if string compare
 Milestone 3.4 (rgrep.boo)
 -------------------------
 done * recursive functions
-* namespace resolution for MemberReferenceExpression
-* 
+done * namespace resolution for MemberReferenceExpression
+* using namespace as
 
 Milestone 3.5 (revisão)
 -----------------------
