@@ -77,15 +77,28 @@ class PrepareScriptStep(AbstractCompilerStep):
 
 [TaskName("boo")]
 class BooTask(AbstractBooTask):
+
+	_src as FileInfo
+	
+	[TaskAttribute("src", Required: false)]
+	Source:
+		get:
+			return _src
+		set:
+			_src = value
+			
 	override protected def ExecuteTask():
-		code = self.XmlNode.InnerText
 		
 		compiler = BooCompiler()
 		parameters = compiler.Parameters
 		parameters.OutputType = CompilerOutputType.Library
 		parameters.Pipeline = CompileToMemory()
 		parameters.Pipeline.Insert(1, PrepareScriptStep())
-		parameters.Input.Add(StringInput("boo", reindent(code)))
+		
+		if _src:
+			parameters.Input.Add(FileInput(_src.ToString()))
+		else:
+			parameters.Input.Add(StringInput("boo", reindent(self.XmlNode.InnerText)))
 		parameters.References.Add(GetType().Assembly)
 		parameters.References.Add(typeof(NAnt.Core.Project).Assembly)
 		
