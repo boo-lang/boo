@@ -182,6 +182,44 @@
 		</csc>
 	</target>
 	
+	<target name="distro">
+		<zip zipfile="boo.zip" ziplevel="9">
+			<fileset>
+				<includes name="license.txt" />
+				<includes name="boo.build" />				
+				<includes name="ast.model.boo" />
+				
+				<includes name="scripts/*.boo" />
+				
+				<includes name="lib/**/*.jar" />
+				<includes name="lib/**/*.dll" />
+				
+				<includes name="src/**/*.cs" />				
+				<includes name="src/**/*.txt" />
+				<includes name="src/**/*.boo" />
+				<includes name="src/**/*.g" />
+				<includes name="src/**/*.prjx" />
+				
+				<includes name="bin/*.dll" />
+				<includes name="bin/*.exe" />
+				
+				<includes name="testcases/**/*.boo" />
+				
+				<includes name="extras/boo.xml" />
+				<includes name="extras/SharpDevelop/Boo-Mode.xshd" />
+				
+				<includes name="examples/**/*.boo" />
+				<includes name="examples/**/*.aspx" />
+				<includes name="examples/**/*.build" />
+				<includes name="examples/**/*.config" />
+				
+				<includes name="docs/**/*.boo" />
+				<includes name="docs/**/*.build" />
+				<includes name="docs/**/*.sxw" />
+			</fileset>
+		</zip>
+	</target>
+	
 	<target name="satellites" depends="init" unless="${skip.satellites}">
 		<mkdir dir="${build.dir}/pt" />
 
