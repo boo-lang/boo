@@ -38,29 +38,15 @@ using Boo.Lang.Compiler.Bindings;
 using List=Boo.Lang.List;
 
 namespace Boo.Lang.Compiler.Pipeline
-{		
-	class SemanticMethodInfo
-	{
-		public static readonly SemanticMethodInfo Null = new SemanticMethodInfo(null, null);
-		
-		public Method Method;
-		public ArrayList ReturnStatements;
-		
-		public SemanticMethodInfo(Method method, ArrayList returnStatements)
-		{
-			Method = method;
-			ReturnStatements = returnStatements;
-		}
-	}
-	
+{	
 	/// <summary>
 	/// Step 4.
 	/// </summary>
 	public class SemanticStep : AbstractNamespaceSensitiveCompilerStep
 	{
-		Stack _methodInfoStack;
+		Stack _methodBindingStack;
 		
-		SemanticMethodInfo _currentMethodInfo;
+		InternalMethodBinding _currentMethodBinding;
 		
 		/*
 		 * Useful method bindings.
@@ -86,8 +72,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void Run()
 		{					
-			_currentMethodInfo = SemanticMethodInfo.Null;
-			_methodInfoStack = new Stack();			
+			_currentMethodBinding = null;
+			_methodBindingStack = new Stack();			
 			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			RuntimeServices_Contains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Contains");
@@ -102,8 +88,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			base.Dispose();
 			
-			_currentMethodInfo = null;
-			_methodInfoStack = null;
+			_currentMethodBinding = null;
+			_methodBindingStack = null;
 		}
 		
 		public override void OnModule(Boo.Lang.Ast.Module module, ref Boo.Lang.Ast.Module resultingNode)
@@ -237,7 +223,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			InternalConstructorBinding binding = new InternalConstructorBinding(BindingManager, node);
 			BindingManager.Bind(node, binding);
-			PushMethod(node);
+			PushMethodBinding(binding);
 			PushNamespace(binding);
 			return true;
 		}
@@ -245,7 +231,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void LeaveConstructor(Constructor node, ref Constructor resultingNode)
 		{
 			PopNamespace();
-			PopMethod();
+			PopMethodBinding();
 			BindParameterIndexes(node);
 		}
 		
@@ -275,32 +261,31 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 			
-			PushMethod(method);
+			PushMethodBinding(binding);
 			PushNamespace(binding);
 			return true;
 		}
 		
 		public override void OnSuperLiteralExpression(SuperLiteralExpression node, ref Expression resultingNode)
-		{		
-			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(_currentMethodInfo.Method);
-			BindingManager.Bind(node, binding);
+		{			
+			BindingManager.Bind(node, _currentMethodBinding);
 		}
 		
 		public override void LeaveMethod(Method method, ref Method resultingNode)
 		{
 			if (null == method.ReturnType)
 			{
-				method.ReturnType = ResolveReturnType(_currentMethodInfo.ReturnStatements);
+				method.ReturnType = ResolveReturnType(_currentMethodBinding.ReturnStatements);
 				_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, GetBinding(method.ReturnType));
 			}
 			
+			_currentMethodBinding.Visited = true;
+			PopNamespace();
+			PopMethodBinding();
+			BindParameterIndexes(method);			
+			
 			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(method);
 			ResolveMethodOverride(method, binding);
-			binding.Visited = true;
-			
-			PopNamespace();
-			PopMethod();
-			BindParameterIndexes(method);
 		}
 		
 		void ResolveMethodOverride(Method method, InternalMethodBinding binding)
@@ -357,6 +342,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			return ((ITypeBinding)GetBinding(typeDefinition)).BaseType;
 		}
 		
+		static bool IsUnknown(ITypeBinding binding)
+		{
+			return BindingType.Unknown == binding.BindingType;
+		}
+		
 		TypeReference ResolveReturnType(ArrayList returnStatements)
 		{			
 			if (0 == returnStatements.Count)
@@ -365,10 +355,19 @@ namespace Boo.Lang.Compiler.Pipeline
 			}		
 			
 			ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
+			if (IsUnknown(type))
+			{
+				return null;
+			}
 			
 			for (int i=1; i<returnStatements.Count; ++i)
 			{	
 				ITypeBinding newType = GetBoundType(((ReturnStatement)returnStatements[i]).Expression);
+				if (IsUnknown(type))
+				{
+					return null;
+				}
+				
 				if (type == newType)
 				{
 					continue;
@@ -497,7 +496,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnSelfLiteralExpression(SelfLiteralExpression node, ref Expression resultingNode)
 		{
-			BindingManager.Bind(node, BindingManager.GetBinding(_currentMethodInfo.Method.DeclaringType));
+			BindingManager.Bind(node, BindingManager.GetBinding(_currentMethodBinding.Method.DeclaringType));
 		}
 		
 		public override void LeaveAsExpression(AsExpression node, ref Expression resultingNode)
@@ -590,7 +589,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (null != node.Expression)
 			{
-				_currentMethodInfo.ReturnStatements.Add(node);
+				_currentMethodBinding.ReturnStatements.Add(node);
 			}
 		}
 		
@@ -1190,7 +1189,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (!internalMethod.Visited)
 				{
 					_context.TraceVerbose("Method {0} needs resolving.", binding.Name);
-					if (!IsInMethodInfoStack(internalMethod.Method))
+					if (!IsInMethodBindingStack(internalMethod))
 					{
 						Switch(internalMethod.Method);
 					}
@@ -1312,44 +1311,36 @@ namespace Boo.Lang.Compiler.Pipeline
 			LocalBinding binding = new LocalBinding(local, localType);
 			BindingManager.Bind(local, binding);
 			
-			_currentMethodInfo.Method.Locals.Add(local);
+			_currentMethodBinding.Method.Locals.Add(local);
 			BindingManager.Bind(sourceNode, binding);
 			
 			return binding;
 		}
 		
-		void PushMethod(Method method)
+		void PushMethodBinding(InternalMethodBinding binding)
 		{
-			_methodInfoStack.Push(_currentMethodInfo);
+			_methodBindingStack.Push(_currentMethodBinding);
 			
-			// todo: alloc ArrayList from a pool
-			_currentMethodInfo = new SemanticMethodInfo(method, new ArrayList());
+			_currentMethodBinding = binding;
 		}
 		
-		void PopMethod()
+		void PopMethodBinding()
 		{
-			_currentMethodInfo = (SemanticMethodInfo)_methodInfoStack.Pop();
+			_currentMethodBinding = (InternalMethodBinding)_methodBindingStack.Pop();
 		}
 		
-		bool IsInMethodInfoStack(Method method)
+		bool IsInMethodBindingStack(InternalMethodBinding binding)
 		{			
-			foreach (SemanticMethodInfo info in _methodInfoStack)
-			{				
-				if (method == info.Method)
-				{
-					return true;
-				}
-			}
-			return false;
+			return _methodBindingStack.Contains(binding);
 		}
 		
-		bool HasSideEffect(Expression node)
+		static bool HasSideEffect(Expression node)
 		{
 			return node.NodeType == NodeType.MethodInvocationExpression ||
 				IsAssignment(node);
 		}
 		
-		bool IsAssignment(Expression node)
+		static bool IsAssignment(Expression node)
 		{
 			if (node.NodeType == NodeType.BinaryExpression)
 			{
