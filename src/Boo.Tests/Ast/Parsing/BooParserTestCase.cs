@@ -599,7 +599,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestBoolLiterals()
 		{
-			RunXmlTestCase("bool_literals.boo");
+			RunParserTestCase("bool_literals.boo");
 		}
 
 		[Test]
@@ -744,7 +744,7 @@ namespace Boo.Tests.Ast.Parsing
 				Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");
 				
 				string expected = context.CompileUnit.Modules[0].Documentation;
-				Assert.AreEqual(expected, stdout.ToString().Replace("\r\n", "\n"), testfile);				
+				Assert.AreEqual(expected.Trim(), stdout.ToString().Trim().Replace("\r\n", "\n"), testfile);				
 			}
 			finally
 			{

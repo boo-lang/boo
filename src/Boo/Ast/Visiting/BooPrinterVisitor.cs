@@ -400,6 +400,12 @@ namespace Boo.Ast.Visiting
 					Write(" + ");
 					break;
 				}
+				
+				case BinaryOperatorType.Modulus:
+				{
+					Write(" % ");
+					break;
+				}
 			}
 		}
 		
