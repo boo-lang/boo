@@ -982,7 +982,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		protected virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		public virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			if (null == anonymousType.ConcreteType)
 			{

@@ -455,9 +455,19 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				target = ((MemberReferenceExpression)source).Target;
 			}
-			return CodeBuilder.CreateConstructorInvocation(type.GetConstructors()[0],
+			return CodeBuilder.CreateConstructorInvocation(GetConcreteType(type).GetConstructors()[0],
 									target,
 									CodeBuilder.CreateAddressOfExpression(method));
+		}
+		
+		IType GetConcreteType(IType type)
+		{
+			AnonymousCallableType anonymous = type as AnonymousCallableType;
+			if (null == anonymous)
+			{
+				return type;
+			}
+			return anonymous.ConcreteType;
 		}
 		
 		IMethod GetInvokeMethod(ICallableType type)
