@@ -37,15 +37,15 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	public class DepthFirstSwitcher : IAstSwitcher
+	public class DepthFirstSwitcher : IAstVisitor
 	{
-		public bool Switch(Node node)
+		public bool Accept(Node node)
 		{			
 			if (null != node)
 			{
 				try
 				{
-					node.Switch(this);
+					node.Accept(this);
 					return true;
 				}
 				catch (Boo.Lang.Compiler.CompilerError)
@@ -60,40 +60,40 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
-		public void Switch(Node[] array, NodeType nodeType)
+		public void Accept(Node[] array, NodeType nodeType)
 		{
 			foreach (Node node in array)
 			{
 				if (node.NodeType == nodeType)
 				{
-					Switch(node);
+					Accept(node);
 				}
 			}
 		}
 		
-		public bool Switch(NodeCollection collection, NodeType nodeType)
+		public bool Accept(NodeCollection collection, NodeType nodeType)
 		{
 			if (null != collection)
 			{
-				Switch(collection.ToArray(), nodeType);
+				Accept(collection.ToArray(), nodeType);
 				return true;
 			}
 			return false;
 		}
 		
-		public void Switch(Node[] array)
+		public void Accept(Node[] array)
 		{
 			foreach (Node node in array)
 			{
-				Switch(node);
+				Accept(node);
 			}
 		}
 		
-		public bool Switch(NodeCollection collection)
+		public bool Accept(NodeCollection collection)
 		{
 			if (null != collection)
 			{
-				Switch(collection.ToArray());
+				Accept(collection.ToArray());
 				return true;
 			}
 			return false;
@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterCompileUnit(node))
 			{
-				Switch(node.Modules);
+				Accept(node.Modules);
 				LeaveCompileUnit(node);
 			}
 		}
@@ -125,7 +125,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterArrayTypeReference(node))
 			{
-				Switch(node.ElementType);
+				Accept(node.ElementType);
 				LeaveArrayTypeReference(node);
 			}
 		}
@@ -147,8 +147,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterImport(node))
 			{
-				Switch(node.AssemblyReference);
-				Switch(node.Alias);
+				Accept(node.AssemblyReference);
+				Accept(node.Alias);
 				LeaveImport(node);
 			}
 		}
@@ -166,12 +166,12 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterModule(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Members);
-				Switch(node.BaseTypes);
-				Switch(node.Namespace);
-				Switch(node.Imports);
-				Switch(node.Globals);
+				Accept(node.Attributes);
+				Accept(node.Members);
+				Accept(node.BaseTypes);
+				Accept(node.Namespace);
+				Accept(node.Imports);
+				Accept(node.Globals);
 				LeaveModule(node);
 			}
 		}
@@ -189,9 +189,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterClassDefinition(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Members);
-				Switch(node.BaseTypes);
+				Accept(node.Attributes);
+				Accept(node.Members);
+				Accept(node.BaseTypes);
 				LeaveClassDefinition(node);
 			}
 		}
@@ -209,9 +209,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterInterfaceDefinition(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Members);
-				Switch(node.BaseTypes);
+				Accept(node.Attributes);
+				Accept(node.Members);
+				Accept(node.BaseTypes);
 				LeaveInterfaceDefinition(node);
 			}
 		}
@@ -229,9 +229,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterEnumDefinition(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Members);
-				Switch(node.BaseTypes);
+				Accept(node.Attributes);
+				Accept(node.Members);
+				Accept(node.BaseTypes);
 				LeaveEnumDefinition(node);
 			}
 		}
@@ -249,8 +249,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterEnumMember(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Initializer);
+				Accept(node.Attributes);
+				Accept(node.Initializer);
 				LeaveEnumMember(node);
 			}
 		}
@@ -268,9 +268,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterField(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Type);
-				Switch(node.Initializer);
+				Accept(node.Attributes);
+				Accept(node.Type);
+				Accept(node.Initializer);
 				LeaveField(node);
 			}
 		}
@@ -288,11 +288,11 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterProperty(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Parameters);
-				Switch(node.Getter);
-				Switch(node.Setter);
-				Switch(node.Type);
+				Accept(node.Attributes);
+				Accept(node.Parameters);
+				Accept(node.Getter);
+				Accept(node.Setter);
+				Accept(node.Type);
 				LeaveProperty(node);
 			}
 		}
@@ -314,9 +314,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterCallableBlockExpression(node))
 			{
-				Switch(node.Parameters);
-				Switch(node.ReturnType);
-				Switch(node.Body);
+				Accept(node.Parameters);
+				Accept(node.ReturnType);
+				Accept(node.Body);
 				LeaveCallableBlockExpression(node);
 			}
 		}
@@ -334,12 +334,12 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterMethod(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Parameters);
-				Switch(node.ReturnType);
-				Switch(node.ReturnTypeAttributes);
-				Switch(node.Body);
-				Switch(node.Locals);
+				Accept(node.Attributes);
+				Accept(node.Parameters);
+				Accept(node.ReturnType);
+				Accept(node.ReturnTypeAttributes);
+				Accept(node.Body);
+				Accept(node.Locals);
 				LeaveMethod(node);
 			}
 		}
@@ -357,12 +357,12 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterConstructor(node))
 			{
-				Switch(node.Attributes);
-				Switch(node.Parameters);
-				Switch(node.ReturnType);
-				Switch(node.ReturnTypeAttributes);
-				Switch(node.Body);
-				Switch(node.Locals);
+				Accept(node.Attributes);
+				Accept(node.Parameters);
+				Accept(node.ReturnType);
+				Accept(node.ReturnTypeAttributes);
+				Accept(node.Body);
+				Accept(node.Locals);
 				LeaveConstructor(node);
 			}
 		}
@@ -380,8 +380,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterParameterDeclaration(node))
 			{
-				Switch(node.Type);
-				Switch(node.Attributes);
+				Accept(node.Type);
+				Accept(node.Attributes);
 				LeaveParameterDeclaration(node);
 			}
 		}
@@ -399,7 +399,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterDeclaration(node))
 			{
-				Switch(node.Type);
+				Accept(node.Type);
 				LeaveDeclaration(node);
 			}
 		}
@@ -417,8 +417,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterAttribute(node))
 			{
-				Switch(node.Arguments);
-				Switch(node.NamedArguments);
+				Accept(node.Arguments);
+				Accept(node.NamedArguments);
 				LeaveAttribute(node);
 			}
 		}
@@ -436,7 +436,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterStatementModifier(node))
 			{
-				Switch(node.Condition);
+				Accept(node.Condition);
 				LeaveStatementModifier(node);
 			}
 		}
@@ -454,8 +454,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterBlock(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Statements);
+				Accept(node.Modifier);
+				Accept(node.Statements);
 				LeaveBlock(node);
 			}
 		}
@@ -473,9 +473,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterDeclarationStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Declaration);
-				Switch(node.Initializer);
+				Accept(node.Modifier);
+				Accept(node.Declaration);
+				Accept(node.Initializer);
 				LeaveDeclarationStatement(node);
 			}
 		}
@@ -493,9 +493,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterAssertStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Condition);
-				Switch(node.Message);
+				Accept(node.Modifier);
+				Accept(node.Condition);
+				Accept(node.Message);
 				LeaveAssertStatement(node);
 			}
 		}
@@ -513,9 +513,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterMacroStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Arguments);
-				Switch(node.Block);
+				Accept(node.Modifier);
+				Accept(node.Arguments);
+				Accept(node.Block);
 				LeaveMacroStatement(node);
 			}
 		}
@@ -533,11 +533,11 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterTryStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.ProtectedBlock);
-				Switch(node.ExceptionHandlers);
-				Switch(node.SuccessBlock);
-				Switch(node.EnsureBlock);
+				Accept(node.Modifier);
+				Accept(node.ProtectedBlock);
+				Accept(node.ExceptionHandlers);
+				Accept(node.SuccessBlock);
+				Accept(node.EnsureBlock);
 				LeaveTryStatement(node);
 			}
 		}
@@ -555,8 +555,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterExceptionHandler(node))
 			{
-				Switch(node.Declaration);
-				Switch(node.Block);
+				Accept(node.Declaration);
+				Accept(node.Block);
 				LeaveExceptionHandler(node);
 			}
 		}
@@ -574,10 +574,10 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterIfStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Condition);
-				Switch(node.TrueBlock);
-				Switch(node.FalseBlock);
+				Accept(node.Modifier);
+				Accept(node.Condition);
+				Accept(node.TrueBlock);
+				Accept(node.FalseBlock);
 				LeaveIfStatement(node);
 			}
 		}
@@ -595,9 +595,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterUnlessStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Condition);
-				Switch(node.Block);
+				Accept(node.Modifier);
+				Accept(node.Condition);
+				Accept(node.Block);
 				LeaveUnlessStatement(node);
 			}
 		}
@@ -615,10 +615,10 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterForStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Declarations);
-				Switch(node.Iterator);
-				Switch(node.Block);
+				Accept(node.Modifier);
+				Accept(node.Declarations);
+				Accept(node.Iterator);
+				Accept(node.Block);
 				LeaveForStatement(node);
 			}
 		}
@@ -636,9 +636,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterWhileStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Condition);
-				Switch(node.Block);
+				Accept(node.Modifier);
+				Accept(node.Condition);
+				Accept(node.Block);
 				LeaveWhileStatement(node);
 			}
 		}
@@ -656,10 +656,10 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterGivenStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Expression);
-				Switch(node.WhenClauses);
-				Switch(node.OtherwiseBlock);
+				Accept(node.Modifier);
+				Accept(node.Expression);
+				Accept(node.WhenClauses);
+				Accept(node.OtherwiseBlock);
 				LeaveGivenStatement(node);
 			}
 		}
@@ -677,8 +677,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterWhenClause(node))
 			{
-				Switch(node.Condition);
-				Switch(node.Block);
+				Accept(node.Condition);
+				Accept(node.Block);
 				LeaveWhenClause(node);
 			}
 		}
@@ -696,7 +696,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterBreakStatement(node))
 			{
-				Switch(node.Modifier);
+				Accept(node.Modifier);
 				LeaveBreakStatement(node);
 			}
 		}
@@ -714,7 +714,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterContinueStatement(node))
 			{
-				Switch(node.Modifier);
+				Accept(node.Modifier);
 				LeaveContinueStatement(node);
 			}
 		}
@@ -732,7 +732,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterRetryStatement(node))
 			{
-				Switch(node.Modifier);
+				Accept(node.Modifier);
 				LeaveRetryStatement(node);
 			}
 		}
@@ -750,8 +750,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterReturnStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Expression);
+				Accept(node.Modifier);
+				Accept(node.Expression);
 				LeaveReturnStatement(node);
 			}
 		}
@@ -769,8 +769,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterYieldStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Expression);
+				Accept(node.Modifier);
+				Accept(node.Expression);
 				LeaveYieldStatement(node);
 			}
 		}
@@ -788,8 +788,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterRaiseStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Exception);
+				Accept(node.Modifier);
+				Accept(node.Exception);
 				LeaveRaiseStatement(node);
 			}
 		}
@@ -807,9 +807,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterUnpackStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Declarations);
-				Switch(node.Expression);
+				Accept(node.Modifier);
+				Accept(node.Declarations);
+				Accept(node.Expression);
 				LeaveUnpackStatement(node);
 			}
 		}
@@ -827,8 +827,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterExpressionStatement(node))
 			{
-				Switch(node.Modifier);
-				Switch(node.Expression);
+				Accept(node.Modifier);
+				Accept(node.Expression);
 				LeaveExpressionStatement(node);
 			}
 		}
@@ -850,8 +850,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterExpressionPair(node))
 			{
-				Switch(node.First);
-				Switch(node.Second);
+				Accept(node.First);
+				Accept(node.Second);
 				LeaveExpressionPair(node);
 			}
 		}
@@ -869,9 +869,9 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterMethodInvocationExpression(node))
 			{
-				Switch(node.Target);
-				Switch(node.Arguments);
-				Switch(node.NamedArguments);
+				Accept(node.Target);
+				Accept(node.Arguments);
+				Accept(node.NamedArguments);
 				LeaveMethodInvocationExpression(node);
 			}
 		}
@@ -889,7 +889,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterUnaryExpression(node))
 			{
-				Switch(node.Operand);
+				Accept(node.Operand);
 				LeaveUnaryExpression(node);
 			}
 		}
@@ -907,8 +907,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterBinaryExpression(node))
 			{
-				Switch(node.Left);
-				Switch(node.Right);
+				Accept(node.Left);
+				Accept(node.Right);
 				LeaveBinaryExpression(node);
 			}
 		}
@@ -930,7 +930,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterMemberReferenceExpression(node))
 			{
-				Switch(node.Target);
+				Accept(node.Target);
 				LeaveMemberReferenceExpression(node);
 			}
 		}
@@ -984,7 +984,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterExpressionInterpolationExpression(node))
 			{
-				Switch(node.Expressions);
+				Accept(node.Expressions);
 				LeaveExpressionInterpolationExpression(node);
 			}
 		}
@@ -1002,7 +1002,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterHashLiteralExpression(node))
 			{
-				Switch(node.Items);
+				Accept(node.Items);
 				LeaveHashLiteralExpression(node);
 			}
 		}
@@ -1020,7 +1020,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterListLiteralExpression(node))
 			{
-				Switch(node.Items);
+				Accept(node.Items);
 				LeaveListLiteralExpression(node);
 			}
 		}
@@ -1038,7 +1038,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterArrayLiteralExpression(node))
 			{
-				Switch(node.Items);
+				Accept(node.Items);
 				LeaveArrayLiteralExpression(node);
 			}
 		}
@@ -1056,10 +1056,10 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterGeneratorExpression(node))
 			{
-				Switch(node.Expression);
-				Switch(node.Declarations);
-				Switch(node.Iterator);
-				Switch(node.Filter);
+				Accept(node.Expression);
+				Accept(node.Declarations);
+				Accept(node.Iterator);
+				Accept(node.Filter);
 				LeaveGeneratorExpression(node);
 			}
 		}
@@ -1077,10 +1077,10 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterSlicingExpression(node))
 			{
-				Switch(node.Target);
-				Switch(node.Begin);
-				Switch(node.End);
-				Switch(node.Step);
+				Accept(node.Target);
+				Accept(node.Begin);
+				Accept(node.End);
+				Accept(node.Step);
 				LeaveSlicingExpression(node);
 			}
 		}
@@ -1098,8 +1098,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterAsExpression(node))
 			{
-				Switch(node.Target);
-				Switch(node.Type);
+				Accept(node.Target);
+				Accept(node.Type);
 				LeaveAsExpression(node);
 			}
 		}
@@ -1117,8 +1117,8 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterCastExpression(node))
 			{
-				Switch(node.Type);
-				Switch(node.Target);
+				Accept(node.Type);
+				Accept(node.Target);
 				LeaveCastExpression(node);
 			}
 		}
@@ -1136,7 +1136,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterTypeofExpression(node))
 			{
-				Switch(node.Type);
+				Accept(node.Type);
 				LeaveTypeofExpression(node);
 			}
 		}

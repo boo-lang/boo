@@ -64,17 +64,17 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		override public void OnModule(Module m)
 		{
-			Switch(m.Namespace);
+			Accept(m.Namespace);
 
 			if (m.Imports.Count > 0)
 			{
-				Switch(m.Imports);
+				Accept(m.Imports);
 				WriteLine();
 			}
 
 			foreach (TypeMember member in m.Members)
 			{
-				Switch(member);
+				Accept(member);
 				WriteLine();
 			}
 
@@ -82,7 +82,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			// invlido
 			if (null != m.Globals)
 			{
-				Switch(m.Globals.Statements);
+				Accept(m.Globals.Statements);
 			}
 		}
 
@@ -121,7 +121,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			else
 			{
-				Switch(b.Statements);
+				Accept(b.Statements);
 			}
 			Dedent();
 		}
@@ -150,7 +150,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			if (null != f.Initializer)
 			{
 				WriteOperator(" = ");
-				Switch(f.Initializer);
+				Accept(f.Initializer);
 			}
 			WriteLine();
 		}
@@ -193,7 +193,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			if (null != node.Initializer)
 			{
 				WriteOperator(" = ");
-				Switch(node.Initializer);
+				Accept(node.Initializer);
 			}
 			WriteLine();
 		}
@@ -234,7 +234,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			if (null != t)
 			{
 				WriteKeyword(" as ");
-				t.Switch(this);
+				t.Accept(this);
 			}
 		}
 
@@ -253,13 +253,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnArrayTypeReference(ArrayTypeReference t)
 		{
 			Write("(");
-			Switch(t.ElementType);
+			Accept(t.ElementType);
 			Write(")");
 		}
 
 		override public void OnMemberReferenceExpression(MemberReferenceExpression e)
 		{
-			Switch(e.Target);
+			Accept(e.Target);
 			Write(".");
 			Write(e.Name);
 		}
@@ -267,7 +267,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnAsExpression(AsExpression e)
 		{
 			Write("(");
-			Switch(e.Target);
+			Accept(e.Target);
 			WriteTypeReference(e.Type);
 			Write(")");
 		}
@@ -276,9 +276,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteKeyword("cast");
 			Write("(");
-			Switch(node.Type);
+			Accept(node.Type);
 			Write(", ");
-			Switch(node.Target);
+			Accept(node.Target);
 			Write(")");
 		}
 		
@@ -350,7 +350,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			Write("(");
 			WriteOperator(GetUnaryOperatorText(node.Operator));
-			Switch(node.Operand);
+			Accept(node.Operand);
 			Write(")");			
 		}
 
@@ -361,11 +361,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			{
 				Write("(");
 			}
-			Switch(e.Left);
+			Accept(e.Left);
 			Write(" ");
 			WriteOperator(GetBinaryOperatorText(e.Operator));
 			Write(" ");
-			Switch(e.Right);
+			Accept(e.Right);
 			if (needsParens)
 			{
 				Write(")");
@@ -376,14 +376,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			WriteKeyword("raise ");
-			Switch(rs.Exception);
-			Switch(rs.Modifier);
+			Accept(rs.Exception);
+			Accept(rs.Modifier);
 			WriteLine();
 		}
 
 		override public void OnMethodInvocationExpression(MethodInvocationExpression e)
 		{
-			Switch(e.Target);
+			Accept(e.Target);
 			Write("(");
 			WriteCommaSeparatedList(e.Arguments);
 			if (e.NamedArguments.Count > 0)
@@ -412,29 +412,29 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnGeneratorExpression(GeneratorExpression node)
 		{			
 			Write("(");
-			Switch(node.Expression);
+			Accept(node.Expression);
 			WriteKeyword(" for ");
 			WriteCommaSeparatedList(node.Declarations);
 			WriteKeyword(" in ");
-			Switch(node.Iterator);
-			Switch(node.Filter);
+			Accept(node.Iterator);
+			Accept(node.Filter);
 			Write(")");
 		}
 
 		override public void OnSlicingExpression(SlicingExpression node)
 		{
-			Switch(node.Target);
+			Accept(node.Target);
 			Write("[");
-			Switch(node.Begin);
+			Accept(node.Begin);
 			if (null != node.End || WasOmitted(node.Begin))
 			{
 				Write(":");
 			}			
-			Switch(node.End);			
+			Accept(node.End);			
 			if (null != node.Step)
 			{
 				Write(":");
-				Switch(node.Step);
+				Accept(node.Step);
 			}			
 			Write("]");
 		}
@@ -453,9 +453,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		override public void OnExpressionPair(ExpressionPair pair)
 		{
-			Switch(pair.First);
+			Accept(pair.First);
 			Write(": ");
-			Switch(pair.Second);
+			Accept(pair.Second);
 		}
 		
 		override public void OnRELiteralExpression(RELiteralExpression e)
@@ -490,8 +490,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnExpressionStatement(ExpressionStatement node)
 		{
 			WriteIndented();
-			Switch(node.Expression);
-			Switch(node.Modifier);
+			Accept(node.Expression);
+			Accept(node.Modifier);
 			WriteLine();
 		}
 
@@ -504,7 +504,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				if (null == s)
 				{
 					Write("${");
-					Switch(arg);
+					Accept(arg);
 					Write("}");
 				}
 				else
@@ -520,7 +520,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(" ");
 			WriteKeyword(sm.Type.ToString().ToLower());
 			Write(" ");
-			Switch(sm.Condition);
+			Accept(sm.Condition);
 		}
 		
 		override public void OnMacroStatement(MacroStatement node)
@@ -539,10 +539,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			for (int i=0; i<fs.Declarations.Count; ++i)
 			{
 				if (i > 0) { Write(", "); }
-				Switch(fs.Declarations[i]);
+				Accept(fs.Declarations[i]);
 			}
 			WriteKeyword(" in ");
-			Switch(fs.Iterator);
+			Accept(fs.Iterator);
 			WriteLine(":");
 			WriteBlock(fs.Block);
 		}
@@ -560,7 +560,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteKeyword("try:");
 			WriteLine();
 			WriteBlock(node.ProtectedBlock);
-			Switch(node.ExceptionHandlers);
+			Accept(node.ExceptionHandlers);
 			if (null != node.SuccessBlock)
 			{
 				WriteIndented();
@@ -584,7 +584,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			if (null != node.Declaration)
 			{
 				Write(" ");
-				Switch(node.Declaration);
+				Accept(node.Declaration);
 			}			
 			WriteLine(":");
 			WriteBlock(node.Block);
@@ -599,7 +599,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			WriteKeyword("break ");
-			Switch(node.Modifier);
+			Accept(node.Modifier);
 			WriteLine();
 		}
 		
@@ -607,8 +607,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			WriteKeyword("yield ");
-			Switch(node.Expression);
-			Switch(node.Modifier);
+			Accept(node.Expression);
+			Accept(node.Modifier);
 			WriteLine();
 		}
 		
@@ -621,7 +621,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			WriteKeyword("if ");
-			Switch(ifs.Condition);
+			Accept(ifs.Condition);
 			WriteLine(":");
 			WriteBlock(ifs.TrueBlock);
 			if (null != ifs.FalseBlock)
@@ -654,8 +654,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			WriteKeyword("return ");
-			Switch(r.Expression);
-			Switch(r.Modifier);
+			Accept(r.Expression);
+			Accept(r.Modifier);
 			WriteLine();
 		}
 
@@ -668,10 +668,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					Write(", ");
 				}
-				Switch(us.Declarations[i]);
+				Accept(us.Declarations[i]);
 			}
 			WriteOperator(" = ");
-			Switch(us.Expression);
+			Accept(us.Expression);
 			WriteLine();
 		}
 
@@ -896,7 +896,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			WriteKeyword(keyword + " ");
-			Switch(condition);
+			Accept(condition);
 			WriteLine(":");
 			WriteBlock(block);
 		}
@@ -915,7 +915,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					Write("*");
 				}
-				Switch(items.GetNodeAt(i));
+				Accept(items.GetNodeAt(i));
 			}
 			Write(")");
 		}
@@ -928,7 +928,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					Write(", ");
 				}
-				Switch(items.GetNodeAt(i));
+				Accept(items.GetNodeAt(i));
 			}
 		}
 		
@@ -943,14 +943,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					{
 						Write(", ");
 					}
-					Switch(items[i]);
+					Accept(items[i]);
 				}
 			}
 			else
 			{
 				if (items.Count > 0)
 				{
-					Switch(items[0]);
+					Accept(items[0]);
 				}
 				Write(",");
 			}
@@ -1060,7 +1060,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				foreach (TypeMember member in td.Members)
 				{
 					WriteLine();
-					Switch(member);
+					Accept(member);
 				}
 			}
 			else

@@ -47,9 +47,9 @@ namespace Boo.Lang.Compiler.Ast
 			return _name;
 		}
 		
-		override public void Switch(IAstSwitcher switcher)
+		override public void Accept(IAstVisitor visitor)
 		{
-			switcher.OnMacroStatement(this);
+			visitor.OnMacroStatement(this);
 		}
 	}
 }

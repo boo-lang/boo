@@ -50,9 +50,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		override public void Switch(IAstSwitcher switcher)
+		override public void Accept(IAstVisitor visitor)
 		{
-			switcher.OnArrayTypeReference(this);
+			visitor.OnArrayTypeReference(this);
 		}
 		
 		override public string ToString()

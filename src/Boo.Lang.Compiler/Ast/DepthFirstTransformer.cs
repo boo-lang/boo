@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterCompileUnit(node, ref resultingNode))
 			{
 
-				Switch(node.Modules);
+				Accept(node.Modules);
 
 				LeaveCompileUnit(node, ref resultingNode);
 			}
@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentElementTypeValue)
 				{	
 					Node resultingElementTypeValue;				
-					currentElementTypeValue.Switch(this, out resultingElementTypeValue);					
+					currentElementTypeValue.Accept(this, out resultingElementTypeValue);					
 					node.ElementType = resultingElementTypeValue as TypeReference;
 				}
 
@@ -109,7 +109,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentAssemblyReferenceValue)
 				{	
 					Node resultingAssemblyReferenceValue;				
-					currentAssemblyReferenceValue.Switch(this, out resultingAssemblyReferenceValue);					
+					currentAssemblyReferenceValue.Accept(this, out resultingAssemblyReferenceValue);					
 					node.AssemblyReference = resultingAssemblyReferenceValue as ReferenceExpression;
 				}
 
@@ -117,7 +117,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentAliasValue)
 				{	
 					Node resultingAliasValue;				
-					currentAliasValue.Switch(this, out resultingAliasValue);					
+					currentAliasValue.Accept(this, out resultingAliasValue);					
 					node.Alias = resultingAliasValue as ReferenceExpression;
 				}
 
@@ -141,27 +141,27 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterModule(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
-				Switch(node.Members);
+				Accept(node.Members);
 
-				Switch(node.BaseTypes);
+				Accept(node.BaseTypes);
 
 				NamespaceDeclaration currentNamespaceValue = node.Namespace;
 				if (null != currentNamespaceValue)
 				{	
 					Node resultingNamespaceValue;				
-					currentNamespaceValue.Switch(this, out resultingNamespaceValue);					
+					currentNamespaceValue.Accept(this, out resultingNamespaceValue);					
 					node.Namespace = resultingNamespaceValue as NamespaceDeclaration;
 				}
 
-				Switch(node.Imports);
+				Accept(node.Imports);
 
 				Block currentGlobalsValue = node.Globals;
 				if (null != currentGlobalsValue)
 				{	
 					Node resultingGlobalsValue;				
-					currentGlobalsValue.Switch(this, out resultingGlobalsValue);					
+					currentGlobalsValue.Accept(this, out resultingGlobalsValue);					
 					node.Globals = resultingGlobalsValue as Block;
 				}
 
@@ -185,11 +185,11 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterClassDefinition(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
-				Switch(node.Members);
+				Accept(node.Members);
 
-				Switch(node.BaseTypes);
+				Accept(node.BaseTypes);
 
 				LeaveClassDefinition(node, ref resultingNode);
 			}
@@ -211,11 +211,11 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterInterfaceDefinition(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
-				Switch(node.Members);
+				Accept(node.Members);
 
-				Switch(node.BaseTypes);
+				Accept(node.BaseTypes);
 
 				LeaveInterfaceDefinition(node, ref resultingNode);
 			}
@@ -237,11 +237,11 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterEnumDefinition(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
-				Switch(node.Members);
+				Accept(node.Members);
 
-				Switch(node.BaseTypes);
+				Accept(node.BaseTypes);
 
 				LeaveEnumDefinition(node, ref resultingNode);
 			}
@@ -263,13 +263,13 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterEnumMember(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
 				IntegerLiteralExpression currentInitializerValue = node.Initializer;
 				if (null != currentInitializerValue)
 				{	
 					Node resultingInitializerValue;				
-					currentInitializerValue.Switch(this, out resultingInitializerValue);					
+					currentInitializerValue.Accept(this, out resultingInitializerValue);					
 					node.Initializer = resultingInitializerValue as IntegerLiteralExpression;
 				}
 
@@ -293,13 +293,13 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterField(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
 				TypeReference currentTypeValue = node.Type;
 				if (null != currentTypeValue)
 				{	
 					Node resultingTypeValue;				
-					currentTypeValue.Switch(this, out resultingTypeValue);					
+					currentTypeValue.Accept(this, out resultingTypeValue);					
 					node.Type = resultingTypeValue as TypeReference;
 				}
 
@@ -307,7 +307,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentInitializerValue)
 				{	
 					Node resultingInitializerValue;				
-					currentInitializerValue.Switch(this, out resultingInitializerValue);					
+					currentInitializerValue.Accept(this, out resultingInitializerValue);					
 					node.Initializer = resultingInitializerValue as Expression;
 				}
 
@@ -331,15 +331,15 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterProperty(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
-				Switch(node.Parameters);
+				Accept(node.Parameters);
 
 				Method currentGetterValue = node.Getter;
 				if (null != currentGetterValue)
 				{	
 					Node resultingGetterValue;				
-					currentGetterValue.Switch(this, out resultingGetterValue);					
+					currentGetterValue.Accept(this, out resultingGetterValue);					
 					node.Getter = resultingGetterValue as Method;
 				}
 
@@ -347,7 +347,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentSetterValue)
 				{	
 					Node resultingSetterValue;				
-					currentSetterValue.Switch(this, out resultingSetterValue);					
+					currentSetterValue.Accept(this, out resultingSetterValue);					
 					node.Setter = resultingSetterValue as Method;
 				}
 
@@ -355,7 +355,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTypeValue)
 				{	
 					Node resultingTypeValue;				
-					currentTypeValue.Switch(this, out resultingTypeValue);					
+					currentTypeValue.Accept(this, out resultingTypeValue);					
 					node.Type = resultingTypeValue as TypeReference;
 				}
 
@@ -384,13 +384,13 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterCallableBlockExpression(node, ref resultingNode))
 			{
 
-				Switch(node.Parameters);
+				Accept(node.Parameters);
 
 				TypeReference currentReturnTypeValue = node.ReturnType;
 				if (null != currentReturnTypeValue)
 				{	
 					Node resultingReturnTypeValue;				
-					currentReturnTypeValue.Switch(this, out resultingReturnTypeValue);					
+					currentReturnTypeValue.Accept(this, out resultingReturnTypeValue);					
 					node.ReturnType = resultingReturnTypeValue as TypeReference;
 				}
 
@@ -398,7 +398,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentBodyValue)
 				{	
 					Node resultingBodyValue;				
-					currentBodyValue.Switch(this, out resultingBodyValue);					
+					currentBodyValue.Accept(this, out resultingBodyValue);					
 					node.Body = resultingBodyValue as Block;
 				}
 
@@ -422,29 +422,29 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterMethod(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
-				Switch(node.Parameters);
+				Accept(node.Parameters);
 
 				TypeReference currentReturnTypeValue = node.ReturnType;
 				if (null != currentReturnTypeValue)
 				{	
 					Node resultingReturnTypeValue;				
-					currentReturnTypeValue.Switch(this, out resultingReturnTypeValue);					
+					currentReturnTypeValue.Accept(this, out resultingReturnTypeValue);					
 					node.ReturnType = resultingReturnTypeValue as TypeReference;
 				}
 
-				Switch(node.ReturnTypeAttributes);
+				Accept(node.ReturnTypeAttributes);
 
 				Block currentBodyValue = node.Body;
 				if (null != currentBodyValue)
 				{	
 					Node resultingBodyValue;				
-					currentBodyValue.Switch(this, out resultingBodyValue);					
+					currentBodyValue.Accept(this, out resultingBodyValue);					
 					node.Body = resultingBodyValue as Block;
 				}
 
-				Switch(node.Locals);
+				Accept(node.Locals);
 
 				LeaveMethod(node, ref resultingNode);
 			}
@@ -466,29 +466,29 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterConstructor(node, ref resultingNode))
 			{
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
-				Switch(node.Parameters);
+				Accept(node.Parameters);
 
 				TypeReference currentReturnTypeValue = node.ReturnType;
 				if (null != currentReturnTypeValue)
 				{	
 					Node resultingReturnTypeValue;				
-					currentReturnTypeValue.Switch(this, out resultingReturnTypeValue);					
+					currentReturnTypeValue.Accept(this, out resultingReturnTypeValue);					
 					node.ReturnType = resultingReturnTypeValue as TypeReference;
 				}
 
-				Switch(node.ReturnTypeAttributes);
+				Accept(node.ReturnTypeAttributes);
 
 				Block currentBodyValue = node.Body;
 				if (null != currentBodyValue)
 				{	
 					Node resultingBodyValue;				
-					currentBodyValue.Switch(this, out resultingBodyValue);					
+					currentBodyValue.Accept(this, out resultingBodyValue);					
 					node.Body = resultingBodyValue as Block;
 				}
 
-				Switch(node.Locals);
+				Accept(node.Locals);
 
 				LeaveConstructor(node, ref resultingNode);
 			}
@@ -514,11 +514,11 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTypeValue)
 				{	
 					Node resultingTypeValue;				
-					currentTypeValue.Switch(this, out resultingTypeValue);					
+					currentTypeValue.Accept(this, out resultingTypeValue);					
 					node.Type = resultingTypeValue as TypeReference;
 				}
 
-				Switch(node.Attributes);
+				Accept(node.Attributes);
 
 				LeaveParameterDeclaration(node, ref resultingNode);
 			}
@@ -544,7 +544,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTypeValue)
 				{	
 					Node resultingTypeValue;				
-					currentTypeValue.Switch(this, out resultingTypeValue);					
+					currentTypeValue.Accept(this, out resultingTypeValue);					
 					node.Type = resultingTypeValue as TypeReference;
 				}
 
@@ -568,9 +568,9 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterAttribute(node, ref resultingNode))
 			{
 
-				Switch(node.Arguments);
+				Accept(node.Arguments);
 
-				Switch(node.NamedArguments);
+				Accept(node.NamedArguments);
 
 				LeaveAttribute(node, ref resultingNode);
 			}
@@ -596,7 +596,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentConditionValue)
 				{	
 					Node resultingConditionValue;				
-					currentConditionValue.Switch(this, out resultingConditionValue);					
+					currentConditionValue.Accept(this, out resultingConditionValue);					
 					node.Condition = resultingConditionValue as Expression;
 				}
 
@@ -624,11 +624,11 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
-				Switch(node.Statements);
+				Accept(node.Statements);
 
 				LeaveBlock(node, ref resultingNode);
 			}
@@ -654,7 +654,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -662,7 +662,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentDeclarationValue)
 				{	
 					Node resultingDeclarationValue;				
-					currentDeclarationValue.Switch(this, out resultingDeclarationValue);					
+					currentDeclarationValue.Accept(this, out resultingDeclarationValue);					
 					node.Declaration = resultingDeclarationValue as Declaration;
 				}
 
@@ -670,7 +670,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentInitializerValue)
 				{	
 					Node resultingInitializerValue;				
-					currentInitializerValue.Switch(this, out resultingInitializerValue);					
+					currentInitializerValue.Accept(this, out resultingInitializerValue);					
 					node.Initializer = resultingInitializerValue as Expression;
 				}
 
@@ -698,7 +698,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -706,7 +706,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentConditionValue)
 				{	
 					Node resultingConditionValue;				
-					currentConditionValue.Switch(this, out resultingConditionValue);					
+					currentConditionValue.Accept(this, out resultingConditionValue);					
 					node.Condition = resultingConditionValue as Expression;
 				}
 
@@ -714,7 +714,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentMessageValue)
 				{	
 					Node resultingMessageValue;				
-					currentMessageValue.Switch(this, out resultingMessageValue);					
+					currentMessageValue.Accept(this, out resultingMessageValue);					
 					node.Message = resultingMessageValue as Expression;
 				}
 
@@ -742,17 +742,17 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
-				Switch(node.Arguments);
+				Accept(node.Arguments);
 
 				Block currentBlockValue = node.Block;
 				if (null != currentBlockValue)
 				{	
 					Node resultingBlockValue;				
-					currentBlockValue.Switch(this, out resultingBlockValue);					
+					currentBlockValue.Accept(this, out resultingBlockValue);					
 					node.Block = resultingBlockValue as Block;
 				}
 
@@ -780,7 +780,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -788,17 +788,17 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentProtectedBlockValue)
 				{	
 					Node resultingProtectedBlockValue;				
-					currentProtectedBlockValue.Switch(this, out resultingProtectedBlockValue);					
+					currentProtectedBlockValue.Accept(this, out resultingProtectedBlockValue);					
 					node.ProtectedBlock = resultingProtectedBlockValue as Block;
 				}
 
-				Switch(node.ExceptionHandlers);
+				Accept(node.ExceptionHandlers);
 
 				Block currentSuccessBlockValue = node.SuccessBlock;
 				if (null != currentSuccessBlockValue)
 				{	
 					Node resultingSuccessBlockValue;				
-					currentSuccessBlockValue.Switch(this, out resultingSuccessBlockValue);					
+					currentSuccessBlockValue.Accept(this, out resultingSuccessBlockValue);					
 					node.SuccessBlock = resultingSuccessBlockValue as Block;
 				}
 
@@ -806,7 +806,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentEnsureBlockValue)
 				{	
 					Node resultingEnsureBlockValue;				
-					currentEnsureBlockValue.Switch(this, out resultingEnsureBlockValue);					
+					currentEnsureBlockValue.Accept(this, out resultingEnsureBlockValue);					
 					node.EnsureBlock = resultingEnsureBlockValue as Block;
 				}
 
@@ -834,7 +834,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentDeclarationValue)
 				{	
 					Node resultingDeclarationValue;				
-					currentDeclarationValue.Switch(this, out resultingDeclarationValue);					
+					currentDeclarationValue.Accept(this, out resultingDeclarationValue);					
 					node.Declaration = resultingDeclarationValue as Declaration;
 				}
 
@@ -842,7 +842,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentBlockValue)
 				{	
 					Node resultingBlockValue;				
-					currentBlockValue.Switch(this, out resultingBlockValue);					
+					currentBlockValue.Accept(this, out resultingBlockValue);					
 					node.Block = resultingBlockValue as Block;
 				}
 
@@ -870,7 +870,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -878,7 +878,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentConditionValue)
 				{	
 					Node resultingConditionValue;				
-					currentConditionValue.Switch(this, out resultingConditionValue);					
+					currentConditionValue.Accept(this, out resultingConditionValue);					
 					node.Condition = resultingConditionValue as Expression;
 				}
 
@@ -886,7 +886,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTrueBlockValue)
 				{	
 					Node resultingTrueBlockValue;				
-					currentTrueBlockValue.Switch(this, out resultingTrueBlockValue);					
+					currentTrueBlockValue.Accept(this, out resultingTrueBlockValue);					
 					node.TrueBlock = resultingTrueBlockValue as Block;
 				}
 
@@ -894,7 +894,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentFalseBlockValue)
 				{	
 					Node resultingFalseBlockValue;				
-					currentFalseBlockValue.Switch(this, out resultingFalseBlockValue);					
+					currentFalseBlockValue.Accept(this, out resultingFalseBlockValue);					
 					node.FalseBlock = resultingFalseBlockValue as Block;
 				}
 
@@ -922,7 +922,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -930,7 +930,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentConditionValue)
 				{	
 					Node resultingConditionValue;				
-					currentConditionValue.Switch(this, out resultingConditionValue);					
+					currentConditionValue.Accept(this, out resultingConditionValue);					
 					node.Condition = resultingConditionValue as Expression;
 				}
 
@@ -938,7 +938,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentBlockValue)
 				{	
 					Node resultingBlockValue;				
-					currentBlockValue.Switch(this, out resultingBlockValue);					
+					currentBlockValue.Accept(this, out resultingBlockValue);					
 					node.Block = resultingBlockValue as Block;
 				}
 
@@ -966,17 +966,17 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
-				Switch(node.Declarations);
+				Accept(node.Declarations);
 
 				Expression currentIteratorValue = node.Iterator;
 				if (null != currentIteratorValue)
 				{	
 					Node resultingIteratorValue;				
-					currentIteratorValue.Switch(this, out resultingIteratorValue);					
+					currentIteratorValue.Accept(this, out resultingIteratorValue);					
 					node.Iterator = resultingIteratorValue as Expression;
 				}
 
@@ -984,7 +984,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentBlockValue)
 				{	
 					Node resultingBlockValue;				
-					currentBlockValue.Switch(this, out resultingBlockValue);					
+					currentBlockValue.Accept(this, out resultingBlockValue);					
 					node.Block = resultingBlockValue as Block;
 				}
 
@@ -1012,7 +1012,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1020,7 +1020,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentConditionValue)
 				{	
 					Node resultingConditionValue;				
-					currentConditionValue.Switch(this, out resultingConditionValue);					
+					currentConditionValue.Accept(this, out resultingConditionValue);					
 					node.Condition = resultingConditionValue as Expression;
 				}
 
@@ -1028,7 +1028,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentBlockValue)
 				{	
 					Node resultingBlockValue;				
-					currentBlockValue.Switch(this, out resultingBlockValue);					
+					currentBlockValue.Accept(this, out resultingBlockValue);					
 					node.Block = resultingBlockValue as Block;
 				}
 
@@ -1056,7 +1056,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1064,17 +1064,17 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentExpressionValue)
 				{	
 					Node resultingExpressionValue;				
-					currentExpressionValue.Switch(this, out resultingExpressionValue);					
+					currentExpressionValue.Accept(this, out resultingExpressionValue);					
 					node.Expression = resultingExpressionValue as Expression;
 				}
 
-				Switch(node.WhenClauses);
+				Accept(node.WhenClauses);
 
 				Block currentOtherwiseBlockValue = node.OtherwiseBlock;
 				if (null != currentOtherwiseBlockValue)
 				{	
 					Node resultingOtherwiseBlockValue;				
-					currentOtherwiseBlockValue.Switch(this, out resultingOtherwiseBlockValue);					
+					currentOtherwiseBlockValue.Accept(this, out resultingOtherwiseBlockValue);					
 					node.OtherwiseBlock = resultingOtherwiseBlockValue as Block;
 				}
 
@@ -1102,7 +1102,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentConditionValue)
 				{	
 					Node resultingConditionValue;				
-					currentConditionValue.Switch(this, out resultingConditionValue);					
+					currentConditionValue.Accept(this, out resultingConditionValue);					
 					node.Condition = resultingConditionValue as Expression;
 				}
 
@@ -1110,7 +1110,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentBlockValue)
 				{	
 					Node resultingBlockValue;				
-					currentBlockValue.Switch(this, out resultingBlockValue);					
+					currentBlockValue.Accept(this, out resultingBlockValue);					
 					node.Block = resultingBlockValue as Block;
 				}
 
@@ -1138,7 +1138,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1166,7 +1166,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1194,7 +1194,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1222,7 +1222,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1230,7 +1230,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentExpressionValue)
 				{	
 					Node resultingExpressionValue;				
-					currentExpressionValue.Switch(this, out resultingExpressionValue);					
+					currentExpressionValue.Accept(this, out resultingExpressionValue);					
 					node.Expression = resultingExpressionValue as Expression;
 				}
 
@@ -1258,7 +1258,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1266,7 +1266,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentExpressionValue)
 				{	
 					Node resultingExpressionValue;				
-					currentExpressionValue.Switch(this, out resultingExpressionValue);					
+					currentExpressionValue.Accept(this, out resultingExpressionValue);					
 					node.Expression = resultingExpressionValue as Expression;
 				}
 
@@ -1294,7 +1294,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1302,7 +1302,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentExceptionValue)
 				{	
 					Node resultingExceptionValue;				
-					currentExceptionValue.Switch(this, out resultingExceptionValue);					
+					currentExceptionValue.Accept(this, out resultingExceptionValue);					
 					node.Exception = resultingExceptionValue as Expression;
 				}
 
@@ -1330,17 +1330,17 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
-				Switch(node.Declarations);
+				Accept(node.Declarations);
 
 				Expression currentExpressionValue = node.Expression;
 				if (null != currentExpressionValue)
 				{	
 					Node resultingExpressionValue;				
-					currentExpressionValue.Switch(this, out resultingExpressionValue);					
+					currentExpressionValue.Accept(this, out resultingExpressionValue);					
 					node.Expression = resultingExpressionValue as Expression;
 				}
 
@@ -1368,7 +1368,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentModifierValue)
 				{	
 					Node resultingModifierValue;				
-					currentModifierValue.Switch(this, out resultingModifierValue);					
+					currentModifierValue.Accept(this, out resultingModifierValue);					
 					node.Modifier = resultingModifierValue as StatementModifier;
 				}
 
@@ -1376,7 +1376,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentExpressionValue)
 				{	
 					Node resultingExpressionValue;				
-					currentExpressionValue.Switch(this, out resultingExpressionValue);					
+					currentExpressionValue.Accept(this, out resultingExpressionValue);					
 					node.Expression = resultingExpressionValue as Expression;
 				}
 
@@ -1409,7 +1409,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentFirstValue)
 				{	
 					Node resultingFirstValue;				
-					currentFirstValue.Switch(this, out resultingFirstValue);					
+					currentFirstValue.Accept(this, out resultingFirstValue);					
 					node.First = resultingFirstValue as Expression;
 				}
 
@@ -1417,7 +1417,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentSecondValue)
 				{	
 					Node resultingSecondValue;				
-					currentSecondValue.Switch(this, out resultingSecondValue);					
+					currentSecondValue.Accept(this, out resultingSecondValue);					
 					node.Second = resultingSecondValue as Expression;
 				}
 
@@ -1445,13 +1445,13 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTargetValue)
 				{	
 					Node resultingTargetValue;				
-					currentTargetValue.Switch(this, out resultingTargetValue);					
+					currentTargetValue.Accept(this, out resultingTargetValue);					
 					node.Target = resultingTargetValue as Expression;
 				}
 
-				Switch(node.Arguments);
+				Accept(node.Arguments);
 
-				Switch(node.NamedArguments);
+				Accept(node.NamedArguments);
 
 				LeaveMethodInvocationExpression(node, ref resultingNode);
 			}
@@ -1477,7 +1477,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentOperandValue)
 				{	
 					Node resultingOperandValue;				
-					currentOperandValue.Switch(this, out resultingOperandValue);					
+					currentOperandValue.Accept(this, out resultingOperandValue);					
 					node.Operand = resultingOperandValue as Expression;
 				}
 
@@ -1505,7 +1505,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentLeftValue)
 				{	
 					Node resultingLeftValue;				
-					currentLeftValue.Switch(this, out resultingLeftValue);					
+					currentLeftValue.Accept(this, out resultingLeftValue);					
 					node.Left = resultingLeftValue as Expression;
 				}
 
@@ -1513,7 +1513,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentRightValue)
 				{	
 					Node resultingRightValue;				
-					currentRightValue.Switch(this, out resultingRightValue);					
+					currentRightValue.Accept(this, out resultingRightValue);					
 					node.Right = resultingRightValue as Expression;
 				}
 
@@ -1546,7 +1546,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTargetValue)
 				{	
 					Node resultingTargetValue;				
-					currentTargetValue.Switch(this, out resultingTargetValue);					
+					currentTargetValue.Accept(this, out resultingTargetValue);					
 					node.Target = resultingTargetValue as Expression;
 				}
 
@@ -1615,7 +1615,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterExpressionInterpolationExpression(node, ref resultingNode))
 			{
 
-				Switch(node.Expressions);
+				Accept(node.Expressions);
 
 				LeaveExpressionInterpolationExpression(node, ref resultingNode);
 			}
@@ -1637,7 +1637,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterHashLiteralExpression(node, ref resultingNode))
 			{
 
-				Switch(node.Items);
+				Accept(node.Items);
 
 				LeaveHashLiteralExpression(node, ref resultingNode);
 			}
@@ -1659,7 +1659,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterListLiteralExpression(node, ref resultingNode))
 			{
 
-				Switch(node.Items);
+				Accept(node.Items);
 
 				LeaveListLiteralExpression(node, ref resultingNode);
 			}
@@ -1681,7 +1681,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (EnterArrayLiteralExpression(node, ref resultingNode))
 			{
 
-				Switch(node.Items);
+				Accept(node.Items);
 
 				LeaveArrayLiteralExpression(node, ref resultingNode);
 			}
@@ -1707,17 +1707,17 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentExpressionValue)
 				{	
 					Node resultingExpressionValue;				
-					currentExpressionValue.Switch(this, out resultingExpressionValue);					
+					currentExpressionValue.Accept(this, out resultingExpressionValue);					
 					node.Expression = resultingExpressionValue as Expression;
 				}
 
-				Switch(node.Declarations);
+				Accept(node.Declarations);
 
 				Expression currentIteratorValue = node.Iterator;
 				if (null != currentIteratorValue)
 				{	
 					Node resultingIteratorValue;				
-					currentIteratorValue.Switch(this, out resultingIteratorValue);					
+					currentIteratorValue.Accept(this, out resultingIteratorValue);					
 					node.Iterator = resultingIteratorValue as Expression;
 				}
 
@@ -1725,7 +1725,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentFilterValue)
 				{	
 					Node resultingFilterValue;				
-					currentFilterValue.Switch(this, out resultingFilterValue);					
+					currentFilterValue.Accept(this, out resultingFilterValue);					
 					node.Filter = resultingFilterValue as StatementModifier;
 				}
 
@@ -1753,7 +1753,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTargetValue)
 				{	
 					Node resultingTargetValue;				
-					currentTargetValue.Switch(this, out resultingTargetValue);					
+					currentTargetValue.Accept(this, out resultingTargetValue);					
 					node.Target = resultingTargetValue as Expression;
 				}
 
@@ -1761,7 +1761,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentBeginValue)
 				{	
 					Node resultingBeginValue;				
-					currentBeginValue.Switch(this, out resultingBeginValue);					
+					currentBeginValue.Accept(this, out resultingBeginValue);					
 					node.Begin = resultingBeginValue as Expression;
 				}
 
@@ -1769,7 +1769,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentEndValue)
 				{	
 					Node resultingEndValue;				
-					currentEndValue.Switch(this, out resultingEndValue);					
+					currentEndValue.Accept(this, out resultingEndValue);					
 					node.End = resultingEndValue as Expression;
 				}
 
@@ -1777,7 +1777,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentStepValue)
 				{	
 					Node resultingStepValue;				
-					currentStepValue.Switch(this, out resultingStepValue);					
+					currentStepValue.Accept(this, out resultingStepValue);					
 					node.Step = resultingStepValue as Expression;
 				}
 
@@ -1805,7 +1805,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTargetValue)
 				{	
 					Node resultingTargetValue;				
-					currentTargetValue.Switch(this, out resultingTargetValue);					
+					currentTargetValue.Accept(this, out resultingTargetValue);					
 					node.Target = resultingTargetValue as Expression;
 				}
 
@@ -1813,7 +1813,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTypeValue)
 				{	
 					Node resultingTypeValue;				
-					currentTypeValue.Switch(this, out resultingTypeValue);					
+					currentTypeValue.Accept(this, out resultingTypeValue);					
 					node.Type = resultingTypeValue as TypeReference;
 				}
 
@@ -1841,7 +1841,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTypeValue)
 				{	
 					Node resultingTypeValue;				
-					currentTypeValue.Switch(this, out resultingTypeValue);					
+					currentTypeValue.Accept(this, out resultingTypeValue);					
 					node.Type = resultingTypeValue as TypeReference;
 				}
 
@@ -1849,7 +1849,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTargetValue)
 				{	
 					Node resultingTargetValue;				
-					currentTargetValue.Switch(this, out resultingTargetValue);					
+					currentTargetValue.Accept(this, out resultingTargetValue);					
 					node.Target = resultingTargetValue as Expression;
 				}
 
@@ -1877,7 +1877,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != currentTypeValue)
 				{	
 					Node resultingTypeValue;				
-					currentTypeValue.Switch(this, out resultingTypeValue);					
+					currentTypeValue.Accept(this, out resultingTypeValue);					
 					node.Type = resultingTypeValue as TypeReference;
 				}
 
@@ -1895,11 +1895,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 
-		public bool Switch(Node node, out Node resultingNode)
+		public bool Accept(Node node, out Node resultingNode)
 		{			
 			if (null != node)
 			{			
-				node.Switch(this, out resultingNode);
+				node.Accept(this, out resultingNode);
 				return true;
 			}
 			resultingNode = node;
@@ -1911,28 +1911,28 @@ namespace Boo.Lang.Compiler.Ast
 			if (null != node)
 			{
 				Node resultingNode;
-				node.Switch(this, out resultingNode);
+				node.Accept(this, out resultingNode);
 				return resultingNode;
 			}
 			return null;
 		}
 		
-		public Node Switch(Node node)
+		public Node Accept(Node node)
 		{
 			return SwitchNode(node);
 		}
 		
-		public Expression Switch(Expression node)
+		public Expression Accept(Expression node)
 		{
 			return (Expression)SwitchNode(node);
 		}
 		
-		public Statement Switch(Statement node)
+		public Statement Accept(Statement node)
 		{
 			return (Statement)SwitchNode(node);
 		}
 		
-		public bool Switch(NodeCollection collection)
+		public bool Accept(NodeCollection collection)
 		{
 			if (null != collection)
 			{
@@ -1943,7 +1943,7 @@ namespace Boo.Lang.Compiler.Ast
 				{
 					Node resultingNode;
 					Node currentNode = nodes[i];
-					currentNode.Switch(this, out resultingNode);
+					currentNode.Accept(this, out resultingNode);
 					if (currentNode != resultingNode)
 					{
 						int actualIndex = i-removed;

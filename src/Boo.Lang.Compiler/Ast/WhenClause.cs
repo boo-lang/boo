@@ -46,9 +46,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		override public void Switch(IAstSwitcher switcher)
+		override public void Accept(IAstVisitor visitor)
 		{
-			switcher.OnWhenClause(this);
+			visitor.OnWhenClause(this);
 		}
 	}
 }

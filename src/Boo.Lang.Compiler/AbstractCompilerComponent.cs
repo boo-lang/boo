@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler
 		{			
 		}
 		
-		protected CompilerContext CompilerContext
+		protected CompilerContext Context
 		{
 			get
 			{
@@ -58,7 +58,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected CompilerParameters CompilerParameters
+		protected CompilerParameters Parameters
 		{
 			get
 			{

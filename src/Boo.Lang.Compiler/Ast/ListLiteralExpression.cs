@@ -43,9 +43,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		override public void Switch(IAstSwitcher switcher)
+		override public void Accept(IAstVisitor visitor)
 		{
-			switcher.OnListLiteralExpression(this);
+			visitor.OnListLiteralExpression(this);
 		}
 	}
 }

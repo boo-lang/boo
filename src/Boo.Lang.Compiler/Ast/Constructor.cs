@@ -44,9 +44,9 @@ namespace Boo.Lang.Compiler.Ast
 			_name = "constructor";
 		}
 		
-		override public void Switch(IAstSwitcher switcher)
+		override public void Accept(IAstVisitor visitor)
 		{
-			switcher.OnConstructor(this);
+			visitor.OnConstructor(this);
 		}
 	}
 }

@@ -31,13 +31,12 @@ namespace Boo.Lang.Compiler.Stepss
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class BooiPipelineDefinition : CorePipelineDefinition
+	public class CompileToMemory : CorePipelineDefinition
 	{
 		override public void Define(CompilerPipeline pipeline)
 		{			
 			base.Define(pipeline);
 			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
-			pipeline.Add(new CompilerPipelineItem("run", new RunAssembly()));
 		}
 	}
 }

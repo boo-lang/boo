@@ -55,9 +55,9 @@ namespace Boo.Lang.Compiler.Ast
 			return _namespace;
 		}
 		
-		override public void Switch(IAstSwitcher switcher)
+		override public void Accept(IAstVisitor visitor)
 		{
-			switcher.OnImport(this);
+			visitor.OnImport(this);
 		}
 	}
 }

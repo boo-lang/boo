@@ -36,27 +36,11 @@ namespace Boo.Lang.Compiler.Steps
 	/// <summary>
 	/// Writes a xml representation of the AST to the console.
 	/// </summary>
-	public class XmlSerializationStep : ICompilerStep
+	public class SerializeToXml : AbstractCompilerStep
 	{
-		CompilerContext _context;
-		
-		public XmlSerializationStep()
+		override public void Run()
 		{
-		}
-		
-		public void Initialize(CompilerContext context)
-		{
-			_context = context;
-		}
-		
-		public void Dispose()
-		{
-			_context = null;
-		}
-
-		public void Run()
-		{
-			CompileUnit cu = _context.CompileUnit;
+			CompileUnit cu = Context.CompileUnit;
 			new XmlSerializer(cu.GetType()).Serialize(Console.Out, cu);
 			Console.WriteLine();
 		}

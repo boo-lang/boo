@@ -26,15 +26,14 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Collections;
-using System.IO;
-
 namespace Boo.Lang.Compiler.Ast
 {
+	using System;
+	using System.Collections;
+	using System.IO;
+
 	/// <summary>
-	/// Classe base para todos os ns da AST que mantm
-	/// detalhes lxicos.
+	/// Base class for every node in the AST.
 	/// </summary>
 	[Serializable]
 	public abstract class Node : ICloneable
@@ -43,9 +42,9 @@ namespace Boo.Lang.Compiler.Ast
 
 		protected Node _parent;
 		
-		protected Hashtable _properties = new Hashtable();
-		
 		protected string _documentation;
+		
+		protected object _tag;
 
 		protected Node()
 		{
@@ -71,13 +70,6 @@ namespace Boo.Lang.Compiler.Ast
 			return (Node)Clone();
 		}
 		
-		public abstract object Clone();
-		
-		public abstract NodeType NodeType
-		{
-			get;
-		}
-
 		public Node ParentNode
 		{
 			get
@@ -96,15 +88,6 @@ namespace Boo.Lang.Compiler.Ast
 			set
 			{
 				_documentation = value;
-			}
-		}
-		
-		[System.Xml.Serialization.XmlIgnore]
-		public System.Collections.IDictionary Properties
-		{
-			get
-			{
-				return _properties;
 			}
 		}
 
@@ -134,27 +117,6 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
-		public object this[object key]
-		{
-			get
-			{
-				if (null == key)
-				{
-					throw new ArgumentNullException("key");
-				}
-				return _properties[key];
-			}
-			
-			set
-			{
-				if (null == key)
-				{
-					throw new ArgumentNullException("key");
-				}
-				_properties[key] = value;
-			}
-		}
-		
 		public virtual bool Replace(Node existing, Node newNode)
 		{
 			if (null == existing)
@@ -169,14 +131,14 @@ namespace Boo.Lang.Compiler.Ast
 			_parent = parent;
 		}
 
-		protected string GetString(string name)
-		{
-			return ResourceManager.GetString(name);
-		}
-
-		public abstract void Switch(IAstSwitcher switcher);
+		public abstract void Accept(IAstVisitor visitor);
 		
-		public abstract void Switch(IAstTransformer transformer, out Node resultingNode);
+		public abstract object Clone();
+		
+		public abstract NodeType NodeType
+		{
+			get;
+		}
 	}
 
 }

@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	public interface IAstSwitcher
+	public interface IAstVisitor
 	{
 		void OnCompileUnit(CompileUnit node);
 		void OnSimpleTypeReference(SimpleTypeReference node);

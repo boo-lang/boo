@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Stepss
 	/// Standard compilation pipeline: parses input files and go all
 	/// the way to assembly emission.
 	/// </summary>
-	public class BoocPipelineDefinition : CorePipelineDefinition
+	public class CompileToFile : CorePipelineDefinition
 	{
 		override public void Define(CompilerPipeline pipeline)
 		{			

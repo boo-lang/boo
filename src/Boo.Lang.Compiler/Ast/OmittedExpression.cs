@@ -57,12 +57,12 @@ namespace Boo.Lang.Compiler.Ast
 			return this;
 		}
 
-		override public void Switch(IAstSwitcher switcher)
+		override public void Accept(IAstVisitor visitor)
 		{
-			switcher.OnOmittedExpression(this);
+			visitor.OnOmittedExpression(this);
 		}
 		
-		override public void Switch(IAstTransformer transformer, out Node resultingNode)
+		override public void Accept(IAstTransformer transformer, out Node resultingNode)
 		{
 			Expression result = this;
 			transformer.OnOmittedExpression(this, ref result);

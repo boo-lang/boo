@@ -41,21 +41,21 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			Switch(CompileUnit);
+			Accept(CompileUnit);
 		}
 		
 		override public void OnModule(Module module, ref Module resultingModule)
 		{			
 			PushNamespace((INamespace)BindingManager.GetBinding(module));
-			Switch(module.Members);
-			Switch(module.Globals);			
+			Accept(module.Members);
+			Accept(module.Globals);			
 			PopNamespace();
 		}
 		
 		override public void OnMacroStatement(MacroStatement node, ref Statement resultingNode)
 		{
-			Switch(node.Block);
-			Switch(node.Arguments);
+			Accept(node.Block);
+			Accept(node.Arguments);
 			
 			resultingNode = null;
 			

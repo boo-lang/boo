@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps
 					(IConstructorBinding)BindingManager.AsBinding(
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
-			Switch(CompileUnit);
+			Accept(CompileUnit);
 			
 			if (0 == Errors.Count)
 			{
@@ -314,14 +314,14 @@ namespace Boo.Lang.Compiler.Steps
 		{				
 			PushNamespace((INamespace)BindingManager.GetBinding(module));			
 			
-			Switch(module.Members);
+			Accept(module.Members);
 			
 			PopNamespace();
 		}
 		
 		void BindBaseInterfaceTypes(InterfaceDefinition node)
 		{
-			Switch(node.BaseTypes);
+			Accept(node.BaseTypes);
 			
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
@@ -336,7 +336,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindBaseTypes(ClassDefinition node)
 		{
-			Switch(node.BaseTypes);
+			Accept(node.BaseTypes);
 			
 			ITypeBinding baseClass = null;
 			foreach (TypeReference baseType in node.BaseTypes)
@@ -385,7 +385,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifiers |= TypeMemberModifiers.Public;
 			}
 			
-			Switch(node.Attributes);
+			Accept(node.Attributes);
 			
 			long lastValue = 0;
 			foreach (EnumMember member in node.Members)
@@ -394,8 +394,8 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					member.Initializer = new IntegerLiteralExpression(lastValue);
 				}
-				Switch(member.Attributes);
-				Switch(member.Initializer);
+				Accept(member.Attributes);
+				Accept(member.Initializer);
 				lastValue = member.Initializer.Value + 1;
 			}
 		}
@@ -412,8 +412,8 @@ namespace Boo.Lang.Compiler.Steps
 			BindBaseInterfaceTypes(node);
 			
 			PushNamespace(binding);
-			Switch(node.Attributes);
-			Switch(node.Members);
+			Accept(node.Attributes);
+			Accept(node.Members);
 			PopNamespace();
 		}
 		
@@ -431,9 +431,9 @@ namespace Boo.Lang.Compiler.Steps
 			BindBaseTypes(node);
 			
 			PushNamespace(binding);
-			Switch(node.Attributes);		
+			Accept(node.Attributes);		
 			ProcessFields(node);
-			Switch(node.Members);
+			Accept(node.Members);
 			PopNamespace();
 		}		
 		
@@ -442,7 +442,7 @@ namespace Boo.Lang.Compiler.Steps
 			ITypeBinding binding = BindingManager.GetBoundType(node);
 			if (null != binding && !BindingManager.IsError(binding))
 			{			
-				Switch(node.Arguments);
+				Accept(node.Arguments);
 				ResolveNamedArguments(node, binding, node.NamedArguments);
 				
 				IConstructorBinding constructor = FindCorrectConstructor(node, binding, node.Arguments);
@@ -474,10 +474,10 @@ namespace Boo.Lang.Compiler.Steps
 			Method setter = node.Setter;
 			Method getter = node.Getter;
 			
-			Switch(node.Attributes);			
-			Switch(node.Type);
+			Accept(node.Attributes);			
+			Accept(node.Type);
 			
-			Switch(node.Parameters);
+			Accept(node.Parameters);
 			if (null != getter)
 			{
 				if (null != node.Type)
@@ -486,7 +486,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				getter.Name = "get_" + node.Name;
 				getter.Parameters.ExtendWithClones(node.Parameters);
-				Switch(getter);
+				Accept(getter);
 			}
 			
 			ITypeBinding typeBinding = null;
@@ -514,7 +514,7 @@ namespace Boo.Lang.Compiler.Steps
 				parameter.Name = "value";
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
-				Switch(setter);
+				Accept(setter);
 				
 				setter.Name = "set_" + node.Name;
 			}
@@ -539,7 +539,7 @@ namespace Boo.Lang.Compiler.Steps
 			// first time here
 			binding.Visited = true;			
 			
-			Switch(node.Attributes);			
+			Accept(node.Attributes);			
 			
 			ProcessFieldInitializer(node);			
 			
@@ -556,7 +556,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Switch(node.Type);
+				Accept(node.Type);
 				
 				if (null != node.Initializer)
 				{
@@ -573,7 +573,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Switch(fields);
+			Accept(fields);
 			
 			int staticFieldIndex = 0;
 			int instanceFieldIndex = 0;
@@ -620,7 +620,7 @@ namespace Boo.Lang.Compiler.Steps
 				try
 				{
 					type.Members.Add(method);
-					Switch(method);
+					Accept(method);
 				}
 				finally
 				{
@@ -787,10 +787,10 @@ namespace Boo.Lang.Compiler.Steps
 			bool parentIsClass = method.DeclaringType.NodeType == NodeType.ClassDefinition;
 			
 			binding.Visited = true;
-			Switch(method.Attributes);
-			Switch(method.Parameters);
-			Switch(method.ReturnType);
-			Switch(method.ReturnTypeAttributes);
+			Accept(method.Attributes);
+			Accept(method.Parameters);
+			Accept(method.ReturnType);
+			Accept(method.ReturnTypeAttributes);
 			
 			if (method.IsOverride)
 			{
@@ -823,7 +823,7 @@ namespace Boo.Lang.Compiler.Steps
 			PushMethodBinding(binding);
 			PushNamespace(binding);
 			
-			Switch(method.Body);
+			Accept(method.Body);
 			
 			PopNamespace();
 			PopMethodBinding();
@@ -1093,7 +1093,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			Switch(node.ElementType);
+			Accept(node.ElementType);
 			
 			ITypeBinding elementType = GetBoundType(node.ElementType);
 			if (BindingManager.IsError(elementType))
@@ -1196,14 +1196,14 @@ namespace Boo.Lang.Compiler.Steps
 		StringLiteralExpression CreateStringLiteral(string value)
 		{
 			StringLiteralExpression expression = new StringLiteralExpression(value);
-			Switch(expression);
+			Accept(expression);
 			return expression;
 		}
 		
 		IntegerLiteralExpression CreateIntegerLiteral(long value)
 		{
 			IntegerLiteralExpression expression = new IntegerLiteralExpression(value);
-			Switch(expression);
+			Accept(expression);
 			return expression;
 		}
 		
@@ -1411,7 +1411,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)
 		{
-			Switch(node.Iterator);
+			Accept(node.Iterator);
 			
 			Expression newIterator = ProcessIterator(node.Iterator, node.Declarations, true);
 			if (null != newIterator)
@@ -1420,8 +1420,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declarations));			
-			Switch(node.Filter);			
-			Switch(node.Expression);
+			Accept(node.Filter);			
+			Accept(node.Expression);
 			PopNamespace();
 		}
 		
@@ -1560,7 +1560,7 @@ namespace Boo.Lang.Compiler.Steps
 				memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
 			}
 			node.ParentNode.Replace(node, memberRef);
-			Switch(memberRef);
+			Accept(memberRef);
 		}
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
@@ -1794,7 +1794,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnForStatement(ForStatement node)
 		{		
-			Switch(node.Iterator);
+			Accept(node.Iterator);
 			
 			Expression newIterator = ProcessIterator(node.Iterator, node.Declarations, true);
 			if (null != newIterator)
@@ -1804,14 +1804,14 @@ namespace Boo.Lang.Compiler.Steps
 			
 			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declarations));
 			EnterLoop();
-			Switch(node.Block);
+			Accept(node.Block);
 			LeaveLoop();
 			PopNamespace();
 		}
 		
 		override public void OnUnpackStatement(UnpackStatement node)
 		{
-			Switch(node.Expression);
+			Accept(node.Expression);
 			
 			Expression newIterator = ProcessIterator(node.Expression, node.Declarations, false);
 			if (null != newIterator)
@@ -1842,12 +1842,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Switch(node.Declaration.Type);
+				Accept(node.Declaration.Type);
 			}
 			
 			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetBoundType(node.Declaration.Type));
 			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declaration));
-			Switch(node.Block);
+			Accept(node.Block);
 			PopNamespace();
 		}
 		
@@ -1876,7 +1876,7 @@ namespace Boo.Lang.Compiler.Steps
 													addition);
 													
 					node.ParentNode.Replace(node, assign);
-					Switch(assign);
+					Accept(assign);
 				}
 			}
 			else
@@ -1945,7 +1945,7 @@ namespace Boo.Lang.Compiler.Steps
 				IBinding info = Resolve(node, reference.Name);					
 				if (null == info || IsBuiltin(info))
 				{
-					Switch(node.Right);
+					Accept(node.Right);
 					ITypeBinding expressionTypeInfo = GetExpressionType(node.Right);				
 					DeclareLocal(reference, new Local(reference, false), expressionTypeInfo);
 					Bind(node, expressionTypeInfo);
@@ -2365,8 +2365,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return;
 			}
-			Switch(node.Target);			
-			Switch(node.Arguments);
+			Accept(node.Target);			
+			Accept(node.Arguments);
 			
 			IBinding targetBinding = BindingManager.GetBinding(node.Target);
 			if (BindingManager.IsError(targetBinding) ||
@@ -2749,7 +2749,7 @@ namespace Boo.Lang.Compiler.Steps
 			node.Operator = GetRelatedBinaryOperatorForInPlaceOperator(node.Operator);
 			
 			parent.Replace(node, assign);
-			Switch(assign);
+			Accept(assign);
 		}
 		
 		BinaryOperatorType GetRelatedBinaryOperatorForInPlaceOperator(BinaryOperatorType op)
@@ -2876,7 +2876,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (ExpressionPair arg in arguments)
 			{			
-				Switch(arg.Second);
+				Accept(arg.Second);
 				
 				if (NodeType.ReferenceExpression != arg.First.NodeType)
 				{
@@ -3182,9 +3182,9 @@ namespace Boo.Lang.Compiler.Steps
 						TypeMember member = internalBinding.Node as TypeMember;
 						if (null != member)
 						{
-							Switch(member.ParentNode);
+							Accept(member.ParentNode);
 						}
-						Switch(internalBinding.Node);
+						Accept(internalBinding.Node);
 					}
 					finally
 					{
@@ -3611,7 +3611,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null != d.Type)
 				{
-					Switch(d.Type);
+					Accept(d.Type);
 					CheckTypeCompatibility(d, GetBoundType(d.Type), defaultDeclType);					
 				}
 				

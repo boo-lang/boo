@@ -19,14 +19,18 @@ done * recursos
 
 * remover ICompilerPipelineDefinition, trocar tudo por herança de pipeline
 
+* remover CompileUnitBinding e trocar por IntroduceGlobalNamespaces e
+IntroduceNameResolutionService
+
 * criar todos os passos novos e fazer passar todos os testes atuais
 
 * nova pipeline:
 			/*		
-		pipeline.Add(IntroduceBindingService())
-		pipeline.Add(BindNamespaces())
+		pipeline.Add(IntroduceBindingService())		
 		pipeline.Add(IntroduceNameResolutionService())
 		pipeline.Add(IntroduceGlobalNamespaces())
+		pipeline.Add(BindTypeDefinitions())
+		pipeline.Add(BindNamespaces())		
 		pipeline.Add(BindAndApplyAttributes())
 		pipeline.Add(ExpandMacros())
 		pipeline.Add(IntroduceModuleClasses())

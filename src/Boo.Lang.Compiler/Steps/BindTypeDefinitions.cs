@@ -39,17 +39,17 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			Switch(CompileUnit.Modules);
+			Accept(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Module module)
 		{			
-			Switch(module.Members);
+			Accept(module.Members);
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{	
-			Switch(module.Members);
+			Accept(module.Members);
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)

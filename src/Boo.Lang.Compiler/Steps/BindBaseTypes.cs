@@ -47,13 +47,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_nameResolution.Initialize(_context);
 			
-			Switch(CompileUnit.Modules);
+			Accept(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Module module)
 		{
 			PushNamespace((INamespace)GetBinding(module));
-			Switch(module.Members);
+			Accept(module.Members);
 			PopNamespace();
 		}
 		

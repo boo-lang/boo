@@ -200,7 +200,7 @@ namespace Boo.Lang.Compiler.Steps
 			int step = 0;
 			while (step < CompilerParameters.MaxAttributeSteps)
 			{
-				Switch(CompileUnit);
+				Accept(CompileUnit);
 				if (0 == _tasks.Count)
 				{					
 					break;
@@ -215,7 +215,7 @@ namespace Boo.Lang.Compiler.Steps
 			PushNamespace((INamespace)BindingManager.GetBinding(module));
 
 			// do mdulo precisamos apenas visitar os membros
-			Switch(module.Members);
+			Accept(module.Members);
 			
 			PopNamespace();
 		}

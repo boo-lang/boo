@@ -31,12 +31,13 @@ namespace Boo.Lang.Compiler.Stepss
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class XmlPipelineDefinition : ParsePipelineDefinition
+	public class Run : CorePipelineDefinition
 	{
 		override public void Define(CompilerPipeline pipeline)
-		{
+		{			
 			base.Define(pipeline);
-			pipeline.Add(new XmlSerializationStep());
+			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
+			pipeline.Add(new CompilerPipelineItem("run", new RunAssembly()));
 		}
 	}
 }

@@ -256,7 +256,7 @@ namespace BooC
 			
 			if (!hasPipeline)
 			{
-				options.Pipeline.Load(typeof(BoocPipelineDefinition));
+				options.Pipeline.Load(typeof(CompileToFile));
 			}
 		}
 
@@ -309,14 +309,14 @@ namespace BooC
 		{
 			switch (name)
 			{
-				case "parse": return new ParsePipelineDefinition();
+				case "parse": return new Parse();
 				case "core": return new CorePipelineDefinition();
-				case "boom": return new BooInMemoryPipelineDefinition();
-				case "booi": return new BooiPipelineDefinition();
-				case "booc": return new BoocPipelineDefinition();
+				case "boom": return new CompileToMemory();
+				case "booi": return new Run();
+				case "booc": return new CompileToFile();
 				case "roundtrip": return new RoundtripPipelineDefinition();
-				case "boo": return new BooPipelineDefinition();
-				case "xml": return new XmlPipelineDefinition();
+				case "boo": return new ParseAndPrint();
+				case "xml": return new ParseAndPrintXml();
 			}
 			return null;
 		}

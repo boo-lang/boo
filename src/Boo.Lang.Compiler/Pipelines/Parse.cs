@@ -31,12 +31,18 @@ namespace Boo.Lang.Compiler.Stepss
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class BooInMemoryPipelineDefinition : CorePipelineDefinition
+	public class Parse : ICompilerPipelineDefinition
 	{
-		override public void Define(CompilerPipeline pipeline)
-		{			
-			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssembly()));
+		static Type _defaultParserStepType = Type.GetType("Boo.AntlrParser.BooParsingStep, Boo.AntlrParser");
+		
+		public static ICompilerStep NewParserStep()
+		{
+			return (ICompilerStep)Activator.CreateInstance(_defaultParserStepType);
+		}
+		
+		virtual public void Define(CompilerPipeline pipeline)
+		{							
+			pipeline.Add(new CompilerPipelineItem("parse", NewParserStep()));
 		}
 	}
 }

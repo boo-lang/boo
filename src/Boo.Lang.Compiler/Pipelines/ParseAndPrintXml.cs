@@ -31,12 +31,12 @@ namespace Boo.Lang.Compiler.Stepss
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class BooPipelineDefinition : CorePipelineDefinition
+	public class ParseAndPrintXml : Parse
 	{
 		override public void Define(CompilerPipeline pipeline)
-		{			
+		{
 			base.Define(pipeline);
-			pipeline.Add(new CompilerPipelineItem("booprinter", new PrintBoo()));
+			pipeline.Add(new XmlSerializationStep());
 		}
 	}
 }

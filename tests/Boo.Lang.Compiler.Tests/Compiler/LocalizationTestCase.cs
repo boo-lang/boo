@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.Tests
 				BooCompiler compiler = new BooCompiler();
 				CompilerParameters options = compiler.Parameters;
 				options.Input.Add(new Boo.Lang.Compiler.IO.StringInput("testcase", TestCase));
-				options.Pipeline.Load(typeof(ParsePipelineDefinition));
+				options.Pipeline.Load(typeof(Parse));
 				
 				CompilerErrorCollection errors = compiler.Run().Errors;
 	

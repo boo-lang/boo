@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			Switch(CompileUnit.Modules);
+			Accept(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Module node, ref Module resultingNode)
@@ -87,7 +87,7 @@ namespace Boo.Lang.Compiler.Steps
 				AstAnnotations.SetModuleClass(node, moduleClass);
 			}
 			
-			Switch(node.Members);
+			Accept(node.Members);
 		}
 		
 		void LeaveTypeDefinition(TypeDefinition node)

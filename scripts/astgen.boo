@@ -174,14 +174,6 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			{
 				return NodeType.${node.Name};
 			}
-		}
-		
-		override public void Switch(IAstTransformer transformer, out Node resultingNode)
-		{
-			${node.Name} thisNode = (${node.Name})this;
-			${GetResultingTransformerNode(node)} resultingTypedNode = thisNode;
-			transformer.On${node.Name}(thisNode, ref resultingTypedNode);
-			resultingNode = resultingTypedNode;
 		}""")
 		
 			writer.WriteLine("""
@@ -232,7 +224,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			${node.Name} clone = FormatterServices.GetUninitializedObject(typeof(${node.Name})) as ${node.Name};
 			clone._lexicalInfo = _lexicalInfo;
 			clone._documentation = _documentation;
-			clone._properties = _properties.Clone() as Hashtable;
+			clone._tag = _tag;
 			""")
 			
 			for field as Field in allFields:
@@ -686,8 +678,8 @@ namespace Boo.Lang.Compiler.Ast
 }
 """)
 
-def WriteSwitcher(module as Module):
-	using writer=OpenFile(GetPath("IAstSwitcher.cs")):
+def WriteVisitor(module as Module):
+	using writer=OpenFile(GetPath("IAstVisitor.cs")):
 		WriteLicense(writer)
 		WriteWarning(writer)
 		writer.Write(
@@ -696,7 +688,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	public interface IAstSwitcher
+	public interface IAstVisitor
 	{
 """)
 		for member as TypeMember in module.Members:
@@ -791,8 +783,8 @@ def WriteDepthFirstSwitch(writer as TextWriter, item as ClassDefinition):
 		}
 			""")
 
-def WriteDepthFirstSwitcher(module as Module):
-	using writer=OpenFile(GetPath("DepthFirstSwitcher.cs")):
+def WriteDepthFirstVisitor(module as Module):
+	using writer=OpenFile(GetPath("DepthFirstVisitor.cs")):
 		WriteLicense(writer)
 		WriteWarning(writer)
 		writer.Write(
@@ -801,7 +793,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	public class DepthFirstSwitcher : IAstSwitcher
+	public class DepthFirstVisitor : IAstVisitor
 	{
 		public bool Switch(Node node)
 		{			
@@ -877,8 +869,8 @@ start = date.Now
 
 module = BooParser.ParseFile("ast.model.boo").Modules[0]
 
-WriteSwitcher(module)
-WriteDepthFirstSwitcher(module)
+WriteVisitor(module)
+WriteDepthFirstVisitor(module)
 WriteTransformer(module)
 WriteDepthFirstTransformer(module)
 WriteNodeTypeEnum(module)

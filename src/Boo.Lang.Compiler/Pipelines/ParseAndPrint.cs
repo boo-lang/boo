@@ -31,25 +31,12 @@ namespace Boo.Lang.Compiler.Stepss
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class CorePipelineDefinition : ParsePipelineDefinition
+	public class RoundtripPipelineDefinition : Parse
 	{
 		override public void Define(CompilerPipeline pipeline)
 		{			
-			base.Define(pipeline);			
-			pipeline.Add(new CompilerPipelineItem("BindNamespaces", new BindNamespaces()));
-			pipeline.Add(new CompilerPipelineItem("BindAndApplyAttributes", new BindAndApplyAttributes()));
-			pipeline.Add(new CompilerPipelineItem("ExpandMacros", new ExpandMacros()));
-			pipeline.Add(new CompilerPipelineItem("IntroduceModuleClasses", new IntroduceModuleClasses()));
-			pipeline.Add(new CompilerPipelineItem("NormalizeTypeMembers", new NormalizeTypeMembers()));
-			pipeline.Add(new CompilerPipelineItem("NormalizeStatementModifiers", new NormalizeStatementModifiers()));
-			pipeline.Add(new CompilerPipelineItem("BindTypeDefinitions", new BindTypeDefinitions()));
-			pipeline.Add(new CompilerPipelineItem("BindBaseTypes", new BindBaseTypes()));
-			pipeline.Add(new CompilerPipelineItem("BindTypeMembers", new BindTypeMembers()));
-			pipeline.Add(new CompilerPipelineItem("ProcessMethodBodies", new ProcessMethodBodies()));
-			pipeline.Add(new CompilerPipelineItem("ProcessGenerators", new ProcessGenerators()));
-			pipeline.Add(new CompilerPipelineItem("CheckInterfaceImplementations", new CheckInterfaceImplementations()));
-			pipeline.Add(new CompilerPipelineItem("InjectCasts", new InjectCasts()));
-			
+			base.Define(pipeline);
+			pipeline.Add(new CompilerPipelineItem("booprinter", new PrintBoo()));
 		}
 	}
 }
