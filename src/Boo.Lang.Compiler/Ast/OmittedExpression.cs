@@ -61,12 +61,5 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			visitor.OnOmittedExpression(this);
 		}
-		
-		override public void Accept(IAstTransformer transformer, out Node resultingNode)
-		{
-			Expression result = this;
-			transformer.OnOmittedExpression(this, ref result);
-			resultingNode = result;
-		}
 	}	
 }

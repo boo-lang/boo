@@ -34,7 +34,7 @@ using Boo.Lang.Compiler.Bindings;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public abstract class AbstractSwitcherCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstSwitcher, ICompilerStep
+	public abstract class AbstractSwitcherCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstVisitor, ICompilerStep
 	{
 		protected CompilerContext _context;
 		

@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 {
 	/// <summary>	
 	/// </summary>
-	public class TextEmitter : Boo.Lang.Compiler.Ast.DepthFirstSwitcher
+	public class TextEmitter : Boo.Lang.Compiler.Ast.DepthFirstVisitor
 	{
 		protected TextWriter _writer;
 		

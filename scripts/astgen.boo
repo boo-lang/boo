@@ -530,24 +530,6 @@ def WriteLicense(writer as TextWriter):
 #endregion
 """)
 
-def WriteTransformer(module as Module):
-	using writer=OpenFile(GetPath("IAstTransformer.cs")):
-		WriteLicense(writer)
-		WriteWarning(writer)
-		writer.Write("""
-namespace Boo.Lang.Compiler.Ast
-{
-	public interface IAstTransformer
-	{""")
-		for member as TypeMember in module.Members:
-			if IsConcreteAstNode(member):
-				writer.WriteLine("""			
-		void On${member.Name}(Boo.Lang.Compiler.Ast.${member.Name} node, ref Boo.Lang.Compiler.Ast.${GetResultingTransformerNode(member)} newNode);""")
-			
-		writer.Write("""
-	}
-}""")
-
 def WriteDepthFirstTransformer(module as Module):
 	
 	using writer=OpenFile(GetPath("DepthFirstTransformer.cs")):
@@ -558,39 +540,41 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	public class DepthFirstTransformer : IAstTransformer
-	{""")
+	public class DepthFirstTransformer : IAstVisitor
+	{
+	
+		protected Node _resultingNode = null;
+	
+	""")
 	
 		for item as TypeMember in module.Members:
 			continue unless IsConcreteAstNode(item)
 			
-			switchableFields = GetSwitchableFields(item)
+			switchableFields = GetAcceptableFields(item)
 			resultingNodeType = GetResultingTransformerNode(item)
 			
 			writer.WriteLine("""
-		public virtual void On${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node, ref Boo.Lang.Compiler.Ast.${resultingNodeType} resultingNode)
+		public virtual void On${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{""")
 		
 			if len(switchableFields):
 				writer.WriteLine("""
-			if (Enter${item.Name}(node, ref resultingNode))
+			if (Enter${item.Name}(node))
 			{""")
 				for field as Field in switchableFields:
 					if IsCollectionField(field):
 						writer.WriteLine("""
-				Switch(node.${field.Name});""")
+				Accept(node.${field.Name});""")
 					else:
 						writer.WriteLine("""
 				${field.Type} current${field.Name}Value = node.${field.Name};
 				if (null != current${field.Name}Value)
-				{	
-					Node resulting${field.Name}Value;				
-					current${field.Name}Value.Switch(this, out resulting${field.Name}Value);					
-					node.${field.Name} = resulting${field.Name}Value as ${field.Type};
+				{											
+					node.${field.Name} = (${field.Type})AcceptNode(current${field.Name}Value);
 				}""")
 				
 				writer.WriteLine("""
-				Leave${item.Name}(node, ref resultingNode);
+				Leave${item.Name}(node);
 			}""")
 			
 			writer.WriteLine("""
@@ -598,54 +582,57 @@ namespace Boo.Lang.Compiler.Ast
 		
 			if len(switchableFields):
 				writer.WriteLine("""				
-		public virtual bool Enter${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node, ref Boo.Lang.Compiler.Ast.${resultingNodeType} resultingNode)
+		public virtual bool Enter${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{
 			return true;
 		}
 		
-		public virtual void Leave${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node, ref Boo.Lang.Compiler.Ast.${resultingNodeType} resultingNode)
+		public virtual void Leave${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{
 		}""")
 		
 		writer.WriteLine("""
-		public bool Switch(Node node, out Node resultingNode)
-		{			
-			if (null != node)
-			{			
-				node.Switch(this, out resultingNode);
-				return true;
-			}
-			resultingNode = node;
-			return false;
+		
+		protected void RemoveCurrentNode()
+		{
+			_resultingNode = null;
 		}
 		
-		public Node SwitchNode(Node node)
+		protected void ReplaceCurrentNode(Node replacement)
+		{
+			_resultingNode = replacement;
+		}
+		
+		public Node AcceptNode(Node node)
 		{
 			if (null != node)
 			{
-				Node resultingNode;
-				node.Switch(this, out resultingNode);
-				return resultingNode;
+				Node saved = _resultingNode;
+				_resultingNode = node;
+				node.Accept(this);
+				Node result = _resultingNode;
+				_resultingNode = saved;
+				return result;
 			}
 			return null;
 		}
 		
-		public Node Switch(Node node)
+		public Node Accept(Node node)
 		{
-			return SwitchNode(node);
+			return AcceptNode(node);
 		}
 		
-		public Expression Switch(Expression node)
+		public Expression Accept(Expression node)
 		{
-			return (Expression)SwitchNode(node);
+			return (Expression)AcceptNode(node);
 		}
 		
-		public Statement Switch(Statement node)
+		public Statement Accept(Statement node)
 		{
-			return (Statement)SwitchNode(node);
+			return (Statement)AcceptNode(node);
 		}
 		
-		public bool Switch(NodeCollection collection)
+		public bool Accept(NodeCollection collection)
 		{
 			if (null != collection)
 			{
@@ -653,10 +640,9 @@ namespace Boo.Lang.Compiler.Ast
 				
 				Node[] nodes = collection.ToArray();
 				for (int i=0; i<nodes.Length; ++i)
-				{
-					Node resultingNode;
+				{					
 					Node currentNode = nodes[i];
-					currentNode.Switch(this, out resultingNode);
+					Node resultingNode = AcceptNode(currentNode);
 					if (currentNode != resultingNode)
 					{
 						int actualIndex = i-removed;
@@ -735,7 +721,7 @@ def GetAllFields(node as ClassDefinition):
 			fields.Add(field)
 	return fields
 
-def GetSwitchableFields(item as ClassDefinition):
+def GetAcceptableFields(item as ClassDefinition):
 	fields = []
 	
 	module as Module = item.ParentNode
@@ -749,8 +735,8 @@ def GetSwitchableFields(item as ClassDefinition):
 	
 	return fields
 
-def WriteDepthFirstSwitch(writer as TextWriter, item as ClassDefinition):
-	fields = GetSwitchableFields(item)
+def WriteDepthFirstAccept(writer as TextWriter, item as ClassDefinition):
+	fields = GetAcceptableFields(item)
 	
 	if len(fields):
 		writer.WriteLine("""
@@ -760,7 +746,7 @@ def WriteDepthFirstSwitch(writer as TextWriter, item as ClassDefinition):
 			{""")
 			
 		for field as Field in fields:
-			writer.WriteLine("\t\t\t\tSwitch(node.${field.Name});")
+			writer.WriteLine("\t\t\t\tAccept(node.${field.Name});")
 			
 		writer.Write(
 """				Leave${item.Name}(node);
@@ -795,13 +781,13 @@ namespace Boo.Lang.Compiler.Ast
 	
 	public class DepthFirstVisitor : IAstVisitor
 	{
-		public bool Switch(Node node)
+		public bool Accept(Node node)
 		{			
 			if (null != node)
 			{
 				try
 				{
-					node.Switch(this);
+					node.Accept(this);
 					return true;
 				}
 				catch (Boo.Lang.Compiler.CompilerError)
@@ -816,40 +802,40 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
-		public void Switch(Node[] array, NodeType nodeType)
+		public void Accept(Node[] array, NodeType nodeType)
 		{
 			foreach (Node node in array)
 			{
 				if (node.NodeType == nodeType)
 				{
-					Switch(node);
+					Accept(node);
 				}
 			}
 		}
 		
-		public bool Switch(NodeCollection collection, NodeType nodeType)
+		public bool Accept(NodeCollection collection, NodeType nodeType)
 		{
 			if (null != collection)
 			{
-				Switch(collection.ToArray(), nodeType);
+				Accept(collection.ToArray(), nodeType);
 				return true;
 			}
 			return false;
 		}
 		
-		public void Switch(Node[] array)
+		public void Accept(Node[] array)
 		{
 			foreach (Node node in array)
 			{
-				Switch(node);
+				Accept(node);
 			}
 		}
 		
-		public bool Switch(NodeCollection collection)
+		public bool Accept(NodeCollection collection)
 		{
 			if (null != collection)
 			{
-				Switch(collection.ToArray());
+				Accept(collection.ToArray());
 				return true;
 			}
 			return false;
@@ -858,7 +844,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		for member as TypeMember in module.Members:
 			if IsConcreteAstNode(member):
-				WriteDepthFirstSwitch(writer, member)
+				WriteDepthFirstAccept(writer, member)
 		
 		writer.Write("""
 	}
@@ -871,7 +857,6 @@ module = BooParser.ParseFile("ast.model.boo").Modules[0]
 
 WriteVisitor(module)
 WriteDepthFirstVisitor(module)
-WriteTransformer(module)
 WriteDepthFirstTransformer(module)
 WriteNodeTypeEnum(module)
 for member as TypeMember in module.Members:
