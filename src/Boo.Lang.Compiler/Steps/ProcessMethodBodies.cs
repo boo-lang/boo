@@ -1153,6 +1153,15 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveListLiteralExpression(ListLiteralExpression node)
 		{			
 			BindExpressionType(node, TypeSystemServices.ListType);
+			MapToConcreteExpressionTypes(node.Items);
+		}
+		
+		void MapToConcreteExpressionTypes(ExpressionCollection items)
+		{
+			foreach (Expression item in items)
+			{
+				GetConcreteExpressionType(item);
+			}
 		}
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)

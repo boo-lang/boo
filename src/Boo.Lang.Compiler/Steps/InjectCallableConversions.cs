@@ -114,6 +114,18 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 		}
 		
+		override public void LeaveListLiteralExpression(ListLiteralExpression node)
+		{
+			for (int i=0; i<node.Items.Count; ++i)
+			{
+				Expression converted = ConvertExpression(node.Items[i]);
+				if (null != converted)
+				{
+					node.Items.ReplaceAt(i, converted);
+				}
+			}
+		}
+		
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			ICallableType type = node.Target.ExpressionType as ICallableType;
@@ -143,7 +155,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Expression newTarget = Convert(node.Target.ExpressionType, node.Target);
+				Expression newTarget = ConvertExpression(node.Target);
 				if (null != newTarget)
 				{
 					node.Target = newTarget;
@@ -161,6 +173,11 @@ namespace Boo.Lang.Compiler.Steps
 					node.Right = newRight;
 				}
 			}
+		}
+		
+		Expression ConvertExpression(Expression expression)
+		{
+			return Convert(expression.ExpressionType, expression);
 		}
 		
 		Expression Convert(IType expectedType, Expression argument)

@@ -1344,6 +1344,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void CallableList()
+		{
+			RunCompilerTestCase("callable14.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");
