@@ -73,6 +73,17 @@ namespace Boo.AntlrParser
 		}
 	
 		public static Module ParseModule(string readerName, TextReader reader, ParserErrorHandler errorHandler)
+		{		
+			BooParser parser = new BooParser(CreateBooLexer(readerName, reader));
+			parser.setFilename(readerName);
+			parser.Error += errorHandler;
+		
+			Module module = parser.start();
+			module.Name = CreateModuleName(readerName);
+			return module;
+		}
+		
+		public static antlr.TokenStream CreateBooLexer(string readerName, TextReader reader)
 		{
 			antlr.TokenStreamSelector selector = new antlr.TokenStreamSelector();
 		
@@ -82,14 +93,8 @@ namespace Boo.AntlrParser
 		
 			IndentTokenStreamFilter filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOS);
 			selector.select(filter);
-		
-			BooParser parser = new BooParser(selector);
-			parser.setFilename(readerName);
-			parser.Error += errorHandler;
-		
-			Module module = parser.start();
-			module.Name = CreateModuleName(readerName);
-			return module;
+			
+			return selector;
 		}
 
 		override public void reportError(antlr.RecognitionException x)

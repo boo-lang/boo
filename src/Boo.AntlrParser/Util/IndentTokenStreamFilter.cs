@@ -128,6 +128,12 @@ namespace Boo.AntlrParser.Util
 			antlr.Token token = _istream.nextToken();
 			while (null != token)
 			{
+				if (antlr.Token.SKIP == token.Type)
+				{
+					token = _istream.nextToken();
+					continue;
+				}
+				
 				if (_wsTokenType == token.Type)
 				{				
 					string text = token.getText();

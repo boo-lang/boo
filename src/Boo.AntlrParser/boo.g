@@ -227,7 +227,7 @@ tokens
 			int startIndex = 0;			
 			if ('\n' == s[0])
 			{			
-				// assumes '\r\n'
+				// assumes '\n'
 				startIndex++;
 				length--;
 			}						
@@ -261,7 +261,7 @@ start returns [Module module]
 	(options { greedy=true;}: EOS!)*			 
 	(namespace_directive[module])?
 	(import_directive[module])*
-	(type_member[module.Members])*
+	(type_member[module.Members])*	
 	globals[module]
 	EOF!
 	;
@@ -756,7 +756,7 @@ protected
 begin_with_doc[Node node]: COLON! (EOS! docstring[node])? INDENT!;
 
 protected
-end : DEDENT!;
+end : DEDENT! (EOS!)*;
 
 protected
 compound_stmt[StatementCollection c] :
@@ -1955,7 +1955,7 @@ MULTIPLY: '*' (
 DIVISION: 
 	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |
 	'/' (
-			('/' (~('\n'|'\r'))* { $setType(Token.SKIP); }) |
+			('/' (~('\n'))* { $setType(Token.SKIP); }) |
 			('=' { $setType(ASSIGN); }) |
 		)
 	;
@@ -2014,7 +2014,7 @@ SINGLE_QUOTED_STRING :
 	'\''!
 	;
 
-SL_COMMENT : "#" (~('\n'|'\r'))* { $setType(Token.SKIP); }
+SL_COMMENT : "#"! (~('\n')!)* { $setType(Token.SKIP); }
 			;
 			
 WS :
