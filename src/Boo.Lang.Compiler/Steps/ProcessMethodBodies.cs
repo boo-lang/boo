@@ -985,10 +985,14 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMethodBody(tag, tag);
 		}
 		
-		void ProcessMethodBody(InternalMethod tag, INamespace ns)
+		void ProcessMethodBody(InternalMethod entity, INamespace ns)
 		{
-			ProcessNodeInMethodContext(tag, ns, tag.Method.Body);
-			ResolveLabelReferences(tag);
+			ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
+			ResolveLabelReferences(entity);
+			if (entity.IsGenerator)
+			{
+				CreateGeneratorSkeleton(entity);
+			}
 		}
 		
 		void ProcessNodeInMethodContext(InternalMethod tag, INamespace ns, Node node)
@@ -1013,10 +1017,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveGeneratorReturnType(InternalMethod entity)
 		{
 			Method method = entity.Method;
-			
-			IType itemType = GetMostGenericType(entity.YieldExpressions);
-			BooClassBuilder generatorType = CreateGeneratorSkeleton(method.DeclaringType, method, itemType);
-			
+			BooClassBuilder generatorType = (BooClassBuilder)method["GeneratorClassBuilder"];			
 			method.ReturnType = CodeBuilder.CreateTypeReference(generatorType.Entity);
 		}
 		
@@ -1704,6 +1705,13 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, generatorType.Entity);
 		}
 		
+		void CreateGeneratorSkeleton(InternalMethod entity)
+		{
+			Method method = entity.Method;
+			IType itemType = GetMostGenericType(entity.YieldExpressions);
+			CreateGeneratorSkeleton(method.DeclaringType, method, itemType);
+		}
+		
 		BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression node)
 		{
 			return CreateGeneratorSkeleton(_currentMethod.Method.DeclaringType, node, GetConcreteExpressionType(node.Expression));
@@ -1827,6 +1835,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType fromType = GetExpressionType(node.Target);
 			IType toType = GetType(node.Type);			
 			if (!TypeSystemServices.AreTypesRelated(toType, fromType) &&
+				!(toType.IsInterface && !fromType.IsFinal) &&
 				!(fromType.IsEnum && TypeSystemServices.IsIntegerNumber(toType)))
 			{
 				Error(

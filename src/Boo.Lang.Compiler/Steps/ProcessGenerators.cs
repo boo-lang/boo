@@ -157,6 +157,11 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			_enumerable = (BooClassBuilder)_generator.Method["GeneratorClassBuilder"];
+			if (null == _enumerable)
+			{
+				Errors.Add(CompilerErrorFactory.InternalError(_generator.Method, null));
+			}
+			
 			CreateEnumerableConstructor();
 			CreateEnumerator();
 			
