@@ -19,6 +19,7 @@
 			
 			<references basedir="build">
 				<includes name="ICSharpCode.TextEditor.dll" />
+				<includes name="WeifenLuo.WinFormsUI.dll" />
 				<includes name="System.Windows.Forms.dll" />
 				<includes name="System.Drawing.dll" />
 			</references>
@@ -35,6 +36,7 @@
 		<copy todir="build">
 			<fileset basedir="${sharpd.dir}">
 				<includes name="ICSharpCode.TextEditor.dll" />
+				<includes name="WeifenLuo.WinFormsUI.dll" />
 			</fileset>
 		</copy>
 		<copy todir="build" file="../SharpDevelop/boo.xshd">

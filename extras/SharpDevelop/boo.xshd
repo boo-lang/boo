@@ -184,7 +184,7 @@
 				<Key word="override"/>
 				<Key word="static"/>
 				<Key word="virtual"/>
-				<Key word="const"/>
+				<Key word="abstract" />
 				<Key word="final"/>
 				<Key word="transient"/>
 			</KeyWords>
