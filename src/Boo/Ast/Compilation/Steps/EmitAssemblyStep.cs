@@ -18,7 +18,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static object EntryPointKey = new object();
 		
-		MethodInfo StringFormatMethodInfo = BindingManager.StringType.GetMethod("Format", new Type[] { BindingManager.StringType, BindingManager.ObjectArrayType });
+		MethodInfo StringFormatMethodInfo = Boo.Ast.Compilation.Binding.BindingManager.StringType.GetMethod("Format", new Type[] { Binding.BindingManager.StringType, Binding.BindingManager.ObjectArrayType });
 		
 		AssemblyBuilder _asmBuilder;
 		

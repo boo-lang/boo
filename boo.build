@@ -34,7 +34,7 @@
 	
 	<target name="booc" depends="Boo, run-tests">
 		<csc target="exe" output="build/booc.exe" debug="${debug}" optimize="${optimize}">
-			<sources basedir="src/booc">
+			<sources basedir="src/BooC">
 				<includes name="*.cs" />
 			</sources>
 
@@ -43,7 +43,7 @@
 			</references>
 		</csc>
 		<copy todir="build">
-			<fileset basedir="src/booc">
+			<fileset basedir="src/BooC">
 				<includes name="*.pipeline" />
 			</fileset>
 		</copy>
@@ -114,7 +114,7 @@
 				<includes name="${antlr.runtime.dll}" />
 			</references>			
 			
-			<arg value="/res:build\string.resources,strings.resources" />
+			<arg value="/res:build/string.resources,strings.resources" />
 		</csc>
 	</target>
 	
