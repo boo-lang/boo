@@ -27,12 +27,13 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.IO;
-using Boo.Lang.Ast;
-
 namespace Boo.Lang.Ast.Visitors
 {
+	using System;
+	using System.Globalization;
+	using System.IO;
+	using Boo.Lang.Ast;
+
 	/// <summary>
 	/// Imprime uma AST boo em boo.
 	/// </summary>
@@ -281,32 +282,32 @@ namespace Boo.Lang.Ast.Visitors
 			double days = node.Value.TotalDays;
 			if (days >= 1)
 			{
-				Write(days.ToString() + "d");
+				Write(days.ToString(CultureInfo.InvariantCulture) + "d");
 			}
 			else
 			{
 				double hours = node.Value.TotalHours;
 				if (hours >= 1)
 				{
-					Write(hours.ToString() + "h");
+					Write(hours.ToString(CultureInfo.InvariantCulture) + "h");
 				}
 				else
 				{
 					double minutes = node.Value.TotalMinutes;
 					if (minutes >= 1)
 					{
-						Write(minutes.ToString() + "m");
+						Write(minutes.ToString(CultureInfo.InvariantCulture) + "m");
 					}
 					else
 					{
 						double seconds = node.Value.TotalSeconds;
 						if (seconds >= 1)
 						{
-							Write(seconds.ToString() + "s");
+							Write(seconds.ToString(CultureInfo.InvariantCulture) + "s");
 						}
 						else
 						{
-							Write(node.Value.TotalMilliseconds + "ms");
+							Write(node.Value.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) + "ms");
 						}
 					}
 				}
@@ -467,7 +468,7 @@ namespace Boo.Lang.Ast.Visitors
 		
 		public override void OnDoubleLiteralExpression(DoubleLiteralExpression e)
 		{
-			Write(e.Value.ToString("########0.0##########"));
+			Write(e.Value.ToString("########0.0##########", CultureInfo.InvariantCulture));
 		}
 
 		public override void OnReferenceExpression(ReferenceExpression node)
@@ -892,7 +893,7 @@ namespace Boo.Lang.Ast.Visitors
 		
 		void WriteAttributes(AttributeCollection attributes, bool addNewLines)
 		{
-			foreach (Attribute attribute in attributes)
+			foreach (Boo.Lang.Ast.Attribute attribute in attributes)
 			{
 				WriteIndented("[");
 				Write(attribute.Name);
