@@ -1035,6 +1035,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void InternalInterfaceExtendsInternalInterface()
+		{
+			RunCompilerTestCase("interface5.boo");
+		}
+		
+		[Test]
 		public void ArrayEquality()
 		{
 			RunCompilerTestCase("array_equality.boo");

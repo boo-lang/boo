@@ -315,6 +315,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
 			TypeBuilder builder = GetTypeBuilder(node);
+			foreach (TypeReference baseType in node.BaseTypes)
+			{
+				builder.AddInterfaceImplementation(GetType(baseType));
+			}
 			EmitAttributes(builder, node);
 		}
 		
