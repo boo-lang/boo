@@ -48,6 +48,24 @@ namespace Boo.Lang
 			return enumerator.Current;
 		}
 		
+		public static int Len(object obj)
+		{
+			if (null != obj)
+			{
+				ICollection collection = obj as ICollection;
+				if (null != collection)
+				{
+					return collection.Count;
+				}
+				string s = obj as string;
+				if (null != s)
+				{
+					return s.Length;
+				}
+			}
+			return 0;
+		}
+		
 		public static void CheckArrayUnpack(Array array, int expected)
 		{
 			if (null == array)

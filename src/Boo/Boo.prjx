@@ -74,6 +74,7 @@
     <File name=".\Lang\Ast\ParameterDeclarationCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Property.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\RaiseStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\RealLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\ReferenceExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\RELiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\RetryStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -158,6 +159,7 @@
     <File name=".\Lang\Ast\Impl\ParameterDeclarationImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\PropertyImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\RaiseStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Impl\RealLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\ReferenceExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\RELiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\RetryStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -243,6 +245,7 @@
     <File name=".\Lang\Compiler\Pipeline\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\DependencyGraph.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\ImportResolutionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\MacroExpansionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

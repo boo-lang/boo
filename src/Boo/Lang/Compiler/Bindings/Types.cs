@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static readonly Type List = typeof(Boo.Lang.List);
 		
+		public static readonly Type ICollection = typeof(System.Collections.ICollection);
+		
 		public static readonly Type IEnumerable = typeof(System.Collections.IEnumerable);
 		
 		public static readonly Type IEnumerator = typeof(System.Collections.IEnumerator);

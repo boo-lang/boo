@@ -4,8 +4,8 @@ public final transient class LenModule(System.Object):
 	private static def __Main__() as System.Void:
 		l = []
 		t = (,)
-		s = ""
-		o = "" as System.Object
+		s = ''
+		o = '' as System.Object
 		print(l.get_Count())
 		print(t.get_Length())
 		print(s.get_Length())

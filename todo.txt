@@ -166,11 +166,11 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done * /
 	* rich assignments
 		* +=	
-	* len special function:
-		* for tuples, array.Length
-		* for lists, list.Count
-		* for strings, string.Length
-		* for objects, invocar RuntimeServices.Len()
+	done * len special function:
+		done * for tuples, array.Length
+		done * for lists, list.Count
+		done * for strings, string.Length
+		done * for objects, invocar RuntimeServices.Len()
 	* SemanticStep deve reconhecer as funçoes tuple(Type, ...) para deduzir o tipo
 	das expressoes de acordo
 	done * zip: versão com dois argumentos

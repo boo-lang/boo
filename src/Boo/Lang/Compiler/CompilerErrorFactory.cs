@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -285,6 +285,11 @@ namespace Boo.Lang.Compiler
 		public static CompilerError InvalidOperatorForTypes(Node node, string operatorName, string lhs, string rhs)
 		{
 			return new CompilerError("BCE0051", node.LexicalInfo, operatorName, lhs, rhs);
+		}
+		
+		public static CompilerError InvalidLen(Node node, string typeName)
+		{
+			return new CompilerError("BCE0052", node.LexicalInfo, typeName);
 		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)

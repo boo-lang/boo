@@ -89,7 +89,8 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public enum SpecialFunction
 	{
-		Typeof
+		Typeof,
+		Len
 	}
 	
 	public class SpecialFunctionBinding : IBinding

@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Pipeline
 	/// </summary>
 	public class SemanticStep : AbstractNamespaceSensitiveCompilerStep
 	{
-		ArrayList _pending;
+		DependencyGraph _pending;
 		
 		Stack _methodBindingStack;
 		
@@ -56,6 +56,14 @@ namespace Boo.Lang.Compiler.Pipeline
 		IMethodBinding RuntimeServices_IsMatchBinding;
 		
 		IMethodBinding RuntimeServices_Contains;
+		
+		IMethodBinding RuntimeServices_Len;
+		
+		IMethodBinding Array_get_Length;
+		
+		IMethodBinding String_get_Length;
+		
+		IMethodBinding ICollection_get_Count;
 		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
@@ -76,53 +84,28 @@ namespace Boo.Lang.Compiler.Pipeline
 		{					
 			_currentMethodBinding = null;
 			_methodBindingStack = new Stack();
-			_pending = new ArrayList();
+			_pending = new DependencyGraph(_context);
 			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			RuntimeServices_Contains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Contains");
+			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
+			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
+			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
+			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
+			
 			ApplicationException_StringConstructor =
 					(IConstructorBinding)BindingManager.ToBinding(
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
 			Switch(CompileUnit);
 			
-			ResolvePendingTypes();
+			ResolveDependencyGraph();
 		}		
 		
-		void ResolvePendingTypes()
+		void ResolveDependencyGraph()
 		{
-			if (0 == _pending.Count)
-			{
-				return;
-			}
-			
-			const int maxIterations = 5;
-			
-			int currentIteration = 0;						
-			while (true)
-			{				
-				bool changed = false;
-				foreach (ITypeResolver resolver in _pending)
-				{
-					if (resolver.Resolve(this))
-					{
-						changed = true;
-					}					
-				}
-				
-				if (!changed)
-				{
-					_context.TraceInfo("Type inference concluded in {0} iteration(s).", currentIteration+1);
-					break;
-				}
-				
-				++currentIteration;
-				if (currentIteration > maxIterations)
-				{
-					_context.TraceWarning("Max numbers of iterations for type resolution exceeded!");
-					break;
-				}
-			}
+			int iterations = _pending.Resolve(this);
+			_context.TraceInfo("Type inference concluded in {0} iteration(s).", iterations);
 		}
 		
 		public override void Dispose()
@@ -444,18 +427,13 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					Defer(new ReturnTypeResolver(binding));
+					_pending.Add(method, new ReturnTypeResolver(binding), binding.ReturnExpressions);
 				}
 			}
 			else
 			{
 				ResolveMethodOverride(binding);
 			}
-		}
-		
-		void Defer(ITypeResolver resolver)
-		{
-			_pending.Add(resolver);
 		}
 		
 		internal void ResolveMethodOverride(InternalMethodBinding binding)
@@ -1233,17 +1211,84 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}	
 		
-		public void OnSpecialFunction(IBinding binding, MethodInvocationExpression node)
+		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethodBinding binding)
 		{
-			if (node.Arguments.Count != 1 ||
-			    GetBinding(node.Arguments[0]).BindingType != BindingType.TypeReference)
-		    {
-		    	Error(CompilerErrorFactory.InvalidTypeof(node));
-		    }
-		    else
-		    {
-		    	BindingManager.Bind(node, BindingManager.ToTypeBinding(Types.Type));
-		    }
+			MemberReferenceExpression member = new MemberReferenceExpression(target.LexicalInfo);
+			member.Target = target;
+			member.Name = binding.Name;
+			
+			MethodInvocationExpression mie = new MethodInvocationExpression(target.LexicalInfo);
+			mie.Target = member;
+			BindingManager.Bind(mie.Target, binding);
+			BindingManager.Bind(mie, binding);
+			
+			return mie;			
+		}
+		
+		MethodInvocationExpression CreateMethodInvocation(IMethodBinding staticMethod, Expression arg)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
+			mie.Target = new ReferenceExpression(staticMethod.FullName);
+			mie.Arguments.Add(arg);
+			
+			BindingManager.Bind(mie.Target, staticMethod);
+			BindingManager.Bind(mie, staticMethod);
+			return mie;
+		}
+		
+		public void OnSpecialFunction(IBinding binding, MethodInvocationExpression node, ref Expression resultingNode)
+		{
+			SpecialFunctionBinding sf = (SpecialFunctionBinding)binding;
+			switch (sf.Function)
+			{
+				case SpecialFunction.Typeof:
+				{
+					if (node.Arguments.Count != 1 ||
+						GetBinding(node.Arguments[0]).BindingType != BindingType.TypeReference)
+					{
+						Error(CompilerErrorFactory.InvalidTypeof(node));
+					}
+					else
+					{
+						BindingManager.Bind(node, BindingManager.ToTypeBinding(Types.Type));
+					}
+					break;
+				}
+				
+				case SpecialFunction.Len:
+				{
+					if (node.Arguments.Count != 1)
+					{						
+						Error(CompilerErrorFactory.MethodArgumentCount(node.Target, "len", 1));
+					}
+					else
+					{
+						Expression target = node.Arguments[0];
+						ITypeBinding type = GetExpressionType(target);
+						if (BindingManager.ObjectTypeBinding == type)
+						{
+							resultingNode = CreateMethodInvocation(RuntimeServices_Len, target);
+						}
+						else if (BindingManager.StringTypeBinding == type)
+						{
+							resultingNode = CreateMethodInvocation(target, String_get_Length);
+						}
+						else if (BindingManager.ArrayTypeBinding.IsAssignableFrom(type))
+						{
+							resultingNode = CreateMethodInvocation(target, Array_get_Length);
+						}
+						else if (BindingManager.ICollectionTypeBinding.IsAssignableFrom(type))
+						{
+							resultingNode = CreateMethodInvocation(target, ICollection_get_Count);
+						}	
+						else
+						{
+							Error(CompilerErrorFactory.InvalidLen(target, type.FullName));
+						}
+					}
+					break;
+				}
+			}
 		}
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node, ref Expression resultingNode)
@@ -1267,7 +1312,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{		
 				case BindingType.SpecialFunction:
 				{
-					OnSpecialFunction(targetBinding, node);
+					OnSpecialFunction(targetBinding, node, ref resultingNode);
 					break;
 				}
 				
@@ -1292,6 +1337,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 					
 					BindingManager.Bind(node, nodeBinding);
+					if (IsUnknown(targetMethod.ReturnType))
+					{
+						InternalMethodBinding internalMethod = ((InternalMethodBinding)targetMethod);
+						_pending.Add(node, new MethodInvocationResolver(internalMethod), internalMethod.Method); 
+					}
+					
 					break;
 				}
 				
@@ -2032,41 +2083,43 @@ namespace Boo.Lang.Compiler.Pipeline
 		}		
 	}
 	
-	/// <summary>
-	/// Resolves the type of an expression or method.
-	/// </summary>
-	interface ITypeResolver
+	class MethodInvocationResolver : ITypeResolver
 	{
-		/// <summary>
-		/// Resolves the type of the expression and returns true
-		/// if the type has changed since the last iteration.
-		/// </summary>
-		bool Resolve(SemanticStep parent);
+		InternalMethodBinding _binding;
+		
+		public MethodInvocationResolver(InternalMethodBinding binding)
+		{
+			_binding = binding;
+		}
+		
+		public IBinding Resolve(SemanticStep parent)
+		{
+			return _binding.BoundType;
+		}
+		
+		public void OnResolved(SemanticStep parent)
+		{
+		}
 	}
 	
 	class ReturnTypeResolver : ITypeResolver
 	{
 		InternalMethodBinding _binding;
 		
-		ITypeBinding _current;
-		
 		public ReturnTypeResolver(InternalMethodBinding binding) 
 		{
 			_binding = binding;
-			_current = binding.BoundType;
 		}
 		
-		public bool Resolve(SemanticStep parent)
+		public IBinding Resolve(SemanticStep parent)
 		{
 			parent.ResolveReturnType(_binding);
-			
-			bool changed = _current != _binding.BoundType;
-			if (changed)
-			{
-				parent.ResolveMethodOverride(_binding);
-				_current = _binding.BoundType;
-			}			
-			return changed;
+			return _binding.BoundType;
+		}
+		
+		public void OnResolved(SemanticStep parent)
+		{
+			parent.ResolveMethodOverride(_binding);
 		}
 	}
 	

@@ -52,7 +52,8 @@ namespace Boo.Lang.Compiler.Bindings
 				ReturnExpressions = new ExpressionCollection();
 				if (null == method.ReturnType)
 				{
-					method.ReturnType = manager.CreateBoundTypeReference(UnknownBinding.Default);
+					method.ReturnType = new SimpleTypeReference("unknown");
+					BindingManager.Bind(method.ReturnType, UnknownBinding.Default);
 				}
 			}
 		}

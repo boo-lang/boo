@@ -69,18 +69,20 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding IEnumerableTypeBinding;
 		
+		public ExternalTypeBinding ICollectionTypeBinding;
+		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _tupleBindingCache = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
-		IBinding _typeOfBinding;
+		static readonly IBinding _typeOfBinding = new SpecialFunctionBinding(SpecialFunction.Typeof);
+		
+		static readonly IBinding _lenBinding = new SpecialFunctionBinding(SpecialFunction.Len);
 		
 		public BindingManager()		
-		{
-			_typeOfBinding = new SpecialFunctionBinding(SpecialFunction.Typeof);
-			
+		{			
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
 			Cache(ArrayTypeBinding = new ExternalTypeBinding(this, Types.Array));
@@ -95,7 +97,8 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
-			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));			
+			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));
+			Cache(ICollectionTypeBinding = new ExternalTypeBinding(this, Types.ICollection));
 			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
 			Cache(ExceptionTypeBinding = new ExternalTypeBinding(this, Types.Exception));
 			
@@ -329,6 +332,12 @@ namespace Boo.Lang.Compiler.Bindings
 				case "typeof":
 				{
 					binding = _typeOfBinding;
+					break;
+				}
+				
+				case "len":
+				{
+					binding = _lenBinding;
 					break;
 				}
 			}
