@@ -438,12 +438,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		IConstructorBinding FindCorrectConstructor(ITypeBinding typeBinding, MethodInvocationExpression mie)
 		{
-			IConstructorBinding[] ctors = typeBinding.GetConstructors();
-			if (ctors.Length > 0)
-			{
-				return ctors[0];
-			}
-			return null;
+			return (IConstructorBinding)ResolveMethodReference(mie, mie.Arguments, typeBinding.GetConstructors());
 		}
 		
 		class BindingScore : IComparable
@@ -474,9 +469,9 @@ namespace Boo.Ast.Compilation.Steps
 			for (int i=0; i<bindings.Length; ++i)
 			{				
 				IBinding binding = bindings[i];
-				if (BindingType.Method == binding.BindingType)
-				{
-					IMethodBinding mb = (IMethodBinding)binding;
+				IMethodBinding mb = binding as IMethodBinding;
+				if (null != mb)
+				{					
 					if (args.Count == mb.ParameterCount)
 					{
 						int score = 0;

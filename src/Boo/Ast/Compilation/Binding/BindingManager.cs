@@ -23,10 +23,12 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public static readonly Type IntType = typeof(int);
 		
+		public static readonly Type DateType = typeof(System.DateTime);
+		
 		public static readonly Type BoolType = typeof(bool);
 		
 		public ITypeBinding ObjectTypeBinding;
-		
+	
 		public ITypeBinding VoidTypeBinding;
 		
 		public ITypeBinding StringTypeBinding;
@@ -46,6 +48,7 @@ namespace Boo.Ast.Compilation.Binding
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, StringType));
 			Cache(BoolTypeBinding = new ExternalTypeBinding(this, BoolType));
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, IntType));
+			Cache(new ExternalTypeBinding(this, DateType));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, RuntimeServicesType));
 		}
 		
@@ -186,6 +189,12 @@ namespace Boo.Ast.Compilation.Binding
 				case "void":
 				{
 					binding = ToTypeReference(VoidTypeBinding);
+					break;
+				}
+				
+				case "date":
+				{
+					binding = ToTypeReference(DateType);
 					break;
 				}
 				
