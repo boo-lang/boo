@@ -189,6 +189,12 @@ namespace Boo.Lang.Compiler.Pipeline
 
 		override public void Run()
 		{
+			using (TypeHierarchyResolver resolver = new TypeHierarchyResolver())
+			{
+				resolver.Initialize(_context);
+				resolver.Run();
+			}
+			
 			_astAttributeInterface = BindingManager.AsTypeBinding(typeof(IAstAttribute));
 			_systemAttributeBaseClass = BindingManager.AsTypeBinding(typeof(System.Attribute));
 			

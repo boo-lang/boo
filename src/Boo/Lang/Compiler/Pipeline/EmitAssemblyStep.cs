@@ -2849,6 +2849,14 @@ namespace Boo.Lang.Compiler.Pipeline
 					{
 						return GetType(expression);
 					}
+					else if (BindingType.Field == binding.BindingType)
+					{
+						IFieldBinding field = (IFieldBinding)binding;
+						if (field.DeclaringType.IsEnum)
+						{
+							return field.StaticValue;
+						}
+					}
 					break;
 				}
 			}

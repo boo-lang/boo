@@ -212,17 +212,17 @@ class Customer:
 		{
 			string actual = @"
 import Boo.Tests.Lang.Compiler.Pipeline
-import System.Web
+import System.Web.UI from System.Web
 
-class MyControl(Control):
+class MyControl(System.Web.UI.Control):
 	[ViewState(Default: 70)]
 	Width as int
 ";
 			string expected = @"
 import Boo.Tests.Lang.Compiler.Pipeline
-import System.Web
+import System.Web.UI from System.Web
 
-class MyControl(Control):
+class MyControl(System.Web.UI.Control):
 	Width as int:
 		get:
 			value = ViewState['Width']	

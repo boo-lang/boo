@@ -42,10 +42,8 @@ namespace Boo.Lang.Compiler.Pipeline
 	/// <summary>
 	/// AST semantic evaluation.
 	/// </summary>
-	public class SemanticStep : AbstractSwitcherCompilerStep
-	{
-		NameResolutionSupport _nameResolution = new NameResolutionSupport();
-		
+	public class SemanticStep : TypeHierarchyResolver
+	{	
 		Stack _methodBindingStack;
 		
 		InternalMethodBinding _currentMethodBinding;
@@ -221,7 +219,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			_currentMethodBinding = null;
 			_methodBindingStack = null;
-			_nameResolution.Dispose();
 			_classes = null;
 		}
 		
@@ -238,44 +235,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		void LeaveLoop()
 		{
 			--_loopDepth;
-		}
-		
-		void PushNamespace(INamespace ns)
-		{
-			_nameResolution.PushNamespace(ns);
-		}
-		
-		INamespace CurrentNamespace
-		{
-			get
-			{
-				return _nameResolution.CurrentNamespace;
-			}
-		}
-		
-		void PopNamespace()
-		{
-			_nameResolution.PopNamespace();
-		}
-		
-		IBinding Resolve(Node sourceNode, string name, BindingType bindings)
-		{
-			return _nameResolution.Resolve(sourceNode, name, bindings);
-		}
-		
-		IBinding Resolve(Node sourceNode, string name)
-		{
-			return _nameResolution.Resolve(sourceNode, name);
-		}
-		
-		bool IsQualifiedName(string name)
-		{
-			return name.IndexOf('.') > 0;
-		}
-		
-		IBinding ResolveQualifiedName(Node sourceNode, string name)
-		{
-			return _nameResolution.ResolveQualifiedName(sourceNode, name);
 		}
 		
 		override public void OnModule(Boo.Lang.Ast.Module module)
@@ -370,18 +329,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			InternalTypeBinding binding = (InternalTypeBinding)BindingManager.GetOptionalBinding(node);
-			if (null == binding)
+			InternalTypeBinding binding = GetInternalTypeBinding(node);
+			if (binding.Visited)
 			{
-				binding = new InternalTypeBinding(BindingManager, node);
-				Bind(node, binding);				
-			}
-			else
-			{
-				if (binding.Visited)
-				{
-					return;
-				}
+				return;
 			}
 			
 			binding.Visited = true;
@@ -395,18 +346,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			InternalTypeBinding binding = (InternalTypeBinding)BindingManager.GetOptionalBinding(node);
-			if (null == binding)
+			InternalTypeBinding binding = GetInternalTypeBinding(node);
+			if (binding.Visited)
 			{
-				binding = new InternalTypeBinding(BindingManager, node);
-				Bind(node, binding);
-			}
-			else
-			{
-				if (binding.Visited)
-				{
-					return;
-				}
+				return;
 			}
 			
 			_classes.Add(node);
@@ -971,31 +914,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void OnSimpleTypeReference(SimpleTypeReference node)
 		{
-			if (BindingManager.IsBound(node))
-			{
-				return;
-			}
-			
-			IBinding info = null;
-			if (IsQualifiedName(node.Name))
-			{
-				info = ResolveQualifiedName(node, node.Name);
-			}
-			else
-			{
-				info = Resolve(node, node.Name, BindingType.TypeReference);
-			}
-			
-			if (null == info || BindingType.TypeReference != info.BindingType)
-			{
-				Error(CompilerErrorFactory.NameNotType(node, node.Name));
-				Error(node);
-			}
-			else
-			{
-				node.Name = info.Name;
-				Bind(node, info);
-			}
+			ResolveSimpleTypeReference(node);
 		}
 		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -3478,28 +3397,6 @@ namespace Boo.Lang.Compiler.Pipeline
 							GetBinaryOperatorText(node.Operator),
 							GetExpressionType(node.Left).FullName,
 							GetExpressionType(node.Right).FullName));
-		}
-		
-		void Error(Node node, CompilerError error)
-		{
-			BindingManager.Error(node);
-			Errors.Add(error);
-		}
-		
-		void Error(CompilerError error)
-		{
-			Errors.Add(error);
-		}
-		
-		void Error(Node node)
-		{
-			BindingManager.Error(node);
-		}
-		
-		void Bind(Node node, IBinding binding)
-		{
-			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, binding);
-			BindingManager.Bind(node, binding);
 		}
 		
 		void TraceOverride(Method method, IMethodBinding baseMethod)

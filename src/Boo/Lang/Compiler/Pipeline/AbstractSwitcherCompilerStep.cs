@@ -81,6 +81,28 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				return _context.BindingManager;
 			}
+		}
+		
+		protected void Error(Node node, CompilerError error)
+		{
+			BindingManager.Error(node);
+			Errors.Add(error);
+		}
+		
+		protected void Error(CompilerError error)
+		{
+			Errors.Add(error);
+		}
+		
+		protected void Error(Node node)
+		{
+			BindingManager.Error(node);
+		}
+
+		protected void Bind(Node node, IBinding binding)
+		{
+			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, binding);
+			BindingManager.Bind(node, binding);
 		}		
 		
 		public IBinding GetBinding(Node node)

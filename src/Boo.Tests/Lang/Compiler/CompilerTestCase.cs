@@ -285,6 +285,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void InternalCustomAttributes()
+		{
+			RunCompilerTestCase("attributes3.boo");
+		}
+		
+		[Test]
 		public void TestImportSimpleNamespace()
 		{
 			RunCompilerTestCase("import0.boo");
