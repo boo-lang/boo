@@ -9,7 +9,7 @@ namespace Boo.Ast.Compilation.Steps
 {
 	public abstract class AbstractCompilerStep : ICompilerStep
 	{
-		protected CompilerContext _context;
+		protected CompilerContext _context;		
 		
 		protected AbstractCompilerStep()
 		{			
@@ -66,7 +66,7 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				throw new ArgumentNullException("context");
 			}
-			_context = context;
+			_context = context;			
 		}
 		
 		public abstract void Run();
@@ -74,6 +74,6 @@ namespace Boo.Ast.Compilation.Steps
 		public virtual void Dispose()
 		{
 			_context = null;
-		}
+		}	
 	}
 }

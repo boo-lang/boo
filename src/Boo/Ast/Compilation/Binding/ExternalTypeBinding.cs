@@ -78,6 +78,10 @@ namespace Boo.Ast.Compilation.Binding
 			}
 			return null;
 		}
-
+		
+		public override string ToString()
+		{
+			return _type.AssemblyQualifiedName;
+		}
 	}
 }

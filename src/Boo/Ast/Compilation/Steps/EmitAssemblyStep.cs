@@ -40,6 +40,24 @@ namespace Boo.Ast.Compilation.Steps
 		
 		ILGenerator _il;
 		
+		// keeps track of types on the IL stack
+		System.Collections.Stack _types = new System.Collections.Stack();
+		
+		void PushType(Type type)
+		{
+			_types.Push(type);
+		}
+		
+		Type PopType()
+		{
+			return (Type)_types.Pop();
+		}
+		
+		Type PeekTypeOnStack()
+		{
+			return (Type)_types.Peek();
+		}
+		
 		public override void Run()
 		{				
 			if (Errors.Count > 0 || 0 == CompileUnit.Modules.Count)
@@ -90,21 +108,20 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void OnForStatement(ForStatement node)
-		{			
-			ITypeBinding binding = GetTypeBinding(node.Iterator);			
-			
+		{									
 			EmitDebugInfo(node, node.Iterator);
 			
 			// iterator = <node.Iterator>;
-			node.Iterator.Switch(this);
+			node.Iterator.Switch(this);		
 			
-			if (binding.Type.IsArray)
+			Type iteratorType = PopType();
+			if (iteratorType.IsArray)
 			{
-				EmitArrayBasedFor(node, binding);
+				EmitArrayBasedFor(node, iteratorType);
 			}
 			else
 			{
-				EmitEnumerableBasedFor(node, binding);
+				EmitEnumerableBasedFor(node, iteratorType);
 			}			
 		}
 		
@@ -117,17 +134,21 @@ namespace Boo.Ast.Compilation.Steps
 			EmitDebugInfo(decls[0], node.Expression);						
 			node.Expression.Switch(this);
 			
-			EmitUnpackForDeclarations(node.Declarations, binding.Type);			
+			EmitUnpackForDeclarations(node.Declarations, PopType());			
 		}	
 		
-		public override void LeaveExpressionStatement(ExpressionStatement node)
+		public override bool EnterExpressionStatement(ExpressionStatement node)
 		{
-			Type type = GetBoundType(node.Expression);
-			
+			EmitDebugInfo(node);
+			return true;
+		}
+		
+		public override void LeaveExpressionStatement(ExpressionStatement node)
+		{					
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
-			if (type != Binding.BindingManager.VoidType)
+			if (PopType() != Binding.BindingManager.VoidType)
 			{
 				_il.Emit(OpCodes.Pop);
 			}
@@ -137,7 +158,7 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			EmitDebugInfo(node, node.Expression);
 			
-			node.Expression.Switch(this);
+			node.Expression.Switch(this); PopType();
 			
 			Label endLabel = _il.DefineLabel();
 			_il.Emit(OpCodes.Brfalse, endLabel);			
@@ -146,9 +167,7 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void OnBinaryExpression(BinaryExpression node)
-		{
-			EmitDebugInfo(node.Left, node.Right);
-			
+		{			
 			if (BinaryOperatorType.Assign == node.Operator)
 			{				
 				IBinding binding = BindingManager.GetBinding(node.Left);
@@ -156,7 +175,7 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					case BindingType.Local:
 					{
-						node.Right.Switch(this);				
+						node.Right.Switch(this); // leaves type on stack			
 						_il.Emit(OpCodes.Dup);
 						_il.Emit(OpCodes.Stloc, ((LocalBinding)binding).LocalBuilder);
 						break;
@@ -170,16 +189,18 @@ namespace Boo.Ast.Compilation.Steps
 				}				
 			}
 			else
-			{
+			{				
 				IBinding binding = BindingManager.GetBinding(node);
 				if (BindingType.Method == binding.BindingType)
 				{
+					// operator
 					IMethodBinding methodBinding = (IMethodBinding)binding;
 					node.Left.Switch(this);
-					EmitCastIfNeeded(methodBinding.GetParameterType(0), GetBoundType(node.Left));					
+					EmitCastIfNeeded(methodBinding.GetParameterType(0), PopType());					
 					node.Right.Switch(this);
-					EmitCastIfNeeded(methodBinding.GetParameterType(1), GetBoundType(node.Right));
+					EmitCastIfNeeded(methodBinding.GetParameterType(1), PopType());
 					_il.EmitCall(OpCodes.Call, (MethodInfo)methodBinding.MethodInfo, null);
+					PushType(methodBinding.ReturnType.Type);
 				}
 				else
 				{
@@ -189,16 +210,7 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
-		{			
-			if (node.Arguments.Count > 0)
-			{
-				EmitDebugInfo(node.Target, node.Arguments[node.Arguments.Count-1]);
-			}
-			else
-			{
-				EmitDebugInfo(node.Target, node);
-			}
-			              
+		{				
 			IBinding binding = BindingManager.GetBinding(node.Target);
 			switch (binding.BindingType)
 			{
@@ -211,7 +223,13 @@ namespace Boo.Ast.Compilation.Steps
 					{
 						// pushes target reference
 						node.Target.Switch(this);
-						if (!mi.DeclaringType.IsValueType)
+						
+						Type targetType = PopType();
+						
+						bool declaringTypeIsValueType = mi.DeclaringType.IsValueType;
+						bool targetTypeIsValueType = targetType.IsValueType; 
+						if (!declaringTypeIsValueType &&
+						    !targetTypeIsValueType)
 						{
 							if (mi.IsVirtual)
 							{
@@ -220,14 +238,23 @@ namespace Boo.Ast.Compilation.Steps
 						}
 						else
 						{
-							// declare local to hold value type
-							LocalBuilder temp = _il.DeclareLocal(mi.DeclaringType);
-							_il.Emit(OpCodes.Stloc, temp);
-							_il.Emit(OpCodes.Ldloca, temp);
+							if (declaringTypeIsValueType)
+							{
+								// declare local to hold value type
+								LocalBuilder temp = _il.DeclareLocal(targetType);
+								_il.Emit(OpCodes.Stloc, temp);
+								_il.Emit(OpCodes.Ldloca, temp);
+							}
+							else
+							{
+								_il.Emit(OpCodes.Box, targetType);
+							}
 						}
 					}
 					PushArguments(methodBinding, node.Arguments);
 					_il.EmitCall(code, mi, null);
+					
+					PushType(mi.ReturnType);
 					break;
 				}
 				
@@ -235,7 +262,9 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					IConstructorBinding constructorBinding = (IConstructorBinding)binding;
 					PushArguments(constructorBinding, node.Arguments);
-					_il.Emit(OpCodes.Newobj, constructorBinding.ConstructorInfo);
+					
+					ConstructorInfo ci = constructorBinding.ConstructorInfo;
+					_il.Emit(OpCodes.Newobj, ci);
 					foreach (ExpressionPair pair in node.NamedArguments)
 					{
 						// object reference
@@ -245,6 +274,9 @@ namespace Boo.Ast.Compilation.Steps
 						// field/property reference						
 						SetFieldOrProperty(node, BindingManager.GetBinding(pair.First));
 					}
+					
+					// constructor invocation resulting type is
+					PushType(ci.DeclaringType);
 					break;
 				}
 				
@@ -259,6 +291,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldc_I4, int.Parse(node.Value));
+			PushType(BindingManager.IntType);
 		}
 		
 		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -271,17 +304,17 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				_il.Emit(OpCodes.Ldc_I4_0);
 			}
+			PushType(BindingManager.BoolType);
 		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
+			PushType(BindingManager.StringType);
 		}
 		
 		public override void OnStringFormattingExpression(StringFormattingExpression node)
-		{			
-			EmitDebugInfo(node);
-			              
+		{			              
 			_il.Emit(OpCodes.Ldstr, node.Template);
 			
 			// new object[node.Arguments.Count]
@@ -295,11 +328,11 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			
 			_il.EmitCall(OpCodes.Call, String_Format, null);
+			PushType(BindingManager.StringType);
 		}
 		
 		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
-		{
-			EmitDebugInfo(node.Target, node);
+		{			
 			IBinding binding = BindingManager.GetBinding(node);
 			switch (binding.BindingType)
 			{
@@ -311,11 +344,13 @@ namespace Boo.Ast.Compilation.Steps
 					if (!getMethod.IsStatic)
 					{
 						node.Target.Switch(this);
+						
+						Type targetType = PopType();
 						if (getMethod.IsVirtual)
 						{
-							if (property.DeclaringType.IsValueType)
+							if (targetType.IsValueType)
 							{
-								//_il.Emit(OpCodes.Box, property.DeclaringType);
+								Errors.NotImplemented(node, "property access for value types");
 							}
 							else
 							{
@@ -323,7 +358,8 @@ namespace Boo.Ast.Compilation.Steps
 							}
 						}
 					}
-					_il.EmitCall(code, getMethod, null);
+					_il.EmitCall(code, getMethod, null);					
+					PushType(getMethod.ReturnType);
 					break;
 				}
 				
@@ -342,10 +378,12 @@ namespace Boo.Ast.Compilation.Steps
 						if (fieldInfo.DeclaringType.IsEnum)
 						{
 							_il.Emit(OpCodes.Ldc_I4, (int)fieldBinding.FieldInfo.GetValue(null));
+							PushType(BindingManager.IntType);
 						}
 						else
 						{
 							_il.Emit(OpCodes.Ldsfld, fieldInfo);
+							PushType(fieldInfo.FieldType);
 						}
 					}
 					else
@@ -364,16 +402,16 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
-		{
-			EmitDebugInfo(node);
-			
+		{	
 			IBinding info = BindingManager.GetBinding(node);
 			switch (info.BindingType)
 			{
 				case BindingType.Local:
 				{
 					LocalBinding local = (LocalBinding)info;
-					_il.Emit(OpCodes.Ldloc, local.LocalBuilder);
+					LocalBuilder builder = local.LocalBuilder;
+					_il.Emit(OpCodes.Ldloc, builder);
+					PushType(builder.LocalType);
 					break;
 				}
 				
@@ -381,6 +419,7 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					Binding.ParameterBinding param = (Binding.ParameterBinding)info;
 					_il.Emit(OpCodes.Ldarg, param.Index);
+					PushType(param.Type);
 					break;
 				}
 				
@@ -430,13 +469,13 @@ namespace Boo.Ast.Compilation.Steps
 			_il.MarkSequencePoint(_symbolDocWriter, start.Line, start.StartColumn, end.Line, end.EndColumn);
 		}
 		
-		void EmitEnumerableBasedFor(ForStatement node, ITypeBinding iteratorBinding)
+		void EmitEnumerableBasedFor(ForStatement node, Type iteratorType)
 		{			
 			Label labelTest = _il.DefineLabel();
 			Label labelEnd = _il.DefineLabel();
 			
 			LocalBuilder localIterator = _il.DeclareLocal(Binding.BindingManager.IEnumeratorType);
-			EmitGetEnumerableIfNeeded(iteratorBinding.Type);			
+			EmitGetEnumerableIfNeeded(iteratorType);			
 			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
 			_il.Emit(OpCodes.Stloc, localIterator);
 			
@@ -456,12 +495,12 @@ namespace Boo.Ast.Compilation.Steps
 			_il.MarkLabel(labelEnd);			
 		}
 		
-		void EmitArrayBasedFor(ForStatement node, ITypeBinding iteratorBinding)
-		{			
+		void EmitArrayBasedFor(ForStatement node, Type iteratorType)
+		{				
 			Label labelTest = _il.DefineLabel();
 			Label labelEnd = _il.DefineLabel();
 			
-			LocalBuilder localIterator = _il.DeclareLocal(iteratorBinding.Type);
+			LocalBuilder localIterator = _il.DeclareLocal(iteratorType);
 			_il.Emit(OpCodes.Stloc, localIterator);
 			
 			// i = 0;
@@ -481,7 +520,7 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Ldloc, localIndex);
 			_il.Emit(OpCodes.Ldelem_Ref);
 			
-			EmitUnpackForDeclarations(node.Declarations, iteratorBinding.Type.GetElementType());
+			EmitUnpackForDeclarations(node.Declarations, iteratorType.GetElementType());
 			
 			node.Statements.Switch(this);
 			
@@ -501,7 +540,6 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				// for arg in iterator
 				LocalBuilder localValue = GetLocalBuilder(decls[0]);
-				EmitDebugInfo(decls[0]);
 				StoreLocal(topOfStack, localValue);
 			}
 			else
@@ -561,9 +599,8 @@ namespace Boo.Ast.Compilation.Steps
 				Expression arg = args[i];
 				
 				Type expectedType = binding.GetParameterType(i);
-				Type actualType = GetBoundType(arg);
 				arg.Switch(this);
-				EmitCastIfNeeded(expectedType, actualType);
+				EmitCastIfNeeded(expectedType, PopType());
 			}
 		}
 		

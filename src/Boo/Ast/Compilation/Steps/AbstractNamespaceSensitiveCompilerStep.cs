@@ -31,13 +31,18 @@ namespace Boo.Ast.Compilation.Steps
 			_namespaces.Clear();
 		}
 		
-		protected IBinding Resolve(string name)
+		protected IBinding Resolve(Node sourceNode, string name)
 		{
+			if (null == sourceNode)
+			{
+				throw new ArgumentNullException("sourceNode");
+			}
 			IBinding binding = BindingManager.ResolvePrimitive(name);
 			if (null == binding)
 			{
 				foreach (INameSpace ns in _namespaces)
 				{
+					_context.TraceVerbose("Trying to resolve {0} against {1}...", name, ns);
 					binding = ns.Resolve(name);
 					if (null != binding)
 					{
@@ -45,14 +50,15 @@ namespace Boo.Ast.Compilation.Steps
 					}
 				}
 			}
+			_context.TraceVerbose("{0}: {1} bound to {2}.", sourceNode.LexicalInfo, name, binding);
 			return binding;
 		}
 		
-		protected IBinding ResolveQualifiedName(string name)
+		protected IBinding ResolveQualifiedName(Node sourceNode, string name)
 		{			
 			string[] parts = name.Split(DotArray);
 			string topLevel = parts[0];
-			IBinding binding = Resolve(topLevel);
+			IBinding binding = Resolve(sourceNode, topLevel);
 			for (int i=1; i<parts.Length; ++i)				
 			{				
 				INameSpace ns = binding as INameSpace;

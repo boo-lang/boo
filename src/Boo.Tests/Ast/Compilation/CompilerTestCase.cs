@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Boo.Ast.Compilation;
@@ -22,13 +23,18 @@ namespace Boo.Tests.Ast.Compilation
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{
+			 Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Error));
+
 			string booAssemblyPath = typeof(Compiler).Assembly.Location;
+			string thisAssemblyPath = GetType().Assembly.Location;
 			File.Copy(booAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(booAssemblyPath)), true);
+			File.Copy(thisAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(thisAssemblyPath)), true);
 			
-			_testCasesPath = Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location), "../testcases/compilation");
+			_testCasesPath = Path.Combine(Path.GetDirectoryName(new Uri(GetType().Assembly.CodeBase).AbsolutePath), "../testcases/compilation");
 			
 			_compiler = new Compiler();
 			_parameters = _compiler.Parameters;
+			//_parameters.TraceSwitch.Level = TraceLevel.Verbose;
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			_parameters.Pipeline.
 							Add(new BooParsingStep()).
@@ -42,6 +48,12 @@ namespace Boo.Tests.Ast.Compilation
 							Add(new SaveAssemblyStep()).
 							Add(new PEVerifyStep()).
 							Add(new RunAssemblyStep());
+		}
+		
+		[TestFixtureTearDown]
+		public void TearDownFixture()
+		{
+			Trace.Listeners.Clear();
 		}
 		
 		[SetUp]
@@ -82,11 +94,47 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
-		public void TestUsingAssemblyQualifiedReferences()
+		public void TestUsingSimpleNamespace()
 		{
 			RunCompilerTestCase("using0.boo", "using System");
+		}		
+			
+		[Test]
+		public void TestUsingQualifiedType()
+		{
+			RunCompilerTestCase("using1.boo", "using System.Console");
 		}
 		
+		[Test]
+		public void TestUsingQualifiedNamespace()
+		{
+			RunCompilerTestCase("using2.boo", "using System.Text");
+		}
+		
+		[Test]
+		public void TestUsingAssemblyQualifiedNamespace()
+		{
+			RunCompilerTestCase("using3.boo", "using System.Drawing from System.Drawing");
+		}
+		
+		[Test]
+		public void TestUsingAlias()
+		{
+			RunCompilerTestCase("using4.boo", "using System as S");
+		}
+		
+		[Test]
+		public void TestUsingAssemblyQualifiedNamespace2()
+		{
+			RunCompilerTestCase("using5.boo", "using System.Drawing from different assembly");
+		}
+		
+		[Test]
+		public void TestUsingSameAssemblyQualifiedNamespaces()
+		{
+			RunCompilerTestCase("using6.boo", "using System.Drawing from two assemblies");
+		}
+	
 		void RunCompilerTestCase(string name, string description)
 		{			
 			_parameters.Input.Add(new FileInput(GetTestCasePath(name)));

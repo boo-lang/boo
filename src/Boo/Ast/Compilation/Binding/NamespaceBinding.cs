@@ -1,38 +1,16 @@
 using System;
+using System.Reflection;
 using System.Collections;
 
 namespace Boo.Ast.Compilation.Binding
 {
 	public class NamespaceBinding : IBinding, INameSpace
-	{
-		public class AssemblyInfo
-		{
-			public System.Reflection.Assembly Assembly;
-			
-			public Type[] Types;
-			
-			public AssemblyInfo(System.Reflection.Assembly assembly, Type[] types)
-			{
-				Assembly = assembly;
-				Types = types;
-			}
-			
-			public override int GetHashCode()
-			{
-				return Assembly.GetHashCode();
-			}
-			
-			public override bool Equals(object other)
-			{
-				return ((AssemblyInfo)other).Assembly == Assembly;
-			}
-		}
-		
+	{		
 		BindingManager _bindingManager;
 		
 		string _name;
 		
-		ArrayList _assemblies;
+		Hashtable _assemblies;
 		
 		Hashtable _childrenNamespaces;
 		
@@ -40,8 +18,9 @@ namespace Boo.Ast.Compilation.Binding
 		{			
 			_bindingManager = bindingManager;
 			_name = name;
-			_assemblies = new ArrayList();
+			_assemblies = new Hashtable();
 			_childrenNamespaces = new Hashtable();
+			_assemblies = new Hashtable();
 		}
 		
 		public string Name
@@ -60,12 +39,16 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public void Add(AssemblyInfo info)
+		public void Add(Type type)
 		{
-			if (!_assemblies.Contains(info))
+			Assembly assembly = type.Assembly;
+			ArrayList types = (ArrayList)_assemblies[assembly];
+			if (null == types)
 			{
-				_assemblies.Add(info);
+				types = new ArrayList();
+				_assemblies[assembly] = types;
 			}
+			types.Add(type);			
 		}
 		
 		public NamespaceBinding GetChildNamespace(string name)
@@ -79,6 +62,28 @@ namespace Boo.Ast.Compilation.Binding
 			return binding;
 		}
 		
+		internal IBinding Resolve(string name, Assembly assembly)
+		{
+			NamespaceBinding binding = (NamespaceBinding)_childrenNamespaces[name];
+			if (null != binding)
+			{
+				return new AssemblyQualifiedNamespaceBinding(assembly, binding);
+			}
+			
+			ArrayList types = (ArrayList)_assemblies[assembly];			                
+			if (null != types)
+			{
+				foreach (Type type in types)
+				{
+					if (name == type.Name)
+					{
+						return _bindingManager.ToTypeReference(type);
+					}
+				}
+			}
+			return null;
+		}
+		
 		public IBinding Resolve(string name)
 		{	
 			IBinding binding = (IBinding)_childrenNamespaces[name];
@@ -87,9 +92,9 @@ namespace Boo.Ast.Compilation.Binding
 				return binding;
 			}
 			
-			foreach (AssemblyInfo info in _assemblies)
+			foreach (ArrayList types in _assemblies.Values)
 			{
-				foreach (Type type in info.Types)
+				foreach (Type type in types)
 				{
 					if (name == type.Name)
 					{
@@ -103,6 +108,39 @@ namespace Boo.Ast.Compilation.Binding
 		public override string ToString()
 		{
 			return _name;
+		}
+	}
+	
+	public class AssemblyQualifiedNamespaceBinding : IBinding, INameSpace
+	{
+		Assembly _assembly;
+		NamespaceBinding _subject;
+		
+		public AssemblyQualifiedNamespaceBinding(Assembly assembly, NamespaceBinding subject)
+		{
+			_assembly = assembly;
+			_subject = subject;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return string.Format("{0}, {1}", _subject.Name, _assembly);
+			}
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Namespace;
+			}
+		}
+		
+		public IBinding Resolve(string name)
+		{
+			return _subject.Resolve(name, _assembly);
 		}
 	}
 	

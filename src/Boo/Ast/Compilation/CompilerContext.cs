@@ -19,7 +19,9 @@ namespace Boo.Ast.Compilation
 
 		protected ErrorCollection _errors;
 		
-		protected Binding.BindingManager _bindingManager;
+		protected Binding.BindingManager _bindingManager;		
+		
+		protected TraceSwitch _traceSwitch;
 
 		public CompilerContext(CompileUnit unit) : this(new CompilerParameters(), unit)
 		{				
@@ -42,6 +44,7 @@ namespace Boo.Ast.Compilation
 			_assemblyReferences = options.References;
 			_parameters = options;
 			_bindingManager = new Binding.BindingManager();
+			_traceSwitch = _parameters.TraceSwitch;
 		}	
 
 		public CompilerParameters CompilerParameters
@@ -83,6 +86,14 @@ namespace Boo.Ast.Compilation
 				return _bindingManager;
 			}
 		}	
+		
+		public void TraceVerbose(string format, params object[] args)
+		{			
+			if (_traceSwitch.TraceVerbose)
+			{
+				Trace.WriteLine(string.Format(format, args));
+			}
+		}
 
 		internal void Run()
 		{

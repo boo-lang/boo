@@ -197,10 +197,10 @@ namespace Boo.Ast.Compilation.Steps
 			// Um passo posterior (resoluo de nomes e tipos) ir
 			// assegurar que todos os nomes tenham sido resolvidos e colocar
 			// mensagens de erro de acordo
-			IBinding binding = ResolveQualifiedName(attribute.Name);
+			IBinding binding = ResolveQualifiedName(attribute, attribute.Name);
 			if (null == binding)
 			{
-				binding = ResolveQualifiedName(BuildAttributeName(attribute.Name));
+				binding = ResolveQualifiedName(attribute, BuildAttributeName(attribute.Name));
 			}
 
 			if (null != binding)

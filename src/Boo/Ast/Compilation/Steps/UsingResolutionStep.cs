@@ -5,13 +5,13 @@ using List=Boo.Lang.List;
 using Boo.Ast;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.Binding;
-using AssemblyInfo=Boo.Ast.Compilation.Binding.NamespaceBinding.AssemblyInfo;
 
 namespace Boo.Ast.Compilation.Steps
 {	
 	// todo: CompilerParameters.References.Changed += OnChanged
 	// recalculate namespaces on reference changes
-	//
+	// todo: optimize this class so it only reescans
+	// the references when they change
 	public class UsingResolutionStep : AbstractCompilerStep, INameSpace
 	{
 		static object GlobalNamespaceKey = new object();
@@ -39,39 +39,50 @@ namespace Boo.Ast.Compilation.Steps
 			CompileUnit[BooLangNamespaceKey] = ResolveQualifiedName("Boo.Lang");
 		}
 		
+		public override void Dispose()
+		{
+			base.Dispose();
+			_namespaces.Clear();
+			_externalTypes.Clear();
+		}
+		
 		void ResolveNamespaces()
-		{			
-			if (0 == _namespaces.Count)
-			{
-				ResolveUsingAssemblyReferences();
-				OrganizeNamespaces();
-			}
+		{				
+			ResolveUsingAssemblyReferences();
+			OrganizeNamespaces();
 			
 			foreach (Module module in CompileUnit.Modules)
 			{
 				foreach (Using using_ in module.Using)
 				{
-					IBinding binding = ErrorBinding.Default;
-					
-					IBinding ns = ResolveQualifiedName(using_.Namespace);					
-					if (null == ns)
+					IBinding binding = ResolveQualifiedName(using_.Namespace);					
+					if (null == binding)
 					{
+						binding = ErrorBinding.Default;
 						Errors.InvalidNamespace(using_);
 					}
 					else
 					{
 						if (null != using_.AssemblyReference)
 						{	
-							// todo:
+							NamespaceBinding nsBinding = binding as NamespaceBinding;
+							if (null == nsBinding)
+							{
+								Errors.NotImplemented(using_, "assembly qualified type references");
+							}
+							else
+							{								
+								binding = new AssemblyQualifiedNamespaceBinding(GetBoundAssembly(using_.AssemblyReference), nsBinding);
+							}
 						}
 						if (null != using_.Alias)
 						{
-							ns = new AliasedNamespaceBinding(using_.Alias.Name, ns);
-							BindingManager.Bind(using_.Alias, ns);
+							binding = new AliasedNamespaceBinding(using_.Alias.Name, binding);
+							BindingManager.Bind(using_.Alias, binding);
 						}
-						binding = ns;
 					}
 					
+					_context.TraceVerbose("Node {0} at {1} bound to {2}", using_, using_.LexicalInfo, binding.Name);
 					BindingManager.Bind(using_, binding);
 				}
 			}			
@@ -103,6 +114,11 @@ namespace Boo.Ast.Compilation.Steps
 					}
 				}
 			}
+		}
+		
+		Assembly GetBoundAssembly(ReferenceExpression reference)
+		{
+			return ((AssemblyBinding)BindingManager.GetBinding(reference)).Assembly;
 		}
 		
 		public IBinding Resolve(string name)
@@ -154,7 +170,7 @@ namespace Boo.Ast.Compilation.Steps
 						current = current.GetChildNamespace(namespaceHierarchy[i]);
 						// Trace(current);
 					}					
-					current.Add(new AssemblyInfo(asm, types));
+					current.Add(type);
 					
 					List typeList = GetList(_externalTypes, type.FullName);
 					typeList.Add(type);

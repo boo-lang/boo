@@ -70,7 +70,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnTypeReference(TypeReference node)
 		{
-			IBinding info = ResolveQualifiedName(node.Name);
+			IBinding info = ResolveQualifiedName(node, node.Name);
 			if (null == info || BindingType.TypeReference != info.BindingType)
 			{
 				Errors.NameNotType(node, node.Name);
@@ -185,7 +185,7 @@ namespace Boo.Ast.Compilation.Steps
 					
 				ITypeBinding expressionTypeInfo = BindingManager.GetTypeBinding(node.Right);
 				
-				IBinding info = Resolve(reference.Name);					
+				IBinding info = Resolve(node, reference.Name);					
 				if (null == info)
 				{
 					DeclareLocal(reference, new Local(reference), expressionTypeInfo);
@@ -328,7 +328,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		IBinding ResolveName(Node node, string name)
 		{
-			IBinding binding = Resolve(name);
+			IBinding binding = Resolve(node, name);
 			CheckNameResolution(node, name, binding);
 			return binding;
 		}

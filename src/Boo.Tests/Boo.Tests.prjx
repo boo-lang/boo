@@ -12,6 +12,7 @@
     <File name=".\Ast\Parsing\BooParserTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Parsing\Util\IndentTokenStreamFilterTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\ListTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\SystemDrawingPoint.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Project" refto="Boo" localcopy="True" />

@@ -137,6 +137,11 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			return  _type.Resolve(name);
 		}
+		
+		public override string ToString()
+		{
+			return _type.ToString();
+		}
 	}
 	
 	public class AmbiguousBinding : IBinding

@@ -58,14 +58,14 @@ namespace Boo.Ast.Compilation.Binding
 				{
 					return _bindingManager.GetBinding(member);
 				}
-			}
+			}			
 			
 			foreach (INameSpace ns in _using)
 			{
 				// todo: resolve name in all namespaces...
 				IBinding binding = ns.Resolve(name);
 				if (null != binding)
-				{
+				{					
 					return binding;
 				}
 			}

@@ -73,10 +73,11 @@ tem um valor de entrada e DE SAÍDA que é o novo nó a ser colocado no lugar do
 done * matar Boo.Util.ISwitch/ISwitcher, eles não agregam valor algum no momento
 done * quebrar AbstractCompilerStep em AbstractAstSwitcherStep extends AbstractCompilerStep
 done * criar AbstractAstTransformerStep extends AbstractCompilerStep
-* unit tests para o compilador/interpretador
-	* criar uma pasta onde cada arquivo .boo é um testcase com um equivalente .out
+done * unit tests para o compilador/interpretador
+	done * criar uma pasta onde cada arquivo .boo é um testcase com um equivalente .out
 	que contém a saída esperada
-	* o teste executa todos os passos da compilação normal e verifica o arquivo final com peverify
+	done * o teste executa todos os passos da compilação normal e verifica o arquivo final com peverify
+* mover todos as constantes de tipo de BindingManager para Types
 * LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression()) de assignment
 e declara a variável
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o SemanticStep que deverá
