@@ -1797,7 +1797,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				// declaration
 				ReferenceExpression reference = (ReferenceExpression)node.Left;
 				IBinding info = Resolve(node, reference.Name);					
-				if (null == info)
+				if (null == info || IsBuiltin(info))
 				{
 					Switch(node.Right);
 					ITypeBinding expressionTypeInfo = GetExpressionType(node.Right);				
@@ -1807,6 +1807,15 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 			return true;
+		}
+		
+		bool IsBuiltin(IBinding binding)
+		{
+			if (BindingType.Method == binding.BindingType)
+			{
+				return BindingManager.BuiltinsBinding == ((IMethodBinding)binding).DeclaringType;
+			}
+			return false;
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)

@@ -1285,5 +1285,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("unary0.boo");
 		}
+		
+		[Test]
+		public void RedefineBuiltin()
+		{
+			RunCompilerTestCase("redefine_builtin.boo");
+		}
 	}
 }

@@ -312,11 +312,11 @@ done * shell(commandName) as string
 
 * argv para __Main__
 
-* builtins podem ser redefinidos como variáveis locais em assignments
+done * builtins podem ser redefinidos como variáveis locais em assignments
 
 * booi: opçoes e um único script
 
-* regular expressions viram campos estáticos do módulo/classe onde forem utilizados
+done * regular expressions viram campos estáticos do módulo/classe onde forem utilizados
 
 * map(callable, enumerable)
 
@@ -373,9 +373,11 @@ done * recriar o gerador de AST em boo
 
 * assembly attributes: [assembly: AssemblyVersion("foo")]
 
+* module attributes: [module: ]
+
 * remover DepthFirstTransformer pois não é mais necessário e só confunde...
 
-* internal method overloading resolution
+done * internal method overloading resolution
 
 * modo MACRO de compilação (ver macro.boo)
 
@@ -384,7 +386,7 @@ done * recriar o gerador de AST em boo
 * unboxing deve fazer conversão numérica
 	
 * remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
-SemanticStep que deverá criar AsExpression sempre que necessário
+SemanticStep que deverá criar CastExpression sempre que necessário
 
 * BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais?
 
