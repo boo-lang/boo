@@ -247,9 +247,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				case EntityType.Field: return CreateReference((IField)entity);
 				case EntityType.Parameter: return CreateReference((InternalParameter)entity);
 				case EntityType.Custom: return CreateTypedReference(entity.Name, (ITypedEntity)entity);
-			}
-			throw new ArgumentException("entity");
-		}
+                case EntityType.Property: return CreateReference((IProperty)entity);
+            }
+            throw new ArgumentException("Failure within CreateReference(IEntity entity): " + entity.EntityType
+                                        + " is not correctly interpreted.");
+        }
 		
 		public ReferenceExpression CreateReference(InternalLocal local)
 		{
@@ -265,8 +267,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return CreateMemberReference(field);
 		}
-		
-		public MemberReferenceExpression CreateMemberReference(IMember member)
+
+        public MemberReferenceExpression CreateReference(Property property)
+        {
+            return CreateReference((IProperty)property.Entity);
+        }
+        public MemberReferenceExpression CreateReference(IProperty property)
+        {
+            return CreateMemberReference(property);
+        }
+
+        public MemberReferenceExpression CreateMemberReference(IMember member)
 		{
 			IType declaringType = member.DeclaringType;
 			
