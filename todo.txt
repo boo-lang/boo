@@ -310,7 +310,15 @@ done * static field initializers
 
 * map(callable, enumerable)
 
-done * System.Type must be invocable
+* System.Type must be invocable
+
+* primitiva cast:
+
+	a = cast(ILogger, _log)
+
+* check return types for method overrides
+
+done * field initializers can be declared in any order
 
 * tipos callable implementam equivalência estrutural, assim, um tipo callable
 que é wrapper sobre um método qualquer, lembra o método, seus tipos de parâmetro e
@@ -320,17 +328,11 @@ valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc
 
 	int(Enum.Value), int("foo"), int(3.0)
 
-* primitiva cast:
-
-	a = cast(ILogger, _log)
-
-* check return types for method overrides
-
 * criar primitivas box, unbox e __reference__ para o semantic step e outros passos
 que precisarem? Isso iria permitir remover os casts 
 
-	__box__(3.0)
-	__unbox__(reference, int)
+	__box__(3.0) => pode ser substituído por cast(object, 3.0)
+	__unbox__(reference, int) => pode ser substituído por cast(int, reference)
 	__assertIsReference__(expression) # para uso por macros como lock por exemplo
 
 * print macro

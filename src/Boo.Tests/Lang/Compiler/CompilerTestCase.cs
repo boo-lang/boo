@@ -1117,5 +1117,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("typeiscallable.boo");
 		}
+		
+		[Test]
+		public void TypeAsICallable()
+		{
+			RunCompilerTestCase("typeiscallable1.boo");
+		}
+		
+		[Test]
+		public void FieldInitializerAfterConstructor()
+		{
+			RunCompilerTestCase("field_initializer.boo");
+		}
 	}
 }

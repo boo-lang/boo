@@ -394,7 +394,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			BindBaseTypes(node);
 			
 			PushNamespace(binding);
-			Switch(node.Attributes);
+			Switch(node.Attributes);		
+			Switch(node.Members, NodeType.Field);
 			Switch(node.Members);
 			PopNamespace();
 		}
@@ -554,7 +555,9 @@ namespace Boo.Lang.Compiler.Pipeline
 				constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
 				node.DeclaringType.Members.Add(constructor);
 			}
-			constructor.Body.Statements.Insert(0, CreateFieldAssignment(node));
+			
+			Statement stmt = CreateFieldAssignment(node);
+			constructor.Body.Statements.Insert(0, stmt);
 			node.Initializer = null;
 		}
 		
@@ -569,7 +572,8 @@ namespace Boo.Lang.Compiler.Pipeline
 					// find the StatementGroup with name="FieldInitializers"
 					// if not found, create
 					// append the statement at the end of the group
-					constructor.Body.Statements.Insert(0, CreateFieldAssignment(node));
+					Statement stmt = CreateFieldAssignment(node);
+					constructor.Body.Statements.Insert(0, stmt);
 				}
 			}
 			node.Initializer = null;

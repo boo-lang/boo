@@ -793,6 +793,22 @@ namespace Boo.Lang.Ast
 			return false;
 		}
 		
+		public bool Switch(NodeCollection collection, NodeType nodeType)
+		{
+			if (null != collection)
+			{
+				foreach (Node node in collection.ToArray())
+				{
+					if (node.NodeType == nodeType)
+					{
+						Switch(node);
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+		
 		public bool Switch(NodeCollection collection)
 		{
 			if (null != collection)
