@@ -40,6 +40,37 @@ class VariableLookupVisitor(DepthFirstVisitor):
 		if node.Operator == BinaryOperatorType.Assign and node.Left isa ReferenceExpression:
 			reference as ReferenceExpression = node.Left
 			if reference.Name == _lookFor:
-				Finish(node.Right)
+				Finish(node.Right) unless reference isa MemberReferenceExpression
 		super(node)
 
+class VariableListLookupVisitor(DepthFirstVisitor):
+	[Property(Resolver)]
+	_resolver as Resolver
+	
+	[Getter(Results)]
+	_results as Hashtable = {}
+	
+	private def Add(name as string, expr as Expression):
+		return if name == null or expr == null
+		return if _results.ContainsKey(name)
+		visitor = ExpressionTypeVisitor(Resolver: _resolver)
+		visitor.Visit(expr)
+		_results.Add(name, visitor.ReturnType)
+	
+	private def Add(name as string, reference as TypeReference):
+		return if reference == null or name == null
+		return if _results.ContainsKey(name)
+		_results.Add(name, BooBinding.CodeCompletion.ReturnType(reference))
+	
+	override def OnDeclaration(node as Declaration):
+		Add(node.Name, node.Type)
+	
+	override def OnDeclarationStatement(node as DeclarationStatement):
+		Visit(node.Declaration)
+		Add(node.Declaration.Name, node.Initializer)
+	
+	override def OnBinaryExpression(node as BinaryExpression):
+		if node.Operator == BinaryOperatorType.Assign and node.Left isa ReferenceExpression:
+			reference as ReferenceExpression = node.Left
+			Add(reference.Name, node.Right) unless reference isa MemberReferenceExpression
+		super(node)

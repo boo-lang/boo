@@ -38,6 +38,7 @@ class Resolver:
 				_currentMember = ResolveCurrentMember()
 			return _currentMember
 	
+	#region Helper methods
 	private def ResolveCurrentMember() as IMember:
 		print "Getting current method... caretLine = ${_caretLine}, caretColumn = ${_caretColumn}"
 		best as IMember = null
@@ -102,22 +103,64 @@ class Resolver:
 		expandedName = BooAmbience.ReverseTypeConversionTable[name]
 		return _parserService.GetClass(expandedName) if expandedName != null
 		return _parserService.SearchType(name, _callingClass, _caretLine, _caretColumn)
+	#endregion
 	
+	#region CtrlSpace-Completion
 	def CtrlSpace(parserService as IParserService, caretLine as int, caretColumn as int, fileName as string) as ArrayList:
 		_parserService = parserService
+		_caretLine = caretLine
+		_caretColumn = caretColumn
 		result = ArrayList(BooAmbience.TypeConversionTable.Values)
 		result.Add("System") // system namespace can be used everywhere
 		
 		parseInfo = parserService.GetParseInformation(fileName)
 		cu = parseInfo.MostRecentCompilationUnit as CompilationUnit
+		_compilationUnit = cu
 		if cu != null:
 			curClass = parserService.GetInnermostClass(cu, caretLine, caretColumn) as IClass
-			result = AddCurrentClassMembers(result, curClass) if curClass != null
-		
+			_callingClass = curClass
+			if curClass != null:
+				result = AddCurrentClassMembers(result, curClass)
+				result.AddRange(parserService.GetNamespaceContents(curClass.Namespace))
+			for u as IUsing in cu.Usings:
+				if u != null and (u.Region == null or u.Region.IsInside(caretLine, caretColumn)):
+					for name as string in u.Usings:
+						result.AddRange(parserService.GetNamespaceContents(name))
+					for alias as string in u.Aliases.Keys:
+						result.Add(alias)
+			member = self.CurrentMember
+			Print("member", member)
+			if member != null:
+				varList as Hashtable = null
+				if member isa BooAbstractMethod:
+					method as BooAbstractMethod = member
+					for para as IParameter in method.Parameters:
+						result.Add(Field(para.ReturnType, para.Name, ModifierEnum.Private, null))
+					if method.Node != null:
+						varLookup = VariableListLookupVisitor(Resolver: self)
+						print "Visiting method body..."
+						varLookup.Visit(cast(BooAbstractMethod, member).Node.Body)
+						print "Finished visiting method body!"
+						varList = varLookup.Results
+				elif member isa Property:
+					property as Property = member
+					if property.Node != null:
+						varLookup = VariableListLookupVisitor(Resolver: self)
+						// TODO: visit only the correct body
+						print "Visiting property body..."
+						varLookup.Visit(property.Node.Getter) unless property.Node.Getter == null
+						varLookup.Visit(property.Node.Setter) unless property.Node.Setter == null
+						print "Finished visiting property body!"
+						varList = varLookup.Results
+				if varList != null:
+					for e as DictionaryEntry in varList:
+						result.Add(Field(e.Value, e.Key, ModifierEnum.Private, null))
+		result.AddRange(parserService.GetNamespaceContents(""))
 		return result
 	
 	def AddCurrentClassMembers(result as ArrayList, curClass as IClass) as ArrayList:
-		result = _parserService.ListMembers(result, curClass, curClass, false)
+		if self.CurrentMember != null and self.CurrentMember.IsStatic == false:
+			result = _parserService.ListMembers(result, curClass, curClass, false)
 		// Add static members, but only from this class (not from base classes)
 		for method as IMethod in curClass.Methods:
 			result.Add(method) if (method.Modifiers & ModifierEnum.Static) == ModifierEnum.Static
@@ -128,7 +171,9 @@ class Resolver:
 		for e as Event in curClass.Events:
 			result.Add(e) if (e.Modifiers & ModifierEnum.Static) == ModifierEnum.Static
 		return result
+	#endregion
 	
+	#region Resolve CC
 	def Resolve(parserService as IParserService, expression as string, caretLine as int, caretColumn as int, fileName as string, fileContent as string) as ResolveResult:
 		if expression == null or expression == '':
 			return null
@@ -193,3 +238,4 @@ class Resolver:
 			Console.WriteLine('null')
 		else:
 			Console.WriteLine('{0} ({1})', obj, obj.GetType().FullName)
+	#endregion
