@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo Barreto de Oliveira
 //
@@ -59,7 +59,10 @@ namespace Boo.Lang
 			StringBuilder sb = new StringBuilder();
 			foreach (object item in enumerable)
 			{
-				if (sb.Length>0) { sb.Append(separator); }
+				if (sb.Length>0)
+				{
+					sb.Append(separator);
+				}
 				sb.Append(item);
 			}
 			return sb.ToString();
