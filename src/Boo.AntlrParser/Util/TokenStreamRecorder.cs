@@ -30,7 +30,7 @@ using System;
 using System.Collections;
 using antlr;
 
-namespace Boo.AntlrParser.Util
+namespace Boo.Lang.Parser.Util
 {
 	/// <summary>
 	/// Records a stream of tokens for later playback.

@@ -30,9 +30,9 @@ using System;
 using System.IO;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
-using Boo.AntlrParser.Util;
+using Boo.Lang.Parser.Util;
 
-namespace Boo.AntlrParser
+namespace Boo.Lang.Parser
 {
 	public class BooParser : BooParserBase
 	{	

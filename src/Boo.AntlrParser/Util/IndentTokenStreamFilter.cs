@@ -29,7 +29,7 @@
 using System;
 using System.Collections;
 
-namespace Boo.AntlrParser.Util
+namespace Boo.Lang.Parser.Util
 {
 	/// <summary>
 	/// Process whitespace tokens and generate INDENT, DEDENT

@@ -28,7 +28,7 @@
 
 using System;
 
-namespace Boo.AntlrParser
+namespace Boo.Lang.Parser
 {
 	/// <summary>
 	/// A token that stores filename information.
