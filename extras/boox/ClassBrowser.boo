@@ -9,10 +9,13 @@ import Boo.Lang.Compiler.Ast
 
 class ClassBrowser(Content):
 	
-	_tree = TreeView(Dock: DockStyle.Fill)
-	_treeViewVisitor = TreeViewVisitor(_tree)
+	_activeDocument as BooEditor
+	_tree as TreeView
+	_treeViewVisitor as TreeViewVisitor
 	
 	def constructor():
+		_tree = TreeView(Dock: DockStyle.Fill, DoubleClick: _tree_DoubleClick)
+		_treeViewVisitor = TreeViewVisitor(_tree)
 		
 		SuspendLayout()
 		
@@ -32,7 +35,11 @@ class ClassBrowser(Content):
 		
 	ActiveDocument as BooEditor:
 		set:
-			Update(value.Text, value.TextContent)
+			_activeDocument = value
+			if _activeDocument:
+				Update(value.Text, value.TextContent)
+			else:
+				_tree.Nodes.Clear()
 			
 	def Update(fname as string, text as string):
 		try:
@@ -42,6 +49,13 @@ class ClassBrowser(Content):
 	
 	def UpdateTree(cu as CompileUnit):
 		_treeViewVisitor.Switch(cu)
+		
+	def _tree_DoubleClick(sender, args as EventArgs):
+		if _activeDocument:
+			node as Node = _tree.SelectedNode.Tag
+			if node is not null:
+				info = node.LexicalInfo
+				_activeDocument.GoTo(info.Line-1)
 
 class TreeViewVisitor(DepthFirstSwitcher):
 	
@@ -86,6 +100,6 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		Add(node.Name, node)
 		
 	def Add(text as string, data):
-		node = _current.Nodes.Add(node.Name)
+		node = _current.Nodes.Add(text)
 		node.Tag = data
 		return node

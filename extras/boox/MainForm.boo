@@ -49,9 +49,8 @@ class MainForm(Form):
 		BooEditor(self).Show(_dockManager)
 		
 	def _dockManager_ActiveDocumentChanged(sender, args as EventArgs):
-		editor = _dockManager.ActiveDocument as BooEditor
-		if editor is not null:
-			_classBrowser.ActiveDocument = editor
+		editor = _dockManager.ActiveDocument as BooEditor		
+		_classBrowser.ActiveDocument = editor
 		
 	def _menuItemClassBrowser_Click(sender, args as EventArgs):
 		_classBrowser.Show(_dockManager)
