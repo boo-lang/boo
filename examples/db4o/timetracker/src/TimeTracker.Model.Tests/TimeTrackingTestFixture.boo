@@ -86,6 +86,29 @@ class TimeTrackerSystemTestFixture:
 		assert task.Project is project
 		
 	[Test]
+	def QueryMonthActivities():
+		p1 = Project(Name: "Project")
+		_system.AddProject(p1)
+		
+		t1 = Task(Name: "Task", Project: p1)
+		_system.AddTask(t1)
+		
+		add = def (started as date):
+			a = Activity(Task: t1, Started: started, Finished: started+2h)
+			_system.AddActivity(a)
+			return a
+			
+		a1 = add(date(2005, 1, 10))
+		a2 = add(date(2005, 1, 11))
+		a3 = add(date(2005, 2, 13))
+		a4 = add(date(2005, 2, 28))
+		a5 = add(date(2005, 1, 31, 23, 59, 59))
+		a6 = add(date(2005, 2, 1))
+		
+		assert _system.QueryMonthActivities(date(2005, 1, 1)) == (a5, a2, a1)
+		assert _system.QueryMonthActivities(date(2005, 2, 1)) == (a4, a3, a6)
+		
+	[Test]
 	def Activities():
 		
 		p1 = Project(Name: "DC")
