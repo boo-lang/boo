@@ -49,8 +49,6 @@ super APÓS qualquer validação:
 		while ie.Busy:
 			Thread.Sleep(50ms)
 
-* ref, out parameters
-
 * cache da resolução de nomes entre compilações
 
 * booi: opçoes e um único script
@@ -105,8 +103,6 @@ derivada de Control (que tem uma propriedade chamada Size):
 * warning levels
 * docbook Step (generates docbook files with all the documentation)
 * statically typed IEnumerator pattern
-* compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator
-e declarar os tipos de acordo
 *  patterns ((in|is|isa) (not)?) (value1, value2), em outras palavras:
 	BinaryExpression(
 		BinaryOperatorType.*,
