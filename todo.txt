@@ -1,22 +1,18 @@
-﻿* software de blogging para a apresentação
+﻿* trocar licensa para LGPL
+	
+* enviar para o Miguel
+
+* reescrever documento de pipeline em inglês
+
+* software de blogging para a apresentação
 	* página principal exibindos os últimos 10 posts
 	* post via webservice
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor RichClient
 	* segurança com par chave pública/privada
-
-* terminar documento introdutório
-	* first class functions
-		* functions as objects
-
+	
 * boox
-	* assembly search path	
-
-* reescrever documento de pipeline em inglês
-	
-* trocar licensa para LGPL
-	
-* enviar para o Miguel
+	* assembly search path
 
 * static properties
 	

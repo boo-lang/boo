@@ -1,11 +1,11 @@
 import System
 import NUnit.Framework
 
-class QuacksLikeADuck:
+class LooksLikeADuck:
 	def Quack():
 		return "quack!"
-		
-class ActsLikeADuck:
+
+class QuacksLikeADuck:
 	def Quack():
 		return "quack!"
 		
@@ -16,8 +16,8 @@ class NotExactlyADuck:
 def quack(obj as duck):
 	Assert.AreEqual("quack!", obj.Quack())	
 	
+quack(LooksLikeADuck())
 quack(QuacksLikeADuck())
-quack(ActsLikeADuck())
 
 try:
 	quack(NotExactlyADuck())

@@ -27,6 +27,10 @@ class BlogSystem(MarshalByRefObject):
 	
 	def Post([required] entry as BlogEntry):
 		_entries.Insert(0, entry)
+		
+	Entries as (BlogEntry):
+		get:
+			return _entries.ToArray(BlogEntry)
 	
 	[Query]
 	def GetLatestEntries(count as int):

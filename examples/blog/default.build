@@ -43,8 +43,8 @@
 		
 		<copy todir="build/web">
 			<fileset basedir="web">
-				<includes name="*.asmx" />
-				<includes name="*.aspx" />
+				<includes name="**/*.aspx" />
+				<includes name="*.asmx" />				
 				<includes name="*.asax" />
 				<includes name="*.config" />
 			</fileset>
