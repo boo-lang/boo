@@ -12,7 +12,8 @@ class OutputPane(DockContent):
 	def constructor():
 		_richBox = RichTextBox(Dock: DockStyle.Fill,
 								Multiline: true,
-								ReadOnly: true)
+								ReadOnly: true,
+								Font: System.Drawing.Font("Lucida Console", 10))
 		SuspendLayout()
 		
 		Controls.Add(_richBox)

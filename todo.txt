@@ -4,6 +4,11 @@
 	* editor RichClient
 	* segurança com par chave pública/privada
 	
+* boox
+	* assembly search path
+	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código
+	
+	
 * anonymous callable type notation
 	def map(fn as callable(object) as object, enumerable)
 	def map(fn as (object)->object, enumerable)
@@ -21,9 +26,6 @@
 
 * generator expressions
 	return i*3 for i in range(10)
-	
-* boox:
-	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código
 	
 * Exemplo de passo com estatísticas sobre membros utilizados
 	* summary of class status (http://www.go-mono.com/class-status.html)

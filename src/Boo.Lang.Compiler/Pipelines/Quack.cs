@@ -4,8 +4,14 @@ namespace Boo.Lang.Compiler.Pipelines
 	{
 		public Quack()
 		{
-			int index = Find(typeof(Boo.Lang.Compiler.Steps.ProcessMethodBodies));
-			this[index] = new Boo.Lang.Compiler.Steps.HuntDucks();
+			MakeItQuack(this);
+		}
+		
+		public static CompilerPipeline MakeItQuack(CompilerPipeline pipeline)
+		{
+			int index = pipeline.Find(typeof(Boo.Lang.Compiler.Steps.ProcessMethodBodies));
+			pipeline[index] = new Boo.Lang.Compiler.Steps.HuntDucks();
+			return pipeline;
 		}
 	}
 }

@@ -314,18 +314,12 @@ namespace BooC
 				case "duck":
 				{
 					CompilerPipeline pipeline = new CompileToBoo();
-					MakeItQuack(pipeline);
+					Quack.MakeItQuack(pipeline);
 					return pipeline;
 				}
 				case "quack": return new Quack();
 			}
 			return (CompilerPipeline)Activator.CreateInstance(Type.GetType(name, true));
-		}
-		
-		static void MakeItQuack(CompilerPipeline pipeline)
-		{
-			int index = pipeline.Find(typeof(Boo.Lang.Compiler.Steps.ProcessMethodBodies));
-			pipeline[index] = new Boo.Lang.Compiler.Steps.HuntDucks();
 		}
 	}
 }
