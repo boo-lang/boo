@@ -61,6 +61,8 @@ class InteractiveInterpreter:
 	
 	_inputId = 0
 	
+	_suggestionCompiler as BooCompiler
+	
 	def constructor():
 		
 		pipeline = Pipelines.CompileToMemory()
@@ -82,6 +84,21 @@ class InteractiveInterpreter:
 		_parser.Parameters.Pipeline = Pipelines.Parse()
 		
 		InitializeStandardReferences()
+		
+	private def GetSuggestionCompiler():
+		if _suggestionCompiler is null:
+			pipeline = Pipelines.ResolveExpressions(BreakOnErrors: false)
+			pipeline.Replace(
+				Steps.ProcessMethodBodiesWithDuckTyping,
+				ProcessExpressionsWithInterpreterNamespace(self))
+			pipeline.Replace(
+				Steps.InitializeTypeSystemServices,
+				_compiler.Parameters.Pipeline.Get(InitializeTypeSystemServices))
+			pipeline.Add(FindCodeCompleteSuggestion())
+			_suggestionCompiler = BooCompiler()
+			_suggestionCompiler.Parameters.Pipeline = pipeline
+			
+		return _suggestionCompiler
 		
 	LastValue:
 		get:
@@ -115,6 +132,21 @@ class InteractiveInterpreter:
 			if _ is not null:
 				_print(repr(_))
 				SetValue("_", _)
+				
+	def SuggestCodeCompletion(code as string) as IEntity:
+	"""
+	The code must contain a __codecomplete__ member reference as a placeholder
+	to the suggestion.
+	
+	The return value is the type or namespace of the parent expression.
+	"""
+		compiler = GetSuggestionCompiler()
+		try:
+			compiler.Parameters.Input.Add(StringInput("<code>", code))
+			result = compiler.Run()
+			return result["suggestion"]			
+		ensure:
+			compiler.Parameters.Input.Clear()
 		
 	def Eval(code as string):
 		
@@ -489,15 +521,32 @@ class InteractiveInterpreter:
 			for type as InternalCallableType in types:
 				debug type
 				services.CachedCallableTypes.Add(type.GeneratedType)
-	
-	class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
-	
+				
+	class ProcessExpressionsWithInterpreterNamespace(Steps.ProcessMethodBodiesWithDuckTyping):
+		
 		_namespace as InterpreterNamespace
 		_interpreter as InteractiveInterpreter
+		
+		def constructor(interpreter):
+			_interpreter = interpreter
+			
+		override def Initialize(context as CompilerContext):
+			super(context)	
+			_namespace = InterpreterNamespace(
+								_interpreter,
+								TypeSystemServices,
+								NameResolutionService.GlobalNamespace)
+			NameResolutionService.GlobalNamespace = _namespace
+			
+		override def Dispose():
+			_namespace = null
+
+	class ProcessVariableDeclarations(ProcessExpressionsWithInterpreterNamespace):
+	
 		_entryPoint as Method
 	
 		def constructor(interpreter):
-			_interpreter = interpreter
+			super(interpreter)
 			
 		InEntryPoint:
 			get:
@@ -505,16 +554,7 @@ class InteractiveInterpreter:
 	
 		override def Initialize(context as CompilerContext):
 			super(context)
-	
-			_namespace = InterpreterNamespace(
-								_interpreter,
-								TypeSystemServices,
-								NameResolutionService.GlobalNamespace)
-			NameResolutionService.GlobalNamespace = _namespace
-			_entryPoint = Steps.ContextAnnotations.GetEntryPoint(Context)
-			
-		override def Dispose():
-			_namespace = null
+			_entryPoint = Steps.ContextAnnotations.GetEntryPoint(Context)			
 			
 		override def LeaveExpressionStatement(node as ExpressionStatement):
 			# force standalone method references types to be completely
@@ -637,7 +677,19 @@ class InteractiveInterpreter:
 			if NodeType.ExpressionStatement == srcNode.ParentNode.NodeType:
 				return expression
 				
-			return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)			
+			return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)
+
+	class FindCodeCompleteSuggestion(Steps.AbstractVisitorCompilerStep):
+		
+		override def Run():
+			Visit(CompileUnit)
+		
+		override def LeaveMemberReferenceExpression(node as MemberReferenceExpression):
+			if "__codecomplete__" == node.Name:
+				target = node.Target
+				if target.ExpressionType is not null:
+					if target.ExpressionType.EntityType != EntityType.Error:				
+						_context["suggestion"] = target.ExpressionType
 			
 def ReadBlock(line as string):
 	newLine = System.Environment.NewLine

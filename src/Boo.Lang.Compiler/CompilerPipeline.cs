@@ -170,6 +170,16 @@ namespace Boo.Lang.Compiler
 			}
 			return -1;
 		}
+		
+		public ICompilerStep Get(Type stepExactType)
+		{
+			int index = Find(stepExactType);
+			if (-1 != index)
+			{
+				return (ICompilerStep)_items[index];
+			}
+			return null;
+		}
 
 		public int Count
 		{

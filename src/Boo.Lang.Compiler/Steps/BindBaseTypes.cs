@@ -36,6 +36,50 @@ namespace Boo.Lang.Compiler.Steps
 	[Serializable]
 	public class BindBaseTypes : AbstractNamespaceSensitiveVisitorCompilerStep
 	{	
+		class ClassTypeNamespace : INamespace
+		{
+			protected ClassDefinition _class;
+
+			public ClassTypeNamespace(ClassDefinition clazz)
+			{
+				_class = clazz;
+			}
+			
+			public INamespace ParentNamespace
+			{
+				get
+				{
+					Node node = _class.ParentNode;
+					if (NodeType.ClassDefinition == node.NodeType)
+					{
+						return new ClassTypeNamespace((ClassDefinition)node);
+					}
+					return (INamespace)node.Entity;
+				}
+			}
+			
+			public bool Resolve(Boo.Lang.List targetList, string name, EntityType filter)
+			{
+				foreach (TypeMember member in _class.Members)
+				{
+					if (member is TypeDefinition)
+					{
+						if (name == member.Name)
+						{
+							targetList.Add(member.Entity);
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+			
+			public IEntity[] GetMembers()
+			{
+				throw new NotImplementedException();
+			}
+		}
+		
 		public BindBaseTypes()
 		{
 		}
@@ -57,8 +101,16 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
-		{			
-			Visit(node.Members);
+		{				
+			EnterNamespace(new ClassTypeNamespace(node));
+			try
+			{
+				Visit(node.Members);
+			}
+			finally
+			{
+				LeaveNamespace();
+			}
 			ResolveBaseTypes(new Boo.Lang.List(), node);
 			CheckBaseTypes(node);
 			

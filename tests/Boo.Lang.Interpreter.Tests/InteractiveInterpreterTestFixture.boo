@@ -31,6 +31,7 @@ import System
 import System.IO
 import NUnit.Framework
 import Boo.Lang.Interpreter
+import Boo.Lang.Compiler.TypeSystem
 
 [TestFixture]
 class InteractiveInterpreterTestFixture:
@@ -446,6 +447,17 @@ for i, j in ((1, 2), (3, 4)):
 """)
 
 		Assert.AreEqual([(2, 1), (4, 3)], _interpreter.GetValue("l"))
+		
+	[Test]
+	def SuggestCodeCompletion():
+		Eval("a = 3")
+		suggestion = _interpreter.SuggestCodeCompletion("a.__codecomplete__")
+		assert suggestion isa ExternalType
+		assert int is (suggestion as ExternalType).ActualType
+		
+		suggestion = _interpreter.SuggestCodeCompletion("'foo'.ToUpper().__codecomplete__")
+		assert suggestion isa ExternalType
+		assert string is (suggestion as ExternalType).ActualType
 		
 	def Eval(code as string):
 		result = _interpreter.Eval(code)
