@@ -26,8 +26,8 @@
 // mailto:rbo@acm.org
 #endregion
 
-import Boo.Lang.Ast
-import Boo.Lang.Ast.Visitors
+import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.Ast.Visitors
 import System
 
 def print(node as Node):
@@ -44,11 +44,11 @@ e = ExpressionStatement(
 					)
 print(e)
 
-be.ReplaceBy(MethodInvocationExpression(Target: ReferenceExpression("a")))
+be.ParentNode.Replace(be, MethodInvocationExpression(Target: ReferenceExpression("a")))
 print(e)
 
 
-i = IfStatement(Expression: be = BinaryExpression(BinaryOperatorType.NotMatch,
+i = IfStatement(Condition: be = BinaryExpression(BinaryOperatorType.NotMatch,
 										StringLiteralExpression("foo"),
 										StringLiteralExpression("bar")))
 i.TrueBlock = Block()
