@@ -99,13 +99,16 @@ namespace Boo.Lang.Compiler.Steps
 			if ((IsDuckTyped(node.Left) || IsDuckTyped(node.Right)) &&
 				IsOverloadableOperator(node.Operator))
 			{
-				node.ParentNode.Replace(
-					node, 
-					CodeBuilder.CreateMethodInvocation(
+				MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 						RuntimeServices_InvokeBinaryOperator,
 						CodeBuilder.CreateStringLiteral(
 							GetMethodNameForOperator(node.Operator)),
-							node.Left, node.Right));
+							node.Left, node.Right);							
+				BindExpressionType(mie, TypeSystemServices.DuckType);
+				
+				node.ParentNode.Replace(
+					node, 
+					mie);
 			}
 			else
 			{

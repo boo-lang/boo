@@ -29,12 +29,15 @@
 import System
 import System.IO
 
+def MapPath(path):
+	return Path.Combine(Project.BaseDirectory, path) 
+
 def GetTestCaseName(fname as string):
 	return Path.GetFileNameWithoutExtension(fname).Replace("-", "_")
 	
 def WriteTestCases(writer as TextWriter, baseDir as string):
 	count = 0
-	for fname in Directory.GetFiles(baseDir):
+	for fname in Directory.GetFiles(MapPath(baseDir)):
 		continue unless fname.EndsWith(".boo")
 		++count		
 		writer.Write("""
@@ -47,7 +50,7 @@ def WriteTestCases(writer as TextWriter, baseDir as string):
 	print("${count} test cases found in ${baseDir}.")
 
 def GenerateTestFixture(srcDir as string, targetFile as string, header as string):
-	using writer=StreamWriter(targetFile):
+	using writer=StreamWriter(MapPath(targetFile)):
 		writer.Write(header)	
 		WriteTestCases(writer, srcDir)
 		writer.Write("""
