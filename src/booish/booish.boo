@@ -284,17 +284,17 @@ class InteractiveInterpreter:
 		
 	def getBooTypeName(type as System.Type):
 		return "(${getBooTypeName(type.GetElementType())})" if type.IsArray
-		return "object" if type is object
-		return "string" if type is string
-		return "void" if type is void
-		return "bool" if type is bool		
-		return "byte" if type is byte
-		return "short" if type is short
-		return "int" if type is int
-		return "long" if type is long
-		return "single" if type is single
-		return "double" if type is double
-		return "date" if type is date
+		return "object" if object is type
+		return "string" if string is type
+		return "void" if void is type
+		return "bool" if bool is type		
+		return "byte" if byte is type
+		return "short" if short is type
+		return "int" if int is type
+		return "long" if long is type
+		return "single" if single is type
+		return "double" if double is type
+		return "date" if date is type
 		return type.FullName
 			
 	private def InitializeStandardReferences():
@@ -431,7 +431,7 @@ class InteractiveInterpreter:
 			if entity is null:
 				type = _interpreter.Lookup(name)
 				if type is not null:
-					if type is object:
+					if object is type:
 						entity = Declare(name, _tss.DuckType)
 					else:
 						entity = Declare(name, _tss.Map(type))

@@ -112,6 +112,7 @@ BCE0108=Value type fields cannot have initializers.
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
 BCW0002=WARNING: Statement modifiers have no effect in labels.
 BCW0003=WARNING: Unused local variable '{0}'.
+BCW0004=WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?
 
 
 ; BooC Command Line Errors

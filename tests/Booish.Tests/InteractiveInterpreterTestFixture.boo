@@ -184,7 +184,7 @@ def spam():
 		
 		assert 3 == _interpreter.LastValue
 		assert 3 == _interpreter.GetValue("a")
-		assert _interpreter.Lookup("a") is int
+		assert int is _interpreter.Lookup("a")
 		
 		_interpreter.Reset()
 		
@@ -309,7 +309,7 @@ def foo():
 	a = 3
 	
 b = 4""")
-		assert _interpreter.Lookup("b") is int
+		assert int is _interpreter.Lookup("b")
 		assert _interpreter.Lookup("a") is null
 		
 	[Test]

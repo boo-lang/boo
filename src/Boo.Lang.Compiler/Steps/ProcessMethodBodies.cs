@@ -548,10 +548,12 @@ namespace Boo.Lang.Compiler.Steps
 				accessor.Modifiers |= TypeMemberModifiers.Virtual;
 			}
 			
+			/*
 			if (property.IsOverride)
-			{
+			{				
 				accessor.Modifiers |= TypeMemberModifiers.Override;
 			}
+			*/
 			
 			if (property.IsAbstract)
 			{
@@ -1086,6 +1088,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void SetPropertyAccessorOverride(Method accessor)
+		{
+			if (null != accessor)
+			{
+				accessor.Modifiers |= TypeMemberModifiers.Override;
+			}
+		}
+		
 		void ResolvePropertyOverride(Property property)
 		{
 			InternalProperty entity = (InternalProperty)property.Entity;
@@ -1103,11 +1113,20 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (property.IsOverride)
 				{
-					// TODO: check type and signature
+					SetPropertyAccessorOverride(property.Getter);
+					SetPropertyAccessorOverride(property.Setter);
 				}
 				else
 				{
-					property.Modifiers |= TypeMemberModifiers.Override;					
+					//property.Modifiers |= TypeMemberModifiers.Override;
+					if (null != entity.Override.GetGetMethod())
+					{
+						SetPropertyAccessorOverride(property.Getter);
+					}
+					if (null != entity.Override.GetSetMethod())
+					{
+						SetPropertyAccessorOverride(property.Setter);
+					}
 				}
 				
 				if (null == property.Type)
@@ -1132,10 +1151,13 @@ namespace Boo.Lang.Compiler.Steps
 					baseMethod = baseProperty.GetSetMethod();
 				}
 				
-				IMethod accessorEntity = (IMethod)accessor.Entity;
-				if (TypeSystemServices.CheckOverrideSignature(accessorEntity, baseMethod))
+				if (null != baseMethod)
 				{
-					return baseMethod;
+					IMethod accessorEntity = (IMethod)accessor.Entity;
+					if (TypeSystemServices.CheckOverrideSignature(accessorEntity, baseMethod))
+					{
+						return baseMethod;
+					}
 				}
 			}
 			return null;

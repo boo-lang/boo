@@ -50,6 +50,26 @@ namespace Boo.Lang.Compiler.Steps
 			base.Dispose();
 		}
 		
+		override public void LeaveBinaryExpression(BinaryExpression node)
+		{
+			if (BinaryOperatorType.ReferenceEquality == node.Operator)
+			{
+				if (IsTypeReference(node.Right))
+				{
+					Warnings.Add(
+						CompilerWarningFactory.IsInsteadOfIsa(node));
+				}
+			}
+		}
+		
+		bool IsTypeReference(Expression node)
+		{
+			return (NodeType.TypeofExpression == node.NodeType) ||
+				(
+					node is ReferenceExpression &&
+					node.Entity is IType);
+		}
+		
 		override public void LeaveEnumDefinition(EnumDefinition node)
 		{
 			_members.Clear();
