@@ -15,8 +15,9 @@ class StyleCheckerStep(AbstractSwitcherCompilerStep):
 			Error(clazz, "Class name '${clazz.Name}' does not start with uppercase letter!")
 		
 	override def LeaveField(field as Field):
-		if not field.Name.StartsWith("_"):
-			Error(field, "Field name '${field.Name}' does not start with '_'!")
+		if not field.IsPublic:
+			if not field.Name.StartsWith("_"):
+				Error(field, "Field name '${field.Name}' does not start with '_'!")
 			
 	override def LeaveParameterDeclaration(param as ParameterDeclaration):
 		if not System.Char.IsLower(param.Name[0]):

@@ -1,3 +1,6 @@
+"""
+A module that violates all checked style guidelines.
+"""
 namespace Boo.Examples
 
 class person:	

@@ -1,6 +1,7 @@
 namespace HelloPipeline
 
 import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Pipeline
 import Boo.Lang.Compiler.Pipeline.Definitions
 
 class HelloPipelineStep(AbstractCompilerStep):
