@@ -477,6 +477,41 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.Equality:
+				{
+					LoadCmpOperands(expression);
+					_il.Emit(OpCodes.Beq, label);
+					break;
+				}
+				
+				case BinaryOperatorType.GreaterThan:
+				{
+					LoadCmpOperands(expression);
+					_il.Emit(OpCodes.Bgt, label);
+					break;
+				}
+				
+				case BinaryOperatorType.GreaterThanOrEqual:
+				{
+					LoadCmpOperands(expression);
+					_il.Emit(OpCodes.Bge, label);
+					break;
+				}
+				
+				case BinaryOperatorType.LessThan:
+				{
+					LoadCmpOperands(expression);
+					_il.Emit(OpCodes.Blt, label);
+					break;
+				}
+				
+				case BinaryOperatorType.LessThanOrEqual:
+				{
+					LoadCmpOperands(expression);
+					_il.Emit(OpCodes.Ble, label);
+					break;
+				}
+				
 				default:
 				{
 					DefaultBranchTrue(expression, label);
@@ -604,16 +639,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			EmitDebugInfo(node);
 			
-			Label topLabel = _il.DefineLabel();
-			_il.MarkLabel(topLabel);
-
-			Label endLabel = _il.DefineLabel();
-			EmitBranchFalse(node.Condition, endLabel);
-			node.Block.Switch(this);
-
-			_il.Emit(OpCodes.Br, topLabel);
+			Label bodyLabel = _il.DefineLabel();
+			Label conditionLabel = _il.DefineLabel();
+			_il.Emit(OpCodes.Br, conditionLabel);
 			
-			_il.MarkLabel(endLabel);
+			_il.MarkLabel(bodyLabel);
+			node.Block.Switch(this);
+			
+			_il.MarkLabel(conditionLabel);
+			EmitBranchTrue(node.Condition, bodyLabel);
 		}
 
 		void EmitIncrementDecrement(UnaryExpression node)
@@ -624,9 +658,19 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ldc_I4_1);
 			EmitCastIfNeeded(type, BindingManager.IntTypeBinding);
 			EmitIncrementDecrementOpCode(node.Operator);
-			_il.Emit(OpCodes.Dup);
-			EmitAssignment(GetLocalBinding(node.Operand), type);
-			PushType(type);
+			
+			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);
+			if (leaveValueOnStack)
+			{
+				_il.Emit(OpCodes.Dup);
+				EmitAssignment(GetLocalBinding(node.Operand), type);
+				PushType(type);
+			}
+			else
+			{
+				EmitAssignment(GetLocalBinding(node.Operand), type);
+				PushVoid();
+			}
 		}
 		
 		void EmitIncrementDecrementOpCode(UnaryOperatorType op)
