@@ -49,6 +49,15 @@ class BoocTask(AbstractBooTask):
 	
 	_traceLevel = System.Diagnostics.TraceLevel.Off
 	
+	_references = FileSet()
+	
+	[BuildElement("references")]
+	References:
+		get:
+			return _references
+		set:
+			_references = value
+	
 	[TaskAttribute("output", Required: true)]
 	Output:
 		get:
@@ -106,15 +115,34 @@ class BoocTask(AbstractBooTask):
 			
 		AddReferences(parameters)		
 			
-		context = compiler.Run()
-		errors = context.Errors
-		for error as CompilerError in errors:
-			LogError(error.ToString(parameters.TraceSwitch.TraceInfo))
-			
-		if len(errors):
-			LogInfo("${len(errors)} error(s).")
-			raise BuildException("boo compilation error", Location)
+		CheckCompilationResult(compiler.Run())
 		
+		
+	protected def AddReferences(parameters as CompilerParameters):
+		
+		if _references.BaseDirectory is not null:
+			baseDir = _references.BaseDirectory.ToString()
+		else:
+			baseDir = Project.BaseDirectory
+			
+		frameworkDir = GetFrameworkDirectory()
+		for reference as string in _references.Includes:
+			
+			path = reference
+			if not Path.IsPathRooted(path):
+				path = Path.Combine(baseDir, reference)
+				if not File.Exists(path):
+					self.LogVerbose("${path} doesn't exist.")
+					path = Path.Combine(frameworkDir, reference)
+					
+			LogVerbose(path)		
+			try:
+				parameters.References.Add(System.Reflection.Assembly.LoadFrom(path))
+			except x:
+				raise BuildException(
+					Boo.ResourceManager.Format("BCE0041", reference),
+					Location,
+					x)
 
 	private def GetOutputType():
 		if "exe" == _target:

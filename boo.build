@@ -45,7 +45,12 @@
 			<references basedir="build">
 				<includes name="Boo.dll" />
 			</references>
-		</booc>
+		</booc>		
+		
+		<boo>
+		print("Hello from boo task!")		
+		print(Project.TargetFramework.FrameworkAssemblyDirectory)
+		</boo>
 		
 	</target>
 	
@@ -56,7 +61,9 @@
 			<arg value="/target:library" />
 			<arg value="/r:${NAnt.Core.dll}" />
 			<arg value="-v" />
-			<arg value="src/Boo.NAnt/BooC.boo" />
+			<arg value="src/Boo.NAnt/BoocTask.boo" />
+			<arg value="src/Boo.NAnt/BooTask.boo" />
+			<arg value="src/Boo.NAnt/AbstractBooTask.boo" />			
 		</exec>
 	</target>
 	

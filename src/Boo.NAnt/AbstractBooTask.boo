@@ -37,46 +37,24 @@ import Boo.Lang.Compiler
 
 abstract class AbstractBooTask(Task):
 	
-	_references = FileSet()
-	
-	[BuildElement("references")]
-	References:
-		get:
-			return _references
-		set:
-			_references = value
-
-	protected def AddReferences(parameters as CompilerParameters):
-		
-		if _references.BaseDirectory is not null:
-			baseDir = _references.BaseDirectory.ToString()
-		else:
-			baseDir = Project.BaseDirectory
+	protected def CheckCompilationResult(context as CompilerContext):
+		errors = context.Errors
+		verbose = context.CompilerParameters.TraceSwitch.TraceInfo
+		for error as CompilerError in errors:
+			LogError(error.ToString(verbose))
 			
-		frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.ToString()
-		for reference as string in _references.Includes:
-			
-			path = reference
-			if not Path.IsPathRooted(path):
-				path = Path.Combine(baseDir, reference)
-				if not File.Exists(path):
-					self.LogVerbose("${path} doesn't exist.")
-					path = Path.Combine(frameworkDir, reference)
-					
-			LogVerbose(path)		
-			try:
-				parameters.References.Add(System.Reflection.Assembly.LoadFrom(path))
-			except x:
-				raise BuildException(
-					Boo.ResourceManager.Format("BCE0041", reference),
-					Location,
-					x)
+		if len(errors):
+			LogInfo("${len(errors)} error(s).")
+			raise BuildException("boo compilation error", Location)
 
-	protected def LogInfo(message as string):
+	def GetFrameworkDirectory():
+		return Project.TargetFramework.FrameworkAssemblyDirectory.ToString()
+
+	def LogInfo(message):
 		self.Log(Level.Info, "${LogPrefix}${message}")
 		
-	protected def LogVerbose(message as string):
+	def LogVerbose(message):
 		self.Log(Level.Verbose, "${LogPrefix}${message}")
 		
-	protected def LogError(message as string):
+	def LogError(message):
 		self.Log(Level.Error, "${LogPrefix}${message}")

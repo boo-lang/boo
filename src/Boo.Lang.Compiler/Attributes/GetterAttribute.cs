@@ -30,7 +30,7 @@ using System;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang
-{
+{	
 	/// <summary>
 	/// Creates a field accessor.
 	/// </summary>
@@ -41,45 +41,15 @@ namespace Boo.Lang
 	///		[getter(LastName)] _lname as string
 	/// </pre>
 	/// </example>
-	public class GetterAttribute : Boo.Lang.Compiler.AbstractAstAttribute
+	public class GetterAttribute : PropertyAttribute
 	{
-		ReferenceExpression _propertyName;
-
-		public GetterAttribute(ReferenceExpression propertyName)
+		public GetterAttribute(ReferenceExpression propertyName) : base(propertyName)
 		{
-			if (null == propertyName)
-			{
-				throw new ArgumentNullException("propertyName");
-			}
-			_propertyName = propertyName;
 		}
 
-		override public void Apply(Node node)
+		override protected Method CreateSetter(Field f)
 		{
-			Field f = node as Field;
-			if (null == f)
-			{
-				InvalidNodeForAttribute("Field");
-				return;
-			}
-
-			Property p = new Property();
-			p.Name = _propertyName.Name;
-			p.Type = f.Type;
-
-			// get:
-			//		return <f.Name>
-			Method getter = new Method();
-			getter.Name = "get";
-			getter.Body.Statements.Add(
-				new ReturnStatement(
-					new ReferenceExpression(f.Name)
-					)
-				);
-
-			p.Getter = getter;
-			p.LexicalInfo = LexicalInfo;
-			((TypeDefinition)f.ParentNode).Members.Add(p);
+			return null;
 		}
 	}
 }
