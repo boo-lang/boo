@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -33,8 +33,7 @@ using System.CodeDom.Compiler;
 
 namespace Boo.Ast.Visiting
 {
-	/// <summary>
-	/// Classe base para visitors que emitem texto como sada.
+	/// <summary>	
 	/// </summary>
 	public class TextEmitter : Boo.Ast.DepthFirstSwitcher
 	{
@@ -77,7 +76,7 @@ namespace Boo.Ast.Visiting
 
 		public void Write(string format, params object[] args)
 		{
-			_writer.InnerWriter.Write(format, args);
+			Write(string.Format(format, args));
 		}
 
 		public void WriteLine()

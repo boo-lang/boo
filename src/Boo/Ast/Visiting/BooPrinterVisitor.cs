@@ -318,7 +318,7 @@ namespace Boo.Ast.Visiting
 			Write("]");
 		}
 		
-		public override void OnListDisplayExpression(ListDisplayExpression node)
+		public override void OnIteratorExpression(IteratorExpression node)
 		{			
 			Write("(");
 			Switch(node.Expression);

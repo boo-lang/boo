@@ -3770,7 +3770,7 @@ _loop148_breakloop:			;
 				e = null;
 				TypeReference tr = null;
 				
-				ListDisplayExpression lde = null;
+				IteratorExpression lde = null;
 				StatementModifier filter = null;
 				Expression iterator = null;
 			
@@ -3809,7 +3809,7 @@ _loop148_breakloop:			;
 					if (0==inputState.guessing)
 					{
 						
-									lde = new ListDisplayExpression(f);
+									lde = new IteratorExpression(f);
 									lde.Expression = e;
 								
 					}

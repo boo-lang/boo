@@ -32,30 +32,33 @@ using Boo.Ast.Impl;
 
 namespace Boo.Ast
 {
-	[System.Xml.Serialization.XmlInclude(typeof(OmittedExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(MethodInvocationExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(UnaryExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(BinaryExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(TernaryExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(ReferenceExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(LiteralExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(StringFormattingExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(IteratorExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(SlicingExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(AsExpression))]
 	[Serializable]
-	public abstract class Expression : ExpressionImpl
+	public class IteratorExpression : IteratorExpressionImpl
 	{		
-		public Expression()
+		public IteratorExpression()
 		{
+			_declarations = new DeclarationCollection(this);
  		}
 		
-		internal Expression(antlr.Token token) : base(token)
+		public IteratorExpression(Expression expression, Expression iterator, StatementModifier filter) : base(expression, iterator, filter)
 		{
 		}
 		
-		internal Expression(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public IteratorExpression(antlr.Token token, Expression expression, Expression iterator, StatementModifier filter) : base(token, expression, iterator, filter)
 		{
+		}
+		
+		internal IteratorExpression(antlr.Token token) : base(token)
+		{
+		}
+		
+		internal IteratorExpression(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		{
+		}
+		
+		public override void Switch(IAstSwitcher switcher)
+		{
+			switcher.OnIteratorExpression(this);
 		}
 	}
 }

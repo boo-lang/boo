@@ -405,7 +405,7 @@ package Boo.Ast
 	class TupleLiteralExpression(ListLiteralExpression)
 	end
 	
-	class ListDisplayExpression(Expression)
+	class IteratorExpression(Expression)
 		Expression as Expression
 		Declarations as DeclarationCollection
 		Iterator as Expression

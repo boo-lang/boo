@@ -1015,7 +1015,7 @@ expression returns [Expression e]
 		e = null;
 		TypeReference tr = null;
 		
-		ListDisplayExpression lde = null;
+		IteratorExpression lde = null;
 		StatementModifier filter = null;
 		Expression iterator = null;
 	} :
@@ -1034,7 +1034,7 @@ expression returns [Expression e]
 	( options { greedy = true; } :
 		f:FOR!
 		{
-			lde = new ListDisplayExpression(f);
+			lde = new IteratorExpression(f);
 			lde.Expression = e;
 		}
 		declaration_list[lde.Declarations]
