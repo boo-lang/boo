@@ -65,21 +65,10 @@ super APÓS qualquer validação:
 
 * print macro
 
-* singleline try (catchall):
-
-	try CloseConnection()
-		|
-		V
-	try:
-		CloseConnection()
-	except:
-		pass
-
 * private base method implementations:
 	class Foo(Base):
 		override def Base.Method():
 			super()
-
 
 * modo MACRO de compilação (ver macro.boo)
 
