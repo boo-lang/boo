@@ -245,7 +245,6 @@
     <File name=".\Steps\PEVerify.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\PrintBoo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\ProcessGenerators.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Steps\ProcessMethodBodies.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\RunAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\SaveAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\SerializeToXml.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -417,6 +416,15 @@
     <File name=".\TypeSystem\NamespaceEntity.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
     <File name=".\TypeSystem\SimpleParameter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\TypeSystem\TypeSystemServices.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Ast\Slice.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\SliceCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\StructDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Impl\SliceCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Impl\SliceImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Impl\StructDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\ResolveExpressions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\AbstractLocalEntity.cs" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\TypeSystem\Types.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Project" refto="Boo" localcopy="True" />

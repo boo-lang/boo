@@ -172,5 +172,7 @@ OR
 		<keyword>lock</keyword>
 		<keyword>range</keyword>
 		<keyword>zip</keyword>
+		<keyword>checked</keyword>
+		<keyword>unchecked</keyword>
 	</keyword-list>
 </language>

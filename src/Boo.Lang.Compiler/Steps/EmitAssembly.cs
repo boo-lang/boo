@@ -107,6 +107,7 @@ namespace Boo.Lang.Compiler.Steps
 		LocalBuilder _returnValueLocal; // returnValueLocal
 		IType _returnType;
 		int _tryBlock; // are we in a try block?
+		bool _checked = true;
 		Hashtable _typeCache = new Hashtable();
 		
 		// keeps track of types on the IL stack
@@ -374,6 +375,7 @@ namespace Boo.Lang.Compiler.Steps
 			_returnValueLocal = null;
 			_returnType = null;
 			_tryBlock = 0;
+			_checked = true;
 			_types.Clear();
 			_typeCache.Clear();
 			_builders.Clear();
@@ -481,6 +483,21 @@ namespace Boo.Lang.Compiler.Steps
 				_returnValueLocal = null;
 			}
 			_il.Emit(OpCodes.Ret);			
+		}
+
+		override public void OnBlock(Block block)
+		{
+			bool current = _checked;
+			object objChecked = block["checked"];
+			
+			if (objChecked is bool)
+			{
+				_checked = (bool)objChecked;
+			}
+
+			Visit(block.Statements);
+
+			_checked = current;
 		}
 		
 		void DefineLabels(Method method)
@@ -2419,7 +2436,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetArithmeticOpCode(IType type, BinaryOperatorType op)
 		{
-			if (IsInteger(type))
+			if (IsInteger(type) && _checked)
 			{
 				switch (op)
 				{

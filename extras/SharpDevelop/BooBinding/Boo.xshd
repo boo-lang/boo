@@ -220,6 +220,8 @@
 
 			<KeyWords name="DefaultMacros" bold="false" italic="false" color="Maroon" >
 				<Key word="using"/>
+				<Key word="unchecked"/>
+				<Key word="checked"/>
 				<Key word="lock"/>
 				<Key word="getter"/>
 				<Key word="required"/>
