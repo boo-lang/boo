@@ -29,10 +29,10 @@
 
 namespace Boo.Examples.Web
 
-using System
-using System.Web
-using System.Web.UI
-using System.Web.UI.WebControls
+import System
+import System.Web
+import System.Web.UI
+import System.Web.UI.WebControls
 
 class HelloAspNet(Page):
 	

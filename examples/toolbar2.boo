@@ -1,4 +1,4 @@
-using System.Windows.Forms from System.Windows.Forms
+import System.Windows.Forms from System.Windows.Forms
 
 def tb_Click(sender, args as System.EventArgs):
 	MessageBox.Show("Cool or what?")

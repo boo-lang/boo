@@ -3,7 +3,7 @@
 1
 
 """
-using System.Console
+import System.Console
 
 l = []
 WriteLine(l.Count)

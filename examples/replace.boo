@@ -8,10 +8,10 @@ Usage:
 Examples:
 	replace.boo *.cs "AssemblyVersion(.*?)" "AssemblyVersion(1.2.3.4)"
 """
-using System
-using System.Text.RegularExpressions
-using System.IO
-using Boo.IO.TextFile // static members of TextFile will be available in the global scope
+import System
+import System.Text.RegularExpressions
+import System.IO
+import Boo.IO.TextFile // static members of TextFile will be available in the global scope
 
 _, glob, expression, replacement = Environment.GetCommandLineArgs()
 

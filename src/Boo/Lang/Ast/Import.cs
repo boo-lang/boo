@@ -33,17 +33,17 @@ using Boo.Lang.Ast.Impl;
 namespace Boo.Lang.Ast
 {
 	[Serializable]
-	public class Using : UsingImpl
+	public class Import : ImportImpl
 	{		
-		public Using()
+		public Import()
 		{
  		}
 		
-		public Using(string namespace_, ReferenceExpression assemblyReference, ReferenceExpression alias) : base(namespace_, assemblyReference, alias)
+		public Import(string namespace_, ReferenceExpression assemblyReference, ReferenceExpression alias) : base(namespace_, assemblyReference, alias)
 		{
 		}
 		
-		public Using(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public Import(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		
@@ -54,7 +54,7 @@ namespace Boo.Lang.Ast
 		
 		public override void Switch(IAstSwitcher switcher)
 		{
-			switcher.OnUsing(this);
+			switcher.OnImport(this);
 		}
 	}
 }

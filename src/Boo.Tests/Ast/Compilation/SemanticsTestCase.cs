@@ -44,7 +44,7 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			pipeline.
 					Add(new Boo.Antlr.BooParsingStep()).
-					Add(new UsingResolutionStep()).
+					Add(new ImportResolutionStep()).
 					Add(new AstAttributesStep()).
 					Add(new AstNormalizationStep()).							
 					Add(new SemanticStep()).

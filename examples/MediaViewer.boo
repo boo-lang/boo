@@ -1,10 +1,10 @@
 package ITL.WebTools.Controls
 
-using System
-using System.Web
-using System.Web.UI
-using System.Web.UI.WebControls
-using Boo.Web
+import System
+import System.Web
+import System.Web.UI
+import System.Web.UI.WebControls
+import Boo.Web
 
 
 [ParseChildren(ChildrenAsProperties: true)]

@@ -5,7 +5,7 @@ False
 True
 
 """
-using System.Console
+import System.Console
 
 WriteLine(1 not in (2, 3, 1))
 WriteLine(1 not in (2, 3, 5))

@@ -1,5 +1,5 @@
 """
-using System.IO
+import System.IO
 
 fname as string
 try:
@@ -20,7 +20,7 @@ success:
 
 """
 
-using System.IO
+import System.IO
 
 fname as string
 try:

@@ -1,7 +1,7 @@
 """
 System.Text.StringBuilder
 """
-using System
-using System.Text
+import System
+import System.Text
 
 Console.Write(StringBuilder().GetType())

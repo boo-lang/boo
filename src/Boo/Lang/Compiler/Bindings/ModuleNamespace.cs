@@ -44,10 +44,10 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			_bindingManager = bindingManager;
 			_members = module.Members;
-			_using = new INamespace[module.Using.Count];
+			_using = new INamespace[module.Imports.Count];
 			for (int i=0; i<_using.Length; ++i)
 			{
-				_using[i] = (INamespace)BindingManager.GetBinding(module.Using[i]);
+				_using[i] = (INamespace)BindingManager.GetBinding(module.Imports[i]);
 			}
 		}
 		

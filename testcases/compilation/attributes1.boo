@@ -5,8 +5,8 @@ Foo.Bar
 """
 namespace Test
 
-using System
-using System.Xml.Serialization from System.Xml
+import System
+import System.Xml.Serialization from System.Xml
 
 [XmlRoot("p", Namespace: "Foo.Bar")]
 class Person:

@@ -1,6 +1,6 @@
 package Boo.Web
 
-using Boo.Ast
+import Boo.Ast
 
 class ViewStateAttribute(AstAttribute):
 

@@ -1,5 +1,5 @@
-using Boo.IO
-using System.IO
+import Boo.IO
+import System.IO
 		
 def InsertLicense(fname as string, license as string):
 	print(fname)

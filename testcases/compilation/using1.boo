@@ -1,6 +1,6 @@
 """
 Hello, System.Console!
 """
-using System.Console
+import System.Console
 
 Write("Hello, System.Console!")

@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Pipeline
 	// recalculate namespaces on reference changes
 	// todo: optimize this class so it only reescans
 	// the references when they change
-	public class UsingResolutionStep : AbstractCompilerStep, INamespace
+	public class ImportResolutionStep : AbstractCompilerStep, INamespace
 	{
 		static object GlobalNamespaceKey = new object();
 		
@@ -77,55 +77,55 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void ResolveNamespaces()
 		{				
-			ResolveUsingAssemblyReferences();
+			ResolveImportAssemblyReferences();
 			OrganizeNamespaces();
 			
 			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
-				foreach (Using using_ in module.Using)
+				foreach (Import import in module.Imports)
 				{
-					IBinding binding = ResolveQualifiedName(using_.Namespace);					
+					IBinding binding = ResolveQualifiedName(import.Namespace);					
 					if (null == binding)
 					{
 						binding = ErrorBinding.Default;
-						Errors.InvalidNamespace(using_);
+						Errors.InvalidNamespace(import);
 					}
 					else
 					{
-						if (null != using_.AssemblyReference)
+						if (null != import.AssemblyReference)
 						{	
 							NamespaceBinding nsBinding = binding as NamespaceBinding;
 							if (null == nsBinding)
 							{
-								Errors.NotImplemented(using_, "assembly qualified type references");
+								Errors.NotImplemented(import, "assembly qualified type references");
 							}
 							else
 							{								
-								binding = new AssemblyQualifiedNamespaceBinding(GetBoundAssembly(using_.AssemblyReference), nsBinding);
+								binding = new AssemblyQualifiedNamespaceBinding(GetBoundAssembly(import.AssemblyReference), nsBinding);
 							}
 						}
-						if (null != using_.Alias)
+						if (null != import.Alias)
 						{
-							binding = new AliasedNamespaceBinding(using_.Alias.Name, binding);
-							BindingManager.Bind(using_.Alias, binding);
+							binding = new AliasedNamespaceBinding(import.Alias.Name, binding);
+							BindingManager.Bind(import.Alias, binding);
 						}
 					}
 					
-					_context.TraceInfo("{1}: using reference '{0}' bound to {2}.", using_, using_.LexicalInfo, binding.Name);
-					BindingManager.Bind(using_, binding);
+					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, binding.Name);
+					BindingManager.Bind(import, binding);
 				}
 			}			
 		}
 		
-		void ResolveUsingAssemblyReferences()
+		void ResolveImportAssemblyReferences()
 		{
 			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
-				UsingCollection usingCollection = module.Using;
-				Using[] usingArray = usingCollection.ToArray();
-				for (int i=0; i<usingArray.Length; ++i)
+				ImportCollection imports = module.Imports;
+				Import[] importArray = imports.ToArray();
+				for (int i=0; i<importArray.Length; ++i)
 				{
-					Using u = usingArray[i];
+					Import u = importArray[i];
 					ReferenceExpression reference = u.AssemblyReference;
 					if (null != reference)
 					{
@@ -138,7 +138,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						catch (Exception x)
 						{
 							Errors.UnableToLoadAssembly(reference, reference.Name, x);
-							usingCollection.RemoveAt(i);							
+							imports.RemoveAt(i);							
 						}
 					}
 				}

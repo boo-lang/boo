@@ -31,13 +31,13 @@ using System;
 
 namespace Boo.Lang.Ast
 {
-	public class UsingCollection : Boo.Lang.Ast.Impl.UsingCollectionImpl
+	public class ImportCollection : Boo.Lang.Ast.Impl.ImportCollectionImpl
 	{
-		public UsingCollection()
+		public ImportCollection()
 		{
 		}
 		
-		public UsingCollection(Boo.Lang.Ast.Node parent) : base(parent)
+		public ImportCollection(Boo.Lang.Ast.Node parent) : base(parent)
 		{
 		}
 	}

@@ -5,7 +5,7 @@ first!
 second!
 
 """
-using System
+import System
 
 try:	
 	raise ApplicationException("got here first!")

@@ -1,8 +1,8 @@
 """
 Si
 """
-using System
-using Boo.Tests.Ast.Compiler from Boo.Tests
+import System
+import Boo.Tests.Ast.Compiler from Boo.Tests
 
 p = Person(LastName: "Simpson")
 

@@ -1,32 +1,3 @@
-﻿#region license
-// boo - an extensible programming language for the CLI
-// Copyright (C) 2004 Rodrigo B. de Oliveira
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// As a special exception, if you link this library with other files to
-// produce an executable, this library does not by itself cause the
-// resulting executable to be covered by the GNU General Public License.
-// This exception does not however invalidate any other reasons why the
-// executable file might be covered by the GNU General Public License.
-//
-// Contact Information
-//
-// mailto:rbo@acm.org
-#endregion
-
 // $ANTLR 2.7.2: "src/Boo.Antlr/booel.g" -> "BooExpressionLexer.cs"$
 
 namespace Boo.Antlr
@@ -72,35 +43,35 @@ namespace Boo.Antlr
 		public const int FALSE = 38;
 		public const int GET = 39;
 		public const int GIVEN = 40;
-		public const int INTERFACE = 41;
-		public const int INTERNAL = 42;
-		public const int IS = 43;
-		public const int IF = 44;
-		public const int IN = 45;
-		public const int KINDOF = 46;
-		public const int NOT = 47;
-		public const int NULL = 48;
-		public const int OR = 49;
-		public const int OTHERWISE = 50;
-		public const int PASS = 51;
-		public const int NAMESPACE = 52;
-		public const int PROPERTY = 53;
-		public const int PUBLIC = 54;
-		public const int PROTECTED = 55;
-		public const int PRIVATE = 56;
-		public const int RAISE = 57;
-		public const int RETURN = 58;
-		public const int RETRY = 59;
-		public const int SET = 60;
-		public const int SELF = 61;
-		public const int SUPER = 62;
-		public const int STATIC = 63;
-		public const int SUCCESS = 64;
-		public const int TRY = 65;
-		public const int TRANSIENT = 66;
-		public const int TRUE = 67;
-		public const int UNLESS = 68;
-		public const int USING = 69;
+		public const int IMPORT = 41;
+		public const int INTERFACE = 42;
+		public const int INTERNAL = 43;
+		public const int IS = 44;
+		public const int IF = 45;
+		public const int IN = 46;
+		public const int KINDOF = 47;
+		public const int NOT = 48;
+		public const int NULL = 49;
+		public const int OR = 50;
+		public const int OTHERWISE = 51;
+		public const int PASS = 52;
+		public const int NAMESPACE = 53;
+		public const int PROPERTY = 54;
+		public const int PUBLIC = 55;
+		public const int PROTECTED = 56;
+		public const int PRIVATE = 57;
+		public const int RAISE = 58;
+		public const int RETURN = 59;
+		public const int RETRY = 60;
+		public const int SET = 61;
+		public const int SELF = 62;
+		public const int SUPER = 63;
+		public const int STATIC = 64;
+		public const int SUCCESS = 65;
+		public const int TRY = 66;
+		public const int TRANSIENT = 67;
+		public const int TRUE = 68;
+		public const int UNLESS = 69;
 		public const int UNTIL = 70;
 		public const int VOID = 71;
 		public const int WHEN = 72;

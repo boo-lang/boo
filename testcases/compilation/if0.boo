@@ -1,7 +1,7 @@
 """
 true
 """
-using System.Console
+import System.Console
 
 Write("true") if true
 Write("false") if false

@@ -44,10 +44,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override bool EnterCompileUnit(CompileUnit cu, ref CompileUnit resultingNode)
 		{
 			// Global names at the highest level
-			PushNamespace(UsingResolutionStep.GetGlobalNamespace(CompilerContext));
+			PushNamespace(ImportResolutionStep.GetGlobalNamespace(CompilerContext));
 			
 			// then Boo.Lang
-			PushNamespace(UsingResolutionStep.GetBooLangNamespace(CompilerContext));
+			PushNamespace(ImportResolutionStep.GetBooLangNamespace(CompilerContext));
 			                           
 			// then builtins resolution			
 			PushNamespace(new ExternalTypeBinding(BindingManager, typeof(Boo.Lang.Builtins)));

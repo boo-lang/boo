@@ -54,9 +54,9 @@ namespace Boo.Lang.Ast.Visitors
 		{
 			Switch(m.Namespace);
 
-			if (m.Using.Count > 0)
+			if (m.Imports.Count > 0)
 			{
-				Switch(m.Using);
+				Switch(m.Imports);
 				WriteLine();
 			}
 
@@ -80,9 +80,9 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine();
 		}
 
-		public override void OnUsing(Using p)
+		public override void OnImport(Import p)
 		{
-			Write("using {0}", p.Namespace);
+			Write("import {0}", p.Namespace);
 			if (null != p.AssemblyReference)
 			{
 				Write(" from ");
@@ -111,7 +111,7 @@ namespace Boo.Lang.Ast.Visitors
 		{
 			Dedent();
 		}
-
+		
 		public override void OnClassDefinition(ClassDefinition c)
 		{
 			WriteTypeDefinition("class", c);
@@ -416,7 +416,16 @@ namespace Boo.Lang.Ast.Visitors
 			Write(" ");
 			Switch(sm.Condition);
 		}
-
+		
+		public override void OnMacroStatement(MacroStatement node)
+		{
+			WriteIndented(node.Name);
+			Write(" ");
+			WriteCommaSeparatedList(node.Arguments);
+			WriteLine(":");
+			Switch(node.Block);
+		}
+		
 		public override void OnForStatement(ForStatement fs)
 		{
 			WriteIndented("for ");

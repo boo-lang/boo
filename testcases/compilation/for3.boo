@@ -2,7 +2,7 @@
 123
 123
 """
-using System.Console
+import System.Console
 
 def foo(message):
 	for message in message:

@@ -2,7 +2,7 @@
 <pipeline>
 
 	<step type='Boo.Antlr.BooParsingStep, Boo.Antlr' />
-	<step type='Boo.Lang.Compiler.Pipeline.UsingResolutionStep, Boo' />
+	<step type='Boo.Lang.Compiler.Pipeline.ImportResolutionStep, Boo' />
 	<step type='Boo.Lang.Compiler.Pipeline.AstAttributesStep, Boo' />
 	<step type='Boo.Lang.Compiler.Pipeline.AstNormalizationStep, Boo' />
 	<step type='Boo.Lang.Compiler.Pipeline.SemanticStep, Boo' />

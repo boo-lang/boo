@@ -4,7 +4,7 @@ foo, bar, baz, 0, 1, 2
 foo, bar, baz, 0, 1, 2, 3
 
 """
-using System.Console
+import System.Console
 
 l = ["foo", "bar", "baz", 0, 1, 2]
 WriteLine(l.Count)

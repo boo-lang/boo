@@ -70,7 +70,7 @@ namespace Boo.Lang.Ast.Visitors
 			return false;
 		}
 
-		public override bool EnterImport(Using p)
+		public override bool EnterImport(Import p)
 		{			
 			WriteLine("using {0};", p.Namespace);
 			WriteLine();

@@ -1,6 +1,6 @@
 """
 Hello, world!
 """
-using System
+import System
 
 Console.Write("Hello, world!")

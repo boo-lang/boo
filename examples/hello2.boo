@@ -1,3 +1,3 @@
-using System
+import System
 
 Console.WriteLine("Hello, world!")

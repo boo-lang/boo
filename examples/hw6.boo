@@ -1,4 +1,4 @@
-using Boo.Lang
+import Boo.Lang
 
 l = List()
 print(l.ToString())

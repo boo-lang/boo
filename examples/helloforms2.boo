@@ -1,4 +1,4 @@
-using System.Windows.Forms from System.Windows.Forms as SWF
+import System.Windows.Forms from System.Windows.Forms as SWF
 
 f = SWF.Form(Text: "Hello, Boo!")
 

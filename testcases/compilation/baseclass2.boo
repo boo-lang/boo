@@ -4,7 +4,7 @@ A.Method0
 BaseClass.Method0
 
 """
-using Boo.Tests.Ast.Compiler from Boo.Tests
+import Boo.Tests.Ast.Compiler from Boo.Tests
 
 class A(BaseClass):
 	def Method0():

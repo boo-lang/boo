@@ -1,4 +1,4 @@
-using System.Windows.Forms from System.Windows.Forms
+import System.Windows.Forms from System.Windows.Forms
 
 class App:
 	public times as int

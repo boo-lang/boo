@@ -1,11 +1,11 @@
 namespace Boo.NAnt
 
-using System.IO
-using NAnt.Core
-using NAnt.Core.Attributes
-using NAnt.Core.Types
-using Boo.Lang.Compiler
-using Boo.Lang.Compiler.IO
+import System.IO
+import NAnt.Core
+import NAnt.Core.Attributes
+import NAnt.Core.Types
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.IO
 
 [TaskName("booc")]
 class BooC(Task):

@@ -5,7 +5,7 @@ False
 True
 
 """
-using System.Console
+import System.Console
 
 WriteLine(true)
 WriteLine(false)

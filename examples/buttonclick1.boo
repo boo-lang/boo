@@ -1,4 +1,4 @@
-using System.Windows.Forms from System.Windows.Forms
+import System.Windows.Forms from System.Windows.Forms
 
 def clicked(sender, args as System.EventArgs):
 	print("clicked!")

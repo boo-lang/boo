@@ -83,6 +83,7 @@ tokens
 	FALSE="false";
 	GET="get";
 	GIVEN="given";
+	IMPORT="import";
 	INTERFACE="interface";	
 	INTERNAL="internal";
 	IS="is";		
@@ -111,7 +112,6 @@ tokens
 	TRANSIENT="transient";
 	TRUE="true";
 	UNLESS="unless";
-	USING="using";
 	UNTIL="until";
 	VOID="void";	
 	WHEN="when";
@@ -224,6 +224,11 @@ tokens
 		}
 		return s;
 	}
+
+	protected bool IsValidMacroArgument(int token)
+	{
+		return token == ID;
+	}
 }
 
 protected
@@ -235,7 +240,7 @@ start returns [Module module]
 	docstring[module]
 	(options { greedy=true;}: EOS)*			 
 	(namespace_directive[module])?
-	(using_directive[module])*
+	(import_directive[module])*
 	(type_member[module.Members])*
 	globals[module]
 	EOF!
@@ -252,16 +257,16 @@ protected
 eos : (options { greedy = true; }: EOS)+;
 
 protected
-using_directive[Module container]
+import_directive[Module container]
 	{
 		Token id;
-		Using usingNode = null;
+		Import usingNode = null;
 	}: 
-	t:USING! id=identifier
+	t:IMPORT! id=identifier
 	{
-		usingNode = new Using(ToLexicalInfo(t));
+		usingNode = new Import(ToLexicalInfo(t));
 		usingNode.Namespace = id.getText();
-		container.Using.Add(usingNode);
+		container.Imports.Add(usingNode);
 	}
 	(
 		FROM id=identifier
@@ -708,6 +713,19 @@ compound_stmt[StatementCollection c] :
 		end
 		(options { greedy=true; }: EOS)*
 		;
+		
+protected
+macro_stmt returns [MacroStatement macro]
+	{
+		macro = new MacroStatement();
+	}:
+	id:ID expression_list[macro.Arguments]
+		compound_stmt[macro.Block.Statements]
+	{
+		macro.Name = id.getText();
+		macro.LexicalInfo = ToLexicalInfo(id);
+	}
+;
 
 protected
 stmt [StatementCollection container]
@@ -722,6 +740,7 @@ stmt [StatementCollection container]
 		s=unless_stmt |
 		s=try_stmt |
 		s=given_stmt |
+		{IsValidMacroArgument(LA(2))}? s=macro_stmt |
 		(		
 			(				
 				s=return_stmt |

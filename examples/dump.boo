@@ -2,9 +2,9 @@
 Lists the string representation of every object serialized
 to a file.
 """
-using System.Console
-using System.IO
-using System.Runtime.Serialization.Formatters.Binary
+import System.Console
+import System.IO
+import System.Runtime.Serialization.Formatters.Binary
 	
 _, fname = Environment.GetCommandLineArgs()
 

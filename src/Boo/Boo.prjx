@@ -1,3 +1,4 @@
+
 <Project name="Boo" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
     <File name=".\AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -45,6 +46,8 @@
     <File name=".\Lang\Ast\IAstSwitcher.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\IAstTransformer.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\IfStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Import.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\ImportCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\INodeWithArguments.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\INodeWithAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\IntegerLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -55,6 +58,7 @@
     <File name=".\Lang\Ast\LiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Local.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\LocalCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\MacroStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\MemberReferenceExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Method.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\MethodInvocationExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -98,8 +102,6 @@
     <File name=".\Lang\Ast\UnaryOperatorType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\UnlessStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\UnpackStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Using.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\UsingCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\WhenClause.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\WhenClauseCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\WhileStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -133,6 +135,8 @@
     <File name=".\Lang\Ast\Impl\GivenStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\HashLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\IfStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Impl\ImportCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Impl\ImportImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\IntegerLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\InterfaceDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\IteratorExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -140,6 +144,7 @@
     <File name=".\Lang\Ast\Impl\LiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\LocalCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\LocalImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Impl\MacroStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\MemberReferenceExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\MethodImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\MethodInvocationExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -176,8 +181,6 @@
     <File name=".\Lang\Ast\Impl\UnaryExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\UnlessStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\UnpackStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Impl\UsingCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Impl\UsingImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\WhenClauseCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\WhenClauseImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\WhileStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

@@ -105,6 +105,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD1>interface</KEYWORD1>
 			<KEYWORD1>in</KEYWORD1>
 			<KEYWORD1>include</KEYWORD1>
+			<KEYWORD1>import</KEYWORD1>
 			<KEYWORD1>is</KEYWORD1>
 			<KEYWORD1>kindof</KEYWORD1>
 			<KEYWORD1>mixin</KEYWORD1>
@@ -121,8 +122,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD1>success</KEYWORD1>
 			<KEYWORD1>try</KEYWORD1>
 			<KEYWORD1>transient</KEYWORD1>
-			<KEYWORD1>type</KEYWORD1>
-			<KEYWORD1>using</KEYWORD1>
+			<KEYWORD1>type</KEYWORD1>			
 			<KEYWORD1>while</KEYWORD1>
 			<KEYWORD1>when</KEYWORD1>			
 			<KEYWORD1>unless</KEYWORD1>
@@ -158,6 +158,10 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD3>filter</KEYWORD3>
 			<KEYWORD3>map</KEYWORD3>
 			<KEYWORD3>cat</KEYWORD3>
+			
+			<!-- standard macros -->
+			<KEYWORD3>using</KEYWORD3>
+			<KEYWORD3>lock</KEYWORD3>
 
 			<!-- exceptions -->
 			<!-- KEYWORD3>ArithmeticError</KEYWORD3 -->

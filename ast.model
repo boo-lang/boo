@@ -53,20 +53,20 @@ package Boo.Ast
 		Name as string
 	end
 	
-	class Using(Node)
+	class Import(Node)
 		Namespace as string
 		AssemblyReference as ReferenceExpression
 		Alias as ReferenceExpression
 	end
 	
-	[ItemType(Using)]
+	[ItemType(Import)]
 	<<collection>>
-	class UsingCollection
+	class ImportCollection
 	end
 	
 	class Module(TypeDefinition)
 		Namespace as NamespaceDeclaration
-		Using as UsingCollection
+		Imports as ImportCollection
 		[auto]
 		Globals as Block
 	end
@@ -189,6 +189,14 @@ package Boo.Ast
 	class AssertStatement(Statement)
 		Condition as Expression
 		Message as Expression
+	end
+	
+	class MacroStatement(Statement)
+		Name as string
+		Arguments as ExpressionCollection
+		
+		[auto]
+		Block as Block
 	end
 	
 	class TryStatement(Statement)

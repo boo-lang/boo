@@ -196,7 +196,7 @@ namespace Boo.Lang.Compiler
 			Add(new Error(node, GetString("InvalidArray")));
 		}
 		
-		public void InvalidNamespace(Using node)
+		public void InvalidNamespace(Import node)
 		{
 			Add(new Error(node, Format("InvalidNamespace", node.Namespace)));
 		}

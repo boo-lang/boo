@@ -38,11 +38,7 @@ namespace Boo.Lang.Ast
 		public Module()
 		{			
  		}
-		
-		public Module(NamespaceDeclaration namespaceDeclaration) : base(namespaceDeclaration)
-		{
-		}
-		
+ 		
 		public Module(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}

@@ -55,7 +55,7 @@ namespace Boo.Tests.Ast.Compiler.Processors
 			Method m = node as Method;
 			if (null == m)
 			{
-				throw new ApplicationException("Este parmetro s pode ser aplicado a mtodos.");
+				throw new ApplicationException("This attribute can only be applied to methods.");
 			}
 
 			foreach (ParameterDeclaration pd in m.Parameters)
@@ -186,7 +186,7 @@ namespace Boo.Tests.Ast.Compiler.Processors
 		{
 			string actual = @"
 
-using Boo.Tests.Ast.Compiler.Processors
+import Boo.Tests.Ast.Compiler.Processors
 
 class Customer:
 	[AllParametersRequired]
@@ -196,7 +196,7 @@ class Customer:
 
 			string expected = @"
 
-using Boo.Tests.Ast.Compiler.Processors
+import Boo.Tests.Ast.Compiler.Processors
 
 class Customer:	
 	def constructor(fname as string, lname as string):
@@ -211,16 +211,16 @@ class Customer:
 		public void TestAttributeWithNamedParameter()
 		{
 			string actual = @"
-using Boo.Tests.Ast.Compiler.Processors
-using System.Web
+import Boo.Tests.Ast.Compiler.Processors
+import System.Web
 
 class MyControl(Control):
 	[ViewState(Default: 70)]
 	Width as int
 ";
 			string expected = @"
-using Boo.Tests.Ast.Compiler.Processors
-using System.Web
+import Boo.Tests.Ast.Compiler.Processors
+import System.Web
 
 class MyControl(Control):
 	Width as int:
@@ -254,7 +254,7 @@ class MyControl(Control):
 			CompilerParameters options = compiler.Parameters;
 			options.Input.Add(input);
 			options.Pipeline.Add(new BooParsingStep());
-			options.Pipeline.Add(new UsingResolutionStep());
+			options.Pipeline.Add(new ImportResolutionStep());
 			options.Pipeline.Add(new AstAttributesStep());
 			options.References.Add(GetType().Assembly);
 			

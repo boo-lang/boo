@@ -1,4 +1,4 @@
-using System.Collections
+import System.Collections
 
 mixin Collection<T>(ICollection, IEnumerable):
 	

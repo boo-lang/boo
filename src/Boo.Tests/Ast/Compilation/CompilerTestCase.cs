@@ -122,7 +122,7 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			pipeline.
 					Add(new Boo.Antlr.BooParsingStep()).
-					Add(new UsingResolutionStep()).
+					Add(new ImportResolutionStep()).
 					Add(new AstAttributesStep()).
 					Add(new AstNormalizationStep()).							
 					Add(new SemanticStep()).
@@ -176,43 +176,43 @@ namespace Boo.Tests.Ast.Compiler
 		}
 		
 		[Test]
-		public void TestUsingSimpleNamespace()
+		public void TestImportSimpleNamespace()
 		{
 			RunCompilerTestCase("using0.boo", "using System");
 		}		
 			
 		[Test]
-		public void TestUsingQualifiedType()
+		public void TestImportQualifiedType()
 		{
 			RunCompilerTestCase("using1.boo", "using System.Console");
 		}
 		
 		[Test]
-		public void TestUsingQualifiedNamespace()
+		public void TestImportQualifiedNamespace()
 		{
 			RunCompilerTestCase("using2.boo", "using System.Text");
 		}
 		
 		[Test]
-		public void TestUsingAssemblyQualifiedNamespace()
+		public void TestImportAssemblyQualifiedNamespace()
 		{
 			RunCompilerTestCase("using3.boo", "using System.Drawing from System.Drawing");
 		}
 		
 		[Test]
-		public void TestUsingAlias()
+		public void TestImportAlias()
 		{
 			RunCompilerTestCase("using4.boo", "using System as S");
 		}
 		
 		[Test]
-		public void TestUsingAssemblyQualifiedNamespace2()
+		public void TestImportAssemblyQualifiedNamespace2()
 		{
 			RunCompilerTestCase("using5.boo", "using System.Drawing from different assembly");
 		}
 		
 		[Test]
-		public void TestUsingSameAssemblyQualifiedNamespaces()
+		public void TestImportSameAssemblyQualifiedNamespaces()
 		{
 			RunCompilerTestCase("using6.boo", "using System.Drawing from two assemblies");
 		}

@@ -1,8 +1,8 @@
-using Boo.IO
-using System
-using System.IO
-using System.Drawing from System.Drawing
-using System.Windows.Forms from System.Windows.Forms
+import Boo.IO
+import System
+import System.IO
+import System.Drawing from System.Drawing
+import System.Windows.Forms from System.Windows.Forms
 
 def ScanFile(lv as ListView, fname as string, pattern as string):	
 	for index as int, line as string in enumerate(TextFile(fname)):

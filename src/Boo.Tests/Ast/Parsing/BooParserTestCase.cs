@@ -95,9 +95,9 @@ namespace Boo.Tests.Ast.Parsing
 		{
 			Boo.Lang.Ast.Module module = BooTestCaseUtil.ParseTestCase("simple_class_methods.boo");
 			Assert.AreEqual("ITL.Content", module.Namespace.Name);
-			Assert.AreEqual(1, module.Using.Count);
+			Assert.AreEqual(1, module.Imports.Count);
 
-			Using i = module.Using[0];
+			Import i = module.Imports[0];
 			Assert.AreEqual("System", i.Namespace);
 			Assert.AreEqual(3, i.LexicalInfo.Line);
 
@@ -705,7 +705,7 @@ namespace Boo.Tests.Ast.Parsing
 		}
 
 		[Test]
-		public void TestUsing()
+		public void TestImport()
 		{
 			RunParserTestCase("using.boo");
 		}
@@ -720,6 +720,12 @@ namespace Boo.Tests.Ast.Parsing
 		public void InNotIn()
 		{
 			RunParserTestCase("in_notin0.boo");
+		}
+		
+		[Test]
+		public void SimpleImportMacro()
+		{
+			RunParserTestCase("macro0.boo");
 		}
 		
 		[TestFixtureSetUp]

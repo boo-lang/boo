@@ -1,6 +1,6 @@
 namespace ITL.Content
 
-using System
+import System
 
 class Article:
 	def getTitle() as string:

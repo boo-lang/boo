@@ -1,9 +1,9 @@
 """
-using System.Collections
-using System.Windows.Forms from System.Windows.Forms as SWF
-using Boo.Util as BUtil
+import System.Collections
+import System.Windows.Forms from System.Windows.Forms as SWF
+import Boo.Util as BUtil
 
 """
-using System.Collections
-using System.Windows.Forms from System.Windows.Forms as SWF
-using Boo.Util as BUtil
+import System.Collections
+import System.Windows.Forms from System.Windows.Forms as SWF
+import Boo.Util as BUtil

@@ -2,9 +2,9 @@
 grep <GLOB> <PATTERN>
 example: grep *.cs Boo.IO
 """
-using System // Environment
-using System.IO // Directory
-using Boo.IO // TextFile
+import System // Environment
+import System.IO // Directory
+import Boo.IO // TextFile
 
 def ScanFile(fname as string, pattern as string):	
 	for index, line in enumerate(TextFile(fname)):

@@ -29,9 +29,9 @@
 
 namespace Boo.Examples.Web
 
-using System
-using System.Web.UI
-using System.Web.UI.WebControls
+import System
+import System.Web.UI
+import System.Web.UI.WebControls
 
 class YourName(Page):
 	

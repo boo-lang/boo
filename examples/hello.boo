@@ -1,5 +1,5 @@
 """
-Passo 1: resolver using
+Passo 1: resolver import
 
 Passo 2: resolver atributos e mixins
 
