@@ -79,7 +79,7 @@ class TaskList(DockContent):
 	def AddCompilerError(error as CompilerError):
 		item = _list.Items.Add(error.LexicalInfo.Line.ToString())
 		item.SubItems.AddRange((
-				error.LexicalInfo.StartColumn.ToString(),
+				error.LexicalInfo.Column.ToString(),
 				error.Code,
 				error.Message,
 				error.LexicalInfo.FileName))
