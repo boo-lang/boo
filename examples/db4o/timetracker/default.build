@@ -27,6 +27,8 @@
 				<include name="booish.gui.externs.dll" />
 			</fileset>
 		</copy>
+		
+		<copy todir="build" file="startup.boo" />
 	</target>
 	
 	<target name="gui" depends="build, booish.gui">		

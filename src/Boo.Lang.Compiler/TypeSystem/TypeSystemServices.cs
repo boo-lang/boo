@@ -55,6 +55,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType EnumType;
 		
+		public ExternalType RegexType;
+		
 		public ExternalType ArrayType;
 		
 		public ExternalType TypeType;
@@ -149,6 +151,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(typeof(Boo.Lang.Builtins.duck), DuckType = new DuckTypeImpl(this));
 			Cache(VoidType = new VoidTypeImpl(this));
 			Cache(ObjectType = new ExternalType(this, Types.Object));
+			Cache(RegexType = new ExternalType(this, Types.Regex));
 			Cache(ValueTypeType = new ExternalType(this, typeof(System.ValueType)));
 			Cache(EnumType = new ExternalType(this, typeof(System.Enum)));
 			Cache(ArrayType = new ExternalType(this, Types.Array));
@@ -913,7 +916,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// <summary>
 		/// checks if the passed type will be equivalente to
 		/// System.Object in runtime (accounting for the presence
-		/// of duck typing.
+		/// of duck typing).
 		/// </summary>
 		public bool IsSystemObject(IType type)
 		{
@@ -926,8 +929,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("void", VoidType);
 			AddPrimitiveType("bool", BoolType);
 			AddPrimitiveType("date", DateTimeType);
+			AddPrimitiveType("timespan", TimeSpanType);
 			AddPrimitiveType("string", StringType);
 			AddPrimitiveType("object", ObjectType);
+			AddPrimitiveType("regex", RegexType);
 			AddPrimitiveType("sbyte", SByteType);
 			AddPrimitiveType("byte", ByteType);
 			AddPrimitiveType("short", ShortType);

@@ -52,6 +52,9 @@ class MainForm(Form):
 	
 	_view = ListView(View: View.Details, Dock: DockStyle.Fill)
 	
+	_prompt = booish.gui.PromptBox(
+						Font: System.Drawing.Font("Lucida Console", 11))
+	
 	_timer = System.Windows.Forms.Timer(_components,
 										Tick: UpdateNotifyText,
 										Interval: 30000)
@@ -59,9 +62,9 @@ class MainForm(Form):
 	_notify as NotifyIcon
 	
 	def constructor():
+		self.Size = System.Drawing.Size(800, 600)
 		self.Text = "Boo Time Tracker (powered by db4o)"
-		self.ShowInTaskbar = false		
-		self.MinimizeBox = false
+		
 		Minimize()
 
 		_notify = NotifyIcon(_components,
@@ -69,7 +72,7 @@ class MainForm(Form):
 				Icon: self.Icon,
 				Visible: true,
 				ContextMenu: CreateContextMenu(),
-				DoubleClick: { self.WindowState = WindowState.Normal })		
+				DoubleClick: Restore)		
 		
 		_system = TimeTrackerSystem(
 						Path.Combine(
@@ -79,18 +82,29 @@ class MainForm(Form):
 		activitiesPage = TabPage(Text: "Activities")
 		activitiesPage.Controls.Add(_view)
 		
-		prompt = booish.gui.PromptBox(
-						Font: System.Drawing.Font("Lucida Console", 11))
-		prompt.Interpreter.SetValue("system", _system)
-		prompt.Interpreter.SetValue("MainForm", self)
-		prompt.Interpreter.References.Add(typeof(Project).Assembly)
+		_prompt.Interpreter.SetValue("system", _system)
+		_prompt.Interpreter.SetValue("MainForm", self)
+		_prompt.Interpreter.References.Add(typeof(Project).Assembly)
+		_prompt.Eval(LoadStartupScript())
+		
 		promptPage = TabPage(Text: "Console")		
-		promptPage.Controls.Add(prompt)
+		promptPage.Controls.Add(_prompt)
 		_tabs.TabPages.AddRange((activitiesPage, promptPage))
+		
+		_tabs.SelectedTab = promptPage
 			
 		self.Controls.Add(_tabs)
 		
 		_timer.Start()
+		
+	def LoadStartupScript():
+		using reader=File.OpenText(MapAppPath("startup.boo")):
+			return reader.ReadToEnd()
+			
+	def MapAppPath(fname as string):
+		return Path.Combine(
+					Path.GetDirectoryName(Application.ExecutablePath),
+					fname)
 		
 	def UpdateNotifyText():
 		if _current is null:
@@ -105,8 +119,15 @@ class MainForm(Form):
 			args.Cancel = true		
 		super(args)
 		
+	override def OnResize(args as EventArgs):
+		super(args)
+		
 	def Minimize():		
 		self.WindowState = WindowState.Minimized
+		self.ShowInTaskbar = false		
+		
+	def Restore():
+		self.WindowState = WindowState.Normal
 							
 	def _contextMenu_Popup(sender as ContextMenu):
 		

@@ -58,6 +58,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly Type Object = typeof(object);
 		
+		public static readonly Type Regex = typeof(System.Text.RegularExpressions.Regex);
+		
 		public static readonly Type ValueType = typeof(System.ValueType);
 		
 		public static readonly Type Array = typeof(Array);

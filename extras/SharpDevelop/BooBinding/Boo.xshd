@@ -163,16 +163,14 @@
 				<Key word="long"/>
 				<Key word="ulong"/>
 				<Key word="date"/>
+				<Key word="timespan" />
 			</KeyWords>
 
 			<KeyWords name="ReferenceTypes" bold="true" italic="false" color="Purple" >
 				<Key word="object"/>
 				<Key word="string"/>
 				<Key word="regex"/>
-				<Key word="hash"/>
-				<Key word="list"/>
 				<Key word="array"/>
-				<Key word="type"/>
 			</KeyWords>
 
 			<KeyWords name="Void" bold="false" italic="false" color="Red" >

@@ -88,6 +88,8 @@ OR
 		<keyword>ulong</keyword>
 		<keyword>object</keyword>		
 		<keyword>string</keyword>
+		<keyword>date</keyword>
+		<keyword>timespan</keyword>
 	</keyword-list>
 
 	<keyword-list name="Definitions" style = "Keyword" case-sensitive="true">

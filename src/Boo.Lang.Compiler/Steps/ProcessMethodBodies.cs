@@ -1933,7 +1933,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			IType type = TypeSystemServices.Map(typeof(System.Text.RegularExpressions.Regex));
+			IType type = TypeSystemServices.RegexType;
 			BindExpressionType(node, type);
 			
 			if (NodeType.Field != node.ParentNode.NodeType)

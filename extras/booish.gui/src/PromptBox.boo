@@ -237,8 +237,7 @@ class PromptBox(TextBox):
 	def BlockInputState():
 		code = GetCurrentLine()
 		if 0 == len(code):
-			Eval(_block.ToString())
-			_state = InputState.SingleLine
+			Eval(_block.ToString())			
 		else:
 			_block.WriteLine(code)
 		
@@ -260,7 +259,6 @@ class PromptBox(TextBox):
 				(SingleLineInputState, BlockInputState)[_state]()
 			except x:				
 				print(x)
-			prompt()
 			args.Handled = true			
 		//print "Did we get this far, yet?"
 		elif KeyChar.Dot == args.KeyChar:
@@ -293,6 +291,8 @@ class PromptBox(TextBox):
 		ensure:
 			FlushConsole()
 			Console.SetOut(saved)
+			_state = InputState.SingleLine
+			prompt()
 			
 	def FlushConsole():
 		AppendText(_console.ToString())
