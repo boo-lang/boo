@@ -216,7 +216,6 @@
     <File name=".\Ast\Visiting\PseudoCSharpPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Visiting\TextEmitter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Visiting\TreePrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Visiting\Visitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\AstAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Builtins.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\GetterAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

@@ -57,7 +57,7 @@ namespace Boo.Ast
 					return;
 				}
 			}			
-			throw new ApplicationException(string.Format("{0} no pertence a esta coleo.", existing));
+			throw new ApplicationException(Boo.ResourceManager.Format("NodeNotInCollection", existing));
 		}
 
 		protected void Insert(int index, Node item)
@@ -78,9 +78,9 @@ namespace Boo.Ast
 
 		public void Switch(IAstSwitcher switcher)
 		{
-			foreach (Node node in InnerList.ToArray())
+			for (int i=0; i<InnerList.Count; ++i)
 			{
-				node.Switch(switcher);
+				((Node)InnerList[i]).Switch(switcher);
 			}
 		}
 

@@ -23,6 +23,7 @@ InvalidArray=Somente arrays unidimensionais são suportados.
 BoolExpressionRequired={0} não pode ser utilizado em um contexto booleano.
 AmbiguousTypeReference=Referência de tipo ambígua: {0}.
 NoEntryPoint=O módulo {0} não possui um ponto de entrada.
+NodeNotInCollection=O nó {0} não está na coleção.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

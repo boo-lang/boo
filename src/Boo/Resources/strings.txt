@@ -23,6 +23,7 @@ InvalidArray=Only unidimensional arrays are supported.
 BoolExpressionRequired={0} cannot be used in bool context.
 AmbiguousTypeReference=Ambiguous type reference, it could be any of the following: {0}.
 NoEntryPoint=The module {0} does not have an entry point.
+NodeNotInCollection=The node {0} is not in the collection.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.
