@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <project name="Boo Explorer" default="run">
 
+	<property name="boo.dir" value="../../bin" />
+	
+	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
+	
 	<target name="run" depends="build">
 		<exec program="build/${boox}.exe" useruntimeengine="true">
 		</exec>
@@ -41,13 +45,13 @@
 	<target name="init">
 		<mkdir dir="build" unless="${directory::exists('build')}" />
 		<copy todir="build">
-			<fileset basedir="../../build">
+			<fileset basedir="${boo.dir}">
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.AntlrParser.dll" />
 				<include name="antlr.runtime.dll" />
 			</fileset>
 		</copy>
-		<loadtasks assembly="../../build/Boo.NAnt.dll" />
+		<loadtasks assembly="${boo.dir}/Boo.NAnt.dll" />
 	</target>
 </project>
