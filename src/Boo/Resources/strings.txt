@@ -93,7 +93,7 @@ BCE0091=Event reference '{0}' cannot be used as an expression.
 BCE0092='{0}' is not a valid argument type for raise, only strings and exceptions are allowed.
 
 ;Compiler warnings
-BCW0001=Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
+BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
 
 
 ; BooC Command Line Errors
