@@ -5,6 +5,7 @@ import ICSharpCode.TextEditor.Document
 import ICSharpCode.TextEditor.Actions
 import WeifenLuo.WinFormsUI
 import System
+import System.IO
 import System.ComponentModel
 import System.Windows.Forms
 import System.Drawing
@@ -18,6 +19,8 @@ class BooEditor(Content):
 
 	_editor as TextEditorControl
 	_main as MainForm
+	_oldStdOut as TextWriter
+	_compileOutput as TextWriter
 
 	[getter(FileName)]
 	_fname as string
@@ -133,25 +136,41 @@ class BooEditor(Content):
 			self.Cursor = savedCursor
 
 	private def Run():
-		
 		compiler = BooCompiler()
 		compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
 		compiler.Parameters.Pipeline.Load(BooInMemoryPipelineDefinition)
 		compiler.Parameters.References.Add(typeof(Form).Assembly)
 		compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
 
+		RedirectConsoleOut()
+
 		started = date.Now
 		result = compiler.Run()
 		finished = date.Now
 		_main.StatusText = "Compilation finished in ${finished-started} with ${len(result.Errors)} error(s)."
 
+		RestoreConsoleOut()
+		
 		if len(result.Errors):
-			print(join(result.Errors, "\n"))
+			UpdateTaskList(result.Errors)
 		else:
 			try:
 				result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
 			except x:
 				print(x)
+
+	def RedirectConsoleOut():
+		_oldStdOut = Console.Out
+		_compileOutput = StringWriter()
+		Console.SetOut(_compileOutput)
+	
+	def RestoreConsoleOut():
+		Console.SetOut(_oldStdOut)
+		
+	def UpdateTaskList(errors as CompilerErrorCollection):
+		_main.TaskList.Clear()
+		for error in errors:
+			_main.TaskList.Add(error.ToString())
 
 	def UpdateModule():
 		return unless _moduleDirty

@@ -11,7 +11,7 @@ class TaskList(Content):
 	
 	def constructor():
 		_list = ListView(Dock: DockStyle.Fill,
-						View: View.Details)
+						View: View.List)
 						
 		SuspendLayout()
 		
@@ -27,3 +27,9 @@ class TaskList(Content):
 		self.ShowHint = DockState.DockBottom
 		self.Text = "Task List"
 		ResumeLayout(false)
+		
+	def Clear():
+		_list.Clear()
+		
+	def Add(itemText as string):
+		_list.Items.Add(itemText)
