@@ -43,6 +43,8 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class ProcessMethodBodies : AbstractNamespaceSensitiveVisitorCompilerStep
 	{	
+		static readonly ExpressionCollection EmptyExpressionCollection = new ExpressionCollection();
+		
 		Stack _methodStack;
 		
 		InternalMethod _currentMethod;
@@ -683,8 +685,13 @@ namespace Boo.Lang.Compiler.Steps
 				InternalConstructor tag = (InternalConstructor)_currentMethod;
 				if (!tag.HasSuperCall && !node.IsStatic)
 				{
-					node.Body.Statements.Insert(0, 
-						CodeBuilder.CreateSuperConstructorInvocation(tag.DeclaringType.BaseType));
+					IType baseType = tag.DeclaringType.BaseType;
+					IConstructor super = FindCorrectConstructor(node, baseType, EmptyExpressionCollection);
+					if (null != super)
+					{
+						node.Body.Statements.Insert(0, 
+							CodeBuilder.CreateSuperConstructorInvocation(super));
+					}
 				}
 			}
 			LeaveNamespace();

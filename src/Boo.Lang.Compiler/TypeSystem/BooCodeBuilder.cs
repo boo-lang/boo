@@ -342,11 +342,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{			
 			IConstructor defaultConstructor = _tss.GetDefaultConstructor(baseType);
 			System.Diagnostics.Debug.Assert(null != defaultConstructor);
-			
+			return CreateSuperConstructorInvocation(defaultConstructor);
+		}
+		
+		public Statement CreateSuperConstructorInvocation(IConstructor defaultConstructor)
+		{			
 			MethodInvocationExpression call = new MethodInvocationExpression(new SuperLiteralExpression());			
 			call.Target.Entity = defaultConstructor;
-			call.ExpressionType = _tss.VoidType;
-			
+			call.ExpressionType = _tss.VoidType;			
 			return new ExpressionStatement(call);
 		}
 		
