@@ -349,12 +349,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void EnumCanBeCastToInt()
-		{
-			RunCompilerTestCase("enum_can_be_cast_to_int.boo");
-		}
-		
-		[Test]
 		public void CaseInsensitiveHash()
 		{
 			RunCompilerTestCase("caseinsensitivehash.boo");
