@@ -441,6 +441,16 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0082", node.LexicalInfo, typeName);
 		}
 		
+		public static CompilerError StaticConstructorMustBePublic(Node node)
+		{
+			return new CompilerError("BCE0083", node.LexicalInfo);
+		}
+		
+		public static CompilerError StaticConstructorCannotDeclareParameters(Node node)
+		{
+			return new CompilerError("BCE0084", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -43,6 +43,21 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void LeaveConstructor(Constructor node)
+		{
+			if (node.IsStatic)
+			{
+				if (!node.IsPublic)
+				{
+					Error(CompilerErrorFactory.StaticConstructorMustBePublic(node));
+				}
+				if (node.Parameters.Count != 0)
+				{
+					Error(CompilerErrorFactory.StaticConstructorCannotDeclareParameters(node));
+				}
+			}
+		}
+		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			if (IsAddressOfBuiltin(node.Target))

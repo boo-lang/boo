@@ -81,6 +81,8 @@ BCE0079=__addressof__ builtin function can only be used in delegate constructors
 BCE0080='{0}' builtin function cannot be used as an expression.
 BCE0081=A raise statement with no arguments is not allowed outside an exception handler.
 BCE0082='{0}' is not callable. Event type must be callable.
+BCE0083=Static constructors must be public.
+BCE0084=Static constructors can not declare parameters.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.

@@ -81,6 +81,8 @@ BCE0079=Função embutida __addressof__ só pode ser utilizada em construtores d
 BCE0080=Função embutida '{0}' não pode ser utilizada como expressão.
 BCE0081=Sentença raise sem argumentos não é permitida fora de um tratador de exceção (except).
 BCE0082=O tipo '{0}' não é callable. Somente tipos callable podem ser utilizados em eventos..
+BCE0083=Construtores estáticos devem ser públicos.
+BCE0084=Construtores estáticos não podem declarar parâmetros.
 
 ; BooC Command Line Errors
 BCE0500=Arquivo '{0}' listado mais de uma vez.

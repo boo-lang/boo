@@ -647,8 +647,8 @@ method [TypeMemberCollection container]
 	}: 
 	t:DEF!
 	(
-		id:ID { m = new Method(ToLexicalInfo(t)); m.Name = id.getText(); } |
-		c:CONSTRUCTOR! { m = new Constructor(ToLexicalInfo(t)); }
+		id:ID { m = new Method(ToLexicalInfo(id)); m.Name = id.getText(); } |
+		c:CONSTRUCTOR! { m = new Constructor(ToLexicalInfo(c)); }
 	)	
 	{
 		m.Modifiers = _modifiers;
