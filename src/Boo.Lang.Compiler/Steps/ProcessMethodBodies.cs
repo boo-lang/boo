@@ -2487,10 +2487,20 @@ namespace Boo.Lang.Compiler.Steps
 					case EntityType.Property:
 					{
 						IProperty property = (IProperty)entity;
-						eval.Arguments.Add(CreateMethodInvocation(
+						IMethod setter = property.GetSetMethod();
+						if (null == setter)
+						{
+							Error(CompilerErrorFactory.PropertyIsReadOnly(
+										pair.First,
+										property.FullName));
+						}
+						else
+						{
+							eval.Arguments.Add(CreateMethodInvocation(
 											local.CloneNode(),
-											property.GetSetMethod(),
+											setter,
 											pair.Second));
+						}
 						break;
 					}
 				}
@@ -2975,7 +2985,7 @@ namespace Boo.Lang.Compiler.Steps
 					CheckTypeCompatibility(arg, memberType, GetExpressionType(arg.Second));					
 				}
 			}
-		}
+		}		
 		
 		bool CheckTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
 		{

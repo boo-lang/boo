@@ -68,6 +68,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCE0053()
+		{
+			RunCompilerTestCase("bce0053.boo");
+		}
+		
+		[Test]
 		public void ReadOnlyProperty()
 		{
 			RunCompilerTestCase("readonly_property.boo");
