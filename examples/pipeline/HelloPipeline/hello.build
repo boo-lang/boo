@@ -8,7 +8,7 @@
 			output="build/HelloPipeline.dll">
 			
 			<sources basedir=".">
-				<includes name="HelloPipeline.boo" />
+				<include name="HelloPipeline.boo" />
 			</sources>
 		</booc>
 	</target>
@@ -19,7 +19,7 @@
 			pipeline="HelloPipeline.HelloPipeline, HelloPipeline">
 			
 			<sources basedir=".">
-				<includes name="HelloWorld.boo" />
+				<include name="HelloWorld.boo" />
 			</sources>
 		</booc>
 	</target>
@@ -34,12 +34,12 @@
 		
 		<copy todir="build">
 			<fileset basedir="${boo.dir}">
-				<includes name="Boo.dll" />
-				<includes name="Boo.Lang.Compiler.dll" />
-				<includes name="Boo.AntlrParser.dll" />
-				<includes name="Boo.NAnt.dll" />
-				<includes name="antlr.runtime.dll" />
-				<includes name="*.pdb" />
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.AntlrParser.dll" />
+				<include name="Boo.NAnt.dll" />
+				<include name="antlr.runtime.dll" />
+				<include name="*.pdb" />
 			</fileset>
 		</copy>
 	

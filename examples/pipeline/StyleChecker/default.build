@@ -8,7 +8,7 @@
 			output="build/StyleChecker.dll">
 			
 			<sources basedir=".">
-				<includes name="StyleChecker.boo" />
+				<include name="StyleChecker.boo" />
 			</sources>
 		</booc>
 	</target>
@@ -19,7 +19,7 @@
 			pipeline="StyleChecker.StyleCheckerPipeline, StyleChecker">
 			
 			<sources basedir=".">
-				<includes name="Example.boo" />
+				<include name="Example.boo" />
 			</sources>
 		</booc>
 	</target>
@@ -29,12 +29,12 @@
 		
 		<copy todir="build">
 			<fileset basedir="${boo.dir}">
-				<includes name="Boo.dll" />
-				<includes name="Boo.Lang.Compiler.dll" />
-				<includes name="Boo.AntlrParser.dll" />
-				<includes name="Boo.NAnt.dll" />
-				<includes name="antlr.runtime.dll" />
-				<includes name="*.pdb" />
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.AntlrParser.dll" />
+				<include name="Boo.NAnt.dll" />
+				<include name="antlr.runtime.dll" />
+				<include name="*.pdb" />
 			</fileset>
 		</copy>
 	

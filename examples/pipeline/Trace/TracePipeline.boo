@@ -6,7 +6,10 @@ import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Steps
 
 class TracePipelineStep(AbstractVisitorCompilerStep):
-	
+"""
+	Visits every method adding a trace statement at both its very
+	beginning and end.
+"""	
 	override def Run():
 		Visit(CompileUnit)
 		
