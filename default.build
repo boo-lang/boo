@@ -363,11 +363,13 @@
 		<copy todir="${distro.dir}">
 			<fileset>				
 				<include name="default.build" />
+				<include name="notice.txt" />
 				<include name="scripts/*.boo" />				
 				<include name="lib/**/*.jar" />
 				<include name="lib/**/*.dll" />
 				<include name="lib/**/*.txt" />
 				
+				<include name="src/boo.snk" />
 				<include name="src/**/*.cs" />
 				<include name="src/**/*.boo" />
 				<include name="src/**/*.rsp" />
@@ -376,6 +378,8 @@
 				<include name="src/**/*.cmbx" />
 				<include name="src/Boo/Resources/**/*.txt" />
 				
+				<include name="tests/nunit.inc" />
+				<include name="tests/test.snk" />
 				<include name="tests/**/*.boo" />
 				<include name="tests/**/*.cs" />
 				<include name="tests/**/*.txt" />
