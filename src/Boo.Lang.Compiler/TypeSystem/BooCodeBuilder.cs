@@ -366,6 +366,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateMemberReference(method);
 		}
 		
+		public BinaryExpression CreateBoundBinaryExpression(IType expressionType,
+												BinaryOperatorType op,
+												Expression lhs,
+												Expression rhs)
+		{
+			BinaryExpression expression = new BinaryExpression(op, lhs, rhs);
+			expression.ExpressionType = expressionType;
+			return expression;
+		}
+		
 		public BoolLiteralExpression CreateBoolLiteral(bool value)
 		{
 			BoolLiteralExpression expression = new BoolLiteralExpression(value);

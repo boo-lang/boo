@@ -2533,10 +2533,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void OnIncrementDecrement(UnaryExpression node)
+		void LeaveIncrementDecrement(UnaryExpression node)
 		{				
 			if (CheckLValue(node.Operand))
-			{				
+			{			
 				IType type = GetExpressionType(node.Operand);
 				if (!IsNumber(type))
 				{
@@ -2546,25 +2546,79 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					node.Operand.ExpressionType = null;
 					
-					BinaryExpression addition = new BinaryExpression(
-														node.Operator == UnaryOperatorType.Increment ?
-																BinaryOperatorType.Addition : BinaryOperatorType.Subtraction,
-														node.Operand.CloneNode(),
-														new IntegerLiteralExpression(1));
-														
-					BinaryExpression assign = new BinaryExpression(node.LexicalInfo,
-													BinaryOperatorType.Assign,
-													node.Operand,
-													addition);
-													
-					node.ParentNode.Replace(node, assign);
-					Visit(assign);
+					Node expansion = null;					
+					if (IsArraySlicing(node.Operand))
+					{
+						expansion = ExpandIncrementDecrementArraySlicing(node);
+					}
+					else
+					{
+						expansion = ExpandSimpleIncrementDecrement(node);
+					}
+					node.ParentNode.Replace(node, expansion);
+					Visit(expansion);
 				}
 			}
 			else
 			{
 				Error(node);
 			}
+		}
+		
+		Expression ExpandIncrementDecrementArraySlicing(UnaryExpression node)
+		{
+			SlicingExpression slicing = (SlicingExpression)node.Operand;
+			CheckNoComplexSlicing(slicing);
+			Visit(slicing);
+			
+			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
+			BindExpressionType(eval, GetExpressionType(slicing));
+			
+			// FIXME: slicing.Target might be an expression with side effects
+			// in which case, it should be evaluated only once as the 
+			// indices are right now			
+			foreach (Slice slice in slicing.Indices)
+			{
+				Expression index = slice.Begin;
+				InternalLocal temp = DeclareTempLocal(GetExpressionType(index));
+				
+				eval.Arguments.Add(
+					CodeBuilder.CreateAssignment(
+						CodeBuilder.CreateReference(temp),
+						index.CloneNode()));
+				slice.Begin = CodeBuilder.CreateReference(temp);
+			}
+			
+			eval.Arguments.Add(
+				CodeBuilder.CreateAssignment(
+					slicing.CloneNode(),
+					CodeBuilder.CreateBoundBinaryExpression(
+						GetExpressionType(slicing),
+						GetEquivalentBinaryOperator(node.Operator),
+						slicing.CloneNode(),
+						CodeBuilder.CreateIntegerLiteral(1))));
+						
+			return eval;
+		}
+		
+		Expression ExpandSimpleIncrementDecrement(UnaryExpression node)
+		{
+			BinaryExpression addition = new BinaryExpression(
+											GetEquivalentBinaryOperator(node.Operator),
+											node.Operand.CloneNode(),
+											new IntegerLiteralExpression(1));
+												
+			BinaryExpression assign = new BinaryExpression(node.LexicalInfo,
+											BinaryOperatorType.Assign,
+											node.Operand,
+											addition);
+			return assign;
+		}
+		
+		BinaryOperatorType GetEquivalentBinaryOperator(UnaryOperatorType op)
+		{
+			return op == UnaryOperatorType.Increment ?
+				BinaryOperatorType.Addition : BinaryOperatorType.Subtraction;
 		}
 		
 		override public void LeaveUnaryExpression(UnaryExpression node)
@@ -2584,13 +2638,13 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case UnaryOperatorType.Increment:
 				{
-					OnIncrementDecrement(node);
+					LeaveIncrementDecrement(node);
 					break;
 				}
 				
 				case UnaryOperatorType.Decrement:
 				{
-					OnIncrementDecrement(node);
+					LeaveIncrementDecrement(node);
 					break;
 				}
 				
@@ -4457,7 +4511,6 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual bool CheckLValue(Node node)
 		{
 			IEntity tag = node.Entity;
-			
 			if (null != tag)
 			{
 				switch (tag.EntityType)
@@ -4488,8 +4541,25 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
+			else
+			{
+				if (IsArraySlicing(node))
+				{
+					return true;
+				}
+			}
 			
 			Error(CompilerErrorFactory.LValueExpected(node));
+			return false;
+		}
+		
+		bool IsArraySlicing(Node node)
+		{
+			if (node.NodeType == NodeType.SlicingExpression)
+			{
+				IType type = ((SlicingExpression)node).Target.ExpressionType;
+				return null != type && type.IsArray;
+			}
 			return false;
 		}
 		
