@@ -14,7 +14,7 @@
 	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
 	<property name="NAnt.Core.dll" value="${nant.location}/NAnt.Core.dll" />
 	
-	<property name="ngen.exe" value="${nant.settings.defaultframework.frameworkdirectory}/ngen.exe" />
+	<property name="ngen.exe" value="${nant.settings.currentframework.frameworkdirectory}/ngen.exe" />
 	<property name="skip.ngen" value="False" />
 	<property name="skip.antlr" value="False" />
 	<property name="skip.ast" value="False" />
