@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			System.Reflection.MethodInfo method = AstAnnotations.GetAssemblyEntryPoint(CompileUnit);
 			try
 			{
-				method.Invoke(null, new object[] { Environment.GetCommandLineArgs() });
+				method.Invoke(null, new object[] { new string[0] });
 			}
 			catch (System.Reflection.TargetInvocationException x)
 			{				
