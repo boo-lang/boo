@@ -236,5 +236,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("stringslice1.boo");
 		}
+		
+		[Test]
+		public void StaticFieldInitializer()
+		{
+			RunCompilerTestCase("static_field_initializer.boo");
+		}
 	}
 }

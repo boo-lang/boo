@@ -909,6 +909,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			LoadCmpOperands(node);
 			_il.Emit(OpCodes.Ceq);
 			EmitIntNot();
+			PushBool();
 		}
 		
 		void OnGreaterThan(BinaryExpression node)

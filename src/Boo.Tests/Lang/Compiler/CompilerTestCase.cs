@@ -1099,5 +1099,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("increment_property1.boo");
 		}
+		
+		[Test]
+		public void EnumComparisons()
+		{
+			RunCompilerTestCase("enum_comparisons.boo");
+		}
+		
+		[Test]
+		public void Overloading()
+		{
+			RunCompilerTestCase("overloading0.boo");
+		}
 	}
 }

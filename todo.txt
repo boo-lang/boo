@@ -404,6 +404,8 @@ Milestone 3.9 (better error checking)
 -------------------------------------
 * constructors can't have a return value
 * constructors can't yield values
+* static constructors must be public
+* static constructors cannot declare parameters
 * can't create instance of interface 'XXX'
 * can't create instance of abstract class 'XXX'
 * can't create instance of enum 'XXX'

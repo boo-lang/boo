@@ -1858,6 +1858,17 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				BindingManager.Bind(node, BindingManager.BoolTypeBinding);
 			}
+			else if (lhs.IsEnum || rhs.IsEnum)
+			{
+				if (lhs == rhs)
+				{
+					BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+				}
+				else
+				{
+					InvalidOperatorForTypes(node);
+				}
+			}
 			else if (!ResolveOperator(node))
 			{
 				switch (node.Operator)
