@@ -134,6 +134,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsArray
+		{
+			get
+			{
+				return _type.IsArray;
+			}
+		}
+		
 		public ITypeBinding BaseType
 		{
 			get

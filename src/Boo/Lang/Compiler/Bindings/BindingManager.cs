@@ -57,6 +57,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding ListTypeBinding;
 		
+		public ExternalTypeBinding IEnumerableTypeBinding;
+		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
@@ -77,6 +79,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
+			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));
 			Cache(ObjectArrayBinding = new ExternalTypeBinding(this, Types.ObjectArray));
 			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
 		}

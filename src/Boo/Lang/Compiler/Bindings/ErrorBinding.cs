@@ -73,6 +73,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsArray
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public ITypeBinding BaseType
 		{
 			get
