@@ -153,13 +153,27 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			ICallableType type = node.Target.ExpressionType as ICallableType;
-			if (null == type)
+			IParameter[] parameters = null;
+			
+			if (EntityType.Constructor == node.Target.Entity.EntityType)
 			{
-				return;
+				parameters = ((IConstructor)node.Target.Entity).GetParameters();
+			}
+			else
+			{			
+				ICallableType type = node.Target.ExpressionType as ICallableType;
+				if (null == type)
+				{
+					return;					
+				}
+				parameters = type.GetSignature().Parameters;
 			}
 			
-			IParameter[] parameters = type.GetSignature().Parameters;
+			ConvertMethodInvocation(node, parameters);
+		}
+		
+		void ConvertMethodInvocation(MethodInvocationExpression node, IParameter[] parameters)
+		{		
 			ExpressionCollection arguments = node.Arguments;
 			for (int i=0; i<parameters.Length; ++i)
 			{
