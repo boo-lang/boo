@@ -122,7 +122,7 @@ class BooEditor(Content):
 	def UpdateModule():
 		return unless _moduleDirty
 			
-		fname = self.Text
+		fname = GetSafeFileName()
 		code = self.TextContent
 		try:
 			_module = BooParser.ParseString(fname, code).Modules[0]

@@ -114,6 +114,9 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		
 		_current = saved
 		
+	override def OnConstructor(node as Constructor):
+		OnMethod(node)
+		
 	override def OnMethod(node as Method):
 		name = "${node.Name}(${join([p.Name for p as ParameterDeclaration in node.Parameters], ', ')})"		
 		Add(name, node)

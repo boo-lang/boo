@@ -80,8 +80,12 @@ class MainForm(Form):
 		view = MenuItem(Text: "&View")
 		view.MenuItems.AddRange(
 			(
-				MenuItem(Text: "Document Outline", Click: _menuItemDocumentOutline_Click),
-				MenuItem(Text: "Task List", Click: _menuItemTaskList_Click)
+				MenuItem(Text: "Document Outline",
+						Click: _menuItemDocumentOutline_Click,
+						Shortcut: Shortcut.CtrlShiftD),
+				MenuItem(Text: "Task List",
+						Click: _menuItemTaskList_Click,
+						Shortcut: Shortcut.CtrlShiftT)
 			))
 		
 		
