@@ -9,10 +9,10 @@ import System.IO
 import System.ComponentModel
 import System.Windows.Forms
 import System.Drawing
+import Boo.AntlrParser
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Pipeline.Definitions
-import Boo.AntlrParser
+import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast
 
 class ConsoleCapture(IDisposable):	
@@ -44,6 +44,8 @@ class BooEditor(DockContent):
 
 	[getter(Module)]
 	_module as Module
+	
+	_compiler as BooCompiler
 
 	def constructor(main as MainForm):
 		_main = main
@@ -58,7 +60,7 @@ class BooEditor(DockContent):
 
 		SuspendLayout()
 		Controls.Add(_editor)
-		self.HideOnClose = true
+		self.HideOnClose = false
 		self.DockableAreas = DockAreas.Document
 		self.Text = GetSafeFileName()
 		self.DockPadding.All = 1
@@ -148,30 +150,36 @@ class BooEditor(DockContent):
 			self.Cursor = savedCursor
 
 	private def Run():
-		compiler = BooCompiler()
-		compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
-		compiler.Parameters.Pipeline.Load(BooInMemoryPipelineDefinition)
-		compiler.Parameters.References.Add(typeof(Form).Assembly)
-		compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
-		compiler.Parameters.References.Add(System.Reflection.Assembly.GetExecutingAssembly())
+		
+		if _compiler is null:
+			_compiler = BooCompiler()		
+			_compiler.Parameters.Pipeline = CompileToMemory()
+			_compiler.Parameters.References.Add(typeof(Form).Assembly)
+			_compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
+			_compiler.Parameters.References.Add(System.Reflection.Assembly.GetExecutingAssembly())
+			
+		_compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
 
-		using console=ConsoleCapture():
-			
-			started = date.Now
-			result = compiler.Run()
-			finished = date.Now
-			_main.StatusText = "Compilation finished in ${finished-started} with ${len(result.Errors)} error(s)."
-	
-			ClearTaskList()
-			if len(result.Errors):
-				UpdateTaskList(result.Errors)
-			else:			
-				try:
-					result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
-				except x:
-					print(x)		
-			
-			UpdateOutputPane(console.ToString())		
+		try:
+			using console=ConsoleCapture():
+				
+				started = date.Now
+				result = _compiler.Run()
+				finished = date.Now
+				_main.StatusText = "Compilation finished in ${finished-started} with ${len(result.Errors)} error(s)."
+		
+				ClearTaskList()
+				if len(result.Errors):
+					UpdateTaskList(result.Errors)
+				else:			
+					try:
+						result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
+					except x:
+						print(x)		
+				
+				UpdateOutputPane(console.ToString())
+		ensure:
+			_compiler.Parameters.Input.Clear()
 	
 	def UpdateOutputPane(text as string):
 		_main.OutputPane.SetBuildText(text)
