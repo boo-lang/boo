@@ -181,6 +181,12 @@
 		</exec>
 	</target>
 	
+	<target name="update-stable-branch">
+		<exec program="bin/booi.exe" useruntimeengine="true">
+			<arg file="scripts/update-stable-branch.boo" />
+		</exec>
+	</target>
+	
 	<target name="upload-distro" depends="distro">
 		<exec program="scp">
 			<arg value="-B" />
