@@ -1731,10 +1731,11 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
-		{					
-			if (TypeSystemServices.IsUnknown(node.Left) || TypeSystemServices.IsUnknown(node.Right))
+		{				
+			if (TypeSystemServices.IsUnknown(node.Left) ||
+				TypeSystemServices.IsUnknown(node.Right))
 			{
-				Bind(node, Unknown.Default);
+				BindExpressionType(node, Unknown.Default);
 				return;
 			}
 			
@@ -1976,14 +1977,14 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void BindLogicalOperator(BinaryExpression node)
-		{
+		{			
 			if (CheckBoolContext(node.Left) &&
 				CheckBoolContext(node.Right))
-			{				
+			{			
 				BindExpressionType(node, GetMostGenericType(node));
 			}
 			else
-			{
+			{				
 				Error(node);
 			}
 		}
