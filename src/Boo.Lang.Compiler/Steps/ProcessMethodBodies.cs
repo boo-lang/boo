@@ -2999,7 +2999,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
 				if (null != type)
-				{				
+				{						
 					inferredType = TypeSystemServices.GetArrayType(type);
 				}
 			}
