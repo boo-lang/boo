@@ -183,6 +183,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			PreparePrimitives();
 		}
 		
+		public CompilerContext Context
+		{
+			get
+			{
+				return _context;
+			}
+		}
+		
 		public IType GetMostGenericType(IType current, IType candidate)
 		{
 			if (current.IsAssignableFrom(candidate))

@@ -73,6 +73,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return _local.PrivateScope;
 			}
+			
+			set
+			{
+				_local.PrivateScope = value;
+			}
 		}
 		
 		public Boo.Lang.Compiler.Ast.Local Local

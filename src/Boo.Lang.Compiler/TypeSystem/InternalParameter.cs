@@ -32,9 +32,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	public abstract class AbstractLocalEntity
 	{
-		protected bool _shared;
+		protected bool _shared = false;
 		
-		protected bool _used;
+		protected bool _used = false;
 		
 		public bool IsUsed
 		{
@@ -58,7 +58,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			set
 			{
-				_shared = true;
+				_shared = value;
 			}
 		}
 	}

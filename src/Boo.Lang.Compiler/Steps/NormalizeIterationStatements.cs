@@ -38,8 +38,8 @@ namespace Boo.Lang.Compiler.Steps
 	/// AST semantic evaluation.
 	/// </summary>
 	public class NormalizeIterationStatements : AbstractTransformerCompilerStep
-	{
-		IMethod IEnumerable_GetEnumerator;
+	{		
+		IMethod IEnumerable_GetEnumerator;		
 		IMethod IEnumerator_MoveNext;
 		IMethod IEnumerator_get_Current;
 		Method _current;
@@ -69,6 +69,24 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_current = node;
 			Visit(node.Body);
+		}
+		
+		override public void OnConstructor(Constructor node)
+		{
+			OnMethod(node);
+		}
+		
+		override public void OnCallableBlockExpression(CallableBlockExpression node)
+		{
+			// ignore closure's body since it will be visited
+			// through the closure's newly created method
+		}
+		
+		override public void LeaveUnpackStatement(UnpackStatement node)
+		{
+			Block body = new Block(node.LexicalInfo);
+			UnpackExpression(body, node.Expression, node.Declarations);
+			ReplaceCurrentNode(body);			
 		}
 		
 		override public void LeaveForStatement(ForStatement node)
@@ -111,12 +129,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				ws.Block.Add(
-					CodeBuilder.CreateUnpackStatement(
-						node.Declarations,
-						CodeBuilder.CreateCast(
-							enumeratorItemType,
-							current)));						
+				UnpackExpression(ws.Block,
+								CodeBuilder.CreateCast(
+									enumeratorItemType,
+									current),
+								node.Declarations);						
 			}
 			
 			ws.Block.Add(node.Block);
@@ -124,6 +141,81 @@ namespace Boo.Lang.Compiler.Steps
 			body.Add(ws);
 			
 			ReplaceCurrentNode(body);
+		}
+		
+		void UnpackExpression(Block block, Expression expression, DeclarationCollection declarations)
+		{
+			UnpackExpression(CodeBuilder, _current, block, expression, declarations);
+		}
+		
+		public static void UnpackExpression(BooCodeBuilder codeBuilder, Method method, Block block, Expression expression, DeclarationCollection declarations)
+		{		
+			if (expression.ExpressionType.IsArray)
+			{
+				UnpackArray(codeBuilder, method, block, expression, declarations);
+			}
+			else
+			{
+				UnpackEnumerable(codeBuilder, method, block, expression, declarations);
+			}
+		}
+		
+		public static void UnpackEnumerable(BooCodeBuilder codeBuilder, Method method, Block block, Expression expression, DeclarationCollection declarations)
+		{
+			TypeSystemServices tss = codeBuilder.TypeSystemServices;
+			
+			InternalLocal local = codeBuilder.DeclareTempLocal(method,
+												tss.IEnumeratorType);
+			
+			if (!expression.ExpressionType.IsSubclassOf(codeBuilder.TypeSystemServices.IEnumerableType))
+			{
+				expression = codeBuilder.CreateMethodInvocation(
+					tss.Map(EmitAssembly.RuntimeServices_GetEnumerable), expression);								
+			}
+			
+			block.Add(
+				codeBuilder.CreateAssignment(
+					codeBuilder.CreateReference(local),
+					codeBuilder.CreateMethodInvocation(
+						expression,
+						tss.Map(EmitAssembly.IEnumerable_GetEnumerator))));
+						
+			for (int i=0; i<declarations.Count; ++i)
+			{
+				Declaration declaration = declarations[i];
+				
+				block.Add(
+					codeBuilder.CreateAssignment(
+						codeBuilder.CreateReference(declaration.Entity),
+						codeBuilder.CreateMethodInvocation(
+							tss.Map(EmitAssembly.RuntimeServices_MoveNext),
+							codeBuilder.CreateReference(local))));
+			}
+		}
+		
+		public static void UnpackArray(BooCodeBuilder codeBuilder, Method method, Block block, Expression expression, DeclarationCollection declarations)
+		{
+			ILocalEntity local = expression.Entity as ILocalEntity;
+			if (null == local)
+			{
+				local = codeBuilder.DeclareTempLocal(method,
+											expression.ExpressionType);
+				block.Add(
+					codeBuilder.CreateAssignment(
+						codeBuilder.CreateReference(local),
+						expression));
+			}
+			for (int i=0; i<declarations.Count; ++i)
+			{
+				Declaration declaration = declarations[i];
+				block.Add(
+					codeBuilder.CreateAssignment(
+						codeBuilder.CreateReference(
+							declaration.Entity),
+						codeBuilder.CreateSlicing(
+							codeBuilder.CreateReference(local),
+							i)));
+			}
 		}
 	}
 }	

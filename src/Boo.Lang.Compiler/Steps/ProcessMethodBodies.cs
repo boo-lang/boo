@@ -769,20 +769,6 @@ namespace Boo.Lang.Compiler.Steps
 			return stmt;
 		}
 		
-		override public bool EnterConstructor(Constructor node)
-		{			
-			if (Visited(node))
-			{
-				return false;
-			}			
-			MarkVisited(node);
-			
-			InternalConstructor tag = (InternalConstructor)GetEntity(node);
-			PushMethodInfo(tag);
-			EnterNamespace(tag);
-			return true;
-		}
-		
 		void CheckRuntimeMethod(Method method)
 		{
 			if (method.Body.Statements.Count > 0)
@@ -791,18 +777,29 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveConstructor(Constructor node)
-		{
+		override public void OnConstructor(Constructor node)
+		{			
+			if (Visited(node))
+			{
+				return;
+			}			
+			MarkVisited(node);
+			
+			Visit(node.Attributes);
+			Visit(node.Parameters);
+			
+			InternalConstructor entity = (InternalConstructor)node.Entity;
+			ProcessMethodBody(entity);
+			
 			if (node.IsRuntime)
 			{
 				CheckRuntimeMethod(node);
 			}
 			else
-			{
-				InternalConstructor tag = (InternalConstructor)_currentMethod;
-				if (!tag.HasSuperCall && !node.IsStatic)
+			{				
+				if (!entity.HasSuperCall && !entity.IsStatic)
 				{
-					IType baseType = tag.DeclaringType.BaseType;
+					IType baseType = entity.DeclaringType.BaseType;
 					IConstructor super = FindCorrectConstructor(node, baseType, EmptyExpressionCollection);
 					if (null != super)
 					{
@@ -811,8 +808,6 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			LeaveNamespace();
-			PopMethodInfo();
 		}
 		
 		override public void LeaveParameterDeclaration(ParameterDeclaration node)
@@ -2243,7 +2238,8 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IEntity tag = NameResolutionService.Resolve(_currentMethod, d.Name);
+					IEntity tag = NameResolutionService.Resolve(d.Name, 
+										EntityType.Local|EntityType.Parameter) as ILocalEntity;
 					if (null != tag)
 					{
 						Bind(d, tag);
@@ -4230,14 +4226,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		InternalLocal DeclareTempLocal(IType localType)
 		{
-			Local local  = new Local();
-			local.Name = "___temp" + _context.AllocIndex();
-			local.PrivateScope = true;
-			
-			InternalLocal entity = new InternalLocal(local, localType);
-			local.Entity = entity;
-			_currentMethod.Method.Locals.Add(local);
-			return entity;
+			return CodeBuilder.DeclareTempLocal(_currentMethod.Method, localType);
 		}
 		
 		InternalLocal DeclareLocal(Node sourceNode, Local local, IType localType)

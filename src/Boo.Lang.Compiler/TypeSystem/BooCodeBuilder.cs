@@ -53,6 +53,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public CompilerContext Context
+		{
+			get
+			{
+				return _tss.Context;
+			}
+		}
+		
 		public Boo.Lang.Compiler.Ast.Attribute CreateAttribute(IConstructor constructor, Expression arg)
 		{
 			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute();
@@ -356,7 +364,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			SlicingExpression expression = new SlicingExpression(target,
 												CreateIntegerLiteral(begin));
-			expression.ExpressionType = _tss.ObjectType;			
+												
+			IType expressionType = _tss.ObjectType;
+			IArrayType arrayType = target.ExpressionType as IArrayType;
+			if (null != arrayType)
+			{
+				expressionType = arrayType.GetElementType();
+			}
+			expression.ExpressionType = expressionType;			
 			return expression;
 		}
 		
@@ -529,6 +544,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 											CreateNullLiteral());
 			test.ExpressionType = _tss.BoolType;
 			return test;
+		}
+		
+		public InternalLocal DeclareTempLocal(Method node, IType type)
+		{
+			InternalLocal local = DeclareLocal(node, "___temp" + Context.AllocIndex(), type);
+			local.IsPrivateScope = true;
+			return local;
 		}
 		
 		public InternalLocal DeclareLocal(Method node, string name, IType type)

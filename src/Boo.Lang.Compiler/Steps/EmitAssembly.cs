@@ -59,25 +59,25 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class EmitAssembly : AbstractVisitorCompilerStep
 	{	
-		static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
+		public static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		
-		static MethodInfo RuntimeServices_CheckArrayUnpack = Types.RuntimeServices.GetMethod("CheckArrayUnpack");
+		public static MethodInfo RuntimeServices_CheckArrayUnpack = Types.RuntimeServices.GetMethod("CheckArrayUnpack");
 		
-		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
+		public static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
 		
-		static MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
+		public static MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
 		
-		static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
-		
-		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
-		
-		static MethodInfo Builtins_ArrayTypedCollectionConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection });
+		public static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
 		
 		public static MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
 		
 		public static MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
 		
-		public static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();		
+		public static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
+
+		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
+		
+		static MethodInfo Builtins_ArrayTypedCollectionConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection });
 		
 		static MethodInfo Math_Pow = typeof(Math).GetMethod("Pow");
 		
@@ -573,12 +573,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnUnpackStatement(UnpackStatement node)
 		{
-			DeclarationCollection decls = node.Declarations;
-			
-			EmitDebugInfo(decls[0], node.Expression);						
-			node.Expression.Accept(this);
-			
-			EmitUnpackForDeclarations(node.Declarations, PopType());			
+			NotImplemented("Unpacking");			
 		}	
 		
 		override public bool EnterExpressionStatement(ExpressionStatement node)

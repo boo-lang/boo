@@ -211,7 +211,7 @@ namespace Boo.Lang.Compiler.Steps
 			Method generator = _generator.Method;
 			
 			BooMethodBuilder mn = _enumerator.AddVirtualMethod("MoveNext", TypeSystemServices.BoolType);
-			_moveNext = mn.Entity;		
+			_moveNext = mn.Entity;
 			
 			foreach (Local local in generator.Locals)
 			{
@@ -523,26 +523,24 @@ namespace Boo.Lang.Compiler.Steps
 				stmt = wstmt;
 			}
 												
-			DeclarationCollection declarations = _generator.Declarations;
+			DeclarationCollection declarations = _generator.Declarations;			
 			if (declarations.Count > 1)
 			{
-				UnpackStatement unpack = new UnpackStatement();
-				
+				NormalizeIterationStatements.UnpackExpression(CodeBuilder,
+												method.Method,
+												outerBlock,
+												current,
+												declarations);
+												
 				foreach (Declaration declaration in declarations)
 				{
-					InternalLocal local = (InternalLocal)declaration.Entity;
-					method.Locals.Add(local.Local);
-					unpack.Declarations.Add(declaration);
+					method.Locals.Add(((InternalLocal)declaration.Entity).Local);
 				}
-				
-				unpack.Expression = current;
-				outerBlock.Add(unpack);
 			}
 			else
 			{
 				InternalLocal local = (InternalLocal)declarations[0].Entity;
 				method.Locals.Add(local.Local);
-				
 				outerBlock.Add(CodeBuilder.CreateAssignment(
 								CodeBuilder.CreateReference(local),
 								current));
