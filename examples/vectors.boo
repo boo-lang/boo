@@ -10,10 +10,11 @@ class Vector3:
 		_z = r.Next()
 
 	def Distance(other as Vector3):
-		dx = _x - other._x
-		dy = _y - other._y
-		dz = _z - other._z
-		return System.Math.Sqrt(dx*dx+dy*dy+dz*dz)
+		//dx = _x - other._x
+		//dy = _y - other._y
+		//dz = _z - other._z
+		//return System.Math.Sqrt(dx*dx+dy*dy+dz*dz)
+		return 1.0
 		
 def createTuple(count as int):
 	l = []

@@ -1602,6 +1602,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ldloc, localIndex);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.Emit(OpCodes.Ldlen);
+			_il.Emit(OpCodes.Conv_I4);
 			_il.Emit(OpCodes.Blt, labelBody);
 		}
 		
