@@ -31,11 +31,10 @@ namespace Boo.Lang.Compiler.Ast
 	public class AstUtil
 	{
 		public static bool IsListGenerator(Node node)
-		{
-			ListLiteralExpression lle = node as ListLiteralExpression;
-			if (null != lle)
+		{			
+			if (NodeType.ListLiteralExpression == node.NodeType)
 			{
-				return IsListGenerator(lle);
+				return IsListGenerator((ListLiteralExpression)node);
 			}
 			return false;
 		}

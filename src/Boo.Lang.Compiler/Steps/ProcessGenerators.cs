@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(method.Body);
 		}
 		
-		override public void OnGeneratorExpression(GeneratorExpression node)
+		override public void LeaveGeneratorExpression(GeneratorExpression node)
 		{
 			if (!AstUtil.IsListGenerator(node.ParentNode))
 			{

@@ -8,8 +8,12 @@
 	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
 	parâmetros
 	
+* array generators
+	
 * refactorar todos os métodos relacionados a definição de tipos do ProcessGenerators
 e criar um ClassDefinitionBuilder;
+
+* mover apelidos de pipeline para BooCompiler.GetStandardPipelineDefinition
 	
 * boox
 	* assembly search path
