@@ -72,10 +72,24 @@ namespace Boo.Lang
 			}
 			return sb.ToString();
 		}
+		
+		public static string join(IEnumerable enumerable, char separator)
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (object item in enumerable)
+			{
+				if (sb.Length>0)
+				{
+					sb.Append(separator);
+				}
+				sb.Append(item);
+			}
+			return sb.ToString();
+		}
 
 		public static string join(IEnumerable enumerable)
 		{
-			return join(enumerable, " ");
+			return join(enumerable, ' ');
 		}
 
 		public static IEnumerable map(ICallable function, object enumerable)

@@ -100,7 +100,18 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("testcases/parser/roundtrip", "Boo.AntlrParser.Tests/ParserRoundtripTestFixture.cs", """
+GenerateTestFixture("testcases/builtins", "build/BuiltinsTestFixture.cs", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
+
+	[TestFixture]
+	public class BuiltinsTestFixture : AbstractCompilerTestCase
+	{
+""")
+
+
+GenerateTestFixture("testcases/parser/roundtrip", "build/ParserRoundtripTestFixture.cs", """
 namespace Boo.AntlrParser.Tests
 {
 	using NUnit.Framework;

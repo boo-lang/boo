@@ -52,6 +52,7 @@
 				<include name="build/RegressionTestFixture.cs" />
 				<include name="build/CompilerErrorsTestFixture.cs" />
 				<include name="build/IntegrationTestFixture.cs" />
+				<include name="build/BuiltinsTestFixture.cs" />
 			</sources>
 			
 			<references basedir="build">
@@ -104,8 +105,9 @@
 			target="library"
 			output="build/Boo.AntlrParser.Tests.dll">
 			
-			<sources basedir="Boo.AntlrParser.Tests">
-				<include name="**/*.cs" />
+			<sources>
+				<include name="Boo.AntlrParser.Tests/**/*.cs" />
+				<include name="build/ParserRoundtripTestFixture.cs" />
 			</sources>
 			
 			<references basedir="build">
