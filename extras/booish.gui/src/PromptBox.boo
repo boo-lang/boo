@@ -61,6 +61,7 @@ class PromptBox(TextBox):
 		self.ScrollBars = ScrollBars.Vertical
 		_interpreter.References.Add(typeof(TextBox).Assembly)
 		_interpreter.References.Add(typeof(Font).Assembly)
+		_interpreter.SetValue("inspect", inspect)
 		
 		prompt()
 		
@@ -99,6 +100,16 @@ class PromptBox(TextBox):
 			
 	def print(msg):
 		AppendText("${msg}\r\n")
+		
+	def inspect([required] obj):
+		f = Form(Text: "Object Inspector [${obj}]")
+		f.Controls.Add(PropertyGrid(
+							Dock: DockStyle.Fill,
+							SelectedObject: obj,
+							Font: Font,
+							PropertySort: PropertySort.Alphabetical))
+		f.Show()
+		return f
 			
 	def prompt():
 		AppendText((">>> ", "... ")[_state])

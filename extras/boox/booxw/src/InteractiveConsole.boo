@@ -38,19 +38,7 @@ class InteractiveConsole(DockContent):
 		self.Text = "Interactive Console"
 		self.Controls.Add(console=booish.gui.PromptBox(Font: mainForm.Settings.TextFont))
 					
-		console.Interpreter.SetValue("MainForm", mainForm)
-		console.Interpreter.SetValue("inspect", inspect)
-		
-	def inspect([required] obj):
-		f = Form(Text: "Object Inspector [${obj}]")
-		f.Controls.Add(PropertyGrid(
-							Dock: DockStyle.Fill,
-							SelectedObject: obj,
-							Font: Font,
-							PropertySort: PropertySort.Alphabetical))
-		f.Show()
-		return f
-		
+		console.Interpreter.SetValue("MainForm", mainForm)				
 	
 	override def GetPersistString():
 		return "InteractiveConsole|"
