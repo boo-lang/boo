@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -54,7 +54,12 @@ namespace Boo.Ast.Compilation.Binding
 			{
 				if (name == member.Name)
 				{
-					return _bindingManager.GetBinding(member);
+					IBinding binding = _bindingManager.GetBinding(member);
+					if (BindingType.Type == binding.BindingType)
+					{
+						binding = _bindingManager.ToTypeReference((ITypeBinding)binding);
+					}
+					return binding;
 				}
 			}			
 			

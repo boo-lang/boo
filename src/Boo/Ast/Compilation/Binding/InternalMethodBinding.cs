@@ -67,7 +67,7 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public BindingType BindingType
+		public virtual BindingType BindingType
 		{
 			get
 			{
@@ -131,6 +131,21 @@ namespace Boo.Ast.Compilation.Binding
 			}
 			return null;
 		}
-
+	}
+	
+	public class InternalConstructorBinding : InternalMethodBinding, IConstructorBinding
+	{
+		public InternalConstructorBinding(BindingManager bindingManager,
+		                                  Constructor constructor) : base(bindingManager, constructor)
+	      {
+	      }
+	      
+	    public override BindingType BindingType
+	    {
+	    	get
+	    	{
+	    		return BindingType.Constructor;
+	    	}
+	    }
 	}
 }

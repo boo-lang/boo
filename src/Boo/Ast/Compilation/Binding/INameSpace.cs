@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -48,6 +48,13 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			_bindingManager = bindingManager;
 			_declarations = declarations;
+		}
+		
+		public DeclarationsNamespace(BindingManager bindingManager, Declaration declaration)
+		{
+			_bindingManager = bindingManager;
+			_declarations = new DeclarationCollection();
+			_declarations.Add(declaration);
 		}
 		
 		public IBinding Resolve(string name)

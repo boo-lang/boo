@@ -65,19 +65,82 @@ namespace Boo.Ast.Compilation.Steps
 			PopNamespace();
 		}
 		
-		public override void OnMethod(Method method, ref Method resultingNode)
+		public override bool EnterClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		{
+			InternalTypeBinding binding = new InternalTypeBinding(BindingManager, node);
+			BindingManager.Bind(node, binding);
+			PushNamespace(binding);
+			return true;
+		}
+		
+		public override void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		{
+			PopNamespace();
+		}
+		
+		public override bool EnterConstructor(Constructor node, ref Constructor resultingNode)
+		{
+			InternalConstructorBinding binding = new InternalConstructorBinding(BindingManager, node);
+			BindingManager.Bind(node, binding);
+			PushNamespace(binding);
+			return true;
+		}
+		
+		public override void LeaveConstructor(Constructor node, ref Constructor resultingNode)
+		{
+			PopNamespace();
+			BindParameterIndexes(node);
+		}
+		
+		public override void LeaveParameterDeclaration(ParameterDeclaration parameter, ref ParameterDeclaration resultingNode)
+		{			
+			if (null == parameter.Type)
+			{
+				parameter.Type = new TypeReference("object");
+				BindingManager.Bind(parameter.Type, BindingManager.ToTypeReference(BindingManager.ObjectTypeBinding));
+			}
+			Binding.ParameterBinding binding = new Binding.ParameterBinding(parameter, GetBoundType(parameter.Type));
+			BindingManager.Bind(parameter, binding);
+		}	
+		
+		public override bool EnterMethod(Method method, ref Method resultingNode)
 		{
 			_method = method;
-			
-			ProcessParameters(method);
-			ProcessReturnType(method);			
 			
 			InternalMethodBinding binding = new InternalMethodBinding(BindingManager, method);
 			BindingManager.Bind(method, binding);
 			
 			PushNamespace(binding);
-			Switch(method.Body);
+			return true;
+		}
+		
+		public override void LeaveMethod(Method method, ref Method resultingNode)
+		{
 			PopNamespace();
+			BindParameterIndexes(method);
+			
+			if (null == method.ReturnType)
+			{
+				// Por enquanto, valor de retorno apenas void
+				method.ReturnType = new TypeReference("void");
+				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeReference(BindingManager.VoidTypeBinding));
+			}
+		}
+		
+		void BindParameterIndexes(Method method)
+		{
+			ParameterDeclarationCollection parameters = method.Parameters;
+			
+			int delta = 1; // arg0 is the this pointer
+			if (method.IsStatic)
+			{
+				delta = 0; // no this poiner
+			}
+			
+			for (int i=0; i<parameters.Count; ++i)
+			{
+				((ParameterBinding)GetBinding(parameters[i])).Index = i + delta;
+			}
 		}
 		
 		public override void OnTypeReference(TypeReference node, ref TypeReference resultingNode)
@@ -215,6 +278,24 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			node.Expression = Switch(node.Expression);
 			ProcessDeclarationsForIterator(node.Declarations, GetBoundType(node.Expression), false);			
+		}
+		
+		public override void OnExceptionHandler(ExceptionHandler node, ref ExceptionHandler resultingNode)
+		{
+			if (null == node.Declaration.Type)
+			{
+				node.Declaration.Type = new TypeReference("System.Exception");
+				BindingManager.Bind(node.Declaration.Type, BindingManager.ToTypeReference(Types.Exception));
+			}
+			else
+			{
+				Switch(node.Declaration.Type);
+			}
+			
+			DeclareLocal(node.Declaration, new Local(node.Declaration), GetBoundType(node.Declaration.Type));
+			PushNamespace(new DeclarationsNamespace(BindingManager, node.Declaration));
+			Switch(node.Block);
+			PopNamespace();
 		}
 		
 		public override void LeaveUnaryExpression(UnaryExpression node, ref Expression resultingNode)
@@ -364,11 +445,11 @@ namespace Boo.Ast.Compilation.Steps
 					
 					BindingManager.Bind(node, nodeBinding);
 					break;
-				}
+				}				
 				
 				case BindingType.TypeReference:
 				{					
-					ITypeBinding typeBinding = ((ITypedBinding)targetBinding).BoundType;					
+					ITypeBinding typeBinding = ((ITypedBinding)targetBinding).BoundType;
 					ResolveNamedArguments(typeBinding, node);
 					
 					IConstructorBinding ctorBinding = FindCorrectConstructor(typeBinding, node);
@@ -585,7 +666,15 @@ namespace Boo.Ast.Compilation.Steps
 		
 		IConstructorBinding FindCorrectConstructor(ITypeBinding typeBinding, MethodInvocationExpression mie)
 		{
-			return (IConstructorBinding)ResolveMethodReference(mie, mie.Arguments, typeBinding.GetConstructors());
+			if (BindingType.Error != typeBinding.BindingType)
+			{
+				IConstructorBinding[] constructors = typeBinding.GetConstructors();
+				if (constructors.Length > 0)
+				{
+					return (IConstructorBinding)ResolveMethodReference(mie, mie.Arguments, constructors);			
+				}			
+			}
+			return null;
 		}
 		
 		class BindingScore : IComparable
@@ -752,43 +841,6 @@ namespace Boo.Ast.Compilation.Steps
 				}
 				
 				DeclareLocal(d, new Local(d), BindingManager.GetBoundType(d.Type));
-			}
-		}
-		
-		void ProcessParameters(Method method)
-		{
-			ParameterDeclarationCollection parameters = method.Parameters;
-			for (int i=0; i<parameters.Count; ++i)
-			{
-				ParameterDeclaration parameter = parameters[i];
-				if (null == parameter.Type)
-				{
-					parameter.Type = new TypeReference("object");
-					BindingManager.Bind(parameter.Type, BindingManager.ToTypeReference(BindingManager.ObjectTypeBinding));
-				}		
-				else
-				{
-					Switch(parameter.Type);
-				}
-				Binding.ParameterBinding binding = new Binding.ParameterBinding(parameter, GetBoundType(parameter.Type), i);
-				BindingManager.Bind(parameter, binding);
-			}
-		}
-		
-		void ProcessReturnType(Method method)
-		{
-			if (null == method.ReturnType)
-			{
-				// Por enquanto, valor de retorno apenas void
-				method.ReturnType = new TypeReference("void");
-				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeReference(BindingManager.VoidTypeBinding));
-			}
-			else
-			{
-				if (!BindingManager.IsBound(method.ReturnType))
-				{
-					Switch(method.ReturnType);
-				}
 			}
 		}		
 		

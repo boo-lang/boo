@@ -28,6 +28,7 @@
 #endregion
 
 using System;
+using Boo.Lang;
 using System.Reflection;
 
 namespace Boo.Ast.Compilation.Binding
@@ -36,6 +37,7 @@ namespace Boo.Ast.Compilation.Binding
 	{		
 		BindingManager _bindingManager;
 		TypeDefinition _typeDefinition;
+		IConstructorBinding[] _constructors;
 		
 		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition)
 		{
@@ -103,7 +105,19 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public IConstructorBinding[] GetConstructors()
 		{
-			return new IConstructorBinding[0];
+			if (null == _constructors)
+			{
+				List constructors = new List();
+				foreach (TypeMember member in _typeDefinition.Members)
+				{					
+					if (member.NodeType == NodeType.Constructor)
+					{
+						constructors.Add(_bindingManager.GetBinding(member));
+					}
+				}
+				_constructors = (IConstructorBinding[])constructors.ToArray(typeof(IConstructorBinding));
+			}
+			return _constructors;
 		}
 		
 		public IBinding Resolve(string name)

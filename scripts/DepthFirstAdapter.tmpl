@@ -74,8 +74,8 @@ namespace Boo.Ast
 					#for field in switchableFields
 				Switch(node.${field.name});
 					#end for
-			}
-			Leave${item.name}(node);
+				Leave${item.name}(node);
+			}			
 				#end if
 		}
 		

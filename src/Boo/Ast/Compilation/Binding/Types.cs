@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -34,6 +34,8 @@ namespace Boo.Ast.Compilation.Binding
 	public class Types
 	{
 		public static readonly Type RuntimeServices = typeof(Boo.Lang.RuntimeServices);
+		
+		public static readonly Type Exception = typeof(System.Exception);
 		
 		public static readonly Type List = typeof(Boo.Lang.List);
 		

@@ -5,7 +5,7 @@ should end up here!
 
 """
 try:
-	raise ApplicationException("caught!")
+	raise System.ApplicationException("caught!")
 	print("should not get here!")
 catch x:
 	print(x.Message)

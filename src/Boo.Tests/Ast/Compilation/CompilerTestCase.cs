@@ -328,6 +328,42 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			RunCompilerTestCase("not0.boo", "not true; not false");
 		}
+		
+		[Test]
+		public void TestTry0()
+		{
+			RunCompilerTestCase("try0.boo", "try/catch");
+		}
+		
+		[Test]
+		public void TestTry1()
+		{
+			RunCompilerTestCase("try1.boo", "try/catch/ensure");
+		}
+		
+		[Test]
+		public void TestTry2()
+		{
+			RunCompilerTestCase("try2.boo", "nested try/catch/ensure");
+		}
+		
+		[Test]
+		public void TestClass0()
+		{
+			RunCompilerTestCase("class0.boo", "simple internal class");
+		}
+		
+		[Test]
+		public void TestAs0()
+		{
+			RunCompilerTestCase("cast0.boo", "(a as string).Substring()");
+		}
+		
+		[Test]
+		public void TestBaseClass0()
+		{
+			RunCompilerTestCase("baseclass0.boo", "simplebaseclass");
+		}
 	
 		void RunCompilerTestCase(string name, string description)
 		{			

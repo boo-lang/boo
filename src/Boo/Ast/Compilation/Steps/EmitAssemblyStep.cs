@@ -89,6 +89,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static ConstructorInfo List_IntConstructor = Types.List.GetConstructor(new Type[] { typeof(int) });
 		
+		static ConstructorInfo Object_Constructor = Types.Object.GetConstructor(new Type[0]);
+		
 		static MethodInfo List_Add = Types.List.GetMethod("Add", new Type[] { Types.Object });
 		
 		static Type[] DelegateConstructorTypes = new Type[] { Types.Object, Types.IntPtr };
@@ -145,6 +147,11 @@ namespace Boo.Ast.Compilation.Steps
 			EmitTypeDefinition(module);		
 		}
 		
+		public override void OnClassDefinition(ClassDefinition node)
+		{
+			EmitTypeDefinition(node);
+		}
+		
 		void EmitTypeDefinition(TypeDefinition node)
 		{
 			TypeBuilder current = _typeBuilder;
@@ -170,6 +177,20 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Ret);			
 		}
 		
+		public override void OnConstructor(Constructor constructor)
+		{
+			ConstructorBuilder builder = _typeBuilder.DefineConstructor(GetMethodAttributes(constructor),
+			                               CallingConventions.Standard, 
+			                               GetParameterTypes(constructor));
+			SetConstructorBuilder(constructor, builder);
+			_il = builder.GetILGenerator();			
+			_il.Emit(OpCodes.Ldarg_0);			
+			_il.Emit(OpCodes.Call, Object_Constructor);
+			constructor.Locals.Switch(this);
+			constructor.Body.Switch(this);
+			_il.Emit(OpCodes.Ret);
+		}
+		
 		public override void OnLocal(Local local)
 		{			
 			LocalBinding info = GetLocalBinding(local);
@@ -193,6 +214,32 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				EmitEnumerableBasedFor(node, iteratorType);
 			}			
+		}
+		
+		public override void OnRaiseStatement(RaiseStatement node)
+		{
+			Switch(node.Exception);
+			_il.Emit(OpCodes.Throw);
+		}
+		
+		public override void OnTryStatement(TryStatement node)
+		{
+			Label endLabel = _il.BeginExceptionBlock();
+			Switch(node.ProtectedBlock);
+			Switch(node.ExceptionHandlers);
+			if (null != node.EnsureBlock)
+			{
+				_il.BeginFinallyBlock();
+				Switch(node.EnsureBlock);
+			}
+			_il.EndExceptionBlock();
+		}
+		
+		public override void OnExceptionHandler(ExceptionHandler node)
+		{
+			_il.BeginCatchBlock(GetType(node.Declaration));
+			_il.Emit(OpCodes.Stloc, GetLocalBuilder(node.Declaration));
+			Switch(node.Block);
 		}
 		
 		public override void OnUnpackStatement(UnpackStatement node)
@@ -930,6 +977,16 @@ namespace Boo.Ast.Compilation.Steps
 			return (MethodBuilder)method[EmitInfoKey];
 		}
 		
+		void SetConstructorBuilder(Method method, ConstructorBuilder builder)
+		{
+			method[EmitInfoKey] = builder;
+		}
+		
+		ConstructorBuilder GetConstructorBuilder(Method method)
+		{
+			return (ConstructorBuilder)method[EmitInfoKey];
+		}
+		
 		public LocalBuilder GetLocalBuilder(Node local)
 		{
 			return GetLocalBinding(local).LocalBuilder;
@@ -953,11 +1010,16 @@ namespace Boo.Ast.Compilation.Steps
 				return (MethodInfo)external.MethodInfo;
 			}
 			return GetMethodBuilder(((InternalMethodBinding)binding).Method);
-		}
+		}	
 		
 		ConstructorInfo GetConstructorInfo(IConstructorBinding binding)
 		{
-			return ((ExternalConstructorBinding)binding).ConstructorInfo;
+			ExternalConstructorBinding external = binding as ExternalConstructorBinding;
+			if (null != external)
+			{
+				return external.ConstructorInfo;
+			}
+			return GetConstructorBuilder(((InternalMethodBinding)binding).Method);
 		}
 		
 		Type GetType(ITypeBinding binding)

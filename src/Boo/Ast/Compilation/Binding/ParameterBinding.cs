@@ -37,11 +37,11 @@ namespace Boo.Ast.Compilation.Binding
 		
 		int _index;
 		
-		public ParameterBinding(ParameterDeclaration parameter, ITypeBinding type, int index)
+		public ParameterBinding(ParameterDeclaration parameter, ITypeBinding type)
 		{
 			_parameter = parameter;
 			_type = type;
-			_index = index;
+			_index = -1;
 		}
 		
 		public string Name
@@ -81,6 +81,11 @@ namespace Boo.Ast.Compilation.Binding
 			get
 			{
 				return _index;
+			}
+			
+			set
+			{
+				_index = value;
 			}
 		}
 	}
