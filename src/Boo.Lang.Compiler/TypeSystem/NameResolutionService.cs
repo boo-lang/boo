@@ -259,6 +259,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			node.Entity = info;
 		}
 		
+		public IField ResolveField(IType type, string name)
+		{
+			return (IField)ResolveMember(type, name, EntityType.Field);
+		}
+		
 		public IMethod ResolveMethod(IType type, string name)
 		{
 			return (IMethod)ResolveMember(type, name, EntityType.Method);
@@ -271,10 +276,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
+			/*
 			_buffer.Clear();
 			type.Resolve(_buffer, name, elementType);
 			System.Diagnostics.Debug.Assert(1 == _buffer.Count);
-			return (IEntity)_buffer[0];
+			return (IEntity)_buffer[0];*/
+			foreach (IMember member in type.GetMembers())
+			{				
+				if (elementType == member.EntityType && name == member.Name)
+				{
+					return member;
+				}
+			}
+			return null;
 		}
 		
 		public IEntity Resolve(INamespace ns, string name, EntityType elementType)

@@ -42,6 +42,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public void Clear()
+		{
+			_statements.Clear();
+		}
+		
 		override public void Accept(IAstVisitor visitor)
 		{
 			visitor.OnBlock(this);
@@ -65,6 +70,11 @@ namespace Boo.Lang.Compiler.Ast
 		public void Insert(int index, Expression expression)
 		{
 			_statements.Insert(index, new ExpressionStatement(expression));
+		}
+		
+		public void Insert(int index, Statement stmt)
+		{
+			_statements.Insert(index, stmt);
 		}
 	}
 }

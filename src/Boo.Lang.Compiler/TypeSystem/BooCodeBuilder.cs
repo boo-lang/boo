@@ -92,6 +92,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return expression;
 		}
 		
+		public InternalLabel CreateLabelStatement(Node sourceNode, string name)
+		{
+			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
+		}
+		
+		public ReferenceExpression CreateLabelReference(LabelStatement label)
+		{
+			ReferenceExpression reference = new ReferenceExpression(label.LexicalInfo, label.Name);
+			reference.Entity = label.Entity;
+			return reference;
+		}
+		
+		public Statement CreateSwitch(Expression offset, System.Collections.IEnumerable labels)
+		{
+			MethodInvocationExpression sw = new MethodInvocationExpression();
+			sw.Target = new ReferenceExpression("__switch__");
+			sw.Target.Entity = BuiltinFunction.Switch;
+			sw.Arguments.Add(offset);
+			foreach (LabelStatement label in labels)
+			{
+				sw.Arguments.Add(CreateLabelReference(label));
+			}
+			return new ExpressionStatement(sw);
+		}
+		
 		public Expression CreateAddressOfExpression(IMethod method)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression();
@@ -275,6 +300,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateMemberReference(CreateReference(method.DeclaringType), method);
 		}
 		
+		public BoolLiteralExpression CreateBoolLiteral(bool value)
+		{
+			BoolLiteralExpression expression = new BoolLiteralExpression(value);
+			expression.ExpressionType = _tss.BoolType;
+			return expression;
+		}
+		
 		public StringLiteralExpression CreateStringLiteral(string value)
 		{
 			StringLiteralExpression expression = new StringLiteralExpression(value);
@@ -336,6 +368,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ParameterDeclaration parameter = new ParameterDeclaration(name, CreateTypeReference(type));
 			parameter.Entity = new InternalParameter(parameter, index);
 			return parameter;
+		}
+		
+		public MethodInvocationExpression CreateConstructorInvocation(ClassDefinition cd)
+		{
+			IConstructor constructor = ((IType)cd.Entity).GetConstructors()[0];
+			return CreateConstructorInvocation(constructor);
 		}
 		
 		public MethodInvocationExpression CreateConstructorInvocation(IConstructor constructor, Expression arg1, Expression arg2)

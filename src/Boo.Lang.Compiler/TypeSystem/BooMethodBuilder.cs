@@ -86,11 +86,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IMethod Entity
+		public InternalMethod Entity
 		{
 			get
 			{
-				return (IMethod)_method.Entity;
+				return (InternalMethod)_method.Entity;
 			}
 		}
 		
