@@ -102,6 +102,31 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
+	public class UnknownBinding : NullBinding
+	{
+		public static UnknownBinding Default = new UnknownBinding();
+		
+		private UnknownBinding()
+		{
+		}
+		
+		public override string Name
+		{
+			get
+			{
+				return "unknown";
+			}
+		}
+		
+		public override BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Unknown;
+			}
+		}
+	}
+	
 	public class ErrorBinding : NullBinding
 	{
 		public static ErrorBinding Default = new ErrorBinding();
@@ -114,7 +139,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return "Error";
+				return "error";
 			}
 		}
 		

@@ -109,18 +109,16 @@ done * booc nant task (em boo, obviamente)
 
 done * typeof
 
-* AstAttribute vira IAstAttribute que implementa ICompilerStep
+done * AstAttribute vira IAstAttribute que implementa ICompilerStep
 
-* Criar AbstractAstAttribute extends AbstractCompilerStep
+done * Criar AbstractAstAttribute extends AbstractCompilerStep
 
-* Statement and Block must be polymorphic
+* recursive methods
 
 * super
 
 * EnsureMethodIsResolved => EnsureMemberIsResolved
 	* utilizar um grafo de dependências ao invés do sistema de eventos
-
-* field initializers
 
 * null
 
@@ -129,6 +127,8 @@ done * typeof
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar
 (para utilizar a resolução padrão de membros, etc)
+
+* field initializers
 	
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário
@@ -144,6 +144,8 @@ derivada de Control (que tem uma propriedade chamada Size):
 		para todas as suas possibilidades; assim, temos um AmbiguousBinding
 		que pode ser resolvido (levando em conta primariamente a capacidade
 		de ser chamado ou não);
+		
+* Statement and Block should be polymorphic?
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------
@@ -221,6 +223,16 @@ Milestone 7
 * runtime objects
 foo = runtimeobject("InternetExplorer.Application")
 foo.Navigate2("www.foo.bar")
+
+Exemplos/Artigos
+----------------
+
+* PreAttribute:
+
+	[pre(n > 0)]
+	def fatorial(n as int):
+		return n*fatorial(n-1) if n > 1
+		return 1
 
 Otimiza��es
 -----------

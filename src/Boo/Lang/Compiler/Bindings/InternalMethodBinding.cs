@@ -95,7 +95,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return ReturnType;
+				return null == _method.ReturnType ? UnknownBinding.Default : ReturnType;
 			}
 		}
 		

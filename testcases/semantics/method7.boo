@@ -23,6 +23,5 @@ def greeting(who as string):
 	
 def g():
 	number = System.Random().Next(10)
-	if 1 == number:
-		return greeting("g")
+	return greeting("g") if 1 == number
 	return number

@@ -831,7 +831,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						{			
 							if (CheckTargetContext(node.Target, targetMethod))
 							{
-								nodeBinding = targetMethod.ReturnType;
+								nodeBinding = targetMethod.BoundType;
 							}
 						}
 					}

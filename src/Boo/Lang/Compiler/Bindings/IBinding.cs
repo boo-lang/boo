@@ -49,6 +49,7 @@ namespace Boo.Lang.Compiler.Bindings
 		Namespace = 0x800,
 		Ambiguous = 0x1000,
 		SpecialFunction,
+		Unknown,
 		Error
 	}	
 	

@@ -219,12 +219,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 
 		public override void OnAttribute(Boo.Lang.Ast.Attribute attribute, ref Boo.Lang.Ast.Attribute resultingNode)
-		{
-			// Neste primeiro passo tentamos apenas
-			// resolver ast attributes.
-			// Um passo posterior (resoluo de nomes e tipos) ir
-			// assegurar que todos os nomes tenham sido resolvidos e colocar
-			// mensagens de erro de acordo
+		{			
 			IBinding binding = ResolveQualifiedName(attribute, attribute.Name);
 			if (null == binding)
 			{
