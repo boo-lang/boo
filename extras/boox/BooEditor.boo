@@ -59,7 +59,10 @@ class BooEditor(Content):
 			return _editor.Document.TextContent
 
 	def GoTo(line as int):
-		_editor.ActiveTextAreaControl.JumpTo(line, 1)
+		document = _editor.Document
+		segment = document.GetLineSegment(line)
+		ws = /\s*/.Match(document.GetText(segment)).Groups[0].Value
+		_editor.ActiveTextAreaControl.JumpTo(line, len(ws))
 
 	def Save():
 		if _fname:
