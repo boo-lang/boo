@@ -33,6 +33,7 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public enum BindingType
 	{
+		Module,
 		Type,
 		TypeReference,
 		Method,		
@@ -109,6 +110,11 @@ namespace Boo.Ast.Compilation.Binding
 		}
 		
 		bool IsValueType
+		{
+			get;
+		}
+		
+		ITypeBinding BaseType
 		{
 			get;
 		}

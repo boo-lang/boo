@@ -1269,13 +1269,26 @@ namespace Boo.Ast.Compilation.Pipeline
 		MethodAttributes GetMethodAttributes(Method method)
 		{
 			MethodAttributes attributes = MethodAttributes.HideBySig;
-			if (method.IsModifierSet(TypeMemberModifiers.Public))
+			if (method.IsPublic)
 			{
 				attributes |= MethodAttributes.Public;			
 			}
-			if (method.IsModifierSet(TypeMemberModifiers.Static))
+			else if (method.IsProtected)
+			{
+				attributes |= MethodAttributes.Family;
+			}
+			else if (method.IsPrivate)
+			{
+				attributes |= MethodAttributes.Private;
+			}
+			
+			if (method.IsStatic)
 			{
 				attributes |= MethodAttributes.Static;
+			}
+			else if (method.IsModifierSet(TypeMemberModifiers.Override))
+			{
+				attributes |= MethodAttributes.Virtual;
 			}
 			return attributes;
 		}
@@ -1342,6 +1355,12 @@ namespace Boo.Ast.Compilation.Pipeline
                                         GetMethodAttributes(method) | attributes,
                                         GetType(method.ReturnType),
                                         GetParameterTypes(method));
+			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(method);
+			IMethodBinding overriden = binding.Override;
+			if (null != overriden)
+			{
+				typeBuilder.DefineMethodOverride(builder, GetMethodInfo(overriden));
+			}
 			SetBuilder(method, builder);			
 			return builder;
 		}

@@ -47,7 +47,7 @@ class MainForm(Form):
 
 	def ScanFile(fname as string, pattern as string):
 		position = 0
-		for index as int, line as string in enumerate(TextFile(fname)):
+		for index, line as string in enumerate(TextFile(fname)):
 			if line =~ pattern:
 				lvItem = _fileList.Items.Add(fname)
 				lvItem.SubItems.Add(index.ToString())
@@ -63,12 +63,12 @@ class MainForm(Form):
 	def _fileList_SelectedIndexChanged(sender, args as EventArgs):
 		
 		for lvItem as ListViewItem in _fileList.SelectedItems:
-			fname as string, index as int = lvItem.Tag
+			fname as string, position as int = lvItem.Tag
 			
 			_editor.Text = TextFile.ReadFile(fname)
 			_editor.Focus()
 			_editor.SelectionLength = 0		
-			_editor.SelectionStart = index		
+			_editor.SelectionStart = position		
 			_editor.ScrollToCaret()
 
 Application.Run(MainForm(Text: "Visual Grep Utility",

@@ -73,6 +73,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public ITypeBinding BaseType
+		{
+			get
+			{
+				return null;
+			}
+		}
+		
 		public bool IsSubclassOf(ITypeBinding other)
 		{
 			return false;

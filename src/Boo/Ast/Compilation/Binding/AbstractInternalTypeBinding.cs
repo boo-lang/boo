@@ -3,7 +3,7 @@ namespace Boo.Ast.Compilation.Binding
 	using System;
 	using Boo.Ast;
 	
-	public class AbstractInternalTypeBinding : INamespace
+	public abstract class AbstractInternalTypeBinding : ITypeBinding, INamespace
 	{		
 		protected BindingManager _bindingManager;
 		
@@ -13,6 +13,22 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			_bindingManager = bindingManager;
 			_typeDefinition = typeDefinition;
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _typeDefinition.FullName;
+			}
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _typeDefinition.Name;
+			}
 		}
 		
 		public virtual IBinding Resolve(string name)
@@ -64,9 +80,67 @@ namespace Boo.Ast.Compilation.Binding
 			throw new NotImplementedException();
 		}
 		
-		public override string ToString()
+		public virtual ITypeBinding BaseType
 		{
-			return string.Format("InternalTypeBinding<TypeDefinition={0}>", _typeDefinition);
+			get
+			{
+				return null;
+			}
+		}
+		
+		public TypeDefinition TypeDefinition
+		{
+			get
+			{
+				return _typeDefinition;
+			}
+		}
+		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return this;
+			}
+		}
+		
+		public bool IsClass
+		{
+			get
+			{
+				return NodeType.ClassDefinition == _typeDefinition.NodeType;
+			}
+		}
+		
+		public bool IsValueType
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
+		public virtual BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Type;
+			}
+		}
+		
+		public virtual bool IsSubclassOf(ITypeBinding other)
+		{
+			return false;
+		}
+		
+		public virtual bool IsAssignableFrom(ITypeBinding other)
+		{
+			return false;
+		}
+		
+		public virtual IConstructorBinding[] GetConstructors()
+		{
+			return new IConstructorBinding[0];
 		}
 	}
 

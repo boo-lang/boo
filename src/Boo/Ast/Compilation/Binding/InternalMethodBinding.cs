@@ -41,6 +41,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		ITypeBinding _returnType;
 		
+		IMethodBinding _override;
+		
 		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method)
 		{
 			_bindingManager = manager;
@@ -112,6 +114,19 @@ namespace Boo.Ast.Compilation.Binding
 			get
 			{
 				return _method;
+			}
+		}
+		
+		public IMethodBinding Override
+		{
+			get
+			{
+				return _override;
+			}
+			
+			set
+			{
+				_override = null;
 			}
 		}
 		

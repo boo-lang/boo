@@ -89,7 +89,13 @@ namespace Boo.Ast.Compilation.Pipeline
 		
 		public override void OnModule(Boo.Ast.Module module, ref Boo.Ast.Module resultingNode)
 		{			
-			PushNamespace(new ModuleNamespace(BindingManager, module));
+			ModuleBinding binding = (ModuleBinding)BindingManager.GetOptionalBinding(module);
+			if (null == binding)
+			{
+				binding = new ModuleBinding(BindingManager, module);
+				BindingManager.Bind(module, binding);
+			}
+			PushNamespace(binding);
 			
 			Switch(module.Attributes);
 			Switch(module.Members);
@@ -249,49 +255,106 @@ namespace Boo.Ast.Compilation.Pipeline
 		{
 			if (null == method.ReturnType)
 			{
-				ArrayList returnStatements = _currentMethodInfo.ReturnStatements;
-				if (0 == returnStatements.Count)
-				{					
-					method.ReturnType = CreateBoundTypeReference(BindingManager.VoidTypeBinding);
-				}
-				else
-				{					
-					ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
-					
-					for (int i=1; i<returnStatements.Count; ++i)
-					{	
-						ITypeBinding newType = GetBoundType(((ReturnStatement)returnStatements[i]).Expression);
-						if (type == newType)
-						{
-							continue;
-						}
-						
-						if (IsAssignableFrom(type, newType))
-						{
-							continue;
-						}
-						
-						if (IsAssignableFrom(newType, type))
-						{
-							newType = type;
-							continue;
-						}
-						
-						type = BindingManager.ObjectTypeBinding;
-						break;
-					}
-					
-					method.ReturnType = CreateBoundTypeReference(type);
-				}
-				
+				method.ReturnType = ResolveReturnType(_currentMethodInfo.ReturnStatements);
 				_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, GetBinding(method.ReturnType));
 			}
 			
-			((InternalMethodBinding)GetBinding(method)).Resolved();
+			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(method);
+			ResolveMethodOverride(method, binding);
+			binding.Resolved();
 			
 			PopNamespace();
 			PopMethod();
 			BindParameterIndexes(method);
+		}
+		
+		void ResolveMethodOverride(Method method, InternalMethodBinding binding)
+		{
+			ITypeBinding baseType = GetBaseType(method.DeclaringType);
+			if (null == baseType)
+			{
+				return;
+			}
+			
+			IBinding baseMethods = baseType.Resolve(method.Name);
+			if (null != baseMethods)
+			{
+				if (BindingType.Method == baseMethods.BindingType)
+				{
+					IMethodBinding baseMethod = (IMethodBinding)baseMethods;
+					if (CheckOverrideSignature(binding, baseMethod))
+					{	
+						binding.Override = baseMethod;
+						TraceOverride(method, baseMethod);
+						method.Modifiers |= TypeMemberModifiers.Override;
+					}
+				}
+				else if (BindingType.Ambiguous == baseMethods.BindingType)
+				{
+					// todo:
+				}
+			}
+		}
+		
+		void TraceOverride(Method method, IMethodBinding baseMethod)
+		{
+			_context.TraceInfo("{0}: Method '{1}' overrides '{2}'", method.LexicalInfo, method.Name, baseMethod);
+		}
+		
+		bool CheckOverrideSignature(IMethodBinding impl, IMethodBinding baseMethod)
+		{
+			if (impl.ParameterCount == baseMethod.ParameterCount)
+			{
+				for (int i=0; i<impl.ParameterCount; ++i)
+				{
+					if (impl.GetParameterType(i) != baseMethod.GetParameterType(i))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		ITypeBinding GetBaseType(TypeDefinition typeDefinition)
+		{
+			return ((ITypeBinding)GetBinding(typeDefinition)).BaseType;
+		}
+		
+		TypeReference ResolveReturnType(ArrayList returnStatements)
+		{			
+			if (0 == returnStatements.Count)
+			{					
+				return CreateBoundTypeReference(BindingManager.VoidTypeBinding);
+			}		
+			
+			ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
+			
+			for (int i=1; i<returnStatements.Count; ++i)
+			{	
+				ITypeBinding newType = GetBoundType(((ReturnStatement)returnStatements[i]).Expression);
+				if (type == newType)
+				{
+					continue;
+				}
+				
+				if (IsAssignableFrom(type, newType))
+				{
+					continue;
+				}
+				
+				if (IsAssignableFrom(newType, type))
+				{
+					newType = type;
+					continue;
+				}
+				
+				type = BindingManager.ObjectTypeBinding;
+				break;
+			}
+			
+			return CreateBoundTypeReference(type);
 		}
 		
 		void BindParameterIndexes(Method method)

@@ -31,16 +31,24 @@ using System;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	class ModuleNamespace : AbstractInternalTypeBinding
+	public class ModuleBinding : AbstractInternalTypeBinding
 	{
 		INamespace[] _using;
 		
-		public ModuleNamespace(BindingManager bindingManager, Module module) : base(bindingManager, module)
+		public ModuleBinding(BindingManager bindingManager, Module module) : base(bindingManager, module)
 		{			
 			_using = new INamespace[module.Using.Count];
 			for (int i=0; i<_using.Length; ++i)
 			{
 				_using[i] = (INamespace)bindingManager.GetBinding(module.Using[i]);
+			}
+		}
+		
+		public override BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Module;
 			}
 		}
 		

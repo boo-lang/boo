@@ -100,6 +100,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public ITypeBinding BaseType
+		{
+			get
+			{
+				return _bindingManager.ToTypeBinding(_type.BaseType);
+			}
+		}
+		
 		public Type Type
 		{
 			get

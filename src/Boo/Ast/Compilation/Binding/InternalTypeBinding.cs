@@ -33,82 +33,38 @@ using System.Reflection;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class InternalTypeBinding : AbstractInternalTypeBinding, ITypeBinding
+	public class InternalTypeBinding : AbstractInternalTypeBinding
 	{		
 		IConstructorBinding[] _constructors;
+		
+		ITypeBinding _baseType;
 		
 		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
-		}
+		}		
 		
-		public string FullName
+		public override ITypeBinding BaseType
 		{
 			get
 			{
-				return _typeDefinition.FullName;
+				if (null == _baseType)
+				{
+					foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+					{
+						ITypeBinding binding = _bindingManager.GetBoundType(baseType);
+						if (binding.IsClass)
+						{
+							_baseType = binding;
+							break;
+						}
+					}
+				}
+				return _baseType;
 			}
 		}
 		
-		public string Name
-		{
-			get
-			{
-				return _typeDefinition.Name;
-			}
-		}
-		
-		public BindingType BindingType
-		{
-			get
-			{
-				return BindingType.Type;
-			}
-		}
-		
-		public TypeDefinition TypeDefinition
-		{
-			get
-			{
-				return _typeDefinition;
-			}
-		}
-		
-		public ITypeBinding BoundType
-		{
-			get
-			{
-				return this;
-			}
-		}
-		
-		public bool IsClass
-		{
-			get
-			{
-				return NodeType.ClassDefinition == _typeDefinition.NodeType;
-			}
-		}
-		
-		public bool IsValueType
-		{
-			get
-			{
-				return false;
-			}
-		}
-		
-		public bool IsSubclassOf(ITypeBinding other)
-		{
-			return false;
-		}
-		
-		public bool IsAssignableFrom(ITypeBinding other)
-		{
-			return false;
-		}
-		
-		public IConstructorBinding[] GetConstructors()
+		public override IConstructorBinding[] GetConstructors()
 		{
 			if (null == _constructors)
 			{
@@ -123,6 +79,11 @@ namespace Boo.Ast.Compilation.Binding
 				_constructors = (IConstructorBinding[])constructors.ToArray(typeof(IConstructorBinding));
 			}
 			return _constructors;
+		}
+		
+		public override string ToString()
+		{
+			return string.Format("InternalTypeBinding<TypeDefinition={0}>", _typeDefinition);
 		}
 	}
 }

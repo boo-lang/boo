@@ -14,6 +14,7 @@ package Boo.Ast
 		Static = 16
 		Final = 32
 		Transient = 64
+		Override = 128
 	end
 	
 	[abstract]
