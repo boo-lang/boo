@@ -50,6 +50,7 @@
 			<sources>
 				<include name="BooCompiler.Tests/**/*.cs" />
 				<include name="build/RegressionTestFixture.cs" />
+				<include name="build/CompilerErrorsTestFixture.cs" />
 			</sources>
 			
 			<references basedir="build">
