@@ -51,6 +51,11 @@ namespace Boo.Ast.Compilation.Binding
 				return _mi;
 			}
 		}
+		
+		public override string ToString()
+		{
+			return BindingManager.GetSignature(this);
+		}
 	}
 	
 	public class ExternalConstructorBinding : ExternalMethodBinding, IConstructorBinding

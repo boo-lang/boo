@@ -21,14 +21,13 @@ Milestone 3 (helloforms.boo - using, métodos estáticos, criação de objetos)
 done * using XXX from XXX
 done * criar objeto (ConstructorBinding)
 done * membros de instancia (f.Show())
-* argumentos nomeados na criação de objetos
-* membros estáticos Application.Run()
-* simplificar código:
-	* InternalTypeBinding e ExternalTypeBinding implements INameSpace
-	unificar codigo;
-	* o mesmo para InternalMethodBinding;
-	* criar ModuleBinding e unificar com ModuleNamespace;
-
+done * argumentos nomeados na criação de objetos
+done * membros estáticos Application.Run()
+done * resolução de métodos por argumentos de tipo compatível
+done * simplificar código:
+	done * InternalTypeBinding e ExternalTypeBinding implements INameSpace: unificar codigo;
+	done * o mesmo para InternalMethodBinding;
+done * propriedades simples (f.Controls)
 
 Milestone 3.1 (grep.boo)
 ----------------------
@@ -44,6 +43,8 @@ done * checagem de parametros estrita nas invocaçoes de método
 * if stmt modifier
 * expressões simples com inteiros
 * boxing (print e StringFormatting)
+* criar ModuleBinding e unificar com ModuleNamespace;
+* simplificar tratamento de erro em SemanticStep;
 
 Milestone 3.2 (replace.boo)
 ---------------------------

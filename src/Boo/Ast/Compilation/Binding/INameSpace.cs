@@ -5,19 +5,12 @@ using BindingFlags = System.Reflection.BindingFlags;
 namespace Boo.Ast.Compilation.Binding
 {	
 	public interface INameSpace
-	{		
-		INameSpace Parent
-		{
-			get;
-			set;
-		}
+	{				
 		IBinding Resolve(string name);
 	}
 	
 	class ModuleNameSpace : INameSpace
 	{
-		INameSpace _parent;
-		
 		Module _module;
 		
 		BindingManager _bindingManager;
@@ -32,19 +25,6 @@ namespace Boo.Ast.Compilation.Binding
 			for (int i=0; i<_using.Length; ++i)
 			{
 				_using[i] = (INameSpace)bindingManager.GetBinding(_module.Using[i]);
-			}
-		}
-		
-		public INameSpace Parent
-		{
-			get
-			{
-				return _parent;
-			}
-			
-			set
-			{
-				_parent = value;
 			}
 		}
 		
@@ -66,11 +46,6 @@ namespace Boo.Ast.Compilation.Binding
 				{
 					return binding;
 				}
-			}
-			
-			if (null != _parent)
-			{
-				return _parent.Resolve(name);
 			}
 			return null;
 		}

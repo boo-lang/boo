@@ -9,25 +9,12 @@ namespace Boo.Ast.Compilation.Binding
 		BindingManager _bindingManager;
 		TypeDefinition _typeDefinition;
 		TypeBuilder _builder;
-		INameSpace _parent;
 		
 		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition, TypeBuilder builder)
 		{
 			_bindingManager = manager;
 			_typeDefinition = typeDefinition;
 			_builder = builder;
-		}
-		
-		public INameSpace Parent
-		{
-			get
-			{
-				return _parent;
-			}
-			set
-			{
-				_parent = value;
-			}
 		}
 		
 		public BindingType BindingType
@@ -83,10 +70,6 @@ namespace Boo.Ast.Compilation.Binding
 				{
 					return _bindingManager.GetBinding(member);
 				}
-			}			
-			if (null != _parent)
-			{
-				return _parent.Resolve(name);
 			}
 			return null;
 		}

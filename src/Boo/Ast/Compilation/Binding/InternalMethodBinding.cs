@@ -12,26 +12,11 @@ namespace Boo.Ast.Compilation.Binding
 		
 		MethodBuilder _builder;
 		
-		INameSpace _parent;
-		
 		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method, MethodBuilder builder)
 		{
 			_manager = manager;
 			_method = method;
 			_builder = builder;
-		}
-		
-		public INameSpace Parent
-		{
-			get
-			{
-				return _parent;
-			}
-			
-			set
-			{
-				_parent = value;
-			}
 		}
 		
 		public BindingType BindingType
@@ -96,7 +81,7 @@ namespace Boo.Ast.Compilation.Binding
 					return _manager.GetBinding(parameter);
 				}
 			}
-			return _parent.Resolve(name);
+			return null;
 		}
 
 	}

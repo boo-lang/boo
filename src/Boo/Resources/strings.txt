@@ -11,11 +11,13 @@ ICompilerStepInterface=The type {0} does not implement the ICompilerStep interfa
 RequiredAttribute=The element {0} must specify the attribute {1}.
 InvalidAssemblySetup=AssemblyBuilder wasn't correctly set up.
 BindingManager.UnboundNode=Node {0} at {1} is not bound.
-MethodArgumentCount=No overload of the method {0} takes {1} parameters.
+MethodArgumentCount=No overload of the method {0} takes {1} parameter(s).
 MethodSignature=The best overload for the method '{1}' is not compatible with the argument list '{0}'.
 NameNotType=The name {0} does not denote a type.
 MemberNotFound=Member '{0}' not found.
 InvalidNamespace=Namespace {0} not found, maybe you forgot to add an assembly reference?
+IncompatibleExpressionType=Expression type '{1}' not compatible with target ('{0}' expected).
+NoApropriateOverloadFound=No apropriate version for the arguments '{0}' was found.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

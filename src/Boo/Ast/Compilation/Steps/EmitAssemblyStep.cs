@@ -137,14 +137,19 @@ namespace Boo.Ast.Compilation.Steps
 					_il.Emit(OpCodes.Newobj, ((IConstructorBinding)binding).ConstructorInfo);
 					foreach (ExpressionPair pair in node.NamedArguments)
 					{
+						// object reference
 						_il.Emit(OpCodes.Dup);
+						// value
+						pair.Second.Switch(this);
+						// field/property reference						
+						SetFieldOrProperty(BindingManager.GetBinding(pair.First));
 					}
 					break;
 				}
 				
 				default:
 				{
-					throw new NotImplementedException();
+					throw new NotImplementedException(binding.ToString());
 				}
 			}
 		}
@@ -172,6 +177,31 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			
 			_il.EmitCall(OpCodes.Call, StringFormatMethodInfo, null);
+		}
+		
+		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
+		{
+			node.Target.Switch(this);			
+			IBinding binding = BindingManager.GetBinding(node);
+			switch (binding.BindingType)
+			{
+				case BindingType.Property:
+				{
+					IPropertyBinding property = (IPropertyBinding)binding;
+					_il.EmitCall(OpCodes.Callvirt, property.PropertyInfo.GetGetMethod(), null);
+					break;
+				}
+				
+				case BindingType.Method:
+				{
+					break;
+				}
+				
+				default:
+				{
+					throw new NotImplementedException(binding.ToString());
+				}
+			}
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
@@ -205,6 +235,31 @@ namespace Boo.Ast.Compilation.Steps
 				}
 				
 			}			
+		}
+		
+		void SetFieldOrProperty(IBinding binding)
+		{
+			switch (binding.BindingType)
+			{
+				case BindingType.Property:
+				{
+					IPropertyBinding property = (IPropertyBinding)binding;
+					PropertyInfo pi = property.PropertyInfo;
+					_il.EmitCall(OpCodes.Callvirt, pi.GetSetMethod(), null);
+					break;
+				}
+					
+				case BindingType.Field:
+				{
+					throw new NotImplementedException();
+					break;
+				}
+				
+				default:
+				{
+					throw new ArgumentException("binding");
+				}				
+			}
 		}
 		
 		void DefineEntryPoint()

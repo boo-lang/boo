@@ -16,7 +16,7 @@ class App:
 		f.Controls.Add(b)
 		f.Show()
 		
-		Application.Run()
+		Application.Run(f)
 
 app = App()
 app.Run()

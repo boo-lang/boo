@@ -7,15 +7,18 @@ namespace Boo.Ast.Compilation.Binding
 		Type,
 		Method,		
 		Constructor,
+		Field,
+		Property,
 		Local,		
 		Parameter,
 		Assembly,
 		Namespace,
-		Ambiguous
+		Ambiguous,
+		Error
 	}
 	
 	public interface IBinding
-	{		
+	{				
 		BindingType BindingType
 		{
 			get;
@@ -30,6 +33,14 @@ namespace Boo.Ast.Compilation.Binding
 		}
 		
 		System.Type Type
+		{
+			get;
+		}
+	}
+	
+	public interface IPropertyBinding : ITypedBinding
+	{
+		System.Reflection.PropertyInfo PropertyInfo
 		{
 			get;
 		}
@@ -65,6 +76,135 @@ namespace Boo.Ast.Compilation.Binding
 		System.Reflection.ConstructorInfo ConstructorInfo
 		{
 			get;
+		}
+	}
+	
+	public class AmbiguousBinding : IBinding
+	{
+		IBinding[] _bindings;
+		
+		public AmbiguousBinding(IBinding[] bindings)
+		{
+			if (null == bindings)
+			{
+				throw new ArgumentNullException("bindings");
+			}
+			if (0 == bindings.Length)
+			{
+				throw new ArgumentException("bindings");
+			}
+			_bindings = bindings;
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Ambiguous;
+			}
+		}
+		
+		public IBinding[] Bindings
+		{
+			get
+			{
+				return _bindings;
+			}
+		}
+		
+		public override string ToString()
+		{
+			return "";
+		}
+	}
+	
+	public class ExternalFieldBinding : ITypedBinding
+	{
+		BindingManager _bindingManager;
+		
+		System.Reflection.FieldInfo _field;
+		
+		public ExternalFieldBinding(BindingManager bindingManager, System.Reflection.FieldInfo field)
+		{
+			_bindingManager = bindingManager;
+			_field = field;
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Field;
+			}
+		}
+		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return _bindingManager.ToTypeBinding(_field.FieldType);
+			}
+		}
+		
+		public System.Type Type
+		{
+			get
+			{
+				return _field.FieldType;
+			}
+		}
+		
+		System.Reflection.FieldInfo FieldInfo
+		{
+			get
+			{
+				return _field;
+			}
+		}
+	}
+	
+	public class ExternalPropertyBinding : IPropertyBinding
+	{
+		BindingManager _bindingManager;
+		
+		System.Reflection.PropertyInfo _property;
+		
+		public ExternalPropertyBinding(BindingManager bindingManager, System.Reflection.PropertyInfo property)
+		{
+			_bindingManager = bindingManager;
+			_property = property;
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Property;
+			}
+		}
+		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return _bindingManager.ToTypeBinding(_property.PropertyType);
+			}
+		}
+		
+		public System.Type Type
+		{
+			get
+			{
+				return _property.PropertyType;
+			}
+		}
+		
+		public System.Reflection.PropertyInfo PropertyInfo
+		{
+			get
+			{
+				return _property;
+			}
 		}
 	}
 	
@@ -285,6 +425,49 @@ namespace Boo.Ast.Compilation.Binding
 			{
 				return _index;
 			}
+		}
+	}
+	
+	public class ErrorBinding : ITypeBinding, INameSpace
+	{
+		public static ErrorBinding Default = new ErrorBinding();
+		
+		private ErrorBinding()
+		{			
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Error;
+			}
+		}
+		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return this;
+			}
+		}
+		
+		public Type Type
+		{
+			get
+			{
+				return BindingManager.VoidType;
+			}
+		}
+		
+		public IConstructorBinding[] GetConstructors()
+		{
+			return new IConstructorBinding[0];
+		}
+		
+		public IBinding Resolve(string name)
+		{
+			return null;
 		}
 	}
 }

@@ -42,7 +42,12 @@ namespace Boo.Ast.Compilation.Binding
 		public void Bind(Expression expression, Type type)
 		{
 			Bind(expression, ToTypeBinding(type));
-		}		
+		}	
+		
+		public void Error(Node node)
+		{
+			Bind(node, ErrorBinding.Default);
+		}
 		
 		public IBinding GetBinding(Node node)
 		{
@@ -68,7 +73,12 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			if (info.Length > 1)
 			{
-				throw new NotImplementedException();
+				IBinding[] bindings = new IBinding[info.Length];
+				for (int i=0; i<bindings.Length; ++i)
+				{
+					bindings[i] = ToBinding(info[i]);
+				}
+				return new AmbiguousBinding(bindings);
 			}
 			return ToBinding(info[0]);
 		}
@@ -82,9 +92,19 @@ namespace Boo.Ast.Compilation.Binding
 					return new ExternalMethodBinding(this, (System.Reflection.MethodInfo)mi);
 				}
 				
+				case MemberTypes.Field:
+				{
+					return new ExternalFieldBinding(this, (System.Reflection.FieldInfo)mi);
+				}
+				
+				case MemberTypes.Property:
+				{
+					return new ExternalPropertyBinding(this, (System.Reflection.PropertyInfo)mi);
+				}
+				
 				default:
 				{
-					throw new NotImplementedException();
+					throw new NotImplementedException(mi.ToString());
 				}
 			}
 		}
@@ -118,6 +138,27 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			return (LocalBinding)GetBinding(local);
 		}
+		
+		public static string GetSignature(IMethodBinding binding)
+		{
+			MethodBase mi = binding.MethodInfo;
+			System.Text.StringBuilder sb = new System.Text.StringBuilder(mi.DeclaringType.FullName);
+			sb.Append(".");
+			sb.Append(mi.Name);
+			sb.Append("(");
+			for (int i=0; i<binding.ParameterCount; ++i)
+			{				
+				if (i>0) 
+				{
+					sb.Append(", ");
+				}
+				sb.Append(binding.GetParameterType(i).FullName);
+			}
+			sb.Append(") as ");
+			sb.Append(binding.ReturnType.Type.FullName);
+			return sb.ToString();
+		}
+
 		
 		static object BindingKey = new object();
 	}

@@ -7,6 +7,7 @@ using Boo;
 using Boo.Ast;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.Binding;
+using List=Boo.Lang.List;
 
 namespace Boo.Ast.Compilation.Steps
 {		
@@ -21,7 +22,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		Method _method;
 		
-		INameSpace _namespace;
+		Stack _namespaces = new Stack();
 		
 		public override void Run()
 		{
@@ -175,7 +176,7 @@ namespace Boo.Ast.Compilation.Steps
 					
 					ITypeBinding expressionTypeInfo = BindingManager.GetTypeBinding(node.Right);
 					
-					IBinding info = _namespace.Resolve(reference.Name);					
+					IBinding info = Resolve(reference.Name);					
 					if (null == info)
 					{
 						Local local = new Local(reference);
@@ -219,8 +220,19 @@ namespace Boo.Ast.Compilation.Steps
 			node.Arguments.Switch(this);
 			
 			IBinding targetBinding = BindingManager.GetBinding(node.Target);
+			if (BindingType.Ambiguous == targetBinding.BindingType)
+			{		
+				IBinding[] bindings = ((AmbiguousBinding)targetBinding).Bindings;
+				targetBinding = ResolveMethodReference(node, bindings);				
+				if (null == targetBinding)
+				{
+					return;
+				}
+				BindingManager.Bind(node.Target, targetBinding);
+			}	
+			
 			switch (targetBinding.BindingType)
-			{
+			{				
 				case BindingType.Method:
 				{				
 					IMethodBinding targetMethod = (IMethodBinding)targetBinding;
@@ -253,11 +265,29 @@ namespace Boo.Ast.Compilation.Steps
 					break;
 				}
 				
+				case BindingType.Error:
+				{
+					break;
+				}
+				
 				default:
 				{
 					throw new NotImplementedException();
 				}
 			}
+		}
+		
+		IBinding Resolve(string name)
+		{
+			foreach (INameSpace ns in _namespaces)
+			{
+				IBinding binding = ns.Resolve(name);
+				if (null != binding)
+				{
+					return binding;
+				}
+			}
+			return null;
 		}
 		
 		IBinding ResolveName(Node node, string name)
@@ -279,7 +309,7 @@ namespace Boo.Ast.Compilation.Steps
 				
 				default:
 				{
-					info = _namespace.Resolve(name);
+					info = Resolve(name);
 					CheckNameResolution(node, name, info);
 					break;
 				}
@@ -309,7 +339,31 @@ namespace Boo.Ast.Compilation.Steps
 		void ResolveNamedArguments(ITypeBinding typeBinding, MethodInvocationExpression node)
 		{
 			foreach (ExpressionPair arg in node.NamedArguments)
-			{				
+			{			
+				arg.Second.Switch(this);				
+				
+				ReferenceExpression name = arg.First as ReferenceExpression;
+				if (null == name)
+				{
+					Errors.NamedParameterMustBeReference(arg);
+					continue;				
+				}
+				
+				IBinding member = typeBinding.Resolve(name.Name);
+				if (null == member)
+				{
+					Errors.NotAPublicFieldOrProperty(node, typeBinding.Type, name.Name);
+					continue;
+				}
+				
+				BindingManager.Bind(arg.First, member);				
+				
+				Type memberType = ((ITypedBinding)member).Type;
+				Type expressionType = BindingManager.GetBoundType(arg.Second);
+				if (!IsAssignableFrom(memberType, expressionType))
+				{
+					Errors.IncompatibleExpressionType(arg, memberType, expressionType);
+				}
 			}
 		}
 		
@@ -319,18 +373,24 @@ namespace Boo.Ast.Compilation.Steps
 			if (method.ParameterCount != args.Count)
 			{
 				Errors.MethodArgumentCount(mie, method);
+				return;
 			}	
 			
 			for (int i=0; i<args.Count; ++i)
 			{
 				Type expressionType = BindingManager.GetBoundType(args[i]);
 				Type parameterType = method.GetParameterType(i);
-				if (expressionType != parameterType)
+				if (!IsAssignableFrom(parameterType, expressionType))
 				{
 					Errors.MethodSignature(mie, GetSignature(mie), GetSignature(method));
 					break;
 				}
 			}
+		}
+		
+		bool IsAssignableFrom(Type expectedType, Type actualType)
+		{
+			return expectedType.IsAssignableFrom(actualType);
 		}
 		
 		IConstructorBinding FindCorrectConstructor(ITypeBinding typeBinding, MethodInvocationExpression mie)
@@ -339,6 +399,51 @@ namespace Boo.Ast.Compilation.Steps
 			if (ctors.Length > 0)
 			{
 				return ctors[0];
+			}
+			return null;
+		}
+		
+		IBinding ResolveMethodReference(MethodInvocationExpression node, IBinding[] bindings)
+		{			
+			ExpressionCollection args = node.Arguments;
+			
+			List valid = new List();			
+			foreach (IBinding binding in bindings)
+			{
+				if (BindingType.Method == binding.BindingType)
+				{
+					IMethodBinding mb = (IMethodBinding)binding;
+					if (args.Count == mb.ParameterCount)
+					{
+						for (int i=0; i<args.Count; ++i)
+						{
+							Type expressionType = BindingManager.GetBoundType(args[i]);
+							Type parameterType = mb.GetParameterType(i);
+							if (!IsAssignableFrom(parameterType, expressionType))
+							{
+								goto incompatible;
+							}
+						}
+						valid.Add(mb);
+					}
+					
+					incompatible: continue;
+				}
+			}
+			
+			if (1 == valid.Count)
+			{
+				return (IBinding)valid[0];
+			}
+			
+			BindingManager.Error(node);					
+			if (valid.Count > 1)
+			{
+				Errors.AmbiguousName(node, "", valid);							
+			}
+			else
+			{
+				Errors.NoApropriateOverloadFound(node, GetSignature(node));
 			}
 			return null;
 		}
@@ -371,32 +476,17 @@ namespace Boo.Ast.Compilation.Steps
 		
 		string GetSignature(IMethodBinding binding)
 		{
-			StringBuilder sb = new StringBuilder(binding.MethodInfo.DeclaringType.FullName);
-			sb.Append(".");
-			sb.Append(binding.MethodInfo.Name);
-			sb.Append("(");
-			for (int i=0; i<binding.ParameterCount; ++i)
-			{				
-				if (i>0) 
-				{
-					sb.Append(", ");
-				}
-				sb.Append(binding.GetParameterType(i).FullName);
-			}
-			sb.Append(") as ");
-			sb.Append(binding.ReturnType.Type.FullName);
-			return sb.ToString();
+			return BindingManager.GetSignature(binding);
 		}
 		
 		void PushNamespace(INameSpace ns)
 		{
-			ns.Parent = _namespace;
-			_namespace = ns;
+			_namespaces.Push(ns);
 		}
 		
 		void PopNamespace()
 		{
-			_namespace = _namespace.Parent;
+			_namespaces.Pop();
 		}
 	}
 }

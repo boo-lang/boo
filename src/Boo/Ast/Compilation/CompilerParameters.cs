@@ -29,6 +29,7 @@ namespace Boo.Ast.Compilation
 			_input = new CompilerInputCollection();
 			_assemblyReferences = new AssemblyCollection();
 			_assemblyReferences.Add(GetType().Assembly);
+			_assemblyReferences.Add(typeof(string).Assembly);
 			_verbose = false;
 			_maxAttributeSteps = 2;
 			_outputAssembly = string.Empty;

@@ -50,6 +50,11 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("MemberNotFound", node.Name)));
 		}
 		
+		public void NoApropriateOverloadFound(Node node, string signature)
+		{
+			Add(new Error(node, Format("NoApropriateOverloadFound", signature)));
+		}
+		
 		public void UnknownName(Node node, string name)
 		{
 			Error error = new Error(node, Format("UnknownName", name));			
@@ -104,6 +109,11 @@ namespace Boo.Ast.Compilation
 		{
 			string msg = Format("AttributeResolution", type, cause.Message);
 			Add(new Error(attribute, msg, cause));
+		}
+		
+		public void IncompatibleExpressionType(Node node, Type expected, Type actual)
+		{
+			Add(new Error(node, Format("IncompatibleExpressionType", expected, actual)));
 		}
 
 		public void StepExecution(ICompilerStep step, Exception cause)

@@ -11,11 +11,13 @@ ICompilerStepInterface=O tipo {0} não implementa a interface ICompilerStep.
 RequiredAttribute=O elemento {0} deve conter um atributo de nome {1}.
 InvalidAssemblySetup=AssemblyBuilder não foi configurado corretamente.
 BindingManager.UnboundNode=O nó {0} na posição {1} não foi resolvido corretamente.
-MethodArgumentCount=Nenhuma versão do método {0} aceita {1} parâmetros.
+MethodArgumentCount=Nenhuma versão do método {0} aceita {1} parâmetro(s).
 MethodSignature=A versão mais próxima do método '{1}' não é compatível com a lista de argumentos '{0}'.
 NameNotType=O nome {0} não denota um tipo válido.
 MemberNotFound=Membro '{0}' não encontrado.
 InvalidNamespace=Espaço {0} não encontrado, talvez você tenha esquecido de adicionar uma referência?
+IncompatibleExpressionType=Tipo da expressão '{1}' incompatível com destino ('{0}').
+NoApropriateOverloadFound=Nenhuma versão compatível com os argumentos '{0}' foi encontrada.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

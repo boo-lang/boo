@@ -1,6 +1,6 @@
 using System.Windows.Forms from System.Windows.Forms
 
 f = Form(Text: "Hello, Boo!")
-f.Show()
+f.Controls.Add(Button(Text: "Click Me!"))
 
-Application.Run()
+Application.Run(f)
