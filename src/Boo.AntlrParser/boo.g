@@ -1033,7 +1033,11 @@ internal_closure_stmt returns [Statement stmt]
 	}:
 	stmt=return_expression_stmt |
 	(
-		stmt=expression_stmt
+		(
+			(declaration COMMA)=>stmt=unpack_stmt |
+			stmt=expression_stmt |
+			stmt=raise_stmt
+		)
 		(modifier=stmt_modifier { stmt.Modifier = modifier; })?		
 	)
 	;
