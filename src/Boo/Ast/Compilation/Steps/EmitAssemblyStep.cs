@@ -103,7 +103,12 @@ namespace Boo.Ast.Compilation.Steps
 		
 		TypeBuilder _typeBuilder;
 		
+		// IL generation state		
 		ILGenerator _il;
+		Label _returnLabel; // current label for method return
+		LocalBuilder _returnValueLocal; // returnValueLocal
+		Type _returnType;
+		int _tryBlock; // are we in a try block?
 		
 		// keeps track of types on the IL stack
 		System.Collections.Stack _types = new System.Collections.Stack();
@@ -140,6 +145,21 @@ namespace Boo.Ast.Compilation.Steps
 			DefineEntryPoint();			
 		}
 		
+		public override void Dispose()
+		{
+			base.Dispose();
+			
+			_asmBuilder = null;		
+			_moduleBuilder = null;		
+			_symbolDocWriter = null;
+			_typeBuilder = null;
+			_il = null;		
+			_returnValueLocal = null;
+			_returnType = null;
+			_tryBlock = 0;
+			_types.Clear();
+		}
+		
 		public override void OnModule(Boo.Ast.Module module)
 		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);
@@ -167,10 +187,26 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnMethod(Method method)
 		{			
-			MethodBuilder methodBuilder = GetMethodBuilder(method);
+			MethodBuilder methodBuilder = GetMethodBuilder(method);			
 			_il = methodBuilder.GetILGenerator();
+			_returnLabel = _il.DefineLabel();
+			
+			_returnType = methodBuilder.ReturnType;
+			if (Types.Void != _returnType)
+			{
+				_returnValueLocal = _il.DeclareLocal(_returnType);
+			}
+			
 			method.Locals.Switch(this);
 			method.Body.Switch(this);
+			
+			_il.MarkLabel(_returnLabel);
+			
+			if (null != _returnValueLocal)
+			{
+				_il.Emit(OpCodes.Ldloc, _returnValueLocal);
+				_returnValueLocal = null;
+			}
 			_il.Emit(OpCodes.Ret);			
 		}
 		
@@ -210,6 +246,19 @@ namespace Boo.Ast.Compilation.Steps
 			}			
 		}
 		
+		public override void OnReturnStatement(ReturnStatement node)
+		{
+			OpCode retOpCode = _tryBlock > 0 ? OpCodes.Leave : OpCodes.Br;
+			
+			if (null != node.Expression)
+			{
+				Switch(node.Expression);
+				EmitCastIfNeeded(_returnType, PopType());
+				_il.Emit(OpCodes.Stloc, _returnValueLocal);
+			}
+			_il.Emit(retOpCode, _returnLabel);
+		}
+		
 		public override void OnRaiseStatement(RaiseStatement node)
 		{
 			Switch(node.Exception);
@@ -218,6 +267,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnTryStatement(TryStatement node)
 		{
+			++_tryBlock;
+			
 			Label endLabel = _il.BeginExceptionBlock();
 			Switch(node.ProtectedBlock);
 			Switch(node.ExceptionHandlers);
@@ -227,6 +278,8 @@ namespace Boo.Ast.Compilation.Steps
 				Switch(node.EnsureBlock);
 			}
 			_il.EndExceptionBlock();
+			
+			--_tryBlock;
 		}
 		
 		public override void OnExceptionHandler(ExceptionHandler node)
@@ -267,12 +320,69 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			EmitDebugInfo(node, node.Expression);
 			
-			node.Expression.Switch(this); PopType();
-			
 			Label endLabel = _il.DefineLabel();
-			_il.Emit(OpCodes.Brfalse, endLabel);			
+			
+			EmitBranchFalse(node.Expression, endLabel);
 			node.TrueBlock.Switch(this);
+			if (null != node.FalseBlock)
+			{
+				Label elseEndLabel = _il.DefineLabel();
+				_il.Emit(OpCodes.Br, elseEndLabel);
+				_il.MarkLabel(endLabel);
+				
+				endLabel = elseEndLabel;
+				node.FalseBlock.Switch(this);
+			}
+			
 			_il.MarkLabel(endLabel);
+		}
+		
+		void EmitBranchTrue(Expression expression, Label label)
+		{
+			expression.Switch(this); PopType();
+			_il.Emit(OpCodes.Brtrue, label);
+		}
+		
+		void EmitBranchFalse(Expression expression, Label label)
+		{
+			switch (expression.NodeType)
+			{
+				case NodeType.UnaryExpression:
+				{
+					EmitBranchFalse((UnaryExpression)expression, label);
+					break;
+				}
+				
+				default:
+				{
+					DefaultBranchFalse(expression, label);
+					break;
+				}
+			}
+		}
+		
+		void EmitBranchFalse(UnaryExpression expression, Label label)
+		{
+			switch (expression.Operator)
+			{
+				case UnaryOperatorType.Not:
+				{
+					EmitBranchTrue(expression.Operand, label);
+					break;
+				}
+				
+				default:					
+				{		
+					DefaultBranchFalse(expression, label);
+					break;
+				}
+			}
+		}
+		
+		void DefaultBranchFalse(Expression expression, Label label)
+		{
+			expression.Switch(this); PopType();
+			_il.Emit(OpCodes.Brfalse, label);
 		}
 		
 		public override void LeaveUnaryExpression(UnaryExpression node)

@@ -137,8 +137,7 @@ namespace Boo.Ast.Compilation.Steps
 		{			
 			if (null == parameter.Type)
 			{
-				parameter.Type = new TypeReference("object");
-				BindingManager.Bind(parameter.Type, BindingManager.ToTypeReference(BindingManager.ObjectTypeBinding));
+				parameter.Type = CreateBoundTypeReference(BindingManager.ObjectTypeBinding);
 			}
 			Binding.ParameterBinding binding = new Binding.ParameterBinding(parameter, GetBoundType(parameter.Type));
 			BindingManager.Bind(parameter, binding);
@@ -169,29 +168,42 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			if (null == method.ReturnType)
 			{
-				IBinding returnTypeBinding = null;
-				
 				ArrayList returnStatements = _currentMethodInfo.ReturnStatements;
 				if (0 == returnStatements.Count)
 				{					
-					method.ReturnType = new TypeReference("void");
-					BindingManager.Bind(method.ReturnType, returnTypeBinding = BindingManager.ToTypeReference(BindingManager.VoidTypeBinding));
+					method.ReturnType = CreateBoundTypeReference(BindingManager.VoidTypeBinding);
 				}
 				else
 				{					
-					if (1 == returnStatements.Count)
-					{
-						ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
-						method.ReturnType = new TypeReference(type.FullName);
-						BindingManager.Bind(method.ReturnType, returnTypeBinding = BindingManager.ToTypeReference(type));
+					ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
+					
+					for (int i=1; i<returnStatements.Count; ++i)
+					{	
+						ITypeBinding newType = GetBoundType(((ReturnStatement)returnStatements[i]).Expression);
+						if (type == newType)
+						{
+							continue;
+						}
+						
+						if (IsAssignableFrom(type, newType))
+						{
+							continue;
+						}
+						
+						if (IsAssignableFrom(newType, type))
+						{
+							newType = type;
+							continue;
+						}
+						
+						type = BindingManager.ObjectTypeBinding;
+						break;
 					}
-					else
-					{
-						throw new NotImplementedException();
-					}
+					
+					method.ReturnType = CreateBoundTypeReference(type);
 				}
 				
-				_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, returnTypeBinding);
+				_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, GetBinding(method.ReturnType));
 			}
 			
 			((InternalMethodBinding)GetBinding(method)).Resolved();
@@ -954,6 +966,13 @@ namespace Boo.Ast.Compilation.Steps
 				}
 			}
 			return false;
+		}
+		
+		TypeReference CreateBoundTypeReference(ITypeBinding binding)
+		{
+			TypeReference typeReference = new TypeReference(binding.Name);
+			BindingManager.Bind(typeReference, BindingManager.ToTypeReference(binding));
+			return typeReference;
 		}
 		
 		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)

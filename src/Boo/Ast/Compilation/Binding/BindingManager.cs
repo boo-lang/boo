@@ -57,6 +57,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
+		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
+		
 		public BindingManager()
 		{
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
@@ -160,7 +162,13 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public ITypedBinding ToTypeReference(ITypeBinding type)
 		{
-			return new TypeReferenceBinding(type);
+			ITypedBinding cached = (ITypedBinding)_referenceCache[type];
+			if (null == cached)
+			{
+				cached = new TypeReferenceBinding(type);
+				_referenceCache[type] = cached;
+			}
+			return cached;
 		}
 		
 		public ITypedBinding ToTypeReference(System.Type type)
@@ -226,6 +234,12 @@ namespace Boo.Ast.Compilation.Binding
 				case "void":
 				{
 					binding = ToTypeReference(VoidTypeBinding);
+					break;
+				}
+				
+				case "bool":
+				{
+					binding = ToTypeReference(BoolTypeBinding);
 					break;
 				}
 				

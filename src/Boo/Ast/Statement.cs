@@ -61,5 +61,16 @@ namespace Boo.Ast
 		public Statement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
+		
+		public void ReplaceBy(Statement other)
+		{
+			Block block = (Block)ParentNode;
+			if (null == block)
+			{
+				throw new InvalidOperationException();
+			}
+			
+			block.Statements.Replace(this, other);
+		}
 	}
 }

@@ -82,9 +82,24 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				node.Modifiers |= TypeMemberModifiers.Public;
 			}
-		}
+		}		
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node, ref Statement resultingNode)
+		{
+			LeaveStatement(node, ref resultingNode);
+		}
+		
+		public override void LeaveRaiseStatement(RaiseStatement node, ref Statement resultingNode)
+		{
+			LeaveStatement(node, ref resultingNode);
+		}
+		
+		public override void LeaveReturnStatement(ReturnStatement node, ref Statement resultingNode)
+		{
+			LeaveStatement(node, ref resultingNode);
+		}
+		
+		public void LeaveStatement(Statement node, ref Statement resultingNode)
 		{
 			if (null != node.Modifier)
 			{
@@ -112,5 +127,6 @@ namespace Boo.Ast.Compilation.Steps
 				}
 			}
 		}
+
 	}
 }

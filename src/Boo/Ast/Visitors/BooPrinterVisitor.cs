@@ -555,7 +555,7 @@ namespace Boo.Ast.Visitors
 				
 				case UnaryOperatorType.Not:
 				{
-					return "not";
+					return "not ";
 				}
 			}
 			throw new ArgumentException("op");
