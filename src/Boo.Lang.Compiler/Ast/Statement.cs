@@ -45,6 +45,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(RaiseStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(UnpackStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(ExpressionStatement))]
+	[System.Xml.Serialization.XmlInclude(typeof(MacroStatement))]
 	[Serializable]
 	public abstract class Statement : StatementImpl
 	{		

@@ -26,49 +26,62 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
-namespace Boo.Lang.Compiler.Ast
-{
-	[System.Xml.Serialization.XmlInclude(typeof(OmittedExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(MethodInvocationExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(UnaryExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(BinaryExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(ReferenceExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(LiteralExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(ExpressionInterpolationExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(GeneratorExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(SlicingExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(AsExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(TypeofExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(CastExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(CallableBlockExpression))]
-	[Serializable]
-	public abstract class Expression : ExpressionImpl
-	{		
-		protected Boo.Lang.Compiler.TypeSystem.IType _expressionType;
-		
-		public Expression()
-		{
- 		}
- 		
-		public Expression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-		}
-		
-		[System.Xml.Serialization.XmlIgnore]
-		public Boo.Lang.Compiler.TypeSystem.IType ExpressionType
-		{
-			get
-			{
-				return _expressionType;
-			}
-			
-			set
-			{
-				_expressionType = value;
-			}
-		}
-	}
-}
+"""
+Like booi except it only spits out the XML representation of the AST.
+
+booi.exe examples\ast-to-xml.boo file1.boo file2.boo
+
+To show the AST after the first parsing step only use the -parse option:
+booi.exe examples\ast-to-xml.boo -parse file1.boo file2.boo
+
+If you want to save the output to a file:
+booi.exe examples\ast-to-xml.boo file1.boo file2.boo > output.xml
+"""
+
+import System
+import System.IO
+import System.Xml.Serialization from System.Xml
+import Boo.Lang.Compiler from Boo.Lang.Compiler
+import Boo.Lang.Compiler.IO
+import Boo.Lang.Compiler.Pipelines
+
+def PrintAST([required]result as CompilerContext, [required]out as TextWriter):
+	astobject = result.CompileUnit
+	try:
+		s = XmlSerializer( astobject.GetType() )
+	except e:
+		print e.Message
+		return
+	try:
+		s.Serialize( out, astobject )
+	except e:
+		print "\n", e.ToString()
+
+
+compiler = BooCompiler()
+files as (string)
+
+if argv[0] == "-parse":
+	compiler.Parameters.Pipeline = Parse()
+	files = argv[1:]
+else:
+	compiler.Parameters.Pipeline = Compile()
+	files = argv[:]
+
+if len(files) == 0:
+	print "please specify at least one boo file as a parameter"
+	return
+	
+for filename in files:
+	compiler.Parameters.Input.Add(FileInput(filename))
+
+try:
+	result = compiler.Run()
+	if len(result.Errors) > 0:
+		print "There were errors compiling the boo file(s)"
+	else:
+		PrintAST(result, Console.Out)
+except e:
+	print e.GetType(), ":", e.Message
+

@@ -31,6 +31,7 @@ namespace Boo.Lang.Compiler.Ast
 	using System;
 	using System.Collections;
 	using System.IO;
+	using System.Xml.Serialization;
 
 	/// <summary>
 	/// Base class for every node in the AST.
@@ -79,6 +80,8 @@ namespace Boo.Lang.Compiler.Ast
 		/// <summary>
 		/// true when the node was constructed by the compiler.
 		/// </summary>
+		[XmlAttribute]
+		[System.ComponentModel.DefaultValue(false)]
 		public bool IsSynthetic
 		{
 			get
@@ -92,6 +95,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
+		[XmlIgnore]
 		public Boo.Lang.Compiler.TypeSystem.IEntity Entity
 		{
 			get
@@ -152,7 +156,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 
-		[System.Xml.Serialization.XmlIgnore]
+		[XmlIgnore]
 		public LexicalInfo LexicalInfo
 		{
 			get

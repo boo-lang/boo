@@ -11,7 +11,6 @@ try:
 	normalarrayindexing:
 		myarray[-1] = 4
 	print "normalarrayindexing is working"
-	map(myarray, {x|print(x+" ")})
 except e:
 	print "error: you should not see me - normalarrayindexing is not working"
 
