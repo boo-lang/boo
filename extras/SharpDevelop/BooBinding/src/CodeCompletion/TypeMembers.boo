@@ -26,10 +26,7 @@ import Boo.Lang.Compiler.Ast as AST
 /////////////////////////////////////
 ///          Constructor          ///
 /////////////////////////////////////
-class Constructor(AbstractMethod):
-	def AddModifier(m as ModifierEnum):
-		modifiers = modifiers | m
-	
+class Constructor(BooAbstractMethod):
 	def constructor(m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
 		FullyQualifiedName = '#ctor'
 		self.region = region
@@ -40,16 +37,19 @@ class Constructor(AbstractMethod):
 /////////////////////////////////////
 ///           Destructor          ///
 /////////////////////////////////////
-class Destructor(AbstractMethod):
-	def AddModifier(m as ModifierEnum):
-		modifiers = modifiers | m
-	
+class Destructor(BooAbstractMethod):
 	def constructor(className as string, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
 		FullyQualifiedName = '~' + className
 		self.region = region
 		self.bodyRegion = bodyRegion
 		modifiers = m
 
+class BooAbstractMethod(AbstractMethod):
+	[Property(Node)]
+	_node as AST.Method
+	
+	def AddModifier(m as ModifierEnum):
+		modifiers = modifiers | m
 
 /////////////////////////////////////
 ///             Event             ///
@@ -101,16 +101,10 @@ class Indexer(AbstractIndexer):
 /////////////////////////////////////
 ///            Method             ///
 /////////////////////////////////////
-class Method(AbstractMethod):
-	[Property(Node)]
-	_node as AST.Method
-	
-	def AddModifier(m as ModifierEnum):
-		modifiers = modifiers | m
-	
+class Method(BooAbstractMethod):
 	def constructor(name as string, rtype as ReturnType, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
 		FullyQualifiedName = name
-		returnType = rtype
+		self.returnType = rtype
 		self.region = region
 		self.bodyRegion = bodyRegion
 		modifiers = m
@@ -128,7 +122,7 @@ class Property(AbstractProperty):
 	
 	def constructor(fullyQualifiedName as string, rtype as ReturnType, m as ModifierEnum, region as IRegion, bodyRegion as IRegion):
 		self.FullyQualifiedName = fullyQualifiedName
-		returnType = rtype
+		self.returnType = rtype
 		self.region = region
 		self.bodyRegion = bodyRegion
 		modifiers = m

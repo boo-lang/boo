@@ -197,6 +197,7 @@ class Visitor(AbstractVisitorCompilerStep):
 		return if node.Body.Statements.Count == 0
 		ctor = Constructor(GetModifier(node), GetRegion(node), GetClientRegion(node))
 		ctor.Parameters = GetParameters(node.Parameters)
+		ctor.Node = node
 		cast(Class, _currentClass.Peek()).Methods.Add(ctor)
 	
 	override def OnField(node as AST.Field):

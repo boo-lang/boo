@@ -40,21 +40,17 @@ class Resolver:
 	
 	private def ResolveCurrentMember() as IMember:
 		print "Getting current method... caretLine = ${_caretLine}, caretColumn = ${_caretColumn}"
-		for m as IMethod in _callingClass.Methods:
-			if m.BodyRegion != null:
-				print "${m.Name} - ${m.BodyRegion.BeginLine}/${m.BodyRegion.EndLine}"
-				return m if m.BodyRegion.IsInside(_caretLine, _caretColumn)
-		for p as IProperty in _callingClass.Properties:
-			if p.BodyRegion != null:
-				print "${p.Name} - ${p.BodyRegion.BeginLine}/${p.BodyRegion.EndLine}"
-				return p if p.BodyRegion.IsInside(_caretLine, _caretColumn)
-			/*if p.GetterRegion != null:
-				print "get_${p.Name} - ${p.GetterRegion.BeginLine}/${p.GetterRegion.EndLine}"
-				return p if p.GetterRegion.IsInside(_caretLine, _caretColumn)
-			if p.SetterRegion != null:
-				print "set_${p.Name} - ${p.SetterRegion.BeginLine}/${p.SetterRegion.EndLine}"
-				return p if p.SetterRegion.IsInside(_caretLine, _caretColumn)*/
-		return null
+		best as IMember = null
+		line = 0
+		for m as IMember in _callingClass.Methods:
+			if m.Region.BeginLine <= _caretLine and m.Region.BeginLine > line:
+				line = m.Region.BeginLine
+				best = m
+		for m as IMember in _callingClass.Properties:
+			if m.Region.BeginLine <= _caretLine and m.Region.BeginLine > line:
+				line = m.Region.BeginLine
+				best = m
+		return best
 	
 	_localTypes as Hashtable = {}
 	
@@ -70,8 +66,8 @@ class Resolver:
 	def InnerGetTypeFromLocal(name as string) as IReturnType:
 		member = self.CurrentMember
 		Print("member", member)
-		if member isa Method:
-			method as Method = member
+		if member isa BooAbstractMethod:
+			method as BooAbstractMethod = member
 			for para as IParameter in method.Parameters:
 				return para.ReturnType if para.Name == name
 			if method.Node != null and method.Node.Body != null:
@@ -80,11 +76,19 @@ class Resolver:
 				varLookup.Visit(method.Node.Body)
 				print "Finished visiting method body!"
 				return varLookup.ReturnType
-		elif member isa IProperty:
-			property as IProperty = member
+		elif member isa Property:
+			property as Property = member
 			return property.ReturnType if name == "value"
 			for para as IParameter in property.Parameters:
 				return para.ReturnType if para.Name == name
+			if property.Node != null:
+				varLookup = VariableLookupVisitor(Resolver: self, LookFor: name)
+				// TODO: visit only the correct body
+				print "Visiting property body..."
+				varLookup.Visit(property.Node.Getter) unless property.Node.Getter == null
+				varLookup.Visit(property.Node.Setter) unless property.Node.Setter == null
+				print "Finished visiting property body!"
+				return varLookup.ReturnType
 		return null
 	
 	def SearchType(name as string) as IClass:
