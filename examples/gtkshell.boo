@@ -10,8 +10,12 @@ class PromptView(TextView):
 	
 	def constructor():
 		
-		self.ModifyFont(
-			Pango.FontDescription(Family: "Courier New"))
+		if Environment.OSVersion.Platform in PlatformID.Win32NT, PlatformID.Win32Windows:
+			self.ModifyFont(
+				Pango.FontDescription(Family: "Lucida Console", Size: 12))
+		else:
+			self.ModifyFont(
+				Pango.FontDescription(Family: "Courier New"))
 			
 		_interpreter.References.Add(typeof(TextView).Assembly)
 		_interpreter.References.Add(typeof(Gdk.Key).Assembly)
