@@ -27,10 +27,31 @@
 // mailto:rbo@acm.org
 #endregion
 
+import System
+import System.IO
+import System.Reflection
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 
-def run(argv as (string)):
+class AssemblyResolver:
+
+	_cache = {}
+	
+	def AssemblyResolve(sender, args as ResolveEventArgs) as Assembly:
+		parts = /,\s*/.Split(args.Name)
+		simpleName = parts[0]
+		
+		asm as Assembly = _cache[simpleName]
+		if asm is null:
+			basePath = Path.GetFullPath(simpleName)
+			asm = probeFile(basePath + ".dll")
+			if asm is null:
+				asm = probeFile(basePath + ".exe")
+			_cache[simpleName] = asm
+			
+		return asm
+
+def main(argv as (string)):
 	compiler = BooCompiler()
 	if "-" == argv[0]:
 		compiler.Parameters.Input.Add(ReaderInput("<stdin>", System.Console.In))
@@ -41,14 +62,23 @@ def run(argv as (string)):
 	// compiles the code in memory only
 	compiler.Parameters.Pipeline.Load("boom")
 	
+	AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver().AssemblyResolve
 	result = compiler.Run()
 	if len(result.Errors):
 		for error as CompilerError in result.Errors:
 			print(error.ToString(true))
-	else:		
-		result.GeneratedAssemblyEntryPoint.Invoke(null, (argv[1:],))
+	else:	
+		try:
+			result.GeneratedAssemblyEntryPoint.Invoke(null, (argv[1:],))
+		except x as TargetInvocationException:
+			print(x.InnerException)
+	
+def probeFile(fname as string):	
+	if File.Exists(fname):		
+		return Assembly.LoadFrom(fname)
+
 	
 if len(argv) > 0:
-	run(argv)
+	main(argv)
 else:
 	print("booi <script.boo>")
