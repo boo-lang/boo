@@ -165,30 +165,25 @@ tokens
 		throw new ArgumentException("op");
 	}
 
-	// removes trailing and ending new lines
+	// every new line is transformed to '\n'
+	// trailing and leading newlines are removed
 	protected string MassageDocString(string s)
-	{
-		int startIndex = 0;
-		int length = s.Length;
-		if (length > 0)
-		{
-			char first = s[0];
-			int newLineLength = 2;
-			if ('\r' == first)
+	{			
+		if (s.Length != 0)
+		{						
+			s = s.Replace("\r\n", "\n");
+			
+			int length = s.Length;
+			int startIndex = 0;			
+			if ('\n' == s[0])
 			{			
 				// assumes '\r\n'
-				startIndex += 2;
-				length -= 2;
-			}
-			else if ('\n' == first)
-			{
-				newLineLength = 1;
 				startIndex++;
 				length--;
-			}			
+			}						
 			if ('\n' == s[s.Length-1])
 			{
-				length -= newLineLength;
+				length--;
 			}
 			return s.Substring(startIndex, length);
 		}

@@ -72,8 +72,6 @@ namespace Boo.Tests.Ast.Compilation
 	[TestFixture]
 	public class CompilerTestCase
 	{
-		public static string NewLine = Environment.NewLine;
-		
 		Compiler _compiler;
 		
 		CompilerParameters _parameters;
@@ -142,15 +140,15 @@ namespace Boo.Tests.Ast.Compilation
 		[Test]
 		public void TestHello()
 		{
-			Assert.AreEqual("Hello!" + NewLine, RunString("print('Hello!')"));
+			Assert.AreEqual("Hello!\n", RunString("print('Hello!')"));
 		}
 		
 		[Test]
 		public void TestHello2()
 		{
-			string stdin = "Test2" + NewLine;
+			string stdin = "Test2\n";
 			string code = "name = prompt(''); print(\"Hello, ${name}!\")";
-			Assert.AreEqual("Hello, Test2!" + NewLine, RunString(code, stdin));			
+			Assert.AreEqual("Hello, Test2!\n", RunString(code, stdin));			
 		}
 		
 		[Test]
@@ -311,7 +309,7 @@ namespace Boo.Tests.Ast.Compilation
 				{
 					Assert.Fail(context.Errors.ToString(true));
 				}
-				return console.ToString();
+				return console.ToString().Replace("\r\n", "\n");
 			}
 			finally
 			{				

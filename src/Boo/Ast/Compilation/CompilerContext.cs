@@ -21,7 +21,7 @@ namespace Boo.Ast.Compilation
 		
 		protected Binding.BindingManager _bindingManager;		
 		
-		protected TraceSwitch _traceSwitch;
+		protected TraceSwitch _traceSwitch;		
 
 		public CompilerContext(CompileUnit unit) : this(new CompilerParameters(), unit)
 		{				
@@ -85,15 +85,49 @@ namespace Boo.Ast.Compilation
 			{
 				return _bindingManager;
 			}
-		}	
+		}			
+		
+		public void TraceEnter(string format, object param)
+		{
+			if (_traceSwitch.TraceVerbose)
+			{
+				Trace.WriteLine(string.Format(format, param));
+				++Trace.IndentLevel;
+			}
+		}
+		
+		public void TraceLeave(string format, object param)
+		{
+			if (_traceSwitch.TraceVerbose)
+			{
+				--Trace.IndentLevel;
+				Trace.WriteLine(string.Format(format, param));
+			}
+		}
 		
 		public void TraceVerbose(string format, params object[] args)
 		{			
 			if (_traceSwitch.TraceVerbose)
 			{
 				Trace.WriteLine(string.Format(format, args));
+			}			
+		}
+		
+		public void TraceVerbose(string format, object param)
+		{
+			if (_traceSwitch.TraceVerbose)			
+			{
+				Trace.WriteLine(string.Format(format, param));
 			}
 		}
+		
+		public void TraceVerbose(string message)
+		{
+			if (_traceSwitch.TraceVerbose)
+			{
+				Trace.WriteLine(message);
+			}
+		}	
 
 		internal void Run()
 		{

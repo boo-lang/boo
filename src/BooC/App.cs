@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Globalization;
 using System.Threading;
@@ -79,6 +80,11 @@ namespace BooC
 							case 'v':
 							{
 								options.Verbose = true;
+								if (arg.Length > 2)
+								{
+									options.TraceSwitch.Level = TraceLevel.Verbose;
+									Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
+								}
 								break;
 							}
 

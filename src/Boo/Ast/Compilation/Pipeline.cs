@@ -58,6 +58,8 @@ namespace Boo.Ast.Compilation
 		{
 			foreach (ICompilerStep step in _steps)
 			{
+				context.TraceEnter("Entering {0}...", step);			
+				
 				step.Initialize(context);
 				try
 				{
@@ -71,6 +73,7 @@ namespace Boo.Ast.Compilation
 				{
 					context.Errors.StepExecution(step, x);
 				}
+				context.TraceLeave("Left {0}.", step);
 			}
 			
 			foreach (ICompilerStep step in _steps)
