@@ -49,7 +49,6 @@ using Boo.Lang.Compiler.Steps;
 
 namespace Boo.CodeDom
 {
-
 	/// <summary>
 	/// ICodeCompiler implementation for Boo.
 	/// </summary>
@@ -59,13 +58,13 @@ namespace Boo.CodeDom
 		{
 		}
 
-		public CompilerResults CompileAssemblyFromDom (
+		public CompilerResults CompileAssemblyFromDom(
 			CompilerParameters options, CodeCompileUnit e)
 		{
 			return CompileAssemblyFromDomBatch(options,
 				new CodeCompileUnit [] {e});
 		}
-		public CompilerResults CompileAssemblyFromDomBatch (
+		public CompilerResults CompileAssemblyFromDomBatch( 
 			CompilerParameters options, CodeCompileUnit [] ea)
 		{
 			string[] fileNames = new string [ea.Length];
@@ -75,14 +74,19 @@ namespace Boo.CodeDom
 			
 			StringCollection assemblies = options.ReferencedAssemblies;
 
-			foreach (CodeCompileUnit e in ea) {
+			foreach (CodeCompileUnit e in ea)
+			{
 				fileNames [i] = GetTempFileNameWithExtension(options.TempFiles, i.ToString () + ".boo");
 				FileStream f = new FileStream (fileNames [i],FileMode.OpenOrCreate);
 				StreamWriter s = new StreamWriter (f, Encoding.UTF8);
-				if (e.ReferencedAssemblies != null) {
-					foreach (string str in e.ReferencedAssemblies) {
+				if (e.ReferencedAssemblies != null)
+				{
+					foreach (string str in e.ReferencedAssemblies)
+					{
 						if (!assemblies.Contains (str))
+						{
 							assemblies.Add (str);
+						}
 					}
 				}
 
@@ -94,7 +98,7 @@ namespace Boo.CodeDom
 			return CompileAssemblyFromFileBatch (options, fileNames);
 		}
 		
-		public CompilerResults CompileAssemblyFromFile (
+		public CompilerResults CompileAssemblyFromFile( 
 			CompilerParameters options, string fileName)
 		{
 			return CompileAssemblyFromFileBatch (options, new string [] {fileName});
@@ -102,7 +106,7 @@ namespace Boo.CodeDom
 
 	protected bool processCompileResult(BooC.CompilerContext context, CompilerResults results)
 	{
-		foreach( BooC.CompilerError booError in context.Errors )
+		foreach (BooC.CompilerError booError in context.Errors)
 		{
 			CompilerError error=new CompilerError();
 			error.ErrorNumber = booError.Code;
@@ -121,9 +125,10 @@ namespace Boo.CodeDom
 		{
 			return true;
 		}
-	   }
-	   public CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string [] fileNames)
-	   {
+	}
+	
+	public CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string [] fileNames)
+	{
 		if (null == options)
 			throw new ArgumentNullException("options");
 		if (null == fileNames)
@@ -137,10 +142,11 @@ namespace Boo.CodeDom
 		{
 			options.OutputAssembly = GetTempFileNameWithExtension (options.TempFiles, "dll");
 		}
-			parameters.OutputAssembly = options.OutputAssembly;
+		parameters.OutputAssembly = options.OutputAssembly;
 		
 		// set compile options
-		if ( options.GenerateInMemory ) {
+		if ( options.GenerateInMemory )
+		{
 			parameters.Pipeline = new CompileToMemory();
 		}
 		else
@@ -170,7 +176,8 @@ namespace Boo.CodeDom
 			}
 		}
 		
-		foreach ( string fileName in fileNames ) {
+		foreach ( string fileName in fileNames )
+		{
 			parameters.Input.Add(new FileInput(fileName));
 		}
 		 // run the compiler
@@ -190,21 +197,21 @@ namespace Boo.CodeDom
 		return results;
 	}
 	
-		public CompilerResults CompileAssemblyFromSource (
+	
+	public CompilerResults CompileAssemblyFromSource (
 			CompilerParameters options, string source)
-		{
-			return CompileAssemblyFromSourceBatch (options,
-				new string [] {source});
-		}
-
-		public CompilerResults CompileAssemblyFromSourceBatch (
+	{
+		return CompileAssemblyFromSourceBatch (options,
+		                                       new string [] {source});
+	}
+	
+	public CompilerResults CompileAssemblyFromSourceBatch (
 			CompilerParameters options, string [] sources)
-		{
-			
-			if (null == options)
-				throw new ArgumentNullException("options");
-			if (null == sources)
-				throw new ArgumentNullException("fileNames");
+	{
+		if (null == options)
+			throw new ArgumentNullException("options");
+		if (null == sources)
+			throw new ArgumentNullException("fileNames");
 
 			CompilerResults results = new CompilerResults (options.TempFiles);
 			BooC.BooCompiler compiler = new BooC.BooCompiler();

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -39,6 +39,8 @@ namespace Boo.Lang
 		protected ReferenceExpression _propertyName;
 		
 		protected Expression _setPreCondition;
+		
+		protected BoolLiteralExpression _observable;
 
 		public PropertyAttribute(ReferenceExpression propertyName) : this(propertyName, null)
 		{
@@ -52,6 +54,39 @@ namespace Boo.Lang
 			}
 			_propertyName = propertyName;
 			_setPreCondition = setPreCondition;
+		}
+		
+		public BoolLiteralExpression Observable
+		{
+			get
+			{
+				return _observable;
+			}
+			
+			set
+			{
+				_observable = value;
+			}
+		}
+		
+		protected bool IsObservable
+		{
+			get
+			{
+				if (null == _observable)
+				{
+					return false;
+				}
+				return _observable.Value;
+			}
+		}
+		
+		protected string ChangedEventName
+		{
+			get
+			{
+				return _propertyName.Name + "Changed";
+			}
 		}
 		
 		override public void Apply(Node node)
@@ -72,8 +107,13 @@ namespace Boo.Lang
 			p.Type = f.Type;
 			p.Getter = CreateGetter(f);
 			p.Setter = CreateSetter(f);
-			p.LexicalInfo = LexicalInfo;			
-			((TypeDefinition)f.ParentNode).Members.Add(p);
+			p.LexicalInfo = LexicalInfo;
+			
+			f.DeclaringType.Members.Add(p);
+			if (IsObservable)
+			{
+				f.DeclaringType.Members.Add(CreateChangedEvent(f));
+			}
 		}
 		
 		virtual protected Method CreateGetter(Field f)
@@ -119,7 +159,29 @@ namespace Boo.Lang
 					new ReferenceExpression("value")
 					)
 				);
+			
+			if (IsObservable)
+			{
+				MethodInvocationExpression mie = new MethodInvocationExpression(
+														new ReferenceExpression(ChangedEventName));
+				mie.Arguments.Add(new SelfLiteralExpression());
+				mie.Arguments.Add(
+					new MemberReferenceExpression(
+						new MemberReferenceExpression(
+							new ReferenceExpression("System"),
+							"EventArgs"),
+					"Empty"));
+				setter.Body.Add(mie);
+			}
 			return setter;
+		}
+		
+		protected Event CreateChangedEvent(Field f)
+		{
+			Event e = new Event(_observable.LexicalInfo);
+			e.Name = ChangedEventName;
+			e.Type = CodeBuilder.CreateTypeReference(typeof(System.EventHandler));
+			return e;
 		}
 	}
 }
