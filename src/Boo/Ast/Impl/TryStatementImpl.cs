@@ -43,7 +43,6 @@ namespace Boo.Ast.Impl
 			ProtectedBlock = new Block();
 			_exceptionHandlers = new ExceptionHandlerCollection(this);
  		}
-		
 		public Block ProtectedBlock
 		{
 			get
@@ -60,7 +59,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public ExceptionHandlerCollection ExceptionHandlers
 		{
 			get
@@ -77,7 +75,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Block SuccessBlock
 		{
 			get
@@ -94,7 +91,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Block EnsureBlock
 		{
 			get

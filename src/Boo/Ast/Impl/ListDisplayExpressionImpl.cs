@@ -40,7 +40,6 @@ namespace Boo.Ast.Impl
 		{
 			_declarations = new DeclarationCollection(this);
  		}
-		
 		public Expression Expression
 		{
 			get
@@ -57,7 +56,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public DeclarationCollection Declarations
 		{
 			get
@@ -74,7 +72,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression Iterator
 		{
 			get
@@ -91,7 +88,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public StatementModifier Filter
 		{
 			get

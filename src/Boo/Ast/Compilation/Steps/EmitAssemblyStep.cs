@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Boo.Ast;
 using Boo.Ast.Compilation;
+using Boo.Ast.Compilation.NameBinding;
 
 namespace Boo.Ast.Compilation.Steps
 {
@@ -35,8 +36,17 @@ namespace Boo.Ast.Compilation.Steps
 		{			
 			MethodBuilder methodBuilder = TypeManager.GetMethodBuilder(method);
 			_il = methodBuilder.GetILGenerator();
+			method.Locals.Switch(this);
 			method.Body.Switch(this);
 			_il.Emit(OpCodes.Ret);			
+		}
+		
+		public override void OnLocal(Local local)
+		{			
+			LocalInfo info = TypeManager.GetLocalInfo(local);
+			LocalBuilder builder = _il.DeclareLocal(info.Type);
+			builder.SetLocalSymInfo(local.Name);
+			info.LocalBuilder = builder;
 		}
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node)
@@ -52,6 +62,28 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void OnBinaryExpression(BinaryExpression node)
+		{
+			if (BinaryOperatorType.Assign == node.Operator)
+			{
+				LocalInfo local = TypeManager.GetNameInfo(node.Left) as LocalInfo;
+				if (null == local)
+				{
+					throw new NotImplementedException();
+				}
+				
+				node.Right.Switch(this);
+				
+				// assignment result is right expression
+				_il.Emit(OpCodes.Dup);
+				_il.Emit(OpCodes.Stloc, local.LocalBuilder);
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
+		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
 			MethodInfo mi = TypeManager.GetMethodInfo(node.Target);
@@ -64,6 +96,16 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
+		}
+		
+		public override void OnReferenceExpression(ReferenceExpression node)
+		{
+			LocalInfo local = TypeManager.GetNameInfo(node) as LocalInfo;
+			if (null == local)
+			{
+				throw new NotImplementedException();
+			}
+			_il.Emit(OpCodes.Ldloc, local.LocalBuilder);
 		}
 		
 		void DefineEntryPoint()

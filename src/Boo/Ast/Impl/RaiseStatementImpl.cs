@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal RaiseStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Exception
 		{
 			get

@@ -21,7 +21,6 @@ namespace Boo.Ast.Impl
 		{
 			_statements = new StatementCollection(this);
  		}
-		
 		public StatementCollection Statements
 		{
 			get

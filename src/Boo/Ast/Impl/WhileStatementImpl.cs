@@ -34,7 +34,6 @@ namespace Boo.Ast.Impl
 		{
 			_statements = new StatementCollection(this);
  		}
-		
 		public Expression Condition
 		{
 			get
@@ -51,7 +50,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public StatementCollection Statements
 		{
 			get

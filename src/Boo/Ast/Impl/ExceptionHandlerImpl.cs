@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal ExceptionHandlerImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Declaration Declaration
 		{
 			get

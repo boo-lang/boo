@@ -31,7 +31,6 @@ namespace Boo.Ast.Impl
 		internal UnaryExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public UnaryOperatorType Operator
 		{
 			get
@@ -44,7 +43,6 @@ namespace Boo.Ast.Impl
 				_operator = value;
 			}
 		}
-		
 		public Expression Operand
 		{
 			get

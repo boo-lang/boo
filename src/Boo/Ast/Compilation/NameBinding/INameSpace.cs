@@ -5,9 +5,10 @@ namespace Boo.Ast.Compilation.NameBinding
 {
 	public enum NameInfoType
 	{
-		TypeInfo,
-		MethodInfo,
-		AmbiguousNameInfo
+		Type,
+		Method,		
+		Local,		
+		AmbiguousName
 	}
 	
 	public interface INameInfo
@@ -16,7 +17,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		{
 			get;
 		}
-	}
+	}	
 	
 	public interface ITypeInfo : INameInfo
 	{
@@ -41,6 +42,69 @@ namespace Boo.Ast.Compilation.NameBinding
 		ITypeInfo ReturnType
 		{
 			get;
+		}
+	}
+	
+	public class LocalInfo : INameInfo
+	{
+		TypeManager _manager;
+		
+		Local _local;
+		
+		ITypeInfo _typeInfo;
+		
+		System.Reflection.Emit.LocalBuilder _builder;
+		
+		public LocalInfo(TypeManager manager, Local local, ITypeInfo typeInfo)
+		{
+			_manager = manager;
+			_local = local;
+			_typeInfo = typeInfo;
+		}
+		
+		public NameInfoType InfoType
+		{
+			get
+			{
+				return NameInfoType.Local;
+			}
+		}
+		
+		public Local Local
+		{
+			get
+			{
+				return _local;
+			}
+		}
+		
+		public ITypeInfo TypeInfo
+		{
+			get
+			{
+				return _typeInfo;
+			}
+		}
+		
+		public Type Type
+		{
+			get
+			{
+				return _typeInfo.Type;
+			}
+		}
+		
+		public System.Reflection.Emit.LocalBuilder LocalBuilder
+		{
+			get
+			{
+				return _builder;
+			}
+			
+			set
+			{
+				_builder = value;
+			}
 		}
 	}
 	
@@ -93,6 +157,42 @@ namespace Boo.Ast.Compilation.NameBinding
 			}
 			
 			return null;
+		}
+	}
+	
+	class MethodNameSpace : INameSpace
+	{
+		INameSpace _parent;
+		
+		Method _method;
+		
+		TypeManager _manager;
+		
+		public MethodNameSpace(TypeManager manager, INameSpace parent, Method method)
+		{
+			_manager = manager;
+			_method = method;
+			_parent = parent;
+		}
+		
+		public INameSpace Parent
+		{
+			get
+			{
+				return _parent;
+			}
+		}
+		
+		public INameInfo Resolve(string name)
+		{
+			foreach (Local local in _method.Locals)
+			{
+				if (name == local.Name)
+				{
+					return _manager.GetNameInfo(local);
+				}
+			}
+			return _parent.Resolve(name);
 		}
 	}
 	

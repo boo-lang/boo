@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal ReferenceExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public string Name
 		{
 			get

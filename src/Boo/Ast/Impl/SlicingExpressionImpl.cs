@@ -37,7 +37,6 @@ namespace Boo.Ast.Impl
 		internal SlicingExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Target
 		{
 			get
@@ -54,7 +53,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression Begin
 		{
 			get
@@ -71,7 +69,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression End
 		{
 			get
@@ -88,7 +85,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression Step
 		{
 			get

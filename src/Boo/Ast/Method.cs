@@ -2,19 +2,16 @@ using System;
 using Boo.Ast.Impl;
 
 namespace Boo.Ast
-{
+{	
 	[System.Xml.Serialization.XmlInclude(typeof(Constructor))]
 	[Serializable]
 	public class Method : MethodImpl
-	{		
+	{	
 		public Method()
-		{
-			_parameters = new ParameterDeclarationCollection(this);
-			_returnTypeAttributes = new AttributeCollection(this);
-			Body = new Block();
- 		}
-		
-		public Method(TypeReference returnType) : base(returnType)
+		{			
+ 		}		
+ 		
+ 		public Method(TypeReference returnType) : base(returnType)
 		{
 		}
 		

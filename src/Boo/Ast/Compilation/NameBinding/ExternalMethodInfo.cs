@@ -19,7 +19,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		{
 			get
 			{
-				return NameInfoType.MethodInfo;
+				return NameInfoType.Method;
 			}
 		}
 		

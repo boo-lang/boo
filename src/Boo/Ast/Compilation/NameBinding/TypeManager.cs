@@ -11,6 +11,11 @@ namespace Boo.Ast.Compilation.NameBinding
 		
 		public static readonly Type StringType = typeof(string);
 		
+		public bool HasNameInfo(Node node)
+		{
+			return null != node[NameInfoKey];
+		}
+		
 		public void SetNameInfo(Node node, INameInfo mi)
 		{
 			if (null == node)
@@ -38,7 +43,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		public void SetNameInfo(Expression expression, Type type)
 		{
 			SetNameInfo(expression, ToTypeInfo(type));
-		}
+		}		
 		
 		public INameInfo GetNameInfo(Node node)
 		{
@@ -109,6 +114,11 @@ namespace Boo.Ast.Compilation.NameBinding
 		public System.Type GetType(Node node)
 		{
 			return GetTypeInfo(node).Type;
+		}		
+		
+		public LocalInfo GetLocalInfo(Local local)
+		{
+			return (LocalInfo)GetNameInfo(local);
 		}
 		
 		static object NameInfoKey = new object();

@@ -121,7 +121,7 @@
 	</target>
 	
 	<target name="generate-ast" depends="init">
-		<ifnot comparefile="ast.model" uptodatefile="src/Boo/Ast/CompileUnit.cs">
+		<ifnot comparefile="ast.model" uptodatefile="src/Boo/Ast/Impl/CompileUnitImpl.cs">
 			<exec program="python" failonerror="true">
 				<arg value="scripts\ast.py" />
 				<arg value="ast.model" />

@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal RELiteralExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public string Value
 		{
 			get

@@ -34,7 +34,6 @@ namespace Boo.Ast.Impl
 		internal BinaryExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public BinaryOperatorType Operator
 		{
 			get
@@ -47,7 +46,6 @@ namespace Boo.Ast.Impl
 				_operator = value;
 			}
 		}
-		
 		public Expression Left
 		{
 			get
@@ -64,7 +62,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression Right
 		{
 			get

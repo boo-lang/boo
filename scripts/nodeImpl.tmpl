@@ -1,12 +1,14 @@
 #def getTargetFileName(): src/Boo/Ast/Impl/${item.name}Impl.cs
 #def initializer()
 	#for field in $item.fields
-		#if cs.isCollection($model.resolve($field.type))
+		#unless "lazy" in $field.attributes
+			#if cs.isCollection($model.resolve($field.type))
 			$cs.toPrivateName($field.name) = new ${field.type}(this);
-		#end if
-		#if "auto" in $field.attributes
+			#end if
+			#if "auto" in $field.attributes
 			$field.name = new ${field.type}();
-		#end if
+			#end if
+		#end unless
 	#end for
 #end def
 #def constructorParameters(fields)
@@ -64,7 +66,20 @@ $initializer() #slurp
 		#for field in $item.fields
 		#set fieldName=$cs.toPrivateName($field.name)
 		#set fieldType=$model.resolve($field.type)
-		
+			#if "lazy" in $field.attributes
+		[System.Xml.Serialization.XmlIgnore]
+		public $field.type $field.name
+		{
+			get
+			{
+				if (null == $fieldName)
+				{
+					$fieldName = new ${field.type}(this);
+				}
+				return ${fieldName};
+			}
+		}
+			#else
 		public $field.type $field.name
 		{
 			get
@@ -85,6 +100,7 @@ $initializer() #slurp
 				#end if
 			}
 		}
+			#end if
 		#end for		
 	}
 }

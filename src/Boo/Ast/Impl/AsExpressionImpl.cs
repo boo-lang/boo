@@ -31,7 +31,6 @@ namespace Boo.Ast.Impl
 		internal AsExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Target
 		{
 			get
@@ -48,7 +47,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public TypeReference Type
 		{
 			get

@@ -31,7 +31,6 @@ namespace Boo.Ast.Impl
 		internal DeclarationStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Declaration Declaration
 		{
 			get
@@ -48,7 +47,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression Initializer
 		{
 			get

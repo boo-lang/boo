@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal BoolLiteralExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public bool Value
 		{
 			get

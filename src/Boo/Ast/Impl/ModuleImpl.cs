@@ -40,7 +40,6 @@ namespace Boo.Ast.Impl
 			_using = new UsingCollection(this);
 			Globals = new Block();
  		}
-		
 		public Package Package
 		{
 			get
@@ -57,7 +56,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public UsingCollection Using
 		{
 			get
@@ -74,7 +72,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Block Globals
 		{
 			get

@@ -21,7 +21,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		{
 			get
 			{
-				return NameInfoType.TypeInfo;
+				return NameInfoType.Type;
 			}
 		}
 		

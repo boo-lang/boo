@@ -21,7 +21,6 @@ namespace Boo.Ast.Impl
 		{
 			_items = new ExpressionPairCollection(this);
  		}
-		
 		public ExpressionPairCollection Items
 		{
 			get

@@ -18,6 +18,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		TypeBuilder _typeBuilder;
 		
+		Method _method;
+		
 		INameSpace _namespace;
 		
 		public override void Run()
@@ -42,6 +44,13 @@ namespace Boo.Ast.Compilation.Steps
 			TypeManager.SetNameInfo(module, _typeBuilder);
 			
 			_namespace = new TypeDefinitionNameSpace(TypeManager, _namespace, module);
+			return true;
+		}
+		
+		public override bool EnterMethod(Method method)
+		{
+			_method = method;
+			_namespace = new MethodNameSpace(TypeManager, _namespace, _method);
 			return true;
 		}
 		
@@ -72,10 +81,62 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void OnBinaryExpression(BinaryExpression node)
+		{
+			if (node.Operator == BinaryOperatorType.Assign)
+			{
+				// Auto local declaration:
+				// assign to unknown reference implies local
+				// declaration
+				ReferenceExpression reference = node.Left as ReferenceExpression;
+				if (null != reference)
+				{
+					node.Right.Switch(this);
+					
+					ITypeInfo expressionTypeInfo = TypeManager.GetTypeInfo(node.Right);
+					
+					INameInfo info = _namespace.Resolve(reference.Name);					
+					if (null == info)
+					{
+						Local local = new Local(reference);
+						LocalInfo localInfo = new LocalInfo(TypeManager, local, expressionTypeInfo);
+						TypeManager.SetNameInfo(local, localInfo);
+						
+						_method.Locals.Add(local);
+						TypeManager.SetNameInfo(reference, localInfo);
+					}
+					else
+					{
+						// default reference resolution
+						if (CheckNameResolution(reference, reference.Name, info))
+						{
+							TypeManager.SetNameInfo(reference, info);
+						}
+					}
+					
+					LeaveBinaryExpression(node);
+				}
+				else
+				{
+					throw new NotImplementedException();
+				}
+			}
+			else
+			{
+				base.OnBinaryExpression(node);
+			}
+		}
+		
+		public override void LeaveBinaryExpression(BinaryExpression node)
+		{
+			// expression type is the same as the right expression's
+			TypeManager.SetNameInfo(node, TypeManager.GetNameInfo(node.Right));
+		}
+		
 		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{			
 			INameInfo targetType = TypeManager.GetNameInfo(node.Target);			
-			if (targetType.InfoType == NameInfoType.MethodInfo)
+			if (targetType.InfoType == NameInfoType.Method)
 			{				
 				IMethodInfo targetMethod = (IMethodInfo)targetType;
 				CheckParameters(targetMethod, node);
@@ -93,19 +154,27 @@ namespace Boo.Ast.Compilation.Steps
 		INameInfo ResolveName(Node node, string name)
 		{
 			INameInfo info = _namespace.Resolve(name);
+			CheckNameResolution(node, name, info);
+			return info;
+		}
+		
+		bool CheckNameResolution(Node node, string name, INameInfo info)
+		{
 			if (null == info)
 			{
 				Errors.UnknownName(node, name);			
+				return false;
 			}
 			else
 			{
-				if (info.InfoType == NameInfoType.AmbiguousNameInfo)
+				if (info.InfoType == NameInfoType.AmbiguousName)
 				{
 					//Errors.AmbiguousName(node, name, info);
+					//return false;
 					throw new NotImplementedException();
 				}
 			}
-			return info;
+			return true;
 		}
 		
 		void CheckParameters(IMethodInfo method, MethodInvocationExpression mie)

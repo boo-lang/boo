@@ -40,7 +40,6 @@ namespace Boo.Ast.Impl
 			_arguments = new ExpressionCollection(this);
 			_namedArguments = new ExpressionPairCollection(this);
  		}
-		
 		public string Name
 		{
 			get
@@ -53,7 +52,6 @@ namespace Boo.Ast.Impl
 				_name = value;
 			}
 		}
-		
 		public ExpressionCollection Arguments
 		{
 			get
@@ -70,7 +68,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public ExpressionPairCollection NamedArguments
 		{
 			get

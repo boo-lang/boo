@@ -31,7 +31,6 @@ namespace Boo.Ast.Impl
 		internal ExpressionPairImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression First
 		{
 			get
@@ -48,7 +47,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression Second
 		{
 			get

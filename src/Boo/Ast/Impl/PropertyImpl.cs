@@ -34,7 +34,6 @@ namespace Boo.Ast.Impl
 		internal PropertyImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Method Getter
 		{
 			get
@@ -51,7 +50,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Method Setter
 		{
 			get
@@ -68,7 +66,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public TypeReference Type
 		{
 			get

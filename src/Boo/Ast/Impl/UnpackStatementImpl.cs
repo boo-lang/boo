@@ -34,7 +34,6 @@ namespace Boo.Ast.Impl
 		{
 			_declarations = new DeclarationCollection(this);
  		}
-		
 		public DeclarationCollection Declarations
 		{
 			get
@@ -51,7 +50,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression Expression
 		{
 			get

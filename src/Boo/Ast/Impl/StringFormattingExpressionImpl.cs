@@ -34,7 +34,6 @@ namespace Boo.Ast.Impl
 		{
 			_arguments = new ExpressionCollection(this);
  		}
-		
 		public string Template
 		{
 			get
@@ -47,7 +46,6 @@ namespace Boo.Ast.Impl
 				_template = value;
 			}
 		}
-		
 		public ExpressionCollection Arguments
 		{
 			get

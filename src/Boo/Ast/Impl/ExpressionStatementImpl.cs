@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal ExpressionStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Expression
 		{
 			get

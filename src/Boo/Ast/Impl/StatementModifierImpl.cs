@@ -31,7 +31,6 @@ namespace Boo.Ast.Impl
 		internal StatementModifierImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public StatementModifierType Type
 		{
 			get
@@ -44,7 +43,6 @@ namespace Boo.Ast.Impl
 				_type = value;
 			}
 		}
-		
 		public Expression Condition
 		{
 			get

@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal FieldImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public TypeReference Type
 		{
 			get

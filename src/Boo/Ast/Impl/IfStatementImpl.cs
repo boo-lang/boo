@@ -34,7 +34,6 @@ namespace Boo.Ast.Impl
 		internal IfStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Expression
 		{
 			get
@@ -51,7 +50,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Block TrueBlock
 		{
 			get
@@ -68,7 +66,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Block FalseBlock
 		{
 			get

@@ -31,7 +31,6 @@ namespace Boo.Ast.Impl
 		internal AssertStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Condition
 		{
 			get
@@ -48,7 +47,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression Message
 		{
 			get

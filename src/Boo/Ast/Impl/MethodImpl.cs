@@ -9,6 +9,7 @@ namespace Boo.Ast.Impl
 		protected TypeReference _returnType;
 		protected AttributeCollection _returnTypeAttributes;
 		protected Block _body;
+		protected LocalCollection _locals;
 		
 		protected MethodImpl()
 		{
@@ -46,7 +47,6 @@ namespace Boo.Ast.Impl
 			_returnTypeAttributes = new AttributeCollection(this);
 			Body = new Block();
  		}
-		
 		public ParameterDeclarationCollection Parameters
 		{
 			get
@@ -63,7 +63,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public TypeReference ReturnType
 		{
 			get
@@ -80,7 +79,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public AttributeCollection ReturnTypeAttributes
 		{
 			get
@@ -97,7 +95,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Block Body
 		{
 			get
@@ -112,6 +109,18 @@ namespace Boo.Ast.Impl
 				{
 					_body.InitializeParent(this);
 				}
+			}
+		}
+		[System.Xml.Serialization.XmlIgnore]
+		public LocalCollection Locals
+		{
+			get
+			{
+				if (null == _locals)
+				{
+					_locals = new LocalCollection(this);
+				}
+				return _locals;
 			}
 		}
 	}

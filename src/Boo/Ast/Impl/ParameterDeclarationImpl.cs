@@ -37,7 +37,6 @@ namespace Boo.Ast.Impl
 		{
 			_attributes = new AttributeCollection(this);
  		}
-		
 		public string Name
 		{
 			get
@@ -50,7 +49,6 @@ namespace Boo.Ast.Impl
 				_name = value;
 			}
 		}
-		
 		public TypeReference Type
 		{
 			get
@@ -67,7 +65,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public AttributeCollection Attributes
 		{
 			get

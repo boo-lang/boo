@@ -15,6 +15,7 @@ namespace Boo.Ast
 		void OnEnumMember(EnumMember node);
 		void OnField(Field node);
 		void OnProperty(Property node);
+		void OnLocal(Local node);
 		void OnMethod(Method node);
 		void OnConstructor(Constructor node);
 		void OnParameterDeclaration(ParameterDeclaration node);

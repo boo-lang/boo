@@ -34,7 +34,6 @@ namespace Boo.Ast.Impl
 		internal TernaryExpressionImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Condition
 		{
 			get
@@ -51,7 +50,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression TrueExpression
 		{
 			get
@@ -68,7 +66,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Expression FalseExpression
 		{
 			get

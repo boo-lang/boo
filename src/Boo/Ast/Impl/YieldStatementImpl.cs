@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal YieldStatementImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Expression
 		{
 			get

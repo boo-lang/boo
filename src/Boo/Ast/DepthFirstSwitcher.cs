@@ -199,6 +199,10 @@ namespace Boo.Ast
 		{
 		}
 		
+		public virtual void OnLocal(Local node)
+		{			
+		}
+		
 		public virtual void OnMethod(Method node)
 		{			
 			if (EnterMethod(node))
@@ -207,6 +211,7 @@ namespace Boo.Ast
 				Switch(node.ReturnType);
 				Switch(node.ReturnTypeAttributes);
 				Switch(node.Body);
+				Switch(node.Locals);
 				Switch(node.Attributes);
 			}
 			LeaveMethod(node);
@@ -230,6 +235,7 @@ namespace Boo.Ast
 				Switch(node.ReturnType);
 				Switch(node.ReturnTypeAttributes);
 				Switch(node.Body);
+				Switch(node.Locals);
 			}
 			LeaveConstructor(node);
 		}

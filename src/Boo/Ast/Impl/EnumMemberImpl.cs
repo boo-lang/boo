@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal EnumMemberImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public IntegerLiteralExpression Initializer
 		{
 			get

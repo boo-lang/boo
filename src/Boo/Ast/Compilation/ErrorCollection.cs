@@ -37,7 +37,8 @@ namespace Boo.Ast.Compilation
 		
 		public void UnknownName(Node node, string name)
 		{
-			Add(new Error(node, Format("UnknownName", name)));
+			Error error = new Error(node, Format("UnknownName", name));			
+			Add(error);
 		}
 
 		public void AmbiguousName(Node node, string name, List resolvedNames)

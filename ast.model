@@ -98,12 +98,23 @@ package Boo.Ast
 		Type as TypeReference
 	end
 	
+	class Local(Node)
+		Name as string
+	end
+	
+	[ItemType(Local)]
+	<<collection>>
+	class LocalCollection		
+	end
+	
 	class Method(TypeMember)
 		Parameters as ParameterDeclarationCollection
 		ReturnType as TypeReference
 		ReturnTypeAttributes as AttributeCollection
 		[auto]
 		Body as Block
+		[lazy]
+		Locals as LocalCollection
 	end
 	
 	class Constructor(Method)

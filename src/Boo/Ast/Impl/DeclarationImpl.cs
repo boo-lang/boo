@@ -31,7 +31,6 @@ namespace Boo.Ast.Impl
 		internal DeclarationImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public string Name
 		{
 			get
@@ -44,7 +43,6 @@ namespace Boo.Ast.Impl
 				_name = value;
 			}
 		}
-		
 		public TypeReference Type
 		{
 			get

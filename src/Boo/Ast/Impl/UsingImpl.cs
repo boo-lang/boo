@@ -34,7 +34,6 @@ namespace Boo.Ast.Impl
 		internal UsingImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public string Namespace
 		{
 			get
@@ -47,7 +46,6 @@ namespace Boo.Ast.Impl
 				_namespace = value;
 			}
 		}
-		
 		public ReferenceExpression AssemblyReference
 		{
 			get
@@ -64,7 +62,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public ReferenceExpression Alias
 		{
 			get

@@ -28,7 +28,6 @@ namespace Boo.Ast.Impl
 		internal WhenClauseImpl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
  		}
-		
 		public Expression Condition
 		{
 			get

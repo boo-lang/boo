@@ -37,7 +37,6 @@ namespace Boo.Ast.Impl
 		{
 			_whenClauses = new WhenClauseCollection(this);
  		}
-		
 		public Expression Expression
 		{
 			get
@@ -54,7 +53,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public WhenClauseCollection WhenClauses
 		{
 			get
@@ -71,7 +69,6 @@ namespace Boo.Ast.Impl
 				}
 			}
 		}
-		
 		public Block OtherwiseBlock
 		{
 			get

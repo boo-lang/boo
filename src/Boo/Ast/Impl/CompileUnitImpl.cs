@@ -21,7 +21,6 @@ namespace Boo.Ast.Impl
 		{
 			_modules = new ModuleCollection(this);
  		}
-		
 		public ModuleCollection Modules
 		{
 			get

@@ -37,7 +37,6 @@ namespace Boo.Ast.Impl
 		{
 			_attributes = new AttributeCollection(this);
  		}
-		
 		public TypeMemberModifiers Modifiers
 		{
 			get
@@ -50,7 +49,6 @@ namespace Boo.Ast.Impl
 				_modifiers = value;
 			}
 		}
-		
 		public string Name
 		{
 			get
@@ -63,7 +61,6 @@ namespace Boo.Ast.Impl
 				_name = value;
 			}
 		}
-		
 		public AttributeCollection Attributes
 		{
 			get
