@@ -620,6 +620,20 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Visit(sm.Condition);
 		}
 		
+		override public void OnLabelStatement(LabelStatement node)
+		{
+			Write(":");
+			WriteLine(node.Name);
+		}
+		
+		override public void OnGotoStatement(GotoStatement node)
+		{
+			Write("goto ");
+			Visit(node.Label);
+			Visit(node.Modifier);
+			WriteLine();
+		}
+		
 		override public void OnMacroStatement(MacroStatement node)
 		{
 			WriteIndented(node.Name);

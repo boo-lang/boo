@@ -905,6 +905,24 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void ResolveGotoStatements(InternalMethod entity)
+		{
+			foreach (GotoStatement node in entity.GotoStatements)
+			{
+				ReferenceExpression reference = node.Label;
+				InternalLabel label = entity.ResolveLabel(reference.Name);
+				if (null == label)
+				{
+					Error(reference,
+						CompilerErrorFactory.NoSuchLabel(reference, reference.Name));
+				}
+				else
+				{
+					reference.Entity = label; 
+				}
+			}
+		}
+		
 		void ProcessMethodBody(InternalMethod tag)
 		{
 			ProcessMethodBody(tag, tag);
@@ -913,6 +931,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessMethodBody(InternalMethod tag, INamespace ns)
 		{
 			ProcessNodeInMethodContext(tag, ns, tag.Method.Body);
+			ResolveGotoStatements(tag);
 		}
 		
 		void ProcessNodeInMethodContext(InternalMethod tag, INamespace ns, Node node)
@@ -950,7 +969,7 @@ namespace Boo.Lang.Compiler.Steps
 			node.ExpressionType = _currentMethod.DeclaringType.BaseType;
 			if (EntityType.Constructor != _currentMethod.EntityType)
 			{
-				_currentMethod.SuperExpressions.Add(node);
+				_currentMethod.AddSuperExpression(node);
 			}
 		}
 		
@@ -963,9 +982,12 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod baseMethod = FindMethodOverride(tag);
 			if (null == baseMethod || tag.ReturnType != baseMethod.ReturnType)
 			{
-				foreach (Expression super in tag.SuperExpressions)
+				if (null != tag.SuperExpressions)
 				{
-					Error(CompilerErrorFactory.MethodIsNotOverride(super, GetSignature(tag)));
+					foreach (Expression super in tag.SuperExpressions)
+					{
+						Error(CompilerErrorFactory.MethodIsNotOverride(super, GetSignature(tag)));
+					}
 				}
 			}
 			else
@@ -1120,31 +1142,34 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CanResolveReturnType(InternalMethod tag)
 		{
-			foreach (Expression rsExpression in tag.ReturnExpressions)
+			ExpressionCollection returnExpressions = tag.ReturnExpressions;
+			if (null != returnExpressions)
 			{
-				IType type = rsExpression.ExpressionType;
-				if (null == type || TypeSystemServices.IsUnknown(type))
+				foreach (Expression rsExpression in returnExpressions)
 				{
-					return false;
+					IType type = rsExpression.ExpressionType;
+					if (null == type || TypeSystemServices.IsUnknown(type))
+					{
+						return false;
+					}
 				}
 			}
 			return true;
 		}
 		
-		void ResolveReturnType(InternalMethod tag)
+		void ResolveReturnType(InternalMethod entity)
 		{				
-			Method method = tag.Method;
-			ExpressionCollection returnExpressions = tag.ReturnExpressions;
-			if (0 == returnExpressions.Count)
+			Method method = entity.Method;			
+			if (null == entity.ReturnExpressions)
 			{					
 				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 			}		
 			else
 			{					
-				IType type = MapNullToObject(GetMostGenericType(returnExpressions));
+				IType type = MapNullToObject(GetMostGenericType(entity.ReturnExpressions));
 				method.ReturnType = CodeBuilder.CreateTypeReference(type);
 			}
-			TraceReturnType(method, tag);	
+			TraceReturnType(method, entity);	
 		}
 		
 		IType MapNullToObject(IType type)
@@ -2005,6 +2030,26 @@ namespace Boo.Lang.Compiler.Steps
 			CheckBoolContext(node.Condition);			
 		}
 		
+		override public void OnLabelStatement(LabelStatement node)
+		{
+			if (null == _currentMethod.ResolveLabel(node.Name))
+			{
+				_currentMethod.AddLabel(new InternalLabel(node));
+			}
+			else
+			{				
+				Error(
+					CompilerErrorFactory.LabelAlreadyDefined(node,
+											_currentMethod.FullName,
+											node.Name));
+			}
+		}
+		
+		override public void OnGotoStatement(GotoStatement node)
+		{
+			_currentMethod.AddGoto(node);
+		}
+		
 		override public void OnBreakStatement(BreakStatement node)
 		{
 			if (!InLoop())
@@ -2045,7 +2090,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (TypeSystemServices.IsUnknown(returnType))
 				{
-					_currentMethod.ReturnExpressions.Add(node.Expression);
+					_currentMethod.AddReturnExpression(node.Expression);
 				}
 				else
 				{

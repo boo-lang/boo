@@ -86,11 +86,12 @@ tokens
 	EXCEPT="except";
 	FAILURE="failure";
 	FINAL="final";	
-	FROM="from";
+	FROM="from";	
 	FOR="for";
 	FALSE="false";
 	GET="get";
 	GIVEN="given";
+	GOTO="goto";
 	IMPORT="import";
 	INTERFACE="interface";	
 	INTERNAL="internal";
@@ -921,6 +922,29 @@ macro_stmt returns [MacroStatement returnValue]
 ;
 
 protected
+goto_stmt returns [GotoStatement stmt]
+	{
+		stmt = null;
+	}:
+	token:GOTO label:ID
+	{
+		stmt = new GotoStatement(ToLexicalInfo(token),
+					new ReferenceExpression(ToLexicalInfo(label), label.getText()));
+	}
+	;
+	
+protected
+label_stmt returns [LabelStatement stmt]
+	{
+		stmt = null;
+	}:
+	token:COLON label:ID
+	{
+		stmt = new LabelStatement(ToLexicalInfo(token), label.getText());
+	}
+	;
+
+protected
 stmt [StatementCollection container]
 	{
 		Statement s = null;
@@ -938,6 +962,8 @@ stmt [StatementCollection container]
 		s=return_stmt |
 		(		
 			(
+				s=goto_stmt |
+				s=label_stmt |
 				s=yield_stmt |
 				s=break_stmt |
 				s=continue_stmt |				

@@ -491,6 +491,16 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0092", node.LexicalInfo, typeName);
 		}
 		
+		public static CompilerError NoSuchLabel(Node node, string label)
+		{
+			return new CompilerError("BCE0095", node.LexicalInfo, label);
+		}
+		
+		public static CompilerError LabelAlreadyDefined(Node node, string methodName, string label)
+		{
+			return new CompilerError("BCE0096", node.LexicalInfo, methodName, label);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -47,10 +47,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Namespace = 0x800,
 		Ambiguous = 0x1000,
 		Array = 0x2000,
-		BuiltinFunction = 0x4000,
+		BuiltinFunction = 0x4000,		
 		Unknown,
 		Null,
 		Error,
+		Label,
 		Any = 0xFFFF
 	}
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Boo Explorer" default="run">
 
-	<property name="boo.dir" value="../../bin" />
+	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
 	
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 	

@@ -26,26 +26,62 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler
-{
+namespace Boo.Lang.Compiler.TypeSystem
+{	
 	using System;
-	using System.Text;
 	using Boo.Lang.Compiler.Ast;
 	
-	public class CompilerWarningFactory
+	public class InternalLabel : IEntity
 	{
-		private CompilerWarningFactory()
+		LabelStatement _labelStatement;
+		
+		System.Reflection.Emit.Label _label;
+		
+		public InternalLabel(LabelStatement labelStatement)
 		{
+			if (null == labelStatement)
+			{
+				throw new ArgumentNullException("labelStatement");
+			}
+			_labelStatement = labelStatement;
+			_labelStatement.Entity = this;
 		}
 		
-		public static CompilerWarning AbstractMemberNotImplemented(Node node, string typeName, string memberName)
+		public EntityType EntityType
 		{
-			return new CompilerWarning("BCW0001", node.LexicalInfo, typeName, memberName);
+			get
+			{
+				return EntityType.Label;
+			}
 		}
 		
-		public static CompilerWarning ModifiersInLabelsHaveNoEffect(Node node)
+		public string Name
 		{
-			return new CompilerWarning("BCW0002", node.LexicalInfo);
+			get
+			{
+				return _labelStatement.Name;
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _labelStatement.Name;
+			}
+		}
+		
+		public System.Reflection.Emit.Label Label
+		{
+			get
+			{
+				return _label;
+			}
+			
+			set
+			{
+				_label = value;
+			}
 		}
 	}
 }

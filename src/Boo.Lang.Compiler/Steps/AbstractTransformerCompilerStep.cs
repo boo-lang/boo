@@ -90,6 +90,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		protected CompilerWarningCollection Warnings
+		{
+			get
+			{
+				return _context.Warnings;
+			}
+		}
+		
 		protected TypeSystemServices TypeSystemServices
 		{
 			get

@@ -26,26 +26,47 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	using System.Text;
 	using Boo.Lang.Compiler.Ast;
-	
-	public class CompilerWarningFactory
+
+	public class InternalConstructor : InternalMethod, IConstructor
 	{
-		private CompilerWarningFactory()
+		bool _hasSuperCall = false;
+		
+		public InternalConstructor(TypeSystemServices typeSystemServices,
+		                                  Constructor constructor) : base(typeSystemServices, constructor)
 		{
+		}
+		  
+		public bool HasSuperCall
+		{
+			get
+			{
+				return _hasSuperCall;
+			}
+			
+			set
+			{
+				_hasSuperCall = value;
+			}
 		}
 		
-		public static CompilerWarning AbstractMemberNotImplemented(Node node, string typeName, string memberName)
+		override public IType ReturnType
 		{
-			return new CompilerWarning("BCW0001", node.LexicalInfo, typeName, memberName);
+			get
+			{
+				return _typeSystemServices.VoidType;
+			}
 		}
-		
-		public static CompilerWarning ModifiersInLabelsHaveNoEffect(Node node)
-		{
-			return new CompilerWarning("BCW0002", node.LexicalInfo);
-		}
+	      
+	    override public EntityType EntityType
+	    {
+			get
+			{
+				return EntityType.Constructor;
+			}
+	    }
 	}
 }

@@ -143,6 +143,20 @@ namespace Boo.Lang.Compiler.Steps
 			LeaveStatement(node);
 		}
 		
+		override public void LeaveGotoStatement(GotoStatement node)
+		{
+			LeaveStatement(node);
+		}
+		
+		override public void LeaveLabelStatement(LabelStatement node)
+		{
+			if (null != node.Modifier)
+			{
+				Warnings.Add(
+					CompilerWarningFactory.ModifiersInLabelsHaveNoEffect(node.Modifier));
+			}
+		}
+		
 		public void LeaveStatement(Statement node)
 		{
 			if (null != node.Modifier)

@@ -91,9 +91,15 @@ BCE0089=Type '{0}' already has a definition for '{1}'.
 BCE0090=Derived method '{0}' can not reduce the accessiblity of '{1}' from '{2}' to '{3}'.
 BCE0091=Event reference '{0}' cannot be used as an expression.
 BCE0092='{0}' is not a valid argument type for raise, only strings and exceptions are allowed.
+BCE0093=Cannot branch into ensure block.
+BCE0094=Cannot branch into exception handler.
+BCE0095=No such label '{0}'.
+BCE0096=Method '{0}' already has a label '{1}'.
+BCE0097=Cannot branch into try block.
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
+BCW0002=WARNING: Statement modifiers have no effect in labels.
 
 
 ; BooC Command Line Errors

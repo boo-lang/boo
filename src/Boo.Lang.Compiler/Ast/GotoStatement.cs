@@ -1,5 +1,5 @@
-#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+﻿#region license
+// Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,26 +26,28 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using System.Text;
-	using Boo.Lang.Compiler.Ast;
 	
-	public class CompilerWarningFactory
+	[Serializable]
+	public class GotoStatement : Boo.Lang.Compiler.Ast.Impl.GotoStatementImpl
 	{
-		private CompilerWarningFactory()
+		public GotoStatement()
 		{
 		}
 		
-		public static CompilerWarning AbstractMemberNotImplemented(Node node, string typeName, string memberName)
+		public GotoStatement(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-			return new CompilerWarning("BCW0001", node.LexicalInfo, typeName, memberName);
 		}
 		
-		public static CompilerWarning ModifiersInLabelsHaveNoEffect(Node node)
+		public GotoStatement(LexicalInfo lexicalInfo, ReferenceExpression label) : base(lexicalInfo, label)
 		{
-			return new CompilerWarning("BCW0002", node.LexicalInfo);
+		}
+		
+		override public void Accept(IAstVisitor visitor)
+		{
+			visitor.OnGotoStatement(this);
 		}
 	}
 }

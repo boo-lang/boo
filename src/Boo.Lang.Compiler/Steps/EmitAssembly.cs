@@ -220,6 +220,9 @@ namespace Boo.Lang.Compiler.Steps
 			new TypeCreator(this, types).Run();
 		}
 		
+		/// <summary>
+		/// Ensures that all types are created in the correct order.
+		/// </summary>
 		class TypeCreator
 		{
 			EmitAssembly _emitter;
@@ -468,6 +471,7 @@ namespace Boo.Lang.Compiler.Steps
 				_returnValueLocal = _il.DeclareLocal(GetSystemType(_returnType));
 			}
 			
+			DefineLabels(method);
 			Visit(method.Locals);
 			Visit(method.Body);
 			
@@ -481,6 +485,14 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Ret);			
 		}
 		
+		void DefineLabels(Method method)
+		{
+			foreach (InternalLabel label in ((InternalMethod)method.Entity).Labels)
+			{
+				label.Label = _il.DefineLabel();
+			}
+		}
+		
 		override public void OnConstructor(Constructor constructor)
 		{
 			if (constructor.IsRuntime)
@@ -491,7 +503,7 @@ namespace Boo.Lang.Compiler.Steps
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
 			_il = builder.GetILGenerator();
 
-			InternalConstructor tag = (InternalConstructor)GetEntity(constructor);
+			DefineLabels(constructor);
 			Visit(constructor.Locals);
 			Visit(constructor.Body);
 			_il.Emit(OpCodes.Ret);
@@ -613,6 +625,16 @@ namespace Boo.Lang.Compiler.Steps
 			EmitBranchTrue(node.Condition, endLabel);
 			node.Block.Accept(this);
 			_il.MarkLabel(endLabel);
+		}
+		
+		override public void OnGotoStatement(GotoStatement node)
+		{
+			_il.Emit(OpCodes.Br, ((InternalLabel)node.Label.Entity).Label);
+		}
+		
+		override public void OnLabelStatement(LabelStatement node)
+		{
+			_il.MarkLabel(((InternalLabel)node.Entity).Label);
 		}
 		
 		override public void OnIfStatement(IfStatement node)

@@ -129,6 +129,7 @@
 				<Key word="continue"/>
 				<Key word="return"/>
 				<Key word="yield"/>
+				<Key word="goto" />
 			</KeyWords>
 
 			<KeyWords name="ExceptionHandlingStatements" bold="true" italic="false" color="Teal" >

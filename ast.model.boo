@@ -177,6 +177,12 @@ class StatementModifier(Node):
 
 abstract class Statement(Node):
 	Modifier as StatementModifier
+	
+class GotoStatement(Statement):
+	Label as ReferenceExpression
+	
+class LabelStatement(Statement):
+	Name as string
 
 class Block(Statement):
 	Statements as StatementCollection
