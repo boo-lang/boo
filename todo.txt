@@ -310,6 +310,8 @@ done * static field initializers
 
 * map(callable, enumerable)
 
+done * System.Type must be invocable
+
 * tipos callable implementam equivalência estrutural, assim, um tipo callable
 que é wrapper sobre um método qualquer, lembra o método, seus tipos de parâmetro e
 valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc

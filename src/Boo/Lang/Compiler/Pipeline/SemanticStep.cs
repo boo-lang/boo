@@ -85,6 +85,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding ICallable_Call;
 		
+		IMethodBinding Activator_CreateInstance;
+		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
 		/*
@@ -122,6 +124,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			Tuple_TypedConstructor1 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.IEnumerable }));
 			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { Types.Type, Types.Int }));
 			ICallable_Call = (IMethodBinding)BindingManager.ICallableTypeBinding.Resolve("Call");
+			Activator_CreateInstance = (IMethodBinding)BindingManager.AsBinding(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
 			
 			ApplicationException_StringConstructor =
 					(IConstructorBinding)BindingManager.AsBinding(
@@ -2216,8 +2219,29 @@ namespace Boo.Lang.Compiler.Pipeline
 							node.Arguments.Add(arg);
 							
 							Bind(arg, BindingManager.ObjectTupleBinding);
+							
 							Bind(node.Target, ICallable_Call);
 							Bind(node, ICallable_Call);
+							return;
+						}
+						else if (BindingManager.TypeTypeBinding == type)
+						{
+							Expression targetType = node.Target;
+							
+							node.Target = new ReferenceExpression(targetType.LexicalInfo,
+														"System.Activator.CreateInstance");
+													
+							TupleLiteralExpression constructorArgs = new TupleLiteralExpression();
+							constructorArgs.Items.Extend(node.Arguments);
+							
+							node.Arguments.Clear();
+							node.Arguments.Add(targetType);
+							node.Arguments.Add(constructorArgs);							
+							
+							Bind(constructorArgs, BindingManager.ObjectTupleBinding);
+							
+							Bind(node.Target, Activator_CreateInstance);
+							Bind(node, Activator_CreateInstance);
 							return;
 						}
 					}

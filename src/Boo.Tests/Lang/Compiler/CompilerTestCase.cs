@@ -1111,5 +1111,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("overloading0.boo");
 		}
+		
+		[Test]
+		public void TypeIsCallable()
+		{
+			RunCompilerTestCase("typeiscallable.boo");
+		}
 	}
 }
