@@ -225,6 +225,15 @@ namespace Boo.Lang
 		
 		#region global operators
 		
+		public static Array AddArrays(Type resultingElementType, Array lhs, Array rhs)
+		{
+			int resultingLen = lhs.Length + rhs.Length;
+			Array result = Array.CreateInstance(resultingElementType, resultingLen);
+			Array.Copy(lhs, 0, result, 0, lhs.Length);
+			Array.Copy(rhs, 0, result, lhs.Length, rhs.Length);
+			return result;
+		}
+		
 		public static string op_Addition(string lhs, object rhs)
 		{
 			return string.Concat(lhs, rhs);

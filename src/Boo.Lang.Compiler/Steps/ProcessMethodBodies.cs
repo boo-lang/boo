@@ -59,6 +59,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod RuntimeServices_NormalizeStringIndex;
 		
+		IMethod RuntimeServices_AddArrays;
+		
 		IMethod RuntimeServices_GetRange1;
 		
 		IMethod RuntimeServices_GetRange2;
@@ -162,6 +164,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			List_GetRange1 = (IMethod)TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));
 			List_GetRange2 = (IMethod)TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));
+			RuntimeServices_AddArrays = ResolveMethod(TypeSystemServices.RuntimeServicesType, "AddArrays");
 			RuntimeServices_GetRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
 			RuntimeServices_GetRange2 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2"); 			
 			RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
@@ -1855,8 +1858,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (member.IsStatic)
 			{
 				memberRef.Target = new ReferenceExpression(node.LexicalInfo, member.DeclaringType.FullName);
-				Bind(memberRef.Target, member.DeclaringType);				
-				BindExpressionType(memberRef, member.Type);
+				Bind(memberRef.Target, member.DeclaringType);
 			}
 			else
 			{
@@ -2517,7 +2519,15 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.Addition:
 				{
-					BindArithmeticOperator(node);
+					if (GetExpressionType(node.Left).IsArray &&
+						GetExpressionType(node.Right).IsArray)
+					{
+						BindArrayAddition(node);
+					}
+					else
+					{
+						BindArithmeticOperator(node);
+					}
 					break;
 				}
 				
@@ -3534,6 +3544,29 @@ namespace Boo.Lang.Compiler.Steps
 					return BinaryOperatorType.Division;
 			}
 			throw new ArgumentException("op");
+		}
+		
+		void BindArrayAddition(BinaryExpression node)
+		{
+			IArrayType lhs = (IArrayType)GetExpressionType(node.Left);
+			IArrayType rhs = (IArrayType)GetExpressionType(node.Right);
+			
+			if (lhs.GetElementType() == rhs.GetElementType())
+			{
+				node.ParentNode.Replace(
+					node,
+					CodeBuilder.CreateCast(
+						lhs,
+						CodeBuilder.CreateMethodInvocation(
+							RuntimeServices_AddArrays,
+							CodeBuilder.CreateTypeofExpression(lhs.GetElementType()),
+							node.Left,
+							node.Right)));
+			}
+			else
+			{
+				InvalidOperatorForTypes(node);
+			}
 		}
 		
 		void BindArithmeticOperator(BinaryExpression node)
