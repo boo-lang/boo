@@ -3344,6 +3344,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
 		{
 			ITypeBinding defaultDeclType = GetEnumeratorItemType(iteratorType);
+			if (declarations.Count > 1)
+			{
+				// will enumerate (unpack) each item
+				defaultDeclType = GetEnumeratorItemType(defaultDeclType);
+			}
 			
 			foreach (Declaration d in declarations)
 			{	

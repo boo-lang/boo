@@ -212,10 +212,13 @@
 	
 	<target name="generate-ast" depends="init" unless="${skip.ast}">
 		<if test="${not file::up-to-date('ast.model.boo', 'src/Boo/Lang/Ast/Impl/CompileUnitImpl.cs')}">
+		
+			<mkdir dir="src/Boo/Lang/Ast/Impl" />
 			<exec program="bin/booc.exe" useruntimeengine="true">
 				<arg value="/p:booi" />
 				<arg value="scripts/astgen.boo" />
 			</exec>
+			
 		</if>
 	</target>
 
