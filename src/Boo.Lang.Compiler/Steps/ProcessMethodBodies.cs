@@ -1926,6 +1926,15 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
+				case EntityType.Parameter:
+				case EntityType.Local:
+				{
+					ILocalEntity local = (ILocalEntity)node.Entity;
+					local.IsUsed = true;
+					BindExpressionType(node, local.Type);
+					break;
+				}
+				
 				default:
 				{
 					if (EntityType.BuiltinFunction == tag.EntityType)

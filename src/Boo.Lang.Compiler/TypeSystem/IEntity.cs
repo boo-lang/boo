@@ -200,6 +200,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 			set;
 		}
+		
+		/// <summary>
+		/// Is this variable ever used in the body of the method?
+		/// </summary>
+		bool IsUsed
+		{
+			get;
+			set;
+		}
 	}
 	
 	public interface IParameter : ITypedEntity

@@ -30,13 +30,44 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public class InternalParameter : IParameter, ILocalEntity
+	public abstract class AbstractLocalEntity
+	{
+		protected bool _shared;
+		
+		protected bool _used;
+		
+		public bool IsUsed
+		{
+			get
+			{
+				return _used;
+			}
+			
+			set
+			{
+				_used = value;
+			}
+		}
+		
+		public bool IsShared
+		{
+			get
+			{
+				return _shared;
+			}
+			
+			set
+			{
+				_shared = true;
+			}
+		}
+	}
+	
+	public class InternalParameter : AbstractLocalEntity, IParameter, ILocalEntity
 	{
 		ParameterDeclaration _parameter;
 		
 		int _index;
-		
-		bool _shared;
 		
 		public InternalParameter(ParameterDeclaration parameter, int index)
 		{
@@ -102,19 +133,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return false;
-			}
-		}
-		
-		public bool IsShared
-		{
-			get
-			{
-				return _shared;
-			}
-			
-			set
-			{
-				_shared = true;
 			}
 		}
 	}

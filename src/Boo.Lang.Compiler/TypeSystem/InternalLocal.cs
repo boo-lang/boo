@@ -28,15 +28,13 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {	
-	public class InternalLocal : ITypedEntity, ILocalEntity
+	public class InternalLocal : AbstractLocalEntity, ITypedEntity, ILocalEntity
 	{		
 		Boo.Lang.Compiler.Ast.Local _local;
 		
 		IType _type;
 		
 		System.Reflection.Emit.LocalBuilder _builder;
-		
-		bool _shared;
 		
 		public InternalLocal(Boo.Lang.Compiler.Ast.Local local, IType type)
 		{			
@@ -74,19 +72,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return _local.PrivateScope;
-			}
-		}
-		
-		public bool IsShared
-		{
-			get
-			{
-				return _shared;
-			}
-			
-			set
-			{
-				_shared = true;
 			}
 		}
 		

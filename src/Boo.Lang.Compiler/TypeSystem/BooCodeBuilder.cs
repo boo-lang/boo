@@ -134,6 +134,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return mie;
 		}
 		
+		public MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod entity, Expression arg1, Expression arg2)
+		{
+			MethodInvocationExpression mie = CreateMethodInvocation(target, entity, arg1);
+			mie.Arguments.Add(arg2);
+			return mie;
+		}
+		
 		public MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0);
@@ -330,12 +337,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return array;
 		}
 		
+		public IntegerLiteralExpression CreateIntegerLiteral(int value)
+		{
+			IntegerLiteralExpression integer = new IntegerLiteralExpression(value);
+			integer.ExpressionType = _tss.IntType;
+			return integer;
+		}
+		
 		public SlicingExpression CreateSlicing(Expression target, int begin)
 		{
 			SlicingExpression expression = new SlicingExpression(target,
-												new IntegerLiteralExpression(begin));
-			expression.ExpressionType = _tss.ObjectType;
-			expression.Begin.ExpressionType = _tss.IntType;
+												CreateIntegerLiteral(begin));
+			expression.ExpressionType = _tss.ObjectType;			
 			return expression;
 		}
 		

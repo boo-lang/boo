@@ -57,9 +57,9 @@ namespace Boo.Lang
 		
 		public abstract bool MoveNext();
 		
-		protected bool Yield(object value)
+		protected bool Yield(int state, object value)
 		{
-			++_state;
+			_state = state;
 			_current = value;
 			return true;
 		}
