@@ -46,6 +46,8 @@ class BoocTask(AbstractBooTask):
 	
 	_sourceFiles = FileSet()
 	
+	_resources = FileSet()
+	
 	_pipeline as string
 	
 	_traceLevel = System.Diagnostics.TraceLevel.Off
@@ -58,6 +60,13 @@ class BoocTask(AbstractBooTask):
 			return _references
 		set:
 			_references = value
+	
+	[BuildElement("resources")]
+	Resources:
+		get:
+			return _resources
+		set:
+			_resources = value
 	
 	[TaskAttribute("output", Required: true)]
 	Output:
@@ -116,6 +125,10 @@ class BoocTask(AbstractBooTask):
 		for fname as string in files:
 			LogVerbose(fname)
 			parameters.Input.Add(FileInput(fname))
+			
+		for fname as string in _resources.FileNames:
+			LogVerbose(fname)
+			parameters.Resources.Add(FileResource(fname))
 			
 		AddReferences(parameters)		
 			

@@ -29,66 +29,7 @@
 namespace Boo.Lang.Compiler
 {
 	using System;
-	using System.Collections;
-	using System.IO;
-	using System.Resources;
-	
-	public interface ICompilerResource
-	{
-		string Name
-		{
-			get;
-		}
-		
-		string Description
-		{
-			get;
-		}
-		
-		void WriteResources(System.Resources.IResourceWriter writer);
-	}
-	
-	public class FileResource : ICompilerResource
-	{
-		string _fname;
-		
-		public FileResource(string fname)
-		{
-			if (null == fname)
-			{
-				throw new ArgumentNullException("fname");
-			}
-			_fname = fname;
-		}
-		
-		public string Name
-		{
-			get
-			{
-				return Path.GetFileName(_fname);
-			}
-		}
-		
-		public string Description
-		{
-			get
-			{
-				return null;
-			}
-		}
-		
-		public void WriteResources(System.Resources.IResourceWriter writer)
-		{
-			using (ResourceReader reader = new ResourceReader(_fname))
-			{
-				IDictionaryEnumerator e = reader.GetEnumerator();
-				while (e.MoveNext())
-				{
-					writer.AddResource((string)e.Key, e.Value);
-				}
-			}
-		}
-	}
+	using System.Collections;	
 	
 	/// <summary>
 	/// A collection of <see cref="CompilerResource"/> objects.
