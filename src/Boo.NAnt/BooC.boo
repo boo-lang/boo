@@ -107,7 +107,6 @@ class BooC(Task):
 		parameters.TraceSwitch.Level = _traceLevel
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
-		parameters.Pipeline.BaseDirectory = Project.BaseDirectory
 		parameters.Pipeline.Load(_pipeline)
 		
 		for fname as string in files:

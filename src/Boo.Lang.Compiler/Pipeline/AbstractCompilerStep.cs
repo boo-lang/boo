@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler
+namespace Boo.Lang.Compiler.Pipeline
 {
 	public abstract class AbstractCompilerStep : AbstractCompilerComponent, ICompilerStep
 	{

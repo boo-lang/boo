@@ -57,7 +57,6 @@ namespace BooC
 				
 				BooCompiler compiler = new BooCompiler();
 				CompilerParameters options = compiler.Parameters;
-				options.Pipeline.BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 				
 				ParseOptions(args, options);
 				if (0 == options.Input.Count)

@@ -136,8 +136,6 @@ namespace Boo.Lang.Compiler
 		}
 		
 		ArrayList _items;
-		
-		string _baseDirectory = ".";
 
 		public CompilerPipeline()
 		{
@@ -236,23 +234,6 @@ namespace Boo.Lang.Compiler
 			_items[FindIndex(id)] = Validate(item);
 			return this;
 		}
-		
-		public string BaseDirectory
-		{
-			get
-			{
-				return _baseDirectory;
-			}
-			
-			set
-			{
-				if (null == value)
-				{
-					throw new ArgumentNullException("value");
-				}
-				_baseDirectory = value;
-			}
-		}
 
 		public int Count
 		{
@@ -262,17 +243,34 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		public ICompilerStep this[int index]
+		public CompilerPipelineItem this[int index]
 		{
 			get
 			{
-				return ((CompilerPipelineItem)_items[index]).CompilerStep;
+				return (CompilerPipelineItem)_items[index];
 			}
 		}
 		
 		public void Clear()
 		{
 			_items.Clear();
+		}
+		
+		public void Load(Type pipelineDefinition)
+		{
+			if (null == pipelineDefinition)
+			{
+				throw new ArgumentNullException("pipelineDefinition");
+			}
+			
+			try
+			{
+				((ICompilerPipelineDefinition)Activator.CreateInstance(pipelineDefinition)).Define(this);
+			}
+			catch (Exception x)
+			{
+				UnableToLoadPipeline(x, pipelineDefinition.FullName);
+			}
 		}
 		
 		public void Load(string name)
@@ -293,7 +291,7 @@ namespace Boo.Lang.Compiler
 			}
 			catch (Exception x)
 			{
-				throw new ApplicationException(Boo.ResourceManager.Format("BooC.UnableToLoadPipeline", name, x.Message), x);
+				UnableToLoadPipeline(x, name);
 			}
 		}
 
@@ -356,6 +354,11 @@ namespace Boo.Lang.Compiler
 				throw new ArgumentException("item");
 			}
 			return item;
+		}
+		
+		void UnableToLoadPipeline(Exception cause, string name)
+		{
+			throw new ApplicationException(Boo.ResourceManager.Format("BooC.UnableToLoadPipeline", name, cause.Message), cause);
 		}
 	}
 }

@@ -12,7 +12,7 @@ done * definição de pipelines em código:
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:		
-		stylechecker step,
+		done stylechecker step,
 		trace step,
 		codegenerator step
 		

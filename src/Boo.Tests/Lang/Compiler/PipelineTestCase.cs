@@ -82,8 +82,7 @@ namespace Boo.Tests.Lang.Compiler
 		[SetUp]
 		public void SetUp()
 		{
-			_pipeline = new CompilerPipeline();
-			_pipeline.BaseDirectory = BooTestCaseUtil.GetTestCasePath("compilation");			
+			_pipeline = new CompilerPipeline();			
 		}
 
 		[Test]
@@ -170,20 +169,8 @@ namespace Boo.Tests.Lang.Compiler
 			Assert.AreEqual(expected.Length, _pipeline.Count);
 			for (int i=0; i<expected.Length; ++i)
 			{
-				Assert.AreSame(expected[i], _pipeline[i]);
+				Assert.AreSame(expected[i], _pipeline[i].CompilerStep);
 			}
-		}
-
-		string GetTestCasePath(string fname)
-		{
-			return Path.Combine(BooTestCaseUtil.GetTestCasePath("compilation"), fname);
-		}
-
-		XmlElement LoadXml(string xml)
-		{
-			XmlDocument document = new XmlDocument();
-			document.LoadXml(xml);
-			return document.DocumentElement;
 		}
 	}
 }
