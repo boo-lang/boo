@@ -264,7 +264,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				found = true;
 			}
 			
-			if (IsInterface)
+			if (IsInterface && !found)
 			{				
 				if (_typeSystemServices.ObjectType.Resolve(targetList, name, flags))
 				{

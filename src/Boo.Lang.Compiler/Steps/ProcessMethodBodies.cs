@@ -3643,7 +3643,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		string GetSignature(IMethod tag)
 		{
-			return TypeSystemServices.GetSignature(tag);
+			return tag.ToString();
 		}
 		
 		bool Visited(Node node)

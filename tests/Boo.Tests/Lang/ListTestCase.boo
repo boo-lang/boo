@@ -89,6 +89,18 @@ class ListTestCase:
 		
 		_list.AddUnique("quatro")
 		Assert.AreEqual(["um", "dois", "tres", "quatro"], _list)
+		
+		obj1 = object()
+		obj2 = object()
+		
+		l = []
+		l.AddUnique(obj1)
+		l.AddUnique(obj1)
+		l.AddUnique(obj2)
+		l.AddUnique(obj1)
+		l.AddUnique(obj2)
+		
+		Assert.AreEqual([obj1, obj2], l)
 
 	[Test]
 	def TestToString():

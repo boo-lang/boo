@@ -26,14 +26,23 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Diagnostics;
-using Boo.Lang.Compiler;
-
 namespace Boo.Lang.Compiler.Steps
 {
+	using System;
+	using System.ComponentModel;
+	using System.Diagnostics;
+	using Boo.Lang.Compiler;
+
 	public class PEVerify : AbstractCompilerStep
 	{
+		public static bool IsSupported
+		{
+			get
+			{
+				return 128 != (int)System.Environment.OSVersion.Platform;
+			}
+		}
+		
 		override public void Run()
 		{			
 			if (Errors.Count > 0)
@@ -41,18 +50,25 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}			
 			
-			if (128 == (int)System.Environment.OSVersion.Platform)
+			if (!IsSupported)
 			{
-				_context.TraceWarning("PEVerify can't run on linux");
+				_context.TraceWarning("PEVerify is not supported on this platform.");
 				// linux
 				return;
 			}
 			
-			Process p = Boo.Lang.Builtins.shellp("peverify.exe", Parameters.OutputAssembly);
-			p.WaitForExit();
-			if (0 != p.ExitCode)
+			try
 			{
-				Errors.Add(new CompilerError(Boo.Lang.Compiler.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
+				Process p = Boo.Lang.Builtins.shellp("peverify.exe", Parameters.OutputAssembly);
+				p.WaitForExit();
+				if (0 != p.ExitCode)
+				{
+					Errors.Add(new CompilerError(Boo.Lang.Compiler.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
+				}
+			}
+			catch (Win32Exception e)
+            {
+                _context.TraceWarning("Could not start peverify.exe: " + e.Message);
 			}
 		}
 	}

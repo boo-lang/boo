@@ -26,5 +26,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return TypeSystemServices.IsCallableTypeAssignableFrom(this, other);
 		}
+		
+		override public string ToString()
+		{
+			return GetSignature().ToString();
+		}
 	}
 }

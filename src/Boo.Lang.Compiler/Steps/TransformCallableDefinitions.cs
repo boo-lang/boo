@@ -63,30 +63,11 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(node.Name);
-			cd.BaseTypes.Add(CreateTypeReference(TypeSystemServices.ICallableType));
+			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(node.Name);			
 			cd.LexicalInfo = node.LexicalInfo;
 			cd.Members.Add(CreateInvokeMethod(node));
-			cd.Members.Add(CreateCallMethod(node));
 			
 			ReplaceCurrentNode(cd);			
-		}
-		
-		Method CreateCallMethod(CallableDefinition node)
-		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(new ReferenceExpression("Invoke"));
-			for (int i=0; i<node.Parameters.Count; ++i)
-			{
-				mie.Arguments.Add(new SlicingExpression(
-										new ReferenceExpression("args"),
-										new IntegerLiteralExpression(i)));
-			}
-			Method method = new Method("Call");
-			method.Modifiers = TypeMemberModifiers.Public;
-			method.Parameters.Add(new ParameterDeclaration("args", CreateTypeReference(TypeSystemServices.ObjectArrayType)));
-			method.ReturnType = CreateTypeReference(TypeSystemServices.ObjectType);
-			method.Body.Add(mie);
-			return method;
 		}
 		
 		Method CreateInvokeMethod(CallableDefinition node)

@@ -1344,15 +1344,17 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInfo mi = GetMethodInfo(methodInfo);
 			OpCode code = OpCodes.Call;
 			if (!mi.IsStatic)
-			{				
+			{					
 				Expression target = ((MemberReferenceExpression)node.Target).Target;
 				IType targetType = target.ExpressionType;
 				if (targetType.IsValueType)
-				{				
+				{	
+					
 					if (mi.DeclaringType == Types.Object)
 					{
 						Visit(node.Target); 
 						_il.Emit(OpCodes.Box, GetSystemType(PopType()));
+						code = OpCodes.Callvirt;
 					}
 					else
 					{
@@ -1361,12 +1363,12 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					// pushes target reference
-					Visit(node.Target); PopType();
 					if (mi.IsVirtual)
 					{
 						code = OpCodes.Callvirt;
 					}
+					// pushes target reference
+					Visit(node.Target); PopType();					
 				}
 			}
 			PushArguments(methodInfo, node.Arguments);

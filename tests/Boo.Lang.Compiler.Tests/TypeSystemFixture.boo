@@ -50,6 +50,26 @@ class TypeSystemFixture:
 		Assert.AreSame(GetMethod("IntAsBool").CallableType,
 					GetMethod("IntAsBool2").CallableType)
 		
+	[Test]
+	def MapReturnsTheSameObjectForTheSameMember():
+		Assert.AreSame(GetMethod("IntAsBool"),
+						GetMethod("IntAsBool"))
+						
+		Assert.AreSame(GetMethod("IntAsBool2"), GetMethod("IntAsBool2"))
+		
+	[Test]
+	def ResolveFromExternalTypesDontAddDuplicatedMethods():
+		type1 = _services.ICallableType
+		type2 = _services.MulticastDelegateType
+		
+		methods = []
+		type1.Resolve(methods, "GetType", EntityType.Method)
+		type2.Resolve(methods, "GetType", EntityType.Method)
+		
+		Assert.AreEqual(1, len(methods))
+		Assert.AreSame(_services.Map(typeof(object).GetMethod("GetType")),
+					methods[0])
+		
 		
 		
 		

@@ -232,8 +232,16 @@ namespace BooCompiler.Tests
 	{
 		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
-			//CompilerPipeline pipeline = new CompileToFile();
-			CompilerPipeline pipeline = new CompileToMemory();
+			CompilerPipeline pipeline = null;
+			
+			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
+			{			
+				pipeline = new CompileToFile();
+			}
+			else
+			{
+				pipeline = new CompileToMemory();
+			}
 			pipeline.Add(new RunAssembly());
 			return pipeline;
 		}
@@ -1276,6 +1284,12 @@ namespace BooCompiler.Tests
 		public void AnonymousCallableTypesImplementICallable()
 		{
 			RunCompilerTestCase("callable6.boo");
+		}
+		
+		[Test]
+		public void AnonymousCallableTypesCanBePropertyCalledThroughICallable()
+		{
+			RunCompilerTestCase("callable7.boo");
 		}
 		
 		[Test]
