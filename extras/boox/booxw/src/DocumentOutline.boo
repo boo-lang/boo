@@ -55,6 +55,7 @@ enum TypeIcon:
 	PrivateField
 	PrivateProperty
 	PrivateMethod
+	PublicEvent
 
 class TypeIconChooser:
 	
@@ -195,6 +196,9 @@ class TreeViewVisitor(DepthFirstVisitor):
 				
 	override def OnField(node as Field):
 		Add(node.Name, TypeIconChooser.GetFieldIcon(node), node)
+		
+	override def OnEvent(node as Event):
+		Add(node.Name, cast(int, TypeIcon.PublicEvent), node)
 
 	override def OnInterfaceDefinition(node as InterfaceDefinition):
 		OnTypeDefinition(node, cast(int, TypeIcon.PublicInterface))

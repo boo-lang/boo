@@ -97,14 +97,16 @@ class CodeCompletionDataProvider(ICompletionDataProvider):
 		if EntityType.Property == type:
 			p as IProperty = entity
 			return cast(int, TypeIcon.PublicProperty) if p.IsPublic
-			return cast(int, TypeIcon.PrivateProperty)
-		if EntityType.Method == type:
-			m as IMethod = entity
-			return cast(int, TypeIcon.PublicMethod) if m.IsPublic
-			return cast(int, TypeIcon.PrivateMethod)
+			return cast(int, TypeIcon.PrivateProperty)		
 		if EntityType.Field == type:
 			f as IField = entity
 			return cast(int, TypeIcon.PublicField) if f.IsPublic
 			return cast(int, TypeIcon.PrivateField)
-		return -1
+		if EntityType.Event == type:
+			return cast(int, TypeIcon.PublicEvent)
+		if type in EntityType.Method, EntityType.Constructor:
+			m as IMethod = entity
+			return cast(int, TypeIcon.PublicMethod) if m.IsPublic
+			return cast(int, TypeIcon.PrivateMethod)
+		return 0
 	

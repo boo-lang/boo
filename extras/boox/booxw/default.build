@@ -127,7 +127,8 @@
 					"privateenum.png",
 					"privatefield.png",
 					"privateproperty.png",
-					"privatemethod.png"
+					"privatemethod.png",
+					"event.png"
 				)
 			for image in images:
 				fname = MapPath("../resources/ClassBrowserIcons/${image}")
