@@ -45,12 +45,12 @@
 				<End >*/</End>
 			</Span>
 
-			<Span name="String" stopateol="true" bold="false" italic="false" color="Fuchsia" >
+			<Span name="String" rule="str formatting" stopateol="true" bold="false" italic="false" color="Fuchsia" >
 				<Begin >"</Begin>
 				<End >"</End>
 			</Span>
 
-			<Span name="MultiLineString" noescapesequences="true" stopateol="false" bold="false" italic="false" color="Fuchsia" >
+			<Span name="MultiLineString" noescapesequences="true" rule="str formatting" stopateol="false" bold="false" italic="false" color="Fuchsia" >
 				<Begin >"""</Begin>
 				<End >"""</End>
 			</Span>
@@ -184,7 +184,7 @@
 				<Key word="override"/>
 				<Key word="static"/>
 				<Key word="virtual"/>
-				<Key word="abstract" />
+				<Key word="abstract"/>
 				<Key word="final"/>
 				<Key word="transient"/>
 			</KeyWords>
@@ -268,6 +268,16 @@
 			<Span name="BlockComment" rule="comments set" stopateol="false" bold="false" italic="false" color="Teal" >
 				<Begin >/*</Begin>
 				<End >*/</End>
+			</Span>
+
+		</RuleSet>
+
+		<RuleSet ignorecase="false" name="str formatting" >
+			<Delimiters>&amp;&lt;&gt;~!@%^*()-+=|\#/{}[]:;"' ,	.?</Delimiters>
+
+			<Span name="Formatting" stopateol="false" bold="true" italic="false" color="#993366" >
+				<Begin >${</Begin>
+				<End >}</End>
 			</Span>
 
 		</RuleSet>
