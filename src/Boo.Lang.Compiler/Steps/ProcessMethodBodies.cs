@@ -3564,11 +3564,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IConstructor[] constructors = typeInfo.GetConstructors();
 			if (constructors.Length > 0)
-			{				
-				foreach (IConstructor ctor in constructors)
-				{
-					EnsureRelatedNodeWasVisited(ctor);
-				}
+			{		
+				EnsureRelatedNodesWereVisited(constructors);
 				return (IConstructor)ResolveCallableReference(sourceNode, arguments, constructors, true);				
 			}
 			else
@@ -3615,14 +3612,19 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void EnsureRelatedNodesWereVisited(IEntity[] entities)
+		{
+			foreach (IEntity entity in entities)
+			{
+				EnsureRelatedNodeWasVisited(entity);
+			}
+		}
+		
 		void EnsureRelatedNodeWasVisited(IEntity tag)
 		{
 			if (tag.EntityType == EntityType.Ambiguous)
 			{
-				foreach (IEntity item in ((Ambiguous)tag).Entities)
-				{
-					EnsureRelatedNodeWasVisited(item);
-				}
+				EnsureRelatedNodesWereVisited(((Ambiguous)tag).Entities);
 				return;
 			}
 			
