@@ -1,2 +1,0 @@
-pipeline.Load("booc")
-pipeline.InsertAfter("parse", StyleChecker())
