@@ -579,6 +579,12 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != node.Initializer)
 			{
+				if (tag.DeclaringType.IsValueType)
+				{
+					Error(
+						CompilerErrorFactory.ValueTypeFieldsCannotHaveInitializers(
+							node.Initializer));
+				}
 				ProcessFieldInitializer(node);
 			}
 			else

@@ -1,10 +1,10 @@
 class Size(System.ValueType):
 	
 	[property(Width)]
-	_w = 0
+	_w as int
 	
 	[property(Height)]
-	_h = 0
+	_h as int
 	
 s as Size
 s.Width = 100

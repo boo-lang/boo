@@ -998,9 +998,16 @@ namespace Boo.Lang.Compiler.Steps
 			
 			IArrayType arrayType = (IArrayType)PopType();
 			IType elementType = arrayType.GetElementType();
+			OpCode opcode = GetStoreEntityOpCode(elementType);
 			
 			Slice index = slice.Indices[0];
-			EmitNormalizedArrayIndex(index.Begin);			
+			EmitNormalizedArrayIndex(index.Begin);
+			
+			bool stobj = IsStobj(opcode); 
+			if (stobj)
+			{
+				_il.Emit(OpCodes.Ldelema, GetSystemType(elementType));
+			}
 			
 			Visit(node.Right);
 			EmitCastIfNeeded(elementType, PopType());
@@ -1014,7 +1021,14 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Stloc, temp);				
 			}
 			
-			_il.Emit(GetStoreEntityOpCode(elementType));
+			if (stobj)
+			{
+				_il.Emit(opcode, GetSystemType(elementType));
+			}
+			else
+			{
+				_il.Emit(opcode);
+			}
 			
 			if (leaveValueOnStack)
 			{
@@ -1797,13 +1811,24 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Visit(node.Target); 			
-			IArrayType type = (IArrayType)PopType();
-
-			EmitNormalizedArrayIndex(node.Indices[0].Begin);
-			_il.Emit(GetLoadEntityOpCode(type.GetElementType()));			
+			Visit(node.Target); 	
 			
-			PushType(type.GetElementType());
+			IArrayType type = (IArrayType)PopType();			
+			EmitNormalizedArrayIndex(node.Indices[0].Begin);
+			
+			IType elementType = type.GetElementType();
+			OpCode opcode = GetLoadEntityOpCode(elementType);
+			if (OpCodes.Ldelema.Value == opcode.Value)
+			{
+				System.Type systemType = GetSystemType(elementType);
+				_il.Emit(opcode, systemType);
+				_il.Emit(OpCodes.Ldobj, systemType);
+			}
+			else
+			{
+				_il.Emit(opcode);
+			}			
+			PushType(elementType);
 		}
 		
 		void EmitNormalizedArrayIndex(Expression index)
@@ -2077,11 +2102,33 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			// declare local to hold value type
-			Visit(expression);
-			LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
-			_il.Emit(OpCodes.Stloc, temp);
-			_il.Emit(OpCodes.Ldloca, temp);
+			if (IsValueTypeArraySlicing(expression))
+			{
+				SlicingExpression slicing = (SlicingExpression)expression;
+				Visit(slicing.Target);
+				IArrayType arrayType = (IArrayType)PopType();
+				EmitNormalizedArrayIndex(slicing.Indices[0].Begin);
+				_il.Emit(OpCodes.Ldelema, GetSystemType(arrayType.GetElementType()));
+			}
+			else
+			{
+				// declare local to hold value type
+				Visit(expression);
+				LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
+				_il.Emit(OpCodes.Stloc, temp);
+				_il.Emit(OpCodes.Ldloca, temp);
+			}
+		}
+		
+		bool IsValueTypeArraySlicing(Expression expression)
+		{
+			SlicingExpression slicing = expression as SlicingExpression;
+			if (null != slicing)
+			{
+				IArrayType type = (IArrayType)slicing.Target.ExpressionType;
+				return type.GetElementType().IsValueType;
+			}
+			return false;
 		}
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
@@ -2419,7 +2466,8 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldelem_R8;
 				}
-				NotImplemented("LoadEntityOpCode(" + tag + ")");
+				//NotImplemented("LoadEntityOpCode(" + tag + ")");
+				return OpCodes.Ldelema;
 			}
 			return OpCodes.Ldelem_Ref;
 		}		
@@ -2454,7 +2502,8 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Stelem_R8;
 				}
-				NotImplemented("GetStoreEntityOpCode(" + tag + ")");				
+				//NotImplemented("GetStoreEntityOpCode(" + tag + ")");
+				return OpCodes.Stobj;				
 			}
 			return OpCodes.Stelem_Ref;
 		}
@@ -2623,10 +2672,27 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Dup);	// array reference
 			_il.Emit(OpCodes.Ldc_I4, index); // element index
-			value.Accept(this); // value
-			EmitCastIfNeeded(elementType, PopType());
-			_il.Emit(opcode);
+			
+			bool stobj = IsStobj(opcode); // value type sequence?
+			if (stobj)
+			{
+				Type systemType = GetSystemType(elementType);
+				_il.Emit(OpCodes.Ldelema, systemType);
+				value.Accept(this); PopType();
+				_il.Emit(opcode, systemType);
+			}
+			else
+			{
+				value.Accept(this);
+				EmitCastIfNeeded(elementType, PopType());
+				_il.Emit(opcode);
+			}
 		}		
+		
+		bool IsStobj(OpCode code)
+		{
+			return OpCodes.Stobj.Value == code.Value;
+		}
 		
 		void DefineAssemblyAttributes()
 		{

@@ -106,6 +106,7 @@ BCE0104='transient' só pode ser utilizado na definição de classes, campos e e
 BCE0105='abstract' só pode ser utilizado na definição de classes, métodos, propriedades e eventos.
 BCE0106=Não foi possível acessar os tipos definidos no assembly '{0}'.
 BCE0107=Estruturas não podem declarar constructors sem parâmetros.
+BCE0108=Campos de estruturas não podem ter inicializadores.
 
 ;Compiler warnings
 BCW0001=AVISO: O tipo '{0}' não possui uma implementação para '{1}' e será marcado como abstrato.

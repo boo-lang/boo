@@ -566,6 +566,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0107", node.LexicalInfo);
 		}
 		
+		public static CompilerError ValueTypeFieldsCannotHaveInitializers(Node node)
+		{
+			return new CompilerError("BCE0108", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
