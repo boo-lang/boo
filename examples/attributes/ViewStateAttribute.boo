@@ -28,19 +28,17 @@
 
 namespace Boo.Web
 
-import Boo.Ast
 import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Ast
 
 class ViewStateAttribute(AbstractAstAttribute):
 
 	[property(Default)]
 	_default as Expression
 			
-	// Invocado pelo compilador, recebe como parâmetro
-	// o nó da AST ao qual foi aplicado
-	def Apply(node):
+	override def Apply(node as Node):
 		
-		assert node isa Field, "ViewState pode ser aplicado somente a campos!"			
+		assert node isa Field			
 		
 		f as Field = node
 		
@@ -58,28 +56,19 @@ class ViewStateAttribute(AbstractAstAttribute):
 		if _default:
 			
 			// value = ViewState[<FieldName>]
-			getter.Body.Add(
-						BinaryExpression
-						(
+			getter.Body.Add(BinaryExpression(
 							BinaryOperatorType.Assign,
 							ReferenceExpression("value"),
-							CreateViewStateSlice(f)
-						)
-					)
-							
-			// return value ? value : <_default>
+							CreateViewStateSlice(f)))							
+			// return value if value 
 			getter.Body.Add(
-						ReturnStatement
-						(
-							TernaryExpression
-							(
-								ReferenceExpression("value"),
-								ReferenceExpression("value"),
-								_default
-							)
-						)
-					)				
-			
+					ReturnStatement(							
+							ReferenceExpression("value"),
+								StatementModifier(
+									StatementModifierType.If,
+									ReferenceExpression("value"))))
+			// return <default>
+			getter.Body.Add(ReturnStatement(_default))	
 		else:			
 			// return ViewState[<FieldName>]
 			getter.Body.Add(ReturnStatement(CreateViewStateSlice(f)))
@@ -91,12 +80,11 @@ class ViewStateAttribute(AbstractAstAttribute):
 		setter = Method()
 		
 		// ViewState[<FieldName>] = value
-		setter.Body.Add(BinaryExpression(
+		setter.Body.Add(
+			BinaryExpression(
 						BinaryOperatorType.Assign,
 						CreateViewStateSlice(f),
-						ReferenceExpression("value")
-						)
-					)
+						ReferenceExpression("value")))
 		
 		return setter
 		

@@ -45,25 +45,25 @@ class Vector3:
 		#return 1.0
 		
 def createArray(count as int):
-	l = []
+	a = array(Vector3, count)
 	for i in range(count):
-		l.Add(Vector3())
-	return l.ToArray(Vector3) as (Vector3)
+		a[i] = Vector3()
+	return a
 
 // array as (Vector3) = array(Vector3() for i in range(length))
-array = createArray(25000)
+a = createArray(25000)
 
 start = date.Now
 
 total = 0.0
 count = 0
 
-for v1 in array:
-	for v2 in array:
+for v1 in a:
+	for v2 in a:
 		total += v2.Distance(v1)
 		++count
 
-elapsed = date.Now.Subtract(start) 
+elapsed = date.Now - start 
 print("Total... ${total}.")
 
 // a good ips value is: 13.000.000

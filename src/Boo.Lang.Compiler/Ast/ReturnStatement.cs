@@ -46,6 +46,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public ReturnStatement(Expression expression, StatementModifier modifier) : base(expression)
+		{
+			this.Modifier = modifier;
+		}
+		
 		override public void Accept(IAstVisitor visitor)
 		{
 			visitor.OnReturnStatement(this);
