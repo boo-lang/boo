@@ -45,6 +45,11 @@ namespace Boo.IO
 		
 		public static string ReadFile(string fname)
 		{
+			if (null == fname)
+			{
+				throw new ArgumentNullException("fname");
+			}
+			
 			using (TextFile reader=new TextFile(fname))
 			{
 				return reader.ReadToEnd(); 
@@ -53,7 +58,25 @@ namespace Boo.IO
 		
 		public static void WriteFile(string fname, string contents)
 		{
-			using (StreamWriter writer=new StreamWriter(fname, false, System.Text.Encoding.UTF8))
+			WriteFile(fname, contents, System.Text.Encoding.UTF8);
+		}
+		
+		public static void WriteFile(string fname, string contents, System.Text.Encoding encoding)
+		{
+			if (null == fname)
+			{
+				throw new ArgumentNullException("fname");
+			}
+			if (null == contents)
+			{
+				throw new ArgumentNullException("contents");
+			}
+			if (null == encoding)
+			{
+				throw new ArgumentNullException("encoding");
+			}
+			
+			using (StreamWriter writer=new StreamWriter(fname, false, encoding))
 			{
 				writer.Write(contents);
 			}
