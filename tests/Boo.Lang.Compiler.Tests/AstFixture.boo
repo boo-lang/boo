@@ -40,8 +40,8 @@ class AstTestFixture:
 
 	[SetUp]
 	def SetUp():
-		_module = Module(Name: "Module",
-							Namespace: NamespaceDeclaration("Foo.Bar"))
+		_module = Module(Name: "Module")
+		_module.Namespace = NamespaceDeclaration("Foo.Bar")
 		
 		_unit = CompileUnit()
 		_unit.Modules.Add(_module)

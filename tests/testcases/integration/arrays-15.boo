@@ -11,12 +11,12 @@ class Table:
 		get:
 			return _table[index]
 	
-	def Set(row as int, col as int, value as int):
+	def SetValue(row as int, col as int, value as int):
 		_table[row][col] = value
 		
 t = Table()
-t.Set(0, 0, 1)
-t.Set(1, 0, 2)
+t.SetValue(0, 0, 1)
+t.SetValue(1, 0, 2)
 
 print(t.Row[0][0])
 print(t.Row[0][1])

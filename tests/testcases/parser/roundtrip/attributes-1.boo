@@ -2,7 +2,7 @@
 [XmlElement('Person', Namespace: 'urn:foo:bar')]
 class Person:
 
-	enum Class:
+	enum Status:
 
 		[description('Rich People')]
 		A
@@ -25,8 +25,8 @@ class Person:
 	[accessors(DateOfBirth)]
 	_dof as date
 
-	[accessors(Class)]
-	_class as Class
+	[accessors(Status)]
+	_class as Status
 
 	def constructor([required] fname as string, [required] lname as string):
 		_fname = fname
@@ -48,7 +48,7 @@ class Person:
 [XmlElement("Person", Namespace: "urn:foo:bar")]
 class Person:
 	
-	enum Class:
+	enum Status:
 		[description("Rich People")]
 		A
 		
@@ -70,8 +70,8 @@ class Person:
 	[accessors(DateOfBirth)]
 	_dof as date
 	
-	[accessors(Class)]
-	_class as Class
+	[accessors(Status)]
+	_class as Status
 	
 	def constructor(
 				[required] fname as string,

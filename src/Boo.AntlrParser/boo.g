@@ -472,7 +472,7 @@ attribute
 	} 
 	(
 		LPAREN!
-		parameter_list[attr]
+		argument_list[attr]
 		RPAREN!
 	)?
 	;
@@ -487,7 +487,7 @@ assembly_attribute[Module module]
 	id=identifier { attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id), id.getText()); }
 	(
 		LPAREN!
-		parameter_list[attr]
+		argument_list[attr]
 		RPAREN!
 	)?
 	RBRACK!
@@ -1826,12 +1826,12 @@ slicing_expression returns [Expression e]
 					mce.Target = e;
 					e = mce;
 				}			
-			parameter_list[mce]
+			argument_list[mce]
 			RPAREN!
 		)
 	)*
 	;
-				
+	
 protected
 literal returns [Expression e]
 	{
@@ -2026,30 +2026,34 @@ expression_list[ExpressionCollection ec]
 	;
 	
 protected
-parameter_list[INodeWithArguments node]:
+argument_list[INodeWithArguments node]:
 	(
-		parameter[node] 
+		argument[node] 
 		(
 			COMMA!
-			parameter[node]
+			argument[node]
 		)*
 	)?
 	;
 	
 protected
-parameter[INodeWithArguments node]
-	{
-		Expression e = null;
+argument[INodeWithArguments node]
+	{		
 		Expression value = null;
-	} :
-	e=expression
+	}:
+	(ID COLON)=>(
+		id:ID colon:COLON value=expression
+		{
+			node.NamedArguments.Add(
+				new ExpressionPair(
+					ToLexicalInfo(colon),
+					new ReferenceExpression(ToLexicalInfo(id), id.getText()),
+					value));
+		}
+	) |
 	(
-		(
-			colon:COLON!
-			value=expression
-			{ node.NamedArguments.Add(new ExpressionPair(ToLexicalInfo(colon), e, value)); }
-		) |
-		{ node.Arguments.Add(e); }
+		value=expression
+		{ node.Arguments.Add(value); }
 	)
 	;
 
@@ -2080,6 +2084,7 @@ options
 	exportVocab = Boo;	
 	k = 2;
 	charVocabulary='\u0003'..'\uFFFE';
+	caseSensitiveLiterals=true;
 	// without inlining some bitset tests, ANTLR couldn't do unicode;
 	// They need to make ANTLR generate smaller bitsets;
 	codeGenBitsetTestThreshold=20;
