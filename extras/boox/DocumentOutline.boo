@@ -40,14 +40,16 @@ class DocumentOutline(Content):
 
 	def InitImageList():
 		_imageList = ImageList()
+		appPath = Path.GetDirectoryName(Application.ExecutablePath)
+		
 		try:
-			_imageList.Images.Add(Image.FromFile("namespace.png"))
-			_imageList.Images.Add(Image.FromFile("class.png"))
-			_imageList.Images.Add(Image.FromFile("interface.png"))
-			_imageList.Images.Add(Image.FromFile("field.png"))
-			_imageList.Images.Add(Image.FromFile("property.png"))
-			_imageList.Images.Add(Image.FromFile("enum.png"))
-			_imageList.Images.Add(Image.FromFile("method.png"))
+			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "namespace.png")))
+			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "class.png")))
+			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "interface.png")))
+			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "field.png")))
+			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "property.png")))
+			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "enum.png")))
+			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "method.png")))
 		except ex as FileNotFoundException:
 			pass
 		
