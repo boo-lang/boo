@@ -1409,10 +1409,12 @@ if_stmt returns [IfStatement returnValue]
 protected
 unpack_stmt returns [UnpackStatement s]
 	{
+		Declaration d = null;
 		s = new UnpackStatement();
 		Expression e = null;
-	}:
-	declaration_list[s.Declarations] t:ASSIGN e=array_or_expression
+	}:	
+	d=declaration COMMA { s.Declarations.Add(d); }
+	(declaration_list[s.Declarations])? t:ASSIGN e=array_or_expression
 	{
 		s.Expression = e;
 		s.LexicalInfo = ToLexicalInfo(t);

@@ -36,6 +36,7 @@ using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipelines;
+using Boo.Lang.Compiler.Resources;
 
 namespace BooC
 {
@@ -171,8 +172,29 @@ namespace BooC
 
 							case 'r':
 							{
-								string assemblyName = arg.Substring(3);
-								options.References.Add(LoadAssembly(assemblyName));
+								if (arg.IndexOf(":") > 2)
+								{
+									switch (arg.Substring(1, 8))
+									{
+										case "resource":
+										{
+											string resourceFile = arg.Substring(arg.IndexOf(":") + 1);
+											options.Resources.Add(new FileResource(resourceFile));
+											break;
+										}
+
+										default:
+										{
+											InvalidOption(arg);
+											break;
+										}
+									}
+								}
+								else
+								{
+									string assemblyName = arg.Substring(3);
+									options.References.Add(LoadAssembly(assemblyName));
+								}
 								break;
 							}
 							
