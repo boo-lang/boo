@@ -58,6 +58,8 @@ namespace BooC
 				
 				BooCompiler compiler = new BooCompiler();
 				CompilerParameters options = compiler.Parameters;
+				options.Pipeline.BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+				
 				ParseOptions(args, options);
 				if (0 == options.Input.Count)
 				{
@@ -186,7 +188,7 @@ namespace BooC
 
 							case 'p':
 							{
-								options.Pipeline.Load(AppDomain.CurrentDomain.BaseDirectory, arg.Substring(3));								
+								options.Pipeline.Load(arg.Substring(3));								
 								hasPipeline = true;
 								break;
 							}
@@ -214,7 +216,7 @@ namespace BooC
 			
 			if (!hasPipeline)
 			{
-				options.Pipeline.Load(AppDomain.CurrentDomain.BaseDirectory, "booc");
+				options.Pipeline.Load("booc");
 			}
 		}
 

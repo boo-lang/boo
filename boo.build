@@ -59,11 +59,6 @@
 				<includes name="build/Boo.dll" />
 			</references>
 		</csc>
-		<copy todir="build">
-			<fileset basedir="src/BooC">
-				<includes name="*.pipeline" />
-			</fileset>
-		</copy>		
 		
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='build/Boo.dll' />
@@ -122,7 +117,7 @@
 
 		<resgen
 			input="src/Boo/Resources/strings.txt"
-			output="build/string.resources" />
+			output="build/strings.resources" />
 
 		<csc
 			target="library"
@@ -132,9 +127,15 @@
 
 			<sources basedir="src/Boo">
 				<includes name="**/*.cs" />
-			</sources>		
+			</sources>
 			
-			<arg value="/res:build/string.resources,strings.resources" />
+			<resources basedir="build">
+				<includes name="strings.resources" />
+			</resources>
+			
+			<resources basedir="src/Boo/Resources">
+				<includes name="*.pipeline" />
+			</resources>
 		</csc>
 	</target>
 	

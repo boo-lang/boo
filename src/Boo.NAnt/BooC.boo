@@ -72,14 +72,15 @@ class BooC(Task):
 			
 	protected def ExecuteTask():
 		files = _sourceFiles.FileNames
-		LogInfo("Compiling ${files.Count} files to ${_output}.")
+		LogInfo("Compiling ${files.Count} file(s) to ${_output}.")
 		
 		compiler = BooCompiler()
 		parameters = compiler.Parameters
 		parameters.TraceSwitch.Level = _traceLevel
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
-		parameters.Pipeline.Load(Project.BaseDirectory, _pipeline)
+		parameters.Pipeline.BaseDirectory = Project.BaseDirectory
+		parameters.Pipeline.Load(_pipeline)
 		
 		for fname as string in files:
 			LogVerbose(fname)

@@ -75,7 +75,7 @@ namespace Boo.Tests.Lang.Compiler
 		[SetUp]
 		public void SetUp()
 		{
-			_pipeline = new CompilerPipeline();
+			_pipeline = new CompilerPipeline();			
 		}
 
 		[Test]
@@ -125,7 +125,8 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void TestXmlConfigurationExtends()
 		{		
-			_pipeline.Load(BooTestCaseUtil.GetTestCasePath("compilation"), "p2");
+			_pipeline.BaseDirectory = BooTestCaseUtil.GetTestCasePath("compilation");
+			_pipeline.Load("p2");
 
 			AssertEquals(2, _pipeline.Count);
 			Assert("Expected a DummyStep!", _pipeline[0] is DummyStep);

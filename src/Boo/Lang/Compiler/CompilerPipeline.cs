@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler
 	public class CompilerPipeline
 	{
 		ArrayList _steps;
+		
+		string _baseDirectory = ".";
 
 		public CompilerPipeline()
 		{
@@ -55,6 +57,23 @@ namespace Boo.Lang.Compiler
 			}
 			_steps.Add(step);
 			return this;
+		}
+		
+		public string BaseDirectory
+		{
+			get
+			{
+				return _baseDirectory;
+			}
+			
+			set
+			{
+				if (null == value)
+				{
+					throw new ArgumentNullException("value");
+				}
+				_baseDirectory = value;
+			}
 		}
 
 		public int Count
@@ -72,35 +91,20 @@ namespace Boo.Lang.Compiler
 				return (ICompilerStep)_steps[index];
 			}
 		}
-
+		
 		public void Configure(System.Xml.XmlElement configuration)
 		{
 			if (null == configuration)
 			{
 				throw new ArgumentNullException("configuration");
 			}
-
+			
 			_steps.Clear();
 			InnerConfigure(configuration);
-		}	
+		}
 		
-		public void Load(string baseDirectory, string name)
-		{			
-			if (!name.EndsWith(".pipeline"))
-			{				
-				name += ".pipeline";				
-			}
-			
-			if (!Path.IsPathRooted(name))
-			{
-				string path = Path.Combine(baseDirectory, name);
-				if (!File.Exists(path))
-				{
-					path = Path.Combine(CodeBase, name);
-				}
-				name = path;
-			}
-			
+		public void Load(string name)
+		{	
 			try
 			{
 				Configure(LoadXmlDocument(name));
@@ -139,14 +143,6 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		string CodeBase
-		{
-			get
-			{
-				return Path.GetDirectoryName(GetType().Assembly.Location);
-			}
-		}
-
 		string GetRequiredAttribute(XmlElement element, string attributeName)
 		{
 			XmlAttribute attribute = element.GetAttributeNode(attributeName);
@@ -163,7 +159,7 @@ namespace Boo.Lang.Compiler
 			string extends = configuration.GetAttribute("extends");
 			if (extends.Length > 0)
 			{
-				InnerConfigure(LoadBasePipeline(configuration, extends));
+				InnerConfigure(LoadXmlDocument(extends));
 			}
 
 			foreach (XmlElement element in configuration.SelectNodes("step"))
@@ -177,21 +173,33 @@ namespace Boo.Lang.Compiler
 				_steps.Add(Activator.CreateInstance(type));
 			}
 		}
-
-		XmlElement LoadBasePipeline(XmlElement rel, string name)
-		{
-			if (!name.EndsWith(".pipeline"))
-			{
-				name += ".pipeline";
-			}
-			Uri baseUri = new Uri(rel.OwnerDocument.BaseURI);
-			return LoadXmlDocument(new Uri(baseUri, name).AbsoluteUri);
-		}
 		
-		XmlElement LoadXmlDocument(string path)
+		XmlElement LoadXmlFromResource(string name)
 		{
 			XmlDocument doc = new XmlDocument();
-			doc.Load(path);
+			doc.Load(GetType().Assembly.GetManifestResourceStream(name));
+			return doc.DocumentElement;
+		}
+		
+		XmlElement LoadXmlDocument(string name)
+		{
+			if (!name.EndsWith(".pipeline"))
+			{				
+				name += ".pipeline";				
+			}
+			
+			if (!Path.IsPathRooted(name))
+			{
+				string path = Path.Combine(_baseDirectory, name);
+				if (!File.Exists(path))
+				{
+					return LoadXmlFromResource(name);
+				}
+				name = path;
+			}
+			
+			XmlDocument doc = new XmlDocument();
+			doc.Load(name);
 			return doc.DocumentElement;
 		}
 	}
