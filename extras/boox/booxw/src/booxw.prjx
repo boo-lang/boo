@@ -23,8 +23,8 @@
   <References>
     <Reference type="Project" refto="booish.gui" localcopy="True" />
     <Reference type="Project" refto="BooExplorer.Common" localcopy="True" />
-    <Reference type="Assembly" refto="\dotnet\SharpDevelop\SharpDevelop\bin\WeifenLuo.WinFormsUI.dll" localcopy="True" />
-    <Reference type="Assembly" refto="\dotnet\SharpDevelop\SharpDevelop\bin\ICSharpCode.TextEditor.dll" localcopy="True" />
+    <Reference type="Assembly" refto=".\dotnet\SharpDevelop\SharpDevelop\bin\WeifenLuo.WinFormsUI.dll" localcopy="True" />
+    <Reference type="Assembly" refto=".\dotnet\SharpDevelop\SharpDevelop\bin\ICSharpCode.TextEditor.dll" localcopy="True" />
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="True" name="Debug">

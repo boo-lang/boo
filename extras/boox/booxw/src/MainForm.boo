@@ -80,7 +80,8 @@ class MainForm(Form):
 		_status = StatusBar(ShowPanels: true, TabIndex: 2)
 		_status.Panels.Add(_statusPanel1)
 		
-		_parser.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Parse()		
+		_parser.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Parse()
+		(_parser.Parameters.Pipeline[0] as duck).TabSize = 1		
 
 		SuspendLayout()
 

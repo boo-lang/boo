@@ -86,6 +86,7 @@ class BooEditor(DockContent):
 		_editor.Document.FormattingStrategy = BooFormattingStrategy()
 		_editor.Document.HighlightingStrategy = GetBooHighlighting()
 		_editor.Document.DocumentChanged += _editor_DocumentChanged
+		_editor.Document.FoldingManager.FoldingStrategy = BooFoldingStrategy.Instance
 
 		SuspendLayout()
 		Controls.Add(_editor)
@@ -233,7 +234,10 @@ class BooEditor(DockContent):
 	def UpdateOutputPane(text as string):
 		_main.OutputPane.SetBuildText(text)
 		_main.ShowOutputPane() if len(text)
-
+		
+	def UpdateFoldings(fname as string, parseInformation):
+		_editor.Document.FoldingManager.UpdateFoldings(fname, parseInformation)
+		
 	def UpdateModule():
 		return unless _moduleDirty
 
@@ -242,6 +246,7 @@ class BooEditor(DockContent):
 		try:
 			_module = _main.ParseString(fname, code).Modules[0]
 			_moduleDirty = false
+			UpdateFoldings(fname, _module)
 		except x:
 			print(x)
 
