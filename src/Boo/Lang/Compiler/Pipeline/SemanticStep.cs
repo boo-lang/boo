@@ -46,8 +46,6 @@ namespace Boo.Lang.Compiler.Pipeline
 	{
 		NameResolutionSupport _nameResolution = new NameResolutionSupport();
 		
-		DependencyGraph _pending;
-		
 		Stack _methodBindingStack;
 		
 		InternalMethodBinding _currentMethodBinding;
@@ -106,7 +104,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		{					
 			_currentMethodBinding = null;
 			_methodBindingStack = new Stack();
-			_pending = new DependencyGraph(_context);
 			_classes = new ArrayList();
 			_nameResolution.Initialize(_context);
 			_loopDepth = 0;
@@ -131,8 +128,6 @@ namespace Boo.Lang.Compiler.Pipeline
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
 			Switch(CompileUnit);
-			
-			ResolveDependencyGraph();
 			
 			if (0 == Errors.Count)
 			{
@@ -217,29 +212,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		void ResolveDependencyGraph()
-		{
-			int iterations = _pending.Resolve(this);
-			_context.TraceInfo("Type inference concluded in {0} iteration(s).", iterations);
-			foreach (Node node in _pending)
-			{
-				if (NodeType.Method == node.NodeType)
-				{					
-					if (BindingManager.IsUnknown(((Method)node).ReturnType))
-					{
-						Error(CompilerErrorFactory.CouldNotInferReturnType(node, GetSignature((IMethodBinding)GetBinding(node))));
-					}
-				}
-			}
-		}
-		
 		override public void Dispose()
 		{
 			base.Dispose();
 			
 			_currentMethodBinding = null;
 			_methodBindingStack = null;
-			_pending = null;
 			_nameResolution.Dispose();
 			_classes = null;
 		}
@@ -744,7 +722,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 					else
 					{
-						_pending.Add(method, new ReturnTypeResolver(binding));
+						Error(method.ReturnType, CompilerErrorFactory.RecursiveMethodWithoutReturnType(method));
 					}
 				}
 				else
@@ -1730,20 +1708,13 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
-		{
+		{					
 			if (BindingManager.IsUnknown(node.Left) || BindingManager.IsUnknown(node.Right))
 			{
 				Bind(node, UnknownBinding.Default);
-				_pending.Add(node, new BinaryExpressionResolver(node));
+				return;
 			}
-			else
-			{
-				ResolveBinaryExpression(node);
-			}
-		}
-		
-		public void ResolveBinaryExpression(BinaryExpression node)
-		{			
+			
 			if (BindingManager.IsError(node.Left) || BindingManager.IsError(node.Right))
 			{
 				Error(node);
@@ -3406,50 +3377,4 @@ namespace Boo.Lang.Compiler.Pipeline
 			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, binding.BoundType);
 		}		
 	}
-	
-	class BinaryExpressionResolver : ITypeResolver
-	{
-		BinaryExpression _node;
-		
-		public BinaryExpressionResolver(BinaryExpression node)
-		{
-			_node = node;
-		}
-		
-		public IBinding Resolve(SemanticStep parent)
-		{
-			if (!BindingManager.IsUnknown(_node.Left) &&
-				!BindingManager.IsUnknown(_node.Right))
-			{
-				parent.ResolveBinaryExpression(_node);
-			}
-			return ((ITypedBinding)BindingManager.GetBinding(_node)).BoundType;
-		}
-		
-		public void OnResolved(SemanticStep parent)
-		{
-		}
-	}
-	
-	class ReturnTypeResolver : ITypeResolver
-	{
-		InternalMethodBinding _binding;
-		
-		public ReturnTypeResolver(InternalMethodBinding binding) 
-		{
-			_binding = binding;
-		}
-		
-		public IBinding Resolve(SemanticStep parent)
-		{
-			parent.ResolveReturnType(_binding);
-			return _binding.BoundType;
-		}
-		
-		public void OnResolved(SemanticStep parent)
-		{
-			parent.ResolveMethodOverride(_binding);
-		}
-	}
-	
 }

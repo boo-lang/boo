@@ -1207,5 +1207,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("re0.boo");
 		}
+		
+		[Test]
+		public void RegularExpressionMatch()
+		{
+			RunCompilerTestCase("re1.boo");
+		}
 	}
 }

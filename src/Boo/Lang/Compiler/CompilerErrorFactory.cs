@@ -377,6 +377,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0069", node.LexicalInfo, interfaceName, baseType);
 		}
 		
+		public static CompilerError RecursiveMethodWithoutReturnType(Node node)
+		{
+			return new CompilerError("BCE0070", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

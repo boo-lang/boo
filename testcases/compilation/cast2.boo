@@ -1,12 +1,12 @@
 """
 it wasn't a string
-a string
+A STRING
 """
 import System
 
 def use(obj):
 	try:
-		print(cast(string, obj))
+		print(cast(string, obj).ToUpper())
 	except x as InvalidCastException:
 		print("it wasn't a string.")
 

@@ -17,7 +17,7 @@ public final transient class Method7Module(System.Object):
 
 
 """
-def greeting(who as string):
+def greeting(who as string) as object:
 	return "wassup, g?" if who != "bamboo"
 	return g()
 	

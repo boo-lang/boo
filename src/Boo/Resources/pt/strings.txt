@@ -68,6 +68,7 @@ BCE0066=O atributo '{0}' pode somente ser aplicado a nós de tipo: '{1}'.
 BCE0067=Já existe uma variável local de nome '{0}'.
 BCE0068=A propriedade '{0}' exige parâmetros.
 BCE0069=A interface '{0}' só pode estender uma outra interface mas o tipo '{1}' não é uma interface.
+BCE0070=Métodos recursivos ou mutuamente recursivos devem declarar seus tipos de retorno.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

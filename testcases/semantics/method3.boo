@@ -10,6 +10,6 @@ public final transient class Method3Module(System.Object):
 		super()
 
 """
-def fatorial(n as int):	
+def fatorial(n as int) as int:	
 	return n * fatorial(n-1) if n > 1
 	return 1

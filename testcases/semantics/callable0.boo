@@ -11,9 +11,9 @@ public final transient class Callable0Module(System.Object):
 	private def constructor():
 		super()
 
-	privatescope final class __Callable1__(System.Object, Boo.Lang.ICallable):
+	private final class __Callable1__(System.Object, Boo.Lang.ICallable):
 
-		privatescope Instance as Callable0Module.__Callable1__
+		private Instance as Callable0Module.__Callable1__
 
 		public virtual def Call(args as (System.Object)) as System.Object:
 			if (1 != args.Length):
