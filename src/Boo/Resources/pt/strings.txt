@@ -11,6 +11,7 @@ RequiredAttribute=O elemento {0} deve conter um atributo de nome {1}.
 InvalidAssemblySetup=AssemblyBuilder não foi configurado corretamente.
 TypeManager.UnresolvedNode=Nó não resolvido.
 MethodArgumentCount=Nenhuma versão do método {0} aceita {1} parâmetros.
+NameNotType=O nome {0} não denota um tipo válido.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

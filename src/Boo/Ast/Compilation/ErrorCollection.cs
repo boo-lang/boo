@@ -35,6 +35,11 @@ namespace Boo.Ast.Compilation
 			Add(new Error(pair, GetString("NamedParameterMustBeReference")));
 		}
 		
+		public void NameNotType(Node node, string name)
+		{
+			Add(new Error(node, Format("NameNotType", name)));
+		}
+		
 		public void UnknownName(Node node, string name)
 		{
 			Error error = new Error(node, Format("UnknownName", name));			

@@ -47,24 +47,75 @@ namespace Boo.Ast.Compilation.Steps
 			return true;
 		}
 		
-		public override bool EnterMethod(Method method)
+		public override void OnMethod(Method method)
 		{
 			_method = method;
-			_namespace = new MethodNameSpace(TypeManager, _namespace, _method);
-			return true;
-		}
-		
-		public override void LeaveMethod(Method method)
-		{
-			// Por enquanto, valor de retorno apenas void
-			method.ReturnType = new TypeReference("void");
-			TypeManager.SetNameInfo(method.ReturnType, TypeManager.ToTypeInfo(TypeManager.VoidType));
+			
+			ProcessParameters(method);
+			ProcessReturnType(method);
+			
+			_namespace = new MethodNameSpace(TypeManager, _namespace, _method);			
 			
 			MethodBuilder mbuilder = _typeBuilder.DefineMethod(method.Name,
 				                     MethodAttributes.Static|MethodAttributes.Public,
-				                     TypeManager.VoidType,
-				                     new Type[0]);
+				                     TypeManager.GetType(method.ReturnType),
+				                     GetParameterTypes(method));
 			TypeManager.SetNameInfo(method, mbuilder);
+			
+			method.Body.Switch(this);
+		}
+		
+		public override void OnTypeReference(TypeReference node)
+		{
+			INameInfo info = ResolveName(node, node.Name);
+			if (null != info)
+			{
+				if (NameInfoType.Type != info.InfoType)
+				{
+					Errors.NameNotType(node, node.Name);
+				}
+				else
+				{
+					TypeManager.SetNameInfo(node, info);
+				}
+			}
+		}
+		
+		void ProcessParameters(Method method)
+		{
+			ParameterDeclarationCollection parameters = method.Parameters;
+			for (int i=0; i<parameters.Count; ++i)
+			{
+				ParameterDeclaration parameter = parameters[i];
+				if (null == parameter.Type)
+				{
+					parameter.Type = new TypeReference("object");
+					TypeManager.SetNameInfo(parameter.Type, TypeManager.ToTypeInfo(TypeManager.ObjectType));
+				}		
+				else
+				{
+					parameter.Type.Switch(this);
+				}
+				NameBinding.ParameterInfo info = new NameBinding.ParameterInfo(parameter, TypeManager.GetTypeInfo(parameter.Type), i);
+				TypeManager.SetNameInfo(parameter, info);
+			}
+		}
+		
+		void ProcessReturnType(Method method)
+		{
+			if (null == method.ReturnType)
+			{
+				// Por enquanto, valor de retorno apenas void
+				method.ReturnType = new TypeReference("void");
+				TypeManager.SetNameInfo(method.ReturnType, TypeManager.ToTypeInfo(TypeManager.VoidType));
+			}
+			else
+			{
+				if (!TypeManager.HasNameInfo(method.ReturnType))
+				{
+					method.ReturnType.Switch(this);
+				}
+			}
 		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
@@ -153,8 +204,28 @@ namespace Boo.Ast.Compilation.Steps
 		
 		INameInfo ResolveName(Node node, string name)
 		{
-			INameInfo info = _namespace.Resolve(name);
-			CheckNameResolution(node, name, info);
+			INameInfo info = null;
+			switch (name)
+			{
+				case "void":
+				{
+					info = TypeManager.ToTypeInfo(TypeManager.VoidType);
+					break;
+				}
+				
+				case "string":
+				{
+					info = TypeManager.ToTypeInfo(TypeManager.StringType);
+					break;
+				}
+				
+				default:
+				{
+					info = _namespace.Resolve(name);
+					CheckNameResolution(node, name, info);
+					break;
+				}
+			}			
 			return info;
 		}
 		
@@ -183,6 +254,17 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				Errors.MethodArgumentCount(mie, method);
 			}
+		}
+		
+		Type[] GetParameterTypes(Method method)
+		{
+			ParameterDeclarationCollection parameters = method.Parameters;
+			Type[] types = new Type[parameters.Count];
+			for (int i=0; i<types.Length; ++i)
+			{
+				types[i] = TypeManager.GetType(parameters[i].Type);
+			}
+			return types;
 		}
 	}
 }

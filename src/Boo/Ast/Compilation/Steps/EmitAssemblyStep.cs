@@ -22,7 +22,12 @@ namespace Boo.Ast.Compilation.Steps
 		ILGenerator _il;
 		
 		public override void Run()
-		{						
+		{				
+			if (Errors.Count > 0)
+			{
+				return;				
+			}
+			
 			_asmBuilder = AssemblySetupStep.GetAssemblyBuilder(CompilerContext);
 			_moduleBuilder = AssemblySetupStep.GetModuleBuilder(CompilerContext);			
 			
@@ -62,9 +67,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override bool EnterExpressionStatement(ExpressionStatement node)
 		{
-			LexicalInfo info = node.LexicalInfo;
-			Console.WriteLine(info);
-			_il.MarkSequencePoint(_symbolDocWriter, info.Line, info.Column-1, info.Line, info.Column-1);
+			EmitDebugInfo(node.LexicalInfo);			
 			return true;
 		}
 		
@@ -139,12 +142,29 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
-			LocalInfo local = TypeManager.GetNameInfo(node) as LocalInfo;
-			if (null == local)
+			INameInfo info = TypeManager.GetNameInfo(node);
+			switch (info.InfoType)
 			{
-				throw new NotImplementedException();
-			}
-			_il.Emit(OpCodes.Ldloc, local.LocalBuilder);
+				case NameInfoType.Local:
+				{
+					LocalInfo local = (LocalInfo)info;
+					_il.Emit(OpCodes.Ldloc, local.LocalBuilder);
+					break;
+				}
+				
+				case NameInfoType.Parameter:
+				{
+					NameBinding.ParameterInfo param = (NameBinding.ParameterInfo)info;
+					_il.Emit(OpCodes.Ldarg, param.Index);
+					break;
+				}
+				
+				default:
+				{
+					throw new NotImplementedException();
+				}
+				
+			}			
 		}
 		
 		void DefineEntryPoint()
@@ -157,5 +177,10 @@ namespace Boo.Ast.Compilation.Steps
 				_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
 			}
 		}		
+		
+		void EmitDebugInfo(LexicalInfo info)
+		{
+			_il.MarkSequencePoint(_symbolDocWriter, info.Line, info.Column-1, info.Line, info.Column-1);
+		}
 	}
 }

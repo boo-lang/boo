@@ -1,4 +1,5 @@
 using System;
+using Boo.Ast;
 using BindingFlags = System.Reflection.BindingFlags;
 
 namespace Boo.Ast.Compilation.NameBinding
@@ -8,6 +9,7 @@ namespace Boo.Ast.Compilation.NameBinding
 		Type,
 		Method,		
 		Local,		
+		Parameter,
 		AmbiguousName
 	}
 	
@@ -108,6 +110,54 @@ namespace Boo.Ast.Compilation.NameBinding
 		}
 	}
 	
+	public class ParameterInfo : INameInfo
+	{
+		ParameterDeclaration _parameter;
+		
+		ITypeInfo _type;
+		
+		int _index;
+		
+		public ParameterInfo(ParameterDeclaration parameter, ITypeInfo type, int index)
+		{
+			_parameter = parameter;
+			_type = type;
+			_index = index;
+		}
+		
+		public NameInfoType InfoType
+		{
+			get
+			{
+				return NameInfoType.Parameter;
+			}
+		}
+		
+		public ParameterDeclaration Parameter
+		{
+			get
+			{
+				return _parameter;
+			}
+		}
+		
+		public ITypeInfo Type
+		{
+			get
+			{
+				return _type;
+			}
+		}
+		
+		public int Index
+		{
+			get
+			{
+				return _index;
+			}
+		}
+	}
+	
 	public interface INameSpace
 	{
 		INameSpace Parent
@@ -190,6 +240,14 @@ namespace Boo.Ast.Compilation.NameBinding
 				if (name == local.Name)
 				{
 					return _manager.GetNameInfo(local);
+				}
+			}
+			
+			foreach (ParameterDeclaration parameter in _method.Parameters)
+			{
+				if (name == parameter.Name)
+				{
+					return _manager.GetNameInfo(parameter);
 				}
 			}
 			return _parent.Resolve(name);

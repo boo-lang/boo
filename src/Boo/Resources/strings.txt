@@ -11,6 +11,7 @@ RequiredAttribute=The element {0} must specify the attribute {1}.
 InvalidAssemblySetup=AssemblyBuilder wasn't correctly set up.
 TypeManager.UnresolvedNode=Unresolved node.
 MethodArgumentCount=No overload of the method {0} takes {1} parameters.
+NameNotType=The name {0} does not denote a type.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.
