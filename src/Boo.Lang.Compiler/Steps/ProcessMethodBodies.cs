@@ -1908,6 +1908,39 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, TypeSystemServices.TypeType);
 		}
 		
+		bool IsConversionOperator(IMethod method, IType fromType, IType toType)
+		{
+			if (method.IsStatic)
+			{
+				if (method.ReturnType == toType)
+				{
+					IParameter[] parameters = method.GetParameters();
+					if (1 == parameters.Length && fromType == parameters[0].Type)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		IMethod FindExplicitConversionOperator(IType fromType, IType toType)
+		{			
+			foreach (IEntity entity in fromType.GetMembers())
+			{
+				if (EntityType.Method == entity.EntityType && 
+					"op_Explicit" == entity.Name)
+				{
+					IMethod method = (IMethod)entity;
+					if (IsConversionOperator(method, fromType, toType))
+					{
+						return method;
+					}
+				}
+			}
+			return null;
+		}
+		
 		override public void LeaveCastExpression(CastExpression node)
 		{
 			IType fromType = GetExpressionType(node.Target);
@@ -1916,6 +1949,17 @@ namespace Boo.Lang.Compiler.Steps
 				!(toType.IsInterface && !fromType.IsFinal) &&
 				!(fromType.IsEnum && TypeSystemServices.IsIntegerNumber(toType)))
 			{
+				IMethod explicitOperator = FindExplicitConversionOperator(fromType, toType);
+				if (null != explicitOperator)
+				{
+					node.ParentNode.Replace(
+						node,
+						CodeBuilder.CreateMethodInvocation(
+							explicitOperator,
+							node.Target));
+					return;
+				}
+				
 				Error(
 					CompilerErrorFactory.IncompatibleExpressionType(
 						node,
@@ -4282,54 +4326,55 @@ namespace Boo.Lang.Compiler.Steps
 			return ResolveOperator(node, TypeSystemServices.RuntimeServicesType, operatorName, mie);
 		}
 		
-		IMethod ResolveAmbiguousOperator(IEntity[] tags, ExpressionCollection args)
+		IMethod ResolveAmbiguousOperator(IEntity[] entities, ExpressionCollection args)
 		{
-			foreach (IEntity tag in tags)
+			foreach (IEntity entity in entities)
 			{
-				IMethod method = tag as IMethod;
+				IMethod method = entity as IMethod;
 				if (null != method)
 				{
-					if (method.IsStatic)
+					if (HasOperatorSignature(method, args))
 					{
-						if (2 == method.GetParameters().Length)
-						{
-							if (CheckParameterTypesStrictly(method, args))
-							{
-								return method;
-							}
-						}
+						return method;
 					}
 				}
 			}
 			return null;
 		}
 		
+		bool HasOperatorSignature(IMethod method, ExpressionCollection args)
+		{
+			return method.IsStatic &&
+				(args.Count == method.GetParameters().Length) &&
+				CheckParameterTypesStrictly(method, args);
+		}
+		
+		IMethod FindOperator(IType type, string operatorName, ExpressionCollection args)
+		{
+			IMethod method = null;
+			IEntity entity = NameResolutionService.Resolve(type, operatorName, EntityType.Method);
+			if (null != entity)
+			{
+				if (EntityType.Ambiguous == entity.EntityType)
+				{
+					method = ResolveAmbiguousOperator(((Ambiguous)entity).Entities, args);
+				}
+				else if (EntityType.Method == entity.EntityType)
+				{
+					IMethod candidate = (IMethod)entity;
+					if (HasOperatorSignature(candidate, args))
+					{
+						method = candidate;
+					}
+				}
+			}
+			return method;
+		}
+		
 		bool ResolveOperator(BinaryExpression node, IType type, string operatorName, MethodInvocationExpression mie)
 		{
-			IEntity tag = NameResolutionService.Resolve(type, operatorName, EntityType.Method);
+			IMethod tag = FindOperator(type, operatorName, mie.Arguments);
 			if (null == tag)
-			{
-				return false;
-			}
-			
-			if (EntityType.Ambiguous == tag.EntityType)
-			{	
-				tag = ResolveAmbiguousOperator(((Ambiguous)tag).Entities, mie.Arguments);
-				if (null == tag)
-				{
-					return false;
-				}
-			}
-			else if (EntityType.Method == tag.EntityType)
-			{					
-				IMethod method = (IMethod)tag;
-				
-				if (!method.IsStatic || !CheckParameterTypesStrictly(method, mie.Arguments))
-				{
-					return false;
-				}
-			}
-			else
 			{
 				return false;
 			}
