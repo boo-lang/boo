@@ -23,6 +23,13 @@ text/x-boo
 
 5) run update-mime-database /usr/share/mime
 
+
+OR
+
+./install-gtksourceview-mode
+
+:-)
+
 -->
 <language name="Boo" version="1.0" _section="Sources" mimetypes="text/x-boo">
 
@@ -98,6 +105,20 @@ text/x-boo
 		
 		<keyword>return</keyword>
 		<keyword>yield</keyword>
+	</keyword-list>
+	
+	<pattern-item _name = "Number" style = "Decimal">
+		<regex>\b[0-9][0-9\.]*(m|ms|d|s|f|F|l|L)?\b</regex>
+	</pattern-item>
+
+	<keyword-list _name = "True And False" style = "Decimal" case-sensitive="true">
+		<keyword>true</keyword>
+		<keyword>false</keyword>
+	</keyword-list>
+	
+	<keyword-list _name = "Literals" style="Keyword" case-sensitive="true">
+		<keyword>null</keyword>		
+		<keyword>super</keyword>
 	</keyword-list>
 
 	<keyword-list _name = "Keywords" style = "Keyword" case-sensitive="true">
