@@ -91,18 +91,21 @@ class DocumentOutline(Content):
 		if module is not _module:
 			_module = module
 			_treeViewVisitor.Switch(_module)
+			
+	def GoToNode([required] treeNode as TreeNode):
+		return unless _activeDocument
+		node as Node = treeNode.Tag
+		if node is not null:
+			info = node.LexicalInfo
+			_activeDocument.GoTo(info.Line-1)
 
 	def _timer_Tick(sender, args as EventArgs):
 		Update()
-
+		
 	def _tree_DoubleClick(sender, args as EventArgs):
-		return unless _activeDocument
 
 		if (treeNode = _tree.SelectedNode):
-			node as Node = treeNode.Tag
-			if node is not null:
-				info = node.LexicalInfo
-				_activeDocument.GoTo(info.Line-1)
+			GoToNode(treeNode)
 
 class TreeViewVisitor(DepthFirstSwitcher):
 
@@ -111,6 +114,42 @@ class TreeViewVisitor(DepthFirstSwitcher):
 
 	def constructor(tree):
 		_tree = tree
+		
+	def SaveTreeViewState():
+		return SaveTreeViewState([], _tree.Nodes)
+		
+	def SaveTreeViewState(state as List, nodes as TreeNodeCollection):
+		for node in nodes:
+			SaveTreeViewState(state, node)
+		return state
+		
+	def SaveTreeViewState(state as List, node as TreeNode):
+		if len(node.Nodes):
+			state.Add((node.FullPath, node.IsExpanded))
+			SaveTreeViewState(state, node.Nodes)
+		
+	def RestoreTreeViewState(state as List):		
+		for fullpath as string, expanded as bool  in state:
+			if not expanded:
+				node = SelectNode(fullpath)
+				node.Collapse() if node
+				
+	def SelectNode(fullpath as string):
+		parts = /\//.Split(fullpath)
+		
+		nodes = _tree.Nodes
+		for part in parts:
+			node = SelectNode(nodes, part)
+			break if node is null
+			nodes = node.Nodes
+			
+		return node
+		
+	def SelectNode(nodes as TreeNodeCollection, text as string):
+		for node as TreeNode in nodes:
+			if node.Text == text:
+				return node
+		return null
 
 	override def OnModule(node as Module):
 
@@ -118,11 +157,17 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		Switch(node.Members)
 
 		_tree.BeginUpdate()
+		
+		state = SaveTreeViewState() if len(_current.Nodes)
+		
 		_tree.Nodes.Clear()
 		if len(_current.Nodes):
 			_tree.Nodes.AddRange(array(TreeNode, _current.Nodes))
 			_tree.ExpandAll()
-			_tree.Nodes[0].EnsureVisible()
+			if len(state):
+				RestoreTreeViewState(state)
+			else:
+				_tree.ExpandAll()
 		_tree.EndUpdate()
 
 	override def OnProperty(node as Property):

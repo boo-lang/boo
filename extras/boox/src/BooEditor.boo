@@ -63,6 +63,8 @@ class BooEditor(Content):
 		segment = document.GetLineSegment(line)
 		wsLen = /\s*/.Match(document.GetText(segment)).Groups[0].Length
 		_editor.ActiveTextAreaControl.JumpTo(line, wsLen)
+		self.TextArea.Focus()
+		self.TextArea.Select()
 
 	def Save():
 		if _fname:
