@@ -13,6 +13,13 @@ namespace Boo.Ast.Compilation.Steps
 				return;
 			}			
 			
+			if (128 == (int)System.Environment.OSVersion.Platform)
+			{
+				_context.TraceVerbose("PEVerifyStep can't run on linux");
+				// linux
+				return;
+			}
+			
 			Process p = new Process();
 			p.StartInfo.Arguments = CompilerParameters.OutputAssembly;
 			p.StartInfo.CreateNoWindow = true;

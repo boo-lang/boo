@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class ExternalTypeBinding : ITypeBinding
+	public class ExternalTypeBinding : StaticNamespaceCache, ITypeBinding
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
 		
@@ -70,13 +70,20 @@ namespace Boo.Ast.Compilation.Binding
 		}
 		
 		public IBinding Resolve(string name)
-		{			
+		{						
+			bool found;
+			IBinding binding = ResolveFromCache(name, out found);
+			if (found)
+			{
+				return binding;
+			}			
+			
 			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
 			if (members.Length > 0)
 			{				
-				return _bindingManager.ToBinding(members);
+				binding = _bindingManager.ToBinding(members);
 			}
-			return null;
+			return Cache(name, binding);
 		}
 		
 		public override string ToString()

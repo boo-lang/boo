@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Boo.Ast;
 using BindingFlags = System.Reflection.BindingFlags;
 
@@ -7,6 +8,32 @@ namespace Boo.Ast.Compilation.Binding
 	public interface INameSpace
 	{				
 		IBinding Resolve(string name);
+	}
+	
+	/// a namespace with bindings that don't change.
+	public class StaticNamespaceCache
+	{
+		protected Hashtable _bindingCache = new Hashtable();
+		
+		public IBinding ResolveFromCache(string name, out bool found)
+		{
+			IBinding binding = (IBinding)_bindingCache[name];
+			if (null == binding)
+			{
+				found = _bindingCache.ContainsKey(name);
+			}
+			else
+			{
+				found = true;
+			}
+			return binding;
+		}
+		
+		public IBinding Cache(string name, IBinding binding)
+		{
+			_bindingCache[name] = binding;
+			return binding;
+		}
 	}
 	
 	class DeclarationsNameSpace : INameSpace
