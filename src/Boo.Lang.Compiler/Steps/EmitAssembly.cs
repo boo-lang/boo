@@ -1591,10 +1591,8 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (mi.IsVirtual)
-					{
-						code = OpCodes.Callvirt;
-					}
+					code = OpCodes.Callvirt;
+					
 					// pushes target reference
 					Visit(node.Target); PopType();					
 				}
