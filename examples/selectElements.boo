@@ -29,9 +29,10 @@
 import System.Xml from System.Xml
 
 def selectElements(element as XmlElement, tagName as string):
-	for node as XmlNode in element.ChildNodes:
-		if node isa XmlElement and tagName == node.Name:
-			yield node
+	for node in element.ChildNodes:
+		element = node as XmlElement
+		if element is not null and tagName == element.Name:
+			yield element
 
 xml = """
 <document>

@@ -867,18 +867,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 		
-		Method CreateBeginInvokeSimplerOverload(ICallableType anonymousType, Method beginInvoke)
+		Method CreateBeginInvokeOverload(ICallableType anonymousType, Method beginInvoke, out MethodInvocationExpression mie)
 		{
 			InternalMethod beginInvokeEntity = (InternalMethod)beginInvoke.Entity;
 			
 			Method overload = CodeBuilder.CreateMethod("BeginInvoke", Map(typeof(IAsyncResult)),
 										TypeMemberModifiers.Public);
 			CodeBuilder.DeclareParameters(overload, 1, anonymousType.GetSignature().Parameters);
-			overload.Parameters.Add(
-				CodeBuilder.CreateParameterDeclaration(overload.Parameters.Count+1,
-										"callback", Map(typeof(AsyncCallback))));
 			
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+			mie = CodeBuilder.CreateMethodInvocation(
 						CodeBuilder.CreateSelfReference(beginInvokeEntity.DeclaringType),
 						beginInvokeEntity);
 						
@@ -887,9 +884,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 				mie.Arguments.Add(CodeBuilder.CreateReference(parameter));
 			}
 			
+			overload.Body.Add(new ReturnStatement(mie));
+			return overload;
+		}
+		
+		Method CreateBeginInvokeSimplerOverload(ICallableType anonymousType, Method beginInvoke)
+		{
+			MethodInvocationExpression mie;
+			Method overload = CreateBeginInvokeOverload(anonymousType, beginInvoke, out mie);
+			
+			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
 			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
 			
-			overload.Body.Add(new ReturnStatement(mie));
+			return overload;
+		}
+		
+		Method CreateBeginInvokeCallbackOnlyOverload(ICallableType anonymousType, Method beginInvoke)
+		{
+			MethodInvocationExpression mie;
+			
+			Method overload = CreateBeginInvokeOverload(anonymousType, beginInvoke, out mie);
+			ParameterDeclaration callback = CodeBuilder.CreateParameterDeclaration(overload.Parameters.Count+1,
+										"callback", Map(typeof(AsyncCallback)));
+			overload.Parameters.Add(callback);
+
+			mie.Arguments.Add(CodeBuilder.CreateReference(callback));			
+			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
+			
 			return overload;
 		}
 		
@@ -979,6 +1000,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			Method beginInvoke = CreateBeginInvokeMethod(anonymousType);
 			cd.Members.Add(beginInvoke);
+			cd.Members.Add(CreateBeginInvokeCallbackOnlyOverload(anonymousType, beginInvoke));
 			cd.Members.Add(CreateBeginInvokeSimplerOverload(anonymousType, beginInvoke));
 			
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));

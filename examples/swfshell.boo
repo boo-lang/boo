@@ -26,6 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+"""
+Interactive Forms-based Console
+"""
+
 import System
 import booish from booish
 import System.Windows.Forms from System.Windows.Forms

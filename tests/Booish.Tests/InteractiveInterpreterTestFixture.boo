@@ -185,7 +185,28 @@ class Language:
 	[Test]
 	def ExpressionWithoutSideEffectsNotAllowedInDefaultMode():
 		_interpreter.RememberLastValue = false
-		assert 1 == len(_interpreter.Eval("2+2").Errors)
+		errors = _interpreter.Eval("2+2").Errors
+		
+		assert 1 == len(errors)
+		assert "BCE0034" == errors[0].Code
+		
+	/*
+	[Test]
+	def BeginInvokeEndInvoke():
+		Eval("""
+def foo():
+	return 42
+
+handle = foo.BeginInvoke()
+result = foo.EndInvoke(handle)
+""")
+		Assert.AreEqual(42, _interpreter.GetValue("result"))
+		
+		handle as duck = _interpreter.GetValue("handle")
+		assert handle is not null
+		assert handle.IsCompleted
+		assert handle.EndInvokeCalled
+	*/
 	
 	[Test]
 	def RememberLastValue():

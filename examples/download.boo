@@ -33,9 +33,8 @@ import System.Threading
 url, local = argv
 
 client = WebClient()
-downloadFile = client.DownloadFile
 
-call = downloadFile.BeginInvoke(url, local, null, null)
+call = client.DownloadFile.BeginInvoke(url, local)
 while not call.IsCompleted:
 	Console.Write(".")
 	Thread.Sleep(50ms)
