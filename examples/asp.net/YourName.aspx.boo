@@ -1,6 +1,6 @@
 ﻿#region license
 // boo - an extensible programming language for the CLI
-// Copyright (C) 2004 Rodrigo B. de Oliveira
+// Copyright (C) 2004 Rodrigo Barreto de Oliveira
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License

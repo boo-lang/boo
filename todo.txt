@@ -1,6 +1,4 @@
-﻿* trocar licensa para LGPL
-	
-* enviar para o Miguel
+﻿* enviar para o Miguel
 
 * reescrever documento de pipeline em inglês
 
