@@ -39,13 +39,14 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		static System.Reflection.ConstructorInfo List_IEnumerableConstructor = Types.List.GetConstructor(new Type[] { Types.IEnumerable });
 		
-		ForeignReferenceCollector _collector = new ForeignReferenceCollector();
-		
 		Method _current;
 		
 		override public void Run()
 		{
-			Visit(CompileUnit.Modules);
+			if (0 == Errors.Count)
+			{
+				Visit(CompileUnit.Modules);
+			}
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
@@ -66,14 +67,17 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnConstructor(Constructor method)
 		{
 			_current = method;
-			Visit(method.Body);
+			Visit(_current.Body);
 		}
 		
-		override public void OnMethod(Method method)
+		override public bool EnterMethod(Method method)
 		{
 			_current = method;
-			Visit(method.Body);
-			
+			return true;
+		}
+		
+		override public void LeaveMethod(Method method)
+		{
 			InternalMethod entity = (InternalMethod)method.Entity;
 			if (entity.IsGenerator)
 			{
@@ -86,7 +90,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			bool generator = AstUtil.IsListGenerator(node);
 			Visit(node.Items);
-			
 			if (generator)
 			{
 				ReplaceCurrentNode(
@@ -97,14 +100,14 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void LeaveGeneratorExpression(GeneratorExpression node)
-		{			
-			using (_collector)
+		{				
+			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
 			{
-				_collector.ForeignMethod = _current;
-				_collector.Initialize(_context);
-				_collector.Visit(node);
+				collector.CurrentType = (IType)AstUtil.GetParentClass(node).Entity;				
+				collector.Initialize(_context);
+				collector.Visit(node);
 
-				GeneratorExpressionProcessor processor = new GeneratorExpressionProcessor(_context, _collector, node);
+				GeneratorExpressionProcessor processor = new GeneratorExpressionProcessor(_context, collector, node);
 				processor.Run();
 				ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());
 			}
@@ -143,6 +146,14 @@ namespace Boo.Lang.Compiler.Steps
 			Initialize(context);
 		}
 		
+		public InternalMethod MoveNextMethod
+		{
+			get
+			{
+				return _moveNext;
+			}
+		}
+		
 		override public void Run()
 		{
 			_enumerable = (BooClassBuilder)_generator.Method["GeneratorClassBuilder"];
@@ -171,12 +182,13 @@ namespace Boo.Lang.Compiler.Steps
 			// propagate the external self reference if necessary
 			if (null != _externalEnumeratorSelf)
 			{				
+				IType type = (IType)_externalEnumeratorSelf.Type.Entity;
 				enumerableConstructorInvocation.Arguments.Add(
-					CodeBuilder.CreateSelfReference(_generator.DeclaringType));
+					CodeBuilder.CreateSelfReference(type));
 					
 				PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
 														"self_",
-														_generator.DeclaringType);
+														type);
 			}
 
 			
@@ -307,11 +319,10 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
-		{
-			IType type = (IType)node.ExpressionType;
-			
+		{			
 			if (null == _externalEnumeratorSelf)
 			{
+				IType type = (IType)node.ExpressionType;
 				_externalEnumeratorSelf = DeclareFieldInitializedFromConstructorParameter(
 													_enumerator,
 													_enumeratorConstructor,													
@@ -395,6 +406,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateAnonymousGeneratorType()
 		{	
+			_enumerable = (BooClassBuilder)_generator["GeneratorClassBuilder"];
+			
 			_enumerator = _collector.CreateSkeletonClass("Enumerator");
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(ICloneable)));
@@ -412,7 +425,6 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_collector.AdjustReferences();
 			
-			_enumerable = (BooClassBuilder)_generator["GeneratorClassBuilder"];
 			_collector.DeclareFieldsAndConstructor(_enumerable);
 			
 			CreateGetEnumerator();

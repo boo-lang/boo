@@ -1072,7 +1072,17 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitTypeTest(BinaryExpression node)
 		{
 			Visit(node.Left); PopType();
-			_il.Emit(OpCodes.Isinst, GetSystemType(node.Right));
+			
+			System.Type type = null;
+			if (NodeType.TypeofExpression == node.Right.NodeType)
+			{
+				type = GetSystemType(((TypeofExpression)node.Right).Type);
+			}
+			else
+			{
+				type = GetSystemType(node.Right);
+			}
+			_il.Emit(OpCodes.Isinst, type);
 		}
 		
 		void OnTypeTest(BinaryExpression node)

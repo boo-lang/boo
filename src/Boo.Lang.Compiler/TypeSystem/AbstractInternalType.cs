@@ -76,6 +76,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public IType NestingType
+		{
+			get
+			{
+				return _typeDefinition.ParentNode.Entity as IType;
+			}
+		}
+		
 		public virtual INamespace ParentNamespace
 		{
 			get

@@ -36,8 +36,6 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class ProcessClosures : AbstractTransformerCompilerStep
 	{
-		Method _currentMethod;
-		
 		override public void Run()
 		{
 			if (0 == Errors.Count)
@@ -46,25 +44,27 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void OnMethod(Method node)
-		{
-			_currentMethod = node;
-			Visit(node.Body);
-		}
-		
-		override public void OnCallableBlockExpression(CallableBlockExpression node)
-		{
+		override public void LeaveCallableBlockExpression(CallableBlockExpression node)
+		{			
 			InternalMethod closureEntity = (InternalMethod)GetEntity(node);
-			
+						
 			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
-			{			
-				collector.ForeignMethod = _currentMethod;
+			{	
+				collector.CurrentMethod = closureEntity.Method;
+				collector.CurrentType = (IType)closureEntity.DeclaringType;
 				collector.Initialize(_context);
 				collector.Visit(closureEntity.Method.Body);
 				
 				if (collector.ContainsForeignLocalReferences)
 				{	
-					ReplaceCurrentNode(CreateClosureClass(collector, closureEntity));			
+					BooClassBuilder closureClass = CreateClosureClass(collector, closureEntity);
+					collector.AdjustReferences();
+					
+					ReplaceCurrentNode(
+						CodeBuilder.CreateMemberReference(
+							collector.CreateConstructorInvocationWithReferencedEntities(
+								closureClass.Entity),
+							closureEntity));			
 				}			
 				else
 				{
@@ -75,13 +75,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Expression CreateClosureClass(ForeignReferenceCollector collector, InternalMethod closure)
+		BooClassBuilder CreateClosureClass(ForeignReferenceCollector collector, InternalMethod closure)
 		{
 			Method method = closure.Method;
 			TypeDefinition parent = method.DeclaringType;
 			parent.Members.Remove(method);
 			
-			BooClassBuilder builder = collector.CreateSkeletonClass(method.Name);
+			BooClassBuilder builder = collector.CreateSkeletonClass(closure.Name);
+			
 			parent.Members.Add(builder.ClassDefinition);
 			builder.ClassDefinition.Members.Add(method);			
 			method.Name = "Invoke";	
@@ -96,12 +97,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			method.Modifiers = TypeMemberModifiers.Public;
-			
-			collector.AdjustReferences();
-			return CodeBuilder.CreateMemberReference(
-					collector.CreateConstructorInvocationWithReferencedEntities(
-							builder.Entity),
-					closure);
+			return builder;
 		}
 	}
 }

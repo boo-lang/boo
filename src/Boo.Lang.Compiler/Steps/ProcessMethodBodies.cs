@@ -909,7 +909,7 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMethodBody(tag);
 			
 			if (parentIsClass)
-			{
+			{				
 				if (TypeSystemServices.IsUnknown(tag.ReturnType))
 				{
 					TryToResolveReturnType(tag);					
@@ -920,7 +920,33 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						CheckMethodOverride(tag);
 					}
+					
+					if (tag.IsGenerator)
+					{
+						CheckGeneratorReturnType(method, tag.ReturnType);
+					}
 				}
+				CheckGeneratorCantReturnValues(tag);
+			}
+		}
+		
+		void CheckGeneratorCantReturnValues(InternalMethod entity)
+		{
+			if (entity.IsGenerator && null != entity.ReturnExpressions)
+			{
+				foreach (Expression e in entity.ReturnExpressions)
+				{
+					Error(CompilerErrorFactory.GeneratorCantReturnValue(e));
+				}
+			}
+		}
+		
+		void CheckGeneratorReturnType(Method method, IType returnType)
+		{
+			if (TypeSystemServices.IEnumerableType != returnType &&
+				!TypeSystemServices.IsSystemObject(returnType))
+			{
+				Error(CompilerErrorFactory.InvalidGeneratorReturnType(method.ReturnType));
 			}
 		}
 		
@@ -1779,7 +1805,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void LeaveTypeofExpression(TypeofExpression node)
-		{
+		{			
 			BindExpressionType(node, TypeSystemServices.TypeType);
 		}
 		
@@ -2135,11 +2161,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveYieldStatement(YieldStatement node)
 		{
-			_currentMethod.AddYieldExpression(node.Expression);
-			
-			if (CurrentTryBlockDepth > 0)
+			if (EntityType.Constructor == _currentMethod.EntityType)
 			{
-				Error(CompilerErrorFactory.YieldInsideTryBlock(node));
+				Error(CompilerErrorFactory.YieldInsideConstructor(node));
+			}
+			else
+			{			
+				_currentMethod.AddYieldExpression(node.Expression);
+			
+				if (CurrentTryBlockDepth > 0)
+				{
+					Error(CompilerErrorFactory.YieldInsideTryBlock(node));
+				}
 			}
 		}
 		

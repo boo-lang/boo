@@ -30,6 +30,20 @@ namespace Boo.Lang.Compiler.Ast
 {	
 	public class AstUtil
 	{
+		public static ClassDefinition GetParentClass(Node node)
+		{
+			Node parent = node.ParentNode;
+			while (null != parent)
+			{
+				if (NodeType.ClassDefinition == parent.NodeType)
+				{
+					return (ClassDefinition)parent;
+				}
+				parent = parent.ParentNode;
+			}
+			return null;
+		}
+		
 		public static Node GetParentTryExceptEnsure(Node node)
 		{
 			Node parent = node.ParentNode;

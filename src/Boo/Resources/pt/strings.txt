@@ -98,6 +98,9 @@ BCE0096=Método '{0}' já possui um rótulo '{1}'.
 BCE0097=Não é possível saltar para dentro de um bloco try.
 BCE0098=Argumentos inválidos para __switch__.
 BCE0099=yield não pode ser utilizado dentro de blocos try, except ou ensure block.
+BCE0100=yield não pode ser utilizado dentro de construtores.
+BCE0101=Somente System.Collections.IEnumerable and System.Object podem ser utilizados como tipo de retorno de um generator.
+BCE0102=Generators não podem retornar valores.
 
 ;Compiler warnings
 BCW0001=AVISO: O tipo '{0}' não possui uma implementação para '{1}' e será marcado como abstrato.

@@ -877,13 +877,21 @@ type_reference returns [TypeReference tr]
 	(CALLABLE LPAREN)=>(tr=callable_type_reference)
 	|
 	(
-		(id=identifier | c:CALLABLE { id=c; })
+		id=type_name
 		{
 			SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
 			str.Name = id.getText();
 			tr = str;
 		}
 	)
+	;
+	
+protected
+type_name returns [Token id]
+	{
+		id = null;
+	}:
+	id=identifier | c:CALLABLE { id=c; }
 	;
 
 protected
@@ -1036,7 +1044,8 @@ internal_closure_stmt returns [Statement stmt]
 		(
 			(declaration COMMA)=>stmt=unpack_stmt |
 			stmt=expression_stmt |
-			stmt=raise_stmt
+			stmt=raise_stmt |
+			stmt=yield_stmt
 		)
 		(modifier=stmt_modifier { stmt.Modifier = modifier; })?		
 	)
@@ -1600,6 +1609,7 @@ conditional_expression returns [Expression e]
 		Expression r = null;
 		BinaryOperatorType op = BinaryOperatorType.None;
 		Token token = null;
+		TypeReference tr = null;
 	}:
 	e=sum
 	( options { greedy = true; } :
@@ -1612,8 +1622,7 @@ conditional_expression returns [Expression e]
 			(
 				tis:IS { op = BinaryOperatorType.ReferenceEquality; token = tis; }
 				(NOT { op = BinaryOperatorType.ReferenceInequality; })?
-			) |	
-			(tisa:ISA { op = BinaryOperatorType.TypeTest; token = tisa; })
+			)
 		 )
 		 r=sum
 	  ) |
@@ -1623,6 +1632,15 @@ conditional_expression returns [Expression e]
 			(tnint:NOT IN { op = BinaryOperatorType.NotMember; token = tnint; })
 		)		
 		r=array_or_expression
+	  ) |	
+	  (
+	  	tisa:ISA
+		tr=type_reference
+		{
+			op = BinaryOperatorType.TypeTest;
+			token = tisa;
+			r = new TypeofExpression(tr.LexicalInfo, tr);
+		}
 	  )
 	)
 	{

@@ -526,6 +526,21 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0099", node.LexicalInfo);
 		}
 		
+		public static CompilerError YieldInsideConstructor(Node node)
+		{
+			return new CompilerError("BCE0100", node.LexicalInfo);
+		}
+		
+		public static CompilerError InvalidGeneratorReturnType(Node node)
+		{
+			return new CompilerError("BCE0101", node.LexicalInfo);
+		}
+		
+		public static CompilerError GeneratorCantReturnValue(Node node)
+		{
+			return new CompilerError("BCE0102", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

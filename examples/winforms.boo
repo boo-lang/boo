@@ -35,7 +35,7 @@ class App:
 	_times = 0
 	
 	def Run():
-		f = Form(Text: "My first boo winforms app")
+		f = Form(Text: "My first boo winforms app")		
 				
 		button = Button(Text: "click me!")
 		button.Click += def:

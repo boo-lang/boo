@@ -38,13 +38,15 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		Node _sourceNode;
 		
-		Method _foreignMethod;
+		IType _currentType;
+		
+		Method _currentMethod;
 		
 		List _references;
 		
 		Hash _referencedEntities;
 		
-		IEntity _selfEntity;
+		SelfEntity _selfEntity;
 		
 		CompilerContext _context; 
 		
@@ -67,24 +69,33 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public Method ForeignMethod
+		public Method CurrentMethod
 		{
 			get
 			{
-				return _foreignMethod;
+				return _currentMethod;
 			}
 			
 			set
 			{
-				_foreignMethod = value;
+				_currentMethod = value;
 			}
 		}
 		
-		public IType ForeignType
+		public IType CurrentType
 		{
 			get
 			{
-				return (IType)_foreignMethod.DeclaringType.Entity;
+				return _currentType;
+			}
+			
+			set
+			{
+				_currentType = value;
+				if (null != _selfEntity)
+				{
+					_selfEntity.Type = value;
+				}
 			}
 		}
 		
@@ -125,7 +136,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == _selfEntity)
 			{
-				_selfEntity = new SelfEntity("this", ForeignType);
+				_selfEntity = new SelfEntity("this", CurrentType);
 			}
 			return _selfEntity;
 		}
@@ -140,9 +151,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public void Initialize(CompilerContext context)
 		{			
-			if (null == _foreignMethod)
+			if (null == _currentType)
 			{
-				throw new InvalidOperationException("ForeignMethod was not properly initialized!");
+				throw new InvalidOperationException("CurrentType was not properly initialized!");
 			}
 			_context = context;
 		}
@@ -150,7 +161,7 @@ namespace Boo.Lang.Compiler.Steps
 		public void Dispose()
 		{
 			_context = null;
-			_foreignMethod = null;
+			_currentMethod = null;
 			_selfEntity = null;
 			_references.Clear();
 			_referencedEntities.Clear();
@@ -158,10 +169,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public BooClassBuilder CreateSkeletonClass(string name)
 		{
-			IType baseType = _context.TypeSystemServices.ObjectType;
-			
 			BooClassBuilder builder = CodeBuilder.CreateClass(name);
-			builder.AddBaseType(baseType);
+			builder.AddBaseType(CodeBuilder.TypeSystemServices.ObjectType);
 			DeclareFieldsAndConstructor(builder);
 			return builder;
 		}
@@ -171,7 +180,7 @@ namespace Boo.Lang.Compiler.Steps
 			// referenced entities turn into fields			
 			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
 			{
-				Field field = builder.AddField("__" + entity.Name, entity.Type);
+				Field field = builder.AddField("__" + entity.Name + _context.AllocIndex(), entity.Type);
 				field.Modifiers = TypeMemberModifiers.Internal;				
 				_referencedEntities[entity] = field.Entity;
 			}
@@ -181,8 +190,8 @@ namespace Boo.Lang.Compiler.Steps
 			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));			
 			foreach (ITypedEntity entity in _referencedEntities.Keys)
 			{
-				ParameterDeclaration parameter = constructor.AddParameter(entity.Name, entity.Type);										
 				InternalField field = (InternalField)_referencedEntities[entity];
+				ParameterDeclaration parameter = constructor.AddParameter(field.Name, entity.Type);
 				constructor.Body.Add(
 					CodeBuilder.CreateAssignment(CodeBuilder.CreateReference(field),
 									CodeBuilder.CreateReference(parameter)));
@@ -216,7 +225,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (_selfEntity == entity)
 			{
-				return CodeBuilder.CreateSelfReference(ForeignType);
+				return CodeBuilder.CreateSelfReference(CurrentType);
 			}
 			else
 			{
@@ -249,11 +258,13 @@ namespace Boo.Lang.Compiler.Steps
 				EntityType type = entity.EntityType;
 				if (type == EntityType.Local)
 				{
-					return _foreignMethod.Locals.ContainsEntity(entity);					
+					return null == _currentMethod ||
+						!_currentMethod.Locals.ContainsEntity(entity);					
 				}
 				else if (type == EntityType.Parameter)
 				{
-					return _foreignMethod.Parameters.ContainsEntity(entity);
+					return null == _currentMethod ||
+						!_currentMethod.Parameters.ContainsEntity(entity);
 				}
 			}
 			return false;
@@ -300,6 +311,11 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return _type;
+			}
+			
+			set
+			{
+				_type = value;
 			}
 		}
 	}

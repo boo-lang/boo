@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new StricterErrorChecking());
 			Add(new NormalizeIterationStatements());
 			
-			Add(new ProcessSharedLocals()); 
+			Add(new ProcessSharedLocals());			
 			Add(new ProcessClosures());
 			Add(new ProcessGenerators());
 			
