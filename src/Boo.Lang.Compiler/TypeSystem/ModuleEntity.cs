@@ -151,7 +151,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (name == member.Name)
 				{
-					IEntity tag = _typeSystemServices.GetTypeReference((IType)TypeSystemServices.GetEntity(member));
+					IEntity tag = TypeSystemServices.GetEntity(member);
 					if (NameResolutionService.IsFlagSet(flags, tag.EntityType))
 					{
 						targetList.Add(tag);

@@ -274,10 +274,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
 					IEntity tag = TypeSystemServices.GetEntity(member);
-					if (EntityType.Type == tag.EntityType)
-					{
-						tag = _typeSystemServices.GetTypeReference((IType)tag);
-					}
 					_buffer.Add(tag);
 				}
 

@@ -244,7 +244,7 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					IEntity tag = (IEntity)_elements[0];
-					if (EntityType.TypeReference != tag.EntityType)
+					if (EntityType.Type != tag.EntityType)
 					{
 						Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name));
 					}

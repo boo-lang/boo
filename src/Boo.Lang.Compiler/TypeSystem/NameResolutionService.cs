@@ -243,17 +243,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			else
 			{
-				info = Resolve(node.Name, EntityType.TypeReference);
+				info = Resolve(node.Name, EntityType.Type);
 			}
 			
-			if (null == info || EntityType.TypeReference != info.EntityType)
+			if (null == info || EntityType.Type != info.EntityType)
 			{
 				_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));
 				info = TypeSystemServices.ErrorEntity;
 			}
 			else
 			{
-				node.Name = info.Name;
+				node.Name = info.FullName;
 			}
 			
 			node.Entity = info;

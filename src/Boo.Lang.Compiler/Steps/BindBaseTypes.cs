@@ -120,11 +120,11 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (SimpleTypeReference type in node.BaseTypes.ToArray())
 			{                            
 				NameResolutionService.ResolveSimpleTypeReference(type);
-				TypeReferenceEntity tag = type.Entity as TypeSystem.TypeReferenceEntity;
+				IType entity = type.Entity as IType;
 				
-				if (null != tag)
+				if (null != entity)
 				{
-					InternalType internalType = tag.Type as InternalType;
+					InternalType internalType = entity as InternalType;
 					if (null != internalType)
 					{
 						if (visited.Contains(internalType.TypeDefinition))

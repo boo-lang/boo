@@ -1,6 +1,7 @@
 ﻿* usar os delegates declarados
 
-* summary of class status (http://www.go-mono.com/class-status.html)
+* Exemplo de passo com estatísticas sobre membros utilizados
+	* summary of class status (http://www.go-mono.com/class-status.html)
 
 * CallableType
 	* para funçoes

@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (name == type.Name)
 					{
-						targetList.Add(_typeSystemServices.GetTypeReference(type));
+						targetList.Add(_typeSystemServices.Map(type));
 						return true;
 					}
 				}
@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (name == type.Name)
 					{
-						targetList.Add(_typeSystemServices.GetTypeReference(type));
+						targetList.Add(_typeSystemServices.Map(type));
 						return true;
 					}
 				}

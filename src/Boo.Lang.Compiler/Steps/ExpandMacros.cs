@@ -71,13 +71,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (EntityType.TypeReference != tag.EntityType)
+				if (EntityType.Type != tag.EntityType)
 				{
 					Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
 				}
 				else
 				{
-					IType macroType = ((TypeReferenceEntity)tag).Type;
+					IType macroType = (IType)tag;
 					ExternalType type = macroType as ExternalType;
 					if (null == type)
 					{

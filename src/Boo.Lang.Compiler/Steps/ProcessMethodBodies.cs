@@ -1232,7 +1232,6 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					TypeDefinition typedef = _currentMethodInfo.Method.DeclaringType;
 					IType type = (IType)TypeSystemServices.GetEntity(typedef);
-					Bind(node, type);
 					BindExpressionType(node, type);
 				}
 			}
@@ -1358,7 +1357,7 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity tag = GetEntity(node);
 			switch (tag.EntityType)
 			{
-				case EntityType.TypeReference:
+				case EntityType.Type:
 				{
 					if (NodeType.ReferenceExpression == node.NodeType)
 					{
@@ -1370,7 +1369,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						BindExpressionType(node, ((ITypedEntity)tag).Type);
+						BindExpressionType(node, (IType)tag);
 					}
 					break;
 				}
@@ -2231,7 +2230,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case EntityType.TypeReference:
+				case EntityType.Type:
 				{					
 					IType typeInfo = ((ITypedEntity)targetInfo).Type;					
 					ResolveNamedArguments(node, typeInfo, node.NamedArguments);
@@ -2833,9 +2832,9 @@ namespace Boo.Lang.Compiler.Steps
 			{			
 				if (NodeType.MemberReferenceExpression == targetContext.NodeType)
 				{				
-					Expression targetReference = ((MemberReferenceExpression)targetContext).Target;
+					Expression targetReference = ((MemberReferenceExpression)targetContext).Target;										
 					IEntity entity = targetReference.Entity;
-					if (null != entity && EntityType.TypeReference == entity.EntityType)
+					if (null != entity && EntityType.Type == entity.EntityType)
 					{						
 						Error(CompilerErrorFactory.MemberNeedsInstance(targetContext, member.FullName));
 						return false;
@@ -2947,11 +2946,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EnsureRelatedNodeWasVisited(IEntity tag)
 		{
-			if (tag.EntityType == EntityType.TypeReference)
-			{
-				tag = ((TypeReferenceEntity)tag).Type;
-			}		
-			else if (tag.EntityType == EntityType.Ambiguous)
+			if (tag.EntityType == EntityType.Ambiguous)
 			{
 				foreach (IEntity item in ((Ambiguous)tag).Entities)
 				{

@@ -1770,7 +1770,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case EntityType.TypeReference:
+				case EntityType.Type:
 				{
 					EmitGetTypeFromHandle(GetSystemType(node));
 					break;
@@ -1885,7 +1885,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case EntityType.TypeReference:
+				case EntityType.Type:
 				{
 					EmitGetTypeFromHandle(GetSystemType(node));
 					break;
@@ -3060,7 +3060,7 @@ namespace Boo.Lang.Compiler.Steps
 				default:
 				{
 					IEntity tag = GetEntity(expression);
-					if (EntityType.TypeReference == tag.EntityType)
+					if (EntityType.Type == tag.EntityType)
 					{
 						return GetSystemType(expression);
 					}

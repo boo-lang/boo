@@ -8,7 +8,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		CompileUnit = 0x00,
 		Module = 0x01,
 		Type = 0x02,
-		TypeReference = 0x04,
 		Method = 0x08,		
 		Constructor = 0x10,
 		Field = 0x20,

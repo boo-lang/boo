@@ -95,8 +95,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		System.Collections.Hashtable _arrayCache = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
-		
 		static readonly IEntity _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
 		
 		public static readonly IType ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
@@ -149,7 +147,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				typeReference = new SimpleTypeReference(tag.FullName);				
 			}
 			
-			typeReference.Entity = GetTypeReference(tag);
+			typeReference.Entity = tag;
 			return typeReference;
 		}
 		
@@ -326,22 +324,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return tag;
 		}
 		
-		public ITypedEntity GetTypeReference(IType type)
-		{
-			ITypedEntity tag = (ITypedEntity)_referenceCache[type];
-			if (null == tag)
-			{
-				tag = new TypeReferenceEntity(type);
-				_referenceCache[type] = tag;
-			}
-			return tag;
-		}
-		
-		public ITypedEntity GetTypeReference(System.Type type)
-		{
-			return GetTypeReference(Map(type));
-		}
-		
 		public IParameter[] Map(Boo.Lang.Compiler.Ast.ParameterDeclarationCollection parameters)
 		{
 			IParameter[] mapped = new IParameter[parameters.Count];
@@ -459,7 +441,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		void AddPrimitiveType(string name, ExternalType type)
 		{
-			_primitives[name] = GetTypeReference(type);
+			_primitives[name] = type;
 		}
 		
 		void AddPrimitive(string name, IEntity tag)
