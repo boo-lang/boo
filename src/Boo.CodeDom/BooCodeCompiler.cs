@@ -107,7 +107,7 @@ namespace Boo.CodeDom
 			CompilerError error=new CompilerError();
 			error.ErrorNumber = booError.Code;
 			error.Line = booError.LexicalInfo.Line;
-			error.Column = booError.LexicalInfo.StartColumn;
+			error.Column = booError.LexicalInfo.Column;
 			error.FileName = booError.LexicalInfo.FileName;
 			error.ErrorText = booError.Message;
 			error.IsWarning = false;

@@ -482,12 +482,13 @@ namespace Boo.CodeDom
 
 		protected override void GenerateLinePragmaStart (CodeLinePragma linePragma)
 		{
-			throw new NotSupportedException ("Line pragma is not supported in Boo.");		
+			// TODO - right now don't throw exception as this breaks asp.net support
+			//throw new NotSupportedException ("Line pragma is not supported in Boo.");
 		}
 
 		protected override void GenerateLinePragmaEnd (CodeLinePragma linePragma)
 		{
-			throw new NotSupportedException ("Line pragma is not supported in Boo.");			
+			//throw new NotSupportedException ("Line pragma is not supported in Boo.");			
 		}
 
 		protected override void GenerateEvent (CodeMemberEvent eventRef,

@@ -144,7 +144,7 @@
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo, Boo.Lang.Compiler, Boo.Lang.Parser">
+	<target name="core" depends="Boo, Boo.Lang.Compiler, Boo.Lang.Parser, Boo.CodeDom">
 	</target>
 	
 	<target name="update-bin" depends="all">
@@ -163,6 +163,24 @@
 				<include name="booish.exe" />	
 			</fileset>
 		</copy>
+	</target>
+	
+	<target name="Boo.CodeDom" depends="Boo.Lang.Compiler">
+		<csc target="library"
+			output="build/Boo.CodeDom.dll"
+			debug="${debug}"
+			optimize="${optimize}">
+			
+			<sources basedir="src/Boo.CodeDom">
+				<include name="**/*.cs" />
+			</sources>
+			
+			<references>
+				<include name="System.Data.dll" />
+				<include name="System.Xml.dll" />
+				<include name="build/Boo.Lang.Compiler.dll" />
+			</references>
+		</csc>
 	</target>
 	
 	<target name="Boo.Lang.Compiler" depends="Boo, generate-ast">
