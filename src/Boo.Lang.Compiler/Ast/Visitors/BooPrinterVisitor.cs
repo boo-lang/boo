@@ -34,6 +34,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 	/// </summary>
 	public class BooPrinterVisitor : TextEmitter
 	{		
+		static Regex _identifierRE = new Regex("^[a-zA-Z.]+$");
+		
 		public BooPrinterVisitor(TextWriter writer) : base(writer)
 		{
 		}
@@ -87,6 +89,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteLine(" {0}", node.Name);
 			WriteLine();
 		}
+		
+		bool IsSimpleIdentifier(string s)
+		{
+			return _identifierRE.IsMatch(s);
+		}
 
 		override public void OnImport(Import p)
 		{
@@ -95,7 +102,16 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			if (null != p.AssemblyReference)
 			{
 				WriteKeyword(" from ");
-				Write(p.AssemblyReference.Name);
+
+				string assemblyName = p.AssemblyReference.Name;
+				if (IsSimpleIdentifier(assemblyName))
+				{
+					Write(assemblyName);
+				}
+				else
+				{
+					WriteStringLiteral(assemblyName);
+				}
 			}
 			if (null != p.Alias)
 			{

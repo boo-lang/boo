@@ -1,5 +1,5 @@
 import System
-import Gtk
+import Gtk from "gtk-sharp"
 
 def button_Clicked(sender, args as EventArgs):
 	print("button clicked!")

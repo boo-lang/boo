@@ -291,7 +291,12 @@ import_directive[Module container]
 		container.Imports.Add(usingNode);
 	}
 	(
-		FROM! id=identifier
+		FROM!
+			(
+					id=identifier |
+					dqs:DOUBLE_QUOTED_STRING { id=dqs; } |
+					sqs:SINGLE_QUOTED_STRING { id=sqs; }
+			)
 		{
 			usingNode.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id));
 			usingNode.AssemblyReference.Name = id.getText();
