@@ -2453,10 +2453,11 @@ namespace Boo.Lang.Compiler.Steps
 					Visit(node.Right);
 					IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
 					CheckIsResolvedType(expressionType, node.Right);
-					reference.Entity = DeclareLocal(reference.Name, expressionType);
+					IEntity local = DeclareLocal(reference.Name, expressionType);
+					reference.Entity = local;
 					BindExpressionType(node.Left, expressionType);
 					BindExpressionType(node, expressionType);
-					return false;
+					return EntityType.Local != local.EntityType;
 				}
 			}
 			return true;

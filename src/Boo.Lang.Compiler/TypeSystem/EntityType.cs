@@ -49,6 +49,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Array = 0x2000,
 		BuiltinFunction = 0x4000,
 		Label = 0x8000,		
+		Custom,
 		Unknown,
 		Null,
 		Error,		

@@ -89,6 +89,27 @@ namespace Boo.Lang.Compiler
 			return this;
 		} 
 		
+		public CompilerPipeline InsertAfter(Type stepExactType, ICompilerStep step)
+		{			
+			return Insert(Find(stepExactType)+1, step);
+		}
+		
+		public CompilerPipeline Replace(Type stepExactType, ICompilerStep step)
+		{
+			if (null == step)
+			{
+				throw new ArgumentNullException("step");
+			}
+			
+			int index = Find(stepExactType);
+			if (-1 == index)
+			{
+				throw new ArgumentException("stepExactType");
+			}
+			_items[index] = step;
+			return this;
+		}
+		
 		public int Find(Type stepExactType)
 		{
 			if (null == stepExactType)

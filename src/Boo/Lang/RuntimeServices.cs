@@ -50,6 +50,7 @@ namespace Boo.Lang
 												
 		const BindingFlags GetPropertyBindingFlags = DefaultBindingFlags |
 												BindingFlags.GetProperty;
+												
 			
 		public static object Invoke(object target, string name, object[] args)
 		{

@@ -38,6 +38,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		Boo.Lang.Compiler.Ast.Module _module;
 		
+		Boo.Lang.Compiler.Ast.ClassDefinition _moduleClass;
+		
 		INamespace _moduleClassNamespace = NullNamespace.Default;
 		
 		INamespace[] _using;
@@ -91,11 +93,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public Boo.Lang.Compiler.Ast.ClassDefinition ModuleClass
+		{
+			get
+			{
+				return _moduleClass;
+			}
+		}
+		
 		public void InitializeModuleClass(Boo.Lang.Compiler.Ast.ClassDefinition moduleClass)
 		{
 			if (null == moduleClass.Entity)
 			{
 				moduleClass.Entity = new InternalClass(_typeSystemServices, moduleClass);
+				_moduleClass = moduleClass;
 			}
 			_moduleClassNamespace = (INamespace)moduleClass.Entity;
 		}
