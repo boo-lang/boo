@@ -38,6 +38,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
  		}
 		
+		public UnlessStatement(Expression condition) : base(condition)
+		{
+		}
+		
 		public UnlessStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}

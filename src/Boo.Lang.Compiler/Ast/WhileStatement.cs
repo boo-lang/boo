@@ -42,6 +42,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public WhileStatement(Expression condition, Block block) : base(condition)
+		{
+			this.Block = block;
+		}
+		
 		public WhileStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}

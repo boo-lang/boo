@@ -316,17 +316,48 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Method CreateMoveNext()
 		{
-			Method method = CreateMethod("MoveNext", TypeSystemServices.BoolType);		
+			Method method = CreateMethod("MoveNext", TypeSystemServices.BoolType);
 			
-			IfStatement stmt = new IfStatement(CreateMethodInvocation(
+			Expression moveNext = CreateMethodInvocation(
 												CreateFieldReference((InternalField)_enumeratorField.Entity),
-												TypeSystemServices.Map(Types.IEnumerator.GetMethod("MoveNext"))),
-												new Block(),
-												null);
+												TypeSystemServices.Map(Types.IEnumerator.GetMethod("MoveNext")));
 												
 			Expression current = CreateMethodInvocation(
 									CreateFieldReference((InternalField)_enumeratorField.Entity),
 									TypeSystemServices.Map(Types.IEnumerator.GetProperty("Current").GetGetMethod()));
+			
+			Statement filter = null;
+			Statement stmt = null;
+			Block outerBlock = null;
+			Block innerBlock = null;
+			
+			if (null == _generator.Filter)
+			{								
+				IfStatement istmt = new IfStatement(moveNext, new Block(), null);
+				outerBlock = innerBlock = istmt.TrueBlock;
+				
+				stmt = istmt;
+			}
+			else
+			{				 
+				WhileStatement wstmt = new WhileStatement(moveNext);
+				outerBlock = wstmt.Block;
+				
+				if (StatementModifierType.If == _generator.Filter.Type)
+				{
+					IfStatement ifstmt = new IfStatement(_generator.Filter.Condition, new Block(), null);
+					innerBlock = ifstmt.TrueBlock;
+					filter = ifstmt;
+				}
+				else
+				{
+					UnlessStatement ustmt = new UnlessStatement(_generator.Filter.Condition);
+					innerBlock = ustmt.Block;					
+					filter = ustmt;
+				}
+				
+				stmt = wstmt;
+			}
 												
 			DeclarationCollection declarations = _generator.Declarations;
 			if (declarations.Count > 1)
@@ -341,23 +372,27 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				unpack.Expression = current;
-				stmt.TrueBlock.Add(unpack);
+				outerBlock.Add(unpack);
 			}
 			else
 			{
 				LocalVariable local = (LocalVariable)declarations[0].Entity;
 				method.Locals.Add(local.Local);
 				
-				stmt.TrueBlock.Add(CreateAssignment(
+				outerBlock.Add(CreateAssignment(
 								CreateReference(local),
 								current));
 			}
 			
-			stmt.TrueBlock.Add(CreateAssignment(
+			if (null != filter)
+			{
+				outerBlock.Add(filter);
+			}
+			
+			innerBlock.Add(CreateAssignment(
 								CreateFieldReference((InternalField)_currentField.Entity),
 								_generator.Expression));
-			
-			stmt.TrueBlock.Add(new ReturnStatement(new BoolLiteralExpression(true)));
+			innerBlock.Add(new ReturnStatement(new BoolLiteralExpression(true)));
 			
 			method.Body.Add(stmt);
 			method.Body.Add(new ReturnStatement(new BoolLiteralExpression(false)));
