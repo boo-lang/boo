@@ -60,6 +60,7 @@ BCE0058=Objeto esperado.
 BCE0059=A macro 'lock' espera pelo menos um argumento.
 BCE0060='{0}': nenhum método apropriado para sobrescrição encontrado.
 BCE0061='{0}' não é uma sobrescrição.
+BCE0062=Não foi possível deduzir o tipo de retorno para o método '{0}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

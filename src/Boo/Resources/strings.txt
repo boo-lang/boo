@@ -60,7 +60,7 @@ BCE0058=Object required.
 BCE0059=The 'lock' macro expects at least one argument.
 BCE0060='{0}': no suitable method found to override.
 BCE0061='{0}' is not an override.
-
+BCE0062=Could not infer the return type for the method '{0}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

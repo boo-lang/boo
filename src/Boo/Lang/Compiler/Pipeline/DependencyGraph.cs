@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 	}
 	
-	public class DependencyGraph
+	public class DependencyGraph : IEnumerable
 	{
 		ArrayList _nodes = new ArrayList();
 		
@@ -146,6 +146,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			return iterations;
+		}
+		
+		public IEnumerator GetEnumerator()
+		{
+			return _nodeMap.Keys.GetEnumerator();
 		}
 	}
 }

@@ -117,6 +117,16 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			int iterations = _pending.Resolve(this);
 			_context.TraceInfo("Type inference concluded in {0} iteration(s).", iterations);
+			foreach (Node node in _pending)
+			{
+				if (NodeType.Method == node.NodeType)
+				{					
+					if (BindingManager.IsUnknown(((Method)node).ReturnType))
+					{
+						Error(CompilerErrorFactory.CouldNotInferReturnType(node, GetSignature((IMethodBinding)GetBinding(node))));
+					}
+				}
+			}
 		}
 		
 		public override void Dispose()

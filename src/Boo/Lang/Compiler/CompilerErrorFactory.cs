@@ -337,6 +337,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0061", node.LexicalInfo, signature);
 		}
 		
+		public static CompilerError CouldNotInferReturnType(Node node, string signature)
+		{
+			return new CompilerError("BCE0062", node.LexicalInfo, signature);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
