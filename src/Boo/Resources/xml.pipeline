@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <pipeline>
 
-	<step type='Boo.Antlr.BooParsingStep, Boo.Antlr' />
+	<step type='Boo.AntlrParser.BooParsingStep, Boo.AntlrParser' />
 	<step type='Boo.Lang.Compiler.Pipeline.XmlStep, Boo' />
 
 </pipeline>
