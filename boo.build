@@ -3,7 +3,9 @@
 
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
+	
 	<property name="skip.tests" value="false" />
+	<property name="skip.satellites" value="false" />
 
 	<property name="antlr.home" value="lib/antlr-2.7.2" />
 	
@@ -23,8 +25,8 @@
 	
 	<!--<if test="${not property::exists('nant.tasks.al')}">-->
 	<if test="${'mono-1.0' == nant.settings.currentframework}">
-		<echo>al task is not available. Sattelite assemblies won't be built.</echo>
-		<property name="nant.tasks.al" value="False" />
+		<echo>al task is not available. Satellite assemblies won't be built.</echo>
+		<property name="skip.satellites" value="True" />
 	</if>
 
 	<target name="all" depends="booi">	
@@ -116,7 +118,7 @@
 		</csc>
 	</target>
 	
-	<target name="satellites" depends="init" if="${nant.tasks.al}">
+	<target name="satellites" depends="init" unless="${skip.satellites}">
 		<mkdir dir="${build.dir}/pt" />
 
 		<resgen
