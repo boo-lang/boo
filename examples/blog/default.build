@@ -37,11 +37,13 @@
 				<includes name="BooLog.dll" />
 				<includes name="Bamboo.Prevalence.dll" />
 				<includes name="System.Web.dll" />
+				<includes name="System.Web.Services.dll" />
 			</references>
 		</booc>
 		
 		<copy todir="build/web">
 			<fileset basedir="web">
+				<includes name="*.asmx" />
 				<includes name="*.aspx" />
 				<includes name="*.asax" />
 				<includes name="*.config" />
