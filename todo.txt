@@ -374,12 +374,13 @@ done * list indexing
 done * bool (true, false)
 * operadores de convers�o (operator bool, operator string, etc)
 
-Milestone 6
------------
+Milestone 6 (dynamic behavior)
+------------------------------
 
-* enum
-* interface
-* property
+* array equality even for object references:
+	a1 as object = (1, 2)
+	a2 as object = (1, 2)
+	assert a1 == a2
 
 Milestone 7
 -----------

@@ -194,5 +194,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("numericpromo0.boo");
 		}
+		
+		[Test]
+		public void TypeIsResolvedAgainstParentScopeWhenNotFound()
+		{
+			RunCompilerTestCase("type_resolution0.boo");
+		}
+		
+		[Test]
+		public void CallableStaticMethods()
+		{
+			RunCompilerTestCase("callable0.boo");
+		}
 	}
 }
