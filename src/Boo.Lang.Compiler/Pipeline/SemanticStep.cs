@@ -1419,9 +1419,9 @@ namespace Boo.Lang.Compiler.Pipeline
 				node.Iterator = newIterator;
 			}
 			
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declarations));
-			Switch(node.Expression);
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declarations));			
 			Switch(node.Filter);			
+			Switch(node.Expression);
 			PopNamespace();
 		}
 		
