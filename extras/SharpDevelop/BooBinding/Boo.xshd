@@ -245,6 +245,7 @@
 				<Key word="constructor"/>
 				<Key word="def"/>
 				<Key word="include"/>
+				<Key word="event" />
 			</KeyWords>
 
 			<KeyWords name="Pass" bold="false" italic="false" color="Gray" >
