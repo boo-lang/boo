@@ -33,6 +33,7 @@ Interactive Forms-based Console
 namespace booish.gui
 
 import System
+import System.Text
 import System.IO
 import System.Reflection
 import booish
@@ -52,19 +53,35 @@ class KeyChar:
 
 class CompletionBox(ListBox):
 	
-	def constructor():
+	_interpreter as InteractiveInterpreter
+	
+	def constructor(interpreter):
+		self._interpreter = interpreter
 		self.Visible = false
 		
 	def Fill(type as System.Type):
 		
-		members = {}
+		members = []
 		for member in type.GetMembers():
-			if member.Name not in members:
-				if IsValidSuggestion(member):
-					members.Add(member.Name, member)
-				
+			if IsValidSuggestion(member):
+				if member isa FieldInfo:
+					field = member as FieldInfo
+					members.Add("${field.Name} as ${getBooTypeName(field.FieldType)}")
+				elif member isa PropertyInfo:
+					property = member as PropertyInfo
+					getField = ("", "getter,")[property.CanRead]
+					setField = ("", "setter")[property.CanWrite]
+					members.Add("${member.Name} as ${getBooTypeName(property.PropertyType)} (${getField} ${setField})")
+				elif member isa MethodInfo:
+					method = member as MethodInfo
+					params = join("${param.Name} as ${getBooTypeName(param.ParameterType)}"
+										for param in method.GetParameters())					
+					returnValue = ""
+					returnValue = " as ${getBooTypeName(method.ReturnType)}" if method.ReturnType is not void					
+					members.Add("${member.Name}(${params})${returnValue}")
+					
 		Items.Clear()
-		for item in List(members.Keys).Sort():
+		for item in members.Sort():
 			Items.Add(item)
 			
 	def Show(pos as Point):
@@ -101,10 +118,13 @@ class CompletionBox(ListBox):
 		if args.KeyChar in KeyChar.Esc, KeyChar.Back:
 			finish()
 		elif KeyChar.Enter == args.KeyChar:
-			cast(TextBox, Parent).SelectedText = SelectedItem
+			cast(TextBox, Parent).SelectedText = /\w+/.Match(SelectedItem).Groups[0].Value
 			finish()
 		else:			
 			super(args)
+			
+	private def getBooTypeName(type as System.Type):
+		return _interpreter.getBooTypeName(type)
 		
 
 class PromptBox(TextBox):
@@ -124,7 +144,7 @@ class PromptBox(TextBox):
 								RememberLastValue: true,
 								Print: print)
 								
-	_completionBox = CompletionBox()
+	_completionBox = CompletionBox(_interpreter)
 	
 	def constructor():
 		self.Dock = DockStyle.Fill
@@ -184,7 +204,7 @@ class PromptBox(TextBox):
 		super(args)
 		
 	override def OnResize(args as EventArgs):
-		_completionBox.Size = System.Drawing.Size(Width*.5, Height*.4)
+		_completionBox.Size = System.Drawing.Size(Width*.65, Height*.4)
 		super(args)
 		
 	def DotComplete():		
