@@ -1,6 +1,6 @@
-#region license
+﻿#region license
 // boo - an extensible programming language for the CLI
-// Copyright (C) 2004 Rodrigo B. de Oliveira
+// Copyright (C) 2004 Rodrigo Barreto de Oliveira
 //
 // Permission is hereby granted, free of charge, to any person 
 // obtaining a copy of this software and associated documentation 
@@ -39,7 +39,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2004 Rodrigo B. de Oliveira")]
+[assembly: AssemblyCopyright("(C) 2004 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 
