@@ -1,5 +1,4 @@
 ﻿* fix ICallable for callable types
-	* callable8.boo
 	* callable9.boo
 	* callable10.boo
 	

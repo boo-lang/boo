@@ -76,7 +76,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public bool IsSubclassOf(IType other)
 		{			
-			return BaseType.IsSubclassOf(other) || other == BaseType;				
+			return BaseType.IsSubclassOf(other) || other == BaseType ||
+				other == _typeSystemServices.ICallableType;				
 		}
 		
 		public CallableSignature GetSignature()
