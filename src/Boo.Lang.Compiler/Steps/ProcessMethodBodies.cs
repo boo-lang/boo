@@ -3064,6 +3064,18 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void CheckListLiteralArgumentInArrayConstructor(IType expectedElementType, MethodInvocationExpression constructor)
+		{
+			ListLiteralExpression elements = constructor.Arguments[1] as ListLiteralExpression;
+			if (null != elements)
+			{
+				foreach (Expression element in elements.Items)
+				{
+					CheckTypeCompatibility(element, expectedElementType, GetExpressionType(element));
+				}
+			}
+		}
+		
 		void ApplyBuiltinMethodTypeInference(MethodInvocationExpression expression, IMethod method)
 		{
 			IType inferredType = null;
@@ -3074,7 +3086,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
 				if (null != type)
-				{						
+				{
+					if (Array_TypedCollectionConstructor == method)
+					{
+						CheckListLiteralArgumentInArrayConstructor(type,  expression);
+					}
 					inferredType = TypeSystemServices.GetArrayType(type);
 				}
 			}
