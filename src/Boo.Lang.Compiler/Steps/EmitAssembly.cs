@@ -2452,7 +2452,7 @@ namespace Boo.Lang.Compiler.Steps
 					// the mono implementation expects the first argument to 
 					// SetEntryPoint to be a MethodBuilder, otherwise it generates
 					// bogus assemblies
-					_asmBuilder.SetEntryPoint(methodBuilder, (PEFileKinds)Parameters.OutputType);
+					_asmBuilder.SetEntryPoint(createdMethod, (PEFileKinds)Parameters.OutputType);
 					
 					// for the rest of the world (like RunAssembly)
 					// the created method is the way to go

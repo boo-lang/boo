@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			try
 			{
-				Context.GeneratedAssemblyEntryPoint.Invoke(null, new object[] { new string[0] });
+				Context.GeneratedAssembly.EntryPoint.Invoke(null, new object[] { new string[0] });
 			}
 			catch (System.Reflection.TargetInvocationException x)
 			{				
