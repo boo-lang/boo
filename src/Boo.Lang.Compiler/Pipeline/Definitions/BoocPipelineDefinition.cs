@@ -35,11 +35,11 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 	/// Standard compilation pipeline: parses input files and go all
 	/// the way to assembly emission.
 	/// </summary>
-	public class BoocPipelineDefinition : ICompilerPipelineDefinition
+	public class BoocPipelineDefinition : CorePipelineDefinition
 	{
-		public void SetUp(CompilerPipeline pipeline)
+		override public void Define(CompilerPipeline pipeline)
 		{			
-			pipeline.Load("core");
+			base.Define(pipeline);
 			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssemblyStep()));
 			pipeline.Add(new CompilerPipelineItem("save", new SaveAssemblyStep()));
 			pipeline.Add(new CompilerPipelineItem("peverify", new PEVerifyStep()));

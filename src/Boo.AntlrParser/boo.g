@@ -257,6 +257,7 @@ start returns [Module module]
 		module = new Module();		
 		module.LexicalInfo = new LexicalInfo(getFilename(), 0, 0, 0);
 	}:
+	(options { greedy=true;}: EOS!)*
 	docstring[module]
 	(options { greedy=true;}: EOS!)*			 
 	(namespace_directive[module])?

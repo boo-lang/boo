@@ -31,11 +31,11 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 	using System;
 	using Boo.Lang.Compiler.Pipeline;
 	
-	public class CorePipelineDefinition : ICompilerPipelineDefinition
+	public class CorePipelineDefinition : ParsePipelineDefinition
 	{
-		public void SetUp(CompilerPipeline pipeline)
+		override public void Define(CompilerPipeline pipeline)
 		{			
-			pipeline.Load("parse");			
+			base.Define(pipeline);			
 			pipeline.Add(new CompilerPipelineItem("import", new ImportResolutionStep()));
 			pipeline.Add(new CompilerPipelineItem("attributes", new AstAttributesStep()));
 			pipeline.Add(new CompilerPipelineItem("macros", new MacroExpansionStep()));

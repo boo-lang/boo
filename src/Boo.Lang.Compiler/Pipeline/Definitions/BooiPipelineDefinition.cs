@@ -31,11 +31,11 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 	using System;
 	using Boo.Lang.Compiler.Pipeline;
 	
-	public class BooiPipelineDefinition : ICompilerPipelineDefinition
+	public class BooiPipelineDefinition : CorePipelineDefinition
 	{
-		public void SetUp(CompilerPipeline pipeline)
+		override public void Define(CompilerPipeline pipeline)
 		{			
-			pipeline.Load("core");
+			base.Define(pipeline);
 			pipeline.Add(new CompilerPipelineItem("emit", new EmitAssemblyStep()));
 			pipeline.Add(new CompilerPipelineItem("run", new RunAssemblyStep()));
 		}

@@ -30,6 +30,6 @@ namespace Boo.Lang.Compiler
 {
 	public interface ICompilerPipelineDefinition
 	{
-		void SetUp(CompilerPipeline pipeline);
+		void Define(CompilerPipeline pipeline);
 	}
 }

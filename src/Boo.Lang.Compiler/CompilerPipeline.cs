@@ -265,7 +265,7 @@ namespace Boo.Lang.Compiler
 				{
 					definition = (ICompilerPipelineDefinition)Type.GetType(name, true);
 				}
-				definition.SetUp(this);
+				definition.Define(this);
 			}
 			catch (Exception x)
 			{

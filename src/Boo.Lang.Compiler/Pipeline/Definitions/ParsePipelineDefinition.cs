@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 			return (ICompilerStep)Activator.CreateInstance(_defaultParserStepType);
 		}
 		
-		public void SetUp(CompilerPipeline pipeline)
+		virtual public void Define(CompilerPipeline pipeline)
 		{							
 			pipeline.Add(new CompilerPipelineItem("parse", NewParserStep()));
 		}

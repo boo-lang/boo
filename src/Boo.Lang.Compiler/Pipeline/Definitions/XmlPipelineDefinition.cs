@@ -31,11 +31,11 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 	using System;
 	using Boo.Lang.Compiler.Pipeline;
 	
-	public class XmlPipelineDefinition : ICompilerPipelineDefinition
+	public class XmlPipelineDefinition : ParsePipelineDefinition
 	{
-		public void SetUp(CompilerPipeline pipeline)
+		override public void Define(CompilerPipeline pipeline)
 		{
-			pipeline.Load("parse");
+			base.Define(pipeline);
 			pipeline.Add(new XmlSerializationStep());
 		}
 	}

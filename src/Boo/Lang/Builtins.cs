@@ -39,7 +39,7 @@ namespace Boo.Lang
 	public class Builtins
 	{	
 		public static void print(string s)
-		{
+		{			
 			Console.WriteLine(s);
 		}
 		
