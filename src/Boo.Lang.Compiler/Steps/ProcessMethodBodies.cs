@@ -893,10 +893,43 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
+		{			
+			InternalMethod entity = (InternalMethod)accessor.Entity;
+			IType baseType = entity.DeclaringType.BaseType;
+			IEntity baseProperties = NameResolutionService.Resolve(baseType, property.Name, EntityType.Property);
+			if (null != baseProperties)
+			{
+				if (EntityType.Property == baseProperties.EntityType)
+				{
+					IProperty baseProperty = (IProperty)baseProperties;
+					IMethod baseMethod = null;
+					if (property.Getter == accessor)
+					{
+						baseMethod = baseProperty.GetGetMethod();
+					}
+					else
+					{
+						baseMethod = baseProperty.GetSetMethod();
+					}
+					if (TypeSystemServices.CheckOverrideSignature(entity, baseMethod))
+					{
+						return baseMethod;
+					}
+				}
+			}		
+			return null;
+		}
+		
 		IMethod FindMethodOverride(InternalMethod tag)
 		{
-			IType baseType = tag.DeclaringType.BaseType;			
-			Method method = tag.Method;			
+			Method method = tag.Method;
+			if (NodeType.Property == method.ParentNode.NodeType)
+			{
+				return FindPropertyAccessorOverride((Property)method.ParentNode, method);
+			}
+			
+			IType baseType = tag.DeclaringType.BaseType;						
 			IEntity baseMethods = NameResolutionService.Resolve(baseType, tag.Name, EntityType.Method);
 			
 			if (null != baseMethods)
