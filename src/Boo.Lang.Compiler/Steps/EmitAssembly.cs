@@ -2134,12 +2134,20 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldarg_0);
+			if (node.ExpressionType.IsValueType)
+			{
+				_il.Emit(OpCodes.Ldobj, GetSystemType(node.ExpressionType));
+			}
 			PushType(node.ExpressionType);
 		}
 		
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldarg_0);
+			if (node.ExpressionType.IsValueType)
+			{
+				_il.Emit(OpCodes.Ldobj, GetSystemType(node.ExpressionType));
+			}
 			PushType(node.ExpressionType);
 		}
 		
@@ -2575,6 +2583,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (type == TypeSystemServices.ByteType)
 			{
 				return "UnboxByte";
+			}
+			else if (type == TypeSystemServices.SByteType)
+			{
+				return "UnboxSByte";
 			}
 			else if (type == TypeSystemServices.ShortType)
 			{

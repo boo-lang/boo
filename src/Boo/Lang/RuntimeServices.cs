@@ -659,6 +659,15 @@ namespace Boo.Lang
 			return CheckNumericPromotion(value).ToByte(null);
 		}
 		
+		public static SByte UnboxSByte(object value)
+		{
+			if (value is SByte)
+			{
+				return (SByte)value;
+			}
+			return CheckNumericPromotion(value).ToSByte(null);
+		}
+		
 		public static Int16 UnboxInt16(object value)
 		{
 			if (value is Int16)
