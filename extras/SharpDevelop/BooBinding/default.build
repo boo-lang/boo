@@ -2,11 +2,11 @@
 <project name="BooDevelop" default="compile">
 	<!-- run this using NAnt nightly, but you have to force NAnt to run under .NET 1.1 (otherwise you get a BadImageFormatException) -->
 	
-	<!-- Adjust these properties to point to your sharpdevelop directory / boo binary directory -->
-	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
-	
 	<property name="sharpdevelop.dir" value = "D:\Fidalgo\SharpDevelop" />
 	<property name="boo.dir" value="../../../bin" />
+	
+	<!-- Adjust these properties to point to your sharpdevelop directory / boo binary directory -->
+	<include buildfile="build.properties" if="${file::exists('build.properties')}" />	
 	
 	<property name="nant.settings.currentframework" value="net-1.1"/>
 	
