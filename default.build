@@ -184,10 +184,28 @@
 		</exec>
 	</target>
 	
-	<target name="update-stable-branch">
-		<exec program="bin/booi.exe" useruntimeengine="true">
-			<arg file="scripts/update-stable-branch.boo" />
-		</exec>
+	<target name="update-stable-branch" depends="SVNUtil">
+		<boo src="scripts/update-stable-branch.boo">
+			<references basedir="build">
+				<include name="SVNUtil.dll" />
+			</references>
+		</boo>		
+	</target>
+	
+	<target name="create-distro-tag" depends="SVNUtil">
+		<boo src="scripts/create-distro-tag.boo">
+			<references basedir="build">
+				<include name="SVNUtil.dll" />
+			</references>
+		</boo>
+	</target>
+	
+	<target name="SVNUtil" depends="Boo.NAnt">
+		<booc target="library" output="build/SVNUtil.dll">
+			<sources basedir="scripts">
+				<include name="SVNUtil.boo" />
+			</sources>
+		</booc>
 	</target>
 	
 	<target name="upload-distro" depends="distro">
