@@ -55,9 +55,11 @@ class PrettyPrinter(BooPrinterVisitor):
 	def WriteOperator(text as string):
 		_writer.Write("<span class='operator'>${Server.HtmlEncode(text)}</span>")
 		
-	def OnStringLiteralExpression(node as StringLiteralExpression):
-		_writer.Write("<span class='string'>")
-		WriteStringLiteral(node.Value)
+	def WriteStringLiteral(text as string):
+		_writer.Write("<span class='string'>")		
+		buffer = StringWriter()		
+		BooPrinterVisitor.WriteStringLiteral(text, buffer)
+		Server.HtmlEncode(buffer.ToString(), _writer)
 		_writer.Write("</span>")
 		
 

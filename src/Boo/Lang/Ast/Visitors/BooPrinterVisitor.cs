@@ -714,45 +714,50 @@ namespace Boo.Lang.Ast.Visitors
 			throw new NotImplementedException(op.ToString());
 		}
 		
-		protected virtual void WriteStringLiteral(string text)
+		public virtual void WriteStringLiteral(string text)
 		{
-			Write("'");
+			WriteStringLiteral(text, _writer);
+		}
+		
+		public static void WriteStringLiteral(string text, TextWriter writer)
+		{
+			writer.Write("'");
 			foreach (char ch in text)
 			{
 				switch (ch)
 				{
 					case '\r':
 					{
-						_writer.Write("\\r");						
+						writer.Write("\\r");						
 						break;
 					}
 					
 					case '\n':
 					{
-						_writer.Write("\\n");
+						writer.Write("\\n");
 						break;
 					}
 					
 					case '\t':
 					{
-						_writer.Write("\\t");
+						writer.Write("\\t");
 						break;
 					}
 					
 					case '\\':
 					{
-						_writer.Write("\\\\");
+						writer.Write("\\\\");
 						break;
 					}
 					
 					default:
 					{
-						_writer.Write(ch);
+						writer.Write(ch);
 						break;
 					}
 				}				
 			}
-			Write("'");
+			writer.Write("'");
 		}
 		
 		void WriteCommaSeparatedList(NodeCollection items)
