@@ -78,7 +78,7 @@
 	
 	<target name="booc" depends="core">
 		<csc target="exe" output="build/booc.exe" debug="${debug}" optimize="${optimize}">
-			<sources basedir="src/BooC">
+			<sources basedir="src/booc">
 				<includes name="*.cs" />
 			</sources>
 

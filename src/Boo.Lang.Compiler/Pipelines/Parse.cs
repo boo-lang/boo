@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Pipelines
 	
 	public class Parse : CompilerPipeline
 	{
-		static Type _defaultParserStepType = Type.GetType("Boo.AntlrParser.BooParsingStep, Boo.AntlrParser");
+		static Type _defaultParserStepType = Type.GetType("Boo.AntlrParser.BooParsingStep, Boo.AntlrParser", true);
 		
 		public static ICompilerStep NewParserStep()
 		{
