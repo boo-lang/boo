@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project name="gac test" default="test">
+
+	<target name="test" depends="gac-install">
+		<exec program="bin/test.exe" useruntimeengine="true">
+		</exec>
+	</target>
+	
+	<target name="gac-install" depends="build">		
+		<exec program="gacutil">
+			<arg value="/u" />
+			<arg value="GacLibrary" />
+		</exec>
+		
+		<exec program="gacutil">
+			<arg value="/i" />
+			<arg file="bin/GacLibrary.dll" />
+		</exec>
+		
+		<delete file="bin/GacLibrary.dll" />
+	</target>
+	
+	<target name="rebuild" depends="clean, build">
+	</target>
+	
+	<target name="build" depends="init">
+		<booc target="library" output="bin/PrivateLibrary.dll">
+			<sources basedir="PrivateLibrary">
+				<include name="*.boo" />
+			</sources>
+		</booc>
+		
+		<booc target="exe" output="bin/test.exe">
+			<sources basedir="test">
+				<include name="*.boo" />
+			</sources>
+		</booc>
+		
+		<booc target="library" output="bin/GacLibrary.dll">
+			<sources basedir="GacLibrary">
+				<include name="*.boo" />
+			</sources>
+		</booc>
+	</target>
+	
+	<target name="clean">
+		<delete dir="bin" if="${directory::exists('bin')}" />
+	</target>
+	
+	<target name="init">
+		<mkdir dir="bin" />
+		<copy todir="bin">
+			<fileset basedir="../../bin">
+				<include name="*.dll" />
+			</fileset>
+		</copy>
+		<loadtasks assembly="bin/Boo.NAnt.Tasks.dll" />
+	</target>
+
+</project>

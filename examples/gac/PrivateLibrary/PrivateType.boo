@@ -1,0 +1,2 @@
+class PrivateType:
+	pass
