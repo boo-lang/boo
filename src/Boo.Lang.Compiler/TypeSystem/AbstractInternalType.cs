@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -38,13 +38,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected TypeDefinition _typeDefinition;
 		
-		protected IEntity[] _members;
-		
 		protected IType[] _interfaces;
 		
 		protected INamespace _parentNamespace;
-		
-		protected Boo.Lang.List _buffer = new Boo.Lang.List();
 		
 		protected System.Type _generatedType;
 		
@@ -225,9 +221,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 						StringLiteralExpression memberName = attribute.Arguments[0] as StringLiteralExpression;
 						if (null != memberName)
 						{
-							_buffer.Clear();
-							Resolve(_buffer, memberName.Value, EntityType.Any);
-							return NameResolutionService.GetEntityFromList(_buffer);
+							Boo.Lang.List buffer = new Boo.Lang.List();
+							Resolve(buffer, memberName.Value, EntityType.Any);
+							return NameResolutionService.GetEntityFromList(buffer);
 						}
 					}
 				}
@@ -268,37 +264,77 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _interfaces)
 			{
-				_buffer.Clear();
+				Boo.Lang.List buffer = new Boo.Lang.List();
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
 					IType tag = TypeSystemServices.GetType(baseType);
 					if (tag.IsInterface)
 					{
-						_buffer.AddUnique(tag);
+						buffer.AddUnique(tag);
 					}
 				}
 				
-				_interfaces = (IType[])_buffer.ToArray(typeof(IType));
+				_interfaces = (IType[])buffer.ToArray(typeof(IType));
 			}
 			return _interfaces;
 		}
 		
 		public virtual IEntity[] GetMembers()
-		{
-			if (null == _members)
+		{			
+			ArrayList buffer = new ArrayList();
+			foreach (TypeMember member in _typeDefinition.Members)
 			{
-				_buffer.Clear();
-				foreach (TypeMember member in _typeDefinition.Members)
-				{
-					IEntity tag = TypeSystemServices.GetEntity(member);
-					_buffer.Add(tag);
-				}
-
-				_members = (IEntity[])_buffer.ToArray(typeof(IEntity));
-				_buffer.Clear();				
+				buffer.Add(GetMemberEntity(member));
 			}
-			return _members;
+
+			return (IEntity[])buffer.ToArray(typeof(IEntity));
+		}
+		
+		private IEntity GetMemberEntity(TypeMember member)
+		{
+			if (null == member.Entity)
+			{
+				member.Entity = CreateEntity(member);
+			}
+			return member.Entity;
+		}
+		
+		private IEntity CreateEntity(TypeMember member)
+		{
+			switch (member.NodeType)
+			{
+				case NodeType.Field:
+				{
+					return new InternalField(_typeSystemServices,(Field)member);
+				}
+					
+				case NodeType.EnumMember:
+				{
+					return new InternalEnumMember(_typeSystemServices, (EnumMember)member);
+				}
+					
+				case NodeType.Method:
+				{
+					return new InternalMethod(_typeSystemServices, (Method)member);
+				}
+					
+				case NodeType.Constructor:
+				{
+					return new InternalConstructor(_typeSystemServices, (Constructor)member);
+				}
+					
+				case NodeType.Property:
+				{
+					return new InternalProperty(_typeSystemServices, (Property)member);
+				}
+					
+				case NodeType.Event:
+				{
+					return new InternalEvent(_typeSystemServices, (Event)member);
+				}
+			}
+			throw new ArgumentException("Member type not supported: " + member);
 		}
 		
 		public System.Type GeneratedType

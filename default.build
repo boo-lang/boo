@@ -74,6 +74,7 @@
 	<target name="Boo.Lang.Interpreter" depends="Boo.NAnt.Tasks">
 		<exec program="build/booc.exe" useruntimeengine="true">
 			<arg value="-t:library" />
+			<arg value="-v" />
 			<arg value="-out:build/Boo.Lang.Interpreter.dll" />
 			<arg value="src/Boo.Lang.Interpreter/AssemblyInfo.boo" />
 			<arg value="src/Boo.Lang.Interpreter/InteractiveInterpreter.boo" />

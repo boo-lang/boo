@@ -276,11 +276,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
-			/*
-			_buffer.Clear();
-			type.Resolve(_buffer, name, elementType);
-			System.Diagnostics.Debug.Assert(1 == _buffer.Count);
-			return (IEntity)_buffer[0];*/
 			foreach (IMember member in type.GetMembers())
 			{				
 				if (elementType == member.EntityType && name == member.Name)
@@ -308,14 +303,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return GetEntityFromList(_buffer);
 		}
 		
-		public static IEntity GetEntityFromList(Boo.Lang.List list)
+		public static IEntity GetEntityFromList(System.Collections.IList list)
 		{
 			IEntity element = null;
 			if (list.Count > 0)
 			{
 				if (list.Count > 1)
 				{
-					element = new Ambiguous((IEntity[])list.ToArray(typeof(IEntity)));
+					element = new Ambiguous(list);
 				}
 				else
 				{

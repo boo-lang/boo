@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -62,10 +62,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 					{
-						IType tag = TypeSystemServices.GetType(baseType);
-						if (!tag.IsInterface)
+						IType entity = (IType)baseType.Entity;
+						if (null != entity && !entity.IsInterface)
 						{
-							_baseType = tag;
+							_baseType = entity;
 							break;
 						}
 					}
@@ -79,9 +79,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			bool found = base.Resolve(targetList, name, flags);
 			if (!found || ContainsMethodsOnly(targetList))
 			{
-				if (BaseType.Resolve(targetList, name, flags))
+				IType baseType = this.BaseType;
+				if (null != baseType)
 				{
-					found = true;
+					if (baseType.Resolve(targetList, name, flags))
+					{
+						found = true;
+					}
 				}
 			}
 			return found;

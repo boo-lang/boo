@@ -44,8 +44,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Entity)
 			{
 				node.Entity = new InternalMethod(TypeSystemServices, node);
-				_parameters.Add(node);
 			}
+			_parameters.Add(node);
 		}
 		
 		void BindAllParameters()
@@ -63,8 +63,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Entity)
 			{
 				node.Entity = new InternalConstructor(TypeSystemServices, node);
-				_parameters.Add(node);
 			}
+			_parameters.Add(node);
 		}
 		
 		override public void OnField(Field node)
@@ -80,8 +80,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Entity)
 			{				
 				node.Entity = new InternalProperty(TypeSystemServices, node);
-				_parameters.Add(node);
 			}
+			_parameters.Add(node);
 			
 			Visit(node.Getter);
 			Visit(node.Setter);
