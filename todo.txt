@@ -1,7 +1,4 @@
-﻿* usar delegates externos
-	* delegate10.boo
-	
-* internal delegates
+﻿* internal delegates
 
 * anonymous delegate types
 	
