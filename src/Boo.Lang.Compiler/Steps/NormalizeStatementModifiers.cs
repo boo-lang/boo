@@ -148,6 +148,11 @@ namespace Boo.Lang.Compiler.Steps
 			LeaveStatement(node);
 		}
 		
+		override public void LeaveYieldStatement(YieldStatement node)
+		{
+			LeaveStatement(node);
+		}
+		
 		override public void LeaveLabelStatement(LabelStatement node)
 		{
 			if (null != node.Modifier)

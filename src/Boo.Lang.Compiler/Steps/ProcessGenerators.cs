@@ -115,6 +115,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod _yield;
 		
+		Field _externalEnumeratorSelf;
+		
 		List _labels;
 		
 		Hashtable _mapping;
@@ -143,13 +145,26 @@ namespace Boo.Lang.Compiler.Steps
 				InternalParameter entity = (InternalParameter)parameter.Entity;				
 				if (entity.IsUsed)
 				{
-					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerable, _enumerableConstructor, entity);
-					enumeratorConstructorInvocation.Arguments.Add(
-						CodeBuilder.CreateReference(field));
 					enumerableConstructorInvocation.Arguments.Add(
 						CodeBuilder.CreateReference(parameter));
+						
+					PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
+														entity.Name,
+														entity.Type);
 				}
 			}
+			
+			// propagate the external self reference if necessary
+			if (null != _externalEnumeratorSelf)
+			{				
+				enumerableConstructorInvocation.Arguments.Add(
+					CodeBuilder.CreateSelfReference(_generator.DeclaringType));
+					
+				PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
+														"self_",
+														_generator.DeclaringType);
+			}
+
 			
 			CreateGetEnumerator(enumeratorConstructorInvocation);
 			
@@ -212,7 +227,9 @@ namespace Boo.Lang.Compiler.Steps
 				InternalParameter entity = (InternalParameter)parameter.Entity;				
 				if (entity.IsUsed)
 				{
-					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor, entity);
+					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
+												entity.Name,
+												entity.Type);
 					_mapping[entity] = field.Entity;					
 				}
 			}
@@ -232,17 +249,35 @@ namespace Boo.Lang.Compiler.Steps
 					_labels));
 		}
 		
+		void PropagateFromEnumerableToEnumerator(MethodInvocationExpression enumeratorConstructorInvocation,
+												string parameterName,
+												IType parameterType)
+		{
+			Field field = DeclareFieldInitializedFromConstructorParameter(_enumerable, _enumerableConstructor, parameterName, parameterType);					
+			enumeratorConstructorInvocation.Arguments.Add(
+					CodeBuilder.CreateReference(field));
+		}
+		
 		Field DeclareFieldInitializedFromConstructorParameter(BooClassBuilder type,
 													BooMethodBuilder constructor,
-													ITypedEntity entity)
+													string parameterName,
+													IType parameterType)
 		{
-			Field field = type.AddField("___" + entity.Name + _context.AllocIndex(), entity.Type);
-			ParameterDeclaration parameter = constructor.AddParameter(entity.Name, entity.Type);
+			Field field = type.AddField("___" + parameterName + _context.AllocIndex(), parameterType);
+			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
+			return field;
+		}
+		
+		void InitializeFieldFromConstructorParameter(BooMethodBuilder constructor,
+											Field field,
+											string parameterName,
+											IType parameterType)
+		{
+			ParameterDeclaration parameter = constructor.AddParameter(parameterName, parameterType);
 			constructor.Body.Add(
 				CodeBuilder.CreateAssignment(
 					CodeBuilder.CreateReference(field),
 					CodeBuilder.CreateReference(parameter)));
-			return field;
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -255,6 +290,21 @@ namespace Boo.Lang.Compiler.Steps
 						CodeBuilder.CreateSelfReference(_enumerator.Entity),
 						mapped));
 			}
+		}
+		
+		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
+		{
+			IType type = (IType)node.ExpressionType;
+			
+			if (null == _externalEnumeratorSelf)
+			{
+				_externalEnumeratorSelf = DeclareFieldInitializedFromConstructorParameter(
+													_enumerator,
+													_enumeratorConstructor,													
+													"self_",	 type);
+			}
+			
+			ReplaceCurrentNode(CodeBuilder.CreateReference(_externalEnumeratorSelf));
 		}
 		
 		override public void LeaveYieldStatement(YieldStatement node)
