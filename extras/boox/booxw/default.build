@@ -19,6 +19,7 @@
 				<include name="resources/**/*.png" />
 				<include name="${build.dir}/*.dll" />
 				<include name="${build.dir}/boox.exe" />
+				<include name="${build.dir}/scripts/*.int" />
 			</fileset>
 		</zip>
 	</target>
@@ -107,6 +108,7 @@
 	<target name="init" depends="check-sharp-dir">
 		
 		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.dir}/scripts" />
 		
 		<call target="update-boo-libs" if="${directory::exists(boo.dir)}" />
 		
@@ -126,6 +128,11 @@
 			</fileset>
 		</copy>		
 		<copy todir="${build.dir}" file="../../SharpDevelop/boo.xshd">
+		</copy>
+		<copy todir="${build.dir}/scripts">
+			<fileset basedir="scripts">
+				<include name="*.int" />
+			</fileset>
 		</copy>
 	</target>
 	

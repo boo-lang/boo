@@ -28,6 +28,9 @@ class MainForm(Form):
 	[getter(OutputPane)]
 	_outputPane = BooExplorer.OutputPane()
 
+	[getter(TextInterceptors)]
+	_textInterceptors as (ITextInterceptor)
+
 	_argv as (string)
 
 	_menuItemClose as MenuItem
@@ -61,6 +64,8 @@ class MainForm(Form):
 					_dockPanel,
 					_status))
 		ResumeLayout(false)
+		
+		LoadInterceptors()
 		
 		_timer = Timer(Tick: _timer_Tick, Interval: 50ms.TotalMilliseconds)
 		_timer.Enabled = true
@@ -137,6 +142,27 @@ class MainForm(Form):
 			return _parser.Run().CompileUnit
 		ensure:
 			_parser.Parameters.Input.Clear()
+
+	private def LoadInterceptors():
+		tempInterceptors = []
+		for file in Directory.GetFiles("scripts", "*.int"):
+			interceptors = LoadInterceptorsFromFile(file)
+			tempInterceptors = tempInterceptors + interceptors if interceptors
+
+		_textInterceptors = array(ITextInterceptor, tempInterceptors)
+		StatusText = "Loaded ${len(_textInterceptors)} TextInterceptor(s)"
+
+	def LoadInterceptorsFromFile(fileName as string):
+		script = ScriptCompiler.CompileFile(fileName)
+		if len(script.Errors):
+			for error in script.Errors:
+				print("Compiler error: ${error}")
+			return null
+		
+		retTypes = script.GetTypes()
+		return null unless retTypes
+		return [cast(ITextInterceptor, retType()) for retType in retTypes if retType() isa ITextInterceptor]
+
 			
 	def Expand(fname as string, code as string):
 		compiler = BooCompiler()

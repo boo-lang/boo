@@ -26,6 +26,10 @@ class BooxTextAreaControl(TextEditorControl):
 			CodeComplete(ch)
 			return false
 
+		for interceptor in Editor.Main.TextInterceptors:
+			ret = interceptor.Process(ch, TextManipulator(self))
+			break unless ret
+
 		return false
 
 	def CodeComplete(ch as System.Char):
