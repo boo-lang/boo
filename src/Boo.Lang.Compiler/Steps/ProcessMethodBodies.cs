@@ -1067,6 +1067,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnSimpleTypeReference(SimpleTypeReference node)
 		{
 			NameResolutionService.ResolveSimpleTypeReference(node);
+			EnsureRelatedNodeWasVisited(node.Entity);
 		}
 		
 		override public void LeaveCallableTypeReference(CallableTypeReference node)
@@ -2784,9 +2785,12 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessEventInvocation(IEvent ev, MethodInvocationExpression node)
 		{
 			IMethod method = ev.GetRaiseMethod();
-			node.Target = CodeBuilder.CreateMemberReference(
+			if (CheckParameters(node, method, node.Arguments))
+			{
+				node.Target = CodeBuilder.CreateMemberReference(
 						((MemberReferenceExpression)node.Target).Target,
 						method);
+			}
 		}
 		
 		void ProcessTypeInvocation(MethodInvocationExpression node)

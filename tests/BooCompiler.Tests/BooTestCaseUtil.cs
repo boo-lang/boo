@@ -66,7 +66,7 @@ namespace BooCompiler.Tests
 			// <?xml... )
 			for (int i=1; i<lines; ++i)
 			{
-				Assertion.AssertEquals("Line " + (i+1) + " in " + sample, eLines[i].Trim(), aLines[i].Trim());
+				Assert.AreEqual(eLines[i].Trim(), aLines[i].Trim(), "Line " + (i+1) + " in " + sample);
 			}
 			//Assertion.AssertEquals("Line count differs for sample " + sample, eLines.Length, aLines.Length);
 		}
