@@ -69,7 +69,9 @@
 		<copy todir="bin">
 			<fileset basedir="build">
 				<includes name="Boo.dll" />
+				<includes name="Boo.NAnt.dll" />
 				<includes name="Boo.AntlrParser.dll" />
+				<includes name="antlr.runtime.dll" />
 				<includes name="booc.exe" />
 			</fileset>
 		</copy>

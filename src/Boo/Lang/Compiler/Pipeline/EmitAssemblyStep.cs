@@ -267,7 +267,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 					case NodeType.EnumDefinition:
 					{
-						types.Add(member);
+						types.Insert(0, member);
 						break;
 					}
 				}

@@ -99,7 +99,11 @@ class BooC(Task):
 		
 	private def AddReferences(parameters as CompilerParameters):
 		
-		baseDir = _references.BaseDirectory.ToString()
+		if _references.BaseDirectory:
+			baseDir = _references.BaseDirectory.ToString()
+		else:
+			baseDir = Project.BaseDirectory
+			
 		frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.ToString()
 		for reference as string in _references.Includes:
 			

@@ -381,6 +381,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void ForwaredEnumDefinition()
+		{
+			RunCompilerTestCase("enum2.boo");
+		}
+		
+		[Test]
 		public void TestVar0()
 		{
 			RunCompilerTestCase("var0.boo");
