@@ -953,16 +953,33 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void ResolveGeneratorReturnType(InternalMethod entity)
+		{
+			Method method = entity.Method;
+			
+			IType itemType = GetMostGenericType(entity.YieldExpressions);
+			BooClassBuilder generatorType = CreateGeneratorSkeleton(method.DeclaringType, method, itemType);
+			
+			method.ReturnType = CodeBuilder.CreateTypeReference(generatorType.Entity);
+		}
+		
 		void TryToResolveReturnType(InternalMethod tag)
 		{
-			if (CanResolveReturnType(tag))
+			if (tag.IsGenerator)
 			{
-				ResolveReturnType(tag);
-				CheckMethodOverride(tag);
+				ResolveGeneratorReturnType(tag);
 			}
 			else
 			{
-				Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(tag.Method));
+				if (CanResolveReturnType(tag))
+				{
+					ResolveReturnType(tag);
+					CheckMethodOverride(tag);
+				}
+				else
+				{
+					Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(tag.Method));
+				}
 			}
 		}
 		
@@ -1145,12 +1162,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CanResolveReturnType(InternalMethod tag)
 		{
-			ExpressionCollection returnExpressions = tag.ReturnExpressions;
-			if (null != returnExpressions)
+			ExpressionCollection expressions = tag.ReturnExpressions;			
+			if (null != expressions)
 			{
-				foreach (Expression rsExpression in returnExpressions)
+				foreach (Expression expression in expressions)
 				{
-					IType type = rsExpression.ExpressionType;
+					IType type = expression.ExpressionType;
 					if (null == type || TypeSystemServices.IsUnknown(type))
 					{
 						return false;
@@ -1158,6 +1175,12 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			return true;
+		}
+		
+		TypeReference GetMostGenericTypeReference(ExpressionCollection expressions)
+		{
+			IType type = MapNullToObject(GetMostGenericType(expressions));
+			return CodeBuilder.CreateTypeReference(type);
 		}
 		
 		void ResolveReturnType(InternalMethod entity)
@@ -1168,9 +1191,8 @@ namespace Boo.Lang.Compiler.Steps
 				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 			}		
 			else
-			{					
-				IType type = MapNullToObject(GetMostGenericType(entity.ReturnExpressions));
-				method.ReturnType = CodeBuilder.CreateTypeReference(type);
+			{				
+				method.ReturnType = GetMostGenericTypeReference(entity.ReturnExpressions);
 			}
 			TraceReturnType(method, entity);	
 		}
@@ -1623,7 +1645,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (!AstUtil.IsListGenerator(node.ParentNode))
 			{
-				CreateGeneratorSkeleton(node);
+				BooClassBuilder generatorType = CreateGeneratorSkeleton(node);
+				BindExpressionType(node, generatorType.Entity);
 			}
 			else
 			{
@@ -1631,7 +1654,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void CreateGeneratorSkeleton(GeneratorExpression node)
+		BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression node)
+		{
+			return CreateGeneratorSkeleton(_currentMethod.Method.DeclaringType, node, GetConcreteExpressionType(node.Expression));
+		}
+		
+		BooClassBuilder CreateGeneratorSkeleton(TypeDefinition parentType, Node node, IType generatorItemType)
 		{
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
@@ -1640,14 +1668,14 @@ namespace Boo.Lang.Compiler.Steps
 			builder.AddBaseType(TypeSystemServices.Map(typeof(Boo.Lang.AbstractGenerator)));
 			builder.AddAttribute(CodeBuilder.CreateAttribute(
 												EnumeratorItemType_Constructor,
-												CodeBuilder.CreateTypeofExpression(GetConcreteExpressionType(node.Expression))));
+												CodeBuilder.CreateTypeofExpression(generatorItemType)));
 			builder.LexicalInfo = node.LexicalInfo;
-			node["ClassBuilder"] = builder;
+			parentType.Members.Add(builder.ClassDefinition);
+			
+			node["GeneratorClassBuilder"] = builder;
 			node["GetEnumeratorBuilder"] = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
 			
-			_currentMethod.Method.DeclaringType.Members.Add(builder.ClassDefinition);
-			
-			BindExpressionType(node, builder.Entity);
+			return builder;
 		}
 		
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)
@@ -2083,6 +2111,11 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			CheckBoolContext(node.Condition);
 			LeaveLoop();
+		}
+		
+		override public void LeaveYieldStatement(YieldStatement node)
+		{
+			_currentMethod.AddYieldExpression(node.Expression);
 		}
 		
 		override public void LeaveReturnStatement(ReturnStatement node)

@@ -52,6 +52,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected ExpressionCollection _returnExpressions;
 		
+		protected ExpressionCollection _yieldExpressions;
+		
 		protected ExpressionCollection _superExpressions;
 		
 		protected Boo.Lang.List _gotos;
@@ -236,11 +238,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsGenerator
+		{
+			get
+			{
+				return null != _yieldExpressions;
+			}
+		}
+		
 		public ExpressionCollection ReturnExpressions
 		{
 			get
 			{
 				return _returnExpressions;
+			}
+		}
+		
+		public ExpressionCollection YieldExpressions
+		{
+			get
+			{
+				return _yieldExpressions;
 			}
 		}
 		
@@ -274,6 +292,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 				return (InternalLabel[])_labels.ToArray(typeof(InternalLabel));
 			}
+		}
+		
+		public void AddYieldExpression(Expression expression)
+		{
+			if (null == _yieldExpressions)
+			{
+				_yieldExpressions = new ExpressionCollection();
+			}
+			_yieldExpressions.Add(expression);
 		}
 		
 		public void AddReturnExpression(Expression expression)

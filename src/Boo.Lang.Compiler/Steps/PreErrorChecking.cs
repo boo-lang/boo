@@ -68,9 +68,9 @@ namespace Boo.Lang.Compiler.Steps
 			CheckMemberName(node);
 		}
 		
-		override public void LeaveYieldStatement(YieldStatement node)
+		override public void LeaveGivenStatement(GivenStatement node)
 		{
-			NotImplemented(node, "yield");
+			NotImplemented(node, "given");
 		}
 		
 		void CheckMemberName(TypeMember node)

@@ -64,6 +64,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_current = method;
 			Visit(method.Body);
+			
+			InternalMethod entity = (InternalMethod)method.Entity;
+			if (entity.IsGenerator)
+			{
+				GeneratorMethodProcessor processor = new GeneratorMethodProcessor(_context, entity);
+				processor.Run();
+			}
 		}
 		
 		override public void LeaveGeneratorExpression(GeneratorExpression node)
@@ -82,14 +89,30 @@ namespace Boo.Lang.Compiler.Steps
 				_collector.Initialize(_context);
 				_collector.Visit(node);
 
-				GeneratorProcessor processor = new GeneratorProcessor(_context, _collector, node);
+				GeneratorExpressionProcessor processor = new GeneratorExpressionProcessor(_context, _collector, node);
 				processor.Run();
 				ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());
 			}
 		}
 	}	
 	
-	class GeneratorProcessor : AbstractCompilerComponent
+	class GeneratorMethodProcessor : AbstractCompilerComponent
+	{
+		InternalMethod _method;
+		
+		public GeneratorMethodProcessor(CompilerContext context, InternalMethod method)
+		{
+			_method = method;
+			Initialize(context);			
+		}
+		
+		public void Run()
+		{
+			_method.Method.Body.Statements.Clear();
+		}
+	}
+	
+	class GeneratorExpressionProcessor : AbstractCompilerComponent
 	{		
 		GeneratorExpression _generator;
 		
@@ -103,7 +126,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ForeignReferenceCollector _collector;
 		
-		public GeneratorProcessor(CompilerContext context,
+		public GeneratorExpressionProcessor(CompilerContext context,
 								ForeignReferenceCollector collector,
 								GeneratorExpression node)
 		{
@@ -146,7 +169,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_collector.AdjustReferences();
 			
-			_enumerableType = (BooClassBuilder)_generator["ClassBuilder"];
+			_enumerableType = (BooClassBuilder)_generator["GeneratorClassBuilder"];
 			_collector.DeclareFieldsAndConstructor(_enumerableType);
 			
 			CreateGetEnumerator();
