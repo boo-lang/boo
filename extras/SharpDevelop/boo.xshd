@@ -60,6 +60,11 @@
 				<End >'</End>
 			</Span>
 
+			<Span name="RegEx" stopateol="false" bold="true" italic="false" color="#FF6600" >
+				<Begin >/@!/@</Begin>
+				<End >/</End>
+			</Span>
+
 			<MarkPrevious bold="false" italic="false" color="MidnightBlue" >(</MarkPrevious>
 
 			<KeyWords name="Punctuation" bold="false" italic="false" color="DarkGreen" >
