@@ -594,10 +594,6 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (NodeType.Constructor == member.NodeType)
 				{
 					Constructor constructor = (Constructor)member;
-					
-					// find the StatementGroup with name="FieldInitializers"
-					// if not found, create
-					// append the statement at the end of the group
 					Statement stmt = CreateFieldAssignment(node);
 					constructor.Body.Statements.Insert(index, stmt);
 				}
