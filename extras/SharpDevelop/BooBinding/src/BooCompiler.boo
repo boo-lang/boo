@@ -60,7 +60,10 @@ class BooCompilerWrapper:
 			args.Add("-t:winexe")
 		elif _options.CompileTarget == CompileTarget.Library:
 			args.Add("-t:library")
-			
+		
+		if _options.DuckTypingByDefault:
+			args.Add("-ducky")
+		
 		args.Add("-o:${OutputFile}")		
 		for fname in _references:
 			args.Add("-r:${fname}")

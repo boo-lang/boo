@@ -100,6 +100,14 @@ class BooCompilerParameters(AbstractProjectConfiguration):
 		set:
 			_compilerOptions.Runtime = value
 	
+	[DefaultValue(false)]
+	[LocalizedProperty("Duck typing by default", Description : "A slower but more flexible python-like mode in which types that cannot be inferred are resolved at runtime (duck typed).")]
+	DuckTypingByDefault as bool:
+		get:
+			return _compilerOptions.DuckTypingByDefault
+		set:
+			_compilerOptions.DuckTypingByDefault = value
+	
 	def constructor(name as string):
 		self.name = name
 	
@@ -123,4 +131,7 @@ class CompilerOptions:
 	
 	[XmlAttribute("pauseConsoleOutput")]
 	public PauseConsoleOutput = true
+	
+	[XmlAttribute("duckTypingByDefault")]
+	public DuckTypingByDefault = false
 	

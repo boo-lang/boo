@@ -58,8 +58,12 @@ class BooProject(AbstractProject):
 				if projectOptions != null:
 					target = projectOptions.GetAttribute("Target")
 					pauseConsoleOutput = projectOptions.GetAttribute("PauseConsoleOutput")
+					duckTypingByDefault = projectOptions.GetAttribute("duckTypingByDefault")
 					
 					if target != null and target != "":
 						parameter.CompileTarget = Enum.Parse(typeof(CompileTarget), target)
 					if pauseConsoleOutput != null and pauseConsoleOutput != "":
 						parameter.PauseConsoleOutput = Boolean.Parse(pauseConsoleOutput)
+					if duckTypingByDefault != null and duckTypingByDefault != "":
+						parameter.DuckTypingByDefault = Boolean.Parse(duckTypingByDefault)
+				
