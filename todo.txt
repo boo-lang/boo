@@ -408,6 +408,7 @@ done * raise
 * float literals: 3.0f
 * hexadecimal integer literals: 0x01
 * binary literals: 0b001
+* docbook Step (generates docbook files with all the documentation)
 	
 Milestone 3.9 (better error checking)
 -------------------------------------
@@ -420,16 +421,14 @@ Milestone 3.9 (better error checking)
 * can't create instance of enum 'XXX'
 * class 'XXX' already has a definition for a member 'YYY' with the signature 'ZZZ'
 * WARNING: unused local variable
-* WARNING: uninitialized local variable
+* WARNING: local 'xx' is used before initialization
+* WARNING: property getter should return a value
 * WARNING: unreachable code detected
 * WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?
 * WARNING: performance hit: equality operator with object references
 * method override with different accessibility
 * override accessibility checks
 * inheritance cycles (A(B), B(C), C(A))
-* get: must return a value
-
-
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
 	
@@ -438,8 +437,8 @@ Milestone 4 (delegate support)
 
 done * automatic delegate instance creation
 * automatic delegate interface adaptation
-* native regular expression support:
-	* re expression /foo/
+done * native regular expression support:
+	done * re expression /foo/
 
 Milestone 4.3 (algumas otimizações)
 ---------------------------
@@ -465,11 +464,11 @@ done * declara��o de campos
 done * declara��o de propriedades
 done * defini��o de m�todos
 done * expressões simples com inteiros
-* concatenação de strings
-* concatenação de strings com inteiros
-* classes devem ser serializ�veis
+done * concatenação de strings
+done * concatenação de strings com inteiros
+done * classes devem ser serializ�veis
 done * cria��o de objetos (classes internas)
-* chamada de m�todos est�ticos (classes internas)
+done * chamada de m�todos est�ticos (classes internas)
 done * chamada de m�todos instance
 done * null expression
 * assert macro

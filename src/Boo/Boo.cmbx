@@ -3,26 +3,23 @@
     <Execute entry="Boo" type="None" />
     <Execute entry="Boo.Tests" type="None" />
     <Execute entry="BooC" type="None" />
-    <Execute entry="Boo.Antlr" type="None" />
   </StartMode>
   <Entries>
     <Entry filename=".\Boo.prjx" />
     <Entry filename="..\Boo.Tests\Boo.Tests.prjx" />
     <Entry filename="..\BooC\BooC.prjx" />
-    <Entry filename="..\Boo.Antlr\Boo.Antlr.prjx" />
+    <Entry filename="..\Boo.AntlrParser\Boo.AntlrParser.prjx" />
   </Entries>
   <Configurations active="Debug">
     <Configuration name="Release">
       <Entry name="Boo" configurationname="Debug" build="False" />
       <Entry name="Boo.Tests" configurationname="Debug" build="False" />
       <Entry name="BooC" configurationname="Debug" build="False" />
-      <Entry name="Boo.Antlr" configurationname="Debug" build="False" />
     </Configuration>
     <Configuration name="Debug">
       <Entry name="Boo" configurationname="Debug" build="False" />
       <Entry name="Boo.Tests" configurationname="Debug" build="False" />
       <Entry name="BooC" configurationname="Debug" build="False" />
-      <Entry name="Boo.Antlr" configurationname="Debug" build="False" />
     </Configuration>
   </Configurations>
 </Combine>
