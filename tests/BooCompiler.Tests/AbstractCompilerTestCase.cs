@@ -111,7 +111,7 @@ namespace BooCompiler.Tests
 			
 			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
 			{			
-				pipeline = new CompileToFile();				
+				pipeline = new CompileToFileAndVerify();				
 			}
 			else
 			{

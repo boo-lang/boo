@@ -32,14 +32,13 @@ namespace Boo.Lang.Compiler.Pipelines
 	using Boo.Lang.Compiler.Steps;
 	
 	/// <summary>
-	/// Standard compilation pipeline: parses input files and go all
-	/// the way to assembly emission.
+	/// Verifies the generated assembly after compilation.
 	/// </summary>
-	public class CompileToFile : CompileToMemory
+	public class CompileToFileAndVerify : CompileToFile
 	{
-		public CompileToFile()
+		public CompileToFileAndVerify()
 		{				
-			Add(new SaveAssembly());
+			Add(new PEVerify());
 		}
 	}
 }

@@ -46,6 +46,7 @@ namespace Boo.Lang.Compiler
 				case "compile": return new Pipelines.Compile();
 				case "run": return new Pipelines.Run();
 				case "default": return new Pipelines.CompileToFile();
+				case "verify": return new Pipelines.CompileToFileAndVerify();
 				case "roundtrip": return new Pipelines.ParseAndPrint();
 				case "boo": return new Pipelines.CompileToBoo();
 				case "xml": return new Pipelines.ParseAndPrintXml();

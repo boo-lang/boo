@@ -300,7 +300,7 @@ namespace BooC
 			
 			if (null == options.Pipeline)
 			{
-				options.Pipeline = new CompileToFile();
+				options.Pipeline = new CompileToFileAndVerify();
 			}
 		}
 
