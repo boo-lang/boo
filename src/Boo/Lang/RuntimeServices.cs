@@ -134,14 +134,8 @@ namespace Boo.Lang
 		
 		public static string Mid(string s, int begin, int end)
 		{
-			if (begin < 0)
-			{
-				begin += s.Length;
-			}
-			if (end < 0)
-			{
-				end += s.Length;
-			}
+			begin = NormalizeStringIndex(s, begin);
+			end = NormalizeStringIndex(s, end);
 			return s.Substring(begin, end-begin);
 		}
 		
@@ -182,6 +176,11 @@ namespace Boo.Lang
 		public static int NormalizeArrayIndex(Array array, int index)
 		{
 			return index < 0 ? array.Length + index : index;
+		}
+		
+		public static int NormalizeStringIndex(string s, int index)
+		{
+			return index < 0 ? s.Length + index : index;
 		}
 		
 		public static IEnumerable GetEnumerable(object enumerable)

@@ -59,6 +59,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod RuntimeServices_Mid;
 		
+		IMethod RuntimeServices_NormalizeStringIndex;
+		
 		IMethod RuntimeServices_GetRange1;
 		
 		IMethod RuntimeServices_GetRange2;
@@ -152,7 +154,8 @@ namespace Boo.Lang.Compiler.Steps
 			RuntimeServices_GetRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
 			RuntimeServices_GetRange2 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2"); 			
 			RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
-			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");			
+			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
+			RuntimeServices_NormalizeStringIndex = ResolveMethod(TypeSystemServices.RuntimeServicesType, "NormalizeStringIndex");			
 			RuntimeServices_GetEnumerable = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");			
 			RuntimeServices_op_Equality = (IMethod)TypeSystemServices.Map(Types.RuntimeServices.GetMethod("op_Equality", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
@@ -1279,6 +1282,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		bool NeedsNormalization(Expression index)
+		{
+			if (NodeType.IntegerLiteralExpression == index.NodeType)
+			{
+				return ((IntegerLiteralExpression)index).Value < 0;
+			}
+			return true;
+		}
+		
 		void BindComplexStringSlicing(SlicingExpression node)
 		{
 			if (CheckComplexSlicingParameters(node))
@@ -1287,8 +1299,30 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null == node.End || node.End == OmittedExpression.Default)
 				{
-					mie = CodeBuilder.CreateMethodInvocation(node.Target, String_Substring_Int);
-					mie.Arguments.Add(node.Begin);
+					if (NeedsNormalization(node.Begin))
+					{
+						mie = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
+						mie.ExpressionType = TypeSystemServices.StringType;
+						
+						LocalVariable temp = DeclareTempLocal(TypeSystemServices.StringType);
+						mie.Arguments.Add(
+							CodeBuilder.CreateAssignment(
+								CodeBuilder.CreateReference(temp),
+								node.Target));
+								
+						mie.Arguments.Add(
+							CodeBuilder.CreateMethodInvocation(
+								CodeBuilder.CreateReference(temp),
+								String_Substring_Int,
+								CodeBuilder.CreateMethodInvocation(
+									RuntimeServices_NormalizeStringIndex,
+									CodeBuilder.CreateReference(temp),
+									node.Begin)));
+					}
+					else
+					{
+						mie = CodeBuilder.CreateMethodInvocation(node.Target, String_Substring_Int, node.Begin);
+					}
 				}
 				else
 				{	
@@ -3865,6 +3899,18 @@ namespace Boo.Lang.Compiler.Steps
 			Local local = new Local(reference, true);			
 			DeclareLocal(reference, local, type);
 			return reference;
+		}
+		
+		LocalVariable DeclareTempLocal(IType localType)
+		{
+			Local local  = new Local();
+			local.Name = "___temp" + _context.AllocIndex();
+			local.PrivateScope = true;
+			
+			LocalVariable entity = new LocalVariable(local, localType);
+			local.Entity = entity;
+			_currentMethod.Method.Locals.Add(local);
+			return entity;
 		}
 		
 		LocalVariable DeclareLocal(Node sourceNode, Local local, IType localType)
