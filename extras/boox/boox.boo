@@ -15,4 +15,4 @@ Thread.CurrentThread.ApartmentState = ApartmentState.STA
 HighlightingManager.Manager.AddSyntaxModeFileProvider(
 		FileSyntaxModeProvider(GetAssemblyFolder()))
 
-Application.Run(MainForm())
+Application.Run(MainForm(Argv: argv))

@@ -11,12 +11,19 @@ class MainForm(Form):
 	_dockManager as DockManager
 	_status as StatusBar
 	_statusPanel1 as StatusBarPanel
-	
+	_timer = Timer(Tick: _timer_Tick, Interval: 50ms.TotalMilliseconds)
+
 	[getter(DocumentOutline)]
 	_classBrowser = BooExplorer.DocumentOutline()
 	
 	[getter(TaskList)]
 	_taskList = BooExplorer.TaskList()
+
+	_loaded as bool = false
+	_argv as (string)
+	Argv as (string):
+		set:
+			_argv = value
 
 	_menuItemClose as MenuItem
 	_menuItemSave as MenuItem
@@ -45,6 +52,8 @@ class MainForm(Form):
 		Controls.Add(_dockManager)
 		Controls.Add(_status)
 		ResumeLayout(false)
+		
+		_timer.Enabled = true
 		
 	private def CreateMainMenu():
 		
@@ -92,6 +101,11 @@ class MainForm(Form):
 		menu.MenuItems.AddRange((file, view))
 		return menu
 		
+	def _timer_Tick(sender, args as EventArgs):
+		OpenDocument(_argv[0]) if len(_argv) == 1 and not _loaded
+		_loaded = true
+		// _timer.Enabled = false - se ahbilitado da erro de compilacao
+
 	StatusText as string:
 		set:
 			_statusPanel1.Text = value
@@ -99,7 +113,19 @@ class MainForm(Form):
 	def NewDocument():
 		editor = BooEditor(self)
 		editor.Show(_dockManager)
-		editor.TextArea.Focus()		
+		editor.TextArea.Focus()	
+
+	def OpenDocument([required] filename):
+		content = FindEditor(filename)
+		if content is null:
+			editor = BooEditor(self)
+			editor.Open(filename)
+			editor.Show(_dockManager)
+			editor.TextArea.Focus()
+		else:
+			content.Show(_dockManager)
+			content.TextArea.Focus()				
+			
 		
 	def _dockManager_ActiveDocumentChanged(sender, args as EventArgs):
 		document = _dockManager.ActiveDocument
@@ -136,15 +162,7 @@ class MainForm(Form):
 		dlg = OpenFileDialog(
 					Filter: "boo files (*.boo)|*.boo|All files (*.*)|*.*")
 		if DialogResult.OK == dlg.ShowDialog(self):
-			content = FindEditor(dlg.FileName)
-			if content is null:
-				editor = BooEditor(self)
-				editor.Open(dlg.FileName)
-				editor.Show(_dockManager)
-				editor.TextArea.Focus()
-			else:
-				content.Show(_dockManager)
-				content.TextArea.Focus()				
+			OpenDocument(dlg.FileName)
 		
 	def _menuItemNew_Click(sender, args as EventArgs):
 		NewDocument()
