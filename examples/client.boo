@@ -38,4 +38,4 @@ using stream=NetworkStream(s, true):
 	writer.WriteLine("ping!")
 	writer.Flush()
 			
-	print(StreamReader(stream).ReadLine())
+	print StreamReader(stream).ReadLine()
