@@ -40,7 +40,7 @@ namespace BooCompiler.Tests
 	[TestFixture]
 	public class LocalizationTestCase
 	{
-		const string TestCase = "foo def";
+		const string TestCase = "foo class";
 		
 		[Test]
 		public void TestNeutralCulture()

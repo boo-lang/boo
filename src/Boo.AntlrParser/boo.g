@@ -928,8 +928,8 @@ stmt [StatementCollection container]
 		s=try_stmt |
 		s=given_stmt |
 		{IsValidMacroArgument(LA(2))}? s=macro_stmt |
-		(slicing_expression (ASSIGN|DO))=> s=assignment_or_method_invocation_with_block_stmt |
-		(RETURN DO) => s=return_callable_stmt |
+		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
+		(RETURN (DO|DEF)) => s=return_callable_stmt |
 		(		
 			(				
 				s=return_stmt |
@@ -1030,8 +1030,12 @@ callable_expression returns [Expression e]
 		e = null;
 		CallableBlockExpression cbe = null;
 		TypeReference rt = null;
+		Token anchor = null;
 	}:
-	anchor:DO!
+	(
+		(doAnchor:DO! { anchor = doAnchor; }) |
+		(defAnchor:DEF! { anchor = defAnchor; })
+	)
 	{
 		e = cbe = new CallableBlockExpression(ToLexicalInfo(anchor));
 	}
@@ -1464,7 +1468,7 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 		(
 			op:ASSIGN
 			(
-				(DO)=>rhs=callable_expression |
+				(DO|DEF)=>rhs=callable_expression |
 				(
 					rhs=array_or_expression
 					(			
