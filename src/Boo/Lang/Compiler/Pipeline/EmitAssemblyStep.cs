@@ -718,41 +718,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			EmitBranchTrue(node.Condition, bodyLabel);			
 			_il.MarkLabel(endLabel);
 		}
-
-		void EmitIncrementDecrement(UnaryExpression node)
-		{
-			node.Operand.Switch(this);
-			
-			ITypeBinding type = PopType();
-			_il.Emit(OpCodes.Ldc_I4_1);
-			EmitCastIfNeeded(type, BindingManager.IntTypeBinding);
-			EmitIncrementDecrementOpCode(node.Operator);
-			
-			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);
-			if (leaveValueOnStack)
-			{
-				_il.Emit(OpCodes.Dup);
-				EmitAssignment(GetLocalBinding(node.Operand), type);
-				PushType(type);
-			}
-			else
-			{
-				EmitAssignment(GetLocalBinding(node.Operand), type);
-				PushVoid();
-			}
-		}
-		
-		void EmitIncrementDecrementOpCode(UnaryOperatorType op)
-		{
-			if (UnaryOperatorType.Increment == op)
-			{
-				_il.Emit(OpCodes.Add);
-			}
-			else
-			{
-				_il.Emit(OpCodes.Sub);
-			}
-		}		
 		
 		void EmitIntNot()
 		{
@@ -791,18 +756,6 @@ namespace Boo.Lang.Compiler.Pipeline
 						EmitGenericNot();
 					}
 					PushBool();
-					break;
-				}
-				
-				case UnaryOperatorType.Increment:
-				{
-					EmitIncrementDecrement(node);
-					break;
-				}
-				
-				case UnaryOperatorType.Decrement:
-				{
-					EmitIncrementDecrement(node);
 					break;
 				}
 				
@@ -1402,7 +1355,26 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				_il.Emit(OpCodes.Ldc_I4, (int)node.Value);
+				switch (node.Value)
+				{
+					case 0L:
+					{
+						_il.Emit(OpCodes.Ldc_I4_0);
+						break;
+					}
+					
+					case 1L:
+					{
+						_il.Emit(OpCodes.Ldc_I4_1);
+						break;
+					}
+					
+					default:
+					{
+						_il.Emit(OpCodes.Ldc_I4, (int)node.Value);
+						break;
+					}
+				}				
 				PushType(BindingManager.IntTypeBinding);
 			}			
 		}
@@ -1591,6 +1563,27 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.StringTypeBinding);
 		}
 		
+		void EmitLoadField(Expression self, IFieldBinding fieldBinding)
+		{
+			if (fieldBinding.IsStatic)
+			{
+				if (fieldBinding.DeclaringType.IsEnum)
+				{
+					_il.Emit(OpCodes.Ldc_I4, Convert.ToInt32(fieldBinding.StaticValue));							
+				}
+				else
+				{
+					_il.Emit(OpCodes.Ldsfld, GetFieldInfo(fieldBinding));							
+				}
+			}
+			else
+			{						
+				Switch(self); PopType();
+				_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldBinding));						
+			}
+			PushType(fieldBinding.BoundType);
+		}
+		
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{			
 			IBinding binding = BindingManager.GetBinding(node);
@@ -1604,24 +1597,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BindingType.Field:
 				{
-					IFieldBinding fieldBinding = (IFieldBinding)binding;
-					if (fieldBinding.IsStatic)
-					{
-						if (fieldBinding.DeclaringType.IsEnum)
-						{
-							_il.Emit(OpCodes.Ldc_I4, Convert.ToInt32(fieldBinding.StaticValue));							
-						}
-						else
-						{
-							_il.Emit(OpCodes.Ldsfld, GetFieldInfo(fieldBinding));							
-						}
-					}
-					else
-					{						
-						node.Target.Switch(this); PopType();
-						_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldBinding));						
-					}
-					PushType(fieldBinding.BoundType);
+					EmitLoadField(node.Target, (IFieldBinding)binding);
 					break;
 				}
 				

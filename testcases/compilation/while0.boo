@@ -3,9 +3,8 @@
 2
 1
 """
-
 i = 3
 
 while i > 0:
-	print(i)
+	System.Console.WriteLine(i)
 	--i

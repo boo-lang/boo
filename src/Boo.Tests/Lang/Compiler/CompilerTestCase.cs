@@ -1087,5 +1087,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("innerclass0.boo");
 		}
+		
+		[Test]
+		public void IncrementProperty()
+		{
+			RunCompilerTestCase("increment_property0.boo");
+		}
+		
+		[Test]
+		public void IncrementPropertyAndUseValue()
+		{
+			RunCompilerTestCase("increment_property1.boo");
+		}
 	}
 }

@@ -295,7 +295,7 @@ done * Cache parent namespace in InternalTypeBinding constructor
 
 * static constructors
 
-* inner types
+done * inner classes
 
 * map(callable, enumerable)
 

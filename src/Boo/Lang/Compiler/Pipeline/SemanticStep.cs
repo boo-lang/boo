@@ -1347,20 +1347,20 @@ namespace Boo.Lang.Compiler.Pipeline
 				IMemberBinding member = binding as IMemberBinding;
 				if (null != member)
 				{	
-					if (!member.IsStatic)
+					MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
+					memberRef.Name = node.Name;
+					
+					if (member.IsStatic)
 					{
-						MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
-						memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
-						memberRef.Name = node.Name;
-						
-						node.ParentNode.Replace(node, memberRef);
-						
-						Switch(memberRef);
+						memberRef.Target = new ReferenceExpression(node.LexicalInfo, member.DeclaringType.FullName);
+						Bind(memberRef.Target, member.DeclaringType);						
 					}
 					else
 					{
-						node.Name = member.FullName;
+						memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
 					}
+					node.ParentNode.Replace(node, memberRef);
+					Switch(memberRef);
 				}
 				else
 				{
@@ -1534,24 +1534,38 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		void OnIncrementDecrement(UnaryExpression node)
-		{
-			IBinding result = ErrorBinding.Default;
+		{			
 			IBinding binding = GetBinding(node.Operand);
 			if (CheckLValue(node.Operand, binding))
 			{
 				ITypedBinding typed = (ITypedBinding)binding;
 				if (!IsNumber(typed.BoundType))
 				{
-					Error(CompilerErrorFactory.InvalidOperatorForType(node,
+					Error(node, CompilerErrorFactory.InvalidOperatorForType(node,
 							GetUnaryOperatorText(node.Operator),
 							typed.BoundType.FullName));
 				}
 				else
 				{
-					result = typed.BoundType;
+					BinaryExpression addition = new BinaryExpression(
+														node.Operator == UnaryOperatorType.Increment ?
+																BinaryOperatorType.Addition : BinaryOperatorType.Subtraction,
+														node.Operand.CloneNode(),
+														new IntegerLiteralExpression(1));
+														
+					BinaryExpression assign = new BinaryExpression(node.LexicalInfo,
+													BinaryOperatorType.Assign,
+													node.Operand,
+													addition);
+													
+					node.ParentNode.Replace(node, assign);
+					Switch(assign);
 				}
 			}
-			Bind(node, result);			
+			else
+			{
+				Error(node);
+			}
 		}
 		
 		override public void LeaveUnaryExpression(UnaryExpression node)
