@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -39,7 +39,7 @@ namespace Boo.Ast.Compilation
 	/// </summary>
 	public class CompilerParameters
 	{
-		Pipeline _pipeline;
+		CompilerPipeline _pipeline;
 
 		CompilerInputCollection _input;
 
@@ -57,7 +57,7 @@ namespace Boo.Ast.Compilation
 
 		public CompilerParameters()
 		{
-			_pipeline = new Pipeline();
+			_pipeline = new CompilerPipeline();
 			_input = new CompilerInputCollection();
 			_assemblyReferences = new AssemblyCollection();
 			_assemblyReferences.Add(GetType().Assembly);
@@ -114,7 +114,7 @@ namespace Boo.Ast.Compilation
 			}
 		}
 
-		public Pipeline Pipeline
+		public CompilerPipeline Pipeline
 		{
 			get
 			{

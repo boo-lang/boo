@@ -6,7 +6,7 @@ namespace Boo.Tests.Ast.Compilation
 	using Boo.Ast;
 	using Boo.Ast.Compilation;
 	using Boo.Ast.Compilation.IO;
-	using Boo.Ast.Compilation.Steps;
+	using Boo.Ast.Compilation.Pipeline;
 	using NUnit.Framework;
 	
 	public abstract class AbstractCompilerTestCase
@@ -49,7 +49,7 @@ namespace Boo.Tests.Ast.Compilation
 			_parameters.Input.Clear();
 		}		
 		
-		protected abstract void SetUpCompilerPipeline(Pipeline pipeline);
+		protected abstract void SetUpCompilerPipeline(CompilerPipeline pipeline);
 		
 		protected void RunCompilerTestCase(string name)
 		{

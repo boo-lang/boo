@@ -4,14 +4,14 @@ namespace Boo.Tests.Ast.Compilation
 	using System.IO;
 	using Boo.Ast;
 	using Boo.Ast.Compilation;
-	using Boo.Ast.Compilation.Steps;
+	using Boo.Ast.Compilation.Pipeline;
 	using Boo.Antlr;
 	using NUnit.Framework;
 	
 	[TestFixture]
 	public class SemanticsTestCase : AbstractCompilerTestCase
 	{
-		protected override void SetUpCompilerPipeline(Pipeline pipeline)
+		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
 					Add(new Boo.Antlr.BooParsingStep()).

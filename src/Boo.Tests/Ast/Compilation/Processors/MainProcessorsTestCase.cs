@@ -32,7 +32,7 @@ using NUnit.Framework;
 using Boo.Tests;
 using Boo.Antlr;
 using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.Steps;
+using Boo.Ast.Compilation.Pipeline;
 
 namespace Boo.Tests.Ast.Compilation.Processors
 {

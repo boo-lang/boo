@@ -34,7 +34,7 @@ using Boo.Ast;
 using Boo.Antlr;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.IO;
-using Boo.Ast.Compilation.Steps;
+using Boo.Ast.Compilation.Pipeline;
 using NUnit.Framework;
 using Boo.Tests;
 

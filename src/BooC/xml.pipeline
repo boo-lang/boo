@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <pipeline extends='core'>
 
-	<step type='Boo.Ast.Compilation.Steps.XmlStep, Boo' />
+	<step type='Boo.Ast.Compilation.Pipeline.XmlStep, Boo' />
 
 </pipeline>

@@ -195,7 +195,7 @@ namespace BooC
 			return reference;
 		}
 		
-		static void LoadPipeline(Pipeline pipeline, string name)
+		static void LoadPipeline(CompilerPipeline pipeline, string name)
 		{			
 			if (!name.EndsWith(".pipeline"))
 			{				

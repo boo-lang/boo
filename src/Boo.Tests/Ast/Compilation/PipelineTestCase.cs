@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -70,12 +70,12 @@ namespace Boo.Tests.Ast.Compilation
 	[TestFixture]
 	public class PipelineTestCase : Assertion
 	{	
-		Pipeline _pipeline;
+		CompilerPipeline _pipeline;
 
 		[SetUp]
 		public void SetUp()
 		{
-			_pipeline = new Pipeline();
+			_pipeline = new CompilerPipeline();
 		}
 
 		[Test]

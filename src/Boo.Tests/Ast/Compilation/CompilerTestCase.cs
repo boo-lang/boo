@@ -33,7 +33,7 @@ using System.IO;
 using System.Reflection;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.IO;
-using Boo.Ast.Compilation.Steps;
+using Boo.Ast.Compilation.Pipeline;
 using NUnit.Framework;
 
 namespace Boo.Tests.Ast.Compilation
@@ -101,7 +101,7 @@ namespace Boo.Tests.Ast.Compilation
 	[TestFixture]
 	public class CompilerTestCase : AbstractCompilerTestCase
 	{
-		protected override void SetUpCompilerPipeline(Pipeline pipeline)
+		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
 					Add(new Boo.Antlr.BooParsingStep()).

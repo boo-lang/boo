@@ -37,16 +37,16 @@ namespace Boo.Ast.Compilation
 	/// A group of <see cref="ICompilerStep"/> implementations
 	/// that should be executed in sequence.
 	/// </summary>
-	public class Pipeline
+	public class CompilerPipeline
 	{
 		ArrayList _steps;
 
-		public Pipeline()
+		public CompilerPipeline()
 		{
 			_steps = new ArrayList();
 		}
 
-		public Pipeline Add(ICompilerStep step)
+		public CompilerPipeline Add(ICompilerStep step)
 		{
 			if (null == step)
 			{

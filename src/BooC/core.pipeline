@@ -2,10 +2,10 @@
 <pipeline>
 
 	<step type='Boo.Antlr.BooParsingStep, Boo.Antlr' />
-	<step type='Boo.Ast.Compilation.Steps.UsingResolutionStep, Boo' />
-	<step type='Boo.Ast.Compilation.Steps.AstAttributesStep, Boo' />
-	<step type='Boo.Ast.Compilation.Steps.ModuleStep, Boo' />
-	<step type='Boo.Ast.Compilation.Steps.AstNormalizationStep, Boo' />
-	<step type='Boo.Ast.Compilation.Steps.SemanticStep, Boo' />
+	<step type='Boo.Ast.Compilation.Pipeline.UsingResolutionStep, Boo' />
+	<step type='Boo.Ast.Compilation.Pipeline.AstAttributesStep, Boo' />
+	<step type='Boo.Ast.Compilation.Pipeline.ModuleStep, Boo' />
+	<step type='Boo.Ast.Compilation.Pipeline.AstNormalizationStep, Boo' />
+	<step type='Boo.Ast.Compilation.Pipeline.SemanticStep, Boo' />
 
 </pipeline>
