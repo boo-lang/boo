@@ -35,6 +35,8 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	public class BindingManager
 	{		
+		public ExternalTypeBinding ExceptionTypeBinding;
+		
 		public ExternalTypeBinding ApplicationExceptionBinding;
 		
 		public ExternalTypeBinding ObjectTypeBinding;
@@ -82,11 +84,21 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));
 			Cache(ObjectArrayBinding = new ExternalTypeBinding(this, Types.ObjectArray));
 			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
+			Cache(ExceptionTypeBinding = new ExternalTypeBinding(this, Types.Exception));
 		}
 		
 		public Boo.Lang.Ast.TypeReference CreateBoundTypeReference(ITypeBinding binding)
 		{
-			TypeReference typeReference = new TypeReference(binding.FullName);
+			TypeReference typeReference = null;
+			
+			if (binding.IsArray)
+			{
+				typeReference = new TupleTypeReference(CreateBoundTypeReference(binding.GetElementType()));
+			}
+			else
+			{				
+				typeReference = new SimpleTypeReference(binding.FullName);				
+			}
 			Bind(typeReference, ToTypeReference(binding));
 			return typeReference;
 		}

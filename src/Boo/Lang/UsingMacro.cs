@@ -82,7 +82,7 @@ namespace Boo.Lang
 			stmt.Expression = new BinaryExpression(
 								BinaryOperatorType.Assign,
 								new ReferenceExpression(DisposableLocalName),
-								new AsExpression(reference, new TypeReference("System.IDisposable"))
+								new AsExpression(reference, new SimpleTypeReference("System.IDisposable"))
 								);			
 			
 			stmt.TrueBlock = new Block();

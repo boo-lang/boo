@@ -39,11 +39,11 @@ namespace Boo.Lang.Ast
 		{
  		}
 		
-		public IntegerLiteralExpression(string value) : base(value)
+		public IntegerLiteralExpression(long value) : base(value)
 		{
 		}
 		
-		public IntegerLiteralExpression(LexicalInfo lexicalInfo, string value) : base(lexicalInfo, value)
+		public IntegerLiteralExpression(LexicalInfo lexicalInfo, long value) : base(lexicalInfo, value)
 		{
 		}
 		

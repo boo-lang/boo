@@ -704,8 +704,9 @@ type_reference returns [TypeReference tr]
 	}: 
 	id=identifier
 	{
-		tr = new TypeReference(ToLexicalInfo(id));
-		tr.Name = id.getText();
+		SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
+		str.Name = id.getText();
+		tr = str;
 	}
 	;
 
@@ -1502,7 +1503,7 @@ integer_literal returns [IntegerLiteralExpression e] { e = null; } :
 	i:INT
 	{
 		e = new IntegerLiteralExpression(ToLexicalInfo(i));
-		e.Value = i.getText();
+		e.Value = long.Parse(i.getText());
 	}
 	;
 	

@@ -1,4 +1,3 @@
-
 <Project name="Boo.Tests" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
     <File name=".\AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -16,7 +15,12 @@
     <File name=".\Lang\Compiler\SystemDrawingPoint.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Processors\AstAttributeProcessorTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
-  <References />
+  <References>
+    <Reference type="Project" refto="Boo.Antlr" localcopy="True" />
+    <Reference type="Project" refto="Boo" localcopy="True" />
+    <Reference type="Assembly" refto="d:\dotnet\nunit\bin\nunit.framework.dll" localcopy="True" />
+    <Reference type="Assembly" refto="d:\dev\boo\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
+  </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="False" name="Debug">
     <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />

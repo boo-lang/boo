@@ -233,7 +233,7 @@ namespace Boo.Lang.Ast.Visitors
 			Switch(p.Type);
 		}
 
-		public override void OnTypeReference(TypeReference t)
+		public override void OnSimpleTypeReference(SimpleTypeReference t)
 		{			
 			WriteKeyword(" as ");
 			Write(t.Name);
@@ -877,7 +877,7 @@ namespace Boo.Lang.Ast.Visitors
 				for (int i=0; i<td.BaseTypes.Count; ++i)
 				{
 					if (i > 0) { Write(", "); }
-					Write(td.BaseTypes[i].Name);
+					Write(((SimpleTypeReference)td.BaseTypes[i]).Name);
 				}
 				Write(")");
 			}

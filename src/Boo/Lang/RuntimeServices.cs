@@ -60,6 +60,11 @@ namespace Boo.Lang
 			}
 		}
 		
+		public static int NormalizeArrayIndex(Array array, int index)
+		{
+			return index < 0 ? array.Length + index : index;
+		}
+		
 		public static IEnumerable GetEnumerable(object enumerable)
 		{
 			if (null == enumerable)

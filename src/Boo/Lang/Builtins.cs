@@ -41,6 +41,11 @@ namespace Boo.Lang
 		{
 			Console.WriteLine(s);
 		}
+		
+		public static void print(object o)
+		{
+			Console.WriteLine(o);
+		}
 
 		public static string gets()
 		{
@@ -59,6 +64,22 @@ namespace Boo.Lang
 			return new EnumerateEnumerator(RuntimeServices.GetEnumerable(enumerable).GetEnumerator());
 		}
 		
+		public static IEnumerable range(int max)
+		{
+			if (max < 0)
+			{
+				throw new ArgumentOutOfRangeException("max");
+			}
+			
+			return new RangeEnumerator(max);
+		}
+		
+		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
+		public static IEnumerable zip(params object[] enumerables)
+		{
+			return null;
+		}
+		
 		public static void assert(string message, bool condition)
 		{
 			throw new System.NotImplementedException();
@@ -67,6 +88,45 @@ namespace Boo.Lang
 		public static void assert(bool condition)
 		{
 			throw new System.NotImplementedException();
+		}
+		
+		private class RangeEnumerator : IEnumerator, IEnumerable
+		{
+			int _index = -1;
+			int _max;
+			
+			public RangeEnumerator(int max)
+			{
+				_max = max-1;
+			}
+			
+			public void Reset()
+			{
+				_index = -1;
+			}
+			
+			public bool MoveNext()
+			{
+				if (_index < _max)
+				{	
+					++_index;
+					return true;
+				}
+				return false;
+			}
+			
+			public object Current
+			{
+				get
+				{
+					return _index;
+				}
+			}
+			
+			public IEnumerator GetEnumerator()
+			{
+				return this;
+			}
 		}
 		
 		private class EnumerateEnumerator : IEnumerator, IEnumerable

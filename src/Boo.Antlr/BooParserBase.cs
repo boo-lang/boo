@@ -1620,7 +1620,7 @@ _loop27_breakloop:				;
 			{
 				
 						e = new IntegerLiteralExpression(ToLexicalInfo(i));
-						e.Value = i.getText();
+						e.Value = long.Parse(i.getText());
 					
 			}
 		}
@@ -2217,8 +2217,9 @@ _loop70_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						tr = new TypeReference(ToLexicalInfo(id));
-						tr.Name = id.getText();
+						SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
+						str.Name = id.getText();
+						tr = str;
 					
 			}
 		}

@@ -45,6 +45,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		IConstructorBinding[] _constructors;
 		
+		ITypeBinding _elementType;
+		
 		internal ExternalTypeBinding(BindingManager manager, Type type)
 		{
 			if (null == type)
@@ -53,6 +55,10 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 			_bindingManager = manager;
 			_type = type;
+			if (_type.IsArray)
+			{
+				_elementType = _bindingManager.ToTypeBinding(type.GetElementType());
+			}
 		}
 		
 		public bool IsResolved
@@ -140,6 +146,11 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				return _type.IsArray;
 			}
+		}
+		
+		public ITypeBinding GetElementType()
+		{
+			return _elementType;
 		}
 		
 		public ITypeBinding BaseType

@@ -194,6 +194,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public ITypeBinding GetElementType()
+		{
+			return null;
+		}
+		
 		public virtual BindingType BindingType
 		{
 			get

@@ -201,7 +201,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (NodeType.IntegerLiteralExpression == node.Operand.NodeType)
 				{
 					IntegerLiteralExpression integer = (IntegerLiteralExpression)node.Operand;
-					integer.Value = (long.Parse(integer.Value)*-1).ToString();
+					integer.Value *= -1;
 					integer.LexicalInfo = node.LexicalInfo;
 					resultingNode = integer;
 				}

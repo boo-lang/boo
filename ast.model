@@ -29,9 +29,17 @@ package Boo.Ast
 	class TypeMemberCollection
 	end
 	
+	[abstract]
 	class TypeReference(Node)
+	end
+	
+	class SimpleTypeReference(TypeReference)		
 		Name as string
-	end	
+	end
+	
+	class TupleTypeReference(TypeReference)
+		ElementType as TypeReference
+	end
 	
 	[ItemType(TypeReference)]
 	<<collection>>
@@ -399,7 +407,7 @@ package Boo.Ast
 	end
 	
 	class IntegerLiteralExpression(LiteralExpression)
-		Value as string
+		Value as long
 	end
 	
 	class NullLiteralExpression(LiteralExpression)

@@ -658,7 +658,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnTypeReference(TypeReference node, ref TypeReference resultingNode)
+		public override void OnSimpleTypeReference(SimpleTypeReference node, ref TypeReference resultingNode)
 		{
 			if (BindingManager.IsBound(node))
 			{
@@ -691,6 +691,22 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void OnStringLiteralExpression(StringLiteralExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.StringTypeBinding);
+		}
+		
+		public override void LeaveSlicingExpression(SlicingExpression node, ref Expression resultingNode)
+		{
+			if (null != node.End || null != node.Step)
+			{
+				NotImplemented(node, "full slicing");
+			}
+			
+			ITypeBinding targetType = GetBoundType(node.Target);
+			if (!targetType.IsArray)
+			{
+				NotImplemented(node, "slice for anything but arrays");
+			}
+			
+			BindingManager.Bind(node, targetType.GetElementType());
 		}
 		
 		public override void LeaveStringFormattingExpression(StringFormattingExpression node, ref Expression resultingNode)
@@ -889,8 +905,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (null == node.Declaration.Type)
 			{
-				node.Declaration.Type = new TypeReference("System.Exception");
-				BindingManager.Bind(node.Declaration.Type, BindingManager.ToTypeReference(Types.Exception));
+				node.Declaration.Type = CreateBoundTypeReference(BindingManager.ExceptionTypeBinding);				
 			}
 			else
 			{
@@ -921,7 +936,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				default:
 				{
 					BindingManager.Error(node);
-					Errors.Add(CompilerErrorFactory.NotImplemented(node, "unary operator not supported"));
+					NotImplemented(node, "unary operator not supported");
 					break;
 				}
 			}
@@ -1019,7 +1034,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 					if (null == binding)
 					{
-						Errors.Add(CompilerErrorFactory.NotImplemented(node, "InPlaceAdd"));
+						NotImplemented(node, "InPlaceAdd");
 					}
 					
 					IEventBinding eventBinding = (IEventBinding)binding;
@@ -1157,7 +1172,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					Errors.Add(CompilerErrorFactory.NotImplemented(node, targetBinding.ToString()));
+					NotImplemented(node, targetBinding.ToString());
 					break;
 				}
 			}
@@ -1319,15 +1334,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			foreach (ExpressionPair arg in arguments)
 			{			
-				arg.Second = Switch(arg.Second);				
+				arg.Second = Switch(arg.Second);
 				
-				ReferenceExpression name = arg.First as ReferenceExpression;
-				if (null == name)
+				if (NodeType.ReferenceExpression != arg.First.NodeType)
 				{
 					Errors.Add(CompilerErrorFactory.NamedParameterMustBeIdentifier(arg));
 					continue;				
 				}
 				
+				ReferenceExpression name = (ReferenceExpression)arg.First;
 				IMemberBinding member = ResolvePublicFieldPropertyEvent(name, typeBinding, name.Name);
 				if (null == member)				    
 				{					
@@ -1715,8 +1730,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{				
 				if (null == d.Type)
 				{
-					d.Type = new TypeReference(defaultDeclType.FullName);
-					BindingManager.Bind(d.Type, defaultDeclType);
+					d.Type = CreateBoundTypeReference(defaultDeclType);
 				}
 				else
 				{
@@ -1762,7 +1776,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		string GetSignature(IMethodBinding binding)
 		{
 			return BindingManager.GetSignature(binding);
-		}		
+		}
+
+		void NotImplemented(Node node, string feature)
+		{
+			throw CompilerErrorFactory.NotImplemented(node, feature);
+		}
 		
 		void TraceOverride(Method method, IMethodBinding baseMethod)
 		{

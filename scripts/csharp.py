@@ -29,14 +29,17 @@ def getNonAutoFields(fields):
 		if isNotCollectionField(field) and not "auto" in field.attributes:
 			yield field
 
-def getResultTransformerNode(item):
+def getResultTransformerNode(item):		
 	expression = item.model.resolve("Expression")
 	statement = item.model.resolve("Statement")
+	typeReference = item.model.resolve("TypeReference")
 	for baseType in resolveBaseTypes(item):
 		if baseType == expression:
 			return "Expression"
 		if baseType == statement:
 			return "Statement"
+		if baseType == typeReference:
+			return "TypeReference"
 	return item.name
 			
 def resolveBaseTypes(item):

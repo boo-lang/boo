@@ -47,6 +47,15 @@ namespace Boo.Lang
 			_list = new ArrayList();
 		}
 		
+		public List(IEnumerable enumerable)
+		{
+			_list = new ArrayList();
+			foreach (object item in enumerable)
+			{
+				_list.Add(item);
+			}
+		}
+		
 		public List(int initialCapacity)
 		{
 			_list = new ArrayList(initialCapacity);

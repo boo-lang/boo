@@ -111,12 +111,12 @@ namespace Boo.Tests.Ast.Parsing
 			Method m = (Method)cd.Members[0];
 			Assert.AreEqual("getTitle", m.Name);
 			Assert.IsNotNull(m.ReturnType, "ReturnType");
-			Assert.AreEqual("string", m.ReturnType.Name);
+			Assert.AreEqual("string", ((SimpleTypeReference)m.ReturnType).Name);
 
 			m = (Method)cd.Members[1];
 			Assert.AreEqual("getBody", m.Name);
 			Assert.IsNotNull(m.ReturnType, "ReturnType");
-			Assert.AreEqual("string", m.ReturnType.Name);
+			Assert.AreEqual("string", ((SimpleTypeReference)m.ReturnType).Name);
 
 			m = (Method)cd.Members[2];
 			Assert.AreEqual("getTag", m.Name);
@@ -136,14 +136,14 @@ namespace Boo.Tests.Ast.Parsing
 			Field f = (Field)cd.Members[0];
 			Assert.AreEqual("_name", f.Name);
 			Assert.IsNotNull(f.Type, "Field.Type");
-			Assert.AreEqual("string", f.Type.Name);
+			Assert.AreEqual("string", ((SimpleTypeReference)f.Type).Name);
 
 			Constructor c = (Constructor)cd.Members[1];
 			Assert.AreEqual("constructor", c.Name);
 			Assert.IsNull(c.ReturnType);
 			Assert.AreEqual(1, c.Parameters.Count, "Parameters.Count");
 			Assert.AreEqual("name", c.Parameters[0].Name);
-			Assert.AreEqual("string", c.Parameters[0].Type.Name);
+			Assert.AreEqual("string", ((SimpleTypeReference)c.Parameters[0].Type).Name);
 
 			Method m = (Method)cd.Members[2];
 			Assert.AreEqual("getName", m.Name);
@@ -178,8 +178,8 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.AreEqual("square", m.Name);
 			Assert.AreEqual(1, m.Parameters.Count);
 			Assert.AreEqual("x", m.Parameters[0].Name);
-			Assert.AreEqual("int", m.Parameters[0].Type.Name);
-			Assert.AreEqual("int", m.ReturnType.Name);
+			Assert.AreEqual("int", ((SimpleTypeReference)m.Parameters[0].Type).Name);
+			Assert.AreEqual("int", ((SimpleTypeReference)m.ReturnType).Name);
 			
 			Block b = m.Body;
 			Assert.AreEqual(1, b.Statements.Count);
@@ -240,11 +240,11 @@ namespace Boo.Tests.Ast.Parsing
 
 			mce = (MethodInvocationExpression)be.Left;
 			IntegerLiteralExpression ile = (IntegerLiteralExpression)mce.Arguments[0];
-			Assert.AreEqual("3", ile.Value);
+			Assert.AreEqual(3, ile.Value);
 
 			mce = (MethodInvocationExpression)be.Right;
 			ile = (IntegerLiteralExpression)mce.Arguments[0];
-			Assert.AreEqual("5", ile.Value);
+			Assert.AreEqual(5, ile.Value);
 		}
 
 		[Test]
@@ -260,7 +260,7 @@ namespace Boo.Tests.Ast.Parsing
 			BinaryExpression be = (BinaryExpression)rs.Modifier.Condition;
 			Assert.AreEqual(BinaryOperatorType.LessThan, be.Operator);
 			Assert.AreEqual("n", ((ReferenceExpression)be.Left).Name);
-			Assert.AreEqual("2", ((IntegerLiteralExpression)be.Right).Value);
+			Assert.AreEqual(2, ((IntegerLiteralExpression)be.Right).Value);
 		}
 
 		[Test]
@@ -288,7 +288,7 @@ namespace Boo.Tests.Ast.Parsing
 			Method m = (Method)cd.Members[0];
 			Assert.AreEqual(TypeMemberModifiers.Static, m.Modifiers);
 			Assert.AreEqual("square", m.Name);
-			Assert.AreEqual("int", m.ReturnType.Name);
+			Assert.AreEqual("int", ((SimpleTypeReference)m.ReturnType).Name);
 		}
 
 		[Test]
@@ -321,7 +321,7 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.AreEqual(3, lle.Items.Count);
 			for (int i=0; i<3; ++i)
 			{
-				Assert.AreEqual((i+1).ToString(), ((IntegerLiteralExpression)lle.Items[i]).Value);
+				Assert.AreEqual(i+1, ((IntegerLiteralExpression)lle.Items[i]).Value);
 			}
 
 			Assert.AreEqual(1, fs.Block.Statements.Count);
@@ -402,21 +402,21 @@ namespace Boo.Tests.Ast.Parsing
 			
 			Property p = (Property)id.Members[0];
 			Assert.AreEqual("Parent", p.Name);
-			Assert.AreEqual("IContentItem", p.Type.Name);
+			Assert.AreEqual("IContentItem", ((SimpleTypeReference)p.Type).Name);
 			Assert.IsNotNull(p.Getter, "Getter");
 			Assert.IsNull(p.Setter, "Setter");
 
 			p = (Property)id.Members[1];
 			Assert.AreEqual("Name", p.Name);
-			Assert.AreEqual("string", p.Type.Name);
+			Assert.AreEqual("string", ((SimpleTypeReference)p.Type).Name);
 			Assert.IsNotNull(p.Getter, "Getter");
 			Assert.IsNotNull(p.Setter, "Setter");
 
 			Method m = (Method)id.Members[2];
 			Assert.AreEqual("SelectItem", m.Name);
-			Assert.AreEqual("IContentItem", m.ReturnType.Name);
+			Assert.AreEqual("IContentItem", ((SimpleTypeReference)m.ReturnType).Name);
 			Assert.AreEqual("expression", m.Parameters[0].Name);
-			Assert.AreEqual("string", m.Parameters[0].Type.Name);
+			Assert.AreEqual("string", ((SimpleTypeReference)m.Parameters[0].Type).Name);
 
 			Assert.AreEqual("Validate", ((Method)id.Members[3]).Name);
 			Assert.AreEqual("OnRemove", ((Method)id.Members[4]).Name);
@@ -439,9 +439,9 @@ namespace Boo.Tests.Ast.Parsing
 			ed = (EnumDefinition)module.Members[1];
 			Assert.AreEqual(3, ed.Members.Count);
 			Assert.AreEqual("Easy", ed.Members[0].Name);
-			Assert.AreEqual("0", ((EnumMember)ed.Members[0]).Initializer.Value);
+			Assert.AreEqual(0, ((EnumMember)ed.Members[0]).Initializer.Value);
 			Assert.AreEqual("Normal", ed.Members[1].Name);
-			Assert.AreEqual("5", ((EnumMember)ed.Members[1]).Initializer.Value);
+			Assert.AreEqual(5, ((EnumMember)ed.Members[1]).Initializer.Value);
 			Assert.AreEqual("Hard", ed.Members[2].Name);
 			Assert.IsNull(((EnumMember)ed.Members[2]).Initializer, "Initializer");
 		}
@@ -458,7 +458,7 @@ namespace Boo.Tests.Ast.Parsing
 
 			Property p = (Property)cd.Members[3];
 			Assert.AreEqual("ID", p.Name);
-			Assert.AreEqual("string", p.Type.Name);
+			Assert.AreEqual("string", ((SimpleTypeReference)p.Type).Name);
 			Assert.IsNotNull(p.Getter, "Getter");
 			Assert.AreEqual(1, p.Getter.Body.Statements.Count);
 			Assert.AreEqual("_id", ((ReferenceExpression)((ReturnStatement)p.Getter.Body.Statements[0]).Expression).Name);
@@ -466,7 +466,7 @@ namespace Boo.Tests.Ast.Parsing
 
 			p = (Property)cd.Members[4];
 			Assert.AreEqual("Name", p.Name);
-			Assert.AreEqual("string", p.Type.Name);
+			Assert.AreEqual("string", ((SimpleTypeReference)p.Type).Name);
 			Assert.IsNotNull(p.Getter, "Getter ");
 			Assert.AreEqual(1, p.Getter.Body.Statements.Count);
 			Assert.AreEqual("_name", ((ReferenceExpression)((ReturnStatement)p.Getter.Body.Statements[0]).Expression).Name);

@@ -1,4 +1,3 @@
-
 <Project name="Boo" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
     <File name=".\AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -79,6 +78,7 @@
     <File name=".\Lang\Ast\RetryStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\ReturnStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\SelfLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\SimpleTypeReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\SlicingExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Statement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\StatementCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -91,6 +91,7 @@
     <File name=".\Lang\Ast\TimeSpanLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TryStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TupleLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\TupleTypeReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TypeDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TypeDefinitionCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\TypeMember.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -161,6 +162,7 @@
     <File name=".\Lang\Ast\Impl\RetryStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\ReturnStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\SelfLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Impl\SimpleTypeReferenceImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\SlicingExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\StatementCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\StatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -172,6 +174,7 @@
     <File name=".\Lang\Ast\Impl\TimeSpanLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TryStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TupleLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Impl\TupleTypeReferenceImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TypeDefinitionCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TypeDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\TypeMemberCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

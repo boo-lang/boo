@@ -84,6 +84,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static MethodInfo RuntimeServices_CheckArrayUnpack = Types.RuntimeServices.GetMethod("CheckArrayUnpack");
 		
+		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
+		
 		static MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
 		
 		static MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
@@ -760,7 +762,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
-			_il.Emit(OpCodes.Ldc_I4, int.Parse(node.Value));
+			_il.Emit(OpCodes.Ldc_I4, (int)node.Value);
 			PushType(BindingManager.IntTypeBinding);
 		}
 		
@@ -809,6 +811,57 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
 			PushType(BindingManager.StringTypeBinding);
+		}
+		
+		public override void OnSlicingExpression(SlicingExpression node)
+		{
+			Switch(node.Target); 			
+			ITypeBinding type = PopType();
+
+			bool isNegative = false;
+			if (CanBeNegative(node.Begin, ref isNegative))
+			{					
+				if (isNegative)
+				{					
+					_il.Emit(OpCodes.Dup);
+					_il.Emit(OpCodes.Ldlen);
+					LoadInt(node.Begin);
+					_il.Emit(OpCodes.Add);
+				}
+				else
+				{
+					_il.Emit(OpCodes.Dup);
+					LoadInt(node.Begin);
+					_il.EmitCall(OpCodes.Call, RuntimeServices_NormalizeArrayIndex, null);
+				}
+			}
+			else
+			{
+				LoadInt(node.Begin);
+			}
+			_il.Emit(OpCodes.Ldelem_Ref);
+			
+			PushType(type.GetElementType());
+		}
+		
+		bool CanBeNegative(Expression expression, ref bool isNegative)
+		{
+			IntegerLiteralExpression integer = expression as IntegerLiteralExpression;
+			if (null != integer)
+			{
+				if (integer.Value >= 0)
+				{
+					return false;
+				}
+				isNegative = true;
+			}
+			return true;
+		}
+		
+		void LoadInt(Expression expression)
+		{
+			Switch(expression);
+			EmitCastIfNeeded(BindingManager.IntTypeBinding, PopType());
 		}
 		
 		public override void OnStringFormattingExpression(StringFormattingExpression node)
@@ -1194,7 +1247,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ldloc, localIndex);
 			_il.Emit(OpCodes.Ldelem_Ref);
 			
-			EmitUnpackForDeclarations(node.Declarations, ToTypeBinding(iteratorType.GetElementType()));
+			EmitUnpackForDeclarations(node.Declarations, iteratorTypeBinding.GetElementType());
 			
 			Switch(node.Block);
 			
@@ -1218,9 +1271,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			else
 			{
 				if (topOfStack.IsArray)
-				{	
-					Type elementType = GetType(topOfStack).GetElementType();
-					ITypeBinding elementTypeBinding = ToTypeBinding(elementType);
+				{						
+					ITypeBinding elementTypeBinding = topOfStack.GetElementType();
 					
 					// RuntimeServices.CheckArrayUnpack(array, decls.Count);					
 					_il.Emit(OpCodes.Dup);

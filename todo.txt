@@ -144,17 +144,22 @@ done * propriedades podem ser declaradas em qualquer ordem
 	done * usar tipos em atributos (sem precisar do typeof)
 	done * atributos para métodos
 	* indexers (eg: collection[0], collection["rodrigob"])
-		* tuple indexer
+		done * tuple indexer
+		* negative tuple indexer
 		* generic indexer (DefaultMemberAttribute)
-	* timespan literals	
-	* user métodos definidos em outros módulos no namespace global
+	* timespan literals
 	* tuples should be of the most generic type for its elements:
 		eg:
 			("rodrigo", "bamboo") should be (string) <= string[]
 			("foo", 3) should be object
-		
+	* len special function:
+		* for tuples, array.Length
+		* for lists, list.Count
+		* for strings, string.Length
+	* zip: versão com dois argumentos		
 	* implementação de interfaces
 		* pelo menos suporte a propriedades
+	* user métodos definidos em outros módulos no namespace global
 
 * mecanismo de inferência de tipos deve utilizar um Grafo mais completo contendo
 a informação de dependência de nós para cada nó na lista pending, o método
@@ -166,6 +171,9 @@ na lista de dependências tenha sido alterado
 	* renomear BinaryOperatorType.Reference(E|Ine)quality para Is(Not)
 	* implementar checagem de tipo quando o argumento da direita for uma
 	TypeReference
+	
+* simplificar tratamento do operador typeof, basta fazer seu binding como
+TypeReference
 
 * logical operators
 	* or

@@ -189,6 +189,8 @@ namespace Boo.Lang.Compiler.Bindings
 			get;
 		}
 		
+		ITypeBinding GetElementType();
+		
 		ITypeBinding BaseType
 		{
 			get;
