@@ -1185,6 +1185,11 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)
 		{
 			BindExpressionType(node, TypeSystemServices.HashType);
+			foreach (ExpressionPair pair in node.Items)
+			{
+				GetConcreteExpressionType(pair.First);
+				GetConcreteExpressionType(pair.Second);
+			}
 		}
 		
 		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)

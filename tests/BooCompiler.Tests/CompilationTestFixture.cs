@@ -1362,6 +1362,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void UseFunctionsInHashLiterals()
+		{
+			RunCompilerTestCase("callable17.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");

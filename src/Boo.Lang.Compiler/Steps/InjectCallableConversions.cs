@@ -114,6 +114,21 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 		}
 		
+		override public void LeaveExpressionPair(ExpressionPair pair)
+		{
+			Expression converted = ConvertExpression(pair.First);
+			if (null != converted)
+			{
+				pair.First = converted;
+			}
+			
+			converted = ConvertExpression(pair.Second);
+			if (null != converted)
+			{
+				pair.Second = converted;
+			}
+		}
+		
 		override public void LeaveListLiteralExpression(ListLiteralExpression node)
 		{
 			ConvertExpressions(node.Items);

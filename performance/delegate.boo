@@ -8,12 +8,12 @@ def applyCallable(fn as ICallable, iterator):
 		
 def timeit(name, fn as ICallable):
 	start = date.Now
-	fn(foo, range(100000))
+	fn(foo, range(5000000))
 	print("${name} took ${date.Now-start}")
 		
 def foo(item):
 	pass
 	
-timeit("DynamicInvoke", applyDelegate)
-timeit("Call", applyCallable)
+timeit("Delegate.DynamicInvoke", applyDelegate)
+timeit("ICallable.Call", applyCallable)
 	
