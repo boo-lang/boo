@@ -7,7 +7,7 @@ import System.Drawing
 import Boo.AntlrParser
 import Boo.Lang.Compiler.Ast
 
-class ClassBrowser(Content):
+class DocumentOutline(Content):
 	
 	_activeDocument as BooEditor
 	_tree as TreeView
@@ -31,7 +31,7 @@ class ClassBrowser(Content):
 		self.DockPadding.Top = 26
 		self.HideOnClose = true
 		self.ShowHint = WeifenLuo.WinFormsUI.DockState.DockRight
-		self.Text = /*self.TabText =*/ "Class Browser"
+		self.Text = "Document Outline"
 		ResumeLayout(false)
 		
 	ActiveDocument as BooEditor:
@@ -69,13 +69,16 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		_tree = tree
 		
 	override def OnCompileUnit(node as CompileUnit):
+		
+		_current = TreeNode("root")
+		Switch(node.Modules)
+		
 		_tree.SuspendLayout()
-		try:
-			_tree.Nodes.Clear()
-			Switch(node.Modules)
-			_tree.ExpandAll()
-		ensure:
-			_tree.ResumeLayout(false)
+		_tree.Nodes.Clear()
+		for node as TreeNode in _current.Nodes:			
+			_tree.Nodes.Add(node)
+		_tree.ExpandAll()
+		_tree.ResumeLayout(false)
 		
 	override def OnModule(node as Module):
 		if node.Namespace:

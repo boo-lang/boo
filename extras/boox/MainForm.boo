@@ -10,8 +10,8 @@ class MainForm(Form):
 	_dockManager as DockManager
 	_status as StatusBar
 	
-	[getter(ClassBrowser)]
-	_classBrowser = BooExplorer.ClassBrowser()
+	[getter(DocumentOutline)]
+	_classBrowser = BooExplorer.DocumentOutline()
 	
 	def constructor():		
 		_dockManager = DockManager(Dock: DockStyle.Fill,
@@ -40,7 +40,7 @@ class MainForm(Form):
 		file.MenuItems.Add(MenuItem(Text: "&New", Click: _menuItemNew_Click))
 		
 		tools = MenuItem(Text: "&Tools")
-		tools.MenuItems.Add(MenuItem(Text: "Class Browser", Click: _menuItemClassBrowser_Click))
+		tools.MenuItems.Add(MenuItem(Text: "Document Outline", Click: _menuItemDocumentOutline_Click))
 		
 		menu.MenuItems.AddRange((file, tools))
 		return menu
@@ -52,7 +52,7 @@ class MainForm(Form):
 		editor = _dockManager.ActiveDocument as BooEditor		
 		_classBrowser.ActiveDocument = editor
 		
-	def _menuItemClassBrowser_Click(sender, args as EventArgs):
+	def _menuItemDocumentOutline_Click(sender, args as EventArgs):
 		_classBrowser.Show(_dockManager)
 		
 	def _menuItemOpen_Click(sender, args as EventArgs):
