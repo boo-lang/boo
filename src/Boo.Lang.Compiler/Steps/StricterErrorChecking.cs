@@ -71,6 +71,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
+			CheckMembers(node);
+		}
+		
+		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
+		{
+			CheckMembers(node);
+		}
+		
+		void CheckMembers(TypeDefinition node)
+		{
 			_members.Clear();
 			
 			foreach (TypeMember member in node.Members)

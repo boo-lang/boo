@@ -553,9 +553,9 @@ interface_method [TypeMemberCollection container]
 		TypeReference rt = null;
 		bool variableArguments = false;
 	}: 
-	t:DEF! id:ID
+	DEF! id:ID
 	{
-		m = new Method(ToLexicalInfo(t));
+		m = new Method(ToLexicalInfo(id));
 		m.Name = id.getText();
 		AddAttributes(m.Attributes);
 		container.Add(m);
