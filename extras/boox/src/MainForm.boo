@@ -19,6 +19,9 @@ class MainForm(Form):
 
 	[getter(TaskList)]
 	_taskList = BooExplorer.TaskList()
+	
+	[getter(OutputPane)]
+	_outputPane = BooExplorer.OutputPane()
 
 	_argv as (string)
 
@@ -94,7 +97,10 @@ class MainForm(Form):
 						Shortcut: Shortcut.CtrlShiftD),
 				MenuItem(Text: "Task List",
 						Click: _menuItemTaskList_Click,
-						Shortcut: Shortcut.CtrlShiftT)
+						Shortcut: Shortcut.CtrlShiftT),
+				MenuItem(Text: "Output",
+						Click: _menuItemOutputPane_Click,
+						Shortcut: Shortcut.CtrlShiftO)
 			))
 
 
@@ -172,6 +178,9 @@ class MainForm(Form):
 
 	def ShowTaskList():
 		_taskList.Show(_dockManager)
+
+	def _menuItemOutputPane_Click(sender, args as EventArgs):
+		_outputPane.Show(_dockManager)
 
 	def _menuItemOpen_Click(sender, args as EventArgs):
 		dlg = OpenFileDialog(

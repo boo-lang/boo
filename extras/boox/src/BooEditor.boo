@@ -149,7 +149,8 @@ class BooEditor(Content):
 		finished = date.Now
 		_main.StatusText = "Compilation finished in ${finished-started} with ${len(result.Errors)} error(s)."
 
-		RestoreConsoleOut()
+		RestoreConsoleOut() 
+		UpdateDebugOutputPane()
 		
 		if len(result.Errors):
 			UpdateTaskList(result.Errors)
@@ -167,6 +168,9 @@ class BooEditor(Content):
 	
 	def RestoreConsoleOut():
 		Console.SetOut(_oldStdOut)
+
+	def UpdateDebugOutputPane():
+		_main.OutputPane.SetBuildText(_compileOutput.ToString())
 		
 	def UpdateTaskList(errors as CompilerErrorCollection):
 		_main.TaskList.Clear()
