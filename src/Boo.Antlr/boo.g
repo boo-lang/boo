@@ -227,7 +227,8 @@ tokens
 
 	protected bool IsValidMacroArgument(int token)
 	{
-		return token == ID;
+		return token == ID ||
+				token == COLON;
 	}
 }
 

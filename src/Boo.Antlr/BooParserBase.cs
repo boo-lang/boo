@@ -241,7 +241,8 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 
 	protected bool IsValidMacroArgument(int token)
 	{
-		return token == ID;
+		return token == ID ||
+				token == COLON;
 	}
 		
 		protected void initialize()
