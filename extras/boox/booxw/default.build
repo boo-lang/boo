@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="boox" default="run">
+<project name="booxw" default="run">
 
 	<property name="boo.dir" value="${path::get-full-path('../../../bin')}" />
 	<property name="build.dir" value="${path::get-full-path('../build')}" />
@@ -112,7 +112,7 @@
 		
 		<call target="update-sharpd-libs" if="${directory::exists(sharpd.dir)}" />
 		
-		<loadtasks assembly="build/Boo.NAnt.dll" />
+		<loadtasks assembly="${build.dir}/Boo.NAnt.dll" />
 	</target>
 	
 	<target name="update-boo-libs">
