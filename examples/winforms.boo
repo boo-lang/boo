@@ -39,7 +39,7 @@ class App:
 				Closed: Application.Exit)
 				
 		button = Button(Text: "click me!")
-		button.Click += callable:
+		button.Click += do:
 			print("clicked!")
 			++_times
 		
