@@ -1273,7 +1273,15 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.InPlaceAdd:
 				{
 					Accept(((MemberReferenceExpression)node.Left).Target); PopType();
-					AddDelegate(node, GetTag(node.Left), node.Right);
+					SubscribeEvent(node, GetTag(node.Left), node.Right);
+					PushVoid();
+					break;
+				}
+				
+				case BinaryOperatorType.InPlaceSubtract:
+				{
+					Accept(((MemberReferenceExpression)node.Left).Target); PopType();
+					UnsubscribeEvent(node, GetTag(node.Left), node.Right);
 					PushVoid();
 					break;
 				}
@@ -1959,7 +1967,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void AddDelegate(Node sourceNode, IElement eventInfo, Expression value)
+		void EmitCreateDelegate(Type delegateType, Expression value)
 		{
 			MethodBase mi = GetMethodInfo((IMethod)GetTag(value));
 			if (mi.IsStatic)
@@ -1971,11 +1979,21 @@ namespace Boo.Lang.Compiler.Steps
 				Accept(((MemberReferenceExpression)value).Target); PopType();
 			}
 			_il.Emit(OpCodes.Ldftn, (MethodInfo)mi);
-			
+			_il.Emit(OpCodes.Newobj, GetDelegateConstructor(delegateType));
+		}
+		
+		void SubscribeEvent(Node sourceNode, IElement eventInfo, Expression value)
+		{
 			EventInfo ei = ((ExternalEvent)eventInfo).EventInfo;
-			
-			_il.Emit(OpCodes.Newobj, GetDelegateConstructor(ei.EventHandlerType));					
+			EmitCreateDelegate(ei.EventHandlerType, value);								
 			_il.EmitCall(OpCodes.Callvirt, ei.GetAddMethod(true), null);
+		}
+		
+		void UnsubscribeEvent(Node sourceNode, IElement eventInfo, Expression value)
+		{
+			EventInfo ei = ((ExternalEvent)eventInfo).EventInfo;
+			EmitCreateDelegate(ei.EventHandlerType, value);								
+			_il.EmitCall(OpCodes.Callvirt, ei.GetRemoveMethod(true), null);
 		}
 		
 		void InitializeMember(Node sourceNode, IElement tag, Expression value)
@@ -1991,7 +2009,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case ElementType.Event:
 				{
-					AddDelegate(sourceNode, tag, value);
+					SubscribeEvent(sourceNode, tag, value);
 					break;
 				}
 					

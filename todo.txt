@@ -1,12 +1,12 @@
-﻿* InjectCasts
-	* simplificar EmitAssembly
-	
-* += e -= para delegates (ver Boo.NAnt.AbstractBooTask)
+﻿* += e -= para delegates (ver Boo.NAnt.AbstractBooTask)
 
 * criar todos os passos novos e fazer passar todos os testes atuais
 	* module namespace testcases
 
 * preencher assinatura dos métodos em BindTypeMembers
+
+* InjectCasts
+	* simplificar EmitAssembly
 
 * CallableType
 	* para funçoes

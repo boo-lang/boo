@@ -860,7 +860,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IElement[] GetSetMethods(IElement[] tags)
 		{
-			ArrayList setMethods = new ArrayList();
+			Boo.Lang.List setMethods = new Boo.Lang.List();
 			for (int i=0; i<tags.Length; ++i)
 			{
 				IProperty property = tags[i] as IProperty;
@@ -878,7 +878,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IElement[] GetGetMethods(IElement[] tags)
 		{
-			ArrayList getMethods = new ArrayList();
+			Boo.Lang.List getMethods = new Boo.Lang.List();
 			for (int i=0; i<tags.Length; ++i)
 			{
 				IProperty property = tags[i] as IProperty;
@@ -1751,12 +1751,6 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case BinaryOperatorType.InPlaceSubtract:
-				{
-					BindInPlaceArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.InPlaceMultiply:
 				{
 					BindInPlaceArithmeticOperator(node);
@@ -1787,19 +1781,15 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
+				case BinaryOperatorType.InPlaceSubtract:
+				{
+					BindInPlaceAddSubtract(node);
+					break;
+				}
+				
 				case BinaryOperatorType.InPlaceAdd:
 				{
-					IElement tag = GetTag(node.Left);
-					ElementType tagType = tag.ElementType;
-					if (ElementType.Event == tagType ||
-						ElementType.Ambiguous == tagType)
-					{
-						BindInPlaceAddEvent(node);
-					}
-					else
-					{
-						BindInPlaceArithmeticOperator(node);
-					}
+					BindInPlaceAddSubtract(node);
 					break;
 				}
 				
@@ -1944,7 +1934,21 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void BindInPlaceAddEvent(BinaryExpression node)
+		void BindInPlaceAddSubtract(BinaryExpression node)
+		{
+			ElementType elementType = GetTag(node.Left).ElementType;
+			if (ElementType.Event == elementType ||
+				ElementType.Ambiguous == elementType)
+			{
+				BindEventSubscription(node);
+			}
+			else
+			{
+				BindInPlaceArithmeticOperator(node);
+			}
+		}
+		
+		void BindEventSubscription(BinaryExpression node)
 		{
 			IElement tag = GetTag(node.Left);
 			if (ElementType.Event != tag.ElementType)

@@ -426,6 +426,18 @@ namespace Boo.Lang.Compiler.Tests
 		}
 		
 		[Test]
+		public void DelegateRemovedWithInPlaceSubtract()
+		{
+			RunCompilerTestCase("delegate3.boo");
+		}
+		
+		[Test]
+		public void DelegateAddAndRemoveInsideClass()
+		{
+			RunCompilerTestCase("delegate4.boo");
+		}
+		
+		[Test]
 		public void TestProperty0()
 		{
 			RunCompilerTestCase("property0.boo");
