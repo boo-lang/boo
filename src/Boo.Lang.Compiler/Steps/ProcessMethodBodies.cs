@@ -449,6 +449,11 @@ namespace Boo.Lang.Compiler.Steps
 				if (null != getter)
 				{
 					typeInfo = GetType(node.Getter.ReturnType);
+					if (typeInfo == TypeSystemServices.VoidType)
+					{
+						typeInfo = TypeSystemServices.ObjectType;
+						node.Getter.ReturnType = CodeBuilder.CreateTypeReference(typeInfo);
+					}
 				}
 				else
 				{
