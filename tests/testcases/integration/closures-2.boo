@@ -3,7 +3,7 @@ before
 closure
 after
 """
-a = callable():
+a = do:
 	print("closure")
 	
 print("before")

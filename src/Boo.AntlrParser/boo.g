@@ -76,10 +76,12 @@ tokens
 	CAST="cast";	
 	CLASS="class";
 	CONSTRUCTOR="constructor";	
-	DEF="def";	
+	DEF="def";
+	DO="do";	
 	ELSE="else";
 	ENSURE="ensure";
 	ENUM="enum";
+	EVENT="event";
 	EXCEPT="except";
 	FAILURE="failure";
 	FINAL="final";	
@@ -183,6 +185,11 @@ tokens
 	static double ParseDouble(string text)
 	{
 		return double.Parse(text, System.Globalization.CultureInfo.InvariantCulture);
+	}
+	
+	static bool IsMethodInvocationExpression(Expression e)
+	{
+		return NodeType.MethodInvocationExpression == e.NodeType;
 	}
 
 	protected TimeSpan ParseTimeSpan(string text)
@@ -843,8 +850,8 @@ stmt [StatementCollection container]
 		s=try_stmt |
 		s=given_stmt |
 		{IsValidMacroArgument(LA(2))}? s=macro_stmt |
-		(slicing_expression ASSIGN CALLABLE)=> s=assignment_stmt |
-		(RETURN CALLABLE) => s=return_callable_stmt |
+		(slicing_expression (ASSIGN|DO))=> s=assignment_or_method_invocation_with_block_stmt |
+		(RETURN DO) => s=return_callable_stmt |
 		(		
 			(				
 				s=return_stmt |
@@ -854,8 +861,7 @@ stmt [StatementCollection container]
 				s=raise_stmt |
 				s=retry_stmt |
 				(declaration COMMA)=> s=unpack_stmt |
-				s=declaration_stmt |
-				(slicing_expression ASSIGN)=> s=assignment_stmt |
+				s=declaration_stmt |				
 				s=expression_stmt				
 			)
 			(			
@@ -914,14 +920,18 @@ closure_expression returns [Expression e]
 	{
 		e = null;
 		CallableBlockExpression cbe = null;
+		ParameterDeclarationCollection parameters = null;
 		Statement stmt = null;		
 	}:
 	anchorBegin:LESS_THAN!
-		{ e = cbe = new CallableBlockExpression(ToLexicalInfo(anchorBegin)); }
+		{
+			e = cbe = new CallableBlockExpression(ToLexicalInfo(anchorBegin));
+			parameters = cbe.Parameters;
+		}
 		
 		(
 			(closure_parameters_test)=>(
-				parameter_declaration_list[cbe.Parameters]
+				parameter_declaration_list[parameters]
 				BITWISE_OR!
 			) |
 		)
@@ -942,7 +952,7 @@ callable_expression returns [Expression e]
 		CallableBlockExpression cbe = null;
 		TypeReference rt = null;
 	}:
-	anchor:CALLABLE!
+	anchor:DO!
 	{
 		e = cbe = new CallableBlockExpression(ToLexicalInfo(anchor));
 	}
@@ -1363,19 +1373,44 @@ boolean_term returns [Expression e]
 	;
 
 protected
-assignment_stmt returns [Statement stmt]
+assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 	{
 		stmt = null;
 		Expression lhs = null;
-		Expression rhs = null;		
+		Expression rhs = null;
+		StatementModifier modifier = null;		
 	}:
-	lhs=slicing_expression op:ASSIGN rhs=callable_or_expression
-	{
-		stmt = new ExpressionStatement(
-							new BinaryExpression(ToLexicalInfo(op),
-								ParseAssignOperator(op.getText()),
-								lhs, rhs));
-	}
+	lhs=slicing_expression
+	(
+		(
+			op:ASSIGN
+			(
+				(DO)=>rhs=callable_expression |
+				(
+					rhs=array_or_expression
+					(			
+						modifier=stmt_modifier
+					)?
+					eos
+				)
+			)
+			{
+				stmt = new ExpressionStatement(
+						new BinaryExpression(ToLexicalInfo(op),
+							ParseAssignOperator(op.getText()),
+							lhs, rhs));
+				stmt.Modifier = modifier;
+			}
+		)|
+		(
+			{IsMethodInvocationExpression(lhs)}?
+			rhs=callable_expression
+			{
+				((MethodInvocationExpression)lhs).Arguments.Add(rhs);
+				stmt = new ExpressionStatement(lhs);
+			}
+		)
+	)
 	;
 	
 protected
@@ -1619,6 +1654,22 @@ array returns [Expression e]
 	;
 	
 protected
+method_invocation_with_block returns [Statement s]
+	{
+		s = null;
+		MethodInvocationExpression mie = null;
+		Expression block = null;
+	}:
+	RPAREN!
+	(
+		block=callable_expression
+		{
+			mie.Arguments.Add(block);
+		}
+	)?
+	;
+	
+protected
 slicing_expression returns [Expression e]
 	{
 		e = null;
@@ -1691,8 +1742,8 @@ slicing_expression returns [Expression e]
 					mce = new MethodInvocationExpression(ToLexicalInfo(lparen));
 					mce.Target = e;
 					e = mce;
-				}
-			parameter_list[mce]		
+				}			
+			parameter_list[mce]
 			RPAREN!
 		)
 	)*

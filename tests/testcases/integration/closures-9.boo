@@ -1,7 +1,7 @@
 import NUnit.Framework
 
 value = 3
-c = callable():
+c = do:
 	Assert.AreEqual(3, value)
 	value = 4
 	Assert.AreEqual(4, value)

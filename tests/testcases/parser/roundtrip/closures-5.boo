@@ -1,8 +1,8 @@
 """
-c1 = callable(item):
+c1 = do (item):
 	print(item)
 
-c2 = callable(item as int):
+c2 = do (item as int):
 	print((item * 2))
 """
 c1 = <item|print(item)>

@@ -47,7 +47,7 @@ class ArrayTypeReference(TypeReference):
 [collection(TypeReference)]
 class TypeReferenceCollection:
 	pass
-	
+
 class CallableDefinition(TypeMember, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
@@ -104,6 +104,12 @@ class Property(TypeMember, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
 	Getter as Method
 	Setter as Method
+	Type as TypeReference
+	
+class Event(TypeMember):
+	Add as Method
+	Remove as Method
+	Raise as Method
 	Type as TypeReference
 
 class Local(Node):

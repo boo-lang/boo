@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnCallableBlockExpression(CallableBlockExpression node)
 		{
-			WriteKeyword("callable");
+			WriteKeyword("do ");
 			WriteParameterList(node.Parameters, false);
 			WriteTypeReference(node.ReturnType);
 			WriteLine(":");

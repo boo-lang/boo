@@ -110,6 +110,7 @@ OR
 		<keyword>def</keyword>
 		<keyword>get</keyword>
 		<keyword>set</keyword>
+		<keyword>event</keyword>
 		
 		<keyword>return</keyword>
 		<keyword>yield</keyword>

@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.Steps
 			BooClassBuilder builder = CodeBuilder.CreateClass(name);
 			builder.AddBaseType(baseType);
 			
-			// reference entities turn into fields			
+			// referenced entities turn into fields			
 			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
 			{
 				Field field = builder.AddField("__" + entity.Name, entity.Type);				

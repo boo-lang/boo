@@ -318,10 +318,11 @@
 				</fileset>
 			</delete>			 
 			
-			<exec program="${java}" failonerror="true">
+			<exec program="${java}" failonerror="true">				
 				<arg value="-cp" />
 				<arg value="${antlr.jar}" />
 				<arg value="antlr.Tool" />
+				<!-- <arg value="-traceParser" /> -->
 				<arg value="-o" />
 				<arg value="src/Boo.AntlrParser/" />
 				<arg value="src/Boo.AntlrParser/boo.g" />

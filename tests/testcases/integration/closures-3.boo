@@ -6,7 +6,7 @@ after
 import BooCompiler.Tests
 
 c = Clickable()
-c.Click += callable:
+c.Click += do:
 	print("clicked!!!")
 
 print("before")

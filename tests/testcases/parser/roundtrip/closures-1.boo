@@ -1,8 +1,8 @@
 """
-p = callable(text):
+p = do (text):
 	print(text)
 
-tp = callable(text as string):
+tp = do (text as string):
 	print(text)
 
 if (2 > 3):
@@ -10,9 +10,9 @@ if (2 > 3):
 p('Hello')
 tp('World!')
 """
-p = callable(text):
+p = do (text):
 	print(text)
-tp = callable(text as string):
+tp = do (text as string):
 	print(text)
 if 2 > 3:
 	print("dough!")

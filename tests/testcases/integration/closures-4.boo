@@ -5,7 +5,7 @@ after
 """
 import BooCompiler.Tests
 
-click = callable:
+click = do:
 	print("clicked!!!")
 
 c = Clickable(Click: click)

@@ -1,7 +1,7 @@
 import System
 import NUnit.Framework
 
-a = callable(a):
+a = do (a):
 	print("closure")
 	return a.ToString()
 

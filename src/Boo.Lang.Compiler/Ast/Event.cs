@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,21 +26,24 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System
-import Gtk from "gtk-sharp"
-import GtkSourceView from "gtksourceview-sharp"
-
-Application.Init()
+namespace Boo.Lang.Compiler.Ast
+{
+	using System;
 	
-booSourceLanguage = SourceLanguagesManager().GetLanguageFromMimeType("text/x-boo")
-buffer = SourceBuffer(booSourceLanguage, Highlight: true)	
-sourceView = SourceView(buffer, ShowLineNumbers: true, AutoIndent: true)
-
-window = Window("Simple Boo Editor",
-				DefaultWidth:  600,
-				DefaultHeight: 400,
-				DeleteEvent: Application.Quit)
-window.Add(sourceView)
-window.ShowAll()
-
-Application.Run()
+	[Serializable]
+	public class Event : Boo.Lang.Compiler.Ast.Impl.EventImpl
+	{
+		public Event()
+		{
+		}
+		
+		public Event(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
+		
+		override public void Accept(IAstVisitor visitor)
+		{
+			visitor.OnEvent(this);
+		}
+	}
+}

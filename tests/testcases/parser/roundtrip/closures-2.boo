@@ -1,20 +1,20 @@
 """
 button = Button()
-button.Click += callable():
+button.Click += do ():
 	print('clicked!')
 
-button.Click += callable():
+button.Click += do ():
 	print('yes, it was!')
 
-button.Click += callable(sender):
+button.Click += do (sender):
 	print("\${sender} clicked!")
 """
 button = Button()
-button.Click += callable:
+button.Click += do:
 	print("clicked!")
 
-button.Click += callable():
+button.Click += do ():
 	print("yes, it was!")
 	
-button.Click += callable(sender):
+button.Click += do (sender):
 	print("${sender} clicked!")
