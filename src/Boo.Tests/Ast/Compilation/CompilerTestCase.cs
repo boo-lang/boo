@@ -331,7 +331,7 @@ namespace Boo.Tests.Ast.Compilation
 		string GetBaseBooDirectory()
 		{
 			return Path.GetDirectoryName(
-			         Path.GetDirectoryName(new Uri(GetType().Assembly.CodeBase).AbsolutePath)
+			         Path.GetDirectoryName(GetType().Assembly.Location)
 			         );
 		}
 	}
