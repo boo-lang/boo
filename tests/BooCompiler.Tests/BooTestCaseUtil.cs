@@ -34,7 +34,7 @@ using System.Xml.Serialization;
 using Boo.Lang.Compiler.Ast;
 using NUnit.Framework;
 
-namespace Boo.Lang.Compiler.Tests
+namespace BooCompiler.Tests
 {
 	/// <summary>
 	/// Helper methods for testing the boo libraries.

@@ -36,7 +36,7 @@ using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.Pipelines;
 using NUnit.Framework;
 
-namespace Boo.Lang.Compiler.Tests
+namespace BooCompiler.Tests
 {
 	public class AllParametersRequiredAttribute : AbstractAstAttribute
 	{

@@ -33,7 +33,7 @@ using NUnit.Framework;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Pipelines;
 
-namespace Boo.Lang.Compiler.Tests
+namespace BooCompiler.Tests
 {
 	/// <summary>	
 	/// </summary>
