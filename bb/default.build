@@ -6,7 +6,6 @@
 	<target name="test" depends="compile-tests">
 		<nunit2>
 			<formatter type="Plain" />
-			<!-- <test assembly="build/BooInBoo.Tests.dll" /> -->
 			<test>
 				<assemblies basedir="build">
 					<includes name="BooInBoo.Tests.dll" />
