@@ -81,9 +81,9 @@ BCE0079=Função embutida __addressof__ só pode ser utilizada em construtores d
 BCE0080=Função embutida '{0}' não pode ser utilizada como expressão.
 
 ; BooC Command Line Errors
-BCE0500=Response file '{0}' listed more than once.
-BCE0501=Response file '{0}' could not be found.
-BCE0502=An error occurred while loading response file '{0}'.
+BCE0500=Arquivo '{0}' listado mais de uma vez.
+BCE0501=Arquivo '{0}' não foi encontrado.
+BCE0502=Erro durante a leitura do arquivo '{0}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.
