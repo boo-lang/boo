@@ -277,8 +277,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void OnSuperLiteralExpression(SuperLiteralExpression node, ref Expression resultingNode)
 		{		
 			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(_currentMethodInfo.Method);
-			//BindingManager.Bind(node, binding.ReturnType);
-			//_currentMethodInfo.AddSuperExpression(node);
+			BindingManager.Bind(node, binding);
 		}
 		
 		public override void LeaveMethod(Method method, ref Method resultingNode)

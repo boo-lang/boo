@@ -22,5 +22,3 @@ def GetFirstLine(fname as string):
 
 license = TextFile.ReadFile("license.txt")
 ScanDirectory("src", license)
-	
-	

@@ -141,7 +141,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (0 != _types.Count)
 			{
-				throw new ApplicationException(message);
+				throw new ApplicationException(
+						string.Format("{0}: {1} items still on the stack.", message, _types.Count)
+						);
 			}
 		}
 		
@@ -281,7 +283,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnRaiseStatement(RaiseStatement node)
 		{
-			Switch(node.Exception);
+			Switch(node.Exception); PopType();
 			_il.Emit(OpCodes.Throw);
 		}
 		
@@ -332,9 +334,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			// the stack sane
 			if (PopType() != Bindings.Types.Void)
 			{				
-				_il.Emit(OpCodes.Pop);
-				AssertStackIsEmpty("stack must be empty after a statement!");
+				_il.Emit(OpCodes.Pop);				
 			}
+			AssertStackIsEmpty("stack must be empty after a statement!");
 		}
 		
 		public override void OnIfStatement(IfStatement node)
@@ -406,12 +408,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Brfalse, label);
 		}
 		
-		public override void LeaveUnaryExpression(UnaryExpression node)
+		public override void OnUnaryExpression(UnaryExpression node)
 		{
 			switch (node.Operator)
 			{
 				case UnaryOperatorType.Not:
 				{
+					node.Operand.Switch(this); PopType();
+					
 					// bool codification:
 					// value_on_stack ? 1 : 0
 					Label wasTrue = _il.DefineLabel();
@@ -435,11 +439,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		bool ShouldLeaveValueOnStack(Expression node)
+		{
+			return node.ParentNode.NodeType != NodeType.ExpressionStatement;
+		}
+		
 		void OnAssignment(BinaryExpression node)
 		{
 			// when the parent is not a statement we need to leave
 			// the value on the stack
-			bool leaveValueOnStack = node.ParentNode.NodeType != NodeType.ExpressionStatement;				
+			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);				
 			IBinding binding = BindingManager.GetBinding(node.Left);
 			switch (binding.BindingType)
 			{
@@ -484,7 +493,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else if (BinaryOperatorType.InPlaceAdd == node.Operator)
 			{
-				Switch(((MemberReferenceExpression)node.Left).Target);
+				Switch(((MemberReferenceExpression)node.Left).Target); PopType();
 				AddDelegate(node, GetBinding(node.Left), node.Right);
 				PushType(Types.Void);
 			}
@@ -1212,7 +1221,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Dup);	// array reference
 			_il.Emit(OpCodes.Ldc_I4, index); // element index
 			value.Switch(this); // value
-			EmitCastIfNeeded(elementType, GetType(value));
+			EmitCastIfNeeded(elementType, PopType());
 			_il.Emit(OpCodes.Stelem_Ref);
 		}		
 		

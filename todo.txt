@@ -113,16 +113,16 @@ done * AstAttribute vira IAstAttribute que implementa ICompilerStep
 
 done * Criar AbstractAstAttribute extends AbstractCompilerStep
 
-* recursive methods
-
-* super
-
-* EnsureMethodIsResolved => EnsureMemberIsResolved
-	* utilizar um grafo de dependências ao invés do sistema de eventos
-
 * null
 
 * is/is not
+
+* super
+
+* recursive methods
+
+* EnsureMethodIsResolved => EnsureMemberIsResolved
+	* utilizar um grafo de dependências ao invés do sistema de eventos
 
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar
