@@ -1107,7 +1107,7 @@ _loop113_breakloop:				;
 					match(CONSTRUCTOR);
 					if (0==inputState.guessing)
 					{
-						m = new Constructor(ToLexicalInfo(t)); m.Name = c.getText();
+						m = new Constructor(ToLexicalInfo(t));
 					}
 					break;
 				}

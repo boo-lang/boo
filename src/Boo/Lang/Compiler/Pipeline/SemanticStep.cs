@@ -519,8 +519,40 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (null != node.Initializer)
 			{
-				AddFieldInitializerToConstructors(node);
+				if (node.IsStatic)
+				{
+					AddFieldInitializerToStaticConstructor(node);
+				}
+				else
+				{
+					AddFieldInitializerToConstructors(node);
+				}
 			}
+		}
+		
+		Constructor GetStaticConstructor(TypeDefinition type)
+		{
+			foreach (TypeMember member in type.Members)
+			{
+				if (member.IsStatic && NodeType.Constructor == member.NodeType)
+				{
+					return (Constructor)member;
+				}
+			}
+			return null;
+		}
+		
+		void AddFieldInitializerToStaticConstructor(Field node)
+		{
+			Constructor constructor = GetStaticConstructor(node.DeclaringType);
+			if (null == constructor)
+			{
+				constructor = new Constructor(node.LexicalInfo);
+				constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
+				node.DeclaringType.Members.Add(constructor);
+			}
+			constructor.Body.Statements.Insert(0, CreateFieldAssignment(node));
+			node.Initializer = null;
 		}
 		
 		void AddFieldInitializerToConstructors(Field node)
@@ -544,10 +576,18 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			ExpressionStatement stmt = new ExpressionStatement(node.Initializer.LexicalInfo);
 			
-			// self.<node.Name> = <node.Initializer>
+			Expression context = null;
+			if (node.IsStatic)
+			{
+				context = new ReferenceExpression(node.DeclaringType.Name);
+			}
+			else
+			{
+				context = new SelfLiteralExpression();
+			}			
+			// <node.Name> = <node.Initializer>
 			stmt.Expression = new BinaryExpression(BinaryOperatorType.Assign,
-									new MemberReferenceExpression(new SelfLiteralExpression(),
-																	node.Name),
+									new MemberReferenceExpression(context, node.Name),
 									node.Initializer);
 			return stmt;
 		}

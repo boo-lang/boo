@@ -227,7 +227,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)
 		{
 			Constructor constructor = new Constructor(lexicalInfoProvider.LexicalInfo);
-			constructor.Name = "constructor";
 			constructor.Modifiers = modifiers;
 			return constructor;
 		}

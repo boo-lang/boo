@@ -37,10 +37,12 @@ namespace Boo.Lang.Ast
 	{		
 		public Constructor()
 		{
+			_name = "constructor";
  		}
 		
 		public Constructor(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
+			_name = "constructor";
 		}
 		
 		override public void Switch(IAstSwitcher switcher)
