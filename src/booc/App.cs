@@ -299,10 +299,9 @@ namespace BooC
 			switch (name)
 			{
 				case "parse": return new Parse();
-				case "core": return new Compile();
-				case "boom": return new CompileToMemory();
-				case "booi": return new Run();
-				case "booc": return new CompileToFile();
+				case "compile": return new Compile();
+				case "run": return new Run();
+				case "default": return new CompileToFile();
 				case "roundtrip": return new ParseAndPrint();
 				case "boo": return new CompileToBoo();
 				case "xml": return new ParseAndPrintXml();
@@ -320,7 +319,7 @@ namespace BooC
 				}
 				case "quack": return new Quack();
 			}
-			return null;
+			return (CompilerPipeline)Activator.CreateInstance(Type.GetType(name, true));
 		}
 		
 		static void MakeItQuack(CompilerPipeline pipeline)

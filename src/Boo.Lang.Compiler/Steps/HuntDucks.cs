@@ -20,7 +20,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)
 		{
-			if (BuiltinFunctionType.Quack == function.FunctionType)
+			if (IsQuackBuiltin(function))
 			{
 				ProcessQuackInvocation(node);				
 			}	
