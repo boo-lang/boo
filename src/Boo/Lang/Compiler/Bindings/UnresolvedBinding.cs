@@ -45,6 +45,19 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public override ITypeBinding BoundType
+		{
+			get
+			{
+				ITypeBinding resolved = _resolved as ITypeBinding;
+				if (null != resolved)
+				{
+					return resolved;
+				}
+				return this;
+			}
+		}
+		
 		public override BindingType BindingType
 		{
 			get

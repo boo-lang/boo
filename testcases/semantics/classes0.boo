@@ -1,10 +1,10 @@
 """
-public class Person(object):
+public class Person(System.Object):
 
 	public def constructor():
 		pass
 
-internal class Info(object):
+internal class Info(System.Object):
 
 	protected def constructor():
 		pass

@@ -436,6 +436,12 @@ namespace Boo.Tests.Ast.Compiler
 		}
 		
 		[Test]
+		public void CallSuperMethod()
+		{
+			RunCompilerTestCase("baseclass2.boo", "call overriden method");
+		}
+		
+		[Test]
 		public void TestMethod0()
 		{
 			RunCompilerTestCase("method0.boo", "simple methods");

@@ -433,66 +433,52 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnBinaryExpression(BinaryExpression node)
-		{	
+		void OnAssignment(BinaryExpression node)
+		{
 			// when the parent is not a statement we need to leave
 			// the value on the stack
-			bool leaveValueOnStack = node.ParentNode.NodeType != NodeType.ExpressionStatement;
-			
-			if (BinaryOperatorType.Assign == node.Operator)
-			{				
-				IBinding binding = BindingManager.GetBinding(node.Left);
-				switch (binding.BindingType)
+			bool leaveValueOnStack = node.ParentNode.NodeType != NodeType.ExpressionStatement;				
+			IBinding binding = BindingManager.GetBinding(node.Left);
+			switch (binding.BindingType)
+			{
+				case BindingType.Local:
 				{
-					case BindingType.Local:
-					{
-						node.Right.Switch(this); // leaves type on stack
-						
-						Type typeOnStack = null;
-						
-						if (leaveValueOnStack)
-						{	
-							typeOnStack = PeekTypeOnStack();
-							_il.Emit(OpCodes.Dup);
-						}
-						else
-						{
-							typeOnStack = PopType();
-						}
-						
-						// todo: assignment result must be type on the left in the
-						// case of casting
-						LocalBuilder local = ((LocalBinding)binding).LocalBuilder;
-						EmitCastIfNeeded(local.LocalType, typeOnStack);
-						_il.Emit(OpCodes.Stloc, local);
-						break;
-					}
-					
-					case BindingType.Property:
-					{
-						IPropertyBinding property = (IPropertyBinding)binding;						
-						SetProperty(node, property, node.Left, node.Right, leaveValueOnStack);
-						break;
-					}
-					
-					case BindingType.Field:
-					{
-						IFieldBinding field = (IFieldBinding)binding;
-						SetField(node, field, node.Left, node.Right, leaveValueOnStack);
-						break;
-					}
-						
-					default:
-					{
-						Errors.NotImplemented(node, binding.ToString());
-						break;
-					}
-				}		
-				if (!leaveValueOnStack)
-				{
-					
-					PushType(Types.Void);
+					SetLocal(node, (LocalBinding)binding, leaveValueOnStack);
+					break;
 				}
+				
+				case BindingType.Property:
+				{
+					IPropertyBinding property = (IPropertyBinding)binding;						
+					SetProperty(node, property, node.Left, node.Right, leaveValueOnStack);
+					break;
+				}
+				
+				case BindingType.Field:
+				{
+					IFieldBinding field = (IFieldBinding)binding;
+					SetField(node, field, node.Left, node.Right, leaveValueOnStack);
+					break;
+				}
+					
+				default:
+				{
+					Errors.NotImplemented(node, binding.ToString());
+					break;
+				}
+			}		
+			if (!leaveValueOnStack)
+			{
+				
+				PushType(Types.Void);
+			}
+		}
+		
+		public override void OnBinaryExpression(BinaryExpression node)
+		{				
+			if (BinaryOperatorType.Assign == node.Operator)
+			{
+				OnAssignment(node);
 			}
 			else if (BinaryOperatorType.InPlaceAdd == node.Operator)
 			{
@@ -810,6 +796,29 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				
 			}			
+		}
+		
+		void SetLocal(BinaryExpression node, LocalBinding binding, bool leaveValueOnStack)
+		{
+			node.Right.Switch(this); // leaves type on stack
+					
+			Type typeOnStack = null;
+			
+			if (leaveValueOnStack)
+			{	
+				typeOnStack = PeekTypeOnStack();
+				_il.Emit(OpCodes.Dup);
+			}
+			else
+			{
+				typeOnStack = PopType();
+			}
+			
+			// todo: assignment result must be type on the left in the
+			// case of casting
+			LocalBuilder local = binding.LocalBuilder;
+			EmitCastIfNeeded(local.LocalType, typeOnStack);
+			_il.Emit(OpCodes.Stloc, local);
 		}
 		
 		void SetField(Node sourceNode, IFieldBinding field, Expression reference, Expression value, bool leaveValueOnStack)

@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _type.Name;
+				return _type.FullName;
 			}
 		}
 		

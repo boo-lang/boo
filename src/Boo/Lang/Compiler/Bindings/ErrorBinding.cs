@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public virtual ITypeBinding BoundType
 		{
 			get
 			{

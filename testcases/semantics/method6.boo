@@ -1,7 +1,7 @@
 """
 public final transient class Method6Module(System.Object):
 
-	public static def greeting(who as string) as System.String:
+	public static def greeting(who as System.String) as System.String:
 		if (who != 'bamboo'):
 			return 'wassup, g?'
 		return g()

@@ -81,6 +81,12 @@ namespace Boo.Tests.Ast.Compiler
 		}
 		
 		[Test]
+		public void InvertedFatorial()
+		{
+			RunCompilerTestCase("method3.boo");
+		}
+		
+		[Test]
 		public void MutuallyRecursiveMethods()
 		{
 			RunCompilerTestCase("method6.boo");

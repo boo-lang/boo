@@ -1,5 +1,5 @@
 """
-public class ClassWithoutConstructor(object):
+public class ClassWithoutConstructor(System.Object):
 
 	public def run() as System.Void:
 		print('it worked!')

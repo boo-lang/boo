@@ -274,6 +274,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
+		public override void OnSuperLiteralExpression(SuperLiteralExpression node, ref Expression resultingNode)
+		{		
+			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(_currentMethodInfo.Method);
+			//BindingManager.Bind(node, binding.ReturnType);
+			//_currentMethodInfo.AddSuperExpression(node);
+		}
+		
 		public override void LeaveMethod(Method method, ref Method resultingNode)
 		{
 			if (null == method.ReturnType)
@@ -411,6 +418,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
+				node.Name = info.Name;
 				BindingManager.Bind(node, info);
 			}
 		}

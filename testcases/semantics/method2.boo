@@ -1,7 +1,7 @@
 """
 public final transient class Method2Module(System.Object):
 
-	public static def fatorial(n as int) as System.Int32:
+	public static def fatorial(n as System.Int32) as System.Int32:
 		if (n < 2):
 			return 1
 		return (n * fatorial((n - 1)))
