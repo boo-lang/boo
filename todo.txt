@@ -132,7 +132,7 @@ done * EnsureMethodIsResolved => EnsureMemberIsResolved
 	
 done * field initializers
 
-* mover default super constructor call para SemanticStep
+done * mover default super constructor call para SemanticStep
 
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar

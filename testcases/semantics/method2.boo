@@ -7,7 +7,7 @@ public final transient class Method2Module(System.Object):
 		return (n * fatorial((n - 1)))
 
 	private def constructor():
-		pass
+		super()
 
 """
 def fatorial(n as int):

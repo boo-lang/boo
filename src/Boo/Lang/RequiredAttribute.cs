@@ -59,7 +59,9 @@ namespace Boo.Lang
 
 			// raise ArgumentNullException("<pd.Name>") unless <pd.Name>
 			MethodInvocationExpression x = new MethodInvocationExpression();
-			x.Target = new ReferenceExpression("ArgumentNullException");
+			x.Target = new MemberReferenceExpression(
+								new ReferenceExpression("System"),
+								"ArgumentNullException");
 			x.Arguments.Add(new StringLiteralExpression(pd.Name));
 			RaiseStatement rs = new RaiseStatement(x);
 

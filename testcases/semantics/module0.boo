@@ -5,7 +5,7 @@ public final transient class Module0Module(System.Object):
 		print('boo rules!')
 
 	private def constructor():
-		pass
+		super()
 
 """
 print('boo rules!')

@@ -2,12 +2,12 @@
 public class Person(System.Object):
 
 	public def constructor():
-		pass
+		super()
 
 internal class Info(System.Object):
 
 	protected def constructor():
-		pass
+		super()
 
 """
 class Person(object):

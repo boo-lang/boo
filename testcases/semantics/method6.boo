@@ -10,7 +10,7 @@ public final transient class Method6Module(System.Object):
 		return greeting('g')
 
 	private def constructor():
-		pass
+		super()
 
 
 """

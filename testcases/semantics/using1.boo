@@ -20,7 +20,7 @@ public final transient class Using1Module(System.Object):
 				__disposable__ = null
 
 	private def constructor():
-		pass
+		super()
 
 """
 import System.IO

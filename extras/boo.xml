@@ -159,9 +159,11 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD3>map</KEYWORD3>
 			<KEYWORD3>cat</KEYWORD3>
 			
-			<!-- standard macros -->
+			<!-- standard macros and attributes -->
 			<KEYWORD3>using</KEYWORD3>
 			<KEYWORD3>lock</KEYWORD3>
+			<KEYWORD3>getter</KEYWORD3>
+			<KEYWORD3>required</KEYWORD3>
 
 			<!-- exceptions -->
 			<!-- KEYWORD3>ArithmeticError</KEYWORD3 -->

@@ -310,6 +310,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			return stmt;
 		}
 		
+		Statement CreateDefaultConstructorCall(Constructor node, InternalConstructorBinding binding)
+		{			
+			IConstructorBinding defaultConstructor = GetDefaultConstructor(binding.DeclaringType.BaseType);
+			
+			MethodInvocationExpression call = new MethodInvocationExpression(new SuperLiteralExpression());
+			
+			BindingManager.Bind(call, defaultConstructor);
+			BindingManager.Bind(call.Target, defaultConstructor);
+			
+			return new ExpressionStatement(call);
+		}
+		
 		public override bool EnterConstructor(Constructor node, ref Constructor resultingNode)
 		{
 			InternalConstructorBinding binding = new InternalConstructorBinding(BindingManager, node);
@@ -323,6 +335,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void LeaveConstructor(Constructor node, ref Constructor resultingNode)
 		{
+			InternalConstructorBinding binding = (InternalConstructorBinding)_currentMethodBinding;
+			if (!binding.HasSuperCall)
+			{
+				node.Body.Statements.Insert(0, CreateDefaultConstructorCall(node, binding));
+			}
 			PopNamespace();
 			PopMethodBinding();
 			BindParameterIndexes(node);
@@ -1408,6 +1425,20 @@ namespace Boo.Lang.Compiler.Pipeline
 			else
 			{
 				Errors.Add(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeBinding.FullName, GetSignature(arguments)));
+			}
+			return null;
+		}
+		
+		IConstructorBinding GetDefaultConstructor(ITypeBinding type)
+		{
+			IConstructorBinding[] constructors = type.GetConstructors();
+			for (int i=0; i<constructors.Length; ++i)
+			{
+				IConstructorBinding constructor = constructors[i];
+				if (0 == constructor.ParameterCount)
+				{
+					return constructor;
+				}
 			}
 			return null;
 		}

@@ -59,6 +59,11 @@ namespace Boo.Antlr
 				return ParseReader(fname, reader);
 			}
 		}
+		
+		public static CompileUnit ParseString(string name, string text)
+		{
+			return ParseReader(name, new StringReader(text));
+		}
 
 		public static CompileUnit ParseReader(string readerName, TextReader reader)
 		{		

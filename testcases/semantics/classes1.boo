@@ -5,7 +5,7 @@ public class ClassWithoutConstructor(System.Object):
 		print('it worked!')
 
 	public def constructor():
-		pass
+		super()
 
 """
 class ClassWithoutConstructor(object):

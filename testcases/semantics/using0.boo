@@ -11,7 +11,7 @@ public final transient class Using0Module(System.Object):
 				__disposable__ = null
 
 	private def constructor():
-		pass
+		super()
 
 """
 using f = System.IO.File.OpenText('using0.boo'):

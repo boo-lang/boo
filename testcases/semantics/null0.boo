@@ -17,7 +17,7 @@ public final transient class Null0Module(System.Object):
 		return 14
 
 	private def constructor():
-		pass
+		super()
 
 """
 def foo(n as bool):

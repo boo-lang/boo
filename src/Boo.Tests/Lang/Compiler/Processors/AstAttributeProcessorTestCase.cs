@@ -200,10 +200,10 @@ import Boo.Tests.Lang.Compiler.Pipeline
 
 class Customer:	
 	def constructor(fname as string, lname as string):
-		raise ArgumentNullException('fname') unless fname
-		raise ArgumentNullException('lname') unless lname
+		raise System.ArgumentNullException('fname') unless fname
+		raise System.ArgumentNullException('lname') unless lname
 ";
-			RunStringTestCase("[ata gerando ata]", expected, actual);
+			RunStringTestCase("[ata generating ata]", expected, actual);
 			
 		}
 

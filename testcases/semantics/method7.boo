@@ -13,7 +13,7 @@ public final transient class Method7Module(System.Object):
 		return number
 
 	private def constructor():
-		pass
+		super()
 
 
 """

@@ -238,12 +238,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il = builder.GetILGenerator();
 
 			InternalConstructorBinding binding = (InternalConstructorBinding)GetBinding(constructor);
-			if (!binding.HasSuperCall)
-			{
-				_il.Emit(OpCodes.Ldarg_0);	
-				_il.Emit(OpCodes.Call, GetDefaultConstructor(_typeBuilder.BaseType));
-			}
-			
 			constructor.Locals.Switch(this);
 			constructor.Body.Switch(this);
 			_il.Emit(OpCodes.Ret);
@@ -1050,15 +1044,20 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		void EmitDebugInfo(Node node)
-		{
+		{	
 			EmitDebugInfo(node, node);
 		}
 		
 		void EmitDebugInfo(Node startNode, Node endNode)
 		{
+			/*
 			LexicalInfo start = startNode.LexicalInfo;
 			LexicalInfo end = endNode.LexicalInfo;
-			_il.MarkSequencePoint(_symbolDocWriter, start.Line, start.StartColumn, end.Line, end.EndColumn);
+			if (start != LexicalInfo.Empty && end != LexicalInfo.Empty)
+			{
+				_il.MarkSequencePoint(_symbolDocWriter, start.Line, start.StartColumn, end.Line, end.EndColumn);
+			}
+			*/
 		}
 		
 		void EmitEnumerableBasedFor(ForStatement node, Type iteratorType)
@@ -1419,15 +1418,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		Type GetType(Node node)
 		{
 			return GetType(GetBoundType(node));
-		}
-		
-		ConstructorInfo GetDefaultConstructor(Type type)
-		{
-			return type.GetConstructor(
-									BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance,
-									null, 
-									new Type[0],
-									null);
 		}
 		
 		TypeAttributes GetTypeAttributes(TypeDefinition type)
