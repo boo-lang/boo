@@ -69,11 +69,32 @@ namespace Boo.Lang
 		
 		public static string Mid(string s, int begin, int end)
 		{
+			if (begin < 0)
+			{
+				begin += s.Length;
+			}
 			if (end < 0)
 			{
 				end += s.Length;
 			}
 			return s.Substring(begin, end-begin);
+		}
+		
+		public static Array GetRange(Array source, int begin, int end)
+		{
+			if (begin < 0)
+			{
+				begin += source.Length;
+			}
+			if (end < 0)
+			{
+				end += source.Length;
+			}
+			
+			int targetLen = end-begin;
+			Array target = Array.CreateInstance(source.GetType().GetElementType(), targetLen);
+			Array.Copy(source, begin, target, 0, targetLen);
+			return target;
 		}
 		
 		public static void CheckArrayUnpack(Array array, int expected)

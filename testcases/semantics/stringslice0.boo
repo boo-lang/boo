@@ -7,6 +7,7 @@ public final transient class Stringslice0Module(System.Object):
 		Boo.Lang.Builtins.print(s.Substring(1))
 		Boo.Lang.Builtins.print(Boo.Lang.RuntimeServices.Mid(s, 0, 1))
 		Boo.Lang.Builtins.print(Boo.Lang.RuntimeServices.Mid(s, 0, -1))
+		Boo.Lang.Builtins.print(s.Substring(0))
 
 	private def constructor():
 		super()
@@ -17,3 +18,4 @@ print(s[0])
 print(s[1:])
 print(s[0:1])
 print(s[:-1])
+print(s[:])

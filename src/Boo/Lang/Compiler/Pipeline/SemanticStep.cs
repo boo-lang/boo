@@ -63,6 +63,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding RuntimeServices_Mid;
 		
+		IMethodBinding RuntimeServices_GetRange;
+		
 		IMethodBinding Object_StaticEquals;
 		
 		IMethodBinding Array_get_Length;
@@ -107,6 +109,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						
 			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
 			RuntimeServices_Mid = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Mid");
+			RuntimeServices_GetRange = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("GetRange");
 			Object_StaticEquals = (IMethodBinding)BindingManager.AsBinding(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
@@ -1009,7 +1012,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		bool IsComplexSlicing(SlicingExpression node)
 		{
-			return null != node.End || null != node.Step;
+			return null != node.End || null != node.Step || OmittedExpression.Default == node.Begin;
 		}
 		
 		IntegerLiteralExpression CreateIntegerLiteral(long value)
@@ -1019,49 +1022,71 @@ namespace Boo.Lang.Compiler.Pipeline
 			return expression;
 		}
 		
-		void BindComplexArraySlicing(SlicingExpression node)
-		{
+		bool CheckComplexSlicingParameters(SlicingExpression node)
+		{			
 			if (null != node.Step)
 			{
 				NotImplemented(node, "slicing step");
-			}
-		}
-		
-		void BindComplexStringSlicing(SlicingExpression node)
-		{
-			if (null != node.Step)
-			{
-				NotImplemented(node, "slicing step");
+				return false;
 			}
 			
-			Expression begin = node.Begin;
-			if (OmittedExpression.Default == begin)
+			if (OmittedExpression.Default == node.Begin)
 			{
-				begin = CreateIntegerLiteral(0); 
+				node.Begin = CreateIntegerLiteral(0); 
 			}
 			else
 			{
 				if (!CheckTypeCompatibility(node.Begin, BindingManager.IntTypeBinding, GetExpressionType(node.Begin)))
 				{
 					Error(node);
-					return;
+					return false;
 				}
-			}
+			}			
 			
-			if (node.End == OmittedExpression.Default)
+			if (null != node.End && OmittedExpression.Default != node.End)
 			{
-				MethodInvocationExpression mie = CreateMethodInvocation(node.Target, String_Substring_Int);
-				mie.Arguments.Add(node.Begin);
-				node.ParentNode.Replace(node, mie);
-			}
-			else
-			{				
 				if (!CheckTypeCompatibility(node.End, BindingManager.IntTypeBinding, GetExpressionType(node.End)))
 				{
 					Error(node);
-					return;
+					return false;
 				}
-				MethodInvocationExpression mie = CreateMethodInvocation(RuntimeServices_Mid, node.Target, begin, node.End);
+			}
+			
+			return true;
+		}
+		
+		void BindComplexArraySlicing(SlicingExpression node)
+		{			
+			if (CheckComplexSlicingParameters(node))
+			{
+				if (null == node.End || node.End == OmittedExpression.Default)
+				{
+					node.End = CreateMethodInvocation(node.Target.CloneNode(), Array_get_Length);
+				}
+				
+				MethodInvocationExpression mie = CreateMethodInvocation(RuntimeServices_GetRange, node.Target, node.Begin, node.End);				
+				
+				Bind(mie, GetExpressionType(node.Target));
+				node.ParentNode.Replace(node, mie);
+			}
+		}
+		
+		void BindComplexStringSlicing(SlicingExpression node)
+		{
+			if (CheckComplexSlicingParameters(node))
+			{
+				MethodInvocationExpression mie = null;
+				
+				if (null == node.End || node.End == OmittedExpression.Default)
+				{
+					mie = CreateMethodInvocation(node.Target, String_Substring_Int);
+					mie.Arguments.Add(node.Begin);
+				}
+				else
+				{	
+					mie = CreateMethodInvocation(RuntimeServices_Mid, node.Target, node.Begin, node.End);
+				}
+				
 				node.ParentNode.Replace(node, mie);
 			}
 		}
@@ -1085,6 +1110,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				if (targetType.IsArray)
 				{
+					if (targetType.GetArrayRank() != 1)
+					{
+						Error(node, CompilerErrorFactory.InvalidArray(node.Target));
+						return;
+					}
+					
 					if (IsComplexSlicing(node))
 					{
 						BindComplexArraySlicing(node);
