@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 
 public class App
 {
@@ -67,7 +66,7 @@ public class App
 	
 	static IConvertible CheckNumericPromotion(object value)
 	{
-		IConvertible convertible = (IConvertible)value;
+		IConvertible convertible = (IConvertible)value;		
 		switch (convertible.GetTypeCode())
 		{
 			case TypeCode.Byte: return convertible;
@@ -84,8 +83,6 @@ public class App
 		}
 		throw new InvalidCastException();
 	}
-	
-	static CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
 	
 	public static Int32 UnboxInt32(object value)
 	{
