@@ -24,7 +24,9 @@
 	</target>
 	
 	<target name="compile" depends="init, create-resources">
-		<booc output="build/boox.exe">
+		<booc
+			output="build/boox.exe"
+			target="winexe">
 			<sources basedir="src">
 				<includes name="*.boo" />
 			</sources> 
