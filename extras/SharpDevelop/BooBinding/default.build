@@ -2,8 +2,8 @@
 <project name="BooDevelop" default="compile">
 	<!-- run this using NAnt nightly, but you have to force NAnt to run under .NET 1.1 (otherwise you get a BadImageFormatException) -->
 	
-	<property name="sharpdevelop.dir" value = "D:\Fidalgo\SharpDevelop" />
-	<property name="boo.dir" value="../../../build" />
+	<property name="extras.dir" value="${path::get-full-path('../..')}" />
+	<include buildfile="${extras.dir}/common-properties.build" />
 	
 	<!-- Adjust these properties to point to your sharpdevelop directory / boo binary directory -->
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />	

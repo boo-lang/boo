@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project name="extra tools common properties">
+
+	<!-- boo profile to use: bin or build -->
+	<property name="boo.profile" value="bin" />	
+	
+	<!-- full path to SharpDevelop's location -->
+	<property name="sharpdevelop.dir" value="/Fidalgo/SharpDevelop" />
+	
+	<property name="boo.dir" value="${path::get-full-path(path::combine(extras.dir, '../' + boo.profile))}" />
+	
+	<property name="build.properties" value="${path::get-full-path(path::combine(extras.dir, 'build.properties'))}" />	
+	<include buildfile="${build.properties}" if="${file::exists(build.properties)}" />
+	
+	<fail unless="${directory::exists(sharpdevelop.dir)}">
+	Invalid SharpDevelop application directory!
+	
+	    ${sharpdevelop.dir}
+		 
+	Please, create or edit your extras/build.properties file
+	and include the full path to the SharpDevelop base directory
+	in the property sharpdevelop.dir:
+	
+	    &lt;property name="sharpdevelop.dir" value="full-here" /&gt;
+	</fail>
+
+</project>

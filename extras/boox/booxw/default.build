@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <project name="booxw" default="compile">
 
-	<property name="boo.dir" value="${path::get-full-path('../../../bin')}" />
-	<property name="build.dir" value="${path::get-full-path('../build')}" />
+	<property name="extras.dir" value="${path::get-full-path('../..')}" />
+	<include buildfile="${extras.dir}/common-properties.build" />
 	
-	<include buildfile="../build.properties" if="${file::exists('../build.properties')}" />
+	<property name="build.dir" value="${path::get-full-path('../build')}" />
 
 	<target name="run" depends="compile">
 		<exec program="${build.dir}/booxw.exe" useruntimeengine="true">
@@ -147,7 +147,7 @@
 		<mkdir dir="${build.dir}/scripts" />
 		<copy todir="${build.dir}" file="../../SharpDevelop/BooBinding/boo.xshd" />
 		<copy todir="${build.dir}">
-			<fileset basedir="lib">
+			<fileset basedir="${sharpdevelop.dir}/bin">
 				<include name="ICSharpCode.TextEditor.dll" />				
 				<include name="WeifenLuo.WinFormsUI.dll" />
 			</fileset>

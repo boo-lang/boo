@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
 <project name="booish.gui" default="run">
 
-	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
-	
-	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
-	<include buildfile="../SharpDevelop/BooBinding/build.properties" />
+	<property name="extras.dir" value="${path::get-full-path('..')}" />
+	<include buildfile="${extras.dir}/common-properties.build" />
 	
 	<target name="run" depends="build">
 		<exec program="build/booish.gui.exe" useruntimeengine="true">
