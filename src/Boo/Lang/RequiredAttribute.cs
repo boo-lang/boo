@@ -57,7 +57,7 @@ namespace Boo.Lang
 				throw new ApplicationException(ResourceManager.Format("InvalidNodeForAttribute", "ParameterDeclaration"));
 			}
 
-			// raise ArgumentNullException("<pd.Name>") unless <pd.Name>
+			// raise ArgumentNullException("<pd.Name>") if <pd.Name> is null
 			MethodInvocationExpression x = new MethodInvocationExpression();
 			x.Target = new MemberReferenceExpression(
 								new ReferenceExpression("System"),
@@ -66,8 +66,10 @@ namespace Boo.Lang
 			RaiseStatement rs = new RaiseStatement(x);
 
 			rs.Modifier = new StatementModifier(
-				StatementModifierType.Unless,
-				new ReferenceExpression(pd.Name)
+				StatementModifierType.If,
+				new BinaryExpression(BinaryOperatorType.ReferenceEquality,
+					new ReferenceExpression(pd.Name),
+					new NullLiteralExpression())
 				);
 
 			// associa mensagens de erro com a posio

@@ -773,6 +773,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void SliceOverIndexedProperty()
+		{
+			RunCompilerTestCase("slicing8.boo");
+		}
+		
+		[Test]
 		public void RealType()
 		{
 			RunCompilerTestCase("real0.boo");

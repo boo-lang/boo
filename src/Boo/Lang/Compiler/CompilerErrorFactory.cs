@@ -239,7 +239,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError InputError(string inputName, Exception error)
 		{
-			return new CompilerError("BCE0042", LexicalInfo.Empty, error, inputName, error.Message);
+			return new CompilerError("BCE0042", new LexicalInfo(inputName), error, inputName, error.Message);
 		}
 		
 		public static CompilerError UnexpectedToken(LexicalInfo lexicalInfo, Exception error, string token)

@@ -79,7 +79,6 @@ namespace Boo.Antlr
 					}
 					catch (Exception x)
 					{
-						Console.WriteLine(x.GetType());
 						_context.Errors.Add(CompilerErrorFactory.InputError(input.Name, x));
 					}
 				}

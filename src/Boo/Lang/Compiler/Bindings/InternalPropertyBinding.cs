@@ -37,6 +37,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		Property _property;
 		
+		ITypeBinding[] _indexParameters;
+		
 		public InternalPropertyBinding(BindingManager bindingManager, Property property)
 		{
 			_bindingManager = bindingManager;
@@ -97,6 +99,20 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				return _bindingManager.GetBoundType(_property.Type);
 			}
+		}
+		
+		public ITypeBinding[] GetIndexParameters()
+		{
+			if (null == _indexParameters)
+			{
+				ParameterDeclarationCollection parameters = _property.Parameters;
+				_indexParameters = new ITypeBinding[parameters.Count];
+				for (int i=0; i<_indexParameters.Length; ++i)
+				{
+					_indexParameters[i] = _bindingManager.GetBoundType(parameters[i]);
+				}
+			}
+			return _indexParameters;
 		}
 
 		public IMethodBinding GetGetMethod()

@@ -35,6 +35,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		System.Reflection.PropertyInfo _property;
 		
+		ITypeBinding[] _indexParameters;
+		
 		public ExternalPropertyBinding(BindingManager bindingManager, System.Reflection.PropertyInfo property)
 		{
 			_bindingManager = bindingManager;
@@ -111,6 +113,20 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				return _property;
 			}
+		}
+		
+		public ITypeBinding[] GetIndexParameters()
+		{
+			if (null == _indexParameters)
+			{
+				System.Reflection.ParameterInfo[] parameters = _property.GetIndexParameters();
+				_indexParameters = new ITypeBinding[parameters.Length];
+				for (int i=0; i<_indexParameters.Length; ++i)
+				{
+					_indexParameters[i] = _bindingManager.AsTypeBinding(parameters[i].ParameterType);
+				}
+			}
+			return _indexParameters;
 		}
 		
 		public IMethodBinding GetGetMethod()

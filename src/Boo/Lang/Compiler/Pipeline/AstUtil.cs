@@ -33,6 +33,18 @@ namespace Boo.Lang.Compiler.Pipeline
 	
 	public class AstUtil
 	{
+		public static bool IsTargetOfSlicing(Expression node)
+		{
+			if (NodeType.SlicingExpression == node.ParentNode.NodeType)
+			{
+				if (node == ((SlicingExpression)node.ParentNode).Target)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		public static bool IsLhsOfAssignment(Expression node)
 		{
 			if (NodeType.BinaryExpression == node.ParentNode.NodeType)

@@ -162,6 +162,11 @@ namespace Boo.Lang
 			return _list.ToArray(targetType);
 		}
 		
+		public object[] ToArray()
+		{
+			return (object[])ToArray(typeof(object));
+		}
+		
 		public List Sort()
 		{
 			_list.Sort();

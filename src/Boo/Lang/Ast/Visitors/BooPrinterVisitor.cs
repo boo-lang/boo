@@ -946,6 +946,10 @@ namespace Boo.Lang.Ast.Visitors
 			{
 				WriteKeyword("static ");
 			}
+			else if (member.IsModifierSet(TypeMemberModifiers.Override))
+			{
+				WriteKeyword("override ");
+			}
 			if (member.IsFinal)
 			{
 				WriteKeyword("final ");

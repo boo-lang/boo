@@ -811,56 +811,82 @@ namespace Boo.Lang.Compiler.Pipeline
 				Bind(node, targetType.GetElementType());
 			}
 			else
-			{
-				IBinding member = targetType.GetDefaultMember();
-				if (null == member)
+			{				
+				IBinding binding = GetBinding(node.Target);
+				if (IsIndexedProperty(binding))
 				{
-					Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
+					SliceMember(node, binding, false);
 				}
 				else
 				{
-					if (AstUtil.IsLhsOfAssignment(node))
+					IBinding member = targetType.GetDefaultMember();
+					if (null == member)
 					{
-						// leave it to LeaveBinaryExpression to resolve
-						Bind(node, member);
-						return;
-					}
-					
-					MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
-					mie.Arguments.Add(node.Begin);
-					
-					IMethodBinding getter = null;
-					
-					if (BindingType.Ambiguous == member.BindingType)
-					{
-						IBinding[] bindings = GetGetMethods(((AmbiguousBinding)member).Bindings);
-						getter = (IMethodBinding)ResolveMethodReference(node, mie.Arguments, bindings, true);						
-					}
-					else if (BindingType.Property == member.BindingType)
-					{
-						getter = ((IPropertyBinding)member).GetGetMethod();
-					}
-					
-					if (null != getter)
-					{	
-						if (CheckParameters(node, getter, mie.Arguments))
-						{
-							mie.Target = new MemberReferenceExpression(node.Target, getter.Name);
-							Bind(mie.Target, getter);
-							Bind(mie, getter);
-							
-							node.ReplaceBy(mie);
-						}
-						else
-						{
-							Error(node);
-						}
+						Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
 					}
 					else
 					{
-						NotImplemented(node, "slice for anything but arrays and default properties");
+						SliceMember(node, member, true);
 					}
 				}
+			}
+		}
+		
+		bool IsIndexedProperty(IBinding binding)
+		{
+			return BindingType.Property == binding.BindingType &&
+				((IPropertyBinding)binding).GetIndexParameters().Length > 0;
+		}
+		
+		void SliceMember(SlicingExpression node, IBinding member, bool defaultMember)
+		{
+			if (AstUtil.IsLhsOfAssignment(node))
+			{
+				// leave it to LeaveBinaryExpression to resolve
+				Bind(node, member);
+				return;
+			}
+			
+			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
+			mie.Arguments.Add(node.Begin);
+			
+			IMethodBinding getter = null;
+			
+			if (BindingType.Ambiguous == member.BindingType)
+			{
+				IBinding[] bindings = GetGetMethods(((AmbiguousBinding)member).Bindings);
+				getter = (IMethodBinding)ResolveMethodReference(node, mie.Arguments, bindings, true);						
+			}
+			else if (BindingType.Property == member.BindingType)
+			{
+				getter = ((IPropertyBinding)member).GetGetMethod();
+			}
+			
+			if (null != getter)
+			{	
+				if (CheckParameters(node, getter, mie.Arguments))
+				{
+					if (defaultMember)
+					{
+						mie.Target = new MemberReferenceExpression(node.Target, getter.Name);
+					}
+					else
+					{
+						mie.Target = new MemberReferenceExpression(((MemberReferenceExpression)node.Target).Target, getter.Name);
+					}
+					Bind(mie.Target, getter);
+					Bind(mie, getter);
+					
+					node.ReplaceBy(mie);
+				}
+				else
+				{
+					Error(node);
+				}
+			}
+			else
+			{
+				NotImplemented(node, "slice for anything but arrays and default properties");
 			}
 		}
 		
@@ -1009,7 +1035,8 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 					if (BindingType.Property == member.BindingType)
 					{
-						if (!AstUtil.IsLhsOfAssignment(node))
+						if (!AstUtil.IsLhsOfAssignment(node) &&
+							!AstUtil.IsTargetOfSlicing(node))
 						{
 							node.ReplaceBy(CreateMethodInvocation(node.Target, ((IPropertyBinding)member).GetGetMethod()));
 							return;
