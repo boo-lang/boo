@@ -134,10 +134,6 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		public const int DIGIT = 107;
 		
 				
-	static string NewLine = Environment.NewLine;
-	
-	static int NewLineLength = NewLine.Length;
-	
 	protected System.Text.StringBuilder _sbuilder = new System.Text.StringBuilder();
 	
 	protected AttributeCollection _attributes = new AttributeCollection();
@@ -214,16 +210,29 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 	{
 		int startIndex = 0;
 		int length = s.Length;
-		if (s.StartsWith(NewLine))
-		{			
-			startIndex += NewLineLength;
-			length -= NewLineLength;
-		}
-		if (s.EndsWith(NewLine))
+		if (length > 0)
 		{
-			length -= NewLineLength;
+			char first = s[0];
+			int newLineLength = 2;
+			if ('\r' == first)
+			{			
+				// assumes '\r\n'
+				startIndex += 2;
+				length -= 2;
+			}
+			else if ('\n' == first)
+			{
+				newLineLength = 1;
+				startIndex++;
+				length--;
+			}			
+			if ('\n' == s[s.Length-1])
+			{
+				length -= newLineLength;
+			}
+			return s.Substring(startIndex, length);
 		}
-		return s.Substring(startIndex, length);
+		return s;
 	}
 		
 		protected void initialize()
