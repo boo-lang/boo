@@ -50,6 +50,11 @@ class AssemblyResolver:
 			_cache[simpleName] = asm
 			
 		return asm
+		
+	def probeFile(fname as string):	
+		if File.Exists(fname):		
+			return Assembly.LoadFrom(fname)
+
 
 def main(argv as (string)):
 	compiler = BooCompiler()
@@ -68,15 +73,10 @@ def main(argv as (string)):
 		for error as CompilerError in result.Errors:
 			print(error.ToString(true))
 	else:	
-		try:
+		try: 
 			result.GeneratedAssemblyEntryPoint.Invoke(null, (argv[1:],))
 		except x as TargetInvocationException:
 			print(x.InnerException)
-	
-def probeFile(fname as string):	
-	if File.Exists(fname):		
-		return Assembly.LoadFrom(fname)
-
 	
 if len(argv) > 0:
 	main(argv)
