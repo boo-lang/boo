@@ -772,6 +772,16 @@ namespace Boo.Lang.Ast.Visitors
 				{
 					return "is";
 				}
+				
+				case BinaryOperatorType.Or:
+				{
+					return "or";
+				}
+				
+				case BinaryOperatorType.And:
+				{
+					return "and";
+				}
 			}
 			throw new NotImplementedException(op.ToString());
 		}

@@ -192,13 +192,10 @@ na lista de dependências tenha sido alterado
 			done * e só age quando !IsUnknown(node.Left) && !IsUnknown(node.Right)
 			done * if IsError(node.Left) or IsError(node.Right), Error(this)
 	
-done * remover kindof:	
-	done * implementar checagem de tipo quando o argumento da direita for uma TypeReference
-	
-* simplificar tratamento do operador typeof, basta fazer seu binding como TypeReference
+done * trocar kindof por isa
 
 * logical operators
-	* or
+	done * or
 	* and
 	
 * bitwise | para inteiros e enums de mesmo tipo
@@ -207,6 +204,8 @@ done * remover kindof:
 	* >, >=
 	* <, <=
 	
+* long literals
+
 * promoção automática de int para long
 	
 * implementação de interfaces

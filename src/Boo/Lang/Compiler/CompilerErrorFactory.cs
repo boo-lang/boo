@@ -297,6 +297,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0053", node.LexicalInfo, propertyName);
 		}
 		
+		public static CompilerError IsaArgument(Node node)
+		{
+			return new CompilerError("BCE0054", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

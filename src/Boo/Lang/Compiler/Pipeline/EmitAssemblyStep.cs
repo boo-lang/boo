@@ -456,6 +456,15 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.Or:
+				{
+					Switch(expression.Left); PopType();
+					_il.Emit(OpCodes.Brtrue, label);
+					Switch(expression.Right); PopType();
+					_il.Emit(OpCodes.Brtrue, label);
+					break;
+				}
+				
 				default:
 				{
 					DefaultBranchTrue(expression, label);
@@ -502,6 +511,17 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					EmitTypeTest(expression);
 					_il.Emit(OpCodes.Brfalse, label);
+					break;
+				}
+				
+				case BinaryOperatorType.Or:
+				{
+					Switch(expression.Left); PopType();
+					Label end = _il.DefineLabel();
+					_il.Emit(OpCodes.Brtrue, end);
+					Switch(expression.Right); PopType();
+					_il.Emit(OpCodes.Brfalse, label);
+					_il.MarkLabel(end);	
 					break;
 				}
 				
@@ -751,10 +771,66 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(type);
 		}
 		
+		void OnLogicalOperator(BinaryExpression node)
+		{
+			ITypeBinding type = GetBoundType(node);
+			Switch(node.Left);
+			
+			ITypeBinding lhsType = PopType();
+			
+			if (null != lhsType && lhsType.IsValueType && !type.IsValueType)
+			{
+				// if boxing, first evaluate the value
+				// as it is and then box it...
+				Label lhsWasFalse = _il.DefineLabel();
+				Label end = _il.DefineLabel();
+				
+				_il.Emit(OpCodes.Dup);
+				_il.Emit(OpCodes.Brfalse, lhsWasFalse);
+				EmitCastIfNeeded(type, lhsType);				
+				_il.Emit(OpCodes.Br, end);			
+				
+				_il.MarkLabel(lhsWasFalse);
+				_il.Emit(OpCodes.Pop);
+				Switch(node.Right);
+				EmitCastIfNeeded(type, PopType());	
+				
+				_il.MarkLabel(end);
+				
+			}
+			else
+			{
+				Label lhsWasTrue = _il.DefineLabel();
+				
+				EmitCastIfNeeded(type, lhsType);
+				_il.Emit(OpCodes.Dup);
+				_il.Emit(OpCodes.Brtrue, lhsWasTrue);
+				
+				_il.Emit(OpCodes.Pop);
+				Switch(node.Right);
+				EmitCastIfNeeded(type, PopType());
+				_il.MarkLabel(lhsWasTrue);
+			}
+			
+			PushType(type);
+		}
+		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{				
 			switch (node.Operator)
 			{
+				case BinaryOperatorType.Or:
+				{
+					OnLogicalOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.And:
+				{
+					OnLogicalOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.Add:
 				{
 					OnArithmeticOperator(node);
@@ -1698,6 +1774,10 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (type == BindingManager.IntTypeBinding)
 			{
 				return OpCodes.Conv_I4;
+			}
+			else if (type == BindingManager.LongTypeBinding)
+			{
+				return OpCodes.Conv_I8;
 			}
 			else if (type == BindingManager.SingleTypeBinding)
 			{

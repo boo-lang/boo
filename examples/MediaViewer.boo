@@ -1,4 +1,4 @@
-package ITL.WebTools.Controls
+namespace ITL.WebTools.Controls
 
 import System
 import System.Web
@@ -15,7 +15,7 @@ Cria a tag HTML apropriada para visualização de qualquer tipo
 de arquivo.
 </summary>
 """
-	[Template(Container: typeof(MediaViewer))]
+	[Template(Container: MediaViewer)]
 	FlashTemplate			
 
 	[ViewState]
@@ -27,11 +27,11 @@ de arquivo.
 	[ViewState(Default: 70)]
 	Height as int
 	
-	def OnDataBinding(e):
+	override def OnDataBinding(e as EventArgs):
 		super(e)
 		EnsureChildControls()
 	
-	def CreateChildControls():
+	override def CreateChildControls():
 		super()
 		
 		return unless Path

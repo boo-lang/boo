@@ -1188,6 +1188,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.Divide:
+				{
+					BindArithmeticOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.Match:
 				{
 					BindMatchOperator(node);
@@ -1203,6 +1209,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BinaryOperatorType.NotMember:
 				{
 					BindMember(node);
+					break;
+				}
+				
+				case BinaryOperatorType.TypeTest:
+				{
+					BindTypeTest(node);
 					break;
 				}
 				
@@ -1242,6 +1254,24 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.LessThan:
+				{
+					BindComparisonOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.GreaterThan:
+				{
+					BindComparisonOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Or:
+				{
+					BindLogicalOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.InPlaceAdd:
 				{
 					IBinding binding = GetBinding(node.Left);
@@ -1272,12 +1302,32 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					// expression type is the same as the right expression's
-					Bind(node, GetBoundType(node.Left));
+					NotImplemented(node, node.Operator.ToString());
 					break;
 				}
 			}
 		}	
+		
+		void BindLogicalOperator(BinaryExpression node)
+		{
+			if (CheckBoolContext(node.Left) &&
+				CheckBoolContext(node.Right))
+			{
+				ExpressionCollection args = new ExpressionCollection();
+				args.Add(node.Left);
+				args.Add(node.Right);
+				BindingManager.Bind(node, GetMostGenericType(args));
+			}
+			else
+			{
+				Error(node);
+			}
+		}
+		
+		void BindComparisonOperator(BinaryExpression node)
+		{
+			BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+		}
 		
 		void BindInPlaceAddEvent(BinaryExpression node)
 		{
@@ -1403,10 +1453,17 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			Switch(node.Target);
+			Switch(node.Target);			
 			Switch(node.Arguments);
 			
 			IBinding targetBinding = BindingManager.GetBinding(node.Target);
+			if (BindingManager.IsError(targetBinding) ||
+				BindingManager.IsErrorAny(node.Arguments))
+			{
+				Error(node);
+				return;
+			}
+			
 			if (BindingType.Ambiguous == targetBinding.BindingType)
 			{		
 				IBinding[] bindings = ((AmbiguousBinding)targetBinding).Bindings;
@@ -1650,27 +1707,24 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				Bind(node, resultingType);
 			}			
-		}
+		}		
 		
-		bool IsTypeTest(BinaryExpression node)
+		bool CheckIsaArgument(Expression e)
 		{
-			return IsStandaloneTypeReference(node.Right) &&
-				GetExpressionType(node.Left) != BindingManager.TypeTypeBinding;
+			if (!IsStandaloneTypeReference(e))
+			{
+				Error(CompilerErrorFactory.IsaArgument(e));
+				return false;
+			}
+			return true;
 		}
 		
 		void BindTypeTest(BinaryExpression node)
 		{			
-			if (CheckIsNotValueType(node, node.Left))
+			if (CheckIsNotValueType(node, node.Left) &&
+				CheckIsaArgument(node.Right))
 			{				
-				if (BinaryOperatorType.ReferenceInequality == node.Operator)
-				{
-					Negate(node, BinaryOperatorType.TypeTest);
-				}
-				else
-				{
-					node.Operator = BinaryOperatorType.TypeTest;
-					Bind(node, BindingManager.BoolTypeBinding);
-				}
+				Bind(node, BindingManager.BoolTypeBinding);
 			}
 			else
 			{
@@ -1680,13 +1734,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void BindReferenceEquality(BinaryExpression node)
 		{
-			
-			if (IsTypeTest(node))
-			{
-				BindTypeTest(node);
-				return;
-			}
-			
 			if (CheckIsNotValueType(node, node.Left) &&
 				CheckIsNotValueType(node, node.Right))
 			{
@@ -2082,13 +2129,19 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				return BindingManager.SingleTypeBinding;
 			}
+			if (left == BindingManager.LongTypeBinding ||
+				right == BindingManager.LongTypeBinding)
+			{
+				return BindingManager.LongTypeBinding;
+			}
 			return left;
 		}
 		
 		bool IsNumber(ITypeBinding type)
 		{
 			return
-				type == BindingManager.IntTypeBinding ||				
+				type == BindingManager.IntTypeBinding ||
+				type == BindingManager.LongTypeBinding ||
 				type == BindingManager.RealTypeBinding ||
 				type == BindingManager.SingleTypeBinding;
 		}
@@ -2275,7 +2328,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (type.IsValueType)
 			{
 				if (type == BindingManager.BoolTypeBinding ||
-				    type == BindingManager.IntTypeBinding)
+				    IsNumber(type))
 			    {
 			    	return true;
 			    }

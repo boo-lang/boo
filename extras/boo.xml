@@ -107,6 +107,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD1>include</KEYWORD1>
 			<KEYWORD1>import</KEYWORD1>
 			<KEYWORD1>is</KEYWORD1>
+			<KEYWORD1>isa</KEYWORD1>
 			<KEYWORD1>kindof</KEYWORD1>
 			<KEYWORD1>mixin</KEYWORD1>
 			<KEYWORD1>namespace</KEYWORD1>
@@ -140,6 +141,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD2>object</KEYWORD2>
 			<KEYWORD2>byte</KEYWORD2>
 			<KEYWORD2>int</KEYWORD2>
+			<KEYWORD2>long</KEYWORD2>
 			<KEYWORD2>real</KEYWORD2>
 			<KEYWORD2>date</KEYWORD2>
 			<KEYWORD2>timespan</KEYWORD2>
@@ -165,7 +167,6 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<!-- standard macros and attributes -->
 			<KEYWORD3>using</KEYWORD3>
 			<KEYWORD3>lock</KEYWORD3>
-			<KEYWORD3>getter</KEYWORD3>
 			<KEYWORD3>required</KEYWORD3>
 
 			<!-- exceptions -->

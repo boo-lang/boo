@@ -71,6 +71,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void IsaArgumentMustBeType()
+		{
+			RunCompilerTestCase("isa0.boo");
+		}
+		
+		[Test]
 		public void OverrideNonVirtualMethod()
 		{
 			RunCompilerTestCase("override0.boo");

@@ -57,6 +57,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding IntTypeBinding;
 		
+		public ExternalTypeBinding LongTypeBinding;
+		
 		public ExternalTypeBinding SingleTypeBinding;
 		
 		public ExternalTypeBinding RealTypeBinding;
@@ -93,6 +95,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(BoolTypeBinding = new ExternalTypeBinding(this, Types.Bool));
 			Cache(ByteTypeBinding = new ExternalTypeBinding(this, Types.Byte));
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
+			Cache(LongTypeBinding = new ExternalTypeBinding(this, Types.Long));
 			Cache(SingleTypeBinding = new ExternalTypeBinding(this, Types.Single));
 			Cache(RealTypeBinding = new ExternalTypeBinding(this, Types.Real));
 			Cache(TimeSpanTypeBinding = new ExternalTypeBinding(this, Types.TimeSpan));
@@ -142,6 +145,18 @@ namespace Boo.Lang.Compiler.Bindings
 		public static bool IsError(Node node)
 		{
 			return IsError(GetBinding(node));
+		}
+		
+		public static bool IsErrorAny(NodeCollection collection)
+		{
+			foreach (Node n in collection)
+			{
+				if (IsError(n))
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		public static bool IsError(IBinding binding)
@@ -365,6 +380,12 @@ namespace Boo.Lang.Compiler.Bindings
 				case "int":
 				{
 					binding = AsTypeReference(IntTypeBinding);
+					break;
+				}
+				
+				case "long":
+				{
+					binding = AsTypeReference(LongTypeBinding);
 					break;
 				}
 				

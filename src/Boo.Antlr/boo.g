@@ -87,7 +87,8 @@ tokens
 	IMPORT="import";
 	INTERFACE="interface";	
 	INTERNAL="internal";
-	IS="is";		
+	IS="is";	
+	ISA="isa";	
 	IF="if";	
 	IN="in";	
 	NOT="not";	
@@ -1356,6 +1357,7 @@ cmp_operator returns [BinaryOperatorType op] { op = BinaryOperatorType.None; }:
 	(IS { op = BinaryOperatorType.ReferenceEquality; }
 		(NOT { op = BinaryOperatorType.ReferenceInequality; })?
 		) |	
+	(ISA { op = BinaryOperatorType.TypeTest; }) |
 	(IN { op = BinaryOperatorType.Member; } ) |
 	(NOT IN { op = BinaryOperatorType.NotMember; })
 	;

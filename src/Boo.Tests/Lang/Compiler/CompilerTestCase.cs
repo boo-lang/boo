@@ -708,13 +708,13 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void IsNotIsType()
 		{
-			RunCompilerTestCase("is1.boo");
+			RunCompilerTestCase("isa0.boo");
 		}
 		
 		[Test]
 		public void IsBranch()
 		{
-			RunCompilerTestCase("is2.boo");
+			RunCompilerTestCase("isa1.boo");
 		}
 		
 		[Test]
@@ -805,6 +805,18 @@ namespace Boo.Tests.Lang.Compiler
 		public void InPlaceField()
 		{
 			RunCompilerTestCase("inplace1.boo");
+		}
+		
+		[Test]
+		public void Or()
+		{
+			RunCompilerTestCase("or0.boo");
+		}
+		
+		[Test]
+		public void OrShortCircuit()
+		{
+			RunCompilerTestCase("or1.boo");
 		}
 	}
 }

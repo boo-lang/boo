@@ -1,4 +1,4 @@
-package Boo.Web
+namespace Boo.Web
 
 import Boo.Ast
 
@@ -17,7 +17,7 @@ class ViewStateAttribute(AstAttribute):
 	// o nó da AST ao qual foi aplicado
 	def Apply(node):
 		
-		assert("ViewState pode ser aplicado somente a campos!", node kindof Field)			
+		assert("ViewState pode ser aplicado somente a campos!", node isa Field)			
 		
 		f as Field = node
 		
