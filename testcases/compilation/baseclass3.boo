@@ -1,12 +1,14 @@
 """
+BaseClass.constructor('Hello!')
 BaseClass.Method0
-BaseClass.Method1
+
 """
 import Boo.Tests.Lang.Compiler from Boo.Tests
 
 class A(BaseClass):
 	def constructor():
-		self.Method0()
+		super('Hello!')
 		
-a = A()
-a.Method1()
+b as BaseClass = A()
+b.Method0()
+

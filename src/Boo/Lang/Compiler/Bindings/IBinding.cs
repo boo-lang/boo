@@ -56,6 +56,11 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public interface IBinding
 	{	
+		string FullName
+		{
+			get;
+		}
+		
 		string Name
 		{
 			get;
@@ -86,6 +91,14 @@ namespace Boo.Lang.Compiler.Bindings
 			get
 			{
 				return _function.ToString();
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return Name;
 			}
 		}
 		
@@ -146,12 +159,7 @@ namespace Boo.Lang.Compiler.Bindings
 	}
 	
 	public interface ITypeBinding : ITypedBinding, INamespace
-	{			
-		string FullName
-		{
-			get;
-		}
-		
+	{	
 		bool IsClass
 		{
 			get;

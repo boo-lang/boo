@@ -132,6 +132,8 @@ done * EnsureMethodIsResolved => EnsureMemberIsResolved
 	
 done * field initializers
 
+* mover default super constructor call para SemanticStep
+
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar
 (para utilizar a resolução padrão de membros, etc)
@@ -165,6 +167,8 @@ derivada de Control (que tem uma propriedade chamada Size):
 	* renomear BinaryOperatorType.Reference(E|Ine)quality para Is(Not)
 	* implementar checagem de tipo quando o argumento da direita for uma
 	TypeReference
+	
+* override keyword to make sure a method is a override
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------
@@ -187,6 +191,8 @@ Milestone 3.9 (better error checking)
 -------------------------------------
 * constructors can't have a return value
 * unused local variable
+* method override with different accessibility
+* CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 	
 Milestone 4 (delegate support)
 ------------------------------

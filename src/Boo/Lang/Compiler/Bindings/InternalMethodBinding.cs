@@ -91,6 +91,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public string FullName
+		{
+			get
+			{
+				return _method.DeclaringType.FullName + "." + _method.Name;
+			}
+		}
+		
 		public virtual BindingType BindingType
 		{
 			get
@@ -190,10 +198,25 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public class InternalConstructorBinding : InternalMethodBinding, IConstructorBinding
 	{
+		bool _hasSuperCall = false;
+		
 		public InternalConstructorBinding(BindingManager bindingManager,
 		                                  Constructor constructor) : base(bindingManager, constructor)
-	      {
-	      }
+		  {
+		  }
+		  
+		public bool HasSuperCall
+		{
+			get
+			{
+				return _hasSuperCall;
+			}
+			
+			set
+			{
+				_hasSuperCall = value;
+			}
+		}
 	      
 	    public override BindingType BindingType
 	    {

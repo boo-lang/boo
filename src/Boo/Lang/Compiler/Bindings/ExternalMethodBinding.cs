@@ -76,6 +76,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public string FullName
+		{
+			get
+			{
+				return _mi.DeclaringType.FullName + "." + _mi.Name;
+			}
+		}
+		
 		public virtual BindingType BindingType
 		{
 			get

@@ -313,6 +313,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override bool EnterConstructor(Constructor node, ref Constructor resultingNode)
 		{
 			InternalConstructorBinding binding = new InternalConstructorBinding(BindingManager, node);
+			binding.Visited = true;
+			
 			BindingManager.Bind(node, binding);
 			PushMethodBinding(binding);
 			PushNamespace(binding);
@@ -412,16 +414,26 @@ namespace Boo.Lang.Compiler.Pipeline
 					IMethodBinding baseMethod = (IMethodBinding)baseMethods;
 					if (CheckOverrideSignature(binding, baseMethod))
 					{	
-						binding.Override = baseMethod;
-						TraceOverride(method, baseMethod);
-						method.Modifiers |= TypeMemberModifiers.Override;
+						SetOverride(binding, method, baseMethod);
 					}
 				}
 				else if (BindingType.Ambiguous == baseMethods.BindingType)
 				{
-					// todo:
+					IBinding[] bindings = ((AmbiguousBinding)baseMethods).Bindings;
+					IMethodBinding baseMethod = (IMethodBinding)ResolveMethodReference(method, method.Parameters, bindings, false);
+					if (null != baseMethod)
+					{
+						SetOverride(binding, method, baseMethod);
+					}
 				}
 			}
+		}
+		
+		void SetOverride(InternalMethodBinding binding, Method method, IMethodBinding baseMethod)
+		{
+			binding.Override = baseMethod;
+			TraceOverride(method, baseMethod);
+			method.Modifiers |= TypeMemberModifiers.Override;
 		}
 		
 		bool CheckOverrideSignature(IMethodBinding impl, IMethodBinding baseMethod)
@@ -726,7 +738,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				IBinding member = ((INamespace)binding).Resolve(node.Name);				
 				if (null == member)
 				{										
-					Errors.Add(CompilerErrorFactory.MemberNotFound(node, binding.Name));
+					Errors.Add(CompilerErrorFactory.MemberNotFound(node, binding.FullName));
 				}
 				else
 				{
@@ -986,7 +998,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (BindingType.Ambiguous == targetBinding.BindingType)
 			{		
 				IBinding[] bindings = ((AmbiguousBinding)targetBinding).Bindings;
-				targetBinding = ResolveMethodReference(node, node.Arguments, bindings);				
+				targetBinding = ResolveMethodReference(node, node.Arguments, bindings, true);				
 				if (null == targetBinding)
 				{
 					return;
@@ -1024,7 +1036,23 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 					BindingManager.Bind(node, nodeBinding);
 					break;
-				}				
+				}
+				
+				case BindingType.Constructor:
+				{
+					// super constructor call
+					InternalConstructorBinding constructorBinding = (InternalConstructorBinding)targetBinding;
+					constructorBinding.HasSuperCall = true;
+					
+					ITypeBinding baseType = constructorBinding.DeclaringType.BaseType;
+					IConstructorBinding superConstructorBinding = FindCorrectConstructor(node, baseType, node.Arguments);
+					if (null != superConstructorBinding)
+					{
+						BindingManager.Bind(node.Target, superConstructorBinding);
+						BindingManager.Bind(node, superConstructorBinding);
+					}
+					break;
+				}
 				
 				case BindingType.TypeReference:
 				{					
@@ -1375,7 +1403,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			IConstructorBinding[] constructors = typeBinding.GetConstructors();
 			if (constructors.Length > 0)
 			{
-				return (IConstructorBinding)ResolveMethodReference(sourceNode, arguments, constructors);				
+				return (IConstructorBinding)ResolveMethodReference(sourceNode, arguments, constructors, true);				
 			}
 			else
 			{
@@ -1419,8 +1447,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		IBinding ResolveMethodReference(Node node, ExpressionCollection args, IBinding[] bindings)
-		{			
+		IBinding ResolveMethodReference(Node node, NodeCollection args, IBinding[] bindings, bool treatErrors)
+		{
 			List scores = new List();
 			for (int i=0; i<bindings.Length; ++i)
 			{				
@@ -1433,7 +1461,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						int score = 0;
 						for (int argIndex=0; argIndex<args.Count; ++argIndex)
 						{
-							ITypeBinding expressionType = BindingManager.GetBoundType(args[argIndex]);
+							ITypeBinding expressionType = GetBoundType(args.GetNodeAt(argIndex));
 							ITypeBinding parameterType = mb.GetParameterType(argIndex);						
 							
 							if (parameterType == expressionType)
@@ -1485,13 +1513,23 @@ namespace Boo.Lang.Compiler.Pipeline
 				// todo: remove from scores, all the lesser
 				// scored bindings
 				
-				Errors.Add(CompilerErrorFactory.AmbiguousReference(node, first.Binding.Name, scores));
+				if (treatErrors)
+				{
+					Errors.Add(CompilerErrorFactory.AmbiguousReference(node, first.Binding.Name, scores));
+				}
 			}
 			else
-			{
-				Errors.Add(CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), bindings[0].Name));
+			{	
+				if (treatErrors)
+				{
+					Errors.Add(CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), bindings[0].Name));
+				}
 			}
-			BindingManager.Error(node);	
+			
+			if (treatErrors)
+			{
+				BindingManager.Error(node);
+			}
 			return null;
 		}
 		
@@ -1599,7 +1637,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}		
 		
-		string GetSignature(ExpressionCollection args)
+		string GetSignature(NodeCollection args)
 		{
 			StringBuilder sb = new StringBuilder("(");
 			foreach (Expression arg in args)

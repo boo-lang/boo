@@ -53,6 +53,27 @@ namespace Boo.Lang.Ast.Visitors
 
 			_writer = writer;
 		}
+		
+		public string IndentText
+		{
+			get
+			{
+				return _indentText;
+			}
+			
+			set
+			{
+				_indentText = value;
+			}
+		}
+		
+		public TextWriter Writer
+		{
+			get
+			{
+				return _writer;
+			}
+		}
 
 		public void Indent()
 		{
@@ -64,7 +85,7 @@ namespace Boo.Lang.Ast.Visitors
 			_indent -= 1;
 		}
 
-		public void WriteIndented()
+		public virtual void WriteIndented()
 		{
 			if (_needsIndenting)
 			{
@@ -75,27 +96,27 @@ namespace Boo.Lang.Ast.Visitors
 				_needsIndenting = false;
 			}
 		}
-
-		public void WriteIndented(string format, params object[] args)
+		
+		public virtual void WriteLine()
 		{
-			WriteIndented();
-			_writer.Write(format, args);
+			_writer.WriteLine();
+			_needsIndenting = true;
 		}
-
-		public void Write(string s)
+		
+		public virtual void Write(string s)
 		{
 			_writer.Write(s);
 		}
 
-		public void Write(string format, params object[] args)
+		public void WriteIndented(string format, params object[] args)
 		{
-			_writer.Write(string.Format(format, args));
+			WriteIndented();
+			Write(format, args);
 		}
 
-		public void WriteLine()
+		public void Write(string format, params object[] args)
 		{
-			_writer.WriteLine();
-			_needsIndenting = true;
+			Write(string.Format(format, args));
 		}
 
 		public void WriteLine(string s)

@@ -60,6 +60,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public string FullName
+		{
+			get
+			{
+				return _name;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get
@@ -155,6 +163,14 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
+				return _subject.Name;
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
 				return string.Format("{0}, {1}", _subject.Name, _assembly);
 			}
 		}
@@ -189,6 +205,14 @@ namespace Boo.Lang.Compiler.Bindings
 			get
 			{
 				return _alias;
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _subject.FullName;
 			}
 		}
 		

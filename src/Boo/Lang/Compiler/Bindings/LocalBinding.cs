@@ -53,6 +53,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public string FullName
+		{
+			get
+			{
+				return _local.Name;
+			}
+		}
+		
 		public BindingType BindingType
 		{
 			get

@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -27,78 +27,53 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Collections;
+namespace Boo.Examples.Web
 
-namespace Boo.Lang.Compiler.Bindings
-{
-	public delegate bool BindingFilter(IBinding binding);
+import System
+import System.IO
+import System.Web
+import System.Web.UI
+import System.Web.UI.WebControls
+import System.Web.UI.HtmlControls
+import Boo.Antlr
+import Boo.Lang.Ast
+import Boo.Lang.Ast.Visitors
+
+class PrettyPrinter(BooPrinterVisitor):
 	
-	public class AmbiguousBinding : IBinding
-	{
-		IBinding[] _bindings;
+	Server = HttpContext.Current.Server
+	
+	def constructor(writer as TextWriter):
+		super(writer)
 		
-		public AmbiguousBinding(IBinding[] bindings)
-		{
-			if (null == bindings)
-			{
-				throw new ArgumentNullException("bindings");
-			}
-			if (0 == bindings.Length)
-			{
-				throw new ArgumentException("bindings");
-			}
-			_bindings = bindings;
-		}
+	def Write(text as string):
+		Server.HtmlEncode(text, _writer)
 		
-		public string Name
-		{
-			get
-			{
-				return _bindings[0].Name;
-			}
-		}
+	def WriteKeyword(text as string):
+		_writer.Write("<span class='keyword'>${text}</span>")
 		
-		public string FullName
-		{
-			get
-			{
-				return _bindings[0].FullName;
-			}
-		}
+	def WriteOperator(text as string):
+		_writer.Write("<span class='operator'>${Server.HtmlEncode(text)}</span>")
 		
-		public BindingType BindingType
-		{
-			get
-			{
-				return BindingType.Ambiguous;
-			}
-		}
+	def OnStringLiteralExpression(node as StringLiteralExpression):
+		_writer.Write("<span class='string'>")
+		WriteStringLiteral(node.Value)
+		_writer.Write("</span>")
 		
-		public IBinding[] Bindings
-		{
-			get
-			{
-				return _bindings;
-			}
-		}
+
+class PrettyPrinterPage(Page):
+	
+	_srcCode as TextBox
+	_printedCode as HtmlContainerControl
+	
+	def Page_Load(sender, args as EventArgs):
+		PrintIt() if Page.IsPostBack
 		
-		public IList Filter(BindingFilter condition)
-		{
-			ArrayList found = new ArrayList();
-			foreach (IBinding binding in _bindings)
-			{
-				if (condition(binding))
-				{
-					found.Add(binding);
-				}
-			}
-			return found;
-		}
+	def PrintIt():
+		cu = BooParser.ParseReader("<string>", StringReader(_srcCode.Text.Trim()))
+		printer = PrettyPrinter(StringWriter(), IndentText: "&nbsp;&nbsp;")
+		printer.Print(cu)
+		_printedCode.InnerHtml = printer.Writer.ToString().Replace("\n", "<br />");
+
+			
 		
-		public override string ToString()
-		{
-			return "";
-		}
-	}
-}

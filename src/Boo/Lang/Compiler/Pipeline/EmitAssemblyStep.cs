@@ -235,9 +235,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void OnConstructor(Constructor constructor)
 		{
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
-			_il = builder.GetILGenerator();			
-			_il.Emit(OpCodes.Ldarg_0);			
-			_il.Emit(OpCodes.Call, GetDefaultConstructor(_typeBuilder.BaseType));
+			_il = builder.GetILGenerator();
+
+			InternalConstructorBinding binding = (InternalConstructorBinding)GetBinding(constructor);
+			if (!binding.HasSuperCall)
+			{
+				_il.Emit(OpCodes.Ldarg_0);	
+				_il.Emit(OpCodes.Call, GetDefaultConstructor(_typeBuilder.BaseType));
+			}
+			
 			constructor.Locals.Switch(this);
 			constructor.Body.Switch(this);
 			_il.Emit(OpCodes.Ret);
@@ -650,22 +656,33 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BindingType.Constructor:
 				{
 					IConstructorBinding constructorBinding = (IConstructorBinding)binding;
-					PushArguments(constructorBinding, node.Arguments);
-					
 					ConstructorInfo ci = GetConstructorInfo(constructorBinding);
-					_il.Emit(OpCodes.Newobj, ci);
-					foreach (ExpressionPair pair in node.NamedArguments)
-					{
-						// object reference
-						_il.Emit(OpCodes.Dup);
-						
-						IBinding memberBinding = BindingManager.GetBinding(pair.First);						
-						// field/property reference						
-						InitializeMember(node, memberBinding, pair.Second);
-					}
 					
-					// constructor invocation resulting type is
-					PushType(ci.DeclaringType);
+					if (NodeType.SuperLiteralExpression == node.Target.NodeType)
+					{
+						// super constructor call
+						_il.Emit(OpCodes.Ldarg_0);
+						PushArguments(constructorBinding, node.Arguments);
+						_il.Emit(OpCodes.Call, ci);
+						PushType(Types.Void);
+					}
+					else
+					{
+						PushArguments(constructorBinding, node.Arguments);
+						_il.Emit(OpCodes.Newobj, ci);
+						foreach (ExpressionPair pair in node.NamedArguments)
+						{
+							// object reference
+							_il.Emit(OpCodes.Dup);
+							
+							IBinding memberBinding = BindingManager.GetBinding(pair.First);						
+							// field/property reference						
+							InitializeMember(node, memberBinding, pair.Second);
+						}
+						
+						// constructor invocation resulting type is
+						PushType(ci.DeclaringType);
+					}
 					break;
 				}
 				

@@ -178,7 +178,8 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			if (null == _constructors)
 			{
-				ConstructorInfo[] ctors = _type.GetConstructors(BindingFlags.Public|BindingFlags.Instance);
+				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+				ConstructorInfo[] ctors = _type.GetConstructors(flags);
 				_constructors = new IConstructorBinding[ctors.Length];
 				for (int i=0; i<_constructors.Length; ++i)
 				{

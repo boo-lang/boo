@@ -51,6 +51,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public string FullName
+		{
+			get
+			{
+				return _field.DeclaringType.FullName + "." + _field.Name;
+			}
+		}
+		
 		public bool IsStatic
 		{
 			get

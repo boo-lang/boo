@@ -3,6 +3,8 @@
 
 	<property name="booc" value="../../build/booc.exe" />
 	<property name="Boo.dll" value="../../build/Boo.dll" />
+	<property name="Boo.Antlr.dll" value="../../build/Boo.Antlr.dll" />
+	<property name="antlr.runtime.dll" value="../../build/antlr.runtime.dll" />
 	<property name="Boo.NAnt.dll" value="../../build/Boo.NAnt.dll" />
 	
 	<target name="rebuild" depends="clean, build" />
@@ -15,6 +17,10 @@
 		<mkdir dir="output" />
 		<mkdir dir="output/bin" />
 		
+		<copy todir="output/bin" file="${Boo.dll}" />
+		<copy todir="output/bin" file="${Boo.Antlr.dll}" />
+		<copy todir="output/bin" file="${antlr.runtime.dll}" />
+		
 		<loadtasks assembly="${Boo.NAnt.dll}" />
 		
 		<booc output="output/bin/Boo.Examples.Web.dll" target="library">
@@ -25,6 +31,7 @@
 			
 			<references>
 				<includes name="System.Web.dll" />
+				<includes name="${Boo.Antlr.dll}" />
 			</references>
 			
 		</booc>
@@ -34,8 +41,6 @@
 				<includes name="*.aspx" />
 			</fileset>
 		</copy>
-		
-		<copy todir="output/bin" file="${Boo.dll}" />
 		
 	</target>
 	

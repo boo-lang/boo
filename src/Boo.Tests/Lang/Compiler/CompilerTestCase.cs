@@ -104,14 +104,37 @@ namespace Boo.Tests.Lang.Compiler
 		{			
 		}
 		
+		protected BaseClass(string message)
+		{
+			Console.WriteLine("BaseClass.constructor('{0}')", message);
+		}
+		
 		public virtual void Method0()
 		{
 			Console.WriteLine("BaseClass.Method0");
 		}
 		
+		public virtual void Method0(string text)
+		{
+			Console.WriteLine("BaseClass.Method0('{0}')", text);
+		}
+		
 		public virtual void Method1()
 		{
 			Console.WriteLine("BaseClass.Method1");
+		}
+	}
+	
+	public class DerivedClass : BaseClass
+	{
+		protected DerivedClass()
+		{
+		}
+		
+		public void Method2()
+		{
+			Method0();
+			Method1();
 		}
 	}
 	
@@ -458,6 +481,18 @@ namespace Boo.Tests.Lang.Compiler
 		public void CallSuperMethod()
 		{
 			RunCompilerTestCase("baseclass2.boo", "call overriden method");
+		}
+		
+		[Test]
+		public void CallSuperConstructor()
+		{
+			RunCompilerTestCase("baseclass3.boo");
+		}
+		
+		[Test]
+		public void OverrideMethodHigherInTheHierarchy()
+		{
+			RunCompilerTestCase("baseclass4.boo");
 		}
 		
 		[Test]
