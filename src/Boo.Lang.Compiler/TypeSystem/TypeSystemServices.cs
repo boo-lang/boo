@@ -141,7 +141,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			if (tag.IsArray)
 			{
-				typeReference = new ArrayTypeReference(CreateTypeReference(tag.GetElementType()));
+				IType elementType = ((IArrayType)tag).GetElementType();
+				typeReference = new ArrayTypeReference(CreateTypeReference(elementType));
 			}
 			else
 			{				
@@ -305,9 +306,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return tag;
 		}
 		
-		public IType GetArrayType(IType elementType)
+		public IArrayType GetArrayType(IType elementType)
 		{
-			IType tag = (IType)_arrayCache[elementType];
+			IArrayType tag = (IArrayType)_arrayCache[elementType];
 			if (null == tag)
 			{
 				tag = new ArrayType(this, elementType);

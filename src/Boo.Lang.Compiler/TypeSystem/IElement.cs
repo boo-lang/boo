@@ -144,10 +144,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		int GetTypeDepth();
 		
-		int GetArrayRank();
-		
-		IType GetElementType();
-		
 		IType BaseType
 		{
 			get;
@@ -164,6 +160,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool IsSubclassOf(IType other);
 		
 		bool IsAssignableFrom(IType other);
+	}
+	
+	public interface IArrayType : IType
+	{
+		int GetArrayRank();
+		
+		IType GetElementType();
 	}
 	
 	public interface IParameter : ITypedElement

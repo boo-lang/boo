@@ -1009,7 +1009,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (targetType.IsArray)
 				{
-					if (targetType.GetArrayRank() != 1)
+					IArrayType arrayType = (IArrayType)targetType;
+					if (arrayType.GetArrayRank() != 1)
 					{
 						Error(node, CompilerErrorFactory.InvalidArray(node.Target));
 						return;
@@ -1021,7 +1022,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						Bind(node, targetType.GetElementType());
+						Bind(node, arrayType.GetElementType());
 					}
 				}
 				else
@@ -2295,7 +2296,7 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceArray(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
-			IType sliceTargetType = GetExpressionType(slice.Target);
+			IArrayType sliceTargetType = (IArrayType)GetExpressionType(slice.Target);
 			IType lhsType = GetExpressionType(node.Right);
 			
 			if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType) ||
@@ -2743,7 +2744,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (type.IsArray)
 			{				
-				if (type.GetArrayRank() != 1)
+				if (((IArrayType)type).GetArrayRank() != 1)
 				{
 					Error(CompilerErrorFactory.InvalidArray(iterator));
 				}
@@ -3307,7 +3308,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (iteratorType.IsArray)
 			{
-				return iteratorType.GetElementType();
+				return ((IArrayType)iteratorType).GetElementType();
 			}
 			else
 			{

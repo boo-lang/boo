@@ -104,16 +104,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public int GetArrayRank()
-		{
-			return 0;
-		}		
-		
-		public IType GetElementType()
-		{
-			return null;
-		}
-		
 		public IType BaseType
 		{
 			get

@@ -198,16 +198,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return 1;
 		}
 		
-		public int GetArrayRank()
-		{
-			return 0;
-		}
-		
-		public IType GetElementType()
-		{
-			return null;
-		}
-		
 		public IElement GetDefaultMember()
 		{
 			IType defaultMemberAttribute = _tagService.Map(typeof(System.Reflection.DefaultMemberAttribute));

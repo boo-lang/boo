@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	
-	public class ArrayType : IType, INamespace
+	public class ArrayType : IArrayType
 	{	
 		TypeSystemServices _tagService;
 		
@@ -167,7 +167,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			if (other.IsArray)
 			{
-				IType otherElementType = other.GetElementType();
+				IType otherElementType = ((IArrayType)other).GetElementType();
 				if (_elementType.IsValueType || otherElementType.IsValueType)
 				{
 					return _elementType == otherElementType;

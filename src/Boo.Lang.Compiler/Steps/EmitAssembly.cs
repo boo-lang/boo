@@ -398,7 +398,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType iteratorType = PopType();
 			if (iteratorType.IsArray)
 			{
-				EmitArrayBasedFor(node, iteratorType);
+				EmitArrayBasedFor(node, (IArrayType)iteratorType);
 			}
 			else
 			{
@@ -848,7 +848,7 @@ namespace Boo.Lang.Compiler.Steps
 			SlicingExpression slice = (SlicingExpression)node.Left;
 			Accept(slice.Target); 
 			
-			IType arrayType = PopType();
+			IArrayType arrayType = (IArrayType)PopType();
 			IType elementType = arrayType.GetElementType();
 			EmitNormalizedArrayIndex(slice.Begin);			
 			
@@ -1543,7 +1543,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			IType type = GetType(node);
+			IArrayType type = (IArrayType)GetType(node);
 			EmitArray(type.GetElementType(), node.Items);
 			PushType(type);
 		}
@@ -1569,7 +1569,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			Accept(node.Target); 			
-			IType type = PopType();
+			IArrayType type = (IArrayType)PopType();
 
 			EmitNormalizedArrayIndex(node.Begin);
 			_il.Emit(GetLoadElementOpCode(type.GetElementType()));			
@@ -2128,7 +2128,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(breakLabel);
 		}
 		
-		void EmitArrayBasedFor(ForStatement node, IType iteratorTypeInfo)
+		void EmitArrayBasedFor(ForStatement node, IArrayType iteratorTypeInfo)
 		{				
 			Label labelTest = _il.DefineLabel();
 			Label labelBody = _il.DefineLabel();
@@ -2191,7 +2191,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (topOfStack.IsArray)
 				{						
-					IType elementTypeInfo = topOfStack.GetElementType();
+					IType elementTypeInfo = ((IArrayType)topOfStack).GetElementType();
 					
 					// RuntimeServices.CheckArrayUnpack(array, decls.Count);					
 					_il.Emit(OpCodes.Dup);
@@ -2589,17 +2589,18 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					if (tag.IsArray)
-					{												
-						IType elementType = GetSimpleElementType(tag);						
+					{				
+						IArrayType arrayType = (IArrayType)tag;
+						IType elementType = GetSimpleElementType(arrayType);						
 						if (elementType is IInternalElement)
 						{
-							string typeName = GetArrayTypeName(tag);
+							string typeName = GetArrayTypeName(arrayType);
 							type = _moduleBuilder.GetType(typeName, true);
 						}
 						else
 						{
 							//type = Type.GetType(typeName, true);
-							type = Array.CreateInstance(GetSystemType(tag.GetElementType()), 0).GetType();
+							type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), 0).GetType();
 						}
 					}
 					else
@@ -2623,11 +2624,16 @@ namespace Boo.Lang.Compiler.Steps
 			return type;
 		}
 		
+		IType GetSimpleElementType(IArrayType tag)
+		{
+			return GetSimpleElementType(tag.GetElementType());
+		}
+		
 		IType GetSimpleElementType(IType tag)
 		{
 			if (tag.IsArray)
 			{
-				return GetSimpleElementType(tag.GetElementType());
+				return GetSimpleElementType(((IArrayType)tag).GetElementType());
 			}
 			return tag;
 		}
@@ -2643,7 +2649,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsArray)
 			{
-				GetArrayTypeName(buffer, tag.GetElementType());
+				GetArrayTypeName(buffer, ((IArrayType)tag).GetElementType());
 				buffer.Append("[]");
 			}
 			else
