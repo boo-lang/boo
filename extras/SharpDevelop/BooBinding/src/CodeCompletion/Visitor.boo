@@ -91,13 +91,6 @@ class Visitor(AbstractVisitorCompilerStep):
 					l2 = l3 if l3.Line > l2.Line
 			elif p.Setter != null and p.Setter.Body != null:
 				l2 = cast(AST.Property, m).Setter.Body.EndSourceLocation
-		elif m isa AST.TypeDefinition:
-			best as DefaultRegion = null
-			for member as AST.Node in cast(AST.TypeDefinition, m).Members:
-				reg = GetClientRegion(member)
-				best = reg if reg != null and (best == null or reg.EndLine > best.EndLine)
-			if best != null:
-				return DefaultRegion(l.Line, GetLineEnd(l.Line), best.EndLine, GetLineEnd(best.EndLine))
 		else:
 			l2 = m.EndSourceLocation
 		return null if l2 == null or l2.Line < 0 or l.Line == l2.Line

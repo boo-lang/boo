@@ -61,7 +61,7 @@ class ConvertBufferCommand(AbstractMenuCommand):
 			fileService as IFileService = ServiceManager.Services.GetService(typeof(IFileService))
 			fileService.NewFile("Generated.boo", "Boo", bv.SourceText.ToString())
 
-public class CSharpConvertProjectToBoo(AbstractProjectConverter):
+class CSharpConvertProjectToBoo(AbstractProjectConverter):
 	protected override Extension as string:
 		get:
 			return '.boo'
