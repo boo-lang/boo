@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class CompileUnit : IElement, INamespace
+	public class CompileUnitTag : IElement, INamespace
 	{
 		INamespace _parent;
 		
 		INamespace[] _namespaces;
 		
-		public CompileUnit(INamespace parent)
+		public CompileUnitTag(INamespace parent)
 		{
 			// Global names at the highest level
 			_parent = parent;

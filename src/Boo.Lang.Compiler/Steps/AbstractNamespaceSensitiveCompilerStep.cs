@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		protected NameResolutionSupport _nameResolution = new NameResolutionSupport();
 		
-		override public bool EnterCompileUnit(Boo.Lang.Compiler.CompileUnit cu)
+		override public bool EnterCompileUnit(Boo.Lang.Compiler.Ast.CompileUnit cu)
 		{
 			_nameResolution.Initialize(Context);
 			return true;
@@ -68,6 +68,22 @@ namespace Boo.Lang.Compiler.Steps
 		protected void PopNamespace()
 		{
 			_nameResolution.PopNamespace();
-		}		
+		}
+		
+		protected void Error(Node node, CompilerError error)
+		{
+			Error(node);
+			Errors.Add(error);
+		}
+		
+		protected void Error(CompilerError error)
+		{
+			Errors.Add(error);
+		}
+		
+		protected void Error(Node node)
+		{
+			node.Tag = TagService.ErrorTag;
+		}
 	}
 }

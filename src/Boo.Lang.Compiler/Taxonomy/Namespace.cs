@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			types.Add(type);			
 		}
 		
-		public void AddModule(Boo.Lang.Compiler.Ast.Module module)
+		public void AddModule(Boo.Lang.Compiler.Taxonomy.ModuleTag module)
 		{
 			_moduleNamespaces.Add(module);
 		}
@@ -156,7 +156,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		IElement ResolveInternalType(string name)
 		{
 			IElement tag = null;
-			foreach (ModuleInfo ns in _moduleNamespaces)
+			foreach (ModuleTag ns in _moduleNamespaces)
 			{
 				tag = ns.ResolveMember(name);
 				if (null != tag)

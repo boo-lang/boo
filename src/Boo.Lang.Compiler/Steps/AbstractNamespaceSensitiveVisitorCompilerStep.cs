@@ -90,18 +90,12 @@ namespace Boo.Lang.Compiler.Steps
 	
 		protected InternalType GetInternalType(TypeDefinition node)
 		{
-			InternalType tag = (InternalType)TagService.GetOptionalInfo(node);
-			if (null == tag)
-			{
-				tag = new InternalType(TagService, node);
-				Bind(node, tag);
-			}
-			return tag;
+			return (InternalType)node.Tag;
 		}
 		
 		protected IElement ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
-			if (TagService.IsBound(node))
+			if (null != node.Tag)
 			{
 				return null;
 			}

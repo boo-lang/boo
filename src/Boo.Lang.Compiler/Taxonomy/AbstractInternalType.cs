@@ -191,6 +191,14 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
+		public bool IsByRef
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public bool IsClass
 		{
 			get
@@ -283,7 +291,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		public virtual bool IsAssignableFrom(IType other)
 		{
 			return this == other ||
-					(!this.IsValueType && NullInfo.Default == other) ||
+					(!this.IsValueType && Null.Default == other) ||
 					other.IsSubclassOf(this);
 		}
 		
@@ -319,7 +327,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
-					IElement tag = member.Info;
+					IElement tag = member.Tag;
 					if (null == tag)
 					{						
 						tag = CreateCorrectElement(member);

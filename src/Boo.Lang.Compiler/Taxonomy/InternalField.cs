@@ -86,7 +86,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return (IType)_tagService.GetTag(_field.Type);
+				return (IType)TagService.GetTag(_field.Type);
 			}
 		}
 		

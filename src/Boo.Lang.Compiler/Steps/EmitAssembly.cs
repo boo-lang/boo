@@ -331,7 +331,7 @@ namespace Boo.Lang.Compiler.Steps
 			TypeBuilder builder = GetTypeBuilder(node);
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
-				builder.AddInterfaceImplementation(GetType(baseType));
+				builder.AddInterfaceImplementation(GetSystemType(baseType));
 			}
 			EmitAttributes(builder, node);
 		}
@@ -354,7 +354,7 @@ namespace Boo.Lang.Compiler.Steps
 			_returnType = ((IMethod)GetTag(method)).ReturnType;
 			if (TagService.VoidType != _returnType)
 			{
-				_returnValueLocal = _il.DeclareLocal(GetType(_returnType));
+				_returnValueLocal = _il.DeclareLocal(GetSystemType(_returnType));
 			}
 			
 			Accept(method.Locals);
@@ -384,7 +384,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnLocal(Local local)
 		{			
 			LocalVariable info = GetLocalVariable(local);
-			info.LocalBuilder = _il.DeclareLocal(GetType(local));
+			info.LocalBuilder = _il.DeclareLocal(GetSystemType(local));
 			info.LocalBuilder.SetLocalSymInfo(local.Name);			
 		}
 		
@@ -444,7 +444,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnExceptionHandler(ExceptionHandler node)
 		{
-			_il.BeginCatchBlock(GetType(node.Declaration));
+			_il.BeginCatchBlock(GetSystemType(node.Declaration));
 			_il.Emit(OpCodes.Stloc, GetLocalBuilder(node.Declaration));
 			Accept(node.Block);
 		}
@@ -860,7 +860,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (leaveValueOnStack)
 			{
 				_il.Emit(OpCodes.Dup);
-				temp = _il.DeclareLocal(GetType(elementType));
+				temp = _il.DeclareLocal(GetSystemType(elementType));
 				_il.Emit(OpCodes.Stloc, temp);				
 			}
 			
@@ -899,15 +899,15 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case ElementType.Parameter:
 				{
-					ParameterInfo param = (ParameterInfo)tag;
+					InternalParameter param = (InternalParameter)tag;
 					
 					Accept(node.Right);
-					EmitCastIfNeeded(param.BoundType, PopType());
+					EmitCastIfNeeded(param.Type, PopType());
 					
 					if (leaveValueOnStack)
 					{
 						_il.Emit(OpCodes.Dup);
-						PushType(param.BoundType);
+						PushType(param.Type);
 					}
 					_il.Emit(OpCodes.Starg, param.Index);
 					break;
@@ -941,7 +941,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitTypeTest(BinaryExpression node)
 		{
 			Accept(node.Left); PopType();
-			_il.Emit(OpCodes.Isinst, GetType(node.Right));
+			_il.Emit(OpCodes.Isinst, GetSystemType(node.Right));
 		}
 		
 		void OnTypeTest(BinaryExpression node)
@@ -1022,7 +1022,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.EmitCall(OpCodes.Call, Math_Pow, null);
 			PushType(TagService.DoubleType);			
 		}
-		
+		                        
 		void OnArithmeticOperator(BinaryExpression node)
 		{
 			IType type = GetType(node);
@@ -1288,7 +1288,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnTypeofExpression(TypeofExpression node)
 		{			
-			EmitGetTypeFromHandle(GetType(node.Type));
+			EmitGetTypeFromHandle(GetSystemType(node.Type));
 		}
 		
 		override public void OnCastExpression(CastExpression node)
@@ -1301,7 +1301,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnAsExpression(AsExpression node)
 		{
-			Type type = GetType(node.Type);
+			Type type = GetSystemType(node.Type);
 			
 			node.Target.Accept(this); PopType();			
 			_il.Emit(OpCodes.Isinst, type);
@@ -1321,7 +1321,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (mi.DeclaringType == Types.Object)
 					{
 						Accept(node.Target); 
-						_il.Emit(OpCodes.Box, GetType(PopType()));
+						_il.Emit(OpCodes.Box, GetSystemType(PopType()));
 					}
 					else
 					{
@@ -1662,7 +1662,7 @@ namespace Boo.Lang.Compiler.Steps
 				Accept(self); PopType();
 				_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldInfo));						
 			}
-			PushType(fieldInfo.BoundType);
+			PushType(fieldInfo.Type);
 		}
 		
 		void EmitLoadLiteralField(Node node, IField fieldInfo)
@@ -1735,7 +1735,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case ElementType.TypeReference:
 				{
-					EmitGetTypeFromHandle(GetType(node));
+					EmitGetTypeFromHandle(GetSystemType(node));
 					break;
 				}
 				
@@ -1760,7 +1760,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case ElementType.Parameter:
 				{
-					_il.Emit(OpCodes.Ldarga, ((ParameterInfo)tag).Index);
+					_il.Emit(OpCodes.Ldarga, ((InternalParameter)tag).Index);
 					break;
 				}
 				
@@ -1768,7 +1768,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					// declare local to hold value type
 					Accept(expression); 
-					LocalBuilder temp = _il.DeclareLocal(GetType(PopType()));
+					LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
 					_il.Emit(OpCodes.Stloc, temp);
 					_il.Emit(OpCodes.Ldloca, temp);
 					break;
@@ -1798,13 +1798,13 @@ namespace Boo.Lang.Compiler.Steps
 					LocalVariable local = (LocalVariable)info;
 					LocalBuilder builder = local.LocalBuilder;
 					_il.Emit(OpCodes.Ldloc, builder);
-					PushType(local.BoundType);
+					PushType(local.Type);
 					break;
 				}
 				
 				case ElementType.Parameter:
 				{
-					Taxonomy.ParameterInfo param = (Taxonomy.ParameterInfo)info;
+					Taxonomy.InternalParameter param = (Taxonomy.InternalParameter)info;
 					int index = param.Index;
 					switch (index)
 					{
@@ -1845,13 +1845,13 @@ namespace Boo.Lang.Compiler.Steps
 							break;
 						}
 					}
-					PushType(param.BoundType);
+					PushType(param.Type);
 					break;
 				}
 				
 				case ElementType.TypeReference:
 				{
-					EmitGetTypeFromHandle(GetType(node));
+					EmitGetTypeFromHandle(GetSystemType(node));
 					break;
 				}
 				
@@ -1887,7 +1887,7 @@ namespace Boo.Lang.Compiler.Steps
 			// todo: assignment result must be type on the left in the
 			// case of casting
 			LocalBuilder local = tag.LocalBuilder;
-			EmitCastIfNeeded(tag.BoundType, typeOnStack);
+			EmitCastIfNeeded(tag.Type, typeOnStack);
 			_il.Emit(OpCodes.Stloc, local);
 		}
 		
@@ -1905,7 +1905,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			value.Accept(this);
-			EmitCastIfNeeded(field.BoundType, PopType());
+			EmitCastIfNeeded(field.Type, PopType());
 			
 			FieldInfo fi = GetFieldInfo(field);
 			LocalBuilder local = null;
@@ -1921,7 +1921,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (leaveValueOnStack)
 			{
 				_il.Emit(OpCodes.Ldloc, local);
-				PushType(field.BoundType);
+				PushType(field.Type);
 			}
 		}
 		
@@ -1940,7 +1940,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			value.Accept(this);
-			EmitCastIfNeeded(property.BoundType, PopType());
+			EmitCastIfNeeded(property.Type, PopType());
 			
 			LocalBuilder local = null;
 			if (leaveValueOnStack)
@@ -1955,7 +1955,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (leaveValueOnStack)
 			{
 				_il.Emit(OpCodes.Ldloc, local);
-				PushType(property.BoundType);
+				PushType(property.Type);
 			}
 		}
 		
@@ -2119,7 +2119,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			OpCode ldelem = GetLoadElementOpCode(iteratorTypeInfo.GetElementType());
 			
-			Type iteratorType = GetType(iteratorTypeInfo);
+			Type iteratorType = GetSystemType(iteratorTypeInfo);
 			LocalBuilder localIterator = _il.DeclareLocal(iteratorType);
 			_il.Emit(OpCodes.Stloc, localIterator);
 			
@@ -2228,11 +2228,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void PushArguments(IMethod tag, ExpressionCollection args)
 		{
+			IParameter[] parameters = tag.GetParameters();
 			for (int i=0; i<args.Count; ++i)
 			{
 				Expression arg = args[i];
 				arg.Accept(this);
-				EmitCastIfNeeded(tag.GetParameterType(i), PopType());
+				EmitCastIfNeeded(parameters[i].Type, PopType());
 			}
 		}
 		
@@ -2244,7 +2245,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitArray(IType type, ExpressionCollection items)
 		{
 			_il.Emit(OpCodes.Ldc_I4, items.Count);
-			_il.Emit(OpCodes.Newarr, GetType(type));
+			_il.Emit(OpCodes.Newarr, GetSystemType(type));
 			
 			OpCode opcode = GetStoreElementOpCode(type);
 			for (int i=0; i<items.Count; ++i)
@@ -2355,7 +2356,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						Type type = GetType(expectedType);
+						Type type = GetSystemType(expectedType);
 						_il.Emit(OpCodes.Unbox, type);
 						_il.Emit(OpCodes.Ldobj, type);
 					}
@@ -2363,7 +2364,7 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					_context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
-					_il.Emit(OpCodes.Castclass, GetType(expectedType));
+					_il.Emit(OpCodes.Castclass, GetSystemType(expectedType));
 				}
 			}
 			else
@@ -2372,7 +2373,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (actualType.IsValueType)
 					{
-						_il.Emit(OpCodes.Box, GetType(actualType));
+						_il.Emit(OpCodes.Box, GetSystemType(actualType));
 					}
 				}
 			}
@@ -2404,7 +2405,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void StoreLocal(IType topOfStack, LocalVariable local)
 		{
-			EmitCastIfNeeded(local.BoundType, topOfStack);
+			EmitCastIfNeeded(local.Type, topOfStack);
 			_il.Emit(OpCodes.Stloc, local.LocalBuilder);
 		}
 		
@@ -2451,7 +2452,7 @@ namespace Boo.Lang.Compiler.Steps
 			Type[] types = new Type[parameters.Count];
 			for (int i=0; i<types.Length; ++i)
 			{
-				types[i] = GetType(parameters[i].Type);
+				types[i] = GetSystemType(parameters[i].Type);
 			}
 			return types;
 		}
@@ -2547,12 +2548,17 @@ namespace Boo.Lang.Compiler.Steps
 			return GetConstructorBuilder(((InternalMethod)tag).Method);
 		}
 		
-		IType AsTypeInfo(Type type)
+		IType Map(Type type)
 		{
-			return TagService.AsTypeInfo(type);
+			return TagService.Map(type);
 		}
 		
-		Type GetType(IType tag)
+		Type GetSystemType(Node node)
+		{
+			return GetSystemType(GetType(node));
+		}
+		
+		Type GetSystemType(IType tag)
 		{
 			Type type = (Type)_typeCache[tag];
 			if (null == type)
@@ -2560,7 +2566,7 @@ namespace Boo.Lang.Compiler.Steps
 				ExternalType external = tag as ExternalType;
 				if (null != external)
 				{
-					type = external.Type;
+					type = external.ActualType;
 				}
 				else
 				{
@@ -2575,12 +2581,12 @@ namespace Boo.Lang.Compiler.Steps
 						else
 						{
 							//type = Type.GetType(typeName, true);
-							type = Array.CreateInstance(GetType(tag.GetElementType()), 0).GetType();
+							type = Array.CreateInstance(GetSystemType(tag.GetElementType()), 0).GetType();
 						}
 					}
 					else
 					{
-						if (NullInfo.Default == tag)
+						if (Null.Default == tag)
 						{
 							type = Types.Object;
 						}
@@ -2626,11 +2632,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				buffer.Append(tag.FullName);
 			}
-		}
-		
-		Type GetType(Node node)
-		{
-			return GetType(GetType(node));
 		}
 		
 		TypeAttributes GetNestedTypeAttributes(TypeDefinition type)
@@ -2744,7 +2745,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			PropertyBuilder builder = typeBuilder.DefineProperty(property.Name, 
 			                                            GetPropertyAttributes(property),
-			                                            GetType(property.Type),
+			                                            GetSystemType(property.Type),
 			                                            GetParameterTypes(property.Parameters));
 			Method getter = property.Getter;
 			Method setter = property.Setter;
@@ -2771,7 +2772,7 @@ namespace Boo.Lang.Compiler.Steps
 		void DefineField(TypeBuilder typeBuilder, Field field)
 		{
 			FieldBuilder builder = typeBuilder.DefineField(field.Name, 
-			                                               GetType(field), 
+			                                               GetSystemType(field), 
 			                                               GetFieldAttributes(field));
 			SetBuilder(field, builder);
 		}
@@ -2788,7 +2789,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			MethodBuilder builder = typeBuilder.DefineMethod(method.Name, 
                                         methodAttributes,
-                                        GetType(method.ReturnType),                             
+                                        GetSystemType(method.ReturnType),                             
 										GetParameterTypes(parameters));
 			for (int i=0; i<parameters.Count; ++i)
 			{
@@ -2854,7 +2855,7 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			foreach (TypeReference baseType in typeDefinition.BaseTypes)
 			{
-				Type type = GetType(baseType);
+				Type type = GetSystemType(baseType);
 				if (type.IsClass)
 				{					
 					typeBuilder.SetParent(type);
@@ -2966,7 +2967,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case NodeType.TypeofExpression:
 				{
-					return GetType(((TypeofExpression)expression).Type);
+					return GetSystemType(((TypeofExpression)expression).Type);
 				}
 				
 				default:
@@ -2974,7 +2975,7 @@ namespace Boo.Lang.Compiler.Steps
 					IElement tag = GetTag(expression);
 					if (ElementType.TypeReference == tag.ElementType)
 					{
-						return GetType(expression);
+						return GetSystemType(expression);
 					}
 					else if (ElementType.Field == tag.ElementType)
 					{

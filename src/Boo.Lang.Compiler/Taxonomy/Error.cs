@@ -56,6 +56,14 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
+		public virtual bool IsByRef
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public virtual bool IsClass
 		{
 			get

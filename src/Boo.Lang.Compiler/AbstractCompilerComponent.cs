@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler
 			{
 				throw CompilerErrorFactory.NodeNotTagged(node);
 			}
-			return node;
+			return node.Tag;
 		}		
 		
 		public virtual void Initialize(CompilerContext context)

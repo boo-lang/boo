@@ -90,11 +90,19 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IType BoundType
+		public IType Type
 		{
 			get
 			{
 				return this;
+			}
+		}
+		
+		public bool IsByRef
+		{
+			get
+			{
+				return _type.IsByRef;
 			}
 		}
 		
@@ -161,7 +169,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return _tagService.Map(_type.GetDefaultMembers());
 		}
 		
-		public Type Type
+		public Type ActualType
 		{
 			get
 			{
@@ -219,7 +227,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				_interfaces = new IType[interfaces.Length];
 				for (int i=0; i<_interfaces.Length; ++i)
 				{
-					_interfaces[i] = _tagService.AsTypeInfo(interfaces[i]);
+					_interfaces[i] = _tagService.Map(interfaces[i]);
 				}
 			}
 			return _interfaces;
@@ -234,7 +242,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				_members = new IMember[members.Length];
 				for (int i=0; i<members.Length; ++i)
 				{
-					_members[i] = _tagService.AsInfo(members[i]);
+					_members[i] = _tagService.Map(members[i]);
 				}
 			}
 			return _members;

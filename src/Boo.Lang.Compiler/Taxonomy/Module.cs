@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 
-	public class Module : INamespace, IElement
+	public class ModuleTag : INamespace, IElement
 	{
 		TagService _tagService;
 		
@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		string _namespace;
 		
-		public Module(TagService tagManager, Boo.Lang.Compiler.Ast.Module module)
+		public ModuleTag(TagService tagManager, Boo.Lang.Compiler.Ast.Module module)
 		{
 			_tagService = tagManager;
 			_module = module;			
@@ -135,10 +135,10 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		IElement ResolveModuleMember(string name)
 		{
-			Boo.Lang.Ast.TypeMember member = _module.Members[name];
+			Boo.Lang.Compiler.Ast.TypeMember member = _module.Members[name];
 			if (null != member)
 			{			
-				return _tagService.GetTypeReference((IType)_tagService.GetTag(member));
+				return _tagService.GetTypeReference((IType)TagService.GetTag(member));
 			}
 			return null;
 		}

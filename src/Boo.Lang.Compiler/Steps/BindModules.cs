@@ -36,8 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			CompileUnitInfo tag = new CompileUnitInfo(NameResolutionService);			
-			TagService.Bind(CompileUnit, tag);
+			
 		}
 	}
 }

@@ -105,7 +105,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		override public string ToString()
 		{
-			return string.Format("Local<Name={0}, Type={1}>", Name, BoundType);
+			return string.Format("Local<Name={0}, Type={1}>", Name, Type);
 		}
 	}
 }

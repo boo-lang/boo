@@ -19,6 +19,8 @@
 	<property name="skip.ast" value="False" />
 	
 	<property name="build.dir" value="build" />
+	
+	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
 	<target name="all" depends="booc, booi">	
 	</target>

@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected CompileUnit CompileUnit
+		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
 		{
 			get
 			{
@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node, CompilerError error)
 		{
-			TagService.Error(node);
+			Error(node);
 			Errors.Add(error);
 		}
 		
@@ -95,13 +95,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node)
 		{
-			TagService.Error(node);
+			node.Tag = TagService.ErrorTag;
 		}
 
 		protected void Bind(Node node, IElement tag)
 		{
 			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, tag);
-			node.Info = tag;
+			node.Tag = tag;
 		}		
 		
 		public IElement GetTag(Node node)
@@ -119,7 +119,7 @@ namespace Boo.Lang.Compiler.Steps
 			return (LocalVariable)GetTag(local);
 		}
 		
-		protected TypeReference CreateTypeReference(IType tag)
+		protected Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(IType tag)
 		{
 			return TagService.CreateTypeReference(tag);
 		}

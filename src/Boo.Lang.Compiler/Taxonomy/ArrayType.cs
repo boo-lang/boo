@@ -69,11 +69,19 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IType BoundType
+		public IType Type
 		{
 			get
 			{
 				return this;
+			}
+		}
+		
+		public bool IsByRef
+		{
+			get
+			{
+				return false;
 			}
 		}
 		

@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected CompileUnit CompileUnit
+		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
 		{
 			get
 			{
@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler.Steps
 			return TagService.GetType(node);
 		}	
 		
-		protected TypeReference CreateTypeReference(IType tag)
+		protected Boo.Lang.Compiler.Ast.TypeReference CreateTypeReference(IType tag)
 		{
 			return TagService.CreateTypeReference(tag);
 		}

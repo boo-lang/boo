@@ -62,15 +62,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
-				ModuleInfo moduleInfo = new ModuleInfo(TagService, module);
-				TagService.Bind(module, moduleInfo);
+				Taxonomy.ModuleTag moduleTag = new Taxonomy.ModuleTag(TagService, module);
+				module.Tag = moduleTag;
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
 				if (null != namespaceDeclaration)
 				{
 					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
 				}
-				GetNamespace(moduleInfo.Namespace).AddModule(moduleInfo);
+				GetNamespace(moduleTag.Namespace).AddModule(moduleTag);
 			}
 		}
 		
@@ -87,7 +87,7 @@ namespace Boo.Lang.Compiler.Steps
 					IElement tag = ResolveQualifiedName(import.Namespace);					
 					if (null == tag)
 					{
-						tag = ErrorInfo.Default;
+						tag = TagService.ErrorTag;
 						Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
 					}
 					else
@@ -107,12 +107,12 @@ namespace Boo.Lang.Compiler.Steps
 						if (null != import.Alias)
 						{
 							tag = new AliasedNamespace(import.Alias.Name, tag);
-							TagService.Bind(import.Alias, tag);
+							import.Alias.Tag = tag;
 						}
 					}
 					
 					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, tag.Name);
-					TagService.Bind(import, tag);
+					import.Tag = tag;
 				}
 			}			
 		}
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							Parameters.References.Add(asm);
-							TagService.Bind(reference, new Taxonomy.AssemblyInfo(asm));
+							reference.Tag = new Taxonomy.AssemblyReference(asm);
 						}
 						catch (Exception x)
 						{
@@ -147,7 +147,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Assembly GetBoundAssembly(ReferenceExpression reference)
 		{
-			return ((AssemblyInfo)TagService.GetTag(reference)).Assembly;
+			return ((AssemblyReference)TagService.GetTag(reference)).Assembly;
 		}
 		
 		public INamespace ParentNamespace

@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return _tagService.AsTypeInfo(_property.DeclaringType);
+				return (IType)TagService.GetTag(_property.DeclaringType);
 			}
 		}
 		
@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IType[] GetParameters()
+		public IParameter[] GetParameters()
 		{
 			if (null == _parameters)
 			{

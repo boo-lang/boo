@@ -99,6 +99,8 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		static readonly IElement _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
 		
+		public static readonly IElement ErrorTag = Boo.Lang.Compiler.Taxonomy.Error.Default;
+		
 		public TagService()		
 		{			
 			Cache(VoidType = new VoidTypeImpl(this));
@@ -128,7 +130,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			Cache(ApplicationExceptionType = new ExternalType(this, Types.ApplicationException));
 			Cache(ExceptionType = new ExternalType(this, Types.Exception));
 			
-			ObjectArrayType = AsArrayInfo(ObjectType);
+			ObjectArrayType = GetArrayType(ObjectType);
 			
 			PreparePrimitives();
 		}
@@ -146,7 +148,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				typeReference = new SimpleTypeReference(tag.FullName);				
 			}
 			
-			typeReference.Tag = AsTypeReference(tag);
+			typeReference.Tag = GetTypeReference(tag);
 			return typeReference;
 		}
 		
@@ -238,14 +240,14 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 		
 		public IType Map(System.Type type)
-		{			
+		{				
 			ExternalType tag = (ExternalType)_tagCache[type];
 			if (null == tag)
-			{	
+			{
 				if (type.IsArray)
 				{
-					tag = GetArrayType(Map(type.GetElementType()));
-				}
+					return GetArrayType(Map(type.GetElementType()));
+				}				
 				else
 				{
 					tag = new ExternalType(this, type);
@@ -271,7 +273,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			ITypedElement tag = (ITypedElement)_referenceCache[type];
 			if (null == tag)
 			{
-				tag = new TypeReference(type);
+				tag = new TypeReferenceTag(type);
 				_referenceCache[type] = tag;
 			}
 			return tag;
@@ -279,15 +281,15 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		public ITypedElement GetTypeReference(System.Type type)
 		{
-			return GetTypeReference(GetType(type));
+			return GetTypeReference(Map(type));
 		}
 		
 		public IParameter[] Map(Boo.Lang.Compiler.Ast.ParameterDeclarationCollection parameters)
 		{
-			IParameter[] mapped = new IParameter[_method.Parameters.Count];
-			for (int i=0; i<_parameters.Length; ++i)
+			IParameter[] mapped = new IParameter[parameters.Count];
+			for (int i=0; i<mapped.Length; ++i)
 			{
-				mapped[i] = (IParameter)GetTag(_method.Parameters[i]);
+				mapped[i] = (IParameter)GetTag(parameters[i]);
 			}
 			return mapped;
 		}
@@ -309,13 +311,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 				IElement[] tags = new IElement[info.Length];
 				for (int i=0; i<tags.Length; ++i)
 				{
-					tags[i] = GetElement(info[i]);
+					tags[i] = Map(info[i]);
 				}
 				return new Ambiguous(tags);
 			}
 			if (info.Length > 0)
 			{
-				return GetElement(info[0]);
+				return Map(info[0]);
 			}
 			return null;
 		}
@@ -399,7 +401,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		void AddPrimitiveType(string name, ExternalType type)
 		{
-			_primitives[name] = AsTypeReference(type);
+			_primitives[name] = GetTypeReference(type);
 		}
 		
 		void AddPrimitive(string name, IElement tag)

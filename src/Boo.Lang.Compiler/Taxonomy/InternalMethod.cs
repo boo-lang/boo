@@ -42,15 +42,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		IType _declaringType;
 		
+		IParameter[] _parameters;
+		
 		public ExpressionCollection ReturnExpressions;
 		
 		public ExpressionCollection SuperExpressions;
 		
-		internal InternalMethod(TagService manager, Method method) : this(manager, method, false)
-		{
-		}
-		
-		internal InternalMethod(TagService manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
+		internal InternalMethod(TagService manager, Boo.Lang.Compiler.Ast.Method method)
 		{			
 			_tagService = manager;
 			_method = method;
@@ -140,7 +138,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IType BoundType
+		public IType Type
 		{
 			get
 			{
@@ -156,7 +154,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		override public Node Node
+		public Node Node
 		{
 			get
 			{
@@ -204,7 +202,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		public IElement Resolve(string name)
 		{
-			foreach (Boo.Lang.Ast.Local local in _method.Locals)
+			foreach (Boo.Lang.Compiler.Ast.Local local in _method.Locals)
 			{
 				if (local.PrivateScope)
 				{
@@ -229,33 +227,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		override public string ToString()
 		{
-			System.Text.StringBuilder builder = new System.Text.StringBuilder();
-			builder.Append(_method.FullName);
-			builder.Append("(");
-			
-			int i=0;
-			foreach (ParameterDeclaration parameter in _method.Parameters)
-			{
-				if (i > 0)
-				{
-					builder.Append(", ");					
-				}
-				else
-				{
-					++i;
-				}
-				if (null == parameter.Type)
-				{
-					builder.Append("System.Object");
-				}
-				else
-				{
-					builder.Append(parameter.Type.ToString());
-				}
-			}
-			
-			builder.Append(")");
-			return builder.ToString();
+			return ElementUtil.GetSignature(this);
 		}
 	}
 	
@@ -265,14 +237,8 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		public InternalConstructor(TagService tagManager,
 		                                  Constructor constructor) : base(tagManager, constructor)
-		  {
-		  }
-		  
-		public InternalConstructor(TagService tagManager,
-		                                  Constructor constructor,
-										  bool visited) : base(tagManager, constructor, visited)
-		  {
-		  }
+		{
+		}
 		  
 		public bool HasSuperCall
 		{

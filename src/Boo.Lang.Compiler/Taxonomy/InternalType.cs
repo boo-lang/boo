@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				{					
 					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
 					{						
-						constructors.Add(_tagService.GetTag(member));
+						constructors.Add(TagService.GetTag(member));
 					}
 				}
 				_constructors = (IConstructor[])constructors.ToArray(typeof(IConstructor));

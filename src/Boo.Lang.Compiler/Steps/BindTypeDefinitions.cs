@@ -42,22 +42,60 @@ namespace Boo.Lang.Compiler.Steps
 			Accept(CompileUnit.Modules);
 		}
 		
-		override public void OnModule(Module node)
+		override public void OnModule(Boo.Lang.Compiler.Ast.Module node)
 		{			
 			Accept(node.Members);
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{	
+			if (null == node.Tag)
+			{				
+				node.Tag = new InternalType(TagService, node);				
+			}			
+			
+			NormalizeVisibility(node);
 			Accept(node.Members);
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
+			if (null != node.Tag)
+			{
+				return;
+			}			
+			
+			NormalizeVisibility(node);
+			node.Tag = new InternalType(TagService, node);
 		}
 		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
+			if (null != node.Tag)
+			{
+				return;
+			}
+			
+			NormalizeVisibility(node);
+			node.Tag = new EnumType(TagService, node);			
+			
+			long lastValue = 0;
+			foreach (EnumMember member in node.Members)
+			{
+				if (null == member.Initializer)
+				{
+					member.Initializer = new IntegerLiteralExpression(lastValue);
+				}
+				lastValue = member.Initializer.Value + 1;
+			}
+		}
+		
+		void NormalizeVisibility(TypeDefinition node)
+		{
+			if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= TypeMemberModifiers.Public;
+			}
 		}
 		
 		override public void OnMethod(Method method)

@@ -110,7 +110,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			if (null == _parameters)
 			{
-				_parameters = _tagServices.Map(_property.GetIndexParameters());
+				_parameters = _tagService.Map(_property.GetIndexParameters());
 			}
 			return _parameters;
 		}

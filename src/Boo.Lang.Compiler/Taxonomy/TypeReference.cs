@@ -28,11 +28,11 @@
 
 namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class TypeReference : ITypedElement, INamespace
+	public class TypeReferenceTag : ITypedElement, INamespace
 	{
 		IType _type;
 		
-		public TypeReference(IType type)
+		public TypeReferenceTag(IType type)
 		{
 			_type = type;
 		}
@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IType BoundType
+		public IType Type
 		{
 			get
 			{

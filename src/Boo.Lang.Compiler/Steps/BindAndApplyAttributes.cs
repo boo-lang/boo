@@ -188,8 +188,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void Run()
 		{
-			_astAttributeInterface = TagService.AsTypeInfo(typeof(IAstAttribute));
-			_systemAttributeBaseClass = TagService.AsTypeInfo(typeof(System.Attribute));
+			_astAttributeInterface = TagService.Map(typeof(IAstAttribute));
+			_systemAttributeBaseClass = TagService.Map(typeof(System.Attribute));
 			
 			int step = 0;
 			while (step < Parameters.MaxAttributeSteps)
@@ -204,26 +204,21 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}		
 
-		override public void OnModule(Module module)
+		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
 			PushNamespace((INamespace)TagService.GetTag(module));
-
-			// do mdulo precisamos apenas visitar os membros
 			Accept(module.Members);
-			
 			PopNamespace();
 		}
 
 		override public void OnBlock(Block node)
 		{
-			// No precisamos visitar blocos, isso
-			// vai deixar o processamento um pouco mais
-			// rpido
+			// No need to visit blocks
 		}
 
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
 		{			
-			if (TagService.IsBound(attribute))
+			if (null != attribute.Tag)
 			{
 				return;
 			}
@@ -241,7 +236,7 @@ namespace Boo.Lang.Compiler.Steps
 					Error(attribute, CompilerErrorFactory.AmbiguousReference(
 									attribute,
 									attribute.Name,
-									((Ambiguous)tag).Taxonomy));
+									((Ambiguous)tag).Elements));
 				}
 				else
 				{
@@ -251,7 +246,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						IType attributeType = ((ITypedElement)tag).BoundType;
+						IType attributeType = ((ITypedElement)tag).Type;
 						if (IsAstAttribute(attributeType))
 						{
 							ExternalType externalType = attributeType as ExternalType;
@@ -261,7 +256,7 @@ namespace Boo.Lang.Compiler.Steps
 							}
 							else
 							{							
-								ScheduleAttributeApplication(attribute, externalType.Type);
+								ScheduleAttributeApplication(attribute, externalType.ActualType);
 								
 								RemoveCurrentNode();
 							}
@@ -276,7 +271,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								// remember the attribute's type
 								attribute.Name = attributeType.FullName;
-								TagService.Bind(attribute, attributeType);
+								attribute.Tag = attributeType;
 							}
 						}
 					}
@@ -286,12 +281,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Error(attribute, CompilerErrorFactory.UnknownAttribute(attribute, attribute.Name));
 			}
-		}
-		
-		void Error(Boo.Lang.Compiler.Ast.Attribute attribute, CompilerError error)
-		{
-			TagService.Error(attribute);
-			Errors.Add(error);
 		}
 
 		void ScheduleAttributeApplication(Boo.Lang.Compiler.Ast.Attribute attribute, Type type)

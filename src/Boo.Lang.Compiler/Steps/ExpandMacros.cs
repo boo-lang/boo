@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Steps
 			Accept(CompileUnit);
 		}
 		
-		override public void OnModule(Module module)
+		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
 			PushNamespace((INamespace)TagService.GetTag(module));
 			Accept(module.Members);
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IType macroType = ((TypeReference)tag).BoundType;
+					IType macroType = ((TypeReferenceTag)tag).Type;
 					ExternalType type = macroType as ExternalType;
 					if (null == type)
 					{
@@ -85,7 +85,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						object macroInstance = Activator.CreateInstance(type.Type);
+						object macroInstance = Activator.CreateInstance(type.ActualType);
 						if (!(macroInstance is IAstMacro))
 						{
 							Errors.Add(CompilerErrorFactory.InvalidMacro(node, macroType.FullName));
