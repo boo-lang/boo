@@ -63,6 +63,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding RuntimeServices_GetRange;
 		
+		IMethodBinding RuntimeServices_GetEnumerable;
+		
 		IMethodBinding Object_StaticEquals;
 		
 		IMethodBinding Array_get_Length;
@@ -111,6 +113,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
 			RuntimeServices_Mid = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Mid");
 			RuntimeServices_GetRange = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("GetRange");
+			RuntimeServices_GetEnumerable = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("GetEnumerable");
 			Object_StaticEquals = (IMethodBinding)BindingManager.AsBinding(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
@@ -1580,13 +1583,34 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		override public void OnForStatement(ForStatement node)
+		/// <summary>
+		/// Process a iterator and its declarations and returns a new iterator
+		/// expression if necessary.
+		/// </summary>
+		Expression ProcessIterator(Expression iterator, DeclarationCollection declarations, bool declarePrivateScopeLocals)
 		{
+			ITypeBinding iteratorType = GetExpressionType(iterator);
+			
+			bool runtimeIterator;
+			CheckIterator(iterator, iteratorType, out runtimeIterator);
+			ProcessDeclarationsForIterator(declarations, iteratorType, declarePrivateScopeLocals);			
+			if (runtimeIterator)
+			{
+				return CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
+			}
+			
+			return null;
+		}
+		
+		override public void OnForStatement(ForStatement node)
+		{		
 			Switch(node.Iterator);
 			
-			ITypeBinding iteratorType = GetExpressionType(node.Iterator);
-			CheckIterator(node.Iterator, iteratorType);
-			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
+			Expression newIterator = ProcessIterator(node.Iterator, node.Declarations, true);
+			if (null != newIterator)
+			{
+				node.Iterator = newIterator;
+			}
 			
 			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declarations));
 			EnterLoop();
@@ -1598,7 +1622,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		override public void OnUnpackStatement(UnpackStatement node)
 		{
 			Switch(node.Expression);
-			ProcessDeclarationsForIterator(node.Declarations, GetBoundType(node.Expression), false);
+			
+			Expression newIterator = ProcessIterator(node.Expression, node.Declarations, false);
+			if (null != newIterator)
+			{
+				node.Expression = newIterator;
+			}
 		}
 		
 		override public void LeaveRaiseStatement(RaiseStatement node)
@@ -2772,8 +2801,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;			
 		}
 		
-		void CheckIterator(Expression iterator, ITypeBinding type)
-		{						
+		bool IsRuntimeIterator(ITypeBinding type)
+		{
+			return  BindingManager.ObjectTypeBinding == type ||
+					IsAssignableFrom(typeof(System.IO.TextReader), type);
+		}
+		
+		void CheckIterator(Expression iterator, ITypeBinding type, out bool runtimeIterator)
+		{	
+			runtimeIterator = false;
+			
 			if (type.IsArray)
 			{				
 				if (type.GetArrayRank() != 1)
@@ -2784,10 +2821,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			else
 			{
 				ITypeBinding enumerable = BindingManager.IEnumerableTypeBinding;
-				if (!enumerable.IsAssignableFrom(type) &&
-					!type.IsAssignableFrom(enumerable))
+				if (!enumerable.IsAssignableFrom(type))
 				{
-					Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
+					runtimeIterator = IsRuntimeIterator(type);
+					if (!runtimeIterator)
+					{
+						Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
+					}
 				}
 			}
 		}		
@@ -2812,6 +2852,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		static bool IsAssignableFrom(ITypeBinding expectedType, ITypeBinding actualType)
 		{
 			return expectedType.IsAssignableFrom(actualType);
+		}
+		
+		bool IsAssignableFrom(Type expectedType, ITypeBinding actualType)
+		{
+			return BindingManager.AsTypeBinding(expectedType).IsAssignableFrom(actualType);
 		}
 		
 		bool CanBeReachedByDownCastOrPromotion(ITypeBinding expectedType, ITypeBinding actualType)

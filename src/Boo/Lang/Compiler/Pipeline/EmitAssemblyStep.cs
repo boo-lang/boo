@@ -1979,7 +1979,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			Label breakLabel = _il.DefineLabel();
 			
 			LocalBuilder localIterator = _il.DeclareLocal(Types.IEnumerator);
-			EmitGetEnumerableIfNeeded(iteratorType);			
 			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
 			_il.Emit(OpCodes.Stloc, localIterator);
 			_il.Emit(OpCodes.Br, labelTest);
