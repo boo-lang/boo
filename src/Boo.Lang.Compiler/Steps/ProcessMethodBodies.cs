@@ -318,11 +318,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{				
-			PushNamespace((INamespace)TagService.GetTag(module));			
+			EnterNamespace((INamespace)TagService.GetTag(module));			
 			
 			Accept(module.Members);
 			
-			PopNamespace();
+			LeaveNamespace();
 		}
 		
 		void BindBaseInterfaceTypes(InterfaceDefinition node)
@@ -383,10 +383,10 @@ namespace Boo.Lang.Compiler.Steps
 			InternalType tag = GetInternalType(node);
 			BindBaseInterfaceTypes(node);
 			
-			PushNamespace(tag);
+			EnterNamespace(tag);
 			Accept(node.Attributes);
 			Accept(node.Members);
-			PopNamespace();
+			LeaveNamespace();
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
@@ -402,11 +402,11 @@ namespace Boo.Lang.Compiler.Steps
 			_classes.Add(node);
 			BindBaseTypes(node);
 			
-			PushNamespace(tag);
+			EnterNamespace(tag);
 			Accept(node.Attributes);		
 			ProcessFields(node);
 			Accept(node.Members);
-			PopNamespace();
+			LeaveNamespace();
 		}		
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
@@ -683,7 +683,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalConstructor tag = (InternalConstructor)GetTag(node);
 			PushMethodInfo(tag);
-			PushNamespace(tag);
+			EnterNamespace(tag);
 			return true;
 		}
 		
@@ -694,7 +694,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Body.Statements.Insert(0, CreateDefaultConstructorCall(node, tag));
 			}
-			PopNamespace();
+			LeaveNamespace();
 			PopMethodInfo();
 			BindParameterIndexes(node);
 		}
@@ -760,11 +760,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			PushMethodInfo(tag);
-			PushNamespace(tag);
+			EnterNamespace(tag);
 			
 			Accept(method.Body);
 			
-			PopNamespace();
+			LeaveNamespace();
 			PopMethodInfo();
 			BindParameterIndexes(method);			
 			
@@ -1361,10 +1361,10 @@ namespace Boo.Lang.Compiler.Steps
 				node.Iterator = newIterator;
 			}
 			
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TagService, node.Declarations));			
+			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TagService, node.Declarations));			
 			Accept(node.Filter);			
 			Accept(node.Expression);
-			PopNamespace();
+			LeaveNamespace();
 		}
 		
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)
@@ -1740,11 +1740,11 @@ namespace Boo.Lang.Compiler.Steps
 				node.Iterator = newIterator;
 			}
 			
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TagService, node.Declarations));
+			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TagService, node.Declarations));
 			EnterLoop();
 			Accept(node.Block);
 			LeaveLoop();
-			PopNamespace();
+			LeaveNamespace();
 		}
 		
 		override public void OnUnpackStatement(UnpackStatement node)
@@ -1784,9 +1784,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetType(node.Declaration.Type));
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TagService, node.Declaration));
+			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TagService, node.Declaration));
 			Accept(node.Block);
-			PopNamespace();
+			LeaveNamespace();
 		}
 		
 		void OnIncrementDecrement(UnaryExpression node)

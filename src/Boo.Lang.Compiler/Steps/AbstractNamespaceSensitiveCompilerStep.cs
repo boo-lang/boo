@@ -60,14 +60,14 @@ namespace Boo.Lang.Compiler.Steps
 			return _nameResolution.Resolve(sourceNode, name);
 		}
 		
-		protected void PushNamespace(INamespace ns)
+		protected void EnterNamespace(INamespace ns)
 		{
-			_nameResolution.PushNamespace(ns);
+			_nameResolution.EnterNamespace(ns);
 		}
 		
-		protected void PopNamespace()
+		protected void LeaveNamespace()
 		{
-			_nameResolution.PopNamespace();
+			_nameResolution.LeaveNamespace();
 		}
 		
 		protected void Error(Node node, CompilerError error)

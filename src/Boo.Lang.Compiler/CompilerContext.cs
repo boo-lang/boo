@@ -82,10 +82,10 @@ namespace Boo.Lang.Compiler
 			_assemblyReferences = options.References;
 			_parameters = options;
 			_tagService = new Taxonomy.TagService();
-			_nameResolutionService = new Taxonomy.NameResolutionService(); 
+			_nameResolutionService = new Taxonomy.NameResolutionService(this); 
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
-		}	
+		}
 		
 		public Hash Properties
 		{

@@ -48,9 +48,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
-			PushNamespace((INamespace)GetTag(module));
+			EnterNamespace((INamespace)GetTag(module));
 			Accept(module.Members);
-			PopNamespace();
+			LeaveNamespace();
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)

@@ -50,9 +50,9 @@ namespace Boo.Lang.Compiler.Steps
 			_nameResolution.Dispose();
 		}
 		
-		protected void PushNamespace(INamespace ns)
+		protected void EnterNamespace(INamespace ns)
 		{
-			_nameResolution.PushNamespace(ns);
+			_nameResolution.EnterNamespace(ns);
 		}
 		
 		protected INamespace CurrentNamespace
@@ -63,9 +63,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected void PopNamespace()
+		protected void LeaveNamespace()
 		{
-			_nameResolution.PopNamespace();
+			_nameResolution.LeaveNamespace();
 		}
 		
 		protected IElement Resolve(Node sourceNode, string name, ElementType tags)

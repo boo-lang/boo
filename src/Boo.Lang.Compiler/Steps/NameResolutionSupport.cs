@@ -45,7 +45,16 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context = context;
 			
-			PushNamespace((INamespace)TagService.GetTag(context.CompileUnit));
+			EnterNamespace((INamespace)TagService.GetTag(context.CompileUnit));
+		}		
+		
+		public void EnterNamespace(INamespace ns)
+		{
+			if (null == ns)
+			{
+				throw new ArgumentNullException("ns");
+			}
+			_current = ns;
 		}
 		
 		public INamespace CurrentNamespace
@@ -54,6 +63,16 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return _current;
 			}
+		}
+		
+		public void Restore(INamespace saved)
+		{
+			_current = saved;
+		}
+		
+		public void LeaveNamespace()
+		{
+			_current = _current.ParentNamespace;
 		}		
 		
 		public void Dispose()
@@ -121,25 +140,6 @@ namespace Boo.Lang.Compiler.Steps
 		static bool IsFlagSet(ElementType tags, ElementType tag)
 		{
 			return tag == (tags & tag);
-		}
-		
-		public void Restore(INamespace saved)
-		{
-			_current = saved;
-		}		
-		
-		public void PushNamespace(INamespace ns)
-		{
-			if (null == ns)
-			{
-				throw new ArgumentNullException("ns");
-			}
-			_current = ns;
-		}
-		
-		public void PopNamespace()
-		{
-			_current = _current.ParentNamespace;
 		}		
 	}
 }

@@ -46,10 +46,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
-			PushNamespace((INamespace)TagService.GetTag(module));
+			EnterNamespace((INamespace)TagService.GetTag(module));
 			Accept(module.Members);
 			Accept(module.Globals);			
-			PopNamespace();
+			LeaveNamespace();
 		}
 		
 		override public void OnMacroStatement(MacroStatement node)
