@@ -11,15 +11,33 @@
 		</exec>
 	</target>
 	
-	<target name="distro" depends="compile">
-		<zip zipfile="boox.zip">
-			<fileset>
-				<include name="boox.build" />
-				<include name="src/*.boo" />
-				<include name="resources/**/*.png" />
-				<include name="${build.dir}/*.dll" />
-				<include name="${build.dir}/booxw.exe" />
-				<include name="${build.dir}/scripts/*.int" />
+	<target name="get-svn-revision" depends="init">
+		<boo>
+		<![CDATA[
+		
+		revision = /Revision:\s+(\d+)/.Match(shell("svn", "info")).Groups[1].Value
+		Project.Properties["svn.revision"] = revision
+		
+		]]>
+		</boo>
+	</target>
+	
+	<target name="distro" depends="compile, get-svn-revision">
+		<copy todir="${build.dir}">
+			<fileset basedir="..">
+				<include name="COPYING" />
+				<include name="README.TXT" />
+			</fileset>
+		</copy>
+		
+		<zip zipfile="booxw-${svn.revision}-bin.zip">
+			<fileset basedir="${build.dir}">
+				<include name="COPYING" />
+				<include name="README.TXT" />
+				<include name="*.dll" />
+				<include name="booxw.exe" />
+				<include name="booish.exe" />
+				<include name="scripts/*.int" />
 			</fileset>
 		</zip>
 	</target>
@@ -113,32 +131,19 @@
 		</boo>
 	</target>
 	
-	<target name="check-sharp-dir" if="${not property::exists('sharpd.dir')}">
-		<fail>
-		Please, create a file named build.properties and define the
-		property sharpd.dir pointing to the bin folder of the SharpDevelop
-		distribution.
-		</fail>
-	</target>
-	
-	<target name="init" depends="check-sharp-dir">
+	<target name="init">
 		
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${build.dir}/scripts" />
-		<copy todir="${build.dir}" file="../../SharpDevelop/boo.xshd" /> 
-		
-		<call target="update-sharpd-libs" if="${directory::exists(sharpd.dir)}" />
-		
-		<loadtasks assembly="${boo.dir}/Boo.NAnt.dll" />
-	</target>
-	
-	<target name="update-sharpd-libs">
+		<copy todir="${build.dir}" file="../../SharpDevelop/boo.xshd" />
 		<copy todir="${build.dir}">
-			<fileset basedir="${sharpd.dir}">
+			<fileset basedir="lib">
 				<include name="ICSharpCode.TextEditor.dll" />				
 				<include name="WeifenLuo.WinFormsUI.dll" />
 			</fileset>
 		</copy>
+		
+		<loadtasks assembly="${boo.dir}/Boo.NAnt.dll" />
 	</target>
 
 </project>
