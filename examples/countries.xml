@@ -1,0 +1,26 @@
+<Countries>
+  <Country> 
+    <Name>Unknown</Name>
+    <Hex>0x007F</Hex>
+  </Country>
+  <Country> 
+    <Name>af</Name>
+    <Hex>0x0036</Hex>
+  </Country>
+  <Country> 
+    <Name>af-ZA</Name>
+    <Hex>0x0436</Hex>
+  </Country>
+  <Country> 
+    <Name>sq</Name>
+    <Hex>0x001C</Hex>
+  </Country>
+  <Country> 
+    <Name>sq-AL</Name>
+    <Hex>0x041C</Hex>
+  </Country>
+  <Country> 
+    <Name>vi-VN</Name>
+    <Hex>0x042A</Hex>
+  </Country>
+</Countries>
