@@ -198,15 +198,20 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		throw new ArgumentException(op, "op");
 	}
 
+	static double ParseDouble(string text)
+	{
+		return double.Parse(text, System.Globalization.CultureInfo.InvariantCulture);
+	}
+
 	protected TimeSpan ParseTimeSpan(string text)
 	{
 		if (text.EndsWith("ms"))
 		{
-			return TimeSpan.FromMilliseconds(double.Parse(text.Substring(0, text.Length-2)));
+			return TimeSpan.FromMilliseconds(ParseDouble(text.Substring(0, text.Length-2)));
 		}
 	
 		char last = text[text.Length-1];		
-		double value = double.Parse(text.Substring(0, text.Length-1));
+		double value = ParseDouble(text.Substring(0, text.Length-1));
 		switch (last)
 		{
 			case 's':
@@ -6392,7 +6397,7 @@ _loop259_breakloop:						;
 			match(DOUBLE);
 			if (0==inputState.guessing)
 			{
-				rle = new DoubleLiteralExpression(ToLexicalInfo(value), double.Parse(value.getText()));
+				rle = new DoubleLiteralExpression(ToLexicalInfo(value), ParseDouble(value.getText()));
 			}
 		}
 		catch (RecognitionException ex)
