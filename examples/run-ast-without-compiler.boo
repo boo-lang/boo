@@ -13,6 +13,5 @@ module.Globals.Add(mie)
 cunit = CompileUnit()
 cunit.Modules.Add(module)
 
-pipeline = CompilerPipeline()
-pipeline.Load("booi")
+pipeline = Pipelines.Run()
 pipeline.Run(CompilerContext(cunit))
