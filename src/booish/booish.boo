@@ -35,12 +35,6 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Compiler.IO
 
-enum InteractiveInterpreterOptions:
-	
-	None = 0
-	
-	PrintInterpretedModules = 1
-
 class InteractiveInterpreter:	
 
 	_compiler = BooCompiler()
@@ -59,12 +53,6 @@ class InteractiveInterpreter:
 	_rememberLastValue = false
 	
 	def constructor():
-		Initialize(InteractiveInterpreterOptions.None)
-
-	def constructor(options as InteractiveInterpreterOptions):
-		Initialize(options)
-		
-	private def Initialize(options as InteractiveInterpreterOptions):
 		
 		pipeline = Pipelines.CompileToMemory()
 		pipeline.RemoveAt(0)
@@ -76,17 +64,16 @@ class InteractiveInterpreter:
 		index = pipeline.Find(Steps.IntroduceModuleClasses)
 		cast(Steps.IntroduceModuleClasses, pipeline[index]).ForceModuleClass = true
 		
-		if InteractiveInterpreterOptions.PrintInterpretedModules == (
-				options & InteractiveInterpreterOptions.PrintInterpretedModules):
-			pipeline.Add(Steps.PrintBoo()) 
-
-		_compiler.Parameters.Pipeline = pipeline
-		
+		_compiler.Parameters.Pipeline = pipeline		
 		_parser.Parameters.Pipeline = Pipelines.Parse()
 		
 	LastValue:
 		get:
 			return GetValue("@value")
+			
+	Pipeline:
+		get:
+			return _compiler.Parameters.Pipeline
 		
 	def Eval(code as string):
 		
@@ -264,6 +251,8 @@ class InteractiveInterpreter:
 			super(node)
 			
 		override def LeaveExpressionStatement(node as ExpressionStatement):
+			# force standalone method references types to be completely
+			# resolved
 			GetConcreteExpressionType(node.Expression)
 			super(node)
 			
@@ -426,12 +415,11 @@ def DisplayErrors(errors as CompilerErrorCollection):
 		print("---" + "-" * pos + "^") if pos > 0
 		print("ERROR: ${error.Message}")
 
+interpreter = InteractiveInterpreter(RememberLastValue: true)
+
 if "--print-modules" in argv:
-	options = InteractiveInterpreterOptions.PrintInterpretedModules
-else:
-	options = InteractiveInterpreterOptions.None
-	
-interpreter = InteractiveInterpreter(options, RememberLastValue: true)
+	interpreter.Pipeline.Add(Steps.PrintBoo())
+
 while line=prompt(">>> "):
 	try:		
 		line = ReadBlock(line) if line[-1:] in ":", "\\"
