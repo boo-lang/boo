@@ -1,6 +1,6 @@
 """
 Makes sure that every csharp file in the src tree starts
-with the license.
+with the license notice.
 """
 import Boo.IO
 import System.IO
@@ -24,5 +24,5 @@ def GetFirstLine(fname as string):
 	using f=File.OpenText(fname):
 		return f.ReadLine()
 
-license = TextFile.ReadFile("license.txt")
+license = TextFile.ReadFile("notice.txt")
 ScanDirectory("src", license)
