@@ -386,6 +386,16 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0071", node.LexicalInfo, typeName);
 		}
 		
+		public static CompilerError InvalidOverrideReturnType(Node node, string methodName, string expectedReturnType, string actualReturnType)
+		{
+			return new CompilerError("BCE0072", node.LexicalInfo, methodName, expectedReturnType, actualReturnType);
+		}
+		
+		public static CompilerError AbstractMethodCantHaveBody(Node node, string methodName)
+		{
+			return new CompilerError("BCE0073", node.LexicalInfo, methodName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -197,6 +197,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("basetypes1.boo");
 		}
 		
+		[Test]
+		public void AbstractMethodCannotHaveBody()
+		{
+			RunCompilerTestCase("abstract0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.

@@ -70,6 +70,8 @@ BCE0068=The property '{0}' cannot be used without parameters.
 BCE0069=Interface '{0}' can only inherit from another interface but the type '{1}' is not an interface.
 BCE0070=Recursive and mutually recursive methods must declare their return types.
 BCE0071=Inheritance cycle detected: '{0}'.
+BCE0072=Overriden method '{0}' has a return type of '{1}' not '{2}'.
+BCE0073=Abstract method '{0}' cannot have a body.
 
 ;BooC Messages
 BooC.Errors={0} error(s).

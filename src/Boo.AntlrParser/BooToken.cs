@@ -36,7 +36,7 @@ namespace Boo.AntlrParser
 	/// </summary>
 	internal class BooToken : antlr.CommonToken
 	{
-		public static readonly antlr.TokenCreator Creator = new BooTokenCreator();
+		new public static readonly antlr.TokenCreator Creator = new BooTokenCreator();
 		
 		protected string _fname;
 

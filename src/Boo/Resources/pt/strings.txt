@@ -70,6 +70,8 @@ BCE0068=A propriedade '{0}' exige parâmetros.
 BCE0069=A interface '{0}' só pode estender uma outra interface mas o tipo '{1}' não é uma interface.
 BCE0070=Métodos recursivos ou mutuamente recursivos devem declarar seus tipos de retorno.
 BCE0071=Ciclo na estrutura de herança detectado: '{0}'.
+BCE0072=Método sobreescrito '{0}' tem tipo de retorno '{1}' e não '{2}'.
+BCE0073=Método abstrato '{0}' não pode ter um corpo.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

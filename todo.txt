@@ -2,8 +2,6 @@
 
 * check return types for method overrides
 
-* check visibility for override
-
 * abstract method makes class abstract
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
@@ -33,7 +31,9 @@
 * iterator expressions
 	return i*3 for i in range(10)
 
-* isolar Boo.Lang.Compiler em seu próprio assembly
+done * isolar Boo.Lang.Compiler em seu próprio assembly
+
+* check visibility for override
 
 * booi: opçoes e um único script
 	* booi /c:pt-BR /r:Foo.dll /i:aux.boo foo.boo 1 2 3

@@ -247,5 +247,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("static_field_initializer.boo");
 		}
+		
+		[Test]
+		public void AbstractMethodMakesClassAbstract()
+		{
+			RunCompilerTestCase("abstract_method0.boo");
+		}
 	}
 }

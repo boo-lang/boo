@@ -659,11 +659,41 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 			
+			bool parentIsClass = method.DeclaringType.NodeType == NodeType.ClassDefinition;
+			
 			binding.Visited = true;
 			Switch(method.Attributes);
 			Switch(method.Parameters);
 			Switch(method.ReturnType);
 			Switch(method.ReturnTypeAttributes);
+			
+			if (method.IsOverride)
+			{
+				if (parentIsClass)
+				{
+					ResolveMethodOverride(binding);
+				}
+				else
+				{
+					// TODO: only class methods can be marked 'override'
+				}
+			}
+			
+			if (method.IsAbstract)
+			{
+				if (parentIsClass)
+				{
+					method.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
+					if (method.Body.Statements.Count > 0)
+					{
+						Error(CompilerErrorFactory.AbstractMethodCantHaveBody(method, method.FullName));
+					}
+				}
+				else
+				{
+					// TODO: only class method can be marked 'abstract'
+				}
+			}
 			
 			PushMethodBinding(binding);
 			PushNamespace(binding);
@@ -674,14 +704,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopMethodBinding();
 			BindParameterIndexes(method);			
 			
-			if (method.DeclaringType.NodeType == NodeType.ClassDefinition)
+			if (parentIsClass)
 			{
 				if (BindingManager.IsUnknown(binding.BoundType))
 				{
 					if (CanResolveReturnType(binding))
 					{
 						ResolveReturnType(binding);
-						ResolveMethodOverride(binding);
+						CheckMethodOverride(binding);
 					}
 					else
 					{
@@ -690,7 +720,10 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					ResolveMethodOverride(binding);
+					if (!method.IsOverride)
+					{
+						CheckMethodOverride(binding);
+					}
 				}
 			}
 		}
@@ -704,15 +737,34 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		internal void ResolveMethodOverride(InternalMethodBinding binding)
+		/// <summary>
+		/// Checks if the specified method overrides any virtual
+		/// method in the base class.
+		/// </summary>
+		void CheckMethodOverride(InternalMethodBinding binding)
+		{		
+			IMethodBinding baseMethod = FindMethodOverride(binding);
+			if (null == baseMethod || binding.BoundType != baseMethod.ReturnType)
+			{
+				foreach (Expression super in binding.SuperExpressions)
+				{
+					Error(CompilerErrorFactory.MethodIsNotOverride(super, GetSignature(binding)));
+				}
+			}
+			else
+			{
+				if (baseMethod.IsVirtual)
+				{
+					SetOverride(binding, baseMethod);
+				}
+			}
+		}
+		
+		IMethodBinding FindMethodOverride(InternalMethodBinding binding)
 		{
-			ITypeBinding baseType = binding.DeclaringType.BaseType;
-			
-			Method method = binding.Method;
-			
+			ITypeBinding baseType = binding.DeclaringType.BaseType;			
+			Method method = binding.Method;			
 			IBinding baseMethods = baseType.Resolve(binding.Name);
-			
-			bool found = false;
 			
 			if (null != baseMethods)
 			{
@@ -721,18 +773,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					IMethodBinding baseMethod = (IMethodBinding)baseMethods;
 					if (CheckOverrideSignature(binding, baseMethod))
 					{	
-						found = true;
-						if (baseMethod.IsVirtual)
-						{
-							SetOverride(binding, method, baseMethod);
-						}
-						else
-						{
-							if (method.IsOverride)
-							{
-								CantOverrideNonVirtual(method, baseMethod);
-							}
-						}
+						return baseMethod;
 					}
 				}
 				else if (BindingType.Ambiguous == baseMethods.BindingType)
@@ -741,32 +782,44 @@ namespace Boo.Lang.Compiler.Pipeline
 					IMethodBinding baseMethod = (IMethodBinding)ResolveMethodReference(method, method.Parameters, bindings, false);
 					if (null != baseMethod)
 					{
-						found = true;
-						if (baseMethod.IsVirtual)
-						{
-							SetOverride(binding, method, baseMethod);
-						}
-						else
-						{
-							if (method.IsOverride)
-							{
-								CantOverrideNonVirtual(method, baseMethod);
-							}
-						}
+						return baseMethod;
 					}
 				}
 			}
-			
-			if (!found)
+			return null;
+		}
+		
+		void ResolveMethodOverride(InternalMethodBinding binding)
+		{	
+			IMethodBinding baseMethod = FindMethodOverride(binding);
+			if (null == baseMethod)
 			{
-				if (method.IsOverride)
+				Error(CompilerErrorFactory.NoMethodToOverride(binding.Method, GetSignature(binding)));
+			}
+			else
+			{
+				if (!baseMethod.IsVirtual)
 				{
-					Error(CompilerErrorFactory.NoMethodToOverride(method, GetSignature(binding)));
+					CantOverrideNonVirtual(binding.Method, baseMethod);
 				}
-				
-				foreach (Expression super in binding.SuperExpressions)
+				else
 				{
-					Error(CompilerErrorFactory.MethodIsNotOverride(super, GetSignature(binding)));
+					if (BindingManager.IsUnknown(binding.BoundType))
+					{
+						binding.Method.ReturnType = CreateBoundTypeReference(baseMethod.ReturnType);
+					}
+					else
+					{
+						if (baseMethod.ReturnType != binding.BoundType)
+						{
+							Error(CompilerErrorFactory.InvalidOverrideReturnType(
+											binding.Method.ReturnType,
+											baseMethod.FullName,
+											baseMethod.ReturnType.FullName,
+											binding.BoundType.FullName));
+						}
+					}
+					SetOverride(binding, baseMethod);
 				}
 			}
 		}
@@ -776,11 +829,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			Error(CompilerErrorFactory.CantOverrideNonVirtual(method, baseMethod.ToString()));
 		}
 		
-		void SetOverride(InternalMethodBinding binding, Method method, IMethodBinding baseMethod)
+		void SetOverride(InternalMethodBinding binding, IMethodBinding baseMethod)
 		{
 			binding.Override = baseMethod;
-			TraceOverride(method, baseMethod);
-			method.Modifiers |= TypeMemberModifiers.Override;
+			TraceOverride(binding.Method, baseMethod);
+			binding.Method.Modifiers |= TypeMemberModifiers.Override;
 		}
 		
 		bool CheckOverrideSignature(IMethodBinding impl, IMethodBinding baseMethod)
