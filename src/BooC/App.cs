@@ -314,7 +314,7 @@ namespace BooC
 				case "boom": return new BooInMemoryPipelineDefinition();
 				case "booi": return new BooiPipelineDefinition();
 				case "booc": return new BoocPipelineDefinition();
-				case "rountrip": return new RoundtripPipelineDefinition();
+				case "roundtrip": return new RoundtripPipelineDefinition();
 				case "boo": return new BooPipelineDefinition();
 				case "xml": return new XmlPipelineDefinition();
 			}

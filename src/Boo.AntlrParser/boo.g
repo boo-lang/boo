@@ -1704,7 +1704,7 @@ protected
 expression_interpolation returns [ExpressionInterpolationExpression e]
 	{
 		e = null;
-		Expression param = null;		
+		Expression param = null;	
 	}:
 	separator:ESEPARATOR
 	{
@@ -1713,8 +1713,9 @@ expression_interpolation returns [ExpressionInterpolationExpression e]
 	}
 	(  options { greedy = true; } :
 		
-		param=expression
-		{ e.Expressions.Add(param); }
+		ESEPARATOR!		
+		param=expression { e.Expressions.Add(param); }
+		ESEPARATOR!
 	)*
 	;
 	
@@ -1906,7 +1907,14 @@ options
 	void Enqueue(antlr.Token token, string text)
 	{
 		token.setText(text);
+		_erecorder.Enqueue(makeESEPARATOR());
 		_erecorder.Enqueue(token);
+		_erecorder.Enqueue(makeESEPARATOR());
+	}
+	
+	antlr.Token makeESEPARATOR()
+	{
+		return makeToken(ESEPARATOR);
 	}
 
 	internal void EnterSkipWhitespaceRegion()
@@ -2029,8 +2037,9 @@ DOUBLE_QUOTED_STRING:
 		if (_erecorder.Count > 0)
 		{
 			Enqueue(makeToken(DOUBLE_QUOTED_STRING), $getText);
+
 			$setType(ESEPARATOR);
-			$setText("");
+			$setText("");			
 			_selector.push(_erecorder);
 		}
 	}
@@ -2093,11 +2102,17 @@ NEWLINE:
 		
 protected
 ESCAPED_EXPRESSION : "${"!
-	{			
-		if (_erecorder.RecordUntil(_el, RBRACE) > 0)
-		{
-			$setText("");
+	{		
+		_erecorder.Enqueue(makeESEPARATOR());
+		if (0 == _erecorder.RecordUntil(_el, RBRACE))
+		{	
+			_erecorder.Dequeue();			
 		}
+		else
+		{
+			_erecorder.Enqueue(makeESEPARATOR());
+		}
+		$setText("");
 	}
 	;
 
@@ -2118,7 +2133,7 @@ protected
 RE_LITERAL : '/' (RE_CHAR)+ '/';
 
 protected
-RE_CHAR : RE_ESC | ~('/' | '\\' | ' ' | '\t' | '\r' | '\n');
+RE_CHAR : RE_ESC | ~('/' | '\\' | '\r' | '\n');
 
 
 protected

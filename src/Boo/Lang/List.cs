@@ -32,7 +32,7 @@ namespace Boo.Lang
 	using System.Collections;
 	using System.Text;
 
-	// as (object, object)->bool
+	// callable Predicate(item) as bool
 	public delegate bool Predicate(object item);
 
 	/// <summary>
@@ -412,8 +412,8 @@ namespace Boo.Lang
 		
 		void InnerRemoveAt(int index)
 		{
-			--_count;
-			
+			--_count;			
+			_items[index] = null;
 			if (index != _count)
 			{
 				Array.Copy(_items, index+1, _items, index, _count-index);

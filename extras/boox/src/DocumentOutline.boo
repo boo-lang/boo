@@ -57,7 +57,8 @@ class DocumentOutline(DockContent):
 						DoubleClick: _tree_DoubleClick,
 						ImageIndex: cast(int, TypeIcon.Namespace),
 						SelectedImageIndex: cast(int, TypeIcon.Namespace),
-						ImageList: _imageList)
+						ImageList: _imageList,
+						Sorted: true)
 
 	ActiveDocument as BooEditor:
 		set:

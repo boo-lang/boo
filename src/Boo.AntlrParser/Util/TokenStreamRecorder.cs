@@ -58,6 +58,11 @@ namespace Boo.AntlrParser.Util
 		{
 			_queue.Enqueue(token);
 		}
+		
+		public Token Dequeue()
+		{
+			 return (Token)_queue.Dequeue();
+		}
 	
 		public int RecordUntil(TokenStream stream, int ttype)
 		{
@@ -73,7 +78,7 @@ namespace Boo.AntlrParser.Util
 				}
 			
 				ods("  > {0}", token);
-				_queue.Enqueue(token);			
+				Enqueue(token);			
 			
 				++cTokens;			
 				token = stream.nextToken();			
@@ -86,7 +91,7 @@ namespace Boo.AntlrParser.Util
 		{
 			if (_queue.Count > 0)
 			{
-				return (Token)_queue.Dequeue();
+				return Dequeue();
 			}
 			return _selector.pop().nextToken();
 		}

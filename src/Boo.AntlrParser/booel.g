@@ -141,7 +141,7 @@ protected
 RE_LITERAL : '/' (RE_CHAR)+ '/';
 
 protected
-RE_CHAR : RE_ESC | ~('/' | '\\' | ' ' | '\t' | '\r' | '\n');
+RE_CHAR : RE_ESC | ~('/' | '\\' | '\r' | '\n');
 
 protected
 RE_ESC : '\\' (

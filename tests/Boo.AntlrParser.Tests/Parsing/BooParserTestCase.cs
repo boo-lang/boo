@@ -192,6 +192,12 @@ namespace Boo.AntlrParser.Tests
 		}
 		
 		[Test]
+		public void RegularExpressionsWithWhitespace()
+		{
+			RunParserTestCase("RegularExpressionsWithWhitespace.boo");
+		}
+		
+		[Test]
 		public void InlineIf()
 		{
 			RunParserTestCase("inlineif.boo");
@@ -792,6 +798,12 @@ namespace Boo.AntlrParser.Tests
 		public void NestedComments()
 		{
 			RunParserTestCase("nested_comments.boo");
+		}
+		
+		[Test]
+		public void GeneratorExpressions()
+		{
+			RunParserTestCase("GeneratorExpression1.boo");
 		}
 		
 		[Test]

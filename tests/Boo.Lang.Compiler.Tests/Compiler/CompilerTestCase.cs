@@ -1427,6 +1427,12 @@ namespace Boo.Lang.Compiler.Tests
 		}
 		
 		[Test]
+		public void DeclarationsAreVisibleInExpression()
+		{
+			RunCompilerTestCase("listdisplay3.boo");
+		}
+		
+		[Test]
 		public void CustomCollection()
 		{
 			RunCompilerTestCase("CustomCollection.boo");

@@ -191,7 +191,14 @@ using Boo.AntlrParser.Util;
 	void Enqueue(antlr.Token token, string text)
 	{
 		token.setText(text);
+		_erecorder.Enqueue(makeESEPARATOR());
 		_erecorder.Enqueue(token);
+		_erecorder.Enqueue(makeESEPARATOR());
+	}
+	
+	antlr.Token makeESEPARATOR()
+	{
+		return makeToken(ESEPARATOR);
 	}
 
 	internal void EnterSkipWhitespaceRegion()
@@ -1561,11 +1568,17 @@ _loop357_breakloop:				;
 		text.Length = _saveIndex;
 		if (0==inputState.guessing)
 		{
-						
-					if (_erecorder.RecordUntil(_el, RBRACE) > 0)
-					{
-						text.Length = _begin; text.Append("");
+					
+					_erecorder.Enqueue(makeESEPARATOR());
+					if (0 == _erecorder.RecordUntil(_el, RBRACE))
+					{	
+						_erecorder.Dequeue();			
 					}
+					else
+					{
+						_erecorder.Enqueue(makeESEPARATOR());
+					}
+					text.Length = _begin; text.Append("");
 				
 		}
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
@@ -1661,8 +1674,9 @@ _loop365_breakloop:						;
 					if (_erecorder.Count > 0)
 					{
 						Enqueue(makeToken(DOUBLE_QUOTED_STRING), text.ToString(_begin, text.Length-_begin));
+			
 						_ttype = ESEPARATOR;
-						text.Length = _begin; text.Append("");
+						text.Length = _begin; text.Append("");			
 						_selector.push(_erecorder);
 					}
 				
@@ -2064,7 +2078,7 @@ _loop382_breakloop:		;
 				int _cnt406=0;
 				for (;;)
 				{
-					if (((LA(1) >= '0' && LA(1) <= '9')) && (tokenSet_6_.member(LA(2))))
+					if (((LA(1) >= '0' && LA(1) <= '9')) && (tokenSet_1_.member(LA(2))))
 					{
 						mDIGIT(false);
 					}
@@ -2243,7 +2257,7 @@ _loop406_breakloop:				;
 	private static long[] mk_tokenSet_0_()
 	{
 		long[] data = new long[2048];
-		data[0]=-140741783332360L;
+		data[0]=-140737488364552L;
 		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
 		data[1023]=9223372036854775807L;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
@@ -2295,7 +2309,7 @@ _loop406_breakloop:				;
 	private static long[] mk_tokenSet_5_()
 	{
 		long[] data = new long[2048];
-		data[0]=-140741783332360L;
+		data[0]=-140737488364552L;
 		data[1]=-268435457L;
 		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
 		data[1023]=9223372036854775807L;
@@ -2303,16 +2317,6 @@ _loop406_breakloop:				;
 		return data;
 	}
 	public static readonly BitSet tokenSet_5_ = new BitSet(mk_tokenSet_5_());
-	private static long[] mk_tokenSet_6_()
-	{
-		long[] data = new long[2048];
-		data[0]=-4294977032L;
-		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
-		data[1023]=9223372036854775807L;
-		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
-		return data;
-	}
-	public static readonly BitSet tokenSet_6_ = new BitSet(mk_tokenSet_6_());
 	
 }
 }
