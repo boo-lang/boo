@@ -166,11 +166,13 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 					CodeBuilder.CreateStringLiteral(node.Name)))
 
 	def CreateSetValue(node as BinaryExpression):
-		return CodeBuilder.CreateMethodInvocation(
+		return CodeBuilder.CreateCast(
+				node.ExpressionType,
+				CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateReference(_interpreterField),
 					TypeSystemServices.Map(InteractiveInterpreter_SetValue),
 					CodeBuilder.CreateStringLiteral(cast(ReferenceExpression, node.Left).Name),
-					node.Right)
+					node.Right))
 
 
 class InteractiveInterpreter:

@@ -43,8 +43,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IEntity[] _members;
 		
-		IType _elementType;
-		
 		int _typeDepth = -1;
 		
 		internal ExternalType(TypeSystemServices manager, Type type)
@@ -55,10 +53,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			_typeSystemServices = manager;
 			_type = type;
-			if (_type.IsArray)
-			{
-				_elementType = _typeSystemServices.Map(type.GetElementType());
-			}
 		}
 		
 		public string FullName

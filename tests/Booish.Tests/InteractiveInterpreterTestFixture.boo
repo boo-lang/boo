@@ -81,6 +81,12 @@ class InteractiveInterpreterTestFixture:
 		assert 42 == _interpreter.GetValue("value")
 		
 	[Test]
+	def AssignmentPreservesType():
+		Eval("value = (a = 3).ToString()")
+		assert 3 == _interpreter.GetValue("a")
+		assert "3" == _interpreter.GetValue("value")
+		
+	[Test]
 	def MethodDef():
 		
 		_interpreter.SetValue("eggs", "eggs")
