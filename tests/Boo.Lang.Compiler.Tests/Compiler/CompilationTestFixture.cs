@@ -1218,6 +1218,12 @@ namespace Boo.Lang.Compiler.Tests
 		}
 		
 		[Test]
+		public void MethodsCanBeUsedAsReturnValues()
+		{
+			RunCompilerTestCase("callable4.boo");
+		}
+		
+		[Test]
 		public void StaticFieldSimple()
 		{
 			RunCompilerTestCase("static_field0.boo");

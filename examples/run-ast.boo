@@ -17,7 +17,7 @@ class CodeGeneratorStep(AbstractCompilerStep):
 		CompileUnit.Modules.Add(module)
 
 compiler = BooCompiler()
-compiler.Parameters.Pipeline = CompileToMemory()
+compiler.Parameters.Pipeline = Run()
 compiler.Parameters.Pipeline.Insert(0, CodeGeneratorStep())
 
 result = compiler.Run()
