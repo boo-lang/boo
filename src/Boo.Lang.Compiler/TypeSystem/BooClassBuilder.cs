@@ -82,6 +82,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public LexicalInfo LexicalInfo
+		{
+			get
+			{
+				return _cd.LexicalInfo;
+			}
+			
+			set
+			{
+				_cd.LexicalInfo = value;
+			}
+		}
+		
 		public void AddBaseType(IType type)
 		{			
 			_cd.BaseTypes.Add(_codeBuilder.CreateTypeReference(type));
@@ -99,9 +112,32 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public BooMethodBuilder AddMethod(string name, IType returnType)
 		{
-			BooMethodBuilder builder = new BooMethodBuilder(_codeBuilder, name, returnType);
+			return AddMethod(name, returnType, TypeMemberModifiers.Public);
+		}
+		
+		public BooMethodBuilder AddVirtualMethod(string name, IType returnType)
+		{
+			return AddMethod(name, returnType, TypeMemberModifiers.Public|TypeMemberModifiers.Virtual);
+		}
+		
+		public BooMethodBuilder AddMethod(string name, IType returnType, TypeMemberModifiers modifiers)
+		{
+			BooMethodBuilder builder = new BooMethodBuilder(_codeBuilder, name, returnType, modifiers);
 			_cd.Members.Add(builder.Method);
 			return builder;
+		}
+		
+		public Property AddReadOnlyProperty(string name, IType type)
+		{
+			TypeMemberModifiers modifiers = TypeMemberModifiers.Public;
+			Property property = new Property(name);
+			property.Modifiers = modifiers;
+			property.Type = _codeBuilder.CreateTypeReference(type);
+			property.Entity = new InternalProperty(_codeBuilder.TypeSystemServices, property);
+			property.Getter = _codeBuilder.CreateMethod("get_" + name, type, modifiers);
+
+			_cd.Members.Add(property);
+			return property;			
 		}
 		
 		public Field AddField(string name, IType type)

@@ -58,6 +58,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new BooClassBuilder(this, name);
 		}
 		
+		public BooClassBuilder CreateClass(string name, TypeMemberModifiers modifiers)
+		{
+			BooClassBuilder builder = CreateClass(name);
+			builder.Modifiers = modifiers;
+			return builder;
+		}
+		
 		public CastExpression CreateCast(IType type, Expression target)
 		{
 			CastExpression expression = new CastExpression(target.LexicalInfo);

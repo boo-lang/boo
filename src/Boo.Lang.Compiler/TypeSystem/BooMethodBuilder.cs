@@ -36,7 +36,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		BooCodeBuilder _codeBuilder;
 		Method _method;
 		
-		public BooMethodBuilder(BooCodeBuilder codeBuilder, string name, IType returnType)
+		public BooMethodBuilder(BooCodeBuilder codeBuilder,
+								string name,
+								IType returnType) :
+									this(codeBuilder, name, returnType,
+										TypeMemberModifiers.Public)
+		{
+		}
+		
+		public BooMethodBuilder(BooCodeBuilder codeBuilder,
+								string name,
+								IType returnType,
+								TypeMemberModifiers modifiers)
 		{
 			if (null == codeBuilder)
 			{
@@ -50,7 +61,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_codeBuilder = codeBuilder;			
 			_method = _codeBuilder.CreateMethod(name, 
 									returnType,
-									TypeMemberModifiers.Public);
+									modifiers);
 		}
 		
 		public BooMethodBuilder(BooCodeBuilder codeBuilder, Method method)
@@ -96,6 +107,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return _method.Parameters;
+			}
+		}
+		
+		public LocalCollection Locals
+		{
+			get
+			{
+				return _method.Locals;
 			}
 		}
 		

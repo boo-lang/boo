@@ -586,14 +586,14 @@ namespace Boo.Lang.Compiler.Steps
 			NamespaceDelegator ns = new NamespaceDelegator(CurrentNamespace, closureEntity);
 			ProcessMethodBody(closureEntity, ns);
 			TryToResolveReturnType(closureEntity);
-			PostProcessClosure(closureEntity);
 			
 			node.ParentNode.Replace(
 					node,
-					CodeBuilder.CreateMemberReference(closureEntity));
+					CreateClosureReference(closureEntity)
+					);
 		}
 		
-		void PostProcessClosure(InternalMethod closure)
+		Expression CreateClosureReference(InternalMethod closure)
 		{
 			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
 			{
@@ -602,10 +602,40 @@ namespace Boo.Lang.Compiler.Steps
 				collector.Visit(closure.Method.Body);
 				
 				if (collector.ContainsForeignLocalReferences)
-				{
-					NotImplemented(closure.Method, "closure with foreign local references");
+				{	
+					return CreateClosureClass(collector, closure);					
 				}
 			}
+			return CodeBuilder.CreateMemberReference(closure);
+		}
+		
+		Expression CreateClosureClass(ForeignReferenceCollector collector, InternalMethod closure)
+		{
+			Method method = closure.Method;
+			TypeDefinition parent = method.DeclaringType;
+			parent.Members.Remove(method);
+			
+			BooClassBuilder builder = collector.CreateSkeletonClass(method.Name);					
+			builder.ClassDefinition.Members.Add(method);			
+			method.Name = "Invoke";
+			parent.Members.Add(builder.ClassDefinition);	
+			
+			if (method.IsStatic)
+			{				
+				method.Modifiers = TypeMemberModifiers.Internal;
+				
+				// need to adjust paremeter indexes (parameter 0 is now self)
+				foreach (ParameterDeclaration parameter in method.Parameters)
+				{
+					((InternalParameter)parameter.Entity).Index += 1;
+				}
+			}
+			
+			collector.AdjustReferences();
+			return CodeBuilder.CreateMemberReference(
+					collector.CreateConstructorInvocationWithReferencedEntities(
+							builder.Entity),
+					closure);
 		}
 		
 		override public void OnMethod(Method method)

@@ -115,6 +115,14 @@ namespace Boo.Lang.Compiler.Steps
 			return _selfEntity;
 		}
 		
+		protected BooCodeBuilder CodeBuilder
+		{
+			get
+			{
+				return _context.CodeBuilder;
+			}
+		}
+		
 		public void Initialize(CompilerContext context)
 		{			
 			if (null == _foreignMethod)
@@ -133,6 +141,35 @@ namespace Boo.Lang.Compiler.Steps
 			_referencedEntities.Clear();
 		}
 		
+		public BooClassBuilder CreateSkeletonClass(string name)
+		{
+			IType baseType = _context.TypeSystemServices.ObjectType;
+			
+			BooClassBuilder builder = CodeBuilder.CreateClass(name);
+			builder.AddBaseType(baseType);
+			
+			// reference entities turn into fields			
+			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
+			{
+				Field field = builder.AddField("__" + entity.Name, entity.Type);				
+				_referencedEntities[entity] = field.Entity;
+			}
+			
+			// single constructor taking all referenced entities
+			BooMethodBuilder constructor = builder.AddConstructor();			
+			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(baseType));			
+			foreach (ITypedEntity entity in _referencedEntities.Keys)
+			{
+				ParameterDeclaration parameter = constructor.AddParameter(entity.Name, entity.Type);										
+				InternalField field = (InternalField)_referencedEntities[entity];
+				constructor.Body.Add(
+					CodeBuilder.CreateAssignment(CodeBuilder.CreateReference(field),
+									CodeBuilder.CreateReference(parameter)));
+			}
+			
+			return builder;
+		}
+		
 		public void AdjustReferences()
 		{ 			
 			foreach (Expression reference in _references)
@@ -141,20 +178,30 @@ namespace Boo.Lang.Compiler.Steps
 				if (null != entity)
 				{
 					reference.ParentNode.Replace(reference,
-							_context.CodeBuilder.CreateReference(entity));
+							CodeBuilder.CreateReference(entity));
 				}
 			}
+		}
+		
+		public MethodInvocationExpression CreateConstructorInvocationWithReferencedEntities(IType type)
+		{			
+			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(type.GetConstructors()[0]);
+			foreach (ITypedEntity entity in _referencedEntities.Keys)
+			{
+				mie.Arguments.Add(CreateForeignReference(entity));
+			}
+			return mie;
 		}
 		
 		public Expression CreateForeignReference(IEntity entity)
 		{
 			if (_selfEntity == entity)
 			{
-				return _context.CodeBuilder.CreateSelfReference(ForeignType);
+				return CodeBuilder.CreateSelfReference(ForeignType);
 			}
 			else
 			{
-				return _context.CodeBuilder.CreateReference(entity);
+				return CodeBuilder.CreateReference(entity);
 			}		
 		}
 		

@@ -88,6 +88,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return _index;
 			}
+			
+			set
+			{
+				_index = value;
+			}
 		}
 	}
 }
