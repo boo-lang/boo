@@ -1320,6 +1320,22 @@ namespace Boo.Lang.Compiler.Pipeline
 			Bind(node, BindingManager.ListTypeBinding);
 		}
 		
+		override public void OnIteratorExpression(IteratorExpression node)
+		{
+			Switch(node.Iterator);
+			
+			Expression newIterator = ProcessIterator(node.Iterator, node.Declarations, true);
+			if (null != newIterator)
+			{
+				node.Iterator = newIterator;
+			}
+			
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingManager, node.Declarations));
+			Switch(node.Expression);
+			Switch(node.Filter);			
+			PopNamespace();
+		}
+		
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)
 		{
 			Bind(node, BindingManager.HashTypeBinding);

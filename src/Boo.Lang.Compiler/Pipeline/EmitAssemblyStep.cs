@@ -1495,13 +1495,31 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.HashTypeBinding);
 		}
 		
+		bool IsListDisplay(ListLiteralExpression node)
+		{
+			return 1 == node.Items.Count &&
+				NodeType.IteratorExpression == node.Items[0].NodeType;
+		}
+		
+		override public void OnIteratorExpression(IteratorExpression node)
+		{
+			NotImplemented(node, node.ToString());
+		}
+		
 		override public void OnListLiteralExpression(ListLiteralExpression node)
 		{
 			if (node.Items.Count > 0)
 			{
-				EmitObjectArray(node.Items);
-				_il.Emit(OpCodes.Ldc_I4_1);
-				_il.Emit(OpCodes.Newobj, List_ArrayBoolConstructor);
+				if (IsListDisplay(node))
+				{
+					EmitListDisplay(node);
+				}
+				else
+				{
+					EmitObjectArray(node.Items);
+					_il.Emit(OpCodes.Ldc_I4_1);
+					_il.Emit(OpCodes.Newobj, List_ArrayBoolConstructor);
+				}
 			}
 			else
 			{
@@ -2026,6 +2044,57 @@ namespace Boo.Lang.Compiler.Pipeline
 				_il.MarkSequencePoint(_symbolDocWriter, start.Line, start.StartColumn, end.Line, end.EndColumn);
 			}
 			*/
+		}
+		
+		void EmitListDisplay(ListLiteralExpression node)
+		{
+			IteratorExpression display = (IteratorExpression)node.Items[0]; 
+			
+			// list = List()
+			LocalBuilder list = _il.DeclareLocal(Types.List);			
+			_il.Emit(OpCodes.Newobj, List_EmptyConstructor);
+			_il.Emit(OpCodes.Stloc, list);
+			
+			Label labelTest = _il.DefineLabel();
+			Label labelBody = _il.DefineLabel();
+			
+			LocalBuilder localIterator = _il.DeclareLocal(Types.IEnumerator);
+			
+			Switch(display.Iterator); PopType();
+			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
+			_il.Emit(OpCodes.Stloc, localIterator);
+			_il.Emit(OpCodes.Br, labelTest);
+			
+			_il.MarkLabel(labelBody);
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
+			EmitUnpackForDeclarations(display.Declarations, BindingManager.ObjectTypeBinding);			
+			
+			StatementModifier filter = display.Filter; 
+			if (null != filter)
+			{
+				if (StatementModifierType.If == filter.Type)
+				{
+					EmitBranchFalse(filter.Condition, labelTest);
+				}
+				else
+				{
+					EmitBranchTrue(filter.Condition, labelTest);
+				}
+			}
+			
+			_il.Emit(OpCodes.Ldloc, list);
+			Switch(display.Expression);
+			EmitCastIfNeeded(BindingManager.ObjectTypeBinding, PopType());
+			_il.EmitCall(OpCodes.Call, List_Add, null);
+			_il.Emit(OpCodes.Pop);
+			
+			_il.MarkLabel(labelTest);
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.EmitCall(OpCodes.Callvirt, IEnumerator_MoveNext, null);
+			_il.Emit(OpCodes.Brtrue, labelBody);
+			
+			_il.Emit(OpCodes.Ldloc, list);
 		}
 		
 		void EmitEnumerableBasedFor(ForStatement node, ITypeBinding iteratorType)

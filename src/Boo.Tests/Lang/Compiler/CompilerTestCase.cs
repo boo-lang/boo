@@ -1359,5 +1359,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("listdisplay0.boo");
 		}
+		
+		[Test]
+		public void FilteredListDisplay()
+		{
+			RunCompilerTestCase("listdisplay1.boo");
+		}
 	}
 }

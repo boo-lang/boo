@@ -14,7 +14,8 @@ class ClassBrowser(Content):
 	_treeViewVisitor as TreeViewVisitor
 	
 	def constructor():
-		_tree = TreeView(Dock: DockStyle.Fill, DoubleClick: _tree_DoubleClick)
+		_tree = TreeView(Dock: DockStyle.Fill,
+						DoubleClick: _tree_DoubleClick)
 		_treeViewVisitor = TreeViewVisitor(_tree)
 		
 		SuspendLayout()
@@ -51,8 +52,10 @@ class ClassBrowser(Content):
 		_treeViewVisitor.Switch(cu)
 		
 	def _tree_DoubleClick(sender, args as EventArgs):
-		if _activeDocument:
-			node as Node = _tree.SelectedNode.Tag
+		return unless _activeDocument
+		
+		if (treeNode = _tree.SelectedNode):
+			node as Node = treeNode.Tag
 			if node is not null:
 				info = node.LexicalInfo
 				_activeDocument.GoTo(info.Line-1)
@@ -88,7 +91,16 @@ class TreeViewVisitor(DepthFirstSwitcher):
 	override def OnField(node as Field):
 		Add(node.Name, node)
 		
+	override def OnInterfaceDefinition(node as InterfaceDefinition):
+		OnTypeDefinition(node)
+		
 	override def OnClassDefinition(node as ClassDefinition):
+		OnTypeDefinition(node)
+		
+	override def OnEnumDefinition(node as EnumDefinition):
+		OnTypeDefinition(node)
+		
+	def OnTypeDefinition(node as TypeDefinition):
 		saved = _current
 		
 		_current = Add(node.Name, node)
@@ -96,8 +108,9 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		
 		_current = saved
 		
-	override def OnMethod(node as Method):		
-		Add(node.Name, node)
+	override def OnMethod(node as Method):
+		name = "${node.Name}(${join([p.Name for p as ParameterDeclaration in node.Parameters], ', ')})"		
+		Add(name, node)
 		
 	def Add(text as string, data):
 		node = _current.Nodes.Add(text)
