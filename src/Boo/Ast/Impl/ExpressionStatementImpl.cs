@@ -14,11 +14,13 @@ namespace Boo.Ast.Impl
 		protected ExpressionStatementImpl(Expression expression)
 		{
  			Expression = expression;
+			LexicalInfo = expression.LexicalInfo;
 		}
 		
 		protected ExpressionStatementImpl(antlr.Token token, Expression expression) : base(token)
 		{
  			Expression = expression;
+			LexicalInfo = expression.LexicalInfo;
 		}
 		
 		internal ExpressionStatementImpl(antlr.Token token) : base(token)
@@ -42,6 +44,7 @@ namespace Boo.Ast.Impl
 				{
 					_expression.InitializeParent(this);
 				}
+				LexicalInfo = value.LexicalInfo;
 			}
 		}
 	}

@@ -266,6 +266,7 @@ package Boo.Ast
 	end
 	
 	class ExpressionStatement(Statement)
+		[LexicalInfo]
 		Expression as Expression
 	end
 	

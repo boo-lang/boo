@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -16,23 +17,31 @@ namespace Boo.Ast.Compilation.Steps
 		
 		ModuleBuilder _moduleBuilder;
 		
+		ISymbolDocumentWriter _symbolDocWriter;
+		
 		ILGenerator _il;
 		
 		public override void Run()
 		{						
 			_asmBuilder = AssemblySetupStep.GetAssemblyBuilder(CompilerContext);
-			_moduleBuilder = AssemblySetupStep.GetModuleBuilder(CompilerContext);
+			_moduleBuilder = AssemblySetupStep.GetModuleBuilder(CompilerContext);			
 			
 			Switch(CompileUnit);
 			
 			DefineEntryPoint();			
 		}
 		
+		public override bool EnterModule(Boo.Ast.Module module)
+		{
+			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);
+			return true;
+		}
+		
 		public override void LeaveModule(Boo.Ast.Module module)
 		{			
 			TypeBuilder typeBuilder = TypeManager.GetTypeBuilder(module);
 			typeBuilder.CreateType();
-		}
+		}		
 		
 		public override void OnMethod(Method method)
 		{			
@@ -49,6 +58,14 @@ namespace Boo.Ast.Compilation.Steps
 			LocalBuilder builder = _il.DeclareLocal(info.Type);
 			builder.SetLocalSymInfo(local.Name);
 			info.LocalBuilder = builder;
+		}
+		
+		public override bool EnterExpressionStatement(ExpressionStatement node)
+		{
+			LexicalInfo info = node.LexicalInfo;
+			Console.WriteLine(info);
+			_il.MarkSequencePoint(_symbolDocWriter, info.Line, info.Column-1, info.Line, info.Column-1);
+			return true;
 		}
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node)

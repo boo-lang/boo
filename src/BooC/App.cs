@@ -110,7 +110,7 @@ namespace BooC
 					}
 					else
 					{
-						options.Input.Add(new FileInput(arg));
+						options.Input.Add(new FileInput(Path.GetFullPath(arg)));
 					}
 				}
 			}

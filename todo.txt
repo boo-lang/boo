@@ -1,4 +1,4 @@
-* a lista de tarefas migrou para http://bamboo.is-a-geek.org:8080/boo/wiki/TodoList
+﻿* a lista de tarefas migrou para http://bamboo.is-a-geek.org:8080/boo/wiki/TodoList
 
 Geração de Código
 =================
@@ -80,10 +80,12 @@ Milestone 3 (grep.boo)
 ----------------------
 
 * express�es simples com inteiros
+* boxing (print e StringFormatting)
 * concatena��o de strings
 * concatena��o de strings com inteiros
 * defini��o de m�todos do m�dulo
 * chamada de m�todos do m�dulo
+* using System + Console.Write()
 * native regular expression support:
 	* re expression /foo/
 	* match operator ~=
@@ -103,8 +105,8 @@ Milestone 4
 * declara��o de propriedades
 * defini��o de m�todos
 * classes devem ser serializ�veis
-* chamada de m�todos est�ticos (classes internas)
 * cria��o de objetos (classes internas)
+* chamada de m�todos est�ticos (classes internas)
 * chamada de m�todos instance
 * null expression
 * assert statement
