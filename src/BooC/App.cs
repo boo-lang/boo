@@ -44,7 +44,11 @@ namespace BooC
 					}
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.Errors", context.Errors.Count));
 				}
-				Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, elapsed.TotalMilliseconds));
+				
+				if (options.Verbose)
+				{
+					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, elapsed.TotalMilliseconds));
+				}
 			}
 			catch (ApplicationException x)
 			{

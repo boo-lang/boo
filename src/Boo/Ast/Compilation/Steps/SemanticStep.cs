@@ -57,7 +57,7 @@ namespace Boo.Ast.Compilation.Steps
 			_namespace = new MethodNameSpace(TypeManager, _namespace, _method);			
 			
 			MethodBuilder mbuilder = _typeBuilder.DefineMethod(method.Name,
-				                     MethodAttributes.Static|MethodAttributes.Public,
+				                     MethodAttributes.Static|MethodAttributes.Private,
 				                     TypeManager.GetType(method.ReturnType),
 				                     GetParameterTypes(method));
 			TypeManager.SetNameInfo(method, mbuilder);

@@ -57,7 +57,8 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			if (0 == CompilerParameters.OutputAssembly.Length)
 			{
-				throw new ApplicationException(Boo.ResourceManager.GetString("BooC.NoOutputSpecified"));
+				//throw new ApplicationException(Boo.ResourceManager.GetString("BooC.NoOutputSpecified"));
+				CompilerParameters.OutputAssembly = Path.GetFullPath(CompileUnit.Modules[0].Name);
 			}
 			
 			AssemblyName asmName = new AssemblyName();

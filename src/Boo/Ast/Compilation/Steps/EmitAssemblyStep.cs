@@ -11,6 +11,13 @@ namespace Boo.Ast.Compilation.Steps
 {
 	public class EmitAssemblyStep : AbstractCompilerStep
 	{		
+		public static MethodInfo GetEntryPoint(CompileUnit cu)
+		{
+			return (MethodInfo)cu[EntryPointKey];
+		}
+		
+		static object EntryPointKey = new object();
+		
 		MethodInfo StringFormatMethodInfo = TypeManager.StringType.GetMethod("Format", new Type[] { TypeManager.StringType, TypeManager.ObjectArrayType });
 		
 		AssemblyBuilder _asmBuilder;
@@ -171,10 +178,13 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			if (CompilerOutputType.Library != CompilerParameters.OutputType)
 			{
-				Method method = ModuleStep.GetMainMethod(CompileUnit.Modules[0]);
-				MethodInfo mi = TypeManager.GetMethodInfo(method);
+				Module main = CompileUnit.Modules[0];
+				Method method = ModuleStep.GetMainMethod(main);
+				Type type = _asmBuilder.GetType(main.FullyQualifiedName, true);
+				MethodInfo mi = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.NonPublic);
 				
 				_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
+				CompileUnit[EntryPointKey] = mi;
 			}
 		}		
 		

@@ -13,7 +13,7 @@
 	
 	<property name="build.dir" value="build" />
 
-	<target name="all" depends="booc">
+	<target name="all" depends="booi">
 	</target>
 	
 	<target name="booc" depends="Boo, run-tests">
@@ -31,6 +31,19 @@
 				<includes name="*.pipeline" />
 			</fileset>
 		</copy>
+	</target>
+	
+	<target name="booi" depends="booc">
+	<!--
+		<csc target="exe" output="build/booi.exe" debug="${debug}" optimize="${optimize}">
+			<sources basedir="src/booi">
+				<includes name="*.cs" />
+			</sources>
+			<references>
+				<includes name="build/Boo.dll" />
+			</references>
+		</csc>
+	-->
 	</target>
 	
 	<target name='run-tests' depends="Boo.Tests" unless='${skip.tests}'>

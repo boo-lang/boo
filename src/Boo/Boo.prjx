@@ -43,8 +43,8 @@
     <File name=".\Ast\ListDisplayExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ListLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\LiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-	<File name=".\Ast\Local.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-	<File name=".\Ast\LocalCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Local.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\LocalCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\MemberReferenceExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Method.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\MethodInvocationExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -144,8 +144,8 @@
     <File name=".\Ast\Impl\IfStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\IntegerLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\InterfaceDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-	<File name=".\Ast\Impl\LocalImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-	<File name=".\Ast\Impl\LocalCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />    
+    <File name=".\Ast\Impl\LocalImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Impl\LocalCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ListDisplayExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ListLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\LiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -224,6 +224,7 @@
     <File name=".\Ast\Compilation\NameBinding\ExternalTypeInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\NameBinding\ExternalMethodInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\NameBinding\InternalMethodInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Steps\RunAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Assembly" refto="..\..\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
