@@ -126,7 +126,9 @@ namespace Boo.Ast.Visitors
 		public override void OnField(Field f)
 		{
 			WriteAttributes(f.Attributes, true);
-			WriteIndented(f.Name);
+			WriteIndented("");
+			WriteModifiers(f);
+			Write(f.Name);
 			Switch(f.Type);
 			WriteLine();
 		}
@@ -134,6 +136,7 @@ namespace Boo.Ast.Visitors
 		public override void OnProperty(Property node)
 		{
 			WriteAttributes(node.Attributes, true);
+			WriteModifiers(node);
 			WriteIndented(node.Name);
 			Switch(node.Type);
 			WriteLine(":");
@@ -141,12 +144,14 @@ namespace Boo.Ast.Visitors
 			if (null != node.Getter)
 			{
 				WriteAttributes(node.Getter.Attributes, true);
+				WriteModifiers(node.Getter);
 				WriteLine("get:");
 				OnBlock(node.Getter.Body);
 			}
 			if (null != node.Setter)
 			{
 				WriteAttributes(node.Setter.Attributes, true);
+				WriteModifiers(node.Setter);
 				WriteLine("set:");
 				OnBlock(node.Setter.Body);
 			}
@@ -173,7 +178,9 @@ namespace Boo.Ast.Visitors
 		public override void OnMethod(Method m)
 		{
 			WriteAttributes(m.Attributes, true);
-			WriteIndented("def ");
+			WriteIndented("");
+			WriteModifiers(m);
+			Write("def ");
 			Write(m.Name);
 			Write("(");
 			for (int i=0; i<m.Parameters.Count; ++i)
@@ -700,10 +707,35 @@ namespace Boo.Ast.Visitors
 				}
 			}			
 		}
+		
+		void WriteModifiers(TypeMember member)
+		{
+			if (member.IsPublic)
+			{
+				Write("public ");
+			}
+			else if (member.IsProtected)
+			{
+				Write("protected ");
+			}
+			else if (member.IsPrivate)
+			{
+				Write("private ");
+			}
+			else if (member.IsInternal)
+			{
+				Write("internal ");
+			}
+			if (member.IsStatic)
+			{
+				Write("static ");
+			}
+		}
 
 		void WriteTypeDefinition(string keyword, TypeDefinition td)
 		{
 			WriteAttributes(td.Attributes, true);
+			WriteModifiers(td);
 			WriteIndented(keyword);
 			Write(" ");
 			Write(td.Name);

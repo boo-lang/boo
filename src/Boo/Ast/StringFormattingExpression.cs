@@ -36,8 +36,7 @@ namespace Boo.Ast
 	public class StringFormattingExpression : StringFormattingExpressionImpl
 	{		
 		public StringFormattingExpression()
-		{
-			_arguments = new ExpressionCollection(this);
+		{			
  		}
 		
 		public StringFormattingExpression(string template) : base(template)

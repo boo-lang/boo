@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -52,7 +52,10 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				foreach (TypeMember member in module.Members)
 				{
-					member.Modifiers |= TypeMemberModifiers.Static;
+					if (member.NodeType == NodeType.Method)
+					{
+						member.Modifiers |= TypeMemberModifiers.Static;
+					}
 				}		
 				
 				if (module.Globals.Statements.Count > 0)

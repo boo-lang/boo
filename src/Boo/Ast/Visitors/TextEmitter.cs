@@ -29,7 +29,6 @@
 
 using System;
 using System.IO;
-using System.CodeDom.Compiler;
 
 namespace Boo.Ast.Visitors
 {
@@ -37,7 +36,13 @@ namespace Boo.Ast.Visitors
 	/// </summary>
 	public class TextEmitter : Boo.Ast.DepthFirstSwitcher
 	{
-		protected IndentedTextWriter _writer;
+		protected TextWriter _writer;
+		
+		protected int _indent = 0;
+		
+		protected string _indentText = "\t";
+		
+		protected bool _needsIndenting = true;
 
 		public TextEmitter(TextWriter writer)
 		{
@@ -46,52 +51,63 @@ namespace Boo.Ast.Visitors
 				throw new ArgumentNullException("writer");
 			}
 
-			_writer = new IndentedTextWriter(writer, "  ");
+			_writer = writer;
 		}
 
 		public void Indent()
 		{
-			_writer.Indent += 1;
+			_indent += 1;
 		}
 
 		public void Dedent()
 		{
-			_writer.Indent -= 1;
+			_indent -= 1;
 		}
 
 		public void WriteIndented()
 		{
-			_writer.Write("");
+			if (_needsIndenting)
+			{
+				for (int i=0; i<_indent; ++i)
+				{
+					_writer.Write(_indentText);
+				}
+				_needsIndenting = false;
+			}
 		}
 
 		public void WriteIndented(string format, params object[] args)
 		{
+			WriteIndented();
 			_writer.Write(format, args);
 		}
 
 		public void Write(string s)
 		{
-			_writer.InnerWriter.Write(s);
+			_writer.Write(s);
 		}
 
 		public void Write(string format, params object[] args)
 		{
-			Write(string.Format(format, args));
+			_writer.Write(string.Format(format, args));
 		}
 
 		public void WriteLine()
 		{
 			_writer.WriteLine();
+			_needsIndenting = true;
 		}
 
 		public void WriteLine(string s)
 		{
-			_writer.WriteLine(s);
+			WriteIndented(s);
+			WriteLine();
 		}
 
 		public void WriteLine(string format, params object[] args)
 		{
-			_writer.WriteLine(format, args);
+			WriteIndented(format, args);
+			WriteLine();
 		}
 	}
 }

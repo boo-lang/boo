@@ -926,7 +926,7 @@ namespace Boo.Ast.Compilation.Steps
 				if (null != method)
 				{
 					Type type = _asmBuilder.GetType(main.FullName, true);
-					MethodInfo mi = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.NonPublic);
+					MethodInfo mi = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic);
 					
 					_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
 					CompileUnit[EntryPointKey] = mi;

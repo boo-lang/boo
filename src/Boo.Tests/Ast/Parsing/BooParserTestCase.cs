@@ -754,7 +754,7 @@ namespace Boo.Tests.Ast.Parsing
 				{
 					Assert.Fail(string.Format("Test case '{0}' does not have a docstring!", testfile));
 				}
-				Assert.AreEqual(expected.Trim().Replace("\t", "  "), stdout.ToString().Trim().Replace("\r\n", "\n"), testfile);				
+				Assert.AreEqual(expected.Trim(), stdout.ToString().Trim().Replace("\r\n", "\n"), testfile);				
 			}
 			finally
 			{

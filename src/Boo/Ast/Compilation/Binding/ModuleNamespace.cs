@@ -31,68 +31,35 @@ using System;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	class ModuleNamespace : INamespace
+	class ModuleNamespace : AbstractInternalTypeBinding
 	{
-		Module _module;
-		
-		BindingManager _bindingManager;
-		
 		INamespace[] _using;
 		
-		public ModuleNamespace(BindingManager bindingManager, Module module)
-		{
-			_bindingManager = bindingManager;
-			_module = module;
-			_using = new INamespace[_module.Using.Count];
+		public ModuleNamespace(BindingManager bindingManager, Module module) : base(bindingManager, module)
+		{			
+			_using = new INamespace[module.Using.Count];
 			for (int i=0; i<_using.Length; ++i)
 			{
-				_using[i] = (INamespace)bindingManager.GetBinding(_module.Using[i]);
+				_using[i] = (INamespace)bindingManager.GetBinding(module.Using[i]);
 			}
 		}
 		
-		public IBinding Resolve(string name)
-		{			
-			foreach (TypeMember member in _module.Members)
-			{
-				if (name == member.Name)
-				{					
-					IBinding binding = _bindingManager.GetOptionalBinding(member);
-					if (null == binding)
-					{						
-						binding = CreateCorrectBinding(member);
-						_bindingManager.Bind(member, binding);
-					}	
-					
-					if (BindingType.Type == binding.BindingType)
-					{
-						binding = _bindingManager.ToTypeReference((ITypeBinding)binding);
-					}
-					return binding;
-				}
-			}			
-			
-			foreach (INamespace ns in _using)
-			{
-				// todo: resolve name in all namespaces...
-				IBinding binding = ns.Resolve(name);
-				if (null != binding)
-				{					
-					return binding;
-				}
-			}
-			return null;
-		}
-		
-		IBinding CreateCorrectBinding(TypeMember member)
+		public override IBinding Resolve(string name)
 		{
-			switch (member.NodeType)
+			IBinding binding = base.Resolve(name);
+			if (null == binding)
 			{
-				case NodeType.Method:
+				foreach (INamespace ns in _using)
 				{
-					return new InternalMethodBinding(_bindingManager, (Method)member);
+					// todo: resolve name in all namespaces...
+					binding = ns.Resolve(name);
+					if (null != binding)
+					{					
+						break;
+					}
 				}
 			}
-			throw new NotImplementedException();
+			return binding;
 		}
 	}
 }

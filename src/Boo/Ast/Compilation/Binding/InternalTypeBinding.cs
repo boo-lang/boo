@@ -33,16 +33,13 @@ using System.Reflection;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class InternalTypeBinding : ITypeBinding
+	public class InternalTypeBinding : AbstractInternalTypeBinding, ITypeBinding
 	{		
-		BindingManager _bindingManager;
-		TypeDefinition _typeDefinition;
 		IConstructorBinding[] _constructors;
 		
-		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition)
+		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition) :
+			base(manager, typeDefinition)
 		{
-			_bindingManager = manager;
-			_typeDefinition = typeDefinition;
 		}
 		
 		public string FullName
@@ -119,18 +116,5 @@ namespace Boo.Ast.Compilation.Binding
 			}
 			return _constructors;
 		}
-		
-		public IBinding Resolve(string name)
-		{			
-			foreach (TypeMember member in _typeDefinition.Members)
-			{
-				if (name == member.Name)
-				{
-					return _bindingManager.GetBinding(member);
-				}
-			}
-			return null;
-		}
-
 	}
 }

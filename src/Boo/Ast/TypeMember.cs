@@ -42,7 +42,6 @@ namespace Boo.Ast
 	{		
 		protected TypeMember()
 		{
-			_attributes = new AttributeCollection(this);
  		}
 		
 		protected TypeMember(TypeMemberModifiers modifiers, string name) : base(modifiers, name)
@@ -53,11 +52,51 @@ namespace Boo.Ast
 		{
 		}
 		
+		public bool IsVisibilitySet
+		{
+			get
+			{
+				return IsPublic | IsInternal | IsPrivate | IsProtected;
+			}
+		}
+		
 		public bool IsStatic
 		{
 			get
 			{
 				return IsModifierSet(TypeMemberModifiers.Static);
+			}
+		}
+		
+		public bool IsPublic
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Public);
+			}
+		}
+		
+		public bool IsInternal
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Internal);
+			}
+		}
+		
+		public bool IsProtected
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Protected);
+			}
+		}
+		
+		public bool IsPrivate
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Private);
 			}
 		}
 		

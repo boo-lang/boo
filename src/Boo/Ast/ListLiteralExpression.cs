@@ -37,8 +37,7 @@ namespace Boo.Ast
 	public class ListLiteralExpression : ListLiteralExpressionImpl
 	{		
 		public ListLiteralExpression()
-		{
-			_items = new ExpressionCollection(this);
+		{			
  		}
 		
 		public ListLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -41,6 +41,46 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				Switch(module.Globals.Statements);
 				Switch(module.Members);
+			}
+		}
+		
+		public override void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		{
+			if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= TypeMemberModifiers.Public;
+			}
+		}
+		
+		public override void LeaveField(Field node, ref Field resultingNode)
+		{
+			if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= TypeMemberModifiers.Protected;
+			}
+		}
+		
+		public override void LeaveProperty(Property node, ref Property resultingNode)
+		{
+			if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= TypeMemberModifiers.Public;
+			}
+		}
+		
+		public override void LeaveMethod(Method node, ref Method resultingNode)
+		{
+			if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= TypeMemberModifiers.Public;
+			}
+		}
+		
+		public override void LeaveConstructor(Constructor node, ref Constructor resultingNode)
+		{
+			if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= TypeMemberModifiers.Public;
 			}
 		}
 		

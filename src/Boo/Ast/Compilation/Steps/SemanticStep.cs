@@ -110,6 +110,15 @@ namespace Boo.Ast.Compilation.Steps
 			PopNamespace();
 		}
 		
+		public override void LeaveField(Field node, ref Field resultingNode)
+		{			
+			IBinding binding = GetOptionalBinding(node);
+			if (null == binding)
+			{
+				BindingManager.Bind(node, new InternalFieldBinding(BindingManager, node));
+			}
+		}
+		
 		public override bool EnterConstructor(Constructor node, ref Constructor resultingNode)
 		{
 			InternalConstructorBinding binding = new InternalConstructorBinding(BindingManager, node);
@@ -287,6 +296,22 @@ namespace Boo.Ast.Compilation.Steps
 			if (null != info)
 			{
 				BindingManager.Bind(node, info);
+				
+				IMemberBinding binding = info as IMemberBinding;
+				if (null != binding)
+				{
+					if (!binding.IsStatic)
+					{
+						MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
+						memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
+						memberRef.Name = node.Name;
+						BindingManager.Bind(memberRef, binding);
+						
+						Switch(memberRef.Target);
+						
+						resultingNode = memberRef;
+					}
+				}
 			}
 			else
 			{
@@ -409,7 +434,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		public override void OnBinaryExpression(BinaryExpression node, ref Expression resultingNode)
+		public override bool EnterBinaryExpression(BinaryExpression node, ref Expression resultingNode)
 		{
 			if (node.Operator == BinaryOperatorType.Assign &&
 			    NodeType.ReferenceExpression == node.Left.NodeType)
@@ -418,34 +443,21 @@ namespace Boo.Ast.Compilation.Steps
 				// assign to unknown reference implies local
 				// declaration
 				ReferenceExpression reference = (ReferenceExpression)node.Left;
-				node.Right = Switch(node.Right);
-					
-				ITypeBinding expressionTypeInfo = BindingManager.GetBoundType(node.Right);
-				
 				IBinding info = Resolve(node, reference.Name);					
 				if (null == info)
 				{
+					node.Right = Switch(node.Right);
+					ITypeBinding expressionTypeInfo = BindingManager.GetBoundType(node.Right);				
 					DeclareLocal(reference, new Local(reference, false), expressionTypeInfo);
+					LeaveBinaryExpression(node, ref resultingNode);
+					return false;
 				}
-				else
-				{
-					// default reference resolution
-					if (CheckNameResolution(reference, reference.Name, info))
-					{
-						BindingManager.Bind(reference, info);
-					}
-				}
-				
-				LeaveBinaryExpression(node, ref resultingNode);
 			}
-			else
-			{
-				base.OnBinaryExpression(node, ref resultingNode);
-			}
+			return true;
 		}
 		
 		public override void LeaveBinaryExpression(BinaryExpression node, ref Expression resultingNode)
-		{			
+		{
 			switch (node.Operator)
 			{		
 				case BinaryOperatorType.Match:
