@@ -30,20 +30,20 @@ import System
 import System.Windows.Forms from System.Windows.Forms
 
 class App:
-	[getter(Times)]
-	_times as int
 	
-	private def OnClick():
-		print("clicked!")	
-		++_times
+	[getter(Times)]
+	_times = 0
 	
 	def Run():
 		f = Form(Text: "My first boo winforms app",
 				Closed: Application.Exit)
+				
+		button = Button(Text: "click me!")
+		button.Click += callable:
+			print("clicked!")
+			++_times
 		
-		f.Controls.Add(
-				Button(Text: "click me!",
-						Click: OnClick))
+		f.Controls.Add(button)
 		f.Show()
 		
 		Application.Run(f)
