@@ -220,7 +220,10 @@ class MainWindow(Window):
 		self.UpdateDocumentOutline()
 		
 	private def UpdateDocumentOutline():
-		DocumentOutlineProcessor(_documentOutline, CurrentEditor).Update()	
+		try:
+			DocumentOutlineProcessor(_documentOutline, CurrentEditor).Update()			
+		except ignored:
+			pass
 		return true // to match Gdk.Function signature
 		
 	private def _menuItemExpand_Activated(sender, args as EventArgs):
