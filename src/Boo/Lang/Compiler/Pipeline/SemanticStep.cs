@@ -583,19 +583,11 @@ namespace Boo.Lang.Compiler.Pipeline
 					continue;
 				}
 				
-				if (IsAssignableFrom(type, newType))
+				type = GetMostGenericType(type, newType);
+				if (type == BindingManager.ObjectTypeBinding)
 				{
-					continue;
+					break;
 				}
-				
-				if (IsAssignableFrom(newType, type))
-				{
-					type = newType;
-					continue;
-				}
-				
-				type = BindingManager.ObjectTypeBinding;
-				break;
 			}
 			
 			if (binding.BoundType != type)
@@ -620,6 +612,26 @@ namespace Boo.Lang.Compiler.Pipeline
 			TraceReturnType(method, binding);	
 		}
 		
+		ITypeBinding GetMostGenericType(ITypeBinding current, ITypeBinding candidate)
+		{
+			if (IsAssignableFrom(current, candidate))
+			{
+				return current;
+			}
+			
+			if (IsAssignableFrom(candidate, current))
+			{
+				return candidate;
+			}
+			
+			if (IsNumber(current) && IsNumber(candidate))
+			{
+				return BindingManager.GetPromotedNumberType(current, candidate);
+			}
+			
+			return BindingManager.ObjectTypeBinding;
+		}
+		
 		ITypeBinding GetMostGenericType(ExpressionCollection args)
 		{
 			ITypeBinding type = GetExpressionType(args[0]);
@@ -632,19 +644,11 @@ namespace Boo.Lang.Compiler.Pipeline
 					continue;
 				}
 				
-				if (IsAssignableFrom(type, newType))
+				type = GetMostGenericType(type, newType);
+				if (type == BindingManager.ObjectTypeBinding)
 				{
-					continue;
+					break;
 				}
-				
-				if (IsAssignableFrom(newType, type))
-				{
-					type = newType;
-					continue;
-				}
-				
-				type = BindingManager.ObjectTypeBinding;
-				break;
 			}
 			return type;
 		}

@@ -1,5 +1,6 @@
 namespace Boo.NAnt
 
+import System.Diagnostics
 import System.IO
 import NAnt.Core
 import NAnt.Core.Attributes
@@ -20,12 +21,22 @@ class BooC(Task):
 	
 	_pipeline = "booc"
 	
+	_traceLevel = System.Diagnostics.TraceLevel.Off
+	
 	[TaskAttribute("output", Required: true)]
 	Output:
 		get:
 			return _output
 		set:
 			_output = value
+			
+	[TaskAttribute("tracelevel")]
+	TraceLevel:
+		get:
+			return _traceLevel
+			
+		set:
+			_traceLevel = value
 			
 	[TaskAttribute("target")]
 	Target:
@@ -65,6 +76,7 @@ class BooC(Task):
 		
 		compiler = BooCompiler()
 		parameters = compiler.Parameters
+		parameters.TraceSwitch.Level = _traceLevel
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
 		parameters.Pipeline.Load(Project.BaseDirectory, _pipeline)
@@ -77,8 +89,8 @@ class BooC(Task):
 			
 		context = compiler.Run()
 		errors = context.Errors
-		for error in errors:
-			LogError(error.ToString())
+		for error as CompilerError in errors:
+			LogError(error.ToString(parameters.TraceSwitch.TraceInfo))
 			
 		if errors.Count:
 			LogInfo("${errors.Count} error(s).")

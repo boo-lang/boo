@@ -44,6 +44,7 @@
 			<arg value="/out:build/Boo.NAnt.dll" />
 			<arg value="/target:library" />
 			<arg value="/r:${NAnt.Core.dll}" />
+			<arg value="-v" />
 			<arg value="src/Boo.NAnt/BooC.boo" />
 		</exec>
 	</target>

@@ -464,6 +464,10 @@ namespace Boo.Lang.Ast.Visitors
 		public override void OnIntegerLiteralExpression(IntegerLiteralExpression e)
 		{
 			Write(e.Value.ToString());
+			if (e.IsLong)
+			{
+				Write("L");
+			}
 		}
 		
 		public override void OnRealLiteralExpression(RealLiteralExpression e)

@@ -207,9 +207,10 @@ done * comparison operators para números:
 done * long literals
 
 done * promoção automática de int para long
+
+done * promoção numérica na inferência de tipos de retorno
 	
-* implementação de interfaces
-		* pelo menos suporte a propriedades
+done * (parcialmente) implementação de interfaces
 		
 * usar métodos definidos em outros módulos no namespace global
 

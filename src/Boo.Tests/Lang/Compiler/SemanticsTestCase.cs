@@ -158,5 +158,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("tuple_function.boo");
 		}
+		
+		[Test]
+		public void NumericPromotionInReturnTypes()
+		{
+			RunCompilerTestCase("numericpromo0.boo");
+		}
 	}
 }
