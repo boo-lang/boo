@@ -40,6 +40,10 @@ done * for item in array
 done * for index, item in enumerate(array)
 * melhor mensagem de erro para array unpacking (checar length do array antes de acessá-lo 
 e emitir exception "Unpack list of wrong size")
+* Quando o argumento do For ou Unpack for do tipo System.Object, não fazer simplesmente cast
+mas invocar RuntimeServices.GetEnumerable(object) que tenta encontrar a melhor versão de 
+um enumerável para o objeto passado e, no caso de falha, exibe mensagem de erro mais adequada
+* RuntimeServices.GetEnumerable(object) deve suportar StreamReader
 * native regular expression support:
 	* re expression /foo/
 	* match operator ~=
@@ -48,6 +52,7 @@ e emitir exception "Unpack list of wrong size")
 * boxing (print e StringFormatting)
 * criar ModuleBinding e unificar com ModuleNamespace;
 * simplificar tratamento de erro em SemanticStep;
+* ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
 
 Milestone 3.2 (replace.boo)
 ---------------------------
