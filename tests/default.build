@@ -17,7 +17,8 @@
 				<assemblies basedir="build">
 					<includes name="Boo.AntlrParser.Tests.dll" />
 					<includes name="Boo.Lang.Compiler.Tests.dll" />
-					<includes name="Boo.Tests.dll" />					
+					<includes name="Boo.Tests.dll" />
+					<includes name="CompilerResources.Tests.dll" />					
 				</assemblies>
 			</test>
 		</nunit2>
@@ -34,6 +35,19 @@
 				<includes name="**/*.boo" />
 			</sources>
 
+			<references>
+				<includes name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+		
+		<booc
+			target="library"
+			output="build/CompilerResources.Tests.dll">
+			
+			<sources basedir="CompilerResources.Tests">
+				<includes name="**/*.boo" />
+			</sources>
+			
 			<references>
 				<includes name="${nunit.framework.dll}" />
 			</references>

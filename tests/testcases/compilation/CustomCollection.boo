@@ -3,7 +3,6 @@ Homer
 Eric
 """
 import System
-import System.Reflection
 import System.Collections
 
 class Foo:
@@ -13,7 +12,6 @@ class Foo:
 	def constructor(name as string):
 		_name = name
 
-[DefaultMember("Item")]
 [EnumeratorItemType(Foo)]
 class FooCollection(ICollection):
 	
@@ -39,11 +37,6 @@ class FooCollection(ICollection):
 		
 	def Add([required] item as Foo):
 		_items.Add(item)
-		
-	Item(index as int) as Foo:
-		get:
-			return _items[index]
-
 			
 c = FooCollection()
 c.Add(Foo("Homer"))

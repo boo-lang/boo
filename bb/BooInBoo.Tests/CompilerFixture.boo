@@ -8,7 +8,7 @@ import BooInBoo.PipelineSteps
 
 abstract class AbstractCompilerFixture:
 	virtual def GetTestCasePath():
-		return Path.GetDirectoryName(typeof(AbstractCompilerTestCase).Assembly.Location)
+		return Path.GetDirectoryName(typeof(AbstractCompilerFixture).Assembly.Location)
 		
 	virtual def CreatePipeline() as CompilerPipeline:
 		pass

@@ -30,6 +30,7 @@ using System;
 using System.Collections;
 using System.Diagnostics.SymbolStore;
 using System.IO;
+using System.Resources;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
@@ -171,32 +172,36 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void Run()
 		{				
-			if (Errors.Count > 0 || 0 == CompileUnit.Modules.Count)
+			if (Errors.Count > 0)
 			{
 				return;				
 			}
 			
 			SetUpAssembly();
 			
-			ArrayList types = CollectTypes();
-			
-			foreach (TypeDefinition type in types)
-			{
-				DefineType(type);
+			if (CompileUnit.Modules.Count > 0)
+			{			
+				ArrayList types = CollectTypes();
+				
+				foreach (TypeDefinition type in types)
+				{
+					DefineType(type);
+				}
+				
+				foreach (TypeDefinition type in types)
+				{
+					DefineTypeMembers(type);
+				}
+				
+				foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
+				{
+					OnModule(module);
+				}
+				
+				CreateTypes(types);
 			}
 			
-			foreach (TypeDefinition type in types)
-			{
-				DefineTypeMembers(type);
-			}
-			
-			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
-			{
-				OnModule(module);
-			}
-			
-			CreateTypes(types);
-			
+			DefineResources();
 			DefineEntryPoint();			
 		}
 		
@@ -3047,6 +3052,15 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 			return Path.GetFullPath(fname);
+		}
+		
+		void DefineResources()
+		{
+			foreach (ICompilerResource resource in CompilerParameters.Resources)
+			{
+				IResourceWriter writer = _moduleBuilder.DefineResource(resource.Name, resource.Description);
+				resource.WriteResources(writer);
+			}
 		}
 		
 		void SetUpAssembly()

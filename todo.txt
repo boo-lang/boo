@@ -15,6 +15,8 @@ done * artigo "Estendendo o compilador utilizando pipelines",
 		done * stylechecker step,
 		done * trace step
 		
+* recursos
+		
 * trocar o modelo utilizado IAstTransformer para um modelo mais simples
 que possa ser utilizado no BooInBoo:
 
@@ -47,10 +49,14 @@ serao preenchidas sempre que possível
 			
 	método fica marcado como private...
 	
+* private base method implementations:
+	class Foo(Base):
+		override def Base.Method():
+			super()	
+			
+	
 * iterator expressions
 	return i*3 for i in range(10)
-	
-* recursos
 
 done * isolar Boo.Lang.Compiler em seu próprio assembly
 
@@ -164,6 +170,8 @@ Milestone 3.9 (better error checking)
 * WARNING: expressions in iterators can't have locally visible side-effects
 	def foo(value as int):
 		return ++value*i for i in range(10)
+* WARNING: class does not override abstract member 'XXX.YYY' and will be marked abstract
+* WARNING: class does not implement interface member 'XXX.YYY' and will be marked abstract
 
 * method override with different accessibility
 * override accessibility checks

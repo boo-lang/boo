@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler
 		CompilerPipeline _pipeline;
 
 		CompilerInputCollection _input;
+		
+		CompilerResourceCollection _resources;
 
 		AssemblyCollection _assemblyReferences;
 
@@ -56,6 +58,7 @@ namespace Boo.Lang.Compiler
 		{
 			_pipeline = new CompilerPipeline();
 			_input = new CompilerInputCollection();
+			_resources = new CompilerResourceCollection();
 			_assemblyReferences = new AssemblyCollection();
 			_assemblyReferences.Add(typeof(Boo.Lang.Builtins).Assembly);
 			_assemblyReferences.Add(GetType().Assembly);
@@ -87,6 +90,14 @@ namespace Boo.Lang.Compiler
 			get
 			{
 				return _input;
+			}
+		}
+		
+		public CompilerResourceCollection Resources
+		{
+			get
+			{
+				return _resources;
 			}
 		}
 
