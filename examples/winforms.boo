@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -35,8 +35,7 @@ class App:
 	_times = 0
 	
 	def Run():
-		f = Form(Text: "My first boo winforms app",
-				Closed: Application.Exit)
+		f = Form(Text: "My first boo winforms app")
 				
 		button = Button(Text: "click me!")
 		button.Click += do:
@@ -44,9 +43,14 @@ class App:
 			++_times
 		
 		f.Controls.Add(button)
-		f.Show()
 		
-		Application.Run(f)
+		if Application.MessageLoop:
+			# if we are running inside boox
+			# just show a dialog
+			f.ShowDialog()
+		else:
+			f.Closed += Application.Exit
+			Application.Run(f)
 
 app = App()
 app.Run()
