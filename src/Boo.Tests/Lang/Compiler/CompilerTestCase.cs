@@ -1213,5 +1213,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("re1.boo");
 		}
+		
+		[Test]
+		public void EnumCanBeCastToInt()
+		{
+			RunCompilerTestCase("enum_can_be_cast_to_int.boo");
+		}
 	}
 }
