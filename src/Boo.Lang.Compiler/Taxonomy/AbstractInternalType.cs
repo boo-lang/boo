@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}		
 	}
 	
-	public abstract class AbstractInternalTypeInfo : AbstractInternalInfo, ITypeInfo, INamespace
+	public abstract class AbstractInternalType : AbstractInternalInfo, ITypeInfo, INamespace
 	{		
 		protected DefaultInfoService _bindingService;
 		
@@ -80,7 +80,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		protected List _buffer = new List();
 		
-		protected AbstractInternalTypeInfo(DefaultInfoService bindingManager, TypeDefinition typeDefinition)
+		protected AbstractInternalType(DefaultInfoService bindingManager, TypeDefinition typeDefinition)
 		{
 			_bindingService = bindingManager;
 			_typeDefinition = typeDefinition;
@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			{
 				if (_buffer.Count > 1)
 				{
-					return new AmbiguousInfo((IInfo[])_buffer.ToArray(typeof(IInfo)));
+					return new Ambiguous((IInfo[])_buffer.ToArray(typeof(IInfo)));
 				}
 				else
 				{
@@ -173,7 +173,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			{
 				case NodeType.Method:
 				{
-					return new InternalMethodInfo(_bindingService, (Method)member);
+					return new InternalMethod(_bindingService, (Method)member);
 				}
 				
 				case NodeType.Constructor:
@@ -193,12 +193,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 				
 				case NodeType.EnumMember:
 				{
-					return new InternalEnumMemberInfo(_bindingService, (EnumMember)member);
+					return new InternalEnumMember(_bindingService, (EnumMember)member);
 				}
 				
 				case NodeType.Property:
 				{
-					return new InternalPropertyInfo(_bindingService, (Property)member);
+					return new InternalProperty(_bindingService, (Property)member);
 				}
 			}
 			throw new NotImplementedException(member.GetType().ToString());

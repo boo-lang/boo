@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 	
-	public class InternalPropertyInfo : AbstractInternalInfo, IPropertyInfo
+	public class InternalProperty : AbstractInternalInfo, IPropertyInfo
 	{
 		DefaultInfoService _bindingService;
 		
@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		ITypeInfo[] _indexParameters;
 		
-		public InternalPropertyInfo(DefaultInfoService bindingManager, Property property)
+		public InternalProperty(DefaultInfoService bindingManager, Property property)
 		{
 			_bindingService = bindingManager;
 			_property = property;

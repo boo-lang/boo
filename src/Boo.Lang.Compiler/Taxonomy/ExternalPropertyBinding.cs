@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 {
 	using Boo.Lang.Compiler.Services;
 	
-	public class ExternalPropertyInfo : IPropertyInfo
+	public class ExternalProperty : IPropertyInfo
 	{
 		DefaultInfoService _bindingService;
 		
@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		ITypeInfo[] _indexParameters;
 		
-		public ExternalPropertyInfo(DefaultInfoService bindingManager, System.Reflection.PropertyInfo property)
+		public ExternalProperty(DefaultInfoService bindingManager, System.Reflection.PropertyInfo property)
 		{
 			_bindingService = bindingManager;
 			_property = property;

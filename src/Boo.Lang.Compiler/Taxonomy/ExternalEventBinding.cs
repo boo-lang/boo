@@ -31,13 +31,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System;
 	using Boo.Lang.Compiler.Services;
 	
-	public class ExternalEventInfo : IEventInfo
+	public class ExternalEvent : IEventInfo
 	{
 		DefaultInfoService _bindingService;
 		
 		System.Reflection.EventInfo _event;
 		
-		public ExternalEventInfo(DefaultInfoService bindingManager, System.Reflection.EventInfo event_)
+		public ExternalEvent(DefaultInfoService bindingManager, System.Reflection.EventInfo event_)
 		{
 			_bindingService = bindingManager;
 			_event = event_;

@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 	
-	public class InternalEnumMemberInfo : AbstractInternalInfo, IFieldInfo
+	public class InternalEnumMember : AbstractInternalInfo, IFieldInfo
 	{
 		DefaultInfoService _bindingService;
 		
 		EnumMember _member;
 		
-		public InternalEnumMemberInfo(DefaultInfoService bindingManager, EnumMember member)
+		public InternalEnumMember(DefaultInfoService bindingManager, EnumMember member)
 		{
 			_bindingService = bindingManager;
 			_member = member;

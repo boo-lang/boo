@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System.Reflection;
 	using Boo.Lang.Compiler.Services;
 	
-	public class ExternalMethodInfo : IMethodInfo
+	public class ExternalMethod : IMethodInfo
 	{
 		DefaultInfoService _bindingService;
 		
 		MethodBase _mi;
 		
-		internal ExternalMethodInfo(DefaultInfoService manager, MethodBase mi)
+		internal ExternalMethod(DefaultInfoService manager, MethodBase mi)
 		{
 			_bindingService = manager;
 			_mi = mi;
@@ -156,7 +156,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 	}
 	
-	public class ExternalConstructorInfo : ExternalMethodInfo, IConstructorInfo
+	public class ExternalConstructorInfo : ExternalMethod, IConstructorInfo
 	{
 		public ExternalConstructorInfo(DefaultInfoService manager, ConstructorInfo ci) : base(manager, ci)
 		{			

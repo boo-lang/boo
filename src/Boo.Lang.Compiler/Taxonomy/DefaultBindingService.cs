@@ -36,59 +36,59 @@ namespace Boo.Lang.Compiler.Services
 
 	public class DefaultInfoService
 	{			
-		public ExternalTypeInfo ExceptionTypeInfo;
+		public ExternalType ExceptionTypeInfo;
 		
-		public ExternalTypeInfo ApplicationExceptionInfo;
+		public ExternalType ApplicationExceptionInfo;
 		
-		public ExternalTypeInfo ObjectTypeInfo;
+		public ExternalType ObjectTypeInfo;
 		
-		public ExternalTypeInfo EnumTypeInfo;
+		public ExternalType EnumTypeInfo;
 		
-		public ExternalTypeInfo ArrayTypeInfo;
+		public ExternalType ArrayTypeInfo;
 		
-		public ExternalTypeInfo TypeTypeInfo;
+		public ExternalType TypeTypeInfo;
 		
 		public ITypeInfo ObjectArrayInfo;
 	
-		public ExternalTypeInfo VoidTypeInfo;
+		public ExternalType VoidTypeInfo;
 		
-		public ExternalTypeInfo StringTypeInfo;
+		public ExternalType StringTypeInfo;
 		
-		public ExternalTypeInfo BoolTypeInfo;
+		public ExternalType BoolTypeInfo;
 		
-		public ExternalTypeInfo ByteTypeInfo;
+		public ExternalType ByteTypeInfo;
 		
-		public ExternalTypeInfo ShortTypeInfo;
+		public ExternalType ShortTypeInfo;
 		
-		public ExternalTypeInfo IntTypeInfo;
+		public ExternalType IntTypeInfo;
 		
-		public ExternalTypeInfo LongTypeInfo;
+		public ExternalType LongTypeInfo;
 		
-		public ExternalTypeInfo SingleTypeInfo;
+		public ExternalType SingleTypeInfo;
 		
-		public ExternalTypeInfo DoubleTypeInfo;
+		public ExternalType DoubleTypeInfo;
 		
-		public ExternalTypeInfo TimeSpanTypeInfo;
+		public ExternalType TimeSpanTypeInfo;
 		
-		public ExternalTypeInfo DateTimeTypeInfo;
+		public ExternalType DateTimeTypeInfo;
 		
-		public ExternalTypeInfo RuntimeServicesInfo;
+		public ExternalType RuntimeServicesInfo;
 		
-		public ExternalTypeInfo BuiltinsInfo;
+		public ExternalType BuiltinsInfo;
 		
-		public ExternalTypeInfo ListTypeInfo;
+		public ExternalType ListTypeInfo;
 		
-		public ExternalTypeInfo HashTypeInfo;
+		public ExternalType HashTypeInfo;
 		
-		public ExternalTypeInfo ICallableTypeInfo;
+		public ExternalType ICallableTypeInfo;
 		
-		public ExternalTypeInfo IEnumerableTypeInfo;
+		public ExternalType IEnumerableTypeInfo;
 		
-		public ExternalTypeInfo ICollectionTypeInfo;
+		public ExternalType ICollectionTypeInfo;
 		
-		public ExternalTypeInfo IListTypeInfo;
+		public ExternalType IListTypeInfo;
 		
-		public ExternalTypeInfo IDictionaryTypeInfo;
+		public ExternalType IDictionaryTypeInfo;
 		
 		System.Collections.Hashtable _primitives = new System.Collections.Hashtable();
 		
@@ -103,31 +103,31 @@ namespace Boo.Lang.Compiler.Services
 		public DefaultInfoService()		
 		{			
 			Cache(VoidTypeInfo = new VoidTypeInfoImpl(this));
-			Cache(ObjectTypeInfo = new ExternalTypeInfo(this, Types.Object));
-			Cache(EnumTypeInfo = new ExternalTypeInfo(this, typeof(System.Enum)));
-			Cache(ArrayTypeInfo = new ExternalTypeInfo(this, Types.Array));
-			Cache(TypeTypeInfo = new ExternalTypeInfo(this, Types.Type));
-			Cache(StringTypeInfo = new ExternalTypeInfo(this, Types.String));
-			Cache(BoolTypeInfo = new ExternalTypeInfo(this, Types.Bool));
-			Cache(ByteTypeInfo = new ExternalTypeInfo(this, Types.Byte));
-			Cache(ShortTypeInfo = new ExternalTypeInfo(this, Types.Short));
-			Cache(IntTypeInfo = new ExternalTypeInfo(this, Types.Int));
-			Cache(LongTypeInfo = new ExternalTypeInfo(this, Types.Long));
-			Cache(SingleTypeInfo = new ExternalTypeInfo(this, Types.Single));
-			Cache(DoubleTypeInfo = new ExternalTypeInfo(this, Types.Double));
-			Cache(TimeSpanTypeInfo = new ExternalTypeInfo(this, Types.TimeSpan));
-			Cache(DateTimeTypeInfo = new ExternalTypeInfo(this, Types.DateTime));
-			Cache(RuntimeServicesInfo = new ExternalTypeInfo(this, Types.RuntimeServices));
-			Cache(BuiltinsInfo = new ExternalTypeInfo(this, Types.Builtins));
-			Cache(ListTypeInfo = new ExternalTypeInfo(this, Types.List));
-			Cache(HashTypeInfo = new ExternalTypeInfo(this, Types.Hash));
-			Cache(ICallableTypeInfo = new ExternalTypeInfo(this, Types.ICallable));
-			Cache(IEnumerableTypeInfo = new ExternalTypeInfo(this, Types.IEnumerable));
-			Cache(ICollectionTypeInfo = new ExternalTypeInfo(this, Types.ICollection));
-			Cache(IListTypeInfo = new ExternalTypeInfo(this, Types.IList));
-			Cache(IDictionaryTypeInfo = new ExternalTypeInfo(this, Types.IDictionary));
-			Cache(ApplicationExceptionInfo = new ExternalTypeInfo(this, Types.ApplicationException));
-			Cache(ExceptionTypeInfo = new ExternalTypeInfo(this, Types.Exception));
+			Cache(ObjectTypeInfo = new ExternalType(this, Types.Object));
+			Cache(EnumTypeInfo = new ExternalType(this, typeof(System.Enum)));
+			Cache(ArrayTypeInfo = new ExternalType(this, Types.Array));
+			Cache(TypeTypeInfo = new ExternalType(this, Types.Type));
+			Cache(StringTypeInfo = new ExternalType(this, Types.String));
+			Cache(BoolTypeInfo = new ExternalType(this, Types.Bool));
+			Cache(ByteTypeInfo = new ExternalType(this, Types.Byte));
+			Cache(ShortTypeInfo = new ExternalType(this, Types.Short));
+			Cache(IntTypeInfo = new ExternalType(this, Types.Int));
+			Cache(LongTypeInfo = new ExternalType(this, Types.Long));
+			Cache(SingleTypeInfo = new ExternalType(this, Types.Single));
+			Cache(DoubleTypeInfo = new ExternalType(this, Types.Double));
+			Cache(TimeSpanTypeInfo = new ExternalType(this, Types.TimeSpan));
+			Cache(DateTimeTypeInfo = new ExternalType(this, Types.DateTime));
+			Cache(RuntimeServicesInfo = new ExternalType(this, Types.RuntimeServices));
+			Cache(BuiltinsInfo = new ExternalType(this, Types.Builtins));
+			Cache(ListTypeInfo = new ExternalType(this, Types.List));
+			Cache(HashTypeInfo = new ExternalType(this, Types.Hash));
+			Cache(ICallableTypeInfo = new ExternalType(this, Types.ICallable));
+			Cache(IEnumerableTypeInfo = new ExternalType(this, Types.IEnumerable));
+			Cache(ICollectionTypeInfo = new ExternalType(this, Types.ICollection));
+			Cache(IListTypeInfo = new ExternalType(this, Types.IList));
+			Cache(IDictionaryTypeInfo = new ExternalType(this, Types.IDictionary));
+			Cache(ApplicationExceptionInfo = new ExternalType(this, Types.ApplicationException));
+			Cache(ExceptionTypeInfo = new ExternalType(this, Types.Exception));
 			
 			ObjectArrayInfo = AsArrayInfo(ObjectTypeInfo);
 			
@@ -278,10 +278,10 @@ namespace Boo.Lang.Compiler.Services
 				return AsArrayInfo(AsTypeInfo(type.GetElementType()));
 			}
 			
-			ExternalTypeInfo binding = (ExternalTypeInfo)_bindingCache[type];
+			ExternalType binding = (ExternalType)_bindingCache[type];
 			if (null == binding)
 			{
-				Cache(binding = new ExternalTypeInfo(this, type));
+				Cache(binding = new ExternalType(this, type));
 			}
 			return binding;
 		}
@@ -291,7 +291,7 @@ namespace Boo.Lang.Compiler.Services
 			ITypeInfo binding = (ITypeInfo)_bindingCache[typeDefinition];
 			if (null == binding)
 			{
-				Cache(typeDefinition, binding = new InternalTypeInfo(this, typeDefinition));
+				Cache(typeDefinition, binding = new InternalType(this, typeDefinition));
 			}
 			return binding;
 		}
@@ -331,7 +331,7 @@ namespace Boo.Lang.Compiler.Services
 				{
 					bindings[i] = AsInfo(info[i]);
 				}
-				return new AmbiguousInfo(bindings);
+				return new Ambiguous(bindings);
 			}
 			if (info.Length > 0)
 			{
@@ -349,7 +349,7 @@ namespace Boo.Lang.Compiler.Services
 				{
 					case MemberTypes.Method:
 					{
-						binding = new ExternalMethodInfo(this, (System.Reflection.MethodInfo)mi);
+						binding = new ExternalMethod(this, (System.Reflection.MethodInfo)mi);
 						break;
 					}
 					
@@ -367,13 +367,13 @@ namespace Boo.Lang.Compiler.Services
 					
 					case MemberTypes.Property:
 					{
-						binding = new ExternalPropertyInfo(this, (System.Reflection.PropertyInfo)mi);
+						binding = new ExternalProperty(this, (System.Reflection.PropertyInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Event:
 					{
-						binding = new ExternalEventInfo(this, (System.Reflection.EventInfo)mi);
+						binding = new ExternalEvent(this, (System.Reflection.EventInfo)mi);
 						break;
 					}
 					
@@ -417,7 +417,7 @@ namespace Boo.Lang.Compiler.Services
 			AddPrimitive("len", _lenInfo);
 		}
 		
-		void AddPrimitiveType(string name, ExternalTypeInfo type)
+		void AddPrimitiveType(string name, ExternalType type)
 		{
 			_primitives[name] = AsTypeReference(type);
 		}
@@ -427,7 +427,7 @@ namespace Boo.Lang.Compiler.Services
 			_primitives[name] = binding;
 		}
 		
-		void Cache(ExternalTypeInfo binding)
+		void Cache(ExternalType binding)
 		{
 			_bindingCache[binding.Type] = binding;
 		}
@@ -470,7 +470,7 @@ namespace Boo.Lang.Compiler.Services
 		}		
 		
 		#region VoidTypeInfoImpl
-		class VoidTypeInfoImpl : ExternalTypeInfo
+		class VoidTypeInfoImpl : ExternalType
 		{			
 			internal VoidTypeInfoImpl(DefaultInfoService manager) : base(manager, Types.Void)
 			{				

@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 
-	public class InternalMethodInfo : AbstractInternalInfo, IMethodInfo, INamespace
+	public class InternalMethod : AbstractInternalInfo, IMethodInfo, INamespace
 	{
 		DefaultInfoService _bindingService;
 		
@@ -47,11 +47,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		public ExpressionCollection SuperExpressions;
 		
-		internal InternalMethodInfo(DefaultInfoService manager, Method method) : this(manager, method, false)
+		internal InternalMethod(DefaultInfoService manager, Method method) : this(manager, method, false)
 		{
 		}
 		
-		internal InternalMethodInfo(DefaultInfoService manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
+		internal InternalMethod(DefaultInfoService manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
 		{			
 			_bindingService = manager;
 			_method = method;
@@ -266,7 +266,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		}
 	}
 	
-	public class InternalConstructorInfo : InternalMethodInfo, IConstructorInfo
+	public class InternalConstructorInfo : InternalMethod, IConstructorInfo
 	{
 		bool _hasSuperCall = false;
 		

@@ -149,7 +149,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 					}
 					else
 					{
-						typeInfo = new InternalTypeInfo(_bindingService, (TypeDefinition)member);
+						typeInfo = new InternalType(_bindingService, (TypeDefinition)member);
 					}
 					DefaultInfoService.Bind(member, typeInfo);
 				}

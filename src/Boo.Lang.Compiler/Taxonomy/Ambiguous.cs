@@ -33,11 +33,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 {
 	public delegate bool InfoFilter(IInfo binding);
 	
-	public class AmbiguousInfo : IInfo
+	public class Ambiguous : IInfo
 	{
 		IInfo[] _bindings;
 		
-		public AmbiguousInfo(IInfo[] bindings)
+		public Ambiguous(IInfo[] bindings)
 		{
 			if (null == bindings)
 			{

@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System.Reflection;
 	using Boo.Lang.Compiler.Services;
 
-	public class ExternalTypeInfo : NamespaceInfoCache, ITypeInfo
+	public class ExternalType : NamespaceInfoCache, ITypeInfo
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
 												BindingFlags.NonPublic |
@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		int _typeDepth = -1;
 		
-		internal ExternalTypeInfo(DefaultInfoService manager, Type type)
+		internal ExternalType(DefaultInfoService manager, Type type)
 		{
 			if (null == type)
 			{
@@ -172,7 +172,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		public bool IsSubclassOf(ITypeInfo other)
 		{
-			ExternalTypeInfo external = other as ExternalTypeInfo;
+			ExternalType external = other as ExternalType;
 			if (null == external)
 			{
 				return false;
@@ -185,7 +185,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		public bool IsAssignableFrom(ITypeInfo other)
 		{
-			ExternalTypeInfo external = other as ExternalTypeInfo;
+			ExternalType external = other as ExternalType;
 			if (null == external)
 			{
 				if (InfoType.Null == other.InfoType)
