@@ -154,14 +154,14 @@
 		<if test="${not file::up-to-date('boo.g', 'src/Boo.antlr/BooParserBase.cs')}">
 			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
-				<arg value="src/Boo.antlr/" />
-				<arg value="boo.g" />
+				<arg value="src/Boo.Antlr/" />
+				<arg value="src/Boo.Antlr/boo.g" />
 			</exec>
 			
 			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
-				<arg value="src/Boo.antlr/" />
-				<arg value="booel.g" />
+				<arg value="src/Boo.Antlr/" />
+				<arg value="src/Boo.Antlr/booel.g" />
 			</exec>
 		</if>
 	</target>
@@ -169,7 +169,7 @@
 	<target name="generate-ast" depends="init" unless="${skip.ast}">
 		<if test="${not file::up-to-date('ast.model', 'src/Boo/Ast/Impl/CompileUnitImpl.cs')}">
 			<exec program="python" failonerror="true">
-				<arg value="scripts\ast.py" />
+				<arg value="scripts/ast.py" />
 				<arg value="ast.model" />
 			</exec>
 		</if>

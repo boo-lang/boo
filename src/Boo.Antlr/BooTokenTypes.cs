@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: "boo.g" -> "BooLexer.cs"$
+// $ANTLR 2.7.2: "src/Boo.Antlr/boo.g" -> "BooLexer.cs"$
 
 namespace Boo.Antlr
 {
