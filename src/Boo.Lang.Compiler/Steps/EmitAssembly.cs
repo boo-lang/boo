@@ -203,7 +203,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Assembly OnTypeResolve(object sender, ResolveEventArgs args)
 		{
-			_context.TraceVerbose("OnTypeResolve({0}, {1})", sender, args.Name);
+			_context.TraceVerbose("OnTypeResolve('{0}')", args.Name);
 			return null;
 		}
 		
@@ -279,23 +279,15 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				switch (member.NodeType)
 				{
+					case NodeType.InterfaceDefinition:
 					case NodeType.ClassDefinition:
 					{
 						types.Add(member);
 						CollectTypes(types, ((TypeDefinition)member).Members);
 						break;
 					}
-					
-					case NodeType.InterfaceDefinition:
-					{
-						types.Add(member);
-						CollectTypes(types, ((TypeDefinition)member).Members);
-						break;
-					}
-					
 					case NodeType.EnumDefinition:
-					{
-						//types.Insert(0, member);
+					{					
 						types.Add(member);
 						break;
 					}

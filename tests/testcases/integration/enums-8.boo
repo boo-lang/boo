@@ -1,6 +1,3 @@
-"""
-Info
-"""
 class Foo:
 	
 	enum LogLevel:
