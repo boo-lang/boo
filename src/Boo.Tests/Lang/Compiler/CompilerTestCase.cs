@@ -386,6 +386,18 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void TupleTypeInference()
+		{
+			RunCompilerTestCase("tuple4.boo");
+		}
+		
+		[Test]
+		public void TupleBuiltin()
+		{
+			RunCompilerTestCase("tuple5.boo");
+		}
+		
+		[Test]
 		public void TestMatch0()
 		{
 			RunCompilerTestCase("match0.boo", "string =~ string");

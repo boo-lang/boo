@@ -5,7 +5,14 @@ public class App
 {
 	public static void Main()
 	{
-		const int items = 5000000;
+		Test();
+		Test();
+		Test();
+	}
+	
+	private static void Test()
+	{
+		const int items = 2000000;
 
 		object[] array = (object[])new List(Builtins.range(items)).ToArray(typeof(object));
 		
