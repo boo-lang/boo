@@ -153,6 +153,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteTypeDefinition("class", c);
 		}
+		
+		override public void OnStructDefinition(StructDefinition node)
+		{
+			WriteTypeDefinition("struct", node);
+		}
 
 		override public void OnInterfaceDefinition(InterfaceDefinition id)
 		{

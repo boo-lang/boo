@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.TypeSystem;
 	
 	[Serializable]
-	public class BindTypeDefinitions : AbstractVisitorCompilerStep
+	public class BindTypeDefinitions : AbstractTransformerCompilerStep
 	{
 		override public void Run()
 		{
@@ -45,6 +45,24 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module node)
 		{			
 			Visit(node.Members);
+		}
+		
+		override public void LeaveStructDefinition(StructDefinition node)
+		{
+			ClassDefinition cd = new ClassDefinition(node.LexicalInfo);			
+			cd.Name = node.Name;
+			cd.Attributes = node.Attributes;
+			cd.Modifiers = node.Modifiers;
+			cd.Members = node.Members;
+			cd.BaseTypes = node.BaseTypes;
+			cd.BaseTypes.Insert(0, CodeBuilder.CreateTypeReference(TypeSystemServices.ValueTypeType));
+			NormalizeVisibility(cd);
+			foreach (TypeMember member in cd.Members)
+			{
+				NormalizeVisibility(member);
+			}			 
+			cd.Entity = new InternalClass(TypeSystemServices, node);						
+			ReplaceCurrentNode(cd);
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)

@@ -91,6 +91,9 @@ class ModuleCollection:
 class ClassDefinition(TypeDefinition):
 	pass
 
+class StructDefinition(TypeDefinition):
+	pass
+
 class InterfaceDefinition(TypeDefinition):
 	pass
 

@@ -103,6 +103,7 @@ OR
 		<keyword>public</keyword>
 		
 		<keyword>class</keyword>
+		<keyword>struct</keyword>
 		<keyword>interface</keyword>
 		<keyword>enum</keyword>
 		<keyword>callable</keyword>

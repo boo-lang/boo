@@ -118,6 +118,7 @@ tokens
 	SUPER="super";
 	STATIC="static";
 	SUCCESS="success";
+	STRUCT="struct";
 	TRY="try";
 	TRANSIENT="transient";
 	TRUE="true";
@@ -495,18 +496,22 @@ assembly_attribute[Module module]
 protected
 class_definition [TypeMemberCollection container]
 	{
-		ClassDefinition cd = null;
+		TypeDefinition td = null;
 	}:
-	CLASS id:ID
-	{
-		cd = new ClassDefinition(ToLexicalInfo(id));
-		cd.Name = id.getText();
-		cd.Modifiers = _modifiers;
-		AddAttributes(cd.Attributes);
-		container.Add(cd);
+	(
+		CLASS { td = new ClassDefinition(); } |
+		STRUCT { td = new StructDefinition(); }
+	)
+	id:ID
+	{		
+		td.LexicalInfo = ToLexicalInfo(id);
+		td.Name = id.getText();
+		td.Modifiers = _modifiers;
+		AddAttributes(td.Attributes);
+		container.Add(td);
 	}
-	(base_types[cd.BaseTypes])?
-	begin_with_doc[cd]					
+	(base_types[td.BaseTypes])?
+	begin_with_doc[td]					
 	(
 		(PASS eos) |
 		(
@@ -514,10 +519,10 @@ class_definition [TypeMemberCollection container]
 			attributes
 			modifiers
 			(						
-				method[cd.Members] |
-				event_declaration[cd.Members] |
-				field_or_property[cd.Members] |
-				type_definition[cd.Members]
+				method[td.Members] |
+				event_declaration[td.Members] |
+				field_or_property[td.Members] |
+				type_definition[td.Members]
 			)
 		)+
 	)

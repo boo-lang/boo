@@ -141,7 +141,8 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit42.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD1>pass</KEYWORD1>
 			<KEYWORD1>raise</KEYWORD1>
 			<KEYWORD1>retry</KEYWORD1>
-			<KEYWORD1>self</KEYWORD1>			
+			<KEYWORD1>self</KEYWORD1>
+			<KEYWORD1>struct</KEYWORD1>			
 			<KEYWORD1>return</KEYWORD1>
 			<KEYWORD1>set</KEYWORD1>
 			<KEYWORD1>success</KEYWORD1>

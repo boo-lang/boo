@@ -252,6 +252,7 @@
 			<KeyWords name="TypesDef" bold="true" italic="false" color="Blue" >
 				<Key word="enum"/>
 				<Key word="class"/>
+				<Key word="struct" />
 				<Key word="interface"/>
 				<Key word="mixin"/>
 				<Key word="callable"/>
