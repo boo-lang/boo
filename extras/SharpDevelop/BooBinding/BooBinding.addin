@@ -26,6 +26,11 @@
 			    extensions = "*.boo"/>
 	</Extension>
 	
+	<Extension path = "/SharpDevelop/Workbench/Ambiences">
+		<Class id    = "Boo"
+		       class = "BooBinding.BooAmbience"/>
+	</Extension>
+	
 	<Extension path = "/SharpDevelop/Workbench/ProjectOptions/ConfigurationProperties">
 		<Conditional activeproject="Boo">
 			<DialogPanel id = "BooOptionsPanel"

@@ -1,5 +1,6 @@
 namespace BooBinding.CodeCompletion
 
+import BooBinding
 import System
 import System.Collections
 import System.Diagnostics
@@ -12,13 +13,13 @@ import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Steps
 
 class Resolver:
-	static _typeKeywords = ("bool", "void",
-	                        "single", "double",
-	                        "byte", "short", "ushort", "int", "uint", "long", "ulong",
-	                        "object", "string", "regex", "array", "hash", "list", "type")
-	
 	def CtrlSpace(parserService as IParserService, caretLine as int, caretColumn as int, fileName as string) as ArrayList:
-		result = ArrayList(_typeKeywords)
+		result = ArrayList(BooAmbience.TypeConversionTable.Values)
+		// Add special boo types (types defining in Boo.dll)
+		result.Add("hash")
+		result.Add("list")
+		result.Add("System") // system namespace can be used everywhere
+		
 		//parseInfo = parserService.GetParseInformation(fileName)
 		//cu = parseInfo.MostRecentCompilationUnit as CompilationUnit
 		//if cu != null:

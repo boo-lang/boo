@@ -7,36 +7,37 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 // 
-// Boo Explorer is distributed in the hope that it will be useful,
+// BooBinding is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with Foobar; if not, write to the Free Software
+// along with BooBinding; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endregion
 
 namespace BooBinding
 
-import System;
-import System.Reflection;
-import System.CodeDom;
-import System.Text;
-import System.Collections;
+import System
+import System.Reflection
+import System.CodeDom
+import System.Text
+import System.Collections
 
-import ICSharpCode.SharpRefactory.Parser;
-import ICSharpCode.SharpRefactory.Parser.AST;
-import ICSharpCode.SharpRefactory.PrettyPrinter;
+import ICSharpCode.SharpRefactory.Parser
+import ICSharpCode.SharpRefactory.Parser.AST
+import ICSharpCode.SharpRefactory.PrettyPrinter
 
 class BooVisitor(AbstractASTVisitor):
-	_newLineSep = Environment.NewLine;
+	_newLineSep = Environment.NewLine
+	
 	[Getter(SourceText)]
-	_sourceText = StringBuilder();
-	_indentLevel = 0;
-	_indentOpenPosition = 0;
-	_errors      = Errors();
-	_currentType as TypeDeclaration = null;
+	_sourceText = StringBuilder()
+	_indentLevel = 0
+	_indentOpenPosition = 0
+	_errors      = Errors()
+	_currentType as TypeDeclaration = null
 	_debugOutput = false
 	
 	#region IASTVisitor interface implementation
@@ -1158,7 +1159,9 @@ class BooVisitor(AbstractASTVisitor):
 	def ConvertTypeString(typeString as string):
 		return "Char"   if typeString == "char"
 		return "single" if typeString == "float"
-		return "date"   if typeString == "DateTime" or typeString == "String.DateTime"
+		return "date"   if typeString == "DateTime"
+		convertedType = BooAmbience.TypeConversionTable[typeString]
+		return convertedType if convertedType != null
 		return typeString
 	
 	def GetTypeString(typeRef as TypeReference):
@@ -1187,9 +1190,6 @@ class BooVisitor(AbstractASTVisitor):
 				b.Append("*");
 			_errors.Error(-1, -1, "Pointer types are not supported by Boo");
 		return b.ToString();
-	
-	/*def GetModifier(modifier as Modifier):
-		return GetModifier(modifier, Modifier.None);*/
 	
 	def GetModifier(modifier as Modifier, default as Modifier):
 		builder = StringBuilder()

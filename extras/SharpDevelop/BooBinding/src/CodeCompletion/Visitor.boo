@@ -54,8 +54,6 @@ class Visitor(AbstractVisitorCompilerStep):
 		r = r | ModifierEnum.Private   if m.IsPrivate
 		r = r | ModifierEnum.Internal  if m.IsInternal
 		
-		r = r | ModifierEnum.ProtectedOrInternal if m.IsProtected or m.IsInternal
-		
 		r = r | ModifierEnum.Static   if m.IsStatic
 		r = r | ModifierEnum.Virtual  if m.IsModifierSet(AST.TypeMemberModifiers.Virtual)
 		r = r | ModifierEnum.Abstract if m.IsModifierSet(AST.TypeMemberModifiers.Abstract)
