@@ -116,7 +116,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			members.Extend(_childrenNamespaces.Values);
 			foreach (Boo.Lang.List types in _assemblies.Values)
 			{
-				members.Extend(types);
+				foreach (Type type in types)
+				{
+					members.Add(_typeSystemServices.Map(type));
+				}
 			}
 			return (IEntity[])members.ToArray(typeof(IEntity));
 		}

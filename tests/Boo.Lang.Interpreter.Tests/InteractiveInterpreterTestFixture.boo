@@ -459,6 +459,12 @@ for i, j in ((1, 2), (3, 4)):
 		assert suggestion isa ExternalType
 		assert string is (suggestion as ExternalType).ActualType
 		
+	[Test]
+	def SuggestNamespaceCodeCompletion():
+		suggestion = _interpreter.SuggestCodeCompletion("System.__codecomplete__")
+		assert suggestion is not null
+		assert suggestion.EntityType == EntityType.Namespace
+		
 	def Eval(code as string):
 		result = _interpreter.Eval(code)
 		assert 0 == len(result.Errors), result.Errors.ToString(true)

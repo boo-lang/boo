@@ -686,10 +686,14 @@ class InteractiveInterpreter:
 		
 		override def LeaveMemberReferenceExpression(node as MemberReferenceExpression):
 			if "__codecomplete__" == node.Name:
+				suggestion as IEntity
 				target = node.Target
-				if target.ExpressionType is not null:
-					if target.ExpressionType.EntityType != EntityType.Error:				
-						_context["suggestion"] = target.ExpressionType
+				if target.ExpressionType is not null:									
+					suggestion = target.ExpressionType
+				else:
+					suggestion = target.Entity
+				if suggestion is not null and suggestion.EntityType != EntityType.Error:
+					_context["suggestion"] = suggestion
 			
 def ReadBlock(line as string):
 	newLine = System.Environment.NewLine
