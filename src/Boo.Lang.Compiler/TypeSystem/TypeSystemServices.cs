@@ -603,19 +603,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				type == this.IntType ||
 				type == this.LongType ||
 				type == this.SByteType ||
-				type == this.ByteType;	// Rodrigo shouldn't all unsigneds be
-										// IntegerNumbers too?
-										// Then unsigneds can do: uint & uint
+				type == this.UShortType ||
+				type == this.UIntType ||				
+				type == this.ULongType ||
+				type == this.ByteType;
 		}
 		
-		public bool IsUnsignedNumber(IType type)
+		public bool IsIntegerOrBool(IType type)	
 		{
-			return
-				type == this.UShortType ||
-				type == this.UIntType ||
-//Rodrigo should ByteType be added as its unsigned?
-//				type == this.ByteType ||
-				type == this.ULongType;
+			return BoolType == type || IsIntegerNumber(type);
 		}
 		
 		public bool IsNumberOrBool(IType type)
@@ -627,7 +623,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return
 				IsIntegerNumber(type) ||
-				IsUnsignedNumber(type) ||
+				//IsUnsignedNumber(type) ||
 				type == this.DoubleType ||
 				type == this.SingleType;
 		}

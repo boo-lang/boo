@@ -1339,6 +1339,12 @@ namespace Boo.Lang.Compiler.Steps
 					_il.Emit(OpCodes.And);
 					break;
 				}
+					
+				case BinaryOperatorType.ExclusiveOr:
+				{
+					_il.Emit(OpCodes.Xor);
+					break;
+				}
 			}
 			
 			PushType(type);
@@ -1348,6 +1354,7 @@ namespace Boo.Lang.Compiler.Steps
 		{				
 			switch (node.Operator)
 			{
+				case BinaryOperatorType.ExclusiveOr:
 				case BinaryOperatorType.BitwiseAnd:
 				case BinaryOperatorType.BitwiseOr:
 				{

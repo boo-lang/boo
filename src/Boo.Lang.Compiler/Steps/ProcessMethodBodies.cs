@@ -2700,6 +2700,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.BitwiseAnd:
 				case BinaryOperatorType.BitwiseOr:
+				case BinaryOperatorType.ExclusiveOr:
 				{
 					BindBitwiseOperator(node);
 					break;
@@ -2776,8 +2777,8 @@ namespace Boo.Lang.Compiler.Steps
 			IType lhs = GetExpressionType(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			
-			if (TypeSystemServices.IsIntegerNumber(lhs) &&
-				TypeSystemServices.IsIntegerNumber(rhs))
+			if (TypeSystemServices.IsIntegerOrBool(lhs) &&
+				TypeSystemServices.IsIntegerOrBool(rhs))
 			{
 				BindExpressionType(node, TypeSystemServices.GetPromotedNumberType(lhs, rhs));
 			}
