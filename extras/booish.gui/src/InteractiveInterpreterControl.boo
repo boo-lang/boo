@@ -77,7 +77,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 		self.Document.HighlightingStrategy = GetBooHighlighting()
 		self.EnableFolding =  false
 		self.ShowLineNumbers =  false
-		self.ShowSpaces = true
+		self.ShowSpaces = false
 		self.ShowTabs =  true
 		self.ShowEOLMarkers = false
 		self.ShowInvalidLines = false
@@ -105,38 +105,35 @@ class InteractiveInterpreterControl(TextEditorControl):
 			FlushConsole()
 			Console.SetOut(saved)
 			_state = InputState.SingleLine
-			prompt()
 			
-	def FlushConsole():
+	private def FlushConsole():
 		AppendText(_console.ToString())
 		_console.GetStringBuilder().Length = 0
 		
-	def ConsumeCurrentLine():		
+	private def ConsumeCurrentLine():		
 		text = CurrentLineText
 		print("")
 		return text
 		
-	def GetLastLineSegment():
+	private def GetLastLineSegment():
 		return self.Document.GetLineSegment(self.Document.LineSegmentCollection.Count)
 		
-	def SingleLineInputState():
+	private def SingleLineInputState():
 		code = ConsumeCurrentLine()
 		
 		if code[-1:] in ":", "\\":
 			_state = InputState.Block
 			_block.GetStringBuilder().Length = 0
 			_block.WriteLine(code)
-			prompt()
 		else:
 			Eval(code)
 		
-	def BlockInputState():
+	private def BlockInputState():
 		code = ConsumeCurrentLine()
 		if 0 == len(code):
 			Eval(_block.ToString())			
 		else:
 			_block.WriteLine(code)
-			prompt()
 			
 	def print(msg):
 		AppendText("${msg}\r\n")		
@@ -184,6 +181,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 				(SingleLineInputState, BlockInputState)[_state]()
 			except x:				
 				print(x)
+			prompt()
 			return true
 			
 		if key in Keys.Back, Keys.Left:

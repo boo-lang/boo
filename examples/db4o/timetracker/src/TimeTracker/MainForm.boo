@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -98,7 +98,11 @@ class MainForm(Form):
 		
 	override def OnLoad(args as EventArgs):
 		super(args)
-		_prompt.Eval(LoadStartupScript())
+		try:
+			_prompt.Eval(LoadStartupScript())
+		except x:
+			_prompt.print(x.ToString())
+		_prompt.prompt()
 		
 	def LoadStartupScript():
 		using reader=File.OpenText(MapAppPath("startup.boo")):

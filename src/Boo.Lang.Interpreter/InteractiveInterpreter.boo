@@ -88,6 +88,7 @@ class InteractiveInterpreter:
 	private def GetSuggestionCompiler():
 		if _suggestionCompiler is null:
 			pipeline = Pipelines.ResolveExpressions(BreakOnErrors: false)
+			pipeline.Insert(1, AddRecordedImports(_imports))
 			pipeline.Replace(
 				Steps.ProcessMethodBodiesWithDuckTyping,
 				ProcessExpressionsWithInterpreterNamespace(self))
@@ -680,6 +681,16 @@ class InteractiveInterpreter:
 				return expression
 				
 			return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)
+			
+	class AddRecordedImports(Steps.AbstractCompilerStep):
+		
+		_imports as ImportCollection
+		
+		def constructor(imports):
+			_imports = imports
+			
+		override def Run():
+			CompileUnit.Modules[0].Imports.ExtendWithClones(_imports)
 
 	class FindCodeCompleteSuggestion(Steps.AbstractVisitorCompilerStep):
 		
