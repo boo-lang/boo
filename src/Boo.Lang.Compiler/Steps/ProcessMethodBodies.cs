@@ -107,11 +107,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{					
+			NameResolutionService.Reset();
+			
 			_currentMethodInfo = null;
 			_methodInfoStack = new Stack();
 			_classes = new ArrayList();
 			_visited = new Hash();
-			_nameResolution.Initialize(_context);
 			_loopDepth = 0;
 						
 			RuntimeServices_Len = (IMethod)TagService.RuntimeServicesType.Resolve("Len");
@@ -476,12 +477,18 @@ namespace Boo.Lang.Compiler.Steps
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CreateTypeReference(typeInfo);
 				parameter.Name = "value";
+				parameter.Tag = new InternalParameter(parameter, GetFirstParameterIndex(setter));
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
 				Accept(setter);
 				
 				setter.Name = "set_" + node.Name;
 			}
+		}
+		
+		int GetFirstParameterIndex(TypeMember member)
+		{
+			return member.IsStatic ? 0 : 1;
 		}
 		
 		override public void OnField(Field node)
@@ -575,6 +582,7 @@ namespace Boo.Lang.Compiler.Steps
 				try
 				{
 					type.Members.Add(method);
+					method.Tag = new InternalMethod(TagService, method);
 					Accept(method);
 				}
 				finally
@@ -696,24 +704,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			LeaveNamespace();
 			PopMethodInfo();
-			BindParameterIndexes(node);
 		}
 		
-		override public bool EnterParameterDeclaration(ParameterDeclaration parameter)
+		override public void LeaveParameterDeclaration(ParameterDeclaration node)
 		{
-			return parameter.Tag == null;
+			CheckIdentifierName(node, node.Name);
 		}
-		
-		override public void LeaveParameterDeclaration(ParameterDeclaration parameter)
-		{			
-			if (null == parameter.Type)
-			{
-				parameter.Type = CreateTypeReference(TagService.ObjectType);
-			}
-			CheckIdentifierName(parameter, parameter.Name);
-			Taxonomy.InternalParameter tag = new Taxonomy.InternalParameter(parameter, GetType(parameter.Type));
-			parameter.Tag = tag;
-		}	
 		
 		override public void OnMethod(Method method)
 		{			
@@ -765,8 +761,7 @@ namespace Boo.Lang.Compiler.Steps
 			Accept(method.Body);
 			
 			LeaveNamespace();
-			PopMethodInfo();
-			BindParameterIndexes(method);			
+			PopMethodInfo();			
 			
 			if (parentIsClass)
 			{
@@ -1012,46 +1007,14 @@ namespace Boo.Lang.Compiler.Steps
 			return type;
 		}
 		
-		void BindParameterIndexes(Method method)
-		{
-			ParameterDeclarationCollection parameters = method.Parameters;
-			
-			int delta = 1; // arg0 is the this pointer
-			if (method.IsStatic)
-			{
-				delta = 0; // no this poiner
-			}
-			
-			for (int i=0; i<parameters.Count; ++i)
-			{
-				((InternalParameter)GetTag(parameters[i])).Index = i + delta;
-			}
-		}
-		
 		override public void OnArrayTypeReference(ArrayTypeReference node)
 		{
-			if (node.Tag != null)
-			{
-				return;
-			}
-
-			Accept(node.ElementType);
-			
-			IType elementType = GetType(node.ElementType);
-			if (TagService.IsError(elementType))
-			{
-				Bind(node, elementType);
-			}
-			else
-			{
-				IType arrayType = TagService.GetArrayType(elementType);
-				Bind(node, arrayType);
-			}
+			NameResolutionService.ResolveArrayTypeReference(node);
 		}
 		
 		override public void OnSimpleTypeReference(SimpleTypeReference node)
 		{
-			ResolveSimpleTypeReference(node);
+			NameResolutionService.ResolveSimpleTypeReference(node);
 		}
 		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -3121,7 +3084,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					_context.TraceVerbose("Info {0} needs resolving.", tag.Name);
 					
-					INamespace saved = _nameResolution.CurrentNamespace;
+					INamespace saved = NameResolutionService.CurrentNamespace;
 					try
 					{
 						TypeMember member = internalInfo.Node as TypeMember;
@@ -3133,7 +3096,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					finally
 					{
-						_nameResolution.Restore(saved);
+						NameResolutionService.Restore(saved);
 					}
 				}
 			}

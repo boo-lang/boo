@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Taxonomy;
 	
-	public class ExpandMacros : AbstractNamespaceSensitiveCompilerStep
+	public class ExpandMacros : AbstractNamespaceSensitiveTransformerCompilerStep
 	{
 		StringBuilder _buffer = new StringBuilder();
 		

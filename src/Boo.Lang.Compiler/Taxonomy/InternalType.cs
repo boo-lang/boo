@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 					{
 						foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 						{
-							IType tag = _tagService.GetType(baseType);
+							IType tag = TagService.GetType(baseType);
 							if (tag.IsClass)
 							{
 								_baseType = tag;
@@ -108,7 +108,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{				
 			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
 			{
-				IType baseType = _tagService.GetType(baseTypeReference);
+				IType baseType = TagService.GetType(baseTypeReference);
 				if (type == baseType || baseType.IsSubclassOf(type))
 				{
 					return true;
@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			int current = 0;
 			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				IType tag = _tagService.GetType(baseType);
+				IType tag = TagService.GetType(baseType);
 				int depth = tag.GetTypeDepth();
 				if (depth > current)
 				{

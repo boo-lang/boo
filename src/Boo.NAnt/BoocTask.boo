@@ -35,6 +35,7 @@ import NAnt.Core.Attributes
 import NAnt.Core.Types
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
+import Boo.Lang.Compiler.Resources
 
 [TaskName("booc")]
 class BoocTask(AbstractBooTask):

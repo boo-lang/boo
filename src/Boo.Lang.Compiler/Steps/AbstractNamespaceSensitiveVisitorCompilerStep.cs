@@ -34,94 +34,49 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Taxonomy;
 	
 	public abstract class AbstractNamespaceSensitiveVisitorCompilerStep : AbstractVisitorCompilerStep
-	{
-		protected NameResolutionSupport _nameResolution = new NameResolutionSupport();
-		
+	{		
 		override public void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
-			_nameResolution.Initialize(context);
-		}
-		
-		override public void Dispose()
-		{
-			base.Dispose();
-			
-			_nameResolution.Dispose();
+			NameResolutionService.Reset();
 		}
 		
 		protected void EnterNamespace(INamespace ns)
 		{
-			_nameResolution.EnterNamespace(ns);
+			NameResolutionService.EnterNamespace(ns);
 		}
 		
 		protected INamespace CurrentNamespace
 		{
 			get
 			{
-				return _nameResolution.CurrentNamespace;
+				return NameResolutionService.CurrentNamespace;
 			}
 		}
 		
 		protected void LeaveNamespace()
 		{
-			_nameResolution.LeaveNamespace();
+			NameResolutionService.LeaveNamespace();
 		}
 		
 		protected IElement Resolve(Node sourceNode, string name, ElementType tags)
 		{
-			return _nameResolution.Resolve(sourceNode, name, tags);
+			return NameResolutionService.Resolve(sourceNode, name, tags);
 		}
 		
 		protected IElement Resolve(Node sourceNode, string name)
 		{
-			return _nameResolution.Resolve(sourceNode, name);
+			return NameResolutionService.Resolve(sourceNode, name);
 		}
 		
 		protected IElement ResolveQualifiedName(Node sourceNode, string name)
 		{
-			return _nameResolution.ResolveQualifiedName(sourceNode, name);
+			return NameResolutionService.ResolveQualifiedName(sourceNode, name);
 		}
-		
-		protected bool IsQualifiedName(string name)
-		{
-			return name.IndexOf('.') > 0;
-		}	
 	
 		protected InternalType GetInternalType(TypeDefinition node)
 		{
 			return (InternalType)node.Tag;
-		}
-		
-		protected IElement ResolveSimpleTypeReference(SimpleTypeReference node)
-		{
-			if (null != node.Tag)
-			{
-				return null;
-			}
-			
-			IElement info = null;
-			if (IsQualifiedName(node.Name))
-			{
-				info = ResolveQualifiedName(node, node.Name);
-			}
-			else
-			{
-				info = Resolve(node, node.Name, ElementType.TypeReference);
-			}
-			
-			if (null == info || ElementType.TypeReference != info.ElementType)
-			{
-				Error(CompilerErrorFactory.NameNotType(node, node.Name));
-				Error(node);
-			}
-			else
-			{
-				node.Name = info.Name;
-				Bind(node, info);
-			}
-			
-			return info;
 		}
 	}
 }

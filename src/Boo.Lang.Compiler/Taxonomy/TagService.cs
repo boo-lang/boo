@@ -234,7 +234,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			return tag;
 		}	
 		
-		public IType GetType(Node node)
+		public static IType GetType(Node node)
 		{
 			return ((ITypedElement)GetTag(node)).Type;
 		}
@@ -411,7 +411,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		void Cache(ExternalType tag)
 		{
-			_tagCache[tag.Type] = tag;
+			_tagCache[tag.ActualType] = tag;
 		}
 		
 		void Cache(object key, IType tag)

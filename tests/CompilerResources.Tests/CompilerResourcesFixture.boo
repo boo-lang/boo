@@ -5,6 +5,7 @@ import System.IO
 import System.Reflection
 import System.Resources
 import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Resources
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Steps
 

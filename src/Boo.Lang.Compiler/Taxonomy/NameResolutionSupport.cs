@@ -26,14 +26,13 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
+	using System;	
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Taxonomy;
+	using Boo.Lang.Compiler.Ast;
 	
-	public class NameResolutionSupport : IDisposable
+	public class NameResolutionService
 	{
 		static readonly char[] DotArray = new char[] { '.' };
 		
@@ -41,11 +40,28 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected INamespace _current;
 		
-		public void Initialize(CompilerContext context)
+		protected INamespace _global;
+		
+		public NameResolutionService(CompilerContext context)
 		{
+			if (null == context)
+			{
+				throw new ArgumentNullException("context");
+			}
 			_context = context;
+		}
+		
+		public INamespace GlobalNamespace
+		{
+			get
+			{
+				return _global;
+			}
 			
-			EnterNamespace((INamespace)TagService.GetTag(context.CompileUnit));
+			set
+			{
+				_global = value;
+			}
 		}		
 		
 		public void EnterNamespace(INamespace ns)
@@ -65,20 +81,27 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		public void Reset()
+		{
+			if (null == _global)
+			{
+				throw new InvalidOperationException(Boo.ResourceManager.GetString("GlobalNamespaceIsNotSet"));
+			}
+			EnterNamespace(_global);
+		}
+		
 		public void Restore(INamespace saved)
 		{
+			if (null == saved)
+			{
+				throw new ArgumentNullException("saved");
+			}
 			_current = saved;
 		}
 		
 		public void LeaveNamespace()
 		{
 			_current = _current.ParentNamespace;
-		}		
-		
-		public void Dispose()
-		{
-			_context = null;
-			_current = null;
 		}
 		
 		public IElement Resolve(Node sourceNode, string name)
@@ -136,6 +159,73 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return tag;
 		}
+		
+		public void ResolveTypeReference(TypeReference node)
+		{
+			if (NodeType.ArrayTypeReference == node.NodeType)
+			{
+				ResolveArrayTypeReference((ArrayTypeReference)node);
+			}
+			else
+			{
+				ResolveSimpleTypeReference((SimpleTypeReference)node);
+			}
+		}
+		
+		public void ResolveArrayTypeReference(ArrayTypeReference node)
+		{
+			if (node.Tag != null)
+			{
+				return;
+			}
+
+			ResolveTypeReference(node.ElementType);
+			
+			IType elementType = TagService.GetType(node.ElementType);
+			if (TagService.IsError(elementType))
+			{
+				node.Tag = TagService.ErrorTag;
+			}
+			else
+			{
+				node.Tag = _context.TagService.GetArrayType(elementType);
+			}
+		}
+		
+		public void ResolveSimpleTypeReference(SimpleTypeReference node)
+		{
+			if (null != node.Tag)
+			{
+				return;
+			}
+			
+			IElement info = null;
+			if (IsQualifiedName(node.Name))
+			{
+				info = ResolveQualifiedName(node, node.Name);
+			}
+			else
+			{
+				info = Resolve(node, node.Name, ElementType.TypeReference);
+			}
+			
+			if (null == info || ElementType.TypeReference != info.ElementType)
+			{
+				_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));
+				info = TagService.ErrorTag;
+			}
+			else
+			{
+				node.Name = info.Name;
+			}
+			
+			node.Tag = info;
+		}
+		
+		static bool IsQualifiedName(string name)
+		{
+			return name.IndexOf('.') > 0;
+		}	
 		
 		static bool IsFlagSet(ElementType tags, ElementType tag)
 		{

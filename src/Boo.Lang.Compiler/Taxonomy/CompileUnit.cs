@@ -32,25 +32,10 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class CompileUnitTag : IElement, INamespace
-	{
-		INamespace _parent;
-		
-		INamespace[] _namespaces;
-		
-		public CompileUnitTag(INamespace parent)
+	public class CompileUnitTag : IElement
+	{		
+		public CompileUnitTag()
 		{
-			// Global names at the highest level
-			_parent = parent;
-			
-			INamespace boolang = (INamespace)((INamespace)_parent.Resolve("Boo")).Resolve("Lang");
-			INamespace builtins = (INamespace)boolang.Resolve("Builtins");
-			
-			// namespaces that are resolved as 'this' namespace
-			// in order of preference
-			_namespaces = new INamespace[2];
-			_namespaces[0] = builtins;
-			_namespaces[1] = boolang;
 		}
 		
 		public ElementType ElementType
@@ -65,7 +50,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return "Global";
+				return "CompileUnit";
 			}
 		}
 		
@@ -73,29 +58,8 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return "Global";
+				return "CompileUnit";
 			}
-		}
-		
-		public INamespace ParentNamespace
-		{
-			get
-			{
-				return _parent;
-			}
-		}
-		
-		public IElement Resolve(string name)
-		{
-			foreach (INamespace ns in _namespaces)
-			{
-				IElement tag = ns.Resolve(name);
-				if (null != tag)
-				{
-					return tag;
-				}
-			}
-			return null;
 		}
 	}
 }

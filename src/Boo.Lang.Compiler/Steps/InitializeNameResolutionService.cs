@@ -28,14 +28,156 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.Taxonomy;
+	using System;
+	using System.Reflection;
+	using System.Collections;
+	
 	public class InitializeNameResolutionService : AbstractVisitorCompilerStep
 	{
+		Hashtable _namespaces = new Hashtable();
+		
+		Hashtable _externalTypes = new Hashtable();		
+		
 		public InitializeNameResolutionService()
 		{
 		}
 		
 		override public void Run()
+		{				
+			ResolveImportAssemblyReferences();
+			ResolveInternalModules();
+			OrganizeExternalNamespaces();
+			
+			NameResolutionService.GlobalNamespace = new SimpleNamespace(null, _namespaces);
+		}
+		
+		void ResolveInternalModules()
 		{
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
+			{
+				Taxonomy.ModuleTag moduleTag = new Taxonomy.ModuleTag(NameResolutionService, TagService, module);
+				module.Tag = moduleTag;
+				
+				NamespaceDeclaration namespaceDeclaration = module.Namespace;
+				if (null != namespaceDeclaration)
+				{
+					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
+				}
+				GetNamespace(moduleTag.Namespace).AddModule(moduleTag);
+			}
+		}
+		
+		void ResolveImportAssemblyReferences()
+		{
+			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
+			{
+				ImportCollection imports = module.Imports;
+				Import[] importArray = imports.ToArray();
+				for (int i=0; i<importArray.Length; ++i)
+				{
+					Import u = importArray[i];
+					ReferenceExpression reference = u.AssemblyReference;
+					if (null != reference)
+					{
+						try
+						{
+							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
+							Parameters.References.Add(asm);
+							reference.Tag = new Taxonomy.AssemblyReference(asm);
+						}
+						catch (Exception x)
+						{
+							Errors.Add(CompilerErrorFactory.UnableToLoadAssembly(reference, reference.Name, x));
+							imports.RemoveAt(i);							
+						}
+					}
+				}
+			}
+		}
+		
+		IElement ResolveQualifiedName(string name)
+		{
+			string[] parts = name.Split('.');
+			string topLevel = parts[0];
+			
+			INamespace ns = (INamespace)_namespaces[topLevel];
+			if (null != ns)
+			{
+				for (int i=1; i<parts.Length; ++i)
+				{
+					ns = (INamespace)ns.Resolve(parts[i]);
+					if (null == ns)
+					{
+						break;
+					}
+				}
+			}
+			return (IElement)ns;
+		}
+		
+		void OrganizeExternalNamespaces()
+		{
+			foreach (Assembly asm in Parameters.References)
+			{
+				Type[] types = asm.GetTypes();
+				foreach (Type type in types)
+				{
+					string ns = type.Namespace;
+					if (null == ns)
+					{
+						ns = string.Empty;
+					}					
+					
+					GetNamespace(ns).Add(type);
+					
+					List typeList = GetList(_externalTypes, type.FullName);
+					typeList.Add(type);
+				}				
+			}
+		}
+		
+		Taxonomy.Namespace GetNamespace(string ns)
+		{
+			string[] namespaceHierarchy = ns.Split('.');
+			string topLevelName = namespaceHierarchy[0];
+			Taxonomy.Namespace topLevel = GetTopLevelNamespace(topLevelName);
+			Taxonomy.Namespace current = topLevel;
+			for (int i=1; i<namespaceHierarchy.Length; ++i)
+			{
+				current = current.GetChildNamespace(namespaceHierarchy[i]);
+			}
+			return current;
+		}
+		
+		Taxonomy.Namespace GetTopLevelNamespace(string topLevelName)
+		{
+			Taxonomy.Namespace tag = (Taxonomy.Namespace)_namespaces[topLevelName];	
+			if (null == tag)
+			{
+				_namespaces[topLevelName] = tag = new Taxonomy.Namespace(null, TagService, topLevelName);
+			}
+			return tag;
+		}
+		
+		List GetList(Hashtable hash, string key)
+		{
+			List list = (List)hash[key];
+			if (null == list)
+			{
+				list = new List();
+				hash[key] = list;
+			}
+			return list;
+		}
+		
+		override public void Dispose()
+		{
+			base.Dispose();
+			_namespaces.Clear();
+			_externalTypes.Clear();
 		}
 	}
 }

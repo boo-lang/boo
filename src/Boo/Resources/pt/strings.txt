@@ -77,6 +77,9 @@ BCE0074='self' não pode ser utilizado fora de um método.
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.
 
+;Boo.Lang.Compiler
+Boo.Lang.Compiler.GlobalNamespaceIsNotSet=O namespace global não foi configurado!
+
 
 ;BooC Messages
 BooC.Errors={0} erro(s).

@@ -50,6 +50,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		protected NameResolutionService NameResolutionService
+		{
+			get
+			{
+				return _context.NameResolutionService;
+			}
+		}
+		
 		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
 		{
 			get
@@ -80,6 +88,28 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return _context.TagService;
 			}
+		}
+		
+		protected void Error(Node node, CompilerError error)
+		{
+			Error(node);
+			Errors.Add(error);
+		}
+		
+		protected void Error(CompilerError error)
+		{
+			Errors.Add(error);
+		}
+		
+		protected void Error(Node node)
+		{
+			node.Tag = TagService.ErrorTag;
+		}
+
+		protected void Bind(Node node, IElement tag)
+		{
+			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, tag);
+			node.Tag = tag;
 		}
 		
 		public IElement GetTag(Node node)

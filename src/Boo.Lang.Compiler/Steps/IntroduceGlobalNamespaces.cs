@@ -28,6 +28,9 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.Taxonomy;
+	
 	public class IntroduceGlobalNamespaces : AbstractVisitorCompilerStep
 	{
 		public IntroduceGlobalNamespaces()
@@ -35,7 +38,16 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void Run()
-		{
+		{						
+			INamespace global = NameResolutionService.GlobalNamespace;
+			
+			INamespace[] globals = new INamespace[2];
+			globals[0] = (INamespace)((INamespace)global.Resolve("Boo")).Resolve("Lang");
+			globals[1] = (INamespace)globals[0].Resolve("Builtins");
+			
+			NameResolutionService.GlobalNamespace = new NamespaceDelegator(
+															global,
+															globals);
 		}
 	}
 }

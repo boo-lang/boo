@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return _tagService.GetType(_property.Type);
+				return TagService.GetType(_property.Type);
 			}
 		}
 		

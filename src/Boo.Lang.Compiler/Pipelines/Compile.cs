@@ -37,18 +37,22 @@ namespace Boo.Lang.Compiler.Pipelines
 		{			
 			Add(new InitializeNameResolutionService());
 			Add(new IntroduceGlobalNamespaces());
-			Add(new BindModules());
-			Add(new BindTypeDefinitions());
-			Add(new BindBaseTypes());
+			Add(new BindTypeDefinitions());			
 			Add(new BindNamespaces());
+			Add(new BindBaseTypes());
 			Add(new BindAndApplyAttributes());
 			Add(new ExpandMacros());
 			Add(new IntroduceModuleClasses());
 			Add(new NormalizeTypeMembers());
 			Add(new NormalizeStatementModifiers());
+			
+			// todo: run this 2 steps again only if
+			// any attributes or mixins were 
+			// applied
 			Add(new BindTypeDefinitions());
 			Add(new BindBaseTypes());
-			Add(new BindTypeMembers());
+			
+			Add(new BindTypeMembers());			
 			Add(new ProcessMethodBodies());
 			Add(new ProcessGenerators());
 			Add(new CheckInterfaceImplementations());

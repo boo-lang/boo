@@ -154,11 +154,6 @@ namespace Boo.Lang.Compiler
 			{
 				return _nameResolutionService;
 			}
-			
-			set
-			{
-				_nameResolutionService = value;
-			}
 		}
 		
 		public Assembly GeneratedAssembly

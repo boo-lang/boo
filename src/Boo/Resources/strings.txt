@@ -74,6 +74,10 @@ BCE0072=Overriden method '{0}' has a return type of '{1}' not '{2}'.
 BCE0073=Abstract method '{0}' cannot have a body.
 BCE0074='self' can't be used outside a method.
 
+;Boo.Lang.Compiler
+Boo.Lang.Compiler.GlobalNamespaceIsNotSet=Global namespace is not set!
+
+
 ;BooC Messages
 BooC.Errors={0} error(s).
 BooC.ProcessingTime={0} module(s) processed in {1}ms after {2}ms of environment setup.

@@ -43,6 +43,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{			
+			NameResolutionService.Reset();
 			Accept(CompileUnit.Modules);
 		}
 		
@@ -51,6 +52,10 @@ namespace Boo.Lang.Compiler.Steps
 			EnterNamespace((INamespace)GetTag(module));
 			Accept(module.Members);
 			LeaveNamespace();
+		}
+		
+		override public void OnEnumDefinition(EnumDefinition node)
+		{
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
@@ -66,17 +71,24 @@ namespace Boo.Lang.Compiler.Steps
 		protected void ResolveBaseTypes(ArrayList visited, TypeDefinition node)
 		{
 			visited.Add(node);
-			foreach (SimpleTypeReference type in node.BaseTypes)
+			
+			int removed = 0;
+			int index = 0;
+			foreach (SimpleTypeReference type in node.BaseTypes.ToArray())
 			{                            
-				TypeReferenceTag tag = ResolveSimpleTypeReference(type) as Taxonomy.TypeReferenceTag;
+				NameResolutionService.ResolveSimpleTypeReference(type);
+				TypeReferenceTag tag = type.Tag as Taxonomy.TypeReferenceTag;
+				
 				if (null != tag)
 				{
 					InternalType internalType = tag.Type as InternalType;
 					if (null != internalType)
 					{
 						if (visited.Contains(internalType.TypeDefinition))
-						{
+						{							
 							Error(CompilerErrorFactory.InheritanceCycle(type, internalType.FullName));
+							node.BaseTypes.RemoveAt(index-removed);
+							++removed;
 						}
 						else
 						{
@@ -84,6 +96,8 @@ namespace Boo.Lang.Compiler.Steps
 						}
 					}
 				}
+				
+				++index;
 			}
 		}
 	}

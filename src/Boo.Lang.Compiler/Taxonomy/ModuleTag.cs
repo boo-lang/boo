@@ -32,6 +32,8 @@ namespace Boo.Lang.Compiler.Taxonomy
 
 	public class ModuleTag : INamespace, IElement
 	{
+		NameResolutionService _nameResolutionService;
+		
 		TagService _tagService;
 		
 		Boo.Lang.Compiler.Ast.Module _module;
@@ -42,8 +44,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		string _namespace;
 		
-		public ModuleTag(TagService tagManager, Boo.Lang.Compiler.Ast.Module module)
+		public ModuleTag(NameResolutionService nameResolutionService, TagService tagManager, Boo.Lang.Compiler.Ast.Module module)
 		{
+			_nameResolutionService = nameResolutionService;
 			_tagService = tagManager;
 			_module = module;			
 			if (null == module.Namespace)
@@ -102,7 +105,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return (INamespace)TagService.GetTag(_module.ParentNode);
+				return _nameResolutionService.GlobalNamespace;
 			}
 		}
 		

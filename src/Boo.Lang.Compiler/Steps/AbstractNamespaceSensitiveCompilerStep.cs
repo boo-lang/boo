@@ -34,56 +34,45 @@ using Boo.Lang.Compiler.Taxonomy;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public abstract class AbstractNamespaceSensitiveCompilerStep : AbstractTransformerCompilerStep
+	public abstract class AbstractNamespaceSensitiveTransformerCompilerStep : AbstractTransformerCompilerStep
 	{
-		protected NameResolutionSupport _nameResolution = new NameResolutionSupport();
-		
-		override public bool EnterCompileUnit(Boo.Lang.Compiler.Ast.CompileUnit cu)
+		override public void Initialize(CompilerContext context)
 		{
-			_nameResolution.Initialize(Context);
-			return true;
-		}
-		
-		override public void Dispose()
-		{
-			base.Dispose();
-			_nameResolution.Dispose();
-		}
-		
-		protected IElement Resolve(Node sourceNode, string name)
-		{
-			return _nameResolution.Resolve(sourceNode, name);
-		}
-		
-		protected IElement ResolveQualifiedName(Node sourceNode, string name)
-		{			
-			return _nameResolution.Resolve(sourceNode, name);
+			base.Initialize(context);
+			NameResolutionService.Reset();
 		}
 		
 		protected void EnterNamespace(INamespace ns)
 		{
-			_nameResolution.EnterNamespace(ns);
+			NameResolutionService.EnterNamespace(ns);
+		}
+		
+		protected INamespace CurrentNamespace
+		{
+			get
+			{
+				return NameResolutionService.CurrentNamespace;
+			}
 		}
 		
 		protected void LeaveNamespace()
 		{
-			_nameResolution.LeaveNamespace();
+			NameResolutionService.LeaveNamespace();
 		}
 		
-		protected void Error(Node node, CompilerError error)
+		protected IElement Resolve(Node sourceNode, string name, ElementType tags)
 		{
-			Error(node);
-			Errors.Add(error);
+			return NameResolutionService.Resolve(sourceNode, name, tags);
 		}
 		
-		protected void Error(CompilerError error)
+		protected IElement Resolve(Node sourceNode, string name)
 		{
-			Errors.Add(error);
+			return NameResolutionService.Resolve(sourceNode, name);
 		}
 		
-		protected void Error(Node node)
+		protected IElement ResolveQualifiedName(Node sourceNode, string name)
 		{
-			node.Tag = TagService.ErrorTag;
-		}
+			return NameResolutionService.ResolveQualifiedName(sourceNode, name);
+		}		
 	}
 }

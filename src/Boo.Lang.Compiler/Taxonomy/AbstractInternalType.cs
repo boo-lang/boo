@@ -99,7 +99,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			
 			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				IElement tag = _tagService.GetType(baseType).Resolve(name);
+				IElement tag = TagService.GetType(baseType).Resolve(name);
 				if (null != tag)
 				{
 					_buffer.AddUnique(tag);
@@ -308,7 +308,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					IType tag = (IType)_tagService.GetType(baseType);
+					IType tag = (IType)TagService.GetType(baseType);
 					if (tag.IsInterface)
 					{
 						_buffer.AddUnique(tag);

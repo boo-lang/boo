@@ -35,56 +35,18 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Taxonomy;
 
 namespace Boo.Lang.Compiler.Steps
-{	
-	// todo: CompilerParameters.References.Changed += OnChanged
-	// recalculate namespaces on reference changes
-	// todo: optimize this class so it only reescans
-	// the references when they change
-	public class BindNamespaces : AbstractCompilerStep, INamespace
-	{		
-		Hashtable _namespaces = new Hashtable();
-		
-		Hashtable _externalTypes = new Hashtable();		
-		
+{		
+	public class BindNamespaces : AbstractCompilerStep
+	{			
 		override public void Run()
 		{
-			ResolveNamespaces();
-		}
-		
-		override public void Dispose()
-		{
-			base.Dispose();
-			_namespaces.Clear();
-			_externalTypes.Clear();
-		}
-		
-		void ResolveInternalModules()
-		{
-			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
-			{
-				Taxonomy.ModuleTag moduleTag = new Taxonomy.ModuleTag(TagService, module);
-				module.Tag = moduleTag;
-				
-				NamespaceDeclaration namespaceDeclaration = module.Namespace;
-				if (null != namespaceDeclaration)
-				{
-					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
-				}
-				GetNamespace(moduleTag.Namespace).AddModule(moduleTag);
-			}
-		}
-		
-		void ResolveNamespaces()
-		{				
-			ResolveImportAssemblyReferences();
-			ResolveInternalModules();
-			OrganizeExternalNamespaces();
+			NameResolutionService.Reset();
 			
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
 				foreach (Import import in module.Imports)
 				{
-					IElement tag = ResolveQualifiedName(import.Namespace);					
+					IElement tag = NameResolutionService.ResolveQualifiedName(import, import.Namespace);					
 					if (null == tag)
 					{
 						tag = TagService.ErrorTag;
@@ -117,134 +79,9 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 		}
 		
-		void ResolveImportAssemblyReferences()
-		{
-			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
-			{
-				ImportCollection imports = module.Imports;
-				Import[] importArray = imports.ToArray();
-				for (int i=0; i<importArray.Length; ++i)
-				{
-					Import u = importArray[i];
-					ReferenceExpression reference = u.AssemblyReference;
-					if (null != reference)
-					{
-						try
-						{
-							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
-							Parameters.References.Add(asm);
-							reference.Tag = new Taxonomy.AssemblyReference(asm);
-						}
-						catch (Exception x)
-						{
-							Errors.Add(CompilerErrorFactory.UnableToLoadAssembly(reference, reference.Name, x));
-							imports.RemoveAt(i);							
-						}
-					}
-				}
-			}
-		}
-		
 		Assembly GetBoundAssembly(ReferenceExpression reference)
 		{
 			return ((AssemblyReference)TagService.GetTag(reference)).Assembly;
-		}
-		
-		public INamespace ParentNamespace
-		{
-			get
-			{
-				return null;
-			}
-		}
-		
-		public IElement Resolve(string name)
-		{
-			IElement tag = (IElement)_namespaces[name];
-			if (null == tag)
-			{
-				INamespace globalns = (INamespace)_namespaces[""];
-				if (null != globalns)
-				{
-					tag = globalns.Resolve(name);
-				}
-			}			
-			return tag;
-		}
-		
-		IElement ResolveQualifiedName(string name)
-		{
-			string[] parts = name.Split('.');
-			string topLevel = parts[0];
-			
-			INamespace ns = (INamespace)_namespaces[topLevel];
-			if (null != ns)
-			{
-				for (int i=1; i<parts.Length; ++i)
-				{
-					ns = (INamespace)ns.Resolve(parts[i]);
-					if (null == ns)
-					{
-						break;
-					}
-				}
-			}
-			return (IElement)ns;
-		}
-		
-		void OrganizeExternalNamespaces()
-		{
-			foreach (Assembly asm in Parameters.References)
-			{
-				Type[] types = asm.GetTypes();
-				foreach (Type type in types)
-				{
-					string ns = type.Namespace;
-					if (null == ns)
-					{
-						ns = string.Empty;
-					}					
-					
-					GetNamespace(ns).Add(type);
-					
-					List typeList = GetList(_externalTypes, type.FullName);
-					typeList.Add(type);
-				}				
-			}
-		}
-		
-		Taxonomy.Namespace GetNamespace(string ns)
-		{
-			string[] namespaceHierarchy = ns.Split('.');
-			string topLevelName = namespaceHierarchy[0];
-			Taxonomy.Namespace topLevel = GetTopLevelNamespace(topLevelName);
-			Taxonomy.Namespace current = topLevel;
-			for (int i=1; i<namespaceHierarchy.Length; ++i)
-			{
-				current = current.GetChildNamespace(namespaceHierarchy[i]);
-			}
-			return current;
-		}
-		
-		Taxonomy.Namespace GetTopLevelNamespace(string topLevelName)
-		{
-			Taxonomy.Namespace tag = (Taxonomy.Namespace)_namespaces[topLevelName];	
-			if (null == tag)
-			{
-				_namespaces[topLevelName] = tag = new Taxonomy.Namespace(this, TagService, topLevelName);
-			}
-			return tag;
-		}
-		
-		List GetList(Hashtable hash, string key)
-		{
-			List list = (List)hash[key];
-			if (null == list)
-			{
-				list = new List();
-				hash[key] = list;
-			}
-			return list;
 		}
 	}
 }

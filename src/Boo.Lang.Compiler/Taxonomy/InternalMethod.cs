@@ -188,7 +188,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{					
-				return _tagService.GetType(_method.ReturnType);
+				return TagService.GetType(_method.ReturnType);
 			}
 		}
 		

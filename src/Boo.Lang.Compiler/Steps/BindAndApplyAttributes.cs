@@ -171,7 +171,7 @@ namespace Boo.Lang.Compiler.Steps
 	/// <summary>
 	/// Step 2. Processes AST attributes.
 	/// </summary>
-	public class BindAndApplyAttributes : AbstractNamespaceSensitiveCompilerStep
+	public class BindAndApplyAttributes : AbstractNamespaceSensitiveTransformerCompilerStep
 	{				
 		TaskList _tasks;
 

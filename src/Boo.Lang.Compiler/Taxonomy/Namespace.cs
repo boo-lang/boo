@@ -31,6 +31,35 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System;
 	using System.Reflection;
 	using System.Collections;
+	
+	public class SimpleNamespace : INamespace
+	{		
+		INamespace _parent;
+		IDictionary _children;
+		
+		public SimpleNamespace(INamespace parent, IDictionary children)
+		{
+			if (null == children)
+			{
+				throw new ArgumentNullException("children");
+			}
+			_parent = parent;
+			_children = children;			
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return _parent;
+			}
+		}
+		
+		public IElement Resolve(string name)
+		{
+			return (IElement)_children[name];
+		}
+	}	
 
 	public class Namespace : IElement, INamespace
 	{		
@@ -44,7 +73,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		Hashtable _childrenNamespaces;
 		
-		ArrayList _moduleNamespaces;
+		Boo.Lang.List _moduleNamespaces;
 		
 		public Namespace(INamespace parent, TagService tagManager, string name)
 		{			
@@ -54,7 +83,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			_assemblies = new Hashtable();
 			_childrenNamespaces = new Hashtable();
 			_assemblies = new Hashtable();
-			_moduleNamespaces = new ArrayList();
+			_moduleNamespaces = new Boo.Lang.List();
 		}
 		
 		public string Name
@@ -84,10 +113,10 @@ namespace Boo.Lang.Compiler.Taxonomy
 		public void Add(Type type)
 		{
 			System.Reflection.Assembly assembly = type.Assembly;
-			ArrayList types = (ArrayList)_assemblies[assembly];
+			Boo.Lang.List types = (Boo.Lang.List)_assemblies[assembly];
 			if (null == types)
 			{
-				types = new ArrayList();
+				types = new Boo.Lang.List();
 				_assemblies[assembly] = types;
 			}
 			types.Add(type);			
@@ -117,7 +146,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				return new AssemblyQualifiedNamespace(assembly, tag);
 			}
 			
-			ArrayList types = (ArrayList)_assemblies[assembly];			                
+			Boo.Lang.List types = (Boo.Lang.List)_assemblies[assembly];			                
 			if (null != types)
 			{
 				foreach (Type type in types)
@@ -170,7 +199,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		IElement ResolveExternalType(string name)
 		{
 			IElement tag = null;
-			foreach (ArrayList types in _assemblies.Values)
+			foreach (Boo.Lang.List types in _assemblies.Values)
 			{
 				foreach (Type type in types)
 				{
@@ -287,6 +316,40 @@ namespace Boo.Lang.Compiler.Taxonomy
 			if (name == _alias)
 			{
 				return _subject;
+			}
+			return null;
+		}
+	}
+	
+	public class NamespaceDelegator : INamespace
+	{
+		INamespace _parent;
+		
+		INamespace[] _namespaces;
+		
+		public NamespaceDelegator(INamespace parent, INamespace[] namespaces)
+		{
+			_parent = parent;
+			_namespaces = namespaces;
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return _parent;
+			}
+		}
+		
+		public IElement Resolve(string name)
+		{
+			foreach (INamespace ns in _namespaces)
+			{
+				IElement tag = ns.Resolve(name);
+				if (null != tag)
+				{
+					return tag;
+				}
 			}
 			return null;
 		}

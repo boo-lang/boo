@@ -34,15 +34,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 	{
 		ParameterDeclaration _parameter;
 		
-		IType _type;
-		
 		int _index;
 		
-		public InternalParameter(ParameterDeclaration parameter, IType type)
+		public InternalParameter(ParameterDeclaration parameter, int index)
 		{
 			_parameter = parameter;
-			_type = type;
-			_index = -1;
+			_index = index;
 		}
 		
 		public string Name
@@ -81,7 +78,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return _type;
+				return TagService.GetType(_parameter.Type);
 			}
 		}
 		
@@ -90,11 +87,6 @@ namespace Boo.Lang.Compiler.Taxonomy
 			get
 			{
 				return _index;
-			}
-			
-			set
-			{
-				_index = value;
 			}
 		}
 	}

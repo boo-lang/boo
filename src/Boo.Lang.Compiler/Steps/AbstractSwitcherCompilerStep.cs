@@ -58,6 +58,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		protected NameResolutionService NameResolutionService
+		{
+			get
+			{
+				return _context.NameResolutionService;
+			}
+		}
+		
 		protected CompilerParameters Parameters
 		{
 			get
