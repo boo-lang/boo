@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -68,6 +68,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ExternalType BoolType;
 		
 		public ExternalType CharType;
+		
+		public ExternalType SByteType;
 		
 		public ExternalType ByteType;
 		
@@ -153,11 +155,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(TypeType = new ExternalType(this, Types.Type));
 			Cache(StringType = new ExternalType(this, Types.String));
 			Cache(BoolType = new ExternalType(this, Types.Bool));
-			Cache(ByteType = new ExternalType(this, Types.Byte));
+			Cache(SByteType = new ExternalType(this, Types.SByte));
 			Cache(CharType = new ExternalType(this, Types.Char));
 			Cache(ShortType = new ExternalType(this, Types.Short));
 			Cache(IntType = new ExternalType(this, Types.Int));
 			Cache(LongType = new ExternalType(this, Types.Long));
+			Cache(ByteType = new ExternalType(this, Types.Byte));
 			Cache(UShortType = new ExternalType(this, Types.UShort));
 			Cache(UIntType = new ExternalType(this, Types.UInt));
 			Cache(ULongType = new ExternalType(this, Types.ULong));
@@ -234,6 +237,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType GetPromotedNumberType(IType left, IType right)
 		{
+/* Don't know if we ever want to support decimals
+ * If so, the arg exception will have to be handled properly
+			if (left == DecimalType)
+			{
+				if (right == DoubleType ||
+				    right == SingleType)
+				{
+					throw new ArgumentException("decimal <op> " + right);
+				}
+				return DecimalType;
+			}
+			if (right == DecimalType)
+			{
+				if (left == DoubleType ||
+				    left == SingleType)
+				{
+					throw new ArgumentException(left + " <op> decimal");
+				}
+				return DecimalType;
+			}
+*/
 			if (left == DoubleType ||
 				right == DoubleType)
 			{
@@ -244,20 +268,101 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return SingleType;
 			}
+			if (left == ULongType)
+			{
+				if (right == SByteType ||
+				    right == ShortType ||
+				    right == IntType ||
+				    right == LongType)
+				{
+					// This is against the C# spec but allows expressions like:
+					//    ulong x = 4
+					//    y = x + 1
+					// y will be long.
+					// C# disallows mixing ulongs and signed numbers
+					// but in the above case it promotes the constant to ulong
+					// and the result is ulong.
+					// Since its too late here to promote the constant,
+					// maybe we should return LongType.  I didn't chose ULongType
+					// because in other cases <unsigned> <op> <signed> returns <signed>.
+					return LongType;
+				}
+				return ULongType;
+			}
+			if (right == ULongType)
+			{
+				if (left == SByteType ||
+				    left == ShortType ||
+				    left == IntType ||
+				    left == LongType)
+				{
+					// This is against the C# spec but allows expressions like:
+					//    ulong x = 4
+					//    y = 1 + x
+					// y will be long.
+					// C# disallows mixing ulongs and signed numbers
+					// but in the above case it promotes the constant to ulong
+					// and the result is ulong.
+					// Since its too late here to promote the constant,
+					// maybe we should return LongType.  I didn't chose ULongType
+					// because in other cases <signed> <op> <unsigned> returns <signed>.
+					return LongType;
+				}
+				return ULongType;
+			}
 			if (left == LongType ||
 				right == LongType)
 			{
 				return LongType;
 			}
+			if (left == UIntType)
+			{
+				if (right == SByteType ||
+				    right == ShortType ||
+				    right == IntType)
+				{
+					// This is allowed per C# spec and y is long:
+					//    uint x = 4
+					//    y = x + 1
+					// C# promotes <uint> <op> <signed> to <long> also
+					// but in the above case it promotes the constant to uint first
+					// and the result of "x + 1" is uint.
+					// Since its too late here to promote the constant,
+					// "y = x + 1" will be long in boo.
+					return LongType;
+				}
+				return UIntType;
+			}
+			if (right == UIntType)
+			{
+				if (left == SByteType ||
+				    left == ShortType ||
+				    left == IntType)
+				{
+					// This is allowed per C# spec and y is long:
+					//    uint x = 4
+					//    y = 1 + x
+					// C# promotes <signed> <op> <uint> to <long> also
+					// but in the above case it promotes the constant to uint first
+					// and the result of "1 + x" is uint.
+					// Since its too late here to promote the constant,
+					// "y = x + 1" will be long in boo.
+					return LongType;
+				}
+				return UIntType;
+			}
 			if (left == IntType ||
-				right == IntType)
+				right == IntType ||
+				left == ShortType ||
+				right == ShortType ||
+				left == UShortType ||
+				right == UShortType ||
+				left == ByteType ||
+				right == ByteType ||
+				left == SByteType ||
+				right == SByteType)
 			{
 				return IntType;
-			}
-			if (left == ShortType ||
-				right == ShortType)
-			{
-				return ShortType;
 			}
 			return left;
 		}
@@ -483,13 +588,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 				type == this.ShortType ||
 				type == this.IntType ||
 				type == this.LongType ||
-				type == this.ByteType;
+				type == this.SByteType ||
+				type == this.ByteType;	// Rodrigo shouldn't all unsigneds be
+										// IntegerNumbers too?
+										// Then unsigneds can do: uint & uint
 		}
 		
 		public bool IsUnsignedNumber(IType type)
 		{
-			return type == this.UShortType ||
+			return
+				type == this.UShortType ||
 				type == this.UIntType ||
+//Rodrigo should ByteType be added as its unsigned?
+//				type == this.ByteType ||
 				type == this.ULongType;
 		}
 		
@@ -817,6 +928,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("date", DateTimeType);
 			AddPrimitiveType("string", StringType);
 			AddPrimitiveType("object", ObjectType);
+			AddPrimitiveType("sbyte", SByteType);
 			AddPrimitiveType("byte", ByteType);
 			AddPrimitiveType("short", ShortType);
 			AddPrimitiveType("ushort", UShortType);

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -2620,9 +2620,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetNumericPromotionOpCode(IType type)
 		{
-			if (type == TypeSystemServices.ByteType)
+			if (type == TypeSystemServices.SByteType)
 			{
 				return OpCodes.Conv_I1;
+			}
+			else if (type == TypeSystemServices.ByteType)
+			{
+				return OpCodes.Conv_U1;
 			}
 			else if (type == TypeSystemServices.ShortType)
 			{
