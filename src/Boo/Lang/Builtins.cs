@@ -63,13 +63,15 @@ namespace Boo.Lang
 		public static string join(IEnumerable enumerable, string separator)
 		{
 			StringBuilder sb = new StringBuilder();
-			foreach (object item in enumerable)
+			IEnumerator enumerator = enumerable.GetEnumerator();
+			if (enumerator.MoveNext())
 			{
-				if (sb.Length>0)
+				sb.Append(enumerator.Current);
+				while (enumerator.MoveNext())
 				{
 					sb.Append(separator);
+					sb.Append(enumerator.Current);
 				}
-				sb.Append(item);
 			}
 			return sb.ToString();
 		}
@@ -77,13 +79,15 @@ namespace Boo.Lang
 		public static string join(IEnumerable enumerable, char separator)
 		{
 			StringBuilder sb = new StringBuilder();
-			foreach (object item in enumerable)
+			IEnumerator enumerator = enumerable.GetEnumerator();
+			if (enumerator.MoveNext())
 			{
-				if (sb.Length>0)
+				sb.Append(enumerator.Current);
+				while (enumerator.MoveNext())
 				{
 					sb.Append(separator);
+					sb.Append(enumerator.Current);
 				}
-				sb.Append(item);
 			}
 			return sb.ToString();
 		}

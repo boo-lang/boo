@@ -73,6 +73,7 @@
 	
 	<target name="Boo.Lang.Interpreter" depends="Boo.NAnt.Tasks">
 		<exec program="build/booc.exe" useruntimeengine="true">
+			<arg value="-noconfig" />
 			<arg value="-t:library" />
 			<arg value="-v" />
 			<arg value="-out:build/Boo.Lang.Interpreter.dll" />
@@ -115,6 +116,7 @@
 			<arg value="-out:build/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
 			<arg value="-r:${NAnt.Core.dll}" />
+			<arg value="src/Boo.NAnt.Tasks/InsertLicenseTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BoocTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BooTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/AbstractBooTask.boo" />			
@@ -254,10 +256,17 @@
 		</csc>
 	</target>
 	
-	<target name="insert-notice">
-		<exec program="bin/booi.exe" useruntimeengine="true">
-			<arg file="scripts/insertnotice.boo" />
-		</exec>
+	<target name="insert-license" depends="Boo.NAnt.Tasks">
+		<insertLicense license="notice.txt">
+			<fileset basedir="src">
+				<include name="**/*.cs" />
+				<include name="**/*.boo" />
+				<exclude name="Boo.Lang.Parser/antlr/**" />
+			</fileset>
+			<fileset basedir="examples">
+				<include name="**/*.boo" />
+			</fileset>
+		</insertLicense>
 	</target>
 	
 	<target name="update-stable-branch" depends="SVNUtil">
@@ -331,7 +340,7 @@
 		</zip>
 	</target>
 	
-	<target name="src-distro" depends="insert-notice">
+	<target name="src-distro" depends="insert-license">
 		<zip zipfile="boo-${distro-version}-src.zip" ziplevel="9">
 			<fileset>
 				<include name="readme.txt" />

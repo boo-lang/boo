@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -25,34 +25,58 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
-
 """
-Makes sure that every csharp file in the src tree starts
+Makes sure that every file in the fileset starts
 with the license notice.
 """
-import Boo.IO
+
+namespace Boo.NAnt
+
+import System.Diagnostics
 import System.IO
-		
-def InsertLicense(fname as string, license as string):
-	print(fname)
-	contents = TextFile.ReadFile(fname)
-	using writer=StreamWriter(fname, false, System.Text.Encoding.UTF8):
-		writer.WriteLine(license)
-		writer.WriteLine()
-		writer.Write(contents)
+import NAnt.Core
+import NAnt.Core.Attributes
+import NAnt.Core.Types
+import Boo.IO
 
-def ScanDirectory(name as string, license as string):
-	for pattern in "*.cs", "*.boo":
-		for fname in Directory.GetFiles(name, pattern):		
-			InsertLicense(fname, license) if GetFirstLine(fname) != "#region license"
+[TaskName("insertLicense")]
+class InsertLicenseTask(Task):
+	
+	_fileSets as (FileSet)
+	
+	_license as FileInfo
+	
+	[BuildElementArray("fileset", Required: true)]
+	FileSets:
+		get:
+			return _fileSets
+		set:
+			_fileSets = value
+			
+	[TaskAttribute("license", Required: true)]
+	License:
+		get:
+			return _license
+		set:
+			_license = value
+			
+	override def ExecuteTask():
+		licenseText = TextFile.ReadFile(_license.FullName)
+		for fileSet in _fileSets:
+			for fname in fileSet.FileNames:		
+				InsertLicense(fname, licenseText) if GetFirstLine(fname) != "#region license"
 		
-	for dir in Directory.GetDirectories(name):
-		ScanDirectory(dir, license)
-		
-def GetFirstLine(fname as string):
-	using f=File.OpenText(fname):
-		return f.ReadLine()
-
-license = TextFile.ReadFile("notice.txt")
-for directory in "src", "scripts", "examples":
-	ScanDirectory(directory, license)
+	def InsertLicense(fname as string, license as string):
+		print(fname)
+		contents = TextFile.ReadFile(fname)
+		using writer=StreamWriter(fname, false, System.Text.Encoding.UTF8):
+			writer.WriteLine(license)
+			writer.WriteLine()
+			writer.Write(contents)
+			
+	def GetFirstLine(fname as string):
+		using f=File.OpenText(fname):
+			return f.ReadLine()
+			
+	def print(message):
+		self.Log(Level.Info, "${message}")
