@@ -1,0 +1,32 @@
+<Project name="Boo.Lang.Parser.Tests" standardNamespace="Boo.Lang.Parser.Tests" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
+  <Contents>
+    <File name=".\AbstractParserTestFixture.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\BooParserTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Util\IndentTokenStreamFilterTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+  </Contents>
+  <References>
+    <Reference type="Project" refto="Boo" localcopy="True" />
+    <Reference type="Project" refto="Boo.Lang.Compiler" localcopy="True" />
+    <Reference type="Gac" refto="nunit.framework, Version=2.2.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77" localcopy="True" />
+    <Reference type="Project" refto="Boo.Lang.Parser" localcopy="True" />
+    <Reference type="Project" refto="BooCompiler.Tests" localcopy="True" />
+  </References>
+  <DeploymentInformation target="" script="" strategy="File" />
+  <Configuration runwithwarnings="False" name="Debug">
+    <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" noconfig="False" nostdlib="False" />
+    <Execution commandlineparameters="" consolepause="False" />
+    <Output directory="..\build" assembly="Boo.Lang.Parser.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+  </Configuration>
+  <Configurations active="Debug">
+    <Configuration runwithwarnings="False" name="Debug">
+      <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" noconfig="False" nostdlib="False" />
+      <Execution commandlineparameters="" consolepause="False" />
+      <Output directory="..\build" assembly="Boo.Lang.Parser.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+    </Configuration>
+    <Configuration runwithwarnings="False" name="Release">
+      <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" noconfig="False" nostdlib="False" />
+      <Execution commandlineparameters="" consolepause="False" />
+      <Output directory="..\build" assembly="Boo.Lang.Parser.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+    </Configuration>
+  </Configurations>
+</Project>
