@@ -258,13 +258,17 @@ done * procurar uma versão dos operadores em RuntimeServices para unificar a in
 	done * RuntimeServices.op_NotMember(string, string)
 	
 done * comportamento de 'as' com value types: erro
+
+* end?
+
+* implementação de interfaces
 	
 * criar primitivas box, unbox e __reference__ para o semantic step e outros passos
 que precisarem? Isso iria permitir remover os casts 
 
 	__box__(3.0)
 	__unbox__(reference, int)
-	__assertIsReference__(expression) # para uso por macros como lock por exemplo 
+	__assertIsReference__(expression) # para uso por macros como lock por exemplo
 	
 * map(fn, enumerable)
 

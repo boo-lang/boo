@@ -6,6 +6,6 @@ def clicked(sender, args as System.EventArgs):
 f = Form(Text: "Hello, Boo!")
 f.Controls.Add(Button(Text: "Click Me!",
 					Dock: DockStyle.Fill,
-					Click: clicked))
+					Click: clicked ))
 
 Application.Run(f)

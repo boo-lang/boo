@@ -114,7 +114,6 @@ tokens
 	TRANSIENT="transient";
 	TRUE="true";
 	UNLESS="unless";
-	UNTIL="until";
 	WHEN="when";
 	WHILE="while";
 	YIELD="yield";
@@ -815,8 +814,7 @@ stmt_modifier returns [StatementModifier m]
 	(
 		i:IF! { t = i; type = StatementModifierType.If; } |
 		u:UNLESS! { t = u; type = StatementModifierType.Unless; } |
-		w:WHILE! { t = w; type = StatementModifierType.While; } |
-		ut:UNTIL! { t = ut; type = StatementModifierType.Until; }
+		w:WHILE! { t = w; type = StatementModifierType.While; }
 	)
 	e=expression
 	{

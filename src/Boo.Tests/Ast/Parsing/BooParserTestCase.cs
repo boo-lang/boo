@@ -486,15 +486,11 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Lang.Ast.Module module = BooTestCaseUtil.ParseTestCase("while_stmt_1.boo");
 
 			WhileStatement ws = (WhileStatement)module.Globals.Statements[3];
-			BinaryExpression condition = (BinaryExpression)ws.Condition;
-			Assert.AreEqual(BinaryOperatorType.Inequality, condition.Operator);
-			Assert.AreEqual("guess", ((ReferenceExpression)condition.Left).Name);
-			Assert.AreEqual("number", ((ReferenceExpression)condition.Right).Name);
-
+			Assert.AreEqual(true, ((BoolLiteralExpression)ws.Condition).Value); 
 			Assert.AreEqual(4, ws.Block.Statements.Count);
 
 			BreakStatement bs = (BreakStatement)ws.Block.Statements[3];
-			condition = (BinaryExpression)bs.Modifier.Condition;
+			BinaryExpression condition = (BinaryExpression)bs.Modifier.Condition;
 			Assert.AreEqual(BinaryOperatorType.Equality, condition.Operator);
 		}
 

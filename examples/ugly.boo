@@ -1,5 +1,6 @@
 def value(x as long, y as long, z as long):
 	return 2**x * 3**y * 5**z
+end
 
 def ugly(max as int):
 	uglies = []
@@ -21,13 +22,17 @@ def ugly(max as int):
 		System.Array.Sort(keys)
 		
 		counter = keys[0]
+	end
 	
 	return uglies[-1]
+end
 	
 iter = 1500
 start = date.Now
 for i in range(10):
 	uvalue = ugly(iter)
-end = date.Now
-print("${iter} ugly value = ${uvalue} in ${(end-start).TotalMilliseconds}ms")
+end
+
+stop = date.Now
+print("${iter} ugly value = ${uvalue} in ${(stop-start).TotalMilliseconds}ms")
 

@@ -7,7 +7,8 @@ def test():
 	
 	start = date.Now
 	for i as int in range(items):
-		collect.Add(array[i])	
+		collect.Add(array[i])
+		
 	elapsed = date.Now.Subtract(start)
 	
 	print("${elapsed.TotalMilliseconds} elapsed.")

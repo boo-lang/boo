@@ -150,6 +150,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			LeaveStatement(node, ref resultingNode);
 		}
 		
+		public override void LeaveBreakStatement(BreakStatement node, ref Statement resultingNode)
+		{
+			LeaveStatement(node, ref resultingNode);
+		}
+		
+		public override void LeaveContinueStatement(ContinueStatement node, ref Statement resultingNode)
+		{
+			LeaveStatement(node, ref resultingNode);
+		}
+		
 		public void LeaveStatement(Statement node, ref Statement resultingNode)
 		{
 			if (null != node.Modifier)

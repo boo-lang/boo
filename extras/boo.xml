@@ -52,6 +52,15 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
                 >/[^[:blank:]]*?[^\\]/</SEQ_REGEXP>
 
 		
+		<!--
+		<SEQ TYPE="OPERATOR">:</SEQ>
+		<SEQ TYPE="OPERATOR">[</SEQ>
+		<SEQ TYPE="OPERATOR">]</SEQ>
+		<SEQ TYPE="OPERATOR">{</SEQ>
+		<SEQ TYPE="OPERATOR">}</SEQ>
+		<SEQ TYPE="OPERATOR">(</SEQ>
+		<SEQ TYPE="OPERATOR">)</SEQ>
+		-->
 		<SEQ TYPE="OPERATOR">=~</SEQ>
 		<SEQ TYPE="OPERATOR">=</SEQ>
 		<SEQ TYPE="OPERATOR">!=</SEQ>
@@ -83,6 +92,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 
 		<KEYWORDS>
 			<!--  Reserved Words  -->
+			<KEYWORD1>abstract</KEYWORD1>
 			<KEYWORD1>and</KEYWORD1>
 			<KEYWORD1>as</KEYWORD1>			
 			<KEYWORD1>break</KEYWORD1>			
@@ -93,6 +103,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD1>def</KEYWORD1>
 			<KEYWORD1>do</KEYWORD1>
 			<KEYWORD1>else</KEYWORD1>
+			<KEYWORD1>end</KEYWORD1>
 			<KEYWORD1>enum</KEYWORD1>
 			<KEYWORD1>ensure</KEYWORD1>
 			<KEYWORD1>except</KEYWORD1>
@@ -108,7 +119,6 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD1>import</KEYWORD1>
 			<KEYWORD1>is</KEYWORD1>
 			<KEYWORD1>isa</KEYWORD1>
-			<KEYWORD1>kindof</KEYWORD1>
 			<KEYWORD1>mixin</KEYWORD1>
 			<KEYWORD1>namespace</KEYWORD1>
 			<KEYWORD1>not</KEYWORD1>
@@ -123,7 +133,8 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD1>set</KEYWORD1>
 			<KEYWORD1>success</KEYWORD1>
 			<KEYWORD1>try</KEYWORD1>
-			<KEYWORD1>transient</KEYWORD1>	
+			<KEYWORD1>transient</KEYWORD1>
+			<KEYWORD1>virtual</KEYWORD1>
 			<KEYWORD1>while</KEYWORD1>
 			<KEYWORD1>when</KEYWORD1>			
 			<KEYWORD1>unless</KEYWORD1>
@@ -170,6 +181,9 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD3>using</KEYWORD3>
 			<KEYWORD3>lock</KEYWORD3>
 			<KEYWORD3>required</KEYWORD3>
+			<KEYWORD3>getter</KEYWORD3>
+			<KEYWORD3>setter</KEYWORD3>
+			<KEYWORD3>property</KEYWORD3>
 
 			<!-- exceptions -->
 			<!-- KEYWORD3>ArithmeticError</KEYWORD3 -->
