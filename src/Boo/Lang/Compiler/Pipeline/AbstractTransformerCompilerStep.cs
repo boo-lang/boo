@@ -35,7 +35,7 @@ using Boo.Lang.Compiler.Bindings;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public abstract class AbstractTransformerCompilerStep : Boo.Lang.Ast.DepthFirstTransformer, ICompilerComponent
+	public abstract class AbstractTransformerCompilerStep : Boo.Lang.Ast.DepthFirstTransformer, ICompilerStep
 	{
 		protected CompilerContext _context;
 		

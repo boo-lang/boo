@@ -33,9 +33,9 @@ using Boo.Lang.Compiler;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public class PEVerifyStep : AbstractCompilerStep
+	public class PEVerifyStep : AbstractCompilerComponent, ICompilerStep
 	{
-		public override void Run()
+		public void Run()
 		{			
 			if (Errors.Count > 0)
 			{

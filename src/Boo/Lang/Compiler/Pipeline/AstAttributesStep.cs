@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			try
 			{
-				AstAttribute aa = CreateAstAttributeInstance();
+				IAstAttribute aa = CreateAstAttributeInstance();
 				if (null != aa)
 				{
 					aa.Apply(_attribute.ParentNode);
@@ -68,14 +68,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			}			
 		}
 
-		public AstAttribute CreateAstAttributeInstance()
+		public IAstAttribute CreateAstAttributeInstance()
 		{
 			object[] parameters = _attribute.Arguments.Count > 0 ? _attribute.Arguments.ToArray() : new object[0];
 
-			AstAttribute aa = null;
+			IAstAttribute aa = null;
 			try
 			{
-				aa = (AstAttribute)Activator.CreateInstance(_type, parameters);
+				aa = (IAstAttribute)Activator.CreateInstance(_type, parameters);
 			}
 			catch (MissingMethodException x)
 			{
@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			return aa;
 		}
 
-		bool SetFieldOrProperty(AstAttribute aa, ExpressionPair p)
+		bool SetFieldOrProperty(IAstAttribute aa, ExpressionPair p)
 		{			
 			ReferenceExpression name = p.First as ReferenceExpression;
 			if (null == name)
@@ -174,7 +174,7 @@ namespace Boo.Lang.Compiler.Pipeline
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 		
-		ITypeBinding _astAttributeBaseClass;
+		ITypeBinding _astAttributeInterface;
 		
 		ITypeBinding _systemAttributeBaseClass;
 
@@ -185,7 +185,7 @@ namespace Boo.Lang.Compiler.Pipeline
 
 		public override void Run()
 		{
-			_astAttributeBaseClass = BindingManager.ToTypeBinding(typeof(AstAttribute));
+			_astAttributeInterface = BindingManager.ToTypeBinding(typeof(IAstAttribute));
 			_systemAttributeBaseClass = BindingManager.ToTypeBinding(typeof(System.Attribute));
 			
 			int step = 0;
@@ -307,7 +307,7 @@ namespace Boo.Lang.Compiler.Pipeline
 
 		bool IsAstAttribute(ITypeBinding type)
 		{
-			return type.IsSubclassOf(_astAttributeBaseClass);
+			return _astAttributeInterface.IsAssignableFrom(type);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -43,7 +43,7 @@ namespace Boo.Lang
 	/// </pre>
 	/// </example>
 	//[AstAttributeTarget(typeof(ParameterDeclaration))]
-	public class RequiredAttribute : AstAttribute
+	public class RequiredAttribute : Boo.Lang.Compiler.AbstractAstAttribute
 	{
 		public RequiredAttribute()
 		{

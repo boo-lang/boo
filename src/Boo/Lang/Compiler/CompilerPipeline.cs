@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler
 			_steps = new ArrayList();
 		}
 
-		public CompilerPipeline Add(ICompilerComponent step)
+		public CompilerPipeline Add(ICompilerStep step)
 		{
 			if (null == step)
 			{
@@ -65,11 +65,11 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		public ICompilerComponent this[int index]
+		public ICompilerStep this[int index]
 		{
 			get
 			{
-				return (ICompilerComponent)_steps[index];
+				return (ICompilerStep)_steps[index];
 			}
 		}
 
@@ -113,7 +113,7 @@ namespace Boo.Lang.Compiler
 
 		public void Run(CompilerContext context)
 		{
-			foreach (ICompilerComponent step in _steps)
+			foreach (ICompilerStep step in _steps)
 			{
 				context.TraceEnter("Entering {0}...", step);			
 				

@@ -36,8 +36,16 @@ namespace Boo.Lang
 	/// using file=File.OpenText(fname):
 	///		print(file.ReadLine())
 	/// </summary>
-	public class UsingMacro : IAstMacro
+	public class UsingMacro : Boo.Lang.Compiler.IAstMacro
 	{
+		public void Initialize(Boo.Lang.Compiler.CompilerContext context)
+		{			
+		}
+		
+		public void Dispose()
+		{			
+		}
+		
 		public Statement Expand(MacroStatement macro)
 		{			
 			// only single assignments are supported

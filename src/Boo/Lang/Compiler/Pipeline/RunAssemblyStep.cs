@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -29,9 +29,9 @@
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public class RunAssemblyStep : AbstractCompilerStep
+	public class RunAssemblyStep : AbstractCompilerComponent, ICompilerStep
 	{
-		public override void Run()
+		public void Run()
 		{
 			if (Errors.Count > 0 || CompilerOutputType.Library == CompilerParameters.OutputType)
 			{

@@ -44,7 +44,7 @@ namespace Boo.Tests.Ast.Compiler.Processors
 	/// Um exemplo de atributo que adiciona o atributo required
 	/// a todos os atributos de um mtodo.
 	/// </summary>
-	public class AllParametersRequiredAttribute : AstAttribute
+	public class AllParametersRequiredAttribute : AbstractAstAttribute
 	{
 		public AllParametersRequiredAttribute()
 		{
@@ -65,7 +65,7 @@ namespace Boo.Tests.Ast.Compiler.Processors
 		}
 	}
 
-	public class ViewStateAttribute : AstAttribute
+	public class ViewStateAttribute : AbstractAstAttribute
 	{
 		Expression _default;
 

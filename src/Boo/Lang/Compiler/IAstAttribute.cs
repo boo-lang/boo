@@ -27,43 +27,15 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-
-namespace Boo.Lang
-{
-	/// <summary>
-	/// Um atributo que pode ser aplicado a um n da AST de forma
-	/// a transform-lo.
-	/// </summary>
-	public abstract class AstAttribute
+namespace Boo.Lang.Compiler
+{	
+	public interface IAstAttribute : ICompilerComponent
 	{
-		protected Boo.Lang.Ast.Attribute _attribute;
-
-		public Boo.Lang.Ast.Attribute Attribute
+		Boo.Lang.Ast.Attribute Attribute
 		{
-			get
-			{
-				return _attribute;
-			}
-
-			set
-			{
-				if (null == value)
-				{
-					throw new ArgumentNullException("value");
-				}
-				_attribute = value;
-			}
+			set;
 		}
-
-		public Boo.Lang.Ast.LexicalInfo LexicalInfo
-		{
-			get
-			{
-				return _attribute.LexicalInfo;
-			}
-		}
-
-		public abstract void Apply(Boo.Lang.Ast.Node node);
+		
+		void Apply(Boo.Lang.Ast.Node targetNode);
 	}
 }

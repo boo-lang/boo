@@ -109,6 +109,10 @@ done * booc nant task (em boo, obviamente)
 
 done * typeof
 
+* AstAttribute vira IAstAttribute que implementa ICompilerStep
+
+* Criar AbstractAstAttribute extends AbstractCompilerStep
+
 * Statement and Block must be polymorphic
 
 * super
@@ -121,10 +125,6 @@ done * typeof
 * null
 
 * is/is not
-
-* AstAttribute vira IAstAttribute que implementa ICompilerStep
-
-* Criar AbstractAstAttribute extends AbstractCompilerStep
 
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar

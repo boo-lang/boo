@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Pipeline
 	// recalculate namespaces on reference changes
 	// todo: optimize this class so it only reescans
 	// the references when they change
-	public class ImportResolutionStep : AbstractCompilerStep, INamespace
+	public class ImportResolutionStep : AbstractCompilerComponent, INamespace, ICompilerStep
 	{
 		static object GlobalNamespaceKey = new object();
 		
@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			return (INamespace)context.CompileUnit[BooLangNamespaceKey];
 		}
 		
-		public override void Run()
+		public void Run()
 		{
 			ResolveNamespaces();
 			CompileUnit[GlobalNamespaceKey] = this;

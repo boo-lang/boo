@@ -38,7 +38,5 @@ namespace Boo.Lang.Compiler
 	public interface ICompilerComponent : IDisposable
 	{
 		void Initialize(CompilerContext context);
-		
-		void Run();
 	}
 }

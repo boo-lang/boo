@@ -33,13 +33,13 @@ using Boo.Lang.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
 
-namespace Boo.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler
 {
-	public abstract class AbstractCompilerStep : ICompilerComponent
+	public abstract class AbstractCompilerComponent : ICompilerComponent
 	{
 		protected CompilerContext _context;		
 		
-		protected AbstractCompilerStep()
+		protected AbstractCompilerComponent()
 		{			
 		}
 		
@@ -96,8 +96,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			_context = context;			
 		}
-		
-		public abstract void Run();
 		
 		public virtual void Dispose()
 		{

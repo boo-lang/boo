@@ -27,9 +27,9 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang
+namespace Boo.Lang.Compiler
 {
-	public interface IAstMacro
+	public interface IAstMacro : ICompilerComponent
 	{
 		Boo.Lang.Ast.Statement Expand(Boo.Lang.Ast.MacroStatement statement);
 	}
