@@ -11,6 +11,7 @@ RequiredAttribute=O elemento {0} deve conter um atributo de nome {1}.
 InvalidAssemblySetup=AssemblyBuilder não foi configurado corretamente.
 BindingManager.UnboundNode=O nó {0} na posição {1} não foi resolvido corretamente.
 MethodArgumentCount=Nenhuma versão do método {0} aceita {1} parâmetros.
+MethodSignature=A versão mais próxima do método '{1}' não é compatível com a lista de argumentos '{0}'.
 NameNotType=O nome {0} não denota um tipo válido.
 
 ;Attribute Messages
@@ -21,7 +22,7 @@ NoViableAltException=Token inesperado: {0}.
 
 ;BooC Messages
 BooC.Errors={0} erro(s).
-BooC.ProcessingTime={0} módulo(s) processado(s) em {1}ms.
+BooC.ProcessingTime={0} módulo(s) processado(s) em {1}ms após {2}ms para configuração do ambiente de compilação.
 BooC.FatalError=Erro fatal: {0}.
 BooC.InvalidOption=Opção inválida: {0}.
 BooC.UnableToLoadAssembly=Não foi possível carregar a montagem {0}.

@@ -24,17 +24,21 @@ namespace BooC
 		{
 			try
 			{
+				DateTime start = DateTime.Now;
+				
 				Compiler compiler = new Compiler();
 				CompilerParameters options = compiler.Parameters;
 				ParseOptions(args, options);
 				if (0 == options.Input.Count)
 				{
 					throw new ApplicationException(Boo.ResourceManager.GetString("BooC.NoInputSpecified"));
-				}
+				}				
 				
-				DateTime start = DateTime.Now;
+				TimeSpan setupTime = DateTime.Now - start;	
+				
+				start = DateTime.Now;
 				CompilerContext context = compiler.Run();
-				TimeSpan elapsed = DateTime.Now - start;
+				TimeSpan processingTime = DateTime.Now - start;				
 				
 				if (context.Errors.Count > 0)
 				{
@@ -46,8 +50,8 @@ namespace BooC
 				}
 				
 				if (options.Verbose)
-				{
-					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, elapsed.TotalMilliseconds));
+				{			
+					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));					
 				}
 			}
 			catch (ApplicationException x)

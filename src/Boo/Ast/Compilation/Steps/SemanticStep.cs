@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -123,6 +124,11 @@ namespace Boo.Ast.Compilation.Steps
 			BindingManager.Bind(node, BindingManager.StringType);
 		}
 		
+		public override void LeaveStringFormattingExpression(StringFormattingExpression node)
+		{
+			BindingManager.Bind(node, BindingManager.StringType);
+		}
+		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
 			IBinding info = ResolveName(node, node.Name);
@@ -190,10 +196,9 @@ namespace Boo.Ast.Compilation.Steps
 			if (targetType.BindingType == BindingType.Method)
 			{				
 				IMethodBinding targetMethod = (IMethodBinding)targetType;
-				CheckParameters(targetMethod, node);
-				
-				// 1) conferir número de parâmetros ao método
-				// 2) conferir compatibilidade dos parâmetros				
+				CheckParameters(targetMethod, node);			
+				// todo: if not CheckParameter
+				// Bind(node, BindingManager.UnknownType)
 				BindingManager.Bind(node, targetMethod.ReturnType);
 			}
 			else
@@ -238,7 +243,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
-				if (info.BindingType == BindingType.AmbiguousName)
+				if (info.BindingType == BindingType.Ambiguous)
 				{
 					//Errors.AmbiguousName(node, name, info);
 					//return false;
@@ -249,10 +254,22 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		void CheckParameters(IMethodBinding method, MethodInvocationExpression mie)
-		{			
-			if (method.ParameterCount != mie.Arguments.Count)
+		{	
+			ExpressionCollection args = mie.Arguments;
+			if (method.ParameterCount != args.Count)
 			{
 				Errors.MethodArgumentCount(mie, method);
+			}
+			
+			for (int i=0; i<args.Count; ++i)
+			{
+				Type expressionType = BindingManager.GetBoundType(args[i]);
+				Type parameterType = method.GetParameterType(i);
+				if (expressionType != parameterType)
+				{
+					Errors.MethodSignature(mie, GetSignature(mie), GetSignature(method));
+					break;
+				}
 			}
 		}
 		
@@ -265,6 +282,40 @@ namespace Boo.Ast.Compilation.Steps
 				types[i] = BindingManager.GetBoundType(parameters[i].Type);
 			}
 			return types;
+		}
+		
+		string GetSignature(MethodInvocationExpression mie)
+		{
+			StringBuilder sb = new StringBuilder("(");
+			foreach (Expression arg in mie.Arguments)
+			{
+				if (sb.Length > 1)
+				{
+					sb.Append(", ");
+				}
+				sb.Append(BindingManager.GetBoundType(arg));
+			}
+			sb.Append(")");
+			return sb.ToString();
+		}
+		
+		string GetSignature(IMethodBinding binding)
+		{
+			StringBuilder sb = new StringBuilder(binding.MethodInfo.DeclaringType.FullName);
+			sb.Append(".");
+			sb.Append(binding.MethodInfo.Name);
+			sb.Append("(");
+			for (int i=0; i<binding.ParameterCount; ++i)
+			{				
+				if (i>0) 
+				{
+					sb.Append(", ");
+				}
+				sb.Append(binding.GetParameterType(i).FullName);
+			}
+			sb.Append(") as ");
+			sb.Append(binding.ReturnType.Type.FullName);
+			return sb.ToString();
 		}
 	}
 }

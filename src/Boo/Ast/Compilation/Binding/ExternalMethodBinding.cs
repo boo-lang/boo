@@ -31,6 +31,11 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public Type GetParameterType(int parameterIndex)
+		{
+			return _mi.GetParameters()[parameterIndex].ParameterType;
+		}
+		
 		public ITypeBinding ReturnType
 		{
 			get

@@ -70,9 +70,14 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, msg, cause));
 		}
 		
-		public void MethodArgumentCount(MethodInvocationExpression mie, Binding.IMethodBinding method)
+		public void MethodArgumentCount(MethodInvocationExpression mie, Binding.IMethodBinding binding)
 		{
-			Add(new Error(mie, Format("MethodArgumentCount", method, mie.Arguments.Count)));
+			Add(new Error(mie, Format("MethodArgumentCount", binding, mie.Arguments.Count)));
+		}
+		
+		public void MethodSignature(Node node, string actualSignature, string expectedSignature)
+		{
+			Add(new Error(node, Format("MethodSignature", actualSignature, expectedSignature)));
 		}
 
 		public void AttributeResolution(Attribute attribute, Type type, Exception cause)
@@ -126,7 +131,7 @@ namespace Boo.Ast.Compilation
 			}
 			sb.Append(")");
 			return sb.ToString();
-		}
+		}		
 
 		static string ToNameList(System.Reflection.MemberInfo[] members)
 		{

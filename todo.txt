@@ -19,6 +19,7 @@ Milestone 3 (grep.boo)
 
 done * definição de métodos do módulo
 done * chamada de métodos do módulo
+done * checagem de parametros estrita nas invocaçoes de método
 * using System + Console.Write()
 * for item in enumerator
 * if string

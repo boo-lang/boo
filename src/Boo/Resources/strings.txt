@@ -11,6 +11,7 @@ RequiredAttribute=The element {0} must specify the attribute {1}.
 InvalidAssemblySetup=AssemblyBuilder wasn't correctly set up.
 BindingManager.UnboundNode=Node {0} at {1} is not bound.
 MethodArgumentCount=No overload of the method {0} takes {1} parameters.
+MethodSignature=The best overload for the method '{1}' is not compatible with the argument list '{0}'.
 NameNotType=The name {0} does not denote a type.
 
 ;Attribute Messages
@@ -21,11 +22,11 @@ NoViableAltException=Unexpected token: {0}.
 
 ;BooC Messages
 BooC.Errors={0} error(s).
-BooC.ProcessingTime={0} module(s) processed in {1}ms.
+BooC.ProcessingTime={0} module(s) processed in {1}ms after {2}ms of environment setup.
 BooC.FatalError=Fatal error: {0}.
 BooC.InvalidOption=Invalid option: {0}.
 BooC.UnableToLoadAssembly=Failed to load assembly {0}.
 BooC.UnableToLoadPipeline=Failed to load pipeline {0}, cause: {1}.
 BooC.NoPipeline=No compilation pipeline specified (/p:<PIPELINE>)
-BooC.NoInputSpecified=No input specified
+BooC.NoInputSpecified=No inputs specified
 BooC.NoOutputSpecified=No output specified
