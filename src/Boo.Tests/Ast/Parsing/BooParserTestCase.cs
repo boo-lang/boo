@@ -742,6 +742,12 @@ namespace Boo.Tests.Ast.Parsing
 			RunParserTestCase("comments0.boo");
 		}
 		
+		[Test]
+		public void NestedComments()
+		{
+			RunParserTestCase("nested_comments.boo");
+		}
+		
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{

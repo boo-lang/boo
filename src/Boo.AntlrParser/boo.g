@@ -1973,8 +1973,8 @@ TRIPLE_QUOTED_STRING :
 	options { greedy=false; }:		
 		("${")=>ESCAPED_EXPRESSION |
 		("\\$")=>'\\'! '$' |
-		~('\n') |
-		'\n' { newline(); }
+		~('\r'|'\n') |
+		NEWLINE
 	)*
 	"\"\"\""!
 	{
@@ -2014,16 +2014,28 @@ SINGLE_QUOTED_STRING :
 	'\''!
 	;
 
-SL_COMMENT : "#"! (~('\n')!)* { $setType(Token.SKIP); }
-			;
+SL_COMMENT:
+	"#"! (~('\r'|'\n')!)*
+	{ $setType(Token.SKIP); }
+	;
+	
+ML_COMMENT:
+	"/*"
+    (
+		{ LA(2)!='/' }? '*' |
+		NEWLINE |
+		~('*'|'\r'|'\n')
+    )*
+    "*/"
+    { $setType(Token.SKIP); }
+	;   
 			
 WS :
 	(
 		' ' |
 		'\t' |
 		'\f' |
-		'\r' |
-		'\n' { newline(); }
+		NEWLINE
 	)+
 	{
 		if (SkipWhitespace)
@@ -2034,6 +2046,12 @@ WS :
 	;
 		
 EOS: ';';
+
+protected
+NEWLINE:
+	('\n'|"\r\n"|'\r')
+	{ newline(); }
+	;
 		
 protected
 ESCAPED_EXPRESSION : "${"
