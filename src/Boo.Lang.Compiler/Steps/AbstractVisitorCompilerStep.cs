@@ -148,6 +148,31 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.CreateTypeReference(tag);
 		}
 		
+		protected SelfLiteralExpression CreateSelfReference(IType self)
+		{
+			SelfLiteralExpression expression = new SelfLiteralExpression();
+			BindExpressionType(expression, self);
+			return expression;
+		}
+		
+		protected MemberReferenceExpression CreateMemberReference(Expression target, IMember member)
+		{
+			MemberReferenceExpression reference = new MemberReferenceExpression(target.LexicalInfo);
+			reference.Target = target;
+			reference.Name = member.Name;
+			Bind(reference, member);
+			BindExpressionType(reference, member.Type);
+			return reference;
+		}
+		
+		protected MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(target.LexicalInfo);
+			mie.Target = CreateMemberReference(target, tag);			
+			BindExpressionType(mie, tag.ReturnType);			
+			return mie;			
+		}
+		
 		protected void NotImplemented(Node node, string feature)
 		{
 			throw CompilerErrorFactory.NotImplemented(node, feature);

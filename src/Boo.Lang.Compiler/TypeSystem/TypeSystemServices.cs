@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			Method method = new Method("Call");
 			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.Parameters.Add(CreateParameterDeclaration(0, "args", ObjectArrayType));
+			method.Parameters.Add(CreateParameterDeclaration(1, "args", ObjectArrayType));
 			method.ReturnType = CreateTypeReference(ObjectType);
 			method.Entity = new InternalMethod(this, method);
 			return method;
@@ -240,9 +240,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			constructor.Modifiers = TypeMemberModifiers.Public;
 			constructor.ImplementationFlags = MethodImplementationFlags.Runtime;
 			constructor.Parameters.Add(
-						CreateParameterDeclaration(0, "instance", ObjectType));
+						CreateParameterDeclaration(1, "instance", ObjectType));
 			constructor.Parameters.Add(
-						CreateParameterDeclaration(1, "method", IntPtrType));
+						CreateParameterDeclaration(2, "method", IntPtrType));
 			constructor.Entity = new InternalConstructor(this, constructor);						
 			return constructor;
 		}

@@ -482,14 +482,12 @@ namespace Boo.Lang.Compiler.Steps
 			Expression context = null;
 			if (node.IsStatic)
 			{
-				context = new ReferenceExpression(node.DeclaringType.Name);				
+				context = CreateReference(node.LexicalInfo, fieldEntity.DeclaringType);				
 			}
 			else
 			{
-				context = new SelfLiteralExpression();
+				context = CreateSelfReference(fieldEntity.Type);
 			}			
-			
-			BindExpressionType(context, fieldEntity.DeclaringType);
 			
 			// <node.Name> = <node.Initializer>
 			stmt.Expression = new BinaryExpression(BinaryOperatorType.Assign,
@@ -2147,24 +2145,6 @@ namespace Boo.Lang.Compiler.Steps
 			ReferenceExpression expression = new ReferenceExpression(info, type.FullName);
 			Bind(expression, type);
 			return expression;
-		}
-		
-		MemberReferenceExpression CreateMemberReference(Expression target, IMember member)
-		{
-			MemberReferenceExpression reference = new MemberReferenceExpression(target.LexicalInfo);
-			reference.Target = target;
-			reference.Name = member.Name;
-			Bind(reference, member);
-			BindExpressionType(reference, member.Type);
-			return reference;
-		}
-		
-		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag)
-		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(target.LexicalInfo);
-			mie.Target = CreateMemberReference(target, tag);			
-			BindExpressionType(mie, tag.ReturnType);			
-			return mie;			
 		}
 		
 		MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg)

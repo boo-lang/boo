@@ -17,9 +17,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _signature)
 			{
-				_signature = ((IMethod)_typeDefinition.Members["Invoke"].Entity).CallableType.GetSignature();
+				_signature = GetInvokeMethod().CallableType.GetSignature();
 			}
 			return _signature;
+		}
+		
+		public IMethod GetInvokeMethod()
+		{
+			return (IMethod)_typeDefinition.Members["Invoke"].Entity;
 		}
 		
 		override public bool IsAssignableFrom(IType other)
