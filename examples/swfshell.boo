@@ -35,7 +35,9 @@ class PromptBox(TextBox):
 	
 	static Enter = chr(13)
 	
-	_interpreter = InteractiveInterpreter(RememberLastValue: true, Print: print)
+	_interpreter = InteractiveInterpreter(
+								RememberLastValue: true,
+								Print: print)
 	
 	def constructor():
 		self.Multiline = true		

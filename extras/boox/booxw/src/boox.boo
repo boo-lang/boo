@@ -3,7 +3,6 @@ namespace BooExplorer
 import System
 import System.Reflection
 import System.IO
-import System.Threading
 import System.Windows.Forms
 import ICSharpCode.TextEditor
 import ICSharpCode.TextEditor.Document

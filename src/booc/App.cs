@@ -100,7 +100,8 @@ namespace BooC
 			}
 			catch (Exception x)
 			{
-				Console.WriteLine(Boo.ResourceManager.Format("BooC.FatalError", x.Message));
+				object message = options.TraceSwitch.TraceWarning ? (object)x : (object)x.Message;
+				Console.WriteLine(Boo.ResourceManager.Format("BooC.FatalError", message));
 			}			
 			return resultCode;
 		}
