@@ -130,7 +130,11 @@ class BooBindingCompilerManager:
 					error.ErrorNumber = match.Groups[1].Value
 					error.ErrorText = match.Groups[2].Value
 				else:
-					continue
+					match = /^(.+):\s(.+)$/.Match(line)
+					if match.Success:
+						error.ErrorText = line
+					else:
+						continue
 					
 			cr.Errors.Add(error)
 		

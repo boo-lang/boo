@@ -54,22 +54,26 @@ class BooCompilerWrapper:
 		_resources.Add(fileName)
 	
 	def Run():
-		commandLine = StringBuilder()
+		args = []
 		
 		if _options.CompileTarget == CompileTarget.WinExe:
-			commandLine.Append("-t:winexe ")
+			args.Add("-t:winexe")
 		elif _options.CompileTarget == CompileTarget.Library:
-			commandLine.Append("-t:library ")
+			args.Add("-t:library")
 			
-		commandLine.Append("-o:\"${OutputFile}\" ")		
+		args.Add("-o:${OutputFile}")		
 		for fname in _references:
-			commandLine.Append("-r:\"${fname}\" ")
+			args.Add("-r:${fname}")
 		for fname in _resources:
-			commandLine.Append("-resource:\"${fname}\" ")
+			args.Add("-resource:${fname}")
 		for fname in _inputFiles:
-			commandLine.Append("\"${fname}\" ")
+			args.Add(fname)
 			
-		return shell(GetBoocLocation(), commandLine.ToString())
+		// shellm executes the compiler inprocess in a new AppDomain
+		// for some reason, the compiler output sometimes contains
+		// spurious messages from the main AppDomain 
+		return shellm(GetBoocLocation(), args.ToArray(string))
+		//return shell(GetBoocLocation(), join("\"${arg}\"" for arg in args))
 		
 	def GetBoocLocation():
 		return Path.Combine(

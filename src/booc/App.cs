@@ -45,14 +45,19 @@ namespace BooC
 	/// </summary>
 	class App
 	{
-        private static ArrayList responseFileList = new ArrayList();
-        private static CompilerParameters options = null;
+        ArrayList _responseFileList = new ArrayList();
+        CompilerParameters _options = null;
 
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
 		static int Main(string[] args)
+		{
+			return new App().Run(args);			
+		}
+		
+		public int Run(string[] args)
 		{
 			int resultCode = -1;
 			
@@ -61,15 +66,15 @@ namespace BooC
 				DateTime start = DateTime.Now;
 				
 				BooCompiler compiler = new BooCompiler();
-				options = compiler.Parameters;
+				_options = compiler.Parameters;
 				
-				ParseOptions(args, options);
-				if (0 == options.Input.Count)
+				ParseOptions(args, _options);
+				if (0 == _options.Input.Count)
 				{
 					throw new ApplicationException(Boo.ResourceManager.GetString("BooC.NoInputSpecified"));
 				}
 
-				if (options.TraceSwitch.TraceInfo)
+				if (_options.TraceSwitch.TraceInfo)
 				{
 					compiler.Parameters.Pipeline.BeforeStep += new CompilerStepEventHandler(OnBeforeStep);
 					compiler.Parameters.Pipeline.AfterStep += new CompilerStepEventHandler(OnAfterStep);
@@ -85,7 +90,7 @@ namespace BooC
 				{
 					foreach (CompilerError error in context.Errors)
 					{
-						Console.WriteLine(error.ToString(options.TraceSwitch.TraceInfo));
+						Console.WriteLine(error.ToString(_options.TraceSwitch.TraceInfo));
 					}
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.Errors", context.Errors.Count));
 				}
@@ -100,20 +105,20 @@ namespace BooC
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
 				}
 				
-				if (options.TraceSwitch.TraceWarning)
+				if (_options.TraceSwitch.TraceWarning)
 				{						
-					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));					
+					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", _options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));					
 				}
 			}
 			catch (Exception x)
 			{
-				object message = options.TraceSwitch.TraceWarning ? (object)x : (object)x.Message;
+				object message = _options.TraceSwitch.TraceWarning ? (object)x : (object)x.Message;
 				Console.WriteLine(Boo.ResourceManager.Format("BooC.FatalError", message));
 			}			
 			return resultCode;
 		}
 		
-		static string Consume(TextReader reader)
+		string Consume(TextReader reader)
 		{
 			StringWriter writer = new StringWriter();
 			string line = reader.ReadLine();
@@ -125,7 +130,7 @@ namespace BooC
 			return writer.ToString();
 		}
 
-		static void ParseOptions(string[] args, CompilerParameters options)
+		void ParseOptions(string[] args, CompilerParameters _options)
 		{
 			ArrayList arglist = new ArrayList(args);
 			ExpandResponseFiles(ref arglist);
@@ -134,7 +139,7 @@ namespace BooC
 			{
 				if ("-" == arg)
 				{
-					options.Input.Add(new StringInput("<stdin>", Consume(Console.In)));
+					_options.Input.Add(new StringInput("<stdin>", Consume(Console.In)));
 				}
 				else
 				{
@@ -144,7 +149,7 @@ namespace BooC
 						{
 							case 'v':
 							{
-								options.TraceSwitch.Level = TraceLevel.Warning;
+								_options.TraceSwitch.Level = TraceLevel.Warning;
 								Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));								
 								if (arg.Length > 2)
 								{
@@ -152,20 +157,20 @@ namespace BooC
 									{
 										case "vv":
 										{
-											options.TraceSwitch.Level = TraceLevel.Info;
+											_options.TraceSwitch.Level = TraceLevel.Info;
 											break;
 										}
 										
 										case "vvv":
 										{
-											options.TraceSwitch.Level = TraceLevel.Verbose;
+											_options.TraceSwitch.Level = TraceLevel.Verbose;
 											break;
 										}										
 									}
 								}
 								else
 								{
-									options.TraceSwitch.Level = TraceLevel.Warning;
+									_options.TraceSwitch.Level = TraceLevel.Warning;
 								}
 								break;
 							}
@@ -179,7 +184,7 @@ namespace BooC
 										case "resource":
 										{
 											string resourceFile = arg.Substring(arg.IndexOf(":") + 1);
-											options.Resources.Add(new FileResource(resourceFile));
+											_options.Resources.Add(new FileResource(resourceFile));
 											break;
 										}
 
@@ -193,14 +198,14 @@ namespace BooC
 								else
 								{
 									string assemblyName = arg.Substring(3);
-									options.References.Add(LoadAssembly(assemblyName));
+									_options.References.Add(LoadAssembly(assemblyName));
 								}
 								break;
 							}
 							
 							case 'o':
 							{
-								options.OutputAssembly = arg.Substring(arg.IndexOf(":")+1);
+								_options.OutputAssembly = arg.Substring(arg.IndexOf(":")+1);
 								break;									
 							}
 							
@@ -211,19 +216,19 @@ namespace BooC
 								{
 									case "library":
 									{
-										options.OutputType = CompilerOutputType.Library;
+										_options.OutputType = CompilerOutputType.Library;
 										break;
 									}
 									
 									case "exe":
 									{
-										options.OutputType = CompilerOutputType.ConsoleApplication;
+										_options.OutputType = CompilerOutputType.ConsoleApplication;
 										break;
 									}
 									
 									case "winexe":
 									{
-										options.OutputType = CompilerOutputType.WindowsApplication;
+										_options.OutputType = CompilerOutputType.WindowsApplication;
 										break;
 									}
 									
@@ -239,7 +244,7 @@ namespace BooC
 							case 'p':
 							{
 								string pipelineName = arg.Substring(3);
-								options.Pipeline = CompilerPipeline.GetPipeline(pipelineName);
+								_options.Pipeline = CompilerPipeline.GetPipeline(pipelineName);
 								break;
 							}
 
@@ -257,7 +262,7 @@ namespace BooC
 									case "srcdir":
 									{
 										string path = Path.GetFullPath(arg.Substring(8));
-										AddFilesForPath(path, options);
+										AddFilesForPath(path, _options);
 										break;
 									}
 
@@ -277,13 +282,13 @@ namespace BooC
 									case "debug":
 									case "debug+":
 									{
-										options.Debug = true;
+										_options.Debug = true;
 										break;
 									}
 									
 									case "debug-":
 									{
-										options.Debug = false;
+										_options.Debug = false;
 										break;
 									}
 									
@@ -305,26 +310,26 @@ namespace BooC
 					}
 					else
 					{
-						options.Input.Add(new FileInput(Path.GetFullPath(arg)));
+						_options.Input.Add(new FileInput(Path.GetFullPath(arg)));
 					}
 				}
 			}
 			
-			if (null == options.Pipeline)
+			if (null == _options.Pipeline)
 			{
-				options.Pipeline = new CompileToFile();
+				_options.Pipeline = new CompileToFile();
 			}
 		}
 
-		static ArrayList LoadResponseFile(string file)
+		ArrayList LoadResponseFile(string file)
 		{
 			file = Path.GetFullPath(file);
-			if (responseFileList.Contains(file))
+			if (_responseFileList.Contains(file))
 			{
 				throw new ApplicationException(
 						Boo.ResourceManager.Format("BCE0500", file));
 			}
-			responseFileList.Add(file);
+			_responseFileList.Add(file);
 			if (!File.Exists(file))
 			{
 				throw new ApplicationException(Boo.ResourceManager.Format("BCE0501", file));
@@ -365,7 +370,7 @@ namespace BooC
 			return	arglist;
 		}
 		
-		static void ExpandResponseFiles(ref ArrayList arglist)
+		void ExpandResponseFiles(ref ArrayList arglist)
 		{
 			ArrayList result = new ArrayList();
 			foreach (string arg in arglist)
@@ -382,7 +387,7 @@ namespace BooC
 			arglist = result;
 		}
 
-		static void AddDefaultResponseFile(ref ArrayList arglist)
+		void AddDefaultResponseFile(ref ArrayList arglist)
 		{
 			ArrayList result = new ArrayList();
 			bool loadDefault = true;
@@ -408,7 +413,7 @@ namespace BooC
 			arglist = result;
 		}
 
-		static Assembly LoadAssembly(string assemblyName)
+		Assembly LoadAssembly(string assemblyName)
 		{
 			Assembly reference = Assembly.LoadWithPartialName(assemblyName);
 			if (null == reference)
@@ -422,36 +427,36 @@ namespace BooC
 			return reference;
 		}		
 		
-		static void OnBeforeStep(object sender, CompilerStepEventArgs args)
+		void OnBeforeStep(object sender, CompilerStepEventArgs args)
 		{
 			args.Context.TraceEnter("Entering {0}", args.Step);
 		}
 		
-		static void OnAfterStep(object sender, CompilerStepEventArgs args)
+		void OnAfterStep(object sender, CompilerStepEventArgs args)
 		{
 			args.Context.TraceLeave("Leaving {0}", args.Step);
 		}
 		
-		static void InvalidOption(string arg)
+		void InvalidOption(string arg)
 		{
 			Console.WriteLine(Boo.ResourceManager.Format("BooC.InvalidOption", arg));
 		}
 
-		static bool IsFlag(string arg)
+		bool IsFlag(string arg)
 		{
             return arg[0] == '-';
 		}
 
-		static void AddFilesForPath(string path, CompilerParameters options)
+		void AddFilesForPath(string path, CompilerParameters _options)
 		{
 			foreach (string fname in Directory.GetFiles(path, "*.boo"))
 			{
-				options.Input.Add(new FileInput(Path.GetFullPath(fname)));
+				_options.Input.Add(new FileInput(Path.GetFullPath(fname)));
 			}
 								
 			foreach (string dirName in Directory.GetDirectories(path))
 			{
-				AddFilesForPath(dirName, options);
+				AddFilesForPath(dirName, _options);
 			}
 		}
 	}

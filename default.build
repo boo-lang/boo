@@ -427,7 +427,6 @@
 		</uptodate>
 				
 		<if test="${not ast-is-uptodate}">
-		
 			<delete dir="src/Boo.Lang.Compiler/Ast/Impl"
 					if="${directory::exists('src/Boo.Lang.Compiler/Ast/Impl')}" />
 			<mkdir dir="src/Boo.Lang.Compiler/Ast/Impl" />
