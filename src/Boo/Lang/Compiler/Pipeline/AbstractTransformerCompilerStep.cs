@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			return BindingManager.GetOptionalBinding(node);
 		}
 		
-		public ITypeBinding GetBoundType(Node node)
+		protected ITypeBinding GetBoundType(Node node)
 		{
 			return BindingManager.GetBoundType(node);
 		}

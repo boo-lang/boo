@@ -39,6 +39,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding ObjectTypeBinding;
 		
+		public ExternalTypeBinding TypeTypeBinding;
+		
 		public ExternalTypeBinding ObjectArrayBinding;
 	
 		public ExternalTypeBinding VoidTypeBinding;
@@ -67,6 +69,7 @@ namespace Boo.Lang.Compiler.Bindings
 			
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
+			Cache(TypeTypeBinding = new ExternalTypeBinding(this, Types.Type));
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));
 			Cache(BoolTypeBinding = new ExternalTypeBinding(this, Types.Bool));
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
@@ -85,12 +88,12 @@ namespace Boo.Lang.Compiler.Bindings
 			return typeReference;
 		}
 		
-		public bool IsBound(Node node)
+		public static bool IsBound(Node node)
 		{
 			return null != node[BindingKey];
 		}
 		
-		public void Bind(Node node, IBinding binding)
+		public static void Bind(Node node, IBinding binding)
 		{
 			if (null == node)
 			{
@@ -109,7 +112,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Bind(type, ToTypeBinding(type));
 		}
 		
-		public void Error(Node node)
+		public static void Error(Node node)
 		{
 			Bind(node, ErrorBinding.Default);
 		}

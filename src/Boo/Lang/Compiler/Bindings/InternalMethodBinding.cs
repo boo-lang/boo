@@ -33,15 +33,13 @@ using Boo.Lang.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
 {
-	public class InternalMethodBinding : IMethodBinding, INamespace
+	public class InternalMethodBinding : AbstractInternalBinding, IMethodBinding, INamespace
 	{
 		BindingManager _bindingManager;
 		
 		Boo.Lang.Ast.Method _method;
 		
 		IMethodBinding _override;
-		
-		bool _visited = false;
 		
 		public ArrayList ReturnStatements;
 		
@@ -139,6 +137,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public override Node Node
+		{
+			get
+			{
+				return _method;
+			}
+		}
+		
 		public IMethodBinding Override
 		{
 			get
@@ -149,19 +155,6 @@ namespace Boo.Lang.Compiler.Bindings
 			set
 			{
 				_override = value;
-			}
-		}
-		
-		public bool Visited
-		{
-			get
-			{
-				return _visited;
-			}
-			
-			set
-			{
-				_visited = value;
 			}
 		}
 		

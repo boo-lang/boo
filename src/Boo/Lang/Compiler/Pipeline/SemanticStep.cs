@@ -149,8 +149,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			ITypeBinding baseClass = null;
 			foreach (TypeReference baseType in node.BaseTypes)
-			{
+			{				
 				ITypeBinding baseBinding = GetBoundType(baseType);
+				EnsureRelatedNodeWasVisited(baseBinding);
 				if (baseBinding.IsClass)
 				{
 					if (null != baseClass)
@@ -178,9 +179,23 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
 		{
+			InternalTypeBinding binding = (InternalTypeBinding)BindingManager.GetOptionalBinding(node);
+			if (null == binding)
+			{
+				binding = new InternalTypeBinding(BindingManager, node);
+				BindingManager.Bind(node, binding);
+			}
+			else
+			{
+				if (binding.Visited)
+				{
+					return;
+				}
+			}
+			
+			binding.Visited = true;
 			BindBaseTypes(node);
-			InternalTypeBinding binding = new InternalTypeBinding(BindingManager, node);
-			BindingManager.Bind(node, binding);
+			
 			PushNamespace(binding);
 			Switch(node.Attributes);
 			Switch(node.Members);
@@ -737,7 +752,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{					
 					if (BindingType.Method == binding.BindingType)
 					{
-						EnsureMethodWasVisited((IMethodBinding)binding);
+						EnsureRelatedNodeWasVisited((IMethodBinding)binding);
 					}
 					
 					if (!binding.IsStatic)
@@ -783,7 +798,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					nodeBinding = member;					
 					if (BindingType.Method == member.BindingType)
 					{
-						EnsureMethodWasVisited((IMethodBinding)member);
+						EnsureRelatedNodeWasVisited((IMethodBinding)member);
 					}
 				}
 			}
@@ -901,7 +916,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (null == info)
 				{
 					node.Right = Switch(node.Right);
-					ITypeBinding expressionTypeInfo = BindingManager.GetBoundType(node.Right);				
+					ITypeBinding expressionTypeInfo = GetBoundType(node.Right);				
 					DeclareLocal(reference, new Local(reference, false), expressionTypeInfo);
 					BindingManager.Bind(node, expressionTypeInfo);
 					return false;
@@ -1008,7 +1023,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				default:
 				{
 					// expression type is the same as the right expression's
-					BindingManager.Bind(node, BindingManager.GetBoundType(node.Left));
+					BindingManager.Bind(node, GetBoundType(node.Left));
 					break;
 				}
 			}
@@ -1345,7 +1360,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			for (int i=0; i<args.Count; ++i)
 			{
-				ITypeBinding expressionType = BindingManager.GetBoundType(args[i]);
+				ITypeBinding expressionType = GetExpressionType(args[i]);
 				ITypeBinding parameterType = method.GetParameterType(i);
 				if (!IsAssignableFrom(parameterType, expressionType) &&
 				    !CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
@@ -1486,15 +1501,15 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		void EnsureMethodWasVisited(IMethodBinding binding)
+		void EnsureRelatedNodeWasVisited(IBinding binding)
 		{
-			InternalMethodBinding internalMethod = binding as InternalMethodBinding;
-			if (null != internalMethod)
+			IInternalBinding internalBinding = binding as IInternalBinding;
+			if (null != internalBinding)
 			{
-				if (!internalMethod.Visited)
+				if (!internalBinding.Visited)
 				{
-					_context.TraceVerbose("Method {0} needs resolving.", binding.Name);
-					Switch(internalMethod.Method);
+					_context.TraceVerbose("Binding {0} needs resolving.", binding.Name);
+					Switch(internalBinding.Node);
 				}
 			}
 		}
@@ -1513,7 +1528,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						int score = 0;
 						for (int argIndex=0; argIndex<args.Count; ++argIndex)
 						{
-							ITypeBinding expressionType = GetBoundType(args.GetNodeAt(argIndex));
+							ITypeBinding expressionType = GetExpressionType(args.GetNodeAt(argIndex));
 							ITypeBinding parameterType = mb.GetParameterType(argIndex);						
 							
 							if (parameterType == expressionType)
@@ -1685,9 +1700,25 @@ namespace Boo.Lang.Compiler.Pipeline
 					// todo: check types here
 				}
 				
-				DeclareLocal(d, new Local(d, declarePrivateLocals), BindingManager.GetBoundType(d.Type));
+				DeclareLocal(d, new Local(d, declarePrivateLocals), GetBoundType(d.Type));
 			}
 		}		
+		
+		protected ITypeBinding GetExpressionType(Node node)
+		{
+			ITypedBinding binding = (ITypedBinding)GetBinding(node);
+			if (BindingType.TypeReference == binding.BindingType &&
+				IsStandaloneTypeReference(node))
+			{
+				return BindingManager.TypeTypeBinding;
+			}
+			return binding.BoundType;
+		}
+		
+		bool IsStandaloneTypeReference(Node node)
+		{
+			return node.ParentNode.NodeType != NodeType.MemberReferenceExpression;
+		}
 		
 		string GetSignature(NodeCollection args)
 		{
@@ -1698,7 +1729,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					sb.Append(", ");
 				}
-				sb.Append(BindingManager.GetBoundType(arg));
+				sb.Append(GetExpressionType(arg));
 			}
 			sb.Append(")");
 			return sb.ToString();

@@ -134,19 +134,44 @@ done * field initializers
 
 done * mover default super constructor call para SemanticStep
 
-* melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
-e passa a ser utilizado ReferenceExpression em seu lugar
-(para utilizar a resolução padrão de membros, etc)
+* classes podem ser declaradas em qualquer ordem
+
+* campos podem ser declarados em qualquer ordem
+
+* propriedades podem ser declaradas em qualquer ordem
+
+* remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
+SemanticStep que deverá criar AsExpression sempre que necessário
+
+* portar todos os testes em ITL.Security.Tests para boo
+	* usar tipos em atributos (sem precisar do typeof)
+	* indexers (eg: collection[0], collection["rodrigob"])
+	* timespan literals	
+	* user métodos definidos em outros módulos no namespace global
+	* tuples should be of the most generic type for its elements:
+		eg:
+			("rodrigo", "bamboo") should be string[]
+			("foo", 3) should be object
+		
+	* implementação de interfaces
+		* pelo menos suporte a propriedades
 
 * mecanismo de inferência de tipos deve utilizar um Grafo mais completo contendo
 a informação de dependência de nós para cada nó na lista pending, o método
 ITypeResolver.Resolve só é invocado para um nó quando pelo menos um dos nós
 na lista de dependências tenha sido alterado
 	
-* remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
-SemanticStep que deverá criar AsExpression sempre que necessário
+* remover kindof:
+	* remover BinaryOperatorType.TypeTest
+	* renomear BinaryOperatorType.Reference(E|Ine)quality para Is(Not)
+	* implementar checagem de tipo quando o argumento da direita for uma
+	TypeReference
 
-* BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais
+* logical operators
+	* or
+	* and
+
+* BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais?
 
 * resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
 escopo mas que não resolve para um tipo, exemplo, tipo Size dentro de um classe
@@ -161,14 +186,13 @@ derivada de Control (que tem uma propriedade chamada Size):
 * Statement and Block should be polymorphic?
 
 * StatementGroup para permitir o agrupamento de statements com mesmo propósito
-
-* remover kindof:
-	* remover BinaryOperatorType.TypeTest
-	* renomear BinaryOperatorType.Reference(E|Ine)quality para Is(Not)
-	* implementar checagem de tipo quando o argumento da direita for uma
-	TypeReference
 	
-* override keyword to allow the developer to make sure a method is a override
+done * override keyword to allow the developer to make sure a method is a override
+
+* melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
+e passa a ser utilizado ReferenceExpression em seu lugar
+(para utilizar a resolução padrão de membros, etc)
+
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------
@@ -193,6 +217,7 @@ Milestone 3.9 (better error checking)
 * unused local variable
 * method override with different accessibility
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
+* override accessibility checks
 	
 Milestone 4 (delegate support)
 ------------------------------

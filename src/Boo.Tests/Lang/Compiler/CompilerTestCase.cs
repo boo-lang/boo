@@ -206,6 +206,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void TypeReferenceRepresentsType()
+		{
+			RunCompilerTestCase("typereference0.boo");
+		}
+		
+		[Test]
 		public void TestAttributeConstructorSupport()
 		{
 			RunCompilerTestCase("attributes0.boo");
@@ -451,6 +457,18 @@ namespace Boo.Tests.Lang.Compiler
 		public void ForwardDelegateMethodReference()
 		{
 			RunCompilerTestCase("class6.boo", "App().Run()");
+		}
+		
+		[Test]
+		public void ClassWithoutConstructor()
+		{
+			RunCompilerTestCase("class7.boo");
+		}
+		
+		[Test]
+		public void ForwardClassReference()
+		{
+			RunCompilerTestCase("class8.boo");
 		}
 		
 		[Test]

@@ -1,20 +1,23 @@
 """
 p
 Foo.Bar
+Employee
 
 """
-namespace Test
-
 import System
 import System.Xml.Serialization from System.Xml
 
 [XmlRoot("p", Namespace: "Foo.Bar")]
+[XmlInclude(Employee)]
 class Person:
 	pass
 	
-asm = System.Reflection.Assembly.LoadWithPartialName("System.Xml")
-personType = Type.GetType("Test.Person")
-xmlRootType = asm.GetType("System.Xml.Serialization.XmlRootAttribute")
-root as XmlRootAttribute = Attribute.GetCustomAttribute(personType, xmlRootType)
-print(root.ElementName)
-print(root.Namespace)
+class Employee(Person):
+	pass
+	
+xmlroot as XmlRootAttribute = Attribute.GetCustomAttribute(Person, XmlRootAttribute)
+print(xmlroot.ElementName)
+print(xmlroot.Namespace)
+
+xmlinc as XmlIncludeAttribute = Attribute.GetCustomAttribute(Person, XmlIncludeAttribute)
+print(xmlinc.Type.Name)

@@ -1,6 +1,5 @@
 """
-it worked!"
-
+it worked!
 """
 class ClassWithoutConstructor:
 	def run():

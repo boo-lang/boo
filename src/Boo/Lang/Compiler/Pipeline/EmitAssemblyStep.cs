@@ -614,7 +614,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void OnSpecialFunction(IBinding binding, MethodInvocationExpression node)
 		{
-			Type type = GetType(node.Arguments[0]);
+			EmitGetTypeFromHandle(GetType(node.Arguments[0]));
+		}
+		
+		void EmitGetTypeFromHandle(Type type)
+		{
 			_il.Emit(OpCodes.Ldtoken, type);
 			_il.EmitCall(OpCodes.Call, Type_GetTypeFromHandle, null);
 			PushType(Types.Type);
@@ -846,6 +850,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BindingType.TypeReference:
+				{
+					EmitGetTypeFromHandle(GetType(node));
+					break;
+				}
+				
 				default:
 				{
 					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
@@ -885,6 +895,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					Bindings.ParameterBinding param = (Bindings.ParameterBinding)info;
 					_il.Emit(OpCodes.Ldarg, param.Index);
 					PushType(GetType(node));
+					break;
+				}
+				
+				case BindingType.TypeReference:
+				{
+					EmitGetTypeFromHandle(GetType(node));
 					break;
 				}
 				
@@ -1680,6 +1696,16 @@ namespace Boo.Lang.Compiler.Pipeline
 				case NodeType.BoolLiteralExpression:
 				{
 					return ((BoolLiteralExpression)expression).Value;
+				}
+				
+				default:
+				{
+					IBinding binding = GetBinding(expression);
+					if (BindingType.TypeReference == binding.BindingType)
+					{
+						return GetType(expression);
+					}
+					break;
 				}
 			}
 			Errors.Add(CompilerErrorFactory.NotImplemented(expression, "Expression value"));

@@ -54,6 +54,20 @@ namespace Boo.Lang.Compiler.Bindings
 		Error
 	}	
 	
+	public interface IInternalBinding
+	{
+		Boo.Lang.Ast.Node Node
+		{
+			get;
+		}
+		
+		bool Visited
+		{
+			get;
+			set;
+		}
+	}
+	
 	public interface IBinding
 	{	
 		string FullName

@@ -32,7 +32,31 @@ namespace Boo.Lang.Compiler.Bindings
 	using System;
 	using Boo.Lang.Ast;
 	
-	public abstract class AbstractInternalTypeBinding : ITypeBinding, INamespace
+	public abstract class AbstractInternalBinding : IInternalBinding
+	{
+		protected bool _visited = false;
+		
+		public abstract Node Node
+		{
+			get;
+		}
+		
+		public bool Visited
+		{
+			get
+			{
+				return _visited;
+			}
+			
+			set
+			{
+				_visited = value;
+			}
+		}
+		
+	}
+	
+	public abstract class AbstractInternalTypeBinding : AbstractInternalBinding, ITypeBinding, INamespace
 	{		
 		protected BindingManager _bindingManager;
 		
@@ -58,6 +82,14 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				return _typeDefinition.Name;
 			}
+		}	
+		
+		public override Node Node
+		{
+			get
+			{
+				return _typeDefinition;
+			}
 		}
 		
 		public virtual IBinding Resolve(string name)
@@ -70,7 +102,7 @@ namespace Boo.Lang.Compiler.Bindings
 					if (null == binding)
 					{						
 						binding = CreateCorrectBinding(member);
-						_bindingManager.Bind(member, binding);
+						BindingManager.Bind(member, binding);
 					}	
 					
 					if (BindingType.Type == binding.BindingType)

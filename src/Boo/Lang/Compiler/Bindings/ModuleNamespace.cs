@@ -56,9 +56,13 @@ namespace Boo.Lang.Compiler.Bindings
 			TypeMember member = _members[name];
 			if (null != member)
 			{
-				return _bindingManager.ToTypeReference(
-						(ITypeBinding)BindingManager.GetBinding(member)
-						);
+				ITypeBinding typeBinding = (ITypeBinding)BindingManager.GetOptionalBinding(member);
+				if (null == typeBinding)
+				{
+					typeBinding = new InternalTypeBinding(_bindingManager, (TypeDefinition)member);
+					BindingManager.Bind(member, typeBinding);
+				}
+				return _bindingManager.ToTypeReference(typeBinding);
 			}
 			
 			IBinding binding = null;
