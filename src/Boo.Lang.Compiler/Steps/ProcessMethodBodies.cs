@@ -1174,11 +1174,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(node.Iterator);
 			
-			Expression newIterator = ProcessIterator(node.Iterator, node.Declarations, true);
-			if (null != newIterator)
-			{
-				node.Iterator = newIterator;
-			}
+			node.Iterator = ProcessIterator(node.Iterator, node.Declarations);
 			
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));			
 			Visit(node.Filter);			
@@ -1598,47 +1594,47 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		/// <summary>
-		/// Process a iterator and its declarations and returns a new iterator
-		/// expression if necessary.
-		/// </summary>
-		Expression ProcessIterator(Expression iterator, DeclarationCollection declarations, bool declarePrivateScopeLocals)
+		Expression GetCorrectIterator(Expression iterator)
 		{
-			Expression newIterator = null;
+			bool runtimeIterator = false;
 			
-			IType iteratorType = GetExpressionType(iterator);			
-			bool runtimeIterator = false;			
+			IType iteratorType = GetExpressionType(iterator);
 			if (!TypeSystemServices.IsError(iteratorType))
 			{
 				CheckIterator(iterator, iteratorType, out runtimeIterator);
 			}			
+			
 			if (runtimeIterator)
 			{
 				if (IsTextReader(iteratorType))
-				{
-					iteratorType = TextReaderEnumerator_Constructor.DeclaringType;
-					newIterator = CreateMethodInvocation(TextReaderEnumerator_Constructor, iterator);
+				{					
+					return CreateConstructorInvocation(TextReaderEnumerator_Constructor, iterator);
 				}
 				else
 				{
-					newIterator = CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
+					return CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
 				}
 			}
 			
-			ProcessDeclarationsForIterator(declarations, iteratorType, declarePrivateScopeLocals);
-			
-			return newIterator;
+			return iterator;
+		}
+		
+		/// <summary>
+		/// Process a iterator and its declarations and returns a new iterator
+		/// expression if necessary.
+		/// </summary>
+		Expression ProcessIterator(Expression iterator, DeclarationCollection declarations)
+		{
+			iterator = GetCorrectIterator(iterator);
+			ProcessDeclarationsForIterator(declarations, GetExpressionType(iterator));			
+			return iterator;
 		}
 		
 		override public void OnForStatement(ForStatement node)
 		{		
 			Visit(node.Iterator);
 			
-			Expression newIterator = ProcessIterator(node.Iterator, node.Declarations, true);
-			if (null != newIterator)
-			{
-				node.Iterator = newIterator;
-			}
+			node.Iterator = ProcessIterator(node.Iterator, node.Declarations);
 			
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));
 			EnterLoop();
@@ -1651,10 +1647,28 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(node.Expression);
 			
-			Expression newIterator = ProcessIterator(node.Expression, node.Declarations, false);
-			if (null != newIterator)
+			node.Expression = GetCorrectIterator(node.Expression);
+			
+			IType defaultDeclarationType = GetEnumeratorItemType(GetExpressionType(node.Expression));
+			foreach (Declaration d in node.Declarations)
 			{
-				node.Expression = newIterator;
+				bool declareNewVariable = d.Type != null;
+				
+				ProcessDeclarationType(defaultDeclarationType, d);				
+				if (declareNewVariable)
+				{
+					CheckUniqueLocal(d);
+				}
+				else
+				{
+					IEntity tag = Resolve(_currentMethodInfo, d.Name);
+					if (null != tag)
+					{
+						Bind(d, tag);
+						continue;
+					}
+				}
+				DeclareLocal(d, false);
 			}
 		}
 		
@@ -2115,6 +2129,17 @@ namespace Boo.Lang.Compiler.Steps
 			ReferenceExpression expression = new ReferenceExpression(info, type.FullName);
 			Bind(expression, type);
 			return expression;
+		}
+		
+		protected MethodInvocationExpression CreateConstructorInvocation(IConstructor constructor, Expression arg)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
+			mie.Target = new ReferenceExpression(constructor.DeclaringType.FullName);
+			mie.Arguments.Add(arg);
+			
+			Bind(mie.Target, constructor);
+			BindExpressionType(mie, constructor.DeclaringType);
+			return mie;
 		}
 		
 		protected MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg)
@@ -3647,9 +3672,30 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			return TypeSystemServices.ObjectType;
+		}	
+		
+		void ProcessDeclarationType(IType defaultDeclarationType, Declaration d)
+		{
+			if (null != d.Type)
+			{
+				Visit(d.Type);
+				CheckTypeCompatibility(d, GetType(d.Type), defaultDeclarationType);					
+			}
+			else				
+			{
+				d.Type = CreateTypeReference(defaultDeclarationType);
+			}
 		}
 		
-		void ProcessDeclarationsForIterator(DeclarationCollection declarations, IType iteratorType, bool declarePrivateLocals)
+		void DeclareLocal(Declaration d, bool privateScope)
+		{
+			if (CheckIdentifierName(d, d.Name))
+			{					
+				DeclareLocal(d, new Local(d, privateScope), GetType(d.Type));
+			}
+		}
+		
+		void ProcessDeclarationsForIterator(DeclarationCollection declarations, IType iteratorType)
 		{
 			IType defaultDeclType = GetEnumeratorItemType(iteratorType);
 			if (declarations.Count > 1)
@@ -3660,40 +3706,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (Declaration d in declarations)
 			{	
-				bool declareNewVariable = declarePrivateLocals || null != d.Type;
-				
-				if (null != d.Type)
-				{
-					Visit(d.Type);
-					CheckTypeCompatibility(d, GetType(d.Type), defaultDeclType);					
-				}
-				
-				if (CheckIdentifierName(d, d.Name))
-				{
-					if (declareNewVariable)
-					{
-						if (!declarePrivateLocals)
-						{
-							CheckUniqueLocal(d);
-						}
-					}
-					else
-					{
-						IEntity tag = Resolve(_currentMethodInfo, d.Name);
-						if (null != tag)
-						{
-							Bind(d, tag);
-							continue;
-						}
-					}
-					
-					if (null == d.Type)
-					{
-						d.Type = CreateTypeReference(defaultDeclType);
-					}
-					
-					DeclareLocal(d, new Local(d, declarePrivateLocals), GetType(d.Type));
-				}
+				ProcessDeclarationType(defaultDeclType, d);
+				DeclareLocal(d, true);
 			}
 		}
 		
