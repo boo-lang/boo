@@ -1,0 +1,21 @@
+#! /bin/bash
+cat >> /opt/gnome/share/mime-info/gtksourceview-sharp.keys <<EOF
+text/x-boo
+	category=Software Development/Source Code
+	can_be_executable=true
+	default_action_type=application
+	description=boo source code
+	short_list_application_ids_for_novice_user_level=monodevelop,gedit
+EOF
+cat >> /opt/gnome/share/mime-info/gtksourceview-sharp.mime <<EOF
+text/x-boo
+	ext: boo
+EOF
+
+cp boo.lang /opt/gnome/share/gtksourceview-*/language-specs/
+
+cp boo-mime-info.xml /usr/share/mime/packages
+update-mime-database /usr/share/mime
+
+
+
