@@ -271,7 +271,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			MarkVisited(node);
 			
-			InternalProperty tag = (InternalProperty)GetEntity(node);
+			InternalProperty property = (InternalProperty)GetEntity(node);
 			
 			Method setter = node.Setter;
 			Method getter = node.Getter;
@@ -288,6 +288,11 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				getter.Name = "get_" + node.Name;
 				getter.Parameters.ExtendWithClones(node.Parameters);
+				
+				if (property.IsStatic)
+				{
+					getter.Modifiers |= TypeMemberModifiers.Static;
+				}
 				Visit(getter);
 			}
 			
@@ -311,12 +316,17 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != setter)
 			{
+				if (property.IsStatic)
+				{
+					setter.Modifiers |= TypeMemberModifiers.Static;
+				}
+				
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CreateTypeReference(typeInfo);
 				parameter.Name = "value";
 				parameter.Entity = new InternalParameter(parameter, node.Parameters.Count+GetFirstParameterIndex(setter));
 				setter.Parameters.ExtendWithClones(node.Parameters);
-				setter.Parameters.Add(parameter);
+				setter.Parameters.Add(parameter);				
 				Visit(setter);
 				
 				setter.Name = "set_" + node.Name;

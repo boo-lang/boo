@@ -2749,8 +2749,7 @@ namespace Boo.Lang.Compiler.Steps
 			else if (property.IsPrivate)
 			{
 				attributes |= MethodAttributes.Private;
-			}
-			
+			}			
 			if (property.IsStatic)
 			{
 				attributes |= MethodAttributes.Static;
