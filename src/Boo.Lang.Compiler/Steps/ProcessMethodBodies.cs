@@ -727,55 +727,8 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMethodBody(closureEntity, ns);
 			TryToResolveReturnType(closureEntity);
 			
-			node.ParentNode.Replace(
-					node,
-					CreateClosureReference(closureEntity)
-					);
-		}
-		
-		Expression CreateClosureReference(InternalMethod closure)
-		{
-			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
-			{
-				collector.ForeignMethod = _currentMethod.Method;
-				collector.Initialize(_context);
-				collector.Visit(closure.Method.Body);
-				
-				if (collector.ContainsForeignLocalReferences)
-				{	
-					return CreateClosureClass(collector, closure);					
-				}
-			}
-			return CodeBuilder.CreateMemberReference(closure);
-		}
-		
-		Expression CreateClosureClass(ForeignReferenceCollector collector, InternalMethod closure)
-		{
-			Method method = closure.Method;
-			TypeDefinition parent = method.DeclaringType;
-			parent.Members.Remove(method);
-			
-			BooClassBuilder builder = collector.CreateSkeletonClass(method.Name);					
-			builder.ClassDefinition.Members.Add(method);			
-			method.Name = "Invoke";			
-			parent.Members.Add(builder.ClassDefinition);	
-			
-			if (method.IsStatic)
-			{	
-				// need to adjust paremeter indexes (parameter 0 is now self)
-				foreach (ParameterDeclaration parameter in method.Parameters)
-				{
-					((InternalParameter)parameter.Entity).Index += 1;
-				}
-			}
-			
-			method.Modifiers = TypeMemberModifiers.Public;
-			
-			collector.AdjustReferences();
-			return CodeBuilder.CreateMemberReference(
-					collector.CreateConstructorInvocationWithReferencedEntities(
-							builder.Entity),
-					closure);
+			node.ExpressionType = closureEntity.Type;
+			node.Entity = closureEntity;
 		}
 		
 		override public void OnMethod(Method method)
