@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
 <project name="db4o sample" default="test">
 
-	<property name="db4o.bin" value="../../../../../dotnet/db4o30/dll" />
+	<property name="db4o.bin" value="build" />
 	<property name="boo.base" value="${path::get-full-path('../../..')}" />
 	<property name="boo.bin" value="${boo.base}/build" />
 	
 	<include buildfile="../../../tests/nunit.inc" />
+	
+	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
+	
+	<property name="db4o.dll" value="${path::combine(db4o.bin, 'db4o-4.0-net1.dll')}" />
 	
 	<target name="run" depends="gui">
 		<exec program="build/TimeTracker.exe" useruntimeengine="true">
@@ -57,7 +61,7 @@
 				<include name="*.boo" />
 			</sources>
 			<references basedir="build">
-				<include name="db4o.dll" />			
+				<include name="${db4o.dll}" />			
 			</references>
 		</booc>
 		
@@ -83,12 +87,7 @@
 				<include name="Boo.Lang.Interpreter.dll" />
 			</fileset>
 		</copy>
-		<copy todir="build">
-			<fileset basedir="${db4o.bin}/${framework::get-family(framework::get-target-framework())}">
-				<include name="db4o.dll" />
-			</fileset>
-		</copy>
-		
+		<copy todir="build" file="${db4o.dll}" />		
 		<loadtasks assembly="${boo.bin}/Boo.NAnt.Tasks.dll" />
 	</target>
 	

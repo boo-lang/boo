@@ -51,7 +51,7 @@ class Task:
 	override def ToString():
 		return "'${_name}' (${_project})"
 	
-class Activity:
+class Activity(IComparable):
 	
 	[property(Task)]
 	_task as Task
@@ -71,6 +71,9 @@ class Activity:
 			
 	override def ToString():
 		return "${Elapsed} on ${_task}"
+		
+	def CompareTo(other) as int:
+		return _started.CompareTo((other as Activity).Started)
 			
 class TimeTrackerSystem(IDisposable):
 	
