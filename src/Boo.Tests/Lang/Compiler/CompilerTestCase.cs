@@ -38,11 +38,12 @@ using NUnit.Framework;
 
 namespace Boo.Tests.Lang.Compiler
 {
+	[Flags]
 	public enum TestEnum
 	{
-		Foo = 5,
-		Bar = 10,
-		Baz = 11
+		Foo = 1,
+		Bar = 2,
+		Baz = 4
 	}
 	
 	public class Person
@@ -808,6 +809,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void LongLiterals()
+		{
+			RunCompilerTestCase("long0.boo");
+		}
+		
+		[Test]
 		public void Or()
 		{
 			RunCompilerTestCase("or0.boo");
@@ -826,9 +833,45 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void And()
+		{
+			RunCompilerTestCase("and0.boo");
+		}
+		
+		[Test]
+		public void AndBranches()
+		{
+			RunCompilerTestCase("and1.boo");
+		}
+		
+		[Test]
 		public void BooleanFromBoxedValueTypes()
 		{
 			RunCompilerTestCase("bool0.boo");
+		}
+		
+		[Test]
+		public void BitwiseOrForEnums()
+		{
+			RunCompilerTestCase("bitwise_enum.boo");
+		}
+		
+		[Test]
+		public void BitwiseOrForInt()
+		{
+			RunCompilerTestCase("bitwise_int.boo");			
+		}
+		
+		[Test]
+		public void GreaterThanEqualForInts()
+		{
+			RunCompilerTestCase("gte_int.boo");
+		}
+		
+		[Test]
+		public void LessThanEqualForInts()
+		{
+			RunCompilerTestCase("lte_int.boo");
 		}
 	}
 }

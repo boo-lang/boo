@@ -11,9 +11,10 @@ def CreateNotExpression(e as Expression):
 e = ExpressionStatement(
 			Expression: be = BinaryExpression(BinaryOperatorType.Assign,
 											ReferenceExpression("a"),
-											IntegerLiteralExpression(Int64.Parse("3"))
+											IntegerLiteralExpression(3)
 											)
 					)
+print(e)
 
 be.ReplaceBy(MethodInvocationExpression(Target: ReferenceExpression("a")))
 print(e)

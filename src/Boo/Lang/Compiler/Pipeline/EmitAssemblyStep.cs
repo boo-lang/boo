@@ -465,6 +465,15 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.And:
+				{
+					Label skipRhs = _il.DefineLabel();
+					EmitBranchFalse(expression.Left, skipRhs);
+					EmitBranchTrue(expression.Right, label);
+					_il.MarkLabel(skipRhs);
+					break;
+				}
+				
 				default:
 				{
 					DefaultBranchTrue(expression, label);
@@ -521,6 +530,13 @@ namespace Boo.Lang.Compiler.Pipeline
 					EmitBranchTrue(expression.Left, end);
 					EmitBranchFalse(expression.Right, label);
 					_il.MarkLabel(end);	
+					break;
+				}
+				
+				case BinaryOperatorType.And:
+				{
+					EmitBranchFalse(expression.Left, label);
+					EmitBranchFalse(expression.Right, label);
 					break;
 				}
 				
@@ -779,7 +795,57 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		void OnLogicalOperator(BinaryExpression node)
+		void EmitAnd(BinaryExpression node)
+		{
+			EmitLogicalOperator(node, OpCodes.Brtrue, OpCodes.Brfalse); 
+			/*
+			ITypeBinding type = GetBoundType(node);
+			Switch(node.Left);
+			
+			ITypeBinding lhsType = PopType();
+			
+			ITypeBinding lhsType = PopType();
+			if (null != lhsType && lhsType.IsValueType && !type.IsValueType)
+			{
+				Label lhsWasTrue = _il.DefineLabel();
+				Label end = _il.DefineLabel();
+				
+				_il.Emit(OpCodes.Dup);
+				_il.Emit(OpCodes.Brtrue, lhsWasTrue);
+				EmitCastIfNeeded(type, lhsType);
+				_il.Emit(OpCodes.Br, end);
+				
+				_il.MarkLabel(lhsWasTrue);
+				_il.Emit(OpCodes.Pop);
+				Switch(node.Right);
+				EmitCastIfNeeded(type, PopType());
+				
+				_il.MarkLabel(end);
+			}
+			else
+			{
+				EmitCastIfNeeded(type, lhsType);
+				
+				_il.Emit(OpCodes.Dup);
+				EmitToBoolIfNeeded(type);
+				
+				_il.Emit(OpCodes.Brfalse, end);
+				
+				_il.Emit(OpCodes.Pop);
+				Switch(node.Right);
+				EmitCastIfNeeded(type, PopType());
+				_il.MarkLabel(end);				
+			}
+			
+			PushType(type);*/
+		}
+		
+		void EmitOr(BinaryExpression node)
+		{			
+			EmitLogicalOperator(node, OpCodes.Brfalse, OpCodes.Brtrue);
+		}
+		
+		void EmitLogicalOperator(BinaryExpression node, OpCode brForValueType, OpCode brForRefType)
 		{
 			ITypeBinding type = GetBoundType(node);
 			Switch(node.Left);
@@ -790,15 +856,15 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				// if boxing, first evaluate the value
 				// as it is and then box it...
-				Label lhsWasFalse = _il.DefineLabel();
+				Label evalRhs = _il.DefineLabel();
 				Label end = _il.DefineLabel();
 				
 				_il.Emit(OpCodes.Dup);
-				_il.Emit(OpCodes.Brfalse, lhsWasFalse);
+				_il.Emit(brForValueType, evalRhs);
 				EmitCastIfNeeded(type, lhsType);				
 				_il.Emit(OpCodes.Br, end);			
 				
-				_il.MarkLabel(lhsWasFalse);
+				_il.MarkLabel(evalRhs);
 				_il.Emit(OpCodes.Pop);
 				Switch(node.Right);
 				EmitCastIfNeeded(type, PopType());	
@@ -808,19 +874,19 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				Label lhsWasTrue = _il.DefineLabel();
+				Label end = _il.DefineLabel();
 				
 				EmitCastIfNeeded(type, lhsType);
 				_il.Emit(OpCodes.Dup);
 				
 				EmitToBoolIfNeeded(lhsType);
 				
-				_il.Emit(OpCodes.Brtrue, lhsWasTrue);
+				_il.Emit(brForRefType, end);
 				
 				_il.Emit(OpCodes.Pop);
 				Switch(node.Right);
 				EmitCastIfNeeded(type, PopType());
-				_il.MarkLabel(lhsWasTrue);
+				_il.MarkLabel(end);
 			}
 			
 			PushType(type);
@@ -832,13 +898,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				case BinaryOperatorType.Or:
 				{
-					OnLogicalOperator(node);
+					EmitOr(node);
 					break;
 				}
 				
 				case BinaryOperatorType.And:
 				{
-					OnLogicalOperator(node);
+					EmitAnd(node);
 					break;
 				}
 				
@@ -1071,8 +1137,16 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
-			_il.Emit(OpCodes.Ldc_I4, (int)node.Value);
-			PushType(BindingManager.IntTypeBinding);
+			if (node.IsLong)
+			{
+				_il.Emit(OpCodes.Ldc_I8, node.Value);
+				PushType(BindingManager.LongTypeBinding);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Ldc_I4, (int)node.Value);
+				PushType(BindingManager.IntTypeBinding);
+			}			
 		}
 		
 		public override void OnRealLiteralExpression(RealLiteralExpression node)

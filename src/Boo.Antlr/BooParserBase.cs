@@ -1,32 +1,3 @@
-﻿#region license
-// boo - an extensible programming language for the CLI
-// Copyright (C) 2004 Rodrigo B. de Oliveira
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// As a special exception, if you link this library with other files to
-// produce an executable, this library does not by itself cause the
-// resulting executable to be covered by the GNU General Public License.
-// This exception does not however invalidate any other reasons why the
-// executable file might be covered by the GNU General Public License.
-//
-// Contact Information
-//
-// mailto:rbo@acm.org
-#endregion
-
 // $ANTLR 2.7.2: "src/Boo.Antlr/boo.g" -> "BooParserBase.cs"$
 
 namespace Boo.Antlr
@@ -59,110 +30,111 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		public const int NULL_TREE_LOOKAHEAD = 3;
 		public const int TIMESPAN = 4;
 		public const int REAL = 5;
-		public const int ESEPARATOR = 6;
-		public const int INDENT = 7;
-		public const int DEDENT = 8;
-		public const int COMPILATION_UNIT = 9;
-		public const int PARAMETERS = 10;
-		public const int PARAMETER = 11;
-		public const int ELIST = 12;
-		public const int DLIST = 13;
-		public const int TYPE = 14;
-		public const int CALL = 15;
-		public const int STMT = 16;
-		public const int BLOCK = 17;
-		public const int FIELD = 18;
-		public const int MODIFIERS = 19;
-		public const int MODULE = 20;
-		public const int LITERAL = 21;
-		public const int LIST_LITERAL = 22;
-		public const int UNPACKING = 23;
-		public const int AND = 24;
-		public const int AS = 25;
-		public const int BREAK = 26;
-		public const int CONTINUE = 27;
-		public const int CLASS = 28;
-		public const int CONSTRUCTOR = 29;
-		public const int DEF = 30;
-		public const int ELSE = 31;
-		public const int ENSURE = 32;
-		public const int ENUM = 33;
-		public const int EXCEPT = 34;
-		public const int FAILURE = 35;
-		public const int FINAL = 36;
-		public const int FROM = 37;
-		public const int FOR = 38;
-		public const int FALSE = 39;
-		public const int GET = 40;
-		public const int GIVEN = 41;
-		public const int IMPORT = 42;
-		public const int INTERFACE = 43;
-		public const int INTERNAL = 44;
-		public const int IS = 45;
-		public const int ISA = 46;
-		public const int IF = 47;
-		public const int IN = 48;
-		public const int NOT = 49;
-		public const int NULL = 50;
-		public const int OR = 51;
-		public const int OTHERWISE = 52;
-		public const int OVERRIDE = 53;
-		public const int PASS = 54;
-		public const int NAMESPACE = 55;
-		public const int PROPERTY = 56;
-		public const int PUBLIC = 57;
-		public const int PROTECTED = 58;
-		public const int PRIVATE = 59;
-		public const int RAISE = 60;
-		public const int RETURN = 61;
-		public const int RETRY = 62;
-		public const int SET = 63;
-		public const int SELF = 64;
-		public const int SUPER = 65;
-		public const int STATIC = 66;
-		public const int SUCCESS = 67;
-		public const int TRY = 68;
-		public const int TRANSIENT = 69;
-		public const int TRUE = 70;
-		public const int UNLESS = 71;
-		public const int UNTIL = 72;
-		public const int VOID = 73;
-		public const int WHEN = 74;
-		public const int WHILE = 75;
-		public const int YIELD = 76;
-		public const int EOS = 77;
-		public const int TRIPLE_QUOTED_STRING = 78;
-		public const int ID = 79;
-		public const int ASSIGN = 80;
-		public const int LBRACK = 81;
-		public const int COMMA = 82;
-		public const int RBRACK = 83;
-		public const int LPAREN = 84;
-		public const int RPAREN = 85;
-		public const int COLON = 86;
-		public const int QMARK = 87;
-		public const int SUM_OPERATOR = 88;
-		public const int MULT_OPERATOR = 89;
-		public const int INCREMENT = 90;
-		public const int DECREMENT = 91;
-		public const int CMP_OPERATOR = 92;
-		public const int DOT = 93;
-		public const int INT = 94;
-		public const int DOUBLE_QUOTED_STRING = 95;
-		public const int SINGLE_QUOTED_STRING = 96;
-		public const int LBRACE = 97;
-		public const int RBRACE = 98;
-		public const int RE_LITERAL = 99;
-		public const int SL_COMMENT = 100;
-		public const int WS = 101;
-		public const int ESCAPED_EXPRESSION = 102;
-		public const int DQS_ESC = 103;
-		public const int SQS_ESC = 104;
-		public const int SESC = 105;
-		public const int RE_CHAR = 106;
-		public const int RE_ESC = 107;
-		public const int ID_LETTER = 108;
-		public const int DIGIT = 109;
+		public const int LONG = 6;
+		public const int ESEPARATOR = 7;
+		public const int INDENT = 8;
+		public const int DEDENT = 9;
+		public const int COMPILATION_UNIT = 10;
+		public const int PARAMETERS = 11;
+		public const int PARAMETER = 12;
+		public const int ELIST = 13;
+		public const int DLIST = 14;
+		public const int TYPE = 15;
+		public const int CALL = 16;
+		public const int STMT = 17;
+		public const int BLOCK = 18;
+		public const int FIELD = 19;
+		public const int MODIFIERS = 20;
+		public const int MODULE = 21;
+		public const int LITERAL = 22;
+		public const int LIST_LITERAL = 23;
+		public const int UNPACKING = 24;
+		public const int AND = 25;
+		public const int AS = 26;
+		public const int BREAK = 27;
+		public const int CONTINUE = 28;
+		public const int CLASS = 29;
+		public const int CONSTRUCTOR = 30;
+		public const int DEF = 31;
+		public const int ELSE = 32;
+		public const int ENSURE = 33;
+		public const int ENUM = 34;
+		public const int EXCEPT = 35;
+		public const int FAILURE = 36;
+		public const int FINAL = 37;
+		public const int FROM = 38;
+		public const int FOR = 39;
+		public const int FALSE = 40;
+		public const int GET = 41;
+		public const int GIVEN = 42;
+		public const int IMPORT = 43;
+		public const int INTERFACE = 44;
+		public const int INTERNAL = 45;
+		public const int IS = 46;
+		public const int ISA = 47;
+		public const int IF = 48;
+		public const int IN = 49;
+		public const int NOT = 50;
+		public const int NULL = 51;
+		public const int OR = 52;
+		public const int OTHERWISE = 53;
+		public const int OVERRIDE = 54;
+		public const int PASS = 55;
+		public const int NAMESPACE = 56;
+		public const int PROPERTY = 57;
+		public const int PUBLIC = 58;
+		public const int PROTECTED = 59;
+		public const int PRIVATE = 60;
+		public const int RAISE = 61;
+		public const int RETURN = 62;
+		public const int RETRY = 63;
+		public const int SET = 64;
+		public const int SELF = 65;
+		public const int SUPER = 66;
+		public const int STATIC = 67;
+		public const int SUCCESS = 68;
+		public const int TRY = 69;
+		public const int TRANSIENT = 70;
+		public const int TRUE = 71;
+		public const int UNLESS = 72;
+		public const int UNTIL = 73;
+		public const int VOID = 74;
+		public const int WHEN = 75;
+		public const int WHILE = 76;
+		public const int YIELD = 77;
+		public const int EOS = 78;
+		public const int TRIPLE_QUOTED_STRING = 79;
+		public const int ID = 80;
+		public const int ASSIGN = 81;
+		public const int LBRACK = 82;
+		public const int COMMA = 83;
+		public const int RBRACK = 84;
+		public const int LPAREN = 85;
+		public const int RPAREN = 86;
+		public const int COLON = 87;
+		public const int QMARK = 88;
+		public const int SUM_OPERATOR = 89;
+		public const int MULT_OPERATOR = 90;
+		public const int INCREMENT = 91;
+		public const int DECREMENT = 92;
+		public const int CMP_OPERATOR = 93;
+		public const int DOT = 94;
+		public const int INT = 95;
+		public const int DOUBLE_QUOTED_STRING = 96;
+		public const int SINGLE_QUOTED_STRING = 97;
+		public const int LBRACE = 98;
+		public const int RBRACE = 99;
+		public const int RE_LITERAL = 100;
+		public const int SL_COMMENT = 101;
+		public const int WS = 102;
+		public const int ESCAPED_EXPRESSION = 103;
+		public const int DQS_ESC = 104;
+		public const int SQS_ESC = 105;
+		public const int SESC = 106;
+		public const int RE_CHAR = 107;
+		public const int RE_ESC = 108;
+		public const int ID_LETTER = 109;
+		public const int DIGIT = 110;
 		
 				
 	protected System.Text.StringBuilder _sbuilder = new System.Text.StringBuilder();
@@ -378,6 +350,7 @@ _loop3_breakloop:				;
 				case EOF:
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case BREAK:
 				case CLASS:
 				case DEF:
@@ -1671,18 +1644,46 @@ _loop27_breakloop:				;
 		IntegerLiteralExpression e;
 		
 		Token  i = null;
+		Token  l = null;
 		e = null;
 		
 		try {      // for error handling
-			i = LT(1);
-			match(INT);
-			if (0==inputState.guessing)
+			switch ( LA(1) )
 			{
-				
-						e = new IntegerLiteralExpression(ToLexicalInfo(i));
-						e.Value = long.Parse(i.getText());
+			case INT:
+			{
+				i = LT(1);
+				match(INT);
+				if (0==inputState.guessing)
+				{
 					
+							e = new IntegerLiteralExpression(ToLexicalInfo(i), long.Parse(i.getText()));
+						
+				}
+				break;
 			}
+			case LONG:
+			{
+				l = LT(1);
+				match(LONG);
+				if (0==inputState.guessing)
+				{
+					
+							string value = l.getText();
+							value = value.Substring(0, value.Length-1);
+							
+							e = new IntegerLiteralExpression(ToLexicalInfo(l),
+										long.Parse(value),
+										true);
+						
+				}
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			 }
 		}
 		catch (RecognitionException ex)
 		{
@@ -1767,6 +1768,7 @@ _loop27_breakloop:				;
 				{
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case FALSE:
 				case NOT:
 				case NULL:
@@ -2534,6 +2536,7 @@ _loop97_breakloop:				;
 				}
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case BREAK:
 				case FOR:
 				case FALSE:
@@ -3107,6 +3110,7 @@ _loop120_breakloop:				;
 				{
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case FALSE:
 				case NOT:
 				case NULL:
@@ -3301,6 +3305,7 @@ _loop257_breakloop:						;
 				case EOF:
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case DEDENT:
 				case BREAK:
 				case FOR:
@@ -3453,6 +3458,7 @@ _loop134_breakloop:				;
 				case EOF:
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case DEDENT:
 				case BREAK:
 				case ENSURE:
@@ -3514,6 +3520,7 @@ _loop134_breakloop:				;
 				case EOF:
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case DEDENT:
 				case BREAK:
 				case FOR:
@@ -3685,6 +3692,7 @@ _loop153_breakloop:			;
 				{
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case FALSE:
 				case NOT:
 				case NULL:
@@ -4273,6 +4281,7 @@ _loop153_breakloop:			;
 			}
 			case TIMESPAN:
 			case REAL:
+			case LONG:
 			case FALSE:
 			case NOT:
 			case NULL:
@@ -4497,6 +4506,7 @@ _loop160_breakloop:				;
 			}
 			case TIMESPAN:
 			case REAL:
+			case LONG:
 			case FALSE:
 			case NULL:
 			case SELF:
@@ -4893,6 +4903,7 @@ _loop192_breakloop:				;
 						}
 						case TIMESPAN:
 						case REAL:
+						case LONG:
 						case FALSE:
 						case NULL:
 						case SELF:
@@ -5082,6 +5093,7 @@ _loop195_breakloop:				;
 				}
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case FALSE:
 				case NULL:
 				case SELF:
@@ -5176,6 +5188,7 @@ _loop195_breakloop:				;
 											{
 											case TIMESPAN:
 											case REAL:
+											case LONG:
 											case FALSE:
 											case NOT:
 											case NULL:
@@ -5225,6 +5238,7 @@ _loop195_breakloop:				;
 								}
 								case TIMESPAN:
 								case REAL:
+								case LONG:
 								case FALSE:
 								case NOT:
 								case NULL:
@@ -5256,6 +5270,7 @@ _loop195_breakloop:				;
 												{
 												case TIMESPAN:
 												case REAL:
+												case LONG:
 												case FALSE:
 												case NOT:
 												case NULL:
@@ -5417,6 +5432,7 @@ _loop226_breakloop:				;
 				{
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case FALSE:
 				case NULL:
 				case SELF:
@@ -5478,6 +5494,7 @@ _loop226_breakloop:				;
 			{
 				switch ( LA(1) )
 				{
+				case LONG:
 				case INT:
 				{
 					e=integer_literal();
@@ -5652,6 +5669,7 @@ _loop226_breakloop:				;
 						{
 						case TIMESPAN:
 						case REAL:
+						case LONG:
 						case FALSE:
 						case NOT:
 						case NULL:
@@ -5855,6 +5873,7 @@ _loop213_breakloop:								;
 				{
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case FALSE:
 				case NOT:
 				case NULL:
@@ -5962,6 +5981,7 @@ _loop245_breakloop:								;
 				{
 				case TIMESPAN:
 				case REAL:
+				case LONG:
 				case FALSE:
 				case NOT:
 				case NULL:
@@ -6446,6 +6466,7 @@ _loop239_breakloop:				;
 		@"""NULL_TREE_LOOKAHEAD""",
 		@"""TIMESPAN""",
 		@"""REAL""",
+		@"""LONG""",
 		@"""ESEPARATOR""",
 		@"""INDENT""",
 		@"""DEDENT""",
@@ -6554,19 +6575,19 @@ _loop239_breakloop:				;
 	
 	private static long[] mk_tokenSet_0_()
 	{
-		long[] data = { 9126156321102495794L, 50685212919L, 0L, 0L};
+		long[] data = { -194431431504560014L, 101370425838L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_0_ = new BitSet(mk_tokenSet_0_());
 	private static long[] mk_tokenSet_1_()
 	{
-		long[] data = { 1017839982716387328L, 131108L, 0L, 0L};
+		long[] data = { 2035679965432774656L, 262216L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_1_ = new BitSet(mk_tokenSet_1_());
 	private static long[] mk_tokenSet_2_()
 	{
-		long[] data = { 1017839983253258240L, 557092L, 0L, 0L};
+		long[] data = { 2035679966506516480L, 1114184L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_2_ = new BitSet(mk_tokenSet_2_());
@@ -6578,277 +6599,277 @@ _loop239_breakloop:				;
 	public static readonly BitSet tokenSet_3_ = new BitSet(mk_tokenSet_3_());
 	private static long[] mk_tokenSet_4_()
 	{
-		long[] data = { 9126156321102496178L, 50685212919L, 0L, 0L};
+		long[] data = { -194431431504559246L, 101370425838L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_4_ = new BitSet(mk_tokenSet_4_());
 	private static long[] mk_tokenSet_5_()
 	{
-		long[] data = { -76561389237304974L, 68717378039L, 0L, 0L};
+		long[] data = { -153122778474609934L, 137434756079L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_5_ = new BitSet(mk_tokenSet_5_());
 	private static long[] mk_tokenSet_6_()
 	{
-		long[] data = { 9090127524083531826L, 50685212919L, 0L, 0L};
+		long[] data = { -266489025542487950L, 101370425838L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_6_ = new BitSet(mk_tokenSet_6_());
 	private static long[] mk_tokenSet_7_()
 	{
-		long[] data = { 9090123126037020722L, 50685212919L, 0L, 0L};
+		long[] data = { -266497821635510158L, 101370425838L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_7_ = new BitSet(mk_tokenSet_7_());
 	private static long[] mk_tokenSet_8_()
 	{
-		long[] data = { 8072283143320633392L, 50685204691L, 0L, 0L};
+		long[] data = { -2302177787068284816L, 101370409382L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_8_ = new BitSet(mk_tokenSet_8_());
 	private static long[] mk_tokenSet_9_()
 	{
-		long[] data = { -133243413259615950L, 50685212919L, 0L, 0L};
+		long[] data = { -266486826519231886L, 101370425839L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_9_ = new BitSet(mk_tokenSet_9_());
 	private static long[] mk_tokenSet_10_()
 	{
-		long[] data = { 3342927715631168L, 18052229504L, 0L, 0L};
+		long[] data = { 6685855431262336L, 36104459008L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_10_ = new BitSet(mk_tokenSet_10_());
 	private static long[] mk_tokenSet_11_()
 	{
-		long[] data = { -8205530954626760704L, 4227108L, 0L, 0L};
+		long[] data = { 2035682164456030208L, 8454217L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_11_ = new BitSet(mk_tokenSet_11_());
 	private static long[] mk_tokenSet_12_()
 	{
-		long[] data = { -9223362131318013952L, 32768L, 0L, 0L};
+		long[] data = { 19811073523712L, 65537L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_12_ = new BitSet(mk_tokenSet_12_());
 	private static long[] mk_tokenSet_13_()
 	{
-		long[] data = { 9090123126037020978L, 50685212919L, 0L, 0L};
+		long[] data = { -266497821635509646L, 101370425838L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_13_ = new BitSet(mk_tokenSet_13_());
 	private static long[] mk_tokenSet_14_()
 	{
-		long[] data = { 1017839982716387328L, 172068L, 0L, 0L};
+		long[] data = { 2035679965432774656L, 344136L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_14_ = new BitSet(mk_tokenSet_14_());
 	private static long[] mk_tokenSet_15_()
 	{
-		long[] data = { -1133073394439290832L, 50685213907L, 0L, 0L};
+		long[] data = { -2266146788878581648L, 101370427815L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_15_ = new BitSet(mk_tokenSet_15_());
 	private static long[] mk_tokenSet_16_()
 	{
-		long[] data = { 256L, 163840L, 0L, 0L};
+		long[] data = { 512L, 327680L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_16_ = new BitSet(mk_tokenSet_16_());
 	private static long[] mk_tokenSet_17_()
 	{
-		long[] data = { -128744188056436430L, 50685213951L, 0L, 0L};
+		long[] data = { -257488376112872846L, 101370427903L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_17_ = new BitSet(mk_tokenSet_17_());
 	private static long[] mk_tokenSet_18_()
 	{
-		long[] data = { 3342790276677696L, 18052229504L, 0L, 0L};
+		long[] data = { 6685580553355392L, 36104459008L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_18_ = new BitSet(mk_tokenSet_18_());
 	private static long[] mk_tokenSet_19_()
 	{
-		long[] data = { 0L, 786432L, 0L, 0L};
+		long[] data = { 0L, 1572864L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_19_ = new BitSet(mk_tokenSet_19_());
 	private static long[] mk_tokenSet_20_()
 	{
-		long[] data = { 0L, 2097152L, 0L, 0L};
+		long[] data = { 0L, 4194304L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_20_ = new BitSet(mk_tokenSet_20_());
 	private static long[] mk_tokenSet_21_()
 	{
-		long[] data = { 0L, 4194304L, 0L, 0L};
+		long[] data = { 0L, 8388608L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_21_ = new BitSet(mk_tokenSet_21_());
 	private static long[] mk_tokenSet_22_()
 	{
-		long[] data = { -115233412796645328L, 50685212919L, 0L, 0L};
+		long[] data = { -230466825593290640L, 101370425839L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_22_ = new BitSet(mk_tokenSet_22_());
 	private static long[] mk_tokenSet_23_()
 	{
-		long[] data = { -8205539760651894784L, 131108L, 0L, 0L};
+		long[] data = { 2035664552405762048L, 262217L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_23_ = new BitSet(mk_tokenSet_23_());
 	private static long[] mk_tokenSet_24_()
 	{
-		long[] data = { 1017839982716387584L, 172068L, 0L, 0L};
+		long[] data = { 2035679965432775168L, 344136L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_24_ = new BitSet(mk_tokenSet_24_());
 	private static long[] mk_tokenSet_25_()
 	{
-		long[] data = { 1073742080L, 163840L, 0L, 0L};
+		long[] data = { 2147484160L, 327680L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_25_ = new BitSet(mk_tokenSet_25_());
 	private static long[] mk_tokenSet_26_()
 	{
-		long[] data = { -9223370936269405952L, 172032L, 0L, 0L};
+		long[] data = { 2201170739712L, 344065L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_26_ = new BitSet(mk_tokenSet_26_());
 	private static long[] mk_tokenSet_27_()
 	{
-		long[] data = { -9223370937343147776L, 131072L, 0L, 0L};
+		long[] data = { 2199023256064L, 262145L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_27_ = new BitSet(mk_tokenSet_27_());
 	private static long[] mk_tokenSet_28_()
 	{
-		long[] data = { 256L, 0L};
+		long[] data = { 512L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_28_ = new BitSet(mk_tokenSet_28_());
 	private static long[] mk_tokenSet_29_()
 	{
-		long[] data = { 9092761953994015218L, 68719475191L, 0L, 0L};
+		long[] data = { -261220165721521166L, 137438950382L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_29_ = new BitSet(mk_tokenSet_29_());
 	private static long[] mk_tokenSet_30_()
 	{
-		long[] data = { 140737488355328L, 2432L, 0L, 0L};
+		long[] data = { 281474976710656L, 4864L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_30_ = new BitSet(mk_tokenSet_30_());
 	private static long[] mk_tokenSet_31_()
 	{
-		long[] data = { 1689399616077872L, 50685198403L, 0L, 0L};
+		long[] data = { 3378799232155760L, 101370396806L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_31_ = new BitSet(mk_tokenSet_31_());
 	private static long[] mk_tokenSet_32_()
 	{
-		long[] data = { -8205539760651894528L, 131108L, 0L, 0L};
+		long[] data = { 2035664552405762560L, 262217L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_32_ = new BitSet(mk_tokenSet_32_());
 	private static long[] mk_tokenSet_33_()
 	{
-		long[] data = { -128752994081570510L, 50685205759L, 0L, 0L};
+		long[] data = { -257505988163141006L, 101370411519L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_33_ = new BitSet(mk_tokenSet_33_());
 	private static long[] mk_tokenSet_34_()
 	{
-		long[] data = { 1689399616077872L, 50689392707L, 0L, 0L};
+		long[] data = { 3378799232155760L, 101378785414L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_34_ = new BitSet(mk_tokenSet_34_());
 	private static long[] mk_tokenSet_35_()
 	{
-		long[] data = { 8072139931931115568L, 50685202499L, 0L, 0L};
+		long[] data = { -2302464209847320464L, 101370404998L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_35_ = new BitSet(mk_tokenSet_35_());
 	private static long[] mk_tokenSet_36_()
 	{
-		long[] data = { 4469239939334256L, 68713179587L, 0L, 0L};
+		long[] data = { 8938479878668528L, 137426359174L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_36_ = new BitSet(mk_tokenSet_36_());
 	private static long[] mk_tokenSet_37_()
 	{
-		long[] data = { 8072283143320633650L, 50685204691L, 0L, 0L};
+		long[] data = { -2302177787068284302L, 101370409382L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_37_ = new BitSet(mk_tokenSet_37_());
 	private static long[] mk_tokenSet_38_()
 	{
-		long[] data = { 0L, 2359296L, 0L, 0L};
+		long[] data = { 0L, 4718592L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_38_ = new BitSet(mk_tokenSet_38_());
 	private static long[] mk_tokenSet_39_()
 	{
-		long[] data = { 140737488355328L, 10624L, 0L, 0L};
+		long[] data = { 281474976710656L, 21248L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_39_ = new BitSet(mk_tokenSet_39_());
 	private static long[] mk_tokenSet_40_()
 	{
-		long[] data = { 281474976710656L, 327680L, 0L, 0L};
+		long[] data = { 562949953421312L, 655360L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_40_ = new BitSet(mk_tokenSet_40_());
 	private static long[] mk_tokenSet_41_()
 	{
-		long[] data = { 8072283164795470130L, 50685204699L, 0L, 0L};
+		long[] data = { -2302177744118611342L, 101370409398L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_41_ = new BitSet(mk_tokenSet_41_());
 	private static long[] mk_tokenSet_42_()
 	{
-		long[] data = { 4469239939334256L, 68719471043L, 0L, 0L};
+		long[] data = { 8938479878668528L, 137438942086L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_42_ = new BitSet(mk_tokenSet_42_());
 	private static long[] mk_tokenSet_43_()
 	{
-		long[] data = { 281474976710656L, 65536L, 0L, 0L};
+		long[] data = { 562949953421312L, 131072L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_43_ = new BitSet(mk_tokenSet_43_());
 	private static long[] mk_tokenSet_44_()
 	{
-		long[] data = { 1126449662656560L, 50685198403L, 0L, 0L};
+		long[] data = { 2252899325313136L, 101370396806L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_44_ = new BitSet(mk_tokenSet_44_());
 	private static long[] mk_tokenSet_45_()
 	{
-		long[] data = { 1689399616077872L, 50685460547L, 0L, 0L};
+		long[] data = { 3378799232155760L, 101370921094L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_45_ = new BitSet(mk_tokenSet_45_());
 	private static long[] mk_tokenSet_46_()
 	{
-		long[] data = { 949978046398464L, 268435456L, 0L, 0L};
+		long[] data = { 1899956092796928L, 536870912L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_46_ = new BitSet(mk_tokenSet_46_());
 	private static long[] mk_tokenSet_47_()
 	{
-		long[] data = { 1970874592788528L, 50685198403L, 0L, 0L};
+		long[] data = { 3941749185577072L, 101370396806L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_47_ = new BitSet(mk_tokenSet_47_());
 	private static long[] mk_tokenSet_48_()
 	{
-		long[] data = { 1689399616077872L, 50687295555L, 0L, 0L};
+		long[] data = { 3378799232155760L, 101374591110L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_48_ = new BitSet(mk_tokenSet_48_());
 	private static long[] mk_tokenSet_49_()
 	{
-		long[] data = { 0L, 17180131328L, 0L, 0L};
+		long[] data = { 0L, 34360262656L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_49_ = new BitSet(mk_tokenSet_49_());

@@ -48,6 +48,7 @@ tokens
 {
 	TIMESPAN; // timespan literal
 	REAL; // real literal
+	LONG; // long literal
 	ESEPARATOR; // expression separator (imaginary token)	
 	INDENT;
 	DEDENT;
@@ -1546,8 +1547,17 @@ protected
 integer_literal returns [IntegerLiteralExpression e] { e = null; } :
 	i:INT
 	{
-		e = new IntegerLiteralExpression(ToLexicalInfo(i));
-		e.Value = long.Parse(i.getText());
+		e = new IntegerLiteralExpression(ToLexicalInfo(i), long.Parse(i.getText()));
+	}
+	|
+	l:LONG
+	{
+		string value = l.getText();
+		value = value.Substring(0, value.Length-1);
+		
+		e = new IntegerLiteralExpression(ToLexicalInfo(l),
+					long.Parse(value),
+					true);
 	}
 	;
 	
@@ -1794,8 +1804,13 @@ ID options { testLiterals = true; }:
 	;
 
 INT : (DIGIT)+
+	(
+		('l' | 'L') { $setType(LONG); } |
+		(
 	({IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(REAL); })?
 	(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+		)
+	)
 	;
 
 DOT : '.' ((DIGIT)+ {$setType(REAL);})?;

@@ -39,11 +39,15 @@ namespace Boo.Lang.Ast
 		{
  		}
 		
-		public IntegerLiteralExpression(long value) : base(value)
+		public IntegerLiteralExpression(long value) : base(value, value > int.MaxValue)
 		{
 		}
 		
-		public IntegerLiteralExpression(LexicalInfo lexicalInfo, long value) : base(lexicalInfo, value)
+		public IntegerLiteralExpression(LexicalInfo lexicalInfo, long value) : base(lexicalInfo, value, value > int.MaxValue)
+		{
+		}
+		
+		public IntegerLiteralExpression(LexicalInfo lexicalInfo, long value, bool isLong) : base(lexicalInfo, value, isLong)
 		{
 		}
 		

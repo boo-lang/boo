@@ -194,23 +194,26 @@ na lista de dependências tenha sido alterado
 	
 done * trocar kindof por isa
 
-* logical operators
+done * logical operators
 	done * or
-	* and
+	done * and
 	
-* bitwise | para inteiros e enums de mesmo tipo
+done * bitwise | para inteiros e enums de mesmo tipo
 
-* comparison operators para números:
-	* >, >=
-	* <, <=
+done * comparison operators para números:
+	done * >, >=
+	done * <, <=
 	
-* long literals
+done * long literals
 
-* promoção automática de int para long
+done * promoção automática de int para long
 	
 * implementação de interfaces
 		* pelo menos suporte a propriedades
-* user métodos definidos em outros módulos no namespace global
+		
+* usar métodos definidos em outros módulos no namespace global
+
+* usar métodos definidos em outros módulos no mesmo namespace
 	
 * remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário
@@ -253,12 +256,17 @@ done * raise
 Milestone 3.9 (better error checking)
 -------------------------------------
 * constructors can't have a return value
+* can't create instance of interface 'XXX'
+* can't create instance of abstract class 'XXX'
+* can't create instance of enum 'XXX'
 * WARNING: unused local variable
 * WARNING: unreachable code detected
+* WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?
 * method override with different accessibility
 * override accessibility checks
 * inheritance cycles (A(B), B(C), C(A))
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
+* warning levels
 	
 Milestone 4 (delegate support)
 ------------------------------
@@ -272,7 +280,7 @@ Milestone 4.3 (algumas otimizações)
 ---------------------------
 * compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator
 e declarar os tipos de acordo
-*  patterns reference ((in|is) (not)?) (value1, value2), em outras palavras:
+*  patterns reference ((in|is|isa) (not)?) (value1, value2), em outras palavras:
 	BinaryExpression(
 		BinaryOperatorType.*,
 		ReferenceExpression,
@@ -295,19 +303,19 @@ done * expressões simples com inteiros
 * concatenação de strings
 * concatenação de strings com inteiros
 * classes devem ser serializ�veis
-* cria��o de objetos (classes internas)
+done * cria��o de objetos (classes internas)
 * chamada de m�todos est�ticos (classes internas)
-* chamada de m�todos instance
+done * chamada de m�todos instance
 done * null expression
 * assert macro
 done * tuples (arrays) - operador v�rgula => a = 3, 5
 done * tuple unpacking - a, b  = 3, 5
-* tuple indexing (a[0] = 1)
+done * tuple indexing (a[0] = 1)
 done * for item in tuple
-* property access
-* property assignment
+done * property access
+done * property assignment
 done * list creation [1, 2, 3]
-* list indexing
+done * list indexing
 done * bool (true, false)
 * operadores de convers�o (operator bool, operator string, etc)
 

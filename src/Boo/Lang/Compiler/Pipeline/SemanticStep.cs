@@ -718,7 +718,14 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
-			Bind(node, BindingManager.IntTypeBinding);
+			if (node.IsLong)
+			{
+				Bind(node, BindingManager.LongTypeBinding);
+			}
+			else
+			{
+				Bind(node, BindingManager.IntTypeBinding);
+			}
 		}
 		
 		public override void OnRealLiteralExpression(RealLiteralExpression node)
@@ -1267,6 +1274,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				
 				case BinaryOperatorType.Or:
+				{
+					BindLogicalOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.And:
 				{
 					BindLogicalOperator(node);
 					break;

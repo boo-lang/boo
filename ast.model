@@ -94,7 +94,7 @@ package Boo.Ast
 	end
 	
 	class EnumMember(TypeMember)
-		Initializer as IntegerLiteralExpression
+		Initializer as IntegerLiteralExpression		
 	end
 	
 	class Field(TypeMember)
@@ -410,6 +410,7 @@ package Boo.Ast
 	
 	class IntegerLiteralExpression(LiteralExpression)
 		Value as long
+		IsLong as bool
 	end
 	
 	class RealLiteralExpression(LiteralExpression)
