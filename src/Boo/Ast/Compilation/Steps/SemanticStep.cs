@@ -64,12 +64,17 @@ namespace Boo.Ast.Compilation.Steps
 		
 		IMethodBinding RuntimeServices_IsMatchBinding;
 		
+		IConstructorBinding ApplicationException_StringConstructor;
+		
 		public override void Run()
 		{					
 			_currentMethodInfo = SemanticMethodInfo.Null;
 			_methodInfoStack = new Stack();
 			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
+			ApplicationException_StringConstructor =
+					(IConstructorBinding)BindingManager.ToBinding(
+						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
 			Switch(CompileUnit);
 		}		
@@ -346,6 +351,20 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			node.Expression = Switch(node.Expression);
 			ProcessDeclarationsForIterator(node.Declarations, GetBoundType(node.Expression), false);			
+		}
+		
+		public override void LeaveRaiseStatement(RaiseStatement node, ref Statement resultingNode)
+		{
+			if (BindingManager.StringTypeBinding == GetBoundType(node.Exception))
+			{
+				MethodInvocationExpression expression = new MethodInvocationExpression(node.Exception.LexicalInfo);
+				expression.Arguments.Add(node.Exception);
+				expression.Target = new ReferenceExpression("System.ApplicationException");
+				BindingManager.Bind(expression.Target, ApplicationException_StringConstructor);
+				BindingManager.Bind(expression, BindingManager.ApplicationExceptionBinding);
+
+				node.Exception = expression;				
+			}
 		}
 		
 		public override void OnExceptionHandler(ExceptionHandler node, ref ExceptionHandler resultingNode)

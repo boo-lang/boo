@@ -37,6 +37,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public static readonly Type Exception = typeof(System.Exception);
 		
+		public static readonly Type ApplicationException = typeof(System.ApplicationException);
+		
 		public static readonly Type List = typeof(Boo.Lang.List);
 		
 		public static readonly Type IEnumerable = typeof(System.Collections.IEnumerable);

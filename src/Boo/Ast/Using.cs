@@ -47,6 +47,11 @@ namespace Boo.Ast
 		{
 		}
 		
+		public override string ToString()
+		{
+			return _namespace;
+		}
+		
 		public override void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnUsing(this);

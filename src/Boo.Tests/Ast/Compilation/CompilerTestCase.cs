@@ -354,6 +354,12 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
+		public void TestTry3()
+		{
+			RunCompilerTestCase("try3.boo", "raise with string argument");
+		}
+		
+		[Test]
 		public void TestClass0()
 		{
 			RunCompilerTestCase("class0.boo", "simple internal class");

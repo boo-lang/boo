@@ -35,6 +35,8 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public class BindingManager
 	{		
+		public ExternalTypeBinding ApplicationExceptionBinding;
+		
 		public ExternalTypeBinding ObjectTypeBinding;
 		
 		public ExternalTypeBinding ObjectArrayBinding;
@@ -67,6 +69,7 @@ namespace Boo.Ast.Compilation.Binding
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
 			Cache(ObjectArrayBinding = new ExternalTypeBinding(this, Types.ObjectArray));
+			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
 		}
 		
 		public bool IsBound(Node node)
@@ -186,6 +189,11 @@ namespace Boo.Ast.Compilation.Binding
 				case MemberTypes.Method:
 				{
 					return new ExternalMethodBinding(this, (System.Reflection.MethodInfo)mi);
+				}
+				
+				case MemberTypes.Constructor:
+				{
+					return new ExternalConstructorBinding(this, (System.Reflection.ConstructorInfo)mi);
 				}
 				
 				case MemberTypes.Field:
