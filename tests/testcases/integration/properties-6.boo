@@ -12,3 +12,4 @@ type = InstanceCount
 property = type.GetProperty("Instances")
 getter = property.GetGetMethod()
 Assert.IsTrue(getter.IsStatic, "static property getter must be static")
+Assert.IsNull(property.GetSetMethod(), "setter must be null")

@@ -174,6 +174,26 @@ namespace Boo.Lang.Compiler.Steps
 			return list;
 		}
 		
+		override public void LeaveMethod(Method node)
+		{
+			InternalMethod derived = (InternalMethod)node.Entity;
+			IMethod super = derived.Override;
+			if (null != super)
+			{
+				TypeMemberModifiers derivedAccess = TypeSystemServices.GetAccess(derived);
+				TypeMemberModifiers superAccess = TypeSystemServices.GetAccess(super);
+				if (derivedAccess < superAccess)
+				{
+					Error(CompilerErrorFactory.DerivedMethodCannotReduceAccess(
+								node,
+								derived.FullName,
+								super.FullName,
+								derivedAccess,
+								superAccess));
+				}
+			}
+		}
+		
 		override public void LeaveConstructor(Constructor node)
 		{
 			if (node.IsStatic)

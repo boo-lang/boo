@@ -11,10 +11,10 @@ class CompileUnit(Node):
 
 enum TypeMemberModifiers:
 	None = 0
-	Public = 1
-	Protected = 2
-	Private = 4
-	Internal = 8		
+	Private = 1
+	Internal = 2	
+	Protected = 4
+	Public = 8
 	Transient = 16
 	Static = 32
 	Final = 64

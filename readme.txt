@@ -15,9 +15,15 @@ to build the project.
 	
 will also run all the unit tests.
 
-	nant rebuild test
+mono users might want to do this instead:
+
+	nant compile-tests && nunit-console tests/build/*Tests.dll	
+
+to rebuild everything from scratch:
+
+	nant rebuild
 	
-will also cause the ast classes and parser
+the rebuild target will also cause the ast classes and parser
 to be regenerated (needs a java vm).
 
 How to Start
@@ -59,12 +65,7 @@ You can also have booi to read from stdin by typing:
 You can generate .net assemblies by using booc (either
 the booc.exe utility or the booc nant task):
 
-	booc -output:build/hello.exe examples/hw.boo
-	
-You can enable duck typing by specifying the appropriate
-pipeline with -p option:
-
-	booc -p:quack examples/ie.boo
+	booc -output:build/hello.exe examples/hw.boo	
 	
 If you want to simply see the transformations applied to
 your code by the compiler use the boo pipeline, run:

@@ -75,6 +75,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsProtected
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public bool IsLiteral
 		{
 			get

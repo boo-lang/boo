@@ -56,14 +56,6 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
-		public bool IsVirtual
-		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Virtual);
-			}
-		}
-		
 		public bool IsRuntime
 		{
 			get

@@ -88,6 +88,7 @@ BCE0086=Can't create instance of interface '{0}'.
 BCE0087=Can't create instance of enum '{0}'.
 BCE0088=Sorry but the '{0}' prefix is reserved by the compiler. Friends?
 BCE0089=Type '{0}' already has a definition for '{1}'.
+BCE0090=Derived method '{0}' can not reduce the accessiblity of '{1}' from '{2}' to '{3}'. 
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.

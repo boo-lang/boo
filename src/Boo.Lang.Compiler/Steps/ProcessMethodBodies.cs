@@ -434,10 +434,8 @@ namespace Boo.Lang.Compiler.Steps
 				getter.Name = "get_" + node.Name;
 				getter.Parameters.ExtendWithClones(node.Parameters);
 				
-				if (property.IsStatic)
-				{
-					getter.Modifiers |= TypeMemberModifiers.Static;
-				}
+				SetPropertyAccessorModifiers(node, getter);
+				
 				Visit(getter);
 			}
 			
@@ -461,10 +459,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != setter)
 			{
-				if (property.IsStatic)
-				{
-					setter.Modifiers |= TypeMemberModifiers.Static;
-				}
+				SetPropertyAccessorModifiers(node, setter);
 				
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CodeBuilder.CreateTypeReference(typeInfo);
@@ -475,6 +470,19 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(setter);
 				
 				setter.Name = "set_" + node.Name;
+			}
+		}
+		
+		void SetPropertyAccessorModifiers(Property property, Method accessor)
+		{
+			if (property.IsStatic)
+			{
+				accessor.Modifiers |= TypeMemberModifiers.Static;
+			}
+			
+			if (property.IsVirtual)
+			{
+				accessor.Modifiers |= TypeMemberModifiers.Virtual;
 			}
 		}
 		

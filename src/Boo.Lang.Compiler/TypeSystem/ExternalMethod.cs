@@ -71,6 +71,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsProtected
+		{
+			get
+			{
+				return _mi.IsFamily;
+			}
+		}
+		
 		public bool IsVirtual
 		{
 			get

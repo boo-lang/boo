@@ -102,6 +102,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsProtected
+		{
+			get
+			{
+				return _method.IsProtected;
+			}
+		}
+		
 		public bool IsVirtual
 		{
 			get

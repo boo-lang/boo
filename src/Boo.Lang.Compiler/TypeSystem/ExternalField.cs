@@ -72,6 +72,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsProtected
+		{
+			get
+			{
+				return _field.IsFamily;
+			}
+		}
+		
 		public bool IsStatic
 		{
 			get

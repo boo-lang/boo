@@ -137,6 +137,7 @@
 		<copy todir="build">
 			<fileset basedir="../build">
 				<include name="*.dll" />
+				<include name="*.pdb" />
 				<include name="pt/*.dll" />
 			</fileset>
 		</copy>

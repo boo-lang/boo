@@ -91,7 +91,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IMethod GetRaiseMethod();
 	}
 	
-	public interface IField : IMember
+	public interface IField : IAccessibleMember
 	{	
 		bool IsInitOnly
 		{
@@ -206,7 +206,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{		
 	}
 	
-	public interface IMethod : IMember
+	public interface IAccessibleMember : IMember
+	{
+		bool IsProtected
+		{
+			get;
+		}
+	}
+	
+	public interface IMethod : IAccessibleMember
 	{		
 		IParameter[] GetParameters();		
 		

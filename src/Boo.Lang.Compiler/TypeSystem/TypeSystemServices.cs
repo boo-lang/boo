@@ -517,6 +517,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return EntityType.Error == tag.EntityType;
 		}
 		
+		public static TypeMemberModifiers GetAccess(IAccessibleMember member)
+		{
+			if (member.IsPublic)
+			{
+				return TypeMemberModifiers.Public;
+			}
+			else if (member.IsProtected)
+			{
+				return TypeMemberModifiers.Protected;
+			}
+			return TypeMemberModifiers.Private;
+		}
+		
 		public static IEntity GetEntity(Node node)
 		{
 			if (null == node)

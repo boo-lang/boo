@@ -74,6 +74,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsProtected
+		{
+			get
+			{
+				return _field.IsProtected;
+			}
+		}
+		
 		public EntityType EntityType
 		{
 			get
