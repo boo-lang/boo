@@ -25,17 +25,17 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
-﻿
-using System;
-using System.IO;
-using System.Reflection;
-using System.Xml;
-using System.Xml.Serialization;
-using Boo.Lang.Compiler.Ast;
-using NUnit.Framework;
 
 namespace BooCompiler.Tests
 {
+	using System;
+	using System.IO;
+	using System.Reflection;
+	using System.Xml;
+	using System.Xml.Serialization;
+	using Boo.Lang.Compiler.Ast;
+	using NUnit.Framework;
+
 	/// <summary>
 	/// Helper methods for testing the boo libraries.
 	/// </summary>

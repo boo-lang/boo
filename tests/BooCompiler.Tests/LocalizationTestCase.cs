@@ -25,16 +25,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
-﻿
-using System;
-using System.Globalization;
-using System.Threading;
-using NUnit.Framework;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Pipelines;
 
 namespace BooCompiler.Tests
 {
+	using System;
+	using System.Globalization;
+	using System.Threading;
+	using NUnit.Framework;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Pipelines;
+
 	/// <summary>	
 	/// </summary>
 	[TestFixture]

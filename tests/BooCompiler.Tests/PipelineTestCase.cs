@@ -25,15 +25,15 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
-﻿
-using System;
-using System.IO;
-using System.Xml;
-using NUnit.Framework;
-using Boo.Lang.Compiler;
 
 namespace BooCompiler.Tests
 {
+	using System;
+	using System.IO;
+	using System.Xml;
+	using NUnit.Framework;
+	using Boo.Lang.Compiler;
+
 	public class DummyStep : ICompilerStep
 	{		
 		int _runCount = 0;

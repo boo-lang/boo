@@ -32,13 +32,32 @@
 					<include name="Boo.Lang.Compiler.Tests.dll" />
 					<include name="BooCompiler.Tests.dll" />					
 					<include name="BooCompilerResources.Tests.dll" />					
+					<include name="Regression.Tests.dll" />
 				</assemblies>
 			</test>
 		</nunit2>
 		
 	</target>
 	
-	<target name="compile" depends="init">
+	<target name="compile" depends="init">	
+	
+		<boo src="generate_regression.boo" />
+		
+		<csc
+			target="library"
+			output="build/BooCompiler.Tests.dll">
+			
+			<sources>
+				<include name="BooCompiler.Tests/**/*.cs" />
+				<include name="build/RegressionTestFixture.cs" />
+			</sources>
+			
+			<references basedir="build">
+				<include name="${nunit.framework.dll}" />
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+			</references>
+		</csc>
 	
 		<booc
 			target="library"
@@ -77,22 +96,7 @@
 			<references>
 				<include name="${nunit.framework.dll}" />
 			</references>
-		</booc>
-		
-		<csc
-			target="library"
-			output="build/BooCompiler.Tests.dll">
-			
-			<sources basedir="BooCompiler.Tests">
-				<include name="**/*.cs" />
-			</sources>
-			
-			<references basedir="build">
-				<include name="${nunit.framework.dll}" />
-				<include name="Boo.dll" />
-				<include name="Boo.Lang.Compiler.dll" />
-			</references>
-		</csc>
+		</booc>		
 		
 		<csc
 			target="library"

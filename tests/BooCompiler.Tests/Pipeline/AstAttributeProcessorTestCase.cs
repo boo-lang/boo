@@ -25,19 +25,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
-﻿
-using System;
-using System.IO;
-using Boo.Lang;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.IO;
-using Boo.Lang.Compiler.Steps;
-using Boo.Lang.Compiler.Pipelines;
-using NUnit.Framework;
 
 namespace BooCompiler.Tests
 {
+	using System;
+	using System.IO;
+	using Boo.Lang;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.IO;
+	using Boo.Lang.Compiler.Steps;
+	using Boo.Lang.Compiler.Pipelines;
+	using NUnit.Framework;
+
 	public class AllParametersRequiredAttribute : AbstractAstAttribute
 	{
 		public AllParametersRequiredAttribute()
