@@ -147,6 +147,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return expression;
 		}
 		
+		public ReferenceExpression CreateReference(IEntity entity)
+		{
+			switch (entity.EntityType)
+			{
+				case EntityType.Local: return CreateReference((LocalVariable)entity);
+				case EntityType.Field: return CreateReference((IField)entity);
+				case EntityType.Parameter: return CreateReference((InternalParameter)entity);
+			}
+			throw new ArgumentException("entity");
+		}
+		
+		public ReferenceExpression CreateReference(LocalVariable local)
+		{
+			return CreateLocalReference(local.Name, local);
+		}
+		
 		public MemberReferenceExpression CreateReference(Field field)
 		{
 			return CreateReference((IField)field.Entity);
@@ -262,10 +278,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ReferenceExpression CreateReference(ParameterDeclaration parameter)
 		{
-			InternalParameter entity = (InternalParameter)TypeSystemServices.GetEntity(parameter);
+			return CreateReference((InternalParameter)TypeSystemServices.GetEntity(parameter));
+		}
+		
+		public ReferenceExpression CreateReference(InternalParameter parameter)
+		{
 			ReferenceExpression reference = new ReferenceExpression(parameter.Name);
-			reference.Entity = entity;
-			reference.ExpressionType = entity.Type;
+			reference.Entity = parameter;
+			reference.ExpressionType = parameter.Type;
 			return reference;
 		}
 		

@@ -114,6 +114,18 @@ namespace Boo.Lang.Compiler.Ast
 			return (Node[])result.ToArray(typeof(Node));
 		}
 		
+		public bool ContainsEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
+		{
+			foreach (Node node in _list)
+			{
+				if (entity == node.Entity)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		public Node GetNodeAt(int index)
 		{
 			return (Node)_list[index];

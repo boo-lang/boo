@@ -1,7 +1,5 @@
-"""
-classes, attributes
-generator expressions, generator methods, mixins
-"""
+import NUnit.Framework
+
 class Task:
 
 	[getter(Name)]
@@ -37,5 +35,5 @@ list.Add(Task("generator methods", false))
 list.Add(Task("mixins", false))
 list.Add(Task("attributes", true))
 
-print(join(list.GetDone(), ", "))
-print(join(list.GetToDo(), ", "))
+Assert.AreEqual("classes, attributes", join(list.GetDone(), ", "))
+Assert.AreEqual("generator expressions, generator methods, mixins", join(list.GetToDo(), ", "))

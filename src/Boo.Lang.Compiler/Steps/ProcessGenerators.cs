@@ -36,6 +36,8 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class ProcessGenerators : AbstractTransformerCompilerStep
 	{
+		ForeignReferenceCollector _collector = new ForeignReferenceCollector();
+		
 		Method _current;
 		
 		override public void Run()
@@ -68,63 +70,27 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!AstUtil.IsListGenerator(node.ParentNode))
 			{
-				GeneratorProcessor processor = new GeneratorProcessor(_context, _current, node);
+				ProcessGenerator(node);							
+			}
+		}
+		
+		void ProcessGenerator(GeneratorExpression node)
+		{
+			using (_collector)
+			{
+				_collector.ForeignMethod = _current;
+				_collector.Initialize(_context);
+				_collector.Visit(node);
+
+				GeneratorProcessor processor = new GeneratorProcessor(_context, _collector, node);
 				processor.Run();
-				ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());			
+				ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());
 			}
 		}
-	}
+	}	
 	
-	class SelfEntity : ITypedEntity
-	{
-		string _name;
-		IType _type;
-		
-		public SelfEntity(string name, IType type)
-		{
-			_name = name;
-			_type = type;
-		}
-		
-		public string Name
-		{
-			get
-			{
-				return _name;
-			}
-		}
-		
-		public string FullName
-		{
-			get
-			{
-				return _name;
-			}
-		}
-		
-		public EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Unknown;
-			}
-		}
-		
-		public IType Type
-		{
-			get
-			{
-				return _type;
-			}
-		}
-	}
-	
-	class GeneratorProcessor : AbstractVisitorCompilerStep
+	class GeneratorProcessor : AbstractCompilerComponent
 	{		
-		Hash _uniqueReferences = new Hash();
-		
-		List _references = new List();
-		
 		GeneratorExpression _generator;
 		
 		ClassDefinition _enumerableType;
@@ -135,68 +101,30 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Field _enumeratorField;
 		
-		Method _method;
+		ForeignReferenceCollector _collector;
 		
-		SelfEntity _selfEntity;
-		
-		public GeneratorProcessor(CompilerContext context, Method method, GeneratorExpression node)
+		public GeneratorProcessor(CompilerContext context,
+								ForeignReferenceCollector collector,
+								GeneratorExpression node)
 		{
-			_method = method;
+			_collector = collector;
 			_generator = node;
-			
-			if (!_method.IsStatic)
-			{
-				_selfEntity = new SelfEntity("this", (IType)_method.DeclaringType.Entity);
-			}
 			Initialize(context);
 		}
 		
-		override public void Run()
-		{			
-			Visit(_generator);			
+		public void Run()
+		{				
+			RemoveReferencedDeclarations();			
 			CreateAnonymousGeneratorType();
 		}
 		
-		override public void OnReferenceExpression(ReferenceExpression node)
+		void RemoveReferencedDeclarations()
 		{
-			if (IsLocalReference(node))
-			{
-				_references.Add(node);
-				if (IsNotDeclarationReference(node.Entity))
-				{
-					_uniqueReferences.Add(node.Entity, null);
-				}
-			}
-		}
-		
-		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
-		{
-			_references.Add(node);
-			node.Entity = _selfEntity;
-			_uniqueReferences.Add(_selfEntity, null);
-		}
-		
-		bool IsLocalReference(ReferenceExpression node)
-		{
-			IEntity entity = node.Entity;
-			if (null != entity)
-			{
-				EntityType type = entity.EntityType;
-				return type == EntityType.Local || type == EntityType.Parameter;
-			}
-			return false;
-		}
-		
-		bool IsNotDeclarationReference(IEntity entity)
-		{
+			Hash referencedEntities = _collector.ReferencedEntities;
 			foreach (Declaration d in _generator.Declarations)
 			{
-				if (entity == d.Entity)
-				{
-					return false;
-				}
+				referencedEntities.Remove(d.Entity);
 			}
-			return true;
 		}
 		
 		void CreateAnonymousGeneratorType()
@@ -213,9 +141,9 @@ namespace Boo.Lang.Compiler.Steps
 			_enumeratorType.Members.Add(CreateClone());
 			_enumeratorType.Members.Add(CreateEnumeratorConstructor());
 			
-			AdjustReferences();
+			_collector.AdjustReferences();
 			
-			TypeDefinition parent = _method.DeclaringType;
+			TypeDefinition parent = _collector.ForeignMethod.DeclaringType;
 			string name = string.Format("__generator{0}__", parent.Members.Count);
 			
 			_enumerableType = CreateClassDefinition(name);
@@ -257,20 +185,21 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DeclareRegularFields(ClassDefinition cd)
 		{
-			foreach (ITypedEntity entity in Builtins.array(_uniqueReferences.Keys))
+			Hash referencedEntities = _collector.ReferencedEntities;
+			foreach (ITypedEntity entity in Builtins.array(referencedEntities.Keys))
 			{
 				Field field = CodeBuilder.CreateField("__" + entity.Name, entity.Type);
 				cd.Members.Add(field);
-				_uniqueReferences[entity] = field.Entity;
+				referencedEntities[entity] = field.Entity;
 			}
 		}
 		
 		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
 		{
 			MethodInvocationExpression mie = CreateConstructorInvocation(_enumerableType);
-			foreach (ITypedEntity entity in _uniqueReferences.Keys)
+			foreach (ITypedEntity entity in _collector.ReferencedEntities.Keys)
 			{
-				mie.Arguments.Add(CreateReference(entity));
+				mie.Arguments.Add(_collector.CreateForeignReference(entity));
 			}
 			return mie;			
 		}
@@ -279,36 +208,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IConstructor constructor = ((IType)cd.Entity).GetConstructors()[0];
 			return CodeBuilder.CreateConstructorInvocation(constructor);
-		}
-		
-		Expression CreateEntityReference(IEntity entity)
-		{
-			switch (entity.EntityType)
-			{
-				case EntityType.Field:
-				{
-					return CodeBuilder.CreateReference((InternalField)entity);
-				}
-				
-				default:
-				{
-					throw new ArgumentException(entity.ToString());
-				}
-			}
-		}
-		
-		Expression CreateReference(ITypedEntity entity)
-		{
-			if (_selfEntity == entity)
-			{
-				SelfLiteralExpression self = new SelfLiteralExpression();
-				self.ExpressionType = _selfEntity.Type;
-				return self;
-			}
-			ReferenceExpression expression = new ReferenceExpression(entity.Name);
-			expression.Entity = entity;
-			expression.ExpressionType = entity.Type;
-			return expression;
 		}
 		
 		Constructor CreateEnumeratorConstructor()
@@ -329,14 +228,16 @@ namespace Boo.Lang.Compiler.Steps
 				CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));
 				
 			int paramIndex=0;
-			foreach (ITypedEntity entity in _uniqueReferences.Keys)
+			
+			Hash referencedEntities = _collector.ReferencedEntities;
+			foreach (ITypedEntity entity in referencedEntities.Keys)
 			{
 				ParameterDeclaration parameter = CodeBuilder.CreateParameterDeclaration(++paramIndex,
 										entity.Name,
 										entity.Type);
 				constructor.Parameters.Add(parameter);
 										
-				InternalField field = (InternalField)_uniqueReferences[entity];
+				InternalField field = (InternalField)referencedEntities[entity];
 				constructor.Body.Add(
 					CodeBuilder.CreateAssignment(CodeBuilder.CreateReference(field),
 									CodeBuilder.CreateReference(parameter)));
@@ -480,7 +381,7 @@ namespace Boo.Lang.Compiler.Steps
 				method.Locals.Add(local.Local);
 				
 				outerBlock.Add(CodeBuilder.CreateAssignment(
-								CreateReference(local),
+								CodeBuilder.CreateReference(local),
 								current));
 			}
 			
@@ -498,19 +399,6 @@ namespace Boo.Lang.Compiler.Steps
 			method.Body.Add(new ReturnStatement(new BoolLiteralExpression(false)));
 			
 			return method;
-		}
-		
-		void AdjustReferences()
-		{
-			foreach (Expression reference in _references)
-			{
-				IEntity entity = (IEntity)_uniqueReferences[reference.Entity];
-				if (null != entity)
-				{
-					reference.ParentNode.Replace(reference,
-												CreateEntityReference(entity));
-				}
-			}
 		}
 	}
 }

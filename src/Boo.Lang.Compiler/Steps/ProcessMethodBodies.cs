@@ -574,20 +574,38 @@ namespace Boo.Lang.Compiler.Steps
 			closure.Parameters = node.Parameters;
 			closure.Body = node.Body;
 			
-			InternalMethod current = _currentMethod;
-			current.Method.DeclaringType.Members.Add(closure);
+			_currentMethod.Method.DeclaringType.Members.Add(closure);
 			
-			CodeBuilder.BindParameterDeclarations(current.IsStatic, closure.Parameters);
+			CodeBuilder.BindParameterDeclarations(_currentMethod.IsStatic, closure.Parameters);
 			
 			// check for invalid names and 
 			// resolve parameter types 
 			Visit(closure.Parameters);
-			ProcessMethodBody(closureEntity);
+			
+			// Connects the closure method namespace with the current
+			NamespaceDelegator ns = new NamespaceDelegator(CurrentNamespace, closureEntity);
+			ProcessMethodBody(closureEntity, ns);
 			TryToResolveReturnType(closureEntity);
+			PostProcessClosure(closureEntity);
 			
 			node.ParentNode.Replace(
 					node,
 					CodeBuilder.CreateMemberReference(closureEntity));
+		}
+		
+		void PostProcessClosure(InternalMethod closure)
+		{
+			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
+			{
+				collector.ForeignMethod = _currentMethod.Method;
+				collector.Initialize(_context);
+				collector.Visit(closure.Method.Body);
+				
+				if (collector.ContainsForeignLocalReferences)
+				{
+					NotImplemented(closure.Method, "closure with foreign local references");
+				}
+			}
 		}
 		
 		override public void OnMethod(Method method)
@@ -666,10 +684,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ProcessMethodBody(InternalMethod tag)
 		{
+			ProcessMethodBody(tag, tag);
+		}
+		
+		void ProcessMethodBody(InternalMethod tag, INamespace ns)
+		{
 			PushMethodInfo(tag);
-			
-			INamespace saved = NameResolutionService.CurrentNamespace;
-			EnterNamespace(tag);
+			EnterNamespace(ns);
 			
 			try
 			{
@@ -677,7 +698,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			finally
 			{			
-				NameResolutionService.Restore(saved);
+				LeaveNamespace();
 				PopMethodInfo();
 			}
 		}
