@@ -13,7 +13,17 @@
 	
 	<property name="ngen.exe" value="${nant.settings.defaultframework.frameworkdirectory}/ngen.exe" />
 	
-	<property name="build.dir" value="build" />	
+	<property name="build.dir" value="build" />
+
+	<!-- build environment checking -->
+	<if test="${not property::exists('nant.tasks.nunit2')}">
+		<echo>nunit2 task is not available. Unit tests won't be executed.</echo>
+		<property name="nant.tasks.nunit2" value="False" />
+	</if>	
+	<if test="${not property::exists('nant.tasks.al')}">
+		<echo>al task is not available. Sattelite assemblies won't be built.</echo>
+		<property name="nant.tasks.al" value="False" />
+	</if>
 
 	<target name="all" depends="booi">	
 	</target>
@@ -52,7 +62,7 @@
 	-->
 	</target>
 	
-	<target name='run-tests' depends="Boo.Tests" unless='${skip.tests}'>
+	<target name='run-tests' depends="Boo.Tests" if="${nant.tasks.nunit2}" unless='${skip.tests}'>
 
 		<nunit2>       
 			<formatter type="Plain" />
@@ -104,7 +114,7 @@
 		</csc>
 	</target>
 	
-	<target name="satellites" depends="init">
+	<target name="satellites" depends="init" if="${nant.tasks.al}">
 		<mkdir dir="${build.dir}/pt" />
 
 		<resgen
