@@ -36,6 +36,7 @@ namespace Boo.Lang
 	/// Hash.
 	/// </summary>
 	[Serializable]
+	[EnumeratorItemType(typeof(DictionaryEntry))]
 	public class Hash : Hashtable
 	{
 		public Hash() : base(BooHashCodeProvider.Default, BooComparer.Default)

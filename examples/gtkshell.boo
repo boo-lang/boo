@@ -18,12 +18,17 @@ class PromptView(TextView):
 		_interpreter.SetValue("print", print)
 		_interpreter.SetValue("dir", dir)
 		_interpreter.SetValue("help", help)
+		_interpreter.SetValue("cls", { Buffer.Text = "" })
 		
 		prompt()
 		
 	override def OnKeyPressEvent(ev as Gdk.EventKey):
-		if Gdk.Key.Return == ev.Key:			
-			EvalCurrentLine()
+		if Gdk.Key.Return == ev.Key:
+			try:			
+				EvalCurrentLine()
+			except x:
+				print(x)
+			prompt()
 			return true
 		elif ev.Key in Gdk.Key.BackSpace, Gdk.Key.Left:
 			if Buffer.GetIterAtMark(Buffer.InsertMark).LineOffset < 5:
@@ -40,7 +45,12 @@ class PromptView(TextView):
 		
 	def dir([required] obj):
 		type = (obj as Type) or obj.GetType()
-		return type.GetMembers()
+		for member in type.GetMembers():
+			method = member as System.Reflection.MethodInfo
+			if method is not null:
+				yield method if method.IsPublic and not method.IsSpecialName
+			else:
+				yield member
 		
 	def help(obj):
 		print(join(dir(obj), "\n"))
@@ -66,9 +76,7 @@ class PromptView(TextView):
 			_ = _interpreter.LastValue
 			if _ is not null:
 				print(repr(_))
-				_interpreter.SetValue("_", _)
-			
-		prompt()
+				_interpreter.SetValue("_", _)		
 
 class MainWindow(Window):
 	
@@ -79,6 +87,7 @@ class MainWindow(Window):
 		window.Add(PromptView())
 		
 		self.Add(window)
+		
 		self.DeleteEvent += Application.Quit
 
 Application.Init()
