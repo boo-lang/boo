@@ -50,6 +50,16 @@ class AbstractInterpreter:
 	[property(RememberLastValue)]
 	_rememberLastValue = false
 	
+	_ducky = true
+	Ducky as bool:
+		get:
+			return _ducky
+		set:
+			_ducky = value
+			for compiler in (_compiler, _suggestionCompiler):
+				if compiler is not null:
+					compiler.Parameters.Ducky = _ducky
+	
 	_inputId = 0
 	
 	_suggestionCompiler as BooCompiler
@@ -72,7 +82,7 @@ class AbstractInterpreter:
 		pipeline.Add(CacheCallableTypes())
 		
 		_compiler.Parameters.Pipeline = pipeline
-		_compiler.Parameters.Ducky = true		
+		_compiler.Parameters.Ducky = _ducky		
 		_parser.Parameters.Pipeline = Pipelines.Parse()
 		
 	abstract def Declare(name as string, type as System.Type):
@@ -102,7 +112,7 @@ class AbstractInterpreter:
 				_compiler.Parameters.Pipeline.Get(InitializeTypeSystemServices))
 			pipeline.Add(FindCodeCompleteSuggestion())
 			_suggestionCompiler = BooCompiler()
-			_suggestionCompiler.Parameters.Ducky = true
+			_suggestionCompiler.Parameters.Ducky = _ducky
 			_suggestionCompiler.Parameters.Pipeline = pipeline	
 			// keep the references in sync
 			_suggestionCompiler.Parameters.References = self.References

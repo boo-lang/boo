@@ -180,7 +180,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsDuckTyped(Expression expression)
 		{
-			return TypeSystemServices.DuckType == expression.ExpressionType;
+			return ((expression.ExpressionType == TypeSystemServices.DuckType)  ||
+				(expression.ExpressionType == TypeSystemServices.ObjectType &&
+					Context.Parameters.Ducky ));
 		}
 		
 		bool IsQuackBuiltin(IEntity entity)
