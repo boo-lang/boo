@@ -61,6 +61,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		protected TypeDefinition _typeDefinition;
 		
+		protected IBinding[] _members;
+		
 		protected AbstractInternalTypeBinding(BindingManager bindingManager, TypeDefinition typeDefinition)
 		{
 			_bindingManager = bindingManager;
@@ -182,6 +184,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsInterface
+		{
+			get
+			{
+				return NodeType.InterfaceDefinition == _typeDefinition.NodeType;
+			}
+		}
+		
 		public bool IsEnum
 		{
 			get
@@ -253,6 +263,15 @@ namespace Boo.Lang.Compiler.Bindings
 		public virtual IConstructorBinding[] GetConstructors()
 		{
 			return new IConstructorBinding[0];
+		}
+		
+		public virtual IBinding[] GetMembers()
+		{
+			if (null == _members)
+			{
+				// TODO:
+			}
+			return _members;
 		}
 	}
 

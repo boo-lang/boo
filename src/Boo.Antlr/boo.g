@@ -67,6 +67,7 @@ tokens
 	LITERAL;
 	LIST_LITERAL;
 	UNPACKING;
+	ABSTRACT="abstract";
 	AND="and";
 	AS="as";		
 	BREAK="break";
@@ -687,7 +688,8 @@ modifiers
 		INTERNAL! { _modifiers |= TypeMemberModifiers.Internal; } |			
 		FINAL! { _modifiers |= TypeMemberModifiers.Final; } |
 		TRANSIENT! { _modifiers |= TypeMemberModifiers.Transient; } |
-		OVERRIDE! { _modifiers |= TypeMemberModifiers.Override; }
+		OVERRIDE! { _modifiers |= TypeMemberModifiers.Override; } |
+		ABSTRACT! { _modifiers |= TypeMemberModifiers.Abstract; }
 	)*
 	;
 	

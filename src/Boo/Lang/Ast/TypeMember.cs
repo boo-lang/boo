@@ -60,6 +60,18 @@ namespace Boo.Lang.Ast
 			}
 		}
 		
+		public virtual string FullName
+		{
+			get
+			{
+				if (null != ParentNode)
+				{
+					return DeclaringType.FullName + "." + Name;
+				}
+				return Name;
+			}
+		}
+		
 		public bool IsVisibilitySet
 		{
 			get
@@ -127,6 +139,11 @@ namespace Boo.Lang.Ast
 		public bool IsModifierSet(TypeMemberModifiers modifiers)
 		{
 			return modifiers == (_modifiers & modifiers);
+		}
+		
+		public override string ToString()
+		{
+			return FullName;
 		}
 	}
 }

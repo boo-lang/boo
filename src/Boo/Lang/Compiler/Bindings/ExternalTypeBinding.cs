@@ -45,6 +45,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		IConstructorBinding[] _constructors;
 		
+		IBinding[] _members;
+		
 		ITypeBinding _elementType;
 		
 		internal ExternalTypeBinding(BindingManager manager, Type type)
@@ -106,6 +108,14 @@ namespace Boo.Lang.Compiler.Bindings
 			get
 			{
 				return _type.IsClass;
+			}
+		}
+		
+		public bool IsInterface
+		{
+			get
+			{
+				return _type.IsInterface;
 			}
 		}
 		
@@ -201,6 +211,21 @@ namespace Boo.Lang.Compiler.Bindings
 				}
 			}
 			return _constructors;
+		}
+		
+		public IBinding[] GetMembers()
+		{
+			if (null == _members)
+			{
+				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+				MemberInfo[] members = _type.GetMembers(flags);
+				_members = new IMemberBinding[members.Length];
+				for (int i=0; i<members.Length; ++i)
+				{
+					_members[i] = _bindingManager.AsBinding(members[i]);
+				}
+			}
+			return _members;
 		}
 		
 		public virtual IBinding Resolve(string name)

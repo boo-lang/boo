@@ -2428,6 +2428,10 @@ namespace Boo.Lang.Compiler.Pipeline
 					attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
 					attributes |= TypeAttributes.Class;
 					attributes |= TypeAttributes.Serializable;
+					if (type.IsModifierSet(TypeMemberModifiers.Abstract))
+					{
+						attributes |= TypeAttributes.Abstract;
+					}
 					break;
 				}
 				
@@ -2471,9 +2475,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				attributes |= MethodAttributes.Static;
 			}
-			else if (method.IsOverride)
+			else if (method.IsOverride || method.IsVirtual)
 			{
 				attributes |= MethodAttributes.Virtual;
+			}
+			if (method.IsAbstract)
+			{
+				attributes |= (MethodAttributes.Abstract | MethodAttributes.Virtual);
 			}
 			return attributes;
 		}

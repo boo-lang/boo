@@ -47,7 +47,7 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
-		public virtual string FullName
+		public override string FullName
 		{
 			get
 			{

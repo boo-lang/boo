@@ -191,6 +191,11 @@ namespace Boo.Lang.Compiler.Bindings
 			get;
 		}
 		
+		bool IsInterface
+		{
+			get;
+		}
+		
 		bool IsEnum
 		{
 			get;
@@ -214,6 +219,8 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 		
 		IBinding GetDefaultMember();
+		
+		IBinding[] GetMembers();
 		
 		IConstructorBinding[] GetConstructors();
 		

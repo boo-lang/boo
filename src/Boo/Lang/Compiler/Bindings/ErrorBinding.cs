@@ -65,6 +65,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public virtual bool IsInterface
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public bool IsEnum
 		{
 			get
@@ -120,6 +128,11 @@ namespace Boo.Lang.Compiler.Bindings
 		public IConstructorBinding[] GetConstructors()
 		{
 			return new IConstructorBinding[0];
+		}
+		
+		public IBinding[] GetMembers()
+		{
+			return new IBinding[0];
 		}
 		
 		public IBinding Resolve(string name)

@@ -259,9 +259,13 @@ done * procurar uma versão dos operadores em RuntimeServices para unificar a in
 	
 done * comportamento de 'as' com value types: erro
 
+* implementação de interfaces
+
+* check return types for method overrides
+
 * end?
 
-* implementação de interfaces
+* ref, out parameters
 	
 * criar primitivas box, unbox e __reference__ para o semantic step e outros passos
 que precisarem? Isso iria permitir remover os casts 

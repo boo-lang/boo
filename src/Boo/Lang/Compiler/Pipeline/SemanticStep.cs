@@ -135,6 +135,71 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void ResolveClassInterfaceMethods(ClassDefinition node)
 		{
+			foreach (TypeReference baseType in node.BaseTypes)
+			{
+				ITypeBinding binding = GetBoundType(baseType);
+				if (binding.IsInterface)
+				{
+					ResolveClassInterfaceMethods(node, baseType, binding);
+				}
+			}
+		}
+		
+		Method CreateAbstractMethod(Node sourceNode, IMethodBinding baseMethod)
+		{
+			Method method = new Method(sourceNode.LexicalInfo);
+			method.Name = baseMethod.Name;
+			method.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
+			for (int i=0; i<baseMethod.ParameterCount; ++i)
+			{
+				method.Parameters.Add(new ParameterDeclaration("arg" + i, CreateBoundTypeReference(baseMethod.GetParameterType(i))));
+			}
+			method.ReturnType = CreateBoundTypeReference(baseMethod.ReturnType);
+			
+			Bind(method, new InternalMethodBinding(BindingManager, method));
+			return method;
+		}
+		
+		void ResolveClassInterfaceMethods(ClassDefinition node,
+											TypeReference interfaceReference,
+											ITypeBinding interfaceBinding)
+		{
+			foreach (IMemberBinding binding in interfaceBinding.GetMembers())
+			{
+				switch (binding.BindingType)
+				{
+					case BindingType.Method:
+					{
+						IMethodBinding interfaceMethod = (IMethodBinding)binding;
+						TypeMember member = node.Members[interfaceMethod.Name];
+						if (null != member && NodeType.Method == member.NodeType)
+						{							
+							Method method = (Method)member;
+							if (CheckOverrideSignature((IMethodBinding)GetBinding(method), interfaceMethod))
+							{
+								// TODO: check return type here
+								if (!method.IsOverride && !method.IsVirtual)
+								{
+									method.Modifiers |= TypeMemberModifiers.Virtual;
+								}
+								
+								_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, interfaceMethod);
+								continue;
+							}
+						}
+						
+						node.Members.Add(CreateAbstractMethod(interfaceReference, interfaceMethod));
+						node.Modifiers |= TypeMemberModifiers.Abstract;
+						break;
+					}
+					
+					default:
+					{
+						NotImplemented(interfaceReference, "interface member: " + binding);
+						break;
+					}
+				}
+			}
 		}
 		
 		void ResolveDependencyGraph()
@@ -246,9 +311,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (null == baseClass)
 			{
-				node.BaseTypes.Add(
-					CreateBoundTypeReference(BindingManager.ObjectTypeBinding)
-				);
+				node.BaseTypes.Insert(0, CreateBoundTypeReference(BindingManager.ObjectTypeBinding)	);
 			}
 		}
 		
