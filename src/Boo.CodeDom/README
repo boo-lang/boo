@@ -1,0 +1,33 @@
+Boo.CodeDom
+===========
+
+Using boo with code gen tools like xsd:
+
+xsd.exe test.xsd /d /l:"Boo.CodeDom.BooCodeProvider, Boo.CodeDom, Version=1.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67"
+
+Boo.CodeDom.dll and its dependencies will need to be registered for this to work.
+
+
+Recognizing Boo as a script language in asp.net
+
+The first step in getting support for ASP.NET is making sure it recognizes Boo as a scripting language, and knows how to invoke the Boo compiler for the various ASP file types.
+
+ASP.NET will look for a web.config file in the root of whatever virtual directories you set up for IIS or the webserver of your choice. Here are the contents of this file for using Boo as a scripting language with ASP.NET.
+
+<configuration>
+    <system.web>
+        <compilation debug="true">
+       <assemblies>          
+          <add assembly="Boo.CodeDom" />
+       </assemblies>
+       <compilers>        
+          <compiler language="Boo" extension=".boo" 
+            type="Boo.CodeDom.BooCodeProvider, Boo.CodeDom" />
+       </compilers>
+    </compilation>
+    </system.web>
+</configuration>
+
+For more information on the web configuration file, see MSDN.
+
+for examples of asp.net using Boo see the examples\asp.net folder.
