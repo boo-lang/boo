@@ -397,4 +397,7 @@ class SlicingExpression(Expression):
 class AsExpression(Expression):
 	Target as Expression
 	Type as TypeReference
-
+	
+class CastExpression(Expression):
+	Type as TypeReference
+	Target as Expression

@@ -43,6 +43,10 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
+		public AsExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo, target, type)
+		{
+		}
+		
 		public AsExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}

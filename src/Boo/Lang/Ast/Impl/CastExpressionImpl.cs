@@ -40,55 +40,55 @@ namespace Boo.Lang.Ast.Impl
 	using Boo.Lang.Ast;
 	
 	[Serializable]
-	public abstract class AssertStatementImpl : Statement
+	public abstract class CastExpressionImpl : Expression
 	{
 
-		protected Expression _condition;
-		protected Expression _message;
+		protected TypeReference _type;
+		protected Expression _target;
 
-		protected AssertStatementImpl()
+		protected CastExpressionImpl()
 		{
 			InitializeFields();
 		}
 		
-		protected AssertStatementImpl(LexicalInfo info) : base(info)
+		protected CastExpressionImpl(LexicalInfo info) : base(info)
 		{
 			InitializeFields();
 		}
 		
 
-		protected AssertStatementImpl(Expression condition, Expression message)
+		protected CastExpressionImpl(TypeReference type, Expression target)
 		{
 			InitializeFields();
-			Condition = condition;
-			Message = message;
+			Type = type;
+			Target = target;
 		}
 			
-		protected AssertStatementImpl(LexicalInfo lexicalInfo, Expression condition, Expression message) : base(lexicalInfo)
+		protected CastExpressionImpl(LexicalInfo lexicalInfo, TypeReference type, Expression target) : base(lexicalInfo)
 		{
 			InitializeFields();
-			Condition = condition;
-			Message = message;
+			Type = type;
+			Target = target;
 		}
 			
-		new public Boo.Lang.Ast.AssertStatement CloneNode()
+		new public Boo.Lang.Ast.CastExpression CloneNode()
 		{
-			return Clone() as Boo.Lang.Ast.AssertStatement;
+			return Clone() as Boo.Lang.Ast.CastExpression;
 		}
 
 		override public NodeType NodeType
 		{
 			get
 			{
-				return NodeType.AssertStatement;
+				return NodeType.CastExpression;
 			}
 		}
 		
 		override public void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Boo.Lang.Ast.AssertStatement thisNode = (Boo.Lang.Ast.AssertStatement)this;
-			Boo.Lang.Ast.Statement resultingTypedNode = thisNode;
-			transformer.OnAssertStatement(thisNode, ref resultingTypedNode);
+			Boo.Lang.Ast.CastExpression thisNode = (Boo.Lang.Ast.CastExpression)this;
+			Boo.Lang.Ast.Expression resultingTypedNode = thisNode;
+			transformer.OnCastExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 
@@ -99,21 +99,15 @@ namespace Boo.Lang.Ast.Impl
 				return true;
 			}
 
-			if (_modifier == existing)
+			if (_type == existing)
 			{
-				this.Modifier = ((Boo.Lang.Ast.StatementModifier)newNode);
+				this.Type = ((Boo.Lang.Ast.TypeReference)newNode);
 				return true;
 			}
 
-			if (_condition == existing)
+			if (_target == existing)
 			{
-				this.Condition = ((Boo.Lang.Ast.Expression)newNode);
-				return true;
-			}
-
-			if (_message == existing)
-			{
-				this.Message = ((Boo.Lang.Ast.Expression)newNode);
+				this.Target = ((Boo.Lang.Ast.Expression)newNode);
 				return true;
 			}
 
@@ -122,46 +116,41 @@ namespace Boo.Lang.Ast.Impl
 
 		override public object Clone()
 		{
-			Boo.Lang.Ast.AssertStatement clone = (Boo.Lang.Ast.AssertStatement)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Boo.Lang.Ast.AssertStatement));
+			Boo.Lang.Ast.CastExpression clone = (Boo.Lang.Ast.CastExpression)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Boo.Lang.Ast.CastExpression));
 			clone._lexicalInfo = _lexicalInfo;
 			clone._documentation = _documentation;
 			clone._properties = (System.Collections.Hashtable)_properties.Clone();
 			
 
-			if (null != _modifier)
+			if (null != _type)
 			{
-				clone._modifier = ((StatementModifier)_modifier.Clone());
+				clone._type = ((TypeReference)_type.Clone());
 			}
 
-			if (null != _condition)
+			if (null != _target)
 			{
-				clone._condition = ((Expression)_condition.Clone());
-			}
-
-			if (null != _message)
-			{
-				clone._message = ((Expression)_message.Clone());
+				clone._target = ((Expression)_target.Clone());
 			}
 			
 			return clone;
 		}
 			
-		public Expression Condition
+		public TypeReference Type
 		{
 			get
 			{
-				return _condition;
+				return _type;
 			}
 			
 
 			set
 			{
-				if (_condition != value)
+				if (_type != value)
 				{
-					_condition = value;
-					if (null != _condition)
+					_type = value;
+					if (null != _type)
 					{
-						_condition.InitializeParent(this);
+						_type.InitializeParent(this);
 
 					}
 				}
@@ -171,22 +160,22 @@ namespace Boo.Lang.Ast.Impl
 		}
 		
 
-		public Expression Message
+		public Expression Target
 		{
 			get
 			{
-				return _message;
+				return _target;
 			}
 			
 
 			set
 			{
-				if (_message != value)
+				if (_target != value)
 				{
-					_message = value;
-					if (null != _message)
+					_target = value;
+					if (null != _target)
 					{
-						_message.InitializeParent(this);
+						_target.InitializeParent(this);
 
 					}
 				}
