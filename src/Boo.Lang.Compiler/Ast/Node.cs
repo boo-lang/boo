@@ -98,6 +98,15 @@ namespace Boo.Lang.Compiler.Ast
 				_documentation = value;
 			}
 		}
+		
+		[System.Xml.Serialization.XmlIgnore]
+		public System.Collections.IDictionary Properties
+		{
+			get
+			{
+				return _properties;
+			}
+		}
 
 		[System.Xml.Serialization.XmlIgnore]
 		public LexicalInfo LexicalInfo

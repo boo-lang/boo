@@ -361,10 +361,10 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			PushNamespace(binding);
 			Switch(node.Attributes);		
-			Switch(node.Members, NodeType.Field);
+			ProcessFields(node);
 			Switch(node.Members);
 			PopNamespace();
-		}
+		}		
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
@@ -449,7 +449,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		override public bool EnterField(Field node)
+		override public void OnField(Field node)
 		{
 			InternalFieldBinding binding = (InternalFieldBinding)GetOptionalBinding(node);
 			if (null == binding)
@@ -461,17 +461,17 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				if (binding.Visited)
 				{
-					return false;
+					return;
 				}
 			}
 			
 			// first time here
-			binding.Visited = true;
-			return true;			
-		}
-		
-		override public void LeaveField(Field node)
-		{	
+			binding.Visited = true;			
+			
+			Switch(node.Attributes);			
+			
+			ProcessFieldInitializer(node);			
+			
 			if (null == node.Type)
 			{
 				if (null == node.Initializer)
@@ -485,21 +485,76 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
+				Switch(node.Type);
+				
 				if (null != node.Initializer)
 				{
 					CheckTypeCompatibility(node.Initializer, GetBoundType(node.Type), GetBoundType(node.Initializer));
 				}
 			}
-			
-			if (null != node.Initializer)
+		}
+		
+		void ProcessFields(ClassDefinition node)
+		{
+			Node[] fields = node.Members.Select(NodeType.Field);
+			if (0 == fields.Length)
 			{
-				if (node.IsStatic)
+				return;
+			}
+			
+			Switch(fields);
+			
+			int staticFieldIndex = 0;
+			int instanceFieldIndex = 0;
+			
+			foreach (Field f in fields)
+			{
+				if (null == f.Initializer)
 				{
-					AddFieldInitializerToStaticConstructor(node);
+					continue;
+				}
+				
+				if (f.IsStatic)
+				{
+					AddFieldInitializerToStaticConstructor(staticFieldIndex, f);
+					++staticFieldIndex;
 				}
 				else
 				{
-					AddFieldInitializerToConstructors(node);
+					AddFieldInitializerToConstructors(instanceFieldIndex, f);
+					++instanceFieldIndex;
+				}
+			}
+		}		
+		
+		void ProcessFieldInitializer(Field node)
+		{
+			Expression initializer = node.Initializer;
+			if (null != initializer)
+			{
+				Method method = new Method();
+				method.LexicalInfo = node.LexicalInfo;
+				method.Name = "__initializer__";
+				method.Modifiers = node.Modifiers;
+				
+				BinaryExpression assignment = new BinaryExpression(
+						node.LexicalInfo,
+						BinaryOperatorType.Assign,
+						new ReferenceExpression("__temp__"),
+						initializer);
+						
+				method.Body.Add(assignment);
+				
+				TypeDefinition type = node.DeclaringType;
+				try
+				{
+					type.Members.Add(method);
+					Switch(method);
+				}
+				finally
+				{
+					node.Initializer = assignment.Right;
+					type.Members.Remove(method);
 				}
 			}
 		}
@@ -516,7 +571,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			return null;
 		}
 		
-		void AddFieldInitializerToStaticConstructor(Field node)
+		void AddFieldInitializerToStaticConstructor(int index, Field node)
 		{
 			Constructor constructor = GetStaticConstructor(node.DeclaringType);
 			if (null == constructor)
@@ -528,11 +583,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			Statement stmt = CreateFieldAssignment(node);
-			constructor.Body.Statements.Insert(0, stmt);
+			constructor.Body.Statements.Insert(index, stmt);
 			node.Initializer = null;
 		}
 		
-		void AddFieldInitializerToConstructors(Field node)
+		void AddFieldInitializerToConstructors(int index, Field node)
 		{
 			foreach (TypeMember member in node.DeclaringType.Members)
 			{
@@ -544,7 +599,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					// if not found, create
 					// append the statement at the end of the group
 					Statement stmt = CreateFieldAssignment(node);
-					constructor.Body.Statements.Insert(0, stmt);
+					constructor.Body.Statements.Insert(index, stmt);
 				}
 			}
 			node.Initializer = null;
@@ -1335,13 +1390,20 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
-			if (_currentMethodBinding.IsStatic)
+			if (null == _currentMethodBinding)
 			{
-				Error(node, CompilerErrorFactory.ObjectRequired(node));
+				Error(node, CompilerErrorFactory.SelfOutsideMethod(node));
 			}
 			else
-			{
-				Bind(node, BindingManager.GetBinding(_currentMethodBinding.Method.DeclaringType));
+			{			
+				if (_currentMethodBinding.IsStatic)
+				{
+					Error(node, CompilerErrorFactory.ObjectRequired(node));
+				}
+				else
+				{
+					Bind(node, BindingManager.GetBinding(_currentMethodBinding.Method.DeclaringType));
+				}
 			}
 		}
 		
@@ -1430,7 +1492,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			InternalFieldBinding binding = new InternalFieldBinding(BindingManager, field);
 			Bind(field, binding);
 			
-			AddFieldInitializerToStaticConstructor(field);
+			AddFieldInitializerToStaticConstructor(0, field);
 
 			MemberReferenceExpression reference = new MemberReferenceExpression(node.LexicalInfo);
 			reference.Target = new ReferenceExpression(field.DeclaringType.FullName);

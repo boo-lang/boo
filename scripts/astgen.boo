@@ -824,30 +824,40 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
+		public void Switch(Node[] array, NodeType nodeType)
+		{
+			foreach (Node node in array)
+			{
+				if (node.NodeType == nodeType)
+				{
+					Switch(node);
+				}
+			}
+		}
+		
 		public bool Switch(NodeCollection collection, NodeType nodeType)
 		{
 			if (null != collection)
 			{
-				foreach (Node node in collection.ToArray())
-				{
-					if (node.NodeType == nodeType)
-					{
-						Switch(node);
-					}
-				}
+				Switch(collection.ToArray(), nodeType);
 				return true;
 			}
 			return false;
+		}
+		
+		public void Switch(Node[] array)
+		{
+			foreach (Node node in array)
+			{
+				Switch(node);
+			}
 		}
 		
 		public bool Switch(NodeCollection collection)
 		{
 			if (null != collection)
 			{
-				foreach (Node node in collection.ToArray())
-				{
-					Switch(node);
-				}
+				Switch(collection.ToArray());
 				return true;
 			}
 			return false;

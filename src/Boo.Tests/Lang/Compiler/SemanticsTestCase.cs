@@ -105,6 +105,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void FieldInitializationOrder()
+		{
+			RunCompilerTestCase("field2.boo");
+		}
+		
+		[Test]
 		public void TestFatorialMethod()
 		{
 			RunCompilerTestCase("method2.boo");

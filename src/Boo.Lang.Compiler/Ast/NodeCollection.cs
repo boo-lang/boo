@@ -94,6 +94,26 @@ namespace Boo.Lang.Compiler.Ast
 			return (Node[])_list.ToArray(typeof(Node));
 		}
 		
+		public Node[] ToReverseArray()
+		{
+			Node[] array = ToArray();
+			Array.Reverse(array);
+			return array;
+		}
+		
+		public Node[] Select(NodeType type)
+		{
+			List result = new List();
+			foreach (Node node in _list)
+			{
+				if (node.NodeType == type)
+				{
+					result.Add(node);
+				}
+			}
+			return (Node[])result.ToArray(typeof(Node));
+		}
+		
 		public Node GetNodeAt(int index)
 		{
 			return (Node)_list[index];

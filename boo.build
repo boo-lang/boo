@@ -4,7 +4,6 @@
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 	
-	<property name="skip.tests" value="false" />
 	<property name="skip.satellites" value="false" />
 
 	<property name="antlr.home" value="lib/antlr-2.7.4" />
@@ -26,7 +25,6 @@
 	<if test="${not property::exists('nant.tasks.nunit2')}">
 		<echo>nunit2 task is not available. Unit tests won't be executed.</echo>
 		<property name="nant.tasks.nunit2" value="False" />
-		<property name="skip.tests" value="True" />
 	</if>	
 	
 	<target name="all" depends="booc, booi">	
@@ -83,10 +81,10 @@
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo, Boo.Lang.Compiler, Boo.AntlrParser, deploy">
+	<target name="core" depends="Boo, Boo.Lang.Compiler, Boo.AntlrParser">
 	</target>
 	
-	<target name="deploy" depends="run-tests" unless="${skip.tests}">
+	<target name="update-bin" depends="all">
 		<mkdir dir="bin" />
 		<copy todir="bin">
 			<fileset basedir="build">
@@ -96,11 +94,12 @@
 				<includes name="Boo.AntlrParser.dll" />
 				<includes name="antlr.runtime.dll" />
 				<includes name="booc.exe" />
+				<includes name="booi.exe" />
 			</fileset>
 		</copy>
 	</target>
 	
-	<target name='run-tests' depends="Boo.Tests" unless='${skip.tests}'>
+	<target name='test' depends="Boo.Tests" if='${nant.tasks.nunit2}'>
 
 		<nunit2>       
 			<formatter type="Plain" />
@@ -182,8 +181,8 @@
 		</csc>
 	</target>
 	
-	<target name="docs-distro">
-		<zip zipfile="docs.zip" ziplevel="9">
+	<target name="bin-distro">
+		<zip zipfile="boo-bin.zip" ziplevel="9">
 			<fileset>
 				<includes name="license.txt" />
 				<includes name="ast.model.boo" />
@@ -192,12 +191,21 @@
 				<includes name="docs/**/*.pdf" />
 				<includes name="build/*.dll" />
 				<includes name="build/*.exe" />
+				<includes name="testcases/**/*.boo" />
+				
+				<includes name="extras/boo.xml" />
+				<includes name="extras/SharpDevelop/Boo-Mode.xshd" />
+				
+				<includes name="examples/**/*.boo" />
+				<includes name="examples/**/*.aspx" />
+				<includes name="examples/**/*.build" />
+				<includes name="examples/**/*.config" />
 			</fileset>
 		</zip>
 	</target>
 	
-	<target name="distro">
-		<zip zipfile="boo.zip" ziplevel="9">
+	<target name="src-distro">
+		<zip zipfile="boo-src.zip" ziplevel="9">
 			<fileset>
 				<includes name="license.txt" />
 				<includes name="boo.build" />				

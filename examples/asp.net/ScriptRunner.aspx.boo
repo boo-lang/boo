@@ -42,13 +42,16 @@ import System.Web.UI.WebControls
 import System.Web.UI.HtmlControls
 
 class WebMacro:
-	_writer = StringWriter()
+	Console = StringWriter()	
+	Context = HttpContext.Current
+	Request = Context.Request
+	Response = Context.Response
 	
 	virtual def print(text):
-		_writer.WriteLine(text)
+		Console.WriteLine(text)
 		
 	override def ToString():
-		return _writer.ToString()
+		return Console.ToString()
 		
 	abstract def Run():
 		pass
@@ -58,14 +61,13 @@ class CreateMacroStep(AbstractCompilerStep):
 	override def Run():
 		module = CompileUnit.Modules[0]
 		
-		method = Method()
-		method.Name = "Run"
-		method.Modifiers = TypeMemberModifiers.Override
-		method.Body = module.Globals
+		method = Method(Name: "Run",
+						Modifiers: TypeMemberModifiers.Override,
+						Body: module.Globals)
+						
 		module.Globals = Block()
 		
-		macro = ClassDefinition()
-		macro.Name = "__Macro__"
+		macro = ClassDefinition(Name: "__Macro__")
 		macro.BaseTypes.Add(SimpleTypeReference("Boo.Examples.Web.WebMacro"))
 		macro.Members.Add(method)
 		

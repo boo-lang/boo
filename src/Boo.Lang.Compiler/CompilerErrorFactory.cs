@@ -396,6 +396,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0073", node.LexicalInfo, methodName);
 		}
 		
+		public static CompilerError SelfOutsideMethod(Node node)
+		{
+			return new CompilerError("BCE0074", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
