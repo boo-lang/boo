@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -40,6 +40,8 @@ namespace Boo.Lang
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
 												BindingFlags.OptionalParamBinding |
+												BindingFlags.Static |
+												BindingFlags.FlattenHierarchy |
 												BindingFlags.Instance;
 									
 		const BindingFlags InvokeBindingFlags = DefaultBindingFlags |
@@ -58,12 +60,23 @@ namespace Boo.Lang
 		{
 			try
 			{
-				return target.GetType().InvokeMember(name,
-													InvokeBindingFlags,
-													null,
-													target,
-													args);
-													
+				Type type = target as Type;
+				if (null == type)
+				{
+					return target.GetType().InvokeMember(name,
+														InvokeBindingFlags,
+														null,
+														target,
+														args);
+				}
+				else
+				{	// static method
+					return type.InvokeMember(name,
+														InvokeBindingFlags,
+														null,
+														null,
+														args);
+				}
 			}
 			catch (TargetInvocationException x)
 			{
@@ -75,11 +88,23 @@ namespace Boo.Lang
 		{
 			try
 			{
-				target.GetType().InvokeMember(name,
+				Type type = target as Type;
+				if (null == type)
+				{
+					target.GetType().InvokeMember(name,
 										SetPropertyBindingFlags,
 										null, 
 										target,
 										new object[] { value });
+				}
+				else
+				{	// static member
+					type.InvokeMember(name,
+										SetPropertyBindingFlags,
+										null, 
+										null,
+										new object[] { value });
+				}
 				return value;
 			}
 			catch (TargetInvocationException x)
@@ -92,11 +117,23 @@ namespace Boo.Lang
 		{
 			try
 			{
-				return target.GetType().InvokeMember(name,
+				Type type = target as Type;
+				if (null == type)
+				{
+					return target.GetType().InvokeMember(name,
 										GetPropertyBindingFlags,
 										null, 
 										target,
 										args);
+				}
+				else
+				{	// static member
+					return type.InvokeMember(name,
+										GetPropertyBindingFlags,
+										null, 
+										null,
+										args);
+				}
 			}
 			catch (TargetInvocationException x)
 			{
