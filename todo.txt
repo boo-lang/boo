@@ -16,7 +16,17 @@ done * artigo "Estendendo o compilador utilizando pipelines",
 		done * trace step
 		
 done * recursos
-		
+
+* separar o binding dos elementos do semantic step:
+um passo anterior vai navegar por todos os nós associando os 
+InternalBindings apropriados, todas as assinaturas de métodos já
+serao preenchidas sempre que possível
+
+* final fields: se for um value type nativo fica como literal, senao fica
+como campo readonly
+
+* um novo passo para checagem de visibilidade de acesso de membros
+
 * trocar o modelo utilizado IAstTransformer para um modelo mais simples
 que possa ser utilizado no BooInBoo:
 
@@ -26,20 +36,18 @@ que possa ser utilizado no BooInBoo:
 		* OnXXX(node as XXX) com métodos:
 			RemoveCurrentNode()
 			ReplaceCurrentNode(newNode as Node)
-		
-* separar o binding dos elementos do semantic step:
-um passo anterior vai navegar por todos os nós associando os 
-InternalBindings apropriados, todas as assinaturas de métodos já
-serao preenchidas sempre que possível
-		
-* artigo "Estendendo a linguagem utilizando macros e atributos"
-	using, lock
 	
 * CallableTypeBinding
 	* para funçoes
 	* para delegates (o tipo de um evento seria o CallableTypeBinding equivalente ao delegate)
 
 * map(callable, enumerable)
+
+* generator expressions
+	return i*3 for i in range(10)
+		
+* artigo "Estendendo a linguagem utilizando macros e atributos"
+	using, lock
 
 * private interface implementations
 
@@ -49,15 +57,6 @@ serao preenchidas sempre que possível
 			
 	método fica marcado como private...
 	
-* private base method implementations:
-	class Foo(Base):
-		override def Base.Method():
-			super()	
-			
-	
-* generator expressions
-	return i*3 for i in range(10)
-
 done * isolar Boo.Lang.Compiler em seu próprio assembly
 
 * check visibility for override
@@ -102,6 +101,11 @@ que precisarem? Isso iria permitir remover os casts de EmitAssemblyStep
 		CloseConnection()
 	except:
 		pass
+		
+* private base method implementations:
+	class Foo(Base):
+		override def Base.Method():
+			super()
 
 * += para eventos vira add_Event(DelegateConstructor(..., ...))
 
