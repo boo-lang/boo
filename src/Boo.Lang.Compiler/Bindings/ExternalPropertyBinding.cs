@@ -30,13 +30,13 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	public class ExternalPropertyBinding : IPropertyBinding
 	{
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		System.Reflection.PropertyInfo _property;
 		
 		ITypeBinding[] _indexParameters;
 		
-		public ExternalPropertyBinding(BindingManager bindingManager, System.Reflection.PropertyInfo property)
+		public ExternalPropertyBinding(BindingService bindingManager, System.Reflection.PropertyInfo property)
 		{
 			_bindingManager = bindingManager;
 			_property = property;

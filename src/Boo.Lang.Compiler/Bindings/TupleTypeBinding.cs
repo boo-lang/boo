@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public class ArrayTypeBinding : ITypeBinding, INamespace
 	{	
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		ITypeBinding _elementType;
 		
 		ITypeBinding _array;
 		
-		public ArrayTypeBinding(BindingManager bindingManager, ITypeBinding elementType)
+		public ArrayTypeBinding(BindingService bindingManager, ITypeBinding elementType)
 		{
 			_bindingManager = bindingManager;
 			_array = bindingManager.ArrayTypeBinding;

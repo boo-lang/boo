@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			AssemblyBuilder builder = AstAnnotations.GetAssemblyBuilder(CompileUnit);
+			AssemblyBuilder builder = ContextAnnotations.GetAssemblyBuilder(Context);
 			
 			builder.Save(Path.GetFileName(Parameters.OutputAssembly));
 		}	

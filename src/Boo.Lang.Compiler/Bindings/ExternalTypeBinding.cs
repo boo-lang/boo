@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Bindings
 												BindingFlags.Static |
 												BindingFlags.Instance;
 		
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		Type _type;
 		
@@ -52,7 +52,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		int _typeDepth = -1;
 		
-		internal ExternalTypeBinding(BindingManager manager, Type type)
+		internal ExternalTypeBinding(BindingService manager, Type type)
 		{
 			if (null == type)
 			{

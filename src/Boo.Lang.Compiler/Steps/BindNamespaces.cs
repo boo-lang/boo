@@ -49,9 +49,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			ResolveNamespaces();
-			
-			CompileUnitBinding binding = new CompileUnitBinding(this);			
-			BindingManager.Bind(CompileUnit, binding);
 		}
 		
 		override public void Dispose()
@@ -65,8 +62,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
-				ModuleBinding moduleBinding = new ModuleBinding(BindingManager, module);
-				BindingManager.Bind(module, moduleBinding);
+				ModuleBinding moduleBinding = new ModuleBinding(BindingService, module);
+				BindingService.Bind(module, moduleBinding);
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
 				if (null != namespaceDeclaration)
@@ -110,12 +107,12 @@ namespace Boo.Lang.Compiler.Steps
 						if (null != import.Alias)
 						{
 							binding = new AliasedNamespaceBinding(import.Alias.Name, binding);
-							BindingManager.Bind(import.Alias, binding);
+							BindingService.Bind(import.Alias, binding);
 						}
 					}
 					
 					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, binding.Name);
-					BindingManager.Bind(import, binding);
+					BindingService.Bind(import, binding);
 				}
 			}			
 		}
@@ -136,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							Parameters.References.Add(asm);
-							BindingManager.Bind(reference, new Bindings.AssemblyBinding(asm));
+							BindingService.Bind(reference, new Bindings.AssemblyBinding(asm));
 						}
 						catch (Exception x)
 						{
@@ -150,7 +147,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Assembly GetBoundAssembly(ReferenceExpression reference)
 		{
-			return ((AssemblyBinding)BindingManager.GetBinding(reference)).Assembly;
+			return ((AssemblyBinding)BindingService.GetBinding(reference)).Assembly;
 		}
 		
 		public INamespace ParentNamespace
@@ -234,7 +231,7 @@ namespace Boo.Lang.Compiler.Steps
 			Bindings.NamespaceBinding binding = (Bindings.NamespaceBinding)_namespaces[topLevelName];	
 			if (null == binding)
 			{
-				_namespaces[topLevelName] = binding = new Bindings.NamespaceBinding(this, BindingManager, topLevelName);
+				_namespaces[topLevelName] = binding = new Bindings.NamespaceBinding(this, BindingService, topLevelName);
 			}
 			return binding;
 		}

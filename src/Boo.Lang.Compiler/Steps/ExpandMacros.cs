@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)BindingManager.GetBinding(module));
+			PushNamespace((INamespace)BindingService.GetBinding(module));
 			Accept(module.Members);
 			Accept(module.Globals);			
 			PopNamespace();

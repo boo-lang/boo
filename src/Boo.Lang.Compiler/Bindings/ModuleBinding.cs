@@ -33,17 +33,17 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	public class ModuleBinding : INamespace, IBinding
 	{
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		Module _module;
 		
-		INamespace _moduleClassNamespace;
+		INamespace _moduleClassNamespace = NullNamespace.Default;
 		
 		INamespace[] _using;
 		
 		string _namespace;
 		
-		public ModuleBinding(BindingManager bindingManager, Module module)
+		public ModuleBinding(BindingService bindingManager, Module module)
 		{
 			_bindingManager = bindingManager;
 			_module = module;			
@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (INamespace)BindingManager.GetBinding(_module.ParentNode);
+				return (INamespace)BindingService.GetBinding(_module.ParentNode);
 			}
 		}
 		
@@ -117,7 +117,7 @@ namespace Boo.Lang.Compiler.Bindings
 					_using = new INamespace[_module.Imports.Count];
 					for (int i=0; i<_using.Length; ++i)
 					{
-						_using[i] = (INamespace)BindingManager.GetBinding(_module.Imports[i]);
+						_using[i] = (INamespace)BindingService.GetBinding(_module.Imports[i]);
 					}
 				}
 				
@@ -139,7 +139,7 @@ namespace Boo.Lang.Compiler.Bindings
 			TypeMember member = _module.Members[name];
 			if (null != member)
 			{
-				ITypeBinding typeBinding = (ITypeBinding)BindingManager.GetOptionalBinding(member);
+				ITypeBinding typeBinding = (ITypeBinding)BindingService.GetOptionalBinding(member);
 				if (null == typeBinding)
 				{
 					if (NodeType.EnumDefinition == member.NodeType)
@@ -150,7 +150,7 @@ namespace Boo.Lang.Compiler.Bindings
 					{
 						typeBinding = new InternalTypeBinding(_bindingManager, (TypeDefinition)member);
 					}
-					BindingManager.Bind(member, typeBinding);
+					BindingService.Bind(member, typeBinding);
 				}
 				return _bindingManager.AsTypeReference(typeBinding);
 			}
@@ -159,19 +159,6 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		IBinding ResolveModuleClassMember(string name)
 		{
-			if (null == _moduleClassNamespace)
-			{
-				ClassDefinition moduleClass = Boo.Lang.Compiler.Steps.AstAnnotations.GetModuleClass(_module);
-				if (null != moduleClass)
-				{
-					_moduleClassNamespace = (INamespace)ResolveModuleMember(moduleClass.Name);
-				}
-				
-				if (null == _moduleClassNamespace)
-				{
-					_moduleClassNamespace = NullNamespace.Default;
-				}
-			}
 			return _moduleClassNamespace.Resolve(name);
 		}
 	}

@@ -67,17 +67,17 @@ namespace Boo.Lang.Compiler.Bindings
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		DeclarationCollection _declarations;
 		
-		public DeclarationsNamespace(INamespace parent, BindingManager bindingManager, DeclarationCollection declarations)
+		public DeclarationsNamespace(INamespace parent, BindingService bindingManager, DeclarationCollection declarations)
 		{
 			_parent = parent;
 			_bindingManager = bindingManager;
 			_declarations = declarations;
 		}
 		
-		public DeclarationsNamespace(INamespace parent, BindingManager bindingManager, Declaration declaration)
+		public DeclarationsNamespace(INamespace parent, BindingService bindingManager, Declaration declaration)
 		{
 			_parent = parent;
 			_bindingManager = bindingManager;
@@ -98,7 +98,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Declaration d = _declarations[name];
 			if (null != d)
 			{
-				return BindingManager.GetBinding(d);
+				return BindingService.GetBinding(d);
 			}
 			return null;
 		}

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -28,57 +28,63 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
+	using System;
 	using Boo.Lang.Compiler.Ast;
 	
-	public class AstAnnotations
+	public class ContextAnnotations
 	{		
 		static object EntryPointKey = new object();
 		
-		static object ModuleClassKey = new object();
-		
 		static object AssemblyBuilderKey = new object();
 		
-		public static Method GetEntryPoint(CompileUnit node)
+		public static Method GetEntryPoint(CompilerContext context)
 		{
-			return (Method)node[EntryPointKey];
+			if (null == context)
+			{
+				throw new ArgumentNullException("context");
+			}
+			return (Method)context.Properties[EntryPointKey];
 		}
 		
-		public static void SetEntryPoint(CompileUnit node, Method method)
+		public static void SetEntryPoint(CompilerContext context, Method method)
 		{
-			Method current = (Method)node[EntryPointKey];
+			if (null == method)
+			{
+				throw new ArgumentNullException("method");
+			}
+			
+			Method current = GetEntryPoint(context);
 			if (null != current)
 			{
 				throw CompilerErrorFactory.MoreThanOneEntryPoint(method);
 			}
-			node[EntryPointKey] = method;
+			context.Properties[EntryPointKey] = method;
 		}
 		
-		public static ClassDefinition GetModuleClass(Module module)
+		public static System.Reflection.Emit.AssemblyBuilder GetAssemblyBuilder(CompilerContext context)
 		{
-			return (ClassDefinition)module[ModuleClassKey];
-		}
-		
-		public static void SetModuleClass(Module module, ClassDefinition classDefinition)
-		{
-			module[ModuleClassKey] = classDefinition;
-		}
-		
-		public static System.Reflection.Emit.AssemblyBuilder GetAssemblyBuilder(CompileUnit node)
-		{
-			System.Reflection.Emit.AssemblyBuilder builder = (System.Reflection.Emit.AssemblyBuilder)node[AssemblyBuilderKey];
+			System.Reflection.Emit.AssemblyBuilder builder = (System.Reflection.Emit.AssemblyBuilder)context.Properties[AssemblyBuilderKey];
 			if (null == builder)
 			{
-				throw CompilerErrorFactory.InvalidAssemblySetUp(node);
+				throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
 			}
 			return builder;
 		}
 		
-		public static void SetAssemblyBuilder(CompileUnit node, System.Reflection.Emit.AssemblyBuilder builder)
+		public static void SetAssemblyBuilder(CompilerContext context, System.Reflection.Emit.AssemblyBuilder builder)
 		{
-			node[AssemblyBuilderKey] = builder;
+			if (null == context)
+			{
+				throw new ArgumentNullException("context");
+			}
+			if (null == builder)
+			{
+				throw new ArgumentNullException("builder");
+			}
+			context.Properties[AssemblyBuilderKey] = builder;
 		}
 		
-		private AstAnnotations()
+		private ContextAnnotations()
 		{
 		}
 	}

@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context = context;
 			
-			PushNamespace((INamespace)BindingManager.GetBinding(context.CompileUnit));
+			PushNamespace((INamespace)BindingService.GetBinding(context.CompileUnit));
 		}
 		
 		public INamespace CurrentNamespace
@@ -74,7 +74,7 @@ namespace Boo.Lang.Compiler.Steps
 				throw new ArgumentNullException("sourceNode");
 			}
 			
-			IBinding binding = _context.BindingManager.ResolvePrimitive(name);
+			IBinding binding = _context.BindingService.ResolvePrimitive(name);
 			if (null == binding)
 			{
 				INamespace ns = _current;

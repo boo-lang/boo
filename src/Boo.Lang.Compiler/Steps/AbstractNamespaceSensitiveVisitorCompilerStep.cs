@@ -90,10 +90,10 @@ namespace Boo.Lang.Compiler.Steps
 	
 		protected InternalTypeBinding GetInternalTypeBinding(TypeDefinition node)
 		{
-			InternalTypeBinding binding = (InternalTypeBinding)BindingManager.GetOptionalBinding(node);
+			InternalTypeBinding binding = (InternalTypeBinding)BindingService.GetOptionalBinding(node);
 			if (null == binding)
 			{
-				binding = new InternalTypeBinding(BindingManager, node);
+				binding = new InternalTypeBinding(BindingService, node);
 				Bind(node, binding);
 			}
 			return binding;
@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected IBinding ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
-			if (BindingManager.IsBound(node))
+			if (BindingService.IsBound(node))
 			{
 				return null;
 			}

@@ -35,8 +35,6 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class NormalizeStatementModifiers : AbstractTransformerCompilerStep
 	{
-		public const string MainModuleMethodName = "__Main__";
-		
 		override public void Run()
 		{
 			Accept(CompileUnit.Modules);
@@ -44,49 +42,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module node)
 		{
-			ClassDefinition moduleClass = new ClassDefinition();
-			
-			int removed = 0;			
-			TypeMember[] members = node.Members.ToArray();
-			for (int i=0; i<members.Length; ++i)
-			{
-				TypeMember member = members[i];
-				if (member.NodeType == NodeType.Method)
-				{
-					member.Modifiers |= TypeMemberModifiers.Static;
-					node.Members.RemoveAt(i-removed);
-					moduleClass.Members.Add(member);
-					++removed;
-				}				
-			}		
-			
-			if (node.Globals.Statements.Count > 0)
-			{
-				Method method = new Method(node.Globals.LexicalInfo);
-				method.Parameters.Add(new ParameterDeclaration("argv", new ArrayTypeReference(new SimpleTypeReference("string"))));
-				method.ReturnType = CreateBoundTypeReference(BindingManager.VoidTypeBinding);
-				method.Body = node.Globals;
-				method.Name = MainModuleMethodName;
-				method.Modifiers = TypeMemberModifiers.Static | TypeMemberModifiers.Private;				
-				moduleClass.Members.Add(method);
-				
-				node.Globals = null;
-				AstAnnotations.SetEntryPoint(CompileUnit, method);
-			}
-			
-			if (moduleClass.Members.Count > 0)
-			{
-				moduleClass.Members.Add(CreateConstructor(node, TypeMemberModifiers.Private));
-			
-				moduleClass.Name = BuildModuleClassName(node);
-				moduleClass.Modifiers = TypeMemberModifiers.Public |
-										TypeMemberModifiers.Final |
-										TypeMemberModifiers.Transient;
-				node.Members.Add(moduleClass);
-				
-				AstAnnotations.SetModuleClass(node, moduleClass);
-			}
-			
 			Accept(node.Members);
 		}
 		
@@ -114,7 +69,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (!node.HasConstructor)
 			{				
-				node.Members.Add(CreateConstructor(node, TypeMemberModifiers.Public));
+				node.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Public));
 			}
 		}
 		
@@ -237,27 +192,6 @@ namespace Boo.Lang.Compiler.Steps
 					ReplaceCurrentNode(integer);
 				}
 			}
-		}
-		
-		Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)
-		{
-			Constructor constructor = new Constructor(lexicalInfoProvider.LexicalInfo);
-			constructor.Modifiers = modifiers;
-			return constructor;
-		}
-		
-		string BuildModuleClassName(Module module)
-		{
-			string name = module.Name;
-			if (null != name)
-			{
-				name = name.Substring(0, 1).ToUpper() + name.Substring(1) + "Module";
-			}
-			else
-			{
-				module.Name = name = string.Format("__Module{0}__", _context.AllocIndex());
-			}
-			return name;
 		}
 	}
 }

@@ -19,7 +19,6 @@
     <File name=".\IAstMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerComponent.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\ICompilerPipelineDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerResource.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ICompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ArrayLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -255,6 +254,7 @@
     <File name=".\Pipelines\Run.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AstAnnotations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -263,12 +263,17 @@
     <File name=".\Steps\BindNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindTypeDefinitions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\CheckInterfaceImplementations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\EmitAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\ExpandMacros.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\InjectCasts.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\IntroduceModuleClasses.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\NameResolutionSupport.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\NormalizeStatementModifiers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\NormalizeTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\PEVerify.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\PrintBoo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\ProcessGenerators.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\ProcessMethodBodies.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\RunAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\SaveAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

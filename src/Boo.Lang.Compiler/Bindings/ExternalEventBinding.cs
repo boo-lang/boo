@@ -32,11 +32,11 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	public class ExternalEventBinding : IEventBinding
 	{
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		System.Reflection.EventInfo _event;
 		
-		public ExternalEventBinding(BindingManager bindingManager, System.Reflection.EventInfo event_)
+		public ExternalEventBinding(BindingService bindingManager, System.Reflection.EventInfo event_)
 		{
 			_bindingManager = bindingManager;
 			_event = event_;

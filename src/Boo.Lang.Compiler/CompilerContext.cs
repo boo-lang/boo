@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerErrorCollection _errors;
 		
-		protected Bindings.BindingManager _bindingManager;		
+		protected Bindings.BindingService _bindingManager;		
 		
 		protected TraceSwitch _traceSwitch;
 
@@ -56,6 +56,8 @@ namespace Boo.Lang.Compiler
 		protected System.Reflection.MethodInfo _generatedEntryPoint;
 		
 		protected Assembly _generatedAssembly;
+		
+		protected Hash _properties;
 
 		public CompilerContext(CompileUnit unit) : this(new CompilerParameters(), unit)
 		{				
@@ -77,11 +79,20 @@ namespace Boo.Lang.Compiler
 			_errors = new CompilerErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_bindingManager = new Bindings.BindingManager();
+			_bindingManager = new Bindings.BindingService();
 			_traceSwitch = _parameters.TraceSwitch;
+			_properties = new Hash();
 		}	
+		
+		public Hash Properties
+		{
+			get
+			{
+				return _properties;
+			}
+		}
 
-		public CompilerParameters CompilerParameters
+		public CompilerParameters Parameters
 		{
 			get
 			{
@@ -113,7 +124,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public Bindings.BindingManager BindingManager
+		public Bindings.BindingService BindingService
 		{
 			get
 			{

@@ -33,10 +33,10 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public class InternalFieldBinding : AbstractInternalBinding, IFieldBinding
 	{
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		Field _field;
 		
-		public InternalFieldBinding(BindingManager bindingManager, Field field)
+		public InternalFieldBinding(BindingService bindingManager, Field field)
 		{
 			_bindingManager = bindingManager;
 			_field = field;
@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (ITypeBinding)BindingManager.GetBinding(_field.ParentNode);
+				return (ITypeBinding)BindingService.GetBinding(_field.ParentNode);
 			}
 		}
 		

@@ -34,7 +34,12 @@ namespace Boo.Lang.Compiler.Pipelines
 	public class Compile : Parse
 	{
 		public Compile()
-		{
+		{			
+			Add(new IntroduceNameResolutionService());
+			Add(new IntroduceGlobalNamespaces());
+			Add(new BindModules());
+			Add(new BindTypeDefinitions());
+			Add(new BindBaseTypes());
 			Add(new BindNamespaces());
 			Add(new BindAndApplyAttributes());
 			Add(new ExpandMacros());

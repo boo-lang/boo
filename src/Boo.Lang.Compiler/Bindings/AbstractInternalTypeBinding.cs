@@ -67,7 +67,7 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public abstract class AbstractInternalTypeBinding : AbstractInternalBinding, ITypeBinding, INamespace
 	{		
-		protected BindingManager _bindingManager;
+		protected BindingService _bindingManager;
 		
 		protected TypeDefinition _typeDefinition;
 		
@@ -79,11 +79,11 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		protected List _buffer = new List();
 		
-		protected AbstractInternalTypeBinding(BindingManager bindingManager, TypeDefinition typeDefinition)
+		protected AbstractInternalTypeBinding(BindingService bindingManager, TypeDefinition typeDefinition)
 		{
 			_bindingManager = bindingManager;
 			_typeDefinition = typeDefinition;
-			_parentNamespace = (INamespace)BindingManager.GetBinding(_typeDefinition.ParentNode);
+			_parentNamespace = (INamespace)BindingService.GetBinding(_typeDefinition.ParentNode);
 		}
 		
 		public string FullName
@@ -287,7 +287,7 @@ namespace Boo.Lang.Compiler.Bindings
 			ITypeBinding defaultMemberAttribute = _bindingManager.AsTypeBinding(typeof(System.Reflection.DefaultMemberAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
 			{
-				IConstructorBinding binding = BindingManager.GetBinding(attribute) as IConstructorBinding;
+				IConstructorBinding binding = BindingService.GetBinding(attribute) as IConstructorBinding;
 				if (null != binding)
 				{
 					if (defaultMemberAttribute == binding.DeclaringType)
@@ -355,11 +355,11 @@ namespace Boo.Lang.Compiler.Bindings
 				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
-					IBinding binding = BindingManager.GetOptionalBinding(member);
+					IBinding binding = BindingService.GetOptionalBinding(member);
 					if (null == binding)
 					{						
 						binding = CreateCorrectBinding(member);
-						BindingManager.Bind(member, binding);
+						BindingService.Bind(member, binding);
 					}	
 					
 					if (BindingType.Type == binding.BindingType)

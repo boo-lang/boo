@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public class InternalPropertyBinding : AbstractInternalBinding, IPropertyBinding
 	{
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		Property _property;
 		
 		ITypeBinding[] _indexParameters;
 		
-		public InternalPropertyBinding(BindingManager bindingManager, Property property)
+		public InternalPropertyBinding(BindingService bindingManager, Property property)
 		{
 			_bindingManager = bindingManager;
 			_property = property;
@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			if (null != _property.Getter)
 			{
-				return (IMethodBinding)BindingManager.GetBinding(_property.Getter);
+				return (IMethodBinding)BindingService.GetBinding(_property.Getter);
 			}
 			return null;
 		}
@@ -127,7 +127,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			if (null != _property.Setter)
 			{
-				return (IMethodBinding)BindingManager.GetBinding(_property.Setter);
+				return (IMethodBinding)BindingService.GetBinding(_property.Setter);
 			}
 			return null;
 		}

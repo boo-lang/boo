@@ -30,11 +30,11 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	public class ExternalFieldBinding : IFieldBinding
 	{
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		System.Reflection.FieldInfo _field;
 		
-		public ExternalFieldBinding(BindingManager bindingManager, System.Reflection.FieldInfo field)
+		public ExternalFieldBinding(BindingService bindingManager, System.Reflection.FieldInfo field)
 		{
 			_bindingManager = bindingManager;
 			_field = field;

@@ -32,8 +32,8 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Bindings
 {
-	public class BindingManager
-	{		
+	public class BindingService
+	{			
 		public ExternalTypeBinding ExceptionTypeBinding;
 		
 		public ExternalTypeBinding ApplicationExceptionBinding;
@@ -98,7 +98,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		static readonly IBinding _lenBinding = new SpecialFunctionBinding(SpecialFunction.Len);
 		
-		public BindingManager()		
+		public BindingService()		
 		{			
 			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
@@ -217,12 +217,12 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static bool IsBound(Node node)
 		{
-			return null != node[BindingKey];
+			return null != node.Binding;
 		}
 		
 		public static void Unbind(Node node)
 		{
-			node[BindingKey] = null;
+			node.Binding = null;
 		}
 		
 		public static void Bind(Node node, IBinding binding)
@@ -236,7 +236,7 @@ namespace Boo.Lang.Compiler.Bindings
 				throw new ArgumentNullException("binding");
 			}
 			
-			node[BindingKey] = binding;
+			node.Binding = binding;
 		}
 		
 		public void Bind(TypeDefinition type)
@@ -256,7 +256,7 @@ namespace Boo.Lang.Compiler.Bindings
 				throw new ArgumentNullException("node");
 			}
 			
-			return (IBinding)node[BindingKey];
+			return node.Binding;
 		}
 		
 		public static IBinding GetBinding(Node node)
@@ -470,14 +470,12 @@ namespace Boo.Lang.Compiler.Bindings
 		private static void NodeNotBound(Node node)
 		{
 			throw CompilerErrorFactory.NodeNotBound(node);
-		}
-		
-		static object BindingKey = new object();		
+		}		
 		
 		#region VoidTypeBindingImpl
 		class VoidTypeBindingImpl : ExternalTypeBinding
 		{			
-			internal VoidTypeBindingImpl(BindingManager manager) : base(manager, Types.Void)
+			internal VoidTypeBindingImpl(BindingService manager) : base(manager, Types.Void)
 			{				
 			}		
 			

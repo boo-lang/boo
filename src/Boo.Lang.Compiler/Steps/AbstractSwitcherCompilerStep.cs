@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 		}
 		
-		protected CompilerContext CompilerContext
+		protected CompilerContext Context
 		{
 			get
 			{
@@ -58,11 +58,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected CompilerParameters CompilerParameters
+		protected CompilerParameters Parameters
 		{
 			get
 			{
-				return _context.CompilerParameters;
+				return _context.Parameters;
 			}
 		}
 		
@@ -74,17 +74,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected Bindings.BindingManager BindingManager
+		protected Bindings.BindingService BindingService
 		{
 			get
 			{
-				return _context.BindingManager;
+				return _context.BindingService;
 			}
 		}
 		
 		protected void Error(Node node, CompilerError error)
 		{
-			BindingManager.Error(node);
+			BindingService.Error(node);
 			Errors.Add(error);
 		}
 		
@@ -95,28 +95,33 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node)
 		{
-			BindingManager.Error(node);
+			BindingService.Error(node);
 		}
 
 		protected void Bind(Node node, IBinding binding)
 		{
 			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, binding);
-			BindingManager.Bind(node, binding);
+			BindingService.Bind(node, binding);
 		}		
 		
 		public IBinding GetBinding(Node node)
 		{
-			return BindingManager.GetBinding(node);
+			return BindingService.GetBinding(node);
 		}
 		
 		public ITypeBinding GetBoundType(Node node)
 		{
-			return BindingManager.GetBoundType(node);
+			return BindingService.GetBoundType(node);
 		}		
 		
 		public LocalBinding GetLocalBinding(Node local)
 		{
 			return (LocalBinding)GetBinding(local);
+		}
+		
+		protected TypeReference CreateBoundTypeReference(ITypeBinding binding)
+		{
+			return BindingService.CreateBoundTypeReference(binding);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 		}
 		
-		protected CompilerContext CompilerContext
+		protected CompilerContext Context
 		{
 			get
 			{
@@ -58,11 +58,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected CompilerParameters CompilerParameters
+		protected CompilerParameters Parameters
 		{
 			get
 			{
-				return _context.CompilerParameters;
+				return _context.Parameters;
 			}
 		}
 		
@@ -74,31 +74,31 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected Bindings.BindingManager BindingManager
+		protected Bindings.BindingService BindingService
 		{
 			get
 			{
-				return _context.BindingManager;
+				return _context.BindingService;
 			}
 		}
 		
 		public IBinding GetBinding(Node node)
 		{
-			return BindingManager.GetBinding(node);
+			return BindingService.GetBinding(node);
 		}
 		
 		public IBinding GetOptionalBinding(Node node)
 		{
-			return BindingManager.GetOptionalBinding(node);
+			return BindingService.GetOptionalBinding(node);
 		}
 		
 		protected ITypeBinding GetBoundType(Node node)
 		{
-			return BindingManager.GetBoundType(node);
+			return BindingService.GetBoundType(node);
 		}		
 		protected TypeReference CreateBoundTypeReference(ITypeBinding binding)
 		{
-			return BindingManager.CreateBoundTypeReference(binding);
+			return BindingService.CreateBoundTypeReference(binding);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

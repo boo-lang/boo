@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	public class EnumTypeBinding : AbstractInternalTypeBinding
 	{
-		internal EnumTypeBinding(BindingManager bindingManager, EnumDefinition enumDefinition) :
+		internal EnumTypeBinding(BindingService bindingManager, EnumDefinition enumDefinition) :
 			base(bindingManager, enumDefinition)
 		{
 		}
@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		int _typeDepth = -1;
 		
-		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition) :
+		internal InternalTypeBinding(BindingService manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
 		}		
@@ -126,11 +126,11 @@ namespace Boo.Lang.Compiler.Bindings
 				{					
 					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
 					{
-						IBinding binding = BindingManager.GetOptionalBinding(member);
+						IBinding binding = BindingService.GetOptionalBinding(member);
 						if (null == binding)
 						{
 							binding = new InternalConstructorBinding(_bindingManager, (Constructor)member);
-							BindingManager.Bind(member, binding);
+							BindingService.Bind(member, binding);
 						}
 						constructors.Add(binding);
 					}

@@ -33,11 +33,11 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public class InternalEnumMemberBinding : AbstractInternalBinding, IFieldBinding
 	{
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		EnumMember _member;
 		
-		public InternalEnumMemberBinding(BindingManager bindingManager, EnumMember member)
+		public InternalEnumMemberBinding(BindingService bindingManager, EnumMember member)
 		{
 			_bindingManager = bindingManager;
 			_member = member;
@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (ITypeBinding)BindingManager.GetBinding(_member.ParentNode);
+				return (ITypeBinding)BindingService.GetBinding(_member.ParentNode);
 			}
 		}
 		

@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler
 		{
 			get
 			{
-				return _context.CompilerParameters;
+				return _context.Parameters;
 			}
 		}
 		
@@ -74,17 +74,17 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected Bindings.BindingManager BindingManager
+		protected Bindings.BindingService BindingService
 		{
 			get
 			{
-				return _context.BindingManager;
+				return _context.BindingService;
 			}
 		}
 		
 		public IBinding GetBinding(Node node)
 		{
-			return BindingManager.GetBinding(node);
+			return BindingService.GetBinding(node);
 		}		
 		
 		public virtual void Initialize(CompilerContext context)

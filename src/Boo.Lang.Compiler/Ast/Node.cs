@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		protected string _documentation;
 		
-		protected object _tag;
+		protected Boo.Lang.Compiler.Bindings.IBinding _binding;
 		
 		protected System.Collections.Hashtable _properties;
 
@@ -72,32 +72,24 @@ namespace Boo.Lang.Compiler.Ast
 			return (Node)Clone();
 		}
 		
+		public Boo.Lang.Compiler.Bindings.IBinding Binding
+		{
+			get
+			{
+				return _binding;
+			}
+			
+			set
+			{
+				_binding = value;
+			}
+		}
+		
 		public Node ParentNode
 		{
 			get
 			{
 				return _parent;
-			}
-		}
-		
-		public object this[object key]
-		{
-			get
-			{
-				if (null == _properties)
-				{
-					return null;
-				}
-				return _properties[key];
-			}
-			
-			set
-			{
-				if (null == _properties)
-				{
-					_properties = new System.Collections.Hashtable();
-				}
-				_properties[key] = value;
 			}
 		}
 		

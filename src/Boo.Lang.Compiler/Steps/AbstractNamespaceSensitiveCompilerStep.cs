@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterCompileUnit(CompileUnit cu)
 		{
-			_nameResolution.Initialize(CompilerContext);
+			_nameResolution.Initialize(Context);
 			return true;
 		}
 		

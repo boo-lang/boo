@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	public class NamespaceBinding : IBinding, INamespace
 	{		
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		INamespace _parent;
 		
@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		ArrayList _moduleNamespaces;
 		
-		public NamespaceBinding(INamespace parent, BindingManager bindingManager, string name)
+		public NamespaceBinding(INamespace parent, BindingService bindingManager, string name)
 		{			
 			_parent = parent;
 			_bindingManager = bindingManager;

@@ -188,17 +188,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void Run()
 		{
-			using (BindBaseTypes binder = new BindBaseTypes())
-			{
-				binder.Initialize(_context);
-				binder.Run();
-			}
-			
-			_astAttributeInterface = BindingManager.AsTypeBinding(typeof(IAstAttribute));
-			_systemAttributeBaseClass = BindingManager.AsTypeBinding(typeof(System.Attribute));
+			_astAttributeInterface = BindingService.AsTypeBinding(typeof(IAstAttribute));
+			_systemAttributeBaseClass = BindingService.AsTypeBinding(typeof(System.Attribute));
 			
 			int step = 0;
-			while (step < CompilerParameters.MaxAttributeSteps)
+			while (step < Parameters.MaxAttributeSteps)
 			{
 				Accept(CompileUnit);
 				if (0 == _tasks.Count)
@@ -212,7 +206,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)BindingManager.GetBinding(module));
+			PushNamespace((INamespace)BindingService.GetBinding(module));
 
 			// do mdulo precisamos apenas visitar os membros
 			Accept(module.Members);
@@ -229,7 +223,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
 		{			
-			if (BindingManager.IsBound(attribute))
+			if (BindingService.IsBound(attribute))
 			{
 				return;
 			}
@@ -282,7 +276,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								// remember the attribute's type
 								attribute.Name = attributeType.FullName;
-								BindingManager.Bind(attribute, attributeType);
+								BindingService.Bind(attribute, attributeType);
 							}
 						}
 					}
@@ -296,7 +290,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void Error(Boo.Lang.Compiler.Ast.Attribute attribute, CompilerError error)
 		{
-			BindingManager.Error(attribute);
+			BindingService.Error(attribute);
 			Errors.Add(error);
 		}
 

@@ -33,11 +33,11 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	public class ExternalMethodBinding : IMethodBinding
 	{
-		BindingManager _bindingManager;
+		BindingService _bindingManager;
 		
 		MethodBase _mi;
 		
-		internal ExternalMethodBinding(BindingManager manager, MethodBase mi)
+		internal ExternalMethodBinding(BindingService manager, MethodBase mi)
 		{
 			_bindingManager = manager;
 			_mi = mi;
@@ -151,13 +151,13 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		override public string ToString()
 		{
-			return BindingManager.GetSignature(this);
+			return BindingService.GetSignature(this);
 		}
 	}
 	
 	public class ExternalConstructorBinding : ExternalMethodBinding, IConstructorBinding
 	{
-		public ExternalConstructorBinding(BindingManager manager, ConstructorInfo ci) : base(manager, ci)
+		public ExternalConstructorBinding(BindingService manager, ConstructorInfo ci) : base(manager, ci)
 		{			
 		}
 		

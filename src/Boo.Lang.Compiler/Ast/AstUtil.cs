@@ -56,6 +56,13 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
+		public static Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)
+		{
+			Constructor constructor = new Constructor(lexicalInfoProvider.LexicalInfo);
+			constructor.Modifiers = modifiers;
+			return constructor;
+		}
+		
 		public static Expression CreateReferenceExpression(string fullname)
 		{
 			string[] parts = fullname.Split('.');
