@@ -43,6 +43,11 @@ namespace Boo.Ast.Compilation.Steps
 						{	
 							// todo:
 						}
+						if (null != using_.Alias)
+						{
+							ns = new AliasedNamespaceBinding(using_.Alias.Name, ns);
+							BindingManager.Bind(using_.Alias, ns);
+						}
 						binding = ns;
 					}
 					

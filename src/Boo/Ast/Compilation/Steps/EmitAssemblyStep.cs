@@ -297,6 +297,12 @@ namespace Boo.Ast.Compilation.Steps
 					break;
 				}
 				
+				case BindingType.Namespace:
+				{
+					// ignores "using namespace as alias" clause
+					break;
+				}
+				
 				default:
 				{
 					throw new NotImplementedException(info.ToString());

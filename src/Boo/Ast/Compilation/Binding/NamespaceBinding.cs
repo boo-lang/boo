@@ -105,4 +105,41 @@ namespace Boo.Ast.Compilation.Binding
 			return _name;
 		}
 	}
+	
+	public class AliasedNamespaceBinding : IBinding, INameSpace
+	{
+		string _alias;
+		IBinding _subject;
+		
+		public AliasedNamespaceBinding(string alias, IBinding subject)
+		{
+			_alias = alias;
+			_subject = subject;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _alias;
+			}
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Namespace;
+			}
+		}
+		
+		public IBinding Resolve(string name)
+		{
+			if (name == _alias)
+			{
+				return _subject;
+			}
+			return null;
+		}
+	}
 }
