@@ -74,7 +74,7 @@ class BooishView(AbstractPadContent):
 	_booish as InteractiveInterpreterControl
 	
 	def constructor():
-		super("booish")
+		super("booish", "Boo.ProjectIcon")
 		_booish = InteractiveInterpreterControl(Font: System.Drawing.Font("Lucida Console", 10))
 		_booish.CompletionWindowImageProvider = CompletionWindowImageProvider()
 		_booish.Interpreter.SetValue("Workbench", WorkbenchSingleton.Workbench)

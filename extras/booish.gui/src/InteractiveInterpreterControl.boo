@@ -37,7 +37,7 @@ import Boo.Lang.Compiler.TypeSystem
 interface ICompletionWindowImageProvider:		
 	ImageList as ImageList:
 		get
-	def GetImageIndex(entity as IEntity) as int
+	def GetImageIndex(entity as IEntity) as int	
 
 class InteractiveInterpreterControl(TextEditorControl):
 	
@@ -54,7 +54,41 @@ class InteractiveInterpreterControl(TextEditorControl):
 		
 		def GetImageIndex(entity as IEntity) as int:
 			return 0
-
+			
+	class LineHistory:
+	
+		_lines = []
+		_current = 0
+		
+		event CurrentLineChanged as EventHandler
+		
+		def Add([required] line as string):
+			if len(line) > 0 and line != LastLine:
+				_lines.Add(line)
+			_current = len(_lines)
+			
+		LastLine as string:
+			get:
+				return null if 0 == len(_lines)
+				return _lines[-1]
+		
+		CurrentLine as string:
+			get:
+				return null if 0 == len(_lines)
+				return _lines[_current]
+	
+		def Up():		
+			MoveTo(_current - 1)
+			
+		def Down():
+			MoveTo(_current + 1)
+			
+		def MoveTo(index as int):
+			return if 0 == len(_lines)
+			old = _current
+			_current = index % len(_lines)
+			if old != _current:
+				CurrentLineChanged(self, EventArgs.Empty)
 		
 	_state = InputState.SingleLine
 	
@@ -70,10 +104,14 @@ class InteractiveInterpreterControl(TextEditorControl):
 	[property(CompletionWindowImageProvider, value is not null)]
 	_imageProvider as ICompletionWindowImageProvider = NullCompletionWindowImageProvider()
 	
+	_lineHistory as LineHistory
+	
 	def constructor():
 		self._interpreter = Boo.Lang.Interpreter.InteractiveInterpreter(
 								RememberLastValue: true,
 								Print: print)
+		self._interpreter.SetValue("cls", cls)
+		self._lineHistory = LineHistory(CurrentLineChanged: _lineHistory_CurrentLineChanged)
 		self.Document.HighlightingStrategy = GetBooHighlighting()
 		self.EnableFolding =  false
 		self.ShowLineNumbers =  false
@@ -112,6 +150,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 		
 	private def ConsumeCurrentLine():		
 		text = CurrentLineText
+		_lineHistory.Add(text)
 		print("")
 		return text
 		
@@ -149,7 +188,10 @@ class InteractiveInterpreterControl(TextEditorControl):
 	def MoveCaretToEnd():
 		segment = GetLastLineSegment()
 		newOffset = segment.Offset + segment.TotalLength
-		self.ActiveTextAreaControl.Caret.Position = self.Document.OffsetToPosition(newOffset)
+		MoveCaretToOffset(newOffset)
+		
+	def MoveCaretToOffset(offset as int):
+		self.ActiveTextAreaControl.Caret.Position = self.Document.OffsetToPosition(offset)
 
 	override def InitializeTextAreaControl(newControl as TextAreaControl):
 		super(newControl)
@@ -184,6 +226,17 @@ class InteractiveInterpreterControl(TextEditorControl):
 			prompt()
 			return true
 			
+		if key == Keys.Home:
+			MoveCaretToOffset(GetLastLineSegment().Offset + 4)
+			return true
+			
+		if key == Keys.Up:
+			_lineHistory.Up()
+			return true
+		if key == Keys.Down:
+			_lineHistory.Down()
+			return true
+			
 		if key in Keys.Back, Keys.Left:
 			if self.CaretColumn < 5:
 				return true
@@ -202,6 +255,16 @@ class InteractiveInterpreterControl(TextEditorControl):
 			return false
 
 		return false
+		
+	private def cls():
+		self.Document.TextContent = ""
+		self.ActiveTextAreaControl.Refresh()
+		
+	private def _lineHistory_CurrentLineChanged():
+		segment = GetLastLineSegment()
+		self.Document.Replace(segment.Offset + 4,
+			self.CurrentLineText.Length,
+			_lineHistory.CurrentLine)
 		
 	def GetBooHighlighting():
 		return HighlightingManager.Manager.FindHighlighter("Boo")

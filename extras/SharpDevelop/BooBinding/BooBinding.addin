@@ -11,7 +11,8 @@
 	
 	<Extension path = "/SharpDevelop/Workbench/Views">
 		<Class id = "booish"
-			class = "BooBinding.BooishView" />
+			class = "BooBinding.BooishView"
+			icon = "BooPrj" />
 	</Extension>
 	
 	<Extension path = "/Workspace/Parser">
