@@ -233,7 +233,11 @@ class InteractiveInterpreter:
 			modifiers = describeModifiers(m)
 			returnType = getBooTypeName(m.ReturnType)
 			_print("${indent}${modifiers}def ${m.Name}(${describeParameters(m.GetParameters())}) as ${returnType}")
-			_print("")			
+			_print("")
+			
+		for e as Reflection.EventInfo in List(type.GetEvents()).Sort(sortByName):
+			_print("${indent}${describeModifiers(e)}event ${e.Name} as ${e.EventHandlerType}")
+			_print("")
 			
 	def describeModifiers(f as Reflection.FieldInfo):
 		return "static " if f.IsStatic
@@ -242,6 +246,9 @@ class InteractiveInterpreter:
 	def describeModifiers(m as Reflection.MethodBase):
 		return "static " if m.IsStatic
 		return ""
+		
+	def describeModifiers(e as Reflection.EventInfo):
+		return describeModifiers(e.GetAddMethod() or e.GetRemoveMethod())
 		
 	def describeModifiers(p as Reflection.PropertyInfo):
 		accessor = p.GetGetMethod() or p.GetSetMethod()
