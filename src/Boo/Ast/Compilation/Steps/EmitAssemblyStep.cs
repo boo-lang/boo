@@ -157,6 +157,7 @@ namespace Boo.Ast.Compilation.Steps
 			TypeBuilder current = _typeBuilder;
 			
 			_typeBuilder = _moduleBuilder.DefineType(node.FullName);
+			DefineMembers(_typeBuilder, node.Members);
 			SetType(node, _typeBuilder);			
 			node.Members.Switch(this);			
 			_typeBuilder.CreateType();
@@ -167,10 +168,6 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnMethod(Method method)
 		{			
 			MethodBuilder methodBuilder = GetMethodBuilder(method);
-			if (null == methodBuilder)
-			{
-				methodBuilder = DefineMethod(method);
-			}
 			_il = methodBuilder.GetILGenerator();
 			method.Locals.Switch(this);
 			method.Body.Switch(this);
@@ -179,10 +176,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnConstructor(Constructor constructor)
 		{
-			ConstructorBuilder builder = _typeBuilder.DefineConstructor(GetMethodAttributes(constructor),
-			                               CallingConventions.Standard, 
-			                               GetParameterTypes(constructor));
-			SetConstructorBuilder(constructor, builder);
+			ConstructorBuilder builder = GetConstructorBuilder(constructor);
 			_il = builder.GetILGenerator();			
 			_il.Emit(OpCodes.Ldarg_0);			
 			_il.Emit(OpCodes.Call, Object_Constructor);
@@ -1046,16 +1040,43 @@ namespace Boo.Ast.Compilation.Steps
 			return attributes;
 		}
 		
-		MethodBuilder DefineMethod(Method method)
-		{
-			TypeBuilder typeBuilder = GetTypeBuilder(method.ParentNode);
+		void DefineMethod(TypeBuilder typeBuilder, Method method)
+		{			
 			MethodBuilder builder = typeBuilder.DefineMethod(method.Name, 
                                         GetMethodAttributes(method),
                                         GetType(method.ReturnType),
                                         GetParameterTypes(method));
 			SetMethodBuilder(method, builder);
-			_context.TraceVerbose("{0}: Method {1} declared as {2}.", method.LexicalInfo, method, builder);
-			return builder;
+			_context.TraceVerbose("{0}: Method {1} declared as {2}.", method.LexicalInfo, method, builder);			
+		}
+		
+		void DefineConstructor(TypeBuilder typeBuilder, Method constructor)
+		{
+			ConstructorBuilder builder = typeBuilder.DefineConstructor(GetMethodAttributes(constructor),
+			                               CallingConventions.Standard, 
+			                               GetParameterTypes(constructor));
+			SetConstructorBuilder(constructor, builder);
+		}
+		
+		void DefineMembers(TypeBuilder typeBuilder, TypeMemberCollection members)
+		{
+			foreach (TypeMember member in members)
+			{
+				switch (member.NodeType)
+				{
+					case NodeType.Method:
+					{
+						DefineMethod(typeBuilder, (Method)member);
+						break;
+					}
+					
+					case NodeType.Constructor:
+					{
+						DefineConstructor(typeBuilder, (Constructor)member);
+						break;
+					}
+				}
+			}
 		}
 		
 		string GetAssemblyName(string fname)

@@ -27,6 +27,8 @@
 // mailto:rbo@acm.org
 #endregion
 
+using System;
+
 namespace Boo.Ast.Compilation.Binding
 {
 	class ModuleNamespace : INamespace
@@ -53,8 +55,13 @@ namespace Boo.Ast.Compilation.Binding
 			foreach (TypeMember member in _module.Members)
 			{
 				if (name == member.Name)
-				{
-					IBinding binding = _bindingManager.GetBinding(member);
+				{					
+					IBinding binding = _bindingManager.GetOptionalBinding(member);
+					if (null == binding)
+					{						
+						binding = CreateCorrectBinding(member);
+					}	
+					
 					if (BindingType.Type == binding.BindingType)
 					{
 						binding = _bindingManager.ToTypeReference((ITypeBinding)binding);
@@ -73,6 +80,18 @@ namespace Boo.Ast.Compilation.Binding
 				}
 			}
 			return null;
+		}
+		
+		IBinding CreateCorrectBinding(TypeMember member)
+		{
+			switch (member.NodeType)
+			{
+				case NodeType.Method:
+				{
+					return new InternalMethodBinding(_bindingManager, (Method)member);
+				}
+			}
+			throw new NotImplementedException();
 		}
 	}
 }

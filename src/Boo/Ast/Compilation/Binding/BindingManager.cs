@@ -98,14 +98,19 @@ namespace Boo.Ast.Compilation.Binding
 			Bind(node, ErrorBinding.Default);
 		}
 		
-		public IBinding GetBinding(Node node)
+		public IBinding GetOptionalBinding(Node node)
 		{
 			if (null == node)
 			{
 				throw new ArgumentNullException("node");
 			}
 			
-			IBinding binding = (IBinding)node[BindingKey];
+			return (IBinding)node[BindingKey];
+		}
+		
+		public IBinding GetBinding(Node node)
+		{
+			IBinding binding = GetOptionalBinding(node);
 			if (null == binding)
 			{
 				NodeNotBound(node);

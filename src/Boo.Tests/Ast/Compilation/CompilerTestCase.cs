@@ -364,6 +364,36 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			RunCompilerTestCase("baseclass0.boo", "simplebaseclass");
 		}
+		
+		[Test]
+		public void TestMethod0()
+		{
+			RunCompilerTestCase("method0.boo", "simple methods");
+		}
+		
+		[Test]
+		public void TestMethod1()
+		{
+			RunCompilerTestCase("method1.boo", "builtin redefinition");
+		}
+		
+		[Test]
+		public void TestMethod2()
+		{
+			RunCompilerTestCase("method2.boo", "fatorial");
+		}
+		
+		[Test]
+		public void TestMethod3()
+		{
+			RunCompilerTestCase("method3.boo", "simple return type decision");
+		}
+		
+		[Test]
+		public void TestMethod4()
+		{
+			RunCompilerTestCase("method4.boo", "method locals");
+		}
 	
 		void RunCompilerTestCase(string name, string description)
 		{			

@@ -88,6 +88,11 @@ namespace Boo.Ast.Compilation.Steps
 			return BindingManager.GetBinding(node);
 		}
 		
+		public IBinding GetOptionalBinding(Node node)
+		{
+			return BindingManager.GetOptionalBinding(node);
+		}
+		
 		public ITypeBinding GetBoundType(Node node)
 		{
 			return BindingManager.GetBoundType(node);

@@ -37,6 +37,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		Boo.Ast.Method _method;
 		
+		bool _resolved;
+		
 		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method)
 		{
 			_bindingManager = manager;
@@ -48,6 +50,19 @@ namespace Boo.Ast.Compilation.Binding
 			get
 			{
 				return _bindingManager.ToTypeBinding((TypeDefinition)_method.ParentNode);
+			}
+		}
+		
+		public bool IsResolved
+		{
+			get
+			{
+				return _resolved;
+			}
+			
+			set
+			{
+				_resolved = value;
 			}
 		}
 		

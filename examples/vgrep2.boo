@@ -60,7 +60,8 @@ class MainForm(Form):
 		for path in Directory.GetDirectories(path):
 			ScanDirectory(path, glob, pattern)
 			
-	def _fileList_SelectedIndexChanged(sender, args as EventArgs):		
+	def _fileList_SelectedIndexChanged(sender, args as EventArgs):
+		
 		for lvItem as ListViewItem in _fileList.SelectedItems:
 			fname as string, index as int = lvItem.Tag
 			

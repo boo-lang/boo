@@ -179,6 +179,13 @@ Milestone 6
 * interface
 * property
 
+Milestone 7
+-----------
+
+* runtime objects
+foo = runtimeobject("InternetExplorer.Application")
+foo.Navigate2("www.foo.bar")
+
 Otimiza��es
 -----------
 * tuple unpacking trocar unpacking for vários expressionstatement(binary expression):

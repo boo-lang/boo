@@ -43,13 +43,18 @@ namespace Boo.Ast.Compilation.Steps
 	/// Step 4.
 	/// </summary>
 	public class SemanticStep : AbstractNamespaceSensitiveCompilerStep
-	{		
-		Method _method;		
+	{
+		Stack _methodStack;
+		
+		Method _currentMethod;		
 		
 		IMethodBinding RuntimeServices_IsMatchBinding;
 		
 		public override void Run()
 		{			
+			_currentMethod = null;
+			_methodStack = new Stack();
+			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			
 			Switch(CompileUnit);
@@ -104,12 +109,22 @@ namespace Boo.Ast.Compilation.Steps
 		}	
 		
 		public override bool EnterMethod(Method method, ref Method resultingNode)
-		{
-			_method = method;
+		{			
+			InternalMethodBinding binding = (InternalMethodBinding)GetOptionalBinding(method);
+			if (null == binding)
+			{
+				binding = new InternalMethodBinding(BindingManager, method);
+				BindingManager.Bind(method, binding);
+			}
+			else
+			{
+				if (binding.IsResolved)
+				{
+					return false;
+				}
+			}
 			
-			InternalMethodBinding binding = new InternalMethodBinding(BindingManager, method);
-			BindingManager.Bind(method, binding);
-			
+			PushMethod(method);
 			PushNamespace(binding);
 			return true;
 		}
@@ -117,6 +132,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override void LeaveMethod(Method method, ref Method resultingNode)
 		{
 			PopNamespace();
+			PopMethod();
 			BindParameterIndexes(method);
 			
 			if (null == method.ReturnType)
@@ -125,6 +141,8 @@ namespace Boo.Ast.Compilation.Steps
 				method.ReturnType = new TypeReference("void");
 				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeReference(BindingManager.VoidTypeBinding));
 			}
+			
+			((InternalMethodBinding)GetBinding(method)).IsResolved = true;
 		}
 		
 		void BindParameterIndexes(Method method)
@@ -428,6 +446,7 @@ namespace Boo.Ast.Compilation.Steps
 					IBinding nodeBinding = ErrorBinding.Default;
 					
 					IMethodBinding targetMethod = (IMethodBinding)targetBinding;
+					EnsureMethodIsResolved(targetMethod);
 					if (CheckParameters(node, targetMethod, node.Arguments))
 					{
 						if (node.NamedArguments.Count > 0)
@@ -699,6 +718,23 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		void EnsureMethodIsResolved(IMethodBinding binding)
+		{
+			InternalMethodBinding internalMethod = binding as InternalMethodBinding;
+			if (null != internalMethod)
+			{
+				if (!internalMethod.IsResolved)
+				{
+					_context.TraceVerbose("Method {0} needs resolving.", binding.Name);
+					if (_methodStack.Contains(internalMethod.Method))
+					{
+						throw new NotImplementedException();
+					}
+					Switch(internalMethod.Method);
+				}
+			}
+		}
+		
 		IBinding ResolveMethodReference(Node node, ExpressionCollection args, IBinding[] bindings)
 		{			
 			List scores = new List();
@@ -707,7 +743,9 @@ namespace Boo.Ast.Compilation.Steps
 				IBinding binding = bindings[i];
 				IMethodBinding mb = binding as IMethodBinding;
 				if (null != mb)
-				{					
+				{			
+					EnsureMethodIsResolved(mb);
+					
 					if (args.Count == mb.ParameterCount)
 					{
 						int score = 0;
@@ -807,10 +845,21 @@ namespace Boo.Ast.Compilation.Steps
 			LocalBinding binding = new LocalBinding(local, localType);
 			BindingManager.Bind(local, binding);
 			
-			_method.Locals.Add(local);
+			_currentMethod.Locals.Add(local);
 			BindingManager.Bind(sourceNode, binding);
 			
 			return binding;
+		}
+		
+		void PushMethod(Method method)
+		{
+			_methodStack.Push(_currentMethod);
+			_currentMethod = method;
+		}
+		
+		void PopMethod()
+		{
+			_currentMethod = (Method)_methodStack.Pop();
 		}
 		
 		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
