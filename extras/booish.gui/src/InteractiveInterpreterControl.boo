@@ -37,7 +37,28 @@ import Boo.Lang.Compiler.TypeSystem
 interface ICompletionWindowImageProvider:		
 	ImageList as ImageList:
 		get
-	def GetImageIndex(entity as IEntity) as int	
+	NamespaceIndex as int:
+		get
+	ClassIndex as int:
+		get
+	InterfaceIndex as int:
+		get
+	EnumIndex as int:
+		get
+	StructIndex as int:
+		get
+	CallableIndex as int:
+		get
+	MethodIndex as int:
+		get
+	FieldIndex as int:
+		get
+	LiteralIndex as int:
+		get
+	PropertyIndex as int:
+		get
+	EventIndex as int:
+		get
 
 class InteractiveInterpreterControl(TextEditorControl):
 	
@@ -52,8 +73,39 @@ class InteractiveInterpreterControl(TextEditorControl):
 		[getter(ImageList)]
 		_imageList = System.Windows.Forms.ImageList()
 		
-		def GetImageIndex(entity as IEntity) as int:
-			return 0
+		NamespaceIndex as int:
+			get:
+				return 0
+		ClassIndex as int:
+			get:
+				return 0
+		InterfaceIndex as int:
+			get:
+				return 0
+		EnumIndex as int:
+			get:
+				return 0
+		StructIndex as int:
+			get:
+				return 0
+		CallableIndex as int:
+			get:
+				return 0
+		MethodIndex as int:
+			get:
+				return 0
+		FieldIndex as int:
+			get:
+				return 0
+		LiteralIndex as int:
+			get:
+				return 0
+		PropertyIndex as int:
+			get:
+				return 0
+		EventIndex as int:
+			get:
+				return 0
 			
 	class LineHistory:
 	
@@ -118,6 +170,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 		self.ShowSpaces = false
 		self.ShowTabs =  true
 		self.ShowEOLMarkers = false
+		self.AllowCaretBeyondEOL = false		
 		self.ShowInvalidLines = false
 		self.Dock = DockStyle.Fill
 		
@@ -202,20 +255,36 @@ class InteractiveInterpreterControl(TextEditorControl):
 		get:
 			return _codeCompletionWindow is not null and not _codeCompletionWindow.IsDisposed
 
-	private def CodeComplete(ch as System.Char):
+	private def DotComplete(ch as System.Char):
+		ShowCompletionWindow(
+			CodeCompletionDataProvider(_imageProvider, GetSuggestions()),
+			ch)
+			
+	private def ShowCompletionWindow(completionDataProvider, ch as System.Char):
 		_codeCompletionWindow = CodeCompletionWindow.ShowCompletionWindow(
 					self.ParentForm, 
 					self, 
 					"<code>",
-					CodeCompletionDataProvider(_imageProvider, GetSuggestions()), 
+					completionDataProvider,
 					ch)
+					
+	private def CtrlSpaceComplete():
+		ShowCompletionWindow(
+			GlobalsCompletionDataProvider(_imageProvider, self._interpreter),
+			Char.MinValue)
 					
 	private def GetSuggestions():		
 		code = CurrentLineText.Insert(self.CaretColumn-4, ".__codecomplete__")
 		code = code.Insert(0, _block.ToString()) if InputState.Block == _state
-		suggestion = _interpreter.SuggestCodeCompletion(code)
+		suggestion as INamespace = _interpreter.SuggestCodeCompletion(code)
 		return array(IEntity, 0) if suggestion is null
-		return (suggestion as INamespace).GetMembers()
+		return GetChildNamespaces(suggestion) if code.StartsWith("import ")
+		return suggestion.GetMembers()
+		
+	private def GetChildNamespaces(parent as INamespace):
+		return array(member
+					for member in parent.GetMembers()
+					if member.EntityType == EntityType.Namespace)
 		
 	private def HandleDialogKey(key as Keys):
 		return false if InCodeCompletion
@@ -228,15 +297,19 @@ class InteractiveInterpreterControl(TextEditorControl):
 			prompt()
 			return true
 			
-		if key == Keys.Home:
-			MoveCaretToOffset(GetLastLineSegment().Offset + 4)
-			return true
-			
 		if key == Keys.Up:
 			_lineHistory.Up()
 			return true
 		if key == Keys.Down:
 			_lineHistory.Down()
+			return true
+			
+		if key == (Keys.Control | Keys.Space):
+			CtrlSpaceComplete()
+			return true
+			
+		if key in Keys.Home, Keys.Shift|Keys.Home, Keys.Control|Keys.Home:			
+			MoveCaretToOffset(GetLastLineSegment().Offset + 4)
 			return true
 			
 		if key in Keys.Back, Keys.Left:
@@ -253,7 +326,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 			_codeCompletionWindow.ProcessKeyEvent(ch)
 
 		if ch == "."[0]:
-			CodeComplete(ch)
+			DotComplete(ch)
 			return false
 
 		return false

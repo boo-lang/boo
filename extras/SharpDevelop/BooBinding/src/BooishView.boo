@@ -26,7 +26,6 @@ import ICSharpCode.SharpDevelop.Gui
 import ICSharpCode.Core.Services
 import ICSharpCode.SharpDevelop.Services
 import booish.gui
-import Boo.Lang.Compiler.TypeSystem
 
 class CompletionWindowImageProvider(booish.gui.ICompletionWindowImageProvider):
 	
@@ -39,35 +38,39 @@ class CompletionWindowImageProvider(booish.gui.ICompletionWindowImageProvider):
 		get:
 			return _classBrowserIconService.ImageList
 
-	def GetImageIndex(entity as IEntity) as int:
-		entityType = entity.EntityType
-		if EntityType.Namespace == entityType:
+	NamespaceIndex as int:
+		get:
 			return _classBrowserIconService.NamespaceIndex
-		elif EntityType.Type == entityType:
-			type as IType = entity
-			if type.IsEnum:
-				return _classBrowserIconService.EnumIndex
-			if type.IsInterface:
-				return _classBrowserIconService.InterfaceIndex
-			if type.IsValueType:
-				return _classBrowserIconService.StructIndex
-			if type isa ICallableType:
-				return _classBrowserIconService.DelegateIndex
+	ClassIndex as int:
+		get:
 			return _classBrowserIconService.ClassIndex
-			
-		index as int
-		if EntityType.Method == entityType:
-			index = _classBrowserIconService.MethodIndex
-		elif EntityType.Property == entityType:
-			index = _classBrowserIconService.PropertyIndex
-		elif EntityType.Event == entityType:
-			index = _classBrowserIconService.EventIndex
-		elif EntityType.Field == entityType:
-			index = _classBrowserIconService.FieldIndex
-			if (entity as IField).IsLiteral:
-				index = _classBrowserIconService.LiteralIndex			
-		return index
-
+	InterfaceIndex as int:
+		get:
+			return _classBrowserIconService.InterfaceIndex
+	EnumIndex as int:
+		get:
+			return _classBrowserIconService.EnumIndex
+	StructIndex as int:
+		get:
+			return _classBrowserIconService.StructIndex
+	CallableIndex as int:
+		get:
+			return _classBrowserIconService.DelegateIndex
+	MethodIndex as int:
+		get:
+			return _classBrowserIconService.MethodIndex
+	FieldIndex as int:
+		get:
+			return _classBrowserIconService.FieldIndex
+	LiteralIndex as int:
+		get:
+			return _classBrowserIconService.LiteralIndex
+	PropertyIndex as int:
+		get:
+			return _classBrowserIconService.PropertyIndex
+	EventIndex as int:
+		get:
+			return _classBrowserIconService.EventIndex
 
 class BooishView(AbstractPadContent):
 	
