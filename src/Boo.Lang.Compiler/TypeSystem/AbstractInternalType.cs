@@ -101,34 +101,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			
-			if (IsClass)
-			{
-				IType baseType = this.BaseType;
-				if (baseType.Resolve(targetList, name, flags))
-				{
-					found = true;
-				}
-			}
-			else if (IsInterface)
-			{
-				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
-				{	
-					if (TypeSystemServices.GetType(baseType).Resolve(targetList, name, flags))
-					{
-						found = true;
-					}
-				}
-				
-				if (!found)
-				{
-					// also look in System.Object
-					if (_typeSystemServices.ObjectType.Resolve(targetList, name, flags))
-					{
-						found = true;
-					}
-				}
-			}
-			
 			return found;
 		}
 		

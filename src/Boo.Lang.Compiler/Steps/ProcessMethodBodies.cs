@@ -247,7 +247,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			MarkVisited(node);
 			
-			InternalType tag = GetInternalType(node);
+			InternalInterface tag = (InternalInterface)GetEntity(node);
 			EnterNamespace(tag);
 			Visit(node.Attributes);
 			Visit(node.Members);
@@ -263,7 +263,7 @@ namespace Boo.Lang.Compiler.Steps
 			MarkVisited(node);
 			VisitBaseTypes(node);
 			
-			InternalType tag = GetInternalType(node);			
+			InternalClass tag = (InternalClass)GetEntity(node);			
 			EnterNamespace(tag);
 			Visit(node.Attributes);		
 			ProcessFields(node);
@@ -277,11 +277,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (TypeReference baseTypeRef in node.BaseTypes)
 			{
-				InternalType type = baseTypeRef.Entity as InternalType;
-				if (null != type && type.IsClass)
-				{
-					EnsureRelatedNodeWasVisited(type);
-				}
+				EnsureRelatedNodeWasVisited(baseTypeRef.Entity);
 			}
 		}
 		
@@ -4110,7 +4106,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IType GetEnumeratorItemTypeFromAttribute(IType iteratorType)
 		{
-			InternalType internalType = iteratorType as InternalType;
+			AbstractInternalType internalType = iteratorType as AbstractInternalType;
 			if (null == internalType)
 			{
 				return GetExternalEnumeratorItemType(iteratorType);
@@ -4275,7 +4271,7 @@ namespace Boo.Lang.Compiler.Steps
 				return true;
 			}
 			
-			InternalType internalType = type as InternalType;
+			AbstractInternalType internalType = type as AbstractInternalType;
 			if (null != internalType)
 			{
 				return _newAbstractClasses.Contains(internalType.TypeDefinition);

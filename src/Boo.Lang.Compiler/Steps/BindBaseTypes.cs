@@ -123,7 +123,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null != entity)
 				{
-					InternalType internalType = entity as InternalType;
+					AbstractInternalType internalType = entity as AbstractInternalType;
 					if (null != internalType)
 					{
 						if (visited.Contains(internalType.TypeDefinition))

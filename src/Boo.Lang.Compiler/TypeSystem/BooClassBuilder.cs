@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_codeBuilder = codeBuilder;
 			_cd = new ClassDefinition();
 			_cd.Name = name;
-			_cd.Entity = new InternalType(_codeBuilder.TypeSystemServices, _cd);
+			_cd.Entity = new InternalClass(_codeBuilder.TypeSystemServices, _cd);
 		}
 		
 		public BooCodeBuilder CodeBuilder

@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			if (null == node.Entity)
 			{				
-				node.Entity = new InternalType(TypeSystemServices, node);				
+				node.Entity = new InternalClass(TypeSystemServices, node);				
 			}			
 			
 			NormalizeVisibility(node);
@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			
 			NormalizeVisibility(node);
-			node.Entity = new InternalType(TypeSystemServices, node);
+			node.Entity = new InternalInterface(TypeSystemServices, node);
 		}
 		
 		override public void OnEnumDefinition(EnumDefinition node)
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			NormalizeVisibility(node);
-			node.Entity = new EnumType(TypeSystemServices, node);			
+			node.Entity = new InternalEnum(TypeSystemServices, node);			
 			
 			long lastValue = 0;
 			foreach (EnumMember member in node.Members)

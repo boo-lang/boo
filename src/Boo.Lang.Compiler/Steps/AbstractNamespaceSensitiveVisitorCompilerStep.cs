@@ -58,10 +58,5 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			NameResolutionService.LeaveNamespace();
 		}
-	
-		protected InternalType GetInternalType(TypeDefinition node)
-		{
-			return (InternalType)node.Entity;
-		}
 	}
 }

@@ -230,7 +230,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					foreach (TypeReference baseTypeRef in typedef.BaseTypes)
 					{
-						InternalType tag = GetType(baseTypeRef) as InternalType;
+						AbstractInternalType tag = GetType(baseTypeRef) as AbstractInternalType;
 						if (null != tag)
 						{
 							CreateType(created, tag.TypeDefinition);

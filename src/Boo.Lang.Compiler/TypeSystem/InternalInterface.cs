@@ -32,38 +32,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
 	using System.Reflection;
-
-	public class EnumType : AbstractInternalType
-	{
-		internal EnumType(TypeSystemServices tagManager, EnumDefinition enumDefinition) :
-			base(tagManager, enumDefinition)
-		{
-		}
-		
-		override public IType BaseType
-		{
-			get
-			{
-				return _typeSystemServices.EnumType;
-			}
-		}
-		
-		override public bool IsSubclassOf(IType type)
-		{
-			return type == _typeSystemServices.EnumType ||
-				_typeSystemServices.EnumType.IsSubclassOf(type);
-		}
-	}
 	
-	public class InternalType : AbstractInternalType
+	public class InternalInterface : AbstractInternalType
 	{		
-		IConstructor[] _constructors;
-		
-		IType _baseType;
-		
 		int _typeDepth = -1;
 		
-		internal InternalType(TypeSystemServices manager, TypeDefinition typeDefinition) :
+		internal InternalInterface(TypeSystemServices manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
 		}		
@@ -72,34 +46,38 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (null == _baseType)
-				{
-					if (IsClass)
-					{
-						foreach (TypeReference baseType in _typeDefinition.BaseTypes)
-						{
-							IType tag = TypeSystemServices.GetType(baseType);
-							if (tag.IsClass)
-							{
-								_baseType = tag;
-								break;
-							}
-						}
-					}
-					else if (IsInterface)
-					{
-						_baseType = _typeSystemServices.ObjectType;
-					}
-				}
-				return _baseType;
+				return _typeSystemServices.ObjectType;
 			}
+		}
+		
+		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		{
+			bool found = base.Resolve(targetList, name, flags);
+			
+			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			{	
+				if (TypeSystemServices.GetType(baseType).Resolve(targetList, name, flags))
+				{
+					found = true;
+				}
+			}
+			
+			if (!found)
+			{
+				// also look in System.Object
+				if (_typeSystemServices.ObjectType.Resolve(targetList, name, flags))
+				{
+					found = true;
+				}
+			}
+			return found;
 		}
 		
 		override public int GetTypeDepth()
 		{
 			if (-1 == _typeDepth)
 			{
-				_typeDepth = CalcTypeDepth();
+				_typeDepth = 1+GetMaxBaseInterfaceDepth();
 			}
 			return _typeDepth;
 		}
@@ -115,32 +93,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			return _typeSystemServices.IsSystemObject(type);
-		}
-		
-		override public IConstructor[] GetConstructors()
-		{
-			if (null == _constructors)
-			{
-				List constructors = new List();
-				foreach (TypeMember member in _typeDefinition.Members)
-				{					
-					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
-					{						
-						constructors.Add(TypeSystemServices.GetEntity(member));
-					}
-				}
-				_constructors = (IConstructor[])constructors.ToArray(typeof(IConstructor));
-			}
-			return _constructors;
-		}
-		
-		int CalcTypeDepth()
-		{
-			if (IsInterface)
-			{
-				return 1+GetMaxBaseInterfaceDepth();
-			}
-			return 1+BaseType.GetTypeDepth();
 		}
 		
 		int GetMaxBaseInterfaceDepth()

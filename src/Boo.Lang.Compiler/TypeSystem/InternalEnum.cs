@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -28,46 +28,27 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
-	
-	public class InternalCallableType : InternalClass, ICallableType
+
+	public class InternalEnum : AbstractInternalType
 	{
-		CallableSignature _signature;
-		
-		internal InternalCallableType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition) :
-			base(typeSystemServices, typeDefinition)
+		internal InternalEnum(TypeSystemServices tagManager, EnumDefinition enumDefinition) :
+			base(tagManager, enumDefinition)
 		{
 		}
 		
-		public CallableSignature GetSignature()
+		override public IType BaseType
 		{
-			if (null == _signature)
+			get
 			{
-				_signature = GetInvokeMethod().CallableType.GetSignature();
+				return _typeSystemServices.EnumType;
 			}
-			return _signature;
 		}
 		
-		public IMethod GetInvokeMethod()
+		override public bool IsSubclassOf(IType type)
 		{
-			return (IMethod)_typeDefinition.Members["Invoke"].Entity;
-		}
-		
-		public IMethod GetEndInvokeMethod()
-		{
-			return (IMethod)_typeDefinition.Members["EndInvoke"].Entity;
-		}
-		
-		override public bool IsAssignableFrom(IType other)
-		{
-			return _typeSystemServices.IsCallableTypeAssignableFrom(this, other);
-		}
-		
-		override public string ToString()
-		{
-			return GetSignature().ToString();
+			return type == _typeSystemServices.EnumType ||
+				_typeSystemServices.EnumType.IsSubclassOf(type);
 		}
 	}
 }

@@ -95,7 +95,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == moduleClass.Entity)
 			{
-				moduleClass.Entity = new InternalType(_typeSystemServices, moduleClass);
+				moduleClass.Entity = new InternalClass(_typeSystemServices, moduleClass);
 			}
 			_moduleClassNamespace = (INamespace)moduleClass.Entity;
 		}
