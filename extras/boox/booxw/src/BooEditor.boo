@@ -306,7 +306,7 @@ class BooEditor(DockContent):
 		return menu
 
 	def GetBooHighlighting():
-		return HighlightingManager.Manager.FindHighlighter("boo")
+		return HighlightingManager.Manager.FindHighlighter("Boo")
 		
 	override protected def GetPersistString():
 		return "BooEditor|${GetSafeFileName()}"

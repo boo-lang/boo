@@ -136,7 +136,7 @@
 		
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${build.dir}/scripts" />
-		<copy todir="${build.dir}" file="../../SharpDevelop/boo.xshd" />
+		<copy todir="${build.dir}" file="../../SharpDevelop/BooBinding/boo.xshd" />
 		<copy todir="${build.dir}">
 			<fileset basedir="lib">
 				<include name="ICSharpCode.TextEditor.dll" />				
