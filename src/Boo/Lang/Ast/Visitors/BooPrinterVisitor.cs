@@ -263,7 +263,39 @@ namespace Boo.Lang.Ast.Visitors
 		
 		public override void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
 		{
-			Write(node.Value);
+			double days = node.Value.TotalDays;
+			if (days >= 1)
+			{
+				Write(days.ToString() + "d");
+			}
+			else
+			{
+				double hours = node.Value.TotalHours;
+				if (hours >= 1)
+				{
+					Write(hours.ToString() + "h");
+				}
+				else
+				{
+					double minutes = node.Value.TotalMinutes;
+					if (minutes >= 1)
+					{
+						Write(minutes.ToString() + "m");
+					}
+					else
+					{
+						double seconds = node.Value.TotalSeconds;
+						if (seconds >= 1)
+						{
+							Write(seconds.ToString() + "s");
+						}
+						else
+						{
+							Write(node.Value.TotalMilliseconds + "ms");
+						}
+					}
+				}
+			}
 		}
 		
 		public override void OnBoolLiteralExpression(BoolLiteralExpression node)

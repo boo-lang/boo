@@ -39,11 +39,11 @@ namespace Boo.Lang.Ast
 		{
  		}
 		
-		public TimeSpanLiteralExpression(string value) : base(value)
+		public TimeSpanLiteralExpression(TimeSpan value) : base(value)
 		{
 		}
 		
-		public TimeSpanLiteralExpression(LexicalInfo lexicalInfoProvider, string value) : base(lexicalInfoProvider, value)
+		public TimeSpanLiteralExpression(LexicalInfo lexicalInfoProvider, TimeSpan value) : base(lexicalInfoProvider, value)
 		{
 		}
 		

@@ -397,6 +397,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void TimeSpanLiteral()
+		{
+			RunCompilerTestCase("timespan0.boo");
+		}
+		
+		[Test]
 		public void TupleLiteral()
 		{
 			RunCompilerTestCase("tuple0.boo", "simple tuple creation");

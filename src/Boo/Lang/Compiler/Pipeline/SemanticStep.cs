@@ -714,6 +714,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			BindingManager.Bind(node, BindingManager.BoolTypeBinding);
 		}
 		
+		public override void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node, ref Expression resultingNode)
+		{
+			BindingManager.Bind(node, BindingManager.TimeSpanTypeBinding);
+		}
+		
 		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.IntTypeBinding);

@@ -201,6 +201,35 @@ tokens
 		throw new ArgumentException("op");
 	}
 
+	protected TimeSpan ParseTimeSpan(string text)
+	{
+		if (text.EndsWith("ms"))
+		{
+			return TimeSpan.FromMilliseconds(double.Parse(text.Substring(0, text.Length-2)));
+		}
+	
+		char last = text[text.Length-1];		
+		double value = double.Parse(text.Substring(0, text.Length-1));
+		switch (last)
+		{
+			case 's':
+			{
+				return TimeSpan.FromSeconds(value);
+			}
+	
+			case 'h':
+			{
+				return TimeSpan.FromHours(value);
+			}
+			
+			case 'm':
+			{
+				return TimeSpan.FromMinutes(value);
+			}			
+		}
+		return TimeSpan.FromDays(value); 
+	}
+
 	// every new line is transformed to '\n'
 	// trailing and leading newlines are removed
 	protected string MassageDocString(string s)
@@ -1625,7 +1654,7 @@ re_literal returns [RELiteralExpression re] { re = null; }:
 protected
 timespan_literal returns [TimeSpanLiteralExpression tsle] { tsle = null; }:
 	value:TIMESPAN
-	{ tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), value.getText()); }
+	{ tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), ParseTimeSpan(value.getText())); }
 	;
 
 protected

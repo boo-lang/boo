@@ -57,6 +57,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding IntTypeBinding;
 		
+		public ExternalTypeBinding TimeSpanTypeBinding;
+		
 		public ExternalTypeBinding SingleTypeBinding;
 		
 		public ExternalTypeBinding RuntimeServicesBinding;
@@ -86,6 +88,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(ByteTypeBinding = new ExternalTypeBinding(this, Types.Byte));
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
 			Cache(SingleTypeBinding = new ExternalTypeBinding(this, Types.Single));
+			Cache(TimeSpanTypeBinding = new ExternalTypeBinding(this, Types.TimeSpan));
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));

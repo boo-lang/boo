@@ -98,6 +98,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static ConstructorInfo List_IntConstructor = Types.List.GetConstructor(new Type[] { typeof(int) });
 		
+		static ConstructorInfo TimeSpan_LongConstructor = Types.TimeSpan.GetConstructor(new Type[] { typeof(long) });
+		
 		static ConstructorInfo Object_Constructor = Types.Object.GetConstructor(new Type[0]);
 		
 		static MethodInfo List_Add = Types.List.GetMethod("Add", new Type[] { Types.Object });
@@ -760,6 +762,13 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 			}
+		}
+		
+		public override void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
+		{
+			_il.Emit(OpCodes.Ldc_I8, node.Value.Ticks);
+			_il.Emit(OpCodes.Newobj, TimeSpan_LongConstructor);
+			PushType(BindingManager.TimeSpanTypeBinding);
 		}
 		
 		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)

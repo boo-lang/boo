@@ -59,6 +59,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static readonly Type Int = typeof(int);
 		
+		public static readonly Type TimeSpan = typeof(TimeSpan);
+		
 		public static readonly Type Single = typeof(float);
 		
 		public static readonly Type Date = typeof(System.DateTime);

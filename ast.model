@@ -403,7 +403,7 @@ package Boo.Ast
 	end
 	
 	class TimeSpanLiteralExpression(LiteralExpression)
-		Value as string
+		Value as TimeSpan
 	end
 	
 	class IntegerLiteralExpression(LiteralExpression)
