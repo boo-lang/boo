@@ -12,21 +12,17 @@ using System.ComponentModel;
 using ICSharpCode.SharpDevelop.Gui.Components;
 using ICSharpCode.SharpDevelop.Internal.Project;
 
-namespace CSharpBinding
+namespace BooBinding
 {
-	public enum CompileTarget {
+	public enum CompileTarget 
+	{
 		Exe, 
 		WinExe, 
-		Library,
-		Module
+		Library
 	};
 	
-	public enum CsharpCompiler {
-		Csc,
-		Mcs
-	};
-	
-	public enum NetRuntime {
+	public enum NetRuntime 
+	{
 		Mono,
 		MonoInterpreter,
 		MsNet
@@ -35,7 +31,7 @@ namespace CSharpBinding
 	/// <summary>
 	/// This class handles project specific compiler parameters
 	/// </summary>
-	public class CSharpCompilerParameters : AbstractProjectConfiguration
+	public class BooCompilerParameters : AbstractProjectConfiguration
 	{
 		[XmlNodeName("CodeGeneration")]
 		public class CodeGeneration 
@@ -43,11 +39,8 @@ namespace CSharpBinding
 			[XmlAttribute("runtime")]
 			public NetRuntime netRuntime         = NetRuntime.MsNet;
 			
-			[XmlAttribute("compiler")]
-			public CsharpCompiler csharpCompiler = CsharpCompiler.Csc;
-			
 			[XmlAttribute("warninglevel")]
-			public int  warninglevel       = 4;
+			public int  warninglevel       = 3;
 			
 			[XmlAttribute("nowarn")]
 			public string noWarnings      = String.Empty;
@@ -95,46 +88,27 @@ namespace CSharpBinding
 		protected Execution      execution      = new Execution();
 		
 		[Browsable(false)]
-		public CsharpCompiler CsharpCompiler {
-			get {
-				return codeGeneration.csharpCompiler;
-			}
-			set {
-				codeGeneration.csharpCompiler = value;
-			}
+		public NetRuntime NetRuntime 
+		{
+			get { return codeGeneration.netRuntime; }
+			set { codeGeneration.netRuntime = value; }
 		}
 		
 		[Browsable(false)]
-		public NetRuntime NetRuntime {
-			get {
-				return codeGeneration.netRuntime;
-			}
-			set {
-				codeGeneration.netRuntime = value;
-			}
-		}
-		
-		[Browsable(false)]
-		public string Win32Icon {
-			get {
-				return codeGeneration.win32Icon;
-			}
-			set {
-				codeGeneration.win32Icon = value;
-			}
+		public string Win32Icon 
+		{
+			get { return codeGeneration.win32Icon; }
+			set { codeGeneration.win32Icon = value; }
 		}
 #region Code Generation
 		[DefaultValue("")]
 		[LocalizedProperty("${res:BackendBindings.CompilerOptions.CodeGeneration.MainClass}",
 		                   Category    = "${res:BackendBindings.CompilerOptions.CodeGeneration}",
 		                   Description = "${res:BackendBindings.CompilerOptions.CodeGeneration.MainClass.Description}")]
-		public string MainClass {
-			get {
-				return codeGeneration.mainclass;
-			}
-			set {
-				codeGeneration.mainclass = value;
-			}
+		public string MainClass 
+		{
+			get { return codeGeneration.mainclass; }
+			set { codeGeneration.mainclass = value; }
 		}
 		
 		[DefaultValue("")]
@@ -142,143 +116,111 @@ namespace CSharpBinding
 		                   Category    = "${res:BackendBindings.CompilerOptions.CodeGeneration}",
 		                   Description = "${res:BackendBindings.CompilerOptions.CodeGeneration.DefineSymbols.Description}")]
 		public string DefineSymbols {
-			get {
-				return codeGeneration.definesymbols;
-			}
-			set {
-				codeGeneration.definesymbols = value;
-			}
+			get { return codeGeneration.definesymbols; }
+			set { codeGeneration.definesymbols = value; }
 		}
 		
 		[DefaultValue(true)]
 		[LocalizedProperty("${res:BackendBindings.CompilerOptions.CodeGeneration.DebugMode}",
 		                   Category    = "${res:BackendBindings.CompilerOptions.CodeGeneration}",
 		                   Description = "${res:BackendBindings.CompilerOptions.CodeGeneration.DebugMode.Description}")]
-		public bool Debugmode {
-			get {
-				return codeGeneration.debugmode;
-			}
-			set {
-				codeGeneration.debugmode = value;
-			}
+		public bool Debugmode 
+		{
+			get { return codeGeneration.debugmode; }
+			set { codeGeneration.debugmode = value; }
 		}
 		
 		[DefaultValue(true)]
 		[LocalizedProperty("${res:BackendBindings.CompilerOptions.CodeGeneration.Optimize}",
 		                   Category    = "${res:BackendBindings.CompilerOptions.CodeGeneration}",
 		                   Description = "${res:BackendBindings.CompilerOptions.CodeGeneration.Optimize.Description}")]
-		public bool Optimize {
-			get {
-				return codeGeneration.optimize;
-			}
-			set {
-				codeGeneration.optimize = value;
-			}
+		public bool Optimize 
+		{
+			get { return codeGeneration.optimize; }
+			set { codeGeneration.optimize = value; }
 		}
 		
 		[DefaultValue(false)]
 		[LocalizedProperty("${res:BackendBindings.CompilerOptions.CodeGeneration.UnsafeCode}",
 		                   Category    = "${res:BackendBindings.CompilerOptions.CodeGeneration}",
 		                   Description = "${res:BackendBindings.CompilerOptions.CodeGeneration.UnsafeCode.Description}")]
-		public bool UnsafeCode {
-			get {
-				return codeGeneration.unsafecode;
-			}
-			set {
-				codeGeneration.unsafecode = value;
-			}
+		public bool UnsafeCode 
+		{
+			get { return codeGeneration.unsafecode; }
+			set { codeGeneration.unsafecode = value; }
 		}
 		
 		[DefaultValue(true)]
 		[LocalizedProperty("${res:BackendBindings.CompilerOptions.CodeGeneration.GenerateOverflowChecks}",
 		                   Category    = "${res:BackendBindings.CompilerOptions.CodeGeneration}",
 		                   Description = "${res:BackendBindings.CompilerOptions.CodeGeneration.GenerateOverflowChecks.Description}")]
-		public bool GenerateOverflowChecks {
-			get {
-				return codeGeneration.generateOverflowChecks;
-			}
-			set {
-				codeGeneration.generateOverflowChecks = value;
-			}
+		public bool GenerateOverflowChecks 
+		{
+			get { return codeGeneration.generateOverflowChecks; }
+			set { codeGeneration.generateOverflowChecks = value; }
 		}
 		
 		[DefaultValue(false)]
 		[LocalizedProperty("${res:BackendBindings.CompilerOptions.CodeGeneration.GenerateXmlDocumentation}",
 		                   Category    = "${res:BackendBindings.CompilerOptions.CodeGeneration}",
 		                   Description = "${res:BackendBindings.CompilerOptions.CodeGeneration.GenerateXmlDocumentation.Description}")]
-		public bool GenerateXmlDocumentation {
-			get {
-				return codeGeneration.generateXmlDocumentation;
-			}
-			set {
-				codeGeneration.generateXmlDocumentation = value;
-			}
+		public bool GenerateXmlDocumentation 
+		{
+			get { return codeGeneration.generateXmlDocumentation; }
+			set { codeGeneration.generateXmlDocumentation = value; }
 		}
 		
 #endregion
 
 #region Errors and Warnings 
-		[DefaultValue(4)]
+		[DefaultValue(3)]
 		[LocalizedProperty("${res:BackendBindings.CompilerOptions.WarningAndErrorCategory.WarningLevel}",
 		                   Category    = "${res:BackendBindings.CompilerOptions.WarningAndErrorCategory}",
 		                   Description = "${res:BackendBindings.CompilerOptions.WarningAndErrorCategory.WarningLevel.Description}")]
-		public int WarningLevel {
-			get {
-				return codeGeneration.warninglevel;
-			}
-			set {
-				codeGeneration.warninglevel = value;
-			}
+		public int WarningLevel 
+		{
+			get { return codeGeneration.warninglevel; }
+			set { codeGeneration.warninglevel = value; }
 		}
 		
 		[DefaultValue("")]
 		[LocalizedProperty("${res:BackendBindings.CompilerOptions.WarningAndErrorCategory.NoWarnings}",
 		                   Category    = "${res:BackendBindings.CompilerOptions.WarningAndErrorCategory}",
 		                   Description = "${res:BackendBindings.CompilerOptions.WarningAndErrorCategory.NoWarnings.Description}")]
-		public string NoWarnings {
-			get {
-				return codeGeneration.noWarnings;
-			}
-			set {
-				codeGeneration.noWarnings = value;
-			}
+		public string NoWarnings 
+		{
+			get { return codeGeneration.noWarnings; }
+			set { codeGeneration.noWarnings = value; }
 		}
+
 #endregion
+
 		[Browsable(false)]
-		public string CommandLineParameters {
-			get {
-				return execution.commandLineParameters;
-			}
-			set {
-				execution.commandLineParameters = value;
-			}
+		public string CommandLineParameters 
+		{
+			get { return execution.commandLineParameters; }
+			set { execution.commandLineParameters = value; }
 		}
 		
 		[Browsable(false)]
-		public bool PauseConsoleOutput {
-			get {
-				return execution.pauseconsoleoutput;
-			}
-			set {
-				execution.pauseconsoleoutput = value;
-			}
+		public bool PauseConsoleOutput 
+		{
+			get { return execution.pauseconsoleoutput; }
+			set { execution.pauseconsoleoutput = value; }
 		}
-		
-		
+				
 		[Browsable(false)]
-		public CompileTarget CompileTarget {
-			get {
-				return codeGeneration.compiletarget;
-			}
-			set {
-				codeGeneration.compiletarget = value;
-			}
+		public CompileTarget CompileTarget 
+		{
+			get { return codeGeneration.compiletarget; }
+			set { codeGeneration.compiletarget = value; }
 		}
 		
-		public CSharpCompilerParameters()
+		public BooCompilerParameters()
 		{
 		}
-		public CSharpCompilerParameters(string name)
+
+		public BooCompilerParameters(string name)
 		{
 			this.name = name;
 		}

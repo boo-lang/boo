@@ -1,0 +1,241 @@
+<AddIn name        = "SharpDevelop Bindings"
+       author      = "Mike Krueger"
+       copyright   = "GPL"
+       url         = "http://www.icsharpcode.net"
+       description = "NCvs core module"
+       version     = "1.0.0">
+	
+	<Runtime>
+		<Import assembly = "CSharpBinding.dll"/>
+		<Import assembly = "JavaBinding.dll"/>
+<!--		<Import assembly = "JScriptLanguageModule.dll"/> -->
+		<Import assembly = "VBNetBinding.dll"/>
+		<Import assembly = "BooBinding.dll" />
+	</Runtime>
+
+	<Extension path = "/SharpDevelop/Workbench/Ambiences">
+		<Class id    = "CSharp"
+		       class = "ICSharpCode.SharpDevelop.Services.CSharpAmbience"/>
+		<Class id    = "VB.NET"
+		       class = "ICSharpCode.SharpDevelop.Services.VBAmbience"/>
+	</Extension>
+	
+	<Extension path = "/SharpDevelop/Workbench/FileFilter">
+		<FileFilter id = "Boo"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.BooFiles}"
+			    extensions = "*.boo"/>
+
+		<FileFilter id = "CSharp"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.CSharpFiles}"
+			    extensions = "*.cs"/>
+		<FileFilter id = "VBNET"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.VBNetFiles}"
+		            extensions = "*.vb"/>
+<!--		<FileFilter id = "JScript"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.JScriptFiles}"
+		            extensions = "*.js"/> -->
+		<FileFilter id = "Java"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.JavaFiles}"
+		            extensions = "*.java"/>
+		<FileFilter id = "Assemblies"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.AssemblyFiles}"
+		            extensions = "*.exe,*.dll"/>
+			    
+		<FileFilter id = "Html"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.WebFiles}"
+		            extensions = "*.htm,*.html,*.aspx,*.ascx,*.asp"/>
+			    
+		<FileFilter id = "Xml"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.XmlFiles}"
+		            extensions = "*.xml"/>
+		<FileFilter id = "Resources"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.ResourceFiles}"
+		            extensions = "*.resources,*.resx"/>
+		<FileFilter id = "SharpDevelop templates"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.SharpDevelopTemplates}"
+		            extensions = "*.xft,*.xpt"/>
+		<FileFilter id = "SharpDevelop XFrms"
+		            insertbefore="AllFiles"
+		            name = "${res:SharpDevelop.FileFilter.XmlForms}"
+		            extensions = "*.xfrm"/>
+	</Extension>
+
+	<Extension path = "/Workspace/Parser">
+		<Class id    = "CSharpParser" 
+		       class = "CSharpBinding.Parser.TParser"/>
+		<Class id    = "VBNetParser" 
+		       class = "VBBinding.Parser.TParser"/>
+	</Extension>
+	
+	<Extension path = "/SharpDevelop/Workbench/ProjectOptions/ConfigurationProperties">
+		<Conditional activeproject="Boo">
+			<DialogPanel id = "BooCodeGenerationPanel"
+			             label = "${res:Dialog.Options.PrjOptions.CodeGenerationPanel.PanelName}"
+			             class = "BooBinding.CodeGenerationPanel"/>
+			<DialogPanel id = "BooOutputOptionsPanel"
+			             label = "${res:Dialog.Options.PrjOptions.OutputOptionsPanel.PanelName}"
+			             class = "BooBinding.OutputOptionsPanel"/>
+			<DialogPanel id = "BooRuntimeCompilerPanel"
+			             label = "Runtime/Compiler"
+			             class = "BooBinding.ChooseRuntimePanel"/>
+		</Conditional>
+
+		<Conditional activeproject="C#">
+			<DialogPanel id = "CSharpCodeGenerationPanel"
+			             label = "${res:Dialog.Options.PrjOptions.CodeGenerationPanel.PanelName}"
+			             class = "CSharpBinding.CodeGenerationPanel"/>
+			<DialogPanel id = "CSharpOutputOptionsPanel"
+			             label = "${res:Dialog.Options.PrjOptions.OutputOptionsPanel.PanelName}"
+			             class = "CSharpBinding.OutputOptionsPanel"/>
+			<DialogPanel id = "CSharpRuntimeCompilerPanel"
+			             label = "Runtime/Compiler"
+			             class = "CSharpBinding.ChooseRuntimePanel"/>
+		</Conditional>
+		<Conditional activeproject="VBNET">
+			<DialogPanel id = "VBCodeGenerationPanel"
+			             label = "${res:Dialog.Options.PrjOptions.CodeGenerationPanel.PanelName}"
+			             class = "VBBinding.CodeGenerationPanel"/>
+			<DialogPanel id = "VBOutputOptionsPanel"
+			             label = "${res:Dialog.Options.PrjOptions.OutputOptionsPanel.PanelName}"
+			             class = "VBBinding.OutputOptionsPanel"/>
+			<DialogPanel id = "VBDOCConfigurationPanel"
+			             label = "VB.DOC"
+			             class = "VBBinding.VBDOCConfigurationPanel"/>
+		</Conditional>
+<!--		<Conditional activeproject="JScript">
+			<DialogPanel id = "JScriptProjectPanel"
+			             label = "${res:Dialog.Options.PrjOptions.CodeGenerationPanel.PanelName}"
+			             class = "JScriptBinding.ProjectConfigurationPropertyPanel"/>
+	
+		</Conditional> -->
+		<Conditional activeproject="Java">
+			<DialogPanel id = "JavaProjectPanel"
+			             label = "${res:Dialog.Options.PrjOptions.CodeGenerationPanel.PanelName}"
+			             class = "JavaBinding.ProjectConfigurationPropertyPanel"/>
+	
+		</Conditional>
+	</Extension>
+	
+	<Extension path = "/SharpDevelop/Dialogs/OptionsDialog/TextEditorOptions">
+		<DialogPanel id = "VBSpecificOptions"
+		             label = "${res:Dialog.Options.IDEOptions.TextEditor.VB.PanelName}"
+			     	 insertafter = "Behavior"
+		             class = "VBBinding.TextEditorOptionsPanel"/>
+	</Extension>
+		
+	<Extension path = "/AddIns/DefaultTextEditor/Formater">
+		<Conditional textcontent = "Boo">
+			<Class id ="BooFormatter" insertbefore="DefaultFormatter" class = "BooBinding.FormattingStrategy.BooFormattingStrategy"/>
+		</Conditional>
+
+		<Conditional textcontent = "C#">
+			<Class id ="CSharpFormatter" insertbefore="DefaultFormatter" class = "CSharpBinding.FormattingStrategy.CSharpFormattingStrategy"/>
+		</Conditional>
+		<Conditional textcontent = "VBNET">
+			<Class id ="VBNetFormatter" insertbefore="DefaultFormatter" class ="VBBinding.FormattingStrategy.VBFormattingStrategy"/>
+		</Conditional>
+		<Conditional textcontent = "Java">
+			<Class id ="JavaFormatter" insertbefore="DefaultFormatter" class = "JavaBinding.FormattingStrategy.JavaFormattingStrategy"/>
+		</Conditional>
+	</Extension>
+	
+	<Extension path = "/Workspace/Icons">
+		<!-- Boo -->
+		<Icon id         = "BooPrj"
+		      language   = "Boo"
+		      resource   = "C#.ProjectIcon"/>
+
+		<Icon id         = "BooFile"
+		      extensions = ".boo"
+		      resource   = "C#.FileIcon"/>
+
+		<!-- C# -->
+		<Icon id         = "C#Prj"
+		      language   = "C#"
+		      resource   = "C#.ProjectIcon"/>
+
+		<Icon id         = "C#File"
+		      extensions = ".cs"
+		      resource   = "C#.FileIcon"/>
+		
+		<!-- VB.NET -->
+		<Icon id         = "VBPrj"
+		      language   = "VBNET"
+		      resource   = "VB.ProjectIcon"/>
+		<Icon id         = "VBFile"
+		      extensions = ".vb"
+		      resource   = "VB.FileIcon"/>
+
+		<!-- Java -->
+                <Icon id         = "JavaPrj"
+		      language   = "Java"
+		      resource   = "Java.ProjectIcon"/>
+                <Icon id         = "JavaFile"
+		      extensions = ".java"
+		      resource   = "Java.FileIcon"/>
+		      
+		<!-- Java Script -->
+                <Icon id         = "JScriptPrj"
+		      language   = "JScript"
+		      resource   = "JScript.ProjectIcon"/>
+                <Icon id         = "JScriptFile"
+		      extensions = ".js"
+		      resource   = "JScript.FileIcon"/>
+		
+		<!-- C++ -->
+                <Icon id         = "C++Project"
+		      language   = "C++"
+		      resource   = "C++.ProjectIcon"/>
+                <Icon id         = "C++File"
+		      extensions = ".cpp"
+		      resource   = "C++.FileIcon"/>
+		
+		<!-- Resources -->
+		<Icon id         = "ResourceFileIcon"
+		      extensions = ".resources,.resx"
+		      resource   = "Icons.16x16.ResourceFileIcon" />
+		<!-- XML -->
+		<Icon id         = "XmlFileIcon"
+		      extensions = ".xml"
+		      resource   = "FileIcons.XmlIcon" />
+		<!-- TextFiles -->
+		<Icon id         = "TextFileIcon"
+		      extensions = ".txt,.doc"
+		      resource   = "Icons.16x16.TextFileIcon"/>
+	</Extension>
+	
+	<Extension path = "/SharpDevelop/Workbench/LanguageBindings">
+		<LanguageBinding id    = "Boo"
+		                 supportedextensions = ".boo"
+		                 class = "BooBinding.BooLanguageBinding" />
+
+		<LanguageBinding id    = "CSharp"
+		                 supportedextensions = ".cs"
+		                 class = "CSharpBinding.CSharpLanguageBinding" />
+		<LanguageBinding id    = "VBNET"
+		                 supportedextensions = ".vb"
+		                 class = "VBBinding.VBLanguageBinding" />
+		<LanguageBinding id    = "Java"
+		                 supportedextensions = ".java"
+		                 class = "JavaBinding.JavaLanguageBinding" />
+<!--		<LanguageBinding id    = "JScript"
+		                 supportedextensions = ".js"
+		                 class = "JScriptBinding.JScriptLanguageBinding" /> -->
+	</Extension>
+	
+	<Extension path = "/SharpDevelop/Views/ProjectBrowser/NodeBuilders">
+		<Class id = "JavaNodeBuilder"
+		       insertbefore = "DefaultBuilder"
+		       class = "JavaBinding.JavaNodeBuilder"/>
+	</Extension>
+</AddIn>
