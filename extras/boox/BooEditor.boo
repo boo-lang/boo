@@ -11,6 +11,8 @@ import System.Drawing
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipeline.Definitions
+import Boo.AntlrParser
+import Boo.Lang.Compiler.Ast
 
 class BooEditor(Content):
 	
@@ -22,6 +24,11 @@ class BooEditor(Content):
 	
 	[getter(IsDirty)]
 	_dirty = false
+	
+	_moduleDirty = true
+	
+	[getter(Module)]
+	_module as Module
 	
 	def constructor(main as MainForm):
 		_main = main		
@@ -81,6 +88,7 @@ class BooEditor(Content):
 		self.Text = _fname
 	
 	def _editor_DocumentChanged(sender, args as DocumentEventArgs):
+		_moduleDirty = true
 		if not _dirty:
 			self.Text = "${GetSafeFileName()} (modified)"
 			_dirty = true
@@ -110,6 +118,17 @@ class BooEditor(Content):
 				result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
 			except x:
 				print(x)
+				
+	def UpdateModule():
+		return unless _moduleDirty
+			
+		fname = self.Text
+		code = self.TextContent
+		try:
+			_module = BooParser.ParseString(fname, code).Modules[0]
+			_moduleDirty = false
+		except x:
+			print(x)
 		
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)

@@ -4,7 +4,6 @@ import WeifenLuo.WinFormsUI
 import System
 import System.Windows.Forms
 import System.Drawing
-import Boo.AntlrParser
 import Boo.Lang.Compiler.Ast
 
 class DocumentOutline(Content):
@@ -12,6 +11,8 @@ class DocumentOutline(Content):
 	_activeDocument as BooEditor
 	_tree as TreeView
 	_treeViewVisitor as TreeViewVisitor
+	_timer = Timer(Tick: _timer_Tick, Interval: 5s.TotalMilliseconds)
+	_module as Module
 	
 	def constructor():
 		_tree = TreeView(Dock: DockStyle.Fill,
@@ -37,24 +38,23 @@ class DocumentOutline(Content):
 	ActiveDocument as BooEditor:
 		set:
 			_activeDocument = value
+			_timer.Enabled = value is not null
 			Update() if self.Visible
 
 	def Update():
 		if _activeDocument is null:
 			_tree.Nodes.Clear()
 		else:
-			fname = _activeDocument.Text
-			code = _activeDocument.TextContent
-			Update(fname, code)
-			
-	def Update(fname as string, code as string):
-		try:
-			UpdateTree(BooParser.ParseString(fname, code))
-		except x:
-			print(x)
+			_activeDocument.UpdateModule()
+			UpdateTree(_activeDocument.Module)
 	
-	def UpdateTree(cu as CompileUnit):
-		_treeViewVisitor.Switch(cu)
+	def UpdateTree(module as Module):
+		if module is not _module:
+			_module = module
+			_treeViewVisitor.Switch(_module)
+		
+	def _timer_Tick(sender, args as EventArgs):
+		Update()
 		
 	def _tree_DoubleClick(sender, args as EventArgs):
 		return unless _activeDocument
@@ -73,25 +73,23 @@ class TreeViewVisitor(DepthFirstSwitcher):
 	def constructor(tree):
 		_tree = tree
 		
-	override def OnCompileUnit(node as CompileUnit):
-		
-		_current = TreeNode("root")
-		Switch(node.Modules)
-		
-		_tree.SuspendLayout()
-		_tree.Nodes.Clear()
-		for node as TreeNode in _current.Nodes:			
-			_tree.Nodes.Add(node)
-		_tree.ExpandAll()
-		_tree.ResumeLayout(false)
-		
 	override def OnModule(node as Module):
+		
 		if node.Namespace:
 			name = node.Namespace.Name
 		else:
 			name = node.Name
-		_current = _tree.Nodes.Add(name)
+
+		_current = TreeNode("root")
 		Switch(node.Members)
+		
+		_tree.BeginUpdate()
+		_tree.Nodes.Clear()
+		if len(_current.Nodes):
+			_tree.Nodes.AddRange(tuple(TreeNode, _current.Nodes))
+			_tree.ExpandAll()
+			_tree.Nodes[0].EnsureVisible()
+		_tree.EndUpdate()
 		
 	override def OnProperty(node as Property):
 		Add(node.Name, node)		
