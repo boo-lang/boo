@@ -46,17 +46,17 @@ class PrettyPrinter(BooPrinterVisitor):
 	def constructor(writer as TextWriter):
 		super(writer)
 		
-	def Write(text as string):
+	override def Write(text as string):
 		Server.HtmlEncode(text, _writer)
 		
-	def WriteLine():		
+	override def WriteLine():		
 		_writer.Write("<br />")
 		super()
 		
-	def WriteKeyword(text as string):
+	override def WriteKeyword(text as string):
 		_writer.Write("<span class='keyword'>${text}</span>")
 		
-	def WriteOperator(text as string):
+	override def WriteOperator(text as string):
 		_writer.Write("<span class='operator'>${Server.HtmlEncode(text)}</span>")
 		
 	override def OnStringFormattingExpression(node as StringFormattingExpression):
@@ -64,14 +64,14 @@ class PrettyPrinter(BooPrinterVisitor):
 		super(node)	
 		_writer.Write("</span>")
 		
-	def WriteStringLiteral(text as string):
+	override def WriteStringLiteral(text as string):
 		_writer.Write("<span class='string'>")		
 		buffer = StringWriter()		
 		BooPrinterVisitor.WriteStringLiteral(text, buffer)
 		Server.HtmlEncode(buffer.ToString(), _writer)
 		_writer.Write("</span>")
 		
-	def OnIntegerLiteralExpression(node as IntegerLiteralExpression):
+	override def OnIntegerLiteralExpression(node as IntegerLiteralExpression):
 		_writer.Write("<span class='integer'>${node.Value}</span>")
 		
 
