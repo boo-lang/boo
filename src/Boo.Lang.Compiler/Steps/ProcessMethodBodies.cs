@@ -840,7 +840,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				type = GetMostGenericType(type, newType);
-				if (type == TypeSystemServices.ObjectType)
+				if (TypeSystemServices.IsSystemObject(type))
 				{
 					break;
 				}
@@ -2232,7 +2232,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				Expression target = node.Arguments[0];
 				IType type = GetExpressionType(target);
-				if (TypeSystemServices.ObjectType == type)
+				if (TypeSystemServices.IsSystemObject(type))
 				{
 					resultingNode = CreateMethodInvocation(RuntimeServices_Len, target);
 				}
@@ -2773,7 +2773,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CanBeString(IType type)
 		{
-			return TypeSystemServices.ObjectType == type ||
+			return TypeSystemServices.IsSystemObject(type) ||
 				TypeSystemServices.StringType == type;
 		}
 		
@@ -3032,7 +3032,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsRuntimeIterator(IType type)
 		{
-			return  TypeSystemServices.ObjectType == type ||
+			return  TypeSystemServices.IsSystemObject(type) ||
 					IsTextReader(type);					
 		}
 		

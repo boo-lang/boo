@@ -9,6 +9,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected IType _runtimeServices;
 		protected IMethod RuntimeServices_Invoke;
 		protected IMethod RuntimeServices_SetProperty;
+		protected IMethod RuntimeServices_GetProperty;
 		
 		override protected void InitializeMemberCache()
 		{
@@ -16,6 +17,7 @@ namespace Boo.Lang.Compiler.Steps
 			_runtimeServices = TypeSystemServices.Map(typeof(Boo.Lang.RuntimeServices));
 			RuntimeServices_Invoke = ResolveMethod(_runtimeServices, "Invoke");
 			RuntimeServices_SetProperty = ResolveMethod(_runtimeServices, "SetProperty");
+			RuntimeServices_GetProperty = ResolveMethod(_runtimeServices, "GetProperty");
 		}
 		
 		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)
@@ -46,7 +48,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (TypeSystemServices.DuckType == node.Target.ExpressionType)
 			{
-				Bind(node, BuiltinFunction.Quack);
+				if (AstUtil.IsTargetOfMethodInvocation(node) || 
+					AstUtil.IsLhsOfAssignment(node))
+				{
+					Bind(node, BuiltinFunction.Quack);
+				}
+				else
+				{
+					ProcessQuackPropertyGet(node);
+				}
 			}
 			else
 			{
@@ -57,6 +67,17 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsQuackBuiltin(IEntity entity)
 		{
 			return BuiltinFunction.Quack == entity;
+		}
+		
+		void ProcessQuackPropertyGet(MemberReferenceExpression node)
+		{
+			MethodInvocationExpression mie = CreateMethodInvocation(
+												RuntimeServices_GetProperty,
+												node.Target,
+												CreateStringLiteral(node.Name),
+												CreateNullLiteral());
+			BindExpressionType(mie, TypeSystemServices.DuckType);
+			node.ParentNode.Replace(node, mie);
 		}
 		
 		void ProcessQuackPropertySet(BinaryExpression node)
@@ -86,6 +107,13 @@ namespace Boo.Lang.Compiler.Steps
 			node.Arguments.Add(CreateStringLiteral(target.Name));
 			node.Arguments.Add(args);
 			BindExpressionType(node, TypeSystemServices.DuckType);
+		}
+		
+		NullLiteralExpression CreateNullLiteral()
+		{
+			NullLiteralExpression expression = new NullLiteralExpression();
+			BindExpressionType(expression, Null.Default);
+			return expression;
 		}
 	}
 }

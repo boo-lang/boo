@@ -44,6 +44,10 @@ namespace Boo.Lang
 		const BindingFlags SetPropertyBindingFlags = BindingFlags.Public|
 												BindingFlags.SetProperty|
 												BindingFlags.Instance;
+												
+		const BindingFlags GetPropertyBindingFlags = BindingFlags.Public|
+												BindingFlags.GetProperty|
+												BindingFlags.Instance;
 			
 		public static object Invoke(object target, string name, object[] args)
 		{
@@ -72,6 +76,22 @@ namespace Boo.Lang
 										target,
 										new object[] { value });
 				return value;
+			}
+			catch (TargetInvocationException x)
+			{
+				throw x.InnerException;
+			}
+		}
+		
+		public static object GetProperty(object target, string name, object[] args)
+		{
+			try
+			{
+				return target.GetType().InvokeMember(name,
+										GetPropertyBindingFlags,
+										null, 
+										target,
+										args);
 			}
 			catch (TargetInvocationException x)
 			{

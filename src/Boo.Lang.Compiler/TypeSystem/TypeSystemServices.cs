@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class TypeSystemServices
 	{			
-		public IType DuckType;
+		public DuckTypeImpl DuckType;
 		
 		public ExternalType ExceptionType;
 		
@@ -553,6 +553,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _primitives.ContainsKey(name);
 		}
 		
+		/// <summary>
+		/// checks if the passed type will be equivalente to
+		/// System.Object in runtime (accounting for the presence
+		/// of duck typing.
+		/// </summary>
+		public bool IsSystemObject(IType type)
+		{
+			return type == ObjectType || type == DuckType;
+		}
+		
 		void PreparePrimitives()
 		{
 			AddPrimitiveType("void", VoidType);
@@ -682,15 +692,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		public class DuckTypeImpl : ExternalType
-		{
+		{	
 			public DuckTypeImpl(TypeSystemServices typeSystemServices) : 
 				base(typeSystemServices, Types.Object)
 			{
-			}
-			
-			override public bool IsAssignableFrom(IType other)
-			{
-				return true;
 			}
 		}	
 		

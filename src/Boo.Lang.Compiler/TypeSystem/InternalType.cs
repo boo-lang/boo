@@ -114,7 +114,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					return true;
 				}
 			}
-			return false;
+			return _typeSystemServices.IsSystemObject(type);
 		}
 		
 		override public IConstructor[] GetConstructors()

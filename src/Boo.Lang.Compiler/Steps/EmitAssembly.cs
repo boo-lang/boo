@@ -2375,7 +2375,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (expectedType == TypeSystemServices.ObjectType)
+				if (TypeSystemServices.IsSystemObject(expectedType))
 				{
 					if (actualType.IsValueType)
 					{

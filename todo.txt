@@ -1,10 +1,10 @@
-﻿* software de blogging para a apresentação
+﻿* duck typing
+
+* software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms
 	* editor RichClient
 	* segurança com par chave pública/privada
-	
-* duck typing
 
 * callable type adaptation
 	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais

@@ -17,5 +17,11 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase("duck0.boo");
 		}
+		
+		[Test]
+		public void PropertyDuckTyping()
+		{
+			RunCompilerTestCase("duck1.boo");
+		}
 	}
 }
