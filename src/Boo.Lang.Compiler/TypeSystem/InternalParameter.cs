@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return TypeSystemServices.GetType(_parameter.Type);
+				return (IType)TypeSystemServices.GetEntity(_parameter.Type);
 			}
 		}
 		

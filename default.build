@@ -26,7 +26,11 @@
 	</target>
 	
 	<target name="test" depends="all">
-		<nant buildfile="tests/default.build" />
+		<nant buildfile="tests/default.build" target="run" />
+	</target>
+	
+	<target name="compile-tests" depends="all">
+		<nant buildfile="tests/default.build" target="compile" />
 	</target>
 	
 	<target name="booi" depends="Boo.NAnt">
