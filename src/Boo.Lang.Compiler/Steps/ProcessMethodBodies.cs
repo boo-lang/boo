@@ -573,7 +573,7 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessNodeInMethodContext(entity, entity, assignment);
 			method.Locals.RemoveByEntity(temp.Entity);
 				
-			IType initializerType = GetConcreteExpressionType(assignment.Right);
+			IType initializerType = ((ITypedEntity)temp.Entity).Type;
 			if (null == node.Type)
 			{
 				node.Type = CodeBuilder.CreateTypeReference(initializerType);

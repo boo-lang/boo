@@ -277,7 +277,8 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case NodeType.EnumDefinition:
 					{
-						types.Insert(0, member);
+						//types.Insert(0, member);
+						types.Add(member);
 						break;
 					}
 				}
