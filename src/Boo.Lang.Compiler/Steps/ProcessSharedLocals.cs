@@ -122,7 +122,7 @@ namespace Boo.Lang.Compiler.Steps
 		void Map()
 		{
 			IType type = (IType)_sharedLocalsClass.Entity;
-			LocalVariable locals = CodeBuilder.DeclareLocal(_currentMethod, "__locals__", type);
+			LocalVariable locals = CodeBuilder.DeclareLocal(_currentMethod, "___locals", type);
 			
 			foreach (ReferenceExpression reference in _references)
 			{
@@ -177,14 +177,14 @@ namespace Boo.Lang.Compiler.Steps
 			if (_shared.Count > 0)
 			{
 				BooClassBuilder builder = CodeBuilder.CreateClass(
-											string.Format("__locals{0}__", _context.AllocIndex()));
+											string.Format("___locals{0}", _context.AllocIndex()));
 				builder.AddBaseType(TypeSystemServices.ObjectType);
 				
 				int i=0;
 				foreach (ILocalEntity local in _shared)
 				{
 					Field field = builder.AddField(
-									string.Format("__{0}_{1}", local.Name, i),
+									string.Format("___{0}_{1}", local.Name, i),
 									local.Type);
 					field.Modifiers = TypeMemberModifiers.Internal;
 					++i;

@@ -29,18 +29,106 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
+	using System.Collections;
+	using Boo.Lang;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class StricterErrorChecking : AbstractVisitorCompilerStep
 	{
+		Hashtable _members = new Hashtable();
+		
 		override public void Run()
 		{
 			if (0 == Errors.Count)
 			{
 				Visit(CompileUnit);
 			}
+		}
+		
+		override public void Dispose()
+		{
+			_members.Clear();
+			base.Dispose();
+		}
+		
+		override public void LeaveEnumDefinition(EnumDefinition node)
+		{
+			_members.Clear();
+			foreach (TypeMember member in node.Members)
+			{
+				if (_members.ContainsKey(member.Name))
+				{
+					MemberNameConflict(member);
+				}
+				else
+				{
+					_members[member.Name] = member;
+				}
+			}
+		}
+		
+		override public void LeaveClassDefinition(ClassDefinition node)
+		{
+			_members.Clear();
+			
+			foreach (TypeMember member in node.Members)
+			{
+				List list = GetMemberList(member.Name);
+				switch (member.NodeType)
+				{
+					case NodeType.Constructor:
+					case NodeType.Method:
+					{
+						CheckMethodMember(list, (Method)member);
+						break;
+					}
+					
+					default:
+					{
+						CheckMember(list, member);
+						break;
+					}
+				}
+				list.Add(member);
+			}
+		}
+		
+		void CheckMember(List existing, TypeMember member)
+		{
+			if (existing.Count > 0)
+			{
+				MemberNameConflict(member);
+			}
+		}
+		
+		void CheckMethodMember(List existing, TypeMember member)
+		{
+			NodeType expectedNodeType = member.NodeType;
+			foreach (TypeMember existingMember in existing)
+			{
+				if (expectedNodeType != existingMember.NodeType)
+				{
+					MemberNameConflict(member);
+				}
+			}
+		}
+		
+		void MemberNameConflict(TypeMember member)
+		{
+			Error(CompilerErrorFactory.MemberNameConflict(member, member.DeclaringType.FullName, member.Name));
+		}
+		
+		List GetMemberList(string name)
+		{
+			List list = (List)_members[name];
+			if (null == list)
+			{
+				list = new List();
+				_members[name] = list;
+			}
+			return list;
 		}
 		
 		override public void LeaveConstructor(Constructor node)

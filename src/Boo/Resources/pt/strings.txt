@@ -87,6 +87,7 @@ BCE0085=Não é possível criar uma instância da classe abstrata '{0}'.
 BCE0086=Não é possível criar uma instância da interface '{0}'.
 BCE0087=Não é possível criar uma instância do enum '{0}'.
 BCE0088=O prefixo '{0}' é reservado para o compilador.
+BCE0089=O tipo '{0}' já possui uma definição para '{1}'.
 
 
 ; BooC Command Line Errors

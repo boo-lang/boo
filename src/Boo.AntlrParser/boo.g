@@ -631,7 +631,7 @@ event_declaration [TypeMemberCollection container]
 	t:EVENT!
 	id:ID AS! tr=type_reference eos
 	{
-		e = new Event(ToLexicalInfo(t), id.getText(), tr);
+		e = new Event(ToLexicalInfo(id), id.getText(), tr);
 		e.Modifiers = _modifiers;
 		AddAttributes(e.Attributes);
 		container.Add(e);

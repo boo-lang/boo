@@ -471,6 +471,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0088", node.LexicalInfo, prefix); 
 		}
 		
+		public static CompilerError MemberNameConflict(Node node, string typeName, string memberName)
+		{
+			return new CompilerError("BCE0089", node.LexicalInfo, typeName, memberName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

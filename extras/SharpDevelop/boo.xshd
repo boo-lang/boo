@@ -183,11 +183,6 @@
 				<Key word="as"/>
 			</KeyWords>
 
-			<KeyWords name="MethodParameters" bold="true" italic="false" color="DeepPink" >
-				<Key word="ref"/>
-				<Key word="out"/>
-			</KeyWords>
-
 			<KeyWords name="Modifiers" bold="false" italic="false" color="Brown" >
 				<Key word="override"/>
 				<Key word="static"/>
@@ -257,6 +252,7 @@
 				<Key word="interface"/>
 				<Key word="mixin"/>
 				<Key word="callable"/>
+				<Key word="do" />
 			</KeyWords>
 
 		</RuleSet>

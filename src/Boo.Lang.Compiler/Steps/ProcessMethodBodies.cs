@@ -373,7 +373,7 @@ namespace Boo.Lang.Compiler.Steps
 						type.FullName));
 			}
 			
-			Field backingField = CodeBuilder.CreateField("__" + node.Name, type);
+			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
 			node.DeclaringType.Members.Add(backingField);
 			
 			if (null == node.Add)
@@ -559,13 +559,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Method method = new Method();
 				method.LexicalInfo = node.LexicalInfo;
-				method.Name = "__initializer__";
+				method.Name = "___initializer";
 				method.Modifiers = node.Modifiers;
 				
 				BinaryExpression assignment = new BinaryExpression(
 						node.LexicalInfo,
 						BinaryOperatorType.Assign,
-						new ReferenceExpression("__temp__"),
+						new ReferenceExpression("___temp"),
 						initializer.CloneNode());
 						
 				method.Body.Add(assignment);
@@ -718,7 +718,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			Method closure = CodeBuilder.CreateMethod(
-								"__closure" + _context.AllocIndex() + "__",
+								"___closure" + _context.AllocIndex(),
 								Unknown.Default,
 								modifiers);
 			InternalMethod closureEntity = (InternalMethod)closure.Entity;
@@ -1423,7 +1423,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
-														string.Format("__generator{0}__", _context.AllocIndex()),
+														string.Format("___generator{0}", _context.AllocIndex()),
 														TypeMemberModifiers.Private|TypeMemberModifiers.Final);
 			builder.AddBaseType(TypeSystemServices.Map(typeof(Boo.Lang.AbstractGenerator)));
 			builder.AddAttribute(CodeBuilder.CreateAttribute(
@@ -1588,7 +1588,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (NodeType.Field != node.ParentNode.NodeType)
 			{		
-				ReplaceByStaticFieldReference(node, "__re" + _context.AllocIndex() + "__", type);				
+				ReplaceByStaticFieldReference(node, "___re" + _context.AllocIndex(), type);				
 			}
 		}
 		
@@ -1954,7 +1954,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Declaration)
 			{
 				node.Declaration = new Declaration(node.LexicalInfo,
-												"__exception__",
+												"___exception",
 												CodeBuilder.CreateTypeReference(TypeSystemServices.ExceptionType));
 			}
 			else
@@ -3809,7 +3809,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ReferenceExpression CreateTempLocal(LexicalInfo li, IType type)
 		{
-			string name = string.Format("__temp{0}__", _currentMethod.Method.Locals.Count);
+			string name = string.Format("___temp{0}", _currentMethod.Method.Locals.Count);
 			
 			ReferenceExpression reference = new ReferenceExpression(li, name);
 			BindExpressionType(reference, type);

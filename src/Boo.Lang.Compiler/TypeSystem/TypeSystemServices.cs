@@ -818,7 +818,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			Boo.Lang.Compiler.Ast.Module module = GetAnonymousTypesModule();
 			
-			string name = string.Format("__callable{0}__", module.Members.Count);
+			string name = string.Format("___callable{0}", module.Members.Count);
 			ClassDefinition cd = CreateCallableDefinition(name);
 			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;
