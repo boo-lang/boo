@@ -1127,6 +1127,24 @@ namespace Boo.Lang.Compiler.Tests
 		}
 		
 		[Test]
+		public void InterfaceProperties()
+		{
+			RunCompilerTestCase("interface9.boo");
+		}
+		
+		[Test]
+		public void ClassImplementsInterfaceProperties()
+		{
+			RunCompilerTestCase("interface10.boo");
+		}
+		
+		[Test]
+		public void ClassImplementsPropertyfromBaseInterfaceBaseInterface()
+		{
+			RunCompilerTestCase("interface11.boo");
+		}
+		
+		[Test]
 		public void ArrayEquality()
 		{
 			RunCompilerTestCase("array_equality.boo");

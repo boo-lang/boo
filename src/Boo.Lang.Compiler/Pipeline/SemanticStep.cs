@@ -137,26 +137,26 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (0 == Errors.Count)
 			{
-				ResolveClassInterfaceMethods();
+				ResolveClassInterfaceMembers();
 			}
 		}		
 		
-		void ResolveClassInterfaceMethods()
+		void ResolveClassInterfaceMembers()
 		{
 			foreach (ClassDefinition node in _classes)
 			{
-				ResolveClassInterfaceMethods(node);
+				ResolveClassInterfaceMembers(node);
 			}
 		}
 		
-		void ResolveClassInterfaceMethods(ClassDefinition node)
+		void ResolveClassInterfaceMembers(ClassDefinition node)
 		{	
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
 				ITypeBinding binding = GetBoundType(baseType);
 				if (binding.IsInterface)
 				{
-					ResolveClassInterfaceMethods(node, baseType, binding);
+					ResolveClassInterfaceMembers(node, baseType, binding);
 				}
 			}
 		}
@@ -176,13 +176,85 @@ namespace Boo.Lang.Compiler.Pipeline
 			return method;
 		}
 		
-		void ResolveClassInterfaceMethods(ClassDefinition node,
+		bool CheckPropertyAccessors(IPropertyBinding expected, IPropertyBinding actual)
+		{			
+			return CheckPropertyAccessor(expected.GetGetMethod(), actual.GetGetMethod()) &&
+				CheckPropertyAccessor(expected.GetSetMethod(), actual.GetSetMethod());
+		}
+		
+		bool CheckPropertyAccessor(IMethodBinding expected, IMethodBinding actual)
+		{			
+			if (null != expected)
+			{								
+				if (null == actual ||
+					!CheckOverrideSignature(expected, actual))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		void ResolveClassInterfaceProperty(ClassDefinition node,
+											TypeReference interfaceReference,
+											IPropertyBinding binding)
+		{
+			TypeMember member = node.Members[binding.Name];
+			if (null != member && NodeType.Property == member.NodeType)
+			{
+				if (binding.BoundType == GetBoundType(member))
+				{
+					if (CheckPropertyAccessors(binding, (IPropertyBinding)GetBinding(member)))
+					{
+						Property p = (Property)member;
+						if (null != p.Getter)
+						{
+							p.Getter.Modifiers |= TypeMemberModifiers.Virtual;
+						}
+						if (null != p.Setter)
+						{
+							p.Setter.Modifiers |= TypeMemberModifiers.Virtual;
+						}
+					}
+				}
+			}
+			//node.Members.Add(CreateAbstractProperty(interfaceReference, binding));
+			//node.Modifiers |= TypeMemberModifiers.Abstract;
+		}
+		
+		void ResolveClassInterfaceMethod(ClassDefinition node,
+										TypeReference interfaceReference,
+										IMethodBinding binding)
+		{
+			
+			TypeMember member = node.Members[binding.Name];
+			if (null != member && NodeType.Method == member.NodeType)
+			{							
+				Method method = (Method)member;
+				if (CheckOverrideSignature((IMethodBinding)GetBinding(method), binding))
+				{
+					// TODO: check return type here
+					if (!method.IsOverride && !method.IsVirtual)
+					{
+						method.Modifiers |= TypeMemberModifiers.Virtual;
+					}
+					
+					_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, binding);
+					return;
+				}
+			}
+			
+			node.Members.Add(CreateAbstractMethod(interfaceReference, binding));
+			node.Modifiers |= TypeMemberModifiers.Abstract;
+		}
+		
+		void ResolveClassInterfaceMembers(ClassDefinition node,
 											TypeReference interfaceReference,
 											ITypeBinding interfaceBinding)
 		{			
 			foreach (ITypeBinding binding in interfaceBinding.GetInterfaces())
 			{
-				ResolveClassInterfaceMethods(node, interfaceReference, binding);
+				ResolveClassInterfaceMembers(node, interfaceReference, binding);
 			}
 			
 			foreach (IMemberBinding binding in interfaceBinding.GetMembers())
@@ -191,26 +263,13 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					case BindingType.Method:
 					{
-						IMethodBinding interfaceMethod = (IMethodBinding)binding;
-						TypeMember member = node.Members[interfaceMethod.Name];
-						if (null != member && NodeType.Method == member.NodeType)
-						{							
-							Method method = (Method)member;
-							if (CheckOverrideSignature((IMethodBinding)GetBinding(method), interfaceMethod))
-							{
-								// TODO: check return type here
-								if (!method.IsOverride && !method.IsVirtual)
-								{
-									method.Modifiers |= TypeMemberModifiers.Virtual;
-								}
-								
-								_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, interfaceMethod);
-								continue;
-							}
-						}
-						
-						node.Members.Add(CreateAbstractMethod(interfaceReference, interfaceMethod));
-						node.Modifiers |= TypeMemberModifiers.Abstract;
+						ResolveClassInterfaceMethod(node, interfaceReference, (IMethodBinding)binding);
+						break;
+					}
+					
+					case BindingType.Property:
+					{
+						ResolveClassInterfaceProperty(node, interfaceReference, (IPropertyBinding)binding);
 						break;
 					}
 					
