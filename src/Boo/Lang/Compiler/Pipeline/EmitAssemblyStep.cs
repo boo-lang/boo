@@ -647,7 +647,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					OpCode code = OpCodes.Call;
 					PropertyInfo property = GetPropertyInfo(binding);
-					MethodInfo getMethod = property.GetGetMethod();
+					MethodInfo getMethod = property.GetGetMethod(true);
 					if (!getMethod.IsStatic)
 					{
 						node.Target.Switch(this);
@@ -783,7 +783,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		void SetProperty(Node sourceNode, IPropertyBinding property, Expression reference, Expression value, bool leaveValueOnStack)
 		{
 			PropertyInfo pi = GetPropertyInfo(property);			
-			MethodInfo setMethod = pi.GetSetMethod();
+			MethodInfo setMethod = pi.GetSetMethod(true);
 			
 			if (null != reference)
 			{

@@ -88,6 +88,34 @@ namespace Boo.Lang
 			return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
 		}
 		
+		public static bool Contains(object value, object container)
+		{
+			IEnumerable iterator = GetEnumerable(container);
+			
+			if (null == value)
+			{
+				foreach (object item in iterator)
+				{
+					if (null == item)
+					{
+						return true;
+					}
+				}
+			}
+			else
+			{
+				foreach (object item in iterator)
+				{
+					if (item == value || item.Equals(value))
+					{
+						return true;
+					}
+				}
+			}
+			
+			return false;
+		}
+		
 		static void Error(string name, params object[] args)
 		{
 			throw new ApplicationException(Boo.ResourceManager.Format(name, args));

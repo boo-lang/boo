@@ -64,6 +64,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding RuntimeServices_IsMatchBinding;
 		
+		IMethodBinding RuntimeServices_Contains;
+		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
 		BindingFilter IsPublicEventFilter;
@@ -82,6 +84,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_methodInfoStack = new Stack();			
 			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
+			RuntimeServices_Contains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Contains");
 			ApplicationException_StringConstructor =
 					(IConstructorBinding)BindingManager.ToBinding(
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
@@ -676,6 +679,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.MembershipTest:
+				{
+					BindMembershipTest(node, ref resultingNode);
+					break;
+				}
+				
 				case BinaryOperatorType.NotMatch:
 				{
 					if (BindMatchOperator(node))					
@@ -826,6 +835,21 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 		}	
+		
+		void BindMembershipTest(BinaryExpression node, ref Expression resultingNode)
+		{
+			// todo: generate better/faster expressions for
+			// arrays and IList implementations
+			MethodInvocationExpression contains = new MethodInvocationExpression();
+			contains.LexicalInfo = node.LexicalInfo;
+			contains.Arguments.Add(node.Left);
+			contains.Arguments.Add(node.Right);
+			contains.Target = new ReferenceExpression("Boo.Lang.RuntimeServices.Contains");
+			BindingManager.Bind(contains.Target, RuntimeServices_Contains);
+			BindingManager.Bind(contains, BindingManager.BoolTypeBinding);
+			
+			resultingNode = contains;
+		}
 		
 		bool BindMatchOperator(BinaryExpression node)
 		{

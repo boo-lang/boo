@@ -641,6 +641,11 @@ namespace Boo.Lang.Ast.Visitors
 				{
 					return "%";
 				}
+				
+				case BinaryOperatorType.MembershipTest:
+				{
+					return "in";
+				}
 			}
 			throw new NotImplementedException(op.ToString());
 		}

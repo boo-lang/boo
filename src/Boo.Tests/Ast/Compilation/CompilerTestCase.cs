@@ -476,5 +476,11 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			RunCompilerTestCase("method8.boo", "exceptional return branches");
 		}
+		
+		[Test]
+		public void TupleMembershipTest()
+		{
+			RunCompilerTestCase("in0.boo");
+		}
 	}
 }

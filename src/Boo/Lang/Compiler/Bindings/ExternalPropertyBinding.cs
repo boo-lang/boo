@@ -107,12 +107,12 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		System.Reflection.MethodInfo GetAccessor()
 		{
-			System.Reflection.MethodInfo mi = _property.GetGetMethod();
+			System.Reflection.MethodInfo mi = _property.GetGetMethod(true);
 			if (null != mi)
 			{
 				return mi;
 			}
-			return _property.GetSetMethod()
+			return _property.GetSetMethod(true)
 ;		}
 	}
 }

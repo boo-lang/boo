@@ -140,7 +140,7 @@ Milestone 3.7 (macro infraestructure)
 * lock macro
 
 
-Milestone 3.8
+Milestone 3.9
 -------------
 done * try/catch/ensure
 done * raise
@@ -153,8 +153,8 @@ done * raise
 Milestone 4 (delegate support)
 ------------------------------
 
-done * automatic delegation instance creation
-* automatic delegation interface adaptation
+done * automatic delegate instance creation
+* automatic delegate interface adaptation
 * native regular expression support:
 	* re expression /foo/
 

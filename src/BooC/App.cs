@@ -74,7 +74,7 @@ namespace BooC
 				{
 					foreach (Error error in context.Errors)
 					{
-						Console.WriteLine(error.ToString(options.Verbose));
+						Console.WriteLine(error.ToString(options.TraceSwitch.TraceInfo));
 					}
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.Errors", context.Errors.Count));
 				}
@@ -83,7 +83,7 @@ namespace BooC
 					resultCode = 0;
 				}
 				
-				if (options.Verbose)
+				if (options.TraceSwitch.TraceWarning)
 				{			
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));					
 				}
@@ -113,9 +113,8 @@ namespace BooC
 						{
 							case 'v':
 							{
-								Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
-								options.Verbose = true;
-								
+								options.TraceSwitch.Level = TraceLevel.Warning;
+								Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));								
 								if (arg.Length > 2)
 								{
 									switch (arg.Substring(1))

@@ -5,7 +5,7 @@ options
 }
 
 {
-using Boo.Ast;
+using Boo.Lang.Ast;
 using Boo.Antlr.Util;
 
 public delegate void ParserErrorHandler(antlr.RecognitionException x);
@@ -126,6 +126,7 @@ tokens
 			case "=~": return BinaryOperatorType.Match;
 			case "!~": return BinaryOperatorType.NotMatch;
 			case "kindof": return BinaryOperatorType.TypeTest;
+			case "in": return BinaryOperatorType.MembershipTest;
 		}
 		throw new ArgumentException("op");
 	}
@@ -350,12 +351,12 @@ protected
 attribute
 	{		
 		antlr.Token id = null;
-		Boo.Ast.Attribute attr = null;
+		Boo.Lang.Ast.Attribute attr = null;
 	}
 	:	
 	id=identifier
 	{
-		attr = new Boo.Ast.Attribute(ToLexicalInfo(id));
+		attr = new Boo.Lang.Ast.Attribute(ToLexicalInfo(id));
 		attr.Name = id.getText();
 		_attributes.Add(attr);
 	} 

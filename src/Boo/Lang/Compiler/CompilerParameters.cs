@@ -45,8 +45,6 @@ namespace Boo.Lang.Compiler
 
 		AssemblyCollection _assemblyReferences;
 
-		bool _verbose;
-
 		int _maxAttributeSteps;
 		
 		string _outputAssembly;
@@ -63,7 +61,6 @@ namespace Boo.Lang.Compiler
 			_assemblyReferences.Add(GetType().Assembly);
 			_assemblyReferences.Add(typeof(string).Assembly); // corlib
 			_assemblyReferences.Add(System.Reflection.Assembly.LoadWithPartialName("System")); // System
-			_verbose = false;
 			_maxAttributeSteps = 2;
 			_outputAssembly = string.Empty;
 			_outputType = CompilerOutputType.ConsoleApplication;
@@ -82,19 +79,6 @@ namespace Boo.Lang.Compiler
 			set
 			{
 				_maxAttributeSteps = value;
-			}
-		}
-
-		public bool Verbose
-		{
-			get
-			{
-				return _verbose;
-			}
-
-			set
-			{
-				_verbose = value;
 			}
 		}
 
