@@ -35,6 +35,7 @@ namespace BooCompiler.Tests
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.IO;
 	using Boo.Lang.Compiler.Steps;
+	using Boo.Lang.Compiler.Pipelines;
 	using NUnit.Framework;
 	
 	public abstract class AbstractCompilerTestCase
@@ -65,7 +66,8 @@ namespace BooCompiler.Tests
 			_parameters.OutputWriter = _output = new StringWriter();
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			_parameters.Pipeline = SetUpCompilerPipeline();
-			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);			
+			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);
+			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 		}
 		
 		public void CopyAssembly(System.Reflection.Assembly assembly)
@@ -90,7 +92,25 @@ namespace BooCompiler.Tests
 			current.CurrentCulture = current.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;			
 		}		
 		
-		protected abstract CompilerPipeline SetUpCompilerPipeline();
+		/// <summary>
+		/// Override in derived classes to use a different pipeline.
+		/// </summary>
+		protected virtual CompilerPipeline SetUpCompilerPipeline()
+		{
+			CompilerPipeline pipeline = null;
+			
+			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
+			{			
+				pipeline = new CompileToFile();				
+			}
+			else
+			{
+				pipeline = new CompileToMemory();
+			}			
+			
+			pipeline.Add(new RunAssembly());
+			return pipeline;
+		}
 		
 		protected void RunCompilerTestCase(string name)
 		{					

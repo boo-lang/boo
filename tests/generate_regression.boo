@@ -33,8 +33,7 @@ def GetTestCaseName(fname as string):
 	return Path.GetFileNameWithoutExtension(fname).Replace("-", "_")
 	
 def WriteTestCases(writer as TextWriter, baseDir as string):
-	for fname in Directory.GetFiles(baseDir, "*.boo"):
-		print(fname)
+	for fname in files=Directory.GetFiles(baseDir, "*.boo"):		
 		writer.Write("""
 		[Test]
 		public void ${GetTestCaseName(fname)}()
@@ -42,6 +41,7 @@ def WriteTestCases(writer as TextWriter, baseDir as string):
 			RunCompilerTestCase("${Path.GetFullPath(fname)}");
 		}
 		""")
+	print("${len(files)} test cases found in ${baseDir}.")
 
 def GenerateTestFixture(srcDir as string, targetFile as string, header as string):
 	using writer=StreamWriter(targetFile):
@@ -56,15 +56,10 @@ GenerateTestFixture("testcases/regression", "build/RegressionTestFixture.cs", ""
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
-	using Boo.Lang.Compiler;
 	
 	[TestFixture]		
 	public class RegressionTestFixture : AbstractCompilerTestCase
 	{
-		override protected CompilerPipeline SetUpCompilerPipeline()
-		{
-			return new Boo.Lang.Compiler.Pipelines.Run();
-		}		
 """)
 
 GenerateTestFixture("testcases/errors", "build/CompilerErrorsTestFixture.cs", """
@@ -95,22 +90,11 @@ namespace BooCompiler.Tests
 GenerateTestFixture("testcases/integration", "build/IntegrationTestFixture.cs", """
 namespace BooCompiler.Tests
 {
-	using System;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.IO;
-	using Boo.Lang.Compiler.Steps;
-	using Boo.Lang.Compiler.Pipelines;
 	using NUnit.Framework;
 
 	[TestFixture]
 	public class IntegrationTestFixture : AbstractCompilerTestCase
 	{
-		protected override CompilerPipeline SetUpCompilerPipeline()
-		{
-			CompilerPipeline pipeline = new CompileToFile();
-			pipeline.Add(new RunAssembly());
-			return pipeline;
-		}
 """)
 
 	
