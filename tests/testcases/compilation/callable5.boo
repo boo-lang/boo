@@ -1,12 +1,12 @@
 """
-Echo!
-Echo!
-Echo!
+Malkovich!
+Malkovich!
+Malkovich!
 """
-callable Echo() as Echo
+callable Malkovich() as Malkovich
 
-def echo() as Echo:
-	print("Echo!")
-	return echo
+def malkovich() as Malkovich:
+	print("Malkovich!")
+	return malkovich
 	
-echo()()()
+malkovich()()()
