@@ -180,14 +180,27 @@ class BooEditor(DockContent):
 				_main.UpdateTaskList(result.Errors)
 				
 				unless len(result.Errors):
+					
+					AppDomain_AssemblyResolve = def (sender, args as ResolveEventArgs):
+						name = GetSimpleName(args.Name)
+						compiledName = GetSimpleName(result.GeneratedAssembly.FullName)
+						return result.GeneratedAssembly if name == compiledName
+						
+					current = AppDomain.CurrentDomain
 					try:
+						current.AssemblyResolve += AppDomain_AssemblyResolve
 						result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
 					except x:
 						print(x)		
+					ensure:
+						current.AssemblyResolve -= AppDomain_AssemblyResolve
 				
 				UpdateOutputPane(console.ToString())
 		ensure:
 			_compiler.Parameters.Input.Clear()
+			
+	private def GetSimpleName(name as string):
+		return /,\s*/.Split(name)[0]
 	
 	def UpdateOutputPane(text as string):
 		_main.OutputPane.SetBuildText(text)

@@ -43,8 +43,7 @@ class InteractiveConsole(DockContent):
 	def constructor(mainForm as MainForm):
 	
 		self.Text = "Interactive Console"
-		self.Controls.Add(console=PromptBox(Dock: DockStyle.Fill,
-					Font: System.Drawing.Font("Lucida Console", 12)))
+		self.Controls.Add(console=PromptBox())
 					
 		console.Interpreter.SetValue("MainForm", mainForm)
 		console.Interpreter.SetValue("inspect", inspect)
@@ -81,6 +80,8 @@ class PromptBox(TextBox):
 								Print: print)
 	
 	def constructor():
+		self.Font = System.Drawing.Font("Lucida Console", 12)
+		self.Dock = DockStyle.Fill
 		self.Multiline = true
 		self.AcceptsTab = true
 		self.ScrollBars = ScrollBars.Vertical
