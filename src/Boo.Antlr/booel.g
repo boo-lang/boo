@@ -74,7 +74,13 @@ SINGLE_QUOTED_STRING :
 		;
 
 protected
-SQS_ESC : '\\' ('\'' | 'r' | 'n' | 't' | '\\');
+SQS_ESC : '\\'! (
+					('\'') |
+					('r' {$setText("\r");}) |
+					('n' {$setText("\n");}) |
+					('t' {$setText("\t");}) |
+					('\\')
+				);
 
 protected
 ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' );

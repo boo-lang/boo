@@ -929,33 +929,49 @@ _loop30_breakloop:			;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = SQS_ESC;
 		
+		int _saveIndex = 0;
+		_saveIndex = text.Length;
 		match('\\');
+		text.Length = _saveIndex;
 		{
 			switch ( LA(1) )
 			{
 			case '\'':
 			{
-				match('\'');
+				{
+					match('\'');
+				}
 				break;
 			}
 			case 'r':
 			{
-				match('r');
+				{
+					match('r');
+					text.Length = _begin; text.Append("\r");
+				}
 				break;
 			}
 			case 'n':
 			{
-				match('n');
+				{
+					match('n');
+					text.Length = _begin; text.Append("\n");
+				}
 				break;
 			}
 			case 't':
 			{
-				match('t');
+				{
+					match('t');
+					text.Length = _begin; text.Append("\t");
+				}
 				break;
 			}
 			case '\\':
 			{
-				match('\\');
+				{
+					match('\\');
+				}
 				break;
 			}
 			default:

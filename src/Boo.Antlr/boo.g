@@ -125,8 +125,6 @@ tokens
 			case "!=": return BinaryOperatorType.Inequality;
 			case "=~": return BinaryOperatorType.Match;
 			case "!~": return BinaryOperatorType.NotMatch;
-			case "kindof": return BinaryOperatorType.TypeTest;
-			case "in": return BinaryOperatorType.MembershipTest;
 		}
 		throw new ArgumentException("op");
 	}
@@ -1171,20 +1169,20 @@ assignment_expression returns [Expression e]
 protected
 conditional_expression returns [Expression e]
 	{
-		e = null;
-		Token op = null;		
+		e = null;		
 		Expression r = null;
+		BinaryOperatorType op = BinaryOperatorType.None;
 	}:
 	e=sum
 	( options { greedy = true; } :
 		op=cmp_operator
 		r=sum
 		{
-			BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
-			be.Operator = ParseCmpOperator(op.getText());
+			BinaryExpression be = new BinaryExpression(e.LexicalInfo);
+			be.Operator = op;
 			be.Left = e;
 			be.Right = r;
-			e = be;			
+			e = be;
 		}
 	)*
 	;
@@ -1253,11 +1251,14 @@ unary_expression returns [Expression e]
 	;		
 	
 protected
-cmp_operator returns [Token t] { t = null; }:
-	co:CMP_OPERATOR { t = co; } |
-	isop:IS { t = isop; } |
-	kt:KINDOF { t = kt; } |
-	it:IN { t = it; }
+cmp_operator returns [BinaryOperatorType op] { op = BinaryOperatorType.None; }:
+	(t:CMP_OPERATOR { op = ParseCmpOperator(t.getText()); } ) |
+	(IS { op = BinaryOperatorType.ReferenceEquality; }
+		(NOT { op = BinaryOperatorType.ReferenceInequality; })?
+		) |
+	(KINDOF { op = BinaryOperatorType.TypeTest; } ) |
+	(IN { op = BinaryOperatorType.Member; } ) |
+	(NOT IN { op = BinaryOperatorType.NotMember; })
 	;
 
 protected
@@ -1804,13 +1805,17 @@ ESCAPED_EXPRESSION : "${"
 	;
 
 protected
-DQS_ESC : '\\'	( SESC | '"' | '$') ;	
+DQS_ESC : '\\'! ( SESC | '"' | '$') ;	
 	
 protected
-SQS_ESC : '\\' ( SESC | '\'' );
+SQS_ESC : '\\'! ( SESC | '\'' );
 
 protected
-SESC : 'r' | 'n' | 't' | '\\';
+SESC : 
+				( 'r' {$setText("\r"); }) |
+				( 'n' {$setText("\n"); }) |
+				( 't' {$setText("\t"); }) |
+				( '\\' );
 
 protected
 RE_LITERAL : '/' (RE_CHAR)+ '/';

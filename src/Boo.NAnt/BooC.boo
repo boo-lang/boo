@@ -38,7 +38,7 @@ class BooC(Task):
 		get:
 			return _target
 		set:
-			if not value in ("exe", "winexe", "library"):
+			if value not in ("exe", "winexe", "library"):
 				raise BuildException(
 						"target must be one of: exe, winexe, library",
 						Location)

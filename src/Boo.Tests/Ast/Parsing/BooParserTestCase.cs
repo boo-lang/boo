@@ -355,7 +355,7 @@ namespace Boo.Tests.Ast.Parsing
 
 			BinaryExpression ae = (BinaryExpression)((ExpressionStatement)stmts[0]).Expression;
 			Assert.AreEqual(BinaryOperatorType.Assign, ae.Operator);
-			Assert.AreEqual("\\\"Bamboo\\\"\\n", ((StringLiteralExpression)ae.Right).Value);
+			Assert.AreEqual("\"Bamboo\"\n", ((StringLiteralExpression)ae.Right).Value);
 
 			ae = (BinaryExpression)((ExpressionStatement)stmts[1]).Expression;
 			Assert.AreEqual(BinaryOperatorType.Assign, ae.Operator);
@@ -714,6 +714,12 @@ namespace Boo.Tests.Ast.Parsing
 		public void TestUnless0()
 		{
 			RunParserTestCase("unless0.boo");
+		}
+		
+		[Test]
+		public void InNotIn()
+		{
+			RunParserTestCase("in_notin0.boo");
 		}
 		
 		[TestFixtureSetUp]

@@ -110,6 +110,11 @@ namespace Boo.Lang.Compiler
 			Add(new Error(pair, GetString("NamedParameterMustBeReference")));
 		}
 		
+		public void ExpressionStatementMustHaveSideEffect(ExpressionStatement node)
+		{
+			Add(new Error(node, GetString("ExpressionStatementMustHaveSideEffect")));
+		}
+		
 		public void EventArgumentMustBeAMethod(Node sourceNode, string name, string signature)
 		{
 			Add(new Error(sourceNode, Format("EventArgumentMustBeAMethod", name, signature)));

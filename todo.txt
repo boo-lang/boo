@@ -107,6 +107,10 @@ done * criar um nó Unless
 
 done * booc nant task (em boo, obviamente)
 
+* super
+
+* type
+
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 
 * AstAttribute vira IAstAttribute que implementa ICompilerStep
@@ -217,6 +221,15 @@ Otimiza��es
 	qualquer outro statement:
 		class StatementGroup(Statement):
 			Statements as StatementCollection
+			
+* patterns reference in (value1, value2), em outras palavras:
+	BinaryExpression(
+		BinaryOperatorType.MembershipTest,
+		ReferenceExpression,
+		TupleLiteralExpression)
+	devem ser transformados em:
+	
+		((reference == value1) or (reference == value2))
 	
 * tail call prefix para funçoes recursivas com a ScanDirectories do rgrep.boo
 

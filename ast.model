@@ -319,6 +319,7 @@ package Boo.Ast
 	
 	<<enum>>
 	class BinaryOperatorType
+		None
 		Add
 		Subtract
 		Multiply
@@ -336,8 +337,10 @@ package Boo.Ast
 		InPlaceMultiply
 		InPlaceDivide
 		ReferenceEquality
+		ReferenceInequality
 		TypeTest
-		MembershipTest
+		Member
+		NotMember
 		Or
 		And
 	end

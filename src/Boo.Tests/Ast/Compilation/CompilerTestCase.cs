@@ -478,9 +478,15 @@ namespace Boo.Tests.Ast.Compiler
 		}
 		
 		[Test]
-		public void TupleMembershipTest()
+		public void TupleMember()
 		{
 			RunCompilerTestCase("in0.boo");
+		}
+		
+		[Test]
+		public void TupleNotMember()
+		{
+			RunCompilerTestCase("in1.boo");
 		}
 	}
 }

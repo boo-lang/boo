@@ -474,6 +474,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		public override void LeaveExpressionStatement(ExpressionStatement node, ref Statement resultingNode)
+		{
+			if (!HasSideEffect(node.Expression))
+			{
+				Errors.ExpressionStatementMustHaveSideEffect(node);
+			}
+		}
+		
 		public override void OnSelfLiteralExpression(SelfLiteralExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.GetBinding(_currentMethodInfo.Method.DeclaringType));
@@ -679,9 +687,16 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BinaryOperatorType.MembershipTest:
+				case BinaryOperatorType.Member:
 				{
-					BindMembershipTest(node, ref resultingNode);
+					BindMember(node, ref resultingNode);
+					break;
+				}
+				
+				case BinaryOperatorType.NotMember:
+				{
+					BindMember(node, ref resultingNode);
+					resultingNode = CreateNotExpression(resultingNode);
 					break;
 				}
 				
@@ -689,14 +704,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					if (BindMatchOperator(node))					
 					{
-						UnaryExpression notMatch = new UnaryExpression();
-						notMatch.LexicalInfo = node.LexicalInfo;
-						notMatch.Operand = node;
-						notMatch.Operator = UnaryOperatorType.Not;
-						
-						BindingManager.Bind(notMatch, BindingManager.BoolTypeBinding);
-						
-						resultingNode = notMatch;
+						resultingNode = CreateNotExpression(node);
 					}
 					break;
 				}
@@ -836,7 +844,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}	
 		
-		void BindMembershipTest(BinaryExpression node, ref Expression resultingNode)
+		UnaryExpression CreateNotExpression(Expression node)
+		{
+			UnaryExpression notNode = new UnaryExpression();
+			notNode.LexicalInfo = node.LexicalInfo;
+			notNode.Operand = node;
+			notNode.Operator = UnaryOperatorType.Not;
+			
+			BindingManager.Bind(notNode, BindingManager.BoolTypeBinding);
+			return notNode;
+		}
+		
+		void BindMember(BinaryExpression node, ref Expression resultingNode)
 		{
 			// todo: generate better/faster expressions for
 			// arrays and IList implementations
@@ -1296,6 +1315,23 @@ namespace Boo.Lang.Compiler.Pipeline
 			TypeReference typeReference = new TypeReference(binding.FullName);
 			BindingManager.Bind(typeReference, BindingManager.ToTypeReference(binding));
 			return typeReference;
+		}
+		
+		bool HasSideEffect(Expression node)
+		{
+			return node.NodeType == NodeType.MethodInvocationExpression ||
+				IsAssignment(node);
+		}
+		
+		bool IsAssignment(Expression node)
+		{
+			if (node.NodeType == NodeType.BinaryExpression)
+			{
+				BinaryOperatorType binaryOperator = ((BinaryExpression)node).Operator;
+				return BinaryOperatorType.Assign == binaryOperator ||
+						BinaryOperatorType.InPlaceAdd == binaryOperator;
+			}
+			return false;
 		}
 		
 		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)

@@ -419,7 +419,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		public override void OnBinaryExpression(BinaryExpression node)
-		{			
+		{	
+			// when the parent is not a statement we need to leave
+			// the value on the stack
+			//bool leaveValueOnStack = node.ParentNode.NodeType != NodeType.ExpressionStatement;
+			
 			if (BinaryOperatorType.Assign == node.Operator)
 			{				
 				IBinding binding = BindingManager.GetBinding(node.Left);

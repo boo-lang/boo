@@ -642,9 +642,24 @@ namespace Boo.Lang.Ast.Visitors
 					return "%";
 				}
 				
-				case BinaryOperatorType.MembershipTest:
+				case BinaryOperatorType.Member:
 				{
 					return "in";
+				}
+				
+				case BinaryOperatorType.NotMember:
+				{
+					return "not in";
+				}
+				
+				case BinaryOperatorType.ReferenceEquality:
+				{
+					return "is";
+				}
+				
+				case BinaryOperatorType.ReferenceInequality:
+				{
+					return "is not";
 				}
 			}
 			throw new NotImplementedException(op.ToString());
