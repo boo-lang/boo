@@ -54,7 +54,17 @@
 	
 	<target name="Boo.NAnt" depends="booc">
 		<copy file="${NAnt.Core.dll}" todir="build" />
-		<exec program="build/booc.exe" useruntimeengine="true">
+		
+		<uptodate property="Boo.NAnt-is-uptodate">
+			<sourcefiles basedir="src/Boo.NAnt">
+				<includes name="*.boo" />
+			</sourcefiles>
+			<targetfiles>
+				<includes name="build/Boo.NAnt.dll" />
+			</targetfiles>
+		</uptodate>
+		
+		<exec program="build/booc.exe" useruntimeengine="true" unless="${Boo.NAnt-is-uptodate}">
 			<arg value="/out:build/Boo.NAnt.dll" />
 			<arg value="/target:library" />
 			<arg value="/r:${NAnt.Core.dll}" />
@@ -236,8 +246,19 @@
 	</target>
 
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
+	
+		<uptodate property="parser-is-uptodate">
+			<sourcefiles basedir="src/Boo.AntlrParser">
+				<includes name="boo.g" />
+				<includes name="booel.g" />
+			</sourcefiles>
+			<targetfiles basedir="src/Boo.AntlrParser">
+				<includes name="BooParserBase.cs" />
+				<includes name="BooExpressionLexer.cs" />
+			</targetfiles>
+		</uptodate>
 
-		<if test="${not file::up-to-date('src/Boo.AntlrParser/boo.g', 'src/Boo.AntlrParser/BooParserBase.cs')}">
+		<if test="${not parser-is-uptodate}">
 		
 			<delete>
 				<fileset basedir="src/Boo.AntlrParser">
@@ -268,15 +289,25 @@
 	</target>
 	
 	<target name="generate-ast" depends="init" unless="${skip.ast}">
-		<if test="${not file::up-to-date('ast.model.boo', 'src/Boo.Lang.Compiler/Ast/Impl/CompileUnitImpl.cs')}">
+	
+		<uptodate property="ast-is-uptodate">
+			<sourcefiles>
+				<includes name="ast.model.boo" />
+				<includes name="scripts/astgen.boo" />
+			</sourcefiles>
+			<targetfiles>
+				<includes name="src/Boo.Lang.Compiler/Ast/Impl/CompileUnitImpl.cs" />
+			</targetfiles>
+		</uptodate>
+				
+		<if test="${not ast-is-uptodate}">
 		
 			<delete dir="src/Boo.Lang.Compiler/Ast/Impl"
 					if="${directory::exists('src/Boo.Lang.Compiler/Ast/Impl')}" />
 			<mkdir dir="src/Boo.Lang.Compiler/Ast/Impl" />
 			<exec program="bin/booi.exe" useruntimeengine="true">
 				<arg value="scripts/astgen.boo" />
-			</exec>
-			
+			</exec>			
 		</if>
 	</target>
 
