@@ -63,10 +63,13 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		protected IBinding[] _members;
 		
+		protected INamespace _parentNamespace;
+		
 		protected AbstractInternalTypeBinding(BindingManager bindingManager, TypeDefinition typeDefinition)
 		{
 			_bindingManager = bindingManager;
 			_typeDefinition = typeDefinition;
+			_parentNamespace = (INamespace)BindingManager.GetBinding(_typeDefinition.ParentNode);
 		}
 		
 		public string FullName
@@ -97,7 +100,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (INamespace)BindingManager.GetBinding(_typeDefinition.ParentNode);
+				return _parentNamespace;
 			}
 		}
 		

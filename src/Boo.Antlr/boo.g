@@ -1496,6 +1496,8 @@ slicing_expression returns [Expression e]
 				se.End = end;
 				se.Step = step;
 				e = se;
+				
+				begin = end = step = null;
 			}
 			RBRACK!
 		)

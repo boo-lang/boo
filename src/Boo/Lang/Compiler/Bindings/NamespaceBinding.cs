@@ -94,9 +94,9 @@ namespace Boo.Lang.Compiler.Bindings
 			types.Add(type);			
 		}
 		
-		public void AddModuleNamespace(ModuleNamespace moduleNamespace)
+		public void AddModule(ModuleBinding module)
 		{
-			_moduleNamespaces.Add(moduleNamespace);
+			_moduleNamespaces.Add(module);
 		}
 		
 		public NamespaceBinding GetChildNamespace(string name)
@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.Bindings
 		IBinding ResolveInternalType(string name)
 		{
 			IBinding binding = null;
-			foreach (ModuleNamespace ns in _moduleNamespaces)
+			foreach (ModuleBinding ns in _moduleNamespaces)
 			{
 				binding = ns.ResolveMember(name);
 				if (null != binding)

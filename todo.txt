@@ -285,7 +285,7 @@ done * resoluçao de nomes na visitação recursiva de métodos e classes
 	done * declarations namespace ganha uma ligaçao artifical com o namespace corrente
 	done * CompileUnitBinding para ser o namespace Global
 	
-* ModuleNamespace => ModuleBinding
+done * ModuleNamespace => ModuleBinding
 	
 * Quebrar INamespace em INamespace e IChildNamespace
 

@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		IMethodBinding _override;
 		
+		ITypeBinding _declaringType;
+		
 		public ExpressionCollection ReturnExpressions;
 		
 		public ExpressionCollection SuperExpressions;
@@ -65,7 +67,11 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (ITypeBinding)BindingManager.GetBinding(_method.DeclaringType);
+				if (null == _declaringType)
+				{
+					_declaringType = (ITypeBinding)BindingManager.GetBinding(_method.DeclaringType);
+				}
+				return _declaringType;
 			}
 		}
 		
@@ -179,7 +185,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (INamespace)BindingManager.GetBinding(_method.DeclaringType);
+				return DeclaringType;
 			}
 		}
 		

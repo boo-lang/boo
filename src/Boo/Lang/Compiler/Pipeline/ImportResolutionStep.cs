@@ -66,15 +66,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
-				ModuleNamespace moduleNamespace = new ModuleNamespace(BindingManager, module);
-				BindingManager.Bind(module, moduleNamespace);
+				ModuleBinding moduleBinding = new ModuleBinding(BindingManager, module);
+				BindingManager.Bind(module, moduleBinding);
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
 				if (null != namespaceDeclaration)
 				{
 					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
 				}
-				GetNamespaceBinding(moduleNamespace.Namespace).AddModuleNamespace(moduleNamespace);
+				GetNamespaceBinding(moduleBinding.Namespace).AddModule(moduleBinding);
 			}
 		}
 		

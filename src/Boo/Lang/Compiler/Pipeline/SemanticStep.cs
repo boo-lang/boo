@@ -2876,20 +2876,15 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				if (treatErrors)
 				{
-					Error(CompilerErrorFactory.AmbiguousReference(node, first.Binding.Name, scores));
+					Error(node, CompilerErrorFactory.AmbiguousReference(node, first.Binding.Name, scores));
 				}
 			}
 			else
 			{	
 				if (treatErrors)
 				{
-					Error(CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), bindings[0].Name));
+					Error(node, CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), bindings[0].Name));
 				}
-			}
-			
-			if (treatErrors)
-			{
-				Error(node);
 			}
 			return null;
 		}
