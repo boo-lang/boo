@@ -2,7 +2,7 @@
 public class ClassWithoutConstructor(System.Object):
 
 	public def run() as System.Void:
-		print('it worked!')
+		Boo.Lang.Builtins.print('it worked!')
 
 	public def constructor():
 		super()

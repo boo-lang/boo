@@ -8,12 +8,12 @@ public final transient class Using1Module(System.Object):
 			f1 = System.IO.File.OpenText('using0.boo')
 			try:
 				f2 = System.IO.File.OpenText('using1.boo')
-				print(f2.ReadLine())
+				Boo.Lang.Builtins.print(f2.ReadLine())
 			ensure:
 				if (__disposable__ = f2 as System.IDisposable):
 					__disposable__.Dispose()
 					__disposable__ = null
-			print(f1.ReadLine())
+			Boo.Lang.Builtins.print(f1.ReadLine())
 		ensure:
 			if (__disposable__ = f1 as System.IDisposable):
 				__disposable__.Dispose()

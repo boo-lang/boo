@@ -61,11 +61,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		 */		
 		IMethodBinding RuntimeServices_Len;
 		
+		IMethodBinding RuntimeServices_Mid;
+		
 		IMethodBinding Object_StaticEquals;
 		
 		IMethodBinding Array_get_Length;
 		
 		IMethodBinding String_get_Length;
+		
+		IMethodBinding String_Substring_Int;
 		
 		IMethodBinding ICollection_get_Count;
 		
@@ -102,9 +106,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			_loopDepth = 0;
 						
 			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
+			RuntimeServices_Mid = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Mid");
 			Object_StaticEquals = (IMethodBinding)BindingManager.AsBinding(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
+			String_Substring_Int = (IMethodBinding)BindingManager.AsBinding(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
 			IList_Contains = (IMethodBinding)BindingManager.IListTypeBinding.Resolve("Contains");
 			IDictionary_Contains = (IMethodBinding)BindingManager.IDictionaryTypeBinding.Resolve("Contains");
@@ -993,13 +999,75 @@ namespace Boo.Lang.Compiler.Pipeline
 			return (IBinding[])getMethods.ToArray(typeof(IBinding));
 		}
 		
-		public override void LeaveSlicingExpression(SlicingExpression node)
+		void CheckNoComplexSlicing(SlicingExpression node)
 		{
-			if (null != node.End || null != node.Step)
+			if (IsComplexSlicing(node))
 			{
-				NotImplemented(node, "full slicing");
+				NotImplemented(node, "complex slicing");
+			}
+		}
+		
+		bool IsComplexSlicing(SlicingExpression node)
+		{
+			return null != node.End || null != node.Step;
+		}
+		
+		IntegerLiteralExpression CreateIntegerLiteral(long value)
+		{
+			IntegerLiteralExpression expression = new IntegerLiteralExpression(value);
+			Switch(expression);
+			return expression;
+		}
+		
+		void BindComplexArraySlicing(SlicingExpression node)
+		{
+			if (null != node.Step)
+			{
+				NotImplemented(node, "slicing step");
+			}
+		}
+		
+		void BindComplexStringSlicing(SlicingExpression node)
+		{
+			if (null != node.Step)
+			{
+				NotImplemented(node, "slicing step");
 			}
 			
+			Expression begin = node.Begin;
+			if (OmittedExpression.Default == begin)
+			{
+				begin = CreateIntegerLiteral(0); 
+			}
+			else
+			{
+				if (!CheckTypeCompatibility(node.Begin, BindingManager.IntTypeBinding, GetExpressionType(node.Begin)))
+				{
+					Error(node);
+					return;
+				}
+			}
+			
+			if (node.End == OmittedExpression.Default)
+			{
+				MethodInvocationExpression mie = CreateMethodInvocation(node.Target, String_Substring_Int);
+				mie.Arguments.Add(node.Begin);
+				node.ParentNode.Replace(node, mie);
+			}
+			else
+			{				
+				if (!CheckTypeCompatibility(node.End, BindingManager.IntTypeBinding, GetExpressionType(node.End)))
+				{
+					Error(node);
+					return;
+				}
+				MethodInvocationExpression mie = CreateMethodInvocation(RuntimeServices_Mid, node.Target, begin, node.End);
+				node.ParentNode.Replace(node, mie);
+			}
+		}
+		
+		public override void LeaveSlicingExpression(SlicingExpression node)
+		{
 			ITypeBinding targetType = GetExpressionType(node.Target);
 			if (BindingManager.IsError(targetType))
 			{
@@ -1010,24 +1078,46 @@ namespace Boo.Lang.Compiler.Pipeline
 			IBinding binding = GetBinding(node.Target);
 			if (IsIndexedProperty(binding))
 			{
+				CheckNoComplexSlicing(node);
 				SliceMember(node, binding, false);
 			}
 			else
 			{
 				if (targetType.IsArray)
 				{
-					Bind(node, targetType.GetElementType());
-				}
-				else
-				{
-					IBinding member = targetType.GetDefaultMember();
-					if (null == member)
+					if (IsComplexSlicing(node))
 					{
-						Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
+						BindComplexArraySlicing(node);
 					}
 					else
 					{
-						SliceMember(node, member, true);
+						Bind(node, targetType.GetElementType());
+					}
+				}
+				else
+				{
+					if (IsComplexSlicing(node))
+					{
+						if (BindingManager.StringTypeBinding == targetType)
+						{
+							BindComplexStringSlicing(node);
+						}
+						else
+						{
+							NotImplemented(node, "complex slicing for anything but arrays and strings");
+						}
+					}
+					else
+					{
+						IBinding member = targetType.GetDefaultMember();
+						if (null == member)
+						{
+							Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
+						}
+						else
+						{						
+							SliceMember(node, member, true);
+						}
 					}
 				}
 			}
@@ -1813,6 +1903,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			return mie;
 		}
 		
+		MethodInvocationExpression CreateMethodInvocation(IMethodBinding staticMethod, Expression arg0, Expression arg1, Expression arg2)
+		{
+			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0, arg1);
+			mie.Arguments.Add(arg2);
+			return mie;
+		}
+		
 		public void OnSpecialFunction(IBinding binding, MethodInvocationExpression node)
 		{
 			SpecialFunctionBinding sf = (SpecialFunctionBinding)binding;
@@ -1898,6 +1995,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (null == targetBinding)
 				{
 					return;
+				}
+				
+				if (NodeType.ReferenceExpression == node.Target.NodeType)
+				{
+					((ReferenceExpression)node.Target).Name = targetBinding.FullName;
 				}
 				Bind(node.Target, targetBinding);
 			}	

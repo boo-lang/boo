@@ -70,6 +70,11 @@ namespace Boo.Lang
 			return sb.ToString();
 		}
 		
+		public static string join(IEnumerable enumerable)
+		{
+			return join(enumerable, " ");
+		}
+		
 		public static object[] tuple(IEnumerable enumerable)
 		{
 			return (object[])tuple(typeof(object), enumerable);

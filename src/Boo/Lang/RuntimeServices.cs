@@ -67,6 +67,15 @@ namespace Boo.Lang
 			return 0;
 		}
 		
+		public static string Mid(string s, int begin, int end)
+		{
+			if (end < 0)
+			{
+				end += s.Length;
+			}
+			return s.Substring(begin, end-begin);
+		}
+		
 		public static void CheckArrayUnpack(Array array, int expected)
 		{
 			if (null == array)

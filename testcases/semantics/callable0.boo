@@ -5,7 +5,7 @@ public final transient class Callable0Module(System.Object):
 		return item.ToUpper()
 
 	private static def __Main__():
-		print(map(Callable0Module.__Callable1__(), ['foo', 'bar']))
+		Boo.Lang.Builtins.print(Boo.Lang.Builtins.map(Callable0Module.__Callable1__(), ['foo', 'bar']))
 
 	private def constructor():
 		super()

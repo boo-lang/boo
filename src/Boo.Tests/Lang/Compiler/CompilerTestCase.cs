@@ -789,6 +789,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void SliceArrayComplex()
+		{
+			RunCompilerTestCase("slicing9.boo");
+		}
+		
+		[Test]
 		public void RealType()
 		{
 			RunCompilerTestCase("double0.boo");

@@ -4,7 +4,7 @@ public final transient class Slice_property_intModule(System.Object):
 	private static def __Main__() as System.Void:
 		l = ['foo']
 		l.set_Item(0, 'bar')
-		print(l.get_Item(0))
+		Boo.Lang.Builtins.print(l.get_Item(0))
 
 	private def constructor():
 		super()
