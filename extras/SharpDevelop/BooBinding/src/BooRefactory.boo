@@ -86,7 +86,7 @@ class RefactoryVisitor(AbstractASTVisitor):
 			field = o as FieldDeclaration
 			if field != null:
 				for var as VariableDeclaration in field.Fields:
-					if var.Name.Length < 2 or not var.Name[1] == "_":
+					if var.Name.Length < 2 or not var.Name[1:2] == "_":
 						if Char.IsLower(var.Name, 0) and IsPrivate(field.Modifier):
 							fields.Add(var)
 		typeDeclaration.AcceptChildren(RenameFieldVisitor(fields), data)
