@@ -58,12 +58,14 @@ ID options { testLiterals = true; }:
 	ID_LETTER (ID_LETTER | DIGIT)*
 	;
 
-INT : (DIGIT)+
+INT : 
+	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
+	(DIGIT)+
 	(
 		('l' | 'L') { $setType(LONG); } |
 		(
-	({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
-	(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+			({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
+			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
 		)
 	)
 	;
@@ -205,3 +207,6 @@ ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' );
 
 protected
 DIGIT : '0'..'9';
+
+protected
+HEXDIGIT : ('a'..'f' | 'A'..'F' | '0'..'9');

@@ -33,6 +33,7 @@ options
 {
 using Boo.Lang.Compiler.Ast;
 using Boo.AntlrParser.Util;
+using System.Globalization;
 
 public delegate void ParserErrorHandler(antlr.RecognitionException x);
 }
@@ -184,7 +185,7 @@ tokens
 
 	static double ParseDouble(string text)
 	{
-		return double.Parse(text, System.Globalization.CultureInfo.InvariantCulture);
+		return double.Parse(text, CultureInfo.InvariantCulture);
 	}
 	
 	static bool IsMethodInvocationExpression(Expression e)
@@ -255,6 +256,28 @@ tokens
 	{
 		return LPAREN != token && LBRACK != token;
 	}
+	
+	protected IntegerLiteralExpression ParseIntegerLiteralExpression(
+		antlr.Token token, string s, bool isLong)
+	{
+		const string HEX_PREFIX = "0x";
+		bool isHex = s.StartsWith(HEX_PREFIX);
+		long val;
+		
+		if (isHex)
+		{
+			s = s.Substring(HEX_PREFIX.Length);
+			val = long.Parse(
+				s, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
+		}
+		else
+		{
+			val = long.Parse(s, CultureInfo.InvariantCulture);
+		}
+		
+		return new IntegerLiteralExpression(ToLexicalInfo(token), val, isLong);
+	}
+	
 }
 
 protected
@@ -1840,17 +1863,14 @@ protected
 integer_literal returns [IntegerLiteralExpression e] { e = null; } :
 	i:INT
 	{
-		e = new IntegerLiteralExpression(ToLexicalInfo(i), long.Parse(i.getText()));
+		e = ParseIntegerLiteralExpression(i, i.getText(), false);
 	}
 	|
 	l:LONG
 	{
-		string value = l.getText();
-		value = value.Substring(0, value.Length-1);
-		
-		e = new IntegerLiteralExpression(ToLexicalInfo(l),
-					long.Parse(value),
-					true);
+		string s = l.getText();
+		s = s.Substring(0, s.Length-1);
+		e = ParseIntegerLiteralExpression(l, s, true);
 	}
 	;
 	
@@ -2015,7 +2035,7 @@ protected
 identifier returns [Token value]
 	{
 		value = null; _sbuilder.Length = 0;
-	}:			
+	}:
 	id1:ID			
 	{					
 		_sbuilder.Append(id1.getText());
@@ -2111,12 +2131,14 @@ LINE_CONTINUATION:
 	{ $setType(Token.SKIP); }
 	;
 
-INT : (DIGIT)+
+INT : 
+	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
+	(DIGIT)+
 	(
 		('l' | 'L') { $setType(LONG); } |
 		(
-	({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
-	(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+			({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
+			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
 		)
 	)
 	;
@@ -2381,3 +2403,6 @@ ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' );
 
 protected
 DIGIT : '0'..'9';
+
+protected
+HEXDIGIT : ('a'..'f' | 'A'..'F' | '0'..'9');
