@@ -433,6 +433,10 @@ namespace Boo.Ast.Compilation.Pipeline
 				else
 				{
 					nodeBinding = member;
+					if (BindingType.Method == member.BindingType)
+					{
+						EnsureMethodIsResolved((IMethodBinding)member);
+					}
 				}
 			}
 			
@@ -638,7 +642,6 @@ namespace Boo.Ast.Compilation.Pipeline
 					IBinding nodeBinding = ErrorBinding.Default;
 					
 					IMethodBinding targetMethod = (IMethodBinding)targetBinding;
-					EnsureMethodIsResolved(targetMethod);
 					if (CheckParameters(node, targetMethod, node.Arguments))
 					{
 						if (node.NamedArguments.Count > 0)
@@ -943,8 +946,6 @@ namespace Boo.Ast.Compilation.Pipeline
 				IMethodBinding mb = binding as IMethodBinding;
 				if (null != mb)
 				{			
-					EnsureMethodIsResolved(mb);
-					
 					if (args.Count == mb.ParameterCount)
 					{
 						int score = 0;

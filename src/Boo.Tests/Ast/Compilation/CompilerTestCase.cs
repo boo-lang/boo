@@ -98,6 +98,23 @@ namespace Boo.Tests.Ast.Compilation
 		}
 	}
 	
+	public class BaseClass
+	{
+		public BaseClass()
+		{			
+		}
+		
+		public virtual void Method0()
+		{
+			Console.WriteLine("BaseClass.Method0");
+		}
+		
+		public virtual void Method1()
+		{
+			Console.WriteLine("BaseClass.Method1");
+		}
+	}
+	
 	[TestFixture]
 	public class CompilerTestCase : AbstractCompilerTestCase
 	{

@@ -1,13 +1,19 @@
 """
 public class Person:
-	pass
+
+	public def constructor():
+		pass
 
 internal class Info:
-	pass
+
+	protected def constructor():
+		pass
 
 """
 class Person:
-	pass
-	
+	public def constructor():
+		pass
+
 internal class Info:
-	pass
+	protected def constructor():
+		pass

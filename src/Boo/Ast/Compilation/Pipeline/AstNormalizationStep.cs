@@ -50,6 +50,14 @@ namespace Boo.Ast.Compilation.Pipeline
 			{
 				node.Modifiers |= TypeMemberModifiers.Public;
 			}
+			
+			if (!node.HasConstructor)
+			{
+				Constructor constructor = new Constructor(node.LexicalInfo);
+				constructor.Name = "constructor";
+				constructor.Modifiers = TypeMemberModifiers.Public;
+				node.Members.Add(constructor);
+			}
 		}
 		
 		public override void LeaveField(Field node, ref Field resultingNode)

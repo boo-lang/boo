@@ -122,7 +122,10 @@ SemanticStep que deverá criar AsExpression sempre que necessário
 
 * BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais
 
-* os próprios nós da AST implementam as interfaces de binding?
+Milestone 3.7 (macro infraestructure)
+-------------------------------------
+* using macro
+* lock macro
 
 
 Milestone 3.8

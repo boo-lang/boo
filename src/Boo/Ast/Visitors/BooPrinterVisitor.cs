@@ -99,6 +99,7 @@ namespace Boo.Ast.Visitors
 			if (0 == b.Statements.Count)
 			{
 				WriteIndented("pass");
+				WriteLine();
 			}
 			return true;
 		}

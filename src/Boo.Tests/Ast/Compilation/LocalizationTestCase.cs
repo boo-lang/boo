@@ -62,17 +62,25 @@ namespace Boo.Tests.Ast.Compilation
 
 		void AssertCultureDependentMessage(string message, CultureInfo culture)
 		{
+			CultureInfo savedCulture = Thread.CurrentThread.CurrentUICulture;			
 			Thread.CurrentThread.CurrentUICulture = culture;
 
-			Compiler compiler = new Compiler();
-			CompilerParameters options = compiler.Parameters;
-			options.Input.Add(new Boo.Ast.Compilation.IO.StringInput("testcase", TestCase));
-			options.Pipeline.Add(new Boo.Antlr.BooParsingStep());
-			
-			ErrorCollection errors = compiler.Run().Errors;
-
-			Assertion.AssertEquals(1, errors.Count);
-			Assertion.AssertEquals(message, errors[0].Message);
+			try
+			{
+				Compiler compiler = new Compiler();
+				CompilerParameters options = compiler.Parameters;
+				options.Input.Add(new Boo.Ast.Compilation.IO.StringInput("testcase", TestCase));
+				options.Pipeline.Add(new Boo.Antlr.BooParsingStep());
+				
+				ErrorCollection errors = compiler.Run().Errors;
+	
+				Assertion.AssertEquals(1, errors.Count);
+				Assertion.AssertEquals(message, errors[0].Message);
+			}
+			finally
+			{
+				Thread.CurrentThread.CurrentUICulture = savedCulture;
+			}
 		}
 	}
 }

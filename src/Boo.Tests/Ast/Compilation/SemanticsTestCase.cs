@@ -33,5 +33,11 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			RunCompilerTestCase("classes0.boo");
 		}
+		
+		[Test]
+		public void ClassesShouldHaveAutoConstructor()
+		{
+			RunCompilerTestCase("classes1.boo");
+		}
 	}
 }

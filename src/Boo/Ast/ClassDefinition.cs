@@ -43,6 +43,21 @@ namespace Boo.Ast
 		{
 		}
 		
+		public bool HasConstructor
+		{
+			get
+			{
+				foreach (TypeMember member in _members)
+				{
+					if (NodeType.Constructor == member.NodeType)
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+		
 		public override void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnClassDefinition(this);
