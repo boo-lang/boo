@@ -5,7 +5,7 @@ array as (object) = List(range(items)).ToArray(object)
 collect = []
 
 start = date.Now
-for i in range(items):
+for i as int in range(items):
 	collect.Add(array[i])	
 elapsed = date.Now.Subtract(start)
 

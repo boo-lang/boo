@@ -816,7 +816,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		public override void OnSlicingExpression(SlicingExpression node)
-		{
+		{			
 			Switch(node.Target); 			
 			ITypeBinding type = PopType();
 
@@ -824,24 +824,24 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (CanBeNegative(node.Begin, ref isNegative))
 			{					
 				if (isNegative)
-				{					
+				{							
 					_il.Emit(OpCodes.Dup);
 					_il.Emit(OpCodes.Ldlen);
 					LoadInt(node.Begin);
 					_il.Emit(OpCodes.Add);
 				}
 				else
-				{
-					_il.Emit(OpCodes.Dup);
-					LoadInt(node.Begin);
+				{	
+					_il.Emit(OpCodes.Dup);					
+					LoadInt(node.Begin);					
 					_il.EmitCall(OpCodes.Call, RuntimeServices_NormalizeArrayIndex, null);
 				}
 			}
 			else
-			{
+			{				
 				LoadInt(node.Begin);
 			}
-			_il.Emit(OpCodes.Ldelem_Ref);
+			_il.Emit(OpCodes.Ldelem_Ref);			
 			
 			PushType(type.GetElementType());
 		}
@@ -1004,7 +1004,6 @@ namespace Boo.Lang.Compiler.Pipeline
 				default:
 				{
 					throw CompilerErrorFactory.NotImplemented(expression, "property access for value types");
-					break;
 				}
 			}
 		}
