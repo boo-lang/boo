@@ -93,10 +93,6 @@ class InteractiveInterpreter:
 		result = Parse(code)
 		return result if len(result.Errors)
 		
-		if IsSimpleReference(code):
-			SetValue("@value", GetValue(code))
-			return result
-		
 		cu = result.CompileUnit
 		module = cu.Modules[0]
 		
@@ -116,7 +112,15 @@ class InteractiveInterpreter:
 		savedImports = module.Imports.Clone()
 		module.Imports.ExtendWithClones(_imports)
 		
-		if hasStatements:			 
+		if hasStatements:	
+			if IsSimpleReference(code):
+				# simple references will be parsed as macros
+				# but we want them to be evaluated
+				# as references...
+				ms as MacroStatement = module.Globals.Statements[0]
+				module.Globals.Statements.ReplaceAt(0,
+					ExpressionStatement(						
+							ReferenceExpression(ms.LexicalInfo, ms.Name)))
 			_compiler.Parameters.OutputType = CompilerOutputType.ConsoleApplication
 		else:
 			_compiler.Parameters.OutputType = CompilerOutputType.Library
@@ -169,7 +173,7 @@ class InteractiveInterpreter:
 			_imports.Add(imp)
 			
 	private def IsSimpleReference(s as string):
-		return /^[_a-zA-Z][_a-zA-Z\d]*$/.IsMatch(s)
+		return /^\s*[_a-zA-Z][_a-zA-Z\d]*\s*$/.IsMatch(s)
 		
 	class InterpreterEntity(ITypedEntity):
 
@@ -257,6 +261,10 @@ class InteractiveInterpreter:
 			
 		override def OnMethod(node as Method):
 			_isEntryPoint = node is Steps.ContextAnnotations.GetEntryPoint(Context);
+			super(node)
+			
+		override def LeaveExpressionStatement(node as ExpressionStatement):
+			GetConcreteExpressionType(node.Expression)
 			super(node)
 			
 		override def HasSideEffect(node as Expression):

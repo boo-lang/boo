@@ -458,6 +458,11 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			return base.ReplaceNode(existing, newItem);
 		}
 		
+		public void ReplaceAt(int index, ${itemType} newItem)
+		{
+			base.ReplaceAt(index, newItem);
+		}
+		
 		public new ${itemType}[] ToArray()
 		{
 			return (${itemType}[])InnerList.ToArray(typeof(${itemType}));
