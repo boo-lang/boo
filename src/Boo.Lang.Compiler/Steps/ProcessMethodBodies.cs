@@ -1471,10 +1471,14 @@ namespace Boo.Lang.Compiler.Steps
 					IMember memberInfo = member as IMember;
 					if (null != memberInfo)
 					{
-						if (!CheckTargetContext(node, memberInfo))
+						// methods will be checked later
+						if (EntityType.Method != memberInfo.EntityType)
 						{
-							Error(node);
-							return;
+							if (!CheckTargetContext(node, memberInfo))
+							{
+								Error(node);
+								return;
+							}
 						}
 						BindExpressionType(node, memberInfo.Type);
 					}
@@ -2102,58 +2106,100 @@ namespace Boo.Lang.Compiler.Steps
 			return mie;
 		}
 		
-		public void OnSpecialFunction(IEntity tag, MethodInvocationExpression node)
+		public void OnBuiltinFunction(IEntity tag, MethodInvocationExpression node)
 		{
 			BuiltinFunction sf = (BuiltinFunction)tag;
 			switch (sf.FunctionType)
 			{
 				case BuiltinFunctionType.Len:
 				{
-					if (node.Arguments.Count != 1)
-					{						
-						Error(CompilerErrorFactory.MethodArgumentCount(node.Target, "len", 1));
-					}
-					else
-					{
-						MethodInvocationExpression resultingNode = null;
-						
-						Expression target = node.Arguments[0];
-						IType type = GetExpressionType(target);
-						if (TypeSystemServices.ObjectType == type)
-						{
-							resultingNode = CreateMethodInvocation(RuntimeServices_Len, target);
-						}
-						else if (TypeSystemServices.StringType == type)
-						{
-							resultingNode = CreateMethodInvocation(target, String_get_Length);
-						}
-						else if (TypeSystemServices.ArrayType.IsAssignableFrom(type))
-						{
-							resultingNode = CreateMethodInvocation(target, Array_get_Length);
-						}
-						else if (TypeSystemServices.ICollectionType.IsAssignableFrom(type))
-						{
-							resultingNode = CreateMethodInvocation(target, ICollection_get_Count);
-						}	
-						else
-						{
-							Error(CompilerErrorFactory.InvalidLen(target, type.FullName));
-						}
-						if (null != resultingNode)
-						{
-							node.ParentNode.Replace(node, resultingNode);
-						}
-					}
+					ProcessLenInvocation(node);
+					break;
+				}
+				
+				case BuiltinFunctionType.AddressOf:
+				{
+					ProcessAddressOfInvocation(node);
 					break;
 				}
 				
 				default:
 				{
-					NotImplemented(node, "SpecialFunction: " + sf.FunctionType);
+					NotImplemented(node, "BuiltinFunction: " + sf.FunctionType);
 					break;
 				}
 			}
-		}		
+		}
+		
+		void ProcessAddressOfInvocation(MethodInvocationExpression node)
+		{
+			if (node.Arguments.Count != 1)
+			{
+				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "__addressof__", 1));
+			}
+			else
+			{
+				Expression arg = node.Arguments[0];
+				
+				EntityType type = GetEntity(arg).EntityType;
+				
+				if (EntityType.Method != type)
+				{
+					ReferenceExpression reference = arg as ReferenceExpression;
+					if (null != reference && EntityType.Ambiguous == type)
+					{
+						Error(node, CompilerErrorFactory.AmbiguousReference(arg, reference.Name, ((Ambiguous)arg.Entity).Entities));
+					}
+					else
+					{
+						Error(node, CompilerErrorFactory.MethodReferenceExpected(arg));
+					}
+				}
+				else
+				{
+					BindExpressionType(node, TypeSystemServices.IntPtrType);
+				}
+			}
+		}
+		
+		void ProcessLenInvocation(MethodInvocationExpression node)
+		{
+			if (node.Arguments.Count != 1)
+			{						
+				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "len", 1));
+			}
+			else
+			{
+				MethodInvocationExpression resultingNode = null;
+				
+				Expression target = node.Arguments[0];
+				IType type = GetExpressionType(target);
+				if (TypeSystemServices.ObjectType == type)
+				{
+					resultingNode = CreateMethodInvocation(RuntimeServices_Len, target);
+				}
+				else if (TypeSystemServices.StringType == type)
+				{
+					resultingNode = CreateMethodInvocation(target, String_get_Length);
+				}
+				else if (TypeSystemServices.ArrayType.IsAssignableFrom(type))
+				{
+					resultingNode = CreateMethodInvocation(target, Array_get_Length);
+				}
+				else if (TypeSystemServices.ICollectionType.IsAssignableFrom(type))
+				{
+					resultingNode = CreateMethodInvocation(target, ICollection_get_Count);
+				}	
+				else
+				{
+					Error(CompilerErrorFactory.InvalidLen(target, type.FullName));
+				}
+				if (null != resultingNode)
+				{
+					node.ParentNode.Replace(node, resultingNode);
+				}
+			}
+		}
 		
 		void ApplyBuiltinMethodTypeInference(MethodInvocationExpression expression, IMethod method)
 		{
@@ -2213,7 +2259,7 @@ namespace Boo.Lang.Compiler.Steps
 			{		
 				case EntityType.BuiltinFunction:
 				{
-					OnSpecialFunction(targetInfo, node);
+					OnBuiltinFunction(targetInfo, node);
 					break;
 				}
 				

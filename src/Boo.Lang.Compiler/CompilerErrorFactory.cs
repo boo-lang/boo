@@ -416,6 +416,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0077", node.LexicalInfo, name);
 		}
 		
+		public static CompilerError MethodReferenceExpected(Node node)
+		{
+			return new CompilerError("BCE0078", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -1392,11 +1392,41 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(TypeSystemServices.TypeType);
 		}
 		
+		void OnAddressOf(MethodInvocationExpression node)
+		{
+			_il.Emit(OpCodes.Ldftn, GetMethodInfo((IMethod)GetEntity(node.Arguments[0])));
+			PushType(TypeSystemServices.IntPtrType);
+		}
+		
+		void OnBuiltinFunction(BuiltinFunction function, MethodInvocationExpression node)
+		{
+			switch (function.FunctionType)
+			{
+				case BuiltinFunctionType.AddressOf:
+				{
+					OnAddressOf(node);
+					break;
+				}
+				
+				default:
+				{
+					NotImplemented(node, "BuiltinFunction: " + function.FunctionType);
+					break;
+				}
+			}
+		}
+		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{				
 			IEntity tag = TypeSystemServices.GetEntity(node.Target);
 			switch (tag.EntityType)
 			{
+				case EntityType.BuiltinFunction:
+				{
+					OnBuiltinFunction((BuiltinFunction)tag, node);
+					break;
+				}
+				
 				case EntityType.Method:
 				{	
 					IMethod methodInfo = (IMethod)tag;

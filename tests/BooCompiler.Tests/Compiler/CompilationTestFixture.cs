@@ -232,7 +232,8 @@ namespace BooCompiler.Tests
 	{
 		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
-			CompilerPipeline pipeline = new CompileToFile();
+			//CompilerPipeline pipeline = new CompileToFile();
+			CompilerPipeline pipeline = new CompileToMemory();
 			pipeline.Add(new RunAssembly());
 			return pipeline;
 		}

@@ -76,6 +76,7 @@ BCE0074='self' não pode ser utilizado fora de um método.
 BCE0075='{0}' é um namespace. Namespaces não são expressões válidas.
 BCE0076=Métodos marcados como Runtime devem ter corpo vazio.
 BCE0077=Não é possível invocar uma expressão de tipo '{0}'.
+BCE0078=Uma referência a um método era esperada.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

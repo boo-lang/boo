@@ -101,8 +101,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		System.Collections.Hashtable _anonymousCallableTypes = new System.Collections.Hashtable();
 		
-		static readonly IEntity _lenInfo = new BuiltinFunction(BuiltinFunctionType.Len);
-		
 		public static readonly IType ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
 		
 		public TypeSystemServices()		
@@ -470,7 +468,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("long", LongType);
 			AddPrimitiveType("single", SingleType);
 			AddPrimitiveType("double", DoubleType);
-			AddPrimitive("len", _lenInfo);
+			AddPrimitive("len", new BuiltinFunction(BuiltinFunctionType.Len));
+			AddPrimitive("__addressof__", new BuiltinFunction(BuiltinFunctionType.AddressOf));
 		}
 		
 		void AddPrimitiveType(string name, ExternalType type)

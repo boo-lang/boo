@@ -76,6 +76,7 @@ BCE0074='self' can't be used outside a method.
 BCE0075='{0}' is a namespace. Namespaces can't be used as expressions.
 BCE0076=Runtime methods must have an empty body.
 BCE0077=It's not possible to invoke an expression of type '{0}'.
+BCE0078=A method reference was expected.
 
 ;Boo.Lang.Compiler
 Boo.Lang.Compiler.GlobalNamespaceIsNotSet=Global namespace is not set!
