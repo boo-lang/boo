@@ -104,6 +104,7 @@ class InteractiveInterpreter:
 				print(x.InnerException)
 			except x:
 				print(x)
+		print
 			
 	def LoopEval(code as string):
 		result = self.Eval(code)
