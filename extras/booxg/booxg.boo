@@ -1,6 +1,9 @@
 import System
 import System.IO
 import Boo.IO
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.IO
+import Boo.Lang.Compiler.Ast
 import Gdk from "gdk-sharp" as Gdk
 import Gtk from "gtk-sharp"
 import GtkSourceView from "gtksourceview-sharp"
@@ -20,6 +23,11 @@ class BooEditor(ScrolledWindow):
 	
 	[getter(FileName)]
 	_fname as string
+	
+	Label:
+		get:
+			return System.IO.Path.GetFileName(_fname) if _fname
+			return "unnamed.boo"
 	
 	def constructor():
 		self.SetPolicy(PolicyType.Automatic, PolicyType.Automatic)
@@ -47,7 +55,9 @@ class MainWindow(Window):
 	_notebookEditors = Notebook(TabPos: PositionType.Top, Scrollable: true)
 	_notebookHelpers = Notebook(TabPos: PositionType.Top, Scrollable: true)
 	_notebookOutline = Notebook(TabPos: PositionType.Bottom, Scrollable: true)
+	
 	_documentOutline = TreeView()
+		
 	_accelGroup = AccelGroup()	
 	_editors = [] # workaround for gtk# bug #61703
 	
@@ -58,7 +68,10 @@ class MainWindow(Window):
 		self.Maximize()
 		self.DeleteEvent += OnDelete		
 		
-		_notebookOutline.AppendPage(_documentOutline, Label("Document Outline"))
+		_documentOutline.AppendColumn("Name", CellRendererText (), ("text", 0))		
+		sw = ScrolledWindow()
+		sw.Add(_documentOutline)
+		_notebookOutline.AppendPage(sw, Label("Document Outline"))
 				
 		vbox = VBox(false, 1)
 		vbox.PackStart(CreateMenuBar(), false, false, 0)		
@@ -79,8 +92,7 @@ class MainWindow(Window):
 		self.NewDocument()
 		
 	private def AppendEditor(editor as BooEditor):
-		label = editor.FileName or "unnamed.boo"
-		_notebookEditors.AppendPage(editor, Label(label))
+		_notebookEditors.AppendPage(editor, Label(editor.Label))
 		_editors.Add(editor)
 		editor.ShowAll()
 		_notebookEditors.CurrentPage = _notebookEditors.NPages-1
@@ -138,8 +150,7 @@ class MainWindow(Window):
 		
 		compiler = Boo.Lang.Compiler.BooCompiler()
 		compiler.Parameters.Input.Add(
-				Boo.Lang.Compiler.IO.StringInput(CurrentEditor.FileName or "unnamed.boo",
-												CurrentEditor.Buffer.Text))
+						StringInput(CurrentEditor.Label, 								CurrentEditor.Buffer.Text))
 		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Run()
 		
 		result = compiler.Run()
@@ -157,6 +168,11 @@ class MainWindow(Window):
 					self.OpenDocument(fname)
 		ensure:
 			fs.Hide()
+			
+		self.UpdateDocumentOutline()
+		
+	private def UpdateDocumentOutline():
+		DocumentOutlineProcessor(_documentOutline, CurrentEditor).Update()	
 	
 	private def _menuItemSave_Activated(sender, args as EventArgs):
 		editor = CurrentEditor
@@ -167,8 +183,8 @@ class MainWindow(Window):
 				return
 			fs.Hide()			
 			fname = fs.Selections[0]			
-		editor.SaveAs(fname)
-		_notebookEditors.SetTabLabelText(editor, editor.FileName)
+		editor.SaveAs(fname)		
+		_notebookEditors.SetTabLabelText(editor, editor.Label)
 		
 	private def _menuItemUndo_Activated(sender, args as EventArgs):
 		CurrentEditor.Undo()
@@ -182,6 +198,35 @@ class MainWindow(Window):
 	def OnDelete(sender, args as DeleteEventArgs):
 		Application.Quit()
 		args.RetVal = true
+		
+class DocumentOutlineProcessor:
+
+	_store = TreeStore((string,))
+	_documentOutline as TreeView
+	_module as Boo.Lang.Compiler.Ast.Module
+	
+	def constructor(documentOutline, editor as BooEditor):
+		_module = Parse(editor.FileName, editor.Buffer.Text)
+		_documentOutline = documentOutline
+		
+	def Parse(fname, text):
+		compiler = BooCompiler()
+		compiler.Parameters.Input.Add(StringInput(fname, text))
+		compiler.Parameters.Pipeline = Pipelines.Parse()
+		return compiler.Run().CompileUnit.Modules[0]
+		
+	def Update():
+		for type in _module.Members:
+			iter = _store.AppendValues((type.Name,))
+			if type isa TypeDefinition:
+				UpdateType(iter, type)
+		_documentOutline.Model = _store
+		_documentOutline.ExpandAll()
+				
+	def UpdateType(parent, type as TypeDefinition):
+		for member in type.Members:
+			iter = _store.AppendValues(parent, (member.Name,))			
+	
 		
 Application.Init()
 
