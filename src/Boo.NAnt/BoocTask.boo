@@ -123,7 +123,7 @@ class BoocTask(AbstractBooTask):
 			parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToFile()
 		
 		for fname as string in files:
-			LogVerbose(fname)
+			print("source: ${fname}")
 			parameters.Input.Add(FileInput(fname))
 			
 		for fname as string in _resources.FileNames:
@@ -149,10 +149,10 @@ class BoocTask(AbstractBooTask):
 			if not Path.IsPathRooted(path):
 				path = Path.Combine(baseDir, reference)
 				if not File.Exists(path):
-					self.LogVerbose("${path} doesn't exist.")
+					print("${path} doesn't exist.")
 					path = Path.Combine(frameworkDir, reference)
 					
-			LogVerbose(path)		
+			print("reference: ${path}")		
 			try:
 				parameters.References.Add(System.Reflection.Assembly.LoadFrom(path))
 			except x:

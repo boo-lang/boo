@@ -38,20 +38,32 @@ import Boo.Lang.Compiler
 
 abstract class AbstractBooTask(Task):
 	
+	_baseAssemblyFolder as string
+	
+	def constructor():
+		_baseAssemblyFolder = Path.GetDirectoryName(GetType().Assembly.Location)	
+	
 	protected def RunCompiler(compiler as BooCompiler):
 		
 		domain = AppDomain.CurrentDomain
 		try:
-			//domain.AssemblyResolve += AppDomain_AssemblyResolve
+			domain.AssemblyResolve += AppDomain_AssemblyResolve
 			result = compiler.Run()
 			CheckCompilationResult(result)
 			return result
 		ensure:
-			pass
-			//domain.AssemblyResolve -= AppDomain_AssemblyResolve
+			domain.AssemblyResolve -= AppDomain_AssemblyResolve
 			
-	private def AppDomain_AssemblyResolve(sender, args as ResolveEventArgs):
-		return null
+	private def AppDomain_AssemblyResolve(sender, args as ResolveEventArgs) as System.Reflection.Assembly:
+		print("Looking for assembly: ${args.Name}")
+		
+		simpleName = /,\s+/.Split(args.Name)[0]
+		fname = Path.Combine(_baseAssemblyFolder, simpleName + ".dll")
+		if File.Exists(fname):
+			print("${fname} was found!")
+			return System.Reflection.Assembly.LoadFrom(fname)
+		else:
+			print("${fname} was NOT found!")
 	
 	protected def CheckCompilationResult(context as CompilerContext):
 		errors = context.Errors
@@ -65,6 +77,9 @@ abstract class AbstractBooTask(Task):
 
 	def GetFrameworkDirectory():
 		return Project.TargetFramework.FrameworkAssemblyDirectory.ToString()
+		
+	def print(message):
+		LogVerbose(message)
 
 	def LogInfo(message):
 		self.Log(Level.Info, "${LogPrefix}${message}")
