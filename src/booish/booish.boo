@@ -28,6 +28,7 @@
 
 namespace booish
 
+import System
 import Boo.Lang
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
@@ -375,6 +376,30 @@ class InteractiveInterpreter:
 				
 			return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)	
 
+def WriteRepr(writer as System.IO.TextWriter, value):
+	code = Type.GetTypeCode(value.GetType())
+	if TypeCode.String == code:
+		Visitors.BooPrinterVisitor.WriteStringLiteral(value, writer)
+	elif TypeCode.Object == code:
+		a = value as Array
+		if a is not null:
+			writer.Write("(")
+			for i in range(len(a)):
+				writer.Write(", ") if i > 0				
+				WriteRepr(writer, a.GetValue(i))
+			writer.Write(", ") if 1 == len(a)
+			writer.Write(")")
+		else:
+			c = value as Delegate
+			if c is not null:
+				method = c.Method
+				writer.Write(method.DeclaringType.FullName)
+				writer.Write(".")
+				writer.Write(method.Name)
+			else:
+				writer.Write(value)
+	else:		
+		writer.Write(value)
 			
 def ReadBlock(line as string):
 	newLine = System.Environment.NewLine
@@ -401,14 +426,15 @@ else:
 interpreter = InteractiveInterpreter(options, RememberLastValue: true)
 while line=prompt(">>> "):
 	try:		
-		line = ReadBlock(line) if line.EndsWith(":")
+		line = ReadBlock(line) if line[-1:] in ":", "\\"
 		result = interpreter.Eval(line)
 		if len(result.Errors):
 			DisplayErrors(result.Errors)
 		else:
 			_ = interpreter.LastValue
 			if _ is not null:
-				print(_) 
+				WriteRepr(Console.Out, _)
+				Console.WriteLine()
 				interpreter.SetValue("_", _)
 	except x as System.Reflection.TargetInvocationException:
 		print(x.InnerException)
