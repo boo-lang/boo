@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Members);
 		}
 		
-		override public void LeaveStructDefinition(StructDefinition node)
+		override public void OnStructDefinition(StructDefinition node)
 		{
 			ClassDefinition cd = new ClassDefinition(node.LexicalInfo);			
 			cd.Name = node.Name;
@@ -56,12 +56,11 @@ namespace Boo.Lang.Compiler.Steps
 			cd.Members = node.Members;
 			cd.BaseTypes = node.BaseTypes;
 			cd.BaseTypes.Insert(0, CodeBuilder.CreateTypeReference(TypeSystemServices.ValueTypeType));
-			NormalizeVisibility(cd);
 			foreach (TypeMember member in cd.Members)
 			{
 				NormalizeVisibility(member);
-			}			 
-			cd.Entity = new InternalClass(TypeSystemServices, node);						
+			}
+			OnClassDefinition(cd);						
 			ReplaceCurrentNode(cd);
 		}
 		
