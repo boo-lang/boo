@@ -99,7 +99,7 @@ class BooC(Task):
 		
 	private def AddReferences(parameters as CompilerParameters):
 		
-		if _references.BaseDirectory:
+		if _references.BaseDirectory is not null:
 			baseDir = _references.BaseDirectory.ToString()
 		else:
 			baseDir = Project.BaseDirectory
@@ -111,6 +111,7 @@ class BooC(Task):
 			if not Path.IsPathRooted(path):
 				path = Path.Combine(baseDir, reference)
 				if not File.Exists(path):
+					self.LogVerbose("${path} doesn't exist.")
 					path = Path.Combine(frameworkDir, reference)
 					
 			LogVerbose(path)		
@@ -118,7 +119,7 @@ class BooC(Task):
 				parameters.References.Add(System.Reflection.Assembly.LoadFrom(path))
 			except x:
 				raise BuildException(
-					Boo.ResourceManager.Format("BooC.UnableToLoadAssembly", reference),
+					Boo.ResourceManager.Format("BCE0041", reference),
 					Location,
 					x)					
 
