@@ -259,7 +259,8 @@
 				<include name="extras/SharpDevelop/boo.xshd" />
 				<include name="extras/boox/**/*.boo" />
 				<include name="extras/boox/**/*.build" />
-				<include name="extras/boox/booxw/resources/**/*.png" />
+				<include name="extras/boox/resources/**/*.png" />
+				<include name="extras/boox/resources/**/*.ico" />
 				
 				<include name="examples/**/*.boo" />
 				<include name="examples/**/*.xml" />
@@ -290,7 +291,8 @@
 				<include name="extras/SharpDevelop/boo.xshd" />
 				<include name="extras/boox/**/*.boo" />
 				<include name="extras/boox/**/*.build" />
-				<include name="extras/boox/booxw/resources/**/*.png" />
+				<include name="extras/boox/resources/**/*.png" />
+				<include name="extras/boox/resources/**/*.ico" />
 				
 				<include name="examples/**/*.boo" />
 				<include name="examples/**/*.xml" />
