@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class NamespaceBinding : IBinding, INameSpace
+	public class NamespaceBinding : IBinding, INamespace
 	{		
 		BindingManager _bindingManager;
 		
@@ -111,7 +111,7 @@ namespace Boo.Ast.Compilation.Binding
 		}
 	}
 	
-	public class AssemblyQualifiedNamespaceBinding : IBinding, INameSpace
+	public class AssemblyQualifiedNamespaceBinding : IBinding, INamespace
 	{
 		Assembly _assembly;
 		NamespaceBinding _subject;
@@ -144,7 +144,7 @@ namespace Boo.Ast.Compilation.Binding
 		}
 	}
 	
-	public class AliasedNamespaceBinding : IBinding, INameSpace
+	public class AliasedNamespaceBinding : IBinding, INamespace
 	{
 		string _alias;
 		IBinding _subject;

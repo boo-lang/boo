@@ -46,9 +46,7 @@ um enumerável para o objeto passado e, no caso de falha, exibe mensagem de erro
 done * RuntimeServices.GetEnumerable(object) deve suportar StreamReader
 done * resolução de métodos
 done * downcast (peverify grep)
-* native regular expression support:
-	* re expression /foo/
-	done * match operator ~=
+done * match operator ~=
 done * if stmt modifier
 
 Milestone 3.3 (replace.boo)
@@ -80,6 +78,12 @@ done * unit tests para o compilador/interpretador
 done * mover todos as constantes de tipo de BindingManager para Types
 done * testes para enum (Criar enum em Boo.Tests e escrever alguns test cases)
 done * LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression()) de assignment e declara a variável
+
+Milestone 3.6 (revisão)
+-----------------------
+done * boxing (print e StringFormatting)
+* ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
+* transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 * trocar todos os testes do parser para ao invés de utilizarem xml como base de comparação (o
 que falha no mono já que os xmls gerados são diferentes), utilizar o BooPrinter para gerar a 
 forma canônica, dessa forma, BooPrinter também será testado.
@@ -88,12 +92,9 @@ forma canônica, dessa forma, BooPrinter também será testado.
 * Criar AbstractAstAttribute extends AbstractCompilerStep
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar (para utilizar a resolução padrão de membros, etc)
+* native regular expression support:
+	* re expression /foo/
 
-Milestone 3.6 (revisão)
------------------------
-done * boxing (print e StringFormatting)
-* ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
-* transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 
 Milestone 3.8
 -------------
@@ -152,6 +153,12 @@ Milestone 6
 
 Otimiza��es
 -----------
+* tuple unpacking trocar unpacking for vários binary expression:
+	a, b, = 1, 2
+	por
+	a = 1
+	b = 2
+	
 * tail call prefix para funçoes recursivas com a ScanDirectories do rgrep.boo
 
 * os métodos com yield e métodos que retornam iterators como enumerate devem

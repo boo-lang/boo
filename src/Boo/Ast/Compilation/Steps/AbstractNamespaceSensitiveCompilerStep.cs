@@ -40,7 +40,7 @@ namespace Boo.Ast.Compilation.Steps
 			IBinding binding = BindingManager.ResolvePrimitive(name);
 			if (null == binding)
 			{
-				foreach (INameSpace ns in _namespaces)
+				foreach (INamespace ns in _namespaces)
 				{
 					_context.TraceVerbose("Trying to resolve {0} against {1}...", name, ns);
 					binding = ns.Resolve(name);
@@ -61,7 +61,7 @@ namespace Boo.Ast.Compilation.Steps
 			IBinding binding = Resolve(sourceNode, topLevel);
 			for (int i=1; i<parts.Length; ++i)				
 			{				
-				INameSpace ns = binding as INameSpace;
+				INamespace ns = binding as INamespace;
 				if (null == ns)
 				{
 					binding = null;
@@ -72,7 +72,7 @@ namespace Boo.Ast.Compilation.Steps
 			return binding;
 		}
 		
-		protected void PushNamespace(INameSpace ns)
+		protected void PushNamespace(INamespace ns)
 		{
 			if (null == ns)
 			{

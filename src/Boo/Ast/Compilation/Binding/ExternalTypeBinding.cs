@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class ExternalTypeBinding : StaticNamespaceCache, ITypeBinding
+	public class ExternalTypeBinding : NamespaceBindingCache, ITypeBinding
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
 		

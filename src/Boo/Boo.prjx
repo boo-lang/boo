@@ -235,6 +235,17 @@
     <File name=".\Lang\RequiredAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\TypeReferenceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\AmbiguousBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ExternalEventBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ExternalFieldBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ExternalPropertyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\AssemblyBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ParameterBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\LocalBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ModuleNamespace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\NamespaceBindingCache.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\ErrorBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Assembly" refto="d:\dev\boo\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />

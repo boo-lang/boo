@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class InternalMethodBinding : IMethodBinding, INameSpace
+	public class InternalMethodBinding : IMethodBinding, INamespace
 	{
 		BindingManager _manager;
 		

@@ -12,7 +12,7 @@ namespace Boo.Ast.Compilation.Steps
 	// recalculate namespaces on reference changes
 	// todo: optimize this class so it only reescans
 	// the references when they change
-	public class UsingResolutionStep : AbstractCompilerStep, INameSpace
+	public class UsingResolutionStep : AbstractCompilerStep, INamespace
 	{
 		static object GlobalNamespaceKey = new object();
 		
@@ -22,14 +22,14 @@ namespace Boo.Ast.Compilation.Steps
 		
 		Hashtable _externalTypes = new Hashtable();
 		
-		public static INameSpace GetGlobalNamespace(CompilerContext context)
+		public static INamespace GetGlobalNamespace(CompilerContext context)
 		{
-			return (INameSpace)context.CompileUnit[GlobalNamespaceKey];
+			return (INamespace)context.CompileUnit[GlobalNamespaceKey];
 		}		
 		
-		public static INameSpace GetBooLangNamespace(CompilerContext context)
+		public static INamespace GetBooLangNamespace(CompilerContext context)
 		{
-			return (INameSpace)context.CompileUnit[BooLangNamespaceKey];
+			return (INamespace)context.CompileUnit[BooLangNamespaceKey];
 		}
 		
 		public override void Run()
@@ -136,10 +136,10 @@ namespace Boo.Ast.Compilation.Steps
 			string[] parts = name.Split('.');
 			string topLevel = parts[0];
 			
-			INameSpace ns = (INameSpace)_namespaces[topLevel];
+			INamespace ns = (INamespace)_namespaces[topLevel];
 			for (int i=1; i<parts.Length; ++i)
 			{
-				ns = (INameSpace)ns.Resolve(parts[i]);
+				ns = (INamespace)ns.Resolve(parts[i]);
 				if (null == ns)
 				{
 					break;

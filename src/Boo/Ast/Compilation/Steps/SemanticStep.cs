@@ -40,7 +40,7 @@ namespace Boo.Ast.Compilation.Steps
 			
 			BindingManager.Bind(module, _typeBuilder);			
 			
-			PushNamespace(new ModuleNameSpace(BindingManager, module));
+			PushNamespace(new ModuleNamespace(BindingManager, module));
 			
 			Switch(module.Attributes);
 			Switch(module.Members);
@@ -167,7 +167,7 @@ namespace Boo.Ast.Compilation.Steps
 					binding = typedBinding.BoundType;
 				}
 			
-				IBinding member = ((INameSpace)binding).Resolve(node.Name);				
+				IBinding member = ((INamespace)binding).Resolve(node.Name);				
 				if (null == member)
 				{										
 					Errors.MemberNotFound(node, binding.Name);
@@ -198,7 +198,7 @@ namespace Boo.Ast.Compilation.Steps
 			CheckIterator(node.Iterator, iteratorType);
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
-			PushNamespace(new DeclarationsNameSpace(BindingManager, node.Declarations));
+			PushNamespace(new DeclarationsNamespace(BindingManager, node.Declarations));
 			Switch(node.Statements);
 			PopNamespace();
 		}

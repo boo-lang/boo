@@ -168,7 +168,7 @@ namespace Boo.Ast.Compilation.Steps
 
 		public override void OnModule(Module module, ref Module resultingModule)
 		{			
-			PushNamespace(new ModuleNameSpace(BindingManager, module));
+			PushNamespace(new ModuleNamespace(BindingManager, module));
 
 			// do mdulo precisamos apenas visitar os membros
 			Switch(module.Members);
