@@ -532,6 +532,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{			
 			Bind(node, _currentMethodBinding);
+			if (BindingType.Constructor != _currentMethodBinding.BindingType)
+			{
+				_currentMethodBinding.SuperExpressions.Add(node);
+			}
 		}
 		
 		internal void ResolveMethodOverride(InternalMethodBinding binding)
@@ -541,6 +545,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			Method method = binding.Method;
 			
 			IBinding baseMethods = baseType.Resolve(binding.Name);
+			
+			bool found = false;
+			
 			if (null != baseMethods)
 			{
 				if (BindingType.Method == baseMethods.BindingType)
@@ -548,6 +555,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					IMethodBinding baseMethod = (IMethodBinding)baseMethods;
 					if (CheckOverrideSignature(binding, baseMethod))
 					{	
+						found = true;
 						if (baseMethod.IsVirtual)
 						{
 							SetOverride(binding, method, baseMethod);
@@ -567,6 +575,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					IMethodBinding baseMethod = (IMethodBinding)ResolveMethodReference(method, method.Parameters, bindings, false);
 					if (null != baseMethod)
 					{
+						found = true;
 						if (baseMethod.IsVirtual)
 						{
 							SetOverride(binding, method, baseMethod);
@@ -579,6 +588,19 @@ namespace Boo.Lang.Compiler.Pipeline
 							}
 						}
 					}
+				}
+			}
+			
+			if (!found)
+			{
+				if (method.IsOverride)
+				{
+					Error(CompilerErrorFactory.NoMethodToOverride(method, GetSignature(binding)));
+				}
+				
+				foreach (Expression super in binding.SuperExpressions)
+				{
+					Error(CompilerErrorFactory.MethodIsNotOverride(super, GetSignature(binding)));
 				}
 			}
 		}

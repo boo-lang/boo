@@ -212,5 +212,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("callable0.boo");
 		}
+		
+		[Test]
+		public void InterfaceMethodsTurnIntoAbstractMethodsWhenNotImplemented()
+		{
+			RunCompilerTestCase("interface0.boo");
+		}
 	}
 }

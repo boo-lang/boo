@@ -43,12 +43,15 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExpressionCollection ReturnExpressions;
 		
+		public ExpressionCollection SuperExpressions;
+		
 		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Ast.Method method)
 		{
 			_bindingManager = manager;
 			_method = method;
 			if (method.NodeType != NodeType.Constructor)
 			{
+				SuperExpressions = new ExpressionCollection();
 				ReturnExpressions = new ExpressionCollection();
 				if (null == method.ReturnType)
 				{

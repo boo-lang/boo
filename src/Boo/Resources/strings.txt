@@ -58,6 +58,9 @@ BCE0056=File '{0}' was not found.
 BCE0057=Primitive '{0}' can't be redefined.
 BCE0058=Object required.
 BCE0059=The 'lock' macro expects at least one argument.
+BCE0060='{0}': no suitable method found to override.
+BCE0061='{0}' is not an override.
+
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

@@ -448,12 +448,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 			sb.Append(")");
 			
+			/*
 			ITypeBinding rt = binding.ReturnType;
 			if (null != rt)
 			{
 				sb.Append(" as ");
 				sb.Append(rt.FullName);
 			}
+			*/
 			return sb.ToString();
 		}
 		

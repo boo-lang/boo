@@ -327,6 +327,16 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0059", node.LexicalInfo);
 		}
 		
+		public static CompilerError NoMethodToOverride(Node node, string signature)
+		{
+			return new CompilerError("BCE0060", node.LexicalInfo, signature);
+		}
+		
+		public static CompilerError MethodIsNotOverride(Node node, string signature)
+		{
+			return new CompilerError("BCE0061", node.LexicalInfo, signature);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

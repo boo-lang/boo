@@ -58,6 +58,8 @@ BCE0056=O arquivo '{0}' não foi encontrado.
 BCE0057=A primitiva '{0}' não pode ser redefinido.
 BCE0058=Objeto esperado.
 BCE0059=A macro 'lock' espera pelo menos um argumento.
+BCE0060='{0}': nenhum método apropriado para sobrescrição encontrado.
+BCE0061='{0}' não é uma sobrescrição.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

@@ -85,6 +85,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void OverrideNonExistingMethod()
+		{
+			RunCompilerTestCase("override1.boo");
+		}
+		
+		[Test]
 		public void Assignment()
 		{
 			RunCompilerTestCase("assign0.boo");

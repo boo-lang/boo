@@ -1,5 +1,5 @@
 """
-override0.boo(7,14): BCE0047: Method 'Boo.Tests.Lang.Compiler.DerivedClass.Method2() as System.Void' cannot be overriden because it is not virtual.
+override0.boo(7,14): BCE0047: Method 'Boo.Tests.Lang.Compiler.DerivedClass.Method2()' cannot be overriden because it is not virtual.
 """
 import Boo.Tests.Lang.Compiler from Boo.Tests
 
