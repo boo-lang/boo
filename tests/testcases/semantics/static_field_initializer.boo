@@ -7,11 +7,8 @@ public class Person(System.Object):
 		super()
 		Person.InstanceCount = (Person.InstanceCount + 1)
 
-	static def ___static_initializer() as System.Void:
-		Person.InstanceCount = 0
-
 	public static def constructor():
-		Person.___static_initializer()
+		Person.InstanceCount = 0
 """
 class Person:
 

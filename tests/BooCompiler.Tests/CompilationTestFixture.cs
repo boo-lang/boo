@@ -325,12 +325,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void FieldInitializerAfterConstructor()
-		{
-			RunCompilerTestCase("field_initializer.boo");
-		}
-		
-		[Test]
 		public void OverloadedMethodsCanBeDeclaredInAnyOrder()
 		{
 			RunCompilerTestCase("logservice.boo");

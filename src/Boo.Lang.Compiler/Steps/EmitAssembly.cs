@@ -183,29 +183,11 @@ namespace Boo.Lang.Compiler.Steps
 			
 			SetUpAssembly();
 			
-			ResolveEventHandler resolveHandler = new ResolveEventHandler(OnTypeResolve);
-			AppDomain current = System.Threading.Thread.GetDomain();
-			
-			try
-			{
-				current.TypeResolve += resolveHandler;
-				DefineTypes();
-			}
-			finally
-			{
-				current.TypeResolve -= resolveHandler;
-			}
+			DefineTypes();
 			
 			DefineResources();
 			DefineAssemblyAttributes();
 			DefineEntryPoint();			
-		}
-		
-		Assembly OnTypeResolve(object sender, ResolveEventArgs args)
-		{
-			// TODO: Implement enum resolution here
-			_context.TraceVerbose("OnTypeResolve('{0}')", args.Name);
-			return null;
 		}
 		
 		void DefineTypes()
@@ -235,32 +217,75 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateTypes(Boo.Lang.List types)
 		{
-			Hashtable created = new Hashtable();
-			foreach (TypeMember type in types)
-			{
-				CreateType(created, type);
-			}
+			new TypeCreator(this, types).Run();
 		}
 		
-		void CreateType(Hashtable created, TypeMember type)
-		{	
-			if (!created.ContainsKey(type))
+		class TypeCreator
+		{
+			EmitAssembly _emitter;
+			
+			Hashtable _created;
+			
+			Boo.Lang.List _types;
+			
+			public TypeCreator(EmitAssembly emitter, Boo.Lang.List types)
 			{
-				created.Add(type, type);
-				
-				TypeDefinition typedef = type as TypeDefinition;
-				if (null != typedef)
+				_emitter = emitter;
+				_types = types;
+				_created = new Hashtable();
+			}
+			
+			public void Run()
+			{
+				ResolveEventHandler resolveHandler = new ResolveEventHandler(OnTypeResolve);
+				AppDomain current = System.Threading.Thread.GetDomain();
+			
+				try
 				{
-					foreach (TypeReference baseTypeRef in typedef.BaseTypes)
+					current.TypeResolve += resolveHandler;
+					CreateTypes();
+				}
+				finally
+				{
+					current.TypeResolve -= resolveHandler;
+				}
+			}
+			
+			void CreateTypes()
+			{			
+				foreach (TypeMember type in _types)
+				{
+					CreateType(type);
+				}
+			}
+		
+			void CreateType(TypeMember type)
+			{	
+				if (!_created.ContainsKey(type))
+				{
+					_created.Add(type, type);
+					
+					TypeDefinition typedef = type as TypeDefinition;
+					if (null != typedef)
 					{
-						AbstractInternalType tag = GetType(baseTypeRef) as AbstractInternalType;
-						if (null != tag)
+						foreach (TypeReference baseTypeRef in typedef.BaseTypes)
 						{
-							CreateType(created, tag.TypeDefinition);
+							AbstractInternalType tag = _emitter.GetType(baseTypeRef) as AbstractInternalType;
+							if (null != tag)
+							{
+								CreateType(tag.TypeDefinition);
+							}
 						}
 					}
+					_emitter.GetTypeBuilder(type).CreateType();
 				}
-				GetTypeBuilder(type).CreateType();
+			}
+			
+			Assembly OnTypeResolve(object sender, ResolveEventArgs args)
+			{	
+				// TODO: Implement enum resolution here
+				_emitter.Context.TraceVerbose("OnTypeResolve('{0}')", args.Name);
+				return null;
 			}
 		}
 		
@@ -2691,7 +2716,7 @@ namespace Boo.Lang.Compiler.Steps
 			return _builders[node];
 		}
 		
-		TypeBuilder GetTypeBuilder(Node node)
+		internal TypeBuilder GetTypeBuilder(Node node)
 		{
 			return (TypeBuilder)_builders[node];
 		}

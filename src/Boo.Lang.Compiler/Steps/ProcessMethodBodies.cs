@@ -592,6 +592,19 @@ namespace Boo.Lang.Compiler.Steps
 			node.Initializer = null;			
 		}
 		
+		Method CreateInitializerMethod(TypeDefinition type, string name, TypeMemberModifiers modifiers)
+		{
+			Method method = new Method(name);
+			method.Modifiers |= modifiers;
+			method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
+				
+			InternalMethod entity = new InternalMethod(TypeSystemServices, method);
+			method.Entity = entity;
+			type.Members.Add(method);
+			MarkVisited(method);
+			return method;
+		}
+		
 		Method GetFieldsInitializerMethod(Field node)
 		{
 			TypeDefinition type = node.DeclaringType;
@@ -599,26 +612,28 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = (Method)type[methodName];
 			if (null == method)
 			{				
-				method = new Method(methodName);				
-				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
-				
-				InternalMethod entity = new InternalMethod(TypeSystemServices, method);
-				method.Entity = entity;
-				type.Members.Add(method);
-				
 				if (node.IsStatic)
 				{
-					method.Modifiers |= TypeMemberModifiers.Static;
-					AddInitializerToStaticConstructor(type, entity);					
+					if (null == FindStaticConstructor(type))
+					{
+						// when the class doesnt have a static constructor
+						// yet, create one and use it as the static
+						// field initializer method
+						method = CreateStaticConstructor(type);
+					}
+					else
+					{
+						method = CreateInitializerMethod(type, methodName, TypeMemberModifiers.Static);
+						AddInitializerToStaticConstructor(type, (InternalMethod)method.Entity);
+					}					
 				}			
 				else
 				{
-					AddInitializerToInstanceConstructors(type, entity);
+					method = CreateInitializerMethod(type, methodName, TypeMemberModifiers.None);
+					AddInitializerToInstanceConstructors(type, (InternalMethod)method.Entity);
 				}
 				
 				type[methodName] = method;
-				
-				MarkVisited(method);
 			}
 			return method;
 		}
@@ -635,7 +650,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (NodeType.Constructor == node.NodeType && !node.IsStatic)
 				{
-					((Constructor)node).Body.Insert(0,
+					Constructor constructor = (Constructor)node;
+					constructor.Body.Insert(GetIndexAfterSuperInvocation(constructor.Body),
 						CodeBuilder.CreateMethodInvocation(
 							CodeBuilder.CreateSelfReference((IType)type.Entity),
 							initializer));
@@ -643,7 +659,28 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Constructor GetStaticConstructor(TypeDefinition type)
+		int GetIndexAfterSuperInvocation(Block body)
+		{			
+			int index = 0;
+			foreach (Statement s in body.Statements)
+			{
+				if (NodeType.ExpressionStatement == s.NodeType)
+				{
+					Expression expression = ((ExpressionStatement)s).Expression;
+					if (NodeType.MethodInvocationExpression == expression.NodeType)
+					{
+						if (NodeType.SuperLiteralExpression == ((MethodInvocationExpression)expression).Target.NodeType)
+						{
+							return index + 1;
+						}
+					}
+				}
+				++index;
+			}
+			return 0;
+		}
+		
+		Constructor FindStaticConstructor(TypeDefinition type)
 		{
 			foreach (TypeMember member in type.Members)
 			{
@@ -652,7 +689,21 @@ namespace Boo.Lang.Compiler.Steps
 					return (Constructor)member;
 				}
 			}
-			
+			return null;
+		}
+		
+		Constructor GetStaticConstructor(TypeDefinition type)
+		{
+			Constructor constructor = FindStaticConstructor(type);
+			if (null == constructor)
+			{
+				constructor = CreateStaticConstructor(type);
+			}
+			return constructor;
+		}
+		
+		Constructor CreateStaticConstructor(TypeDefinition type)
+		{
 			Constructor constructor = new Constructor();
 			constructor.Entity = new InternalConstructor(TypeSystemServices, constructor);
 			constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;

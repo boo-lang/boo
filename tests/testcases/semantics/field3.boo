@@ -9,11 +9,8 @@ public class Foo(System.Object):
 		super()
 		self.___initializer()
 
-	static def ___static_initializer() as System.Void:
-		Foo.FinalSolution = '42'
-
 	public static def constructor():
-		Foo.___static_initializer()
+		Foo.FinalSolution = '42'
 
 	def ___initializer() as System.Void:
 		self._some = 3
