@@ -1129,5 +1129,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("field_initializer.boo");
 		}
+		
+		[Test]
+		public void OverloadedMethodsCanBeDeclaredInAnyOrder()
+		{
+			RunCompilerTestCase("logservice.boo");
+		}
 	}
 }

@@ -170,6 +170,11 @@ namespace Boo.Lang.Compiler.Bindings
 					return new InternalFieldBinding(_bindingManager, (Field)member);
 				}
 				
+				case NodeType.EnumDefinition:
+				{
+					return new EnumTypeBinding(_bindingManager, (EnumDefinition)member);
+				}
+				
 				case NodeType.EnumMember:
 				{
 					return new InternalEnumMemberBinding(_bindingManager, (EnumMember)member);

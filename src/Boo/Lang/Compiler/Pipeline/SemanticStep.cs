@@ -1377,6 +1377,24 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		void ResolveMemberBinding(ReferenceExpression node, IMemberBinding member)
+		{
+			MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
+			memberRef.Name = node.Name;
+			
+			if (member.IsStatic)
+			{
+				memberRef.Target = new ReferenceExpression(node.LexicalInfo, member.DeclaringType.FullName);
+				Bind(memberRef.Target, member.DeclaringType);						
+			}
+			else
+			{
+				memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
+			}
+			node.ParentNode.Replace(node, memberRef);
+			Switch(memberRef);
+		}
+		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			if (BindingManager.IsBound(node))
@@ -1394,20 +1412,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				IMemberBinding member = binding as IMemberBinding;
 				if (null != member)
 				{	
-					MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
-					memberRef.Name = node.Name;
-					
-					if (member.IsStatic)
-					{
-						memberRef.Target = new ReferenceExpression(node.LexicalInfo, member.DeclaringType.FullName);
-						Bind(memberRef.Target, member.DeclaringType);						
-					}
-					else
-					{
-						memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
-					}
-					node.ParentNode.Replace(node, memberRef);
-					Switch(memberRef);
+					ResolveMemberBinding(node, member);
 				}
 				else
 				{
@@ -1685,7 +1690,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (BindingManager.IsUnknown(node.Left) || BindingManager.IsUnknown(node.Right))
 			{
-				BindingManager.Bind(node, UnknownBinding.Default);
+				Bind(node, UnknownBinding.Default);
 				_pending.Add(node, new BinaryExpressionResolver(node));
 			}
 			else
@@ -1903,13 +1908,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (IsNumber(lhs) && IsNumber(rhs))
 			{
-				BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+				Bind(node, BindingManager.BoolTypeBinding);
 			}
 			else if (lhs.IsEnum || rhs.IsEnum)
 			{
 				if (lhs == rhs)
 				{
-					BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+					Bind(node, BindingManager.BoolTypeBinding);
 				}
 				else
 				{
@@ -1949,7 +1954,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (CheckBoolContext(node.Left) &&
 				CheckBoolContext(node.Right))
 			{				
-				BindingManager.Bind(node, GetMostGenericType(node));
+				Bind(node, GetMostGenericType(node));
 			}
 			else
 			{
@@ -2121,7 +2126,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				if (NodeType.ReferenceExpression == node.Target.NodeType)
 				{
-					((ReferenceExpression)node.Target).Name = targetBinding.FullName;
+					ResolveMemberBinding((ReferenceExpression)node.Target, (IMemberBinding)targetBinding);
 				}
 				Bind(node.Target, targetBinding);
 			}	
@@ -2323,7 +2328,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				return;
 			}
 			
-			BindingManager.Bind(node, sliceTargetType.GetElementType());
+			Bind(node, sliceTargetType.GetElementType());
 		}
 		
 		void BindAssignmentToSliceProperty(BinaryExpression node)
@@ -2876,9 +2881,17 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void EnsureRelatedNodeWasVisited(IBinding binding)
 		{
-			if (BindingType.TypeReference == binding.BindingType)
+			if (binding.BindingType == BindingType.TypeReference)
 			{
 				binding = ((TypeReferenceBinding)binding).BoundType;
+			}		
+			else if (binding.BindingType == BindingType.Ambiguous)
+			{
+				foreach (IBinding item in ((AmbiguousBinding)binding).Bindings)
+				{
+					EnsureRelatedNodeWasVisited(item);
+				}
+				return;
 			}
 			
 			IInternalBinding internalBinding = binding as IInternalBinding;
