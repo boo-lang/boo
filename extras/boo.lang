@@ -93,6 +93,8 @@ OR
 		<keyword>virtual</keyword>
 		<keyword>override</keyword>
 		<keyword>static</keyword>
+		<keyword>final</keyword>
+		<keyword>transient</keyword>
 		
 		<keyword>protected</keyword>
 		<keyword>private</keyword>
