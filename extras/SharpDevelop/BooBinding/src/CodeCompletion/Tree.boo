@@ -71,10 +71,8 @@ class Class(AbstractClass):
 			c.modifiers = c.modifiers | ModifierEnum.Public
 		
 		for m as IMethod in Methods:
-			if m isa Constructor:
-				cast(Constructor, m).AddModifier(ModifierEnum.Public)
-			elif m isa Method:
-				cast(Method, m).AddModifier(ModifierEnum.Public)
+			if m isa BooAbstractMethod:
+				cast(BooAbstractMethod, m).AddModifier(ModifierEnum.Public)
 			else:
 				Debug.Assert(false, 'Unexpected type in method of interface. Can not set modifier to public!')
 		

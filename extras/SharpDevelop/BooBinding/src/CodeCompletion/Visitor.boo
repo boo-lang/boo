@@ -179,7 +179,7 @@ class Visitor(AbstractVisitorCompilerStep):
 	override def OnMethod(node as AST.Method):
 		try:
 			print "Method: ${node.FullName}"
-			method = Method(node.Name, ReturnType(node.ReturnType), GetModifier(node), GetRegion(node), GetClientRegion(node))
+			method = Method(node.Name, ReturnType.CreateReturnType(node), GetModifier(node), GetRegion(node), GetClientRegion(node))
 			method.Parameters = GetParameters(node.Parameters)
 			method.Node = node
 			method.Documentation = node.Documentation
@@ -218,8 +218,8 @@ class Visitor(AbstractVisitorCompilerStep):
 		try:
 			print "Field ${node.Name}"
 			c as Class = _currentClass.Peek()
-			field = Field(ReturnType(node.Type), node.Name, GetModifier(node), GetRegion(node))
-			field.Documentation = node.Documentation			
+			field = Field(ReturnType.CreateReturnType(node), node.Name, GetModifier(node), GetRegion(node))
+			field.Documentation = node.Documentation
 			c.Fields.Add(field)
 		except ex:
 			print ex.ToString()
@@ -228,7 +228,7 @@ class Visitor(AbstractVisitorCompilerStep):
 	override def OnProperty(node as AST.Property):
 		try:
 			print "Property ${node.Name}"
-			property = Property(node.Name, ReturnType(node.Type), GetModifier(node), GetRegion(node), GetClientRegion(node))
+			property = Property(node.Name, ReturnType.CreateReturnType(node), GetModifier(node), GetRegion(node), GetClientRegion(node))
 			property.Documentation = node.Documentation
 			property.Node = node
 			cast(Class, _currentClass.Peek()).Properties.Add(property)

@@ -21,12 +21,12 @@ class Resolver:
 	_callingClass as IClass
 	_compilationUnit as ICompilationUnit
 	
+	_parentClass as IClass
+	
 	ParentClass as IClass:
 		get:
-			if _callingClass.BaseTypes.Count > 0:
-				return SearchType(_callingClass.BaseTypes[0])
-			else:
-				return null
+			_parentClass = _parserService.BaseClass(_callingClass) if _parentClass == null
+			return _parentClass
 	
 	_resolvedMember = false
 	_currentMember as IMember
@@ -191,6 +191,25 @@ class Resolver:
 	#endregion
 	
 	#region Resolve CC
+	def Initialize(parserService as IParserService, caretLine as int, caretColumn as int, fileName as string):
+		_parserService = parserService
+		_caretLine = caretLine
+		_caretColumn = caretColumn
+		
+		parseInfo = parserService.GetParseInformation(fileName)
+		cu = parseInfo.MostRecentCompilationUnit as CompilationUnit
+		_compilationUnit = cu
+		if _compilationUnit == null:
+			print "BooResolver: No parse information!"
+			return false
+		_callingClass = parserService.GetInnermostClass(cu, caretLine, caretColumn)
+		if _callingClass == null:
+			return false if cu.Classes.Count == 0
+			_callingClass = cu.Classes[cu.Classes.Count - 1]
+			if _callingClass.Region != null:
+				return false if _callingClass.Region.BeginLine > caretLine
+		return true
+	
 	def Resolve(parserService as IParserService, expression as string, caretLine as int, caretColumn as int, fileName as string, fileContent as string) as ResolveResult:
 		if expression == null or expression == '':
 			return null
@@ -201,25 +220,9 @@ class Resolver:
 				return ResolveResult(parserService.GetNamespaceList(expression))
 			return null
 		
-		_parserService = parserService
-		_caretLine = caretLine
-		_caretColumn = caretColumn
-		
-		parseInfo = parserService.GetParseInformation(fileName)
-		cu = parseInfo.MostRecentCompilationUnit as CompilationUnit
-		_compilationUnit = cu
-		if cu == null:
-			print "BooResolver: No parse information!"
+		if not Initialize(parserService, caretLine, caretColumn, fileName):
 			return null
-		callingClass as IClass = parserService.GetInnermostClass(cu, caretLine, caretColumn)
-		if callingClass == null:
-			print "parserServer could not find active class, using last class"
-			return null if cu.Classes.Count == 0
-			callingClass = cu.Classes[cu.Classes.Count - 1]
-			print "last class is ${callingClass}, ${callingClass.FullyQualifiedName}"
-			if callingClass.Region != null:
-				return null if callingClass.Region.BeginLine > caretLine
-		_callingClass = callingClass
+		callingClass = _callingClass
 		returnClass as IClass = null
 		if expression == "self":
 			returnClass = callingClass

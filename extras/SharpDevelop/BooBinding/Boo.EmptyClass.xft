@@ -26,6 +26,7 @@
 import System
 
 class ${ClassName}:
+"""Description of ${ClassName}"""
 	def constructor():
 		pass
 

@@ -15,7 +15,7 @@ class BooAmbience(AbstractAmbience):
 		'System.Object'  : 'object',
 		'System.Boolean' : 'bool',
 		'System.Byte'    : 'byte',
-		//'System.SByte'  : 'sbyte',
+		'System.SByte'   : 'sbyte',
 		//'System.Char'   : 'char',
 		//'System.Enum'   : 'enum',
 		'System.Int16'  : 'short',

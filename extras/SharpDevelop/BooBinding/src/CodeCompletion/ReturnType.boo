@@ -4,6 +4,7 @@ import System
 import System.Collections
 import System.Diagnostics
 import SharpDevelop.Internal.Parser
+import ICSharpCode.SharpDevelop.Services
 import Boo.Lang.Compiler.Ast as AST
 
 /////////////////////////////////////
@@ -46,6 +47,41 @@ class ReturnType(AbstractReturnType):
 			super.FullyQualifiedName = "<Error>"
 			print ("Got unknown TypeReference ${t}")
 	
+	static def CreateReturnType(node as AST.Node) as IReturnType:
+		if node isa AST.Field:
+			t = (node as AST.Field).Type
+		elif node isa AST.Property:
+			t = (node as AST.Property).Type
+		elif node isa AST.Method:
+			t = (node as AST.Method).ReturnType
+		else:
+			raise "Unknown node ${node.GetType().FullName}"
+		str = t as AST.SimpleTypeReference
+		if (str != null and str.Name != "unknown") or t isa AST.ArrayTypeReference:
+			return ReturnType(t)
+		else:
+			if node isa AST.Field:
+				return InferredReturnType((node as AST.Field).Initializer, node.LexicalInfo)
+			elif node isa AST.Property:
+				prop as AST.Property = node
+				return InferredReturnType(GetReturnExpression(prop.Getter), node.LexicalInfo)
+			elif node isa AST.Method:
+				return InferredReturnType(GetReturnExpression(node), node.LexicalInfo)
+	
+	private static def GetReturnExpression(method as AST.Method):
+		return null if method == null
+		return null if method.Body == null
+		visitor = FindReturnExpressionVisitor()
+		method.Body.Accept(visitor)
+		return visitor.Expression
+	
+	private class FindReturnExpressionVisitor(AST.DepthFirstVisitor):
+		[Getter(Expression)]
+		_expression as AST.Expression
+		
+		override def OnReturnStatement(node as AST.ReturnStatement):
+			_expression = node.Expression
+	
 	def constructor(t as AST.TypeDefinition):
 		self(t.FullName)
 	
@@ -69,3 +105,68 @@ class NamespaceReturnType(AbstractReturnType):
 	
 	override def ToString():
 		return "[${GetType().Name} Name=${FullyQualifiedName}]"
+
+/////////////////////////////////////
+///      Inferred Return Type     ///
+/////////////////////////////////////
+class InferredReturnType(AbstractReturnType):
+	_expression as AST.Expression
+	
+	_filename as string
+	_caretLine as int
+	_caretColumn as int
+	
+	def constructor(expression as AST.Expression, info as AST.LexicalInfo):
+		_expression = expression
+		if info == null or expression == null:
+			_resolved = true // don't resolve but return error
+		else:
+			_filename = info.FileName
+			_caretLine = info.Line
+			_caretColumn = info.Column
+	
+	_baseType as IReturnType
+	_resolved as bool = false
+	
+	override FullyQualifiedName as string:
+		get:
+			r = self.BaseType
+			if r == null:
+				return "<Error>"
+			else:
+				return r.FullyQualifiedName
+		set:
+			raise NotSupportedException()
+	
+	override PointerNestingLevel as int:
+		get:
+			r = self.BaseType
+			if r == null:
+				return 0
+			else:
+				return r.PointerNestingLevel
+	
+	override ArrayDimensions as (int):
+		get:
+			r = self.BaseType
+			if r == null:
+				return array(int, 0)
+			else:
+				return r.ArrayDimensions
+	
+	BaseType as IReturnType:
+		get:
+			if not _resolved:
+				_resolved = true
+				_baseType = Resolve()
+			return _baseType
+	
+	def Resolve() as IReturnType:
+		resolver = Resolver()
+		parserService = ICSharpCode.Core.Services.ServiceManager.Services.GetService(typeof(IParserService))
+		if resolver.Initialize(parserService, _caretLine, _caretColumn, _filename):
+			visitor = ExpressionTypeVisitor(Resolver : resolver)
+			visitor.Visit(_expression)
+			return visitor.ReturnType
+		else:
+			return null
