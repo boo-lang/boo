@@ -469,6 +469,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void DelegateReturnType()
+		{
+			RunCompilerTestCase("delegate10.boo");
+		}
+		
+		[Test]
 		public void TestProperty0()
 		{
 			RunCompilerTestCase("property0.boo");

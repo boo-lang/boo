@@ -119,6 +119,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void BindExpressionType(Expression node, IType type)
 		{
+			_context.TraceVerbose("{0}: Type of expression '{1}' bound to '{2}'.", node.LexicalInfo, node, type);  
 			node.ExpressionType = type;
 		}
 		

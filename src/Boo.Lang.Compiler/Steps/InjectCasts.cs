@@ -43,20 +43,57 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
+		{
+			ICallableType type = node.Target.ExpressionType as ICallableType;
+			if (null == type)
+			{
+				return;
+			}
+			
+			IParameter[] parameters = type.GetSignature().Parameters;
+			ExpressionCollection arguments = node.Arguments;
+			for (int i=0; i<parameters.Length; ++i)
+			{
+				Expression newArgument = Cast(parameters[i].Type, arguments[i]);
+				if (null != newArgument)
+				{
+					arguments.ReplaceAt(i, newArgument);
+				}
+			}
+		}
+		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
-				IType lhsType = node.Left.ExpressionType;
-				if (IsCallableType(lhsType))
-				{					
-					IType rhsType = GetExpressionType(node.Right);
-					if (lhsType != rhsType)
+				Expression newRight = Cast(node.Left.ExpressionType, node.Right);
+				if (null != newRight)
+				{
+					node.Right = newRight;
+				}
+			}
+		}
+		
+		bool IsNull(IType type)
+		{
+			return EntityType.Null == type.EntityType;
+		}
+		
+		Expression Cast(IType expectedType, Expression argument)
+		{
+			if (IsCallableType(expectedType))
+			{					
+				IType argumentType = GetExpressionType(argument);
+				if (!IsNull(argumentType))
+				{
+					if (expectedType != argumentType)
 					{
-						node.Right = CreateDelegate(lhsType, node.Right);  
+						return CreateDelegate(expectedType, argument);  
 					}
 				}
 			}
+			return null;
 		}
 		
 		bool IsCallableType(IType type)

@@ -1,8 +1,10 @@
 ﻿* usar delegates externos
-	* delegate5.boo
-	* delegate6.boo
-	* delegate7.boo
 	* delegate8.boo
+	* delegate10.boo
+	
+* internal delegates
+
+* anonymous delegate types
 	
 * fix event handling
 	
@@ -13,12 +15,6 @@
 	* segurança com par chave pública/privada
 	
 * rever os exemplos de pipeline
-
-* usar os delegates declarados
-
-* CallableType
-	* para funçoes
-	* para delegates (o tipo de um evento seria o CallableType equivalente ao delegate)
 
 * map(callable, enumerable)
 

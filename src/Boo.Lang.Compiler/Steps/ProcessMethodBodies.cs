@@ -1137,6 +1137,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					
 					Bind(mie.Target, getter);
+					BindExpressionType(mie.Target, getter.Type);
 					BindExpressionType(mie, getter.ReturnType);
 					
 					node.ParentNode.Replace(node, mie);
@@ -1344,7 +1345,8 @@ namespace Boo.Lang.Compiler.Steps
 			MemberReferenceExpression reference = new MemberReferenceExpression(node.LexicalInfo);
 			reference.Target = new ReferenceExpression(field.DeclaringType.FullName);
 			reference.Name = field.Name;
-			Bind(reference, tag);
+			BindExpressionType(reference.Target, _currentMethodInfo.DeclaringType);
+			Bind(reference, tag);			
 			BindExpressionType(reference, tag.Type);
 			
 			parent.Replace(node, reference);
@@ -2071,11 +2073,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MemberReferenceExpression member = new MemberReferenceExpression(target.LexicalInfo);
 			member.Target = target;
-			member.Name = tag.Name;
+			member.Name = tag.Name;			
 			
 			MethodInvocationExpression mie = new MethodInvocationExpression(target.LexicalInfo);
 			mie.Target = member;
 			Bind(mie.Target, tag);
+			BindExpressionType(mie.Target, tag.Type);
 			BindExpressionType(mie, tag.ReturnType);
 			
 			return mie;			
@@ -2531,7 +2534,9 @@ namespace Boo.Lang.Compiler.Steps
 				mie.Target = target;
 				
 				Bind(target, setter);
+				BindExpressionType(target, setter.Type);
 				Bind(mie, setter);
+				BindExpressionType(mie, setter.ReturnType);
 				
 				node.ParentNode.Replace(node, mie);
 			}
@@ -3273,7 +3278,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			mie.Target = new ReferenceExpression(tag.FullName);
 			
-			BindExpressionType(mie, ((IMethod)tag).ReturnType);
+			IMethod operatorMethod = (IMethod)tag;
+			BindExpressionType(mie, operatorMethod.ReturnType);
+			BindExpressionType(mie.Target, operatorMethod.Type);
 			Bind(mie.Target, tag);
 			
 			node.ParentNode.Replace(node, mie);
