@@ -1930,12 +1930,54 @@ member returns [Token name]
 	;
 	
 protected
+slice[SlicingExpression se]
+	{
+		Expression begin = null;
+		Expression end = null;
+		Expression step = null;
+	} :
+	(
+		( 
+			// [:
+			COLON { begin = OmittedExpression.Default; }
+			(
+				// [:end]
+				end=expression
+				|
+				(
+					// [::step]
+					COLON { end = OmittedExpression.Default; }
+					step=expression
+				)
+				|
+				// [:]
+			)			
+		) |
+		// [begin
+		begin=expression
+		(
+			// [begin:
+			COLON
+			(
+				end=expression | { end = OmittedExpression.Default; } 
+			)
+			(
+				COLON
+				step=expression
+			)?
+		)?
+	)
+	{
+	
+		se.Indices.Add(new Slice(begin, end, step));
+	}
+	;
+	
+protected
 slicing_expression returns [Expression e]
 	{
 		e = null;
-		Expression begin = null;
-		Expression end = null;
-		Expression step = null;		
+		SlicingExpression se = null;
 		MethodInvocationExpression mce = null;
 		Token memberName = null;
 	} :
@@ -1943,45 +1985,12 @@ slicing_expression returns [Expression e]
 	( options { greedy=true; }:
 		(
 			lbrack:LBRACK
-			(
-				( 
-					// [:
-					COLON { begin = OmittedExpression.Default; }
-					(
-						// [:end]
-						end=expression
-						|
-						(
-							// [::step]
-							COLON { end = OmittedExpression.Default; }
-							step=expression
-						)
-						|
-						// [:]
-					)			
-				) |
-				// [begin
-				begin=expression
-				(
-					// [begin:
-					COLON
-					(
-						end=expression | { end = OmittedExpression.Default; } 
-					)
-					(
-						COLON
-						step=expression
-					)?
-				)?
-			)
 			{
-				SlicingExpression se = new SlicingExpression(ToLexicalInfo(lbrack));				
+				se = new SlicingExpression(ToLexicalInfo(lbrack));				
 				se.Target = e;
-				se.Indices.Add(new Slice(begin, end, step));
 				e = se;
-				
-				begin = end = step = null;
 			}
+			slice[se] (COMMA slice[se])*
 			RBRACK
 		)
 		|
