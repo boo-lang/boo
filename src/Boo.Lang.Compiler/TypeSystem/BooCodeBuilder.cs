@@ -195,7 +195,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return expression;
 		}
 		
-		public ReferenceExpression CreateLocalReference(string name, LocalVariable entity)
+		public ReferenceExpression CreateLocalReference(string name, InternalLocal entity)
 		{
 			ReferenceExpression expression = new ReferenceExpression(name);
 			expression.Entity = entity;
@@ -207,14 +207,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			switch (entity.EntityType)
 			{
-				case EntityType.Local: return CreateReference((LocalVariable)entity);
+				case EntityType.Local: return CreateReference((InternalLocal)entity);
 				case EntityType.Field: return CreateReference((IField)entity);
 				case EntityType.Parameter: return CreateReference((InternalParameter)entity);
 			}
 			throw new ArgumentException("entity");
 		}
 		
-		public ReferenceExpression CreateReference(LocalVariable local)
+		public ReferenceExpression CreateReference(InternalLocal local)
 		{
 			return CreateLocalReference(local.Name, local);
 		}
@@ -510,10 +510,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return test;
 		}
 		
-		public LocalVariable DeclareLocal(Method node, string name, IType type)
+		public InternalLocal DeclareLocal(Method node, string name, IType type)
 		{
 			Local local = new Local(node.LexicalInfo, name);
-			LocalVariable entity = new LocalVariable(local, type);
+			InternalLocal entity = new InternalLocal(local, type);
 			local.Entity = entity;
 			node.Locals.Add(local);
 			return entity;

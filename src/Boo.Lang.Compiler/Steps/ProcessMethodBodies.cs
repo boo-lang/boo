@@ -1455,7 +1455,7 @@ namespace Boo.Lang.Compiler.Steps
 						mie = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
 						mie.ExpressionType = TypeSystemServices.StringType;
 						
-						LocalVariable temp = DeclareTempLocal(TypeSystemServices.StringType);
+						InternalLocal temp = DeclareTempLocal(TypeSystemServices.StringType);
 						mie.Arguments.Add(
 							CodeBuilder.CreateAssignment(
 								CodeBuilder.CreateReference(temp),
@@ -1711,7 +1711,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			CheckDeclarationName(node.Declaration);
 			
-			LocalVariable localInfo = DeclareLocal(node, new Local(node.Declaration, false), type);
+			InternalLocal localInfo = DeclareLocal(node, new Local(node.Declaration, false), type);
 			if (null != node.Initializer)
 			{
 				CheckTypeCompatibility(node.Initializer, type, GetExpressionType(node.Initializer));
@@ -3904,7 +3904,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					case EntityType.Local:
 					{
-						return !((LocalVariable)entity).IsPrivateScope;
+						return !((InternalLocal)entity).IsPrivateScope;
 					}
 					
 					case EntityType.Parameter:
@@ -4128,7 +4128,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case EntityType.Local:
 					{
-						return !((LocalVariable)tag).IsPrivateScope;
+						return !((InternalLocal)tag).IsPrivateScope;
 					}
 					
 					case EntityType.Property:
@@ -4186,21 +4186,21 @@ namespace Boo.Lang.Compiler.Steps
 			return reference;
 		}
 		
-		LocalVariable DeclareTempLocal(IType localType)
+		InternalLocal DeclareTempLocal(IType localType)
 		{
 			Local local  = new Local();
 			local.Name = "___temp" + _context.AllocIndex();
 			local.PrivateScope = true;
 			
-			LocalVariable entity = new LocalVariable(local, localType);
+			InternalLocal entity = new InternalLocal(local, localType);
 			local.Entity = entity;
 			_currentMethod.Method.Locals.Add(local);
 			return entity;
 		}
 		
-		LocalVariable DeclareLocal(Node sourceNode, Local local, IType localType)
+		InternalLocal DeclareLocal(Node sourceNode, Local local, IType localType)
 		{			
-			LocalVariable tag = new LocalVariable(local, localType);
+			InternalLocal tag = new InternalLocal(local, localType);
 			Bind(local, tag);
 			
 			_currentMethod.Method.Locals.Add(local);

@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {	
-	public class LocalVariable : ITypedEntity, ILocalEntity
+	public class InternalLocal : ITypedEntity, ILocalEntity
 	{		
 		Boo.Lang.Compiler.Ast.Local _local;
 		
@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		bool _shared;
 		
-		public LocalVariable(Boo.Lang.Compiler.Ast.Local local, IType type)
+		public InternalLocal(Boo.Lang.Compiler.Ast.Local local, IType type)
 		{			
 			_local = local;
 			_type = type;

@@ -511,7 +511,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnLocal(Local local)
 		{			
-			LocalVariable info = GetLocalVariable(local);
+			InternalLocal info = GetInternalLocal(local);
 			info.LocalBuilder = _il.DeclareLocal(GetSystemType(local));
 			info.LocalBuilder.SetLocalSymInfo(local.Name);			
 		}
@@ -1054,7 +1054,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case EntityType.Local:
 				{
-					SetLocal(node, (LocalVariable)tag, leaveValueOnStack);
+					SetLocal(node, (InternalLocal)tag, leaveValueOnStack);
 					break;
 				}
 				
@@ -2014,7 +2014,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					case EntityType.Local:
 					{				
-						_il.Emit(OpCodes.Ldloca, ((LocalVariable)tag).LocalBuilder);
+						_il.Emit(OpCodes.Ldloca, ((InternalLocal)tag).LocalBuilder);
 						return;
 					}
 				
@@ -2069,7 +2069,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case EntityType.Local:
 				{
-					LocalVariable local = (LocalVariable)info;
+					InternalLocal local = (InternalLocal)info;
 					LocalBuilder builder = local.LocalBuilder;
 					_il.Emit(OpCodes.Ldloc, builder);
 					PushType(local.Type);
@@ -2139,7 +2139,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 		}
 		
-		void SetLocal(BinaryExpression node, LocalVariable tag, bool leaveValueOnStack)
+		void SetLocal(BinaryExpression node, InternalLocal tag, bool leaveValueOnStack)
 		{
 			node.Right.Accept(this); // leaves type on stack
 					
@@ -2157,7 +2157,7 @@ namespace Boo.Lang.Compiler.Steps
 			EmitAssignment(tag, typeOnStack);
 		}
 		
-		void EmitAssignment(LocalVariable tag, IType typeOnStack)
+		void EmitAssignment(InternalLocal tag, IType typeOnStack)
 		{			
 			// todo: assignment result must be type on the left in the
 			// case of casting
@@ -2387,7 +2387,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (1 == decls.Count)
 			{
 				// for arg in iterator				
-				StoreLocal(topOfStack, GetLocalVariable(decls[0]));
+				StoreLocal(topOfStack, GetInternalLocal(decls[0]));
 			}
 			else
 			{
@@ -2408,7 +2408,7 @@ namespace Boo.Lang.Compiler.Steps
 						_il.Emit(OpCodes.Ldc_I4, i); // element index			
 						_il.Emit(ldelem);
 						
-						StoreLocal(elementTypeInfo, GetLocalVariable(decls[i]));					
+						StoreLocal(elementTypeInfo, GetInternalLocal(decls[i]));					
 					}
 				}
 				else
@@ -2420,7 +2420,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						_il.Emit(OpCodes.Dup);
 						_il.EmitCall(OpCodes.Call, RuntimeServices_MoveNext, null);				
-						StoreLocal(TypeSystemServices.ObjectType, GetLocalVariable(d));				
+						StoreLocal(TypeSystemServices.ObjectType, GetInternalLocal(d));				
 					}					
 				}
 				_il.Emit(OpCodes.Pop);
@@ -2735,7 +2735,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void StoreLocal(IType topOfStack, LocalVariable local)
+		void StoreLocal(IType topOfStack, InternalLocal local)
 		{
 			EmitCastIfNeeded(local.Type, topOfStack);
 			_il.Emit(OpCodes.Stloc, local.LocalBuilder);
@@ -2843,7 +2843,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		LocalBuilder GetLocalBuilder(Node local)
 		{
-			return GetLocalVariable(local).LocalBuilder;
+			return GetInternalLocal(local).LocalBuilder;
 		}
 		
 		PropertyInfo GetPropertyInfo(IEntity tag)

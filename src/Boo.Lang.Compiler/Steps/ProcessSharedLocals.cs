@@ -136,7 +136,7 @@ namespace Boo.Lang.Compiler.Steps
 		void Map()
 		{
 			IType type = (IType)_sharedLocalsClass.Entity;
-			LocalVariable locals = CodeBuilder.DeclareLocal(_currentMethod, "___locals", type);
+			InternalLocal locals = CodeBuilder.DeclareLocal(_currentMethod, "___locals", type);
 			
 			foreach (ReferenceExpression reference in _references)
 			{
@@ -164,7 +164,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void InitializeSharedParameters(Block block, LocalVariable locals)
+		void InitializeSharedParameters(Block block, InternalLocal locals)
 		{			
 			foreach (Node node in _currentMethod.Parameters)
 			{

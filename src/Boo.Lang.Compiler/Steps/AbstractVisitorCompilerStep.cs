@@ -160,9 +160,9 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.GetType(node);
 		}		
 		
-		public LocalVariable GetLocalVariable(Node local)
+		public InternalLocal GetInternalLocal(Node local)
 		{
-			return (LocalVariable)GetEntity(local);
+			return (InternalLocal)GetEntity(local);
 		}
 		
 		protected void NotImplemented(Node node, string feature)

@@ -29,6 +29,7 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
+	using System.Collections;
 	using Boo.Lang;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
@@ -112,9 +113,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		List _labels;
 		
+		Hashtable _mapping;
+		
 		public GeneratorMethodProcessor(CompilerContext context, InternalMethod method)
 		{
 			_labels = new List();
+			_mapping = new Hashtable();
 			_generator = method;			
 			Initialize(context);
 		}
@@ -173,7 +177,15 @@ namespace Boo.Lang.Compiler.Steps
 			BooMethodBuilder mn = _enumerator.AddVirtualMethod("MoveNext", TypeSystemServices.BoolType);
 			_moveNext = mn.Entity;
 			
-			mn.Locals.Extend(generator.Locals);
+			int i=0;
+			foreach (Local local in generator.Locals)
+			{
+				InternalLocal entity = (InternalLocal)local.Entity;
+				
+				Field field = _enumerator.AddField("___" + entity.Name + i, entity.Type);
+				_mapping[entity] = field.Entity;
+				++i;
+			}
 			generator.Locals.Clear();
 			
 			mn.Body.Add(generator.Body);
@@ -190,7 +202,19 @@ namespace Boo.Lang.Compiler.Steps
 					_labels));
 		}
 		
-		override public void OnYieldStatement(YieldStatement node)
+		override public void OnReferenceExpression(ReferenceExpression node)
+		{
+			InternalField mapped = (InternalField)_mapping[node.Entity];
+			if (null != mapped)
+			{
+				ReplaceCurrentNode(
+					CodeBuilder.CreateMemberReference(
+						CodeBuilder.CreateSelfReference(_enumerator.Entity),
+						mapped));
+			}
+		}
+		
+		override public void LeaveYieldStatement(YieldStatement node)
 		{
 			LabelStatement label = CreateLabel(node);
 			
@@ -410,7 +434,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				foreach (Declaration declaration in declarations)
 				{
-					LocalVariable local = (LocalVariable)declaration.Entity;
+					InternalLocal local = (InternalLocal)declaration.Entity;
 					method.Locals.Add(local.Local);
 					unpack.Declarations.Add(declaration);
 				}
@@ -420,7 +444,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				LocalVariable local = (LocalVariable)declarations[0].Entity;
+				InternalLocal local = (InternalLocal)declarations[0].Entity;
 				method.Locals.Add(local.Local);
 				
 				outerBlock.Add(CodeBuilder.CreateAssignment(
