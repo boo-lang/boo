@@ -63,6 +63,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType BoolType;
 		
+		public ExternalType CharType;
+		
 		public ExternalType ByteType;
 		
 		public ExternalType ShortType;
@@ -143,6 +145,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(StringType = new ExternalType(this, Types.String));
 			Cache(BoolType = new ExternalType(this, Types.Bool));
 			Cache(ByteType = new ExternalType(this, Types.Byte));
+			Cache(CharType = new ExternalType(this, Types.Char));
 			Cache(ShortType = new ExternalType(this, Types.Short));
 			Cache(IntType = new ExternalType(this, Types.Int));
 			Cache(LongType = new ExternalType(this, Types.Long));

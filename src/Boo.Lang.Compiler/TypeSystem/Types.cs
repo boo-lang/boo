@@ -68,6 +68,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly Type Byte = typeof(byte);
 		
+		public static readonly Type Char = typeof(char);
+		
 		public static readonly Type Short = typeof(short);
 		
 		public static readonly Type Int = typeof(int);

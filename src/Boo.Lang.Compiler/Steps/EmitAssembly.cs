@@ -2340,6 +2340,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldelem_I8;
 				}
+				if (TypeSystemServices.ShortType == tag ||
+					TypeSystemServices.CharType == tag)
+				{
+					return OpCodes.Ldelem_I2;
+				}
 				if (TypeSystemServices.SingleType == tag)
 				{
 					return OpCodes.Ldelem_R4;
@@ -2364,6 +2369,11 @@ namespace Boo.Lang.Compiler.Steps
 				if (TypeSystemServices.LongType == tag)
 				{
 					return OpCodes.Stelem_I8;
+				}
+				if (TypeSystemServices.ShortType == tag ||
+					TypeSystemServices.CharType == tag)
+				{
+					return OpCodes.Stelem_I2;
 				}
 				if (TypeSystemServices.SingleType == tag)
 				{
@@ -2421,6 +2431,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetNumericPromotionOpCode(IType type)
 		{
+			if (type == TypeSystemServices.ShortType)
+			{
+				return OpCodes.Conv_I2;
+			}
+			else if (type == TypeSystemServices.UShortType)
+			{
+				return OpCodes.Conv_U2;
+			}	
 			if (type == TypeSystemServices.IntType)
 			{
 				return OpCodes.Conv_I4;

@@ -73,6 +73,7 @@ namespace BooCompiler.Tests
 			CopyAssembly(typeof(Boo.Lang.Compiler.BooCompiler).Assembly);
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
+			CopyAssembly(System.Reflection.Assembly.LoadWithPartialName("BooModules"));
 		}
 		
 		public void CopyAssembly(System.Reflection.Assembly assembly)
