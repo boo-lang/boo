@@ -29,7 +29,6 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
-	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.TypeSystem;
@@ -60,15 +59,59 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{			
-			ResolveBaseTypes(new ArrayList(), node);
+			Accept(node.Members);
+			ResolveBaseTypes(new Boo.Lang.List(), node);
+			CheckBaseTypes(node);
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			ResolveBaseTypes(new ArrayList(), node);
+			ResolveBaseTypes(new Boo.Lang.List(), node);
+			CheckInterfaceBaseTypes(node);
 		}
 		
-		protected void ResolveBaseTypes(ArrayList visited, TypeDefinition node)
+		void CheckBaseTypes(ClassDefinition node)
+		{
+			IType baseClass = null;
+			foreach (TypeReference baseType in node.BaseTypes)
+			{				
+				IType baseInfo = GetType(baseType);
+				if (baseInfo.IsClass)
+				{
+					if (null != baseClass)
+					{
+						Error(
+						    CompilerErrorFactory.ClassAlreadyHasBaseType(baseType,
+								node.Name,
+								baseClass.FullName)
+							); 
+					}
+					else
+					{
+						baseClass = baseInfo;
+					}
+				}
+			}
+			
+			if (null == baseClass)
+			{
+				node.BaseTypes.Insert(0, CreateTypeReference(TypeSystemServices.ObjectType)	);
+			}
+		}
+		
+		void CheckInterfaceBaseTypes(InterfaceDefinition node)
+		{
+			foreach (TypeReference baseType in node.BaseTypes)
+			{
+				IType tag = GetType(baseType);
+				if (!tag.IsInterface)
+				{
+					Error(CompilerErrorFactory.InterfaceCanOnlyInheritFromInterface(baseType, node.FullName, tag.FullName));
+				}
+			}
+		}
+		
+		void ResolveBaseTypes(Boo.Lang.List visited, TypeDefinition node)
 		{
 			visited.Add(node);
 			

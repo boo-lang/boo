@@ -136,7 +136,12 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void Run()
-		{					
+		{	
+			if (Errors.Count > 0)
+			{
+				return;
+			}
+			
 			NameResolutionService.Reset();
 			
 			_currentMethodInfo = null;
@@ -202,53 +207,6 @@ namespace Boo.Lang.Compiler.Steps
 			LeaveNamespace();
 		}
 		
-		void BindBaseInterfaceTypes(InterfaceDefinition node)
-		{
-			Accept(node.BaseTypes);
-			
-			foreach (TypeReference baseType in node.BaseTypes)
-			{
-				IType baseInfo = GetType(baseType);
-				EnsureRelatedNodeWasVisited(baseInfo);
-				if (!baseInfo.IsInterface)
-				{
-					Error(CompilerErrorFactory.InterfaceCanOnlyInheritFromInterface(baseType, node.FullName, baseInfo.FullName));
-				}
-			}
-		}
-		
-		void BindBaseTypes(ClassDefinition node)
-		{
-			Accept(node.BaseTypes);
-			
-			IType baseClass = null;
-			foreach (TypeReference baseType in node.BaseTypes)
-			{				
-				IType baseInfo = GetType(baseType);
-				EnsureRelatedNodeWasVisited(baseInfo);
-				if (baseInfo.IsClass)
-				{
-					if (null != baseClass)
-					{
-						Error(
-						    CompilerErrorFactory.ClassAlreadyHasBaseType(baseType,
-								node.Name,
-								baseClass.FullName)
-							); 
-					}
-					else
-					{
-						baseClass = baseInfo;
-					}
-				}
-			}
-			
-			if (null == baseClass)
-			{
-				node.BaseTypes.Insert(0, CreateTypeReference(TypeSystemServices.ObjectType)	);
-			}
-		}
-		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
 			if (Visited(node))
@@ -258,8 +216,6 @@ namespace Boo.Lang.Compiler.Steps
 			MarkVisited(node);
 			
 			InternalType tag = GetInternalType(node);
-			BindBaseInterfaceTypes(node);
-			
 			EnterNamespace(tag);
 			Accept(node.Attributes);
 			Accept(node.Members);
@@ -274,10 +230,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			MarkVisited(node);
 			
-			InternalType tag = GetInternalType(node);
-			
-			BindBaseTypes(node);
-			
+			InternalType tag = GetInternalType(node);			
 			EnterNamespace(tag);
 			Accept(node.Attributes);		
 			ProcessFields(node);

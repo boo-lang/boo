@@ -38,11 +38,11 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerPipeline : System.MarshalByRefObject
 	{	
-		ArrayList _items;
+		Boo.Lang.List _items;
 
 		public CompilerPipeline()
 		{
-			_items = new ArrayList();
+			_items = new Boo.Lang.List();
 		}
 		
 		public CompilerPipeline Add(ICompilerStep step)
