@@ -2046,6 +2046,12 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 					
+					case TypeCode.Char:
+					{
+						_il.Emit(OpCodes.Ldc_I4, (int)(char)value);
+						break;
+					}
+					
 					case TypeCode.Int32:
 					{
 						_il.Emit(OpCodes.Ldc_I4, (int)value);

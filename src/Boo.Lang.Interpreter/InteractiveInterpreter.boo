@@ -152,8 +152,9 @@ class InteractiveInterpreter:
 			compiler.Parameters.Input.Clear()
 			
 	private def PreProcessImportLine(code as string):
-		if code.StartsWith("import "):
-			return @/import\s+/.Split(code)[-1]
+		match = @/^\s*import\s+((\w|\.)+)\s*$/.Match(code)
+		if match.Success:
+			return match.Groups[1].Value
 		return code
 		
 	def Eval(code as string):

@@ -2842,6 +2842,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		bool IsChar(IType type)
+		{
+			return TypeSystemServices.CharType == type;
+		}
+		
 		void BindCmpOperator(BinaryExpression node)
 		{
 			IType lhs = GetExpressionType(node.Left);
@@ -2851,7 +2856,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				BindExpressionType(node, TypeSystemServices.BoolType);
 			}
-			else if (lhs.IsEnum || rhs.IsEnum)
+			else if (lhs.IsEnum || rhs.IsEnum || IsChar(lhs) || IsChar(rhs))
 			{
 				if (lhs == rhs)
 				{
