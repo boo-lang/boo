@@ -29,8 +29,11 @@
 import System
 import System.IO
 import System.Reflection
+import System.Threading
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
+import Boo.Lang.Compiler.Pipeline
+import Boo.Lang.Compiler.Pipeline.Definitions
 
 class AssemblyResolver:
 
@@ -65,11 +68,14 @@ def consume(reader as TextReader):
 	return writer.ToString()
 
 def main(argv as (string)):
+	Thread.CurrentThread.ApartmentState = ApartmentState.STA
+	
 	compiler = BooCompiler()
 		
 	// boo memory pipeline
 	// compiles the code in memory only
-	compiler.Parameters.Pipeline.Load("boom")
+	pipeline = compiler.Parameters.Pipeline
+	pipeline.Load(BoomPipelineDefinition)	
 	
 	if "-" == argv[0]:
 		compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))
