@@ -195,8 +195,7 @@ na lista de dependências tenha sido alterado
 done * remover kindof:	
 	done * implementar checagem de tipo quando o argumento da direita for uma TypeReference
 	
-* simplificar tratamento do operador typeof, basta fazer seu binding como
-TypeReference
+* simplificar tratamento do operador typeof, basta fazer seu binding como TypeReference
 
 * logical operators
 	* or

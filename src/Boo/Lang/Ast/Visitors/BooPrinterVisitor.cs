@@ -34,8 +34,7 @@ using Boo.Lang.Ast;
 namespace Boo.Lang.Ast.Visitors
 {
 	/// <summary>
-	/// Imprime uma AST boo em boo. til para visualizar a 
-	/// expanso de Ast Attributes e mixins.
+	/// Imprime uma AST boo em boo.
 	/// </summary>
 	public class BooPrinterVisitor : TextEmitter
 	{		

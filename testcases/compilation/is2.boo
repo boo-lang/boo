@@ -1,5 +1,6 @@
 """
 is int
+'string' is a string
 """
 o as object = 3
 if (o is string):
@@ -9,3 +10,7 @@ else:
 		print("is int")
 	else:
 		print("what?")
+if ("string" is not string):
+	print("not a string")
+else:
+	print("'string' is a string")

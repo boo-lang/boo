@@ -433,10 +433,84 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.MarkLabel(endLabel);
 		}
 		
+		void EmitBranchTrue(UnaryExpression expression, Label label)
+		{
+			if (UnaryOperatorType.Not == expression.Operator)
+			{
+				EmitBranchTrue(expression.Operand, label);
+			}
+			else
+			{
+				DefaultBranchTrue(expression, label);
+			}
+		}
+		
+		void EmitBranchTrue(BinaryExpression expression, Label label)
+		{
+			switch (expression.Operator)
+			{
+				case BinaryOperatorType.TypeTest:
+				{
+					EmitTypeTest(expression);
+					_il.Emit(OpCodes.Brtrue, label);
+					break;
+				}
+				
+				default:
+				{
+					DefaultBranchTrue(expression, label);
+					break;
+				}
+			}
+		}
+		
 		void EmitBranchTrue(Expression expression, Label label)
+		{
+			switch (expression.NodeType)
+			{
+				case NodeType.BinaryExpression:
+				{
+					EmitBranchTrue((BinaryExpression)expression, label);
+					break;
+				}
+				
+				case NodeType.UnaryExpression:
+				{
+					EmitBranchTrue((UnaryExpression)expression, label);
+					break;
+				}
+				
+				default:
+				{
+					DefaultBranchTrue(expression, label);
+					break;
+				}
+			}
+		}
+		
+		void DefaultBranchTrue(Expression expression, Label label)
 		{
 			expression.Switch(this); PopType();
 			_il.Emit(OpCodes.Brtrue, label);
+		}
+		
+		void EmitBranchFalse(BinaryExpression expression, Label label)
+		{
+			switch (expression.Operator)
+			{
+				case BinaryOperatorType.TypeTest:
+				{
+					EmitTypeTest(expression);
+					_il.Emit(OpCodes.Brfalse, label);
+					break;
+				}
+				
+				default:
+				{
+					DefaultBranchFalse(expression, label);
+					break;
+				}
+			}
 		}
 		
 		void EmitBranchFalse(Expression expression, Label label)
@@ -446,6 +520,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				case NodeType.UnaryExpression:
 				{
 					EmitBranchFalse((UnaryExpression)expression, label);
+					break;
+				}
+				
+				case NodeType.BinaryExpression:
+				{
+					EmitBranchFalse((BinaryExpression)expression, label);
 					break;
 				}
 				
@@ -640,10 +720,15 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		void OnTypeTest(BinaryExpression node)
+		void EmitTypeTest(BinaryExpression node)
 		{
 			Switch(node.Left); PopType();
 			_il.Emit(OpCodes.Isinst, GetType(node.Right));
+		}
+		
+		void OnTypeTest(BinaryExpression node)
+		{
+			EmitTypeTest(node);
 			
 			Label isTrue = _il.DefineLabel();
 			Label isFalse = _il.DefineLabel();
