@@ -66,6 +66,7 @@ BCE0064=No attribute with the name '{0}' or '{0}Attribute' was found (attribute 
 BCE0065=Can't iterate over expression of type '{0}'.
 BCE0066=The attribute '{0}' can only be applied to '{1}' nodes.
 BCE0067=There's already a local variable with the name '{0}'.
+BCE0068=The property '{0}' cannot be used without parameters.
 
 ;BooC Messages
 BooC.Errors={0} error(s).

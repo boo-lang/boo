@@ -16,7 +16,7 @@ public final transient class Assign_propertyModule(System.Object):
 
 	private static def __Main__() as System.Void:
 		p = Person()
-		p.set_Name('boo')
+		p.Name = 'boo'
 		Boo.Lang.Builtins.print(p.get_Name())
 
 	private def constructor():

@@ -223,6 +223,11 @@ namespace Boo.Lang.Compiler.Bindings
 			return null != node[BindingKey];
 		}
 		
+		public static void Unbind(Node node)
+		{
+			node[BindingKey] = null;
+		}
+		
 		public static void Bind(Node node, IBinding binding)
 		{
 			if (null == node)

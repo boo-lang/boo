@@ -66,6 +66,7 @@ BCE0064=Nenhum atributo de nome '{0}' ou '{0}Attribute' foi encontrado (nomes de
 BCE0065=Não é possível iterar sobre uma expressão de tipo '{0}'.
 BCE0066=O atributo '{0}' pode somente ser aplicado a nós de tipo: '{1}'.
 BCE0067=Já existe uma variável local de nome '{0}'.
+BCE0068=A propriedade '{0}' exige parâmetros.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

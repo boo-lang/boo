@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.Bindings
 				List constructors = new List();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{					
-					if (member.NodeType == NodeType.Constructor)
+					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
 					{
 						IBinding binding = BindingManager.GetOptionalBinding(member);
 						if (null == binding)
@@ -116,7 +116,6 @@ namespace Boo.Lang.Compiler.Bindings
 							BindingManager.Bind(member, binding);
 						}
 						constructors.Add(binding);
-						//constructors.Add(BindingManager.GetBinding(member));
 					}
 				}
 				_constructors = (IConstructorBinding[])constructors.ToArray(typeof(IConstructorBinding));

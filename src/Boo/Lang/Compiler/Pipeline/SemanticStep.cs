@@ -590,7 +590,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		override public void LeaveConstructor(Constructor node)
 		{
 			InternalConstructorBinding binding = (InternalConstructorBinding)_currentMethodBinding;
-			if (!binding.HasSuperCall)
+			if (!binding.HasSuperCall && !node.IsStatic)
 			{
 				node.Body.Statements.Insert(0, CreateDefaultConstructorCall(node, binding));
 			}
@@ -1411,13 +1411,21 @@ namespace Boo.Lang.Compiler.Pipeline
 					if (BindingType.Property == member.BindingType)
 					{
 						if (!AstUtil.IsLhsOfAssignment(node) &&
-							!(
-								AstUtil.IsTargetOfSlicing(node) &&
-								IsIndexedProperty(member)
-							 ))
+							!IsPreIncDec(node.ParentNode))
 						{
-							node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IPropertyBinding)member).GetGetMethod()));
-							return;
+							if (IsIndexedProperty(member))
+							{
+								if (!AstUtil.IsTargetOfSlicing(node))
+								{
+									Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), nodeBinding.FullName));
+									return;
+								}
+							}
+							else
+							{
+								node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IPropertyBinding)member).GetGetMethod()));
+								return;
+							}
 						}
 					}
 				}
@@ -1547,6 +1555,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
+					BindingManager.Unbind(node.Operand);
 					BinaryExpression addition = new BinaryExpression(
 														node.Operator == UnaryOperatorType.Increment ?
 																BinaryOperatorType.Addition : BinaryOperatorType.Subtraction,
@@ -2314,22 +2323,17 @@ namespace Boo.Lang.Compiler.Pipeline
 					ITypeBinding lhsType = GetBoundType(node.Left);
 					if (CheckTypeCompatibility(node.Right, lhsType, GetExpressionType(node.Right)))
 					{
+						resultingType = lhsType;
+						
 						if (BindingType.Property == lhs.BindingType)
 						{
-							Expression target = ((MemberReferenceExpression)node.Left).Target;
-							IMethodBinding setter = ((IPropertyBinding)lhs).GetSetMethod();
-							if (null == setter)
+							IPropertyBinding property = (IPropertyBinding)lhs;
+							if (IsIndexedProperty(property))
 							{
-								Error(node, CompilerErrorFactory.PropertyIsReadOnly(target, lhs.FullName));
-							}
-							else
-							{
-								
-								node.ParentNode.Replace(node, CreateMethodInvocation(target, setter, node.Right));
-							}
-							return;
-						}
-						resultingType = lhsType;							
+								Error(CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node.Left), property.FullName));
+								resultingType = ErrorBinding.Default;
+							}	
+						}						
 					}
 				}
 				Bind(node, resultingType);
@@ -2713,28 +2717,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			return false;
 		}
-
-		bool IsLValue(IBinding binding)
-		{
-			switch (binding.BindingType)
-			{
-				case BindingType.Local:
-				{
-					return !((LocalBinding)binding).IsPrivateScope;
-				}
-				
-				case BindingType.Property:
-				{
-					return true;
-				}
-				
-				case BindingType.Field:
-				{
-					return true;
-				}
-			}
-			return false;
-		}
 		
 		bool IsIntegerNumber(ITypeBinding type)
 		{
@@ -3014,14 +2996,44 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
+		Node GetMemberAnchor(Node node)
+		{
+			MemberReferenceExpression member = node as MemberReferenceExpression;
+			return member != null ? member.Target : node;
+		}
+		
 		bool CheckLValue(Node node, IBinding binding)
 		{
-			if (!IsLValue(binding))
+			switch (binding.BindingType)
 			{
-				Error(CompilerErrorFactory.LValueExpected(node));
-				return false;
+				case BindingType.Parameter:
+				{
+					return true;
+				}
+				
+				case BindingType.Local:
+				{
+					return !((LocalBinding)binding).IsPrivateScope;
+				}
+				
+				case BindingType.Property:
+				{
+					if (null == ((IPropertyBinding)binding).GetSetMethod())
+					{
+						Error(CompilerErrorFactory.PropertyIsReadOnly(GetMemberAnchor(node), binding.FullName));
+						return false;
+					}
+					return true;
+				}
+				
+				case BindingType.Field:
+				{
+					return true;
+				}
 			}
-			return true;
+			
+			Error(CompilerErrorFactory.LValueExpected(node));
+			return false;
 		}
 		
 		bool CheckBoolContext(Expression expression)
@@ -3072,7 +3084,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				IsPreIncDec(node);
 		}
 		
-		static bool IsPreIncDec(Expression node)
+		static bool IsPreIncDec(Node node)
 		{
 			if (node.NodeType == NodeType.UnaryExpression)
 			{

@@ -844,6 +844,12 @@ namespace Boo.Lang.Compiler.Pipeline
 					SetField(node, field, node.Left, node.Right, leaveValueOnStack);
 					break;
 				}
+				
+				case BindingType.Property:
+				{
+					SetProperty(node, (IPropertyBinding)binding, node.Left, node.Right, leaveValueOnStack);
+					break;
+				}
 					
 				default:
 				{
