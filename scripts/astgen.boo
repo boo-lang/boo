@@ -668,6 +668,7 @@ namespace Boo.Lang.Compiler.Ast
 						int actualIndex = i-removed;
 						if (null == resultingNode)
 						{
+							++removed;
 							collection.RemoveAt(actualIndex);
 						}
 						else

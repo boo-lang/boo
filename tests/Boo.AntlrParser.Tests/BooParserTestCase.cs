@@ -180,6 +180,12 @@ namespace Boo.AntlrParser.Tests
 		}
 		
 		[Test]
+		public void StatementModifiersOnUnpackStatement()
+		{
+			RunParserTestCase("stmt_modifiers_3.boo");
+		}
+		
+		[Test]
 		public void CallableDefinitions()
 		{
 			RunParserTestCase("CallableDefinitions.boo");

@@ -105,6 +105,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}		
 		
+		override public void LeaveUnpackStatement(UnpackStatement node)
+		{
+			LeaveStatement(node);
+		}
+		
 		override public void LeaveExpressionStatement(ExpressionStatement node)
 		{
 			LeaveStatement(node);

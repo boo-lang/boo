@@ -1260,6 +1260,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void StatementModifierOnUnpack()
+		{
+			RunCompilerTestCase("modifiers0.boo");
+		}
+		
+		[Test]
 		public void ICallableCanBeInvoked()
 		{
 			RunCompilerTestCase("callable0.boo");

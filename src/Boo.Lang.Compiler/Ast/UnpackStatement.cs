@@ -35,8 +35,7 @@ namespace Boo.Lang.Compiler.Ast
 	public class UnpackStatement : UnpackStatementImpl
 	{		
 		public UnpackStatement()
-		{
-			_declarations = new DeclarationCollection(this);
+		{		
  		}
 		
 		public UnpackStatement(Expression expression) : base(expression)
