@@ -322,7 +322,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (EnumMember member in node.Members)
 			{
 				//enumBuilder.DefineLiteral(member.Name, (long)member.Initializer.Value);
-				FieldBuilder field = builder.DefineField(member.Name, baseType,
+				FieldBuilder field = builder.DefineField(member.Name, builder,
 									FieldAttributes.Public |
 									FieldAttributes.Static |
 									FieldAttributes.Literal);
