@@ -46,6 +46,7 @@ namespace Boo.Tests.Ast.Compiler
 					Add(new Boo.Antlr.BooParsingStep()).
 					Add(new ImportResolutionStep()).
 					Add(new AstAttributesStep()).
+					Add(new MacroExpansionStep()).
 					Add(new AstNormalizationStep()).							
 					Add(new SemanticStep()).
 					Add(new BooPrinterStep());
@@ -97,6 +98,17 @@ namespace Boo.Tests.Ast.Compiler
 		{
 			RunCompilerTestCase("method7.boo");
 		}
-
+		
+		[Test]
+		public void UsingMacroWithBinaryExpressionArgument()
+		{
+			RunCompilerTestCase("using0.boo");
+		}
+		
+		[Test]
+		public void UsingMacroNested()
+		{
+			RunCompilerTestCase("using1.boo");
+		}
 	}
 }

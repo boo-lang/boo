@@ -35,6 +35,9 @@ TypeNotAttribute=O tipo '{0}' não é um atributo.
 ExpressionStatementMustHaveSideEffect=Expressões em sentenças devem ser executadas apenas por seus efeitos colaterais.
 InvalidSuper=super só pode ser utilizado em métodos sobreescritos.
 InvalidTypeof=typeof deve ser utilizado com um tipo como seu único argumento.
+UnknownMacro='{0}' não é uma macro conhecida.
+InvalidMacro='{0}' não representa uma macro válida.
+InternalMacro=A macro '{0}' é interna. Apenas macros externas podem ser aplicadas. 
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

@@ -40,7 +40,7 @@ namespace Boo.Lang.Ast
 	[Serializable]
 	public abstract class Node
 	{
-		protected LexicalInfo _lexicalData;
+		protected LexicalInfo _lexicalInfo = LexicalInfo.Empty;
 
 		protected Node _parent;
 		
@@ -50,17 +50,21 @@ namespace Boo.Lang.Ast
 
 		protected Node()
 		{
-			_lexicalData = LexicalInfo.Empty;
+			_lexicalInfo = LexicalInfo.Empty;
 		}
 
 		protected Node(LexicalInfo lexicalInfo)
 		{
-			_lexicalData = lexicalInfo;
+			if (null == lexicalInfo)
+			{
+				throw new ArgumentNullException("lexicalInfo");
+			}
+			_lexicalInfo = lexicalInfo;
 		}
 
 		protected void InitializeFrom(Node other)
 		{
-			_lexicalData = other.LexicalInfo;
+			_lexicalInfo = other.LexicalInfo;
 		}
 		
 		public abstract NodeType NodeType
@@ -93,26 +97,25 @@ namespace Boo.Lang.Ast
 		public LexicalInfo LexicalInfo
 		{
 			get
-			{
-				// se temos informaes lxicas
-				if (null != _lexicalData)
+			{				
+				if (LexicalInfo.Empty != _lexicalInfo)
 				{
-					return _lexicalData;
+					return _lexicalInfo;
 				}
-				// se no temos mas temos um
-				// n pai perguntamos a ele
 				if (null != _parent)
 				{
 					return _parent.LexicalInfo;
 				}
-				// infelizmente, nada de informaes
-				// lxicas
-				return null;
+				return _lexicalInfo;
 			}
 
 			set
 			{
-				_lexicalData = value;
+				if (null == value)
+				{
+					throw new ArgumentNullException("LexicalInfo");
+				}
+				_lexicalInfo = value;
 			}
 		}
 		

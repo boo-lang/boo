@@ -47,5 +47,20 @@ namespace Boo.Lang.Ast
 		{
 			switcher.OnBlock(this);
 		}
+		
+		public void Add(Statement stmt)
+		{
+			_statements.Add(stmt);
+		}
+		
+		public void Add(Block block)
+		{
+			_statements.Add(block.Statements);
+		}
+		
+		public void Add(Expression expression)
+		{
+			_statements.Add(new ExpressionStatement(expression));
+		}
 	}
 }

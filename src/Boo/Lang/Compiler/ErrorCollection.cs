@@ -175,6 +175,21 @@ namespace Boo.Lang.Compiler
 			Add(new Error(node, Format("NoApropriateConstructorFound", typeName, args)));
 		}
 		
+		public void InternalMacro(Node node, string name)
+		{
+			Add(new Error(node, Format("InternalMacro", name)));
+		}
+		
+		public void UnknownMacro(Node node, string name)
+		{
+			Add(new Error(node, Format("UnknownMacro", name)));
+		}
+		
+		public void InvalidMacro(Node node, string name)
+		{
+			Add(new Error(node, Format("InvalidMacro", name)));
+		}
+		
 		public void UnknownName(Node node, string name)
 		{
 			Error error = new Error(node, Format("UnknownName", name));			

@@ -14,6 +14,11 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
+		public override string ToString()
+		{
+			return _name;
+		}
+		
 		public override void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnMacroStatement(this);

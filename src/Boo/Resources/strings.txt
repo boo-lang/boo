@@ -35,6 +35,10 @@ TypeNotAttribute=The type '{0}' is not a valid attribute.
 ExpressionStatementMustHaveSideEffect=Expressions in statements must only be executed for their side-effects.
 InvalidSuper=super is valid only on method overrides.
 InvalidTypeof=typeof must be used with a type reference as its single argument.
+UnknownMacro=Unknown macro: '{0}'.
+InvalidMacro='{0}' is not a valid macro.
+InternalMacro='{0}' is internal. Only external macros can be expanded. 
+
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

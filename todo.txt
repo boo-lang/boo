@@ -109,6 +109,8 @@ done * booc nant task (em boo, obviamente)
 
 done * typeof
 
+* Statement and Block must be polymorphic
+
 * super
 
 * EnsureMethodIsResolved => EnsureMemberIsResolved

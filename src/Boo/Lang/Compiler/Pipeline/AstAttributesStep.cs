@@ -193,8 +193,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				Switch(CompileUnit);
 				if (0 == _tasks.Count)
-				{
-					// Colocar informao de tracing aqui...
+				{					
 					break;
 				}
 				_tasks.Flush();

@@ -27,30 +27,10 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using Boo.Lang.Ast.Impl;
-
-namespace Boo.Lang.Ast
+namespace Boo.Lang
 {
-	[Serializable]
-	public class MemberReferenceExpression : MemberReferenceExpressionImpl
-	{		
-		public MemberReferenceExpression()
-		{
- 		}
-		
-		public MemberReferenceExpression(Expression target, string name) : base(target)
-		{
-			Name = name;
-		}
-		
-		public MemberReferenceExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-		}
-		
-		public override void Switch(IAstSwitcher switcher)
-		{
-			switcher.OnMemberReferenceExpression(this);
-		}
+	public interface IAstMacro
+	{
+		Boo.Lang.Ast.Statement Expand(Boo.Lang.Ast.MacroStatement statement);
 	}
 }
