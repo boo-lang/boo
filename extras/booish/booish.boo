@@ -22,7 +22,7 @@ class InterpreterEntity(ITypedEntity):
 	EntityType:
 		get:
 			return TypeSystem.EntityType.Custom
-			
+
 	static def IsInterpreterEntity(node as Node):
 		return node.Entity is not null and TypeSystem.EntityType.Custom == node.Entity.EntityType
 
@@ -34,31 +34,31 @@ class InterpreterNamespace(INamespace):
 	_tss as TypeSystemServices
 
 	_interpreter as InteractiveInterpreter
-	
+
 	_declarations = {}
 
 	def constructor(interpreter, tss, parent):
 		_interpreter = interpreter
 		_tss = tss
 		_parent = parent
-		
+
 	def Declare(name as string, type as IType):
 		_declarations.Add(name, entity=InterpreterEntity(name, type))
 		return entity
 
 	def Resolve(targetList as List, name as string, flags as EntityType) as bool:
 		return false unless flags == EntityType.Any
-		
+
 		entity as IEntity = _declarations[name]
 		if entity is null:
 			value = _interpreter.GetValue(name)
 			if value is not null:
 				entity = Declare(name, _tss.Map(value.GetType()))
-				
+
 		if entity is not null:
 			targetList.Add(entity)
 			return true
-			
+
 		return false
 
 	def GetMembers():
@@ -66,7 +66,7 @@ class InterpreterNamespace(INamespace):
 
 
 class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
-	
+
 	_namespace as InterpreterNamespace
 	_interpreter as InteractiveInterpreter
 
@@ -81,20 +81,20 @@ class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 							TypeSystemServices,
 							NameResolutionService.GlobalNamespace)
 		NameResolutionService.GlobalNamespace = _namespace
-		
+
 	override def ProcessAssignment(node as BinaryExpression):
 		# prevent 'Expression can't be assigned to' error
 		super(node) unless InterpreterEntity.IsInterpreterEntity(node.Left)
-	
+
 	override def DeclareLocal(name as string, type as IType, privateScope as bool):
 		return super(name, type, privateScope) if privateScope
 		return _namespace.Declare(name, type)
-	
+
 class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 
 	static InteractiveInterpreter_GetValue = typeof(InteractiveInterpreter).GetMethod("GetValue")
 	static InteractiveInterpreter_SetValue = typeof(InteractiveInterpreter).GetMethod("SetValue")
-	
+
 	_interpreterField as Field
 	_namespace as InterpreterNamespace
 	_interpreter as InteractiveInterpreter
@@ -121,11 +121,11 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 		return unless InterpreterEntity.IsInterpreterEntity(node) and not AstUtil.IsLhsOfAssignment(node)
 
 		ReplaceCurrentNode(CreateGetValue(node))
-		
+
 	override def LeaveBinaryExpression(node as BinaryExpression):
 		if InterpreterEntity.IsInterpreterEntity(node.Left):
 			ReplaceCurrentNode(CreateSetValue(node))
-		
+
 	def CreateGetValue(node as ReferenceExpression):
 		return CodeBuilder.CreateCast(
 				node.ExpressionType,
@@ -133,14 +133,14 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 					CodeBuilder.CreateReference(_interpreterField),
 					TypeSystemServices.Map(InteractiveInterpreter_GetValue),
 					CodeBuilder.CreateStringLiteral(node.Name)))
-					
+
 	def CreateSetValue(node as BinaryExpression):
 		return CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateReference(_interpreterField),
 					TypeSystemServices.Map(InteractiveInterpreter_SetValue),
 					CodeBuilder.CreateStringLiteral(cast(ReferenceExpression, node.Left).Name),
 					node.Right)
-	
+
 
 class InteractiveInterpreter:
 
@@ -162,18 +162,18 @@ class InteractiveInterpreter:
 		_compiler.Parameters.Input.Add(StringInput("src", code))
 
 		result = _compiler.Run()
-		assert 0 == len(result.Errors), "\n" + result.Errors.ToString(true)
-
-		entry = result.GeneratedAssemblyEntryPoint
-		entry.DeclaringType.GetField("ParentInterpreter").SetValue(null, self)
-		entry.Invoke(null, (null,))
+		if 0 == len(result.Errors):
+			entry = result.GeneratedAssemblyEntryPoint
+			entry.DeclaringType.GetField("ParentInterpreter").SetValue(null, self)
+			entry.Invoke(null, (null,))
+		return result
 
 	def SetValue(name as string, value):
 		_values[name] = value
 
 	def GetValue(name as string):
 		return _values[name]
-
+/*
 interpreter = InteractiveInterpreter()
 interpreter.SetValue("name", "boo")
 interpreter.SetValue("age", 3)
@@ -210,6 +210,14 @@ for i in range(3):
 	print(i*2)
 """)
 print("i: ${interpreter.GetValue('i')}")
+*/
+
+interpreter = InteractiveInterpreter()
+while line=prompt(">>> "):
+	result = interpreter.Eval(line)
+	for error in result.Errors:
+		print("ERROR: ${error.Message}")
+	
 
 
 
