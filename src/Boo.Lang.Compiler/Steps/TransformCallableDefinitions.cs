@@ -63,28 +63,11 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			ClassDefinition cd = new ClassDefinition(node.LexicalInfo);
-			cd.BaseTypes.Add(CreateTypeReference(TypeSystemServices.MulticastDelegateType));
-			cd.Name = node.Name;
-			cd.Modifiers = TypeMemberModifiers.Final;
-			cd.Members.Add(CreateCallableConstructor());
-			cd.Members.Add(CreateInvokeMethod(node));		
+			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(node.Name);
+			cd.LexicalInfo = node.LexicalInfo;
+			cd.Members.Add(CreateInvokeMethod(node));
 			
-			ReplaceCurrentNode(cd);
-			
-			cd.Entity = new TypeSystem.InternalCallableType(TypeSystemServices, cd);
-		}
-		
-		Constructor CreateCallableConstructor()
-		{
-			Constructor constructor = new Constructor();
-			constructor.Modifiers = TypeMemberModifiers.Public;
-			constructor.ImplementationFlags = MethodImplementationFlags.Runtime;
-			constructor.Parameters.Add(
-						new ParameterDeclaration("instance", CreateTypeReference(TypeSystemServices.ObjectType)));
-			constructor.Parameters.Add(
-						new ParameterDeclaration("method", CreateTypeReference(TypeSystemServices.IntPtrType)));						
-			return constructor;
+			ReplaceCurrentNode(cd);			
 		}
 		
 		Method CreateInvokeMethod(CallableDefinition node)

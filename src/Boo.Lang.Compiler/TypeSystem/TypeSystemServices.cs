@@ -199,6 +199,37 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_anonymousCallableTypes.Add(signature, type);
 			}
 			return type;
+		}		
+		
+		public ParameterDeclaration CreateParameterDeclaration(int index, string name, IType type)
+		{
+			ParameterDeclaration parameter = new ParameterDeclaration(name, CreateTypeReference(type));
+			parameter.Entity = new InternalParameter(parameter, index);
+			return parameter;
+		}
+		
+		public ClassDefinition CreateCallableDefinition(string name)
+		{
+			ClassDefinition cd = new ClassDefinition();
+			cd.BaseTypes.Add(CreateTypeReference(MulticastDelegateType));
+			cd.Name = name;
+			cd.Modifiers = TypeMemberModifiers.Final;
+			cd.Members.Add(CreateCallableConstructor());			
+			cd.Entity = new InternalCallableType(this, cd);
+			return cd;
+		}
+		
+		Constructor CreateCallableConstructor()
+		{
+			Constructor constructor = new Constructor();
+			constructor.Modifiers = TypeMemberModifiers.Public;
+			constructor.ImplementationFlags = MethodImplementationFlags.Runtime;
+			constructor.Parameters.Add(
+						CreateParameterDeclaration(0, "instance", ObjectType));
+			constructor.Parameters.Add(
+						CreateParameterDeclaration(1, "method", IntPtrType));
+			constructor.Entity = new InternalConstructor(this, constructor);						
+			return constructor;
 		}
 		
 		public static bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)

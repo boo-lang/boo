@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		TypeSystemServices _typeSystemServices;
 		CallableSignature _signature;
+		IType _concreteType;
 		
 		internal AnonymousCallableType(TypeSystemServices services, CallableSignature signature)
 		{
@@ -49,6 +50,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			_typeSystemServices = services;
 			_signature = signature;
+		}
+		
+		public IType ConcreteType
+		{
+			get
+			{
+				return _concreteType;
+			}
+			
+			set
+			{
+				System.Diagnostics.Debug.Assert(null != value);
+				_concreteType = value;
+			}
 		}
 		
 		public CallableSignature GetSignature()
