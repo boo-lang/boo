@@ -26,7 +26,9 @@
 	<target name="compile" depends="init, create-resources">
 		<booc
 			output="build/boox.exe"
-			target="winexe">
+			target="winexe"
+			tracelevel="Info"
+			verbose="true">
 			<sources basedir="src">
 				<includes name="*.boo" />
 			</sources> 
@@ -109,7 +111,9 @@
 		<copy todir="build">
 			<fileset basedir="${boo.dir}">
 				<includes name="*.dll" />
+				<includes name="*.pdb" />
 				<excludes name="*.Tests.dll" />
+				<excludes name="*.Tests.pdb" />
 				<excludes name="nunit.framework.dll" />
 			</fileset>
 		</copy>		

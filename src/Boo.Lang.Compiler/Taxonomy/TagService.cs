@@ -359,7 +359,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 						break;
 					}
 					
-					case MemberTypes.TypeInfo:
+					case MemberTypes.NestedType:
 					{
 						return Map((System.Type)mi);
 					}

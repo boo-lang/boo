@@ -1420,5 +1420,11 @@ namespace Boo.Lang.Compiler.Tests
 		{
 			RunCompilerTestCase("CustomCollection.boo");
 		}
+		
+		[Test]
+		public void UsingNestedType()
+		{
+			RunCompilerTestCase("UsingNestedType.boo");
+		}
 	}
 }

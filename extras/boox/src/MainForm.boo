@@ -208,7 +208,7 @@ class MainForm(Form):
 		
 	def GetApplicationDataFolder():
 		folder = Path.Combine(
-				GetFolderPath(SpecialFolder.ApplicationData),
+				GetFolderPath(Environment.SpecialFolder.ApplicationData),
 				"boox")
 				
 		Directory.CreateDirectory(folder) unless Directory.Exists(folder)
