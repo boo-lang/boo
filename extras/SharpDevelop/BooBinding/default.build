@@ -54,8 +54,6 @@
 			</fileset>
 		</copy>
 		
-		<copy todir="${addin.dir}" file="${sharpdevelop.dir}/AddIns/AddIns/DisplayBindings/ICSharpCode.FormDesigner.dll" />
-		
 		<booc target="library" output="${addin.dir}/BooBinding.dll">
 			<references>
 				<include name="${sharp.dir}/ICSharpCode.Core.Dll" />

@@ -6,6 +6,7 @@
        version     = "1.0.0">
 	
 	<Runtime>
+		<Import assembly = "../../DisplayBindings/ICSharpCode.FormDesigner.dll"/>
 		<Import assembly = "BooBinding.dll"/>
 	</Runtime>
 	

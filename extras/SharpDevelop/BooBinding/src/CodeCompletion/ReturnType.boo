@@ -99,7 +99,8 @@ class ReturnType(AbstractReturnType):
 		_expression as AST.Expression
 		
 		override def OnReturnStatement(node as AST.ReturnStatement):
-			_expression = node.Expression
+			if _expression isa AST.NullLiteralExpression or not (node.Expression isa AST.NullLiteralExpression):
+				_expression = node.Expression
 	
 	def constructor(t as AST.TypeDefinition):
 		self(t.FullName)

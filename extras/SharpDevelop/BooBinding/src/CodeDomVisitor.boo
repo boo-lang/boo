@@ -8,19 +8,30 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Ast.Visitors
 import Boo.Lang.Parser
+import SharpDevelop.Internal.Parser
 
-class CodeDomVisitor(DepthFirstVisitor):
-	[Getter(codeCompileUnit)]
+class CodeDomVisitor(IAstVisitor):
+"""The CodeDomVisitor is able to convert from the Boo AST to System.CodeDom
+It makes use of the SharpDevelop parser service to get necessary additional information about the
+types."""
+	[Getter(OutputCompileUnit)]
 	_compileUnit = CodeCompileUnit()
 	_namespace as CodeNamespace
 	_class as CodeTypeDeclaration
 	_statements as CodeStatementCollection
+	_expression as CodeExpression
 	
 	def ConvModifiers(member as TypeMember) as MemberAttributes:
-		return ConvModifiers(member.Modifiers)
+		if member isa Field:
+			return ConvModifiers(member.Modifiers, MemberAttributes.Family)
+		else:
+			return ConvModifiers(member.Modifiers, MemberAttributes.Public)
 	
-	def ConvModifiers(modifier as TypeMemberModifiers) as MemberAttributes:
-		attr as MemberAttributes = MemberAttributes.Private
+	def ConvModifiers(modifier as TypeMemberModifiers, defaultAttr as MemberAttributes) as MemberAttributes:
+		// Boo is not able to convert 0 to MemberAttributes, therefore we need to use
+		// a trick to get the default value
+		noAttr = MemberAttributes.Abstract & MemberAttributes.Final
+		attr = noAttr
 		if (modifier & TypeMemberModifiers.Abstract) == TypeMemberModifiers.Abstract:
 			attr = attr | MemberAttributes.Abstract
 		if (modifier & TypeMemberModifiers.Final) == TypeMemberModifiers.Final:
@@ -39,15 +50,27 @@ class CodeDomVisitor(DepthFirstVisitor):
 			attr = attr | MemberAttributes.Static
 		if (modifier & TypeMemberModifiers.Virtual) != TypeMemberModifiers.Virtual:
 			attr = attr | MemberAttributes.Final
-		return attr
+		if attr == noAttr:
+			return defaultAttr
+		else:
+			return attr
 	
 	def ConvTypeRef(ref as TypeReference):
+		return null if ref == null
 		return CodeTypeReference(ref.ToString())
 	
 	def OnCompileUnit(node as CompileUnit):
-		_namespace = CodeNamespace("Global")
-		_compileUnit.Namespaces.Add(_namespace)
-		super(node)
+		for m as Module in node.Modules:
+			m.Accept(self)
+	
+	def OnModule(node as Module):
+		if node.Namespace == null:
+			_namespace = CodeNamespace("Global")
+			_compileUnit.Namespaces.Add(_namespace)
+		else:
+			node.Namespace.Accept(self)
+		for m as TypeMember in node.Members:
+			m.Accept(self)
 	
 	def OnNamespaceDeclaration(node as NamespaceDeclaration):
 		_namespace = CodeNamespace(node.Name)
@@ -64,8 +87,47 @@ class CodeDomVisitor(DepthFirstVisitor):
 		for b as TypeReference in node.BaseTypes:
 			_class.BaseTypes.Add(ConvTypeRef(b))
 		
-		super(node)
+		for member as TypeMember in node.Members:
+			member.Accept(self)
 		
+		if oldClass == null:
+			_namespace.Types.Add(_class)
+		else:
+			oldClass.Members.Add(_class)
+		_class = oldClass
+	
+	def OnStructDefinition(node as StructDefinition):
+		oldClass = _class
+		_class = CodeTypeDeclaration(node.Name)
+		_class.IsStruct = true
+		
+		for b as TypeReference in node.BaseTypes:
+			_class.BaseTypes.Add(ConvTypeRef(b))
+		
+		for member as TypeMember in node.Members:
+			member.Accept(self)
+		
+		if oldClass == null:
+			_namespace.Types.Add(_class)
+		else:
+			oldClass.Members.Add(_class)
+		_class = oldClass
+	
+	def OnInterfaceDefinition(node as InterfaceDefinition):
+		oldClass = _class
+		_class = CodeTypeDeclaration(node.Name)
+		_class.IsInterface = true
+		
+		for b as TypeReference in node.BaseTypes:
+			_class.BaseTypes.Add(ConvTypeRef(b))
+		
+		for member as TypeMember in node.Members:
+			member.Accept(self)
+		
+		if oldClass == null:
+			_namespace.Types.Add(_class)
+		else:
+			oldClass.Members.Add(_class)
 		_class = oldClass
 	
 	def OnField(node as Field):
@@ -73,18 +135,26 @@ class CodeDomVisitor(DepthFirstVisitor):
 		field.Attributes = ConvModifiers(node)
 		if node.Initializer != null:
 			_expression = null
-			Visit(node.Initializer)
+			//Visit(node.Initializer)
 			field.InitExpression = _expression
 		_class.Members.Add(field)
 	
+	def OnConstructor(node as Constructor):
+		ConvertMethod(node, CodeConstructor())
+	
 	def OnMethod(node as Method):
-		method = CodeMemberMethod()
-		method.Name = node.Name
+		ConvertMethod(node, CodeMemberMethod(Name: node.Name))
+	
+	def ConvertMethod(node as Method, method as CodeMemberMethod):
 		method.Attributes = ConvModifiers(node)
 		method.ReturnType = ConvTypeRef(node.ReturnType)
-		for p as ParameterDeclaration in node.Parameters:
-			method.Parameters.Add(CodeParameterDeclarationExpression(ConvTypeRef(p.Type), p.Name))
+		if node.Parameters != null:
+			for p as ParameterDeclaration in node.Parameters:
+				method.Parameters.Add(CodeParameterDeclarationExpression(ConvTypeRef(p.Type), p.Name))
 		_statements = method.Statements
+		
+		if node.Body != null:
+			node.Body.Accept(self)
 		
 		_class.Members.Add(method)
 	
@@ -101,13 +171,21 @@ class CodeDomVisitor(DepthFirstVisitor):
 		pass
 	
 	def OnBinaryExpression(node as BinaryExpression):
-		pass
+		op = node.Operator
+		if op == BinaryOperatorType.Assign:
+			_expression = null
+			node.Left.Accept(self)
+			left = _expression
+			_expression = null
+			node.Right.Accept(self)
+			if left != null and _expression != null:
+				_statements.Add(CodeAssignStatement(left, _expression))
+			_expression = null
+			return
 	
 	def OnBlock(node as Block):
-		pass
-	
-	def OnBoolLiteralExpression(node as BoolLiteralExpression):
-		pass
+		for n as Statement in node.Statements:
+			n.Accept(self)
 	
 	def OnBreakStatement(node as BreakStatement):
 		pass
@@ -124,9 +202,6 @@ class CodeDomVisitor(DepthFirstVisitor):
 	def OnCastExpression(node as CastExpression):
 		pass
 	
-	def OnConstructor(node as Constructor):
-		pass
-	
 	def OnContinueStatement(node as ContinueStatement):
 		pass
 	
@@ -136,10 +211,13 @@ class CodeDomVisitor(DepthFirstVisitor):
 	def OnDeclarationStatement(node as DeclarationStatement):
 		pass
 	
-	def OnDoubleLiteralExpression(node as DoubleLiteralExpression):
+	def OnEnumDefinition(node as EnumDefinition):
 		pass
 	
-	def OnEnumDefinition(node as EnumDefinition):
+	def OnEnumMember(node as EnumMember):
+		pass
+	
+	def OnParameterDeclaration(node as ParameterDeclaration):
 		pass
 	
 	def OnEvent(node as Event):
@@ -155,7 +233,10 @@ class CodeDomVisitor(DepthFirstVisitor):
 		pass
 	
 	def OnExpressionStatement(node as ExpressionStatement):
-		pass
+		_expression = null
+		node.Expression.Accept(self)
+		if _expression != null:
+			_statements.Add(CodeExpressionStatement(_expression))
 	
 	def OnForStatement(node as ForStatement):
 		pass
@@ -167,24 +248,33 @@ class CodeDomVisitor(DepthFirstVisitor):
 		pass
 	
 	def OnGotoStatement(node as GotoStatement):
-		pass
+		_statements.Add(CodeGotoStatement(node.Label.Name))
+	
+	def OnNullLiteralExpression(node as NullLiteralExpression):
+		_expression = CodePrimitiveExpression(null)
+	
+	def OnBoolLiteralExpression(node as BoolLiteralExpression):
+		_expression = CodePrimitiveExpression(node.Value)
+	
+	def OnStringLiteralExpression(node as StringLiteralExpression):
+		_expression = CodePrimitiveExpression(node.Value)
 	
 	def OnHashLiteralExpression(node as HashLiteralExpression):
+		pass
+	
+	def OnIntegerLiteralExpression(node as IntegerLiteralExpression):
+		_expression = CodePrimitiveExpression(node.Value)
+	
+	def OnDoubleLiteralExpression(node as DoubleLiteralExpression):
+		_expression = CodePrimitiveExpression(node.Value)
+		
+	def OnListLiteralExpression(node as ListLiteralExpression):
 		pass
 	
 	def OnIfStatement(node as IfStatement):
 		pass
 	
-	def OnIntegerLiteralExpression(node as IntegerLiteralExpression):
-		pass
-	
-	def OnInterfaceDefinition(node as InterfaceDefinition):
-		pass
-	
 	def OnLabelStatement(node as LabelStatement):
-		pass
-	
-	def OnListLiteralExpression(node as ListLiteralExpression):
 		pass
 	
 	def OnLocal(node as Local):
@@ -194,16 +284,90 @@ class CodeDomVisitor(DepthFirstVisitor):
 		pass
 	
 	def OnMemberReferenceExpression(node as MemberReferenceExpression):
-		pass
+		_expression = null
+		node.Target.Accept(self)
+		if _expression != null:
+			if _expression isa CodeTypeReferenceExpression:
+				// TODO: lookup if expression is static member or subtype
+				_expression = CodeTypeReferenceExpression("${cast(CodeTypeReferenceExpression, _expression).Type.BaseType}.${node.Name}")
+			else:
+				_expression = CreateMemberExpression(_expression, node.Name)
+	
+	def OnReferenceExpression(node as ReferenceExpression):
+		p = GetParserService()
+		if p.GetClass(node.Name) != null:
+			_expression = CodeTypeReferenceExpression(node.Name)
+		elif p.NamespaceExists(node.Name):
+			_expression = CodeTypeReferenceExpression(node.Name)
+		else:
+			_expression = CreateMemberExpression(CodeThisReferenceExpression(), node.Name)
+	
+	def CreateMemberExpression(expr as CodeExpression, name as string):
+		if expr isa CodeTypeReferenceExpression:
+			typeRef = cast(CodeTypeReferenceExpression, _expression).Type.BaseType
+			return CreateMemberExpression(expr, typeRef, name, true)
+		elif expr isa CodeThisReferenceExpression:
+			typeRef = "${_namespace.Name}.${_class.Name}"
+			return CreateMemberExpression(expr, typeRef, name, false)
+		return CodeFieldReferenceExpression(expr, name)
+	
+	def CreateMemberExpression(target as CodeExpression, parentName as string, name as string, isStatic as bool):
+		combinedName = "${parentName}.${name}"
+		p = GetParserService()
+		parentClass = p.GetClass(parentName)
+		if parentClass == null:
+			if p.GetClass(combinedName) != null:
+				return CodeTypeReferenceExpression(combinedName)
+			elif p.NamespaceExists(combinedName):
+				return CodeTypeReferenceExpression(combinedName)
+		else:
+			if isStatic:
+				for innerClass as IClass in parentClass.InnerClasses:
+					if innerClass.Name == name:
+						return CodeTypeReferenceExpression(combinedName)
+			for c as IClass in parentClass.ClassInheritanceTree:
+				for ev as IEvent in c.Events:
+					if ev.IsStatic == isStatic:
+						return CodeEventReferenceExpression(target, name)
+				for me as IMethod in c.Methods:
+					if me.IsStatic == isStatic:
+						return CodeMethodReferenceExpression(target, name)
+				for prop as IProperty in c.Properties:
+					if prop.IsStatic == isStatic:
+						return CodePropertyReferenceExpression(target, name)
+				for field as IField in c.Fields:
+					if field.IsStatic == isStatic:
+						return CodeFieldReferenceExpression(target, name)
+		return CodeFieldReferenceExpression(target, name)
+	
+	def GetParserService() as ICSharpCode.SharpDevelop.Services.IParserService:
+		return ICSharpCode.Core.Services.ServiceManager.Services.GetService(typeof(ICSharpCode.SharpDevelop.Services.IParserService))
 	
 	def OnMethodInvocationExpression(node as MethodInvocationExpression):
-		pass
+		_expression = null
+		node.Target.Accept(self)
+		if _expression != null:
+			if _expression isa CodeTypeReferenceExpression:
+				_expression = CodeObjectCreateExpression(cast(CodeTypeReferenceExpression, _expression).Type, ConvertExpressions(node.Arguments))
+			elif _expression isa CodeMethodReferenceExpression:
+				_expression = CodeMethodInvokeExpression(_expression, ConvertExpressions(node.Arguments))
+			elif _expression isa CodeFieldReferenceExpression:
+				// when a type is unknown, a MemberReferenceExpression is translated into a CodeFieldReferenceExpression
+				cfre as CodeFieldReferenceExpression = _expression
+				_expression = CodeMethodInvokeExpression(cfre.TargetObject, cfre.FieldName, ConvertExpressions(node.Arguments))
+			else:
+				_expression = null
 	
-	def OnModule(node as Module):
-		pass
-	
-	def OnNullLiteralExpression(node as NullLiteralExpression):
-		pass
+	def ConvertExpressions(expressions as ExpressionCollection):
+	"""Converts a list of expressions to CodeDom expressions."""
+		args = array(CodeExpression, expressions.Count)
+		i = 0
+		while i < args.Length:
+			_expression = null
+			expressions[i].Accept(self)
+			args[i] = _expression
+			i += 1
+		return args
 	
 	def OnOmittedExpression(node as OmittedExpression):
 		pass
@@ -214,9 +378,6 @@ class CodeDomVisitor(DepthFirstVisitor):
 	def OnRaiseStatement(node as RaiseStatement):
 		pass
 	
-	def OnReferenceExpression(node as ReferenceExpression):
-		pass
-	
 	def OnRELiteralExpression(node as RELiteralExpression):
 		pass
 	
@@ -224,10 +385,13 @@ class CodeDomVisitor(DepthFirstVisitor):
 		pass
 	
 	def OnReturnStatement(node as ReturnStatement):
-		pass
+		_expression = null
+		if node.Expression != null:
+			node.Expression.Accept(self)
+		_statements.Add(CodeMethodReturnStatement(_expression))
 	
 	def OnSelfLiteralExpression(node as SelfLiteralExpression):
-		pass
+		_expression = CodeThisReferenceExpression()
 	
 	def OnSimpleTypeReference(node as SimpleTypeReference):
 		pass
@@ -241,14 +405,8 @@ class CodeDomVisitor(DepthFirstVisitor):
 	def OnStatementModifier(node as StatementModifier):
 		pass
 	
-	def OnStringLiteralExpression(node as StringLiteralExpression):
-		pass
-	
-	def OnStructDefinition(node as StructDefinition):
-		pass
-	
 	def OnSuperLiteralExpression(node as SuperLiteralExpression):
-		pass
+		_expression = CodeBaseReferenceExpression()
 	
 	def OnTernaryExpression(node as TernaryExpression):
 		pass

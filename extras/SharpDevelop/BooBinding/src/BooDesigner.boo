@@ -147,7 +147,6 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 			super.host.SetRootFullName(c.FullyQualifiedName)
 		
 		try:
-			visitor = CodeDomVisitor()
 			compileUnit = Boo.Lang.Compiler.Ast.CompileUnit()
 			_parseErrors = null
 			Boo.Lang.Parser.BooParser.ParseModule(1, compileUnit, "designerIntegrityCheck", StringReader(Document.TextContent), OnParserError)
@@ -158,18 +157,39 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 				return
 			
 			classString = GenerateClassString(Document)
+			/* TODO: use this block of code when ICodeParser has been implemented.
+			parser = BooCodeProvider().CreateParser()
+			if parser == null:
+				failedDesignerInitialize = true
+				compilationErrors = 'Boo.CodeDom.BooCodeProvider.CreateParser() returned null!!!\nBoo.CodeDom.dll needs to implement ICodeParser!'
+				return
+			
+			codeCompileUnit = parser.Parse(StringReader(classString))
+			*/
+			
+			
+			compileUnit = Boo.Lang.Compiler.Ast.CompileUnit()
 			Boo.Lang.Parser.BooParser.ParseModule(1, compileUnit, "designerLoadClass", StringReader(classString), null)
+			visitor = CodeDomVisitor()
+			compileUnit.Accept(visitor)
+			codeCompileUnit = visitor.OutputCompileUnit
+			
+			//writer = StringWriter()
+			//BooCodeProvider().CreateGenerator().GenerateCodeFromCompileUnit(codeCompileUnit, writer, CodeGeneratorOptions())
+			//failedDesignerInitialize = true
+			//compilationErrors = writer.ToString()
+			//return
 			
 			if host != null and c != null:
 				super.host.SetRootFullName(c.FullyQualifiedName)
 			
 			serializationManager as CodeDomDesignerSerializetionManager = host.GetService(typeof(IDesignerSerializationManager))
 			serializationManager.Initialize()
-			visitor.Visit(compileUnit)
+			
 			baseType as Type = typeof(System.Windows.Forms.Form)
-			for codeNamespace as CodeNamespace in visitor.codeCompileUnit.Namespaces:
+			for codeNamespace as CodeNamespace in codeCompileUnit.Namespaces:
 				if codeNamespace.Types.Count > 0:
-					baseType = host.GetType(visitor.codeCompileUnit.Namespaces[0].Types[0].BaseTypes[0].BaseType)
+					baseType = host.GetType(codeCompileUnit.Namespaces[0].Types[0].BaseTypes[0].BaseType)
 					break
 				
 			
@@ -177,7 +197,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 			if rootSerializer == null:
 				raise Exception('No root serializer found')
 			
-			for codeNamespace as CodeNamespace in visitor.codeCompileUnit.Namespaces:
+			for codeNamespace as CodeNamespace in codeCompileUnit.Namespaces:
 				if codeNamespace.Types.Count > 0:
 					designerResourceService as DesignerResourceService = host.GetService(typeof(System.ComponentModel.Design.IResourceService))
 					if designerResourceService != null:
@@ -187,8 +207,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 						rootSerializer.Deserialize(serializationManager, codeNamespace.Types[0])
 					except e as Exception:
 						Console.WriteLine(e)
-						stringParserService as StringParserService = ServiceManager.Services.GetService(typeof(StringParserService))
-						compilationErrors = stringParserService.Parse("Can't deserialize form. Possible reason: Initialize component method was changed manually.")
+						compilationErrors = "Can't deserialize form. Possible reason: Initialize component method was changed manually.\n${e}"
 						failedDesignerInitialize = true
 						return
 					
@@ -204,7 +223,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 			failedDesignerInitialize = false
 			undoHandler.Reset()
 		except ex as Exception:
-			Console.WriteLine('Got exception : ' + ex)
+			Console.WriteLine("Got exception : ${ex.Message}\n${ex.StackTrace}")
 			compilationErrors = ex.ToString()
 			failedDesignerInitialize = true
 		
@@ -219,6 +238,10 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 	private def GenerateClassString(document as IDocument) as string:
 		Reparse(document.TextContent)
 		builder as StringBuilder = StringBuilder()
+		if c.Namespace != null and c.Namespace.Length > 0:
+			builder.Append('namespace ')
+			builder.Append(c.Namespace)
+			builder.Append('\n')
 		AppendUsings(builder, c.CompilationUnit.Usings)
 		className as string = c.Name
 		builder.Append('class ')
@@ -274,7 +297,9 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 		
 		dirty as bool = viewContent.IsDirty
 		parserService as IParserService = ICSharpCode.Core.Services.ServiceManager.Services.GetService(typeof(IParserService))
-		currentForm as string = GetDataAs('C#')
+		writer = StringWriter()
+		CodeDOMGenerator(self.host, BooCodeProvider()).ConvertContentDefinition(writer);
+		currentForm as string = writer.ToString()
 		designerResourceService as DesignerResourceService = host.GetService(typeof(System.ComponentModel.Design.IResourceService))
 		if designerResourceService != null:
 			self.resources = Hashtable()
@@ -450,7 +475,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 	override def GetCompatibleMethods(edesc as EventInfo) as ICollection:
 		//Reparse(Document.TextContent)
 		compatibleMethods as ArrayList = ArrayList()
-		/*methodInfo as MethodInfo = edesc.GetAddMethod()
+		methodInfo as MethodInfo = edesc.GetAddMethod()
 		pInfo as ParameterInfo = methodInfo.GetParameters()[0]
 		eventName as string = pInfo.ParameterType.ToString().Replace('EventHandler', 'EventArgs')
 		for method as IMethod in c.Methods:
@@ -464,7 +489,6 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 					compatibleMethods.Add(method.Name)
 				
 			
-		*/
 		return compatibleMethods
 	
 	override def Selected():
