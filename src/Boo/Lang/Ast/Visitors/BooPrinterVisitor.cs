@@ -313,7 +313,7 @@ namespace Boo.Lang.Ast.Visitors
 		public override void OnUnaryExpression(UnaryExpression node)
 		{
 			Write("(");
-			WriteOperator(GetUnaryOperator(node.Operator));
+			WriteOperator(GetUnaryOperatorText(node.Operator));
 			Switch(node.Operand);
 			Write(")");			
 		}
@@ -622,7 +622,7 @@ namespace Boo.Lang.Ast.Visitors
 
 		#endregion
 		
-		string GetUnaryOperator(UnaryOperatorType op)
+		public static string GetUnaryOperatorText(UnaryOperatorType op)
 		{
 			switch (op)
 			{

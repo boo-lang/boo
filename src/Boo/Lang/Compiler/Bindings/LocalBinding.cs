@@ -69,6 +69,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsPrivateScope
+		{
+			get
+			{
+				return _local.PrivateScope;
+			}
+		}
+		
 		public Local Local
 		{
 			get

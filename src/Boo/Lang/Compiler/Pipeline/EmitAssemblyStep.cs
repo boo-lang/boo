@@ -481,6 +481,31 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Brfalse, label);
 		}
 		
+		void EmitIncrementDecrement(UnaryExpression node)
+		{
+			node.Operand.Switch(this);
+			
+			ITypeBinding type = PopType();
+			_il.Emit(OpCodes.Ldc_I4_1);
+			EmitCastIfNeeded(type, BindingManager.IntTypeBinding);
+			EmitIncrementDecrementOpCode(node.Operator);
+			_il.Emit(OpCodes.Dup);
+			EmitAssignment(GetLocalBinding(node.Operand), type);
+			PushType(type);
+		}
+		
+		void EmitIncrementDecrementOpCode(UnaryOperatorType op)
+		{
+			if (UnaryOperatorType.Increment == op)
+			{
+				_il.Emit(OpCodes.Add);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Sub);
+			}
+		}
+		
 		public override void OnUnaryExpression(UnaryExpression node)
 		{
 			switch (node.Operator)
@@ -504,9 +529,21 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case UnaryOperatorType.Increment:
+				{
+					EmitIncrementDecrement(node);
+					break;
+				}
+				
+				case UnaryOperatorType.Decrement:
+				{
+					EmitIncrementDecrement(node);
+					break;
+				}
+				
 				default:
 				{
-					Errors.Add(CompilerErrorFactory.NotImplemented(node, "unary operator not supported"));
+					NotImplemented(node, "unary operator not supported");
 					break;
 				}
 			}
@@ -560,7 +597,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 				default:
 				{
-					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
+					NotImplemented(node, binding.ToString());
 					break;
 				}
 			}		
@@ -616,7 +653,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 					else
 					{
-						Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
+						NotImplemented(node, binding.ToString());
 					}
 					break;
 				}
@@ -758,7 +795,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
+					NotImplemented(node, binding.ToString());
 					break;
 				}
 			}
@@ -994,7 +1031,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
+					NotImplemented(node, binding.ToString());
 					break;
 				}
 			}
@@ -1019,7 +1056,8 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					throw CompilerErrorFactory.NotImplemented(expression, "property access for value types");
+					NotImplemented(expression, "property access for value types");
+					break;
 				}
 			}
 		}
@@ -1066,7 +1104,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					Errors.Add(CompilerErrorFactory.NotImplemented(node, info.ToString()));
+					NotImplemented(node, info.ToString());
 					break;
 				}
 				
@@ -1088,7 +1126,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				typeOnStack = PopType();
 			}
-			
+			EmitAssignment(binding, typeOnStack);
+		}
+		
+		void EmitAssignment(LocalBinding binding, ITypeBinding typeOnStack)
+		{			
 			// todo: assignment result must be type on the left in the
 			// case of casting
 			LocalBuilder local = binding.LocalBuilder;
@@ -1397,12 +1439,9 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					return OpCodes.Ldelem_I4;
 				}
-				throw new NotImplementedException();
+				NotImplemented("LoadElementOpCode(" + binding + ")");
 			}
-			else
-			{
-				return OpCodes.Ldelem_Ref;
-			}
+			return OpCodes.Ldelem_Ref;
 		}		
 		
 		OpCode GetStoreElementOpCode(ITypeBinding binding)
@@ -1413,12 +1452,9 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					return OpCodes.Stelem_I4;
 				}
-				throw new NotImplementedException();				
+				NotImplemented("GetStoreElementOpCode(" + binding + ")");				
 			}
-			else
-			{
-				return OpCodes.Stelem_Ref;
-			}
+			return OpCodes.Stelem_Ref;
 		}
 		
 		void EmitCastIfNeeded(ITypeBinding expectedType, ITypeBinding actualType)
@@ -1478,7 +1514,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				throw new NotImplementedException(string.Format("Numeric promotion for {0} not implemented!", type));
+				throw new NotImplementedException(string.Format("Numeric promotion for {0} not implemented!", type));				
 			}
 		}
 		
@@ -1880,6 +1916,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		void NotImplemented(Node node, string feature)
+		{
+			throw CompilerErrorFactory.NotImplemented(node, feature);
+		}
+		
+		void NotImplemented(string feature)
+		{
+			throw new NotImplementedException(feature);
+		}
+		
 		CustomAttributeBuilder GetCustomAttributeBuilder(Boo.Lang.Ast.Attribute node)
 		{
 			IConstructorBinding constructor = (IConstructorBinding)GetBinding(node);
@@ -1969,7 +2015,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 			}
-			Errors.Add(CompilerErrorFactory.NotImplemented(expression, "Expression value"));
+			NotImplemented(expression, "Expression value");
 			return null;
 		}
 		

@@ -733,5 +733,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("preincrement0.boo");
 		}
+		
+		[Test]
+		public void PreDecrement()
+		{
+			RunCompilerTestCase("predecrement0.boo");
+		}
 	}
 }

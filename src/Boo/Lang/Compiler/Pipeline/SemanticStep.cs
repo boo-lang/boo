@@ -156,7 +156,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					if (null != baseClass)
 					{
-						Errors.Add(
+						Error(
 						    CompilerErrorFactory.ClassAlreadyHasBaseType(baseType,
 								node.Name,
 								baseClass.FullName)
@@ -509,7 +509,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void CantOverrideNonVirtual(Method method, IMethodBinding baseMethod)
 		{
-			Errors.Add(CompilerErrorFactory.CantOverrideNonVirtual(method, baseMethod.ToString()));
+			Error(CompilerErrorFactory.CantOverrideNonVirtual(method, baseMethod.ToString()));
 		}
 		
 		void SetOverride(InternalMethodBinding binding, Method method, IMethodBinding baseMethod)
@@ -699,7 +699,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			IBinding info = ResolveQualifiedName(node, node.Name);
 			if (null == info || BindingType.TypeReference != info.BindingType)
 			{
-				Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));
+				Error(CompilerErrorFactory.NameNotType(node, node.Name));
 				BindingManager.Error(node);
 			}
 			else
@@ -769,7 +769,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				IBinding member = targetType.GetDefaultMember();
 				if (null == member)
 				{
-					Errors.Add(CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
+					Error(CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
 				}
 				else
 				{
@@ -867,7 +867,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (!HasSideEffect(node.Expression))
 			{
-				Errors.Add(CompilerErrorFactory.ExpressionStatementMustHaveSideEffect(node));
+				Error(CompilerErrorFactory.ExpressionStatementMustHaveSideEffect(node));
 			}
 		}
 		
@@ -886,7 +886,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ITypeBinding toType = GetBoundType(node.Type);
 			if (toType.IsValueType)
 			{
-				Errors.Add(CompilerErrorFactory.CantCastToValueType(node, toType.FullName));
+				Error(CompilerErrorFactory.CantCastToValueType(node, toType.FullName));
 				BindingManager.Error(node);
 			}
 			else
@@ -944,7 +944,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				IBinding member = ((INamespace)binding).Resolve(node.Name);				
 				if (null == member)
 				{										
-					Errors.Add(CompilerErrorFactory.MemberNotFound(node, binding.FullName));
+					Error(CompilerErrorFactory.MemberNotFound(node, binding.FullName));
 				}
 				else
 				{
@@ -1028,6 +1028,31 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopNamespace();
 		}
 		
+		void OnIncrementDecrement(UnaryExpression node)
+		{
+			IBinding result = ErrorBinding.Default;
+			IBinding binding = GetBinding(node.Operand);
+			if (!IsLValue(binding))
+			{
+				Error(CompilerErrorFactory.LValueExpected(node.Operand));
+			}
+			else
+			{
+				ITypedBinding typed = (ITypedBinding)binding;
+				if (!IsNumber(typed.BoundType))
+				{
+					Error(CompilerErrorFactory.InvalidOperatorForType(node,
+							GetUnaryOperatorText(node.Operator),
+							typed.BoundType.FullName));
+				}
+				else
+				{
+					result = typed.BoundType;
+				}
+			}
+			BindingManager.Bind(node, result);			
+		}
+		
 		public override void LeaveUnaryExpression(UnaryExpression node, ref Expression resultingNode)
 		{
 			switch (node.Operator)
@@ -1040,6 +1065,18 @@ namespace Boo.Lang.Compiler.Pipeline
 						binding = BindingManager.BoolTypeBinding;
 					}
 					BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+					break;
+				}
+				
+				case UnaryOperatorType.Increment:
+				{
+					OnIncrementDecrement(node);
+					break;
+				}
+				
+				case UnaryOperatorType.Decrement:
+				{
+					OnIncrementDecrement(node);
 					break;
 				}
 					
@@ -1183,7 +1220,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (node.Arguments.Count != 1 ||
 			    GetBinding(node.Arguments[0]).BindingType != BindingType.TypeReference)
 		    {
-		    	Errors.Add(CompilerErrorFactory.InvalidTypeof(node));
+		    	Error(CompilerErrorFactory.InvalidTypeof(node));
 		    }
 		    else
 		    {
@@ -1225,7 +1262,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					{
 						if (node.NamedArguments.Count > 0)
 						{
-							Errors.Add(CompilerErrorFactory.NamedArgumentsNotAllowed(node.NamedArguments[0]));							
+							Error(CompilerErrorFactory.NamedArgumentsNotAllowed(node.NamedArguments[0]));							
 						}
 						else
 						{			
@@ -1304,7 +1341,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ITypeBinding binding = GetBoundType(expression);
 			if (binding.IsValueType)
 			{
-				Errors.Add(CompilerErrorFactory.OperatorCantBeUsedWithValueType(
+				Error(CompilerErrorFactory.OperatorCantBeUsedWithValueType(
 								expression,
 								GetBinaryOperatorText(node.Operator),
 								binding.FullName));
@@ -1368,6 +1405,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			return Boo.Lang.Ast.Visitors.BooPrinterVisitor.GetBinaryOperatorText(op);
 		}
+		static string GetUnaryOperatorText(UnaryOperatorType op)
+		{
+			return Boo.Lang.Ast.Visitors.BooPrinterVisitor.GetUnaryOperatorText(op);
+		}
 		
 		IBinding ResolveName(Node node, string name)
 		{
@@ -1380,7 +1421,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (null == binding)
 			{
-				Errors.Add(CompilerErrorFactory.UnknownIdentifier(node, name));			
+				Error(CompilerErrorFactory.UnknownIdentifier(node, name));			
 				return false;
 			}
 			return true;
@@ -1425,7 +1466,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						{
 							if (found.Count > 1)
 							{
-								Errors.Add(CompilerErrorFactory.AmbiguousReference(sourceNode, name, found));
+								Error(CompilerErrorFactory.AmbiguousReference(sourceNode, name, found));
 								return null;
 							}
 							else
@@ -1436,7 +1477,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 				}
 			}
-			Errors.Add(CompilerErrorFactory.NotAPublicFieldOrProperty(sourceNode, type.FullName, name));			
+			Error(CompilerErrorFactory.NotAPublicFieldOrProperty(sourceNode, type.FullName, name));			
 			return null;
 		}
 		
@@ -1448,7 +1489,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				if (NodeType.ReferenceExpression != arg.First.NodeType)
 				{
-					Errors.Add(CompilerErrorFactory.NamedParameterMustBeIdentifier(arg));
+					Error(CompilerErrorFactory.NamedParameterMustBeIdentifier(arg));
 					continue;				
 				}
 				
@@ -1481,7 +1522,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (!IsAssignableFrom(expectedType, actualType) &&
 				!CanBeReachedByDownCastOrPromotion(expectedType, actualType))
 			{
-				Errors.Add(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.FullName, actualType.FullName));
+				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.FullName, actualType.FullName));
 				return false;
 			}
 			return true;
@@ -1493,7 +1534,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (argumentBinding.BindingType != BindingType.Method ||
 					    !CheckDelegateParameterList(delegateType, (IMethodBinding)argumentBinding))
 			{
-				Errors.Add(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.Name, delegateType.FullName));
+				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.Name, delegateType.FullName));
 				return false;
 			}
 			return true;
@@ -1503,7 +1544,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{				
 			if (method.ParameterCount != args.Count)
 			{
-				Errors.Add(CompilerErrorFactory.MethodArgumentCount(sourceNode, method.Name, args.Count));
+				Error(CompilerErrorFactory.MethodArgumentCount(sourceNode, method.Name, args.Count));
 				return false;
 			}	
 			
@@ -1514,7 +1555,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (!IsAssignableFrom(parameterType, expressionType) &&
 				    !CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
 				{
-					Errors.Add(CompilerErrorFactory.MethodSignature(sourceNode, GetSignature(method), GetSignature(args)));
+					Error(CompilerErrorFactory.MethodSignature(sourceNode, GetSignature(method), GetSignature(args)));
 					return false;
 				}
 			}
@@ -1556,7 +1597,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					if (type.GetArrayRank() > 1)
 					{
-						Errors.Add(CompilerErrorFactory.InvalidArray(iterator));
+						Error(CompilerErrorFactory.InvalidArray(iterator));
 					}
 				}
 			}
@@ -1571,7 +1612,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					Expression targetReference = ((MemberReferenceExpression)targetContext).Target;
 					if (BindingType.TypeReference == GetBinding(targetReference).BindingType)
 					{						
-						Errors.Add(CompilerErrorFactory.MemberNeedsInstance(targetContext, member.ToString()));
+						Error(CompilerErrorFactory.MemberNeedsInstance(targetContext, member.ToString()));
 						return false;
 					}
 				}
@@ -1591,7 +1632,19 @@ namespace Boo.Lang.Compiler.Pipeline
 				return IsNumber(expectedType) && IsNumber(actualType);
 			}
 			return actualType.IsAssignableFrom(expectedType);
-		}		
+		}
+
+		bool IsLValue(IBinding binding)
+		{
+			switch (binding.BindingType)
+			{
+				case BindingType.Local:
+				{
+					return !((LocalBinding)binding).IsPrivateScope;
+				}
+			}
+			return false;
+		}
 		
 		bool IsNumber(ITypeBinding type)
 		{
@@ -1609,7 +1662,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				Errors.Add(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeBinding.FullName, GetSignature(arguments)));
+				Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeBinding.FullName, GetSignature(arguments)));
 			}
 			return null;
 		}
@@ -1731,14 +1784,14 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				if (treatErrors)
 				{
-					Errors.Add(CompilerErrorFactory.AmbiguousReference(node, first.Binding.Name, scores));
+					Error(CompilerErrorFactory.AmbiguousReference(node, first.Binding.Name, scores));
 				}
 			}
 			else
 			{	
 				if (treatErrors)
 				{
-					Errors.Add(CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), bindings[0].Name));
+					Error(CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), bindings[0].Name));
 				}
 			}
 			
@@ -1775,7 +1828,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			    {
 			    	return true;
 			    }
-			    Errors.Add(CompilerErrorFactory.BoolExpressionRequired(expression, type.FullName));
+			    Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.FullName));
 				return false;
 			}
 			// reference types can be used in bool context
@@ -1886,6 +1939,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		void NotImplemented(Node node, string feature)
 		{
 			throw CompilerErrorFactory.NotImplemented(node, feature);
+		}
+		
+		void Error(CompilerError error)
+		{
+			Errors.Add(error);
 		}
 		
 		void TraceOverride(Method method, IMethodBinding baseMethod)

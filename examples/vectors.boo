@@ -36,4 +36,6 @@ for v1 in array:
 
 elapsed = date.Now.Subtract(start) 
 print("Total... ${total}.")
+
+// a good ips value is: 13000000
 print("Done ${count} in ${elapsed.TotalSeconds} secs - ${count/elapsed.TotalSeconds} ips.")
