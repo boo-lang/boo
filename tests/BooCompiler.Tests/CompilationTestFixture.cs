@@ -872,6 +872,24 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void UsingSimpleReference()
+		{
+			RunCompilerTestCase("using2.boo");
+		}
+		
+		[Test]
+		public void UsingMemberReference()
+		{
+			RunCompilerTestCase("using3.boo");
+		}
+		
+		[Test]
+		public void UsingMultipleExpressions()
+		{
+			RunCompilerTestCase("using4.boo");
+		}
+		
+		[Test]
 		public void IsNotIs()
 		{
 			RunCompilerTestCase("is0.boo");

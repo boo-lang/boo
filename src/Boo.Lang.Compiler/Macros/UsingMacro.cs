@@ -33,49 +33,55 @@ namespace Boo.Lang
 	/// </summary>
 	public class UsingMacro : AbstractCompilerComponent, IAstMacro
 	{
-		public const string DisposableLocalName = "__disposable__";
+		private const string DisposableLocalName = "__disposable__";
 		
 		public Statement Expand(MacroStatement macro)
-		{	
-			if (macro.Arguments.Count != 1)
-			{
-				throw new NotImplementedException();
-			}			
-			
-			Expression expression = macro.Arguments[0];
-			Expression reference = null;
-			
-			if (IsAssignmentToReference(expression))
-			{
-				reference = ((BinaryExpression)expression).Left;
-			}
-			else
-			{
-				reference = new ReferenceExpression(expression.LexicalInfo,
-								   string.Format("__using{0}__", _context.AllocIndex()));
-				expression = new BinaryExpression(expression.LexicalInfo,
-									BinaryOperatorType.Assign,
-									reference,
-									expression);
-			}
-
+		{
 			// try:
 			//		assignment
 			// 		<the rest>
 			// ensure:
 			//		...			
 			TryStatement stmt = new TryStatement(macro.LexicalInfo);
-			stmt.ProtectedBlock.Add(expression);
-			stmt.ProtectedBlock.Add(macro.Block);
-			stmt.EnsureBlock = CreateEnsureBlock(reference);
+			stmt.EnsureBlock = new Block(macro.LexicalInfo);
 			
+			foreach (Expression expression in macro.Arguments)
+			{
+				Expression reference;
+
+				if (expression is ReferenceExpression)
+				{
+					reference = expression;
+				}
+				else
+				{
+					if (IsAssignmentToReference(expression))
+					{
+						reference = ((BinaryExpression)expression).Left.CloneNode();
+						stmt.ProtectedBlock.Add(expression);
+					}
+					else
+					{
+						string tempName = string.Format("__using{0}__", _context.AllocIndex());
+						reference = new ReferenceExpression(expression.LexicalInfo, tempName);
+						stmt.ProtectedBlock.Add(new BinaryExpression(expression.LexicalInfo,
+														BinaryOperatorType.Assign,
+														reference.CloneNode(),
+														expression));
+
+					}
+					
+				}
+
+				AugmentEnsureBlock(stmt.EnsureBlock, reference);
+			}
+			
+			stmt.ProtectedBlock.Add(macro.Block);
 			return stmt;
 		}
 		
-		Block CreateEnsureBlock(Expression reference)
+		private void AugmentEnsureBlock(Block block, Expression reference)
 		{
-			Block block = new Block(reference.LexicalInfo);
-			
 			// if __disposable = <reference> as System.IDisposable:
 			IfStatement stmt = new IfStatement();			
 			stmt.Condition = new BinaryExpression(
@@ -111,10 +117,9 @@ namespace Boo.Lang
 						new NullLiteralExpression()
 						)
 					);
-			return block;
 		}
 		
-		bool IsAssignmentToReference(Expression expression)
+		private bool IsAssignmentToReference(Expression expression)
 		{
 			if (NodeType.BinaryExpression != expression.NodeType)
 			{
@@ -124,7 +129,7 @@ namespace Boo.Lang
 			BinaryExpression binaryExpression = (BinaryExpression)expression;
 			return
 				BinaryOperatorType.Assign == binaryExpression.Operator &&
-				NodeType.ReferenceExpression == binaryExpression.Left.NodeType;
+				binaryExpression.Left is ReferenceExpression;
 		}
 	}
 }
