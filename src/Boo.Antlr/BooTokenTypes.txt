@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: src/Boo.Antlr/boo.g -> BooTokenTypes.txt$
+// $ANTLR 2.7.3rc2: boo.g -> BooTokenTypes.txt$
 Boo    // output token vocab name
 TIMESPAN=4
 DOUBLE=5

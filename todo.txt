@@ -312,6 +312,8 @@ done * static field initializers
 
 done * System.Type must be invocable
 
+* integrar nova versão do antlr
+
 * primitiva cast (CastExpression):
 
 	a = cast(ILogger, _log)

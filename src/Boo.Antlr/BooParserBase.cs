@@ -27,7 +27,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-// $ANTLR 2.7.2: "src/Boo.Antlr/boo.g" -> "BooParserBase.cs"$
+// $ANTLR 2.7.3rc2: "boo.g" -> "BooParserBase.cs"$
 
 namespace Boo.Antlr
 {

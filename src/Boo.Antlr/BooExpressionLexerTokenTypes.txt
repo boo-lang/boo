@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: src/Boo.Antlr/booel.g -> BooExpressionLexerTokenTypes.txt$
+// $ANTLR 2.7.3rc2: booel.g -> BooExpressionLexerTokenTypes.txt$
 BooExpressionLexer    // output token vocab name
 TIMESPAN=4
 DOUBLE=5

@@ -27,7 +27,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-// $ANTLR 2.7.2: "src/Boo.Antlr/booel.g" -> "BooExpressionLexer.cs"$
+// $ANTLR 2.7.3rc2: "booel.g" -> "BooExpressionLexer.cs"$
 
 namespace Boo.Antlr
 {

@@ -7,10 +7,11 @@
 	<property name="skip.tests" value="false" />
 	<property name="skip.satellites" value="false" />
 
-	<property name="antlr.home" value="lib/antlr-2.7.2" />
+	<property name="antlr.home" value="lib/antlr-2.7.3" />
+	<property name="java" value="java" />
 	
 	<property name="antlr.runtime.dll" value="${antlr.home}/bin/antlr.runtime.dll" />
-	<property name="antlr.exe" value="${antlr.home}/bin/antlr.exe" />
+	<property name="antlr.jar" value="${antlr.home}/antlr.jar" />
 	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
 	<property name="NAnt.Core.dll" value="${nant.location}/NAnt.Core.dll" />
 	
@@ -28,13 +29,6 @@
 		<property name="skip.tests" value="True" />
 	</if>	
 	
-	<!--<if test="${not property::exists('nant.tasks.al')}">-->
-	<if test="${'mono-1.0' == nant.settings.currentframework}">
-		<echo>al task is not available. Satellite assemblies won't be built.</echo>
-		<property name="skip.satellites" value="True" />
-		<property name="skip.antlr" value="True" />
-	</if>
-
 	<target name="all" depends="booc, Boo.NAnt">	
 	</target>
 	
@@ -175,13 +169,19 @@
 				</fileset>
 			</delete>			 
 			
-			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
+			<exec program="${java}" failonerror="true">
+				<arg value="-cp" />
+				<arg value="${antlr.jar}" />
+				<arg value="antlr.Tool" />
 				<arg value="-o" />
 				<arg value="src/Boo.Antlr/" />
 				<arg value="src/Boo.Antlr/boo.g" />
 			</exec>
 			
-			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
+			<exec program="${java}" failonerror="true">
+				<arg value="-cp" />
+				<arg value="${antlr.jar}" />
+				<arg value="antlr.Tool" />
 				<arg value="-o" />
 				<arg value="src/Boo.Antlr/" />
 				<arg value="src/Boo.Antlr/booel.g" />

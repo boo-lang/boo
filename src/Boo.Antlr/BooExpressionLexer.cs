@@ -27,7 +27,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-// $ANTLR 2.7.2: "src/Boo.Antlr/booel.g" -> "BooExpressionLexer.cs"$
+// $ANTLR 2.7.3rc2: "booel.g" -> "BooExpressionLexer.cs"$
 
 namespace Boo.Antlr
 {
@@ -205,60 +205,60 @@ namespace Boo.Antlr
 			caseSensitiveLiterals = true;
 			setCaseSensitive(true);
 			literals = new Hashtable(null, Comparer.Default);
-			literals.Add("otherwise", 54);
-			literals.Add("retry", 63);
-			literals.Add("internal", 46);
-			literals.Add("failure", 37);
-			literals.Add("class", 30);
-			literals.Add("abstract", 25);
-			literals.Add("private", 60);
-			literals.Add("def", 32);
-			literals.Add("if", 49);
-			literals.Add("pass", 56);
-			literals.Add("ensure", 34);
-			literals.Add("override", 55);
-			literals.Add("unless", 72);
-			literals.Add("isa", 48);
-			literals.Add("self", 65);
-			literals.Add("when", 73);
-			literals.Add("success", 68);
-			literals.Add("in", 50);
-			literals.Add("enum", 35);
-			literals.Add("continue", 29);
-			literals.Add("from", 39);
-			literals.Add("given", 43);
-			literals.Add("import", 44);
-			literals.Add("while", 74);
-			literals.Add("as", 27);
-			literals.Add("not", 51);
-			literals.Add("false", 41);
-			literals.Add("namespace", 57);
-			literals.Add("super", 66);
-			literals.Add("protected", 59);
-			literals.Add("null", 52);
-			literals.Add("or", 53);
-			literals.Add("constructor", 31);
-			literals.Add("true", 71);
-			literals.Add("interface", 45);
-			literals.Add("raise", 61);
-			literals.Add("break", 28);
-			literals.Add("final", 38);
-			literals.Add("for", 40);
-			literals.Add("try", 69);
-			literals.Add("except", 36);
-			literals.Add("yield", 75);
-			literals.Add("else", 33);
-			literals.Add("return", 62);
 			literals.Add("public", 58);
-			literals.Add("static", 67);
-			literals.Add("transient", 70);
-			literals.Add("is", 47);
+			literals.Add("namespace", 57);
+			literals.Add("break", 28);
+			literals.Add("while", 74);
+			literals.Add("otherwise", 54);
+			literals.Add("raise", 61);
 			literals.Add("and", 26);
+			literals.Add("failure", 37);
+			literals.Add("not", 51);
+			literals.Add("return", 62);
+			literals.Add("pass", 56);
+			literals.Add("from", 39);
+			literals.Add("null", 52);
+			literals.Add("def", 32);
+			literals.Add("given", 43);
+			literals.Add("protected", 59);
+			literals.Add("retry", 63);
+			literals.Add("when", 73);
+			literals.Add("class", 30);
+			literals.Add("except", 36);
+			literals.Add("unless", 72);
+			literals.Add("super", 66);
 			literals.Add("set", 64);
+			literals.Add("transient", 70);
+			literals.Add("constructor", 31);
+			literals.Add("interface", 45);
+			literals.Add("is", 47);
+			literals.Add("internal", 46);
+			literals.Add("final", 38);
+			literals.Add("yield", 75);
+			literals.Add("or", 53);
+			literals.Add("if", 49);
+			literals.Add("success", 68);
+			literals.Add("override", 55);
+			literals.Add("as", 27);
+			literals.Add("try", 69);
+			literals.Add("enum", 35);
+			literals.Add("isa", 48);
+			literals.Add("for", 40);
+			literals.Add("private", 60);
+			literals.Add("false", 41);
+			literals.Add("static", 67);
+			literals.Add("abstract", 25);
 			literals.Add("get", 42);
+			literals.Add("continue", 29);
+			literals.Add("else", 33);
+			literals.Add("import", 44);
+			literals.Add("in", 50);
+			literals.Add("self", 65);
+			literals.Add("ensure", 34);
+			literals.Add("true", 71);
 		}
 		
-		public new Token nextToken()			//throws TokenStreamException
+		override public Token nextToken()			//throws TokenStreamException
 		{
 			Token theRetToken = null;
 tryAgain:
