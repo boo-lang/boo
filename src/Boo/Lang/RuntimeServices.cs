@@ -391,24 +391,42 @@ namespace Boo.Lang
 		}
 		#endregion
 		
+		internal static bool IsPromotableNumeric(TypeCode code)
+		{
+			switch (code)
+			{
+				case TypeCode.Byte: return true;
+				case TypeCode.SByte: return true;
+				case TypeCode.Int16: return true;
+				case TypeCode.Int32: return true;
+				case TypeCode.Int64: return true;
+				case TypeCode.UInt16: return true;
+				case TypeCode.UInt32: return true;
+				case TypeCode.UInt64: return true;
+				case TypeCode.Single: return true;
+				case TypeCode.Double: return true;
+				case TypeCode.Boolean: return true;
+			}
+			return false;
+		}
+		
 		public static IConvertible CheckNumericPromotion(object value)
 		{
 			IConvertible convertible = (IConvertible)value;
-			switch (convertible.GetTypeCode())
+			if (IsPromotableNumeric(convertible.GetTypeCode()))
 			{
-				case TypeCode.Byte: return convertible;
-				case TypeCode.SByte: return convertible;
-				case TypeCode.Int16: return convertible;
-				case TypeCode.Int32: return convertible;
-				case TypeCode.Int64: return convertible;
-				case TypeCode.UInt16: return convertible;
-				case TypeCode.UInt32: return convertible;
-				case TypeCode.UInt64: return convertible;
-				case TypeCode.Single: return convertible;
-				case TypeCode.Double: return convertible;
-				case TypeCode.Boolean: return convertible;
+				return convertible;
 			}
 			throw new InvalidCastException();
+		}
+		
+		public static Byte UnboxByte(object value)
+		{
+			if (value is Byte)
+			{
+				return (Byte)value;
+			}
+			return CheckNumericPromotion(value).ToByte(null);
 		}
 		
 		public static Int16 UnboxInt16(object value)

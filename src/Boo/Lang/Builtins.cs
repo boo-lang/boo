@@ -121,8 +121,21 @@ namespace Boo.Lang
 				throw new ArgumentNullException("elementType");
 			}
 
-			Array array = Array.CreateInstance(elementType, collection.Count);
-			collection.CopyTo(array, 0);
+			Array array = Array.CreateInstance(elementType, collection.Count);			
+			if (RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(elementType)))
+			{
+				int i=0;
+				foreach (object item in collection)
+				{
+					object value = RuntimeServices.CheckNumericPromotion(item).ToType(elementType, null);
+					array.SetValue(value, i);
+					++i;
+				}
+			}
+			else
+			{
+				collection.CopyTo(array, 0);
+			}
 			return array;
 		}
 
@@ -136,7 +149,24 @@ namespace Boo.Lang
 			{
 				throw new ArgumentNullException("elementType");
 			}
-			return new List(enumerable).ToArray(elementType);
+			
+			// future optimization, check EnumeratorItemType of enumerable
+			// and get the fast path whenever possible			
+			List l = null;
+			if (RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(elementType)))
+			{
+				l = new List();
+				foreach (object item in enumerable)
+				{
+					object value = RuntimeServices.CheckNumericPromotion(item).ToType(elementType, null);
+					l.Add(value);							
+				}
+			}
+			else
+			{
+				l = new List(enumerable);
+			}
+			return l.ToArray(elementType);
 		}
 
 		public static Array array(Type elementType, int length)
