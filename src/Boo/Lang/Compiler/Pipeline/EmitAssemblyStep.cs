@@ -2452,9 +2452,21 @@ namespace Boo.Lang.Compiler.Pipeline
 			return GetType(GetBoundType(node));
 		}
 		
+		TypeAttributes GetNestedTypeAttributes(TypeDefinition type)
+		{
+			TypeAttributes attributes = type.IsPublic ? TypeAttributes.NestedPublic : TypeAttributes.NestedPrivate;
+			return GetExtendedTypeAttributes(attributes, type);
+			
+		}
+		
 		TypeAttributes GetTypeAttributes(TypeDefinition type)
 		{
 			TypeAttributes attributes = type.IsPublic ? TypeAttributes.Public : TypeAttributes.NotPublic;
+			return GetExtendedTypeAttributes(attributes, type);
+		}
+		
+		TypeAttributes GetExtendedTypeAttributes(TypeAttributes attributes, TypeDefinition type)
+		{
 			
 			switch (type.NodeType)
 			{
@@ -2632,6 +2644,8 @@ namespace Boo.Lang.Compiler.Pipeline
 				EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(typeDefinition.FullName,
 											GetTypeAttributes(typeDefinition),
 											typeof(int));
+											
+				
 				foreach (EnumMember member in typeDefinition.Members)
 				{
 					enumBuilder.DefineLiteral(member.Name, (int)member.Initializer.Value);
@@ -2639,9 +2653,20 @@ namespace Boo.Lang.Compiler.Pipeline
 				SetBuilder(typeDefinition, enumBuilder);
 			}
 			else
-			{
-				TypeBuilder typeBuilder = _moduleBuilder.DefineType(typeDefinition.FullName,
-											GetTypeAttributes(typeDefinition));			
+			{					
+				TypeBuilder typeBuilder = null;
+				
+				ClassDefinition  enclosingType = typeDefinition.ParentNode as ClassDefinition;
+				if (null == enclosingType)
+				{
+					typeBuilder = _moduleBuilder.DefineType(typeDefinition.FullName,
+											GetTypeAttributes(typeDefinition));
+				}
+				else
+				{
+					typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(typeDefinition.Name,
+																	GetNestedTypeAttributes(typeDefinition));
+				}
 				SetBuilder(typeDefinition, typeBuilder);
 			}
 		}

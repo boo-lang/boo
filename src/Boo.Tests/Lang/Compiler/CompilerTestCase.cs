@@ -1069,5 +1069,23 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("callable2.boo");
 		}
+		
+		[Test]
+		public void StaticFieldSimple()
+		{
+			RunCompilerTestCase("static_field0.boo");
+		}
+		
+		[Test]
+		public void StaticConstructorIsCalledBeforeFirstStaticFieldAccess()
+		{
+			RunCompilerTestCase("static_constructor0.boo");
+		}
+		
+		[Test]
+		public void InnerClassSimple()
+		{
+			RunCompilerTestCase("innerclass0.boo");
+		}
 	}
 }
