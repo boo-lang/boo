@@ -27,34 +27,10 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Diagnostics;
-using Boo.Lang.Compiler;
-
-namespace Boo.Lang.Compiler.Pipeline
+namespace Boo.Lang.Compiler
 {
-	public class PEVerifyStep : AbstractCompilerStep
+	public abstract class AbstractCompilerStep : AbstractCompilerComponent, ICompilerStep
 	{
-		override public void Run()
-		{			
-			if (Errors.Count > 0)
-			{
-				return;
-			}			
-			
-			if (128 == (int)System.Environment.OSVersion.Platform)
-			{
-				_context.TraceWarning("PEVerifyStep can't run on linux");
-				// linux
-				return;
-			}
-			
-			Process p = Boo.Lang.Builtins.shellp("peverify.exe", CompilerParameters.OutputAssembly);
-			p.WaitForExit();
-			if (0 != p.ExitCode)
-			{
-				Errors.Add(new CompilerError(Boo.Lang.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
-			}
-		}
+		public abstract void Run();
 	}
 }

@@ -206,6 +206,7 @@
     <File name=".\Lang\Ast\Visitors\TreePrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\AbstractAstAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\AbstractCompilerComponent.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\AssemblyCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\BooCompiler.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\CompilerContext.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

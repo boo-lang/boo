@@ -33,7 +33,7 @@ using Boo.Lang.Ast;
 namespace Boo.Lang
 {
 	/// <summary>
-	/// Cria um acessador para um campo.
+	/// Creates a field accessor.
 	/// </summary>
 	/// <example>
 	/// <pre>

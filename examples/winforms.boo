@@ -1,17 +1,21 @@
+import System
 import System.Windows.Forms from System.Windows.Forms
 
 class App:
-	public times as int
+	[getter(Times)]
+	_times as int
+	
+	private def b_Click(sender, args as EventArgs):
+		print("clicked!")	
+		++_times
+		
+	private def f_Closed(sender, args as EventArgs):
+		Application.Exit()
 	
 	def Run():
-		b = Button(Text: "click me!")
-		b.Click += def (sender, args):
-			print("clicked!")	
-			++times
+		b = Button(Text: "click me!", Click: b_Click)
 		
-		f = Form(Text: "My first boo winforms app")
-		f.Closed += def (sender, args):
-			Application.Exit()
+		f = Form(Text: "My first boo winforms app", Closed: f_Closed)
 		
 		f.Controls.Add(b)
 		f.Show()
@@ -20,5 +24,5 @@ class App:
 
 app = App()
 app.Run()
-print("The button was clicked ${app.times} times.")
+print("The button was clicked ${app.Times} times.")
 

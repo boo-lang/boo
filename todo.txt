@@ -5,6 +5,8 @@
 	</pipeline>
 	
 done * pipeline.xsd
+
+* isolar Boo.Lang.Compiler em seu próprio assembly
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:
@@ -19,7 +21,7 @@ done * pipeline.xsd
 	* booi /c:pt-BR /r:Foo.dll /i:aux.boo foo.boo 1 2 3
 		argv do script seria (1, 2, 3), os argumentos que ocorrem
 		antes do primeiro nome simples de arquivo (foo.boo) seriam
-		consumidos pelo próprio boo
+		consumidos pelo próprio booi
 
 * map(callable, enumerable)
 

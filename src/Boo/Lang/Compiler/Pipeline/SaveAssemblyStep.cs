@@ -36,9 +36,9 @@ using Boo.Lang.Compiler;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public class SaveAssemblyStep : AbstractCompilerComponent, ICompilerStep
+	public class SaveAssemblyStep : AbstractCompilerStep
 	{
-		public void Run()
+		override public void Run()
 		{
 			if (_context.Errors.Count > 0)
 			{

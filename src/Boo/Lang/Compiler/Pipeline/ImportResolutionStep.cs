@@ -41,13 +41,13 @@ namespace Boo.Lang.Compiler.Pipeline
 	// recalculate namespaces on reference changes
 	// todo: optimize this class so it only reescans
 	// the references when they change
-	public class ImportResolutionStep : AbstractCompilerComponent, INamespace, ICompilerStep
+	public class ImportResolutionStep : AbstractCompilerStep, INamespace
 	{		
 		Hashtable _namespaces = new Hashtable();
 		
 		Hashtable _externalTypes = new Hashtable();		
 		
-		public void Run()
+		override public void Run()
 		{
 			ResolveNamespaces();
 			

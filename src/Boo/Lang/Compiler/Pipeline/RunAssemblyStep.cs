@@ -31,9 +31,9 @@ namespace Boo.Lang.Compiler.Pipeline
 {
 	using System;
 	
-	public class RunAssemblyStep : AbstractCompilerComponent, ICompilerStep
+	public class RunAssemblyStep : AbstractCompilerStep
 	{
-		public void Run()
+		override public void Run()
 		{
 			if (Errors.Count > 0 || CompilerOutputType.Library == CompilerParameters.OutputType)
 			{

@@ -34,28 +34,16 @@ namespace Boo.Lang.Compiler.Pipeline
 {
 	/// <summary>	
 	/// </summary>
-	public class BooPrinterStep : ICompilerStep
+	public class BooPrinterStep : AbstractCompilerStep
 	{
-		CompilerContext _context;
-		
 		public BooPrinterStep()
 		{
 		}
 		
-		public void Initialize(CompilerContext context)
-		{
-			_context = context;
-		}
-		
-		public void Dispose()
-		{
-			_context = null;
-		}
-
-		public void Run()
+		override public void Run()
 		{		
 			Boo.Lang.Ast.Visitors.BooPrinterVisitor visitor = new Boo.Lang.Ast.Visitors.BooPrinterVisitor(Console.Out);
-			visitor.Print(_context.CompileUnit);
+			visitor.Print(CompileUnit);
 		}
 	}
 }

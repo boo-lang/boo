@@ -742,9 +742,15 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void Using()
+		public void UsingAssignmentToReference()
 		{
 			RunCompilerTestCase("using0.boo");
+		}
+		
+		[Test]
+		public void UsingSimpleExpression()
+		{
+			RunCompilerTestCase("using1.boo");
 		}
 		
 		[Test]
