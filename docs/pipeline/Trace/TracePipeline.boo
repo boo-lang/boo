@@ -2,13 +2,13 @@ namespace TracePipeline
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.Pipeline
-import Boo.Lang.Compiler.Pipeline.Definitions
+import Boo.Lang.Compiler.Pipelines
+import Boo.Lang.Compiler.Steps
 
-class TracePipelineStep(AbstractSwitcherCompilerStep):
+class TracePipelineStep(AbstractVisitorCompilerStep):
 	
 	override def Run():
-		Switch(CompileUnit)
+		Visit(CompileUnit)
 		
 	override def LeaveMethod(method as Method):
 		stmt = TryStatement()
@@ -28,11 +28,7 @@ class TracePipelineStep(AbstractSwitcherCompilerStep):
 		return mie
 		
 
-class TracePipelineDefinition(BoocPipelineDefinition):
+class TracePipeline(CompileToFile):
 	
-	override def Define(pipeline as CompilerPipeline):
-		super(pipeline)
-		pipeline.InsertAfter("parse", TracePipelineStep())
-		// try to comment the previous line and uncomment
-		// the following one to see the difference in output
-		// pipeline.InsertAfter("normalization", TracePipelineStep())
+	def constructor():
+		self.Insert(1, TracePipelineStep())

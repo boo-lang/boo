@@ -2,13 +2,13 @@ namespace StyleChecker
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.Pipeline
-import Boo.Lang.Compiler.Pipeline.Definitions
+import Boo.Lang.Compiler.Steps
+import Boo.Lang.Compiler.Pipelines
 
-class StyleCheckerStep(AbstractSwitcherCompilerStep):
+class StyleCheckerStep(AbstractVisitorCompilerStep):
 	
 	override def Run():
-		Switch(CompileUnit)
+		Visit(CompileUnit)
 		
 	override def LeaveClassDefinition(clazz as ClassDefinition):
 		if not System.Char.IsUpper(clazz.Name[0]):
@@ -26,8 +26,7 @@ class StyleCheckerStep(AbstractSwitcherCompilerStep):
 	def Error(node as Node, message as string):
 		Errors.Add(CompilerError(node, message))		
 
-class StyleCheckerPipelineDefinition(BoocPipelineDefinition):
+class StyleCheckerPipelineDefinition(CompileToFile):
 	
-	override def Define(pipeline as CompilerPipeline):
-		super(pipeline)
-		pipeline.InsertAfter("parse", StyleCheckerStep())
+	def constructor():
+		self.Insert(1, StyleCheckerStep())

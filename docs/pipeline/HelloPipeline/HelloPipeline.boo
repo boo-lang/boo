@@ -1,8 +1,8 @@
 namespace HelloPipeline
 
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Pipeline
-import Boo.Lang.Compiler.Pipeline.Definitions
+import Boo.Lang.Compiler.Steps
+import Boo.Lang.Compiler.Pipelines
 
 class HelloPipelineStep(AbstractCompilerStep):
 	
@@ -10,8 +10,7 @@ class HelloPipelineStep(AbstractCompilerStep):
 		print("Hello from ${GetType()}!")
 		
 
-class HelloPipelineDefinition(BoocPipelineDefinition):
+class HelloPipeline(CompileToFile):
 	
-	override def Define(pipeline as CompilerPipeline):
-		super(pipeline)
-		pipeline.Add(HelloPipelineStep())
+	def constructor():
+		self.Add(HelloPipelineStep())

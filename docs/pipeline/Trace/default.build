@@ -16,7 +16,7 @@
 	<target name="compile-example" depends="compile-pipeline"> 
 		<booc target="exe"
 			output="build/HelloWorld.exe"
-			pipeline="TracePipeline.TracePipelineDefinition, TracePipeline">
+			pipeline="TracePipeline.TracePipeline, TracePipeline">
 			
 			<sources basedir=".">
 				<includes name="HelloWorld.boo" />
