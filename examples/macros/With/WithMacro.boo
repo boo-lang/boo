@@ -4,7 +4,7 @@ import Boo.Lang.Compiler.Ast.Visitors
  
 class WithMacro(AbstractAstMacro):
 	
-	private class NameExpander(DepthFirstVisitor):
+	private class NameExpander(DepthFirstTransformer):
 		
 		_inst as ReferenceExpression
 		
@@ -23,7 +23,7 @@ class WithMacro(AbstractAstMacro):
 				
 				// replace the original reference in the AST
 				// with the new member-reference
-				node.ParentNode.Replace(node, mre)
+				ReplaceCurrentNode(mre)
 				
 	override def Expand(macro as MacroStatement) as Statement:
 		assert 1 == macro.Arguments.Count
