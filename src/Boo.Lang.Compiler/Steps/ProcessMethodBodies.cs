@@ -4178,7 +4178,7 @@ namespace Boo.Lang.Compiler.Steps
 			return member != null ? member.Target : node;
 		}
 		
-		bool CheckLValue(Node node)
+		protected virtual bool CheckLValue(Node node)
 		{
 			IEntity tag = node.Entity;
 			

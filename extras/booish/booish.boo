@@ -82,9 +82,10 @@ class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 							NameResolutionService.GlobalNamespace)
 		NameResolutionService.GlobalNamespace = _namespace
 
-	override def ProcessAssignment(node as BinaryExpression):
+	override def CheckLValue(node as Node):
 		# prevent 'Expression can't be assigned to' error
-		super(node) unless InterpreterEntity.IsInterpreterEntity(node.Left)
+		return true if InterpreterEntity.IsInterpreterEntity(node)
+		return super(node) 
 
 	override def DeclareLocal(name as string, type as IType, privateScope as bool):
 		return super(name, type, privateScope) if privateScope
@@ -170,6 +171,7 @@ class InteractiveInterpreter:
 
 	def SetValue(name as string, value):
 		_values[name] = value
+		return value
 
 	def GetValue(name as string):
 		return _values[name]
@@ -214,9 +216,12 @@ print("i: ${interpreter.GetValue('i')}")
 
 interpreter = InteractiveInterpreter()
 while line=prompt(">>> "):
-	result = interpreter.Eval(line)
-	for error in result.Errors:
-		print("ERROR: ${error.Message}")
+	try:		
+		result = interpreter.Eval(line)
+		for error in result.Errors:
+			print("ERROR: ${error.Message}")
+	except x:
+		print(x)
 	
 
 
