@@ -106,7 +106,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _member.Initializer.Value;
+				return (int)_member.Initializer.Value;
 			}
 		}
 		

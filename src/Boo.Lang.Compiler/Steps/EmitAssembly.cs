@@ -310,7 +310,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			Type baseType = typeof(long);
+			Type baseType = typeof(int);
 			
 			TypeBuilder builder = GetTypeBuilder(node);		
 			
@@ -326,7 +326,7 @@ namespace Boo.Lang.Compiler.Steps
 									FieldAttributes.Public |
 									FieldAttributes.Static |
 									FieldAttributes.Literal);
-				field.SetConstant((long)member.Initializer.Value);
+				field.SetConstant((int)member.Initializer.Value);
 			}
 			EmitAttributes(builder, node);
 		}
@@ -2867,21 +2867,21 @@ namespace Boo.Lang.Compiler.Steps
 		
 		TypeBuilder CreateTypeBuilder(TypeMember type)
 		{
+			Type baseType = IsEnumDefinition(type) ? typeof(System.Enum) : typeof(object);
+
 			TypeBuilder typeBuilder = null;
 			ClassDefinition  enclosingType = type.ParentNode as ClassDefinition;
 			if (null == enclosingType)
 			{
 				typeBuilder = _moduleBuilder.DefineType(type.FullName,
-										GetTypeAttributes(type));
+										GetTypeAttributes(type),
+										baseType);
 			}
 			else
 			{
 				typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(type.Name,
-																GetNestedTypeAttributes(type));
-			}
-			if (IsEnumDefinition(type))
-			{
-				typeBuilder.SetParent(typeof(System.Enum));
+																GetNestedTypeAttributes(type),
+																baseType);
 			}
 			return typeBuilder;
 		}

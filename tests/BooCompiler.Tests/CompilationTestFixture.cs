@@ -1053,13 +1053,13 @@ namespace BooCompiler.Tests
 		[Test]
 		public void ImportInternalNamespace()
 		{
-			RunMultiFileTestCase("multifile0.boo", "character.boo");
+			RunMultiFileTestCase("multifile0.boo", "Character.boo");
 		}
 		
 		[Test]
 		public void ImportAutomaticallyFromModulesInTheSameNamespace()
 		{
-			RunMultiFileTestCase("multifile1.boo", "character.boo");
+			RunMultiFileTestCase("multifile1.boo", "Character.boo");
 		}
 		
 		[Test]
