@@ -200,6 +200,13 @@ namespace BooC
 								break;
 							}
 
+							case 'f':
+							{
+								string path = Path.GetFullPath(arg.Substring(3));
+								addFilesForPath(path, options);
+								break;
+							}
+
 							default:
 							{
 								InvalidOption(arg);								
@@ -250,6 +257,19 @@ namespace BooC
 			XmlDocument doc = new XmlDocument();
 			doc.Load(fname);
 			return doc.DocumentElement;
+		}
+
+		static void addFilesForPath(string path, CompilerParameters options)
+		{
+			foreach (string filename in Directory.GetFiles(path, "*.boo"))
+			{
+				options.Input.Add(new FileInput(Path.GetFullPath(filename)));
+			}
+								
+			foreach (string dirname in Directory.GetDirectories(path))
+			{
+				addFilesForPath(dirname, options);
+			}
 		}
 	}
 }
