@@ -138,9 +138,8 @@ class Language:
 		
 		Eval("language = Language(Name: 'portuguese')")
 		language = _interpreter.GetValue("language")
-		assert 'portuguese' == language.Name
-		
-	/*
+		assert 'portuguese' == language.Name		
+	
 	[Test]
 	def UnderscoreHoldsLastEvaluatedExpression():
 		Eval("a = 42")
@@ -152,7 +151,6 @@ class Language:
 	def EvaluateSimpleExpression():
 		Eval("2+2")
 		assert 4 == _interpreter.GetValue("_")
-	*/
 		
 	[Test]
 	def Closures():

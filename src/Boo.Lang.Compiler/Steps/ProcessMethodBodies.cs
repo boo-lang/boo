@@ -4295,7 +4295,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		static bool HasSideEffect(Expression node)
+		protected virtual bool HasSideEffect(Expression node)
 		{
 			return
 				node.NodeType == NodeType.MethodInvocationExpression ||
