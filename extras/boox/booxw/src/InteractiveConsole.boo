@@ -49,7 +49,7 @@ class InteractiveConsole(DockContent):
 		console.Interpreter.SetValue("inspect", inspect)
 		
 	def inspect([required] obj):
-		f = Form(Text: "Object Inspector [${obj.ToString()[:10]}...]")
+		f = Form(Text: "Object Inspector [${obj}]")
 		f.Controls.Add(PropertyGrid(
 							Dock: DockStyle.Fill,
 							SelectedObject: obj,

@@ -425,6 +425,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
+			if (node.IsTransient)
+			{
+				backingField.Modifiers |= TypeMemberModifiers.Transient;
+			}
 			node.DeclaringType.Members.Add(backingField);
 			
 			((InternalEvent)node.Entity).BackingField = (InternalField)backingField.Entity;
