@@ -164,7 +164,7 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					node.Left.Switch(this);
 					node.Right.Switch(this);
-					_il.EmitCall(OpCodes.Call, (MethodInfo)BindingManager.GetBoundOperator(node).MethodInfo, null);
+					_il.EmitCall(OpCodes.Call, (MethodInfo)((IMethodBinding)BindingManager.GetBinding(node)).MethodInfo, null);
 				}
 				else
 				{

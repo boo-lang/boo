@@ -23,6 +23,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return ReturnType;
+			}
+		}
+		
 		public int ParameterCount
 		{
 			get

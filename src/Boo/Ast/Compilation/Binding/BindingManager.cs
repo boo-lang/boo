@@ -63,35 +63,7 @@ namespace Boo.Ast.Compilation.Binding
 		public void Bind(TypeDefinition type, TypeBuilder builder)
 		{
 			Bind(type, new InternalTypeBinding(this, type, builder));
-		}
-		
-		public void BindOperator(BinaryExpression expression, IMethodBinding binding)
-		{
-			if (null == expression)
-			{
-				throw new ArgumentNullException("expression");
-			}
-			if (null == binding)
-			{
-				throw new ArgumentNullException("binding");
-			}
-			expression[OperatorBindingKey] = binding;
-		}
-		
-		public IMethodBinding GetBoundOperator(BinaryExpression expression)
-		{
-			if (null == expression)
-			{
-				throw new ArgumentNullException("expression");
-			}
-			
-			IMethodBinding binding = (IMethodBinding)expression[OperatorBindingKey];
-			if (null == binding)
-			{
-				NodeNotBound(expression);
-			}
-			return binding;
-		}
+		}		
 		
 		public void Error(Node node)
 		{
@@ -180,7 +152,7 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public System.Type GetBoundType(Node node)
 		{
-			return ((ITypedBinding)GetBinding(node)).Type;
+			return ((ITypedBinding)GetBinding(node)).BoundType.Type;
 		}		
 		
 		public LocalBinding GetLocalBinding(Local local)
@@ -214,7 +186,5 @@ namespace Boo.Ast.Compilation.Binding
 		}
 		
 		static object BindingKey = new object();
-		
-		static object OperatorBindingKey = new object();
 	}
 }

@@ -14,6 +14,7 @@ namespace Boo.Ast.Compilation.Binding
 		Assembly,
 		Namespace,
 		Ambiguous,
+		Operator,
 		Error
 	}
 	
@@ -31,11 +32,6 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			get;			
 		}
-		
-		System.Type Type
-		{
-			get;
-		}
 	}
 	
 	public interface IPropertyBinding : ITypedBinding
@@ -48,10 +44,14 @@ namespace Boo.Ast.Compilation.Binding
 	
 	public interface ITypeBinding : ITypedBinding, INameSpace
 	{		
+		System.Type Type
+		{
+			get;
+		}
 		IConstructorBinding[] GetConstructors();
 	}
 	
-	public interface IMethodBinding : IBinding
+	public interface IMethodBinding : ITypedBinding
 	{
 		int ParameterCount
 		{

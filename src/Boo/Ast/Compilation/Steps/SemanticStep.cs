@@ -136,10 +136,10 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveIfStatement(IfStatement node)
 		{
-			ITypeBinding binding = BindingManager.GetTypeBinding(node.Expression);
-			if (BindingManager.BoolType != binding.Type)
+			Type type = BindingManager.GetBoundType(node.Expression);
+			if (BindingManager.BoolType != type)
 			{
-				Errors.BoolExpressionRequired(node.Expression, binding.Type);
+				Errors.BoolExpressionRequired(node.Expression, type);
 			}
 		}
 		
@@ -211,8 +211,7 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					// todo; trocar Bind e BindOperator por um 
 					// unico Bind(node, new OperatorBinding())
-					BindingManager.Bind(node, RuntimeServices_IsMatchBinding.ReturnType);
-					BindingManager.BindOperator(node, RuntimeServices_IsMatchBinding);
+					BindingManager.Bind(node, RuntimeServices_IsMatchBinding);					
 				}
 				else
 				{
@@ -371,7 +370,7 @@ namespace Boo.Ast.Compilation.Steps
 				
 				BindingManager.Bind(arg.First, member);				
 				
-				Type memberType = ((ITypedBinding)member).Type;
+				Type memberType = ((ITypedBinding)member).BoundType.Type;
 				Type expressionType = BindingManager.GetBoundType(arg.Second);
 				if (!IsAssignableFrom(memberType, expressionType))
 				{
