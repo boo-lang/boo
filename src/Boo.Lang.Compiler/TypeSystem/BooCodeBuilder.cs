@@ -125,10 +125,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg)
 		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
-			mie.Target = new ReferenceExpression(staticMethod.FullName);
+			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod);
+			mie.LexicalInfo = arg.LexicalInfo;
 			mie.Arguments.Add(arg);
-			
+			return mie;
+		}
+		
+		public MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression();
+			mie.Target = new ReferenceExpression(staticMethod.FullName);
 			mie.Target.Entity = staticMethod;
 			mie.ExpressionType = staticMethod.ReturnType;
 			return mie;

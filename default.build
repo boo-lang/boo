@@ -233,7 +233,7 @@
 				<include name="docs/**/*.boo" />
 				<include name="docs/**/*.build" />
 				<include name="docs/**/*.sxw" />
-				<include name="bin/*.dll" />
+				<include name="bin/**/*.dll" />
 				<include name="bin/*.exe" />
 				<include name="bin/*.rsp" />
 				
@@ -264,7 +264,7 @@
 				<include name="docs/**/*.boo" />
 				<include name="docs/**/*.build" />
 				<include name="docs/**/*.sxw" />
-				<include name="bin/*.dll" />
+				<include name="bin/**/*.dll" />
 				<include name="bin/*.exe" />
 				<include name="bin/*.rsp" />
 				

@@ -7,11 +7,13 @@ public class Foo(System.Object):
 
 	public def constructor():
 		super()
-		self._first = 14
-		self._second = (self._first * 2)
+		self.___initializer()
 
 	public def constructor(bar as System.Object):
 		super()
+		self.___initializer()
+
+	def ___initializer() as System.Void:
 		self._first = 14
 		self._second = (self._first * 2)
 """

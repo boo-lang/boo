@@ -717,8 +717,14 @@ field_or_property [TypeMemberCollection container]
 		)
 		|
 		(
-			(AS tr=type_reference)? (ASSIGN initializer=expression)?
-			eos
+			(AS tr=type_reference)?
+			(
+				(ASSIGN (
+							(initializer=array_or_expression eos) |
+							(initializer=callable_expression))) |
+				eos
+			)						
+			
 			{
 				Field field = new Field(ToLexicalInfo(id));
 				field.Type = tr;
@@ -1454,6 +1460,18 @@ boolean_term returns [Expression e]
 		}
 	)*
 	;
+	
+protected
+method_invocation_block[Expression mi]
+	{
+		Expression block = null;
+	}:
+	{IsMethodInvocationExpression(mi)}?
+	block=callable_expression
+	{
+		((MethodInvocationExpression)mi).Arguments.Add(block);
+	}
+	;
 
 protected
 assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
@@ -1465,16 +1483,21 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 	}:
 	lhs=slicing_expression
 	(
+		(DO)=>(
+			method_invocation_block[lhs]
+			{ stmt = new ExpressionStatement(lhs); }
+		) |
 		(
 			op:ASSIGN
 			(
-				(DO|DEF)=>rhs=callable_expression |
+				(DEF)=>rhs=callable_expression |
 				(
 					rhs=array_or_expression
-					(			
-						modifier=stmt_modifier
-					)?
-					eos
+					(		
+						(DO)=>method_invocation_block[rhs] |
+						(modifier=stmt_modifier eos) |
+						eos
+					)					
 				)
 			)
 			{
@@ -1483,14 +1506,6 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 							ParseAssignOperator(op.getText()),
 							lhs, rhs));
 				stmt.Modifier = modifier;
-			}
-		)|
-		(
-			{IsMethodInvocationExpression(lhs)}?
-			rhs=callable_expression
-			{
-				((MethodInvocationExpression)lhs).Arguments.Add(rhs);
-				stmt = new ExpressionStatement(lhs);
 			}
 		)
 	)

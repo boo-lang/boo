@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class HuntDucks : ProcessMethodBodies
+	public class ProcessMethodBodiesWithDuckTyping : ProcessMethodBodies
 	{
 		protected IType _runtimeServices;
 		protected IMethod RuntimeServices_Invoke;

@@ -90,6 +90,7 @@ BCE0088=O prefixo '{0}' é reservado para o compilador.
 BCE0089=O tipo '{0}' já possui uma definição para '{1}'.
 BCE0090=Método derivado '{0}' não pode reduzir a acessibilidade do método '{1}' de '{2}' para '{3}'.
 BCE0091=Referência ao evento '{0}' não pode ser utilizado como uma expressão.
+BCE0092='{0}' não pode ser utilizado como argumento para raise, somente strings e exceções são permitidas.
 
 ;Compiler warnings
 BCW0001=O tipo '{0}' não possui uma implementação para '{1}' e será marcado como abstrato.

@@ -59,7 +59,13 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Dispose()
 		{
 			_shared.Clear();
+			_references.Clear();
+			_mappings.Clear();
 			base.Dispose();
+		}
+		
+		override public void OnField(Field node)
+		{
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)

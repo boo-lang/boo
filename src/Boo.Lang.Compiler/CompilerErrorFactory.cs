@@ -486,6 +486,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0091", node.LexicalInfo, eventName);
 		}
 		
+		public static CompilerError InvalidRaiseArgument(Node node, string typeName)
+		{
+			return new CompilerError("BCE0092", node.LexicalInfo, typeName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

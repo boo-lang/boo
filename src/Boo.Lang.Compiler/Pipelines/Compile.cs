@@ -52,7 +52,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new BindBaseTypes());
 			
 			Add(new BindTypeMembers());			
-			Add(new HuntDucks());
+			Add(new ProcessMethodBodiesWithDuckTyping());
 			Add(new StricterErrorChecking());
 			
 			Add(new ProcessSharedLocals()); 

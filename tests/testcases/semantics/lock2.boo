@@ -14,6 +14,9 @@ public class LockedList(System.Object):
 
 	public def constructor():
 		super()
+		self.___initializer()
+
+	def ___initializer() as System.Void:
 		self._list = []
 """
 class LockedList:

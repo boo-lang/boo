@@ -5,6 +5,9 @@ public class ClassWithField(System.Object):
 
 	public def constructor():
 		super()
+		self.___initializer()
+
+	def ___initializer() as System.Void:
 		self._name = ''
 """
 

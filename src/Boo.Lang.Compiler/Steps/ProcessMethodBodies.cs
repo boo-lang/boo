@@ -265,9 +265,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalClass tag = (InternalClass)GetEntity(node);			
 			EnterNamespace(tag);
-			Visit(node.Attributes);		
-			ProcessFields(node);
-			Visit(node.Members);
+			Visit(node.Attributes);
+			//Visit(node.Members, NodeType.Field);
+			Visit(node.Members);			
 			LeaveNamespace();
 			
 			ProcessInheritedAbstractMembers(node);
@@ -539,99 +539,102 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalField tag = (InternalField)GetEntity(node);
 			
-			Visit(node.Attributes);			
+			Visit(node.Attributes);
+			Visit(node.Type);			
 			
-			IType initializerType = InferFieldInitializerType(node);			
-			
-			if (null == node.Type)
+			if (null != node.Initializer)
 			{
-				if (null == node.Initializer)
+				ProcessFieldInitializer(node);
+			}
+			else
+			{			
+				if (null == node.Type)
 				{
 					node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
 				}
-				else
-				{
-					node.Type = CodeBuilder.CreateTypeReference(initializerType);
-				}
 			}
-			else
-			{
-				Visit(node.Type);
-				
-				if (null != node.Initializer)
-				{
-					CheckTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
-				}
-			}
-		}
+		}	
 		
-		void ProcessFields(ClassDefinition node)
-		{
-			Node[] fields = node.Members.Select(NodeType.Field);
-			if (0 == fields.Length)
-			{
-				return;
-			}
-			
-			Visit(fields);
-			
-			int staticFieldIndex = 0;
-			int instanceFieldIndex = 0;
-			
-			foreach (Field f in fields)
-			{
-				if (null == f.Initializer)
-				{
-					continue;
-				}
-				
-				if (f.IsStatic)
-				{
-					AddFieldInitializerToStaticConstructor(staticFieldIndex, f);
-					++staticFieldIndex;
-				}
-				else
-				{
-					AddFieldInitializerToInstanceConstructors(instanceFieldIndex, f);
-					++instanceFieldIndex;
-				}
-			}
-		}		
-		
-		IType InferFieldInitializerType(Field node)
-		{
-			IType initializerType = null;
+		void ProcessFieldInitializer(Field node)
+		{			
 			Expression initializer = node.Initializer;
-			if (null != initializer)
-			{
-				Method method = new Method();
-				method.LexicalInfo = node.LexicalInfo;
-				method.Name = "___initializer";
-				method.Modifiers = node.Modifiers;
+			
+			Method method = GetFieldsInitializerMethod(node);
+			InternalMethod entity = (InternalMethod)method.Entity;
 				
-				BinaryExpression assignment = new BinaryExpression(
+			ReferenceExpression temp = new ReferenceExpression("___temp_initializer");
+			BinaryExpression assignment = new BinaryExpression(
 						node.LexicalInfo,
 						BinaryOperatorType.Assign,
-						new ReferenceExpression("___temp"),
-						initializer.CloneNode());
+						temp,
+						initializer);
 						
-				method.Body.Add(assignment);
+			method.Body.Add(assignment);
+			ProcessNodeInMethodContext(entity, entity, assignment);
+			method.Locals.RemoveByEntity(temp.Entity);
 				
-				TypeDefinition type = node.DeclaringType;
-				try
+			IType initializerType = GetConcreteExpressionType(assignment.Right);
+			if (null == node.Type)
+			{
+				node.Type = CodeBuilder.CreateTypeReference(initializerType);
+			}
+			else
+			{			
+				CheckTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
+			}
+			assignment.Left = CodeBuilder.CreateReference(node);
+			node.Initializer = null;			
+		}
+		
+		Method GetFieldsInitializerMethod(Field node)
+		{
+			TypeDefinition type = node.DeclaringType;
+			string methodName = node.IsStatic ? "___static_initializer" : "___initializer";			
+			Method method = (Method)type[methodName];
+			if (null == method)
+			{				
+				method = new Method(methodName);				
+				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
+				
+				InternalMethod entity = new InternalMethod(TypeSystemServices, method);
+				method.Entity = entity;
+				type.Members.Add(method);
+				
+				if (node.IsStatic)
 				{
-					type.Members.Add(method);
-					method.Entity = new InternalMethod(TypeSystemServices, method);
-					Visit(method);
+					method.Modifiers |= TypeMemberModifiers.Static;
+					AddInitializerToStaticConstructor(type, entity);					
+				}			
+				else
+				{
+					AddInitializerToInstanceConstructors(type, entity);
 				}
-				finally
+				
+				type[methodName] = method;
+				
+				MarkVisited(method);
+			}
+			return method;
+		}
+		
+		void AddInitializerToStaticConstructor(TypeDefinition type, InternalMethod initializer)
+		{
+			GetStaticConstructor(type).Body.Add(
+						CodeBuilder.CreateMethodInvocation(initializer));
+		}
+		
+		void AddInitializerToInstanceConstructors(TypeDefinition type, InternalMethod initializer)
+		{
+			foreach (TypeMember node in type.Members)
+			{
+				if (NodeType.Constructor == node.NodeType && !node.IsStatic)
 				{
-					//node.Initializer = assignment.Right;
-					initializerType = GetConcreteExpressionType(assignment.Right);
-					type.Members.Remove(method);
+					((Constructor)node).Body.Insert(0,
+						CodeBuilder.CreateMethodInvocation(
+							CodeBuilder.CreateSelfReference((IType)type.Entity),
+							initializer));
 				}
 			}
-			return initializerType;
 		}
 		
 		Constructor GetStaticConstructor(TypeDefinition type)
@@ -643,41 +646,21 @@ namespace Boo.Lang.Compiler.Steps
 					return (Constructor)member;
 				}
 			}
-			return null;
+			
+			Constructor constructor = new Constructor();
+			constructor.Entity = new InternalConstructor(TypeSystemServices, constructor);
+			constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
+			type.Members.Add(constructor);
+			MarkVisited(constructor);
+			return constructor;
 		}
 		
 		void AddFieldInitializerToStaticConstructor(int index, Field node)
 		{
 			Constructor constructor = GetStaticConstructor(node.DeclaringType);
-			if (null == constructor)
-			{
-				constructor = new Constructor(node.LexicalInfo);
-				constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
-				node.DeclaringType.Members.Add(constructor);				
-				Bind(constructor, new InternalConstructor(TypeSystemServices, constructor));
-				//MarkVisited(constructor);
-			}
-			
 			Statement stmt = CreateFieldAssignment(node);
 			constructor.Body.Statements.Insert(index, stmt);
-			node.Initializer = null;
-		}
-		
-		void AddFieldInitializerToInstanceConstructors(int index, Field node)
-		{
-			foreach (TypeMember member in node.DeclaringType.Members)
-			{
-				if (NodeType.Constructor == member.NodeType)
-				{
-					Constructor constructor = (Constructor)member;
-					if (!constructor.IsStatic)
-					{
-						Statement stmt = CreateFieldAssignment(node);
-						constructor.Body.Statements.Insert(index, stmt);
-					}
-				}
-			}
-			node.Initializer = null;
+			node.Initializer = null;			
 		}
 		
 		Statement CreateFieldAssignment(Field node)
@@ -872,12 +855,17 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ProcessMethodBody(InternalMethod tag, INamespace ns)
 		{
+			ProcessNodeInMethodContext(tag, ns, tag.Method.Body);
+		}
+		
+		void ProcessNodeInMethodContext(InternalMethod tag, INamespace ns, Node node)
+		{
 			PushMethodInfo(tag);
 			EnterNamespace(ns);
 			
 			try
 			{
-				Visit(tag.Method.Body);
+				Visit(node);
 			}
 			finally
 			{			
@@ -2091,7 +2079,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (node.Exception != null)
 			{
-				if (TypeSystemServices.StringType == GetExpressionType(node.Exception))
+				IType exceptionType = GetExpressionType(node.Exception);
+				if (TypeSystemServices.StringType == exceptionType)
 				{
 					MethodInvocationExpression expression = new MethodInvocationExpression(node.Exception.LexicalInfo);
 					expression.Arguments.Add(node.Exception);
@@ -2100,6 +2089,11 @@ namespace Boo.Lang.Compiler.Steps
 					BindExpressionType(expression, TypeSystemServices.ApplicationExceptionType);
 
 					node.Exception = expression;				
+				}
+				else if (!TypeSystemServices.ExceptionType.IsAssignableFrom(exceptionType))
+				{
+					Error(CompilerErrorFactory.InvalidRaiseArgument(node.Exception, 
+								exceptionType.FullName));
 				}
 			}
 			else

@@ -200,6 +200,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return GetPromotedNumberType(current, candidate);
 			}
 			
+			if (IsCallableType(current) && IsCallableType(candidate))
+			{
+				return ICallableType;
+			}
+			
 			IType obj = ObjectType;			
 			if (current.IsClass && candidate.IsClass)
 			{
@@ -248,8 +253,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsCallable(IType type)
 		{
-			return (TypeType == type) ||
-				(ICallableType.IsAssignableFrom(type)) ||
+			return (TypeType == type) || IsCallableType(type);
+		}
+		
+		bool IsCallableType(IType type)
+		{			
+			return (ICallableType.IsAssignableFrom(type)) ||
 				(type is Boo.Lang.Compiler.TypeSystem.ICallableType);
 		}
 		

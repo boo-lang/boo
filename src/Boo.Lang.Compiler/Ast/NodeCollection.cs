@@ -128,6 +128,10 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public Node RemoveByEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
 		{
+			if (null == entity)
+			{
+				throw new ArgumentNullException("entity");
+			}
 			for (int i=0; i<_list.Count; ++i)
 			{
 				Node node = (Node)_list[i];
