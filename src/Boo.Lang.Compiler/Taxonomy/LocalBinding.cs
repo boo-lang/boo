@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -26,33 +26,88 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Collections;
-
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class NamespaceInfoCache
-	{
-		protected Hashtable _bindingCache = new Hashtable();
+	using Boo.Lang.Compiler.Ast;
+	
+	public class LocalInfo : ITypedInfo
+	{		
+		Local _local;
 		
-		public IInfo ResolveFromCache(string name, out bool found)
-		{
-			IInfo binding = (IInfo)_bindingCache[name];
-			if (null == binding)
-			{
-				found = _bindingCache.ContainsKey(name);
-			}
-			else
-			{
-				found = true;
-			}
-			return binding;
+		ITypeInfo _typeInfo;
+		
+		System.Reflection.Emit.LocalBuilder _builder;
+		
+		public LocalInfo(Local local, ITypeInfo typeInfo)
+		{			
+			_local = local;
+			_typeInfo = typeInfo;
 		}
 		
-		public IInfo Cache(string name, IInfo binding)
+		public string Name
 		{
-			_bindingCache[name] = binding;
-			return binding;
+			get
+			{
+				return _local.Name;
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _local.Name;
+			}
+		}
+		
+		public InfoType InfoType
+		{
+			get
+			{
+				return InfoType.Local;
+			}
+		}
+		
+		public bool IsPrivateScope
+		{
+			get
+			{
+				return _local.PrivateScope;
+			}
+		}
+		
+		public Local Local
+		{
+			get
+			{
+				return _local;
+			}
+		}
+		
+		public ITypeInfo BoundType
+		{
+			get
+			{
+				return _typeInfo;
+			}
+		}
+		
+		public System.Reflection.Emit.LocalBuilder LocalBuilder
+		{
+			get
+			{
+				return _builder;
+			}
+			
+			set
+			{
+				_builder = value;
+			}
+		}
+		
+		override public string ToString()
+		{
+			return string.Format("Local<Name={0}, Type={1}>", Name, BoundType);
 		}
 	}
 }

@@ -29,7 +29,7 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Infos;
+using Boo.Lang.Compiler.Taxonomy;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang;
 using Reflection = System.Reflection;
@@ -241,7 +241,7 @@ namespace Boo.Lang.Compiler.Steps
 					Error(attribute, CompilerErrorFactory.AmbiguousReference(
 									attribute,
 									attribute.Name,
-									((AmbiguousInfo)binding).Infos));
+									((AmbiguousInfo)binding).Taxonomy));
 				}
 				else
 				{

@@ -26,35 +26,26 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	using Boo.Lang.Compiler.Services;
-	
-	public class ExternalFieldInfo : IFieldInfo
+	public class AssemblyInfo : IInfo
 	{
-		DefaultInfoService _bindingService;
+		System.Reflection.Assembly _assembly;
 		
-		System.Reflection.FieldInfo _field;
-		
-		public ExternalFieldInfo(DefaultInfoService bindingManager, System.Reflection.FieldInfo field)
+		public AssemblyInfo(System.Reflection.Assembly assembly)
 		{
-			_bindingService = bindingManager;
-			_field = field;
-		}
-		
-		public ITypeInfo DeclaringType
-		{
-			get
+			if (null == assembly)
 			{
-				return _bindingService.AsTypeInfo(_field.DeclaringType);
+				throw new System.ArgumentNullException("assembly");
 			}
+			_assembly = assembly;
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _field.Name;
+				return _assembly.FullName;
 			}
 		}
 		
@@ -62,31 +53,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _field.DeclaringType.FullName + "." + _field.Name;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return _field.IsPublic;
-			}
-		}
-		
-		public bool IsStatic
-		{
-			get
-			{
-				return _field.IsStatic;
-			}
-		}
-		
-		public bool IsLiteral
-		{
-			get
-			{
-				return _field.IsLiteral;
+				return Name;
 			}
 		}
 		
@@ -94,39 +61,15 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return InfoType.Field;
+				return InfoType.Assembly;
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public System.Reflection.Assembly Assembly
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_field.FieldType);
-			}
-		}
-		
-		public System.Type Type
-		{
-			get
-			{
-				return _field.FieldType;
-			}
-		}
-		
-		public object StaticValue
-		{
-			get
-			{
-				return _field.GetValue(null);
-			}
-		}
-		
-		public System.Reflection.FieldInfo FieldInfo
-		{
-			get
-			{
-				return _field;
+				return _assembly;
 			}
 		}
 	}

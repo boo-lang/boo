@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Steps
 	using System;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;	
-	using Boo.Lang.Compiler.Infos;
+	using Boo.Lang.Compiler.Taxonomy;
 	
 	public abstract class AbstractNamespaceSensitiveVisitorCompilerStep : AbstractVisitorCompilerStep
 	{

@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 	using System.Collections;

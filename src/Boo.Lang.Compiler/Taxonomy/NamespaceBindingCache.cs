@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -26,102 +26,33 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+using System;
+using System.Collections;
+
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Services;
-	
-	public class InternalEnumMemberInfo : AbstractInternalInfo, IFieldInfo
+	public class NamespaceInfoCache
 	{
-		DefaultInfoService _bindingService;
+		protected Hashtable _bindingCache = new Hashtable();
 		
-		EnumMember _member;
-		
-		public InternalEnumMemberInfo(DefaultInfoService bindingManager, EnumMember member)
+		public IInfo ResolveFromCache(string name, out bool found)
 		{
-			_bindingService = bindingManager;
-			_member = member;
+			IInfo binding = (IInfo)_bindingCache[name];
+			if (null == binding)
+			{
+				found = _bindingCache.ContainsKey(name);
+			}
+			else
+			{
+				found = true;
+			}
+			return binding;
 		}
 		
-		public string Name
+		public IInfo Cache(string name, IInfo binding)
 		{
-			get
-			{
-				return _member.Name;
-			}
-		}
-		
-		public string FullName
-		{
-			get
-			{
-				return _member.DeclaringType.FullName + "." + _member.Name;
-			}
-		}
-		
-		public bool IsStatic
-		{
-			get
-			{
-				return true;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return true;
-			}
-		}
-		
-		public bool IsLiteral
-		{
-			get
-			{
-				return true;
-			}
-		}
-		
-		public InfoType InfoType
-		{
-			get
-			{
-				return InfoType.Field;
-			}
-		}
-		
-		public ITypeInfo BoundType
-		{
-			get
-			{
-				return DeclaringType;
-			}
-		}
-		
-		public ITypeInfo DeclaringType
-		{
-			get
-			{
-				return (ITypeInfo)DefaultInfoService.GetInfo(_member.ParentNode);
-			}
-		}
-		
-		public object StaticValue
-		{
-			get
-			{
-				return _member.Initializer.Value;
-			}
-		}
-		
-		override public Node Node
-		{
-			get
-			{
-				return _member;
-			}
+			_bindingCache[name] = binding;
+			return binding;
 		}
 	}
 }

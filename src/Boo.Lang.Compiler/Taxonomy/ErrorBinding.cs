@@ -26,40 +26,18 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	using System;
-	using Boo.Lang.Compiler.Services;
-	
-	public class ArrayTypeInfo : ITypeInfo, INamespace
+	public abstract class AbstractTypeInfo : ITypeInfo, INamespace
 	{	
-		DefaultInfoService _bindingService;
-		
-		ITypeInfo _elementType;
-		
-		ITypeInfo _array;
-		
-		public ArrayTypeInfo(DefaultInfoService bindingManager, ITypeInfo elementType)
+		public abstract string Name
 		{
-			_bindingService = bindingManager;
-			_array = bindingManager.ArrayTypeInfo;
-			_elementType = elementType;
+			get;
 		}
 		
-		public string Name
+		public abstract InfoType InfoType
 		{
-			get
-			{
-				return string.Format("({0})", _elementType.FullName);
-			}
-		}
-		
-		public InfoType InfoType
-		{
-			get			
-			{
-				return InfoType.Array;
-			}
+			get;
 		}
 		
 		public string FullName
@@ -70,7 +48,7 @@ namespace Boo.Lang.Compiler.Infos
 			}
 		}
 		
-		public ITypeInfo BoundType
+		public virtual ITypeInfo BoundType
 		{
 			get
 			{
@@ -78,7 +56,7 @@ namespace Boo.Lang.Compiler.Infos
 			}
 		}
 		
-		public bool IsClass
+		public virtual bool IsClass
 		{
 			get
 			{
@@ -86,7 +64,7 @@ namespace Boo.Lang.Compiler.Infos
 			}
 		}
 		
-		public bool IsInterface
+		public virtual bool IsInterface
 		{
 			get
 			{
@@ -114,30 +92,25 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return true;
+				return false;
 			}
-		}
-		
-		public int GetTypeDepth()
-		{
-			return 2;
 		}
 		
 		public int GetArrayRank()
 		{
-			return 1;
+			return 0;
 		}		
 		
 		public ITypeInfo GetElementType()
 		{
-			return _elementType;
+			return null;
 		}
 		
 		public ITypeInfo BaseType
 		{
 			get
 			{
-				return _array;
+				return null;
 			}
 		}
 		
@@ -146,27 +119,18 @@ namespace Boo.Lang.Compiler.Infos
 			return null;
 		}
 		
+		public virtual int GetTypeDepth()
+		{
+			return 0;
+		}
+		
 		public virtual bool IsSubclassOf(ITypeInfo other)
 		{
-			return other.IsAssignableFrom(_array);
+			return false;
 		}
 		
 		public virtual bool IsAssignableFrom(ITypeInfo other)
-		{			
-			if (other == this)
-			{
-				return true;
-			}
-			
-			if (other.IsArray)
-			{
-				ITypeInfo otherElementType = other.GetElementType();
-				if (_elementType.IsValueType || otherElementType.IsValueType)
-				{
-					return _elementType == otherElementType;
-				}
-				return _elementType.IsAssignableFrom(otherElementType);
-			}
+		{
 			return false;
 		}
 		
@@ -177,30 +141,105 @@ namespace Boo.Lang.Compiler.Infos
 		
 		public ITypeInfo[] GetInterfaces()
 		{
-			return null;
+			return new ITypeInfo[0];
 		}
 		
 		public IInfo[] GetMembers()
 		{
-			return null;
+			return new IInfo[0];
 		}
 		
 		public INamespace ParentNamespace
 		{
 			get
 			{
-				return _array.ParentNamespace;
+				return null;
 			}
 		}
 		
 		public IInfo Resolve(string name)
 		{
-			return _array.Resolve(name);
+			return null;
 		}
 		
 		override public string ToString()
 		{
 			return Name;
+		}
+	}
+	
+	public class NullInfo : AbstractTypeInfo
+	{
+		public static NullInfo Default = new NullInfo();
+		
+		private NullInfo()
+		{
+		}
+		
+		override public string Name
+		{
+			get
+			{
+				return "null";
+			}
+		}
+		
+		override public InfoType InfoType
+		{
+			get
+			{
+				return InfoType.Null;
+			}
+		}
+	}
+	
+	public class UnknownInfo : AbstractTypeInfo
+	{
+		public static UnknownInfo Default = new UnknownInfo();
+		
+		private UnknownInfo()
+		{
+		}
+		
+		override public string Name
+		{
+			get
+			{
+				return "unknown";
+			}
+		}
+		
+		override public InfoType InfoType
+		{
+			get
+			{
+				return InfoType.Unknown;
+			}
+		}
+	}
+	
+	public class ErrorInfo : AbstractTypeInfo
+	{
+		public static ErrorInfo Default = new ErrorInfo();
+		
+		private ErrorInfo()
+		{			
+		}	
+		
+		override public string Name
+		{
+			get
+			{
+				return "error";
+			}
+		}
+		
+		override public InfoType InfoType
+		{
+			get
+			{
+				return InfoType.Error;
+			}
 		}
 	}
 }

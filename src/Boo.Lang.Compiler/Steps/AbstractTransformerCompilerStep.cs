@@ -30,7 +30,7 @@ using System;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Infos;
+using Boo.Lang.Compiler.Taxonomy;
 using Boo.Lang.Compiler.Services;
 
 namespace Boo.Lang.Compiler.Steps

@@ -32,7 +32,7 @@ using System.Reflection;
 using List=Boo.Lang.List;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Infos;
+using Boo.Lang.Compiler.Taxonomy;
 
 namespace Boo.Lang.Compiler.Steps
 {	
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							Parameters.References.Add(asm);
-							InfoService.Bind(reference, new Infos.AssemblyInfo(asm));
+							InfoService.Bind(reference, new Taxonomy.AssemblyInfo(asm));
 						}
 						catch (Exception x)
 						{
@@ -213,12 +213,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Infos.NamespaceInfo GetNamespaceInfo(string ns)
+		Taxonomy.NamespaceInfo GetNamespaceInfo(string ns)
 		{
 			string[] namespaceHierarchy = ns.Split('.');
 			string topLevelName = namespaceHierarchy[0];
-			Infos.NamespaceInfo topLevel = GetTopLevelNamespaceInfo(topLevelName);
-			Infos.NamespaceInfo current = topLevel;
+			Taxonomy.NamespaceInfo topLevel = GetTopLevelNamespaceInfo(topLevelName);
+			Taxonomy.NamespaceInfo current = topLevel;
 			for (int i=1; i<namespaceHierarchy.Length; ++i)
 			{
 				current = current.GetChildNamespace(namespaceHierarchy[i]);
@@ -226,12 +226,12 @@ namespace Boo.Lang.Compiler.Steps
 			return current;
 		}
 		
-		Infos.NamespaceInfo GetTopLevelNamespaceInfo(string topLevelName)
+		Taxonomy.NamespaceInfo GetTopLevelNamespaceInfo(string topLevelName)
 		{
-			Infos.NamespaceInfo binding = (Infos.NamespaceInfo)_namespaces[topLevelName];	
+			Taxonomy.NamespaceInfo binding = (Taxonomy.NamespaceInfo)_namespaces[topLevelName];	
 			if (null == binding)
 			{
-				_namespaces[topLevelName] = binding = new Infos.NamespaceInfo(this, InfoService, topLevelName);
+				_namespaces[topLevelName] = binding = new Taxonomy.NamespaceInfo(this, InfoService, topLevelName);
 			}
 			return binding;
 		}

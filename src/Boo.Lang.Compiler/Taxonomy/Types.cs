@@ -28,7 +28,7 @@
 
 using System;
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
 	public class Types
 	{

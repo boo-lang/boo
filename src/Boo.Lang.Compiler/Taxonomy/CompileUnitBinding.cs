@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -26,22 +26,47 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class TypeReferenceInfo : ITypedInfo, INamespace
+	using System;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Steps;
+	
+	public class CompileUnitInfo : IInfo, INamespace
 	{
-		ITypeInfo _type;
+		INamespace _parent;
 		
-		public TypeReferenceInfo(ITypeInfo type)
+		INamespace[] _namespaces;
+		
+		public CompileUnitInfo(INamespace parent)
 		{
-			_type = type;
+			// Global names at the highest level
+			_parent = parent;
+			
+			INamespace boolang = (INamespace)((INamespace)_parent.Resolve("Boo")).Resolve("Lang");
+			INamespace builtins = (INamespace)boolang.Resolve("Builtins");
+			
+			// namespaces that are resolved as 'this' namespace
+			// in order of preference
+			_namespaces = new INamespace[2];
+			_namespaces[0] = builtins;
+			_namespaces[1] = boolang;
+		}
+		
+		public InfoType InfoType
+		{
+			get
+			{
+				return InfoType.CompileUnit;
+			}
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _type.FullName;
+				return "Global";
 			}
 		}
 		
@@ -49,23 +74,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _type.FullName;
-			}
-		}
-		
-		public InfoType InfoType
-		{
-			get
-			{
-				return InfoType.TypeReference;
-			}
-		}
-		
-		public ITypeInfo BoundType
-		{
-			get
-			{
-				return _type;
+				return "Global";
 			}
 		}
 		
@@ -73,18 +82,21 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _type.ParentNamespace;
+				return _parent;
 			}
 		}
 		
 		public IInfo Resolve(string name)
 		{
-			return  _type.Resolve(name);
-		}
-		
-		override public string ToString()
-		{
-			return _type.ToString();
+			foreach (INamespace ns in _namespaces)
+			{
+				IInfo binding = ns.Resolve(name);
+				if (null != binding)
+				{
+					return binding;
+				}
+			}
+			return null;
 		}
 	}
 }

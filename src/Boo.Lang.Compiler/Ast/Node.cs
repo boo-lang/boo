@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		protected string _documentation;
 		
-		protected Boo.Lang.Compiler.Infos.IInfo _binding;
+		protected Boo.Lang.Compiler.Taxonomy.IInfo _binding;
 		
 		protected System.Collections.Hashtable _properties;
 
@@ -72,7 +72,7 @@ namespace Boo.Lang.Compiler.Ast
 			return (Node)Clone();
 		}
 		
-		public Boo.Lang.Compiler.Infos.IInfo Info
+		public Boo.Lang.Compiler.Taxonomy.IInfo Info
 		{
 			get
 			{

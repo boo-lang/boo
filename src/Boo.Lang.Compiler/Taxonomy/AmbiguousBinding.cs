@@ -26,26 +26,35 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+using System;
+using System.Collections;
+
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class AssemblyInfo : IInfo
+	public delegate bool InfoFilter(IInfo binding);
+	
+	public class AmbiguousInfo : IInfo
 	{
-		System.Reflection.Assembly _assembly;
+		IInfo[] _bindings;
 		
-		public AssemblyInfo(System.Reflection.Assembly assembly)
+		public AmbiguousInfo(IInfo[] bindings)
 		{
-			if (null == assembly)
+			if (null == bindings)
 			{
-				throw new System.ArgumentNullException("assembly");
+				throw new ArgumentNullException("bindings");
 			}
-			_assembly = assembly;
+			if (0 == bindings.Length)
+			{
+				throw new ArgumentException("bindings");
+			}
+			_bindings = bindings;
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _assembly.FullName;
+				return _bindings[0].Name;
 			}
 		}
 		
@@ -53,7 +62,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return Name;
+				return _bindings[0].FullName;
 			}
 		}
 		
@@ -61,16 +70,34 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return InfoType.Assembly;
+				return InfoType.Ambiguous;
 			}
 		}
 		
-		public System.Reflection.Assembly Assembly
+		public IInfo[] Taxonomy
 		{
 			get
 			{
-				return _assembly;
+				return _bindings;
 			}
+		}
+		
+		public Boo.Lang.List Filter(InfoFilter condition)
+		{
+			Boo.Lang.List found = new Boo.Lang.List();
+			foreach (IInfo binding in _bindings)
+			{
+				if (condition(binding))
+				{
+					found.Add(binding);
+				}
+			}
+			return found;
+		}
+		
+		override public string ToString()
+		{
+			return "";
 		}
 	}
 }

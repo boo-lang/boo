@@ -26,30 +26,52 @@
 // mailto:rbo@acm.org
 #endregion
 
-using Boo.Lang.Compiler.Ast;
-
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	public class ParameterInfo : ITypedInfo
+	using System;
+	using Boo.Lang.Compiler.Services;
+	
+	public class ExternalEventInfo : IEventInfo
 	{
-		ParameterDeclaration _parameter;
+		DefaultInfoService _bindingService;
 		
-		ITypeInfo _type;
+		System.Reflection.EventInfo _event;
 		
-		int _index;
-		
-		public ParameterInfo(ParameterDeclaration parameter, ITypeInfo type)
+		public ExternalEventInfo(DefaultInfoService bindingManager, System.Reflection.EventInfo event_)
 		{
-			_parameter = parameter;
-			_type = type;
-			_index = -1;
+			_bindingService = bindingManager;
+			_event = event_;
+		}
+		
+		public ITypeInfo DeclaringType
+		{
+			get
+			{
+				return _bindingService.AsTypeInfo(_event.DeclaringType);
+			}
+		}
+		
+		public System.Reflection.EventInfo EventInfo
+		{
+			get
+			{
+				return _event;
+			}
+		}
+		
+		public bool IsPublic
+		{
+			get
+			{
+				return _event.GetAddMethod().IsPublic;
+			}
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _parameter.Name;
+				return _event.Name;
 			}
 		}
 		
@@ -57,7 +79,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _parameter.Name;
+				return _event.DeclaringType.FullName + "." + _event.Name;
 			}
 		}
 		
@@ -65,15 +87,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return InfoType.Parameter;
-			}
-		}
-		
-		public ParameterDeclaration Parameter
-		{
-			get
-			{
-				return _parameter;
+				return InfoType.Event;
 			}
 		}
 		
@@ -81,20 +95,15 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _type;
+				return _bindingService.AsTypeInfo(_event.EventHandlerType);
 			}
 		}
 		
-		public int Index
+		public bool IsStatic
 		{
 			get
 			{
-				return _index;
-			}
-			
-			set
-			{
-				_index = value;
+				return false;
 			}
 		}
 	}

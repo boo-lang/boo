@@ -30,7 +30,7 @@ using System;
 using System.Collections;
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
 	[Flags]
 	public enum InfoType

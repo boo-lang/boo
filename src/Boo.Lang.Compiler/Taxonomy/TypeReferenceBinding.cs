@@ -26,82 +26,65 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	using System;
-	using System.Collections;
-	using Boo.Lang.Compiler.Services;
-	using Boo.Lang.Compiler.Ast;
-	using BindingFlags = System.Reflection.BindingFlags;
-	
-	public interface INamespace
-	{			
-		INamespace ParentNamespace
-		{
-			get;
-		}
-		IInfo Resolve(string name);
-	}
-	
-	public class NullNamespace : INamespace
+	public class TypeReferenceInfo : ITypedInfo, INamespace
 	{
-		public static readonly INamespace Default = new NullNamespace();
+		ITypeInfo _type;
 		
-		private NullNamespace()
+		public TypeReferenceInfo(ITypeInfo type)
 		{
+			_type = type;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _type.FullName;
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _type.FullName;
+			}
+		}
+		
+		public InfoType InfoType
+		{
+			get
+			{
+				return InfoType.TypeReference;
+			}
+		}
+		
+		public ITypeInfo BoundType
+		{
+			get
+			{
+				return _type;
+			}
 		}
 		
 		public INamespace ParentNamespace
 		{
 			get
 			{
-				return null;
+				return _type.ParentNamespace;
 			}
 		}
 		
 		public IInfo Resolve(string name)
 		{
-			return null;
+			return  _type.Resolve(name);
+		}
+		
+		override public string ToString()
+		{
+			return _type.ToString();
 		}
 	}
-	
-	class DeclarationsNamespace : INamespace
-	{
-		INamespace _parent;
-		DefaultInfoService _bindingService;
-		DeclarationCollection _declarations;
-		
-		public DeclarationsNamespace(INamespace parent, DefaultInfoService bindingManager, DeclarationCollection declarations)
-		{
-			_parent = parent;
-			_bindingService = bindingManager;
-			_declarations = declarations;
-		}
-		
-		public DeclarationsNamespace(INamespace parent, DefaultInfoService bindingManager, Declaration declaration)
-		{
-			_parent = parent;
-			_bindingService = bindingManager;
-			_declarations = new DeclarationCollection();
-			_declarations.Add(declaration);
-		}
-		
-		public INamespace ParentNamespace
-		{
-			get
-			{
-				return _parent;
-			}
-		}
-		
-		public IInfo Resolve(string name)
-		{
-			Declaration d = _declarations[name];
-			if (null != d)
-			{
-				return DefaultInfoService.GetInfo(d);
-			}
-			return null;
-		}
-	}	
 }

@@ -26,52 +26,28 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
 	using Boo.Lang.Compiler.Services;
+	using Boo.Lang.Compiler.Ast;
 	
-	public class ExternalEventInfo : IEventInfo
+	public class InternalFieldInfo : AbstractInternalInfo, IFieldInfo
 	{
 		DefaultInfoService _bindingService;
+		Field _field;
 		
-		System.Reflection.EventInfo _event;
-		
-		public ExternalEventInfo(DefaultInfoService bindingManager, System.Reflection.EventInfo event_)
+		public InternalFieldInfo(DefaultInfoService bindingManager, Field field)
 		{
 			_bindingService = bindingManager;
-			_event = event_;
-		}
-		
-		public ITypeInfo DeclaringType
-		{
-			get
-			{
-				return _bindingService.AsTypeInfo(_event.DeclaringType);
-			}
-		}
-		
-		public System.Reflection.EventInfo EventInfo
-		{
-			get
-			{
-				return _event;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return _event.GetAddMethod().IsPublic;
-			}
+			_field = field;
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _event.Name;
+				return _field.Name;
 			}
 		}
 		
@@ -79,23 +55,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _event.DeclaringType.FullName + "." + _event.Name;
-			}
-		}
-		
-		public InfoType InfoType
-		{
-			get
-			{
-				return InfoType.Event;
-			}
-		}
-		
-		public ITypeInfo BoundType
-		{
-			get
-			{
-				return _bindingService.AsTypeInfo(_event.EventHandlerType);
+				return _field.DeclaringType.FullName + "." + _field.Name;
 			}
 		}
 		
@@ -103,8 +63,77 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
+				return _field.IsStatic;
+			}
+		}
+		
+		public bool IsPublic
+		{
+			get
+			{
+				return _field.IsPublic;
+			}
+		}
+		
+		public InfoType InfoType
+		{
+			get
+			{
+				return InfoType.Field;
+			}
+		}
+		
+		public ITypeInfo BoundType
+		{
+			get
+			{
+				return _bindingService.GetBoundType(_field.Type);
+			}
+		}
+		
+		public ITypeInfo DeclaringType
+		{
+			get
+			{
+				return (ITypeInfo)DefaultInfoService.GetInfo(_field.ParentNode);
+			}
+		}
+		
+		public bool IsLiteral
+		{
+			get
+			{
 				return false;
 			}
+		}
+		
+		public object StaticValue
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+		
+		override public Node Node
+		{
+			get
+			{
+				return _field;
+			}
+		}
+		
+		public Field Field
+		{
+			get
+			{
+				return _field;
+			}
+		}
+		
+		override public string ToString()
+		{
+			return FullName;
 		}
 	}
 }

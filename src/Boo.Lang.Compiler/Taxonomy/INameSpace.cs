@@ -26,114 +26,82 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
 	using System;
+	using System.Collections;
 	using Boo.Lang.Compiler.Services;
 	using Boo.Lang.Compiler.Ast;
+	using BindingFlags = System.Reflection.BindingFlags;
 	
-	public class InternalFieldInfo : AbstractInternalInfo, IFieldInfo
+	public interface INamespace
+	{			
+		INamespace ParentNamespace
+		{
+			get;
+		}
+		IInfo Resolve(string name);
+	}
+	
+	public class NullNamespace : INamespace
 	{
-		DefaultInfoService _bindingService;
-		Field _field;
+		public static readonly INamespace Default = new NullNamespace();
 		
-		public InternalFieldInfo(DefaultInfoService bindingManager, Field field)
+		private NullNamespace()
 		{
-			_bindingService = bindingManager;
-			_field = field;
 		}
 		
-		public string Name
+		public INamespace ParentNamespace
 		{
 			get
 			{
-				return _field.Name;
+				return null;
 			}
 		}
 		
-		public string FullName
+		public IInfo Resolve(string name)
 		{
-			get
-			{
-				return _field.DeclaringType.FullName + "." + _field.Name;
-			}
-		}
-		
-		public bool IsStatic
-		{
-			get
-			{
-				return _field.IsStatic;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return _field.IsPublic;
-			}
-		}
-		
-		public InfoType InfoType
-		{
-			get
-			{
-				return InfoType.Field;
-			}
-		}
-		
-		public ITypeInfo BoundType
-		{
-			get
-			{
-				return _bindingService.GetBoundType(_field.Type);
-			}
-		}
-		
-		public ITypeInfo DeclaringType
-		{
-			get
-			{
-				return (ITypeInfo)DefaultInfoService.GetInfo(_field.ParentNode);
-			}
-		}
-		
-		public bool IsLiteral
-		{
-			get
-			{
-				return false;
-			}
-		}
-		
-		public object StaticValue
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-		
-		override public Node Node
-		{
-			get
-			{
-				return _field;
-			}
-		}
-		
-		public Field Field
-		{
-			get
-			{
-				return _field;
-			}
-		}
-		
-		override public string ToString()
-		{
-			return FullName;
+			return null;
 		}
 	}
+	
+	class DeclarationsNamespace : INamespace
+	{
+		INamespace _parent;
+		DefaultInfoService _bindingService;
+		DeclarationCollection _declarations;
+		
+		public DeclarationsNamespace(INamespace parent, DefaultInfoService bindingManager, DeclarationCollection declarations)
+		{
+			_parent = parent;
+			_bindingService = bindingManager;
+			_declarations = declarations;
+		}
+		
+		public DeclarationsNamespace(INamespace parent, DefaultInfoService bindingManager, Declaration declaration)
+		{
+			_parent = parent;
+			_bindingService = bindingManager;
+			_declarations = new DeclarationCollection();
+			_declarations.Add(declaration);
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return _parent;
+			}
+		}
+		
+		public IInfo Resolve(string name)
+		{
+			Declaration d = _declarations[name];
+			if (null != d)
+			{
+				return DefaultInfoService.GetInfo(d);
+			}
+			return null;
+		}
+	}	
 }

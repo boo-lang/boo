@@ -26,19 +26,20 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
+	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 	
-	public class ExternalPropertyInfo : IPropertyInfo
+	public class InternalPropertyInfo : AbstractInternalInfo, IPropertyInfo
 	{
 		DefaultInfoService _bindingService;
 		
-		System.Reflection.PropertyInfo _property;
+		Property _property;
 		
 		ITypeInfo[] _indexParameters;
 		
-		public ExternalPropertyInfo(DefaultInfoService bindingManager, System.Reflection.PropertyInfo property)
+		public InternalPropertyInfo(DefaultInfoService bindingManager, Property property)
 		{
 			_bindingService = bindingManager;
 			_property = property;
@@ -55,8 +56,8 @@ namespace Boo.Lang.Compiler.Infos
 		public bool IsStatic
 		{
 			get
-			{
-				return GetAccessor().IsStatic;
+			{				
+				return _property.IsStatic;
 			}
 		}
 		
@@ -64,7 +65,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return GetAccessor().IsPublic;
+				return _property.IsPublic;
 			}
 		}
 		
@@ -96,23 +97,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _bindingService.AsTypeInfo(_property.PropertyType);
-			}
-		}
-		
-		public System.Type Type
-		{
-			get
-			{
-				return _property.PropertyType;
-			}
-		}
-		
-		public System.Reflection.PropertyInfo PropertyInfo
-		{
-			get
-			{
-				return _property;
+				return _bindingService.GetBoundType(_property.Type);
 			}
 		}
 		
@@ -120,44 +105,48 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			if (null == _indexParameters)
 			{
-				System.Reflection.ParameterInfo[] parameters = _property.GetIndexParameters();
-				_indexParameters = new ITypeInfo[parameters.Length];
+				ParameterDeclarationCollection parameters = _property.Parameters;
+				_indexParameters = new ITypeInfo[parameters.Count];
 				for (int i=0; i<_indexParameters.Length; ++i)
 				{
-					_indexParameters[i] = _bindingService.AsTypeInfo(parameters[i].ParameterType);
+					_indexParameters[i] = _bindingService.GetBoundType(parameters[i]);
 				}
 			}
 			return _indexParameters;
 		}
-		
+
 		public IMethodInfo GetGetMethod()
 		{
-			System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
-			if (null != getter)
+			if (null != _property.Getter)
 			{
-				return (IMethodInfo)_bindingService.AsInfo(getter);
+				return (IMethodInfo)DefaultInfoService.GetInfo(_property.Getter);
 			}
 			return null;
 		}
 		
 		public IMethodInfo GetSetMethod()
 		{
-			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
-			if (null != setter)
+			if (null != _property.Setter)
 			{
-				return (IMethodInfo)_bindingService.AsInfo(setter);
+				return (IMethodInfo)DefaultInfoService.GetInfo(_property.Setter);
 			}
 			return null;
 		}
 		
-		System.Reflection.MethodInfo GetAccessor()
+		override public Node Node
 		{
-			System.Reflection.MethodInfo mi = _property.GetGetMethod(true);
-			if (null != mi)
+			get
 			{
-				return mi;
+				return _property;
 			}
-			return _property.GetSetMethod(true)
-;		}
+		}
+		
+		public Property Property
+		{
+			get
+			{
+				return _property;
+			}
+		}
 	}
 }

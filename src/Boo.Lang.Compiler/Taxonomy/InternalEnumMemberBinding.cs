@@ -26,54 +26,29 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
+	using System;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 	
-	public class InternalPropertyInfo : AbstractInternalInfo, IPropertyInfo
+	public class InternalEnumMemberInfo : AbstractInternalInfo, IFieldInfo
 	{
 		DefaultInfoService _bindingService;
 		
-		Property _property;
+		EnumMember _member;
 		
-		ITypeInfo[] _indexParameters;
-		
-		public InternalPropertyInfo(DefaultInfoService bindingManager, Property property)
+		public InternalEnumMemberInfo(DefaultInfoService bindingManager, EnumMember member)
 		{
 			_bindingService = bindingManager;
-			_property = property;
-		}
-		
-		public ITypeInfo DeclaringType
-		{
-			get
-			{
-				return _bindingService.AsTypeInfo(_property.DeclaringType);
-			}
-		}
-		
-		public bool IsStatic
-		{
-			get
-			{				
-				return _property.IsStatic;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return _property.IsPublic;
-			}
+			_member = member;
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _property.Name;
+				return _member.Name;
 			}
 		}
 		
@@ -81,7 +56,31 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _property.DeclaringType.FullName + "." + _property.Name;
+				return _member.DeclaringType.FullName + "." + _member.Name;
+			}
+		}
+		
+		public bool IsStatic
+		{
+			get
+			{
+				return true;
+			}
+		}
+		
+		public bool IsPublic
+		{
+			get
+			{
+				return true;
+			}
+		}
+		
+		public bool IsLiteral
+		{
+			get
+			{
+				return true;
 			}
 		}
 		
@@ -89,7 +88,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return InfoType.Property;
+				return InfoType.Field;
 			}
 		}
 		
@@ -97,55 +96,31 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _bindingService.GetBoundType(_property.Type);
+				return DeclaringType;
 			}
 		}
 		
-		public ITypeInfo[] GetIndexParameters()
+		public ITypeInfo DeclaringType
 		{
-			if (null == _indexParameters)
+			get
 			{
-				ParameterDeclarationCollection parameters = _property.Parameters;
-				_indexParameters = new ITypeInfo[parameters.Count];
-				for (int i=0; i<_indexParameters.Length; ++i)
-				{
-					_indexParameters[i] = _bindingService.GetBoundType(parameters[i]);
-				}
+				return (ITypeInfo)DefaultInfoService.GetInfo(_member.ParentNode);
 			}
-			return _indexParameters;
-		}
-
-		public IMethodInfo GetGetMethod()
-		{
-			if (null != _property.Getter)
-			{
-				return (IMethodInfo)DefaultInfoService.GetInfo(_property.Getter);
-			}
-			return null;
 		}
 		
-		public IMethodInfo GetSetMethod()
+		public object StaticValue
 		{
-			if (null != _property.Setter)
+			get
 			{
-				return (IMethodInfo)DefaultInfoService.GetInfo(_property.Setter);
+				return _member.Initializer.Value;
 			}
-			return null;
 		}
 		
 		override public Node Node
 		{
 			get
 			{
-				return _property;
-			}
-		}
-		
-		public Property Property
-		{
-			get
-			{
-				return _property;
+				return _member;
 			}
 		}
 	}

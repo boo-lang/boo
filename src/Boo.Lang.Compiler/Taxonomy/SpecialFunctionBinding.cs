@@ -26,47 +26,27 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Steps;
-	
-	public class CompileUnitInfo : IInfo, INamespace
+	public enum SpecialFunction
 	{
-		INamespace _parent;
+		Len
+	}
+	
+	public class SpecialFunctionInfo : IInfo
+	{
+		SpecialFunction _function;
 		
-		INamespace[] _namespaces;
-		
-		public CompileUnitInfo(INamespace parent)
+		public SpecialFunctionInfo(SpecialFunction f)
 		{
-			// Global names at the highest level
-			_parent = parent;
-			
-			INamespace boolang = (INamespace)((INamespace)_parent.Resolve("Boo")).Resolve("Lang");
-			INamespace builtins = (INamespace)boolang.Resolve("Builtins");
-			
-			// namespaces that are resolved as 'this' namespace
-			// in order of preference
-			_namespaces = new INamespace[2];
-			_namespaces[0] = builtins;
-			_namespaces[1] = boolang;
-		}
-		
-		public InfoType InfoType
-		{
-			get
-			{
-				return InfoType.CompileUnit;
-			}
+			_function = f;
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return "Global";
+				return _function.ToString();
 			}
 		}
 		
@@ -74,29 +54,24 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return "Global";
+				return Name;
 			}
 		}
 		
-		public INamespace ParentNamespace
+		public InfoType InfoType
 		{
 			get
 			{
-				return _parent;
+				return InfoType.SpecialFunction;
 			}
 		}
 		
-		public IInfo Resolve(string name)
+		public SpecialFunction Function
 		{
-			foreach (INamespace ns in _namespaces)
+			get
 			{
-				IInfo binding = ns.Resolve(name);
-				if (null != binding)
-				{
-					return binding;
-				}
+				return _function;
 			}
-			return null;
 		}
 	}
 }

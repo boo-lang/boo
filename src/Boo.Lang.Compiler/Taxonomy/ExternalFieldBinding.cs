@@ -26,29 +26,35 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Infos
+namespace Boo.Lang.Compiler.Taxonomy
 {
-	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.Services;
 	
-	public class LocalInfo : ITypedInfo
-	{		
-		Local _local;
+	public class ExternalFieldInfo : IFieldInfo
+	{
+		DefaultInfoService _bindingService;
 		
-		ITypeInfo _typeInfo;
+		System.Reflection.FieldInfo _field;
 		
-		System.Reflection.Emit.LocalBuilder _builder;
+		public ExternalFieldInfo(DefaultInfoService bindingManager, System.Reflection.FieldInfo field)
+		{
+			_bindingService = bindingManager;
+			_field = field;
+		}
 		
-		public LocalInfo(Local local, ITypeInfo typeInfo)
-		{			
-			_local = local;
-			_typeInfo = typeInfo;
+		public ITypeInfo DeclaringType
+		{
+			get
+			{
+				return _bindingService.AsTypeInfo(_field.DeclaringType);
+			}
 		}
 		
 		public string Name
 		{
 			get
 			{
-				return _local.Name;
+				return _field.Name;
 			}
 		}
 		
@@ -56,7 +62,31 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _local.Name;
+				return _field.DeclaringType.FullName + "." + _field.Name;
+			}
+		}
+		
+		public bool IsPublic
+		{
+			get
+			{
+				return _field.IsPublic;
+			}
+		}
+		
+		public bool IsStatic
+		{
+			get
+			{
+				return _field.IsStatic;
+			}
+		}
+		
+		public bool IsLiteral
+		{
+			get
+			{
+				return _field.IsLiteral;
 			}
 		}
 		
@@ -64,23 +94,7 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return InfoType.Local;
-			}
-		}
-		
-		public bool IsPrivateScope
-		{
-			get
-			{
-				return _local.PrivateScope;
-			}
-		}
-		
-		public Local Local
-		{
-			get
-			{
-				return _local;
+				return InfoType.Field;
 			}
 		}
 		
@@ -88,26 +102,32 @@ namespace Boo.Lang.Compiler.Infos
 		{
 			get
 			{
-				return _typeInfo;
+				return _bindingService.AsTypeInfo(_field.FieldType);
 			}
 		}
 		
-		public System.Reflection.Emit.LocalBuilder LocalBuilder
+		public System.Type Type
 		{
 			get
 			{
-				return _builder;
-			}
-			
-			set
-			{
-				_builder = value;
+				return _field.FieldType;
 			}
 		}
 		
-		override public string ToString()
+		public object StaticValue
 		{
-			return string.Format("Local<Name={0}, Type={1}>", Name, BoundType);
+			get
+			{
+				return _field.GetValue(null);
+			}
+		}
+		
+		public System.Reflection.FieldInfo FieldInfo
+		{
+			get
+			{
+				return _field;
+			}
 		}
 	}
 }

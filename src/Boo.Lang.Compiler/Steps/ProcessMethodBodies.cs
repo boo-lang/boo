@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Infos;
+	using Boo.Lang.Compiler.Taxonomy;
 	using List=Boo.Lang.List;
 
 	/// <summary>
@@ -764,7 +764,7 @@ namespace Boo.Lang.Compiler.Steps
 				parameter.Type = CreateBoundTypeReference(InfoService.ObjectTypeInfo);
 			}
 			CheckIdentifierName(parameter, parameter.Name);
-			Infos.ParameterInfo binding = new Infos.ParameterInfo(parameter, GetBoundType(parameter.Type));
+			Taxonomy.ParameterInfo binding = new Taxonomy.ParameterInfo(parameter, GetBoundType(parameter.Type));
 			Bind(parameter, binding);
 		}	
 		
@@ -903,7 +903,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else if (InfoType.Ambiguous == baseMethods.InfoType)
 				{
-					IInfo[] bindings = ((AmbiguousInfo)baseMethods).Infos;
+					IInfo[] bindings = ((AmbiguousInfo)baseMethods).Taxonomy;
 					IMethodInfo baseMethod = (IMethodInfo)ResolveMethodReference(method, method.Parameters, bindings, false);
 					if (null != baseMethod)
 					{
@@ -1361,7 +1361,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (InfoType.Ambiguous == member.InfoType)
 			{
-				IInfo[] bindings = GetGetMethods(((AmbiguousInfo)member).Infos);
+				IInfo[] bindings = GetGetMethods(((AmbiguousInfo)member).Taxonomy);
 				getter = (IMethodInfo)ResolveMethodReference(node, mie.Arguments, bindings, true);						
 			}
 			else if (InfoType.Property == member.InfoType)
@@ -2378,7 +2378,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (InfoType.Ambiguous == targetInfo.InfoType)
 			{		
-				IInfo[] bindings = ((AmbiguousInfo)targetInfo).Infos;
+				IInfo[] bindings = ((AmbiguousInfo)targetInfo).Taxonomy;
 				targetInfo = ResolveMethodReference(node, node.Arguments, bindings, true);				
 				if (null == targetInfo)
 				{
@@ -2630,7 +2630,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (InfoType.Ambiguous == lhs.InfoType)
 			{		
-				setter = (IMethodInfo)ResolveMethodReference(node.Left, mie.Arguments, GetSetMethods(((AmbiguousInfo)lhs).Infos), false);
+				setter = (IMethodInfo)ResolveMethodReference(node.Left, mie.Arguments, GetSetMethods(((AmbiguousInfo)lhs).Taxonomy), false);
 			}
 			
 			if (null == setter)
@@ -3162,7 +3162,7 @@ namespace Boo.Lang.Compiler.Steps
 			}		
 			else if (binding.InfoType == InfoType.Ambiguous)
 			{
-				foreach (IInfo item in ((AmbiguousInfo)binding).Infos)
+				foreach (IInfo item in ((AmbiguousInfo)binding).Taxonomy)
 				{
 					EnsureRelatedNodeWasVisited(item);
 				}
@@ -3382,7 +3382,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (InfoType.Ambiguous == binding.InfoType)
 			{	
-				binding = ResolveAmbiguousOperator(((AmbiguousInfo)binding).Infos, mie.Arguments);
+				binding = ResolveAmbiguousOperator(((AmbiguousInfo)binding).Taxonomy, mie.Arguments);
 				if (null == binding)
 				{
 					return false;
