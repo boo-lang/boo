@@ -251,15 +251,22 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 
 	protected bool IsValidMacroArgument(int token)
 	{
+		return LPAREN != token && LBRACK != token;
+		/*
 		switch (token)
 		{
-			case ID: return true;
 			case COLON: return true;
+			case ID: return true;			
 			case INT: return true;
 			case SINGLE_QUOTED_STRING: return true;
 			case DOUBLE_QUOTED_STRING: return true;
+			case TRIPLE_QUOTED_STRING: return true;
+			case SELF: return true;
+			case SUPER: return true;
+			case NULL: return true;
 		}
 		return false;
+		*/
 	}
 		
 		protected void initialize()

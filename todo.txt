@@ -286,12 +286,10 @@ done * resoluçao de nomes na visitação recursiva de métodos e classes
 	done * CompileUnitBinding para ser o namespace Global
 	
 done * ModuleNamespace => ModuleBinding
-	
-* Quebrar INamespace em INamespace e IChildNamespace
 
-* Cache parent namespace in InternalMethodBinding constructor
+done * Cache parent namespace in InternalMethodBinding constructor
 
-* Cache parent namespace in InternalTypeBinding constructor
+done * Cache parent namespace in InternalTypeBinding constructor
 
 * map(callable, enumerable)
 

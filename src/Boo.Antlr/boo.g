@@ -232,15 +232,7 @@ tokens
 
 	protected bool IsValidMacroArgument(int token)
 	{
-		switch (token)
-		{
-			case ID: return true;
-			case COLON: return true;
-			case INT: return true;
-			case SINGLE_QUOTED_STRING: return true;
-			case DOUBLE_QUOTED_STRING: return true;
-		}
-		return false;
+		return LPAREN != token && LBRACK != token;
 	}
 }
 
