@@ -54,6 +54,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new BindTypeMembers());			
 			Add(new ProcessMethodBodiesWithDuckTyping());
 			Add(new StricterErrorChecking());
+			Add(new NormalizeIterationStatements());
 			
 			Add(new ProcessSharedLocals()); 
 			Add(new ProcessClosures());

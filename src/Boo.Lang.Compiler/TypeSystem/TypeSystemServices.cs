@@ -285,6 +285,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return GetConcreteCallableType(sourceNode, type);
 		}
 		
+		public IType GetEnumeratorItemType(IType iteratorType)
+		{
+			if (iteratorType.IsArray)
+			{
+				return ((IArrayType)iteratorType).GetElementType();
+			}
+			else
+			{
+				if (iteratorType.IsClass)
+				{
+					IType enumeratorItemType = GetEnumeratorItemTypeFromAttribute(iteratorType);
+					if (null != enumeratorItemType)
+					{
+						return enumeratorItemType;
+					}
+				}
+			}
+			return ObjectType;
+		}
+		
 		public IType GetExpressionType(Expression node)
 		{			
 			IType type = node.ExpressionType;
@@ -853,6 +873,40 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (0 == constructor.GetParameters().Length)
 				{
 					return constructor;
+				}
+			}
+			return null;
+		}
+		
+		IType GetExternalEnumeratorItemType(IType iteratorType)
+		{
+			Type type = ((ExternalType)iteratorType).ActualType;
+			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)System.Attribute.GetCustomAttribute(type, typeof(EnumeratorItemTypeAttribute));
+			if (null != attribute)
+			{
+				return Map(attribute.ItemType);
+			}
+			return null;
+		}
+		
+		IType GetEnumeratorItemTypeFromAttribute(IType iteratorType)
+		{
+			AbstractInternalType internalType = iteratorType as AbstractInternalType;
+			if (null == internalType)
+			{
+				return GetExternalEnumeratorItemType(iteratorType);
+			}
+			
+			IType enumeratorItemTypeAttribute = Map(typeof(EnumeratorItemTypeAttribute));
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
+			{				
+				IConstructor constructor = GetEntity(attribute) as IConstructor;
+				if (null != constructor)
+				{
+					if (constructor.DeclaringType == enumeratorItemTypeAttribute)
+					{
+						return GetType(attribute.Arguments[0]);
+					}
 				}
 			}
 			return null;

@@ -62,10 +62,7 @@ class AssemblyResolver:
 		return Assembly.LoadFrom(fname) if File.Exists(fname)
 
 def consume(reader as TextReader):
-	writer = StringWriter()
-	for line in reader:
-		writer.WriteLine(line)
-	return writer.ToString()
+	return join(line for line in reader, "\n")
 
 def main(argv as (string)):
 	Thread.CurrentThread.ApartmentState = ApartmentState.STA
@@ -85,8 +82,7 @@ def main(argv as (string)):
 	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
 	result = compiler.Run()
 	if len(result.Errors):
-		for error in result.Errors:
-			print(error.ToString(true))
+		print(result.Errors.ToString(true))
 		return -1
 	else:	
 		try: 

@@ -73,11 +73,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		static MethodInfo Builtins_ArrayTypedCollectionConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection });
 		
-		static MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
+		public static MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
 		
-		static MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
+		public static MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
 		
-		static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();		
+		public static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();		
 		
 		static MethodInfo Math_Pow = typeof(Math).GetMethod("Pow");
 		
@@ -518,20 +518,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnForStatement(ForStatement node)
 		{									
-			EmitDebugInfo(node, node.Iterator);
-			
-			// iterator = <node.Iterator>;
-			node.Iterator.Accept(this);		
-			
-			IType iteratorType = PopType();
-			if (iteratorType.IsArray)
-			{
-				EmitArrayBasedFor(node, (IArrayType)iteratorType);
-			}
-			else
-			{
-				EmitEnumerableBasedFor(node, iteratorType);
-			}			
+			NotImplemented("ForStatement");			
 		}
 		
 		override public void OnReturnStatement(ReturnStatement node)
@@ -2299,87 +2286,6 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Brtrue, labelBody);
 			
 			_il.Emit(OpCodes.Ldloc, list);
-		}
-		
-		void EmitEnumerableBasedFor(ForStatement node, IType iteratorType)
-		{			
-			Label labelTest = _il.DefineLabel();
-			Label labelBody = _il.DefineLabel();
-			Label breakLabel = _il.DefineLabel();
-			
-			LocalBuilder localIterator = _il.DeclareLocal(Types.IEnumerator);
-			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
-			_il.Emit(OpCodes.Stloc, localIterator);
-			_il.Emit(OpCodes.Br, labelTest);
-			
-			_il.MarkLabel(labelBody);
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(node.Declarations, TypeSystemServices.ObjectType);
-			
-			EnterLoop(breakLabel, labelTest);
-			Visit(node.Block);
-			LeaveLoop();
-			
-			// iterator.MoveNext()			
-			_il.MarkLabel(labelTest);
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.EmitCall(OpCodes.Callvirt, IEnumerator_MoveNext, null);
-			_il.Emit(OpCodes.Brtrue, labelBody);
-			
-			_il.MarkLabel(breakLabel);
-		}
-		
-		void EmitArrayBasedFor(ForStatement node, IArrayType iteratorTypeInfo)
-		{				
-			Label labelTest = _il.DefineLabel();
-			Label labelBody = _il.DefineLabel();
-			Label continueLabel = _il.DefineLabel();
-			Label breakLabel = _il.DefineLabel();
-			
-			OpCode ldelem = GetLoadEntityOpCode(iteratorTypeInfo.GetElementType());
-			
-			Type iteratorType = GetSystemType(iteratorTypeInfo);
-			LocalBuilder localIterator = _il.DeclareLocal(iteratorType);
-			_il.Emit(OpCodes.Stloc, localIterator);
-			
-			// i = 0;
-			LocalBuilder localIndex = _il.DeclareLocal(Types.Int);
-			_il.Emit(OpCodes.Ldc_I4_0);
-			_il.Emit(OpCodes.Stloc, localIndex);
-
-			_il.Emit(OpCodes.Br, labelTest);
-			
-			_il.MarkLabel(labelBody);
-			
-			// value = iterator[i]
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.Emit(OpCodes.Ldloc, localIndex);
-			_il.Emit(ldelem);
-			
-			EmitUnpackForDeclarations(node.Declarations, iteratorTypeInfo.GetElementType());
-			
-			EnterLoop(breakLabel, continueLabel);
-			Visit(node.Block);
-			LeaveLoop();
-			
-			_il.MarkLabel(continueLabel);
-			
-			// ++i			
-			_il.Emit(OpCodes.Ldloc, localIndex);
-			_il.Emit(OpCodes.Ldc_I4_1);
-			_il.Emit(OpCodes.Add);
-			_il.Emit(OpCodes.Stloc, localIndex);
-			
-			// i<iterator.Length			
-			_il.MarkLabel(labelTest);			
-			_il.Emit(OpCodes.Ldloc, localIndex);
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.Emit(OpCodes.Ldlen);
-			_il.Emit(OpCodes.Conv_I4);
-			_il.Emit(OpCodes.Blt, labelBody);
-			
-			_il.MarkLabel(breakLabel);
 		}
 		
 		void EmitUnpackForDeclarations(DeclarationCollection decls, IType topOfStack)

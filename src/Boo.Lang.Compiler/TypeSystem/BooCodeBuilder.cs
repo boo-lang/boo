@@ -292,6 +292,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return eval;
 		}
 		
+		public UnpackStatement CreateUnpackStatement(DeclarationCollection declarations, Expression expression)
+		{
+			UnpackStatement unpack = new UnpackStatement(expression.LexicalInfo);
+			unpack.Declarations.Extend(declarations);
+			unpack.Expression = expression;
+			return unpack;
+		}
+		
 		public BinaryExpression CreateAssignment(Expression lhs, Expression rhs)
 		{
 			BinaryExpression assignment = new BinaryExpression(
