@@ -845,6 +845,18 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.ReferenceEquality:
+				{
+					BindReferenceEquality(node);
+					break;
+				}
+				
+				case BinaryOperatorType.ReferenceInequality:
+				{
+					BindReferenceEquality(node);
+					break;
+				}
+				
 				case BinaryOperatorType.NotMatch:
 				{
 					if (BindMatchOperator(node))					
@@ -1019,6 +1031,36 @@ namespace Boo.Lang.Compiler.Pipeline
 			return notNode;
 		}
 		
+		bool CheckIsNotValueType(BinaryExpression node, Expression expression)
+		{
+			ITypeBinding binding = GetBoundType(expression);
+			if (binding.IsValueType)
+			{
+				Errors.Add(CompilerErrorFactory.OperatorCantBeUsedWithValueType(
+								expression,
+								GetBinaryOperatorText(node.Operator),
+								binding.FullName));
+								
+				return false;
+			}
+			return true;
+		}
+		
+		bool BindReferenceEquality(BinaryExpression node)
+		{
+			if (CheckIsNotValueType(node, node.Left) &&
+				CheckIsNotValueType(node, node.Right))
+			{
+				BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+				return true;
+			}
+			else
+			{
+				BindingManager.Error(node);
+				return false;
+			}
+		}
+		
 		void BindMember(BinaryExpression node, ref Expression resultingNode)
 		{
 			// todo: generate better/faster expressions for
@@ -1052,6 +1094,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				return false;
 			}
 			return true;
+		}
+		
+		static string GetBinaryOperatorText(BinaryOperatorType op)
+		{
+			return Boo.Lang.Ast.Visitors.BooPrinterVisitor.GetBinaryOperatorText(op);
 		}
 		
 		IBinding ResolveName(Node node, string name)

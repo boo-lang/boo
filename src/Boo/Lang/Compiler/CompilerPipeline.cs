@@ -147,12 +147,13 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		string GetBC0013(XmlElement element, string attributeName)
+		string GetRequiredAttribute(XmlElement element, string attributeName)
 		{
 			XmlAttribute attribute = element.GetAttributeNode(attributeName);
 			if (null == attribute || 0 == attribute.Value.Length)
 			{
-				throw new ArgumentException(ResourceManager.Format("BC0013", element.Name, attributeName));
+				throw CompilerErrorFactory.AttributeNotFound(element.Name, attributeName);
+				
 			}
 			return attribute.Value;
 		}
@@ -167,11 +168,11 @@ namespace Boo.Lang.Compiler
 
 			foreach (XmlElement element in configuration.SelectNodes("step"))
 			{
-				string typeName = GetBC0013(element, "type");
+				string typeName = GetRequiredAttribute(element, "type");
 				Type type = Type.GetType(typeName, true);
-				if (!typeof(ICompilerComponent).IsAssignableFrom(type))
+				if (!typeof(ICompilerStep).IsAssignableFrom(type))
 				{
-					throw new ArgumentException(ResourceManager.Format("ICompilerComponentInterface", type.Name));
+					throw CompilerErrorFactory.TypeMustImplementICompilerStep(typeName);
 				}
 				_steps.Add(Activator.CreateInstance(type));
 			}

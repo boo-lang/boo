@@ -158,6 +158,8 @@ derivada de Control (que tem uma propriedade chamada Size):
 		
 * Statement and Block should be polymorphic?
 
+* Warning quando o operador is é utilizado com um nome de tipo
+
 Milestone 3.7 (macro infraestructure)
 -------------------------------------
 done * macro infrastructure

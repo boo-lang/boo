@@ -58,6 +58,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("return0.boo");
 		}
 		
+		[Test]
+		public void IsNotIs()
+		{
+			RunCompilerTestCase("is0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.

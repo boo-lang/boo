@@ -38,6 +38,8 @@ namespace Boo.Lang
 	/// </summary>
 	public class UsingMacro : Boo.Lang.Compiler.IAstMacro
 	{
+		public const string DisposableLocalName = "__disposable__";
+		
 		public void Initialize(Boo.Lang.Compiler.CompilerContext context)
 		{			
 		}
@@ -79,7 +81,7 @@ namespace Boo.Lang
 			IfStatement stmt = new IfStatement();			
 			stmt.Expression = new BinaryExpression(
 								BinaryOperatorType.Assign,
-								new ReferenceExpression("__disposable"),
+								new ReferenceExpression(DisposableLocalName),
 								new AsExpression(reference, new TypeReference("System.IDisposable"))
 								);			
 			
@@ -89,7 +91,7 @@ namespace Boo.Lang
 			stmt.TrueBlock.Add(
 				new MethodInvocationExpression(
 					new MemberReferenceExpression(
-						new ReferenceExpression("__disposable"),
+						new ReferenceExpression(DisposableLocalName),
 						"Dispose")
 						)
 					);
@@ -98,7 +100,7 @@ namespace Boo.Lang
 			stmt.TrueBlock.Add(
 				new BinaryExpression(
 					BinaryOperatorType.Assign,
-					new ReferenceExpression("__disposable"),
+					new ReferenceExpression(DisposableLocalName),
 					new NullLiteralExpression()
 					)
 				);

@@ -1,0 +1,10 @@
+"""
+is0.boo(8,12): BCE0046: 'is' can't be used with a value type ('System.Int32')
+is0.boo(9,6): BCE0046: 'is' can't be used with a value type ('System.Int32')
+is0.boo(10,6): BCE0046: 'is not' can't be used with a value type ('System.Int32')
+"""
+o1 = object()
+o2 = 3
+b1 = o1 is o2
+b2 = o2 is o1
+b3 = o2 is not o1

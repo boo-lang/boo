@@ -87,7 +87,7 @@ namespace Boo.Lang.Compiler
 			_lexicalInfo = lexicalInfo;
 		}
 		
-		public CompilerError(LexicalInfo lexicalInfo, string message, Exception cause) : this("BC0040", lexicalInfo, message, cause)
+		public CompilerError(LexicalInfo lexicalInfo, string message, Exception cause) : this("BCE0040", lexicalInfo, message, cause)
 		{
 		}
 		

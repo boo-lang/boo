@@ -10,14 +10,14 @@ public final transient class Using1Module(System.Object):
 				f2 = File.OpenText('using1.boo')
 				print(f2.ReadLine())
 			ensure:
-				if (__disposable = f2 as System.IDisposable):
-					__disposable.Dispose()
-					__disposable = null
+				if (__disposable__ = f2 as System.IDisposable):
+					__disposable__.Dispose()
+					__disposable__ = null
 			print(f1.ReadLine())
 		ensure:
-			if (__disposable = f1 as System.IDisposable):
-				__disposable.Dispose()
-				__disposable = null
+			if (__disposable__ = f1 as System.IDisposable):
+				__disposable__.Dispose()
+				__disposable__ = null
 
 	private def constructor():
 		pass

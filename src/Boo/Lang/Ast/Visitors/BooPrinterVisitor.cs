@@ -268,7 +268,7 @@ namespace Boo.Lang.Ast.Visitors
 			}
 			Switch(e.Left);
 			Write(" ");
-			Write(GetBinaryOperator(e.Operator));
+			Write(GetBinaryOperatorText(e.Operator));
 			Write(" ");
 			Switch(e.Right);
 			if (needsParens)
@@ -572,7 +572,7 @@ namespace Boo.Lang.Ast.Visitors
 			throw new ArgumentException("op");
 		}
 
-		string GetBinaryOperator(BinaryOperatorType op)
+		public static string GetBinaryOperatorText(BinaryOperatorType op)
 		{
 			switch (op)
 			{

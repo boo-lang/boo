@@ -6,9 +6,9 @@ public final transient class Using0Module(System.Object):
 			f = System.IO.File.OpenText('using0.boo')
 			print(f.ReadLine())
 		ensure:
-			if (__disposable = f as System.IDisposable):
-				__disposable.Dispose()
-				__disposable = null
+			if (__disposable__ = f as System.IDisposable):
+				__disposable__.Dispose()
+				__disposable__ = null
 
 	private def constructor():
 		pass

@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			AssemblyBuilder builder = (AssemblyBuilder)context.CompileUnit[AssemblyBuilderKey];
 			if (null == builder)
 			{
-				throw new ApplicationException(Boo.ResourceManager.GetString("BC0014"));
+				throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
 			}
 			return builder;
 		}
@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ModuleBuilder builder = (ModuleBuilder)context.CompileUnit[ModuleBuilderKey];
 			if (null == builder)
 			{
-				throw new ApplicationException(Boo.ResourceManager.GetString("BC0014"));
+				throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
 			}
 			return builder;
 		}
@@ -444,6 +444,19 @@ namespace Boo.Lang.Compiler.Pipeline
 			return node.ParentNode.NodeType != NodeType.ExpressionStatement;
 		}
 		
+		void OnReferenceComparison(BinaryExpression node)
+		{
+			node.Left.Switch(this); PopType();
+			node.Right.Switch(this); PopType();
+			_il.Emit(OpCodes.Ceq);
+			if (BinaryOperatorType.ReferenceInequality == node.Operator)
+			{
+				_il.Emit(OpCodes.Ldc_I4_0);
+				_il.Emit(OpCodes.Ceq);
+			}
+			PushType(Types.Bool);
+		}
+		
 		void OnAssignment(BinaryExpression node)
 		{
 			// when the parent is not a statement we need to leave
@@ -487,33 +500,53 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{				
-			if (BinaryOperatorType.Assign == node.Operator)
+			switch (node.Operator)
 			{
-				OnAssignment(node);
-			}
-			else if (BinaryOperatorType.InPlaceAdd == node.Operator)
-			{
-				Switch(((MemberReferenceExpression)node.Left).Target); PopType();
-				AddDelegate(node, GetBinding(node.Left), node.Right);
-				PushType(Types.Void);
-			}
-			else
-			{				
-				IBinding binding = BindingManager.GetBinding(node);
-				if (BindingType.Method == binding.BindingType)
+				case BinaryOperatorType.Assign:
 				{
-					// operator
-					IMethodBinding methodBinding = (IMethodBinding)binding;
-					node.Left.Switch(this);
-					EmitCastIfNeeded(methodBinding.GetParameterType(0), PopType());
-					node.Right.Switch(this);
-					EmitCastIfNeeded(methodBinding.GetParameterType(1), PopType());
-					_il.EmitCall(OpCodes.Call, GetMethodInfo(methodBinding), null);
-					PushType(GetType(methodBinding.ReturnType));
+					OnAssignment(node);
+					break;
 				}
-				else
+				
+				case BinaryOperatorType.ReferenceInequality:
 				{
-					Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
+					OnReferenceComparison(node);
+					break;
+				}
+				
+				case BinaryOperatorType.ReferenceEquality:
+				{
+					OnReferenceComparison(node);
+					break;
+				}
+				
+				case BinaryOperatorType.InPlaceAdd:
+				{
+					Switch(((MemberReferenceExpression)node.Left).Target); PopType();
+					AddDelegate(node, GetBinding(node.Left), node.Right);
+					PushType(Types.Void);
+					break;
+				}
+				
+				default:
+				{				
+					IBinding binding = BindingManager.GetBinding(node);
+					if (BindingType.Method == binding.BindingType)
+					{
+						// operator
+						IMethodBinding methodBinding = (IMethodBinding)binding;
+						node.Left.Switch(this);
+						EmitCastIfNeeded(methodBinding.GetParameterType(0), PopType());
+						node.Right.Switch(this);
+						EmitCastIfNeeded(methodBinding.GetParameterType(1), PopType());
+						_il.EmitCall(OpCodes.Call, GetMethodInfo(methodBinding), null);
+						PushType(GetType(methodBinding.ReturnType));
+					}
+					else
+					{
+						Errors.Add(CompilerErrorFactory.NotImplemented(node, binding.ToString()));
+					}
+					break;
 				}
 			}
 		}

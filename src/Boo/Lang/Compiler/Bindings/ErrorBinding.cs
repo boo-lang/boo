@@ -100,6 +100,11 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			return null;
 		}
+		
+		public override string ToString()
+		{
+			return Name;
+		}
 	}
 	
 	public class NullBinding : AbstractTypeBinding

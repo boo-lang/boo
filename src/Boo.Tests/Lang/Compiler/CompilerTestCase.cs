@@ -537,5 +537,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("using0.boo");
 		}
+		
+		[Test]
+		public void IsNotIs()
+		{
+			RunCompilerTestCase("is0.boo");
+		}
 	}
 }
