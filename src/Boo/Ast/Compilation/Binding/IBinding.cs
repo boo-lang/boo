@@ -191,7 +191,7 @@ namespace Boo.Ast.Compilation.Binding
 		}
 	}
 	
-	public class ExternalEventBinding : IMemberBinding
+	public class ExternalEventBinding : IMemberBinding, ITypedBinding
 	{
 		BindingManager _bindingManager;
 		
@@ -201,6 +201,14 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			_bindingManager = bindingManager;
 			_event = event_;
+		}
+		
+		public System.Reflection.EventInfo EventInfo
+		{
+			get
+			{
+				return _event;
+			}
 		}
 		
 		public string Name

@@ -5,7 +5,7 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public class ExternalTypeBinding : ITypeBinding
 	{
-		const BindingFlags DefaultBindingFlags = BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
+		const BindingFlags DefaultBindingFlags = BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
 		
 		BindingManager _bindingManager;
 		

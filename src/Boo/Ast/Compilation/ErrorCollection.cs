@@ -64,6 +64,11 @@ namespace Boo.Ast.Compilation
 			Add(new Error(pair, GetString("NamedParameterMustBeReference")));
 		}
 		
+		public void EventArgumentMustBeAMethod(Node sourceNode, string name, string signature)
+		{
+			Add(new Error(sourceNode, Format("EventArgumentMustBeAMethod", name, signature)));
+		}
+		
 		public void NameNotType(Node node, string name)
 		{
 			Add(new Error(node, Format("NameNotType", name)));

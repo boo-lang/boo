@@ -27,6 +27,8 @@ namespace Boo.Ast.Compilation.Binding
 		public static readonly Type Date = typeof(System.DateTime);
 		
 		public static readonly Type Bool = typeof(bool);
+		
+		public static readonly Type IntPtr = typeof(IntPtr);
 
 	}
 }

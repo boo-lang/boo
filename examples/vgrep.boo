@@ -1,11 +1,15 @@
-using System.IO
 using Boo.IO
+using System
+using System.IO
 using System.Drawing from System.Drawing
 using System.Windows.Forms from System.Windows.Forms
 
 def ScanFile(lv as ListView, fname as string, pattern as string):	
-	for index, line as string in enumerate(TextFile(fname)):
-		lv.Items.Add(fname).SubItems.Add(index.ToString()) if line =~ pattern
+	for index as int, line as string in enumerate(TextFile(fname)):
+		if line =~ pattern:
+			lvItem = lv.Items.Add(fname)
+			lvItem.SubItems.Add(index.ToString())
+			lvItem.Tag = [fname, index]
 		
 def ScanDirectory(lv as ListView, path as string, glob as string, pattern as string):
 	for fname in Directory.GetFiles(path, glob):
@@ -13,11 +17,16 @@ def ScanDirectory(lv as ListView, path as string, glob as string, pattern as str
 	for path in Directory.GetDirectories(path):
 		ScanDirectory(lv, path, glob, pattern)
 		
-def fileList_SelectedIndexChanged(sender, args as EventArgs):
-	MessageBox.Show("ok!")
-	#fileList as ListView = sender
-	#richText as RichTextBox = fileList.Tag
-	#richText.LoadFile()
+def fileList_SelectedIndexChanged(sender, args as EventArgs):	
+	fileList as ListView = sender
+	txtBox as TextBox = fileList.Tag
+	for item as ListViewItem in fileList.SelectedItems:
+		fname as string, index as int = item.Tag
+		txtBox.Text = TextFile.ReadFile(fname)
+		txtBox.Focus()
+		txtBox.SelectionLength = 0		
+		txtBox.SelectionStart = index		
+		txtBox.ScrollToCaret()
 
 fileList = ListView(
 				Dock: DockStyle.Bottom,
@@ -34,9 +43,15 @@ splitter = Splitter(Dock: DockStyle.Bottom, TabIndex: 1, TabStop: false)
 
 fileTab = TabControl(Dock: DockStyle.Fill)
 textTab = TabPage(TabIndex: 0, Text: "FileName goes here")
-richText = RichTextBox(Dock: DockStyle.Fill, AcceptsTab: true, Font: Font("Lucida Console", 12))
-textTab.Controls.Add(richText)
+txtBox = TextBox(Dock: DockStyle.Fill,
+					AcceptsTab: true,
+					Multiline: true,
+					ScrollBars: ScrollBars.Vertical,
+					Font: Font("Lucida Console", 12))
+textTab.Controls.Add(txtBox)
 fileTab.Controls.Add(textTab)
+
+fileList.Tag = txtBox
 
 f = Form(Text: "Visual Grep Utility",
 			Font: Font("Tahoma", 8),

@@ -38,6 +38,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static MethodInfo List_Add = Types.List.GetMethod("Add", new Type[] { Types.Object });
 		
+		static Type[] DelegateConstructorTypes = new Type[] { Types.Object, Types.IntPtr };
+		
 		AssemblyBuilder _asmBuilder;
 		
 		ModuleBuilder _moduleBuilder;
@@ -191,6 +193,13 @@ namespace Boo.Ast.Compilation.Steps
 						_il.Emit(OpCodes.Stloc, local);
 						break;
 					}
+					
+					case BindingType.Property:
+					{
+						IPropertyBinding property = (IPropertyBinding)binding;						
+						SetProperty(node, property, node.Left, node.Right, true);
+						break;
+					}
 						
 					default:
 					{
@@ -280,10 +289,10 @@ namespace Boo.Ast.Compilation.Steps
 					{
 						// object reference
 						_il.Emit(OpCodes.Dup);
-						// value
-						pair.Second.Switch(this);
+						
+						IBinding memberBinding = BindingManager.GetBinding(pair.First);						
 						// field/property reference						
-						SetFieldOrProperty(node, BindingManager.GetBinding(pair.First));
+						InitializeMember(node, memberBinding, pair.Second);
 					}
 					
 					// constructor invocation resulting type is
@@ -464,15 +473,69 @@ namespace Boo.Ast.Compilation.Steps
 			}			
 		}
 		
-		void SetFieldOrProperty(Node sourceNode, IBinding binding)
+		void SetProperty(Node sourceNode, IPropertyBinding property, Expression reference, Expression value, bool leaveValueOnStack)
+		{
+			PropertyInfo pi = property.PropertyInfo;			
+			MethodInfo setMethod = pi.GetSetMethod();
+			
+			if (null != reference)
+			{
+				if (!setMethod.IsStatic)
+				{
+					((MemberReferenceExpression)reference).Target.Switch(this);
+					PopType();
+				}
+			}
+			
+			value.Switch(this);
+			EmitCastIfNeeded(pi.PropertyType, PopType());
+			
+			LocalBuilder local = null;
+			if (leaveValueOnStack)
+			{
+				_il.Emit(OpCodes.Dup);
+				local = _il.DeclareLocal(pi.PropertyType);
+				_il.Emit(OpCodes.Stloc, local);
+			}
+			
+			_il.EmitCall(OpCodes.Callvirt, setMethod, null);
+			
+			if (leaveValueOnStack)
+			{
+				_il.Emit(OpCodes.Ldloc, local);
+				PushType(local.LocalType);
+			}
+		}
+		
+		void InitializeMember(Node sourceNode, IBinding binding, Expression value)
 		{
 			switch (binding.BindingType)
 			{
 				case BindingType.Property:
 				{
 					IPropertyBinding property = (IPropertyBinding)binding;
-					PropertyInfo pi = property.PropertyInfo;
-					_il.EmitCall(OpCodes.Callvirt, pi.GetSetMethod(), null);
+					SetProperty(sourceNode, property, null, value, false);					
+					break;
+				}
+				
+				case BindingType.Event:
+				{
+					MethodBase mi = ((IMethodBinding)GetBinding(value)).MethodInfo;
+					if (!mi.IsStatic)
+					{
+						Errors.NotImplemented(sourceNode, "only static delegates for now");
+					}
+					else
+					{
+						_il.Emit(OpCodes.Ldnull);
+						_il.Emit(OpCodes.Ldftn, (MethodInfo)mi);
+					}
+					
+					EventInfo ei = ((ExternalEventBinding)binding).EventInfo;
+					
+					_il.Emit(OpCodes.Newobj, GetDelegateConstructor(ei.EventHandlerType));					
+					_il.EmitCall(OpCodes.Callvirt, ei.GetAddMethod(true), null);
+					
 					break;
 				}
 					
@@ -487,7 +550,12 @@ namespace Boo.Ast.Compilation.Steps
 					throw new ArgumentException("binding");
 				}				
 			}
-		}				
+		}			
+		
+		ConstructorInfo GetDelegateConstructor(Type delegateType)
+		{
+			return delegateType.GetConstructor(DelegateConstructorTypes);
+		}
 		
 		void EmitDebugInfo(Node node)
 		{

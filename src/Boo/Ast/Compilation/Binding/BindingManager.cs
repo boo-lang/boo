@@ -187,6 +187,12 @@ namespace Boo.Ast.Compilation.Binding
 					break;
 				}
 				
+				case "object":
+				{
+					binding = ToTypeReference(ObjectTypeBinding);
+					break;
+				}
+				
 				case "int":
 				{
 					binding = ToTypeReference(IntTypeBinding);

@@ -165,7 +165,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<LITERAL2>false</LITERAL2>
 			<LITERAL2>null</LITERAL2>
 			<LITERAL2>self</LITERAL2>
-			<KEYWORD1>super</KEYWORD1>
+			<KEYWORD2>super</KEYWORD2>
 			<LITERAL2>true</LITERAL2>
 		</KEYWORDS>
 	</RULES>

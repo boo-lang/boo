@@ -25,6 +25,7 @@ AmbiguousTypeReference=Referência de tipo ambígua: {0}.
 NoEntryPoint=O módulo {0} não possui um ponto de entrada.
 NodeNotInCollection=O nó {0} não está na coleção.
 NotImplemented=Característica ainda não implementada: {0}.
+EventArgumentMustBeAMethod=O evento '{0}' exige uma referência a um método compatível com '{1}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

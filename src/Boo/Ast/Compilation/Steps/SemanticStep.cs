@@ -189,7 +189,7 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			Switch(node.Iterator);
 			
-			ITypeBinding iteratorType = GetTypeBinding(node.Iterator);
+			Type iteratorType = GetBoundType(node.Iterator);
 			CheckIterator(node.Iterator, iteratorType);
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
@@ -201,8 +201,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnUnpackStatement(UnpackStatement node, ref Statement resultingNode)
 		{
 			node.Expression = Switch(node.Expression);
-			ITypeBinding expressionType = (ITypeBinding)GetBinding(node.Expression);
-			ProcessDeclarationsForIterator(node.Declarations, expressionType, false);			
+			ProcessDeclarationsForIterator(node.Declarations, GetBoundType(node.Expression), false);			
 		}
 		
 		public override void OnBinaryExpression(BinaryExpression node, ref Expression resultingNode)
@@ -387,22 +386,39 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					Errors.NamedParameterMustBeReference(arg);
 					continue;				
-				}
+				}				
 				
 				IBinding member = typeBinding.Resolve(name.Name);
-				if (null == member)
+				if (null == member ||
+				    (member.BindingType != BindingType.Property &&
+				    member.BindingType != BindingType.Field &&
+				    member.BindingType != BindingType.Event))				    
 				{
 					Errors.NotAPublicFieldOrProperty(node, typeBinding.Type, name.Name);
 					continue;
 				}
 				
-				BindingManager.Bind(arg.First, member);				
+				BindingManager.Bind(arg.First, member);
 				
 				Type memberType = ((ITypedBinding)member).BoundType.Type;
-				Type expressionType = BindingManager.GetBoundType(arg.Second);
-				if (!IsAssignableFrom(memberType, expressionType))
+				ITypedBinding expressionBinding = (ITypedBinding)GetBinding(arg.Second);
+				Type expressionType = expressionBinding.BoundType.Type;
+				
+				if (member.BindingType == BindingType.Event)
 				{
-					Errors.IncompatibleExpressionType(arg, memberType, expressionType);
+					if (expressionBinding.BindingType != BindingType.Method ||
+					    !CheckDelegateParameterList(memberType, (IMethodBinding)expressionBinding))
+					{
+						Errors.EventArgumentMustBeAMethod(arg.First, name.Name, memberType.FullName);
+					}
+				}
+				else
+				{	
+					
+					if (!IsAssignableFrom(memberType, expressionType))
+					{
+						Errors.IncompatibleExpressionType(arg, memberType, expressionType);
+					}
 				}
 			}
 		}
@@ -430,9 +446,33 @@ namespace Boo.Ast.Compilation.Steps
 			return true;
 		}
 		
-		void CheckIterator(Expression iterator, ITypeBinding binding)
-		{			
-			Type type = binding.Type;
+		
+		bool CheckDelegateParameterList(Type delegateType, IMethodBinding target)
+		{
+			MethodInfo invoke = delegateType.GetMethod("Invoke");
+			if (null == invoke)
+			{
+				throw new ArgumentException(string.Format("{0} is not a valid delegate type!", delegateType), "delegateType");
+			}
+			
+			ParameterInfo[] parameters = invoke.GetParameters();			
+			if (parameters.Length != target.ParameterCount)
+			{				
+				return false;
+			}
+			
+			for (int i=0; i<parameters.Length; ++i)
+			{
+				if (parameters[i].ParameterType != target.GetParameterType(i))
+				{
+					return false;
+				}
+			}
+			return true;			
+		}
+		
+		void CheckIterator(Expression iterator, Type type)
+		{						
 			if (type.IsArray)
 			{
 				if (type.GetArrayRank() > 1)
@@ -610,13 +650,13 @@ namespace Boo.Ast.Compilation.Steps
 			return binding;
 		}
 		
-		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
+		void ProcessDeclarationsForIterator(DeclarationCollection declarations, Type iteratorType, bool declarePrivateLocals)
 		{
 			ITypeBinding defaultDeclType = BindingManager.ObjectTypeBinding;
 			
-			if (iteratorType.Type.IsArray)
+			if (iteratorType.IsArray)
 			{		
-				defaultDeclType = BindingManager.ToTypeBinding(iteratorType.Type.GetElementType());
+				defaultDeclType = BindingManager.ToTypeBinding(iteratorType.GetElementType());
 			}
 			
 			foreach (Declaration d in declarations)
@@ -703,5 +743,10 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			return BindingManager.GetSignature(binding);
 		}		
+		
+		Type GetBoundType(Node node)
+		{
+			return BindingManager.GetBoundType(node);
+		}
 	}
 }

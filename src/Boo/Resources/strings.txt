@@ -25,6 +25,7 @@ AmbiguousTypeReference=Ambiguous type reference, it could be any of the followin
 NoEntryPoint=The module {0} does not have an entry point.
 NodeNotInCollection=The node {0} is not in the collection.
 NotImplemented=Language feature still not implemented: {0}.
+EventArgumentMustBeAMethod=The event '{0}' demands a method reference compatible with '{1}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

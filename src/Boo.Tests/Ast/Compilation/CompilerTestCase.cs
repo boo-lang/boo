@@ -16,6 +16,59 @@ namespace Boo.Tests.Ast.Compilation
 		Baz = 11
 	}
 	
+	public class Person
+	{
+		string _fname;
+		string _lname;
+		
+		public Person()
+		{			
+		}
+		
+		public string FirstName
+		{
+			get
+			{
+				return _fname;
+			}
+			
+			set
+			{
+				_fname = value;
+			}
+		}
+		
+		public string LastName
+		{
+			get
+			{
+				return _lname;
+			}
+			
+			set
+			{
+				_lname = value;
+			}
+		}
+	}
+	
+	public class Clickable
+	{
+		public Clickable()
+		{			
+		}
+		
+		public event EventHandler Click;
+		
+		public void RaiseClick()
+		{
+			if (null != Click)
+			{
+				Click(this, EventArgs.Empty);
+			}
+		}
+	}
+	
 	[TestFixture]
 	public class CompilerTestCase
 	{
@@ -194,6 +247,24 @@ namespace Boo.Tests.Ast.Compilation
 		public void TestVar1()
 		{
 			RunCompilerTestCase("var1.boo", "var as string = expression");
+		}
+		
+		[Test]
+		public void TestDelegate0()
+		{
+			RunCompilerTestCase("delegate0.boo", "basic delegate support");
+		}
+		
+		[Test]
+		public void TestProperty0()
+		{
+			RunCompilerTestCase("property0.boo", "basic property support");
+		}
+		
+		[Test]
+		public void TestProperty1()
+		{
+			RunCompilerTestCase("property1.boo", "unpack property");
 		}
 	
 		void RunCompilerTestCase(string name, string description)
