@@ -1,10 +1,7 @@
 <?xml version="1.0"?>
-<project name="Pipeline Example" default="all">
+<project name="Pipeline Example" default="compile-example">
 
 	<property name="boo.dir" value="../../../build" />
-
-	<target name="all" depends="compile-example">
-	</target>
 	
 	<target name="compile-step" depends="init">
 		<booc target="library"

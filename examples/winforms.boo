@@ -1,3 +1,31 @@
+#region license
+// boo - an extensible programming language for the CLI
+// Copyright (C) 2004 Rodrigo B. de Oliveira
+//
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the "Software"), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge, 
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included 
+// in all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+// OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// 
+// Contact Information
+//
+// mailto:rbo@acm.org
+#endregion
+
 import System
 import System.Windows.Forms from System.Windows.Forms
 
@@ -5,19 +33,20 @@ class App:
 	[getter(Times)]
 	_times as int
 	
-	private def b_Click(sender, args as EventArgs):
+	private def OnClick(sender, args as EventArgs):
 		print("clicked!")	
 		++_times
 		
-	private def f_Closed(sender, args as EventArgs):
+	private def OnClosed(sender, args as EventArgs):
 		Application.Exit()
 	
 	def Run():
-		b = Button(Text: "click me!", Click: b_Click)
+		f = Form(Text: "My first boo winforms app",
+				Closed: OnClosed)
 		
-		f = Form(Text: "My first boo winforms app", Closed: f_Closed)
-		
-		f.Controls.Add(b)
+		f.Controls.Add(
+				Button(Text: "click me!",
+						Click: OnClick))
 		f.Show()
 		
 		Application.Run(f)

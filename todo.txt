@@ -5,8 +5,6 @@
 	</pipeline>
 	
 done * pipeline.xsd
-
-* isolar Boo.Lang.Compiler em seu próprio assembly
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:
@@ -16,16 +14,17 @@ done * pipeline.xsd
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock
 	
+* check return types for method overrides
+
+* map(callable, enumerable)
+
+* isolar Boo.Lang.Compiler em seu próprio assembly
 
 * booi: opçoes e um único script
 	* booi /c:pt-BR /r:Foo.dll /i:aux.boo foo.boo 1 2 3
 		argv do script seria (1, 2, 3), os argumentos que ocorrem
 		antes do primeiro nome simples de arquivo (foo.boo) seriam
 		consumidos pelo próprio booi
-
-* map(callable, enumerable)
-
-* check return types for method overrides
 
 * tipos callable implementam equivalência estrutural, assim, um tipo callable
 que é wrapper sobre um método qualquer, lembra o método, seus tipos de parâmetro e
