@@ -10,7 +10,14 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			
 			System.Reflection.MethodInfo method = EmitAssemblyStep.GetEntryPoint(CompileUnit);
-			method.Invoke(null, null);
+			try
+			{
+				method.Invoke(null, null);
+			}
+			catch (System.Reflection.TargetInvocationException x)
+			{				
+				throw x.InnerException;
+			}
 		}
 	}
 }

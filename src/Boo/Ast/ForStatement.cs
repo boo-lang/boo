@@ -4,7 +4,7 @@ using Boo.Ast.Impl;
 namespace Boo.Ast
 {
 	[Serializable]
-	public class ForStatement : ForStatementImpl
+	public class ForStatement : ForStatementImpl, IMultiLineStatement
 	{		
 		public ForStatement()
 		{

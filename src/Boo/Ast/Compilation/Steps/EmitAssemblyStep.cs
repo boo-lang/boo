@@ -20,7 +20,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Binding.BindingManager.StringType, Binding.BindingManager.ObjectArrayType });
 		
-		static MethodInfo Runtime_MoveNext = typeof(Boo.Lang.RuntimeServices).GetMethod("MoveNext");
+		static MethodInfo RuntimeServices_MoveNext = typeof(Boo.Lang.RuntimeServices).GetMethod("MoveNext");
 		
 		static MethodInfo IEnumerable_GetEnumerator = Binding.BindingManager.IEnumerableType.GetMethod("GetEnumerator");
 		
@@ -102,28 +102,11 @@ namespace Boo.Ast.Compilation.Steps
 			DeclarationCollection decls = node.Declarations;
 			
 			ITypeBinding binding = GetTypeBinding(node.Expression);
-			if (!binding.Type.IsArray)
-			{
-				throw new NotImplementedException("only unpack for arrays right now!");
-			}
 			
-			EmitDebugInfo(node);
-			
+			EmitDebugInfo(node);						
 			node.Expression.Switch(this);
-			// the line above puts an
-			// array reference in the stack...
-			// we still need decls.Count-1 references
-			for (int i=1; i<decls.Count; ++i)
-			{
-				_il.Emit(OpCodes.Dup);
-			}		
 			
-			for (int i=0; i<decls.Count; ++i)
-			{
-				_il.Emit(OpCodes.Ldc_I4, i); // element index			
-				_il.Emit(OpCodes.Ldelem_Ref);
-				_il.Emit(OpCodes.Stloc, GetLocalBuilder(decls[i]));
-			}
+			EmitUnpackForDeclarations(node.Declarations, binding.Type);			
 		}
 		
 		public override bool EnterExpressionStatement(ExpressionStatement node)
@@ -145,6 +128,17 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void OnIfStatement(IfStatement node)
+		{
+			node.Expression.Switch(this);
+			
+			Label endLabel = _il.DefineLabel();
+			_il.Emit(OpCodes.Brfalse, endLabel);
+			
+			node.TrueBlock.Switch(this);
+			_il.MarkLabel(endLabel);
+		}
+		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{
 			if (BinaryOperatorType.Assign == node.Operator)
@@ -163,7 +157,16 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
-				throw new NotImplementedException();
+				if (BinaryOperatorType.Match == node.Operator)
+				{
+					node.Left.Switch(this);
+					node.Right.Switch(this);
+					_il.EmitCall(OpCodes.Call, (MethodInfo)BindingManager.GetBoundOperator(node).MethodInfo, null);
+				}
+				else
+				{
+					throw new NotImplementedException();
+				}
 			}
 		}
 		
@@ -173,15 +176,20 @@ namespace Boo.Ast.Compilation.Steps
 			switch (binding.BindingType)
 			{
 				case BindingType.Method:
-				{					
+				{										
 					MethodInfo mi = (MethodInfo)((IMethodBinding)binding).MethodInfo;
+					OpCode code = OpCodes.Call;
 					if (!mi.IsStatic)
 					{
 						// pushes target reference
 						node.Target.Switch(this);
+						if (mi.IsVirtual)
+						{
+							code = OpCodes.Callvirt;
+						}
 					}
 					node.Arguments.Switch(this);
-					_il.EmitCall(OpCodes.Call, mi, null);
+					_il.EmitCall(code, mi, null);
 					break;
 				}
 				
@@ -364,7 +372,7 @@ namespace Boo.Ast.Compilation.Steps
 			
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(node.Declarations);
+			EmitUnpackForDeclarations(node.Declarations, Binding.BindingManager.ObjectType);
 			
 			node.Statements.Switch(this);
 			_il.Emit(OpCodes.Br, labelTest);
@@ -398,7 +406,7 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Ldloc, localIndex);
 			_il.Emit(OpCodes.Ldelem_Ref);
 			
-			EmitUnpackForDeclarations(node.Declarations);
+			EmitUnpackForDeclarations(node.Declarations, iteratorBinding.Type.GetElementType());
 			
 			node.Statements.Switch(this);
 			
@@ -412,26 +420,40 @@ namespace Boo.Ast.Compilation.Steps
 			_il.MarkLabel(labelEnd);
 		}
 		
-		void EmitUnpackForDeclarations(DeclarationCollection decls)
+		void EmitUnpackForDeclarations(DeclarationCollection decls, Type topOfStack)
 		{
 			if (1 == decls.Count)
 			{
+				// for arg in iterator
 				LocalBuilder localValue = GetLocalBuilder(decls[0]);
 				EmitDebugInfo(decls[0]);
 				_il.Emit(OpCodes.Stloc, localValue);
 			}
 			else
 			{
-				_il.Emit(OpCodes.Castclass, BindingManager.IEnumerableType);
-				_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
-				
-				foreach (Declaration d in decls)
-				{
-					_il.Emit(OpCodes.Dup);
-					_il.EmitCall(OpCodes.Call, Runtime_MoveNext, null);				
-					_il.Emit(OpCodes.Stloc, GetLocalBuilder(d));				
+				if (topOfStack.IsArray)
+				{										
+					for (int i=0; i<decls.Count; ++i)
+					{
+						// local = array[i]
+						_il.Emit(OpCodes.Dup);
+						_il.Emit(OpCodes.Ldc_I4, i); // element index			
+						_il.Emit(OpCodes.Ldelem_Ref);
+						_il.Emit(OpCodes.Stloc, GetLocalBuilder(decls[i]));
+					}
 				}
-				
+				else
+				{
+					_il.Emit(OpCodes.Castclass, BindingManager.IEnumerableType);
+					_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
+					
+					foreach (Declaration d in decls)
+					{
+						_il.Emit(OpCodes.Dup);
+						_il.EmitCall(OpCodes.Call, RuntimeServices_MoveNext, null);				
+						_il.Emit(OpCodes.Stloc, GetLocalBuilder(d));				
+					}					
+				}
 				_il.Emit(OpCodes.Pop);
 			}
 		}

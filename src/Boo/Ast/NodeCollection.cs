@@ -4,7 +4,7 @@ using System.Collections;
 namespace Boo.Ast
 {
 	/// <summary>
-	/// Classe base para coleções de nós.
+	/// Classe base para colees de ns.
 	/// </summary>
 	public class NodeCollection : CollectionBase, Boo.Util.ISwitchable
 	{
@@ -53,10 +53,11 @@ namespace Boo.Ast
 				{
 					InnerList[i] = newItem;
 					Initialize(newItem);
+					existing.InitializeParent(null);
 					return;
 				}
-			}
-			throw new ApplicationException(string.Format("{0} não pertence a esta coleção.", existing));
+			}			
+			throw new ApplicationException(string.Format("{0} no pertence a esta coleo.", existing));
 		}
 
 		protected void Insert(int index, Node item)
@@ -77,7 +78,7 @@ namespace Boo.Ast
 
 		public void Switch(IAstSwitcher switcher)
 		{
-			foreach (Node node in InnerList)
+			foreach (Node node in InnerList.ToArray())
 			{
 				node.Switch(switcher);
 			}
@@ -112,7 +113,10 @@ namespace Boo.Ast
 		void Initialize(Node item)
 		{
 			Assert.AssertNotNull("item", item);
-			item.InitializeParent(_parent);
+			if (null != _parent)
+			{
+				item.InitializeParent(_parent);
+			}
 		}
 	}
 }

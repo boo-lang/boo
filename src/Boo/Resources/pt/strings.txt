@@ -19,6 +19,7 @@ InvalidNamespace=Espaço {0} não encontrado, talvez você tenha esquecido de ad
 IncompatibleExpressionType=Tipo da expressão '{1}' incompatível com destino ('{0}').
 NoApropriateOverloadFound=Nenhuma versão compatível com os argumentos '{0}' foi encontrada.
 InvalidArray=Somente arrays unidimensionais são suportados.
+BoolExpressionRequired={0} não pode ser utilizado em um contexto booleano.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

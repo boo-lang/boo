@@ -230,6 +230,8 @@
     <File name=".\IO\TextFile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IO\StreamReaderEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Steps\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\IMultiLineStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Assembly" refto="..\..\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />

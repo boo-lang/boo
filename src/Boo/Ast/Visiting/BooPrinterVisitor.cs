@@ -5,8 +5,8 @@ using Boo.Ast;
 namespace Boo.Ast.Visiting
 {
 	/// <summary>
-	/// Imprime uma AST boo em boo. Útil para visualizar a 
-	/// expansão de Ast Attributes e mixins.
+	/// Imprime uma AST boo em boo. til para visualizar a 
+	/// expanso de Ast Attributes e mixins.
 	/// </summary>
 	public class BooPrinterVisitor : TextEmitter
 	{		
@@ -34,7 +34,7 @@ namespace Boo.Ast.Visiting
 			Switch(m.Members);
 
 			// m.Globals iria causar um Indent()
-			// inválido
+			// invlido
 			Switch(m.Globals.Statements);
 		}
 

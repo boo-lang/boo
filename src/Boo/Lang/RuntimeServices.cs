@@ -12,7 +12,12 @@ namespace Boo.Lang
 				throw new ApplicationException(GetString("UnpackListOfWrongSize"));
 			}
 			return enumerator.Current;
-		}		
+		}
+		
+		public static bool IsMatch(string input, object pattern)
+		{		
+			return System.Text.RegularExpressions.Regex.IsMatch(input, (string)pattern);
+		}
 		
 		static string GetString(string name)
 		{

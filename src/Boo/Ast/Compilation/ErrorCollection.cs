@@ -50,6 +50,11 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("MemberNotFound", node.Name)));
 		}
 		
+		public void BoolExpressionRequired(Expression node, Type type)
+		{
+			Add(new Error(node, Format("BoolExpressionRequired", type)));
+		}
+		
 		public void NoApropriateOverloadFound(Node node, string signature)
 		{
 			Add(new Error(node, Format("NoApropriateOverloadFound", signature)));
@@ -100,9 +105,9 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, msg, cause));
 		}
 		
-		public void MethodArgumentCount(MethodInvocationExpression mie, Binding.IMethodBinding binding)
+		public void MethodArgumentCount(Node sourceNode, Binding.IMethodBinding binding, int actualArgumentCount)
 		{
-			Add(new Error(mie, Format("MethodArgumentCount", binding, mie.Arguments.Count)));
+			Add(new Error(sourceNode, Format("MethodArgumentCount", binding, actualArgumentCount)));
 		}
 		
 		public void MethodSignature(Node node, string actualSignature, string expectedSignature)

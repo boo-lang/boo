@@ -11,11 +11,14 @@ Examples:
 using System
 using System.Text.RegularExpressions
 using System.IO
+// using Boo.IO.TextFile
 
+// todo: mover para static Boo.IO.Text.File.ReadFile(fname) as string
 def read(fname as string):
 	using stream=File.OpenText(fname):
 		return stream.ReadToEnd()
-		
+
+// todo: mover para static Boo.IO.Text.File.WriteFile(fname, contents) as string		
 def write(fname as string, contents as string):
 	using stream=File.OpenWrite(fname):
 		stream.Write(contents)
@@ -24,10 +27,10 @@ _, glob, expression, replacement = Environment.GetCommandLineArgs()
 
 re = Regex(expression)
 for fname in Directory.GetFiles(".", glob):
-	contents = read(fname)
+	contents = read(fname) // todo: ReadFile(fname)
 	newContents = re.Replace(contents, replacement)
 	if newContents != contents:
 		print(fname)
-		write(fname, contents)
+		write(fname, contents) // todo: WriteFile(fname, contents)
 		
 		

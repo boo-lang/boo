@@ -24,6 +24,7 @@ namespace Boo.Lang
 			return Console.ReadLine();
 		}
 		
+		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
 		public static IEnumerable enumerate(object enumerable)
 		{
 			if (null == enumerable)

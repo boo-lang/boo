@@ -4,7 +4,7 @@ using Boo.Ast.Impl;
 namespace Boo.Ast
 {
 	[Serializable]
-	public class WhileStatement : WhileStatementImpl
+	public class WhileStatement : WhileStatementImpl, IMultiLineStatement
 	{		
 		public WhileStatement()
 		{

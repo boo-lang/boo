@@ -7,6 +7,8 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public class BindingManager
 	{
+		public static readonly Type RuntimeServicesType = typeof(Boo.Lang.RuntimeServices);
+		
 		public static readonly Type IEnumerableType = typeof(System.Collections.IEnumerable);
 		
 		public static readonly Type IEnumeratorType = typeof(System.Collections.IEnumerator);
@@ -21,14 +23,22 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public static readonly Type IntType = typeof(int);
 		
+		public static readonly Type BoolType = typeof(bool);
+		
 		public ITypeBinding ObjectTypeBinding;
 		
 		public ITypeBinding StringTypeBinding;
+		
+		public ITypeBinding BoolTypeBinding;
+		
+		public ITypeBinding RuntimeServicesBinding;
 		
 		public BindingManager()
 		{
 			ObjectTypeBinding = ToTypeBinding(ObjectType);
 			StringTypeBinding = ToTypeBinding(StringType);
+			BoolTypeBinding = ToTypeBinding(BoolType);
+			RuntimeServicesBinding = ToTypeBinding(RuntimeServicesType);
 		}
 		
 		public bool IsBound(Node node)
@@ -36,23 +46,51 @@ namespace Boo.Ast.Compilation.Binding
 			return null != node[BindingKey];
 		}
 		
-		public void Bind(Node node, IBinding mi)
+		public void Bind(Node node, IBinding binding)
 		{
 			if (null == node)
 			{
 				throw new ArgumentNullException("node");
 			}
-			if (null == mi)
+			if (null == binding)
 			{
-				throw new ArgumentNullException("mi");
+				throw new ArgumentNullException("binding");
 			}
 			
-			node[BindingKey] = mi;
+			node[BindingKey] = binding;
 		}
 		
 		public void Bind(TypeDefinition type, TypeBuilder builder)
 		{
 			Bind(type, new InternalTypeBinding(this, type, builder));
+		}
+		
+		public void BindOperator(BinaryExpression expression, IMethodBinding binding)
+		{
+			if (null == expression)
+			{
+				throw new ArgumentNullException("expression");
+			}
+			if (null == binding)
+			{
+				throw new ArgumentNullException("binding");
+			}
+			expression[OperatorBindingKey] = binding;
+		}
+		
+		public IMethodBinding GetBoundOperator(BinaryExpression expression)
+		{
+			if (null == expression)
+			{
+				throw new ArgumentNullException("expression");
+			}
+			
+			IMethodBinding binding = (IMethodBinding)expression[OperatorBindingKey];
+			if (null == binding)
+			{
+				NodeNotBound(expression);
+			}
+			return binding;
 		}
 		
 		public void Error(Node node)
@@ -70,7 +108,7 @@ namespace Boo.Ast.Compilation.Binding
 			IBinding binding = (IBinding)node[BindingKey];
 			if (null == binding)
 			{
-				throw new Error(node, ResourceManager.Format("BindingManager.UnboundNode", node, node.LexicalInfo));
+				NodeNotBound(node);
 			}
 			return binding;
 		}	
@@ -169,8 +207,14 @@ namespace Boo.Ast.Compilation.Binding
 			sb.Append(binding.ReturnType.Type.FullName);
 			return sb.ToString();
 		}
-
+		
+		private static void NodeNotBound(Node node)
+		{
+			throw new Error(node, ResourceManager.Format("BindingManager.UnboundNode", node, node.LexicalInfo));
+		}
 		
 		static object BindingKey = new object();
+		
+		static object OperatorBindingKey = new object();
 	}
 }

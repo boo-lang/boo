@@ -100,7 +100,7 @@ namespace Boo.Ast
 		}
 
 		internal void InitializeParent(Node parent)
-		{
+		{			
 			_parent = parent;
 		}
 

@@ -22,11 +22,15 @@ namespace Boo.Ast.Compilation.Steps
 		
 		Method _method;
 		
-		Stack _namespaces = new Stack();		
+		Stack _namespaces = new Stack();
+		
+		IMethodBinding RuntimeServices_IsMatchBinding;
 		
 		public override void Run()
 		{			
 			_moduleBuilder = AssemblySetupStep.GetModuleBuilder(CompilerContext);
+			
+			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			
 			Switch(CompileUnit);
 		}
@@ -34,7 +38,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override bool EnterCompileUnit(CompileUnit cu)
 		{			
 			// Boo.Lang at the highest level
-			//_namespace = new NameSpaceNameSpace(BindingManager, 
+			//_namespace = new NamespaceBinding(BindingManager, )
 			                           
 			// then builtins resolution
 			PushNamespace(new ExternalTypeBinding(BindingManager, typeof(Boo.Lang.Builtins)));
@@ -130,6 +134,15 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void LeaveIfStatement(IfStatement node)
+		{
+			ITypeBinding binding = BindingManager.GetTypeBinding(node.Expression);
+			if (BindingManager.BoolType != binding.Type)
+			{
+				Errors.BoolExpressionRequired(node.Expression, binding.Type);
+			}
+		}
+		
 		public override void OnForStatement(ForStatement node)
 		{
 			node.Iterator.Switch(this);
@@ -187,9 +200,30 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void LeaveBinaryExpression(BinaryExpression node)
-		{
-			// expression type is the same as the right expression's
-			BindingManager.Bind(node, BindingManager.GetBinding(node.Right));
+		{			
+			if (BinaryOperatorType.Match == node.Operator)
+			{		
+				ExpressionCollection args = new ExpressionCollection();
+				args.Add(node.Left);
+				args.Add(node.Right);
+				
+				if (CheckParameters(node, RuntimeServices_IsMatchBinding, args))
+				{
+					// todo; trocar Bind e BindOperator por um 
+					// unico Bind(node, new OperatorBinding())
+					BindingManager.Bind(node, RuntimeServices_IsMatchBinding.ReturnType);
+					BindingManager.BindOperator(node, RuntimeServices_IsMatchBinding);
+				}
+				else
+				{
+					BindingManager.Error(node);
+				}
+			}
+			else
+			{
+				// expression type is the same as the right expression's
+				BindingManager.Bind(node, BindingManager.GetBinding(node.Right));
+			}
 		}		
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
@@ -201,7 +235,7 @@ namespace Boo.Ast.Compilation.Steps
 			if (BindingType.Ambiguous == targetBinding.BindingType)
 			{		
 				IBinding[] bindings = ((AmbiguousBinding)targetBinding).Bindings;
-				targetBinding = ResolveMethodReference(node, bindings);				
+				targetBinding = ResolveMethodReference(node, node.Arguments, bindings);				
 				if (null == targetBinding)
 				{
 					return;
@@ -214,7 +248,7 @@ namespace Boo.Ast.Compilation.Steps
 				case BindingType.Method:
 				{				
 					IMethodBinding targetMethod = (IMethodBinding)targetBinding;
-					CheckParameters(targetMethod, node);			
+					CheckParameters(node, targetMethod, node.Arguments);			
 					if (node.NamedArguments.Count > 0)
 					{
 						Errors.NamedParametersNotAllowed(node.NamedArguments[0]);
@@ -346,13 +380,12 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		void CheckParameters(IMethodBinding method, MethodInvocationExpression mie)
-		{	
-			ExpressionCollection args = mie.Arguments;
+		bool CheckParameters(Node sourceNode, IMethodBinding method, ExpressionCollection args)
+		{				
 			if (method.ParameterCount != args.Count)
 			{
-				Errors.MethodArgumentCount(mie, method);
-				return;
+				Errors.MethodArgumentCount(sourceNode, method, args.Count);
+				return false;
 			}	
 			
 			for (int i=0; i<args.Count; ++i)
@@ -361,10 +394,12 @@ namespace Boo.Ast.Compilation.Steps
 				Type parameterType = method.GetParameterType(i);
 				if (!IsAssignableFrom(parameterType, expressionType))
 				{
-					Errors.MethodSignature(mie, GetSignature(mie), GetSignature(method));
-					break;
+					Errors.MethodSignature(sourceNode, GetSignature(args), GetSignature(method));
+					return false;
 				}
 			}
+			
+			return true;
 		}
 		
 		void CheckIterator(Expression iterator, ITypeBinding binding)
@@ -394,10 +429,8 @@ namespace Boo.Ast.Compilation.Steps
 			return null;
 		}
 		
-		IBinding ResolveMethodReference(MethodInvocationExpression node, IBinding[] bindings)
+		IBinding ResolveMethodReference(Node node, ExpressionCollection args, IBinding[] bindings)
 		{			
-			ExpressionCollection args = node.Arguments;
-			
 			List valid = new List();			
 			foreach (IBinding binding in bindings)
 			{
@@ -434,7 +467,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
-				Errors.NoApropriateOverloadFound(node, GetSignature(node));
+				Errors.NoApropriateOverloadFound(node, GetSignature(args));
 			}
 			return null;
 		}
@@ -522,10 +555,10 @@ namespace Boo.Ast.Compilation.Steps
 			return types;
 		}
 		
-		string GetSignature(MethodInvocationExpression mie)
+		string GetSignature(ExpressionCollection args)
 		{
 			StringBuilder sb = new StringBuilder("(");
-			foreach (Expression arg in mie.Arguments)
+			foreach (Expression arg in args)
 			{
 				if (sb.Length > 1)
 				{

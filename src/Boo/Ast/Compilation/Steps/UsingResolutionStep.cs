@@ -35,7 +35,8 @@ namespace Boo.Ast.Compilation.Steps
 			else
 			{
 				if (null != node.AssemblyReference)
-				{						
+				{	
+					// todo:
 				}
 				BindingManager.Bind(node, new Binding.NamespaceBinding(BindingManager, node, (AssemblyInfo[])assemblies.ToArray(typeof(AssemblyInfo))));
 			}
