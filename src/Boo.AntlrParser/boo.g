@@ -1912,10 +1912,12 @@ options
 }
 
 ID options { testLiterals = true; }:
-	(
-		('_' NEWLINE)=> '_'! NEWLINE! { $setType(Token.SKIP); } |
 		ID_LETTER (ID_LETTER | DIGIT)*
-	)
+	;
+	
+LINE_CONTINUATION:
+	'\\' NEWLINE
+	{ $setType(Token.SKIP); }
 	;
 
 INT : (DIGIT)+
@@ -2060,7 +2062,12 @@ EOS: ';';
 
 protected
 NEWLINE:
-	('\n'|"\r\n"|'\r')
+	(
+		'\n' |
+		(
+			'\r' ('\n')?
+		)
+	)
 	{ newline(); }
 	;
 		

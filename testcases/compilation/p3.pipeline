@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+<pipeline extends='p2'>
+	<step id='dummy3' type='Boo.Tests.Lang.Compiler.DummyStep3, Boo.Tests'
+		insertBefore='dummy1' />
+		  
+    <step id='dummy4' type='Boo.Tests.Lang.Compiler.DummyStep4, Boo.Tests'
+		insertAfter='dummy1' />
+</pipeline>

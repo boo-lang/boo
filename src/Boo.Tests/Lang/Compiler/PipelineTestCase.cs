@@ -36,7 +36,7 @@ using Boo.Lang.Compiler;
 namespace Boo.Tests.Lang.Compiler
 {
 	public class DummyStep : ICompilerStep
-	{
+	{		
 		int _runCount = 0;
 		
 		public void Initialize(CompilerContext context)
@@ -64,24 +64,33 @@ namespace Boo.Tests.Lang.Compiler
 	public class DummyStep2 : DummyStep
 	{
 	}
+	
+	public class DummyStep3 : DummyStep
+	{
+	}
+	
+	public class DummyStep4 : DummyStep
+	{
+	}
 
 	/// <summary>	
 	/// </summary>
 	[TestFixture]
-	public class PipelineTestCase : Assertion
+	public class PipelineTestCase
 	{	
 		CompilerPipeline _pipeline;
 
 		[SetUp]
 		public void SetUp()
 		{
-			_pipeline = new CompilerPipeline();			
+			_pipeline = new CompilerPipeline();
+			_pipeline.BaseDirectory = BooTestCaseUtil.GetTestCasePath("compilation");			
 		}
 
 		[Test]
 		public void TestConstructor()
 		{
-			AssertEquals(0, _pipeline.Count);
+			Assert.AreEqual(0, _pipeline.Count);
 		}
 
 		[Test]
@@ -89,7 +98,56 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			DummyStep p = new DummyStep();			
 			_pipeline.Add(p);
-			AssertEquals(1, _pipeline.Count);
+			Assert.AreEqual(1, _pipeline.Count);
+		}
+		
+		[Test]
+		[ExpectedException(typeof(ArgumentException))]
+		public void CantAddStepWithTheSameID()
+		{
+			_pipeline.Add(new CompilerPipelineItem("dummy", new DummyStep()));
+			_pipeline.Add(new CompilerPipelineItem("dummy", new DummyStep()));
+		}
+		
+		[Test]
+		public void InsertBefore()
+		{
+			DummyStep first = new DummyStep();
+			DummyStep second = new DummyStep();
+			
+			_pipeline.Add(new CompilerPipelineItem("first", first));
+			_pipeline.Add(new CompilerPipelineItem("second", second));
+			
+			AssertPipeline(first, second);
+			
+			DummyStep before1 = new DummyStep();
+			_pipeline.InsertBefore("first", before1);
+			
+			AssertPipeline(before1, first, second);
+			
+			DummyStep before2 = new DummyStep();
+			_pipeline.InsertBefore("second", before2);
+			
+			AssertPipeline(before1, first, before2, second);
+		}
+		
+		[Test]
+		public void InsertAfter()
+		{
+			DummyStep first = new DummyStep();
+			_pipeline.Add(new CompilerPipelineItem("first", first));
+			
+			DummyStep second = new DummyStep();
+			_pipeline.InsertAfter("first", second);
+			AssertPipeline(first, second);
+			
+			DummyStep third = new DummyStep();
+			_pipeline.InsertAfter("first", new CompilerPipelineItem("third", third));
+			AssertPipeline(first, third, second);
+			
+			DummyStep fourth = new DummyStep();
+			_pipeline.InsertAfter("third", fourth);
+			AssertPipeline(first, third, fourth, second);
 		}
 
 		[Test]
@@ -101,15 +159,15 @@ namespace Boo.Tests.Lang.Compiler
 			_pipeline.Add(p1);
 			_pipeline.Add(p2);
 
-			AssertEquals(0, p1.RunCount);
-			AssertEquals(0, p2.RunCount);
+			Assert.AreEqual(0, p1.RunCount);
+			Assert.AreEqual(0, p2.RunCount);
 			_pipeline.Run(new CompilerContext(new CompilerParameters(), new Boo.Lang.Ast.CompileUnit()));
-			AssertEquals(1, p1.RunCount);
-			AssertEquals(1, p2.RunCount);
+			Assert.AreEqual(1, p1.RunCount);
+			Assert.AreEqual(1, p2.RunCount);
 		}
 
 		[Test]
-		public void TestXmlConfiguration()
+		public void SimpleXmlConfiguration()
 		{
 			string xml = @"
 			<pipeline>
@@ -118,19 +176,39 @@ namespace Boo.Tests.Lang.Compiler
 			
 			_pipeline.Configure(LoadXml(xml));
 			
-			AssertEquals(1, _pipeline.Count);
-			Assert("Expected a DummyStep!", _pipeline[0] is DummyStep);
+			Assert.AreEqual(1, _pipeline.Count);
+			Assert.IsTrue(_pipeline[0] is DummyStep, "Expected a DummyStep!");
 		}
 
 		[Test]
-		public void TestXmlConfigurationExtends()
-		{		
-			_pipeline.BaseDirectory = BooTestCaseUtil.GetTestCasePath("compilation");
+		public void XmlConfigurationExtends()
+		{				
 			_pipeline.Load("p2");
 
-			AssertEquals(2, _pipeline.Count);
-			Assert("Expected a DummyStep!", _pipeline[0] is DummyStep);
-			Assert("Expected a DummyStep2!", _pipeline[1] is DummyStep2);
+			Assert.AreEqual(2, _pipeline.Count);
+			Assert.AreEqual(typeof(DummyStep), _pipeline[0].GetType(), "Expected a DummyStep!");
+			Assert.AreEqual(typeof(DummyStep2), _pipeline[1].GetType(), "Expected a DummyStep2!");
+		}
+		
+		[Test]
+		public void ExtendedXmlConfiguration()
+		{			
+			_pipeline.Load("p3");
+			
+			Assert.AreEqual(4, _pipeline.Count);
+			Assert.AreEqual(typeof(DummyStep3), _pipeline[0].GetType());
+			Assert.AreEqual(typeof(DummyStep), _pipeline[1].GetType());
+			Assert.AreEqual(typeof(DummyStep4), _pipeline[2].GetType());
+			Assert.AreEqual(typeof(DummyStep2), _pipeline[3].GetType());
+		}
+		
+		void AssertPipeline(params ICompilerStep[] expected)
+		{
+			Assert.AreEqual(expected.Length, _pipeline.Count);
+			for (int i=0; i<expected.Length; ++i)
+			{
+				Assert.AreSame(expected[i], _pipeline[i]);
+			}
 		}
 
 		string GetTestCasePath(string fname)

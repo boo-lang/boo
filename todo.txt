@@ -1,10 +1,10 @@
-﻿* Pipeline.InsertBefore, Pipeline.InsertAfter
+﻿done * Pipeline.InsertBefore, Pipeline.InsertAfter
 	<pipeline extends='core'>
 		<step id='stylechecker' insertAfter='parser' type='..' />
 		<step id='trace' insertBefore='emit' type='..' />
 	</pipeline>
 	
-* pipeline.xsd
+done * pipeline.xsd
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:

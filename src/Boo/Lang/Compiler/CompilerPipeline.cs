@@ -35,27 +35,127 @@ using System.Xml;
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
-	/// A group of <see cref="ICompilerComponent"/> implementations
-	/// that should be executed in sequence.
+	/// An item in the compilation pipeline. Associates
+	/// an ID to an ICompilerStep implementation.
 	/// </summary>
-	public class CompilerPipeline : System.MarshalByRefObject
+	public class CompilerPipelineItem
 	{
-		ArrayList _steps;
+		string _id;
+		ICompilerStep _step;
 		
-		string _baseDirectory = ".";
-
-		public CompilerPipeline()
-		{
-			_steps = new ArrayList();
-		}
-
-		public CompilerPipeline Add(ICompilerStep step)
+		public CompilerPipelineItem(ICompilerStep step)
 		{
 			if (null == step)
 			{
 				throw new ArgumentNullException("step");
 			}
-			_steps.Add(step);
+			
+			_id = Guid.NewGuid().ToString();
+			_step = step;
+		}
+		
+		public CompilerPipelineItem(string id, ICompilerStep step)
+		{
+			if (null == id)
+			{
+				throw new ArgumentNullException("id");
+			}
+			if (null == step)
+			{
+				throw new ArgumentNullException("step");
+			}
+			if (0 == id.Length)
+			{
+				throw new ArgumentException("id");
+			}
+			
+			_id = id;
+			_step = step;
+		}
+		
+		public string ID
+		{
+			get
+			{
+				return _id;
+			}
+		}
+		
+		public ICompilerStep CompilerStep
+		{
+			get
+			{
+				return _step;
+			}
+		}
+	}
+	
+	/// <summary>
+	/// A group of <see cref="ICompilerComponent"/> implementations
+	/// that should be executed in sequence.
+	/// </summary>
+	public class CompilerPipeline : System.MarshalByRefObject
+	{	
+		ArrayList _items;
+		
+		string _baseDirectory = ".";
+
+		public CompilerPipeline()
+		{
+			_items = new ArrayList();
+		}
+		
+		public CompilerPipeline Add(CompilerPipelineItem item)
+		{
+			if (null == item)
+			{
+				throw new ArgumentNullException("item");
+			}
+			
+			_items.Add(Validate(item));
+			return this;
+		}
+
+		public CompilerPipeline Add(ICompilerStep step)
+		{
+			return Add(new CompilerPipelineItem(step));
+		}
+		
+		public CompilerPipeline InsertBefore(string id, ICompilerStep step)
+		{			
+			return InsertBefore(id, new CompilerPipelineItem(step));
+		}
+		
+		public CompilerPipeline InsertBefore(string id, CompilerPipelineItem item)
+		{		
+			if (null == id)
+			{
+				throw new ArgumentNullException("id");
+			}
+			if (null == item)
+			{
+				throw new ArgumentNullException("item");
+			}
+			_items.Insert(FindIndex(id), Validate(item));
+			return this;
+		}
+		
+		public CompilerPipeline InsertAfter(string id, ICompilerStep step)
+		{
+			return InsertAfter(id, new CompilerPipelineItem(step));
+		}
+		
+		public CompilerPipeline InsertAfter(string id, CompilerPipelineItem item)
+		{
+			if (null == id)
+			{
+				throw new ArgumentNullException("id");
+			}
+			if (null == item)
+			{
+				throw new ArgumentNullException("item");
+			}
+			_items.Insert(FindIndex(id)+1, Validate(item));
 			return this;
 		}
 		
@@ -80,7 +180,7 @@ namespace Boo.Lang.Compiler
 		{
 			get
 			{
-				return _steps.Count;
+				return _items.Count;
 			}
 		}
 
@@ -88,7 +188,7 @@ namespace Boo.Lang.Compiler
 		{
 			get
 			{
-				return (ICompilerStep)_steps[index];
+				return ((CompilerPipelineItem)_items[index]).CompilerStep;
 			}
 		}
 		
@@ -99,7 +199,7 @@ namespace Boo.Lang.Compiler
 				throw new ArgumentNullException("configuration");
 			}
 			
-			_steps.Clear();
+			_items.Clear();
 			InnerConfigure(configuration);
 		}
 		
@@ -117,8 +217,10 @@ namespace Boo.Lang.Compiler
 
 		public void Run(CompilerContext context)
 		{
-			foreach (ICompilerStep step in _steps)
+			foreach (CompilerPipelineItem item in _items)
 			{
+				ICompilerStep step = item.CompilerStep;
+				
 				context.TraceEnter("Entering {0}...", step);			
 				
 				step.Initialize(context);
@@ -137,9 +239,9 @@ namespace Boo.Lang.Compiler
 				context.TraceLeave("Left {0}.", step);
 			}
 			
-			foreach (ICompilerComponent step in _steps)
+			foreach (CompilerPipelineItem item in _items)
 			{
-				step.Dispose();
+				item.CompilerStep.Dispose();
 			}
 		}
 		
@@ -152,6 +254,16 @@ namespace Boo.Lang.Compiler
 				
 			}
 			return attribute.Value;
+		}
+		
+		string GetOptionalAttribute(XmlElement element, string attributeName)
+		{
+			XmlAttribute attribute = element.GetAttributeNode(attributeName);
+			if (null != attribute)
+			{
+				return attribute.Value;
+			}
+			return null;
 		}
 
 		void InnerConfigure(XmlElement configuration)
@@ -170,7 +282,38 @@ namespace Boo.Lang.Compiler
 				{
 					throw CompilerErrorFactory.TypeMustImplementICompilerStep(typeName);
 				}
-				_steps.Add(Activator.CreateInstance(type));
+				
+				ICompilerStep step = (ICompilerStep)Activator.CreateInstance(type);
+				
+				string id = element.GetAttribute("id");
+				
+				CompilerPipelineItem item = null;
+				if (id.Length > 0)
+				{
+					item = new CompilerPipelineItem(id, step);
+				}
+				else
+				{
+					item = new CompilerPipelineItem(step);					
+				}
+				
+				string insertBeforeId = GetOptionalAttribute(element, "insertBefore");
+				if (null != insertBeforeId)
+				{
+					InsertBefore(insertBeforeId, item);
+				}
+				else
+				{
+					string insertAfterId = GetOptionalAttribute(element, "insertAfter");
+					if (null != insertAfterId)
+					{
+						InsertAfter(insertAfterId, item);
+					}
+					else
+					{
+						_items.Add(item);
+					}
+				}
 			}
 		}
 		
@@ -201,6 +344,37 @@ namespace Boo.Lang.Compiler
 			XmlDocument doc = new XmlDocument();
 			doc.Load(name);
 			return doc.DocumentElement;
+		}
+		
+		int FindIndex(string id)
+		{
+			int index = FindIndexNoException(id);
+			if (-1 == index)
+			{
+				throw new ArgumentException("id");
+			}
+			return index;
+		}
+		
+		int FindIndexNoException(string id)
+		{
+			for (int i=0; i<_items.Count; ++i)
+			{
+				if (id == ((CompilerPipelineItem)_items[i]).ID)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+		
+		CompilerPipelineItem Validate(CompilerPipelineItem item)
+		{
+			if (-1 != FindIndexNoException(item.ID))
+			{
+				throw new ArgumentException("item");
+			}
+			return item;
 		}
 	}
 }

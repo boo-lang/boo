@@ -38,6 +38,10 @@
 						</xsd:attribute>
 						<xsd:attribute name="type" type="xsd:string" use="required">
 						</xsd:attribute>
+						<xsd:attribute name="insertBefore" type="xsd:IDREF" use="optional">
+						</xsd:attribute>
+						<xsd:attribute name="insertAfter" type="xsd:IDREF" use="optional">
+						</xsd:attribute>
 					</xsd:complexType>
 				</xsd:element>
 			</xsd:sequence>

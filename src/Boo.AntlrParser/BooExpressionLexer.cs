@@ -136,18 +136,19 @@ namespace Boo.AntlrParser
 		public const int LBRACE = 104;
 		public const int RBRACE = 105;
 		public const int RE_LITERAL = 106;
-		public const int SL_COMMENT = 107;
-		public const int ML_COMMENT = 108;
-		public const int WS = 109;
-		public const int NEWLINE = 110;
-		public const int ESCAPED_EXPRESSION = 111;
-		public const int DQS_ESC = 112;
-		public const int SQS_ESC = 113;
-		public const int SESC = 114;
-		public const int RE_CHAR = 115;
-		public const int RE_ESC = 116;
-		public const int ID_LETTER = 117;
-		public const int DIGIT = 118;
+		public const int LINE_CONTINUATION = 107;
+		public const int SL_COMMENT = 108;
+		public const int ML_COMMENT = 109;
+		public const int WS = 110;
+		public const int NEWLINE = 111;
+		public const int ESCAPED_EXPRESSION = 112;
+		public const int DQS_ESC = 113;
+		public const int SQS_ESC = 114;
+		public const int SESC = 115;
+		public const int RE_CHAR = 116;
+		public const int RE_ESC = 117;
+		public const int ID_LETTER = 118;
+		public const int DIGIT = 119;
 		
 		
 	

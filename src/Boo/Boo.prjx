@@ -1,4 +1,5 @@
-<Project name="Boo" standardNamespace="NewProject" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
+
+<Project name="Boo" standardNamespace="Boo" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
     <File name=".\AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\ResourceManager.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -267,32 +268,25 @@
     <File name=".\Lang\Compiler\Pipeline\TypeHierarchyResolver.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\XmlStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Util\MarshalByRefCollectionBase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Util\MarshalByRefEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Util\TaskList.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Resources\xml.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name=".\Resources\boo.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name=".\Resources\booc.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name=".\Resources\booi.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name=".\Resources\core.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name=".\Resources\parse.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name=".\Resources\roundtrip.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name="..\..\build\strings.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name=".\Resources\boom.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="False" name="Debug">
-    <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+    <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
     <Execution commandlineparameters="" consolepause="False" />
     <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
   </Configuration>
   <Configurations active="Debug">
     <Configuration runwithwarnings="False" name="Debug">
-      <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
       <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>
     <Configuration runwithwarnings="False" name="Release">
-      <CodeGeneration runtime="MsNet" compiler="Csc" compilerversion="" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
       <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>

@@ -207,7 +207,7 @@ namespace BooC
 									case "srcdir":
 									{
 										string path = Path.GetFullPath(arg.Substring(8));
-										addFilesForPath(path, options);
+										AddFilesForPath(path, options);
 										break;
 									}
 
@@ -272,7 +272,7 @@ namespace BooC
 			return doc.DocumentElement;
 		}
 
-		static void addFilesForPath(string path, CompilerParameters options)
+		static void AddFilesForPath(string path, CompilerParameters options)
 		{
 			foreach (string filename in Directory.GetFiles(path, "*.boo"))
 			{
@@ -281,7 +281,7 @@ namespace BooC
 								
 			foreach (string dirname in Directory.GetDirectories(path))
 			{
-				addFilesForPath(dirname, options);
+				AddFilesForPath(dirname, options);
 			}
 		}
 	}
