@@ -38,10 +38,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_modifier = value;
-				if (null != _modifier)
+				
+				if (_modifier != value)
 				{
-					_modifier.InitializeParent(this);
+					_modifier = value;
+					if (null != _modifier)
+					{
+						_modifier.InitializeParent(this);
+					}
 				}
 			}
 		}

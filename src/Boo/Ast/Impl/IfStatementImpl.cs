@@ -51,10 +51,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_expression = value;
-				if (null != _expression)
+				
+				if (_expression != value)
 				{
-					_expression.InitializeParent(this);
+					_expression = value;
+					if (null != _expression)
+					{
+						_expression.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -67,10 +71,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_trueBlock = value;
-				if (null != _trueBlock)
+				
+				if (_trueBlock != value)
 				{
-					_trueBlock.InitializeParent(this);
+					_trueBlock = value;
+					if (null != _trueBlock)
+					{
+						_trueBlock.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -83,17 +91,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_falseBlock = value;
-				if (null != _falseBlock)
+				
+				if (_falseBlock != value)
 				{
-					_falseBlock.InitializeParent(this);
+					_falseBlock = value;
+					if (null != _falseBlock)
+					{
+						_falseBlock.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Statement resultingTypedNode;
-			transformer.OnIfStatement((IfStatement)this, out resultingTypedNode);
+			IfStatement thisNode = (IfStatement)this;
+			Statement resultingTypedNode = thisNode;
+			transformer.OnIfStatement(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

@@ -19,6 +19,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public ITypeBinding RuntimeServicesBinding;
 		
+		public ITypeBinding ListTypeBinding;
+		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
 		public BindingManager()
@@ -30,6 +32,7 @@ namespace Boo.Ast.Compilation.Binding
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
+			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
 		}
 		
 		public bool IsBound(Node node)

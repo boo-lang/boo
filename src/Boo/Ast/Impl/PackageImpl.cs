@@ -45,13 +45,15 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
+				
 				_name = value;
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Package resultingTypedNode;
-			transformer.OnPackage((Package)this, out resultingTypedNode);
+			Package thisNode = (Package)this;
+			Package resultingTypedNode = thisNode;
+			transformer.OnPackage(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

@@ -48,7 +48,11 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_operator = value;
+				
+				if (_operator != value)
+				{
+					_operator = value;
+				}
 			}
 		}
 		public Expression Operand
@@ -60,17 +64,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_operand = value;
-				if (null != _operand)
+				
+				if (_operand != value)
 				{
-					_operand.InitializeParent(this);
+					_operand = value;
+					if (null != _operand)
+					{
+						_operand.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnUnaryExpression((UnaryExpression)this, out resultingTypedNode);
+			UnaryExpression thisNode = (UnaryExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnUnaryExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

@@ -27,8 +27,9 @@ namespace Boo.Ast.Impl
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnLiteralExpression((LiteralExpression)this, out resultingTypedNode);
+			LiteralExpression thisNode = (LiteralExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnLiteralExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

@@ -6,6 +6,8 @@ namespace Boo.Ast.Compilation.Binding
 	{
 		public static readonly Type RuntimeServices = typeof(Boo.Lang.RuntimeServices);
 		
+		public static readonly Type List = typeof(Boo.Lang.List);
+		
 		public static readonly Type IEnumerable = typeof(System.Collections.IEnumerable);
 		
 		public static readonly Type IEnumerator = typeof(System.Collections.IEnumerator);

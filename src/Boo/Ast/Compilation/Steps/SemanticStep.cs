@@ -33,7 +33,7 @@ namespace Boo.Ast.Compilation.Steps
 			Switch(CompileUnit);
 		}		
 		
-		public override void OnModule(Boo.Ast.Module module)
+		public override void OnModule(Boo.Ast.Module module, ref Boo.Ast.Module resultingNode)
 		{
 			TypeAttributes attributes = TypeAttributes.Public|TypeAttributes.Sealed;
 			_typeBuilder = _moduleBuilder.DefineType(module.FullyQualifiedName, attributes);
@@ -42,13 +42,13 @@ namespace Boo.Ast.Compilation.Steps
 			
 			PushNamespace(new ModuleNameSpace(BindingManager, module));
 			
-			module.Attributes.Switch(this);
-			module.Members.Switch(this);
+			Switch(module.Attributes);
+			Switch(module.Members);
 			
 			PopNamespace();
 		}
 		
-		public override void OnMethod(Method method)
+		public override void OnMethod(Method method, ref Method resultingNode)
 		{
 			_method = method;
 			
@@ -64,11 +64,11 @@ namespace Boo.Ast.Compilation.Steps
 			BindingManager.Bind(method, binding);
 			
 			PushNamespace(binding);
-			method.Body.Switch(this);
+			Switch(method.Body);
 			PopNamespace();
 		}
 		
-		public override void OnTypeReference(TypeReference node)
+		public override void OnTypeReference(TypeReference node, ref TypeReference resultingNode)
 		{
 			IBinding info = ResolveQualifiedName(node, node.Name);
 			if (null == info || BindingType.TypeReference != info.BindingType)
@@ -82,27 +82,32 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
+		public override void OnBoolLiteralExpression(BoolLiteralExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.BoolTypeBinding);
 		}
 		
-		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
+		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.IntTypeBinding);
 		}
 		
-		public override void OnStringLiteralExpression(StringLiteralExpression node)
+		public override void OnStringLiteralExpression(StringLiteralExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.StringTypeBinding);
 		}
 		
-		public override void LeaveStringFormattingExpression(StringFormattingExpression node)
+		public override void LeaveStringFormattingExpression(StringFormattingExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.StringTypeBinding);
 		}
 		
-		public override void OnReferenceExpression(ReferenceExpression node)
+		public override void LeaveListLiteralExpression(ListLiteralExpression node, ref Expression resultingNode)
+		{			
+			BindingManager.Bind(node, BindingManager.ListTypeBinding);
+		}
+		
+		public override void OnReferenceExpression(ReferenceExpression node, ref Expression resultingNode)
 		{
 			IBinding info = ResolveName(node, node.Name);
 			if (null != info)
@@ -115,7 +120,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+		public override void LeaveMemberReferenceExpression(MemberReferenceExpression node, ref Expression resultingNode)
 		{
 			IBinding nodeBinding = ErrorBinding.Default;
 			
@@ -142,7 +147,7 @@ namespace Boo.Ast.Compilation.Steps
 			BindingManager.Bind(node, nodeBinding);
 		}
 		
-		public override void LeaveIfStatement(IfStatement node)
+		public override void LeaveIfStatement(IfStatement node, ref Statement resultingNode)
 		{
 			Type type = BindingManager.GetBoundType(node.Expression);
 			if (Types.Bool != type)
@@ -151,28 +156,27 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
-		public override void OnForStatement(ForStatement node)
+		public override void OnForStatement(ForStatement node, ref Statement resultingNode)
 		{
-			node.Iterator.Switch(this);
+			Switch(node.Iterator);
 			
 			ITypeBinding iteratorType = GetTypeBinding(node.Iterator);
 			CheckIterator(node.Iterator, iteratorType);
 			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
 			
 			PushNamespace(new DeclarationsNameSpace(BindingManager, node.Declarations));
-			node.Statements.Switch(this);
+			Switch(node.Statements);
 			PopNamespace();
 		}
 		
-		public override void OnUnpackStatement(UnpackStatement node)
+		public override void OnUnpackStatement(UnpackStatement node, ref Statement resultingNode)
 		{
-			node.Expression.Switch(this);
-			
+			node.Expression = Switch(node.Expression);
 			ITypeBinding expressionType = (ITypeBinding)GetBinding(node.Expression);
 			ProcessDeclarationsForIterator(node.Declarations, expressionType, false);			
 		}
 		
-		public override void OnBinaryExpression(BinaryExpression node)
+		public override void OnBinaryExpression(BinaryExpression node, ref Expression resultingNode)
 		{
 			if (node.Operator == BinaryOperatorType.Assign &&
 			    NodeType.ReferenceExpression == node.Left.NodeType)
@@ -181,7 +185,7 @@ namespace Boo.Ast.Compilation.Steps
 				// assign to unknown reference implies local
 				// declaration
 				ReferenceExpression reference = (ReferenceExpression)node.Left;
-				node.Right.Switch(this);
+				node.Right = Switch(node.Right);
 					
 				ITypeBinding expressionTypeInfo = BindingManager.GetTypeBinding(node.Right);
 				
@@ -199,15 +203,15 @@ namespace Boo.Ast.Compilation.Steps
 					}
 				}
 				
-				LeaveBinaryExpression(node);
+				LeaveBinaryExpression(node, ref resultingNode);
 			}
 			else
 			{
-				base.OnBinaryExpression(node);
+				base.OnBinaryExpression(node, ref resultingNode);
 			}
 		}
 		
-		public override void LeaveBinaryExpression(BinaryExpression node)
+		public override void LeaveBinaryExpression(BinaryExpression node, ref Expression resultingNode)
 		{			
 			switch (node.Operator)
 			{		
@@ -251,10 +255,10 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}		
 		
-		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
+		public override void OnMethodInvocationExpression(MethodInvocationExpression node, ref Expression resultingNode)
 		{			
-			node.Target.Switch(this);
-			node.Arguments.Switch(this);
+			node.Target = Switch(node.Target);
+			Switch(node.Arguments);
 			
 			IBinding targetBinding = BindingManager.GetBinding(node.Target);
 			if (BindingType.Ambiguous == targetBinding.BindingType)
@@ -347,7 +351,7 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			foreach (ExpressionPair arg in node.NamedArguments)
 			{			
-				arg.Second.Switch(this);				
+				arg.Second = Switch(arg.Second);				
 				
 				ReferenceExpression name = arg.First as ReferenceExpression;
 				if (null == name)
@@ -593,7 +597,7 @@ namespace Boo.Ast.Compilation.Steps
 				}
 				else
 				{
-					d.Type.Switch(this);
+					Switch(d.Type);
 					// todo: check types here
 				}
 				
@@ -614,7 +618,7 @@ namespace Boo.Ast.Compilation.Steps
 				}		
 				else
 				{
-					parameter.Type.Switch(this);
+					Switch(parameter.Type);
 				}
 				Binding.ParameterBinding binding = new Binding.ParameterBinding(parameter, GetTypeBinding(parameter.Type), i);
 				BindingManager.Bind(parameter, binding);
@@ -633,7 +637,7 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				if (!BindingManager.IsBound(method.ReturnType))
 				{
-					method.ReturnType.Switch(this);
+					Switch(method.ReturnType);
 				}
 			}
 		}

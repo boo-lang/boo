@@ -47,18 +47,23 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_expression = value;
-				if (null != _expression)
+				
+				if (_expression != value)
 				{
-					_expression.InitializeParent(this);
+					_expression = value;
+					if (null != _expression)
+					{
+						_expression.InitializeParent(this);
+					}
+					LexicalInfo = value.LexicalInfo;
 				}
-				LexicalInfo = value.LexicalInfo;
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Statement resultingTypedNode;
-			transformer.OnExpressionStatement((ExpressionStatement)this, out resultingTypedNode);
+			ExpressionStatement thisNode = (ExpressionStatement)this;
+			Statement resultingTypedNode = thisNode;
+			transformer.OnExpressionStatement(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

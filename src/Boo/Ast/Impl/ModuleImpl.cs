@@ -57,10 +57,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_package = value;
-				if (null != _package)
+				
+				if (_package != value)
 				{
-					_package.InitializeParent(this);
+					_package = value;
+					if (null != _package)
+					{
+						_package.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -73,10 +77,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_using = value;
-				if (null != _using)
+				
+				if (_using != value)
 				{
-					_using.InitializeParent(this);
+					_using = value;
+					if (null != _using)
+					{
+						_using.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -89,17 +97,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_globals = value;
-				if (null != _globals)
+				
+				if (_globals != value)
 				{
-					_globals.InitializeParent(this);
+					_globals = value;
+					if (null != _globals)
+					{
+						_globals.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Module resultingTypedNode;
-			transformer.OnModule((Module)this, out resultingTypedNode);
+			Module thisNode = (Module)this;
+			Module resultingTypedNode = thisNode;
+			transformer.OnModule(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

@@ -45,17 +45,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_declaration = value;
-				if (null != _declaration)
+				
+				if (_declaration != value)
 				{
-					_declaration.InitializeParent(this);
+					_declaration = value;
+					if (null != _declaration)
+					{
+						_declaration.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			ExceptionHandler resultingTypedNode;
-			transformer.OnExceptionHandler((ExceptionHandler)this, out resultingTypedNode);
+			ExceptionHandler thisNode = (ExceptionHandler)this;
+			ExceptionHandler resultingTypedNode = thisNode;
+			transformer.OnExceptionHandler(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

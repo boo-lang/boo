@@ -5,14 +5,40 @@ namespace Boo.Ast
 	public class DepthFirstTransformer : IAstTransformer
 	{
 		public bool Switch(Node node, out Node resultingNode)
-		{
-			resultingNode = node;
+		{			
 			if (null != node)
 			{			
 				node.Switch(this, out resultingNode);
 				return true;
 			}
+			resultingNode = node;
 			return false;
+		}
+		
+		public Node SwitchNode(Node node)
+		{
+			if (null != node)
+			{
+				Node resultingNode;
+				node.Switch(this, out resultingNode);
+				return resultingNode;
+			}
+			return null;
+		}
+		
+		public Node Switch(Node node)
+		{
+			return SwitchNode(node);
+		}
+		
+		public Expression Switch(Expression node)
+		{
+			return (Expression)SwitchNode(node);
+		}
+		
+		public Statement Switch(Statement node)
+		{
+			return (Statement)SwitchNode(node);
 		}
 		
 		public bool Switch(NodeCollection collection)
@@ -45,17 +71,13 @@ namespace Boo.Ast
 			return false;
 		}
 		
-		public virtual void OnCompileUnit(CompileUnit node, out CompileUnit resultingNode)
-		{				
-			CompileUnit result = node;
-			
-			if (EnterCompileUnit(node, ref result))
+		public virtual void OnCompileUnit(CompileUnit node, ref CompileUnit resultingNode)
+		{	
+			if (EnterCompileUnit(node, ref resultingNode))
 			{		
 				Switch(node.Modules);
 			}
-			LeaveCompileUnit(node, ref result);
-				
-			resultingNode = result;
+			LeaveCompileUnit(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterCompileUnit(CompileUnit node, ref CompileUnit resultingNode)
@@ -67,46 +89,34 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnTypeReference(TypeReference node, out TypeReference resultingNode)
-		{				
-			TypeReference result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnTypeReference(TypeReference node, ref TypeReference resultingNode)
+		{	
 		}
 		
-		public virtual void OnPackage(Package node, out Package resultingNode)
-		{				
-			Package result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnPackage(Package node, ref Package resultingNode)
+		{	
 		}
 		
-		public virtual void OnUsing(Using node, out Using resultingNode)
-		{				
-			Using result = node;
-			
-			if (EnterUsing(node, ref result))
+		public virtual void OnUsing(Using node, ref Using resultingNode)
+		{	
+			if (EnterUsing(node, ref resultingNode))
 			{		
 				ReferenceExpression currentAssemblyReferenceValue = node.AssemblyReference;
-				Node resultingAssemblyReferenceValue;
-				Switch(currentAssemblyReferenceValue, out resultingAssemblyReferenceValue);
-				if (currentAssemblyReferenceValue != resultingAssemblyReferenceValue)
-				{
+				if (null != currentAssemblyReferenceValue)
+				{	
+					Node resultingAssemblyReferenceValue;				
+					currentAssemblyReferenceValue.Switch(this, out resultingAssemblyReferenceValue);
 					node.AssemblyReference = (ReferenceExpression)resultingAssemblyReferenceValue;
 				}
 				ReferenceExpression currentAliasValue = node.Alias;
-				Node resultingAliasValue;
-				Switch(currentAliasValue, out resultingAliasValue);
-				if (currentAliasValue != resultingAliasValue)
-				{
+				if (null != currentAliasValue)
+				{	
+					Node resultingAliasValue;				
+					currentAliasValue.Switch(this, out resultingAliasValue);
 					node.Alias = (ReferenceExpression)resultingAliasValue;
 				}
 			}
-			LeaveUsing(node, ref result);
-				
-			resultingNode = result;
+			LeaveUsing(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterUsing(Using node, ref Using resultingNode)
@@ -118,34 +128,30 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnModule(Module node, out Module resultingNode)
-		{				
-			Module result = node;
-			
-			if (EnterModule(node, ref result))
+		public virtual void OnModule(Module node, ref Module resultingNode)
+		{	
+			if (EnterModule(node, ref resultingNode))
 			{		
 				Package currentPackageValue = node.Package;
-				Node resultingPackageValue;
-				Switch(currentPackageValue, out resultingPackageValue);
-				if (currentPackageValue != resultingPackageValue)
-				{
+				if (null != currentPackageValue)
+				{	
+					Node resultingPackageValue;				
+					currentPackageValue.Switch(this, out resultingPackageValue);
 					node.Package = (Package)resultingPackageValue;
 				}
 				Switch(node.Using);
 				Block currentGlobalsValue = node.Globals;
-				Node resultingGlobalsValue;
-				Switch(currentGlobalsValue, out resultingGlobalsValue);
-				if (currentGlobalsValue != resultingGlobalsValue)
-				{
+				if (null != currentGlobalsValue)
+				{	
+					Node resultingGlobalsValue;				
+					currentGlobalsValue.Switch(this, out resultingGlobalsValue);
 					node.Globals = (Block)resultingGlobalsValue;
 				}
 				Switch(node.Attributes);
 				Switch(node.Members);
 				Switch(node.BaseTypes);
 			}
-			LeaveModule(node, ref result);
-				
-			resultingNode = result;
+			LeaveModule(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterModule(Module node, ref Module resultingNode)
@@ -157,19 +163,15 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnClassDefinition(ClassDefinition node, out ClassDefinition resultingNode)
-		{				
-			ClassDefinition result = node;
-			
-			if (EnterClassDefinition(node, ref result))
+		public virtual void OnClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		{	
+			if (EnterClassDefinition(node, ref resultingNode))
 			{		
 				Switch(node.Attributes);
 				Switch(node.Members);
 				Switch(node.BaseTypes);
 			}
-			LeaveClassDefinition(node, ref result);
-				
-			resultingNode = result;
+			LeaveClassDefinition(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
@@ -181,19 +183,15 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnInterfaceDefinition(InterfaceDefinition node, out InterfaceDefinition resultingNode)
-		{				
-			InterfaceDefinition result = node;
-			
-			if (EnterInterfaceDefinition(node, ref result))
+		public virtual void OnInterfaceDefinition(InterfaceDefinition node, ref InterfaceDefinition resultingNode)
+		{	
+			if (EnterInterfaceDefinition(node, ref resultingNode))
 			{		
 				Switch(node.Attributes);
 				Switch(node.Members);
 				Switch(node.BaseTypes);
 			}
-			LeaveInterfaceDefinition(node, ref result);
-				
-			resultingNode = result;
+			LeaveInterfaceDefinition(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterInterfaceDefinition(InterfaceDefinition node, ref InterfaceDefinition resultingNode)
@@ -205,19 +203,15 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnEnumDefinition(EnumDefinition node, out EnumDefinition resultingNode)
-		{				
-			EnumDefinition result = node;
-			
-			if (EnterEnumDefinition(node, ref result))
+		public virtual void OnEnumDefinition(EnumDefinition node, ref EnumDefinition resultingNode)
+		{	
+			if (EnterEnumDefinition(node, ref resultingNode))
 			{		
 				Switch(node.Attributes);
 				Switch(node.Members);
 				Switch(node.BaseTypes);
 			}
-			LeaveEnumDefinition(node, ref result);
-				
-			resultingNode = result;
+			LeaveEnumDefinition(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterEnumDefinition(EnumDefinition node, ref EnumDefinition resultingNode)
@@ -229,24 +223,20 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnEnumMember(EnumMember node, out EnumMember resultingNode)
-		{				
-			EnumMember result = node;
-			
-			if (EnterEnumMember(node, ref result))
+		public virtual void OnEnumMember(EnumMember node, ref EnumMember resultingNode)
+		{	
+			if (EnterEnumMember(node, ref resultingNode))
 			{		
 				IntegerLiteralExpression currentInitializerValue = node.Initializer;
-				Node resultingInitializerValue;
-				Switch(currentInitializerValue, out resultingInitializerValue);
-				if (currentInitializerValue != resultingInitializerValue)
-				{
+				if (null != currentInitializerValue)
+				{	
+					Node resultingInitializerValue;				
+					currentInitializerValue.Switch(this, out resultingInitializerValue);
 					node.Initializer = (IntegerLiteralExpression)resultingInitializerValue;
 				}
 				Switch(node.Attributes);
 			}
-			LeaveEnumMember(node, ref result);
-				
-			resultingNode = result;
+			LeaveEnumMember(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterEnumMember(EnumMember node, ref EnumMember resultingNode)
@@ -258,24 +248,20 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnField(Field node, out Field resultingNode)
-		{				
-			Field result = node;
-			
-			if (EnterField(node, ref result))
+		public virtual void OnField(Field node, ref Field resultingNode)
+		{	
+			if (EnterField(node, ref resultingNode))
 			{		
 				TypeReference currentTypeValue = node.Type;
-				Node resultingTypeValue;
-				Switch(currentTypeValue, out resultingTypeValue);
-				if (currentTypeValue != resultingTypeValue)
-				{
+				if (null != currentTypeValue)
+				{	
+					Node resultingTypeValue;				
+					currentTypeValue.Switch(this, out resultingTypeValue);
 					node.Type = (TypeReference)resultingTypeValue;
 				}
 				Switch(node.Attributes);
 			}
-			LeaveField(node, ref result);
-				
-			resultingNode = result;
+			LeaveField(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterField(Field node, ref Field resultingNode)
@@ -287,38 +273,34 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnProperty(Property node, out Property resultingNode)
-		{				
-			Property result = node;
-			
-			if (EnterProperty(node, ref result))
+		public virtual void OnProperty(Property node, ref Property resultingNode)
+		{	
+			if (EnterProperty(node, ref resultingNode))
 			{		
 				Method currentGetterValue = node.Getter;
-				Node resultingGetterValue;
-				Switch(currentGetterValue, out resultingGetterValue);
-				if (currentGetterValue != resultingGetterValue)
-				{
+				if (null != currentGetterValue)
+				{	
+					Node resultingGetterValue;				
+					currentGetterValue.Switch(this, out resultingGetterValue);
 					node.Getter = (Method)resultingGetterValue;
 				}
 				Method currentSetterValue = node.Setter;
-				Node resultingSetterValue;
-				Switch(currentSetterValue, out resultingSetterValue);
-				if (currentSetterValue != resultingSetterValue)
-				{
+				if (null != currentSetterValue)
+				{	
+					Node resultingSetterValue;				
+					currentSetterValue.Switch(this, out resultingSetterValue);
 					node.Setter = (Method)resultingSetterValue;
 				}
 				TypeReference currentTypeValue = node.Type;
-				Node resultingTypeValue;
-				Switch(currentTypeValue, out resultingTypeValue);
-				if (currentTypeValue != resultingTypeValue)
-				{
+				if (null != currentTypeValue)
+				{	
+					Node resultingTypeValue;				
+					currentTypeValue.Switch(this, out resultingTypeValue);
 					node.Type = (TypeReference)resultingTypeValue;
 				}
 				Switch(node.Attributes);
 			}
-			LeaveProperty(node, ref result);
-				
-			resultingNode = result;
+			LeaveProperty(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterProperty(Property node, ref Property resultingNode)
@@ -330,42 +312,34 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnLocal(Local node, out Local resultingNode)
-		{				
-			Local result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnLocal(Local node, ref Local resultingNode)
+		{	
 		}
 		
-		public virtual void OnMethod(Method node, out Method resultingNode)
-		{				
-			Method result = node;
-			
-			if (EnterMethod(node, ref result))
+		public virtual void OnMethod(Method node, ref Method resultingNode)
+		{	
+			if (EnterMethod(node, ref resultingNode))
 			{		
 				Switch(node.Parameters);
 				TypeReference currentReturnTypeValue = node.ReturnType;
-				Node resultingReturnTypeValue;
-				Switch(currentReturnTypeValue, out resultingReturnTypeValue);
-				if (currentReturnTypeValue != resultingReturnTypeValue)
-				{
+				if (null != currentReturnTypeValue)
+				{	
+					Node resultingReturnTypeValue;				
+					currentReturnTypeValue.Switch(this, out resultingReturnTypeValue);
 					node.ReturnType = (TypeReference)resultingReturnTypeValue;
 				}
 				Switch(node.ReturnTypeAttributes);
 				Block currentBodyValue = node.Body;
-				Node resultingBodyValue;
-				Switch(currentBodyValue, out resultingBodyValue);
-				if (currentBodyValue != resultingBodyValue)
-				{
+				if (null != currentBodyValue)
+				{	
+					Node resultingBodyValue;				
+					currentBodyValue.Switch(this, out resultingBodyValue);
 					node.Body = (Block)resultingBodyValue;
 				}
 				Switch(node.Locals);
 				Switch(node.Attributes);
 			}
-			LeaveMethod(node, ref result);
-				
-			resultingNode = result;
+			LeaveMethod(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterMethod(Method node, ref Method resultingNode)
@@ -377,34 +351,30 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnConstructor(Constructor node, out Constructor resultingNode)
-		{				
-			Constructor result = node;
-			
-			if (EnterConstructor(node, ref result))
+		public virtual void OnConstructor(Constructor node, ref Constructor resultingNode)
+		{	
+			if (EnterConstructor(node, ref resultingNode))
 			{		
 				Switch(node.Attributes);
 				Switch(node.Parameters);
 				TypeReference currentReturnTypeValue = node.ReturnType;
-				Node resultingReturnTypeValue;
-				Switch(currentReturnTypeValue, out resultingReturnTypeValue);
-				if (currentReturnTypeValue != resultingReturnTypeValue)
-				{
+				if (null != currentReturnTypeValue)
+				{	
+					Node resultingReturnTypeValue;				
+					currentReturnTypeValue.Switch(this, out resultingReturnTypeValue);
 					node.ReturnType = (TypeReference)resultingReturnTypeValue;
 				}
 				Switch(node.ReturnTypeAttributes);
 				Block currentBodyValue = node.Body;
-				Node resultingBodyValue;
-				Switch(currentBodyValue, out resultingBodyValue);
-				if (currentBodyValue != resultingBodyValue)
-				{
+				if (null != currentBodyValue)
+				{	
+					Node resultingBodyValue;				
+					currentBodyValue.Switch(this, out resultingBodyValue);
 					node.Body = (Block)resultingBodyValue;
 				}
 				Switch(node.Locals);
 			}
-			LeaveConstructor(node, ref result);
-				
-			resultingNode = result;
+			LeaveConstructor(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterConstructor(Constructor node, ref Constructor resultingNode)
@@ -416,24 +386,20 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnParameterDeclaration(ParameterDeclaration node, out ParameterDeclaration resultingNode)
-		{				
-			ParameterDeclaration result = node;
-			
-			if (EnterParameterDeclaration(node, ref result))
+		public virtual void OnParameterDeclaration(ParameterDeclaration node, ref ParameterDeclaration resultingNode)
+		{	
+			if (EnterParameterDeclaration(node, ref resultingNode))
 			{		
 				TypeReference currentTypeValue = node.Type;
-				Node resultingTypeValue;
-				Switch(currentTypeValue, out resultingTypeValue);
-				if (currentTypeValue != resultingTypeValue)
-				{
+				if (null != currentTypeValue)
+				{	
+					Node resultingTypeValue;				
+					currentTypeValue.Switch(this, out resultingTypeValue);
 					node.Type = (TypeReference)resultingTypeValue;
 				}
 				Switch(node.Attributes);
 			}
-			LeaveParameterDeclaration(node, ref result);
-				
-			resultingNode = result;
+			LeaveParameterDeclaration(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterParameterDeclaration(ParameterDeclaration node, ref ParameterDeclaration resultingNode)
@@ -445,23 +411,19 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnDeclaration(Declaration node, out Declaration resultingNode)
-		{				
-			Declaration result = node;
-			
-			if (EnterDeclaration(node, ref result))
+		public virtual void OnDeclaration(Declaration node, ref Declaration resultingNode)
+		{	
+			if (EnterDeclaration(node, ref resultingNode))
 			{		
 				TypeReference currentTypeValue = node.Type;
-				Node resultingTypeValue;
-				Switch(currentTypeValue, out resultingTypeValue);
-				if (currentTypeValue != resultingTypeValue)
-				{
+				if (null != currentTypeValue)
+				{	
+					Node resultingTypeValue;				
+					currentTypeValue.Switch(this, out resultingTypeValue);
 					node.Type = (TypeReference)resultingTypeValue;
 				}
 			}
-			LeaveDeclaration(node, ref result);
-				
-			resultingNode = result;
+			LeaveDeclaration(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterDeclaration(Declaration node, ref Declaration resultingNode)
@@ -473,17 +435,13 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnBlock(Block node, out Block resultingNode)
-		{				
-			Block result = node;
-			
-			if (EnterBlock(node, ref result))
+		public virtual void OnBlock(Block node, ref Block resultingNode)
+		{	
+			if (EnterBlock(node, ref resultingNode))
 			{		
 				Switch(node.Statements);
 			}
-			LeaveBlock(node, ref result);
-				
-			resultingNode = result;
+			LeaveBlock(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterBlock(Block node, ref Block resultingNode)
@@ -495,18 +453,14 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnAttribute(Attribute node, out Attribute resultingNode)
-		{				
-			Attribute result = node;
-			
-			if (EnterAttribute(node, ref result))
+		public virtual void OnAttribute(Attribute node, ref Attribute resultingNode)
+		{	
+			if (EnterAttribute(node, ref resultingNode))
 			{		
 				Switch(node.Arguments);
 				Switch(node.NamedArguments);
 			}
-			LeaveAttribute(node, ref result);
-				
-			resultingNode = result;
+			LeaveAttribute(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterAttribute(Attribute node, ref Attribute resultingNode)
@@ -518,23 +472,19 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnStatementModifier(StatementModifier node, out StatementModifier resultingNode)
-		{				
-			StatementModifier result = node;
-			
-			if (EnterStatementModifier(node, ref result))
+		public virtual void OnStatementModifier(StatementModifier node, ref StatementModifier resultingNode)
+		{	
+			if (EnterStatementModifier(node, ref resultingNode))
 			{		
 				Expression currentConditionValue = node.Condition;
-				Node resultingConditionValue;
-				Switch(currentConditionValue, out resultingConditionValue);
-				if (currentConditionValue != resultingConditionValue)
-				{
+				if (null != currentConditionValue)
+				{	
+					Node resultingConditionValue;				
+					currentConditionValue.Switch(this, out resultingConditionValue);
 					node.Condition = (Expression)resultingConditionValue;
 				}
 			}
-			LeaveStatementModifier(node, ref result);
-				
-			resultingNode = result;
+			LeaveStatementModifier(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterStatementModifier(StatementModifier node, ref StatementModifier resultingNode)
@@ -546,37 +496,33 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnDeclarationStatement(DeclarationStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterDeclarationStatement(node, ref result))
+		public virtual void OnDeclarationStatement(DeclarationStatement node, ref Statement resultingNode)
+		{	
+			if (EnterDeclarationStatement(node, ref resultingNode))
 			{		
 				Declaration currentDeclarationValue = node.Declaration;
-				Node resultingDeclarationValue;
-				Switch(currentDeclarationValue, out resultingDeclarationValue);
-				if (currentDeclarationValue != resultingDeclarationValue)
-				{
+				if (null != currentDeclarationValue)
+				{	
+					Node resultingDeclarationValue;				
+					currentDeclarationValue.Switch(this, out resultingDeclarationValue);
 					node.Declaration = (Declaration)resultingDeclarationValue;
 				}
 				Expression currentInitializerValue = node.Initializer;
-				Node resultingInitializerValue;
-				Switch(currentInitializerValue, out resultingInitializerValue);
-				if (currentInitializerValue != resultingInitializerValue)
-				{
+				if (null != currentInitializerValue)
+				{	
+					Node resultingInitializerValue;				
+					currentInitializerValue.Switch(this, out resultingInitializerValue);
 					node.Initializer = (Expression)resultingInitializerValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveDeclarationStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveDeclarationStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterDeclarationStatement(DeclarationStatement node, ref Statement resultingNode)
@@ -588,37 +534,33 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnAssertStatement(AssertStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterAssertStatement(node, ref result))
+		public virtual void OnAssertStatement(AssertStatement node, ref Statement resultingNode)
+		{	
+			if (EnterAssertStatement(node, ref resultingNode))
 			{		
 				Expression currentConditionValue = node.Condition;
-				Node resultingConditionValue;
-				Switch(currentConditionValue, out resultingConditionValue);
-				if (currentConditionValue != resultingConditionValue)
-				{
+				if (null != currentConditionValue)
+				{	
+					Node resultingConditionValue;				
+					currentConditionValue.Switch(this, out resultingConditionValue);
 					node.Condition = (Expression)resultingConditionValue;
 				}
 				Expression currentMessageValue = node.Message;
-				Node resultingMessageValue;
-				Switch(currentMessageValue, out resultingMessageValue);
-				if (currentMessageValue != resultingMessageValue)
-				{
+				if (null != currentMessageValue)
+				{	
+					Node resultingMessageValue;				
+					currentMessageValue.Switch(this, out resultingMessageValue);
 					node.Message = (Expression)resultingMessageValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveAssertStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveAssertStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterAssertStatement(AssertStatement node, ref Statement resultingNode)
@@ -630,45 +572,41 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnTryStatement(TryStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterTryStatement(node, ref result))
+		public virtual void OnTryStatement(TryStatement node, ref Statement resultingNode)
+		{	
+			if (EnterTryStatement(node, ref resultingNode))
 			{		
 				Block currentProtectedBlockValue = node.ProtectedBlock;
-				Node resultingProtectedBlockValue;
-				Switch(currentProtectedBlockValue, out resultingProtectedBlockValue);
-				if (currentProtectedBlockValue != resultingProtectedBlockValue)
-				{
+				if (null != currentProtectedBlockValue)
+				{	
+					Node resultingProtectedBlockValue;				
+					currentProtectedBlockValue.Switch(this, out resultingProtectedBlockValue);
 					node.ProtectedBlock = (Block)resultingProtectedBlockValue;
 				}
 				Switch(node.ExceptionHandlers);
 				Block currentSuccessBlockValue = node.SuccessBlock;
-				Node resultingSuccessBlockValue;
-				Switch(currentSuccessBlockValue, out resultingSuccessBlockValue);
-				if (currentSuccessBlockValue != resultingSuccessBlockValue)
-				{
+				if (null != currentSuccessBlockValue)
+				{	
+					Node resultingSuccessBlockValue;				
+					currentSuccessBlockValue.Switch(this, out resultingSuccessBlockValue);
 					node.SuccessBlock = (Block)resultingSuccessBlockValue;
 				}
 				Block currentEnsureBlockValue = node.EnsureBlock;
-				Node resultingEnsureBlockValue;
-				Switch(currentEnsureBlockValue, out resultingEnsureBlockValue);
-				if (currentEnsureBlockValue != resultingEnsureBlockValue)
-				{
+				if (null != currentEnsureBlockValue)
+				{	
+					Node resultingEnsureBlockValue;				
+					currentEnsureBlockValue.Switch(this, out resultingEnsureBlockValue);
 					node.EnsureBlock = (Block)resultingEnsureBlockValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveTryStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveTryStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterTryStatement(TryStatement node, ref Statement resultingNode)
@@ -680,24 +618,20 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnExceptionHandler(ExceptionHandler node, out ExceptionHandler resultingNode)
-		{				
-			ExceptionHandler result = node;
-			
-			if (EnterExceptionHandler(node, ref result))
+		public virtual void OnExceptionHandler(ExceptionHandler node, ref ExceptionHandler resultingNode)
+		{	
+			if (EnterExceptionHandler(node, ref resultingNode))
 			{		
 				Declaration currentDeclarationValue = node.Declaration;
-				Node resultingDeclarationValue;
-				Switch(currentDeclarationValue, out resultingDeclarationValue);
-				if (currentDeclarationValue != resultingDeclarationValue)
-				{
+				if (null != currentDeclarationValue)
+				{	
+					Node resultingDeclarationValue;				
+					currentDeclarationValue.Switch(this, out resultingDeclarationValue);
 					node.Declaration = (Declaration)resultingDeclarationValue;
 				}
 				Switch(node.Statements);
 			}
-			LeaveExceptionHandler(node, ref result);
-				
-			resultingNode = result;
+			LeaveExceptionHandler(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterExceptionHandler(ExceptionHandler node, ref ExceptionHandler resultingNode)
@@ -709,44 +643,40 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnIfStatement(IfStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterIfStatement(node, ref result))
+		public virtual void OnIfStatement(IfStatement node, ref Statement resultingNode)
+		{	
+			if (EnterIfStatement(node, ref resultingNode))
 			{		
 				Expression currentExpressionValue = node.Expression;
-				Node resultingExpressionValue;
-				Switch(currentExpressionValue, out resultingExpressionValue);
-				if (currentExpressionValue != resultingExpressionValue)
-				{
+				if (null != currentExpressionValue)
+				{	
+					Node resultingExpressionValue;				
+					currentExpressionValue.Switch(this, out resultingExpressionValue);
 					node.Expression = (Expression)resultingExpressionValue;
 				}
 				Block currentTrueBlockValue = node.TrueBlock;
-				Node resultingTrueBlockValue;
-				Switch(currentTrueBlockValue, out resultingTrueBlockValue);
-				if (currentTrueBlockValue != resultingTrueBlockValue)
-				{
+				if (null != currentTrueBlockValue)
+				{	
+					Node resultingTrueBlockValue;				
+					currentTrueBlockValue.Switch(this, out resultingTrueBlockValue);
 					node.TrueBlock = (Block)resultingTrueBlockValue;
 				}
 				Block currentFalseBlockValue = node.FalseBlock;
-				Node resultingFalseBlockValue;
-				Switch(currentFalseBlockValue, out resultingFalseBlockValue);
-				if (currentFalseBlockValue != resultingFalseBlockValue)
-				{
+				if (null != currentFalseBlockValue)
+				{	
+					Node resultingFalseBlockValue;				
+					currentFalseBlockValue.Switch(this, out resultingFalseBlockValue);
 					node.FalseBlock = (Block)resultingFalseBlockValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveIfStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveIfStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterIfStatement(IfStatement node, ref Statement resultingNode)
@@ -758,32 +688,28 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnForStatement(ForStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterForStatement(node, ref result))
+		public virtual void OnForStatement(ForStatement node, ref Statement resultingNode)
+		{	
+			if (EnterForStatement(node, ref resultingNode))
 			{		
 				Switch(node.Declarations);
 				Expression currentIteratorValue = node.Iterator;
-				Node resultingIteratorValue;
-				Switch(currentIteratorValue, out resultingIteratorValue);
-				if (currentIteratorValue != resultingIteratorValue)
-				{
+				if (null != currentIteratorValue)
+				{	
+					Node resultingIteratorValue;				
+					currentIteratorValue.Switch(this, out resultingIteratorValue);
 					node.Iterator = (Expression)resultingIteratorValue;
 				}
 				Switch(node.Statements);
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveForStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveForStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterForStatement(ForStatement node, ref Statement resultingNode)
@@ -795,31 +721,27 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnWhileStatement(WhileStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterWhileStatement(node, ref result))
+		public virtual void OnWhileStatement(WhileStatement node, ref Statement resultingNode)
+		{	
+			if (EnterWhileStatement(node, ref resultingNode))
 			{		
 				Expression currentConditionValue = node.Condition;
-				Node resultingConditionValue;
-				Switch(currentConditionValue, out resultingConditionValue);
-				if (currentConditionValue != resultingConditionValue)
-				{
+				if (null != currentConditionValue)
+				{	
+					Node resultingConditionValue;				
+					currentConditionValue.Switch(this, out resultingConditionValue);
 					node.Condition = (Expression)resultingConditionValue;
 				}
 				Switch(node.Statements);
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveWhileStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveWhileStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterWhileStatement(WhileStatement node, ref Statement resultingNode)
@@ -831,38 +753,34 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnGivenStatement(GivenStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterGivenStatement(node, ref result))
+		public virtual void OnGivenStatement(GivenStatement node, ref Statement resultingNode)
+		{	
+			if (EnterGivenStatement(node, ref resultingNode))
 			{		
 				Expression currentExpressionValue = node.Expression;
-				Node resultingExpressionValue;
-				Switch(currentExpressionValue, out resultingExpressionValue);
-				if (currentExpressionValue != resultingExpressionValue)
-				{
+				if (null != currentExpressionValue)
+				{	
+					Node resultingExpressionValue;				
+					currentExpressionValue.Switch(this, out resultingExpressionValue);
 					node.Expression = (Expression)resultingExpressionValue;
 				}
 				Switch(node.WhenClauses);
 				Block currentOtherwiseBlockValue = node.OtherwiseBlock;
-				Node resultingOtherwiseBlockValue;
-				Switch(currentOtherwiseBlockValue, out resultingOtherwiseBlockValue);
-				if (currentOtherwiseBlockValue != resultingOtherwiseBlockValue)
-				{
+				if (null != currentOtherwiseBlockValue)
+				{	
+					Node resultingOtherwiseBlockValue;				
+					currentOtherwiseBlockValue.Switch(this, out resultingOtherwiseBlockValue);
 					node.OtherwiseBlock = (Block)resultingOtherwiseBlockValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveGivenStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveGivenStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterGivenStatement(GivenStatement node, ref Statement resultingNode)
@@ -874,24 +792,20 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnWhenClause(WhenClause node, out WhenClause resultingNode)
-		{				
-			WhenClause result = node;
-			
-			if (EnterWhenClause(node, ref result))
+		public virtual void OnWhenClause(WhenClause node, ref WhenClause resultingNode)
+		{	
+			if (EnterWhenClause(node, ref resultingNode))
 			{		
 				Expression currentConditionValue = node.Condition;
-				Node resultingConditionValue;
-				Switch(currentConditionValue, out resultingConditionValue);
-				if (currentConditionValue != resultingConditionValue)
-				{
+				if (null != currentConditionValue)
+				{	
+					Node resultingConditionValue;				
+					currentConditionValue.Switch(this, out resultingConditionValue);
 					node.Condition = (Expression)resultingConditionValue;
 				}
 				Switch(node.Statements);
 			}
-			LeaveWhenClause(node, ref result);
-				
-			resultingNode = result;
+			LeaveWhenClause(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterWhenClause(WhenClause node, ref WhenClause resultingNode)
@@ -903,23 +817,19 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnBreakStatement(BreakStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterBreakStatement(node, ref result))
+		public virtual void OnBreakStatement(BreakStatement node, ref Statement resultingNode)
+		{	
+			if (EnterBreakStatement(node, ref resultingNode))
 			{		
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveBreakStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveBreakStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterBreakStatement(BreakStatement node, ref Statement resultingNode)
@@ -931,23 +841,19 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnContinueStatement(ContinueStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterContinueStatement(node, ref result))
+		public virtual void OnContinueStatement(ContinueStatement node, ref Statement resultingNode)
+		{	
+			if (EnterContinueStatement(node, ref resultingNode))
 			{		
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveContinueStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveContinueStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterContinueStatement(ContinueStatement node, ref Statement resultingNode)
@@ -959,23 +865,19 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnRetryStatement(RetryStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterRetryStatement(node, ref result))
+		public virtual void OnRetryStatement(RetryStatement node, ref Statement resultingNode)
+		{	
+			if (EnterRetryStatement(node, ref resultingNode))
 			{		
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveRetryStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveRetryStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterRetryStatement(RetryStatement node, ref Statement resultingNode)
@@ -987,30 +889,26 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnReturnStatement(ReturnStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterReturnStatement(node, ref result))
+		public virtual void OnReturnStatement(ReturnStatement node, ref Statement resultingNode)
+		{	
+			if (EnterReturnStatement(node, ref resultingNode))
 			{		
 				Expression currentExpressionValue = node.Expression;
-				Node resultingExpressionValue;
-				Switch(currentExpressionValue, out resultingExpressionValue);
-				if (currentExpressionValue != resultingExpressionValue)
-				{
+				if (null != currentExpressionValue)
+				{	
+					Node resultingExpressionValue;				
+					currentExpressionValue.Switch(this, out resultingExpressionValue);
 					node.Expression = (Expression)resultingExpressionValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveReturnStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveReturnStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterReturnStatement(ReturnStatement node, ref Statement resultingNode)
@@ -1022,30 +920,26 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnYieldStatement(YieldStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterYieldStatement(node, ref result))
+		public virtual void OnYieldStatement(YieldStatement node, ref Statement resultingNode)
+		{	
+			if (EnterYieldStatement(node, ref resultingNode))
 			{		
 				Expression currentExpressionValue = node.Expression;
-				Node resultingExpressionValue;
-				Switch(currentExpressionValue, out resultingExpressionValue);
-				if (currentExpressionValue != resultingExpressionValue)
-				{
+				if (null != currentExpressionValue)
+				{	
+					Node resultingExpressionValue;				
+					currentExpressionValue.Switch(this, out resultingExpressionValue);
 					node.Expression = (Expression)resultingExpressionValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveYieldStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveYieldStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterYieldStatement(YieldStatement node, ref Statement resultingNode)
@@ -1057,30 +951,26 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnRaiseStatement(RaiseStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterRaiseStatement(node, ref result))
+		public virtual void OnRaiseStatement(RaiseStatement node, ref Statement resultingNode)
+		{	
+			if (EnterRaiseStatement(node, ref resultingNode))
 			{		
 				Expression currentExceptionValue = node.Exception;
-				Node resultingExceptionValue;
-				Switch(currentExceptionValue, out resultingExceptionValue);
-				if (currentExceptionValue != resultingExceptionValue)
-				{
+				if (null != currentExceptionValue)
+				{	
+					Node resultingExceptionValue;				
+					currentExceptionValue.Switch(this, out resultingExceptionValue);
 					node.Exception = (Expression)resultingExceptionValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveRaiseStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveRaiseStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterRaiseStatement(RaiseStatement node, ref Statement resultingNode)
@@ -1092,31 +982,27 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnUnpackStatement(UnpackStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterUnpackStatement(node, ref result))
+		public virtual void OnUnpackStatement(UnpackStatement node, ref Statement resultingNode)
+		{	
+			if (EnterUnpackStatement(node, ref resultingNode))
 			{		
 				Switch(node.Declarations);
 				Expression currentExpressionValue = node.Expression;
-				Node resultingExpressionValue;
-				Switch(currentExpressionValue, out resultingExpressionValue);
-				if (currentExpressionValue != resultingExpressionValue)
-				{
+				if (null != currentExpressionValue)
+				{	
+					Node resultingExpressionValue;				
+					currentExpressionValue.Switch(this, out resultingExpressionValue);
 					node.Expression = (Expression)resultingExpressionValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveUnpackStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveUnpackStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterUnpackStatement(UnpackStatement node, ref Statement resultingNode)
@@ -1128,30 +1014,26 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnExpressionStatement(ExpressionStatement node, out Statement resultingNode)
-		{				
-			Statement result = node;
-			
-			if (EnterExpressionStatement(node, ref result))
+		public virtual void OnExpressionStatement(ExpressionStatement node, ref Statement resultingNode)
+		{	
+			if (EnterExpressionStatement(node, ref resultingNode))
 			{		
 				Expression currentExpressionValue = node.Expression;
-				Node resultingExpressionValue;
-				Switch(currentExpressionValue, out resultingExpressionValue);
-				if (currentExpressionValue != resultingExpressionValue)
-				{
+				if (null != currentExpressionValue)
+				{	
+					Node resultingExpressionValue;				
+					currentExpressionValue.Switch(this, out resultingExpressionValue);
 					node.Expression = (Expression)resultingExpressionValue;
 				}
 				StatementModifier currentModifierValue = node.Modifier;
-				Node resultingModifierValue;
-				Switch(currentModifierValue, out resultingModifierValue);
-				if (currentModifierValue != resultingModifierValue)
-				{
+				if (null != currentModifierValue)
+				{	
+					Node resultingModifierValue;				
+					currentModifierValue.Switch(this, out resultingModifierValue);
 					node.Modifier = (StatementModifier)resultingModifierValue;
 				}
 			}
-			LeaveExpressionStatement(node, ref result);
-				
-			resultingNode = result;
+			LeaveExpressionStatement(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterExpressionStatement(ExpressionStatement node, ref Statement resultingNode)
@@ -1163,38 +1045,30 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnOmittedExpression(OmittedExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnOmittedExpression(OmittedExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnExpressionPair(ExpressionPair node, out ExpressionPair resultingNode)
-		{				
-			ExpressionPair result = node;
-			
-			if (EnterExpressionPair(node, ref result))
+		public virtual void OnExpressionPair(ExpressionPair node, ref ExpressionPair resultingNode)
+		{	
+			if (EnterExpressionPair(node, ref resultingNode))
 			{		
 				Expression currentFirstValue = node.First;
-				Node resultingFirstValue;
-				Switch(currentFirstValue, out resultingFirstValue);
-				if (currentFirstValue != resultingFirstValue)
-				{
+				if (null != currentFirstValue)
+				{	
+					Node resultingFirstValue;				
+					currentFirstValue.Switch(this, out resultingFirstValue);
 					node.First = (Expression)resultingFirstValue;
 				}
 				Expression currentSecondValue = node.Second;
-				Node resultingSecondValue;
-				Switch(currentSecondValue, out resultingSecondValue);
-				if (currentSecondValue != resultingSecondValue)
-				{
+				if (null != currentSecondValue)
+				{	
+					Node resultingSecondValue;				
+					currentSecondValue.Switch(this, out resultingSecondValue);
 					node.Second = (Expression)resultingSecondValue;
 				}
 			}
-			LeaveExpressionPair(node, ref result);
-				
-			resultingNode = result;
+			LeaveExpressionPair(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterExpressionPair(ExpressionPair node, ref ExpressionPair resultingNode)
@@ -1206,25 +1080,21 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnMethodInvocationExpression(MethodInvocationExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterMethodInvocationExpression(node, ref result))
+		public virtual void OnMethodInvocationExpression(MethodInvocationExpression node, ref Expression resultingNode)
+		{	
+			if (EnterMethodInvocationExpression(node, ref resultingNode))
 			{		
 				Expression currentTargetValue = node.Target;
-				Node resultingTargetValue;
-				Switch(currentTargetValue, out resultingTargetValue);
-				if (currentTargetValue != resultingTargetValue)
-				{
+				if (null != currentTargetValue)
+				{	
+					Node resultingTargetValue;				
+					currentTargetValue.Switch(this, out resultingTargetValue);
 					node.Target = (Expression)resultingTargetValue;
 				}
 				Switch(node.Arguments);
 				Switch(node.NamedArguments);
 			}
-			LeaveMethodInvocationExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveMethodInvocationExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterMethodInvocationExpression(MethodInvocationExpression node, ref Expression resultingNode)
@@ -1236,23 +1106,19 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnUnaryExpression(UnaryExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterUnaryExpression(node, ref result))
+		public virtual void OnUnaryExpression(UnaryExpression node, ref Expression resultingNode)
+		{	
+			if (EnterUnaryExpression(node, ref resultingNode))
 			{		
 				Expression currentOperandValue = node.Operand;
-				Node resultingOperandValue;
-				Switch(currentOperandValue, out resultingOperandValue);
-				if (currentOperandValue != resultingOperandValue)
-				{
+				if (null != currentOperandValue)
+				{	
+					Node resultingOperandValue;				
+					currentOperandValue.Switch(this, out resultingOperandValue);
 					node.Operand = (Expression)resultingOperandValue;
 				}
 			}
-			LeaveUnaryExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveUnaryExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterUnaryExpression(UnaryExpression node, ref Expression resultingNode)
@@ -1264,30 +1130,26 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnBinaryExpression(BinaryExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterBinaryExpression(node, ref result))
+		public virtual void OnBinaryExpression(BinaryExpression node, ref Expression resultingNode)
+		{	
+			if (EnterBinaryExpression(node, ref resultingNode))
 			{		
 				Expression currentLeftValue = node.Left;
-				Node resultingLeftValue;
-				Switch(currentLeftValue, out resultingLeftValue);
-				if (currentLeftValue != resultingLeftValue)
-				{
+				if (null != currentLeftValue)
+				{	
+					Node resultingLeftValue;				
+					currentLeftValue.Switch(this, out resultingLeftValue);
 					node.Left = (Expression)resultingLeftValue;
 				}
 				Expression currentRightValue = node.Right;
-				Node resultingRightValue;
-				Switch(currentRightValue, out resultingRightValue);
-				if (currentRightValue != resultingRightValue)
-				{
+				if (null != currentRightValue)
+				{	
+					Node resultingRightValue;				
+					currentRightValue.Switch(this, out resultingRightValue);
 					node.Right = (Expression)resultingRightValue;
 				}
 			}
-			LeaveBinaryExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveBinaryExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterBinaryExpression(BinaryExpression node, ref Expression resultingNode)
@@ -1299,37 +1161,33 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnTernaryExpression(TernaryExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterTernaryExpression(node, ref result))
+		public virtual void OnTernaryExpression(TernaryExpression node, ref Expression resultingNode)
+		{	
+			if (EnterTernaryExpression(node, ref resultingNode))
 			{		
 				Expression currentConditionValue = node.Condition;
-				Node resultingConditionValue;
-				Switch(currentConditionValue, out resultingConditionValue);
-				if (currentConditionValue != resultingConditionValue)
-				{
+				if (null != currentConditionValue)
+				{	
+					Node resultingConditionValue;				
+					currentConditionValue.Switch(this, out resultingConditionValue);
 					node.Condition = (Expression)resultingConditionValue;
 				}
 				Expression currentTrueExpressionValue = node.TrueExpression;
-				Node resultingTrueExpressionValue;
-				Switch(currentTrueExpressionValue, out resultingTrueExpressionValue);
-				if (currentTrueExpressionValue != resultingTrueExpressionValue)
-				{
+				if (null != currentTrueExpressionValue)
+				{	
+					Node resultingTrueExpressionValue;				
+					currentTrueExpressionValue.Switch(this, out resultingTrueExpressionValue);
 					node.TrueExpression = (Expression)resultingTrueExpressionValue;
 				}
 				Expression currentFalseExpressionValue = node.FalseExpression;
-				Node resultingFalseExpressionValue;
-				Switch(currentFalseExpressionValue, out resultingFalseExpressionValue);
-				if (currentFalseExpressionValue != resultingFalseExpressionValue)
-				{
+				if (null != currentFalseExpressionValue)
+				{	
+					Node resultingFalseExpressionValue;				
+					currentFalseExpressionValue.Switch(this, out resultingFalseExpressionValue);
 					node.FalseExpression = (Expression)resultingFalseExpressionValue;
 				}
 			}
-			LeaveTernaryExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveTernaryExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterTernaryExpression(TernaryExpression node, ref Expression resultingNode)
@@ -1341,31 +1199,23 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnReferenceExpression(ReferenceExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnReferenceExpression(ReferenceExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnMemberReferenceExpression(MemberReferenceExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterMemberReferenceExpression(node, ref result))
+		public virtual void OnMemberReferenceExpression(MemberReferenceExpression node, ref Expression resultingNode)
+		{	
+			if (EnterMemberReferenceExpression(node, ref resultingNode))
 			{		
 				Expression currentTargetValue = node.Target;
-				Node resultingTargetValue;
-				Switch(currentTargetValue, out resultingTargetValue);
-				if (currentTargetValue != resultingTargetValue)
-				{
+				if (null != currentTargetValue)
+				{	
+					Node resultingTargetValue;				
+					currentTargetValue.Switch(this, out resultingTargetValue);
 					node.Target = (Expression)resultingTargetValue;
 				}
 			}
-			LeaveMemberReferenceExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveMemberReferenceExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterMemberReferenceExpression(MemberReferenceExpression node, ref Expression resultingNode)
@@ -1377,89 +1227,49 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnLiteralExpression(LiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnLiteralExpression(LiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnStringLiteralExpression(StringLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnStringLiteralExpression(StringLiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnIntegerLiteralExpression(IntegerLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnIntegerLiteralExpression(IntegerLiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnNullLiteralExpression(NullLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnNullLiteralExpression(NullLiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnSelfLiteralExpression(SelfLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnSelfLiteralExpression(SelfLiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnSuperLiteralExpression(SuperLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnSuperLiteralExpression(SuperLiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnBoolLiteralExpression(BoolLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnBoolLiteralExpression(BoolLiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnRELiteralExpression(RELiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-				
-			resultingNode = result;
+		public virtual void OnRELiteralExpression(RELiteralExpression node, ref Expression resultingNode)
+		{	
 		}
 		
-		public virtual void OnStringFormattingExpression(StringFormattingExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterStringFormattingExpression(node, ref result))
+		public virtual void OnStringFormattingExpression(StringFormattingExpression node, ref Expression resultingNode)
+		{	
+			if (EnterStringFormattingExpression(node, ref resultingNode))
 			{		
 				Switch(node.Arguments);
 			}
-			LeaveStringFormattingExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveStringFormattingExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterStringFormattingExpression(StringFormattingExpression node, ref Expression resultingNode)
@@ -1471,17 +1281,13 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnHashLiteralExpression(HashLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterHashLiteralExpression(node, ref result))
+		public virtual void OnHashLiteralExpression(HashLiteralExpression node, ref Expression resultingNode)
+		{	
+			if (EnterHashLiteralExpression(node, ref resultingNode))
 			{		
 				Switch(node.Items);
 			}
-			LeaveHashLiteralExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveHashLiteralExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterHashLiteralExpression(HashLiteralExpression node, ref Expression resultingNode)
@@ -1493,17 +1299,13 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnListLiteralExpression(ListLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterListLiteralExpression(node, ref result))
+		public virtual void OnListLiteralExpression(ListLiteralExpression node, ref Expression resultingNode)
+		{	
+			if (EnterListLiteralExpression(node, ref resultingNode))
 			{		
 				Switch(node.Items);
 			}
-			LeaveListLiteralExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveListLiteralExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterListLiteralExpression(ListLiteralExpression node, ref Expression resultingNode)
@@ -1515,17 +1317,13 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnTupleLiteralExpression(TupleLiteralExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterTupleLiteralExpression(node, ref result))
+		public virtual void OnTupleLiteralExpression(TupleLiteralExpression node, ref Expression resultingNode)
+		{	
+			if (EnterTupleLiteralExpression(node, ref resultingNode))
 			{		
 				Switch(node.Items);
 			}
-			LeaveTupleLiteralExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveTupleLiteralExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterTupleLiteralExpression(TupleLiteralExpression node, ref Expression resultingNode)
@@ -1537,38 +1335,34 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnListDisplayExpression(ListDisplayExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterListDisplayExpression(node, ref result))
+		public virtual void OnListDisplayExpression(ListDisplayExpression node, ref Expression resultingNode)
+		{	
+			if (EnterListDisplayExpression(node, ref resultingNode))
 			{		
 				Expression currentExpressionValue = node.Expression;
-				Node resultingExpressionValue;
-				Switch(currentExpressionValue, out resultingExpressionValue);
-				if (currentExpressionValue != resultingExpressionValue)
-				{
+				if (null != currentExpressionValue)
+				{	
+					Node resultingExpressionValue;				
+					currentExpressionValue.Switch(this, out resultingExpressionValue);
 					node.Expression = (Expression)resultingExpressionValue;
 				}
 				Switch(node.Declarations);
 				Expression currentIteratorValue = node.Iterator;
-				Node resultingIteratorValue;
-				Switch(currentIteratorValue, out resultingIteratorValue);
-				if (currentIteratorValue != resultingIteratorValue)
-				{
+				if (null != currentIteratorValue)
+				{	
+					Node resultingIteratorValue;				
+					currentIteratorValue.Switch(this, out resultingIteratorValue);
 					node.Iterator = (Expression)resultingIteratorValue;
 				}
 				StatementModifier currentFilterValue = node.Filter;
-				Node resultingFilterValue;
-				Switch(currentFilterValue, out resultingFilterValue);
-				if (currentFilterValue != resultingFilterValue)
-				{
+				if (null != currentFilterValue)
+				{	
+					Node resultingFilterValue;				
+					currentFilterValue.Switch(this, out resultingFilterValue);
 					node.Filter = (StatementModifier)resultingFilterValue;
 				}
 			}
-			LeaveListDisplayExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveListDisplayExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterListDisplayExpression(ListDisplayExpression node, ref Expression resultingNode)
@@ -1580,44 +1374,40 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnSlicingExpression(SlicingExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterSlicingExpression(node, ref result))
+		public virtual void OnSlicingExpression(SlicingExpression node, ref Expression resultingNode)
+		{	
+			if (EnterSlicingExpression(node, ref resultingNode))
 			{		
 				Expression currentTargetValue = node.Target;
-				Node resultingTargetValue;
-				Switch(currentTargetValue, out resultingTargetValue);
-				if (currentTargetValue != resultingTargetValue)
-				{
+				if (null != currentTargetValue)
+				{	
+					Node resultingTargetValue;				
+					currentTargetValue.Switch(this, out resultingTargetValue);
 					node.Target = (Expression)resultingTargetValue;
 				}
 				Expression currentBeginValue = node.Begin;
-				Node resultingBeginValue;
-				Switch(currentBeginValue, out resultingBeginValue);
-				if (currentBeginValue != resultingBeginValue)
-				{
+				if (null != currentBeginValue)
+				{	
+					Node resultingBeginValue;				
+					currentBeginValue.Switch(this, out resultingBeginValue);
 					node.Begin = (Expression)resultingBeginValue;
 				}
 				Expression currentEndValue = node.End;
-				Node resultingEndValue;
-				Switch(currentEndValue, out resultingEndValue);
-				if (currentEndValue != resultingEndValue)
-				{
+				if (null != currentEndValue)
+				{	
+					Node resultingEndValue;				
+					currentEndValue.Switch(this, out resultingEndValue);
 					node.End = (Expression)resultingEndValue;
 				}
 				Expression currentStepValue = node.Step;
-				Node resultingStepValue;
-				Switch(currentStepValue, out resultingStepValue);
-				if (currentStepValue != resultingStepValue)
-				{
+				if (null != currentStepValue)
+				{	
+					Node resultingStepValue;				
+					currentStepValue.Switch(this, out resultingStepValue);
 					node.Step = (Expression)resultingStepValue;
 				}
 			}
-			LeaveSlicingExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveSlicingExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterSlicingExpression(SlicingExpression node, ref Expression resultingNode)
@@ -1629,30 +1419,26 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual void OnAsExpression(AsExpression node, out Expression resultingNode)
-		{				
-			Expression result = node;
-			
-			if (EnterAsExpression(node, ref result))
+		public virtual void OnAsExpression(AsExpression node, ref Expression resultingNode)
+		{	
+			if (EnterAsExpression(node, ref resultingNode))
 			{		
 				Expression currentTargetValue = node.Target;
-				Node resultingTargetValue;
-				Switch(currentTargetValue, out resultingTargetValue);
-				if (currentTargetValue != resultingTargetValue)
-				{
+				if (null != currentTargetValue)
+				{	
+					Node resultingTargetValue;				
+					currentTargetValue.Switch(this, out resultingTargetValue);
 					node.Target = (Expression)resultingTargetValue;
 				}
 				TypeReference currentTypeValue = node.Type;
-				Node resultingTypeValue;
-				Switch(currentTypeValue, out resultingTypeValue);
-				if (currentTypeValue != resultingTypeValue)
-				{
+				if (null != currentTypeValue)
+				{	
+					Node resultingTypeValue;				
+					currentTypeValue.Switch(this, out resultingTypeValue);
 					node.Type = (TypeReference)resultingTypeValue;
 				}
 			}
-			LeaveAsExpression(node, ref result);
-				
-			resultingNode = result;
+			LeaveAsExpression(node, ref resultingNode);
 		}
 		
 		public virtual bool EnterAsExpression(AsExpression node, ref Expression resultingNode)

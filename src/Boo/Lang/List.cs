@@ -9,36 +9,78 @@ namespace Boo.Lang
 	/// <summary>
 	/// List.
 	/// </summary>
-	public class List : CollectionBase
+	public class List : ICollection
 	{
+		ArrayList _list;
+		
 		public List()
 		{
+			_list = new ArrayList();
 		}
+		
+		public List(int initialCapacity)
+		{
+			_list = new ArrayList(initialCapacity);
+		}		                                     
 
 		public List(params object[] items)
 		{
-			InnerList.AddRange(items);
+			_list = new ArrayList(items);
+		}
+		
+		public int Count
+		{
+			get
+			{
+				return _list.Count;
+			}
+		}
+		
+		public IEnumerator GetEnumerator()
+		{
+			return _list.GetEnumerator();
+		}
+		
+		public void CopyTo(Array target, int index)
+		{
+			_list.CopyTo(target, index);
+		}
+		
+		public bool IsSynchronized
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
+		public object SyncRoot
+		{
+			get
+			{
+				return this;
+			}
 		}
 
 		public object this[int index]
 		{
 			get
 			{
-				return InnerList[index];
+				return _list[index];
 			}
 		}
 
 		public List Add(object item)
 		{
-			InnerList.Add(item);
+			_list.Add(item);
 			return this;
 		}
 
 		public List AddUnique(object item)
 		{
-			if (!InnerList.Contains(item))
+			if (!_list.Contains(item))
 			{
-				InnerList.Add(item);
+				_list.Add(item);
 			}
 			return this;
 		}
@@ -73,28 +115,29 @@ namespace Boo.Lang
 		
 		public Array ToArray(System.Type targetType)
 		{
-			return InnerList.ToArray(targetType);
+			return _list.ToArray(targetType);
 		}
 		
-		public void Sort()
+		public List Sort()
 		{
-			InnerList.Sort();
+			_list.Sort();
+			return this;
 		}
 
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();			
-			for (int i=0; i<InnerList.Count; ++i)
+			for (int i=0; i<_list.Count; ++i)
 			{
 				if (i>0) { sb.Append(", "); }
-				sb.Append(InnerList[i]);
+				sb.Append(_list[i]);
 			}
 			return sb.ToString();
 		}
 
 		void InnerCollect(List target, Predicate condition)
 		{
-			foreach (object item in InnerList)
+			foreach (object item in _list)
 			{
 				if (condition(item))
 				{

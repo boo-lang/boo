@@ -60,10 +60,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_protectedBlock = value;
-				if (null != _protectedBlock)
+				
+				if (_protectedBlock != value)
 				{
-					_protectedBlock.InitializeParent(this);
+					_protectedBlock = value;
+					if (null != _protectedBlock)
+					{
+						_protectedBlock.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -76,10 +80,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_exceptionHandlers = value;
-				if (null != _exceptionHandlers)
+				
+				if (_exceptionHandlers != value)
 				{
-					_exceptionHandlers.InitializeParent(this);
+					_exceptionHandlers = value;
+					if (null != _exceptionHandlers)
+					{
+						_exceptionHandlers.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -92,10 +100,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_successBlock = value;
-				if (null != _successBlock)
+				
+				if (_successBlock != value)
 				{
-					_successBlock.InitializeParent(this);
+					_successBlock = value;
+					if (null != _successBlock)
+					{
+						_successBlock.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -108,17 +120,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_ensureBlock = value;
-				if (null != _ensureBlock)
+				
+				if (_ensureBlock != value)
 				{
-					_ensureBlock.InitializeParent(this);
+					_ensureBlock = value;
+					if (null != _ensureBlock)
+					{
+						_ensureBlock.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Statement resultingTypedNode;
-			transformer.OnTryStatement((TryStatement)this, out resultingTypedNode);
+			TryStatement thisNode = (TryStatement)this;
+			Statement resultingTypedNode = thisNode;
+			transformer.OnTryStatement(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

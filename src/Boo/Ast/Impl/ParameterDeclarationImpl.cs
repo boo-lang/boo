@@ -54,6 +54,7 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
+				
 				_name = value;
 			}
 		}
@@ -66,10 +67,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_type = value;
-				if (null != _type)
+				
+				if (_type != value)
 				{
-					_type.InitializeParent(this);
+					_type = value;
+					if (null != _type)
+					{
+						_type.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -82,17 +87,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_attributes = value;
-				if (null != _attributes)
+				
+				if (_attributes != value)
 				{
-					_attributes.InitializeParent(this);
+					_attributes = value;
+					if (null != _attributes)
+					{
+						_attributes.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			ParameterDeclaration resultingTypedNode;
-			transformer.OnParameterDeclaration((ParameterDeclaration)this, out resultingTypedNode);
+			ParameterDeclaration thisNode = (ParameterDeclaration)this;
+			ParameterDeclaration resultingTypedNode = thisNode;
+			transformer.OnParameterDeclaration(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

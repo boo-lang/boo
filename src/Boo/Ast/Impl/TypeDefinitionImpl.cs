@@ -35,10 +35,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_members = value;
-				if (null != _members)
+				
+				if (_members != value)
 				{
-					_members.InitializeParent(this);
+					_members = value;
+					if (null != _members)
+					{
+						_members.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -51,10 +55,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_baseTypes = value;
-				if (null != _baseTypes)
+				
+				if (_baseTypes != value)
 				{
-					_baseTypes.InitializeParent(this);
+					_baseTypes = value;
+					if (null != _baseTypes)
+					{
+						_baseTypes.InitializeParent(this);
+					}
 				}
 			}
 		}

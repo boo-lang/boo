@@ -25,8 +25,6 @@ namespace Boo.Ast.Compilation.Steps
 
 		public void Execute()
 		{
-			RemoveAttributeFromNode();
-
 			try
 			{
 				AstAttribute aa = CreateAstAttributeInstance();
@@ -78,11 +76,6 @@ namespace Boo.Ast.Compilation.Steps
 			}
 
 			return aa;
-		}
-
-		void RemoveAttributeFromNode()
-		{
-			((INodeWithAttributes)_attribute.ParentNode).Attributes.Remove(_attribute);
 		}
 
 		bool SetFieldOrProperty(AstAttribute aa, ExpressionPair p)
@@ -162,7 +155,7 @@ namespace Boo.Ast.Compilation.Steps
 			int step = 0;
 			while (step < CompilerParameters.MaxAttributeSteps)
 			{
-				OnCompileUnit(CompileUnit);
+				Switch(CompileUnit);
 				if (0 == _tasks.Count)
 				{
 					// Colocar informao de tracing aqui...
@@ -173,24 +166,24 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}		
 
-		public override void OnModule(Module module)
+		public override void OnModule(Module module, ref Module resultingModule)
 		{			
 			PushNamespace(new ModuleNameSpace(BindingManager, module));
 
 			// do mdulo precisamos apenas visitar os membros
-			module.Members.Switch(this);
+			Switch(module.Members);
 			
 			PopNamespace();
 		}
 
-		public override void OnBlock(Block node)
+		public override void OnBlock(Block node, ref Block resultingNode)
 		{
 			// No precisamos visitar blocos, isso
 			// vai deixar o processamento um pouco mais
 			// rpido
 		}
 
-		public override void OnAttribute(Boo.Ast.Attribute attribute)
+		public override void OnAttribute(Boo.Ast.Attribute attribute, ref Boo.Ast.Attribute resultingNode)
 		{
 			// Neste primeiro passo tentamos apenas
 			// resolver ast attributes.
@@ -221,6 +214,9 @@ namespace Boo.Ast.Compilation.Steps
 						if (IsAstAttribute(attributeType))
 						{						
 							ScheduleAttributeApplication(attribute, attributeType);
+							
+							// remove it from parent
+							resultingNode = null;
 						}
 					}
 				}

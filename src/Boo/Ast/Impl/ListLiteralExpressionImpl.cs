@@ -38,17 +38,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_items = value;
-				if (null != _items)
+				
+				if (_items != value)
 				{
-					_items.InitializeParent(this);
+					_items = value;
+					if (null != _items)
+					{
+						_items.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnListLiteralExpression((ListLiteralExpression)this, out resultingTypedNode);
+			ListLiteralExpression thisNode = (ListLiteralExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnListLiteralExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

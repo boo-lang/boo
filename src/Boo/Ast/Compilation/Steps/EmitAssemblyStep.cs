@@ -32,6 +32,12 @@ namespace Boo.Ast.Compilation.Steps
 		
 		static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
 		
+		static ConstructorInfo List_EmptyConstructor = Types.List.GetConstructor(Type.EmptyTypes);
+		
+		static ConstructorInfo List_IntConstructor = Types.List.GetConstructor(new Type[] { typeof(int) });
+		
+		static MethodInfo List_Add = Types.List.GetMethod("Add", new Type[] { Types.Object });
+		
 		AssemblyBuilder _asmBuilder;
 		
 		ModuleBuilder _moduleBuilder;
@@ -305,6 +311,28 @@ namespace Boo.Ast.Compilation.Steps
 				_il.Emit(OpCodes.Ldc_I4_0);
 			}
 			PushType(Types.Bool);
+		}
+		
+		public override void OnListLiteralExpression(ListLiteralExpression node)
+		{
+			if (node.Items.Count > 0)
+			{
+				_il.Emit(OpCodes.Ldc_I4, node.Items.Count);
+				_il.Emit(OpCodes.Newobj, List_IntConstructor);
+				
+				foreach (Expression item in node.Items)
+				{					
+					item.Switch(this);
+					EmitCastIfNeeded(Types.Object, PopType());
+					_il.EmitCall(OpCodes.Call, List_Add, null);
+					// List_Add will return the list itself
+				}
+			}
+			else
+			{
+				_il.Emit(OpCodes.Newobj, List_EmptyConstructor);			
+			}
+			PushType(Types.List);
 		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)

@@ -8,7 +8,7 @@ namespace Boo.Ast
 	{
 		#for item in $model
 			#unless $item.stereotype in ("collection", "enum") or "abstract" in $item.attributes			
-		void On${item.name}(${item.name} node, out $csharp.getResultTransformerNode($item) newNode);
+		void On${item.name}(${item.name} node, ref $csharp.getResultTransformerNode($item) newNode);
 			#end unless
 		#end for
 	}

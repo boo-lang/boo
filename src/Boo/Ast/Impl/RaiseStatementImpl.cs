@@ -45,17 +45,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_exception = value;
-				if (null != _exception)
+				
+				if (_exception != value)
 				{
-					_exception.InitializeParent(this);
+					_exception = value;
+					if (null != _exception)
+					{
+						_exception.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Statement resultingTypedNode;
-			transformer.OnRaiseStatement((RaiseStatement)this, out resultingTypedNode);
+			RaiseStatement thisNode = (RaiseStatement)this;
+			Statement resultingTypedNode = thisNode;
+			transformer.OnRaiseStatement(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

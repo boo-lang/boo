@@ -54,10 +54,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_target = value;
-				if (null != _target)
+				
+				if (_target != value)
 				{
-					_target.InitializeParent(this);
+					_target = value;
+					if (null != _target)
+					{
+						_target.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -70,10 +74,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_begin = value;
-				if (null != _begin)
+				
+				if (_begin != value)
 				{
-					_begin.InitializeParent(this);
+					_begin = value;
+					if (null != _begin)
+					{
+						_begin.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -86,10 +94,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_end = value;
-				if (null != _end)
+				
+				if (_end != value)
 				{
-					_end.InitializeParent(this);
+					_end = value;
+					if (null != _end)
+					{
+						_end.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -102,17 +114,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_step = value;
-				if (null != _step)
+				
+				if (_step != value)
 				{
-					_step.InitializeParent(this);
+					_step = value;
+					if (null != _step)
+					{
+						_step.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnSlicingExpression((SlicingExpression)this, out resultingTypedNode);
+			SlicingExpression thisNode = (SlicingExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnSlicingExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

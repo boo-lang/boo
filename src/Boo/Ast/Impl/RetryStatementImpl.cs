@@ -27,8 +27,9 @@ namespace Boo.Ast.Impl
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Statement resultingTypedNode;
-			transformer.OnRetryStatement((RetryStatement)this, out resultingTypedNode);
+			RetryStatement thisNode = (RetryStatement)this;
+			Statement resultingTypedNode = thisNode;
+			transformer.OnRetryStatement(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

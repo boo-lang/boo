@@ -53,11 +53,16 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				return _context.BindingManager;
 			}
-		}
+		}		
 		
 		public IBinding GetBinding(Node node)
 		{
 			return BindingManager.GetBinding(node);
+		}
+		
+		public ITypeBinding GetTypeBinding(Node node)
+		{
+			return BindingManager.GetTypeBinding(node);
 		}
 		
 		public TypeBuilder GetTypeBuilder(TypeDefinition type)
@@ -73,12 +78,7 @@ namespace Boo.Ast.Compilation.Steps
 		public MethodInfo GetMethodInfo(Node node)
 		{
 			return (MethodInfo)((IMethodBinding)GetBinding(node)).MethodInfo;
-		}
-		
-		public ITypeBinding GetTypeBinding(Node node)
-		{
-			return BindingManager.GetTypeBinding(node);
-		}
+		}	
 		
 		public System.Type GetBoundType(Node node)
 		{

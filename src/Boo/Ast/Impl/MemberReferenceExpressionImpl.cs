@@ -45,17 +45,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_target = value;
-				if (null != _target)
+				
+				if (_target != value)
 				{
-					_target.InitializeParent(this);
+					_target = value;
+					if (null != _target)
+					{
+						_target.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnMemberReferenceExpression((MemberReferenceExpression)this, out resultingTypedNode);
+			MemberReferenceExpression thisNode = (MemberReferenceExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnMemberReferenceExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

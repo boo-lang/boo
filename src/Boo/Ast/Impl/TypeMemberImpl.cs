@@ -47,7 +47,11 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_modifiers = value;
+				
+				if (_modifiers != value)
+				{
+					_modifiers = value;
+				}
 			}
 		}
 		public string Name
@@ -59,6 +63,7 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
+				
 				_name = value;
 			}
 		}
@@ -71,10 +76,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_attributes = value;
-				if (null != _attributes)
+				
+				if (_attributes != value)
 				{
-					_attributes.InitializeParent(this);
+					_attributes = value;
+					if (null != _attributes)
+					{
+						_attributes.InitializeParent(this);
+					}
 				}
 			}
 		}

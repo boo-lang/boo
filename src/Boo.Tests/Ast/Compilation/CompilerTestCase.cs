@@ -152,6 +152,24 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			RunCompilerTestCase("for2.boo", "for first, second in list");
 		}
+		
+		[Test]
+		public void TestIfModifier0()
+		{
+			RunCompilerTestCase("if0.boo", "write() if true");
+		}
+		
+		[Test]
+		public void TestList0()
+		{
+			RunCompilerTestCase("list0.boo", "[]");
+		}
+		
+		[Test]
+		public void TestList1()
+		{
+			RunCompilerTestCase("list1.boo", "[1, 2, 3]");
+		}
 	
 		void RunCompilerTestCase(string name, string description)
 		{			

@@ -105,18 +105,24 @@ $initializer() #slurp
 			
 			set
 			{
-				$fieldName = value;
+				
 				#if $fieldType
-					#if $fieldType.extends("Node") or "collection" == $fieldType.stereotype
-				if (null != ${fieldName})
+				if ($fieldName != value)
 				{
-					${fieldName}.InitializeParent(this);
-				}
+					$fieldName = value;
+					#if $fieldType.extends("Node") or "collection" == $fieldType.stereotype
+					if (null != ${fieldName})
+					{
+						${fieldName}.InitializeParent(this);
+					}
 					#end if
-				#end if
-				#if "LexicalInfo" in $field.attributes
-				LexicalInfo = value.LexicalInfo;
-				#end if
+					#if "LexicalInfo" in $field.attributes
+					LexicalInfo = value.LexicalInfo;
+					#end if
+				}
+				#else
+				$fieldName = value;
+				#end if				
 			}
 		}
 			#end if
@@ -124,8 +130,9 @@ $initializer() #slurp
 		#unless "abstract" in $item.attributes 
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			$cs.getResultTransformerNode($item) resultingTypedNode;
-			transformer.On${item.name}((${item.name})this, out resultingTypedNode);
+			${item.name} thisNode = (${item.name})this;
+			$cs.getResultTransformerNode($item) resultingTypedNode = thisNode;
+			transformer.On${item.name}(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 		#end unless

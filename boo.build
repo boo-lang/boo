@@ -14,6 +14,7 @@
 	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
 	
 	<property name="ngen.exe" value="${nant.settings.defaultframework.frameworkdirectory}/ngen.exe" />
+	<property name="skip.ngen" value="False" />
 	
 	<property name="build.dir" value="build" />
 
@@ -48,9 +49,9 @@
 			</fileset>
 		</copy>		
 		
-		<exec program='ngen.exe' if="${file::exists(ngen.exe)}">
-			<arg file='build/booc.exe' />
+		<exec program='ngen.exe' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='build/Boo.dll' />
+			<arg file='build/booc.exe' />			
 		</exec>
 	</target>
 	

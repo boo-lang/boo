@@ -64,10 +64,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_parameters = value;
-				if (null != _parameters)
+				
+				if (_parameters != value)
 				{
-					_parameters.InitializeParent(this);
+					_parameters = value;
+					if (null != _parameters)
+					{
+						_parameters.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -80,10 +84,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_returnType = value;
-				if (null != _returnType)
+				
+				if (_returnType != value)
 				{
-					_returnType.InitializeParent(this);
+					_returnType = value;
+					if (null != _returnType)
+					{
+						_returnType.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -96,10 +104,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_returnTypeAttributes = value;
-				if (null != _returnTypeAttributes)
+				
+				if (_returnTypeAttributes != value)
 				{
-					_returnTypeAttributes.InitializeParent(this);
+					_returnTypeAttributes = value;
+					if (null != _returnTypeAttributes)
+					{
+						_returnTypeAttributes.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -112,10 +124,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_body = value;
-				if (null != _body)
+				
+				if (_body != value)
 				{
-					_body.InitializeParent(this);
+					_body = value;
+					if (null != _body)
+					{
+						_body.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -133,8 +149,9 @@ namespace Boo.Ast.Impl
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Method resultingTypedNode;
-			transformer.OnMethod((Method)this, out resultingTypedNode);
+			Method thisNode = (Method)this;
+			Method resultingTypedNode = thisNode;
+			transformer.OnMethod(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

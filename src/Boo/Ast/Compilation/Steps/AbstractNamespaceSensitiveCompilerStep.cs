@@ -6,13 +6,13 @@ using Boo.Ast.Compilation.Binding;
 
 namespace Boo.Ast.Compilation.Steps
 {
-	public abstract class AbstractNamespaceSensitiveCompilerStep : AbstractSwitcherCompilerStep
+	public abstract class AbstractNamespaceSensitiveCompilerStep : AbstractTransformerCompilerStep
 	{
 		static readonly char[] DotArray = new char[] { '.' };
 		
 		protected Stack _namespaces = new Stack();
 		
-		public override bool EnterCompileUnit(CompileUnit cu)
+		public override bool EnterCompileUnit(CompileUnit cu, ref CompileUnit resultingNode)
 		{
 			// Global names at the highest level
 			PushNamespace(UsingResolutionStep.GetGlobalNamespace(CompilerContext));

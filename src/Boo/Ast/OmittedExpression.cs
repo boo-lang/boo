@@ -31,8 +31,8 @@ namespace Boo.Ast
 		
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression result;
-			transformer.OnOmittedExpression(this, out result);
+			Expression result = this;
+			transformer.OnOmittedExpression(this, ref result);
 			resultingNode = result;
 		}
 	}	

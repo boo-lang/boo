@@ -51,6 +51,7 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
+				
 				_template = value;
 			}
 		}
@@ -63,17 +64,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_arguments = value;
-				if (null != _arguments)
+				
+				if (_arguments != value)
 				{
-					_arguments.InitializeParent(this);
+					_arguments = value;
+					if (null != _arguments)
+					{
+						_arguments.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnStringFormattingExpression((StringFormattingExpression)this, out resultingTypedNode);
+			StringFormattingExpression thisNode = (StringFormattingExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnStringFormattingExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

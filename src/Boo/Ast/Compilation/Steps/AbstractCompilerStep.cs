@@ -58,7 +58,7 @@ namespace Boo.Ast.Compilation.Steps
 		public IBinding GetBinding(Node node)
 		{
 			return BindingManager.GetBinding(node);
-		}
+		}		
 		
 		public virtual void Initialize(CompilerContext context)
 		{

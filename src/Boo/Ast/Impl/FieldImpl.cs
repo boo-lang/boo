@@ -45,17 +45,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_type = value;
-				if (null != _type)
+				
+				if (_type != value)
 				{
-					_type.InitializeParent(this);
+					_type = value;
+					if (null != _type)
+					{
+						_type.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Field resultingTypedNode;
-			transformer.OnField((Field)this, out resultingTypedNode);
+			Field thisNode = (Field)this;
+			Field resultingTypedNode = thisNode;
+			transformer.OnField(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

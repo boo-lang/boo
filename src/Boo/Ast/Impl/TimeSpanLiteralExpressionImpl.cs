@@ -45,13 +45,15 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
+				
 				_value = value;
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnTimeSpanLiteralExpression((TimeSpanLiteralExpression)this, out resultingTypedNode);
+			TimeSpanLiteralExpression thisNode = (TimeSpanLiteralExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnTimeSpanLiteralExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

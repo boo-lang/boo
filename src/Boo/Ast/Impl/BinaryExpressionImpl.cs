@@ -51,7 +51,11 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_operator = value;
+				
+				if (_operator != value)
+				{
+					_operator = value;
+				}
 			}
 		}
 		public Expression Left
@@ -63,10 +67,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_left = value;
-				if (null != _left)
+				
+				if (_left != value)
 				{
-					_left.InitializeParent(this);
+					_left = value;
+					if (null != _left)
+					{
+						_left.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -79,17 +87,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_right = value;
-				if (null != _right)
+				
+				if (_right != value)
 				{
-					_right.InitializeParent(this);
+					_right = value;
+					if (null != _right)
+					{
+						_right.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnBinaryExpression((BinaryExpression)this, out resultingTypedNode);
+			BinaryExpression thisNode = (BinaryExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnBinaryExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

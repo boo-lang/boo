@@ -51,10 +51,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_condition = value;
-				if (null != _condition)
+				
+				if (_condition != value)
 				{
-					_condition.InitializeParent(this);
+					_condition = value;
+					if (null != _condition)
+					{
+						_condition.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -67,17 +71,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_statements = value;
-				if (null != _statements)
+				
+				if (_statements != value)
 				{
-					_statements.InitializeParent(this);
+					_statements = value;
+					if (null != _statements)
+					{
+						_statements.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Statement resultingTypedNode;
-			transformer.OnWhileStatement((WhileStatement)this, out resultingTypedNode);
+			WhileStatement thisNode = (WhileStatement)this;
+			Statement resultingTypedNode = thisNode;
+			transformer.OnWhileStatement(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

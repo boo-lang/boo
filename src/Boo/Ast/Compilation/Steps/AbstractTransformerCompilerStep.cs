@@ -60,6 +60,11 @@ namespace Boo.Ast.Compilation.Steps
 			return BindingManager.GetBinding(node);
 		}
 		
+		public ITypeBinding GetTypeBinding(Node node)
+		{
+			return BindingManager.GetTypeBinding(node);
+		}		
+		
 		public virtual void Initialize(CompilerContext context)
 		{
 			if (null == context)

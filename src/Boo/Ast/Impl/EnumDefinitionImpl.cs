@@ -27,8 +27,9 @@ namespace Boo.Ast.Impl
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			EnumDefinition resultingTypedNode;
-			transformer.OnEnumDefinition((EnumDefinition)this, out resultingTypedNode);
+			EnumDefinition thisNode = (EnumDefinition)this;
+			EnumDefinition resultingTypedNode = thisNode;
+			transformer.OnEnumDefinition(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}

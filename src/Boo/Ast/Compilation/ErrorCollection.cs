@@ -120,7 +120,7 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("InvalidNamespace", node.Namespace)));
 		}
 
-		public void AmbiguousName(Node node, string name, System.Collections.IList resolvedNames)
+		public void AmbiguousName(Node node, string name, System.Collections.IEnumerable resolvedNames)
 		{
 			string msg = Format("AmbiguousName", name, ToStringList(resolvedNames));
 			Add(new Error(node, msg));

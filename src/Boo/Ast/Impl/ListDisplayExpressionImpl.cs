@@ -57,10 +57,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_expression = value;
-				if (null != _expression)
+				
+				if (_expression != value)
 				{
-					_expression.InitializeParent(this);
+					_expression = value;
+					if (null != _expression)
+					{
+						_expression.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -73,10 +77,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_declarations = value;
-				if (null != _declarations)
+				
+				if (_declarations != value)
 				{
-					_declarations.InitializeParent(this);
+					_declarations = value;
+					if (null != _declarations)
+					{
+						_declarations.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -89,10 +97,14 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_iterator = value;
-				if (null != _iterator)
+				
+				if (_iterator != value)
 				{
-					_iterator.InitializeParent(this);
+					_iterator = value;
+					if (null != _iterator)
+					{
+						_iterator.InitializeParent(this);
+					}
 				}
 			}
 		}
@@ -105,17 +117,22 @@ namespace Boo.Ast.Impl
 			
 			set
 			{
-				_filter = value;
-				if (null != _filter)
+				
+				if (_filter != value)
 				{
-					_filter.InitializeParent(this);
+					_filter = value;
+					if (null != _filter)
+					{
+						_filter.InitializeParent(this);
+					}
 				}
 			}
 		}
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Expression resultingTypedNode;
-			transformer.OnListDisplayExpression((ListDisplayExpression)this, out resultingTypedNode);
+			ListDisplayExpression thisNode = (ListDisplayExpression)this;
+			Expression resultingTypedNode = thisNode;
+			transformer.OnListDisplayExpression(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}
 	}
