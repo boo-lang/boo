@@ -3554,7 +3554,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		string GetAssemblyName(string fname)
+		string GetAssemblySimpleName(string fname)
 		{
 			return Path.GetFileNameWithoutExtension(fname);
 		}
@@ -3598,26 +3598,33 @@ namespace Boo.Lang.Compiler.Steps
 				fname = CompileUnit.Modules[0].Name;			
 			}
 			
-			Context.GeneratedAssemblyFileName = BuildOutputAssemblyName(fname);
+			string outputFile = BuildOutputAssemblyName(fname);
 			
-			AssemblyName asmName = new AssemblyName();
-			asmName.Name = GetAssemblyName(Context.GeneratedAssemblyFileName);
-			asmName.Version = GetAssemblyVersion();
-			asmName.KeyPair = GetAssemblyKeyPair();
-			
-			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(Context.GeneratedAssemblyFileName));
-			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(Context.GeneratedAssemblyFileName), true);			
+			AssemblyName asmName = CreateAssemblyName(outputFile);			
+			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(outputFile));
+			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), true);			
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
+			
+			Context.GeneratedAssemblyFileName = outputFile;
 		}
 		
-		StrongNameKeyPair GetAssemblyKeyPair()
+		AssemblyName CreateAssemblyName(string outputFile)
+		{
+			AssemblyName assemblyName = new AssemblyName();
+			assemblyName.Name = GetAssemblySimpleName(outputFile);
+			assemblyName.Version = GetAssemblyVersion();
+			assemblyName.KeyPair = GetAssemblyKeyPair(outputFile);
+			return assemblyName;			
+		}
+		
+		StrongNameKeyPair GetAssemblyKeyPair(string outputFile)
 		{
 			string fname = GetAssemblyAttributeValue("System.Reflection.AssemblyKeyFileAttribute");
-			if (null != fname)
+			if (null != fname && fname.Length > 0)
 			{
 				if (!Path.IsPathRooted(fname))
 				{
-					fname = MakeRelativeToOutputAssembly(fname);
+					fname = ResolveRelative(outputFile, fname);
 				}				
 				using (FileStream stream = File.OpenRead(fname))
 				{
@@ -3627,12 +3634,12 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		string MakeRelativeToOutputAssembly(string fname)
+		string ResolveRelative(string targetFile, string relativeFile)
 		{
 			return Path.GetFullPath(
 						Path.Combine(
-							Path.GetDirectoryName(Context.GeneratedAssemblyFileName),
-							fname));
+							Path.GetDirectoryName(targetFile),
+							relativeFile));
 		}
 		
 		Version GetAssemblyVersion()
