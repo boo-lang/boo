@@ -134,6 +134,24 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			RunCompilerTestCase("using6.boo", "using System.Drawing from two assemblies");
 		}
+		
+		[Test]
+		public void TestSimpleFor()
+		{
+			RunCompilerTestCase("for0.boo", "for item in list");
+		}
+		
+		[Test]
+		public void TestTypedFor()
+		{
+			RunCompilerTestCase("for1.boo", "for item as string in list");
+		}
+		
+		[Test]
+		public void TestUnpackFor()
+		{
+			RunCompilerTestCase("for2.boo", "for first, second in list");
+		}
 	
 		void RunCompilerTestCase(string name, string description)
 		{			

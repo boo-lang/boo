@@ -77,7 +77,7 @@ done * unit tests para o compilador/interpretador
 	done * criar uma pasta onde cada arquivo .boo é um testcase com um equivalente .out
 	que contém a saída esperada
 	done * o teste executa todos os passos da compilação normal e verifica o arquivo final com peverify
-* mover todos as constantes de tipo de BindingManager para Types
+done * mover todos as constantes de tipo de BindingManager para Types
 * LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression()) de assignment
 e declara a variável
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o SemanticStep que deverá
