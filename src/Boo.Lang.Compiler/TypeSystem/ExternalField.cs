@@ -88,6 +88,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsInitOnly
+		{
+			get
+			{
+				return _field.IsInitOnly;
+			}
+		}
+		
 		public EntityType EntityType
 		{
 			get

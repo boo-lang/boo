@@ -1713,6 +1713,19 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(TypeSystemServices.StringType);
 		}
 		
+		void EmitLoadFieldAddress(Expression expression, IField field)
+		{
+			if (field.IsStatic)
+			{
+				_il.Emit(OpCodes.Ldsflda, GetFieldInfo(field));
+			}
+			else
+			{
+				Visit(((MemberReferenceExpression)expression).Target); PopType();
+				_il.Emit(OpCodes.Ldflda, GetFieldInfo(field));
+			}
+		}
+		
 		void EmitLoadField(Expression self, IField fieldInfo)
 		{
 			if (fieldInfo.IsStatic)
@@ -1859,6 +1872,17 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						_il.Emit(OpCodes.Ldarga, ((InternalParameter)tag).Index);
 						return;
+					}
+					
+					case EntityType.Field:
+					{
+						IField field = (IField)tag;
+						if (!field.IsLiteral)
+						{
+							EmitLoadFieldAddress(expression, field);
+							return;
+						}
+						break;
 					}
 				}
 			}
@@ -2271,9 +2295,18 @@ namespace Boo.Lang.Compiler.Steps
 			IParameter[] parameters = tag.GetParameters();
 			for (int i=0; i<args.Count; ++i)
 			{
+				IType parameterType = parameters[i].Type;
+				
 				Expression arg = args[i];
-				arg.Accept(this);
-				EmitCastIfNeeded(parameters[i].Type, PopType());
+				if (parameterType.IsByRef)
+				{
+					LoadAddress(arg);
+				}
+				else
+				{
+					arg.Accept(this);
+					EmitCastIfNeeded(parameterType, PopType());
+				}				
 			}
 		}
 		

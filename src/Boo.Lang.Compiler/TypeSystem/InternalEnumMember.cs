@@ -83,6 +83,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsInitOnly
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public EntityType EntityType
 		{
 			get

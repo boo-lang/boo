@@ -106,6 +106,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsInitOnly
+		{
+			get
+			{
+				return _field.IsFinal;
+			}
+		}
+		
 		public object StaticValue
 		{
 			get

@@ -112,6 +112,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public virtual IType GetElementType()
+		{
+			return null;
+		}
+		
 		public virtual IEntity GetDefaultMember()
 		{
 			return null;

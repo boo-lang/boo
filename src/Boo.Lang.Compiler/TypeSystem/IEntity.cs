@@ -93,6 +93,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public interface IField : IMember
 	{	
+		bool IsInitOnly
+		{
+			get;
+		}
+		
 		bool IsLiteral
 		{
 			get;
@@ -147,6 +152,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		int GetTypeDepth();
 		
+		IType GetElementType();
+		
 		IType BaseType
 		{
 			get;
@@ -171,8 +178,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public interface IArrayType : IType
 	{
 		int GetArrayRank();
-		
-		IType GetElementType();
 	}
 	
 	public interface ILocalEntity : ITypedEntity

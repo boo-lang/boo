@@ -3229,9 +3229,11 @@ namespace Boo.Lang.Compiler.Steps
 			IParameter[] parameters = method.GetSignature().Parameters;
 			for (int i=0; i<args.Count; ++i)
 			{
-				IType expressionType = GetExpressionType(args[i]);
+				Expression arg = args[i];
+				IType expressionType = GetExpressionType(arg);
 				IType parameterType = parameters[i].Type;
-				if (!TypeSystemServices.AreTypesRelated(parameterType, expressionType))
+				if (!TypeSystemServices.AreTypesRelated(parameterType, expressionType) &&
+					!IsValidByRefArg(parameterType, expressionType, arg))
 				{
 					return false;
 				}
@@ -3467,6 +3469,39 @@ namespace Boo.Lang.Compiler.Steps
 			return GetType(node);
 		}
 		
+		bool IsValidByRefArg(IType parameterType, IType argType, Node arg)
+		{
+			return parameterType.IsByRef && 
+					argType == parameterType.GetElementType() &&
+					CanLoadAddress(arg);
+		}
+		
+		bool CanLoadAddress(Node node)
+		{
+			IEntity entity = node.Entity;
+			if (null != entity)
+			{
+				switch (entity.EntityType)
+				{
+					case EntityType.Local:
+					{
+						return !((LocalVariable)entity).IsPrivateScope;
+					}
+					
+					case EntityType.Parameter:
+					{
+						return true;
+					}
+					
+					case EntityType.Field:
+					{
+						return !IsReadOnlyField((IField)entity);
+					}
+				}
+			}
+			return false;
+		}
+		
 		IEntity ResolveCallableReference(Node node, NodeCollection args, IEntity[] tags, bool treatErrors)
 		{
 			List scores = new List();
@@ -3482,7 +3517,8 @@ namespace Boo.Lang.Compiler.Steps
 						int score = 0;
 						for (int argIndex=0; argIndex<parameters.Length; ++argIndex)
 						{							 
-							IType expressionType = GetExpressionTypeOrEntityType(args.GetNodeAt(argIndex));
+							Node arg = args.GetNodeAt(argIndex);
+							IType expressionType = GetExpressionTypeOrEntityType(arg);
 							IType parameterType = parameters[argIndex].Type;						
 							
 							if (parameterType == expressionType)
@@ -3495,7 +3531,9 @@ namespace Boo.Lang.Compiler.Steps
 								// upcast scores 2
 								score += 2;
 							}
-							else if (TypeSystemServices.CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
+							else if (
+								TypeSystemServices.CanBeReachedByDownCastOrPromotion(parameterType, expressionType) ||
+								IsValidByRefArg(parameterType, expressionType, arg))
 							{
 								// downcast scores 1
 								score += 1;
@@ -3686,13 +3724,18 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case EntityType.Field:
 					{
-						return true;
+						return !IsReadOnlyField((IField)tag);
 					}
 				}
 			}
 			
 			Error(CompilerErrorFactory.LValueExpected(node));
 			return false;
+		}
+		
+		bool IsReadOnlyField(IField field)
+		{
+			return field.IsInitOnly || field.IsLiteral;
 		}
 		
 		bool CheckBoolContext(Expression expression)

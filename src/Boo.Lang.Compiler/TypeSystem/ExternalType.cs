@@ -106,6 +106,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public IType GetElementType()
+		{
+			return _typeSystemServices.Map(_type.GetElementType());
+		}
+		
 		public bool IsClass
 		{
 			get
