@@ -5,7 +5,7 @@ using System.CodeDom.Compiler;
 namespace Boo.Ast.Visiting
 {
 	/// <summary>
-	/// Classe base para visitors que emitem texto como saída.
+	/// Classe base para visitors que emitem texto como sada.
 	/// </summary>
 	public class TextEmitter : Boo.Ast.DepthFirstSwitcher
 	{

@@ -7,21 +7,9 @@ using Boo.Ast.Compilation;
 
 namespace Boo.Ast.Compilation.Steps
 {
-	public class SaveAssemblyStep : ICompilerStep
+	public class SaveAssemblyStep : AbstractCompilerStep
 	{
-		CompilerContext _context;
-		
-		public void Initialize(CompilerContext context)
-		{
-			_context = context;
-		}
-		
-		public void Dispose()
-		{
-			_context = null;
-		}
-		
-		public void Run()
+		public override void Run()
 		{
 			if (_context.Errors.Count > 0)
 			{
@@ -29,7 +17,7 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			
 			AssemblyBuilder builder = AssemblySetupStep.GetAssemblyBuilder(_context);
-			builder.Save(AssemblySetupStep.GetOutputAssemblyFileName(_context));
+			builder.Save(Path.GetFileName(CompilerParameters.OutputAssembly));
 		}	
 	}
 }

@@ -29,9 +29,9 @@ namespace Boo.Ast.Compilation.Steps
 			return builder;
 		}
 		
-		public static string GetOutputAssemblyFileName(CompilerContext context)
+		string BuildOutputAssemblyName()
 		{			
-			CompilerParameters parameters = context.CompilerParameters;
+			CompilerParameters parameters = CompilerParameters;
 			string fname = parameters.OutputAssembly;
 			if (!Path.HasExtension(fname))
 			{
@@ -45,7 +45,7 @@ namespace Boo.Ast.Compilation.Steps
 			
 				}
 			}
-			return Path.GetFileName(fname);
+			return Path.GetFullPath(fname);
 		}
 		                                                 
 		static object AssemblyBuilderKey = new object();
@@ -55,16 +55,17 @@ namespace Boo.Ast.Compilation.Steps
 		public override void Run()
 		{
 			if (0 == CompilerParameters.OutputAssembly.Length)
-			{
-				//throw new ApplicationException(Boo.ResourceManager.GetString("BooC.NoOutputSpecified"));
-				CompilerParameters.OutputAssembly = Path.GetFullPath(CompileUnit.Modules[0].Name);
+			{				
+				CompilerParameters.OutputAssembly = CompileUnit.Modules[0].Name;			
 			}
+			
+			CompilerParameters.OutputAssembly = BuildOutputAssemblyName();
 			
 			AssemblyName asmName = new AssemblyName();
 			asmName.Name = GetAssemblyName(CompilerParameters.OutputAssembly);
 			
 			AssemblyBuilder asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(CompilerParameters.OutputAssembly));
-			ModuleBuilder moduleBuilder = asmBuilder.DefineDynamicModule(asmName.Name, GetOutputAssemblyFileName(_context), true);			
+			ModuleBuilder moduleBuilder = asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(CompilerParameters.OutputAssembly), true);
 			
 			CompileUnit[AssemblyBuilderKey] = asmBuilder;
 			CompileUnit[ModuleBuilderKey] = moduleBuilder;

@@ -3,7 +3,7 @@ using System;
 namespace Boo.Ast.Visiting
 {
 	/// <summary>
-	/// Imprime a árvore em pseudo-C#.
+	/// Imprime a rvore em pseudo-C#.
 	/// </summary>
 	public class PseudoCSharpPrinterVisitor : TextEmitter
 	{

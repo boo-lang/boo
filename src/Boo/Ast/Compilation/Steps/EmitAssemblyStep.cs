@@ -50,20 +50,26 @@ namespace Boo.Ast.Compilation.Steps
 			_asmBuilder = AssemblySetupStep.GetAssemblyBuilder(CompilerContext);
 			_moduleBuilder = AssemblySetupStep.GetModuleBuilder(CompilerContext);			
 			
-			Switch(CompileUnit);
+			foreach (Boo.Ast.Module module in CompileUnit.Modules)
+			{
+				OnModule(module);
+			}
 			
 			DefineEntryPoint();			
 		}
 		
-		public override bool EnterModule(Boo.Ast.Module module)
+		public override void OnModule(Boo.Ast.Module module)
 		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);
-			return true;
+			
+			EmitTypeDefinition(module);		
 		}
 		
-		public override void LeaveModule(Boo.Ast.Module module)
-		{			
-			TypeBuilder typeBuilder = GetTypeBuilder(module);
+		void EmitTypeDefinition(TypeDefinition node)
+		{
+			node.Members.Switch(this);
+			
+			TypeBuilder typeBuilder = GetTypeBuilder(node);
 			typeBuilder.CreateType();
 		}		
 		
@@ -144,18 +150,23 @@ namespace Boo.Ast.Compilation.Steps
 			EmitDebugInfo(node.Left, node.Right);
 			
 			if (BinaryOperatorType.Assign == node.Operator)
-			{
-				LocalBinding local = BindingManager.GetBinding(node.Left) as LocalBinding;
-				if (null == local)
+			{				
+				IBinding binding = BindingManager.GetBinding(node.Left);
+				switch (binding.BindingType)
 				{
-					throw new NotImplementedException();
-				}
-				
-				node.Right.Switch(this);
-				
-				// assignment result is right expression
-				_il.Emit(OpCodes.Dup);
-				_il.Emit(OpCodes.Stloc, local.LocalBuilder);
+					case BindingType.Local:
+					{
+						node.Right.Switch(this);				
+						_il.Emit(OpCodes.Dup);
+						_il.Emit(OpCodes.Stloc, ((LocalBinding)binding).LocalBuilder);
+						break;
+					}
+						
+					default:
+					{
+						throw new NotImplementedException();
+					}
+				}				
 			}
 			else
 			{
@@ -199,9 +210,19 @@ namespace Boo.Ast.Compilation.Steps
 					{
 						// pushes target reference
 						node.Target.Switch(this);
-						if (mi.IsVirtual)
+						if (!mi.DeclaringType.IsValueType)
 						{
-							code = OpCodes.Callvirt;
+							if (mi.IsVirtual)
+							{
+								code = OpCodes.Callvirt;
+							}
+						}
+						else
+						{
+							// declare local to hold value type
+							LocalBuilder temp = _il.DeclareLocal(mi.DeclaringType);
+							_il.Emit(OpCodes.Stloc, temp);
+							_il.Emit(OpCodes.Ldloca, temp);
 						}
 					}
 					PushArguments(methodBinding, node.Arguments);
@@ -233,6 +254,23 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
+		{
+			_il.Emit(OpCodes.Ldc_I4, int.Parse(node.Value));
+		}
+		
+		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
+		{
+			if (node.Value)
+			{
+				_il.Emit(OpCodes.Ldc_I4_1);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Ldc_I4_0);
+			}
+		}
+		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
@@ -251,7 +289,7 @@ namespace Boo.Ast.Compilation.Steps
 			ExpressionCollection args = node.Arguments;
 			for (int i=0; i<args.Count; ++i)
 			{			
-				StoreElementReference(i, args[i]);				
+				StoreElementReference(i, args[i], BindingManager.ObjectType);				
 			}
 			
 			_il.EmitCall(OpCodes.Call, String_Format, null);
@@ -260,20 +298,36 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			EmitDebugInfo(node.Target, node);
-			
-			node.Target.Switch(this);			
 			IBinding binding = BindingManager.GetBinding(node);
 			switch (binding.BindingType)
 			{
 				case BindingType.Property:
 				{
-					IPropertyBinding property = (IPropertyBinding)binding;
-					_il.EmitCall(OpCodes.Callvirt, property.PropertyInfo.GetGetMethod(), null);
+					OpCode code = OpCodes.Call;
+					PropertyInfo property = ((IPropertyBinding)binding).PropertyInfo;
+					MethodInfo getMethod = property.GetGetMethod();
+					if (!getMethod.IsStatic)
+					{
+						node.Target.Switch(this);
+						if (getMethod.IsVirtual)
+						{
+							if (property.DeclaringType.IsValueType)
+							{
+								//_il.Emit(OpCodes.Box, property.DeclaringType);
+							}
+							else
+							{
+								code = OpCodes.Callvirt;
+							}
+						}
+					}
+					_il.EmitCall(code, getMethod, null);
 					break;
 				}
 				
 				case BindingType.Method:
 				{
+					node.Target.Switch(this);
 					break;
 				}
 				
@@ -302,18 +356,6 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					Binding.ParameterBinding param = (Binding.ParameterBinding)info;
 					_il.Emit(OpCodes.Ldarg, param.Index);
-					break;
-				}
-				
-				case BindingType.Assembly:
-				{
-					// ignores "using namespace from assembly" clause
-					break;
-				}
-				
-				case BindingType.Namespace:
-				{
-					// ignores "using namespace as alias" clause
 					break;
 				}
 				
@@ -502,7 +544,25 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			if (!expectedType.IsAssignableFrom(actualType))
 			{
-				_il.Emit(OpCodes.Castclass, expectedType);
+				if (expectedType.IsValueType)
+				{
+					_il.Emit(OpCodes.Unbox, expectedType);
+					_il.Emit(OpCodes.Ldobj, expectedType);
+				}
+				else
+				{
+					_il.Emit(OpCodes.Castclass, expectedType);
+				}
+			}
+			else
+			{
+				if (expectedType == BindingManager.ObjectType)
+				{
+					if (actualType.IsValueType)
+					{
+						_il.Emit(OpCodes.Box, actualType);
+					}
+				}
 			}
 		}
 		
@@ -512,11 +572,12 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Stloc, localBuilder);
 		}
 		
-		void StoreElementReference(int index, Node value)
+		void StoreElementReference(int index, Node value, Type elementType)
 		{
 			_il.Emit(OpCodes.Dup);	// array reference
 			_il.Emit(OpCodes.Ldc_I4, index); // element index
 			value.Switch(this); // value
+			EmitCastIfNeeded(elementType, GetBoundType(value));
 			_il.Emit(OpCodes.Stelem_Ref);
 		}		
 		

@@ -25,7 +25,7 @@ namespace Boo.Lang
 			{
 				Error("CantUnpackNull");
 			}			
-			if (expected != array.Length)
+			if (expected > array.Length)
 			{
 				Error("UnpackArrayOfWrongSize", expected, array.Length);
 			}

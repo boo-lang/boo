@@ -33,6 +33,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public ITypeBinding BoolTypeBinding;
 		
+		public ITypeBinding IntTypeBinding;
+		
 		public ITypeBinding RuntimeServicesBinding;
 		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
@@ -43,6 +45,7 @@ namespace Boo.Ast.Compilation.Binding
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, ObjectType));
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, StringType));
 			Cache(BoolTypeBinding = new ExternalTypeBinding(this, BoolType));
+			Cache(IntTypeBinding = new ExternalTypeBinding(this, IntType));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, RuntimeServicesType));
 		}
 		
@@ -168,6 +171,32 @@ namespace Boo.Ast.Compilation.Binding
 					throw new NotImplementedException(mi.ToString());
 				}
 			}
+		}
+		
+		public ITypedBinding ResolvePrimitive(string name)
+		{
+			ITypedBinding binding = null;
+			switch (name)
+			{
+				case "void":
+				{
+					binding = ToTypeReference(VoidTypeBinding);
+					break;
+				}
+				
+				case "string":
+				{
+					binding = ToTypeReference(StringTypeBinding);
+					break;
+				}
+				
+				case "int":
+				{
+					binding = ToTypeReference(IntTypeBinding);
+					break;
+				}
+			}
+			return binding;
 		}
 		
 		void Cache(ITypeBinding binding)

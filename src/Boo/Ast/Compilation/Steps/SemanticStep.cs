@@ -70,7 +70,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnTypeReference(TypeReference node)
 		{
-			IBinding info = ResolveName(node, node.Name);
+			IBinding info = ResolveQualifiedName(node.Name);
 			if (null != info)
 			{
 				if (BindingType.TypeReference != info.BindingType)
@@ -82,7 +82,17 @@ namespace Boo.Ast.Compilation.Steps
 					BindingManager.Bind(node, info);
 				}
 			}
-		}	
+		}
+		
+		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
+		{
+			BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+		}
+		
+		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
+		{
+			BindingManager.Bind(node, BindingManager.IntTypeBinding);
+		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
@@ -319,28 +329,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		IBinding ResolveName(Node node, string name)
 		{
-			IBinding binding = null;
-			switch (name)
-			{
-				case "void":
-				{
-					binding = BindingManager.ToTypeReference(BindingManager.VoidTypeBinding);
-					break;
-				}
-				
-				case "string":
-				{
-					binding = BindingManager.ToTypeReference(BindingManager.StringTypeBinding);
-					break;
-				}
-				
-				default:
-				{
-					binding = Resolve(name);
-					CheckNameResolution(node, name, binding);
-					break;
-				}
-			}			
+			IBinding binding = Resolve(name);
+			CheckNameResolution(node, name, binding);
 			return binding;
 		}
 		

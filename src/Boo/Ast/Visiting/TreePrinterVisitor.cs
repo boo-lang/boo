@@ -5,7 +5,7 @@ using Boo.Ast;
 namespace Boo.Ast.Visiting
 {
 	/// <summary>
-	/// Imprime a AST em uma estrutura de árvore.
+	/// Imprime a AST em uma estrutura de rvore.
 	/// </summary>
 	public class TreePrinterVisitor : TextEmitter
 	{
