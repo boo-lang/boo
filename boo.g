@@ -50,6 +50,7 @@ tokens
 	ELSE="else";
 	ENSURE="ensure";
 	ENUM="enum";
+	FAILURE="failure";
 	FINAL="final";	
 	FROM="from";
 	FOR="for";

@@ -11,9 +11,11 @@
 	<property name="antlr.exe" value="${antlr.home}/bin/antlr.exe" />
 	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
 	
-	<property name="build.dir" value="build" />
+	<property name="ngen.exe" value="${nant.settings.defaultframework.frameworkdirectory}/ngen.exe" />
+	
+	<property name="build.dir" value="build" />	
 
-	<target name="all" depends="booi">
+	<target name="all" depends="booi">	
 	</target>
 	
 	<target name="booc" depends="Boo, run-tests">
@@ -31,7 +33,7 @@
 				<includes name="*.pipeline" />
 			</fileset>
 		</copy>
-		<exec program='ngen.exe'>
+		<exec program='ngen.exe' if="${file::exists(ngen.exe)}">
 			<arg file='build/booc.exe' />
 			<arg file='build/Boo.dll' />
 		</exec>
@@ -52,7 +54,7 @@
 	
 	<target name='run-tests' depends="Boo.Tests" unless='${skip.tests}'>
 
-		<nunit2>
+		<nunit2>       
 			<formatter type="Plain" />
 			<test assemblyname="build/Boo.Tests.dll" />
 		</nunit2>
@@ -82,8 +84,7 @@
 
 		<resgen
 			input="src/Boo/Resources/strings.txt"
-			output="string.resources"
-			todir="build" />
+			output="build/string.resources" />
 
 		<csc
 			target="library"
@@ -108,8 +109,7 @@
 
 		<resgen
 			input="src/Boo/Resources/pt/strings.txt"
-			output="strings.pt.resources"
-			todir="build/pt" />
+			output="build/pt/strings.pt.resources" />
 
 		<al target="lib" culture="pt" output="build/pt/Boo.resources.dll">
 			<sources basedir="build/pt">
@@ -120,15 +120,13 @@
 
 	<target name="compile-grammar" depends="init">
 
-		<if test="${file::up-to-date('boo.g', 'src/Boo/Ast/Parsing/BooParserBase.cs')}">
+		<if test="${not file::up-to-date('boo.g', 'src/Boo/Ast/Parsing/BooParserBase.cs')}">
 			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
 				<arg value="src/Boo/Ast/Parsing" />
 				<arg value="boo.g" />
 			</exec>
-		</if>
-		
-		<if test="${file::up-to-date('booel.g', 'src/Boo/Ast/Parsing/BooExpressionLexer.cs')}">
+			
 			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
 				<arg value="src/Boo/Ast/Parsing" />
@@ -138,12 +136,12 @@
 	</target>
 	
 	<target name="generate-ast" depends="init">
-		<ifnot comparefile="ast.model" uptodatefile="src/Boo/Ast/Impl/CompileUnitImpl.cs">
+		<if test="${not file::up-to-date('ast.model', 'src/Boo/Ast/Impl/CompileUnitImpl.cs')}">
 			<exec program="python" failonerror="true">
 				<arg value="scripts\ast.py" />
 				<arg value="ast.model" />
 			</exec>
-		</ifnot>
+		</if>
 	</target>
 
 	<target name="rebuild" depends="clean, all" />
