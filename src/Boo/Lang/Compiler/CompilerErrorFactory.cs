@@ -75,7 +75,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError StepExecutionError(Exception error, ICompilerStep step)
 		{
-			return new CompilerError("BC0011", error, step);
+			return new CompilerError("BC0011", error, step, error.Message);
 		}
 		
 		public static CompilerError MethodArgumentCount(Node node, string name, int count)
@@ -201,6 +201,11 @@ namespace Boo.Lang.Compiler
 		public static CompilerError GenericParserError(LexicalInfo lexicalInfo, Exception error)
 		{
 			return new CompilerError("BC0044", lexicalInfo, error, error.Message);
+		}
+		
+		public static CompilerError MacroExpansionError(Node node, Exception error)
+		{
+			return new CompilerError("BC0045", node.LexicalInfo, error, error.Message);
 		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)

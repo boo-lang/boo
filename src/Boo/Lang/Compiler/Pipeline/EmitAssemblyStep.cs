@@ -816,6 +816,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(GetType(node));
 		}
 		
+		public override void OnNullLiteralExpression(NullLiteralExpression node)
+		{
+			_il.Emit(OpCodes.Ldnull);
+			PushType(null);
+		}
+		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{	
 			IBinding info = BindingManager.GetBinding(node);
@@ -1161,6 +1167,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void EmitCastIfNeeded(Type expectedType, Type actualType)
 		{
+			if (null == actualType) // see NullLiteralExpression
+			{
+				return;
+			}
+			
 			if (!expectedType.IsAssignableFrom(actualType))
 			{
 				if (expectedType.IsValueType)

@@ -43,6 +43,7 @@ BC0041=Não foi possível carregar a montagem {0}.
 BC0042=Erro na leitura de '{0}': {1}.
 BC0043=Token inesperado: {0}.
 BC0044={0}.
+BC0045=Erro na expansão da macro: {0}.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

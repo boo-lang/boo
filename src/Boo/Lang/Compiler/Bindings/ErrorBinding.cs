@@ -29,7 +29,7 @@
 
 namespace Boo.Lang.Compiler.Bindings
 {
-	public abstract class NullBinding : ITypeBinding, INamespace
+	public abstract class AbstractTypeBinding : ITypeBinding, INamespace
 	{	
 		public abstract string Name
 		{
@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public bool IsClass
+		public virtual bool IsClass
 		{
 			get
 			{
@@ -86,7 +86,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return false;
 		}
 		
-		public bool IsAssignableFrom(ITypeBinding other)
+		public virtual bool IsAssignableFrom(ITypeBinding other)
 		{
 			return false;
 		}
@@ -102,7 +102,32 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public class UnknownBinding : NullBinding
+	public class NullBinding : AbstractTypeBinding
+	{
+		public static NullBinding Default = new NullBinding();
+		
+		private NullBinding()
+		{
+		}
+		
+		public override string Name
+		{
+			get
+			{
+				return "null";
+			}
+		}
+		
+		public override BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Null;
+			}
+		}
+	}
+	
+	public class UnknownBinding : AbstractTypeBinding
 	{
 		public static UnknownBinding Default = new UnknownBinding();
 		
@@ -127,7 +152,7 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public class ErrorBinding : NullBinding
+	public class ErrorBinding : AbstractTypeBinding
 	{
 		public static ErrorBinding Default = new ErrorBinding();
 		

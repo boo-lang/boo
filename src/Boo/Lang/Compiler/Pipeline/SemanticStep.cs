@@ -602,6 +602,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		public override void OnNullLiteralExpression(NullLiteralExpression node, ref Expression resultingNode)
+		{
+			BindingManager.Bind(node, NullBinding.Default);
+		}
+		
 		public override void OnSelfLiteralExpression(SelfLiteralExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.GetBinding(_currentMethodBinding.Method.DeclaringType));

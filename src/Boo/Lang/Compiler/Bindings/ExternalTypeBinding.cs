@@ -165,6 +165,10 @@ namespace Boo.Lang.Compiler.Bindings
 			ExternalTypeBinding external = other as ExternalTypeBinding;
 			if (null == external)
 			{
+				if (BindingType.Null == other.BindingType)
+				{
+					return !IsValueType;
+				}
 				return other.IsSubclassOf(this);
 			}
 			return _type.IsAssignableFrom(external._type);

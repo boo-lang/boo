@@ -93,7 +93,14 @@ namespace Boo.Lang.Compiler.Pipeline
 						}
 						else
 						{
-							resultingNode = ((IAstMacro)macro).Expand(node);
+							try
+							{
+								resultingNode = ((IAstMacro)macro).Expand(node);
+							}
+							catch (Exception error)
+							{
+								Errors.Add(CompilerErrorFactory.MacroExpansionError(node, error));
+							}
 						}
 					}
 				}

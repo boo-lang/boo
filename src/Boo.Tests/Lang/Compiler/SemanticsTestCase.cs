@@ -110,5 +110,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("using1.boo");
 		}
+		
+		[Test]
+		public void ReturnNull()
+		{
+			RunCompilerTestCase("null0.boo");			
+		}
 	}
 }

@@ -50,6 +50,7 @@ namespace Boo.Lang.Compiler.Bindings
 		Ambiguous = 0x1000,
 		SpecialFunction,
 		Unknown,
+		Null,
 		Error
 	}	
 	

@@ -115,6 +115,24 @@ namespace Boo.Tests.Lang.Compiler
 		}
 	}
 	
+	public class Disposable : System.IDisposable
+	{
+		public Disposable()
+		{
+			Console.WriteLine("Disposable.constructor");
+		}
+		
+		public void foo()
+		{
+			Console.WriteLine("Disposable.foo");
+		}
+		
+		void System.IDisposable.Dispose()
+		{
+			Console.WriteLine("Disposable.Dispose");
+		}
+	}
+	
 	[TestFixture]
 	public class CompilerTestCase : AbstractCompilerTestCase
 	{
@@ -124,7 +142,8 @@ namespace Boo.Tests.Lang.Compiler
 					Add(new Boo.Antlr.BooParsingStep()).
 					Add(new ImportResolutionStep()).
 					Add(new AstAttributesStep()).
-					Add(new AstNormalizationStep()).							
+					Add(new MacroExpansionStep()).
+					Add(new AstNormalizationStep()).					
 					Add(new SemanticStep()).
 					Add(new EmitAssemblyStep()).
 					Add(new SaveAssemblyStep()).
@@ -511,6 +530,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void InferedSignatureOverride()
 		{
 			RunCompilerTestCase("override2.boo");
+		}
+		
+		[Test]
+		public void Using()
+		{
+			RunCompilerTestCase("using0.boo");
 		}
 	}
 }

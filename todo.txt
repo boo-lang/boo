@@ -119,7 +119,7 @@ done * mover todas as mensagens de errors para CompilerErrorFactory
 
 done * criar mecanismo de teste para mensagens de erro
 
-* null
+done * null
 
 * is/is not
 
