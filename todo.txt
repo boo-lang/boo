@@ -122,6 +122,10 @@ SemanticStep que deverá criar AsExpression sempre que necessário
 
 * BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais
 
+* resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
+escopo mas que não resolve para um tipo, examplo, tipo Size dentro de um classe
+derivada de Control (que tem uma propriedade chamada Size)
+
 Milestone 3.7 (macro infraestructure)
 -------------------------------------
 * using macro

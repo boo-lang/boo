@@ -34,7 +34,16 @@ namespace Boo.Ast.Compilation.Binding
 					}
 					return binding;
 				}
-			}	
+			}
+			
+			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			{
+				IBinding binding = _bindingManager.GetBoundType(baseType).Resolve(name);
+				if (null != binding)
+				{
+					return binding;
+				}
+			}
 			return null;
 		}
 		
@@ -53,6 +62,11 @@ namespace Boo.Ast.Compilation.Binding
 				}
 			}
 			throw new NotImplementedException();
+		}
+		
+		public override string ToString()
+		{
+			return string.Format("InternalTypeBinding<TypeDefinition={0}>", _typeDefinition);
 		}
 	}
 

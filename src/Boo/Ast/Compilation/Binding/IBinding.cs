@@ -103,6 +103,11 @@ namespace Boo.Ast.Compilation.Binding
 			get;
 		}
 		
+		bool IsClass
+		{
+			get;
+		}
+		
 		bool IsValueType
 		{
 			get;

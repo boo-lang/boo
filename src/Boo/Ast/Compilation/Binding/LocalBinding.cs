@@ -87,5 +87,10 @@ namespace Boo.Ast.Compilation.Binding
 				_builder = value;
 			}
 		}
+		
+		public override string ToString()
+		{
+			return string.Format("Local<Name={0}, Type={1}>", Name, BoundType);
+		}
 	}
 }

@@ -57,6 +57,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public bool IsClass
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public bool IsValueType
 		{
 			get

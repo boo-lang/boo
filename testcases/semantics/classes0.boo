@@ -1,19 +1,19 @@
 """
-public class Person:
+public class Person(object):
 
 	public def constructor():
 		pass
 
-internal class Info:
+internal class Info(object):
 
 	protected def constructor():
 		pass
 
 """
-class Person:
+class Person(object):
 	public def constructor():
 		pass
 
-internal class Info:
+internal class Info(object):
 	protected def constructor():
 		pass

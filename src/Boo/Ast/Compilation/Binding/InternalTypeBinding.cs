@@ -82,6 +82,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public bool IsClass
+		{
+			get
+			{
+				return NodeType.ClassDefinition == _typeDefinition.NodeType;
+			}
+		}
+		
 		public bool IsValueType
 		{
 			get

@@ -176,9 +176,9 @@ namespace Boo.Ast.Compilation.Pipeline
 		{
 			TypeBuilder current = _typeBuilder;
 			
-			_typeBuilder = _moduleBuilder.DefineType(node.FullName, GetTypeAttributes(node));
+			_typeBuilder = DefineType(node);
+			
 			DefineMembers(_typeBuilder, node.Members);
-			SetType(node, _typeBuilder);			
 			node.Members.Switch(this);			
 			_typeBuilder.CreateType();
 			
@@ -215,7 +215,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
 			_il = builder.GetILGenerator();			
 			_il.Emit(OpCodes.Ldarg_0);			
-			_il.Emit(OpCodes.Call, Object_Constructor);
+			_il.Emit(OpCodes.Call, _typeBuilder.BaseType.GetConstructor(new Type[0]));
 			constructor.Locals.Switch(this);
 			constructor.Body.Switch(this);
 			_il.Emit(OpCodes.Ret);
@@ -1049,6 +1049,7 @@ namespace Boo.Ast.Compilation.Pipeline
 				}
 				else
 				{
+					_context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
 					_il.Emit(OpCodes.Castclass, expectedType);
 				}
 			}
@@ -1351,6 +1352,28 @@ namespace Boo.Ast.Compilation.Pipeline
 			                               CallingConventions.Standard, 
 			                               GetParameterTypes(constructor));
 			SetBuilder(constructor, builder);
+		}
+		
+		TypeBuilder DefineType(TypeDefinition typeDefinition)
+		{
+			TypeBuilder typeBuilder = _moduleBuilder.DefineType(typeDefinition.FullName,
+										GetTypeAttributes(typeDefinition));			
+			SetType(typeDefinition, typeBuilder);
+			
+			foreach (TypeReference baseType in typeDefinition.BaseTypes)
+			{
+				Type type = GetType(baseType);
+				if (type.IsClass)
+				{
+					typeBuilder.SetParent(type);
+				}
+				else
+				{
+					typeBuilder.AddInterfaceImplementation(type);
+				}
+			}
+			
+			return typeBuilder;
 		}
 		
 		void DefineMembers(TypeBuilder typeBuilder, TypeMemberCollection members)

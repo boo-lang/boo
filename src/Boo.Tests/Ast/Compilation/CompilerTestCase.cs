@@ -413,9 +413,15 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
-		public void TestBaseClass0()
+		public void TestSimpleBaseClass()
 		{
 			RunCompilerTestCase("baseclass0.boo", "simplebaseclass");
+		}
+		
+		[Test]
+		public void TestOverrideBaseClassMethod()
+		{
+			RunCompilerTestCase("baseclass1.boo", "override base class method");
 		}
 		
 		[Test]

@@ -97,16 +97,45 @@ namespace Boo.Ast.Compilation.Pipeline
 			PopNamespace();
 		}
 		
-		public override bool EnterClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		void BindBaseTypes(ClassDefinition node)
 		{
+			Switch(node.BaseTypes);
+			
+			ITypeBinding baseClass = null;
+			foreach (TypeReference baseType in node.BaseTypes)
+			{
+				ITypeBinding baseBinding = GetBoundType(baseType);
+				if (baseBinding.IsClass)
+				{
+					if (null != baseClass)
+					{
+						Errors.MultipleClassInheritance(baseType,
+							node.Name,
+							baseClass.FullName
+							); 
+					}
+					else
+					{
+						baseClass = baseBinding;
+					}
+				}
+			}
+			
+			if (null == baseClass)
+			{
+				node.BaseTypes.Add(
+					CreateBoundTypeReference(BindingManager.ObjectTypeBinding)
+				);
+			}
+		}
+		
+		public override void OnClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		{
+			BindBaseTypes(node);
 			InternalTypeBinding binding = new InternalTypeBinding(BindingManager, node);
 			BindingManager.Bind(node, binding);
 			PushNamespace(binding);
-			return true;
-		}
-		
-		public override void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
-		{
+			Switch(node.Members);
 			PopNamespace();
 		}
 		
@@ -546,7 +575,7 @@ namespace Boo.Ast.Compilation.Pipeline
 					node.Right = Switch(node.Right);
 					ITypeBinding expressionTypeInfo = BindingManager.GetBoundType(node.Right);				
 					DeclareLocal(reference, new Local(reference, false), expressionTypeInfo);
-					LeaveBinaryExpression(node, ref resultingNode);
+					BindingManager.Bind(node, expressionTypeInfo);
 					return false;
 				}
 			}

@@ -84,6 +84,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public bool IsClass
+		{
+			get
+			{
+				return _type.IsClass;
+			}
+		}
+		
 		public bool IsValueType
 		{
 			get
@@ -115,7 +123,15 @@ namespace Boo.Ast.Compilation.Binding
 			ExternalTypeBinding external = other as ExternalTypeBinding;
 			if (null == external)
 			{
-				throw new NotImplementedException(other.ToString());
+				TypeDefinition internalType = ((InternalTypeBinding)other).TypeDefinition;
+				foreach (TypeReference baseTypeReference in internalType.BaseTypes)
+				{
+					if (IsAssignableFrom(_bindingManager.GetBoundType(baseTypeReference)))
+					{
+						return true;
+					}
+				}
+				return false;
 			}
 			return _type.IsAssignableFrom(external._type);
 		}

@@ -79,7 +79,10 @@ namespace Boo.Ast.Compilation.Pipeline
 					}
 				}
 			}
-			_context.TraceInfo("{0}: {1} bound to {2}.", sourceNode.LexicalInfo, name, binding);
+			if (null != binding)
+			{
+				_context.TraceInfo("{0}: {1} bound to {2}.", sourceNode.LexicalInfo, name, binding);
+			}
 			return binding;
 		}
 		

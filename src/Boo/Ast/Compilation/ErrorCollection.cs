@@ -83,6 +83,17 @@ namespace Boo.Ast.Compilation
 			throw new Error(node, Format("NotImplemented", message));
 		}
 		
+		public void MultipleClassInheritance(Node node, string className, string baseClass)
+		{
+			Add(new Error(node,
+						Format("MultipleClassInheritance",
+								className,
+								baseClass
+								)
+							)
+				);
+		}
+		
 		public void CantCastToValueType(Node node, string typeName)
 		{
 			Add(new Error(node, Format("CantCastToValueType", typeName)));

@@ -1,4 +1,5 @@
 ;Compiler Error Messages
+MultipleClassInheritance=The class '{0}' already has '{1}' as its base class. 
 NamedParameterMustBeReference=Parameter name must be an identifier.
 NamedParametersNotAllowed=Named arguments are only allowed for constructors.
 AmbiguousName=Ambiguous reference {0}: {1}.

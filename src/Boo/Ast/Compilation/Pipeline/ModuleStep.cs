@@ -60,7 +60,7 @@ namespace Boo.Ast.Compilation.Pipeline
 				
 				if (module.Globals.Statements.Count > 0)
 				{
-					Method method = new Method();
+					Method method = new Method(module.Globals.LexicalInfo);
 					method.ReturnType = new TypeReference("void");
 					method.Body = module.Globals;
 					method.Name = MainMethodName;
