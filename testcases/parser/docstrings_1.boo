@@ -24,3 +24,14 @@ With multiple lines.
 	"""And why couldn't a property?"""
 		get:
 			return _fname
+
+interface ICustomer:
+"""an interface."""
+
+	def Initialize()
+	"""interface method"""
+	
+	Name as string:
+	"""interface property"""
+		get
+

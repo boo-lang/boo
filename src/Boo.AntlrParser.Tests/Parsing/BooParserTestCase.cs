@@ -824,9 +824,20 @@ With multiple lines.
 	"""And why couldn't a property?"""
 		get:
 			return _fname
+interface ICustomer:
+"""an interface."""
+
+	def Initialize()
+	"""interface method"""
+	
+	Name as string:
+	"""interface property"""
+		get
+	
+	
 			*/
 			
-			Boo.Lang.Compiler.Ast.Module module = BooParser.ParseFile(GetTestCasePath("docstrings_1.boo")).Modules[0];
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("docstrings_1.boo");
 			Assert.AreEqual("A module can have a docstring.", module.Documentation);
 			Assert.AreEqual("And so can the namespace declaration.", module.Namespace.Documentation);
 			
@@ -835,6 +846,12 @@ With multiple lines.
 			Assert.AreEqual("Fields can have one.", person.Members[0].Documentation);
 			Assert.AreEqual("\tAnd so can a method or constructor.\n\t", person.Members[1].Documentation);
 			Assert.AreEqual("And why couldn't a property?", person.Members[2].Documentation);
+			
+			InterfaceDefinition customer = (InterfaceDefinition)module.Members[1];
+			Assert.AreEqual("an interface.", customer.Documentation);
+			
+			Assert.AreEqual("interface method", customer.Members[0].Documentation);
+			Assert.AreEqual("interface property", customer.Members[1].Documentation);
 			
 		}
 		

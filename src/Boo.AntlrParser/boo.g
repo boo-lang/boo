@@ -462,7 +462,7 @@ interface_definition [TypeMemberCollection container]
 		container.Add(itf);
 	}
 	(base_types[itf.BaseTypes])?
-	begin
+	begin_with_doc[itf]
 	(
 		(PASS! eos) |
 		(
@@ -502,7 +502,7 @@ interface_method [TypeMemberCollection container]
 	LPAREN! parameter_declaration_list[m.Parameters] RPAREN!
 	(AS! rt=type_reference { m.ReturnType=rt; })?			
 	(
-		eos | (empty_block (EOS!)*)
+		(eos docstring[m]) | (empty_block (EOS!)*)
 	)
 	;
 			
@@ -520,7 +520,7 @@ interface_property [TypeMemberCollection container]
 		AddAttributes(p.Attributes);
 		container.Add(p);
 	}
-	begin!
+	begin_with_doc[p]!
 		(interface_property_accessor[p])+
 	end!
 	(EOS!)*
