@@ -198,9 +198,9 @@ class BooBindingCompilerManager:
 				if match.Success:
 					error.Column      = Int32.Parse(match.Result('${column}'));
 					error.Line        = Int32.Parse(match.Result('${line}'));
-					error.FileName    = Path.GetFullPath(match.Result('${file}'));
-					//error.IsWarning   = match.Result('${error}') == "warning";
+					error.FileName    = Path.GetFullPath(match.Result('${file}'));					
 					error.ErrorNumber = match.Result('${number}');
+					error.IsWarning   = error.ErrorNumber.StartsWith("BCW")
 					error.ErrorText   = match.Result('${message}');
 				else:
 					match = _generalError.Match(curLine); // try to match general csc errors
