@@ -2292,6 +2292,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void DefineEntryPoint()
 		{
+			CompilerContext.GeneratedAssembly = _asmBuilder;
+			
 			if (CompilerOutputType.Library != CompilerParameters.OutputType)
 			{				
 				Method method = AstAnnotations.GetEntryPoint(CompileUnit);
@@ -2308,7 +2310,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 					// for the rest of the world (like RunAssemblyStep)
 					// the created method is the way to go
-					AstAnnotations.SetAssemblyEntryPoint(CompileUnit, createdMethod);
+					CompilerContext.GeneratedAssemblyEntryPoint = createdMethod;
 				}
 				else
 				{

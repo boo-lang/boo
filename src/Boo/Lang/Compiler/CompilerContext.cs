@@ -36,7 +36,7 @@ using Assembly = System.Reflection.Assembly;
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
-	/// Contexto de compilao boo.
+	/// boo compilation context.
 	/// </summary>
 	public class CompilerContext
 	{				
@@ -52,7 +52,11 @@ namespace Boo.Lang.Compiler
 		
 		protected TraceSwitch _traceSwitch;
 
-		protected int _localIndex;		
+		protected int _localIndex;
+		
+		protected System.Reflection.MethodInfo _generatedEntryPoint;
+		
+		protected Assembly _generatedAssembly;
 
 		public CompilerContext(CompileUnit unit) : this(new CompilerParameters(), unit)
 		{				
@@ -117,6 +121,32 @@ namespace Boo.Lang.Compiler
 				return _bindingManager;
 			}
 		}		
+		
+		public Assembly GeneratedAssembly
+		{
+			get
+			{
+				return _generatedAssembly;
+			}
+			
+			set
+			{
+				_generatedAssembly = value;
+			}
+		}
+		
+		public System.Reflection.MethodInfo GeneratedAssemblyEntryPoint
+		{
+			get
+			{
+				return _generatedEntryPoint;
+			}
+			
+			set
+			{
+				_generatedEntryPoint = value;
+			}
+		}
 		
 		public int AllocIndex()
 		{

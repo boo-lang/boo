@@ -39,8 +39,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static object AssemblyBuilderKey = new object();
 		
-		static object AssemblyEntryPointKey = new object();
-		
 		public static Method GetEntryPoint(CompileUnit node)
 		{
 			return (Method)node[EntryPointKey];
@@ -64,16 +62,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		public static void SetModuleClass(Module module, ClassDefinition classDefinition)
 		{
 			module[ModuleClassKey] = classDefinition;
-		}
-		
-		public static System.Reflection.MethodInfo GetAssemblyEntryPoint(CompileUnit cu)
-		{
-			return (System.Reflection.MethodInfo)cu[AssemblyEntryPointKey];
-		}
-		
-		public static void SetAssemblyEntryPoint(CompileUnit node, System.Reflection.MethodInfo method)
-		{
-			node[AssemblyEntryPointKey] = method;
 		}
 		
 		public static System.Reflection.Emit.AssemblyBuilder GetAssemblyBuilder(CompileUnit node)

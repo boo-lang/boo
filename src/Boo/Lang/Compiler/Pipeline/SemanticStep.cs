@@ -2040,9 +2040,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			IEventBinding eventBinding = (IEventBinding)binding;
 			ITypedBinding expressionBinding = (ITypedBinding)GetBinding(node.Right);
-			if (CheckDelegateArgument(node.Left, eventBinding, expressionBinding))
-			{						
-			}
+			CheckDelegateArgument(node.Left, eventBinding, expressionBinding);
 			
 			Bind(node, BindingManager.VoidTypeBinding);
 		}

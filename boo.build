@@ -29,7 +29,26 @@
 		<property name="skip.tests" value="True" />
 	</if>	
 	
-	<target name="all" depends="booc, Boo.NAnt">	
+	<target name="all" depends="booc, booi">	
+	</target>
+	
+	<target name="booi" depends="Boo.NAnt">
+		<loadtasks assembly="build/Boo.NAnt.dll" />
+		
+		<booc
+			target="exe"
+			output="build/booi.exe"
+			tracelevel="Info">
+			
+			<sources basedir="src/BooI">
+				<includes name="*.boo" />
+			</sources>
+			
+			<references basedir="build">
+				<includes name="Boo.dll" />
+			</references>
+		</booc>
+		
 	</target>
 	
 	<target name="Boo.NAnt" depends="booc">

@@ -40,10 +40,9 @@ namespace Boo.Lang.Compiler.Pipeline
 				return;
 			}
 			
-			System.Reflection.MethodInfo method = AstAnnotations.GetAssemblyEntryPoint(CompileUnit);
 			try
 			{
-				method.Invoke(null, new object[] { new string[0] });
+				CompilerContext.GeneratedAssemblyEntryPoint.Invoke(null, new object[] { new string[0] });
 			}
 			catch (System.Reflection.TargetInvocationException x)
 			{				
