@@ -169,19 +169,31 @@
 		</csc>
 	</target>
 	
+	<target name="insert-notice">
+		<exec program="bin/booi.exe" useruntimeengine="true">
+			<arg file="scripts/insertnotice.boo" />
+		</exec>
+	</target>
+	
 	<target name="bin-distro">
 		<zip zipfile="boo-bin.zip" ziplevel="9">
 			<fileset>
+				<includes name="readme.txt" />
 				<includes name="license.txt" />
 				<includes name="ast.model.boo" />
 				<includes name="docs/**/*.boo" />
 				<includes name="docs/**/*.build" />
-				<includes name="docs/**/*.pdf" />
-				<includes name="build/*.dll" />
-				<includes name="build/*.exe" />
+				<includes name="docs/**/*.sxw" />
+				<includes name="bin/*.dll" />
+				<includes name="bin/*.exe" />
 				
 				<includes name="extras/boo.xml" />
 				<includes name="extras/SharpDevelop/boo.xshd" />
+				<includes name="extras/boox/build/*.dll" />
+				<includes name="extras/boox/build/*.exe" />
+				<includes name="extras/boox/**/*.boo" />
+				<includes name="extras/boox/**/*.build" />
+				<includes name="extras/boox/resources/**/*.png" />
 				
 				<includes name="examples/**/*.boo" />
 				<includes name="examples/**/*.aspx" />
@@ -191,15 +203,34 @@
 		</zip>
 	</target>
 	
-	<target name="src-distro">
+	<target name="src-distro" depends="insert-license">
 		<zip zipfile="boo-src.zip" ziplevel="9">
 			<fileset>
+				<includes name="readme.txt" />
 				<includes name="license.txt" />
-				<includes name="boo.build" />				
+				<includes name="notice.txt" />
 				<includes name="ast.model.boo" />
+				<includes name="docs/**/*.boo" />
+				<includes name="docs/**/*.build" />
+				<includes name="docs/**/*.sxw" />
+				<includes name="bin/*.dll" />
+				<includes name="bin/*.exe" />
 				
-				<includes name="scripts/*.boo" />
+				<includes name="extras/boo.xml" />
+				<includes name="extras/SharpDevelop/boo.xshd" />
+				<includes name="extras/boox/build/*.dll" />
+				<includes name="extras/boox/build/*.exe" />
+				<includes name="extras/boox/**/*.boo" />
+				<includes name="extras/boox/**/*.build" />
+				<includes name="extras/boox/resources/**/*.png" />
 				
+				<includes name="examples/**/*.boo" />
+				<includes name="examples/**/*.aspx" />
+				<includes name="examples/**/*.build" />
+				<includes name="examples/**/*.config" />
+				
+				<includes name="default.build" />
+				<includes name="scripts/*.boo" />				
 				<includes name="lib/**/*.jar" />
 				<includes name="lib/**/*.dll" />
 				
@@ -210,25 +241,11 @@
 				<includes name="src/Boo/Resources/strings.txt" />
 				<includes name="src/Boo/Resources/pt/strings.txt" />
 				
-				<includes name="bin/*.dll" />
-				<includes name="bin/*.exe" />
-				
 				<includes name="tests/**/*.boo" />
 				<includes name="tests/**/*.cs" />
 				<includes name="tests/**/*.txt" />
 				<includes name="tests/**/*.build" />
-				
-				<includes name="extras/boo.xml" />
-				<includes name="extras/SharpDevelop/boo.xshd" />
-				
-				<includes name="examples/**/*.boo" />
-				<includes name="examples/**/*.aspx" />
-				<includes name="examples/**/*.build" />
-				<includes name="examples/**/*.config" />
-				
-				<includes name="docs/**/*.boo" />
-				<includes name="docs/**/*.build" />
-				<includes name="docs/**/*.sxw" />
+				<includes name="tests/**/*.prjx" />
 			</fileset>
 		</zip>
 	</target>

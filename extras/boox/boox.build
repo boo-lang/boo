@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="boox" default="run">
 
-	<property name="boo.dir" value="${path::get-full-path('../../build')}" />
+	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
 	<property name="sharpd.dir" value="${path::get-full-path('/dotnet/SharpWT/SharpDevelop/bin')}" />
 	
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />

@@ -32,8 +32,8 @@ namespace Boo.Examples.Web
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Pipeline
-import Boo.Lang.Compiler.Pipeline.Definitions
+import Boo.Lang.Compiler.Pipelines
+import Boo.Lang.Compiler.Steps
 import System
 import System.IO
 import System.Web
@@ -95,12 +95,12 @@ class ScriptRunnerPage(Page):
 		
 	def CompileMacro(code):
 		compiler = BooCompiler()
+		compiler.Parameters.Pipeline = CompileToMemory()
 		compiler.Parameters.Input.Add(StringInput("<code>", code))
 		compiler.Parameters.OutputType = CompilerOutputType.Library
 		compiler.Parameters.References.Add(typeof(WebMacro).Assembly)
 		pipeline = compiler.Parameters.Pipeline
-		pipeline.Load(BooInMemoryPipelineDefinition)
-		pipeline.InsertAfter("parse", CreateMacroStep())
+		pipeline.Insert(1, CreateMacroStep())
 		return compiler.Run()		
 			
 	def WriteConsole(text as string):
