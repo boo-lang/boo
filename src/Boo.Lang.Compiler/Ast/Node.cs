@@ -136,7 +136,8 @@ namespace Boo.Lang.Compiler.Ast
 		public LexicalInfo LexicalInfo
 		{
 			get
-			{				
+			{			
+				/*
 				if (LexicalInfo.Empty != _lexicalInfo)
 				{
 					return _lexicalInfo;
@@ -145,6 +146,7 @@ namespace Boo.Lang.Compiler.Ast
 				{
 					return _parent.LexicalInfo;
 				}
+				*/
 				return _lexicalInfo;
 			}
 

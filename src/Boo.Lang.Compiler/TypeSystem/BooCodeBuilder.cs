@@ -330,6 +330,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return unpack;
 		}
 		
+		public BinaryExpression CreateAssignment(LexicalInfo li, Expression lhs, Expression rhs)
+		{
+			BinaryExpression assignment = CreateAssignment(lhs, rhs);
+			assignment.LexicalInfo = li;
+			return assignment;
+		}
+		
 		public BinaryExpression CreateAssignment(Expression lhs, Expression rhs)
 		{
 			BinaryExpression assignment = new BinaryExpression(

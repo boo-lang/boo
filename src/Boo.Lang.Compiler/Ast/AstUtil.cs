@@ -169,7 +169,12 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static MethodInvocationExpression CreateMethodInvocationExpression(Expression target, Expression arg)
 		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
+			return CreateMethodInvocationExpression(arg.LexicalInfo, target, arg);
+		}
+		
+		public static MethodInvocationExpression CreateMethodInvocationExpression(LexicalInfo li, Expression target, Expression arg)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(li);
 			mie.Target = (Expression)target.Clone();			
 			mie.Arguments.Add((Expression)arg.Clone());
 			return mie;

@@ -335,7 +335,11 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveYieldStatement(YieldStatement node)
 		{						
 			Block block = new Block();			
-			block.Add(new ReturnStatement(CreateYieldInvocation(node.Expression)));				
+			block.Add(
+				new ReturnStatement(
+					node.LexicalInfo,
+					CreateYieldInvocation(node.Expression),
+					null));				
 			block.Add(CreateLabel(node));					
 			ReplaceCurrentNode(block);
 		}

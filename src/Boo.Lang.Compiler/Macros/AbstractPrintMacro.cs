@@ -39,30 +39,36 @@ namespace Boo.Lang
 		protected Statement Expand(MacroStatement macro,
 								Expression writePrototype,
 								Expression writeLinePrototype)
-		{			
+		{	
+			LexicalInfo li = macro.LexicalInfo;
+			
 			int argc = macro.Arguments.Count;
 			if (argc < 2)
 			{
 				MethodInvocationExpression mie = new MethodInvocationExpression(
+													li,
 													writeLinePrototype.CloneNode());
 				mie.Arguments = macro.Arguments;
 				return new ExpressionStatement(mie);
 			}
 			
-			Block block = new Block(macro.LexicalInfo);
+			Block block = new Block();
 			for (int i=0; i<argc-1; ++i)
 			{
 				block.Add(
 					AstUtil.CreateMethodInvocationExpression(
+						li,
 						writePrototype.CloneNode(),
 						macro.Arguments[i]));
 				block.Add(
 					AstUtil.CreateMethodInvocationExpression(
+						li,
 						writePrototype.CloneNode(),
 						new StringLiteralExpression(" ")));
 			}
 			block.Add(
 				AstUtil.CreateMethodInvocationExpression(
+					li,
 					writeLinePrototype.CloneNode(),
 					macro.Arguments[-1]));
 			return block;

@@ -42,9 +42,14 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public RaiseStatement(LexicalInfo li, Expression exception, StatementModifier modifier) : base(li, exception)
+		{
+			this.Modifier = modifier;
+		}
+		
 		public RaiseStatement(Expression exception, StatementModifier modifier) : base(exception)
 		{
-			_modifier = modifier;
+			this.Modifier = modifier;
 		}
 		
 		public RaiseStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)

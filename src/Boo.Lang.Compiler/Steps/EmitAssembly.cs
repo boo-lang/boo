@@ -608,6 +608,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnGotoStatement(GotoStatement node)
 		{
+			EmitDebugInfo(node);
+			
 			InternalLabel label = (InternalLabel)node.Label.Entity;
 			int gotoDepth = ContextAnnotations.GetTryBlockDepth(node);
 			int targetDepth = ContextAnnotations.GetTryBlockDepth(label.LabelStatement);
@@ -864,6 +866,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnBreakStatement(BreakStatement node)
 		{
+			EmitDebugInfo(node);
 			if (InTryInLoop())
 			{
 				_il.Emit(OpCodes.Leave, _currentLoopInfo.BreakLabel);
@@ -876,6 +879,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnContinueStatement(ContinueStatement node)
 		{
+			EmitDebugInfo(node);
 			if (InTryInLoop())
 			{
 				_il.Emit(OpCodes.Leave, _currentLoopInfo.ContinueLabel);
@@ -2288,8 +2292,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				try
 				{
-					_il.Emit(OpCodes.Nop);
-					_il.MarkSequencePoint(_symbolDocWriter, start.Line, 0, start.Line+1, 0);
+					//_il.Emit(OpCodes.Nop);
+					_il.MarkSequencePoint(_symbolDocWriter, start.Line, 1, start.Line+1, 1);
 				}
 				catch (Exception x)
 				{
