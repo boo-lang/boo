@@ -181,6 +181,14 @@
 		</exec>
 	</target>
 	
+	<target name="upload-distro" depends="distro">
+		<exec program="scp">
+			<arg value="-B" />
+			<arg value="boo-${distro-version}-*.zip" />
+			<arg value="${distro-user}@beaver.codehaus.org:/home/projects/boo/dist/distributions/" />
+		</exec>
+	</target>
+	
 	<target name="distro" depends="check-distro-version, src-distro, bin-distro">
 	</target>
 	
@@ -201,13 +209,12 @@
 				<include name="bin/*.exe" />
 				
 				<include name="extras/boo.lang" />
-				<include name="extras/boo.xml" />
+				<include name="extras/install-gtksourceview-mode" />
+				<include name="extras/boo*.xml" />
 				<include name="extras/SharpDevelop/boo.xshd" />
-				<include name="extras/boox/build/*.dll" />
-				<include name="extras/boox/build/*.exe" />
 				<include name="extras/boox/**/*.boo" />
 				<include name="extras/boox/**/*.build" />
-				<include name="extras/boox/resources/**/*.png" />
+				<include name="extras/boox/booxw/resources/**/*.png" />
 				
 				<include name="examples/**/*.boo" />
 				<include name="examples/**/*.aspx" />
@@ -231,13 +238,12 @@
 				<include name="bin/*.exe" />
 				
 				<include name="extras/boo.lang" />
-				<include name="extras/boo.xml" />
+				<include name="extras/install-gtksourceview-mode" />
+				<include name="extras/boo*.xml" />
 				<include name="extras/SharpDevelop/boo.xshd" />
-				<include name="extras/boox/build/*.dll" />
-				<include name="extras/boox/build/*.exe" />
 				<include name="extras/boox/**/*.boo" />
 				<include name="extras/boox/**/*.build" />
-				<include name="extras/boox/resources/**/*.png" />
+				<include name="extras/boox/booxw/resources/**/*.png" />
 				
 				<include name="examples/**/*.boo" />
 				<include name="examples/**/*.aspx" />

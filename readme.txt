@@ -1,5 +1,5 @@
 The boo programming language
-(c) 2004 Rodrigo Barreto de Oliveira
+(c) 2003, 2004 Rodrigo Barreto de Oliveira
 rbo@acm.org
 
 Building
@@ -11,11 +11,11 @@ Just type:
 	
 to build the project.
 
-	nant tests
+	nant test
 	
 will also run all the unit tests.
 
-	nant rebuild tests
+	nant rebuild test
 	
 will also cause the ast classes and parser
 to be regenerated (needs a java vm).
@@ -33,7 +33,7 @@ src/ contains all the source code for the runtime and
 compiler components.
 
 tests/ contains all the unit tests
-	testcases/compilation is a good source of information
+	testcases/integration is a good source of information
 	on the language features.
 
 lib/ contains project dependencies such as antlr.
@@ -71,6 +71,9 @@ your code by the compiler use the boo pipeline, run:
 
 	booc -p:boo examples/replace.boo	
 	
+More Information
+================
 
-	
+http://boo.codehaus.org/
+http://boo.codehaus.org/Mailing+Lists
 
