@@ -371,6 +371,11 @@ namespace Boo.Lang.Compiler.Bindings
 						break;
 					}
 					
+					case MemberTypes.TypeInfo:
+					{
+						return AsTypeBinding((Type)mi);
+					}
+					
 					default:
 					{
 						throw new NotImplementedException(mi.ToString());

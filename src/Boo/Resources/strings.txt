@@ -57,6 +57,7 @@ BCE0055=Internal compiler error: {0}.
 BCE0056=File '{0}' was not found.
 BCE0057=Primitive '{0}' can't be redefined.
 BCE0058=Object required.
+BCE0059=The 'lock' macro expects at least one argument.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

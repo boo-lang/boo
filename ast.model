@@ -152,10 +152,6 @@ package Boo.Ast
 	class DeclarationCollection
 	end
 	
-	class Block(Node)
-		Statements as StatementCollection
-	end	
-		
 	class Attribute(Node, INodeWithArguments)
 		Name as string
 		Arguments as ExpressionCollection
@@ -184,6 +180,10 @@ package Boo.Ast
 	[abstract]
 	class Statement(Node)
 		Modifier as StatementModifier
+	end
+	
+	class Block(Statement)
+		Statements as StatementCollection
 	end
 	
 	[ItemType(Statement)]

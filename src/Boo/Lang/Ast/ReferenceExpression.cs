@@ -48,6 +48,10 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
+		public ReferenceExpression(LexicalInfo lexicalInfo, string name): base(lexicalInfo, name)
+		{
+		}
+		
 		public override void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnReferenceExpression(this);

@@ -322,6 +322,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0058", node.LexicalInfo);
 		}
 		
+		public static CompilerError InvalidLockMacroArguments(Node node)
+		{
+			return new CompilerError("BCE0059", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -27,10 +27,8 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Pipeline
-{
-	using Boo.Lang.Ast;
-	
+namespace Boo.Lang.Ast
+{	
 	public class AstUtil
 	{
 		public static bool IsTargetOfSlicing(Expression node)
@@ -57,6 +55,17 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 			return false;
+		}
+		
+		public static Expression CreateReferenceExpression(string fullname)
+		{
+			string[] parts = fullname.Split('.');
+			ReferenceExpression expression = new ReferenceExpression(parts[0]);
+			for (int i=1; i<parts.Length; ++i)
+			{
+				expression = new MemberReferenceExpression(expression, parts[i]);
+			}
+			return expression;
 		}
 		
 		private AstUtil()

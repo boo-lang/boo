@@ -86,16 +86,20 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 					else
 					{
-						object macro = Activator.CreateInstance(type.Type);
-						if (!(macro is IAstMacro))
+						object macroInstance = Activator.CreateInstance(type.Type);
+						if (!(macroInstance is IAstMacro))
 						{
 							Errors.Add(CompilerErrorFactory.InvalidMacro(node, macroType.FullName));
 						}
 						else
-						{
+						{							
 							try
 							{
-								resultingNode = ((IAstMacro)macro).Expand(node);
+								using (IAstMacro macro = ((IAstMacro)macroInstance))
+								{
+									macro.Initialize(_context);
+									resultingNode = macro.Expand(node);
+								}
 							}
 							catch (Exception error)
 							{

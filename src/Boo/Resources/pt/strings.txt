@@ -57,6 +57,7 @@ BCE0055=Erro interno ao compilador: {0}.
 BCE0056=O arquivo '{0}' não foi encontrado.
 BCE0057=A primitiva '{0}' não pode ser redefinido.
 BCE0058=Objeto esperado.
+BCE0059=A macro 'lock' espera pelo menos um argumento.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

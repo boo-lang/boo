@@ -50,7 +50,9 @@ namespace Boo.Lang.Compiler
 		
 		protected Bindings.BindingManager _bindingManager;		
 		
-		protected TraceSwitch _traceSwitch;		
+		protected TraceSwitch _traceSwitch;
+
+		protected int _localIndex;		
 
 		public CompilerContext(CompileUnit unit) : this(new CompilerParameters(), unit)
 		{				
@@ -115,6 +117,16 @@ namespace Boo.Lang.Compiler
 				return _bindingManager;
 			}
 		}		
+		
+		public void ResetLocalIndex()
+		{
+			_localIndex = 0;
+		}
+		
+		public int AllocLocalIndex()
+		{
+			return ++_localIndex;
+		}
 		
 		public void TraceEnter(string format, object param)
 		{
@@ -200,6 +212,7 @@ namespace Boo.Lang.Compiler
 
 		internal void Run()
 		{
+			ResetLocalIndex();
 			_parameters.Pipeline.Run(this);
 		}	
 	}

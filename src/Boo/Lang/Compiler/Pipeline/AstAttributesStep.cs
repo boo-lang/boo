@@ -211,7 +211,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopNamespace();
 		}
 
-		public override void OnBlock(Block node, ref Block resultingNode)
+		public override void OnBlock(Block node, ref Statement resultingNode)
 		{
 			// No precisamos visitar blocos, isso
 			// vai deixar o processamento um pouco mais

@@ -148,6 +148,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void LockMacroWithMultipleArguments()
+		{
+			RunCompilerTestCase("lock1.boo");
+		}
+		
+		[Test]
 		public void ReturnNull()
 		{
 			RunCompilerTestCase("null0.boo");			
