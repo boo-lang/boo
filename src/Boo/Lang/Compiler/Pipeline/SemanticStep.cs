@@ -552,9 +552,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		bool CanResolveReturnType(InternalMethodBinding binding)
 		{
-			foreach (ReturnStatement rs in binding.ReturnStatements)
+			foreach (Expression rsExpression in binding.ReturnExpressions)
 			{
-				if (IsUnknown(GetBoundType(rs.Expression)))
+				if (IsUnknown(GetBoundType(rsExpression)))
 				{
 					return false;
 				}
@@ -572,9 +572,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			Method method = binding.Method;
-			foreach (ReturnStatement rs in binding.ReturnStatements)
+			foreach (Expression rsExpression in binding.ReturnExpressions)
 			{
-				ITypeBinding newType = GetBoundType(rs.Expression);
+				ITypeBinding newType = GetBoundType(rsExpression);
 				if (IsUnknown(type))
 				{
 					type = newType;
@@ -611,40 +611,45 @@ namespace Boo.Lang.Compiler.Pipeline
 		void ResolveResolvableReturnType(InternalMethodBinding binding)
 		{				
 			Method method = binding.Method;
-			ArrayList returnStatements = binding.ReturnStatements;
-			if (0 == returnStatements.Count)
+			ExpressionCollection returnExpressions = binding.ReturnExpressions;
+			if (0 == returnExpressions.Count)
 			{					
 				method.ReturnType = CreateBoundTypeReference(BindingManager.VoidTypeBinding);
 			}		
 			else
-			{			
-				ITypeBinding type = GetBoundType(((ReturnStatement)returnStatements[0]).Expression);
-				for (int i=1; i<returnStatements.Count; ++i)
-				{	
-					ITypeBinding newType = GetBoundType(((ReturnStatement)returnStatements[i]).Expression);
-					
-					if (type == newType)
-					{
-						continue;
-					}
-					
-					if (IsAssignableFrom(type, newType))
-					{
-						continue;
-					}
-					
-					if (IsAssignableFrom(newType, type))
-					{
-						type = newType;
-						continue;
-					}
-					
-					type = BindingManager.ObjectTypeBinding;
-					break;
-				}
-				method.ReturnType = CreateBoundTypeReference(type);
+			{					
+				method.ReturnType = CreateBoundTypeReference(GetMostGenericType(returnExpressions));
 			}
 			TraceReturnType(method, binding);	
+		}
+		
+		ITypeBinding GetMostGenericType(ExpressionCollection args)
+		{
+			ITypeBinding type = GetExpressionType(args[0]);
+			for (int i=1; i<args.Count; ++i)
+			{	
+				ITypeBinding newType = GetExpressionType(args[i]);
+				
+				if (type == newType)
+				{
+					continue;
+				}
+				
+				if (IsAssignableFrom(type, newType))
+				{
+					continue;
+				}
+				
+				if (IsAssignableFrom(newType, type))
+				{
+					type = newType;
+					continue;
+				}
+				
+				type = BindingManager.ObjectTypeBinding;
+				break;
+			}
+			return type;
 		}
 		
 		void BindParameterIndexes(Method method)
@@ -747,7 +752,15 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void LeaveTupleLiteralExpression(TupleLiteralExpression node, ref Expression resultingNode)
 		{
-			BindingManager.Bind(node, BindingManager.ObjectTupleBinding);
+			ExpressionCollection items = node.Items;
+			if (0 == items.Count)
+			{
+				BindingManager.Bind(node, BindingManager.ObjectTupleBinding);
+			}
+			else
+			{
+				BindingManager.Bind(node, BindingManager.ToTupleBinding(GetMostGenericType(items)));
+			}
 		}
 		
 		public override void LeaveDeclarationStatement(DeclarationStatement node, ref Statement resultingNode)
@@ -884,7 +897,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				ITypeBinding returnType = _currentMethodBinding.BoundType;
 				if (IsUnknown(returnType))
 				{
-					_currentMethodBinding.ReturnStatements.Add(node);
+					_currentMethodBinding.ReturnExpressions.Add(node.Expression);
 				}
 				else
 				{
@@ -1742,14 +1755,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			ITypeBinding defaultDeclType = BindingManager.ObjectTypeBinding;
 			
-			ExternalTypeBinding externalType = iteratorType as ExternalTypeBinding;
-			if (null != externalType)			
-			{				
-				Type type = externalType.Type;
-				if (type.IsArray)
-				{
-					defaultDeclType = BindingManager.ToTypeBinding(type.GetElementType());
-				}
+			if (iteratorType.IsArray)
+			{
+				defaultDeclType = iteratorType.GetElementType();
 			}
 			
 			foreach (Declaration d in declarations)

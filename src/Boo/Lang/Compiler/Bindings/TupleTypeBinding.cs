@@ -93,8 +93,21 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public virtual bool IsAssignableFrom(ITypeBinding other)
 		{			
-			return other == this ||
-				(other.IsArray && _elementType.IsAssignableFrom(other.GetElementType()));
+			if (other == this)
+			{
+				return true;
+			}
+			
+			if (other.IsArray)
+			{
+				ITypeBinding otherElementType = other.GetElementType();
+				if (_elementType.IsValueType || otherElementType.IsValueType)
+				{
+					return _elementType == otherElementType;
+				}
+				return _elementType.IsAssignableFrom(otherElementType);
+			}
+			return false;
 		}
 		
 		public IConstructorBinding[] GetConstructors()

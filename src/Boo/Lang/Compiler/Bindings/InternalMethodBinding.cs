@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		IMethodBinding _override;
 		
-		public ArrayList ReturnStatements;
+		public ExpressionCollection ReturnExpressions;
 		
 		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Ast.Method method)
 		{
@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Bindings
 			_method = method;
 			if (method.NodeType != NodeType.Constructor)
 			{
-				 ReturnStatements = new ArrayList();
+				ReturnExpressions = new ExpressionCollection();
 				if (null == method.ReturnType)
 				{
 					method.ReturnType = manager.CreateBoundTypeReference(UnknownBinding.Default);

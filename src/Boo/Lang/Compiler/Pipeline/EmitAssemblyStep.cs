@@ -805,8 +805,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnTupleLiteralExpression(TupleLiteralExpression node)
 		{
-			EmitObjectArray(node.Items);
-			PushType(GetBoundType(node));
+			ITypeBinding type = GetBoundType(node);
+			EmitArray(type.GetElementType(), node.Items);
+			PushType(type);
 		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
@@ -841,7 +842,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{				
 				LoadInt(node.Begin);
 			}
-			_il.Emit(OpCodes.Ldelem_Ref);			
+			_il.Emit(GetLoadElementOpCode(type.GetElementType()));			
 			
 			PushType(type.GetElementType());
 		}
@@ -1251,6 +1252,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			Label labelTest = _il.DefineLabel();
 			Label labelEnd = _il.DefineLabel();
 			
+			OpCode ldelem = GetLoadElementOpCode(iteratorTypeBinding.GetElementType());
+			
 			Type iteratorType = GetType(iteratorTypeBinding);
 			LocalBuilder localIterator = _il.DeclareLocal(iteratorType);
 			_il.Emit(OpCodes.Stloc, localIterator);
@@ -1270,7 +1273,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			// value = iterator[i]
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.Emit(OpCodes.Ldloc, localIndex);
-			_il.Emit(OpCodes.Ldelem_Ref);
+			_il.Emit(ldelem);
 			
 			EmitUnpackForDeclarations(node.Declarations, iteratorTypeBinding.GetElementType());
 			
@@ -1304,12 +1307,13 @@ namespace Boo.Lang.Compiler.Pipeline
 					_il.Emit(OpCodes.Ldc_I4, decls.Count);					
 					_il.EmitCall(OpCodes.Call, RuntimeServices_CheckArrayUnpack, null);
 					
+					OpCode ldelem = GetLoadElementOpCode(elementTypeBinding);
 					for (int i=0; i<decls.Count; ++i)
 					{
 						// local = array[i]
 						_il.Emit(OpCodes.Dup);
 						_il.Emit(OpCodes.Ldc_I4, i); // element index			
-						_il.Emit(OpCodes.Ldelem_Ref);
+						_il.Emit(ldelem);
 						
 						StoreLocal(elementTypeBinding, GetLocalBinding(decls[i]));					
 					}
@@ -1363,9 +1367,42 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ldc_I4, items.Count);
 			_il.Emit(OpCodes.Newarr, GetType(type));
 			
+			OpCode opcode = GetStoreElementOpCode(type);
 			for (int i=0; i<items.Count; ++i)
 			{			
-				StoreElementReference(i, items[i], type);				
+				StoreElement(opcode, i, items[i], type);				
+			}
+		}
+		
+		OpCode GetLoadElementOpCode(ITypeBinding binding)
+		{
+			if (binding.IsValueType)
+			{
+				if (BindingManager.IntTypeBinding == binding)
+				{
+					return OpCodes.Ldelem_I4;
+				}
+				throw new NotImplementedException();
+			}
+			else
+			{
+				return OpCodes.Ldelem_Ref;
+			}
+		}		
+		
+		OpCode GetStoreElementOpCode(ITypeBinding binding)
+		{
+			if (binding.IsValueType)
+			{
+				if (BindingManager.IntTypeBinding == binding)
+				{
+					return OpCodes.Stelem_I4;
+				}
+				throw new NotImplementedException();				
+			}
+			else
+			{
+				return OpCodes.Stelem_Ref;
 			}
 		}
 		
@@ -1432,13 +1469,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Stloc, local.LocalBuilder);
 		}
 		
-		void StoreElementReference(int index, Node value, ITypeBinding elementType)
+		void StoreElement(OpCode opcode, int index, Node value, ITypeBinding elementType)
 		{
 			_il.Emit(OpCodes.Dup);	// array reference
 			_il.Emit(OpCodes.Ldc_I4, index); // element index
 			value.Switch(this); // value
 			EmitCastIfNeeded(elementType, PopType());
-			_il.Emit(OpCodes.Stelem_Ref);
+			_il.Emit(opcode);
 		}		
 		
 		void DefineEntryPoint()

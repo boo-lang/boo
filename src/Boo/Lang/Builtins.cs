@@ -58,6 +58,24 @@ namespace Boo.Lang
 			return Console.ReadLine();
 		}
 		
+		public static object[] tuple(IEnumerable enumerable)
+		{
+			return (object[])tuple(enumerable, typeof(object));
+		}
+		
+		public static Array tuple(IEnumerable enumerable, Type elementType)
+		{
+			if (null == enumerable)
+			{
+				throw new ArgumentNullException("enumerable");
+			}
+			if (null == elementType)
+			{
+				throw new ArgumentNullException("elementType");
+			}			
+			return new List(enumerable).ToArray(elementType); 
+		}
+		
 		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
 		public static IEnumerable enumerate(object enumerable)
 		{			
