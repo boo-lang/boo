@@ -230,7 +230,7 @@ package Boo.Ast
 	end
 	
 	class IfStatement(Statement)
-		Expression as Expression
+		Condition as Expression
 		TrueBlock as Block
 		FalseBlock as Block
 	end

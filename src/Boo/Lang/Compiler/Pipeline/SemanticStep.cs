@@ -1133,9 +1133,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			Bind(node, nodeBinding);
 		}
 		
+		public override void LeaveUnlessStatement(UnlessStatement node)
+		{
+			CheckBoolContext(node.Condition);
+		}
+		
 		public override void LeaveIfStatement(IfStatement node)
 		{
-			CheckBoolContext(node.Expression);			
+			CheckBoolContext(node.Condition);			
 		}
 
 		public override void LeaveWhileStatement(WhileStatement node)

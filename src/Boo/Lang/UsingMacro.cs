@@ -79,7 +79,7 @@ namespace Boo.Lang
 			
 			// if __disposable = <reference> as System.IDisposable:
 			IfStatement stmt = new IfStatement();			
-			stmt.Expression = new BinaryExpression(
+			stmt.Condition = new BinaryExpression(
 								BinaryOperatorType.Assign,
 								new ReferenceExpression(DisposableLocalName),
 								new AsExpression(reference, new SimpleTypeReference("System.IDisposable"))

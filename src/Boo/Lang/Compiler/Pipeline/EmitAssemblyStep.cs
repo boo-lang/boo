@@ -417,13 +417,23 @@ namespace Boo.Lang.Compiler.Pipeline
 			AssertStackIsEmpty("stack must be empty after a statement!");
 		}
 		
+		public override void OnUnlessStatement(UnlessStatement node)
+		{
+			EmitDebugInfo(node);
+			
+			Label endLabel = _il.DefineLabel();
+			EmitBranchTrue(node.Condition, endLabel);
+			node.Block.Switch(this);
+			_il.MarkLabel(endLabel);
+		}
+		
 		public override void OnIfStatement(IfStatement node)
 		{
-			EmitDebugInfo(node, node.Expression);
+			EmitDebugInfo(node);
 			
 			Label endLabel = _il.DefineLabel();
 			
-			EmitBranchFalse(node.Expression, endLabel);
+			EmitBranchFalse(node.Condition, endLabel);
 			node.TrueBlock.Switch(this);
 			if (null != node.FalseBlock)
 			{

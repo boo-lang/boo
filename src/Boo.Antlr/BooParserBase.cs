@@ -3379,7 +3379,7 @@ _loop271_breakloop:						;
 			{
 				
 						s = new IfStatement(ToLexicalInfo(it));
-						s.Expression = e;
+						s.Condition = e;
 						s.TrueBlock = new Block();
 					
 			}

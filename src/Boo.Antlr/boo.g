@@ -1043,7 +1043,7 @@ if_stmt returns [IfStatement s]
 	it:IF! e=expression
 	{
 		s = new IfStatement(ToLexicalInfo(it));
-		s.Expression = e;
+		s.Condition = e;
 		s.TrueBlock = new Block();
 	}
 	compound_stmt[s.TrueBlock.Statements]

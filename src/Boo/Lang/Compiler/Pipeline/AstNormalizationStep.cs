@@ -158,9 +158,8 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					case StatementModifierType.If:
 					{	
-						IfStatement stmt = new IfStatement();
-						stmt.LexicalInfo = node.Modifier.LexicalInfo;
-						stmt.Expression = node.Modifier.Condition;
+						IfStatement stmt = new IfStatement(node.Modifier.LexicalInfo);
+						stmt.Condition = node.Modifier.Condition;
 						stmt.TrueBlock = new Block();						
 						stmt.TrueBlock.Statements.Add(node);						
 						node.Modifier = null;
@@ -169,10 +168,21 @@ namespace Boo.Lang.Compiler.Pipeline
 						
 						break;
 					}
+					
+					case StatementModifierType.Unless:
+					{
+						UnlessStatement stmt = new UnlessStatement(node.Modifier.LexicalInfo);
+						stmt.Condition = node.Modifier.Condition;
+						stmt.Block.Statements.Add(node);
+						node.Modifier = null;
+						
+						resultingNode = stmt;
+						break;
+					}
 						
 					default:
 					{							
-						Errors.Add(CompilerErrorFactory.NotImplemented(node, "only if supported"));
+						Errors.Add(CompilerErrorFactory.NotImplemented(node, string.Format("modifier {0} supported", node.Modifier.Type)));
 						break;
 					}
 				}

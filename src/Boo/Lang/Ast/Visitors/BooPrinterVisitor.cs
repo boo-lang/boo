@@ -573,18 +573,19 @@ namespace Boo.Lang.Ast.Visitors
 		
 		public override void OnUnlessStatement(UnlessStatement node)
 		{
-			WriteIndented();
-			WriteKeyword("unless ");
-			Switch(node.Condition);
-			WriteLine(":");
-			Switch(node.Block);
+			WriteConditionalBlock("unless", node.Condition, node.Block);
+		}
+		
+		public override void OnWhileStatement(WhileStatement node)
+		{
+			WriteConditionalBlock("while", node.Condition, node.Block);
 		}
 
 		public override void OnIfStatement(IfStatement ifs)
 		{
 			WriteIndented();
 			WriteKeyword("if ");
-			Switch(ifs.Expression);
+			Switch(ifs.Condition);
 			WriteLine(":");
 			OnBlock(ifs.TrueBlock);
 			if (null != ifs.FalseBlock)
@@ -850,6 +851,15 @@ namespace Boo.Lang.Ast.Visitors
 				}				
 			}
 			writer.Write("'");
+		}
+		
+		void WriteConditionalBlock(string keyword, Expression condition, Block block)
+		{
+			WriteIndented();
+			WriteKeyword(keyword + " ");
+			Switch(condition);
+			WriteLine(":");
+			Switch(block);
 		}
 		
 		void WriteParameterList(ParameterDeclarationCollection items)

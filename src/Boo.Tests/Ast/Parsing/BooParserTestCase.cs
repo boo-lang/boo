@@ -371,7 +371,7 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.AreEqual(1, stmts.Count);
 
 			IfStatement s = (IfStatement)stmts[0];
-			BinaryExpression be = (BinaryExpression)s.Expression;
+			BinaryExpression be = (BinaryExpression)s.Condition;
 			Assert.AreEqual(BinaryOperatorType.Match, be.Operator);
 			Assert.AreEqual("gets", ((ReferenceExpression)((MethodInvocationExpression)be.Left).Target).Name);
 			Assert.AreEqual("/foo/", ((RELiteralExpression)be.Right).Value);
@@ -379,7 +379,7 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.IsNull(s.FalseBlock);
 
 			s = (IfStatement)s.TrueBlock.Statements[2];
-			be = (BinaryExpression)s.Expression;
+			be = (BinaryExpression)s.Condition;
 			Assert.AreEqual("/bar/", ((RELiteralExpression)be.Right).Value);
 			Assert.AreEqual(1, s.TrueBlock.Statements.Count);
 			Assert.IsNotNull(s.FalseBlock);
