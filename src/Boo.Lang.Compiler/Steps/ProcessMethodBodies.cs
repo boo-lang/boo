@@ -556,6 +556,11 @@ namespace Boo.Lang.Compiler.Steps
 			CheckIdentifierName(node, node.Name);
 		}
 		
+		override public void OnCallableBlockExpression(CallableBlockExpression node)
+		{
+			NotImplemented(node, "closures");
+		}
+		
 		override public void OnMethod(Method method)
 		{			
 			if (Visited(method))
