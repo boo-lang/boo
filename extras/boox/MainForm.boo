@@ -4,19 +4,18 @@ import System
 import System.Windows.Forms
 import System.Drawing
 import WeifenLuo.WinFormsUI
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Pipeline.Definitions
 
 class MainForm(Form):	
 	
 	_dockManager as DockManager
 	_status as StatusBar
+	_statusPanel1 as StatusBarPanel
 	
 	[getter(DocumentOutline)]
 	_classBrowser = BooExplorer.DocumentOutline()
-	
-	_menuItemRun as MenuItem
+
+	_menuItemClose as MenuItem
+	_menuItemSave as MenuItem
 	
 	def constructor():		
 		_dockManager = DockManager(Dock: DockStyle.Fill,
@@ -26,14 +25,17 @@ class MainForm(Form):
 						ContentAdded: _dockManager_ContentAdded,
 						ContentRemoved: _dockManager_ContentRemoved)
 						
+		_statusPanel1 = StatusBarPanel(AutoSize: StatusBarPanelAutoSize.Contents)
+		
 		_status = StatusBar(ShowPanels: true, TabIndex: 2)
+		_status.Panels.Add(_statusPanel1)
 
 		SuspendLayout()
 		
+		self.Size = System.Drawing.Size(800, 600)
 		self.Menu = CreateMainMenu()
 		self.Text = "Boo Explorer"		
 		self.IsMdiContainer = true
-		self.WindowState = FormWindowState.Maximized
 
 		Controls.Add(_dockManager)
 		Controls.Add(_status)
@@ -49,26 +51,43 @@ class MainForm(Form):
 		file.MenuItems.Add(MenuItem(Text: "&New",
 									Click: _menuItemNew_Click,
 									Shortcut: Shortcut.CtrlN))
+									
+		file.MenuItems.Add(_menuItemSave = MenuItem(Text: "&Save",
+									Enabled: false,
+									Click: _menuItemSave_Click,
+									Shortcut: Shortcut.CtrlS))
+									
+		file.MenuItems.Add(_menuItemClose = MenuItem(Text: "&Close",
+									Click: _menuItemClose_Click,
+									Shortcut: Shortcut.CtrlW,
+									Enabled: false))
+									
+		file.MenuItems.Add(MenuItem(Text: "-"))
+		file.MenuItems.Add(MenuItem(Text: "E&xit",
+									Shortcut: Shortcut.CtrlQ,
+									Click: _menuItemExit_Click))
 		
-		tools = MenuItem(Text: "&Tools")
+		tools = MenuItem(Text: "&View")
 		tools.MenuItems.Add(MenuItem(Text: "Document Outline", Click: _menuItemDocumentOutline_Click))
 		
-		debug = MenuItem(Text: "&Debug")
-		debug.MenuItems.Add(_menuItemRun = MenuItem(Text: "Run",
-									Enabled: false,
-									Click: _menuItemRun_Click,
-									Shortcut: Shortcut.F5))
-		
-		menu.MenuItems.AddRange((file, tools, debug))
+		menu.MenuItems.AddRange((file, tools))
 		return menu
 		
+	StatusText as string:
+		set:
+			_statusPanel1.Text = value
+		
 	def NewDocument():
-		BooEditor(self).Show(_dockManager)
+		editor = BooEditor(self)
+		editor.Show(_dockManager)
+		editor.TextArea.Focus()		
 		
 	def _dockManager_ActiveDocumentChanged(sender, args as EventArgs):
-		editor = _dockManager.ActiveDocument as BooEditor		
+		document = _dockManager.ActiveDocument
+		editor = document as BooEditor		
 		_classBrowser.ActiveDocument = editor
-		_menuItemRun.Enabled = editor is not null
+		_menuItemClose.Enabled = document is not null
+		_menuItemSave.Enabled = document is not null
 		
 	def _dockManager_ContentAdded(sender, args as ContentEventArgs):
 		pass
@@ -76,31 +95,17 @@ class MainForm(Form):
 	def _dockManager_ContentRemoved(sender, args as ContentEventArgs):
 		pass
 		
-	def _menuItemRun_Click(sender, args as EventArgs):
+	def _menuItemSave_Click(sender, args as EventArgs):
 		editor = _dockManager.ActiveDocument as BooEditor
 		return unless editor
 		
-		savedCursor = Cursor
-		self.Cursor = Cursors.WaitCursor
+		editor.SaveFile()
 		
-		compiler = BooCompiler()
-		compiler.Parameters.Input.Add(StringInput(editor.Text, editor.TextContent))
-		compiler.Parameters.Pipeline.Load(BoomPipelineDefinition)
+	def _menuItemExit_Click(sender, args as EventArgs):
+		Application.Exit()
 		
-		started = date.Now
-		result = compiler.Run()
-		finished = date.Now
-		print("compilation time: ${finished-started}.")
-		
-		if len(result.Errors):
-			print(join(result.Errors, "\n"))
-		else:
-			try:
-				result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
-			except x:
-				print(x)
-				
-		self.Cursor = savedCursor
+	def _menuItemClose_Click(sender, args as EventArgs):
+		_dockManager.ActiveDocument.Close()
 		
 	def _menuItemDocumentOutline_Click(sender, args as EventArgs):
 		_classBrowser.Show(_dockManager)
@@ -109,19 +114,22 @@ class MainForm(Form):
 		dlg = OpenFileDialog(
 					Filter: "boo files (*.boo)|*.boo|All files (*.*)|*.*")
 		if DialogResult.OK == dlg.ShowDialog(self):
-			content = FindDocument(dlg.FileName)
+			content = FindEditor(dlg.FileName)
 			if content is null:
 				editor = BooEditor(self)
 				editor.LoadFile(dlg.FileName)
 				editor.Show(_dockManager)
+				editor.TextArea.Focus()
 			else:
 				content.Show(_dockManager)
+				content.TextArea.Focus()				
 		
 	def _menuItemNew_Click(sender, args as EventArgs):
 		NewDocument()
 		
-	def FindDocument(text as string):
+	def FindEditor(fname as string):
 		for document in _dockManager.Documents:
-			if document.Text == text:
-				return document
+			editor = document as BooEditor
+			if editor and editor.FileName == fname:
+				return editor
 		return null

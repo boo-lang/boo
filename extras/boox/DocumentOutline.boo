@@ -37,14 +37,19 @@ class DocumentOutline(Content):
 	ActiveDocument as BooEditor:
 		set:
 			_activeDocument = value
-			if _activeDocument:
-				Update(value.Text, value.TextContent)
-			else:
-				_tree.Nodes.Clear()
+			Update() if self.Visible
+
+	def Update():
+		if _activeDocument is null:
+			_tree.Nodes.Clear()
+		else:
+			fname = _activeDocument.Text
+			code = _activeDocument.TextContent
+			Update(fname, code)
 			
-	def Update(fname as string, text as string):
+	def Update(fname as string, code as string):
 		try:
-			UpdateTree(BooParser.ParseString(fname, text))
+			UpdateTree(BooParser.ParseString(fname, code))
 		except x:
 			print(x)
 	
