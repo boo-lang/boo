@@ -119,11 +119,11 @@ namespace Boo.AntlrParser
 		public const int LPAREN = 87;
 		public const int RPAREN = 88;
 		public const int COLON = 89;
-		public const int CMP_OPERATOR = 90;
-		public const int ADD = 91;
-		public const int SUBTRACT = 92;
-		public const int BITWISE_OR = 93;
-		public const int MULTIPLY = 94;
+		public const int MULTIPLY = 90;
+		public const int CMP_OPERATOR = 91;
+		public const int ADD = 92;
+		public const int SUBTRACT = 93;
+		public const int BITWISE_OR = 94;
 		public const int DIVISION = 95;
 		public const int MODULUS = 96;
 		public const int EXPONENTIATION = 97;

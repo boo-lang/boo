@@ -492,6 +492,7 @@ interface_method [TypeMemberCollection container]
 	{
 		Method m = null;
 		TypeReference rt = null;
+		bool variableArguments = false;
 	}: 
 	t:DEF! id:ID
 	{
@@ -500,11 +501,14 @@ interface_method [TypeMemberCollection container]
 		AddAttributes(m.Attributes);
 		container.Add(m);
 	}
-	LPAREN! parameter_declaration_list[m.Parameters] RPAREN!
+	LPAREN! variableArguments=parameter_declaration_list[m.Parameters] RPAREN!
 	(AS! rt=type_reference { m.ReturnType=rt; })?			
 	(
 		(eos docstring[m]) | (empty_block (EOS!)*)
 	)
+	{
+		m.VariableArguments = variableArguments;
+	}
 	;
 			
 protected
@@ -564,6 +568,7 @@ method [TypeMemberCollection container]
 	{
 		Method m = null;
 		TypeReference rt = null;
+		bool variableArguments = false;
 	}: 
 	t:DEF!
 	(
@@ -574,13 +579,16 @@ method [TypeMemberCollection container]
 		m.Modifiers = _modifiers;
 		AddAttributes(m.Attributes);
 	}
-	LPAREN! parameter_declaration_list[m.Parameters] RPAREN!
+	LPAREN! variableArguments=parameter_declaration_list[m.Parameters] RPAREN!
 			(AS! rt=type_reference { m.ReturnType = rt; })?
 			attributes { AddAttributes(m.ReturnTypeAttributes); }
 			begin_with_doc[m]
 				block[m.Body.Statements]
 			end
-	{ container.Add(m); }
+	{
+		m.VariableArguments = variableArguments; 
+		container.Add(m);
+	}
 	;	
 	
 protected
@@ -703,16 +711,24 @@ modifiers
 	;
 	
 protected	
-parameter_declaration_list[ParameterDeclarationCollection c] : 
-	(parameter_declaration[c] (COMMA! parameter_declaration[c])* )?
+parameter_declaration_list[ParameterDeclarationCollection c]
+	returns [bool variableArguments]
+	{
+		variableArguments = false;
+	}: 
+	(variableArguments=parameter_declaration[c]
+	( {!variableArguments}?(COMMA! variableArguments=parameter_declaration[c]) )* )?
 	;
 
 protected
 parameter_declaration[ParameterDeclarationCollection c]
+	returns [bool variableArguments]
 	{		
 		TypeReference tr = null;
+		variableArguments = false;
 	}: 
 	attributes
+	(MULTIPLY { variableArguments=true; })?
 	id:ID (AS! tr=type_reference)? 
 	{
 		ParameterDeclaration pd = new ParameterDeclaration(ToLexicalInfo(id));

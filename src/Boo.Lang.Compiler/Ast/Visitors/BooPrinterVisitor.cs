@@ -162,7 +162,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented(node.Name);
 			if (node.Parameters.Count > 0)
 			{
-				WriteParameterList(node.Parameters);
+				WriteParameterList(node.Parameters, false);
 			}
 			WriteTypeReference(node.Type);
 			WriteLine(":");
@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnCallableBlockExpression(CallableBlockExpression node)
 		{
 			WriteKeyword("callable");
-			WriteParameterList(node.Parameters);
+			WriteParameterList(node.Parameters, false);
 			WriteTypeReference(node.ReturnType);
 			WriteLine(":");
 			WriteBlock(node.Body);
@@ -218,7 +218,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteModifiers(m);
 			WriteKeyword("def ");
 			Write(m.Name);
-			WriteParameterList(m.Parameters);
+			WriteParameterList(m.Parameters, m.VariableArguments);
 			WriteTypeReference(m.ReturnType);
 			if (m.ReturnTypeAttributes.Count > 0)
 			{
@@ -901,10 +901,22 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteBlock(block);
 		}
 		
-		void WriteParameterList(ParameterDeclarationCollection items)
+		void WriteParameterList(ParameterDeclarationCollection items, bool variableArguments)
 		{
 			Write("(");
-			WriteCommaSeparatedList(items);
+			int last = items.Count-1;
+			for (int i=0; i<items.Count; ++i)
+			{
+				if (i > 0)
+				{
+					Write(", ");					
+				}
+				if (variableArguments && i==last)
+				{
+					Write("*");
+				}
+				Switch(items.GetNodeAt(i));
+			}
 			Write(")");
 		}
 		
