@@ -6,6 +6,8 @@
 	* segurança com par chave pública/privada
 
 * terminar documento introdutório
+	* first class functions
+		* functions as objects
 
 * boox
 	* assembly search path	
@@ -15,6 +17,8 @@
 * trocar licensa para LGPL
 	
 * enviar para o Miguel
+
+* static properties
 	
 * callable type adaptation
 	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais

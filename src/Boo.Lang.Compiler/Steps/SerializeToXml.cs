@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			CompileUnit cu = Context.CompileUnit;
-			new XmlSerializer(cu.GetType()).Serialize(Console.Out, cu);
+			new XmlSerializer(cu.GetType()).Serialize(OutputWriter, cu);
 			Console.WriteLine();
 		}
 	}

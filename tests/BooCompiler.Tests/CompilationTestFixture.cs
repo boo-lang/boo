@@ -586,6 +586,12 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase("array9.boo");
 		}
+		
+		[Test]
+		public void ArrayReferenceCanBeSetToNull()
+		{
+			RunCompilerTestCase("array10.boo");
+		}
 
 		[Test]
 		public void TestMatch0()

@@ -8,6 +8,7 @@ import System.Windows.Forms
 import System.Drawing
 import WeifenLuo.WinFormsUI
 import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.IO
 
@@ -140,7 +141,7 @@ class MainForm(Form):
 	def Expand(fname as string, code as string):
 		compiler = BooCompiler()
 		compiler.Parameters.OutputWriter = StringWriter()
-		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToBoo()
+		compiler.Parameters.Pipeline = Quack.MakeItQuack(CompileToBoo())
 		compiler.Parameters.Input.Add(StringInput(fname, code))
 		
 		result = compiler.Run()

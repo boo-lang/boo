@@ -160,7 +160,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual bool IsAssignableFrom(IType other)
 		{			
-			if (other == this)
+			if (other == this || other == Null.Default)
 			{
 				return true;
 			}

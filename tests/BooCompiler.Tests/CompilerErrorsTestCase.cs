@@ -43,10 +43,10 @@ namespace BooCompiler.Tests
 		{
 			foreach (CompilerError error in Errors)
 			{
-				Console.Write(Path.GetFileName(error.LexicalInfo.FileName));
-				Console.Write("({0},{1}): ", error.LexicalInfo.Line, error.LexicalInfo.StartColumn);
-				Console.Write("{0}: ", error.Code);
-				Console.WriteLine(error.Message);
+				OutputWriter.Write(Path.GetFileName(error.LexicalInfo.FileName));
+				OutputWriter.Write("({0},{1}): ", error.LexicalInfo.Line, error.LexicalInfo.StartColumn);
+				OutputWriter.Write("{0}: ", error.Code);
+				OutputWriter.WriteLine(error.Message);
 			}
 		}
 	}
@@ -58,6 +58,12 @@ namespace BooCompiler.Tests
 		public void BCE0080()
 		{
 			RunCompilerTestCase("bce0080.boo");
+		}
+		
+		[Test]
+		public void BCE0017()
+		{
+			RunCompilerTestCase("bce0017.boo");
 		}
 		
 		[Test]

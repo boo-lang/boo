@@ -8,9 +8,9 @@ def GetFileName(url as string):
 
 def DownloadTo(url as string, fname as string):
 	using response=WebRequest.Create(url).GetResponse():
-		reader=response.GetResponseStream()
-		buffer=array(byte, 1024)
+		reader=response.GetResponseStream()		
 		using writer=File.OpenWrite(fname):
+			buffer=array(byte, 1024)
 			while read=reader.Read(buffer, 0, len(buffer)):
 				Console.Write(".")
 				writer.Write(buffer, 0, read)
