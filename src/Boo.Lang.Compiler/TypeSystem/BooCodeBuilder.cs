@@ -639,7 +639,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 					else
 					{
-						parameter.Type = CreateTypeReference(_tss.DefaultType);
+						parameter.Type = CreateTypeReference(_tss.ObjectType);
 					}
 				}
 				parameter.Entity = new InternalParameter(parameter, i + delta);
