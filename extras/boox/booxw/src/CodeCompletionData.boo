@@ -27,8 +27,8 @@ import ICSharpCode.TextEditor.Actions
 import ICSharpCode.TextEditor.Gui.CompletionWindow
 
 import System
-
 import BooExplorer.Common
+import Boo.Lang.Compiler.TypeSystem
 
 class CodeCompletionData(ICompletionData, IComparable):
 	_description as string
@@ -51,7 +51,8 @@ class CodeCompletionData(ICompletionData, IComparable):
 	[property(Overloads)]
 	_overloads as int
 
-	def constructor([required]text as string, [required]description as string):
+	def constructor(imageIndex as int, [required]text as string, [required]description as string):
+		_imageIndex = imageIndex
 		_text = (text,)
 		_description = description
 	
@@ -67,11 +68,11 @@ class CodeCompletionData(ICompletionData, IComparable):
 
 class CodeCompletionDataProvider(ICompletionDataProvider):
 
-	_codeCompletion as (Boo.Lang.Compiler.TypeSystem.IEntity)
+	_codeCompletion as (IEntity)
 
 	ImageList as System.Windows.Forms.ImageList:
 		get:
-			return System.Windows.Forms.ImageList()
+			return BooxImageList.Instance
 			
 	PreSelection as string:
 		get:
@@ -83,9 +84,27 @@ class CodeCompletionDataProvider(ICompletionDataProvider):
 	def GenerateCompletionData(fileName as string, textArea as TextArea, charTyped as System.Char) as (ICompletionData):
 		values = {}
 		for item in _codeCompletion:
+			continue if item.Name[:4] in "add_", "remove_", "get_", "set_"
 			if not "." in item.Name:
 				if not values[item.Name]:
-					values[item.Name] = CodeCompletionData(item.Name, item.ToString())
+					values[item.Name] = CodeCompletionData(GetImageIndex(item), item.Name, item.ToString())
 				else:
 					++(values[item.Name] as CodeCompletionData).Overloads
 		return array(ICompletionData, values.Values)
+		
+	def GetImageIndex(entity as IEntity):
+		type = entity.EntityType
+		if EntityType.Property == type:
+			p as IProperty = entity
+			return cast(int, TypeIcon.PublicProperty) if p.IsPublic
+			return cast(int, TypeIcon.PrivateProperty)
+		if EntityType.Method == type:
+			m as IMethod = entity
+			return cast(int, TypeIcon.PublicMethod) if m.IsPublic
+			return cast(int, TypeIcon.PrivateMethod)
+		if EntityType.Field == type:
+			f as IField = entity
+			return cast(int, TypeIcon.PublicField) if f.IsPublic
+			return cast(int, TypeIcon.PrivateField)
+		return -1
+	

@@ -31,6 +31,7 @@ import ICSharpCode.TextEditor.Document
 def GetAssemblyFolder():
 	return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 
+[LoaderOptimization(LoaderOptimization.MultiDomain)]
 [STAThread]
 def Main(argv as (string)):
 	HighlightingManager.Manager.AddSyntaxModeFileProvider(

@@ -29,6 +29,7 @@ import System.Drawing
 import Boo.Lang.Compiler.Ast
 
 enum TypeIcon:
+	
 	Namespace
 	PublicClass
 	PublicInterface
@@ -56,6 +57,8 @@ enum TypeIcon:
 	PrivateMethod
 
 class TypeIconChooser:
+	
+		
 	static def GetPropertyIcon(node as Property, inInterface as bool) as int:
 		return cast(int, TypeIcon.PublicProperty) if inInterface
 		if node.IsVisibilitySet:
@@ -78,19 +81,27 @@ class TypeIconChooser:
 				return cast(int, TypeIcon.PrivateField)
 				
 		return cast(int, TypeIcon.ProtectedField)
+		
+class BooxImageList:
+	
+	static _imageList as ImageList
+	
+	static Instance as ImageList:
+		get:
+			if _imageList is null:
+				_imageList = ImageList()
+				_imageList.ImageStream = System.Resources.ResourceManager(DocumentOutline).GetObject("_imageList")
+			return _imageList
 
 class DocumentOutline(DockContent):
 
 	_activeDocument as BooEditor
 	_tree as TreeView
-	_imageList as ImageList
 	_treeViewVisitor as TreeViewVisitor
 	_timer = Timer(Tick: _timer_Tick, Interval: 3s.TotalMilliseconds)
-	_module as Module
-	_resourceManager = System.Resources.ResourceManager(DocumentOutline)
+	_module as Module	
 
 	def constructor():
-		InitImageList()
 		InitTreeView()
 
 		_treeViewVisitor = TreeViewVisitor(_tree)
@@ -110,17 +121,13 @@ class DocumentOutline(DockContent):
 		self.Text = "Document Outline"
 		self.HideOnClose = true
 		ResumeLayout(false)
-
-	def InitImageList():		
-		_imageList = ImageList()
-		_imageList.ImageStream = _resourceManager.GetObject("_imageList")
-
+	
 	def InitTreeView():
 		_tree = TreeView(Dock: DockStyle.Fill,
 						DoubleClick: _tree_DoubleClick,
 						ImageIndex: cast(int, TypeIcon.Namespace),
 						SelectedImageIndex: cast(int, TypeIcon.Namespace),
-						ImageList: _imageList,
+						ImageList: BooxImageList.Instance,
 						Sorted: true)
 
 	ActiveDocument as BooEditor:
