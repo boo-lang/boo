@@ -705,6 +705,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void TypeofForTupleTypes()
+		{
+			RunCompilerTestCase("typeof1.boo");
+		}
+		
+		[Test]
 		public void ExplicitSignatureOverride()
 		{
 			RunCompilerTestCase("override1.boo");
