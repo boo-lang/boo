@@ -14,7 +14,7 @@
 	<target name="compile" depends="init">
 		<booc output="build/boox.exe">
 			<sources>
-				<includes name="boox.boo" />
+				<includes name="*.boo" />
 			</sources> 
 			
 			<references basedir="build">
@@ -22,6 +22,7 @@
 				<includes name="WeifenLuo.WinFormsUI.dll" />
 				<includes name="System.Windows.Forms.dll" />
 				<includes name="System.Drawing.dll" />
+				<includes name="Boo.AntlrParser.dll" />
 			</references>
 		</booc>
 	</target>
@@ -35,7 +36,7 @@
 		</copy>
 		<copy todir="build">
 			<fileset basedir="${sharpd.dir}">
-				<includes name="ICSharpCode.TextEditor.dll" />
+				<includes name="ICSharpCode.TextEditor.dll" />				
 				<includes name="WeifenLuo.WinFormsUI.dll" />
 			</fileset>
 		</copy>
