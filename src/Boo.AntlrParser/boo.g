@@ -1841,15 +1841,13 @@ options
 	codeGenBitsetTestThreshold=20;
 }
 {
-	protected int _skipWhitespaceRegion = 0;
+	protected int _skipWhitespaceRegion = 0;	
 	
-	// token separador de expressões
 	antlr.Token _eseparator = new antlr.CommonToken(ESEPARATOR, "ESEPARATOR");
 	
-	// índice atual na expressão de formatação de strings ver ESCAPED_EXPRESSION
-	int _eindex = 0;
+	// see ESCAPED_EXPRESSION
+	int _eindex = 0;	
 	
-	// lexer para expressões dentro de formatação de strings
 	BooExpressionLexer _el;
 	
 	TokenStreamRecorder _erecorder;
@@ -1989,11 +1987,7 @@ DOUBLE_QUOTED_STRING : { _eindex = 0; }
 		|
 		(
 			(
-				DQS_ESC |
-				// Utilizar um predicado permite que
-				// o símbolo $ apareça normalmente na string
-				// sem necessidade de ser scaped
-				// desde que não seja seguido por um {
+				DQS_ESC |				
 				("${")=>ESCAPED_EXPRESSION |
 				~('"' | '\\' | '\r' | '\n')
 			)*
@@ -2022,7 +2016,8 @@ SL_COMMENT:
 ML_COMMENT:
 	"/*"
     (
-		{ LA(2)!='/' }? '*' |
+		{ LA(2) != '/' }? '*' |
+		("/*")=> ML_COMMENT |
 		NEWLINE |
 		~('*'|'\r'|'\n')
     )*
