@@ -64,7 +64,25 @@
 					"enum.png",
 					"field.png",
 					"property.png",
-					"method.png"
+					"method.png",
+					"internalclass.png",
+					"internalinterface.png",
+					"internalenum.png",
+					"internalfield.png",
+					"internalproperty.png",
+					"internalmethod.png",
+					"protectedclass.png",
+					"protectedinterface.png",
+					"protectedenum.png",
+					"protectedfield.png",
+					"protectedproperty.png",
+					"protectedmethod.png",
+					"privateclass.png",
+					"privateinterface.png",
+					"privateenum.png",
+					"privatefield.png",
+					"privateproperty.png",
+					"privatemethod.png"
 				)
 			for image in images:
 				fname = MapPath("resources/ClassBrowserIcons/${image}")

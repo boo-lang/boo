@@ -15,6 +15,48 @@ enum TypeIcon:
 	PublicField
 	PublicProperty
 	PublicMethod
+	InternalClass
+	InternalInterface
+	InternalEnum
+	InternalField
+	InternalProperty
+	InternalMethod
+	ProtectedClass
+	ProtectedInterface
+	ProtectedEnum
+	ProtectedField
+	ProtectedProperty
+	ProtectedMethod
+	PrivateClass
+	PrivateInterface
+	PrivateEnum
+	PrivateField
+	PrivateProperty
+	PrivateMethod
+
+class TypeIconChooser:
+	static def GetPropertyIcon(node as Property, inInterface as bool) as int:
+		return cast(int, TypeIcon.PublicProperty) if inInterface
+		if node.IsVisibilitySet:
+			if node.IsInternal:
+				return cast(int, TypeIcon.InternalProperty)
+			if node.IsProtected:
+				return cast(int, TypeIcon.ProtectedProperty)
+			if node.IsPrivate:
+				return cast(int, TypeIcon.PrivateProperty)
+				
+		return cast(int, TypeIcon.PublicProperty)
+
+	static def GetFieldIcon(node as Field) as int:
+		if node.IsVisibilitySet:
+			if node.IsInternal:
+				return cast(int, TypeIcon.InternalField)
+			if node.IsPublic:
+				return cast(int, TypeIcon.PublicField)
+			if node.IsPrivate:
+				return cast(int, TypeIcon.PrivateField)
+				
+		return cast(int, TypeIcon.ProtectedField)
 
 class DocumentOutline(DockContent):
 
@@ -100,6 +142,7 @@ class TreeViewVisitor(DepthFirstSwitcher):
 
 	_tree as TreeView
 	_current as TreeNode
+	_inInterface as bool
 
 	def constructor(tree):
 		_tree = tree
@@ -120,9 +163,10 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		_tree.EndUpdate()
 
 	override def OnProperty(node as Property):
-		Add(node.Name, cast(int, TypeIcon.PublicProperty), node)
+		Add(node.Name, TypeIconChooser.GetPropertyIcon(node, _inInterface), node)
+				
 	override def OnField(node as Field):
-		Add(node.Name, cast(int, TypeIcon.PublicField), node)
+		Add(node.Name, TypeIconChooser.GetFieldIcon(node), node)
 
 	override def OnInterfaceDefinition(node as InterfaceDefinition):
 		OnTypeDefinition(node, cast(int, TypeIcon.PublicInterface))
@@ -137,6 +181,7 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		Add(node.Name, cast(int, TypeIcon.PublicField), node)
 
 	def OnTypeDefinition(node as TypeDefinition, imageIndex as int):
+		_inInterface = node isa InterfaceDefinition
 		saved = _current
 
 		_current = Add(node.Name, imageIndex, imageIndex, node)
@@ -149,7 +194,7 @@ class TreeViewVisitor(DepthFirstSwitcher):
 
 	override def OnMethod(node as Method):
 		name = "${node.Name}(${join([p.Name for p as ParameterDeclaration in node.Parameters], ', ')})"
-		Add(name, 6, 6, node)
+		Add(name, cast(int, TypeIcon.PublicMethod), node)
 
 	def Add(text as string, data):
 		node = _current.Nodes.Add(text)
