@@ -14,6 +14,12 @@
     <File name=".\BooCompiler.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="..\icons\BitmapResources.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
     <File name=".\AssemblyInfo.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\CodeCompletion" subtype="Directory" buildaction="Compile" dependson="" data="" />
+    <File name=".\CodeCompletion\BooParser.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\CodeCompletion\ExpressionFinder.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\CodeCompletion\Visitor.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\CodeCompletion\Tree.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\CodeCompletion\TypeMembers.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.Core.dll" localcopy="False" />
@@ -22,6 +28,7 @@
     <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\SharpDevelop.Base.dll" localcopy="False" />
     <Reference type="Assembly" refto="..\..\..\booish.gui\build\booish.gui.exe" localcopy="True" />
     <Reference type="Assembly" refto="..\..\..\..\bin\Boo.Lang.Compiler.dll" localcopy="True" />
+    <Reference type="Assembly" refto="..\..\..\..\bin\Boo.Lang.Parser.dll" localcopy="True" />
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="True" name="Debug">

@@ -61,6 +61,7 @@
 				<include name="System.Xml.dll" />
 				<include name="${addin.dir}/booish.gui.exe" />
 				<include name="${addin.dir}/Boo.Lang.Compiler.dll" />
+				<include name="${addin.dir}/Boo.Lang.Parser.dll" />
 			</references>
 			<sources basedir=".">
 				<include name = "src/**/*.boo" />

@@ -17,19 +17,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endregion
 
-namespace BooBinding
+namespace BooBinding.CodeCompletion
 
 import System
-import System.Reflection
-import System.Runtime.CompilerServices
+import System.Text
+import SharpDevelop.Internal.Parser
 
-[assembly: AssemblyTitle("BooBinding")]
-[assembly: AssemblyDescription("Boo language binding for #develop")]
-[assembly: AssemblyCompany("www.danielgrunwald.de")]
-[assembly: AssemblyProduct("SharpDevelop")]
-[assembly: AssemblyCopyright("(c) 2004 Daniel Grunwald")]
+class ExpressionFinder(IExpressionFinder):
+	def FindExpression(inText as string, offset as int) as string:
+		print "ExpressionFinder called"
+		return "exp"
 
-[assembly: AssemblyVersion("1.0.2.*")]
-
-[assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("")]

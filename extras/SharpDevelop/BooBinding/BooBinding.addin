@@ -14,6 +14,11 @@
 			class = "BooBinding.BooishView" />
 	</Extension>
 	
+	<Extension path = "/Workspace/Parser">
+		<Class id    = "BooParser"
+		       class = "BooBinding.CodeCompletion.BooParser"/>
+	</Extension>
+	
 	<Extension path = "/SharpDevelop/Workbench/FileFilter">
 		<FileFilter id = "Boo"
 		            insertbefore = "AllFiles"
