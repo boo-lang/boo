@@ -1515,7 +1515,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IMethod super = ((InternalMethod)methodInfo).Override;
 			MethodInfo superMI = GetMethodInfo(super);
-			_il.Emit(OpCodes.Ldarg_0); // this
+			if (methodInfo.DeclaringType.IsValueType)
+			{
+				_il.Emit(OpCodes.Ldarga_S, 0);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Ldarg_0); // this
+			}
 			PushArguments(super, node.Arguments);
 			_il.EmitCall(OpCodes.Call, superMI, null);
 			PushType(super.ReturnType);
@@ -1859,6 +1866,19 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(TypeSystemServices.StringType);
 		}
 		
+		void LoadMemberTarget(Expression self, IMember member)
+		{						
+			if (member.DeclaringType.IsValueType)
+			{
+				LoadAddress(self);
+			}
+			else
+			{
+				Visit(self);
+				PopType();
+			}
+		}
+		
 		void EmitLoadFieldAddress(Expression expression, IField field)
 		{
 			if (field.IsStatic)
@@ -1867,7 +1887,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Visit(((MemberReferenceExpression)expression).Target); PopType();
+				LoadMemberTarget(((MemberReferenceExpression)expression).Target, field);
 				_il.Emit(OpCodes.Ldflda, GetFieldInfo(field));
 			}
 		}
@@ -1887,7 +1907,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{						
-				Visit(self); PopType();
+				LoadMemberTarget(self, fieldInfo);
 				_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldInfo));						
 			}
 			PushType(fieldInfo.Type);
@@ -2170,16 +2190,9 @@ namespace Boo.Lang.Compiler.Steps
 				opSetField = OpCodes.Stfld;
 				if (null != reference)
 				{
-					Expression target = ((MemberReferenceExpression)reference).Target;
-					if (field.DeclaringType.IsValueType)
-					{
-						LoadAddress(target);
-					}
-					else
-					{
-						target.Accept(this);
-						PopType();
-					}
+					LoadMemberTarget(
+								((MemberReferenceExpression)reference).Target,
+								field);
 				}
 			}
 			

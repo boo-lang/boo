@@ -797,7 +797,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{				
-				if (!entity.HasSuperCall && !entity.IsStatic)
+				if (!entity.HasSuperCall &&
+					!entity.IsStatic &&
+					!entity.DeclaringType.IsValueType)
 				{
 					IType baseType = entity.DeclaringType.BaseType;
 					IConstructor super = FindCorrectConstructor(node, baseType, EmptyExpressionCollection);
