@@ -11,7 +11,7 @@
 		dynamic="true" />
 		
     <property name="lib.framework.dir"
-		value="${path::combine(lib.family.dir, framework::get-version(framework::get-target-framework()))}"
+		value="${path::combine(lib.family.dir, version::to-string(framework::get-version(framework::get-target-framework())))}"
 		dynamic="true" />
 		
 	<property name="nunit.framework.dll"
