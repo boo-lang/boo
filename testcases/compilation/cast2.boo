@@ -1,5 +1,5 @@
 """
-it wasn't a string
+it wasn't a string.
 A STRING
 """
 import System
