@@ -150,6 +150,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 		
+		bool IsFinal
+		{
+			get;
+		}
+		
 		bool IsArray
 		{
 			get;

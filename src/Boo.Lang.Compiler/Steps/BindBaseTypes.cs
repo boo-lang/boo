@@ -42,7 +42,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{		
-			Visit(CompileUnit.Modules);
+			if (0 == Errors.Count)
+			{
+				Visit(CompileUnit.Modules);
+			}
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
@@ -61,6 +64,14 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Members);
 			ResolveBaseTypes(new Boo.Lang.List(), node);
 			CheckBaseTypes(node);
+			
+			if (!node.IsFinal)
+			{
+				if (((IType)node.Entity).IsFinal)
+				{
+					node.Modifiers |= TypeMemberModifiers.Final;
+				}
+			}
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
@@ -75,7 +86,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (TypeReference baseType in node.BaseTypes)
 			{				
 				IType baseInfo = GetType(baseType);
-				if (baseInfo.IsClass)
+				if (!baseInfo.IsInterface)
 				{
 					if (null != baseClass)
 					{
@@ -88,6 +99,13 @@ namespace Boo.Lang.Compiler.Steps
 					else
 					{
 						baseClass = baseInfo;
+						if (baseClass.IsFinal)
+						{	
+							Error(
+								CompilerErrorFactory.CannotExtendFinalType(
+									baseType,
+									baseClass.FullName));
+						}
 					}
 				}
 			}

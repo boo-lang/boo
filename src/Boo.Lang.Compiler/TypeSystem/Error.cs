@@ -88,6 +88,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public virtual bool IsFinal
+		{
+			get
+			{
+				return true;
+			}
+		}
+		
 		public virtual bool IsEnum
 		{
 			get

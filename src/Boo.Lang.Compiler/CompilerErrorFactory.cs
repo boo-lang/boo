@@ -541,6 +541,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0102", node.LexicalInfo);
 		}
 		
+		public static CompilerError CannotExtendFinalType(Node node, string typeName)
+		{
+			return new CompilerError("BCE0103", node.LexicalInfo, typeName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -87,6 +87,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsFinal
+		{
+			get
+			{
+				return _type.IsSealed;
+			}
+		}
+		
 		public bool IsByRef
 		{
 			get

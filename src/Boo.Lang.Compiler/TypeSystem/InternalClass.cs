@@ -44,7 +44,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		internal InternalClass(TypeSystemServices manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
-		}		
+		}
+
+		override public bool IsValueType
+		{
+			get
+			{
+				return _typeSystemServices.ValueTypeType == BaseType;
+			}
+		}
 		
 		override public IType BaseType
 		{
@@ -55,7 +63,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 					{
 						IType tag = TypeSystemServices.GetType(baseType);
-						if (tag.IsClass)
+						if (!tag.IsInterface)
 						{
 							_baseType = tag;
 							break;

@@ -165,6 +165,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		virtual public bool IsFinal
+		{
+			get
+			{
+				return _typeDefinition.IsFinal || IsValueType;
+			}
+		}
+		
 		public bool IsInterface
 		{
 			get
@@ -181,11 +189,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool IsValueType
+		virtual public bool IsValueType
 		{
 			get
 			{
-				return IsEnum;
+				return false;
 			}
 		}
 		

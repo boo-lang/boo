@@ -37,6 +37,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 		}
 		
+		override public bool IsFinal
+		{
+			get
+			{
+				return true;
+			}
+		}
+		
+		override public bool IsValueType
+		{
+			get
+			{
+				return true;
+			}
+		} 
+		
 		override public IType BaseType
 		{
 			get

@@ -101,6 +101,7 @@ BCE0099=yield cannot be used inside a try, except or ensure block.
 BCE0100=yield cannot be used inside constructors.
 BCE0101=Generator's return type can only be either System.Collections.IEnumerable or object.
 BCE0102=Generators cannot return values.
+BCE0103=Cannot extend final type '{0}'.
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract

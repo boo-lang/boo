@@ -77,6 +77,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsFinal
+		{
+			get
+			{
+				return true;
+			}
+		}
+		
 		public bool IsByRef
 		{
 			get

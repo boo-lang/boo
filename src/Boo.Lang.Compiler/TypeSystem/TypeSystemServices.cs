@@ -51,6 +51,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType ObjectType;
 		
+		public ExternalType ValueTypeType;
+		
 		public ExternalType EnumType;
 		
 		public ExternalType ArrayType;
@@ -145,6 +147,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(typeof(Boo.Lang.Builtins.duck), DuckType = new DuckTypeImpl(this));
 			Cache(VoidType = new VoidTypeImpl(this));
 			Cache(ObjectType = new ExternalType(this, Types.Object));
+			Cache(ValueTypeType = new ExternalType(this, typeof(System.ValueType)));
 			Cache(EnumType = new ExternalType(this, typeof(System.Enum)));
 			Cache(ArrayType = new ExternalType(this, Types.Array));
 			Cache(TypeType = new ExternalType(this, Types.Type));
