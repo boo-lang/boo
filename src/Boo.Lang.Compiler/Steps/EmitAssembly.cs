@@ -2022,7 +2022,16 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void LoadAddress(Expression expression)
-		{
+		{			
+			if (NodeType.SelfLiteralExpression == expression.NodeType)
+			{
+				if (expression.ExpressionType.IsValueType)
+				{
+					_il.Emit(OpCodes.Ldarg_0);
+					return;
+				}
+			}
+			
 			IEntity tag = expression.Entity;
 			if (null != tag)
 			{
