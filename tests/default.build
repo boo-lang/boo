@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <project name="tests" default="run">
 
-	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
+	<property name="nunit.framework.dll"
+			value="${nant.location}/lib/mono/1.0/nunit.framework.dll"
+			if="${nant.platform.unix}" />
+			
+	<property name="nunit.framework.dll"
+			value="${nant.location}/lib/net/1.1/nunit.framework.dll"
+			unless="${nant.platform.unix}" />
 
-	<!-- build environment checking -->
-	<if test="${not property::exists('nant.tasks.nunit2')}">
-		<echo>nunit2 task is not available. Unit tests won't be executed.</echo>
-		<property name="nant.tasks.nunit2" value="False" />
-	</if>	
-	
-	<target name="run" depends="compile" if='${nant.tasks.nunit2}'>
+	<target name="run" depends="compile">
 
 		<nunit2>       
 			<formatter type="Plain" />

@@ -42,6 +42,8 @@
 		</booc>		
 		
 		<boo>
+		for p as System.Collections.DictionaryEntry in Project.Properties:
+			print("${p.Key}: ${p.Value}")		
 		print("Hello from boo task!")		
 		print("Framework directory: ${Project.TargetFramework.FrameworkAssemblyDirectory}")
 		</boo>
