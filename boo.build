@@ -313,6 +313,8 @@
 	<target name="generate-ast" depends="init" unless="${skip.ast}">
 		<if test="${not file::up-to-date('ast.model.boo', 'src/Boo.Lang.Compiler/Ast/Impl/CompileUnitImpl.cs')}">
 		
+			<delete dir="src/Boo.Lang.Compiler/Ast/Impl"
+					if="${directory::exists('src/Boo.Lang.Compiler/Ast/Impl')}" />
 			<mkdir dir="src/Boo.Lang.Compiler/Ast/Impl" />
 			<exec program="bin/booi.exe" useruntimeengine="true">
 				<arg value="scripts/astgen.boo" />
