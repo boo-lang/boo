@@ -68,15 +68,59 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!AstUtil.IsListGenerator(node.ParentNode))
 			{
-				GeneratorProcessor processor = new GeneratorProcessor(_context, node);
+				GeneratorProcessor processor = new GeneratorProcessor(_context, _current, node);
 				processor.Run();
 				ReplaceCurrentNode(processor.CreateConstructorInvocation());			
 			}
 		}
 	}
 	
+	class SelfEntity : ITypedEntity
+	{
+		string _name;
+		IType _type;
+		
+		public SelfEntity(string name, IType type)
+		{
+			_name = name;
+			_type = type;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _name;
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _name;
+			}
+		}
+		
+		public EntityType EntityType
+		{
+			get
+			{
+				return EntityType.Unknown;
+			}
+		}
+		
+		public IType Type
+		{
+			get
+			{
+				return _type;
+			}
+		}
+	}
+	
 	class GeneratorProcessor : AbstractVisitorCompilerStep
-	{	
+	{		
 		Hash _uniqueReferences = new Hash();
 		
 		List _references = new List();
@@ -89,9 +133,19 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Field _enumeratorField;
 		
-		public GeneratorProcessor(CompilerContext context, GeneratorExpression node)
+		Method _method;
+		
+		SelfEntity _selfEntity;
+		
+		public GeneratorProcessor(CompilerContext context, Method method, GeneratorExpression node)
 		{
+			_method = method;
 			_generator = node;
+			
+			if (!_method.IsStatic)
+			{
+				_selfEntity = new SelfEntity("this", (IType)_method.DeclaringType.Entity);
+			}
 			Initialize(context);
 		}
 		
@@ -112,6 +166,13 @@ namespace Boo.Lang.Compiler.Steps
 					_uniqueReferences.Add(node.Entity, null);
 				}
 			}
+		}
+		
+		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
+		{
+			_references.Add(node);
+			node.Entity = _selfEntity;
+			_uniqueReferences.Add(_selfEntity, null);
 		}
 		
 		bool IsLocalReference(ReferenceExpression node)
@@ -139,14 +200,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateAnonymousGeneratorType()
 		{			
-			Module module = TypeSystemServices.GetAnonymousTypesModule();
+			TypeDefinition parent = _method.DeclaringType;
 			
 			_generatorType = new ClassDefinition(_generator.LexicalInfo);			
 			_generatorType.Entity = new InternalType(TypeSystemServices, _generatorType);
 			_generatorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.ObjectType));
 			_generatorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.IEnumerableType));
 			_generatorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.IEnumeratorType));
-			_generatorType.Name = string.Format("__anonymous{0}__", module.Members.Count);
+			_generatorType.Name = string.Format("__generator{0}__", parent.Members.Count);
 			_generatorType.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Final;
 			
 			DeclareFields();
@@ -157,7 +218,7 @@ namespace Boo.Lang.Compiler.Steps
 			_generatorType.Members.Add(CreateMoveNext());
 			_generatorType.Members.Add(CreateConstructor());
 			
-			module.Members.Add(_generatorType);
+			parent.Members.Add(_generatorType);
 		}
 		
 		void DeclareFields()
@@ -209,8 +270,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		ReferenceExpression CreateReference(ITypedEntity entity)
+		Expression CreateReference(ITypedEntity entity)
 		{
+			if (_selfEntity == entity)
+			{
+				SelfLiteralExpression self = new SelfLiteralExpression();
+				self.ExpressionType = _selfEntity.Type;
+				return self;
+			}
 			ReferenceExpression expression = new ReferenceExpression(entity.Name);
 			expression.Entity = entity;
 			expression.ExpressionType = entity.Type;
