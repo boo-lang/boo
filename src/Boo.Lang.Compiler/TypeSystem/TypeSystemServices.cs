@@ -45,6 +45,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType MulticastDelegateType;
 		
+		public ExternalType DelegateType;
+		
 		public ExternalType IntPtrType;
 		
 		public ExternalType ObjectType;
@@ -174,6 +176,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(ExceptionType = new ExternalType(this, Types.Exception));
 			Cache(IntPtrType = new ExternalType(this, Types.IntPtr));
 			Cache(MulticastDelegateType = new ExternalType(this, Types.MulticastDelegate));
+			Cache(DelegateType = new ExternalType(this, Types.Delegate));
 			
 			ObjectArrayType = GetArrayType(ObjectType);
 			

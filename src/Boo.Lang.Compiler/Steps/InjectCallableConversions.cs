@@ -243,7 +243,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (IsCallableType(expectedType))
 				{
 					IType argumentType = GetExpressionType(argument);
-					if (Null.Default != argumentType && expectedType != argumentType)
+					if (Null.Default != argumentType &&
+						expectedType != argumentType)
 					{						
 						return Adapt((ICallableType)expectedType, argument);
 					}
@@ -254,7 +255,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Expression Adapt(ICallableType expected, Expression callable)
 		{
-			ICallableType actual = (ICallableType)GetExpressionType(callable);
+			ICallableType actual = GetExpressionType(callable) as ICallableType;
+			if (null == actual)
+			{
+				// TODO: should we adapt System.Object, System.Delegate,
+				// System.MulticastDelegate and ICallable as well?
+				return null;
+			}
 			ClassDefinition adaptor = GetAdaptor(expected, actual);
 			Method adapt = (Method)adaptor.Members["Adapt"];						
 			return CodeBuilder.CreateMethodInvocation((IMethod)adapt.Entity, callable);
