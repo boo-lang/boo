@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -33,9 +33,13 @@ class Knight:
 		
 def foo():
 	print("inside foo.")
+	for i in range(5000000):
+		pass
 	
 def bar():
 	print("inside bar.")
+	for i in range(5000000/2):
+		pass
 	raise "a exception!"
 	
 def main():

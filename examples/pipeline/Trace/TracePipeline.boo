@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -46,18 +46,45 @@ class TracePipelineStep(AbstractVisitorCompilerStep):
 		stmt = TryStatement()
 		stmt.ProtectedBlock = method.Body
 		stmt.ProtectedBlock.Insert(0,
-				CreatePrint("TRACE: Entering ${method.FullName}"))
-		stmt.EnsureBlock = Block()
-		stmt.EnsureBlock.Add(CreatePrint("TRACE: Leaving ${method.FullName}"))
-		
+				MethodStart("TRACE: Entering ${method.FullName}"))
+		stmt.EnsureBlock = MethodEnd("TRACE: Leaving ${method.FullName}")
 		method.Body = Block()
 		method.Body.Add(stmt)
 		
-	def CreatePrint(msg):
-		// print(msg)
+	def MethodStart(msg):
+		// { print(msg)
+		block = Block()
 		mie = MethodInvocationExpression(ReferenceExpression("print"))
 		mie.Arguments.Add(StringLiteralExpression(msg))
-		return mie
+		block.Add(mie)
+		//   __start = date.Now }
+		dateNow = MemberReferenceExpression(
+								ReferenceExpression("date"),
+								"Now")
+		block.Add(
+			BinaryExpression(BinaryOperatorType.Assign,
+			ReferenceExpression("__start"), dateNow))
+		return block
+		
+	def MethodEnd(msg):
+		// { __time = date.Now - __start
+		block = Block()
+		dateNow = MemberReferenceExpression(
+							ReferenceExpression("date"),
+							"Now")
+		block.Add(BinaryExpression(BinaryOperatorType.Assign,
+			ReferenceExpression("__time"),
+			BinaryExpression(BinaryOperatorType.Subtraction,
+				dateNow,
+				ReferenceExpression("__start"))))
+		//   print(msg + ": " + __time) }
+		msgTime = BinaryExpression(BinaryOperatorType.Addition,
+			StringLiteralExpression(msg + ": "),
+			ReferenceExpression("__time"))
+		mie = MethodInvocationExpression(ReferenceExpression("print"))
+		mie.Arguments.Add(msgTime)
+		block.Add(mie)
+		return block
 		
 
 class TracePipeline(CompileToFile):
