@@ -43,7 +43,7 @@ class InteractiveConsole(DockContent):
 	def constructor(mainForm as MainForm):
 	
 		self.Text = "Interactive Console"
-		self.Controls.Add(console=PromptBox())
+		self.Controls.Add(console=PromptBox(Font: mainForm.Settings.TextFont))
 					
 		console.Interpreter.SetValue("MainForm", mainForm)
 		console.Interpreter.SetValue("inspect", inspect)

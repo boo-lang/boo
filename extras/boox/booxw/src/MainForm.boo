@@ -18,6 +18,9 @@ class MainForm(Form):
 	_status as StatusBar
 	_statusPanel1 as StatusBarPanel
 	_timer as Timer
+	
+	[getter(Settings)]
+	_settings = LoadSettings()
 
 	[getter(DocumentOutline)]
 	_documentOutline = BooExplorer.DocumentOutline()
@@ -42,7 +45,7 @@ class MainForm(Form):
 	
 	_parser = BooCompiler()
 	
-	_resourceManager = System.Resources.ResourceManager(MainForm)
+	_resourceManager = System.Resources.ResourceManager(MainForm)	
 
 	def constructor(argv as (string)):
 		_argv = argv
@@ -75,6 +78,18 @@ class MainForm(Form):
 		
 		_timer = Timer(Tick: _timer_Tick, Interval: 50ms.TotalMilliseconds)
 		_timer.Enabled = true
+		
+	private def GetSettingsFileName():
+		return Path.Combine(GetApplicationDataFolder(), "settings.xml")
+		
+	private def SaveSettings():		
+		_settings.Save(GetSettingsFileName())
+		
+	private def LoadSettings():
+		fname = GetSettingsFileName()
+		if File.Exists(fname):
+			return BooxSettings.Load(fname)
+		return BooxSettings()
 
 	private def CreateMainMenu():
 
@@ -106,6 +121,12 @@ class MainForm(Form):
 		file.MenuItems.Add(MenuItem(Text: "E&xit",
 									Shortcut: Shortcut.CtrlQ,
 									Click: _menuItemExit_Click))
+									
+		tools = MenuItem(Text: "&Tools", MergeOrder: 2, MergeType: MenuMerge.MergeItems)
+		tools.MenuItems.Add(MenuItem(Text: "&Options",
+								Shortcut: Shortcut.CtrlO,
+								Click: _menuItemOptions_Click,
+								MergeOrder: int.MaxValue))
 
 		view = MenuItem(Text: "&View", MergeOrder: 4)
 		view.MenuItems.AddRange(
@@ -125,7 +146,7 @@ class MainForm(Form):
 			))
 
 
-		menu.MenuItems.AddRange((file, view))
+		menu.MenuItems.AddRange((file, tools, view))
 		return menu
 
 	def _timer_Tick(sender, args as EventArgs):
@@ -267,6 +288,16 @@ class MainForm(Form):
 
 	def _menuItemOutputPane_Click(sender, args as EventArgs):
 		ShowOutputPane()
+		
+	def _menuItemOptions_Click():
+		dlg = Form(Text: "Options")
+		dlg.Controls.Add(PropertyGrid(
+							Dock: DockStyle.Fill,
+							SelectedObject: _settings,
+							Font: Font,
+							PropertySort: PropertySort.Alphabetical))
+		dlg.ShowDialog()
+		SaveSettings()
 
 	def _menuItemOpen_Click(sender, args as EventArgs):
 		dlg = OpenFileDialog(
@@ -280,10 +311,7 @@ class MainForm(Form):
 		NewDocument()
 		
 	def GetApplicationDataFolder():
-		folder = Path.Combine(
-				GetFolderPath(Environment.SpecialFolder.ApplicationData),
-				"boox")
-				
+		folder = Application.UserAppDataPath				
 		Directory.CreateDirectory(folder) unless Directory.Exists(folder)
 		return folder
 		

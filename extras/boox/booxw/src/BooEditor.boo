@@ -50,9 +50,15 @@ class BooEditor(DockContent):
 	
 	def constructor(main as MainForm):
 		_main = main
+		settings = main.Settings
 		_editor = BooxTextAreaControl(Dock: DockStyle.Fill,
-							Font: System.Drawing.Font("Lucida Console", 12.0),
-							EnableFolding: true)
+							Font: settings.TextFont,
+							EnableFolding: settings.EnableFolding,
+							ShowLineNumbers: settings.ShowLineNumbers,
+							ShowSpaces: settings.ShowSpaces,
+							ShowTabs: settings.ShowTabs,
+							ShowEOLMarkers: settings.ShowEOLMarkers,
+							IndentStyle: settings.IndentStyle)
 
 		_editor.Editor = self
 		_editor.Encoding = System.Text.Encoding.UTF8
@@ -262,15 +268,16 @@ class BooEditor(DockContent):
 				MenuItem("Remove trailing whitespace", Click: _menuItemRemoveTrailingWS_Click)
 			))
 
-		tools = MenuItem(Text: "&Tools", MergeOrder: 2)
+		tools = MenuItem(Text: "&Tools", MergeOrder: 2, MergeType: MenuMerge.MergeItems)
 		tools.MenuItems.AddRange(
-			(
+			(				
 				MenuItem(Text: "Run",
 						Click: _menuItemRun_Click,
 						Shortcut: Shortcut.F5),
 				MenuItem(Text: "Expand",
 						Click: _menuItemExpand_Click,
-						Shortcut: Shortcut.CtrlE)
+						Shortcut: Shortcut.CtrlE),
+				MenuItem(Text: "-")
 			))
 
 		menu.MenuItems.AddRange((edit, tools))

@@ -55,7 +55,6 @@ class PromptBox(TextBox):
 								Print: print)
 	
 	def constructor():
-		self.Font = System.Drawing.Font("Lucida Console", 12)
 		self.Dock = DockStyle.Fill
 		self.Multiline = true
 		self.AcceptsTab = true
