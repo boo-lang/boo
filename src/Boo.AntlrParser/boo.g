@@ -1865,15 +1865,15 @@ options
 	
 	antlr.TokenStreamSelector _selector;
 	
-	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, string tokenObjectClass)
+	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, antlr.TokenCreator tokenCreator)
 	{
 		setTabSize(tabSize);
-		setTokenObjectClass(tokenObjectClass);
+		setTokenCreator(tokenCreator);
 		
 		_selector = selector;
 		_el = new BooExpressionLexer(getInputState());
 		_el.setTabSize(tabSize);
-		_el.setTokenObjectClass(tokenObjectClass);
+		_el.setTokenCreator(tokenCreator);
 		
 		_erecorder = new TokenStreamRecorder(selector);
 		

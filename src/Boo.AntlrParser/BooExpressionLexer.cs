@@ -1,4 +1,4 @@
-// $ANTLR 2.7.3rc2: "src/Boo.AntlrParser/booel.g" -> "BooExpressionLexer.cs"$
+// $ANTLR 2.7.4rc1: "src/Boo.AntlrParser/booel.g" -> "BooExpressionLexer.cs"$
 
 namespace Boo.AntlrParser
 {
@@ -181,7 +181,7 @@ namespace Boo.AntlrParser
 		{
 			caseSensitiveLiterals = true;
 			setCaseSensitive(true);
-			literals = new Hashtable(null, Comparer.Default);
+			literals = new Hashtable(100, (float) 0.4, null, Comparer.Default);
 			literals.Add("public", 59);
 			literals.Add("namespace", 58);
 			literals.Add("break", 28);

@@ -1,4 +1,4 @@
-// $ANTLR 2.7.3rc2: "src/Boo.AntlrParser/boo.g" -> "BooLexer.cs"$
+// $ANTLR 2.7.4rc1: "src/Boo.AntlrParser/boo.g" -> "BooLexer.cs"$
 
 namespace Boo.AntlrParser
 {
@@ -166,15 +166,15 @@ using Boo.AntlrParser.Util;
 	
 	antlr.TokenStreamSelector _selector;
 	
-	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, string tokenObjectClass)
+	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, antlr.TokenCreator tokenCreator)
 	{
 		setTabSize(tabSize);
-		setTokenObjectClass(tokenObjectClass);
+		setTokenCreator(tokenCreator);
 		
 		_selector = selector;
 		_el = new BooExpressionLexer(getInputState());
 		_el.setTabSize(tabSize);
-		_el.setTokenObjectClass(tokenObjectClass);
+		_el.setTokenCreator(tokenCreator);
 		
 		_erecorder = new TokenStreamRecorder(selector);
 		
@@ -230,7 +230,7 @@ using Boo.AntlrParser.Util;
 		{
 			caseSensitiveLiterals = true;
 			setCaseSensitive(true);
-			literals = new Hashtable(null, Comparer.Default);
+			literals = new Hashtable(100, (float) 0.4, null, Comparer.Default);
 			literals.Add("public", 59);
 			literals.Add("namespace", 58);
 			literals.Add("break", 28);

@@ -7,7 +7,7 @@
 	<property name="skip.tests" value="false" />
 	<property name="skip.satellites" value="false" />
 
-	<property name="antlr.home" value="lib/antlr-2.7.3" />
+	<property name="antlr.home" value="lib/antlr-2.7.4" />
 	<property name="java" value="java" />
 	
 	<property name="antlr.jar" value="${antlr.home}/antlr.jar" />

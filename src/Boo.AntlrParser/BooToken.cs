@@ -32,11 +32,12 @@ using System;
 namespace Boo.AntlrParser
 {
 	/// <summary>
-	/// O token armazena tambm o nome do arquivo que
-	/// o gerou para diagnstico.
+	/// A token that stores filename information.
 	/// </summary>
 	internal class BooToken : antlr.CommonToken
 	{
+		public static readonly antlr.TokenCreator Creator = new BooTokenCreator();
+		
 		protected string _fname;
 
 		public BooToken()
@@ -61,6 +62,21 @@ namespace Boo.AntlrParser
 		{
 			return _fname;
 		}
-
+		
+		class BooTokenCreator : antlr.TokenCreator
+		{
+			override public string TokenTypeName
+			{
+				get
+				{
+					return "Boo.AntlrParser.BooToken";
+				}
+			}
+			
+			override public antlr.Token Create()
+			{
+				return new BooToken();
+			}
+		}
 	}
 }

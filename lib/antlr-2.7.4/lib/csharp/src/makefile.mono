@@ -1,0 +1,131 @@
+# Small	and	simple makefile	for	compiling antlr's C# code 
+# generation support, with the Mono	(http://go-mono.org) toolset.
+#
+# Author:
+#	Cesar Lopez	Nataren	(cesar@ciencias.unam.mx)
+# 
+# Licensed under the terms of MIT X11
+#
+# (C) 2004,	Cesar Lopez	Nataren
+#
+# Usage: make -f makefile.mono
+
+SOURCES=antlr/ANTLRException.cs						\
+	antlr/ANTLRPanicException.cs					\
+	antlr/ASTFactory.cs								\
+	antlr/ASTNodeCreator.cs							\
+	antlr/ASTNULLType.cs							\
+	antlr/ASTPair.cs								\
+	antlr/ASTVisitor.cs								\
+	antlr/BaseAST.cs								\
+	antlr/ByteBuffer.cs								\
+	antlr/CharBuffer.cs								\
+	antlr/CharQueue.cs								\
+	antlr/CharScanner.cs							\
+	antlr/CharStreamException.cs					\
+	antlr/CharStreamIOException.cs					\
+	antlr/CommonAST.cs								\
+	antlr/CommonASTWithHiddenTokens.cs				\
+	antlr/CommonHiddenStreamToken.cs				\
+	antlr/CommonToken.cs							\
+	antlr/DefaultFileLineFormatter.cs				\
+	antlr/DumpASTVisitor.cs							\
+	antlr/FileLineFormatter.cs						\
+	antlr/InputBuffer.cs							\
+	antlr/LexerSharedInputState.cs					\
+	antlr/LLkParser.cs								\
+	antlr/MismatchedCharException.cs				\
+	antlr/MismatchedTokenException.cs				\
+	antlr/NoViableAltException.cs					\
+	antlr/NoViableAltForCharException.cs			\
+	antlr/Parser.cs									\
+	antlr/ParserSharedInputState.cs					\
+	antlr/ParseTree.cs								\
+	antlr/ParseTreeRule.cs							\
+	antlr/ParseTreeToken.cs							\
+	antlr/RecognitionException.cs					\
+	antlr/SemanticException.cs						\
+	antlr/StringUtils.cs							\
+	antlr/TokenBuffer.cs							\
+	antlr/Token.cs									\
+	antlr/TokenCreator.cs							\
+	antlr/TokenQueue.cs								\
+	antlr/TokenStreamBasicFilter.cs					\
+	antlr/TokenStream.cs							\
+	antlr/TokenStreamException.cs					\
+	antlr/TokenStreamHiddenTokenFilter.cs			\
+	antlr/TokenStreamIOException.cs					\
+	antlr/TokenStreamRecognitionException.cs		\
+	antlr/TokenStreamRetryException.cs				\
+	antlr/TokenStreamRewriteEngine.cs				\
+	antlr/TokenStreamSelector.cs					\
+	antlr/TokenWithIndex.cs							\
+	antlr/TreeParser.cs								\
+	antlr/TreeParserSharedInputState.cs				\
+	antlr.collections/AST.cs						\
+	antlr.collections.impl/ASTArray.cs				\
+	antlr.collections.impl/BitSet.cs				\
+	antlr.debug/ANTLREventArgs.cs					\
+	antlr.debug/DebuggingCharScanner.cs				\
+	antlr.debug/DebuggingInputBuffer.cs				\
+	antlr.debug/DebuggingParser.cs					\
+	antlr.debug/GuessingEventArgs.cs				\
+	antlr.debug/ICharScannerDebugSubject.cs			\
+	antlr.debug/IDebugSubject.cs					\
+	antlr.debug/InputBufferEventArgs.cs				\
+	antlr.debug/InputBufferEventSupport.cs			\
+	antlr.debug/InputBufferListenerBase.cs			\
+	antlr.debug/InputBufferListener.cs				\
+	antlr.debug/InputBufferReporter.cs				\
+	antlr.debug/IParserDebugSubject.cs				\
+	antlr.debug/Listener.cs							\
+	antlr.debug/LLkDebuggingParser.cs				\
+	antlr.debug/MessageEventArgs.cs					\
+	antlr.debug/MessageListenerBase.cs				\
+	antlr.debug/MessageListener.cs					\
+	antlr.debug/NewLineEventArgs.cs					\
+	antlr.debug/NewLineListener.cs					\
+	antlr.debug/ParserController.cs					\
+	antlr.debug/ParserEventSupport.cs				\
+	antlr.debug/ParserListenerBase.cs				\
+	antlr.debug/ParserListener.cs					\
+	antlr.debug/ParserMatchEventArgs.cs				\
+	antlr.debug/ParserMatchListenerBase.cs			\
+	antlr.debug/ParserMatchListener.cs				\
+	antlr.debug/ParserReporter.cs					\
+	antlr.debug/ParserTokenEventArgs.cs				\
+	antlr.debug/ParserTokenListenerBase.cs			\
+	antlr.debug/ParserTokenListener.cs				\
+	antlr.debug/ParseTreeDebugParser.cs				\
+	antlr.debug/ScannerEventSupport.cs				\
+	antlr.debug/SemanticPredicateEventArgs.cs		\
+	antlr.debug/SemanticPredicateListenerBase.cs	\
+	antlr.debug/SemanticPredicateListener.cs		\
+	antlr.debug/SyntacticPredicateEventArgs.cs		\
+	antlr.debug/SyntacticPredicateListenerBase.cs	\
+	antlr.debug/SyntacticPredicateListener.cs		\
+	antlr.debug/TraceEventArgs.cs					\
+	antlr.debug/TraceListenerBase.cs				\
+	antlr.debug/TraceListener.cs					\
+	antlr.debug/Tracer.cs							\
+	antlr.debug.misc/ASTFrame.cs					\
+	antlr.debug.misc/JTreeASTPanel.cs				\
+	SupportClass.cs									\
+	AssemblyInfo.cs
+
+CSC	= mcs
+CSC_FLAGS =	/r:System.Windows.Forms.dll	/r:System.Drawing.dll
+
+RUNTIME	= mono 
+RUNTIME_FLAGS =	--aot -O=all
+
+all: antlr.runtime.dll.so antlr.runtime.dll
+
+antlr.runtime.dll.so: antlr.runtime.dll
+	$(RUNTIME) $(RUNTIME_FLAGS)	$<
+
+antlr.runtime.dll: $(SOURCES)
+	$(CSC) $(CSC_FLAGS)	/out:$@	$^
+
+clean:
+	rm -rf antlr.runtime.dll.so	antlr.runtime.dll
