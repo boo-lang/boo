@@ -310,7 +310,7 @@ done * static field initializers
 
 done * shell(commandName) as string
 
-* argv para __Main__
+done * argv para __Main__
 
 done * builtins podem ser redefinidos como variáveis locais em assignments
 
