@@ -83,6 +83,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static ConstructorInfo Hash_Constructor = Types.Hash.GetConstructor(new Type[0]);
 		
+		static ConstructorInfo Regex_Constructor = typeof(Regex).GetConstructor(new Type[] { Types.String });
+		
 		static MethodInfo Hash_Add = Types.Hash.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
 		
 		static ConstructorInfo TimeSpan_LongConstructor = Types.TimeSpan.GetConstructor(new Type[] { typeof(long) });
@@ -1500,6 +1502,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			ITypeBinding type = GetBoundType(node);
 			EmitArray(type.GetElementType(), node.Items);
 			PushType(type);
+		}
+		
+		override public void OnRELiteralExpression(RELiteralExpression node)
+		{
+			_il.Emit(OpCodes.Ldstr, RuntimeServices.Mid(node.Value, 1, -1));
+			_il.Emit(OpCodes.Newobj, Regex_Constructor);
+			PushType(GetBoundType(node));
 		}
 		
 		override public void OnStringLiteralExpression(StringLiteralExpression node)

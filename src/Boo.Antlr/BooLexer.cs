@@ -1845,6 +1845,21 @@ _loop371_breakloop:		;
 		{
 			switch ( LA(1) )
 			{
+			case 'd':
+			{
+				match('d');
+				break;
+			}
+			case 's':
+			{
+				match('s');
+				break;
+			}
+			case 'w':
+			{
+				match('w');
+				break;
+			}
 			case '\\':
 			{
 				match('\\');
@@ -1893,6 +1908,16 @@ _loop371_breakloop:		;
 			case '?':
 			{
 				match('?');
+				break;
+			}
+			case '$':
+			{
+				match('$');
+				break;
+			}
+			case '^':
+			{
+				match('^');
 				break;
 			}
 			case '[':

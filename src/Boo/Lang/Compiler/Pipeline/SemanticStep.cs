@@ -1094,6 +1094,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			return null != node.End || null != node.Step || OmittedExpression.Default == node.Begin;
 		}
 		
+		StringLiteralExpression CreateStringLiteral(string value)
+		{
+			StringLiteralExpression expression = new StringLiteralExpression(value);
+			Switch(expression);
+			return expression;
+		}
+		
 		IntegerLiteralExpression CreateIntegerLiteral(long value)
 		{
 			IntegerLiteralExpression expression = new IntegerLiteralExpression(value);
@@ -1414,6 +1421,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			node.ParentNode.Replace(node, memberRef);
 			Switch(memberRef);
+		}
+		
+		override public void OnRELiteralExpression(RELiteralExpression node)
+		{			
+			Bind(node, BindingManager.AsBinding(typeof(System.Text.RegularExpressions.Regex)));
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
