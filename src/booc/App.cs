@@ -113,7 +113,10 @@ namespace BooC
 
 		static void ParseOptions(string[] args, CompilerParameters options)
 		{
-			foreach (string arg in args)
+			ArrayList arglist = new ArrayList(args);
+			ExpandResponseFiles(ref arglist);
+			AddDefaultResponseFile(ref arglist);
+			foreach (string arg in arglist)
 			{
 				if ("-" == arg)
 				{
@@ -267,33 +270,7 @@ namespace BooC
 					}
 					else
 					{
-                        // more likely NOT to be a response file
-                        if (!arg.StartsWith("@"))
-						{
-							options.Input.Add(new FileInput(Path.GetFullPath(arg)));
-                        }
-						else
-						{
-                            if (responseFileList.Contains(arg))
-							{
-                                throw new ApplicationException(
-										Boo.ResourceManager.Format("BCE0500", arg));
-                            }
-
-							try
-							{
-								LoadResponseFile(Path.GetFullPath(arg.Substring(1)));
-							}
-							catch (Exception x)
-							{
-                                throw new ApplicationException(
-												Boo.ResourceManager.Format("BCE0502", arg),
-												x);
-                            }
-
-                            responseFileList.Add(arg);
-                        }
-                            
+						options.Input.Add(new FileInput(Path.GetFullPath(arg)));
 					}
 				}
 			}
@@ -304,22 +281,97 @@ namespace BooC
 			}
 		}
 
-        static void LoadResponseFile(string file)
-        {
-            if (!File.Exists(file))
+		static ArrayList LoadResponseFile(string file)
+		{
+			file = Path.GetFullPath(file);
+			if (responseFileList.Contains(file))
 			{
-                throw new ApplicationException(Boo.ResourceManager.Format("BCE0501", file));
-            }
-			
-			using (StreamReader sr = new StreamReader(file))
+				throw new ApplicationException(
+						Boo.ResourceManager.Format("BCE0500", file));
+			}
+			responseFileList.Add(file);
+			if (!File.Exists(file))
 			{
-				string line = null;
-				while ((line = sr.ReadLine()) != null)
+				throw new ApplicationException(Boo.ResourceManager.Format("BCE0501", file));
+			}
+			ArrayList arglist = new ArrayList();
+			try
+			{
+				using (StreamReader sr = new StreamReader(file)) 
 				{
-					options.Input.Add(new FileInput(Path.GetFullPath(line)));
+					string line;
+					while ((line = sr.ReadLine()) != null) 
+					{
+						line = line.Trim();
+						if (line.Length > 0 && line[0] != '#')
+						{
+							if (line.StartsWith("@") && line.Length > 2)
+							{
+								arglist.AddRange(LoadResponseFile(line.Substring(1)));
+							}
+							else
+							{
+								arglist.Add(line);
+							}
+						}
+					}
 				}
 			}
-        }
+			catch (ApplicationException)
+			{
+				throw;
+			}
+			catch (Exception x)
+			{
+				throw new ApplicationException(
+								Boo.ResourceManager.Format("BCE0502", file),
+								x);
+			}
+			return	arglist;
+		}
+		
+		static void ExpandResponseFiles(ref ArrayList arglist)
+		{
+			ArrayList result = new ArrayList();
+			foreach (string arg in arglist)
+			{
+				if (arg.StartsWith("@") && arg.Length > 2)
+				{
+					result.AddRange(LoadResponseFile(arg.Substring(1)));
+				}
+				else
+				{
+					result.Add(arg);
+				}
+			}
+			arglist = result;
+		}
+
+		static void AddDefaultResponseFile(ref ArrayList arglist)
+		{
+			ArrayList result = new ArrayList();
+			bool loadDefault = true;
+			foreach (string arg in arglist)
+			{
+				if (arg == "-noconfig")
+				{
+					loadDefault = false;
+				}
+				else
+				{
+					result.Add(arg);
+				}
+			}
+			if (loadDefault)
+			{
+				string file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "booc.rsp");
+				if (File.Exists(file))
+				{
+					result.InsertRange(0, LoadResponseFile(file));
+				}
+			}
+			arglist = result;
+		}
 
 		static Assembly LoadAssembly(string assemblyName)
 		{

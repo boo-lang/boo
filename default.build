@@ -95,6 +95,8 @@
 			</references>
 		</csc>
 		
+		<copy todir="build" file="src/booc/booc.rsp" />
+		
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='build/Boo.dll' />
 			<arg file='build/Boo.Lang.Compiler.dll' />			
@@ -118,6 +120,7 @@
 				<include name="Boo.AntlrParser.dll" />
 				<include name="antlr.runtime.dll" />
 				<include name="booc.exe" />
+				<include name="booc.rsp" />
 				<include name="booi.exe" />				
 			</fileset>
 		</copy>
@@ -213,6 +216,7 @@
 				<include name="docs/**/*.sxw" />
 				<include name="bin/*.dll" />
 				<include name="bin/*.exe" />
+				<include name="bin/*.rsp" />
 				
 				<include name="extras/boo.lang" />
 				<include name="extras/install-gtksourceview-mode" />
@@ -243,6 +247,7 @@
 				<include name="docs/**/*.sxw" />
 				<include name="bin/*.dll" />
 				<include name="bin/*.exe" />
+				<include name="bin/*.rsp" />
 				
 				<include name="extras/boo.lang" />
 				<include name="extras/install-gtksourceview-mode" />
@@ -265,6 +270,7 @@
 				
 				<include name="src/**/*.cs" />
 				<include name="src/**/*.boo" />
+				<include name="src/**/*.rsp" />
 				<include name="src/**/*.g" />
 				<include name="src/**/*.prjx" />
 				<include name="src/Boo/Resources/strings.txt" />
