@@ -1,14 +1,4 @@
-﻿* criar todos os passos novos e fazer passar todos os testes atuais
-	* module namespace testcases
-	
-* checar assinatura completa do método
-
-* preencher assinatura dos métodos em BindTypeMembers
-
-* InjectCasts
-	* simplificar EmitAssembly
-
-* CallableType
+﻿* CallableType
 	* para funçoes
 	* para delegates (o tipo de um evento seria o CallableType equivalente ao delegate)
 	
@@ -18,15 +8,24 @@
 
 * map(callable, enumerable)
 
+* generator expressions
+	return i*3 for i in range(10)
+	
+* preencher assinatura dos métodos em BindTypeMembers
+	* completar tipo dos parâmetros
+	* completar return type:
+		* completar para unknown caso o método possua returns
+		* completar para void caso o método nao possua returns
+
+* InjectCasts
+	* simplificar EmitAssembly
+
 * final fields: se for um value type nativo fica como literal, senao fica
 como campo readonly
 
 * um novo passo para checagem de visibilidade de acesso de membros
 
 * check visibility for override
-
-* generator expressions
-	return i*3 for i in range(10)
 	
 * promoção de bool para int32 e conversão automática de int32 para bool:
 	* and

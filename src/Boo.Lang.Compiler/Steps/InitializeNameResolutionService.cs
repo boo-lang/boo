@@ -51,9 +51,9 @@ namespace Boo.Lang.Compiler.Steps
 		{				
 			ResolveImportAssemblyReferences();
 			ResolveInternalModules();
-			OrganizeExternalNamespaces();
+			OrganizeExternalNamespaces();		
 			
-			NameResolutionService.GlobalNamespace = new SimpleNamespace(null, _namespaces);
+			NameResolutionService.GlobalNamespace = new GlobalNamespace(_namespaces);
 		}
 		
 		void ResolveInternalModules()

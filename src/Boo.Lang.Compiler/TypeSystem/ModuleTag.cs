@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		NameResolutionService _nameResolutionService;
 		
-		TypeSystemServices _tagService;
+		TypeSystemServices _typeSystemServices;
 		
 		Boo.Lang.Compiler.Ast.Module _module;
 		
@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ModuleTag(NameResolutionService nameResolutionService, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Module module)
 		{
 			_nameResolutionService = nameResolutionService;
-			_tagService = tagManager;
+			_typeSystemServices = tagManager;
 			_module = module;			
 			if (null == module.Namespace)
 			{
@@ -86,19 +86,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public string Namespace
 		{
 			get
-			{
+			{                             
 				return _namespace;
 			}
 		}
 		
-		public IElement ResolveMember(string name)
+		public void InitializeModuleClass(Boo.Lang.Compiler.Ast.ClassDefinition moduleClass)
 		{
-			IElement tag = ResolveModuleMember(name);
-			if (null == tag)
+			if (null == moduleClass.Tag)
 			{
-				tag = ResolveModuleClassMember(name);
+				moduleClass.Tag = new InternalType(_typeSystemServices, moduleClass);
 			}
-			return tag;
+			_moduleClassNamespace = (INamespace)moduleClass.Tag;
+		}
+		
+		public bool ResolveMember(Boo.Lang.List targetList, string name, ElementType flags)
+		{
+			if (ResolveModuleMember(targetList, name, flags))
+			{
+				return true;
+			}
+			return _moduleClassNamespace.Resolve(targetList, name, flags);
 		}
 		
 		public INamespace ParentNamespace
@@ -111,10 +119,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
-			IElement tag = ResolveMember(name);
-			if (null != tag)
-			{	
-				targetList.Add(tag);
+			if (ResolveMember(targetList, name, flags))
+			{
 				return true;
 			}
 			
@@ -138,19 +144,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return found;
 		}
 		
-		IElement ResolveModuleMember(string name)
+		bool ResolveModuleMember(Boo.Lang.List targetList, string name, ElementType flags)
 		{
-			Boo.Lang.Compiler.Ast.TypeMember member = _module.Members[name];
-			if (null != member)
-			{			
-				return _tagService.GetTypeReference((IType)TypeSystemServices.GetTag(member));
+			bool found=false;
+			foreach (Boo.Lang.Compiler.Ast.TypeMember member in _module.Members)
+			{
+				if (name == member.Name)
+				{
+					IElement tag = _typeSystemServices.GetTypeReference((IType)TypeSystemServices.GetTag(member));
+					if (NameResolutionService.IsFlagSet(flags, tag.ElementType))
+					{
+						targetList.Add(tag);
+						found = true;
+					}
+				}
 			}
-			return null;
-		}
-		
-		IElement ResolveModuleClassMember(string name)
-		{
-			return null;
+			return found;
 		}
 	}
 }

@@ -121,23 +121,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			}
 			
-			if (!ResolveInternalType(targetList, name))
+			if (!ResolveInternalType(targetList, name, flags))
 			{
 				return ResolveExternalType(targetList, name);
 			}
 			return false;
 		}
 		
-		bool ResolveInternalType(Boo.Lang.List targetList, string name)
+		bool ResolveInternalType(Boo.Lang.List targetList, string name, ElementType flags)
 		{
 			foreach (ModuleTag ns in _moduleNamespaces)
 			{
-				IElement tag = ns.ResolveMember(name);
-				if (null != tag)
-				{
-					targetList.Add(tag);
-					return true;
-				}
+				ns.ResolveMember(targetList, name, flags);
 			}
 			return false;
 		}

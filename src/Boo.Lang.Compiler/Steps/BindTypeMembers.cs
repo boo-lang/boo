@@ -33,6 +33,8 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class BindTypeMembers : AbstractVisitorCompilerStep
 	{
+		Boo.Lang.List _parameters = new Boo.Lang.List();
+		
 		public BindTypeMembers()
 		{
 		}
@@ -42,7 +44,17 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Tag)
 			{
 				node.Tag = new InternalMethod(TypeSystemServices, node);
-				BindParameters(node, node.Parameters);
+				_parameters.Add(node);
+			}
+		}
+		
+		void BindAllParameters()
+		{
+			foreach (INodeWithParameters node in _parameters)
+			{
+				TypeMember member = (TypeMember)node;
+				NameResolutionService.Restore((INamespace)TypeSystemServices.GetTag(member.DeclaringType));
+				BindParameters(member, node.Parameters);
 			}
 		}
 		
@@ -71,7 +83,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Tag)
 			{
 				node.Tag = new InternalConstructor(TypeSystemServices, node);
-				BindParameters(node, node.Parameters);
+				_parameters.Add(node);
 			}
 		}
 		
@@ -88,24 +100,34 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Tag)
 			{				
 				node.Tag = new InternalProperty(TypeSystemServices, node);
-				BindParameters(node, node.Parameters);
+				_parameters.Add(node);
 			}
 			
 			Accept(node.Getter);
 			Accept(node.Setter);
 		}	
 		
-		override public void Run()
+		override public void OnClassDefinition(ClassDefinition node)
 		{
-			NameResolutionService.Reset();
-			Accept(CompileUnit.Modules);
+			Accept(node.Members);
 		}
 		
-		override public void OnModule(Module module)
+		override public void OnModule(Module node)
 		{
-			NameResolutionService.EnterNamespace((INamespace)module.Tag);
-			Accept(module.Members);
-			NameResolutionService.LeaveNamespace();
+			Accept(node.Members);
+		}
+		
+		override public void Run()
+		{			
+			NameResolutionService.Reset();
+			Accept(CompileUnit.Modules);
+			BindAllParameters();
+		}
+		
+		override public void Dispose()
+		{
+			base.Dispose();
+			_parameters.Clear();
 		}
 	}
 }

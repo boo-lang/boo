@@ -666,7 +666,7 @@ namespace Boo.Lang.Compiler.Steps
 				else if (ElementType.Ambiguous == baseMethods.ElementType)
 				{
 					IElement[] tags = ((Ambiguous)baseMethods).Elements;
-					IMethod baseMethod = (IMethod)ResolveMethodReference(method, method.Parameters, tags, false);
+					IMethod baseMethod = (IMethod)ResolveCallableReference(method, method.Parameters, tags, false);
 					if (null != baseMethod)
 					{
 						return baseMethod;
@@ -1076,7 +1076,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (ElementType.Ambiguous == member.ElementType)
 			{
 				IElement[] tags = GetGetMethods(((Ambiguous)member).Elements);
-				getter = (IMethod)ResolveMethodReference(node, mie.Arguments, tags, true);						
+				getter = (IMethod)ResolveCallableReference(node, mie.Arguments, tags, true);						
 			}
 			else if (ElementType.Property == member.ElementType)
 			{
@@ -2095,7 +2095,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (ElementType.Ambiguous == targetInfo.ElementType)
 			{		
 				IElement[] tags = ((Ambiguous)targetInfo).Elements;
-				targetInfo = ResolveMethodReference(node, node.Arguments, tags, true);				
+				targetInfo = ResolveCallableReference(node, node.Arguments, tags, true);				
 				if (null == targetInfo)
 				{
 					return;
@@ -2347,7 +2347,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (ElementType.Ambiguous == lhs.ElementType)
 			{		
-				setter = (IMethod)ResolveMethodReference(node.Left, mie.Arguments, GetSetMethods(((Ambiguous)lhs).Elements), false);
+				setter = (IMethod)ResolveCallableReference(node.Left, mie.Arguments, GetSetMethods(((Ambiguous)lhs).Elements), false);
 			}
 			
 			if (null == setter)
@@ -2834,7 +2834,7 @@ namespace Boo.Lang.Compiler.Steps
 			IConstructor[] constructors = typeInfo.GetConstructors();
 			if (constructors.Length > 0)
 			{				
-				return (IConstructor)ResolveMethodReference(sourceNode, arguments, constructors, true);				
+				return (IConstructor)ResolveCallableReference(sourceNode, arguments, constructors, true);				
 			}
 			else
 			{
@@ -2957,7 +2957,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 		}
 		
-		IElement ResolveMethodReference(Node node, NodeCollection args, IElement[] tags, bool treatErrors)
+		IElement ResolveCallableReference(Node node, NodeCollection args, IElement[] tags, bool treatErrors)
 		{
 			List scores = new List();
 			for (int i=0; i<tags.Length; ++i)

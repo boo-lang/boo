@@ -55,20 +55,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IElement Resolve(string name)
+		public virtual bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
-			return (IElement)_children[name];
-		}
-		
-		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
-		{
-			IElement element = Resolve(name);
+			IElement element = (IElement)_children[name];
 			if (null != element && NameResolutionService.IsFlagSet(flags, element.ElementType))
 			{
 				targetList.Add(element);
 				return true;
 			}
 			return false;
+		}
+	}
+	
+	public class GlobalNamespace : SimpleNamespace
+	{
+		INamespace _empty;
+		
+		public GlobalNamespace(IDictionary children) : base(null, children)
+		{
+			_empty = (INamespace)children[""];
+		}
+		
+		override public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		{
+			if (!base.Resolve(targetList, name, flags))
+			{
+				return _empty.Resolve(targetList, name, flags);
+			}
+			return true;
 		}
 	}
 	
@@ -181,7 +195,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		INamespace[] _namespaces;
 		
-		public NamespaceDelegator(INamespace parent, INamespace[] namespaces)
+		public NamespaceDelegator(INamespace parent, params INamespace[] namespaces)
 		{
 			_parent = parent;
 			_namespaces = namespaces;

@@ -90,7 +90,7 @@ class Field(TypeMember):
 	Type as TypeReference
 	Initializer as Expression
 
-class Property(TypeMember):
+class Property(TypeMember, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
 	Getter as Method
 	Setter as Method
@@ -103,13 +103,13 @@ class Local(Node):
 class LocalCollection:
 	pass
 	
-class CallableBlockExpression(Expression):
+class CallableBlockExpression(Expression, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
 	[auto]
 	Body as Block
 
-class Method(TypeMember):
+class Method(TypeMember, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
 	ReturnTypeAttributes as AttributeCollection
