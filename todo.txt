@@ -2,7 +2,7 @@
 	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
 	parâmetros
 
-* primer
+* boo primer
 
 * boox
 	* prompt must be redirected to a InputBox
