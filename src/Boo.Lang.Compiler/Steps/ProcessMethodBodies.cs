@@ -2571,34 +2571,48 @@ namespace Boo.Lang.Compiler.Steps
 			CheckNoComplexSlicing(slicing);
 			Visit(slicing);
 			
-			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
-			BindExpressionType(eval, GetExpressionType(slicing));
+			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);			
+			if (HasSideEffect(slicing.Target))
+			{
+				InternalLocal temp = AddInitializedTempLocal(eval, slicing.Target);
+				slicing.Target = CodeBuilder.CreateReference(temp);
+			}
 			
-			// FIXME: slicing.Target might be an expression with side effects
-			// in which case, it should be evaluated only once as the 
-			// indices are right now			
 			foreach (Slice slice in slicing.Indices)
 			{
 				Expression index = slice.Begin;
-				InternalLocal temp = DeclareTempLocal(GetExpressionType(index));
-				
-				eval.Arguments.Add(
-					CodeBuilder.CreateAssignment(
-						CodeBuilder.CreateReference(temp),
-						index.CloneNode()));
-				slice.Begin = CodeBuilder.CreateReference(temp);
+				if (HasSideEffect(index))
+				{
+					InternalLocal temp = AddInitializedTempLocal(eval, index);
+					slice.Begin = CodeBuilder.CreateReference(temp);
+				}
 			}
 			
-			eval.Arguments.Add(
-				CodeBuilder.CreateAssignment(
+			Expression expansion = CodeBuilder.CreateAssignment(
 					slicing.CloneNode(),
 					CodeBuilder.CreateBoundBinaryExpression(
 						GetExpressionType(slicing),
 						GetEquivalentBinaryOperator(node.Operator),
 						slicing.CloneNode(),
-						CodeBuilder.CreateIntegerLiteral(1))));
+						CodeBuilder.CreateIntegerLiteral(1)));
 						
-			return eval;
+			if (eval.Arguments.Count > 0)
+			{
+				eval.Arguments.Add(expansion);
+				BindExpressionType(eval, GetExpressionType(slicing));
+				expansion = eval;
+			}			
+			return expansion;
+		}
+		
+		InternalLocal AddInitializedTempLocal(MethodInvocationExpression eval, Expression initializer)
+		{
+			InternalLocal temp = DeclareTempLocal(GetExpressionType(initializer));				
+			eval.Arguments.Add(
+					CodeBuilder.CreateAssignment(
+						CodeBuilder.CreateReference(temp),
+						initializer));
+			return temp;
 		}
 		
 		Expression ExpandSimpleIncrementDecrement(UnaryExpression node)
