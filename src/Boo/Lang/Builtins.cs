@@ -32,12 +32,17 @@ namespace Boo.Lang
 	using System.Collections;
 	using System.Diagnostics;
 	using System.Text;
+	using System.Reflection;
 
 	/// <summary>
 	/// boo language builtin functions.
 	/// </summary>
 	public class Builtins
-	{
+	{		
+		public class duck
+		{
+		}
+		
 		public static void print(string s)
 		{
 			Console.WriteLine(s);

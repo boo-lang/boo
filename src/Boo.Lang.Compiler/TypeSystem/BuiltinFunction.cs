@@ -32,11 +32,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		Len,
 		AddressOf,
-		Eval
+		Eval,
+		Quack // duck typing support
 	}
 	
 	public class BuiltinFunction : IEntity
 	{
+		public static BuiltinFunction Quack = new BuiltinFunction("quack", BuiltinFunctionType.Quack);
+		
+		public static BuiltinFunction Len = new BuiltinFunction("len", BuiltinFunctionType.Len);
+		
+		public static BuiltinFunction AddressOf = new BuiltinFunction("__addressof__", BuiltinFunctionType.AddressOf);
+		
+		public static BuiltinFunction Eval = new BuiltinFunction("__eval__", BuiltinFunctionType.Eval);
+		
 		BuiltinFunctionType _function;
 		
 		string _name;

@@ -105,17 +105,17 @@ namespace Boo.Lang.Compiler.Steps
 			IsPublicEventFilter = new InfoFilter(IsPublicEvent);
 		}
 		
-		IMethod ResolveMethod(IType type, string name)
+		protected IMethod ResolveMethod(IType type, string name)
 		{
 			return (IMethod)ResolveMember(type, name, EntityType.Method);
 		}
 		
-		IProperty ResolveProperty(IType type, string name)
+		protected IProperty ResolveProperty(IType type, string name)
 		{
 			return (IProperty)ResolveMember(type, name, EntityType.Property);
 		}
 		
-		IEntity ResolveMember(IType type, string name, EntityType elementType)
+		protected IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
 			_buffer.Clear();
 			type.Resolve(_buffer, name, elementType);
@@ -123,14 +123,14 @@ namespace Boo.Lang.Compiler.Steps
 			return (IEntity)_buffer[0];
 		}
 		
-		IEntity Resolve(INamespace ns, string name, EntityType elementType)
+		protected IEntity Resolve(INamespace ns, string name, EntityType elementType)
 		{
 			_buffer.Clear();
 			ns.Resolve(_buffer, name, elementType);
 			return NameResolutionService.GetEntityFromList(_buffer);
 		}
 		
-		IEntity Resolve(INamespace ns, string name)
+		protected IEntity Resolve(INamespace ns, string name)
 		{
 			return Resolve(ns, name, EntityType.Any);
 		}
@@ -149,6 +149,13 @@ namespace Boo.Lang.Compiler.Steps
 			_visited = new Hash();
 			_loopDepth = 0;
 						
+			InitializeMemberCache();
+			
+			Visit(CompileUnit);
+		}
+		
+		virtual protected void InitializeMemberCache()
+		{			
 			RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
 			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
 			RuntimeServices_GetRange = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange");
@@ -171,7 +178,6 @@ namespace Boo.Lang.Compiler.Steps
 					(IConstructor)TypeSystemServices.Map(
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
-			Visit(CompileUnit);
 		}
 		
 		override public void Dispose()
@@ -933,10 +939,10 @@ namespace Boo.Lang.Compiler.Steps
 			return null != node.End || null != node.Step || OmittedExpression.Default == node.Begin;
 		}
 		
-		StringLiteralExpression CreateStringLiteral(string value)
+		protected StringLiteralExpression CreateStringLiteral(string value)
 		{
 			StringLiteralExpression expression = new StringLiteralExpression(value);
-			Visit(expression);
+			BindExpressionType(expression, TypeSystemServices.StringType);
 			return expression;
 		}
 		
@@ -1476,55 +1482,60 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				INamespace ns = GetReferenceNamespace(node);				
-				IEntity member = Resolve(ns, node.Name);				
-				if (null == member)
-				{										
-					Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
-				}
-				else
+				ProcessMemberReferenceExpression(node);
+			}
+		}
+		
+		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
+		{				
+			INamespace ns = GetReferenceNamespace(node);				
+			IEntity member = Resolve(ns, node.Name);				
+			if (null == member)
+			{										
+				Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
+			}
+			else
+			{
+				EnsureRelatedNodeWasVisited(member);
+				
+				IMember memberInfo = member as IMember;
+				if (null != memberInfo)
 				{
-					EnsureRelatedNodeWasVisited(member);
-					
-					IMember memberInfo = member as IMember;
-					if (null != memberInfo)
+					// methods will be checked later
+					if (EntityType.Method != memberInfo.EntityType)
 					{
-						// methods will be checked later
-						if (EntityType.Method != memberInfo.EntityType)
+						if (!CheckTargetContext(node, memberInfo))
 						{
-							if (!CheckTargetContext(node, memberInfo))
-							{
-								Error(node);
-								return;
-							}
-						}
-						BindExpressionType(node, memberInfo.Type);
-					}
-					
-					if (EntityType.Property == member.EntityType)
-					{
-						if (!AstUtil.IsLhsOfAssignment(node) &&
-							!IsPreIncDec(node.ParentNode))
-						{
-							if (IsIndexedProperty(member))
-							{
-								if (!AstUtil.IsTargetOfSlicing(node))
-								{
-									Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), member.FullName));
-									return;
-								}
-							}
-							else
-							{
-								node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IProperty)member).GetGetMethod()));
-								return;
-							}
+							Error(node);
+							return;
 						}
 					}
-					
-					Bind(node, member);
-					PostProcessReferenceExpression(node);
+					BindExpressionType(node, memberInfo.Type);
 				}
+				
+				if (EntityType.Property == member.EntityType)
+				{
+					if (!AstUtil.IsLhsOfAssignment(node) &&
+						!IsPreIncDec(node.ParentNode))
+					{
+						if (IsIndexedProperty(member))
+						{
+							if (!AstUtil.IsTargetOfSlicing(node))
+							{
+								Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), member.FullName));
+								return;
+							}
+						}
+						else
+						{
+							node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IProperty)member).GetGetMethod()));
+							return;
+						}
+					}
+				}
+				
+				Bind(node, member);
+				PostProcessReferenceExpression(node);
 			}
 		}
 		
@@ -2092,21 +2103,21 @@ namespace Boo.Lang.Compiler.Steps
 			node.ParentNode.Replace(node, mie);
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag, Expression arg)
+		protected MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag, Expression arg)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(target, tag);
 			mie.Arguments.Add(arg);
 			return mie;
 		}
 		
-		ReferenceExpression CreateReference(LexicalInfo info, IType type)
+		protected ReferenceExpression CreateReference(LexicalInfo info, IType type)
 		{
 			ReferenceExpression expression = new ReferenceExpression(info, type.FullName);
 			Bind(expression, type);
 			return expression;
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg)
+		protected MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
 			mie.Target = new ReferenceExpression(staticMethod.FullName);
@@ -2117,24 +2128,23 @@ namespace Boo.Lang.Compiler.Steps
 			return mie;
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1)
+		protected MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0);
 			mie.Arguments.Add(arg1);
 			return mie;
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1, Expression arg2)
+		protected MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1, Expression arg2)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0, arg1);
 			mie.Arguments.Add(arg2);
 			return mie;
 		}
 		
-		public void OnBuiltinFunction(IEntity tag, MethodInvocationExpression node)
-		{
-			BuiltinFunction sf = (BuiltinFunction)tag;
-			switch (sf.FunctionType)
+		virtual protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)
+		{			
+			switch (function.FunctionType)
 			{
 				case BuiltinFunctionType.Len:
 				{
@@ -2156,7 +2166,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				default:
 				{
-					NotImplemented(node, "BuiltinFunction: " + sf.FunctionType);
+					NotImplemented(node, "BuiltinFunction: " + function.FunctionType);
 					break;
 				}
 			}
@@ -2326,7 +2336,7 @@ namespace Boo.Lang.Compiler.Steps
 			{		
 				case EntityType.BuiltinFunction:
 				{
-					OnBuiltinFunction(targetInfo, node);
+					ProcessBuiltinInvocation((BuiltinFunction)targetInfo, node);
 					break;
 				}
 				
@@ -2394,7 +2404,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MethodInvocationExpression eval = new MethodInvocationExpression(li);
 			eval.Target = new ReferenceExpression("__eval__");
-			Bind(eval.Target, TypeSystemServices.ResolvePrimitive("__eval__"));
+			Bind(eval.Target, BuiltinFunction.Eval);
 			return eval;
 		}
 		
@@ -2544,7 +2554,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		ArrayLiteralExpression CreateObjectArray(ExpressionCollection items)
+		protected ArrayLiteralExpression CreateObjectArray(ExpressionCollection items)
 		{
 			ArrayLiteralExpression array = new ArrayLiteralExpression();
 			BindExpressionType(array, TypeSystemServices.ObjectArrayType);
@@ -2686,29 +2696,34 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				IType resultingType = TypeSystemServices.ErrorEntity;
-				if (CheckLValue(node.Left))
-				{
-					IEntity lhs = GetEntity(node.Left);
-					IType lhsType = GetExpressionType(node.Left);
-					if (CheckTypeCompatibility(node.Right, lhsType, GetExpressionType(node.Right)))
-					{
-						resultingType = lhsType;
-						
-						if (EntityType.Property == lhs.EntityType)
-						{
-							IProperty property = (IProperty)lhs;
-							if (IsIndexedProperty(property))
-							{
-								Error(CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node.Left), property.FullName));
-								resultingType = TypeSystemServices.ErrorEntity;
-							}	
-						}						
-					}
-				}
-				BindExpressionType(node, resultingType);
+				ProcessAssignment(node);
 			}			
 		}		
+		
+		virtual protected void ProcessAssignment(BinaryExpression node)
+		{
+			IType resultingType = TypeSystemServices.ErrorEntity;
+			if (CheckLValue(node.Left))
+			{
+				IEntity lhs = GetEntity(node.Left);
+				IType lhsType = GetExpressionType(node.Left);
+				if (CheckTypeCompatibility(node.Right, lhsType, GetExpressionType(node.Right)))
+				{
+					resultingType = lhsType;
+					
+					if (EntityType.Property == lhs.EntityType)
+					{
+						IProperty property = (IProperty)lhs;
+						if (IsIndexedProperty(property))
+						{
+							Error(CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node.Left), property.FullName));
+							resultingType = TypeSystemServices.ErrorEntity;
+						}	
+					}						
+				}
+			}
+			BindExpressionType(node, resultingType);
+		}
 		
 		bool CheckIsaArgument(Expression e)
 		{

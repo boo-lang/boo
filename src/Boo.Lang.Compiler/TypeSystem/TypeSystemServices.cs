@@ -36,6 +36,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class TypeSystemServices
 	{			
+		public IType DuckType;
+		
 		public ExternalType ExceptionType;
 		
 		public ExternalType ApplicationExceptionType;
@@ -123,6 +125,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			_context = context;
 			
+			Cache(typeof(Boo.Lang.Builtins.duck), DuckType = new DuckTypeImpl(this));
 			Cache(VoidType = new VoidTypeImpl(this));
 			Cache(ObjectType = new ExternalType(this, Types.Object));
 			Cache(EnumType = new ExternalType(this, typeof(System.Enum)));
@@ -562,14 +565,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("long", LongType);
 			AddPrimitiveType("single", SingleType);
 			AddPrimitiveType("double", DoubleType);
-			AddPrimitive("len", new BuiltinFunction("len", BuiltinFunctionType.Len));
-			AddPrimitive("__addressof__", new BuiltinFunction("__addressof__", BuiltinFunctionType.AddressOf));
-			AddPrimitive("__eval__", new BuiltinFunction("__eval__", BuiltinFunctionType.Eval));
+			AddBuiltin(BuiltinFunction.Len);
+			AddBuiltin(BuiltinFunction.AddressOf);
+			AddBuiltin(BuiltinFunction.Eval);
 		}
 		
 		void AddPrimitiveType(string name, ExternalType type)
 		{
 			_primitives[name] = type;
+		}
+		
+		void AddBuiltin(BuiltinFunction function)
+		{
+			_primitives[function.Name] = function;
 		}
 		
 		void AddPrimitive(string name, IEntity tag)
@@ -671,7 +679,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private static void InvalidNode(Node node)
 		{
 			throw CompilerErrorFactory.InvalidNode(node);
-		}		
+		}
+
+		public class DuckTypeImpl : ExternalType
+		{
+			public DuckTypeImpl(TypeSystemServices typeSystemServices) : 
+				base(typeSystemServices, Types.Object)
+			{
+			}
+			
+			override public bool IsAssignableFrom(IType other)
+			{
+				return true;
+			}
+		}	
 		
 		#region VoidTypeImpl
 		class VoidTypeImpl : ExternalType

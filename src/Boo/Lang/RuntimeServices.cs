@@ -29,6 +29,7 @@
 namespace Boo.Lang
 {
 	using System;
+	using System.Reflection;
 	using System.Collections;
 	using System.IO;
 	using System.Text;
@@ -36,6 +37,48 @@ namespace Boo.Lang
 
 	public class RuntimeServices
 	{
+		const BindingFlags InvokeBindingFlags = BindingFlags.Public|
+												BindingFlags.InvokeMethod|
+												BindingFlags.Instance;
+												
+		const BindingFlags SetPropertyBindingFlags = BindingFlags.Public|
+												BindingFlags.SetProperty|
+												BindingFlags.Instance;
+			
+		public static object Invoke(object target, string name, object[] args)
+		{
+			try
+			{
+				return target.GetType().InvokeMember(name,
+													InvokeBindingFlags,
+													null,
+													target,
+													args);
+													
+			}
+			catch (TargetInvocationException x)
+			{
+				throw x.InnerException;
+			}				
+		}
+		
+		public static object SetProperty(object target, string name, object value)
+		{
+			try
+			{
+				target.GetType().InvokeMember(name,
+										SetPropertyBindingFlags,
+										null, 
+										target,
+										new object[] { value });
+				return value;
+			}
+			catch (TargetInvocationException x)
+			{
+				throw x.InnerException;
+			}
+		}
+		
 		public static object MoveNext(IEnumerator enumerator)
 		{
 			if (null == enumerator)

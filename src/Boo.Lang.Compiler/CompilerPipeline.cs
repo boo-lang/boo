@@ -65,6 +65,22 @@ namespace Boo.Lang.Compiler
 			
 			_items.Insert(index, step);
 			return this;
+		} 
+		
+		public int Find(Type stepExactType)
+		{
+			if (null == stepExactType)
+			{
+				throw new ArgumentNullException("stepExactType");
+			}
+			for (int i=0; i<_items.Count; ++i)
+			{
+				if (_items[i].GetType() == stepExactType)
+				{
+					return i;
+				}
+			}
+			return -1;
 		}
 
 		public int Count
@@ -80,6 +96,15 @@ namespace Boo.Lang.Compiler
 			get
 			{
 				return (ICompilerStep)_items[index];
+			}
+			
+			set
+			{
+				if (null == value)
+				{
+					throw new ArgumentNullException("value");
+				}
+				_items[index] = value;
 			}
 		}
 		

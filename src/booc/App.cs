@@ -312,8 +312,21 @@ namespace BooC
 					pipeline.Add(new Boo.Lang.Compiler.Steps.DumpReferences());
 					return pipeline;
 				}
+				case "duck":
+				{
+					CompilerPipeline pipeline = new CompileToBoo();
+					MakeItQuack(pipeline);
+					return pipeline;
+				}
+				case "quack": return new Quack();
 			}
 			return null;
+		}
+		
+		static void MakeItQuack(CompilerPipeline pipeline)
+		{
+			int index = pipeline.Find(typeof(Boo.Lang.Compiler.Steps.ProcessMethodBodies));
+			pipeline[index] = new Boo.Lang.Compiler.Steps.HuntDucks();
 		}
 	}
 }
