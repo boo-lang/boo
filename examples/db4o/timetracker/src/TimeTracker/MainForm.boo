@@ -100,8 +100,9 @@ class MainForm(Form):
 			_notify.Text = _current.ToString()
 		
 	override def OnClosing(args as CancelEventArgs):
-		Minimize()
-		args.Cancel = true		
+		unless Environment.HasShutdownStarted:
+			Minimize()
+			args.Cancel = true		
 		super(args)
 		
 	def Minimize():		
