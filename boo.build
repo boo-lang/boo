@@ -12,6 +12,7 @@
 	<property name="antlr.runtime.dll" value="${antlr.home}/bin/antlr.runtime.dll" />
 	<property name="antlr.exe" value="${antlr.home}/bin/antlr.exe" />
 	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
+	<property name="NAnt.Core.dll" value="${nant.location}/NAnt.Core.dll" />
 	
 	<property name="ngen.exe" value="${nant.settings.defaultframework.frameworkdirectory}/ngen.exe" />
 	<property name="skip.ngen" value="False" />
@@ -34,10 +35,20 @@
 		<property name="skip.ast" value="True" />
 	</if>
 
-	<target name="all" depends="booi">	
+	<target name="all" depends="booi, booc, Boo.NAnt">	
 	</target>
 	
-	<target name="booc" depends="Boo, Boo.Antlr, run-tests">
+	<target name="Boo.NAnt" depends="booc">
+		<copy file="${NAnt.Core.dll}" todir="build" />
+		<exec program="build/booc.exe" useruntimeengine="true">
+			<arg value="/out:build/Boo.NAnt.dll" />
+			<arg value="/target:library" />
+			<arg value="/r:${NAnt.Core.dll}" />
+			<arg value="src/Boo.NAnt/BooC.boo" />
+		</exec>
+	</target>
+	
+	<target name="booc" depends="core">
 		<csc target="exe" output="build/booc.exe" debug="${debug}" optimize="${optimize}">
 			<sources basedir="src/BooC">
 				<includes name="*.cs" />
@@ -60,7 +71,7 @@
 		</exec>
 	</target>
 	
-	<target name="booi" depends="booc">
+	<target name="booi" depends="core">
 	<!--
 		<csc target="exe" output="build/booi.exe" debug="${debug}" optimize="${optimize}">
 			<sources basedir="src/booi">
@@ -71,6 +82,9 @@
 			</references>
 		</csc>
 	-->
+	</target>
+	
+	<target name="core" depends="Boo, Boo.Antlr, run-tests">
 	</target>
 	
 	<target name='run-tests' depends="Boo.Tests" if="${nant.tasks.nunit2}" unless='${skip.tests}'>
