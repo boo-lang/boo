@@ -410,6 +410,10 @@ package Boo.Ast
 		Value as long
 	end
 	
+	class RealLiteralExpression(LiteralExpression)
+		Value as double
+	end
+	
 	class NullLiteralExpression(LiteralExpression)
 	end
 	

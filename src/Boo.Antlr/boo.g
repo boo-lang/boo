@@ -47,6 +47,7 @@ options
 tokens
 {
 	TIMESPAN; // timespan literal
+	REAL; // real literal
 	ESEPARATOR; // expression separator (imaginary token)	
 	INDENT;
 	DEDENT;
@@ -1507,6 +1508,7 @@ literal returns [Expression e]
 		e=null_literal |
 		e=self_literal |
 		e=super_literal |
+		e=real_literal |
 		e=timespan_literal
 	)
 	;
@@ -1652,6 +1654,12 @@ re_literal returns [RELiteralExpression re] { re = null; }:
 	;
 	
 protected
+real_literal returns [RealLiteralExpression rle] { rle = null; }:
+	value:REAL
+	{ rle = new RealLiteralExpression(ToLexicalInfo(value), double.Parse(value.getText())); }
+	;
+	
+protected
 timespan_literal returns [TimeSpanLiteralExpression tsle] { tsle = null; }:
 	value:TIMESPAN
 	{ tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), ParseTimeSpan(value.getText())); }
@@ -1756,6 +1764,11 @@ options
 		_erecorder = new TokenStreamRecorder(selector);
 		
 	}
+
+	internal static bool IsDigit(char ch)
+	{
+		return ch >= '0' && ch <= '9';
+	}
 	
 	bool SkipWhitespace
 	{
@@ -1780,9 +1793,12 @@ ID options { testLiterals = true; }:
 	ID_LETTER (ID_LETTER | DIGIT)*
 	;
 
-INT : (DIGIT)+ ( ("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); } )?;
+INT : (DIGIT)+
+	({IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(REAL); })?
+	(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+	;
 
-DOT : '.';
+DOT : '.' ((DIGIT)+ {$setType(REAL);})?;
 
 COLON : ':';
 

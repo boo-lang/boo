@@ -728,6 +728,12 @@ namespace Boo.Tests.Ast.Parsing
 			RunParserTestCase("macro0.boo");
 		}
 		
+		[Test]
+		public void RealSimpleConstants()
+		{
+			RunParserTestCase("real0.boo");
+		}
+		
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{

@@ -147,17 +147,33 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done * tuple indexer
 		done * negative tuple indexer
 		done * generic indexer (DefaultMemberAttribute)
-	* (byte)
-	* timespan literals
+	done * (byte)
+	done * timespan literals
 	done * tuples should be of the most generic type for its elements:
 		done eg:
 			done ("rodrigo", "bamboo") should be (string) <= string[]
 			done ("foo", 3) should be object
+	* RealLiteralExpression:
+		* 1.5
+		* 0.0
+	* real type
+	* unary operators
+		* ++
+	* binary operators		
+		* -
+		* +
+		* *
+		* +=	
 	* len special function:
 		* for tuples, array.Length
 		* for lists, list.Count
 		* for strings, string.Length
-	* zip: versão com dois argumentos		
+		* for objects, invocar RuntimeServices.Len()
+	* tuple vira special function para permitir tipagem
+	done * zip: versão com dois argumentos
+	* assign to Slicing
+		* hash["foo"] = "bar"
+		* hash[0] = "bar"
 	* implementação de interfaces
 		* pelo menos suporte a propriedades
 	* user métodos definidos em outros módulos no namespace global

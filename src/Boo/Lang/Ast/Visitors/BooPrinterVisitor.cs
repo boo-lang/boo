@@ -445,6 +445,11 @@ namespace Boo.Lang.Ast.Visitors
 		{
 			Write(e.Value.ToString());
 		}
+		
+		public override void OnRealLiteralExpression(RealLiteralExpression e)
+		{
+			Write(e.Value.ToString("########0.0##########"));
+		}
 
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
