@@ -200,10 +200,23 @@ namespace BooC
 								break;
 							}
 
-							case 'f':
+							case 's':
 							{
-								string path = Path.GetFullPath(arg.Substring(3));
-								addFilesForPath(path, options);
+								switch (arg.Substring(1, 6))
+								{
+									case "srcdir":
+									{
+										string path = Path.GetFullPath(arg.Substring(8));
+										addFilesForPath(path, options);
+										break;
+									}
+
+									default:
+									{
+										InvalidOption(arg);								
+										break;
+									}
+								}
 								break;
 							}
 
