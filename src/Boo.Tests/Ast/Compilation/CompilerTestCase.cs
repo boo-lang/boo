@@ -282,9 +282,15 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
-		public void TestDelegate0()
+		public void DelegateAddedWithConstructor()
 		{
 			RunCompilerTestCase("delegate0.boo", "basic delegate support");
+		}
+		
+		[Test]
+		public void DelegateAddedWithInPlaceAdd()
+		{
+			RunCompilerTestCase("delegate1.boo", "delegate += method");
 		}
 		
 		[Test]
@@ -360,9 +366,35 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
-		public void TestClass0()
+		public void SimpleInternalClass()
 		{
 			RunCompilerTestCase("class0.boo", "simple internal class");
+		}
+		
+		[Test]
+		public void InternalClassWithField()
+		{
+			RunCompilerTestCase("class1.boo", "internal class with field");
+		}
+		
+		[Test]
+		public void InternalClassWithProperty()
+		{
+			RunCompilerTestCase("class2.boo",
+				"internal class with property");
+		}
+		
+		[Test]                          
+		public void InternalClassWithFieldAndPropertyCreateByAstAttribute()
+		{
+			RunCompilerTestCase("class3.boo",
+				"internal class with field and property created by AstAttribute");
+		}
+		
+		[Test]
+		public void ToStringOverride()
+		{
+			RunCompilerTestCase("class4.boo", "ToString override");
 		}
 		
 		[Test]
@@ -390,7 +422,7 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
-		public void TestMethod2()
+		public void TestFatorialMethod()
 		{
 			RunCompilerTestCase("method2.boo", "fatorial");
 		}
@@ -414,9 +446,21 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
-		public void TestMethod6()
+		public void MutuallyRecursiveMethods()
 		{
 			RunCompilerTestCase("method6.boo", "mutually recursive methods");
+		}
+		
+		[Test]
+		public void ConditionalReturnBranches()
+		{
+			RunCompilerTestCase("method7.boo", "conditional return branches");
+		}
+		
+		[Test]
+		public void ExceptionalReturnBranches()
+		{
+			RunCompilerTestCase("method8.boo", "exceptional return branches");
 		}
 	
 		void RunCompilerTestCase(string name, string description)
