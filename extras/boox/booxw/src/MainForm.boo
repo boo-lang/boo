@@ -145,12 +145,15 @@ class MainForm(Form):
 
 	private def LoadInterceptors():
 		tempInterceptors = []
-		for file in Directory.GetFiles("scripts", "*.int"):
+		for file in Directory.GetFiles(MapPath("scripts"), "*.int"):
 			interceptors = LoadInterceptorsFromFile(file)
 			tempInterceptors = tempInterceptors + interceptors if interceptors
 
 		_textInterceptors = array(ITextInterceptor, tempInterceptors)
 		StatusText = "Loaded ${len(_textInterceptors)} TextInterceptor(s)"
+		
+	def MapPath(path as string):
+		return Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), path)
 
 	def LoadInterceptorsFromFile(fileName as string):
 		script = ScriptCompiler.CompileFile(fileName)

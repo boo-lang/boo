@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="booxw" default="run">
+<project name="booxw" default="compile">
 
 	<property name="boo.dir" value="${path::get-full-path('../../../bin')}" />
 	<property name="build.dir" value="${path::get-full-path('../build')}" />
@@ -7,7 +7,7 @@
 	<include buildfile="../build.properties" if="${file::exists('../build.properties')}" />
 
 	<target name="run" depends="compile">
-		<exec program="${build.dir}/boox.exe" useruntimeengine="true">
+		<exec program="${build.dir}/booxw.exe" useruntimeengine="true">
 		</exec>
 	</target>
 	
@@ -18,7 +18,7 @@
 				<include name="src/*.boo" />
 				<include name="resources/**/*.png" />
 				<include name="${build.dir}/*.dll" />
-				<include name="${build.dir}/boox.exe" />
+				<include name="${build.dir}/booxw.exe" />
 				<include name="${build.dir}/scripts/*.int" />
 			</fileset>
 		</zip>
@@ -26,7 +26,7 @@
 	
 	<target name="compile" depends="init, create-resources">
 		<booc
-			output="${build.dir}/boox.exe"
+			output="${build.dir}/booxw.exe"
 			target="winexe"
 			tracelevel="Info">
 			<sources basedir="src">
