@@ -37,15 +37,13 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 
 [TaskName("booc")]
-class BooC(Task):
+class BoocTask(AbstractBooTask):
 	
 	_output as FileInfo
 	
 	_target = "exe"
 	
 	_sourceFiles = FileSet()
-	
-	_references = FileSet()
 	
 	_pipeline = "booc"
 	
@@ -84,13 +82,6 @@ class BooC(Task):
 		set:
 			_sourceFiles = value
 			
-	[BuildElement("references")]
-	References:
-		get:
-			return _references
-		set:
-			_references = value
-			
 	[TaskAttribute("pipeline")]
 	Pipeline:
 		get:
@@ -98,7 +89,7 @@ class BooC(Task):
 		set:
 			_pipeline = value
 			
-	protected def ExecuteTask():
+	override protected def ExecuteTask():
 		files = _sourceFiles.FileNames
 		LogInfo("Compiling ${len(files)} file(s) to ${_output}.")
 		
@@ -124,31 +115,6 @@ class BooC(Task):
 			LogInfo("${len(errors)} error(s).")
 			raise BuildException("boo compilation error", Location)
 		
-	private def AddReferences(parameters as CompilerParameters):
-		
-		if _references.BaseDirectory is not null:
-			baseDir = _references.BaseDirectory.ToString()
-		else:
-			baseDir = Project.BaseDirectory
-			
-		frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.ToString()
-		for reference as string in _references.Includes:
-			
-			path = reference
-			if not Path.IsPathRooted(path):
-				path = Path.Combine(baseDir, reference)
-				if not File.Exists(path):
-					self.LogVerbose("${path} doesn't exist.")
-					path = Path.Combine(frameworkDir, reference)
-					
-			LogVerbose(path)		
-			try:
-				parameters.References.Add(System.Reflection.Assembly.LoadFrom(path))
-			except x:
-				raise BuildException(
-					Boo.ResourceManager.Format("BCE0041", reference),
-					Location,
-					x)					
 
 	private def GetOutputType():
 		if "exe" == _target:
@@ -157,13 +123,3 @@ class BooC(Task):
 			if "winexe" == _target:
 				return CompilerOutputType.WindowsApplication
 		return CompilerOutputType.Library
-		
-	private def LogInfo(message as string):
-		self.Log(Level.Info, "${LogPrefix}${message}")
-		
-	private def LogVerbose(message as string):
-		self.Log(Level.Verbose, "${LogPrefix}${message}")
-		
-	private def LogError(message as string):
-		self.Log(Level.Error, "${LogPrefix}${message}")
-	
