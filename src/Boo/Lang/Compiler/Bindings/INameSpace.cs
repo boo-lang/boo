@@ -39,6 +39,20 @@ namespace Boo.Lang.Compiler.Bindings
 		IBinding Resolve(string name);
 	}
 	
+	public class NullNamespace : INamespace
+	{
+		public static INamespace Default = new NullNamespace();
+		
+		private NullNamespace()
+		{
+		}
+		
+		public IBinding Resolve(string name)
+		{
+			return null;
+		}
+	}
+	
 	class DeclarationsNamespace : INamespace
 	{
 		BindingManager _bindingManager;

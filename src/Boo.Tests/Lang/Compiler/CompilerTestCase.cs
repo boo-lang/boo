@@ -915,6 +915,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void ImportFunctionsFromModulesInTheSameNamespace()
+		{
+			RunMultiFileTestCase("multifile3.boo", "mathwithns.boo");
+		}
+		
+		[Test]
 		public void ClassesCanUseModuleMethods()
 		{
 			RunCompilerTestCase("module_methods0.boo");

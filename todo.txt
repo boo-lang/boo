@@ -227,9 +227,9 @@ done * usar classes em módulos diferentes, no mesmo namespace, sem precisar imp
 
 done * usar métodos definidos em outros módulos no namespace global
 
-* usar métodos definidos no mesmo módulo em uma classe
+done * usar métodos definidos no mesmo módulo em uma classe
 
-* usar métodos definidos em outros módulos no mesmo namespace
+done * usar métodos definidos em outros módulos no mesmo namespace
 
 done * ERROR: can't redefine primitive: 'string'
 
@@ -276,6 +276,9 @@ done * raise
 	* unless
 	* while
 	* until
+* float literals: 3.0f
+* hexadecimal integer literals: 0x01
+* binary literals: 0b001
 	
 Milestone 3.9 (better error checking)
 -------------------------------------

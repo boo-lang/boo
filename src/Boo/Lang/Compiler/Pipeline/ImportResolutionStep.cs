@@ -179,7 +179,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			IBinding binding = (IBinding)_namespaces[name];
 			if (null == binding)
 			{
-				// todo: resolve from externalTypes here
+				INamespace globalns = (INamespace)_namespaces[""];
+				if (null != globalns)
+				{
+					binding = globalns.Resolve(name);
+				}
 			}			
 			return binding;
 		}

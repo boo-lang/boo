@@ -38,6 +38,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		Module _module;
 		
+		INamespace _moduleClassNamespace;
+		
 		INamespace[] _using;
 		
 		string _namespace;
@@ -45,7 +47,7 @@ namespace Boo.Lang.Compiler.Bindings
 		public ModuleNamespace(BindingManager bindingManager, Module module)
 		{
 			_bindingManager = bindingManager;
-			_module = module;
+			_module = module;			
 			if (null == module.Namespace)
 			{
 				_namespace = "";
@@ -66,25 +68,12 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public IBinding ResolveMember(string name)
 		{
-			TypeMember member = _module.Members[name];
-			if (null != member)
+			IBinding binding = ResolveModuleMember(name);
+			if (null == binding)
 			{
-				ITypeBinding typeBinding = (ITypeBinding)BindingManager.GetOptionalBinding(member);
-				if (null == typeBinding)
-				{
-					if (NodeType.EnumDefinition == member.NodeType)
-					{
-						typeBinding = new EnumTypeBinding(_bindingManager, (EnumDefinition)member);
-					}
-					else
-					{
-						typeBinding = new InternalTypeBinding(_bindingManager, (TypeDefinition)member);
-					}
-					BindingManager.Bind(member, typeBinding);
-				}
-				return _bindingManager.AsTypeReference(typeBinding);
+				binding = ResolveModuleClassMember(name);
 			}
-			return null;
+			return binding;
 		}
 		
 		public IBinding Resolve(string name)
@@ -112,6 +101,47 @@ namespace Boo.Lang.Compiler.Bindings
 				}
 			}
 			return binding;
+		}
+		
+		IBinding ResolveModuleMember(string name)
+		{
+			TypeMember member = _module.Members[name];
+			if (null != member)
+			{
+				ITypeBinding typeBinding = (ITypeBinding)BindingManager.GetOptionalBinding(member);
+				if (null == typeBinding)
+				{
+					if (NodeType.EnumDefinition == member.NodeType)
+					{
+						typeBinding = new EnumTypeBinding(_bindingManager, (EnumDefinition)member);
+					}
+					else
+					{
+						typeBinding = new InternalTypeBinding(_bindingManager, (TypeDefinition)member);
+					}
+					BindingManager.Bind(member, typeBinding);
+				}
+				return _bindingManager.AsTypeReference(typeBinding);
+			}
+			return null;
+		}
+		
+		IBinding ResolveModuleClassMember(string name)
+		{
+			if (null == _moduleClassNamespace)
+			{
+				ClassDefinition moduleClass = Boo.Lang.Compiler.Pipeline.AstNormalizationStep.GetModuleClass(_module);
+				if (null != moduleClass)
+				{
+					_moduleClassNamespace = (INamespace)ResolveModuleMember(moduleClass.Name);
+				}
+				
+				if (null == _moduleClassNamespace)
+				{
+					_moduleClassNamespace = NullNamespace.Default;
+				}
+			}
+			return _moduleClassNamespace.Resolve(name);
 		}
 	}
 }

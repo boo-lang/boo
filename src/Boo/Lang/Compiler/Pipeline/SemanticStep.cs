@@ -1050,6 +1050,10 @@ namespace Boo.Lang.Compiler.Pipeline
 						
 						node.ParentNode.Replace(node, memberRef);
 					}
+					else
+					{
+						node.Name = member.FullName;
+					}
 				}
 				else
 				{
@@ -2452,6 +2456,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				if (!internalBinding.Visited)
 				{
 					_context.TraceVerbose("Binding {0} needs resolving.", binding.Name);
+					
+					TypeMember member = internalBinding.Node as TypeMember;
+					if (null != member)
+					{
+						Switch(member.ParentNode);
+					}
 					Switch(internalBinding.Node);
 				}
 			}

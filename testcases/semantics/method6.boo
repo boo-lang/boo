@@ -4,10 +4,10 @@ public final transient class Method6Module(System.Object):
 	public static def greeting(who as System.String) as System.String:
 		if (who != 'bamboo'):
 			return 'wassup, g?'
-		return g()
+		return Method6Module.g()
 
 	public static def g() as System.String:
-		return greeting('g')
+		return Method6Module.greeting('g')
 
 	private def constructor():
 		super()

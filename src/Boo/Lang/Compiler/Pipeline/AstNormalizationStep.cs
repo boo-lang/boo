@@ -40,9 +40,21 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static object EntryPointKey = new object();
 		
+		static object ModuleClassKey = new object();
+		
 		public static Method GetEntryPoint(CompileUnit node)
 		{
 			return (Method)node[EntryPointKey];
+		}
+		
+		public static ClassDefinition GetModuleClass(Module module)
+		{
+			return (ClassDefinition)module[ModuleClassKey];
+		}
+		
+		void SetModuleClass(Module module, ClassDefinition classDefinition)
+		{
+			module[ModuleClassKey] = classDefinition;
 		}
 		
 		void SetEntryPoint(Method method)
@@ -99,7 +111,9 @@ namespace Boo.Lang.Compiler.Pipeline
 				moduleClass.Modifiers = TypeMemberModifiers.Public |
 										TypeMemberModifiers.Final |
 										TypeMemberModifiers.Transient;
-				node.Members.Add(moduleClass);
+				node.Members.Insert(0, moduleClass);
+				
+				SetModuleClass(node, moduleClass);
 			}
 			
 			Switch(node.Members);

@@ -1,4 +1,14 @@
 """
+public final transient class Assign_propertyModule(System.Object):
+
+	private static def __Main__() as System.Void:
+		p = Person()
+		p.set_Name('boo')
+		print(p.get_Name())
+
+	private def constructor():
+		super()
+
 public class Person(System.Object):
 
 	protected _name as System.String
@@ -10,16 +20,6 @@ public class Person(System.Object):
 			self._name = value
 
 	public def constructor():
-		super()
-
-public final transient class Assign_propertyModule(System.Object):
-
-	private static def __Main__() as System.Void:
-		p = Person()
-		p.set_Name('boo')
-		print(p.get_Name())
-
-	private def constructor():
 		super()
 
 """
