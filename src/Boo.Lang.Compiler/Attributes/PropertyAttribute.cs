@@ -104,7 +104,9 @@ namespace Boo.Lang
 						_setPreCondition.LexicalInfo,
 						AstUtil.CreateMethodInvocationExpression(
 							AstUtil.CreateReferenceExpression("System.ArgumentException"),
-							new StringLiteralExpression(_propertyName.Name)),
+							new StringLiteralExpression("precondition '" +
+														_setPreCondition.ToString() +
+														"' failed:")),
 						new StatementModifier(
 							StatementModifierType.Unless,
 							_setPreCondition)));						

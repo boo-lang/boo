@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -299,7 +299,6 @@ namespace Boo.Lang.Compiler.Steps
 			InternalClass tag = (InternalClass)GetEntity(node);			
 			EnterNamespace(tag);
 			Visit(node.Attributes);
-			//Visit(node.Members, NodeType.Field);
 			Visit(node.Members);			
 			LeaveNamespace();
 			
