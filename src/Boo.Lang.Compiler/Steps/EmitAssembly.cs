@@ -59,6 +59,8 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class EmitAssembly : AbstractVisitorCompilerStep
 	{		
+		static ConstructorInfo DebuggableAttribute_Constructor = typeof(System.Diagnostics.DebuggableAttribute).GetConstructor(new Type[] { Types.Bool, Types.Bool });
+		
 		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
 		
 		static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
@@ -388,7 +390,7 @@ namespace Boo.Lang.Compiler.Steps
 										fname,
 										Guid.Empty,
 										Guid.Empty,
-										Guid.Empty);
+										SymDocumentType.Text);
 			}
 			else
 			{
@@ -2295,7 +2297,7 @@ namespace Boo.Lang.Compiler.Steps
 				try
 				{
 					//_il.Emit(OpCodes.Nop);
-					_il.MarkSequencePoint(_symbolDocWriter, start.Line, 1, start.Line+1, 1);
+					_il.MarkSequencePoint(_symbolDocWriter, start.Line, 0, start.Line+1, 0);
 				}
 				catch (Exception x)
 				{
@@ -2624,6 +2626,18 @@ namespace Boo.Lang.Compiler.Steps
 					_asmBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 				}
 			}
+			
+			if (Parameters.Debug)
+			{				
+				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
+			}
+		}
+		
+		CustomAttributeBuilder CreateDebuggableAttribute()
+		{
+			return new CustomAttributeBuilder(
+								DebuggableAttribute_Constructor,
+								new object[] { true, false });
 		}
 		
 		void DefineEntryPoint()
