@@ -449,7 +449,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IParameter[] parameters = baseMethod.GetParameters();
 			for (int i=0; i<parameters.Length; ++i)
 			{
-				method.Parameters.Add(new ParameterDeclaration("arg" + i, CreateTypeReference(parameters[i].Type)));
+				method.Parameters.Add(CreateParameterDeclaration(i + 1, "arg" + i, parameters[i].Type));
 			}
 			method.ReturnType = CreateTypeReference(baseMethod.ReturnType);			
 			method.Entity = new InternalMethod(_tss, method);

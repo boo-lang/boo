@@ -62,6 +62,14 @@ namespace Boo.Lang.Compiler.Steps
 			base.Dispose();
 		}
 		
+		override public void OnInterfaceDefinition(InterfaceDefinition node)
+		{
+		}
+		
+		override public void OnEnumDefinition(EnumDefinition node)
+		{
+		}
+		
 		override public void OnMethod(Method node)
 		{	
 			_references.Clear();			
