@@ -202,6 +202,11 @@ class InteractiveInterpreter:
 			_print("---" + "-" * pos + "^") if pos > 0
 			_print("ERROR: ${error.Message}")
 			
+	def globals():
+		return array(
+					key for key as string in _values.Keys
+					unless key.StartsWith("@"))
+			
 	def dir([required] obj):
 		type = (obj as Type) or obj.GetType()
 		return array(
@@ -298,6 +303,7 @@ class InteractiveInterpreter:
 		SetValue("help", help)
 		SetValue("print", { value | _print(value) })
 		SetValue("load", load)
+		SetValue("globals", globals)
 
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
 										module as Module):
