@@ -58,7 +58,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod RuntimeServices_Mid;
 		
-		IMethod RuntimeServices_GetRange;
+		IMethod RuntimeServices_GetRange1;
+		
+		IMethod RuntimeServices_GetRange2;
 		
 		IMethod RuntimeServices_GetEnumerable;
 		
@@ -161,10 +163,11 @@ namespace Boo.Lang.Compiler.Steps
 		virtual protected void InitializeMemberCache()
 		{
 			List_GetRange1 = (IMethod)TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));
-			List_GetRange2 = (IMethod)TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) })); 			
+			List_GetRange2 = (IMethod)TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));
+			RuntimeServices_GetRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
+			RuntimeServices_GetRange2 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2"); 			
 			RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
-			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
-			RuntimeServices_GetRange = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange");
+			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");			
 			RuntimeServices_GetEnumerable = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");			
 			Object_StaticEquals = (IMethod)TypeSystemServices.Map(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
@@ -1006,12 +1009,16 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			if (CheckComplexSlicingParameters(node))
 			{
+				MethodInvocationExpression mie = null; 
+				
 				if (null == node.End || node.End == OmittedExpression.Default)
 				{
-					node.End = CreateMethodInvocation(node.Target.CloneNode(), Array_get_Length);
+					mie = CreateMethodInvocation(RuntimeServices_GetRange1, node.Target, node.Begin);
 				}
-				
-				MethodInvocationExpression mie = CreateMethodInvocation(RuntimeServices_GetRange, node.Target, node.Begin, node.End);				
+				else
+				{
+					mie = CreateMethodInvocation(RuntimeServices_GetRange2, node.Target, node.Begin, node.End);
+				}				
 				
 				BindExpressionType(mie, GetExpressionType(node.Target));
 				node.ParentNode.Replace(node, mie);

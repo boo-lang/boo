@@ -144,7 +144,12 @@ namespace Boo.Lang
 			return s.Substring(begin, end-begin);
 		}
 		
-		public static Array GetRange(Array source, int begin, int end)
+		public static Array GetRange1(Array source, int begin)
+		{
+			return GetRange2(source, begin, source.Length);
+		}
+		
+		public static Array GetRange2(Array source, int begin, int end)
 		{
 			if (begin < 0)
 			{
