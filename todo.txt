@@ -312,13 +312,13 @@ done * static field initializers
 
 done * System.Type must be invocable
 
-* integrar nova versão do antlr
+done * integrar nova versão do antlr
 
-* primitiva cast (CastExpression):
+done * primitiva cast (CastExpression):
 
 	a = cast(ILogger, _log)
 	
-* métodos recursivos ou mutuamente recursivos devem declarar o tipo de retorno
+done * métodos recursivos ou mutuamente recursivos devem declarar o tipo de retorno
 
 * check return types for method overrides
 

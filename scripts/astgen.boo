@@ -1,6 +1,6 @@
 import System
 import System.IO
-import Boo.Antlr from Boo.Antlr
+import Boo.AntlrParser from Boo.AntlrParser
 import Boo.Lang.Ast
 
 def WriteNodeTypeEnum(module as Module):
