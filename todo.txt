@@ -1,6 +1,4 @@
-﻿* addressof cannot be used outside delegate constructors
-
-* software de blogging para a apresentação
+﻿* software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms
 	* editor RichClient

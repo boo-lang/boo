@@ -104,7 +104,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Assembly asm in Parameters.References)
 			{
-				Type[] types = asm.GetTypes();
+				Type[] types = asm.GetExportedTypes();
 				foreach (Type type in types)
 				{
 					string ns = type.Namespace;

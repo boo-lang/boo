@@ -74,6 +74,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public GlobalNamespace(IDictionary children) : base(null, children)
 		{
 			_empty = (INamespace)children[""];
+			if (null == _empty)
+			{
+				_empty = NullNamespace.Default;
+			}
 		}
 		
 		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
