@@ -22,7 +22,6 @@
 namespace booish.gui
 
 import System
-import System.IO
 import System.Windows.Forms
 import ICSharpCode.TextEditor
 import ICSharpCode.TextEditor.Document
@@ -37,7 +36,6 @@ class MainForm(Form):
 
 [STAThread]
 def Main(argv as (string)):
-	HighlightingManager.Manager.AddSyntaxModeFileProvider(
-		FileSyntaxModeProvider(Path.GetDirectoryName(Application.ExecutablePath)))
+	InteractiveInterpreterControl.InstallDefaultSyntaxModeProvider()
 	Application.Run(MainForm())
 

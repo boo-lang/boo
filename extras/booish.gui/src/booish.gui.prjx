@@ -6,9 +6,9 @@
   </Contents>
   <References>
     <Reference type="Assembly" refto="..\..\..\bin\Boo.Lang.Interpreter.dll" localcopy="True" />
-    <Reference type="Assembly" refto="..\..\..\..\..\dotnet\SharpDevelop\SharpDevelop\bin\ICSharpCode.TextEditor.dll" localcopy="True" />
     <Reference type="Assembly" refto="..\..\..\build\Boo.Lang.Parser.dll" localcopy="True" />
     <Reference type="Assembly" refto="..\..\..\build\Boo.Lang.Compiler.dll" localcopy="True" />
+    <Reference type="Assembly" refto="..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.TextEditor.dll" localcopy="True" />
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="True" name="Debug">

@@ -24,7 +24,8 @@
 		<copy todir="build">
 			<fileset basedir="${booish.gui.dir}/build">
 				<include name="booish.gui.exe" />
-				<include name="booish.gui.externs.dll" />
+				<include name="ICSharpCode.TextEditor.dll" />
+				<include name="Boo.xshd" />
 			</fileset>
 		</copy>
 		

@@ -44,7 +44,8 @@ internal class CodeCompletionData(ICompletionData, IComparable):
 			
 	Description:
 		get:
-			return "${cast(IEntity, _entities[0]).FullName} (${len(_entities)} overloads)"
+			return _entities[0].ToString() if 1 == len(_entities)
+			return "${_entities[0]} (+${len(_entities)-1} overloads)"
 			
 	ImageIndex as int:
 		get:

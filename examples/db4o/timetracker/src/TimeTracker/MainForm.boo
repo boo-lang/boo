@@ -27,7 +27,7 @@
 #endregion
 
 """
-This example shows how to use db4o 3.0 (http://www.db4o.com), a great
+This example shows how to use db4o (http://www.db4o.com), a great
 oodbm infrastructure, to implement a simple time tracking application.
 """
 
@@ -52,7 +52,7 @@ class MainForm(Form):
 	
 	_view = ListView(View: View.Details, Dock: DockStyle.Fill)
 	
-	_prompt = booish.gui.PromptBox(
+	_prompt = booish.gui.InteractiveInterpreterControl(
 						Font: System.Drawing.Font("Lucida Console", 11))
 	
 	_timer = System.Windows.Forms.Timer(_components,
@@ -85,7 +85,6 @@ class MainForm(Form):
 		_prompt.Interpreter.SetValue("system", _system)
 		_prompt.Interpreter.SetValue("MainForm", self)
 		_prompt.Interpreter.References.Add(typeof(Project).Assembly)
-		_prompt.Eval(LoadStartupScript())
 		
 		promptPage = TabPage(Text: "Console")		
 		promptPage.Controls.Add(_prompt)
@@ -96,6 +95,10 @@ class MainForm(Form):
 		self.Controls.Add(_tabs)
 		
 		_timer.Start()
+		
+	override def OnLoad(args as EventArgs):
+		super(args)
+		_prompt.Eval(LoadStartupScript())
 		
 	def LoadStartupScript():
 		using reader=File.OpenText(MapAppPath("startup.boo")):
@@ -245,8 +248,11 @@ class PromptDialog(Form):
 			return _value.Text
 		set:
 			_value.Text = value
-		
-Application.Run(MainForm())
+
+[STAThread]
+def Main(argv as (string)):
+	booish.gui.InteractiveInterpreterControl.InstallDefaultSyntaxModeProvider()
+	Application.Run(MainForm())
 
 
 

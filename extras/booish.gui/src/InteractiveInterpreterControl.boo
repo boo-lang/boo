@@ -207,4 +207,8 @@ class InteractiveInterpreterControl(TextEditorControl):
 		
 	def GetBooHighlighting():
 		return HighlightingManager.Manager.FindHighlighter("Boo")
+		
+	static def InstallDefaultSyntaxModeProvider():
+		HighlightingManager.Manager.AddSyntaxModeFileProvider(
+			FileSyntaxModeProvider(Path.GetDirectoryName(Application.ExecutablePath)))
 

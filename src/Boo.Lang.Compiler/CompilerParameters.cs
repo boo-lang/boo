@@ -113,6 +113,15 @@ namespace Boo.Lang.Compiler
 			{
 				return _assemblyReferences;
 			}
+			
+			set
+			{
+				if (null == value)
+				{
+					throw new ArgumentNullException("References");
+				}
+				_assemblyReferences = value;
+			}
 		}
 
 		/// <summary>

@@ -465,6 +465,13 @@ for i, j in ((1, 2), (3, 4)):
 		assert suggestion is not null
 		assert suggestion.EntityType == EntityType.Namespace
 		
+	[Test]
+	def SuggestCodeCompletionReferencesAreInSync():
+		_interpreter.References.Add(System.Reflection.Assembly.GetExecutingAssembly())
+		suggestion = _interpreter.SuggestCodeCompletion("Boo.Lang.Interpreter.Tests.__codecomplete__")
+		assert suggestion is not null
+		assert suggestion.EntityType == EntityType.Namespace
+		
 	def Eval(code as string):
 		result = _interpreter.Eval(code)
 		assert 0 == len(result.Errors), result.Errors.ToString(true)

@@ -96,7 +96,9 @@ class InteractiveInterpreter:
 				_compiler.Parameters.Pipeline.Get(InitializeTypeSystemServices))
 			pipeline.Add(FindCodeCompleteSuggestion())
 			_suggestionCompiler = BooCompiler()
-			_suggestionCompiler.Parameters.Pipeline = pipeline
+			_suggestionCompiler.Parameters.Pipeline = pipeline	
+			// keep the references in sync
+			_suggestionCompiler.Parameters.References = self.References
 			
 		return _suggestionCompiler
 		
