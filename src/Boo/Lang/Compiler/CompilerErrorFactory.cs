@@ -262,6 +262,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0046", node.LexicalInfo, operatorName, typeName);
 		}
 		
+		public static CompilerError CantOverrideNonVirtual(Node node, string fullName)
+		{
+			return new CompilerError("BCE0047", node.LexicalInfo, fullName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

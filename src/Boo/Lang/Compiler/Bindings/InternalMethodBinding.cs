@@ -83,6 +83,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsVirtual
+		{
+			get
+			{
+				return !_method.IsFinal;
+			}
+		}
+		
 		public string Name
 		{
 			get

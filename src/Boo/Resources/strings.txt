@@ -45,6 +45,7 @@ BCE0043=Unexpected token: {0}.
 BCE0044={0}.
 BCE0045=Macro expansion error: {0}.
 BCE0046='{0}' can't be used with a value type ('{1}')
+BCE0047=Method '{0}' cannot be overriden because it is not virtual.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

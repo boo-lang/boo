@@ -76,9 +76,9 @@ class PrettyPrinterPage(Page):
 	_pretty as HtmlContainerControl
 	
 	def Page_Load(sender, args as EventArgs):
-		PrintIt() if Page.IsPostBack
+		PrettyPrint() if Page.IsPostBack
 		
-	def PrintIt():		
+	def PrettyPrint():		
 		printer = PrettyPrinter(StringWriter(), IndentText: "&nbsp;&nbsp;")
 		printer.Print(Parse())
 		_pretty.InnerHtml = printer.Writer.ToString()

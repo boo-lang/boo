@@ -195,6 +195,11 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get;
 		}
+		
+		bool IsVirtual
+		{
+			get;
+		}
 	}
 	
 	public interface IConstructorBinding : IMethodBinding

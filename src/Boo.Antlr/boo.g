@@ -93,7 +93,8 @@ tokens
 	NOT="not";	
 	NULL="null";
 	OR="or";
-	OTHERWISE="otherwise";	
+	OTHERWISE="otherwise";
+	OVERRIDE="override";	
 	PASS="pass";
 	NAMESPACE="namespace";
 	PROPERTY="property";
@@ -669,7 +670,8 @@ modifiers
 		PRIVATE! { _modifiers |= TypeMemberModifiers.Private; } |
 		INTERNAL! { _modifiers |= TypeMemberModifiers.Internal; } |			
 		FINAL! { _modifiers |= TypeMemberModifiers.Final; } |
-		TRANSIENT! { _modifiers |= TypeMemberModifiers.Transient; }
+		TRANSIENT! { _modifiers |= TypeMemberModifiers.Transient; } |
+		OVERRIDE { _modifiers |= TypeMemberModifiers.Override; }
 	)*
 	;
 	

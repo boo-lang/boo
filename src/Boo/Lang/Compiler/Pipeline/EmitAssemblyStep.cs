@@ -1481,7 +1481,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				attributes |= MethodAttributes.Static;
 			}
-			else if (method.IsModifierSet(TypeMemberModifiers.Override))
+			else if (method.IsOverride)
 			{
 				attributes |= MethodAttributes.Virtual;
 			}

@@ -64,6 +64,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("is0.boo");
 		}
 		
+		[Test]
+		public void OverrideNonVirtualMethod()
+		{
+			RunCompilerTestCase("override0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.

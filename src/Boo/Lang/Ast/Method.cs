@@ -48,6 +48,14 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
+		public bool IsOverride
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Override);
+			}
+		}
+		
 		public override TypeDefinition DeclaringType
 		{
 			get

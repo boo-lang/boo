@@ -168,7 +168,7 @@ derivada de Control (que tem uma propriedade chamada Size):
 	* implementar checagem de tipo quando o argumento da direita for uma
 	TypeReference
 	
-* override keyword to make sure a method is a override
+* override keyword to allow the developer to make sure a method is a override
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------

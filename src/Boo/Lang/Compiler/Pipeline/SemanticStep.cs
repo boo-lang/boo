@@ -416,10 +416,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		internal void ResolveMethodOverride(InternalMethodBinding binding)
 		{
 			ITypeBinding baseType = binding.DeclaringType.BaseType;
-			if (null == baseType)
-			{
-				return;
-			}
 			
 			Method method = binding.Method;
 			
@@ -431,7 +427,17 @@ namespace Boo.Lang.Compiler.Pipeline
 					IMethodBinding baseMethod = (IMethodBinding)baseMethods;
 					if (CheckOverrideSignature(binding, baseMethod))
 					{	
-						SetOverride(binding, method, baseMethod);
+						if (baseMethod.IsVirtual)
+						{
+							SetOverride(binding, method, baseMethod);
+						}
+						else
+						{
+							if (method.IsOverride)
+							{
+								CantOverrideNonVirtual(method, baseMethod);
+							}
+						}
 					}
 				}
 				else if (BindingType.Ambiguous == baseMethods.BindingType)
@@ -440,10 +446,25 @@ namespace Boo.Lang.Compiler.Pipeline
 					IMethodBinding baseMethod = (IMethodBinding)ResolveMethodReference(method, method.Parameters, bindings, false);
 					if (null != baseMethod)
 					{
-						SetOverride(binding, method, baseMethod);
+						if (baseMethod.IsVirtual)
+						{
+							SetOverride(binding, method, baseMethod);
+						}
+						else
+						{
+							if (method.IsOverride)
+							{
+								CantOverrideNonVirtual(method, baseMethod);
+							}
+						}
 					}
 				}
 			}
+		}
+		
+		void CantOverrideNonVirtual(Method method, IMethodBinding baseMethod)
+		{
+			Errors.Add(CompilerErrorFactory.CantOverrideNonVirtual(method, baseMethod.ToString()));
 		}
 		
 		void SetOverride(InternalMethodBinding binding, Method method, IMethodBinding baseMethod)

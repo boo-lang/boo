@@ -68,6 +68,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsVirtual
+		{
+			get
+			{
+				return _mi.IsVirtual;
+			}
+		}
+		
 		public string Name
 		{
 			get
