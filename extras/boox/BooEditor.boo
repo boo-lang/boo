@@ -5,6 +5,7 @@ import ICSharpCode.TextEditor.Document
 import ICSharpCode.TextEditor.Actions
 import WeifenLuo.WinFormsUI
 import System
+import System.ComponentModel
 import System.Windows.Forms
 import System.Drawing
 import Boo.Lang.Compiler
@@ -37,6 +38,7 @@ class BooEditor(Content):
 		
 		SuspendLayout()
 		Controls.Add(_editor)
+		self.HideOnClose = true
 		self.AllowedStates = ContentStates.Document
 		self.Text = NewFileName
 		self.DockPadding.All = 1
@@ -54,25 +56,31 @@ class BooEditor(Content):
 	def GoTo(line as int):
 		_editor.ActiveTextAreaControl.JumpTo(line, 1)
 		
-	def SaveFile():
+	def Save():
 		if _fname:
 			_editor.SaveFile(_fname)
+			ClearDirtyFlag()
 		else:
-			dlg = SaveFileDialog(AddExtension: true,
+			SaveAs()
+			
+	def SaveAs():
+		dlg = SaveFileDialog(AddExtension: true,
 							DefaultExt: ".boo",
 							OverwritePrompt: true,
 							Filter: "boo files (*.boo)|*.boo")
-			if DialogResult.OK == dlg.ShowDialog():
-				_editor.SaveFile(dlg.FileName)
-				_fname = dlg.FileName
-				
+		if DialogResult.OK == dlg.ShowDialog():			
+			_editor.SaveFile(dlg.FileName)
+			_fname = dlg.FileName			
+			ClearDirtyFlag()
+		
+	def Open([required] fname as string):
+		_editor.LoadFile(fname)
+		_fname = fname
+		ClearDirtyFlag()	
+		
+	def ClearDirtyFlag():
 		_dirty = false
 		self.Text = _fname
-		
-	def LoadFile([required] fname as string):
-		_editor.LoadFile(fname)
-		self.Text = _fname = fname
-		_dirty = false		
 	
 	def _editor_DocumentChanged(sender, args as DocumentEventArgs):
 		if not _dirty:
@@ -82,7 +90,12 @@ class BooEditor(Content):
 	def _menuItemRun_Click(sender, args as EventArgs):
 		savedCursor = Cursor
 		self.Cursor = Cursors.WaitCursor
-		
+		try:
+			Run()
+		ensure:
+			self.Cursor = savedCursor
+			
+	private def Run():
 		compiler = BooCompiler()
 		compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
 		compiler.Parameters.Pipeline.Load(BoomPipelineDefinition)
@@ -99,8 +112,17 @@ class BooEditor(Content):
 				result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
 			except x:
 				print(x)
-				
-		self.Cursor = savedCursor
+		
+	override protected def OnClosing(args as CancelEventArgs):
+		super(args)
+		if (not args.Cancel) and _dirty:
+			result = MessageBox.Show("Save changes to ${GetSafeFileName()}?",
+									"File not saved",
+									MessageBoxButtons.YesNoCancel)
+			if DialogResult.Yes == result:
+				Save()
+			else:
+				args.Cancel = DialogResult.Cancel == result
 		
 	def GetSafeFileName():
 		if _fname:

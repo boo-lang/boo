@@ -1,6 +1,7 @@
 namespace BooExplorer
 
 import System
+import System.ComponentModel
 import System.Windows.Forms
 import System.Drawing
 import WeifenLuo.WinFormsUI
@@ -16,6 +17,7 @@ class MainForm(Form):
 
 	_menuItemClose as MenuItem
 	_menuItemSave as MenuItem
+	_menuItemSaveAs as MenuItem
 	
 	def constructor():		
 		_dockManager = DockManager(Dock: DockStyle.Fill,
@@ -56,6 +58,9 @@ class MainForm(Form):
 									Enabled: false,
 									Click: _menuItemSave_Click,
 									Shortcut: Shortcut.CtrlS))
+		file.MenuItems.Add(_menuItemSaveAs = MenuItem(Text: "S&ave as...",
+									Enabled: false,
+									Click: _menuItemSaveAs_Click))
 									
 		file.MenuItems.Add(_menuItemClose = MenuItem(Text: "&Close",
 									Click: _menuItemClose_Click,
@@ -87,7 +92,7 @@ class MainForm(Form):
 		editor = document as BooEditor		
 		_classBrowser.ActiveDocument = editor
 		_menuItemClose.Enabled = document is not null
-		_menuItemSave.Enabled = document is not null
+		_menuItemSaveAs.Enabled = _menuItemSave.Enabled = document is not null
 		
 	def _dockManager_ContentAdded(sender, args as ContentEventArgs):
 		pass
@@ -95,14 +100,14 @@ class MainForm(Form):
 	def _dockManager_ContentRemoved(sender, args as ContentEventArgs):
 		pass
 		
-	def _menuItemSave_Click(sender, args as EventArgs):
-		editor = _dockManager.ActiveDocument as BooEditor
-		return unless editor
+	def _menuItemSaveAs_Click(sender, args as EventArgs):
+		cast(BooEditor, _dockManager.ActiveDocument).SaveAs()
 		
-		editor.SaveFile()
+	def _menuItemSave_Click(sender, args as EventArgs):
+		cast(BooEditor, _dockManager.ActiveDocument).Save()
 		
 	def _menuItemExit_Click(sender, args as EventArgs):
-		Application.Exit()
+		self.Close()
 		
 	def _menuItemClose_Click(sender, args as EventArgs):
 		_dockManager.ActiveDocument.Close()
@@ -117,7 +122,7 @@ class MainForm(Form):
 			content = FindEditor(dlg.FileName)
 			if content is null:
 				editor = BooEditor(self)
-				editor.LoadFile(dlg.FileName)
+				editor.Open(dlg.FileName)
 				editor.Show(_dockManager)
 				editor.TextArea.Focus()
 			else:
@@ -126,6 +131,21 @@ class MainForm(Form):
 		
 	def _menuItemNew_Click(sender, args as EventArgs):
 		NewDocument()
+		
+	override protected def OnClosing(args as CancelEventArgs):
+		super(args)
+		if (not args.Cancel) and AreThereDirtyDocuments():
+			args.Cancel = (
+							DialogResult.Yes !=
+							MessageBox.Show("Are you sure you want to leave and lose all your changes?",
+											"Boo Explorer",
+											MessageBoxButtons.YesNo))
+			
+	def AreThereDirtyDocuments():
+		for editor as BooEditor in _dockManager.Documents:
+			if editor.IsDirty:
+				return true
+		return false
 		
 	def FindEditor(fname as string):
 		for document in _dockManager.Documents:
