@@ -28,9 +28,9 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class IntroduceNameResolutionService : AbstractVisitorCompilerStep
+	public class InitializeNameResolutionService : AbstractVisitorCompilerStep
 	{
-		public IntroduceNameResolutionService()
+		public InitializeNameResolutionService()
 		{
 		}
 		
