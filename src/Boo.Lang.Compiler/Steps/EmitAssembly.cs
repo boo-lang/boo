@@ -2169,8 +2169,16 @@ namespace Boo.Lang.Compiler.Steps
 				opSetField = OpCodes.Stfld;
 				if (null != reference)
 				{
-					((MemberReferenceExpression)reference).Target.Accept(this);
-					PopType();
+					Expression target = ((MemberReferenceExpression)reference).Target;
+					if (field.DeclaringType.IsValueType)
+					{
+						LoadAddress(target);
+					}
+					else
+					{
+						target.Accept(this);
+						PopType();
+					}
 				}
 			}
 			
