@@ -108,6 +108,22 @@ namespace Boo.Ast
 			}
 		}
 		
+		public bool IsFinal
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Final);
+			}
+		}
+		
+		public bool IsTransient
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Transient);
+			}
+		}
+		
 		public bool IsModifierSet(TypeMemberModifiers modifiers)
 		{
 			return modifiers == (_modifiers & modifiers);

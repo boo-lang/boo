@@ -162,16 +162,8 @@ namespace Boo.Ast.Compilation.Pipeline
 		
 		public override void OnModule(Boo.Ast.Module module)
 		{			
-			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);
-			
-			if (module.HasMethods)
-			{
-				EmitTypeDefinition(module);
-			}
-			else
-			{
-				module.Members.Switch(this);
-			}
+			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);			
+			module.Members.Switch(this);
 		}
 		
 		public override void OnClassDefinition(ClassDefinition node)
@@ -1106,12 +1098,11 @@ namespace Boo.Ast.Compilation.Pipeline
 		void DefineEntryPoint()
 		{
 			if (CompilerOutputType.Library != CompilerParameters.OutputType)
-			{
-				Module main = CompileUnit.Modules[0];
-				Method method = ModuleStep.GetMainMethod(main);
+			{				
+				Method method = AstNormalizationStep.GetEntryPoint(CompileUnit);
 				if (null != method)
 				{
-					Type type = _asmBuilder.GetType(main.FullName, true);
+					Type type = _asmBuilder.GetType(method.DeclaringType.FullName, true);
 					MethodInfo mi = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic);
 					
 					_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
@@ -1119,7 +1110,7 @@ namespace Boo.Ast.Compilation.Pipeline
 				}
 				else
 				{
-					Errors.NoEntryPoint(main);
+					Errors.NoEntryPoint();
 				}
 			}
 		}	

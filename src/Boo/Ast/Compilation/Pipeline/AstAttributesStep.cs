@@ -201,7 +201,7 @@ namespace Boo.Ast.Compilation.Pipeline
 
 		public override void OnModule(Module module, ref Module resultingModule)
 		{			
-			PushNamespace(new ModuleBinding(BindingManager, module));
+			PushNamespace(new ModuleNamespace(BindingManager, module));
 
 			// do mdulo precisamos apenas visitar os membros
 			Switch(module.Members);

@@ -124,7 +124,6 @@ namespace Boo.Tests.Ast.Compilation
 					Add(new Boo.Antlr.BooParsingStep()).
 					Add(new UsingResolutionStep()).
 					Add(new AstAttributesStep()).
-					Add(new ModuleStep()).
 					Add(new AstNormalizationStep()).							
 					Add(new SemanticStep()).
 					Add(new EmitAssemblyStep()).

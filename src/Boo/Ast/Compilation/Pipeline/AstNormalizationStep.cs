@@ -28,6 +28,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using Boo.Ast;
 using Boo.Ast.Compilation;
 
@@ -35,13 +36,73 @@ namespace Boo.Ast.Compilation.Pipeline
 {
 	public class AstNormalizationStep : AbstractTransformerCompilerStep
 	{
+		public const string MainModuleMethodName = "__Main__";
+		
+		static object EntryPointKey = new object();
+		
+		public static Method GetEntryPoint(CompileUnit node)
+		{
+			return (Method)node[EntryPointKey];
+		}
+		
+		void SetEntryPoint(Method method)
+		{
+			Method current = (Method)CompileUnit[EntryPointKey];
+			if (null != current)
+			{
+				Errors.MoreThanOneEntryPoint(method);
+			}
+			CompileUnit[EntryPointKey] = method;
+		}
+		
 		public override void Run()
 		{
-			foreach (Module module in CompileUnit.Modules)
+			Switch(CompileUnit.Modules);
+		}
+		
+		public override void OnModule(Module node, ref Module resultingNode)
+		{
+			ClassDefinition moduleClass = new ClassDefinition();
+			
+			int removed = 0;			
+			TypeMember[] members = node.Members.ToArray();
+			for (int i=0; i<members.Length; ++i)
 			{
-				Switch(module.Globals.Statements);
-				Switch(module.Members);
+				TypeMember member = members[i];
+				if (member.NodeType == NodeType.Method)
+				{
+					member.Modifiers |= TypeMemberModifiers.Static;
+					node.Members.RemoveAt(i-removed);
+					moduleClass.Members.Add(member);
+					++removed;
+				}				
+			}		
+			
+			if (node.Globals.Statements.Count > 0)
+			{
+				Method method = new Method(node.Globals.LexicalInfo);
+				method.ReturnType = new TypeReference("void");
+				method.Body = node.Globals;
+				method.Name = MainModuleMethodName;
+				method.Modifiers = TypeMemberModifiers.Static | TypeMemberModifiers.Private;				
+				moduleClass.Members.Add(method);
+				
+				node.Globals = null;
+				SetEntryPoint(method);
 			}
+			
+			if (moduleClass.Members.Count > 0)
+			{
+				moduleClass.Members.Add(CreateConstructor(node, TypeMemberModifiers.Private));
+			
+				moduleClass.Name = BuildModuleClassName(node);
+				moduleClass.Modifiers = TypeMemberModifiers.Public |
+										TypeMemberModifiers.Final |
+										TypeMemberModifiers.Transient;
+				node.Members.Add(moduleClass);
+			}
+			
+			Switch(node.Members);
 		}
 		
 		public override void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
@@ -52,11 +113,8 @@ namespace Boo.Ast.Compilation.Pipeline
 			}
 			
 			if (!node.HasConstructor)
-			{
-				Constructor constructor = new Constructor(node.LexicalInfo);
-				constructor.Name = "constructor";
-				constructor.Modifiers = TypeMemberModifiers.Public;
-				node.Members.Add(constructor);
+			{				
+				node.Members.Add(CreateConstructor(node, TypeMemberModifiers.Public));
 			}
 		}
 		
@@ -135,6 +193,19 @@ namespace Boo.Ast.Compilation.Pipeline
 				}
 			}
 		}
-
+		
+		Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)
+		{
+			Constructor constructor = new Constructor(lexicalInfoProvider.LexicalInfo);
+			constructor.Name = "constructor";
+			constructor.Modifiers = modifiers;
+			return constructor;
+		}
+		
+		string BuildModuleClassName(Module node)
+		{
+			string name = node.Name;
+			return name.Substring(0, 1).ToUpper() + name.Substring(1) + "Module";
+		}
 	}
 }

@@ -53,12 +53,12 @@
     <File name=".\Ast\MethodInvocationExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Module.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ModuleCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\NamespaceDeclaration.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Node.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\NodeCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\NodeType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\NullLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\OmittedExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Package.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ParameterDeclaration.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ParameterDeclarationCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Property.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -142,7 +142,6 @@
     <File name=".\Ast\Compilation\Pipeline\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Pipeline\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Pipeline\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Pipeline\ModuleStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Pipeline\PEVerifyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Pipeline\RunAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Pipeline\SaveAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -192,8 +191,8 @@
     <File name=".\Ast\Impl\MethodInvocationExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ModuleCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ModuleImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Impl\NamespaceDeclarationImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\NullLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Impl\PackageImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ParameterDeclarationCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\ParameterDeclarationImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\PropertyImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

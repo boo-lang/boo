@@ -68,7 +68,10 @@ namespace Boo.Ast.Visitors
 
 			// m.Globals iria causar um Indent()
 			// invlido
-			Switch(m.Globals.Statements);
+			if (null != m.Globals)
+			{
+				Switch(m.Globals.Statements);
+			}
 		}
 
 		public override void OnNamespaceDeclaration(NamespaceDeclaration node)
@@ -729,6 +732,14 @@ namespace Boo.Ast.Visitors
 			if (member.IsStatic)
 			{
 				Write("static ");
+			}
+			if (member.IsFinal)
+			{
+				Write("final ");
+			}
+			if (member.IsTransient)
+			{
+				Write("transient ");
 			}
 		}
 

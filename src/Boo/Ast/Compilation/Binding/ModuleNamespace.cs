@@ -31,12 +31,18 @@ using System;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class ModuleBinding : AbstractInternalTypeBinding
+	public class ModuleNamespace : INamespace
 	{
+		BindingManager _bindingManager;
+		
+		TypeMemberCollection _members;
+		
 		INamespace[] _using;
 		
-		public ModuleBinding(BindingManager bindingManager, Module module) : base(bindingManager, module)
-		{			
+		public ModuleNamespace(BindingManager bindingManager, Module module)
+		{
+			_bindingManager = bindingManager;
+			_members = module.Members;
 			_using = new INamespace[module.Using.Count];
 			for (int i=0; i<_using.Length; ++i)
 			{
@@ -44,27 +50,24 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public override BindingType BindingType
+		public IBinding Resolve(string name)
 		{
-			get
+			TypeMember member = _members[name];
+			if (null != member)
 			{
-				return BindingType.Module;
+				return _bindingManager.ToTypeReference(
+						(ITypeBinding)_bindingManager.GetBinding(member)
+						);
 			}
-		}
-		
-		public override IBinding Resolve(string name)
-		{
-			IBinding binding = base.Resolve(name);
-			if (null == binding)
+			
+			IBinding binding = null;
+			foreach (INamespace ns in _using)
 			{
-				foreach (INamespace ns in _using)
-				{
-					// todo: resolve name in all namespaces...
-					binding = ns.Resolve(name);
-					if (null != binding)
-					{					
-						break;
-					}
+				// todo: resolve name in all namespaces...
+				binding = ns.Resolve(name);
+				if (null != binding)
+				{					
+					break;
 				}
 			}
 			return binding;

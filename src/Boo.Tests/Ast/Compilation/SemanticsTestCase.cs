@@ -17,7 +17,6 @@ namespace Boo.Tests.Ast.Compilation
 					Add(new Boo.Antlr.BooParsingStep()).
 					Add(new UsingResolutionStep()).
 					Add(new AstAttributesStep()).
-					Add(new ModuleStep()).
 					Add(new AstNormalizationStep()).							
 					Add(new SemanticStep()).
 					Add(new BooPrinterStep());
@@ -26,6 +25,12 @@ namespace Boo.Tests.Ast.Compilation
 		protected override string GetTestCasePath(string name)
 		{
 			return Path.Combine(Path.Combine(_baseTestCasesPath, "../semantics"), name);
+		}
+		
+		[Test]
+		public void ModuleMustBecomePrivateFinalClassWithPrivateConstructor()
+		{
+			RunCompilerTestCase("module0.boo");
 		}
 		
 		[Test]

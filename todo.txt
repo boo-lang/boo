@@ -105,7 +105,7 @@ done * unificar SetupAssemblyStep com EmitAssemblyStep
 
 done * criar um nó Unless
 
-* EnsureMethodIsResolved => EnsureMemberIsResolved
+* booc nant task (em boo, obviamente)
 
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 
@@ -121,6 +121,8 @@ e passa a ser utilizado ReferenceExpression em seu lugar
 SemanticStep que deverá criar AsExpression sempre que necessário
 
 * BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais
+
+* EnsureMethodIsResolved => EnsureMemberIsResolved
 
 * resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
 escopo mas que não resolve para um tipo, exemplo, tipo Size dentro de um classe

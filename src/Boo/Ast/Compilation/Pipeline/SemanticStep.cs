@@ -88,16 +88,9 @@ namespace Boo.Ast.Compilation.Pipeline
 		}
 		
 		public override void OnModule(Boo.Ast.Module module, ref Boo.Ast.Module resultingNode)
-		{			
-			ModuleBinding binding = (ModuleBinding)BindingManager.GetOptionalBinding(module);
-			if (null == binding)
-			{
-				binding = new ModuleBinding(BindingManager, module);
-				BindingManager.Bind(module, binding);
-			}
-			PushNamespace(binding);
+		{				
+			PushNamespace(new ModuleNamespace(BindingManager, module));			
 			
-			Switch(module.Attributes);
 			Switch(module.Members);
 			
 			PopNamespace();

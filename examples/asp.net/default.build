@@ -20,6 +20,21 @@
 			<arg file="HelloAspNet.aspx.boo" />
 			<arg file="YourName.aspx.boo" />			
 		</exec>
+		
+		<!--
+		<booc
+			output='output/bin/Boo.Examples.Web.dll'
+			target='library'>
+			
+			<sources basedir='.'>
+				<includes name='*.boo' />
+			</sources>
+			
+			<references>
+				<includes name='System.Web' />
+			</references>
+		</booc>
+		-->
 
 		<copy todir="output">			
 			<fileset basedir=".">

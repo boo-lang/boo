@@ -119,9 +119,14 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("NameNotType", name)));
 		}
 		
-		public void NoEntryPoint(Module module)
+		public void NoEntryPoint()
 		{
-			Add(new Error(module, Format("NoEntryPoint", module.Name)));
+			Add(new Error(LexicalInfo.Empty, GetString("NoEntryPoint")));
+		}
+		
+		public void MoreThanOneEntryPoint(Method method)
+		{
+			Add(new Error(method, Format("MoreThanOneEntryPoint")));
 		}
 		
 		public void MemberNeedsInstance(Expression node, string member)

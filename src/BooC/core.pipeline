@@ -4,7 +4,6 @@
 	<step type='Boo.Antlr.BooParsingStep, Boo.Antlr' />
 	<step type='Boo.Ast.Compilation.Pipeline.UsingResolutionStep, Boo' />
 	<step type='Boo.Ast.Compilation.Pipeline.AstAttributesStep, Boo' />
-	<step type='Boo.Ast.Compilation.Pipeline.ModuleStep, Boo' />
 	<step type='Boo.Ast.Compilation.Pipeline.AstNormalizationStep, Boo' />
 	<step type='Boo.Ast.Compilation.Pipeline.SemanticStep, Boo' />
 
