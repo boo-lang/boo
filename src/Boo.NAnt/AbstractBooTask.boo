@@ -35,10 +35,10 @@ abstract class AbstractBooTask(Task):
 	
 	def constructor():
 		baseAssemblyFolder = Path.GetDirectoryName(GetType().Assembly.Location)
-		System.Reflection.Assembly.LoadFrom(Path.Combine(baseAssemblyFolder, "Boo.AntlrParser.dll"))
+		System.Reflection.Assembly.LoadFrom(
+			Path.Combine(baseAssemblyFolder, "Boo.AntlrParser.dll"))
 	
 	protected def RunCompiler(compiler as BooCompiler):		
-		
 		result = compiler.Run()
 		CheckCompilationResult(result)
 		return result
