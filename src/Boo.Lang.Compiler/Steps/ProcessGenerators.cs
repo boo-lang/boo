@@ -65,7 +65,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				GeneratorProcessor processor = new GeneratorProcessor(_context, _current, node);
 				processor.Run();
-				ReplaceCurrentNode(processor.CreateConstructorInvocation());			
+				ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());			
 			}
 		}
 	}
@@ -122,7 +122,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		GeneratorExpression _generator;
 		
-		ClassDefinition _generatorType;
+		ClassDefinition _enumerableType;
+		
+		ClassDefinition _enumeratorType;
 		
 		Field _currentField;
 		
@@ -148,7 +150,6 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			Visit(_generator);			
 			CreateAnonymousGeneratorType();
-			AdjustReferences();
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -194,36 +195,65 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void CreateAnonymousGeneratorType()
-		{			
+		{	
+			_enumeratorType = CreateClassDefinition("Enumerator");
+			_enumeratorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.IEnumeratorType));
+			_enumeratorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.Map(typeof(ICloneable))));			
+			
+			DeclareEnumeratorFields();
+			
+			_enumeratorType.Members.Add(CreateReset());
+			_enumeratorType.Members.Add(CreateCurrent());
+			_enumeratorType.Members.Add(CreateMoveNext());
+			_enumeratorType.Members.Add(CreateClone());
+			_enumeratorType.Members.Add(CreateEnumeratorConstructor());
+			
+			AdjustReferences();
+			
 			TypeDefinition parent = _method.DeclaringType;
+			string name = string.Format("__generator{0}__", parent.Members.Count);
 			
-			_generatorType = new ClassDefinition(_generator.LexicalInfo);			
-			_generatorType.Entity = new InternalType(TypeSystemServices, _generatorType);
-			_generatorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.ObjectType));
-			_generatorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.IEnumerableType));
-			_generatorType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.IEnumeratorType));
-			_generatorType.Name = string.Format("__generator{0}__", parent.Members.Count);
-			_generatorType.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Final;
+			_enumerableType = CreateClassDefinition(name);
+			_enumerableType.BaseTypes.Add(CreateTypeReference(TypeSystemServices.IEnumerableType));
+			_enumerableType.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Final;
+			_enumerableType.LexicalInfo = _generator.LexicalInfo;
 			
-			DeclareFields();
+			DeclareEnumerableFields();
 			
-			_generatorType.Members.Add(CreateGetEnumerator());
-			_generatorType.Members.Add(CreateReset());
-			_generatorType.Members.Add(CreateCurrent());
-			_generatorType.Members.Add(CreateMoveNext());
-			_generatorType.Members.Add(CreateConstructor());
+			_enumerableType.Members.Add(CreateGetEnumerator());
+			_enumerableType.Members.Add(CreateRegularConstructor(_enumerableType));
+			_enumerableType.Members.Add(_enumeratorType);
 			
-			parent.Members.Add(_generatorType);
+			parent.Members.Add(_enumerableType);
 		}
 		
-		void DeclareFields()
+		ClassDefinition CreateClassDefinition(string name)
 		{
-			_generatorType.Members.Add(_enumeratorField = CreateField("__enumerator__", TypeSystemServices.IEnumeratorType));
-			_generatorType.Members.Add(_currentField = CreateField("__current__", TypeSystemServices.ObjectType));
+			ClassDefinition cd = new ClassDefinition();
+			cd.Name = name;
+			cd.Entity = new InternalType(TypeSystemServices, cd);
+			cd.BaseTypes.Add(CreateTypeReference(TypeSystemServices.ObjectType));
+			return cd;
+		}
+		
+		void DeclareEnumeratorFields()
+		{
+			_enumeratorType.Members.Add(_enumeratorField = CreateField("__enumerator__", TypeSystemServices.IEnumeratorType));
+			_enumeratorType.Members.Add(_currentField = CreateField("__current__", TypeSystemServices.ObjectType));
+			DeclareRegularFields(_enumeratorType);
+		}
+		
+		void DeclareEnumerableFields()
+		{
+			DeclareRegularFields(_enumerableType);
+		}
+		
+		void DeclareRegularFields(ClassDefinition cd)
+		{
 			foreach (ITypedEntity entity in Builtins.array(_uniqueReferences.Keys))
 			{
 				Field field = CreateField("__" + entity.Name, entity.Type);
-				_generatorType.Members.Add(field);
+				cd.Members.Add(field);
 				_uniqueReferences[entity] = field.Entity;
 			}
 		}
@@ -237,16 +267,20 @@ namespace Boo.Lang.Compiler.Steps
 			return field;
 		}
 		
-		public MethodInvocationExpression CreateConstructorInvocation()
+		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
 		{
-			IConstructor constructor = ((IType)_generatorType.Entity).GetConstructors()[0];
-
-			MethodInvocationExpression mie = TypeSystemServices.CreateConstructorInvocation(constructor);
+			MethodInvocationExpression mie = CreateConstructorInvocation(_enumerableType);
 			foreach (ITypedEntity entity in _uniqueReferences.Keys)
 			{
 				mie.Arguments.Add(CreateReference(entity));
 			}
 			return mie;			
+		}
+		
+		MethodInvocationExpression CreateConstructorInvocation(ClassDefinition cd)
+		{
+			IConstructor constructor = ((IType)cd.Entity).GetConstructors()[0];
+			return TypeSystemServices.CreateConstructorInvocation(constructor);
 		}
 		
 		Expression CreateEntityReference(IEntity entity)
@@ -279,8 +313,17 @@ namespace Boo.Lang.Compiler.Steps
 			return expression;
 		}
 		
-		Constructor CreateConstructor()
+		Constructor CreateEnumeratorConstructor()
 		{
+			Constructor constructor = CreateRegularConstructor(_enumeratorType);
+			constructor.Body.Add(CreateMethodInvocation(_enumeratorType, "Reset"));
+			return constructor;
+		}
+		
+		Constructor CreateRegularConstructor(ClassDefinition cd)
+		{			
+			IType type = (IType)cd.Entity;
+			
 			Constructor constructor = new Constructor();
 			constructor.Modifiers = TypeMemberModifiers.Public;
 			constructor.Entity = new InternalConstructor(TypeSystemServices, constructor);
@@ -299,14 +342,13 @@ namespace Boo.Lang.Compiler.Steps
 				constructor.Body.Add(
 					CreateAssignment(CreateFieldReference(field),
 									CreateReference((InternalParameter)parameter.Entity)));
-			}
-			constructor.Body.Add(CreateMethodInvocation("Reset"));
+			}			
 			return constructor;
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(string name)
+		MethodInvocationExpression CreateMethodInvocation(ClassDefinition cd, string name)
 		{
-			IMethod method = (IMethod)((Method)_generatorType.Members[name]).Entity;
+			IMethod method = (IMethod)((Method)cd.Members[name]).Entity;
 			MethodInvocationExpression mie = new MethodInvocationExpression();
 			mie.Target = CreateMemberReference(method);
 			mie.ExpressionType = method.ReturnType;
@@ -315,14 +357,38 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Method CreateGetEnumerator()
 		{	
-			IType type = (IType)_generatorType.Entity;
-			
-			SelfLiteralExpression self = new SelfLiteralExpression();
-			self.ExpressionType = type;
-			
 			Method method = CreateMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
-			method.Body.Add(new ReturnStatement(self));
 			
+			MethodInvocationExpression mie = CreateConstructorInvocation(_enumeratorType);
+			foreach (TypeMember member in _enumerableType.Members)
+			{
+				if (NodeType.Field == member.NodeType)
+				{
+					IField field = (IField)member.Entity;
+					mie.Arguments.Add(CreateMemberReference(field));
+				}
+			}			
+			
+			method.Body.Add(new ReturnStatement(mie));			
+			return method;
+		}
+		
+		IMethod GetMemberwiseCloneMethod()
+		{
+			return TypeSystemServices.Map(
+						typeof(object).GetMethod("MemberwiseClone",
+							System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance));
+		}
+		
+		Method CreateClone()
+		{			
+			Method method = CreateMethod("Clone", TypeSystemServices.ObjectType);
+			method.Body.Add(
+				new ReturnStatement(
+					CreateMethodInvocation(
+						CreateSelfLiteral((IType)_enumeratorType.Entity),
+						GetMemberwiseCloneMethod())));					
+									
 			return method;
 		}
 		
@@ -364,13 +430,18 @@ namespace Boo.Lang.Compiler.Steps
 			return CreateMemberReference(field);
 		}
 		
-		Expression CreateMemberReference(ITypedEntity entity)
+		Expression CreateSelfLiteral(IType type)
+		{
+			SelfLiteralExpression expression = new SelfLiteralExpression();
+			expression.ExpressionType = type;
+			return expression;
+		}
+		
+		Expression CreateMemberReference(IMember entity)
 		{
 			MemberReferenceExpression reference = new MemberReferenceExpression();
-			reference.Target = new SelfLiteralExpression();
+			reference.Target = CreateSelfLiteral(entity.DeclaringType);
 			reference.Name = entity.Name;
-			
-			reference.Target.ExpressionType = (IType)_generatorType.Entity;
 			reference.Entity = entity;
 			reference.ExpressionType = entity.Type;
 			return reference;

@@ -1,4 +1,18 @@
-﻿* enviar para o Miguel
+﻿* change EnumBuilder to appropriate TypeBuilder replacement to circunvent mono bugs
+
+* callable type adaptation
+	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
+	parâmetros
+
+* primer
+
+* boox
+	* prompt must be redirected to a InputBox
+	* assembly search path
+
+* static properties	
+	
+* array generators
 
 * reescrever documento de pipeline em inglês
 
@@ -8,17 +22,6 @@
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor RichClient
 	* segurança com par chave pública/privada
-	
-* boox
-	* assembly search path
-
-* static properties
-	
-* callable type adaptation
-	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
-	parâmetros
-	
-* array generators
 	
 * refactorar todos os métodos relacionados a definição de tipos do ProcessGenerators
 e criar um ClassDefinitionBuilder;
@@ -60,6 +63,17 @@ super APÓS qualquer validação:
 
 * final fields: se for um value type nativo fica como literal, senao fica
 como campo readonly
+
+* múltiplos modifiers por sentença:
+
+	Thread.Sleep(50ms) while ie.Busy if ie
+
+	Para implementar é só fazer unrolling de fora para dentro:
+	
+	if ie:
+		while ie.Busy:
+			Thread.Sleep(50ms)
+
 
 * um novo passo para checagem de visibilidade de acesso de membros
 

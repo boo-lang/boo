@@ -46,9 +46,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		int _loopDepth;
 		
-		/*
-		 * Useful method tags.
-		 */		
 		IMethod RuntimeServices_Len;
 		
 		IMethod RuntimeServices_Mid;
@@ -91,9 +88,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IConstructor TextReaderEnumerator_Constructor;
 		
-		/*
-		 * Useful filters.
-		 */
 		InfoFilter IsPublicEventFilter;
 		
 		InfoFilter IsPublicFieldPropertyEventFilter;

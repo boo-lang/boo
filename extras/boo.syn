@@ -55,7 +55,7 @@ in
 include
 import
 is
-kindof
+isa
 mixin
 namespace
 not
@@ -112,19 +112,3 @@ static
 [Preprocessor keywords]
 #region
 #endregion
-
-
-
-			
-			<!-- standard macros -->
-			<KEYWORD3>using</KEYWORD3>
-			<KEYWORD3>lock</KEYWORD3>
-
-			<!-- exceptions -->
-			<!-- KEYWORD3>ArithmeticError</KEYWORD3 -->
-			
-			<LITERAL2>false</LITERAL2>
-			<LITERAL2>null</LITERAL2>
-			<LITERAL2>self</LITERAL2>
-			<KEYWORD2>super</KEYWORD2>
-			<LITERAL2>true</LITERAL2>

@@ -271,9 +271,9 @@ class MainForm(Form):
 			return editor
 		raise ArgumentException("Invalid persistence string: ${persistString}")
 		
-	override protected def OnClosed(args as EventArgs):
-		super(args)
+	override protected def OnClosed(args as EventArgs):		
 		SaveDockState()
+		super(args)
 
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)

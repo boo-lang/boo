@@ -1667,5 +1667,17 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase("generators8.boo");
 		}
+		
+		[Test]
+		public void GeneratorIsEvaluatedOnDemand()
+		{
+			RunCompilerTestCase("generators9.boo");
+		}
+		
+		[Test]
+		public void GeneratorEnumeratorImplementationIsCloneable()
+		{
+			RunCompilerTestCase("generators10.boo");
+		}
 	}
 }
