@@ -223,6 +223,10 @@ class Resolver:
 		returnClass as IClass = null
 		if expression == "self":
 			returnClass = callingClass
+		elif expression == "this":
+			// SharpDevelop uses "this" as expression when requesting method insight information
+			// for a method on the current class
+			returnClass = callingClass
 		elif expression == "super":
 			returnClass = self.ParentClass
 		else:
@@ -239,11 +243,15 @@ class Resolver:
 			return null if expr isa AST.IntegerLiteralExpression
 			visitor = ExpressionTypeVisitor(Resolver : self)
 			visitor.Visit(expr)
-			Print ("result", visitor.ReturnType)
+			retType = visitor.ReturnType
+			Print ("result", retType)
 			if visitor.ReturnClass != null:
 				returnClass = visitor.ReturnClass
-			elif visitor.ReturnType != null:
-				returnClass = parserService.SearchType(visitor.ReturnType.FullyQualifiedName, callingClass, caretLine, caretColumn)
+			elif retType != null:
+				if retType.ArrayDimensions != null and retType.ArrayDimensions.Length > 0:
+					returnClass = self.SearchType("System.Array")
+				else:
+					returnClass = self.SearchType(retType.FullyQualifiedName)
 		
 		return null if returnClass == null
 		return ResolveResult(returnClass, parserService.ListMembers(ArrayList(), returnClass, callingClass, false))

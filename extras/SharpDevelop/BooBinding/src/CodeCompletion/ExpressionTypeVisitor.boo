@@ -102,6 +102,33 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 					possibleOverloads.Add(m)
 		return possibleOverloads
 	
+	override def OnSlicingExpression(node as SlicingExpression):
+		Debug(node)
+		Visit(node.Target)
+		slice as Slice = node.Indices[0]
+		if (slice.End != null):
+			// Boo slice, returns a part of the source -> same type as source
+			return
+		if _returnType != null and _returnType.ArrayDimensions != null and _returnType.ArrayDimensions.Length > 0:
+			SetReturnType(BooBinding.CodeCompletion.ReturnType(_returnType.FullyQualifiedName, _returnType.ArrayDimensions[0 : _returnType.ArrayDimensions.Length - 1], 0))
+			return
+		if _returnClass == null and _returnType != null:
+			_returnClass = _resolver.SearchType(_returnType.FullyQualifiedName)
+		if _returnClass != null:
+			indexers = FindIndexer(_returnClass, 1)
+			if indexers.Count > 0:
+				SetReturnType(cast(IIndexer, indexers[0]).ReturnType)
+				return
+		SetReturnType(null)
+	
+	private def FindIndexer(c as IClass, arguments as int):
+		possibleOverloads = ArrayList()
+		for cl as IClass in c.ClassInheritanceTree:
+			for m as IIndexer in cl.Indexer:
+				if m.Parameters.Count == arguments:
+					possibleOverloads.Add(m)
+		return possibleOverloads
+	
 	override def OnBinaryExpression(node as BinaryExpression):
 		Debug(node)
 		CombineTypes(node.Left, node.Right)
