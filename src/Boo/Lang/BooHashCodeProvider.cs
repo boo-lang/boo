@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -31,83 +31,38 @@ namespace Boo.Lang
 	using System;
 	using System.Collections;
 	
-	/// <summary>
-	/// Compares items lexicographically through IEnumerable whenever
-	/// they don't implement IComparable.
-	/// </summary>
-	public class BooComparer : IComparer
+	public class BooHashCodeProvider : IHashCodeProvider
 	{
-		public static readonly IComparer Default = new BooComparer();
+		public static readonly IHashCodeProvider Default = new BooHashCodeProvider();
 		
-		private BooComparer()
+		private BooHashCodeProvider()
 		{
 		}
 		
-		public int Compare(object lhs, object rhs)
+		public int GetHashCode(object o)
 		{
-			if (null == lhs)
+			if (null != o)
 			{
-				if (null == rhs)
+				Array array = o as Array;
+				if (null != array)
 				{
-					return 0;
+					return GetArrayHashCode(array);
 				}
-				
-				return -1;
+				return o.GetHashCode();
 			}
-			else
-			{
-				if (null == rhs)
-				{
-					return 1;
-				}
-				
-				IComparable lhsComparable = lhs as IComparable;
-				if (null == lhsComparable)
-				{
-					IComparable rhsComparable = rhs as IComparable;
-					if (null == rhsComparable)
-					{
-						IEnumerable lhsEnumerable = lhs as IEnumerable;
-						IEnumerable rhsEnumerable = rhs as IEnumerable;
-						if (null != lhsEnumerable && null != rhsEnumerable)
-						{
-							return CompareEnumerables(lhsEnumerable, rhsEnumerable);
-						}
-						//throw new ArgumentException(ResourceManager.GetString("CantCompareItems"));
-						return lhs.Equals(rhs) ? 0 : 1;
-					}
-					return -1*(rhsComparable.CompareTo(lhs));
-				}
-				return lhsComparable.CompareTo(rhs);
-			}
-		}
-		
-		int CompareEnumerables(IEnumerable lhs, IEnumerable rhs)
-		{
-			IEnumerator lhsEnum = lhs.GetEnumerator();
-			IEnumerator rhsEnum = rhs.GetEnumerator();
-			
-			while (lhsEnum.MoveNext())
-			{
-				if (!rhsEnum.MoveNext())
-				{
-					return 1;
-				}
-				
-				int value = Compare(lhsEnum.Current, rhsEnum.Current);
-				if (0 == value)
-				{
-					continue;
-				}
-				return value;
-			}
-			
-			if (rhsEnum.MoveNext())
-			{
-				return -1;
-			}
-			
 			return 0;
+		}
+		
+		public int GetArrayHashCode(Array array)
+		{
+			int code = 1;
+			int position = 0;
+			foreach (object item in array)
+			{
+				code ^= GetHashCode(item)*(++position);
+			}
+			return code;
 		}
 	}
 }
+	

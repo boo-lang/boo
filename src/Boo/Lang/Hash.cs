@@ -38,11 +38,11 @@ namespace Boo.Lang
 	[Serializable]
 	public class Hash : Hashtable
 	{
-		public Hash()
+		public Hash() : base(BooHashCodeProvider.Default, BooComparer.Default)
 		{
 		}
 		
-		public Hash(IEnumerable enumerable)
+		public Hash(IEnumerable enumerable) : base(BooHashCodeProvider.Default, BooComparer.Default)
 		{
 			if (null == enumerable)
 			{
