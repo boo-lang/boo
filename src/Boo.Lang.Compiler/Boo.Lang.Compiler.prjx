@@ -1,4 +1,4 @@
-<Project name="Boo.Lang.Compiler" standardNamespace="NewProject" description="" newfilesearch="OnLoad" enableviewstate="True" version="1.1" projecttype="C#">
+<Project name="Boo.Lang.Compiler" standardNamespace="NewProject" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
     <File name=".\AbstractAstAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\AbstractCompilerComponent.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -241,13 +241,13 @@
     <File name=".\Steps\IntroduceGlobalNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\IntroduceModuleClasses.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\NormalizeStatementModifiers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Steps\NormalizeTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\PEVerify.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\PrintBoo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\ProcessGenerators.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\RunAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\SaveAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\SerializeToXml.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\AbstractLocalEntity.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\TypeSystem\AbstractInternalType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\TypeSystem\Ambiguous.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\TypeSystem\ArrayType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -425,6 +425,13 @@
     <File name=".\Pipelines\ResolveExpressions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\TypeSystem\AbstractLocalEntity.cs" subtype="Code" buildaction="Exclude" dependson="" data="" />
     <File name=".\TypeSystem\Types.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Macros\CheckedMacro.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Pipelines\Parse.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Steps\PrintErrors.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Steps\PrintWarnings.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Steps\ProcessMethodBodies.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\InternalProperty.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Boo.Lang.Compiler.prjx~" subtype="Code" buildaction="Exclude" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Project" refto="Boo" localcopy="True" />

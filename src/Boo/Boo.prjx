@@ -14,6 +14,18 @@
     <File name=".\Lang\List.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="..\..\build\strings.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\AssemblyInfo.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Boo.cmbx~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Lang\AbstractGenerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\AbstractGeneratorEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\BooHashCodeProvider.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Builtins.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Lang\IQuackFu.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\ModuleAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\RuntimeServices.cs~" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Resources\strings.txt" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Resources\it\strings.txt" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\Resources\pt\strings.txt" subtype="Code" buildaction="Exclude" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />
