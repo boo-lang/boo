@@ -67,7 +67,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding ICollection_get_Count;
 		
-		IMethodBinding Tuple_TypedConstructor;
+		IMethodBinding Tuple_TypedConstructor1;
+		IMethodBinding Tuple_TypedConstructor2;
 		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
@@ -97,7 +98,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
-			Tuple_TypedConstructor = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { typeof(Type), typeof(IEnumerable) }));
+			Tuple_TypedConstructor1 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { typeof(Type), typeof(IEnumerable) }));
+			Tuple_TypedConstructor2 = (IMethodBinding)BindingManager.AsBinding(Types.Builtins.GetMethod("tuple", new Type[] { typeof(Type), typeof(int) }));
 			
 			ApplicationException_StringConstructor =
 					(IConstructorBinding)BindingManager.AsBinding(
@@ -2279,7 +2281,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				return BindingManager.TypeTypeBinding;
 			}
-			if (Tuple_TypedConstructor == binding)
+			if (Tuple_TypedConstructor1 == binding ||
+				Tuple_TypedConstructor2 == binding)
 			{
 				return BindingManager.AsTupleBinding(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
 			}
