@@ -370,6 +370,52 @@ dummy()""")
 		assert "'424242'" == value
 		assert "424242" == _interpreter.GetValue("_")
 		
+	class Customer:
+		
+		[property(FirstName)]
+		_fname as string
+		
+		public LastName as string
+		
+		def constructor(name as string):
+			_name = name
+		
+		def constructor():
+			pass
+		
+	[Test]
+	def Help():
+		
+		buffer = System.IO.StringWriter()
+		buffer.WriteLine()		
+		_interpreter.Print = { item | buffer.WriteLine(item) }		
+		_interpreter.help(Customer)
+		
+		expected = """
+class Customer(object):
+
+    def constructor(name as string)
+
+    def constructor()
+
+    public LastName as string
+
+    FirstName as string:
+        get
+        set
+
+    def GetHashCode() as int
+
+    def Equals(obj as object) as bool
+
+    def ToString() as string
+
+    def GetType() as System.Type
+
+"""
+		Assert.AreEqual(expected, buffer.ToString().Replace("\r\n", "\n"))
+	
+		
 	[Test]
 	def Loop():
 

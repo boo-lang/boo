@@ -199,13 +199,75 @@ class InteractiveInterpreter:
 				unless (method=(member as System.Reflection.MethodInfo))
 				and method.IsSpecialName)
 		
-	def help(obj):
+	def help(obj):		
 		type = (obj as Type) or obj.GetType()
-		baseTypes = [type.BaseType].Extend(type.GetInterfaces())
-		_print("class ${type.Name}(${join(baseTypes, ', ')}):")
+		describeType("    ", type)
 		
-		for member in dir(obj):
-			_print("    ${member}")
+	def describeType(indent as string, type as Type):
+		
+		baseTypes = (getBooTypeName(type.BaseType),) + array(getBooTypeName(t) for t in type.GetInterfaces())
+		_print("class ${type.Name}(${join(baseTypes, ', ')}):")
+		_print("")
+		
+		for ctor in type.GetConstructors():
+			_print("${indent}def constructor(${describeParameters(ctor.GetParameters())})")
+			_print("")
+			
+		for f in type.GetFields():
+			_print("${indent}public ${describeModifiers(f)}${f.Name} as ${getBooTypeName(f.FieldType)}")
+			_print("")
+			
+		for p in type.GetProperties():
+			modifiers = describeModifiers(p)
+			params = describePropertyParameters(p.GetIndexParameters())
+			_print("${indent}${modifiers}${p.Name}${params} as ${getBooTypeName(p.PropertyType)}:")
+			_print("${indent}${indent}get") if p.GetGetMethod() is not null
+			_print("${indent}${indent}set") if p.GetSetMethod() is not null
+			_print("")
+			
+		for m in type.GetMethods():
+			continue if m.IsSpecialName
+			modifiers = describeModifiers(m)
+			returnType = getBooTypeName(m.ReturnType)
+			_print("${indent}${modifiers}def ${m.Name}(${describeParameters(m.GetParameters())}) as ${returnType}")
+			_print("")			
+			
+	def describeModifiers(f as Reflection.FieldInfo):
+		return "static " if f.IsStatic
+		return ""
+			
+	def describeModifiers(m as Reflection.MethodBase):
+		return "static " if m.IsStatic
+		return ""
+		
+	def describeModifiers(p as Reflection.PropertyInfo):
+		accessor = p.GetGetMethod() or p.GetSetMethod()
+		return describeModifiers(accessor)
+			
+	def describePropertyParameters(parameters as (Reflection.ParameterInfo)):
+		return "" if 0 == len(parameters)
+		return "(${describeParameters(parameters)})"
+			
+	def describeParameters(parameters as (Reflection.ParameterInfo)):
+		return join(describeParameter(p) for p in parameters, ", ")
+		
+	def describeParameter(p as Reflection.ParameterInfo):
+		return "${p.Name} as ${getBooTypeName(p.ParameterType)}"
+		
+	def getBooTypeName(type as System.Type):
+		return "(${getBooTypeName(type.GetElementType())})" if type.IsArray
+		return "object" if type is object
+		return "string" if type is string
+		return "void" if type is void
+		return "bool" if type is bool		
+		return "byte" if type is byte
+		return "short" if type is short
+		return "int" if type is int
+		return "long" if type is long
+		return "single" if type is single
+		return "double" if type is double
+		return "date" if type is date
+		return type.FullName
 			
 	private def InitializeStandardReferences():
 		SetValue("interpreter", self)
