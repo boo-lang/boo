@@ -29,18 +29,48 @@
 import System
 import Gtk from "gtk-sharp"
 import GtkSourceView from "gtksourceview-sharp"
+import Pango from "pango-sharp"
 
 Application.Init()
 	
 booSourceLanguage = SourceLanguagesManager().GetLanguageFromMimeType("text/x-boo")
 buffer = SourceBuffer(booSourceLanguage, Highlight: true)	
-sourceView = SourceView(buffer, ShowLineNumbers: true, AutoIndent: true)
+sourceView = SourceView(buffer,
+						ShowLineNumbers: true,
+						AutoIndent: true,
+						TabsWidth: 4)
+sourceView.ModifyFont(FontDescription(Family: "Lucida Console"))
+				
+accelGroup = AccelGroup()
+menuBar = MenuBar()
+fileMenu = Menu()
+fileMenuOpen = ImageMenuItem(Stock.Open, accelGroup)
+fileMenuOpen.Activated += do:
+	fs = FileSelection("Open file", SelectMultiple: false)
+	fs.Complete("*.boo")
+	try:			
+		if cast(int, ResponseType.Ok) == fs.Run():
+			selected, =  fs.Selections
+		using reader = System.IO.File.OpenText(selected):
+			buffer.Text = reader.ReadToEnd() 
+	ensure:
+		fs.Hide()
+		
+fileMenu.Append(fileMenuOpen)
+menuBar.Append(MenuItem("_File", Submenu: fileMenu))
 
+vbox = VBox(false, 2)
+vbox.PackStart(menuBar, false, false, 0)
+scrolledSourceView = ScrolledWindow()
+scrolledSourceView.Add(sourceView)
+vbox.PackStart(scrolledSourceView, true, true, 0)
+		
 window = Window("Simple Boo Editor",
 				DefaultWidth:  600,
 				DefaultHeight: 400,
 				DeleteEvent: Application.Quit)
-window.Add(sourceView)
+window.AddAccelGroup(accelGroup)
+window.Add(vbox)
 window.ShowAll()
 
 Application.Run()
