@@ -1951,9 +1951,10 @@ MULTIPLY: '*' (
 
 
 DIVISION: 
-	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |
+	("/*")=> ML_COMMENT { $setType(Token.SKIP); } |
+	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |	
 	'/' (
-			('/' (~('\n'))* { $setType(Token.SKIP); }) |
+			('/' (~('\r'|'\n'))* { $setType(Token.SKIP); }) |			
 			('=' { $setType(ASSIGN); }) |
 		)
 	;
@@ -2013,11 +2014,12 @@ SL_COMMENT:
 	{ $setType(Token.SKIP); }
 	;
 	
+protected
 ML_COMMENT:
 	"/*"
     (
 		{ LA(2) != '/' }? '*' |
-		("/*")=> ML_COMMENT |
+		("/*")=>ML_COMMENT |
 		NEWLINE |
 		~('*'|'\r'|'\n')
     )*
