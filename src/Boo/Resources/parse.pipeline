@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<pipeline>
+
+	<step type='Boo.Antlr.BooParsingStep, Boo.Antlr' />
+
+</pipeline>

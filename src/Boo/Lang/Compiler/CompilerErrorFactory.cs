@@ -347,6 +347,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0063", node.LexicalInfo);
 		}
 		
+		public static CompilerError UnknownAttribute(Node node, string attributeName)
+		{
+			return new CompilerError("BCE0064", node.LexicalInfo, attributeName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

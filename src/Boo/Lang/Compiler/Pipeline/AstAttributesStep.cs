@@ -230,7 +230,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				if (BindingType.Ambiguous == binding.BindingType)
 				{
-					Errors.Add(CompilerErrorFactory.AmbiguousReference(
+					Error(attribute, CompilerErrorFactory.AmbiguousReference(
 									attribute,
 									attribute.Name,
 									((AmbiguousBinding)binding).Bindings));
@@ -239,7 +239,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					if (BindingType.TypeReference != binding.BindingType)
 					{
-						Errors.Add(CompilerErrorFactory.NameNotType(attribute, attribute.Name));
+						Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name));
 					}
 					else
 					{
@@ -249,7 +249,7 @@ namespace Boo.Lang.Compiler.Pipeline
 							ExternalTypeBinding externalType = attributeType as ExternalTypeBinding;
 							if (null == externalType)
 							{
-								Errors.Add(CompilerErrorFactory.AstAttributeMustBeExternal(attribute, attributeType.FullName));
+								Error(attribute, CompilerErrorFactory.AstAttributeMustBeExternal(attribute, attributeType.FullName));
 							}
 							else
 							{							
@@ -263,7 +263,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						{
 							if (!IsSystemAttribute(attributeType))
 							{
-								Errors.Add(CompilerErrorFactory.TypeNotAttribute(attribute, attributeType.FullName));
+								Error(attribute, CompilerErrorFactory.TypeNotAttribute(attribute, attributeType.FullName));
 							}
 							else
 							{
@@ -275,6 +275,16 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 				}
 			}
+			else
+			{
+				Error(attribute, CompilerErrorFactory.UnknownAttribute(attribute, attribute.Name));
+			}
+		}
+		
+		void Error(Boo.Lang.Ast.Attribute attribute, CompilerError error)
+		{
+			BindingManager.Error(attribute);
+			Errors.Add(error);
 		}
 
 		void ScheduleAttributeApplication(Boo.Lang.Ast.Attribute attribute, Type type)

@@ -764,7 +764,7 @@ macro_stmt returns [MacroStatement macro]
 		macro = new MacroStatement();
 	}:
 	id:ID expression_list[macro.Arguments]
-		compound_stmt[macro.Block.Statements]
+	(compound_stmt[macro.Block.Statements])?
 	{
 		macro.Name = id.getText();
 		macro.LexicalInfo = ToLexicalInfo(id);
@@ -1586,7 +1586,7 @@ string_literal returns [Expression e]
 	{
 		e = null;
 	}:
-	(DOUBLE_QUOTED_STRING ESEPARATOR)=> e=string_formatting |
+	( (DOUBLE_QUOTED_STRING|TRIPLE_QUOTED_STRING) ESEPARATOR)=> e=string_formatting |	
 	dqs:DOUBLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(dqs), dqs.getText());
@@ -1606,11 +1606,15 @@ string_formatting returns [StringFormattingExpression e]
 	{
 		e = null;
 		Expression param = null;
+		Token stringToken = null;
 	}:
-	dqs:DOUBLE_QUOTED_STRING
+	(
+		dqs:DOUBLE_QUOTED_STRING { stringToken = dqs; } |
+		tqs:TRIPLE_QUOTED_STRING { stringToken = tqs; }
+	)
 	{
-		e = new StringFormattingExpression(ToLexicalInfo(dqs));
-		e.Template = dqs.getText();
+		e = new StringFormattingExpression(ToLexicalInfo(stringToken));
+		e.Template = stringToken.getText();
 	}
 	(  options { greedy = true; } :
 		
@@ -1817,6 +1821,14 @@ options
 	{
 		--_skipWhitespaceRegion;
 	}
+	
+	void PushRecordedExpressions()
+	{
+		if (_erecorder.Count > 0)
+		{
+			_selector.push(_erecorder);
+		}
+	}
 }
 
 ID options { testLiterals = true; }:
@@ -1887,11 +1899,17 @@ protected
 TRIPLE_QUOTED_STRING :
 	"\"\""!
 	(
-	options { greedy=false; }:
-		~('\n') |
-		'\n' { newline(); }
+	options { greedy=false; }:		
+		("${")=>ESCAPED_EXPRESSION |
+		("\\$")=>'\\'! '$' |
+		~('\n' | '\t') |
+		'\n' { newline(); } |
+		'\t' { tab(); }		
 	)*
 	"\"\"\""!
+	{
+		PushRecordedExpressions();
+	}
 	;
 
 DOUBLE_QUOTED_STRING : { _eindex = 0; }
@@ -1911,10 +1929,7 @@ DOUBLE_QUOTED_STRING : { _eindex = 0; }
 			)*
 			'"'!
 			{
-				if (_erecorder.Count > 0)
-				{
-					_selector.push(_erecorder);
-				}
+				PushRecordedExpressions();
 			}
 		)
 	)

@@ -33,6 +33,8 @@ using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
+using System.Text.RegularExpressions;
 using Boo.Lang.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Bindings;
@@ -57,14 +59,6 @@ namespace Boo.Lang.Compiler.Pipeline
 	
 	public class EmitAssemblyStep : AbstractSwitcherCompilerStep
 	{	
-		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.ObjectArray });
-		
-		static MethodInfo String_Format1 = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.Object });
-		
-		static MethodInfo String_Format2 = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.Object, Types.Object });
-		
-		static MethodInfo String_Format3 = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.Object, Types.Object, Types.Object });
-		
 		static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		
 		static MethodInfo RuntimeServices_CheckArrayUnpack = Types.RuntimeServices.GetMethod("CheckArrayUnpack");
@@ -79,7 +73,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
 		
-		static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
+		static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();		
 		
 		static MethodInfo Math_Pow = typeof(Math).GetMethod("Pow");
 		
@@ -1528,46 +1522,54 @@ namespace Boo.Lang.Compiler.Pipeline
 			EmitCastIfNeeded(BindingManager.IntTypeBinding, PopType());
 		}
 		
+		static Regex _interpolatedExpression = new Regex(@"\{(\d+)\}", RegexOptions.Compiled|RegexOptions.CultureInvariant);
+		
+		void EmitAppendString(MethodInfo appendString, string template, int current, int matchIndex)
+		{
+			string part = template.Substring(current, matchIndex-current);
+			if (part.Length > 0)
+			{
+				_il.Emit(OpCodes.Ldstr, part);
+				_il.EmitCall(OpCodes.Call, appendString, null);
+			}
+		}
+		
 		public override void OnStringFormattingExpression(StringFormattingExpression node)
-		{			              
-			_il.Emit(OpCodes.Ldstr, node.Template);
+		{	
+			Type stringBuilderType = typeof(StringBuilder);
+			ConstructorInfo constructor =  stringBuilderType.GetConstructor(new Type[] { typeof(int) });
+			MethodInfo appendObject = stringBuilderType.GetMethod("Append", new Type[] { typeof(object) });
+			MethodInfo appendString = stringBuilderType.GetMethod("Append", new Type[] { typeof(string) });
 			
-			int argc = node.Arguments.Count;
-			if (argc > 3)
-			{
-				// new object[node.Arguments.Count]
-				EmitObjectArray(node.Arguments);
-				_il.EmitCall(OpCodes.Call, String_Format, null);
-			}
-			else
-			{
-				for (int i=0; i<argc; ++i)
-				{
-					node.Arguments[i].Switch(this);
-					EmitCastIfNeeded(BindingManager.ObjectTypeBinding, PopType());
-				}
+			string template = node.Template;
+			
+			_il.Emit(OpCodes.Ldc_I4, (int)template.Length*2);
+			_il.Emit(OpCodes.Newobj, constructor);
+			
+			int current = 0;
+			Match m = _interpolatedExpression.Match(template);
+			foreach (Expression arg in node.Arguments)
+			{	
+				EmitAppendString(appendString, template, current, m.Index);				
+				current = m.Index + m.Length;
+
+				Switch(arg);
 				
-				switch (argc)
+				ITypeBinding argType = PopType();
+				if (BindingManager.StringTypeBinding == argType)
 				{
-					case 1:
-					{
-						_il.EmitCall(OpCodes.Call, String_Format1, null);
-						break;
-					}
-					
-					case 2:
-					{
-						_il.EmitCall(OpCodes.Call, String_Format2, null);
-						break;
-					}
-					
-					case 3:
-					{
-						_il.EmitCall(OpCodes.Call, String_Format3, null);
-						break;
-					}
+					_il.EmitCall(OpCodes.Call, appendString, null);
 				}
+				else
+				{
+					EmitCastIfNeeded(BindingManager.ObjectTypeBinding, argType);
+					_il.EmitCall(OpCodes.Call, appendObject, null);
+				}
+
+				m = m.NextMatch();
 			}
+			EmitAppendString(appendString, template, current, template.Length);
+			_il.EmitCall(OpCodes.Call, stringBuilderType.GetMethod("ToString", new Type[0]), null);
 			PushType(BindingManager.StringTypeBinding);
 		}
 		

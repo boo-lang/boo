@@ -1021,5 +1021,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("break1.boo");
 		}
+		
+		[Test]
+		public void StringFormattingWithTripleQuotedString()
+		{
+			RunCompilerTestCase("formatting0.boo");
+		}
 	}
 }

@@ -379,7 +379,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void OnAttribute(Boo.Lang.Ast.Attribute node)
 		{
 			ITypeBinding binding = BindingManager.GetBoundType(node);
-			if (null != binding)
+			if (null != binding && !BindingManager.IsError(binding))
 			{			
 				Switch(node.Arguments);
 				ResolveNamedArguments(node, binding, node.NamedArguments);

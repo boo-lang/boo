@@ -259,22 +259,32 @@ done * procurar uma versão dos operadores em RuntimeServices para unificar a in
 	
 done * comportamento de 'as' com value types: erro
 
-* implementação de interfaces
+done * implementação de interfaces
 
 * check return types for method overrides
 
-* end?
+* lock attribute para getters/setters:
+	Foo:
+		[lock]
+		get:
+			return _foo
 
-* ref, out parameters
+* map(fn, enumerable)
+
+* print macro
+
+* assert macro
+
+* recriar o gerador de AST em boo
 	
 * criar primitivas box, unbox e __reference__ para o semantic step e outros passos
 que precisarem? Isso iria permitir remover os casts 
 
 	__box__(3.0)
 	__unbox__(reference, int)
-	__assertIsReference__(expression) # para uso por macros como lock por exemplo
-	
-* map(fn, enumerable)
+	__assertIsReference__(expression) # para uso por macros como lock por exemplo	
+
+* ref, out parameters
 
 * assembly attributes: [assembly: AssemblyVersion("foo")]
 
@@ -304,8 +314,6 @@ done * Statement and Block should be polymorphic?
 * StatementGroup para permitir o agrupamento de statements com mesmo propósito
 	
 done * override keyword to allow the developer to make sure a method is a override
-
-* recriar o gerador de AST em boo
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------

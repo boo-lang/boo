@@ -28,6 +28,7 @@
 #endregion
 
 using System;
+using System.Collections;
 
 namespace Boo.Lang.Ast
 {
@@ -39,6 +40,31 @@ namespace Boo.Lang.Ast
 		
 		public AttributeCollection(Boo.Lang.Ast.Node parent) : base(parent)
 		{
+		}
+		
+		public bool Contains(string attributeName)
+		{
+			foreach (Boo.Lang.Ast.Attribute attribute in this)
+			{
+				if (attributeName == attribute.Name)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		public Boo.Lang.Ast.Attribute[] Get(string attributeName)
+		{
+			ArrayList attributes = new ArrayList();
+			foreach (Boo.Lang.Ast.Attribute attribute in this)
+			{
+				if (0 == string.Compare(attributeName, attribute.Name, true))
+				{
+					attributes.Add(attribute);
+				}
+			}
+			return (Boo.Lang.Ast.Attribute[])attributes.ToArray(typeof(Boo.Lang.Ast.Attribute));
 		}
 	}
 }

@@ -240,6 +240,24 @@ namespace Boo.Lang
 			return _list.IndexOf(item);
 		}
 		
+		public List Insert(int index, object item)
+		{
+			_list.Insert(index, item);
+			return this;
+		}
+		
+		public List Remove(object item)
+		{
+			_list.Remove(item);
+			return this;
+		}
+		
+		public List RemoveAt(int index)
+		{
+			_list.RemoveAt(index);
+			return this;
+		}
+		
 		void IList.Insert(int index, object item)
 		{
 			_list.Insert(index, item);

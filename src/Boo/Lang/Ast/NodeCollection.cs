@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections;
+using Boo.Lang;
 
 namespace Boo.Lang.Ast
 {
@@ -39,7 +40,7 @@ namespace Boo.Lang.Ast
 	{
 		protected Node _parent;
 		
-		protected ArrayList _innerList = new ArrayList();
+		protected List _list = new List();
 
 		protected NodeCollection(Node parent)
 		{			
@@ -54,7 +55,7 @@ namespace Boo.Lang.Ast
 		{
 			get
 			{
-				return _innerList.Count;
+				return _list.Count;
 			}
 		}
 		
@@ -76,52 +77,52 @@ namespace Boo.Lang.Ast
 		
 		public void CopyTo(Array array, int index)
 		{
-			_innerList.CopyTo(array, index);
+			_list.CopyTo(array, index);
 		}
 		
 		public IEnumerator GetEnumerator()
 		{
-			return _innerList.GetEnumerator();
+			return _list.GetEnumerator();
 		}
 		
 		public void Clear()
 		{			
-			_innerList.Clear();
+			_list.Clear();
 		}
 		
 		public Node[] ToArray()
 		{
-			return (Node[])_innerList.ToArray(typeof(Node));
+			return (Node[])_list.ToArray(typeof(Node));
 		}
 		
 		public Node GetNodeAt(int index)
 		{
-			return (Node)_innerList[index];
+			return (Node)_list[index];
 		}
 		
 		public object Clone()
 		{
 			NodeCollection clone = (NodeCollection)Activator.CreateInstance(GetType());
-			ArrayList cloneList = clone._innerList;
-			foreach (Node node in _innerList)
+			List cloneList = clone._list;
+			foreach (Node node in _list)
 			{
 				cloneList.Add(node.Clone());
 			}
 			return clone;
 		}
 		
-		protected ArrayList InnerList
+		protected List InnerList
 		{
 			get
 			{
-				return _innerList;
+				return _list;
 			}
 		}
 
 		internal void InitializeParent(Node parent)
 		{
 			_parent = parent;
-			foreach (Node node in InnerList)
+			foreach (Node node in _list)
 			{
 				node.InitializeParent(_parent);
 			}
@@ -138,14 +139,14 @@ namespace Boo.Lang.Ast
 		{
 			//Node existing = (Node)InnerList[i];
 			//existing.InitializeParent(null);
-			_innerList[i] = newItem;
+			_list[i] = newItem;
 			Initialize(newItem);			
 		}
 
 		protected void Add(Node item)
 		{
 			Initialize(item);
-			InnerList.Add(item);
+			_list.Add(item);
 		}
 
 		protected void Add(Node[] items)
@@ -160,9 +161,9 @@ namespace Boo.Lang.Ast
 		protected bool Replace(Node existing, Node newItem)
 		{
 			Assert.AssertNotNull("existing", existing);			
-			for (int i=0; i<_innerList.Count; ++i)
+			for (int i=0; i<_list.Count; ++i)
 			{
-				if (_innerList[i] == existing)
+				if (_list[i] == existing)
 				{
 					if (null == newItem)
 					{

@@ -103,7 +103,6 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD1>def</KEYWORD1>
 			<KEYWORD1>do</KEYWORD1>
 			<KEYWORD1>else</KEYWORD1>
-			<KEYWORD1>end</KEYWORD1>
 			<KEYWORD1>enum</KEYWORD1>
 			<KEYWORD1>ensure</KEYWORD1>
 			<KEYWORD1>except</KEYWORD1>
