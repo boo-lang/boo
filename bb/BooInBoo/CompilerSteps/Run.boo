@@ -1,10 +1,8 @@
-namespace BooInBoo.CompilerSteps
+namespace BooInBoo.PipelineSteps
 
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.Pipeline
+import BooInBoo
 
-class Run(AbstractCompilerStep):
+class Run(AbstractCompilerPipelineStep):
 	
 	override def Run():
 		pass

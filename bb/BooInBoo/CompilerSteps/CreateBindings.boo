@@ -1,8 +1,6 @@
-namespace BooInBoo.CompilerSteps
+namespace BooInBoo.PipelineSteps
 
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.Pipeline
+import BooInBoo
 
 enum BindingType:
 	CompileUnit
@@ -31,7 +29,7 @@ interface INameResolutionService(ICompilerComponent):
 	def LeaveNamespace()
 	def Resolve(name as string) as List
 
-class CreateBindings(AbstractSwitcherCompilerStep):
+class CreateBindings(AbstractCompilerPipelineStep):
 	
 	override def Run():
 		pass

@@ -1,11 +1,10 @@
-namespace BooInBoo.CompilerSteps
+namespace BooInBoo.PipelineSteps
 
-import Boo.Lang.Compiler
+import BooInBoo
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Ast.Visitors
-import Boo.Lang.Compiler.Pipeline
 
-class PrintBoo(AbstractCompilerStep):
+class PrintBoo(AbstractCompilerPipelineStep):
 	
 	override def Run():
-		BooPrinterVisitor(System.Console.Out).Switch(CompileUnit)
+		BooPrinterVisitor(System.Console.Out).Switch(self.CompileUnit)

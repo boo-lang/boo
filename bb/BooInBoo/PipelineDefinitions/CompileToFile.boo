@@ -1,13 +1,16 @@
-namespace BooInBoo.PipelineDefinitions
+namespace BooInBoo.Pipelines
 
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Pipeline
+import BooInBoo
 
-class Compile(ICompilerPipelineDefinition):
+class ParsePipeline(CompilerPipeline):
 	static _defaultParserStepType = System.Type.GetType("Boo.AntlrParser.BooParsingStep, Boo.AntlrParser", true)
-	
-	def Define(pipeline as CompilerPipeline):
-		pipeline.Add(_defaultParserStepType())
+		
+	override def Initialize():
+		Add(_defaultParserStepType())
+
+class CompilePipeline(ParsePipeline):
+	override def Initialize():
+		pass
 		/*
 		pipeline.Add(IntroduceGlobalNamespaces())
 		pipeline.Add(IntroduceBindingService())
@@ -27,7 +30,7 @@ class Compile(ICompilerPipelineDefinition):
 		pipeline.Add(CheckInterfaceImplementations())
 		*/
 
-class CompileToFile(Compile):
+class CompileToFilePipeline(CompilePipeline):
 
-	override def Define(pipeline as CompilerPipeline):
+	override def Initialize():
 		pass
