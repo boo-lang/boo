@@ -90,6 +90,8 @@ class BooTask(AbstractBooTask):
 		parameters.References.Add(typeof(NAnt.Core.Project).Assembly)
 		
 		result = RunCompiler(compiler)		
+
+		print("script successfully compiled.")
 		
 		try:
 			scriptType = result.GeneratedAssembly.GetType("__Script__", true)

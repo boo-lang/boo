@@ -1,5 +1,6 @@
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Pipeline
+import Boo.Lang.Compiler.Steps
+import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast
 
 class CodeGeneratorStep(AbstractCompilerStep):
@@ -16,9 +17,8 @@ class CodeGeneratorStep(AbstractCompilerStep):
 		CompileUnit.Modules.Add(module)
 
 compiler = BooCompiler()
-pipeline = compiler.Parameters.Pipeline
-pipeline.Load("booi")
-pipeline.Insert(0, CodeGeneratorStep())
+compiler.Parameters.Pipeline = CompileToMemory()
+compiler.Parameters.Pipeline.Insert(0, CodeGeneratorStep())
 
 result = compiler.Run()
 for error in result.Errors:
