@@ -78,6 +78,8 @@ COMMA : ',';
 
 BITWISE_OR: '|';
 
+BITWISE_AND: '&';
+
 LPAREN : '(';
 	
 RPAREN : ')';

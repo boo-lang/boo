@@ -90,7 +90,6 @@ class InteractiveInterpreterTestFixture:
 		Eval("value = InteractiveInterpreterTestFixture.LifeTheUniverseAndEverything")
 		assert 42 == _interpreter.GetValue("value")
 		
-	/*
 	[Test]
 	def ImportingTwiceIsNoProblem():
 		Eval("import Booish.Tests from Booish.Tests")
@@ -98,13 +97,16 @@ class InteractiveInterpreterTestFixture:
 		
 		Eval("value = InteractiveInterpreterTestFixture.LifeTheUniverseAndEverything")
 		assert 42 == _interpreter.GetValue("value")
-	*/
 		
 	[Test]
 	def AssignmentPreservesType():
 		Eval("value = (a = 3).ToString()")
+		Eval("a2 = a*2")
+		Eval("value2 = value*2")
 		assert 3 == _interpreter.GetValue("a")
 		assert "3" == _interpreter.GetValue("value")
+		assert 6 == _interpreter.GetValue("a2")
+		assert "33" == _interpreter.GetValue("value2")
 		
 	[Test]
 	[ExpectedException(System.Reflection.TargetInvocationException)]

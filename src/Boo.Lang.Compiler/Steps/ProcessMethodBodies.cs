@@ -2577,6 +2577,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
+				case BinaryOperatorType.BitwiseAnd:
 				case BinaryOperatorType.BitwiseOr:
 				{
 					BindBitwiseOperator(node);

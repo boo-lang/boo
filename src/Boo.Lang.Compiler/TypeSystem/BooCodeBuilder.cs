@@ -82,8 +82,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return builder;
 		}
 		
-		public CastExpression CreateCast(IType type, Expression target)
+		public Expression CreateCast(IType type, Expression target)
 		{
+			if (type == target.ExpressionType)
+			{
+				return target;
+			}
+			
 			CastExpression expression = new CastExpression(target.LexicalInfo);
 			expression.Type = CreateTypeReference(type);
 			expression.Target = target;

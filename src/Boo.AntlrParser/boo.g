@@ -1712,7 +1712,8 @@ term returns [Expression e]
 	 	(
 		 m:MULTIPLY { op=BinaryOperatorType.Multiply; token=m; } |
 		 d:DIVISION { op=BinaryOperatorType.Division; token=d; } |
-		 md:MODULUS { op=BinaryOperatorType.Modulus; token=md; }
+		 md:MODULUS { op=BinaryOperatorType.Modulus; token=md; } |
+		 ba:BITWISE_AND { op=BinaryOperatorType.BitwiseAnd; token=ba; }
 		 )
 		r=exponentiation
 		{
@@ -2295,6 +2296,8 @@ DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
 COLON : ':';
 
 BITWISE_OR: '|';
+
+BITWISE_AND: '&';
 
 LPAREN : '(' { EnterSkipWhitespaceRegion(); };
 	

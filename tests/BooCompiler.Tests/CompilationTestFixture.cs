@@ -157,18 +157,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void BitwiseOrForEnums()
-		{
-			RunCompilerTestCase("bitwise_enum.boo");
-		}
-		
-		[Test]
-		public void BitwiseOrForInt()
-		{
-			RunCompilerTestCase("bitwise_int.boo");			
-		}
-		
-		[Test]
 		public void GreaterThanEqualForInts()
 		{
 			RunCompilerTestCase("gte_int.boo");

@@ -114,6 +114,11 @@ namespace Boo.Lang.Compiler.Ast
 			return (Node[])result.ToArray(typeof(Node));
 		}
 		
+		public bool Contains(Predicate condition)
+		{
+			return _list.Contains(condition);
+		}
+		
 		public bool ContainsEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
 		{
 			foreach (Node node in _list)
@@ -174,6 +179,27 @@ namespace Boo.Lang.Compiler.Ast
 			foreach (Node node in _list)
 			{
 				node.InitializeParent(_parent);
+			}
+		}
+		
+		public void Reject(Predicate condition)
+		{
+			if (null == condition)
+			{
+				throw new ArgumentNullException("condition");
+			}
+			
+			int index = 0;
+			foreach (Node node in ToArray())
+			{
+				if (condition(node))
+				{
+					RemoveAt(index);
+				}
+				else
+				{
+					++index;
+				}
 			}
 		}
 		

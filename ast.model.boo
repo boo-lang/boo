@@ -337,6 +337,7 @@ enum BinaryOperatorType:
 	Or
 	And
 	BitwiseOr
+	BitwiseAnd
 
 enum UnaryOperatorType:
 	None

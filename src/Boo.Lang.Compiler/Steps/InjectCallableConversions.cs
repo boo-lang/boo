@@ -447,23 +447,18 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IMethod method = (IMethod)GetEntity(source);
 			
-			MethodInvocationExpression constructor = new MethodInvocationExpression(source.LexicalInfo);
-			constructor.Target = new ReferenceExpression(type.FullName);
-			
+			Expression target = null;
 			if (method.IsStatic)
 			{
-				constructor.Arguments.Add(new NullLiteralExpression());
+				target = CodeBuilder.CreateNullLiteral();
 			}
 			else
 			{
-				constructor.Arguments.Add(((MemberReferenceExpression)source).Target);
+				target = ((MemberReferenceExpression)source).Target;
 			}
-			
-			constructor.Arguments.Add(CodeBuilder.CreateAddressOfExpression(method));
-			Bind(constructor.Target, type.GetConstructors()[0]);
-			BindExpressionType(constructor, type);
-			
-			return constructor;
+			return CodeBuilder.CreateConstructorInvocation(type.GetConstructors()[0],
+									target,
+									CodeBuilder.CreateAddressOfExpression(method));
 		}
 		
 		IMethod GetInvokeMethod(ICallableType type)

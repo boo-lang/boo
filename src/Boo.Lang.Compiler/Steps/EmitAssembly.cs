@@ -1249,7 +1249,20 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Right);
 			EmitCastIfNeeded(type, PopType());
 			
-			_il.Emit(OpCodes.Or);
+			switch (node.Operator)
+			{
+				case BinaryOperatorType.BitwiseOr:
+				{
+					_il.Emit(OpCodes.Or);
+					break;
+				}
+				
+				case BinaryOperatorType.BitwiseAnd:
+				{
+					_il.Emit(OpCodes.And);
+					break;
+				}
+			}
 			
 			PushType(type);
 		}
@@ -1258,6 +1271,7 @@ namespace Boo.Lang.Compiler.Steps
 		{				
 			switch (node.Operator)
 			{
+				case BinaryOperatorType.BitwiseAnd:
 				case BinaryOperatorType.BitwiseOr:
 				{
 					EmitBitwiseOperator(node);
@@ -1374,10 +1388,15 @@ namespace Boo.Lang.Compiler.Steps
 				
 				default:
 				{				
-					NotImplemented(node, node.Operator.ToString());
+					OperatorNotImplemented(node);
 					break;
 				}
 			}
+		}
+		
+		void OperatorNotImplemented(BinaryExpression node)
+		{
+			NotImplemented(node, node.Operator.ToString());
 		}
 		
 		override public void OnTypeofExpression(TypeofExpression node)
@@ -2305,7 +2324,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsValueType)
 			{
-				if (TypeSystemServices.IntType == tag)
+				if (TypeSystemServices.IntType == tag ||
+					tag.IsEnum)
 				{
 					return OpCodes.Ldelem_I4;
 				}
@@ -2339,7 +2359,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsValueType)
 			{
-				if (TypeSystemServices.IntType == tag)
+				if (TypeSystemServices.IntType == tag ||
+					tag.IsEnum)
 				{
 					return OpCodes.Stelem_I4;
 				}

@@ -957,6 +957,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					return "|";
 				}
+				
+				case BinaryOperatorType.BitwiseAnd:
+				{
+					return "&";
+				}
 			}
 			throw new NotImplementedException(op.ToString());
 		}
