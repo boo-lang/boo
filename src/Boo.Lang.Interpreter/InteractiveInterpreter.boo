@@ -260,82 +260,100 @@ class InteractiveInterpreter:
 		
 	def help(obj):		
 		type = (obj as Type) or obj.GetType()
-		describeType("    ", type)
+		DescribeType("    ", type)
 		
-	def describeType(indent as string, type as Type):
+	def DescribeType(indent as string, type as Type):
 		
-		baseTypes = (getBooTypeName(type.BaseType),) + array(getBooTypeName(t) for t in type.GetInterfaces())
+		baseTypes = (GetBooTypeName(type.BaseType),) + array(GetBooTypeName(t) for t in type.GetInterfaces())
 		_print("class ${type.Name}(${join(baseTypes, ', ')}):")
 		_print("")
 		
 		for ctor in type.GetConstructors():
-			_print("${indent}def constructor(${describeParameters(ctor.GetParameters())})")
+			_print("${indent}def constructor(${DescribeParameters(ctor.GetParameters())})")
 			_print("")
 			
 		sortByName = def (lhs as Reflection.MemberInfo, rhs as Reflection.MemberInfo):
 			return lhs.Name.CompareTo(rhs.Name)
 			
 		for f as Reflection.FieldInfo in List(type.GetFields()).Sort(sortByName):
-			_print("${indent}public ${describeModifiers(f)}${f.Name} as ${getBooTypeName(f.FieldType)}")
+			_print("${indent}public ${DescribeField(f)}")
 			_print("")
 			
 		for p as Reflection.PropertyInfo in List(type.GetProperties()).Sort(sortByName):
-			modifiers = describeModifiers(p)
-			params = describePropertyParameters(p.GetIndexParameters())
-			_print("${indent}${modifiers}${p.Name}${params} as ${getBooTypeName(p.PropertyType)}:")
+			_print("${indent}${DescribeProperty(p)}:")
 			_print("${indent}${indent}get") if p.GetGetMethod() is not null
 			_print("${indent}${indent}set") if p.GetSetMethod() is not null
 			_print("")		
 		
 		for m as Reflection.MethodInfo in List(type.GetMethods()).Sort(sortByName):
 			continue if m.IsSpecialName
-			modifiers = describeModifiers(m)
-			returnType = getBooTypeName(m.ReturnType)
-			_print("${indent}${modifiers}def ${m.Name}(${describeParameters(m.GetParameters())}) as ${returnType}")
+			_print("${indent}${DescribeMethod(m)}")
 			_print("")
 			
 		for e as Reflection.EventInfo in List(type.GetEvents()).Sort(sortByName):
-			_print("${indent}${describeModifiers(e)}event ${e.Name} as ${e.EventHandlerType}")
+			_print("${indent}${DescribeEvent(e)}")
 			_print("")
 			
-	def describeModifiers(f as Reflection.FieldInfo):
+	static def DescribeEvent(e as Reflection.EventInfo):
+		return "${DescribeModifiers(e)}event ${e.Name} as ${e.EventHandlerType}"
+			
+	static def DescribeProperty(p as Reflection.PropertyInfo):
+		modifiers = DescribeModifiers(p)
+		params = DescribePropertyParameters(p.GetIndexParameters())
+		return "${modifiers}${p.Name}${params} as ${GetBooTypeName(p.PropertyType)}"
+			
+	static def DescribeField(f as Reflection.FieldInfo):
+		return "${DescribeModifiers(f)}${f.Name} as ${GetBooTypeName(f.FieldType)}"
+			
+	static def DescribeMethod(m as Reflection.MethodInfo):
+		returnType = GetBooTypeName(m.ReturnType)
+		modifiers = DescribeModifiers(m)
+		return "${modifiers}def ${m.Name}(${DescribeParameters(m.GetParameters())}) as ${returnType}"
+			
+	static def DescribeModifiers(f as Reflection.FieldInfo):
 		return "static " if f.IsStatic
 		return ""
 			
-	def describeModifiers(m as Reflection.MethodBase):
+	static def DescribeModifiers(m as Reflection.MethodBase):
 		return "static " if m.IsStatic
 		return ""
 		
-	def describeModifiers(e as Reflection.EventInfo):
-		return describeModifiers(e.GetAddMethod() or e.GetRemoveMethod())
+	static def DescribeModifiers(e as Reflection.EventInfo):
+		return DescribeModifiers(e.GetAddMethod() or e.GetRemoveMethod())
 		
-	def describeModifiers(p as Reflection.PropertyInfo):
+	static def DescribeModifiers(p as Reflection.PropertyInfo):
 		accessor = p.GetGetMethod() or p.GetSetMethod()
-		return describeModifiers(accessor)
+		return DescribeModifiers(accessor)
 			
-	def describePropertyParameters(parameters as (Reflection.ParameterInfo)):
+	static def DescribePropertyParameters(parameters as (Reflection.ParameterInfo)):
 		return "" if 0 == len(parameters)
-		return "(${describeParameters(parameters)})"
+		return "(${DescribeParameters(parameters)})"
 			
-	def describeParameters(parameters as (Reflection.ParameterInfo)):
-		return join(describeParameter(p) for p in parameters, ", ")
+	static def DescribeParameters(parameters as (Reflection.ParameterInfo)):
+		return join(DescribeParameter(p) for p in parameters, ", ")
 		
-	def describeParameter(p as Reflection.ParameterInfo):
-		return "${p.Name} as ${getBooTypeName(p.ParameterType)}"
+	static def DescribeParameter(p as Reflection.ParameterInfo):
+		return "${p.Name} as ${GetBooTypeName(p.ParameterType)}"
 		
-	def getBooTypeName(type as System.Type):
-		return "(${getBooTypeName(type.GetElementType())})" if type.IsArray
+	static def GetBooTypeName(type as System.Type):
+		return "(${GetBooTypeName(type.GetElementType())})" if type.IsArray
 		return "object" if object is type
 		return "string" if string is type
 		return "void" if void is type
 		return "bool" if bool is type		
 		return "byte" if byte is type
+		return "sbyte" if sbyte is type
 		return "short" if short is type
+		return "ushort" if ushort is type
 		return "int" if int is type
+		return "uint" if uint is type
 		return "long" if long is type
+		return "ulong" if ulong is type
 		return "single" if single is type
 		return "double" if double is type
 		return "date" if date is type
+		return "timespan" if timespan is type
+		return "regex" if regex is type
 		return type.FullName
 			
 	private def InitializeStandardReferences():

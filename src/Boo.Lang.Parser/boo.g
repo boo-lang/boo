@@ -1496,6 +1496,7 @@ array_or_expression returns [Expression e]
 						COMMA
 						e=expression { tle.Items.Add(e); }
 					)*
+					(COMMA)?
 				)?
 				{
 					e = tle;
@@ -2128,10 +2129,11 @@ list_literal returns [Expression e]
 					e = lle = new ListLiteralExpression(ToLexicalInfo(lbrack));
 					lle.Items.Add(item);
 				}
-				(
+				(  options { greedy = true; } :
 					COMMA item=expression { lle.Items.Add(item); }
 				)*
 			)
+			(COMMA)?
 		)
 		|
 		{ e = new ListLiteralExpression(ToLexicalInfo(lbrack)); }
