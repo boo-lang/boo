@@ -414,12 +414,19 @@ class GeneratorExpression(Expression):
 	Declarations as DeclarationCollection
 	Iterator as Expression
 	Filter as StatementModifier
-
-class SlicingExpression(Expression):
-	Target as Expression
+	
+class Slice(Node):
 	Begin as Expression
 	End as Expression
 	Step as Expression
+	
+[collection(Slice)]
+class SliceCollection:
+	pass
+
+class SlicingExpression(Expression):
+	Target as Expression
+	Indices as SliceCollection
 
 class AsExpression(Expression):
 	Target as Expression

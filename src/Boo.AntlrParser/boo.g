@@ -1943,11 +1943,9 @@ slicing_expression returns [Expression e]
 				)?
 			)
 			{
-				SlicingExpression se = new SlicingExpression(ToLexicalInfo(lbrack));
+				SlicingExpression se = new SlicingExpression(ToLexicalInfo(lbrack));				
 				se.Target = e;
-				se.Begin = begin;
-				se.End = end;
-				se.Step = step;
+				se.Indices.Add(new Slice(begin, end, step));
 				e = se;
 				
 				begin = end = step = null;

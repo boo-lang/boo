@@ -994,7 +994,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			IArrayType arrayType = (IArrayType)PopType();
 			IType elementType = arrayType.GetElementType();
-			EmitNormalizedArrayIndex(slice.Begin);			
+			
+			Slice index = slice.Indices[0];
+			EmitNormalizedArrayIndex(index.Begin);			
 			
 			Visit(node.Right);
 			EmitCastIfNeeded(elementType, PopType());
@@ -1794,7 +1796,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target); 			
 			IArrayType type = (IArrayType)PopType();
 
-			EmitNormalizedArrayIndex(node.Begin);
+			EmitNormalizedArrayIndex(node.Indices[0].Begin);
 			_il.Emit(GetLoadEntityOpCode(type.GetElementType()));			
 			
 			PushType(type.GetElementType());

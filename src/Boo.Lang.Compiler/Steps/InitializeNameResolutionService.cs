@@ -124,7 +124,7 @@ namespace Boo.Lang.Compiler.Steps
 				catch (Exception x)
 				{
 					Errors.Add(
-						CompilerErrorFactory.InternalError(CompileUnit, x));
+						CompilerErrorFactory.FailedToLoadTypesFromAssembly(asm.FullName, x));
 				}
 			}
 		}

@@ -1396,8 +1396,9 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		bool IsComplexSlicing(SlicingExpression node)
-		{
-			return null != node.End || null != node.Step || OmittedExpression.Default == node.Begin;
+		{						
+			Slice slice = node.Indices[0];
+			return null != slice.End || null != slice.Step || OmittedExpression.Default == slice.Begin;
 		}
 		
 		protected MethodInvocationExpression CreateEquals(BinaryExpression node)
@@ -1412,8 +1413,8 @@ namespace Boo.Lang.Compiler.Steps
 			return expression;
 		}
 		
-		bool CheckComplexSlicingParameters(SlicingExpression node)
-		{			
+		bool CheckComplexSlicingParameters(Slice node)
+		{				
 			if (null != node.Step)
 			{
 				NotImplemented(node, "slicing step");
@@ -1427,8 +1428,7 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				if (!CheckTypeCompatibility(node.Begin, TypeSystemServices.IntType, GetExpressionType(node.Begin)))
-				{
-					Error(node);
+				{					
 					return false;
 				}
 			}			
@@ -1437,7 +1437,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (!CheckTypeCompatibility(node.End, TypeSystemServices.IntType, GetExpressionType(node.End)))
 				{
-					Error(node);
 					return false;
 				}
 			}
@@ -1447,20 +1446,22 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindComplexListSlicing(SlicingExpression node)
 		{
-			if (CheckComplexSlicingParameters(node))
+			Slice slice = node.Indices[0];
+			
+			if (CheckComplexSlicingParameters(slice))
 			{
 				MethodInvocationExpression mie = null;
 				
-				if (null == node.End || node.End == OmittedExpression.Default)
+				if (null == slice.End || slice.End == OmittedExpression.Default)
 				{
 					mie = CodeBuilder.CreateMethodInvocation(node.Target, List_GetRange1);
-					mie.Arguments.Add(node.Begin);
+					mie.Arguments.Add(slice.Begin);
 				}
 				else
 				{				
 					mie = CodeBuilder.CreateMethodInvocation(node.Target, List_GetRange2);
-					mie.Arguments.Add(node.Begin);
-					mie.Arguments.Add(node.End);
+					mie.Arguments.Add(slice.Begin);
+					mie.Arguments.Add(slice.End);
 				}
 				node.ParentNode.Replace(node, mie);				
 			}
@@ -1468,17 +1469,19 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindComplexArraySlicing(SlicingExpression node)
 		{			
-			if (CheckComplexSlicingParameters(node))
+			Slice slice = node.Indices[0];
+			
+			if (CheckComplexSlicingParameters(slice))
 			{
 				MethodInvocationExpression mie = null; 
 				
-				if (null == node.End || node.End == OmittedExpression.Default)
+				if (null == slice.End || slice.End == OmittedExpression.Default)
 				{
-					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange1, node.Target, node.Begin);
+					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange1, node.Target, slice.Begin);
 				}
 				else
 				{
-					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange2, node.Target, node.Begin, node.End);
+					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange2, node.Target, slice.Begin, slice.End);
 				}				
 				
 				BindExpressionType(mie, GetExpressionType(node.Target));
@@ -1497,13 +1500,15 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindComplexStringSlicing(SlicingExpression node)
 		{
-			if (CheckComplexSlicingParameters(node))
+			Slice slice = node.Indices[0];
+			
+			if (CheckComplexSlicingParameters(slice))
 			{
 				MethodInvocationExpression mie = null;
 				
-				if (null == node.End || node.End == OmittedExpression.Default)
+				if (null == slice.End || slice.End == OmittedExpression.Default)
 				{
-					if (NeedsNormalization(node.Begin))
+					if (NeedsNormalization(slice.Begin))
 					{
 						mie = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
 						mie.ExpressionType = TypeSystemServices.StringType;
@@ -1521,16 +1526,16 @@ namespace Boo.Lang.Compiler.Steps
 								CodeBuilder.CreateMethodInvocation(
 									RuntimeServices_NormalizeStringIndex,
 									CodeBuilder.CreateReference(temp),
-									node.Begin)));
+									slice.Begin)));
 					}
 					else
 					{
-						mie = CodeBuilder.CreateMethodInvocation(node.Target, String_Substring_Int, node.Begin);
+						mie = CodeBuilder.CreateMethodInvocation(node.Target, String_Substring_Int, slice.Begin);
 					}
 				}
 				else
 				{	
-					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_Mid, node.Target, node.Begin, node.End);
+					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_Mid, node.Target, slice.Begin, slice.End);
 				}
 				
 				node.ParentNode.Replace(node, mie);
@@ -1553,6 +1558,12 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.IsError(targetType))
 			{
 				Error(node);
+				return;
+			}
+			
+			if (1 != node.Indices.Count)
+			{
+				NotImplemented(node, "multi dimensional slicing");
 				return;
 			}
 			
@@ -1632,8 +1643,10 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
+			Slice index = node.Indices[0];
+			
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
-			mie.Arguments.Add(node.Begin);
+			mie.Arguments.Add(index.Begin);
 			
 			IMethod getter = null;
 			
@@ -3356,11 +3369,13 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceArray(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
+			Slice index = slice.Indices[0];
+			
 			IArrayType sliceTargetType = (IArrayType)GetExpressionType(slice.Target);
 			IType lhsType = GetExpressionType(node.Right);
 			
 			if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType) ||
-				!CheckTypeCompatibility(slice.Begin, TypeSystemServices.IntType, GetExpressionType(slice.Begin)))
+				!CheckTypeCompatibility(index.Begin, TypeSystemServices.IntType, GetExpressionType(index.Begin)))
 			{
 				Error(node);
 				return;
@@ -3372,12 +3387,14 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceProperty(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
+			Slice index = slice.Indices[0];
+			
 			IEntity lhs = GetEntity(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			IMethod setter = null;
 
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
-			mie.Arguments.Add(slice.Begin);
+			mie.Arguments.Add(index.Begin);
 			mie.Arguments.Add(node.Right);			
 			
 			if (EntityType.Property == lhs.EntityType)
@@ -3397,7 +3414,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (!CheckTypeCompatibility(slice.Begin, parameters[0].Type, GetExpressionType(slice.Begin)) ||
+					if (!CheckTypeCompatibility(index.Begin, parameters[0].Type, GetExpressionType(index.Begin)) ||
 						!CheckTypeCompatibility(node.Right, parameters[1].Type, rhs))
 					{					
 						Error(node);

@@ -556,6 +556,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0105", node.LexicalInfo);
 		}
 		
+		public static CompilerError FailedToLoadTypesFromAssembly(string assemblyName, Exception x)
+		{
+			return new CompilerError("BCE0106", LexicalInfo.Empty, x, assemblyName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

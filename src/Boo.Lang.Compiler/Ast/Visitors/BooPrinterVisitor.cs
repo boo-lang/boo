@@ -481,11 +481,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Visit(node.Filter);
 			Write(")");
 		}
-
-		override public void OnSlicingExpression(SlicingExpression node)
+		
+		override public void OnSlice(Slice node)
 		{
-			Visit(node.Target);
-			Write("[");
 			Visit(node.Begin);
 			if (null != node.End || WasOmitted(node.Begin))
 			{
@@ -496,7 +494,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			{
 				Write(":");
 				Visit(node.Step);
-			}			
+			}
+		}
+
+		override public void OnSlicingExpression(SlicingExpression node)
+		{
+			Visit(node.Target);
+			Write("[");
+			WriteCommaSeparatedList(node.Indices);
 			Write("]");
 		}
 		

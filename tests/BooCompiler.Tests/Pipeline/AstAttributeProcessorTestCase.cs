@@ -148,10 +148,7 @@ namespace BooCompiler.Tests
 			// ViewState["<f.Name>"]
 			return new SlicingExpression(
 				new ReferenceExpression("ViewState"),
-				new StringLiteralExpression(f.Name),
-				null, 
-				null
-				);
+				new StringLiteralExpression(f.Name));
 		}
 	}
 }

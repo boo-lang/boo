@@ -86,11 +86,15 @@ abstract class AbstractBooTask(Task):
 				path = Path.Combine(baseDir, reference)
 				if not File.Exists(path):
 					print("${path} doesn't exist.")
-					path = Path.Combine(frameworkDir, reference)
+					asm = Reflection.Assembly.LoadWithPartialName(Path.GetFileNameWithoutExtension(reference))
+				else:
+					asm = Reflection.Assembly.LoadFrom(path)
+			else:
+				asm = Reflection.Assembly.LoadFrom(path)
 					
 			print("reference: ${path}")		
 			try:
-				parameters.References.Add(System.Reflection.Assembly.LoadFrom(path))
+				parameters.References.Add(asm)
 			except x:
 				raise BuildException(
 					Boo.ResourceManager.Format("BCE0041", reference),

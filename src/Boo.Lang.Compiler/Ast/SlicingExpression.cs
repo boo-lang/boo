@@ -38,16 +38,14 @@ namespace Boo.Lang.Compiler.Ast
 		{
  		}
 		
-		public SlicingExpression(Expression target, Expression begin, Expression end, Expression step) : base(target, begin, end, step)
+		public SlicingExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		
-		public SlicingExpression(Expression target, Expression begin) : this(target, begin, null, null)
+		public SlicingExpression(Expression target, Expression begin) : base(target.LexicalInfo)
 		{
-		}
-		
-		public SlicingExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
+			this.Target = target;
+			this.Indices.Add(new Slice(begin));
 		}
 		
 		override public void Accept(IAstVisitor visitor)
