@@ -1,5 +1,6 @@
 import System
-import Boo.IO.TextFile
+import System.IO
+import Boo.IO
 import Gdk from "gdk-sharp" as Gdk
 import Gtk from "gtk-sharp"
 import GtkSourceView from "gtksourceview-sharp"
@@ -8,23 +9,31 @@ class BooEditor(ScrolledWindow):
 
 	static _booSourceLanguage = SourceLanguagesManager().GetLanguageFromMimeType("text/x-boo")
 	
-	_buffer = SourceBuffer(_booSourceLanguage, Highlight: true)	
-	_view = SourceView(_buffer, ShowLineNumbers: true, AutoIndent: true)
+	[getter(Buffer)]
+	_buffer = SourceBuffer(_booSourceLanguage,
+							Highlight: true)
+							
+	_view = SourceView(_buffer,
+						ShowLineNumbers: true,
+						AutoIndent: true,
+						TabsWidth: 4)
 	
 	[getter(FileName)]
 	_fname as string
 	
-	def constructor([required] fname as string):
-		_fname = fname
+	def constructor():
 		self.SetPolicy(PolicyType.Automatic, PolicyType.Automatic)
-		self.Add(_view)
+		self.Add(_view)	
 		
-	Text:
-		get:
-			return _buffer.Text
-			
-		set:
-			_buffer.Text = value
+	def Open([required] fname as string):
+		_buffer.Text = TextFile.ReadFile(fname)
+		_buffer.Modified = false
+		_fname = fname
+		
+	def SaveAs([required] fname as string):
+		TextFile.WriteFile(fname, _buffer.Text)
+		_fname = fname
+		_buffer.Modified = false
 			
 	def Redo():
 		_buffer.Redo()
@@ -46,7 +55,7 @@ class MainWindow(Window):
 		super("Boo Explorer")
 		
 		self.AddAccelGroup(_accelGroup)
-		self.SetDefaultSize(600, 400)
+		self.Maximize()
 		self.DeleteEvent += OnDelete		
 		
 		_notebookOutline.AppendPage(_documentOutline, Label("Document Outline"))
@@ -70,15 +79,19 @@ class MainWindow(Window):
 		self.NewDocument()
 		
 	private def AppendEditor(editor as BooEditor):
-		_notebookEditors.AppendPage(editor, Label(editor.FileName))
+		label = editor.FileName or "unnamed.boo"
+		_notebookEditors.AppendPage(editor, Label(label))
 		_editors.Add(editor)
 		editor.ShowAll()
+		_notebookEditors.CurrentPage = _notebookEditors.NPages-1
 		
 	def NewDocument():
-		self.AppendEditor(BooEditor("unnamed.boo"))
+		self.AppendEditor(BooEditor())
 		
 	def OpenDocument(fname as string):
-		self.AppendEditor(BooEditor(fname, Text: ReadFile(fname)))
+		editor = BooEditor()
+		editor.Open(fname)
+		self.AppendEditor(editor)
 		
 	private def CreateMenuBar():
 		mb = MenuBar()
@@ -103,7 +116,7 @@ class MainWindow(Window):
 		
 		tools = Menu()
 		tools.Append(mi=ImageMenuItem(Stock.Execute, _accelGroup, Activated: _menuItemExecute_Activated))
-		mi.AddAccelerator("activate", _accelGroup, AccelKey(Gdk.Key.F5, Gdk.ModifierType.ControlMask, AccelFlags.Visible))
+		mi.AddAccelerator("activate", _accelGroup, AccelKey(Gdk.Key.F5, Enum.ToObject(Gdk.ModifierType, 0), AccelFlags.Visible))
 		
 		documents = Menu()
 		documents.Append(ImageMenuItem(Stock.Close, _accelGroup))
@@ -125,7 +138,8 @@ class MainWindow(Window):
 		
 		compiler = Boo.Lang.Compiler.BooCompiler()
 		compiler.Parameters.Input.Add(
-				Boo.Lang.Compiler.IO.StringInput("<script>", CurrentEditor.Text))
+				Boo.Lang.Compiler.IO.StringInput(CurrentEditor.FileName or "unnamed.boo",
+												CurrentEditor.Buffer.Text))
 		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Run()
 		
 		result = compiler.Run()
@@ -135,8 +149,9 @@ class MainWindow(Window):
 		self.NewDocument()
 				
 	private def _menuItemOpen_Activated(sender, args as EventArgs):
-		fs = FileSelection("Select a file", SelectMultiple: true)
-		try:
+		fs = FileSelection("Open file", SelectMultiple: true)
+		fs.Complete("*.boo")
+		try:			
 			if cast(int, ResponseType.Ok) == fs.Run():
 				for fname in fs.Selections:
 					self.OpenDocument(fname)
@@ -144,7 +159,16 @@ class MainWindow(Window):
 			fs.Hide()
 	
 	private def _menuItemSave_Activated(sender, args as EventArgs):
-		pass
+		editor = CurrentEditor
+		fname = editor.FileName
+		if fname is null:
+			fs = FileSelection("Save As", SelectMultiple: false)
+			if cast(int, ResponseType.Ok) != fs.Run():
+				return
+			fs.Hide()			
+			fname = fs.Selections[0]			
+		editor.SaveAs(fname)
+		_notebookEditors.SetTabLabelText(editor, editor.FileName)
 		
 	private def _menuItemUndo_Activated(sender, args as EventArgs):
 		CurrentEditor.Undo()
