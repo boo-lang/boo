@@ -9,6 +9,10 @@ server.Listen(1)
 while true:
 	socket = server.Accept()
 	using stream=NetworkStream(socket, true):
-		using reader=StreamReader(stream):
-			print(reader.ReadLine())
+		print(StreamReader(stream).ReadLine())
+
+		writer=StreamWriter(stream)
+		writer.WriteLine("pong!")
+		writer.Flush()
+
 	
