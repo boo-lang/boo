@@ -519,6 +519,12 @@ namespace Boo.Lang.Compiler.Tests
 		{
 			RunCompilerTestCase("array8.boo");
 		}
+		
+		[Test]
+		public void ArrayTypeInferenceForCommonBaseTypes()
+		{
+			RunCompilerTestCase("array9.boo");
+		}
 
 		[Test]
 		public void TestMatch0()

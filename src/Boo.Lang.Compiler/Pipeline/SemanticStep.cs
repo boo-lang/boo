@@ -1027,7 +1027,22 @@ namespace Boo.Lang.Compiler.Pipeline
 				return BindingManager.GetPromotedNumberType(current, candidate);
 			}
 			
-			return BindingManager.ObjectTypeBinding;
+			ITypeBinding obj = BindingManager.ObjectTypeBinding;
+			
+			if (current.IsClass && candidate.IsClass)
+			{
+				if (current ==  obj || candidate == obj)
+				{
+					return obj;
+				}
+				if (current.GetTypeDepth() < candidate.GetTypeDepth())
+				{
+					return GetMostGenericType(current.BaseType, candidate);
+				}			
+				return GetMostGenericType(current, candidate.BaseType);
+			}
+			
+			return obj;
 		}
 		
 		ITypeBinding GetMostGenericType(ExpressionCollection args)

@@ -47,8 +47,9 @@ class MainForm(Form):
 		self.Text = "Boo Explorer"
 		self.IsMdiContainer = true
 
-		Controls.Add(_dockManager)
-		Controls.Add(_status)
+		Controls.AddRange((
+					_dockManager,
+					_status))
 		ResumeLayout(false)
 		
 		_timer = Timer(Tick: _timer_Tick, Interval: 50ms.TotalMilliseconds)
