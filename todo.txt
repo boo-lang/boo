@@ -1,10 +1,12 @@
-﻿* CallableType
-	* para funçoes
-	* para delegates (o tipo de um evento seria o CallableType equivalente ao delegate)
-
-* declarar novos delegates
+﻿* declarar novos delegates
 
 * usar os delegates declarados
+
+* summary of class status (http://www.go-mono.com/class-status.html)
+
+* CallableType
+	* para funçoes
+	* para delegates (o tipo de um evento seria o CallableType equivalente ao delegate)
 
 * map(callable, enumerable)
 

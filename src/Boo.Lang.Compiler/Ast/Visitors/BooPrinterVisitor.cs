@@ -211,20 +211,30 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteLine(":");
 			WriteBlock(node.Body);
 		}
+		
+		void WriteCallableDefinitionHeader(string keyword, CallableDefinition node)
+		{
+			WriteAttributes(node.Attributes, true);
+			WriteModifiers(node);
+			WriteKeyword(keyword);
+			Write(node.Name);
+			WriteParameterList(node.Parameters, node.VariableArguments);
+			WriteTypeReference(node.ReturnType);
+			if (node.ReturnTypeAttributes.Count > 0)
+			{
+				Write(" ");
+				WriteAttributes(node.ReturnTypeAttributes, false);
+			}
+		}
+		
+		override public void OnCallableDefinition(CallableDefinition node)
+		{
+			WriteCallableDefinitionHeader("callable ", node);
+		}
 
 		override public void OnMethod(Method m)
 		{
-			WriteAttributes(m.Attributes, true);
-			WriteModifiers(m);
-			WriteKeyword("def ");
-			Write(m.Name);
-			WriteParameterList(m.Parameters, m.VariableArguments);
-			WriteTypeReference(m.ReturnType);
-			if (m.ReturnTypeAttributes.Count > 0)
-			{
-				Write(" ");
-				WriteAttributes(m.ReturnTypeAttributes, false);
-			}
+			WriteCallableDefinitionHeader("def ", m);
 			WriteLine(":");
 			WriteBlock(m.Body);
 		}

@@ -1444,5 +1444,11 @@ namespace Boo.Lang.Compiler.Tests
 		{
 			RunCompilerTestCase("UsingNestedType.boo");
 		}
+		
+		[Test]
+		public void CallableTypeDefinition()
+		{
+			RunCompilerTestCase("CallableTypeDefinition.boo");
+		}
 	}
 }

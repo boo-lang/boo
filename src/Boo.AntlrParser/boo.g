@@ -338,8 +338,33 @@ type_definition [TypeMemberCollection container]:
 	(
 		class_definition[container] |
 		interface_definition[container] |
-		enum_definition[container]
+		enum_definition[container] |
+		callable_definition[container]
 	)			
+	;
+	
+protected
+callable_definition [TypeMemberCollection container]
+	{
+		CallableDefinition cd = null;
+		TypeReference returnType = null;
+		bool variableArguments = false;
+	}:
+	CALLABLE! id:ID
+	{
+		cd = new CallableDefinition(ToLexicalInfo(id));
+		cd.Name = id.getText();
+		cd.Modifiers = _modifiers;
+		AddAttributes(cd.Attributes);
+		container.Add(cd);
+	}
+	LPAREN! variableArguments=parameter_declaration_list[cd.Parameters] RPAREN!
+	(AS! returnType=type_reference { cd.ReturnType=returnType; })?			
+	eos
+	docstring[cd]
+	{
+		cd.VariableArguments = variableArguments;
+	}
 	;
 
 protected

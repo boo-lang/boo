@@ -180,6 +180,12 @@ namespace Boo.AntlrParser.Tests
 		}
 		
 		[Test]
+		public void CallableDefinitions()
+		{
+			RunParserTestCase("CallableDefinitions.boo");
+		}
+		
+		[Test]
 		public void StringEscapeSequences()
 		{
 			RunParserTestCase("StringEscapeSequences.boo");

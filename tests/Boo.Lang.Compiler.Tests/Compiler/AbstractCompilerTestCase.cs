@@ -48,14 +48,12 @@ namespace Boo.Lang.Compiler.Tests
 		[TestFixtureSetUp]
 		public virtual void SetUpFixture()
 		{
-			 Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Error));
-
-			string booAssemblyPath = typeof(Boo.Lang.List).Assembly.Location;
-			string booLangCompilerAssemblyPath = typeof(Boo.Lang.Compiler.BooCompiler).Assembly.Location;
-			string thisAssemblyPath = GetType().Assembly.Location;
-			File.Copy(booAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(booAssemblyPath)), true);
-			File.Copy(booLangCompilerAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(booLangCompilerAssemblyPath)), true);
-			File.Copy(thisAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(thisAssemblyPath)), true);
+			Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Error));
+			
+			CopyAssembly(typeof(Boo.Lang.List).Assembly);
+			CopyAssembly(typeof(Boo.Lang.Compiler.BooCompiler).Assembly);
+			CopyAssembly(GetType().Assembly);
+			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
 			
 			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, "compilation");
 			
@@ -64,7 +62,13 @@ namespace Boo.Lang.Compiler.Tests
 			//_parameters.TraceSwitch.Level = TraceLevel.Verbose;
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			_parameters.Pipeline = SetUpCompilerPipeline();
-			
+			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);			
+		}
+		
+		public void CopyAssembly(System.Reflection.Assembly assembly)
+		{
+			string location = assembly.Location;
+			File.Copy(location, Path.Combine(Path.GetTempPath(), Path.GetFileName(location)), true);			
 		}
 		
 		[TestFixtureTearDown]

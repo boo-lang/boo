@@ -43,6 +43,12 @@ class ArrayTypeReference(TypeReference):
 [collection(TypeReference)]
 class TypeReferenceCollection:
 	pass
+	
+class CallableDefinition(TypeMember, INodeWithParameters):
+	Parameters as ParameterDeclarationCollection
+	ReturnType as TypeReference
+	ReturnTypeAttributes as AttributeCollection
+	VariableArguments as bool
 
 abstract class TypeDefinition(TypeMember):
 	Members as TypeMemberCollection
@@ -109,14 +115,10 @@ class CallableBlockExpression(Expression, INodeWithParameters):
 	[auto]
 	Body as Block
 
-class Method(TypeMember, INodeWithParameters):
-	Parameters as ParameterDeclarationCollection
-	ReturnType as TypeReference
-	ReturnTypeAttributes as AttributeCollection
+class Method(CallableDefinition):	
 	[auto]
 	Body as Block
 	Locals as LocalCollection
-	VariableArguments as bool
 
 class Constructor(Method):
 	pass
