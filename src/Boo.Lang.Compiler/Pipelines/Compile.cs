@@ -31,29 +31,10 @@ namespace Boo.Lang.Compiler.Pipelines
 	using System;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class Compile : Parse
+	public class Compile : ResolveExpressions
 	{
 		public Compile()
-		{			
-			Add(new InitializeTypeSystemServices());
-			Add(new PreErrorChecking());
-			Add(new InitializeNameResolutionService());
-			Add(new IntroduceGlobalNamespaces());
-			Add(new TransformCallableDefinitions());
-			Add(new BindTypeDefinitions());			
-			Add(new BindNamespaces());
-			Add(new BindBaseTypes());
-			Add(new BindAndApplyAttributes());
-			Add(new ExpandMacros());
-			Add(new IntroduceModuleClasses());
-			Add(new NormalizeTypeMembers());
-			Add(new NormalizeStatementModifiers());
-			
-			Add(new BindTypeDefinitions());
-			Add(new BindBaseTypes());
-			
-			Add(new BindTypeMembers());			
-			Add(new ProcessMethodBodiesWithDuckTyping());
+		{				
 			Add(new StricterErrorChecking());
 			Add(new NormalizeIterationStatements());
 			

@@ -73,12 +73,19 @@ namespace BooCompiler.Tests
 
 	[TestFixture]
 	public class CompilerErrorsTestFixture : AbstractCompilerTestCase
-	{	
+	{			
+		public class PrintErrors : Boo.Lang.Compiler.Pipelines.Compile
+		{
+			override public void Run(CompilerContext context)
+			{
+				base.Run(context);
+				RunStep(context, new Boo.Lang.Compiler.Steps.PrintErrors());
+			}
+		}
+		
 		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
-			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Compile();
-			pipeline.Add(new Boo.Lang.Compiler.Steps.PrintErrors());
-			return pipeline;
+			return new PrintErrors();
 		}
 		
 		protected override bool IgnoreErrors

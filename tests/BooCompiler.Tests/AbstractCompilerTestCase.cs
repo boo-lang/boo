@@ -48,10 +48,19 @@ namespace BooCompiler.Tests
 		
 		protected StringWriter _output;
 		
+		protected bool VerifyGeneratedAssemblies
+		{
+			get
+			{
+				return Boo.Lang.Compiler.Steps.PEVerify.IsSupported &&
+						GetEnvironmentFlag("peverify", true);
+			}
+		}
+		
 		[TestFixtureSetUp]
 		public virtual void SetUpFixture()
 		{
-			if (PEVerify.IsSupported)
+			if (VerifyGeneratedAssemblies)
 			{
 				CopyDependencies();
 			}
@@ -109,8 +118,7 @@ namespace BooCompiler.Tests
 		{
 			CompilerPipeline pipeline = null;
 			
-			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported &&
-				GetEnvironmentFlag("peverify", true))
+			if (VerifyGeneratedAssemblies)
 			{			
 				pipeline = new CompileToFileAndVerify();				
 			}

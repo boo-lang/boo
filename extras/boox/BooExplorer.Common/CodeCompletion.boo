@@ -49,8 +49,8 @@ class CodeCompletionHunter(ProcessMethodBodiesWithDuckTyping):
 	override protected def ProcessMemberReferenceExpression(node as MemberReferenceExpression):
 		if node.Name == '__codecomplete__':
 			_members = MyGetReferenceNamespace(node).GetMembers()
-				
-		super(node)
+		else:
+			super(node)
 		
 	protected def MyGetReferenceNamespace(expression as MemberReferenceExpression) as INamespace:		
 		target as Expression = expression.Target
@@ -64,7 +64,7 @@ class CodeCompletionHunter(ProcessMethodBodiesWithDuckTyping):
 		return cast(INamespace, target.Entity)
 	
 	protected static def MakePipeline(hunter):
-		pipeline = Compile()
+		pipeline = ResolveExpressions(BreakOnErrors: false)
 		index = pipeline.Find(Boo.Lang.Compiler.Steps.ProcessMethodBodiesWithDuckTyping)
 		pipeline[index] = hunter
 		return pipeline

@@ -79,10 +79,26 @@ namespace Boo.Lang.Compiler
 		}
 		
 		protected Boo.Lang.List _items;
+		
+		protected bool _breakOnErrors;
 
 		public CompilerPipeline()
 		{
 			_items = new Boo.Lang.List();
+			_breakOnErrors = true;
+		}
+		
+		public bool BreakOnErrors
+		{
+			get
+			{
+				return _breakOnErrors;
+			}
+			
+			set
+			{
+				_breakOnErrors = value;
+			}
 		}
 		
 		public CompilerPipeline Add(ICompilerStep step)
@@ -205,30 +221,40 @@ namespace Boo.Lang.Compiler
 		{
 			foreach (ICompilerStep step in _items)
 			{				
-				OnBeforeStep(context, step);		
+				RunStep(context, step);
 				
-				step.Initialize(context);
-				try
+				if (_breakOnErrors && context.Errors.Count > 0)
 				{
-					step.Run();
-				}
-				catch (Boo.Lang.Compiler.CompilerError error)
-				{
-					context.Errors.Add(error);
-				}
-				catch (System.Exception x)
-				{
-					context.Errors.Add(CompilerErrorFactory.StepExecutionError(x, step));
-				}
-				finally
-				{				
-					OnAfterStep(context, step);
+					break;
 				}
 			}
 			
 			foreach (ICompilerStep step in _items)
 			{
 				step.Dispose();
+			}
+		}
+		
+		protected void RunStep(CompilerContext context, ICompilerStep step)
+		{
+			OnBeforeStep(context, step);	
+				
+			step.Initialize(context);
+			try
+			{
+				step.Run();
+			}
+			catch (Boo.Lang.Compiler.CompilerError error)
+			{
+				context.Errors.Add(error);
+			}
+			catch (System.Exception x)
+			{
+				context.Errors.Add(CompilerErrorFactory.StepExecutionError(x, step));
+			}
+			finally
+			{				
+				OnAfterStep(context, step);
 			}
 		}
 	}

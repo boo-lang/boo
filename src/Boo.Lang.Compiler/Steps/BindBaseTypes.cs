@@ -42,10 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{		
-			if (0 == Errors.Count)
-			{
-				Visit(CompileUnit.Modules);
-			}
+			Visit(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)

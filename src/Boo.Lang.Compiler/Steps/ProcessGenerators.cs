@@ -43,10 +43,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			if (0 == Errors.Count)
-			{
-				Visit(CompileUnit.Modules);
-			}
+			Visit(CompileUnit.Modules);
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)

@@ -45,11 +45,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			if (0 == Errors.Count)
-			{
-				Initialize();
-				Visit(CompileUnit);
-			}
+			Initialize();
+			Visit(CompileUnit);
 		}
 		
 		void Initialize()

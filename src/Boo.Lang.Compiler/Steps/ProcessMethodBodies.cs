@@ -130,11 +130,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{	
-			if (Errors.Count > 0)
-			{
-				return;
-			}
-			
 			NameResolutionService.Reset();
 			
 			_currentMethod = null;
