@@ -72,7 +72,13 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static object ModuleBuilderKey = new object();
 		
-		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Bindings.Types.String, Bindings.Types.ObjectArray });
+		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.ObjectArray });
+		
+		static MethodInfo String_Format1 = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.Object });
+		
+		static MethodInfo String_Format2 = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.Object, Types.Object });
+		
+		static MethodInfo String_Format3 = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.Object, Types.Object, Types.Object });
 		
 		static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		
@@ -127,6 +133,14 @@ namespace Boo.Lang.Compiler.Pipeline
 		Type PeekTypeOnStack()
 		{
 			return (Type)_types.Peek();
+		}
+		
+		void AssertStackIsEmpty(string message)
+		{
+			if (0 != _types.Count)
+			{
+				throw new ApplicationException(message);
+			}
 		}
 		
 		public override void Run()
@@ -315,8 +329,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			// void we need to pop its return value to leave
 			// the stack sane
 			if (PopType() != Bindings.Types.Void)
-			{
+			{				
 				_il.Emit(OpCodes.Pop);
+				AssertStackIsEmpty("stack must be empty after a statement!");
 			}
 		}
 		
@@ -422,7 +437,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{	
 			// when the parent is not a statement we need to leave
 			// the value on the stack
-			//bool leaveValueOnStack = node.ParentNode.NodeType != NodeType.ExpressionStatement;
+			bool leaveValueOnStack = node.ParentNode.NodeType != NodeType.ExpressionStatement;
 			
 			if (BinaryOperatorType.Assign == node.Operator)
 			{				
@@ -431,13 +446,24 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					case BindingType.Local:
 					{
-						node.Right.Switch(this); // leaves type on stack	
-						_il.Emit(OpCodes.Dup);
+						node.Right.Switch(this); // leaves type on stack
+						
+						Type typeOnStack = null;
+						
+						if (leaveValueOnStack)
+						{	
+							typeOnStack = PeekTypeOnStack();
+							_il.Emit(OpCodes.Dup);
+						}
+						else
+						{
+							typeOnStack = PopType();
+						}
 						
 						// todo: assignment result must be type on the left in the
 						// case of casting
 						LocalBuilder local = ((LocalBinding)binding).LocalBuilder;
-						EmitCastIfNeeded(local.LocalType, PeekTypeOnStack());
+						EmitCastIfNeeded(local.LocalType, typeOnStack);
 						_il.Emit(OpCodes.Stloc, local);
 						break;
 					}
@@ -445,14 +471,14 @@ namespace Boo.Lang.Compiler.Pipeline
 					case BindingType.Property:
 					{
 						IPropertyBinding property = (IPropertyBinding)binding;						
-						SetProperty(node, property, node.Left, node.Right, true);
+						SetProperty(node, property, node.Left, node.Right, leaveValueOnStack);
 						break;
 					}
 					
 					case BindingType.Field:
 					{
 						IFieldBinding field = (IFieldBinding)binding;
-						SetField(node, field, node.Left, node.Right, true);
+						SetField(node, field, node.Left, node.Right, leaveValueOnStack);
 						break;
 					}
 						
@@ -461,7 +487,12 @@ namespace Boo.Lang.Compiler.Pipeline
 						Errors.NotImplemented(node, binding.ToString());
 						break;
 					}
-				}				
+				}		
+				if (!leaveValueOnStack)
+				{
+					
+					PushType(Types.Void);
+				}
 			}
 			else if (BinaryOperatorType.InPlaceAdd == node.Operator)
 			{
@@ -635,10 +666,42 @@ namespace Boo.Lang.Compiler.Pipeline
 		{			              
 			_il.Emit(OpCodes.Ldstr, node.Template);
 			
-			// new object[node.Arguments.Count]
-			EmitArray(Types.Object, node.Arguments);
-			
-			_il.EmitCall(OpCodes.Call, String_Format, null);
+			int argc = node.Arguments.Count;
+			if (argc > 3)
+			{
+				// new object[node.Arguments.Count]
+				EmitArray(Types.Object, node.Arguments);
+				_il.EmitCall(OpCodes.Call, String_Format, null);
+			}
+			else
+			{
+				for (int i=0; i<argc; ++i)
+				{
+					node.Arguments[i].Switch(this);
+					EmitCastIfNeeded(Types.Object, PopType());
+				}
+				
+				switch (argc)
+				{
+					case 1:
+					{
+						_il.EmitCall(OpCodes.Call, String_Format1, null);
+						break;
+					}
+					
+					case 2:
+					{
+						_il.EmitCall(OpCodes.Call, String_Format2, null);
+						break;
+					}
+					
+					case 3:
+					{
+						_il.EmitCall(OpCodes.Call, String_Format3, null);
+						break;
+					}
+				}
+			}
 			PushType(Types.String);
 		}
 		

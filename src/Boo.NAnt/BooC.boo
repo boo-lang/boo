@@ -56,7 +56,7 @@ class BooC(Task):
 		get:
 			return _references
 		set:
-			references = value
+			_references = value
 			
 	[TaskAttribute("pipeline")]
 	Pipeline:
