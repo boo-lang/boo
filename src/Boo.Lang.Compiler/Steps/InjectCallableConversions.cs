@@ -201,6 +201,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void LeaveGeneratorExpression(GeneratorExpression node)
+		{
+			Expression newExpression = Convert(
+																GetConcreteExpressionType(node.Expression),
+																node.Expression);
+			if (null != newExpression)
+			{
+				node.Expression = newExpression;
+			}
+		}
+		
 		void ConvertExpressions(ExpressionCollection items)
 		{
 			for (int i=0; i<items.Count; ++i)
