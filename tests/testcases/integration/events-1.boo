@@ -21,3 +21,12 @@ Assert.AreSame(EventHandler, eventInfo.EventHandlerType)
 
 CheckEventMethod("add_Click", eventInfo.GetAddMethod())
 CheckEventMethod("remove_Click", eventInfo.GetRemoveMethod())
+
+raiseMethod = eventInfo.GetRaiseMethod()
+assert raiseMethod is not null
+assert raiseMethod.ReturnType is void
+assert raiseMethod.IsPublic
+assert raiseMethod.IsSpecialName
+assert 2 == len(raiseMethod.GetParameters())
+assert raiseMethod.GetParameters()[0] is object
+assert raiseMethod.GetParameters()[1] is EventArgs
