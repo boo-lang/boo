@@ -223,6 +223,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ReferenceExpression CreateLocalReference(string name, InternalLocal entity)
 		{
+			return CreateTypedReference(name, entity);
+		}
+		
+		public ReferenceExpression CreateTypedReference(string name, ITypedEntity entity)
+		{
 			ReferenceExpression expression = new ReferenceExpression(name);
 			expression.Entity = entity;
 			expression.ExpressionType = entity.Type;
@@ -236,6 +241,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				case EntityType.Local: return CreateReference((InternalLocal)entity);
 				case EntityType.Field: return CreateReference((IField)entity);
 				case EntityType.Parameter: return CreateReference((InternalParameter)entity);
+				case EntityType.Custom: return CreateTypedReference(entity.Name, (ITypedEntity)entity);
 			}
 			throw new ArgumentException("entity");
 		}

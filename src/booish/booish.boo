@@ -309,7 +309,7 @@ class InteractiveInterpreter:
 		
 	def Parse(code as string):
 		_parser.Parameters.Input.Clear()
-		_parser.Parameters.Input.Add(StringInput("src", code))
+		_parser.Parameters.Input.Add(StringInput("interactive", code))
 		return _parser.Run()
 		
 	def Declare([required] name as string,

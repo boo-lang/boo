@@ -69,6 +69,12 @@ class InteractiveInterpreterTestFixture:
 			Eval("print(name);print(age)")
 		newLine = Environment.NewLine
 		Assert.AreEqual("boo${newLine}3${newLine}", console.ToString())
+		
+	[Test]
+	def Unpacking():
+		Eval("a, b = 1, 2")
+		assert 1 == _interpreter.GetValue("a")
+		assert 2 == _interpreter.GetValue("b")
 			
 	[Test]
 	def ChangeInterpreterValues():
@@ -83,6 +89,16 @@ class InteractiveInterpreterTestFixture:
 		Eval("import Booish.Tests from Booish.Tests")
 		Eval("value = InteractiveInterpreterTestFixture.LifeTheUniverseAndEverything")
 		assert 42 == _interpreter.GetValue("value")
+		
+	/*
+	[Test]
+	def ImportingTwiceIsNoProblem():
+		Eval("import Booish.Tests from Booish.Tests")
+		Eval("import Booish.Tests from Booish.Tests")
+		
+		Eval("value = InteractiveInterpreterTestFixture.LifeTheUniverseAndEverything")
+		assert 42 == _interpreter.GetValue("value")
+	*/
 		
 	[Test]
 	def AssignmentPreservesType():
@@ -229,6 +245,16 @@ for i in range(3):
 	l.Add(i*2)
 """)
 		Assert.AreEqual([0, 2, 4], _interpreter.GetValue("l"))
+		
+	[Test]
+	def UnpackingLoop():
+		Eval("""
+l = []
+for i, j in ((1, 2), (3, 4)):
+	l.Add((j, i))
+""")
+
+		Assert.AreEqual([(2, 1), (4, 3)], _interpreter.GetValue("l"))
 		
 	def Eval(code as string):
 		result = _interpreter.Eval(code)
