@@ -37,12 +37,31 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		IMethod _current;
 		
+		IType _asyncResultType;
+		
+		IMethod _asyncResultTypeAsyncDelegateGetter;
+		
 		override public void Run()
 		{
 			if (0 == Errors.Count)
 			{
+				Initialize();
 				Visit(CompileUnit);
 			}
+		}
+		
+		void Initialize()
+		{
+			Type type = typeof( System.Runtime.Remoting.Messaging.AsyncResult);
+			_asyncResultType = TypeSystemServices.Map(type);
+			_asyncResultTypeAsyncDelegateGetter = (IMethod)TypeSystemServices.Map(type.GetProperty("AsyncDelegate").GetGetMethod());
+		}
+		
+		override public void Dispose()
+		{
+			_asyncResultType = null;
+			_asyncResultTypeAsyncDelegateGetter = null;
+			base.Dispose();
 		}
 		
 		override public void OnMethod(Method node)
@@ -117,10 +136,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			Expression newTarget = Convert(node.Target.ExpressionType, node.Target);
-			if (null != newTarget)
+			if (IsEndInvokeOnStandaloneMethodReference(node) &&
+				AstUtil.IsTargetOfMethodInvocation(node))
 			{
-				node.Target = newTarget;
+				ReplaceEndInvokeTargetByGetAsyncDelegate((MethodInvocationExpression)node.ParentNode);
+			}
+			else
+			{
+				Expression newTarget = Convert(node.Target.ExpressionType, node.Target);
+				if (null != newTarget)
+				{
+					node.Target = newTarget;
+				}
 			}
 		}
 		
@@ -153,6 +180,38 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			return null;
+		}
+		
+		bool IsEndInvokeOnStandaloneMethodReference(MemberReferenceExpression node)
+		{
+			if (IsStandaloneMethodReference(node.Target))
+			{
+				InternalCallableType type = (InternalCallableType)node.Target.ExpressionType;
+				return type.GetEndInvokeMethod() == node.Entity;
+			}
+			return false;
+		}
+		
+		CastExpression CreateCast(IType type, Expression target)
+		{
+			CastExpression expression = new CastExpression();
+			expression.Type = CreateTypeReference(type);
+			expression.Target = target;
+			BindExpressionType(expression, type);
+			return expression;
+		}
+		
+		void ReplaceEndInvokeTargetByGetAsyncDelegate(MethodInvocationExpression node)
+		{
+			Expression asyncResult = node.Arguments[0];
+			MemberReferenceExpression endInvoke = (MemberReferenceExpression)node.Target;
+			IType callableType = ((IMember)endInvoke.Entity).DeclaringType;
+			
+			endInvoke.Target = CreateCast(callableType,
+									CreateMethodInvocation(
+										CreateCast(_asyncResultType, asyncResult.CloneNode()),
+										_asyncResultTypeAsyncDelegateGetter));
+										
 		}
 		
 		bool IsNull(IType type)

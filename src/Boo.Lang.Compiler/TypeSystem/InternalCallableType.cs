@@ -27,6 +27,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (IMethod)_typeDefinition.Members["Invoke"].Entity;
 		}
 		
+		public IMethod GetEndInvokeMethod()
+		{
+			return (IMethod)_typeDefinition.Members["EndInvoke"].Entity;
+		}
+		
 		override public bool IsAssignableFrom(IType other)
 		{
 			return TypeSystemServices.IsCallableTypeAssignableFrom(this, other);
