@@ -15,12 +15,24 @@ import Boo.Lang.Compiler.Pipeline.Definitions
 import Boo.AntlrParser
 import Boo.Lang.Compiler.Ast
 
+class ConsoleCapture(IDisposable):	
+	_console = StringWriter()
+	_old
+	
+	def constructor():
+		_old = Console.Out
+		Console.SetOut(_console)
+		
+	override def ToString():
+		return _console.ToString()
+	
+	def Dispose():
+		Console.SetOut(_old)
+
 class BooEditor(Content):
 
 	_editor as TextEditorControl
 	_main as MainForm
-	_oldStdOut as TextWriter
-	_compileOutput as TextWriter
 
 	[getter(FileName)]
 	_fname as string
@@ -142,35 +154,25 @@ class BooEditor(Content):
 		compiler.Parameters.References.Add(typeof(Form).Assembly)
 		compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
 
-		RedirectConsoleOut()
-
-		started = date.Now
-		result = compiler.Run()
-		finished = date.Now
-		_main.StatusText = "Compilation finished in ${finished-started} with ${len(result.Errors)} error(s)."
-
-		ClearTaskList()
-		if len(result.Errors):
-			UpdateTaskList(result.Errors)
-		else:			
-			try:
-				result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
-			except x:
-				print(x)
-				
-		RestoreConsoleOut() 
-		UpdateDebugOutputPane()		
-
-	def RedirectConsoleOut():
-		_oldStdOut = Console.Out
-		_compileOutput = StringWriter()
-		Console.SetOut(_compileOutput)
+		using console=ConsoleCapture():
+			
+			started = date.Now
+			result = compiler.Run()
+			finished = date.Now
+			_main.StatusText = "Compilation finished in ${finished-started} with ${len(result.Errors)} error(s)."
 	
-	def RestoreConsoleOut():
-		Console.SetOut(_oldStdOut)
-
-	def UpdateDebugOutputPane():
-		text = _compileOutput.ToString()
+			ClearTaskList()
+			if len(result.Errors):
+				UpdateTaskList(result.Errors)
+			else:			
+				try:
+					result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
+				except x:
+					print(x)		
+			
+			UpdateOutputPane(console.ToString())		
+	
+	def UpdateOutputPane(text as string):
 		_main.OutputPane.SetBuildText(text)
 		_main.ShowOutputPane() if len(text)
 		

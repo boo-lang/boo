@@ -59,7 +59,7 @@ class PrettyPrinter(BooPrinterVisitor):
 	override def WriteOperator(text as string):
 		_writer.Write("<span class='operator'>${Server.HtmlEncode(text)}</span>")
 		
-	override def OnStringFormattingExpression(node as StringFormattingExpression):
+	override def OnExpressionInterpolationExpression(node as ExpressionInterpolationExpression):
 		_writer.Write("<span class='string'>")
 		super(node)	
 		_writer.Write("</span>")

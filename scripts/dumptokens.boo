@@ -27,7 +27,6 @@ if "/r" in argv:
 else:
 	lexer = BooParser.CreateBooLexer("stdin", reader)
 while token=lexer.nextToken():
-	if token.Type == Token.EOF_TYPE:
-		break
+	break if token.Type == Token.EOF_TYPE
 	print(token)
 
