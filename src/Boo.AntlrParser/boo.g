@@ -560,8 +560,11 @@ base_types[TypeReferenceCollection container]
 	{
 		TypeReference tr = null;
 	}:
-	LPAREN tr=type_reference { container.Add(tr); }
-	(COMMA tr=type_reference { container.Add(tr); })*
+	LPAREN 
+	(
+		tr=type_reference { container.Add(tr); }
+		(COMMA tr=type_reference { container.Add(tr); })*
+	)?
 	RPAREN
 	;
 			
