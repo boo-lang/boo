@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -45,15 +45,7 @@ namespace Boo.Ast
 		{
 		}
 		
-		public TryStatement(antlr.Token token, Block successBlock, Block ensureBlock) : base(token, successBlock, ensureBlock)
-		{
-		}
-		
-		internal TryStatement(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal TryStatement(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public TryStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

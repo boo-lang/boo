@@ -43,11 +43,7 @@ namespace Boo.Ast
 		{
 		}
 		
-		internal WhileStatement(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal WhileStatement(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public WhileStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

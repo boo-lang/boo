@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -37,22 +37,17 @@ namespace Boo.Ast
 	{		
 		public GivenStatement()
 		{
-			_whenClauses = new WhenClauseCollection(this);
  		}
 		
 		public GivenStatement(Expression expression, Block otherwiseBlock) : base(expression, otherwiseBlock)
 		{
 		}
 		
-		public GivenStatement(antlr.Token token, Expression expression, Block otherwiseBlock) : base(token, expression, otherwiseBlock)
+		public GivenStatement(LexicalInfo token, Expression expression, Block otherwiseBlock) : base(token, expression, otherwiseBlock)
 		{
 		}
 		
-		internal GivenStatement(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal GivenStatement(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public GivenStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

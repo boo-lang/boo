@@ -39,11 +39,7 @@ namespace Boo.Ast
 		{
  		}
 		
-		internal ExceptionHandler(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal ExceptionHandler(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public ExceptionHandler(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

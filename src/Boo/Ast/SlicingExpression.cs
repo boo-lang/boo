@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -41,17 +41,9 @@ namespace Boo.Ast
 		
 		public SlicingExpression(Expression target, Expression begin, Expression end, Expression step) : base(target, begin, end, step)
 		{
-		}
+		}	
 		
-		public SlicingExpression(antlr.Token token, Expression target, Expression begin, Expression end, Expression step) : base(token, target, begin, end, step)
-		{
-		}
-		
-		internal SlicingExpression(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal SlicingExpression(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public SlicingExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

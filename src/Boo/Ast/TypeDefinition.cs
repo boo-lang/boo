@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -39,17 +39,13 @@ namespace Boo.Ast
 	[Serializable]
 	public abstract class TypeDefinition : TypeDefinitionImpl
 	{		
-		public TypeDefinition()
+		protected TypeDefinition()
 		{
 			_members = new TypeMemberCollection(this);
 			_baseTypes = new TypeReferenceCollection(this);
- 		}
+ 		}	
 		
-		internal TypeDefinition(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal TypeDefinition(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		protected TypeDefinition(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

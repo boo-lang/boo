@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -40,24 +40,16 @@ namespace Boo.Ast
 	[Serializable]
 	public abstract class TypeMember : TypeMemberImpl
 	{		
-		public TypeMember()
+		protected TypeMember()
 		{
 			_attributes = new AttributeCollection(this);
  		}
 		
-		public TypeMember(TypeMemberModifiers modifiers, string name) : base(modifiers, name)
+		protected TypeMember(TypeMemberModifiers modifiers, string name) : base(modifiers, name)
 		{
-		}
+		}		
 		
-		public TypeMember(antlr.Token token, TypeMemberModifiers modifiers, string name) : base(token, modifiers, name)
-		{
-		}
-		
-		internal TypeMember(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal TypeMember(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		protected TypeMember(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -35,14 +35,16 @@ namespace Boo.Ast
 	[Serializable]
 	public class Local : LocalImpl
 	{		
-		public Local(ReferenceExpression reference) : base(reference)
+		public Local(ReferenceExpression reference)
 		{
 			_name = reference.Name;
+			LexicalInfo = reference.LexicalInfo;
  		}
  		
- 		public Local(Declaration declaration) : base(declaration)
+ 		public Local(Declaration declaration)
  		{
  			_name = declaration.Name;
+ 			LexicalInfo = declaration.LexicalInfo;
  		}
 		
 		public override void Switch(IAstSwitcher switcher)

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -41,17 +41,9 @@ namespace Boo.Ast
 		
 		public BinaryExpression(BinaryOperatorType operator_, Expression left, Expression right) : base(operator_, left, right)
 		{
-		}
+		}		
 		
-		public BinaryExpression(antlr.Token token, BinaryOperatorType operator_, Expression left, Expression right) : base(token, operator_, left, right)
-		{
-		}
-		
-		internal BinaryExpression(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal BinaryExpression(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public BinaryExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

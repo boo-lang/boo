@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -36,15 +36,10 @@ namespace Boo.Ast
 	public class CompileUnit : CompileUnitImpl
 	{		
 		public CompileUnit()
-		{
-			_modules = new ModuleCollection(this);
+		{			
  		}
 		
-		internal CompileUnit(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal CompileUnit(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		internal CompileUnit(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

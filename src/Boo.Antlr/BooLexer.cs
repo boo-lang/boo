@@ -1,6 +1,6 @@
 // $ANTLR 2.7.2: "boo.g" -> "BooLexer.cs"$
 
-namespace Boo.Ast.Parsing
+namespace Boo.Antlr
 {
 	// Generate header specific to lexer CSharp file
 	using System;
@@ -29,7 +29,7 @@ namespace Boo.Ast.Parsing
 	using LexerSharedInputState           = antlr.LexerSharedInputState;
 	using BitSet                          = antlr.collections.impl.BitSet;
 	
-using Boo.Ast.Parsing.Util;
+using Boo.Antlr.Util;
 
 	public 	class BooLexer : antlr.CharScanner	, TokenStream
 	 {

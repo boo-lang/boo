@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -43,15 +43,7 @@ namespace Boo.Ast
 		{
 		}
 		
-		public TimeSpanLiteralExpression(antlr.Token token, string value) : base(token, value)
-		{
-		}
-		
-		internal TimeSpanLiteralExpression(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal TimeSpanLiteralExpression(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public TimeSpanLiteralExpression(LexicalInfo lexicalInfoProvider, string value) : base(lexicalInfoProvider, value)
 		{
 		}
 		

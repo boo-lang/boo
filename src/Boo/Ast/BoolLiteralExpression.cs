@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -43,17 +43,13 @@ namespace Boo.Ast
 		{
 		}
 		
-		public BoolLiteralExpression(antlr.Token token, bool value) : base(token, value)
+		public BoolLiteralExpression(LexicalInfo token, bool value) : base(token, value)
 		{
 		}
 		
-		internal BoolLiteralExpression(antlr.Token token) : base(token)
+		public BoolLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		internal BoolLiteralExpression(Node lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-		}
+		}		
 		
 		public override void Switch(IAstSwitcher switcher)
 		{

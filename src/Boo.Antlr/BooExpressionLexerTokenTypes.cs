@@ -1,8 +1,8 @@
-// $ANTLR 2.7.2: "boo.g" -> "BooLexer.cs"$
+// $ANTLR 2.7.2: "booel.g" -> "BooExpressionLexer.cs"$
 
-namespace Boo.Ast.Parsing
+namespace Boo.Antlr
 {
-	public class BooTokenTypes
+	public class BooExpressionLexerTokenTypes
 	{
 		public const int EOF = 1;
 		public const int NULL_TREE_LOOKAHEAD = 3;

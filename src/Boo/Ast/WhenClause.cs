@@ -43,11 +43,7 @@ namespace Boo.Ast
 		{
 		}
 		
-		internal WhenClause(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal WhenClause(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public WhenClause(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

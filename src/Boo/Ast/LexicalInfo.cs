@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -42,25 +42,12 @@ namespace Boo.Ast
 		protected int _endColumn;
 
 		protected string _filename;
-
-		internal LexicalInfo(antlr.Token token)
-		{
-			if (null == token)
-			{
-				throw new ArgumentNullException("token");
-			}
-
-			_line = token.getLine();
-			_startColumn = token.getColumn();
-			_endColumn = token.getColumn() + token.getText().Length;
-			_filename = token.getFilename();
-		}
-
+		
 		public LexicalInfo(string filename, int line, int startColumn, int endColumn)
 		{
 			if (endColumn < startColumn)
 			{
-				throw new ArgumentException("endColum must be greater than startColumn");
+				throw new ArgumentException("endColum must be >= startColumn", "endColumn");
 			}
 			_filename = filename;
 			_line = line;

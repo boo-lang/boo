@@ -43,11 +43,7 @@ namespace Boo.Ast
 		{
 		}
 		
-		internal ForStatement(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal ForStatement(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		internal ForStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

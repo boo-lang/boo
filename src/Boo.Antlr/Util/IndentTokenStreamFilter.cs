@@ -30,7 +30,7 @@
 using System;
 using System.Collections;
 
-namespace Boo.Ast.Parsing.Util
+namespace Boo.Antlr.Util
 {
 	public class SimpleToken : antlr.Token
 	{

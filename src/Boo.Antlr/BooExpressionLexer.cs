@@ -1,6 +1,6 @@
 // $ANTLR 2.7.2: "booel.g" -> "BooExpressionLexer.cs"$
 
-namespace Boo.Ast.Parsing
+namespace Boo.Antlr
 {
 	// Generate header specific to lexer CSharp file
 	using System;

@@ -152,11 +152,11 @@ namespace Boo.Ast.Compilation.Steps
 			LocalBinding localBinding = DeclareLocal(node, new Local(node.Declaration), binding);
 			if (null != node.Initializer)
 			{
-				ReferenceExpression var = new ReferenceExpression(node.Declaration);
+				ReferenceExpression var = new ReferenceExpression(node.Declaration.LexicalInfo);
 				var.Name = node.Declaration.Name;
 				BindingManager.Bind(var, localBinding);				
 				
-				BinaryExpression assign = new BinaryExpression(node);
+				BinaryExpression assign = new BinaryExpression(node.LexicalInfo);
 				assign.Operator = BinaryOperatorType.Assign;
 				assign.Left = var;
 				assign.Right = node.Initializer;

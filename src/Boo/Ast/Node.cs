@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -30,7 +30,6 @@
 using System;
 using System.Collections;
 using System.IO;
-using antlr;
 
 namespace Boo.Ast
 {
@@ -54,14 +53,9 @@ namespace Boo.Ast
 			_lexicalData = LexicalInfo.Empty;
 		}
 
-		protected Node(Token token)
-		{			
-			_lexicalData = new LexicalInfo(token);
-		}
-
-		protected Node(Node lexicalInfoProvider)
+		protected Node(LexicalInfo lexicalInfo)
 		{
-			_lexicalData = lexicalInfoProvider.LexicalInfo;
+			_lexicalData = lexicalInfo;
 		}
 
 		protected void InitializeFrom(Node other)

@@ -1,6 +1,6 @@
 // $ANTLR 2.7.2: "boo.g" -> "BooParserBase.cs"$
 
-namespace Boo.Ast.Parsing
+namespace Boo.Antlr
 {
 	// Generate the header common to all output files.
 	using System;
@@ -20,7 +20,7 @@ namespace Boo.Ast.Parsing
 	using BitSet                   = antlr.collections.impl.BitSet;
 	
 using Boo.Ast;
-using Boo.Ast.Parsing.Util;
+using Boo.Antlr.Util;
 
 public delegate void ParserErrorHandler(antlr.RecognitionException x);
 
@@ -146,6 +146,15 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		_attributes.Clear();
 	}
 
+	protected LexicalInfo ToLexicalInfo(antlr.Token token)
+	{
+		int line = token.getLine();
+		int startColumn = token.getColumn();
+		int endColumn = token.getColumn() + token.getText().Length;
+		string filename = token.getFilename();
+		return new LexicalInfo(filename, line, startColumn, endColumn);
+	}
+
 	protected BinaryOperatorType ParseCmpOperator(string op)
 	{
 		switch (op)
@@ -266,7 +275,7 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		
 		
 				module = new Module();		
-				module.LexicalInfo = new LexicalInfo(getFilename());
+				module.LexicalInfo = new LexicalInfo(getFilename(), 0, 0, 0);
 			
 		
 		try {      // for error handling
@@ -470,7 +479,7 @@ _loop12_breakloop:						;
 			if (0==inputState.guessing)
 			{
 				
-						p = new Package(t);
+						p = new Package(ToLexicalInfo(t));
 						p.Name = id.getText();
 						container.Package = p; 
 					
@@ -512,7 +521,7 @@ _loop12_breakloop:						;
 			if (0==inputState.guessing)
 			{
 				
-						usingNode = new Using(t);
+						usingNode = new Using(ToLexicalInfo(t));
 						usingNode.Namespace = id.getText();
 						container.Using.Add(usingNode);
 					
@@ -527,7 +536,7 @@ _loop12_breakloop:						;
 					if (0==inputState.guessing)
 					{
 						
-									usingNode.AssemblyReference = new ReferenceExpression(id);
+									usingNode.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id));
 									usingNode.AssemblyReference.Name = id.getText();
 								
 					}
@@ -555,7 +564,7 @@ _loop12_breakloop:						;
 					if (0==inputState.guessing)
 					{
 						
-									usingNode.Alias = new ReferenceExpression(alias);
+									usingNode.Alias = new ReferenceExpression(ToLexicalInfo(alias));
 									usingNode.Alias.Name = alias.getText();
 								
 					}
@@ -1048,7 +1057,7 @@ _loop103_breakloop:				;
 					match(ID);
 					if (0==inputState.guessing)
 					{
-						m = new Method(t); m.Name = id.getText();
+						m = new Method(ToLexicalInfo(t)); m.Name = id.getText();
 					}
 					break;
 				}
@@ -1058,7 +1067,7 @@ _loop103_breakloop:				;
 					match(CONSTRUCTOR);
 					if (0==inputState.guessing)
 					{
-						m = new Constructor(t); m.Name = c.getText();
+						m = new Constructor(ToLexicalInfo(t)); m.Name = c.getText();
 					}
 					break;
 				}
@@ -1149,7 +1158,7 @@ _loop103_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						cd = new ClassDefinition(c);
+						cd = new ClassDefinition(ToLexicalInfo(c));
 						cd.Name = id.getText();
 						cd.Modifiers = _modifiers;
 						cd.Attributes.Add(_attributes);
@@ -1304,7 +1313,7 @@ _loop48_breakloop:					;
 			if (0==inputState.guessing)
 			{
 				
-						itf = new InterfaceDefinition(it);
+						itf = new InterfaceDefinition(ToLexicalInfo(it));
 						itf.Name = id.getText();
 						itf.Modifiers = _modifiers;
 						itf.Attributes.Add(_attributes);
@@ -1424,7 +1433,7 @@ _loop55_breakloop:					;
 			if (0==inputState.guessing)
 			{
 				
-						ed = new EnumDefinition(id);
+						ed = new EnumDefinition(ToLexicalInfo(id));
 						ed.Name = id.getText();
 						ed.Modifiers = _modifiers;
 						ed.Attributes.Add(_attributes);
@@ -1526,7 +1535,7 @@ _loop27_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						EnumMember em = new EnumMember(id);
+						EnumMember em = new EnumMember(ToLexicalInfo(id));
 						em.Name = id.getText();
 						em.Initializer = initializer;
 						em.Attributes.Add(_attributes);
@@ -1585,7 +1594,7 @@ _loop27_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						e = new IntegerLiteralExpression(i);
+						e = new IntegerLiteralExpression(ToLexicalInfo(i));
 						e.Value = i.getText();
 					
 			}
@@ -1619,7 +1628,7 @@ _loop27_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						attr = new Boo.Ast.Attribute(id);
+						attr = new Boo.Ast.Attribute(ToLexicalInfo(id));
 						attr.Name = id.getText();
 						_attributes.Add(attr);
 					
@@ -1877,7 +1886,7 @@ _loop58_breakloop:				;
 					if (0==inputState.guessing)
 					{
 						
-									Field field = new Field(id);
+									Field field = new Field(ToLexicalInfo(id));
 									field.Type = tr;
 									tm = field;
 									tm.Name = id.getText();
@@ -1893,7 +1902,7 @@ _loop58_breakloop:				;
 					if (0==inputState.guessing)
 					{
 						
-									p = new Property(id);			
+									p = new Property(ToLexicalInfo(id));			
 									p.Type = tr;
 									tm = p;
 									tm.Name = id.getText();
@@ -1968,7 +1977,7 @@ _loop84_breakloop:					;
 			if (0==inputState.guessing)
 			{
 				
-						m = new Method(t);
+						m = new Method(ToLexicalInfo(t));
 						m.Name = id.getText();
 						m.Attributes.Add(_attributes);
 						container.Add(m);
@@ -2089,7 +2098,7 @@ _loop64_breakloop:							;
 			if (0==inputState.guessing)
 			{
 				
-						p = new Property(id);
+						p = new Property(ToLexicalInfo(id));
 						p.Name = id.getText();
 						p.Type = tr;
 						p.Attributes.Add(_attributes);
@@ -2160,7 +2169,7 @@ _loop70_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						tr = new TypeReference(id);
+						tr = new TypeReference(ToLexicalInfo(id));
 						tr.Name = id.getText();
 					
 			}
@@ -2285,7 +2294,7 @@ _loop107_breakloop:						;
 						match(GET);
 						if (0==inputState.guessing)
 						{
-							m = p.Getter = new Method(gt); m.Name = "get";
+							m = p.Getter = new Method(ToLexicalInfo(gt)); m.Name = "get";
 						}
 					}
 				}
@@ -2295,7 +2304,7 @@ _loop107_breakloop:						;
 						match(SET);
 						if (0==inputState.guessing)
 						{
-							m = p.Setter = new Method(st); m.Name = "set";
+							m = p.Setter = new Method(ToLexicalInfo(st)); m.Name = "set";
 						}
 					}
 				}
@@ -2473,7 +2482,7 @@ _loop100_breakloop:					;
 						if (0==inputState.guessing)
 						{
 							
-											p.Getter = m = new Method(gt);		
+											p.Getter = m = new Method(ToLexicalInfo(gt));		
 											m.Name = "get";
 										
 						}
@@ -2486,7 +2495,7 @@ _loop100_breakloop:					;
 						if (0==inputState.guessing)
 						{
 							
-											p.Setter = m = new Method(st);
+											p.Setter = m = new Method(ToLexicalInfo(st));
 											m.Name = "set";
 										
 						}
@@ -2784,7 +2793,7 @@ _loop117_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						ParameterDeclaration pd = new ParameterDeclaration(id);
+						ParameterDeclaration pd = new ParameterDeclaration(ToLexicalInfo(id));
 						pd.Name = id.getText();
 						pd.Type = tr;
 						pd.Attributes.Add(_attributes);
@@ -2822,7 +2831,7 @@ _loop117_breakloop:				;
 			match(FOR);
 			if (0==inputState.guessing)
 			{
-				fs = new ForStatement(f);
+				fs = new ForStatement(ToLexicalInfo(f));
 			}
 			declaration_list(fs.Declarations);
 			match(IN);
@@ -2866,7 +2875,7 @@ _loop117_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						ws = new WhileStatement(w);
+						ws = new WhileStatement(ToLexicalInfo(w));
 						ws.Condition = e;
 					
 			}
@@ -2906,9 +2915,9 @@ _loop117_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						s = new IfStatement(it);
+						s = new IfStatement(ToLexicalInfo(it));
 						s.Expression = e;
-						s.TrueBlock = new Block(it);
+						s.TrueBlock = new Block();
 					
 			}
 			compound_stmt(s.TrueBlock.Statements);
@@ -2921,7 +2930,7 @@ _loop117_breakloop:				;
 					match(ELSE);
 					if (0==inputState.guessing)
 					{
-						s.FalseBlock = new Block(et);
+						s.FalseBlock = new Block(ToLexicalInfo(et));
 					}
 					compound_stmt(s.FalseBlock.Statements);
 					break;
@@ -3001,7 +3010,7 @@ _loop117_breakloop:				;
 			match(TRY);
 			if (0==inputState.guessing)
 			{
-				s = new TryStatement(t);
+				s = new TryStatement(ToLexicalInfo(t));
 			}
 			compound_stmt(s.ProtectedBlock.Statements);
 			{    // ( ... )*
@@ -3028,7 +3037,7 @@ _loop130_breakloop:				;
 					match(SUCCESS);
 					if (0==inputState.guessing)
 					{
-						sblock = new Block(stoken);
+						sblock = new Block(ToLexicalInfo(stoken));
 					}
 					compound_stmt(sblock.Statements);
 					if (0==inputState.guessing)
@@ -3087,7 +3096,7 @@ _loop130_breakloop:				;
 					match(ENSURE);
 					if (0==inputState.guessing)
 					{
-						eblock = new Block(etoken);
+						eblock = new Block(ToLexicalInfo(etoken));
 					}
 					compound_stmt(eblock.Statements);
 					if (0==inputState.guessing)
@@ -3173,7 +3182,7 @@ _loop130_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						gs = new GivenStatement(given);
+						gs = new GivenStatement(ToLexicalInfo(given));
 						gs.Expression = e;
 					
 			}
@@ -3190,7 +3199,7 @@ _loop130_breakloop:				;
 					if (0==inputState.guessing)
 					{
 						
-										wc = new WhenClause(when);
+										wc = new WhenClause(ToLexicalInfo(when));
 										wc.Condition = e;
 										gs.WhenClauses.Add(wc);
 									
@@ -3216,7 +3225,7 @@ _loop148_breakloop:			;
 					if (0==inputState.guessing)
 					{
 						
-										gs.OtherwiseBlock = new Block(otherwise);
+										gs.OtherwiseBlock = new Block(ToLexicalInfo(otherwise));
 									
 					}
 					compound_stmt(gs.OtherwiseBlock.Statements);
@@ -3307,7 +3316,7 @@ _loop148_breakloop:			;
 			if (0==inputState.guessing)
 			{
 				
-						s = new ReturnStatement(r);
+						s = new ReturnStatement(ToLexicalInfo(r));
 						s.Expression = e;
 					
 			}
@@ -3345,7 +3354,7 @@ _loop148_breakloop:			;
 			if (0==inputState.guessing)
 			{
 				
-						s = new YieldStatement(yt);
+						s = new YieldStatement(ToLexicalInfo(yt));
 						s.Expression = e;
 					
 			}
@@ -3378,7 +3387,7 @@ _loop148_breakloop:			;
 			match(BREAK);
 			if (0==inputState.guessing)
 			{
-				s = new BreakStatement(b);
+				s = new BreakStatement(ToLexicalInfo(b));
 			}
 		}
 		catch (RecognitionException ex)
@@ -3414,7 +3423,7 @@ _loop148_breakloop:			;
 			if (0==inputState.guessing)
 			{
 				
-						s = new RaiseStatement(t);
+						s = new RaiseStatement(ToLexicalInfo(t));
 						s.Exception = e;
 					
 			}
@@ -3449,7 +3458,7 @@ _loop148_breakloop:			;
 			match(RETRY);
 			if (0==inputState.guessing)
 			{
-				rs = new RetryStatement(t);
+				rs = new RetryStatement(ToLexicalInfo(t));
 			}
 		}
 		catch (RecognitionException ex)
@@ -3505,7 +3514,7 @@ _loop148_breakloop:			;
 			if (0==inputState.guessing)
 			{
 				
-						d = new Declaration(id);
+						d = new Declaration(ToLexicalInfo(id));
 						d.Name = id.getText();
 						d.Type = tr;
 					
@@ -3546,7 +3555,7 @@ _loop148_breakloop:			;
 			{
 				
 						s.Expression = e;
-						s.LexicalInfo = new LexicalInfo(t);
+						s.LexicalInfo = ToLexicalInfo(t);
 					
 			}
 		}
@@ -3608,11 +3617,11 @@ _loop148_breakloop:			;
 			if (0==inputState.guessing)
 			{
 				
-						Declaration d = new Declaration(id);
+						Declaration d = new Declaration(ToLexicalInfo(id));
 						d.Name = id.getText();
 						d.Type = tr;
 						
-						s = new DeclarationStatement(d);
+						s = new DeclarationStatement(d.LexicalInfo);
 						s.Declaration = d;
 						s.Initializer = initializer;
 					
@@ -3649,7 +3658,6 @@ _loop148_breakloop:			;
 			{
 				
 						s = new ExpressionStatement(e);
-						s.Expression = e;
 					
 			}
 		}
@@ -3738,7 +3746,7 @@ _loop148_breakloop:			;
 			if (0==inputState.guessing)
 			{
 				
-						m = new StatementModifier(t);
+						m = new StatementModifier(ToLexicalInfo(t));
 						m.Type = type;
 						m.Condition = e;
 					
@@ -3786,7 +3794,7 @@ _loop148_breakloop:			;
 					if (0==inputState.guessing)
 					{
 						
-									AsExpression ae = new AsExpression(t);
+									AsExpression ae = new AsExpression(ToLexicalInfo(t));
 									ae.Target = e;
 									ae.Type = tr;
 									e = ae; 
@@ -3809,7 +3817,7 @@ _loop148_breakloop:			;
 					if (0==inputState.guessing)
 					{
 						
-									lde = new IteratorExpression(f);
+									lde = new IteratorExpression(ToLexicalInfo(f));
 									lde.Expression = e;
 								
 					}
@@ -3906,8 +3914,8 @@ _loop148_breakloop:			;
 			if (0==inputState.guessing)
 			{
 				
-						eh = new ExceptionHandler(c);
-						eh.Declaration = new Declaration(x);
+						eh = new ExceptionHandler(ToLexicalInfo(c));
+						eh.Declaration = new Declaration(ToLexicalInfo(x));
 						eh.Declaration.Name = x.getText();		
 						eh.Declaration.Type = tr;
 					
@@ -3956,7 +3964,7 @@ _loop148_breakloop:			;
 					match(COMMA);
 					if (0==inputState.guessing)
 					{
-						e = new TupleLiteralExpression(c);
+						e = new TupleLiteralExpression(ToLexicalInfo(c));
 					}
 				}
 				break;
@@ -3991,7 +3999,7 @@ _loop148_breakloop:			;
 							if (0==inputState.guessing)
 							{
 								
-												tle = new TupleLiteralExpression(e);
+												tle = new TupleLiteralExpression(e.LexicalInfo);
 												tle.Items.Add(e);		
 											
 							}
@@ -4082,7 +4090,7 @@ _loop164_breakloop:										;
 			match(CONTINUE);
 			if (0==inputState.guessing)
 			{
-				s = new ContinueStatement(c);
+				s = new ContinueStatement(ToLexicalInfo(c));
 			}
 		}
 		catch (RecognitionException ex)
@@ -4175,7 +4183,7 @@ _loop155_breakloop:				;
 					if (0==inputState.guessing)
 					{
 						
-									UnaryExpression ue = new UnaryExpression(nt);
+									UnaryExpression ue = new UnaryExpression(ToLexicalInfo(nt));
 									ue.Operator = UnaryOperatorType.Not;
 									ue.Operand = e;
 									e = ue;
@@ -4216,7 +4224,7 @@ _loop155_breakloop:				;
 								if (0==inputState.guessing)
 								{
 									
-													BinaryExpression be = new BinaryExpression(ot);
+													BinaryExpression be = new BinaryExpression(ToLexicalInfo(ot));
 													be.Operator = BinaryOperatorType.Or;
 													be.Left = e;
 													be.Right = r;
@@ -4280,7 +4288,7 @@ _loop173_breakloop:						;
 						if (0==inputState.guessing)
 						{
 							
-										BinaryExpression be = new BinaryExpression(at);
+										BinaryExpression be = new BinaryExpression(ToLexicalInfo(at));
 										be.Operator = BinaryOperatorType.And;
 										be.Left = e;
 										be.Right = r; 
@@ -4339,7 +4347,7 @@ _loop176_breakloop:				;
 						if (0==inputState.guessing)
 						{
 							
-										TernaryExpression finalExpression = new TernaryExpression(t);
+										TernaryExpression finalExpression = new TernaryExpression(ToLexicalInfo(t));
 										finalExpression.Condition = e;
 										finalExpression.TrueExpression = te;
 										finalExpression.FalseExpression = fe;
@@ -4393,7 +4401,7 @@ _loop179_breakloop:				;
 					if (0==inputState.guessing)
 					{
 						
-									BinaryExpression be = new BinaryExpression(op);
+									BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
 									be.Operator = ParseAssignOperator(op.getText());
 									be.Left = e;
 									be.Right = r;
@@ -4448,7 +4456,7 @@ _loop179_breakloop:				;
 						if (0==inputState.guessing)
 						{
 							
-										BinaryExpression be = new BinaryExpression(op);
+										BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
 										be.Operator = ParseCmpOperator(op.getText());
 										be.Left = e;
 										be.Right = r;
@@ -4504,7 +4512,7 @@ _loop184_breakloop:				;
 						if (0==inputState.guessing)
 						{
 							
-										BinaryExpression be = new BinaryExpression(op);
+										BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
 										be.Operator = ParseSumOperator(op.getText());
 										be.Left = e;
 										be.Right = r;
@@ -4635,7 +4643,7 @@ _loop187_breakloop:				;
 						if (0==inputState.guessing)
 						{
 							
-										BinaryExpression be = new BinaryExpression(op);
+										BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
 										be.Operator = ParseMultOperator(op.getText());
 										be.Left = e;
 										be.Right = r;
@@ -4744,7 +4752,7 @@ _loop190_breakloop:				;
 				
 						if (null != op)
 						{
-							UnaryExpression ue = new UnaryExpression(op);
+							UnaryExpression ue = new UnaryExpression(ToLexicalInfo(op));
 							ue.Operator = ParseUnaryOperator(op.getText());
 							ue.Operand = e;
 							e = ue; 
@@ -4965,7 +4973,7 @@ _loop190_breakloop:				;
 							if (0==inputState.guessing)
 							{
 								
-												SlicingExpression se = new SlicingExpression(lbrack);
+												SlicingExpression se = new SlicingExpression(ToLexicalInfo(lbrack));
 												se.Target = e;
 												se.Begin = begin;
 												se.End = end;
@@ -4984,7 +4992,7 @@ _loop190_breakloop:				;
 							if (0==inputState.guessing)
 							{
 								
-													MemberReferenceExpression mre = new MemberReferenceExpression(id);
+													MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(id));
 													mre.Target = e;
 													mre.Name = id.getText();
 													e = mre;
@@ -4999,7 +5007,7 @@ _loop190_breakloop:				;
 							if (0==inputState.guessing)
 							{
 								
-													mce = new MethodInvocationExpression(lparen);
+													mce = new MethodInvocationExpression(ToLexicalInfo(lparen));
 													mce.Target = e;
 													e = mce;
 												
@@ -5196,7 +5204,7 @@ _loop215_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						e = new ReferenceExpression(id);
+						e = new ReferenceExpression(ToLexicalInfo(id));
 						e.Name = id.getText();
 					
 			}
@@ -5267,7 +5275,7 @@ _loop215_breakloop:				;
 					if (0==inputState.guessing)
 					{
 						
-									tle = new TupleLiteralExpression(t);
+									tle = new TupleLiteralExpression(ToLexicalInfo(t));
 									tle.Items.Add(e);
 								
 					}
@@ -5386,7 +5394,7 @@ _loop202_breakloop:								;
 				if (0==inputState.guessing)
 				{
 					
-							e = new StringLiteralExpression(sqs, sqs.getText());
+							e = new StringLiteralExpression(ToLexicalInfo(sqs), sqs.getText());
 						
 				}
 				break;
@@ -5398,7 +5406,7 @@ _loop202_breakloop:								;
 				if (0==inputState.guessing)
 				{
 					
-							e = new StringLiteralExpression(tqs, tqs.getText());
+							e = new StringLiteralExpression(ToLexicalInfo(tqs), tqs.getText());
 						
 				}
 				break;
@@ -5433,7 +5441,7 @@ _loop202_breakloop:								;
 					if (0==inputState.guessing)
 					{
 						
-								e = new StringLiteralExpression(dqs, dqs.getText());
+								e = new StringLiteralExpression(ToLexicalInfo(dqs), dqs.getText());
 							
 					}
 				}
@@ -5502,7 +5510,7 @@ _loop202_breakloop:								;
 							if (0==inputState.guessing)
 							{
 								
-													e = lle = new ListLiteralExpression(lbrack);
+													e = lle = new ListLiteralExpression(ToLexicalInfo(lbrack));
 													lle.Items.Add(item);
 												
 							}
@@ -5534,7 +5542,7 @@ _loop234_breakloop:								;
 				{
 					if (0==inputState.guessing)
 					{
-						e = new ListLiteralExpression(lbrack);
+						e = new ListLiteralExpression(ToLexicalInfo(lbrack));
 					}
 					break;
 				}
@@ -5577,7 +5585,7 @@ _loop234_breakloop:								;
 			match(LBRACE);
 			if (0==inputState.guessing)
 			{
-				dle = new HashLiteralExpression(lbrace);
+				dle = new HashLiteralExpression(ToLexicalInfo(lbrace));
 			}
 			{
 				switch ( LA(1) )
@@ -5669,7 +5677,7 @@ _loop238_breakloop:						;
 			match(RE_LITERAL);
 			if (0==inputState.guessing)
 			{
-				re = new RELiteralExpression(value, value.getText());
+				re = new RELiteralExpression(ToLexicalInfo(value), value.getText());
 			}
 		}
 		catch (RecognitionException ex)
@@ -5706,7 +5714,7 @@ _loop238_breakloop:						;
 				if (0==inputState.guessing)
 				{
 					
-							e = new BoolLiteralExpression(t);
+							e = new BoolLiteralExpression(ToLexicalInfo(t));
 							e.Value = true;
 						
 				}
@@ -5719,7 +5727,7 @@ _loop238_breakloop:						;
 				if (0==inputState.guessing)
 				{
 					
-							e = new BoolLiteralExpression(f);
+							e = new BoolLiteralExpression(ToLexicalInfo(f));
 							e.Value = false;
 						
 				}
@@ -5759,7 +5767,7 @@ _loop238_breakloop:						;
 			match(NULL);
 			if (0==inputState.guessing)
 			{
-				e = new NullLiteralExpression(t);
+				e = new NullLiteralExpression(ToLexicalInfo(t));
 			}
 		}
 		catch (RecognitionException ex)
@@ -5790,7 +5798,7 @@ _loop238_breakloop:						;
 			match(SELF);
 			if (0==inputState.guessing)
 			{
-				e = new SelfLiteralExpression(t);
+				e = new SelfLiteralExpression(ToLexicalInfo(t));
 			}
 		}
 		catch (RecognitionException ex)
@@ -5821,7 +5829,7 @@ _loop238_breakloop:						;
 			match(SUPER);
 			if (0==inputState.guessing)
 			{
-				e = new SuperLiteralExpression(t);
+				e = new SuperLiteralExpression(ToLexicalInfo(t));
 			}
 		}
 		catch (RecognitionException ex)
@@ -5852,7 +5860,7 @@ _loop238_breakloop:						;
 			match(TIMESPAN);
 			if (0==inputState.guessing)
 			{
-				tsle = new TimeSpanLiteralExpression(value, value.getText());
+				tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), value.getText());
 			}
 		}
 		catch (RecognitionException ex)
@@ -5887,7 +5895,7 @@ _loop238_breakloop:						;
 			if (0==inputState.guessing)
 			{
 				
-						e = new StringFormattingExpression(dqs);
+						e = new StringFormattingExpression(ToLexicalInfo(dqs));
 						e.Template = dqs.getText();
 					
 			}
@@ -5946,7 +5954,7 @@ _loop228_breakloop:				;
 			value=expression();
 			if (0==inputState.guessing)
 			{
-				ep = new ExpressionPair(t, key, value);
+				ep = new ExpressionPair(ToLexicalInfo(t), key, value);
 			}
 		}
 		catch (RecognitionException ex)
@@ -6075,7 +6083,7 @@ _loop245_breakloop:						;
 						value=expression();
 						if (0==inputState.guessing)
 						{
-							node.NamedArguments.Add(new ExpressionPair(colon, e, value));
+							node.NamedArguments.Add(new ExpressionPair(ToLexicalInfo(colon), e, value));
 						}
 					}
 					break;

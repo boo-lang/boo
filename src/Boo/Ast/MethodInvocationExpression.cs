@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -37,23 +37,13 @@ namespace Boo.Ast
 	{		
 		public MethodInvocationExpression()
 		{
-			_arguments = new ExpressionCollection(this);
-			_namedArguments = new ExpressionPairCollection(this);
  		}
 		
 		public MethodInvocationExpression(Expression target) : base(target)
 		{
 		}
 		
-		public MethodInvocationExpression(antlr.Token token, Expression target) : base(token, target)
-		{
-		}
-		
-		internal MethodInvocationExpression(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal MethodInvocationExpression(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public MethodInvocationExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		
