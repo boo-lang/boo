@@ -317,9 +317,9 @@ import_directive[Module container]
 		Token id;
 		Import usingNode = null;
 	}: 
-	t:IMPORT id=identifier
+	IMPORT id=identifier
 	{
-		usingNode = new Import(ToLexicalInfo(t));
+		usingNode = new Import(ToLexicalInfo(id));
 		usingNode.Namespace = id.getText();
 		container.Imports.Add(usingNode);
 	}
