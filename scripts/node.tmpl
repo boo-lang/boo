@@ -23,11 +23,11 @@ $field.type $cs.toLocalName(field.name)#slurp
 abstract #slurp
 	#end if
 #end def
-#def getTargetFileName(): src/Boo/Ast/${item.name}.cs
+#def getTargetFileName(): src/Boo/Lang/Ast/${item.name}.cs
 using System;
-using Boo.Ast.Impl;
+using Boo.Lang.Ast.Impl;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
 #for derivedType in $cs.getDerivedTypes($item)
 	[System.Xml.Serialization.XmlInclude(typeof($derivedType))]

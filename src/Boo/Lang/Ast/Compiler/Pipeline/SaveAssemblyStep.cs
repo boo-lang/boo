@@ -31,10 +31,10 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using Boo.Ast;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {
 	public class SaveAssemblyStep : AbstractCompilerStep
 	{

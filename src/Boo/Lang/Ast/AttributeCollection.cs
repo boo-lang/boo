@@ -29,15 +29,15 @@
 
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
-	public class AttributeCollection : Boo.Ast.Impl.AttributeCollectionImpl
+	public class AttributeCollection : Boo.Lang.Ast.Impl.AttributeCollectionImpl
 	{
 		public AttributeCollection()
 		{
 		}
 		
-		public AttributeCollection(Boo.Ast.Node parent) : base(parent)
+		public AttributeCollection(Boo.Lang.Ast.Node parent) : base(parent)
 		{
 		}
 	}

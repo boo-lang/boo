@@ -29,9 +29,9 @@
 
 using System;
 using System.IO;
-using Boo.Ast;
+using Boo.Lang.Ast;
 
-namespace Boo.Ast.Visitors
+namespace Boo.Lang.Ast.Visitors
 {
 	/// <summary>
 	/// Imprime a AST em uma estrutura de rvore.

@@ -30,11 +30,11 @@
 using System;
 using System.IO;
 
-namespace Boo.Ast.Visitors
+namespace Boo.Lang.Ast.Visitors
 {
 	/// <summary>	
 	/// </summary>
-	public class TextEmitter : Boo.Ast.DepthFirstSwitcher
+	public class TextEmitter : Boo.Lang.Ast.DepthFirstSwitcher
 	{
 		protected TextWriter _writer;
 		

@@ -29,10 +29,10 @@
 
 using System;
 using System.Collections;
-using Boo.Ast;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {
 	public class AstNormalizationStep : AbstractTransformerCompilerStep
 	{

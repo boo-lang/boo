@@ -37,9 +37,9 @@ namespace Boo.Lang
 	/// </summary>
 	public abstract class AstAttribute
 	{
-		protected Boo.Ast.Attribute _attribute;
+		protected Boo.Lang.Ast.Attribute _attribute;
 
-		public Boo.Ast.Attribute Attribute
+		public Boo.Lang.Ast.Attribute Attribute
 		{
 			get
 			{
@@ -56,7 +56,7 @@ namespace Boo.Lang
 			}
 		}
 
-		public Boo.Ast.LexicalInfo LexicalInfo
+		public Boo.Lang.Ast.LexicalInfo LexicalInfo
 		{
 			get
 			{
@@ -64,6 +64,6 @@ namespace Boo.Lang
 			}
 		}
 
-		public abstract void Apply(Boo.Ast.Node node);
+		public abstract void Apply(Boo.Lang.Ast.Node node);
 	}
 }

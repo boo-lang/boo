@@ -33,7 +33,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 using Boo.Antlr;
-using Boo.Ast;
+using Boo.Lang.Ast;
 using NUnit.Framework;
 
 namespace Boo.Tests
@@ -58,7 +58,7 @@ namespace Boo.Tests
 			return Path.Combine(TestCasesPath, sample);
 		}
 
-		public static Boo.Ast.Module ParseTestCase(string sample)
+		public static Boo.Lang.Ast.Module ParseTestCase(string sample)
 		{			
 			using (StreamReader reader = File.OpenText(GetTestCasePath(sample)))
 			{

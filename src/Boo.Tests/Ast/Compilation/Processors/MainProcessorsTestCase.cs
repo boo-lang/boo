@@ -31,10 +31,10 @@ using System;
 using NUnit.Framework;
 using Boo.Tests;
 using Boo.Antlr;
-using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.Pipeline;
+using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Ast.Compiler.Pipeline;
 
-namespace Boo.Tests.Ast.Compilation.Processors
+namespace Boo.Tests.Ast.Compiler.Processors
 {
 	/// <summary>
 	/// Summary description for ModuleProcessor.

@@ -34,8 +34,8 @@ using System.Globalization;
 using System.Threading;
 using System.Xml;
 using Assembly = System.Reflection.Assembly;
-using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.IO;
+using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Ast.Compiler.IO;
 
 namespace BooC
 {

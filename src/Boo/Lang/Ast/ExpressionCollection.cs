@@ -29,15 +29,15 @@
 
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
-	public class ExpressionCollection : Boo.Ast.Impl.ExpressionCollectionImpl
+	public class ExpressionCollection : Boo.Lang.Ast.Impl.ExpressionCollectionImpl
 	{
 		public ExpressionCollection()
 		{
 		}
 		
-		public ExpressionCollection(Boo.Ast.Node parent) : base(parent)
+		public ExpressionCollection(Boo.Lang.Ast.Node parent) : base(parent)
 		{
 		}
 	}

@@ -31,7 +31,7 @@ using System;
 using System.Collections;
 using System.Xml;
 
-namespace Boo.Ast.Compilation
+namespace Boo.Lang.Ast.Compiler
 {
 	/// <summary>
 	/// A group of <see cref="ICompilerStep"/> implementations
@@ -94,7 +94,7 @@ namespace Boo.Ast.Compilation
 				{
 					step.Run();
 				}
-				catch (Boo.Ast.Compilation.Error error)
+				catch (Boo.Lang.Ast.Compiler.Error error)
 				{
 					context.Errors.Add(error);
 				}

@@ -28,8 +28,8 @@
 #endregion
 
 using System;
-using Boo.Ast;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
 
 namespace Boo.Antlr
 {

@@ -31,11 +31,11 @@ using System;
 using System.Collections;
 using System.Reflection;
 using List=Boo.Lang.List;
-using Boo.Ast;
-using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.Binding;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Ast.Compiler.Bindings;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {	
 	// todo: CompilerParameters.References.Changed += OnChanged
 	// recalculate namespaces on reference changes
@@ -119,7 +119,7 @@ namespace Boo.Ast.Compilation.Pipeline
 		
 		void ResolveUsingAssemblyReferences()
 		{
-			foreach (Boo.Ast.Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
 				UsingCollection usingCollection = module.Using;
 				Using[] usingArray = usingCollection.ToArray();
@@ -133,7 +133,7 @@ namespace Boo.Ast.Compilation.Pipeline
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							CompilerParameters.References.Add(asm);
-							BindingManager.Bind(reference, new Binding.AssemblyBinding(asm));
+							BindingManager.Bind(reference, new Bindings.AssemblyBinding(asm));
 						}
 						catch (Exception x)
 						{
@@ -192,8 +192,8 @@ namespace Boo.Ast.Compilation.Pipeline
 					
 					string[] namespaceHierarchy = ns.Split('.');
 					string topLevelName = namespaceHierarchy[0];
-					Binding.NamespaceBinding topLevel = GetNamespaceBinding(topLevelName);
-					Binding.NamespaceBinding current = topLevel;
+					Bindings.NamespaceBinding topLevel = GetNamespaceBinding(topLevelName);
+					Bindings.NamespaceBinding current = topLevel;
 					for (int i=1; i<namespaceHierarchy.Length; ++i)
 					{
 						current = current.GetChildNamespace(namespaceHierarchy[i]);
@@ -207,12 +207,12 @@ namespace Boo.Ast.Compilation.Pipeline
 			}
 		}
 		
-		Binding.NamespaceBinding GetNamespaceBinding(string name)
+		Bindings.NamespaceBinding GetNamespaceBinding(string name)
 		{
-			Binding.NamespaceBinding binding = (Binding.NamespaceBinding)_namespaces[name];	
+			Bindings.NamespaceBinding binding = (Bindings.NamespaceBinding)_namespaces[name];	
 			if (null == binding)
 			{
-				_namespaces[name] = binding = new Binding.NamespaceBinding(BindingManager, name);
+				_namespaces[name] = binding = new Bindings.NamespaceBinding(BindingManager, name);
 			}
 			return binding;
 		}

@@ -29,11 +29,11 @@
 
 using System;
 using System.Reflection;
-using Boo.Ast;
-using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.Binding;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Ast.Compiler.Bindings;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {
 	public abstract class AbstractCompilerStep : ICompilerStep
 	{
@@ -75,7 +75,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			}
 		}
 		
-		protected Binding.BindingManager BindingManager
+		protected Bindings.BindingManager BindingManager
 		{
 			get
 			{

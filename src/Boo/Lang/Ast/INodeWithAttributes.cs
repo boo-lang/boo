@@ -29,7 +29,7 @@
 
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
 	/// <summary>
 	/// Summary description for INodeWithAttributes.

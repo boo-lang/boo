@@ -28,9 +28,9 @@
 #endregion
 
 using System;
-using Boo.Ast.Impl;
+using Boo.Lang.Ast.Impl;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
 	/// <summary>
 	/// Permite diferenar entre uma expresso que no foi

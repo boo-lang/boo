@@ -19,7 +19,7 @@ namespace Boo.Antlr
 	using ParserSharedInputState   = antlr.ParserSharedInputState;
 	using BitSet                   = antlr.collections.impl.BitSet;
 	
-using Boo.Ast;
+using Boo.Lang.Ast;
 using Boo.Antlr.Util;
 
 public delegate void ParserErrorHandler(antlr.RecognitionException x);
@@ -1621,7 +1621,7 @@ _loop27_breakloop:				;
 		
 				
 				antlr.Token id = null;
-				Boo.Ast.Attribute attr = null;
+				Boo.Lang.Ast.Attribute attr = null;
 			
 		
 		try {      // for error handling
@@ -1629,7 +1629,7 @@ _loop27_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						attr = new Boo.Ast.Attribute(ToLexicalInfo(id));
+						attr = new Boo.Lang.Ast.Attribute(ToLexicalInfo(id));
 						attr.Name = id.getText();
 						_attributes.Add(attr);
 					

@@ -35,7 +35,7 @@
 //
 using System;
 
-namespace Boo.Ast.Impl
+namespace Boo.Lang.Ast.Impl
 {
 	[Serializable]
 	public abstract class WhileStatementImpl : Statement

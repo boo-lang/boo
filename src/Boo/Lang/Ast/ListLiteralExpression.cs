@@ -28,9 +28,9 @@
 #endregion
 
 using System;
-using Boo.Ast.Impl;
+using Boo.Lang.Ast.Impl;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(TupleLiteralExpression))]
 	[Serializable]

@@ -1,4 +1,4 @@
-namespace Boo.Ast.Compilation.Binding
+namespace Boo.Lang.Ast.Compiler.Bindings
 {
 	public class UnresolvedBinding : NullBinding
 	{

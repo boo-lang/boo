@@ -1,7 +1,7 @@
 using System;
-using Boo.Ast.Impl;
+using Boo.Lang.Ast.Impl;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
 	[Serializable]
 	public class UnlessStatement : UnlessStatementImpl

@@ -29,10 +29,10 @@
 
 using System;
 using System.Collections;
-using Boo.Ast;
+using Boo.Lang.Ast;
 using BindingFlags = System.Reflection.BindingFlags;
 
-namespace Boo.Ast.Compilation.Binding
+namespace Boo.Lang.Ast.Compiler.Bindings
 {	
 	public interface INamespace
 	{				

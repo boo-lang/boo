@@ -29,9 +29,9 @@
 
 using System;
 using System.Reflection;
-using Boo.Ast;
+using Boo.Lang.Ast;
 
-namespace Boo.Ast.Compilation.Binding
+namespace Boo.Lang.Ast.Compiler.Bindings
 {
 	public class BindingManager
 	{		

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <pipeline extends='core'>	
 	
-	<step type='Boo.Ast.Compilation.Pipeline.EmitAssemblyStep, Boo' />
-	<step type='Boo.Ast.Compilation.Pipeline.SaveAssemblyStep, Boo' />
-	<step type='Boo.Ast.Compilation.Pipeline.PEVerifyStep, Boo' />
+	<step type='Boo.Lang.Ast.Compilation.Pipeline.EmitAssemblyStep, Boo' />
+	<step type='Boo.Lang.Ast.Compilation.Pipeline.SaveAssemblyStep, Boo' />
+	<step type='Boo.Lang.Ast.Compilation.Pipeline.PEVerifyStep, Boo' />
 	
 </pipeline>

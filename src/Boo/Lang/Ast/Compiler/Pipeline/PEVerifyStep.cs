@@ -29,9 +29,9 @@
 
 using System;
 using System.Diagnostics;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast.Compiler;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {
 	public class PEVerifyStep : AbstractCompilerStep
 	{

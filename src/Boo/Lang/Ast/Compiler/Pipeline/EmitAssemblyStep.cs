@@ -32,11 +32,11 @@ using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using Boo.Ast;
-using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.Binding;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Ast.Compiler.Bindings;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {
 	public class EmitAssemblyStep : AbstractSwitcherCompilerStep
 	{		
@@ -71,7 +71,7 @@ namespace Boo.Ast.Compilation.Pipeline
 		
 		static object ModuleBuilderKey = new object();
 		
-		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Binding.Types.String, Binding.Types.ObjectArray });
+		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Bindings.Types.String, Bindings.Types.ObjectArray });
 		
 		static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		
@@ -137,7 +137,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			
 			SetUpAssembly();			
 			
-			foreach (Boo.Ast.Module module in CompileUnit.Modules)
+			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
 				OnModule(module);
 			}
@@ -160,7 +160,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			_types.Clear();
 		}
 		
-		public override void OnModule(Boo.Ast.Module module)
+		public override void OnModule(Boo.Lang.Ast.Module module)
 		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);			
 			module.Members.Switch(this);
@@ -309,7 +309,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
-			if (PopType() != Binding.Types.Void)
+			if (PopType() != Bindings.Types.Void)
 			{
 				_il.Emit(OpCodes.Pop);
 			}
@@ -725,7 +725,7 @@ namespace Boo.Ast.Compilation.Pipeline
 				
 				case BindingType.Parameter:
 				{
-					Binding.ParameterBinding param = (Binding.ParameterBinding)info;
+					Bindings.ParameterBinding param = (Bindings.ParameterBinding)info;
 					_il.Emit(OpCodes.Ldarg, param.Index);
 					PushType(GetType(node));
 					break;
@@ -893,7 +893,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(node.Declarations, Binding.Types.Object);
+			EmitUnpackForDeclarations(node.Declarations, Bindings.Types.Object);
 			
 			Switch(node.Block);
 			_il.Emit(OpCodes.Br, labelTest);

@@ -29,13 +29,13 @@
 
 using System;
 
-namespace Boo.Ast.Compilation.Binding
+namespace Boo.Lang.Ast.Compiler.Bindings
 {
 	public class InternalMethodBinding : IMethodBinding, INamespace
 	{
 		BindingManager _bindingManager;
 		
-		Boo.Ast.Method _method;
+		Boo.Lang.Ast.Method _method;
 		
 		bool _resolved;
 		
@@ -43,7 +43,7 @@ namespace Boo.Ast.Compilation.Binding
 		
 		IMethodBinding _override;
 		
-		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method)
+		internal InternalMethodBinding(BindingManager manager, Boo.Lang.Ast.Method method)
 		{
 			_bindingManager = manager;
 			_method = method;

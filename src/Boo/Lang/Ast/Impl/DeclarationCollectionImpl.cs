@@ -34,9 +34,9 @@
 // ast.py script on Sat Jan 17 18:51:35 2004
 //
 using System;
-using Boo.Ast;
+using Boo.Lang.Ast;
 
-namespace Boo.Ast.Impl
+namespace Boo.Lang.Ast.Impl
 {
 	/// <summary>
 	/// Implements a strongly typed collection of <see cref="Declaration"/> elements.

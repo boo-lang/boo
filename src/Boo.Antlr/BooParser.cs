@@ -30,7 +30,7 @@
 using System;
 using System.IO;
 using System.Text;
-using Boo.Ast;
+using Boo.Lang.Ast;
 using Boo.Antlr.Util;
 
 namespace Boo.Antlr

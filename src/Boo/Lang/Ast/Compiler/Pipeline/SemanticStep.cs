@@ -32,12 +32,12 @@ using System.Text;
 using System.Collections;
 using System.Reflection;
 using Boo;
-using Boo.Ast;
-using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.Binding;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Ast.Compiler.Bindings;
 using List=Boo.Lang.List;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {		
 	class SemanticMethodInfo
 	{
@@ -97,7 +97,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			_methodInfoStack = null;
 		}
 		
-		public override void OnModule(Boo.Ast.Module module, ref Boo.Ast.Module resultingNode)
+		public override void OnModule(Boo.Lang.Ast.Module module, ref Boo.Lang.Ast.Module resultingNode)
 		{				
 			PushNamespace(new ModuleNamespace(BindingManager, module));			
 			
@@ -229,7 +229,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			{
 				parameter.Type = CreateBoundTypeReference(BindingManager.ObjectTypeBinding);
 			}
-			Binding.ParameterBinding binding = new Binding.ParameterBinding(parameter, GetBoundType(parameter.Type));
+			Bindings.ParameterBinding binding = new Bindings.ParameterBinding(parameter, GetBoundType(parameter.Type));
 			BindingManager.Bind(parameter, binding);
 		}	
 		

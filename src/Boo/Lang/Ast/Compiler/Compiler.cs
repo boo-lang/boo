@@ -29,10 +29,10 @@
 
 using System;
 using System.IO;
-using Boo.Ast;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
 
-namespace Boo.Ast.Compilation
+namespace Boo.Lang.Ast.Compiler
 {
 	/// <summary>
 	/// The compiler: a façade to the CompilerParameters/CompilerContext/Pipeline subsystem.

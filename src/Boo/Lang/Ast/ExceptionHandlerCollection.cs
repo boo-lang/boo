@@ -29,15 +29,15 @@
 
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
-	public class ExceptionHandlerCollection : Boo.Ast.Impl.ExceptionHandlerCollectionImpl
+	public class ExceptionHandlerCollection : Boo.Lang.Ast.Impl.ExceptionHandlerCollectionImpl
 	{
 		public ExceptionHandlerCollection()
 		{
 		}
 		
-		public ExceptionHandlerCollection(Boo.Ast.Node parent) : base(parent)
+		public ExceptionHandlerCollection(Boo.Lang.Ast.Node parent) : base(parent)
 		{
 		}
 	}

@@ -30,10 +30,10 @@
 using System;
 using System.Diagnostics;
 using Boo.Lang;
-using Boo.Ast;
+using Boo.Lang.Ast;
 using Assembly = System.Reflection.Assembly;
 
-namespace Boo.Ast.Compilation
+namespace Boo.Lang.Ast.Compiler
 {
 	/// <summary>
 	/// Contexto de compilao boo.
@@ -48,7 +48,7 @@ namespace Boo.Ast.Compilation
 
 		protected ErrorCollection _errors;
 		
-		protected Binding.BindingManager _bindingManager;		
+		protected Bindings.BindingManager _bindingManager;		
 		
 		protected TraceSwitch _traceSwitch;		
 
@@ -72,7 +72,7 @@ namespace Boo.Ast.Compilation
 			_errors = new ErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_bindingManager = new Binding.BindingManager();
+			_bindingManager = new Bindings.BindingManager();
 			_traceSwitch = _parameters.TraceSwitch;
 		}	
 
@@ -108,7 +108,7 @@ namespace Boo.Ast.Compilation
 			}
 		}
 		
-		public Binding.BindingManager BindingManager
+		public Bindings.BindingManager BindingManager
 		{
 			get
 			{

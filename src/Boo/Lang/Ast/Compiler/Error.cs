@@ -29,9 +29,9 @@
 
 using System;
 using System.Text;
-using Boo.Ast;
+using Boo.Lang.Ast;
 
-namespace Boo.Ast.Compilation
+namespace Boo.Lang.Ast.Compiler
 {
 	/// <summary>
 	/// Representa um erro de compilao.

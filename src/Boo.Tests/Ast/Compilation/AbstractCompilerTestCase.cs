@@ -1,12 +1,12 @@
-namespace Boo.Tests.Ast.Compilation
+namespace Boo.Tests.Ast.Compiler
 {
 	using System;
 	using System.Diagnostics;
 	using System.IO;
-	using Boo.Ast;
-	using Boo.Ast.Compilation;
-	using Boo.Ast.Compilation.IO;
-	using Boo.Ast.Compilation.Pipeline;
+	using Boo.Lang.Ast;
+	using Boo.Lang.Ast.Compiler;
+	using Boo.Lang.Ast.Compiler.IO;
+	using Boo.Lang.Ast.Compiler.Pipeline;
 	using NUnit.Framework;
 	
 	public abstract class AbstractCompilerTestCase

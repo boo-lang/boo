@@ -31,7 +31,7 @@ using System;
 using Boo.Lang;
 using System.Reflection;
 
-namespace Boo.Ast.Compilation.Binding
+namespace Boo.Lang.Ast.Compiler.Bindings
 {
 	public class InternalTypeBinding : AbstractInternalTypeBinding
 	{		

@@ -30,7 +30,7 @@
 using System;
 using System.Reflection;
 
-namespace Boo.Ast.Compilation.Binding
+namespace Boo.Lang.Ast.Compiler.Bindings
 {
 	public class ExternalTypeBinding : NamespaceBindingCache, ITypeBinding
 	{

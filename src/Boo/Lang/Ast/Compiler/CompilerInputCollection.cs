@@ -29,7 +29,7 @@
 
 using System;
 
-namespace Boo.Ast.Compilation
+namespace Boo.Lang.Ast.Compiler
 {
 	/// <summary>
 	/// A collection of <see cref="ICompilerInput"/> objects.

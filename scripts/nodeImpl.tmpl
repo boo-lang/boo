@@ -1,4 +1,4 @@
-#def getTargetFileName(): src/Boo/Ast/Impl/${item.name}Impl.cs
+#def getTargetFileName(): src/Boo/Lang/Ast/Impl/${item.name}Impl.cs
 #def initializer()
 	#for field in $item.fields
 		#unless "lazy" in $field.attributes
@@ -58,7 +58,7 @@ $field.type $cs.toLocalName(field.name)#slurp
 //
 using System;
 
-namespace Boo.Ast.Impl
+namespace Boo.Lang.Ast.Impl
 {
 	[Serializable]
 	public abstract class ${item.name}Impl : #echo ", ".join($item.baseTypes)

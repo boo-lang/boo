@@ -30,7 +30,7 @@
 using System;
 using System.Collections;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
 	/// <summary>
 	/// Node collection base class.

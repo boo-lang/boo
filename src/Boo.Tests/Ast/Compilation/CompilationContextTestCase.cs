@@ -30,10 +30,10 @@
 using System;
 using NUnit.Framework;
 using Boo.Lang;
-using Boo.Ast;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
 
-namespace Boo.Tests.Ast.Compilation
+namespace Boo.Tests.Ast.Compiler
 {
 	/// <summary>	
 	/// </summary>

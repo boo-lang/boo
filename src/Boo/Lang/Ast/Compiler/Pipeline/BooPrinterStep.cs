@@ -28,9 +28,9 @@
 #endregion
 
 using System;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast.Compiler;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {
 	/// <summary>	
 	/// </summary>
@@ -54,7 +54,7 @@ namespace Boo.Ast.Compilation.Pipeline
 
 		public void Run()
 		{		
-			Boo.Ast.Visitors.BooPrinterVisitor visitor = new Boo.Ast.Visitors.BooPrinterVisitor(Console.Out);
+			Boo.Lang.Ast.Visitors.BooPrinterVisitor visitor = new Boo.Lang.Ast.Visitors.BooPrinterVisitor(Console.Out);
 			visitor.Print(_context.CompileUnit);
 		}
 	}

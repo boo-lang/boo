@@ -29,15 +29,15 @@
 
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
-	public class UsingCollection : Boo.Ast.Impl.UsingCollectionImpl
+	public class UsingCollection : Boo.Lang.Ast.Impl.UsingCollectionImpl
 	{
 		public UsingCollection()
 		{
 		}
 		
-		public UsingCollection(Boo.Ast.Node parent) : base(parent)
+		public UsingCollection(Boo.Lang.Ast.Node parent) : base(parent)
 		{
 		}
 	}

@@ -29,15 +29,15 @@
 
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
-	public class TypeDefinitionCollection : Boo.Ast.Impl.TypeDefinitionCollectionImpl
+	public class TypeDefinitionCollection : Boo.Lang.Ast.Impl.TypeDefinitionCollectionImpl
 	{
 		public TypeDefinitionCollection()
 		{
 		}
 		
-		public TypeDefinitionCollection(Boo.Ast.Node parent) : base(parent)
+		public TypeDefinitionCollection(Boo.Lang.Ast.Node parent) : base(parent)
 		{
 		}
 	}

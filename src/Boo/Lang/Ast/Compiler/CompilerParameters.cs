@@ -32,7 +32,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.IO;
 
-namespace Boo.Ast.Compilation
+namespace Boo.Lang.Ast.Compiler
 {
 	/// <summary>
 	/// Compiler parameters.

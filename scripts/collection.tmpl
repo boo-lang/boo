@@ -1,4 +1,4 @@
-#def getTargetFileName(): src/Boo/Ast/${item.name}.cs
+#def getTargetFileName(): src/Boo/Lang/Ast/${item.name}.cs
 #raw
 #region license
 // boo - an extensible programming language for the CLI
@@ -32,15 +32,15 @@
 #end raw
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
-	public class ${item.name} : Boo.Ast.Impl.${item.name}Impl
+	public class ${item.name} : Boo.Lang.Ast.Impl.${item.name}Impl
 	{
 		public ${item.name}()
 		{
 		}
 		
-		public ${item.name}(Boo.Ast.Node parent) : base(parent)
+		public ${item.name}(Boo.Lang.Ast.Node parent) : base(parent)
 		{
 		}
 	}

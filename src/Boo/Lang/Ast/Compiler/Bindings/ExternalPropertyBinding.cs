@@ -27,7 +27,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Ast.Compilation.Binding
+namespace Boo.Lang.Ast.Compiler.Bindings
 {
 	public class ExternalPropertyBinding : IPropertyBinding
 	{

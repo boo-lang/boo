@@ -29,7 +29,7 @@
 
 using System;
 
-namespace Boo.Ast.Compilation.Util
+namespace Boo.Lang.Ast.Compiler.Util
 {
 	/// <summary>
 	/// Uma tarefa.

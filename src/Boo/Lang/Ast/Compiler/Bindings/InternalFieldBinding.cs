@@ -1,7 +1,7 @@
-namespace Boo.Ast.Compilation.Binding
+namespace Boo.Lang.Ast.Compiler.Bindings
 {
 	using System;
-	using Boo.Ast;
+	using Boo.Lang.Ast;
 	
 	public class InternalFieldBinding : IFieldBinding
 	{

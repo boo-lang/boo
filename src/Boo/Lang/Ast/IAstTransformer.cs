@@ -35,7 +35,7 @@
 //
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
 	public interface IAstTransformer
 	{

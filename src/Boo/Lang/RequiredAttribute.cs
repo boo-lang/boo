@@ -28,7 +28,7 @@
 #endregion
 
 using System;
-using Boo.Ast;
+using Boo.Lang.Ast;
 
 namespace Boo.Lang
 {
@@ -49,7 +49,7 @@ namespace Boo.Lang
 		{
 		}
 
-		public override void Apply(Boo.Ast.Node node)
+		public override void Apply(Boo.Lang.Ast.Node node)
 		{
 			ParameterDeclaration pd = node as ParameterDeclaration;
 			if (null == pd)

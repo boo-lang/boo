@@ -1,4 +1,4 @@
-#def getTargetFileName(): src/Boo/Ast/Impl/${item.name}Impl.cs
+#def getTargetFileName(): src/Boo/Lang/Ast/Impl/${item.name}Impl.cs
 #set itemType = $item.attributes['ItemType']
 #raw
 #region license
@@ -38,9 +38,9 @@
 // ast.py script on ${time.asctime()}
 //
 using System;
-using Boo.Ast;
+using Boo.Lang.Ast;
 
-namespace Boo.Ast.Impl
+namespace Boo.Lang.Ast.Impl
 {
 	/// <summary>
 	/// Implements a strongly typed collection of <see cref="$itemType"/> elements.

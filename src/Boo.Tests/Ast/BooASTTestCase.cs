@@ -28,7 +28,7 @@
 #endregion
 
 using System;
-using Boo.Ast;
+using Boo.Lang.Ast;
 using NUnit.Framework;
 
 namespace Boo.Tests

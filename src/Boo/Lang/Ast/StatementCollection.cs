@@ -29,15 +29,15 @@
 
 using System;
 
-namespace Boo.Ast
+namespace Boo.Lang.Ast
 {
-	public class StatementCollection : Boo.Ast.Impl.StatementCollectionImpl
+	public class StatementCollection : Boo.Lang.Ast.Impl.StatementCollectionImpl
 	{
 		public StatementCollection()
 		{
 		}
 		
-		public StatementCollection(Boo.Ast.Node parent) : base(parent)
+		public StatementCollection(Boo.Lang.Ast.Node parent) : base(parent)
 		{
 		}
 	}

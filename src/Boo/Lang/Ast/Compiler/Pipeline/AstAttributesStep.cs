@@ -28,14 +28,14 @@
 #endregion
 
 using System;
-using Boo.Ast;
-using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.Binding;
-using Boo.Ast.Compilation.Util;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Ast.Compiler.Bindings;
+using Boo.Lang.Ast.Compiler.Util;
 using Boo.Lang;
 using Reflection = System.Reflection;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {
 	class ApplyAttributeTask : ITask
 	{
@@ -216,7 +216,7 @@ namespace Boo.Ast.Compilation.Pipeline
 			// rpido
 		}
 
-		public override void OnAttribute(Boo.Ast.Attribute attribute, ref Boo.Ast.Attribute resultingNode)
+		public override void OnAttribute(Boo.Lang.Ast.Attribute attribute, ref Boo.Lang.Ast.Attribute resultingNode)
 		{
 			// Neste primeiro passo tentamos apenas
 			// resolver ast attributes.

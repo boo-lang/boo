@@ -30,15 +30,15 @@
 using System;
 using System.IO;
 using Boo.Lang;
-using Boo.Ast;
+using Boo.Lang.Ast;
 using Boo.Antlr;
-using Boo.Ast.Compilation;
-using Boo.Ast.Compilation.IO;
-using Boo.Ast.Compilation.Pipeline;
+using Boo.Lang.Ast.Compiler;
+using Boo.Lang.Ast.Compiler.IO;
+using Boo.Lang.Ast.Compiler.Pipeline;
 using NUnit.Framework;
 using Boo.Tests;
 
-namespace Boo.Tests.Ast.Compilation.Processors
+namespace Boo.Tests.Ast.Compiler.Processors
 {
 	/// <summary>
 	/// Um exemplo de atributo que adiciona o atributo required
@@ -60,7 +60,7 @@ namespace Boo.Tests.Ast.Compilation.Processors
 
 			foreach (ParameterDeclaration pd in m.Parameters)
 			{
-				pd.Attributes.Add(new Boo.Ast.Attribute("required"));
+				pd.Attributes.Add(new Boo.Lang.Ast.Attribute("required"));
 			}
 		}
 	}
@@ -186,7 +186,7 @@ namespace Boo.Tests.Ast.Compilation.Processors
 		{
 			string actual = @"
 
-using Boo.Tests.Ast.Compilation.Processors
+using Boo.Tests.Ast.Compiler.Processors
 
 class Customer:
 	[AllParametersRequired]
@@ -196,7 +196,7 @@ class Customer:
 
 			string expected = @"
 
-using Boo.Tests.Ast.Compilation.Processors
+using Boo.Tests.Ast.Compiler.Processors
 
 class Customer:	
 	def constructor(fname as string, lname as string):
@@ -211,7 +211,7 @@ class Customer:
 		public void TestAttributeWithNamedParameter()
 		{
 			string actual = @"
-using Boo.Tests.Ast.Compilation.Processors
+using Boo.Tests.Ast.Compiler.Processors
 using System.Web
 
 class MyControl(Control):
@@ -219,7 +219,7 @@ class MyControl(Control):
 	Width as int
 ";
 			string expected = @"
-using Boo.Tests.Ast.Compilation.Processors
+using Boo.Tests.Ast.Compiler.Processors
 using System.Web
 
 class MyControl(Control):

@@ -29,10 +29,10 @@
 
 using System;
 using System.Xml.Serialization;
-using Boo.Ast;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast;
+using Boo.Lang.Ast.Compiler;
 
-namespace Boo.Ast.Compilation.Pipeline
+namespace Boo.Lang.Ast.Compiler.Pipeline
 {
 	/// <summary>
 	/// Writes a xml representation of the AST to the console.

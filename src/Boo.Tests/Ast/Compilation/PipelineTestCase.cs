@@ -31,9 +31,9 @@ using System;
 using System.IO;
 using System.Xml;
 using NUnit.Framework;
-using Boo.Ast.Compilation;
+using Boo.Lang.Ast.Compiler;
 
-namespace Boo.Tests.Ast.Compilation
+namespace Boo.Tests.Ast.Compiler
 {
 	public class DummyStep : ICompilerStep
 	{
@@ -103,7 +103,7 @@ namespace Boo.Tests.Ast.Compilation
 
 			AssertEquals(0, p1.RunCount);
 			AssertEquals(0, p2.RunCount);
-			_pipeline.Run(new CompilerContext(new CompilerParameters(), new Boo.Ast.CompileUnit()));
+			_pipeline.Run(new CompilerContext(new CompilerParameters(), new Boo.Lang.Ast.CompileUnit()));
 			AssertEquals(1, p1.RunCount);
 			AssertEquals(1, p2.RunCount);
 		}
@@ -113,7 +113,7 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			string xml = @"
 			<pipeline>
-				<step type='Boo.Tests.Ast.Compilation.DummyStep, Boo.Tests' />
+				<step type='Boo.Tests.Ast.Compiler.DummyStep, Boo.Tests' />
 			</pipeline>";
 			
 			_pipeline.Configure(LoadXml(xml));

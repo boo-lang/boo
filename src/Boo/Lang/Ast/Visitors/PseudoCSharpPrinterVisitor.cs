@@ -29,7 +29,7 @@
 
 using System;
 
-namespace Boo.Ast.Visitors
+namespace Boo.Lang.Ast.Visitors
 {
 	/// <summary>
 	/// Prints a boo ast in pseudo C#.

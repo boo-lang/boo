@@ -31,10 +31,10 @@ using System;
 using System.Text;
 using Boo.Lang;
 
-namespace Boo.Ast.Compilation
+namespace Boo.Lang.Ast.Compiler
 {
 	/// <summary>
-	/// Compilation errors.
+	/// Compiler errors.
 	/// </summary>
 	public class ErrorCollection : System.Collections.CollectionBase
 	{
@@ -199,7 +199,7 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, msg, cause));
 		}
 		
-		public void MethodArgumentCount(Node sourceNode, Binding.IMethodBinding binding, int actualArgumentCount)
+		public void MethodArgumentCount(Node sourceNode, Bindings.IMethodBinding binding, int actualArgumentCount)
 		{
 			Add(new Error(sourceNode, Format("MethodArgumentCount", binding, actualArgumentCount)));
 		}
@@ -215,7 +215,7 @@ namespace Boo.Ast.Compilation
 			Add(new Error(attribute, msg, cause));
 		}
 		
-		public void AstAttributeMustBeExternal(Attribute attribute, Binding.ITypeBinding resolvedType)
+		public void AstAttributeMustBeExternal(Attribute attribute, Bindings.ITypeBinding resolvedType)
 		{
 			Add(new Error(attribute, Format("AstAttributeMustBeExternal", resolvedType.FullName)));
 		}
