@@ -26,7 +26,6 @@ Interactive Forms-based Console
 namespace BooExplorer
 
 import System
-import booish
 import System.Windows.Forms
 import System.Drawing
 import WeifenLuo.WinFormsUI

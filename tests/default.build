@@ -12,10 +12,10 @@
 					<include name="Boo.Tests.dll" />
 					<include name="Boo.Lang.Parser.Tests.dll" />
 					<include name="Boo.Lang.Compiler.Tests.dll" />
+					<include name="Boo.Lang.Interpreter.Tests.dll" />
 					<include name="BooCompiler.Tests.dll" />					
 					<include name="BooCompilerResources.Tests.dll" />					
-					<include name="Regression.Tests.dll" />
-					<include name="Booish.Tests.dll" />
+					<include name="Regression.Tests.dll" />					
 				</assemblies>
 			</test>
 		</nunit2>
@@ -100,14 +100,14 @@
 		
 		<booc
 			target="library"
-			output="build/Booish.Tests.dll">
+			output="build/Boo.Lang.Interpreter.Tests.dll">
 			
-			<sources basedir="Booish.Tests">
+			<sources basedir="Boo.Lang.Interpreter.Tests">
 				<include name="**/*.boo" />
 			</sources>
 			
 			<references basedir="build">
-				<include name="booish.exe" />
+				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="${nunit.framework.dll}" />
 			</references>
 		</booc>
@@ -135,7 +135,6 @@
 		<mkdir dir="build" />
 		<copy todir="build">
 			<fileset basedir="../build">
-				<include name="booish.exe" />
 				<include name="*.dll" />
 				<include name="*.pdb" />
 				<include name="pt/*.dll" />

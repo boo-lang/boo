@@ -32,7 +32,7 @@
 		<nant buildfile="tests/default.build" target="compile" />
 	</target>
 	
-	<target name="booish" depends="Boo.NAnt.Tasks">
+	<target name="booish" depends="Boo.Lang.Interpreter">
 		<booc
 			target="exe"
 			output="build/booish.exe">
@@ -40,6 +40,10 @@
 			<sources basedir="src/booish">
 				<include name="*.boo" />
 			</sources>
+			
+			<references basedir="build">
+				<include name="Boo.Lang.Interpreter.dll" />
+			</references>
 		</booc>
 	</target>
 	
@@ -67,6 +71,17 @@
 		for p as System.Collections.DictionaryEntry in Project.Properties:
 			print("${p.Key}: ${p.Value}")		
 		</boo>
+	</target>
+	
+	<target name="Boo.Lang.Interpreter" depends="Boo.NAnt.Tasks">
+		<booc 
+			target="library"
+			output="build/Boo.Lang.Interpreter.dll">
+			
+			<sources basedir="src/Boo.Lang.Interpreter">
+				<include name="*.boo" />
+			</sources>
+		</booc>
 	</target>
 	
 	<target name="Boo.NAnt.Tasks" depends="booc">
@@ -128,9 +143,10 @@
 			<fileset basedir="build">
 				<include name="pt/Boo.resources.dll" />
 				<include name="Boo.dll" />
-				<include name="Boo.Lang.Compiler.dll" />
-				<include name="Boo.NAnt.Tasks.dll" />
 				<include name="Boo.Lang.Parser.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="Boo.NAnt.Tasks.dll" />
 				<include name="booc.exe" />
 				<include name="booc.rsp" />
 				<include name="booi.exe" />

@@ -36,10 +36,10 @@ import System
 import System.Text
 import System.IO
 import System.Reflection
-import booish
 import System.Windows.Forms
 import System.Drawing
 import System.Runtime.InteropServices
+import Boo.Lang.Interpreter
 
 class KeyChar:
 	

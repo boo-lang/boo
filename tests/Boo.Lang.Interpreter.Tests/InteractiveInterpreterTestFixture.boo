@@ -25,12 +25,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
-namespace Booish.Tests
+namespace Boo.Lang.Interpreter.Tests
 
 import System
 import System.IO
 import NUnit.Framework
-import booish
+import Boo.Lang.Interpreter
 
 [TestFixture]
 class InteractiveInterpreterTestFixture:
@@ -111,14 +111,14 @@ class InteractiveInterpreterTestFixture:
 		
 	[Test]
 	def Import():
-		Eval("import Booish.Tests from Booish.Tests")
+		Eval("import Boo.Lang.Interpreter.Tests from Boo.Lang.Interpreter.Tests")
 		Eval("value = InteractiveInterpreterTestFixture.LifeTheUniverseAndEverything")
 		assert 42 == _interpreter.GetValue("value")
 		
 	[Test]
 	def ImportingTwiceIsNoProblem():
-		Eval("import Booish.Tests from Booish.Tests")
-		Eval("import Booish.Tests from Booish.Tests")
+		Eval("import Boo.Lang.Interpreter.Tests from Boo.Lang.Interpreter.Tests")
+		Eval("import Boo.Lang.Interpreter.Tests from Boo.Lang.Interpreter.Tests")
 		
 		Eval("value = InteractiveInterpreterTestFixture.LifeTheUniverseAndEverything")
 		assert 42 == _interpreter.GetValue("value")		

@@ -12,18 +12,30 @@
 		</exec>
 	</target>	
 	
-	<target name="gui" depends="build">
+	<target name="booish.gui" depends="init">
+		<property name="booish.gui.dir" value="${boo.base}/extras/booish.gui" />
+		
+		<nant buildfile="${booish.gui.dir}/default.build" target="build" />
+		
+		<copy todir="build">
+			<fileset basedir="${booish.gui.dir}/build">
+				<include name="booish.gui.exe" />
+				<include name="booish.gui.externs.dll" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="gui" depends="build, booish.gui">		
 		<booc target="winexe" output="build/TimeTracker.exe">
 			<sources basedir="src/TimeTracker">
-				<include name="*.boo" />
-				<include name="${boo.base}/extras/booish.gui/src/PromptBox.boo" />				
+				<include name="*.boo" />								
 			</sources>
 			
 			<references basedir="build">
 				<include name="TimeTracker.Model.dll" />
 				<include name="System.Windows.Forms.dll" />
 				<include name="System.Drawing.dll" />
-				<include name="booish.exe" />
+				<include name="booish.gui.exe" />
 			</references>
 		</booc>
 	</target>
@@ -68,7 +80,7 @@
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
-				<include name="booish.exe" />
+				<include name="Boo.Lang.Interpreter.dll" />
 			</fileset>
 		</copy>
 		<copy todir="build">

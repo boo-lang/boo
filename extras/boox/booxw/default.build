@@ -37,7 +37,8 @@
 				<include name="*.dll" />
 				<include name="boo.xshd" />
 				<include name="booxw.exe" />
-				<include name="booish.exe" />
+				<include name="booish.gui.exe" />
+				<include name="booish.gui.externs.dll" />
 				<include name="scripts/*.int" />
 			</fileset>
 		</zip>
@@ -77,7 +78,7 @@
 			</resources>
 			
 			<references basedir="${build.dir}">
-				<include name="booish.exe" />
+				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="booish.gui.exe" />
 				<include name="ICSharpCode.TextEditor.dll" />
 				<include name="WeifenLuo.WinFormsUI.dll" />

@@ -22,7 +22,7 @@
 				<include name="*.boo" />
 			</sources>
 			<references basedir="build">
-				<include name="booish.exe" />
+				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="booish.gui.externs.dll" />
 				<include name="System.Windows.Forms.dll" />
 				<include name="System.Drawing.dll" />
@@ -40,7 +40,7 @@
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
-				<include name="booish.exe" />
+				<include name="Boo.Lang.Interpreter.dll" />
 			</fileset>
 		</copy>
 		<loadtasks assembly="${boo.dir}/Boo.NAnt.Tasks.dll" />

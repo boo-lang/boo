@@ -46,7 +46,7 @@
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
-				<include name="booish.exe" />
+				<include name="Boo.Lang.Interpreter.dll" />
 			</fileset>
 		</copy>
 		

@@ -30,7 +30,7 @@ import System
 import Gtk from "gtk-sharp"
 import Gdk from "gdk-sharp" as Gdk
 import Pango from "pango-sharp" as Pango
-import booish from booish
+import Boo.Lang.Interpreter from Boo.Lang.Interpreter
 
 class PromptView(TextView):
 	
