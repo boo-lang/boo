@@ -61,6 +61,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		{
+			bool found = base.Resolve(targetList, name, flags);
+			if (!found)
+			{
+				if (BaseType.Resolve(targetList, name, flags))
+				{
+					found = true;
+				}
+			}
+			return found;
+		}
+		
 		override public bool IsSubclassOf(IType type)
 		{
 			return type == _typeSystemServices.EnumType ||

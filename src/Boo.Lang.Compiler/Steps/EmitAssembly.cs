@@ -1480,7 +1480,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			return false;
-		}
+		}		
 		
 		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
 		{				
@@ -1491,10 +1491,10 @@ namespace Boo.Lang.Compiler.Steps
 				IType targetType = target.ExpressionType;
 				if (targetType.IsValueType)
 				{	
-					if (mi.DeclaringType == Types.Object)
+					if (targetType.IsEnum || mi.DeclaringType == Types.Object)
 					{
 						Visit(node.Target); 
-						_il.Emit(OpCodes.Box, GetSystemType(PopType()));
+						EmitBox(PopType());						
 						code = OpCodes.Callvirt;
 					}
 					else
@@ -2486,9 +2486,14 @@ namespace Boo.Lang.Compiler.Steps
 						(expectedType.IsInterface ||
 						TypeSystemServices.IsSystemObject(expectedType)))
 				{
-					_il.Emit(OpCodes.Box, GetSystemType(actualType));
+					EmitBox(actualType);
 				}
 			}
+		}
+		
+		void EmitBox(IType type)
+		{
+			_il.Emit(OpCodes.Box, GetSystemType(type));
 		}
 		
 		void EmitUnbox(IType expectedType)
