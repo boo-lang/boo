@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class CheckInterfaceImplementations : AbstractVisitorCompilerStep
+	public class CheckAbstractMembers : AbstractVisitorCompilerStep
 	{
 		Hashtable _visited = new Hashtable();
 		List _newAbstractClasses = new List();
@@ -44,6 +44,15 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			Visit(CompileUnit.Modules);
+			ProcessNewAbstractClasses();
+		}
+		
+		void ProcessNewAbstractClasses()
+		{
+			foreach (ClassDefinition node in _newAbstractClasses)
+			{
+				node.Modifiers |= TypeMemberModifiers.Abstract;
+			}
 		}
 		
 		override public void Dispose()
@@ -63,22 +72,41 @@ namespace Boo.Lang.Compiler.Steps
 			MarkVisited(node);
 			Visit(node.Members, NodeType.ClassDefinition);
 			
-			foreach (TypeReference baseType in node.BaseTypes)
+			foreach (TypeReference baseTypeRef in node.BaseTypes)
 			{
-				IType tag = GetType(baseType);
-				if (tag.IsInterface)
+				IType baseType = GetType(baseTypeRef);
+				if (baseType.IsInterface)
 				{
-					ResolveClassInterfaceMembers(node, baseType, tag);
+					ResolveInterfaceMembers(node, baseTypeRef, baseType);
 				}
 				else
 				{
-					EnsureVisited(tag);
+					EnsureVisited(baseType);
+					if (IsAbstract(baseType))
+					{
+						ResolveAbstractMembers(node, baseTypeRef, baseType);
+					}
 				}
 			}
 		}
 		
-		void ResolveClassInterfaceProperty(ClassDefinition node,
-											Boo.Lang.Compiler.Ast.TypeReference interfaceReference,
+		bool IsAbstract(IType type)
+		{
+			if (type.IsAbstract)
+			{
+				return true;
+			}
+			
+			InternalType internalType = type as InternalType;
+			if (null != internalType)
+			{
+				return _newAbstractClasses.Contains(internalType.TypeDefinition);
+			}
+			return false;
+		}
+		
+		void ResolveClassAbstractProperty(ClassDefinition node,
+											Boo.Lang.Compiler.Ast.TypeReference baseTypeRef,
 											IProperty tag)
 		{
 			TypeMember member = node.Members[tag.Name];
@@ -104,12 +132,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null == member)
 				{
-					node.Members.Add(CreateAbstractProperty(interfaceReference, tag));
-					AbstractMemberNotImplemented(node, interfaceReference, tag);
+					node.Members.Add(CreateAbstractProperty(baseTypeRef, tag));
+					AbstractMemberNotImplemented(node, baseTypeRef, tag);
 				}
 				else
 				{
-					NotImplemented(interfaceReference, "member name conflict");
+					NotImplemented(baseTypeRef, "member name conflict");
 				}
 			}
 		}
@@ -134,8 +162,8 @@ namespace Boo.Lang.Compiler.Steps
 			return p;
 		}
 		
-		void ResolveClassInterfaceMethod(ClassDefinition node,
-										TypeReference interfaceReference,
+		void ResolveAbstractMethod(ClassDefinition node,
+										TypeReference baseTypeRef,
 										IMethod tag)
 		{			
 			if (tag.IsSpecialName)
@@ -162,51 +190,78 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			node.Members.Add(CodeBuilder.CreateAbstractMethod(interfaceReference.LexicalInfo, tag));
-			AbstractMemberNotImplemented(node, interfaceReference, tag); 			
+			node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, tag));
+			AbstractMemberNotImplemented(node, baseTypeRef, tag); 			
 		}
 		
-		void AbstractMemberNotImplemented(ClassDefinition node, TypeReference interfaceReference, IMember member)
+		void AbstractMemberNotImplemented(ClassDefinition node, TypeReference baseTypeRef, IMember member)
 		{
-			Warnings.Add(
-						CompilerWarningFactory.AbstractMemberNotImplemented(interfaceReference,
+			if (!node.IsAbstract)
+			{
+				Warnings.Add(
+						CompilerWarningFactory.AbstractMemberNotImplemented(baseTypeRef,
 																					node.FullName, member.FullName));
-			node.Modifiers |= TypeMemberModifiers.Abstract;
+				_newAbstractClasses.AddUnique(node);
+			}
 		}
 		
-		void ResolveClassInterfaceMembers(ClassDefinition node,
-											TypeReference interfaceReference,
-											IType interfaceInfo)
+		void ResolveInterfaceMembers(ClassDefinition node,
+											TypeReference baseTypeRef,
+											IType baseType)
 		{			
-			foreach (IType tag in interfaceInfo.GetInterfaces())
+			foreach (IType tag in baseType.GetInterfaces())
 			{
-				ResolveClassInterfaceMembers(node, interfaceReference, tag);
+				ResolveInterfaceMembers(node, baseTypeRef, tag);
 			}
 			
-			foreach (IMember tag in interfaceInfo.GetMembers())
+			foreach (IMember tag in baseType.GetMembers())
 			{
-				switch (tag.EntityType)
+				ResolveAbstractMember(node, baseTypeRef, tag);
+			}
+		}		
+		
+		void ResolveAbstractMembers(ClassDefinition node,
+											TypeReference baseTypeRef,
+											IType baseType)
+		{
+			foreach (IMember member in baseType.GetMembers())
+			{
+				if (EntityType.Method == member.EntityType)
 				{
-					case EntityType.Method:
+					IMethod method = (IMethod)member;
+					if (method.IsAbstract)
 					{
-						ResolveClassInterfaceMethod(node, interfaceReference, (IMethod)tag);
-						break;
-					}
-					
-					case EntityType.Property:
-					{
-						ResolveClassInterfaceProperty(node, interfaceReference, (IProperty)tag);
-						break;
-					}
-					
-					default:
-					{
-						NotImplemented(interfaceReference, "interface member: " + tag);
-						break;
+						ResolveAbstractMethod(node, baseTypeRef, method);
 					}
 				}
 			}
-		}		
+		}									
+		
+		void ResolveAbstractMember(ClassDefinition node,
+											TypeReference baseTypeRef,
+											IMember member)
+		{
+			switch (member.EntityType)
+			{
+				case EntityType.Method:
+				{
+					ResolveAbstractMethod(node, baseTypeRef, (IMethod)member);
+					break;
+				}
+				
+				case EntityType.Property:
+				{
+					ResolveClassAbstractProperty(node, baseTypeRef, (IProperty)member);
+					break;
+				}
+				
+				default:
+				{
+					NotImplemented(baseTypeRef, "abstract member: " + member);
+					break;
+				}
+			}
+		}
 		
 		bool CheckPropertyAccessors(IProperty expected, IProperty actual)
 		{			

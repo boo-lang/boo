@@ -110,6 +110,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsAbstract
+		{
+			get
+			{
+				return _method.IsAbstract;
+			}
+		}
+		
 		public bool IsVirtual
 		{
 			get
