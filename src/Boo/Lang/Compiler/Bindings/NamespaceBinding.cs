@@ -114,7 +114,7 @@ namespace Boo.Lang.Compiler.Bindings
 				{
 					if (name == type.Name)
 					{
-						return _bindingManager.ToTypeReference(type);
+						return _bindingManager.AsTypeReference(type);
 					}
 				}
 			}
@@ -135,7 +135,7 @@ namespace Boo.Lang.Compiler.Bindings
 				{
 					if (name == type.Name)
 					{
-						return _bindingManager.ToTypeReference(type);
+						return _bindingManager.AsTypeReference(type);
 					}
 				}
 			}

@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler.Bindings
 					typeBinding = new InternalTypeBinding(_bindingManager, (TypeDefinition)member);
 					BindingManager.Bind(member, typeBinding);
 				}
-				return _bindingManager.ToTypeReference(typeBinding);
+				return _bindingManager.AsTypeReference(typeBinding);
 			}
 			
 			IBinding binding = null;

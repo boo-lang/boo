@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.Bindings
 					
 					if (BindingType.Type == binding.BindingType)
 					{
-						binding = _bindingManager.ToTypeReference((ITypeBinding)binding);
+						binding = _bindingManager.AsTypeReference((ITypeBinding)binding);
 					}
 					return binding;
 				}

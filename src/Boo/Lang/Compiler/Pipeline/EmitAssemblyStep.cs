@@ -1698,9 +1698,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			return GetConstructorBuilder(((InternalMethodBinding)binding).Method);
 		}
 		
-		ITypeBinding ToTypeBinding(Type type)
+		ITypeBinding AsTypeBinding(Type type)
 		{
-			return BindingManager.ToTypeBinding(type);
+			return BindingManager.AsTypeBinding(type);
 		}
 		
 		Type GetType(ITypeBinding binding)

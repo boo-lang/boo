@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_event.DeclaringType);
+				return _bindingManager.AsTypeBinding(_event.DeclaringType);
 			}
 		}
 		
@@ -95,7 +95,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_event.EventHandlerType);
+				return _bindingManager.AsTypeBinding(_event.EventHandlerType);
 			}
 		}
 		

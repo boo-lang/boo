@@ -156,7 +156,45 @@ $initializer() #slurp
 		}
 			#end if
 		#end for		
-		#unless "abstract" in $item.attributes 
+		#unless "abstract" in $item.attributes
+		public override bool Replace(Node existing, Node newNode)
+		{
+			if (base.Replace(existing, newNode))
+			{
+				return true;
+			}
+			
+			#for field in $item.fields
+			#set fieldName=$cs.toPrivateName($field.name)
+			#set fieldType=$model.resolve($field.type)
+			#if $fieldType
+				#if "collection" == $fieldType.stereotype
+			if ($fieldName != null)
+			{
+					#set collectionItemType = $fieldType.attributes["ItemType"]
+				${collectionItemType} item = existing as ${collectionItemType};
+				if (null != item)
+				{
+					if (${fieldName}.Replace(item, (${collectionItemType})newNode))
+					{
+						return true;
+					}
+				}
+			}
+				#else
+					#unless "enum" == $fieldType.stereotype
+			if ($fieldName == existing)
+			{
+				this.${field.name} = (${field.type})newNode;
+				return true;
+			}
+					#end unless
+				#end if
+			#end if
+			#end for
+			return false;
+		}
+		
 		public override void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
 			${item.name} thisNode = (${item.name})this;

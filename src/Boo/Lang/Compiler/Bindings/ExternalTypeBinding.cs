@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Bindings
 			_type = type;
 			if (_type.IsArray)
 			{
-				_elementType = _bindingManager.ToTypeBinding(type.GetElementType());
+				_elementType = _bindingManager.AsTypeBinding(type.GetElementType());
 			}
 		}
 		
@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_type.BaseType);
+				return _bindingManager.AsTypeBinding(_type.BaseType);
 			}
 		}
 		
@@ -230,7 +230,7 @@ namespace Boo.Lang.Compiler.Bindings
 			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
 			if (members.Length > 0)
 			{				
-				binding = _bindingManager.ToBinding(members);
+				binding = _bindingManager.AsBinding(members);
 			}
 			return Cache(name, binding);
 		}

@@ -51,6 +51,7 @@ BCE0049=Expression can't be assigned to.
 BCE0050=Operator '{0}' can't be used with an expression of type '{1}'.
 BCE0051=Operator '{0}' can't be used with operands of type '{1}' and '{2}'.
 BCE0052=Type '{0}' is not a valid argument for 'len'.
+BCE0053=Property '{0}' is read only.
 
 
 ;Attribute Messages

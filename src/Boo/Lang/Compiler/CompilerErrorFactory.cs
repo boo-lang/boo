@@ -292,6 +292,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0052", node.LexicalInfo, typeName);
 		}
 		
+		public static CompilerError PropertyIsReadOnly(Node node, string propertyName)
+		{
+			return new CompilerError("BCE0053", node.LexicalInfo, propertyName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

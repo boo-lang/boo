@@ -91,9 +91,9 @@ namespace Boo.Lang.Ast.Impl
 			base.Insert(index, item);
 		}
 		
-		public void Replace($itemType existing, $itemType newItem)
+		public bool Replace($itemType existing, $itemType newItem)
 		{
-			base.Replace(existing, newItem);
+			return base.Replace(existing, newItem);
 		}
 		
 		public new ${itemType}[] ToArray()

@@ -103,12 +103,13 @@ namespace Boo.Lang
 		public object this[int index]
 		{
 			get
+			{				
+				return _list[NormalizeIndex(index)];
+			}
+			
+			set
 			{
-				if (index < 0)
-				{
-					index += _list.Count;
-				}
-				return _list[index];
+				_list[NormalizeIndex(index)] = value;
 			}
 		}
 
@@ -191,6 +192,15 @@ namespace Boo.Lang
 					target.Add(item);
 				}
 			}
+		}
+		
+		int NormalizeIndex(int index)
+		{
+			if (index < 0)
+			{
+				index += _list.Count;
+			}
+			return index;
 		}
 	}
 }

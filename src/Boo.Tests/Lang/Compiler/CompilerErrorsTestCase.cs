@@ -53,6 +53,12 @@ namespace Boo.Tests.Lang.Compiler
 	public class CompilerErrorsTestCase : AbstractCompilerTestCase
 	{
 		[Test]
+		public void ReadOnlyProperty()
+		{
+			RunCompilerTestCase("readonly_property.boo");
+		}
+		
+		[Test]
 		public void TestReturnTypes()
 		{
 			RunCompilerTestCase("return0.boo");

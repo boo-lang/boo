@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_property.DeclaringType);
+				return _bindingManager.AsTypeBinding(_property.DeclaringType);
 			}
 		}
 		
@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_property.PropertyType);
+				return _bindingManager.AsTypeBinding(_property.PropertyType);
 			}
 		}
 		
@@ -115,12 +115,22 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public IMethodBinding GetGetMethod()
 		{
-			return (IMethodBinding)_bindingManager.ToBinding(_property.GetGetMethod(true));
+			System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
+			if (null != getter)
+			{
+				return (IMethodBinding)_bindingManager.AsBinding(getter);
+			}
+			return null;
 		}
 		
 		public IMethodBinding GetSetMethod()
 		{
-			return (IMethodBinding)_bindingManager.ToBinding(_property.GetSetMethod(true));
+			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
+			if (null != setter)
+			{
+				return (IMethodBinding)_bindingManager.AsBinding(setter);
+			}
+			return null;
 		}
 		
 		System.Reflection.MethodInfo GetAccessor()

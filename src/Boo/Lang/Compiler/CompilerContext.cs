@@ -166,6 +166,22 @@ namespace Boo.Lang.Compiler
 			}			
 		}
 		
+		public void TraceVerbose(string format, object param1, object param2)
+		{
+			if (_traceSwitch.TraceVerbose)
+			{
+				Trace.WriteLine(string.Format(format, param1, param2));
+			}
+		}
+		
+		public void TraceVerbose(string format, object param1, object param2, object param3)
+		{
+			if (_traceSwitch.TraceVerbose)
+			{
+				Trace.WriteLine(string.Format(format, param1, param2, param3));
+			}
+		}
+		
 		public void TraceVerbose(string format, object param)
 		{
 			if (_traceSwitch.TraceVerbose)			

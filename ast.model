@@ -307,6 +307,7 @@ package Boo.Ast
 	
 	[abstract]
 	class Expression(Node)
+	
 	end
 	
 	[ItemType(Expression)]

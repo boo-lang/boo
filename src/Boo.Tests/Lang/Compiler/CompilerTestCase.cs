@@ -93,6 +93,11 @@ namespace Boo.Tests.Lang.Compiler
 			{
 				return (Person)InnerList[index];
 			}
+			
+			set
+			{
+				InnerList[index] = value;
+			}
 		}
 		
 		public Person this[string fname]
@@ -107,6 +112,19 @@ namespace Boo.Tests.Lang.Compiler
 					}
 				}
 				return null;
+			}
+			
+			set
+			{
+				int index = 0;
+				foreach (Person p in InnerList)
+				{
+					if (p.FirstName == fname)
+					{
+						InnerList[index] = value;						
+					}
+					++index;
+				}
 			}
 		}
 		
@@ -723,6 +741,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void SliceOverloadAssignment()
+		{
+			RunCompilerTestCase("slicing6.boo");
+		}
+		
+		[Test]
 		public void RealType()
 		{
 			RunCompilerTestCase("real0.boo");
@@ -750,6 +774,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void MultLocals()
 		{
 			RunCompilerTestCase("mult0.boo");
+		}
+		
+		[Test]
+		public void InPlaceAddLocals()
+		{
+			RunCompilerTestCase("inplaceadd0.boo");
 		}
 	}
 }

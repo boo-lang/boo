@@ -105,7 +105,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
 			Cache(ExceptionTypeBinding = new ExternalTypeBinding(this, Types.Exception));
 			
-			ObjectTupleBinding = ToTupleBinding(ObjectTypeBinding);
+			ObjectTupleBinding = AsTupleBinding(ObjectTypeBinding);
 		}
 		
 		public Boo.Lang.Ast.TypeReference CreateBoundTypeReference(ITypeBinding binding)
@@ -120,9 +120,34 @@ namespace Boo.Lang.Compiler.Bindings
 			{				
 				typeReference = new SimpleTypeReference(binding.FullName);				
 			}
-			Bind(typeReference, ToTypeReference(binding));
+			Bind(typeReference, AsTypeReference(binding));
 			return typeReference;
 		}
+		
+		public static bool IsUnknown(Node node)
+		{
+			ITypedBinding binding = GetBinding(node) as ITypedBinding;
+			if (null != binding)
+			{
+				return IsUnknown(binding.BoundType);
+			}
+			return false;
+		}
+		
+		public static bool IsUnknown(ITypeBinding binding)
+		{
+			return BindingType.Unknown == binding.BindingType;
+		}
+		
+		public static bool IsError(Node node)
+		{
+			return IsError(GetBinding(node));
+		}
+		
+		public static bool IsError(IBinding binding)
+		{
+			return BindingType.Error == binding.BindingType;
+		}		
 		
 		public static bool IsBound(Node node)
 		{
@@ -145,7 +170,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public void Bind(TypeDefinition type)
 		{
-			Bind(type, ToTypeBinding(type));
+			Bind(type, AsTypeBinding(type));
 		}
 		
 		public static void Error(Node node)
@@ -178,11 +203,11 @@ namespace Boo.Lang.Compiler.Bindings
 			return ((ITypedBinding)GetBinding(node)).BoundType;
 		}
 		
-		public ITypeBinding ToTypeBinding(System.Type type)
+		public ITypeBinding AsTypeBinding(System.Type type)
 		{
 			if (type.IsArray)
 			{
-				return ToTupleBinding(ToTypeBinding(type.GetElementType()));
+				return AsTupleBinding(AsTypeBinding(type.GetElementType()));
 			}
 			
 			ExternalTypeBinding binding = (ExternalTypeBinding)_bindingCache[type];
@@ -193,7 +218,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		public ITypeBinding ToTypeBinding(TypeDefinition typeDefinition)
+		public ITypeBinding AsTypeBinding(TypeDefinition typeDefinition)
 		{
 			ITypeBinding binding = (ITypeBinding)_bindingCache[typeDefinition];
 			if (null == binding)
@@ -203,7 +228,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		public ITypeBinding ToTupleBinding(ITypeBinding elementType)
+		public ITypeBinding AsTupleBinding(ITypeBinding elementType)
 		{
 			ITypeBinding binding = (ITypeBinding)_tupleBindingCache[elementType];
 			if (null == binding)
@@ -213,7 +238,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		public ITypedBinding ToTypeReference(ITypeBinding type)
+		public ITypedBinding AsTypeReference(ITypeBinding type)
 		{
 			ITypedBinding cached = (ITypedBinding)_referenceCache[type];
 			if (null == cached)
@@ -224,26 +249,26 @@ namespace Boo.Lang.Compiler.Bindings
 			return cached;
 		}
 		
-		public ITypedBinding ToTypeReference(System.Type type)
+		public ITypedBinding AsTypeReference(System.Type type)
 		{
-			return ToTypeReference(ToTypeBinding(type));
+			return AsTypeReference(AsTypeBinding(type));
 		}
 		
-		public IBinding ToBinding(System.Reflection.MemberInfo[] info)
+		public IBinding AsBinding(System.Reflection.MemberInfo[] info)
 		{
 			if (info.Length > 1)
 			{
 				IBinding[] bindings = new IBinding[info.Length];
 				for (int i=0; i<bindings.Length; ++i)
 				{
-					bindings[i] = ToBinding(info[i]);
+					bindings[i] = AsBinding(info[i]);
 				}
 				return new AmbiguousBinding(bindings);
 			}
-			return ToBinding(info[0]);
+			return AsBinding(info[0]);
 		}
 		
-		public IBinding ToBinding(System.Reflection.MemberInfo mi)
+		public IBinding AsBinding(System.Reflection.MemberInfo mi)
 		{
 			IBinding binding = (IBinding)_bindingCache[mi];
 			if (null == binding)
@@ -297,49 +322,49 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				case "void":
 				{
-					binding = ToTypeReference(VoidTypeBinding);
+					binding = AsTypeReference(VoidTypeBinding);
 					break;
 				}
 				
 				case "bool":
 				{
-					binding = ToTypeReference(BoolTypeBinding);
+					binding = AsTypeReference(BoolTypeBinding);
 					break;
 				}
 				
 				case "date":
 				{
-					binding = ToTypeReference(Types.Date);
+					binding = AsTypeReference(Types.Date);
 					break;
 				}
 				
 				case "string":
 				{
-					binding = ToTypeReference(StringTypeBinding);
+					binding = AsTypeReference(StringTypeBinding);
 					break;
 				}
 				
 				case "object":
 				{
-					binding = ToTypeReference(ObjectTypeBinding);
+					binding = AsTypeReference(ObjectTypeBinding);
 					break;
 				}
 				
 				case "byte":
 				{
-					binding = ToTypeReference(ByteTypeBinding);
+					binding = AsTypeReference(ByteTypeBinding);
 					break;
 				}
 				
 				case "real":
 				{
-					binding = ToTypeReference(RealTypeBinding);
+					binding = AsTypeReference(RealTypeBinding);
 					break;
 				}
 				
 				case "int":
 				{
-					binding = ToTypeReference(IntTypeBinding);
+					binding = AsTypeReference(IntTypeBinding);
 					break;
 				}
 				
@@ -382,8 +407,14 @@ namespace Boo.Lang.Compiler.Bindings
 				}
 				sb.Append(binding.GetParameterType(i).FullName);
 			}
-			sb.Append(") as ");
-			sb.Append(binding.ReturnType.FullName);
+			sb.Append(")");
+			
+			ITypeBinding rt = binding.ReturnType;
+			if (null != rt)
+			{
+				sb.Append(" as ");
+				sb.Append(rt.FullName);
+			}
 			return sb.ToString();
 		}
 		

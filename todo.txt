@@ -163,9 +163,7 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done * -
 		done * +
 		done * *
-		done * /
-	* rich assignments
-		* +=	
+		done * /		
 	done * len special function:
 		done * for tuples, array.Length
 		done * for lists, list.Count
@@ -174,18 +172,24 @@ done * propriedades podem ser declaradas em qualquer ordem
 	done * SemanticStep deve reconhecer as funçoes tuple(Type, ...) para deduzir o tipo
 	das expressoes de acordo
 	done * zip: versão com dois argumentos
-	* assign to Slicing
+	done * assign to Slicing
 		done * hash["foo"] = "bar"
-		* hash[0] = "bar"
-	* implementação de interfaces
-		* pelo menos suporte a propriedades
-	* user métodos definidos em outros módulos no namespace global
-
-* mecanismo de inferência de tipos deve utilizar um Grafo mais completo contendo
+		done * hash[0] = "bar"
+		* ambiguous slicing
+	* rich assignments
+		* +=
+		
+done * mecanismo de inferência de tipos deve utilizar um Grafo mais completo contendo
 a informação de dependência de nós para cada nó na lista pending, o método
 ITypeResolver.Resolve só é invocado para um nó quando pelo menos um dos nós
 na lista de dependências tenha sido alterado
-	* BinaryExpression devem participar do mecanismo
+	done * criar Node.Replace(existing, newNode) e ReplaceBy(newNode) = ParentNode.Replace(this, newNode)
+	done * trocar BinaryExpression resulting = newNode por node.ReplaceBy(newNode)
+	done * BinaryExpression devem participar do mecanismo
+		done * BinaryExpressionResolver
+			done * Resolve só age enquanto a BinaryExpression not bound to Error
+			done * e só age quando !IsUnknown(node.Left) && !IsUnknown(node.Right)
+			done * if IsError(node.Left) or IsError(node.Right), Error(this)
 	
 * remover kindof:
 	* remover BinaryOperatorType.TypeTest
@@ -199,6 +203,18 @@ TypeReference
 * logical operators
 	* or
 	* and
+	
+* bitwise | para inteiros e enums de mesmo tipo
+
+* comparison operators para números:
+	* >, >=
+	* <, <=
+	
+* promoção automática de int para long
+	
+* implementação de interfaces
+		* pelo menos suporte a propriedades
+* user métodos definidos em outros módulos no namespace global
 	
 * remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário

@@ -146,19 +146,25 @@ namespace Boo.Lang.Ast
 			}
 		}
 
-		protected void Replace(Node existing, Node newItem)
+		protected bool Replace(Node existing, Node newItem)
 		{
-			Assert.AssertNotNull("existing", existing);
-			Assert.AssertNotNull("newItem", newItem);
+			Assert.AssertNotNull("existing", existing);			
 			for (int i=0; i<_innerList.Count; ++i)
 			{
 				if (_innerList[i] == existing)
 				{
-					ReplaceAt(i, newItem);
-					return;
+					if (null == newItem)
+					{
+						RemoveAt(i);
+					}
+					else
+					{
+						ReplaceAt(i, newItem);
+					}
+					return true;
 				}
 			}			
-			throw new ApplicationException(Boo.ResourceManager.Format("NodeNotInCollection", existing));
+			return false;
 		}
 
 		protected void Insert(int index, Node item)
@@ -174,9 +180,9 @@ namespace Boo.Lang.Ast
 
 		public void Switch(IAstSwitcher switcher)
 		{
-			for (int i=0; i<InnerList.Count; ++i)
+			foreach (Node node in (Node[])InnerList.ToArray(typeof(Node)))
 			{
-				((Node)InnerList[i]).Switch(switcher);
+				node.Switch(switcher);
 			}
 		}
 

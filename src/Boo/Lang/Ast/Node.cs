@@ -139,6 +139,23 @@ namespace Boo.Lang.Ast
 				_properties[key] = value;
 			}
 		}
+		
+		public virtual bool Replace(Node existing, Node newNode)
+		{
+			if (null == existing)
+			{
+				throw new ArgumentNullException("existing");
+			}
+			return false;
+		}
+		
+		public void ReplaceBy(Node newNode)
+		{
+			if (!_parent.Replace(this, newNode))
+			{
+				throw new ApplicationException(string.Format("Node {0} not found!", this));
+			}
+		}
 
 		internal void InitializeParent(Node parent)
 		{			

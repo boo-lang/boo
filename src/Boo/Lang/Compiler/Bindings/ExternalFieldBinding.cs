@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_field.DeclaringType);
+				return _bindingManager.AsTypeBinding(_field.DeclaringType);
 			}
 		}
 		
@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_field.FieldType);
+				return _bindingManager.AsTypeBinding(_field.FieldType);
 			}
 		}
 		

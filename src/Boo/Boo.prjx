@@ -249,6 +249,7 @@
     <File name=".\Lang\Compiler\Pipeline\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\ImportResolutionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\MacroExpansionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\NameResolutionSupport.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\PEVerifyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\RunAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\SaveAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

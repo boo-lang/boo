@@ -136,6 +136,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void SlicePropertyInt()
+		{
+			RunCompilerTestCase("slice_property_int.boo");
+		}
+		
+		[Test]
 		public void AssignProperty()
 		{
 			RunCompilerTestCase("assign_property.boo");

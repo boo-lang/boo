@@ -37,86 +37,38 @@ namespace Boo.Lang.Compiler.Pipeline
 {
 	public abstract class AbstractNamespaceSensitiveCompilerStep : AbstractTransformerCompilerStep
 	{
-		static readonly char[] DotArray = new char[] { '.' };
-		
-		protected Stack _namespaces = new Stack();
+		protected NameResolutionSupport _nameResolution = new NameResolutionSupport();
 		
 		public override bool EnterCompileUnit(CompileUnit cu, ref CompileUnit resultingNode)
 		{
-			// Global names at the highest level
-			PushNamespace(ImportResolutionStep.GetGlobalNamespace(CompilerContext));
-			
-			// then Boo.Lang
-			PushNamespace(ImportResolutionStep.GetBooLangNamespace(CompilerContext));
-			                           
-			// then builtins resolution			
-			PushNamespace(BindingManager.BuiltinsBinding);
+			_nameResolution.Initialize(CompilerContext);
 			return true;
 		}
 		
 		public override void Dispose()
 		{
 			base.Dispose();
-			_namespaces.Clear();
+			_nameResolution.Dispose();
 		}
 		
 		protected IBinding Resolve(Node sourceNode, string name)
 		{
-			if (null == sourceNode)
-			{
-				throw new ArgumentNullException("sourceNode");
-			}
-			
-			IBinding binding = BindingManager.ResolvePrimitive(name);
-			if (null == binding)
-			{
-				foreach (INamespace ns in _namespaces)
-				{
-					_context.TraceVerbose("Trying to resolve {0} against {1}...", name, ns);
-					binding = ns.Resolve(name);
-					if (null != binding)
-					{
-						break;
-					}
-				}
-			}
-			if (null != binding)
-			{
-				_context.TraceInfo("{0}: {1} bound to {2}.", sourceNode.LexicalInfo, name, binding);
-			}
-			return binding;
+			return _nameResolution.Resolve(sourceNode, name);
 		}
 		
 		protected IBinding ResolveQualifiedName(Node sourceNode, string name)
 		{			
-			string[] parts = name.Split(DotArray);
-			string topLevel = parts[0];
-			IBinding binding = Resolve(sourceNode, topLevel);
-			for (int i=1; i<parts.Length; ++i)				
-			{				
-				INamespace ns = binding as INamespace;
-				if (null == ns)
-				{
-					binding = null;
-					break;
-				}
-				binding = ns.Resolve(parts[i]);
-			}
-			return binding;
+			return _nameResolution.Resolve(sourceNode, name);
 		}
 		
 		protected void PushNamespace(INamespace ns)
 		{
-			if (null == ns)
-			{
-				throw new ArgumentNullException("ns");
-			}
-			_namespaces.Push(ns);
+			_nameResolution.PushNamespace(ns);
 		}
 		
 		protected void PopNamespace()
 		{
-			_namespaces.Pop();
+			_nameResolution.PopNamespace();
 		}		
 	}
 }

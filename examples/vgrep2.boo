@@ -29,7 +29,7 @@ class MainForm(Form):
 		_editor = TextBox(Dock: DockStyle.Fill,
 							AcceptsTab: true,
 							Multiline: true,
-							ScrollBars: ScrollBars.Vertical,
+							ScrollBars: ScrollBars.Vertical + ScrollBars.Horizontal,
 							Font: System.Drawing.Font("Lucida Console", 12))
 							
 		editorTab = TabPage(TabIndex: 0, Text: "FileName goes here")
@@ -47,12 +47,13 @@ class MainForm(Form):
 
 	def ScanFile(fname as string, pattern as string):
 		position = 0
+		newLineLen = len(Environment.NewLine)
 		for index, line as string in enumerate(TextFile(fname)):
 			if line =~ pattern:
 				lvItem = _fileList.Items.Add(fname)
 				lvItem.SubItems.Add(index.ToString())
 				lvItem.Tag = (fname, position)
-				//position += line.Length
+			position = position + len(line) + newLineLen
 			
 	def ScanDirectory(path as string, glob as string, pattern as string):
 		for fname in Directory.GetFiles(path, glob):
@@ -68,7 +69,8 @@ class MainForm(Form):
 			_editor.Text = TextFile.ReadFile(fname)
 			_editor.Focus()
 			_editor.SelectionLength = 0		
-			_editor.SelectionStart = position		
+			_editor.SelectionStart = position
+			_editor.SelectionLength = 10
 			_editor.ScrollToCaret()
 
 Application.Run(MainForm(Text: "Visual Grep Utility",

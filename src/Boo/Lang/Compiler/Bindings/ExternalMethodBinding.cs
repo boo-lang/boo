@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_mi.DeclaringType);
+				return _bindingManager.AsTypeBinding(_mi.DeclaringType);
 			}
 		}
 		
@@ -118,14 +118,19 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ITypeBinding GetParameterType(int parameterIndex)
 		{
-			return _bindingManager.ToTypeBinding(_mi.GetParameters()[parameterIndex].ParameterType);
+			return _bindingManager.AsTypeBinding(_mi.GetParameters()[parameterIndex].ParameterType);
 		}
 		
 		public ITypeBinding ReturnType
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(((MethodInfo)_mi).ReturnType);
+				MethodInfo mi = _mi as MethodInfo;
+				if (null != mi)
+				{
+					return _bindingManager.AsTypeBinding(mi.ReturnType);
+				}
+				return null;
 			}
 		}
 		

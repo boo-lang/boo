@@ -185,8 +185,8 @@ namespace Boo.Lang.Compiler.Pipeline
 
 		public override void Run()
 		{
-			_astAttributeInterface = BindingManager.ToTypeBinding(typeof(IAstAttribute));
-			_systemAttributeBaseClass = BindingManager.ToTypeBinding(typeof(System.Attribute));
+			_astAttributeInterface = BindingManager.AsTypeBinding(typeof(IAstAttribute));
+			_systemAttributeBaseClass = BindingManager.AsTypeBinding(typeof(System.Attribute));
 			
 			int step = 0;
 			while (step < CompilerParameters.MaxAttributeSteps)

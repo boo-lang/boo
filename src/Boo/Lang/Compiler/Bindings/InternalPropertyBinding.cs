@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return _bindingManager.ToTypeBinding(_property.DeclaringType);
+				return _bindingManager.AsTypeBinding(_property.DeclaringType);
 			}
 		}
 		
@@ -101,12 +101,20 @@ namespace Boo.Lang.Compiler.Bindings
 
 		public IMethodBinding GetGetMethod()
 		{
-			return (IMethodBinding)BindingManager.GetBinding(_property.Getter);
+			if (null != _property.Getter)
+			{
+				return (IMethodBinding)BindingManager.GetBinding(_property.Getter);
+			}
+			return null;
 		}
 		
 		public IMethodBinding GetSetMethod()
 		{
-			return (IMethodBinding)BindingManager.GetBinding(_property.Setter);
+			if (null != _property.Setter)
+			{
+				return (IMethodBinding)BindingManager.GetBinding(_property.Setter);
+			}
+			return null;
 		}
 		
 		public override Node Node
