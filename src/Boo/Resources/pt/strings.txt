@@ -49,6 +49,7 @@ BCE0047=O método '{0}' não pode ser sobreescrito pois não é virtual.
 BCE0048=O tipo '{0}' não suporta slicing.
 BCE0049=Expressão não pode ser o destino de uma atribuição.
 BCE0050=O operador '{0}' não pode ser aplicado a uma expressão do tipo '{1}'.
+BCE0051=O operator '{0}' não pode ser utilizados com os operandos '{1}' e '{2}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

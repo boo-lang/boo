@@ -147,7 +147,7 @@ namespace Boo.Lang.Ast.Visitors
 			WriteAttributes(f.Attributes, true);
 			WriteModifiers(f);
 			Write(f.Name);
-			Switch(f.Type);
+			WriteTypeReference(f.Type);
 			if (null != f.Initializer)
 			{
 				WriteOperator(" = ");
@@ -161,7 +161,7 @@ namespace Boo.Lang.Ast.Visitors
 			WriteAttributes(node.Attributes, true);			
 			WriteModifiers(node);
 			WriteIndented(node.Name);
-			Switch(node.Type);
+			WriteTypeReference(node.Type);
 			WriteLine(":");
 			Indent();
 			if (null != node.Getter)
@@ -216,7 +216,7 @@ namespace Boo.Lang.Ast.Visitors
 				OnParameterDeclaration(m.Parameters[i]);
 			}
 			Write(")");
-			Switch(m.ReturnType);
+			WriteTypeReference(m.ReturnType);
 			if (m.ReturnTypeAttributes.Count > 0)
 			{
 				Write(" ");
@@ -225,18 +225,33 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine(":");
 			OnBlock(m.Body);
 		}
+		
+		void WriteTypeReference(TypeReference t)
+		{
+			if (null != t)
+			{
+				WriteKeyword(" as ");
+				t.Switch(this);
+			}
+		}
 
 		public override void OnParameterDeclaration(ParameterDeclaration p)
 		{
 			WriteAttributes(p.Attributes, false);
 			Write(p.Name);
-			Switch(p.Type);
+			WriteTypeReference(p.Type);
 		}
 
 		public override void OnSimpleTypeReference(SimpleTypeReference t)
-		{			
-			WriteKeyword(" as ");
+		{				
 			Write(t.Name);
+		}
+		
+		public override void OnTupleTypeReference(TupleTypeReference t)
+		{
+			Write("(");
+			Switch(t.ElementType);
+			Write(")");
 		}
 
 		public override void OnMemberReferenceExpression(MemberReferenceExpression e)
@@ -244,6 +259,12 @@ namespace Boo.Lang.Ast.Visitors
 			Switch(e.Target);
 			Write(".");
 			Write(e.Name);
+		}
+		
+		public override void OnAsExpression(AsExpression e)
+		{
+			Switch(e.Target);
+			WriteTypeReference(e.Type);
 		}
 		
 		public override void OnNullLiteralExpression(NullLiteralExpression node)
@@ -589,7 +610,7 @@ namespace Boo.Lang.Ast.Visitors
 		public override void OnDeclaration(Declaration d)
 		{
 			Write(d.Name);
-			Switch(d.Type);
+			WriteTypeReference(d.Type);
 		}
 
 		public override bool EnterReturnStatement(ReturnStatement r)

@@ -9,7 +9,9 @@
 3.5
 """
 a = 0
-print(a); print(++a); print(a); print(++a)
+print(a); print(++a); print(a); print(++a);
+++a
 
 b = 1.5
 print(b); print(++b); print(b); print(++b)
+++b

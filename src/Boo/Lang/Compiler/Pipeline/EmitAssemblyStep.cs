@@ -607,10 +607,43 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		void OnArithmeticOperator(BinaryExpression node)
+		{
+			ITypeBinding type = GetBoundType(node);
+			node.Left.Switch(this); EmitCastIfNeeded(type, PopType());
+			node.Right.Switch(this); EmitCastIfNeeded(type, PopType());
+			_il.Emit(GetArithmeticOpCode(node.Operator));
+			PushType(type);
+		}
+		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{				
 			switch (node.Operator)
 			{
+				case BinaryOperatorType.Add:
+				{
+					OnArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Subtract:
+				{
+					OnArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Multiply:
+				{
+					OnArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Divide:
+				{
+					OnArithmeticOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.Assign:
 				{
 					OnAssignment(node);
@@ -1429,6 +1462,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			{			
 				StoreElement(opcode, i, items[i], type);				
 			}
+		}
+		
+		OpCode GetArithmeticOpCode(BinaryOperatorType op)
+		{
+			switch (op)
+			{
+				case BinaryOperatorType.Add: return OpCodes.Add;
+				case BinaryOperatorType.Subtract: return OpCodes.Sub;
+				case BinaryOperatorType.Multiply: return OpCodes.Mul;
+				case BinaryOperatorType.Divide: return OpCodes.Div;
+			}
+			throw new ArgumentException("op");
 		}
 		
 		OpCode GetLoadElementOpCode(ITypeBinding binding)

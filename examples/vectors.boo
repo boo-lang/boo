@@ -15,7 +15,7 @@ class Vector3:
 		dz = _z - other._z
 		return System.Math.Sqrt(dx*dx+dy*dy+dz*dz)
 		
-def createTuple(count):
+def createTuple(count as int):
 	vectors = []
 	for i in range(count):
 		vectors.Add(Vector3())
@@ -31,7 +31,8 @@ count = 0
 
 for v1 in array:
 	for v2 in array:
-		total += v2.Distance(v1)
+		//total += v2.Distance(v1)
+		total = total + v2.Distance(v1)
 		++count
 
 elapsed = date.Now.Subtract(start) 

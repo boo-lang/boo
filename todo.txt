@@ -157,12 +157,14 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done * 1.5
 		done * .0
 	done * real type
-	* unary operators
-		* ++
-	* binary operators		
-		* -
-		* +
-		* *
+	done * unary operators
+		done * ++
+	done * binary operators		
+		done * -
+		done * +
+		done * *
+		done * /
+	* rich assignments
 		* +=	
 	* len special function:
 		* for tuples, array.Length

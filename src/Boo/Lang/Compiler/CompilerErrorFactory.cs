@@ -282,6 +282,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0050", node.LexicalInfo, operatorName, typeName);
 		}
 		
+		public static CompilerError InvalidOperatorForTypes(Node node, string operatorName, string lhs, string rhs)
+		{
+			return new CompilerError("BCE0051", node.LexicalInfo, operatorName, lhs, rhs);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

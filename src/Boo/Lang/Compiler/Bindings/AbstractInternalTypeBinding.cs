@@ -219,7 +219,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public virtual bool IsAssignableFrom(ITypeBinding other)
 		{
-			return false;
+			return this == other;
 		}
 		
 		public virtual IConstructorBinding[] GetConstructors()

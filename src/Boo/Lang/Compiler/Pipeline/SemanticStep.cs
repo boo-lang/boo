@@ -1111,10 +1111,49 @@ namespace Boo.Lang.Compiler.Pipeline
 			return true;
 		}
 		
+		void BindArithmeticOperator(BinaryExpression node)
+		{
+			ITypeBinding left = GetExpressionType(node.Left);
+			ITypeBinding right = GetExpressionType(node.Right);
+			if (IsNumber(left))
+			{
+				if (IsNumber(right))
+				{
+					BindingManager.Bind(node, GetPromotedNumberType(left, right));
+				}
+				else
+				{
+					InvalidOperatorForTypes(node, node.Operator, left, right);
+				}
+			}
+			else
+			{
+				InvalidOperatorForTypes(node, node.Operator, left, right);
+			}
+		}
+		
 		public override void LeaveBinaryExpression(BinaryExpression node, ref Expression resultingNode)
 		{
 			switch (node.Operator)
 			{		
+				case BinaryOperatorType.Add:
+				{
+					BindArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Subtract:
+				{
+					BindArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.Multiply:
+				{
+					BindArithmeticOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.Match:
 				{
 					BindMatchOperator(node);
@@ -1646,11 +1685,27 @@ namespace Boo.Lang.Compiler.Pipeline
 			return false;
 		}
 		
+		ITypeBinding GetPromotedNumberType(ITypeBinding left, ITypeBinding right)
+		{
+			if (left == BindingManager.RealTypeBinding ||
+				right == BindingManager.RealTypeBinding)
+			{
+				return BindingManager.RealTypeBinding;
+			}
+			if (left == BindingManager.SingleTypeBinding ||
+				right == BindingManager.SingleTypeBinding)
+			{
+				return BindingManager.SingleTypeBinding;
+			}
+			return left;
+		}
+		
 		bool IsNumber(ITypeBinding type)
 		{
 			return
-				type == BindingManager.IntTypeBinding ||
-				type == BindingManager.RealTypeBinding;
+				type == BindingManager.IntTypeBinding ||				
+				type == BindingManager.RealTypeBinding ||
+				type == BindingManager.SingleTypeBinding;
 		}
 		
 		IConstructorBinding FindCorrectConstructor(Node sourceNode, ITypeBinding typeBinding, ExpressionCollection arguments)
@@ -1860,8 +1915,21 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static bool HasSideEffect(Expression node)
 		{
-			return node.NodeType == NodeType.MethodInvocationExpression ||
-				IsAssignment(node);
+			return
+				node.NodeType == NodeType.MethodInvocationExpression ||
+				IsAssignment(node) ||
+				IsPreIncDec(node);
+		}
+		
+		static bool IsPreIncDec(Expression node)
+		{
+			if (node.NodeType == NodeType.UnaryExpression)
+			{
+				UnaryOperatorType op = ((UnaryExpression)node).Operator;
+				return UnaryOperatorType.Increment == op ||
+					UnaryOperatorType.Decrement == op;
+			}
+			return false;
 		}
 		
 		static bool IsAssignment(Expression node)
@@ -1939,6 +2007,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		void NotImplemented(Node node, string feature)
 		{
 			throw CompilerErrorFactory.NotImplemented(node, feature);
+		}
+		
+		void InvalidOperatorForTypes(BinaryExpression node, BinaryOperatorType op, ITypeBinding left, ITypeBinding right)
+		{
+			BindingManager.Error(node);
+			Error(CompilerErrorFactory.InvalidOperatorForTypes(node, GetBinaryOperatorText(op), left.FullName, right.FullName));
 		}
 		
 		void Error(CompilerError error)

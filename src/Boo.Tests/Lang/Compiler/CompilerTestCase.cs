@@ -739,5 +739,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("predecrement0.boo");
 		}
+		
+		[Test]
+		public void SumLocals()
+		{
+			RunCompilerTestCase("sum0.boo");			
+		}
+		
+		[Test]
+		public void MultLocals()
+		{
+			RunCompilerTestCase("mult0.boo");
+		}
 	}
 }
