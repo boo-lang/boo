@@ -2730,6 +2730,33 @@ namespace Boo.Lang.Compiler.Steps
 			return PropertyAttributes.None;
 		}
 		
+		MethodAttributes GetPropertyMethodAttributes(Property property)
+		{
+			MethodAttributes attributes = MethodAttributes.HideBySig;
+			if (property.IsPublic)
+			{
+				attributes |= MethodAttributes.Public;			
+			}
+			else if (property.IsProtected)
+			{
+				attributes |= MethodAttributes.Family;
+			}
+			else if (property.IsPrivate)
+			{
+				attributes |= MethodAttributes.Private;
+			}
+			
+			if (property.IsStatic)
+			{
+				attributes |= MethodAttributes.Static;
+			}
+			if (property.IsAbstract)
+			{
+				attributes |= (MethodAttributes.Abstract | MethodAttributes.Virtual);
+			}
+			return attributes;
+		}
+		
 		MethodAttributes GetMethodAttributes(Method method)
 		{
 			MethodAttributes attributes = MethodAttributes.HideBySig;
@@ -2796,14 +2823,18 @@ namespace Boo.Lang.Compiler.Steps
 			Method getter = property.Getter;
 			Method setter = property.Setter;
 			
+			MethodAttributes attribs = GetPropertyMethodAttributes(property);
+			attribs |= MethodAttributes.SpecialName;
 			if (null != getter)
 			{
-				MethodBuilder getterBuilder = DefineMethod(typeBuilder, getter, MethodAttributes.SpecialName);
+				MethodBuilder getterBuilder = 
+					DefineMethod(typeBuilder, getter, attribs);
 				builder.SetGetMethod(getterBuilder);
 			}
 			if (null != setter)
 			{
-				MethodBuilder setterBuilder = DefineMethod(typeBuilder, setter, MethodAttributes.SpecialName);
+				MethodBuilder setterBuilder = 
+					DefineMethod(typeBuilder, setter, attribs);
 				builder.SetSetMethod(setterBuilder);
 			}
 			

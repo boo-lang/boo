@@ -52,6 +52,10 @@ namespace Boo.Lang
 			}			
 			
 			Property p = new Property();
+			if (f.IsStatic)
+			{
+				p.Modifiers |= TypeMemberModifiers.Static;
+			}
 			p.Name = _propertyName.Name;
 			p.Type = f.Type;
 			p.Getter = CreateGetter(f);

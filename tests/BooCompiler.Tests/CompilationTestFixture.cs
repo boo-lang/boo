@@ -270,6 +270,24 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void StaticPropertyGetter()
+		{
+			RunCompilerTestCase("property4.boo");
+		}
+		
+		[Test]
+		public void StaticPropertyGetterMacro()
+		{
+			RunCompilerTestCase("property5.boo");
+		}
+		
+		[Test]
+		public void StaticPropertyMacro()
+		{
+			RunCompilerTestCase("property6.boo");
+		}
+		
+		[Test]
 		public void ComplexFieldInitializer()
 		{
 			RunCompilerTestCase("ComplexFieldInitializer.boo");
