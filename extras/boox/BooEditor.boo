@@ -13,6 +13,8 @@ import Boo.Lang.Compiler.Pipeline.Definitions
 
 class BooEditor(Content):
 	
+	static NewFileName = "untitled.boo"
+	
 	_editor as TextEditorControl
 	_main as MainForm
 	
@@ -36,7 +38,7 @@ class BooEditor(Content):
 		SuspendLayout()
 		Controls.Add(_editor)
 		self.AllowedStates = ContentStates.Document
-		self.Text = "unnamed.boo"		
+		self.Text = NewFileName
 		self.DockPadding.All = 1
 		self.Menu = CreateMenu()
 		ResumeLayout(false)
@@ -74,7 +76,7 @@ class BooEditor(Content):
 	
 	def _editor_DocumentChanged(sender, args as DocumentEventArgs):
 		if not _dirty:
-			self.Text = "${_fname} (modified)"
+			self.Text = "${GetSafeFileName()} (modified)"
 			_dirty = true
 		
 	def _menuItemRun_Click(sender, args as EventArgs):
@@ -82,7 +84,7 @@ class BooEditor(Content):
 		self.Cursor = Cursors.WaitCursor
 		
 		compiler = BooCompiler()
-		compiler.Parameters.Input.Add(StringInput(self.Text, self.TextContent))
+		compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
 		compiler.Parameters.Pipeline.Load(BoomPipelineDefinition)
 		
 		started = date.Now
@@ -99,6 +101,11 @@ class BooEditor(Content):
 				print(x)
 				
 		self.Cursor = savedCursor
+		
+	def GetSafeFileName():
+		if _fname:
+			return _fname
+		return NewFileName
 		
 	def CreateMenu():
 		menu = MainMenu()
