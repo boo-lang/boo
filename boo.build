@@ -120,21 +120,21 @@
 
 	<target name="compile-grammar" depends="init">
 
-		<ifnot comparefile="boo.g" uptodatefile="src/Boo/Ast/Parsing/BooParserBase.cs">
-			<exec program="${antlr.exe}" failonerror="true">
+		<if test="${file::up-to-date('boo.g', 'src/Boo/Ast/Parsing/BooParserBase.cs')}">
+			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
 				<arg value="src/Boo/Ast/Parsing" />
 				<arg value="boo.g" />
 			</exec>
-		</ifnot>
+		</if>
 		
-		<ifnot comparefile="booel.g" uptodatefile="src/Boo/Ast/Parsing/BooExpressionLexer.cs">
-			<exec program="${antlr.exe}" failonerror="true">
+		<if test="${file::up-to-date('booel.g', 'src/Boo/Ast/Parsing/BooExpressionLexer.cs')}">
+			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
 				<arg value="src/Boo/Ast/Parsing" />
 				<arg value="booel.g" />
 			</exec>
-		</ifnot>
+		</if>
 	</target>
 	
 	<target name="generate-ast" depends="init">
