@@ -8,7 +8,6 @@ using Boo.Ast.Compilation;
 namespace Boo.Ast.Compilation.Steps
 {
 	public class AssemblySetupStep : AbstractCompilerStep
-
 	{
 		public static AssemblyBuilder GetAssemblyBuilder(CompilerContext context)
 		{

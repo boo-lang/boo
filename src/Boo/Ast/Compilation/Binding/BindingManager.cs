@@ -85,7 +85,6 @@ namespace Boo.Ast.Compilation.Binding
 				case MemberTypes.Method:
 				{
 					return new ExternalMethodBinding(this, (System.Reflection.MethodInfo)mi);
-					break;
 				}
 				
 				default:

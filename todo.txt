@@ -17,8 +17,8 @@ done * depurar com o mscordbg
 Milestone 3 (grep.boo)
 ----------------------
 
-done * defini��o de m�todos do m�dulo
-done * chamada de m�todos do m�dulo
+done * definição de métodos do módulo
+done * chamada de métodos do módulo
 * using System + Console.Write()
 * for item in enumerator
 * if string
