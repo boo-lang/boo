@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<project name="default boo build" default="all">
-	<include buildfile="boo.build" />
-</project>
