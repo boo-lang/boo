@@ -11,7 +11,7 @@ public class App
 	
 	public static void Main(string[] args)
 	{
-		for (int i=0; i<3; ++i)
+		for (int i=0; i<1; ++i)
 		{
 			Test();
 		}
@@ -26,14 +26,21 @@ public class App
 		{
 			Foo((int)o);
 		}
-		Report("raw unboxing", start);
+		Report("raw unboxing   ", start);
 		
 		start = DateTime.Now;
 		for (int i=0; i<Iterations; ++i)
 		{
 			Foo(UnboxInt32(o));
 		}
-		Report("boo unboxing", start);
+		Report("boo unboxing   ", start);
+		
+		start = DateTime.Now;
+		for (int i=0; i<Iterations; ++i)
+		{
+			Foo(UnboxInt32X(o));
+		}
+		Report("boo unboxing(X)", start);
 		
 		o = 3L;
 		
@@ -42,7 +49,14 @@ public class App
 		{
 			Foo(UnboxInt32(o));
 		}
-		Report("boo long->int", start);
+		Report("boo long->int  ", start);
+		
+		start = DateTime.Now;
+		for (int i=0; i<Iterations; ++i)
+		{
+			Foo(UnboxInt32X(o));
+		}
+		Report("boo long->int(X)", start);
 	}
 	
 	static void Report(string name, DateTime start)
@@ -75,11 +89,16 @@ public class App
 	
 	public static Int32 UnboxInt32(object value)
 	{
-		try
+		return CheckNumericPromotion(value).ToInt32(null);
+	}
+	
+	public static Int32 UnboxInt32X(object value)
+	{
+		if (value is Int32)
 		{
 			return (Int32)value;
 		}
-		catch (InvalidCastException)
+		else
 		{
 			return CheckNumericPromotion(value).ToInt32(null);
 		}
