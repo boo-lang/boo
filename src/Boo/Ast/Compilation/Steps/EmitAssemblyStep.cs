@@ -67,9 +67,61 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnLocal(Local local)
 		{			
 			LocalBinding info = BindingManager.GetLocalBinding(local);
-			LocalBuilder builder = _il.DeclareLocal(info.Type);
-			builder.SetLocalSymInfo(local.Name);
-			info.LocalBuilder = builder;
+			info.LocalBuilder = _il.DeclareLocal(info.Type);
+			info.LocalBuilder.SetLocalSymInfo(local.Name);			
+		}
+		
+		public override void OnForStatement(ForStatement node)
+		{
+			DeclarationCollection decls = node.Declarations;
+			
+			ITypeBinding binding = GetTypeBinding(node.Iterator);
+			if (!binding.Type.IsArray || 1 != decls.Count)
+			{
+				throw new NotImplementedException();
+			}			
+			
+			EmitDebugInfo(node.Iterator);
+			// iterator = <node.Iterator>;
+			node.Iterator.Switch(this);			
+			
+			Label labelTest = _il.DefineLabel();
+			Label labelEnd = _il.DefineLabel();
+			
+			LocalBuilder localIterator = _il.DeclareLocal(binding.Type);
+			_il.Emit(OpCodes.Stloc, localIterator);
+			
+			// i = 0;
+			LocalBuilder localIndex = _il.DeclareLocal(BindingManager.IntType);
+			_il.Emit(OpCodes.Ldc_I4_0);
+			_il.Emit(OpCodes.Stloc, localIndex);			
+			
+			// i<iterator.Length			
+			_il.MarkLabel(labelTest);			
+			_il.Emit(OpCodes.Ldloc, localIndex);
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.Emit(OpCodes.Ldlen);
+			_il.Emit(OpCodes.Bge, labelEnd);
+			
+			LocalBuilder localValue = GetLocalBuilder(decls[0]);			
+			
+			EmitDebugInfo(decls[0]);
+			// value = iterator[i]
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.Emit(OpCodes.Ldloc, localIndex);
+			_il.Emit(OpCodes.Ldelem_Ref);
+			_il.Emit(OpCodes.Stloc, localValue);
+			node.Statements.Switch(this);
+			
+			// ++i
+			_il.Emit(OpCodes.Ldc_I4_1);
+			_il.Emit(OpCodes.Ldloc, localIndex);
+			_il.Emit(OpCodes.Add);
+			_il.Emit(OpCodes.Stloc, localIndex);
+			_il.Emit(OpCodes.Br, labelTest);
+			
+			_il.MarkLabel(labelEnd);
+			
 		}
 		
 		public override void OnUnpackStatement(UnpackStatement node)
@@ -82,7 +134,7 @@ namespace Boo.Ast.Compilation.Steps
 				throw new NotImplementedException("only unpack for arrays right now!");
 			}
 			
-			EmitDebugInfo(node.LexicalInfo);
+			EmitDebugInfo(node);
 			
 			node.Expression.Switch(this);
 			// the line above puts an
@@ -103,7 +155,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override bool EnterExpressionStatement(ExpressionStatement node)
 		{
-			EmitDebugInfo(node.LexicalInfo);			
+			EmitDebugInfo(node);			
 			return true;
 		}		
 		
@@ -311,8 +363,9 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}		
 		
-		void EmitDebugInfo(LexicalInfo info)
+		void EmitDebugInfo(Node node)
 		{
+			LexicalInfo info = node.LexicalInfo;
 			_il.MarkSequencePoint(_symbolDocWriter, info.Line, info.Column-1, info.Line, info.Column-1);
 		}
 		

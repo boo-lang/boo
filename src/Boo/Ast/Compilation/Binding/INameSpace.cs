@@ -9,6 +9,28 @@ namespace Boo.Ast.Compilation.Binding
 		IBinding Resolve(string name);
 	}
 	
+	class DeclarationsNameSpace : INameSpace
+	{
+		BindingManager _bindingManager;
+		DeclarationCollection _declarations;
+		
+		public DeclarationsNameSpace(BindingManager bindingManager, DeclarationCollection declarations)
+		{
+			_bindingManager = bindingManager;
+			_declarations = declarations;
+		}
+		
+		public IBinding Resolve(string name)
+		{
+			Declaration d = _declarations[name];
+			if (null != d)
+			{
+				return _bindingManager.GetBinding(d);
+			}
+			return null;
+		}
+	}
+	
 	class ModuleNameSpace : INameSpace
 	{
 		Module _module;

@@ -101,6 +101,11 @@ Milestone 6
 
 Otimiza��es
 -----------
+* os métodos com yield e métodos que retornam iterators como enumerate devem
+marcar o tipo retornado por IEnumerator.Current de forma que o compilador
+possa otimizar a utilizaçao de tais itens (no caso do enumerate, o compilador
+saberia que sempre estaria lidando com um array e poderia gerar um unpacking
+otimizado, etc);
 * const expression unfolding
 * proper tail recursion (fatorial)
 * for item in array/tuple => traduzir indexaçãoo direta do array com checagem de

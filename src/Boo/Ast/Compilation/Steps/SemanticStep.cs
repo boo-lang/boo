@@ -125,33 +125,24 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void OnForStatement(ForStatement node)
+		{
+			node.Iterator.Switch(this);
+			
+			ITypeBinding iteratorType = (ITypeBinding)GetBinding(node.Iterator);
+			ProcessDeclarationsForIterator(node.Declarations, iteratorType, true);
+			
+			PushNamespace(new DeclarationsNameSpace(BindingManager, node.Declarations));
+			node.Statements.Switch(this);
+			PopNamespace();
+		}
+		
 		public override void OnUnpackStatement(UnpackStatement node)
 		{
 			node.Expression.Switch(this);
 			
 			ITypeBinding expressionType = (ITypeBinding)GetBinding(node.Expression);
-			ITypeBinding defaultDeclType = BindingManager.ObjectTypeBinding;
-			
-			if (expressionType.Type.IsArray)
-			{		
-				defaultDeclType = BindingManager.ToTypeBinding(expressionType.Type.GetElementType());
-			}
-			
-			foreach (Declaration d in node.Declarations)
-			{				
-				if (null == d.Type)
-				{
-					d.Type = new TypeReference(defaultDeclType.Type.FullName);
-					BindingManager.Bind(d.Type, defaultDeclType);
-				}
-				else
-				{
-					d.Type.Switch(this);
-					// todo: check types here
-				}
-				
-				DeclareLocal(d, new Local(d), BindingManager.GetTypeBinding(d.Type));
-			}
+			ProcessDeclarationsForIterator(node.Declarations, expressionType, false);			
 		}
 		
 		public override void OnBinaryExpression(BinaryExpression node)
@@ -436,6 +427,32 @@ namespace Boo.Ast.Compilation.Steps
 			
 			_method.Locals.Add(local);
 			BindingManager.Bind(sourceNode, binding);
+		}
+		
+		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
+		{
+			ITypeBinding defaultDeclType = BindingManager.ObjectTypeBinding;
+			
+			if (iteratorType.Type.IsArray)
+			{		
+				defaultDeclType = BindingManager.ToTypeBinding(iteratorType.Type.GetElementType());
+			}
+			
+			foreach (Declaration d in declarations)
+			{				
+				if (null == d.Type)
+				{
+					d.Type = new TypeReference(defaultDeclType.Type.FullName);
+					BindingManager.Bind(d.Type, defaultDeclType);
+				}
+				else
+				{
+					d.Type.Switch(this);
+					// todo: check types here
+				}
+				
+				DeclareLocal(d, new Local(d), BindingManager.GetTypeBinding(d.Type));
+			}
 		}
 		
 		void ProcessParameters(Method method)

@@ -15,6 +15,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public static readonly Type StringType = typeof(string);
 		
+		public static readonly Type IntType = typeof(int);
+		
 		public ITypeBinding ObjectTypeBinding;
 		
 		public ITypeBinding StringTypeBinding;
