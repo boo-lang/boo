@@ -11,7 +11,7 @@ to build the project.
 	
 will also run all the unit tests.
 
-	nant rebuild
+	nant rebuild tests
 	
 will also cause the ast classes and parser
 to be regenerated (needs a java vm).
@@ -32,4 +32,35 @@ tests/ contains all the unit tests
 lib/ contains project dependencies such as antlr.
 
 bin/ contains the latest version that passed all the tests
-and could be successfully used to rebuild the system. 
+and could be successfully used to rebuild the system.
+
+To execute a boo script run:
+
+	booi <script> [args]
+	
+For instance:
+
+	booi examples/hw.boo	
+	
+You can also have booi to read from stdin by typing:
+
+	booi -
+	
+You can generate .net assemblies by using booc (either
+the booc.exe utility or the booc nant task):
+
+	booc -output:build/hello.exe examples/hw.boo
+	
+You can enable duck typing by specifying the appropriate
+pipeline with -p option:
+
+	booc -p:quack examples/ie.boo
+	
+If you want to simply see the transformations applied to
+your code by the compiler use the boo pipeline, run:
+
+	booc -p:boo examples/replace.boo	
+	
+
+	
+
