@@ -94,6 +94,10 @@ OR
 		<keyword>override</keyword>
 		<keyword>static</keyword>
 		
+		<keyword>protected</keyword>
+		<keyword>private</keyword>
+		<keyword>public</keyword>
+		
 		<keyword>class</keyword>
 		<keyword>interface</keyword>
 		<keyword>enum</keyword>
