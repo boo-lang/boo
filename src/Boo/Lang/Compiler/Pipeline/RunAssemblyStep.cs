@@ -29,6 +29,8 @@
 
 namespace Boo.Lang.Compiler.Pipeline
 {
+	using System;
+	
 	public class RunAssemblyStep : AbstractCompilerComponent, ICompilerStep
 	{
 		public void Run()
@@ -41,7 +43,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			System.Reflection.MethodInfo method = AstAnnotations.GetAssemblyEntryPoint(CompileUnit);
 			try
 			{
-				method.Invoke(null, null);
+				method.Invoke(null, new object[] { Environment.GetCommandLineArgs() });
 			}
 			catch (System.Reflection.TargetInvocationException x)
 			{				

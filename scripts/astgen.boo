@@ -241,7 +241,7 @@ namespace Boo.Lang.Ast.Impl
 					writer.WriteLine("""
 			if (null != ${fieldName})
 			{
-				clone.${fieldName} = ${fieldName}.CloneNode();
+				clone.${fieldName} = ${fieldName}.Clone() as ${field.Type};
 				clone.${fieldName}.InitializeParent(clone);
 			}""")
 				else:

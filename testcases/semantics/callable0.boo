@@ -4,7 +4,7 @@ public final transient class Callable0Module(System.Object):
 	public static def ToUpper(item as System.String) as System.String:
 		return item.ToUpper()
 
-	private static def __Main__():
+	private static def __Main__(argv as (System.String)):
 		Boo.Lang.Builtins.print(Boo.Lang.Builtins.join(Boo.Lang.Builtins.map(Callable0Module.__Callable1__.Instance, ['foo', 'bar'])))
 		Boo.Lang.Builtins.print(Boo.Lang.Builtins.join(Boo.Lang.Builtins.map(Callable0Module.__Callable1__.Instance, ('bar', 'foo'))))
 

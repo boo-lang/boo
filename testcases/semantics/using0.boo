@@ -1,7 +1,7 @@
 """
 public final transient class Using0Module(System.Object):
 
-	private static def __Main__() as System.Void:
+	private static def __Main__(argv as (System.String)) as System.Void:
 		try:
 			f = System.IO.File.OpenText('using0.boo')
 			Boo.Lang.Builtins.print(f.ReadLine())

@@ -3,7 +3,7 @@ import System.IO
 
 public final transient class Using1Module(System.Object):
 
-	private static def __Main__() as System.Void:
+	private static def __Main__(argv as (System.String)) as System.Void:
 		try:
 			f1 = System.IO.File.OpenText('using0.boo')
 			try:

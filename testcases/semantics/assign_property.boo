@@ -14,7 +14,7 @@ public class Person(System.Object):
 
 public final transient class Assign_propertyModule(System.Object):
 
-	private static def __Main__() as System.Void:
+	private static def __Main__(argv as (System.String)) as System.Void:
 		p = Person()
 		p.Name = 'boo'
 		Boo.Lang.Builtins.print(p.get_Name())

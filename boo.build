@@ -200,7 +200,14 @@
 		</if>
 	</target>
 
-	<target name="rebuild" depends="clean, all" />
+	<target name="rebuild" depends="clean">
+		
+		<touch file="ast.model.boo" />
+		<touch file="src/Boo.AntlrParser/boo.g" />
+		<touch file="src/Boo.AntlrParser/booel.g" />
+		
+		<call target="all" />		
+	</target>
 	
 	<target name="clean">
 		<delete dir="build" failonerror="false" />

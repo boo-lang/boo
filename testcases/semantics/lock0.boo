@@ -1,7 +1,7 @@
 """
 public final transient class Lock0Module(System.Object):
 
-	private static def __Main__() as System.Void:
+	private static def __Main__(argv as (System.String)) as System.Void:
 		o1 = System.Object()
 		__monitor1__ = o1
 		System.Threading.Monitor.Enter(__monitor1__)

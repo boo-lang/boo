@@ -1,7 +1,7 @@
 """
 public final transient class LenModule(System.Object):
 
-	private static def __Main__() as System.Void:
+	private static def __Main__(argv as (System.String)) as System.Void:
 		l = []
 		t = (,)
 		s = ''

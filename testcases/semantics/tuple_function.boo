@@ -1,7 +1,7 @@
 """
 public final transient class Tuple_functionModule(System.Object):
 
-	private static def __Main__() as System.Void:
+	private static def __Main__(argv as (System.String)) as System.Void:
 		for a as System.Int32 in Boo.Lang.Builtins.tuple(System.Int32, Boo.Lang.Builtins.range(10)):
 			Boo.Lang.Builtins.print(a)
 		for a as System.Object in Boo.Lang.Builtins.tuple(Boo.Lang.Builtins.range(10)):
