@@ -1,4 +1,9 @@
-﻿* software de blogging para a apresentação
+﻿* generator expressions
+	return i*3 for i in range(10)
+	return i*3 for i in range(10) if i % 2
+
+
+* software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms
 	* editor RichClient
@@ -24,9 +29,6 @@
 
 * rever os exemplos de pipeline
 
-* generator expressions
-	return i*3 for i in range(10)
-	
 * Exemplo de passo com estatísticas sobre membros utilizados
 	* summary of class status (http://www.go-mono.com/class-status.html)
 	

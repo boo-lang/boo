@@ -1612,5 +1612,17 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase("CallableTypeDefinitionWithMember.boo");
 		}
+		
+		[Test]
+		public void SimpleGenerator()
+		{
+			RunCompilerTestCase("generators0.boo");
+		}
+		
+		[Test]
+		public void FilteredGenerator()
+		{
+			RunCompilerTestCase("generators1.boo");
+		}
 	}
 }
