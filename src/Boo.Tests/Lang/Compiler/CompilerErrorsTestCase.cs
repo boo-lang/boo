@@ -31,6 +31,8 @@ namespace Boo.Tests.Lang.Compiler
 {
 	using System;
 	using System.IO;
+	using System.Globalization;
+	using System.Threading;
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Pipeline;
@@ -52,6 +54,14 @@ namespace Boo.Tests.Lang.Compiler
 	[TestFixture]
 	public class CompilerErrorsTestCase : AbstractCompilerTestCase
 	{
+		[SetUp]
+		override public void SetUpTest()
+		{
+			base.SetUpTest();
+			
+			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;			
+		}
+		
 		[Test]
 		public void ReadOnlyProperty()
 		{
