@@ -35,6 +35,7 @@ using System.Xml;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
+using Boo.Lang.Compiler.Pipeline.Definitions;
 
 namespace BooC
 {
@@ -198,7 +199,16 @@ namespace BooC
 
 							case 'p':
 							{
-								options.Pipeline.Load(arg.Substring(3));								
+								string pipelineName = arg.Substring(3);
+								ICompilerPipelineDefinition definition = GetPipelineDefinition(pipelineName);
+								if (null == definition)
+								{
+									options.Pipeline.Load(pipelineName);
+								}
+								else
+								{
+									definition.Define(options.Pipeline);
+								}
 								hasPipeline = true;
 								break;
 							}
@@ -246,7 +256,7 @@ namespace BooC
 			
 			if (!hasPipeline)
 			{
-				options.Pipeline.Load("booc");
+				options.Pipeline.Load(typeof(BoocPipelineDefinition));
 			}
 		}
 
@@ -293,6 +303,22 @@ namespace BooC
 			{
 				AddFilesForPath(dirname, options);
 			}
+		}
+		
+		static ICompilerPipelineDefinition GetPipelineDefinition(string name)
+		{
+			switch (name)
+			{
+				case "parse": return new ParsePipelineDefinition();
+				case "core": return new CorePipelineDefinition();
+				case "boom": return new BooInMemoryPipelineDefinition();
+				case "booi": return new BooiPipelineDefinition();
+				case "booc": return new BoocPipelineDefinition();
+				case "rountrip": return new RoundtripPipelineDefinition();
+				case "boo": return new BooPipelineDefinition();
+				case "xml": return new XmlPipelineDefinition();
+			}
+			return null;
 		}
 	}
 }

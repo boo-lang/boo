@@ -186,6 +186,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		IConstructorBinding[] GetConstructors();
 		
+		ITypeBinding[] GetInterfaces();
+		
 		bool IsSubclassOf(ITypeBinding other);
 		
 		bool IsAssignableFrom(ITypeBinding other);

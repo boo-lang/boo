@@ -44,6 +44,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		IConstructorBinding[] _constructors;
 		
+		ITypeBinding[] _interfaces;
+		
 		IBinding[] _members;
 		
 		ITypeBinding _elementType;
@@ -207,6 +209,20 @@ namespace Boo.Lang.Compiler.Bindings
 				}
 			}
 			return _constructors;
+		}
+		
+		public ITypeBinding[] GetInterfaces()
+		{
+			if (null == _interfaces)
+			{
+				Type[] interfaces = _type.GetInterfaces();
+				_interfaces = new ITypeBinding[interfaces.Length];
+				for (int i=0; i<_interfaces.Length; ++i)
+				{
+					_interfaces[i] = _bindingManager.AsTypeBinding(interfaces[i]);
+				}
+			}
+			return _interfaces;
 		}
 		
 		public IBinding[] GetMembers()

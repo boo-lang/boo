@@ -73,9 +73,11 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		protected IBinding[] _members;
 		
+		protected ITypeBinding[] _interfaces;
+		
 		protected INamespace _parentNamespace;
 		
-		protected List _memberBuffer = new List();
+		protected List _buffer = new List();
 		
 		protected AbstractInternalTypeBinding(BindingManager bindingManager, TypeDefinition typeDefinition)
 		{
@@ -118,24 +120,24 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public virtual IBinding Resolve(string name)
 		{			
-			_memberBuffer.Clear();			
+			_buffer.Clear();			
 			
 			foreach (IBinding binding in GetMembers())
 			{
 				if (binding.Name == name)
 				{
-					_memberBuffer.Add(binding);
+					_buffer.Add(binding);
 				}
 			}
 			
-			if (0 == _memberBuffer.Count)
+			if (0 == _buffer.Count)
 			{
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
 					IBinding binding = _bindingManager.GetBoundType(baseType).Resolve(name);
 					if (null != binding)
 					{
-						_memberBuffer.AddUnique(binding);
+						_buffer.AddUnique(binding);
 					}
 				}
 				
@@ -145,20 +147,20 @@ namespace Boo.Lang.Compiler.Bindings
 					IBinding binding = _bindingManager.ObjectTypeBinding.Resolve(name);
 					if (null != binding)
 					{
-						_memberBuffer.AddUnique(binding);						
+						_buffer.AddUnique(binding);						
 					}
 				}
 			}
 			
-			if (_memberBuffer.Count > 0)
+			if (_buffer.Count > 0)
 			{
-				if (_memberBuffer.Count > 1)
+				if (_buffer.Count > 1)
 				{
-					return new AmbiguousBinding((IBinding[])_memberBuffer.ToArray(typeof(IBinding)));
+					return new AmbiguousBinding((IBinding[])_buffer.ToArray(typeof(IBinding)));
 				}
 				else
 				{
-					return (IBinding)_memberBuffer[0];
+					return (IBinding)_buffer[0];
 				}
 			}
 			return null;
@@ -326,11 +328,31 @@ namespace Boo.Lang.Compiler.Bindings
 			return new IConstructorBinding[0];
 		}
 		
+		public ITypeBinding[] GetInterfaces()
+		{
+			if (null == _interfaces)
+			{
+				_buffer.Clear();
+				
+				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+				{
+					ITypeBinding binding = (ITypeBinding)_bindingManager.GetBoundType(baseType);
+					if (binding.IsInterface)
+					{
+						_buffer.AddUnique(binding);
+					}
+				}
+				
+				_interfaces = (ITypeBinding[])_buffer.ToArray(typeof(ITypeBinding));
+			}
+			return _interfaces;
+		}
+		
 		public virtual IBinding[] GetMembers()
 		{
 			if (null == _members)
 			{
-				_memberBuffer.Clear();
+				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
 					IBinding binding = BindingManager.GetOptionalBinding(member);
@@ -344,11 +366,11 @@ namespace Boo.Lang.Compiler.Bindings
 					{
 						binding = _bindingManager.AsTypeReference((ITypeBinding)binding);
 					}
-					_memberBuffer.Add(binding);
+					_buffer.Add(binding);
 				}
 
-				_members = (IBinding[])_memberBuffer.ToArray(typeof(IBinding));
-				_memberBuffer.Clear();				
+				_members = (IBinding[])_buffer.ToArray(typeof(IBinding));
+				_buffer.Clear();				
 			}
 			return _members;
 		}

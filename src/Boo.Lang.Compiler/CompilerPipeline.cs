@@ -95,46 +95,6 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerPipeline : System.MarshalByRefObject
 	{	
-		static Hash _definitions = new Hash(true);
-		
-		public void AddDefinition(string name, ICompilerPipelineDefinition definition)
-		{
-			if (null == name)
-			{
-				throw new ArgumentNullException("name");
-			}
-			
-			if (null == definition)
-			{
-				throw new ArgumentNullException("definition");
-			}
-			
-			lock (_definitions)
-			{
-				_definitions.Add(name, definition);
-			}
-		}
-		
-		public ICompilerPipelineDefinition GetDefinition(string name)
-		{
-			lock (_definitions)
-			{
-				return _definitions[name] as ICompilerPipelineDefinition;
-			}
-		}
-		
-		static CompilerPipeline()
-		{
-			_definitions.Add("parse", new ParsePipelineDefinition());
-			_definitions.Add("core", new CorePipelineDefinition());
-			_definitions.Add("boom", new BooInMemoryPipelineDefinition());
-			_definitions.Add("booi", new BooiPipelineDefinition());
-			_definitions.Add("booc", new BoocPipelineDefinition());
-			_definitions.Add("rountrip", new RoundtripPipelineDefinition());
-			_definitions.Add("boo", new BooPipelineDefinition());
-			_definitions.Add("xml", new XmlPipelineDefinition());
-		}
-		
 		ArrayList _items;
 
 		public CompilerPipeline()
@@ -282,11 +242,7 @@ namespace Boo.Lang.Compiler
 			
 			try
 			{
-				ICompilerPipelineDefinition definition = GetDefinition(name);
-				if (null == definition)
-				{					
-					definition = (ICompilerPipelineDefinition)Activator.CreateInstance(Type.GetType(name, true));
-				}
+				ICompilerPipelineDefinition definition = (ICompilerPipelineDefinition)Activator.CreateInstance(Type.GetType(name, true));
 				definition.Define(this);
 			}
 			catch (Exception x)

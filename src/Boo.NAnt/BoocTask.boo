@@ -35,6 +35,7 @@ import NAnt.Core.Attributes
 import NAnt.Core.Types
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
+import Boo.Lang.Compiler.Pipeline.Definitions
 
 [TaskName("booc")]
 class BoocTask(AbstractBooTask):
@@ -45,7 +46,7 @@ class BoocTask(AbstractBooTask):
 	
 	_sourceFiles = FileSet()
 	
-	_pipeline = "booc"
+	_pipeline as string
 	
 	_traceLevel = System.Diagnostics.TraceLevel.Off
 	
@@ -107,7 +108,10 @@ class BoocTask(AbstractBooTask):
 		parameters.TraceSwitch.Level = _traceLevel
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
-		parameters.Pipeline.Load(_pipeline)
+		if _pipeline:
+			parameters.Pipeline.Load(_pipeline)
+		else:
+			parameters.Pipeline.Load(BoocPipelineDefinition)
 		
 		for fname as string in files:
 			LogVerbose(fname)

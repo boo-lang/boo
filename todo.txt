@@ -15,6 +15,21 @@ done * artigo "Estendendo o compilador utilizando pipelines",
 		done * stylechecker step,
 		done * trace step
 		
+* trocar o modelo utilizado IAstTransformer para um modelo mais simples
+que possa ser utilizado no BooInBoo:
+
+	* Remover Switch(node, ref resultingNode) dos nós
+	* unificar modelo com IAstSwitcher
+	* remover parametro ref dos OnXXX:
+		* OnXXX(node as XXX) com métodos:
+			RemoveCurrentNode()
+			ReplaceCurrentNode(newNode as Node)
+		
+* separar o binding dos elementos do semantic step:
+um passo anterior vai navegar por todos os nós associando os 
+InternalBindings apropriados, todas as assinaturas de métodos já
+serao preenchidas sempre que possível
+		
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock
 	

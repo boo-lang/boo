@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project name="booinboo" default="compile">
+
+	<property name="build.dir" value="build/booinboo" />	
+	<property name="nunit.framework.dll" value="${nant.location}/nunit.framework.dll" />
+	
+	<target name="test" depends="compile">
+		<nunit2>       
+			<formatter type="Plain" />
+			<test>
+				<assemblies basedir="${build.dir}">
+					<includes name="BooInBoo.Tests.dll" />
+				</assemblies>
+			</test>
+		</nunit2>
+	</target>
+
+	<target name="compile" depends="init">
+	
+		<booc
+			target="library"
+			output="${build.dir}/BooInBoo.dll">
+			
+			<sources basedir="src/BooInBoo">
+				<includes name="**/*.boo" />
+			</sources>
+		</booc>
+		
+		<booc
+			target="library"
+			output="${build.dir}/BooInBoo.Tests.dll">
+			
+			<sources basedir="src/BooInBoo.Tests">
+				<includes name="**/*.boo" />
+			</sources>
+			
+			<references basedir="${build.dir}">
+				<includes name="BooInBoo.dll" />
+				<includes name="Boo.Lang.Compiler.Tests.dll" />
+				<includes name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+	
+	</target>
+	
+	<target name="init">
+	
+		<mkdir dir="${build.dir}" />
+		
+		<copy todir="${build.dir}">
+			<fileset basedir="bin">
+				<includes name="*.dll" />
+			</fileset>
+		</copy>
+		
+		<loadtasks assembly="${build.dir}/Boo.NAnt.dll" />
+		
+	</target>
+	
+</project>

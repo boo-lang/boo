@@ -40,6 +40,7 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 			pipeline.Add(new CompilerPipelineItem("attributes", new AstAttributesStep()));
 			pipeline.Add(new CompilerPipelineItem("macros", new MacroExpansionStep()));
 			pipeline.Add(new CompilerPipelineItem("normalization", new AstNormalizationStep()));
+			pipeline.Add(new CompilerPipelineItem("bindings", new CreateBindingsStep()));
 			pipeline.Add(new CompilerPipelineItem("semantics", new SemanticStep()));
 		}
 	}

@@ -26,18 +26,18 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Text;
-using System.Collections;
-using System.Reflection;
-using Boo;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Bindings;
-using List=Boo.Lang.List;
-
 namespace Boo.Lang.Compiler.Pipeline
-{		
+{
+	using System;
+	using System.Text;
+	using System.Collections;
+	using System.Reflection;
+	using Boo;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Bindings;
+	using List=Boo.Lang.List;
+
 	/// <summary>
 	/// AST semantic evaluation.
 	/// </summary>
@@ -150,7 +150,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		void ResolveClassInterfaceMethods(ClassDefinition node)
-		{
+		{	
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
 				ITypeBinding binding = GetBoundType(baseType);
@@ -179,7 +179,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		void ResolveClassInterfaceMethods(ClassDefinition node,
 											TypeReference interfaceReference,
 											ITypeBinding interfaceBinding)
-		{
+		{			
+			foreach (ITypeBinding binding in interfaceBinding.GetInterfaces())
+			{
+				ResolveClassInterfaceMethods(node, interfaceReference, binding);
+			}
+			
 			foreach (IMemberBinding binding in interfaceBinding.GetMembers())
 			{
 				switch (binding.BindingType)

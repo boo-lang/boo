@@ -139,6 +139,11 @@ namespace Boo.Lang.Compiler.Bindings
 			return new IConstructorBinding[0];
 		}
 		
+		public ITypeBinding[] GetInterfaces()
+		{
+			return new ITypeBinding[0];
+		}
+		
 		public IBinding[] GetMembers()
 		{
 			return new IBinding[0];

@@ -783,6 +783,18 @@ namespace Boo.AntlrParser.Tests
 		}
 		
 		[Test]
+		public void VariableParameters()
+		{
+			RunParserTestCase("variable_parameters.boo");
+		}
+		
+		[Test]
+		public void SimpleAnonymousMethods()
+		{
+			RunParserTestCase("anonymous_methods_1.boo");
+		}
+		
+		[Test]
 		public void Docstrings()
 		{
 			/*

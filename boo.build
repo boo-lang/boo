@@ -27,11 +27,10 @@
 		<property name="nant.tasks.nunit2" value="False" />
 	</if>	
 	
-	<target name="all" depends="booc, booi">	
+	<target name="all" depends="booc, booi, compile-tests">	
 	</target>
 	
 	<target name="booi" depends="Boo.NAnt">
-		<loadtasks assembly="build/Boo.NAnt.dll" />
 		
 		<booc
 			target="exe"
@@ -65,6 +64,7 @@
 			<arg value="src/Boo.NAnt/BooTask.boo" />
 			<arg value="src/Boo.NAnt/AbstractBooTask.boo" />			
 		</exec>
+		<loadtasks assembly="build/Boo.NAnt.dll" />
 	</target>
 	
 	<target name="booc" depends="core">
@@ -96,9 +96,12 @@
 		<copy todir="bin">
 			<fileset basedir="build">
 				<includes name="Boo.dll" />
+				<includes name="Boo.Tests.dll" />
 				<includes name="Boo.Lang.Compiler.dll" />
+				<includes name="Boo.Lang.Compiler.Tests.dll" />
 				<includes name="Boo.NAnt.dll" />
 				<includes name="Boo.AntlrParser.dll" />
+				<includes name="Boo.AntlrParser.Tests.dll" />
 				<includes name="antlr.runtime.dll" />
 				<includes name="booc.exe" />
 				<includes name="booi.exe" />
@@ -121,7 +124,7 @@
 		
 	</target>
 	
-	<target name="compile-tests" depends="all">
+	<target name="compile-tests" depends="Boo.NAnt, Boo.Lang.Compiler, Boo.AntlrParser">
 	
 		<booc
 			target="library"

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project name="BooBinding" default="build">
+
+	<!-- customizable properties -->
+	<property name="boo.dir" value="${path::get-full-path('../../../build')}" />
+	<property name="sharpd.dir" value = "C:\Arquivos de programas\SharpDevelop\bin" />
+	<property name="antlr.runtime.dll" value="${boo.dir}/antlr.runtime.dll" />
+
+	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
+
+	<property name="booc" value="${boo.dir}/booc.exe" />
+	<property name="Boo.dll" value="${boo.dir}/Boo.dll" />
+	<property name="Boo.AntlrParser.dll" value="${boo.dir}/Boo.AntlrParser.dll" />	
+	<property name="Boo.NAnt.dll" value="${boo.dir}/Boo.NAnt.dll" />		
+	
+	<target name="rebuild" depends="clean, build" />
+	
+	<target name="clean">
+		<delete dir="bin" if="${directory::exists('bin')}" />
+	</target>
+
+	<target name="build">
+		<mkdir dir="bin" />
+		<copy todir="bin" file="${Boo.dll}" />
+		<loadtasks assembly="${Boo.NAnt.dll}" />
+		<booc output="bin/BooBinding.dll" target="library" verbose="true">
+		
+			<sources basedir=".">
+				<includes name="**/*.boo" />
+			</sources>
+			
+			<references basedir="${sharpd.dir}">
+				<includes name="SharpDevelop.Base.dll"/>
+				<includes name="ICSharpCode.Core.dll"/>
+				<includes name="ICSharpCode.XmlForms.dll"/>
+				<includes name="ICSharpCode.TextEditor.dll"/>
+				<!--includes name="ICSharpCode.SharpRefactory.dll"/-->
+				<includes name="${Boo.AntlrParser.dll}" />
+			</references>
+		</booc>
+	</target>
+</project>

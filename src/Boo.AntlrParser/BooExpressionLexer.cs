@@ -158,7 +158,7 @@ namespace Boo.AntlrParser
 
 	void Error()
 	{		
-		throw new SemanticException("Unterminated formatting expression!", getFilename(), getLine(), getColumn());
+		throw new SemanticException("Unterminated expression interpolation!", getFilename(), getLine(), getColumn());
 	}
 		public BooExpressionLexer(Stream ins) : this(new ByteBuffer(ins))
 		{
