@@ -1241,7 +1241,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitToBoolIfNeeded(IType topOfStack)
 		{
-			if (TypeSystemServices.ObjectType == topOfStack)
+			if (TypeSystemServices.ObjectType == topOfStack ||
+				TypeSystemServices.DuckType == topOfStack)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool, null);
 			}

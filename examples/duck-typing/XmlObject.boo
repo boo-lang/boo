@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -55,7 +55,15 @@ class XmlObject(IQuackFu):
 		_element = doc.DocumentElement
 		
 	def QuackInvoke(name as string, args as (object)) as object:
-		pass
+		if name == "op_Addition":
+			doc as XmlDocument = _element.ParentNode.CloneNode(true)
+			tmp = XmlObject(doc.DocumentElement)
+			docFrag = doc.CreateDocumentFragment()
+			docFrag.InnerXml = args[1]
+			tmp._element.AppendChild(docFrag)
+			return tmp
+		else:
+			raise System.InvalidOperationException("Method ${name} not found in class ${self.GetType()}")
 		
 	def QuackSet(name as string, value) as object:
 		pass
@@ -82,8 +90,6 @@ xml = """
 person as duck = XmlObject(xml)
 print person.FirstName
 print person.LastName
+person += "<Phone place=\"cell\">3333-333-333</Phone>"
 for phone as XmlObject in person.Phone:
 	print phone['place'], phone
-		
-		
-

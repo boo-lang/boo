@@ -6,6 +6,7 @@ QuackGet(LastName)
 QuackInvoke(Speak, dough)
 QuackInvoke(Walk, )
 QuackInvoke(Eat, donuts!, donuts!)
+QuackInvoke(Adding cream pie)
 """
 import System
 
@@ -24,7 +25,10 @@ class Expando(IQuackFu):
 		return _attributes[name]
 		
 	def QuackInvoke(name as string, args as (object)) as object:
-		print "QuackInvoke(${name}, ${join(args, ', ')})"
+		if name == "op_Addition":
+			print "QuackInvoke(Adding ${args[1]})"
+		else:
+			print "QuackInvoke(${name}, ${join(args, ', ')})"
 
 e as duck = Expando()
 e.FirstName = "Homer"
@@ -35,3 +39,4 @@ e.Speak('dough')
 e.Walk()
 e.Eat('donuts!', 'donuts!')
 
+e += "cream pie"

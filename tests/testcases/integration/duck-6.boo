@@ -1,6 +1,7 @@
 """
 let's see whose quack fu is better!
 whoooooyah!
+Speak not found!
 """
 import System
 
@@ -16,7 +17,10 @@ class Expando(IQuackFu):
 		return _attributes[name]
 		
 	def QuackInvoke(name as string, args as (object)) as object:
-		(_attributes[name] as callable).Call(args)
+		if name == "op_Subtraction":
+			_attributes.Remove(args[1])
+		else:
+			(_attributes[name] as callable).Call(args)
 
 e as duck = Expando()
 
@@ -27,4 +31,8 @@ e.Speak("let's see whose quack fu is better!")
 e.Speak = { print "whoooooyah!" }
 e.Speak()
 
-
+e -= "Speak"
+try:
+	e.Speak()
+except:
+	print "Speak not found!"

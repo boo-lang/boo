@@ -38,6 +38,8 @@ namespace Boo.Lang
 
 	public class RuntimeServices
 	{
+		static readonly Type RuntimeServicesType = typeof(RuntimeServices);
+		
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
 												BindingFlags.OptionalParamBinding |
 												BindingFlags.Static |
@@ -154,8 +156,6 @@ namespace Boo.Lang
 					case ((int)'N' << 8) + (int)'h':			// op_NotMatch
 					case ((int)'M' << 8) + (int)'r':			// op_Member
 					case ((int)'N' << 8) + (int)'r':			// op_NotMember
-					case ((int)'O' << 8) + (int)'r':			// op_Or
-					case ((int)'A' << 8) + (int)'d':			// op_And
 					default:
 						throw new ArgumentException(lhs + " " + operatorName + " " + rhs);
 				}
@@ -163,6 +163,20 @@ namespace Boo.Lang
 			else
 			{
 				object[] args = new object[] { lhs, rhs };
+				IQuackFu duck = lhs as IQuackFu;
+				if (null != duck)
+				{
+					return duck.QuackInvoke(operatorName, args);
+				}
+				else
+				{
+					duck = rhs as IQuackFu;
+					if (null != duck)
+					{
+						return duck.QuackInvoke(operatorName, args);
+					}				
+				}
+
 				try
 				{
 					return lhsType.InvokeMember(operatorName,
@@ -199,7 +213,7 @@ namespace Boo.Lang
 
 		private static object InvokeRuntimeServicesOperator(string operatorName, object[] args)
 		{
-			return typeof(RuntimeServices).InvokeMember(operatorName,
+			return RuntimeServicesType.InvokeMember(operatorName,
 										InvokeOperatorBindingFlags,
 										null,
 										null,
@@ -619,17 +633,17 @@ namespace Boo.Lang
  * and <= binary operators. Binary numeric promotion implicitly converts both operands to a common type
  * which, in case of the non-relational operators, also becomes the result type of the operation. Binary numeric
  * promotion consists of applying the following rules, in the order they appear here:
- * • If either operand is of type decimal, the other operand is converted to type decimal, or a compiletime
+ * ï¿½ If either operand is of type decimal, the other operand is converted to type decimal, or a compiletime
  *   error occurs if the other operand is of type float or double.
- * • Otherwise, if either operand is of type double, the other operand is converted to type double.
- * • Otherwise, if either operand is of type float, the other operand is converted to type float.
- * • Otherwise, if either operand is of type ulong, the other operand is converted to type ulong, or a
+ * ï¿½ Otherwise, if either operand is of type double, the other operand is converted to type double.
+ * ï¿½ Otherwise, if either operand is of type float, the other operand is converted to type float.
+ * ï¿½ Otherwise, if either operand is of type ulong, the other operand is converted to type ulong, or a
  *   compile-time error occurs if the other operand is of type sbyte, short, int, or long.
- * • Otherwise, if either operand is of type long, the other operand is converted to type long.
- * • Otherwise, if either operand is of type uint and the other operand is of type sbyte, short, or int,
+ * ï¿½ Otherwise, if either operand is of type long, the other operand is converted to type long.
+ * ï¿½ Otherwise, if either operand is of type uint and the other operand is of type sbyte, short, or int,
  *   both operands are converted to type long.
- * • Otherwise, if either operand is of type uint, the other operand is converted to type uint.
- * • Otherwise, both operands are converted to type int.
+ * ï¿½ Otherwise, if either operand is of type uint, the other operand is converted to type uint.
+ * ï¿½ Otherwise, both operands are converted to type int.
  * [Note: The first rule disallows any operations that mix the decimal type with the double and float types.
  *  The rule follows from the fact that there are no implicit conversions between the decimal type and the
  *  double and float types. end note]

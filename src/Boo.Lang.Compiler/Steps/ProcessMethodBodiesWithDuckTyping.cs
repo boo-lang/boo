@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -96,19 +96,30 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override protected void BindBinaryExpression(BinaryExpression node)
 		{
-			if ((IsDuckTyped(node.Left) || IsDuckTyped(node.Right)) &&
-				IsOverloadableOperator(node.Operator))
+			if ((IsDuckTyped(node.Left) || IsDuckTyped(node.Right)))
 			{
-				MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-						RuntimeServices_InvokeBinaryOperator,
-						CodeBuilder.CreateStringLiteral(
-							GetMethodNameForOperator(node.Operator)),
-							node.Left, node.Right);							
-				BindExpressionType(mie, TypeSystemServices.DuckType);
+				if (IsOverloadableOperator(node.Operator))
+				{
+					MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+							RuntimeServices_InvokeBinaryOperator,
+							CodeBuilder.CreateStringLiteral(
+								GetMethodNameForOperator(node.Operator)),
+								node.Left, node.Right);							
+					BindExpressionType(mie, TypeSystemServices.DuckType);
 				
-				node.ParentNode.Replace(
-					node, 
-					mie);
+					node.ParentNode.Replace(
+						node, 
+						mie);
+				}
+				else if (BinaryOperatorType.Or == node.Operator ||
+				         BinaryOperatorType.And == node.Operator)
+				{
+					BindExpressionType(node, TypeSystemServices.DuckType);
+				}
+				else
+				{
+					base.BindBinaryExpression(node);
+				}
 			}
 			else
 			{
@@ -120,7 +131,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (op)
 			{
-				case BinaryOperatorType.	Addition:
+				case BinaryOperatorType.Addition:
 				case BinaryOperatorType.Subtraction:
 				case BinaryOperatorType.Multiply:
 				case BinaryOperatorType.Division:
@@ -134,8 +145,6 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.NotMatch:
 				case BinaryOperatorType.Member:
 				case BinaryOperatorType.NotMember:
-				case BinaryOperatorType.Or:
-				case BinaryOperatorType.And:
 				case BinaryOperatorType.BitwiseOr:
 				case BinaryOperatorType.BitwiseAnd:
 				{
