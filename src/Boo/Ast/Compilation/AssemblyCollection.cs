@@ -24,5 +24,14 @@ namespace Boo.Ast.Compilation
 				InnerList.Add(assembly);
 			}
 		}
+		
+		public bool Contains(Assembly assembly)
+		{
+			if (null == assembly)
+			{
+				throw new ArgumentNullException("assembly");
+			}
+			return InnerList.Contains(assembly);
+		}
 	}
 }

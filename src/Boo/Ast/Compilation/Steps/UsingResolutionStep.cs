@@ -9,6 +9,9 @@ using AssemblyInfo=Boo.Ast.Compilation.Binding.NamespaceBinding.AssemblyInfo;
 
 namespace Boo.Ast.Compilation.Steps
 {	
+	// todo: CompilerParameters.References.Changed += OnChanged
+	// recalculate namespaces on reference changes
+	//
 	public class UsingResolutionStep : AbstractCompilerStep, INameSpace
 	{
 		static object GlobalNamespaceKey = new object();
@@ -31,6 +34,16 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void Run()
 		{
+			if (0 == _namespaces.Count)
+			{
+				ResolveNamespaces();
+			}
+			CompileUnit[GlobalNamespaceKey] = this;
+			CompileUnit[BooLangNamespaceKey] = ResolveQualifiedName("Boo.Lang");
+		}
+		
+		void ResolveNamespaces()
+		{			
 			ResolveUsingAssemblyReferences();
 			OrganizeNamespaces();
 			foreach (Module module in CompileUnit.Modules)
@@ -60,10 +73,7 @@ namespace Boo.Ast.Compilation.Steps
 					
 					BindingManager.Bind(using_, binding);
 				}
-			}
-			
-			CompileUnit[GlobalNamespaceKey] = this;
-			CompileUnit[BooLangNamespaceKey] = ResolveQualifiedName("Boo.Lang");
+			}			
 		}
 		
 		void ResolveUsingAssemblyReferences()

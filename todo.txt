@@ -77,6 +77,10 @@ done * criar AbstractAstTransformerStep extends AbstractCompilerStep
 	* criar uma pasta onde cada arquivo .boo é um testcase com um equivalente .out
 	que contém a saída esperada
 	* o teste executa todos os passos da compilação normal e verifica o arquivo final com peverify
+* LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression()) de assignment
+e declara a variável
+* remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o SemanticStep que deverá
+criar CastExpression sempre que necessário
 * AstAttribute vira IAstAttribute que implementa ICompilerStep
 * Criar AbstractAstAttribute extends AbstractCompilerStep
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
@@ -112,13 +116,13 @@ e declarar os tipos de acordo
 Milestone 5
 -----------
 
-* expressões simples com inteiros
-* concatenação de strings
-* concatenação de strings com inteiros
 * classes
 * declara��o de campos
 * declara��o de propriedades
 * defini��o de m�todos
+* expressões simples com inteiros
+* concatenação de strings
+* concatenação de strings com inteiros
 * classes devem ser serializ�veis
 * cria��o de objetos (classes internas)
 * chamada de m�todos est�ticos (classes internas)

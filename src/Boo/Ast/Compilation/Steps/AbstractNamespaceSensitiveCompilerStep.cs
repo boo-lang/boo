@@ -25,11 +25,10 @@ namespace Boo.Ast.Compilation.Steps
 			return true;
 		}
 		
-		public override void LeaveCompileUnit(CompileUnit cu)
+		public override void Dispose()
 		{
-			PopNamespace();
-			PopNamespace();
-			PopNamespace();
+			base.Dispose();
+			_namespaces.Clear();
 		}
 		
 		protected IBinding Resolve(string name)
@@ -69,6 +68,10 @@ namespace Boo.Ast.Compilation.Steps
 		
 		protected void PushNamespace(INameSpace ns)
 		{
+			if (null == ns)
+			{
+				throw new ArgumentNullException("ns");
+			}
 			_namespaces.Push(ns);
 		}
 		

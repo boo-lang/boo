@@ -17,13 +17,14 @@ namespace Boo.Ast.Compilation
 			_steps = new ArrayList();
 		}
 
-		public void Add(ICompilerStep step)
+		public Pipeline Add(ICompilerStep step)
 		{
 			if (null == step)
 			{
 				throw new ArgumentNullException("step");
 			}
 			_steps.Add(step);
+			return this;
 		}
 
 		public int Count
@@ -70,6 +71,11 @@ namespace Boo.Ast.Compilation
 				{
 					context.Errors.StepExecution(step, x);
 				}
+			}
+			
+			foreach (ICompilerStep step in _steps)
+			{
+				step.Dispose();
 			}
 		}
 

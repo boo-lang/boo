@@ -30,6 +30,25 @@ namespace Boo.Ast.Compilation
 			InnerList.Add(error);
 		}		
 		
+		public override string ToString()
+		{
+			return ToString(false);
+		}
+		
+		public string ToString(bool verbose)
+		{
+			if (Count > 0)
+			{
+				System.IO.StringWriter writer = new System.IO.StringWriter();
+				foreach (Error error in InnerList)
+				{
+					writer.WriteLine(error.ToString(verbose));
+				}
+				return writer.ToString();
+			}
+			return string.Empty;
+		}
+		
 		public void NotImplemented(Node node, string message)
 		{
 			throw new Error(node, Format("NotImplemented", message));

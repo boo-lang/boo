@@ -24,7 +24,7 @@ namespace Boo.IO
 		
 		public static void WriteFile(string fname, string contents)
 		{
-			using (StreamWriter writer=new StreamWriter(fname))
+			using (StreamWriter writer=new StreamWriter(fname, false, System.Text.Encoding.UTF8))
 			{
 				writer.Write(contents);
 			}

@@ -54,7 +54,7 @@ namespace BooC
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));					
 				}
 			}
-			catch (ApplicationException x)
+			catch (Exception x)
 			{
 				Console.WriteLine(Boo.ResourceManager.Format("BooC.FatalError", x.Message));
 			}			
