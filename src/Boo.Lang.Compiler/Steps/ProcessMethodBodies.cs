@@ -1565,15 +1565,20 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveReturnStatement(ReturnStatement node)
 		{
 			if (null != node.Expression)
-			{
+			{				
 				IType returnType = _currentMethodInfo.ReturnType;
+				
+				// forces anonymous types to be correctly
+				// instantiated
+				IType expressionType = GetConcreteExpressionType(node.Expression);
+				BindExpressionType(node.Expression, expressionType);
+				
 				if (TypeSystemServices.IsUnknown(returnType))
 				{
 					_currentMethodInfo.ReturnExpressions.Add(node.Expression);
 				}
 				else
 				{
-					IType expressionType = GetExpressionType(node.Expression);
 					CheckTypeCompatibility(node.Expression, returnType, expressionType);
 				}
 			}
@@ -1789,6 +1794,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			string name = string.Format("__anonymous{0}__", module.Members.Count);
 			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(name);
+			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;
 			cd.Members.Add(CreateInvokeMethod(anonymousType));
 			_anonymousTypesModule.Members.Add(cd);
