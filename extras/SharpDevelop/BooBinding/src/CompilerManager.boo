@@ -72,7 +72,7 @@ class BooBindingCompilerManager:
 			
 		outputDirectory = Path.GetDirectoryName(outputFile)
 		try:
-			File.Copy(booLib, Path.Combine(outputDirectory, Path.GetFileName(booLib)))
+			File.Copy(booLib, Path.Combine(outputDirectory, Path.GetFileName(booLib)), true)
 		except:
 			pass
 		

@@ -291,8 +291,6 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 		if self.failedDesignerInitialize:
 			return
 		
-		dirty as bool = viewContent.IsDirty
-		parserService as IParserService = ICSharpCode.Core.Services.ServiceManager.Services.GetService(typeof(IParserService))
 		writer = StringWriter()
 		CodeDOMGenerator(self.host, BooCodeProvider()).ConvertContentDefinition(writer);
 		currentForm as string = writer.ToString()
