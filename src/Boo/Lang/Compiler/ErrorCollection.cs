@@ -266,7 +266,7 @@ namespace Boo.Lang.Compiler
 			Add(new Error(node, Format("IncompatibleExpressionType", expected, actual)));
 		}
 
-		public void StepExecution(ICompilerStep step, Exception cause)
+		public void StepExecution(ICompilerComponent step, Exception cause)
 		{
 			string msg = Format("StepExecution", step.GetType(), cause.Message);
 			Add(new Error(LexicalInfo.Empty, msg, cause));

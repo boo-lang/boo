@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Pipeline
 {
 	/// <summary>	
 	/// </summary>
-	public class BooPrinterStep : ICompilerStep
+	public class BooPrinterStep : ICompilerComponent
 	{
 		CompilerContext _context;
 		

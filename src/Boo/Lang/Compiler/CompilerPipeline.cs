@@ -35,7 +35,7 @@ using System.Xml;
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
-	/// A group of <see cref="ICompilerStep"/> implementations
+	/// A group of <see cref="ICompilerComponent"/> implementations
 	/// that should be executed in sequence.
 	/// </summary>
 	public class CompilerPipeline
@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler
 			_steps = new ArrayList();
 		}
 
-		public CompilerPipeline Add(ICompilerStep step)
+		public CompilerPipeline Add(ICompilerComponent step)
 		{
 			if (null == step)
 			{
@@ -65,11 +65,11 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		public ICompilerStep this[int index]
+		public ICompilerComponent this[int index]
 		{
 			get
 			{
-				return (ICompilerStep)_steps[index];
+				return (ICompilerComponent)_steps[index];
 			}
 		}
 
@@ -113,7 +113,7 @@ namespace Boo.Lang.Compiler
 
 		public void Run(CompilerContext context)
 		{
-			foreach (ICompilerStep step in _steps)
+			foreach (ICompilerComponent step in _steps)
 			{
 				context.TraceEnter("Entering {0}...", step);			
 				
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler
 				context.TraceLeave("Left {0}.", step);
 			}
 			
-			foreach (ICompilerStep step in _steps)
+			foreach (ICompilerComponent step in _steps)
 			{
 				step.Dispose();
 			}
@@ -169,9 +169,9 @@ namespace Boo.Lang.Compiler
 			{
 				string typeName = GetRequiredAttribute(element, "type");
 				Type type = Type.GetType(typeName, true);
-				if (!typeof(ICompilerStep).IsAssignableFrom(type))
+				if (!typeof(ICompilerComponent).IsAssignableFrom(type))
 				{
-					throw new ArgumentException(ResourceManager.Format("ICompilerStepInterface", type.Name));
+					throw new ArgumentException(ResourceManager.Format("ICompilerComponentInterface", type.Name));
 				}
 				_steps.Add(Activator.CreateInstance(type));
 			}

@@ -35,7 +35,7 @@ using Boo.Lang.Compiler.Bindings;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
-	public abstract class AbstractCompilerStep : ICompilerStep
+	public abstract class AbstractCompilerStep : ICompilerComponent
 	{
 		protected CompilerContext _context;		
 		

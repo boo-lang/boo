@@ -32,9 +32,10 @@ using System;
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
-	/// A step in the compilation pipeline.
+	/// A component that is invoked during the compilation
+	/// process.
 	/// </summary>
-	public interface ICompilerStep : IDisposable
+	public interface ICompilerComponent : IDisposable
 	{
 		void Initialize(CompilerContext context);
 		
