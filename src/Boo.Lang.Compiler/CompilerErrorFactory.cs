@@ -436,6 +436,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0081", node.LexicalInfo);
 		}
 		
+		public static CompilerError EventTypeIsNotCallable(Node node, string typeName)
+		{
+			return new CompilerError("BCE0082", node.LexicalInfo, typeName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

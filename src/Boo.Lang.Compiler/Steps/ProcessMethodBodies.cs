@@ -272,6 +272,18 @@ namespace Boo.Lang.Compiler.Steps
 			return method;
 		}
 		
+		Method CreateEventAddMethod(Event node)
+		{
+			Method m = CreateEventMethod(node, "add_");
+			return m;
+		}
+		
+		Method CreateEventRemoveMethod(Event node)
+		{
+			Method m = CreateEventMethod(node, "remove_");
+			return m;
+		}
+		
 		override public void OnEvent(Event node)
 		{
 			if (Visited(node))
@@ -285,8 +297,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null == node.Add)
 			{
-				Method add = CreateEventMethod(node, "add_");
-				node.Add = add;
+				node.Add = CreateEventAddMethod(node);
 			}
 			else
 			{
@@ -295,8 +306,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null == node.Remove)
 			{
-				Method remove = CreateEventMethod(node, "remove_");
-				node.Remove = remove;
+				node.Remove = CreateEventRemoveMethod(node);
 			}
 			else
 			{
