@@ -164,10 +164,10 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			IParameter[] parameters = null;
-			
-			if (EntityType.Constructor == node.Target.Entity.EntityType)
+			IMethod entity = node.Target.Entity as IMethod;			
+			if (null != entity)
 			{
-				parameters = ((IConstructor)node.Target.Entity).GetParameters();
+				parameters = entity.GetParameters();
 			}
 			else
 			{			
@@ -183,7 +183,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void ConvertMethodInvocation(MethodInvocationExpression node, IParameter[] parameters)
-		{		
+		{	
 			ExpressionCollection arguments = node.Arguments;
 			for (int i=0; i<parameters.Length; ++i)
 			{
