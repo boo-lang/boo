@@ -1,4 +1,13 @@
-﻿* software de blogging para a apresentação
+﻿* rever os exemplos de pipeline
+	* escrever documento em inglês
+
+* boox
+	* assembly search path
+	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código
+	
+* terminar documento introdutório
+
+* software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms
 	* editor RichClient
@@ -14,12 +23,6 @@
 e criar um ClassDefinitionBuilder;
 
 * mover apelidos de pipeline para BooCompiler.GetStandardPipelineDefinition
-	
-* boox
-	* assembly search path
-	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código
-	
-* rever os exemplos de pipeline
 
 * Exemplo de passo com estatísticas sobre membros utilizados
 	* summary of class status (http://www.go-mono.com/class-status.html)

@@ -13,7 +13,7 @@ import System.Text.RegularExpressions
 import System.IO
 import Boo.IO.TextFile // static members of TextFile will be available in the global scope
 
-_, glob, expression, replacement = Environment.GetCommandLineArgs()
+glob, expression, replacement = argv
 
 re = Regex(expression)
 for fname in Directory.GetFiles(".", glob):

@@ -31,7 +31,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Globalization;
 using System.Threading;
-using System.Xml;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
@@ -271,14 +270,7 @@ namespace BooC
 
 		static bool IsFlag(string arg)
 		{
-			return arg[0] == '-' || arg[0] == '/';
-		}
-
-		static XmlElement LoadXmlDocument(string fname)
-		{
-			XmlDocument doc = new XmlDocument();
-			doc.Load(fname);
-			return doc.DocumentElement;
+			return arg[0] == '-';
 		}
 
 		static void AddFilesForPath(string path, CompilerParameters options)

@@ -28,12 +28,13 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace Boo.IO
 {
 	public class TextFile : StreamReader, System.Collections.IEnumerable
 	{
-		public TextFile(string fname) : base(fname)
+		public TextFile(string fname) : base(fname, Encoding.Default, true)
 		{			
 		}
 		
@@ -44,7 +45,7 @@ namespace Boo.IO
 		
 		public static string ReadFile(string fname)
 		{
-			using (StreamReader reader=File.OpenText(fname))
+			using (TextFile reader=new TextFile(fname))
 			{
 				return reader.ReadToEnd(); 
 			}
