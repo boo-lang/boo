@@ -2,11 +2,12 @@ namespace BooExplorer
 
 import WeifenLuo.WinFormsUI
 import System
+import System.IO
 import System.Windows.Forms
 import System.Drawing
 import Boo.Lang.Compiler
 
-class TaskList(Content):
+class TaskList(DockContent):
 	
 	_list as ListView
 	_main as MainForm
@@ -28,14 +29,15 @@ class TaskList(Content):
 		SuspendLayout()
 		
 		Controls.Add(_list)
-		self.AllowedStates = (
-					ContentStates.Float |
-					ContentStates.DockBottom |
-					ContentStates.DockTop |
-					ContentStates.DockLeft |
-					ContentStates.DockRight)
-		self.ClientSize = System.Drawing.Size(295, 347)
 		self.HideOnClose = true
+		self.AllowRedocking = true
+		self.DockableAreas = (
+					DockAreas.Float |
+					DockAreas.DockBottom |
+					DockAreas.DockTop |
+					DockAreas.DockLeft |
+					DockAreas.DockRight)
+		self.ClientSize = System.Drawing.Size(295, 347)
 		self.ShowHint = DockState.DockBottom
 		self.Text = "Task List"
 
@@ -58,5 +60,10 @@ class TaskList(Content):
 		return unless len(selected) > 0
 		
 		error as CompilerError = selected[0].Tag
-		document as BooEditor = _main.OpenDocument(error.LexicalInfo.FileName)
-		document.GoTo(error.LexicalInfo.Line-1)
+		fname = error.LexicalInfo.FileName
+		if File.Exists(fname):
+			document as BooEditor = _main.OpenDocument(fname)
+			document.GoTo(error.LexicalInfo.Line-1)
+		
+	override protected def GetPersistString():
+		return "TaskList|"

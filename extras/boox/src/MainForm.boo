@@ -1,6 +1,7 @@
 namespace BooExplorer
 
 import System
+import System.Environment
 import System.IO
 import System.ComponentModel
 import System.Windows.Forms
@@ -9,7 +10,7 @@ import WeifenLuo.WinFormsUI
 
 class MainForm(Form):
 
-	_dockManager as DockManager
+	_dockPanel as DockPanel
 	_status as StatusBar
 	_statusPanel1 as StatusBarPanel
 	_timer as Timer
@@ -31,12 +32,10 @@ class MainForm(Form):
 
 	def constructor(argv as (string)):
 		_argv = argv
-		_dockManager = DockManager(Dock: DockStyle.Fill,
+		_dockPanel = DockPanel(Dock: DockStyle.Fill,
 						ActiveAutoHideContent: null,
 						TabIndex: 1,
-						ActiveDocumentChanged: _dockManager_ActiveDocumentChanged,
-						ContentAdded: _dockManager_ContentAdded,
-						ContentRemoved: _dockManager_ContentRemoved)
+						ActiveDocumentChanged: _dockPanel_ActiveDocumentChanged)
 
 		_statusPanel1 = StatusBarPanel(AutoSize: StatusBarPanelAutoSize.Contents)
 
@@ -51,7 +50,7 @@ class MainForm(Form):
 		self.IsMdiContainer = true
 
 		Controls.AddRange((
-					_dockManager,
+					_dockPanel,
 					_status))
 		ResumeLayout(false)
 		
@@ -109,68 +108,77 @@ class MainForm(Form):
 
 	def _timer_Tick(sender, args as EventArgs):
 		_timer.Enabled = false
-
-		NewDocument() unless len(_argv)
 		
-		for fname in _argv:
-			try:
-				OpenDocument(fname)
-			except x:
-				print(x)
-				
-		ShowDocumentOutline()
+		if File.Exists(GetDockStateXmlFileName()):
+			LoadDockState()
+			OpenDocuments(_argv)
+		else:
+			if len(_argv):			
+				OpenDocuments(_argv)
+			else:
+				NewDocument()
+			ShowDocumentOutline()
 
 	StatusText as string:
 		set:
 			_statusPanel1.Text = value
 			
 	def ShowDocumentOutline():
-		_documentOutline.Show(_dockManager)
+		ShowContent(_documentOutline)
+		
+	private def ShowContent(content as DockContent):
+		content.Show(_dockPanel)
+		if DockState.Unknown == content.DockState:
+			content.Pane.DockState = content.ShowHint
 
 	def NewDocument():
 		editor = BooEditor(self)
-		editor.Show(_dockManager)
+		editor.Show(_dockPanel)
 		editor.TextArea.Focus()
-
+		
+	def OpenDocuments([required] fnames):
+		for fname in fnames:
+			try:
+				OpenDocument(fname)
+			except x:
+				print(x)
+				
 	def OpenDocument([required] filename as string):
 		filename = Path.GetFullPath(filename)
 		content = FindEditor(filename)
 		if content is null:
-			editor = BooEditor(self)
-			editor.Open(filename)
-			editor.Show(_dockManager)
+			editor = CreateEditor(filename)
+			editor.Show(_dockPanel)
 			editor.TextArea.Focus()
 			return editor
 		else:
-			content.Show(_dockManager)
+			content.Show(_dockPanel)
 			content.TextArea.Focus()
 			return content
+			
+	private def CreateEditor([required] fname as string):
+		editor = BooEditor(self)
+		editor.Open(fname)
+		return editor
 
-
-	def _dockManager_ActiveDocumentChanged(sender, args as EventArgs):
-		document = _dockManager.ActiveDocument
+	def _dockPanel_ActiveDocumentChanged(sender, args as EventArgs):
+		document = _dockPanel.ActiveDocument
 		editor = document as BooEditor
 		_documentOutline.ActiveDocument = editor
 		_menuItemClose.Enabled = document is not null
 		_menuItemSaveAs.Enabled = _menuItemSave.Enabled = document is not null
 
-	def _dockManager_ContentAdded(sender, args as ContentEventArgs):
-		pass
-
-	def _dockManager_ContentRemoved(sender, args as ContentEventArgs):
-		pass
-
 	def _menuItemSaveAs_Click(sender, args as EventArgs):
-		cast(BooEditor, _dockManager.ActiveDocument).SaveAs()
+		cast(BooEditor, _dockPanel.ActiveDocument).SaveAs()
 
 	def _menuItemSave_Click(sender, args as EventArgs):
-		cast(BooEditor, _dockManager.ActiveDocument).Save()
+		cast(BooEditor, _dockPanel.ActiveDocument).Save()
 
 	def _menuItemExit_Click(sender, args as EventArgs):
 		self.Close()
 
 	def _menuItemClose_Click(sender, args as EventArgs):
-		_dockManager.ActiveDocument.Close()
+		_dockPanel.ActiveDocument.Close()
 
 	def _menuItemDocumentOutline_Click(sender, args as EventArgs):
 		ShowDocumentOutline()
@@ -179,10 +187,10 @@ class MainForm(Form):
 		ShowTaskList()
 
 	def ShowTaskList():
-		_taskList.Show(_dockManager)
+		ShowContent(_taskList)
 		
 	def ShowOutputPane():
-		_outputPane.Show(_dockManager)
+		ShowContent(_outputPane)
 
 	def _menuItemOutputPane_Click(sender, args as EventArgs):
 		ShowOutputPane()
@@ -197,14 +205,51 @@ class MainForm(Form):
 
 	def _menuItemNew_Click(sender, args as EventArgs):
 		NewDocument()
+		
+	def GetApplicationDataFolder():
+		folder = Path.Combine(
+				GetFolderPath(SpecialFolder.ApplicationData),
+				"boox")
+				
+		Directory.CreateDirectory(folder) unless Directory.Exists(folder)
+		return folder
+		
+	def GetDockStateXmlFileName():
+		return Path.Combine(GetApplicationDataFolder(), "dockstate.xml")
+		
+	def SaveDockState():
+		_dockPanel.SaveAsXml(GetDockStateXmlFileName())
+		
+	def LoadDockState():
+		delegate = Delegate.CreateDelegate(DeserializeDockContent, self, "OnDeserializeDockContent")
+		_dockPanel.LoadFromXml(GetDockStateXmlFileName(), delegate)
+		
+	def OnDeserializeDockContent(persistString as string) as DockContent:
+		type, content = /\|/.Split(persistString)
+		print("type: ${type}, content: ${content}")
+		if "DocumentOutline" == type:
+			return _documentOutline
+		if "TaskList" == type:
+			return _taskList
+		if "OutputPane" == type:
+			return _outputPane
+		if "BooEditor" == type:
+			editor = BooEditor(self)
+			editor.Open(content) if File.Exists(content)
+			return editor
+		raise ArgumentException("Invalid persistence string: ${persistString}")
+		
+	override protected def OnClosed(args as EventArgs):
+		super(args)
+		SaveDockState()
 
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)
 		if not args.Cancel:			
 			dirtyDocuments = [
-							editor.GetSafeFileName()
-							for editor as BooEditor in _dockManager.Documents
-							if editor.IsDirty
+							cast(BooEditor, editor).GetSafeFileName()
+							for editor in _dockPanel.Documents
+							if editor isa BooEditor and cast(BooEditor, editor).IsDirty
 							]
 			return unless len(dirtyDocuments)
 			
@@ -217,7 +262,7 @@ class MainForm(Form):
 											MessageBoxButtons.YesNo))
 
 	def FindEditor(fname as string):
-		for document in _dockManager.Documents:
+		for document in _dockPanel.Documents:
 			editor = document as BooEditor
 			if editor and editor.FileName == fname:
 				return editor

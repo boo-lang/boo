@@ -5,7 +5,7 @@ import System
 import System.Windows.Forms
 import System.Drawing
 
-class OutputPane(Content):
+class OutputPane(DockContent):
 	
 	_richBox as RichTextBox
 	
@@ -16,14 +16,14 @@ class OutputPane(Content):
 		SuspendLayout()
 		
 		Controls.Add(_richBox)
-		self.AllowedStates = (
-					ContentStates.Float |
-					ContentStates.DockBottom |
-					ContentStates.DockTop |
-					ContentStates.DockLeft |
-					ContentStates.DockRight)
-		self.ClientSize = System.Drawing.Size(295, 347)
 		self.HideOnClose = true
+		self.DockableAreas = (
+					DockAreas.Float |
+					DockAreas.DockBottom |
+					DockAreas.DockTop |
+					DockAreas.DockLeft |
+					DockAreas.DockRight)
+		self.ClientSize = System.Drawing.Size(295, 347)
 		self.ShowHint = DockState.DockBottom
 		self.Text = "Output"
 
@@ -31,4 +31,7 @@ class OutputPane(Content):
 
 	def SetBuildText(text as string):
 		_richBox.Text = text
+		
+	override protected def GetPersistString():
+		return "OutputPane|"
 

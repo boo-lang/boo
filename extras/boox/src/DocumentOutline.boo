@@ -16,7 +16,7 @@ enum TypeIcon:
 	PublicProperty
 	PublicMethod
 
-class DocumentOutline(Content):
+class DocumentOutline(DockContent):
 
 	_activeDocument as BooEditor
 	_tree as TreeView
@@ -35,17 +35,17 @@ class DocumentOutline(Content):
 		SuspendLayout()
 
 		Controls.Add(_tree)
-		self.AllowedStates = (
-					ContentStates.Float |
-					ContentStates.DockLeft |
-					ContentStates.DockRight)
+		self.DockableAreas = (
+					DockAreas.Float |
+					DockAreas.DockLeft |
+					DockAreas.DockRight)
 		self.ClientSize = System.Drawing.Size(295, 347)
 
 		self.DockPadding.Bottom = 2
 		self.DockPadding.Top = 26
-		self.HideOnClose = true
-		self.ShowHint = WeifenLuo.WinFormsUI.DockState.DockRight
+		self.ShowHint = DockState.DockRight;
 		self.Text = "Document Outline"
+		self.HideOnClose = true
 		ResumeLayout(false)
 
 	def InitImageList():		
@@ -91,6 +91,9 @@ class DocumentOutline(Content):
 
 		if (treeNode = _tree.SelectedNode):
 			GoToNode(treeNode)
+			
+	override protected def GetPersistString():
+		return "DocumentOutline|"
 
 class TreeViewVisitor(DepthFirstSwitcher):
 

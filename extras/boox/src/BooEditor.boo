@@ -29,7 +29,7 @@ class ConsoleCapture(IDisposable):
 	def Dispose():
 		Console.SetOut(_old)
 
-class BooEditor(Content):
+class BooEditor(DockContent):
 
 	_editor as TextEditorControl
 	_main as MainForm
@@ -59,7 +59,7 @@ class BooEditor(Content):
 		SuspendLayout()
 		Controls.Add(_editor)
 		self.HideOnClose = true
-		self.AllowedStates = ContentStates.Document
+		self.DockableAreas = DockAreas.Document
 		self.Text = GetSafeFileName()
 		self.DockPadding.All = 1
 		self.Menu = CreateMenu()
@@ -153,6 +153,7 @@ class BooEditor(Content):
 		compiler.Parameters.Pipeline.Load(BooInMemoryPipelineDefinition)
 		compiler.Parameters.References.Add(typeof(Form).Assembly)
 		compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
+		compiler.Parameters.References.Add(System.Reflection.Assembly.GetExecutingAssembly())
 
 		using console=ConsoleCapture():
 			
@@ -251,5 +252,8 @@ class BooEditor(Content):
 
 	def GetBooHighlighting():
 		return HighlightingManager.Manager.FindHighlighter("boo")
+		
+	override protected def GetPersistString():
+		return "BooEditor|${GetSafeFileName()}"
 
 
