@@ -43,13 +43,13 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{			
 			NameResolutionService.Reset();
-			Accept(CompileUnit.Modules);
+			Visit(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
 			EnterNamespace((INamespace)GetEntity(module));
-			Accept(module.Members);
+			Visit(module.Members);
 			LeaveNamespace();
 		}
 		
@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{			
-			Accept(node.Members);
+			Visit(node.Members);
 			ResolveBaseTypes(new Boo.Lang.List(), node);
 			CheckBaseTypes(node);
 		}

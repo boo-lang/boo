@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			Accept(CompileUnit.Modules);
+			Visit(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Module node)

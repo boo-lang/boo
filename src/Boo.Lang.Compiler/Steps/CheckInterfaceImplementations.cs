@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -37,12 +37,12 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			Accept(CompileUnit.Modules);
+			Visit(CompileUnit.Modules);
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			Accept(node.Members, NodeType.ClassDefinition);
+			Visit(node.Members, NodeType.ClassDefinition);
 			
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
@@ -183,7 +183,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module node)
 		{
-			Accept(node.Members, NodeType.ClassDefinition);
+			Visit(node.Members, NodeType.ClassDefinition);
 		}
 	}
 }

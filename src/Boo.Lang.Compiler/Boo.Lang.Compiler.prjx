@@ -66,6 +66,7 @@
     <File name=".\Ast\ImportCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\INodeWithArguments.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\INodeWithAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\INodeWithParameters.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\IntegerLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\InterfaceDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\LexicalInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -228,23 +229,21 @@
     <File name=".\Steps\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Steps\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\AbstractVisitorCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\AstAnnotations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindAndApplyAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindBaseTypes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Steps\BindModules.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindTypeDefinitions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\BindTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\CheckInterfaceImplementations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\EmitAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\ExpandMacros.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Steps\InitializeNameResolutionService.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\InjectCasts.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\IntroduceGlobalNamespaces.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\IntroduceModuleClasses.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Steps\IntroduceNameResolutionService.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Steps\NameResolutionSupport.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\NormalizeStatementModifiers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\NormalizeTypeMembers.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\PEVerify.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -254,36 +253,36 @@
     <File name=".\Steps\RunAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\SaveAssembly.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Steps\SerializeToXml.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\AbstractInternalType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\Ambiguous.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\ArrayType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\AssemblyReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\BuiltinFunction.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\CompileUnit.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\ElementUtil.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\Error.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\ExternalEvent.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\ExternalField.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\ExternalMethod.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\ExternalParameter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\ExternalProperty.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\ExternalType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\IElement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\INameSpace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\InternalEnumMember.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\InternalField.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\InternalMethod.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\InternalParameter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\InternalProperty.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\InternalType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\LocalVariable.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\Module.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\NameResolutionService.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\Namespace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\NamespaceCache.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\TagService.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\TypeReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Taxonomy\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\AbstractInternalType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\Ambiguous.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\ArrayType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\AssemblyReference.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\BuiltinFunction.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\CompileUnit.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\EntityType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\Error.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\ExternalEvent.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\ExternalField.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\ExternalMethod.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\ExternalParameter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\ExternalProperty.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\ExternalType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\IEntity.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\INameSpace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\InternalEnumMember.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\InternalField.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\InternalMethod.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\InternalParameter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\InternalProperty.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\InternalType.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\LocalVariable.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\ModuleEntity.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\NameResolutionService.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\Namespace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\NamespaceEntity.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\TypeReferenceEntity.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\Types.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\TypeSystem\TypeSystemServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Util\MarshalByRefCollectionBase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Util\MarshalByRefEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

@@ -39,12 +39,12 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			Accept(CompileUnit.Modules);
+			Visit(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module node)
 		{			
-			Accept(node.Members);
+			Visit(node.Members);
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 			
 			NormalizeVisibility(node);
-			Accept(node.Members);
+			Visit(node.Members);
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)

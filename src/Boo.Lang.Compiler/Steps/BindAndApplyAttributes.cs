@@ -196,7 +196,7 @@ namespace Boo.Lang.Compiler.Steps
 			int step = 0;
 			while (step < Parameters.MaxAttributeSteps)
 			{
-				Accept(CompileUnit);
+				Visit(CompileUnit);
 				if (0 == _tasks.Count)
 				{					
 					break;
@@ -209,7 +209,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
-			Accept(module.Members);
+			Visit(module.Members);
 			LeaveNamespace();
 		}
 

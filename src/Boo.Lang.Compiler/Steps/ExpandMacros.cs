@@ -41,21 +41,21 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			Accept(CompileUnit);
+			Visit(CompileUnit);
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{			
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
-			Accept(module.Members);
-			Accept(module.Globals);			
+			Visit(module.Members);
+			Visit(module.Globals);			
 			LeaveNamespace();
 		}
 		
 		override public void OnMacroStatement(MacroStatement node)
 		{
-			Accept(node.Block);
-			Accept(node.Arguments);
+			Visit(node.Block);
+			Visit(node.Arguments);
 			
 			Node replacement = null;
 			

@@ -564,13 +564,13 @@ namespace Boo.Lang.Compiler.Ast
 				for field as Field in switchableFields:
 					if IsCollectionField(field):
 						writer.WriteLine("""
-				Accept(node.${field.Name});""")
+				Visit(node.${field.Name});""")
 					else:
 						writer.WriteLine("""
 				${field.Type} current${field.Name}Value = node.${field.Name};
 				if (null != current${field.Name}Value)
 				{											
-					node.${field.Name} = (${field.Type})AcceptNode(current${field.Name}Value);
+					node.${field.Name} = (${field.Type})VisitNode(current${field.Name}Value);
 				}""")
 				
 				writer.WriteLine("""
@@ -603,7 +603,7 @@ namespace Boo.Lang.Compiler.Ast
 			_resultingNode = replacement;
 		}
 		
-		public Node AcceptNode(Node node)
+		public Node VisitNode(Node node)
 		{
 			if (null != node)
 			{
@@ -617,22 +617,22 @@ namespace Boo.Lang.Compiler.Ast
 			return null;
 		}
 		
-		public Node Accept(Node node)
+		public Node Visit(Node node)
 		{
-			return AcceptNode(node);
+			return VisitNode(node);
 		}
 		
-		public Expression Accept(Expression node)
+		public Expression Visit(Expression node)
 		{
-			return (Expression)AcceptNode(node);
+			return (Expression)VisitNode(node);
 		}
 		
-		public Statement Accept(Statement node)
+		public Statement Visit(Statement node)
 		{
-			return (Statement)AcceptNode(node);
+			return (Statement)VisitNode(node);
 		}
 		
-		public bool Accept(NodeCollection collection)
+		public bool Visit(NodeCollection collection)
 		{
 			if (null != collection)
 			{
@@ -642,7 +642,7 @@ namespace Boo.Lang.Compiler.Ast
 				for (int i=0; i<nodes.Length; ++i)
 				{					
 					Node currentNode = nodes[i];
-					Node resultingNode = AcceptNode(currentNode);
+					Node resultingNode = VisitNode(currentNode);
 					if (currentNode != resultingNode)
 					{
 						int actualIndex = i-removed;
@@ -746,7 +746,7 @@ def WriteDepthFirstAccept(writer as TextWriter, item as ClassDefinition):
 			{""")
 			
 		for field as Field in fields:
-			writer.WriteLine("\t\t\t\tAccept(node.${field.Name});")
+			writer.WriteLine("\t\t\tVisit(node.${field.Name});")
 			
 		writer.Write(
 """				Leave${item.Name}(node);
@@ -781,7 +781,7 @@ namespace Boo.Lang.Compiler.Ast
 	
 	public class DepthFirstVisitor : IAstVisitor
 	{
-		public bool Accept(Node node)
+		public bool Visit(Node node)
 		{			
 			if (null != node)
 			{
@@ -802,40 +802,40 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
-		public void Accept(Node[] array, NodeType nodeType)
+		public void Visit(Node[] array, NodeType nodeType)
 		{
 			foreach (Node node in array)
 			{
 				if (node.NodeType == nodeType)
 				{
-					Accept(node);
+					Visit(node);
 				}
 			}
 		}
 		
-		public bool Accept(NodeCollection collection, NodeType nodeType)
+		public bool Visit(NodeCollection collection, NodeType nodeType)
 		{
 			if (null != collection)
 			{
-				Accept(collection.ToArray(), nodeType);
+				Visit(collection.ToArray(), nodeType);
 				return true;
 			}
 			return false;
 		}
 		
-		public void Accept(Node[] array)
+		public void Visit(Node[] array)
 		{
 			foreach (Node node in array)
 			{
-				Accept(node);
+				Visit(node);
 			}
 		}
 		
-		public bool Accept(NodeCollection collection)
+		public bool Visit(NodeCollection collection)
 		{
 			if (null != collection)
 			{
-				Accept(collection.ToArray());
+				Visit(collection.ToArray());
 				return true;
 			}
 			return false;

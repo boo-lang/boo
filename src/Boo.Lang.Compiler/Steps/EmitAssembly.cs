@@ -309,7 +309,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_symbolDocWriter = null;
 			}
-			Accept(module.Members);
+			Visit(module.Members);
 		}
 		
 		override public void OnEnumDefinition(EnumDefinition node)
@@ -340,7 +340,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			TypeBuilder current = GetTypeBuilder(node);
 			EmitBaseTypesAndAttributes(node, current);			
-			Accept(node.Members);
+			Visit(node.Members);
 			
 			_typeBuilder = current;
 		}		
@@ -357,8 +357,8 @@ namespace Boo.Lang.Compiler.Steps
 				_returnValueLocal = _il.DeclareLocal(GetSystemType(_returnType));
 			}
 			
-			Accept(method.Locals);
-			Accept(method.Body);
+			Visit(method.Locals);
+			Visit(method.Body);
 			
 			_il.MarkLabel(_returnLabel);
 			
@@ -376,8 +376,8 @@ namespace Boo.Lang.Compiler.Steps
 			_il = builder.GetILGenerator();
 
 			InternalConstructor tag = (InternalConstructor)GetEntity(constructor);
-			Accept(constructor.Locals);
-			Accept(constructor.Body);
+			Visit(constructor.Locals);
+			Visit(constructor.Body);
 			_il.Emit(OpCodes.Ret);
 		}
 		
@@ -412,7 +412,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != node.Expression)
 			{
-				Accept(node.Expression);
+				Visit(node.Expression);
 				EmitCastIfNeeded(_returnType, PopType());
 				_il.Emit(OpCodes.Stloc, _returnValueLocal);
 			}
@@ -421,7 +421,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnRaiseStatement(RaiseStatement node)
 		{
-			Accept(node.Exception); PopType();
+			Visit(node.Exception); PopType();
 			_il.Emit(OpCodes.Throw);
 		}
 		
@@ -430,12 +430,12 @@ namespace Boo.Lang.Compiler.Steps
 			++_tryBlock;
 			
 			Label endLabel = _il.BeginExceptionBlock();
-			Accept(node.ProtectedBlock);
-			Accept(node.ExceptionHandlers);
+			Visit(node.ProtectedBlock);
+			Visit(node.ExceptionHandlers);
 			if (null != node.EnsureBlock)
 			{
 				_il.BeginFinallyBlock();
-				Accept(node.EnsureBlock);
+				Visit(node.EnsureBlock);
 			}
 			_il.EndExceptionBlock();
 			
@@ -446,7 +446,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.BeginCatchBlock(GetSystemType(node.Declaration));
 			_il.Emit(OpCodes.Stloc, GetLocalBuilder(node.Declaration));
-			Accept(node.Block);
+			Visit(node.Block);
 		}
 		
 		override public void OnUnpackStatement(UnpackStatement node)
@@ -556,16 +556,16 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.ReferenceEquality:
 				{
-					Accept(expression.Left); PopType();
-					Accept(expression.Right); PopType();
+					Visit(expression.Left); PopType();
+					Visit(expression.Right); PopType();
 					_il.Emit(OpCodes.Beq, label);
 					break;
 				}
 				
 				case BinaryOperatorType.ReferenceInequality:
 				{
-					Accept(expression.Left); PopType();
-					Accept(expression.Right); PopType();
+					Visit(expression.Left); PopType();
+					Visit(expression.Right); PopType();
 					_il.Emit(OpCodes.Ceq);
 					_il.Emit(OpCodes.Brfalse, label);
 					break;
@@ -846,13 +846,13 @@ namespace Boo.Lang.Compiler.Steps
 		void OnAssignmentToSlice(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
-			Accept(slice.Target); 
+			Visit(slice.Target); 
 			
 			IArrayType arrayType = (IArrayType)PopType();
 			IType elementType = arrayType.GetElementType();
 			EmitNormalizedArrayIndex(slice.Begin);			
 			
-			Accept(node.Right);
+			Visit(node.Right);
 			EmitCastIfNeeded(elementType, PopType());
 			
 			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);
@@ -901,7 +901,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					InternalParameter param = (InternalParameter)tag;
 					
-					Accept(node.Right);
+					Visit(node.Right);
 					EmitCastIfNeeded(param.Type, PopType());
 					
 					if (leaveValueOnStack)
@@ -940,7 +940,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitTypeTest(BinaryExpression node)
 		{
-			Accept(node.Left); PopType();
+			Visit(node.Left); PopType();
 			_il.Emit(OpCodes.Isinst, GetSystemType(node.Right));
 		}
 		
@@ -966,9 +966,9 @@ namespace Boo.Lang.Compiler.Steps
 			IType rhs = GetType(node.Right);
 			
 			IType type = TypeSystemServices.GetPromotedNumberType(lhs, rhs);
-			Accept(node.Left);
+			Visit(node.Left);
 			EmitCastIfNeeded(type, PopType());
-			Accept(node.Right);
+			Visit(node.Right);
 			EmitCastIfNeeded(type, PopType());
 		}
 		
@@ -1015,9 +1015,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void OnExponentiation(BinaryExpression node)
 		{
-			Accept(node.Left);
+			Visit(node.Left);
 			EmitCastIfNeeded(TypeSystemServices.DoubleType, PopType());
-			Accept(node.Right);
+			Visit(node.Right);
 			EmitCastIfNeeded(TypeSystemServices.DoubleType, PopType());
 			_il.EmitCall(OpCodes.Call, Math_Pow, null);
 			PushType(TypeSystemServices.DoubleType);			
@@ -1045,7 +1045,7 @@ namespace Boo.Lang.Compiler.Steps
 			EmitLogicalOperator(node, OpCodes.Brtrue, OpCodes.Brfalse); 
 			/*
 			IType type = GetType(node);
-			Accept(node.Left);
+			Visit(node.Left);
 			
 			IType lhsType = PopType();
 			
@@ -1062,7 +1062,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				_il.MarkLabel(lhsWasTrue);
 				_il.Emit(OpCodes.Pop);
-				Accept(node.Right);
+				Visit(node.Right);
 				EmitCastIfNeeded(type, PopType());
 				
 				_il.MarkLabel(end);
@@ -1077,7 +1077,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Brfalse, end);
 				
 				_il.Emit(OpCodes.Pop);
-				Accept(node.Right);
+				Visit(node.Right);
 				EmitCastIfNeeded(type, PopType());
 				_il.MarkLabel(end);				
 			}
@@ -1093,7 +1093,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitLogicalOperator(BinaryExpression node, OpCode brForValueType, OpCode brForRefType)
 		{
 			IType type = GetType(node);
-			Accept(node.Left);
+			Visit(node.Left);
 			
 			IType lhsType = PopType();
 			
@@ -1111,7 +1111,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				_il.MarkLabel(evalRhs);
 				_il.Emit(OpCodes.Pop);
-				Accept(node.Right);
+				Visit(node.Right);
 				EmitCastIfNeeded(type, PopType());	
 				
 				_il.MarkLabel(end);
@@ -1129,7 +1129,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(brForRefType, end);
 				
 				_il.Emit(OpCodes.Pop);
-				Accept(node.Right);
+				Visit(node.Right);
 				EmitCastIfNeeded(type, PopType());
 				_il.MarkLabel(end);
 			}
@@ -1141,10 +1141,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType type = GetType(node);
 			
-			Accept(node.Left);
+			Visit(node.Left);
 			EmitCastIfNeeded(type, PopType());
 			
-			Accept(node.Right);
+			Visit(node.Right);
 			EmitCastIfNeeded(type, PopType());
 			
 			_il.Emit(OpCodes.Or);
@@ -1272,7 +1272,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.InPlaceAdd:
 				{
-					Accept(((MemberReferenceExpression)node.Left).Target); PopType();
+					Visit(((MemberReferenceExpression)node.Left).Target); PopType();
 					SubscribeEvent(node, GetEntity(node.Left), node.Right);
 					PushVoid();
 					break;
@@ -1280,7 +1280,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.InPlaceSubtract:
 				{
-					Accept(((MemberReferenceExpression)node.Left).Target); PopType();
+					Visit(((MemberReferenceExpression)node.Left).Target); PopType();
 					UnsubscribeEvent(node, GetEntity(node.Left), node.Right);
 					PushVoid();
 					break;
@@ -1302,7 +1302,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnCastExpression(CastExpression node)
 		{
 			IType type = GetType(node.Type);
-			Accept(node.Target);
+			Visit(node.Target);
 			EmitCastIfNeeded(type, PopType());
 			PushType(type);
 		}
@@ -1328,7 +1328,7 @@ namespace Boo.Lang.Compiler.Steps
 				{				
 					if (mi.DeclaringType == Types.Object)
 					{
-						Accept(node.Target); 
+						Visit(node.Target); 
 						_il.Emit(OpCodes.Box, GetSystemType(PopType()));
 					}
 					else
@@ -1339,7 +1339,7 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					// pushes target reference
-					Accept(node.Target); PopType();
+					Visit(node.Target); PopType();
 					if (mi.IsVirtual)
 					{
 						code = OpCodes.Callvirt;
@@ -1498,10 +1498,10 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (ExpressionPair pair in node.Items)
 			{
 				_il.Emit(OpCodes.Dup);
-				Accept(pair.First);
+				Visit(pair.First);
 				EmitCastIfNeeded(objType, PopType());
 				
-				Accept(pair.Second);
+				Visit(pair.Second);
 				EmitCastIfNeeded(objType, PopType());
 				_il.EmitCall(OpCodes.Call, Hash_Add, null);
 			}
@@ -1568,7 +1568,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Accept(node.Target); 			
+			Visit(node.Target); 			
 			IArrayType type = (IArrayType)PopType();
 
 			EmitNormalizedArrayIndex(node.Begin);
@@ -1618,7 +1618,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitLoadInt(Expression expression)
 		{
-			Accept(expression);
+			Visit(expression);
 			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
 		}
 		
@@ -1635,7 +1635,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (Expression arg in node.Expressions)
 			{	
-				Accept(arg);
+				Visit(arg);
 				
 				IType argType = PopType();
 				if (TypeSystemServices.StringType == argType)
@@ -1667,7 +1667,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{						
-				Accept(self); PopType();
+				Visit(self); PopType();
 				_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldInfo));						
 			}
 			PushType(fieldInfo.Type);
@@ -1775,7 +1775,7 @@ namespace Boo.Lang.Compiler.Steps
 				default:
 				{
 					// declare local to hold value type
-					Accept(expression); 
+					Visit(expression); 
 					LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
 					_il.Emit(OpCodes.Stloc, temp);
 					_il.Emit(OpCodes.Ldloca, temp);
@@ -1976,7 +1976,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Accept(((MemberReferenceExpression)value).Target); PopType();
+				Visit(((MemberReferenceExpression)value).Target); PopType();
 			}
 			_il.Emit(OpCodes.Ldftn, (MethodInfo)mi);
 			_il.Emit(OpCodes.Newobj, GetDelegateConstructor(delegateType));
@@ -2062,7 +2062,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			LocalBuilder localIterator = _il.DeclareLocal(Types.IEnumerator);
 			
-			Accept(display.Iterator); PopType();
+			Visit(display.Iterator); PopType();
 			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
 			_il.Emit(OpCodes.Stloc, localIterator);
 			_il.Emit(OpCodes.Br, labelTest);
@@ -2086,7 +2086,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			_il.Emit(OpCodes.Ldloc, list);
-			Accept(display.Expression);
+			Visit(display.Expression);
 			EmitCastIfNeeded(TypeSystemServices.ObjectType, PopType());
 			_il.EmitCall(OpCodes.Call, List_Add, null);
 			_il.Emit(OpCodes.Pop);
@@ -2116,7 +2116,7 @@ namespace Boo.Lang.Compiler.Steps
 			EmitUnpackForDeclarations(node.Declarations, TypeSystemServices.ObjectType);
 			
 			EnterLoop(breakLabel, labelTest);
-			Accept(node.Block);
+			Visit(node.Block);
 			LeaveLoop();
 			
 			// iterator.MoveNext()			
@@ -2158,7 +2158,7 @@ namespace Boo.Lang.Compiler.Steps
 			EmitUnpackForDeclarations(node.Declarations, iteratorTypeInfo.GetElementType());
 			
 			EnterLoop(breakLabel, continueLabel);
-			Accept(node.Block);
+			Visit(node.Block);
 			LeaveLoop();
 			
 			_il.MarkLabel(continueLabel);

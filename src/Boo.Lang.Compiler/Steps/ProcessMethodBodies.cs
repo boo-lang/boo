@@ -171,7 +171,7 @@ namespace Boo.Lang.Compiler.Steps
 					(IConstructor)TypeSystemServices.Map(
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
-			Accept(CompileUnit);
+			Visit(CompileUnit);
 		}
 		
 		override public void Dispose()
@@ -202,7 +202,7 @@ namespace Boo.Lang.Compiler.Steps
 		{				
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));			
 			
-			Accept(module.Members);
+			Visit(module.Members);
 			
 			LeaveNamespace();
 		}
@@ -217,8 +217,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalType tag = GetInternalType(node);
 			EnterNamespace(tag);
-			Accept(node.Attributes);
-			Accept(node.Members);
+			Visit(node.Attributes);
+			Visit(node.Members);
 			LeaveNamespace();
 		}
 		
@@ -232,9 +232,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalType tag = GetInternalType(node);			
 			EnterNamespace(tag);
-			Accept(node.Attributes);		
+			Visit(node.Attributes);		
 			ProcessFields(node);
-			Accept(node.Members);
+			Visit(node.Members);
 			LeaveNamespace();
 		}		
 		
@@ -243,7 +243,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType tag = TypeSystemServices.GetType(node);
 			if (null != tag && !TypeSystemServices.IsError(tag))
 			{			
-				Accept(node.Arguments);
+				Visit(node.Arguments);
 				ResolveNamedArguments(node, tag, node.NamedArguments);
 				
 				IConstructor constructor = FindCorrectConstructor(node, tag, node.Arguments);
@@ -267,10 +267,10 @@ namespace Boo.Lang.Compiler.Steps
 			Method setter = node.Setter;
 			Method getter = node.Getter;
 			
-			Accept(node.Attributes);			
-			Accept(node.Type);
+			Visit(node.Attributes);			
+			Visit(node.Type);
 			
-			Accept(node.Parameters);
+			Visit(node.Parameters);
 			if (null != getter)
 			{
 				if (null != node.Type)
@@ -279,7 +279,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				getter.Name = "get_" + node.Name;
 				getter.Parameters.ExtendWithClones(node.Parameters);
-				Accept(getter);
+				Visit(getter);
 			}
 			
 			IType typeInfo = null;
@@ -308,7 +308,7 @@ namespace Boo.Lang.Compiler.Steps
 				parameter.Entity = new InternalParameter(parameter, node.Parameters.Count+GetFirstParameterIndex(setter));
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
-				Accept(setter);
+				Visit(setter);
 				
 				setter.Name = "set_" + node.Name;
 			}
@@ -329,7 +329,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalField tag = (InternalField)GetEntity(node);
 			
-			Accept(node.Attributes);			
+			Visit(node.Attributes);			
 			
 			ProcessFieldInitializer(node);			
 			
@@ -346,7 +346,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Accept(node.Type);
+				Visit(node.Type);
 				
 				if (null != node.Initializer)
 				{
@@ -363,7 +363,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Accept(fields);
+			Visit(fields);
 			
 			int staticFieldIndex = 0;
 			int instanceFieldIndex = 0;
@@ -411,7 +411,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					type.Members.Add(method);
 					method.Entity = new InternalMethod(TypeSystemServices, method);
-					Accept(method);
+					Visit(method);
 				}
 				finally
 				{
@@ -550,10 +550,10 @@ namespace Boo.Lang.Compiler.Steps
 			InternalMethod tag = (InternalMethod)GetEntity(method);
 			
 			bool parentIsClass = method.DeclaringType.NodeType == NodeType.ClassDefinition;
-			Accept(method.Attributes);
-			Accept(method.Parameters);
-			Accept(method.ReturnType);
-			Accept(method.ReturnTypeAttributes);
+			Visit(method.Attributes);
+			Visit(method.Parameters);
+			Visit(method.ReturnType);
+			Visit(method.ReturnTypeAttributes);
 			
 			if (method.IsOverride)
 			{
@@ -586,7 +586,7 @@ namespace Boo.Lang.Compiler.Steps
 			PushMethodInfo(tag);
 			EnterNamespace(tag);
 			
-			Accept(method.Body);
+			Visit(method.Body);
 			
 			LeaveNamespace();
 			PopMethodInfo();			
@@ -910,14 +910,14 @@ namespace Boo.Lang.Compiler.Steps
 		StringLiteralExpression CreateStringLiteral(string value)
 		{
 			StringLiteralExpression expression = new StringLiteralExpression(value);
-			Accept(expression);
+			Visit(expression);
 			return expression;
 		}
 		
 		IntegerLiteralExpression CreateIntegerLiteral(long value)
 		{
 			IntegerLiteralExpression expression = new IntegerLiteralExpression(value);
-			Accept(expression);
+			Visit(expression);
 			return expression;
 		}
 		
@@ -1126,7 +1126,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)
 		{
-			Accept(node.Iterator);
+			Visit(node.Iterator);
 			
 			Expression newIterator = ProcessIterator(node.Iterator, node.Declarations, true);
 			if (null != newIterator)
@@ -1135,8 +1135,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));			
-			Accept(node.Filter);			
-			Accept(node.Expression);
+			Visit(node.Filter);			
+			Visit(node.Expression);
 			LeaveNamespace();
 		}
 		
@@ -1275,7 +1275,7 @@ namespace Boo.Lang.Compiler.Steps
 				memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
 			}
 			node.ParentNode.Replace(node, memberRef);
-			Accept(memberRef);
+			Visit(memberRef);
 		}
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
@@ -1505,7 +1505,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnForStatement(ForStatement node)
 		{		
-			Accept(node.Iterator);
+			Visit(node.Iterator);
 			
 			Expression newIterator = ProcessIterator(node.Iterator, node.Declarations, true);
 			if (null != newIterator)
@@ -1515,14 +1515,14 @@ namespace Boo.Lang.Compiler.Steps
 			
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));
 			EnterLoop();
-			Accept(node.Block);
+			Visit(node.Block);
 			LeaveLoop();
 			LeaveNamespace();
 		}
 		
 		override public void OnUnpackStatement(UnpackStatement node)
 		{
-			Accept(node.Expression);
+			Visit(node.Expression);
 			
 			Expression newIterator = ProcessIterator(node.Expression, node.Declarations, false);
 			if (null != newIterator)
@@ -1553,12 +1553,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Accept(node.Declaration.Type);
+				Visit(node.Declaration.Type);
 			}
 			
 			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetType(node.Declaration.Type));
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
-			Accept(node.Block);
+			Visit(node.Block);
 			LeaveNamespace();
 		}
 		
@@ -1588,7 +1588,7 @@ namespace Boo.Lang.Compiler.Steps
 													addition);
 													
 					node.ParentNode.Replace(node, assign);
-					Accept(assign);
+					Visit(assign);
 				}
 			}
 			else
@@ -1657,7 +1657,7 @@ namespace Boo.Lang.Compiler.Steps
 				IEntity info = NameResolutionService.Resolve(reference.Name);					
 				if (null == info || IsBuiltin(info))
 				{
-					Accept(node.Right);
+					Visit(node.Right);
 					IType expressionTypeInfo = GetExpressionType(node.Right);				
 					DeclareLocal(reference, new Local(reference, false), expressionTypeInfo);
 					Bind(node, expressionTypeInfo);
@@ -2082,8 +2082,8 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Accept(node.Target);			
-			Accept(node.Arguments);
+			Visit(node.Target);			
+			Visit(node.Arguments);
 			
 			IEntity targetInfo = GetEntity(node.Target);
 			if (TypeSystemServices.IsError(targetInfo) ||
@@ -2467,7 +2467,7 @@ namespace Boo.Lang.Compiler.Steps
 			node.Operator = GetRelatedBinaryOperatorForInPlaceOperator(node.Operator);
 			
 			parent.Replace(node, assign);
-			Accept(assign);
+			Visit(assign);
 		}
 		
 		BinaryOperatorType GetRelatedBinaryOperatorForInPlaceOperator(BinaryOperatorType op)
@@ -2593,7 +2593,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (ExpressionPair arg in arguments)
 			{			
-				Accept(arg.Second);
+				Visit(arg.Second);
 				
 				if (NodeType.ReferenceExpression != arg.First.NodeType)
 				{
@@ -2908,9 +2908,9 @@ namespace Boo.Lang.Compiler.Steps
 						TypeMember member = internalInfo.Node as TypeMember;
 						if (null != member)
 						{
-							Accept(member.ParentNode);
+							Visit(member.ParentNode);
 						}
-						Accept(internalInfo.Node);
+						Visit(internalInfo.Node);
 					}
 					finally
 					{
@@ -3327,7 +3327,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null != d.Type)
 				{
-					Accept(d.Type);
+					Visit(d.Type);
 					CheckTypeCompatibility(d, GetType(d.Type), defaultDeclType);					
 				}
 				
