@@ -10,8 +10,8 @@
 	<property name="antlr.home" value="lib/antlr-2.7.3" />
 	<property name="java" value="java" />
 	
-	<property name="antlr.runtime.dll" value="${antlr.home}/bin/antlr.runtime.dll" />
 	<property name="antlr.jar" value="${antlr.home}/antlr.jar" />
+	<property name="antlr.runtime.dll" value="${antlr.home}/lib/csharp/src/bin/antlr.runtime.dll" />
 	<property name='nunit.framework.dll' value='${nant.location}/nunit.framework.dll' />
 	<property name="NAnt.Core.dll" value="${nant.location}/NAnt.Core.dll" />
 	
@@ -55,14 +55,13 @@
 		</csc>
 		
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
-			<arg file='build/Boo.dll' />
-			<arg file='build/antlr.runtime.dll' />			
-			<arg file='build/Boo.Antlr.dll' />
+			<arg file='build/Boo.dll' />			
+			<arg file='build/Boo.AntlrParser.dll' />
 			<arg file='build/booc.exe' />
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo, Boo.Antlr, deploy">
+	<target name="core" depends="Boo, Boo.AntlrParser, deploy">
 	</target>
 	
 	<target name="deploy" depends="run-tests" unless="${skip.tests}">
@@ -70,8 +69,7 @@
 		<copy todir="bin">
 			<fileset basedir="build">
 				<includes name="Boo.dll" />
-				<includes name="Boo.Antlr.dll" />				
-				<includes name="antlr.runtime.dll" />
+				<includes name="Boo.AntlrParser.dll" />
 				<includes name="booc.exe" />
 			</fileset>
 		</copy>
@@ -86,7 +84,7 @@
 		
 	</target>
 	
-	<target name="Boo.Tests" depends="Boo, Boo.Antlr">
+	<target name="Boo.Tests" depends="Boo, Boo.AntlrParser">
 		<csc
 			target="library"
 			output="build/Boo.Tests.dll"
@@ -98,10 +96,10 @@
 			</sources>
 
 			<references>
-				<includes name="${antlr.runtime.dll}" />
 				<includes name="${nunit.framework.dll}" />
 				<includes name="build/Boo.dll" />
-				<includes name="build/Boo.Antlr.dll" />
+				<includes name="build/Boo.AntlrParser.dll" />
+				<includes name="${antlr.runtime.dll}" />
 			</references>
 		</csc>
 	</target>
@@ -132,15 +130,15 @@
 		</csc>
 	</target>
 	
-	<target name="Boo.Antlr" depends="Boo, compile-grammar">
-		<csc target="library" output="build/Boo.Antlr.dll"
+	<target name="Boo.AntlrParser" depends="Boo, compile-grammar">
+		<csc target="library" output="build/Boo.AntlrParser.dll"
 			debug="${debug}" optimize="${optimize}">
-			<sources basedir="src/Boo.Antlr">
+			<sources basedir="src/Boo.AntlrParser">
 				<includes name="**/*.cs" />
 			</sources>
 			<references>
-				<includes name="${antlr.runtime.dll}" />
 				<includes name="build/Boo.dll" />
+				<includes name="build/antlr.runtime.dll" />
 			</references>
 		</csc>
 	</target>
@@ -161,10 +159,10 @@
 
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
 
-		<if test="${not file::up-to-date('src/Boo.Antlr/boo.g', 'src/Boo.Antlr/BooParserBase.cs')}">
+		<if test="${not file::up-to-date('src/Boo.AntlrParser/boo.g', 'src/Boo.AntlrParser/BooParserBase.cs')}">
 		
 			<delete>
-				<fileset basedir="src/Boo.Antlr">
+				<fileset basedir="src/Boo.AntlrParser">
 					<includes name="*TokenTypes.*" />
 				</fileset>
 			</delete>			 
@@ -174,8 +172,8 @@
 				<arg value="${antlr.jar}" />
 				<arg value="antlr.Tool" />
 				<arg value="-o" />
-				<arg value="src/Boo.Antlr/" />
-				<arg value="src/Boo.Antlr/boo.g" />
+				<arg value="src/Boo.AntlrParser/" />
+				<arg value="src/Boo.AntlrParser/boo.g" />
 			</exec>
 			
 			<exec program="${java}" failonerror="true">
@@ -183,11 +181,11 @@
 				<arg value="${antlr.jar}" />
 				<arg value="antlr.Tool" />
 				<arg value="-o" />
-				<arg value="src/Boo.Antlr/" />
-				<arg value="src/Boo.Antlr/booel.g" />
+				<arg value="src/Boo.AntlrParser/" />
+				<arg value="src/Boo.AntlrParser/booel.g" />
 			</exec>
 			
-			<touch file="src/Boo.Antlr/BooParserBase.cs" />
+			<touch file="src/Boo.AntlrParser/BooParserBase.cs" />
 		</if>
 	</target>
 	
@@ -208,8 +206,8 @@
 
 	<target name="init">
 		<mkdir dir="build" />
-		<copy file="${antlr.runtime.dll}" todir="build" />
 		<copy file="${nunit.framework.dll}" todir="build" />
+		<copy file="${antlr.runtime.dll}" todir="build" />
 	</target>
 
 </project>
