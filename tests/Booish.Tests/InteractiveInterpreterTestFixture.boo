@@ -413,7 +413,13 @@ class Customer(object):
     def ToString() as string
 
 """
-		Assert.AreEqual(expected, buffer.ToString().Replace("\r\n", "\n"))
+		actual = buffer.ToString().Replace("\r\n", "\n")
+		
+		# mono compatibility fix
+		# object.Equals arg on mono is called o
+		actual = actual.Replace("o as object", "obj as object")
+		
+		Assert.AreEqual(expected, actual)
 	
 		
 	[Test]
