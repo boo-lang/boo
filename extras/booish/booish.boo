@@ -83,6 +83,7 @@ class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 		NameResolutionService.GlobalNamespace = _namespace
 		
 	override def ProcessAssignment(node as BinaryExpression):
+		# prevent 'Expression can't be assigned to' error
 		super(node) unless InterpreterEntity.IsInterpreterEntity(node.Left)
 	
 	override def DeclareLocal(name as string, type as IType, privateScope as bool):
@@ -202,6 +203,13 @@ assert 4 == x2(2)
 
 interpreter.Eval("e = i*2 for i in range(value)")
 assert array(interpreter.GetValue("e")) == (0, 2, 4)
+
+# let's loop
+interpreter.Eval("""
+for i in range(3):
+	print(i*2)
+""")
+print("i: ${interpreter.GetValue('i')}")
 
 
 
