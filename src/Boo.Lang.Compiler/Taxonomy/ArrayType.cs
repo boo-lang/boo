@@ -33,13 +33,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class ArrayTypeInfo : ITypeInfo, INamespace
 	{	
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		ITypeInfo _elementType;
 		
 		ITypeInfo _array;
 		
-		public ArrayTypeInfo(DefaultInfoService bindingManager, ITypeInfo elementType)
+		public ArrayTypeInfo(TaxonomyManager bindingManager, ITypeInfo elementType)
 		{
 			_bindingService = bindingManager;
 			_array = bindingManager.ArrayTypeInfo;

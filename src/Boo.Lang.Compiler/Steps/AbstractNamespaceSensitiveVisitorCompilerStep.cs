@@ -88,12 +88,12 @@ namespace Boo.Lang.Compiler.Steps
 			return name.IndexOf('.') > 0;
 		}	
 	
-		protected InternalTypeInfo GetInternalTypeInfo(TypeDefinition node)
+		protected InternalType GetInternalType(TypeDefinition node)
 		{
-			InternalTypeInfo binding = (InternalTypeInfo)InfoService.GetOptionalInfo(node);
+			InternalType binding = (InternalType)TaxonomyHelper.GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new InternalTypeInfo(InfoService, node);
+				binding = new InternalType(TaxonomyHelper, node);
 				Bind(node, binding);
 			}
 			return binding;
@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected IInfo ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
-			if (InfoService.IsBound(node))
+			if (TaxonomyHelper.IsBound(node))
 			{
 				return null;
 			}

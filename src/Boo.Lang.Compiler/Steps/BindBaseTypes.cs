@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.Steps
 				TypeReferenceInfo binding = ResolveSimpleTypeReference(type) as TypeReferenceInfo;
 				if (null != binding)
 				{
-					InternalTypeInfo internalType = binding.BoundType as InternalTypeInfo;
+					InternalType internalType = binding.BoundType as InternalType;
 					if (null != internalType)
 					{
 						if (visited.Contains(internalType.TypeDefinition))

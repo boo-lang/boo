@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 
 	public class NamespaceInfo : IInfo, INamespace
 	{		
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		INamespace _parent;
 		
@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		ArrayList _moduleNamespaces;
 		
-		public NamespaceInfo(INamespace parent, DefaultInfoService bindingManager, string name)
+		public NamespaceInfo(INamespace parent, TaxonomyManager bindingManager, string name)
 		{			
 			_parent = parent;
 			_bindingService = bindingManager;

@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 												BindingFlags.Static |
 												BindingFlags.Instance;
 		
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		Type _type;
 		
@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		int _typeDepth = -1;
 		
-		internal ExternalType(DefaultInfoService manager, Type type)
+		internal ExternalType(TaxonomyManager manager, Type type)
 		{
 			if (null == type)
 			{

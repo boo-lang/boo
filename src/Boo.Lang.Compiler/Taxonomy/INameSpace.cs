@@ -68,17 +68,17 @@ namespace Boo.Lang.Compiler.Taxonomy
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		DeclarationCollection _declarations;
 		
-		public DeclarationsNamespace(INamespace parent, DefaultInfoService bindingManager, DeclarationCollection declarations)
+		public DeclarationsNamespace(INamespace parent, TaxonomyManager bindingManager, DeclarationCollection declarations)
 		{
 			_parent = parent;
 			_bindingService = bindingManager;
 			_declarations = declarations;
 		}
 		
-		public DeclarationsNamespace(INamespace parent, DefaultInfoService bindingManager, Declaration declaration)
+		public DeclarationsNamespace(INamespace parent, TaxonomyManager bindingManager, Declaration declaration)
 		{
 			_parent = parent;
 			_bindingService = bindingManager;
@@ -99,7 +99,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			Declaration d = _declarations[name];
 			if (null != d)
 			{
-				return DefaultInfoService.GetInfo(d);
+				return TaxonomyManager.GetInfo(d);
 			}
 			return null;
 		}

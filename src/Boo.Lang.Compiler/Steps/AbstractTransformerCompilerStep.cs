@@ -75,27 +75,27 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected DefaultInfoService InfoService
+		protected TaxonomyManager TaxonomyHelper
 		{
 			get
 			{
-				return _context.InfoService;
+				return _context.TaxonomyHelper;
 			}
 		}
 		
 		public IInfo GetInfo(Node node)
 		{
-			return DefaultInfoService.GetInfo(node);
+			return TaxonomyManager.GetInfo(node);
 		}
 		
 		protected ITypeInfo GetBoundType(Node node)
 		{
-			return InfoService.GetBoundType(node);
+			return TaxonomyHelper.GetBoundType(node);
 		}	
 		
 		protected TypeReference CreateBoundTypeReference(ITypeInfo binding)
 		{
-			return InfoService.CreateBoundTypeReference(binding);
+			return TaxonomyHelper.CreateBoundTypeReference(binding);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

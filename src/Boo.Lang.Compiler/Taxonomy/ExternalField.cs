@@ -32,11 +32,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class ExternalFieldInfo : IFieldInfo
 	{
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		System.Reflection.FieldInfo _field;
 		
-		public ExternalFieldInfo(DefaultInfoService bindingManager, System.Reflection.FieldInfo field)
+		public ExternalFieldInfo(TaxonomyManager bindingManager, System.Reflection.FieldInfo field)
 		{
 			_bindingService = bindingManager;
 			_field = field;

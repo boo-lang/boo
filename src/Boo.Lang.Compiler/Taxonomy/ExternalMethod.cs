@@ -34,11 +34,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class ExternalMethod : IMethodInfo
 	{
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		MethodBase _mi;
 		
-		internal ExternalMethod(DefaultInfoService manager, MethodBase mi)
+		internal ExternalMethod(TaxonomyManager manager, MethodBase mi)
 		{
 			_bindingService = manager;
 			_mi = mi;
@@ -152,13 +152,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		override public string ToString()
 		{
-			return DefaultInfoService.GetSignature(this);
+			return TaxonomyManager.GetSignature(this);
 		}
 	}
 	
 	public class ExternalConstructorInfo : ExternalMethod, IConstructorInfo
 	{
-		public ExternalConstructorInfo(DefaultInfoService manager, ConstructorInfo ci) : base(manager, ci)
+		public ExternalConstructorInfo(TaxonomyManager manager, ConstructorInfo ci) : base(manager, ci)
 		{			
 		}
 		

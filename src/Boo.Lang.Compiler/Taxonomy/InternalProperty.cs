@@ -33,13 +33,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class InternalProperty : AbstractInternalInfo, IPropertyInfo
 	{
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		Property _property;
 		
 		ITypeInfo[] _indexParameters;
 		
-		public InternalProperty(DefaultInfoService bindingManager, Property property)
+		public InternalProperty(TaxonomyManager bindingManager, Property property)
 		{
 			_bindingService = bindingManager;
 			_property = property;
@@ -119,7 +119,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			if (null != _property.Getter)
 			{
-				return (IMethodInfo)DefaultInfoService.GetInfo(_property.Getter);
+				return (IMethodInfo)TaxonomyManager.GetInfo(_property.Getter);
 			}
 			return null;
 		}
@@ -128,7 +128,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			if (null != _property.Setter)
 			{
-				return (IMethodInfo)DefaultInfoService.GetInfo(_property.Setter);
+				return (IMethodInfo)TaxonomyManager.GetInfo(_property.Setter);
 			}
 			return null;
 		}

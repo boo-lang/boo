@@ -33,11 +33,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 		Len
 	}
 	
-	public class SpecialFunctionInfo : IInfo
+	public class BuiltinFunction : IInfo
 	{
 		SpecialFunction _function;
 		
-		public SpecialFunctionInfo(SpecialFunction f)
+		public BuiltinFunction(SpecialFunction f)
 		{
 			_function = f;
 		}

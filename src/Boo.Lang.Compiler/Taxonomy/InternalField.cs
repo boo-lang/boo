@@ -34,10 +34,10 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class InternalFieldInfo : AbstractInternalInfo, IFieldInfo
 	{
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		Field _field;
 		
-		public InternalFieldInfo(DefaultInfoService bindingManager, Field field)
+		public InternalFieldInfo(TaxonomyManager bindingManager, Field field)
 		{
 			_bindingService = bindingManager;
 			_field = field;
@@ -95,7 +95,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return (ITypeInfo)DefaultInfoService.GetInfo(_field.ParentNode);
+				return (ITypeInfo)TaxonomyManager.GetInfo(_field.ParentNode);
 			}
 		}
 		

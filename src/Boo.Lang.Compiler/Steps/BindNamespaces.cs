@@ -62,8 +62,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
-				ModuleInfo moduleInfo = new ModuleInfo(InfoService, module);
-				InfoService.Bind(module, moduleInfo);
+				ModuleInfo moduleInfo = new ModuleInfo(TaxonomyHelper, module);
+				TaxonomyHelper.Bind(module, moduleInfo);
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
 				if (null != namespaceDeclaration)
@@ -107,12 +107,12 @@ namespace Boo.Lang.Compiler.Steps
 						if (null != import.Alias)
 						{
 							binding = new AliasedNamespaceInfo(import.Alias.Name, binding);
-							InfoService.Bind(import.Alias, binding);
+							TaxonomyHelper.Bind(import.Alias, binding);
 						}
 					}
 					
 					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, binding.Name);
-					InfoService.Bind(import, binding);
+					TaxonomyHelper.Bind(import, binding);
 				}
 			}			
 		}
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							Parameters.References.Add(asm);
-							InfoService.Bind(reference, new Taxonomy.AssemblyInfo(asm));
+							TaxonomyHelper.Bind(reference, new Taxonomy.AssemblyInfo(asm));
 						}
 						catch (Exception x)
 						{
@@ -147,7 +147,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Assembly GetBoundAssembly(ReferenceExpression reference)
 		{
-			return ((AssemblyInfo)InfoService.GetInfo(reference)).Assembly;
+			return ((AssemblyInfo)TaxonomyHelper.GetInfo(reference)).Assembly;
 		}
 		
 		public INamespace ParentNamespace
@@ -231,7 +231,7 @@ namespace Boo.Lang.Compiler.Steps
 			Taxonomy.NamespaceInfo binding = (Taxonomy.NamespaceInfo)_namespaces[topLevelName];	
 			if (null == binding)
 			{
-				_namespaces[topLevelName] = binding = new Taxonomy.NamespaceInfo(this, InfoService, topLevelName);
+				_namespaces[topLevelName] = binding = new Taxonomy.NamespaceInfo(this, TaxonomyHelper, topLevelName);
 			}
 			return binding;
 		}

@@ -75,17 +75,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected DefaultInfoService InfoService
+		protected TaxonomyManager TaxonomyHelper
 		{
 			get
 			{
-				return _context.InfoService;
+				return _context.TaxonomyHelper;
 			}
 		}
 		
 		protected void Error(Node node, CompilerError error)
 		{
-			DefaultInfoService.Error(node);
+			TaxonomyManager.Error(node);
 			Errors.Add(error);
 		}
 		
@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node)
 		{
-			DefaultInfoService.Error(node);
+			TaxonomyManager.Error(node);
 		}
 
 		protected void Bind(Node node, IInfo binding)
@@ -107,12 +107,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public IInfo GetInfo(Node node)
 		{
-			return DefaultInfoService.GetInfo(node);
+			return TaxonomyManager.GetInfo(node);
 		}
 		
 		public ITypeInfo GetBoundType(Node node)
 		{
-			return DefaultInfoService.GetBoundType(node);
+			return TaxonomyManager.GetBoundType(node);
 		}		
 		
 		public LocalInfo GetLocalInfo(Node local)
@@ -122,7 +122,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected TypeReference CreateBoundTypeReference(ITypeInfo binding)
 		{
-			return DefaultInfoService.CreateBoundTypeReference(binding);
+			return TaxonomyManager.CreateBoundTypeReference(binding);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

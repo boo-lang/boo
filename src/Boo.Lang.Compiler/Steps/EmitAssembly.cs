@@ -142,12 +142,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void PushBool()
 		{
-			PushType(InfoService.BoolTypeInfo);
+			PushType(TaxonomyHelper.BoolTypeInfo);
 		}
 		
 		void PushVoid()
 		{
-			PushType(InfoService.VoidTypeInfo);
+			PushType(TaxonomyHelper.VoidTypeInfo);
 		}
 		
 		ITypeInfo PopType()
@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					foreach (TypeReference baseTypeRef in type.BaseTypes)
 					{
-						InternalTypeInfo binding = GetBoundType(baseTypeRef) as InternalTypeInfo;
+						InternalType binding = GetBoundType(baseTypeRef) as InternalType;
 						if (null != binding)
 						{
 							CreateType(created, binding.TypeDefinition);
@@ -352,7 +352,7 @@ namespace Boo.Lang.Compiler.Steps
 			_returnLabel = _il.DefineLabel();
 			
 			_returnType = ((IMethodInfo)GetInfo(method)).ReturnType;
-			if (InfoService.VoidTypeInfo != _returnType)
+			if (TaxonomyHelper.VoidTypeInfo != _returnType)
 			{
 				_returnValueLocal = _il.DeclareLocal(GetType(_returnType));
 			}
@@ -470,7 +470,7 @@ namespace Boo.Lang.Compiler.Steps
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
-			if (PopType() != InfoService.VoidTypeInfo)
+			if (PopType() != TaxonomyHelper.VoidTypeInfo)
 			{				
 				_il.Emit(OpCodes.Pop);				
 			}
@@ -812,7 +812,7 @@ namespace Boo.Lang.Compiler.Steps
 					node.Operand.Accept(this);
 					ITypeInfo type = PopType();
 					_il.Emit(OpCodes.Ldc_I4, -1);
-					EmitCastIfNeeded(type, InfoService.IntTypeInfo);
+					EmitCastIfNeeded(type, TaxonomyHelper.IntTypeInfo);
 					_il.Emit(OpCodes.Mul);
 					PushType(type);
 					break;
@@ -888,7 +888,7 @@ namespace Boo.Lang.Compiler.Steps
 			// when the parent is not a statement we need to leave
 			// the value on the stack
 			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);				
-			IInfo binding = InfoService.GetInfo(node.Left);
+			IInfo binding = TaxonomyHelper.GetInfo(node.Left);
 			switch (binding.InfoType)
 			{
 				case InfoType.Local:
@@ -965,7 +965,7 @@ namespace Boo.Lang.Compiler.Steps
 			ITypeInfo lhs = GetBoundType(node.Left);
 			ITypeInfo rhs = GetBoundType(node.Right);
 			
-			ITypeInfo type = InfoService.GetPromotedNumberType(lhs, rhs);
+			ITypeInfo type = TaxonomyHelper.GetPromotedNumberType(lhs, rhs);
 			Accept(node.Left);
 			EmitCastIfNeeded(type, PopType());
 			Accept(node.Right);
@@ -1016,11 +1016,11 @@ namespace Boo.Lang.Compiler.Steps
 		void OnExponentiation(BinaryExpression node)
 		{
 			Accept(node.Left);
-			EmitCastIfNeeded(InfoService.DoubleTypeInfo, PopType());
+			EmitCastIfNeeded(TaxonomyHelper.DoubleTypeInfo, PopType());
 			Accept(node.Right);
-			EmitCastIfNeeded(InfoService.DoubleTypeInfo, PopType());
+			EmitCastIfNeeded(TaxonomyHelper.DoubleTypeInfo, PopType());
 			_il.EmitCall(OpCodes.Call, Math_Pow, null);
-			PushType(InfoService.DoubleTypeInfo);			
+			PushType(TaxonomyHelper.DoubleTypeInfo);			
 		}
 		
 		void OnArithmeticOperator(BinaryExpression node)
@@ -1034,7 +1034,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitToBoolIfNeeded(ITypeInfo topOfStack)
 		{
-			if (InfoService.ObjectTypeInfo == topOfStack)
+			if (TaxonomyHelper.ObjectTypeInfo == topOfStack)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool, null);
 			}
@@ -1346,7 +1346,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void InvokeSuperMethod(IMethodInfo methodInfo, MethodInvocationExpression node)
 		{
-			IMethodInfo super = ((InternalMethodInfo)methodInfo).Override;
+			IMethodInfo super = ((InternalMethod)methodInfo).Override;
 			MethodInfo superMI = GetMethodInfo(super);
 			_il.Emit(OpCodes.Ldarg_0); // this
 			PushArguments(super, node.Arguments);
@@ -1358,12 +1358,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Ldtoken, type);
 			_il.EmitCall(OpCodes.Call, Type_GetTypeFromHandle, null);
-			PushType(InfoService.TypeTypeInfo);
+			PushType(TaxonomyHelper.TypeTypeInfo);
 		}
 		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{				
-			IInfo binding = InfoService.GetInfo(node.Target);
+			IInfo binding = TaxonomyHelper.GetInfo(node.Target);
 			switch (binding.InfoType)
 			{
 				case InfoType.Method:
@@ -1404,7 +1404,7 @@ namespace Boo.Lang.Compiler.Steps
 							// object reference
 							_il.Emit(OpCodes.Dup);
 							
-							IInfo memberInfo = InfoService.GetInfo(pair.First);						
+							IInfo memberInfo = TaxonomyHelper.GetInfo(pair.First);						
 							// field/property reference						
 							InitializeMember(node, memberInfo, pair.Second);
 						}
@@ -1427,7 +1427,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Ldc_I8, node.Value.Ticks);
 			_il.Emit(OpCodes.Newobj, TimeSpan_LongConstructor);
-			PushType(InfoService.TimeSpanTypeInfo);
+			PushType(TaxonomyHelper.TimeSpanTypeInfo);
 		}
 		
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
@@ -1435,7 +1435,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.IsLong)
 			{
 				_il.Emit(OpCodes.Ldc_I8, node.Value);
-				PushType(InfoService.LongTypeInfo);
+				PushType(TaxonomyHelper.LongTypeInfo);
 			}
 			else
 			{
@@ -1459,14 +1459,14 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 				}				
-				PushType(InfoService.IntTypeInfo);
+				PushType(TaxonomyHelper.IntTypeInfo);
 			}			
 		}
 		
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldc_R8, node.Value);
-			PushType(InfoService.DoubleTypeInfo);
+			PushType(TaxonomyHelper.DoubleTypeInfo);
 		}
 		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -1486,7 +1486,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Newobj, Hash_Constructor);
 			
-			ITypeInfo objType = InfoService.ObjectTypeInfo;
+			ITypeInfo objType = TaxonomyHelper.ObjectTypeInfo;
 			foreach (ExpressionPair pair in node.Items)
 			{
 				_il.Emit(OpCodes.Dup);
@@ -1497,7 +1497,7 @@ namespace Boo.Lang.Compiler.Steps
 				EmitCastIfNeeded(objType, PopType());
 				_il.EmitCall(OpCodes.Call, Hash_Add, null);
 			}
-			PushType(InfoService.HashTypeInfo);
+			PushType(TaxonomyHelper.HashTypeInfo);
 		}
 		
 		bool IsListGenerator(ListLiteralExpression node)
@@ -1530,7 +1530,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_il.Emit(OpCodes.Newobj, List_EmptyConstructor);			
 			}
-			PushType(InfoService.ListTypeInfo);
+			PushType(TaxonomyHelper.ListTypeInfo);
 		}
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
@@ -1550,7 +1550,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
-			PushType(InfoService.StringTypeInfo);
+			PushType(TaxonomyHelper.StringTypeInfo);
 		}
 		
 		override public void OnSlicingExpression(SlicingExpression node)
@@ -1611,7 +1611,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitLoadInt(Expression expression)
 		{
 			Accept(expression);
-			EmitCastIfNeeded(InfoService.IntTypeInfo, PopType());
+			EmitCastIfNeeded(TaxonomyHelper.IntTypeInfo, PopType());
 		}
 		
 		static Regex _interpolatedExpression = new Regex(@"\{(\d+)\}", RegexOptions.Compiled|RegexOptions.CultureInvariant);
@@ -1630,18 +1630,18 @@ namespace Boo.Lang.Compiler.Steps
 				Accept(arg);
 				
 				ITypeInfo argType = PopType();
-				if (InfoService.StringTypeInfo == argType)
+				if (TaxonomyHelper.StringTypeInfo == argType)
 				{
 					_il.EmitCall(OpCodes.Call, appendString, null);
 				}
 				else
 				{
-					EmitCastIfNeeded(InfoService.ObjectTypeInfo, argType);
+					EmitCastIfNeeded(TaxonomyHelper.ObjectTypeInfo, argType);
 					_il.EmitCall(OpCodes.Call, appendObject, null);
 				}
 			}
 			_il.EmitCall(OpCodes.Call, stringBuilderType.GetMethod("ToString", new Type[0]), null);
-			PushType(InfoService.StringTypeInfo);
+			PushType(TaxonomyHelper.StringTypeInfo);
 		}
 		
 		void EmitLoadField(Expression self, IFieldInfo fieldInfo)
@@ -1718,7 +1718,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{			
-			IInfo binding = InfoService.GetInfo(node);
+			IInfo binding = TaxonomyHelper.GetInfo(node);
 			switch (binding.InfoType)
 			{				
 				case InfoType.Method:
@@ -1790,7 +1790,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{	
-			IInfo info = InfoService.GetInfo(node);
+			IInfo info = TaxonomyHelper.GetInfo(node);
 			switch (info.InfoType)
 			{
 				case InfoType.Local:
@@ -1972,7 +1972,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			_il.Emit(OpCodes.Ldftn, (MethodInfo)mi);
 			
-			EventInfo ei = ((ExternalEventInfo)eventInfo).EventInfo;
+			EventInfo ei = ((ExternalEvent)eventInfo).EventInfo;
 			
 			_il.Emit(OpCodes.Newobj, GetDelegateConstructor(ei.EventHandlerType));					
 			_il.EmitCall(OpCodes.Callvirt, ei.GetAddMethod(true), null);
@@ -2052,7 +2052,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(labelBody);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(display.Declarations, InfoService.ObjectTypeInfo);			
+			EmitUnpackForDeclarations(display.Declarations, TaxonomyHelper.ObjectTypeInfo);			
 			
 			StatementModifier filter = display.Filter; 
 			if (null != filter)
@@ -2069,7 +2069,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_il.Emit(OpCodes.Ldloc, list);
 			Accept(display.Expression);
-			EmitCastIfNeeded(InfoService.ObjectTypeInfo, PopType());
+			EmitCastIfNeeded(TaxonomyHelper.ObjectTypeInfo, PopType());
 			_il.EmitCall(OpCodes.Call, List_Add, null);
 			_il.Emit(OpCodes.Pop);
 			
@@ -2095,7 +2095,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(labelBody);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(node.Declarations, InfoService.ObjectTypeInfo);
+			EmitUnpackForDeclarations(node.Declarations, TaxonomyHelper.ObjectTypeInfo);
 			
 			EnterLoop(breakLabel, labelTest);
 			Accept(node.Block);
@@ -2200,7 +2200,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						_il.Emit(OpCodes.Dup);
 						_il.EmitCall(OpCodes.Call, RuntimeServices_MoveNext, null);				
-						StoreLocal(InfoService.ObjectTypeInfo, GetLocalInfo(d));				
+						StoreLocal(TaxonomyHelper.ObjectTypeInfo, GetLocalInfo(d));				
 					}					
 				}
 				_il.Emit(OpCodes.Pop);
@@ -2217,13 +2217,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsBoolOrInt(ITypeInfo type)
 		{
-			return InfoService.BoolTypeInfo == type ||
-				InfoService.IntTypeInfo == type;
+			return TaxonomyHelper.BoolTypeInfo == type ||
+				TaxonomyHelper.IntTypeInfo == type;
 		}
 		
 		bool IsIEnumerableCompatible(ITypeInfo type)
 		{
-			return InfoService.IEnumerableTypeInfo.IsAssignableFrom(type);
+			return TaxonomyHelper.IEnumerableTypeInfo.IsAssignableFrom(type);
 		}
 		
 		void PushArguments(IMethodInfo binding, ExpressionCollection args)
@@ -2238,7 +2238,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitObjectArray(ExpressionCollection items)
 		{
-			EmitArray(InfoService.ObjectTypeInfo, items);
+			EmitArray(TaxonomyHelper.ObjectTypeInfo, items);
 		}
 		
 		void EmitArray(ITypeInfo type, ExpressionCollection items)
@@ -2255,9 +2255,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsInteger(ITypeInfo type)
 		{
-			return type == InfoService.IntTypeInfo ||
-				type == InfoService.LongTypeInfo ||
-				type == InfoService.ByteTypeInfo;
+			return type == TaxonomyHelper.IntTypeInfo ||
+				type == TaxonomyHelper.LongTypeInfo ||
+				type == TaxonomyHelper.ByteTypeInfo;
 		}
 		
 		OpCode GetArithmeticOpCode(ITypeInfo type, BinaryOperatorType op)
@@ -2291,19 +2291,19 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (binding.IsValueType)
 			{
-				if (InfoService.IntTypeInfo == binding)
+				if (TaxonomyHelper.IntTypeInfo == binding)
 				{
 					return OpCodes.Ldelem_I4;
 				}
-				if (InfoService.LongTypeInfo == binding)
+				if (TaxonomyHelper.LongTypeInfo == binding)
 				{
 					return OpCodes.Ldelem_I8;
 				}
-				if (InfoService.SingleTypeInfo == binding)
+				if (TaxonomyHelper.SingleTypeInfo == binding)
 				{
 					return OpCodes.Ldelem_R4;
 				}
-				if (InfoService.DoubleTypeInfo == binding)
+				if (TaxonomyHelper.DoubleTypeInfo == binding)
 				{
 					return OpCodes.Ldelem_R8;
 				}
@@ -2316,19 +2316,19 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (binding.IsValueType)
 			{
-				if (InfoService.IntTypeInfo == binding)
+				if (TaxonomyHelper.IntTypeInfo == binding)
 				{
 					return OpCodes.Stelem_I4;
 				}
-				if (InfoService.LongTypeInfo == binding)
+				if (TaxonomyHelper.LongTypeInfo == binding)
 				{
 					return OpCodes.Stelem_I8;
 				}
-				if (InfoService.SingleTypeInfo == binding)
+				if (TaxonomyHelper.SingleTypeInfo == binding)
 				{
 					return OpCodes.Stelem_R4;
 				}
-				if (InfoService.DoubleTypeInfo == binding)
+				if (TaxonomyHelper.DoubleTypeInfo == binding)
 				{
 					return OpCodes.Stelem_R8;
 				}
@@ -2368,7 +2368,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (expectedType == InfoService.ObjectTypeInfo)
+				if (expectedType == TaxonomyHelper.ObjectTypeInfo)
 				{
 					if (actualType.IsValueType)
 					{
@@ -2380,19 +2380,19 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetNumericPromotionOpCode(ITypeInfo type)
 		{
-			if (type == InfoService.IntTypeInfo)
+			if (type == TaxonomyHelper.IntTypeInfo)
 			{
 				return OpCodes.Conv_I4;
 			}
-			else if (type == InfoService.LongTypeInfo)
+			else if (type == TaxonomyHelper.LongTypeInfo)
 			{
 				return OpCodes.Conv_I8;
 			}
-			else if (type == InfoService.SingleTypeInfo)
+			else if (type == TaxonomyHelper.SingleTypeInfo)
 			{
 				return OpCodes.Conv_R4;
 			}
-			else if (type == InfoService.DoubleTypeInfo)
+			else if (type == TaxonomyHelper.DoubleTypeInfo)
 			{
 				return OpCodes.Conv_R8;
 			}
@@ -2509,12 +2509,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		PropertyInfo GetPropertyInfo(IInfo binding)
 		{
-			ExternalPropertyInfo external = binding as ExternalPropertyInfo;
+			ExternalProperty external = binding as ExternalProperty;
 			if (null != external)
 			{
 				return external.PropertyInfo;
 			}
-			return GetPropertyBuilder(((InternalPropertyInfo)binding).Property);
+			return GetPropertyBuilder(((InternalProperty)binding).Property);
 		}
 		
 		FieldInfo GetFieldInfo(IFieldInfo binding)
@@ -2529,12 +2529,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		MethodInfo GetMethodInfo(IMethodInfo binding)
 		{
-			ExternalMethodInfo external = binding as ExternalMethodInfo;
+			ExternalMethod external = binding as ExternalMethod;
 			if (null != external)
 			{
 				return (MethodInfo)external.MethodInfo;
 			}
-			return GetMethodBuilder(((InternalMethodInfo)binding).Method);
+			return GetMethodBuilder(((InternalMethod)binding).Method);
 		}	
 		
 		ConstructorInfo GetConstructorInfo(IConstructorInfo binding)
@@ -2544,12 +2544,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return external.ConstructorInfo;
 			}
-			return GetConstructorBuilder(((InternalMethodInfo)binding).Method);
+			return GetConstructorBuilder(((InternalMethod)binding).Method);
 		}
 		
 		ITypeInfo AsTypeInfo(Type type)
 		{
-			return InfoService.AsTypeInfo(type);
+			return TaxonomyHelper.AsTypeInfo(type);
 		}
 		
 		Type GetType(ITypeInfo binding)
@@ -2557,7 +2557,7 @@ namespace Boo.Lang.Compiler.Steps
 			Type type = (Type)_typeCache[binding];
 			if (null == type)
 			{
-				ExternalTypeInfo external = binding as ExternalTypeInfo;
+				ExternalType external = binding as ExternalType;
 				if (null != external)
 				{
 					type = external.Type;
@@ -2586,7 +2586,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							type = (Type)GetBuilder(((AbstractInternalTypeInfo)binding).TypeDefinition);
+							type = (Type)GetBuilder(((AbstractInternalType)binding).TypeDefinition);
 						}
 					}
 				}

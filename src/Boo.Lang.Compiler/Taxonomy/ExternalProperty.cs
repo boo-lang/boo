@@ -32,13 +32,13 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class ExternalProperty : IPropertyInfo
 	{
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		System.Reflection.PropertyInfo _property;
 		
 		ITypeInfo[] _indexParameters;
 		
-		public ExternalProperty(DefaultInfoService bindingManager, System.Reflection.PropertyInfo property)
+		public ExternalProperty(TaxonomyManager bindingManager, System.Reflection.PropertyInfo property)
 		{
 			_bindingService = bindingManager;
 			_property = property;

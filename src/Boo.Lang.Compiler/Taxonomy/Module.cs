@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 
 	public class ModuleInfo : INamespace, IInfo
 	{
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		Module _module;
 		
@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		string _namespace;
 		
-		public ModuleInfo(DefaultInfoService bindingManager, Module module)
+		public ModuleInfo(TaxonomyManager bindingManager, Module module)
 		{
 			_bindingService = bindingManager;
 			_module = module;			
@@ -104,7 +104,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			get
 			{
-				return (INamespace)DefaultInfoService.GetInfo(_module.ParentNode);
+				return (INamespace)TaxonomyManager.GetInfo(_module.ParentNode);
 			}
 		}
 		
@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 					_using = new INamespace[_module.Imports.Count];
 					for (int i=0; i<_using.Length; ++i)
 					{
-						_using[i] = (INamespace)DefaultInfoService.GetInfo(_module.Imports[i]);
+						_using[i] = (INamespace)TaxonomyManager.GetInfo(_module.Imports[i]);
 					}
 				}
 				
@@ -151,7 +151,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 					{
 						typeInfo = new InternalType(_bindingService, (TypeDefinition)member);
 					}
-					DefaultInfoService.Bind(member, typeInfo);
+					TaxonomyManager.Bind(member, typeInfo);
 				}
 				return _bindingService.AsTypeReference(typeInfo);
 			}

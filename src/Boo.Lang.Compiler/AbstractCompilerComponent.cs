@@ -74,11 +74,11 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected Services.DefaultInfoService InfoService
+		protected Services.TaxonomyManager TaxonomyHelper
 		{
 			get
 			{
-				return _context.InfoService;
+				return _context.TaxonomyHelper;
 			}
 		}
 		
@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler
 		
 		public IInfo GetInfo(Node node)
 		{
-			return Services.DefaultInfoService.GetInfo(node);
+			return Services.TaxonomyManager.GetInfo(node);
 		}		
 		
 		public virtual void Initialize(CompilerContext context)

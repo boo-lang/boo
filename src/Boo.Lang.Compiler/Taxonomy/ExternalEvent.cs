@@ -33,11 +33,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class ExternalEvent : IEventInfo
 	{
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		System.Reflection.EventInfo _event;
 		
-		public ExternalEvent(DefaultInfoService bindingManager, System.Reflection.EventInfo event_)
+		public ExternalEvent(TaxonomyManager bindingManager, System.Reflection.EventInfo event_)
 		{
 			_bindingService = bindingManager;
 			_event = event_;

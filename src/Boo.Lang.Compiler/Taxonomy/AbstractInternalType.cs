@@ -68,7 +68,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public abstract class AbstractInternalType : AbstractInternalInfo, ITypeInfo, INamespace
 	{		
-		protected DefaultInfoService _bindingService;
+		protected TaxonomyManager _bindingService;
 		
 		protected TypeDefinition _typeDefinition;
 		
@@ -80,11 +80,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		protected List _buffer = new List();
 		
-		protected AbstractInternalType(DefaultInfoService bindingManager, TypeDefinition typeDefinition)
+		protected AbstractInternalType(TaxonomyManager bindingManager, TypeDefinition typeDefinition)
 		{
 			_bindingService = bindingManager;
 			_typeDefinition = typeDefinition;
-			_parentNamespace = (INamespace)DefaultInfoService.GetInfo(_typeDefinition.ParentNode);
+			_parentNamespace = (INamespace)TaxonomyManager.GetInfo(_typeDefinition.ParentNode);
 		}
 		
 		public string FullName
@@ -288,7 +288,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			ITypeInfo defaultMemberAttribute = _bindingService.AsTypeInfo(typeof(System.Reflection.DefaultMemberAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
 			{
-				IConstructorInfo binding = DefaultInfoService.GetInfo(attribute) as IConstructorInfo;
+				IConstructorInfo binding = TaxonomyManager.GetInfo(attribute) as IConstructorInfo;
 				if (null != binding)
 				{
 					if (defaultMemberAttribute == binding.DeclaringType)
@@ -360,7 +360,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 					if (null == binding)
 					{						
 						binding = CreateCorrectInfo(member);
-						DefaultInfoService.Bind(member, binding);
+						TaxonomyManager.Bind(member, binding);
 					}	
 					
 					if (InfoType.Type == binding.InfoType)

@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 
 	public class InternalMethod : AbstractInternalInfo, IMethodInfo, INamespace
 	{
-		DefaultInfoService _bindingService;
+		TaxonomyManager _bindingService;
 		
 		Boo.Lang.Compiler.Ast.Method _method;
 		
@@ -47,11 +47,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		public ExpressionCollection SuperExpressions;
 		
-		internal InternalMethod(DefaultInfoService manager, Method method) : this(manager, method, false)
+		internal InternalMethod(TaxonomyManager manager, Method method) : this(manager, method, false)
 		{
 		}
 		
-		internal InternalMethod(DefaultInfoService manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
+		internal InternalMethod(TaxonomyManager manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
 		{			
 			_bindingService = manager;
 			_method = method;
@@ -64,12 +64,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 					if (_method.DeclaringType.NodeType == NodeType.ClassDefinition)
 					{
 						_method.ReturnType = new SimpleTypeReference("unknown");
-						DefaultInfoService.Bind(_method.ReturnType, UnknownInfo.Default);
+						TaxonomyManager.Bind(_method.ReturnType, UnknownInfo.Default);
 					}
 					else
 					{
 						_method.ReturnType = new SimpleTypeReference("System.Void");
-						DefaultInfoService.Bind(_method.ReturnType, _bindingService.VoidTypeInfo);
+						TaxonomyManager.Bind(_method.ReturnType, _bindingService.VoidTypeInfo);
 					}
 				}
 			}
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			{
 				if (null == _declaringType)
 				{
-					_declaringType = (ITypeInfo)DefaultInfoService.GetInfo(_method.DeclaringType);
+					_declaringType = (ITypeInfo)TaxonomyManager.GetInfo(_method.DeclaringType);
 				}
 				return _declaringType;
 			}
@@ -220,7 +220,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				
 				if (name == local.Name)
 				{
-					return DefaultInfoService.GetInfo(local);
+					return TaxonomyManager.GetInfo(local);
 				}
 			}
 			
@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			{
 				if (name == parameter.Name)
 				{
-					return DefaultInfoService.GetInfo(parameter);
+					return TaxonomyManager.GetInfo(parameter);
 				}
 			}
 			return null;
@@ -270,12 +270,12 @@ namespace Boo.Lang.Compiler.Taxonomy
 	{
 		bool _hasSuperCall = false;
 		
-		public InternalConstructorInfo(DefaultInfoService bindingManager,
+		public InternalConstructorInfo(TaxonomyManager bindingManager,
 		                                  Constructor constructor) : base(bindingManager, constructor)
 		  {
 		  }
 		  
-		public InternalConstructorInfo(DefaultInfoService bindingManager,
+		public InternalConstructorInfo(TaxonomyManager bindingManager,
 		                                  Constructor constructor,
 										  bool visited) : base(bindingManager, constructor, visited)
 		  {

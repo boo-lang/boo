@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)InfoService.GetInfo(module));
+			PushNamespace((INamespace)TaxonomyHelper.GetInfo(module));
 			Accept(module.Members);
 			Accept(module.Globals);			
 			PopNamespace();
@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					ITypeInfo macroType = ((TypeReferenceInfo)binding).BoundType;
-					ExternalTypeInfo type = macroType as ExternalTypeInfo;
+					ExternalType type = macroType as ExternalType;
 					if (null == type)
 					{
 						Errors.Add(CompilerErrorFactory.AstMacroMustBeExternal(node, macroType.FullName));

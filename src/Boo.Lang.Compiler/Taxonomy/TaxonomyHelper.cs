@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Services
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Taxonomy;
 
-	public class DefaultInfoService
+	public class TaxonomyManager
 	{			
 		public ExternalType ExceptionTypeInfo;
 		
@@ -98,9 +98,9 @@ namespace Boo.Lang.Compiler.Services
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
-		static readonly IInfo _lenInfo = new SpecialFunctionInfo(SpecialFunction.Len);
+		static readonly IInfo _lenInfo = new BuiltinFunction(SpecialFunction.Len);
 		
-		public DefaultInfoService()		
+		public TaxonomyManager()		
 		{			
 			Cache(VoidTypeInfo = new VoidTypeInfoImpl(this));
 			Cache(ObjectTypeInfo = new ExternalType(this, Types.Object));
@@ -472,7 +472,7 @@ namespace Boo.Lang.Compiler.Services
 		#region VoidTypeInfoImpl
 		class VoidTypeInfoImpl : ExternalType
 		{			
-			internal VoidTypeInfoImpl(DefaultInfoService manager) : base(manager, Types.Void)
+			internal VoidTypeInfoImpl(TaxonomyManager manager) : base(manager, Types.Void)
 			{				
 			}		
 			

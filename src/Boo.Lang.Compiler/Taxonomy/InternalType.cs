@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 
 	public class EnumTypeInfo : AbstractInternalType
 	{
-		internal EnumTypeInfo(DefaultInfoService bindingManager, EnumDefinition enumDefinition) :
+		internal EnumTypeInfo(TaxonomyManager bindingManager, EnumDefinition enumDefinition) :
 			base(bindingManager, enumDefinition)
 		{
 		}
@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		int _typeDepth = -1;
 		
-		internal InternalType(DefaultInfoService manager, TypeDefinition typeDefinition) :
+		internal InternalType(TaxonomyManager manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
 		}		
@@ -131,7 +131,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 						if (null == binding)
 						{
 							binding = new InternalConstructorInfo(_bindingService, (Constructor)member);
-							DefaultInfoService.Bind(member, binding);
+							TaxonomyManager.Bind(member, binding);
 						}
 						constructors.Add(binding);
 					}
