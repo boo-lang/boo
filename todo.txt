@@ -153,10 +153,10 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done eg:
 			done ("rodrigo", "bamboo") should be (string) <= string[]
 			done ("foo", 3) should be object
-	* RealLiteralExpression:
-		* 1.5
-		* 0.0
-	* real type
+	done * RealLiteralExpression:
+		done * 1.5
+		done * .0
+	done * real type
 	* unary operators
 		* ++
 	* binary operators		

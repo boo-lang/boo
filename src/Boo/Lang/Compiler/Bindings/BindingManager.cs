@@ -57,9 +57,11 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding IntTypeBinding;
 		
-		public ExternalTypeBinding TimeSpanTypeBinding;
-		
 		public ExternalTypeBinding SingleTypeBinding;
+		
+		public ExternalTypeBinding RealTypeBinding;
+		
+		public ExternalTypeBinding TimeSpanTypeBinding;
 		
 		public ExternalTypeBinding RuntimeServicesBinding;
 		
@@ -88,6 +90,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(ByteTypeBinding = new ExternalTypeBinding(this, Types.Byte));
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
 			Cache(SingleTypeBinding = new ExternalTypeBinding(this, Types.Single));
+			Cache(RealTypeBinding = new ExternalTypeBinding(this, Types.Real));
 			Cache(TimeSpanTypeBinding = new ExternalTypeBinding(this, Types.TimeSpan));
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
@@ -308,6 +311,12 @@ namespace Boo.Lang.Compiler.Bindings
 				case "byte":
 				{
 					binding = ToTypeReference(ByteTypeBinding);
+					break;
+				}
+				
+				case "real":
+				{
+					binding = ToTypeReference(RealTypeBinding);
 					break;
 				}
 				

@@ -721,5 +721,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("slicing5.boo");
 		}
+		
+		[Test]
+		public void RealType()
+		{
+			RunCompilerTestCase("real0.boo");
+		}
+		
+		[Test]
+		public void PreIncrement()
+		{
+			RunCompilerTestCase("preincrement0.boo");
+		}
 	}
 }

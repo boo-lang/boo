@@ -724,6 +724,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			BindingManager.Bind(node, BindingManager.IntTypeBinding);
 		}
 		
+		public override void OnRealLiteralExpression(RealLiteralExpression node, ref Expression resultingNode)
+		{
+			BindingManager.Bind(node, BindingManager.RealTypeBinding);
+		}
+		
 		public override void OnStringLiteralExpression(StringLiteralExpression node, ref Expression resultingNode)
 		{
 			BindingManager.Bind(node, BindingManager.StringTypeBinding);
@@ -1592,7 +1597,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			return
 				type == BindingManager.IntTypeBinding ||
-				type == BindingManager.SingleTypeBinding;
+				type == BindingManager.RealTypeBinding;
 		}
 		
 		IConstructorBinding FindCorrectConstructor(Node sourceNode, ITypeBinding typeBinding, ExpressionCollection arguments)

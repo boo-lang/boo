@@ -777,6 +777,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.IntTypeBinding);
 		}
 		
+		public override void OnRealLiteralExpression(RealLiteralExpression node)
+		{
+			_il.Emit(OpCodes.Ldc_R8, node.Value);
+			PushType(BindingManager.RealTypeBinding);
+		}
+		
 		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
 			if (node.Value)
@@ -1465,6 +1471,10 @@ namespace Boo.Lang.Compiler.Pipeline
 			else if (type == BindingManager.SingleTypeBinding)
 			{
 				return OpCodes.Conv_R4;
+			}
+			else if (type == BindingManager.RealTypeBinding)
+			{
+				return OpCodes.Conv_R8;
 			}
 			else
 			{

@@ -63,6 +63,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static readonly Type Single = typeof(float);
 		
+		public static readonly Type Real = typeof(double);
+		
 		public static readonly Type Date = typeof(System.DateTime);
 		
 		public static readonly Type Bool = typeof(bool);
