@@ -219,10 +219,13 @@ class MainWindow(Window):
 		compiler.Parameters.Input.Add(StringInput(CurrentEditor.Label, CurrentEditor.Buffer.Text))
 		
 		start = date.Now
-		using console=ConsoleCapture():
-			result = compiler.Run()		
-		self.DisplayErrors(result.Errors)
-		self.AppendOutput(console.ToString())
+		try:
+			using console=ConsoleCapture():
+				result = compiler.Run()		
+			self.DisplayErrors(result.Errors)
+			self.AppendOutput(console.ToString())
+		except x:
+			self.AppendOutput(x.ToString())
 		self.AppendOutput("Complete in ${date.Now-start}.")
 		
 	private def _menuItemNew_Activated():
