@@ -4,6 +4,7 @@
     <Execute entry="Boo.Lang.Compiler" type="None" />
     <Execute entry="Boo.Lang.Parser.Tests" type="None" />
     <Execute entry="BooCompiler.Tests" type="None" />
+    <Execute entry="Boo.CodeDom" type="None" />
   </StartMode>
   <Entries>
     <Entry filename=".\Boo.prjx" />
@@ -11,6 +12,7 @@
     <Entry filename="..\Boo.Lang.Compiler\Boo.Lang.Compiler.prjx" />
     <Entry filename="..\..\tests\Boo.Lang.Parser.Tests\Boo.Lang.Parser.Tests.prjx" />
     <Entry filename="..\..\tests\BooCompiler.Tests\BooCompiler.Tests.prjx" />
+    <Entry filename="..\Boo.CodeDom\Boo.CodeDom.prjx" />
   </Entries>
   <Configurations active="Debug">
     <Configuration name="Release">
@@ -18,12 +20,14 @@
       <Entry name="Boo.Lang.Compiler" configurationname="Debug" build="False" />
       <Entry name="Boo.Lang.Parser.Tests" configurationname="Debug" build="False" />
       <Entry name="BooCompiler.Tests" configurationname="Debug" build="False" />
+      <Entry name="Boo.CodeDom" configurationname="Debug" build="False" />
     </Configuration>
     <Configuration name="Debug">
       <Entry name="Boo" configurationname="Debug" build="False" />
       <Entry name="Boo.Lang.Compiler" configurationname="Debug" build="False" />
       <Entry name="Boo.Lang.Parser.Tests" configurationname="Debug" build="False" />
       <Entry name="BooCompiler.Tests" configurationname="Debug" build="False" />
+      <Entry name="Boo.CodeDom" configurationname="Debug" build="False" />
     </Configuration>
   </Configurations>
 </Combine>
