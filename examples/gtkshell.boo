@@ -40,17 +40,14 @@ class PromptView(TextView):
 		
 		self.WrapMode = Gtk.WrapMode.Word
 		
-		if Environment.OSVersion.Platform in PlatformID.Win32NT, PlatformID.Win32Windows:
-			self.ModifyFont(
-				Pango.FontDescription(Family: "Lucida Console", Size: 12))
-		else:
-			self.ModifyFont(
-				Pango.FontDescription(Family: "Courier New"))
+		//if Environment.OSVersion.Platform in PlatformID.Win32NT, PlatformID.Win32Windows:
+		self.ModifyFont(Pango.FontDescription(Family: "Lucida Console"))
 			
 		_interpreter.References.Add(typeof(TextView).Assembly)
 		_interpreter.References.Add(typeof(Gdk.Key).Assembly)
 		
 		_interpreter.SetValue("cls", { Buffer.Text = "" })
+		_interpreter.SetValue("view", self)
 		
 		prompt()
 		
@@ -74,6 +71,7 @@ class PromptView(TextView):
 	def prompt():
 		Buffer.MoveMark(Buffer.InsertMark, Buffer.EndIter)
 		Buffer.InsertAtCursor(">>> ")
+		ScrollMarkOnscreen(Buffer.InsertMark)
 		
 	def EvalCurrentLine():
 		start = Buffer.GetIterAtLine(Buffer.LineCount)
