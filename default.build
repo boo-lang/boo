@@ -39,10 +39,6 @@
 			<sources basedir="src/booi">
 				<includes name="*.boo" />
 			</sources>
-			
-			<references basedir="build">
-				<includes name="Boo.dll" />
-			</references>
 		</booc>		
 		
 		<boo>
