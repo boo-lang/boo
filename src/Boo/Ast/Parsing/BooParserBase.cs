@@ -134,6 +134,10 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		public const int DIGIT = 107;
 		
 				
+	static string NewLine = Environment.NewLine;
+	
+	static int NewLineLength = NewLine.Length;
+	
 	protected System.Text.StringBuilder _sbuilder = new System.Text.StringBuilder();
 	
 	protected AttributeCollection _attributes = new AttributeCollection();
@@ -203,6 +207,23 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 			case "-": return UnaryOperatorType.ArithmeticNegate;
 		}
 		throw new ArgumentException("op");
+	}
+
+	// removes trailing and ending new lines
+	protected string MassageDocString(string s)
+	{
+		int startIndex = 0;
+		int length = s.Length;
+		if (s.StartsWith(NewLine))
+		{			
+			startIndex += NewLineLength;
+			length -= NewLineLength;
+		}
+		if (s.EndsWith(NewLine))
+		{
+			length -= NewLineLength;
+		}
+		return s.Substring(startIndex, length);
 	}
 		
 		protected void initialize()
@@ -374,12 +395,18 @@ _loop8_breakloop:				;
 	) //throws RecognitionException, TokenStreamException
 {
 		
+		Token  doc = null;
 		
 		try {      // for error handling
 			{
 				if ((LA(1)==TRIPLE_QUOTED_STRING) && (tokenSet_4_.member(LA(2))))
 				{
+					doc = LT(1);
 					match(TRIPLE_QUOTED_STRING);
+					if (0==inputState.guessing)
+					{
+						node.Documentation = MassageDocString(doc.getText());
+					}
 					{    // ( ... )*
 						for (;;)
 						{

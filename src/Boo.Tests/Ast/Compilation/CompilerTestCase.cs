@@ -17,11 +17,15 @@ namespace Boo.Tests.Ast.Compilation
 		
 		CompilerParameters _parameters;
 		
+		string _testCasesPath;
+		
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{
 			string booAssemblyPath = typeof(Compiler).Assembly.Location;
 			File.Copy(booAssemblyPath, Path.Combine(Path.GetTempPath(), Path.GetFileName(booAssemblyPath)), true);
+			
+			_testCasesPath = Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location), "../testcases/compilation");
 			
 			_compiler = new Compiler();
 			_parameters = _compiler.Parameters;
@@ -38,8 +42,13 @@ namespace Boo.Tests.Ast.Compilation
 							Add(new SaveAssemblyStep()).
 							Add(new PEVerifyStep()).
 							Add(new RunAssemblyStep());
-		}	
+		}
 		
+		[SetUp]
+		public void SetUpTest()
+		{
+			_parameters.Input.Clear();
+		}		
 		
 		[Test]
 		public void TestDefaultOutputType()
@@ -72,6 +81,23 @@ namespace Boo.Tests.Ast.Compilation
 			Assert.AreEqual("Hello, Test2!" + NewLine, RunString(code, stdin));			
 		}
 		
+		[Test]
+		public void TestUsingAssemblyQualifiedReferences()
+		{
+			RunCompilerTestCase("using0.boo", "using System");
+		}
+		
+		void RunCompilerTestCase(string name, string description)
+		{			
+			_parameters.Input.Add(new FileInput(GetTestCasePath(name)));
+			
+			CompilerContext context;
+			string output = Run(null, out context);
+			Assert.AreEqual(_parameters.Input.Count, context.CompileUnit.Modules.Count, "compilation must generate as many modules as were compiler inputs");
+			string expected = context.CompileUnit.Modules[0].Documentation;
+			Assert.AreEqual(expected, output, description);
+		}
+		
 		string RunString(string code)
 		{	
 			return RunString(code, null);
@@ -80,10 +106,12 @@ namespace Boo.Tests.Ast.Compilation
 		string RunString(string code, string stdin)
 		{
 			_parameters.Input.Add(new StringInput("<teststring>", code));
-			return Run(stdin);
+			
+			CompilerContext context;
+			return Run(stdin, out context);
 		}
 		
-		string Run(string stdin)
+		string Run(string stdin, out CompilerContext context)
 		{
 			TextWriter oldStdOut = Console.Out;
 			TextReader oldStdIn = Console.In;
@@ -97,7 +125,7 @@ namespace Boo.Tests.Ast.Compilation
 					Console.SetIn(new StringReader(stdin));
 				}
 				
-				CompilerContext context = _compiler.Run();
+				context = _compiler.Run();
 				
 				if (context.Errors.Count > 0)
 				{
@@ -106,14 +134,18 @@ namespace Boo.Tests.Ast.Compilation
 				return console.ToString();
 			}
 			finally
-			{
-				_compiler.Parameters.Input.Clear();
+			{				
 				Console.SetOut(oldStdOut);
 				if (null != stdin)
 				{
 					Console.SetIn(oldStdIn);
 				}
 			}
+		}
+		
+		string GetTestCasePath(string fname)
+		{
+			return Path.Combine(_testCasesPath, fname);
 		}
 	}
 }

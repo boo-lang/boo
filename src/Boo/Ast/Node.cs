@@ -17,6 +17,8 @@ namespace Boo.Ast
 		protected Node _parent;
 		
 		protected Hashtable _properties = new Hashtable();
+		
+		protected string _documentation;
 
 		protected Node()
 		{
@@ -48,6 +50,19 @@ namespace Boo.Ast
 			get
 			{
 				return _parent;
+			}
+		}
+		
+		public string Documentation
+		{
+			get
+			{
+				return _documentation;
+			}
+			
+			set
+			{
+				_documentation = value;
 			}
 		}
 

@@ -4,6 +4,7 @@
     <File name=".\BooTestCaseUtil.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\BooASTTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\CompilationContextTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\CompilerTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\LocalizationTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\PipelineTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Processors\AstAttributeProcessorTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -14,25 +15,25 @@
   </Contents>
   <References>
     <Reference type="Project" refto="Boo" localcopy="True" />
-    <Reference type="Assembly" refto="d:\dotnet\SharpDevelop\bin\nunit\nunit.framework.dll" localcopy="True" />
     <Reference type="Assembly" refto="..\..\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
+    <Reference type="Assembly" refto="d:\dotnet\nunit\bin\nunit.framework.dll" localcopy="True" />
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="False" name="Debug">
     <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
     <Execution commandlineparameters="" consolepause="False" />
-    <Output directory="..\..\build" assembly="Boo.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+    <Output directory="..\..\build\" assembly="Boo.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
   </Configuration>
   <Configurations active="Debug">
     <Configuration runwithwarnings="False" name="Debug">
       <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
-      <Output directory="..\..\build" assembly="Boo.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+      <Output directory="..\..\build\" assembly="Boo.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>
     <Configuration runwithwarnings="False" name="Release">
       <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
-      <Output directory=".\bin\Release" assembly="Boo.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+      <Output directory="..\..\build\" assembly="Boo.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>
   </Configurations>
 </Project>

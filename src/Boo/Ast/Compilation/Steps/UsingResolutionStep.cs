@@ -34,18 +34,19 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void Run()
 		{
-			if (0 == _namespaces.Count)
-			{
-				ResolveNamespaces();
-			}
+			ResolveNamespaces();
 			CompileUnit[GlobalNamespaceKey] = this;
 			CompileUnit[BooLangNamespaceKey] = ResolveQualifiedName("Boo.Lang");
 		}
 		
 		void ResolveNamespaces()
 		{			
-			ResolveUsingAssemblyReferences();
-			OrganizeNamespaces();
+			if (0 == _namespaces.Count)
+			{
+				ResolveUsingAssemblyReferences();
+				OrganizeNamespaces();
+			}
+			
 			foreach (Module module in CompileUnit.Modules)
 			{
 				foreach (Using using_ in module.Using)

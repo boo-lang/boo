@@ -20,6 +20,7 @@
     <File name=".\Ast\DeclarationCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\DeclarationStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\DepthFirstSwitcher.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\DepthFirstTransformer.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\EnumDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\EnumMember.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\ExceptionHandler.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -34,6 +35,7 @@
     <File name=".\Ast\GivenStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\HashLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\IAstSwitcher.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\IAstTransformer.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\IfStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\INodeWithArguments.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\INodeWithAttributes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -107,22 +109,30 @@
     <File name=".\Ast\Compilation\Binding\BindingManager.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\ExternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\ExternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\IBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\INameSpace.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\InternalMethodBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Binding\InternalTypeBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Binding\NamespaceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\IO\FileInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\IO\ReaderInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\IO\StringInput.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AbstractCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Steps\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Steps\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Steps\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AssemblySetupStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Steps\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\BooParsingStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\ModuleStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Steps\PEVerifyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\RunAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\SaveAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\SemanticStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Compilation\Steps\UsingResolutionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\XmlStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Util\ITask.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Util\TaskList.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -216,44 +226,34 @@
     <File name=".\Ast\Visiting\PseudoCSharpPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Visiting\TextEmitter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Visiting\TreePrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\IO\StreamReaderEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\IO\TextFile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\AstAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Builtins.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\GetterAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\List.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RequiredAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Util\ISwitchable.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Util\ISwitcher.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\IBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Steps\UsingResolutionStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\IO" subtype="Directory" buildaction="Compile" dependson="" data="" />
-    <File name=".\IO\TextFile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\IO\StreamReaderEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Steps\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\IMultiLineStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Binding\NamespaceBinding.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Steps\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Steps\PEVerifyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
-    <Reference type="Assembly" refto="..\..\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
+    <Reference type="Assembly" refto="d:\dev\boo\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="False" name="Debug">
     <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
     <Execution commandlineparameters="" consolepause="False" />
-    <Output directory="..\..\build" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+    <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
   </Configuration>
   <Configurations active="Debug">
     <Configuration runwithwarnings="False" name="Debug">
       <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
-      <Output directory="..\..\build" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+      <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>
     <Configuration runwithwarnings="False" name="Release">
       <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
-      <Output directory=".\bin\Release" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+      <Output directory="..\..\build\" assembly="Boo" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>
   </Configurations>
 </Project>

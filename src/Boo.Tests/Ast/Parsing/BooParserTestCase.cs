@@ -25,13 +25,14 @@ namespace Boo.Tests.Ast.Parsing
 			Boo.Ast.Module module = cu.Modules[0];
 			AssertNotNull(module);
 			AssertEquals("simple", module.Name);
+			AssertEquals("module doc string", module.Documentation);
 			AssertEquals("Empty.simple", module.FullyQualifiedName);
 			AssertEquals(fname, module.LexicalInfo.FileName);
 
 			AssertNotNull(module.Package);
 
 			AssertEquals("Empty", module.Package.Name);
-			AssertEquals(1, module.Package.LexicalInfo.Line);
+			AssertEquals(4, module.Package.LexicalInfo.Line);
 			AssertEquals(1, module.Package.LexicalInfo.StartColumn);
 			AssertEquals(fname, module.Package.LexicalInfo.FileName);
 		}

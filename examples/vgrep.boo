@@ -1,4 +1,3 @@
-using System
 using System.Drawing from System.Drawing
 using System.Windows.Forms from System.Windows.Forms
 

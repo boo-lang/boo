@@ -94,6 +94,10 @@ tokens
 }
 
 {		
+	static string NewLine = Environment.NewLine;
+	
+	static int NewLineLength = NewLine.Length;
+	
 	protected System.Text.StringBuilder _sbuilder = new System.Text.StringBuilder();
 	
 	protected AttributeCollection _attributes = new AttributeCollection();
@@ -164,6 +168,23 @@ tokens
 		}
 		throw new ArgumentException("op");
 	}
+
+	// removes trailing and ending new lines
+	protected string MassageDocString(string s)
+	{
+		int startIndex = 0;
+		int length = s.Length;
+		if (s.StartsWith(NewLine))
+		{			
+			startIndex += NewLineLength;
+			length -= NewLineLength;
+		}
+		if (s.EndsWith(NewLine))
+		{
+			length -= NewLineLength;
+		}
+		return s.Substring(startIndex, length);
+	}
 }
 
 protected
@@ -182,7 +203,10 @@ start returns [Module module]
 	;
 			
 protected docstring[Node node]:
-	(TRIPLE_QUOTED_STRING (EOS)*)?
+	(
+		doc:TRIPLE_QUOTED_STRING { node.Documentation = MassageDocString(doc.getText()); }
+		(EOS)*
+	)?
 	;
 			
 protected

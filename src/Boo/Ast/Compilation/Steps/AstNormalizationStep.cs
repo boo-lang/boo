@@ -23,9 +23,10 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					case StatementModifierType.If:
 					{	
-						IfStatement stmt = new IfStatement(node.Modifier);
+						IfStatement stmt = new IfStatement();
+						stmt.LexicalInfo = node.Modifier.LexicalInfo;
 						stmt.Expression = node.Modifier.Condition;
-						stmt.TrueBlock = new Block(node.Modifier);
+						stmt.TrueBlock = new Block();						
 						stmt.TrueBlock.Statements.Add(node);						
 						node.Modifier = null;
 						
