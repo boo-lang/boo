@@ -388,6 +388,11 @@ namespace Boo.Ast.Compilation.Pipeline
 				IMemberBinding binding = info as IMemberBinding;
 				if (null != binding)
 				{
+					if (BindingType.Method == binding.BindingType)
+					{
+						EnsureMethodIsResolved((IMethodBinding)binding);
+					}
+					
 					if (!binding.IsStatic)
 					{
 						MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);

@@ -378,6 +378,12 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
+		public void ForwardDelegateMethodReference()
+		{
+			RunCompilerTestCase("class6.boo", "App().Run()");
+		}
+		
+		[Test]
 		public void TestSimpleCast()
 		{
 			RunCompilerTestCase("cast0.boo", "(a as string).Substring()");
