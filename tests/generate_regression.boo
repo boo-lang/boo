@@ -33,15 +33,18 @@ def GetTestCaseName(fname as string):
 	return Path.GetFileNameWithoutExtension(fname).Replace("-", "_")
 	
 def WriteTestCases(writer as TextWriter, baseDir as string):
-	for fname in files=Directory.GetFiles(baseDir, "*.boo"):		
+	count = 0
+	for fname in Directory.GetFiles(baseDir):
+		continue unless fname.EndsWith(".boo")
+		++count		
 		writer.Write("""
 		[Test]
 		public void ${GetTestCaseName(fname)}()
 		{
-			RunCompilerTestCase("${Path.GetFullPath(fname)}");
+			RunCompilerTestCase(@"${Path.GetFullPath(fname)}");
 		}
 		""")
-	print("${len(files)} test cases found in ${baseDir}.")
+	print("${count} test cases found in ${baseDir}.")
 
 def GenerateTestFixture(srcDir as string, targetFile as string, header as string):
 	using writer=StreamWriter(targetFile):

@@ -1,4 +1,4 @@
-import NUnit.Framework from "nunit.framework"
+import NUnit.Framework
 
 class InstanceCount:
 	
