@@ -113,7 +113,7 @@ class BoocTask(AbstractBooTask):
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
 		if _pipeline:
-			parameters.Pipeline = GetPipeline(_pipeline)
+			parameters.Pipeline = CompilerPipeline.GetPipeline(_pipeline)
 		else:
 			parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToFile()
 		
@@ -155,10 +155,6 @@ class BoocTask(AbstractBooTask):
 					Boo.ResourceManager.Format("BCE0041", reference),
 					Location,
 					x)
-					
-	private def GetPipeline(pipeline as string):
-		type = System.Type.GetType(pipeline, true)
-		return type()
 
 	private def GetOutputType():
 		if "exe" == _target:

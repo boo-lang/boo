@@ -196,7 +196,7 @@ namespace BooC
 							case 'p':
 							{
 								string pipelineName = arg.Substring(3);
-								options.Pipeline = GetPipelineDefinition(pipelineName);
+								options.Pipeline = CompilerPipeline.GetPipeline(pipelineName);
 								break;
 							}
 
@@ -325,34 +325,6 @@ namespace BooC
 			{
 				AddFilesForPath(dirName, options);
 			}
-		}
-		
-		static CompilerPipeline GetPipelineDefinition(string name)
-		{
-			switch (name)
-			{
-				case "parse": return new Parse();
-				case "compile": return new Compile();
-				case "run": return new Run();
-				case "default": return new CompileToFile();
-				case "roundtrip": return new ParseAndPrint();
-				case "boo": return new CompileToBoo();
-				case "xml": return new ParseAndPrintXml();
-				case "dumpreferences":
-				{
-					CompilerPipeline pipeline = new CompileToBoo();
-					pipeline.Add(new Boo.Lang.Compiler.Steps.DumpReferences());
-					return pipeline;
-				}
-				case "duck":
-				{
-					CompilerPipeline pipeline = new CompileToBoo();
-					Quack.MakeItQuack(pipeline);
-					return pipeline;
-				}
-				case "quack": return new Quack();
-			}
-			return (CompilerPipeline)Activator.CreateInstance(Type.GetType(name, true));
 		}
 	}
 }

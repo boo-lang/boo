@@ -33,7 +33,35 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerPipeline : System.MarshalByRefObject
 	{	
-		Boo.Lang.List _items;
+		public static CompilerPipeline GetPipeline(string name)
+		{
+			switch (name)
+			{
+				case "parse": return new Pipelines.Parse();
+				case "compile": return new Pipelines.Compile();
+				case "run": return new Pipelines.Run();
+				case "default": return new Pipelines.CompileToFile();
+				case "roundtrip": return new Pipelines.ParseAndPrint();
+				case "boo": return new Pipelines.CompileToBoo();
+				case "xml": return new Pipelines.ParseAndPrintXml();
+				case "dumpreferences":
+				{
+					CompilerPipeline pipeline = new Pipelines.CompileToBoo();
+					pipeline.Add(new Boo.Lang.Compiler.Steps.DumpReferences());
+					return pipeline;
+				}
+				case "duck":
+				{
+					CompilerPipeline pipeline = new Pipelines.CompileToBoo();
+					Pipelines.Quack.MakeItQuack(pipeline);
+					return pipeline;
+				}
+				case "quack": return new Pipelines.Quack();
+			}
+			return (CompilerPipeline)Activator.CreateInstance(Type.GetType(name, true));
+		}
+		
+		protected Boo.Lang.List _items;
 
 		public CompilerPipeline()
 		{
