@@ -15,6 +15,14 @@ namespace Boo.Ast.Compilation.Binding
 			_mi = mi;
 		}
 		
+		public bool IsStatic
+		{
+			get
+			{
+				return _mi.IsStatic;
+			}
+		}
+		
 		public string Name
 		{
 			get

@@ -19,6 +19,14 @@ namespace Boo.Ast.Compilation.Binding
 			_builder = builder;
 		}
 		
+		public bool IsStatic
+		{
+			get
+			{
+				return _method.IsStatic;
+			}
+		}
+		
 		public string Name
 		{
 			get

@@ -85,7 +85,7 @@ namespace Boo.Ast.Compilation.Steps
 			IBinding info = ResolveName(node, node.Name);
 			if (null != info)
 			{
-				if (BindingType.Type != info.BindingType)
+				if (BindingType.TypeReference != info.BindingType)
 				{
 					Errors.NameNotType(node, node.Name);
 				}
@@ -120,18 +120,23 @@ namespace Boo.Ast.Compilation.Steps
 		}
 		
 		public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
-		{
-			ITypedBinding binding = (ITypedBinding)BindingManager.GetBinding(node.Target);			
-			IBinding member = binding.BoundType.Resolve(node.Name);
-			if (null != member)
+		{			
+			IBinding binding = GetBinding(node.Target);
+			if (binding is ITypedBinding)
 			{
-				BindingManager.Bind(node, member);
+				binding = ((ITypedBinding)binding).BoundType;
 			}
-			else
-			{
-				BindingManager.Error(node);
-				Errors.MemberNotFound(node);
+			
+			IBinding member = ((INameSpace)binding).Resolve(node.Name);
+			
+			IBinding nodeBinding = member;
+			if (null == member)
+			{					
+				nodeBinding = ErrorBinding.Default;
+				Errors.MemberNotFound(node, binding.Name);
 			}
+			
+			BindingManager.Bind(node, nodeBinding);
 		}
 		
 		public override void LeaveIfStatement(IfStatement node)
@@ -264,21 +269,31 @@ namespace Boo.Ast.Compilation.Steps
 			{				
 				case BindingType.Method:
 				{				
+					IBinding nodeBinding = ErrorBinding.Default;
+					
 					IMethodBinding targetMethod = (IMethodBinding)targetBinding;
-					CheckParameters(node, targetMethod, node.Arguments);			
-					if (node.NamedArguments.Count > 0)
+					if (CheckParameters(node, targetMethod, node.Arguments))
 					{
-						Errors.NamedParametersNotAllowed(node.NamedArguments[0]);
+						if (node.NamedArguments.Count > 0)
+						{
+							Errors.NamedParametersNotAllowed(node.NamedArguments[0]);							
+						}
+						else
+						{			
+							if (CheckTargetContext(node.Target, targetMethod))
+							{
+								nodeBinding = targetMethod.ReturnType;
+							}
+						}
 					}
-					// todo: if not CheckParameter
-					// Bind(node, BindingManager.UnknownType)
-					BindingManager.Bind(node, targetMethod.ReturnType);
+					
+					BindingManager.Bind(node, nodeBinding);
 					break;
 				}
 				
-				case BindingType.Type:
+				case BindingType.TypeReference:
 				{					
-					ITypeBinding typeBinding = (ITypeBinding)targetBinding;					
+					ITypeBinding typeBinding = ((ITypedBinding)targetBinding).BoundType;					
 					ResolveNamedArguments(typeBinding, node);
 					
 					IConstructorBinding ctorBinding = FindCorrectConstructor(typeBinding, node);
@@ -302,7 +317,7 @@ namespace Boo.Ast.Compilation.Steps
 				
 				default:
 				{
-					throw new NotImplementedException();
+					throw new NotImplementedException(node.ToString());
 				}
 			}
 		}
@@ -322,34 +337,34 @@ namespace Boo.Ast.Compilation.Steps
 		
 		IBinding ResolveName(Node node, string name)
 		{
-			IBinding info = null;
+			IBinding binding = null;
 			switch (name)
 			{
 				case "void":
 				{
-					info = BindingManager.ToTypeBinding(BindingManager.VoidType);
+					binding = BindingManager.ToTypeReference(BindingManager.VoidTypeBinding);
 					break;
 				}
 				
 				case "string":
 				{
-					info = BindingManager.ToTypeBinding(BindingManager.StringType);
+					binding = BindingManager.ToTypeReference(BindingManager.StringTypeBinding);
 					break;
 				}
 				
 				default:
 				{
-					info = Resolve(name);
-					CheckNameResolution(node, name, info);
+					binding = Resolve(name);
+					CheckNameResolution(node, name, binding);
 					break;
 				}
 			}			
-			return info;
+			return binding;
 		}
 		
-		bool CheckNameResolution(Node node, string name, IBinding info)
+		bool CheckNameResolution(Node node, string name, IBinding binding)
 		{
-			if (null == info)
+			if (null == binding)
 			{
 				Errors.UnknownName(node, name);			
 				return false;
@@ -422,6 +437,23 @@ namespace Boo.Ast.Compilation.Steps
 				}
 			}
 		}		
+		
+		bool CheckTargetContext(Expression targetContext, IMemberBinding member)
+		{
+			if (!member.IsStatic)					  
+			{			
+				if (NodeType.MemberReferenceExpression == targetContext.NodeType)
+				{				
+					Expression targetReference = ((MemberReferenceExpression)targetContext).Target;
+					if (BindingType.TypeReference == GetBinding(targetReference).BindingType)
+					{						
+						Errors.MemberNeedsInstance(targetContext, member.ToString());
+						return false;
+					}
+				}
+			}
+			return true;
+		}
 		
 		static bool IsAssignableFrom(Type expectedType, Type actualType)
 		{
@@ -601,14 +633,14 @@ namespace Boo.Ast.Compilation.Steps
 				if (null == parameter.Type)
 				{
 					parameter.Type = new TypeReference("object");
-					BindingManager.Bind(parameter.Type, BindingManager.ToTypeBinding(BindingManager.ObjectType));
+					BindingManager.Bind(parameter.Type, BindingManager.ToTypeReference(BindingManager.ObjectTypeBinding));
 				}		
 				else
 				{
 					parameter.Type.Switch(this);
 				}
-				Binding.ParameterBinding info = new Binding.ParameterBinding(parameter, BindingManager.GetTypeBinding(parameter.Type), i);
-				BindingManager.Bind(parameter, info);
+				Binding.ParameterBinding binding = new Binding.ParameterBinding(parameter, GetTypeBinding(parameter.Type), i);
+				BindingManager.Bind(parameter, binding);
 			}
 		}
 		
@@ -618,7 +650,7 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				// Por enquanto, valor de retorno apenas void
 				method.ReturnType = new TypeReference("void");
-				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeBinding(BindingManager.VoidType));
+				BindingManager.Bind(method.ReturnType, BindingManager.ToTypeReference(BindingManager.VoidTypeBinding));
 			}
 			else
 			{

@@ -56,10 +56,11 @@ Milestone 3.3 (replace.boo)
 done * using Type (using Boo.IO.TextFile)
 done * if string compare
 
-Milestone 3.4 (grepr.boo)
+Milestone 3.4 (rgrep.boo)
 -------------------------
-* recursive functions
+done * recursive functions
 * namespace resolution for MemberReferenceExpression
+* 
 
 Milestone 3.5 (revisão)
 -----------------------

@@ -5,6 +5,7 @@ namespace Boo.Ast.Compilation.Binding
 	public enum BindingType
 	{
 		Type,
+		TypeReference,
 		Method,		
 		Constructor,
 		Field,
@@ -37,7 +38,23 @@ namespace Boo.Ast.Compilation.Binding
 		}
 	}
 	
-	public interface IPropertyBinding : ITypedBinding
+	public interface IMemberBinding : ITypedBinding
+	{
+		bool IsStatic
+		{
+			get;
+		}
+	}
+	
+	public interface IFieldBinding : IMemberBinding
+	{
+		System.Reflection.FieldInfo FieldInfo
+		{
+			get;
+		}
+	}
+	
+	public interface IPropertyBinding : IMemberBinding
 	{
 		System.Reflection.PropertyInfo PropertyInfo
 		{
@@ -54,7 +71,7 @@ namespace Boo.Ast.Compilation.Binding
 		IConstructorBinding[] GetConstructors();
 	}
 	
-	public interface IMethodBinding : ITypedBinding
+	public interface IMethodBinding : IMemberBinding
 	{
 		int ParameterCount
 		{
@@ -79,6 +96,40 @@ namespace Boo.Ast.Compilation.Binding
 		System.Reflection.ConstructorInfo ConstructorInfo
 		{
 			get;
+		}
+	}
+	
+	public class TypeReferenceBinding : ITypedBinding
+	{
+		ITypeBinding _type;
+		
+		public TypeReferenceBinding(ITypeBinding type)
+		{
+			_type = type;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _type.Name;
+			}
+		}
+		
+		public BindingType BindingType
+		{
+			get
+			{
+				return BindingType.TypeReference;
+			}
+		}
+		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return _type;
+			}
 		}
 	}
 	
@@ -129,7 +180,7 @@ namespace Boo.Ast.Compilation.Binding
 		}
 	}
 	
-	public class ExternalFieldBinding : ITypedBinding
+	public class ExternalFieldBinding : IFieldBinding
 	{
 		BindingManager _bindingManager;
 		
@@ -146,6 +197,14 @@ namespace Boo.Ast.Compilation.Binding
 			get
 			{
 				return _field.Name;
+			}
+		}
+		
+		public bool IsStatic
+		{
+			get
+			{
+				return _field.IsStatic;
 			}
 		}
 		
@@ -173,7 +232,7 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		System.Reflection.FieldInfo FieldInfo
+		public System.Reflection.FieldInfo FieldInfo
 		{
 			get
 			{
@@ -192,6 +251,19 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			_bindingManager = bindingManager;
 			_property = property;
+		}
+		
+		public bool IsStatic
+		{
+			get
+			{
+				System.Reflection.MethodInfo mi = _property.GetGetMethod();
+				if (null != mi)
+				{
+					return mi.IsStatic;
+				}
+				return _property.GetSetMethod().IsStatic;
+			}
 		}
 		
 		public string Name
@@ -289,18 +361,6 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public INameSpace Parent
-		{
-			get
-			{
-				return null;
-			}
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-		
 		public IBinding Resolve(string name)
 		{
 			foreach (AssemblyInfo info in _assemblies)
@@ -309,7 +369,7 @@ namespace Boo.Ast.Compilation.Binding
 				{
 					if (name == type.Name)
 					{
-						return _bindingManager.ToTypeBinding(type);
+						return _bindingManager.ToTypeReference(type);
 					}
 				}
 			}

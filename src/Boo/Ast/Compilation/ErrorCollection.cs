@@ -50,9 +50,14 @@ namespace Boo.Ast.Compilation
 			Add(new Error(module, Format("NoEntryPoint", module.Name)));
 		}
 		
-		public void MemberNotFound(MemberReferenceExpression node)
+		public void MemberNeedsInstance(Expression node, string member)
 		{
-			Add(new Error(node, Format("MemberNotFound", node.Name)));
+			Add(new Error(node, Format("MemberNeedsInstance", member)));
+		}
+		
+		public void MemberNotFound(MemberReferenceExpression node, string targetBindingName)
+		{
+			Add(new Error(node, Format("MemberNotFound", node.Name, targetBindingName)));
 		}
 		
 		public void BoolExpressionRequired(Expression node, Type type)

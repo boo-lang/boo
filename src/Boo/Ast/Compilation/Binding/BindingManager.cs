@@ -27,18 +27,23 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public ITypeBinding ObjectTypeBinding;
 		
+		public ITypeBinding VoidTypeBinding;
+		
 		public ITypeBinding StringTypeBinding;
 		
 		public ITypeBinding BoolTypeBinding;
 		
 		public ITypeBinding RuntimeServicesBinding;
 		
+		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
+		
 		public BindingManager()
 		{
-			ObjectTypeBinding = ToTypeBinding(ObjectType);
-			StringTypeBinding = ToTypeBinding(StringType);
-			BoolTypeBinding = ToTypeBinding(BoolType);
-			RuntimeServicesBinding = ToTypeBinding(RuntimeServicesType);
+			Cache(VoidTypeBinding = new VoidTypeBindingImpl());
+			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, ObjectType));
+			Cache(StringTypeBinding = new ExternalTypeBinding(this, StringType));
+			Cache(BoolTypeBinding = new ExternalTypeBinding(this, BoolType));
+			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, RuntimeServicesType));
 		}
 		
 		public bool IsBound(Node node)
@@ -62,8 +67,8 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public void Bind(TypeDefinition type, TypeBuilder builder)
 		{
-			Bind(type, new InternalTypeBinding(this, type, builder));
-		}		
+			Bind(type, ToTypeBinding(type, builder));
+		}
 		
 		public void Error(Node node)
 		{
@@ -97,7 +102,32 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public ITypeBinding ToTypeBinding(System.Type type)
 		{
-			return new ExternalTypeBinding(this, type);
+			ITypeBinding binding = (ITypeBinding)_bindingCache[type];
+			if (null == binding)
+			{
+				Cache(binding = new ExternalTypeBinding(this, type));
+			}
+			return binding;
+		}
+		
+		public ITypeBinding ToTypeBinding(TypeDefinition typeDefinition, TypeBuilder builder)
+		{
+			ITypeBinding binding = (ITypeBinding)_bindingCache[typeDefinition];
+			if (null == binding)
+			{
+				Cache(binding = new InternalTypeBinding(this, typeDefinition, builder));
+			}
+			return binding;
+		}
+		
+		public ITypedBinding ToTypeReference(ITypeBinding type)
+		{
+			return new TypeReferenceBinding(type);
+		}
+		
+		public ITypedBinding ToTypeReference(System.Type type)
+		{
+			return ToTypeReference(ToTypeBinding(type));
 		}
 		
 		public IBinding ToBinding(System.Reflection.MemberInfo[] info)
@@ -138,7 +168,12 @@ namespace Boo.Ast.Compilation.Binding
 					throw new NotImplementedException(mi.ToString());
 				}
 			}
-		}	
+		}
+		
+		void Cache(ITypeBinding binding)
+		{
+			_bindingCache[binding.Type] = binding;
+		}
 		
 		public static string GetSignature(IMethodBinding binding)
 		{
@@ -165,6 +200,59 @@ namespace Boo.Ast.Compilation.Binding
 			throw new Error(node, ResourceManager.Format("BindingManager.UnboundNode", node, node.LexicalInfo));
 		}
 		
-		static object BindingKey = new object();
+		static object BindingKey = new object();		
+		
+		#region VoidTypeBindingImpl
+		class VoidTypeBindingImpl : ITypeBinding
+		{			
+			internal VoidTypeBindingImpl()
+			{				
+			}
+			
+			public string Name
+			{
+				get
+				{
+					return "void";
+				}
+			}
+			
+			public BindingType BindingType
+			{
+				get
+				{
+					return BindingType.Type;
+				}
+			}
+			
+			public ITypeBinding BoundType
+			{
+				get
+				{
+					return this;
+				}
+			}
+			
+			public Type Type
+			{
+				get
+				{
+					return BindingManager.VoidType;
+				}
+			}
+			
+			public IConstructorBinding[] GetConstructors()
+			{
+				return new IConstructorBinding[0];
+			}
+			
+			public IBinding Resolve(string name)
+			{	
+				return null;
+			}
+	
+		}
+
+		#endregion
 	}
 }

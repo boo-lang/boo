@@ -31,5 +31,18 @@ namespace Boo.Ast
 		internal TypeMember(Node lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
+		
+		public bool IsStatic
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Static);
+			}
+		}
+		
+		public bool IsModifierSet(TypeMemberModifiers modifiers)
+		{
+			return modifiers == (_modifiers & modifiers);
+		}
 	}
 }

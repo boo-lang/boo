@@ -47,10 +47,13 @@
 				<includes name="*.pipeline" />
 			</fileset>
 		</copy>
+		
+		<!--
 		<exec program='ngen.exe' if="${file::exists(ngen.exe)}">
 			<arg file='build/booc.exe' />
 			<arg file='build/Boo.dll' />
 		</exec>
+		-->
 	</target>
 	
 	<target name="booi" depends="booc">

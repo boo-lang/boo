@@ -15,6 +15,10 @@ namespace Boo.Ast.Compilation.Binding
 		
 		internal ExternalTypeBinding(BindingManager manager, Type type)
 		{
+			if (BindingManager.VoidType == type)
+			{
+				throw new ArgumentException("type");
+			}
 			_bindingManager = manager;
 			_type = type;
 		}
@@ -66,7 +70,7 @@ namespace Boo.Ast.Compilation.Binding
 		}
 		
 		public IBinding Resolve(string name)
-		{
+		{			
 			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
 			if (members.Length > 0)
 			{				

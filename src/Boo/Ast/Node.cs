@@ -103,6 +103,11 @@ namespace Boo.Ast
 		{			
 			_parent = parent;
 		}
+		
+		public override string ToString()
+		{
+			return base.ToString() + " at " + _lexicalData;
+		}
 
 		public override int GetHashCode()
 		{
