@@ -53,6 +53,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding BoolTypeBinding;
 		
+		public ExternalTypeBinding ByteTypeBinding;
+		
 		public ExternalTypeBinding IntTypeBinding;
 		
 		public ExternalTypeBinding SingleTypeBinding;
@@ -81,6 +83,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(TypeTypeBinding = new ExternalTypeBinding(this, Types.Type));
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));
 			Cache(BoolTypeBinding = new ExternalTypeBinding(this, Types.Bool));
+			Cache(ByteTypeBinding = new ExternalTypeBinding(this, Types.Byte));
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
 			Cache(SingleTypeBinding = new ExternalTypeBinding(this, Types.Single));
 			Cache(new ExternalTypeBinding(this, Types.Date));
@@ -296,6 +299,12 @@ namespace Boo.Lang.Compiler.Bindings
 				case "object":
 				{
 					binding = ToTypeReference(ObjectTypeBinding);
+					break;
+				}
+				
+				case "byte":
+				{
+					binding = ToTypeReference(ByteTypeBinding);
 					break;
 				}
 				

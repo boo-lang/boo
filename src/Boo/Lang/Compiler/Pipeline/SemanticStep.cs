@@ -724,6 +724,24 @@ namespace Boo.Lang.Compiler.Pipeline
 			BindingManager.Bind(node, BindingManager.StringTypeBinding);
 		}
 		
+		IBinding[] GetGetMethods(IBinding[] bindings)
+		{
+			ArrayList getMethods = new ArrayList();
+			for (int i=0; i<bindings.Length; ++i)
+			{
+				IPropertyBinding property = bindings[i] as IPropertyBinding;
+				if (null != property)
+				{
+					IMethodBinding getter = property.GetGetMethod();
+					if (null != getter)
+					{
+						getMethods.Add(getter);
+					}
+				}
+			}
+			return (IBinding[])getMethods.ToArray(typeof(IBinding));
+		}
+		
 		public override void LeaveSlicingExpression(SlicingExpression node, ref Expression resultingNode)
 		{
 			if (null != node.End || null != node.Step)
@@ -745,12 +763,23 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					if (BindingType.Property == member.BindingType)
+					MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
+					mie.Arguments.Add(node.Begin);
+					
+					IMethodBinding getter = null;
+					
+					if (BindingType.Ambiguous == member.BindingType)
 					{
-						IMethodBinding getter = ((IPropertyBinding)member).GetGetMethod();
-						MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
-						mie.Arguments.Add(node.Begin);
-						
+						IBinding[] bindings = GetGetMethods(((AmbiguousBinding)member).Bindings);
+						getter = (IMethodBinding)ResolveMethodReference(node, mie.Arguments, bindings, true);						
+					}
+					else if (BindingType.Property == member.BindingType)
+					{
+						getter = ((IPropertyBinding)member).GetGetMethod();
+					}
+					
+					if (null != getter)
+					{	
 						if (CheckParameters(node, getter, mie.Arguments))
 						{
 							mie.Target = new MemberReferenceExpression(node.Target, getter.Name);

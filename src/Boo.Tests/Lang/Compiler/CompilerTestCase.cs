@@ -81,6 +81,41 @@ namespace Boo.Tests.Lang.Compiler
 		}
 	}
 	
+	public class PersonCollection : System.Collections.CollectionBase
+	{
+		public PersonCollection()
+		{
+		}
+		
+		public Person this[int index]
+		{
+			get
+			{
+				return (Person)InnerList[index];
+			}
+		}
+		
+		public Person this[string fname]
+		{
+			get
+			{
+				foreach (Person p in InnerList)
+				{
+					if (p.FirstName == fname)
+					{
+						return p;
+					}
+				}
+				return null;
+			}
+		}
+		
+		public void Add(Person person)
+		{
+			InnerList.Add(person);
+		}
+	}
+	
 	public class Clickable
 	{
 		public Clickable()
@@ -667,6 +702,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void SliceListNegative()
 		{
 			RunCompilerTestCase("slicing4.boo");
+		}
+		
+		[Test]
+		public void SliceOverload()
+		{
+			RunCompilerTestCase("slicing5.boo");
 		}
 	}
 }

@@ -143,10 +143,11 @@ done * propriedades podem ser declaradas em qualquer ordem
 * portar todos os testes em ITL.Security.Tests para boo
 	done * usar tipos em atributos (sem precisar do typeof)
 	done * atributos para métodos
-	* indexers (eg: collection[0], collection["rodrigob"])
+	done * indexers (eg: collection[0], collection["rodrigob"])
 		done * tuple indexer
 		done * negative tuple indexer
-		* generic indexer (DefaultMemberAttribute)
+		done * generic indexer (DefaultMemberAttribute)
+	* (byte)
 	* timespan literals
 	done * tuples should be of the most generic type for its elements:
 		done eg:

@@ -55,6 +55,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static readonly Type String = typeof(string);
 		
+		public static readonly Type Byte = typeof(byte);
+		
 		public static readonly Type Int = typeof(int);
 		
 		public static readonly Type Single = typeof(float);

@@ -138,6 +138,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD2>bool</KEYWORD2>
 			<KEYWORD2>string</KEYWORD2>
 			<KEYWORD2>object</KEYWORD2>
+			<KEYWORD2>byte</KEYWORD2>
 			<KEYWORD2>int</KEYWORD2>
 			<KEYWORD2>float</KEYWORD2>
 			<KEYWORD2>double</KEYWORD2>
