@@ -9,7 +9,6 @@ import System.IO
 import System.ComponentModel
 import System.Windows.Forms
 import System.Drawing
-import Boo.AntlrParser
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
@@ -58,7 +57,7 @@ class BooEditor(DockContent):
 	_module as Module
 	
 	_compiler as BooCompiler
-
+	
 	def constructor(main as MainForm):
 		_main = main
 		_editor = TextEditorControl(Dock: DockStyle.Fill,
@@ -208,7 +207,7 @@ class BooEditor(DockContent):
 		fname = GetSafeFileName()
 		code = self.TextContent
 		try:
-			_module = BooParser.ParseString(fname, code).Modules[0]
+			_module = _main.ParseString(fname, code).Modules[0]
 			_moduleDirty = false
 		except x:
 			print(x)

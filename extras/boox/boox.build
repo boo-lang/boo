@@ -42,7 +42,6 @@
 				<includes name="WeifenLuo.WinFormsUI.dll" />
 				<includes name="System.Windows.Forms.dll" />
 				<includes name="System.Drawing.dll" />
-				<includes name="Boo.AntlrParser.dll" />
 			</references>
 		</booc>
 	</target>

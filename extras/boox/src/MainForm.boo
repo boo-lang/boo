@@ -7,6 +7,9 @@ import System.ComponentModel
 import System.Windows.Forms
 import System.Drawing
 import WeifenLuo.WinFormsUI
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.IO
 
 class MainForm(Form):
 
@@ -29,6 +32,8 @@ class MainForm(Form):
 	_menuItemClose as MenuItem
 	_menuItemSave as MenuItem
 	_menuItemSaveAs as MenuItem
+	
+	_parser = BooCompiler()
 
 	def constructor(argv as (string)):
 		_argv = argv
@@ -41,6 +46,8 @@ class MainForm(Form):
 
 		_status = StatusBar(ShowPanels: true, TabIndex: 2)
 		_status.Panels.Add(_statusPanel1)
+		
+		_parser.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Parse()
 
 		SuspendLayout()
 
@@ -122,6 +129,13 @@ class MainForm(Form):
 	StatusText as string:
 		set:
 			_statusPanel1.Text = value
+			
+	def ParseString(fname as string, code as string):		
+		try:
+			_parser.Parameters.Input.Add(StringInput(fname, code))
+			return _parser.Run().CompileUnit
+		ensure:
+			_parser.Parameters.Input.Clear()
 			
 	def ShowDocumentOutline():
 		ShowContent(_documentOutline)
