@@ -497,7 +497,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool AreTypesRelated(IType lhs, IType rhs)
 		{
 			return lhs.IsAssignableFrom(rhs) ||
-				(lhs.IsInterface && rhs.IsInterface) ||
+				(lhs.IsInterface && !rhs.IsFinal) ||
+				(rhs.IsInterface && !lhs.IsFinal) ||
 				CanBeReachedByDownCastOrPromotion(lhs, rhs);
 		}
 		
