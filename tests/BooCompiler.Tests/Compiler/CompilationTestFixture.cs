@@ -462,6 +462,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void ExplicitDelegateInstantiation()
+		{
+			RunCompilerTestCase("delegate9.boo");
+		}
+		
+		[Test]
 		public void TestProperty0()
 		{
 			RunCompilerTestCase("property0.boo");
@@ -1485,6 +1491,12 @@ namespace BooCompiler.Tests
 		public void CallableTypeDefinitionWithMember()
 		{
 			RunCompilerTestCase("CallableTypeDefinitionWithMember.boo");
+		}
+		
+		[Test]
+		public void AddressOfSpecialFunction()
+		{
+			RunCompilerTestCase("addressof.boo");
 		}
 	}
 }
