@@ -80,6 +80,9 @@ done * unit tests para o compilador/interpretador
 done * mover todos as constantes de tipo de BindingManager para Types
 done * testes para enum (Criar enum em Boo.Tests e escrever alguns test cases)
 done * LeaveDeclarationStatement retorna um ExpressionStatement(BinaryExpression()) de assignment e declara a variável
+* trocar todos os testes do parser para ao invés de utilizarem xml como base de comparação (o
+que falha no mono já que os xmls gerados são diferentes), utilizar o BooPrinter para gerar a 
+forma canônica, dessa forma, BooPrinter também será testado.
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o SemanticStep que deverá criar CastExpression sempre que necessário
 * AstAttribute vira IAstAttribute que implementa ICompilerStep
 * Criar AbstractAstAttribute extends AbstractCompilerStep

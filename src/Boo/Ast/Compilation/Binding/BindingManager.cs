@@ -8,6 +8,8 @@ namespace Boo.Ast.Compilation.Binding
 	public class BindingManager
 	{		
 		public ITypeBinding ObjectTypeBinding;
+		
+		public ITypeBinding ObjectArrayBinding;
 	
 		public ITypeBinding VoidTypeBinding;
 		
@@ -33,6 +35,7 @@ namespace Boo.Ast.Compilation.Binding
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
+			Cache(ObjectArrayBinding = new ExternalTypeBinding(this, Types.ObjectArray));
 		}
 		
 		public bool IsBound(Node node)

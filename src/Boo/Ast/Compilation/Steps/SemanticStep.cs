@@ -107,6 +107,11 @@ namespace Boo.Ast.Compilation.Steps
 			BindingManager.Bind(node, BindingManager.ListTypeBinding);
 		}
 		
+		public override void LeaveTupleLiteralExpression(TupleLiteralExpression node, ref Expression resultingNode)
+		{
+			BindingManager.Bind(node, BindingManager.ObjectArrayBinding);
+		}
+		
 		public override void LeaveDeclarationStatement(DeclarationStatement node, ref Statement resultingNode)
 		{
 			ITypeBinding binding = BindingManager.ObjectTypeBinding;

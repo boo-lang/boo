@@ -264,6 +264,24 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			RunCompilerTestCase("property1.boo", "unpack property");
 		}
+		
+		[Test]
+		public void TestTuple0()
+		{
+			RunCompilerTestCase("tuple0.boo", "simple tuple creation");
+		}
+		
+		[Test]
+		public void TestTuple1()
+		{
+			RunCompilerTestCase("tuple1.boo", "tuple unpacking");
+		}
+		
+		[Test]
+		public void TestTuple3()
+		{
+			RunCompilerTestCase("tuple2.boo", "string.Format(template, tuple)");
+		}
 	
 		void RunCompilerTestCase(string name, string description)
 		{			

@@ -349,6 +349,12 @@ namespace Boo.Ast.Compilation.Steps
 			PushType(Types.List);
 		}
 		
+		public override void OnTupleLiteralExpression(TupleLiteralExpression node)
+		{
+			EmitArray(Types.Object, node.Items);
+			PushType(Types.ObjectArray);
+		}
+		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
@@ -360,14 +366,7 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Ldstr, node.Template);
 			
 			// new object[node.Arguments.Count]
-			_il.Emit(OpCodes.Ldc_I4, node.Arguments.Count);
-			_il.Emit(OpCodes.Newarr, Types.Object);
-			
-			ExpressionCollection args = node.Arguments;
-			for (int i=0; i<args.Count; ++i)
-			{			
-				StoreElementReference(i, args[i], Types.Object);				
-			}
+			EmitArray(Types.Object, node.Arguments);
 			
 			_il.EmitCall(OpCodes.Call, String_Format, null);
 			PushType(Types.String);
@@ -701,6 +700,17 @@ namespace Boo.Ast.Compilation.Steps
 				Type expectedType = binding.GetParameterType(i);
 				arg.Switch(this);
 				EmitCastIfNeeded(expectedType, PopType());
+			}
+		}
+		
+		void EmitArray(Type type, ExpressionCollection items)
+		{
+			_il.Emit(OpCodes.Ldc_I4, items.Count);
+			_il.Emit(OpCodes.Newarr, type);
+			
+			for (int i=0; i<items.Count; ++i)
+			{			
+				StoreElementReference(i, items[i], type);				
 			}
 		}
 		
