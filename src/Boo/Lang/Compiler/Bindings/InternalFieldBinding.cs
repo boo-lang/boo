@@ -122,5 +122,10 @@ namespace Boo.Lang.Compiler.Bindings
 				return _field;
 			}
 		}
+		
+		override public string ToString()
+		{
+			return FullName;
+		}
 	}
 }

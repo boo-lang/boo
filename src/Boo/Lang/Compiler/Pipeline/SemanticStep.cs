@@ -1452,8 +1452,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			IBinding nodeBinding = ErrorBinding.Default;
-			
 			IBinding binding = GetBinding(node.Target);
 			ITypedBinding typedBinding = binding as ITypedBinding;
 			if (null != typedBinding)
@@ -1461,16 +1459,29 @@ namespace Boo.Lang.Compiler.Pipeline
 				binding = typedBinding.BoundType;
 			}
 			
-			if (!BindingManager.IsError(binding))
+			if (BindingManager.IsError(binding))
+			{
+				Error(node);
+			}
+			else
 			{
 				IBinding member = ((INamespace)binding).Resolve(node.Name);				
 				if (null == member)
 				{										
-					Error(CompilerErrorFactory.MemberNotFound(node, binding.FullName));
+					Error(node, CompilerErrorFactory.MemberNotFound(node, binding.FullName));
 				}
 				else
 				{
-					nodeBinding = member;					
+					IMemberBinding memberBinding = member as IMemberBinding;
+					if (null != memberBinding)
+					{
+						if (!CheckTargetContext(node, memberBinding))
+						{
+							Error(node);
+							return;
+						}
+					}
+					
 					EnsureRelatedNodeWasVisited(member);
 					
 					if (BindingType.Property == member.BindingType)
@@ -1482,7 +1493,7 @@ namespace Boo.Lang.Compiler.Pipeline
 							{
 								if (!AstUtil.IsTargetOfSlicing(node))
 								{
-									Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), nodeBinding.FullName));
+									Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), member.FullName));
 									return;
 								}
 							}
@@ -1493,10 +1504,10 @@ namespace Boo.Lang.Compiler.Pipeline
 							}
 						}
 					}
+					
+					Bind(node, member);
 				}
 			}
-			
-			Bind(node, nodeBinding);
 		}
 		
 		override public void LeaveUnlessStatement(UnlessStatement node)
@@ -2812,7 +2823,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					Expression targetReference = ((MemberReferenceExpression)targetContext).Target;
 					if (BindingType.TypeReference == GetBinding(targetReference).BindingType)
 					{						
-						Error(CompilerErrorFactory.MemberNeedsInstance(targetContext, member.ToString()));
+						Error(CompilerErrorFactory.MemberNeedsInstance(targetContext, member.FullName));
 						return false;
 					}
 				}
