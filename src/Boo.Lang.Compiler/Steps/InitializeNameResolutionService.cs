@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.Steps
 				Type[] types = asm.GetTypes();				
 				foreach (Type type in types)
 				{
-					if (type.IsNotPublic)
+					if (!type.IsPublic)
 					{
 						continue;
 					}

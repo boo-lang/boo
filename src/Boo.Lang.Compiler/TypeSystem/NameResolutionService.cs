@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected INamespace _current;
 		
-		protected INamespace _global;
+		protected INamespace _global = NullNamespace.Default;
 		
 		protected Boo.Lang.List _buffer = new Boo.Lang.List();
 		
@@ -91,10 +91,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public void Reset()
 		{
-			if (null == _global)
-			{
-				throw new InvalidOperationException(Boo.ResourceManager.GetString("GlobalNamespaceIsNotSet"));
-			}
 			EnterNamespace(_global);
 		}
 		
