@@ -1,29 +1,7 @@
-* callable type adaptation: permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais parâmetros
-
-* boo primer
-
 * boox
 	* prompt must be redirected to a InputBox
 	* assembly search path
 
-* static properties	
-	
-* array generators
-
-* generator type inference
-
-* IExpando/IQuack/IAmADuck interface que permite aos objetos participarem do sistema
-de duck typing (a runtime invocaria o objeto no caso de um MemberNotFoundException)
-
-* reescrever documento de pipeline em inglês
-
-* software de blogging para a apresentação
-	* página principal exibindos os últimos 10 posts
-	* post via webservice
-	* modelo de objetos simples com Bamboo.Prevalence
-	* editor RichClient
-	* segurança com par chave pública/privada
-	
 * refactorar todos os métodos relacionados a definição de tipos do ProcessGenerators
 e criar um ClassDefinitionBuilder;
 
@@ -62,9 +40,6 @@ super APÓS qualquer validação:
 		* validação de parâmetros pode ser inserida com prioridade 0
 		* chamada ao constructor super com prioriedade 1
 
-* final fields: se for um value type nativo fica como literal, senao fica
-como campo readonly
-
 * múltiplos modifiers por sentença:
 
 	Thread.Sleep(50ms) while ie.Busy if ie
@@ -78,8 +53,6 @@ como campo readonly
 
 * um novo passo para checagem de visibilidade de acesso de membros
 
-* check visibility for override
-
 * promoção de bool para int32 e conversão automática de int32 para bool:
 	* and
 	* or
@@ -92,14 +65,6 @@ como campo readonly
 
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock
-
-* private interface implementations
-
-	class Foo(IDisposable):
-		def IDisposable.Dispose():
-			print("Dispose")
-
-	método fica marcado como private...
 
 * booi: opçoes e um único script
 	* booi /c:pt-BR /r:Foo.dll /i:aux.boo foo.boo 1 2 3
@@ -119,8 +84,6 @@ valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc
 
 * print macro
 
-* assert macro
-
 * singleline try (catchall):
 
 	try CloseConnection()
@@ -136,15 +99,6 @@ valor de retorno e pode ser utilizado na propagação de checagem de tipos, etc
 		override def Base.Method():
 			super()
 
-* assembly attributes: [assembly: AssemblyVersion("foo")]
-
-* module attributes: [module: ]
-
-* raise sem parâmetros dentro de um except:
-	try:
-		raise "foo"
-	except:
-		raise // reraise current exception
 
 * modo MACRO de compilação (ver macro.boo)
 
@@ -238,13 +192,6 @@ Milestone 6 (dynamic behavior)
 	a2 as object = (1, 2)
 	assert a1 == a2
 
-Milestone 7
------------
-
-* runtime objects
-foo = runtimeobject("InternetExplorer.Application")
-foo.Navigate2("www.foo.bar")
-
 Exemplos/Artigos
 ----------------
 
@@ -258,16 +205,6 @@ Exemplos/Artigos
 Otimiza��es
 -----------
 * otimização para chamadas a array.Length
-* array unpacking trocar unpacking for vários expressionstatement(binary expression):
-	a, b, = 1, 2
-	por
-	a = 1
-	b = 2
-
-	criar para isso um novo tipo de statement que pode ser utilizado no lugar de
-	qualquer outro statement:
-		class StatementGroup(Statement):
-			Statements as StatementCollection
 
 * tail call prefix para funçoes recursivas com a ScanDirectories do rgrep.boo
 
