@@ -29,7 +29,7 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 		public const int EOF = 1;
 		public const int NULL_TREE_LOOKAHEAD = 3;
 		public const int TIMESPAN = 4;
-		public const int REAL = 5;
+		public const int DOUBLE = 5;
 		public const int LONG = 6;
 		public const int ESEPARATOR = 7;
 		public const int INDENT = 8;
@@ -330,7 +330,7 @@ _loop3_breakloop:				;
 				}
 				case EOF:
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case BREAK:
 				case CLASS:
@@ -1748,7 +1748,7 @@ _loop27_breakloop:				;
 				switch ( LA(1) )
 				{
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case FALSE:
 				case NOT:
@@ -2574,7 +2574,7 @@ _loop106_breakloop:				;
 					break;
 				}
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case BREAK:
 				case FOR:
@@ -3208,7 +3208,7 @@ _loop129_breakloop:				;
 				switch ( LA(1) )
 				{
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case FALSE:
 				case NOT:
@@ -3403,7 +3403,7 @@ _loop267_breakloop:						;
 				}
 				case EOF:
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case DEDENT:
 				case BREAK:
@@ -3556,7 +3556,7 @@ _loop143_breakloop:				;
 				}
 				case EOF:
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case DEDENT:
 				case BREAK:
@@ -3618,7 +3618,7 @@ _loop143_breakloop:				;
 				}
 				case EOF:
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case DEDENT:
 				case BREAK:
@@ -3790,7 +3790,7 @@ _loop162_breakloop:			;
 				switch ( LA(1) )
 				{
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case FALSE:
 				case NOT:
@@ -4379,7 +4379,7 @@ _loop162_breakloop:			;
 				break;
 			}
 			case TIMESPAN:
-			case REAL:
+			case DOUBLE:
 			case LONG:
 			case FALSE:
 			case NOT:
@@ -4604,7 +4604,7 @@ _loop169_breakloop:				;
 				break;
 			}
 			case TIMESPAN:
-			case REAL:
+			case DOUBLE:
 			case LONG:
 			case FALSE:
 			case NULL:
@@ -5042,7 +5042,7 @@ _loop202_breakloop:				;
 							break;
 						}
 						case TIMESPAN:
-						case REAL:
+						case DOUBLE:
 						case LONG:
 						case FALSE:
 						case NULL:
@@ -5233,7 +5233,7 @@ _loop205_breakloop:				;
 					break;
 				}
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case FALSE:
 				case NULL:
@@ -5328,7 +5328,7 @@ _loop205_breakloop:				;
 											switch ( LA(1) )
 											{
 											case TIMESPAN:
-											case REAL:
+											case DOUBLE:
 											case LONG:
 											case FALSE:
 											case NOT:
@@ -5378,7 +5378,7 @@ _loop205_breakloop:				;
 									break;
 								}
 								case TIMESPAN:
-								case REAL:
+								case DOUBLE:
 								case LONG:
 								case FALSE:
 								case NOT:
@@ -5410,7 +5410,7 @@ _loop205_breakloop:				;
 												switch ( LA(1) )
 												{
 												case TIMESPAN:
-												case REAL:
+												case DOUBLE:
 												case LONG:
 												case FALSE:
 												case NOT:
@@ -5572,7 +5572,7 @@ _loop236_breakloop:				;
 				switch ( LA(1) )
 				{
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case FALSE:
 				case NULL:
@@ -5684,9 +5684,9 @@ _loop236_breakloop:				;
 					e=super_literal();
 					break;
 				}
-				case REAL:
+				case DOUBLE:
 				{
-					e=real_literal();
+					e=double_literal();
 					break;
 				}
 				case TIMESPAN:
@@ -5809,7 +5809,7 @@ _loop236_breakloop:				;
 						switch ( LA(1) )
 						{
 						case TIMESPAN:
-						case REAL:
+						case DOUBLE:
 						case LONG:
 						case FALSE:
 						case NOT:
@@ -6013,7 +6013,7 @@ _loop223_breakloop:								;
 				switch ( LA(1) )
 				{
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case FALSE:
 				case NOT:
@@ -6121,7 +6121,7 @@ _loop255_breakloop:								;
 				switch ( LA(1) )
 				{
 				case TIMESPAN:
-				case REAL:
+				case DOUBLE:
 				case LONG:
 				case FALSE:
 				case NOT:
@@ -6380,19 +6380,19 @@ _loop259_breakloop:						;
 		return e;
 	}
 	
-	protected RealLiteralExpression  real_literal() //throws RecognitionException, TokenStreamException
+	protected DoubleLiteralExpression  double_literal() //throws RecognitionException, TokenStreamException
 {
-		RealLiteralExpression rle;
+		DoubleLiteralExpression rle;
 		
 		Token  value = null;
 		rle = null;
 		
 		try {      // for error handling
 			value = LT(1);
-			match(REAL);
+			match(DOUBLE);
 			if (0==inputState.guessing)
 			{
-				rle = new RealLiteralExpression(ToLexicalInfo(value), double.Parse(value.getText()));
+				rle = new DoubleLiteralExpression(ToLexicalInfo(value), double.Parse(value.getText()));
 			}
 		}
 		catch (RecognitionException ex)
@@ -6606,7 +6606,7 @@ _loop249_breakloop:				;
 		@"""<2>""",
 		@"""NULL_TREE_LOOKAHEAD""",
 		@"""TIMESPAN""",
-		@"""REAL""",
+		@"""DOUBLE""",
 		@"""LONG""",
 		@"""ESEPARATOR""",
 		@"""INDENT""",

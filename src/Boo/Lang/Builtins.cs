@@ -27,11 +27,12 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Collections;
-
 namespace Boo.Lang
 {
+	using System;	
+	using System.Collections;
+	using System.Text;
+
 	/// <summary>
 	/// boo language builtin functions.
 	/// </summary>
@@ -56,6 +57,17 @@ namespace Boo.Lang
 		{
 			Console.Write(message);
 			return Console.ReadLine();
+		}
+		
+		public static string join(IEnumerable enumerable, string separator)
+		{
+			StringBuilder sb = new StringBuilder();			
+			foreach (object item in enumerable)
+			{
+				if (sb.Length>0) { sb.Append(separator); }
+				sb.Append(item);
+			}
+			return sb.ToString();
 		}
 		
 		public static object[] tuple(IEnumerable enumerable)

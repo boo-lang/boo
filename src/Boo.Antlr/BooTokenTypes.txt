@@ -1,7 +1,7 @@
 // $ANTLR 2.7.2: src/Boo.Antlr/boo.g -> BooTokenTypes.txt$
 Boo    // output token vocab name
 TIMESPAN=4
-REAL=5
+DOUBLE=5
 LONG=6
 ESEPARATOR=7
 INDENT=8

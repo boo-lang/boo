@@ -36,7 +36,7 @@ using Boo.Antlr.Util;
 		public const int EOF = 1;
 		public const int NULL_TREE_LOOKAHEAD = 3;
 		public const int TIMESPAN = 4;
-		public const int REAL = 5;
+		public const int DOUBLE = 5;
 		public const int LONG = 6;
 		public const int ESEPARATOR = 7;
 		public const int INDENT = 8;
@@ -659,7 +659,7 @@ _loop290_breakloop:								;
 							}
 							if (0==inputState.guessing)
 							{
-								_ttype = REAL;
+								_ttype = DOUBLE;
 							}
 						}
 						else {
@@ -750,7 +750,7 @@ _loop296_breakloop:				;
 				}    // ( ... )+
 				if (0==inputState.guessing)
 				{
-					_ttype = REAL;
+					_ttype = DOUBLE;
 				}
 			}
 			else {

@@ -67,6 +67,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static readonly Type Byte = typeof(byte);
 		
+		public static readonly Type Short = typeof(short);
+		
 		public static readonly Type Int = typeof(int);
 		
 		public static readonly Type Long = typeof(long);
@@ -77,7 +79,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static readonly Type Single = typeof(float);
 		
-		public static readonly Type Real = typeof(double);
+		public static readonly Type Double = typeof(double);
 		
 		public static readonly Type Date = typeof(System.DateTime);
 		

@@ -27,12 +27,13 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using System.Collections;
-using System.IO;
-
 namespace Boo.Lang
 {
+	using System;
+	using System.Collections;
+	using System.IO;
+	using System.Text;
+
 	public class RuntimeServices
 	{
 		public static object MoveNext(IEnumerator enumerator)
@@ -118,6 +119,26 @@ namespace Boo.Lang
 				return false;
 			}
 			return s.IndexOf(what) > -1;
+		}
+		
+		public static string StringMultiply(string lhs, int count)
+		{
+			if (count < 0)
+			{
+				throw new ArgumentOutOfRangeException("count");
+			}
+			
+			string result = null;
+			if (null != lhs)
+			{
+				StringBuilder builder = new StringBuilder(lhs.Length * count);
+				for (int i=0; i<count; ++i)
+				{
+					builder.Append(lhs);
+				}
+				result = builder.ToString();
+			}
+			return result;
 		}
 		
 		public static bool Contains(object container, object value)

@@ -47,7 +47,7 @@ options
 tokens
 {
 	TIMESPAN; // timespan literal
-	REAL; // real literal
+	DOUBLE; // real literal
 	LONG; // long literal
 	ESEPARATOR; // expression separator (imaginary token)	
 	INDENT;
@@ -1508,7 +1508,7 @@ literal returns [Expression e]
 		e=null_literal |
 		e=self_literal |
 		e=super_literal |
-		e=real_literal |
+		e=double_literal |
 		e=timespan_literal
 	)
 	;
@@ -1663,9 +1663,9 @@ re_literal returns [RELiteralExpression re] { re = null; }:
 	;
 	
 protected
-real_literal returns [RealLiteralExpression rle] { rle = null; }:
-	value:REAL
-	{ rle = new RealLiteralExpression(ToLexicalInfo(value), double.Parse(value.getText())); }
+double_literal returns [DoubleLiteralExpression rle] { rle = null; }:
+	value:DOUBLE
+	{ rle = new DoubleLiteralExpression(ToLexicalInfo(value), double.Parse(value.getText())); }
 	;
 	
 protected
@@ -1806,13 +1806,13 @@ INT : (DIGIT)+
 	(
 		('l' | 'L') { $setType(LONG); } |
 		(
-	({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(REAL); })?
+	({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
 	(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
 		)
 	)
 	;
 
-DOT : '.' ((DIGIT)+ {$setType(REAL);})?;
+DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
 
 COLON : ':';
 

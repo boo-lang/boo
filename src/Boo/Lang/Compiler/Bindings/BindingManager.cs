@@ -57,13 +57,15 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding ByteTypeBinding;
 		
+		public ExternalTypeBinding ShortTypeBinding;
+		
 		public ExternalTypeBinding IntTypeBinding;
 		
 		public ExternalTypeBinding LongTypeBinding;
 		
 		public ExternalTypeBinding SingleTypeBinding;
 		
-		public ExternalTypeBinding RealTypeBinding;
+		public ExternalTypeBinding DoubleTypeBinding;
 		
 		public ExternalTypeBinding TimeSpanTypeBinding;
 		
@@ -107,10 +109,11 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));
 			Cache(BoolTypeBinding = new ExternalTypeBinding(this, Types.Bool));
 			Cache(ByteTypeBinding = new ExternalTypeBinding(this, Types.Byte));
+			Cache(ShortTypeBinding = new ExternalTypeBinding(this, Types.Short));
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
 			Cache(LongTypeBinding = new ExternalTypeBinding(this, Types.Long));
 			Cache(SingleTypeBinding = new ExternalTypeBinding(this, Types.Single));
-			Cache(RealTypeBinding = new ExternalTypeBinding(this, Types.Real));
+			Cache(DoubleTypeBinding = new ExternalTypeBinding(this, Types.Double));
 			Cache(TimeSpanTypeBinding = new ExternalTypeBinding(this, Types.TimeSpan));
 			Cache(DateTimeTypeBinding = new ExternalTypeBinding(this, Types.DateTime));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
@@ -147,10 +150,10 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ITypeBinding GetPromotedNumberType(ITypeBinding left, ITypeBinding right)
 		{
-			if (left == RealTypeBinding ||
-				right == RealTypeBinding)
+			if (left == DoubleTypeBinding ||
+				right == DoubleTypeBinding)
 			{
-				return RealTypeBinding;
+				return DoubleTypeBinding;
 			}
 			if (left == SingleTypeBinding ||
 				right == SingleTypeBinding)
@@ -161,6 +164,11 @@ namespace Boo.Lang.Compiler.Bindings
 				right == LongTypeBinding)
 			{
 				return LongTypeBinding;
+			}
+			if (left == ShortTypeBinding ||
+				right == ShortTypeBinding)
+			{
+				return ShortTypeBinding;
 			}
 			return left;
 		}
@@ -393,7 +401,8 @@ namespace Boo.Lang.Compiler.Bindings
 			AddPrimitiveType("byte", ByteTypeBinding);
 			AddPrimitiveType("int", IntTypeBinding);
 			AddPrimitiveType("long", LongTypeBinding);
-			AddPrimitiveType("real", RealTypeBinding);
+			AddPrimitiveType("float", SingleTypeBinding);
+			AddPrimitiveType("double", DoubleTypeBinding);
 			AddPrimitive("typeof", _typeOfBinding);
 			AddPrimitive("len", _lenBinding);
 		}

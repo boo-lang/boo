@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -27,26 +27,33 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Pipeline
+using System;
+using Boo.Lang.Ast.Impl;
+
+namespace Boo.Lang.Ast
 {
-	public class RunAssemblyStep : AbstractCompilerComponent, ICompilerStep
-	{
-		public void Run()
+	[Serializable]
+	public class DoubleLiteralExpression : DoubleLiteralExpressionImpl
+	{		
+		public DoubleLiteralExpression()
 		{
-			if (Errors.Count > 0 || CompilerOutputType.Library == CompilerParameters.OutputType)
-			{
-				return;
-			}
-			
-			System.Reflection.MethodInfo method = AstAnnotations.GetAssemblyEntryPoint(CompileUnit);
-			try
-			{
-				method.Invoke(null, null);
-			}
-			catch (System.Reflection.TargetInvocationException x)
-			{				
-				throw x.InnerException;
-			}
+ 		}
+		
+		public DoubleLiteralExpression(double value) : base(value)
+		{
+		}
+		
+		public DoubleLiteralExpression(LexicalInfo lexicalInfo, double value) : base(lexicalInfo, value)
+		{
+		}
+		
+		public DoubleLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		{
+		}
+		
+		public override void Switch(IAstSwitcher switcher)
+		{
+			switcher.OnDoubleLiteralExpression(this);
 		}
 	}
 }

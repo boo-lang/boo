@@ -45,7 +45,8 @@ namespace Boo.Lang.Compiler.Pipeline
 				return;
 			}
 			
-			AssemblyBuilder builder = EmitAssemblyStep.GetAssemblyBuilder(_context);
+			AssemblyBuilder builder = AstAnnotations.GetAssemblyBuilder(CompileUnit);
+			
 			builder.Save(Path.GetFileName(CompilerParameters.OutputAssembly));
 		}	
 	}

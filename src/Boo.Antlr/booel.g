@@ -62,13 +62,13 @@ INT : (DIGIT)+
 	(
 		('l' | 'L') { $setType(LONG); } |
 		(
-	({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(REAL); })?
+	({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
 	(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
 		)
 	)
 	;
 
-DOT : '.' ((DIGIT)+ {$setType(REAL);})?;
+DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
 
 COLON : ':';
 

@@ -236,7 +236,13 @@ done * ERROR: can't redefine primitive: 'string'
 done * operador '=='
 	done * para números é mapeado para instrução il ceq
 	done * para objetos que sobrecarregam o operador op_Equality
-	done * para o restante é mapeado para object.Equals 
+	done * para o restante é mapeado para object.Equals
+	
+done * resolução de operadores sobrecarregados
+
+done * string operators: + and *
+
+done * renomear real para double e criar float
 
 * assembly attributes: [assembly: AssemblyVersion("foo")]
 

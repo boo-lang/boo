@@ -1,7 +1,7 @@
 class Vector3:
-	_x as real
-	_y as real
-	_z as real
+	_x as double
+	_y as double
+	_z as double
 
 	def constructor():
 		r = System.Random()

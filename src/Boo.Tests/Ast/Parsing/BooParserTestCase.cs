@@ -731,7 +731,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void RealSimpleConstants()
 		{
-			RunParserTestCase("real0.boo");
+			RunParserTestCase("double0.boo");
 		}
 		
 		[TestFixtureSetUp]

@@ -38,35 +38,6 @@ namespace Boo.Lang.Compiler.Pipeline
 	{
 		public const string MainModuleMethodName = "__Main__";
 		
-		static object EntryPointKey = new object();
-		
-		static object ModuleClassKey = new object();
-		
-		public static Method GetEntryPoint(CompileUnit node)
-		{
-			return (Method)node[EntryPointKey];
-		}
-		
-		public static ClassDefinition GetModuleClass(Module module)
-		{
-			return (ClassDefinition)module[ModuleClassKey];
-		}
-		
-		void SetModuleClass(Module module, ClassDefinition classDefinition)
-		{
-			module[ModuleClassKey] = classDefinition;
-		}
-		
-		void SetEntryPoint(Method method)
-		{
-			Method current = (Method)CompileUnit[EntryPointKey];
-			if (null != current)
-			{
-				Errors.Add(CompilerErrorFactory.MoreThanOneEntryPoint(method));
-			}
-			CompileUnit[EntryPointKey] = method;
-		}
-		
 		public override void Run()
 		{
 			Switch(CompileUnit.Modules);
@@ -100,7 +71,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				moduleClass.Members.Add(method);
 				
 				node.Globals = null;
-				SetEntryPoint(method);
+				AstAnnotations.SetEntryPoint(CompileUnit, method);
 			}
 			
 			if (moduleClass.Members.Count > 0)
@@ -113,7 +84,7 @@ namespace Boo.Lang.Compiler.Pipeline
 										TypeMemberModifiers.Transient;
 				node.Members.Add(moduleClass);
 				
-				SetModuleClass(node, moduleClass);
+				AstAnnotations.SetModuleClass(node, moduleClass);
 			}
 			
 			Switch(node.Members);

@@ -465,7 +465,7 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 		
-		public override void OnRealLiteralExpression(RealLiteralExpression e)
+		public override void OnDoubleLiteralExpression(DoubleLiteralExpression e)
 		{
 			Write(e.Value.ToString("########0.0##########"));
 		}

@@ -418,7 +418,7 @@ package Boo.Ast
 		IsLong as bool
 	end
 	
-	class RealLiteralExpression(LiteralExpression)
+	class DoubleLiteralExpression(LiteralExpression)
 		Value as double
 	end
 	

@@ -31,6 +31,7 @@
     <File name=".\Lang\Ast\DeclarationStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\DepthFirstSwitcher.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\DepthFirstTransformer.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\DoubleLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\EnumDefinition.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\EnumMember.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\ExceptionHandler.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -75,7 +76,6 @@
     <File name=".\Lang\Ast\ParameterDeclarationCollection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Property.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\RaiseStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\RealLiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\ReferenceExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\RELiteralExpression.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\RetryStatement.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -125,6 +125,7 @@
     <File name=".\Lang\Ast\Impl\DeclarationCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\DeclarationImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\DeclarationStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Ast\Impl\DoubleLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\EnumDefinitionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\EnumMemberImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\ExceptionHandlerCollectionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -160,7 +161,6 @@
     <File name=".\Lang\Ast\Impl\ParameterDeclarationImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\PropertyImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\RaiseStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Lang\Ast\Impl\RealLiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\ReferenceExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\RELiteralExpressionImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Ast\Impl\RetryStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -244,6 +244,7 @@
     <File name=".\Lang\Compiler\Pipeline\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\AstAnnotations.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\AstUtil.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

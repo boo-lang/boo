@@ -67,6 +67,24 @@ namespace Boo.Lang
 			_list = new ArrayList(items);
 		}
 		
+		public static List operator*(List lhs, int count)
+		{
+			List result = new List(lhs.Count*count);
+			for (int i=0; i<count; ++i)
+			{
+				result.Extend(lhs);
+			}
+			return result;
+		}
+		
+		public static List operator+(List lhs, IEnumerable rhs)
+		{
+			List result = new List(lhs.Count);
+			result.Extend(lhs);
+			result.Extend(rhs);
+			return result;
+		}
+		
 		public int Count
 		{
 			get
@@ -128,6 +146,15 @@ namespace Boo.Lang
 			}
 			return this;
 		}
+		
+		public List Extend(IEnumerable enumerable)
+		{
+			foreach (object item in enumerable)
+			{
+				_list.Add(item);
+			}
+			return this;
+		}
 
 		public List Collect(Predicate condition)
 		{
@@ -180,13 +207,7 @@ namespace Boo.Lang
 		
 		public string Join(string separator)
 		{
-			StringBuilder sb = new StringBuilder();			
-			for (int i=0; i<_list.Count; ++i)
-			{
-				if (i>0) { sb.Append(separator); }
-				sb.Append(_list[i]);
-			}
-			return sb.ToString();
+			return Builtins.join(this, separator);
 		}
 		
 		public void Clear()

@@ -779,7 +779,7 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void RealType()
 		{
-			RunCompilerTestCase("real0.boo");
+			RunCompilerTestCase("double0.boo");
 		}
 		
 		[Test]
@@ -930,6 +930,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void RangeBuiltin()
 		{
 			RunCompilerTestCase("range.boo");
+		}
+		
+		[Test]
+		public void StringAddition()
+		{
+			RunCompilerTestCase("stringadd0.boo");
 		}
 	}
 }

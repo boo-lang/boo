@@ -61,6 +61,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		IMethodBinding RuntimeServices_StringContains;
 		
+		IMethodBinding RuntimeServices_StringMultiply;
+		
 		IMethodBinding RuntimeServices_Len;
 		
 		IMethodBinding Object_StaticEquals;
@@ -68,6 +70,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		IMethodBinding Array_get_Length;
 		
 		IMethodBinding String_get_Length;
+		
+		IMethodBinding String_StaticConcat;
 		
 		IMethodBinding ICollection_get_Count;
 		
@@ -103,10 +107,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			RuntimeServices_Contains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Contains");
 			RuntimeServices_StringContains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("StringContains");
+			RuntimeServices_StringMultiply = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("StringMultiply");
 			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
 			Object_StaticEquals = (IMethodBinding)BindingManager.AsBinding(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
+			String_StaticConcat = (IMethodBinding)BindingManager.AsBinding(Types.String.GetMethod("Concat", new Type[] { Types.Object, Types.Object }));
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
 			IList_Contains = (IMethodBinding)BindingManager.IListTypeBinding.Resolve("Contains");
 			IDictionary_Contains = (IMethodBinding)BindingManager.IDictionaryTypeBinding.Resolve("Contains");
@@ -800,9 +806,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnRealLiteralExpression(RealLiteralExpression node)
+		public override void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
-			Bind(node, BindingManager.RealTypeBinding);
+			Bind(node, BindingManager.DoubleTypeBinding);
 		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
@@ -1318,7 +1324,14 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BinaryOperatorType.Addition:
 				{
-					BindArithmeticOperator(node);
+					if (IsString(node.Left))
+					{
+						BindStringAddition(node);
+					}
+					else
+					{
+						BindArithmeticOperator(node);
+					}
 					break;
 				}
 				
@@ -1330,7 +1343,14 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BinaryOperatorType.Multiply:
 				{
-					BindArithmeticOperator(node);
+					if (IsString(node.Left))
+					{
+						BindStringMultiply(node);
+					}
+					else
+					{
+						BindArithmeticOperator(node);
+					}
 					break;
 				}
 				
@@ -1505,10 +1525,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					if (!ResolveOperator(node))
 					{
-						Error(node,
-							CompilerErrorFactory.InvalidOperatorForTypes(node,
-								GetBinaryOperatorText(node.Operator),
-								lhs.FullName, rhs.FullName));
+						InvalidOperatorForTypes(node);
 					}
 				}
 			}
@@ -1544,10 +1561,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 					default:
 					{
-						Error(node,
-								CompilerErrorFactory.InvalidOperatorForTypes(node,
-									GetBinaryOperatorText(node.Operator),
-									lhs.FullName, rhs.FullName));
+						InvalidOperatorForTypes(node);
 						break;
 					}
 				}
@@ -1625,6 +1639,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			Bind(mie.Target, staticMethod);
 			Bind(mie, staticMethod);
+			return mie;
+		}
+		
+		MethodInvocationExpression CreateMethodInvocation(IMethodBinding staticMethod, Expression arg0, Expression arg1)
+		{
+			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0);
+			mie.Arguments.Add(arg1);
 			return mie;
 		}
 		
@@ -1802,13 +1823,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		MethodInvocationExpression CreateEquals(BinaryExpression node)
 		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
-			mie.Target = new ReferenceExpression(Object_StaticEquals.FullName);
-			mie.Arguments.Add(node.Left);
-			mie.Arguments.Add(node.Right);
-			Bind(mie, Object_StaticEquals);
-			Bind(mie.Target, Object_StaticEquals);
-			return mie;
+			return CreateMethodInvocation(Object_StaticEquals, node.Left, node.Right);
 		}
 		
 		UnaryExpression CreateNotExpression(Expression node)
@@ -2066,10 +2081,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 					else
 					{
-						Error(node,
-							CompilerErrorFactory.InvalidOperatorForTypes(node,
-								GetBinaryOperatorText(node.Operator),
-								lhs.FullName, rhs.FullName));
+						InvalidOperatorForTypes(node);
 						return;
 					}
 				}
@@ -2125,6 +2137,23 @@ namespace Boo.Lang.Compiler.Pipeline
 			throw new ArgumentException("op");
 		}
 		
+		void BindStringAddition(BinaryExpression node)
+		{
+			node.ParentNode.Replace(node, CreateMethodInvocation(String_StaticConcat, node.Left, node.Right));
+		}
+		
+		void BindStringMultiply(BinaryExpression node)
+		{
+			if (IsNumber(node.Right))
+			{
+				node.ParentNode.Replace(node, CreateMethodInvocation(RuntimeServices_StringMultiply, node.Left, node.Right));
+			}
+			else
+			{
+				InvalidOperatorForTypes(node);
+			}
+		}
+		
 		void BindArithmeticOperator(BinaryExpression node)
 		{
 			ITypeBinding left = GetExpressionType(node.Left);
@@ -2135,7 +2164,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else if (!ResolveOperator(node))
 			{
-				InvalidOperatorForTypes(node, node.Operator, left, right);
+				InvalidOperatorForTypes(node);
 			}
 		}
 		
@@ -2169,7 +2198,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				InvalidOperatorForTypes(node, node.Operator, GetExpressionType(node.Left), GetExpressionType(node.Right));
+				InvalidOperatorForTypes(node);
 			}
 		}
 		
@@ -2458,6 +2487,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		bool IsIntegerNumber(ITypeBinding type)
 		{
 			return
+				type == BindingManager.ShortTypeBinding ||
 				type == BindingManager.IntTypeBinding ||
 				type == BindingManager.LongTypeBinding ||
 				type == BindingManager.ByteTypeBinding;
@@ -2467,8 +2497,18 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			return
 				IsIntegerNumber(type) ||
-				type == BindingManager.RealTypeBinding ||
+				type == BindingManager.DoubleTypeBinding ||
 				type == BindingManager.SingleTypeBinding;
+		}
+		
+		bool IsNumber(Expression expression)
+		{
+			return IsNumber(GetExpressionType(expression));
+		}
+		
+		bool IsString(Expression expression)
+		{
+			return BindingManager.StringTypeBinding == GetExpressionType(expression);
 		}
 		
 		IConstructorBinding FindCorrectConstructor(Node sourceNode, ITypeBinding typeBinding, ExpressionCollection arguments)
@@ -2833,9 +2873,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			throw CompilerErrorFactory.NotImplemented(node, feature);
 		}
 		
-		void InvalidOperatorForTypes(BinaryExpression node, BinaryOperatorType op, ITypeBinding left, ITypeBinding right)
-		{			
-			Error(node, CompilerErrorFactory.InvalidOperatorForTypes(node, GetBinaryOperatorText(op), left.FullName, right.FullName));
+		void InvalidOperatorForTypes(BinaryExpression node)
+		{					
+			Error(node, CompilerErrorFactory.InvalidOperatorForTypes(node,
+							GetBinaryOperatorText(node.Operator),
+							GetExpressionType(node.Left).FullName,
+							GetExpressionType(node.Right).FullName));
 		}
 		
 		void Error(Node node, CompilerError error)

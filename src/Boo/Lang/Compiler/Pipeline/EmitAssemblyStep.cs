@@ -40,38 +40,7 @@ using Boo.Lang.Compiler.Bindings;
 namespace Boo.Lang.Compiler.Pipeline
 {
 	public class EmitAssemblyStep : AbstractSwitcherCompilerStep
-	{		
-		public static MethodInfo GetEntryPoint(CompileUnit cu)
-		{
-			return (MethodInfo)cu[EntryPointKey];
-		}
-		
-		public static AssemblyBuilder GetAssemblyBuilder(CompilerContext context)
-		{
-			AssemblyBuilder builder = (AssemblyBuilder)context.CompileUnit[AssemblyBuilderKey];
-			if (null == builder)
-			{
-				throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
-			}
-			return builder;
-		}
-		
-		public static ModuleBuilder GetModuleBuilder(CompilerContext context)
-		{
-			ModuleBuilder builder = (ModuleBuilder)context.CompileUnit[ModuleBuilderKey];
-			if (null == builder)
-			{
-				throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
-			}
-			return builder;
-		}
-		
-		static object EntryPointKey = new object();
-		
-		static object AssemblyBuilderKey = new object();
-		
-		static object ModuleBuilderKey = new object();
-		
+	{	
 		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.ObjectArray });
 		
 		static MethodInfo String_Format1 = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.Object });
@@ -1285,10 +1254,10 @@ namespace Boo.Lang.Compiler.Pipeline
 			}			
 		}
 		
-		public override void OnRealLiteralExpression(RealLiteralExpression node)
+		public override void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldc_R8, node.Value);
-			PushType(BindingManager.RealTypeBinding);
+			PushType(BindingManager.DoubleTypeBinding);
 		}
 		
 		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -2065,7 +2034,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				return OpCodes.Conv_R4;
 			}
-			else if (type == BindingManager.RealTypeBinding)
+			else if (type == BindingManager.DoubleTypeBinding)
 			{
 				return OpCodes.Conv_R8;
 			}
@@ -2094,7 +2063,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (CompilerOutputType.Library != CompilerParameters.OutputType)
 			{				
-				Method method = AstNormalizationStep.GetEntryPoint(CompileUnit);
+				Method method = AstAnnotations.GetEntryPoint(CompileUnit);
 				if (null != method)
 				{
 					Type type = _asmBuilder.GetType(method.DeclaringType.FullName, true);
@@ -2108,7 +2077,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					
 					// for the rest of the world (like RunAssemblyStep)
 					// the created method is the way to go
-					CompileUnit[EntryPointKey] = createdMethod;
+					AstAnnotations.SetAssemblyEntryPoint(CompileUnit, createdMethod);
 				}
 				else
 				{
@@ -2691,8 +2660,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(CompilerParameters.OutputAssembly));
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(CompilerParameters.OutputAssembly), true);			
-			CompileUnit[AssemblyBuilderKey] = _asmBuilder;
-			CompileUnit[ModuleBuilderKey] = _moduleBuilder;
+			AstAnnotations.SetAssemblyBuilder(CompileUnit, _asmBuilder);
 		}
 	}
 }
