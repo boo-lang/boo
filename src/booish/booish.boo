@@ -284,6 +284,9 @@ class InteractiveInterpreter:
 		override def Dispose():
 			_namespace = null
 			
+		override def OnConstructor(node as Constructor):
+			OnMethod(node)
+			
 		override def OnMethod(node as Method):
 			_isEntryPoint = node is Steps.ContextAnnotations.GetEntryPoint(Context);
 			super(node)

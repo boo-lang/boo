@@ -3333,7 +3333,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Bind(node, sliceTargetType.GetElementType());
+			node.ExpressionType = sliceTargetType.GetElementType();
 		}
 		
 		void BindAssignmentToSliceProperty(BinaryExpression node)

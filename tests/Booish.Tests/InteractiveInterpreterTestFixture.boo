@@ -75,6 +75,26 @@ class InteractiveInterpreterTestFixture:
 		Eval("a, b = 1, 2")
 		assert 1 == _interpreter.GetValue("a")
 		assert 2 == _interpreter.GetValue("b")
+		
+	[Test]
+	def ArraySlicing():
+		Eval("a = 1, 2, 3")
+		Eval("a1 = a[0]")
+		Eval("a12 = a[0:-1]")
+		Eval("a3 = a[-1]")
+		
+		assert _interpreter.GetValue("a") == (1, 2, 3)
+		assert _interpreter.GetValue("a1") == 1
+		assert _interpreter.GetValue("a12") == (1, 2)
+		assert _interpreter.GetValue("a3") == 3
+		
+	[Test]
+	def AssignmentToSlice():
+		Eval("a = 1, 2, 3")
+		Eval("a[-1] = 1")
+		Eval("a[0] = 3")
+		
+		assert _interpreter.GetValue("a") == (3, 2, 1)
 			
 	[Test]
 	def ChangeInterpreterValues():
