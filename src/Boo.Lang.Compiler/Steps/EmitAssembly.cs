@@ -228,6 +228,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Boo.Lang.List _types;
 			
+			TypeMember _current;
+			
 			public TypeCreator(EmitAssembly emitter, Boo.Lang.List types)
 			{
 				_emitter = emitter;
@@ -260,10 +262,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		
 			void CreateType(TypeMember type)
-			{	
+			{					 
 				if (!_created.ContainsKey(type))
 				{
+					TypeMember saved = _current;
+					_current = type;
+					
 					_created.Add(type, type);
+					
+					Trace("creating type '{0}'", type);
+					
+					if (IsNestedType(type))
+					{
+						CreateType((TypeMember)type.ParentNode);
+					}
 					
 					TypeDefinition typedef = type as TypeDefinition;
 					if (null != typedef)
@@ -278,14 +290,43 @@ namespace Boo.Lang.Compiler.Steps
 						}
 					}
 					_emitter.GetTypeBuilder(type).CreateType();
+					
+					Trace("type '{0}' successfully created", type);
+					
+					_current = saved;
 				}
+			}
+			
+			bool IsNestedType(TypeMember type)
+			{
+				NodeType parent = type.ParentNode.NodeType;
+				return (NodeType.ClassDefinition == parent) ||
+						(NodeType.InterfaceDefinition == parent);
 			}
 			
 			Assembly OnTypeResolve(object sender, ResolveEventArgs args)
 			{	
-				// TODO: Implement enum resolution here
-				_emitter.Context.TraceVerbose("OnTypeResolve('{0}')", args.Name);
-				return null;
+				Trace("OnTypeResolve('{0}') during '{1}' creation.", args.Name, _current);
+				
+				ClassDefinition classdef = _current as ClassDefinition;
+				foreach (TypeMember member in classdef.Members)
+				{
+					if (NodeType.Field == member.NodeType)
+					{
+						AbstractInternalType type = _emitter.GetType(((Field)member).Type) as AbstractInternalType;
+						if (type != null && type.IsValueType)
+						{
+							CreateType(type.TypeDefinition);
+						}
+					}
+				}
+
+				return _emitter._asmBuilder;
+			}
+			
+			void Trace(string format, params object[] args)
+			{
+				_emitter.Context.TraceVerbose(format, args);
 			}
 		}
 		
