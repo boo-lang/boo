@@ -52,10 +52,15 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit42.xml" FILE_NAME_GLOB="*.b
 			<END>'</END>
 		</SPAN>
 		
+		<SPAN TYPE="MARKUP" NO_LINE_BREAK="TRUE">
+			<BEGIN>@/</BEGIN>
+			<END>/</END>
+		</SPAN>
+		
 		<SEQ_REGEXP TYPE="MARKUP"
                         HASH_CHAR="/"
                         AT_WORD_START="TRUE"
-                >/[^[:blank:]]*?[^\\]/</SEQ_REGEXP>
+                >/[^[:blank:]]*?/</SEQ_REGEXP>
 
 		
 		<!--

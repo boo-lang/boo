@@ -2123,6 +2123,8 @@ WS :
 		
 EOS: ';';
 
+X_RE_LITERAL: '@'!'/' (X_RE_CHAR)+ '/' { $setType(RE_LITERAL); };
+
 protected
 NEWLINE:
 	(
@@ -2167,7 +2169,10 @@ protected
 RE_LITERAL : '/' (RE_CHAR)+ '/';
 
 protected
-RE_CHAR : RE_ESC | ~('/' | '\\' | '\r' | '\n');
+RE_CHAR : RE_ESC | ~('/' | '\\' | '\r' | '\n' | ' ' | '\t' );
+
+protected
+X_RE_CHAR: RE_CHAR | ' ' | '\t';
 
 
 protected

@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 	{		
 		static Regex _identifierRE = new Regex("^[a-zA-Z.]+$");
 		
+		static Regex _extendedRE = new Regex(@"\s");
+		
 		public BooPrinterVisitor(TextWriter writer) : base(writer)
 		{
 		}
@@ -93,6 +95,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteKeyword("namespace");
 			WriteLine(" {0}", node.Name);
 			WriteLine();
+		}
+		
+		bool IsExtendedRE(string s)
+		{
+			return _extendedRE.IsMatch(s);
 		}
 		
 		bool IsSimpleIdentifier(string s)
@@ -486,6 +493,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnRELiteralExpression(RELiteralExpression e)
 		{			
+			if (IsExtendedRE(e.Value))
+			{
+				Write("@");
+			}
 			Write(e.Value);
 		}
 
