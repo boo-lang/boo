@@ -106,6 +106,7 @@ Boo.Lang.Compiler.GlobalNamespaceIsNotSet=Global namespace is not set!
 
 ;BooC Messages
 BooC.Errors={0} error(s).
+BooC.Warnings={0} warning(s).
 BooC.ProcessingTime={0} module(s) processed in {1}ms after {2}ms of environment setup.
 BooC.FatalError=Fatal error: {0}.
 BooC.InvalidOption=Invalid option: {0}.

@@ -87,9 +87,14 @@ namespace BooC
 					resultCode = 0;
 				}
 				
-				if (options.TraceSwitch.TraceWarning)
-				{			
+				if (context.Warnings.Count > 0)
+				{
 					Console.WriteLine(context.Warnings);
+					Console.WriteLine(Boo.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
+				}
+				
+				if (options.TraceSwitch.TraceWarning)
+				{						
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));					
 				}
 			}
