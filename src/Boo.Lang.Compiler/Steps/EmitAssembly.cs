@@ -3375,7 +3375,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IConstructor constructor = (IConstructor)GetEntity(node);
 			ConstructorInfo constructorInfo = GetConstructorInfo(constructor);
-			object[] constructorArgs = GetValues(node.Arguments);
+			object[] constructorArgs = GetValues(constructor.GetParameters(),
+													node.Arguments);
 			
 			ExpressionPairCollection namedArgs = node.NamedArguments;
 			if (namedArgs.Count > 0)
@@ -3406,17 +3407,18 @@ namespace Boo.Lang.Compiler.Steps
 			Boo.Lang.List namedFields = new Boo.Lang.List();
 			Boo.Lang.List fieldValues = new Boo.Lang.List();
 			foreach (ExpressionPair pair in values)
-			{
-				IEntity tag = GetEntity(pair.First);
-				if (EntityType.Property == tag.EntityType)
+			{				
+				ITypedEntity entity = (ITypedEntity)GetEntity(pair.First);
+				object value = GetValue(entity.Type, pair.Second);
+				if (EntityType.Property == entity.EntityType)
 				{
-					namedProperties.Add(GetPropertyInfo(tag));
-					propertyValues.Add(GetValue(pair.Second));
+					namedProperties.Add(GetPropertyInfo(entity));
+					propertyValues.Add(value);
 				}
 				else
 				{
-					namedFields.Add(GetFieldInfo((IField)tag));
-					fieldValues.Add(GetValue(pair.Second));
+					namedFields.Add(GetFieldInfo((IField)entity));
+					fieldValues.Add(value);
 				}
 			}
 			
@@ -3426,17 +3428,17 @@ namespace Boo.Lang.Compiler.Steps
 			outFieldValues = (object[])fieldValues.ToArray();
 		}
 		
-		object[] GetValues(ExpressionCollection expressions)
+		object[] GetValues(IParameter[] targetParameters, ExpressionCollection expressions)
 		{
 			object[] values = new object[expressions.Count];
 			for (int i=0; i<values.Length; ++i)
 			{
-				values[i] = GetValue(expressions[i]);
+				values[i] = GetValue(targetParameters[i].Type, expressions[i]);
 			}
 			return values;
 		}
 		
-		object GetValue(Expression expression)
+		object GetValue(IType expectedType, Expression expression)
 		{
 			switch (expression.NodeType)
 			{
@@ -3448,6 +3450,18 @@ namespace Boo.Lang.Compiler.Steps
 				case NodeType.BoolLiteralExpression:
 				{
 					return ((BoolLiteralExpression)expression).Value;
+				}
+				
+				case NodeType.IntegerLiteralExpression:
+				{
+					return ConvertValue(expectedType,
+							((IntegerLiteralExpression)expression).Value);					
+				}
+				
+				case NodeType.DoubleLiteralExpression:
+				{
+					return ConvertValue(expectedType,
+							((DoubleLiteralExpression)expression).Value);
 				}
 				
 				case NodeType.TypeofExpression:
@@ -3473,8 +3487,13 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 			}
-			NotImplemented(expression, "Expression value");
+			NotImplemented(expression, "Expression value: " + expression);
 			return null;
+		}
+		
+		object ConvertValue(IType expectedType, object value)
+		{
+			return Convert.ChangeType(value, GetSystemType(expectedType));
 		}
 		
 		void DefineTypeMembers(TypeDefinition typeDefinition)
