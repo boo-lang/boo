@@ -58,6 +58,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly Type Object = typeof(object);
 		
+		public static readonly Type ValueType = typeof(System.ValueType);
+		
 		public static readonly Type Array = typeof(Array);
 		
 		public static readonly Type ObjectArray = Type.GetType("System.Object[]");

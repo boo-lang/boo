@@ -58,6 +58,14 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
+		public virtual bool IsValid
+		{
+			get
+			{
+				return (_line > 0) && (_column > 0);
+			}
+		}
+		
 		override public string ToString()
 		{
 			return string.Format("({0},{1})", _line, _column);
@@ -80,13 +88,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public bool IsValid
+		override public bool IsValid
 		{
 			get
 			{
-				return null != _filename &&
-						(_line > 0) &&
-						(_column > 0);
+				return null != _filename && base.IsValid;					
 			}
 		}
 

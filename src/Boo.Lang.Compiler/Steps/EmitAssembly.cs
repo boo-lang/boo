@@ -1540,15 +1540,15 @@ namespace Boo.Lang.Compiler.Steps
 				IType targetType = target.ExpressionType;
 				if (targetType.IsValueType)
 				{	
-					if (targetType.IsEnum || mi.DeclaringType == Types.Object)
+					if (mi.DeclaringType.IsValueType)
+					{
+						LoadAddress(target);
+					}
+					else
 					{
 						Visit(node.Target); 
 						EmitBox(PopType());						
 						code = OpCodes.Callvirt;
-					}
-					else
-					{
-						LoadAddress(target);
 					}
 				}
 				else
@@ -3334,7 +3334,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (IsValueType(type))
 			{
-				baseType = typeof(System.ValueType);
+				baseType = Types.ValueType;
 			}
 
 			TypeBuilder typeBuilder = null;
