@@ -178,43 +178,43 @@ namespace Boo.Tests.Ast.Compiler
 		[Test]
 		public void TestImportSimpleNamespace()
 		{
-			RunCompilerTestCase("using0.boo", "using System");
+			RunCompilerTestCase("import0.boo", "import System");
 		}		
 			
 		[Test]
 		public void TestImportQualifiedType()
 		{
-			RunCompilerTestCase("using1.boo", "using System.Console");
+			RunCompilerTestCase("import1.boo", "import System.Console");
 		}
 		
 		[Test]
 		public void TestImportQualifiedNamespace()
 		{
-			RunCompilerTestCase("using2.boo", "using System.Text");
+			RunCompilerTestCase("import2.boo", "import System.Text");
 		}
 		
 		[Test]
 		public void TestImportAssemblyQualifiedNamespace()
 		{
-			RunCompilerTestCase("using3.boo", "using System.Drawing from System.Drawing");
+			RunCompilerTestCase("import3.boo", "import System.Drawing from System.Drawing");
 		}
 		
 		[Test]
 		public void TestImportAlias()
 		{
-			RunCompilerTestCase("using4.boo", "using System as S");
+			RunCompilerTestCase("import4.boo", "import System as S");
 		}
 		
 		[Test]
 		public void TestImportAssemblyQualifiedNamespace2()
 		{
-			RunCompilerTestCase("using5.boo", "using System.Drawing from different assembly");
+			RunCompilerTestCase("import5.boo", "import System.Drawing from different assembly");
 		}
 		
 		[Test]
 		public void TestImportSameAssemblyQualifiedNamespaces()
 		{
-			RunCompilerTestCase("using6.boo", "using System.Drawing from two assemblies");
+			RunCompilerTestCase("import6.boo", "import System.Drawing from two assemblies");
 		}
 		
 		[Test]

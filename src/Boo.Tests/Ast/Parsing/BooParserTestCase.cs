@@ -707,7 +707,7 @@ namespace Boo.Tests.Ast.Parsing
 		[Test]
 		public void TestImport()
 		{
-			RunParserTestCase("using.boo");
+			RunParserTestCase("import.boo");
 		}
 		
 		[Test]

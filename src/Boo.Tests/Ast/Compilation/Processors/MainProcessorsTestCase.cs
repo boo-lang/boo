@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -27,22 +27,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using NUnit.Framework;
-using Boo.Tests;
-using Boo.Antlr;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Pipeline;
-
 namespace Boo.Tests.Ast.Compiler.Processors
 {
-	/// <summary>
-	/// Summary description for ModuleProcessor.
-	/// </summary>
-	[TestFixture]
-	public class MainProcessorsTestCase : Assertion
-	{
-		protected CompilerContext _context;
-	}
 }
 

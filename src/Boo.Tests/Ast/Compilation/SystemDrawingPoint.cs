@@ -27,7 +27,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-// for assembly qualified using testing 
+// for assembly qualified import testing 
 namespace System.Drawing
 {
 	public class Point
