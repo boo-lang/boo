@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// The compiler: a façade to the CompilerParameters/CompilerContext/Pipeline subsystem.
 	/// </summary>
-	public class BooCompiler
+	public class BooCompiler : System.MarshalByRefObject
 	{
 		CompilerParameters _parameters;
 

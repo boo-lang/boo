@@ -1,4 +1,25 @@
-﻿* booi: opçoes e um único script
+﻿* Pipeline.InsertBefore, Pipeline.InsertAfter
+	<pipeline extends='core'>
+		<step id='stylechecker' insertAfter='parser' type='..' />
+		<step id='trace' insertBefore='emit' type='..' />
+	</pipeline>
+	
+* pipeline.xsd
+	
+* artigo "Estendendo o compilador utilizando pipelines", 
+	exemplos:
+		stylechecker step,
+		trace step
+		
+* artigo "Estendendo a linguagem utilizando macros e atributos"
+	using, lock
+	
+
+* booi: opçoes e um único script
+	* booi /c:pt-BR /r:Foo.dll /i:aux.boo foo.boo 1 2 3
+		argv do script seria (1, 2, 3), os argumentos que ocorrem
+		antes do primeiro nome simples de arquivo (foo.boo) seriam
+		consumidos pelo próprio boo
 
 * map(callable, enumerable)
 

@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
 <pipeline extends="core">
-	<step type='Boo.Lang.Compiler.Pipeline.EmitAssemblyStep, Boo' />
+	<step id="emit" type='Boo.Lang.Compiler.Pipeline.EmitAssemblyStep, Boo' />
 </pipeline>

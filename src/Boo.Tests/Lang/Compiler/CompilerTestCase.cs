@@ -31,6 +31,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Security.Policy;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipeline;
@@ -234,7 +235,7 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			Assert.AreEqual(CompilerOutputType.ConsoleApplication, _parameters.OutputType,
 					"Default compiler output type must be ConsoleApplication."); 
-		}
+		}		
 		
 		[Test]
 		public void TestDefaultAssemblyReferences()

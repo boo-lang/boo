@@ -34,6 +34,7 @@ namespace Boo.Lang.Compiler.IO
 	/// <summary>
 	/// File based compiler input.
 	/// </summary>
+	[Serializable]
 	public class FileInput : Boo.Lang.Compiler.ICompilerInput
 	{
 		string _fname;

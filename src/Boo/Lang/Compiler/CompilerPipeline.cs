@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler
 	/// A group of <see cref="ICompilerComponent"/> implementations
 	/// that should be executed in sequence.
 	/// </summary>
-	public class CompilerPipeline
+	public class CompilerPipeline : System.MarshalByRefObject
 	{
 		ArrayList _steps;
 		

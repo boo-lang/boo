@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
-<pipeline>
-
-	<step type='Boo.AntlrParser.BooParsingStep, Boo.AntlrParser' />
-	<step type='Boo.Lang.Compiler.Pipeline.ImportResolutionStep, Boo' />
-	<step type='Boo.Lang.Compiler.Pipeline.AstAttributesStep, Boo' />
-	<step type='Boo.Lang.Compiler.Pipeline.MacroExpansionStep, Boo' />
-	<step type='Boo.Lang.Compiler.Pipeline.AstNormalizationStep, Boo' />
-	<step type='Boo.Lang.Compiler.Pipeline.SemanticStep, Boo' />
+<pipeline xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="pipeline.xsd">
+	
+	<step id="parse" type='Boo.AntlrParser.BooParsingStep, Boo.AntlrParser' />
+	<step id="import" type='Boo.Lang.Compiler.Pipeline.ImportResolutionStep, Boo' />
+	<step id="attributes" type='Boo.Lang.Compiler.Pipeline.AstAttributesStep, Boo' />
+	<step id="macros" type='Boo.Lang.Compiler.Pipeline.MacroExpansionStep, Boo' />
+	<step id="normalization" type='Boo.Lang.Compiler.Pipeline.AstNormalizationStep, Boo' />
+	<step id="semantics" type='Boo.Lang.Compiler.Pipeline.SemanticStep, Boo' />
 
 </pipeline>

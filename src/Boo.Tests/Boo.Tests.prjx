@@ -14,6 +14,7 @@
     <File name=".\Lang\Compiler\SemanticsTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\SystemDrawingPoint.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Processors\AstAttributeProcessorTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\AppDomainRelatedTestCase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Project" refto="Boo" localcopy="True" />

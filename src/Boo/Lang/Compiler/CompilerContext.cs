@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// boo compilation context.
 	/// </summary>
-	public class CompilerContext
+	public class CompilerContext : System.MarshalByRefObject
 	{				
 		protected CompilerParameters _parameters;
 

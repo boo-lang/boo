@@ -75,9 +75,10 @@ namespace Boo.Tests.Lang.Compiler
 		[SetUp]
 		public virtual void SetUpTest()
 		{
-			_parameters.Input.Clear();
-			
 			System.Threading.Thread current = System.Threading.Thread.CurrentThread;
+			
+			_parameters.Input.Clear();			
+			
 			current.CurrentCulture = current.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;			
 		}		
 		

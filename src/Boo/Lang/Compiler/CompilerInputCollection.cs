@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -27,14 +27,14 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-
 namespace Boo.Lang.Compiler
 {
+	using System;
+	
 	/// <summary>
 	/// A collection of <see cref="ICompilerInput"/> objects.
 	/// </summary>
-	public class CompilerInputCollection : System.Collections.CollectionBase
+	public class CompilerInputCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
 	{
 		public ICompilerInput this[int index]
 		{

@@ -276,6 +276,7 @@
     <File name=".\Resources\parse.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
     <File name=".\Resources\roundtrip.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
     <File name="..\..\build\strings.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name=".\Resources\boom.pipeline" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
   </Contents>
   <References />
   <DeploymentInformation target="" script="" strategy="File" />

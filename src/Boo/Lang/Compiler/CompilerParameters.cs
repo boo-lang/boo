@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Compiler parameters.
 	/// </summary>
-	public class CompilerParameters
+	public class CompilerParameters : System.MarshalByRefObject
 	{
 		CompilerPipeline _pipeline;
 
@@ -117,11 +117,11 @@ namespace Boo.Lang.Compiler
 			{
 				if (null == value)
 				{
-					throw new ArgumentNullException("value");
+					throw new ArgumentNullException("OutputAssembly");
 				}
 				if (0 == value.Length)
 				{
-					throw new ArgumentException("value");
+					throw new ArgumentException("OutputAssembly");
 				}
 				_outputAssembly = value;
 			}

@@ -52,8 +52,7 @@ class AssemblyResolver:
 		return asm
 		
 	def probeFile(fname as string):	
-		if File.Exists(fname):		
-			return Assembly.LoadFrom(fname)
+		return Assembly.LoadFrom(fname) if File.Exists(fname)
 
 
 def main(argv as (string)):

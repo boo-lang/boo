@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Compiler errors.
 	/// </summary>
-	public class CompilerErrorCollection : System.Collections.CollectionBase
+	public class CompilerErrorCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
 	{
 		public CompilerErrorCollection()
 		{
