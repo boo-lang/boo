@@ -14,6 +14,8 @@
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock
 	
+* recursos
+	
 * CallableTypeBinding
 	* para funçoes
 	* para delegates (o tipo de um evento seria o CallableTypeBinding equivalente ao delegate)
