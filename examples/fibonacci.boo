@@ -4,5 +4,5 @@ def fibonacci():
 		yield b
 		a, b = b, a+b
 
-for index, element in zip(range(5), fibonacci()):
+for index as int, element in zip(range(5), fibonacci()):
 	print("${index+1}: ${element}")
