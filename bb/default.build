@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="BooInBoo" default="test">
+<project name="MetaBoo" default="test">
 
 	<property name="nunit.framework.dll" value="${nant.location}/nunit.framework.dll" />
 
@@ -8,28 +8,28 @@
 			<formatter type="Plain" />
 			<test>
 				<assemblies basedir="build">
-					<includes name="BooInBoo.Tests.dll" />
+					<includes name="MetaBoo.Tests.dll" />
 				</assemblies>
 			</test>
 		</nunit2>
 	</target>
 
 	<target name="compile-tests" depends="compile">	
-		<booc target="library" output="build/BooInBoo.Tests.dll">
-			<sources basedir="BooInBoo.Tests">
+		<booc target="library" output="build/MetaBoo.Tests.dll">
+			<sources basedir="MetaBoo.Tests">
 				<includes name="**/*.boo" />
 			</sources>
 			
 			<references basedir="build">
-				<includes name="BooInBoo.dll" />
+				<includes name="MetaBoo.dll" />
 				<includes name="${nunit.framework.dll}" />
 			</references>
 		</booc>
 	</target>
 
 	<target name="compile" depends="init">
-		<booc target="library" output="build/BooInBoo.dll">
-			<sources basedir="BooInBoo">
+		<booc target="library" output="build/MetaBoo.dll">
+			<sources basedir="MetaBoo">
 				<includes name="**/*.boo" />
 			</sources>
 		</booc>
