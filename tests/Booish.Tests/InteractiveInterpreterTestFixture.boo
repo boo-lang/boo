@@ -404,13 +404,13 @@ class Customer(object):
         get
         set
 
-    def GetHashCode() as int
-
     def Equals(obj as object) as bool
 
-    def ToString() as string
+    def GetHashCode() as int
 
     def GetType() as System.Type
+
+    def ToString() as string
 
 """
 		Assert.AreEqual(expected, buffer.ToString().Replace("\r\n", "\n"))

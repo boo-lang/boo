@@ -213,19 +213,22 @@ class InteractiveInterpreter:
 			_print("${indent}def constructor(${describeParameters(ctor.GetParameters())})")
 			_print("")
 			
-		for f in type.GetFields():
+		sortByName = def (lhs as Reflection.MemberInfo, rhs as Reflection.MemberInfo):
+			return lhs.Name.CompareTo(rhs.Name)
+			
+		for f as Reflection.FieldInfo in List(type.GetFields()).Sort(sortByName):
 			_print("${indent}public ${describeModifiers(f)}${f.Name} as ${getBooTypeName(f.FieldType)}")
 			_print("")
 			
-		for p in type.GetProperties():
+		for p as Reflection.PropertyInfo in List(type.GetProperties()).Sort(sortByName):
 			modifiers = describeModifiers(p)
 			params = describePropertyParameters(p.GetIndexParameters())
 			_print("${indent}${modifiers}${p.Name}${params} as ${getBooTypeName(p.PropertyType)}:")
 			_print("${indent}${indent}get") if p.GetGetMethod() is not null
 			_print("${indent}${indent}set") if p.GetSetMethod() is not null
-			_print("")
-			
-		for m in type.GetMethods():
+			_print("")		
+		
+		for m as Reflection.MethodInfo in List(type.GetMethods()).Sort(sortByName):
 			continue if m.IsSpecialName
 			modifiers = describeModifiers(m)
 			returnType = getBooTypeName(m.ReturnType)
