@@ -3638,11 +3638,11 @@ namespace Boo.Lang.Compiler.Steps
 		Version GetAssemblyVersion()
 		{
 			string version = GetAssemblyAttributeValue("System.Reflection.AssemblyVersionAttribute");
-			if (null != version)
+			if (null == version)
 			{
-				return new Version(version);
+				version = "0.0.0.0";
 			}
-			return null;
+			return new Version(version);
 		}
 		
 		string GetAssemblyAttributeValue(string name)
