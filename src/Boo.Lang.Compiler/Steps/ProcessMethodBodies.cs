@@ -1470,7 +1470,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsComplexSlicing(SlicingExpression node)
 		{						
-			Slice slice = node.Indices[0];
+			foreach (Slice slice in node.Indices)
+			{
+				if (IsComplexSlice(slice))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		bool IsComplexSlice(Slice slice)
+		{
 			return null != slice.End || null != slice.Step || OmittedExpression.Default == slice.Begin;
 		}
 		
@@ -1625,18 +1636,20 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
+		void AssertSingleSlice(SlicingExpression node)
+		{
+			if (1 != node.Indices.Count)
+			{
+				NotImplemented(node, "multi dimensional slicing");
+			}
+		}
+		
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
 			IType targetType = GetExpressionType(node.Target);
 			if (TypeSystemServices.IsError(targetType))
 			{
 				Error(node);
-				return;
-			}
-			
-			if (1 != node.Indices.Count)
-			{
-				NotImplemented(node, "multi dimensional slicing");
 				return;
 			}
 			
@@ -1649,6 +1662,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (targetType.IsArray)
 				{
+					AssertSingleSlice(node);
+					
 					IArrayType arrayType = (IArrayType)targetType;
 					if (arrayType.GetArrayRank() != 1)
 					{
@@ -1669,6 +1684,8 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsComplexSlicing(node))
 					{
+						AssertSingleSlice(node);
+						
 						if (TypeSystemServices.StringType == targetType)
 						{
 							BindComplexStringSlicing(node);
@@ -1716,10 +1733,12 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			Slice index = node.Indices[0];
 			
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
-			mie.Arguments.Add(index.Begin);
+			foreach (Slice index in node.Indices)
+			{
+				mie.Arguments.Add(index.Begin);
+			}
 			
 			IMethod getter = null;
 			
