@@ -225,15 +225,6 @@
     <File name=".\Ast\Impl\WhenClauseImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\WhileStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\YieldStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\BooExpressionLexer.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\BooExpressionLexerTokenTypes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\BooLexer.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\BooParser.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\BooParserBase.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\BooToken.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\BooTokenTypes.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\Util\IndentTokenStreamFilter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Parsing\Util\TokenStreamRecorder.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Visiting\BooPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Visiting\PseudoCSharpPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Visiting\TextEmitter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -247,9 +238,7 @@
     <File name=".\Lang\RequiredAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\RuntimeServices.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
-  <References>
-    <Reference type="Assembly" refto="..\..\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
-  </References>
+  <References />
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="False" name="Debug">
     <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
