@@ -16,8 +16,6 @@ d_ushort + d_ushort != System.UInt16 ==> System.Int32
 d_int + d_uint != System.UInt32 ==> System.Int64
 d_int + d_ulong != System.UInt64 ==> System.Int64
 d_long + d_ulong != System.UInt64 ==> System.Int64
-exception: d_single + d_decimal
-exception: d_double + d_decimal
 """
 _sbyte as System.SByte = cast(System.IConvertible, 2).ToSByte(null)
 _byte as byte = 2

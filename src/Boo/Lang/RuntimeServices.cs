@@ -702,22 +702,9 @@ namespace Boo.Lang
  * In both of the above cases, a cast expression can be used to explicitly convert one operand to a type that is
  * compatible with the other operand.
  */
- 			if (TypeCode.Decimal == lhsTypeCode)
+			if (TypeCode.Decimal == lhsTypeCode || TypeCode.Decimal == rhsTypeCode)
 			{
-				if (TypeCode.Double == rhsTypeCode || TypeCode.Single == rhsTypeCode)
-				{
-//					throw new ArgumentException("decimal <op> " + rhsTypeCode);
-					return TypeCode.Decimal;	// not per ECMA spec
-				}
-				return TypeCode.Decimal;
-			}
- 			if (TypeCode.Decimal == rhsTypeCode)
-			{
-				if (TypeCode.Double == lhsTypeCode || TypeCode.Single == lhsTypeCode)
-				{
-					throw new ArgumentException(lhsTypeCode + " <op> decimal");
-				}
-				return TypeCode.Decimal;
+				return TypeCode.Decimal;	// not per ECMA spec
 			}
 			if (TypeCode.Double == lhsTypeCode || TypeCode.Double == rhsTypeCode)
 			{
