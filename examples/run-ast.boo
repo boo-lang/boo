@@ -1,4 +1,5 @@
 import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Pipeline
 import Boo.Lang.Compiler.Ast
 
 class CodeGeneratorStep(AbstractCompilerStep):

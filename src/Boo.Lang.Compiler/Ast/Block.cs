@@ -61,5 +61,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			_statements.Add(new ExpressionStatement(expression));
 		}
+		
+		public void Insert(int index, Expression expression)
+		{
+			_statements.Insert(index, new ExpressionStatement(expression));
+		}
 	}
 }

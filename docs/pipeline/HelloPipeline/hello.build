@@ -15,7 +15,7 @@
 	
 	<target name="compile-example" depends="compile-pipeline"> 
 		<booc target="exe"
-			output="build/Hello.exe"
+			output="build/HelloWorld.exe"
 			pipeline="HelloPipeline.HelloPipelineDefinition, HelloPipeline">
 			
 			<sources basedir=".">

@@ -10,11 +10,10 @@ done * definição de pipelines em código:
 		
 	[PipelineDefinition("booi")]
 	
-* artigo "Estendendo o compilador utilizando pipelines", 
+done * artigo "Estendendo o compilador utilizando pipelines", 
 	exemplos:		
-		done stylechecker step,
-		trace step,
-		codegenerator step
+		done * stylechecker step,
+		done * trace step
 		
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock
@@ -91,6 +90,12 @@ que precisarem? Isso iria permitir remover os casts de EmitAssemblyStep
 
 * module attributes: [module: ]
 
+* raise sem parâmetros dentro de um except:
+	try:
+		raise "foo"
+	except:
+		raise // reraise current exception
+
 * remover DepthFirstTransformer pois não é mais necessário e só confunde...
 
 * modo MACRO de compilação (ver macro.boo)
@@ -143,7 +148,7 @@ Milestone 3.9 (better error checking)
 * WARNING: performance hit: equality operator with object references
 * method override with different accessibility
 * override accessibility checks
-* inheritance cycles (A(B), B(C), C(A))
+done * inheritance cycles (A(B), B(C), C(A))
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
 	
@@ -155,7 +160,7 @@ Milestone 4.3 (algumas otimizações)
 ---------------------------
 * compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator
 e declarar os tipos de acordo
-*  patterns reference ((in|is|isa) (not)?) (value1, value2), em outras palavras:
+*  patterns ((in|is|isa) (not)?) (value1, value2), em outras palavras:
 	BinaryExpression(
 		BinaryOperatorType.*,
 		ReferenceExpression,

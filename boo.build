@@ -182,6 +182,20 @@
 		</csc>
 	</target>
 	
+	<target name="docs-distro">
+		<zip zipfile="docs.zip" ziplevel="9">
+			<fileset>
+				<includes name="license.txt" />
+				<includes name="ast.model.boo" />
+				<includes name="docs/**/*.boo" />
+				<includes name="docs/**/*.build" />
+				<includes name="docs/**/*.pdf" />
+				<includes name="build/*.dll" />
+				<includes name="build/*.exe" />
+			</fileset>
+		</zip>
+	</target>
+	
 	<target name="distro">
 		<zip zipfile="boo.zip" ziplevel="9">
 			<fileset>
