@@ -68,7 +68,9 @@ namespace Boo.Lang.Compiler.Steps
 				}			
 				else
 				{
-					ReplaceCurrentNode(CodeBuilder.CreateMemberReference(closureEntity));
+					Expression expression = CodeBuilder.CreateMemberReference(closureEntity);
+					TypeSystemServices.GetConcreteExpressionType(expression);
+					ReplaceCurrentNode(expression);
 				}
 			}
 		}

@@ -91,15 +91,16 @@ def ShowTasks(tasks as (Task)):
 engine = PrevalenceActivator.CreateTransparentEngine(TaskList, "c:\\temp\\data")
 system as TaskList = engine.PrevalentSystem
 
-message = "(A)dd task\t(D)one with task\t(S)napshot\t(Q)uit\nyour choice: "
-options = {}
-options["a"] = { system.Add(Task(prompt("summary: "))) }
-options["d"] = { system.MarkDone(int.Parse(prompt("task id: "))) }
-options["s"] = engine.TakeSnapshot
-options["q"] = { Environment.Exit(-1) }
+options = {
+	"a" : { system.Add(Task(prompt("summary: "))) },
+	"d" : { system.MarkDone(int.Parse(prompt("task id: "))) },
+	"s" : engine.TakeSnapshot,
+	"q" : { Environment.Exit(-1) }
+}
 
 while true:
 	ShowTasks(system.PendingTasks)
-	Menu(message, options)
+	Menu("(A)dd task\t(D)one with task\t(S)napshot\t(Q)uit\nyour choice: ",
+		options)
 
 	
