@@ -2421,12 +2421,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (TypeSystemServices.IsSystemObject(expectedType))
+				if (actualType.IsValueType &&
+						(expectedType.IsInterface ||
+						TypeSystemServices.IsSystemObject(expectedType)))
 				{
-					if (actualType.IsValueType)
-					{
-						_il.Emit(OpCodes.Box, GetSystemType(actualType));
-					}
+					_il.Emit(OpCodes.Box, GetSystemType(actualType));
 				}
 			}
 		}

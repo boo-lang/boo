@@ -49,6 +49,9 @@ class InteractiveInterpreter:
 	
 	_referenceProcessor = ProcessInterpreterReferences(self)
 	
+	[property(Print, value is not null)]
+	_print as callable(object) = print
+	
 	[property(RememberLastValue)]
 	_rememberLastValue = false
 	
@@ -67,6 +70,10 @@ class InteractiveInterpreter:
 		_compiler.Parameters.Pipeline = pipeline		
 		_parser.Parameters.Pipeline = Pipelines.Parse()
 		
+		SetValue("dir", dir)
+		SetValue("help", help)
+		SetValue("print", { value | _print(value) })
+		
 	LastValue:
 		get:
 			return GetValue("@value")
@@ -78,6 +85,16 @@ class InteractiveInterpreter:
 	References:
 		get:
 			return _compiler.Parameters.References
+			
+	def LoopEval(code as string):
+		result = self.Eval(code)
+		if len(result.Errors):
+			self.DisplayErrors(result.Errors)
+		else:
+			_ = self.LastValue
+			if _ is not null:
+				_print(repr(_))
+				SetValue("_", _)
 		
 	def Eval(code as string):
 		
@@ -153,6 +170,23 @@ class InteractiveInterpreter:
 	def GetValue(name as string):
 		return _values[name]
 		
+	def DisplayErrors(errors as CompilerErrorCollection):
+		for error in errors:
+			pos = error.LexicalInfo.StartColumn
+			_print("---" + "-" * pos + "^") if pos > 0
+			_print("ERROR: ${error.Message}")
+			
+	def dir([required] obj):
+		type = (obj as Type) or obj.GetType()
+		return array(
+				member for member in type.GetMembers()
+				unless (method=(member as System.Reflection.MethodInfo))
+				and method.IsSpecialName)
+		
+	def help(obj):
+		for member in dir(obj):
+			_print(member)
+
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
 										module as Module):
 		moduleType = asm.GetType(cast(ModuleEntity, module.Entity).ModuleClass.FullName)
@@ -375,7 +409,12 @@ class InteractiveInterpreter:
 			if NodeType.ExpressionStatement == srcNode.ParentNode.NodeType:
 				return expression
 				
-			return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)	
+			return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)
+			
+def repr(value):
+	writer = System.IO.StringWriter()
+	WriteRepr(writer, value)
+	return writer.ToString()
 
 def WriteRepr(writer as System.IO.TextWriter, value):
 	code = Type.GetTypeCode(value.GetType())
@@ -412,12 +451,6 @@ def ReadBlock(line as string):
 		buffer.Append(line)
 		buffer.Append(newLine)
 	return buffer.ToString()
-	
-def DisplayErrors(errors as CompilerErrorCollection):
-	for error in errors:
-		pos = error.LexicalInfo.StartColumn
-		print("---" + "-" * pos + "^") if pos > 0
-		print("ERROR: ${error.Message}")
 
 interpreter = InteractiveInterpreter(RememberLastValue: true)
 
@@ -427,15 +460,7 @@ if "--print-modules" in argv:
 while line=prompt(">>> "):
 	try:		
 		line = ReadBlock(line) if line[-1:] in ":", "\\"
-		result = interpreter.Eval(line)
-		if len(result.Errors):
-			DisplayErrors(result.Errors)
-		else:
-			_ = interpreter.LastValue
-			if _ is not null:
-				WriteRepr(Console.Out, _)
-				Console.WriteLine()
-				interpreter.SetValue("_", _)
+		interpreter.LoopEval(line)
 	except x as System.Reflection.TargetInvocationException:
 		print(x.InnerException)
 	except x:

@@ -238,6 +238,20 @@ dummy()""")
 		assert array(_interpreter.GetValue("e")) == (0, 2, 4)
 		
 	[Test]
+	def LoopEval():
+		
+		value = ""
+		_interpreter.RememberLastValue = true
+		_interpreter.Print = { item | value = item }		
+		_interpreter.LoopEval("3+3")
+		assert "6" == value
+		assert 6 == _interpreter.GetValue("_")
+		
+		_interpreter.LoopEval("'42'*3")
+		assert "'424242'" == value
+		assert "424242" == _interpreter.GetValue("_")
+		
+	[Test]
 	def Loop():
 
 		# let's loop

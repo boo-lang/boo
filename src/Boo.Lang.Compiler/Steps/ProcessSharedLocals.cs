@@ -76,6 +76,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 		}
 		
+		override public void OnConstructor(Constructor node)
+		{
+			OnMethod(node);
+		}
+		
 		override public void OnMethod(Method node)
 		{	
 			_references.Clear();			
