@@ -20,7 +20,9 @@
 		<echo>nunit2 task is not available. Unit tests won't be executed.</echo>
 		<property name="nant.tasks.nunit2" value="False" />
 	</if>	
-	<if test="${not property::exists('nant.tasks.al')}">
+	
+	<!--<if test="${not property::exists('nant.tasks.al')}">-->
+	<if test="${'mono-1.0' == nant.settings.currentframework}">
 		<echo>al task is not available. Sattelite assemblies won't be built.</echo>
 		<property name="nant.tasks.al" value="False" />
 	</if>
