@@ -695,7 +695,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (null == info || BindingType.TypeReference != info.BindingType)
 			{
 				Error(CompilerErrorFactory.NameNotType(node, node.Name));
-				BindingManager.Error(node);
+				Error(node);
 			}
 			else
 			{
@@ -729,6 +729,24 @@ namespace Boo.Lang.Compiler.Pipeline
 			Bind(node, BindingManager.StringTypeBinding);
 		}
 		
+		IBinding[] GetSetMethods(IBinding[] bindings)
+		{
+			ArrayList setMethods = new ArrayList();
+			for (int i=0; i<bindings.Length; ++i)
+			{
+				IPropertyBinding property = bindings[i] as IPropertyBinding;
+				if (null != property)
+				{
+					IMethodBinding setter = property.GetSetMethod();
+					if (null != setter)
+					{
+						setMethods.Add(setter);
+					}
+				}
+			}
+			return (IBinding[])setMethods.ToArray(typeof(IBinding));
+		}
+		
 		IBinding[] GetGetMethods(IBinding[] bindings)
 		{
 			ArrayList getMethods = new ArrayList();
@@ -757,7 +775,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ITypeBinding targetType = GetBoundType(node.Target);
 			if (BindingManager.IsError(targetType))
 			{
-				BindingManager.Error(node);
+				Error(node);
 				return;
 			}
 			
@@ -808,7 +826,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						}
 						else
 						{
-							BindingManager.Error(node);
+							Error(node);
 						}
 					}
 					else
@@ -894,8 +912,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			ITypeBinding toType = GetBoundType(node.Type);
 			if (toType.IsValueType)
 			{
-				Error(CompilerErrorFactory.CantCastToValueType(node, toType.FullName));
-				BindingManager.Error(node);
+				Error(node, CompilerErrorFactory.CantCastToValueType(node, toType.FullName));
 			}
 			else
 			{
@@ -931,7 +948,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{	
-				BindingManager.Error(node);
+				Error(node);
 			}
 		}
 		
@@ -1093,8 +1110,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 					
 				default:
-				{
-					BindingManager.Error(node);
+				{					
 					NotImplemented(node, "unary operator not supported");
 					break;
 				}
@@ -1140,7 +1156,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{			
 			if (BindingManager.IsError(node.Left) || BindingManager.IsError(node.Right))
 			{
-				BindingManager.Error(node);
+				Error(node);
 				return;
 			}
 			
@@ -1444,7 +1460,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BindingType.Error:
 				{
-					BindingManager.Error(node);
+					Error(node);
 					break;
 				}
 				
@@ -1505,7 +1521,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType) ||
 				!CheckTypeCompatibility(slice.Begin, BindingManager.IntTypeBinding, GetExpressionType(slice.Begin)))
 			{
-				BindingManager.Error(node);
+				Error(node);
 				return;
 			}
 			
@@ -1517,7 +1533,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			SlicingExpression slice = (SlicingExpression)node.Left;
 			IBinding lhs = GetBinding(node.Left);
 			ITypeBinding rhs = GetExpressionType(node.Right);
-			IMethodBinding setter = null;			
+			IMethodBinding setter = null;
+
+			MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
+			mie.Arguments.Add(slice.Begin);
+			mie.Arguments.Add(node.Right);			
 			
 			if (BindingType.Property == lhs.BindingType)
 			{
@@ -1535,16 +1555,18 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					if (CheckTypeCompatibility(slice.Begin, setMethod.GetParameterType(0), GetExpressionType(slice.Begin)) &&
-						CheckTypeCompatibility(node.Right, setMethod.GetParameterType(1), rhs))
-					{
-						setter = setMethod;
+					if (!CheckTypeCompatibility(slice.Begin, setMethod.GetParameterType(0), GetExpressionType(slice.Begin)) ||
+						!CheckTypeCompatibility(node.Right, setMethod.GetParameterType(1), rhs))
+					{					
+						Error(node);
+						return;
 					}
+					setter = setMethod;
 				}
 			}
 			else if (BindingType.Ambiguous == lhs.BindingType)
 			{		
-				NotImplemented(node, "Ambiguous assign to slice");
+				setter = (IMethodBinding)ResolveMethodReference(node.Left, mie.Arguments, GetSetMethods(((AmbiguousBinding)lhs).Bindings), false);
 			}
 			
 			if (null == setter)
@@ -1555,12 +1577,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			{	
 				MemberReferenceExpression target = new MemberReferenceExpression(slice.Target.LexicalInfo);
 				target.Target = slice.Target;
-				target.Name = setter.Name;
+				target.Name = setter.Name;				
 				
-				MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
-				mie.Target = target; 
-				mie.Arguments.Add(slice.Begin);
-				mie.Arguments.Add(node.Right);
+				mie.Target = target;
 				
 				Bind(target, setter);
 				Bind(mie, setter);
@@ -1625,7 +1644,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				BindingManager.Error(node);
+				Error(node);
 				return false;
 			}
 		}
@@ -1698,7 +1717,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				BindingManager.Error(node);
+				Error(node);
 			}
 		}
 		
@@ -2124,7 +2143,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (treatErrors)
 			{
-				BindingManager.Error(node);
+				Error(node);
 			}
 			return null;
 		}
@@ -2135,7 +2154,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			IBinding binding = boundType.Resolve(name);
 			if (null == binding)
 			{
-				BindingManager.Error(node);
+				Error(node);
 				return false;
 			}
 			
@@ -2308,9 +2327,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		void InvalidOperatorForTypes(BinaryExpression node, BinaryOperatorType op, ITypeBinding left, ITypeBinding right)
-		{
-			BindingManager.Error(node);
-			Error(CompilerErrorFactory.InvalidOperatorForTypes(node, GetBinaryOperatorText(op), left.FullName, right.FullName));
+		{			
+			Error(node, CompilerErrorFactory.InvalidOperatorForTypes(node, GetBinaryOperatorText(op), left.FullName, right.FullName));
 		}
 		
 		void Error(Node node, CompilerError error)
@@ -2322,6 +2340,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		void Error(CompilerError error)
 		{
 			Errors.Add(error);
+		}
+		
+		void Error(Node node)
+		{
+			BindingManager.Error(node);
 		}
 		
 		void Bind(Node node, IBinding binding)

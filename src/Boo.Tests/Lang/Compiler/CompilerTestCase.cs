@@ -121,7 +121,8 @@ namespace Boo.Tests.Lang.Compiler
 				{
 					if (p.FirstName == fname)
 					{
-						InnerList[index] = value;						
+						InnerList[index] = value;
+						break;						
 					}
 					++index;
 				}

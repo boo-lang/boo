@@ -89,8 +89,7 @@ tokens
 	INTERNAL="internal";
 	IS="is";		
 	IF="if";	
-	IN="in";
-	KINDOF="kindof";
+	IN="in";	
 	NOT="not";	
 	NULL="null";
 	OR="or";
@@ -1356,8 +1355,7 @@ cmp_operator returns [BinaryOperatorType op] { op = BinaryOperatorType.None; }:
 	(t:CMP_OPERATOR { op = ParseCmpOperator(t.getText()); } ) |
 	(IS { op = BinaryOperatorType.ReferenceEquality; }
 		(NOT { op = BinaryOperatorType.ReferenceInequality; })?
-		) |
-	(KINDOF { op = BinaryOperatorType.TypeTest; } ) |
+		) |	
 	(IN { op = BinaryOperatorType.Member; } ) |
 	(NOT IN { op = BinaryOperatorType.NotMember; })
 	;
