@@ -31,7 +31,7 @@ options
 }
 
 {
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.AntlrParser.Util;
 
 public delegate void ParserErrorHandler(antlr.RecognitionException x);
@@ -400,12 +400,12 @@ protected
 attribute
 	{		
 		antlr.Token id = null;
-		Boo.Lang.Ast.Attribute attr = null;
+		Boo.Lang.Compiler.Ast.Attribute attr = null;
 	}
 	:	
 	id=identifier
 	{
-		attr = new Boo.Lang.Ast.Attribute(ToLexicalInfo(id));
+		attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id));
 		attr.Name = id.getText();
 		_attributes.Add(attr);
 	} 

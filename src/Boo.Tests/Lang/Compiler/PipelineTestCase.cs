@@ -160,7 +160,7 @@ namespace Boo.Tests.Lang.Compiler
 
 			Assert.AreEqual(0, p1.RunCount);
 			Assert.AreEqual(0, p2.RunCount);
-			_pipeline.Run(new CompilerContext(new CompilerParameters(), new Boo.Lang.Ast.CompileUnit()));
+			_pipeline.Run(new CompilerContext(new CompilerParameters(), new Boo.Lang.Compiler.Ast.CompileUnit()));
 			Assert.AreEqual(1, p1.RunCount);
 			Assert.AreEqual(1, p2.RunCount);
 		}

@@ -28,7 +28,7 @@
 #endregion
 
 using System;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 
 namespace Boo.AntlrParser

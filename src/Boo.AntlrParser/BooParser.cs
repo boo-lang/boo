@@ -30,7 +30,7 @@
 using System;
 using System.IO;
 using System.Text;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.AntlrParser.Util;
 
 namespace Boo.AntlrParser

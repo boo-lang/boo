@@ -29,7 +29,7 @@
 using System;
 using System.IO;
 using Boo.Lang;
-using Boo.Lang.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.AntlrParser;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
@@ -59,7 +59,7 @@ namespace Boo.Tests.Lang.Compiler.Pipeline
 
 			foreach (ParameterDeclaration pd in m.Parameters)
 			{
-				pd.Attributes.Add(new Boo.Lang.Ast.Attribute("required"));
+				pd.Attributes.Add(new Boo.Lang.Compiler.Ast.Attribute("required"));
 			}
 		}
 	}

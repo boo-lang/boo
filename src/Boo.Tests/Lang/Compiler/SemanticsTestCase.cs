@@ -30,7 +30,7 @@ namespace Boo.Tests.Lang.Compiler
 {
 	using System;
 	using System.IO;
-	using Boo.Lang.Ast;
+	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Pipeline;
 	using Boo.AntlrParser;
