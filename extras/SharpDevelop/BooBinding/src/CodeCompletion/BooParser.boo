@@ -102,9 +102,10 @@ class BooParser(IParser):
 		num = compilePipe.Find(typeof(TransformCallableDefinitions))
 		compilePipe.RemoveAt(num)
 		
-		for i in range(compilePipe.Count):
-			print compilePipe[i].ToString()
+		//for i in range(compilePipe.Count):
+		//	print compilePipe[i].ToString()
 		
+		compilePipe.BreakOnErrors = false
 		compiler.Parameters.Pipeline = compilePipe
 		
 		compiler.Run()

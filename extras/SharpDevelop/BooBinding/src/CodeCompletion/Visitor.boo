@@ -134,19 +134,23 @@ class Visitor(AbstractVisitorCompilerStep):
 		return super(node)
 	
 	private def EnterTypeDefinition(node as AST.TypeDefinition, classType as ClassType):
-		print "Enter ${node.GetType().Name} (${node.FullName})"
-		region = GetRegion(node)
-		modifier = GetModifier(node)
-		c = Class(_cu, classType, modifier, region)
-		c.FullyQualifiedName = node.FullName
-		if _currentClass.Count > 0:
-			cast(Class, _currentClass.Peek()).InnerClasses.Add(c)
-		else:
-			_cu.Classes.Add(c)
-		if node.BaseTypes != null:
-			for r as AST.SimpleTypeReference in node.BaseTypes:
-				c.BaseTypes.Add(r.Name)
-		_currentClass.Push(c)
+		try:
+			print "Enter ${node.GetType().Name} (${node.FullName})"
+			region = GetRegion(node)
+			modifier = GetModifier(node)
+			c = Class(_cu, classType, modifier, region)
+			c.FullyQualifiedName = node.FullName
+			if _currentClass.Count > 0:
+				cast(Class, _currentClass.Peek()).InnerClasses.Add(c)
+			else:
+				_cu.Classes.Add(c)
+			if node.BaseTypes != null:
+				for r as AST.SimpleTypeReference in node.BaseTypes:
+					c.BaseTypes.Add(r.Name)
+			_currentClass.Push(c)
+		except ex:
+			print ex.ToString()
+			raise
 	
 	override def LeaveClassDefinition(node as AST.ClassDefinition):
 		LeaveTypeDefinition(node)
@@ -189,12 +193,17 @@ class Visitor(AbstractVisitorCompilerStep):
 		cast(Class, _currentClass.Peek()).Methods.Add(ctor)
 	
 	override def OnField(node as AST.Field):
-		print "Field ${node.Name}"
-		c as Class = _currentClass.Peek()
-		field = Field(ReturnType(node.Type), node.Name, GetModifier(node), GetRegion(node))
-		if c.ClassType == ClassType.Enum:
-			field.SetModifiers(ModifierEnum.Const | ModifierEnum.SpecialName)
-		c.Fields.Add(field)
+		try:
+			print "Field ${node.Name}"
+			return if node.Type == null
+			c as Class = _currentClass.Peek()
+			field = Field(ReturnType(node.Type), node.Name, GetModifier(node), GetRegion(node))
+			if c.ClassType == ClassType.Enum:
+				field.SetModifiers(ModifierEnum.Const | ModifierEnum.SpecialName)
+			c.Fields.Add(field)
+		except ex:
+			print ex.ToString()
+			raise
 	
 	override def OnProperty(node as AST.Property):
 		print "Property ${node.Name}"

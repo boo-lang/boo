@@ -32,16 +32,16 @@
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="True" name="Debug">
-    <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" booPath="d:\net\boo\bin" commandLineParameters="" pauseConsoleOutput="False" verbose="False" />
+    <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" />
     <Output directory="..\bin\Debug" assembly="booBinding" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
   </Configuration>
   <Configurations active="Debug">
     <Configuration runwithwarnings="True" name="Debug">
-      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" booPath="d:\net\boo\bin" commandLineParameters="" pauseConsoleOutput="False" verbose="False" />
+      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" />
       <Output directory="..\bin\Debug" assembly="booBinding" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
     </Configuration>
     <Configuration runwithwarnings="True" name="Release">
-      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="False" booPath="d:\net\boo\bin" commandLineParameters="" pauseConsoleOutput="False" verbose="False" />
+      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="False" commandLineParameters="" pauseConsoleOutput="False" />
       <Output directory="..\bin\Release" assembly="booBinding" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
     </Configuration>
   </Configurations>
