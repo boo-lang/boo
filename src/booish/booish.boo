@@ -101,6 +101,7 @@ class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 
 	_namespace as InterpreterNamespace
 	_interpreter as InteractiveInterpreter
+	_isEntryPoint = false
 
 	def constructor(interpreter):
 		_interpreter = interpreter
@@ -117,8 +118,13 @@ class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 	override def Dispose():
 		_namespace = null
 		
+	override def OnMethod(node as Method):
+		_isEntryPoint = node is Steps.ContextAnnotations.GetEntryPoint(Context);
+		super(node)
+		
 	override def HasSideEffect(node as Expression):
-		return true
+		return true if _interpreter.RememberLastValue
+		return super(node)
 
 	override def CheckLValue(node as Node):
 		# prevent 'Expression can't be assigned to' error
@@ -126,7 +132,7 @@ class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 		return super(node) 
 
 	override def DeclareLocal(name as string, type as IType, privateScope as bool):
-		return super(name, type, privateScope) if privateScope
+		return super(name, type, privateScope) if privateScope or not _isEntryPoint 
 		
 		external = type as ExternalType
 		_interpreter.Declare(name, external.ActualType) if external
@@ -141,9 +147,6 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 	_interpreterField as Field
 	_interpreter as InteractiveInterpreter
 	
-	[property(SingleExpression)]
-	_singleExpression = false
-
 	def constructor(interpreter):
 		_interpreter = interpreter
 
@@ -173,54 +176,57 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 			
 	override def LeaveExpressionStatement(node as ExpressionStatement):
 		
-		return unless _singleExpression
+		return unless _interpreter.RememberLastValue
 		
 		if node.Expression.ExpressionType is not TypeSystemServices.VoidType:
 			node.Expression = CreateInterpreterInvocation(
 							InteractiveInterpreter_SetValue,
-							"_",
+							"@value",
 							node.Expression)
 		else:
-			eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo)			
-			eval.Arguments.Add(node.Expression)
-			eval.Arguments.Add(CreateInterpreterInvocation(
+			eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo)
+			eval.Arguments.Add(
+					CreateInterpreterInvocation(
 						InteractiveInterpreter_SetValue,
-						"_",
+						"@value",
 						CodeBuilder.CreateNullLiteral()))
+			eval.Arguments.Add(node.Expression)
 			node.Expression = eval
 						
 	def CreateInterpreterInvocation(method as System.Reflection.MethodInfo,
 									name as string,
 									value as Expression):
+		mie = CreateInterpreterInvocation(method, name)
+		mie.Arguments.Add(value)
+		return mie
+		
+	def CreateInterpreterInvocation(method as System.Reflection.MethodInfo,
+									name as string):
 		return CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateReference(_interpreterField),
 					TypeSystemServices.Map(method),
-					CodeBuilder.CreateStringLiteral(name),
-					value)
+					CodeBuilder.CreateStringLiteral(name))
 
 	def CreateGetValue(node as ReferenceExpression):
 		return CastIfNeeded(
 				node,
-				CodeBuilder.CreateMethodInvocation(
-					CodeBuilder.CreateReference(_interpreterField),
-					TypeSystemServices.Map(InteractiveInterpreter_GetValue),
-					CodeBuilder.CreateStringLiteral(node.Name)))
+				CreateInterpreterInvocation(
+					InteractiveInterpreter_GetValue,
+					node.Name))
 
 	def CreateSetValue(node as BinaryExpression):
 		return CastIfNeeded(
 				node,
-				CodeBuilder.CreateMethodInvocation(
-					CodeBuilder.CreateReference(_interpreterField),
-					TypeSystemServices.Map(InteractiveInterpreter_SetValue),
-					CodeBuilder.CreateStringLiteral(cast(ReferenceExpression, node.Left).Name),
+				CreateInterpreterInvocation(
+					InteractiveInterpreter_SetValue,
+					cast(ReferenceExpression, node.Left).Name,
 					node.Right))
 					
 	def CastIfNeeded(srcNode as Expression, expression as Expression):
 		if NodeType.ExpressionStatement == srcNode.ParentNode.NodeType:
 			return expression
 			
-		return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)
-				
+		return CodeBuilder.CreateCast(srcNode.ExpressionType, expression)	
 
 
 class InteractiveInterpreter:
@@ -236,6 +242,9 @@ class InteractiveInterpreter:
 	_imports = ImportCollection()
 	
 	_referenceProcessor = ProcessInterpreterReferences(self)
+	
+	[property(RememberLastValue)]
+	_rememberLastValue = false
 
 	def constructor():
 		pipeline = Pipelines.CompileToMemory()
@@ -252,7 +261,7 @@ class InteractiveInterpreter:
 		_compiler.Parameters.Pipeline = pipeline
 		
 		_parser.Parameters.Pipeline = Pipelines.Parse()
-
+		
 	def Eval(code as string):
 		result = Parse(code)
 		return result if len(result.Errors)
@@ -263,9 +272,6 @@ class InteractiveInterpreter:
 		statements = module.Globals.Statements		
 		hasMembers = module.Members.Count > 0
 		hasStatements = statements.Count > 0
-		_referenceProcessor.SingleExpression = (
-						1 == statements.Count and
-						NodeType.ExpressionStatement == statements[0].NodeType)
 		
 		savedImports = module.Imports.Clone()
 		module.Imports.ExtendWithClones(_imports)
@@ -275,6 +281,7 @@ class InteractiveInterpreter:
 		else:
 			_compiler.Parameters.OutputType = CompilerOutputType.Library
 		
+		SetValue("@value", null)
 		result = _compiler.Run(cu)
 		return result if len(result.Errors)
 		
@@ -338,7 +345,7 @@ def DisplayErrors(errors as CompilerErrorCollection):
 		print("---" + "-" * pos + "^") if pos > 0
 		print("ERROR: ${error.Message}")
 
-interpreter = InteractiveInterpreter()
+interpreter = InteractiveInterpreter(RememberLastValue: true)
 while line=prompt(">>> "):
 	try:		
 		line = ReadBlock(line) if line.EndsWith(":")
@@ -346,8 +353,9 @@ while line=prompt(">>> "):
 		if len(result.Errors):
 			DisplayErrors(result.Errors)
 		else:
-			_ = interpreter.GetValue("_")
-			print(_) if _
+			_ = interpreter.GetValue("@value")
+			print(_) if _ 
+			interpreter.SetValue("_", _)
 	except x as System.Reflection.TargetInvocationException:
 		print(x.InnerException)
 	except x:

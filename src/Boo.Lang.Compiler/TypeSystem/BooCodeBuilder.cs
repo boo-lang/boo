@@ -122,6 +122,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				sw.Arguments.Add(CreateLabelReference(label));
 			}
+			sw.ExpressionType = _tss.VoidType;
 			return new ExpressionStatement(sw);
 		}
 		

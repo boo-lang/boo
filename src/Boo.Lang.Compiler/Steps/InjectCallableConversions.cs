@@ -102,6 +102,16 @@ namespace Boo.Lang.Compiler.Steps
 				IsNotTargetOfMethodInvocation(node);
 		}
 		
+		override public void LeaveExpressionStatement(ExpressionStatement node)
+		{
+			// allow interactive evaluation of closures (see booish)
+			Expression converted = ConvertExpression(node.Expression);
+			if (null != converted)
+			{
+				node.Expression = converted;
+			}
+		}
+		
 		override public void LeaveReturnStatement(ReturnStatement node)
 		{
 			if (HasReturnType(_current))

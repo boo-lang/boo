@@ -60,6 +60,10 @@ class InteractiveInterpreterTestFixture:
 		_interpreter.SetValue("age", 3)
 		
 	[Test]
+	def DefaultValues():
+		assert false == _interpreter.RememberLastValue
+		
+	[Test]
 	def UseInterpreterValues():
 		using console=ConsoleCapture():
 			Eval("print(name);print(age)")
@@ -138,19 +142,51 @@ class Language:
 		
 		Eval("language = Language(Name: 'portuguese')")
 		language = _interpreter.GetValue("language")
-		assert 'portuguese' == language.Name		
+		assert 'portuguese' == language.Name
+
+	[Test]
+	def ExpressionWithoutSideEffectsNotAllowedInDefaultMode():
+		_interpreter.RememberLastValue = false
+		assert 1 == len(_interpreter.Eval("2+2").Errors)
 	
 	[Test]
-	def UnderscoreHoldsLastEvaluatedExpression():
-		Eval("a = 42")
-		Eval("b = _/2")
-		assert 21 == _interpreter.GetValue("b")
-		assert 21 == _interpreter.GetValue("_")
+	def RememberLastValue():
+		_interpreter.RememberLastValue = true
+		Eval("2+2")
+		assert 4 == _interpreter.GetValue("@value")
 		
 	[Test]
-	def EvaluateSimpleExpression():
-		Eval("2+2")
-		assert 4 == _interpreter.GetValue("_")
+	def DisableRememberLastValue():
+		_interpreter.RememberLastValue = false
+		Eval("a=2+2")
+		assert _interpreter.GetValue("@value") is null
+		
+	[Test]
+	def MethodVariablesAreNotGlobalToTheInterpreter():
+		Eval("""
+def foo():
+	a = 3
+	
+b = 4""")
+		assert _interpreter.Lookup("b") is int
+		assert _interpreter.Lookup("a") is null
+		
+	[Test]
+	def EvaluateClosure():
+		_interpreter.RememberLastValue = true
+		Eval("{ return 42 }")
+		assert 42 == cast(callable, _interpreter.GetValue("@value"))()
+		
+	[Test]
+	def EvaluateVoidFunctionSetsValueToNull():
+		
+		_interpreter.RememberLastValue = true
+		Eval("""
+def dummy():
+	pass
+42
+dummy()""")
+		assert _interpreter.GetValue("@value") is null
 		
 	[Test]
 	def Closures():
