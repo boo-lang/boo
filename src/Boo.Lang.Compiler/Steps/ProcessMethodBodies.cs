@@ -2560,7 +2560,7 @@ namespace Boo.Lang.Compiler.Steps
 			ICallableType delegateType = type as ICallableType;
 			if (null != delegateType)
 			{
-				if (CheckParameters(node.Target, delegateType, node.Arguments))
+				if (CheckParameters(node.Target, delegateType, delegateType, node.Arguments))
 				{	
 					IMethod invoke = ResolveMethod(delegateType, "Invoke");
 					node.Target = CreateMemberReference(node.Target, invoke);
@@ -3050,20 +3050,20 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckParameters(Node sourceNode, IMethod method, ExpressionCollection args)
 		{
-			return CheckParameters(sourceNode, method.CallableType, args);
+			return CheckParameters(sourceNode, method, method.CallableType, args);
 		}
 		
-		bool CheckParameters(Node sourceNode, ICallableType method, ExpressionCollection args)
+		bool CheckParameters(Node sourceNode, IEntity sourceEntity, ICallableType method, ExpressionCollection args)
 		{				
 			if (method.GetSignature().Parameters.Length != args.Count)
 			{
-				Error(CompilerErrorFactory.MethodArgumentCount(sourceNode, method.Name, args.Count));
+				Error(CompilerErrorFactory.MethodArgumentCount(sourceNode, sourceEntity.Name, args.Count));
 				return false;
 			}	
 			
 			if (!CheckParameterTypes(method, args))
 			{
-				Error(CompilerErrorFactory.MethodSignature(sourceNode, method.ToString(), GetSignature(args)));
+				Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
 			}
 			return true;
 		}
