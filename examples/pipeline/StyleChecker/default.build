@@ -37,7 +37,6 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.AntlrParser.dll" />
 				<include name="Boo.NAnt.Tasks.dll" />
-				<include name="antlr.runtime.dll" />
 				<include name="*.pdb" />
 			</fileset>
 		</copy>

@@ -46,7 +46,6 @@
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.AntlrParser.dll" />
-				<include name="antlr.runtime.dll" />
 				<include name="booish.exe" />
 			</fileset>
 		</copy>

@@ -9,8 +9,7 @@
 	<property name="antlr.home" value="lib/antlr-2.7.4" />
 	<property name="java" value="java" />
 	
-	<property name="antlr.jar" value="${antlr.home}/antlr.jar" />
-	<property name="antlr.runtime.dll" value="${antlr.home}/lib/csharp/src/bin/antlr.runtime.dll" />	
+	<property name="antlr.jar" value="${antlr.home}/antlr.jar" />	
 	<property name="NAnt.Core.dll" value="${nant.location}/NAnt.Core.dll" />
 	
 	<property name="ngen.exe" value="${nant.settings.currentframework.frameworkdirectory}/ngen.exe" />
@@ -117,7 +116,6 @@
 			<arg file='build/Boo.Lang.Compiler.dll' />			
 			<arg file='build/Boo.AntlrParser.dll' />
 			<arg file='build/booc.exe' />
-			<arg file='build/antlr.runtime.dll' />
 		</exec>
 	</target>
 	
@@ -133,7 +131,6 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.NAnt.Tasks.dll" />
 				<include name="Boo.AntlrParser.dll" />
-				<include name="antlr.runtime.dll" />
 				<include name="booc.exe" />
 				<include name="booc.rsp" />
 				<include name="booi.exe" />
@@ -189,7 +186,6 @@
 			<references>
 				<include name="build/Boo.dll" />
 				<include name="build/Boo.Lang.Compiler.dll" />
-				<include name="build/antlr.runtime.dll" />
 			</references>
 		</csc>
 	</target>
@@ -428,7 +424,6 @@
 
 	<target name="init">
 		<mkdir dir="build" />
-		<copy file="${antlr.runtime.dll}" todir="build" />
 	</target>
 
 </project>

@@ -126,7 +126,6 @@
 				<include name="BooCompiler.Tests.dll" />
 				<include name="Boo.Lang.Compiler.dll" />				
 				<include name="Boo.AntlrParser.dll" />
-				<include name="antlr.runtime.dll" />
 			</references>			
 		</csc>
 	</target>
