@@ -51,16 +51,32 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveField(Field node)
 		{
 			CheckMemberName(node);
+			CantBeMarkedAbstract(node);
 		}
 		
 		override public void LeaveMethod(Method node)
 		{
 			CheckMemberName(node);
+			CantBeMarkedTransient(node);
 		}
 		
 		override public void LeaveEvent(Event node)
 		{
 			CheckMemberName(node);
+		}
+		
+		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
+		{
+			CheckMemberName(node);
+			CantBeMarkedAbstract(node);
+			CantBeMarkedTransient(node);
+		}
+		
+		override public void LeaveCallableDefinition(CallableDefinition node)
+		{
+			CheckMemberName(node);
+			CantBeMarkedAbstract(node);
+			CantBeMarkedTransient(node);
 		}
 		
 		override public void LeaveClassDefinition(ClassDefinition node)
@@ -71,6 +87,22 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveGivenStatement(GivenStatement node)
 		{
 			NotImplemented(node, "given");
+		}
+		
+		void CantBeMarkedAbstract(TypeMember member)
+		{
+			if (member.IsAbstract)
+			{
+				Error(CompilerErrorFactory.CantBeMarkedAbstract(member));
+			}
+		}
+		
+		void CantBeMarkedTransient(TypeMember member)
+		{
+			if (member.IsTransient)
+			{
+				Error(CompilerErrorFactory.CantBeMarkedTransient(member));
+			}
 		}
 		
 		void CheckMemberName(TypeMember node)

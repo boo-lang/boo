@@ -102,6 +102,8 @@ BCE0100=yield cannot be used inside constructors.
 BCE0101=Generator's return type can only be either System.Collections.IEnumerable or object.
 BCE0102=Generators cannot return values.
 BCE0103=Cannot extend final type '{0}'.
+BCE0104='transient' can only be applied to class, field and event definitions.
+BCE0105='abstract' can only be applied to class, method, property and event definitions.
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
