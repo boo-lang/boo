@@ -466,6 +466,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0087", node.LexicalInfo, typeName);
 		}
 		
+		public static CompilerError ReservedPrefix(Node node, string prefix)
+		{
+			return new CompilerError("BCE0088", node.LexicalInfo, prefix); 
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

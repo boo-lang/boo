@@ -58,11 +58,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveYieldStatement(YieldStatement node)
-		{
-			NotImplemented(node, "yield");
-		}
-		
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			if (IsAddressOfBuiltin(node.Target))

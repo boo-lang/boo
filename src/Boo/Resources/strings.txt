@@ -86,6 +86,7 @@ BCE0084=Static constructors can not declare parameters.
 BCE0085=Can't create instance of abstract class '{0}'.
 BCE0086=Can't create instance of interface '{0}'.
 BCE0087=Can't create instance of enum '{0}'.
+BCE0088=Sorry but the '{0}' prefix is reserved by the compiler. Friends?
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.
