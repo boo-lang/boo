@@ -2071,7 +2071,7 @@ SESC :
 				( 'r'! {$setText("\r"); }) |
 				( 'n'! {$setText("\n"); }) |
 				( 't'! {$setText("\t"); }) |
-				( '\\'! );
+				( '\\'! {$setText("\\"); });
 
 protected
 RE_LITERAL : '/' (RE_CHAR)+ '/';

@@ -1952,6 +1952,10 @@ _loop379_breakloop:		;
 				_saveIndex = text.Length;
 				match('\\');
 				text.Length = _saveIndex;
+				if (0==inputState.guessing)
+				{
+					text.Length = _begin; text.Append("\\");
+				}
 			}
 			break;
 		}

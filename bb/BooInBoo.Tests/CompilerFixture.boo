@@ -6,7 +6,7 @@ import BooInBoo
 import BooInBoo.Pipelines
 import BooInBoo.PipelineSteps
 
-abstract class AbstractCompilerTestCase:
+abstract class AbstractCompilerFixture:
 	virtual def GetTestCasePath():
 		return Path.GetDirectoryName(typeof(AbstractCompilerTestCase).Assembly.Location)
 		
@@ -14,7 +14,7 @@ abstract class AbstractCompilerTestCase:
 		pass
 
 [TestFixture]
-class CompilerTestCase(AbstractCompilerTestCase):
+class CompilerFixture(AbstractCompilerFixture):
 	override def CreatePipeline():
 		pipeline = CompileToFilePipeline()
 		pipeline.Add(Run())
@@ -24,7 +24,7 @@ class CompilerTestCase(AbstractCompilerTestCase):
 		return Path.Combine(super(), "compilation")
 							
 [TestFixture]
-class BooInBooSemanticsTestCase(AbstractCompilerTestCase):
+class BooInBooSemanticsTestCase(AbstractCompilerFixture):
 	override def CreatePipeline():
 		pipeline = CompilePipeline()
 		pipeline.Add(PrintBoo())

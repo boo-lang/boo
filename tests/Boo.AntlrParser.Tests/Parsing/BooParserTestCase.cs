@@ -180,6 +180,12 @@ namespace Boo.AntlrParser.Tests
 		}
 		
 		[Test]
+		public void StringEscapeSequences()
+		{
+			RunParserTestCase("StringEscapeSequences.boo");
+		}
+		
+		[Test]
 		public void InlineIf()
 		{
 			RunParserTestCase("inlineif.boo");

@@ -23,6 +23,10 @@
 	<target name="all" depends="booc, booi">	
 	</target>
 	
+	<target name="test" depends="all">
+		<nant buildfile="tests/default.build" />
+	</target>
+	
 	<target name="booi" depends="Boo.NAnt">
 		
 		<booc

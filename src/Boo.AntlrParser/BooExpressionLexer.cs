@@ -1384,6 +1384,10 @@ _loop54_breakloop:			;
 		{
 			{
 				match('\\');
+				if (0==inputState.guessing)
+				{
+					text.Length = _begin; text.Append("\\");
+				}
 			}
 			break;
 		}

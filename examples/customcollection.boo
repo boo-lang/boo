@@ -43,20 +43,20 @@ class FooCollection(ICollection):
 	
 	_items = []
 	
-	SyncRoot as object:
+	SyncRoot:
 		get:
 			return _items.SyncRoot
 	
-	Count as int:
+	Count:
 		get:
 			return len(_items)
 	
-	IsSynchronized as bool:
+	IsSynchronized:
 		get:
 			return _items.IsSynchronized
 			
-	def CopyTo(array as Array, count as int):
-		_items.CopyTo(array, count)
+	def CopyTo(target as Array, index as int):
+		_items.CopyTo(target, index)
 		
 	def GetEnumerator():
 		return _items.GetEnumerator()
