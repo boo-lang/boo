@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<project name="booish.gui" default="run">
+
+	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
+	
+	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
+	
+	<target name="run" depends="build">
+		<exec program="build/booish.gui.exe" useruntimeengine="true">
+		</exec>
+	</target>
+
+	<target name="build" depends="init">
+		<booc target="winexe" output="build/booish.gui.exe">
+			<sources basedir="src">
+				<include name="*.boo" />
+			</sources>
+			<references basedir="build">
+				<include name="booish.exe" />
+				<include name="System.Windows.Forms.dll" />
+				<include name="System.Drawing.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="rebuild" depends="clean, build">
+	</target>	
+
+	<target name="init">
+		<mkdir dir="build" unless="${directory::exists('build')}" />
+		<copy todir="build">
+			<fileset basedir="${boo.dir}">
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.AntlrParser.dll" />
+				<include name="antlr.runtime.dll" />
+				<include name="booish.exe" />
+			</fileset>
+		</copy>
+		<loadtasks assembly="${boo.dir}/Boo.NAnt.dll" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="build" if="${directory::exists('build')}" />
+	</target>
+</project>

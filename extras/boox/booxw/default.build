@@ -24,17 +24,29 @@
 		</zip>
 	</target>
 	
-	<target name="compile" depends="init, create-resources">
+	<target name="copy-scripts" depends="init">
+		<copy todir="${build.dir}/scripts">
+			<fileset basedir="scripts">
+				<include name="*.int" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="compile" depends="create-resources, copy-scripts">
+	
+		<property name="booish.gui" value="${path::get-full-path('../../booish.gui')}" />	
+	
 		<booc
 			output="${build.dir}/booxw.exe"
 			target="winexe"
 			tracelevel="Info">
 			<sources basedir="src">
 				<include name="*.boo" />
+				<include name="${booish.gui}/src/PromptBox.boo" />
 			</sources> 
 			
 			<resources basedir="${build.dir}">
-				<include name="*.resources" />
+				<include name="*.resources" />			
 			</resources>
 			
 			<references basedir="${build.dir}">

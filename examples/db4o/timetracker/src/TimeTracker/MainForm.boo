@@ -53,7 +53,8 @@ class MainForm(Form):
 	_view = ListView(View: View.Details, Dock: DockStyle.Fill)
 	
 	def constructor():
-		self.Text = "Boo Time Tracker (powered by db4o)"		
+		self.Text = "Boo Time Tracker (powered by db4o)"
+		self.ShowInTaskbar = false		
 		self.MinimizeBox = false
 		Minimize()
 
@@ -72,7 +73,7 @@ class MainForm(Form):
 		activitiesPage = TabPage(Text: "Activities")
 		activitiesPage.Controls.Add(_view)
 		
-		prompt = BooExplorer.PromptBox(
+		prompt = booish.gui.PromptBox(
 						Font: System.Drawing.Font("Lucida Console", 11))
 		prompt.Interpreter.SetValue("system", _system)
 		prompt.Interpreter.SetValue("MainForm", self)
@@ -88,8 +89,7 @@ class MainForm(Form):
 		args.Cancel = true		
 		super(args)
 		
-	def Minimize():
-		self.ShowInTaskbar = false
+	def Minimize():		
 		self.WindowState = WindowState.Minimized
 							
 	def _contextMenu_Popup(sender as ContextMenu):

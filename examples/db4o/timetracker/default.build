@@ -13,10 +13,10 @@
 	</target>	
 	
 	<target name="gui" depends="build">
-		<booc target="exe" output="build/TimeTracker.exe">
+		<booc target="winexe" output="build/TimeTracker.exe">
 			<sources basedir="src/TimeTracker">
 				<include name="*.boo" />
-				<include name="${boo.base}/extras/boox/booxw/src/PromptBox.boo" />				
+				<include name="${boo.base}/extras/booish.gui/src/PromptBox.boo" />				
 			</sources>
 			
 			<references basedir="build">

@@ -26,84 +26,17 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-"""
-Interactive Forms-based Console
-"""
+namespace booish.gui
 
-namespace BooExplorer
-
-import System
-import booish
 import System.Windows.Forms
-import System.Drawing
 
-class PromptBox(TextBox):
-	
-	static Enter = chr(13)
-	
-	enum InputState:
-		SingleLine = 0
-		Block = 1
-		
-	_state = InputState.SingleLine
-	
-	_block = System.IO.StringWriter()
-	
-	[getter(Interpreter)]
-	_interpreter = InteractiveInterpreter(
-								RememberLastValue: true,
-								Print: print)
-	
+class MainForm(Form):
+
 	def constructor():
-		self.Dock = DockStyle.Fill
-		self.Multiline = true
-		self.AcceptsTab = true
-		self.ScrollBars = ScrollBars.Vertical
-		_interpreter.References.Add(typeof(TextBox).Assembly)
-		_interpreter.References.Add(typeof(Font).Assembly)
-		
-		prompt()
-		
-	def GetCurrentLine():
-		line = Lines[-1][4:]	
-		print("")
-		return line
-		
-	def SingleLineInputState():
-		code = GetCurrentLine()
-		
-		if code[-1:] in ":", "\\":
-			_state = InputState.Block
-			_block.GetStringBuilder().Length = 0
-			_block.WriteLine(code)
-		else:
-			_interpreter.LoopEval(code)
-		
-	def BlockInputState():
-		code = GetCurrentLine()
-		if 0 == len(code):
-			_interpreter.LoopEval(_block.ToString())
-			_state = InputState.SingleLine
-		else:
-			_block.WriteLine(code)
-		
-	override def OnKeyPress(args as KeyPressEventArgs):
-		if Enter == args.KeyChar:			
-			try:
-				(SingleLineInputState, BlockInputState)[_state]()
-			except x:				
-				print(x)
-			prompt()
-			args.Handled = true
-		super(args)
-			
-	def print(msg):
-		AppendText("${msg}\r\n")
-			
-	def prompt():
-		AppendText((">>> ", "... ")[_state])
-		
-	static def chr(value as int):
-		return cast(IConvertible, value).ToChar(null)
+		self.Text = "Boo Interactive Console"
+		console = PromptBox(Dock: DockStyle.Fill,
+					Font: System.Drawing.Font("Lucida Console", 12))
+		console.Interpreter.SetValue("MainForm", self)
+		Controls.Add(console)
 
-
+Application.Run(MainForm())
