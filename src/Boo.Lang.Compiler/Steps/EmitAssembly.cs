@@ -2242,15 +2242,26 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void SetProperty(Node sourceNode, IProperty property, Expression reference, Expression value, bool leaveValueOnStack)
-		{						
+		{
+			OpCode callOpCode = OpCodes.Call;
+			
 			MethodInfo setMethod = GetMethodInfo(property.GetSetMethod());
 			
 			if (null != reference)
 			{
 				if (!setMethod.IsStatic)
 				{
-					((MemberReferenceExpression)reference).Target.Accept(this);
-					PopType();
+					Expression target = ((MemberReferenceExpression)reference).Target;
+					if (setMethod.DeclaringType.IsValueType)
+					{
+						LoadAddress(target);
+					}
+					else
+					{
+						callOpCode = OpCodes.Callvirt;
+						target.Accept(this);
+						PopType();
+					}					
 				}
 			}
 			
@@ -2265,14 +2276,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Stloc, local);
 			}
 			
-			if (property.IsStatic)
-			{
-				_il.EmitCall(OpCodes.Call, setMethod, null);
-			}
-			else
-			{
-				_il.EmitCall(OpCodes.Callvirt, setMethod, null);
-			}
+			_il.EmitCall(callOpCode, setMethod, null);
 			
 			if (leaveValueOnStack)
 			{
