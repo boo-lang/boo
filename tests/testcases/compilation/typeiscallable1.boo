@@ -14,6 +14,6 @@ class Person:
 	static def create(name):
 		return Person(name)
 
-for p as Person in map(Person.create, ["Eric", "Terry", "John"]):
+for p as Person in map(["Eric", "Terry", "John"], Person.create):
 	print(p.Name)
 

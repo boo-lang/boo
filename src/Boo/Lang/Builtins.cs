@@ -93,17 +93,17 @@ namespace Boo.Lang
 			return join(enumerable, ' ');
 		}
 
-		public static IEnumerable map(ICallable function, object enumerable)
-		{
-			if (null == function)
-			{
-				throw new ArgumentNullException("function");
-			}
+		public static IEnumerable map(object enumerable, ICallable function)
+		{			
 			if (null == enumerable)
 			{
 				throw new ArgumentNullException("enumerable");
 			}
-			return new MapEnumerator(function, GetEnumerator(enumerable));
+			if (null == function)
+			{
+				throw new ArgumentNullException("function");
+			}
+			return new MapEnumerable(RuntimeServices.GetEnumerable(enumerable), function);
 		}
 
 		public static object[] array(IEnumerable enumerable)
@@ -317,8 +317,25 @@ namespace Boo.Lang
 			return new ZipEnumerator(GetEnumerator(first),
 									GetEnumerator(second));
 		}
+		
+		private class MapEnumerable : IEnumerable
+		{
+			IEnumerable _enumerable;
+			ICallable _function;
+			
+			public MapEnumerable(IEnumerable enumerable, ICallable function)
+			{
+				_enumerable = enumerable;
+				_function = function;
+			}
+			
+			public IEnumerator GetEnumerator()
+			{
+				return new MapEnumerator(_enumerable.GetEnumerator(), _function);
+			}
+		}
 
-		private class MapEnumerator : IEnumerator, IEnumerable
+		private class MapEnumerator : IEnumerator
 		{
 			IEnumerator _enumerator;
 
@@ -328,10 +345,10 @@ namespace Boo.Lang
 
 			object[] _arguments = new object[1];
 
-			public MapEnumerator(ICallable function, IEnumerator enumerator)
+			public MapEnumerator(IEnumerator enumerator, ICallable function)
 			{
-				_function = function;
 				_enumerator = enumerator;
+				_function = function;
 			}
 
 			public void Reset()
@@ -356,11 +373,6 @@ namespace Boo.Lang
 				{
 					return _current;
 				}
-			}
-
-			public IEnumerator GetEnumerator()
-			{
-				return this;
 			}
 		}
 
