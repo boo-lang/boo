@@ -40,7 +40,7 @@
 				<Begin >//</Begin>
 			</Span>
 
-			<Span name="BlockComment" stopateol="false" bold="false" italic="false" color="Green" >
+			<Span name="BlockComment" rule="comments set" stopateol="false" bold="false" italic="false" color="Green" >
 				<Begin >/*</Begin>
 				<End >*/</End>
 			</Span>
@@ -249,6 +249,26 @@
 				<Key word="interface"/>
 				<Key word="mixin"/>
 			</KeyWords>
+
+		</RuleSet>
+
+		<RuleSet ignorecase="false" name="comments set" >
+			<Delimiters>&amp;&lt;&gt;~!@%^*()-+=|\#/{}[]:;"' ,	.?</Delimiters>
+
+			<Span name="BlockComment" rule="comment set 2" stopateol="false" bold="false" italic="false" color="#339966" >
+				<Begin >/*</Begin>
+				<End >*/</End>
+			</Span>
+
+		</RuleSet>
+
+		<RuleSet ignorecase="false" name="comment set 2" >
+			<Delimiters>&amp;&lt;&gt;~!@%^*()-+=|\#/{}[]:;"' ,	.?</Delimiters>
+
+			<Span name="BlockComment" rule="comments set" stopateol="false" bold="false" italic="false" color="Teal" >
+				<Begin >/*</Begin>
+				<End >*/</End>
+			</Span>
 
 		</RuleSet>
 
