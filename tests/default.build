@@ -15,9 +15,9 @@
 			<formatter type="Plain" />
 			<test>
 				<assemblies basedir="build">
-					<includes name="Boo.Lang.Compiler.Tests.dll" />
-					<includes name="Boo.Tests.dll" />
 					<includes name="Boo.AntlrParser.Tests.dll" />
+					<includes name="Boo.Lang.Compiler.Tests.dll" />
+					<includes name="Boo.Tests.dll" />					
 				</assemblies>
 			</test>
 		</nunit2>
@@ -70,21 +70,6 @@
 				<includes name="antlr.runtime.dll" />
 			</references>			
 		</csc>
-		
-		<booc
-			target="library"
-			output="build/BooInBoo.Tests.dll">
-			
-			<sources basedir="BooInBoo.Tests">
-				<includes name="**/*.boo" />
-			</sources>
-			
-			<references basedir="build">
-				<includes name="BooInBoo.dll" />
-				<includes name="Boo.Lang.Compiler.Tests.dll" />
-				<includes name="${nunit.framework.dll}" />
-			</references>
-		</booc>
 	</target>
 	
 	<target name="init">

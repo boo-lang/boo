@@ -864,10 +864,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = COLON;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match(':');
-		text.Length = _saveIndex;
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -895,10 +892,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = LPAREN;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match('(');
-		text.Length = _saveIndex;
 		if (0==inputState.guessing)
 		{
 			EnterSkipWhitespaceRegion();
@@ -916,10 +910,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = RPAREN;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match(')');
-		text.Length = _saveIndex;
 		if (0==inputState.guessing)
 		{
 			LeaveSkipWhitespaceRegion();
@@ -937,10 +928,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = LBRACK;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match('[');
-		text.Length = _saveIndex;
 		if (0==inputState.guessing)
 		{
 			EnterSkipWhitespaceRegion();
@@ -958,10 +946,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = RBRACK;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match(']');
-		text.Length = _saveIndex;
 		if (0==inputState.guessing)
 		{
 			LeaveSkipWhitespaceRegion();
@@ -979,10 +964,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = LBRACE;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match('{');
-		text.Length = _saveIndex;
 		if (0==inputState.guessing)
 		{
 			EnterSkipWhitespaceRegion();
@@ -1000,10 +982,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = RBRACE;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match('}');
-		text.Length = _saveIndex;
 		if (0==inputState.guessing)
 		{
 			LeaveSkipWhitespaceRegion();
@@ -1021,10 +1000,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = INCREMENT;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match("++");
-		text.Length = _saveIndex;
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -1038,10 +1014,7 @@ _loop311_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = DECREMENT;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match("--");
-		text.Length = _saveIndex;
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -1822,10 +1795,7 @@ _loop366_breakloop:			;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = SL_COMMENT;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match("#");
-		text.Length = _saveIndex;
 		{    // ( ... )*
 			for (;;)
 			{
@@ -1917,10 +1887,7 @@ _loop379_breakloop:		;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = EOS;
 		
-		int _saveIndex = 0;
-		_saveIndex = text.Length;
 		match(';');
-		text.Length = _saveIndex;
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);

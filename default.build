@@ -20,20 +20,7 @@
 	
 	<property name="build.dir" value="build" />
 
-	<target name="all" depends="booc, booi, BooInBoo">	
-	</target>
-	
-	<target name="BooInBoo" depends="Boo.NAnt">
-	
-		<booc
-			target="library"
-			output="build/BooInBoo.dll">
-			
-			<sources basedir="src/BooInBoo">
-				<includes name="**/*.boo" />
-			</sources>
-		</booc>
-		
+	<target name="all" depends="booc, booi">	
 	</target>
 	
 	<target name="booi" depends="Boo.NAnt">
@@ -102,12 +89,9 @@
 		<copy todir="bin">
 			<fileset basedir="build">
 				<includes name="Boo.dll" />
-				<includes name="Boo.Tests.dll" />
 				<includes name="Boo.Lang.Compiler.dll" />
-				<includes name="Boo.Lang.Compiler.Tests.dll" />
 				<includes name="Boo.NAnt.dll" />
 				<includes name="Boo.AntlrParser.dll" />
-				<includes name="Boo.AntlrParser.Tests.dll" />
 				<includes name="antlr.runtime.dll" />
 				<includes name="booc.exe" />
 				<includes name="booi.exe" />

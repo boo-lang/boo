@@ -1900,25 +1900,25 @@ INT : (DIGIT)+
 
 DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
 
-COLON : ':'!;
+COLON : ':';
 
 BITWISE_OR: '|';
 
-LPAREN : '('! { EnterSkipWhitespaceRegion(); };
+LPAREN : '(' { EnterSkipWhitespaceRegion(); };
 	
-RPAREN : ')'! { LeaveSkipWhitespaceRegion(); };
+RPAREN : ')' { LeaveSkipWhitespaceRegion(); };
 
-LBRACK : '['! { EnterSkipWhitespaceRegion(); };
+LBRACK : '[' { EnterSkipWhitespaceRegion(); };
 
-RBRACK : ']'! { LeaveSkipWhitespaceRegion(); };
+RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
 
-LBRACE : '{'! { EnterSkipWhitespaceRegion(); };
+LBRACE : '{' { EnterSkipWhitespaceRegion(); };
 	
-RBRACE : '}'! { LeaveSkipWhitespaceRegion(); };
+RBRACE : '}' { LeaveSkipWhitespaceRegion(); };
 
-INCREMENT: "++"!;
+INCREMENT: "++";
 
-DECREMENT: "--"!;
+DECREMENT: "--";
 
 ADD: ('+') ('=' { $setType(ASSIGN); })?;
 
@@ -2005,7 +2005,7 @@ SINGLE_QUOTED_STRING :
 	;
 
 SL_COMMENT:
-	"#"! (~('\r'|'\n')!)*
+	"#" (~('\r'|'\n'))*
 	{ $setType(Token.SKIP); }
 	;
 	
@@ -2037,7 +2037,7 @@ WS :
 	}
 	;
 		
-EOS: ';'!;
+EOS: ';';
 
 protected
 NEWLINE:

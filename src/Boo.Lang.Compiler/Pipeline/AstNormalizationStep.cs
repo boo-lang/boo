@@ -90,12 +90,27 @@ namespace Boo.Lang.Compiler.Pipeline
 			Switch(node.Members);
 		}
 		
-		override public void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		void LeaveTypeDefinition(TypeDefinition node)
 		{
 			if (!node.IsVisibilitySet)
 			{
 				node.Modifiers |= TypeMemberModifiers.Public;
 			}
+		}
+		
+		override public void LeaveEnumDefinition(EnumDefinition node, ref EnumDefinition resultingNode)
+		{
+			LeaveTypeDefinition(node);
+		}
+		
+		override public void LeaveInterfaceDefinition(InterfaceDefinition node, ref InterfaceDefinition resultingNode)
+		{
+			LeaveTypeDefinition(node);
+		}
+		
+		override public void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		{
+			LeaveTypeDefinition(node);
 			
 			if (!node.HasConstructor)
 			{				
