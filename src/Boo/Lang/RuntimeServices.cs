@@ -224,6 +224,38 @@ namespace Boo.Lang
 		{
 			return !op_Member(lhs, rhs);
 		}
+		
+		public static bool op_Equality(Array lhs, Array rhs)
+		{
+			if (lhs == rhs)
+			{
+				return true;
+			}
+			
+			if (null == lhs || null == rhs)
+			{
+				return false;
+			}
+			
+			if (1 != lhs.Rank || 1 != rhs.Rank)
+			{
+				throw new ArgumentException("array rank must be 1"); 
+			}
+			
+			if (lhs.Length != rhs.Length)
+			{
+				return false;
+			}
+			
+			for (int i=0; i<lhs.Length; ++i)
+			{
+				if (!Object.Equals(lhs.GetValue(i), rhs.GetValue(i)))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
 		#endregion
 		
 		public static bool ToBool(object value)

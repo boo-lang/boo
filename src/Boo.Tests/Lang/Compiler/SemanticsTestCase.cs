@@ -142,6 +142,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void LockMacro()
+		{
+			RunCompilerTestCase("lock0.boo");
+		}
+		
+		[Test]
 		public void ReturnNull()
 		{
 			RunCompilerTestCase("null0.boo");			

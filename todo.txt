@@ -256,6 +256,8 @@ done * procurar uma versão dos operadores em RuntimeServices para unificar a in
 	done * RuntimeServices.op_Multiply(Array, int)	
 	done * RuntimeServices.op_Member(string, string)
 	done * RuntimeServices.op_NotMember(string, string)
+	
+* map(fn, enumerable)
 
 * assembly attributes: [assembly: AssemblyVersion("foo")]
 
@@ -317,6 +319,7 @@ Milestone 3.9 (better error checking)
 * method override with different accessibility
 * override accessibility checks
 * inheritance cycles (A(B), B(C), C(A))
+* get: must return a value
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
 	

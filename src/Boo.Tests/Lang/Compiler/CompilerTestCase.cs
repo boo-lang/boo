@@ -979,5 +979,23 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("interface0.boo");
 		}
+		
+		[Test]
+		public void ClassImplementsInterface()
+		{
+			RunCompilerTestCase("interface1.boo");
+		}
+		
+		[Test]
+		public void ArrayEquality()
+		{
+			RunCompilerTestCase("array_equality.boo");
+		}
+		
+		[Test]
+		public void UnlessModifier()
+		{
+			RunCompilerTestCase("unless.boo");
+		}
 	}
 }
