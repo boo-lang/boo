@@ -3106,12 +3106,12 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		class InfoScore : IComparable
+		class CallableScore : IComparable
 		{
 			public IMethod Info;
 			public int Score;
 			
-			public InfoScore(IMethod tag, int score)
+			public CallableScore(IMethod tag, int score)
 			{
 				Info = tag;
 				Score = score;
@@ -3119,7 +3119,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			public int CompareTo(object other)
 			{
-				return ((InfoScore)other).Score-Score;
+				return ((CallableScore)other).Score-Score;
 			}
 			
 			override public string ToString()
@@ -3164,11 +3164,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		InfoScore GetBiggerScore(List scores)
+		CallableScore GetBiggerScore(List scores)
 		{
 			scores.Sort();
-			InfoScore first = (InfoScore)scores[0];
-			InfoScore second = (InfoScore)scores[1];
+			CallableScore first = (CallableScore)scores[0];
+			CallableScore second = (CallableScore)scores[1];
 			if (first.Score > second.Score)
 			{
 				return first;
@@ -3178,7 +3178,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ReScoreByHierarchyDepth(List scores)
 		{
-			foreach (InfoScore score in scores)
+			foreach (CallableScore score in scores)
 			{
 				score.Score += score.Info.DeclaringType.GetTypeDepth();
 				
@@ -3243,7 +3243,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (score >= 0)
 						{
 							// only positive scores are compatible
-							scores.Add(new InfoScore(mb, score));						
+							scores.Add(new CallableScore(mb, score));						
 						}
 					}
 				}
@@ -3251,12 +3251,12 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (1 == scores.Count)
 			{
-				return ((InfoScore)scores[0]).Info;
+				return ((CallableScore)scores[0]).Info;
 			}
 			
 			if (scores.Count > 1)
 			{
-				InfoScore score = GetBiggerScore(scores);
+				CallableScore score = GetBiggerScore(scores);
 				if (null != score)
 				{
 					return score.Info;

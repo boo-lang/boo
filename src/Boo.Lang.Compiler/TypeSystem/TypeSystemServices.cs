@@ -496,11 +496,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public object GetCacheKey(System.Reflection.MemberInfo mi)
 		{
+			return mi;
+			/*
 			_buffer.Length = 0;
 			_buffer.Append(mi.MemberType);
 			_buffer.Append('-');
 			_buffer.Append(mi.ToString());
 			return _buffer.ToString();
+			*/
 		}
 		
 		public IEntity ResolvePrimitive(string name)

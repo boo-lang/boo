@@ -232,7 +232,7 @@ namespace BooCompiler.Tests
 	{
 		protected override CompilerPipeline SetUpCompilerPipeline()
 		{
-			CompilerPipeline pipeline = null;
+			CompilerPipeline pipeline = null;			
 			
 			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
 			{			

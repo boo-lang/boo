@@ -66,7 +66,7 @@ class TypeSystemFixture:
 		type1.Resolve(methods, "GetType", EntityType.Method)
 		type2.Resolve(methods, "GetType", EntityType.Method)
 		
-		Assert.AreEqual(1, len(methods))
+		Assert.AreEqual(2, len(methods))
 		Assert.AreSame(_services.Map(typeof(object).GetMethod("GetType")),
 					methods[0])
 		
