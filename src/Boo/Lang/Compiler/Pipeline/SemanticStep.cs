@@ -732,12 +732,44 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			
 			ITypeBinding targetType = GetBoundType(node.Target);
-			if (!targetType.IsArray)
+			if (targetType.IsArray)
 			{
-				NotImplemented(node, "slice for anything but arrays");
+				BindingManager.Bind(node, targetType.GetElementType());
 			}
-			
-			BindingManager.Bind(node, targetType.GetElementType());
+			else
+			{
+				IBinding member = targetType.GetDefaultMember();
+				if (null == member)
+				{
+					Errors.Add(CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
+				}
+				else
+				{
+					if (BindingType.Property == member.BindingType)
+					{
+						IMethodBinding getter = ((IPropertyBinding)member).GetGetMethod();
+						MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
+						mie.Arguments.Add(node.Begin);
+						
+						if (CheckParameters(node, getter, mie.Arguments))
+						{
+							mie.Target = new MemberReferenceExpression(node.Target, getter.Name);
+							BindingManager.Bind(mie.Target, getter);
+							BindingManager.Bind(mie, getter);
+							
+							resultingNode = mie;
+						}
+						else
+						{
+							BindingManager.Error(node);
+						}
+					}
+					else
+					{
+						NotImplemented(node, "slice for anything but arrays and default properties");
+					}
+				}
+			}
 		}
 		
 		public override void LeaveStringFormattingExpression(StringFormattingExpression node, ref Expression resultingNode)

@@ -199,6 +199,11 @@ namespace Boo.Lang.Compiler.Bindings
 			return null;
 		}
 		
+		public IBinding GetDefaultMember()
+		{
+			return null;
+		}
+		
 		public virtual BindingType BindingType
 		{
 			get

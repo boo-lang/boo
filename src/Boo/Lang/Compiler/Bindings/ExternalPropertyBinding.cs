@@ -113,6 +113,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public IMethodBinding GetGetMethod()
+		{
+			return (IMethodBinding)_bindingManager.ToBinding(_property.GetGetMethod(true));
+		}
+		
 		System.Reflection.MethodInfo GetAccessor()
 		{
 			System.Reflection.MethodInfo mi = _property.GetGetMethod(true);

@@ -46,6 +46,7 @@ BCE0044={0}.
 BCE0045=Macro expansion error: {0}.
 BCE0046='{0}' can't be used with a value type ('{1}')
 BCE0047=Method '{0}' cannot be overriden because it is not virtual.
+BCE0048=Type '{0}' does not support slicing.
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

@@ -46,6 +46,7 @@ BCE0044={0}.
 BCE0045=Erro na expansão da macro: {0}.
 BCE0046='{0}' não pode ser utilizando com um tipo valor ('{1}')
 BCE0047=O método '{0}' não pode ser sobreescrito pois não é virtual.
+BCE0048=O tipo '{0}' não suporta slicing.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

@@ -398,6 +398,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void TupleForInternalType()
+		{
+			RunCompilerTestCase("tuple6.boo");
+		}
+		
+		[Test]
 		public void TestMatch0()
 		{
 			RunCompilerTestCase("match0.boo", "string =~ string");

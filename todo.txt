@@ -148,10 +148,10 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done * negative tuple indexer
 		* generic indexer (DefaultMemberAttribute)
 	* timespan literals
-	* tuples should be of the most generic type for its elements:
-		eg:
-			("rodrigo", "bamboo") should be (string) <= string[]
-			("foo", 3) should be object
+	done * tuples should be of the most generic type for its elements:
+		done eg:
+			done ("rodrigo", "bamboo") should be (string) <= string[]
+			done ("foo", 3) should be object
 	* len special function:
 		* for tuples, array.Length
 		* for lists, list.Count
@@ -308,6 +308,7 @@ Exemplos/Artigos
 
 Otimiza��es
 -----------
+* otimização para chamadas a array.Length
 * tuple unpacking trocar unpacking for vários expressionstatement(binary expression):
 	a, b, = 1, 2
 	por

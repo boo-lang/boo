@@ -94,6 +94,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public IBinding GetDefaultMember()
+		{
+			return null;
+		}
+		
 		public virtual bool IsSubclassOf(ITypeBinding other)
 		{
 			return false;

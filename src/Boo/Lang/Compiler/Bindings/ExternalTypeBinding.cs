@@ -161,6 +161,16 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public IBinding GetDefaultMember()
+		{
+			DefaultMemberAttribute attribute = (DefaultMemberAttribute)Attribute.GetCustomAttribute(_type, typeof(DefaultMemberAttribute));
+			if (null != attribute)
+			{
+				return Resolve(attribute.MemberName);
+			}
+			return null;
+		}
+		
 		public Type Type
 		{
 			get

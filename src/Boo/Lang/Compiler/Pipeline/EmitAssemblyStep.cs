@@ -1616,11 +1616,17 @@ namespace Boo.Lang.Compiler.Pipeline
 				else
 				{
 					if (binding.IsArray)
-					{
-						// todo: find a way to create the proper types here
-						//string typeName = GetType(binding.GetElementType()) + "[]";
-						//type = Type.GetType(typeName, true);
-						type = Array.CreateInstance(GetType(binding.GetElementType()), 0).GetType();
+					{												
+						ITypeBinding elementType;
+						string typeName = GetArrayTypeName(binding, out elementType);
+						if (elementType is IInternalBinding)
+						{
+							type = _moduleBuilder.GetType(typeName, true);
+						}
+						else
+						{
+							type = Type.GetType(typeName, true);
+						}
 					}
 					else
 					{
@@ -1630,6 +1636,27 @@ namespace Boo.Lang.Compiler.Pipeline
 				_typeCache.Add(binding, type);
 			}
 			return type;
+		}
+		
+		string GetArrayTypeName(ITypeBinding binding, out ITypeBinding elementType)
+		{
+			System.Text.StringBuilder builder = new System.Text.StringBuilder();
+			GetArrayTypeName(builder, binding, out elementType);
+			return builder.ToString();			
+		}
+		
+		void GetArrayTypeName(System.Text.StringBuilder buffer, ITypeBinding binding, out ITypeBinding elementType)
+		{
+			if (binding.IsArray)
+			{
+				GetArrayTypeName(buffer, binding.GetElementType(), out elementType);
+				buffer.Append("[]");
+			}
+			else
+			{
+				buffer.Append(binding.FullName);
+				elementType = binding;
+			}
 		}
 		
 		Type GetType(Node node)

@@ -170,7 +170,7 @@ namespace Boo.Lang.Compiler.Bindings
 	
 	public interface IPropertyBinding : IMemberBinding
 	{
-		
+		IMethodBinding GetGetMethod();		
 	}
 	
 	public interface ITypeBinding : ITypedBinding, INamespace
@@ -196,6 +196,8 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get;
 		}
+		
+		IBinding GetDefaultMember();
 		
 		IConstructorBinding[] GetConstructors();
 		

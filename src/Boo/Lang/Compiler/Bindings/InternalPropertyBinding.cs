@@ -98,6 +98,11 @@ namespace Boo.Lang.Compiler.Bindings
 				return _bindingManager.GetBoundType(_property.Type);
 			}
 		}
+
+		public IMethodBinding GetGetMethod()
+		{
+			return (IMethodBinding)BindingManager.GetBinding(_property.Getter);
+		}
 		
 		public override Node Node
 		{
