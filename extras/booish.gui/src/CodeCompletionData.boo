@@ -126,7 +126,7 @@ abstract internal class AbstractCompletionDataProvider(ICompletionDataProvider):
 
 	_imageProvider as ICompletionWindowImageProvider
 	
-	def constructor(imageProvider):
+	def constructor([required] imageProvider):
 		_imageProvider = imageProvider
 
 	ImageList as System.Windows.Forms.ImageList:
@@ -182,7 +182,7 @@ internal class CodeCompletionDataProvider(AbstractCompletionDataProvider):
 
 	_codeCompletion as (IEntity)
 	
-	def constructor(imageProvider, codeCompletion):
+	def constructor(imageProvider, [required] codeCompletion):
 		super(imageProvider)
 		_codeCompletion = codeCompletion
 

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -205,7 +205,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IEntity[] GetMembers()
 		{
-			return null;
+			return _array.GetMembers();
 		}
 		
 		public INamespace ParentNamespace

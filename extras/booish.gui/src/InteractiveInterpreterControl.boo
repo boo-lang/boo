@@ -158,6 +158,11 @@ class InteractiveInterpreterControl(TextEditorControl):
 	
 	_lineHistory as LineHistory
 	
+	// HACK: when the completion window is shown through CTRL+SPACE
+	// it behaves very strangely, the best we can do right now is
+	// to prevent the user from typing
+	_blockKeys = false
+	
 	def constructor():
 		self._interpreter = Boo.Lang.Interpreter.InteractiveInterpreter(
 								RememberLastValue: true,
@@ -267,8 +272,12 @@ class InteractiveInterpreterControl(TextEditorControl):
 					"<code>",
 					completionDataProvider,
 					ch)
+		if _codeCompletionWindow is not null:
+			_codeCompletionWindow.Closed += def():
+				_blockKeys = false
 					
 	private def CtrlSpaceComplete():
+		_blockKeys = true
 		ShowCompletionWindow(
 			GlobalsCompletionDataProvider(_imageProvider, self._interpreter),
 			Char.MinValue)
@@ -276,7 +285,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 	private def GetSuggestions():		
 		code = CurrentLineText.Insert(self.CaretColumn-4, ".__codecomplete__")
 		code = code.Insert(0, _block.ToString()) if InputState.Block == _state
-		suggestion as INamespace = _interpreter.SuggestCodeCompletion(code)
+		suggestion = _interpreter.SuggestCodeCompletion(code) as INamespace
 		return array(IEntity, 0) if suggestion is null
 		return GetChildNamespaces(suggestion) if code.StartsWith("import ")
 		return suggestion.GetMembers()
@@ -322,13 +331,14 @@ class InteractiveInterpreterControl(TextEditorControl):
 		return false
 		
 	private def HandleKeyPress(ch as System.Char) as bool:
+		return true if _blockKeys
+		
 		if InCodeCompletion:
 			_codeCompletionWindow.ProcessKeyEvent(ch)
-
+		
 		if ch == "."[0]:
 			DotComplete(ch)
-			return false
-
+			
 		return false
 		
 	private def cls():
