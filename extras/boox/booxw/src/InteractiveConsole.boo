@@ -47,6 +47,17 @@ class InteractiveConsole(DockContent):
 					Font: System.Drawing.Font("Lucida Console", 12)))
 					
 		console.Interpreter.SetValue("MainForm", mainForm)
+		console.Interpreter.SetValue("inspect", inspect)
+		
+	def inspect([required] obj):
+		f = Form(Text: "Object Inspector [${obj.ToString()[:10]}...]")
+		f.Controls.Add(PropertyGrid(
+							Dock: DockStyle.Fill,
+							SelectedObject: obj,
+							Font: Font,
+							PropertySort: PropertySort.Alphabetical))
+		f.Show()
+		return f
 		
 	
 	override def GetPersistString():
