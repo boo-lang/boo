@@ -7,6 +7,15 @@ import System.Windows.Forms
 import System.Drawing
 import Boo.Lang.Compiler.Ast
 
+enum TypeIcon:
+	Namespace
+	PublicClass
+	PublicInterface
+	PublicEnum
+	PublicField
+	PublicProperty
+	PublicMethod
+
 class DocumentOutline(Content):
 	
 	_activeDocument as BooEditor
@@ -42,22 +51,20 @@ class DocumentOutline(Content):
 		_imageList = ImageList()
 		appPath = Path.GetDirectoryName(Application.ExecutablePath)
 		
+		imageListName = ["namespace.png", "class.png", "interface.png", 
+						"enum.png", "field.png", "property.png", "method.png"]
+		
 		try:
-			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "namespace.png")))
-			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "class.png")))
-			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "interface.png")))
-			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "field.png")))
-			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "property.png")))
-			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "enum.png")))
-			_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, "method.png")))
+			for imageName in imageListName:
+				_imageList.Images.Add(Image.FromFile(Path.Combine(appPath, imageName)))
 		except ex as FileNotFoundException:
 			pass
 		
 	def InitTreeView():
 		_tree = TreeView(Dock: DockStyle.Fill,
 						DoubleClick: _tree_DoubleClick,
-						ImageIndex: 0,
-						SelectedImageIndex: 0,
+						ImageIndex: cast(int, TypeIcon.Namespace),
+						SelectedImageIndex: cast(int, TypeIcon.Namespace),
 						ImageList: _imageList)
 		
 	ActiveDocument as BooEditor:
@@ -112,24 +119,24 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		_tree.EndUpdate()
 		
 	override def OnProperty(node as Property):
-		Add(node.Name, 4, 4, node)		
+		Add(node.Name, cast(int, TypeIcon.PublicProperty), node)		
 		
 	override def OnField(node as Field):
-		Add(node.Name, 3, 3, node)
+		Add(node.Name, cast(int, TypeIcon.PublicField), node)
 		
 	override def OnInterfaceDefinition(node as InterfaceDefinition):
-		OnTypeDefinition(node, 2, 2)
+		OnTypeDefinition(node, cast(int, TypeIcon.PublicInterface))
 		
 	override def OnClassDefinition(node as ClassDefinition):
-		OnTypeDefinition(node, 1, 1)
+		OnTypeDefinition(node, cast(int, TypeIcon.PublicClass))
 		
 	override def OnEnumDefinition(node as EnumDefinition):
-		OnTypeDefinition(node, 5, 5)
+		OnTypeDefinition(node, cast(int, TypeIcon.PublicEnum))
 		
-	def OnTypeDefinition(node as TypeDefinition, imageIndex, selectedImageIndex):
+	def OnTypeDefinition(node as TypeDefinition, imageIndex as int):
 		saved = _current
 		
-		_current = Add(node.Name, imageIndex, selectedImageIndex, node)
+		_current = Add(node.Name, imageIndex, imageIndex, node)
 		Switch(node.Members)
 		
 		_current = saved
@@ -146,7 +153,10 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		node.Tag = data
 		return node
 		
-	def Add(text as string, imageIndex, selectedImageIndex, data):
+	def Add(text as string, imageIndex as int, data):
+		Add(text, imageIndex, imageIndex, data)
+
+	def Add(text as string, imageIndex as int, selectedImageIndex as int, data):
 		node = _current.Nodes.Add(text)
 		node.Tag = data
 		node.ImageIndex = imageIndex
