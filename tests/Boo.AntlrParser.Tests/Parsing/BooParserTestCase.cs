@@ -777,6 +777,12 @@ namespace Boo.AntlrParser.Tests
 		}
 		
 		[Test]
+		public void CommentsBetweenMethods()
+		{
+			RunParserTestCase("comments1.boo");
+		}
+		
+		[Test]
 		public void NestedComments()
 		{
 			RunParserTestCase("nested_comments.boo");

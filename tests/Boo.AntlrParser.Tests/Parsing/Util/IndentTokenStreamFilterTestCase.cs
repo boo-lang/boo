@@ -57,7 +57,7 @@ namespace Boo.AntlrParser.Tests.Util
 	/// Summary description for Class1.
 	/// </summary>
 	[TestFixture]
-	public class IndentTokenStreamFilterTestCase : Assertion
+	public class IndentTokenStreamFilterTestCase
 	{
 		const int TEXT = 5;
 
@@ -72,81 +72,118 @@ namespace Boo.AntlrParser.Tests.Util
 		[Test]
 		public void TestClass()
 		{			
-			Queue tokens = new Queue();			
-			tokens.Enqueue(new SimpleToken(TEXT, "class"));
-			tokens.Enqueue(new SimpleToken(WS, "   \t"));
-			tokens.Enqueue(new SimpleToken(TEXT, "foo:"));			
-			tokens.Enqueue(new SimpleToken(WS, "\n\t")); // i
-			tokens.Enqueue(new SimpleToken(TEXT, "def foo():"));
-			tokens.Enqueue(new SimpleToken(WS, "\n\t\t")); // i
-			tokens.Enqueue(new SimpleToken(TEXT, "pass"));
-			tokens.Enqueue(new SimpleToken(WS, "\n\t\n\n\t")); // eos, d
-			tokens.Enqueue(new SimpleToken(TEXT, "def bar():"));
-			tokens.Enqueue(new SimpleToken(WS, "\n\t\t")); // i
-			tokens.Enqueue(new SimpleToken(TEXT, "pass"));
-			tokens.Enqueue(new Token(Token.EOF_TYPE)); // eos, d, d
+			Token[] tokens = new Token[]
+			{
+				new SimpleToken(TEXT, "class"),
+				new SimpleToken(WS, "   \t"),
+				new SimpleToken(TEXT, "foo:"),			
+				new SimpleToken(WS, "\n\t"),// i
+				new SimpleToken(TEXT, "def foo():"),
+				new SimpleToken(WS, "\n\t\t"), // i
+				new SimpleToken(TEXT, "pass"),
+				new SimpleToken(WS, "\n\t\n\n\t"), // eos, d
+				new SimpleToken(TEXT, "def bar():"),
+				new SimpleToken(WS, "\n\t\t"), // i
+				new SimpleToken(TEXT, "pass"),
+				new Token(Token.EOF_TYPE) // eos, d, d
+			};
 			
-			TokenStream stream = new IndentTokenStreamFilter(new FakeStream(tokens), WS, INDENT, DEDENT, EOS);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(INDENT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(INDENT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(EOS, stream.nextToken().Type);
-			AssertEquals(DEDENT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(INDENT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(EOS, stream.nextToken().Type);
-			AssertEquals(DEDENT, stream.nextToken().Type);
-			AssertEquals(DEDENT, stream.nextToken().Type);
-			AssertEquals(Token.EOF_TYPE, stream.nextToken().Type);
+			AssertTokenSequence(tokens,
+							TEXT,
+							TEXT,
+							INDENT,
+							TEXT,
+							INDENT,
+							TEXT,
+							EOS,
+							DEDENT,
+							TEXT, 
+							INDENT,
+							TEXT,
+							EOS,
+							DEDENT,
+							DEDENT,
+							Token.EOF_TYPE);			
 		}
 
 		[Test]
 		public void TestTrailingWhiteSpace()
-		{
-			Queue queue = new Queue();
-			queue.Enqueue(new SimpleToken(TEXT, "package"));
-			queue.Enqueue(new SimpleToken(WS, " "));
-			queue.Enqueue(new SimpleToken(TEXT, "Empty"));
-			queue.Enqueue(new SimpleToken(WS, "\n\n\n")); // 1
-			queue.Enqueue(new Token(Token.EOF_TYPE)); // 2
-
-			IndentTokenStreamFilter stream = new IndentTokenStreamFilter(new FakeStream(queue), WS, INDENT, DEDENT, EOS);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(EOS, stream.nextToken().Type); // 1)
-			AssertEquals(EOS, stream.nextToken().Type); // 2)
-			AssertEquals(Token.EOF_TYPE, stream.nextToken().Type);
+		{			
+			Token[] tokens = new Token[] {
+				new SimpleToken(TEXT, "package"),
+				new SimpleToken(WS, " "),
+				new SimpleToken(TEXT, "Empty"),
+				new SimpleToken(WS, "\n\n\n"), // 1
+				new Token(Token.EOF_TYPE) // 2
+			};
+			
+			AssertTokenSequence(tokens, TEXT, TEXT, EOS, EOS, Token.EOF_TYPE);
 		}
 
 		[Test]
 		public void TestMultipleDedent()
 		{
+			Token[] tokens = new Token[] {
+				new SimpleToken(TEXT, "class Math:"),
+				new SimpleToken(WS, "\n\t"),
+				new SimpleToken(TEXT, "def foo:"),
+				new SimpleToken(WS, "\n\t\t"),
+				new SimpleToken(TEXT, "pass"),
+				new SimpleToken(WS, "\n"),
+				new SimpleToken(TEXT, "print(3)"),
+				new Token(Token.EOF_TYPE)
+			};
+			
+			AssertTokenSequence(tokens,
+					TEXT, INDENT, TEXT, INDENT, TEXT,
+					EOS, DEDENT, DEDENT, TEXT, EOS, Token.EOF_TYPE);
+		}
+		
+		[Test]
+		public void TestWhitespaceWithSkipInBetween()
+		{
+			/*
+			a:
+				b:
+					c
+			// comment
+				d
+			*/
+			Token[] tokens = new Token[] {
+				new SimpleToken(TEXT, "a:"),
+				new SimpleToken(WS, "\n\t"),
+				new SimpleToken(TEXT, "b:"),
+				new SimpleToken(WS, "\n\t\t"),
+				new SimpleToken(TEXT, "c"),
+				new SimpleToken(WS, "\n"),
+				new SimpleToken(WS, "\n\t"),
+				new SimpleToken(TEXT, "d"),
+				new SimpleToken(WS, "\n"),
+				new Token(Token.EOF_TYPE)
+			};
+			
+			AssertTokenSequence(tokens,
+							TEXT, INDENT, TEXT,
+							INDENT, TEXT, EOS,
+							DEDENT, TEXT, EOS, DEDENT, EOS, Token.EOF_TYPE);
+			
+		}
+		
+		void AssertTokenSequence(Token[] tokens, params int[] expectedSequence)
+		{
 			Queue queue = new Queue();
-			queue.Enqueue(new SimpleToken(TEXT, "class Math:"));
-			queue.Enqueue(new SimpleToken(WS, "\n\t"));
-			queue.Enqueue(new SimpleToken(TEXT, "def foo:"));
-			queue.Enqueue(new SimpleToken(WS, "\n\t\t"));
-			queue.Enqueue(new SimpleToken(TEXT, "pass"));
-			queue.Enqueue(new SimpleToken(WS, "\n"));
-			queue.Enqueue(new SimpleToken(TEXT, "print(3)"));
-			queue.Enqueue(new Token(Token.EOF_TYPE));
-
+			foreach (Token token in tokens)
+			{
+				queue.Enqueue(token);
+			}
+			
 			IndentTokenStreamFilter stream = new IndentTokenStreamFilter(new FakeStream(queue), WS, INDENT, DEDENT, EOS);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(INDENT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(INDENT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(EOS, stream.nextToken().Type);
-			AssertEquals(DEDENT, stream.nextToken().Type);
-			AssertEquals(DEDENT, stream.nextToken().Type);
-			AssertEquals(TEXT, stream.nextToken().Type);
-			AssertEquals(EOS, stream.nextToken().Type);
-			AssertEquals(Token.EOF_TYPE, stream.nextToken().Type);
+			
+			int index=0;
+			foreach (int expected in expectedSequence)
+			{
+				Assert.AreEqual(expected, stream.nextToken().Type, "sequence item: " + (index++));
+			}
 		}
 	}
 }

@@ -34,7 +34,7 @@ namespace Boo.AntlrParser.Util
 {
 	public class SimpleToken : antlr.Token
 	{
-		protected string _text;
+		protected string _buffer;
 
 		public SimpleToken(int type, string txt) : base(type, txt)
 		{
@@ -42,12 +42,12 @@ namespace Boo.AntlrParser.Util
 
 		override public void setText(string txt)
 		{
-			_text = txt;
+			_buffer = txt;
 		}
 
 		override public string getText()
 		{
-			return _text;
+			return _buffer;
 		}
 	}
 
@@ -91,6 +91,8 @@ namespace Boo.AntlrParser.Util
 		/// tokens waiting to be consumed
 		/// </summary>
 		protected Queue _pendingTokens;
+		
+		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
 		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsTokenType, int indentTokenType, int dedentTokenType, int eosTokenType)
 		{
@@ -120,82 +122,83 @@ namespace Boo.AntlrParser.Util
 
 		public antlr.Token nextToken()
 		{
-			if (_pendingTokens.Count > 0)
+			if (0 == _pendingTokens.Count)
 			{
-				return (antlr.Token)_pendingTokens.Dequeue();
+				ProcessNextTokens();
 			}
-
-			//Console.WriteLine("Waiting on lexer...");
-			antlr.Token token = _istream.nextToken();
-			//Console.WriteLine("done.");
-			while (null != token)
-			{
-				if (antlr.Token.SKIP == token.Type)
+			return (antlr.Token)_pendingTokens.Dequeue();
+		}
+		
+		void ProcessNextTokens()
+		{		
+			_buffer.Length = 0;
+				
+			antlr.Token token = null;
+			while (true)
+			{			
+				token = _istream.nextToken();
+				
+				int ttype = token.Type;
+				if (antlr.Token.SKIP == ttype)
 				{
-					token = _istream.nextToken();
 					continue;
 				}
 				
-				if (_wsTokenType == token.Type)
-				{				
-					string text = token.getText();
-					string[] lines = text.Split('\r', '\n');					
+				if (_wsTokenType == ttype)
+				{			
+					_buffer.Append(token.getText());
+					continue;
+				}
+				
+				break;
+			}
+			
+			if (0 != _buffer.Length)
+			{
+				string text = _buffer.ToString();
+				string[] lines = text.Split('\r', '\n');					
 
-					if (lines.Length < 2)
+				if (lines.Length > 1)
+				{
+					string lastLine = lines[lines.Length-1];
+					if (lastLine.Length > CurrentIndentLevel)
 					{
-						token = _istream.nextToken();
+						EnqueueIndent(token);
+						_indentStack.Push(lastLine.Length);
+					}
+					else if (lastLine.Length < CurrentIndentLevel)
+					{
+						EnqueueEOS(token);
+						do 
+						{
+							EnqueueDedent(token);
+							_indentStack.Pop();
+						}
+						while (lastLine.Length < CurrentIndentLevel);
 					}
 					else
-					{	
-						string lastLine = lines[lines.Length-1];
-						if (lastLine.Length > CurrentIndentLevel)
-						{
-							EnqueueIndent(token);
-							_indentStack.Push(lastLine.Length);
-
-							break;
-						}
-						else if (lastLine.Length < CurrentIndentLevel)
-						{
-							EnqueueEOS(token);
-							do 
-							{
-								EnqueueDedent(token);
-								_indentStack.Pop();
-							}
-							while (lastLine.Length < CurrentIndentLevel);
-
-							break;
-						}
-						else
-						{
-							EnqueueEOS(token);
-							token = _istream.nextToken();
-						}
-					}
-				}
-				else if (antlr.Token.EOF_TYPE == token.Type)
-				{					
-					EnqueueEOS(token);
-
-					while (CurrentIndentLevel > 0)
 					{
-						EnqueueDedent(token);
-						_indentStack.Pop();
+						EnqueueEOS(token);
 					}
-
-					_pendingTokens.Enqueue(token);
-
-					break;
-				}
-				else
-				{
-					_pendingTokens.Enqueue(token);
-					break;
 				}
 			}
-
-			return (antlr.Token)_pendingTokens.Dequeue();
+			
+			if (antlr.Token.EOF_TYPE == token.Type)
+			{					
+				EnqueueEOS(token);	
+				while (CurrentIndentLevel > 0)
+				{
+					EnqueueDedent(token);
+					_indentStack.Pop();					
+				}
+			}
+			
+			Enqueue(token);
+		}
+		
+		void Enqueue(antlr.Token token)
+		{
+			_pendingTokens.Enqueue(token);
 		}
 
 		void EnqueueIndent(antlr.Token originalToken)

@@ -16,13 +16,16 @@ def CreateRawLexer(name, reader as TextReader):
 
 reader as TextReader
 
-if len(argv):
+if len(argv) and "-" != argv[0]:
 	reader = File.OpenText(argv[0])
 else:
 	reader = Consume(Console.In)
 	
-// lexer = CreateRawLexer("stdin", reader)
-lexer = BooParser.CreateBooLexer("stdin", reader)
+lexer as antlr.TokenStream
+if "/r" in argv: 
+	lexer = CreateRawLexer("stdin", reader)
+else:
+	lexer = BooParser.CreateBooLexer("stdin", reader)
 while token=lexer.nextToken():
 	if token.Type == Token.EOF_TYPE:
 		break

@@ -1500,7 +1500,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.HashTypeBinding);
 		}
 		
-		bool IsListDisplay(ListLiteralExpression node)
+		bool IsListGenerator(ListLiteralExpression node)
 		{
 			return 1 == node.Items.Count &&
 				NodeType.IteratorExpression == node.Items[0].NodeType;
@@ -1515,7 +1515,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (node.Items.Count > 0)
 			{
-				if (IsListDisplay(node))
+				if (IsListGenerator(node))
 				{
 					EmitListDisplay(node);
 				}

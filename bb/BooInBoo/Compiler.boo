@@ -8,6 +8,19 @@ interface ICompilerComponent(System.IDisposable):
 interface ICompilerPipelineStep(ICompilerComponent):
 	def Run()
 	
+interface ICompilerInput:
+	Name as string:
+		get
+		
+	def Open() as System.IO.TextReader
+
+interface ICompilerResource:
+	Name as string:
+		get
+	Description as string:
+		get
+	def WriteResources(writer as System.Resources.IResourceWriter)
+	
 class AbstractCompilerPipelineStep(ICompilerPipelineStep):
 	_context as CompilerContext
 	
