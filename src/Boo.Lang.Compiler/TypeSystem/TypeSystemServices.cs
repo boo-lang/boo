@@ -201,6 +201,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type;
 		}
 		
+		public static bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
+		{
+			if (lhs == rhs || Null.Default == rhs)
+			{
+				return true;
+			}
+			
+			ICallableType other = rhs as ICallableType;
+			if (null != other)
+			{			
+				return lhs.GetSignature() == other.GetSignature(); 
+			}
+			return false;
+		}
+		
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
 		{
 			IParameter[] implParameters = impl.GetParameters();

@@ -47,17 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public bool IsAssignableFrom(IType other)
 		{
-			if (this == other || Null.Default == other)
-			{
-				return true;
-			}
-			
-			ICallableType rhs = other as ICallableType;
-			if (null != rhs)
-			{			
-				return GetSignature() == rhs.GetSignature(); 
-			}
-			return false;
+			return TypeSystemServices.IsCallableTypeAssignableFrom(this, other);
 		}
 	}
 }

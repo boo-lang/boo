@@ -68,9 +68,11 @@ namespace Boo.Lang.Compiler.Steps
 			cd.Name = node.Name;
 			cd.Modifiers = TypeMemberModifiers.Final;
 			cd.Members.Add(CreateCallableConstructor());
-			cd.Members.Add(CreateInvokeMethod(node));
+			cd.Members.Add(CreateInvokeMethod(node));		
 			
 			ReplaceCurrentNode(cd);
+			
+			cd.Entity = new TypeSystem.InternalCallableType(TypeSystemServices, cd);
 		}
 		
 		Constructor CreateCallableConstructor()

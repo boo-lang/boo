@@ -46,11 +46,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected Boo.Lang.List _buffer = new Boo.Lang.List();
 		
-		protected AbstractInternalType(TypeSystemServices tagManager, TypeDefinition typeDefinition)
+		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition)
 		{
-			_typeSystemServices = tagManager;
-			_typeDefinition = typeDefinition;
-			_parentNamespace = (INamespace)TypeSystemServices.GetEntity(_typeDefinition.ParentNode);
+			_typeSystemServices = typeSystemServices;
+			_typeDefinition = typeDefinition;			
 		}
 		
 		public string FullName
@@ -81,6 +80,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
+				if (null == _parentNamespace)
+				{
+					_parentNamespace = (INamespace)TypeSystemServices.GetEntity(_typeDefinition.ParentNode);
+				}
 				return _parentNamespace;
 			}
 		}

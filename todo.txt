@@ -1,6 +1,14 @@
-﻿* internal delegates
+﻿* anonymous callable types:
+	* callable3.boo
+	* callable1.boo
+	* callable2.boo
+	* callable4.boo
 
-* anonymous delegate types
+* anonymous callable type notation
+	def map(fn as callable(object) as object, enumerable)
+	def map(fn as (object)->object, enumerable)
+	def map(fn as object->object, enumerable)	
+	
 	
 * fix event handling
 	
