@@ -133,7 +133,7 @@ namespace Boo.Lang.Ast.Impl
 		writer.WriteLine("""
 		new public Boo.Lang.Ast.${node.Name} CloneNode()
 		{
-			return (Boo.Lang.Ast.${node.Name})Clone();
+			return Clone() as Boo.Lang.Ast.${node.Name};
 		}""")
 		
 		unless IsAbstract(node):
@@ -187,7 +187,7 @@ namespace Boo.Lang.Ast.Impl
 						writer.WriteLine("""
 			if (${fieldName} == existing)
 			{
-				this.${field.Name} = (Boo.Lang.Ast.${field.Type})newNode;
+				this.${field.Name} = ((Boo.Lang.Ast.${field.Type})newNode);
 				return true;
 			}""")
 			
@@ -211,7 +211,7 @@ namespace Boo.Lang.Ast.Impl
 					writer.WriteLine("""
 			if (null != ${fieldName})
 			{
-				clone.${fieldName} = (${field.Type})${fieldName}.Clone();
+				clone.${fieldName} = ((${field.Type})${fieldName}.Clone());
 			}""")
 				else:
 					writer.WriteLine("""
