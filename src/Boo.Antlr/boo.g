@@ -693,7 +693,8 @@ stmt [StatementCollection container]
 	(
 		s=for_stmt |
 		s=while_stmt |
-		s=if_stmt |		
+		s=if_stmt |
+		s=unless_stmt |
 		s=try_stmt |
 		s=given_stmt |
 		(		
@@ -872,6 +873,20 @@ continue_stmt returns [Statement s]
 	{ s = null; }:
 	c:CONTINUE
 	{ s = new ContinueStatement(ToLexicalInfo(c)); }
+	;
+	
+protected
+unless_stmt returns [UnlessStatement us]
+	{
+		us = null;
+		Expression condition = null;
+	}:
+	u:UNLESS! condition=expression
+	{
+		us = new UnlessStatement(ToLexicalInfo(u));
+		us.Condition = condition;
+	}
+	compound_stmt[us.Block.Statements]
 	;
 
 protected

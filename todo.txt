@@ -103,6 +103,8 @@ exigidas pela linguagem, permitindo múltiplos backends de geraçao de código
 
 done * unificar SetupAssemblyStep com EmitAssemblyStep
 
+done * criar um nó Unless
+
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 
 * AstAttribute vira IAstAttribute que implementa ICompilerStep

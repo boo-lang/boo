@@ -216,6 +216,13 @@ package Boo.Ast
 		FalseBlock as Block
 	end
 	
+	class UnlessStatement(Statement)
+		Condition as Expression
+		
+		[auto]
+		Block as Block
+	end
+	
 	class ForStatement(Statement)
 		Declarations as DeclarationCollection
 		Iterator as Expression

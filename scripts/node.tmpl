@@ -46,16 +46,12 @@ $initializer() #slurp
 		{
 		}
 		
-		public ${item.name}(antlr.Token token, $constructorParameters($simpleFields)) : base(token, $formatParameters($simpleFields))
+		public ${item.name}(LexicalInfo lexicalInfo, $constructorParameters($simpleFields)) : base(lexicalInfo, $formatParameters($simpleFields))
 		{
 		}
 		#end if
 		
-		internal ${item.name}(antlr.Token token) : base(token)
-		{
-		}
-		
-		internal ${item.name}(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		public ${item.name}(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		#unless "abstract" in $item.attributes

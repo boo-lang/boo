@@ -710,6 +710,12 @@ namespace Boo.Tests.Ast.Parsing
 			RunParserTestCase("using.boo");
 		}
 		
+		[Test]
+		public void TestUnless0()
+		{
+			RunParserTestCase("unless0.boo");
+		}
+		
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{

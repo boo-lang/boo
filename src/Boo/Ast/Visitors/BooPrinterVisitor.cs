@@ -459,6 +459,14 @@ namespace Boo.Ast.Visitors
 			WriteLine(":");
 			Switch(node.Block);
 		}
+		
+		public override void OnUnlessStatement(UnlessStatement node)
+		{
+			WriteIndented("unless ");
+			Switch(node.Condition);
+			WriteLine(":");
+			Switch(node.Block);
+		}
 
 		public override void OnIfStatement(IfStatement ifs)
 		{
