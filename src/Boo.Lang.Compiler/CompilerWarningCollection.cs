@@ -27,114 +27,42 @@
 #endregion
 
 using System;
-using System.Reflection;
+using System.Text;
+using Boo.Lang;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler
 {
-	public abstract class AbstractCompilerComponent : ICompilerComponent
+	/// <summary>
+	/// Compiler errors.
+	/// </summary>
+	[EnumeratorItemType(typeof(CompilerWarning))]
+	public class CompilerWarningCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
 	{
-		protected CompilerContext _context;		
-		
-		protected AbstractCompilerComponent()
-		{			
+		public CompilerWarningCollection()
+		{
 		}
-		
-		protected CompilerContext Context
+
+		public CompilerWarning this[int index]
 		{
 			get
 			{
-				return _context;
+				return (CompilerWarning)InnerList[index];
 			}
 		}
-		
-		protected BooCodeBuilder CodeBuilder
+
+		public void Add(CompilerWarning error)
 		{
-			get
+			if (null == error)
 			{
-				return _context.CodeBuilder;
+				throw new ArgumentNullException("error");
 			}
-		}
-		
-		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
-		{
-			get
-			{
-				return _context.CompileUnit;
-			}
-		}
-		
-		protected CompilerParameters Parameters
-		{
-			get
-			{
-				return _context.Parameters;
-			}
-		}
-		
-		protected System.IO.TextWriter OutputWriter
-		{
-			get
-			{
-				return _context.Parameters.OutputWriter;
-			}
-		}
-		
-		protected CompilerErrorCollection Errors
-		{
-			get
-			{
-				return _context.Errors;
-			}
-		}
-		
-		protected CompilerWarningCollection Warnings
-		{
-			get
-			{
-				return _context.Warnings;
-			}
-		}
-		
-		protected TypeSystem.TypeSystemServices TypeSystemServices
-		{
-			get
-			{
-				return _context.TypeSystemServices;
-			}
-		}
-		
-		protected TypeSystem.NameResolutionService NameResolutionService
-		{
-			get
-			{
-				return _context.NameResolutionService;
-			}
-		}
-		
-		public IEntity GetEntity(Node node)
-		{
-			if (null == node.Entity)
-			{
-				throw CompilerErrorFactory.InvalidNode(node);
-			}
-			return node.Entity;
+			InnerList.Add(error);
 		}		
 		
-		public virtual void Initialize(CompilerContext context)
+		override public string ToString()
 		{
-			if (null == context)
-			{
-				throw new ArgumentNullException("context");
-			}
-			_context = context;			
-		}
-		
-		public virtual void Dispose()
-		{
-			_context = null;
-		}	
+			return Boo.Lang.Builtins.join(InnerList, "\n");
+		}		
 	}
 }

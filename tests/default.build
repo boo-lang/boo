@@ -60,6 +60,7 @@
 				<include name="BooCompiler.Tests/**/*.cs" />
 				<include name="build/RegressionTestFixture.cs" />
 				<include name="build/CompilerErrorsTestFixture.cs" />
+				<include name="build/CompilerWarningsTestFixture.cs" />
 				<include name="build/IntegrationTestFixture.cs" />
 				<include name="build/StdlibTestFixture.cs" />
 				<include name="build/AttributesTestFixture.cs" />

@@ -89,6 +89,7 @@ namespace BooC
 				
 				if (options.TraceSwitch.TraceWarning)
 				{			
+					Console.WriteLine(context.Warnings);
 					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));					
 				}
 			}

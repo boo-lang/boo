@@ -397,6 +397,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 		
+		public Property CreateProperty(string name, IType type)
+		{
+			Property property = new Property(name);
+			property.Modifiers = TypeMemberModifiers.Public;
+			property.Type = CreateTypeReference(type);
+			property.Entity = new InternalProperty(_tss, property);
+			return property;
+		}
+		
 		public Field CreateField(string name, IType type)
 		{
 			Field field = new Field();

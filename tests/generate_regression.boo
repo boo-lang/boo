@@ -90,6 +90,23 @@ namespace BooCompiler.Tests
 		}
 """)
 
+GenerateTestFixture("testcases/warnings", "build/CompilerWarningsTestFixture.cs", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
+	using Boo.Lang.Compiler;	
+
+	[TestFixture]
+	public class CompilerWarningsTestFixture : AbstractCompilerTestCase
+	{	
+		protected override CompilerPipeline SetUpCompilerPipeline()
+		{
+			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Compile();
+			pipeline.Add(new Boo.Lang.Compiler.Steps.PrintWarnings());
+			return pipeline;
+		}
+""")
+
 GenerateTestFixture("testcases/integration", "build/IntegrationTestFixture.cs", """
 namespace BooCompiler.Tests
 {

@@ -89,6 +89,7 @@ abstract class AbstractBooTask(Task):
 		verbose = context.Parameters.TraceSwitch.TraceInfo
 		for error in errors:
 			LogError(error.ToString(verbose))
+		LogInfo(context.Warnings)
 			
 		if len(errors):
 			LogInfo("${len(errors)} error(s).")

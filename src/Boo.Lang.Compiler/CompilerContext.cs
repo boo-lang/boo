@@ -47,6 +47,8 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerErrorCollection _errors;
 		
+		protected CompilerWarningCollection _warnings;
+		
 		protected readonly TypeSystem.TypeSystemServices _typeSystemServices;
 
 		protected readonly TypeSystem.BooCodeBuilder _codeBuilder;		
@@ -84,7 +86,8 @@ namespace Boo.Lang.Compiler
 			}
 
 			_unit = unit;
-			_errors = new CompilerErrorCollection();
+			_errors = new CompilerErrorCollection();			
+			_warnings = new CompilerWarningCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
 			_typeSystemServices = new TypeSystem.TypeSystemServices(this);
@@ -136,6 +139,14 @@ namespace Boo.Lang.Compiler
 			get
 			{
 				return _errors;
+			}
+		}
+		
+		public CompilerWarningCollection Warnings
+		{
+			get
+			{
+				return _warnings;
 			}
 		}
 

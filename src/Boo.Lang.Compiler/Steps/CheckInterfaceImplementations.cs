@@ -29,6 +29,7 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
+	using System.Diagnostics;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
@@ -77,8 +78,41 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			//node.Members.Add(CreateAbstractProperty(interfaceReference, tag));
-			//node.Modifiers |= TypeMemberModifiers.Abstract;
+			else
+			{
+				if (null == member)
+				{
+					node.Members.Add(CreateAbstractProperty(interfaceReference, tag));
+					node.Modifiers |= TypeMemberModifiers.Abstract;
+					Warnings.Add(
+						CompilerWarningFactory.AbstractMemberNotImplemented(interfaceReference,
+																					node.FullName, tag.FullName)); 
+				}
+				else
+				{
+					// error
+				}
+			}
+		}
+		
+		Property CreateAbstractProperty(TypeReference reference, IProperty property)
+		{
+			Debug.Assert(0 == property.GetParameters().Length);
+			Property p = CodeBuilder.CreateProperty(property.Name, property.Type);
+			p.Modifiers |= TypeMemberModifiers.Abstract;
+			
+			IMethod getter = property.GetGetMethod();
+			if (getter != null)
+			{
+				p.Getter = CodeBuilder.CreateAbstractMethod(reference.LexicalInfo, getter); 
+			}
+			
+			IMethod setter = property.GetSetMethod(); 
+			if (setter != null)
+			{
+				p.Setter = CodeBuilder.CreateAbstractMethod(reference.LexicalInfo, setter);				
+			}
+			return p;
 		}
 		
 		void ResolveClassInterfaceMethod(ClassDefinition node,
