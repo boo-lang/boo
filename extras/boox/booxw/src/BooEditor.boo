@@ -3,6 +3,7 @@ namespace BooExplorer
 import ICSharpCode.TextEditor
 import ICSharpCode.TextEditor.Document
 import ICSharpCode.TextEditor.Actions
+
 import WeifenLuo.WinFormsUI
 import System
 import System.IO
@@ -29,7 +30,9 @@ class WaitCursor(IDisposable):
 
 class BooEditor(DockContent):
 
-	_editor as TextEditorControl
+	_editor as BooxTextAreaControl
+
+	[getter(Main)]
 	_main as MainForm
 
 	[getter(FileName)]
@@ -47,10 +50,11 @@ class BooEditor(DockContent):
 	
 	def constructor(main as MainForm):
 		_main = main
-		_editor = TextEditorControl(Dock: DockStyle.Fill,
+		_editor = BooxTextAreaControl(Dock: DockStyle.Fill,
 							Font: System.Drawing.Font("Lucida Console", 12.0),
 							EnableFolding: true)
 
+		_editor.Editor = self
 		_editor.Encoding = System.Text.Encoding.UTF8
 		_editor.Document.FormattingStrategy = BooFormattingStrategy()
 		_editor.Document.HighlightingStrategy = GetBooHighlighting()
