@@ -802,9 +802,18 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{				
-				if (!entity.HasSuperCall &&
-					!entity.IsStatic &&
-					!entity.DeclaringType.IsValueType)
+				if (entity.DeclaringType.IsValueType)
+				{
+					if (0 == node.Parameters.Count &&
+						!node.IsSynthetic)
+					{
+						Error(
+							CompilerErrorFactory.ValueTypesCannotDeclareParameterlessConstructors(node));
+					}
+				}
+				else if (
+					!entity.HasSuperCall &&
+					!entity.IsStatic)
 				{
 					IType baseType = entity.DeclaringType.BaseType;
 					IConstructor super = FindCorrectConstructor(node, baseType, EmptyExpressionCollection);

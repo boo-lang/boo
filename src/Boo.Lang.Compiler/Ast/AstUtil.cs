@@ -153,6 +153,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			Constructor constructor = new Constructor(lexicalInfoProvider.LexicalInfo);
 			constructor.Modifiers = modifiers;
+			constructor.IsSynthetic = true;
 			return constructor;
 		}
 		
@@ -160,9 +161,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			string[] parts = fullname.Split('.');
 			ReferenceExpression expression = new ReferenceExpression(parts[0]);
+			expression.IsSynthetic = true;
 			for (int i=1; i<parts.Length; ++i)
 			{
 				expression = new MemberReferenceExpression(expression, parts[i]);
+				expression.IsSynthetic = true;
 			}
 			return expression;
 		}
@@ -177,6 +180,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(li);
 			mie.Target = (Expression)target.Clone();			
 			mie.Arguments.Add((Expression)arg.Clone());
+			mie.IsSynthetic = true;
 			return mie;
 		}
 		

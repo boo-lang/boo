@@ -65,12 +65,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
-			LeaveTypeDefinition(node);
-			
+			LeaveTypeDefinition(node);		
 			if (!node.HasInstanceConstructor)
-			{				
+			{	
 				node.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Public));
 			}
+
 		}
 		
 		override public void LeaveField(Field node)
