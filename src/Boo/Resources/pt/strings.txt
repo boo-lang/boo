@@ -9,7 +9,7 @@ StepExecution=Erro durante a execução do passo {0}: {1}.
 ICompilerStepInterface=O tipo {0} não implementa a interface ICompilerStep.
 RequiredAttribute=O elemento {0} deve conter um atributo de nome {1}.
 InvalidAssemblySetup=AssemblyBuilder não foi configurado corretamente.
-TypeManager.UnresolvedNode=Nó não resolvido.
+BindingManager.UnboundNode=O nó {0} na posição {1} não foi resolvido corretamente.
 MethodArgumentCount=Nenhuma versão do método {0} aceita {1} parâmetros.
 NameNotType=O nome {0} não denota um tipo válido.
 
