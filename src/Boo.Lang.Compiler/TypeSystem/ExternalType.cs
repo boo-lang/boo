@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class ExternalType : IType
 	{
-		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
+		protected const BindingFlags DefaultBindingFlags = BindingFlags.Public |
 												BindingFlags.NonPublic |
 												BindingFlags.Static |
 												BindingFlags.Instance;
@@ -167,7 +167,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool IsSubclassOf(IType other)
+		public virtual bool IsSubclassOf(IType other)
 		{
 			ExternalType external = other as ExternalType;
 			if (null == external)
@@ -180,7 +180,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				;
 		}
 		
-		public bool IsAssignableFrom(IType other)
+		public virtual bool IsAssignableFrom(IType other)
 		{
 			ExternalType external = other as ExternalType;
 			if (null == external)

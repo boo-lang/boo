@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 		
-		public string FullName
+		public virtual string FullName
 		{
 			get
 			{
@@ -80,7 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool IsEnum
+		public virtual bool IsEnum
 		{
 			get
 			{
@@ -88,7 +88,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool IsValueType
+		public virtual bool IsValueType
 		{
 			get
 			{
@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool IsArray
+		public virtual bool IsArray
 		{
 			get
 			{
@@ -104,7 +104,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IType BaseType
+		public virtual IType BaseType
 		{
 			get
 			{
@@ -112,7 +112,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IEntity GetDefaultMember()
+		public virtual IEntity GetDefaultMember()
 		{
 			return null;
 		}
@@ -132,22 +132,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		public IConstructor[] GetConstructors()
+		public virtual IConstructor[] GetConstructors()
 		{
 			return new IConstructor[0];
 		}
 		
-		public IType[] GetInterfaces()
+		public virtual IType[] GetInterfaces()
 		{
 			return new IType[0];
 		}
 		
-		public IEntity[] GetMembers()
+		public virtual IEntity[] GetMembers()
 		{
 			return new IEntity[0];
 		}
 		
-		public INamespace ParentNamespace
+		public virtual INamespace ParentNamespace
 		{
 			get
 			{
@@ -155,7 +155,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public virtual bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			return false;
 		}

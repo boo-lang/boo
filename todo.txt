@@ -3,6 +3,14 @@
 	* delegate6.boo
 	* delegate7.boo
 	* delegate8.boo
+	
+* software de blogging para a apresentação
+	* modelo de objetos simples com Bamboo.Prevalence
+	* editor web com autenticação forms
+	* editor RichClient
+	* segurança com par chave pública/privada
+	
+* rever os exemplos de pipeline
 
 * usar os delegates declarados
 

@@ -312,7 +312,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}				
 				else
 				{
-					tag = new ExternalType(this, type);
+					if (type.IsSubclassOf(Types.MulticastDelegate))
+					{
+						tag = new ExternalCallableType(this, type);
+					}
+					else
+					{
+						tag = new ExternalType(this, type);
+					}
 				}
 				Cache(tag);
 			}
