@@ -294,5 +294,13 @@ namespace Boo.Lang.Compiler
 				Trace.WriteLine(message);
 			}
 		}	
+		
+		public void TraceError(string message, params object[] args)
+		{
+			if (_traceSwitch.TraceError)
+			{
+				Trace.WriteLine(string.Format(message, args));
+			}
+		}
 	}
 }

@@ -231,6 +231,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{				
+			if (Visited(module))
+			{
+				return;
+			}
+			MarkVisited(module);
+			
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));			
 			
 			Visit(module.Members);
@@ -4228,7 +4234,8 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void MarkVisited(Node node)
-		{
+		{			
+			_context.TraceInfo("{0}: node '{1}' mark visited.", node.LexicalInfo, node);
 			_visited.Add(node, null);
 		}
 

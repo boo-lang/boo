@@ -106,6 +106,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override protected void OnError(Node node, Exception error)
+		{
+			_context.TraceError("{0}: Internal compiler error: ${1}", node.LexicalInfo, error);
+			base.OnError(node, error);
+		}
+		
 		protected void Error(Expression node, CompilerError error)
 		{
 			Error(node);
