@@ -33,6 +33,9 @@
 		</booc>
 	</target>
 	
+	<target name="rebuild" depends="clean, build">
+	</target>
+	
 	<target name="build" depends="select-platform">
 		<call target="${boox}" />
 	</target>
@@ -53,5 +56,9 @@
 			</fileset>
 		</copy>
 		<loadtasks assembly="${boo.dir}/Boo.NAnt.dll" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="build" if="${directory::exists('build')}" />
 	</target>
 </project>

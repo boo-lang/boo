@@ -1000,12 +1000,25 @@ closure_parameters_test:
 	;
 	
 protected
+internal_closure_stmt returns [Statement stmt]
+	{
+		stmt = null;
+		StatementModifier modifier = null;
+	}:
+	stmt=return_expression_stmt |
+	(
+		stmt=expression_stmt
+		(modifier=stmt_modifier { stmt.Modifier = modifier; })?		
+	)
+	;
+	
+protected
 closure_expression returns [Expression e]
 	{
 		e = null;
 		CallableBlockExpression cbe = null;
 		ParameterDeclarationCollection parameters = null;
-		Statement stmt = null;		
+		Statement stmt = null;
 	}:
 	anchorBegin:LBRACE
 		{
@@ -1020,11 +1033,11 @@ closure_expression returns [Expression e]
 			) |
 		)
 		(
+			stmt=internal_closure_stmt { cbe.Body.Add(stmt); }
 			(
-				stmt=return_expression_stmt |
-				stmt=expression_stmt
-			)
-			{ cbe.Body.Add(stmt); }
+				eos
+				stmt=internal_closure_stmt { cbe.Body.Add(stmt); }
+			)*
 		)
 	anchorEnd:RBRACE
 	;
