@@ -3565,6 +3565,10 @@ namespace Boo.Lang.Compiler.Steps
 			IConstructor[] constructors = typeInfo.GetConstructors();
 			if (constructors.Length > 0)
 			{				
+				foreach (IConstructor ctor in constructors)
+				{
+					EnsureRelatedNodeWasVisited(ctor);
+				}
 				return (IConstructor)ResolveCallableReference(sourceNode, arguments, constructors, true);				
 			}
 			else
