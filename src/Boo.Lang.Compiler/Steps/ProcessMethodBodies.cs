@@ -3372,7 +3372,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						Error(CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), tag.Name));
+						Error(CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), tag.FullName));
 					}
 				}
 			}

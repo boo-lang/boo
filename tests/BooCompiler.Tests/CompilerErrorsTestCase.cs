@@ -55,6 +55,12 @@ namespace BooCompiler.Tests
 	public class CompilerErrorsTestCase : AbstractCompilerTestCase
 	{		
 		[Test]
+		public void BCE0023()
+		{
+			RunCompilerTestCase("bce0023.boo");
+		}
+		
+		[Test]
 		public void BCE0080()
 		{
 			RunCompilerTestCase("bce0080.boo");
