@@ -99,10 +99,42 @@ namespace Boo.Lang.Compiler.Steps
 		
 		InfoFilter IsPublicFieldPropertyEventFilter;
 		
+		Boo.Lang.List _buffer = new Boo.Lang.List();
+		
 		public ProcessMethodBodies()
 		{
 			IsPublicFieldPropertyEventFilter = new InfoFilter(IsPublicFieldPropertyEvent);
 			IsPublicEventFilter = new InfoFilter(IsPublicEvent);
+		}
+		
+		IMethod ResolveMethod(IType type, string name)
+		{
+			return (IMethod)ResolveMember(type, name, ElementType.Method);
+		}
+		
+		IProperty ResolveProperty(IType type, string name)
+		{
+			return (IProperty)ResolveMember(type, name, ElementType.Property);
+		}
+		
+		IElement ResolveMember(IType type, string name, ElementType elementType)
+		{
+			_buffer.Clear();
+			type.Resolve(_buffer, name, elementType);
+			System.Diagnostics.Debug.Assert(1 == _buffer.Count);
+			return (IElement)_buffer[0];
+		}
+		
+		IElement Resolve(INamespace ns, string name, ElementType elementType)
+		{
+			_buffer.Clear();
+			ns.Resolve(_buffer, name, elementType);
+			return NameResolutionService.GetElementFromList(_buffer);
+		}
+		
+		IElement Resolve(INamespace ns, string name)
+		{
+			return Resolve(ns, name, ElementType.Any);
 		}
 		
 		override public void Run()
@@ -115,21 +147,21 @@ namespace Boo.Lang.Compiler.Steps
 			_visited = new Hash();
 			_loopDepth = 0;
 						
-			RuntimeServices_Len = (IMethod)TagService.RuntimeServicesType.Resolve("Len");
-			RuntimeServices_Mid = (IMethod)TagService.RuntimeServicesType.Resolve("Mid");
-			RuntimeServices_GetRange = (IMethod)TagService.RuntimeServicesType.Resolve("GetRange");
-			RuntimeServices_GetEnumerable = (IMethod)TagService.RuntimeServicesType.Resolve("GetEnumerable");
+			RuntimeServices_Len = ResolveMethod(TagService.RuntimeServicesType, "Len");
+			RuntimeServices_Mid = ResolveMethod(TagService.RuntimeServicesType, "Mid");
+			RuntimeServices_GetRange = ResolveMethod(TagService.RuntimeServicesType, "GetRange");
+			RuntimeServices_GetEnumerable = ResolveMethod(TagService.RuntimeServicesType, "GetEnumerable");			
 			Object_StaticEquals = (IMethod)TagService.Map(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
-			Array_get_Length = ((IProperty)TagService.ArrayType.Resolve("Length")).GetGetMethod();
-			String_get_Length = ((IProperty)TagService.StringType.Resolve("Length")).GetGetMethod();
+			Array_get_Length = ResolveProperty(TagService.ArrayType, "Length").GetGetMethod();
+			String_get_Length = ResolveProperty(TagService.StringType, "Length").GetGetMethod();
 			String_Substring_Int = (IMethod)TagService.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
-			ICollection_get_Count = ((IProperty)TagService.ICollectionType.Resolve("Count")).GetGetMethod();
-			IList_Contains = (IMethod)TagService.IListType.Resolve("Contains");
-			IDictionary_Contains = (IMethod)TagService.IDictionaryType.Resolve("Contains");
+			ICollection_get_Count = ResolveProperty(TagService.ICollectionType, "Count").GetGetMethod();
+			IList_Contains = ResolveMethod(TagService.IListType, "Contains");
+			IDictionary_Contains = ResolveMethod(TagService.IDictionaryType, "Contains");
 			Array_TypedEnumerableConstructor = (IMethod)TagService.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
 			Array_TypedCollectionConstructor= (IMethod)TagService.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
 			Array_TypedConstructor2 = (IMethod)TagService.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
-			ICallable_Call = (IMethod)TagService.ICallableType.Resolve("Call");
+			ICallable_Call = ResolveMethod(TagService.ICallableType, "Call");
 			Activator_CreateInstance = (IMethod)TagService.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
 			TextReaderEnumerator_Constructor = (IConstructor)TagService.Map(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
 			
@@ -823,7 +855,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType baseType = tag.DeclaringType.BaseType;			
 			Method method = tag.Method;			
-			IElement baseMethods = baseType.Resolve(tag.Name);
+			IElement baseMethods = Resolve(baseType, tag.Name, ElementType.Method);
 			
 			if (null != baseMethods)
 			{
@@ -1561,7 +1593,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				IElement member = ((INamespace)tag).Resolve(node.Name);				
+				IElement member = Resolve((INamespace)tag, node.Name);				
 				if (null == member)
 				{										
 					Error(node, CompilerErrorFactory.MemberNotFound(node, tag.FullName));
@@ -1844,7 +1876,7 @@ namespace Boo.Lang.Compiler.Steps
 				// assign to unknown reference implies local
 				// declaration
 				ReferenceExpression reference = (ReferenceExpression)node.Left;
-				IElement info = Resolve(node, reference.Name);					
+				IElement info = NameResolutionService.Resolve(reference.Name);					
 				if (null == info || IsBuiltin(info))
 				{
 					Accept(node.Right);
@@ -2707,7 +2739,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IElement ResolveName(Node node, string name)
 		{
-			IElement tag = Resolve(node, name);
+			IElement tag = NameResolutionService.Resolve(name);
 			CheckNameResolution(node, name, tag);
 			return tag;
 		}
@@ -2744,10 +2776,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMember ResolvePublicFieldPropertyEvent(Node sourceNode, IType type, string name)
 		{
-			IElement candidate = type.Resolve(name);
+			IElement candidate = Resolve(type, name, ElementType.Property|ElementType.Event|ElementType.Field);
 			if (null != candidate)
-			{					
-				
+			{	
 				if (IsPublicFieldPropertyEvent(candidate))
 				{
 					return (IMember)candidate;
@@ -2886,7 +2917,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckDelegateParameterList(IType delegateType, IMethod target)
 		{
-			IMethod invoke = (IMethod)delegateType.Resolve("Invoke");
+			IMethod invoke = ResolveMethod(delegateType, "Invoke");
 			if (null == invoke)
 			{
 				throw new ArgumentException(string.Format("{0} is not a valid delegate type!", delegateType), "delegateType");
@@ -3283,7 +3314,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool ResolveOperator(BinaryExpression node, IType type, string operatorName, MethodInvocationExpression mie)
 		{
-			IElement tag = type.Resolve(operatorName);
+			IElement tag = Resolve(type, operatorName, ElementType.Method);
 			if (null == tag)
 			{
 				return false;
@@ -3442,8 +3473,9 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		bool CheckUniqueLocal(Declaration d)
-		{
-			if (null == _currentMethodInfo.Resolve(d.Name))
+		{			
+			if (null == _currentMethodInfo.ResolveLocal(d.Name) &&
+				null == _currentMethodInfo.ResolveParameter(d.Name))
 			{
 				return true;
 			}
@@ -3535,7 +3567,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						IElement tag = _currentMethodInfo.Resolve(d.Name);
+						IElement tag = Resolve(_currentMethodInfo, d.Name);
 						if (null != tag)
 						{
 							Bind(d, tag);

@@ -93,4 +93,20 @@ class ListTestCase:
 	[Test]
 	def TestToString():
 		Assert.AreEqual("um, dois, tres", _list.ToString())
+		
+	[Test]
+	def Pop():
+		Assert.AreEqual("tres", _list.Pop())
+		Assert.AreEqual(["um", "dois"], _list)
+		Assert.AreEqual("dois", _list.Pop())
+		Assert.AreEqual(["um"], _list)
+		Assert.AreEqual("um", _list.Pop())
+		Assert.AreEqual([], _list)
+		
+	[Test]
+	def PopIndex():
+		Assert.AreEqual("dois", _list.Pop(-2))
+		Assert.AreEqual(["um", "tres"], _list)
+		Assert.AreEqual("um", _list.Pop(0))
+		Assert.AreEqual(["tres"], _list)
 

@@ -1,4 +1,10 @@
-﻿* criar todos os passos novos e fazer passar todos os testes atuais
+﻿* CheckInterfaceImplementations:
+	* move from ProcessMethodBodies
+	
+* InjectCasts
+	* simplificar EmitAssembly
+
+* criar todos os passos novos e fazer passar todos os testes atuais
 
 * nova pipeline:
 			/*		
@@ -23,10 +29,7 @@
 		pipeline.Add(InjectCasts())
 		*/
 
-* separar o binding dos elementos do semantic step:
-um passo anterior vai navegar por todos os nós associando os 
-InternalBindings apropriados, todas as assinaturas de métodos já
-serao preenchidas sempre que possível
+* preencher assinatura dos métodos em BindTypeMembers
 
 * CallableTypeBinding
 	* para funçoes

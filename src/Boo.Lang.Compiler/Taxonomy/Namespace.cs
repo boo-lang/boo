@@ -59,172 +59,25 @@ namespace Boo.Lang.Compiler.Taxonomy
 		{
 			return (IElement)_children[name];
 		}
-	}	
-
-	public class Namespace : IElement, INamespace
-	{		
-		TagService _tagService;
 		
-		INamespace _parent;
-		
-		string _name;
-		
-		Hashtable _assemblies;
-		
-		Hashtable _childrenNamespaces;
-		
-		Boo.Lang.List _moduleNamespaces;
-		
-		public Namespace(INamespace parent, TagService tagManager, string name)
-		{			
-			_parent = parent;
-			_tagService = tagManager;
-			_name = name;
-			_assemblies = new Hashtable();
-			_childrenNamespaces = new Hashtable();
-			_assemblies = new Hashtable();
-			_moduleNamespaces = new Boo.Lang.List();
-		}
-		
-		public string Name
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
-			get
+			IElement element = Resolve(name);
+			if (null != element && NameResolutionService.IsFlagSet(flags, element.ElementType))
 			{
-				return _name;
+				targetList.Add(element);
+				return true;
 			}
-		}
-		
-		public string FullName
-		{
-			get
-			{
-				return _name;
-			}
-		}
-		
-		public ElementType ElementType
-		{
-			get
-			{
-				return ElementType.Namespace;
-			}
-		}
-		
-		public void Add(Type type)
-		{
-			System.Reflection.Assembly assembly = type.Assembly;
-			Boo.Lang.List types = (Boo.Lang.List)_assemblies[assembly];
-			if (null == types)
-			{
-				types = new Boo.Lang.List();
-				_assemblies[assembly] = types;
-			}
-			types.Add(type);			
-		}
-		
-		public void AddModule(Boo.Lang.Compiler.Taxonomy.ModuleTag module)
-		{
-			_moduleNamespaces.Add(module);
-		}
-		
-		public Namespace GetChildNamespace(string name)
-		{
-			Namespace tag = (Namespace)_childrenNamespaces[name];
-			if (null == tag)
-			{				
-				tag = new Namespace(this, _tagService, _name + "." + name);
-				_childrenNamespaces[name] = tag;
-			}
-			return tag;
-		}
-		
-		internal IElement Resolve(string name, System.Reflection.Assembly assembly)
-		{
-			Namespace tag = (Namespace)_childrenNamespaces[name];
-			if (null != tag)
-			{
-				return new AssemblyQualifiedNamespace(assembly, tag);
-			}
-			
-			Boo.Lang.List types = (Boo.Lang.List)_assemblies[assembly];			                
-			if (null != types)
-			{
-				foreach (Type type in types)
-				{
-					if (name == type.Name)
-					{
-						return _tagService.GetTypeReference(type);
-					}
-				}
-			}
-			return null;
-		}
-		
-		public INamespace ParentNamespace
-		{
-			get
-			{
-				return _parent;
-			}
-		}
-		
-		public IElement Resolve(string name)
-		{	
-			IElement tag = (IElement)_childrenNamespaces[name];
-			if (null == tag)
-			{
-				tag = ResolveInternalType(name);
-				if (null == tag)
-				{
-					tag = ResolveExternalType(name);
-				}				
-			}
-			return tag;
-		}
-		
-		IElement ResolveInternalType(string name)
-		{
-			IElement tag = null;
-			foreach (ModuleTag ns in _moduleNamespaces)
-			{
-				tag = ns.ResolveMember(name);
-				if (null != tag)
-				{
-					break;
-				}
-			}
-			return tag;
-		}
-		
-		IElement ResolveExternalType(string name)
-		{
-			IElement tag = null;
-			foreach (Boo.Lang.List types in _assemblies.Values)
-			{
-				foreach (Type type in types)
-				{
-					if (name == type.Name)
-					{
-						tag = _tagService.GetTypeReference(type);
-						break;
-					}
-				}
-			}
-			return tag;
-		}
-		
-		override public string ToString()
-		{
-			return _name;
+			return false;
 		}
 	}
 	
-	public class AssemblyQualifiedNamespace : IElement, INamespace
+	public class AssemblyQualifiedNamespaceTag : IElement, INamespace
 	{
 		System.Reflection.Assembly _assembly;
-		Namespace _subject;
+		NamespaceTag _subject;
 		
-		public AssemblyQualifiedNamespace(System.Reflection.Assembly assembly, Namespace subject)
+		public AssemblyQualifiedNamespaceTag(System.Reflection.Assembly assembly, NamespaceTag subject)
 		{
 			_assembly = assembly;
 			_subject = subject;
@@ -262,9 +115,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IElement Resolve(string name)
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
-			return _subject.Resolve(name, _assembly);
+			return _subject.Resolve(targetList, name, _assembly, flags);
 		}
 	}
 	
@@ -311,13 +164,14 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IElement Resolve(string name)
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
-			if (name == _alias)
+			if (name == _alias && NameResolutionService.IsFlagSet(flags, _subject.ElementType))
 			{
-				return _subject;
+				targetList.Add(_subject);
+				return true;
 			}
-			return null;
+			return false;
 		}
 	}
 	
@@ -341,17 +195,63 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IElement Resolve(string name)
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
+			bool found = false;
 			foreach (INamespace ns in _namespaces)
 			{
-				IElement tag = ns.Resolve(name);
-				if (null != tag)
+				if (ns.Resolve(targetList, name, flags))
 				{
-					return tag;
+					found = true;
 				}
 			}
-			return null;
+			return found;
 		}
 	}
+	
+	class DeclarationsNamespace : INamespace
+	{
+		INamespace _parent;
+		TagService _tagService;
+		Boo.Lang.Compiler.Ast.DeclarationCollection _declarations;
+		
+		public DeclarationsNamespace(INamespace parent, TagService tagManager, Boo.Lang.Compiler.Ast.DeclarationCollection declarations)
+		{
+			_parent = parent;
+			_tagService = tagManager;
+			_declarations = declarations;
+		}
+		
+		public DeclarationsNamespace(INamespace parent, TagService tagManager, Boo.Lang.Compiler.Ast.Declaration declaration)
+		{
+			_parent = parent;
+			_tagService = tagManager;
+			_declarations = new Boo.Lang.Compiler.Ast.DeclarationCollection();
+			_declarations.Add(declaration);
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return _parent;
+			}
+		}
+		
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		{
+			Boo.Lang.Compiler.Ast.Declaration found = _declarations[name];
+			if (null != found)
+			{
+				IElement element = TagService.GetTag(found);
+				if (NameResolutionService.IsFlagSet(flags, element.ElementType))
+				{
+					targetList.Add(element);
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
 }

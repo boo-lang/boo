@@ -39,14 +39,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{						
-			INamespace global = NameResolutionService.GlobalNamespace;
+			NameResolutionService.Reset();
 			
 			INamespace[] globals = new INamespace[2];
-			globals[0] = (INamespace)((INamespace)global.Resolve("Boo")).Resolve("Lang");
-			globals[1] = (INamespace)globals[0].Resolve("Builtins");
+			globals[0] = (INamespace)NameResolutionService.ResolveQualifiedName("Boo.Lang");
+			globals[1] = TagService.BuiltinsType;
 			
 			NameResolutionService.GlobalNamespace = new NamespaceDelegator(
-															global,
+															NameResolutionService.GlobalNamespace,
 															globals);
 		}
 	}

@@ -34,13 +34,17 @@ namespace Boo.Lang.Compiler.Taxonomy
 	
 	public class NameResolutionService
 	{
-		static readonly char[] DotArray = new char[] { '.' };
+		public static readonly char[] DotArray = new char[] { '.' };
 		
 		protected CompilerContext _context;
 		
 		protected INamespace _current;
 		
 		protected INamespace _global;
+		
+		protected Boo.Lang.List _buffer = new Boo.Lang.List();
+		
+		protected Boo.Lang.List _innerBuffer = new Boo.Lang.List();
 		
 		public NameResolutionService(CompilerContext context)
 		{
@@ -104,60 +108,93 @@ namespace Boo.Lang.Compiler.Taxonomy
 			_current = _current.ParentNamespace;
 		}
 		
-		public IElement Resolve(Node sourceNode, string name)
+		public IElement Resolve(string name)
 		{
-			return Resolve(sourceNode, name, ElementType.Any);
+			return Resolve(name, ElementType.Any);
 		}
 		
-		public IElement Resolve(Node sourceNode, string name, ElementType tags)
+		public IElement Resolve(string name, ElementType flags)
+		{			
+			_buffer.Clear();
+			Resolve(_buffer, name, flags);
+			return GetElementFromBuffer();
+		}
+		
+		public bool Resolve(Boo.Lang.List targetList, string name)
 		{
-			if (null == sourceNode)
-			{
-				throw new ArgumentNullException("sourceNode");
-			}
-			
+			return Resolve(targetList, name, ElementType.Any);
+		}
+		
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		{			
 			IElement tag = _context.TagService.ResolvePrimitive(name);
-			if (null == tag)
+			if (null != tag)
+			{
+				targetList.Add(tag);
+				return true;
+			}
+			else
 			{
 				INamespace ns = _current;
 				while (null != ns)
-				{
-					_context.TraceVerbose("Trying to resolve {0} against {1}...", name, ns);
-					tag = ns.Resolve(name);
-					if (null != tag)
+				{					
+					if (ns.Resolve(targetList, name, flags))
 					{
-						if (IsFlagSet(tags, tag.ElementType))
-						{
-							break;
-						}
+						return true;
 					}
 					ns = ns.ParentNamespace;
 				}
 			}
-			
-			if (null != tag)
-			{
-				_context.TraceInfo("{0}: {1} bound to {2}.", sourceNode.LexicalInfo, name, tag);
-			}
-			return tag;
+			return false;
 		}
 		
-		public IElement ResolveQualifiedName(Node sourceNode, string name)
+		public IElement ResolveQualifiedName(string name)
 		{			
+			_buffer.Clear();
+			ResolveQualifiedName(_buffer, name);
+			return GetElementFromBuffer();
+		}
+		
+		public bool ResolveQualifiedName(Boo.Lang.List targetList, string name)
+		{
+			return ResolveQualifiedName(targetList, name, ElementType.Any);
+		}
+		
+		public bool ResolveQualifiedName(Boo.Lang.List targetList, string name, ElementType flags)
+		{
+			if (!IsQualifiedName(name))
+			{
+				return Resolve(targetList, name, flags);
+			}
+			
 			string[] parts = name.Split(DotArray);
 			string topLevel = parts[0];
-			IElement tag = Resolve(sourceNode, topLevel);
-			for (int i=1; i<parts.Length; ++i)				
-			{				
-				INamespace ns = tag as INamespace;
-				if (null == ns)
+			
+			_innerBuffer.Clear();
+			if (Resolve(_innerBuffer, topLevel) && 1 == _innerBuffer.Count)
+			{
+				INamespace ns = _innerBuffer[0] as INamespace;
+				if (null != ns)
 				{
-					tag = null;
-					break;
+					int last = parts.Length-1;
+					for (int i=1; i<last; ++i)				
+					{	
+						_innerBuffer.Clear();
+						if (!ns.Resolve(_innerBuffer, parts[i], ElementType.Any) ||
+							1 != _innerBuffer.Count)
+						{
+							return false;
+						}				
+						ns = _innerBuffer[0] as INamespace;
+						if (null == ns)
+						{
+							return false;
+						}
+					}
+					return ns.Resolve(targetList, parts[last], flags);
 				}
-				tag = ns.Resolve(parts[i]);
 			}
-			return tag;
+			return false;
 		}
 		
 		public void ResolveTypeReference(TypeReference node)
@@ -202,11 +239,11 @@ namespace Boo.Lang.Compiler.Taxonomy
 			IElement info = null;
 			if (IsQualifiedName(node.Name))
 			{
-				info = ResolveQualifiedName(node, node.Name);
+				info = ResolveQualifiedName(node.Name);
 			}
 			else
 			{
-				info = Resolve(node, node.Name, ElementType.TypeReference);
+				info = Resolve(node.Name, ElementType.TypeReference);
 			}
 			
 			if (null == info || ElementType.TypeReference != info.ElementType)
@@ -222,14 +259,37 @@ namespace Boo.Lang.Compiler.Taxonomy
 			node.Tag = info;
 		}
 		
+		IElement GetElementFromBuffer()
+		{
+			return GetElementFromList(_buffer);
+		}
+		
+		public static IElement GetElementFromList(Boo.Lang.List list)
+		{
+			IElement element = null;
+			if (list.Count > 0)
+			{
+				if (list.Count > 1)
+				{
+					element = new Ambiguous((IElement[])list.ToArray(typeof(IElement)));
+				}
+				else
+				{
+					element = (IElement)list[0];
+				}
+				list.Clear();
+			}
+			return element;
+		}
+		
 		static bool IsQualifiedName(string name)
 		{
 			return name.IndexOf('.') > 0;
 		}	
 		
-		static bool IsFlagSet(ElementType tags, ElementType tag)
+		public static bool IsFlagSet(ElementType flags, ElementType flag)
 		{
-			return tag == (tags & tag);
+			return flag == (flags & flag);
 		}		
 	}
 }

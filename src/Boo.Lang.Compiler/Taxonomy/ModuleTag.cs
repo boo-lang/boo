@@ -109,31 +109,33 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IElement Resolve(string name)
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
 			IElement tag = ResolveMember(name);
-			if (null == tag)
+			if (null != tag)
 			{	
-				if (null == _using)
+				targetList.Add(tag);
+				return true;
+			}
+			
+			if (null == _using)
+			{
+				_using = new INamespace[_module.Imports.Count];
+				for (int i=0; i<_using.Length; ++i)
 				{
-					_using = new INamespace[_module.Imports.Count];
-					for (int i=0; i<_using.Length; ++i)
-					{
-						_using[i] = (INamespace)TagService.GetTag(_module.Imports[i]);
-					}
-				}
-				
-				foreach (INamespace ns in _using)
-				{
-					// todo: resolve name in all namespaces...
-					tag = ns.Resolve(name);
-					if (null != tag)
-					{					
-						break;
-					}
+					_using[i] = (INamespace)TagService.GetTag(_module.Imports[i]);
 				}
 			}
-			return tag;
+				
+			bool found = false;
+			foreach (INamespace ns in _using)
+			{			
+				if (ns.Resolve(targetList, name, flags))
+				{
+					found = true;
+				}
+			}
+			return found;
 		}
 		
 		IElement ResolveModuleMember(string name)
@@ -148,7 +150,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		IElement ResolveModuleClassMember(string name)
 		{
-			return _moduleClassNamespace.Resolve(name);
+			return null;
 		}
 	}
 }

@@ -180,6 +180,8 @@ namespace Boo.Lang.Compiler.Steps
 		IType _astAttributeInterface;
 		
 		IType _systemAttributeBaseClass;
+		
+		Boo.Lang.List _elements = new Boo.Lang.List();
 
 		public BindAndApplyAttributes()
 		{			
@@ -223,23 +225,25 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			IElement tag = ResolveQualifiedName(attribute, attribute.Name);
-			if (null == tag)
+			_elements.Clear();
+			
+			if (!NameResolutionService.ResolveQualifiedName(_elements, attribute.Name))
 			{
-				tag = ResolveQualifiedName(attribute, BuildAttributeName(attribute.Name));
+				NameResolutionService.ResolveQualifiedName(_elements, BuildAttributeName(attribute.Name));
 			}
 
-			if (null != tag)
+			if (_elements.Count > 0)
 			{
-				if (ElementType.Ambiguous == tag.ElementType)
+				if (_elements.Count > 1)
 				{
 					Error(attribute, CompilerErrorFactory.AmbiguousReference(
 									attribute,
 									attribute.Name,
-									((Ambiguous)tag).Elements));
+									_elements));
 				}
 				else
 				{
+					IElement tag = (IElement)_elements[0];
 					if (ElementType.TypeReference != tag.ElementType)
 					{
 						Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name));

@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 		
 		protected INamespace _parentNamespace;
 		
-		protected List _buffer = new List();
+		protected Boo.Lang.List _buffer = new Boo.Lang.List();
 		
 		protected AbstractInternalType(TagService tagManager, TypeDefinition typeDefinition)
 		{
@@ -85,86 +85,40 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public virtual IElement Resolve(string name)
+		public virtual bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{			
-			_buffer.Clear();			
+			bool found = false;
 			
 			foreach (IElement tag in GetMembers())
 			{
-				if (tag.Name == name)
+				if (tag.Name == name && NameResolutionService.IsFlagSet(flags, tag.ElementType))
 				{
-					_buffer.Add(tag);
+					targetList.AddUnique(tag);
+					found = true;
 				}
 			}
 			
-			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
-			{
-				IElement tag = TagService.GetType(baseType).Resolve(name);
-				if (null != tag)
+			if (!found)
+			{			
+				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					_buffer.AddUnique(tag);
+					if (TagService.GetType(baseType).Resolve(targetList, name, flags))
+					{
+						found = true;
+					}
 				}
-			}
-				
-			if (IsInterface)
-			{
-				// also look in System.Object
-				IElement tag = _tagService.ObjectType.Resolve(name);
-				if (null != tag)
+					
+				if (IsInterface)
 				{
-					_buffer.AddUnique(tag);						
+					// also look in System.Object
+					if (_tagService.ObjectType.Resolve(targetList, name, flags))
+					{
+						found = true;
+					}
 				}
 			}
 			
-			if (_buffer.Count > 0)
-			{
-				if (_buffer.Count > 1)
-				{
-					return new Ambiguous((IElement[])_buffer.ToArray(typeof(IElement)));
-				}
-				else
-				{
-					return (IElement)_buffer[0];
-				}
-			}
-			return null;
-		}
-		
-		IElement CreateCorrectElement(TypeMember member)
-		{
-			switch (member.NodeType)
-			{
-				case NodeType.Method:
-				{
-					return new InternalMethod(_tagService, (Method)member);
-				}
-				
-				case NodeType.Constructor:
-				{
-					return new InternalConstructor(_tagService, (Constructor)member);
-				}
-				
-				case NodeType.Field:
-				{
-					return new InternalField(_tagService, (Field)member);
-				}
-				
-				case NodeType.EnumDefinition:
-				{
-					return new EnumType(_tagService, (EnumDefinition)member);
-				}
-				
-				case NodeType.EnumMember:
-				{
-					return new InternalEnumMember(_tagService, (EnumMember)member);
-				}
-				
-				case NodeType.Property:
-				{
-					return new InternalProperty(_tagService, (Property)member);
-				}
-			}
-			throw new NotImplementedException(member.GetType().ToString());
+			return found;
 		}
 		
 		public virtual IType BaseType
@@ -267,7 +221,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 						StringLiteralExpression memberName = attribute.Arguments[0] as StringLiteralExpression;
 						if (null != memberName)
 						{
-							return Resolve(memberName.Value);
+							_buffer.Clear();
+							Resolve(_buffer, memberName.Value, ElementType.Any);
+							return NameResolutionService.GetElementFromList(_buffer);
 						}
 					}
 				}
@@ -308,7 +264,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					IType tag = (IType)TagService.GetType(baseType);
+					IType tag = TagService.GetType(baseType);
 					if (tag.IsInterface)
 					{
 						_buffer.AddUnique(tag);
@@ -327,13 +283,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
-					IElement tag = member.Tag;
-					if (null == tag)
-					{						
-						tag = CreateCorrectElement(member);
-						member.Tag = tag;
-					}	
-					
+					IElement tag = TagService.GetTag(member);
 					if (ElementType.Type == tag.ElementType)
 					{
 						tag = _tagService.GetTypeReference((IType)tag);

@@ -165,6 +165,11 @@ namespace Boo.Lang
 				_items[CheckIndex(NormalizeIndex(index))] = value;
 			}
 		}
+		
+		public List Push(object item)
+		{
+			return Add(item);
+		}
 
 		public List Add(object item)
 		{
@@ -341,13 +346,22 @@ namespace Boo.Lang
 			return this;
 		}
 		
+		public object Pop()
+		{	
+			return Pop(-1);
+		}
+		
+		public object Pop(int index)
+		{
+			int actualIndex = CheckIndex(NormalizeIndex(index));
+			object item = _items[actualIndex];
+			InnerRemoveAt(actualIndex);
+			return item;
+		}
+		
 		public List Remove(object item)
 		{
-			int index = IndexOf(item);
-			if (index != -1)
-			{
-				InnerRemoveAt(index);
-			}
+			InnerRemove(item);
 			return this;
 		}
 		
@@ -364,12 +378,12 @@ namespace Boo.Lang
 		
 		void IList.Remove(object item)
 		{			
-			//_items.Remove(item);
+			InnerRemove(item);
 		}
 		
 		void IList.RemoveAt(int index)
 		{
-			//_items.RemoveAt(index);
+			InnerRemoveAt(CheckIndex(NormalizeIndex(index)));
 		}
 		
 		int IList.Add(object item)
@@ -417,6 +431,15 @@ namespace Boo.Lang
 			if (index != _count)
 			{
 				Array.Copy(_items, index+1, _items, index, _count-index);
+			}
+		}
+		
+		void InnerRemove(object item)
+		{
+			int index = IndexOf(item);
+			if (index != -1)
+			{
+				InnerRemoveAt(index);
 			}
 		}
 
@@ -474,9 +497,8 @@ namespace Boo.Lang
 			public bool MoveNext()
 			{
 				if (_count != _list.Count || _items != _list._items)
-				{
-					// TODO: collection was modified
-					throw new InvalidOperationException();
+				{					
+					throw new InvalidOperationException(Boo.ResourceManager.GetString("ListWasModified"));
 				}
 				
 				if (_index < _count)

@@ -165,9 +165,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IElement Resolve(string name)
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
-			return null;
+			return false;
 		}
 		
 		override public string ToString()

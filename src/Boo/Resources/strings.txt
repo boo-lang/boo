@@ -90,6 +90,7 @@ BooC.NoInputSpecified=No inputs specified
 BooC.NoOutputSpecified=No output specified
 
 ;Boo.Lang
+ListWasModified=The list was modified. 
 ArgumentNotEnumerable=Argument is not enumerable (does not implement System.Collections.IEnumerable).
 CantEnumerateNull=Can't enumerate null.
 UnpackListOfWrongSize=Unpack list of wrong size.

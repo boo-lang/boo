@@ -15,6 +15,18 @@ import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast
 
+class WaitCursor(IDisposable):
+	_saved
+	_form as Form
+	
+	def constructor([required] form as Form):
+		_form = form
+		_saved = form.Cursor		
+		form.Cursor = Cursors.WaitCursor
+		
+	def Dispose():
+		_form.Cursor = _saved
+
 class ConsoleCapture(IDisposable):	
 	_console = StringWriter()
 	_old
@@ -50,7 +62,7 @@ class BooEditor(DockContent):
 	def constructor(main as MainForm):
 		_main = main
 		_editor = TextEditorControl(Dock: DockStyle.Fill,
-							Font: System.Drawing.Font("Lucida Console", 13.0),
+							Font: System.Drawing.Font("Lucida Console", 12.0),
 							EnableFolding: true)
 
 		_editor.Encoding = System.Text.Encoding.UTF8
@@ -142,12 +154,8 @@ class BooEditor(DockContent):
 			GoTo(int.Parse(dlg.Value)-1)
 
 	def _menuItemRun_Click(sender, args as EventArgs):
-		savedCursor = Cursor
-		self.Cursor = Cursors.WaitCursor
-		try:
+		using WaitCursor(self):
 			Run()
-		ensure:
-			self.Cursor = savedCursor
 
 	private def Run():
 		

@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				foreach (Import import in module.Imports)
 				{
-					IElement tag = NameResolutionService.ResolveQualifiedName(import, import.Namespace);					
+					IElement tag = NameResolutionService.ResolveQualifiedName(import.Namespace);					
 					if (null == tag)
 					{
 						tag = TagService.ErrorTag;
@@ -56,14 +56,14 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						if (null != import.AssemblyReference)
 						{	
-							Namespace nsInfo = tag as Namespace;
+							NamespaceTag nsInfo = tag as NamespaceTag;
 							if (null == nsInfo)
 							{
 								Errors.Add(CompilerErrorFactory.NotImplemented(import, "assembly qualified type references"));
 							}
 							else
 							{								
-								tag = new AssemblyQualifiedNamespace(GetBoundAssembly(import.AssemblyReference), nsInfo);
+								tag = new AssemblyQualifiedNamespaceTag(GetBoundAssembly(import.AssemblyReference), nsInfo);
 							}
 						}
 						if (null != import.Alias)

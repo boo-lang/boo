@@ -87,6 +87,11 @@ namespace Boo.Lang.Compiler.Steps
 					member.Initializer = new IntegerLiteralExpression(lastValue);
 				}
 				lastValue = member.Initializer.Value + 1;
+				
+				if (null == member.Tag)
+				{
+					member.Tag = new InternalEnumMember(TagService, member);
+				}
 			}
 		}
 		

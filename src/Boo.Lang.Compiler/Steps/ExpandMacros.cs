@@ -59,10 +59,10 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Node replacement = null;
 			
-			IElement tag = ResolveQualifiedName(node, node.Name);
+			IElement tag = NameResolutionService.ResolveQualifiedName(node.Name);
 			if (null == tag)
 			{
-				tag = ResolveQualifiedName(node, BuildMacroTypeName(node.Name));
+				tag = NameResolutionService.ResolveQualifiedName(BuildMacroTypeName(node.Name));
 			}
 			
 			if (null == tag)

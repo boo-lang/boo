@@ -93,6 +93,7 @@ BooC.NoInputSpecified=Nenhum fonte especificado
 BooC.NoOutputSpecified=Arquivo de saída não especificado
 
 ;Boo.Lang
+ListWasModified=Não é possível continuar a iteração pois a lista foi modificada. 
 ArgumentNotEnumerable=Argumento não é enumerável (não implementa System.Collections.IEnumerable).
 CantEnumerateNull=null não é enumerável.
 UnpackListOfWrongSize=Desempacotamento de lista de tamanho errado.

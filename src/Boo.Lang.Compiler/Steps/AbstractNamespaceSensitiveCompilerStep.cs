@@ -58,21 +58,6 @@ namespace Boo.Lang.Compiler.Steps
 		protected void LeaveNamespace()
 		{
 			NameResolutionService.LeaveNamespace();
-		}
-		
-		protected IElement Resolve(Node sourceNode, string name, ElementType tags)
-		{
-			return NameResolutionService.Resolve(sourceNode, name, tags);
-		}
-		
-		protected IElement Resolve(Node sourceNode, string name)
-		{
-			return NameResolutionService.Resolve(sourceNode, name);
-		}
-		
-		protected IElement ResolveQualifiedName(Node sourceNode, string name)
-		{
-			return NameResolutionService.ResolveQualifiedName(sourceNode, name);
-		}		
+		}	
 	}
 }

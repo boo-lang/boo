@@ -200,7 +200,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IElement Resolve(string name)
+		public Boo.Lang.Compiler.Ast.Local ResolveLocal(string name)
 		{
 			foreach (Boo.Lang.Compiler.Ast.Local local in _method.Locals)
 			{
@@ -211,18 +211,46 @@ namespace Boo.Lang.Compiler.Taxonomy
 				
 				if (name == local.Name)
 				{
-					return TagService.GetTag(local);
+					return local;
 				}
 			}
-			
+			return null;
+		}
+		
+		public ParameterDeclaration ResolveParameter(string name)
+		{
 			foreach (ParameterDeclaration parameter in _method.Parameters)
 			{
 				if (name == parameter.Name)
 				{
-					return TagService.GetTag(parameter);
+					return parameter;
 				}
 			}
 			return null;
+		}
+		
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		{
+			if (NameResolutionService.IsFlagSet(flags, ElementType.Local))
+			{
+				Boo.Lang.Compiler.Ast.Local local = ResolveLocal(name);
+				if (null != local)
+				{
+					targetList.Add(TagService.GetTag(local));
+					return true;
+				}
+			}
+			
+			if (NameResolutionService.IsFlagSet(flags, ElementType.Parameter))
+			{
+				ParameterDeclaration parameter = ResolveParameter(name);
+				if (null != parameter)
+				{
+					targetList.Add(TagService.GetTag(parameter));
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		override public string ToString()

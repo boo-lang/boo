@@ -32,14 +32,32 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	
+	/// <summary>
+	/// A namespace.
+	/// </summary>
 	public interface INamespace
 	{			
+		/// <summary>
+		/// The parent namespace.
+		/// </summary>
 		INamespace ParentNamespace
 		{
 			get;
 		}
 		
-		IElement Resolve(string name);
+		/// <summary>
+		/// Resolves the name passed as argument to the appropriate elements
+		/// in the namespace, all elements with the specified name must be
+		/// added to the targetList.
+		/// </summary>
+		/// <param name="targetList">list where to put the found elements</param>
+		/// <param name="name">name of the desired elements</param>
+		/// <param name="filter">element filter</param>
+		/// <returns>
+		/// true if at least one element was added to the targetList, false
+		/// otherwise.
+		/// </returns>
+		bool Resolve(Boo.Lang.List targetList, string name, ElementType filter);
 	}
 	
 	public class NullNamespace : INamespace
@@ -58,49 +76,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public IElement Resolve(string name)
+		public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 		{
-			return null;
+			return false;
 		}
 	}
-	
-	class DeclarationsNamespace : INamespace
-	{
-		INamespace _parent;
-		TagService _tagService;
-		DeclarationCollection _declarations;
-		
-		public DeclarationsNamespace(INamespace parent, TagService tagManager, DeclarationCollection declarations)
-		{
-			_parent = parent;
-			_tagService = tagManager;
-			_declarations = declarations;
-		}
-		
-		public DeclarationsNamespace(INamespace parent, TagService tagManager, Declaration declaration)
-		{
-			_parent = parent;
-			_tagService = tagManager;
-			_declarations = new DeclarationCollection();
-			_declarations.Add(declaration);
-		}
-		
-		public INamespace ParentNamespace
-		{
-			get
-			{
-				return _parent;
-			}
-		}
-		
-		public IElement Resolve(string name)
-		{
-			Declaration d = _declarations[name];
-			if (null != d)
-			{
-				return TagService.GetTag(d);
-			}
-			return null;
-		}
-	}	
 }

@@ -431,9 +431,9 @@ namespace Boo.Lang.Compiler.Taxonomy
 			{				
 			}		
 			
-			override public IElement Resolve(string name)
+			override public bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
 			{	
-				return null;
+				return false;
 			}	
 		}
 

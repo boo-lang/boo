@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Taxonomy
 	using System;
 	using System.Reflection;
 
-	public class ExternalType : NamespaceCache, IType
+	public class ExternalType : IType
 	{
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
 												BindingFlags.NonPublic |
@@ -265,24 +265,23 @@ namespace Boo.Lang.Compiler.Taxonomy
 			}
 		}
 		
-		public virtual IElement Resolve(string name)
-		{						
-			bool found;
-			IElement tag = ResolveFromCache(name, out found);
-			if (!found)
-			{				
-				System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
-				if (members.Length > 0)
-				{				
-					tag = _tagService.Map(members);
-				}
-				else if (_type.IsInterface)
-				{
-					tag = _tagService.ObjectType.Resolve(name);
-				}
-				tag = Cache(name, tag);
+		public virtual bool Resolve(Boo.Lang.List targetList, string name, ElementType flags)
+		{					
+			bool found = false;
+			foreach (System.Reflection.MemberInfo member in _type.GetMember(name, DefaultBindingFlags))
+			{
+				targetList.AddUnique(_tagService.Map(member));
+				found = true;
 			}
-			return tag;
+			
+			if (IsInterface)
+			{
+				if (_tagService.ObjectType.Resolve(targetList, name, flags))
+				{
+					found = true;
+				}
+			}
+			return found;
 		}
 		
 		override public string ToString()

@@ -39,7 +39,9 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		Hashtable _namespaces = new Hashtable();
 		
-		Hashtable _externalTypes = new Hashtable();		
+		Hashtable _externalTypes = new Hashtable();
+
+		Boo.Lang.List _buffer = new Boo.Lang.List();		
 		
 		public InitializeNameResolutionService()
 		{
@@ -98,26 +100,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		IElement ResolveQualifiedName(string name)
-		{
-			string[] parts = name.Split('.');
-			string topLevel = parts[0];
-			
-			INamespace ns = (INamespace)_namespaces[topLevel];
-			if (null != ns)
-			{
-				for (int i=1; i<parts.Length; ++i)
-				{
-					ns = (INamespace)ns.Resolve(parts[i]);
-					if (null == ns)
-					{
-						break;
-					}
-				}
-			}
-			return (IElement)ns;
-		}
-		
 		void OrganizeExternalNamespaces()
 		{
 			foreach (Assembly asm in Parameters.References)
@@ -139,12 +121,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Taxonomy.Namespace GetNamespace(string ns)
+		NamespaceTag GetNamespace(string ns)
 		{
 			string[] namespaceHierarchy = ns.Split('.');
 			string topLevelName = namespaceHierarchy[0];
-			Taxonomy.Namespace topLevel = GetTopLevelNamespace(topLevelName);
-			Taxonomy.Namespace current = topLevel;
+			NamespaceTag topLevel = GetTopLevelNamespace(topLevelName);
+			NamespaceTag current = topLevel;
 			for (int i=1; i<namespaceHierarchy.Length; ++i)
 			{
 				current = current.GetChildNamespace(namespaceHierarchy[i]);
@@ -152,12 +134,12 @@ namespace Boo.Lang.Compiler.Steps
 			return current;
 		}
 		
-		Taxonomy.Namespace GetTopLevelNamespace(string topLevelName)
+		NamespaceTag GetTopLevelNamespace(string topLevelName)
 		{
-			Taxonomy.Namespace tag = (Taxonomy.Namespace)_namespaces[topLevelName];	
+			NamespaceTag tag = (NamespaceTag)_namespaces[topLevelName];	
 			if (null == tag)
 			{
-				_namespaces[topLevelName] = tag = new Taxonomy.Namespace(null, TagService, topLevelName);
+				_namespaces[topLevelName] = tag = new NamespaceTag(null, TagService, topLevelName);
 			}
 			return tag;
 		}
