@@ -43,6 +43,15 @@
 	
 		<boo src="generate_regression.boo" />
 		
+		<booc 
+			target="library"
+			output="build/BooModules.dll">
+			
+			<sources basedir="BooModules">
+				<include name="*.boo" />
+			</sources>
+		</booc>
+		
 		<csc
 			target="library"
 			output="build/BooCompiler.Tests.dll">
@@ -59,6 +68,7 @@
 				<include name="${nunit.framework.dll}" />
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="BooModules.dll" />
 			</references>
 		</csc>
 	
@@ -118,15 +128,6 @@
 				<include name="antlr.runtime.dll" />
 			</references>			
 		</csc>
-		
-		<booc 
-			target="library"
-			output="build/BooModules.dll">
-			
-			<sources basedir="BooModules">
-				<include name="*.boo" />
-			</sources>
-		</booc>
 	</target>
 	
 	<target name="init">

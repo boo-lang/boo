@@ -51,15 +51,15 @@ namespace BooCompiler.Tests
 		[TestFixtureSetUp]
 		public virtual void SetUpFixture()
 		{
-			Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Error));
-			
-			CopyDependencies();
+			if (PEVerify.IsSupported)
+			{
+				CopyDependencies();
+			}
 			
 			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, "compilation");
 			
 			_compiler = new BooCompiler();
-			_parameters = _compiler.Parameters;
-			//_parameters.TraceSwitch.Level = TraceLevel.Verbose;
+			_parameters = _compiler.Parameters;			
 			_parameters.OutputWriter = _output = new StringWriter();
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			_parameters.Pipeline = SetUpCompilerPipeline();
