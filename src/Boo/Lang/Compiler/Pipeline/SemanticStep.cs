@@ -1224,42 +1224,37 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
+				case BinaryOperatorType.InPlaceSubtract:
+				{
+					BindInPlaceArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.InPlaceMultiply:
+				{
+					BindInPlaceArithmeticOperator(node);
+					break;
+				}
+				
+				case BinaryOperatorType.InPlaceDivide:
+				{
+					BindInPlaceArithmeticOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.InPlaceAdd:
 				{
 					IBinding binding = GetBinding(node.Left);
-					if (BindingType.Event != binding.BindingType)
-					{						
-						if (BindingType.Ambiguous == binding.BindingType)
-						{
-							IList found = ((AmbiguousBinding)binding).Filter(IsPublicEventFilter);
-							if (found.Count != 1)
-							{
-								binding = null;
-							}
-							else
-							{
-								binding = (IBinding)found[0];
-								Bind(node.Left, binding);
-							}
-						}
-						else
-						{
-							binding = null;
-						}
-					}
-					
-					if (null == binding)
+					BindingType bindingType = binding.BindingType;
+					if (BindingType.Event == bindingType ||
+						BindingType.Ambiguous == bindingType)
 					{
-						NotImplemented(node, "InPlaceAdd");
+						BindInPlaceAddEvent(node);
 					}
-					
-					IEventBinding eventBinding = (IEventBinding)binding;
-					ITypedBinding expressionBinding = (ITypedBinding)GetBinding(node.Right);
-					if (CheckDelegateArgument(node.Left, eventBinding, expressionBinding))
-					{						
+					else
+					{
+						BindInPlaceArithmeticOperator(node);
 					}
-					
-					Bind(node, BindingManager.VoidTypeBinding);
 					break;
 				}
 				
@@ -1283,6 +1278,35 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 			}
 		}	
+		
+		void BindInPlaceAddEvent(BinaryExpression node)
+		{
+			IBinding binding = GetBinding(node.Left);
+			if (BindingType.Event != binding.BindingType)
+			{						
+				if (BindingType.Ambiguous == binding.BindingType)
+				{
+					IList found = ((AmbiguousBinding)binding).Filter(IsPublicEventFilter);
+					if (found.Count != 1)
+					{
+						binding = null;
+					}
+					else
+					{
+						binding = (IBinding)found[0];
+						Bind(node.Left, binding);
+					}
+				}
+			}
+			
+			IEventBinding eventBinding = (IEventBinding)binding;
+			ITypedBinding expressionBinding = (ITypedBinding)GetBinding(node.Right);
+			if (CheckDelegateArgument(node.Left, eventBinding, expressionBinding))
+			{						
+			}
+			
+			Bind(node, BindingManager.VoidTypeBinding);
+		}
 		
 		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethodBinding binding, Expression arg)
 		{
@@ -1673,6 +1697,40 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		void BindInPlaceArithmeticOperator(BinaryExpression node)
+		{
+			Node parent = node.ParentNode;
+			
+			BinaryExpression assign = new BinaryExpression(node.LexicalInfo);
+			assign.Operator = BinaryOperatorType.Assign;
+			assign.Left = node.Left.CloneNode();
+			assign.Right = node;
+			
+			node.Operator = GetRelatedBinaryOperatorForInPlaceOperator(node.Operator);
+			
+			parent.Replace(node, assign);
+			Switch(assign);
+		}
+		
+		BinaryOperatorType GetRelatedBinaryOperatorForInPlaceOperator(BinaryOperatorType op)
+		{
+			switch (op)
+			{
+				case BinaryOperatorType.InPlaceAdd:
+					return BinaryOperatorType.Add;
+					
+				case BinaryOperatorType.InPlaceSubtract:
+					return BinaryOperatorType.Subtract;
+					
+				case BinaryOperatorType.InPlaceMultiply:
+					return BinaryOperatorType.Multiply;
+					
+				case BinaryOperatorType.InPlaceDivide:
+					return BinaryOperatorType.Divide;
+			}
+			throw new ArgumentException("op");
+		}
+		
 		void BindArithmeticOperator(BinaryExpression node)
 		{
 			ITypeBinding left = GetExpressionType(node.Left);
@@ -1948,12 +2006,16 @@ namespace Boo.Lang.Compiler.Pipeline
 		}
 		
 		bool CanBeReachedByDownCastOrPromotion(ITypeBinding expectedType, ITypeBinding actualType)
-		{
+		{			
+			if (actualType.IsAssignableFrom(expectedType))
+			{
+				return true;
+			}
 			if (expectedType.IsValueType)
 			{
 				return IsNumber(expectedType) && IsNumber(actualType);
 			}
-			return actualType.IsAssignableFrom(expectedType);
+			return false;
 		}
 
 		bool IsLValue(IBinding binding)
@@ -2242,7 +2304,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				BinaryOperatorType binaryOperator = ((BinaryExpression)node).Operator;
 				return BinaryOperatorType.Assign == binaryOperator ||
-						BinaryOperatorType.InPlaceAdd == binaryOperator;
+						BinaryOperatorType.InPlaceAdd == binaryOperator ||						
+						BinaryOperatorType.InPlaceSubtract == binaryOperator;
 			}
 			return false;
 		}

@@ -244,6 +244,7 @@
     <File name=".\Lang\Compiler\Pipeline\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Lang\Compiler\Pipeline\AstUtil.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\DependencyGraph.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\Compiler\Pipeline\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

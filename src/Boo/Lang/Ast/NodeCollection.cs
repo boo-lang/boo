@@ -35,7 +35,7 @@ namespace Boo.Lang.Ast
 	/// <summary>
 	/// Node collection base class.
 	/// </summary>
-	public class NodeCollection : ICollection
+	public class NodeCollection : ICollection, ICloneable
 	{
 		protected Node _parent;
 		
@@ -97,6 +97,17 @@ namespace Boo.Lang.Ast
 		public Node GetNodeAt(int index)
 		{
 			return (Node)_innerList[index];
+		}
+		
+		public object Clone()
+		{
+			NodeCollection clone = (NodeCollection)Activator.CreateInstance(GetType());
+			ArrayList cloneList = clone._innerList;
+			foreach (Node node in _innerList)
+			{
+				cloneList.Add(node.Clone());
+			}
+			return clone;
 		}
 		
 		protected ArrayList InnerList

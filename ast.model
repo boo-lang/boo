@@ -396,6 +396,7 @@ package Boo.Ast
 		Target as Expression
 	end
 	
+	[abstract]
 	class LiteralExpression(Expression)
 	end
 	

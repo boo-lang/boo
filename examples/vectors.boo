@@ -31,8 +31,7 @@ count = 0
 
 for v1 in array:
 	for v2 in array:
-		#total += v2.Distance(v1)
-		total = total + v2.Distance(v1)
+		total += v2.Distance(v1)
 		++count
 
 elapsed = date.Now.Subtract(start) 

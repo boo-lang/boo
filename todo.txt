@@ -176,7 +176,7 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done * hash["foo"] = "bar"
 		done * hash[0] = "bar"
 		done * array[0] = "foo"
-		* ambiguous slicing
+		done * ambiguous slicing
 	* rich assignments
 		* +=
 		

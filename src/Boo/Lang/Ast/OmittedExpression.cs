@@ -52,6 +52,11 @@ namespace Boo.Lang.Ast
 				return NodeType.OmittedExpression;
 			}
 		}
+		
+		public override object Clone()
+		{
+			return this;
+		}
 
 		public override void Switch(IAstSwitcher switcher)
 		{

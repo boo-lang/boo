@@ -155,16 +155,44 @@ $initializer() #slurp
 			}
 		}
 			#end if
-		#end for		
+		#end for
+		new public ${item.name} CloneNode()
+		{
+			return (${item.name})Clone();
+		}
+		
 		#unless "abstract" in $item.attributes
-		public override bool Replace(Node existing, Node newNode)
+		override public object Clone()
+		{
+			$item.name clone = (${item.name})System.Runtime.Serialization.FormatterServices.GetUninitializedObject(GetType());
+			clone._lexicalInfo = _lexicalInfo;
+			clone._documentation = _documentation;
+			clone._properties = (System.Collections.Hashtable)_properties.Clone();
+			
+			#for field in $cs.getAllFields($item)
+				#set fieldName = $cs.toPrivateName($field.name)
+				#set fieldType=$model.resolve($field.type)
+				#if $fieldType and "enum" != $fieldType.stereotype
+			if (null != $fieldName)
+			{
+				clone.${fieldName} = (${field.type})${fieldName}.Clone();
+			}
+				#else
+			clone.${fieldName} = ${fieldName};
+				#end if
+			#end for
+			
+			return clone;
+		}
+		
+		override public bool Replace(Node existing, Node newNode)
 		{
 			if (base.Replace(existing, newNode))
 			{
 				return true;
 			}
 			
-			#for field in $item.fields
+			#for field in $cs.getAllFields($item)
 			#set fieldName=$cs.toPrivateName($field.name)
 			#set fieldType=$model.resolve($field.type)
 			#if $fieldType
@@ -195,7 +223,7 @@ $initializer() #slurp
 			return false;
 		}
 		
-		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		override public void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
 			${item.name} thisNode = (${item.name})this;
 			$cs.getResultTransformerNode($item) resultingTypedNode = thisNode;

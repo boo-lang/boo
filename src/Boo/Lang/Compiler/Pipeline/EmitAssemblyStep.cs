@@ -621,13 +621,6 @@ namespace Boo.Lang.Compiler.Pipeline
 					break;
 				}
 				
-				case BindingType.Property:
-				{
-					IPropertyBinding property = (IPropertyBinding)binding;						
-					SetProperty(node, property, node.Left, node.Right, leaveValueOnStack);
-					break;
-				}
-				
 				case BindingType.Field:
 				{
 					IFieldBinding field = (IFieldBinding)binding;
@@ -1364,27 +1357,26 @@ namespace Boo.Lang.Compiler.Pipeline
 		void EmitEnumerableBasedFor(ForStatement node, ITypeBinding iteratorType)
 		{			
 			Label labelTest = _il.DefineLabel();
-			Label labelEnd = _il.DefineLabel();
+			Label labelBody = _il.DefineLabel();
 			
 			LocalBuilder localIterator = _il.DeclareLocal(Types.IEnumerator);
 			EmitGetEnumerableIfNeeded(iteratorType);			
 			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
 			_il.Emit(OpCodes.Stloc, localIterator);
+			_il.Emit(OpCodes.Br, labelTest);
 			
-			// iterator.MoveNext()			
-			_il.MarkLabel(labelTest);
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.EmitCall(OpCodes.Callvirt, IEnumerator_MoveNext, null);
-			_il.Emit(OpCodes.Brfalse, labelEnd);			
-			
+			_il.MarkLabel(labelBody);
 			_il.Emit(OpCodes.Ldloc, localIterator);
 			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
 			EmitUnpackForDeclarations(node.Declarations, BindingManager.ObjectTypeBinding);
 			
 			Switch(node.Block);
-			_il.Emit(OpCodes.Br, labelTest);
 			
-			_il.MarkLabel(labelEnd);			
+			// iterator.MoveNext()			
+			_il.MarkLabel(labelTest);
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.EmitCall(OpCodes.Callvirt, IEnumerator_MoveNext, null);
+			_il.Emit(OpCodes.Brtrue, labelBody);
 		}
 		
 		void EmitArrayBasedFor(ForStatement node, ITypeBinding iteratorTypeBinding)

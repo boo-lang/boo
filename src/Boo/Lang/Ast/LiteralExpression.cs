@@ -43,7 +43,7 @@ namespace Boo.Lang.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(HashLiteralExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(ListLiteralExpression))]
 	[Serializable]
-	public class LiteralExpression : LiteralExpressionImpl
+	public abstract class LiteralExpression : LiteralExpressionImpl
 	{		
 		public LiteralExpression()
 		{
@@ -51,11 +51,6 @@ namespace Boo.Lang.Ast
 		
 		public LiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		public override void Switch(IAstSwitcher switcher)
-		{
-			switcher.OnLiteralExpression(this);
 		}
 	}
 }

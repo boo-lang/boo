@@ -38,7 +38,7 @@ namespace Boo.Lang.Ast
 	/// detalhes lxicos.
 	/// </summary>
 	[Serializable]
-	public abstract class Node
+	public abstract class Node : ICloneable
 	{
 		protected LexicalInfo _lexicalInfo = LexicalInfo.Empty;
 
@@ -66,6 +66,13 @@ namespace Boo.Lang.Ast
 		{
 			_lexicalInfo = other.LexicalInfo;
 		}
+		
+		public Node CloneNode()
+		{
+			return (Node)Clone();
+		}
+		
+		public abstract object Clone();
 		
 		public abstract NodeType NodeType
 		{
