@@ -1561,12 +1561,6 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(TypeSystemServices.HashType);
 		}
 		
-		bool IsListGenerator(ListLiteralExpression node)
-		{
-			return 1 == node.Items.Count &&
-				NodeType.GeneratorExpression == node.Items[0].NodeType;
-		}
-		
 		override public void OnGeneratorExpression(GeneratorExpression node)
 		{
 			NotImplemented(node, node.ToString());
@@ -1576,7 +1570,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (node.Items.Count > 0)
 			{
-				if (IsListGenerator(node))
+				if (AstUtil.IsListGenerator(node))
 				{
 					EmitListDisplay(node);
 				}

@@ -29,6 +29,7 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
+	using System.Diagnostics;
 	using System.Reflection;
 	using System.Text;
 	using Boo.Lang.Compiler;	
@@ -90,6 +91,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType IEnumerableType;
 		
+		public ExternalType IEnumeratorType;
+		
 		public ExternalType ICollectionType;
 		
 		public ExternalType IListType;
@@ -147,6 +150,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(HashType = new ExternalType(this, Types.Hash));
 			Cache(ICallableType = new ExternalType(this, Types.ICallable));
 			Cache(IEnumerableType = new ExternalType(this, Types.IEnumerable));
+			Cache(IEnumeratorType = new ExternalType(this, typeof(System.Collections.IEnumerator)));
 			Cache(ICollectionType = new ExternalType(this, Types.ICollection));
 			Cache(IListType = new ExternalType(this, Types.IList));
 			Cache(IDictionaryType = new ExternalType(this, Types.IDictionary));
@@ -253,6 +257,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ParameterDeclaration parameter = new ParameterDeclaration(name, CreateTypeReference(type));
 			parameter.Entity = new InternalParameter(parameter, index);
 			return parameter;
+		}
+		
+		public Boo.Lang.Compiler.Ast.Module GetAnonymousTypesModule()
+		{
+			if (null == _anonymousTypesModule)
+			{
+				_anonymousTypesModule = new Boo.Lang.Compiler.Ast.Module();
+				_anonymousTypesModule.Entity = new ModuleEntity(_context.NameResolutionService, 
+																this,
+																_anonymousTypesModule);
+				_context.CompileUnit.Modules.Add(_anonymousTypesModule);
+			}
+			return _anonymousTypesModule;
 		}
 		
 		public ClassDefinition CreateCallableDefinition(string name)
@@ -452,6 +469,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return mapped;
 		}
 		
+		public IMethod Map(MethodInfo method)
+		{
+			object key = GetCacheKey(method);
+			IMethod entity = (IMethod)_entityCache[key];
+			if (null == entity)
+			{
+				entity = new ExternalMethod(this, method);
+				_entityCache[key] = entity;
+			}
+			return entity;
+		}
+		
 		public IEntity Map(System.Reflection.MemberInfo[] info)
 		{
 			if (info.Length > 1)
@@ -479,8 +508,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					case MemberTypes.Method:
 					{
-						tag = new ExternalMethod(this, (System.Reflection.MethodInfo)mi);
-						break;
+						return Map((System.Reflection.MethodInfo)mi);
 					}
 					
 					case MemberTypes.Constructor:
@@ -605,19 +633,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_entityCache[key] = tag;
 		}
 		
-		Boo.Lang.Compiler.Ast.Module GetAnonymousTypesModule()
-		{
-			if (null == _anonymousTypesModule)
-			{
-				_anonymousTypesModule = new Boo.Lang.Compiler.Ast.Module();
-				_anonymousTypesModule.Entity = new ModuleEntity(_context.NameResolutionService, 
-																this,
-																_anonymousTypesModule);
-				_context.CompileUnit.Modules.Add(_anonymousTypesModule);
-			}
-			return _anonymousTypesModule;
-		}
-		
 		Method CreateBeginInvokeMethod(AnonymousCallableType anonymousType)
 		{
 			Method method = CreateRuntimeMethod("BeginInvoke", Map(typeof(IAsyncResult)),
@@ -659,13 +674,62 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 		
-		Method CreateRuntimeMethod(string name, IType returnType)
+		public IConstructor GetDefaultConstructor(IType type)
+		{
+			IConstructor[] constructors = type.GetConstructors();
+			for (int i=0; i<constructors.Length; ++i)
+			{
+				IConstructor constructor = constructors[i];
+				if (0 == constructor.GetParameters().Length)
+				{
+					return constructor;
+				}
+			}
+			return null;
+		}
+		
+		public MethodInvocationExpression CreateConstructorInvocation(IConstructor constructor, Expression arg)
+		{
+			MethodInvocationExpression mie = CreateConstructorInvocation(constructor);
+			mie.LexicalInfo = arg.LexicalInfo;
+			mie.Arguments.Add(arg);
+			return mie;
+		}
+		
+		public MethodInvocationExpression CreateConstructorInvocation(IConstructor constructor)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression();
+			mie.Target = new ReferenceExpression(constructor.DeclaringType.FullName);			
+			mie.Target.Entity = constructor;
+			mie.ExpressionType = constructor.DeclaringType;
+			return mie;
+		}
+		
+		public Statement CreateSuperConstructorInvocation(IType baseType)
+		{			
+			IConstructor defaultConstructor = GetDefaultConstructor(baseType);
+			Debug.Assert(null != defaultConstructor);
+			
+			MethodInvocationExpression call = new MethodInvocationExpression(new SuperLiteralExpression());			
+			call.Target.Entity = defaultConstructor;
+			call.ExpressionType = VoidType;
+			
+			return new ExpressionStatement(call);
+		}
+		
+		public Method CreateVirtualMethod(string name, IType returnType)
 		{
 			Method method = new Method(name);
 			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
 			method.ReturnType = CreateTypeReference(returnType);
 			method.Entity = new InternalMethod(this, method);
+			return method;
+		}
+		
+		Method CreateRuntimeMethod(string name, IType returnType)
+		{
+			Method method = CreateVirtualMethod(name, returnType);
+			method.ImplementationFlags = MethodImplementationFlags.Runtime;			
 			return method;
 		}
 		

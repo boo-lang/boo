@@ -1,37 +1,38 @@
 ﻿* generator expressions
 	return i*3 for i in range(10)
 	return i*3 for i in range(10) if i % 2
-
-
+	
 * software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms
 	* editor RichClient
 	* segurança com par chave pública/privada
 	
+* callable type adaptation
+	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
+	parâmetros
+	
 * boox
 	* assembly search path
 	* MenuItem Tools/Expand que usa a pipeline CompileToBoo para mostrar a expansao do código
 	
-	
-* anonymous callable type notation
-	def map(fn as callable(object) as object, enumerable)
-	def map(fn as (object)->object, enumerable)
-	def map(fn as object->object, enumerable)	
-
-* callable type adaptation
-	* permitir utilizar funçoes com menos parâmetros em delegates que aceitam mais
-	parâmetros
-
-* fix property handling with __eval__
-
-* fix MethodReference.EndInvoke with __eval__ para o parametro asyncresult
-
 * rever os exemplos de pipeline
 
 * Exemplo de passo com estatísticas sobre membros utilizados
 	* summary of class status (http://www.go-mono.com/class-status.html)
 	
+* importar módulos externos escritos em boo:
+	* todas as funçoes dos módulos deveria estar visível
+	
+* anonymous callable type notation
+	def map(fn as callable(object) as object, enumerable)
+	def map(fn as (object)->object, enumerable)
+	def map(fn as object->object, enumerable)
+
+* fix property handling with __eval__
+
+* fix MethodReference.EndInvoke with __eval__ para o parametro asyncresult
+
 * preencher assinatura dos métodos em BindTypeMembers
 	* completar tipo dos parâmetros
 	* completar return type:
@@ -42,7 +43,13 @@
 	* simplificar EmitAssembly
 
 * ProcessMethodBodies.LeaveConstructor deve inserir a chamado ao constructor
-super APÓS qualquer validação
+super APÓS qualquer validação:
+	* criar um StatementGroup com uma propriedade Priority	
+		* Body.InsertIntoGroup(groupPriority, index, Statement)
+		* Body.AddToGroup(groupPriority, Statement)
+		* sentenças normais são consideradas com prioridade 10
+		* validação de parâmetros pode ser inserida com prioridade 0
+		* chamada ao constructor super com prioriedade 1
 
 * final fields: se for um value type nativo fica como literal, senao fica
 como campo readonly

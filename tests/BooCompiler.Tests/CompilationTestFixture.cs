@@ -234,8 +234,9 @@ namespace BooCompiler.Tests
 		{
 			CompilerPipeline pipeline = null;			
 			
-			//pipeline = new CompileToMemory();
+			pipeline = new CompileToMemory();
 			
+			/*
 			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
 			{			
 				pipeline = new CompileToFile();				
@@ -244,6 +245,7 @@ namespace BooCompiler.Tests
 			{
 				pipeline = new CompileToMemory();
 			}
+			*/
 			
 			pipeline.Add(new RunAssembly());
 			return pipeline;
@@ -1623,6 +1625,24 @@ namespace BooCompiler.Tests
 		public void FilteredGenerator()
 		{
 			RunCompilerTestCase("generators1.boo");
+		}
+		
+		[Test]
+		public void GeneratorAsFunctionArguments()
+		{
+			RunCompilerTestCase("generators2.boo");
+		}
+		
+		[Test]
+		public void GeneratorCanBeUsedMoreThanOnce()
+		{
+			RunCompilerTestCase("generators3.boo");
+		}
+		
+		[Test]
+		public void GeneratorWithUnpacking()
+		{
+			RunCompilerTestCase("generators4.boo");
 		}
 	}
 }

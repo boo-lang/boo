@@ -2,7 +2,7 @@ import System.Windows.Forms from System.Windows.Forms
 import System.Drawing from System.Drawing
 
 class PropertyEditor(Form):
-	def constructor(obj):
+	def constructor([required] obj):
 		grid = PropertyGrid(Dock: DockStyle.Fill,
 							SelectedObject: obj)
 		
@@ -18,5 +18,7 @@ class Options:
 		
 options = Options(Message: "Hello!",
 				Font: Font("Lucida Console", 12.0))
-PropertyEditor(options).ShowDialog()
+editor = PropertyEditor(options)
+editor.ShowDialog()
+
 print(options.Message)

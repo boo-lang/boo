@@ -30,6 +30,22 @@ namespace Boo.Lang.Compiler.Ast
 {	
 	public class AstUtil
 	{
+		public static bool IsListGenerator(Node node)
+		{
+			ListLiteralExpression lle = node as ListLiteralExpression;
+			if (null != lle)
+			{
+				return IsListGenerator(lle);
+			}
+			return false;
+		}
+		
+		public static bool IsListGenerator(ListLiteralExpression node)
+		{
+			return 1 == node.Items.Count &&
+				NodeType.GeneratorExpression == node.Items[0].NodeType;
+		}		
+		
 		public static bool IsTargetOfMethodInvocation(Expression node)
 		{
 			return node.ParentNode.NodeType == NodeType.MethodInvocationExpression &&

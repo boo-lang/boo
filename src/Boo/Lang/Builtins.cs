@@ -42,11 +42,6 @@ namespace Boo.Lang
 		public class duck
 		{
 		}
-		
-		public static void print(string s)
-		{
-			Console.WriteLine(s);
-		}
 
 		public static void print(object o)
 		{

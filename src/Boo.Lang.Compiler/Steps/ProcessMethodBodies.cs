@@ -501,18 +501,6 @@ namespace Boo.Lang.Compiler.Steps
 			return stmt;
 		}
 		
-		Statement CreateDefaultConstructorCall(Constructor node, InternalConstructor tag)
-		{			
-			IConstructor defaultConstructor = GetDefaultConstructor(tag.DeclaringType.BaseType);
-			
-			MethodInvocationExpression call = new MethodInvocationExpression(new SuperLiteralExpression());			
-			
-			Bind(call.Target, defaultConstructor);
-			BindExpressionType(call, TypeSystemServices.VoidType);
-			
-			return new ExpressionStatement(call);
-		}
-		
 		override public bool EnterConstructor(Constructor node)
 		{			
 			if (Visited(node))
@@ -546,7 +534,8 @@ namespace Boo.Lang.Compiler.Steps
 				InternalConstructor tag = (InternalConstructor)_currentMethodInfo;
 				if (!tag.HasSuperCall && !node.IsStatic)
 				{
-					node.Body.Statements.Insert(0, CreateDefaultConstructorCall(node, tag));
+					node.Body.Statements.Insert(0, 
+						TypeSystemServices.CreateSuperConstructorInvocation(tag.DeclaringType.BaseType));
 				}
 			}
 			LeaveNamespace();
@@ -1608,7 +1597,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (IsTextReader(iteratorType))
 				{					
-					return CreateConstructorInvocation(TextReaderEnumerator_Constructor, iterator);
+					return TypeSystemServices.CreateConstructorInvocation(TextReaderEnumerator_Constructor, iterator);
 				}
 				else
 				{
@@ -2129,18 +2118,7 @@ namespace Boo.Lang.Compiler.Steps
 			ReferenceExpression expression = new ReferenceExpression(info, type.FullName);
 			Bind(expression, type);
 			return expression;
-		}
-		
-		protected MethodInvocationExpression CreateConstructorInvocation(IConstructor constructor, Expression arg)
-		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
-			mie.Target = new ReferenceExpression(constructor.DeclaringType.FullName);
-			mie.Arguments.Add(arg);
-			
-			Bind(mie.Target, constructor);
-			BindExpressionType(mie, constructor.DeclaringType);
-			return mie;
-		}
+		}		
 		
 		protected MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg)
 		{
@@ -3169,20 +3147,6 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeInfo.FullName, GetSignature(arguments)));
-			}
-			return null;
-		}
-		
-		IConstructor GetDefaultConstructor(IType type)
-		{
-			IConstructor[] constructors = type.GetConstructors();
-			for (int i=0; i<constructors.Length; ++i)
-			{
-				IConstructor constructor = constructors[i];
-				if (0 == constructor.GetParameters().Length)
-				{
-					return constructor;
-				}
 			}
 			return null;
 		}

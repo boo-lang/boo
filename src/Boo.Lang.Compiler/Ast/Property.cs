@@ -38,6 +38,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
  		}
 		
+		public Property(string name)
+		{
+			Name = name;
+		}
+		
 		public Property(Method getter, Method setter, TypeReference type) : base(getter, setter, type)
 		{
 		}
