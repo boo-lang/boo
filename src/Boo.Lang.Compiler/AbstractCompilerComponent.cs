@@ -74,11 +74,11 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected Services.TaxonomyManager TaxonomyHelper
+		protected Services.TaxonomyManager TaxonomyManager
 		{
 			get
 			{
-				return _context.TaxonomyHelper;
+				return _context.TaxonomyManager;
 			}
 		}
 		

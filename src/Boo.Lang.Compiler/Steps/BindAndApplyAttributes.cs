@@ -188,8 +188,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void Run()
 		{
-			_astAttributeInterface = TaxonomyHelper.AsTypeInfo(typeof(IAstAttribute));
-			_systemAttributeBaseClass = TaxonomyHelper.AsTypeInfo(typeof(System.Attribute));
+			_astAttributeInterface = TaxonomyManager.AsTypeInfo(typeof(IAstAttribute));
+			_systemAttributeBaseClass = TaxonomyManager.AsTypeInfo(typeof(System.Attribute));
 			
 			int step = 0;
 			while (step < Parameters.MaxAttributeSteps)
@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)TaxonomyHelper.GetInfo(module));
+			PushNamespace((INamespace)TaxonomyManager.GetInfo(module));
 
 			// do mdulo precisamos apenas visitar os membros
 			Accept(module.Members);
@@ -223,7 +223,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
 		{			
-			if (TaxonomyHelper.IsBound(attribute))
+			if (TaxonomyManager.IsBound(attribute))
 			{
 				return;
 			}
@@ -276,7 +276,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								// remember the attribute's type
 								attribute.Name = attributeType.FullName;
-								TaxonomyHelper.Bind(attribute, attributeType);
+								TaxonomyManager.Bind(attribute, attributeType);
 							}
 						}
 					}
@@ -290,7 +290,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void Error(Boo.Lang.Compiler.Ast.Attribute attribute, CompilerError error)
 		{
-			TaxonomyHelper.Error(attribute);
+			TaxonomyManager.Error(attribute);
 			Errors.Add(error);
 		}
 

@@ -111,26 +111,26 @@ namespace Boo.Lang.Compiler.Steps
 			_nameResolution.Initialize(_context);
 			_loopDepth = 0;
 						
-			RuntimeServices_Len = (IMethodInfo)TaxonomyHelper.RuntimeServicesInfo.Resolve("Len");
-			RuntimeServices_Mid = (IMethodInfo)TaxonomyHelper.RuntimeServicesInfo.Resolve("Mid");
-			RuntimeServices_GetRange = (IMethodInfo)TaxonomyHelper.RuntimeServicesInfo.Resolve("GetRange");
-			RuntimeServices_GetEnumerable = (IMethodInfo)TaxonomyHelper.RuntimeServicesInfo.Resolve("GetEnumerable");
-			Object_StaticEquals = (IMethodInfo)TaxonomyHelper.AsInfo(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
-			Array_get_Length = ((IPropertyInfo)TaxonomyHelper.ArrayTypeInfo.Resolve("Length")).GetGetMethod();
-			String_get_Length = ((IPropertyInfo)TaxonomyHelper.StringTypeInfo.Resolve("Length")).GetGetMethod();
-			String_Substring_Int = (IMethodInfo)TaxonomyHelper.AsInfo(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
-			ICollection_get_Count = ((IPropertyInfo)TaxonomyHelper.ICollectionTypeInfo.Resolve("Count")).GetGetMethod();
-			IList_Contains = (IMethodInfo)TaxonomyHelper.IListTypeInfo.Resolve("Contains");
-			IDictionary_Contains = (IMethodInfo)TaxonomyHelper.IDictionaryTypeInfo.Resolve("Contains");
-			Array_TypedEnumerableConstructor = (IMethodInfo)TaxonomyHelper.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
-			Array_TypedCollectionConstructor= (IMethodInfo)TaxonomyHelper.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
-			Array_TypedConstructor2 = (IMethodInfo)TaxonomyHelper.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
-			ICallable_Call = (IMethodInfo)TaxonomyHelper.ICallableTypeInfo.Resolve("Call");
-			Activator_CreateInstance = (IMethodInfo)TaxonomyHelper.AsInfo(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
-			TextReaderEnumerator_Constructor = (IConstructorInfo)TaxonomyHelper.AsInfo(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
+			RuntimeServices_Len = (IMethodInfo)TaxonomyManager.RuntimeServicesInfo.Resolve("Len");
+			RuntimeServices_Mid = (IMethodInfo)TaxonomyManager.RuntimeServicesInfo.Resolve("Mid");
+			RuntimeServices_GetRange = (IMethodInfo)TaxonomyManager.RuntimeServicesInfo.Resolve("GetRange");
+			RuntimeServices_GetEnumerable = (IMethodInfo)TaxonomyManager.RuntimeServicesInfo.Resolve("GetEnumerable");
+			Object_StaticEquals = (IMethodInfo)TaxonomyManager.AsInfo(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
+			Array_get_Length = ((IPropertyInfo)TaxonomyManager.ArrayTypeInfo.Resolve("Length")).GetGetMethod();
+			String_get_Length = ((IPropertyInfo)TaxonomyManager.StringTypeInfo.Resolve("Length")).GetGetMethod();
+			String_Substring_Int = (IMethodInfo)TaxonomyManager.AsInfo(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
+			ICollection_get_Count = ((IPropertyInfo)TaxonomyManager.ICollectionTypeInfo.Resolve("Count")).GetGetMethod();
+			IList_Contains = (IMethodInfo)TaxonomyManager.IListTypeInfo.Resolve("Contains");
+			IDictionary_Contains = (IMethodInfo)TaxonomyManager.IDictionaryTypeInfo.Resolve("Contains");
+			Array_TypedEnumerableConstructor = (IMethodInfo)TaxonomyManager.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
+			Array_TypedCollectionConstructor= (IMethodInfo)TaxonomyManager.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
+			Array_TypedConstructor2 = (IMethodInfo)TaxonomyManager.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
+			ICallable_Call = (IMethodInfo)TaxonomyManager.ICallableTypeInfo.Resolve("Call");
+			Activator_CreateInstance = (IMethodInfo)TaxonomyManager.AsInfo(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
+			TextReaderEnumerator_Constructor = (IConstructorInfo)TaxonomyManager.AsInfo(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
 			
 			ApplicationException_StringConstructor =
-					(IConstructorInfo)TaxonomyHelper.AsInfo(
+					(IConstructorInfo)TaxonomyManager.AsInfo(
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
 			Accept(CompileUnit);
@@ -172,7 +172,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			method.ReturnType = CreateBoundTypeReference(baseMethod.ReturnType);
 			
-			Bind(method, new InternalMethod(TaxonomyHelper, method));
+			Bind(method, new InternalMethod(TaxonomyManager, method));
 			return method;
 		}
 		
@@ -312,7 +312,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{				
-			PushNamespace((INamespace)TaxonomyHelper.GetInfo(module));			
+			PushNamespace((INamespace)TaxonomyManager.GetInfo(module));			
 			
 			Accept(module.Members);
 			
@@ -362,7 +362,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null == baseClass)
 			{
-				node.BaseTypes.Insert(0, CreateBoundTypeReference(TaxonomyHelper.ObjectTypeInfo)	);
+				node.BaseTypes.Insert(0, CreateBoundTypeReference(TaxonomyManager.ObjectTypeInfo)	);
 			}
 		}
 		
@@ -371,7 +371,7 @@ namespace Boo.Lang.Compiler.Steps
 			EnumTypeInfo binding = (EnumTypeInfo)GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new EnumTypeInfo(TaxonomyHelper, (EnumDefinition)node);
+				binding = new EnumTypeInfo(TaxonomyManager, (EnumDefinition)node);
 			}
 			else if (binding.Visited)
 			{
@@ -439,8 +439,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
-			ITypeInfo binding = TaxonomyHelper.GetBoundType(node);
-			if (null != binding && !TaxonomyHelper.IsError(binding))
+			ITypeInfo binding = TaxonomyManager.GetBoundType(node);
+			if (null != binding && !TaxonomyManager.IsError(binding))
 			{			
 				Accept(node.Arguments);
 				ResolveNamedArguments(node, binding, node.NamedArguments);
@@ -458,7 +458,7 @@ namespace Boo.Lang.Compiler.Steps
 			InternalProperty binding = (InternalProperty)GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new InternalProperty(TaxonomyHelper, node);
+				binding = new InternalProperty(TaxonomyManager, node);
 				Bind(node, binding);
 			}
 			else
@@ -502,7 +502,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					typeInfo = TaxonomyHelper.ObjectTypeInfo;
+					typeInfo = TaxonomyManager.ObjectTypeInfo;
 				}
 				node.Type = CreateBoundTypeReference(typeInfo);
 			}
@@ -525,7 +525,7 @@ namespace Boo.Lang.Compiler.Steps
 			InternalFieldInfo binding = (InternalFieldInfo)GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new InternalFieldInfo(TaxonomyHelper, node);
+				binding = new InternalFieldInfo(TaxonomyManager, node);
 				Bind(node, binding);
 			}
 			else
@@ -547,7 +547,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null == node.Initializer)
 				{
-					node.Type = CreateBoundTypeReference(TaxonomyHelper.ObjectTypeInfo);
+					node.Type = CreateBoundTypeReference(TaxonomyManager.ObjectTypeInfo);
 				}
 				else
 				{
@@ -650,7 +650,7 @@ namespace Boo.Lang.Compiler.Steps
 				constructor = new Constructor(node.LexicalInfo);
 				constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
 				node.DeclaringType.Members.Add(constructor);				
-				Bind(constructor, new InternalConstructorInfo(TaxonomyHelper, constructor, true));
+				Bind(constructor, new InternalConstructorInfo(TaxonomyManager, constructor, true));
 			}
 			
 			Statement stmt = CreateFieldAssignment(node);
@@ -719,10 +719,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterConstructor(Constructor node)
 		{			
-			InternalConstructorInfo binding = (InternalConstructorInfo)TaxonomyHelper.GetOptionalInfo(node);
+			InternalConstructorInfo binding = (InternalConstructorInfo)TaxonomyManager.GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new InternalConstructorInfo(TaxonomyHelper, node);
+				binding = new InternalConstructorInfo(TaxonomyManager, node);
 			}
 			else
 			{
@@ -754,14 +754,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterParameterDeclaration(ParameterDeclaration parameter)
 		{
-			return !TaxonomyHelper.IsBound(parameter);
+			return !TaxonomyManager.IsBound(parameter);
 		}
 		
 		override public void LeaveParameterDeclaration(ParameterDeclaration parameter)
 		{			
 			if (null == parameter.Type)
 			{
-				parameter.Type = CreateBoundTypeReference(TaxonomyHelper.ObjectTypeInfo);
+				parameter.Type = CreateBoundTypeReference(TaxonomyManager.ObjectTypeInfo);
 			}
 			CheckIdentifierName(parameter, parameter.Name);
 			Taxonomy.ParameterInfo binding = new Taxonomy.ParameterInfo(parameter, GetBoundType(parameter.Type));
@@ -773,7 +773,7 @@ namespace Boo.Lang.Compiler.Steps
 			InternalMethod binding = (InternalMethod)GetOptionalInfo(method);
 			if (null == binding)
 			{
-				binding = new InternalMethod(TaxonomyHelper, method);
+				binding = new InternalMethod(TaxonomyManager, method);
 				Bind(method, binding);
 			}
 			else
@@ -831,7 +831,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (parentIsClass)
 			{
-				if (TaxonomyHelper.IsUnknown(binding.BoundType))
+				if (TaxonomyManager.IsUnknown(binding.BoundType))
 				{
 					if (CanResolveReturnType(binding))
 					{
@@ -929,7 +929,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (TaxonomyHelper.IsUnknown(binding.BoundType))
+					if (TaxonomyManager.IsUnknown(binding.BoundType))
 					{
 						binding.Method.ReturnType = CreateBoundTypeReference(baseMethod.ReturnType);
 					}
@@ -986,7 +986,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Expression rsExpression in binding.ReturnExpressions)
 			{
-				if (TaxonomyHelper.IsUnknown(GetBoundType(rsExpression)))
+				if (TaxonomyManager.IsUnknown(GetBoundType(rsExpression)))
 				{
 					return false;
 				}
@@ -1000,14 +1000,14 @@ namespace Boo.Lang.Compiler.Steps
 			ExpressionCollection returnExpressions = binding.ReturnExpressions;
 			if (0 == returnExpressions.Count)
 			{					
-				method.ReturnType = CreateBoundTypeReference(TaxonomyHelper.VoidTypeInfo);
+				method.ReturnType = CreateBoundTypeReference(TaxonomyManager.VoidTypeInfo);
 			}		
 			else
 			{					
 				ITypeInfo type = GetMostGenericType(returnExpressions);
 				if (NullInfo.Default == type)
 				{
-					type = TaxonomyHelper.ObjectTypeInfo; 
+					type = TaxonomyManager.ObjectTypeInfo; 
 				}
 				method.ReturnType = CreateBoundTypeReference(type);
 			}
@@ -1028,10 +1028,10 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (IsNumber(current) && IsNumber(candidate))
 			{
-				return TaxonomyHelper.GetPromotedNumberType(current, candidate);
+				return TaxonomyManager.GetPromotedNumberType(current, candidate);
 			}
 			
-			ITypeInfo obj = TaxonomyHelper.ObjectTypeInfo;
+			ITypeInfo obj = TaxonomyManager.ObjectTypeInfo;
 			
 			if (current.IsClass && candidate.IsClass)
 			{
@@ -1062,7 +1062,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				type = GetMostGenericType(type, newType);
-				if (type == TaxonomyHelper.ObjectTypeInfo)
+				if (type == TaxonomyManager.ObjectTypeInfo)
 				{
 					break;
 				}
@@ -1088,7 +1088,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnArrayTypeReference(ArrayTypeReference node)
 		{
-			if (TaxonomyHelper.IsBound(node))
+			if (TaxonomyManager.IsBound(node))
 			{
 				return;
 			}
@@ -1096,13 +1096,13 @@ namespace Boo.Lang.Compiler.Steps
 			Accept(node.ElementType);
 			
 			ITypeInfo elementType = GetBoundType(node.ElementType);
-			if (TaxonomyHelper.IsError(elementType))
+			if (TaxonomyManager.IsError(elementType))
 			{
 				Bind(node, elementType);
 			}
 			else
 			{
-				ITypeInfo arrayType = TaxonomyHelper.AsArrayInfo(elementType);
+				ITypeInfo arrayType = TaxonomyManager.AsArrayInfo(elementType);
 				Bind(node, arrayType);
 			}
 		}
@@ -1114,34 +1114,34 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
-			Bind(node, TaxonomyHelper.BoolTypeInfo);
+			Bind(node, TaxonomyManager.BoolTypeInfo);
 		}
 		
 		override public void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
 		{
-			Bind(node, TaxonomyHelper.TimeSpanTypeInfo);
+			Bind(node, TaxonomyManager.TimeSpanTypeInfo);
 		}
 		
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
 			if (node.IsLong)
 			{
-				Bind(node, TaxonomyHelper.LongTypeInfo);
+				Bind(node, TaxonomyManager.LongTypeInfo);
 			}
 			else
 			{
-				Bind(node, TaxonomyHelper.IntTypeInfo);
+				Bind(node, TaxonomyManager.IntTypeInfo);
 			}
 		}
 		
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
-			Bind(node, TaxonomyHelper.DoubleTypeInfo);
+			Bind(node, TaxonomyManager.DoubleTypeInfo);
 		}
 		
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
 		{
-			Bind(node, TaxonomyHelper.StringTypeInfo);
+			Bind(node, TaxonomyManager.StringTypeInfo);
 		}
 		
 		IInfo[] GetSetMethods(IInfo[] bindings)
@@ -1221,7 +1221,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (!CheckTypeCompatibility(node.Begin, TaxonomyHelper.IntTypeInfo, GetExpressionType(node.Begin)))
+				if (!CheckTypeCompatibility(node.Begin, TaxonomyManager.IntTypeInfo, GetExpressionType(node.Begin)))
 				{
 					Error(node);
 					return false;
@@ -1230,7 +1230,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != node.End && OmittedExpression.Default != node.End)
 			{
-				if (!CheckTypeCompatibility(node.End, TaxonomyHelper.IntTypeInfo, GetExpressionType(node.End)))
+				if (!CheckTypeCompatibility(node.End, TaxonomyManager.IntTypeInfo, GetExpressionType(node.End)))
 				{
 					Error(node);
 					return false;
@@ -1279,7 +1279,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
 			ITypeInfo targetType = GetExpressionType(node.Target);
-			if (TaxonomyHelper.IsError(targetType))
+			if (TaxonomyManager.IsError(targetType))
 			{
 				Error(node);
 				return;
@@ -1314,7 +1314,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsComplexSlicing(node))
 					{
-						if (TaxonomyHelper.StringTypeInfo == targetType)
+						if (TaxonomyManager.StringTypeInfo == targetType)
 						{
 							BindComplexStringSlicing(node);
 						}
@@ -1401,12 +1401,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{
-			Bind(node, TaxonomyHelper.StringTypeInfo);
+			Bind(node, TaxonomyManager.StringTypeInfo);
 		}
 		
 		override public void LeaveListLiteralExpression(ListLiteralExpression node)
 		{			
-			Bind(node, TaxonomyHelper.ListTypeInfo);
+			Bind(node, TaxonomyManager.ListTypeInfo);
 		}
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)
@@ -1419,7 +1419,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Iterator = newIterator;
 			}
 			
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TaxonomyHelper, node.Declarations));			
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TaxonomyManager, node.Declarations));			
 			Accept(node.Filter);			
 			Accept(node.Expression);
 			PopNamespace();
@@ -1427,7 +1427,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)
 		{
-			Bind(node, TaxonomyHelper.HashTypeInfo);
+			Bind(node, TaxonomyManager.HashTypeInfo);
 		}
 		
 		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
@@ -1435,17 +1435,17 @@ namespace Boo.Lang.Compiler.Steps
 			ExpressionCollection items = node.Items;
 			if (0 == items.Count)
 			{
-				Bind(node, TaxonomyHelper.ObjectArrayInfo);
+				Bind(node, TaxonomyManager.ObjectArrayInfo);
 			}
 			else
 			{
-				Bind(node, TaxonomyHelper.AsArrayInfo(GetMostGenericType(items)));
+				Bind(node, TaxonomyManager.AsArrayInfo(GetMostGenericType(items)));
 			}
 		}
 		
 		override public void LeaveDeclarationStatement(DeclarationStatement node)
 		{
-			ITypeInfo binding = TaxonomyHelper.ObjectTypeInfo;
+			ITypeInfo binding = TaxonomyManager.ObjectTypeInfo;
 			if (null != node.Declaration.Type)
 			{
 				binding = GetBoundType(node.Declaration.Type);			
@@ -1478,7 +1478,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveExpressionStatement(ExpressionStatement node)
 		{
-			if (!HasSideEffect(node.Expression) && !TaxonomyHelper.IsError(node.Expression))
+			if (!HasSideEffect(node.Expression) && !TaxonomyManager.IsError(node.Expression))
 			{
 				Error(CompilerErrorFactory.ExpressionStatementMustHaveSideEffect(node));
 			}
@@ -1503,20 +1503,20 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					Bind(node, TaxonomyHelper.GetInfo(_currentMethodInfo.Method.DeclaringType));
+					Bind(node, TaxonomyManager.GetInfo(_currentMethodInfo.Method.DeclaringType));
 				}
 			}
 		}
 		
 		override public void LeaveTypeofExpression(TypeofExpression node)
 		{
-			if (TaxonomyHelper.IsError(node.Type))
+			if (TaxonomyManager.IsError(node.Type))
 			{
 				Error(node);
 			}
 			else
 			{
-				Bind(node, TaxonomyHelper.TypeTypeInfo);
+				Bind(node, TaxonomyManager.TypeTypeInfo);
 			}
 		}
 		
@@ -1565,12 +1565,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
 		{			
-			if (TaxonomyHelper.IsBound(node))
+			if (TaxonomyManager.IsBound(node))
 			{
 				return;
 			}
 			
-			ITypeInfo type = TaxonomyHelper.AsTypeInfo(typeof(System.Text.RegularExpressions.Regex));
+			ITypeInfo type = TaxonomyManager.AsTypeInfo(typeof(System.Text.RegularExpressions.Regex));
 			Bind(node, type);
 			
 			if (NodeType.Field != node.ParentNode.NodeType)
@@ -1590,7 +1590,7 @@ namespace Boo.Lang.Compiler.Steps
 			field.Initializer = node;
 			
 			_currentMethodInfo.Method.DeclaringType.Members.Add(field);
-			InternalFieldInfo binding = new InternalFieldInfo(TaxonomyHelper, field);
+			InternalFieldInfo binding = new InternalFieldInfo(TaxonomyManager, field);
 			Bind(field, binding);
 			
 			AddFieldInitializerToStaticConstructor(0, field);
@@ -1605,7 +1605,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			if (TaxonomyHelper.IsBound(node))
+			if (TaxonomyManager.IsBound(node))
 			{
 				return;
 			}
@@ -1638,7 +1638,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			if (TaxonomyHelper.IsBound(node))
+			if (TaxonomyManager.IsBound(node))
 			{
 				return false;
 			}
@@ -1654,7 +1654,7 @@ namespace Boo.Lang.Compiler.Steps
 				binding = typedInfo.BoundType;
 			}
 			
-			if (TaxonomyHelper.IsError(binding))
+			if (TaxonomyManager.IsError(binding))
 			{
 				Error(node);
 			}
@@ -1748,7 +1748,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != node.Expression)
 			{
 				ITypeInfo returnType = _currentMethodInfo.BoundType;
-				if (TaxonomyHelper.IsUnknown(returnType))
+				if (TaxonomyManager.IsUnknown(returnType))
 				{
 					_currentMethodInfo.ReturnExpressions.Add(node.Expression);
 				}
@@ -1770,7 +1770,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			ITypeInfo iteratorType = GetExpressionType(iterator);			
 			bool runtimeIterator = false;			
-			if (!TaxonomyHelper.IsError(iteratorType))
+			if (!TaxonomyManager.IsError(iteratorType))
 			{
 				CheckIterator(iterator, iteratorType, out runtimeIterator);
 			}			
@@ -1802,7 +1802,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Iterator = newIterator;
 			}
 			
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TaxonomyHelper, node.Declarations));
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TaxonomyManager, node.Declarations));
 			EnterLoop();
 			Accept(node.Block);
 			LeaveLoop();
@@ -1822,13 +1822,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveRaiseStatement(RaiseStatement node)
 		{
-			if (TaxonomyHelper.StringTypeInfo == GetBoundType(node.Exception))
+			if (TaxonomyManager.StringTypeInfo == GetBoundType(node.Exception))
 			{
 				MethodInvocationExpression expression = new MethodInvocationExpression(node.Exception.LexicalInfo);
 				expression.Arguments.Add(node.Exception);
 				expression.Target = new ReferenceExpression("System.ApplicationException");
 				Bind(expression.Target, ApplicationException_StringConstructor);
-				Bind(expression, TaxonomyHelper.ApplicationExceptionInfo);
+				Bind(expression, TaxonomyManager.ApplicationExceptionInfo);
 
 				node.Exception = expression;				
 			}
@@ -1838,7 +1838,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Declaration.Type)
 			{
-				node.Declaration.Type = CreateBoundTypeReference(TaxonomyHelper.ExceptionTypeInfo);				
+				node.Declaration.Type = CreateBoundTypeReference(TaxonomyManager.ExceptionTypeInfo);				
 			}
 			else
 			{
@@ -1846,7 +1846,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetBoundType(node.Declaration.Type));
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TaxonomyHelper, node.Declaration));
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TaxonomyManager, node.Declaration));
 			Accept(node.Block);
 			PopNamespace();
 		}
@@ -1863,7 +1863,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					TaxonomyHelper.Unbind(node.Operand);
+					TaxonomyManager.Unbind(node.Operand);
 					BinaryExpression addition = new BinaryExpression(
 														node.Operator == UnaryOperatorType.Increment ?
 																BinaryOperatorType.Addition : BinaryOperatorType.Subtraction,
@@ -1894,9 +1894,9 @@ namespace Boo.Lang.Compiler.Steps
 					IInfo binding = ErrorInfo.Default;					
 					if (CheckBoolContext(node.Operand))
 					{
-						binding = TaxonomyHelper.BoolTypeInfo;
+						binding = TaxonomyManager.BoolTypeInfo;
 					}
-					Bind(node, TaxonomyHelper.BoolTypeInfo);
+					Bind(node, TaxonomyManager.BoolTypeInfo);
 					break;
 				}
 				
@@ -1959,20 +1959,20 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (InfoType.Method == binding.InfoType)
 			{
-				return TaxonomyHelper.BuiltinsInfo == ((IMethodInfo)binding).DeclaringType;
+				return TaxonomyManager.BuiltinsInfo == ((IMethodInfo)binding).DeclaringType;
 			}
 			return false;
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{					
-			if (TaxonomyHelper.IsUnknown(node.Left) || TaxonomyHelper.IsUnknown(node.Right))
+			if (TaxonomyManager.IsUnknown(node.Left) || TaxonomyManager.IsUnknown(node.Right))
 			{
 				Bind(node, UnknownInfo.Default);
 				return;
 			}
 			
-			if (TaxonomyHelper.IsError(node.Left) || TaxonomyHelper.IsError(node.Right))
+			if (TaxonomyManager.IsError(node.Left) || TaxonomyManager.IsError(node.Right))
 			{
 				Error(node);
 				return;
@@ -2154,7 +2154,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (IsIntegerNumber(lhs) && IsIntegerNumber(rhs))
 			{
-				Bind(node, TaxonomyHelper.GetPromotedNumberType(lhs, rhs));
+				Bind(node, TaxonomyManager.GetPromotedNumberType(lhs, rhs));
 			}
 			else
 			{
@@ -2179,13 +2179,13 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (IsNumber(lhs) && IsNumber(rhs))
 			{
-				Bind(node, TaxonomyHelper.BoolTypeInfo);
+				Bind(node, TaxonomyManager.BoolTypeInfo);
 			}
 			else if (lhs.IsEnum || rhs.IsEnum)
 			{
 				if (lhs == rhs)
 				{
-					Bind(node, TaxonomyHelper.BoolTypeInfo);
+					Bind(node, TaxonomyManager.BoolTypeInfo);
 				}
 				else
 				{
@@ -2257,7 +2257,7 @@ namespace Boo.Lang.Compiler.Steps
 			ITypedInfo expressionInfo = (ITypedInfo)GetInfo(node.Right);
 			CheckDelegateArgument(node.Left, eventInfo, expressionInfo);
 			
-			Bind(node, TaxonomyHelper.VoidTypeInfo);
+			Bind(node, TaxonomyManager.VoidTypeInfo);
 		}
 		
 		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethodInfo binding, Expression arg)
@@ -2323,19 +2323,19 @@ namespace Boo.Lang.Compiler.Steps
 						
 						Expression target = node.Arguments[0];
 						ITypeInfo type = GetExpressionType(target);
-						if (TaxonomyHelper.ObjectTypeInfo == type)
+						if (TaxonomyManager.ObjectTypeInfo == type)
 						{
 							resultingNode = CreateMethodInvocation(RuntimeServices_Len, target);
 						}
-						else if (TaxonomyHelper.StringTypeInfo == type)
+						else if (TaxonomyManager.StringTypeInfo == type)
 						{
 							resultingNode = CreateMethodInvocation(target, String_get_Length);
 						}
-						else if (TaxonomyHelper.ArrayTypeInfo.IsAssignableFrom(type))
+						else if (TaxonomyManager.ArrayTypeInfo.IsAssignableFrom(type))
 						{
 							resultingNode = CreateMethodInvocation(target, Array_get_Length);
 						}
-						else if (TaxonomyHelper.ICollectionTypeInfo.IsAssignableFrom(type))
+						else if (TaxonomyManager.ICollectionTypeInfo.IsAssignableFrom(type))
 						{
 							resultingNode = CreateMethodInvocation(target, ICollection_get_Count);
 						}	
@@ -2361,16 +2361,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			if (TaxonomyHelper.IsBound(node))
+			if (TaxonomyManager.IsBound(node))
 			{
 				return;
 			}
 			Accept(node.Target);			
 			Accept(node.Arguments);
 			
-			IInfo targetInfo = TaxonomyHelper.GetInfo(node.Target);
-			if (TaxonomyHelper.IsError(targetInfo) ||
-				TaxonomyHelper.IsErrorAny(node.Arguments))
+			IInfo targetInfo = TaxonomyManager.GetInfo(node.Target);
+			if (TaxonomyManager.IsError(targetInfo) ||
+				TaxonomyManager.IsErrorAny(node.Arguments))
 			{
 				Error(node);
 				return;
@@ -2477,7 +2477,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (null != typedInfo)
 					{
 						ITypeInfo type = typedInfo.BoundType;
-						if (TaxonomyHelper.ICallableTypeInfo.IsAssignableFrom(type))
+						if (TaxonomyManager.ICallableTypeInfo.IsAssignableFrom(type))
 						{
 							node.Target = new MemberReferenceExpression(node.Target.LexicalInfo,
 												node.Target,
@@ -2488,13 +2488,13 @@ namespace Boo.Lang.Compiler.Steps
 							node.Arguments.Clear();
 							node.Arguments.Add(arg);
 							
-							Bind(arg, TaxonomyHelper.ObjectArrayInfo);
+							Bind(arg, TaxonomyManager.ObjectArrayInfo);
 							
 							Bind(node.Target, ICallable_Call);
 							Bind(node, ICallable_Call);
 							return;
 						}
-						else if (TaxonomyHelper.TypeTypeInfo == type)
+						else if (TaxonomyManager.TypeTypeInfo == type)
 						{
 							Expression targetType = node.Target;
 							
@@ -2508,7 +2508,7 @@ namespace Boo.Lang.Compiler.Steps
 							node.Arguments.Add(targetType);
 							node.Arguments.Add(constructorArgs);							
 							
-							Bind(constructorArgs, TaxonomyHelper.ObjectArrayInfo);
+							Bind(constructorArgs, TaxonomyManager.ObjectArrayInfo);
 							
 							Bind(node.Target, Activator_CreateInstance);
 							Bind(node, Activator_CreateInstance);
@@ -2533,13 +2533,13 @@ namespace Boo.Lang.Compiler.Steps
 			notNode.Operand = node;
 			notNode.Operator = UnaryOperatorType.LogicalNot;
 			
-			Bind(notNode, TaxonomyHelper.BoolTypeInfo);
+			Bind(notNode, TaxonomyManager.BoolTypeInfo);
 			return notNode;
 		}
 		
 		bool CheckIdentifierName(Node node, string name)
 		{
-			if (TaxonomyHelper.IsPrimitive(name))
+			if (TaxonomyManager.IsPrimitive(name))
 			{
 				Error(CompilerErrorFactory.CantRedefinePrimitive(node, name));
 				return false;
@@ -2583,7 +2583,7 @@ namespace Boo.Lang.Compiler.Steps
 			ITypeInfo lhsType = GetExpressionType(node.Right);
 			
 			if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType) ||
-				!CheckTypeCompatibility(slice.Begin, TaxonomyHelper.IntTypeInfo, GetExpressionType(slice.Begin)))
+				!CheckTypeCompatibility(slice.Begin, TaxonomyManager.IntTypeInfo, GetExpressionType(slice.Begin)))
 			{
 				Error(node);
 				return;
@@ -2700,7 +2700,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (CheckIsNotValueType(node, node.Left) &&
 				CheckIsaArgument(node.Right))
 			{				
-				Bind(node, TaxonomyHelper.BoolTypeInfo);
+				Bind(node, TaxonomyManager.BoolTypeInfo);
 			}
 			else
 			{
@@ -2713,7 +2713,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (CheckIsNotValueType(node, node.Left) &&
 				CheckIsNotValueType(node, node.Right))
 			{
-				Bind(node, TaxonomyHelper.BoolTypeInfo);
+				Bind(node, TaxonomyManager.BoolTypeInfo);
 			}
 			else
 			{
@@ -2723,18 +2723,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsDictionary(ITypeInfo type)
 		{
-			return TaxonomyHelper.IDictionaryTypeInfo.IsAssignableFrom(type);
+			return TaxonomyManager.IDictionaryTypeInfo.IsAssignableFrom(type);
 		}
 		
 		bool IsList(ITypeInfo type)
 		{
-			return TaxonomyHelper.IListTypeInfo.IsAssignableFrom(type);
+			return TaxonomyManager.IListTypeInfo.IsAssignableFrom(type);
 		}
 		
 		bool CanBeString(ITypeInfo type)
 		{
-			return TaxonomyHelper.ObjectTypeInfo == type ||
-				TaxonomyHelper.StringTypeInfo == type;
+			return TaxonomyManager.ObjectTypeInfo == type ||
+				TaxonomyManager.StringTypeInfo == type;
 		}
 		
 		void BindInPlaceArithmeticOperator(BinaryExpression node)
@@ -2777,7 +2777,7 @@ namespace Boo.Lang.Compiler.Steps
 			ITypeInfo right = GetExpressionType(node.Right);
 			if (IsNumber(left) && IsNumber(right))
 			{
-				Bind(node, TaxonomyHelper.GetPromotedNumberType(left, right));
+				Bind(node, TaxonomyManager.GetPromotedNumberType(left, right));
 			}
 			else if (!ResolveOperator(node))
 			{
@@ -3003,7 +3003,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsRuntimeIterator(ITypeInfo type)
 		{
-			return  TaxonomyHelper.ObjectTypeInfo == type ||
+			return  TaxonomyManager.ObjectTypeInfo == type ||
 					IsTextReader(type);					
 		}
 		
@@ -3025,7 +3025,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				ITypeInfo enumerable = TaxonomyHelper.IEnumerableTypeInfo;
+				ITypeInfo enumerable = TaxonomyManager.IEnumerableTypeInfo;
 				if (!enumerable.IsAssignableFrom(type))
 				{
 					runtimeIterator = IsRuntimeIterator(type);
@@ -3061,7 +3061,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsAssignableFrom(Type expectedType, ITypeInfo actualType)
 		{
-			return TaxonomyHelper.AsTypeInfo(expectedType).IsAssignableFrom(actualType);
+			return TaxonomyManager.AsTypeInfo(expectedType).IsAssignableFrom(actualType);
 		}
 		
 		bool CanBeReachedByDownCastOrPromotion(ITypeInfo expectedType, ITypeInfo actualType)
@@ -3080,18 +3080,18 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsIntegerNumber(ITypeInfo type)
 		{
 			return
-				type == TaxonomyHelper.ShortTypeInfo ||
-				type == TaxonomyHelper.IntTypeInfo ||
-				type == TaxonomyHelper.LongTypeInfo ||
-				type == TaxonomyHelper.ByteTypeInfo;
+				type == TaxonomyManager.ShortTypeInfo ||
+				type == TaxonomyManager.IntTypeInfo ||
+				type == TaxonomyManager.LongTypeInfo ||
+				type == TaxonomyManager.ByteTypeInfo;
 		}
 		
 		bool IsNumber(ITypeInfo type)
 		{
 			return
 				IsIntegerNumber(type) ||
-				type == TaxonomyHelper.DoubleTypeInfo ||
-				type == TaxonomyHelper.SingleTypeInfo;
+				type == TaxonomyManager.DoubleTypeInfo ||
+				type == TaxonomyManager.SingleTypeInfo;
 		}
 		
 		bool IsNumber(Expression expression)
@@ -3101,7 +3101,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsString(Expression expression)
 		{
-			return TaxonomyHelper.StringTypeInfo == GetExpressionType(expression);
+			return TaxonomyManager.StringTypeInfo == GetExpressionType(expression);
 		}
 		
 		IConstructorInfo FindCorrectConstructor(Node sourceNode, ITypeInfo typeInfo, ExpressionCollection arguments)
@@ -3347,7 +3347,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return true;
 			}
-			return ResolveOperator(node, TaxonomyHelper.RuntimeServicesInfo, operatorName, mie);
+			return ResolveOperator(node, TaxonomyManager.RuntimeServicesInfo, operatorName, mie);
 		}
 		
 		IMethodInfo ResolveAmbiguousOperator(IInfo[] bindings, ExpressionCollection args)
@@ -3457,7 +3457,7 @@ namespace Boo.Lang.Compiler.Steps
 			ITypeInfo type = GetBoundType(expression);
 			if (type.IsValueType)
 			{
-				if (type == TaxonomyHelper.BoolTypeInfo ||
+				if (type == TaxonomyManager.BoolTypeInfo ||
 				    IsNumber(type))
 			    {
 			    	return true;
@@ -3548,7 +3548,7 @@ namespace Boo.Lang.Compiler.Steps
 			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)System.Attribute.GetCustomAttribute(type, typeof(EnumeratorItemTypeAttribute));
 			if (null != attribute)
 			{
-				return TaxonomyHelper.AsTypeInfo(attribute.ItemType);
+				return TaxonomyManager.AsTypeInfo(attribute.ItemType);
 			}
 			return null;
 		}
@@ -3561,7 +3561,7 @@ namespace Boo.Lang.Compiler.Steps
 				return GetExternalEnumeratorItemType(iteratorType);
 			}
 			
-			ITypeInfo enumeratorItemTypeAttribute = TaxonomyHelper.AsTypeInfo(typeof(EnumeratorItemTypeAttribute));
+			ITypeInfo enumeratorItemTypeAttribute = TaxonomyManager.AsTypeInfo(typeof(EnumeratorItemTypeAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
 			{				
 				IConstructorInfo constructor = GetInfo(attribute) as IConstructorInfo;
@@ -3593,7 +3593,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			return TaxonomyHelper.ObjectTypeInfo;
+			return TaxonomyManager.ObjectTypeInfo;
 		}
 		
 		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeInfo iteratorType, bool declarePrivateLocals)
@@ -3648,13 +3648,13 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			if (IsStandaloneTypeReference(node))
 			{
-				return TaxonomyHelper.TypeTypeInfo;
+				return TaxonomyManager.TypeTypeInfo;
 			}
 			
 			/*
 			if (IsStandaloneMethodReference(node))
 			{
-				return TaxonomyHelper.GetMethodReference(GetInfo(node));
+				return TaxonomyManager.GetMethodReference(GetInfo(node));
 			}
 			*/
 			
@@ -3663,14 +3663,14 @@ namespace Boo.Lang.Compiler.Steps
 				Array_TypedCollectionConstructor == binding ||				
 				Array_TypedConstructor2 == binding)
 			{
-				return TaxonomyHelper.AsArrayInfo(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
+				return TaxonomyManager.AsArrayInfo(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
 			}
 			return binding.BoundType;
 		}
 		
 		protected IInfo GetOptionalInfo(Node node)
 		{
-			return TaxonomyHelper.GetOptionalInfo(node);
+			return TaxonomyManager.GetOptionalInfo(node);
 		}
 		
 		bool IsStandaloneTypeReference(Node node)
@@ -3696,7 +3696,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		string GetSignature(IMethodInfo binding)
 		{
-			return TaxonomyHelper.GetSignature(binding);
+			return TaxonomyManager.GetSignature(binding);
 		}
 
 		void NotImplemented(Node node, string feature)

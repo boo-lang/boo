@@ -90,10 +90,10 @@ namespace Boo.Lang.Compiler.Steps
 	
 		protected InternalType GetInternalType(TypeDefinition node)
 		{
-			InternalType binding = (InternalType)TaxonomyHelper.GetOptionalInfo(node);
+			InternalType binding = (InternalType)TaxonomyManager.GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new InternalType(TaxonomyHelper, node);
+				binding = new InternalType(TaxonomyManager, node);
 				Bind(node, binding);
 			}
 			return binding;
@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected IInfo ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
-			if (TaxonomyHelper.IsBound(node))
+			if (TaxonomyManager.IsBound(node))
 			{
 				return null;
 			}

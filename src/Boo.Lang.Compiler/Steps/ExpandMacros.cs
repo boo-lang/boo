@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)TaxonomyHelper.GetInfo(module));
+			PushNamespace((INamespace)TaxonomyManager.GetInfo(module));
 			Accept(module.Members);
 			Accept(module.Globals);			
 			PopNamespace();

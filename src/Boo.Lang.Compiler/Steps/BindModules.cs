@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			CompileUnitInfo binding = new CompileUnitInfo(NameResolutionService);			
-			TaxonomyHelper.Bind(CompileUnit, binding);
+			TaxonomyManager.Bind(CompileUnit, binding);
 		}
 	}
 }

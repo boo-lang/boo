@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context = context;
 			
-			PushNamespace((INamespace)TaxonomyHelper.GetInfo(context.CompileUnit));
+			PushNamespace((INamespace)TaxonomyManager.GetInfo(context.CompileUnit));
 		}
 		
 		public INamespace CurrentNamespace
@@ -74,7 +74,7 @@ namespace Boo.Lang.Compiler.Steps
 				throw new ArgumentNullException("sourceNode");
 			}
 			
-			IInfo binding = _context.TaxonomyHelper.ResolvePrimitive(name);
+			IInfo binding = _context.TaxonomyManager.ResolvePrimitive(name);
 			if (null == binding)
 			{
 				INamespace ns = _current;

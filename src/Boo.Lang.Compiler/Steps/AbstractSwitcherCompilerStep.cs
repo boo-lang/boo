@@ -75,11 +75,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected TaxonomyManager TaxonomyHelper
+		protected TaxonomyManager TaxonomyManager
 		{
 			get
 			{
-				return _context.TaxonomyHelper;
+				return _context.TaxonomyManager;
 			}
 		}
 		

@@ -75,11 +75,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected TaxonomyManager TaxonomyHelper
+		protected TaxonomyManager TaxonomyManager
 		{
 			get
 			{
-				return _context.TaxonomyHelper;
+				return _context.TaxonomyManager;
 			}
 		}
 		
@@ -90,12 +90,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected ITypeInfo GetBoundType(Node node)
 		{
-			return TaxonomyHelper.GetBoundType(node);
+			return TaxonomyManager.GetBoundType(node);
 		}	
 		
 		protected TypeReference CreateBoundTypeReference(ITypeInfo binding)
 		{
-			return TaxonomyHelper.CreateBoundTypeReference(binding);
+			return TaxonomyManager.CreateBoundTypeReference(binding);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

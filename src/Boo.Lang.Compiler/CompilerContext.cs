@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public Services.TaxonomyManager TaxonomyHelper
+		public Services.TaxonomyManager TaxonomyManager
 		{
 			get
 			{
