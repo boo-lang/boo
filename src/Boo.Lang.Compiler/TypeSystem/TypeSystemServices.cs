@@ -91,6 +91,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType DoubleType;
 		
+		public ExternalType DecimalType;
+		
 		public ExternalType TimeSpanType;
 		
 		public ExternalType DateTimeType;
@@ -169,6 +171,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(ULongType = new ExternalType(this, Types.ULong));
 			Cache(SingleType = new ExternalType(this, Types.Single));
 			Cache(DoubleType = new ExternalType(this, Types.Double));
+			Cache(DecimalType = new ExternalType(this, Types.Decimal));
 			Cache(TimeSpanType = new ExternalType(this, Types.TimeSpan));
 			Cache(DateTimeType = new ExternalType(this, Types.DateTime));
 			Cache(RuntimeServicesType = new ExternalType(this, Types.RuntimeServices));
@@ -950,6 +953,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("ulong", ULongType);
 			AddPrimitiveType("single", SingleType);
 			AddPrimitiveType("double", DoubleType);
+			AddPrimitiveType("decimal", DecimalType);
 			AddPrimitiveType("callable", ICallableType);
 			AddBuiltin(BuiltinFunction.Len);
 			AddBuiltin(BuiltinFunction.AddressOf);

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Block);
 			Visit(node.Arguments);
 			
-			Node replacement = null;
+			Statement replacement = null;
 			
 			IEntity entity = NameResolutionService.ResolveQualifiedName(BuildMacroTypeName(node.Name));
 			if (null == entity)
@@ -107,6 +107,10 @@ namespace Boo.Lang.Compiler.Steps
 						}
 					}
 				}
+			}
+			if (null != node.Modifier)
+			{
+				replacement = NormalizeStatementModifiers.CreateModifiedStatement(node.Modifier, replacement);
 			}
 			ReplaceCurrentNode(replacement);
 		}

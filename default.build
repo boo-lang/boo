@@ -157,6 +157,7 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="Boo.NAnt.Tasks.dll" />
+				<include name="Boo.CodeDom.dll" />
 				<include name="booc.exe" />
 				<include name="booc.rsp" />
 				<include name="booi.exe" />

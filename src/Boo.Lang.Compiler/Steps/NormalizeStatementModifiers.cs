@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -162,53 +162,50 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void LeaveMacroStatement(MacroStatement node)
+		{
+			LeaveStatement(node);
+		}
+		
+		public static Statement CreateModifiedStatement(StatementModifier modifier, Statement node)
+		{
+			switch (modifier.Type)
+			{
+				case StatementModifierType.If:
+				{	
+					IfStatement stmt = new IfStatement(modifier.LexicalInfo);
+					stmt.Condition = modifier.Condition;
+					stmt.TrueBlock = new Block();						
+					stmt.TrueBlock.Statements.Add(node);
+					return stmt;
+				}
+				
+				case StatementModifierType.Unless:
+				{
+					UnlessStatement stmt = new UnlessStatement(modifier.LexicalInfo);
+					stmt.Condition = modifier.Condition;
+					stmt.Block.Statements.Add(node);
+					return stmt;
+				}
+				
+				case StatementModifierType.While:
+				{
+					WhileStatement stmt = new WhileStatement(modifier.LexicalInfo);
+					stmt.Condition = modifier.Condition;
+					stmt.Block.Statements.Add(node);
+					return stmt;
+				}
+			}
+			throw CompilerErrorFactory.NotImplemented(node, string.Format("modifier {0} supported", modifier.Type));
+		}
+		
 		public void LeaveStatement(Statement node)
 		{
-			if (null != node.Modifier)
+			StatementModifier modifier = node.Modifier;
+			if (null != modifier)
 			{
-				switch (node.Modifier.Type)
-				{
-					case StatementModifierType.If:
-					{	
-						IfStatement stmt = new IfStatement(node.Modifier.LexicalInfo);
-						stmt.Condition = node.Modifier.Condition;
-						stmt.TrueBlock = new Block();						
-						stmt.TrueBlock.Statements.Add(node);						
-						node.Modifier = null;
-						
-						ReplaceCurrentNode(stmt);
-						
-						break;
-					}
-					
-					case StatementModifierType.Unless:
-					{
-						UnlessStatement stmt = new UnlessStatement(node.Modifier.LexicalInfo);
-						stmt.Condition = node.Modifier.Condition;
-						stmt.Block.Statements.Add(node);
-						node.Modifier = null;
-						
-						ReplaceCurrentNode(stmt);
-						break;
-					}
-					
-					case StatementModifierType.While:
-					{
-						WhileStatement stmt = new WhileStatement(node.Modifier.LexicalInfo);
-						stmt.Condition = node.Modifier.Condition;
-						stmt.Block.Statements.Add(node);
-						node.Modifier = null;
-						
-						ReplaceCurrentNode(stmt);
-						break;
-					}
-						
-					default:
-					{							
-						Errors.Add(CompilerErrorFactory.NotImplemented(node, string.Format("modifier {0} supported", node.Modifier.Type)));
-						break;
-					}
-				}
+				node.Modifier = null;
+				ReplaceCurrentNode(CreateModifiedStatement(modifier, node));
 			}
 		}
 		
