@@ -55,6 +55,12 @@ namespace BooCompiler.Tests
 	public class CompilerErrorsTestCase : AbstractCompilerTestCase
 	{		
 		[Test]
+		public void BCE0080()
+		{
+			RunCompilerTestCase("bce0080.boo");
+		}
+		
+		[Test]
 		public void ReadOnlyProperty()
 		{
 			RunCompilerTestCase("readonly_property.boo");

@@ -1420,7 +1420,14 @@ namespace Boo.Lang.Compiler.Steps
 				
 				default:
 				{
-					if (EntityType.BuiltinFunction != tag.EntityType)
+					if (EntityType.BuiltinFunction == tag.EntityType)
+					{
+						if (!AstUtil.IsTargetOfMethodInvocation(node))
+						{
+							Error(node, CompilerErrorFactory.BuiltinCannotBeUsedAsExpression(node, tag.Name));
+						}
+					}
+					else
 					{
 						BindExpressionType(node, ((ITypedEntity)tag).Type);
 					}

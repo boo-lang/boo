@@ -39,8 +39,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		BuiltinFunctionType _function;
 		
-		public BuiltinFunction(BuiltinFunctionType type)
+		string _name;
+		
+		public BuiltinFunction(string name, BuiltinFunctionType type)
 		{
+			_name = name;
 			_function = type;
 		}
 		
@@ -48,7 +51,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _function.ToString();
+				return _name;
 			}
 		}
 		

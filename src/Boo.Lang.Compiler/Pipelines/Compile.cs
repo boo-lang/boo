@@ -52,6 +52,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			
 			Add(new BindTypeMembers());			
 			Add(new ProcessMethodBodies());
+			Add(new StricterErrorChecking());
+			
 			Add(new ProcessGenerators());
 			Add(new CheckInterfaceImplementations());
 			Add(new InjectCallableConversions());

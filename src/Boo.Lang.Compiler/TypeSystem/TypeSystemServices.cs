@@ -562,9 +562,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("long", LongType);
 			AddPrimitiveType("single", SingleType);
 			AddPrimitiveType("double", DoubleType);
-			AddPrimitive("len", new BuiltinFunction(BuiltinFunctionType.Len));
-			AddPrimitive("__addressof__", new BuiltinFunction(BuiltinFunctionType.AddressOf));
-			AddPrimitive("__eval__", new BuiltinFunction(BuiltinFunctionType.Eval));
+			AddPrimitive("len", new BuiltinFunction("len", BuiltinFunctionType.Len));
+			AddPrimitive("__addressof__", new BuiltinFunction("__addressof__", BuiltinFunctionType.AddressOf));
+			AddPrimitive("__eval__", new BuiltinFunction("__eval__", BuiltinFunctionType.Eval));
 		}
 		
 		void AddPrimitiveType(string name, ExternalType type)

@@ -426,6 +426,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0079", node.LexicalInfo);
 		}
 		
+		public static CompilerError BuiltinCannotBeUsedAsExpression(Node node, string name)
+		{
+			return new CompilerError("BCE0080", node.LexicalInfo, name);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
