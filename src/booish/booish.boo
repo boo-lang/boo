@@ -175,44 +175,6 @@ class InteractiveInterpreter:
 
 	def GetValue(name as string):
 		return _values[name]
-/*
-interpreter = InteractiveInterpreter()
-interpreter.SetValue("name", "boo")
-interpreter.SetValue("age", 3)
-
-interpreter.Eval("""
-print(name)
-print(age)
-age += 1
-""")
-
-assert 4 == interpreter.GetValue("age")
-
-interpreter.Eval("age = 42")
-assert 42 == interpreter.GetValue("age")
-
-interpreter.Eval("""
-value = 3
-print(value*2)
-""")
-
-assert 3 == interpreter.GetValue("value")
-
-interpreter.Eval("x2 = { v as int | return v*2 }")
-
-x2 as callable = interpreter.GetValue("x2")
-assert 4 == x2(2)
-
-interpreter.Eval("e = i*2 for i in range(value)")
-assert array(interpreter.GetValue("e")) == (0, 2, 4)
-
-# let's loop
-interpreter.Eval("""
-for i in range(3):
-	print(i*2)
-""")
-print("i: ${interpreter.GetValue('i')}")
-*/
 
 interpreter = InteractiveInterpreter()
 while line=prompt(">>> "):

@@ -33,6 +33,7 @@
 					<include name="BooCompiler.Tests.dll" />					
 					<include name="BooCompilerResources.Tests.dll" />					
 					<include name="Regression.Tests.dll" />
+					<include name="Booish.Tests.dll" />
 				</assemblies>
 			</test>
 		</nunit2>
@@ -114,6 +115,20 @@
 			</references>
 		</booc>		
 		
+		<booc
+			target="library"
+			output="build/Booish.Tests.dll">
+			
+			<sources basedir="Booish.Tests">
+				<include name="**/*.boo" />
+			</sources>
+			
+			<references basedir="build">
+				<include name="booish.exe" />
+				<include name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+		
 		<csc
 			target="library"
 			output="build/Boo.AntlrParser.Tests.dll">
@@ -138,6 +153,7 @@
 		<mkdir dir="build" />
 		<copy todir="build">
 			<fileset basedir="../build">
+				<include name="booish.exe" />
 				<include name="*.dll" />
 				<include name="*.pdb" />
 				<include name="pt/*.dll" />
