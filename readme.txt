@@ -24,7 +24,7 @@ How to Start
 ============
 
 For a brief description of the project and its goals
-take a look at docs/introduction.sxw.
+take a look at docs/BooManifesto.sxw.
 
 extras/boox contains a sweet little tool you can use
 to get yourself acquainted with the language.

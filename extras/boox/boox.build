@@ -14,11 +14,11 @@
 	<target name="distro" depends="compile">
 		<zip zipfile="boox.zip">
 			<fileset>
-				<includes name="boox.build" />
-				<includes name="src/*.boo" />
-				<includes name="resources/**/*.png" />
-				<includes name="build/*.dll" />
-				<includes name="build/boox.exe" />
+				<include name="boox.build" />
+				<include name="src/*.boo" />
+				<include name="resources/**/*.png" />
+				<include name="build/*.dll" />
+				<include name="build/boox.exe" />
 			</fileset>
 		</zip>
 	</target>
@@ -27,21 +27,20 @@
 		<booc
 			output="build/boox.exe"
 			target="winexe"
-			tracelevel="Info"
-			verbose="true">
+			tracelevel="Info">
 			<sources basedir="src">
-				<includes name="*.boo" />
+				<include name="*.boo" />
 			</sources> 
 			
 			<resources basedir="build">
-				<includes name="*.resources" />
+				<include name="*.resources" />
 			</resources>
 			
 			<references basedir="build">
-				<includes name="ICSharpCode.TextEditor.dll" />
-				<includes name="WeifenLuo.WinFormsUI.dll" />
-				<includes name="System.Windows.Forms.dll" />
-				<includes name="System.Drawing.dll" />
+				<include name="ICSharpCode.TextEditor.dll" />
+				<include name="WeifenLuo.WinFormsUI.dll" />
+				<include name="System.Windows.Forms.dll" />
+				<include name="System.Drawing.dll" />
 			</references>
 		</booc>
 	</target>
@@ -97,6 +96,14 @@
 	</target>
 	
 	<target name="init">
+
+		<echo if="${not directory::exists(sharpd.dir)}">
+		Please, create a file named build.properties and define the
+		property sharpd.dir pointing to the bin folder of the SharpDevelop
+		distribution or manually copy the files ICSharpCode.TextEditor.dll and
+		WeinfenLuo.WinFormsUI.dll to the build folder.
+		</echo>
+		
 		<mkdir dir="build" />
 		
 		<call target="update-boo-libs" if="${directory::exists(boo.dir)}" />
@@ -109,11 +116,11 @@
 	<target name="update-boo-libs">
 		<copy todir="build">
 			<fileset basedir="${boo.dir}">
-				<includes name="*.dll" />
-				<includes name="*.pdb" />
-				<excludes name="*.Tests.dll" />
-				<excludes name="*.Tests.pdb" />
-				<excludes name="nunit.framework.dll" />
+				<include name="*.dll" />
+				<include name="*.pdb" />
+				<exclude name="*.Tests.dll" />
+				<exclude name="*.Tests.pdb" />
+				<exclude name="nunit.framework.dll" />
 			</fileset>
 		</copy>		
 		<copy todir="build" file="../SharpDevelop/boo.xshd">
@@ -123,8 +130,8 @@
 	<target name="update-sharpd-libs">
 		<copy todir="build">
 			<fileset basedir="${sharpd.dir}">
-				<includes name="ICSharpCode.TextEditor.dll" />				
-				<includes name="WeifenLuo.WinFormsUI.dll" />
+				<include name="ICSharpCode.TextEditor.dll" />				
+				<include name="WeifenLuo.WinFormsUI.dll" />
 			</fileset>
 		</copy>
 	</target>
