@@ -80,6 +80,9 @@ class AbstractInterpreter:
 	abstract def Lookup(name as string) as System.Type:
 		pass
 		
+	virtual def SetLastValue(value):
+		pass
+		
 	abstract def SetValue(name as string, value) as object:
 		pass
 
@@ -104,10 +107,6 @@ class AbstractInterpreter:
 			
 		return _suggestionCompiler
 		
-	LastValue:
-		get:
-			return GetValue("@value")
-			
 	Pipeline:
 		get:
 			return _compiler.Parameters.Pipeline
@@ -175,7 +174,7 @@ class AbstractInterpreter:
 		else:
 			_compiler.Parameters.OutputType = CompilerOutputType.Library
 		
-		SetValue("@value", null) if _rememberLastValue
+		SetLastValue(null) if _rememberLastValue
 		result = _compiler.Run(cu)
 		return result if len(result.Errors)
 		
@@ -376,6 +375,7 @@ class AbstractInterpreter:
 	
 		static AbstractInterpreter_GetValue = typeof(AbstractInterpreter).GetMethod("GetValue")
 		static AbstractInterpreter_SetValue = typeof(AbstractInterpreter).GetMethod("SetValue")
+		static AbstractInterpreter_SetLastValue = typeof(AbstractInterpreter).GetMethod("SetLastValue")
 	
 		_interpreterField as Field
 		_interpreter as AbstractInterpreter
@@ -420,18 +420,11 @@ class AbstractInterpreter:
 			return unless _interpreter.RememberLastValue and _isEntryPoint
 			
 			if node.Expression.ExpressionType is not TypeSystemServices.VoidType:
-				node.Expression = CreateInterpreterInvocation(
-								AbstractInterpreter_SetValue,
-								"@value",
-								node.Expression)
+				node.Expression = CreateSetLastValue(	node.Expression)
 			else:
 				eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo)
 				eval.Arguments.Add(node.Expression)
-				eval.Arguments.Add(
-						CreateInterpreterInvocation(
-							AbstractInterpreter_SetValue,
-							"@value",
-							CodeBuilder.CreateNullLiteral()))			
+				eval.Arguments.Add(CreateSetLastValue(CodeBuilder.CreateNullLiteral()))			
 				node.Expression = eval
 							
 		def CreateInterpreterInvocation(method as System.Reflection.MethodInfo,
@@ -450,6 +443,12 @@ class AbstractInterpreter:
 						CreateInterpreterReference(),
 						TypeSystemServices.Map(method),
 						CodeBuilder.CreateStringLiteral(name))
+						
+		def CreateSetLastValue(value as Expression):
+			return CodeBuilder.CreateMethodInvocation(
+							CreateInterpreterReference(),
+							TypeSystemServices.Map(AbstractInterpreter_SetLastValue),
+							value)
 	
 		def CreateGetValue(node as ReferenceExpression):
 			return CastIfNeeded(

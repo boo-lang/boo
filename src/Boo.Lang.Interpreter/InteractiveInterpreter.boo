@@ -45,6 +45,9 @@ class InteractiveInterpreter(AbstractInterpreter):
 	
 	_representers = []
 	
+	[getter(LastValue)]
+	_lastValue
+	
 	[property(Print, value is not null)]
 	_print as callable(object) = print
 	
@@ -55,6 +58,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 	def Reset():
 		_values.Clear()
 		_declarations.Clear()
+		_lastValue = null
 		InitializeStandardReferences()
 		
 	def ConsoleLoopEval():			
@@ -81,6 +85,9 @@ class InteractiveInterpreter(AbstractInterpreter):
 	override def Declare([required] name as string,
 				[required] type as System.Type):
 		_declarations.Add(name, type)
+		
+	override def SetLastValue(value):
+		_lastValue = value
 		
 	override def SetValue(name as string, value):
 		_values[name] = value
@@ -111,9 +118,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 		SetValue("globals", globals)
 		
 	def globals():
-		return array(
-					key for key as string in _values.Keys
-					unless key.StartsWith("@"))
+		return array(string, _values.Keys)
 					
 	def dir([required] obj):
 		type = (obj as Type) or obj.GetType()
