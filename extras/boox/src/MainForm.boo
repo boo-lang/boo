@@ -180,18 +180,21 @@ class MainForm(Form):
 
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)
-		if (not args.Cancel) and AreThereDirtyDocuments():
+		if not args.Cancel:			
+			dirtyDocuments = [
+							editor.GetSafeFileName()
+							for editor as BooEditor in _dockManager.Documents
+							if editor.IsDirty
+							]
+			return unless len(dirtyDocuments)
+			
 			args.Cancel = (
 							DialogResult.Yes !=
-							MessageBox.Show("Are you sure you want to leave and lose all your changes?",
+							MessageBox.Show("The following files were modified:\n\n\t" + 
+											join(dirtyDocuments, "\n\t") + 
+											"\n\nAre you sure you want to leave and lose all your changes?",
 											"Boo Explorer",
 											MessageBoxButtons.YesNo))
-
-	def AreThereDirtyDocuments():
-		for editor as BooEditor in _dockManager.Documents:
-			if editor.IsDirty:
-				return true
-		return false
 
 	def FindEditor(fname as string):
 		for document in _dockManager.Documents:
