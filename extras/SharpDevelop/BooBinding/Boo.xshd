@@ -226,6 +226,8 @@
 				<Key word="lock"/>
 				<Key word="getter"/>
 				<Key word="required"/>
+				<Key word="rawarrayindexing"/>
+				<Key word="normalarrayindexing"/>
 			</KeyWords>
 
 			<KeyWords name="Builtins" bold="false" italic="false" color="Purple" >

@@ -111,6 +111,7 @@ namespace Boo.Lang.Compiler.Steps
 		IType _returnType;
 		int _tryBlock; // are we in a try block?
 		bool _checked = true;
+		bool _rawarrayindexing = false;
 		Hashtable _typeCache = new Hashtable();
 		
 		// keeps track of types on the IL stack
@@ -393,6 +394,7 @@ namespace Boo.Lang.Compiler.Steps
 			_returnType = null;
 			_tryBlock = 0;
 			_checked = true;
+			_rawarrayindexing = false;
 			_types.Clear();
 			_typeCache.Clear();
 			_builders.Clear();
@@ -521,10 +523,19 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_checked = (bool)objChecked;
 			}
+			
+			bool current_indexing = _rawarrayindexing;
+			object objRawArrayIndexing = block["rawarrayindexing"];
+			
+			if (objRawArrayIndexing is bool)
+			{
+				_rawarrayindexing = (bool)objRawArrayIndexing;
+			}
 
 			Visit(block.Statements);
 
 			_checked = current;
+			_rawarrayindexing = current_indexing;
 		}
 		
 		void DefineLabels(Method method)
@@ -1894,7 +1905,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitNormalizedArrayIndex(Expression index)
 		{
 			bool isNegative = false;
-			if (CanBeNegative(index, ref isNegative))
+			if (CanBeNegative(index, ref isNegative) && (!_rawarrayindexing))
 			{					
 				if (isNegative)
 				{							

@@ -179,5 +179,7 @@ OR
 		<keyword>zip</keyword>
 		<keyword>checked</keyword>
 		<keyword>unchecked</keyword>
+		<keyword>rawarrayindexing</keyword>
+		<keyword>normalarrayindexing</keyword>
 	</keyword-list>
 </language>
