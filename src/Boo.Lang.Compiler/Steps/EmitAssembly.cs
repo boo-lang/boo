@@ -61,6 +61,8 @@ namespace Boo.Lang.Compiler.Steps
 	{		
 		static ConstructorInfo DebuggableAttribute_Constructor = typeof(System.Diagnostics.DebuggableAttribute).GetConstructor(new Type[] { Types.Bool, Types.Bool });
 		
+		static ConstructorInfo ParamArrayAttribute_Constructor = typeof(System.ParamArrayAttribute).GetConstructor(new Type[0]);
+		
 		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
 		
 		static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
@@ -3102,19 +3104,39 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void DefineParameters(MethodBuilder builder, ParameterDeclarationCollection parameters)
-		{
+		{			
+			int last = parameters.Count - 1;
 			for (int i=0; i<parameters.Count; ++i)
 			{
-				builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+				ParameterBuilder paramBuilder = builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+				if (last == i && parameters.VariableNumber)
+				{
+					SetParamArrayAttribute(paramBuilder);
+				}
 			}
+			
 		}
 		
 		void DefineParameters(ConstructorBuilder builder, ParameterDeclarationCollection parameters)
 		{
+			int last = parameters.Count - 1;
 			for (int i=0; i<parameters.Count; ++i)
 			{
-				builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+				ParameterBuilder paramBuilder = builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+				if (last == i && parameters.VariableNumber)
+				{
+					SetParamArrayAttribute(paramBuilder);
+				}
 			}
+		}
+		
+		void SetParamArrayAttribute(ParameterBuilder builder)
+		{
+			builder.SetCustomAttribute(
+				new CustomAttributeBuilder(
+					ParamArrayAttribute_Constructor, 
+					new object[0]));
+				
 		}
 		
 		MethodImplAttributes GetImplementationFlags(Method method)

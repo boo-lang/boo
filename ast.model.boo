@@ -56,7 +56,6 @@ class CallableDefinition(TypeMember, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
 	ReturnTypeAttributes as AttributeCollection
-	VariableArguments as bool
 
 abstract class TypeDefinition(TypeMember):
 	Members as TypeMemberCollection

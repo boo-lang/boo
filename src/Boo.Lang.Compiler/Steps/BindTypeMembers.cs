@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				TypeMember member = (TypeMember)node;
 				NameResolutionService.Restore((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
-				CodeBuilder.BindParameterDeclarations(member.IsStatic, node.Parameters);
+				CodeBuilder.BindParameterDeclarations(member.IsStatic, node);
 			}
 		}
 		

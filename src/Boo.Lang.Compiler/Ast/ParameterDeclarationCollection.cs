@@ -32,12 +32,27 @@ namespace Boo.Lang.Compiler.Ast
 {
 	public class ParameterDeclarationCollection : Boo.Lang.Compiler.Ast.Impl.ParameterDeclarationCollectionImpl
 	{
+		bool _variableNumber;
+		
 		public ParameterDeclarationCollection()
 		{
 		}
 		
 		public ParameterDeclarationCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
+		}
+		
+		public bool VariableNumber
+		{
+			get
+			{
+				return _variableNumber;
+			}
+			
+			set
+			{
+				_variableNumber = value;
+			}
 		}
 	}
 }

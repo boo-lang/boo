@@ -842,7 +842,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_currentMethod.Method.DeclaringType.Members.Add(closure);
 			
-			CodeBuilder.BindParameterDeclarations(_currentMethod.IsStatic, closure.Parameters);
+			CodeBuilder.BindParameterDeclarations(_currentMethod.IsStatic, closure);
 			
 			// check for invalid names and 
 			// resolve parameter types 

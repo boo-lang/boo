@@ -195,7 +195,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented(node.Name);
 			if (node.Parameters.Count > 0)
 			{
-				WriteParameterList(node.Parameters, false);
+				WriteParameterList(node.Parameters);
 			}
 			WriteTypeReference(node.Type);
 			WriteLine(":");
@@ -280,7 +280,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			else
 			{
 				WriteKeyword("def ");
-				WriteParameterList(node.Parameters, false);
+				WriteParameterList(node.Parameters);
 				WriteTypeReference(node.ReturnType);
 				WriteLine(":");
 				WriteBlock(node.Body);
@@ -293,7 +293,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteModifiers(node);
 			WriteKeyword(keyword);
 			Write(node.Name);
-			WriteParameterList(node.Parameters, node.VariableArguments);
+			WriteParameterList(node.Parameters);
 			WriteTypeReference(node.ReturnType);
 			if (node.ReturnTypeAttributes.Count > 0)
 			{
@@ -1068,7 +1068,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteBlock(block);
 		}
 		
-		void WriteParameterList(ParameterDeclarationCollection items, bool variableArguments)
+		void WriteParameterList(ParameterDeclarationCollection items)
 		{
 			Write("(");
 			int last = items.Count-1;
@@ -1078,7 +1078,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					Write(", ");					
 				}
-				if (variableArguments && i==last)
+				if (i == last && items.VariableNumber)
 				{
 					Write("*");
 				}

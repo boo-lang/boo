@@ -386,7 +386,6 @@ callable_definition [TypeMemberCollection container]
 	{
 		CallableDefinition cd = null;
 		TypeReference returnType = null;
-		bool variableArguments = false;
 	}:
 	CALLABLE id:ID
 	{
@@ -396,13 +395,10 @@ callable_definition [TypeMemberCollection container]
 		AddAttributes(cd.Attributes);
 		container.Add(cd);
 	}
-	LPAREN variableArguments=parameter_declaration_list[cd.Parameters] RPAREN
+	LPAREN parameter_declaration_list[cd.Parameters] RPAREN
 	(AS returnType=type_reference { cd.ReturnType=returnType; })?			
 	eos
 	docstring[cd]
-	{
-		cd.VariableArguments = variableArguments;
-	}
 	;
 
 protected
@@ -574,7 +570,6 @@ interface_method [TypeMemberCollection container]
 	{
 		Method m = null;
 		TypeReference rt = null;
-		bool variableArguments = false;
 	}: 
 	DEF id:ID
 	{
@@ -583,14 +578,11 @@ interface_method [TypeMemberCollection container]
 		AddAttributes(m.Attributes);
 		container.Add(m);
 	}
-	LPAREN variableArguments=parameter_declaration_list[m.Parameters] RPAREN
+	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 	(AS rt=type_reference { m.ReturnType=rt; })?			
 	(
 		(eos docstring[m]) | (empty_block (EOS)*)
 	)
-	{
-		m.VariableArguments = variableArguments;
-	}
 	;
 			
 protected
@@ -666,7 +658,6 @@ method [TypeMemberCollection container]
 	{
 		Method m = null;
 		TypeReference rt = null;
-		bool variableArguments = false;
 	}: 
 	t:DEF
 	(
@@ -677,14 +668,13 @@ method [TypeMemberCollection container]
 		m.Modifiers = _modifiers;
 		AddAttributes(m.Attributes);
 	}
-	LPAREN variableArguments=parameter_declaration_list[m.Parameters] RPAREN
+	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 			(AS rt=type_reference { m.ReturnType = rt; })?
 			attributes { AddAttributes(m.ReturnTypeAttributes); }
 			begin_with_doc[m]
 				block[m.Body.Statements]
 			end
-	{
-		m.VariableArguments = variableArguments; 
+	{ 
 		container.Add(m);
 	}
 	;	
@@ -816,24 +806,35 @@ modifiers
 	
 protected	
 parameter_declaration_list[ParameterDeclarationCollection c]
-	returns [bool variableArguments]
 	{
-		variableArguments = false;
+		bool variableArguments = false;
 	}: 
 	(variableArguments=parameter_declaration[c]
 	( {!variableArguments}?(COMMA variableArguments=parameter_declaration[c]) )* )?
+	{ c.VariableNumber = variableArguments; }
 	;
 
 protected
 parameter_declaration[ParameterDeclarationCollection c]
 	returns [bool variableArguments]
 	{		
+		Token id = null;
 		TypeReference tr = null;
 		variableArguments = false;
 	}: 
 	attributes
-	(MULTIPLY { variableArguments=true; })?
-	id:ID (AS tr=type_reference)? 
+	(
+		(
+			MULTIPLY { variableArguments=true; }
+			id1:ID (AS tr=array_type_reference)?
+			{ id = id1; }
+		)
+		|
+		(
+			id2:ID (AS tr=type_reference)?
+			{ id = id2; }
+		)
+	)
 	{
 		ParameterDeclaration pd = new ParameterDeclaration(ToLexicalInfo(id));
 		pd.Name = id.getText();
@@ -860,6 +861,21 @@ callable_type_reference returns [CallableTypeReference ctr]
 	RPAREN
 	(AS tr=type_reference { ctr.ReturnType = tr; })?
 	;
+	
+protected
+array_type_reference returns [ArrayTypeReference atr]
+	{
+		TypeReference tr = null;
+		atr = null;
+	}:
+	lparen:LPAREN
+	tr=type_reference
+	rparen:RPAREN
+	{
+		atr = new ArrayTypeReference(ToLexicalInfo(lparen));
+		atr.ElementType = tr;
+	}
+	;
 
 protected
 type_reference returns [TypeReference tr]
@@ -867,16 +883,7 @@ type_reference returns [TypeReference tr]
 		tr=null;
 		Token id = null;
 	}: 
-	(
-		lparen:LPAREN
-		tr=type_reference
-		rparen:RPAREN
-		{
-			ArrayTypeReference ttr = new ArrayTypeReference(ToLexicalInfo(lparen));
-			ttr.ElementType = tr;
-			tr = ttr;
-		}
-	)
+	tr=array_type_reference
 	|
 	(CALLABLE LPAREN)=>(tr=callable_type_reference)
 	|
