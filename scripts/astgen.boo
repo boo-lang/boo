@@ -115,11 +115,12 @@ def WriteClassImpl(node as ClassDefinition):
 		WriteWarning(writer)
 		writer.WriteLine("""
 namespace Boo.Lang.Ast.Impl
-{
-	using System;
+{	
 	using Boo.Lang.Ast;
+	using System.Collections;
+	using System.Runtime.Serialization;
 	
-	[Serializable]
+	[System.Serializable]
 	public abstract class ${node.Name}Impl : ${join(node.BaseTypes, ', ')}
 	{
 """)
@@ -159,9 +160,9 @@ namespace Boo.Lang.Ast.Impl
 			""")
 			
 		writer.WriteLine("""
-		new public Boo.Lang.Ast.${node.Name} CloneNode()
+		new public ${node.Name} CloneNode()
 		{
-			return Clone() as Boo.Lang.Ast.${node.Name};
+			return Clone() as ${node.Name};
 		}""")
 		
 		unless IsAbstract(node):
@@ -176,8 +177,8 @@ namespace Boo.Lang.Ast.Impl
 		
 		override public void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
-			Boo.Lang.Ast.${node.Name} thisNode = (Boo.Lang.Ast.${node.Name})this;
-			Boo.Lang.Ast.${GetResultingTransformerNode(node)} resultingTypedNode = thisNode;
+			${node.Name} thisNode = (${node.Name})this;
+			${GetResultingTransformerNode(node)} resultingTypedNode = thisNode;
 			transformer.On${node.Name}(thisNode, ref resultingTypedNode);
 			resultingNode = resultingTypedNode;
 		}""")
@@ -201,10 +202,11 @@ namespace Boo.Lang.Ast.Impl
 					writer.WriteLine("""
 			if (${fieldName} != null)
 			{
-				Boo.Lang.Ast.${collectionItemType} item = existing as Boo.Lang.Ast.${collectionItemType};
+				${collectionItemType} item = existing as ${collectionItemType};
 				if (null != item)
 				{
-					if (${fieldName}.Replace(item, (Boo.Lang.Ast.${collectionItemType})newNode))
+					${collectionItemType} newItem = (${collectionItemType})newNode;
+					if (${fieldName}.Replace(item, newItem))
 					{
 						return true;
 					}
@@ -215,7 +217,7 @@ namespace Boo.Lang.Ast.Impl
 						writer.WriteLine("""
 			if (${fieldName} == existing)
 			{
-				this.${field.Name} = ((Boo.Lang.Ast.${field.Type})newNode);
+				this.${field.Name} = (${field.Type})newNode;
 				return true;
 			}""")
 			
@@ -226,10 +228,10 @@ namespace Boo.Lang.Ast.Impl
 			writer.WriteLine("""
 		override public object Clone()
 		{
-			Boo.Lang.Ast.${node.Name} clone = (Boo.Lang.Ast.${node.Name})System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Boo.Lang.Ast.${node.Name}));
+			${node.Name} clone = FormatterServices.GetUninitializedObject(typeof(${node.Name})) as ${node.Name};
 			clone._lexicalInfo = _lexicalInfo;
 			clone._documentation = _documentation;
-			clone._properties = (System.Collections.Hashtable)_properties.Clone();
+			clone._properties = _properties.Clone() as Hashtable;
 			""")
 			
 			for field as Field in allFields:
@@ -239,7 +241,7 @@ namespace Boo.Lang.Ast.Impl
 					writer.WriteLine("""
 			if (null != ${fieldName})
 			{
-				clone.${fieldName} = ((${field.Type})${fieldName}.Clone());
+				clone.${fieldName} = ${fieldName}.CloneNode();
 				clone.${fieldName}.InitializeParent(clone);
 			}""")
 				else:
@@ -587,12 +589,12 @@ namespace Boo.Lang.Ast
 				Switch(node.${field.Name});""")
 					else:
 						writer.WriteLine("""
-				Boo.Lang.Ast.${field.Type} current${field.Name}Value = node.${field.Name};
+				${field.Type} current${field.Name}Value = node.${field.Name};
 				if (null != current${field.Name}Value)
 				{	
 					Node resulting${field.Name}Value;				
-					current${field.Name}Value.Switch(this, out resulting${field.Name}Value);
-					node.${field.Name} = (${field.Type})resulting${field.Name}Value;
+					current${field.Name}Value.Switch(this, out resulting${field.Name}Value);					
+					node.${field.Name} = resulting${field.Name}Value as ${field.Type};
 				}""")
 				
 				writer.WriteLine("""

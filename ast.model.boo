@@ -345,7 +345,7 @@ class StringLiteralExpression(LiteralExpression):
 	Value as string
 
 class TimeSpanLiteralExpression(LiteralExpression):
-	Value as TimeSpan
+	Value as System.TimeSpan
 
 class IntegerLiteralExpression(LiteralExpression):
 	Value as long
