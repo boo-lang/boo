@@ -455,6 +455,12 @@ namespace Boo.Ast.Compilation.Steps
 					}
 				}				
 			}
+			else if (BinaryOperatorType.InPlaceAdd == node.Operator)
+			{
+				Switch(((MemberReferenceExpression)node.Left).Target);
+				AddDelegate(node, GetBinding(node.Left), node.Right);
+				PushType(Types.Void);
+			}
 			else
 			{				
 				IBinding binding = BindingManager.GetBinding(node);
@@ -795,6 +801,25 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		void AddDelegate(Node sourceNode, IBinding eventBinding, Expression value)
+		{
+			MethodBase mi = GetMethodInfo((IMethodBinding)GetBinding(value));
+			if (mi.IsStatic)
+			{
+				_il.Emit(OpCodes.Ldnull);
+			}
+			else
+			{
+				Switch(((MemberReferenceExpression)value).Target); PopType();
+			}
+			_il.Emit(OpCodes.Ldftn, (MethodInfo)mi);
+			
+			EventInfo ei = ((ExternalEventBinding)eventBinding).EventInfo;
+			
+			_il.Emit(OpCodes.Newobj, GetDelegateConstructor(ei.EventHandlerType));					
+			_il.EmitCall(OpCodes.Callvirt, ei.GetAddMethod(true), null);
+		}
+		
 		void InitializeMember(Node sourceNode, IBinding binding, Expression value)
 		{
 			switch (binding.BindingType)
@@ -808,22 +833,7 @@ namespace Boo.Ast.Compilation.Steps
 				
 				case BindingType.Event:
 				{
-					MethodBase mi = GetMethodInfo((IMethodBinding)GetBinding(value));
-					if (!mi.IsStatic)
-					{
-						Errors.NotImplemented(sourceNode, "only static delegates for now");
-					}
-					else
-					{
-						_il.Emit(OpCodes.Ldnull);
-						_il.Emit(OpCodes.Ldftn, (MethodInfo)mi);
-					}
-					
-					EventInfo ei = ((ExternalEventBinding)binding).EventInfo;
-					
-					_il.Emit(OpCodes.Newobj, GetDelegateConstructor(ei.EventHandlerType));					
-					_il.EmitCall(OpCodes.Callvirt, ei.GetAddMethod(true), null);
-					
+					AddDelegate(sourceNode, binding, value);
 					break;
 				}
 					

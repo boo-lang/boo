@@ -31,7 +31,7 @@ using System;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class ExternalEventBinding : IMemberBinding, ITypedBinding
+	public class ExternalEventBinding : IEventBinding
 	{
 		BindingManager _bindingManager;
 		

@@ -83,6 +83,10 @@ namespace Boo.Ast.Compilation.Binding
 		}
 	}
 	
+	public interface IEventBinding : IMemberBinding
+	{		
+	}
+	
 	public interface IFieldBinding : IMemberBinding
 	{		
 	}

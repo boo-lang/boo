@@ -262,6 +262,12 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
+		public void DelegateWithInstanceMember()
+		{
+			RunCompilerTestCase("delegate2.boo", "delegate += object.method");
+		}
+		
+		[Test]
 		public void TestProperty0()
 		{
 			RunCompilerTestCase("property0.boo", "basic property support");
@@ -360,9 +366,15 @@ namespace Boo.Tests.Ast.Compilation
 		}
 		
 		[Test]
-		public void ToStringOverride()
+		public void ToStringOverload()
 		{
 			RunCompilerTestCase("class4.boo", "ToString override");
+		}
+		
+		[Test]
+		public void ForwardInstanceMethodReference()
+		{
+			RunCompilerTestCase("class5.boo", "def initialize");
 		}
 		
 		[Test]

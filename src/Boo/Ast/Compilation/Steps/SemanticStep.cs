@@ -162,6 +162,11 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				BindingManager.Bind(node, new InternalFieldBinding(BindingManager, node));
 			}
+			
+			if (null == node.Type)
+			{
+				node.Type = CreateBoundTypeReference(BindingManager.ObjectTypeBinding);
+			}
 		}
 		
 		public override bool EnterConstructor(Constructor node, ref Constructor resultingNode)
@@ -278,6 +283,11 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnTypeReference(TypeReference node, ref TypeReference resultingNode)
 		{
+			if (BindingManager.IsBound(node))
+			{
+				return;
+			}
+			
 			IBinding info = ResolveQualifiedName(node, node.Name);
 			if (null == info || BindingType.TypeReference != info.BindingType)
 			{
@@ -546,6 +556,24 @@ namespace Boo.Ast.Compilation.Steps
 					break;
 				}
 				
+				case BinaryOperatorType.InPlaceAdd:
+				{
+					IBinding binding = GetBinding(node.Left);
+					if (BindingType.Event != binding.BindingType)
+					{
+						Errors.NotImplemented(node, "InPlaceAdd");
+					}
+					
+					IEventBinding eventBinding = (IEventBinding)binding;
+					ITypedBinding expressionBinding = (ITypedBinding)GetBinding(node.Right);
+					if (CheckDelegateArgument(node.Left, eventBinding, expressionBinding))
+					{						
+					}
+					
+					BindingManager.Bind(node, BindingManager.VoidTypeBinding);
+					break;
+				}
+				
 				case BinaryOperatorType.Inequality:
 				{
 					ResolveOperator("op_Inequality", node);
@@ -710,11 +738,7 @@ namespace Boo.Ast.Compilation.Steps
 				
 				if (member.BindingType == BindingType.Event)
 				{
-					if (expressionBinding.BindingType != BindingType.Method ||
-					    !CheckDelegateParameterList(memberType, (IMethodBinding)expressionBinding))
-					{
-						Errors.EventArgumentMustBeAMethod(arg.First, name.Name, memberType.FullName);
-					}
+					CheckDelegateArgument(arg.First, member, expressionBinding);
 				}
 				else
 				{						
@@ -725,6 +749,18 @@ namespace Boo.Ast.Compilation.Steps
 					}
 				}
 			}
+		}
+		
+		bool CheckDelegateArgument(Node sourceNode, ITypedBinding delegateMember, ITypedBinding argumentBinding)
+		{
+			ITypeBinding delegateType = delegateMember.BoundType;
+			if (argumentBinding.BindingType != BindingType.Method ||
+					    !CheckDelegateParameterList(delegateType, (IMethodBinding)argumentBinding))
+			{
+				Errors.EventArgumentMustBeAMethod(sourceNode, delegateMember.Name, delegateType.FullName);
+				return false;
+			}
+			return true;
 		}
 		
 		bool CheckParameters(Node sourceNode, IMethodBinding method, ExpressionCollection args)
@@ -1022,7 +1058,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		TypeReference CreateBoundTypeReference(ITypeBinding binding)
 		{
-			TypeReference typeReference = new TypeReference(binding.Name);
+			TypeReference typeReference = new TypeReference(binding.FullName);
 			BindingManager.Bind(typeReference, BindingManager.ToTypeReference(binding));
 			return typeReference;
 		}

@@ -18,4 +18,4 @@ class Person:
 		return "${_fname} ${_lname}"
 		
 homer = Person("homer", "simpson")
-print(homer)
+print(homer.ToString())
