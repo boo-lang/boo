@@ -517,6 +517,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				accessor.Modifiers |= TypeMemberModifiers.Override;
 			}
+			
+			if (property.IsAbstract)
+			{
+				accessor.Modifiers |= TypeMemberModifiers.Abstract;
+			}
 		}
 		
 		int GetFirstParameterIndex(TypeMember member)
@@ -4405,16 +4410,40 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (IMember member in baseType.GetMembers())
 			{
-				if (EntityType.Method == member.EntityType)
+				switch (member.EntityType)
 				{
-					IMethod method = (IMethod)member;
-					if (method.IsAbstract)
+					case EntityType.Method:
 					{
-						ResolveAbstractMethod(node, baseTypeRef, method);
+						IMethod method = (IMethod)member;
+						if (method.IsAbstract)
+						{
+							ResolveAbstractMethod(node, baseTypeRef, method);
+						}
+						break;
+					}
+					
+					case EntityType.Property:
+					{
+						IProperty property = (IProperty)member;
+						if (IsAbstractAccessor(property.GetGetMethod()) ||
+							IsAbstractAccessor(property.GetSetMethod()))
+						{
+							ResolveClassAbstractProperty(node, baseTypeRef, property);
+						}
+						break;
 					}
 				}
 			}
 		}									
+		
+		bool IsAbstractAccessor(IMethod accessor)
+		{
+			if (null != accessor)
+			{
+				return accessor.IsAbstract;
+			}
+			return false;
+		}
 		
 		void ResolveAbstractMember(ClassDefinition node,
 											TypeReference baseTypeRef,
