@@ -2802,7 +2802,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return OpCodes.Conv_U2;
 			}	
-			if (type == TypeSystemServices.IntType)
+			if (type == TypeSystemServices.IntType ||
+				type.IsEnum)
 			{
 				return OpCodes.Conv_I4;
 			}
