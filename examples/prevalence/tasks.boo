@@ -31,42 +31,75 @@ import Bamboo.Prevalence from Bamboo.Prevalence
 
 class Task:
 
-	[getter(ID)]
-	_id = Guid.NewGuid()
+	[getter(Id)]
+	_id = -1
 	
-	[getter(Name)]
-	_name as string
+	[getter(DateCreated)]
+	_dateCreated = date.Now
+	
+	[getter(Summary)]
+	_summary as string
 	
 	[property(Done)]
 	_done = false
 
-	def constructor(name):
-		_name = name
+	def constructor([required] summary):
+		_summary = summary
+		
+	internal def Initialize(id):
+		_id = id
 
 class TaskList(MarshalByRefObject):
 
 	_tasks = []
 	
-	Tasks as (Task):
+	_nextId = 0
+	
+	Tasks:
 		get:
-			return _tasks.ToArray(Task)
+			return array(Task, _tasks)
 			
 	PendingTasks:
 		get:
-			return array(Task, task for task in _tasks if task.Done)
+			return array(task for task as Task in _tasks unless task.Done)
 	
 	def Add([required] task as Task):
+		task.Initialize(++_nextId)
 		_tasks.Add(task)
 		
-engine = PrevalenceActivator.CreateTransparentEngine(TaskList, "c:\\temp\\data")
-tasks as TaskList = engine.PrevalentSystem
+	def MarkDone(id as int):
+		for task as Task in _tasks:
+			if id == task.Id:
+				task.Done = true
+				break
 
-for task in tasks.Tasks:
-	print(task.Name)
-
-name = prompt("Nova task: ")
-tasks.Add(Task(name)) if len(name) > 0
-		
+def Menu(message as string, options as Hash):
 	
-		
+	choice = prompt(message).ToLower()
+	selected as callable = options[choice]
+	if selected:
+		selected()
+	else:
+		print("'${choice}' is not a valid choice")
 
+
+def ShowTasks(tasks as (Task)):
+	print("id\tDate Created\t\tSummary")
+	for task in tasks:
+		print("${task.Id}\t${task.DateCreated}\t\t${task.Summary}")
+		
+engine = PrevalenceActivator.CreateTransparentEngine(TaskList, "c:\\temp\\data")
+system as TaskList = engine.PrevalentSystem
+
+message = "(A)dd task\t(D)one with task\t(S)napshot\t(Q)uit\nyour choice: "
+options = {}
+options["a"] = { system.Add(Task(prompt("summary: "))) }
+options["d"] = { system.MarkDone(int.Parse(prompt("task id: "))) }
+options["s"] = engine.TakeSnapshot
+options["q"] = { Environment.Exit(-1) }
+
+while true:
+	ShowTasks(system.PendingTasks)
+	Menu(message, options)
+
+	
