@@ -159,14 +159,80 @@ namespace Boo.Lang.Compiler.Pipeline
 				return;				
 			}
 			
-			SetUpAssembly();			
+			SetUpAssembly();
+			
+			ArrayList types = CollectTypes();
+			
+			foreach (TypeDefinition type in types)
+			{
+				DefineType(type);
+			}
+			
+			foreach (TypeDefinition type in types)
+			{
+				DefineTypeMembers(type);
+			}
 			
 			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
 				OnModule(module);
 			}
 			
+			CreateTypes(types);
+			
 			DefineEntryPoint();			
+		}
+		
+		void CreateTypes(ArrayList types)
+		{
+			Hashtable created = new Hashtable();
+			foreach (TypeDefinition type in types)
+			{
+				CreateType(created, type);
+			}
+		}
+		
+		void CreateType(Hashtable created, TypeDefinition type)
+		{				
+			if (!created.ContainsKey(type))
+			{
+				created.Add(type, type);
+				foreach (TypeReference baseTypeRef in type.BaseTypes)
+				{
+					InternalTypeBinding binding = GetBoundType(baseTypeRef) as InternalTypeBinding;
+					if (null != binding)
+					{
+						CreateType(created, binding.TypeDefinition);
+					}
+				}				
+				GetTypeBuilder(type).CreateType();
+			}
+		}
+		
+		ArrayList CollectTypes()
+		{
+			ArrayList types = new ArrayList();
+			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
+			{				 
+				CollectTypes(types, module.Members);
+			}
+			return types;
+		}
+		
+		void CollectTypes(ArrayList types, TypeMemberCollection members)
+		{
+			foreach (TypeMember member in members)
+			{
+				switch (member.NodeType)
+				{
+					case NodeType.ClassDefinition:
+					{
+						types.Add(member);
+						CollectTypes(types, ((TypeDefinition)member).Members);
+						break;
+					}
+				}
+			}
 		}
 		
 		public override void Dispose()
@@ -201,13 +267,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void EmitTypeDefinition(TypeDefinition node)
 		{
-			TypeBuilder current = _typeBuilder;
-			
-			_typeBuilder = DefineType(node);
-			
-			DefineMembers(_typeBuilder, node.Members);
-			node.Members.Switch(this);			
-			_typeBuilder.CreateType();
+			TypeBuilder current = GetTypeBuilder(node);
+			EmitBaseTypesAndAttributes(node, current);			
+			node.Members.Switch(this);
 			
 			_typeBuilder = current;
 		}		
@@ -1586,7 +1648,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				typeBuilder.DefineMethodOverride(builder, GetMethodInfo(overriden));
 			}
 			*/
-			SetBuilder(method, builder);			
+			SetBuilder(method, builder);
+			foreach (Boo.Lang.Ast.Attribute attribute in method.Attributes)
+			{
+				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+			}			
 			return builder;
 		}
 		
@@ -1598,12 +1664,15 @@ namespace Boo.Lang.Compiler.Pipeline
 			SetBuilder(constructor, builder);
 		}
 		
-		TypeBuilder DefineType(TypeDefinition typeDefinition)
+		void DefineType(TypeDefinition typeDefinition)
 		{
 			TypeBuilder typeBuilder = _moduleBuilder.DefineType(typeDefinition.FullName,
 										GetTypeAttributes(typeDefinition));			
 			SetType(typeDefinition, typeBuilder);
-			
+		}
+		
+		void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, TypeBuilder typeBuilder)
+		{
 			foreach (TypeReference baseType in typeDefinition.BaseTypes)
 			{
 				Type type = GetType(baseType);
@@ -1621,8 +1690,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				typeBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
-			
-			return typeBuilder;
 		}
 		
 		CustomAttributeBuilder GetCustomAttributeBuilder(Boo.Lang.Ast.Attribute node)
@@ -1718,8 +1785,10 @@ namespace Boo.Lang.Compiler.Pipeline
 			return null;
 		}
 		
-		void DefineMembers(TypeBuilder typeBuilder, TypeMemberCollection members)
+		void DefineTypeMembers(TypeDefinition typeDefinition)
 		{
+			TypeBuilder typeBuilder = GetTypeBuilder(typeDefinition);
+			TypeMemberCollection members = typeDefinition.Members;
 			foreach (TypeMember member in members)
 			{
 				switch (member.NodeType)

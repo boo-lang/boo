@@ -212,15 +212,21 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void TestAttributeConstructorSupport()
+		public void AttributeConstructorSupport()
 		{
 			RunCompilerTestCase("attributes0.boo");
 		}
 		
 		[Test]
-		public void TestAttributeNamedArguments()
+		public void AttributeNamedArguments()
 		{
 			RunCompilerTestCase("attributes1.boo");
+		}
+		
+		[Test]
+		public void MethodAttributes()
+		{
+			RunCompilerTestCase("attributes2.boo");
 		}
 		
 		[Test]

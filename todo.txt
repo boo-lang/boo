@@ -134,7 +134,7 @@ done * field initializers
 
 done * mover default super constructor call para SemanticStep
 
-* classes podem ser declaradas em qualquer ordem
+done * classes podem ser declaradas em qualquer ordem
 
 * campos podem ser declarados em qualquer ordem
 
@@ -144,13 +144,14 @@ done * mover default super constructor call para SemanticStep
 SemanticStep que deverá criar AsExpression sempre que necessário
 
 * portar todos os testes em ITL.Security.Tests para boo
-	* usar tipos em atributos (sem precisar do typeof)
+	done * usar tipos em atributos (sem precisar do typeof)
+	done * atributos para métodos
 	* indexers (eg: collection[0], collection["rodrigob"])
 	* timespan literals	
 	* user métodos definidos em outros módulos no namespace global
 	* tuples should be of the most generic type for its elements:
 		eg:
-			("rodrigo", "bamboo") should be string[]
+			("rodrigo", "bamboo") should be (string) <= string[]
 			("foo", 3) should be object
 		
 	* implementação de interfaces
@@ -216,8 +217,9 @@ Milestone 3.9 (better error checking)
 * constructors can't have a return value
 * unused local variable
 * method override with different accessibility
-* CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * override accessibility checks
+* inheritance cycles (A(B), B(C), C(A))
+* CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 	
 Milestone 4 (delegate support)
 ------------------------------
@@ -227,11 +229,21 @@ done * automatic delegate instance creation
 * native regular expression support:
 	* re expression /foo/
 
-Milestone 4.3 (otimizações)
+Milestone 4.3 (algumas otimizações)
 ---------------------------
 * compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator
 e declarar os tipos de acordo
-* criar ModuleBinding e unificar com ModuleNamespace;
+*  patterns reference ((in|is) (not)?) (value1, value2), em outras palavras:
+	BinaryExpression(
+		BinaryOperatorType.*,
+		ReferenceExpression,
+		TupleLiteralExpression)
+	devem ser transformados em:
+	
+		((reference == value1) or (reference == value2))
+		((reference is value1) or (reference is value2))
+		etc
+
 
 Milestone 5
 -----------
@@ -255,7 +267,7 @@ done * tuple unpacking - a, b  = 3, 5
 done * for item in tuple
 * property access
 * property assignment
-* list creation [1, 2, 3]
+done * list creation [1, 2, 3]
 * list indexing
 done * bool (true, false)
 * operadores de convers�o (operator bool, operator string, etc)
@@ -295,16 +307,7 @@ Otimiza��es
 	criar para isso um novo tipo de statement que pode ser utilizado no lugar de
 	qualquer outro statement:
 		class StatementGroup(Statement):
-			Statements as StatementCollection
-			
-* patterns reference in (value1, value2), em outras palavras:
-	BinaryExpression(
-		BinaryOperatorType.MembershipTest,
-		ReferenceExpression,
-		TupleLiteralExpression)
-	devem ser transformados em:
-	
-		((reference == value1) or (reference == value2))
+			Statements as StatementCollection			
 	
 * tail call prefix para funçoes recursivas com a ScanDirectories do rgrep.boo
 
