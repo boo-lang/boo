@@ -125,7 +125,9 @@ tokens
 	
 	protected AttributeCollection _attributes = new AttributeCollection();
 	
-	protected TypeMemberModifiers _modifiers = TypeMemberModifiers.None;	
+	protected TypeMemberModifiers _modifiers = TypeMemberModifiers.None;
+
+	protected bool _inTuple;	
 	
 	protected void ResetMemberData()
 	{
@@ -1088,28 +1090,30 @@ tuple_or_expression returns [Expression e]
 		e = null;
 		TupleLiteralExpression tle = null;
 	} :
-	(
-		// tupla vazia: , ou (,)
-		c:COMMA! { e = new TupleLiteralExpression(ToLexicalInfo(c)); }
-	) |
-	(
-		e=expression
-		( options { greedy=true; }:
-			t:COMMA!
-			{
-				tle = new TupleLiteralExpression(e.LexicalInfo);
-				tle.Items.Add(e);		
-			}
+		(
+			// tupla vazia: , ou (,)
+			c:COMMA! { e = new TupleLiteralExpression(ToLexicalInfo(c)); }
+		) |
+		(
+			e=expression
 			( options { greedy=true; }:
-				e=expression { tle.Items.Add(e); }
+				t:COMMA!
+				{					
+					tle = new TupleLiteralExpression(e.LexicalInfo);
+					tle.Items.Add(e);		
+				}
 				( options { greedy=true; }:
-					COMMA!
 					e=expression { tle.Items.Add(e); }
-				)*
+					( options { greedy=true; }:
+						COMMA!
+						e=expression { tle.Items.Add(e); }
+					)*
+				)?
+				{
+					e = tle;
+				}
 			)?
-			{ e = tle; }
-		)?
-	)
+		)
 	;
 			
 protected

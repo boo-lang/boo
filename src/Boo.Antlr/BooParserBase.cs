@@ -144,7 +144,9 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 	
 	protected AttributeCollection _attributes = new AttributeCollection();
 	
-	protected TypeMemberModifiers _modifiers = TypeMemberModifiers.None;	
+	protected TypeMemberModifiers _modifiers = TypeMemberModifiers.None;
+
+	protected bool _inTuple;	
 	
 	protected void ResetMemberData()
 	{
@@ -252,21 +254,6 @@ public delegate void ParserErrorHandler(antlr.RecognitionException x);
 	protected bool IsValidMacroArgument(int token)
 	{
 		return LPAREN != token && LBRACK != token;
-		/*
-		switch (token)
-		{
-			case COLON: return true;
-			case ID: return true;			
-			case INT: return true;
-			case SINGLE_QUOTED_STRING: return true;
-			case DOUBLE_QUOTED_STRING: return true;
-			case TRIPLE_QUOTED_STRING: return true;
-			case SELF: return true;
-			case SUPER: return true;
-			case NULL: return true;
-		}
-		return false;
-		*/
 	}
 		
 		protected void initialize()
@@ -4477,10 +4464,10 @@ _loop163_breakloop:			;
 							match(COMMA);
 							if (0==inputState.guessing)
 							{
-								
-												tle = new TupleLiteralExpression(e.LexicalInfo);
-												tle.Items.Add(e);		
-											
+													
+													tle = new TupleLiteralExpression(e.LexicalInfo);
+													tle.Items.Add(e);		
+												
 							}
 							{
 								if ((tokenSet_33_.member(LA(1))) && (tokenSet_18_.member(LA(2))))
@@ -4521,7 +4508,9 @@ _loop179_breakloop:										;
 							}
 							if (0==inputState.guessing)
 							{
-								e = tle;
+								
+													e = tle;
+												
 							}
 						}
 						else if ((tokenSet_18_.member(LA(1))) && (tokenSet_32_.member(LA(2)))) {

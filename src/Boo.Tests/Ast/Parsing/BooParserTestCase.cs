@@ -675,6 +675,12 @@ namespace Boo.Tests.Ast.Parsing
 		{
 			RunParserTestCase("tuples_2.boo");
 		}
+		
+		[Test]
+		public void Tuples3()
+		{
+			RunParserTestCase("tuples_3.boo");
+		}
 
 		[Test]
 		public void TestMethodCalls()

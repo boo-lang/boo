@@ -75,6 +75,19 @@ namespace Boo.Lang
 			return join(enumerable, " ");
 		}
 		
+		public static IEnumerable map(ICallable function, object enumerable)
+		{
+			if (null == function)
+			{
+				throw new ArgumentNullException("function");
+			}
+			if (null == enumerable)
+			{
+				throw new ArgumentNullException("enumerable");
+			}
+			return new MapEnumerator(function, GetEnumerator(enumerable));
+		}
+		
 		public static object[] tuple(IEnumerable enumerable)
 		{
 			return (object[])tuple(typeof(object), enumerable);
@@ -105,7 +118,7 @@ namespace Boo.Lang
 		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
 		public static IEnumerable enumerate(object enumerable)
 		{			
-			return new EnumerateEnumerator(RuntimeServices.GetEnumerable(enumerable).GetEnumerator());
+			return new EnumerateEnumerator(GetEnumerator(enumerable));
 		}
 		
 		public static IEnumerable range(int max)
@@ -144,8 +157,8 @@ namespace Boo.Lang
 		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
 		public static IEnumerable zip(object first, object second)
 		{
-			return new ZipEnumerator(RuntimeServices.GetEnumerable(first).GetEnumerator(),
-									RuntimeServices.GetEnumerable(second).GetEnumerator());
+			return new ZipEnumerator(GetEnumerator(first),
+									GetEnumerator(second));
 		}
 		
 		public static void assert(string message, bool condition)
@@ -156,6 +169,52 @@ namespace Boo.Lang
 		public static void assert(bool condition)
 		{
 			throw new System.NotImplementedException();
+		}
+		
+		private class MapEnumerator : IEnumerator, IEnumerable
+		{
+			IEnumerator _enumerator;
+			
+			ICallable _function;
+			
+			object _current;
+			
+			object[] _arguments = new object[1];
+			
+			public MapEnumerator(ICallable function, IEnumerator enumerator)
+			{
+				_function = function;
+				_enumerator = enumerator;
+			}
+			
+			public void Reset()
+			{
+				_enumerator.Reset();
+			}
+			
+			public bool MoveNext()
+			{
+				if (_enumerator.MoveNext())
+				{
+					_arguments[0] = _enumerator.Current;
+					_current = _function.Call(_arguments);
+					return true;
+				}
+				return false;
+			}
+			
+			public object Current
+			{
+				get
+				{
+					return _current;
+				}
+			}
+			
+			public IEnumerator GetEnumerator()
+			{
+				return this;
+			}
 		}
 		
 		private class ZipEnumerator : IEnumerator, IEnumerable
@@ -298,6 +357,11 @@ namespace Boo.Lang
 		private static string GetString(string name)
 		{
 			return Boo.ResourceManager.GetString(name);
+		}
+		
+		private static IEnumerator GetEnumerator(object enumerable)
+		{
+			return RuntimeServices.GetEnumerable(enumerable).GetEnumerator();
 		}
 	}
 }
