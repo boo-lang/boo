@@ -1628,14 +1628,16 @@ assignment_expression returns [Expression e]
 	}:
 	e=conditional_expression
 	(
+		options { greedy = true; }:
+		
 		op:ASSIGN
-		r=conditional_expression
+		r=assignment_expression
 		{
 			BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
 			be.Operator = ParseAssignOperator(op.getText());
 			be.Left = e;
 			be.Right = r;
-			e = be; 
+			e = be;
 		}
 	)?
 	;

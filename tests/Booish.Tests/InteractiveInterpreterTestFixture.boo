@@ -377,6 +377,8 @@ dummy()""")
 		
 		public LastName as string
 		
+		event Changed as System.EventHandler
+		
 		def constructor(name as string):
 			_name = name
 		
@@ -411,6 +413,8 @@ class Customer(object):
     def GetType() as System.Type
 
     def ToString() as string
+
+    event Changed as System.EventHandler
 
 """
 		actual = buffer.ToString().Replace("\r\n", "\n")

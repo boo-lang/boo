@@ -178,7 +178,6 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				parameters = type.GetSignature().Parameters;
 			}
-			
 			ConvertMethodInvocation(node, parameters);
 		}
 		

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -41,11 +41,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		public void Print(Node node)
 		{
-		//	node.Accept(this);
+			node.Accept(this);
 		}
 
+
 		/*
-		#region IVisitor Members
+		#region IVisitor Members		
 		
 		override public bool EnterModule(Module g)
 		{

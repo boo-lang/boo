@@ -4,9 +4,9 @@
     <Execute entry="Boo.Lang.Compiler" type="None" />
   </StartMode>
   <Entries>
-    <Entry filename="./Boo.prjx" />
-    <Entry filename="../Boo.AntlrParser/Boo.AntlrParser.prjx" />
-    <Entry filename="../Boo.Lang.Compiler/Boo.Lang.Compiler.prjx" />
+    <Entry filename=".\Boo.prjx" />
+    <Entry filename="..\Boo.AntlrParser\Boo.AntlrParser.prjx" />
+    <Entry filename="..\Boo.Lang.Compiler\Boo.Lang.Compiler.prjx" />
   </Entries>
   <Configurations active="Debug">
     <Configuration name="Release">
