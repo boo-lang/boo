@@ -117,7 +117,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return false;
+				return _event.GetAddMethod().IsStatic;
 			}
 		}
 	}

@@ -81,6 +81,9 @@ class ProcessVariableDeclarations(Steps.ProcessMethodBodiesWithDuckTyping):
 							TypeSystemServices,
 							NameResolutionService.GlobalNamespace)
 		NameResolutionService.GlobalNamespace = _namespace
+		
+	override def Dispose():
+		_namespace = null
 
 	override def CheckLValue(node as Node):
 		# prevent 'Expression can't be assigned to' error
@@ -97,7 +100,6 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 	static InteractiveInterpreter_SetValue = typeof(InteractiveInterpreter).GetMethod("SetValue")
 
 	_interpreterField as Field
-	_namespace as InterpreterNamespace
 	_interpreter as InteractiveInterpreter
 
 	def constructor(interpreter):
