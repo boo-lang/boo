@@ -112,12 +112,45 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					MemberNameConflict(member);
 				}
+				else
+				{
+					if (existingMember.IsStatic == member.IsStatic)
+					{
+						if (AreParametersTheSame(existingMember, member))
+						{
+							MemberConflict(member, TypeSystemServices.GetSignature((IMethod)member.Entity, false));
+						}
+					}
+				}
 			}
+		}
+		
+		bool AreParametersTheSame(TypeMember lhs, TypeMember rhs)
+		{
+			IParameter[] lhsParameters = ((InternalMethod)lhs.Entity).GetParameters();
+			IParameter[] rhsParameters = ((InternalMethod)rhs.Entity).GetParameters();
+			if (lhsParameters.Length != rhsParameters.Length)
+			{
+				return false;
+			}
+			for (int i=0; i<lhsParameters.Length; ++i)
+			{
+				if (lhsParameters[i].Type != rhsParameters[i].Type)
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 		
 		void MemberNameConflict(TypeMember member)
 		{
-			Error(CompilerErrorFactory.MemberNameConflict(member, member.DeclaringType.FullName, member.Name));
+			MemberConflict(member, member.Name);
+		}
+		
+		void MemberConflict(TypeMember member, string memberName)
+		{
+			Error(CompilerErrorFactory.MemberNameConflict(member, member.DeclaringType.FullName, memberName));
 		}
 		
 		List GetMemberList(string name)

@@ -676,8 +676,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public string GetSignature(IMethod method)
 		{
+			return GetSignature(method, true);
+		}
+		
+		public string GetSignature(IMethod method, bool includeFullName)
+		{
 			_buffer.Length = 0;
-			_buffer.Append(method.FullName);
+			if (includeFullName)
+			{
+				_buffer.Append(method.FullName);
+			}
+			else
+			{
+				_buffer.Append(method.Name);
+			}
 			_buffer.Append("(");
 			
 			IParameter[] parameters = method.GetParameters();
