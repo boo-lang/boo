@@ -440,6 +440,13 @@ namespace Boo.Ast.Compilation.Steps
 						SetProperty(node, property, node.Left, node.Right, true);
 						break;
 					}
+					
+					case BindingType.Field:
+					{
+						IFieldBinding field = (IFieldBinding)binding;
+						SetField(node, field, node.Left, node.Right, true);
+						break;
+					}
 						
 					default:
 					{
@@ -664,12 +671,13 @@ namespace Boo.Ast.Compilation.Steps
 						{
 							_il.Emit(OpCodes.Ldsfld, fieldInfo);							
 						}
-						PushType(fieldInfo.FieldType);
 					}
 					else
 					{						
-						Errors.NotImplemented(node, binding.ToString());
+						node.Target.Switch(this); PopType();
+						_il.Emit(OpCodes.Ldfld, fieldInfo);						
 					}
+					PushType(fieldInfo.FieldType);
 					break;
 				}
 				
@@ -679,6 +687,12 @@ namespace Boo.Ast.Compilation.Steps
 					break;
 				}
 			}
+		}
+		
+		public override void OnSelfLiteralExpression(SelfLiteralExpression node)
+		{
+			_il.Emit(OpCodes.Ldarg_0);
+			PushType(GetType(node));
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
@@ -710,6 +724,41 @@ namespace Boo.Ast.Compilation.Steps
 				}
 				
 			}			
+		}
+		
+		void SetField(Node sourceNode, IFieldBinding field, Expression reference, Expression value, bool leaveValueOnStack)
+		{
+			OpCode opSetField = OpCodes.Stsfld;
+			
+			FieldInfo fi = GetFieldInfo(field);			
+			if (null != reference)
+			{
+				if (!field.IsStatic)
+				{
+					opSetField = OpCodes.Stfld;
+					((MemberReferenceExpression)reference).Target.Switch(this);
+					PopType();
+				}
+			}
+			
+			value.Switch(this);
+			EmitCastIfNeeded(fi.FieldType, PopType());
+			
+			LocalBuilder local = null;
+			if (leaveValueOnStack)
+			{
+				_il.Emit(OpCodes.Dup);
+				local = _il.DeclareLocal(fi.FieldType);
+				_il.Emit(OpCodes.Stloc, local);
+			}
+			
+			_il.Emit(opSetField, fi);
+			
+			if (leaveValueOnStack)
+			{
+				_il.Emit(OpCodes.Ldloc, local);
+				PushType(local.LocalType);
+			}
 		}
 		
 		void SetProperty(Node sourceNode, IPropertyBinding property, Expression reference, Expression value, bool leaveValueOnStack)
@@ -780,7 +829,7 @@ namespace Boo.Ast.Compilation.Steps
 					
 				case BindingType.Field:
 				{
-					Errors.NotImplemented(sourceNode, binding.ToString());
+					SetField(sourceNode, (IFieldBinding)binding, null, value, false);
 					break;					
 				}
 				
@@ -1071,6 +1120,16 @@ namespace Boo.Ast.Compilation.Steps
 			return (TypeBuilder)node[EmitInfoKey];
 		}
 		
+		FieldBuilder GetFieldBuilder(Node node)
+		{
+			return (FieldBuilder)node[EmitInfoKey];
+		}
+		
+		void SetFieldBuilder(Field node, FieldBuilder builder)
+		{
+			node[EmitInfoKey] = builder;
+		}
+		
 		void SetMethodBuilder(Method method, MethodBuilder builder)
 		{
 			method[EmitInfoKey] = builder;
@@ -1103,7 +1162,12 @@ namespace Boo.Ast.Compilation.Steps
 		
 		FieldInfo GetFieldInfo(IFieldBinding binding)
 		{
-			return ((ExternalFieldBinding)binding).FieldInfo;
+			ExternalFieldBinding external = binding as ExternalFieldBinding;
+			if (null != external)
+			{
+				return external.FieldInfo;
+			}
+			return GetFieldBuilder(((InternalFieldBinding)binding).Field);
 		}
 		
 		MethodInfo GetMethodInfo(IMethodBinding binding)
@@ -1128,7 +1192,12 @@ namespace Boo.Ast.Compilation.Steps
 		
 		Type GetType(ITypeBinding binding)
 		{
-			return ((ExternalTypeBinding)binding).Type;
+			ExternalTypeBinding external = binding as ExternalTypeBinding;
+			if (null != external)
+			{
+				return external.Type;
+			}
+			return GetTypeBuilder(((InternalTypeBinding)binding).TypeDefinition);
 		}
 		
 		Type GetType(Node node)
@@ -1150,14 +1219,47 @@ namespace Boo.Ast.Compilation.Steps
 			return attributes;
 		}
 		
+		FieldAttributes GetFieldAttributes(Field field)
+		{
+			FieldAttributes attributes = 0;
+			if (field.IsProtected)
+			{
+				attributes |= FieldAttributes.Family;
+			}
+			else if (field.IsPublic)
+			{
+				attributes |= FieldAttributes.Public;
+			}
+			else if (field.IsPrivate)
+			{
+				attributes |= FieldAttributes.Private;
+			}
+			else if (field.IsInternal)
+			{
+				attributes |= FieldAttributes.Assembly;			
+			}
+			if (field.IsStatic)
+			{
+				attributes |= FieldAttributes.Static;
+			}
+			return attributes;
+		}
+		
+		void DefineField(TypeBuilder typeBuilder, Field field)
+		{
+			FieldBuilder builder = typeBuilder.DefineField(field.Name, 
+			                                               GetType(field), 
+			                                               GetFieldAttributes(field));
+			SetFieldBuilder(field, builder);
+		}
+		
 		void DefineMethod(TypeBuilder typeBuilder, Method method)
 		{			
 			MethodBuilder builder = typeBuilder.DefineMethod(method.Name, 
                                         GetMethodAttributes(method),
                                         GetType(method.ReturnType),
                                         GetParameterTypes(method));
-			SetMethodBuilder(method, builder);
-			_context.TraceVerbose("{0}: Method {1} declared as {2}.", method.LexicalInfo, method, builder);			
+			SetMethodBuilder(method, builder);			
 		}
 		
 		void DefineConstructor(TypeBuilder typeBuilder, Method constructor)
@@ -1183,6 +1285,12 @@ namespace Boo.Ast.Compilation.Steps
 					case NodeType.Constructor:
 					{
 						DefineConstructor(typeBuilder, (Constructor)member);
+						break;
+					}
+					
+					case NodeType.Field:
+					{
+						DefineField(typeBuilder, (Field)member);
 						break;
 					}
 				}

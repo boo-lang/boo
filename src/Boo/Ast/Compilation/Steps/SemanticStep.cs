@@ -69,7 +69,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override void Run()
 		{					
 			_currentMethodInfo = SemanticMethodInfo.Null;
-			_methodInfoStack = new Stack();
+			_methodInfoStack = new Stack();			
 			
 			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
 			ApplicationException_StringConstructor =
@@ -123,6 +123,7 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			InternalConstructorBinding binding = new InternalConstructorBinding(BindingManager, node);
 			BindingManager.Bind(node, binding);
+			PushMethod(node);
 			PushNamespace(binding);
 			return true;
 		}
@@ -130,6 +131,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override void LeaveConstructor(Constructor node, ref Constructor resultingNode)
 		{
 			PopNamespace();
+			PopMethod();
 			BindParameterIndexes(node);
 		}
 		
@@ -300,6 +302,11 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				resultingNode = null;
 			}
+		}
+		
+		public override void OnSelfLiteralExpression(SelfLiteralExpression node, ref Expression resultingNode)
+		{
+			BindingManager.Bind(node, BindingManager.GetBinding(_currentMethodInfo.Method.ParentNode));
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node, ref Expression resultingNode)

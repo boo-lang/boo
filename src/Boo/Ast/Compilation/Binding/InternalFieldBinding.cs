@@ -53,5 +53,13 @@ namespace Boo.Ast.Compilation.Binding
 				return (ITypeBinding)_bindingManager.GetBinding(_field.ParentNode);
 			}
 		}
+		
+		public Field Field
+		{
+			get
+			{
+				return _field;
+			}
+		}
 	}
 }

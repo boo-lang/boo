@@ -98,7 +98,7 @@ namespace Boo.Tests.Ast.Compilation
 				
 				if (context.Errors.Count > 0)
 				{
-					Assert.Fail(context.Errors.ToString(true));
+					Assert.Fail(context.Errors.ToString(false));
 				}
 				return console.ToString().Replace("\r\n", "\n");
 			}
