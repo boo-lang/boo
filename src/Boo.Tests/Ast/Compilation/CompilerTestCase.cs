@@ -294,6 +294,12 @@ namespace Boo.Tests.Ast.Compilation
 		{
 			RunCompilerTestCase("match1.boo", "string !~ string");
 		}
+		
+		[Test]
+		public void TestNot0()
+		{
+			RunCompilerTestCase("not0.boo", "not true; not false");
+		}
 	
 		void RunCompilerTestCase(string name, string description)
 		{			

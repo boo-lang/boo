@@ -209,6 +209,34 @@ namespace Boo.Ast.Compilation.Steps
 			ProcessDeclarationsForIterator(node.Declarations, GetBoundType(node.Expression), false);			
 		}
 		
+		public override void LeaveUnaryExpression(UnaryExpression node, ref Expression resultingNode)
+		{
+			switch (node.Operator)
+			{
+				case UnaryOperatorType.Not:					
+				{
+					Type type = GetBoundType(node.Operand);
+					if (Types.Bool != type)
+					{
+						BindingManager.Error(node);
+						Errors.BoolExpressionRequired(node, type);
+					}
+					else
+					{
+						BindingManager.Bind(node, BindingManager.BoolTypeBinding);
+					}
+					break;
+				}
+					
+				default:
+				{
+					BindingManager.Error(node);
+					Errors.NotImplemented(node, "unary operator not supported");
+					break;
+				}
+			}
+		}
+		
 		public override void OnBinaryExpression(BinaryExpression node, ref Expression resultingNode)
 		{
 			if (node.Operator == BinaryOperatorType.Assign &&

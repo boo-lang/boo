@@ -179,8 +179,19 @@ namespace Boo.Ast.Compilation.Steps
 			switch (node.Operator)
 			{
 				case UnaryOperatorType.Not:
-				{		
-					_il.Emit(OpCodes.Not);
+				{
+					// bool codification:
+					// value_on_stack ? 1 : 0
+					Label wasTrue = _il.DefineLabel();
+					Label wasFalse = _il.DefineLabel();
+					_il.Emit(OpCodes.Brfalse, wasFalse);
+					_il.Emit(OpCodes.Ldc_I4_0);
+					_il.Emit(OpCodes.Br, wasTrue);
+					_il.MarkLabel(wasFalse);
+					_il.Emit(OpCodes.Ldc_I4_1);
+					_il.MarkLabel(wasTrue);
+					
+					PushType(Types.Bool);
 					break;
 				}
 				

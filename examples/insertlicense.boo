@@ -4,8 +4,9 @@ using System.IO
 def InsertLicense(fname as string, license as string):
 	print(fname)
 	contents = TextFile.ReadFile(fname)
-	f = StreamWriter(fname)
+	f = StreamWriter(fname, false, System.Text.Encoding.UTF8)
 	f.WriteLine(license)
+	f.WriteLine()
 	f.Write(contents)
 	f.Close()
 
@@ -14,10 +15,10 @@ def ScanDirectory(name as string, license as string):
 		f = TextFile(fname)
 		firstLine = f.ReadLine()
 		f.Close()
-		InsertLicense(fname, license) if firstLine !~ "#license"
+		InsertLicense(fname, license) if firstLine != "#region license"
 		
 	for dir in Directory.GetDirectories(name):
 		ScanDirectory(dir, license)
 
 license = TextFile.ReadFile("license.txt")
-ScanDirectory(".", license)
+ScanDirectory("src", license)

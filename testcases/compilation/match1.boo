@@ -2,5 +2,7 @@
 Doesn't
 
 """
-print("Doesn't") if "Bamboo" !~ "^Bambo$"
+pattern = "^Bambo$"
+print("Bamboo") if "Bamboo" =~ pattern
+print("Doesn't") if "Bamboo" !~ pattern
 
