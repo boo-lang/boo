@@ -70,13 +70,16 @@
 
 			<references>
 				<includes name="build/Boo.dll" />
+				<includes name="build/Boo.Lang.Compiler.dll" />
 			</references>
 		</csc>
 		
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
-			<arg file='build/Boo.dll' />			
+			<arg file='build/Boo.dll' />
+			<arg file='build/Boo.Lang.Compiler.dll' />			
 			<arg file='build/Boo.AntlrParser.dll' />
 			<arg file='build/booc.exe' />
+			<arg file='build/antlr.runtime.dll' />
 		</exec>
 	</target>
 	
@@ -88,6 +91,7 @@
 		<copy todir="bin">
 			<fileset basedir="build">
 				<includes name="Boo.dll" />
+				<includes name="Boo.Lang.Compiler.dll" />
 				<includes name="Boo.NAnt.dll" />
 				<includes name="Boo.AntlrParser.dll" />
 				<includes name="antlr.runtime.dll" />
@@ -105,7 +109,7 @@
 		
 	</target>
 	
-	<target name="Boo.Tests" depends="Boo, Boo.Lang.Compiler, Boo.AntlrParser">
+	<target name="Boo.Tests" depends="Boo.Lang.Compiler, Boo.AntlrParser">
 		<csc
 			target="library"
 			output="build/Boo.Tests.dll"
@@ -119,6 +123,7 @@
 			<references>
 				<includes name="${nunit.framework.dll}" />
 				<includes name="build/Boo.dll" />
+				<includes name="build/Boo.Lang.Compiler.dll" />
 				<includes name="build/Boo.AntlrParser.dll" />
 				<includes name="${antlr.runtime.dll}" />
 			</references>
@@ -138,6 +143,10 @@
 			<references>
 				<includes name="build/Boo.dll" />
 			</references>
+			
+			<resources basedir="src/Boo.Lang.Compiler/Resources">
+				<includes name="*.pipeline" />
+			</resources>
 		</csc>
 	</target>
 
@@ -159,10 +168,6 @@
 			
 			<resources basedir="build">
 				<includes name="strings.resources" />
-			</resources>
-			
-			<resources basedir="src/Boo/Resources">
-				<includes name="*.pipeline" />
 			</resources>
 		</csc>
 	</target>

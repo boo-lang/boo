@@ -58,6 +58,7 @@ namespace Boo.Lang.Compiler
 			_pipeline = new CompilerPipeline();
 			_input = new CompilerInputCollection();
 			_assemblyReferences = new AssemblyCollection();
+			_assemblyReferences.Add(typeof(Boo.Lang.Builtins).Assembly);
 			_assemblyReferences.Add(GetType().Assembly);
 			_assemblyReferences.Add(typeof(object).Assembly); // corlib
 			_assemblyReferences.Add(System.Reflection.Assembly.LoadWithPartialName("System")); // System

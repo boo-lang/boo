@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <pipeline extends='core'>
 	
-	<step id="booprinter" type='Boo.Lang.Compiler.Pipeline.BooPrinterStep, Boo' />
+	<step id="booprinter" type='Boo.Lang.Compiler.Pipeline.BooPrinterStep, Boo.Lang.Compiler' />
 	
 </pipeline>

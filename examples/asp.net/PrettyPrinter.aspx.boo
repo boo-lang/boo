@@ -36,8 +36,8 @@ import System.Web.UI
 import System.Web.UI.WebControls
 import System.Web.UI.HtmlControls
 import Boo.AntlrParser
-import Boo.Lang.Ast
-import Boo.Lang.Ast.Visitors
+import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.Ast.Visitors
 
 class PrettyPrinter(BooPrinterVisitor):
 	

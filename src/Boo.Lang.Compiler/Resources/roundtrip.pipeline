@@ -2,6 +2,6 @@
 <pipeline>
 	
 	<step id="parse" type='Boo.AntlrParser.BooParsingStep, Boo.AntlrParser' />
-	<step id="booprinter" type='Boo.Lang.Compiler.Pipeline.BooPrinterStep, Boo' />
+	<step id="booprinter" type='Boo.Lang.Compiler.Pipeline.BooPrinterStep, Boo.Lang.Compiler' />
 	
 </pipeline>

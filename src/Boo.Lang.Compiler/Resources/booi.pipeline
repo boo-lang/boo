@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <pipeline extends='core'>
 		
-	<step id="emit" type='Boo.Lang.Compiler.Pipeline.EmitAssemblyStep, Boo' />
-	<step id="run" type='Boo.Lang.Compiler.Pipeline.RunAssemblyStep, Boo' />
+	<step id="emit" type='Boo.Lang.Compiler.Pipeline.EmitAssemblyStep, Boo.Lang.Compiler' />
+	<step id="run" type='Boo.Lang.Compiler.Pipeline.RunAssemblyStep, Boo.Lang.Compiler' />
 	
 </pipeline>

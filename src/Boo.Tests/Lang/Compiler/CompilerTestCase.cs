@@ -247,10 +247,11 @@ namespace Boo.Tests.Lang.Compiler
 		public void TestDefaultAssemblyReferences()
 		{
 			AssemblyCollection references = _parameters.References;
-			Assert.AreEqual(3, references.Count);
+			Assert.AreEqual(4, references.Count);
 			Assert.IsTrue(references.Contains(typeof(string).Assembly), "(ms)corlib.dll must be referenced by default!");
 			Assert.IsTrue(references.Contains(Assembly.LoadWithPartialName("System")), "System.dll must be referenced by default!");
 			Assert.IsTrue(references.Contains(typeof(Boo.Lang.Builtins).Assembly), "Boo.dll must referenced by default!");
+			Assert.IsTrue(references.Contains(typeof(Boo.Lang.Compiler.BooCompiler).Assembly), "Boo.Lang.Compiler.dll must be referenced by default!");
 		}
 		
 		[Test]

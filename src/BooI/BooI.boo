@@ -70,13 +70,16 @@ def main(argv as (string)):
 	if len(result.Errors):
 		for error as CompilerError in result.Errors:
 			print(error.ToString(true))
+		return -1
 	else:	
 		try: 
-			result.GeneratedAssemblyEntryPoint.Invoke(null, (argv[1:],))
+			result.GeneratedAssemblyEntryPoint.Invoke(null, (argv[1:],))			
 		except x as TargetInvocationException:
 			print(x.InnerException)
+			return -1
+	return 0
 	
 if len(argv) > 0:
-	main(argv)
+	Environment.Exit(main(argv))
 else:
 	print("booi <script.boo>")

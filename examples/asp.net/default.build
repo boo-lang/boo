@@ -3,6 +3,7 @@
 
 	<property name="booc" value="../../build/booc.exe" />
 	<property name="Boo.dll" value="../../build/Boo.dll" />
+	<property name="Boo.Lang.Compiler.dll" value="../../build/Boo.Lang.Compiler.dll" />
 	<property name="Boo.AntlrParser.dll" value="../../build/Boo.AntlrParser.dll" />
 	<property name="antlr.runtime.dll" value="../../build/antlr.runtime.dll" />
 	<property name="Boo.NAnt.dll" value="../../build/Boo.NAnt.dll" />
@@ -18,6 +19,7 @@
 		<mkdir dir="output/bin" />
 		
 		<copy todir="output/bin" file="${Boo.dll}" />
+		<copy todir="output/bin" file="${Boo.Lang.Compiler.dll}" />
 		<copy todir="output/bin" file="${Boo.AntlrParser.dll}" />
 		<copy todir="output/bin" file="${antlr.runtime.dll}" />
 		

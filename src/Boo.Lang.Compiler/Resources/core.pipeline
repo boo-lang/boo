@@ -3,10 +3,10 @@
 		xsi:noNamespaceSchemaLocation="pipeline.xsd">
 	
 	<step id="parse" type='Boo.AntlrParser.BooParsingStep, Boo.AntlrParser' />
-	<step id="import" type='Boo.Lang.Compiler.Pipeline.ImportResolutionStep, Boo' />
-	<step id="attributes" type='Boo.Lang.Compiler.Pipeline.AstAttributesStep, Boo' />
-	<step id="macros" type='Boo.Lang.Compiler.Pipeline.MacroExpansionStep, Boo' />
-	<step id="normalization" type='Boo.Lang.Compiler.Pipeline.AstNormalizationStep, Boo' />
-	<step id="semantics" type='Boo.Lang.Compiler.Pipeline.SemanticStep, Boo' />
+	<step id="import" type='Boo.Lang.Compiler.Pipeline.ImportResolutionStep, Boo.Lang.Compiler' />
+	<step id="attributes" type='Boo.Lang.Compiler.Pipeline.AstAttributesStep, Boo.Lang.Compiler' />
+	<step id="macros" type='Boo.Lang.Compiler.Pipeline.MacroExpansionStep, Boo.Lang.Compiler' />
+	<step id="normalization" type='Boo.Lang.Compiler.Pipeline.AstNormalizationStep, Boo.Lang.Compiler' />
+	<step id="semantics" type='Boo.Lang.Compiler.Pipeline.SemanticStep, Boo.Lang.Compiler' />
 
 </pipeline>

@@ -2,6 +2,6 @@
 <pipeline>
 
 	<step type='Boo.AntlrParser.BooParsingStep, Boo.AntlrParser' />
-	<step type='Boo.Lang.Compiler.Pipeline.XmlStep, Boo' />
+	<step type='Boo.Lang.Compiler.Pipeline.XmlStep, Boo.Lang.Compiler' />
 
 </pipeline>

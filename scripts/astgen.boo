@@ -30,7 +30,7 @@
 import System
 import System.IO
 import Boo.AntlrParser from Boo.AntlrParser
-import Boo.Lang.Ast
+import Boo.Lang.Compiler.Ast
 
 def WriteNodeTypeEnum(module as Module):
 	using writer=OpenFile(GetPath("NodeType.cs")):
