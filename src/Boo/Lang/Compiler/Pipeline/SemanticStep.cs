@@ -54,15 +54,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		/*
 		 * Useful method bindings.
-		 */
-		IMethodBinding RuntimeServices_IsMatchBinding;
-		
-		IMethodBinding RuntimeServices_Contains;
-		
-		IMethodBinding RuntimeServices_StringContains;
-		
-		IMethodBinding RuntimeServices_StringMultiply;
-		
+		 */		
 		IMethodBinding RuntimeServices_Len;
 		
 		IMethodBinding Object_StaticEquals;
@@ -70,8 +62,6 @@ namespace Boo.Lang.Compiler.Pipeline
 		IMethodBinding Array_get_Length;
 		
 		IMethodBinding String_get_Length;
-		
-		IMethodBinding String_StaticConcat;
 		
 		IMethodBinding ICollection_get_Count;
 		
@@ -103,16 +93,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			_methodBindingStack = new Stack();
 			_pending = new DependencyGraph(_context);
 			_nameResolution.Initialize(_context);
-			
-			RuntimeServices_IsMatchBinding = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("IsMatch");
-			RuntimeServices_Contains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Contains");
-			RuntimeServices_StringContains = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("StringContains");
-			RuntimeServices_StringMultiply = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("StringMultiply");
+						
 			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
 			Object_StaticEquals = (IMethodBinding)BindingManager.AsBinding(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ((IPropertyBinding)BindingManager.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
 			String_get_Length = ((IPropertyBinding)BindingManager.StringTypeBinding.Resolve("Length")).GetGetMethod();
-			String_StaticConcat = (IMethodBinding)BindingManager.AsBinding(Types.String.GetMethod("Concat", new Type[] { Types.Object, Types.Object }));
 			ICollection_get_Count = ((IPropertyBinding)BindingManager.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
 			IList_Contains = (IMethodBinding)BindingManager.IListTypeBinding.Resolve("Contains");
 			IDictionary_Contains = (IMethodBinding)BindingManager.IDictionaryTypeBinding.Resolve("Contains");
@@ -859,7 +844,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				NotImplemented(node, "full slicing");
 			}
 			
-			ITypeBinding targetType = GetBoundType(node.Target);
+			ITypeBinding targetType = GetExpressionType(node.Target);
 			if (BindingManager.IsError(targetType))
 			{
 				Error(node);
@@ -932,8 +917,10 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 					else
 					{
-						mie.Target = new MemberReferenceExpression(((MemberReferenceExpression)node.Target).Target, getter.Name);
+						Expression target = ((MemberReferenceExpression)node.Target).Target;
+						mie.Target = new MemberReferenceExpression(target, getter.Name);
 					}
+					
 					Bind(mie.Target, getter);
 					Bind(mie, getter);
 					
@@ -1324,14 +1311,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BinaryOperatorType.Addition:
 				{
-					if (IsString(node.Left))
-					{
-						BindStringAddition(node);
-					}
-					else
-					{
-						BindArithmeticOperator(node);
-					}
+					BindArithmeticOperator(node);
 					break;
 				}
 				
@@ -1343,44 +1323,13 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BinaryOperatorType.Multiply:
 				{
-					if (IsString(node.Left))
-					{
-						BindStringMultiply(node);
-					}
-					else
-					{
-						BindArithmeticOperator(node);
-					}
+					BindArithmeticOperator(node);
 					break;
 				}
 				
 				case BinaryOperatorType.Division:
 				{
 					BindArithmeticOperator(node);
-					break;
-				}
-				
-				case BinaryOperatorType.Match:
-				{
-					BindMatchOperator(node);
-					break;
-				}
-				
-				case BinaryOperatorType.NotMatch:
-				{
-					BindMatchOperator(node);
-					break;
-				}
-				
-				case BinaryOperatorType.Member:
-				{
-					BindMember(node);
-					break;
-				}
-				
-				case BinaryOperatorType.NotMember:
-				{
-					BindMember(node);
 					break;
 				}
 				
@@ -1492,7 +1441,10 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				default:
 				{
-					NotImplemented(node, node.Operator.ToString());
+					if (!ResolveOperator(node))
+					{
+						InvalidOperatorForTypes(node);
+					}
 					break;
 				}
 			}
@@ -2049,60 +2001,6 @@ namespace Boo.Lang.Compiler.Pipeline
 				BindingManager.StringTypeBinding == type;
 		}
 		
-		void BindMember(BinaryExpression node)
-		{
-			Node parent = node.ParentNode;
-			
-			MethodInvocationExpression contains = new MethodInvocationExpression();
-			contains.LexicalInfo = node.LexicalInfo;
-			
-			ITypeBinding rhs = GetExpressionType(node.Right);
-			if (IsDictionary(rhs))
-			{
-				contains.Target = new MemberReferenceExpression(node.Right.LexicalInfo, node.Right, "Contains");
-				contains.Arguments.Add(node.Left);
-				Bind(contains.Target, IDictionary_Contains);
-			}
-			else if (IsList(rhs))
-			{
-				contains.Target = new MemberReferenceExpression(node.Right.LexicalInfo, node.Right, "Contains");
-				contains.Arguments.Add(node.Left);
-				Bind(contains.Target, IList_Contains);
-			}					
-			else
-			{
-				IMethodBinding containsMethod = RuntimeServices_Contains;
-				if (BindingManager.StringTypeBinding == rhs)
-				{
-					ITypeBinding lhs = GetExpressionType(node.Left);
-					if (CanBeString(lhs))
-					{
-						containsMethod = RuntimeServices_StringContains;
-					}
-					else
-					{
-						InvalidOperatorForTypes(node);
-						return;
-					}
-				}
-				
-				contains.Arguments.Add(node.Right);
-				contains.Arguments.Add(node.Left);
-				contains.Target = new ReferenceExpression(containsMethod.FullName);				
-				Bind(contains.Target, containsMethod);
-			}
-			
-			Bind(contains, BindingManager.BoolTypeBinding);			
-			if (BinaryOperatorType.NotMember == node.Operator)
-			{
-				parent.Replace(node, CreateNotExpression(contains));
-			}
-			else
-			{
-				parent.Replace(node, contains);
-			}
-		}
-		
 		void BindInPlaceArithmeticOperator(BinaryExpression node)
 		{
 			Node parent = node.ParentNode;
@@ -2137,23 +2035,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			throw new ArgumentException("op");
 		}
 		
-		void BindStringAddition(BinaryExpression node)
-		{
-			node.ParentNode.Replace(node, CreateMethodInvocation(String_StaticConcat, node.Left, node.Right));
-		}
-		
-		void BindStringMultiply(BinaryExpression node)
-		{
-			if (IsNumber(node.Right))
-			{
-				node.ParentNode.Replace(node, CreateMethodInvocation(RuntimeServices_StringMultiply, node.Left, node.Right));
-			}
-			else
-			{
-				InvalidOperatorForTypes(node);
-			}
-		}
-		
 		void BindArithmeticOperator(BinaryExpression node)
 		{
 			ITypeBinding left = GetExpressionType(node.Left);
@@ -2173,33 +2054,6 @@ namespace Boo.Lang.Compiler.Pipeline
 			Node parent = node.ParentNode;
 			node.Operator = newOperator;
 			parent.Replace(node, CreateNotExpression(node));
-		}
-		
-		void BindMatchOperator(BinaryExpression node)
-		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);			
-			ExpressionCollection args = mie.Arguments;
-			args.Add(node.Left);
-			args.Add(node.Right);
-			
-			if (CheckParameterTypesStrictly(RuntimeServices_IsMatchBinding, args))
-			{
-				mie.Target = new ReferenceExpression(RuntimeServices_IsMatchBinding.FullName);				
-				Bind(mie, RuntimeServices_IsMatchBinding);
-				Bind(mie.Target, RuntimeServices_IsMatchBinding);				
-				if (BinaryOperatorType.NotMatch == node.Operator)
-				{
-					node.ParentNode.Replace(node, CreateNotExpression(mie));					
-				}
-				else
-				{
-					node.ParentNode.Replace(node, mie);
-				}
-			}
-			else
-			{
-				InvalidOperatorForTypes(node);
-			}
 		}
 		
 		static string GetBinaryOperatorText(BinaryOperatorType op)
@@ -2678,34 +2532,85 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		bool ResolveOperator(BinaryExpression node)
 		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
+			mie.Arguments.Add(node.Left);
+			mie.Arguments.Add(node.Right);
+			
 			string operatorName = GetMethodNameForOperator(node.Operator);
-			if (null != operatorName)
+			ITypeBinding lhs = GetExpressionType(node.Left);
+			if (ResolveOperator(node, lhs, operatorName, mie))
 			{
-				ITypeBinding boundType = GetBoundType(node.Left);
-				IBinding binding = boundType.Resolve(operatorName);
-				if (null != binding)
+				return true;
+			}
+			
+			ITypeBinding rhs = GetExpressionType(node.Right);
+			if (ResolveOperator(node, rhs, operatorName, mie))
+			{
+				return true;
+			}
+			return ResolveOperator(node, BindingManager.RuntimeServicesBinding, operatorName, mie);
+		}
+		
+		IMethodBinding ResolveAmbiguousOperator(IBinding[] bindings, ExpressionCollection args)
+		{
+			foreach (IBinding binding in bindings)
+			{
+				IMethodBinding method = binding as IMethodBinding;
+				if (null != method)
 				{
-					if (BindingType.Method == binding.BindingType)
+					if (method.IsStatic)
 					{
-						MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
-						mie.Arguments.Add(node.Left);
-						mie.Arguments.Add(node.Right);
-						
-						if (CheckParameterTypesStrictly((IMethodBinding)binding, mie.Arguments))
+						if (2 == method.ParameterCount)
 						{
-							mie.Target = new ReferenceExpression(binding.FullName);
-							
-							Bind(mie, binding);
-							Bind(mie.Target, binding);
-							
-							node.ParentNode.Replace(node, mie);
-							
-							return true;
+							if (CheckParameterTypesStrictly(method, args))
+							{
+								return method;
+							}
 						}
 					}
 				}
 			}
-			return false;
+			return null;
+		}
+		
+		bool ResolveOperator(BinaryExpression node, ITypeBinding type, string operatorName, MethodInvocationExpression mie)
+		{
+			IBinding binding = type.Resolve(operatorName);
+			if (null == binding)
+			{
+				return false;
+			}
+			
+			if (BindingType.Ambiguous == binding.BindingType)
+			{	
+				binding = ResolveAmbiguousOperator(((AmbiguousBinding)binding).Bindings, mie.Arguments);
+				if (null == binding)
+				{
+					return false;
+				}
+			}
+			else if (BindingType.Method == binding.BindingType)
+			{					
+				IMethodBinding method = (IMethodBinding)binding;
+				
+				if (!method.IsStatic || !CheckParameterTypesStrictly(method, mie.Arguments))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+			
+			mie.Target = new ReferenceExpression(binding.FullName);
+			
+			Bind(mie, binding);
+			Bind(mie.Target, binding);
+			
+			node.ParentNode.Replace(node, mie);
+			
+			return true;
 		}
 		
 		bool CheckLValue(Node node, IBinding binding)

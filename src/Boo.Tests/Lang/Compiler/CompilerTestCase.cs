@@ -937,5 +937,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("stringadd0.boo");
 		}
+		
+		[Test]
+		public void StringMultiplyByInt()
+		{
+			RunCompilerTestCase("stringmultiply0.boo");
+		}
+		
+		[Test]
+		public void ListRichOperators()
+		{
+			RunCompilerTestCase("listoperators.boo");
+		}
 	}
 }

@@ -244,6 +244,19 @@ done * string operators: + and *
 
 done * renomear real para double e criar float
 
+done * resolução de operadores sobrecarregados:
+	eg: 2*[1, 2] == [1, 2]*2
+	
+done * procurar uma versão dos operadores em RuntimeServices para unificar a inclusão de novos operadores:
+	done * RuntimeServices.op_Multiply(int, string)
+	done * RuntimeServices.op_Multiply(string, int)
+	done * RuntimeServices.op_Addition(string, object)
+	done * RuntimeServices.op_Addition(object, string)	
+	done * RuntimeServices.op_Multiply(int, Array)
+	done * RuntimeServices.op_Multiply(Array, int)	
+	done * RuntimeServices.op_Member(string, string)
+	done * RuntimeServices.op_NotMember(string, string)
+
 * assembly attributes: [assembly: AssemblyVersion("foo")]
 
 * remover DepthFirstTransformer pois não é mais necessário e só confunde...

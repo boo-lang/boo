@@ -69,12 +69,12 @@ namespace Boo.Lang
 		
 		public static List operator*(List lhs, int count)
 		{
-			List result = new List(lhs.Count*count);
-			for (int i=0; i<count; ++i)
-			{
-				result.Extend(lhs);
-			}
-			return result;
+			return lhs.Multiply(count);
+		}
+		
+		public static List operator*(int count, List rhs)
+		{
+			return rhs.Multiply(count);
 		}
 		
 		public static List operator+(List lhs, IEnumerable rhs)
@@ -82,6 +82,21 @@ namespace Boo.Lang
 			List result = new List(lhs.Count);
 			result.Extend(lhs);
 			result.Extend(rhs);
+			return result;
+		}
+		
+		public List Multiply(int count)
+		{
+			if (count < 0)
+			{
+				throw new ArgumentOutOfRangeException("count");
+			}
+			
+			List result = new List(_list.Count*count);
+			for (int i=0; i<count; ++i)
+			{
+				result.Extend(_list);
+			}
 			return result;
 		}
 		

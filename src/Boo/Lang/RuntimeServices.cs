@@ -107,21 +107,48 @@ namespace Boo.Lang
 			return iterator;
 		}
 		
-		public static bool IsMatch(string input, string pattern)
-		{			
-			return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
+		#region global operators
+		
+		public static string op_Addition(string lhs, object rhs)
+		{
+			return string.Concat(lhs, rhs);
 		}
 		
-		public static bool StringContains(string s, string what)
-		{			
-			if (null == s)
+		public static string op_Addition(object lhs, string rhs)
+		{
+			return string.Concat(lhs, rhs);
+		}
+		
+		public static Array op_Multiply(Array lhs, int count)
+		{
+			if (count < 0)
 			{
-				return false;
+				throw new ArgumentOutOfRangeException("count");
 			}
-			return s.IndexOf(what) > -1;
+			
+			Type type = lhs.GetType();
+			if (1 != type.GetArrayRank())
+			{
+				throw new ArgumentException("lhs");
+			}
+			
+			int length = lhs.Length;
+			Array result = Array.CreateInstance(type.GetElementType(), length*count);
+			int destinationIndex = 0;
+			for (int i=0; i<count; ++i)
+			{
+				Array.Copy(lhs, 0, result, destinationIndex, length);
+				destinationIndex += length;
+			}
+			return result;
 		}
 		
-		public static string StringMultiply(string lhs, int count)
+		public static Array op_Multiply(int count, Array rhs)
+		{
+			return op_Multiply(rhs, count);
+		}
+		
+		public static string op_Multiply(string lhs, int count)
 		{
 			if (count < 0)
 			{
@@ -141,33 +168,63 @@ namespace Boo.Lang
 			return result;
 		}
 		
-		public static bool Contains(object container, object value)
+		public static string op_Multiply(int count, string rhs)
 		{
-			IEnumerable iterator = GetEnumerable(container);
-			
-			if (null == value)
-			{
-				foreach (object item in iterator)
-				{
-					if (null == item)
-					{
-						return true;
-					}
-				}
-			}
-			else
-			{
-				foreach (object item in iterator)
-				{
-					if (item == value || item.Equals(value))
-					{
-						return true;
-					}
-				}
-			}
-			
-			return false;
+			return op_Multiply(rhs, count);
 		}
+		
+		public static bool op_NotMember(string lhs, string rhs)
+		{
+			return !op_Member(lhs, rhs);
+		}
+		
+		public static bool op_Member(string lhs, string rhs)
+		{			
+			if (null == lhs || null == rhs)
+			{
+				return false;
+			}
+			return rhs.IndexOf(lhs) > -1;
+		}
+		
+		public static bool op_Match(string input, string pattern)
+		{			
+			return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
+		}
+		
+		public static bool op_NotMatch(string input, string pattern)
+		{
+			return !op_Match(input, pattern);
+		}
+		
+		public static bool op_Member(object lhs, IList rhs)
+		{
+			if (null == rhs)
+			{
+				return false;
+			}
+			return rhs.Contains(lhs);
+		}
+		
+		public static bool op_NotMember(object lhs, IList rhs)
+		{
+			return !op_Member(lhs, rhs);
+		}
+		
+		public static bool op_Member(object lhs, IDictionary rhs)
+		{
+			if (null == rhs)
+			{
+				return false;
+			}
+			return rhs.Contains(lhs);
+		}
+		
+		public static bool op_NotMember(object lhs, IDictionary rhs)
+		{
+			return !op_Member(lhs, rhs);
+		}
+		#endregion
 		
 		public static bool ToBool(object value)
 		{
