@@ -70,5 +70,18 @@ namespace Boo.Lang.Compiler
 			}
 			return InnerList.Contains(assembly);
 		}
+		
+		public Assembly Find(string simpleName)
+		{
+			foreach (Assembly assembly in InnerList)
+			{
+				if (assembly.GetName().Name == simpleName)
+				{
+					return assembly;
+				}
+			}
+			
+			return null;
+		}
 	}
 }

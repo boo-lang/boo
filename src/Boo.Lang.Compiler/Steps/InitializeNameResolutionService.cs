@@ -71,6 +71,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		Assembly FindOrLoadAssembly(string name)
+		{
+			Assembly found = Parameters.References.Find(name);
+			if (null == found)
+			{
+				found = Assembly.LoadWithPartialName(name);
+				if (null == found)
+				{
+					found = Assembly.Load(name);
+				}
+			}
+			return found;
+		}
+		
 		void ResolveImportAssemblyReferences()
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
@@ -85,7 +99,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						try
 						{
-							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
+							Assembly asm = FindOrLoadAssembly(reference.Name);
 							Parameters.References.Add(asm);
 							reference.Entity = new TypeSystem.AssemblyReference(asm);
 						}
