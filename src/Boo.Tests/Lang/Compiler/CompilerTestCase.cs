@@ -439,6 +439,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void TupleZip()
+		{
+			RunCompilerTestCase("tuple7.boo");
+		}
+		
+		[Test]
 		public void TestMatch0()
 		{
 			RunCompilerTestCase("match0.boo", "string =~ string");

@@ -1617,15 +1617,16 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					if (binding.IsArray)
 					{												
-						ITypeBinding elementType;
-						string typeName = GetArrayTypeName(binding, out elementType);
+						ITypeBinding elementType = GetSimpleElementType(binding);						
 						if (elementType is IInternalBinding)
 						{
+							string typeName = GetArrayTypeName(binding);
 							type = _moduleBuilder.GetType(typeName, true);
 						}
 						else
 						{
-							type = Type.GetType(typeName, true);
+							//type = Type.GetType(typeName, true);
+							type = Array.CreateInstance(GetType(binding.GetElementType()), 0).GetType();
 						}
 					}
 					else
@@ -1638,24 +1639,32 @@ namespace Boo.Lang.Compiler.Pipeline
 			return type;
 		}
 		
-		string GetArrayTypeName(ITypeBinding binding, out ITypeBinding elementType)
-		{
-			System.Text.StringBuilder builder = new System.Text.StringBuilder();
-			GetArrayTypeName(builder, binding, out elementType);
-			return builder.ToString();			
-		}
-		
-		void GetArrayTypeName(System.Text.StringBuilder buffer, ITypeBinding binding, out ITypeBinding elementType)
+		ITypeBinding GetSimpleElementType(ITypeBinding binding)
 		{
 			if (binding.IsArray)
 			{
-				GetArrayTypeName(buffer, binding.GetElementType(), out elementType);
+				return GetSimpleElementType(binding.GetElementType());
+			}
+			return binding;
+		}
+		
+		string GetArrayTypeName(ITypeBinding binding)
+		{
+			System.Text.StringBuilder builder = new System.Text.StringBuilder();
+			GetArrayTypeName(builder, binding);
+			return builder.ToString();			
+		}
+		
+		void GetArrayTypeName(System.Text.StringBuilder buffer, ITypeBinding binding)
+		{
+			if (binding.IsArray)
+			{
+				GetArrayTypeName(buffer, binding.GetElementType());
 				buffer.Append("[]");
 			}
 			else
 			{
 				buffer.Append(binding.FullName);
-				elementType = binding;
 			}
 		}
 		

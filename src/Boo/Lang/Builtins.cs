@@ -93,9 +93,10 @@ namespace Boo.Lang
 		}
 		
 		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
-		public static IEnumerable zip(params object[] enumerables)
+		public static IEnumerable zip(object first, object second)
 		{
-			return null;
+			return new ZipEnumerator(RuntimeServices.GetEnumerable(first).GetEnumerator(),
+									RuntimeServices.GetEnumerable(second).GetEnumerator());
 		}
 		
 		public static void assert(string message, bool condition)
@@ -106,6 +107,54 @@ namespace Boo.Lang
 		public static void assert(bool condition)
 		{
 			throw new System.NotImplementedException();
+		}
+		
+		private class ZipEnumerator : IEnumerator, IEnumerable
+		{
+			IEnumerator[] _enumerators;
+			
+			public ZipEnumerator(params IEnumerator[] enumerators)
+			{
+				_enumerators = enumerators;
+			}
+			
+			public void Reset()
+			{
+				for (int i=0; i<_enumerators.Length; ++i)
+				{
+					_enumerators[i].Reset();
+				}
+			}
+			
+			public bool MoveNext()
+			{
+				for (int i=0; i<_enumerators.Length; ++i)
+				{
+					if (!_enumerators[i].MoveNext())
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			
+			public object Current
+			{
+				get
+				{
+					object[] current = new object[_enumerators.Length];
+					for (int i=0; i<current.Length; ++i)
+					{
+						current[i] = _enumerators[i].Current;
+					}
+					return current;
+				}
+			}
+			
+			public IEnumerator GetEnumerator()
+			{
+				return this;
+			}
 		}
 		
 		private class RangeEnumerator : IEnumerator, IEnumerable
