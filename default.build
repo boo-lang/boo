@@ -46,12 +46,17 @@
 		</booc>		
 
 		<boo>
-		//for p as System.Collections.DictionaryEntry in Project.Properties:
-			//print("${p.Key}: ${p.Value}")		
 		print("Hello from boo task!")		
 		print("Framework directory: ${Project.TargetFramework.FrameworkAssemblyDirectory}")
 		</boo>
 		
+	</target>
+	
+	<target name="dump-properties" depends="Boo.NAnt">
+		<boo>
+		for p as System.Collections.DictionaryEntry in Project.Properties:
+			print("${p.Key}: ${p.Value}")		
+		</boo>
 	</target>
 	
 	<target name="Boo.NAnt" depends="booc">
@@ -257,11 +262,21 @@
 			input="src/Boo/Resources/pt/strings.txt"
 			output="build/pt/strings.pt.resources" />
 
-		<al target="lib" culture="pt" output="build/pt/Boo.resources.dll">
+		<al target="lib"
+			culture="pt"
+			output="build/pt/Boo.resources.dll"
+			if="${nant.platform.win32}">
 			<sources basedir="build/pt">
 				<include name="strings.pt.resources" />
 			</sources>
 		</al>
+		
+		<exec program="${path::combine(nant.settings.currentframework.sdkdirectory, 'al')}" if="${nant.platform.unix}">
+			<arg value="/target:lib" />
+			<arg value="/culture:pt" />
+			<arg value="/out:build/pt/Boo.resources.dll" />
+			<arg value="/embed:build/pt/strings.pt.resources" />
+		</exec>
 	</target>
 
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
