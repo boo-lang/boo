@@ -111,11 +111,10 @@ class BooParser(IParser):
 		
 		try:
 			compiler.Run()
+			// somehow the SD parser thread goes into an endless loop if this flag is not set
+			visitor.Cu.ErrorsDuringCompile = true //context.Errors.Count > 0
 		except e:
-			print e
-		
-		// somehow the SD parser thread goes into an endless loop if this flag is not set
-		visitor.Cu.ErrorsDuringCompile = true //context.Errors.Count > 0
+			ShowException(e)
 		return visitor.Cu
 	
 	def CtrlSpace(parserService as IParserService, caretLine as int, caretColumn as int, fileName as string) as ArrayList:

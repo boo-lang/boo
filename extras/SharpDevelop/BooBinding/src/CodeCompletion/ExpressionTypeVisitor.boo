@@ -1,6 +1,7 @@
 namespace BooBinding.CodeCompletion
 
 import System
+import System.Collections
 import SharpDevelop.Internal.Parser
 import Boo.Lang.Compiler.Ast
 
@@ -10,13 +11,38 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 		super(node, error)
 	
 	[Property(ReturnType)]
-	returnType as IReturnType
+	_returnType as IReturnType
+	
+	[Property(ReturnClass)]
+	_returnClass as IClass
+	
+	[Property(Resolver)]
+	_resolver as Resolver
 	
 	private def CreateReturnType(fullClassName as string):
-		return BooBinding.CodeCompletion.ReturnType(fullClassName)
+		_returnClass = null
+		if fullClassName == null:
+			_returnType = null
+		else:
+			_returnType = BooBinding.CodeCompletion.ReturnType(fullClassName)
 	
 	private def CreateReturnType(reference as TypeReference):
-		return BooBinding.CodeCompletion.ReturnType(reference)
+		_returnClass = null
+		if reference == null:
+			_returnType = null
+		else:
+			_returnType = BooBinding.CodeCompletion.ReturnType(reference)
+	
+	private def CreateReturnType(c as IClass):
+		_returnClass = c
+		if c == null:
+			_returnType = null
+		else:
+			_returnType = BooBinding.CodeCompletion.ReturnType(c)
+	
+	private def SetReturnType(r as IReturnType):
+		_returnClass = null
+		_returnType = r
 	
 	private def Debug(node as Node):
 		print "${node.ToString()} - ${node.GetType().FullName}"
@@ -39,7 +65,7 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	
 	override def OnCallableBlockExpression(node as CallableBlockExpression):
 		Debug(node)
-		returnType = CreateReturnType("System.Delegate")
+		CreateReturnType("System.Delegate")
 	
 	override def OnExpressionStatement(node as ExpressionStatement):
 		Debug(node)
@@ -51,7 +77,46 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	
 	override def OnMethodInvocationExpression(node as MethodInvocationExpression):
 		Debug(node)
-		super(node)
+		Debug(node.Target)
+		if node.Target isa MemberReferenceExpression:
+			// call a method on another object
+			mre as MemberReferenceExpression = node.Target
+			Visit(mre.Target)
+			if _returnClass == null and _returnType != null:
+				_returnClass = _resolver.SearchType(_returnType.FullyQualifiedName)
+			return if ProcessMethod(node, mre.Name, _returnClass)
+		elif node.Target isa ReferenceExpression:
+			re as ReferenceExpression = node.Target
+			// try if it is a method on the current object
+			return if ProcessMethod(node, re.Name, _resolver.CallingClass)
+			// try if it is a class name -> constructor
+			CreateReturnType(_resolver.SearchType(re.Name))
+			return
+		SetReturnType(null)
+	
+	private def ProcessMethod(node as MethodInvocationExpression, name as string, c as IClass) as bool:
+		return false if c == null
+		possibleOverloads = FindMethods(c, name, node.Arguments.Count)
+		print "found ${possibleOverloads.Count} overloads (multiple overloads not supported yet)"
+		if possibleOverloads.Count >= 1:
+			SetReturnType(cast(IMethod, possibleOverloads[0]).ReturnType)
+			return true
+		/*// find best overload
+		argumentTypes = array(IReturnType, node.Arguments.Count)
+		for i as int in range(argumentTypes.Length):
+			Visit(node.Arguments[i])
+			argumentTypes[i] = _returnType
+		...
+		*/
+		return false
+	
+	private def FindMethods(c as IClass, name as string, arguments as int):
+		possibleOverloads = ArrayList()
+		for cl as IClass in c.ClassInheritanceTree:
+			for m as IMethod in cl.Methods:
+				if m.Parameters.Count == arguments and name == m.Name:
+					possibleOverloads.Add(m)
+		return possibleOverloads
 	
 	override def OnUnaryExpression(node as UnaryExpression):
 		Debug(node)
@@ -69,51 +134,76 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 		Visit(a)
 	
 	override def OnReferenceExpression(node as ReferenceExpression):
-		Debug(node)
-		super(node)
+		// Resolve reference (to a variable, field, parameter or type)
+		// currently only references to types or fields are supported
+		return if ProcessMember(node.Name, _resolver.CallingClass)
+		CreateReturnType(_resolver.SearchType(node.Name))
 	
 	override def OnMemberReferenceExpression(node as MemberReferenceExpression):
 		Debug(node)
-		super(node)
+		Visit(node.Target)
+		if _returnClass == null and _returnType != null:
+			_returnClass = _resolver.SearchType(_returnType.FullyQualifiedName)
+		return if ProcessMember(node.Name, _returnClass)
+		SetReturnType(null)
+	
+	private def ProcessMember(name as string, parentClass as IClass):
+		return false if parentClass == null
+		for cl as IClass in parentClass.ClassInheritanceTree:
+			for c as IClass in cl.InnerClasses:
+				if c.Name == name:
+					CreateReturnType(c)
+					return true
+			for f as IField in cl.Fields:
+				if f.Name == name:
+					SetReturnType(f.ReturnType)
+					return true
+			for p as IProperty in cl.Properties:
+				if p.Name == name:
+					SetReturnType(p.ReturnType)
+					return true
+			for m as IMethod in cl.Methods:
+				if m.Name == name:
+					CreateReturnType("System.Delegate")
+					return true
+		return false
 	
 	override def OnTimeSpanLiteralExpression(node as TimeSpanLiteralExpression):
-		returnType = CreateReturnType("System.TimeSpan")
+		CreateReturnType("System.TimeSpan")
 	
 	override def OnIntegerLiteralExpression(node as IntegerLiteralExpression):
-		returnType = CreateReturnType("System.Int32")
+		CreateReturnType("System.Int32")
 	
 	override def OnDoubleLiteralExpression(node as DoubleLiteralExpression):
-		returnType = CreateReturnType("System.Double")
+		CreateReturnType("System.Double")
 	
 	override def OnNullLiteralExpression(node as NullLiteralExpression):
-		returnType = CreateReturnType("System.Object")
+		CreateReturnType("System.Object")
 	
 	override def OnSelfLiteralExpression(node as SelfLiteralExpression):
-		//returnType = CreateReturnType(callingClass)
-		pass
+		CreateReturnType(_resolver.CallingClass)
 	
 	override def OnSuperLiteralExpression(node as SuperLiteralExpression):
-		//returnType = CreateReturnType(callingClass)
-		pass
+		CreateReturnType(_resolver.ParentClass)
 	
 	override def OnBoolLiteralExpression(node as BoolLiteralExpression):
-		returnType = CreateReturnType("System.Boolean")
+		CreateReturnType("System.Boolean")
 	
 	override def OnRELiteralExpression(node as RELiteralExpression):
-		returnType = CreateReturnType("System.Text.RegularExpressions.Regex")
+		CreateReturnType("System.Text.RegularExpressions.Regex")
 	
 	override def OnExpressionInterpolationExpression(node as ExpressionInterpolationExpression):
 		Debug(node)
 		super(node)
 	
 	override def OnHashLiteralExpression(node as HashLiteralExpression):
-		returnType = CreateReturnType("System.Collections.Hashtable")
+		CreateReturnType("System.Collections.Hashtable")
 	
 	override def OnListLiteralExpression(node as ListLiteralExpression):
-		returnType = CreateReturnType("System.Collections.ArrayList")
+		CreateReturnType("System.Collections.ArrayList")
 	
 	override def OnArrayLiteralExpression(node as ArrayLiteralExpression):
-		returnType = CreateReturnType("System.Array")
+		CreateReturnType("System.Array")
 	
 	override def OnGeneratorExpression(node as GeneratorExpression):
 		Debug(node)
@@ -124,10 +214,10 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 		super(node)
 	
 	override def OnAsExpression(node as AsExpression):
-		returnType = CreateReturnType(node.Type)
+		CreateReturnType(node.Type)
 	
 	override def OnCastExpression(node as CastExpression):
-		returnType = CreateReturnType(node.Type)
+		CreateReturnType(node.Type)
 	
 	override def OnTypeofExpression(node as TypeofExpression):
-		returnType = CreateReturnType("System.Type")
+		CreateReturnType("System.Type")

@@ -77,7 +77,6 @@ class Class(AbstractClass):
 				cast(Method, m).AddModifier(ModifierEnum.Public)
 			else:
 				Debug.Assert(false, 'Unexpected type in method of interface. Can not set modifier to public!')
-			
 		
 		for e as Event in Events:
 			e.AddModifier(ModifierEnum.Public)

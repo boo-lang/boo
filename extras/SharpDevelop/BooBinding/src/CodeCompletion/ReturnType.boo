@@ -30,7 +30,10 @@ class ReturnType(AbstractReturnType):
 		super.pointerNestingLevel = 0
 		if t isa AST.SimpleTypeReference:
 			super.arrayDimensions = array(int, 0)
-			super.FullyQualifiedName = cast(AST.SimpleTypeReference, t).Name
+			name = cast(AST.SimpleTypeReference, t).Name
+			expandedName = BooBinding.BooAmbience.ReverseTypeConversionTable[name]
+			name = expandedName if expandedName != null
+			super.FullyQualifiedName = name
 		elif t isa AST.ArrayTypeReference:
 			ar as AST.ArrayTypeReference = t
 			depth = 1
@@ -63,3 +66,6 @@ class ReturnType(AbstractReturnType):
 	
 	def Clone() as ReturnType:
 		return ReturnType(FullyQualifiedName, arrayDimensions, pointerNestingLevel)
+	
+	override def ToString():
+		return "[${GetType().Name} Name=${FullyQualifiedName}]"

@@ -14,6 +14,24 @@ import Boo.Lang.Compiler.Steps
 
 class Resolver:
 	_parserService as IParserService
+	_caretLine as int
+	_caretColumn as int
+	
+	[Getter(CallingClass)]
+	_callingClass as IClass
+	_compilationUnit as ICompilationUnit
+	
+	ParentClass as IClass:
+		get:
+			if _callingClass.BaseTypes.Count > 0:
+				return SearchType(_callingClass.BaseTypes[0])
+			else:
+				return null
+	
+	def SearchType(name as string) as IClass:
+		expandedName = BooAmbience.ReverseTypeConversionTable[name]
+		return _parserService.GetClass(expandedName) if expandedName != null
+		return _parserService.SearchType(name, _callingClass, _caretLine, _caretColumn)
 	
 	def CtrlSpace(parserService as IParserService, caretLine as int, caretColumn as int, fileName as string) as ArrayList:
 		_parserService = parserService
@@ -52,43 +70,35 @@ class Resolver:
 			return null
 		
 		_parserService = parserService
-		try:
-			int.Parse(expression)
-			return null
-		except exception as Exception:
-			pass
+		_caretLine = caretLine
+		_caretColumn = caretColumn
 		
 		parseInfo = parserService.GetParseInformation(fileName)
 		cu = parseInfo.MostRecentCompilationUnit as CompilationUnit
+		_compilationUnit = cu
 		if cu == null:
 			print "BooResolver: No parse information!"
 			return null
 		
 		callingClass as IClass = parserService.GetInnermostClass(cu, caretLine, caretColumn)
+		_callingClass = callingClass
 		returnClass as IClass = null
 		if expression == "self":
 			returnClass = callingClass
 		elif expression == "super":
-			if callingClass.BaseTypes.Count > 0:
-				print callingClass.BaseTypes[0]
-				returnClass = parserService.SearchType(callingClass.BaseTypes[0], callingClass, caretLine, caretColumn)
+			returnClass = self.ParentClass
 		else:
 			// try looking if the expression is the name of a class
-			expressionClass = parserService.SearchType(expression, callingClass, caretLine, caretColumn)
+			expressionClass = self.SearchType(expression)
 			if expressionClass != null:
 				return ResolveResult(expressionClass, parserService.ListMembers(ArrayList(), expressionClass, callingClass, true))
-			expandedExpression = BooAmbience.ReverseTypeConversionTable[expression]
-			if expandedExpression != null:
-				expressionClass = parserService.GetClass(expandedExpression)
-				if expressionClass != null:
-					return ResolveResult(expressionClass, parserService.ListMembers(ArrayList(), expressionClass, callingClass, true))
 			
 			// try if it is the name of a namespace
 			if parserService.NamespaceExists(expression):
 				return ResolveResult(array(string, 0), parserService.GetNamespaceContents(expression))
 			
 			expr = Boo.Lang.Parser.BooParser.ParseExpression("expression", expression)
-			visitor = ExpressionTypeVisitor()
+			visitor = ExpressionTypeVisitor(Resolver : self)
 			visitor.Visit(expr)
 			Print ("result", visitor.ReturnType)
 			if visitor.ReturnType != null:
