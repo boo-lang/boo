@@ -8,7 +8,7 @@ import Boo.Lang.Compiler.Steps
 import Boo.Lang.Compiler.TypeSystem
 import System.IO
 
-class CodeCompletionHunter(ProcessMethodBodies):
+class CodeCompletionHunter(HuntDucks):
 	
 	static def GetCompletion(source as string):
 		
@@ -44,6 +44,6 @@ class CodeCompletionHunter(ProcessMethodBodies):
 	
 	protected static def MakePipeline(hunter):
 		pipeline = Compile()
-		index = pipeline.Find(Boo.Lang.Compiler.Steps.ProcessMethodBodies)
+		index = pipeline.Find(Boo.Lang.Compiler.Steps.HuntDucks)
 		pipeline[index] = hunter
 		return pipeline
