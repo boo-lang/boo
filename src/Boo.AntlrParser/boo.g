@@ -1225,7 +1225,7 @@ boolean_term returns [Expression e]
 		Expression r = null;
 	}
 	:
-	e=ternary_expression
+	e=assignment_expression
 	(
 		at:AND!
 		r=expression
@@ -1237,30 +1237,8 @@ boolean_term returns [Expression e]
 			e = be;
 		}
 	)*
-	;			
-
-protected 
-ternary_expression returns [Expression e]
-	{
-		e = null;			
-		Expression te = null;
-		Expression fe = null;
-	}:
-	e=assignment_expression	
-	( options { greedy = true; } :
-		t:QMARK!
-		te=ternary_expression COLON!
-		fe=assignment_expression
-		{
-			TernaryExpression finalExpression = new TernaryExpression(ToLexicalInfo(t));
-			finalExpression.Condition = e;
-			finalExpression.TrueExpression = te;
-			finalExpression.FalseExpression = fe;
-			e = finalExpression;
-		}
-	)*
 	;
-	
+
 protected
 assignment_stmt returns [Statement stmt]
 	{
@@ -1666,7 +1644,7 @@ string_literal returns [Expression e]
 	{
 		e = null;
 	}:
-	( (DOUBLE_QUOTED_STRING|TRIPLE_QUOTED_STRING) ESEPARATOR)=> e=string_formatting |	
+	e=expression_interpolation |	
 	dqs:DOUBLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(dqs), dqs.getText());
@@ -1682,24 +1660,20 @@ string_literal returns [Expression e]
 	;
 	
 protected
-string_formatting returns [StringFormattingExpression e]
+expression_interpolation returns [ExpressionInterpolationExpression e]
 	{
 		e = null;
-		Expression param = null;
-		Token stringToken = null;
+		Expression param = null;		
 	}:
-	(
-		dqs:DOUBLE_QUOTED_STRING { stringToken = dqs; } |
-		tqs:TRIPLE_QUOTED_STRING { stringToken = tqs; }
-	)
+	separator:ESEPARATOR
 	{
-		e = new StringFormattingExpression(ToLexicalInfo(stringToken));
-		e.Template = stringToken.getText();
+		LexicalInfo info = ToLexicalInfo(separator);
+		e = new ExpressionInterpolationExpression(info);		
 	}
 	(  options { greedy = true; } :
 		
-		ESEPARATOR! param=expression
-		{ e.Arguments.Add(param); }
+		param=expression
+		{ e.Expressions.Add(param); }
 	)*
 	;
 	
@@ -1846,19 +1820,14 @@ options
 {
 	testLiterals = false;
 	exportVocab = Boo;	
-	k = 3;
+	k = 2;
 	charVocabulary='\u0003'..'\uFFFE';
 	// without inlining some bitset tests, ANTLR couldn't do unicode;
 	// They need to make ANTLR generate smaller bitsets;
 	codeGenBitsetTestThreshold=20;
 }
 {
-	protected int _skipWhitespaceRegion = 0;	
-	
-	antlr.Token _eseparator = new antlr.CommonToken(ESEPARATOR, "ESEPARATOR");
-	
-	// see ESCAPED_EXPRESSION
-	int _eindex = 0;	
+	protected int _skipWhitespaceRegion = 0;
 	
 	BooExpressionLexer _el;
 	
@@ -1893,6 +1862,12 @@ options
 		}
 	}
 
+	void Enqueue(antlr.Token token, string text)
+	{
+		token.setText(text);
+		_erecorder.Enqueue(token);
+	}
+
 	internal void EnterSkipWhitespaceRegion()
 	{
 		++_skipWhitespaceRegion;
@@ -1902,14 +1877,6 @@ options
 	{
 		--_skipWhitespaceRegion;
 	}
-	
-	void PushRecordedExpressions()
-	{
-		if (_erecorder.Count > 0)
-		{
-			_selector.push(_erecorder);
-		}
-	}
 }
 
 ID options { testLiterals = true; }:
@@ -1917,7 +1884,7 @@ ID options { testLiterals = true; }:
 	;
 	
 LINE_CONTINUATION:
-	'\\' NEWLINE
+	'\\'! NEWLINE
 	{ $setType(Token.SKIP); }
 	;
 
@@ -1933,27 +1900,25 @@ INT : (DIGIT)+
 
 DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
 
-COLON : ':';
+COLON : ':'!;
 
 BITWISE_OR: '|';
 
-LPAREN : '(' { EnterSkipWhitespaceRegion(); };
+LPAREN : '('! { EnterSkipWhitespaceRegion(); };
 	
-RPAREN : ')' { LeaveSkipWhitespaceRegion(); };
+RPAREN : ')'! { LeaveSkipWhitespaceRegion(); };
 
-LBRACK : '[' { EnterSkipWhitespaceRegion(); };
+LBRACK : '['! { EnterSkipWhitespaceRegion(); };
 
-RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
+RBRACK : ']'! { LeaveSkipWhitespaceRegion(); };
 
-LBRACE : '{' { EnterSkipWhitespaceRegion(); };
+LBRACE : '{'! { EnterSkipWhitespaceRegion(); };
 	
-RBRACE : '}' { LeaveSkipWhitespaceRegion(); };
+RBRACE : '}'! { LeaveSkipWhitespaceRegion(); };
 
-QMARK : '?';
+INCREMENT: "++"!;
 
-INCREMENT: "++";
-
-DECREMENT: "--";
+DECREMENT: "--"!;
 
 ADD: ('+') ('=' { $setType(ASSIGN); })?;
 
@@ -1980,41 +1945,54 @@ CMP_OPERATOR : '<' | "<=" | '>' | ">=" | "!~" | "!=";
 
 ASSIGN : '=' ( ('=' | '~') { $setType(CMP_OPERATOR); } )?;
 
-COMMA : ',';
+COMMA : ','!;
 
 protected
-TRIPLE_QUOTED_STRING :
+TRIPLE_QUOTED_STRING:
 	"\"\""!
 	(
 	options { greedy=false; }:		
-		("${")=>ESCAPED_EXPRESSION |
+		("${")=>		
+		{					
+			Enqueue(makeToken(TRIPLE_QUOTED_STRING), $getText);
+			$setText("");
+		}
+		ESCAPED_EXPRESSION |
 		("\\$")=>'\\'! '$' |
 		~('\r'|'\n') |
 		NEWLINE
 	)*
 	"\"\"\""!
-	{
-		PushRecordedExpressions();
-	}
 	;
 
-DOUBLE_QUOTED_STRING : { _eindex = 0; }
+DOUBLE_QUOTED_STRING:
 	'"'!
 	(
 		{LA(1)=='"' && LA(2)=='"'}?TRIPLE_QUOTED_STRING { $setType(TRIPLE_QUOTED_STRING); }
 		|
 		(
 			(
-				DQS_ESC |				
-				("${")=>ESCAPED_EXPRESSION |
+				DQS_ESC |
+				("${")=>
+				{					
+					Enqueue(makeToken(DOUBLE_QUOTED_STRING), $getText);
+					$setText("");
+				}
+				ESCAPED_EXPRESSION |
 				~('"' | '\\' | '\r' | '\n')
 			)*
-			'"'!
-			{
-				PushRecordedExpressions();
-			}
+			'"'!			
 		)
 	)
+	{
+		if (_erecorder.Count > 0)
+		{
+			Enqueue(makeToken(DOUBLE_QUOTED_STRING), $getText);
+			$setType(ESEPARATOR);
+			$setText("");
+			_selector.push(_erecorder);
+		}
+	}
 	;
 		
 SINGLE_QUOTED_STRING :
@@ -2059,7 +2037,7 @@ WS :
 	}
 	;
 		
-EOS: ';';
+EOS: ';'!;
 
 protected
 NEWLINE:
@@ -2073,13 +2051,11 @@ NEWLINE:
 	;
 		
 protected
-ESCAPED_EXPRESSION : "${"
+ESCAPED_EXPRESSION : "${"!
 	{			
-		_erecorder.Enqueue(_eseparator);
 		if (_erecorder.RecordUntil(_el, RBRACE) > 0)
 		{
-			$setText("{" + _eindex + "}");
-			++_eindex;
+			$setText("");
 		}
 	}
 	;
@@ -2092,10 +2068,10 @@ SQS_ESC : '\\'! ( SESC | '\'' );
 
 protected
 SESC : 
-				( 'r' {$setText("\r"); }) |
-				( 'n' {$setText("\n"); }) |
-				( 't' {$setText("\t"); }) |
-				( '\\' );
+				( 'r'! {$setText("\r"); }) |
+				( 'n'! {$setText("\n"); }) |
+				( 't'! {$setText("\t"); }) |
+				( '\\'! );
 
 protected
 RE_LITERAL : '/' (RE_CHAR)+ '/';

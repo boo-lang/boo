@@ -269,6 +269,12 @@ namespace Boo.Lang.Compiler.Tests
 		}
 		
 		[Test]
+		public void ExpressionInterpolation()
+		{
+			RunCompilerTestCase("expression_interpolation0.boo");
+		}
+		
+		[Test]
 		public void TypeReferenceRepresentsType()
 		{
 			RunCompilerTestCase("typereference0.boo");

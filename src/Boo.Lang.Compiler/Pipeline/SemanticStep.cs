@@ -1316,7 +1316,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		override public void LeaveStringFormattingExpression(StringFormattingExpression node)
+		override public void LeaveExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{
 			Bind(node, BindingManager.StringTypeBinding);
 		}

@@ -1611,35 +1611,17 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static Regex _interpolatedExpression = new Regex(@"\{(\d+)\}", RegexOptions.Compiled|RegexOptions.CultureInvariant);
 		
-		void EmitAppendString(MethodInfo appendString, string template, int current, int matchIndex)
-		{
-			string part = template.Substring(current, matchIndex-current);
-			if (part.Length > 0)
-			{
-				_il.Emit(OpCodes.Ldstr, part);
-				_il.EmitCall(OpCodes.Call, appendString, null);
-			}
-		}
-		
-		override public void OnStringFormattingExpression(StringFormattingExpression node)
+		override public void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{	
 			Type stringBuilderType = typeof(StringBuilder);
-			ConstructorInfo constructor =  stringBuilderType.GetConstructor(new Type[] { typeof(int) });
+			ConstructorInfo constructor =  stringBuilderType.GetConstructor(new Type[0]);
 			MethodInfo appendObject = stringBuilderType.GetMethod("Append", new Type[] { typeof(object) });
 			MethodInfo appendString = stringBuilderType.GetMethod("Append", new Type[] { typeof(string) });
 			
-			string template = node.Template;
-			
-			_il.Emit(OpCodes.Ldc_I4, (int)template.Length*2);
 			_il.Emit(OpCodes.Newobj, constructor);
 			
-			int current = 0;
-			Match m = _interpolatedExpression.Match(template);
-			foreach (Expression arg in node.Arguments)
+			foreach (Expression arg in node.Expressions)
 			{	
-				EmitAppendString(appendString, template, current, m.Index);				
-				current = m.Index + m.Length;
-
 				Switch(arg);
 				
 				ITypeBinding argType = PopType();
@@ -1652,10 +1634,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					EmitCastIfNeeded(BindingManager.ObjectTypeBinding, argType);
 					_il.EmitCall(OpCodes.Call, appendObject, null);
 				}
-
-				m = m.NextMatch();
 			}
-			EmitAppendString(appendString, template, current, template.Length);
 			_il.EmitCall(OpCodes.Call, stringBuilderType.GetMethod("ToString", new Type[0]), null);
 			PushType(BindingManager.StringTypeBinding);
 		}

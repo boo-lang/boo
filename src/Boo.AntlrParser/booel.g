@@ -35,7 +35,7 @@ options
 	defaultErrorHandler = false;
 	testLiterals = false;
 	importVocab = Boo;	
-	k = 3;
+	k = 2;
 	charVocabulary='\u0003'..'\uFFFE';
 	// without inlining some bitset tests, ANTLR couldn't do unicode;
 	// They need to make ANTLR generate smaller bitsets;
@@ -51,7 +51,7 @@ options
 
 	void Error()
 	{		
-		throw new SemanticException("Unterminated formatting expression!", getFilename(), getLine(), getColumn());
+		throw new SemanticException("Unterminated expression interpolation!", getFilename(), getLine(), getColumn());
 	}
 }
 ID options { testLiterals = true; }:
@@ -87,8 +87,6 @@ RBRACK : ']';
 LBRACE : '{';
 	
 RBRACE : '}';
-
-QMARK : '?';
 
 INCREMENT: "++";
 

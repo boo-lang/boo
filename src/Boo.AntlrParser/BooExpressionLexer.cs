@@ -118,37 +118,36 @@ namespace Boo.AntlrParser
 		public const int LPAREN = 86;
 		public const int RPAREN = 87;
 		public const int COLON = 88;
-		public const int QMARK = 89;
-		public const int CMP_OPERATOR = 90;
-		public const int ADD = 91;
-		public const int SUBTRACT = 92;
-		public const int BITWISE_OR = 93;
-		public const int MULTIPLY = 94;
-		public const int DIVISION = 95;
-		public const int MODULUS = 96;
-		public const int EXPONENTIATION = 97;
-		public const int INCREMENT = 98;
-		public const int DECREMENT = 99;
-		public const int DOT = 100;
-		public const int INT = 101;
-		public const int DOUBLE_QUOTED_STRING = 102;
-		public const int SINGLE_QUOTED_STRING = 103;
-		public const int LBRACE = 104;
-		public const int RBRACE = 105;
-		public const int RE_LITERAL = 106;
-		public const int LINE_CONTINUATION = 107;
-		public const int SL_COMMENT = 108;
-		public const int ML_COMMENT = 109;
-		public const int WS = 110;
-		public const int NEWLINE = 111;
-		public const int ESCAPED_EXPRESSION = 112;
-		public const int DQS_ESC = 113;
-		public const int SQS_ESC = 114;
-		public const int SESC = 115;
-		public const int RE_CHAR = 116;
-		public const int RE_ESC = 117;
-		public const int ID_LETTER = 118;
-		public const int DIGIT = 119;
+		public const int CMP_OPERATOR = 89;
+		public const int ADD = 90;
+		public const int SUBTRACT = 91;
+		public const int BITWISE_OR = 92;
+		public const int MULTIPLY = 93;
+		public const int DIVISION = 94;
+		public const int MODULUS = 95;
+		public const int EXPONENTIATION = 96;
+		public const int INCREMENT = 97;
+		public const int DECREMENT = 98;
+		public const int DOT = 99;
+		public const int INT = 100;
+		public const int DOUBLE_QUOTED_STRING = 101;
+		public const int SINGLE_QUOTED_STRING = 102;
+		public const int LBRACE = 103;
+		public const int RBRACE = 104;
+		public const int RE_LITERAL = 105;
+		public const int LINE_CONTINUATION = 106;
+		public const int SL_COMMENT = 107;
+		public const int ML_COMMENT = 108;
+		public const int WS = 109;
+		public const int NEWLINE = 110;
+		public const int ESCAPED_EXPRESSION = 111;
+		public const int DQS_ESC = 112;
+		public const int SQS_ESC = 113;
+		public const int SESC = 114;
+		public const int RE_CHAR = 115;
+		public const int RE_ESC = 116;
+		public const int ID_LETTER = 117;
+		public const int DIGIT = 118;
 		
 		
 	
@@ -337,12 +336,6 @@ tryAgain:
 						case '}':
 						{
 							mRBRACE(true);
-							theRetToken = returnToken_;
-							break;
-						}
-						case '?':
-						{
-							mQMARK(true);
 							theRetToken = returnToken_;
 							break;
 						}
@@ -856,20 +849,6 @@ _loop19_breakloop:				;
 		returnToken_ = _token;
 	}
 	
-	public void mQMARK(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
-{
-		int _ttype; Token _token=null; int _begin=text.Length;
-		_ttype = QMARK;
-		
-		match('?');
-		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
-		{
-			_token = makeToken(_ttype);
-			_token.setText(text.ToString(_begin, text.Length-_begin));
-		}
-		returnToken_ = _token;
-	}
-	
 	public void mINCREMENT(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
 {
 		int _ttype; Token _token=null; int _begin=text.Length;
@@ -1015,11 +994,11 @@ _loop19_breakloop:				;
 		int _ttype; Token _token=null; int _begin=text.Length;
 		_ttype = DIVISION;
 		
-		bool synPredMatched43 = false;
-		if (((LA(1)=='/') && (tokenSet_0_.member(LA(2))) && (tokenSet_1_.member(LA(3)))))
+		bool synPredMatched42 = false;
+		if (((LA(1)=='/') && (tokenSet_0_.member(LA(2)))))
 		{
-			int _m43 = mark();
-			synPredMatched43 = true;
+			int _m42 = mark();
+			synPredMatched42 = true;
 			inputState.guessing++;
 			try {
 				{
@@ -1028,12 +1007,12 @@ _loop19_breakloop:				;
 			}
 			catch (RecognitionException)
 			{
-				synPredMatched43 = false;
+				synPredMatched42 = false;
 			}
-			rewind(_m43);
+			rewind(_m42);
 			inputState.guessing--;
 		}
-		if ( synPredMatched43 )
+		if ( synPredMatched42 )
 		{
 			mRE_LITERAL(false);
 			if (0==inputState.guessing)
@@ -1041,7 +1020,7 @@ _loop19_breakloop:				;
 				_ttype = RE_LITERAL;
 			}
 		}
-		else if ((LA(1)=='/') && (true) && (true)) {
+		else if ((LA(1)=='/') && (true)) {
 			match('/');
 			{
 				if ((LA(1)=='='))
@@ -1077,7 +1056,7 @@ _loop19_breakloop:				;
 		
 		match('/');
 		{ // ( ... )+
-		int _cnt67=0;
+		int _cnt66=0;
 		for (;;)
 		{
 			if ((tokenSet_0_.member(LA(1))))
@@ -1086,12 +1065,12 @@ _loop19_breakloop:				;
 			}
 			else
 			{
-				if (_cnt67 >= 1) { goto _loop67_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+				if (_cnt66 >= 1) { goto _loop66_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 			}
 			
-			_cnt67++;
+			_cnt66++;
 		}
-_loop67_breakloop:		;
+_loop66_breakloop:		;
 		}    // ( ... )+
 		match('/');
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
@@ -1190,7 +1169,7 @@ _loop67_breakloop:		;
 		_ttype = WS;
 		
 		{ // ( ... )+
-		int _cnt51=0;
+		int _cnt50=0;
 		for (;;)
 		{
 			switch ( LA(1) )
@@ -1225,12 +1204,12 @@ _loop67_breakloop:		;
 			}
 			default:
 			{
-				if (_cnt51 >= 1) { goto _loop51_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+				if (_cnt50 >= 1) { goto _loop50_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 			}
 			break; }
-			_cnt51++;
+			_cnt50++;
 		}
-_loop51_breakloop:		;
+_loop50_breakloop:		;
 		}    // ( ... )+
 		if (0==inputState.guessing)
 		{
@@ -1260,18 +1239,18 @@ _loop51_breakloop:		;
 				{
 					mSQS_ESC(false);
 				}
-				else if ((tokenSet_2_.member(LA(1)))) {
+				else if ((tokenSet_1_.member(LA(1)))) {
 					{
-						match(tokenSet_2_);
+						match(tokenSet_1_);
 					}
 				}
 				else
 				{
-					goto _loop55_breakloop;
+					goto _loop54_breakloop;
 				}
 				
 			}
-_loop55_breakloop:			;
+_loop54_breakloop:			;
 		}    // ( ... )*
 		_saveIndex = text.Length;
 		match('\'');
@@ -1430,9 +1409,9 @@ _loop55_breakloop:			;
 		{
 			mRE_ESC(false);
 		}
-		else if ((tokenSet_3_.member(LA(1)))) {
+		else if ((tokenSet_2_.member(LA(1)))) {
 			{
-				match(tokenSet_3_);
+				match(tokenSet_2_);
 			}
 		}
 		else
@@ -1545,16 +1524,6 @@ _loop55_breakloop:			;
 	private static long[] mk_tokenSet_1_()
 	{
 		long[] data = new long[2048];
-		data[0]=-4294977032L;
-		for (int i = 1; i<=1022; i++) { data[i]=-1L; }
-		data[1023]=9223372036854775807L;
-		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
-		return data;
-	}
-	public static readonly BitSet tokenSet_1_ = new BitSet(mk_tokenSet_1_());
-	private static long[] mk_tokenSet_2_()
-	{
-		long[] data = new long[2048];
 		data[0]=-549755823112L;
 		data[1]=-268435457L;
 		for (int i = 2; i<=1022; i++) { data[i]=-1L; }
@@ -1562,8 +1531,8 @@ _loop55_breakloop:			;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
-	public static readonly BitSet tokenSet_2_ = new BitSet(mk_tokenSet_2_());
-	private static long[] mk_tokenSet_3_()
+	public static readonly BitSet tokenSet_1_ = new BitSet(mk_tokenSet_1_());
+	private static long[] mk_tokenSet_2_()
 	{
 		long[] data = new long[2048];
 		data[0]=-140741783332360L;
@@ -1573,7 +1542,7 @@ _loop55_breakloop:			;
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
-	public static readonly BitSet tokenSet_3_ = new BitSet(mk_tokenSet_3_());
+	public static readonly BitSet tokenSet_2_ = new BitSet(mk_tokenSet_2_());
 	
 }
 }

@@ -362,17 +362,6 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Write(")");
 			}
 		}
-		
-		override public void OnTernaryExpression(TernaryExpression node)
-		{			
-			Write("(");
-			Switch(node.Condition);
-			WriteOperator(" ? ");
-			Switch(node.TrueExpression);
-			WriteOperator(" : ");
-			Switch(node.FalseExpression);
-			Write(")");
-		}
 
 		override public void OnRaiseStatement(RaiseStatement rs)
 		{
@@ -497,25 +486,23 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteLine();
 		}
 
-		override public void OnStringFormattingExpression(StringFormattingExpression node)
+		override public void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{
-			string template = node.Template;
-			
-			int current = 0;
-			Match m = Regex.Match(template, @"\{(\d+)\}");
-			
 			Write("\"");
-			foreach (Expression arg in node.Arguments)
+			foreach (Expression arg in node.Expressions)
 			{	
-				WriteStringLiteralContents(RuntimeServices.Mid(template, current, m.Index), _writer);				
-				current = m.Index + m.Length;
-
-				Write("${");
-				Switch(arg);
-				Write("}");
-				m = m.NextMatch();
+				StringLiteralExpression s = arg as StringLiteralExpression;
+				if (null == s)
+				{
+					Write("${");
+					Switch(arg);
+					Write("}");
+				}
+				else
+				{
+					WriteStringLiteralContents(s.Value, _writer);
+				}
 			}
-			WriteStringLiteralContents(RuntimeServices.Mid(template, current, template.Length), _writer);
 			Write("\"");
 		}
 

@@ -327,11 +327,6 @@ class BinaryExpression(Expression):
 	Left as Expression
 	Right as Expression
 
-class TernaryExpression(Expression):
-	Condition as Expression
-	TrueExpression as Expression
-	FalseExpression as Expression
-
 class ReferenceExpression(Expression):
 	Name as string
 
@@ -369,9 +364,8 @@ class BoolLiteralExpression(LiteralExpression):
 class RELiteralExpression(LiteralExpression):
 	Value as string
 
-class StringFormattingExpression(Expression):
-	Template as string
-	Arguments as ExpressionCollection
+class ExpressionInterpolationExpression(Expression):
+	Expressions as ExpressionCollection
 
 class HashLiteralExpression(LiteralExpression):
 	Items as ExpressionPairCollection

@@ -821,7 +821,7 @@ With multiple lines.
 			ClassDefinition person = (ClassDefinition)module.Members[0];
 			Assert.AreEqual("A class can have it.\nWith multiple lines.", person.Documentation);
 			Assert.AreEqual("Fields can have one.", person.Members[0].Documentation);
-			Assert.AreEqual("And so can a method or constructor.", person.Members[1].Documentation);
+			Assert.AreEqual("\tAnd so can a method or constructor.\n\t", person.Members[1].Documentation);
 			Assert.AreEqual("And why couldn't a property?", person.Members[2].Documentation);
 			
 		}
