@@ -914,9 +914,11 @@ callable_expression returns [Expression e]
 	{
 		e = cbe = new CallableBlockExpression(ToLexicalInfo(anchor));
 	}
-	LPAREN! parameter_declaration_list[cbe.Parameters] RPAREN!
-			(AS! rt=type_reference { cbe.ReturnType = rt; })?			
-			compound_stmt[cbe.Body.Statements]
+	(
+		LPAREN! parameter_declaration_list[cbe.Parameters] RPAREN!
+		(AS! rt=type_reference { cbe.ReturnType = rt; })?
+	)?
+		compound_stmt[cbe.Body.Statements]
 	;
 	
 	
