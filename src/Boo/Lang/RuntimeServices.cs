@@ -139,6 +139,32 @@ namespace Boo.Lang
 			return false;
 		}
 		
+		public static bool ToBool(object value)
+		{
+			if (null == value)
+			{
+				return false;
+			}
+			
+			if (value is ValueType)
+			{		
+				if (value is bool)
+				{
+					return ((bool)value);
+				}
+				if (value is int)
+				{
+					return 0 != ((int)value);
+				}
+				if (value is long)
+				{
+					return 0 != ((long)value);
+				}
+			}
+			
+			return true;
+		}
+		
 		static void Error(string name, params object[] args)
 		{
 			throw new ApplicationException(Boo.ResourceManager.Format(name, args));

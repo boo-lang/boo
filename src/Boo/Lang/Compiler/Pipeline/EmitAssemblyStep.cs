@@ -88,6 +88,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		static MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
 		
+		static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
+		
 		static MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
 		
 		static MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
@@ -458,10 +460,8 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BinaryOperatorType.Or:
 				{
-					Switch(expression.Left); PopType();
-					_il.Emit(OpCodes.Brtrue, label);
-					Switch(expression.Right); PopType();
-					_il.Emit(OpCodes.Brtrue, label);
+					EmitBranchTrue(expression.Left, label);
+					EmitBranchTrue(expression.Right, label);
 					break;
 				}
 				
@@ -499,7 +499,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void DefaultBranchTrue(Expression expression, Label label)
 		{
-			expression.Switch(this); PopType();
+			expression.Switch(this);
+			EmitToBoolIfNeeded(PopType());
 			_il.Emit(OpCodes.Brtrue, label);
 		}
 		
@@ -515,12 +516,10 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				
 				case BinaryOperatorType.Or:
-				{
-					Switch(expression.Left); PopType();
+				{					
 					Label end = _il.DefineLabel();
-					_il.Emit(OpCodes.Brtrue, end);
-					Switch(expression.Right); PopType();
-					_il.Emit(OpCodes.Brfalse, label);
+					EmitBranchTrue(expression.Left, end);
+					EmitBranchFalse(expression.Right, label);
 					_il.MarkLabel(end);	
 					break;
 				}
@@ -577,7 +576,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void DefaultBranchFalse(Expression expression, Label label)
 		{
-			expression.Switch(this); PopType();
+			expression.Switch(this);
+			EmitToBoolIfNeeded(PopType());
 			_il.Emit(OpCodes.Brfalse, label);
 		}
 		
@@ -771,6 +771,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(type);
 		}
 		
+		void EmitToBoolIfNeeded(ITypeBinding topOfStack)
+		{
+			if (BindingManager.ObjectTypeBinding == topOfStack)
+			{
+				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool, null);
+			}
+		}
+		
 		void OnLogicalOperator(BinaryExpression node)
 		{
 			ITypeBinding type = GetBoundType(node);
@@ -804,6 +812,9 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				EmitCastIfNeeded(type, lhsType);
 				_il.Emit(OpCodes.Dup);
+				
+				EmitToBoolIfNeeded(lhsType);
+				
 				_il.Emit(OpCodes.Brtrue, lhsWasTrue);
 				
 				_il.Emit(OpCodes.Pop);
@@ -1351,7 +1362,46 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BindingType.Parameter:
 				{
 					Bindings.ParameterBinding param = (Bindings.ParameterBinding)info;
-					_il.Emit(OpCodes.Ldarg, param.Index);
+					int index = param.Index;
+					switch (index)
+					{
+						case 0:
+						{
+							_il.Emit(OpCodes.Ldarg_0);
+							break;
+						}
+						
+						case 1:
+						{
+							_il.Emit(OpCodes.Ldarg_1);
+							break;
+						}
+						
+						case 2:
+						{
+							_il.Emit(OpCodes.Ldarg_2);
+							break;
+						}
+						
+						case 3:
+						{
+							_il.Emit(OpCodes.Ldarg_3);
+							break;
+						}
+						
+						default:
+						{
+							if (index < 256)
+							{
+								_il.Emit(OpCodes.Ldarg_S, index);
+							}
+							else
+							{
+								_il.Emit(OpCodes.Ldarg, index);
+							}
+							break;
+						}
+					}
 					PushType(param.BoundType);
 					break;
 				}
@@ -1962,7 +2012,14 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 					else
 					{
-						type = GetTypeBuilder(((InternalTypeBinding)binding).TypeDefinition);
+						if (NullBinding.Default == binding)
+						{
+							type = Types.Object;
+						}
+						else
+						{
+							type = GetTypeBuilder(((InternalTypeBinding)binding).TypeDefinition);
+						}
 					}
 				}
 				_typeCache.Add(binding, type);

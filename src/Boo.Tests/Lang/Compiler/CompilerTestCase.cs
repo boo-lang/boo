@@ -818,5 +818,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("or1.boo");
 		}
+		
+		[Test]
+		public void OrWithObjectReferences()
+		{
+			RunCompilerTestCase("or2.boo");
+		}
+		
+		[Test]
+		public void BooleanFromBoxedValueTypes()
+		{
+			RunCompilerTestCase("bool0.boo");
+		}
 	}
 }
