@@ -2287,50 +2287,61 @@ namespace Boo.Lang.Compiler.Steps
 				
 				default:
 				{
-					ITypedEntity typedInfo = targetInfo as ITypedEntity;
-					if (null != typedInfo)
+					IType type = GetExpressionType(node.Target);
+					if (TypeSystemServices.IsCallable(type))
 					{
-						IType type = typedInfo.Type;
-						if (TypeSystemServices.ICallableType.IsAssignableFrom(type))
-						{
-							node.Target = new MemberReferenceExpression(node.Target.LexicalInfo,
-												node.Target,
-												"Call");
-							ArrayLiteralExpression arg = new ArrayLiteralExpression();
-							BindExpressionType(arg, TypeSystemServices.ObjectArrayType);
-							arg.Items.Extend(node.Arguments);							
-							node.Arguments.Clear();
-							node.Arguments.Add(arg);							
-							
-							Bind(node.Target, ICallable_Call);
-							BindExpressionType(node, ICallable_Call.ReturnType);
-							return;
-						}
-						else if (TypeSystemServices.TypeType == type)
-						{
-							Expression targetType = node.Target;
-							
-							node.Target = new ReferenceExpression(targetType.LexicalInfo,
-														"System.Activator.CreateInstance");
-													
-							ArrayLiteralExpression constructorArgs = new ArrayLiteralExpression();
-							BindExpressionType(constructorArgs, TypeSystemServices.ObjectArrayType);
-							constructorArgs.Items.Extend(node.Arguments);
-							
-							node.Arguments.Clear();
-							node.Arguments.Add(targetType);
-							node.Arguments.Add(constructorArgs);							
-							
-							Bind(node.Target, Activator_CreateInstance);
-							BindExpressionType(node, Activator_CreateInstance.ReturnType);
-							return;
-						}
+						ProcessMethodInvocationOnCallableExpression(node);
 					}
-					NotImplemented(node, targetInfo.ToString());
+					else
+					{						
+						Error(node,
+							CompilerErrorFactory.TypeIsNotCallable(node.Target, type.FullName));
+					}
 					break;
 				}
 			}
 		}	
+		
+		void ProcessMethodInvocationOnCallableExpression(MethodInvocationExpression node)
+		{
+			IType type = node.Target.ExpressionType;
+			if (TypeSystemServices.ICallableType.IsAssignableFrom(type))
+			{
+				node.Target = new MemberReferenceExpression(node.Target.LexicalInfo,
+									node.Target,
+									"Call");
+				ArrayLiteralExpression arg = new ArrayLiteralExpression();
+				BindExpressionType(arg, TypeSystemServices.ObjectArrayType);
+				arg.Items.Extend(node.Arguments);							
+				node.Arguments.Clear();
+				node.Arguments.Add(arg);							
+				
+				Bind(node.Target, ICallable_Call);
+				BindExpressionType(node, ICallable_Call.ReturnType);
+			}
+			else if (TypeSystemServices.TypeType == type)
+			{
+				Expression targetType = node.Target;
+				
+				node.Target = new ReferenceExpression(targetType.LexicalInfo,
+											"System.Activator.CreateInstance");
+										
+				ArrayLiteralExpression constructorArgs = new ArrayLiteralExpression();
+				BindExpressionType(constructorArgs, TypeSystemServices.ObjectArrayType);
+				constructorArgs.Items.Extend(node.Arguments);
+				
+				node.Arguments.Clear();
+				node.Arguments.Add(targetType);
+				node.Arguments.Add(constructorArgs);							
+				
+				Bind(node.Target, Activator_CreateInstance);
+				BindExpressionType(node, Activator_CreateInstance.ReturnType);
+			}
+			else
+			{
+				NotImplemented(node, "Method invocation on type '" + type + "'.");
+			}
+		}
 		
 		MethodInvocationExpression CreateEquals(BinaryExpression node)
 		{

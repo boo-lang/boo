@@ -74,6 +74,8 @@ BCE0072=Método sobreescrito '{0}' tem tipo de retorno '{1}' e não '{2}'.
 BCE0073=Método abstrato '{0}' não pode ter um corpo.
 BCE0074='self' não pode ser utilizado fora de um método.
 BCE0075='{0}' é um namespace. Namespaces não são expressões válidas.
+BCE0076=Métodos marcados como Runtime devem ter corpo vazio.
+BCE0077=Não é possível invocar uma expressão de tipo '{0}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

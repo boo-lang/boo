@@ -184,6 +184,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return left;
 		}
 		
+		public bool IsCallable(IType type)
+		{
+			return (TypeType == type) ||
+				(ICallableType.IsAssignableFrom(type));
+		}
+		
 		public ICallableType GetCallableType(IMethod method)
 		{
 			CallableSignature signature = new CallableSignature(method);
