@@ -1,12 +1,7 @@
-﻿* separar Node.Entity de Expression.ResultType
-	* IsError(node) deve agir no tipo
-	* Error(node) deve aceitar apenas expressoes
-	* IsUnknown(node) deve agir no tipo
-
-* CallableType
+﻿* CallableType
 	* para funçoes
 	* para delegates (o tipo de um evento seria o CallableType equivalente ao delegate)
-	
+
 * declarar novos delegates
 
 * usar os delegates declarados
@@ -15,7 +10,7 @@
 
 * generator expressions
 	return i*3 for i in range(10)
-	
+
 * preencher assinatura dos métodos em BindTypeMembers
 	* completar tipo dos parâmetros
 	* completar return type:
@@ -24,7 +19,7 @@
 
 * InjectCasts
 	* simplificar EmitAssembly
-	
+
 * ProcessMethodBodies.LeaveConstructor deve inserir a chamado ao constructor
 super APÓS qualquer validação
 
@@ -34,11 +29,11 @@ como campo readonly
 * um novo passo para checagem de visibilidade de acesso de membros
 
 * check visibility for override
-	
+
 * promoção de bool para int32 e conversão automática de int32 para bool:
 	* and
 	* or
-	
+
 * += para eventos vira add_Event(DelegateConstructor(..., ...))
 
 * ref, out parameters
@@ -55,7 +50,7 @@ como campo readonly
 	class Foo(IDisposable):
 		def IDisposable.Dispose():
 			print("Dispose")
-			
+
 	método fica marcado como private...
 
 * booi: opçoes e um único script
@@ -87,14 +82,14 @@ que precisarem? Isso iria permitir remover os casts de EmitAssemblyStep
 
 * singleline try (catchall):
 
-	try CloseConnection()	
+	try CloseConnection()
 		|
 		V
 	try:
 		CloseConnection()
 	except:
 		pass
-		
+
 * private base method implementations:
 	class Foo(Base):
 		override def Base.Method():
@@ -137,7 +132,7 @@ Milestone 3.8
 * float literals: 3.0f
 * hexadecimal integer literals: 0x01
 * binary literals: 0b001
-	
+
 Milestone 3.9 (better error checking)
 -------------------------------------
 * constructors can't return values
@@ -166,7 +161,7 @@ Milestone 3.9 (better error checking)
 done * inheritance cycles (A(B), B(C), C(A))
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
-	
+
 Milestone 4 (documentation)
 ------------------------------
 * documentation step: generates .xml files for ndoc
@@ -183,7 +178,7 @@ e declarar os tipos de acordo
 		ReferenceExpression,
 		TupleLiteralExpression)
 	devem ser transformados em:
-	
+
 		((reference == value1) or (reference == value2))
 		((reference is value1) or (reference is value2))
 		etc
@@ -231,8 +226,8 @@ Otimiza��es
 	criar para isso um novo tipo de statement que pode ser utilizado no lugar de
 	qualquer outro statement:
 		class StatementGroup(Statement):
-			Statements as StatementCollection			
-	
+			Statements as StatementCollection
+
 * tail call prefix para funçoes recursivas com a ScanDirectories do rgrep.boo
 
 * os métodos com yield e métodos que retornam iterators como enumerate devem

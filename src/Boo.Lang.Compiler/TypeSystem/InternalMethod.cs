@@ -48,6 +48,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExpressionCollection SuperExpressions;
 		
+		public ExpressionCollection References;
+		
 		internal InternalMethod(TypeSystemServices manager, Boo.Lang.Compiler.Ast.Method method)
 		{			
 			_typeSystemServices = manager;

@@ -603,7 +603,6 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						method.ReturnType.Entity = TypeSystemServices.ErrorEntity;
 						Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(method));
 					}
 				}
@@ -2201,6 +2200,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					
 					BindExpressionType(node, targetMethod.ReturnType);
+					
 					break;
 				}
 				
