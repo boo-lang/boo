@@ -185,12 +185,12 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 							node.Expression)
 		else:
 			eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo)
+			eval.Arguments.Add(node.Expression)
 			eval.Arguments.Add(
 					CreateInterpreterInvocation(
 						InteractiveInterpreter_SetValue,
 						"@value",
-						CodeBuilder.CreateNullLiteral()))
-			eval.Arguments.Add(node.Expression)
+						CodeBuilder.CreateNullLiteral()))			
 			node.Expression = eval
 						
 	def CreateInterpreterInvocation(method as System.Reflection.MethodInfo,
@@ -200,10 +200,13 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 		mie.Arguments.Add(value)
 		return mie
 		
+	def CreateInterpreterReference():
+		return CodeBuilder.CreateReference(_interpreterField)
+		
 	def CreateInterpreterInvocation(method as System.Reflection.MethodInfo,
 									name as string):
 		return CodeBuilder.CreateMethodInvocation(
-					CodeBuilder.CreateReference(_interpreterField),
+					CreateInterpreterReference(),
 					TypeSystemServices.Map(method),
 					CodeBuilder.CreateStringLiteral(name))
 
@@ -262,9 +265,18 @@ class InteractiveInterpreter:
 		
 		_parser.Parameters.Pipeline = Pipelines.Parse()
 		
+	LastValue:
+		get:
+			return GetValue("@value")
+		
 	def Eval(code as string):
+		
 		result = Parse(code)
 		return result if len(result.Errors)
+		
+		if IsSimpleReference(code):
+			SetValue("@value", GetValue(code))
+			return result
 		
 		cu = result.CompileUnit
 		module = cu.Modules[0]
@@ -326,7 +338,10 @@ class InteractiveInterpreter:
 	private def RecordImports(imports as ImportCollection):
 		for imp in imports:
 			imp.AssemblyReference = null
-			_imports.Add(imp) 
+			_imports.Add(imp)
+			
+	private def IsSimpleReference(s as string):
+		return /^[_a-zA-Z][_a-zA-Z\d]*$/.IsMatch(s)
 			
 def ReadBlock(line as string):
 	newLine = System.Environment.NewLine
@@ -353,9 +368,10 @@ while line=prompt(">>> "):
 		if len(result.Errors):
 			DisplayErrors(result.Errors)
 		else:
-			_ = interpreter.GetValue("@value")
-			print(_) if _ 
-			interpreter.SetValue("_", _)
+			_ = interpreter.LastValue
+			if _ is not null:
+				print(_) 
+				interpreter.SetValue("_", _)
 	except x as System.Reflection.TargetInvocationException:
 		print(x.InnerException)
 	except x:

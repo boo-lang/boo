@@ -152,14 +152,18 @@ class Language:
 	[Test]
 	def RememberLastValue():
 		_interpreter.RememberLastValue = true
+		
 		Eval("2+2")
-		assert 4 == _interpreter.GetValue("@value")
+		assert 4 == _interpreter.LastValue
+		
+		Eval("3")
+		assert 3 == _interpreter.LastValue
 		
 	[Test]
 	def DisableRememberLastValue():
 		_interpreter.RememberLastValue = false
 		Eval("a=2+2")
-		assert _interpreter.GetValue("@value") is null
+		assert _interpreter.LastValue is null
 		
 	[Test]
 	def MethodVariablesAreNotGlobalToTheInterpreter():
@@ -175,7 +179,7 @@ b = 4""")
 	def EvaluateClosure():
 		_interpreter.RememberLastValue = true
 		Eval("{ return 42 }")
-		assert 42 == cast(callable, _interpreter.GetValue("@value"))()
+		assert 42 == cast(callable, _interpreter.LastValue)()
 		
 	[Test]
 	def EvaluateVoidFunctionSetsValueToNull():
@@ -186,7 +190,7 @@ def dummy():
 	pass
 42
 dummy()""")
-		assert _interpreter.GetValue("@value") is null
+		assert _interpreter.LastValue is null
 		
 	[Test]
 	def Closures():
@@ -196,6 +200,17 @@ dummy()""")
 		x2 as callable = _interpreter.GetValue("x2")
 		assert x2 is not null
 		assert 4 == x2(2)
+		
+	[Test]
+	def EvalSimpleReferenceGetsItsValue():
+		
+		_interpreter.RememberLastValue = true
+		
+		Eval("name")
+		assert "boo" == _interpreter.LastValue
+		
+		Eval("age")
+		assert 3 == _interpreter.LastValue
 		
 	[Test]
 	def GeneratorExpressions():
