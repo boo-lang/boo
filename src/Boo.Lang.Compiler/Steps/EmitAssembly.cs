@@ -69,6 +69,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
 		
+		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
+		
+		static MethodInfo Builtins_ArrayTypedCollectionConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection });
+		
 		static MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
 		
 		static MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
@@ -1303,9 +1307,53 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(node.ExpressionType);
 		}
 		
-		void InvokeMethod(IMethod methodInfo, MethodInvocationExpression node)
-		{			
-			MethodInfo mi = GetMethodInfo(methodInfo);
+		void InvokeMethod(IMethod method, MethodInvocationExpression node)
+		{	
+			MethodInfo mi = GetMethodInfo(method);
+			if (!InvokeOptimizedMethod(method, mi, node))
+			{
+				InvokeRegularMethod(method, mi, node);
+			}
+		}
+		
+		bool InvokeOptimizedMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
+		{		
+			if (Builtins_ArrayTypedConstructor == mi)
+			{
+				// optimize constructs such as:
+				//		array(int, 2)
+				IType type = TypeSystemServices.GetReferencedType(node.Arguments[0]);
+				if (null != type)
+				{
+					Visit(node.Arguments[1]);
+					EmitCastIfNeeded(TypeSystemServices.IntType, PopType());					
+					_il.Emit(OpCodes.Newarr, GetSystemType(type));
+					PushType(TypeSystemServices.GetArrayType(type));
+					return true;
+				}
+			}			
+			else if (Builtins_ArrayTypedCollectionConstructor == mi)
+			{			
+				// optimize constructs such as:
+				//		array(int, (1, 2, 3))
+				//		array(byte, [1, 2, 3, 4])
+				IType type = TypeSystemServices.GetReferencedType(node.Arguments[0]);
+				if (null != type)
+				{
+					ListLiteralExpression items = node.Arguments[1] as ListLiteralExpression;
+					if (null != items)
+					{
+						EmitArray(type, items.Items);
+						PushType(TypeSystemServices.GetArrayType(type));
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
+		{				
 			OpCode code = OpCodes.Call;
 			if (!mi.IsStatic)
 			{					
@@ -1340,10 +1388,10 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			PushArguments(methodInfo, node.Arguments);
+			PushArguments(method, node.Arguments);
 			_il.EmitCall(code, mi, null);
 			
-			PushType(methodInfo.ReturnType);
+			PushType(method.ReturnType);
 		}
 		
 		void InvokeSuperMethod(IMethod methodInfo, MethodInvocationExpression node)

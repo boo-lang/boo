@@ -545,6 +545,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return tag;
 		}	
 		
+		public static IType GetReferencedType(Expression typeref)
+		{
+			switch (typeref.NodeType)
+			{
+				case NodeType.TypeofExpression:
+				{
+					return GetType(((TypeofExpression)typeref).Type);
+				}
+				case NodeType.ReferenceExpression:
+				case NodeType.MemberReferenceExpression:
+				{
+					return typeref.Entity as IType;					
+				}
+			}
+			return null;
+		}
+		
 		public static IType GetType(Node node)
 		{
 			return ((ITypedEntity)GetEntity(node)).Type;

@@ -2690,23 +2690,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		IType GetReferencedType(Expression typeref)
-		{
-			switch (typeref.NodeType)
-			{
-				case NodeType.TypeofExpression:
-				{
-					return GetType(((TypeofExpression)typeref).Type);
-				}
-				case NodeType.ReferenceExpression:
-				case NodeType.MemberReferenceExpression:
-				{
-					return typeref.Entity as IType;					
-				}
-			}
-			return null;
-		}
-		
 		void ApplyBuiltinMethodTypeInference(MethodInvocationExpression expression, IMethod method)
 		{
 			IType inferredType = null;
@@ -2715,7 +2698,7 @@ namespace Boo.Lang.Compiler.Steps
 				Array_TypedCollectionConstructor == method ||				
 				Array_TypedConstructor2 == method)
 			{
-				IType type = GetReferencedType(expression.Arguments[0]);
+				IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
 				if (null != type)
 				{				
 					inferredType = TypeSystemServices.GetArrayType(type);
