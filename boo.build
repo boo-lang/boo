@@ -214,8 +214,7 @@
 		<if test="${not file::up-to-date('ast.model.boo', 'src/Boo/Lang/Ast/Impl/CompileUnitImpl.cs')}">
 		
 			<mkdir dir="src/Boo/Lang/Ast/Impl" />
-			<exec program="bin/booc.exe" useruntimeengine="true">
-				<arg value="/p:booi" />
+			<exec program="bin/booi.exe" useruntimeengine="true">
 				<arg value="scripts/astgen.boo" />
 			</exec>
 			

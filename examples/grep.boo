@@ -4,10 +4,9 @@ example: grep *.cs Boo.IO
 """
 import System // Environment
 import System.IO // Directory
-import Boo.IO // TextFile
 
 def ScanFile(fname as string, pattern as string):	
-	for index, line in enumerate(TextFile(fname)):
+	for index, line in enumerate(File.OpenText(fname)):
 		print("${fname}(${index}): ${line}") if line =~ pattern
 
 _, glob, pattern = Environment.GetCommandLineArgs()
