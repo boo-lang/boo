@@ -83,6 +83,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod IDictionary_Contains;
 		
+		IMethod Array_EnumerableConstructor;
+		
 		IMethod Array_TypedEnumerableConstructor;
 		
 		IMethod Array_TypedCollectionConstructor;
@@ -157,6 +159,7 @@ namespace Boo.Lang.Compiler.Steps
 			ICollection_get_Count = ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();
 			IList_Contains = ResolveMethod(TypeSystemServices.IListType, "Contains");
 			IDictionary_Contains = ResolveMethod(TypeSystemServices.IDictionaryType, "Contains");
+			Array_EnumerableConstructor = (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
 			Array_TypedEnumerableConstructor = (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
 			Array_TypedCollectionConstructor= (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
 			Array_TypedConstructor2 = (IMethod)TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
@@ -2520,16 +2523,33 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ApplyBuiltinMethodTypeInference(MethodInvocationExpression expression, IMethod method)
 		{
+			IType inferredType = null;
+			
 			if (Array_TypedEnumerableConstructor == method ||
 				Array_TypedCollectionConstructor == method ||				
 				Array_TypedConstructor2 == method)
-			{				
+			{	
+				
+				inferredType = TypeSystemServices.GetArrayType(GetType(expression.Arguments[0]));
+				
+			}
+			else if (Array_EnumerableConstructor == method)
+			{
+				IType enumeratorItemType = GetEnumeratorItemType(GetExpressionType(expression.Arguments[0]));
+				if (TypeSystemServices.ObjectType != enumeratorItemType)
+				{
+					inferredType = TypeSystemServices.GetArrayType(enumeratorItemType);
+					expression.Target.Entity = Array_TypedEnumerableConstructor;
+					expression.ExpressionType = Array_TypedEnumerableConstructor.ReturnType;
+					expression.Arguments.Insert(0, CodeBuilder.CreateReference(enumeratorItemType));					
+				}
+			}
+			
+			if (null != inferredType)
+			{
 				Node parent = expression.ParentNode;
-				
-				IType returnType = TypeSystemServices.GetArrayType(GetType(expression.Arguments[0]));
-				
 				parent.Replace(expression,
-								CodeBuilder.CreateCast(returnType, expression));
+								CodeBuilder.CreateCast(inferredType, expression));
 			}
 		}
 		

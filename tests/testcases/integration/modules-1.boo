@@ -14,7 +14,7 @@ def AssertModule(type as Type):
 
 asm = Assembly.LoadWithPartialName("BooModules")
 types = asm.GetExportedTypes()
-Assert.AreEqual(2, len(types))
+Assert.AreEqual(3, len(types))
 
 for type in types:
 	AssertModule(type)

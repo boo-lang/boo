@@ -1,5 +1,5 @@
 """
-System.Object[]
+System.Int32[]
 System.Int32[]
 """
 t1 = array(range(3))
