@@ -75,6 +75,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsSpecialName
+		{
+			get
+			{
+				return _mi.IsSpecialName;
+			}
+		}
+		
 		public string Name
 		{
 			get

@@ -1419,5 +1419,11 @@ namespace Boo.Lang.Compiler.Tests
 		{
 			RunCompilerTestCase("listdisplay1.boo");
 		}
+		
+		[Test]
+		public void CustomCollection()
+		{
+			RunCompilerTestCase("CustomCollection.boo");
+		}
 	}
 }

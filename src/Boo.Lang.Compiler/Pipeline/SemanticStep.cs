@@ -225,7 +225,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		void ResolveClassInterfaceMethod(ClassDefinition node,
 										TypeReference interfaceReference,
 										IMethodBinding binding)
-		{
+		{			
+			if (binding.IsSpecialName)
+			{
+				return;
+			}
 			
 			TypeMember member = node.Members[binding.Name];
 			if (null != member && NodeType.Method == member.NodeType)

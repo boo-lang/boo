@@ -211,6 +211,11 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get;
 		}
+		
+		bool IsSpecialName
+		{
+			get;
+		}
 	}
 	
 	public interface IConstructorBinding : IMethodBinding

@@ -110,6 +110,14 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
+		public bool IsSpecialName
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public string Name
 		{
 			get

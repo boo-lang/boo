@@ -19,7 +19,7 @@ class CompilePipeline(ParsePipeline):
 		pipeline.Add(BindAndApplyAttributes())
 		pipeline.Add(ExpandMacros())
 		pipeline.Add(IntroduceModuleClasses())
-		pipeline.Add(NormalizeVisibility())
+		pipeline.Add(NormalizeTypeMembers())
 		pipeline.Add(NormalizeStatementModifiers())
 		pipeline.Add(BindTypeDefinitions())
 		pipeline.Add(BindTypeMembers())
@@ -28,6 +28,7 @@ class CompilePipeline(ParsePipeline):
 		pipeline.Add(IntroduceCallableResolutionService())
 		pipeline.Add(ProcessMethodBodies())
 		pipeline.Add(CheckInterfaceImplementations())
+		pipeline.Add(InjectCasts())
 		*/
 
 class CompileToFilePipeline(CompilePipeline):

@@ -253,6 +253,7 @@
 				<Key word="class"/>
 				<Key word="interface"/>
 				<Key word="mixin"/>
+				<Key word="callable" />
 			</KeyWords>
 
 		</RuleSet>
