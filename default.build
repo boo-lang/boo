@@ -74,6 +74,17 @@
 	</target>
 	
 	<target name="Boo.Lang.Interpreter" depends="Boo.NAnt.Tasks">
+		<exec program="build/booc.exe" useruntimeengine="true">
+			<arg value="-t:library" />
+			<arg value="-out:build/Boo.Lang.Interpreter.dll" />
+			<arg value="src/Boo.Lang.Interpreter/AssemblyInfo.boo" />
+			<arg value="src/Boo.Lang.Interpreter/InteractiveInterpreter.boo" />
+		</exec>
+		<!--
+		* mono doesn't seem to be able to load Boo.Lang.Interpreter.dll
+		that was just built, either we must wait mono to implement
+		the ms.net behavior or change booc to delegate to the command
+		line utility
 		<booc 
 			target="library"
 			output="build/Boo.Lang.Interpreter.dll">
@@ -82,6 +93,7 @@
 				<include name="*.boo" />
 			</sources>
 		</booc>
+		-->
 	</target>
 	
 	<target name="Boo.NAnt.Tasks" depends="booc">
