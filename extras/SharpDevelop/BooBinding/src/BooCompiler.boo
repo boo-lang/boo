@@ -24,6 +24,7 @@ import System.Collections
 import System.Diagnostics
 import System.IO
 import System.Globalization
+import System.Text
 import System.Threading
 import System.Reflection.Assembly as Assembly
 import Boo.Lang.Compiler
@@ -31,71 +32,46 @@ import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Resources
 
-class BooCompilerWrapper(MarshalByRefObject):
-	_compiler as BooCompiler
-	_options as CompilerParameters
-	_defaultReferences = ("System.Data",
-	                      "System.Drawing",
-	                      "System.Management",
-	                      "System.Messaging",
-	                      "System.Runtime.Remoting",
-	                      "System.Runtime.Serialization.Formatters.Soap",
-	                      "System.Security",
-	                      "System.ServiceProcess",
-	                      "System.Web",
-	                      "System.Web.Services",
-	                      "System.Windows.Forms",
-	                      "System.Xml")
+class BooCompilerWrapper:
 	
-	def constructor():
-		_compiler = BooCompiler()
-		_options = _compiler.Parameters
-		for reference in _defaultReferences:
-			AddReference(reference)
+	[property(OutputFile)]
+	_outputFile as string
+	_references = []
+	_resources = []
+	_inputFiles = []
+	_options as BooBinding.CompilerOptions	
 	
 	def SetOptions(o as BooBinding.CompilerOptions):
-		_options.Debug = o.IncludeDebugInformation
-		
-		if o.CompileTarget == CompileTarget.WinExe:
-			_options.OutputType = CompilerOutputType.WindowsApplication
-		elif o.CompileTarget == CompileTarget.Library:
-			_options.OutputType = CompilerOutputType.Library
-		else:
-			_options.OutputType = CompilerOutputType.ConsoleApplication
-			
-		if _options.Pipeline == null:
-			pipeline = CompileToFile() 
-			parsingStep as Boo.Lang.Parser.BooParsingStep = pipeline[0]
-			parsingStep.TabSize = 1
-			_options.Pipeline = pipeline
-	
-	OutputFile as string:
-		get:
-			return _options.OutputAssembly
-		set:
-			_options.OutputAssembly = value
+		_options = o
 	
 	def AddInputFile(fileName as string):
-		_options.Input.Add(FileInput(fileName))
+		_inputFiles.Add(fileName)
 	
 	def AddReference(assemblyName as string):
-		reference as Assembly = Assembly.LoadWithPartialName(assemblyName)
-		if reference == null:
-			reference = Assembly.LoadFrom(Path.GetFullPath(assemblyName))
-			if reference == null:
-				raise ApplicationException('Unable to load reference ' + assemblyName)
-		
-		_options.References.Add(reference)
+		_references.Add(assemblyName)
 	
 	def AddResource(fileName as string):
-		_options.Resources.Add(FileResource(fileName))
+		_resources.Add(fileName)
 	
 	def Run():
-		context = _compiler.Run()
-		result = ArrayList()
-		for error as CompilerError in context.Errors:
-			result.Add(error)
-		for warning as CompilerWarning in context.Warnings:
-			result.Add(warning)
-		return result
-
+		commandLine = StringBuilder()
+		
+		if _options.CompileTarget == CompileTarget.WinExe:
+			commandLine.Append("-t:winexe ")
+		elif _options.CompileTarget == CompileTarget.Library:
+			commandLine.Append("-t:library ")
+			
+		commandLine.Append("-o:\"${OutputFile}\" ")		
+		for fname in _references:
+			commandLine.Append("-r:\"${fname}\" ")
+		for fname in _resources:
+			commandLine.Append("-resource:\"${fname}\" ")
+		for fname in _inputFiles:
+			commandLine.Append("\"${fname}\" ")
+			
+		return shell(GetBoocLocation(), commandLine.ToString())
+		
+	def GetBoocLocation():
+		return Path.Combine(
+			Path.GetDirectoryName(typeof(BooCompilerWrapper).Assembly.CodeBase["file:///".Length:]),
+			"booc.exe")

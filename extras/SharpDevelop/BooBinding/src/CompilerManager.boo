@@ -69,6 +69,7 @@ class BooBindingCompilerManager:
 		if not File.Exists(booLib):
 			messageService.ShowError(_booLibNotFound)
 			return MakeError(_booLibNotFound)
+			
 		outputDirectory = Path.GetDirectoryName(outputFile)
 		try:
 			File.Copy(booLib, Path.Combine(outputDirectory, Path.GetFileName(booLib)))
@@ -78,78 +79,62 @@ class BooBindingCompilerManager:
 		if compilerparameters.CompileTarget == CompileTarget.WinExe:
 			WriteManifestFile(outputFile)
 		
+		compiler as BooCompilerWrapper = BooCompilerWrapper()
+		compiler.SetOptions(compilerparameters.CurrentCompilerOptions)
+		compiler.OutputFile = outputFile
+		
+		for fileName as string in fileNames:
+			compiler.AddInputFile(Path.GetFullPath(fileName))
+		
+		if p != null:
+			// write references
+			for lib as ProjectReference in p.ProjectReferences:
+				compiler.AddReference(lib.GetReferencedFileName(p))
+			// write embedded resources
+			for finfo as ProjectFile in p.ProjectFiles:
+				if finfo.Subtype != Subtype.Directory and finfo.BuildAction == BuildAction.EmbedAsResource:
+					compiler.AddResource(finfo.Name)
+			p.CopyReferencesToOutputPath(true)
+		
+		result = compiler.Run()
+		cr = CompilerResults(TempFileCollection())
+		
 		compilerOutput = StringBuilder()
-		setup = AppDomainSetup()
-		setup.ApplicationBase = booDir
-		setup.ApplicationName = "BooCompiler"
-		appDomain as AppDomain = null
-		try:
-			/*
-			// TODO: Use app domain for invoking compiler
-			Console.WriteLine("Create AppDomain")
-			appDomain = AppDomain.CreateDomain("BooCompiler", null, setup)
+		for line in StringReader(result):
+			print line
 			
-			appDomain.AssemblyResolve += MyResolveEventHandler
-			Console.WriteLine("Create Instance")
-			compilero = appDomain.CreateInstanceAndUnwrap("BooBinding", "BooBinding.BooCompilerWrapper")
-			Console.WriteLine(compilero) // prints BooBinding.BooCompilerWrapper
-			Console.WriteLine(compilero.GetType().FullName) // prints MarshalByRefObject
-			// -> casting to BooCompilerWrapper is not possible
-			// the same code works in a console application.
-			*/
-			compiler as BooCompilerWrapper = BooCompilerWrapper()
-			compiler.SetOptions(compilerparameters.CurrentCompilerOptions)
-			compiler.OutputFile = outputFile
+			compilerOutput.Append(line)
+			compilerOutput.Append(Environment.NewLine)
 			
-			for fileName as string in fileNames:
-				compiler.AddInputFile(Path.GetFullPath(fileName))
+			error = CompilerError()
 			
-			if p != null:
-				// write references
-				for lib as ProjectReference in p.ProjectReferences:
-					compiler.AddReference(lib.GetReferencedFileName(p))
-				// write embedded resources
-				for finfo as ProjectFile in p.ProjectFiles:
-					if finfo.Subtype != Subtype.Directory and finfo.BuildAction == BuildAction.EmbedAsResource:
-						compiler.AddResource(finfo.Name)
-				p.CopyReferencesToOutputPath(false)
-			
-			result = compiler.Run()
-			cr = CompilerResults(TempFileCollection())
-			info as Boo.Lang.Compiler.Ast.LexicalInfo = null
-			for o in result:
-				Console.WriteLine(o.ToString())
-				compilerOutput.Append(o.ToString())
-				compilerOutput.Append(Environment.NewLine)
-				error = CompilerError()
-				if o isa BooError:
-					booError as BooError = o
-					info = booError.LexicalInfo
-					error.IsWarning   = false
-					error.ErrorNumber = booError.Code
-					error.ErrorText   = booError.Message
+			match = /^(.+)\((\d+),(\d+)\):\s([\w\d]+):\s(.+)$/.Match(line)
+			if match.Success:			
+				groups = match.Groups
+				filename = groups[1].Value
+				lineNumber = int.Parse(groups[2].Value)
+				column = int.Parse(groups[3].Value)
+				code = groups[4].Value
+				message = groups[5].Value
+				
+				error.ErrorNumber = code
+				error.ErrorText = message
+				error.IsWarning = code.StartsWith("BCW")				
+				if lineNumber >= 0:
+					error.Column   = column
+					error.Line     = lineNumber
+					error.FileName = filename
+			else:
+				match = /^([\w\d]+):\s(.+)$/.Match(line)
+				if match.Success:
+					error.ErrorNumber = match.Groups[1].Value
+					error.ErrorText = match.Groups[2].Value
 				else:
-					warning as BooWarning = o
-					info = warning.LexicalInfo
-					error.IsWarning   = true
-					error.ErrorNumber = warning.Code
-					if warning.Message != null and warning.Message.StartsWith("WARNING: "):
-						error.ErrorText = warning.Message[9:]
-					else:
-						error.ErrorText = warning.Message
+					continue
 					
-				if info != null and info.Line >= 0:
-					error.Column   = info.Column
-					error.Line     = info.Line
-				if info != null and info.FileName != null:
-					error.FileName = Path.GetFullPath(info.FileName)
-				cr.Errors.Add(error)
-			
-			compiler = null
-		ensure:
-			//AppDomain.Unload(appDomain)
-			//Console.WriteLine("AppDomain unloaded")
-			pass
+			cr.Errors.Add(error)
+		
+		compiler = null		
 		
 		return DefaultCompilerResult(cr, compilerOutput.ToString())
 	

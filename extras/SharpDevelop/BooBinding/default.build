@@ -30,6 +30,11 @@
 		<exec program="icons/ResAsm.exe" commandline="*.txtres" workingdir="icons"/>
 	</target>
 	
+	<target name="run" depends="compile">
+		<exec program="${sharpdevelop.dir}bin/SharpDevelop.exe">
+		</exec>
+	</target>
+	
 	<target name="compile" depends="init, resources">
 		<mkdir dir="${addin.dir}"/>
 		
@@ -47,6 +52,8 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="booc.exe" />
+				<include name="booc.rsp" />
 			</fileset>
 		</copy>
 		
