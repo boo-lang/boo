@@ -39,22 +39,22 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class NormalizeIterationStatements : AbstractTransformerCompilerStep
 	{		
-		IMethod IEnumerable_GetEnumerator;		
-		IMethod IEnumerator_MoveNext;
-		IMethod IEnumerator_get_Current;
+		static System.Reflection.MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
+		
+		static System.Reflection.MethodInfo RuntimeServices_CheckArrayUnpack = Types.RuntimeServices.GetMethod("CheckArrayUnpack");
+		
+		static System.Reflection.MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");		
+		
+		static System.Reflection.MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
+		
+		static System.Reflection.MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
+		
+		static System.Reflection.MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
+
 		Method _current;
 		
 		public NormalizeIterationStatements()
 		{
-		}
-		
-		override public void Initialize(CompilerContext context)
-		{
-			base.Initialize(context);
-			
-			IEnumerable_GetEnumerator = TypeSystemServices.Map(EmitAssembly.IEnumerable_GetEnumerator);
-			IEnumerator_MoveNext = TypeSystemServices.Map(EmitAssembly.IEnumerator_MoveNext);
-			IEnumerator_get_Current = TypeSystemServices.Map(EmitAssembly.IEnumerator_get_Current);
 		}
 		
 		override public void Run()
@@ -170,15 +170,14 @@ namespace Boo.Lang.Compiler.Steps
 			if (!expression.ExpressionType.IsSubclassOf(codeBuilder.TypeSystemServices.IEnumerableType))
 			{
 				expression = codeBuilder.CreateMethodInvocation(
-					tss.Map(EmitAssembly.RuntimeServices_GetEnumerable), expression);								
+					RuntimeServices_GetEnumerable, expression);								
 			}
 			
 			block.Add(
 				codeBuilder.CreateAssignment(
 					codeBuilder.CreateReference(local),
 					codeBuilder.CreateMethodInvocation(
-						expression,
-						tss.Map(EmitAssembly.IEnumerable_GetEnumerator))));
+						expression, IEnumerable_GetEnumerator)));
 						
 			for (int i=0; i<declarations.Count; ++i)
 			{
@@ -187,8 +186,7 @@ namespace Boo.Lang.Compiler.Steps
 				block.Add(
 					codeBuilder.CreateAssignment(
 						codeBuilder.CreateReference(declaration.Entity),
-						codeBuilder.CreateMethodInvocation(
-							tss.Map(EmitAssembly.RuntimeServices_MoveNext),
+						codeBuilder.CreateMethodInvocation(RuntimeServices_MoveNext,
 							codeBuilder.CreateReference(local))));
 			}
 		}

@@ -135,6 +135,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return mie;
 		}
 		
+		public MethodInvocationExpression CreateMethodInvocation(Expression target, System.Reflection.MethodInfo method)
+		{
+			return CreateMethodInvocation(target, _tss.Map(method));
+		}
+		
+		public MethodInvocationExpression CreateMethodInvocation(System.Reflection.MethodInfo staticMethod, Expression arg)
+		{
+			return CreateMethodInvocation(_tss.Map(staticMethod), arg);
+		}
+		
 		public MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag, Expression arg)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(target, tag);

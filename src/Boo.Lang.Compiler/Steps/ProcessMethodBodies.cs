@@ -1661,15 +1661,8 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Expression);
 			LeaveNamespace();
 			
-			if (!AstUtil.IsListGenerator(node.ParentNode))
-			{
-				BooClassBuilder generatorType = CreateGeneratorSkeleton(node);
-				BindExpressionType(node, generatorType.Entity);
-			}
-			else
-			{
-				BindExpressionType(node, TypeSystemServices.IEnumerableType);
-			}
+			BooClassBuilder generatorType = CreateGeneratorSkeleton(node);
+			BindExpressionType(node, generatorType.Entity);
 		}
 		
 		BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression node)

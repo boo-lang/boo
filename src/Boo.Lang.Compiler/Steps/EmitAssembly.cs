@@ -58,22 +58,10 @@ namespace Boo.Lang.Compiler.Steps
 	}
 	
 	public class EmitAssembly : AbstractVisitorCompilerStep
-	{	
-		public static MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
+	{		
+		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
 		
-		public static MethodInfo RuntimeServices_CheckArrayUnpack = Types.RuntimeServices.GetMethod("CheckArrayUnpack");
-		
-		public static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
-		
-		public static MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
-		
-		public static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
-		
-		public static MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
-		
-		public static MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
-		
-		public static MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
+		static MethodInfo RuntimeServices_ToBool = Types.RuntimeServices.GetMethod("ToBool");
 
 		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
 		
@@ -1716,16 +1704,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (node.Items.Count > 0)
 			{
-				if (AstUtil.IsListGenerator(node))
-				{
-					EmitListDisplay(node);
-				}
-				else
-				{
-					EmitObjectArray(node.Items);
-					_il.Emit(OpCodes.Ldc_I4_1);
-					_il.Emit(OpCodes.Newobj, List_ArrayBoolConstructor);
-				}
+				EmitObjectArray(node.Items);
+				_il.Emit(OpCodes.Ldc_I4_1);
+				_il.Emit(OpCodes.Newobj, List_ArrayBoolConstructor);
 			}
 			else
 			{
@@ -2230,121 +2211,12 @@ namespace Boo.Lang.Compiler.Steps
 				_il.MarkSequencePoint(_symbolDocWriter, start.Line, start.StartColumn, end.Line, end.EndColumn);
 			}
 			*/
-		}
-		
-		void EmitListDisplay(ListLiteralExpression node)
-		{
-			GeneratorExpression display = (GeneratorExpression)node.Items[0]; 
-			
-			// list = List()
-			LocalBuilder list = _il.DeclareLocal(Types.List);			
-			_il.Emit(OpCodes.Newobj, List_EmptyConstructor);
-			_il.Emit(OpCodes.Stloc, list);
-			
-			Label labelTest = _il.DefineLabel();
-			Label labelBody = _il.DefineLabel();
-			
-			LocalBuilder localIterator = _il.DeclareLocal(Types.IEnumerator);
-			
-			Visit(display.Iterator); PopType();
-			_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
-			_il.Emit(OpCodes.Stloc, localIterator);
-			_il.Emit(OpCodes.Br, labelTest);
-			
-			_il.MarkLabel(labelBody);
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.EmitCall(OpCodes.Callvirt, IEnumerator_get_Current, null);
-			EmitUnpackForDeclarations(display.Declarations, TypeSystemServices.ObjectType);			
-			
-			StatementModifier filter = display.Filter; 
-			if (null != filter)
-			{
-				if (StatementModifierType.If == filter.Type)
-				{
-					EmitBranchFalse(filter.Condition, labelTest);
-				}
-				else
-				{
-					EmitBranchTrue(filter.Condition, labelTest);
-				}
-			}
-			
-			_il.Emit(OpCodes.Ldloc, list);
-			Visit(display.Expression);
-			EmitCastIfNeeded(TypeSystemServices.ObjectType, PopType());
-			_il.EmitCall(OpCodes.Call, List_Add, null);
-			_il.Emit(OpCodes.Pop);
-			
-			_il.MarkLabel(labelTest);
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.EmitCall(OpCodes.Callvirt, IEnumerator_MoveNext, null);
-			_il.Emit(OpCodes.Brtrue, labelBody);
-			
-			_il.Emit(OpCodes.Ldloc, list);
-		}
-		
-		void EmitUnpackForDeclarations(DeclarationCollection decls, IType topOfStack)
-		{
-			if (1 == decls.Count)
-			{
-				// for arg in iterator				
-				StoreLocal(topOfStack, GetInternalLocal(decls[0]));
-			}
-			else
-			{
-				if (topOfStack.IsArray)
-				{						
-					IType elementTypeInfo = ((IArrayType)topOfStack).GetElementType();
-					
-					// RuntimeServices.CheckArrayUnpack(array, decls.Count);					
-					_il.Emit(OpCodes.Dup);
-					_il.Emit(OpCodes.Ldc_I4, decls.Count);					
-					_il.EmitCall(OpCodes.Call, RuntimeServices_CheckArrayUnpack, null);
-					
-					OpCode ldelem = GetLoadEntityOpCode(elementTypeInfo);
-					for (int i=0; i<decls.Count; ++i)
-					{
-						// local = array[i]
-						_il.Emit(OpCodes.Dup);
-						_il.Emit(OpCodes.Ldc_I4, i); // element index			
-						_il.Emit(ldelem);
-						
-						StoreLocal(elementTypeInfo, GetInternalLocal(decls[i]));					
-					}
-				}
-				else
-				{
-					EmitGetEnumerableIfNeeded(topOfStack);
-					_il.EmitCall(OpCodes.Callvirt, IEnumerable_GetEnumerator, null);
-					
-					foreach (Declaration d in decls)
-					{
-						_il.Emit(OpCodes.Dup);
-						_il.EmitCall(OpCodes.Call, RuntimeServices_MoveNext, null);				
-						StoreLocal(TypeSystemServices.ObjectType, GetInternalLocal(d));				
-					}					
-				}
-				_il.Emit(OpCodes.Pop);
-			}
-		}
-		
-		void EmitGetEnumerableIfNeeded(IType topOfStack)
-		{
-			if (!IsIEnumerableCompatible(topOfStack))
-			{
-				_il.EmitCall(OpCodes.Call, RuntimeServices_GetEnumerable, null);
-			}
-		}
+		}		
 		
 		bool IsBoolOrInt(IType type)
 		{
 			return TypeSystemServices.BoolType == type ||
 				TypeSystemServices.IntType == type;
-		}
-		
-		bool IsIEnumerableCompatible(IType type)
-		{
-			return TypeSystemServices.IEnumerableType.IsAssignableFrom(type);
 		}
 		
 		void PushArguments(IMethod tag, ExpressionCollection args)

@@ -660,6 +660,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return mapped;
 		}
 		
+		public IConstructor Map(ConstructorInfo constructor)
+		{
+			object key = GetCacheKey(constructor);
+			IConstructor entity = (IConstructor)_entityCache[key];
+			if (null == entity)
+			{
+				entity = new ExternalConstructor(this, constructor);
+				_entityCache[key] = entity;
+			}
+			return entity;
+		}
+		
 		public IMethod Map(MethodInfo method)
 		{
 			object key = GetCacheKey(method);
@@ -704,8 +716,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					
 					case MemberTypes.Constructor:
 					{
-						tag = new ExternalConstructor(this, (System.Reflection.ConstructorInfo)mi);
-						break;
+						return Map((System.Reflection.ConstructorInfo)mi);
 					}
 					
 					case MemberTypes.Field:

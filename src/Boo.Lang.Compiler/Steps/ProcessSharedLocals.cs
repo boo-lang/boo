@@ -103,14 +103,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)
 		{			
-			if (!AstUtil.IsListGenerator(node.ParentNode))
-			{
-				++_closureDepth;
-				Visit(node.Iterator);
-				Visit(node.Expression);
-				Visit(node.Filter);
-				--_closureDepth;
-			}
+			++_closureDepth;
+			Visit(node.Iterator);
+			Visit(node.Expression);
+			Visit(node.Filter);
+			--_closureDepth;
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)

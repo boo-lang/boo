@@ -37,6 +37,8 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class ProcessGenerators : AbstractTransformerCompilerStep
 	{
+		static System.Reflection.ConstructorInfo List_IEnumerableConstructor = Types.List.GetConstructor(new Type[] { Types.IEnumerable });
+		
 		ForeignReferenceCollector _collector = new ForeignReferenceCollector();
 		
 		Method _current;
@@ -61,6 +63,12 @@ namespace Boo.Lang.Compiler.Steps
 			// ignore
 		}
 		
+		override public void OnConstructor(Constructor method)
+		{
+			_current = method;
+			Visit(method.Body);
+		}
+		
 		override public void OnMethod(Method method)
 		{
 			_current = method;
@@ -73,17 +81,23 @@ namespace Boo.Lang.Compiler.Steps
 				processor.Run();
 			}
 		}
-		
-		override public void LeaveGeneratorExpression(GeneratorExpression node)
+
+		override public void OnListLiteralExpression(ListLiteralExpression node)
 		{
-			if (!AstUtil.IsListGenerator(node.ParentNode))
+			bool generator = AstUtil.IsListGenerator(node);
+			Visit(node.Items);
+			
+			if (generator)
 			{
-				ProcessGenerator(node);							
+				ReplaceCurrentNode(
+					CodeBuilder.CreateConstructorInvocation(
+						TypeSystemServices.Map(List_IEnumerableConstructor),
+						node.Items[0]));
 			}
 		}
 		
-		void ProcessGenerator(GeneratorExpression node)
-		{
+		override public void LeaveGeneratorExpression(GeneratorExpression node)
+		{			
 			using (_collector)
 			{
 				_collector.ForeignMethod = _current;
