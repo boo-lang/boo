@@ -1511,7 +1511,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		bool CheckIsNotValueType(BinaryExpression node, Expression expression)
 		{
-			ITypeBinding binding = GetBoundType(expression);
+			ITypeBinding binding = GetExpressionType(expression);
 			if (binding.IsValueType)
 			{
 				Error(CompilerErrorFactory.OperatorCantBeUsedWithValueType(
@@ -1649,12 +1649,36 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 				}
 				Bind(node, resultingType);
-			}
-			
+			}			
 		}
 		
-		bool BindReferenceEquality(BinaryExpression node)
+		bool IsTypeTest(BinaryExpression node)
 		{
+			return IsStandaloneTypeReference(node.Right) &&
+				GetExpressionType(node.Left) != BindingManager.TypeTypeBinding;
+		}
+		
+		void BindTypeTest(BinaryExpression node)
+		{			
+			if (BinaryOperatorType.ReferenceInequality == node.Operator)
+			{
+				Negate(node, BinaryOperatorType.TypeTest);
+			}
+			else
+			{
+				node.Operator = BinaryOperatorType.TypeTest;
+				Bind(node, BindingManager.BoolTypeBinding);
+			}
+		}
+		
+		void BindReferenceEquality(BinaryExpression node)
+		{
+			if (IsTypeTest(node))
+			{
+				BindTypeTest(node);
+				return;
+			}
+			
 			if (CheckIsNotValueType(node, node.Left) &&
 				CheckIsNotValueType(node, node.Right))
 			{
@@ -1665,13 +1689,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				else
 				{
 					Bind(node, BindingManager.BoolTypeBinding);
-				}				
-				return true;
+				}
 			}
 			else
 			{
 				Error(node);
-				return false;
 			}
 		}
 		
@@ -2339,8 +2361,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			ITypedBinding binding = (ITypedBinding)GetBinding(node);
 			BindingType bindingType = binding.BindingType;
-			if (BindingType.TypeReference == bindingType &&
-				IsStandaloneTypeReference(node))
+			if (IsStandaloneTypeReference(node))
 			{
 				return BindingManager.TypeTypeBinding;
 			}
@@ -2364,7 +2385,8 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		bool IsStandaloneTypeReference(Node node)
 		{
-			return node.ParentNode.NodeType != NodeType.MemberReferenceExpression;
+			return node.ParentNode.NodeType != NodeType.MemberReferenceExpression &&
+					GetBinding(node).BindingType == BindingType.TypeReference;
 		}
 		
 		string GetSignature(NodeCollection args)

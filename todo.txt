@@ -140,7 +140,7 @@ done * campos podem ser declarados em qualquer ordem
 
 done * propriedades podem ser declaradas em qualquer ordem
 
-* portar todos os testes em ITL.Security.Tests para boo
+done * portar todos os testes em ITL.Security.Tests para boo
 	done * usar tipos em atributos (sem precisar do typeof)
 	done * atributos para métodos
 	done * indexers (eg: collection[0], collection["rodrigob"])
@@ -177,8 +177,8 @@ done * propriedades podem ser declaradas em qualquer ordem
 		done * hash[0] = "bar"
 		done * array[0] = "foo"
 		done * ambiguous slicing
-	* rich assignments
-		* +=
+	done * rich assignments
+		done * +=
 		
 done * mecanismo de inferência de tipos deve utilizar um Grafo mais completo contendo
 a informação de dependência de nós para cada nó na lista pending, o método

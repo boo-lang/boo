@@ -768,6 +768,11 @@ namespace Boo.Lang.Ast.Visitors
 				{
 					return "is not";
 				}
+				
+				case BinaryOperatorType.TypeTest:
+				{
+					return "is";
+				}
 			}
 			throw new NotImplementedException(op.ToString());
 		}

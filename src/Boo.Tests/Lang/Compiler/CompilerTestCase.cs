@@ -794,5 +794,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("inplaceadd0.boo");
 		}
+		
+		[Test]
+		public void InPlaceField()
+		{
+			RunCompilerTestCase("inplace1.boo");
+		}
 	}
 }

@@ -7,4 +7,4 @@ class C2(C1):
 class C1:
 	pass
 	
-System.Console.Write(typeof(C2).BaseType is C1)
+System.Console.Write(typeof(C2).BaseType is typeof(C1))

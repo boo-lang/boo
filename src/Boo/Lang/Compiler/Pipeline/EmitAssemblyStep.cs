@@ -640,6 +640,23 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		void OnTypeTest(BinaryExpression node)
+		{
+			Switch(node.Left); PopType();
+			_il.Emit(OpCodes.Isinst, GetType(node.Right));
+			
+			Label isTrue = _il.DefineLabel();
+			Label isFalse = _il.DefineLabel();
+			_il.Emit(OpCodes.Brtrue, isTrue);
+			_il.Emit(OpCodes.Ldc_I4_0);
+			_il.Emit(OpCodes.Br, isFalse);
+			_il.MarkLabel(isTrue);
+			_il.Emit(OpCodes.Ldc_I4_1);
+			_il.MarkLabel(isFalse);
+			
+			PushType(BindingManager.BoolTypeBinding);
+		}
+		
 		void OnArithmeticOperator(BinaryExpression node)
 		{
 			ITypeBinding type = GetBoundType(node);
@@ -692,6 +709,12 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BinaryOperatorType.ReferenceEquality:
 				{
 					OnReferenceComparison(node);
+					break;
+				}
+				
+				case BinaryOperatorType.TypeTest:
+				{
+					OnTypeTest(node);
 					break;
 				}
 				
@@ -1217,13 +1240,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		void SetField(Node sourceNode, IFieldBinding field, Expression reference, Expression value, bool leaveValueOnStack)
 		{
 			OpCode opSetField = OpCodes.Stsfld;
-			
-			FieldInfo fi = GetFieldInfo(field);			
-			if (null != reference)
+			if (!field.IsStatic)				
 			{
-				if (!field.IsStatic)
+				opSetField = OpCodes.Stfld;
+				if (null != reference)
 				{
-					opSetField = OpCodes.Stfld;
 					((MemberReferenceExpression)reference).Target.Switch(this);
 					PopType();
 				}
@@ -1232,6 +1253,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			value.Switch(this);
 			EmitCastIfNeeded(field.BoundType, PopType());
 			
+			FieldInfo fi = GetFieldInfo(field);
 			LocalBuilder local = null;
 			if (leaveValueOnStack)
 			{
