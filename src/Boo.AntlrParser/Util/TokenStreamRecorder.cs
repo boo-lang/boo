@@ -66,8 +66,6 @@ namespace Boo.AntlrParser.Util
 		public int RecordUntil(TokenStream stream, int closeToken, int openToken)
 		{
 			int cTokens = 0;
-		
-			ods("> RecordUntil");
 			
 			int expectedCount = 1;
 			Token token = stream.nextToken();
@@ -81,23 +79,19 @@ namespace Boo.AntlrParser.Util
 						break;
 					}
 				}
-				if (openToken == token.Type)
+				else if (openToken == token.Type)
 				{
 					++expectedCount;
 				}
-				
-				if (token.Type < Token.MIN_USER_TYPE)
+				else if (token.Type < Token.MIN_USER_TYPE)
 				{
 					break;
 				}
-			
-				ods("  > {0}", token);
+				
 				Enqueue(token);			
-			
 				++cTokens;			
 				token = stream.nextToken();			
-			}
-			ods("< RecordUntil");
+			}			
 			return cTokens;
 		}
 	
@@ -108,11 +102,6 @@ namespace Boo.AntlrParser.Util
 				return Dequeue();
 			}
 			return _selector.pop().nextToken();
-		}
-	
-		void ods(string s, params object[] args)
-		{
-			//Console.WriteLine(s, args);
 		}
 	}
 }

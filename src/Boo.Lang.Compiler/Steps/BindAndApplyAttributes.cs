@@ -231,9 +231,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_elements.Clear();
 			
-			if (!NameResolutionService.ResolveQualifiedName(_elements, attribute.Name))
+			if (!NameResolutionService.ResolveQualifiedName(_elements, BuildAttributeName(attribute.Name)))
 			{
-				NameResolutionService.ResolveQualifiedName(_elements, BuildAttributeName(attribute.Name));
+				NameResolutionService.ResolveQualifiedName(_elements, attribute.Name);
 			}
 
 			if (_elements.Count > 0)

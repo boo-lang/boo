@@ -109,7 +109,9 @@ class MainForm(Form):
 		Controls.Add(PromptBox(Dock: DockStyle.Fill,
 							Font: System.Drawing.Font("Lucida Console", 12)))
 
-if Application.MessageLoop:
-	MainForm().ShowDialog()
-else:
-	Application.Run(MainForm())
+[STAThread]
+def Main(argv as (string)):
+	if Application.MessageLoop:
+		MainForm().ShowDialog()
+	else:
+		Application.Run(MainForm())

@@ -202,7 +202,8 @@ class InteractiveInterpreter:
 	def help(obj):
 		type = (obj as Type) or obj.GetType()
 		baseTypes = [type.BaseType].Extend(type.GetInterfaces())
-		_print("class ${type.Name}(${join(baseTypes, ', ')}):")		
+		_print("class ${type.Name}(${join(baseTypes, ', ')}):")
+		
 		for member in dir(obj):
 			_print("    ${member}")
 			
