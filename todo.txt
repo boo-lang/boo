@@ -11,10 +11,10 @@ done * definição de pipelines em código:
 	[PipelineDefinition("booi")]
 	
 * artigo "Estendendo o compilador utilizando pipelines", 
-	exemplos:
+	exemplos:		
+		stylechecker step,
+		trace step,
 		codegenerator step
-		stylechecker step,		
-		trace step
 		
 * artigo "Estendendo a linguagem utilizando macros e atributos"
 	using, lock

@@ -213,6 +213,30 @@ namespace Boo.Lang.Compiler
 			return this;
 		}
 		
+		public CompilerPipeline Remove(string id)
+		{
+			if (null == id)
+			{
+				throw new ArgumentNullException("id");
+			}
+			_items.RemoveAt(FindIndex(id));
+			return this;
+		}
+		
+		public CompilerPipeline Replace(string id, CompilerPipelineItem item)
+		{
+			if (null == id)
+			{
+				throw new ArgumentNullException("id");
+			}
+			if (null == item)
+			{
+				throw new ArgumentNullException("item");
+			}
+			_items[FindIndex(id)] = Validate(item);
+			return this;
+		}
+		
 		public string BaseDirectory
 		{
 			get

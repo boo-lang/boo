@@ -98,6 +98,9 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
+		/// <summary>
+		/// The compilation pipeline.
+		/// </summary>
 		public CompilerPipeline Pipeline
 		{
 			get
@@ -106,6 +109,10 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		/// <summary>
+		/// The name (full or partial) for the file
+		/// that should receive the resulting assembly.
+		/// </summary>
 		public string OutputAssembly
 		{
 			get
@@ -127,6 +134,10 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		/// <summary>
+		/// Type and execution subsystem for the generated portable
+		/// executable file.
+		/// </summary>
 		public CompilerOutputType OutputType
 		{
 			get
