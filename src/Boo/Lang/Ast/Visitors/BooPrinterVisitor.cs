@@ -133,6 +133,11 @@ namespace Boo.Lang.Ast.Visitors
 			WriteModifiers(f);
 			Write(f.Name);
 			Switch(f.Type);
+			if (null != f.Initializer)
+			{
+				Write(" = ");
+				Switch(f.Initializer);
+			}
 			WriteLine();
 		}
 		

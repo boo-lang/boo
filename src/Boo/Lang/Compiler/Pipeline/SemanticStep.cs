@@ -258,8 +258,56 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			if (null == node.Type)
 			{
-				node.Type = CreateBoundTypeReference(BindingManager.ObjectTypeBinding);
+				if (null == node.Initializer)
+				{
+					node.Type = CreateBoundTypeReference(BindingManager.ObjectTypeBinding);
+				}
+				else
+				{
+					node.Type = CreateBoundTypeReference(GetBoundType(node.Initializer));
+				}
 			}
+			else
+			{
+				if (null != node.Initializer)
+				{
+					CheckTypeCompatibility(node.Initializer, GetBoundType(node.Type), GetBoundType(node.Initializer));
+				}
+			}
+			
+			if (null != node.Initializer)
+			{
+				AddFieldInitializerToConstructors(node);
+			}
+		}
+		
+		void AddFieldInitializerToConstructors(Field node)
+		{
+			foreach (TypeMember member in node.DeclaringType.Members)
+			{
+				if (NodeType.Constructor == member.NodeType)
+				{
+					Constructor constructor = (Constructor)member;
+					
+					// find the StatementGroup with name="FieldInitializers"
+					// if not found, create
+					// append the statement at the end of the group
+					constructor.Body.Statements.Insert(0, CreateFieldAssignment(node));
+				}
+			}
+			node.Initializer = null;
+		}
+		
+		Statement CreateFieldAssignment(Field node)
+		{
+			ExpressionStatement stmt = new ExpressionStatement(node.Initializer.LexicalInfo);
+			
+			// self.<node.Name> = <node.Initializer>
+			stmt.Expression = new BinaryExpression(BinaryOperatorType.Assign,
+									new MemberReferenceExpression(new SelfLiteralExpression(),
+																	node.Name),
+									node.Initializer);
+			return stmt;
 		}
 		
 		public override bool EnterConstructor(Constructor node, ref Constructor resultingNode)
@@ -710,17 +758,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				else
 				{
 					ITypeBinding expressionType = GetBoundType(node.Expression);
-					if (!IsAssignableFrom(returnType, expressionType) &&
-						!CanBeReachedByDownCastOrPromotion(returnType, expressionType))
-					{
-						Errors.Add(
-							CompilerErrorFactory.IncompatibleExpressionType(
-								node.Expression,
-								returnType.FullName,
-								expressionType.FullName
-								)
-							);
-					}
+					CheckTypeCompatibility(node.Expression, returnType, expressionType);
 				}
 			}
 		}
@@ -1203,12 +1241,20 @@ namespace Boo.Lang.Compiler.Pipeline
 				else
 				{						
 					ITypeBinding expressionType = expressionBinding.BoundType;
-					if (!IsAssignableFrom(memberType, expressionType))
-					{
-						Errors.Add(CompilerErrorFactory.IncompatibleExpressionType(arg, memberType.FullName, expressionType.FullName));
-					}
+					CheckTypeCompatibility(arg, memberType, expressionType);					
 				}
 			}
+		}
+		
+		bool CheckTypeCompatibility(Node sourceNode, ITypeBinding expectedType, ITypeBinding actualType)
+		{
+			if (!IsAssignableFrom(expectedType, actualType) &&
+				!CanBeReachedByDownCastOrPromotion(expectedType, actualType))
+			{
+				Errors.Add(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.FullName, actualType.FullName));
+				return false;
+			}
+			return true;
 		}
 		
 		bool CheckDelegateArgument(Node sourceNode, ITypedBinding delegateMember, ITypedBinding argumentBinding)

@@ -121,7 +121,7 @@ done * criar mecanismo de teste para mensagens de erro
 
 done * null
 
-* is/is not
+done * is/is not
 
 done * super
 
@@ -129,12 +129,12 @@ done * recursive methods
 
 done * EnsureMethodIsResolved => EnsureMemberIsResolved
 	done * utilizar um grafo de dependências ao invés do sistema de eventos
+	
+* field initializers
 
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
 e passa a ser utilizado ReferenceExpression em seu lugar
 (para utilizar a resolução padrão de membros, etc)
-
-* field initializers
 
 * mecanismo de inferência de tipos deve utilizar um Grafo mais completo contendo
 a informação de dependência de nós para cada nó na lista pending, o método
@@ -159,6 +159,12 @@ derivada de Control (que tem uma propriedade chamada Size):
 * Statement and Block should be polymorphic?
 
 * Warning quando o operador is é utilizado com um nome de tipo
+
+* remover kindof:
+	* remover BinaryOperatorType.TypeTest
+	* renomear BinaryOperatorType.Reference(E|Ine)quality para Is(Not)
+	* implementar checagem de tipo quando o argumento da direita for uma
+	TypeReference
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------

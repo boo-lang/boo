@@ -91,6 +91,7 @@ package Boo.Ast
 	
 	class Field(TypeMember)
 		Type as TypeReference
+		Initializer as Expression
 	end
 	
 	class Property(TypeMember)

@@ -569,13 +569,15 @@ field_or_property [TypeMemberCollection container]
 		TypeMember tm = null;
 		TypeReference tr = null;
 		Property p = null;
+		Expression initializer = null;
 	}: 
-	id:ID (AS! tr=type_reference)?
+	id:ID (AS! tr=type_reference)? (ASSIGN! initializer=expression)?
 	(
 		eos
 		{
 			Field field = new Field(ToLexicalInfo(id));
 			field.Type = tr;
+			field.Initializer = initializer;
 			tm = field;
 			tm.Name = id.getText();
 			tm.Modifiers = _modifiers;

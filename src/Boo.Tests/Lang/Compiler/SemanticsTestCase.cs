@@ -76,10 +76,22 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void SimpleClassField()
+		{
+			RunCompilerTestCase("field0.boo");
+		}
+		
+		[Test]
+		public void SimpleClassFieldWithInitializer()
+		{
+			RunCompilerTestCase("field1.boo");
+		}
+		
+		[Test]
 		public void TestFatorialMethod()
 		{
 			RunCompilerTestCase("method2.boo");
-		}
+		} 
 		
 		[Test]
 		public void InvertedFatorial()

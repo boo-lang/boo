@@ -39,15 +39,15 @@ namespace Boo.Lang.Ast
 		{
  		}
 		
-		public Field(TypeReference type) : base(type)
+		public Field(TypeReference type, Expression initializer) : base(type, initializer)
 		{
 		}
 		
-		public Field(LexicalInfo token, TypeReference type) : base(token, type)
+		public Field(LexicalInfo lexicalInfo, TypeReference type, Expression initializer) : base(lexicalInfo, type, initializer)
 		{
 		}
 		
-		public Field(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public Field(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		

@@ -39,6 +39,10 @@ namespace Boo.Lang.Ast
 		{
  		}
 		
+		public ExpressionStatement(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
+		
 		public ExpressionStatement(Expression expression) : base(expression)
 		{
 		}

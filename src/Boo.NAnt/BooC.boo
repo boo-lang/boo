@@ -12,19 +12,13 @@ class BooC(Task):
 	
 	_output as FileInfo
 	
-	_target as string
+	_target = "exe"
 	
-	_sourceFiles as FileSet
+	_sourceFiles = FileSet()
 	
-	_references as FileSet
+	_references = FileSet()
 	
-	_pipeline as string
-	
-	def constructor():
-		_sourceFiles = FileSet()
-		_references = FileSet()
-		_target = "exe"
-		_pipeline = "booc"
+	_pipeline = "booc"
 	
 	[TaskAttribute("output", Required: true)]
 	Output:
