@@ -41,6 +41,23 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		override public string FullName
+		{
+			get
+			{
+				if (NodeType.CallableDefinition == this.NodeType)
+				{
+					NamespaceDeclaration ns = EnclosingNamespace;
+					if (null != ns)
+					{
+						return ns.Name + "." + Name;
+					}
+					return Name;
+				}
+				return base.FullName;
+			}
+		}
+		
 		override public void Accept(IAstVisitor visitor)
 		{
 			visitor.OnCallableDefinition(this);

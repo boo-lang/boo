@@ -190,14 +190,18 @@ namespace Boo.Lang.Compiler.Steps
 			{			
 				Boo.Lang.List types = CollectTypes();
 				
-				foreach (TypeDefinition type in types)
+				foreach (TypeMember member in types)
 				{
-					DefineType(type);
+					DefineType(member);
 				}
 				
-				foreach (TypeDefinition type in types)
+				foreach (TypeMember member in types)
 				{
-					DefineTypeMembers(type);
+					TypeDefinition type = member as TypeDefinition;
+					if (null != type)
+					{
+						DefineTypeMembers(type);
+					}
 				}
 				
 				foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
@@ -212,13 +216,13 @@ namespace Boo.Lang.Compiler.Steps
 		void CreateTypes(Boo.Lang.List types)
 		{
 			Hashtable created = new Hashtable();
-			foreach (TypeDefinition type in types)
+			foreach (TypeMember type in types)
 			{
 				CreateType(created, type);
 			}
 		}
 		
-		void CreateType(Hashtable created, TypeDefinition type)
+		void CreateType(Hashtable created, TypeMember type)
 		{	
 			if (!created.ContainsKey(type))
 			{
@@ -230,14 +234,18 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					foreach (TypeReference baseTypeRef in type.BaseTypes)
+					TypeDefinition typedef = type as TypeDefinition;
+					if (null != typedef)
 					{
-						InternalType tag = GetType(baseTypeRef) as InternalType;
-						if (null != tag)
+						foreach (TypeReference baseTypeRef in typedef.BaseTypes)
 						{
-							CreateType(created, tag.TypeDefinition);
+							InternalType tag = GetType(baseTypeRef) as InternalType;
+							if (null != tag)
+							{
+								CreateType(created, tag.TypeDefinition);
+							}
 						}
-					}				
+					}
 					GetTypeBuilder(type).CreateType();
 				}
 			}
@@ -274,6 +282,12 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					
 					case NodeType.EnumDefinition:
+					{
+						types.Insert(0, member);
+						break;
+					}
+					
+					case NodeType.CallableDefinition:
 					{
 						types.Insert(0, member);
 						break;
@@ -338,6 +352,17 @@ namespace Boo.Lang.Compiler.Steps
 				builder.AddInterfaceImplementation(GetSystemType(baseType));
 			}
 			EmitAttributes(builder, node);
+		}
+		
+		override public void OnCallableDefinition(CallableDefinition node)
+		{
+			TypeBuilder builder = GetTypeBuilder(node);
+			MethodBuilder method = builder.DefineMethod("Invoke", 
+											MethodAttributes.Public|MethodAttributes.Virtual,
+											GetSystemType(node.ReturnType),
+											GetParameterTypes(node.Parameters));
+			DefineParameters(method, node.Parameters);
+			method.SetImplementationFlags(MethodImplAttributes.Runtime|MethodImplAttributes.Managed);
 		}
 		
 		void EmitTypeDefinition(TypeDefinition node)
@@ -2661,24 +2686,31 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		TypeAttributes GetNestedTypeAttributes(TypeDefinition type)
+		TypeAttributes GetNestedTypeAttributes(TypeMember type)
 		{
 			TypeAttributes attributes = type.IsPublic ? TypeAttributes.NestedPublic : TypeAttributes.NestedPrivate;
-			return GetExtendedTypeAttributes(attributes, type);
-			
+			return GetExtendedTypeAttributes(attributes, type);			
 		}
 		
-		TypeAttributes GetTypeAttributes(TypeDefinition type)
+		TypeAttributes GetTypeAttributes(TypeMember type)
 		{
 			TypeAttributes attributes = type.IsPublic ? TypeAttributes.Public : TypeAttributes.NotPublic;
 			return GetExtendedTypeAttributes(attributes, type);
 		}
 		
-		TypeAttributes GetExtendedTypeAttributes(TypeAttributes attributes, TypeDefinition type)
+		TypeAttributes GetExtendedTypeAttributes(TypeAttributes attributes, TypeMember type)
 		{
 			
 			switch (type.NodeType)
 			{
+				case NodeType.CallableDefinition:
+				{
+					attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
+					attributes |= TypeAttributes.Class;
+					attributes |= TypeAttributes.Sealed;
+					break;
+				}
+				
 				case NodeType.ClassDefinition:
 				{
 					attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
@@ -2804,6 +2836,14 @@ namespace Boo.Lang.Compiler.Steps
 			SetBuilder(field, builder);
 		}
 		
+		void DefineParameters(MethodBuilder builder, ParameterDeclarationCollection parameters)
+		{
+			for (int i=0; i<parameters.Count; ++i)
+			{
+				builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+			}
+		}
+		
 		MethodBuilder DefineMethod(TypeBuilder typeBuilder, Method method, MethodAttributes attributes)
 		{			
 			ParameterDeclarationCollection parameters = method.Parameters;
@@ -2818,10 +2858,7 @@ namespace Boo.Lang.Compiler.Steps
                                         methodAttributes,
                                         GetSystemType(method.ReturnType),                             
 										GetParameterTypes(parameters));
-			for (int i=0; i<parameters.Count; ++i)
-			{
-				builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
-			}			
+			DefineParameters(builder, parameters);				
 			
 			SetBuilder(method, builder);
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in method.Attributes)
@@ -2839,43 +2876,71 @@ namespace Boo.Lang.Compiler.Steps
 			SetBuilder(constructor, builder);
 		}
 		
-		bool IsEnumDefinition(TypeDefinition type)
+		bool IsEnumDefinition(TypeMember type)
 		{
 			return NodeType.EnumDefinition == type.NodeType;
 		}
 		
-		void DefineType(TypeDefinition typeDefinition)
+		void DefineCallable(CallableDefinition type)
 		{
-			if (IsEnumDefinition(typeDefinition))
+			TypeBuilder typeBuilder = CreateTypeBuilder(type);
+			typeBuilder.SetParent(typeof(System.MulticastDelegate));
+			
+			ConstructorBuilder builder = typeBuilder.DefineConstructor(
+											MethodAttributes.Public,
+			                               CallingConventions.Standard, 
+			                               DelegateConstructorTypes);
+			builder.SetImplementationFlags(MethodImplAttributes.Runtime|MethodImplAttributes.Managed);
+			builder.DefineParameter(1, ParameterAttributes.None, "object");
+			builder.DefineParameter(2, ParameterAttributes.None, "method");
+			SetBuilder(type, typeBuilder);
+		}
+		
+		void DefineType(TypeMember type)
+		{
+			TypeDefinition typeDefinition = type as TypeDefinition;
+			if (null == typeDefinition)
 			{
-				EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(typeDefinition.FullName,
-											GetTypeAttributes(typeDefinition),
-											typeof(long));
-											
-				
-				foreach (EnumMember member in typeDefinition.Members)
-				{
-					enumBuilder.DefineLiteral(member.Name, (long)member.Initializer.Value);
-				}				
-				SetBuilder(typeDefinition, enumBuilder);
+				DefineCallable((CallableDefinition)type);
 			}
 			else
-			{					
-				TypeBuilder typeBuilder = null;
-				
-				ClassDefinition  enclosingType = typeDefinition.ParentNode as ClassDefinition;
-				if (null == enclosingType)
-				{
-					typeBuilder = _moduleBuilder.DefineType(typeDefinition.FullName,
-											GetTypeAttributes(typeDefinition));
+			{
+				if (IsEnumDefinition(typeDefinition))
+				{				
+					EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(typeDefinition.FullName,
+												GetTypeAttributes(typeDefinition),
+												typeof(long));
+												
+					
+					foreach (EnumMember member in typeDefinition.Members)
+					{
+						enumBuilder.DefineLiteral(member.Name, (long)member.Initializer.Value);
+					}				
+					SetBuilder(typeDefinition, enumBuilder);
 				}
 				else
-				{
-					typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(typeDefinition.Name,
-																	GetNestedTypeAttributes(typeDefinition));
+				{					
+					TypeBuilder typeBuilder = CreateTypeBuilder(type);
+					SetBuilder(typeDefinition, typeBuilder);
 				}
-				SetBuilder(typeDefinition, typeBuilder);
 			}
+		}
+		
+		TypeBuilder CreateTypeBuilder(TypeMember type)
+		{
+			TypeBuilder typeBuilder = null;
+			ClassDefinition  enclosingType = type.ParentNode as ClassDefinition;
+			if (null == enclosingType)
+			{
+				typeBuilder = _moduleBuilder.DefineType(type.FullName,
+										GetTypeAttributes(type));
+			}
+			else
+			{
+				typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(type.Name,
+																GetNestedTypeAttributes(type));
+			}
+			return typeBuilder;
 		}
 		
 		void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, TypeBuilder typeBuilder)

@@ -47,6 +47,23 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Members);
 		}
 		
+		override public void OnCallableDefinition(CallableDefinition node)
+		{
+			NormalizeVisibility(node);
+			if (null == node.ReturnType)
+			{
+				node.ReturnType = CreateTypeReference(TypeSystemServices.VoidType);
+			}
+			
+			foreach (ParameterDeclaration parameter in node.Parameters)
+			{
+				if (null == parameter.Type)
+				{
+					parameter.Type = CreateTypeReference(TypeSystemServices.ObjectType);
+				}
+			}
+		}
+		
 		override public void OnClassDefinition(ClassDefinition node)
 		{	
 			if (null == node.Entity)
@@ -95,7 +112,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void NormalizeVisibility(TypeDefinition node)
+		void NormalizeVisibility(TypeMember node)
 		{
 			if (!node.IsVisibilitySet)
 			{

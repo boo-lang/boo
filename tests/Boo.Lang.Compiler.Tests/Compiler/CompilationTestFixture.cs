@@ -1450,5 +1450,17 @@ namespace Boo.Lang.Compiler.Tests
 		{
 			RunCompilerTestCase("CallableTypeDefinition.boo");
 		}
+		
+		[Test]
+		public void CallableTypeDefinitionVariable()
+		{
+			RunCompilerTestCase("CallableTypeDefinitionVariable.boo");
+		}
+		
+		[Test]
+		public void CallableTypeDefinitionWithMember()
+		{
+			RunCompilerTestCase("CallableTypeDefinitionWithMember.boo");
+		}
 	}
 }

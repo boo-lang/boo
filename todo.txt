@@ -1,6 +1,4 @@
-﻿* declarar novos delegates
-
-* usar os delegates declarados
+﻿* usar os delegates declarados
 
 * summary of class status (http://www.go-mono.com/class-status.html)
 

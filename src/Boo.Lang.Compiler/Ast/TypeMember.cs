@@ -71,6 +71,24 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
+		public virtual NamespaceDeclaration EnclosingNamespace
+		{
+			get
+			{
+				Node parent = _parent;
+				while (parent != null)
+				{
+					Module module = parent as Module;
+					if (null != module)
+					{
+						return module.Namespace;
+					}
+					parent = parent.ParentNode;
+				}
+				return null;
+			}
+		}
+		
 		public bool IsVisibilitySet
 		{
 			get

@@ -111,6 +111,10 @@ namespace Boo.Lang.Compiler.Tests
 			string output = Run(null, out context);
 			Assert.AreEqual(_parameters.Input.Count, context.CompileUnit.Modules.Count, "compilation must generate as many modules as were compiler inputs");
 			string expected = context.CompileUnit.Modules[0].Documentation;
+			if (null == expected)
+			{
+				expected = "";
+			}
 			Assert.AreEqual(expected.Trim(), output.Trim(), _parameters.Input[0].Name);
 		}
 		
