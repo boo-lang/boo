@@ -84,7 +84,13 @@ namespace BooC
 				
 				start = DateTime.Now;
 				CompilerContext context = compiler.Run();
-				TimeSpan processingTime = DateTime.Now - start;				
+				TimeSpan processingTime = DateTime.Now - start;
+
+				if (context.Warnings.Count > 0)
+				{
+					Console.WriteLine(context.Warnings);
+					Console.WriteLine(Boo.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
+				}
 				
 				if (context.Errors.Count > 0)
 				{
@@ -97,12 +103,6 @@ namespace BooC
 				else
 				{
 					resultCode = 0;
-				}
-				
-				if (context.Warnings.Count > 0)
-				{
-					Console.WriteLine(context.Warnings);
-					Console.WriteLine(Boo.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
 				}
 				
 				if (_options.TraceSwitch.TraceWarning)

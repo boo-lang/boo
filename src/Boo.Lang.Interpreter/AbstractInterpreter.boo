@@ -50,15 +50,14 @@ class AbstractInterpreter:
 	[property(RememberLastValue)]
 	_rememberLastValue = false
 	
-	_ducky = true
-	Ducky as bool:
+	Ducky:
 		get:
-			return _ducky
+			return _compiler.Parameters.Ducky
+			
 		set:
-			_ducky = value
-			for compiler in (_compiler, _suggestionCompiler):
-				if compiler is not null:
-					compiler.Parameters.Ducky = _ducky
+			_compiler.Parameters.Ducky = value
+			if _suggestionCompiler is not null:
+				_suggestionCompiler.Parameters.Ducky = value
 	
 	_inputId = 0
 	
@@ -82,7 +81,7 @@ class AbstractInterpreter:
 		pipeline.Add(CacheCallableTypes())
 		
 		_compiler.Parameters.Pipeline = pipeline
-		_compiler.Parameters.Ducky = _ducky		
+		_compiler.Parameters.Ducky = true		
 		_parser.Parameters.Pipeline = Pipelines.Parse()
 		
 	abstract def Declare(name as string, type as System.Type):
@@ -112,7 +111,7 @@ class AbstractInterpreter:
 				_compiler.Parameters.Pipeline.Get(InitializeTypeSystemServices))
 			pipeline.Add(FindCodeCompleteSuggestion())
 			_suggestionCompiler = BooCompiler()
-			_suggestionCompiler.Parameters.Ducky = _ducky
+			_suggestionCompiler.Parameters.Ducky = self.Ducky
 			_suggestionCompiler.Parameters.Pipeline = pipeline	
 			// keep the references in sync
 			_suggestionCompiler.Parameters.References = self.References
@@ -272,10 +271,7 @@ class AbstractInterpreter:
 			if entity is null:
 				type = _interpreter.Lookup(name)
 				if type is not null:
-					if object is type:
-						entity = Declare(name, _tss.DuckType)
-					else:
-						entity = Declare(name, _tss.Map(type))
+					entity = Declare(name, _tss.Map(type))
 	
 			if entity is not null:
 				targetList.Add(entity)
