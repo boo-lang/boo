@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<project name="Boox Resources" default="build" basedir=".">
+	<!-- Programs -->
+	<property name="resasm"   value="ResAsm.exe"/>
+	
+	<!-- Properties -->
+	<property name="destination.dir" value="..\"/>
+
+	<target name="build" depends="clean">
+		<echo message="Building image resource files"/>
+		<exec program="${resasm}" commandline="BitmapResources.res"/>
+		
+		<echo message="Move compiled resource files"/>
+		<move todir="${destination.dir}">
+			<fileset>
+				<includes name="BitmapResources.resources"/>
+			</fileset>
+		</move>
+            
+	</target>
+
+	<target name="clean">
+		<delete>
+			<fileset basedir="${destination.dir}">
+				<includes name="BitmapResources.resources"/>
+			</fileset>
+		</delete>
+	</target>
+</project>

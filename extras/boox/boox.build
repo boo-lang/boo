@@ -42,6 +42,12 @@
 		</copy>
 		<copy todir="build" file="../SharpDevelop/boo.xshd">
 		</copy>
+
+		<copy todir="build">
+			<fileset basedir="resources/ClassBrowserIcons/">
+				<includes name="*.png" />
+			</fileset>
+		</copy>
 			
 		<loadtasks assembly="build/Boo.NAnt.dll" />
 	</target>

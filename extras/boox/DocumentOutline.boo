@@ -2,6 +2,7 @@ namespace BooExplorer
 
 import WeifenLuo.WinFormsUI
 import System
+import System.IO
 import System.Windows.Forms
 import System.Drawing
 import Boo.Lang.Compiler.Ast
@@ -10,13 +11,15 @@ class DocumentOutline(Content):
 	
 	_activeDocument as BooEditor
 	_tree as TreeView
+	_imageList as ImageList
 	_treeViewVisitor as TreeViewVisitor
 	_timer = Timer(Tick: _timer_Tick, Interval: 5s.TotalMilliseconds)
 	_module as Module
 	
 	def constructor():
-		_tree = TreeView(Dock: DockStyle.Fill,
-						DoubleClick: _tree_DoubleClick)
+		InitImageList()
+		InitTreeView()
+		
 		_treeViewVisitor = TreeViewVisitor(_tree)
 		
 		SuspendLayout()
@@ -34,6 +37,26 @@ class DocumentOutline(Content):
 		self.ShowHint = WeifenLuo.WinFormsUI.DockState.DockRight
 		self.Text = "Document Outline"
 		ResumeLayout(false)
+
+	def InitImageList():
+		_imageList = ImageList()
+		try:
+			_imageList.Images.Add(Image.FromFile("namespace.png"))
+			_imageList.Images.Add(Image.FromFile("class.png"))
+			_imageList.Images.Add(Image.FromFile("interface.png"))
+			_imageList.Images.Add(Image.FromFile("field.png"))
+			_imageList.Images.Add(Image.FromFile("property.png"))
+			_imageList.Images.Add(Image.FromFile("enum.png"))
+			_imageList.Images.Add(Image.FromFile("method.png"))
+		except ex as FileNotFoundException:
+			pass
+		
+	def InitTreeView():
+		_tree = TreeView(Dock: DockStyle.Fill,
+						DoubleClick: _tree_DoubleClick,
+						ImageIndex: 0,
+						SelectedImageIndex: 0,
+						ImageList: _imageList)
 		
 	ActiveDocument as BooEditor:
 		set:
@@ -87,24 +110,24 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		_tree.EndUpdate()
 		
 	override def OnProperty(node as Property):
-		Add(node.Name, node)		
+		Add(node.Name, 4, 4, node)		
 		
 	override def OnField(node as Field):
-		Add(node.Name, node)
+		Add(node.Name, 3, 3, node)
 		
 	override def OnInterfaceDefinition(node as InterfaceDefinition):
-		OnTypeDefinition(node)
+		OnTypeDefinition(node, 2, 2)
 		
 	override def OnClassDefinition(node as ClassDefinition):
-		OnTypeDefinition(node)
+		OnTypeDefinition(node, 1, 1)
 		
 	override def OnEnumDefinition(node as EnumDefinition):
-		OnTypeDefinition(node)
+		OnTypeDefinition(node, 5, 5)
 		
-	def OnTypeDefinition(node as TypeDefinition):
+	def OnTypeDefinition(node as TypeDefinition, imageIndex, selectedImageIndex):
 		saved = _current
 		
-		_current = Add(node.Name, node)
+		_current = Add(node.Name, imageIndex, selectedImageIndex, node)
 		Switch(node.Members)
 		
 		_current = saved
@@ -114,9 +137,17 @@ class TreeViewVisitor(DepthFirstSwitcher):
 		
 	override def OnMethod(node as Method):
 		name = "${node.Name}(${join([p.Name for p as ParameterDeclaration in node.Parameters], ', ')})"		
-		Add(name, node)
+		Add(name, 6, 6, node)
 		
 	def Add(text as string, data):
 		node = _current.Nodes.Add(text)
 		node.Tag = data
 		return node
+		
+	def Add(text as string, imageIndex, selectedImageIndex, data):
+		node = _current.Nodes.Add(text)
+		node.Tag = data
+		node.ImageIndex = imageIndex
+		node.SelectedImageIndex = selectedImageIndex
+		return node
+		
