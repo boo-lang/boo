@@ -192,11 +192,8 @@ na lista de dependências tenha sido alterado
 			done * e só age quando !IsUnknown(node.Left) && !IsUnknown(node.Right)
 			done * if IsError(node.Left) or IsError(node.Right), Error(this)
 	
-* remover kindof:
-	* remover BinaryOperatorType.TypeTest
-	* renomear BinaryOperatorType.Reference(E|Ine)quality para Is(Not)
-	* implementar checagem de tipo quando o argumento da direita for uma
-	TypeReference
+done * remover kindof:	
+	done * implementar checagem de tipo quando o argumento da direita for uma TypeReference
 	
 * simplificar tratamento do operador typeof, basta fazer seu binding como
 TypeReference

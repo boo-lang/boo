@@ -712,6 +712,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void IsBranch()
+		{
+			RunCompilerTestCase("is2.boo");
+		}
+		
+		[Test]
 		public void SliceArraySimple()
 		{
 			RunCompilerTestCase("slicing0.boo");
