@@ -162,7 +162,7 @@ class BooEditor(DockContent):
 		if _compiler is null:
 			_compiler = BooCompiler()		
 			// enable duck typing
-			_compiler.Parameters.Pipeline = Quack.MakeItQuack(CompileToMemory())
+			_compiler.Parameters.Pipeline = CompileToMemory()
 			_compiler.Parameters.References.Add(typeof(Form).Assembly)
 			_compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
 			_compiler.Parameters.References.Add(System.Reflection.Assembly.GetExecutingAssembly())

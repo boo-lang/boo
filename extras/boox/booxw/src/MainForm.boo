@@ -167,7 +167,7 @@ class MainForm(Form):
 	def Expand(fname as string, code as string):
 		compiler = BooCompiler()
 		compiler.Parameters.OutputWriter = StringWriter()
-		compiler.Parameters.Pipeline = Quack.MakeItQuack(CompileToBoo())
+		compiler.Parameters.Pipeline = CompileToBoo()
 		compiler.Parameters.Input.Add(StringInput(fname, code))
 		
 		result = compiler.Run()
