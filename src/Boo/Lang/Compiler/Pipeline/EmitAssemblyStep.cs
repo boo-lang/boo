@@ -1390,7 +1390,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		void EmitArrayBasedFor(ForStatement node, ITypeBinding iteratorTypeBinding)
 		{				
 			Label labelTest = _il.DefineLabel();
-			Label labelEnd = _il.DefineLabel();
+			Label labelBody = _il.DefineLabel();
 			
 			OpCode ldelem = GetLoadElementOpCode(iteratorTypeBinding.GetElementType());
 			
@@ -1401,14 +1401,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			// i = 0;
 			LocalBuilder localIndex = _il.DeclareLocal(Types.Int);
 			_il.Emit(OpCodes.Ldc_I4_0);
-			_il.Emit(OpCodes.Stloc, localIndex);			
+			_il.Emit(OpCodes.Stloc, localIndex);
+
+			_il.Emit(OpCodes.Br, labelTest);
 			
-			// i<iterator.Length			
-			_il.MarkLabel(labelTest);			
-			_il.Emit(OpCodes.Ldloc, localIndex);
-			_il.Emit(OpCodes.Ldloc, localIterator);
-			_il.Emit(OpCodes.Ldlen);
-			_il.Emit(OpCodes.Bge, labelEnd);		
+			_il.MarkLabel(labelBody);
 			
 			// value = iterator[i]
 			_il.Emit(OpCodes.Ldloc, localIterator);
@@ -1419,14 +1416,18 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			Switch(node.Block);
 			
-			// ++i
-			_il.Emit(OpCodes.Ldc_I4_1);
+			// ++i			
 			_il.Emit(OpCodes.Ldloc, localIndex);
+			_il.Emit(OpCodes.Ldc_I4_1);
 			_il.Emit(OpCodes.Add);
 			_il.Emit(OpCodes.Stloc, localIndex);
-			_il.Emit(OpCodes.Br, labelTest);
 			
-			_il.MarkLabel(labelEnd);
+			// i<iterator.Length			
+			_il.MarkLabel(labelTest);			
+			_il.Emit(OpCodes.Ldloc, localIndex);
+			_il.Emit(OpCodes.Ldloc, localIterator);
+			_il.Emit(OpCodes.Ldlen);
+			_il.Emit(OpCodes.Blt, labelBody);
 		}
 		
 		void EmitUnpackForDeclarations(DeclarationCollection decls, ITypeBinding topOfStack)
