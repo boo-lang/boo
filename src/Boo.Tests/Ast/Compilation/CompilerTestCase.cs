@@ -124,7 +124,7 @@ namespace Boo.Tests.Ast.Compilation
 			//_parameters.TraceSwitch.Level = TraceLevel.Verbose;
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			_parameters.Pipeline.
-							Add(new BooParsingStep()).
+							Add(new Boo.Antlr.BooParsingStep()).
 							Add(new UsingResolutionStep()).
 							Add(new AstAttributesStep()).
 							Add(new ModuleStep()).

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -67,7 +67,7 @@ namespace Boo.Tests.Ast.Compilation
 			Compiler compiler = new Compiler();
 			CompilerParameters options = compiler.Parameters;
 			options.Input.Add(new Boo.Ast.Compilation.IO.StringInput("testcase", TestCase));
-			options.Pipeline.Add(new Boo.Ast.Compilation.Steps.BooParsingStep());
+			options.Pipeline.Add(new Boo.Antlr.BooParsingStep());
 			
 			ErrorCollection errors = compiler.Run().Errors;
 

@@ -39,7 +39,7 @@ namespace Boo.Ast
 		{
  		}
 		
-		internal RetryStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public RetryStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

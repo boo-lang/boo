@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -29,13 +29,13 @@
 
 using System;
 
-namespace Boo.Ast.Parsing
+namespace Boo.Antlr
 {
 	/// <summary>
 	/// O token armazena tambm o nome do arquivo que
 	/// o gerou para diagnstico.
 	/// </summary>
-	public class BooToken : antlr.CommonToken
+	internal class BooToken : antlr.CommonToken
 	{
 		protected string _fname;
 

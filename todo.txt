@@ -106,7 +106,8 @@ exigidas pela linguagem, permitindo múltiplos backends de geraçao de código
 * Criar AbstractAstAttribute extends AbstractCompilerStep
 
 * melhor tratamento de TypeReferences no parser, o tipo TypeReference desaparece
-e passa a ser utilizado ReferenceExpression em seu lugar (para utilizar a resolução padrão de membros, etc)
+e passa a ser utilizado ReferenceExpression em seu lugar
+(para utilizar a resolução padrão de membros, etc)
 	
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário

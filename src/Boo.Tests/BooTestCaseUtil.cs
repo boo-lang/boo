@@ -32,7 +32,7 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
-using Boo.Ast.Parsing;
+using Boo.Antlr;
 using Boo.Ast;
 using NUnit.Framework;
 

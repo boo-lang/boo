@@ -30,7 +30,7 @@
 using System;
 using NUnit.Framework;
 using Boo.Tests;
-using Boo.Ast.Parsing;
+using Boo.Antlr;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.Steps;
 

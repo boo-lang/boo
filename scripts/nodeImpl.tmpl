@@ -85,24 +85,16 @@ $initializer() #slurp
 			#end for
 		}
 		
-		protected ${item.name}Impl(antlr.Token token, $constructorParameters($simpleFields)) : base(token)
+		protected ${item.name}Impl(LexicalInfo lexicalInfo, $constructorParameters($simpleFields)) : base(lexicalInfo)
 		{
-$initializer() #slurp
+$initializer() #slurp			
 			#for field in $simpleFields
-			$field.name = $cs.toLocalName($field.name);
-				#if "LexicalInfo" in $field.attributes
-			LexicalInfo = ${cs.toLocalName($field.name)}.LexicalInfo;
-				#end if
+			$field.name = $cs.toLocalName($field.name);				
 			#end for
 		}
 		#end if
 		
-		internal ${item.name}Impl(antlr.Token token) : base(token)
-		{
-$initializer() #slurp
-		}
-		
-		internal ${item.name}Impl(Node lexicalInfoProvider) : base(lexicalInfoProvider)
+		protected ${item.name}Impl(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 $initializer() #slurp
 		}

@@ -39,7 +39,7 @@ namespace Boo.Ast
 		{
  		}
  		
-		internal EnumDefinition(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public EnumDefinition(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

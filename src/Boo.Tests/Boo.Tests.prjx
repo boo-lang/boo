@@ -18,6 +18,7 @@
     <Reference type="Project" refto="Boo" localcopy="True" />
     <Reference type="Assembly" refto="..\..\lib\antlr-2.7.2\bin\antlr.runtime.dll" localcopy="True" />
     <Reference type="Assembly" refto="d:\dotnet\nunit\bin\nunit.framework.dll" localcopy="True" />
+    <Reference type="Project" refto="Boo.Antlr" localcopy="True" />
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="False" name="Debug">

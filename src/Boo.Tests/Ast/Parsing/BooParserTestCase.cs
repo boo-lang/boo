@@ -36,7 +36,7 @@ using Boo.Ast;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.IO;
 using Boo.Ast.Compilation.Steps;
-using Boo.Ast.Parsing;
+using Boo.Antlr;
 using Boo.Tests;
 
 namespace Boo.Tests.Ast.Parsing

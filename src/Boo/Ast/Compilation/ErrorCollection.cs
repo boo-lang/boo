@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -209,21 +209,6 @@ namespace Boo.Ast.Compilation
 		{
 			Add(new Error(LexicalInfo.Empty, error.Message, error));
 		}
-
-		public void ParserError(antlr.RecognitionException error)
-		{
-			LexicalInfo data = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn(), error.getColumn());
-
-			antlr.NoViableAltException nvae = error as antlr.NoViableAltException;
-			if (null != nvae)
-			{
-				ParserError(data, nvae);
-			}
-			else
-			{
-				Add(new Error(data, error.Message, error));
-			}
-		}
 		
 		string ToStringList(System.Collections.IEnumerable names)
 		{
@@ -250,13 +235,7 @@ namespace Boo.Ast.Compilation
 			}
 			return builder.ToString();
 		}
-
-		void ParserError(LexicalInfo data, antlr.NoViableAltException error)
-		{
-			string msg = Format("NoViableAltException", error.token.getText());
-			Add(new Error(data, msg, error));
-		}
-
+		
 		static string GetSignature(object[] parameters)
 		{
 			StringBuilder sb = new StringBuilder("(");

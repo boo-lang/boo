@@ -1,7 +1,7 @@
 options
 {
 	language="CSharp";
-	namespace = "Boo.Ast.Parsing";
+	namespace = "Boo.Antlr";
 }
 class BooExpressionLexer extends Lexer;
 options

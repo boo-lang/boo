@@ -39,7 +39,7 @@ namespace Boo.Ast
 		{
  		}
 		
-		internal ContinueStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public ContinueStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

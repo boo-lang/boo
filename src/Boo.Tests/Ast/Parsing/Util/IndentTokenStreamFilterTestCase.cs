@@ -29,7 +29,7 @@
 
 using System;
 using System.Collections;
-using Boo.Ast.Parsing.Util;
+using Boo.Antlr.Util;
 using NUnit.Framework;
 using antlr;
 

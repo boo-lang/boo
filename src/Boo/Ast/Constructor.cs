@@ -39,7 +39,7 @@ namespace Boo.Ast
 		{
  		}
 		
-		internal Constructor(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public Constructor(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

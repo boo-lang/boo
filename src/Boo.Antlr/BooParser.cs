@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -30,15 +30,16 @@
 using System;
 using System.IO;
 using System.Text;
-using Boo.Ast.Parsing.Util;
+using Boo.Ast;
+using Boo.Antlr.Util;
 
-namespace Boo.Ast.Parsing
+namespace Boo.Antlr
 {
 	public class BooParser : BooParserBase
 	{	
 		const int TabSize = 4;
 		
-		const string TokenObjectClass = "Boo.Ast.Parsing.BooToken";
+		const string TokenObjectClass = "Boo.Antlr.BooToken";
 		
 		protected ParserErrorHandler Error;
 

@@ -136,7 +136,6 @@
     <File name=".\Ast\Compilation\Steps\AssemblySetupStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Steps\BooParsingStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\EmitAssemblyStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\ModuleStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -28,10 +28,10 @@
 #endregion
 
 using System;
-using Boo.Ast.Parsing;
+using Boo.Ast;
 using Boo.Ast.Compilation;
 
-namespace Boo.Ast.Compilation.Steps
+namespace Boo.Antlr
 {
 	/// <summary>
 	/// Step 1. Parses any input fed to the compiler.
@@ -86,8 +86,25 @@ namespace Boo.Ast.Compilation.Steps
 		}
 
 		void OnParserError(antlr.RecognitionException error)
-		{
-			_context.Errors.ParserError(error);
+		{			
+			LexicalInfo data = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn(), error.getColumn());
+
+			antlr.NoViableAltException nvae = error as antlr.NoViableAltException;
+			if (null != nvae)
+			{
+				ParserError(data, nvae);
+			}
+			else
+			{
+				_context.Errors.Add(new Error(data, error.Message, error));
+			}
 		}
+		
+		void ParserError(LexicalInfo data, antlr.NoViableAltException error)
+		{
+			string msg = Boo.ResourceManager.Format("NoViableAltException", error.token.getText());
+			_context.Errors.Add(new Error(data, msg, error));
+		}
+
 	}
 }

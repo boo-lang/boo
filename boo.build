@@ -15,6 +15,8 @@
 	
 	<property name="ngen.exe" value="${nant.settings.defaultframework.frameworkdirectory}/ngen.exe" />
 	<property name="skip.ngen" value="False" />
+	<property name="skip.antlr" value="False" />
+	<property name="skip.ast" value="False" />
 	
 	<property name="build.dir" value="build" />
 
@@ -28,12 +30,14 @@
 	<if test="${'mono-1.0' == nant.settings.currentframework}">
 		<echo>al task is not available. Satellite assemblies won't be built.</echo>
 		<property name="skip.satellites" value="True" />
+		<property name="skip.antlr" value="True" />
+		<property name="skip.ast" value="True" />
 	</if>
 
 	<target name="all" depends="booi">	
 	</target>
 	
-	<target name="booc" depends="Boo, run-tests">
+	<target name="booc" depends="Boo, Boo.Antlr, run-tests">
 		<csc target="exe" output="build/booc.exe" debug="${debug}" optimize="${optimize}">
 			<sources basedir="src/BooC">
 				<includes name="*.cs" />
@@ -51,6 +55,7 @@
 		
 		<exec program='ngen.exe' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='build/Boo.dll' />
+			<arg file='build/Boo.antlr.dll' />
 			<arg file='build/booc.exe' />			
 		</exec>
 	</target>
@@ -77,7 +82,7 @@
 		
 	</target>
 	
-	<target name="Boo.Tests" depends="Boo">
+	<target name="Boo.Tests" depends="Boo, Boo.Antlr">
 		<csc
 			target="library"
 			output="build/Boo.Tests.dll"
@@ -92,6 +97,7 @@
 				<includes name="${antlr.runtime.dll}" />
 				<includes name="${nunit.framework.dll}" />
 				<includes name="build/Boo.dll" />
+				<includes name="build/Boo.Antlr.dll" />
 			</references>
 		</csc>
 	</target>
@@ -110,13 +116,22 @@
 
 			<sources basedir="src/Boo">
 				<includes name="**/*.cs" />
-			</sources>
-
-			<references>
-				<includes name="${antlr.runtime.dll}" />
-			</references>			
+			</sources>		
 			
 			<arg value="/res:build/string.resources,strings.resources" />
+		</csc>
+	</target>
+	
+	<target name="Boo.Antlr" depends="Boo, compile-grammar">
+		<csc target="library" output="build/Boo.Antlr.dll"
+			debug="${debug}" optimize="${optimize}">
+			<sources basedir="src/Boo.Antlr">
+				<includes name="**/*.cs" />
+			</sources>
+			<references>
+				<includes name="${antlr.runtime.dll}" />
+				<includes name="build/Boo.dll" />
+			</references>
 		</csc>
 	</target>
 	
@@ -134,24 +149,24 @@
 		</al>
 	</target>
 
-	<target name="compile-grammar" depends="init">
+	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
 
-		<if test="${not file::up-to-date('boo.g', 'src/Boo/Ast/Parsing/BooParserBase.cs')}">
+		<if test="${not file::up-to-date('boo.g', 'src/Boo.antlr/BooParserBase.cs')}">
 			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
-				<arg value="src/Boo/Ast/Parsing" />
+				<arg value="src/Boo.antlr/" />
 				<arg value="boo.g" />
 			</exec>
 			
 			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
-				<arg value="src/Boo/Ast/Parsing" />
+				<arg value="src/Boo.antlr/" />
 				<arg value="booel.g" />
 			</exec>
 		</if>
 	</target>
 	
-	<target name="generate-ast" depends="init">
+	<target name="generate-ast" depends="init" unless="${skip.ast}">
 		<if test="${not file::up-to-date('ast.model', 'src/Boo/Ast/Impl/CompileUnitImpl.cs')}">
 			<exec program="python" failonerror="true">
 				<arg value="scripts\ast.py" />

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <pipeline>
 
-	<step type='Boo.Ast.Compilation.Steps.BooParsingStep, Boo' />
+	<step type='Boo.Antlr.BooParsingStep, Boo.Antlr' />
 	<step type='Boo.Ast.Compilation.Steps.UsingResolutionStep, Boo' />
 	<step type='Boo.Ast.Compilation.Steps.AstAttributesStep, Boo' />
 	<step type='Boo.Ast.Compilation.Steps.ModuleStep, Boo' />

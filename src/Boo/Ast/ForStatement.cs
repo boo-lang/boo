@@ -43,7 +43,7 @@ namespace Boo.Ast
 		{
 		}
 		
-		internal ForStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public ForStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

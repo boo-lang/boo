@@ -40,7 +40,7 @@ namespace Boo.Ast
 			_items = new ExpressionPairCollection(this);
  		}
 		
-		internal HashLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public HashLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		

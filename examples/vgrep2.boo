@@ -63,6 +63,7 @@ class MainForm(Form):
 	def _fileList_SelectedIndexChanged(sender, args as EventArgs):		
 		for lvItem as ListViewItem in _fileList.SelectedItems:
 			fname as string, index as int = lvItem.Tag
+			
 			_editor.Text = TextFile.ReadFile(fname)
 			_editor.Focus()
 			_editor.SelectionLength = 0		
