@@ -26,18 +26,18 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	public enum SpecialFunction
 	{
 		Len
 	}
 	
-	public class SpecialFunctionBinding : IBinding
+	public class SpecialFunctionInfo : IInfo
 	{
 		SpecialFunction _function;
 		
-		public SpecialFunctionBinding(SpecialFunction f)
+		public SpecialFunctionInfo(SpecialFunction f)
 		{
 			_function = f;
 		}
@@ -58,11 +58,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.SpecialFunction;
+				return InfoType.SpecialFunction;
 			}
 		}
 		

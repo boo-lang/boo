@@ -26,13 +26,13 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
-	public class TypeReferenceBinding : ITypedBinding, INamespace
+	public class TypeReferenceInfo : ITypedInfo, INamespace
 	{
-		ITypeBinding _type;
+		ITypeInfo _type;
 		
-		public TypeReferenceBinding(ITypeBinding type)
+		public TypeReferenceInfo(ITypeInfo type)
 		{
 			_type = type;
 		}
@@ -53,15 +53,15 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.TypeReference;
+				return InfoType.TypeReference;
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			return  _type.Resolve(name);
 		}

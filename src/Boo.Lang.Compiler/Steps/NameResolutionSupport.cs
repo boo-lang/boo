@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Steps
 	using System;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Bindings;
+	using Boo.Lang.Compiler.Infos;
 	
 	public class NameResolutionSupport : IDisposable
 	{
@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context = context;
 			
-			PushNamespace((INamespace)BindingService.GetBinding(context.CompileUnit));
+			PushNamespace((INamespace)InfoService.GetInfo(context.CompileUnit));
 		}
 		
 		public INamespace CurrentNamespace
@@ -62,19 +62,19 @@ namespace Boo.Lang.Compiler.Steps
 			_current = null;
 		}
 		
-		public IBinding Resolve(Node sourceNode, string name)
+		public IInfo Resolve(Node sourceNode, string name)
 		{
-			return Resolve(sourceNode, name, BindingType.Any);
+			return Resolve(sourceNode, name, InfoType.Any);
 		}
 		
-		public IBinding Resolve(Node sourceNode, string name, BindingType bindings)
+		public IInfo Resolve(Node sourceNode, string name, InfoType bindings)
 		{
 			if (null == sourceNode)
 			{
 				throw new ArgumentNullException("sourceNode");
 			}
 			
-			IBinding binding = _context.BindingService.ResolvePrimitive(name);
+			IInfo binding = _context.InfoService.ResolvePrimitive(name);
 			if (null == binding)
 			{
 				INamespace ns = _current;
@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 					binding = ns.Resolve(name);
 					if (null != binding)
 					{
-						if (IsFlagSet(bindings, binding.BindingType))
+						if (IsFlagSet(bindings, binding.InfoType))
 						{
 							break;
 						}
@@ -100,11 +100,11 @@ namespace Boo.Lang.Compiler.Steps
 			return binding;
 		}
 		
-		public IBinding ResolveQualifiedName(Node sourceNode, string name)
+		public IInfo ResolveQualifiedName(Node sourceNode, string name)
 		{			
 			string[] parts = name.Split(DotArray);
 			string topLevel = parts[0];
-			IBinding binding = Resolve(sourceNode, topLevel);
+			IInfo binding = Resolve(sourceNode, topLevel);
 			for (int i=1; i<parts.Length; ++i)				
 			{				
 				INamespace ns = binding as INamespace;
@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Steps
 			return binding;
 		}
 		
-		static bool IsFlagSet(BindingType bindings, BindingType binding)
+		static bool IsFlagSet(InfoType bindings, InfoType binding)
 		{
 			return binding == (bindings & binding);
 		}

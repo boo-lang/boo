@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Bindings;
+	using Boo.Lang.Compiler.Infos;
 	
 	public class ExpandMacros : AbstractNamespaceSensitiveCompilerStep
 	{
@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)BindingService.GetBinding(module));
+			PushNamespace((INamespace)InfoService.GetInfo(module));
 			Accept(module.Members);
 			Accept(module.Globals);			
 			PopNamespace();
@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Node replacement = null;
 			
-			IBinding binding = ResolveQualifiedName(node, node.Name);
+			IInfo binding = ResolveQualifiedName(node, node.Name);
 			if (null == binding)
 			{
 				binding = ResolveQualifiedName(node, BuildMacroTypeName(node.Name));
@@ -71,14 +71,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (BindingType.TypeReference != binding.BindingType)
+				if (InfoType.TypeReference != binding.InfoType)
 				{
 					Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
 				}
 				else
 				{
-					ITypeBinding macroType = ((TypeReferenceBinding)binding).BoundType;
-					ExternalTypeBinding type = macroType as ExternalTypeBinding;
+					ITypeInfo macroType = ((TypeReferenceInfo)binding).BoundType;
+					ExternalTypeInfo type = macroType as ExternalTypeInfo;
 					if (null == type)
 					{
 						Errors.Add(CompilerErrorFactory.AstMacroMustBeExternal(node, macroType.FullName));

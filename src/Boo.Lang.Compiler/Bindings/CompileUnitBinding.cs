@@ -26,20 +26,20 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Steps;
 	
-	public class CompileUnitBinding : IBinding, INamespace
+	public class CompileUnitInfo : IInfo, INamespace
 	{
 		INamespace _parent;
 		
 		INamespace[] _namespaces;
 		
-		public CompileUnitBinding(INamespace parent)
+		public CompileUnitInfo(INamespace parent)
 		{
 			// Global names at the highest level
 			_parent = parent;
@@ -54,11 +54,11 @@ namespace Boo.Lang.Compiler.Bindings
 			_namespaces[1] = boolang;
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.CompileUnit;
+				return InfoType.CompileUnit;
 			}
 		}
 		
@@ -86,11 +86,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			foreach (INamespace ns in _namespaces)
 			{
-				IBinding binding = ns.Resolve(name);
+				IInfo binding = ns.Resolve(name);
 				if (null != binding)
 				{
 					return binding;

@@ -30,10 +30,10 @@ using System;
 using System.Collections;
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	[Flags]
-	public enum BindingType
+	public enum InfoType
 	{
 		CompileUnit = 0x00,
 		Module = 0x01,
@@ -58,7 +58,7 @@ namespace Boo.Lang.Compiler.Bindings
 		Any = 0xFFFF
 	}	
 	
-	public interface IInternalBinding
+	public interface IInternalInfo
 	{
 		Boo.Lang.Compiler.Ast.Node Node
 		{
@@ -72,7 +72,7 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public interface IBinding
+	public interface IInfo
 	{	
 		string FullName
 		{
@@ -84,23 +84,23 @@ namespace Boo.Lang.Compiler.Bindings
 			get;
 		}
 		
-		BindingType BindingType
+		InfoType InfoType
 		{
 			get;
 		}
 	}
 	
-	public interface ITypedBinding : IBinding
+	public interface ITypedInfo : IInfo
 	{
-		ITypeBinding BoundType
+		ITypeInfo BoundType
 		{
 			get;			
 		}
 	}
 	
-	public interface IMemberBinding : ITypedBinding
+	public interface IMemberInfo : ITypedInfo
 	{
-		ITypeBinding DeclaringType
+		ITypeInfo DeclaringType
 		{
 			get;
 		}
@@ -116,11 +116,11 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public interface IEventBinding : IMemberBinding
+	public interface IEventInfo : IMemberInfo
 	{		
 	}
 	
-	public interface IFieldBinding : IMemberBinding
+	public interface IFieldInfo : IMemberInfo
 	{	
 		bool IsLiteral
 		{
@@ -133,16 +133,16 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public interface IPropertyBinding : IMemberBinding
+	public interface IPropertyInfo : IMemberInfo
 	{
-		ITypeBinding[] GetIndexParameters();
+		ITypeInfo[] GetIndexParameters();
 		
-		IMethodBinding GetGetMethod();
+		IMethodInfo GetGetMethod();
 		
-		IMethodBinding GetSetMethod();
+		IMethodInfo GetSetMethod();
 	}
 	
-	public interface ITypeBinding : ITypedBinding, INamespace
+	public interface ITypeInfo : ITypedInfo, INamespace
 	{	
 		bool IsClass
 		{
@@ -173,36 +173,44 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		int GetArrayRank();
 		
-		ITypeBinding GetElementType();
+		ITypeInfo GetElementType();
 		
-		ITypeBinding BaseType
+		ITypeInfo BaseType
 		{
 			get;
 		}
 		
-		IBinding GetDefaultMember();
+		IInfo GetDefaultMember();
 		
-		IBinding[] GetMembers();
+		IInfo[] GetMembers();
 		
-		IConstructorBinding[] GetConstructors();
+		IConstructorInfo[] GetConstructors();
 		
-		ITypeBinding[] GetInterfaces();
+		ITypeInfo[] GetInterfaces();
 		
-		bool IsSubclassOf(ITypeBinding other);
+		bool IsSubclassOf(ITypeInfo other);
 		
-		bool IsAssignableFrom(ITypeBinding other);
+		bool IsAssignableFrom(ITypeInfo other);
 	}
 	
-	public interface IMethodBinding : IMemberBinding
+	public interface IParameterInfo : ITypedInfo
+	{		
+		int Position
+		{
+			get;
+		}
+	}
+	
+	public interface IMethodInfo : IMemberInfo
 	{
 		int ParameterCount
 		{
 			get;
 		}
 		
-		ITypeBinding GetParameterType(int parameterIndex);		
+		ITypeInfo GetParameterType(int parameterIndex);		
 		
-		ITypeBinding ReturnType
+		ITypeInfo ReturnType
 		{
 			get;
 		}
@@ -218,7 +226,7 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public interface IConstructorBinding : IMethodBinding
+	public interface IConstructorInfo : IMethodInfo
 	{		
 	}
 }

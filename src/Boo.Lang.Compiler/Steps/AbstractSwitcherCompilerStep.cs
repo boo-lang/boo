@@ -30,7 +30,7 @@ using System;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Bindings;
+using Boo.Lang.Compiler.Infos;
 using Boo.Lang.Compiler.Services;
 
 namespace Boo.Lang.Compiler.Steps
@@ -75,17 +75,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected DefaultBindingService BindingService
+		protected DefaultInfoService InfoService
 		{
 			get
 			{
-				return _context.BindingService;
+				return _context.InfoService;
 			}
 		}
 		
 		protected void Error(Node node, CompilerError error)
 		{
-			DefaultBindingService.Error(node);
+			DefaultInfoService.Error(node);
 			Errors.Add(error);
 		}
 		
@@ -96,33 +96,33 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected void Error(Node node)
 		{
-			DefaultBindingService.Error(node);
+			DefaultInfoService.Error(node);
 		}
 
-		protected void Bind(Node node, IBinding binding)
+		protected void Bind(Node node, IInfo binding)
 		{
 			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, binding);
-			node.Binding = binding;
+			node.Info = binding;
 		}		
 		
-		public IBinding GetBinding(Node node)
+		public IInfo GetInfo(Node node)
 		{
-			return DefaultBindingService.GetBinding(node);
+			return DefaultInfoService.GetInfo(node);
 		}
 		
-		public ITypeBinding GetBoundType(Node node)
+		public ITypeInfo GetBoundType(Node node)
 		{
-			return DefaultBindingService.GetBoundType(node);
+			return DefaultInfoService.GetBoundType(node);
 		}		
 		
-		public LocalBinding GetLocalBinding(Node local)
+		public LocalInfo GetLocalInfo(Node local)
 		{
-			return (LocalBinding)GetBinding(local);
+			return (LocalInfo)GetInfo(local);
 		}
 		
-		protected TypeReference CreateBoundTypeReference(ITypeBinding binding)
+		protected TypeReference CreateBoundTypeReference(ITypeInfo binding)
 		{
-			return DefaultBindingService.CreateBoundTypeReference(binding);
+			return DefaultInfoService.CreateBoundTypeReference(binding);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

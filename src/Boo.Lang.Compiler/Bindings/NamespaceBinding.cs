@@ -26,16 +26,16 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using System.Reflection;
 	using System.Collections;
 	using Boo.Lang.Compiler.Services;
 
-	public class NamespaceBinding : IBinding, INamespace
+	public class NamespaceInfo : IInfo, INamespace
 	{		
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		
 		INamespace _parent;
 		
@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		ArrayList _moduleNamespaces;
 		
-		public NamespaceBinding(INamespace parent, DefaultBindingService bindingManager, string name)
+		public NamespaceInfo(INamespace parent, DefaultInfoService bindingManager, string name)
 		{			
 			_parent = parent;
 			_bindingService = bindingManager;
@@ -74,11 +74,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Namespace;
+				return InfoType.Namespace;
 			}
 		}
 		
@@ -94,28 +94,28 @@ namespace Boo.Lang.Compiler.Bindings
 			types.Add(type);			
 		}
 		
-		public void AddModule(ModuleBinding module)
+		public void AddModule(ModuleInfo module)
 		{
 			_moduleNamespaces.Add(module);
 		}
 		
-		public NamespaceBinding GetChildNamespace(string name)
+		public NamespaceInfo GetChildNamespace(string name)
 		{
-			NamespaceBinding binding = (NamespaceBinding)_childrenNamespaces[name];
+			NamespaceInfo binding = (NamespaceInfo)_childrenNamespaces[name];
 			if (null == binding)
 			{				
-				binding = new NamespaceBinding(this, _bindingService, _name + "." + name);
+				binding = new NamespaceInfo(this, _bindingService, _name + "." + name);
 				_childrenNamespaces[name] = binding;
 			}
 			return binding;
 		}
 		
-		internal IBinding Resolve(string name, Assembly assembly)
+		internal IInfo Resolve(string name, Assembly assembly)
 		{
-			NamespaceBinding binding = (NamespaceBinding)_childrenNamespaces[name];
+			NamespaceInfo binding = (NamespaceInfo)_childrenNamespaces[name];
 			if (null != binding)
 			{
-				return new AssemblyQualifiedNamespaceBinding(assembly, binding);
+				return new AssemblyQualifiedNamespaceInfo(assembly, binding);
 			}
 			
 			ArrayList types = (ArrayList)_assemblies[assembly];			                
@@ -140,9 +140,9 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{	
-			IBinding binding = (IBinding)_childrenNamespaces[name];
+			IInfo binding = (IInfo)_childrenNamespaces[name];
 			if (null == binding)
 			{
 				binding = ResolveInternalType(name);
@@ -154,10 +154,10 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		IBinding ResolveInternalType(string name)
+		IInfo ResolveInternalType(string name)
 		{
-			IBinding binding = null;
-			foreach (ModuleBinding ns in _moduleNamespaces)
+			IInfo binding = null;
+			foreach (ModuleInfo ns in _moduleNamespaces)
 			{
 				binding = ns.ResolveMember(name);
 				if (null != binding)
@@ -168,9 +168,9 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		IBinding ResolveExternalType(string name)
+		IInfo ResolveExternalType(string name)
 		{
-			IBinding binding = null;
+			IInfo binding = null;
 			foreach (ArrayList types in _assemblies.Values)
 			{
 				foreach (Type type in types)
@@ -191,12 +191,12 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public class AssemblyQualifiedNamespaceBinding : IBinding, INamespace
+	public class AssemblyQualifiedNamespaceInfo : IInfo, INamespace
 	{
 		Assembly _assembly;
-		NamespaceBinding _subject;
+		NamespaceInfo _subject;
 		
-		public AssemblyQualifiedNamespaceBinding(Assembly assembly, NamespaceBinding subject)
+		public AssemblyQualifiedNamespaceInfo(Assembly assembly, NamespaceInfo subject)
 		{
 			_assembly = assembly;
 			_subject = subject;
@@ -218,11 +218,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Namespace;
+				return InfoType.Namespace;
 			}
 		}
 		
@@ -234,18 +234,18 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			return _subject.Resolve(name, _assembly);
 		}
 	}
 	
-	public class AliasedNamespaceBinding : IBinding, INamespace
+	public class AliasedNamespaceInfo : IInfo, INamespace
 	{
 		string _alias;
-		IBinding _subject;
+		IInfo _subject;
 		
-		public AliasedNamespaceBinding(string alias, IBinding subject)
+		public AliasedNamespaceInfo(string alias, IInfo subject)
 		{
 			_alias = alias;			
 			_subject = subject;
@@ -267,11 +267,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Namespace;
+				return InfoType.Namespace;
 			}
 		}
 		
@@ -283,7 +283,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			if (name == _alias)
 			{

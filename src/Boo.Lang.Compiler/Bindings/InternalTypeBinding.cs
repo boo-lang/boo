@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using Boo.Lang;
@@ -34,42 +34,42 @@ namespace Boo.Lang.Compiler.Bindings
 	using Boo.Lang.Compiler.Services;
 	using System.Reflection;
 
-	public class EnumTypeBinding : AbstractInternalTypeBinding
+	public class EnumTypeInfo : AbstractInternalTypeInfo
 	{
-		internal EnumTypeBinding(DefaultBindingService bindingManager, EnumDefinition enumDefinition) :
+		internal EnumTypeInfo(DefaultInfoService bindingManager, EnumDefinition enumDefinition) :
 			base(bindingManager, enumDefinition)
 		{
 		}
 		
-		override public ITypeBinding BaseType
+		override public ITypeInfo BaseType
 		{
 			get
 			{
-				return _bindingService.EnumTypeBinding;
+				return _bindingService.EnumTypeInfo;
 			}
 		}
 		
-		override public bool IsSubclassOf(ITypeBinding type)
+		override public bool IsSubclassOf(ITypeInfo type)
 		{
-			return type == _bindingService.EnumTypeBinding ||
-				_bindingService.EnumTypeBinding.IsSubclassOf(type);
+			return type == _bindingService.EnumTypeInfo ||
+				_bindingService.EnumTypeInfo.IsSubclassOf(type);
 		}
 	}
 	
-	public class InternalTypeBinding : AbstractInternalTypeBinding
+	public class InternalTypeInfo : AbstractInternalTypeInfo
 	{		
-		IConstructorBinding[] _constructors;
+		IConstructorInfo[] _constructors;
 		
-		ITypeBinding _baseType;
+		ITypeInfo _baseType;
 		
 		int _typeDepth = -1;
 		
-		internal InternalTypeBinding(DefaultBindingService manager, TypeDefinition typeDefinition) :
+		internal InternalTypeInfo(DefaultInfoService manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
 		}		
 		
-		override public ITypeBinding BaseType
+		override public ITypeInfo BaseType
 		{
 			get
 			{
@@ -79,7 +79,7 @@ namespace Boo.Lang.Compiler.Bindings
 					{
 						foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 						{
-							ITypeBinding binding = _bindingService.GetBoundType(baseType);
+							ITypeInfo binding = _bindingService.GetBoundType(baseType);
 							if (binding.IsClass)
 							{
 								_baseType = binding;
@@ -89,7 +89,7 @@ namespace Boo.Lang.Compiler.Bindings
 					}
 					else if (IsInterface)
 					{
-						_baseType = _bindingService.ObjectTypeBinding;
+						_baseType = _bindingService.ObjectTypeInfo;
 					}
 				}
 				return _baseType;
@@ -105,11 +105,11 @@ namespace Boo.Lang.Compiler.Bindings
 			return _typeDepth;
 		}
 		
-		override public bool IsSubclassOf(ITypeBinding type)
+		override public bool IsSubclassOf(ITypeInfo type)
 		{				
 			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
 			{
-				ITypeBinding baseType = _bindingService.GetBoundType(baseTypeReference);
+				ITypeInfo baseType = _bindingService.GetBoundType(baseTypeReference);
 				if (type == baseType || baseType.IsSubclassOf(type))
 				{
 					return true;
@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return false;
 		}
 		
-		override public IConstructorBinding[] GetConstructors()
+		override public IConstructorInfo[] GetConstructors()
 		{
 			if (null == _constructors)
 			{
@@ -127,16 +127,16 @@ namespace Boo.Lang.Compiler.Bindings
 				{					
 					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
 					{
-						IBinding binding = member.Binding;
+						IInfo binding = member.Info;
 						if (null == binding)
 						{
-							binding = new InternalConstructorBinding(_bindingService, (Constructor)member);
-							DefaultBindingService.Bind(member, binding);
+							binding = new InternalConstructorInfo(_bindingService, (Constructor)member);
+							DefaultInfoService.Bind(member, binding);
 						}
 						constructors.Add(binding);
 					}
 				}
-				_constructors = (IConstructorBinding[])constructors.ToArray(typeof(IConstructorBinding));
+				_constructors = (IConstructorInfo[])constructors.ToArray(typeof(IConstructorInfo));
 			}
 			return _constructors;
 		}
@@ -155,7 +155,7 @@ namespace Boo.Lang.Compiler.Bindings
 			int current = 0;
 			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				ITypeBinding binding = _bindingService.GetBoundType(baseType);
+				ITypeInfo binding = _bindingService.GetBoundType(baseType);
 				int depth = binding.GetTypeDepth();
 				if (depth > current)
 				{

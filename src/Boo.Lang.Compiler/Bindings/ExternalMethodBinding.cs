@@ -26,29 +26,29 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using System.Reflection;
 	using Boo.Lang.Compiler.Services;
 	
-	public class ExternalMethodBinding : IMethodBinding
+	public class ExternalMethodInfo : IMethodInfo
 	{
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		
 		MethodBase _mi;
 		
-		internal ExternalMethodBinding(DefaultBindingService manager, MethodBase mi)
+		internal ExternalMethodInfo(DefaultInfoService manager, MethodBase mi)
 		{
 			_bindingService = manager;
 			_mi = mi;
 		}
 		
-		public ITypeBinding DeclaringType
+		public ITypeInfo DeclaringType
 		{
 			get
 			{
-				return _bindingService.AsTypeBinding(_mi.DeclaringType);
+				return _bindingService.AsTypeInfo(_mi.DeclaringType);
 			}
 		}
 		
@@ -100,15 +100,15 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public virtual BindingType BindingType
+		public virtual InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Method;
+				return InfoType.Method;
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{
@@ -124,19 +124,19 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding GetParameterType(int parameterIndex)
+		public ITypeInfo GetParameterType(int parameterIndex)
 		{
-			return _bindingService.AsTypeBinding(_mi.GetParameters()[parameterIndex].ParameterType);
+			return _bindingService.AsTypeInfo(_mi.GetParameters()[parameterIndex].ParameterType);
 		}
 		
-		public ITypeBinding ReturnType
+		public ITypeInfo ReturnType
 		{
 			get
 			{
 				MethodInfo mi = _mi as MethodInfo;
 				if (null != mi)
 				{
-					return _bindingService.AsTypeBinding(mi.ReturnType);
+					return _bindingService.AsTypeInfo(mi.ReturnType);
 				}
 				return null;
 			}
@@ -152,21 +152,21 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		override public string ToString()
 		{
-			return DefaultBindingService.GetSignature(this);
+			return DefaultInfoService.GetSignature(this);
 		}
 	}
 	
-	public class ExternalConstructorBinding : ExternalMethodBinding, IConstructorBinding
+	public class ExternalConstructorInfo : ExternalMethodInfo, IConstructorInfo
 	{
-		public ExternalConstructorBinding(DefaultBindingService manager, ConstructorInfo ci) : base(manager, ci)
+		public ExternalConstructorInfo(DefaultInfoService manager, ConstructorInfo ci) : base(manager, ci)
 		{			
 		}
 		
-		override public BindingType BindingType
+		override public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Constructor;
+				return InfoType.Constructor;
 			}
 		}
 		

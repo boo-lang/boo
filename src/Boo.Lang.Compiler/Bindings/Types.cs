@@ -28,7 +28,7 @@
 
 using System;
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	public class Types
 	{

@@ -26,16 +26,16 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
-	public abstract class AbstractTypeBinding : ITypeBinding, INamespace
+	public abstract class AbstractTypeInfo : ITypeInfo, INamespace
 	{	
 		public abstract string Name
 		{
 			get;
 		}
 		
-		public abstract BindingType BindingType
+		public abstract InfoType InfoType
 		{
 			get;
 		}
@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public virtual ITypeBinding BoundType
+		public virtual ITypeInfo BoundType
 		{
 			get
 			{
@@ -101,12 +101,12 @@ namespace Boo.Lang.Compiler.Bindings
 			return 0;
 		}		
 		
-		public ITypeBinding GetElementType()
+		public ITypeInfo GetElementType()
 		{
 			return null;
 		}
 		
-		public ITypeBinding BaseType
+		public ITypeInfo BaseType
 		{
 			get
 			{
@@ -114,7 +114,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding GetDefaultMember()
+		public IInfo GetDefaultMember()
 		{
 			return null;
 		}
@@ -124,29 +124,29 @@ namespace Boo.Lang.Compiler.Bindings
 			return 0;
 		}
 		
-		public virtual bool IsSubclassOf(ITypeBinding other)
+		public virtual bool IsSubclassOf(ITypeInfo other)
 		{
 			return false;
 		}
 		
-		public virtual bool IsAssignableFrom(ITypeBinding other)
+		public virtual bool IsAssignableFrom(ITypeInfo other)
 		{
 			return false;
 		}
 		
-		public IConstructorBinding[] GetConstructors()
+		public IConstructorInfo[] GetConstructors()
 		{
-			return new IConstructorBinding[0];
+			return new IConstructorInfo[0];
 		}
 		
-		public ITypeBinding[] GetInterfaces()
+		public ITypeInfo[] GetInterfaces()
 		{
-			return new ITypeBinding[0];
+			return new ITypeInfo[0];
 		}
 		
-		public IBinding[] GetMembers()
+		public IInfo[] GetMembers()
 		{
-			return new IBinding[0];
+			return new IInfo[0];
 		}
 		
 		public INamespace ParentNamespace
@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			return null;
 		}
@@ -168,11 +168,11 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public class NullBinding : AbstractTypeBinding
+	public class NullInfo : AbstractTypeInfo
 	{
-		public static NullBinding Default = new NullBinding();
+		public static NullInfo Default = new NullInfo();
 		
-		private NullBinding()
+		private NullInfo()
 		{
 		}
 		
@@ -184,20 +184,20 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		override public BindingType BindingType
+		override public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Null;
+				return InfoType.Null;
 			}
 		}
 	}
 	
-	public class UnknownBinding : AbstractTypeBinding
+	public class UnknownInfo : AbstractTypeInfo
 	{
-		public static UnknownBinding Default = new UnknownBinding();
+		public static UnknownInfo Default = new UnknownInfo();
 		
-		private UnknownBinding()
+		private UnknownInfo()
 		{
 		}
 		
@@ -209,20 +209,20 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		override public BindingType BindingType
+		override public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Unknown;
+				return InfoType.Unknown;
 			}
 		}
 	}
 	
-	public class ErrorBinding : AbstractTypeBinding
+	public class ErrorInfo : AbstractTypeInfo
 	{
-		public static ErrorBinding Default = new ErrorBinding();
+		public static ErrorInfo Default = new ErrorInfo();
 		
-		private ErrorBinding()
+		private ErrorInfo()
 		{			
 		}	
 		
@@ -234,11 +234,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		override public BindingType BindingType
+		override public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Error;
+				return InfoType.Error;
 			}
 		}
 	}

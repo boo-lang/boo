@@ -26,13 +26,13 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
-	public class AssemblyBinding : IBinding
+	public class AssemblyInfo : IInfo
 	{
 		System.Reflection.Assembly _assembly;
 		
-		public AssemblyBinding(System.Reflection.Assembly assembly)
+		public AssemblyInfo(System.Reflection.Assembly assembly)
 		{
 			if (null == assembly)
 			{
@@ -57,11 +57,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Assembly;
+				return InfoType.Assembly;
 			}
 		}
 		

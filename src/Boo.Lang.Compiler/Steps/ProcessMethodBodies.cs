@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Bindings;
+	using Boo.Lang.Compiler.Infos;
 	using List=Boo.Lang.List;
 
 	/// <summary>
@@ -43,9 +43,9 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class ProcessMethodBodies : AbstractNamespaceSensitiveVisitorCompilerStep
 	{	
-		Stack _methodBindingStack;
+		Stack _methodInfoStack;
 		
-		InternalMethodBinding _currentMethodBinding;
+		InternalMethodInfo _currentMethodInfo;
 		
 		ArrayList _classes;
 		
@@ -54,83 +54,83 @@ namespace Boo.Lang.Compiler.Steps
 		/*
 		 * Useful method bindings.
 		 */		
-		IMethodBinding RuntimeServices_Len;
+		IMethodInfo RuntimeServices_Len;
 		
-		IMethodBinding RuntimeServices_Mid;
+		IMethodInfo RuntimeServices_Mid;
 		
-		IMethodBinding RuntimeServices_GetRange;
+		IMethodInfo RuntimeServices_GetRange;
 		
-		IMethodBinding RuntimeServices_GetEnumerable;
+		IMethodInfo RuntimeServices_GetEnumerable;
 		
-		IMethodBinding Object_StaticEquals;
+		IMethodInfo Object_StaticEquals;
 		
-		IMethodBinding Array_get_Length;
+		IMethodInfo Array_get_Length;
 		
-		IMethodBinding String_get_Length;
+		IMethodInfo String_get_Length;
 		
-		IMethodBinding String_Substring_Int;
+		IMethodInfo String_Substring_Int;
 		
-		IMethodBinding ICollection_get_Count;
+		IMethodInfo ICollection_get_Count;
 		
-		IMethodBinding IList_Contains;
+		IMethodInfo IList_Contains;
 		
-		IMethodBinding IDictionary_Contains;
+		IMethodInfo IDictionary_Contains;
 		
-		IMethodBinding Array_TypedEnumerableConstructor;
+		IMethodInfo Array_TypedEnumerableConstructor;
 		
-		IMethodBinding Array_TypedCollectionConstructor;
+		IMethodInfo Array_TypedCollectionConstructor;
 		
-		IMethodBinding Array_TypedConstructor2;
+		IMethodInfo Array_TypedConstructor2;
 		
-		IMethodBinding ICallable_Call;
+		IMethodInfo ICallable_Call;
 		
-		IMethodBinding Activator_CreateInstance;
+		IMethodInfo Activator_CreateInstance;
 		
-		IConstructorBinding ApplicationException_StringConstructor;
+		IConstructorInfo ApplicationException_StringConstructor;
 		
-		IConstructorBinding TextReaderEnumerator_Constructor;
+		IConstructorInfo TextReaderEnumerator_Constructor;
 		
 		/*
 		 * Useful filters.
 		 */
-		BindingFilter IsPublicEventFilter;
+		InfoFilter IsPublicEventFilter;
 		
-		BindingFilter IsPublicFieldPropertyEventFilter;
+		InfoFilter IsPublicFieldPropertyEventFilter;
 		
 		public ProcessMethodBodies()
 		{
-			IsPublicFieldPropertyEventFilter = new BindingFilter(IsPublicFieldPropertyEvent);
-			IsPublicEventFilter = new BindingFilter(IsPublicEvent);
+			IsPublicFieldPropertyEventFilter = new InfoFilter(IsPublicFieldPropertyEvent);
+			IsPublicEventFilter = new InfoFilter(IsPublicEvent);
 		}
 		
 		override public void Run()
 		{					
-			_currentMethodBinding = null;
-			_methodBindingStack = new Stack();
+			_currentMethodInfo = null;
+			_methodInfoStack = new Stack();
 			_classes = new ArrayList();
 			_nameResolution.Initialize(_context);
 			_loopDepth = 0;
 						
-			RuntimeServices_Len = (IMethodBinding)BindingService.RuntimeServicesBinding.Resolve("Len");
-			RuntimeServices_Mid = (IMethodBinding)BindingService.RuntimeServicesBinding.Resolve("Mid");
-			RuntimeServices_GetRange = (IMethodBinding)BindingService.RuntimeServicesBinding.Resolve("GetRange");
-			RuntimeServices_GetEnumerable = (IMethodBinding)BindingService.RuntimeServicesBinding.Resolve("GetEnumerable");
-			Object_StaticEquals = (IMethodBinding)BindingService.AsBinding(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
-			Array_get_Length = ((IPropertyBinding)BindingService.ArrayTypeBinding.Resolve("Length")).GetGetMethod();
-			String_get_Length = ((IPropertyBinding)BindingService.StringTypeBinding.Resolve("Length")).GetGetMethod();
-			String_Substring_Int = (IMethodBinding)BindingService.AsBinding(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
-			ICollection_get_Count = ((IPropertyBinding)BindingService.ICollectionTypeBinding.Resolve("Count")).GetGetMethod();
-			IList_Contains = (IMethodBinding)BindingService.IListTypeBinding.Resolve("Contains");
-			IDictionary_Contains = (IMethodBinding)BindingService.IDictionaryTypeBinding.Resolve("Contains");
-			Array_TypedEnumerableConstructor = (IMethodBinding)BindingService.AsBinding(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
-			Array_TypedCollectionConstructor= (IMethodBinding)BindingService.AsBinding(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
-			Array_TypedConstructor2 = (IMethodBinding)BindingService.AsBinding(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
-			ICallable_Call = (IMethodBinding)BindingService.ICallableTypeBinding.Resolve("Call");
-			Activator_CreateInstance = (IMethodBinding)BindingService.AsBinding(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
-			TextReaderEnumerator_Constructor = (IConstructorBinding)BindingService.AsBinding(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
+			RuntimeServices_Len = (IMethodInfo)InfoService.RuntimeServicesInfo.Resolve("Len");
+			RuntimeServices_Mid = (IMethodInfo)InfoService.RuntimeServicesInfo.Resolve("Mid");
+			RuntimeServices_GetRange = (IMethodInfo)InfoService.RuntimeServicesInfo.Resolve("GetRange");
+			RuntimeServices_GetEnumerable = (IMethodInfo)InfoService.RuntimeServicesInfo.Resolve("GetEnumerable");
+			Object_StaticEquals = (IMethodInfo)InfoService.AsInfo(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
+			Array_get_Length = ((IPropertyInfo)InfoService.ArrayTypeInfo.Resolve("Length")).GetGetMethod();
+			String_get_Length = ((IPropertyInfo)InfoService.StringTypeInfo.Resolve("Length")).GetGetMethod();
+			String_Substring_Int = (IMethodInfo)InfoService.AsInfo(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
+			ICollection_get_Count = ((IPropertyInfo)InfoService.ICollectionTypeInfo.Resolve("Count")).GetGetMethod();
+			IList_Contains = (IMethodInfo)InfoService.IListTypeInfo.Resolve("Contains");
+			IDictionary_Contains = (IMethodInfo)InfoService.IDictionaryTypeInfo.Resolve("Contains");
+			Array_TypedEnumerableConstructor = (IMethodInfo)InfoService.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
+			Array_TypedCollectionConstructor= (IMethodInfo)InfoService.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
+			Array_TypedConstructor2 = (IMethodInfo)InfoService.AsInfo(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
+			ICallable_Call = (IMethodInfo)InfoService.ICallableTypeInfo.Resolve("Call");
+			Activator_CreateInstance = (IMethodInfo)InfoService.AsInfo(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
+			TextReaderEnumerator_Constructor = (IConstructorInfo)InfoService.AsInfo(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
 			
 			ApplicationException_StringConstructor =
-					(IConstructorBinding)BindingService.AsBinding(
+					(IConstructorInfo)InfoService.AsInfo(
 						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
 			
 			Accept(CompileUnit);
@@ -153,7 +153,7 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
-				ITypeBinding binding = GetBoundType(baseType);
+				ITypeInfo binding = GetBoundType(baseType);
 				if (binding.IsInterface)
 				{
 					ResolveClassInterfaceMembers(node, baseType, binding);
@@ -161,7 +161,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Method CreateAbstractMethod(Node sourceNode, IMethodBinding baseMethod)
+		Method CreateAbstractMethod(Node sourceNode, IMethodInfo baseMethod)
 		{
 			Method method = new Method(sourceNode.LexicalInfo);
 			method.Name = baseMethod.Name;
@@ -172,17 +172,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			method.ReturnType = CreateBoundTypeReference(baseMethod.ReturnType);
 			
-			Bind(method, new InternalMethodBinding(BindingService, method));
+			Bind(method, new InternalMethodInfo(InfoService, method));
 			return method;
 		}
 		
-		bool CheckPropertyAccessors(IPropertyBinding expected, IPropertyBinding actual)
+		bool CheckPropertyAccessors(IPropertyInfo expected, IPropertyInfo actual)
 		{			
 			return CheckPropertyAccessor(expected.GetGetMethod(), actual.GetGetMethod()) &&
 				CheckPropertyAccessor(expected.GetSetMethod(), actual.GetSetMethod());
 		}
 		
-		bool CheckPropertyAccessor(IMethodBinding expected, IMethodBinding actual)
+		bool CheckPropertyAccessor(IMethodInfo expected, IMethodInfo actual)
 		{			
 			if (null != expected)
 			{								
@@ -197,14 +197,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ResolveClassInterfaceProperty(ClassDefinition node,
 											TypeReference interfaceReference,
-											IPropertyBinding binding)
+											IPropertyInfo binding)
 		{
 			TypeMember member = node.Members[binding.Name];
 			if (null != member && NodeType.Property == member.NodeType)
 			{
 				if (binding.BoundType == GetBoundType(member))
 				{
-					if (CheckPropertyAccessors(binding, (IPropertyBinding)GetBinding(member)))
+					if (CheckPropertyAccessors(binding, (IPropertyInfo)GetInfo(member)))
 					{
 						Property p = (Property)member;
 						if (null != p.Getter)
@@ -224,7 +224,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ResolveClassInterfaceMethod(ClassDefinition node,
 										TypeReference interfaceReference,
-										IMethodBinding binding)
+										IMethodInfo binding)
 		{			
 			if (binding.IsSpecialName)
 			{
@@ -235,7 +235,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != member && NodeType.Method == member.NodeType)
 			{							
 				Method method = (Method)member;
-				if (CheckOverrideSignature((IMethodBinding)GetBinding(method), binding))
+				if (CheckOverrideSignature((IMethodInfo)GetInfo(method), binding))
 				{
 					// TODO: check return type here
 					if (!method.IsOverride && !method.IsVirtual)
@@ -254,26 +254,26 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ResolveClassInterfaceMembers(ClassDefinition node,
 											TypeReference interfaceReference,
-											ITypeBinding interfaceBinding)
+											ITypeInfo interfaceInfo)
 		{			
-			foreach (ITypeBinding binding in interfaceBinding.GetInterfaces())
+			foreach (ITypeInfo binding in interfaceInfo.GetInterfaces())
 			{
 				ResolveClassInterfaceMembers(node, interfaceReference, binding);
 			}
 			
-			foreach (IMemberBinding binding in interfaceBinding.GetMembers())
+			foreach (IMemberInfo binding in interfaceInfo.GetMembers())
 			{
-				switch (binding.BindingType)
+				switch (binding.InfoType)
 				{
-					case BindingType.Method:
+					case InfoType.Method:
 					{
-						ResolveClassInterfaceMethod(node, interfaceReference, (IMethodBinding)binding);
+						ResolveClassInterfaceMethod(node, interfaceReference, (IMethodInfo)binding);
 						break;
 					}
 					
-					case BindingType.Property:
+					case InfoType.Property:
 					{
-						ResolveClassInterfaceProperty(node, interfaceReference, (IPropertyBinding)binding);
+						ResolveClassInterfaceProperty(node, interfaceReference, (IPropertyInfo)binding);
 						break;
 					}
 					
@@ -290,8 +290,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.Dispose();
 			
-			_currentMethodBinding = null;
-			_methodBindingStack = null;
+			_currentMethodInfo = null;
+			_methodInfoStack = null;
 			_classes = null;
 		}
 		
@@ -312,7 +312,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{				
-			PushNamespace((INamespace)BindingService.GetBinding(module));			
+			PushNamespace((INamespace)InfoService.GetInfo(module));			
 			
 			Accept(module.Members);
 			
@@ -325,11 +325,11 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
-				ITypeBinding baseBinding = GetBoundType(baseType);
-				EnsureRelatedNodeWasVisited(baseBinding);
-				if (!baseBinding.IsInterface)
+				ITypeInfo baseInfo = GetBoundType(baseType);
+				EnsureRelatedNodeWasVisited(baseInfo);
+				if (!baseInfo.IsInterface)
 				{
-					Error(CompilerErrorFactory.InterfaceCanOnlyInheritFromInterface(baseType, node.FullName, baseBinding.FullName));
+					Error(CompilerErrorFactory.InterfaceCanOnlyInheritFromInterface(baseType, node.FullName, baseInfo.FullName));
 				}
 			}
 		}
@@ -338,12 +338,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Accept(node.BaseTypes);
 			
-			ITypeBinding baseClass = null;
+			ITypeInfo baseClass = null;
 			foreach (TypeReference baseType in node.BaseTypes)
 			{				
-				ITypeBinding baseBinding = GetBoundType(baseType);
-				EnsureRelatedNodeWasVisited(baseBinding);
-				if (baseBinding.IsClass)
+				ITypeInfo baseInfo = GetBoundType(baseType);
+				EnsureRelatedNodeWasVisited(baseInfo);
+				if (baseInfo.IsClass)
 				{
 					if (null != baseClass)
 					{
@@ -355,23 +355,23 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						baseClass = baseBinding;
+						baseClass = baseInfo;
 					}
 				}
 			}
 			
 			if (null == baseClass)
 			{
-				node.BaseTypes.Insert(0, CreateBoundTypeReference(BindingService.ObjectTypeBinding)	);
+				node.BaseTypes.Insert(0, CreateBoundTypeReference(InfoService.ObjectTypeInfo)	);
 			}
 		}
 		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			EnumTypeBinding binding = (EnumTypeBinding)GetOptionalBinding(node);
+			EnumTypeInfo binding = (EnumTypeInfo)GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new EnumTypeBinding(BindingService, (EnumDefinition)node);
+				binding = new EnumTypeInfo(InfoService, (EnumDefinition)node);
 			}
 			else if (binding.Visited)
 			{
@@ -402,7 +402,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			InternalTypeBinding binding = GetInternalTypeBinding(node);
+			InternalTypeInfo binding = GetInternalTypeInfo(node);
 			if (binding.Visited)
 			{
 				return;
@@ -419,7 +419,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			InternalTypeBinding binding = GetInternalTypeBinding(node);
+			InternalTypeInfo binding = GetInternalTypeInfo(node);
 			if (binding.Visited)
 			{
 				return;
@@ -439,13 +439,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
-			ITypeBinding binding = BindingService.GetBoundType(node);
-			if (null != binding && !BindingService.IsError(binding))
+			ITypeInfo binding = InfoService.GetBoundType(node);
+			if (null != binding && !InfoService.IsError(binding))
 			{			
 				Accept(node.Arguments);
 				ResolveNamedArguments(node, binding, node.NamedArguments);
 				
-				IConstructorBinding constructor = FindCorrectConstructor(node, binding, node.Arguments);
+				IConstructorInfo constructor = FindCorrectConstructor(node, binding, node.Arguments);
 				if (null != constructor)
 				{
 					Bind(node, constructor);
@@ -455,10 +455,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnProperty(Property node)
 		{
-			InternalPropertyBinding binding = (InternalPropertyBinding)GetOptionalBinding(node);
+			InternalPropertyInfo binding = (InternalPropertyInfo)GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new InternalPropertyBinding(BindingService, node);
+				binding = new InternalPropertyInfo(InfoService, node);
 				Bind(node, binding);
 			}
 			else
@@ -489,28 +489,28 @@ namespace Boo.Lang.Compiler.Steps
 				Accept(getter);
 			}
 			
-			ITypeBinding typeBinding = null;
+			ITypeInfo typeInfo = null;
 			if (null != node.Type)
 			{
-				typeBinding = GetBoundType(node.Type);
+				typeInfo = GetBoundType(node.Type);
 			}
 			else
 			{
 				if (null != getter)
 				{
-					typeBinding = GetBoundType(node.Getter.ReturnType);
+					typeInfo = GetBoundType(node.Getter.ReturnType);
 				}
 				else
 				{
-					typeBinding = BindingService.ObjectTypeBinding;
+					typeInfo = InfoService.ObjectTypeInfo;
 				}
-				node.Type = CreateBoundTypeReference(typeBinding);
+				node.Type = CreateBoundTypeReference(typeInfo);
 			}
 			
 			if (null != setter)
 			{
 				ParameterDeclaration parameter = new ParameterDeclaration();
-				parameter.Type = CreateBoundTypeReference(typeBinding);
+				parameter.Type = CreateBoundTypeReference(typeInfo);
 				parameter.Name = "value";
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
@@ -522,10 +522,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnField(Field node)
 		{
-			InternalFieldBinding binding = (InternalFieldBinding)GetOptionalBinding(node);
+			InternalFieldInfo binding = (InternalFieldInfo)GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new InternalFieldBinding(BindingService, node);
+				binding = new InternalFieldInfo(InfoService, node);
 				Bind(node, binding);
 			}
 			else
@@ -547,7 +547,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null == node.Initializer)
 				{
-					node.Type = CreateBoundTypeReference(BindingService.ObjectTypeBinding);
+					node.Type = CreateBoundTypeReference(InfoService.ObjectTypeInfo);
 				}
 				else
 				{
@@ -650,7 +650,7 @@ namespace Boo.Lang.Compiler.Steps
 				constructor = new Constructor(node.LexicalInfo);
 				constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
 				node.DeclaringType.Members.Add(constructor);				
-				Bind(constructor, new InternalConstructorBinding(BindingService, constructor, true));
+				Bind(constructor, new InternalConstructorInfo(InfoService, constructor, true));
 			}
 			
 			Statement stmt = CreateFieldAssignment(node);
@@ -677,7 +677,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Statement CreateFieldAssignment(Field node)
 		{
-			InternalFieldBinding binding = (InternalFieldBinding)GetBinding(node);
+			InternalFieldInfo binding = (InternalFieldInfo)GetInfo(node);
 			
 			ExpressionStatement stmt = new ExpressionStatement(node.Initializer.LexicalInfo);
 			
@@ -705,9 +705,9 @@ namespace Boo.Lang.Compiler.Steps
 			return stmt;
 		}
 		
-		Statement CreateDefaultConstructorCall(Constructor node, InternalConstructorBinding binding)
+		Statement CreateDefaultConstructorCall(Constructor node, InternalConstructorInfo binding)
 		{			
-			IConstructorBinding defaultConstructor = GetDefaultConstructor(binding.DeclaringType.BaseType);
+			IConstructorInfo defaultConstructor = GetDefaultConstructor(binding.DeclaringType.BaseType);
 			
 			MethodInvocationExpression call = new MethodInvocationExpression(new SuperLiteralExpression());
 			
@@ -719,10 +719,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterConstructor(Constructor node)
 		{			
-			InternalConstructorBinding binding = (InternalConstructorBinding)BindingService.GetOptionalBinding(node);
+			InternalConstructorInfo binding = (InternalConstructorInfo)InfoService.GetOptionalInfo(node);
 			if (null == binding)
 			{
-				binding = new InternalConstructorBinding(BindingService, node);
+				binding = new InternalConstructorInfo(InfoService, node);
 			}
 			else
 			{
@@ -735,45 +735,45 @@ namespace Boo.Lang.Compiler.Steps
 			binding.Visited = true;
 			
 			Bind(node, binding);
-			PushMethodBinding(binding);
+			PushMethodInfo(binding);
 			PushNamespace(binding);
 			return true;
 		}
 		
 		override public void LeaveConstructor(Constructor node)
 		{
-			InternalConstructorBinding binding = (InternalConstructorBinding)_currentMethodBinding;
+			InternalConstructorInfo binding = (InternalConstructorInfo)_currentMethodInfo;
 			if (!binding.HasSuperCall && !node.IsStatic)
 			{
 				node.Body.Statements.Insert(0, CreateDefaultConstructorCall(node, binding));
 			}
 			PopNamespace();
-			PopMethodBinding();
+			PopMethodInfo();
 			BindParameterIndexes(node);
 		}
 		
 		override public bool EnterParameterDeclaration(ParameterDeclaration parameter)
 		{
-			return !BindingService.IsBound(parameter);
+			return !InfoService.IsBound(parameter);
 		}
 		
 		override public void LeaveParameterDeclaration(ParameterDeclaration parameter)
 		{			
 			if (null == parameter.Type)
 			{
-				parameter.Type = CreateBoundTypeReference(BindingService.ObjectTypeBinding);
+				parameter.Type = CreateBoundTypeReference(InfoService.ObjectTypeInfo);
 			}
 			CheckIdentifierName(parameter, parameter.Name);
-			Bindings.ParameterBinding binding = new Bindings.ParameterBinding(parameter, GetBoundType(parameter.Type));
+			Infos.ParameterInfo binding = new Infos.ParameterInfo(parameter, GetBoundType(parameter.Type));
 			Bind(parameter, binding);
 		}	
 		
 		override public void OnMethod(Method method)
 		{				
-			InternalMethodBinding binding = (InternalMethodBinding)GetOptionalBinding(method);
+			InternalMethodInfo binding = (InternalMethodInfo)GetOptionalInfo(method);
 			if (null == binding)
 			{
-				binding = new InternalMethodBinding(BindingService, method);
+				binding = new InternalMethodInfo(InfoService, method);
 				Bind(method, binding);
 			}
 			else
@@ -820,18 +820,18 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			PushMethodBinding(binding);
+			PushMethodInfo(binding);
 			PushNamespace(binding);
 			
 			Accept(method.Body);
 			
 			PopNamespace();
-			PopMethodBinding();
+			PopMethodInfo();
 			BindParameterIndexes(method);			
 			
 			if (parentIsClass)
 			{
-				if (BindingService.IsUnknown(binding.BoundType))
+				if (InfoService.IsUnknown(binding.BoundType))
 				{
 					if (CanResolveReturnType(binding))
 					{
@@ -855,10 +855,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{			
-			Bind(node, _currentMethodBinding);
-			if (BindingType.Constructor != _currentMethodBinding.BindingType)
+			Bind(node, _currentMethodInfo);
+			if (InfoType.Constructor != _currentMethodInfo.InfoType)
 			{
-				_currentMethodBinding.SuperExpressions.Add(node);
+				_currentMethodInfo.SuperExpressions.Add(node);
 			}
 		}
 		
@@ -866,9 +866,9 @@ namespace Boo.Lang.Compiler.Steps
 		/// Checks if the specified method overrides any virtual
 		/// method in the base class.
 		/// </summary>
-		void CheckMethodOverride(InternalMethodBinding binding)
+		void CheckMethodOverride(InternalMethodInfo binding)
 		{		
-			IMethodBinding baseMethod = FindMethodOverride(binding);
+			IMethodInfo baseMethod = FindMethodOverride(binding);
 			if (null == baseMethod || binding.BoundType != baseMethod.ReturnType)
 			{
 				foreach (Expression super in binding.SuperExpressions)
@@ -885,26 +885,26 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		IMethodBinding FindMethodOverride(InternalMethodBinding binding)
+		IMethodInfo FindMethodOverride(InternalMethodInfo binding)
 		{
-			ITypeBinding baseType = binding.DeclaringType.BaseType;			
+			ITypeInfo baseType = binding.DeclaringType.BaseType;			
 			Method method = binding.Method;			
-			IBinding baseMethods = baseType.Resolve(binding.Name);
+			IInfo baseMethods = baseType.Resolve(binding.Name);
 			
 			if (null != baseMethods)
 			{
-				if (BindingType.Method == baseMethods.BindingType)
+				if (InfoType.Method == baseMethods.InfoType)
 				{
-					IMethodBinding baseMethod = (IMethodBinding)baseMethods;
+					IMethodInfo baseMethod = (IMethodInfo)baseMethods;
 					if (CheckOverrideSignature(binding, baseMethod))
 					{	
 						return baseMethod;
 					}
 				}
-				else if (BindingType.Ambiguous == baseMethods.BindingType)
+				else if (InfoType.Ambiguous == baseMethods.InfoType)
 				{
-					IBinding[] bindings = ((AmbiguousBinding)baseMethods).Bindings;
-					IMethodBinding baseMethod = (IMethodBinding)ResolveMethodReference(method, method.Parameters, bindings, false);
+					IInfo[] bindings = ((AmbiguousInfo)baseMethods).Infos;
+					IMethodInfo baseMethod = (IMethodInfo)ResolveMethodReference(method, method.Parameters, bindings, false);
 					if (null != baseMethod)
 					{
 						return baseMethod;
@@ -914,9 +914,9 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		void ResolveMethodOverride(InternalMethodBinding binding)
+		void ResolveMethodOverride(InternalMethodInfo binding)
 		{	
-			IMethodBinding baseMethod = FindMethodOverride(binding);
+			IMethodInfo baseMethod = FindMethodOverride(binding);
 			if (null == baseMethod)
 			{
 				Error(CompilerErrorFactory.NoMethodToOverride(binding.Method, GetSignature(binding)));
@@ -929,7 +929,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (BindingService.IsUnknown(binding.BoundType))
+					if (InfoService.IsUnknown(binding.BoundType))
 					{
 						binding.Method.ReturnType = CreateBoundTypeReference(baseMethod.ReturnType);
 					}
@@ -949,19 +949,19 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void CantOverrideNonVirtual(Method method, IMethodBinding baseMethod)
+		void CantOverrideNonVirtual(Method method, IMethodInfo baseMethod)
 		{
 			Error(CompilerErrorFactory.CantOverrideNonVirtual(method, baseMethod.ToString()));
 		}
 		
-		void SetOverride(InternalMethodBinding binding, IMethodBinding baseMethod)
+		void SetOverride(InternalMethodInfo binding, IMethodInfo baseMethod)
 		{
 			binding.Override = baseMethod;
 			TraceOverride(binding.Method, baseMethod);
 			binding.Method.Modifiers |= TypeMemberModifiers.Override;
 		}
 		
-		bool CheckOverrideSignature(IMethodBinding impl, IMethodBinding baseMethod)
+		bool CheckOverrideSignature(IMethodInfo impl, IMethodInfo baseMethod)
 		{
 			if (impl.ParameterCount == baseMethod.ParameterCount)
 			{
@@ -977,16 +977,16 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
-		ITypeBinding GetBaseType(TypeDefinition typeDefinition)
+		ITypeInfo GetBaseType(TypeDefinition typeDefinition)
 		{
-			return ((ITypeBinding)GetBinding(typeDefinition)).BaseType;
+			return ((ITypeInfo)GetInfo(typeDefinition)).BaseType;
 		}
 		
-		bool CanResolveReturnType(InternalMethodBinding binding)
+		bool CanResolveReturnType(InternalMethodInfo binding)
 		{
 			foreach (Expression rsExpression in binding.ReturnExpressions)
 			{
-				if (BindingService.IsUnknown(GetBoundType(rsExpression)))
+				if (InfoService.IsUnknown(GetBoundType(rsExpression)))
 				{
 					return false;
 				}
@@ -994,27 +994,27 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		void ResolveReturnType(InternalMethodBinding binding)
+		void ResolveReturnType(InternalMethodInfo binding)
 		{				
 			Method method = binding.Method;
 			ExpressionCollection returnExpressions = binding.ReturnExpressions;
 			if (0 == returnExpressions.Count)
 			{					
-				method.ReturnType = CreateBoundTypeReference(BindingService.VoidTypeBinding);
+				method.ReturnType = CreateBoundTypeReference(InfoService.VoidTypeInfo);
 			}		
 			else
 			{					
-				ITypeBinding type = GetMostGenericType(returnExpressions);
-				if (NullBinding.Default == type)
+				ITypeInfo type = GetMostGenericType(returnExpressions);
+				if (NullInfo.Default == type)
 				{
-					type = BindingService.ObjectTypeBinding; 
+					type = InfoService.ObjectTypeInfo; 
 				}
 				method.ReturnType = CreateBoundTypeReference(type);
 			}
 			TraceReturnType(method, binding);	
 		}
 		
-		ITypeBinding GetMostGenericType(ITypeBinding current, ITypeBinding candidate)
+		ITypeInfo GetMostGenericType(ITypeInfo current, ITypeInfo candidate)
 		{
 			if (IsAssignableFrom(current, candidate))
 			{
@@ -1028,10 +1028,10 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (IsNumber(current) && IsNumber(candidate))
 			{
-				return BindingService.GetPromotedNumberType(current, candidate);
+				return InfoService.GetPromotedNumberType(current, candidate);
 			}
 			
-			ITypeBinding obj = BindingService.ObjectTypeBinding;
+			ITypeInfo obj = InfoService.ObjectTypeInfo;
 			
 			if (current.IsClass && candidate.IsClass)
 			{
@@ -1049,12 +1049,12 @@ namespace Boo.Lang.Compiler.Steps
 			return obj;
 		}
 		
-		ITypeBinding GetMostGenericType(ExpressionCollection args)
+		ITypeInfo GetMostGenericType(ExpressionCollection args)
 		{
-			ITypeBinding type = GetExpressionType(args[0]);
+			ITypeInfo type = GetExpressionType(args[0]);
 			for (int i=1; i<args.Count; ++i)
 			{	
-				ITypeBinding newType = GetExpressionType(args[i]);
+				ITypeInfo newType = GetExpressionType(args[i]);
 				
 				if (type == newType)
 				{
@@ -1062,7 +1062,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				type = GetMostGenericType(type, newType);
-				if (type == BindingService.ObjectTypeBinding)
+				if (type == InfoService.ObjectTypeInfo)
 				{
 					break;
 				}
@@ -1082,27 +1082,27 @@ namespace Boo.Lang.Compiler.Steps
 			
 			for (int i=0; i<parameters.Count; ++i)
 			{
-				((ParameterBinding)GetBinding(parameters[i])).Index = i + delta;
+				((ParameterInfo)GetInfo(parameters[i])).Index = i + delta;
 			}
 		}
 		
 		override public void OnArrayTypeReference(ArrayTypeReference node)
 		{
-			if (BindingService.IsBound(node))
+			if (InfoService.IsBound(node))
 			{
 				return;
 			}
 
 			Accept(node.ElementType);
 			
-			ITypeBinding elementType = GetBoundType(node.ElementType);
-			if (BindingService.IsError(elementType))
+			ITypeInfo elementType = GetBoundType(node.ElementType);
+			if (InfoService.IsError(elementType))
 			{
 				Bind(node, elementType);
 			}
 			else
 			{
-				ITypeBinding arrayType = BindingService.AsArrayBinding(elementType);
+				ITypeInfo arrayType = InfoService.AsArrayInfo(elementType);
 				Bind(node, arrayType);
 			}
 		}
@@ -1114,70 +1114,70 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
-			Bind(node, BindingService.BoolTypeBinding);
+			Bind(node, InfoService.BoolTypeInfo);
 		}
 		
 		override public void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
 		{
-			Bind(node, BindingService.TimeSpanTypeBinding);
+			Bind(node, InfoService.TimeSpanTypeInfo);
 		}
 		
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
 			if (node.IsLong)
 			{
-				Bind(node, BindingService.LongTypeBinding);
+				Bind(node, InfoService.LongTypeInfo);
 			}
 			else
 			{
-				Bind(node, BindingService.IntTypeBinding);
+				Bind(node, InfoService.IntTypeInfo);
 			}
 		}
 		
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
-			Bind(node, BindingService.DoubleTypeBinding);
+			Bind(node, InfoService.DoubleTypeInfo);
 		}
 		
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
 		{
-			Bind(node, BindingService.StringTypeBinding);
+			Bind(node, InfoService.StringTypeInfo);
 		}
 		
-		IBinding[] GetSetMethods(IBinding[] bindings)
+		IInfo[] GetSetMethods(IInfo[] bindings)
 		{
 			ArrayList setMethods = new ArrayList();
 			for (int i=0; i<bindings.Length; ++i)
 			{
-				IPropertyBinding property = bindings[i] as IPropertyBinding;
+				IPropertyInfo property = bindings[i] as IPropertyInfo;
 				if (null != property)
 				{
-					IMethodBinding setter = property.GetSetMethod();
+					IMethodInfo setter = property.GetSetMethod();
 					if (null != setter)
 					{
 						setMethods.Add(setter);
 					}
 				}
 			}
-			return (IBinding[])setMethods.ToArray(typeof(IBinding));
+			return (IInfo[])setMethods.ToArray(typeof(IInfo));
 		}
 		
-		IBinding[] GetGetMethods(IBinding[] bindings)
+		IInfo[] GetGetMethods(IInfo[] bindings)
 		{
 			ArrayList getMethods = new ArrayList();
 			for (int i=0; i<bindings.Length; ++i)
 			{
-				IPropertyBinding property = bindings[i] as IPropertyBinding;
+				IPropertyInfo property = bindings[i] as IPropertyInfo;
 				if (null != property)
 				{
-					IMethodBinding getter = property.GetGetMethod();
+					IMethodInfo getter = property.GetGetMethod();
 					if (null != getter)
 					{
 						getMethods.Add(getter);
 					}
 				}
 			}
-			return (IBinding[])getMethods.ToArray(typeof(IBinding));
+			return (IInfo[])getMethods.ToArray(typeof(IInfo));
 		}
 		
 		void CheckNoComplexSlicing(SlicingExpression node)
@@ -1221,7 +1221,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (!CheckTypeCompatibility(node.Begin, BindingService.IntTypeBinding, GetExpressionType(node.Begin)))
+				if (!CheckTypeCompatibility(node.Begin, InfoService.IntTypeInfo, GetExpressionType(node.Begin)))
 				{
 					Error(node);
 					return false;
@@ -1230,7 +1230,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != node.End && OmittedExpression.Default != node.End)
 			{
-				if (!CheckTypeCompatibility(node.End, BindingService.IntTypeBinding, GetExpressionType(node.End)))
+				if (!CheckTypeCompatibility(node.End, InfoService.IntTypeInfo, GetExpressionType(node.End)))
 				{
 					Error(node);
 					return false;
@@ -1278,14 +1278,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
-			ITypeBinding targetType = GetExpressionType(node.Target);
-			if (BindingService.IsError(targetType))
+			ITypeInfo targetType = GetExpressionType(node.Target);
+			if (InfoService.IsError(targetType))
 			{
 				Error(node);
 				return;
 			}
 			
-			IBinding binding = GetBinding(node.Target);
+			IInfo binding = GetInfo(node.Target);
 			if (IsIndexedProperty(binding))
 			{
 				CheckNoComplexSlicing(node);
@@ -1314,7 +1314,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsComplexSlicing(node))
 					{
-						if (BindingService.StringTypeBinding == targetType)
+						if (InfoService.StringTypeInfo == targetType)
 						{
 							BindComplexStringSlicing(node);
 						}
@@ -1325,7 +1325,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						IBinding member = targetType.GetDefaultMember();
+						IInfo member = targetType.GetDefaultMember();
 						if (null == member)
 						{
 							Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));					
@@ -1339,13 +1339,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		bool IsIndexedProperty(IBinding binding)
+		bool IsIndexedProperty(IInfo binding)
 		{
-			return BindingType.Property == binding.BindingType &&
-				((IPropertyBinding)binding).GetIndexParameters().Length > 0;
+			return InfoType.Property == binding.InfoType &&
+				((IPropertyInfo)binding).GetIndexParameters().Length > 0;
 		}
 		
-		void SliceMember(SlicingExpression node, IBinding member, bool defaultMember)
+		void SliceMember(SlicingExpression node, IInfo member, bool defaultMember)
 		{
 			if (AstUtil.IsLhsOfAssignment(node))
 			{
@@ -1357,16 +1357,16 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
 			mie.Arguments.Add(node.Begin);
 			
-			IMethodBinding getter = null;
+			IMethodInfo getter = null;
 			
-			if (BindingType.Ambiguous == member.BindingType)
+			if (InfoType.Ambiguous == member.InfoType)
 			{
-				IBinding[] bindings = GetGetMethods(((AmbiguousBinding)member).Bindings);
-				getter = (IMethodBinding)ResolveMethodReference(node, mie.Arguments, bindings, true);						
+				IInfo[] bindings = GetGetMethods(((AmbiguousInfo)member).Infos);
+				getter = (IMethodInfo)ResolveMethodReference(node, mie.Arguments, bindings, true);						
 			}
-			else if (BindingType.Property == member.BindingType)
+			else if (InfoType.Property == member.InfoType)
 			{
-				getter = ((IPropertyBinding)member).GetGetMethod();
+				getter = ((IPropertyInfo)member).GetGetMethod();
 			}
 			
 			if (null != getter)
@@ -1401,12 +1401,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{
-			Bind(node, BindingService.StringTypeBinding);
+			Bind(node, InfoService.StringTypeInfo);
 		}
 		
 		override public void LeaveListLiteralExpression(ListLiteralExpression node)
 		{			
-			Bind(node, BindingService.ListTypeBinding);
+			Bind(node, InfoService.ListTypeInfo);
 		}
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)
@@ -1419,7 +1419,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Iterator = newIterator;
 			}
 			
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingService, node.Declarations));			
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, InfoService, node.Declarations));			
 			Accept(node.Filter);			
 			Accept(node.Expression);
 			PopNamespace();
@@ -1427,7 +1427,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)
 		{
-			Bind(node, BindingService.HashTypeBinding);
+			Bind(node, InfoService.HashTypeInfo);
 		}
 		
 		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
@@ -1435,17 +1435,17 @@ namespace Boo.Lang.Compiler.Steps
 			ExpressionCollection items = node.Items;
 			if (0 == items.Count)
 			{
-				Bind(node, BindingService.ObjectArrayBinding);
+				Bind(node, InfoService.ObjectArrayInfo);
 			}
 			else
 			{
-				Bind(node, BindingService.AsArrayBinding(GetMostGenericType(items)));
+				Bind(node, InfoService.AsArrayInfo(GetMostGenericType(items)));
 			}
 		}
 		
 		override public void LeaveDeclarationStatement(DeclarationStatement node)
 		{
-			ITypeBinding binding = BindingService.ObjectTypeBinding;
+			ITypeInfo binding = InfoService.ObjectTypeInfo;
 			if (null != node.Declaration.Type)
 			{
 				binding = GetBoundType(node.Declaration.Type);			
@@ -1453,14 +1453,14 @@ namespace Boo.Lang.Compiler.Steps
 			
 			CheckDeclarationName(node.Declaration);
 			
-			LocalBinding localBinding = DeclareLocal(node, new Local(node.Declaration, false), binding);
+			LocalInfo localInfo = DeclareLocal(node, new Local(node.Declaration, false), binding);
 			if (null != node.Initializer)
 			{
 				CheckTypeCompatibility(node.Initializer, binding, GetExpressionType(node.Initializer));
 				
 				ReferenceExpression var = new ReferenceExpression(node.Declaration.LexicalInfo);
 				var.Name = node.Declaration.Name;
-				Bind(var, localBinding);				
+				Bind(var, localInfo);				
 				
 				BinaryExpression assign = new BinaryExpression(node.LexicalInfo);
 				assign.Operator = BinaryOperatorType.Assign;
@@ -1478,7 +1478,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveExpressionStatement(ExpressionStatement node)
 		{
-			if (!HasSideEffect(node.Expression) && !BindingService.IsError(node.Expression))
+			if (!HasSideEffect(node.Expression) && !InfoService.IsError(node.Expression))
 			{
 				Error(CompilerErrorFactory.ExpressionStatementMustHaveSideEffect(node));
 			}
@@ -1486,50 +1486,50 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnNullLiteralExpression(NullLiteralExpression node)
 		{
-			Bind(node, NullBinding.Default);
+			Bind(node, NullInfo.Default);
 		}
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
-			if (null == _currentMethodBinding)
+			if (null == _currentMethodInfo)
 			{
 				Error(node, CompilerErrorFactory.SelfOutsideMethod(node));
 			}
 			else
 			{			
-				if (_currentMethodBinding.IsStatic)
+				if (_currentMethodInfo.IsStatic)
 				{
 					Error(node, CompilerErrorFactory.ObjectRequired(node));
 				}
 				else
 				{
-					Bind(node, BindingService.GetBinding(_currentMethodBinding.Method.DeclaringType));
+					Bind(node, InfoService.GetInfo(_currentMethodInfo.Method.DeclaringType));
 				}
 			}
 		}
 		
 		override public void LeaveTypeofExpression(TypeofExpression node)
 		{
-			if (BindingService.IsError(node.Type))
+			if (InfoService.IsError(node.Type))
 			{
 				Error(node);
 			}
 			else
 			{
-				Bind(node, BindingService.TypeTypeBinding);
+				Bind(node, InfoService.TypeTypeInfo);
 			}
 		}
 		
 		override public void LeaveCastExpression(CastExpression node)
 		{
-			ITypeBinding toType = GetBoundType(node.Type);
+			ITypeInfo toType = GetBoundType(node.Type);
 			Bind(node, toType);
 		}
 		
 		override public void LeaveAsExpression(AsExpression node)
 		{
-			ITypeBinding target = GetExpressionType(node.Target);
-			ITypeBinding toType = GetBoundType(node.Type);
+			ITypeInfo target = GetExpressionType(node.Target);
+			ITypeInfo toType = GetBoundType(node.Type);
 			
 			if (target.IsValueType)
 			{
@@ -1545,7 +1545,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ResolveMemberBinding(ReferenceExpression node, IMemberBinding member)
+		void ResolveMemberInfo(ReferenceExpression node, IMemberInfo member)
 		{
 			MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
 			memberRef.Name = node.Name;
@@ -1565,12 +1565,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
 		{			
-			if (BindingService.IsBound(node))
+			if (InfoService.IsBound(node))
 			{
 				return;
 			}
 			
-			ITypeBinding type = BindingService.AsTypeBinding(typeof(System.Text.RegularExpressions.Regex));
+			ITypeInfo type = InfoService.AsTypeInfo(typeof(System.Text.RegularExpressions.Regex));
 			Bind(node, type);
 			
 			if (NodeType.Field != node.ParentNode.NodeType)
@@ -1579,7 +1579,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ReplaceByStaticFieldReference(Expression node, string fieldName, ITypeBinding type)
+		void ReplaceByStaticFieldReference(Expression node, string fieldName, ITypeInfo type)
 		{
 			Node parent = node.ParentNode;
 			
@@ -1589,8 +1589,8 @@ namespace Boo.Lang.Compiler.Steps
 			field.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Static;
 			field.Initializer = node;
 			
-			_currentMethodBinding.Method.DeclaringType.Members.Add(field);
-			InternalFieldBinding binding = new InternalFieldBinding(BindingService, field);
+			_currentMethodInfo.Method.DeclaringType.Members.Add(field);
+			InternalFieldInfo binding = new InternalFieldInfo(InfoService, field);
 			Bind(field, binding);
 			
 			AddFieldInitializerToStaticConstructor(0, field);
@@ -1605,26 +1605,26 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			if (BindingService.IsBound(node))
+			if (InfoService.IsBound(node))
 			{
 				return;
 			}
 			
-			IBinding binding = ResolveName(node, node.Name);
+			IInfo binding = ResolveName(node, node.Name);
 			if (null != binding)
 			{
 				Bind(node, binding);
 				
 				EnsureRelatedNodeWasVisited(binding);
 				
-				IMemberBinding member = binding as IMemberBinding;
+				IMemberInfo member = binding as IMemberInfo;
 				if (null != member)
 				{	
-					ResolveMemberBinding(node, member);
+					ResolveMemberInfo(node, member);
 				}
 				else
 				{
-					if (BindingType.TypeReference == binding.BindingType)
+					if (InfoType.TypeReference == binding.InfoType)
 					{
 						node.Name = binding.FullName;
 					}
@@ -1638,7 +1638,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			if (BindingService.IsBound(node))
+			if (InfoService.IsBound(node))
 			{
 				return false;
 			}
@@ -1647,30 +1647,30 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			IBinding binding = GetBinding(node.Target);
-			ITypedBinding typedBinding = binding as ITypedBinding;
-			if (null != typedBinding)
+			IInfo binding = GetInfo(node.Target);
+			ITypedInfo typedInfo = binding as ITypedInfo;
+			if (null != typedInfo)
 			{
-				binding = typedBinding.BoundType;
+				binding = typedInfo.BoundType;
 			}
 			
-			if (BindingService.IsError(binding))
+			if (InfoService.IsError(binding))
 			{
 				Error(node);
 			}
 			else
 			{
-				IBinding member = ((INamespace)binding).Resolve(node.Name);				
+				IInfo member = ((INamespace)binding).Resolve(node.Name);				
 				if (null == member)
 				{										
 					Error(node, CompilerErrorFactory.MemberNotFound(node, binding.FullName));
 				}
 				else
 				{
-					IMemberBinding memberBinding = member as IMemberBinding;
-					if (null != memberBinding)
+					IMemberInfo memberInfo = member as IMemberInfo;
+					if (null != memberInfo)
 					{
-						if (!CheckTargetContext(node, memberBinding))
+						if (!CheckTargetContext(node, memberInfo))
 						{
 							Error(node);
 							return;
@@ -1679,7 +1679,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 					EnsureRelatedNodeWasVisited(member);
 					
-					if (BindingType.Property == member.BindingType)
+					if (InfoType.Property == member.InfoType)
 					{
 						if (!AstUtil.IsLhsOfAssignment(node) &&
 							!IsPreIncDec(node.ParentNode))
@@ -1694,7 +1694,7 @@ namespace Boo.Lang.Compiler.Steps
 							}
 							else
 							{
-								node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IPropertyBinding)member).GetGetMethod()));
+								node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IPropertyInfo)member).GetGetMethod()));
 								return;
 							}
 						}
@@ -1747,14 +1747,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null != node.Expression)
 			{
-				ITypeBinding returnType = _currentMethodBinding.BoundType;
-				if (BindingService.IsUnknown(returnType))
+				ITypeInfo returnType = _currentMethodInfo.BoundType;
+				if (InfoService.IsUnknown(returnType))
 				{
-					_currentMethodBinding.ReturnExpressions.Add(node.Expression);
+					_currentMethodInfo.ReturnExpressions.Add(node.Expression);
 				}
 				else
 				{
-					ITypeBinding expressionType = GetBoundType(node.Expression);
+					ITypeInfo expressionType = GetBoundType(node.Expression);
 					CheckTypeCompatibility(node.Expression, returnType, expressionType);
 				}
 			}
@@ -1768,9 +1768,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Expression newIterator = null;
 			
-			ITypeBinding iteratorType = GetExpressionType(iterator);			
+			ITypeInfo iteratorType = GetExpressionType(iterator);			
 			bool runtimeIterator = false;			
-			if (!BindingService.IsError(iteratorType))
+			if (!InfoService.IsError(iteratorType))
 			{
 				CheckIterator(iterator, iteratorType, out runtimeIterator);
 			}			
@@ -1802,7 +1802,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Iterator = newIterator;
 			}
 			
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingService, node.Declarations));
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, InfoService, node.Declarations));
 			EnterLoop();
 			Accept(node.Block);
 			LeaveLoop();
@@ -1822,13 +1822,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveRaiseStatement(RaiseStatement node)
 		{
-			if (BindingService.StringTypeBinding == GetBoundType(node.Exception))
+			if (InfoService.StringTypeInfo == GetBoundType(node.Exception))
 			{
 				MethodInvocationExpression expression = new MethodInvocationExpression(node.Exception.LexicalInfo);
 				expression.Arguments.Add(node.Exception);
 				expression.Target = new ReferenceExpression("System.ApplicationException");
 				Bind(expression.Target, ApplicationException_StringConstructor);
-				Bind(expression, BindingService.ApplicationExceptionBinding);
+				Bind(expression, InfoService.ApplicationExceptionInfo);
 
 				node.Exception = expression;				
 			}
@@ -1838,7 +1838,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Declaration.Type)
 			{
-				node.Declaration.Type = CreateBoundTypeReference(BindingService.ExceptionTypeBinding);				
+				node.Declaration.Type = CreateBoundTypeReference(InfoService.ExceptionTypeInfo);				
 			}
 			else
 			{
@@ -1846,24 +1846,24 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetBoundType(node.Declaration.Type));
-			PushNamespace(new DeclarationsNamespace(CurrentNamespace, BindingService, node.Declaration));
+			PushNamespace(new DeclarationsNamespace(CurrentNamespace, InfoService, node.Declaration));
 			Accept(node.Block);
 			PopNamespace();
 		}
 		
 		void OnIncrementDecrement(UnaryExpression node)
 		{			
-			IBinding binding = GetBinding(node.Operand);
+			IInfo binding = GetInfo(node.Operand);
 			if (CheckLValue(node.Operand, binding))
 			{
-				ITypedBinding typed = (ITypedBinding)binding;
+				ITypedInfo typed = (ITypedInfo)binding;
 				if (!IsNumber(typed.BoundType))
 				{
 					InvalidOperatorForType(node);					
 				}
 				else
 				{
-					BindingService.Unbind(node.Operand);
+					InfoService.Unbind(node.Operand);
 					BinaryExpression addition = new BinaryExpression(
 														node.Operator == UnaryOperatorType.Increment ?
 																BinaryOperatorType.Addition : BinaryOperatorType.Subtraction,
@@ -1891,12 +1891,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case UnaryOperatorType.LogicalNot:					
 				{
-					IBinding binding = ErrorBinding.Default;					
+					IInfo binding = ErrorInfo.Default;					
 					if (CheckBoolContext(node.Operand))
 					{
-						binding = BindingService.BoolTypeBinding;
+						binding = InfoService.BoolTypeInfo;
 					}
-					Bind(node, BindingService.BoolTypeBinding);
+					Bind(node, InfoService.BoolTypeInfo);
 					break;
 				}
 				
@@ -1942,11 +1942,11 @@ namespace Boo.Lang.Compiler.Steps
 				// assign to unknown reference implies local
 				// declaration
 				ReferenceExpression reference = (ReferenceExpression)node.Left;
-				IBinding info = Resolve(node, reference.Name);					
+				IInfo info = Resolve(node, reference.Name);					
 				if (null == info || IsBuiltin(info))
 				{
 					Accept(node.Right);
-					ITypeBinding expressionTypeInfo = GetExpressionType(node.Right);				
+					ITypeInfo expressionTypeInfo = GetExpressionType(node.Right);				
 					DeclareLocal(reference, new Local(reference, false), expressionTypeInfo);
 					Bind(node, expressionTypeInfo);
 					return false;
@@ -1955,24 +1955,24 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool IsBuiltin(IBinding binding)
+		bool IsBuiltin(IInfo binding)
 		{
-			if (BindingType.Method == binding.BindingType)
+			if (InfoType.Method == binding.InfoType)
 			{
-				return BindingService.BuiltinsBinding == ((IMethodBinding)binding).DeclaringType;
+				return InfoService.BuiltinsInfo == ((IMethodInfo)binding).DeclaringType;
 			}
 			return false;
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{					
-			if (BindingService.IsUnknown(node.Left) || BindingService.IsUnknown(node.Right))
+			if (InfoService.IsUnknown(node.Left) || InfoService.IsUnknown(node.Right))
 			{
-				Bind(node, UnknownBinding.Default);
+				Bind(node, UnknownInfo.Default);
 				return;
 			}
 			
-			if (BindingService.IsError(node.Left) || BindingService.IsError(node.Right))
+			if (InfoService.IsError(node.Left) || InfoService.IsError(node.Right))
 			{
 				Error(node);
 				return;
@@ -2078,10 +2078,10 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.InPlaceAdd:
 				{
-					IBinding binding = GetBinding(node.Left);
-					BindingType bindingType = binding.BindingType;
-					if (BindingType.Event == bindingType ||
-						BindingType.Ambiguous == bindingType)
+					IInfo binding = GetInfo(node.Left);
+					InfoType bindingType = binding.InfoType;
+					if (InfoType.Event == bindingType ||
+						InfoType.Ambiguous == bindingType)
 					{
 						BindInPlaceAddEvent(node);
 					}
@@ -2139,7 +2139,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		ITypeBinding GetMostGenericType(BinaryExpression node)
+		ITypeInfo GetMostGenericType(BinaryExpression node)
 		{
 			ExpressionCollection args = new ExpressionCollection();
 			args.Add(node.Left);
@@ -2149,12 +2149,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindBitwiseOperator(BinaryExpression node)
 		{
-			ITypeBinding lhs = GetExpressionType(node.Left);
-			ITypeBinding rhs = GetExpressionType(node.Right);
+			ITypeInfo lhs = GetExpressionType(node.Left);
+			ITypeInfo rhs = GetExpressionType(node.Right);
 			
 			if (IsIntegerNumber(lhs) && IsIntegerNumber(rhs))
 			{
-				Bind(node, BindingService.GetPromotedNumberType(lhs, rhs));
+				Bind(node, InfoService.GetPromotedNumberType(lhs, rhs));
 			}
 			else
 			{
@@ -2174,18 +2174,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindCmpOperator(BinaryExpression node)
 		{
-			ITypeBinding lhs = GetExpressionType(node.Left);
-			ITypeBinding rhs = GetExpressionType(node.Right);
+			ITypeInfo lhs = GetExpressionType(node.Left);
+			ITypeInfo rhs = GetExpressionType(node.Right);
 			
 			if (IsNumber(lhs) && IsNumber(rhs))
 			{
-				Bind(node, BindingService.BoolTypeBinding);
+				Bind(node, InfoService.BoolTypeInfo);
 			}
 			else if (lhs.IsEnum || rhs.IsEnum)
 			{
 				if (lhs == rhs)
 				{
-					Bind(node, BindingService.BoolTypeBinding);
+					Bind(node, InfoService.BoolTypeInfo);
 				}
 				else
 				{
@@ -2235,39 +2235,39 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindInPlaceAddEvent(BinaryExpression node)
 		{
-			IBinding binding = GetBinding(node.Left);
-			if (BindingType.Event != binding.BindingType)
+			IInfo binding = GetInfo(node.Left);
+			if (InfoType.Event != binding.InfoType)
 			{						
-				if (BindingType.Ambiguous == binding.BindingType)
+				if (InfoType.Ambiguous == binding.InfoType)
 				{
-					IList found = ((AmbiguousBinding)binding).Filter(IsPublicEventFilter);
+					IList found = ((AmbiguousInfo)binding).Filter(IsPublicEventFilter);
 					if (found.Count != 1)
 					{
 						binding = null;
 					}
 					else
 					{
-						binding = (IBinding)found[0];
+						binding = (IInfo)found[0];
 						Bind(node.Left, binding);
 					}
 				}
 			}
 			
-			IEventBinding eventBinding = (IEventBinding)binding;
-			ITypedBinding expressionBinding = (ITypedBinding)GetBinding(node.Right);
-			CheckDelegateArgument(node.Left, eventBinding, expressionBinding);
+			IEventInfo eventInfo = (IEventInfo)binding;
+			ITypedInfo expressionInfo = (ITypedInfo)GetInfo(node.Right);
+			CheckDelegateArgument(node.Left, eventInfo, expressionInfo);
 			
-			Bind(node, BindingService.VoidTypeBinding);
+			Bind(node, InfoService.VoidTypeInfo);
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethodBinding binding, Expression arg)
+		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethodInfo binding, Expression arg)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(target, binding);
 			mie.Arguments.Add(arg);
 			return mie;
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethodBinding binding)
+		MethodInvocationExpression CreateMethodInvocation(Expression target, IMethodInfo binding)
 		{
 			MemberReferenceExpression member = new MemberReferenceExpression(target.LexicalInfo);
 			member.Target = target;
@@ -2281,7 +2281,7 @@ namespace Boo.Lang.Compiler.Steps
 			return mie;			
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(IMethodBinding staticMethod, Expression arg)
+		MethodInvocationExpression CreateMethodInvocation(IMethodInfo staticMethod, Expression arg)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(arg.LexicalInfo);
 			mie.Target = new ReferenceExpression(staticMethod.FullName);
@@ -2292,23 +2292,23 @@ namespace Boo.Lang.Compiler.Steps
 			return mie;
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(IMethodBinding staticMethod, Expression arg0, Expression arg1)
+		MethodInvocationExpression CreateMethodInvocation(IMethodInfo staticMethod, Expression arg0, Expression arg1)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0);
 			mie.Arguments.Add(arg1);
 			return mie;
 		}
 		
-		MethodInvocationExpression CreateMethodInvocation(IMethodBinding staticMethod, Expression arg0, Expression arg1, Expression arg2)
+		MethodInvocationExpression CreateMethodInvocation(IMethodInfo staticMethod, Expression arg0, Expression arg1, Expression arg2)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0, arg1);
 			mie.Arguments.Add(arg2);
 			return mie;
 		}
 		
-		public void OnSpecialFunction(IBinding binding, MethodInvocationExpression node)
+		public void OnSpecialFunction(IInfo binding, MethodInvocationExpression node)
 		{
-			SpecialFunctionBinding sf = (SpecialFunctionBinding)binding;
+			SpecialFunctionInfo sf = (SpecialFunctionInfo)binding;
 			switch (sf.Function)
 			{
 				case SpecialFunction.Len:
@@ -2322,20 +2322,20 @@ namespace Boo.Lang.Compiler.Steps
 						MethodInvocationExpression resultingNode = null;
 						
 						Expression target = node.Arguments[0];
-						ITypeBinding type = GetExpressionType(target);
-						if (BindingService.ObjectTypeBinding == type)
+						ITypeInfo type = GetExpressionType(target);
+						if (InfoService.ObjectTypeInfo == type)
 						{
 							resultingNode = CreateMethodInvocation(RuntimeServices_Len, target);
 						}
-						else if (BindingService.StringTypeBinding == type)
+						else if (InfoService.StringTypeInfo == type)
 						{
 							resultingNode = CreateMethodInvocation(target, String_get_Length);
 						}
-						else if (BindingService.ArrayTypeBinding.IsAssignableFrom(type))
+						else if (InfoService.ArrayTypeInfo.IsAssignableFrom(type))
 						{
 							resultingNode = CreateMethodInvocation(target, Array_get_Length);
 						}
-						else if (BindingService.ICollectionTypeBinding.IsAssignableFrom(type))
+						else if (InfoService.ICollectionTypeInfo.IsAssignableFrom(type))
 						{
 							resultingNode = CreateMethodInvocation(target, ICollection_get_Count);
 						}	
@@ -2361,50 +2361,50 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			if (BindingService.IsBound(node))
+			if (InfoService.IsBound(node))
 			{
 				return;
 			}
 			Accept(node.Target);			
 			Accept(node.Arguments);
 			
-			IBinding targetBinding = BindingService.GetBinding(node.Target);
-			if (BindingService.IsError(targetBinding) ||
-				BindingService.IsErrorAny(node.Arguments))
+			IInfo targetInfo = InfoService.GetInfo(node.Target);
+			if (InfoService.IsError(targetInfo) ||
+				InfoService.IsErrorAny(node.Arguments))
 			{
 				Error(node);
 				return;
 			}
 			
-			if (BindingType.Ambiguous == targetBinding.BindingType)
+			if (InfoType.Ambiguous == targetInfo.InfoType)
 			{		
-				IBinding[] bindings = ((AmbiguousBinding)targetBinding).Bindings;
-				targetBinding = ResolveMethodReference(node, node.Arguments, bindings, true);				
-				if (null == targetBinding)
+				IInfo[] bindings = ((AmbiguousInfo)targetInfo).Infos;
+				targetInfo = ResolveMethodReference(node, node.Arguments, bindings, true);				
+				if (null == targetInfo)
 				{
 					return;
 				}
 				
 				if (NodeType.ReferenceExpression == node.Target.NodeType)
 				{
-					ResolveMemberBinding((ReferenceExpression)node.Target, (IMemberBinding)targetBinding);
+					ResolveMemberInfo((ReferenceExpression)node.Target, (IMemberInfo)targetInfo);
 				}
-				Bind(node.Target, targetBinding);
+				Bind(node.Target, targetInfo);
 			}	
 			
-			switch (targetBinding.BindingType)
+			switch (targetInfo.InfoType)
 			{		
-				case BindingType.SpecialFunction:
+				case InfoType.SpecialFunction:
 				{
-					OnSpecialFunction(targetBinding, node);
+					OnSpecialFunction(targetInfo, node);
 					break;
 				}
 				
-				case BindingType.Method:
+				case InfoType.Method:
 				{				
-					IBinding nodeBinding = ErrorBinding.Default;
+					IInfo nodeInfo = ErrorInfo.Default;
 					
-					IMethodBinding targetMethod = (IMethodBinding)targetBinding;
+					IMethodInfo targetMethod = (IMethodInfo)targetInfo;
 					if (CheckParameters(node, targetMethod, node.Arguments))
 					{
 						if (node.NamedArguments.Count > 0)
@@ -2415,48 +2415,48 @@ namespace Boo.Lang.Compiler.Steps
 						{			
 							if (CheckTargetContext(node.Target, targetMethod))
 							{
-								nodeBinding = targetMethod;
+								nodeInfo = targetMethod;
 							}
 						}
 					}
 					
-					Bind(node, nodeBinding);
+					Bind(node, nodeInfo);
 					break;
 				}
 				
-				case BindingType.Constructor:
+				case InfoType.Constructor:
 				{					
-					InternalConstructorBinding constructorBinding = targetBinding as InternalConstructorBinding;
-					if (null != constructorBinding)
+					InternalConstructorInfo constructorInfo = targetInfo as InternalConstructorInfo;
+					if (null != constructorInfo)
 					{
 						// super constructor call					
-						constructorBinding.HasSuperCall = true;
+						constructorInfo.HasSuperCall = true;
 						
-						ITypeBinding baseType = constructorBinding.DeclaringType.BaseType;
-						IConstructorBinding superConstructorBinding = FindCorrectConstructor(node, baseType, node.Arguments);
-						if (null != superConstructorBinding)
+						ITypeInfo baseType = constructorInfo.DeclaringType.BaseType;
+						IConstructorInfo superConstructorInfo = FindCorrectConstructor(node, baseType, node.Arguments);
+						if (null != superConstructorInfo)
 						{
-							Bind(node.Target, superConstructorBinding);
-							Bind(node, superConstructorBinding);
+							Bind(node.Target, superConstructorInfo);
+							Bind(node, superConstructorInfo);
 						}
 					}
 					break;
 				}
 				
-				case BindingType.TypeReference:
+				case InfoType.TypeReference:
 				{					
-					ITypeBinding typeBinding = ((ITypedBinding)targetBinding).BoundType;					
-					ResolveNamedArguments(node, typeBinding, node.NamedArguments);
+					ITypeInfo typeInfo = ((ITypedInfo)targetInfo).BoundType;					
+					ResolveNamedArguments(node, typeInfo, node.NamedArguments);
 					
-					IConstructorBinding ctorBinding = FindCorrectConstructor(node, typeBinding, node.Arguments);
-					if (null != ctorBinding)
+					IConstructorInfo ctorInfo = FindCorrectConstructor(node, typeInfo, node.Arguments);
+					if (null != ctorInfo)
 					{
 						// rebind the target now we know
 						// it is a constructor call
-						Bind(node.Target, ctorBinding);
+						Bind(node.Target, ctorInfo);
 						// expression result type is a new object
 						// of type
-						Bind(node, typeBinding);
+						Bind(node, typeInfo);
 					}
 					else
 					{
@@ -2465,7 +2465,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case BindingType.Error:
+				case InfoType.Error:
 				{
 					Error(node);
 					break;
@@ -2473,11 +2473,11 @@ namespace Boo.Lang.Compiler.Steps
 				
 				default:
 				{
-					ITypedBinding typedBinding = targetBinding as ITypedBinding;
-					if (null != typedBinding)
+					ITypedInfo typedInfo = targetInfo as ITypedInfo;
+					if (null != typedInfo)
 					{
-						ITypeBinding type = typedBinding.BoundType;
-						if (BindingService.ICallableTypeBinding.IsAssignableFrom(type))
+						ITypeInfo type = typedInfo.BoundType;
+						if (InfoService.ICallableTypeInfo.IsAssignableFrom(type))
 						{
 							node.Target = new MemberReferenceExpression(node.Target.LexicalInfo,
 												node.Target,
@@ -2488,13 +2488,13 @@ namespace Boo.Lang.Compiler.Steps
 							node.Arguments.Clear();
 							node.Arguments.Add(arg);
 							
-							Bind(arg, BindingService.ObjectArrayBinding);
+							Bind(arg, InfoService.ObjectArrayInfo);
 							
 							Bind(node.Target, ICallable_Call);
 							Bind(node, ICallable_Call);
 							return;
 						}
-						else if (BindingService.TypeTypeBinding == type)
+						else if (InfoService.TypeTypeInfo == type)
 						{
 							Expression targetType = node.Target;
 							
@@ -2508,14 +2508,14 @@ namespace Boo.Lang.Compiler.Steps
 							node.Arguments.Add(targetType);
 							node.Arguments.Add(constructorArgs);							
 							
-							Bind(constructorArgs, BindingService.ObjectArrayBinding);
+							Bind(constructorArgs, InfoService.ObjectArrayInfo);
 							
 							Bind(node.Target, Activator_CreateInstance);
 							Bind(node, Activator_CreateInstance);
 							return;
 						}
 					}
-					NotImplemented(node, targetBinding.ToString());
+					NotImplemented(node, targetInfo.ToString());
 					break;
 				}
 			}
@@ -2533,13 +2533,13 @@ namespace Boo.Lang.Compiler.Steps
 			notNode.Operand = node;
 			notNode.Operator = UnaryOperatorType.LogicalNot;
 			
-			Bind(notNode, BindingService.BoolTypeBinding);
+			Bind(notNode, InfoService.BoolTypeInfo);
 			return notNode;
 		}
 		
 		bool CheckIdentifierName(Node node, string name)
 		{
-			if (BindingService.IsPrimitive(name))
+			if (InfoService.IsPrimitive(name))
 			{
 				Error(CompilerErrorFactory.CantRedefinePrimitive(node, name));
 				return false;
@@ -2549,7 +2549,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckIsNotValueType(BinaryExpression node, Expression expression)
 		{
-			ITypeBinding binding = GetExpressionType(expression);
+			ITypeInfo binding = GetExpressionType(expression);
 			if (binding.IsValueType)
 			{
 				Error(CompilerErrorFactory.OperatorCantBeUsedWithValueType(
@@ -2579,11 +2579,11 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceArray(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
-			ITypeBinding sliceTargetType = GetExpressionType(slice.Target);
-			ITypeBinding lhsType = GetExpressionType(node.Right);
+			ITypeInfo sliceTargetType = GetExpressionType(slice.Target);
+			ITypeInfo lhsType = GetExpressionType(node.Right);
 			
 			if (!CheckTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType) ||
-				!CheckTypeCompatibility(slice.Begin, BindingService.IntTypeBinding, GetExpressionType(slice.Begin)))
+				!CheckTypeCompatibility(slice.Begin, InfoService.IntTypeInfo, GetExpressionType(slice.Begin)))
 			{
 				Error(node);
 				return;
@@ -2595,17 +2595,17 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceProperty(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
-			IBinding lhs = GetBinding(node.Left);
-			ITypeBinding rhs = GetExpressionType(node.Right);
-			IMethodBinding setter = null;
+			IInfo lhs = GetInfo(node.Left);
+			ITypeInfo rhs = GetExpressionType(node.Right);
+			IMethodInfo setter = null;
 
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
 			mie.Arguments.Add(slice.Begin);
 			mie.Arguments.Add(node.Right);			
 			
-			if (BindingType.Property == lhs.BindingType)
+			if (InfoType.Property == lhs.InfoType)
 			{
-				IMethodBinding setMethod = ((IPropertyBinding)lhs).GetSetMethod();
+				IMethodInfo setMethod = ((IPropertyInfo)lhs).GetSetMethod();
 				if (null == setMethod)
 				{
 					Error(node, CompilerErrorFactory.PropertyIsReadOnly(slice.Target, lhs.FullName));
@@ -2628,9 +2628,9 @@ namespace Boo.Lang.Compiler.Steps
 					setter = setMethod;
 				}
 			}
-			else if (BindingType.Ambiguous == lhs.BindingType)
+			else if (InfoType.Ambiguous == lhs.InfoType)
 			{		
-				setter = (IMethodBinding)ResolveMethodReference(node.Left, mie.Arguments, GetSetMethods(((AmbiguousBinding)lhs).Bindings), false);
+				setter = (IMethodInfo)ResolveMethodReference(node.Left, mie.Arguments, GetSetMethods(((AmbiguousInfo)lhs).Infos), false);
 			}
 			
 			if (null == setter)
@@ -2660,23 +2660,23 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				IBinding resultingType = ErrorBinding.Default;
+				IInfo resultingType = ErrorInfo.Default;
 				
-				IBinding lhs = GetBinding(node.Left);
+				IInfo lhs = GetInfo(node.Left);
 				if (CheckLValue(node.Left, lhs))
 				{
-					ITypeBinding lhsType = GetBoundType(node.Left);
+					ITypeInfo lhsType = GetBoundType(node.Left);
 					if (CheckTypeCompatibility(node.Right, lhsType, GetExpressionType(node.Right)))
 					{
 						resultingType = lhsType;
 						
-						if (BindingType.Property == lhs.BindingType)
+						if (InfoType.Property == lhs.InfoType)
 						{
-							IPropertyBinding property = (IPropertyBinding)lhs;
+							IPropertyInfo property = (IPropertyInfo)lhs;
 							if (IsIndexedProperty(property))
 							{
 								Error(CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node.Left), property.FullName));
-								resultingType = ErrorBinding.Default;
+								resultingType = ErrorInfo.Default;
 							}	
 						}						
 					}
@@ -2700,7 +2700,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (CheckIsNotValueType(node, node.Left) &&
 				CheckIsaArgument(node.Right))
 			{				
-				Bind(node, BindingService.BoolTypeBinding);
+				Bind(node, InfoService.BoolTypeInfo);
 			}
 			else
 			{
@@ -2713,7 +2713,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (CheckIsNotValueType(node, node.Left) &&
 				CheckIsNotValueType(node, node.Right))
 			{
-				Bind(node, BindingService.BoolTypeBinding);
+				Bind(node, InfoService.BoolTypeInfo);
 			}
 			else
 			{
@@ -2721,20 +2721,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		bool IsDictionary(ITypeBinding type)
+		bool IsDictionary(ITypeInfo type)
 		{
-			return BindingService.IDictionaryTypeBinding.IsAssignableFrom(type);
+			return InfoService.IDictionaryTypeInfo.IsAssignableFrom(type);
 		}
 		
-		bool IsList(ITypeBinding type)
+		bool IsList(ITypeInfo type)
 		{
-			return BindingService.IListTypeBinding.IsAssignableFrom(type);
+			return InfoService.IListTypeInfo.IsAssignableFrom(type);
 		}
 		
-		bool CanBeString(ITypeBinding type)
+		bool CanBeString(ITypeInfo type)
 		{
-			return BindingService.ObjectTypeBinding == type ||
-				BindingService.StringTypeBinding == type;
+			return InfoService.ObjectTypeInfo == type ||
+				InfoService.StringTypeInfo == type;
 		}
 		
 		void BindInPlaceArithmeticOperator(BinaryExpression node)
@@ -2773,11 +2773,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindArithmeticOperator(BinaryExpression node)
 		{
-			ITypeBinding left = GetExpressionType(node.Left);
-			ITypeBinding right = GetExpressionType(node.Right);
+			ITypeInfo left = GetExpressionType(node.Left);
+			ITypeInfo right = GetExpressionType(node.Right);
 			if (IsNumber(left) && IsNumber(right))
 			{
-				Bind(node, BindingService.GetPromotedNumberType(left, right));
+				Bind(node, InfoService.GetPromotedNumberType(left, right));
 			}
 			else if (!ResolveOperator(node))
 			{
@@ -2801,14 +2801,14 @@ namespace Boo.Lang.Compiler.Steps
 			return Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetUnaryOperatorText(op);
 		}
 		
-		IBinding ResolveName(Node node, string name)
+		IInfo ResolveName(Node node, string name)
 		{
-			IBinding binding = Resolve(node, name);
+			IInfo binding = Resolve(node, name);
 			CheckNameResolution(node, name, binding);
 			return binding;
 		}
 		
-		bool CheckNameResolution(Node node, string name, IBinding binding)
+		bool CheckNameResolution(Node node, string name, IInfo binding)
 		{
 			if (null == binding)
 			{
@@ -2818,41 +2818,41 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}	
 		
-		bool IsPublicEvent(IBinding binding)
+		bool IsPublicEvent(IInfo binding)
 		{
-			if (BindingType.Event == binding.BindingType)
+			if (InfoType.Event == binding.InfoType)
 			{
-				return ((IMemberBinding)binding).IsPublic;
+				return ((IMemberInfo)binding).IsPublic;
 			}
 			return false;
 		}
 		
-		bool IsPublicFieldPropertyEvent(IBinding binding)
+		bool IsPublicFieldPropertyEvent(IInfo binding)
 		{
-			BindingType flags = BindingType.Field|BindingType.Property|BindingType.Event;
-			if ((flags & binding.BindingType) > 0)
+			InfoType flags = InfoType.Field|InfoType.Property|InfoType.Event;
+			if ((flags & binding.InfoType) > 0)
 			{
-				IMemberBinding member = (IMemberBinding)binding;
+				IMemberInfo member = (IMemberInfo)binding;
 				return member.IsPublic;
 			}
 			return false;
 		}
 		
-		IMemberBinding ResolvePublicFieldPropertyEvent(Node sourceNode, ITypeBinding type, string name)
+		IMemberInfo ResolvePublicFieldPropertyEvent(Node sourceNode, ITypeInfo type, string name)
 		{
-			IBinding candidate = type.Resolve(name);
+			IInfo candidate = type.Resolve(name);
 			if (null != candidate)
 			{					
 				
 				if (IsPublicFieldPropertyEvent(candidate))
 				{
-					return (IMemberBinding)candidate;
+					return (IMemberInfo)candidate;
 				}
 				else
 				{
-					if (candidate.BindingType == BindingType.Ambiguous)
+					if (candidate.InfoType == InfoType.Ambiguous)
 					{
-						IList found = ((AmbiguousBinding)candidate).Filter(IsPublicFieldPropertyEventFilter);
+						IList found = ((AmbiguousInfo)candidate).Filter(IsPublicFieldPropertyEventFilter);
 						if (found.Count > 0)
 						{
 							if (found.Count > 1)
@@ -2862,7 +2862,7 @@ namespace Boo.Lang.Compiler.Steps
 							}
 							else
 							{
-								return (IMemberBinding)found[0];
+								return (IMemberInfo)found[0];
 							}
 						}					
 					}
@@ -2872,7 +2872,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		void ResolveNamedArguments(Node sourceNode, ITypeBinding typeBinding, ExpressionPairCollection arguments)
+		void ResolveNamedArguments(Node sourceNode, ITypeInfo typeInfo, ExpressionPairCollection arguments)
 		{
 			foreach (ExpressionPair arg in arguments)
 			{			
@@ -2885,7 +2885,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				ReferenceExpression name = (ReferenceExpression)arg.First;
-				IMemberBinding member = ResolvePublicFieldPropertyEvent(name, typeBinding, name.Name);
+				IMemberInfo member = ResolvePublicFieldPropertyEvent(name, typeInfo, name.Name);
 				if (null == member)				    
 				{					
 					continue;
@@ -2893,22 +2893,22 @@ namespace Boo.Lang.Compiler.Steps
 				
 				Bind(arg.First, member);
 				
-				ITypeBinding memberType = member.BoundType;
-				ITypedBinding expressionBinding = (ITypedBinding)GetBinding(arg.Second);				
+				ITypeInfo memberType = member.BoundType;
+				ITypedInfo expressionInfo = (ITypedInfo)GetInfo(arg.Second);				
 				
-				if (member.BindingType == BindingType.Event)
+				if (member.InfoType == InfoType.Event)
 				{
-					CheckDelegateArgument(arg.First, member, expressionBinding);
+					CheckDelegateArgument(arg.First, member, expressionInfo);
 				}
 				else
 				{						
-					ITypeBinding expressionType = expressionBinding.BoundType;
+					ITypeInfo expressionType = expressionInfo.BoundType;
 					CheckTypeCompatibility(arg, memberType, expressionType);					
 				}
 			}
 		}
 		
-		bool CheckTypeCompatibility(Node sourceNode, ITypeBinding expectedType, ITypeBinding actualType)
+		bool CheckTypeCompatibility(Node sourceNode, ITypeInfo expectedType, ITypeInfo actualType)
 		{
 			if (!IsAssignableFrom(expectedType, actualType) &&
 				!CanBeReachedByDownCastOrPromotion(expectedType, actualType))
@@ -2919,11 +2919,11 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool CheckDelegateArgument(Node sourceNode, ITypedBinding delegateMember, ITypedBinding argumentBinding)
+		bool CheckDelegateArgument(Node sourceNode, ITypedInfo delegateMember, ITypedInfo argumentInfo)
 		{
-			ITypeBinding delegateType = delegateMember.BoundType;
-			if (argumentBinding.BindingType != BindingType.Method ||
-					    !CheckDelegateParameterList(delegateType, (IMethodBinding)argumentBinding))
+			ITypeInfo delegateType = delegateMember.BoundType;
+			if (argumentInfo.InfoType != InfoType.Method ||
+					    !CheckDelegateParameterList(delegateType, (IMethodInfo)argumentInfo))
 			{
 				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.Name, delegateType.FullName));
 				return false;
@@ -2931,12 +2931,12 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool CheckParameterTypesStrictly(IMethodBinding method, ExpressionCollection args)
+		bool CheckParameterTypesStrictly(IMethodInfo method, ExpressionCollection args)
 		{
 			for (int i=0; i<args.Count; ++i)
 			{
-				ITypeBinding expressionType = GetExpressionType(args[i]);
-				ITypeBinding parameterType = method.GetParameterType(i);
+				ITypeInfo expressionType = GetExpressionType(args[i]);
+				ITypeInfo parameterType = method.GetParameterType(i);
 				if (!IsAssignableFrom(parameterType, expressionType) &&
 					!(IsNumber(expressionType) && IsNumber(parameterType)))
 				{					
@@ -2946,12 +2946,12 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool CheckParameterTypes(IMethodBinding method, ExpressionCollection args)
+		bool CheckParameterTypes(IMethodInfo method, ExpressionCollection args)
 		{
 			for (int i=0; i<args.Count; ++i)
 			{
-				ITypeBinding expressionType = GetExpressionType(args[i]);
-				ITypeBinding parameterType = method.GetParameterType(i);
+				ITypeInfo expressionType = GetExpressionType(args[i]);
+				ITypeInfo parameterType = method.GetParameterType(i);
 				if (!IsAssignableFrom(parameterType, expressionType) &&
 				    !CanBeReachedByDownCastOrPromotion(parameterType, expressionType))
 				{
@@ -2962,7 +2962,7 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool CheckParameters(Node sourceNode, IMethodBinding method, ExpressionCollection args)
+		bool CheckParameters(Node sourceNode, IMethodInfo method, ExpressionCollection args)
 		{				
 			if (method.ParameterCount != args.Count)
 			{
@@ -2978,9 +2978,9 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		
-		bool CheckDelegateParameterList(ITypeBinding delegateType, IMethodBinding target)
+		bool CheckDelegateParameterList(ITypeInfo delegateType, IMethodInfo target)
 		{
-			IMethodBinding invoke = (IMethodBinding)delegateType.Resolve("Invoke");
+			IMethodInfo invoke = (IMethodInfo)delegateType.Resolve("Invoke");
 			if (null == invoke)
 			{
 				throw new ArgumentException(string.Format("{0} is not a valid delegate type!", delegateType), "delegateType");
@@ -3001,18 +3001,18 @@ namespace Boo.Lang.Compiler.Steps
 			return true;			
 		}
 		
-		bool IsRuntimeIterator(ITypeBinding type)
+		bool IsRuntimeIterator(ITypeInfo type)
 		{
-			return  BindingService.ObjectTypeBinding == type ||
+			return  InfoService.ObjectTypeInfo == type ||
 					IsTextReader(type);					
 		}
 		
-		bool IsTextReader(ITypeBinding type)
+		bool IsTextReader(ITypeInfo type)
 		{
 			return IsAssignableFrom(typeof(System.IO.TextReader), type);
 		}
 		
-		void CheckIterator(Expression iterator, ITypeBinding type, out bool runtimeIterator)
+		void CheckIterator(Expression iterator, ITypeInfo type, out bool runtimeIterator)
 		{	
 			runtimeIterator = false;
 			
@@ -3025,7 +3025,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				ITypeBinding enumerable = BindingService.IEnumerableTypeBinding;
+				ITypeInfo enumerable = InfoService.IEnumerableTypeInfo;
 				if (!enumerable.IsAssignableFrom(type))
 				{
 					runtimeIterator = IsRuntimeIterator(type);
@@ -3037,14 +3037,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}		
 		
-		bool CheckTargetContext(Expression targetContext, IMemberBinding member)
+		bool CheckTargetContext(Expression targetContext, IMemberInfo member)
 		{
 			if (!member.IsStatic)					  
 			{			
 				if (NodeType.MemberReferenceExpression == targetContext.NodeType)
 				{				
 					Expression targetReference = ((MemberReferenceExpression)targetContext).Target;
-					if (BindingType.TypeReference == GetBinding(targetReference).BindingType)
+					if (InfoType.TypeReference == GetInfo(targetReference).InfoType)
 					{						
 						Error(CompilerErrorFactory.MemberNeedsInstance(targetContext, member.FullName));
 						return false;
@@ -3054,17 +3054,17 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		static bool IsAssignableFrom(ITypeBinding expectedType, ITypeBinding actualType)
+		static bool IsAssignableFrom(ITypeInfo expectedType, ITypeInfo actualType)
 		{
 			return expectedType.IsAssignableFrom(actualType);
 		}
 		
-		bool IsAssignableFrom(Type expectedType, ITypeBinding actualType)
+		bool IsAssignableFrom(Type expectedType, ITypeInfo actualType)
 		{
-			return BindingService.AsTypeBinding(expectedType).IsAssignableFrom(actualType);
+			return InfoService.AsTypeInfo(expectedType).IsAssignableFrom(actualType);
 		}
 		
-		bool CanBeReachedByDownCastOrPromotion(ITypeBinding expectedType, ITypeBinding actualType)
+		bool CanBeReachedByDownCastOrPromotion(ITypeInfo expectedType, ITypeInfo actualType)
 		{			
 			if (actualType.IsAssignableFrom(expectedType))
 			{
@@ -3077,21 +3077,21 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
-		bool IsIntegerNumber(ITypeBinding type)
+		bool IsIntegerNumber(ITypeInfo type)
 		{
 			return
-				type == BindingService.ShortTypeBinding ||
-				type == BindingService.IntTypeBinding ||
-				type == BindingService.LongTypeBinding ||
-				type == BindingService.ByteTypeBinding;
+				type == InfoService.ShortTypeInfo ||
+				type == InfoService.IntTypeInfo ||
+				type == InfoService.LongTypeInfo ||
+				type == InfoService.ByteTypeInfo;
 		}
 		
-		bool IsNumber(ITypeBinding type)
+		bool IsNumber(ITypeInfo type)
 		{
 			return
 				IsIntegerNumber(type) ||
-				type == BindingService.DoubleTypeBinding ||
-				type == BindingService.SingleTypeBinding;
+				type == InfoService.DoubleTypeInfo ||
+				type == InfoService.SingleTypeInfo;
 		}
 		
 		bool IsNumber(Expression expression)
@@ -3101,29 +3101,29 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsString(Expression expression)
 		{
-			return BindingService.StringTypeBinding == GetExpressionType(expression);
+			return InfoService.StringTypeInfo == GetExpressionType(expression);
 		}
 		
-		IConstructorBinding FindCorrectConstructor(Node sourceNode, ITypeBinding typeBinding, ExpressionCollection arguments)
+		IConstructorInfo FindCorrectConstructor(Node sourceNode, ITypeInfo typeInfo, ExpressionCollection arguments)
 		{
-			IConstructorBinding[] constructors = typeBinding.GetConstructors();
+			IConstructorInfo[] constructors = typeInfo.GetConstructors();
 			if (constructors.Length > 0)
 			{				
-				return (IConstructorBinding)ResolveMethodReference(sourceNode, arguments, constructors, true);				
+				return (IConstructorInfo)ResolveMethodReference(sourceNode, arguments, constructors, true);				
 			}
 			else
 			{
-				Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeBinding.FullName, GetSignature(arguments)));
+				Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeInfo.FullName, GetSignature(arguments)));
 			}
 			return null;
 		}
 		
-		IConstructorBinding GetDefaultConstructor(ITypeBinding type)
+		IConstructorInfo GetDefaultConstructor(ITypeInfo type)
 		{
-			IConstructorBinding[] constructors = type.GetConstructors();
+			IConstructorInfo[] constructors = type.GetConstructors();
 			for (int i=0; i<constructors.Length; ++i)
 			{
-				IConstructorBinding constructor = constructors[i];
+				IConstructorInfo constructor = constructors[i];
 				if (0 == constructor.ParameterCount)
 				{
 					return constructor;
@@ -3132,59 +3132,59 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		class BindingScore : IComparable
+		class InfoScore : IComparable
 		{
-			public IMethodBinding Binding;
+			public IMethodInfo Info;
 			public int Score;
 			
-			public BindingScore(IMethodBinding binding, int score)
+			public InfoScore(IMethodInfo binding, int score)
 			{
-				Binding = binding;
+				Info = binding;
 				Score = score;
 			}
 			
 			public int CompareTo(object other)
 			{
-				return ((BindingScore)other).Score-Score;
+				return ((InfoScore)other).Score-Score;
 			}
 			
 			override public string ToString()
 			{
-				return Binding.ToString();
+				return Info.ToString();
 			}
 		}
 		
-		void EnsureRelatedNodeWasVisited(IBinding binding)
+		void EnsureRelatedNodeWasVisited(IInfo binding)
 		{
-			if (binding.BindingType == BindingType.TypeReference)
+			if (binding.InfoType == InfoType.TypeReference)
 			{
-				binding = ((TypeReferenceBinding)binding).BoundType;
+				binding = ((TypeReferenceInfo)binding).BoundType;
 			}		
-			else if (binding.BindingType == BindingType.Ambiguous)
+			else if (binding.InfoType == InfoType.Ambiguous)
 			{
-				foreach (IBinding item in ((AmbiguousBinding)binding).Bindings)
+				foreach (IInfo item in ((AmbiguousInfo)binding).Infos)
 				{
 					EnsureRelatedNodeWasVisited(item);
 				}
 				return;
 			}
 			
-			IInternalBinding internalBinding = binding as IInternalBinding;
-			if (null != internalBinding)
+			IInternalInfo internalInfo = binding as IInternalInfo;
+			if (null != internalInfo)
 			{
-				if (!internalBinding.Visited)
+				if (!internalInfo.Visited)
 				{
-					_context.TraceVerbose("Binding {0} needs resolving.", binding.Name);
+					_context.TraceVerbose("Info {0} needs resolving.", binding.Name);
 					
 					INamespace saved = _nameResolution.CurrentNamespace;
 					try
 					{
-						TypeMember member = internalBinding.Node as TypeMember;
+						TypeMember member = internalInfo.Node as TypeMember;
 						if (null != member)
 						{
 							Accept(member.ParentNode);
 						}
-						Accept(internalBinding.Node);
+						Accept(internalInfo.Node);
 					}
 					finally
 					{
@@ -3195,9 +3195,9 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		/*
-		int GetInterfaceDepth(ITypeBinding type)
+		int GetInterfaceDepth(ITypeInfo type)
 		{
-			ITypeBinding[] interfaces = type.GetInterfaces();
+			ITypeInfo[] interfaces = type.GetInterfaces();
 			int[] depths = new int[interfaces.Length];
 			for (int i=0; i<interfaces.Length; ++i)
 			{
@@ -3206,11 +3206,11 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		*/
 		
-		BindingScore GetBiggerScore(List scores)
+		InfoScore GetBiggerScore(List scores)
 		{
 			scores.Sort();
-			BindingScore first = (BindingScore)scores[0];
-			BindingScore second = (BindingScore)scores[1];
+			InfoScore first = (InfoScore)scores[0];
+			InfoScore second = (InfoScore)scores[1];
 			if (first.Score > second.Score)
 			{
 				return first;
@@ -3220,25 +3220,25 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ReScoreByHierarchyDepth(List scores)
 		{
-			foreach (BindingScore score in scores)
+			foreach (InfoScore score in scores)
 			{
-				score.Score += score.Binding.DeclaringType.GetTypeDepth();
+				score.Score += score.Info.DeclaringType.GetTypeDepth();
 				
-				int count = score.Binding.ParameterCount;
+				int count = score.Info.ParameterCount;
 				for (int i=0; i<count; ++i)
 				{
-					score.Score += score.Binding.GetParameterType(i).GetTypeDepth();
+					score.Score += score.Info.GetParameterType(i).GetTypeDepth();
 				}
 			}			
 		}
 		
-		IBinding ResolveMethodReference(Node node, NodeCollection args, IBinding[] bindings, bool treatErrors)
+		IInfo ResolveMethodReference(Node node, NodeCollection args, IInfo[] bindings, bool treatErrors)
 		{
 			List scores = new List();
 			for (int i=0; i<bindings.Length; ++i)
 			{				
-				IBinding binding = bindings[i];
-				IMethodBinding mb = binding as IMethodBinding;
+				IInfo binding = bindings[i];
+				IMethodInfo mb = binding as IMethodInfo;
 				if (null != mb)
 				{			
 					if (args.Count == mb.ParameterCount)
@@ -3246,8 +3246,8 @@ namespace Boo.Lang.Compiler.Steps
 						int score = 0;
 						for (int argIndex=0; argIndex<args.Count; ++argIndex)
 						{
-							ITypeBinding expressionType = GetExpressionType(args.GetNodeAt(argIndex));
-							ITypeBinding parameterType = mb.GetParameterType(argIndex);						
+							ITypeInfo expressionType = GetExpressionType(args.GetNodeAt(argIndex));
+							ITypeInfo parameterType = mb.GetParameterType(argIndex);						
 							
 							if (parameterType == expressionType)
 							{
@@ -3274,7 +3274,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (score >= 0)
 						{
 							// only positive scores are compatible
-							scores.Add(new BindingScore(mb, score));						
+							scores.Add(new InfoScore(mb, score));						
 						}
 					}
 				}
@@ -3282,22 +3282,22 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (1 == scores.Count)
 			{
-				return ((BindingScore)scores[0]).Binding;
+				return ((InfoScore)scores[0]).Info;
 			}
 			
 			if (scores.Count > 1)
 			{
-				BindingScore score = GetBiggerScore(scores);
+				InfoScore score = GetBiggerScore(scores);
 				if (null != score)
 				{
-					return score.Binding;
+					return score.Info;
 				}
 				
 				ReScoreByHierarchyDepth(scores);
 				score = GetBiggerScore(scores);
 				if (null != score)
 				{
-					return score.Binding;					
+					return score.Info;					
 				}
 				
 				if (treatErrors)
@@ -3309,8 +3309,8 @@ namespace Boo.Lang.Compiler.Steps
 			{	
 				if (treatErrors)
 				{
-					IBinding binding = bindings[0];
-					IConstructorBinding constructor = binding as IConstructorBinding;
+					IInfo binding = bindings[0];
+					IConstructorInfo constructor = binding as IConstructorInfo;
 					if (null != constructor)
 					{
 						Error(node, CompilerErrorFactory.NoApropriateConstructorFound(node, constructor.DeclaringType.FullName, GetSignature(args)));
@@ -3336,25 +3336,25 @@ namespace Boo.Lang.Compiler.Steps
 			mie.Arguments.Add(node.Right);
 			
 			string operatorName = GetMethodNameForOperator(node.Operator);
-			ITypeBinding lhs = GetExpressionType(node.Left);
+			ITypeInfo lhs = GetExpressionType(node.Left);
 			if (ResolveOperator(node, lhs, operatorName, mie))
 			{
 				return true;
 			}
 			
-			ITypeBinding rhs = GetExpressionType(node.Right);
+			ITypeInfo rhs = GetExpressionType(node.Right);
 			if (ResolveOperator(node, rhs, operatorName, mie))
 			{
 				return true;
 			}
-			return ResolveOperator(node, BindingService.RuntimeServicesBinding, operatorName, mie);
+			return ResolveOperator(node, InfoService.RuntimeServicesInfo, operatorName, mie);
 		}
 		
-		IMethodBinding ResolveAmbiguousOperator(IBinding[] bindings, ExpressionCollection args)
+		IMethodInfo ResolveAmbiguousOperator(IInfo[] bindings, ExpressionCollection args)
 		{
-			foreach (IBinding binding in bindings)
+			foreach (IInfo binding in bindings)
 			{
-				IMethodBinding method = binding as IMethodBinding;
+				IMethodInfo method = binding as IMethodInfo;
 				if (null != method)
 				{
 					if (method.IsStatic)
@@ -3372,25 +3372,25 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		bool ResolveOperator(BinaryExpression node, ITypeBinding type, string operatorName, MethodInvocationExpression mie)
+		bool ResolveOperator(BinaryExpression node, ITypeInfo type, string operatorName, MethodInvocationExpression mie)
 		{
-			IBinding binding = type.Resolve(operatorName);
+			IInfo binding = type.Resolve(operatorName);
 			if (null == binding)
 			{
 				return false;
 			}
 			
-			if (BindingType.Ambiguous == binding.BindingType)
+			if (InfoType.Ambiguous == binding.InfoType)
 			{	
-				binding = ResolveAmbiguousOperator(((AmbiguousBinding)binding).Bindings, mie.Arguments);
+				binding = ResolveAmbiguousOperator(((AmbiguousInfo)binding).Infos, mie.Arguments);
 				if (null == binding)
 				{
 					return false;
 				}
 			}
-			else if (BindingType.Method == binding.BindingType)
+			else if (InfoType.Method == binding.InfoType)
 			{					
-				IMethodBinding method = (IMethodBinding)binding;
+				IMethodInfo method = (IMethodInfo)binding;
 				
 				if (!method.IsStatic || !CheckParameterTypesStrictly(method, mie.Arguments))
 				{
@@ -3418,23 +3418,23 @@ namespace Boo.Lang.Compiler.Steps
 			return member != null ? member.Target : node;
 		}
 		
-		bool CheckLValue(Node node, IBinding binding)
+		bool CheckLValue(Node node, IInfo binding)
 		{
-			switch (binding.BindingType)
+			switch (binding.InfoType)
 			{
-				case BindingType.Parameter:
+				case InfoType.Parameter:
 				{
 					return true;
 				}
 				
-				case BindingType.Local:
+				case InfoType.Local:
 				{
-					return !((LocalBinding)binding).IsPrivateScope;
+					return !((LocalInfo)binding).IsPrivateScope;
 				}
 				
-				case BindingType.Property:
+				case InfoType.Property:
 				{
-					if (null == ((IPropertyBinding)binding).GetSetMethod())
+					if (null == ((IPropertyInfo)binding).GetSetMethod())
 					{
 						Error(CompilerErrorFactory.PropertyIsReadOnly(GetMemberAnchor(node), binding.FullName));
 						return false;
@@ -3442,7 +3442,7 @@ namespace Boo.Lang.Compiler.Steps
 					return true;
 				}
 				
-				case BindingType.Field:
+				case InfoType.Field:
 				{
 					return true;
 				}
@@ -3454,10 +3454,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckBoolContext(Expression expression)
 		{
-			ITypeBinding type = GetBoundType(expression);
+			ITypeInfo type = GetBoundType(expression);
 			if (type.IsValueType)
 			{
-				if (type == BindingService.BoolTypeBinding ||
+				if (type == InfoService.BoolTypeInfo ||
 				    IsNumber(type))
 			    {
 			    	return true;
@@ -3469,27 +3469,27 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		LocalBinding DeclareLocal(Node sourceNode, Local local, ITypeBinding localType)
+		LocalInfo DeclareLocal(Node sourceNode, Local local, ITypeInfo localType)
 		{			
-			LocalBinding binding = new LocalBinding(local, localType);
+			LocalInfo binding = new LocalInfo(local, localType);
 			Bind(local, binding);
 			
-			_currentMethodBinding.Method.Locals.Add(local);
+			_currentMethodInfo.Method.Locals.Add(local);
 			Bind(sourceNode, binding);
 			
 			return binding;
 		}
 		
-		void PushMethodBinding(InternalMethodBinding binding)
+		void PushMethodInfo(InternalMethodInfo binding)
 		{
-			_methodBindingStack.Push(_currentMethodBinding);
+			_methodInfoStack.Push(_currentMethodInfo);
 			
-			_currentMethodBinding = binding;
+			_currentMethodInfo = binding;
 		}
 		
-		void PopMethodBinding()
+		void PopMethodInfo()
 		{
-			_currentMethodBinding = (InternalMethodBinding)_methodBindingStack.Pop();
+			_currentMethodInfo = (InternalMethodInfo)_methodInfoStack.Pop();
 		}
 		
 		static bool HasSideEffect(Expression node)
@@ -3534,7 +3534,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckUniqueLocal(Declaration d)
 		{
-			if (null == _currentMethodBinding.Resolve(d.Name))
+			if (null == _currentMethodInfo.Resolve(d.Name))
 			{
 				return true;
 			}
@@ -3542,29 +3542,29 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
-		ITypeBinding GetExternalEnumeratorItemType(ITypeBinding iteratorType)
+		ITypeInfo GetExternalEnumeratorItemType(ITypeInfo iteratorType)
 		{
-			Type type = ((ExternalTypeBinding)iteratorType).Type;
+			Type type = ((ExternalTypeInfo)iteratorType).Type;
 			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)System.Attribute.GetCustomAttribute(type, typeof(EnumeratorItemTypeAttribute));
 			if (null != attribute)
 			{
-				return BindingService.AsTypeBinding(attribute.ItemType);
+				return InfoService.AsTypeInfo(attribute.ItemType);
 			}
 			return null;
 		}
 		
-		ITypeBinding GetEnumeratorItemTypeFromAttribute(ITypeBinding iteratorType)
+		ITypeInfo GetEnumeratorItemTypeFromAttribute(ITypeInfo iteratorType)
 		{
-			InternalTypeBinding internalType = iteratorType as InternalTypeBinding;
+			InternalTypeInfo internalType = iteratorType as InternalTypeInfo;
 			if (null == internalType)
 			{
 				return GetExternalEnumeratorItemType(iteratorType);
 			}
 			
-			ITypeBinding enumeratorItemTypeAttribute = BindingService.AsTypeBinding(typeof(EnumeratorItemTypeAttribute));
+			ITypeInfo enumeratorItemTypeAttribute = InfoService.AsTypeInfo(typeof(EnumeratorItemTypeAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
 			{				
-				IConstructorBinding constructor = GetBinding(attribute) as IConstructorBinding;
+				IConstructorInfo constructor = GetInfo(attribute) as IConstructorInfo;
 				if (null != constructor)
 				{
 					if (constructor.DeclaringType == enumeratorItemTypeAttribute)
@@ -3576,7 +3576,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		ITypeBinding GetEnumeratorItemType(ITypeBinding iteratorType)
+		ITypeInfo GetEnumeratorItemType(ITypeInfo iteratorType)
 		{
 			if (iteratorType.IsArray)
 			{
@@ -3586,19 +3586,19 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (iteratorType.IsClass)
 				{
-					ITypeBinding enumeratorItemType = GetEnumeratorItemTypeFromAttribute(iteratorType);
+					ITypeInfo enumeratorItemType = GetEnumeratorItemTypeFromAttribute(iteratorType);
 					if (null != enumeratorItemType)
 					{
 						return enumeratorItemType;
 					}
 				}
 			}
-			return BindingService.ObjectTypeBinding;
+			return InfoService.ObjectTypeInfo;
 		}
 		
-		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeBinding iteratorType, bool declarePrivateLocals)
+		void ProcessDeclarationsForIterator(DeclarationCollection declarations, ITypeInfo iteratorType, bool declarePrivateLocals)
 		{
-			ITypeBinding defaultDeclType = GetEnumeratorItemType(iteratorType);
+			ITypeInfo defaultDeclType = GetEnumeratorItemType(iteratorType);
 			if (declarations.Count > 1)
 			{
 				// will enumerate (unpack) each item
@@ -3626,7 +3626,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						IBinding binding = _currentMethodBinding.Resolve(d.Name);
+						IInfo binding = _currentMethodInfo.Resolve(d.Name);
 						if (null != binding)
 						{
 							Bind(d, binding);
@@ -3644,39 +3644,39 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}		
 		
-		protected ITypeBinding GetExpressionType(Node node)
+		protected ITypeInfo GetExpressionType(Node node)
 		{			
 			if (IsStandaloneTypeReference(node))
 			{
-				return BindingService.TypeTypeBinding;
+				return InfoService.TypeTypeInfo;
 			}
 			
 			/*
 			if (IsStandaloneMethodReference(node))
 			{
-				return BindingService.GetMethodReference(GetBinding(node));
+				return InfoService.GetMethodReference(GetInfo(node));
 			}
 			*/
 			
-			ITypedBinding binding = (ITypedBinding)GetBinding(node);
+			ITypedInfo binding = (ITypedInfo)GetInfo(node);
 			if (Array_TypedEnumerableConstructor == binding ||
 				Array_TypedCollectionConstructor == binding ||				
 				Array_TypedConstructor2 == binding)
 			{
-				return BindingService.AsArrayBinding(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
+				return InfoService.AsArrayInfo(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
 			}
 			return binding.BoundType;
 		}
 		
-		protected IBinding GetOptionalBinding(Node node)
+		protected IInfo GetOptionalInfo(Node node)
 		{
-			return BindingService.GetOptionalBinding(node);
+			return InfoService.GetOptionalInfo(node);
 		}
 		
 		bool IsStandaloneTypeReference(Node node)
 		{
 			return node.ParentNode.NodeType != NodeType.MemberReferenceExpression &&
-					GetBinding(node).BindingType == BindingType.TypeReference;
+					GetInfo(node).InfoType == InfoType.TypeReference;
 		}
 		
 		string GetSignature(NodeCollection args)
@@ -3694,9 +3694,9 @@ namespace Boo.Lang.Compiler.Steps
 			return sb.ToString();
 		}
 		
-		string GetSignature(IMethodBinding binding)
+		string GetSignature(IMethodInfo binding)
 		{
-			return BindingService.GetSignature(binding);
+			return InfoService.GetSignature(binding);
 		}
 
 		void NotImplemented(Node node, string feature)
@@ -3719,12 +3719,12 @@ namespace Boo.Lang.Compiler.Steps
 							GetExpressionType(node.Right).FullName));
 		}
 		
-		void TraceOverride(Method method, IMethodBinding baseMethod)
+		void TraceOverride(Method method, IMethodInfo baseMethod)
 		{
 			_context.TraceInfo("{0}: Method '{1}' overrides '{2}'", method.LexicalInfo, method.Name, baseMethod);
 		}
 		
-		void TraceReturnType(Method method, IMethodBinding binding)
+		void TraceReturnType(Method method, IMethodInfo binding)
 		{
 			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, binding.BoundType);
 		}		

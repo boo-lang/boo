@@ -32,109 +32,109 @@ namespace Boo.Lang.Compiler.Services
 	using System.Reflection;
 	using Boo.Lang.Compiler;	
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.Bindings;
+	using Boo.Lang.Compiler.Infos;
 
-	public class DefaultBindingService
+	public class DefaultInfoService
 	{			
-		public ExternalTypeBinding ExceptionTypeBinding;
+		public ExternalTypeInfo ExceptionTypeInfo;
 		
-		public ExternalTypeBinding ApplicationExceptionBinding;
+		public ExternalTypeInfo ApplicationExceptionInfo;
 		
-		public ExternalTypeBinding ObjectTypeBinding;
+		public ExternalTypeInfo ObjectTypeInfo;
 		
-		public ExternalTypeBinding EnumTypeBinding;
+		public ExternalTypeInfo EnumTypeInfo;
 		
-		public ExternalTypeBinding ArrayTypeBinding;
+		public ExternalTypeInfo ArrayTypeInfo;
 		
-		public ExternalTypeBinding TypeTypeBinding;
+		public ExternalTypeInfo TypeTypeInfo;
 		
-		public ITypeBinding ObjectArrayBinding;
+		public ITypeInfo ObjectArrayInfo;
 	
-		public ExternalTypeBinding VoidTypeBinding;
+		public ExternalTypeInfo VoidTypeInfo;
 		
-		public ExternalTypeBinding StringTypeBinding;
+		public ExternalTypeInfo StringTypeInfo;
 		
-		public ExternalTypeBinding BoolTypeBinding;
+		public ExternalTypeInfo BoolTypeInfo;
 		
-		public ExternalTypeBinding ByteTypeBinding;
+		public ExternalTypeInfo ByteTypeInfo;
 		
-		public ExternalTypeBinding ShortTypeBinding;
+		public ExternalTypeInfo ShortTypeInfo;
 		
-		public ExternalTypeBinding IntTypeBinding;
+		public ExternalTypeInfo IntTypeInfo;
 		
-		public ExternalTypeBinding LongTypeBinding;
+		public ExternalTypeInfo LongTypeInfo;
 		
-		public ExternalTypeBinding SingleTypeBinding;
+		public ExternalTypeInfo SingleTypeInfo;
 		
-		public ExternalTypeBinding DoubleTypeBinding;
+		public ExternalTypeInfo DoubleTypeInfo;
 		
-		public ExternalTypeBinding TimeSpanTypeBinding;
+		public ExternalTypeInfo TimeSpanTypeInfo;
 		
-		public ExternalTypeBinding DateTimeTypeBinding;
+		public ExternalTypeInfo DateTimeTypeInfo;
 		
-		public ExternalTypeBinding RuntimeServicesBinding;
+		public ExternalTypeInfo RuntimeServicesInfo;
 		
-		public ExternalTypeBinding BuiltinsBinding;
+		public ExternalTypeInfo BuiltinsInfo;
 		
-		public ExternalTypeBinding ListTypeBinding;
+		public ExternalTypeInfo ListTypeInfo;
 		
-		public ExternalTypeBinding HashTypeBinding;
+		public ExternalTypeInfo HashTypeInfo;
 		
-		public ExternalTypeBinding ICallableTypeBinding;
+		public ExternalTypeInfo ICallableTypeInfo;
 		
-		public ExternalTypeBinding IEnumerableTypeBinding;
+		public ExternalTypeInfo IEnumerableTypeInfo;
 		
-		public ExternalTypeBinding ICollectionTypeBinding;
+		public ExternalTypeInfo ICollectionTypeInfo;
 		
-		public ExternalTypeBinding IListTypeBinding;
+		public ExternalTypeInfo IListTypeInfo;
 		
-		public ExternalTypeBinding IDictionaryTypeBinding;
+		public ExternalTypeInfo IDictionaryTypeInfo;
 		
 		System.Collections.Hashtable _primitives = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _arrayBindingCache = new System.Collections.Hashtable();
+		System.Collections.Hashtable _arrayInfoCache = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _referenceCache = new System.Collections.Hashtable();
 		
-		static readonly IBinding _lenBinding = new SpecialFunctionBinding(SpecialFunction.Len);
+		static readonly IInfo _lenInfo = new SpecialFunctionInfo(SpecialFunction.Len);
 		
-		public DefaultBindingService()		
+		public DefaultInfoService()		
 		{			
-			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
-			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
-			Cache(EnumTypeBinding = new ExternalTypeBinding(this, typeof(System.Enum)));
-			Cache(ArrayTypeBinding = new ExternalTypeBinding(this, Types.Array));
-			Cache(TypeTypeBinding = new ExternalTypeBinding(this, Types.Type));
-			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));
-			Cache(BoolTypeBinding = new ExternalTypeBinding(this, Types.Bool));
-			Cache(ByteTypeBinding = new ExternalTypeBinding(this, Types.Byte));
-			Cache(ShortTypeBinding = new ExternalTypeBinding(this, Types.Short));
-			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
-			Cache(LongTypeBinding = new ExternalTypeBinding(this, Types.Long));
-			Cache(SingleTypeBinding = new ExternalTypeBinding(this, Types.Single));
-			Cache(DoubleTypeBinding = new ExternalTypeBinding(this, Types.Double));
-			Cache(TimeSpanTypeBinding = new ExternalTypeBinding(this, Types.TimeSpan));
-			Cache(DateTimeTypeBinding = new ExternalTypeBinding(this, Types.DateTime));
-			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
-			Cache(BuiltinsBinding = new ExternalTypeBinding(this, Types.Builtins));
-			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
-			Cache(HashTypeBinding = new ExternalTypeBinding(this, Types.Hash));
-			Cache(ICallableTypeBinding = new ExternalTypeBinding(this, Types.ICallable));
-			Cache(IEnumerableTypeBinding = new ExternalTypeBinding(this, Types.IEnumerable));
-			Cache(ICollectionTypeBinding = new ExternalTypeBinding(this, Types.ICollection));
-			Cache(IListTypeBinding = new ExternalTypeBinding(this, Types.IList));
-			Cache(IDictionaryTypeBinding = new ExternalTypeBinding(this, Types.IDictionary));
-			Cache(ApplicationExceptionBinding = new ExternalTypeBinding(this, Types.ApplicationException));
-			Cache(ExceptionTypeBinding = new ExternalTypeBinding(this, Types.Exception));
+			Cache(VoidTypeInfo = new VoidTypeInfoImpl(this));
+			Cache(ObjectTypeInfo = new ExternalTypeInfo(this, Types.Object));
+			Cache(EnumTypeInfo = new ExternalTypeInfo(this, typeof(System.Enum)));
+			Cache(ArrayTypeInfo = new ExternalTypeInfo(this, Types.Array));
+			Cache(TypeTypeInfo = new ExternalTypeInfo(this, Types.Type));
+			Cache(StringTypeInfo = new ExternalTypeInfo(this, Types.String));
+			Cache(BoolTypeInfo = new ExternalTypeInfo(this, Types.Bool));
+			Cache(ByteTypeInfo = new ExternalTypeInfo(this, Types.Byte));
+			Cache(ShortTypeInfo = new ExternalTypeInfo(this, Types.Short));
+			Cache(IntTypeInfo = new ExternalTypeInfo(this, Types.Int));
+			Cache(LongTypeInfo = new ExternalTypeInfo(this, Types.Long));
+			Cache(SingleTypeInfo = new ExternalTypeInfo(this, Types.Single));
+			Cache(DoubleTypeInfo = new ExternalTypeInfo(this, Types.Double));
+			Cache(TimeSpanTypeInfo = new ExternalTypeInfo(this, Types.TimeSpan));
+			Cache(DateTimeTypeInfo = new ExternalTypeInfo(this, Types.DateTime));
+			Cache(RuntimeServicesInfo = new ExternalTypeInfo(this, Types.RuntimeServices));
+			Cache(BuiltinsInfo = new ExternalTypeInfo(this, Types.Builtins));
+			Cache(ListTypeInfo = new ExternalTypeInfo(this, Types.List));
+			Cache(HashTypeInfo = new ExternalTypeInfo(this, Types.Hash));
+			Cache(ICallableTypeInfo = new ExternalTypeInfo(this, Types.ICallable));
+			Cache(IEnumerableTypeInfo = new ExternalTypeInfo(this, Types.IEnumerable));
+			Cache(ICollectionTypeInfo = new ExternalTypeInfo(this, Types.ICollection));
+			Cache(IListTypeInfo = new ExternalTypeInfo(this, Types.IList));
+			Cache(IDictionaryTypeInfo = new ExternalTypeInfo(this, Types.IDictionary));
+			Cache(ApplicationExceptionInfo = new ExternalTypeInfo(this, Types.ApplicationException));
+			Cache(ExceptionTypeInfo = new ExternalTypeInfo(this, Types.Exception));
 			
-			ObjectArrayBinding = AsArrayBinding(ObjectTypeBinding);
+			ObjectArrayInfo = AsArrayInfo(ObjectTypeInfo);
 			
 			PreparePrimitives();
 		}
 		
-		public Boo.Lang.Compiler.Ast.TypeReference CreateBoundTypeReference(ITypeBinding binding)
+		public Boo.Lang.Compiler.Ast.TypeReference CreateBoundTypeReference(ITypeInfo binding)
 		{
 			TypeReference typeReference = null;
 			
@@ -150,34 +150,34 @@ namespace Boo.Lang.Compiler.Services
 			return typeReference;
 		}
 		
-		public ITypeBinding GetPromotedNumberType(ITypeBinding left, ITypeBinding right)
+		public ITypeInfo GetPromotedNumberType(ITypeInfo left, ITypeInfo right)
 		{
-			if (left == DoubleTypeBinding ||
-				right == DoubleTypeBinding)
+			if (left == DoubleTypeInfo ||
+				right == DoubleTypeInfo)
 			{
-				return DoubleTypeBinding;
+				return DoubleTypeInfo;
 			}
-			if (left == SingleTypeBinding ||
-				right == SingleTypeBinding)
+			if (left == SingleTypeInfo ||
+				right == SingleTypeInfo)
 			{
-				return SingleTypeBinding;
+				return SingleTypeInfo;
 			}
-			if (left == LongTypeBinding ||
-				right == LongTypeBinding)
+			if (left == LongTypeInfo ||
+				right == LongTypeInfo)
 			{
-				return LongTypeBinding;
+				return LongTypeInfo;
 			}
-			if (left == ShortTypeBinding ||
-				right == ShortTypeBinding)
+			if (left == ShortTypeInfo ||
+				right == ShortTypeInfo)
 			{
-				return ShortTypeBinding;
+				return ShortTypeInfo;
 			}
 			return left;
 		}
 		
 		public static bool IsUnknown(Node node)
 		{
-			ITypedBinding binding = GetBinding(node) as ITypedBinding;
+			ITypedInfo binding = GetInfo(node) as ITypedInfo;
 			if (null != binding)
 			{
 				return IsUnknown(binding.BoundType);
@@ -185,14 +185,14 @@ namespace Boo.Lang.Compiler.Services
 			return false;
 		}
 		
-		public static bool IsUnknown(ITypeBinding binding)
+		public static bool IsUnknown(ITypeInfo binding)
 		{
-			return BindingType.Unknown == binding.BindingType;
+			return InfoType.Unknown == binding.InfoType;
 		}
 		
 		public static bool IsError(Node node)
 		{			
-			ITypedBinding binding = GetBinding(node) as ITypedBinding;
+			ITypedInfo binding = GetInfo(node) as ITypedInfo;
 			if (null != binding)
 			{
 				return IsError(binding.BoundType);
@@ -212,22 +212,22 @@ namespace Boo.Lang.Compiler.Services
 			return false;
 		}
 		
-		public static bool IsError(IBinding binding)
+		public static bool IsError(IInfo binding)
 		{
-			return BindingType.Error == binding.BindingType;
+			return InfoType.Error == binding.InfoType;
 		}		
 		
 		public static bool IsBound(Node node)
 		{
-			return null != node.Binding;
+			return null != node.Info;
 		}
 		
 		public static void Unbind(Node node)
 		{
-			node.Binding = null;
+			node.Info = null;
 		}
 		
-		public static void Bind(Node node, IBinding binding)
+		public static void Bind(Node node, IInfo binding)
 		{
 			if (null == node)
 			{
@@ -238,27 +238,27 @@ namespace Boo.Lang.Compiler.Services
 				throw new ArgumentNullException("binding");
 			}
 			
-			node.Binding = binding;
+			node.Info = binding;
 		}
 		
 		public void Bind(TypeDefinition type)
 		{
-			Bind(type, AsTypeBinding(type));
+			Bind(type, AsTypeInfo(type));
 		}
 		
 		public static void Error(Node node)
 		{
-			Bind(node, ErrorBinding.Default);
+			Bind(node, ErrorInfo.Default);
 		}
 		
-		public static IBinding GetBinding(Node node)
+		public static IInfo GetInfo(Node node)
 		{
 			if (null == node)
 			{
 				throw new ArgumentNullException("node");
 			}
 			
-			IBinding binding = node.Binding;
+			IInfo binding = node.Info;
 			if (null == binding)
 			{
 				NodeNotBound(node);
@@ -266,120 +266,120 @@ namespace Boo.Lang.Compiler.Services
 			return binding;
 		}	
 		
-		public ITypeBinding GetBoundType(Node node)
+		public ITypeInfo GetBoundType(Node node)
 		{
-			return ((ITypedBinding)GetBinding(node)).BoundType;
+			return ((ITypedInfo)GetInfo(node)).BoundType;
 		}
 		
-		public ITypeBinding AsTypeBinding(System.Type type)
+		public ITypeInfo AsTypeInfo(System.Type type)
 		{
 			if (type.IsArray)
 			{
-				return AsArrayBinding(AsTypeBinding(type.GetElementType()));
+				return AsArrayInfo(AsTypeInfo(type.GetElementType()));
 			}
 			
-			ExternalTypeBinding binding = (ExternalTypeBinding)_bindingCache[type];
+			ExternalTypeInfo binding = (ExternalTypeInfo)_bindingCache[type];
 			if (null == binding)
 			{
-				Cache(binding = new ExternalTypeBinding(this, type));
+				Cache(binding = new ExternalTypeInfo(this, type));
 			}
 			return binding;
 		}
 		
-		public ITypeBinding AsTypeBinding(TypeDefinition typeDefinition)
+		public ITypeInfo AsTypeInfo(TypeDefinition typeDefinition)
 		{
-			ITypeBinding binding = (ITypeBinding)_bindingCache[typeDefinition];
+			ITypeInfo binding = (ITypeInfo)_bindingCache[typeDefinition];
 			if (null == binding)
 			{
-				Cache(typeDefinition, binding = new InternalTypeBinding(this, typeDefinition));
+				Cache(typeDefinition, binding = new InternalTypeInfo(this, typeDefinition));
 			}
 			return binding;
 		}
 		
-		public ITypeBinding AsArrayBinding(ITypeBinding elementType)
+		public ITypeInfo AsArrayInfo(ITypeInfo elementType)
 		{
-			ITypeBinding binding = (ITypeBinding)_arrayBindingCache[elementType];
+			ITypeInfo binding = (ITypeInfo)_arrayInfoCache[elementType];
 			if (null == binding)
 			{
-				_arrayBindingCache.Add(elementType, binding = new ArrayTypeBinding(this, elementType));
+				_arrayInfoCache.Add(elementType, binding = new ArrayTypeInfo(this, elementType));
 			}
 			return binding;
 		}
 		
-		public ITypedBinding AsTypeReference(ITypeBinding type)
+		public ITypedInfo AsTypeReference(ITypeInfo type)
 		{
-			ITypedBinding cached = (ITypedBinding)_referenceCache[type];
+			ITypedInfo cached = (ITypedInfo)_referenceCache[type];
 			if (null == cached)
 			{
-				cached = new TypeReferenceBinding(type);
+				cached = new TypeReferenceInfo(type);
 				_referenceCache[type] = cached;
 			}
 			return cached;
 		}
 		
-		public ITypedBinding AsTypeReference(System.Type type)
+		public ITypedInfo AsTypeReference(System.Type type)
 		{
-			return AsTypeReference(AsTypeBinding(type));
+			return AsTypeReference(AsTypeInfo(type));
 		}
 		
-		public IBinding AsBinding(System.Reflection.MemberInfo[] info)
+		public IInfo AsInfo(System.Reflection.MemberInfo[] info)
 		{
 			if (info.Length > 1)
 			{
-				IBinding[] bindings = new IBinding[info.Length];
+				IInfo[] bindings = new IInfo[info.Length];
 				for (int i=0; i<bindings.Length; ++i)
 				{
-					bindings[i] = AsBinding(info[i]);
+					bindings[i] = AsInfo(info[i]);
 				}
-				return new AmbiguousBinding(bindings);
+				return new AmbiguousInfo(bindings);
 			}
 			if (info.Length > 0)
 			{
-				return AsBinding(info[0]);
+				return AsInfo(info[0]);
 			}
 			return null;
 		}
 		
-		public IBinding AsBinding(System.Reflection.MemberInfo mi)
+		public IInfo AsInfo(System.Reflection.MemberInfo mi)
 		{
-			IBinding binding = (IBinding)_bindingCache[mi];
+			IInfo binding = (IInfo)_bindingCache[mi];
 			if (null == binding)
 			{			
 				switch (mi.MemberType)
 				{
 					case MemberTypes.Method:
 					{
-						binding = new ExternalMethodBinding(this, (System.Reflection.MethodInfo)mi);
+						binding = new ExternalMethodInfo(this, (System.Reflection.MethodInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Constructor:
 					{
-						binding = new ExternalConstructorBinding(this, (System.Reflection.ConstructorInfo)mi);
+						binding = new ExternalConstructorInfo(this, (System.Reflection.ConstructorInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Field:
 					{
-						binding = new ExternalFieldBinding(this, (System.Reflection.FieldInfo)mi);
+						binding = new ExternalFieldInfo(this, (System.Reflection.FieldInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Property:
 					{
-						binding = new ExternalPropertyBinding(this, (System.Reflection.PropertyInfo)mi);
+						binding = new ExternalPropertyInfo(this, (System.Reflection.PropertyInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Event:
 					{
-						binding = new ExternalEventBinding(this, (System.Reflection.EventInfo)mi);
+						binding = new ExternalEventInfo(this, (System.Reflection.EventInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.TypeInfo:
 					{
-						return AsTypeBinding((Type)mi);
+						return AsTypeInfo((Type)mi);
 					}
 					
 					default:
@@ -392,9 +392,9 @@ namespace Boo.Lang.Compiler.Services
 			return binding;
 		}
 		
-		public IBinding ResolvePrimitive(string name)
+		public IInfo ResolvePrimitive(string name)
 		{
-			return (IBinding)_primitives[name];
+			return (IInfo)_primitives[name];
 		}
 		
 		public bool IsPrimitive(string name)
@@ -404,40 +404,40 @@ namespace Boo.Lang.Compiler.Services
 		
 		void PreparePrimitives()
 		{
-			AddPrimitiveType("void", VoidTypeBinding);
-			AddPrimitiveType("bool", BoolTypeBinding);
-			AddPrimitiveType("date", DateTimeTypeBinding);
-			AddPrimitiveType("string", StringTypeBinding);
-			AddPrimitiveType("object", ObjectTypeBinding);
-			AddPrimitiveType("byte", ByteTypeBinding);
-			AddPrimitiveType("int", IntTypeBinding);
-			AddPrimitiveType("long", LongTypeBinding);
-			AddPrimitiveType("float", SingleTypeBinding);
-			AddPrimitiveType("double", DoubleTypeBinding);
-			AddPrimitive("len", _lenBinding);
+			AddPrimitiveType("void", VoidTypeInfo);
+			AddPrimitiveType("bool", BoolTypeInfo);
+			AddPrimitiveType("date", DateTimeTypeInfo);
+			AddPrimitiveType("string", StringTypeInfo);
+			AddPrimitiveType("object", ObjectTypeInfo);
+			AddPrimitiveType("byte", ByteTypeInfo);
+			AddPrimitiveType("int", IntTypeInfo);
+			AddPrimitiveType("long", LongTypeInfo);
+			AddPrimitiveType("float", SingleTypeInfo);
+			AddPrimitiveType("double", DoubleTypeInfo);
+			AddPrimitive("len", _lenInfo);
 		}
 		
-		void AddPrimitiveType(string name, ExternalTypeBinding type)
+		void AddPrimitiveType(string name, ExternalTypeInfo type)
 		{
 			_primitives[name] = AsTypeReference(type);
 		}
 		
-		void AddPrimitive(string name, IBinding binding)
+		void AddPrimitive(string name, IInfo binding)
 		{
 			_primitives[name] = binding;
 		}
 		
-		void Cache(ExternalTypeBinding binding)
+		void Cache(ExternalTypeInfo binding)
 		{
 			_bindingCache[binding.Type] = binding;
 		}
 		
-		void Cache(object key, ITypeBinding binding)
+		void Cache(object key, ITypeInfo binding)
 		{
 			_bindingCache[key] = binding;
 		}
 		
-		public static string GetSignature(IMethodBinding binding)
+		public static string GetSignature(IMethodInfo binding)
 		{			
 			System.Text.StringBuilder sb = new System.Text.StringBuilder(binding.DeclaringType.FullName);
 			sb.Append(".");
@@ -454,7 +454,7 @@ namespace Boo.Lang.Compiler.Services
 			sb.Append(")");
 			
 			/*
-			ITypeBinding rt = binding.ReturnType;
+			ITypeInfo rt = binding.ReturnType;
 			if (null != rt)
 			{
 				sb.Append(" as ");
@@ -469,14 +469,14 @@ namespace Boo.Lang.Compiler.Services
 			throw CompilerErrorFactory.NodeNotBound(node);
 		}		
 		
-		#region VoidTypeBindingImpl
-		class VoidTypeBindingImpl : ExternalTypeBinding
+		#region VoidTypeInfoImpl
+		class VoidTypeInfoImpl : ExternalTypeInfo
 		{			
-			internal VoidTypeBindingImpl(DefaultBindingService manager) : base(manager, Types.Void)
+			internal VoidTypeInfoImpl(DefaultInfoService manager) : base(manager, Types.Void)
 			{				
 			}		
 			
-			override public IBinding Resolve(string name)
+			override public IInfo Resolve(string name)
 			{	
 				return null;
 			}	

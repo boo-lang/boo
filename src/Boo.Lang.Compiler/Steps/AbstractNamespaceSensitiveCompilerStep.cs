@@ -30,7 +30,7 @@ using System;
 using System.Collections;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Bindings;
+using Boo.Lang.Compiler.Infos;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -50,12 +50,12 @@ namespace Boo.Lang.Compiler.Steps
 			_nameResolution.Dispose();
 		}
 		
-		protected IBinding Resolve(Node sourceNode, string name)
+		protected IInfo Resolve(Node sourceNode, string name)
 		{
 			return _nameResolution.Resolve(sourceNode, name);
 		}
 		
-		protected IBinding ResolveQualifiedName(Node sourceNode, string name)
+		protected IInfo ResolveQualifiedName(Node sourceNode, string name)
 		{			
 			return _nameResolution.Resolve(sourceNode, name);
 		}

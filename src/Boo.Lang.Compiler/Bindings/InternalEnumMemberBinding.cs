@@ -26,19 +26,19 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 	
-	public class InternalEnumMemberBinding : AbstractInternalBinding, IFieldBinding
+	public class InternalEnumMemberInfo : AbstractInternalInfo, IFieldInfo
 	{
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		
 		EnumMember _member;
 		
-		public InternalEnumMemberBinding(DefaultBindingService bindingManager, EnumMember member)
+		public InternalEnumMemberInfo(DefaultInfoService bindingManager, EnumMember member)
 		{
 			_bindingService = bindingManager;
 			_member = member;
@@ -84,15 +84,15 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Field;
+				return InfoType.Field;
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{
@@ -100,11 +100,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding DeclaringType
+		public ITypeInfo DeclaringType
 		{
 			get
 			{
-				return (ITypeBinding)DefaultBindingService.GetBinding(_member.ParentNode);
+				return (ITypeInfo)DefaultInfoService.GetInfo(_member.ParentNode);
 			}
 		}
 		

@@ -29,15 +29,15 @@
 using System;
 using System.Collections;
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
-	public delegate bool BindingFilter(IBinding binding);
+	public delegate bool InfoFilter(IInfo binding);
 	
-	public class AmbiguousBinding : IBinding
+	public class AmbiguousInfo : IInfo
 	{
-		IBinding[] _bindings;
+		IInfo[] _bindings;
 		
-		public AmbiguousBinding(IBinding[] bindings)
+		public AmbiguousInfo(IInfo[] bindings)
 		{
 			if (null == bindings)
 			{
@@ -66,15 +66,15 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Ambiguous;
+				return InfoType.Ambiguous;
 			}
 		}
 		
-		public IBinding[] Bindings
+		public IInfo[] Infos
 		{
 			get
 			{
@@ -82,10 +82,10 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public Boo.Lang.List Filter(BindingFilter condition)
+		public Boo.Lang.List Filter(InfoFilter condition)
 		{
 			Boo.Lang.List found = new Boo.Lang.List();
-			foreach (IBinding binding in _bindings)
+			foreach (IInfo binding in _bindings)
 			{
 				if (condition(binding))
 				{

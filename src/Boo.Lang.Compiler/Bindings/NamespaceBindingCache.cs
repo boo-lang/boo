@@ -29,15 +29,15 @@
 using System;
 using System.Collections;
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
-	public class NamespaceBindingCache
+	public class NamespaceInfoCache
 	{
 		protected Hashtable _bindingCache = new Hashtable();
 		
-		public IBinding ResolveFromCache(string name, out bool found)
+		public IInfo ResolveFromCache(string name, out bool found)
 		{
-			IBinding binding = (IBinding)_bindingCache[name];
+			IInfo binding = (IInfo)_bindingCache[name];
 			if (null == binding)
 			{
 				found = _bindingCache.ContainsKey(name);
@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		public IBinding Cache(string name, IBinding binding)
+		public IInfo Cache(string name, IInfo binding)
 		{
 			_bindingCache[name] = binding;
 			return binding;

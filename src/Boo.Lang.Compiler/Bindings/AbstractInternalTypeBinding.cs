@@ -26,23 +26,23 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using System.Collections;
 	using Boo.Lang.Compiler.Services;
 	using Boo.Lang.Compiler.Ast;
 	
-	public abstract class AbstractInternalBinding : IInternalBinding
+	public abstract class AbstractInternalInfo : IInternalInfo
 	{
 		protected bool _visited;
 		
-		public AbstractInternalBinding()
+		public AbstractInternalInfo()
 		{
 			_visited = false;
 		}
 		
-		public AbstractInternalBinding(bool visited)
+		public AbstractInternalInfo(bool visited)
 		{
 			_visited = visited;
 		}
@@ -66,25 +66,25 @@ namespace Boo.Lang.Compiler.Bindings
 		}		
 	}
 	
-	public abstract class AbstractInternalTypeBinding : AbstractInternalBinding, ITypeBinding, INamespace
+	public abstract class AbstractInternalTypeInfo : AbstractInternalInfo, ITypeInfo, INamespace
 	{		
-		protected DefaultBindingService _bindingService;
+		protected DefaultInfoService _bindingService;
 		
 		protected TypeDefinition _typeDefinition;
 		
-		protected IBinding[] _members;
+		protected IInfo[] _members;
 		
-		protected ITypeBinding[] _interfaces;
+		protected ITypeInfo[] _interfaces;
 		
 		protected INamespace _parentNamespace;
 		
 		protected List _buffer = new List();
 		
-		protected AbstractInternalTypeBinding(DefaultBindingService bindingManager, TypeDefinition typeDefinition)
+		protected AbstractInternalTypeInfo(DefaultInfoService bindingManager, TypeDefinition typeDefinition)
 		{
 			_bindingService = bindingManager;
 			_typeDefinition = typeDefinition;
-			_parentNamespace = (INamespace)DefaultBindingService.GetBinding(_typeDefinition.ParentNode);
+			_parentNamespace = (INamespace)DefaultInfoService.GetInfo(_typeDefinition.ParentNode);
 		}
 		
 		public string FullName
@@ -119,11 +119,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public virtual IBinding Resolve(string name)
+		public virtual IInfo Resolve(string name)
 		{			
 			_buffer.Clear();			
 			
-			foreach (IBinding binding in GetMembers())
+			foreach (IInfo binding in GetMembers())
 			{
 				if (binding.Name == name)
 				{
@@ -135,7 +135,7 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					IBinding binding = _bindingService.GetBoundType(baseType).Resolve(name);
+					IInfo binding = _bindingService.GetBoundType(baseType).Resolve(name);
 					if (null != binding)
 					{
 						_buffer.AddUnique(binding);
@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.Bindings
 				if (IsInterface)
 				{
 					// also look in System.Object
-					IBinding binding = _bindingService.ObjectTypeBinding.Resolve(name);
+					IInfo binding = _bindingService.ObjectTypeInfo.Resolve(name);
 					if (null != binding)
 					{
 						_buffer.AddUnique(binding);						
@@ -157,54 +157,54 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				if (_buffer.Count > 1)
 				{
-					return new AmbiguousBinding((IBinding[])_buffer.ToArray(typeof(IBinding)));
+					return new AmbiguousInfo((IInfo[])_buffer.ToArray(typeof(IInfo)));
 				}
 				else
 				{
-					return (IBinding)_buffer[0];
+					return (IInfo)_buffer[0];
 				}
 			}
 			return null;
 		}
 		
-		IBinding CreateCorrectBinding(TypeMember member)
+		IInfo CreateCorrectInfo(TypeMember member)
 		{
 			switch (member.NodeType)
 			{
 				case NodeType.Method:
 				{
-					return new InternalMethodBinding(_bindingService, (Method)member);
+					return new InternalMethodInfo(_bindingService, (Method)member);
 				}
 				
 				case NodeType.Constructor:
 				{
-					return new InternalConstructorBinding(_bindingService, (Constructor)member);
+					return new InternalConstructorInfo(_bindingService, (Constructor)member);
 				}
 				
 				case NodeType.Field:
 				{
-					return new InternalFieldBinding(_bindingService, (Field)member);
+					return new InternalFieldInfo(_bindingService, (Field)member);
 				}
 				
 				case NodeType.EnumDefinition:
 				{
-					return new EnumTypeBinding(_bindingService, (EnumDefinition)member);
+					return new EnumTypeInfo(_bindingService, (EnumDefinition)member);
 				}
 				
 				case NodeType.EnumMember:
 				{
-					return new InternalEnumMemberBinding(_bindingService, (EnumMember)member);
+					return new InternalEnumMemberInfo(_bindingService, (EnumMember)member);
 				}
 				
 				case NodeType.Property:
 				{
-					return new InternalPropertyBinding(_bindingService, (Property)member);
+					return new InternalPropertyInfo(_bindingService, (Property)member);
 				}
 			}
 			throw new NotImplementedException(member.GetType().ToString());
 		}
 		
-		public virtual ITypeBinding BaseType
+		public virtual ITypeInfo BaseType
 		{
 			get
 			{
@@ -220,7 +220,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{
@@ -278,17 +278,17 @@ namespace Boo.Lang.Compiler.Bindings
 			return 0;
 		}
 		
-		public ITypeBinding GetElementType()
+		public ITypeInfo GetElementType()
 		{
 			return null;
 		}
 		
-		public IBinding GetDefaultMember()
+		public IInfo GetDefaultMember()
 		{
-			ITypeBinding defaultMemberAttribute = _bindingService.AsTypeBinding(typeof(System.Reflection.DefaultMemberAttribute));
+			ITypeInfo defaultMemberAttribute = _bindingService.AsTypeInfo(typeof(System.Reflection.DefaultMemberAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
 			{
-				IConstructorBinding binding = DefaultBindingService.GetBinding(attribute) as IConstructorBinding;
+				IConstructorInfo binding = DefaultInfoService.GetInfo(attribute) as IConstructorInfo;
 				if (null != binding)
 				{
 					if (defaultMemberAttribute == binding.DeclaringType)
@@ -304,32 +304,32 @@ namespace Boo.Lang.Compiler.Bindings
 			return null;
 		}
 		
-		public virtual BindingType BindingType
+		public virtual InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Type;
+				return InfoType.Type;
 			}
 		}
 		
-		public virtual bool IsSubclassOf(ITypeBinding other)
+		public virtual bool IsSubclassOf(ITypeInfo other)
 		{
 			return false;
 		}
 		
-		public virtual bool IsAssignableFrom(ITypeBinding other)
+		public virtual bool IsAssignableFrom(ITypeInfo other)
 		{
 			return this == other ||
-					(!this.IsValueType && NullBinding.Default == other) ||
+					(!this.IsValueType && NullInfo.Default == other) ||
 					other.IsSubclassOf(this);
 		}
 		
-		public virtual IConstructorBinding[] GetConstructors()
+		public virtual IConstructorInfo[] GetConstructors()
 		{
-			return new IConstructorBinding[0];
+			return new IConstructorInfo[0];
 		}
 		
-		public ITypeBinding[] GetInterfaces()
+		public ITypeInfo[] GetInterfaces()
 		{
 			if (null == _interfaces)
 			{
@@ -337,40 +337,40 @@ namespace Boo.Lang.Compiler.Bindings
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					ITypeBinding binding = (ITypeBinding)_bindingService.GetBoundType(baseType);
+					ITypeInfo binding = (ITypeInfo)_bindingService.GetBoundType(baseType);
 					if (binding.IsInterface)
 					{
 						_buffer.AddUnique(binding);
 					}
 				}
 				
-				_interfaces = (ITypeBinding[])_buffer.ToArray(typeof(ITypeBinding));
+				_interfaces = (ITypeInfo[])_buffer.ToArray(typeof(ITypeInfo));
 			}
 			return _interfaces;
 		}
 		
-		public virtual IBinding[] GetMembers()
+		public virtual IInfo[] GetMembers()
 		{
 			if (null == _members)
 			{
 				_buffer.Clear();
 				foreach (TypeMember member in _typeDefinition.Members)
 				{
-					IBinding binding = member.Binding;
+					IInfo binding = member.Info;
 					if (null == binding)
 					{						
-						binding = CreateCorrectBinding(member);
-						DefaultBindingService.Bind(member, binding);
+						binding = CreateCorrectInfo(member);
+						DefaultInfoService.Bind(member, binding);
 					}	
 					
-					if (BindingType.Type == binding.BindingType)
+					if (InfoType.Type == binding.InfoType)
 					{
-						binding = _bindingService.AsTypeReference((ITypeBinding)binding);
+						binding = _bindingService.AsTypeReference((ITypeInfo)binding);
 					}
 					_buffer.Add(binding);
 				}
 
-				_members = (IBinding[])_buffer.ToArray(typeof(IBinding));
+				_members = (IInfo[])_buffer.ToArray(typeof(IInfo));
 				_buffer.Clear();				
 			}
 			return _members;

@@ -32,7 +32,7 @@ using System.Reflection;
 using List=Boo.Lang.List;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Bindings;
+using Boo.Lang.Compiler.Infos;
 
 namespace Boo.Lang.Compiler.Steps
 {	
@@ -62,15 +62,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
-				ModuleBinding moduleBinding = new ModuleBinding(BindingService, module);
-				BindingService.Bind(module, moduleBinding);
+				ModuleInfo moduleInfo = new ModuleInfo(InfoService, module);
+				InfoService.Bind(module, moduleInfo);
 				
 				NamespaceDeclaration namespaceDeclaration = module.Namespace;
 				if (null != namespaceDeclaration)
 				{
 					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
 				}
-				GetNamespaceBinding(moduleBinding.Namespace).AddModule(moduleBinding);
+				GetNamespaceInfo(moduleInfo.Namespace).AddModule(moduleInfo);
 			}
 		}
 		
@@ -84,35 +84,35 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				foreach (Import import in module.Imports)
 				{
-					IBinding binding = ResolveQualifiedName(import.Namespace);					
+					IInfo binding = ResolveQualifiedName(import.Namespace);					
 					if (null == binding)
 					{
-						binding = ErrorBinding.Default;
+						binding = ErrorInfo.Default;
 						Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
 					}
 					else
 					{
 						if (null != import.AssemblyReference)
 						{	
-							NamespaceBinding nsBinding = binding as NamespaceBinding;
-							if (null == nsBinding)
+							NamespaceInfo nsInfo = binding as NamespaceInfo;
+							if (null == nsInfo)
 							{
 								Errors.Add(CompilerErrorFactory.NotImplemented(import, "assembly qualified type references"));
 							}
 							else
 							{								
-								binding = new AssemblyQualifiedNamespaceBinding(GetBoundAssembly(import.AssemblyReference), nsBinding);
+								binding = new AssemblyQualifiedNamespaceInfo(GetBoundAssembly(import.AssemblyReference), nsInfo);
 							}
 						}
 						if (null != import.Alias)
 						{
-							binding = new AliasedNamespaceBinding(import.Alias.Name, binding);
-							BindingService.Bind(import.Alias, binding);
+							binding = new AliasedNamespaceInfo(import.Alias.Name, binding);
+							InfoService.Bind(import.Alias, binding);
 						}
 					}
 					
 					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, binding.Name);
-					BindingService.Bind(import, binding);
+					InfoService.Bind(import, binding);
 				}
 			}			
 		}
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							Assembly asm = Assembly.LoadWithPartialName(reference.Name);
 							Parameters.References.Add(asm);
-							BindingService.Bind(reference, new Bindings.AssemblyBinding(asm));
+							InfoService.Bind(reference, new Infos.AssemblyInfo(asm));
 						}
 						catch (Exception x)
 						{
@@ -147,7 +147,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Assembly GetBoundAssembly(ReferenceExpression reference)
 		{
-			return ((AssemblyBinding)BindingService.GetBinding(reference)).Assembly;
+			return ((AssemblyInfo)InfoService.GetInfo(reference)).Assembly;
 		}
 		
 		public INamespace ParentNamespace
@@ -158,9 +158,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
-			IBinding binding = (IBinding)_namespaces[name];
+			IInfo binding = (IInfo)_namespaces[name];
 			if (null == binding)
 			{
 				INamespace globalns = (INamespace)_namespaces[""];
@@ -172,7 +172,7 @@ namespace Boo.Lang.Compiler.Steps
 			return binding;
 		}
 		
-		IBinding ResolveQualifiedName(string name)
+		IInfo ResolveQualifiedName(string name)
 		{
 			string[] parts = name.Split('.');
 			string topLevel = parts[0];
@@ -189,7 +189,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			return (IBinding)ns;
+			return (IInfo)ns;
 		}
 		
 		void OrganizeExternalNamespaces()
@@ -205,7 +205,7 @@ namespace Boo.Lang.Compiler.Steps
 						ns = string.Empty;
 					}					
 					
-					GetNamespaceBinding(ns).Add(type);
+					GetNamespaceInfo(ns).Add(type);
 					
 					List typeList = GetList(_externalTypes, type.FullName);
 					typeList.Add(type);
@@ -213,12 +213,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Bindings.NamespaceBinding GetNamespaceBinding(string ns)
+		Infos.NamespaceInfo GetNamespaceInfo(string ns)
 		{
 			string[] namespaceHierarchy = ns.Split('.');
 			string topLevelName = namespaceHierarchy[0];
-			Bindings.NamespaceBinding topLevel = GetTopLevelNamespaceBinding(topLevelName);
-			Bindings.NamespaceBinding current = topLevel;
+			Infos.NamespaceInfo topLevel = GetTopLevelNamespaceInfo(topLevelName);
+			Infos.NamespaceInfo current = topLevel;
 			for (int i=1; i<namespaceHierarchy.Length; ++i)
 			{
 				current = current.GetChildNamespace(namespaceHierarchy[i]);
@@ -226,12 +226,12 @@ namespace Boo.Lang.Compiler.Steps
 			return current;
 		}
 		
-		Bindings.NamespaceBinding GetTopLevelNamespaceBinding(string topLevelName)
+		Infos.NamespaceInfo GetTopLevelNamespaceInfo(string topLevelName)
 		{
-			Bindings.NamespaceBinding binding = (Bindings.NamespaceBinding)_namespaces[topLevelName];	
+			Infos.NamespaceInfo binding = (Infos.NamespaceInfo)_namespaces[topLevelName];	
 			if (null == binding)
 			{
-				_namespaces[topLevelName] = binding = new Bindings.NamespaceBinding(this, BindingService, topLevelName);
+				_namespaces[topLevelName] = binding = new Infos.NamespaceInfo(this, InfoService, topLevelName);
 			}
 			return binding;
 		}

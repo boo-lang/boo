@@ -30,7 +30,7 @@ using System;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Bindings;
+using Boo.Lang.Compiler.Infos;
 using Boo.Lang.Compiler.Services;
 
 namespace Boo.Lang.Compiler.Steps
@@ -75,27 +75,27 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected DefaultBindingService BindingService
+		protected DefaultInfoService InfoService
 		{
 			get
 			{
-				return _context.BindingService;
+				return _context.InfoService;
 			}
 		}
 		
-		public IBinding GetBinding(Node node)
+		public IInfo GetInfo(Node node)
 		{
-			return DefaultBindingService.GetBinding(node);
+			return DefaultInfoService.GetInfo(node);
 		}
 		
-		protected ITypeBinding GetBoundType(Node node)
+		protected ITypeInfo GetBoundType(Node node)
 		{
-			return BindingService.GetBoundType(node);
+			return InfoService.GetBoundType(node);
 		}	
 		
-		protected TypeReference CreateBoundTypeReference(ITypeBinding binding)
+		protected TypeReference CreateBoundTypeReference(ITypeInfo binding)
 		{
-			return BindingService.CreateBoundTypeReference(binding);
+			return InfoService.CreateBoundTypeReference(binding);
 		}
 		
 		public virtual void Initialize(CompilerContext context)

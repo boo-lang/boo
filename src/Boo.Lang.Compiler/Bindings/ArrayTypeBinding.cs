@@ -26,23 +26,23 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using Boo.Lang.Compiler.Services;
 	
-	public class ArrayTypeBinding : ITypeBinding, INamespace
+	public class ArrayTypeInfo : ITypeInfo, INamespace
 	{	
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		
-		ITypeBinding _elementType;
+		ITypeInfo _elementType;
 		
-		ITypeBinding _array;
+		ITypeInfo _array;
 		
-		public ArrayTypeBinding(DefaultBindingService bindingManager, ITypeBinding elementType)
+		public ArrayTypeInfo(DefaultInfoService bindingManager, ITypeInfo elementType)
 		{
 			_bindingService = bindingManager;
-			_array = bindingManager.ArrayTypeBinding;
+			_array = bindingManager.ArrayTypeInfo;
 			_elementType = elementType;
 		}
 		
@@ -54,11 +54,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get			
 			{
-				return BindingType.Array;
+				return InfoType.Array;
 			}
 		}
 		
@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{
@@ -128,12 +128,12 @@ namespace Boo.Lang.Compiler.Bindings
 			return 1;
 		}		
 		
-		public ITypeBinding GetElementType()
+		public ITypeInfo GetElementType()
 		{
 			return _elementType;
 		}
 		
-		public ITypeBinding BaseType
+		public ITypeInfo BaseType
 		{
 			get
 			{
@@ -141,17 +141,17 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding GetDefaultMember()
+		public IInfo GetDefaultMember()
 		{
 			return null;
 		}
 		
-		public virtual bool IsSubclassOf(ITypeBinding other)
+		public virtual bool IsSubclassOf(ITypeInfo other)
 		{
 			return other.IsAssignableFrom(_array);
 		}
 		
-		public virtual bool IsAssignableFrom(ITypeBinding other)
+		public virtual bool IsAssignableFrom(ITypeInfo other)
 		{			
 			if (other == this)
 			{
@@ -160,7 +160,7 @@ namespace Boo.Lang.Compiler.Bindings
 			
 			if (other.IsArray)
 			{
-				ITypeBinding otherElementType = other.GetElementType();
+				ITypeInfo otherElementType = other.GetElementType();
 				if (_elementType.IsValueType || otherElementType.IsValueType)
 				{
 					return _elementType == otherElementType;
@@ -170,17 +170,17 @@ namespace Boo.Lang.Compiler.Bindings
 			return false;
 		}
 		
-		public IConstructorBinding[] GetConstructors()
+		public IConstructorInfo[] GetConstructors()
 		{
-			return new IConstructorBinding[0];
+			return new IConstructorInfo[0];
 		}
 		
-		public ITypeBinding[] GetInterfaces()
+		public ITypeInfo[] GetInterfaces()
 		{
 			return null;
 		}
 		
-		public IBinding[] GetMembers()
+		public IInfo[] GetMembers()
 		{
 			return null;
 		}
@@ -193,7 +193,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			return _array.Resolve(name);
 		}

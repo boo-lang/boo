@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.Steps
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Bindings;
+	using Boo.Lang.Compiler.Infos;
 	
 	[Serializable]
 	public class BindBaseTypes : AbstractNamespaceSensitiveVisitorCompilerStep
@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{
-			PushNamespace((INamespace)GetBinding(module));
+			PushNamespace((INamespace)GetInfo(module));
 			Accept(module.Members);
 			PopNamespace();
 		}
@@ -68,10 +68,10 @@ namespace Boo.Lang.Compiler.Steps
 			visited.Add(node);
 			foreach (SimpleTypeReference type in node.BaseTypes)
 			{                            
-				TypeReferenceBinding binding = ResolveSimpleTypeReference(type) as TypeReferenceBinding;
+				TypeReferenceInfo binding = ResolveSimpleTypeReference(type) as TypeReferenceInfo;
 				if (null != binding)
 				{
-					InternalTypeBinding internalType = binding.BoundType as InternalTypeBinding;
+					InternalTypeInfo internalType = binding.BoundType as InternalTypeInfo;
 					if (null != internalType)
 					{
 						if (visited.Contains(internalType.TypeDefinition))

@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerErrorCollection _errors;
 		
-		protected Services.DefaultBindingService _bindingService;		
+		protected Services.DefaultInfoService _bindingService;		
 		
 		protected INameResolutionService _nameResolutionService;
 		
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler
 			_errors = new CompilerErrorCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
-			_bindingService = new Services.DefaultBindingService();
+			_bindingService = new Services.DefaultInfoService();
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
 		}	
@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public Services.DefaultBindingService BindingService
+		public Services.DefaultInfoService InfoService
 		{
 			get
 			{

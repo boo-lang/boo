@@ -26,28 +26,28 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using Boo.Lang.Compiler.Services;
 	
-	public class ExternalEventBinding : IEventBinding
+	public class ExternalEventInfo : IEventInfo
 	{
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		
 		System.Reflection.EventInfo _event;
 		
-		public ExternalEventBinding(DefaultBindingService bindingManager, System.Reflection.EventInfo event_)
+		public ExternalEventInfo(DefaultInfoService bindingManager, System.Reflection.EventInfo event_)
 		{
 			_bindingService = bindingManager;
 			_event = event_;
 		}
 		
-		public ITypeBinding DeclaringType
+		public ITypeInfo DeclaringType
 		{
 			get
 			{
-				return _bindingService.AsTypeBinding(_event.DeclaringType);
+				return _bindingService.AsTypeInfo(_event.DeclaringType);
 			}
 		}
 		
@@ -83,19 +83,19 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Event;
+				return InfoType.Event;
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{
-				return _bindingService.AsTypeBinding(_event.EventHandlerType);
+				return _bindingService.AsTypeInfo(_event.EventHandlerType);
 			}
 		}
 		

@@ -28,17 +28,17 @@
 
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
-	public class ParameterBinding : ITypedBinding
+	public class ParameterInfo : ITypedInfo
 	{
 		ParameterDeclaration _parameter;
 		
-		ITypeBinding _type;
+		ITypeInfo _type;
 		
 		int _index;
 		
-		public ParameterBinding(ParameterDeclaration parameter, ITypeBinding type)
+		public ParameterInfo(ParameterDeclaration parameter, ITypeInfo type)
 		{
 			_parameter = parameter;
 			_type = type;
@@ -61,11 +61,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Parameter;
+				return InfoType.Parameter;
 			}
 		}
 		
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{

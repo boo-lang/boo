@@ -29,7 +29,7 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Bindings;
+using Boo.Lang.Compiler.Infos;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang;
 using Reflection = System.Reflection;
@@ -177,9 +177,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 		
-		ITypeBinding _astAttributeInterface;
+		ITypeInfo _astAttributeInterface;
 		
-		ITypeBinding _systemAttributeBaseClass;
+		ITypeInfo _systemAttributeBaseClass;
 
 		public BindAndApplyAttributes()
 		{			
@@ -188,8 +188,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void Run()
 		{
-			_astAttributeInterface = BindingService.AsTypeBinding(typeof(IAstAttribute));
-			_systemAttributeBaseClass = BindingService.AsTypeBinding(typeof(System.Attribute));
+			_astAttributeInterface = InfoService.AsTypeInfo(typeof(IAstAttribute));
+			_systemAttributeBaseClass = InfoService.AsTypeInfo(typeof(System.Attribute));
 			
 			int step = 0;
 			while (step < Parameters.MaxAttributeSteps)
@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnModule(Module module)
 		{			
-			PushNamespace((INamespace)BindingService.GetBinding(module));
+			PushNamespace((INamespace)InfoService.GetInfo(module));
 
 			// do mdulo precisamos apenas visitar os membros
 			Accept(module.Members);
@@ -223,12 +223,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
 		{			
-			if (BindingService.IsBound(attribute))
+			if (InfoService.IsBound(attribute))
 			{
 				return;
 			}
 			
-			IBinding binding = ResolveQualifiedName(attribute, attribute.Name);
+			IInfo binding = ResolveQualifiedName(attribute, attribute.Name);
 			if (null == binding)
 			{
 				binding = ResolveQualifiedName(attribute, BuildAttributeName(attribute.Name));
@@ -236,25 +236,25 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (null != binding)
 			{
-				if (BindingType.Ambiguous == binding.BindingType)
+				if (InfoType.Ambiguous == binding.InfoType)
 				{
 					Error(attribute, CompilerErrorFactory.AmbiguousReference(
 									attribute,
 									attribute.Name,
-									((AmbiguousBinding)binding).Bindings));
+									((AmbiguousInfo)binding).Infos));
 				}
 				else
 				{
-					if (BindingType.TypeReference != binding.BindingType)
+					if (InfoType.TypeReference != binding.InfoType)
 					{
 						Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name));
 					}
 					else
 					{
-						ITypeBinding attributeType = ((ITypedBinding)binding).BoundType;
+						ITypeInfo attributeType = ((ITypedInfo)binding).BoundType;
 						if (IsAstAttribute(attributeType))
 						{
-							ExternalTypeBinding externalType = attributeType as ExternalTypeBinding;
+							ExternalTypeInfo externalType = attributeType as ExternalTypeInfo;
 							if (null == externalType)
 							{
 								Error(attribute, CompilerErrorFactory.AstAttributeMustBeExternal(attribute, attributeType.FullName));
@@ -276,7 +276,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								// remember the attribute's type
 								attribute.Name = attributeType.FullName;
-								BindingService.Bind(attribute, attributeType);
+								InfoService.Bind(attribute, attributeType);
 							}
 						}
 					}
@@ -290,7 +290,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void Error(Boo.Lang.Compiler.Ast.Attribute attribute, CompilerError error)
 		{
-			BindingService.Error(attribute);
+			InfoService.Error(attribute);
 			Errors.Add(error);
 		}
 
@@ -316,12 +316,12 @@ namespace Boo.Lang.Compiler.Steps
 			return _buffer.ToString();
 		}
 		
-		bool IsSystemAttribute(ITypeBinding type)
+		bool IsSystemAttribute(ITypeInfo type)
 		{
 			return type.IsSubclassOf(_systemAttributeBaseClass);
 		}
 
-		bool IsAstAttribute(ITypeBinding type)
+		bool IsAstAttribute(ITypeInfo type)
 		{
 			return _astAttributeInterface.IsAssignableFrom(type);
 		}

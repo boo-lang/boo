@@ -26,30 +26,30 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 	
-	public class InternalPropertyBinding : AbstractInternalBinding, IPropertyBinding
+	public class InternalPropertyInfo : AbstractInternalInfo, IPropertyInfo
 	{
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		
 		Property _property;
 		
-		ITypeBinding[] _indexParameters;
+		ITypeInfo[] _indexParameters;
 		
-		public InternalPropertyBinding(DefaultBindingService bindingManager, Property property)
+		public InternalPropertyInfo(DefaultInfoService bindingManager, Property property)
 		{
 			_bindingService = bindingManager;
 			_property = property;
 		}
 		
-		public ITypeBinding DeclaringType
+		public ITypeInfo DeclaringType
 		{
 			get
 			{
-				return _bindingService.AsTypeBinding(_property.DeclaringType);
+				return _bindingService.AsTypeInfo(_property.DeclaringType);
 			}
 		}
 		
@@ -85,15 +85,15 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Property;
+				return InfoType.Property;
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{
@@ -101,12 +101,12 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding[] GetIndexParameters()
+		public ITypeInfo[] GetIndexParameters()
 		{
 			if (null == _indexParameters)
 			{
 				ParameterDeclarationCollection parameters = _property.Parameters;
-				_indexParameters = new ITypeBinding[parameters.Count];
+				_indexParameters = new ITypeInfo[parameters.Count];
 				for (int i=0; i<_indexParameters.Length; ++i)
 				{
 					_indexParameters[i] = _bindingService.GetBoundType(parameters[i]);
@@ -115,20 +115,20 @@ namespace Boo.Lang.Compiler.Bindings
 			return _indexParameters;
 		}
 
-		public IMethodBinding GetGetMethod()
+		public IMethodInfo GetGetMethod()
 		{
 			if (null != _property.Getter)
 			{
-				return (IMethodBinding)DefaultBindingService.GetBinding(_property.Getter);
+				return (IMethodInfo)DefaultInfoService.GetInfo(_property.Getter);
 			}
 			return null;
 		}
 		
-		public IMethodBinding GetSetMethod()
+		public IMethodInfo GetSetMethod()
 		{
 			if (null != _property.Setter)
 			{
-				return (IMethodBinding)DefaultBindingService.GetBinding(_property.Setter);
+				return (IMethodInfo)DefaultInfoService.GetInfo(_property.Setter);
 			}
 			return null;
 		}

@@ -26,19 +26,19 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using Boo.Lang.Compiler.Ast;
 	
-	public class LocalBinding : ITypedBinding
+	public class LocalInfo : ITypedInfo
 	{		
 		Local _local;
 		
-		ITypeBinding _typeInfo;
+		ITypeInfo _typeInfo;
 		
 		System.Reflection.Emit.LocalBuilder _builder;
 		
-		public LocalBinding(Local local, ITypeBinding typeInfo)
+		public LocalInfo(Local local, ITypeInfo typeInfo)
 		{			
 			_local = local;
 			_typeInfo = typeInfo;
@@ -60,11 +60,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Local;
+				return InfoType.Local;
 			}
 		}
 		
@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{

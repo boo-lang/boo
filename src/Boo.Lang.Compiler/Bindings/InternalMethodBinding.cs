@@ -26,32 +26,32 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 
-	public class InternalMethodBinding : AbstractInternalBinding, IMethodBinding, INamespace
+	public class InternalMethodInfo : AbstractInternalInfo, IMethodInfo, INamespace
 	{
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		
 		Boo.Lang.Compiler.Ast.Method _method;
 		
-		IMethodBinding _override;
+		IMethodInfo _override;
 		
-		ITypeBinding _declaringType;
+		ITypeInfo _declaringType;
 		
 		public ExpressionCollection ReturnExpressions;
 		
 		public ExpressionCollection SuperExpressions;
 		
-		internal InternalMethodBinding(DefaultBindingService manager, Method method) : this(manager, method, false)
+		internal InternalMethodInfo(DefaultInfoService manager, Method method) : this(manager, method, false)
 		{
 		}
 		
-		internal InternalMethodBinding(DefaultBindingService manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
+		internal InternalMethodInfo(DefaultInfoService manager, Boo.Lang.Compiler.Ast.Method method, bool visited) : base(visited)
 		{			
 			_bindingService = manager;
 			_method = method;
@@ -64,24 +64,24 @@ namespace Boo.Lang.Compiler.Bindings
 					if (_method.DeclaringType.NodeType == NodeType.ClassDefinition)
 					{
 						_method.ReturnType = new SimpleTypeReference("unknown");
-						DefaultBindingService.Bind(_method.ReturnType, UnknownBinding.Default);
+						DefaultInfoService.Bind(_method.ReturnType, UnknownInfo.Default);
 					}
 					else
 					{
 						_method.ReturnType = new SimpleTypeReference("System.Void");
-						DefaultBindingService.Bind(_method.ReturnType, _bindingService.VoidTypeBinding);
+						DefaultInfoService.Bind(_method.ReturnType, _bindingService.VoidTypeInfo);
 					}
 				}
 			}
 		}
 		
-		public ITypeBinding DeclaringType
+		public ITypeInfo DeclaringType
 		{
 			get
 			{
 				if (null == _declaringType)
 				{
-					_declaringType = (ITypeBinding)DefaultBindingService.GetBinding(_method.DeclaringType);
+					_declaringType = (ITypeInfo)DefaultInfoService.GetInfo(_method.DeclaringType);
 				}
 				return _declaringType;
 			}
@@ -135,15 +135,15 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public virtual BindingType BindingType
+		public virtual InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Method;
+				return InfoType.Method;
 			}
 		}
 		
-		public ITypeBinding BoundType
+		public ITypeInfo BoundType
 		{
 			get
 			{
@@ -175,7 +175,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IMethodBinding Override
+		public IMethodInfo Override
 		{
 			get
 			{
@@ -188,12 +188,12 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public ITypeBinding GetParameterType(int parameterIndex)
+		public ITypeInfo GetParameterType(int parameterIndex)
 		{
 			return _bindingService.GetBoundType(_method.Parameters[parameterIndex].Type);
 		}
 		
-		public ITypeBinding ReturnType
+		public ITypeInfo ReturnType
 		{
 			get
 			{					
@@ -209,7 +209,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			foreach (Local local in _method.Locals)
 			{
@@ -220,7 +220,7 @@ namespace Boo.Lang.Compiler.Bindings
 				
 				if (name == local.Name)
 				{
-					return DefaultBindingService.GetBinding(local);
+					return DefaultInfoService.GetInfo(local);
 				}
 			}
 			
@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.Bindings
 			{
 				if (name == parameter.Name)
 				{
-					return DefaultBindingService.GetBinding(parameter);
+					return DefaultInfoService.GetInfo(parameter);
 				}
 			}
 			return null;
@@ -266,16 +266,16 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 	}
 	
-	public class InternalConstructorBinding : InternalMethodBinding, IConstructorBinding
+	public class InternalConstructorInfo : InternalMethodInfo, IConstructorInfo
 	{
 		bool _hasSuperCall = false;
 		
-		public InternalConstructorBinding(DefaultBindingService bindingManager,
+		public InternalConstructorInfo(DefaultInfoService bindingManager,
 		                                  Constructor constructor) : base(bindingManager, constructor)
 		  {
 		  }
 		  
-		public InternalConstructorBinding(DefaultBindingService bindingManager,
+		public InternalConstructorInfo(DefaultInfoService bindingManager,
 		                                  Constructor constructor,
 										  bool visited) : base(bindingManager, constructor, visited)
 		  {
@@ -294,11 +294,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 	      
-	    override public BindingType BindingType
+	    override public InfoType InfoType
 	    {
 	    	get
 	    	{
-	    		return BindingType.Constructor;
+	    		return InfoType.Constructor;
 	    	}
 	    }
 	}

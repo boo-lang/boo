@@ -36,8 +36,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			CompileUnitBinding binding = new CompileUnitBinding(NameResolutionService);			
-			BindingService.Bind(CompileUnit, binding);
+			CompileUnitInfo binding = new CompileUnitInfo(NameResolutionService);			
+			InfoService.Bind(CompileUnit, binding);
 		}
 	}
 }

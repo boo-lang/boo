@@ -26,15 +26,15 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Services;
 
-	public class ModuleBinding : INamespace, IBinding
+	public class ModuleInfo : INamespace, IInfo
 	{
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		
 		Module _module;
 		
@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		string _namespace;
 		
-		public ModuleBinding(DefaultBindingService bindingManager, Module module)
+		public ModuleInfo(DefaultInfoService bindingManager, Module module)
 		{
 			_bindingService = bindingManager;
 			_module = module;			
@@ -58,11 +58,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public BindingType BindingType
+		public InfoType InfoType
 		{
 			get
 			{
-				return BindingType.Module;
+				return InfoType.Module;
 			}
 		}
 		
@@ -90,9 +90,9 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding ResolveMember(string name)
+		public IInfo ResolveMember(string name)
 		{
-			IBinding binding = ResolveModuleMember(name);
+			IInfo binding = ResolveModuleMember(name);
 			if (null == binding)
 			{
 				binding = ResolveModuleClassMember(name);
@@ -104,13 +104,13 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				return (INamespace)DefaultBindingService.GetBinding(_module.ParentNode);
+				return (INamespace)DefaultInfoService.GetInfo(_module.ParentNode);
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
-			IBinding binding = ResolveMember(name);
+			IInfo binding = ResolveMember(name);
 			if (null == binding)
 			{	
 				if (null == _using)
@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Bindings
 					_using = new INamespace[_module.Imports.Count];
 					for (int i=0; i<_using.Length; ++i)
 					{
-						_using[i] = (INamespace)DefaultBindingService.GetBinding(_module.Imports[i]);
+						_using[i] = (INamespace)DefaultInfoService.GetInfo(_module.Imports[i]);
 					}
 				}
 				
@@ -135,30 +135,30 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		IBinding ResolveModuleMember(string name)
+		IInfo ResolveModuleMember(string name)
 		{
 			TypeMember member = _module.Members[name];
 			if (null != member)
 			{
-				ITypeBinding typeBinding = (ITypeBinding)member.Binding;
-				if (null == typeBinding)
+				ITypeInfo typeInfo = (ITypeInfo)member.Info;
+				if (null == typeInfo)
 				{
 					if (NodeType.EnumDefinition == member.NodeType)
 					{
-						typeBinding = new EnumTypeBinding(_bindingService, (EnumDefinition)member);
+						typeInfo = new EnumTypeInfo(_bindingService, (EnumDefinition)member);
 					}
 					else
 					{
-						typeBinding = new InternalTypeBinding(_bindingService, (TypeDefinition)member);
+						typeInfo = new InternalTypeInfo(_bindingService, (TypeDefinition)member);
 					}
-					DefaultBindingService.Bind(member, typeBinding);
+					DefaultInfoService.Bind(member, typeInfo);
 				}
-				return _bindingService.AsTypeReference(typeBinding);
+				return _bindingService.AsTypeReference(typeInfo);
 			}
 			return null;
 		}
 		
-		IBinding ResolveModuleClassMember(string name)
+		IInfo ResolveModuleClassMember(string name)
 		{
 			return _moduleClassNamespace.Resolve(name);
 		}

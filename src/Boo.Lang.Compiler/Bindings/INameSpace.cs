@@ -26,7 +26,7 @@
 // mailto:rbo@acm.org
 #endregion
 
-namespace Boo.Lang.Compiler.Bindings
+namespace Boo.Lang.Compiler.Infos
 {
 	using System;
 	using System.Collections;
@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get;
 		}
-		IBinding Resolve(string name);
+		IInfo Resolve(string name);
 	}
 	
 	public class NullNamespace : INamespace
@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			return null;
 		}
@@ -68,17 +68,17 @@ namespace Boo.Lang.Compiler.Bindings
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		DefaultBindingService _bindingService;
+		DefaultInfoService _bindingService;
 		DeclarationCollection _declarations;
 		
-		public DeclarationsNamespace(INamespace parent, DefaultBindingService bindingManager, DeclarationCollection declarations)
+		public DeclarationsNamespace(INamespace parent, DefaultInfoService bindingManager, DeclarationCollection declarations)
 		{
 			_parent = parent;
 			_bindingService = bindingManager;
 			_declarations = declarations;
 		}
 		
-		public DeclarationsNamespace(INamespace parent, DefaultBindingService bindingManager, Declaration declaration)
+		public DeclarationsNamespace(INamespace parent, DefaultInfoService bindingManager, Declaration declaration)
 		{
 			_parent = parent;
 			_bindingService = bindingManager;
@@ -94,12 +94,12 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public IInfo Resolve(string name)
 		{
 			Declaration d = _declarations[name];
 			if (null != d)
 			{
-				return DefaultBindingService.GetBinding(d);
+				return DefaultInfoService.GetInfo(d);
 			}
 			return null;
 		}
