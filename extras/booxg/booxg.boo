@@ -1,4 +1,5 @@
 import System
+import GLib from "glib-sharp" as GLib
 import Gtk from "gtk-sharp"
 import GtkSourceView from "gtksourceview-sharp"
 
@@ -9,8 +10,7 @@ class BooEditor(ScrolledWindow):
 	_buffer = SourceBuffer(_booSourceLanguage, Highlight: true)	
 	_view = SourceView(_buffer, ShowLineNumbers: true, AutoIndent: true)
 	
-	def constructor():
-		super(Adjustment(IntPtr.Zero), Adjustment(IntPtr.Zero))				
+	def constructor():				
 		self.SetPolicy(PolicyType.Automatic, PolicyType.Automatic)
 		self.Add(_view)
 		
@@ -22,7 +22,8 @@ class MainWindow(Window):
 
 	_status = Statusbar(HasResizeGrip: false)
 	_notebook = Notebook(TabPos: PositionType.Top, Scrollable: true)
-	_accelGroup = AccelGroup()
+	_accelGroup = AccelGroup()	
+	_editors = [] # workaround for gtk# bug #61703
 
 	def constructor():
 		super("Boo Explorer")
@@ -43,6 +44,7 @@ class MainWindow(Window):
 	def NewDocument():
 		editor = BooEditor()
 		_notebook.AppendPage(editor, Label("unnamed.boo"))
+		_editors.Add(editor)
 		editor.ShowAll()
 		
 	private def CreateMenuBar():
@@ -75,14 +77,11 @@ class MainWindow(Window):
 		return mb
 		
 	private def _menuItemExecute_Activated(sender, args as EventArgs):
-		// trying to track down a gtk-sharp bug
-		// after a few executions (garbage collection?)
-		// CurrentPageWidget will start to return a simple
-		// ScrolledWindow (no longer a BooEditor)
-		print(_notebook.CurrentPage)
-		print(_notebook.CurrentPageWidget)
-		editor = _notebook.CurrentPageWidget as BooEditor
-		return if editor is null
+		// can't do the simpler:
+		// editor as BooEditor = _notebook.CurrentPageWidget
+		// because of gtk# bug #61703
+		
+		editor as BooEditor = _editors[_notebook.CurrentPage]
 		
 		compiler = Boo.Lang.Compiler.BooCompiler()
 		compiler.Parameters.Input.Add(Boo.Lang.Compiler.IO.StringInput("<script>", editor.Text))
