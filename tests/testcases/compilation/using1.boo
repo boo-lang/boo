@@ -3,7 +3,7 @@ Disposable.constructor
 inside block
 Disposable.Dispose
 """
-import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
+import BooCompiler.Tests from BooCompiler.Tests
 
 using Disposable():
 	print("inside block")

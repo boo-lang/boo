@@ -67,7 +67,7 @@ namespace BooCompiler.Tests
 
 			try
 			{
-				BooCompiler compiler = new BooCompiler();
+				Boo.Lang.Compiler.BooCompiler compiler = new Boo.Lang.Compiler.BooCompiler();
 				CompilerParameters options = compiler.Parameters;
 				options.Input.Add(new Boo.Lang.Compiler.IO.StringInput("testcase", TestCase));
 				options.Pipeline = new Boo.Lang.Compiler.Pipelines.Parse();

@@ -48,7 +48,7 @@ namespace Boo.AntlrParser.Tests
 		string GetTestCasePath(string fname)
 		{
 			return Path.Combine(
-						Boo.Lang.Compiler.Tests.BooTestCaseUtil.GetTestCasePath("parser"),
+						BooCompiler.Tests.BooTestCaseUtil.GetTestCasePath("parser"),
 						fname);
 		}
 		
@@ -894,7 +894,7 @@ interface ICustomer:
 		[TestFixtureSetUp]
 		public void SetUpFixture()
 		{
-			_compiler = new BooCompiler();
+			_compiler = new Boo.Lang.Compiler.BooCompiler();
 			_compiler.Parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.ParseAndPrint();			
 		}
 		
@@ -904,7 +904,7 @@ interface ICustomer:
 			_compiler.Parameters.Input.Clear();
 		}
 		
-		BooCompiler _compiler;
+		Boo.Lang.Compiler.BooCompiler _compiler;
 		
 		void RunParserTestCase(string testfile)
 		{			

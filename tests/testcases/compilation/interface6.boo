@@ -2,7 +2,7 @@
 Disposable.constructor
 Disposable.Dispose
 """
-import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
+import BooCompiler.Tests from BooCompiler.Tests
 
 class Derived(Disposable):
 	pass

@@ -1,4 +1,4 @@
-namespace CompilerResources.Tests
+namespace BooCompilerResources.Tests
 
 import NUnit.Framework
 import System.IO

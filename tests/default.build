@@ -28,9 +28,10 @@
 			<test>
 				<assemblies basedir="build">
 					<includes name="Boo.AntlrParser.Tests.dll" />
-					<includes name="Boo.Lang.Compiler.Tests.dll" />
 					<includes name="Boo.Tests.dll" />
-					<includes name="CompilerResources.Tests.dll" />					
+					<includes name="Boo.Lang.Compiler.Tests.dll" />
+					<includes name="BooCompiler.Tests.dll" />					
+					<includes name="BooCompilerResources.Tests.dll" />					
 				</assemblies>
 			</test>
 		</nunit2>
@@ -54,9 +55,22 @@
 		
 		<booc
 			target="library"
-			output="build/CompilerResources.Tests.dll">
+			output="build/Boo.Lang.Compiler.Tests.dll">
 			
-			<sources basedir="CompilerResources.Tests">
+			<sources basedir="Boo.Lang.Compiler.Tests">
+				<includes name="**/*.boo" />
+			</sources>
+			
+			<references>
+				<includes name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+		
+		<booc
+			target="library"
+			output="build/BooCompilerResources.Tests.dll">
+			
+			<sources basedir="BooCompilerResources.Tests">
 				<includes name="**/*.boo" />
 			</sources>
 			
@@ -67,9 +81,9 @@
 		
 		<csc
 			target="library"
-			output="build/Boo.Lang.Compiler.Tests.dll">
+			output="build/BooCompiler.Tests.dll">
 			
-			<sources basedir="Boo.Lang.Compiler.Tests">
+			<sources basedir="BooCompiler.Tests">
 				<includes name="**/*.cs" />
 			</sources>
 			
@@ -90,8 +104,8 @@
 			
 			<references basedir="build">
 				<includes name="${nunit.framework.dll}" />
-				<includes name="Boo.Lang.Compiler.dll" />
-				<includes name="Boo.Lang.Compiler.Tests.dll" />
+				<includes name="BooCompiler.Tests.dll" />
+				<includes name="Boo.Lang.Compiler.dll" />				
 				<includes name="Boo.AntlrParser.dll" />
 				<includes name="antlr.runtime.dll" />
 			</references>			

@@ -1,6 +1,6 @@
 """
 ClassWithNewMethod.Method2
 """
-import Boo.Lang.Compiler.Tests from Boo.Lang.Compiler.Tests
+import BooCompiler.Tests from BooCompiler.Tests
 
 ClassWithNewMethod().Method2()

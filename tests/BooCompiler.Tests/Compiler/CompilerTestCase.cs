@@ -68,12 +68,12 @@ namespace BooCompiler.Tests
 	[TestFixture]
 	public class CompilerTestFixture
 	{
-		BooCompiler _compiler;
+		Boo.Lang.Compiler.BooCompiler _compiler;
 		
 		[SetUp]
 		public void SetUp()
 		{
-			_compiler = new BooCompiler();
+			_compiler = new Boo.Lang.Compiler.BooCompiler();
 		}
 		
 		[Test]
