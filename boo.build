@@ -194,11 +194,12 @@
 				<includes name="lib/**/*.jar" />
 				<includes name="lib/**/*.dll" />
 				
-				<includes name="src/**/*.cs" />				
-				<includes name="src/**/*.txt" />
+				<includes name="src/**/*.cs" />
 				<includes name="src/**/*.boo" />
 				<includes name="src/**/*.g" />
 				<includes name="src/**/*.prjx" />
+				<includes name="src/Boo/Resources/strings.txt" />
+				<includes name="src/Boo/Resources/pt/strings.txt" />
 				
 				<includes name="bin/*.dll" />
 				<includes name="bin/*.exe" />

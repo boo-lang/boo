@@ -100,7 +100,7 @@ class BooC(Task):
 			
 	protected def ExecuteTask():
 		files = _sourceFiles.FileNames
-		LogInfo("Compiling ${files.Count} file(s) to ${_output}.")
+		LogInfo("Compiling ${len(files)} file(s) to ${_output}.")
 		
 		compiler = BooCompiler()
 		parameters = compiler.Parameters
@@ -120,8 +120,8 @@ class BooC(Task):
 		for error as CompilerError in errors:
 			LogError(error.ToString(parameters.TraceSwitch.TraceInfo))
 			
-		if errors.Count:
-			LogInfo("${errors.Count} error(s).")
+		if len(errors):
+			LogInfo("${len(errors)} error(s).")
 			raise BuildException("boo compilation error", Location)
 		
 	private def AddReferences(parameters as CompilerParameters):
@@ -131,7 +131,7 @@ class BooC(Task):
 		else:
 			baseDir = Project.BaseDirectory
 			
-		frameworkDir = Project.CurrentFramework.FrameworkAssemblyDirectory.ToString()
+		frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.ToString()
 		for reference as string in _references.Includes:
 			
 			path = reference
