@@ -189,14 +189,6 @@ namespace Boo.Lang.Ast
 			InnerList.Remove(item);
 		}
 
-		public void Switch(IAstSwitcher switcher)
-		{
-			foreach (Node node in (Node[])InnerList.ToArray(typeof(Node)))
-			{
-				node.Switch(switcher);
-			}
-		}
-
 		public override int GetHashCode()
 		{
 			return base.GetHashCode();

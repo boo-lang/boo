@@ -287,91 +287,91 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void TestImportSimpleNamespace()
 		{
-			RunCompilerTestCase("import0.boo", "import System");
+			RunCompilerTestCase("import0.boo");
 		}		
 			
 		[Test]
 		public void TestImportQualifiedType()
 		{
-			RunCompilerTestCase("import1.boo", "import System.Console");
+			RunCompilerTestCase("import1.boo");
 		}
 		
 		[Test]
 		public void TestImportQualifiedNamespace()
 		{
-			RunCompilerTestCase("import2.boo", "import System.Text");
+			RunCompilerTestCase("import2.boo");
 		}
 		
 		[Test]
 		public void TestImportAssemblyQualifiedNamespace()
 		{
-			RunCompilerTestCase("import3.boo", "import System.Drawing from System.Drawing");
+			RunCompilerTestCase("import3.boo");
 		}
 		
 		[Test]
 		public void TestImportAlias()
 		{
-			RunCompilerTestCase("import4.boo", "import System as S");
+			RunCompilerTestCase("import4.boo");
 		}
 		
 		[Test]
 		public void TestImportAssemblyQualifiedNamespace2()
 		{
-			RunCompilerTestCase("import5.boo", "import System.Drawing from different assembly");
+			RunCompilerTestCase("import5.boo");
 		}
 		
 		[Test]
 		public void TestImportSameAssemblyQualifiedNamespaces()
 		{
-			RunCompilerTestCase("import6.boo", "import System.Drawing from two assemblies");
+			RunCompilerTestCase("import6.boo");
 		}
 		
 		[Test]
 		public void TestSimpleFor()
 		{
-			RunCompilerTestCase("for0.boo", "for item in list");
+			RunCompilerTestCase("for0.boo");
 		}
 		
 		[Test]
 		public void TestTypedFor()
 		{
-			RunCompilerTestCase("for1.boo", "for item as string in list");
+			RunCompilerTestCase("for1.boo");
 		}
 		
 		[Test]
 		public void TestUnpackFor()
 		{
-			RunCompilerTestCase("for2.boo", "for first, second in list");
+			RunCompilerTestCase("for2.boo");
 		}
 		
 		[Test]
 		public void TestPrivateForVariables()
 		{
-			RunCompilerTestCase("for3.boo", "for message in message:");
+			RunCompilerTestCase("for3.boo");
 		}
 		
 		[Test]
 		public void TestIfModifier0()
 		{
-			RunCompilerTestCase("if0.boo", "write() if true");
+			RunCompilerTestCase("if0.boo");
 		}
 		
 		[Test]
 		public void TestList0()
 		{
-			RunCompilerTestCase("list0.boo", "[]");
+			RunCompilerTestCase("list0.boo");
 		}
 		
 		[Test]
 		public void TestList1()
 		{
-			RunCompilerTestCase("list1.boo", "[1, 2, 3]");
+			RunCompilerTestCase("list1.boo");
 		}
 		
 		[Test]
 		public void EnumUsage()
 		{
-			RunCompilerTestCase("enum0.boo", "TestEnum.Foo");
+			RunCompilerTestCase("enum0.boo");
 		}
 		
 		[Test]
@@ -383,43 +383,43 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void TestVar0()
 		{
-			RunCompilerTestCase("var0.boo", "var as string");
+			RunCompilerTestCase("var0.boo");
 		}
 		
 		[Test]
 		public void TestVar1()
 		{
-			RunCompilerTestCase("var1.boo", "var as string = expression");
+			RunCompilerTestCase("var1.boo");
 		}
 		
 		[Test]
 		public void DelegateAddedWithConstructor()
 		{
-			RunCompilerTestCase("delegate0.boo", "basic delegate support");
+			RunCompilerTestCase("delegate0.boo");
 		}
 		
 		[Test]
 		public void DelegateAddedWithInPlaceAdd()
 		{
-			RunCompilerTestCase("delegate1.boo", "delegate += method");
+			RunCompilerTestCase("delegate1.boo");
 		}
 		
 		[Test]
 		public void DelegateWithInstanceMember()
 		{
-			RunCompilerTestCase("delegate2.boo", "delegate += object.method");
+			RunCompilerTestCase("delegate2.boo");
 		}
 		
 		[Test]
 		public void TestProperty0()
 		{
-			RunCompilerTestCase("property0.boo", "basic property support");
+			RunCompilerTestCase("property0.boo");
 		}
 		
 		[Test]
 		public void TestProperty1()
 		{
-			RunCompilerTestCase("property1.boo", "unpack property");
+			RunCompilerTestCase("property1.boo");
 		}
 		
 		[Test]
@@ -431,19 +431,19 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void TupleLiteral()
 		{
-			RunCompilerTestCase("tuple0.boo", "simple tuple creation");
+			RunCompilerTestCase("tuple0.boo");
 		}
 		
 		[Test]
 		public void TupleUnpacking()
 		{
-			RunCompilerTestCase("tuple1.boo", "tuple unpacking");
+			RunCompilerTestCase("tuple1.boo");
 		}
 		
 		[Test]
 		public void TupleAsArgument()
 		{
-			RunCompilerTestCase("tuple2.boo", "string.Format(template, tuple)");
+			RunCompilerTestCase("tuple2.boo");
 		}
 		
 		[Test]
@@ -479,87 +479,85 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void TestMatch0()
 		{
-			RunCompilerTestCase("match0.boo", "string =~ string");
+			RunCompilerTestCase("match0.boo");
 		}
 		
 		[Test]
 		public void TestMatch1()
 		{
-			RunCompilerTestCase("match1.boo", "string !~ string");
+			RunCompilerTestCase("match1.boo");
 		}
 		
 		[Test]
 		public void TestNot0()
 		{
-			RunCompilerTestCase("not0.boo", "not true; not false");
+			RunCompilerTestCase("not0.boo");
 		}
 		
 		[Test]
 		public void TestTry0()
 		{
-			RunCompilerTestCase("try0.boo", "try/catch");
+			RunCompilerTestCase("try0.boo");
 		}
 		
 		[Test]
 		public void TestTry1()
 		{
-			RunCompilerTestCase("try1.boo", "try/catch/ensure");
+			RunCompilerTestCase("try1.boo");
 		}
 		
 		[Test]
 		public void TestTry2()
 		{
-			RunCompilerTestCase("try2.boo", "nested try/catch/ensure");
+			RunCompilerTestCase("try2.boo");
 		}
 		
 		[Test]
 		public void TestTry3()
 		{
-			RunCompilerTestCase("try3.boo", "raise with string argument");
+			RunCompilerTestCase("try3.boo");
 		}
 		
 		[Test]
 		public void SimpleInternalClass()
 		{
-			RunCompilerTestCase("class0.boo", "simple internal class");
+			RunCompilerTestCase("class0.boo");
 		}
 		
 		[Test]
 		public void InternalClassWithField()
 		{
-			RunCompilerTestCase("class1.boo", "internal class with field");
+			RunCompilerTestCase("class1.boo");
 		}
 		
 		[Test]
 		public void InternalClassWithProperty()
 		{
-			RunCompilerTestCase("class2.boo",
-				"internal class with property");
+			RunCompilerTestCase("class2.boo");
 		}
 		
 		[Test]                          
 		public void InternalClassWithFieldAndPropertyCreateByAstAttribute()
 		{
-			RunCompilerTestCase("class3.boo",
-				"internal class with field and property created by AstAttribute");
+			RunCompilerTestCase("class3.boo");
 		}
 		
 		[Test]
 		public void ToStringOverload()
 		{
-			RunCompilerTestCase("class4.boo", "ToString override");
+			RunCompilerTestCase("class4.boo");
 		}
 		
 		[Test]
 		public void ForwardInstanceMethodReference()
 		{
-			RunCompilerTestCase("class5.boo", "def initialize");
+			RunCompilerTestCase("class5.boo");
 		}
 		
 		[Test]
 		public void ForwardDelegateMethodReference()
 		{
-			RunCompilerTestCase("class6.boo", "App().Run()");
+			RunCompilerTestCase("class6.boo");
 		}
 		
 		[Test]
@@ -589,31 +587,31 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void TestSimpleCast()
 		{
-			RunCompilerTestCase("cast0.boo", "(a as string).Substring()");
+			RunCompilerTestCase("cast0.boo");
 		}
 		
 		[Test]
 		public void TestTypeTest()
 		{
-			RunCompilerTestCase("cast1.boo", "reference as string");
+			RunCompilerTestCase("cast1.boo");
 		}
 		
 		[Test]
 		public void TestSimpleBaseClass()
 		{
-			RunCompilerTestCase("baseclass0.boo", "simplebaseclass");
+			RunCompilerTestCase("baseclass0.boo");
 		}
 		
 		[Test]
 		public void TestOverrideBaseClassMethod()
 		{
-			RunCompilerTestCase("baseclass1.boo", "override base class method");
+			RunCompilerTestCase("baseclass1.boo");
 		}
 		
 		[Test]
 		public void CallSuperMethod()
 		{
-			RunCompilerTestCase("baseclass2.boo", "call overriden method");
+			RunCompilerTestCase("baseclass2.boo");
 		}
 		
 		[Test]
@@ -631,43 +629,43 @@ namespace Boo.Tests.Lang.Compiler
 		[Test]
 		public void TestMethod0()
 		{
-			RunCompilerTestCase("method0.boo", "simple methods");
+			RunCompilerTestCase("method0.boo");
 		}
 		
 		[Test]
 		public void TestMethod1()
 		{
-			RunCompilerTestCase("method1.boo", "builtin redefinition");
+			RunCompilerTestCase("method1.boo");
 		}
 		
 		[Test]
 		public void TestMethod3()
 		{
-			RunCompilerTestCase("method3.boo", "simple return type decision");
+			RunCompilerTestCase("method3.boo");
 		}
 		
 		[Test]
 		public void TestMethod4()
 		{
-			RunCompilerTestCase("method4.boo", "method locals");
+			RunCompilerTestCase("method4.boo");
 		}
 		
 		[Test]
 		public void TestMethod5()
 		{
-			RunCompilerTestCase("method5.boo", "simple recursive method");
+			RunCompilerTestCase("method5.boo");
 		}
 		
 		[Test]
 		public void ConditionalReturnBranches()
 		{
-			RunCompilerTestCase("method7.boo", "conditional return branches");
+			RunCompilerTestCase("method7.boo");
 		}
 		
 		[Test]
 		public void ExceptionalReturnBranches()
 		{
-			RunCompilerTestCase("method8.boo", "exceptional return branches");
+			RunCompilerTestCase("method8.boo");
 		}
 		
 		[Test]
@@ -896,6 +894,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void IndexedProperty()
 		{
 			RunCompilerTestCase("indexed.boo");
+		}
+		
+		[Test]
+		public void ImportInternalNamespace()
+		{
+			RunMultiFileTestCase("multifile0.boo", "character.boo");
 		}
 	}
 }

@@ -288,7 +288,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		public override void OnModule(Boo.Lang.Ast.Module module)
 		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);			
-			module.Members.Switch(this);
+			Switch(module.Members);
 		}
 		
 		public override void OnEnumDefinition(EnumDefinition node)
@@ -309,7 +309,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			TypeBuilder current = GetTypeBuilder(node);
 			EmitBaseTypesAndAttributes(node, current);			
-			node.Members.Switch(this);
+			Switch(node.Members);
 			
 			_typeBuilder = current;
 		}		
@@ -326,8 +326,8 @@ namespace Boo.Lang.Compiler.Pipeline
 				_returnValueLocal = _il.DeclareLocal(GetType(_returnType));
 			}
 			
-			method.Locals.Switch(this);
-			method.Body.Switch(this);
+			Switch(method.Locals);
+			Switch(method.Body);
 			
 			_il.MarkLabel(_returnLabel);
 			
@@ -345,8 +345,8 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il = builder.GetILGenerator();
 
 			InternalConstructorBinding binding = (InternalConstructorBinding)GetBinding(constructor);
-			constructor.Locals.Switch(this);
-			constructor.Body.Switch(this);
+			Switch(constructor.Locals);
+			Switch(constructor.Body);
 			_il.Emit(OpCodes.Ret);
 		}
 		

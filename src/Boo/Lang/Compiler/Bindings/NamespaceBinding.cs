@@ -43,6 +43,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		Hashtable _childrenNamespaces;
 		
+		ArrayList _moduleNamespaces;
+		
 		public NamespaceBinding(BindingManager bindingManager, string name)
 		{			
 			_bindingManager = bindingManager;
@@ -50,6 +52,7 @@ namespace Boo.Lang.Compiler.Bindings
 			_assemblies = new Hashtable();
 			_childrenNamespaces = new Hashtable();
 			_assemblies = new Hashtable();
+			_moduleNamespaces = new ArrayList();
 		}
 		
 		public string Name
@@ -88,6 +91,11 @@ namespace Boo.Lang.Compiler.Bindings
 			types.Add(type);			
 		}
 		
+		public void AddModuleNamespace(ModuleNamespace moduleNamespace)
+		{
+			_moduleNamespaces.Add(moduleNamespace);
+		}
+		
 		public NamespaceBinding GetChildNamespace(string name)
 		{
 			NamespaceBinding binding = (NamespaceBinding)_childrenNamespaces[name];
@@ -124,22 +132,46 @@ namespace Boo.Lang.Compiler.Bindings
 		public IBinding Resolve(string name)
 		{	
 			IBinding binding = (IBinding)_childrenNamespaces[name];
-			if (null != binding)
+			if (null == binding)
 			{
-				return binding;
+				binding = ResolveInternalType(name);
+				if (null == binding)
+				{
+					binding = ResolveExternalType(name);
+				}				
 			}
-			
+			return binding;
+		}
+		
+		IBinding ResolveInternalType(string name)
+		{
+			IBinding binding = null;
+			foreach (ModuleNamespace ns in _moduleNamespaces)
+			{
+				binding = ns.ResolveMember(name);
+				if (null != binding)
+				{
+					break;
+				}
+			}
+			return binding;
+		}
+		
+		IBinding ResolveExternalType(string name)
+		{
+			IBinding binding = null;
 			foreach (ArrayList types in _assemblies.Values)
 			{
 				foreach (Type type in types)
 				{
 					if (name == type.Name)
 					{
-						return _bindingManager.AsTypeReference(type);
+						binding = _bindingManager.AsTypeReference(type);
+						break;
 					}
 				}
 			}
-			return null;
+			return binding;
 		}
 		
 		public override string ToString()

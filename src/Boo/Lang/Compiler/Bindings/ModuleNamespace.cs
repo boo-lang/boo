@@ -36,24 +36,37 @@ namespace Boo.Lang.Compiler.Bindings
 	{
 		BindingManager _bindingManager;
 		
-		TypeMemberCollection _members;
+		Module _module;
 		
 		INamespace[] _using;
+		
+		string _namespace;
 		
 		public ModuleNamespace(BindingManager bindingManager, Module module)
 		{
 			_bindingManager = bindingManager;
-			_members = module.Members;
-			_using = new INamespace[module.Imports.Count];
-			for (int i=0; i<_using.Length; ++i)
+			_module = module;
+			if (null == module.Namespace)
 			{
-				_using[i] = (INamespace)BindingManager.GetBinding(module.Imports[i]);
+				_namespace = "";
+			}
+			else
+			{
+				_namespace = module.Namespace.Name;
 			}
 		}
 		
-		public IBinding Resolve(string name)
+		public string Namespace
 		{
-			TypeMember member = _members[name];
+			get
+			{
+				return _namespace;
+			}
+		}
+		
+		public IBinding ResolveMember(string name)
+		{
+			TypeMember member = _module.Members[name];
 			if (null != member)
 			{
 				ITypeBinding typeBinding = (ITypeBinding)BindingManager.GetOptionalBinding(member);
@@ -71,15 +84,31 @@ namespace Boo.Lang.Compiler.Bindings
 				}
 				return _bindingManager.AsTypeReference(typeBinding);
 			}
-			
-			IBinding binding = null;
-			foreach (INamespace ns in _using)
-			{
-				// todo: resolve name in all namespaces...
-				binding = ns.Resolve(name);
-				if (null != binding)
-				{					
-					break;
+			return null;
+		}
+		
+		public IBinding Resolve(string name)
+		{
+			IBinding binding = ResolveMember(name);
+			if (null == binding)
+			{	
+				if (null == _using)
+				{
+					_using = new INamespace[_module.Imports.Count];
+					for (int i=0; i<_using.Length; ++i)
+					{
+						_using[i] = (INamespace)BindingManager.GetBinding(_module.Imports[i]);
+					}
+				}
+				
+				foreach (INamespace ns in _using)
+				{
+					// todo: resolve name in all namespaces...
+					binding = ns.Resolve(name);
+					if (null != binding)
+					{					
+						break;
+					}
 				}
 			}
 			return binding;

@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnModule(Module module, ref Module resultingModule)
 		{			
-			PushNamespace(new ModuleNamespace(BindingManager, module));
+			PushNamespace(ImportResolutionStep.GetModuleNamespace(module));
 			Switch(module.Members);
 			Switch(module.Globals);			
 			PopNamespace();

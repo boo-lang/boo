@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnModule(Boo.Lang.Ast.Module module)
 		{				
-			PushNamespace(new ModuleNamespace(BindingManager, module));			
+			PushNamespace(ImportResolutionStep.GetModuleNamespace(module));			
 			
 			Switch(module.Members);
 			
@@ -200,6 +200,18 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnEnumDefinition(EnumDefinition node)
 		{
+			EnumTypeBinding binding = (EnumTypeBinding)GetOptionalBinding(node);
+			if (null == binding)
+			{
+				binding = new EnumTypeBinding(BindingManager, (EnumDefinition)node);
+			}
+			else if (binding.Visited)
+			{
+				return;
+			}
+			
+			binding.Visited = true;
+			
 			if (!node.IsVisibilitySet)
 			{
 				node.Modifiers |= TypeMemberModifiers.Public;
@@ -247,9 +259,9 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnAttribute(Boo.Lang.Ast.Attribute node)
 		{
-			ITypeBinding binding = (ITypeBinding)BindingManager.GetOptionalBinding(node);
+			ITypeBinding binding = BindingManager.GetBoundType(node);
 			if (null != binding)
-			{				
+			{			
 				Switch(node.Arguments);
 				ResolveNamedArguments(node, binding, node.NamedArguments);
 				
@@ -1005,27 +1017,38 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
-			IBinding info = ResolveName(node, node.Name);
-			if (null != info)
+			if (BindingManager.IsBound(node))
 			{
-				Bind(node, info);
+				return;
+			}
+			
+			IBinding binding = ResolveName(node, node.Name);
+			if (null != binding)
+			{
+				Bind(node, binding);
 				
-				// todo: treat ambiguous binding here!!!!
-				IMemberBinding binding = info as IMemberBinding;
-				if (null != binding)
-				{					
-					EnsureRelatedNodeWasVisited(binding);
-					
-					if (!binding.IsStatic)
+				EnsureRelatedNodeWasVisited(binding);
+				
+				IMemberBinding member = binding as IMemberBinding;
+				if (null != member)
+				{	
+					if (!member.IsStatic)
 					{
 						MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
 						memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
 						memberRef.Name = node.Name;
-						Bind(memberRef, binding);
+						Bind(memberRef, member);
 						
 						Switch(memberRef.Target);
 						
 						node.ReplaceBy(memberRef);
+					}
+				}
+				else
+				{
+					if (BindingType.TypeReference == binding.BindingType)
+					{
+						node.Name = binding.FullName;
 					}
 				}
 			}
@@ -1035,19 +1058,28 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		public override bool EnterMemberReferenceExpression(MemberReferenceExpression node)
+		{
+			if (BindingManager.IsBound(node))
+			{
+				return false;
+			}
+			return true;
+		}
+		
 		public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			IBinding nodeBinding = ErrorBinding.Default;
 			
 			IBinding binding = GetBinding(node.Target);
+			ITypedBinding typedBinding = binding as ITypedBinding;
+			if (null != typedBinding)
+			{
+				binding = typedBinding.BoundType;
+			}
+			
 			if (!BindingManager.IsError(binding))
 			{
-				ITypedBinding typedBinding = binding as ITypedBinding;
-				if (null != typedBinding)
-				{
-					binding = typedBinding.BoundType;
-				}
-			
 				IBinding member = ((INamespace)binding).Resolve(node.Name);				
 				if (null == member)
 				{										
@@ -1602,6 +1634,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
+			if (BindingManager.IsBound(node))
+			{
+				return;
+			}
 			Switch(node.Target);			
 			Switch(node.Arguments);
 			
@@ -1674,7 +1710,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				
 				case BindingType.TypeReference:
 				{					
-					ITypeBinding typeBinding = ((ITypedBinding)targetBinding).BoundType;
+					ITypeBinding typeBinding = ((ITypedBinding)targetBinding).BoundType;					
 					ResolveNamedArguments(node, typeBinding, node.NamedArguments);
 					
 					IConstructorBinding ctorBinding = FindCorrectConstructor(node, typeBinding, node.Arguments);
@@ -2337,7 +2373,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			IConstructorBinding[] constructors = typeBinding.GetConstructors();
 			if (constructors.Length > 0)
-			{
+			{				
 				return (IConstructorBinding)ResolveMethodReference(sourceNode, arguments, constructors, true);				
 			}
 			else
@@ -2385,6 +2421,11 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void EnsureRelatedNodeWasVisited(IBinding binding)
 		{
+			if (BindingType.TypeReference == binding.BindingType)
+			{
+				binding = ((TypeReferenceBinding)binding).BoundType;
+			}
+			
 			IInternalBinding internalBinding = binding as IInternalBinding;
 			if (null != internalBinding)
 			{

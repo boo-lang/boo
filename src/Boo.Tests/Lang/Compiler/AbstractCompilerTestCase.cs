@@ -81,19 +81,28 @@ namespace Boo.Tests.Lang.Compiler
 		protected abstract void SetUpCompilerPipeline(CompilerPipeline pipeline);
 		
 		protected void RunCompilerTestCase(string name)
-		{
-			RunCompilerTestCase(name, GetTestCasePath(name));
+		{					
+			string fname = GetTestCasePath(name);
+			_parameters.Input.Add(new FileInput(fname));
+			RunAndAssert();
 		}
 		
-		protected void RunCompilerTestCase(string name, string description)
+		protected void RunMultiFileTestCase(params string[] files)
+		{
+			foreach (string file in files)
+			{
+				_parameters.Input.Add(new FileInput(GetTestCasePath(file)));
+			}
+			RunAndAssert();
+		}
+		
+		protected void RunAndAssert()
 		{			
-			_parameters.Input.Add(new FileInput(GetTestCasePath(name)));
-			
 			CompilerContext context;
 			string output = Run(null, out context);
 			Assert.AreEqual(_parameters.Input.Count, context.CompileUnit.Modules.Count, "compilation must generate as many modules as were compiler inputs");
 			string expected = context.CompileUnit.Modules[0].Documentation;
-			Assert.AreEqual(expected.Trim(), output.Trim(), description);
+			Assert.AreEqual(expected.Trim(), output.Trim(), _parameters.Input[0].Name);
 		}
 		
 		protected string RunString(string code)

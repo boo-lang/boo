@@ -43,6 +43,8 @@ namespace Boo.Lang.Compiler.Pipeline
 	// the references when they change
 	public class ImportResolutionStep : AbstractCompilerComponent, INamespace, ICompilerStep
 	{
+		static object ModuleNamespaceKey = new object();
+		
 		static object GlobalNamespaceKey = new object();
 		
 		static object BooLangNamespaceKey = new object();
@@ -61,6 +63,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			return (INamespace)context.CompileUnit[BooLangNamespaceKey];
 		}
 		
+		public static ModuleNamespace GetModuleNamespace(Boo.Lang.Ast.Module module)
+		{
+			return (ModuleNamespace)module[ModuleNamespaceKey];
+		}
+		
 		public void Run()
 		{
 			ResolveNamespaces();
@@ -75,10 +82,21 @@ namespace Boo.Lang.Compiler.Pipeline
 			_externalTypes.Clear();
 		}
 		
+		void ResolveInternalModules()
+		{
+			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
+			{
+				ModuleNamespace moduleNamespace = new ModuleNamespace(BindingManager, module);
+				module[ModuleNamespaceKey] = moduleNamespace;
+				GetNamespaceBinding(moduleNamespace.Namespace).AddModuleNamespace(moduleNamespace);
+			}
+		}
+		
 		void ResolveNamespaces()
 		{				
 			ResolveImportAssemblyReferences();
-			OrganizeNamespaces();
+			ResolveInternalModules();
+			OrganizeExternalNamespaces();
 			
 			foreach (Boo.Lang.Ast.Module module in CompileUnit.Modules)
 			{
@@ -180,7 +198,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			return (IBinding)ns;
 		}
 		
-		void OrganizeNamespaces()
+		void OrganizeExternalNamespaces()
 		{
 			foreach (Assembly asm in CompilerParameters.References)
 			{
@@ -191,18 +209,9 @@ namespace Boo.Lang.Compiler.Pipeline
 					if (null == ns)
 					{
 						ns = string.Empty;
-					}
-					
-					string[] namespaceHierarchy = ns.Split('.');
-					string topLevelName = namespaceHierarchy[0];
-					Bindings.NamespaceBinding topLevel = GetNamespaceBinding(topLevelName);
-					Bindings.NamespaceBinding current = topLevel;
-					for (int i=1; i<namespaceHierarchy.Length; ++i)
-					{
-						current = current.GetChildNamespace(namespaceHierarchy[i]);
-						// Trace(current);
 					}					
-					current.Add(type);
+					
+					GetNamespaceBinding(ns).Add(type);
 					
 					List typeList = GetList(_externalTypes, type.FullName);
 					typeList.Add(type);
@@ -210,12 +219,25 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		Bindings.NamespaceBinding GetNamespaceBinding(string name)
+		Bindings.NamespaceBinding GetNamespaceBinding(string ns)
 		{
-			Bindings.NamespaceBinding binding = (Bindings.NamespaceBinding)_namespaces[name];	
+			string[] namespaceHierarchy = ns.Split('.');
+			string topLevelName = namespaceHierarchy[0];
+			Bindings.NamespaceBinding topLevel = GetTopLevelNamespaceBinding(topLevelName);
+			Bindings.NamespaceBinding current = topLevel;
+			for (int i=1; i<namespaceHierarchy.Length; ++i)
+			{
+				current = current.GetChildNamespace(namespaceHierarchy[i]);
+			}
+			return current;
+		}
+		
+		Bindings.NamespaceBinding GetTopLevelNamespaceBinding(string topLevelName)
+		{
+			Bindings.NamespaceBinding binding = (Bindings.NamespaceBinding)_namespaces[topLevelName];	
 			if (null == binding)
 			{
-				_namespaces[name] = binding = new Bindings.NamespaceBinding(BindingManager, name);
+				_namespaces[topLevelName] = binding = new Bindings.NamespaceBinding(BindingManager, topLevelName);
 			}
 			return binding;
 		}

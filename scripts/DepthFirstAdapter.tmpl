@@ -68,7 +68,10 @@ namespace Boo.Lang.Ast
 		{
 			if (null != collection)
 			{
-				collection.Switch(this);
+				foreach (Node node in collection.ToArray())
+				{
+					Switch(node);
+				}
 				return true;
 			}
 			return false;
