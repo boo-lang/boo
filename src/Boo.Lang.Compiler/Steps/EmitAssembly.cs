@@ -1939,6 +1939,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
+				case EntityType.Array:
 				case EntityType.Type:
 				{
 					EmitGetTypeFromHandle(GetSystemType(node));
