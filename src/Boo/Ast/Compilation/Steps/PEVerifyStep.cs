@@ -31,7 +31,7 @@ using System;
 using System.Diagnostics;
 using Boo.Ast.Compilation;
 
-namespace Boo.Ast.Compilation.Steps
+namespace Boo.Ast.Compilation.Pipeline
 {
 	public class PEVerifyStep : AbstractCompilerStep
 	{

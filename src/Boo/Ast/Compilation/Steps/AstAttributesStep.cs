@@ -35,7 +35,7 @@ using Boo.Ast.Compilation.Util;
 using Boo.Lang;
 using Reflection = System.Reflection;
 
-namespace Boo.Ast.Compilation.Steps
+namespace Boo.Ast.Compilation.Pipeline
 {
 	class ApplyAttributeTask : ITask
 	{

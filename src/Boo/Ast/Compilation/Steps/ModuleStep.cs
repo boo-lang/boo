@@ -31,7 +31,7 @@ using System;
 using Boo.Ast;
 using Boo.Ast.Compilation;
 
-namespace Boo.Ast.Compilation.Steps
+namespace Boo.Ast.Compilation.Pipeline
 {
 	/// <summary>
 	/// Step 3. Cria uma classe para as sentenças e métodos

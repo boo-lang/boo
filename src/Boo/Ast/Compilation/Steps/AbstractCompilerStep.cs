@@ -33,7 +33,7 @@ using Boo.Ast;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.Binding;
 
-namespace Boo.Ast.Compilation.Steps
+namespace Boo.Ast.Compilation.Pipeline
 {
 	public abstract class AbstractCompilerStep : ICompilerStep
 	{

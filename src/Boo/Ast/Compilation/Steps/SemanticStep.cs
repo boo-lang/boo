@@ -37,7 +37,7 @@ using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.Binding;
 using List=Boo.Lang.List;
 
-namespace Boo.Ast.Compilation.Steps
+namespace Boo.Ast.Compilation.Pipeline
 {		
 	class SemanticMethodInfo
 	{

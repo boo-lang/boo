@@ -31,7 +31,7 @@ using System;
 using Boo.Ast;
 using Boo.Ast.Compilation;
 
-namespace Boo.Ast.Compilation.Steps
+namespace Boo.Ast.Compilation.Pipeline
 {
 	public class AstNormalizationStep : AbstractTransformerCompilerStep
 	{
