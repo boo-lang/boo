@@ -575,6 +575,13 @@ namespace Boo.Lang.Ast.Visitors
 			WriteConditionalBlock("unless", node.Condition, node.Block);
 		}
 		
+		public override void OnBreakStatement(BreakStatement node)
+		{
+			WriteIndented();
+			WriteKeyword("break");
+			WriteLine();
+		}
+		
 		public override void OnWhileStatement(WhileStatement node)
 		{
 			WriteConditionalBlock("while", node.Condition, node.Block);

@@ -108,6 +108,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("break0.boo");
 		}
 		
+		[Test]
+		public void AsWithValueTypes()
+		{
+			RunCompilerTestCase("as0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.

@@ -1122,7 +1122,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			ITypeBinding target = GetExpressionType(node.Target);
 			ITypeBinding toType = GetBoundType(node.Type);
 			
-			if (toType.IsValueType)
+			if (target.IsValueType)
+			{
+				Error(node, CompilerErrorFactory.CantCastToValueType(node.Target, target.FullName));
+			}
+			else if (toType.IsValueType)
 			{
 				Error(node, CompilerErrorFactory.CantCastToValueType(node.Type, toType.FullName));
 			}

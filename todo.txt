@@ -257,10 +257,7 @@ done * procurar uma versão dos operadores em RuntimeServices para unificar a in
 	done * RuntimeServices.op_Member(string, string)
 	done * RuntimeServices.op_NotMember(string, string)
 	
-* comportamento de 'as' com value types:
-
-	(3.0 as object)
-	(true as object)
+done * comportamento de 'as' com value types: erro
 	
 * criar primitivas box, unbox e __reference__ para o semantic step e outros passos
 que precisarem? Isso iria permitir remover os casts 
@@ -306,7 +303,7 @@ Milestone 3.7 (macro infraestructure)
 -------------------------------------
 done * macro infrastructure
 done * using macro
-* lock macro
+done * lock macro
 
 
 Milestone 3.8
@@ -315,9 +312,8 @@ done * try/catch/ensure
 done * raise
 * ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
 * statement modifiers:
-	* unless
-	* while
-	* until
+	done * unless
+	done * while
 * float literals: 3.0f
 * hexadecimal integer literals: 0x01
 * binary literals: 0b001
@@ -325,17 +321,22 @@ done * raise
 Milestone 3.9 (better error checking)
 -------------------------------------
 * constructors can't have a return value
+* constructors can't yield values
 * can't create instance of interface 'XXX'
 * can't create instance of abstract class 'XXX'
 * can't create instance of enum 'XXX'
 * class 'XXX' already has a definition for a member 'YYY' with the signature 'ZZZ'
 * WARNING: unused local variable
+* WARNING: uninitialized local variable
 * WARNING: unreachable code detected
 * WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?
+* WARNING: performance hit: equality operator with object references
 * method override with different accessibility
 * override accessibility checks
 * inheritance cycles (A(B), B(C), C(A))
 * get: must return a value
+
+
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
 	
