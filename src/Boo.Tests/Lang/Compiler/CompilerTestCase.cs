@@ -1201,5 +1201,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("textreaderisenumerable.boo");
 		}
+		
+		[Test]
+		public void RegularExpressionLiteralIsRegex()
+		{
+			RunCompilerTestCase("re0.boo");
+		}
 	}
 }
