@@ -31,7 +31,6 @@ using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Taxonomy;
-using Boo.Lang.Compiler.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -110,14 +109,14 @@ namespace Boo.Lang.Compiler.Steps
 			return TagService.GetTag(node);
 		}
 		
-		public IType GetBoundType(Node node)
+		public IType GetType(Node node)
 		{
-			return TagService.GetBoundType(node);
+			return TagService.GetType(node);
 		}		
 		
-		public LocalInfo GetLocalInfo(Node local)
+		public LocalVariable GetLocalVariable(Node local)
 		{
-			return (LocalInfo)GetTag(local);
+			return (LocalVariable)GetTag(local);
 		}
 		
 		protected TypeReference CreateTypeReference(IType tag)

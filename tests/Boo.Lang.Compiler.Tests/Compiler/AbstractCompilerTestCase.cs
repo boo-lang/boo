@@ -166,7 +166,7 @@ namespace Boo.Lang.Compiler.Tests
 		
 		string GetFirstInputName(CompilerContext context)
 		{
-			return context.CompilerParameters.Input[0].Name;
+			return context.Parameters.Input[0].Name;
 		}
 		
 		protected virtual string GetTestCasePath(string fname)

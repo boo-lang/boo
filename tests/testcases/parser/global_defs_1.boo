@@ -1,7 +1,7 @@
 """
 namespace Math
 
-def sqrt(x) as float:
+def sqrt(x) as single:
 	pass
 
 def add(x as int, y as int) as int:
@@ -9,7 +9,7 @@ def add(x as int, y as int) as int:
 """
 namespace Math
 
-def sqrt(x) as float:
+def sqrt(x) as single:
 	pass
 
 def add(x as int, y as int) as int:

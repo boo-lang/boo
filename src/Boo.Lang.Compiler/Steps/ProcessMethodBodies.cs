@@ -153,7 +153,7 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
-				IType tag = GetBoundType(baseType);
+				IType tag = GetType(baseType);
 				if (tag.IsInterface)
 				{
 					ResolveClassInterfaceMembers(node, baseType, tag);
@@ -202,7 +202,7 @@ namespace Boo.Lang.Compiler.Steps
 			TypeMember member = node.Members[tag.Name];
 			if (null != member && NodeType.Property == member.NodeType)
 			{
-				if (tag.BoundType == GetBoundType(member))
+				if (tag.BoundType == GetType(member))
 				{
 					if (CheckPropertyAccessors(tag, (IProperty)GetTag(member)))
 					{
@@ -325,7 +325,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (TypeReference baseType in node.BaseTypes)
 			{
-				IType baseInfo = GetBoundType(baseType);
+				IType baseInfo = GetType(baseType);
 				EnsureRelatedNodeWasVisited(baseInfo);
 				if (!baseInfo.IsInterface)
 				{
@@ -341,7 +341,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType baseClass = null;
 			foreach (TypeReference baseType in node.BaseTypes)
 			{				
-				IType baseInfo = GetBoundType(baseType);
+				IType baseInfo = GetType(baseType);
 				EnsureRelatedNodeWasVisited(baseInfo);
 				if (baseInfo.IsClass)
 				{
@@ -439,7 +439,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
-			IType tag = TagService.GetBoundType(node);
+			IType tag = TagService.GetType(node);
 			if (null != tag && !TagService.IsError(tag))
 			{			
 				Accept(node.Arguments);
@@ -492,13 +492,13 @@ namespace Boo.Lang.Compiler.Steps
 			IType typeInfo = null;
 			if (null != node.Type)
 			{
-				typeInfo = GetBoundType(node.Type);
+				typeInfo = GetType(node.Type);
 			}
 			else
 			{
 				if (null != getter)
 				{
-					typeInfo = GetBoundType(node.Getter.ReturnType);
+					typeInfo = GetType(node.Getter.ReturnType);
 				}
 				else
 				{
@@ -551,7 +551,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					node.Type = CreateTypeReference(GetBoundType(node.Initializer));
+					node.Type = CreateTypeReference(GetType(node.Initializer));
 				}
 			}
 			else
@@ -560,7 +560,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (null != node.Initializer)
 				{
-					CheckTypeCompatibility(node.Initializer, GetBoundType(node.Type), GetBoundType(node.Initializer));
+					CheckTypeCompatibility(node.Initializer, GetType(node.Type), GetType(node.Initializer));
 				}
 			}
 		}
@@ -764,7 +764,7 @@ namespace Boo.Lang.Compiler.Steps
 				parameter.Type = CreateTypeReference(TagService.ObjectType);
 			}
 			CheckIdentifierName(parameter, parameter.Name);
-			Taxonomy.ParameterInfo tag = new Taxonomy.ParameterInfo(parameter, GetBoundType(parameter.Type));
+			Taxonomy.ParameterInfo tag = new Taxonomy.ParameterInfo(parameter, GetType(parameter.Type));
 			Bind(parameter, tag);
 		}	
 		
@@ -986,7 +986,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Expression rsExpression in tag.ReturnExpressions)
 			{
-				if (TagService.IsUnknown(GetBoundType(rsExpression)))
+				if (TagService.IsUnknown(GetType(rsExpression)))
 				{
 					return false;
 				}
@@ -1095,7 +1095,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			Accept(node.ElementType);
 			
-			IType elementType = GetBoundType(node.ElementType);
+			IType elementType = GetType(node.ElementType);
 			if (TagService.IsError(elementType))
 			{
 				Bind(node, elementType);
@@ -1448,12 +1448,12 @@ namespace Boo.Lang.Compiler.Steps
 			IType tag = TagService.ObjectType;
 			if (null != node.Declaration.Type)
 			{
-				tag = GetBoundType(node.Declaration.Type);			
+				tag = GetType(node.Declaration.Type);			
 			}			
 			
 			CheckDeclarationName(node.Declaration);
 			
-			LocalInfo localInfo = DeclareLocal(node, new Local(node.Declaration, false), tag);
+			LocalVariable localInfo = DeclareLocal(node, new Local(node.Declaration, false), tag);
 			if (null != node.Initializer)
 			{
 				CheckTypeCompatibility(node.Initializer, tag, GetExpressionType(node.Initializer));
@@ -1522,14 +1522,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveCastExpression(CastExpression node)
 		{
-			IType toType = GetBoundType(node.Type);
+			IType toType = GetType(node.Type);
 			Bind(node, toType);
 		}
 		
 		override public void LeaveAsExpression(AsExpression node)
 		{
 			IType target = GetExpressionType(node.Target);
-			IType toType = GetBoundType(node.Type);
+			IType toType = GetType(node.Type);
 			
 			if (target.IsValueType)
 			{
@@ -1754,7 +1754,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IType expressionType = GetBoundType(node.Expression);
+					IType expressionType = GetType(node.Expression);
 					CheckTypeCompatibility(node.Expression, returnType, expressionType);
 				}
 			}
@@ -1822,7 +1822,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveRaiseStatement(RaiseStatement node)
 		{
-			if (TagService.StringType == GetBoundType(node.Exception))
+			if (TagService.StringType == GetType(node.Exception))
 			{
 				MethodInvocationExpression expression = new MethodInvocationExpression(node.Exception.LexicalInfo);
 				expression.Arguments.Add(node.Exception);
@@ -1845,7 +1845,7 @@ namespace Boo.Lang.Compiler.Steps
 				Accept(node.Declaration.Type);
 			}
 			
-			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetBoundType(node.Declaration.Type));
+			DeclareLocal(node.Declaration, new Local(node.Declaration, true), GetType(node.Declaration.Type));
 			PushNamespace(new DeclarationsNamespace(CurrentNamespace, TagService, node.Declaration));
 			Accept(node.Block);
 			PopNamespace();
@@ -2665,7 +2665,7 @@ namespace Boo.Lang.Compiler.Steps
 				IElement lhs = GetTag(node.Left);
 				if (CheckLValue(node.Left, lhs))
 				{
-					IType lhsType = GetBoundType(node.Left);
+					IType lhsType = GetType(node.Left);
 					if (CheckTypeCompatibility(node.Right, lhsType, GetExpressionType(node.Right)))
 					{
 						resultingType = lhsType;
@@ -3429,7 +3429,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case ElementType.Local:
 				{
-					return !((LocalInfo)tag).IsPrivateScope;
+					return !((LocalVariable)tag).IsPrivateScope;
 				}
 				
 				case ElementType.Property:
@@ -3454,7 +3454,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckBoolContext(Expression expression)
 		{
-			IType type = GetBoundType(expression);
+			IType type = GetType(expression);
 			if (type.IsValueType)
 			{
 				if (type == TagService.BoolType ||
@@ -3469,9 +3469,9 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		LocalInfo DeclareLocal(Node sourceNode, Local local, IType localType)
+		LocalVariable DeclareLocal(Node sourceNode, Local local, IType localType)
 		{			
-			LocalInfo tag = new LocalInfo(local, localType);
+			LocalVariable tag = new LocalVariable(local, localType);
 			Bind(local, tag);
 			
 			_currentMethodInfo.Method.Locals.Add(local);
@@ -3569,7 +3569,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (constructor.DeclaringType == enumeratorItemTypeAttribute)
 					{
-						return GetBoundType(attribute.Arguments[0]);
+						return GetType(attribute.Arguments[0]);
 					}
 				}
 			}
@@ -3612,7 +3612,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (null != d.Type)
 				{
 					Accept(d.Type);
-					CheckTypeCompatibility(d, GetBoundType(d.Type), defaultDeclType);					
+					CheckTypeCompatibility(d, GetType(d.Type), defaultDeclType);					
 				}
 				
 				if (CheckIdentifierName(d, d.Name))
@@ -3639,7 +3639,7 @@ namespace Boo.Lang.Compiler.Steps
 						d.Type = CreateTypeReference(defaultDeclType);
 					}
 					
-					DeclareLocal(d, new Local(d, declarePrivateLocals), GetBoundType(d.Type));
+					DeclareLocal(d, new Local(d, declarePrivateLocals), GetType(d.Type));
 				}
 			}
 		}		
@@ -3663,7 +3663,7 @@ namespace Boo.Lang.Compiler.Steps
 				Array_TypedCollectionConstructor == tag ||				
 				Array_TypedConstructor2 == tag)
 			{
-				return TagService.AsArrayInfo(GetBoundType(((MethodInvocationExpression)node).Arguments[0]));
+				return TagService.AsArrayInfo(GetType(((MethodInvocationExpression)node).Arguments[0]));
 			}
 			return tag.BoundType;
 		}

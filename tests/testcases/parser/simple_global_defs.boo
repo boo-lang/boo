@@ -3,7 +3,7 @@ namespace Math
 class Rational:
 	pass
 
-def pi() as float:
+def pi() as single:
 	pass
 
 def rationalPI() as Rational:

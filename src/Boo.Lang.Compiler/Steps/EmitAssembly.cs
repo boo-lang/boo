@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					foreach (TypeReference baseTypeRef in type.BaseTypes)
 					{
-						InternalType tag = GetBoundType(baseTypeRef) as InternalType;
+						InternalType tag = GetType(baseTypeRef) as InternalType;
 						if (null != tag)
 						{
 							CreateType(created, tag.TypeDefinition);
@@ -383,7 +383,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnLocal(Local local)
 		{			
-			LocalInfo info = GetLocalInfo(local);
+			LocalVariable info = GetLocalVariable(local);
 			info.LocalBuilder = _il.DeclareLocal(GetType(local));
 			info.LocalBuilder.SetLocalSymInfo(local.Name);			
 		}
@@ -893,7 +893,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case ElementType.Local:
 				{
-					SetLocal(node, (LocalInfo)tag, leaveValueOnStack);
+					SetLocal(node, (LocalVariable)tag, leaveValueOnStack);
 					break;
 				}
 				
@@ -915,7 +915,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case ElementType.Field:
 				{
-					IFieldInfo field = (IFieldInfo)tag;
+					IField field = (IField)tag;
 					SetField(node, field, node.Left, node.Right, leaveValueOnStack);
 					break;
 				}
@@ -962,8 +962,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void LoadCmpOperands(BinaryExpression node)
 		{
-			IType lhs = GetBoundType(node.Left);
-			IType rhs = GetBoundType(node.Right);
+			IType lhs = GetType(node.Left);
+			IType rhs = GetType(node.Right);
 			
 			IType type = TagService.GetPromotedNumberType(lhs, rhs);
 			Accept(node.Left);
@@ -1025,7 +1025,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void OnArithmeticOperator(BinaryExpression node)
 		{
-			IType type = GetBoundType(node);
+			IType type = GetType(node);
 			node.Left.Accept(this); EmitCastIfNeeded(type, PopType());
 			node.Right.Accept(this); EmitCastIfNeeded(type, PopType());
 			_il.Emit(GetArithmeticOpCode(type, node.Operator));
@@ -1044,7 +1044,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EmitLogicalOperator(node, OpCodes.Brtrue, OpCodes.Brfalse); 
 			/*
-			IType type = GetBoundType(node);
+			IType type = GetType(node);
 			Accept(node.Left);
 			
 			IType lhsType = PopType();
@@ -1092,7 +1092,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitLogicalOperator(BinaryExpression node, OpCode brForValueType, OpCode brForRefType)
 		{
-			IType type = GetBoundType(node);
+			IType type = GetType(node);
 			Accept(node.Left);
 			
 			IType lhsType = PopType();
@@ -1139,7 +1139,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitBitwiseOperator(BinaryExpression node)
 		{
-			IType type = GetBoundType(node);
+			IType type = GetType(node);
 			
 			Accept(node.Left);
 			EmitCastIfNeeded(type, PopType());
@@ -1293,7 +1293,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnCastExpression(CastExpression node)
 		{
-			IType type = GetBoundType(node.Type);
+			IType type = GetType(node.Type);
 			Accept(node.Target);
 			EmitCastIfNeeded(type, PopType());
 			PushType(type);
@@ -1305,7 +1305,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.Target.Accept(this); PopType();			
 			_il.Emit(OpCodes.Isinst, type);
-			PushType(GetBoundType(node));
+			PushType(GetType(node));
 		}
 		
 		void InvokeMethod(IMethod methodInfo, MethodInvocationExpression node)
@@ -1315,7 +1315,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (!mi.IsStatic)
 			{				
 				Expression target = ((MemberReferenceExpression)node.Target).Target;
-				IType targetType = GetBoundType(target);
+				IType targetType = GetType(target);
 				if (targetType.IsValueType)
 				{				
 					if (mi.DeclaringType == Types.Object)
@@ -1535,7 +1535,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			IType type = GetBoundType(node);
+			IType type = GetType(node);
 			EmitArray(type.GetElementType(), node.Items);
 			PushType(type);
 		}
@@ -1544,7 +1544,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Ldstr, RuntimeServices.Mid(node.Value, 1, -1));
 			_il.Emit(OpCodes.Newobj, Regex_Constructor);
-			PushType(GetBoundType(node));
+			PushType(GetType(node));
 		}
 		
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
@@ -1644,7 +1644,7 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(TagService.StringType);
 		}
 		
-		void EmitLoadField(Expression self, IFieldInfo fieldInfo)
+		void EmitLoadField(Expression self, IField fieldInfo)
 		{
 			if (fieldInfo.IsStatic)
 			{
@@ -1665,7 +1665,7 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(fieldInfo.BoundType);
 		}
 		
-		void EmitLoadLiteralField(Node node, IFieldInfo fieldInfo)
+		void EmitLoadLiteralField(Node node, IField fieldInfo)
 		{
 			object value = fieldInfo.StaticValue;
 			if (null == value)
@@ -1729,7 +1729,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case ElementType.Field:
 				{
-					EmitLoadField(node.Target, (IFieldInfo)tag);
+					EmitLoadField(node.Target, (IField)tag);
 					break;
 				}
 				
@@ -1754,7 +1754,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case ElementType.Local:
 				{				
-					_il.Emit(OpCodes.Ldloca, ((LocalInfo)tag).LocalBuilder);
+					_il.Emit(OpCodes.Ldloca, ((LocalVariable)tag).LocalBuilder);
 					break;
 				}
 				
@@ -1779,7 +1779,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldarg_0);
-			PushType(GetBoundType(node));
+			PushType(GetType(node));
 		}
 		
 		override public void OnNullLiteralExpression(NullLiteralExpression node)
@@ -1795,7 +1795,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case ElementType.Local:
 				{
-					LocalInfo local = (LocalInfo)info;
+					LocalVariable local = (LocalVariable)info;
 					LocalBuilder builder = local.LocalBuilder;
 					_il.Emit(OpCodes.Ldloc, builder);
 					PushType(local.BoundType);
@@ -1864,7 +1864,7 @@ namespace Boo.Lang.Compiler.Steps
 			}			
 		}
 		
-		void SetLocal(BinaryExpression node, LocalInfo tag, bool leaveValueOnStack)
+		void SetLocal(BinaryExpression node, LocalVariable tag, bool leaveValueOnStack)
 		{
 			node.Right.Accept(this); // leaves type on stack
 					
@@ -1882,7 +1882,7 @@ namespace Boo.Lang.Compiler.Steps
 			EmitAssignment(tag, typeOnStack);
 		}
 		
-		void EmitAssignment(LocalInfo tag, IType typeOnStack)
+		void EmitAssignment(LocalVariable tag, IType typeOnStack)
 		{			
 			// todo: assignment result must be type on the left in the
 			// case of casting
@@ -1891,7 +1891,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Stloc, local);
 		}
 		
-		void SetField(Node sourceNode, IFieldInfo field, Expression reference, Expression value, bool leaveValueOnStack)
+		void SetField(Node sourceNode, IField field, Expression reference, Expression value, bool leaveValueOnStack)
 		{
 			OpCode opSetField = OpCodes.Stsfld;
 			if (!field.IsStatic)				
@@ -1997,7 +1997,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 				case ElementType.Field:
 				{
-					SetField(sourceNode, (IFieldInfo)tag, null, value, false);
+					SetField(sourceNode, (IField)tag, null, value, false);
 					break;					
 				}
 				
@@ -2167,7 +2167,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (1 == decls.Count)
 			{
 				// for arg in iterator				
-				StoreLocal(topOfStack, GetLocalInfo(decls[0]));
+				StoreLocal(topOfStack, GetLocalVariable(decls[0]));
 			}
 			else
 			{
@@ -2188,7 +2188,7 @@ namespace Boo.Lang.Compiler.Steps
 						_il.Emit(OpCodes.Ldc_I4, i); // element index			
 						_il.Emit(ldelem);
 						
-						StoreLocal(elementTypeInfo, GetLocalInfo(decls[i]));					
+						StoreLocal(elementTypeInfo, GetLocalVariable(decls[i]));					
 					}
 				}
 				else
@@ -2200,7 +2200,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						_il.Emit(OpCodes.Dup);
 						_il.EmitCall(OpCodes.Call, RuntimeServices_MoveNext, null);				
-						StoreLocal(TagService.ObjectType, GetLocalInfo(d));				
+						StoreLocal(TagService.ObjectType, GetLocalVariable(d));				
 					}					
 				}
 				_il.Emit(OpCodes.Pop);
@@ -2402,7 +2402,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void StoreLocal(IType topOfStack, LocalInfo local)
+		void StoreLocal(IType topOfStack, LocalVariable local)
 		{
 			EmitCastIfNeeded(local.BoundType, topOfStack);
 			_il.Emit(OpCodes.Stloc, local.LocalBuilder);
@@ -2504,7 +2504,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		LocalBuilder GetLocalBuilder(Node local)
 		{
-			return GetLocalInfo(local).LocalBuilder;
+			return GetLocalVariable(local).LocalBuilder;
 		}
 		
 		PropertyInfo GetPropertyInfo(IElement tag)
@@ -2517,7 +2517,7 @@ namespace Boo.Lang.Compiler.Steps
 			return GetPropertyBuilder(((InternalProperty)tag).Property);
 		}
 		
-		FieldInfo GetFieldInfo(IFieldInfo tag)
+		FieldInfo GetFieldInfo(IField tag)
 		{
 			ExternalField external = tag as ExternalField;
 			if (null != external)
@@ -2630,7 +2630,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Type GetType(Node node)
 		{
-			return GetType(GetBoundType(node));
+			return GetType(GetType(node));
 		}
 		
 		TypeAttributes GetNestedTypeAttributes(TypeDefinition type)
@@ -2929,7 +2929,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					namedFields.Add(GetFieldInfo((IFieldInfo)tag));
+					namedFields.Add(GetFieldInfo((IField)tag));
 					fieldValues.Add(GetValue(pair.Second));
 				}
 			}
@@ -2978,7 +2978,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else if (ElementType.Field == tag.ElementType)
 					{
-						IFieldInfo field = (IFieldInfo)tag;
+						IField field = (IField)tag;
 						if (field.IsLiteral)
 						{
 							return field.StaticValue;

@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		protected NameResolutionSupport _nameResolution = new NameResolutionSupport();
 		
-		override public bool EnterCompileUnit(CompileUnit cu)
+		override public bool EnterCompileUnit(Boo.Lang.Compiler.CompileUnit cu)
 		{
 			_nameResolution.Initialize(Context);
 			return true;

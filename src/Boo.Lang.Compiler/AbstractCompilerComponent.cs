@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected CompileUnit CompileUnit
+		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
 		{
 			get
 			{
