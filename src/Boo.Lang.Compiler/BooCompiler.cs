@@ -52,16 +52,26 @@ namespace Boo.Lang.Compiler
 				return _parameters;
 			}
 		}
-
-		public CompilerContext Run()
+		
+		public CompilerContext Run(CompileUnit compileUnit)
 		{
+			if (null == compileUnit)
+			{
+				throw new ArgumentNullException("compileUnit");
+			}
 			if (null == _parameters.Pipeline)
 			{
 				throw new InvalidOperationException(Boo.ResourceManager.GetString("BooC.CantRunWithoutPipeline"));
-			}
-			CompilerContext context = new CompilerContext(_parameters, new CompileUnit());
+			}			
+			CompilerContext context = new CompilerContext(_parameters, compileUnit);
 			_parameters.Pipeline.Run(context);
 			return context;
-		}		
+		}
+
+		public CompilerContext Run()
+		{
+			return Run(new CompileUnit());
+		}
+		
 	}
 }

@@ -38,8 +38,18 @@ namespace Boo.Lang.Compiler.Ast
 		{			
  		}
  		
-		public Module(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public Module(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
+		}
+		
+		public Module(Block globals)
+		{
+			if (null == globals)
+			{
+				throw new ArgumentNullException("globals");
+			}
+			
+			this.Globals = globals;
 		}
 		
 		override public NamespaceDeclaration EnclosingNamespace
