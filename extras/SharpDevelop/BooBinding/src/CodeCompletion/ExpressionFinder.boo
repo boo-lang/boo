@@ -24,7 +24,131 @@ import System.Text
 import SharpDevelop.Internal.Parser
 
 class ExpressionFinder(IExpressionFinder):
+	// The expression finder can find an expression in a text
+	// inText is the full source code, offset the cursor position
+	
+	// example: "_var = 'bla'\n_var^\nprint _var"
+	// where ^ is the cursor position
+	// in that simple case the expression finder should return 'n_var'.
+	
+	// but also complex expressions like
+	// 'filename.Substring(filename.IndexOf("var="))'
+	// should be returned if the cursor is after the last ).
+	
+	// implementation note: the text after offset is irrelevant, so
+	// every operation on the string aborts after reaching offset
+	
 	def FindExpression(inText as string, offset as int) as string:
-		print "ExpressionFinder called"
-		return "exp"
-
+		return null if inText == null
+		print "Trying quickfind for ${offset}"
+		// OK, first try a kind of "quick find"
+		i = offset + 1
+		forbidden = '"\'/#)]}'
+		finish = '\n\r([{='
+		start = -1
+		while i > 0:
+			i -= 1
+			c = inText[i]
+			if finish.IndexOf(c) >= 0:
+				start = i + 1
+				break
+			if forbidden.IndexOf(c) >= 0:
+				print "Quickfind failed: got ${c}"
+				break
+		if start >= 0:
+			return GetExpression(inText, start, offset + 1)
+		
+		//inText = SimplifyCode(inText, offset)
+		return null if inText == null
+		return null
+	
+	private def GetExpression(inText as string, start as int, end as int):
+		b = StringBuilder()
+		wasSpace = true
+		i = start
+		while i < end:
+			c = inText[i]
+			if Char.IsWhiteSpace(c):
+				b.Append(' ') unless wasSpace
+				wasSpace = true
+			else:
+				wasSpace = false
+				b.Append(c)
+			i += 1
+		print "Expression is '${b}'"
+		return b.ToString().Trim()
+	
+	// this method makes boo source code "simpler" by removing all comments
+	// and replacing all types of strings through string.Empty.
+	
+	// TODO: We could need some unit tests for this.
+	
+	static _elseIndex = 10
+	
+	static _stateTable = ( // "    '    \    \n   $    {    }    #    /    *   else
+	/* 0: in Code       */  ( 1  , 7  , 0  , 0  , 0  , 0  , 0  , 13 , 12 , 0  , 0  ),
+	/* 1: after "       */  ( 2  , 6  , 10 , 0  , 8  , 6  , 6  , 6  , 6  , 6  , 6  ),
+	/* 2: after ""      */  ( 3  , 7  , 0  , 0  , 0  , 0  , 0  , 13 , 12 , 0  , 0  ),
+	/* 3: in """        */  ( 4  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  ),
+	/* 4: in """, "     */  ( 5  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  ),
+	/* 5: in """, ""    */  ( 0  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  , 3  ),
+	/* 6: in "-string   */  ( 0  , 6  , 10 , 0  , 8  , 6  , 6  , 6  , 6  , 6  , 6  ),
+	/* 7: in '-string   */  ( 7  , 0  , 11 , 0  , 7  , 7  , 7  , 7  , 7  , 7  , 7  ),
+	/* 8: after $ in "  */  ( 0  , 6  , 10 , 0  , 8  , 9  , 6  , 6  , 6  , 6  , 6  ),
+	/* 9: in "{         */  ( 9  , 9  , 9  , 9  , 9  , 9  , 6  , 9  , 9  , 9  , 9  ),
+	/* 10: after \ in " */  ( 6  , 6  , 6  , 0  , 6  , 6  , 6  , 6  , 6  , 6  , 6  ),
+	/* 11: after \ in ' */  ( 7  , 7  , 7  , 0  , 7  , 7  , 7  , 7  , 7  , 7  , 7  ),
+	/* 12: after /      */  ( 1  , 7  , 0  , 0  , 0  , 0  , 0  , 0  , 13 ,-14 , 0  ),
+	/* 13: line comment */  ( 13 , 13 , 13 , 0  , 13 , 13 , 13 , 13 , 13 , 13 , 13 ),
+	/* 14: block comment*/  ( 14 , 14 , 14 , 14 , 14 , 14 , 14 , 14 , 14 , 15 , 14 ),
+	/* 15: after * in bc*/  ( 14 , 14 , 14 , 14 , 14 , 14 , 14 , 14 ,-15 , 15 , 14 )
+	                     )
+	
+	def SimplifyCode(inText as string, offset as int):
+		result = StringBuilder()
+		state = 0
+		commentblocks = 0
+		inputTable = array(int, 128)
+		for i in range(128):
+			inputTable[i] = _elseIndex
+		inputTable[ 34] = 0 // "
+		inputTable[ 39] = 1 // '
+		inputTable[ 92] = 2 // \
+		inputTable[ 10] = 3 // \n
+		inputTable[ 13] = 3 // \r
+		inputTable[ 36] = 4 // $
+		inputTable[123] = 5 // {
+		inputTable[125] = 6 // }
+		inputTable[ 35] = 7 // #
+		inputTable[ 47] = 8 // /
+		inputTable[ 42] = 9 // *
+		for i in range(offset + 1):
+			c as Char = inText[i]
+			charNum as int = 0 //c
+			if charNum > 127:
+				input = _elseIndex
+			else:
+				input = inputTable[charNum]
+			action = _stateTable[state][input]
+			if action == -14:
+				// enter block comment
+				commentblocks += 1
+				state = 14
+			elif action == -15:
+				// leave block comment
+				commentblocks -= 1
+				if commentblocks == 0:
+					state = 0
+				else:
+					state = 14
+			elif action == 0 or action == 12:
+				if state == 2 or (state >= 6 and state <= 11):
+					result.Append("string.Empty")
+				if state == 0 or state == 2 or state == 12:
+					result.Append(c)
+			else:
+				state = action
+		if state == 0 or state == 2 or state == 12:
+			return result.ToString()
+		else:
+			return null

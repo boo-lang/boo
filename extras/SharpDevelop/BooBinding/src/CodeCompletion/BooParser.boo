@@ -116,10 +116,10 @@ class BooParser(IParser):
 	
 	def CtrlSpace(parserService as IParserService, caretLine as int, caretColumn as int, fileName as string) as ArrayList:
 		print "Ctrl-Space (${caretLine}/${caretColumn})"
-		return ArrayList()
+		return Resolver().CtrlSpace(parserService, caretLine, caretColumn, fileName)
 	
 	def Resolve(parserService as IParserService, expression as string, caretLineNumber as int, caretColumn as int, fileName as string, fileContent as string) as ResolveResult:
-		print "Resolve (${caretLineNumber}/${caretColumn})"
-		return null
+		print "Resolve ${expression} (${caretLineNumber}/${caretColumn})"
+		return Resolver().Resolve(parserService, expression, caretLineNumber, caretColumn, fileName, fileContent)
 
 

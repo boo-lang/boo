@@ -20,6 +20,7 @@
     <File name=".\CodeCompletion\Visitor.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\CodeCompletion\Tree.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\CodeCompletion\TypeMembers.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\CodeCompletion\Resolver.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Assembly" refto="..\..\..\..\..\..\Fidalgo\SharpDevelop\bin\ICSharpCode.Core.dll" localcopy="False" />

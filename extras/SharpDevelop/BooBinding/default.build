@@ -98,6 +98,7 @@
 				<include name="data/templates/project/Boo/**"/>
 				<include name="${reladdin.dir}/*.addin"/>
 				<include name="${reladdin.dir}/*.dll"/>
+				<include name="${reladdin.dir}/*.exe"/>
 			</fileset>
 		</zip>
 		<zip zipfile="BooBindingSource.zip" ziplevel="9" includeemptydirs="false">
