@@ -54,7 +54,6 @@ class BooCompilerWrapper(MarshalByRefObject):
 			AddReference(reference)
 	
 	def SetOptions(o as BooBinding.CompilerOptions):
-		/* This code creates an internal compiler error when compiling with the NAnt build file
 		_options.Debug = o.IncludeDebugInformation
 		
 		if o.CompileTarget == CompileTarget.WinExe:
@@ -63,7 +62,7 @@ class BooCompilerWrapper(MarshalByRefObject):
 			_options.OutputType = CompilerOutputType.Library
 		else:
 			_options.OutputType = CompilerOutputType.ConsoleApplication
-		*/
+			
 		if _options.Pipeline == null:
 			pipeline = CompileToFile() 
 			parsingStep as Boo.Lang.Parser.BooParsingStep = pipeline[0]
