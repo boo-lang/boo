@@ -29,7 +29,8 @@
 
 import System
 import System.IO
-import Boo.AntlrParser from Boo.AntlrParser
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast
 
 def WriteNodeTypeEnum(module as Module):
@@ -858,9 +859,17 @@ namespace Boo.Lang.Compiler.Ast
 }
 """)
 
+def parse(fname):
+	compiler = BooCompiler()
+	compiler.Parameters.Pipeline = Parse()
+	compiler.Parameters.Input.Add(Boo.Lang.Compiler.IO.FileInput(fname))
+	result = compiler.Run()
+	raise join(result.Errors, "\n") if len(result.Errors)
+	return result.CompileUnit
+
 start = date.Now
 
-module = BooParser.ParseFile("ast.model.boo").Modules[0]
+module = parse("ast.model.boo").Modules[0]
 
 WriteVisitor(module)
 WriteDepthFirstVisitor(module)
