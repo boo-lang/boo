@@ -75,7 +75,7 @@ class TimeTrackerSystemTestFixture:
 		RestartSystem()
 		
 		project = _system.GetObject(projectId)
-		tasks = _system.QueryTasksByProject(project)
+		tasks = _system.QueryTasks(project)
 		assert 1 == len(tasks)
 		
 		task = tasks[0]
@@ -88,29 +88,56 @@ class TimeTrackerSystemTestFixture:
 	[Test]
 	def Activities():
 		
-		project = Project(Name: "DC")
-		_system.AddProject(project)
+		p1 = Project(Name: "DC")
+		_system.AddProject(p1)
 		
-		task = Task(Name: "Cool Task", Project: project)
-		_system.AddTask(task)
+		p2 = Project(Name: "boo")
+		_system.AddProject(p2)
 		
-		a1 = Activity(Task: task,
+		t1 = Task(Name: "Cool Task", Project: p1)
+		_system.AddTask(t1)
+		
+		t2 = Task(Name: "refactoring", Project: p2)
+		_system.AddTask(t2)
+		
+		t3 = Task(Name: "website", Project: p1)
+		_system.AddTask(t3)
+		
+		a1 = Activity(Task: t1,
 					Started: date.Now,
 					Finished: date.Now + 2h)
 								
-		a2 = Activity(Task: task, 
-					Started: date.Now - 3h,
-					Finished: date.Now)
+		a2 = Activity(Task: t1, 
+					Started: date.Now - 1d - 3h,
+					Finished: date.Now - 1d)
 								
-		a3 = Activity(Task: task,
-					Started: date.Now + 2h,
-					Finished: date.Now + 4h)
+		a3 = Activity(Task: t3,
+					Started: date.Now + 1s,
+					Finished: date.Now + 2h)
+					
+		a4 = Activity(Task: t2,
+					Started: date.Now + 1d,
+					Finished: date.Now + 1.5d)
 								
-		for s in a1, a2, a3:
+		for s in a1, a2, a3, a4:
 			_system.AddActivity(s)
+
+		assert _system.QueryActivities(t1) == (a1, a2)		
+		assert _system.QueryActivities(t2) == (a4,)		
+		assert _system.QueryActivities(t3) == (a3,)
 		
-		sessions = _system.QueryActivities(task)
-		assert sessions == (a3, a1, a2)
+		assert _system.QueryProjectActivities(p1) == (a3, a1, a2)
+		assert _system.QueryProjectActivities(p2) == (a4,)
+		
+		assert _system.QueryTotalProjectActivity(p1) == (a3.Elapsed +
+														a1.Elapsed +
+														a2.Elapsed)
+														
+		assert _system.QueryTotalProjectActivity(p2) == a4.Elapsed
+		
+		assert _system.QueryDayActivities(date.Today-1d) == (a2,)
+		assert _system.QueryDayActivities(date.Today) == (a3, a1)
+		assert _system.QueryDayActivities(date.Today+1d) == (a4,)
 		
 		
 	[TearDown]

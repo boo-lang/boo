@@ -95,8 +95,12 @@ class TimeTrackerSystem(IDisposable):
 		q = _container.query()
 		q.constrain(type)
 		return array(type, iterate(q.execute()))
+		
+	private def QueryActivities(q as com.db4o.query.Query):
+		q.descend("_started").orderDescending()
+		return array(Activity, iterate(q.execute()))
 
-	def QueryTasksByProject(project as Project):
+	def QueryTasks(project as Project):
 		q = _container.query()
 		q.constrain(Task)
 		q.descend("_project").constrain(project)
@@ -120,8 +124,34 @@ class TimeTrackerSystem(IDisposable):
 		q = _container.query()
 		q.constrain(Activity)		
 		q.descend("_task").constrain(task)
-		q.descend("_started").orderDescending()
-		return array(Activity, iterate(q.execute()))
+		return QueryActivities(q)
+		
+	def QueryProjectActivities([required] p as Project):
+		q = _container.query()
+		q.constrain(Activity)
+		q.descend("_task").descend("_project").constrain(p)
+		return QueryActivities(q)
+		
+	def QueryDayActivities(day as date):
+		q = _container.query()
+		q.constrain(Activity)
+		
+		d = day.Date 
+		q.descend("_started").constrain(d).greater()
+		q.descend("_started").constrain(d+1d).smaller()
+		return QueryActivities(q)
+		
+	def QueryTotalProjectActivity([required] p as Project):
+		return CalcTotalActivity(QueryProjectActivities(p))
+		
+	def QueryTotalDayActivity(day as date):
+		return CalcTotalActivity(QueryDayActivities(day))
+		
+	def CalcTotalActivity(activities as (Activity)):
+		elapsed = TimeSpan.Zero
+		for a in activities:
+			elapsed += a.Elapsed
+		return elapsed
 		
 	def AddActivity([required] session as Activity):
 		assert session.Task is GetExisting(session.Task)
