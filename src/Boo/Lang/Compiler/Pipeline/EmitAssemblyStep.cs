@@ -481,7 +481,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			if (UnaryOperatorType.LogicalNot == expression.Operator)
 			{
-				EmitBranchTrue(expression.Operand, label);
+				EmitBranchFalse(expression.Operand, label);
 			}
 			else
 			{
@@ -520,6 +520,23 @@ namespace Boo.Lang.Compiler.Pipeline
 				{
 					LoadCmpOperands(expression);
 					_il.Emit(OpCodes.Beq, label);
+					break;
+				}
+				
+				case BinaryOperatorType.ReferenceEquality:
+				{
+					Switch(expression.Left); PopType();
+					Switch(expression.Right); PopType();
+					_il.Emit(OpCodes.Beq, label);
+					break;
+				}
+				
+				case BinaryOperatorType.ReferenceInequality:
+				{
+					Switch(expression.Left); PopType();
+					Switch(expression.Right); PopType();
+					_il.Emit(OpCodes.Ceq);
+					_il.Emit(OpCodes.Brfalse, label);
 					break;
 				}
 				
@@ -835,6 +852,22 @@ namespace Boo.Lang.Compiler.Pipeline
 				case BindingType.Local:
 				{
 					SetLocal(node, (LocalBinding)binding, leaveValueOnStack);
+					break;
+				}
+				
+				case BindingType.Parameter:
+				{
+					ParameterBinding param = (ParameterBinding)binding;
+					
+					Switch(node.Right);
+					EmitCastIfNeeded(param.BoundType, PopType());
+					
+					if (leaveValueOnStack)
+					{
+						_il.Emit(OpCodes.Dup);
+						PushType(param.BoundType);
+					}
+					_il.Emit(OpCodes.Starg, param.Index);
 					break;
 				}
 				

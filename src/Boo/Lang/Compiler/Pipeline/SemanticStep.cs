@@ -2452,14 +2452,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			if (CheckIsNotValueType(node, node.Left) &&
 				CheckIsNotValueType(node, node.Right))
 			{
-				if (BinaryOperatorType.ReferenceInequality == node.Operator)
-				{
-					Negate(node, BinaryOperatorType.ReferenceEquality);
-				}
-				else
-				{
-					Bind(node, BindingManager.BoolTypeBinding);
-				}
+				Bind(node, BindingManager.BoolTypeBinding);
 			}
 			else
 			{

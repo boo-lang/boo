@@ -2,7 +2,7 @@
 BCE0001=The class '{0}' already has '{1}' as its base class. 
 BCE0002=Parameter name must be an identifier.
 BCE0003=Named arguments are only allowed for constructors.
-BCE0004=Ambiguous reference {0}: {1}.
+BCE0004=Ambiguous reference '{0}': {1}.
 BCE0005=Unknown identifier: {0}.
 BCE0006='{0}' is a value type. The 'as' operator can only be used with reference types.
 BCE0007=The name {0} does not represent a public property or field of the type {1}.

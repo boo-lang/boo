@@ -213,6 +213,11 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 			return null;
 		}
+		
+		override public string ToString()
+		{
+			return BindingManager.GetSignature(this);
+		}
 	}
 	
 	public class InternalConstructorBinding : InternalMethodBinding, IConstructorBinding

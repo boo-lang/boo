@@ -335,6 +335,8 @@ que precisarem? Isso iria permitir remover os casts
 	__unbox__(reference, int) => pode ser substituído por cast(int, reference)
 	__assertIsReference__(expression) # para uso por macros como lock por exemplo
 
+* ITypeBinding.GetDefaultMember() as IBinding => ITypeBinding.GetDefaultMembers() as (IBinding)
+
 * print macro
 
 * assert macro

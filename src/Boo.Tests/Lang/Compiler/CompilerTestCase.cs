@@ -993,6 +993,18 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void WhileIsNot()
+		{
+			RunCompilerTestCase("while2.boo");
+		}
+		
+		[Test]
+		public void WhileNot()
+		{
+			RunCompilerTestCase("while3.boo");
+		}
+		
+		[Test]
 		public void InterfaceContainsObjectMethods()
 		{
 			RunCompilerTestCase("interface0.boo");
@@ -1113,6 +1125,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void OverloadingSelection()
+		{
+			RunCompilerTestCase("overloading1.boo");
+		}
+		
+		[Test]
 		public void TypeIsCallable()
 		{
 			RunCompilerTestCase("typeiscallable.boo");
@@ -1134,6 +1152,12 @@ namespace Boo.Tests.Lang.Compiler
 		public void OverloadedMethodsCanBeDeclaredInAnyOrder()
 		{
 			RunCompilerTestCase("logservice.boo");
+		}
+		
+		[Test]
+		public void ParameterAsLValue()
+		{
+			RunCompilerTestCase("parameter_as_lvalue.boo");
 		}
 	}
 }
