@@ -1,13 +1,13 @@
 """
-1
 2
-3
+1
+0
 """
 def onetwothree():
-	i = 0
-	yield ++i
-	yield ++i
-	yield ++i
+	i = 3
+	yield --i
+	yield --i
+	yield --i
 	
 e = onetwothree().GetEnumerator()
 while e.MoveNext():

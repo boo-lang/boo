@@ -188,14 +188,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			generator.Locals.Clear();
 			
+			mn.Body.Add(CreateLabel(generator));
 			mn.Body.Add(generator.Body);
 			generator.Body.Clear();
 			
 			Visit(mn.Body);
 			
-			mn.Body.Insert(0, 
-				new ReturnStatement(
-					CodeBuilder.CreateBoolLiteral(false)));
 			mn.Body.Insert(0,
 				CodeBuilder.CreateSwitch(
 					CodeBuilder.CreateMemberReference(_state),
@@ -219,12 +217,13 @@ namespace Boo.Lang.Compiler.Steps
 			LabelStatement label = CreateLabel(node);
 			
 			Block block = new Block();
-			block.Add(label);
+			
 			block.Add(new ReturnStatement(
 				CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateSelfReference(_enumerator.Entity),
 					_yield,
 					node.Expression)));
+			block.Add(label);
 					
 			ReplaceCurrentNode(block);
 		}
