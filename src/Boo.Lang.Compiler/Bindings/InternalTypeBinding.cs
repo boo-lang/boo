@@ -61,6 +61,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		ITypeBinding _baseType;
 		
+		int _typeDepth = -1;
+		
 		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition) :
 			base(manager, typeDefinition)
 		{
@@ -70,20 +72,36 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 			get
 			{
-				if (IsClass && null == _baseType)
+				if (null == _baseType)
 				{
-					foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+					if (IsClass)
 					{
-						ITypeBinding binding = _bindingManager.GetBoundType(baseType);
-						if (binding.IsClass)
+						foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 						{
-							_baseType = binding;
-							break;
+							ITypeBinding binding = _bindingManager.GetBoundType(baseType);
+							if (binding.IsClass)
+							{
+								_baseType = binding;
+								break;
+							}
 						}
+					}
+					else if (IsInterface)
+					{
+						_baseType = _bindingManager.ObjectTypeBinding;
 					}
 				}
 				return _baseType;
 			}
+		}
+		
+		override public int GetTypeDepth()
+		{
+			if (-1 == _typeDepth)
+			{
+				_typeDepth = CalcTypeDepth();
+			}
+			return _typeDepth;
 		}
 		
 		override public bool IsSubclassOf(ITypeBinding type)
@@ -120,6 +138,30 @@ namespace Boo.Lang.Compiler.Bindings
 				_constructors = (IConstructorBinding[])constructors.ToArray(typeof(IConstructorBinding));
 			}
 			return _constructors;
+		}
+		
+		int CalcTypeDepth()
+		{
+			if (IsInterface)
+			{
+				return 1+GetMaxBaseInterfaceDepth();
+			}
+			return 1+BaseType.GetTypeDepth();
+		}
+		
+		int GetMaxBaseInterfaceDepth()
+		{
+			int current = 0;
+			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			{
+				ITypeBinding binding = _bindingManager.GetBoundType(baseType);
+				int depth = binding.GetTypeDepth();
+				if (depth > current)
+				{
+					current = depth;
+				}
+			}
+			return current;
 		}
 	}
 }

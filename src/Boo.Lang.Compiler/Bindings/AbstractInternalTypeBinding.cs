@@ -138,6 +138,16 @@ namespace Boo.Lang.Compiler.Bindings
 						_memberBuffer.AddUnique(binding);
 					}
 				}
+				
+				if (IsInterface)
+				{
+					// also look in System.Object
+					IBinding binding = _bindingManager.ObjectTypeBinding.Resolve(name);
+					if (null != binding)
+					{
+						_memberBuffer.AddUnique(binding);						
+					}
+				}
 			}
 			
 			if (_memberBuffer.Count > 0)

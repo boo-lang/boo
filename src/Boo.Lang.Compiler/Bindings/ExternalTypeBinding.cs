@@ -276,7 +276,7 @@ namespace Boo.Lang.Compiler.Bindings
 		}
 		
 		static int GetClassDepth(Type type)
-		{
+		{			
 			int depth = 0;			
 			Type objectType = Types.Object;
 			while (type != objectType)
@@ -292,18 +292,16 @@ namespace Boo.Lang.Compiler.Bindings
 			Type[] interfaces = type.GetInterfaces();
 			if (interfaces.Length > 0)
 			{			
-				if (1 == interfaces.Length)
+				int current = 0;
+				foreach (Type i in interfaces)
 				{
-					return 1+GetInterfaceDepth(interfaces[0]);
+					int depth = GetInterfaceDepth(i);
+					if (depth > current)
+					{
+						current = depth;
+					}
 				}
-				
-				int[] depths = new int[interfaces.Length];
-				for (int i=0; i<interfaces.Length; ++i)
-				{
-					depths[i] = GetInterfaceDepth(interfaces[i]);
-				}
-				Array.Sort(depths);
-				return 1+depths[depths.Length-1];
+				return 1+current;
 			}
 			return 1;
 		}

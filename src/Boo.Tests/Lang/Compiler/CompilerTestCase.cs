@@ -1123,6 +1123,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void SystemObjectMethodsAreVisibleThroughInterface()
+		{
+			RunCompilerTestCase("interface8.boo");
+		}
+		
+		[Test]
 		public void ArrayEquality()
 		{
 			RunCompilerTestCase("array_equality.boo");
@@ -1243,7 +1249,7 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
-		public void OverloadingSelection()
+		public void OverloadingSelectionWithExternalTypeHierarchy()
 		{
 			RunCompilerTestCase("overloading1.boo");
 		}
@@ -1252,6 +1258,18 @@ namespace Boo.Tests.Lang.Compiler
 		public void OverloadingWithNewMethod()
 		{
 			RunCompilerTestCase("overloading2.boo");
+		}
+		
+		[Test]
+		public void OverloadingSelectionWithInternalTypeHierarchy()
+		{
+			RunCompilerTestCase("overloading3.boo");
+		}
+		
+		[Test]
+		public void OverloadingSelectionByInternalInterfaceHierarchy()
+		{
+			RunCompilerTestCase("overloading4.boo");
 		}
 		
 		[Test]
