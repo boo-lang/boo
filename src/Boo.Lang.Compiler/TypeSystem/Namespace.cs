@@ -216,6 +216,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public NamespaceDelegator(INamespace parent, params INamespace[] namespaces)
 		{
+			if (null == namespaces)
+			{
+				throw new ArgumentNullException("namespaces");
+			}
 			_parent = parent;
 			_namespaces = namespaces;
 		}

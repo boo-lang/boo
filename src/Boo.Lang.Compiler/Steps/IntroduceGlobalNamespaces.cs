@@ -42,12 +42,17 @@ namespace Boo.Lang.Compiler.Steps
 			NameResolutionService.Reset();
 			
 			INamespace[] globals = new INamespace[2];
-			globals[0] = (INamespace)NameResolutionService.ResolveQualifiedName("Boo.Lang");
+			globals[0] = SafeGetNamespace((INamespace)NameResolutionService.ResolveQualifiedName("Boo.Lang"));
 			globals[1] = TypeSystemServices.BuiltinsType;
 			
 			NameResolutionService.GlobalNamespace = new NamespaceDelegator(
 															NameResolutionService.GlobalNamespace,
 															globals);
+		}
+		
+		private INamespace SafeGetNamespace(INamespace ns)
+		{
+			return null == ns ? NullNamespace.Default : ns;
 		}
 	}
 }
