@@ -1236,10 +1236,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveExpressionStatement(ExpressionStatement node)
 		{
-			if (!HasSideEffect(node.Expression) && !TypeSystemServices.IsError(node.Expression))
-			{
-				Error(CompilerErrorFactory.ExpressionStatementMustHaveSideEffect(node));
-			}
+			CheckHasSideEffect(node.Expression);
 		}
 		
 		override public void OnNullLiteralExpression(NullLiteralExpression node)
@@ -2204,11 +2201,34 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
+				case BuiltinFunctionType.Eval:
+				{
+					ProcessEvalInvocation(node);
+					break;
+				}
+				
 				default:
 				{
 					NotImplemented(node, "BuiltinFunction: " + sf.FunctionType);
 					break;
 				}
+			}
+		}
+		
+		void ProcessEvalInvocation(MethodInvocationExpression node)
+		{
+			if (node.Arguments.Count > 0)
+			{
+				int allButLast = node.Arguments.Count-1;
+				for (int i=0; i<allButLast; ++i)
+				{
+					CheckHasSideEffect(node.Arguments[i]);	
+				}
+				BindExpressionType(node, GetConcreteExpressionType(node.Arguments[-1]));
+			}
+			else
+			{
+				BindExpressionType(node, TypeSystemServices.VoidType);
 			}
 		}
 		
@@ -3477,6 +3497,14 @@ namespace Boo.Lang.Compiler.Steps
 		void PopMethodInfo()
 		{
 			_currentMethodInfo = (InternalMethod)_methodInfoStack.Pop();
+		}
+		
+		void CheckHasSideEffect(Expression expression)
+		{
+			if (!HasSideEffect(expression) && !TypeSystemServices.IsError(expression))
+			{
+				Error(CompilerErrorFactory.ExpressionMustBeExecutedForItsSideEffects(expression));
+			}
 		}
 		
 		static bool HasSideEffect(Expression node)

@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0033", node.LexicalInfo, attributeType);
 		}
 		
-		public static CompilerError ExpressionStatementMustHaveSideEffect(Node node)
+		public static CompilerError ExpressionMustBeExecutedForItsSideEffects(Node node)
 		{
 			return new CompilerError("BCE0034", node.LexicalInfo);
 		}

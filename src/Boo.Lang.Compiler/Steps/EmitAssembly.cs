@@ -493,11 +493,16 @@ namespace Boo.Lang.Compiler.Steps
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
+			DiscardValueOnStack();
+			AssertStackIsEmpty("stack must be empty after a statement!");
+		}
+		
+		void DiscardValueOnStack()
+		{
 			if (PopType() != TypeSystemServices.VoidType)
 			{				
 				_il.Emit(OpCodes.Pop);				
 			}
-			AssertStackIsEmpty("stack must be empty after a statement!");
 		}
 		
 		override public void OnUnlessStatement(UnlessStatement node)
@@ -1394,6 +1399,18 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(TypeSystemServices.TypeType);
 		}
 		
+		void OnEval(MethodInvocationExpression node)
+		{
+			int allButLast = node.Arguments.Count-1;
+			for (int i=0; i<allButLast; ++i)
+			{
+				Visit(node.Arguments[i]);
+				DiscardValueOnStack();
+			}
+			
+			Visit(node.Arguments[-1]);
+		}
+		
 		void OnAddressOf(MethodInvocationExpression node)
 		{
 			_il.Emit(OpCodes.Ldftn, GetMethodInfo((IMethod)GetEntity(node.Arguments[0])));
@@ -1407,6 +1424,12 @@ namespace Boo.Lang.Compiler.Steps
 				case BuiltinFunctionType.AddressOf:
 				{
 					OnAddressOf(node);
+					break;
+				}
+				
+				case BuiltinFunctionType.Eval:
+				{
+					OnEval(node);
 					break;
 				}
 				

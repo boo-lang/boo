@@ -497,13 +497,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public object GetCacheKey(System.Reflection.MemberInfo mi)
 		{
 			return mi;
-			/*
-			_buffer.Length = 0;
-			_buffer.Append(mi.MemberType);
-			_buffer.Append('-');
-			_buffer.Append(mi.ToString());
-			return _buffer.ToString();
-			*/
 		}
 		
 		public IEntity ResolvePrimitive(string name)
@@ -530,6 +523,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("double", DoubleType);
 			AddPrimitive("len", new BuiltinFunction(BuiltinFunctionType.Len));
 			AddPrimitive("__addressof__", new BuiltinFunction(BuiltinFunctionType.AddressOf));
+			AddPrimitive("__eval__", new BuiltinFunction(BuiltinFunctionType.Eval));
 		}
 		
 		void AddPrimitiveType(string name, ExternalType type)

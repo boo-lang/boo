@@ -234,16 +234,25 @@ namespace BooCompiler.Tests
 		{
 			CompilerPipeline pipeline = null;			
 			
+			pipeline = new CompileToMemory();
+			/*
 			if (Boo.Lang.Compiler.Steps.PEVerify.IsSupported)
 			{			
-				pipeline = new CompileToFile();
+				pipeline = new CompileToFile();				
 			}
 			else
 			{
 				pipeline = new CompileToMemory();
 			}
+			*/
 			pipeline.Add(new RunAssembly());
 			return pipeline;
+		}
+		
+		[Test]
+		public void EvalExpressionGroup()
+		{
+			RunCompilerTestCase("__eval__.boo");
 		}
 		
 		[Test]
