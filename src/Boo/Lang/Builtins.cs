@@ -98,7 +98,30 @@ namespace Boo.Lang
 				throw new ArgumentOutOfRangeException("max");
 			}
 			
-			return new RangeEnumerator(max);
+			return new RangeEnumerator(0, max, 1);
+		}
+		
+		public static IEnumerable range(int min, int max)
+		{
+			if (max < min || max < 0)
+			{
+				throw new ArgumentOutOfRangeException("max");
+			}
+			return new RangeEnumerator(min, max, 1);
+		}
+		
+		public static IEnumerable range(int min, int max, int step)
+		{
+			if (step < 0)
+			{
+				throw new ArgumentNullException("step");
+			}
+			
+			if (max < min || max < 0)
+			{
+				throw new ArgumentNullException("max");
+			}
+			return new RangeEnumerator(min, max, step);
 		}
 		
 		//[EnumeratorItemType(Type.GetType("System.Object[]"))]
@@ -168,24 +191,29 @@ namespace Boo.Lang
 		
 		private class RangeEnumerator : IEnumerator, IEnumerable
 		{
-			int _index = -1;
+			int _index;
+			int _min;
 			int _max;
+			int _step;
 			
-			public RangeEnumerator(int max)
+			public RangeEnumerator(int min, int max, int step)
 			{
-				_max = max-1;
+				_min = min;
+				_index = min-step;
+				_max = max-step;
+				_step = step;
 			}
 			
 			public void Reset()
 			{
-				_index = -1;
+				_index = _min-_step;
 			}
 			
 			public bool MoveNext()
 			{
 				if (_index < _max)
 				{	
-					++_index;
+					_index += _step;
 					return true;
 				}
 				return false;

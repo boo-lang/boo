@@ -4,4 +4,4 @@ assign0.boo(7,1): BCE0049: Expression can't be assigned to.
 """
 a = 3
 a = "foo"
-3 = "bar"
+++a = "bar"

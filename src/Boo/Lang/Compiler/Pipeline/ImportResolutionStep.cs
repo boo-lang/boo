@@ -88,6 +88,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				ModuleNamespace moduleNamespace = new ModuleNamespace(BindingManager, module);
 				module[ModuleNamespaceKey] = moduleNamespace;
+				
+				NamespaceDeclaration namespaceDeclaration = module.Namespace;
+				if (null != namespaceDeclaration)
+				{
+					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
+				}
 				GetNamespaceBinding(moduleNamespace.Namespace).AddModuleNamespace(moduleNamespace);
 			}
 		}

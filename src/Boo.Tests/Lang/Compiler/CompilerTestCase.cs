@@ -901,5 +901,23 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunMultiFileTestCase("multifile0.boo", "character.boo");
 		}
+		
+		[Test]
+		public void ImportAutomaticallyFromModulesInTheSameNamespace()
+		{
+			RunMultiFileTestCase("multifile1.boo", "character.boo");
+		}
+		
+		[Test]
+		public void ImportFunctionsFromModulesInTheGlobalNamespace()
+		{
+			RunMultiFileTestCase("multifile2.boo", "math.boo");
+		}
+		
+		[Test]
+		public void RangeBuiltin()
+		{
+			RunCompilerTestCase("range.boo");
+		}
 	}
 }

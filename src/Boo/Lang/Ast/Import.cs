@@ -43,6 +43,10 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
+		public Import(LexicalInfo lexicalInfo, string namespace_) : base(lexicalInfo, namespace_, null, null)
+		{
+		}
+		
 		public Import(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}

@@ -914,7 +914,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					Bind(mie.Target, getter);
 					Bind(mie, getter);
 					
-					node.ReplaceBy(mie);
+					node.ParentNode.Replace(node, mie);
 				}
 				else
 				{
@@ -1041,7 +1041,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						
 						Switch(memberRef.Target);
 						
-						node.ReplaceBy(memberRef);
+						node.ParentNode.Replace(node, memberRef);
 					}
 				}
 				else
@@ -1095,7 +1095,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						if (!AstUtil.IsLhsOfAssignment(node) &&
 							!AstUtil.IsTargetOfSlicing(node))
 						{
-							node.ReplaceBy(CreateMethodInvocation(node.Target, ((IPropertyBinding)member).GetGetMethod()));
+							node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IPropertyBinding)member).GetGetMethod()));
 							return;
 						}
 					}
@@ -1624,7 +1624,7 @@ namespace Boo.Lang.Compiler.Pipeline
 						}
 						if (null != resultingNode)
 						{
-							node.ReplaceBy(resultingNode);
+							node.ParentNode.Replace(node, resultingNode);
 						}
 					}
 					break;
@@ -1693,17 +1693,20 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				
 				case BindingType.Constructor:
-				{
-					// super constructor call
-					InternalConstructorBinding constructorBinding = (InternalConstructorBinding)targetBinding;
-					constructorBinding.HasSuperCall = true;
-					
-					ITypeBinding baseType = constructorBinding.DeclaringType.BaseType;
-					IConstructorBinding superConstructorBinding = FindCorrectConstructor(node, baseType, node.Arguments);
-					if (null != superConstructorBinding)
+				{					
+					InternalConstructorBinding constructorBinding = targetBinding as InternalConstructorBinding;
+					if (null != constructorBinding)
 					{
-						Bind(node.Target, superConstructorBinding);
-						Bind(node, superConstructorBinding);
+						// super constructor call					
+						constructorBinding.HasSuperCall = true;
+						
+						ITypeBinding baseType = constructorBinding.DeclaringType.BaseType;
+						IConstructorBinding superConstructorBinding = FindCorrectConstructor(node, baseType, node.Arguments);
+						if (null != superConstructorBinding)
+						{
+							Bind(node.Target, superConstructorBinding);
+							Bind(node, superConstructorBinding);
+						}
 					}
 					break;
 				}
@@ -1852,7 +1855,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				Bind(target, setter);
 				Bind(mie, setter);
 				
-				node.ReplaceBy(mie);
+				node.ParentNode.Replace(node, mie);
 			}
 		}
 		
@@ -1883,7 +1886,7 @@ namespace Boo.Lang.Compiler.Pipeline
 							else
 							{
 								
-								node.ReplaceBy(CreateMethodInvocation(target, setter, node.Right));
+								node.ParentNode.Replace(node, CreateMethodInvocation(target, setter, node.Right));
 							}
 							return;
 						}

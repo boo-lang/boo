@@ -221,13 +221,17 @@ done * indexed properties:
 
 done * enum
 
-* usar classes definidas na mesma CompileUnit
+done * usar classes definidas na mesma CompileUnit
 
-* usar métodos definidos em outros módulos no namespace global
+done * usar classes em módulos diferentes, no mesmo namespace, sem precisar importar o namespace
+
+done * usar métodos definidos em outros módulos no namespace global
 
 * usar métodos definidos em outros módulos no mesmo namespace
 
 * assembly attributes: [assembly: AssemblyVersion("foo")]
+
+* remover DepthFirstTransformer pois não é mais necessário e só confunde...
 	
 * remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário

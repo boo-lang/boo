@@ -155,14 +155,6 @@ namespace Boo.Lang.Ast
 			}
 			return false;
 		}
-		
-		public void ReplaceBy(Node newNode)
-		{
-			if (!_parent.Replace(this, newNode))
-			{
-				throw new ApplicationException(string.Format("Node {0} not found!", this));
-			}
-		}
 
 		internal void InitializeParent(Node parent)
 		{			
