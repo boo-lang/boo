@@ -62,12 +62,18 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		SemanticMethodInfo _currentMethodInfo;
 		
+		/*
+		 * Useful method bindings.
+		 */
 		IMethodBinding RuntimeServices_IsMatchBinding;
 		
 		IMethodBinding RuntimeServices_Contains;
 		
 		IConstructorBinding ApplicationException_StringConstructor;
 		
+		/*
+		 * Useful filters.
+		 */
 		BindingFilter IsPublicEventFilter;
 		
 		BindingFilter IsPublicFieldPropertyEventFilter;
@@ -263,7 +269,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 			else
 			{
-				if (binding.IsResolved)
+				if (binding.Visited)
 				{
 					return false;
 				}
@@ -290,7 +296,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			InternalMethodBinding binding = (InternalMethodBinding)GetBinding(method);
 			ResolveMethodOverride(method, binding);
-			binding.Resolved();
+			binding.Visited = true;
 			
 			PopNamespace();
 			PopMethod();
@@ -518,10 +524,10 @@ namespace Boo.Lang.Compiler.Pipeline
 				// todo: treat ambiguous binding here!!!!
 				IMemberBinding binding = info as IMemberBinding;
 				if (null != binding)
-				{
+				{					
 					if (BindingType.Method == binding.BindingType)
 					{
-						EnsureMethodIsResolved((IMethodBinding)binding);
+						EnsureMethodWasVisited((IMethodBinding)binding);
 					}
 					
 					if (!binding.IsStatic)
@@ -564,10 +570,10 @@ namespace Boo.Lang.Compiler.Pipeline
 				}
 				else
 				{
-					nodeBinding = member;
+					nodeBinding = member;					
 					if (BindingType.Method == member.BindingType)
 					{
-						EnsureMethodIsResolved((IMethodBinding)member);
+						EnsureMethodWasVisited((IMethodBinding)member);
 					}
 				}
 			}
@@ -1176,12 +1182,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		void EnsureMethodIsResolved(IMethodBinding binding)
+		void EnsureMethodWasVisited(IMethodBinding binding)
 		{
 			InternalMethodBinding internalMethod = binding as InternalMethodBinding;
 			if (null != internalMethod)
 			{
-				if (!internalMethod.IsResolved)
+				if (!internalMethod.Visited)
 				{
 					_context.TraceVerbose("Method {0} needs resolving.", binding.Name);
 					if (!IsInMethodInfoStack(internalMethod.Method))

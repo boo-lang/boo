@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		IMethodBinding _override;
 		
-		bool _isResolved = false;
+		bool _visited = false;
 		
 		public ArrayList ReturnStatements = new ArrayList();
 		
@@ -128,17 +128,17 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public bool IsResolved
+		public bool Visited
 		{
 			get
 			{
-				return _isResolved;
+				return _visited;
 			}
-		}
-		
-		public void Resolved()
-		{
-			_isResolved = true;
+			
+			set
+			{
+				_visited = value;
+			}
 		}
 		
 		public ITypeBinding GetParameterType(int parameterIndex)
