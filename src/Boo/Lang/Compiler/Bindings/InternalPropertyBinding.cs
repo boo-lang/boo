@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Bindings
 {
 	using Boo.Lang.Ast;
 	
-	public class InternalPropertyBinding : IPropertyBinding
+	public class InternalPropertyBinding : AbstractInternalBinding, IPropertyBinding
 	{
 		BindingManager _bindingManager;
 		
@@ -96,6 +96,14 @@ namespace Boo.Lang.Compiler.Bindings
 			get
 			{
 				return _bindingManager.GetBoundType(_property.Type);
+			}
+		}
+		
+		public override Node Node
+		{
+			get
+			{
+				return _property;
 			}
 		}
 		

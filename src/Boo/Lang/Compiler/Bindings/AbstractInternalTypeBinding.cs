@@ -137,6 +137,11 @@ namespace Boo.Lang.Compiler.Bindings
 				{
 					return new InternalFieldBinding(_bindingManager, (Field)member);
 				}
+				
+				case NodeType.Property:
+				{
+					return new InternalPropertyBinding(_bindingManager, (Property)member);
+				}
 			}
 			throw new NotImplementedException();
 		}

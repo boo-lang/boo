@@ -220,6 +220,22 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void OnProperty(Property node, ref Property resultingNode)
 		{
+			InternalPropertyBinding binding = (InternalPropertyBinding)GetOptionalBinding(node);
+			if (null == binding)
+			{
+				binding = new InternalPropertyBinding(BindingManager, node);
+				BindingManager.Bind(node, binding);
+			}
+			else
+			{
+				if (binding.Visited)
+				{
+					return;
+				}
+			}
+			
+			binding.Visited = true;
+			
 			Method setter = node.Setter;
 			Method getter = node.Getter;
 			
@@ -227,50 +243,64 @@ namespace Boo.Lang.Compiler.Pipeline
 			Switch(node.Type);
 			Switch(getter);
 			
-			ITypeBinding binding = null;
+			ITypeBinding typeBinding = null;
 			if (null != node.Type)
 			{
-				binding = GetBoundType(node.Type);
+				typeBinding = GetBoundType(node.Type);
 			}
 			else
 			{
 				if (null != getter)
 				{
-					binding = GetBoundType(node.Getter.ReturnType);
+					typeBinding = GetBoundType(node.Getter.ReturnType);
 				}
 				else
 				{
-					binding = BindingManager.ObjectTypeBinding;
+					typeBinding = BindingManager.ObjectTypeBinding;
 				}
-				node.Type = CreateBoundTypeReference(binding);
+				node.Type = CreateBoundTypeReference(typeBinding);
 			}
 			
 			if (null != setter)
 			{
 				ParameterDeclaration parameter = new ParameterDeclaration();
-				parameter.Type = CreateBoundTypeReference(binding);
+				parameter.Type = CreateBoundTypeReference(typeBinding);
 				parameter.Name = "value";
 				setter.Parameters.Add(parameter);
 				Switch(setter);
 				
 				setter.Name = "set_" + node.Name;
 			}
+			
 			if (null != getter)
 			{
 				getter.Name = "get_" + node.Name;
 			}
+		}
+		
+		public override bool EnterField(Field node, ref Field resultingNode)
+		{
+			InternalFieldBinding binding = (InternalFieldBinding)GetOptionalBinding(node);
+			if (null == binding)
+			{
+				binding = new InternalFieldBinding(BindingManager, node);
+				BindingManager.Bind(node, binding);
+			}
+			else
+			{
+				if (binding.Visited)
+				{
+					return false;
+				}
+			}
 			
-			BindingManager.Bind(node, new InternalPropertyBinding(BindingManager, node));
+			// first time here
+			binding.Visited = true;
+			return true;			
 		}
 		
 		public override void LeaveField(Field node, ref Field resultingNode)
-		{			
-			IBinding binding = GetOptionalBinding(node);
-			if (null == binding)
-			{
-				BindingManager.Bind(node, new InternalFieldBinding(BindingManager, node));
-			}
-			
+		{	
 			if (null == node.Type)
 			{
 				if (null == node.Initializer)
@@ -750,10 +780,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				IMemberBinding binding = info as IMemberBinding;
 				if (null != binding)
 				{					
-					if (BindingType.Method == binding.BindingType)
-					{
-						EnsureRelatedNodeWasVisited((IMethodBinding)binding);
-					}
+					EnsureRelatedNodeWasVisited(binding);
 					
 					if (!binding.IsStatic)
 					{
@@ -796,10 +823,7 @@ namespace Boo.Lang.Compiler.Pipeline
 				else
 				{
 					nodeBinding = member;					
-					if (BindingType.Method == member.BindingType)
-					{
-						EnsureRelatedNodeWasVisited((IMethodBinding)member);
-					}
+					EnsureRelatedNodeWasVisited(member);
 				}
 			}
 			

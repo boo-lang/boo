@@ -136,12 +136,9 @@ done * mover default super constructor call para SemanticStep
 
 done * classes podem ser declaradas em qualquer ordem
 
-* campos podem ser declarados em qualquer ordem
+done * campos podem ser declarados em qualquer ordem
 
-* propriedades podem ser declaradas em qualquer ordem
-
-* remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
-SemanticStep que deverá criar AsExpression sempre que necessário
+done * propriedades podem ser declaradas em qualquer ordem
 
 * portar todos os testes em ITL.Security.Tests para boo
 	done * usar tipos em atributos (sem precisar do typeof)
@@ -171,6 +168,9 @@ na lista de dependências tenha sido alterado
 * logical operators
 	* or
 	* and
+	
+* remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
+SemanticStep que deverá criar AsExpression sempre que necessário
 
 * BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais?
 

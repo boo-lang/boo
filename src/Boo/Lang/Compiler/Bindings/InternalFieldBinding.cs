@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.Bindings
 	using System;
 	using Boo.Lang.Ast;
 	
-	public class InternalFieldBinding : IFieldBinding
+	public class InternalFieldBinding : AbstractInternalBinding, IFieldBinding
 	{
 		BindingManager _bindingManager;
 		Field _field;
@@ -96,6 +96,14 @@ namespace Boo.Lang.Compiler.Bindings
 			get
 			{
 				return (ITypeBinding)BindingManager.GetBinding(_field.ParentNode);
+			}
+		}
+		
+		public override Node Node
+		{
+			get
+			{
+				return _field;
 			}
 		}
 		
