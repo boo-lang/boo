@@ -74,6 +74,10 @@ class InteractiveInterpreter:
 	Pipeline:
 		get:
 			return _compiler.Parameters.Pipeline
+			
+	References:
+		get:
+			return _compiler.Parameters.References
 		
 	def Eval(code as string):
 		

@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ModuleBuilder _moduleBuilder;
 		
-		ISymbolDocumentWriter _symbolDocWriter;
+		//ISymbolDocumentWriter _symbolDocWriter;
 		
 		TypeBuilder _typeBuilder;
 		
@@ -363,7 +363,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_asmBuilder = null;		
 			_moduleBuilder = null;		
-			_symbolDocWriter = null;
+			//_symbolDocWriter = null;
 			_typeBuilder = null;
 			_il = null;		
 			_returnValueLocal = null;
@@ -504,7 +504,7 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			InternalLocal info = GetInternalLocal(local);
 			info.LocalBuilder = _il.DeclareLocal(GetSystemType(local));
-			info.LocalBuilder.SetLocalSymInfo(local.Name);			
+			//info.LocalBuilder.SetLocalSymInfo(local.Name);			
 		}
 		
 		override public void OnForStatement(ForStatement node)
