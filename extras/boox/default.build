@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<project name="Boo Explorer" default="run">
+
+	<target name="run" depends="build">
+		<exec program="build/${boox}.exe" useruntimeengine="true">
+		</exec>
+	</target>
+
+	<target name="booxg" depends="BooExplorer.Common">
+		<booc target="exe" output="build/booxg.exe">
+			<sources basedir="booxg">
+				<include name="*.boo" />
+			</sources>
+			<references>
+				<include name="build/BooExplorer.Common.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="booxw" depends="BooExplorer.Common">
+	</target>
+	
+	<target name="BooExplorer.Common" depends="init">
+		<booc target="library" output="build/BooExplorer.Common.dll">
+			<sources basedir="BooExplorer.Common">
+				<include name="*.boo" />
+			</sources>
+		</booc>
+	</target>
+	
+	<target name="build" depends="select-platform">
+		<call target="${boox}" />
+	</target>
+
+	<target name="select-platform">
+		<property name="boox" value="booxg" unless="${nant.platform.win32}" />
+		<property name="boox" value="booxw" if="${nant.platform.win32}" />
+	</target>
+
+	<target name="init">
+		<mkdir dir="build" unless="${directory::exists('build')}" />
+		<copy todir="build">
+			<fileset basedir="../../build">
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.AntlrParser.dll" />
+				<include name="antlr.runtime.dll" />
+			</fileset>
+		</copy>
+		<loadtasks assembly="../../build/Boo.NAnt.dll" />
+	</target>
+</project>

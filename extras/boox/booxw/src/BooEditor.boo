@@ -13,6 +13,7 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast
+import BooExplorer.Common
 
 class WaitCursor(IDisposable):
 	_saved
@@ -25,20 +26,6 @@ class WaitCursor(IDisposable):
 		
 	def Dispose():
 		_form.Cursor = _saved
-
-class ConsoleCapture(IDisposable):	
-	_console = StringWriter()
-	_old
-	
-	def constructor():
-		_old = Console.Out
-		Console.SetOut(_console)
-		
-	override def ToString():
-		return _console.ToString()
-	
-	def Dispose():
-		Console.SetOut(_old)
 
 class BooEditor(DockContent):
 

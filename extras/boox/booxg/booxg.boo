@@ -1,4 +1,4 @@
-import System
+﻿import System
 import System.IO
 import Boo.IO
 import Boo.Lang.Compiler
@@ -7,6 +7,7 @@ import Boo.Lang.Compiler.Ast
 import Gdk from "gdk-sharp" as Gdk
 import Gtk from "gtk-sharp"
 import GtkSourceView from "gtksourceview-sharp"
+import BooExplorer.Common from BooExplorer.Common
 
 class BooEditor(ScrolledWindow):
 
@@ -105,12 +106,14 @@ class MainWindow(Window):
 		_notebookEditors.CurrentPage = _notebookEditors.NPages-1
 		
 	def NewDocument():
-		self.AppendEditor(BooEditor())
+		self.AppendEditor(editor=BooEditor())
+		return editor
 		
 	def OpenDocument(fname as string):
 		editor = BooEditor()
 		editor.Open(fname)
 		self.AppendEditor(editor)
+		return editor
 		
 	private def CreateMenuBar():
 		mb = MenuBar()
@@ -136,6 +139,8 @@ class MainWindow(Window):
 		tools = Menu()
 		tools.Append(mi=ImageMenuItem(Stock.Execute, _accelGroup, Activated: _menuItemExecute_Activated))
 		mi.AddAccelerator("activate", _accelGroup, AccelKey(Gdk.Key.F5, Enum.ToObject(Gdk.ModifierType, 0), AccelFlags.Visible))
+		tools.Append(miExpand=MenuItem("Expand", Activated: _menuItemExpand_Activated))
+		miExpand.AddAccelerator("activate", _accelGroup, AccelKey(Gdk.Key.E, Gdk.ModifierType.ControlMask, AccelFlags.Visible))
 		
 		documents = Menu()
 		documents.Append(ImageMenuItem(Stock.Close, _accelGroup))
@@ -156,18 +161,23 @@ class MainWindow(Window):
 	def AppendOutput(text as string):
 		_outputBuffer.Insert(_outputBuffer.EndIter, text)
 		
+	def DisplayErrors(errors as CompilerErrorCollection):
+		self.AppendOutput(errors.ToString(true)) if (len(errors))
+		
 	private def _menuItemExecute_Activated(sender, args as EventArgs):	
 		
 		_outputBuffer.Clear()
-		self.AppendOutput("${_outputBuffer.Text}****** Compiling ${CurrentEditor.FileName} *******\n")	
+		self.AppendOutput("${_outputBuffer.Text}****** Compiling ${CurrentEditor.Label} *******\n")	
 		compiler = Boo.Lang.Compiler.BooCompiler()
-		compiler.Parameters.Input.Add(
-						StringInput(CurrentEditor.Label, 								CurrentEditor.Buffer.Text))
+		compiler.Parameters.Input.Add(StringInput(CurrentEditor.Label, 								CurrentEditor.Buffer.Text))
 		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Run()
 		
 		start = date.Now
-		result = compiler.Run()		
-		self.AppendOutput(result.Errors.ToString(true)) if (len(result.Errors))
+		using console=ConsoleCapture():
+			result = compiler.Run()		
+			consoleOutput = console.ToString()
+		self.DisplayErrors(result.Errors)
+		self.AppendOutput(consoleOutput)
 		self.AppendOutput("Complete in ${date.Now-start}.")
 		
 	private def _menuItemNew_Activated(sender, args as EventArgs):
@@ -187,6 +197,18 @@ class MainWindow(Window):
 		
 	private def UpdateDocumentOutline():
 		DocumentOutlineProcessor(_documentOutline, CurrentEditor).Update()	
+		
+	private def _menuItemExpand_Activated(sender, args as EventArgs):
+		editor = CurrentEditor
+		
+		compiler = BooCompiler()
+		compiler.Parameters.OutputWriter = StringWriter()
+		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToBoo()
+		compiler.Parameters.Input.Add(StringInput(editor.Label, editor.Buffer.Text))		
+		result = compiler.Run()	
+		self.DisplayErrors(result.Errors)
+		unless len(result.Errors):		
+			NewDocument().Buffer.Text = compiler.Parameters.OutputWriter.ToString()
 	
 	private def _menuItemSave_Activated(sender, args as EventArgs):
 		editor = CurrentEditor

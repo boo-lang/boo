@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <project name="boox" default="run">
 
-	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
+	<property name="boo.dir" value="${path::get-full-path('../../../bin')}" />
+	<property name="build.dir" value="${path::get-full-path('../build')}" />
 	
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
 	<target name="run" depends="compile">
-		<exec program="build/boox.exe" useruntimeengine="true">
+		<exec program="${build.dir}/boox.exe" useruntimeengine="true">
 		</exec>
 	</target>
 	
@@ -16,30 +17,31 @@
 				<include name="boox.build" />
 				<include name="src/*.boo" />
 				<include name="resources/**/*.png" />
-				<include name="build/*.dll" />
-				<include name="build/boox.exe" />
+				<include name="${build.dir}/*.dll" />
+				<include name="${build.dir}/boox.exe" />
 			</fileset>
 		</zip>
 	</target>
 	
 	<target name="compile" depends="init, create-resources">
 		<booc
-			output="build/boox.exe"
+			output="${build.dir}/boox.exe"
 			target="winexe"
 			tracelevel="Info">
 			<sources basedir="src">
 				<include name="*.boo" />
 			</sources> 
 			
-			<resources basedir="build">
+			<resources basedir="${build.dir}">
 				<include name="*.resources" />
 			</resources>
 			
-			<references basedir="build">
+			<references basedir="${build.dir}">
 				<include name="ICSharpCode.TextEditor.dll" />
 				<include name="WeifenLuo.WinFormsUI.dll" />
 				<include name="System.Windows.Forms.dll" />
 				<include name="System.Drawing.dll" />
+				<include name="BooExplorer.Common.dll" />
 			</references>
 		</booc>
 	</target>
@@ -89,7 +91,7 @@
 			return imageList
 		
 		using imageList=CreateImageList():
-			using writer=ResourceWriter(MapPath("build/BooExplorer.DocumentOutline.resources")):
+			using writer=ResourceWriter(MapPath("../build/BooExplorer.DocumentOutline.resources")):
 				writer.AddResource("_imageList", imageList.ImageStream)
 		</boo>
 	</target>
@@ -104,7 +106,7 @@
 	
 	<target name="init" depends="check-sharp-dir">
 		
-		<mkdir dir="build" />
+		<mkdir dir="${build.dir}" />
 		
 		<call target="update-boo-libs" if="${directory::exists(boo.dir)}" />
 		
@@ -114,7 +116,7 @@
 	</target>
 	
 	<target name="update-boo-libs">
-		<copy todir="build">
+		<copy todir="${build.dir}">
 			<fileset basedir="${boo.dir}">
 				<include name="*.dll" />
 				<include name="*.pdb" />
@@ -123,12 +125,12 @@
 				<exclude name="nunit.framework.dll" />
 			</fileset>
 		</copy>		
-		<copy todir="build" file="../SharpDevelop/boo.xshd">
+		<copy todir="${build.dir}" file="../../SharpDevelop/boo.xshd">
 		</copy>
 	</target>
 	
 	<target name="update-sharpd-libs">
-		<copy todir="build">
+		<copy todir="${build.dir}">
 			<fileset basedir="${sharpd.dir}">
 				<include name="ICSharpCode.TextEditor.dll" />				
 				<include name="WeifenLuo.WinFormsUI.dll" />
