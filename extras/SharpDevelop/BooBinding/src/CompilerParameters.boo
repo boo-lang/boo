@@ -61,19 +61,6 @@ class BooCompilerParameters(AbstractProjectConfiguration):
 		set:
 			OutputAssembly = value
 	
-	[LocalizedProperty("Boo path", Description : "The path where the boo compiler and Boo.dll is.")]
-	BooPath as string:
-		get:
-			return _compilerOptions.BooPath
-		set:
-			_compilerOptions.BooPath = value
-			return if value == ""
-			propertyService as PropertyService = ServiceManager.Services.GetService(typeof(PropertyService))
-			fileUtilityService as FileUtilityService = ServiceManager.Services.GetService(typeof(FileUtilityService))
-			booDir = fileUtilityService.GetDirectoryNameWithSeparator(value)
-			if File.Exists(booDir + "booc.exe"):
-				propertyService.SetProperty("BooBinding.LastBooPath", value)
-	
 	[LocalizedProperty("Parameters", Description : "Command line parameters passed to the executed application.")]
 	CommandLineParameters as string:
 		get:
@@ -105,21 +92,13 @@ class BooCompilerParameters(AbstractProjectConfiguration):
 		set:
 			_compilerOptions.PauseConsoleOutput = value
 	
-	[DefaultValue(false)]
-	[LocalizedProperty("Verbose", Description : "Specifies if a detailed message should be returned in case of internal compiler errors.")]
-	Verbose as bool:
-		get:
-			return _compilerOptions.Verbose
-		set:
-			_compilerOptions.Verbose = value
-	
-	[DefaultValue(BooBinding.NetRuntime.MsNet)]
+	[DefaultValue(NetRuntime.MsNet)]
 	[LocalizedProperty("Runtime", Description : "Specifies the runtime for executing the program.")]
-	NetRuntime as BooBinding.NetRuntime:
+	Runtime as NetRuntime:
 		get:
-			return _compilerOptions.NetRuntime
+			return _compilerOptions.Runtime
 		set:
-			_compilerOptions.NetRuntime = value
+			_compilerOptions.Runtime = value
 	
 	def constructor(name as string):
 		self.name = name
@@ -131,7 +110,7 @@ class BooCompilerParameters(AbstractProjectConfiguration):
 [XmlNodeName("CompilerOptions")]
 class CompilerOptions:
 	[XmlAttribute("runtime")]
-	public NetRuntime = BooBinding.NetRuntime.MsNet
+	public Runtime = NetRuntime.MsNet
 	
 	[XmlAttribute("compileTarget")]
 	public CompileTarget = BooBinding.CompileTarget.Exe
@@ -139,18 +118,9 @@ class CompilerOptions:
 	[XmlAttribute("includeDebugInformation")]
 	public IncludeDebugInformation = false
 	
-	[XmlAttribute("booPath")]
-	public BooPath = ""
-	
 	[XmlAttribute("commandLineParameters")]
 	public CommandLineParameters = ""
 	
 	[XmlAttribute("pauseConsoleOutput")]
 	public PauseConsoleOutput = true
 	
-	[XmlAttribute("verbose")]
-	public Verbose = false
-	
-	def constructor():
-		propertyService as PropertyService = ServiceManager.Services.GetService(typeof(PropertyService))
-		self.BooPath = propertyService.GetProperty("BooBinding.LastBooPath", "")

@@ -68,9 +68,9 @@ class BooBindingExecutionManager:
 			return
 		
 		runtimeStarter = String.Empty;
-		if parameters.NetRuntime == NetRuntime.Mono:
+		if parameters.Runtime == NetRuntime.Mono:
 			runtimeStarter = "mono "
-		if parameters.NetRuntime == NetRuntime.MonoInterpreter:
+		if parameters.Runtime == NetRuntime.MonoInterpreter:
 			runtimeStarter = "mint "
 		
 		psi as ProcessStartInfo = null;

@@ -24,8 +24,11 @@ import System.Collections
 import System.IO
 import System.Diagnostics
 import System.Text
-import System.Text.RegularExpressions
+import System.Reflection
 import System.CodeDom.Compiler
+
+import Boo.Lang.Compiler.CompilerWarning as BooWarning
+import Boo.Lang.Compiler.CompilerError as BooError
 
 import ICSharpCode.Core.Services
 
@@ -34,14 +37,12 @@ import ICSharpCode.SharpDevelop.Gui
 import ICSharpCode.SharpDevelop.Services
 
 class BooBindingCompilerManager:
-	static _normalError  = /(?<file>.*)\((?<line>\d+),(?<column>\d+)\):\s+(?<number>[\d\w]+):\s+(?<message>.*)/
-	static _generalError = /(?<error>.+)\s+(?<number>[\d\w]+):\s+(?<message>.*)/
+	_booLibNotFound = "Boo.Dll was not found in the boo addin directory"
 	
 	def GetCompiledOutputName(fileName as string) as string:
 		return Path.ChangeExtension(fileName, ".exe")
 	
-	def GetCompiledOutputName(project as IProject) as string:
-		p as BooProject = project;
+	def GetCompiledOutputName(p as BooProject) as string:
 		compilerparameters as BooCompilerParameters = p.ActiveConfiguration
 		
 		fileUtilityService as FileUtilityService = ServiceManager.Services.GetService(typeof(FileUtilityService))
@@ -52,9 +53,7 @@ class BooBindingCompilerManager:
 			return exe + ".exe"
 	
 	def CanCompile(fileName as string) as bool:
-		return Path.GetExtension(fileName).ToLower() == ".boo";
-	
-	static _compilerNotFound = "Boo compiler not found.\nYou have to specify the path where booc.exe is in the project options!\n"
+		return Path.GetExtension(fileName).ToLower() == ".boo"
 	
 	private def MakeError(text as string):
 		cr = CompilerResults(TempFileCollection())
@@ -62,76 +61,94 @@ class BooBindingCompilerManager:
 		return DefaultCompilerResult(cr, text)
 	
 	private def Compile(compilerparameters as BooCompilerParameters, fileNames as (string), outputFile as string, p as IProject) as ICompilerResult:
-		fileUtilityService as FileUtilityService = ServiceManager.Services.GetService(typeof(FileUtilityService))
 		messageService as IMessageService = ServiceManager.Services.GetService(typeof(IMessageService))
+		cr as CompilerResults = null
 		
-		if compilerparameters.BooPath == "":
-			messageService.ShowError(_compilerNotFound)
-			return MakeError(_compilerNotFound)
-		booDir = fileUtilityService.GetDirectoryNameWithSeparator(compilerparameters.BooPath)
-		compilerName = booDir + "booc.exe"
-		
-		if not File.Exists(compilerName):
-			messageService.ShowError(_compilerNotFound)
-			return MakeError(_compilerNotFound)
-		
-		cmd = StringBuilder()
-		cmd.Append("\"${compilerName}\"")
-		
-		cmd.Append(" -o:\"${outputFile}\"")
-		
-		cmd.Append(" -vv") if compilerparameters.Verbose
-		
-		cmd.Append(" -t:")
-		if (compilerparameters.CompileTarget == CompileTarget.WinExe):
-			cmd.Append("winexe")
-		else:
-			if (compilerparameters.CompileTarget == CompileTarget.Library):
-				cmd.Append("library");
-			else:
-				cmd.Append("exe");
-		
-		// Default references are already added by booc.rsp
-		
-		if p != null:
-			// write references
-			for lib as ProjectReference in p.ProjectReferences:
-				cmd.Append(" \"-r:${lib.GetReferencedFileName(p)}\"");
-			// write embedded resources
-			for finfo as ProjectFile in p.ProjectFiles:
-				if finfo.Subtype != Subtype.Directory and finfo.BuildAction == BuildAction.EmbedAsResource:
-					cmd.Append(" \"-resource:${finfo.Name}\"")
-		
-		for fileName as string in fileNames:
-			cmd.Append(" \"${Path.GetFullPath(fileName)}\"")
-		
-		outstr = cmd.ToString()
-		tf = TempFileCollection()
-		output = ""
-		error = ""
-		Executor.ExecWaitWithCapture(outstr, Path.GetFullPath(compilerparameters.OutputDirectory), tf, output, error)
-		
-		result = ParseOutput(tf, output)		
-		
+		booDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+		booLib = Path.Combine(booDir, "Boo.dll")
+		if not File.Exists(booLib):
+			messageService.ShowError(_booLibNotFound)
+			return MakeError(_booLibNotFound)
 		outputDirectory = Path.GetDirectoryName(outputFile)
-		
-		CopyToDirIgnoringErrors(Path.Combine(booDir, "Boo.dll"), outputDirectory)
-		for lib as ProjectReference in p.ProjectReferences:
-			if lib.LocalCopy:
-				CopyToDirIgnoringErrors(
-					lib.GetReferencedFileName(p),
-					outputDirectory)
-		
-		File.Delete(output)
-		File.Delete(error)
-		return result
-		
-	def CopyToDirIgnoringErrors(fname as string, outputDirectory as string):
 		try:
-			File.Copy(fname, Path.Combine(outputDirectory, Path.GetFileName(fname)))
+			File.Copy(booLib, Path.Combine(outputDirectory, Path.GetFileName(booLib)))
 		except:
 			pass
 		
+		if compilerparameters.CompileTarget == CompileTarget.WinExe:
+			WriteManifestFile(outputFile)
+		
+		compilerOutput = StringBuilder()
+		setup = AppDomainSetup()
+		setup.ApplicationBase = booDir
+		setup.ApplicationName = "BooCompiler"
+		appDomain as AppDomain = null
+		try:
+			/*
+			// TODO: Use app domain for invoking compiler
+			Console.WriteLine("Create AppDomain")
+			appDomain = AppDomain.CreateDomain("BooCompiler", null, setup)
+			
+			appDomain.AssemblyResolve += MyResolveEventHandler
+			Console.WriteLine("Create Instance")
+			compilero = appDomain.CreateInstanceAndUnwrap("BooBinding", "BooBinding.BooCompilerWrapper")
+			Console.WriteLine(compilero) // prints BooBinding.BooCompilerWrapper
+			Console.WriteLine(compilero.GetType().FullName) // prints MarshalByRefObject
+			// -> casting to BooCompilerWrapper is not possible
+			// the same code works in a console application.
+			*/
+			compiler as BooCompilerWrapper = BooCompilerWrapper()
+			compiler.SetOptions(compilerparameters.CurrentCompilerOptions)
+			compiler.OutputFile = outputFile
+			
+			for fileName as string in fileNames:
+				compiler.AddInputFile(Path.GetFullPath(fileName))
+			
+			if p != null:
+				// write references
+				for lib as ProjectReference in p.ProjectReferences:
+					compiler.AddReference(lib.GetReferencedFileName(p))
+				// write embedded resources
+				for finfo as ProjectFile in p.ProjectFiles:
+					if finfo.Subtype != Subtype.Directory and finfo.BuildAction == BuildAction.EmbedAsResource:
+						compiler.AddResource(finfo.Name)
+				p.CopyReferencesToOutputPath(false)
+			
+			result = compiler.Run()
+			cr = CompilerResults(TempFileCollection())
+			info as Boo.Lang.Compiler.Ast.LexicalInfo = null
+			for o in result:
+				Console.WriteLine(o.ToString())
+				compilerOutput.Append(o.ToString())
+				compilerOutput.Append(Environment.NewLine)
+				error = CompilerError()
+				if o isa BooError:
+					booError as BooError = o
+					info = booError.LexicalInfo
+					error.IsWarning   = false
+					error.ErrorNumber = booError.Code
+					error.ErrorText   = booError.Message
+				else:
+					warning as BooWarning = o
+					error.IsWarning   = true
+					error.ErrorNumber = warning.Code
+					error.ErrorText   = warning.Message
+				error.Column   = info.StartColumn
+				error.Line     = info.Line
+				error.FileName = Path.GetFullPath(info.FileName)
+				cr.Errors.Add(error)
+			
+			compiler = null
+		ensure:
+			//AppDomain.Unload(appDomain)
+			//Console.WriteLine("AppDomain unloaded")
+			pass
+		
+		return DefaultCompilerResult(cr, compilerOutput.ToString())
+	
+	static def MyResolveEventHandler(sender, e as ResolveEventArgs) as Assembly:
+		Console.WriteLine("Resolving ${e.Name}")
+		return null
 	
 	def CompileFile(fileName as string, compilerparameters as BooCompilerParameters) as ICompilerResult:
 		compilerparameters.OutputDirectory = Path.GetDirectoryName(fileName)
@@ -175,45 +192,3 @@ class BooBindingCompilerManager:
 			sw.WriteLine("		</dependentAssembly>")
 			sw.WriteLine("	</dependency>")
 			sw.WriteLine("</assembly>")
-	
-	def ParseOutput(tf as TempFileCollection, file as string) as ICompilerResult:
-		compilerOutput = StringBuilder();
-		
-		using sr = File.OpenText(file):
-			cr = CompilerResults(tf)
-			
-			curLine = sr.ReadLine()
-			while curLine != null:
-				compilerOutput.Append(curLine)
-				compilerOutput.Append("\n")
-				curLine = curLine.Trim();
-				if curLine.Length == 0:
-					curLine = sr.ReadLine()
-					continue
-				
-				error = CompilerError()
-				
-				// try to match standard errors
-				match = _normalError.Match(curLine)
-				if match.Success:
-					error.Column      = Int32.Parse(match.Result('${column}'));
-					error.Line        = Int32.Parse(match.Result('${line}'));
-					error.FileName    = Path.GetFullPath(match.Result('${file}'));					
-					error.ErrorNumber = match.Result('${number}');
-					error.IsWarning   = error.ErrorNumber.StartsWith("BCW")
-					error.ErrorText   = match.Result('${message}');
-				else:
-					match = _generalError.Match(curLine); // try to match general csc errors
-					if match.Success:
-						error.IsWarning   = match.Result('${error}') == "warning";
-						error.ErrorNumber = match.Result('${number}');
-						error.ErrorText   = match.Result('${message}');
-					else:
-						// give up and skip the line
-						curLine = sr.ReadLine()
-						continue
-				
-				cr.Errors.Add(error);
-				
-				curLine = sr.ReadLine()
-		return DefaultCompilerResult(cr, compilerOutput.ToString())

@@ -409,6 +409,7 @@ class BooVisitor(AbstractASTVisitor):
 			return "op_Division"           if token == Tokens.Div
 			return "op_Modulus"            if token == Tokens.Mod
 			return "op_Equality"           if token == Tokens.Equal
+			return "op_Inequality"           if token == Tokens.NotEqual
 			return "op_LessThan"           if token == Tokens.LessThan
 			return "op_LessThanOrEqual"    if token == Tokens.LessEqual
 			return "op_GreaterThan"        if token == Tokens.GreaterThan
@@ -780,7 +781,6 @@ class BooVisitor(AbstractASTVisitor):
 	
 	override def Visit(usingStatement as UsingStatement, data):
 		DebugOutput(usingStatement);
-		AppendIndentation();
 		AppendIndentation();
 		_sourceText.Append("using ");
 		_sourceText.Append(usingStatement.UsingStmnt.AcceptVisitor(self, data));

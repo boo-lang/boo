@@ -3,7 +3,7 @@
 	<!-- run this using NAnt nightly, but you have to force NAnt to run under .NET 1.1 (otherwise you get a BadImageFormatException) -->
 	
 	<property name="sharpdevelop.dir" value = "D:\Fidalgo\SharpDevelop" />
-	<property name="boo.dir" value="../../../bin" />
+	<property name="boo.dir" value="../../../build" />
 	
 	<!-- Adjust these properties to point to your sharpdevelop directory / boo binary directory -->
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />	
@@ -41,6 +41,15 @@
 				<include name="booish.gui.exe" />
 			</fileset>
 		</copy>
+		<copy todir="${addin.dir}">
+			<fileset basedir="${boo.dir}">
+				<include name="Boo.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.AntlrParser.dll" />
+				<include name="antlr.runtime.dll" />
+				<include name="booish.exe" />
+			</fileset>
+		</copy>
 		
 		<booc target="library" output="${addin.dir}/BooBinding.dll">
 			<references>
@@ -52,6 +61,7 @@
 				<include name="System.Drawing.dll" />
 				<include name="System.Xml.dll" />
 				<include name="${addin.dir}/booish.gui.exe" />
+				<include name="${addin.dir}/Boo.Lang.Compiler.dll" />
 			</references>
 			<sources basedir=".">
 				<include name = "src/**/*.boo" />
@@ -70,15 +80,6 @@
 		<copy todir="${sharpdevelop.dir}/data/templates/file/Boo">
 			<fileset basedir=".">
 				<include name="*.xft"/>
-			</fileset>
-		</copy>
-		<copy todir="${addin.dir}">
-			<fileset basedir="${boo.dir}">
-				<include name="Boo.dll" />
-				<include name="Boo.Lang.Compiler.dll" />
-				<include name="Boo.AntlrParser.dll" />
-				<include name="antlr.runtime.dll" />
-				<include name="booish.exe" />
 			</fileset>
 		</copy>
 		<copy file="Boo.xshd" todir="${sharpdevelop.dir}/data/modes" />
