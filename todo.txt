@@ -1,5 +1,4 @@
 ﻿* anonymous callable types:
-	* callable3.boo
 	* callable1.boo
 	* callable2.boo
 	* callable4.boo
