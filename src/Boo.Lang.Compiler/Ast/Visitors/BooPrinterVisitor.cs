@@ -409,7 +409,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write("]");
 		}
 		
-		override public void OnIteratorExpression(IteratorExpression node)
+		override public void OnGeneratorExpression(GeneratorExpression node)
 		{			
 			Write("(");
 			Switch(node.Expression);

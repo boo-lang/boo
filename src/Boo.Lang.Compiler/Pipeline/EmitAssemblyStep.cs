@@ -1503,10 +1503,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		bool IsListGenerator(ListLiteralExpression node)
 		{
 			return 1 == node.Items.Count &&
-				NodeType.IteratorExpression == node.Items[0].NodeType;
+				NodeType.GeneratorExpression == node.Items[0].NodeType;
 		}
 		
-		override public void OnIteratorExpression(IteratorExpression node)
+		override public void OnGeneratorExpression(GeneratorExpression node)
 		{
 			NotImplemented(node, node.ToString());
 		}
@@ -2032,7 +2032,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		void EmitListDisplay(ListLiteralExpression node)
 		{
-			IteratorExpression display = (IteratorExpression)node.Items[0]; 
+			GeneratorExpression display = (GeneratorExpression)node.Items[0]; 
 			
 			// list = List()
 			LocalBuilder list = _il.DeclareLocal(Types.List);			

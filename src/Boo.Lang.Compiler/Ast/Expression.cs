@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(ReferenceExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(LiteralExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(ExpressionInterpolationExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(IteratorExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(GeneratorExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(SlicingExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(AsExpression))]
 	[Serializable]

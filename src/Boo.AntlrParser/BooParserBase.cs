@@ -2866,7 +2866,7 @@ _loop111_breakloop:					;
 				e = null;
 				TypeReference tr = null;
 				
-				IteratorExpression lde = null;
+				GeneratorExpression lde = null;
 				StatementModifier filter = null;
 				Expression iterator = null;
 				DeclarationCollection declarations = null;
@@ -2906,7 +2906,7 @@ _loop111_breakloop:					;
 					if (0==inputState.guessing)
 					{
 						
-									lde = new IteratorExpression(ToLexicalInfo(f));
+									lde = new GeneratorExpression(ToLexicalInfo(f));
 									lde.Expression = e;
 									
 									declarations = lde.Declarations;

@@ -1190,7 +1190,7 @@ expression returns [Expression e]
 		e = null;
 		TypeReference tr = null;
 		
-		IteratorExpression lde = null;
+		GeneratorExpression lde = null;
 		StatementModifier filter = null;
 		Expression iterator = null;
 		DeclarationCollection declarations = null;
@@ -1210,7 +1210,7 @@ expression returns [Expression e]
 	( options { greedy = true; } :
 		f:FOR!
 		{
-			lde = new IteratorExpression(ToLexicalInfo(f));
+			lde = new GeneratorExpression(ToLexicalInfo(f));
 			lde.Expression = e;
 			
 			declarations = lde.Declarations;

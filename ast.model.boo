@@ -383,7 +383,7 @@ class ListLiteralExpression(LiteralExpression):
 class ArrayLiteralExpression(ListLiteralExpression):
 	pass
 
-class IteratorExpression(Expression):
+class GeneratorExpression(Expression):
 	Expression as Expression
 	Declarations as DeclarationCollection
 	Iterator as Expression

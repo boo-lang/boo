@@ -1409,7 +1409,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			Bind(node, BindingManager.ListTypeBinding);
 		}
 		
-		override public void OnIteratorExpression(IteratorExpression node)
+		override public void OnGeneratorExpression(GeneratorExpression node)
 		{
 			Switch(node.Iterator);
 			

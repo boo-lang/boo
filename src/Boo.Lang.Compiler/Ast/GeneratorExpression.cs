@@ -32,23 +32,23 @@ using Boo.Lang.Compiler.Ast.Impl;
 namespace Boo.Lang.Compiler.Ast
 {
 	[Serializable]
-	public class IteratorExpression : IteratorExpressionImpl
+	public class GeneratorExpression : GeneratorExpressionImpl
 	{		
-		public IteratorExpression()
+		public GeneratorExpression()
 		{			
  		}
 		
-		public IteratorExpression(Expression expression, Expression iterator, StatementModifier filter) : base(expression, iterator, filter)
+		public GeneratorExpression(Expression expression, Expression iterator, StatementModifier filter) : base(expression, iterator, filter)
 		{
 		}
 		
-		public IteratorExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public GeneratorExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		
 		override public void Switch(IAstSwitcher switcher)
 		{
-			switcher.OnIteratorExpression(this);
+			switcher.OnGeneratorExpression(this);
 		}
 	}
 }
