@@ -10,7 +10,7 @@ public final transient class Callable0Module(System.Object):
 	private def constructor():
 		super()
 
-	internal class __Callable1__(System.Object, Boo.Lang.ICallable):
+	private class __Callable1__(System.Object, Boo.Lang.ICallable):
 
 		def Call(args as (object)):
 			raise Boo.Lang.ArgumentCountException('Callable0Module.ToUpper', 1, args.Length) unless 1 == args.Length

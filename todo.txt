@@ -257,6 +257,18 @@ done * procurar uma versão dos operadores em RuntimeServices para unificar a in
 	done * RuntimeServices.op_Member(string, string)
 	done * RuntimeServices.op_NotMember(string, string)
 	
+* comportamento de 'as' com value types:
+
+	(3.0 as object)
+	(true as object)
+	
+* criar primitivas box, unbox e __reference__ para o semantic step e outros passos
+que precisarem? Isso iria permitir remover os casts 
+
+	__box__(3.0)
+	__unbox__(reference, int)
+	__assertIsReference__(expression) # para uso por macros como lock por exemplo 
+	
 * map(fn, enumerable)
 
 * assembly attributes: [assembly: AssemblyVersion("foo")]
@@ -282,11 +294,13 @@ derivada de Control (que tem uma propriedade chamada Size):
 		que pode ser resolvido (levando em conta primariamente a capacidade
 		de ser chamado ou não);
 		
-* Statement and Block should be polymorphic?
+done * Statement and Block should be polymorphic?
 
 * StatementGroup para permitir o agrupamento de statements com mesmo propósito
 	
 done * override keyword to allow the developer to make sure a method is a override
+
+* recriar o gerador de AST em boo
 
 Milestone 3.7 (macro infraestructure)
 -------------------------------------

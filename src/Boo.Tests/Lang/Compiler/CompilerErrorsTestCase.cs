@@ -102,6 +102,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("primitives0.boo");
 		}
 		
+		[Test]
+		public void BreakWithoutLoop()
+		{
+			RunCompilerTestCase("break0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.

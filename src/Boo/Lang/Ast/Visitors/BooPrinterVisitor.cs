@@ -965,6 +965,14 @@ namespace Boo.Lang.Ast.Visitors
 			{
 				WriteKeyword("override ");
 			}
+			else if (member.IsModifierSet(TypeMemberModifiers.Virtual))
+			{
+				WriteKeyword("virtual ");
+			}
+			else if (member.IsModifierSet(TypeMemberModifiers.Abstract))
+			{
+				WriteKeyword("abstract ");
+			}
 			if (member.IsFinal)
 			{
 				WriteKeyword("final ");

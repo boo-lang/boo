@@ -342,6 +342,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0062", node.LexicalInfo, signature);
 		}
 		
+		public static CompilerError NoEnclosingLoop(Node node)
+		{
+			return new CompilerError("BCE0063", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -20,9 +20,10 @@ public class Collection(System.Object):
 namespace TypeResolution
 
 class Item:
-	pass
+	def constructor():
+		pass
 	
-class Collection:
+class Collection:	
 	Item(index as int) as Item:
 		get:
 			pass

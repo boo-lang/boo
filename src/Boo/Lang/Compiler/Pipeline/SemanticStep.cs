@@ -52,6 +52,10 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		InternalMethodBinding _currentMethodBinding;
 		
+		ArrayList _classes;
+		
+		int _loopDepth;
+		
 		/*
 		 * Useful method bindings.
 		 */		
@@ -70,6 +74,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		IMethodBinding IDictionary_Contains;
 		
 		IMethodBinding Tuple_TypedConstructor1;
+		
 		IMethodBinding Tuple_TypedConstructor2;
 		
 		IConstructorBinding ApplicationException_StringConstructor;
@@ -92,7 +97,9 @@ namespace Boo.Lang.Compiler.Pipeline
 			_currentMethodBinding = null;
 			_methodBindingStack = new Stack();
 			_pending = new DependencyGraph(_context);
+			_classes = new ArrayList();
 			_nameResolution.Initialize(_context);
+			_loopDepth = 0;
 						
 			RuntimeServices_Len = (IMethodBinding)BindingManager.RuntimeServicesBinding.Resolve("Len");
 			Object_StaticEquals = (IMethodBinding)BindingManager.AsBinding(Types.Object.GetMethod("Equals", new Type[] { Types.Object, Types.Object }));
@@ -111,7 +118,24 @@ namespace Boo.Lang.Compiler.Pipeline
 			Switch(CompileUnit);
 			
 			ResolveDependencyGraph();
+			
+			if (0 == Errors.Count)
+			{
+				ResolveClassInterfaceMethods();
+			}
 		}		
+		
+		void ResolveClassInterfaceMethods()
+		{
+			foreach (ClassDefinition node in _classes)
+			{
+				ResolveClassInterfaceMethods(node);
+			}
+		}
+		
+		void ResolveClassInterfaceMethods(ClassDefinition node)
+		{
+		}
 		
 		void ResolveDependencyGraph()
 		{
@@ -137,6 +161,22 @@ namespace Boo.Lang.Compiler.Pipeline
 			_methodBindingStack = null;
 			_pending = null;
 			_nameResolution.Dispose();
+			_classes = null;
+		}
+		
+		void EnterLoop()
+		{
+			++_loopDepth;
+		}
+		
+		bool InLoop()
+		{
+			return _loopDepth > 0;
+		}
+		
+		void LeaveLoop()
+		{
+			--_loopDepth;
 		}
 		
 		void PushNamespace(INamespace ns)
@@ -261,6 +301,8 @@ namespace Boo.Lang.Compiler.Pipeline
 					return;
 				}
 			}
+			
+			_classes.Add(node);
 			
 			binding.Visited = true;
 			BindBaseTypes(node);
@@ -1052,7 +1094,7 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node)
 		{
-			if (!HasSideEffect(node.Expression))
+			if (!HasSideEffect(node.Expression) && !BindingManager.IsError(node.Expression))
 			{
 				Error(CompilerErrorFactory.ExpressionStatementMustHaveSideEffect(node));
 			}
@@ -1077,10 +1119,12 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		public override void LeaveAsExpression(AsExpression node)
 		{
+			ITypeBinding target = GetExpressionType(node.Target);
 			ITypeBinding toType = GetBoundType(node.Type);
+			
 			if (toType.IsValueType)
 			{
-				Error(node, CompilerErrorFactory.CantCastToValueType(node, toType.FullName));
+				Error(node, CompilerErrorFactory.CantCastToValueType(node.Type, toType.FullName));
 			}
 			else
 			{
@@ -1193,10 +1237,25 @@ namespace Boo.Lang.Compiler.Pipeline
 		{
 			CheckBoolContext(node.Condition);			
 		}
+		
+		public override void OnBreakStatement(BreakStatement node)
+		{
+			if (!InLoop())
+			{
+				Error(CompilerErrorFactory.NoEnclosingLoop(node));		
+			}
+		}
+		
+		public override bool EnterWhileStatement(WhileStatement node)
+		{
+			EnterLoop();
+			return true;
+		}
 
 		public override void LeaveWhileStatement(WhileStatement node)
-		{
+		{			
 			CheckBoolContext(node.Condition);
+			LeaveLoop();
 		}
 		
 		public override void LeaveReturnStatement(ReturnStatement node)
@@ -1825,6 +1884,10 @@ namespace Boo.Lang.Compiler.Pipeline
 						// expression result type is a new object
 						// of type
 						Bind(node, typeBinding);
+					}
+					else
+					{
+						Error(node);
 					}
 					break;
 				}

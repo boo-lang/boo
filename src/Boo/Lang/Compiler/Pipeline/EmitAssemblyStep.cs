@@ -39,6 +39,22 @@ using Boo.Lang.Compiler.Bindings;
 
 namespace Boo.Lang.Compiler.Pipeline
 {
+	class LoopInfo
+	{
+		public Label BreakLabel;
+		
+		public Label ContinueLabel;
+		
+		public int TryBlockDepth;
+		
+		public LoopInfo(Label breakLabel, Label continueLabel, int tryBlockDepth)
+		{
+			BreakLabel = breakLabel;
+			ContinueLabel = continueLabel;
+			TryBlockDepth = tryBlockDepth;
+		}
+	}
+	
 	public class EmitAssemblyStep : AbstractSwitcherCompilerStep
 	{	
 		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Types.String, Types.ObjectArray });
@@ -103,6 +119,25 @@ namespace Boo.Lang.Compiler.Pipeline
 		
 		// keeps track of types on the IL stack
 		System.Collections.Stack _types = new System.Collections.Stack();
+		
+		System.Collections.Stack _loopInfoStack = new System.Collections.Stack();
+		
+		LoopInfo _currentLoopInfo;
+		
+		void EnterLoop(Label breakLabel, Label continueLabel)
+		{
+			_loopInfoStack.Push(_currentLoopInfo = new LoopInfo(breakLabel, continueLabel, _tryBlock));
+		}
+		
+		bool InTryInLoop()
+		{
+			return _tryBlock > _currentLoopInfo.TryBlockDepth;
+		}
+		
+		void LeaveLoop()
+		{
+			_currentLoopInfo = (LoopInfo)_loopInfoStack.Pop();
+		}
 		
 		void PushType(ITypeBinding type)
 		{
@@ -645,19 +680,37 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Brfalse, label);
 		}
 		
+		public override void OnBreakStatement(BreakStatement node)
+		{
+			if (InTryInLoop())
+			{
+				_il.Emit(OpCodes.Leave, _currentLoopInfo.BreakLabel);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Br, _currentLoopInfo.BreakLabel);
+			}
+		}
+		
 		public override void OnWhileStatement(WhileStatement node)
 		{
 			EmitDebugInfo(node);
 			
+			Label endLabel = _il.DefineLabel();			
 			Label bodyLabel = _il.DefineLabel();
 			Label conditionLabel = _il.DefineLabel();
+			
 			_il.Emit(OpCodes.Br, conditionLabel);
 			
 			_il.MarkLabel(bodyLabel);
+			
+			EnterLoop(endLabel, conditionLabel);
 			node.Block.Switch(this);
+			LeaveLoop();
 			
 			_il.MarkLabel(conditionLabel);
-			EmitBranchTrue(node.Condition, bodyLabel);
+			EmitBranchTrue(node.Condition, bodyLabel);			
+			_il.MarkLabel(endLabel);
 		}
 
 		void EmitIncrementDecrement(UnaryExpression node)

@@ -56,6 +56,22 @@ namespace Boo.Lang.Ast
 			}
 		}
 		
+		public bool IsVirtual
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Virtual);
+			}
+		}
+		
+		public bool IsAbstract
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Abstract);
+			}
+		}
+		
 		public override TypeDefinition DeclaringType
 		{
 			get

@@ -1,5 +1,5 @@
 """
-public abstract class Disposable(System.IDisposable):
+public abstract class Disposable(System.Object, System.IDisposable):
 
 	public def constructor():
 		super()

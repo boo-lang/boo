@@ -1009,5 +1009,17 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("unless.boo");
 		}
+		
+		[Test]
+		public void BreakForWhile()
+		{
+			RunCompilerTestCase("break0.boo");
+		}
+		
+		[Test]
+		public void BreakOutOfTry()
+		{
+			RunCompilerTestCase("break1.boo");
+		}
 	}
 }

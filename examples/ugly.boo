@@ -1,4 +1,4 @@
-def value(x as long, y as long, z as long) as long:
+def value(x as long, y as long, z as long):
 	return 2**x * 3**y * 5**z
 
 def ugly(max as int):
