@@ -209,7 +209,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 	</RULES>
 	
 	<RULES SET="string" DEFAULT="LITERAL1">
-		<SPAN TYPE="LITERAL3">
+		<SPAN TYPE="LITERAL2">
 			<BEGIN>${</BEGIN>
 			<END>}</END>
 		</SPAN>
