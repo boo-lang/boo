@@ -4,7 +4,7 @@
 <SyntaxDefinition name="boo" extensions=".boo">
 
 	<Environment>
-		<Default color = "SystemColors.WindowText" bgcolor="SystemColors.Window"/>
+		<Default bold="false" italic="false" color="SystemColors.WindowText" bgcolor="SystemColors.Window" />
 		<Selection bold="false" italic="false" color="SystemColors.HighlightText" bgcolor="SystemColors.Highlight" />
 		<VRuler bold="false" italic="false" color="SystemColors.ControlLight" />
 		<InvalidLines bold="false" italic="false" color="Red" />
@@ -60,7 +60,7 @@
 				<End >'</End>
 			</Span>
 
-			<Span name="RegEx" stopateol="false" bold="true" italic="false" color="#FF6600" >
+			<Span name="RegEx" stopateol="true" bold="false" italic="false" color="#FF6600" >
 				<Begin >/@!/@</Begin>
 				<End >/</End>
 			</Span>
@@ -253,7 +253,7 @@
 				<Key word="class"/>
 				<Key word="interface"/>
 				<Key word="mixin"/>
-				<Key word="callable" />
+				<Key word="callable"/>
 			</KeyWords>
 
 		</RuleSet>
@@ -281,7 +281,7 @@
 		<RuleSet ignorecase="false" name="str formatting" >
 			<Delimiters>&amp;&lt;&gt;~!@%^*()-+=|\#/{}[]:;"' ,	.?</Delimiters>
 
-			<Span name="Formatting" stopateol="false" bold="true" italic="false" color="#993366" >
+			<Span name="Formatting" stopateol="false" bold="false" italic="false" color="#993366" >
 				<Begin >${</Begin>
 				<End >}</End>
 			</Span>
