@@ -473,7 +473,7 @@ namespace Boo.Lang.Compiler.Bindings
 			{				
 			}		
 			
-			public override IBinding Resolve(string name)
+			override public IBinding Resolve(string name)
 			{	
 				return null;
 			}	

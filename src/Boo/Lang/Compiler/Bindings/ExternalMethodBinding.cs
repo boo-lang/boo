@@ -142,7 +142,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return BindingManager.GetSignature(this);
 		}
@@ -154,7 +154,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{			
 		}
 		
-		public override BindingType BindingType
+		override public BindingType BindingType
 		{
 			get
 			{

@@ -51,6 +51,11 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		protected void InvalidNodeForAttribute(string expectedNodeTypes)
+		{
+			Errors.Add(CompilerErrorFactory.InvalidNodeForAttribute(LexicalInfo, GetType().FullName, expectedNodeTypes));
+		}
+		
 		public abstract void Apply(Boo.Lang.Ast.Node targetNode);
 	}
 }

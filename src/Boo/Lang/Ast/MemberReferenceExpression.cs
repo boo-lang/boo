@@ -53,7 +53,7 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
-		public override void Switch(IAstSwitcher switcher)
+		override public void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnMemberReferenceExpression(this);
 		}

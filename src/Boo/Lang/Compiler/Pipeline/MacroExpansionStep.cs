@@ -40,12 +40,12 @@ namespace Boo.Lang.Compiler.Pipeline
 	{
 		StringBuilder _buffer = new StringBuilder();
 		
-		public override void Run()
+		override public void Run()
 		{
 			Switch(CompileUnit);
 		}
 		
-		public override void OnModule(Module module, ref Module resultingModule)
+		override public void OnModule(Module module, ref Module resultingModule)
 		{			
 			PushNamespace(ImportResolutionStep.GetModuleNamespace(module));
 			Switch(module.Members);
@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopNamespace();
 		}
 		
-		public override void OnMacroStatement(MacroStatement node, ref Statement resultingNode)
+		override public void OnMacroStatement(MacroStatement node, ref Statement resultingNode)
 		{
 			Switch(node.Block);
 			Switch(node.Arguments);

@@ -98,7 +98,7 @@ namespace antlr
 			}
 		}
 		
-		public override bool Equals(Object obj) 
+		override public bool Equals(Object obj) 
 		{      
 			if (obj == null) 
 				return false;       			
@@ -588,7 +588,7 @@ namespace antlr
 		}
 		#endregion
 
-		public override Int32 GetHashCode() 
+		override public Int32 GetHashCode() 
 		{      
 			return down.GetHashCode() ^ right.GetHashCode();
 		}	

@@ -20,7 +20,7 @@ namespace antlr
 
 	public class DefaultFileLineFormatter : FileLineFormatter
 	{
-		public override string getFormatString(string fileName, int line, int column)
+		override public string getFormatString(string fileName, int line, int column)
 		{
 			StringBuilder buf = new StringBuilder();
 			

@@ -59,7 +59,11 @@ namespace Boo.Lang.Compiler.Pipeline
 				IAstAttribute aa = CreateAstAttributeInstance();
 				if (null != aa)
 				{
-					aa.Apply(_attribute.ParentNode);
+					aa.Initialize(_context);
+					using (aa)
+					{
+						aa.Apply(_attribute.ParentNode);
+					}
 				}
 			}
 			catch (Exception x)
@@ -183,7 +187,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_tasks = new TaskList();
 		}
 
-		public override void Run()
+		override public void Run()
 		{
 			_astAttributeInterface = BindingManager.AsTypeBinding(typeof(IAstAttribute));
 			_systemAttributeBaseClass = BindingManager.AsTypeBinding(typeof(System.Attribute));
@@ -201,7 +205,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}		
 
-		public override void OnModule(Module module, ref Module resultingModule)
+		override public void OnModule(Module module, ref Module resultingModule)
 		{			
 			PushNamespace(ImportResolutionStep.GetModuleNamespace(module));
 
@@ -211,14 +215,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			PopNamespace();
 		}
 
-		public override void OnBlock(Block node, ref Statement resultingNode)
+		override public void OnBlock(Block node, ref Statement resultingNode)
 		{
 			// No precisamos visitar blocos, isso
 			// vai deixar o processamento um pouco mais
 			// rpido
 		}
 
-		public override void OnAttribute(Boo.Lang.Ast.Attribute attribute, ref Boo.Lang.Ast.Attribute resultingNode)
+		override public void OnAttribute(Boo.Lang.Ast.Attribute attribute, ref Boo.Lang.Ast.Attribute resultingNode)
 		{			
 			IBinding binding = ResolveQualifiedName(attribute, attribute.Name);
 			if (null == binding)

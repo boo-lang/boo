@@ -85,7 +85,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}	
 		
-		public override Node Node
+		override public Node Node
 		{
 			get
 			{

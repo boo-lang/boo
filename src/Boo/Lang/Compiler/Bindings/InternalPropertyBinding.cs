@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return null;
 		}
 		
-		public override Node Node
+		override public Node Node
 		{
 			get
 			{

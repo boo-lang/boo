@@ -41,7 +41,7 @@ namespace antlr.debug
 			Data	= data;
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			return "ParserTraceEvent [" + (Type == ENTER?"enter,":"exit,") + RuleNum + "," + Guessing + "]";
 		}

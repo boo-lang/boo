@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return null;
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return Name;
 		}
@@ -159,7 +159,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 		}
 		
-		public override string Name
+		override public string Name
 		{
 			get
 			{
@@ -167,7 +167,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public override BindingType BindingType
+		override public BindingType BindingType
 		{
 			get
 			{
@@ -184,7 +184,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 		}
 		
-		public override string Name
+		override public string Name
 		{
 			get
 			{
@@ -192,7 +192,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public override BindingType BindingType
+		override public BindingType BindingType
 		{
 			get
 			{
@@ -209,7 +209,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{			
 		}	
 		
-		public override string Name
+		override public string Name
 		{
 			get
 			{
@@ -217,7 +217,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public override BindingType BindingType
+		override public BindingType BindingType
 		{
 			get
 			{

@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 		}
 		
-		public override ITypeBinding BaseType
+		override public ITypeBinding BaseType
 		{
 			get
 			{
@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public override bool IsSubclassOf(ITypeBinding type)
+		override public bool IsSubclassOf(ITypeBinding type)
 		{
 			return type == _bindingManager.EnumTypeBinding ||
 				_bindingManager.EnumTypeBinding.IsSubclassOf(type);
@@ -67,7 +67,7 @@ namespace Boo.Lang.Compiler.Bindings
 		{
 		}		
 		
-		public override ITypeBinding BaseType
+		override public ITypeBinding BaseType
 		{
 			get
 			{
@@ -87,7 +87,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public override bool IsSubclassOf(ITypeBinding type)
+		override public bool IsSubclassOf(ITypeBinding type)
 		{				
 			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
 			{
@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return false;
 		}
 		
-		public override IConstructorBinding[] GetConstructors()
+		override public IConstructorBinding[] GetConstructors()
 		{
 			if (null == _constructors)
 			{
@@ -124,7 +124,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return _constructors;
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return string.Format("InternalTypeBinding<TypeDefinition={0}>", _typeDefinition);
 		}

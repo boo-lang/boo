@@ -118,11 +118,6 @@ namespace Boo.Lang.Compiler
 			}
 		}		
 		
-		public void ResetLocalIndex()
-		{
-			_localIndex = 0;
-		}
-		
 		public int AllocLocalIndex()
 		{
 			return ++_localIndex;
@@ -211,8 +206,7 @@ namespace Boo.Lang.Compiler
 		}	
 
 		internal void Run()
-		{
-			ResetLocalIndex();
+		{			
 			_parameters.Pipeline.Run(this);
 		}	
 	}

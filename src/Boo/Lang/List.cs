@@ -215,7 +215,7 @@ namespace Boo.Lang
 			return this;
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			return Join(", ");
 		}

@@ -75,7 +75,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			CompileUnit[BooLangNamespaceKey] = ResolveQualifiedName("Boo.Lang");
 		}
 		
-		public override void Dispose()
+		override public void Dispose()
 		{
 			base.Dispose();
 			_namespaces.Clear();

@@ -85,7 +85,7 @@ namespace antlr.debug
 			this.Text = text;
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return "ParserMatchEvent [" + (isMatched()?"ok,":"bad,") + (isInverse()?"NOT ":"") + (Type == TOKEN?"token,":"bitset,") + Value + "," + Target + "," + Guessing + "]";
 		}

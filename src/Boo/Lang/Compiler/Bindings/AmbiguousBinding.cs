@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return found;
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return "";
 		}

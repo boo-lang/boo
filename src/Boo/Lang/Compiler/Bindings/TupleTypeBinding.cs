@@ -180,7 +180,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return _array.Resolve(name);
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return Name;
 		}

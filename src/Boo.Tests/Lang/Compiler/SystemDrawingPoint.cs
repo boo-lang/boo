@@ -41,7 +41,7 @@ namespace System.Drawing
 			_y = y;
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return string.Format("MyPoint({0}, {1})", _x, _y);
 		}

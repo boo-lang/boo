@@ -33,7 +33,7 @@ namespace antlr.debug
 			this.Text   = text;
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			return "ParserMessageEvent [" + (Type == WARNING?"warning,":"error,") + Text + "]";
 		}

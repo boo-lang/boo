@@ -141,7 +141,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 		
-		public override Node Node
+		override public Node Node
 		{
 			get
 			{
@@ -223,7 +223,7 @@ namespace Boo.Lang.Compiler.Bindings
 			}
 		}
 	      
-	    public override BindingType BindingType
+	    override public BindingType BindingType
 	    {
 	    	get
 	    	{

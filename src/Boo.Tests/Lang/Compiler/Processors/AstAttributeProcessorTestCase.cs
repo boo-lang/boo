@@ -50,7 +50,7 @@ namespace Boo.Tests.Lang.Compiler.Pipeline
 		{
 		}
 
-		public override void Apply(Node node)
+		override public void Apply(Node node)
 		{
 			Method m = node as Method;
 			if (null == m)
@@ -89,7 +89,7 @@ namespace Boo.Tests.Lang.Compiler.Pipeline
 			}
 		}
 
-		public override void Apply(Node node)
+		override public void Apply(Node node)
 		{
 			Field f = (Field)node;
 

@@ -174,7 +174,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return binding;
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return _name;
 		}

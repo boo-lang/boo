@@ -91,7 +91,7 @@ namespace Boo.Lang.Ast
 			}
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			return string.Format("{0}({1},{2})", _filename, _line, _startColumn);
 		}

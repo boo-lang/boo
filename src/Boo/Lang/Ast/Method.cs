@@ -72,7 +72,7 @@ namespace Boo.Lang.Ast
 			}
 		}
 		
-		public override TypeDefinition DeclaringType
+		override public TypeDefinition DeclaringType
 		{
 			get
 			{
@@ -87,7 +87,7 @@ namespace Boo.Lang.Ast
 			}
 		}
 		
-		public override void Switch(IAstSwitcher switcher)
+		override public void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnMethod(this);
 		}

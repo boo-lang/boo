@@ -38,12 +38,12 @@ namespace Boo.Lang.Compiler.Pipeline
 	{
 		public const string MainModuleMethodName = "__Main__";
 		
-		public override void Run()
+		override public void Run()
 		{
 			Switch(CompileUnit.Modules);
 		}
 		
-		public override void OnModule(Module node, ref Module resultingNode)
+		override public void OnModule(Module node, ref Module resultingNode)
 		{
 			ClassDefinition moduleClass = new ClassDefinition();
 			
@@ -90,7 +90,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			Switch(node.Members);
 		}
 		
-		public override void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
+		override public void LeaveClassDefinition(ClassDefinition node, ref ClassDefinition resultingNode)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void LeaveField(Field node, ref Field resultingNode)
+		override public void LeaveField(Field node, ref Field resultingNode)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -111,7 +111,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void LeaveProperty(Property node, ref Property resultingNode)
+		override public void LeaveProperty(Property node, ref Property resultingNode)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -119,7 +119,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void LeaveMethod(Method node, ref Method resultingNode)
+		override public void LeaveMethod(Method node, ref Method resultingNode)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -127,7 +127,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void LeaveConstructor(Constructor node, ref Constructor resultingNode)
+		override public void LeaveConstructor(Constructor node, ref Constructor resultingNode)
 		{
 			if (!node.IsVisibilitySet)
 			{
@@ -135,27 +135,27 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}		
 		
-		public override void LeaveExpressionStatement(ExpressionStatement node, ref Statement resultingNode)
+		override public void LeaveExpressionStatement(ExpressionStatement node, ref Statement resultingNode)
 		{
 			LeaveStatement(node, ref resultingNode);
 		}
 		
-		public override void LeaveRaiseStatement(RaiseStatement node, ref Statement resultingNode)
+		override public void LeaveRaiseStatement(RaiseStatement node, ref Statement resultingNode)
 		{
 			LeaveStatement(node, ref resultingNode);
 		}
 		
-		public override void LeaveReturnStatement(ReturnStatement node, ref Statement resultingNode)
+		override public void LeaveReturnStatement(ReturnStatement node, ref Statement resultingNode)
 		{
 			LeaveStatement(node, ref resultingNode);
 		}
 		
-		public override void LeaveBreakStatement(BreakStatement node, ref Statement resultingNode)
+		override public void LeaveBreakStatement(BreakStatement node, ref Statement resultingNode)
 		{
 			LeaveStatement(node, ref resultingNode);
 		}
 		
-		public override void LeaveContinueStatement(ContinueStatement node, ref Statement resultingNode)
+		override public void LeaveContinueStatement(ContinueStatement node, ref Statement resultingNode)
 		{
 			LeaveStatement(node, ref resultingNode);
 		}
@@ -210,7 +210,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void LeaveUnaryExpression(UnaryExpression node, ref Expression resultingNode)
+		override public void LeaveUnaryExpression(UnaryExpression node, ref Expression resultingNode)
 		{
 			if (UnaryOperatorType.UnaryNegation == node.Operator)
 			{

@@ -175,7 +175,7 @@ namespace Boo.Antlr
 		
 		
 	
-	public override void uponEOF()
+	override public void uponEOF()
 	{
 		Error();
 	}

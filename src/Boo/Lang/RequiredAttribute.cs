@@ -49,12 +49,13 @@ namespace Boo.Lang
 		{
 		}
 
-		public override void Apply(Boo.Lang.Ast.Node node)
+		override public void Apply(Boo.Lang.Ast.Node node)
 		{
 			ParameterDeclaration pd = node as ParameterDeclaration;
 			if (null == pd)
 			{
-				throw new ApplicationException(ResourceManager.Format("InvalidNodeForAttribute", "ParameterDeclaration"));
+				InvalidNodeForAttribute("ParameterDeclaration");
+				return;
 			}
 
 			// raise ArgumentNullException("<pd.Name>") if <pd.Name> is null

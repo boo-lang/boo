@@ -63,7 +63,7 @@ namespace antlr.debug
 		{
 			eventSupport.addTraceListener(l);
 		}
-		public override void  consume()
+		override public void  consume()
 		{
 			int la_1 = - 99;
 			try
@@ -133,7 +133,7 @@ namespace antlr.debug
 		{
 			return !_notDebugMode;
 		}
-		public override char LA(int i)
+		override public char LA(int i)
 		{
 			char la = base.LA(i);
 			eventSupport.fireLA(i, la);
@@ -157,7 +157,7 @@ namespace antlr.debug
 			//		}
 			return base.makeToken(t);
 		}
-		public override void  match(int c)
+		override public void  match(int c)
 		{
 			char la_1 = LA(1);
 			try
@@ -172,7 +172,7 @@ namespace antlr.debug
 				throw e;
 			}
 		}
-		public override void  match(BitSet b)
+		override public void  match(BitSet b)
 		{
 			string text = this.text.ToString();
 			char la_1 = LA(1);
@@ -188,7 +188,7 @@ namespace antlr.debug
 				throw e;
 			}
 		}
-		public override void  match(string s)
+		override public void  match(string s)
 		{
 			System.Text.StringBuilder la_s = new System.Text.StringBuilder("");
 			int len = s.Length;
@@ -217,7 +217,7 @@ namespace antlr.debug
 			}
 			
 		}
-		public override void  matchNot(int c)
+		override public void  matchNot(int c)
 		{
 			char la_1 = LA(1);
 			try
@@ -233,7 +233,7 @@ namespace antlr.debug
 			}
 			
 		}
-		public override void  matchRange(int c1, int c2)
+		override public void  matchRange(int c1, int c2)
 		{
 			char la_1 = LA(1);
 			try
@@ -249,7 +249,7 @@ namespace antlr.debug
 			}
 			
 		}
-		public override void  newline()
+		override public void  newline()
 		{
 			base.newline();
 			eventSupport.fireNewLine(getLine());
@@ -295,14 +295,14 @@ namespace antlr.debug
 		}
 		/// <summary>Parser error-reporting function can be overridden in subclass 
 		/// </summary>
-		public override void  reportError(string s)
+		override public void  reportError(string s)
 		{
 			eventSupport.fireReportError(s);
 			base.reportError(s);
 		}
 		/// <summary>Parser warning-reporting function can be overridden in subclass 
 		/// </summary>
-		public override void  reportWarning(string s)
+		override public void  reportWarning(string s)
 		{
 			eventSupport.fireReportWarning(s);
 			base.reportWarning(s);

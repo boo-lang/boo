@@ -141,7 +141,7 @@ namespace Boo.Lang.Ast
 			return modifiers == (_modifiers & modifiers);
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return FullName;
 		}

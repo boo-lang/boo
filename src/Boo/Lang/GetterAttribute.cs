@@ -55,12 +55,13 @@ namespace Boo.Lang
 			_propertyName = propertyName;
 		}
 
-		public override void Apply(Node node)
+		override public void Apply(Node node)
 		{
 			Field f = node as Field;
 			if (null == f)
 			{
-				throw new ApplicationException(ResourceManager.Format("InvalidNodeForAttribute", "Field"));
+				InvalidNodeForAttribute("Field");
+				return;
 			}
 
 			Property p = new Property();

@@ -52,12 +52,12 @@ namespace Boo.Antlr
 			setColumn(original.getColumn());
 		}
 
-		public override void setFilename(string name)
+		override public void setFilename(string name)
 		{
 			_fname = name;
 		}
 
-		public override string getFilename()
+		override public string getFilename()
 		{
 			return _fname;
 		}

@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			return ToString(false);
 		}

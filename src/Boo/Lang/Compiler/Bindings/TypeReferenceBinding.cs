@@ -75,7 +75,7 @@ namespace Boo.Lang.Compiler.Bindings
 			return  _type.Resolve(name);
 		}
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return _type.ToString();
 		}

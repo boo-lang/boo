@@ -168,7 +168,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void Run()
+		override public void Run()
 		{				
 			if (Errors.Count > 0 || 0 == CompileUnit.Modules.Count)
 			{
@@ -265,7 +265,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void Dispose()
+		override public void Dispose()
 		{
 			base.Dispose();
 			
@@ -281,17 +281,17 @@ namespace Boo.Lang.Compiler.Pipeline
 			_typeCache.Clear();
 		}
 		
-		public override void OnAttribute(Boo.Lang.Ast.Attribute node)
+		override public void OnAttribute(Boo.Lang.Ast.Attribute node)
 		{
 		}
 		
-		public override void OnModule(Boo.Lang.Ast.Module module)
+		override public void OnModule(Boo.Lang.Ast.Module module)
 		{			
 			_symbolDocWriter = _moduleBuilder.DefineDocument(module.LexicalInfo.FileName, Guid.Empty, Guid.Empty, Guid.Empty);			
 			Switch(module.Members);
 		}
 		
-		public override void OnEnumDefinition(EnumDefinition node)
+		override public void OnEnumDefinition(EnumDefinition node)
 		{
 			EnumBuilder builder = GetEnumBuilder(node);
 			foreach (Boo.Lang.Ast.Attribute attribute in node.Attributes)
@@ -300,7 +300,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnClassDefinition(ClassDefinition node)
+		override public void OnClassDefinition(ClassDefinition node)
 		{
 			EmitTypeDefinition(node);
 		}
@@ -314,7 +314,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_typeBuilder = current;
 		}		
 		
-		public override void OnMethod(Method method)
+		override public void OnMethod(Method method)
 		{			
 			MethodBuilder methodBuilder = GetMethodBuilder(method);			
 			_il = methodBuilder.GetILGenerator();
@@ -339,7 +339,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ret);			
 		}
 		
-		public override void OnConstructor(Constructor constructor)
+		override public void OnConstructor(Constructor constructor)
 		{
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
 			_il = builder.GetILGenerator();
@@ -350,14 +350,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Ret);
 		}
 		
-		public override void OnLocal(Local local)
+		override public void OnLocal(Local local)
 		{			
 			LocalBinding info = GetLocalBinding(local);
 			info.LocalBuilder = _il.DeclareLocal(GetType(local));
 			info.LocalBuilder.SetLocalSymInfo(local.Name);			
 		}
 		
-		public override void OnForStatement(ForStatement node)
+		override public void OnForStatement(ForStatement node)
 		{									
 			EmitDebugInfo(node, node.Iterator);
 			
@@ -375,7 +375,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}			
 		}
 		
-		public override void OnReturnStatement(ReturnStatement node)
+		override public void OnReturnStatement(ReturnStatement node)
 		{
 			OpCode retOpCode = _tryBlock > 0 ? OpCodes.Leave : OpCodes.Br;
 			
@@ -388,13 +388,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(retOpCode, _returnLabel);
 		}
 		
-		public override void OnRaiseStatement(RaiseStatement node)
+		override public void OnRaiseStatement(RaiseStatement node)
 		{
 			Switch(node.Exception); PopType();
 			_il.Emit(OpCodes.Throw);
 		}
 		
-		public override void OnTryStatement(TryStatement node)
+		override public void OnTryStatement(TryStatement node)
 		{
 			++_tryBlock;
 			
@@ -411,14 +411,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			--_tryBlock;
 		}
 		
-		public override void OnExceptionHandler(ExceptionHandler node)
+		override public void OnExceptionHandler(ExceptionHandler node)
 		{
 			_il.BeginCatchBlock(GetType(node.Declaration));
 			_il.Emit(OpCodes.Stloc, GetLocalBuilder(node.Declaration));
 			Switch(node.Block);
 		}
 		
-		public override void OnUnpackStatement(UnpackStatement node)
+		override public void OnUnpackStatement(UnpackStatement node)
 		{
 			DeclarationCollection decls = node.Declarations;
 			
@@ -428,13 +428,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			EmitUnpackForDeclarations(node.Declarations, PopType());			
 		}	
 		
-		public override bool EnterExpressionStatement(ExpressionStatement node)
+		override public bool EnterExpressionStatement(ExpressionStatement node)
 		{
 			EmitDebugInfo(node);
 			return true;
 		}
 		
-		public override void LeaveExpressionStatement(ExpressionStatement node)
+		override public void LeaveExpressionStatement(ExpressionStatement node)
 		{					
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
@@ -446,7 +446,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			AssertStackIsEmpty("stack must be empty after a statement!");
 		}
 		
-		public override void OnUnlessStatement(UnlessStatement node)
+		override public void OnUnlessStatement(UnlessStatement node)
 		{
 			EmitDebugInfo(node);
 			
@@ -456,7 +456,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.MarkLabel(endLabel);
 		}
 		
-		public override void OnIfStatement(IfStatement node)
+		override public void OnIfStatement(IfStatement node)
 		{
 			EmitDebugInfo(node);
 			
@@ -674,7 +674,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.Emit(OpCodes.Brfalse, label);
 		}
 		
-		public override void OnBreakStatement(BreakStatement node)
+		override public void OnBreakStatement(BreakStatement node)
 		{
 			if (InTryInLoop())
 			{
@@ -686,7 +686,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnContinueStatement(ContinueStatement node)
+		override public void OnContinueStatement(ContinueStatement node)
 		{
 			if (InTryInLoop())
 			{
@@ -698,7 +698,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnWhileStatement(WhileStatement node)
+		override public void OnWhileStatement(WhileStatement node)
 		{
 			EmitDebugInfo(node);
 			
@@ -774,7 +774,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			_il.MarkLabel(wasTrue);
 		}
 		
-		public override void OnUnaryExpression(UnaryExpression node)
+		override public void OnUnaryExpression(UnaryExpression node)
 		{
 			switch (node.Operator)
 			{
@@ -1117,7 +1117,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(type);
 		}
 		
-		public override void OnBinaryExpression(BinaryExpression node)
+		override public void OnBinaryExpression(BinaryExpression node)
 		{				
 			switch (node.Operator)
 			{
@@ -1251,7 +1251,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnAsExpression(AsExpression node)
+		override public void OnAsExpression(AsExpression node)
 		{
 			Type type = GetType(node.Type);
 			
@@ -1318,7 +1318,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.TypeTypeBinding);
 		}
 		
-		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
+		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{				
 			IBinding binding = BindingManager.GetBinding(node.Target);
 			switch (binding.BindingType)
@@ -1386,14 +1386,14 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
+		override public void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldc_I8, node.Value.Ticks);
 			_il.Emit(OpCodes.Newobj, TimeSpan_LongConstructor);
 			PushType(BindingManager.TimeSpanTypeBinding);
 		}
 		
-		public override void OnIntegerLiteralExpression(IntegerLiteralExpression node)
+		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
 			if (node.IsLong)
 			{
@@ -1407,13 +1407,13 @@ namespace Boo.Lang.Compiler.Pipeline
 			}			
 		}
 		
-		public override void OnDoubleLiteralExpression(DoubleLiteralExpression node)
+		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldc_R8, node.Value);
 			PushType(BindingManager.DoubleTypeBinding);
 		}
 		
-		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
+		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
 			if (node.Value)
 			{
@@ -1426,7 +1426,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushBool();
 		}
 		
-		public override void OnHashLiteralExpression(HashLiteralExpression node)
+		override public void OnHashLiteralExpression(HashLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Newobj, Hash_Constructor);
 			
@@ -1444,7 +1444,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.HashTypeBinding);
 		}
 		
-		public override void OnListLiteralExpression(ListLiteralExpression node)
+		override public void OnListLiteralExpression(ListLiteralExpression node)
 		{
 			if (node.Items.Count > 0)
 			{
@@ -1466,20 +1466,20 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.ListTypeBinding);
 		}
 		
-		public override void OnTupleLiteralExpression(TupleLiteralExpression node)
+		override public void OnTupleLiteralExpression(TupleLiteralExpression node)
 		{
 			ITypeBinding type = GetBoundType(node);
 			EmitArray(type.GetElementType(), node.Items);
 			PushType(type);
 		}
 		
-		public override void OnStringLiteralExpression(StringLiteralExpression node)
+		override public void OnStringLiteralExpression(StringLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldstr, node.Value);
 			PushType(BindingManager.StringTypeBinding);
 		}
 		
-		public override void OnSlicingExpression(SlicingExpression node)
+		override public void OnSlicingExpression(SlicingExpression node)
 		{			
 			if (AstUtil.IsLhsOfAssignment(node))
 			{
@@ -1552,7 +1552,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnStringFormattingExpression(StringFormattingExpression node)
+		override public void OnStringFormattingExpression(StringFormattingExpression node)
 		{	
 			Type stringBuilderType = typeof(StringBuilder);
 			ConstructorInfo constructor =  stringBuilderType.GetConstructor(new Type[] { typeof(int) });
@@ -1591,7 +1591,7 @@ namespace Boo.Lang.Compiler.Pipeline
 			PushType(BindingManager.StringTypeBinding);
 		}
 		
-		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
+		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{			
 			IBinding binding = BindingManager.GetBinding(node);
 			switch (binding.BindingType)
@@ -1668,19 +1668,19 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
-		public override void OnSelfLiteralExpression(SelfLiteralExpression node)
+		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldarg_0);
 			PushType(GetBoundType(node));
 		}
 		
-		public override void OnNullLiteralExpression(NullLiteralExpression node)
+		override public void OnNullLiteralExpression(NullLiteralExpression node)
 		{
 			_il.Emit(OpCodes.Ldnull);
 			PushType(null);
 		}
 		
-		public override void OnReferenceExpression(ReferenceExpression node)
+		override public void OnReferenceExpression(ReferenceExpression node)
 		{	
 			IBinding info = BindingManager.GetBinding(node);
 			switch (info.BindingType)

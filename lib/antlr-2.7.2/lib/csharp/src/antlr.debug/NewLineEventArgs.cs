@@ -23,7 +23,7 @@ namespace antlr.debug
 		
 		/// <summary>This should NOT be called from anyone other than ParserEventSupport! 
 		/// </summary>
-		public override string ToString()
+		override public string ToString()
 		{
 			return "NewLineEvent [" + line_ + "]";
 		}

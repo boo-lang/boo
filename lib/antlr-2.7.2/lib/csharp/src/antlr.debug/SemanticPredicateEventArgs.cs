@@ -39,7 +39,7 @@ namespace antlr.debug
 			this.Result		= result;
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			return "SemanticPredicateEvent [" + Condition + "," + Result + "," + Guessing + "]";
 		}

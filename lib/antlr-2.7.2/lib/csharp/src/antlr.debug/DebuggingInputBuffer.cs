@@ -28,7 +28,7 @@ namespace antlr.debug
 		{
 			inputBufferEventSupport.addInputBufferListener(l);
 		}
-		public override void  consume()
+		override public void  consume()
 		{
 			char la = ' ';
 			try
@@ -42,7 +42,7 @@ namespace antlr.debug
 			if (debugMode)
 				inputBufferEventSupport.fireConsume(la);
 		}
-		public override void  fill(int a)
+		override public void  fill(int a)
 		{
 			buffer.fill(a);
 		}
@@ -50,18 +50,18 @@ namespace antlr.debug
 		{
 			return debugMode;
 		}
-		public override bool isMarked()
+		override public bool isMarked()
 		{
 			return buffer.isMarked();
 		}
-		public override char LA(int i)
+		override public char LA(int i)
 		{
 			char la = buffer.LA(i);
 			if (debugMode)
 				inputBufferEventSupport.fireLA(la, i);
 			return la;
 		}
-		public override int mark()
+		override public int mark()
 		{
 			int m = buffer.mark();
 			inputBufferEventSupport.fireMark(m);
@@ -72,7 +72,7 @@ namespace antlr.debug
 			if (inputBufferEventSupport != null)
 				inputBufferEventSupport.removeInputBufferListener(l);
 		}
-		public override void  rewind(int mark)
+		override public void  rewind(int mark)
 		{
 			buffer.rewind(mark);
 			inputBufferEventSupport.fireRewind(mark);

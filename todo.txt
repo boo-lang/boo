@@ -261,6 +261,16 @@ done * comportamento de 'as' com value types: erro
 
 done * implementação de interfaces
 
+done * string complex slicing
+
+done * array complex slicing
+
+done * lock attribute para getters/setters:
+	Foo:
+		[lock]
+		get:
+			return _foo
+
 * resoluçao de nomes na visitação recursiva de métodos e classes
 	eg:
 	
@@ -271,12 +281,6 @@ done * implementação de interfaces
 		def bar():
 			print(local) #<----
 
-* lock attribute para getters/setters:
-	Foo:
-		[lock]
-		get:
-			return _foo
-
 * map(callable, enumerable)
 
 * check return types for method overrides
@@ -284,6 +288,16 @@ done * implementação de interfaces
 * print macro
 
 * assert macro
+
+* singleline try (catchall):
+
+	try CloseConnection()	
+		|
+		V
+	try:
+		CloseConnection()
+	except:
+		pass
 
 done * recriar o gerador de AST em boo
 	

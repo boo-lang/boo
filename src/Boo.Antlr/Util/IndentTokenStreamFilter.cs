@@ -40,12 +40,12 @@ namespace Boo.Antlr.Util
 		{
 		}
 
-		public override void setText(string txt)
+		override public void setText(string txt)
 		{
 			_text = txt;
 		}
 
-		public override string getText()
+		override public string getText()
 		{
 			return _text;
 		}

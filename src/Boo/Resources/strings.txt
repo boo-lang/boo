@@ -64,9 +64,7 @@ BCE0062=Could not infer the return type for the method '{0}'.
 BCE0063=No enclosing loop out of which to break or continue.
 BCE0064=No attribute with the name '{0}' or '{0}Attribute' was found (attribute names are case insensitive).
 BCE0065=Can't iterate over expression of type '{0}'.
-
-;Attribute Messages
-InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.
+BCE0066=The attribute '{0}' can only be applied to '{1}' nodes.
 
 ;BooC Messages
 BooC.Errors={0} error(s).

@@ -42,7 +42,7 @@ namespace antlr.debug
 			this.LookaheadAmount = la;
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			return "CharBufferEvent [" + (Type == CONSUME?"CONSUME, ":"LA, ") + Char + "," + LookaheadAmount + "]";
 		}

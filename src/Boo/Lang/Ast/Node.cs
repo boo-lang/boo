@@ -161,12 +161,12 @@ namespace Boo.Lang.Ast
 			_parent = parent;
 		}
 
-		public override int GetHashCode()
+		override public int GetHashCode()
 		{
 			return base.GetHashCode();
 		}
 
-		public override bool Equals(object rhs)
+		override public bool Equals(object rhs)
 		{
 			Node other = rhs as Node;
 			if (null == other)

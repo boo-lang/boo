@@ -10,7 +10,7 @@ namespace antlr.debug
 		{
 			parserEventSupport = new ParserEventSupport(this);
 		}
-		public override void setDebugMode(bool mode)
+		override public void setDebugMode(bool mode)
 		{
 			_notDebugMode = !mode;
 		}
@@ -37,37 +37,37 @@ namespace antlr.debug
 		{
 			InitBlock();
 		}
-		public override void  addMessageListener(MessageListener l)
+		override public void  addMessageListener(MessageListener l)
 		{
 			parserEventSupport.addMessageListener(l);
 		}
-		public override void  addParserListener(ParserListener l)
+		override public void  addParserListener(ParserListener l)
 		{
 			parserEventSupport.addParserListener(l);
 		}
-		public override void  addParserMatchListener(ParserMatchListener l)
+		override public void  addParserMatchListener(ParserMatchListener l)
 		{
 			parserEventSupport.addParserMatchListener(l);
 		}
-		public override void  addParserTokenListener(ParserTokenListener l)
+		override public void  addParserTokenListener(ParserTokenListener l)
 		{
 			parserEventSupport.addParserTokenListener(l);
 		}
-		public override void  addSemanticPredicateListener(SemanticPredicateListener l)
+		override public void  addSemanticPredicateListener(SemanticPredicateListener l)
 		{
 			parserEventSupport.addSemanticPredicateListener(l);
 		}
-		public override void  addSyntacticPredicateListener(SyntacticPredicateListener l)
+		override public void  addSyntacticPredicateListener(SyntacticPredicateListener l)
 		{
 			parserEventSupport.addSyntacticPredicateListener(l);
 		}
-		public override void  addTraceListener(TraceListener l)
+		override public void  addTraceListener(TraceListener l)
 		{
 			parserEventSupport.addTraceListener(l);
 		}
 		/// <summary>Get another token object from the token stream 
 		/// </summary>
-		public override void  consume()
+		override public void  consume()
 		{
 			int la_1 = - 99;
 			try
@@ -134,7 +134,7 @@ namespace antlr.debug
 				}
 			}
 		}
-		public override bool isDebugMode()
+		override public bool isDebugMode()
 		{
 			return !_notDebugMode;
 		}
@@ -146,7 +146,7 @@ namespace antlr.debug
 		/// is the current token being examined by the parser (i.e., it
 		/// has not been matched yet).
 		/// </summary>
-		public override int LA(int i)
+		override public int LA(int i)
 		{
 			int la = base.LA(i);
 			parserEventSupport.fireLA(i, la);
@@ -156,7 +156,7 @@ namespace antlr.debug
 		/// Throw an exception upon mismatch, which is catch by either the
 		/// error handler or by the syntactic predicate.
 		/// </summary>
-		public override void  match(int t)
+		override public void  match(int t)
 		{
 			string text = LT(1).getText();
 			int la_1 = LA(1);
@@ -176,7 +176,7 @@ namespace antlr.debug
 		/// Throw an exception upon mismatch, which is catch by either the
 		/// error handler or by the syntactic predicate.
 		/// </summary>
-		public override void  match(BitSet b)
+		override public void  match(BitSet b)
 		{
 			string text = LT(1).getText();
 			int la_1 = LA(1);
@@ -192,7 +192,7 @@ namespace antlr.debug
 				throw e;
 			}
 		}
-		public override void  matchNot(int t)
+		override public void  matchNot(int t)
 		{
 			string text = LT(1).getText();
 			int la_1 = LA(1);
@@ -208,51 +208,51 @@ namespace antlr.debug
 				throw e;
 			}
 		}
-		public override void  removeMessageListener(MessageListener l)
+		override public void  removeMessageListener(MessageListener l)
 		{
 			parserEventSupport.removeMessageListener(l);
 		}
-		public override void  removeParserListener(ParserListener l)
+		override public void  removeParserListener(ParserListener l)
 		{
 			parserEventSupport.removeParserListener(l);
 		}
-		public override void  removeParserMatchListener(ParserMatchListener l)
+		override public void  removeParserMatchListener(ParserMatchListener l)
 		{
 			parserEventSupport.removeParserMatchListener(l);
 		}
-		public override void  removeParserTokenListener(ParserTokenListener l)
+		override public void  removeParserTokenListener(ParserTokenListener l)
 		{
 			parserEventSupport.removeParserTokenListener(l);
 		}
-		public override void  removeSemanticPredicateListener(SemanticPredicateListener l)
+		override public void  removeSemanticPredicateListener(SemanticPredicateListener l)
 		{
 			parserEventSupport.removeSemanticPredicateListener(l);
 		}
-		public override void  removeSyntacticPredicateListener(SyntacticPredicateListener l)
+		override public void  removeSyntacticPredicateListener(SyntacticPredicateListener l)
 		{
 			parserEventSupport.removeSyntacticPredicateListener(l);
 		}
-		public override void  removeTraceListener(TraceListener l)
+		override public void  removeTraceListener(TraceListener l)
 		{
 			parserEventSupport.removeTraceListener(l);
 		}
 		/// <summary>Parser error-reporting function can be overridden in subclass 
 		/// </summary>
-		public override void  reportError(RecognitionException ex)
+		override public void  reportError(RecognitionException ex)
 		{
 			parserEventSupport.fireReportError(ex);
 			base.reportError(ex);
 		}
 		/// <summary>Parser error-reporting function can be overridden in subclass 
 		/// </summary>
-		public override void  reportError(string s)
+		override public void  reportError(string s)
 		{
 			parserEventSupport.fireReportError(s);
 			base.reportError(s);
 		}
 		/// <summary>Parser warning-reporting function can be overridden in subclass 
 		/// </summary>
-		public override void  reportWarning(string s)
+		override public void  reportWarning(string s)
 		{
 			parserEventSupport.fireReportWarning(s);
 			base.reportWarning(s);

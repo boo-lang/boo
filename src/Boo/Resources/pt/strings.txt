@@ -64,6 +64,7 @@ BCE0062=Não foi possível deduzir o tipo de retorno para o método '{0}'.
 BCE0063=Não há um loop a abandonar ou continuar.
 BCE0064=Nenhum atributo de nome '{0}' ou '{0}Attribute' foi encontrado (nomes de atributo não levam em conta a caixa).
 BCE0065=Não é possível iterar sobre uma expressão de tipo '{0}'.
+BCE0066=O atributo '{0}' pode somente ser aplicado a nós de tipo: '{1}'.
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

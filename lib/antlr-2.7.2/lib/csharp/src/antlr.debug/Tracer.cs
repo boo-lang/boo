@@ -15,12 +15,12 @@ namespace antlr.debug
 			else
 				indentString = indentString.Substring(2);
 		}
-		public override void  enterRule(object source, TraceEventArgs e)
+		override public void  enterRule(object source, TraceEventArgs e)
 		{
 			System.Console.Out.WriteLine(indentString + e);
 			indent();
 		}
-		public override void  exitRule(object source, TraceEventArgs e)
+		override public void  exitRule(object source, TraceEventArgs e)
 		{
 			dedent();
 			System.Console.Out.WriteLine(indentString + e);

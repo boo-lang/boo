@@ -32,6 +32,49 @@ namespace Boo.Lang
 	using System;
 	using Boo.Lang.Ast;
 	
+	public class LockAttribute : Boo.Lang.Compiler.AbstractAstAttribute
+	{
+		Expression _monitor;
+		
+		public LockAttribute(Expression monitor)
+		{
+			if (null == monitor)
+			{
+				throw new ArgumentNullException("monitor");
+			}
+			_monitor = monitor;
+		}
+		
+		public LockAttribute()
+		{
+		}
+		
+		override public void Apply(Node node)
+		{
+			if (NodeType.Method != node.NodeType)
+			{
+				InvalidNodeForAttribute("Method");
+				return;
+			}
+			
+			if (null == _monitor)
+			{
+				_monitor = new SelfLiteralExpression(LexicalInfo);
+			}
+			
+			Method method = (Method)node;
+			method.Body = CreateLockedBlock(method.Body);
+		}
+		
+		Block CreateLockedBlock(Block body)
+		{
+			using (LockMacro macro = new LockMacro(_context))
+			{
+				return macro.CreateLockedBlock(_monitor, body);
+			}
+		}
+	}
+	
 	/// <summary>
 	/// lock obj1, obj2:
 	///		obj1.Foo(obj2)
@@ -45,6 +88,15 @@ namespace Boo.Lang
 		static Expression Monitor_Exit = AstUtil.CreateReferenceExpression("System.Threading.Monitor.Exit");
 		
 		Boo.Lang.Compiler.CompilerContext _context;
+		
+		public LockMacro()
+		{
+		}
+		
+		public LockMacro(Boo.Lang.Compiler.CompilerContext context)
+		{
+			_context = context;
+		}
 		
 		public void Initialize(Boo.Lang.Compiler.CompilerContext context)
 		{			
@@ -95,7 +147,7 @@ namespace Boo.Lang
 							string.Format(MonitorLocalName, localIndex));
 		}
 		
-		Block CreateLockedBlock(Expression monitor, Block body)
+		internal Block CreateLockedBlock(Expression monitor, Block body)
 		{	
 			ReferenceExpression monitorReference = CreateMonitorReference(monitor.LexicalInfo);
 			

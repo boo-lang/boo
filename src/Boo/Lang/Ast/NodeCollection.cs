@@ -190,12 +190,12 @@ namespace Boo.Lang.Ast
 			InnerList.Remove(item);
 		}
 
-		public override int GetHashCode()
+		override public int GetHashCode()
 		{
 			return base.GetHashCode();
 		}
 
-		public override bool Equals(object rhs)
+		override public bool Equals(object rhs)
 		{
 			NodeCollection other = rhs as NodeCollection;
 			if (null == other)

@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler
 			InnerList.Add(error);
 		}		
 		
-		public override string ToString()
+		override public string ToString()
 		{
 			return ToString(false);
 		}

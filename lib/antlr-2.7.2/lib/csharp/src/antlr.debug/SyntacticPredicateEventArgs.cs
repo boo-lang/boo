@@ -13,7 +13,7 @@ namespace antlr.debug
 		{
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			return "SyntacticPredicateEvent [" + Guessing + "]";
 		}

@@ -43,7 +43,7 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
-		public override NamespaceDeclaration EnclosingNamespace
+		override public NamespaceDeclaration EnclosingNamespace
 		{
 			get
 			{
@@ -51,7 +51,7 @@ namespace Boo.Lang.Ast
 			}
 		}
 		
-		public override void Switch(IAstSwitcher switcher)
+		override public void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnModule(this);
 		}

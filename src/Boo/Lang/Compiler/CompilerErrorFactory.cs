@@ -357,6 +357,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0065", node.LexicalInfo, typeName);
 		}
 		
+		public static CompilerError InvalidNodeForAttribute(LexicalInfo info, string attributeName, string expectedNodeTypes)
+		{
+			return new CompilerError("BCE0066", info, attributeName, expectedNodeTypes);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

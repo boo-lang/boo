@@ -48,7 +48,7 @@ namespace Boo.Lang.Ast.Visitors
 		/*
 		#region IVisitor Members
 		
-		public override bool EnterModule(Module g)
+		override public bool EnterModule(Module g)
 		{
 			WriteLine("public static final class Module");
 			WriteLine("{");
@@ -70,14 +70,14 @@ namespace Boo.Lang.Ast.Visitors
 			return false;
 		}
 
-		public override bool EnterImport(Import p)
+		override public bool EnterImport(Import p)
 		{			
 			WriteLine("using {0};", p.Namespace);
 			WriteLine();
 			return true;
 		}
 
-		public override bool EnterClassDefinition(ClassDefinition c)
+		override public bool EnterClassDefinition(ClassDefinition c)
 		{		
 			WriteLine("[Serializable]");
 			WriteLine("public class {0}", c.Name);
@@ -86,7 +86,7 @@ namespace Boo.Lang.Ast.Visitors
 			return true;
 		}
 
-		public override bool LeaveClassDefinition(ClassDefinition c)
+		override public bool LeaveClassDefinition(ClassDefinition c)
 		{			
 			Dedent();
 			WriteLine("}");
@@ -94,13 +94,13 @@ namespace Boo.Lang.Ast.Visitors
 			return true;
 		}
 
-		public override bool EnterField(Field f)
+		override public bool EnterField(Field f)
 		{
 			WriteLine("protected {0} {1};", ResolveType(f.Type), f.Name);
 			return true;
 		}
 
-		public override bool EnterMethod(Method m)
+		override public bool EnterMethod(Method m)
 		{
 			WriteIndented("public {0} {1}(", ResolveType(m.ReturnType), m.Name);
 			for (int i=0; i<m.Parameters.Count; ++i)
@@ -116,45 +116,45 @@ namespace Boo.Lang.Ast.Visitors
 			return true;
 		}
 
-		public override bool EnterBlock(Block b)
+		override public bool EnterBlock(Block b)
 		{
 			WriteLine("{");
 			Indent();
 			return true;
 		}
 
-		public override bool LeaveBlock(Block b)
+		override public bool LeaveBlock(Block b)
 		{
 			Dedent();
 			WriteLine("}");
 			return true;
 		}
 
-		public override bool EnterReturnStatement(ReturnStatement r)
+		override public bool EnterReturnStatement(ReturnStatement r)
 		{
 			WriteIndented("return ");
 			return true;
 		}
 
-		public override bool LeaveReturnStatement(ReturnStatement r)
+		override public bool LeaveReturnStatement(ReturnStatement r)
 		{
 			WriteLine(";");
 			return true;
 		}
 
-		public override bool EnterExpressionStatement(ExpressionStatement es)
+		override public bool EnterExpressionStatement(ExpressionStatement es)
 		{
 			WriteIndented("");
 			return true;
 		}
 
-		public override bool LeaveExpressionStatement(ExpressionStatement es)
+		override public bool LeaveExpressionStatement(ExpressionStatement es)
 		{
 			WriteLine(";");
 			return true;
 		}
 
-		public override bool EnterBinaryExpression(BinaryExpression e)
+		override public bool EnterBinaryExpression(BinaryExpression e)
 		{			
 			e.Left.Accept(this);
 			Write(ResolveOperator(e.Operator));
@@ -162,13 +162,13 @@ namespace Boo.Lang.Ast.Visitors
 			return false;
 		}
 
-		public override bool EnterReferenceExpression(ReferenceExpression e)
+		override public bool EnterReferenceExpression(ReferenceExpression e)
 		{
 			Write(e.Name);
 			return true;
 		}
 
-		public override bool EnterMethodInvocationExpression(MethodInvocationExpression e)
+		override public bool EnterMethodInvocationExpression(MethodInvocationExpression e)
 		{
 			e.Target.Accept(this);
 			Write("(");
@@ -184,13 +184,13 @@ namespace Boo.Lang.Ast.Visitors
 			return false;
 		}
 
-		public override bool EnterIntegerLiteralExpression(IntegerLiteralExpression e)
+		override public bool EnterIntegerLiteralExpression(IntegerLiteralExpression e)
 		{
 			Write(e.Value.ToString());
 			return true;
 		}
 
-		public override bool EnterStringLiteralExpression(StringLiteralExpression e)
+		override public bool EnterStringLiteralExpression(StringLiteralExpression e)
 		{
 			Write("\"");
 			Write(e.Value);
@@ -198,7 +198,7 @@ namespace Boo.Lang.Ast.Visitors
 			return true;
 		}
 
-		public override bool EnterListLiteralExpression(ListLiteralExpression lle)
+		override public bool EnterListLiteralExpression(ListLiteralExpression lle)
 		{
 			Write("new ArrayList(new object[] { ");
 			for (int i=0; i<lle.Items.Count; ++i)
@@ -213,7 +213,7 @@ namespace Boo.Lang.Ast.Visitors
 			return false;
 		}
 
-		public override bool EnterForStatement(ForStatement fs)
+		override public bool EnterForStatement(ForStatement fs)
 		{
 			WriteIndented("foreach (");
 			for (int i=0; i<fs.Declarations.Count; ++i)

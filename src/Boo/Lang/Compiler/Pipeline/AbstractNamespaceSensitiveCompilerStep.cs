@@ -39,13 +39,13 @@ namespace Boo.Lang.Compiler.Pipeline
 	{
 		protected NameResolutionSupport _nameResolution = new NameResolutionSupport();
 		
-		public override bool EnterCompileUnit(CompileUnit cu, ref CompileUnit resultingNode)
+		override public bool EnterCompileUnit(CompileUnit cu, ref CompileUnit resultingNode)
 		{
 			_nameResolution.Initialize(CompilerContext);
 			return true;
 		}
 		
-		public override void Dispose()
+		override public void Dispose()
 		{
 			base.Dispose();
 			_nameResolution.Dispose();

@@ -62,7 +62,7 @@ namespace Boo.Lang.Ast.Visitors
 		
 		#region IVisitor Members	
 
-		public override void OnModule(Module m)
+		override public void OnModule(Module m)
 		{
 			Switch(m.Namespace);
 
@@ -86,14 +86,14 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 
-		public override void OnNamespaceDeclaration(NamespaceDeclaration node)
+		override public void OnNamespaceDeclaration(NamespaceDeclaration node)
 		{
 			WriteKeyword("namespace");
 			WriteLine(" {0}", node.Name);
 			WriteLine();
 		}
 
-		public override void OnImport(Import p)
+		override public void OnImport(Import p)
 		{
 			WriteKeyword("import");
 			Write(" {0}", p.Namespace);
@@ -126,22 +126,22 @@ namespace Boo.Lang.Ast.Visitors
 			Dedent();
 		}
 		
-		public override void OnClassDefinition(ClassDefinition c)
+		override public void OnClassDefinition(ClassDefinition c)
 		{
 			WriteTypeDefinition("class", c);
 		}
 
-		public override void OnInterfaceDefinition(InterfaceDefinition id)
+		override public void OnInterfaceDefinition(InterfaceDefinition id)
 		{
 			WriteTypeDefinition("interface", id);
 		}
 
-		public override void OnEnumDefinition(EnumDefinition ed)
+		override public void OnEnumDefinition(EnumDefinition ed)
 		{
 			WriteTypeDefinition("enum", ed);
 		}
 
-		public override void OnField(Field f)
+		override public void OnField(Field f)
 		{
 			WriteAttributes(f.Attributes, true);
 			WriteModifiers(f);
@@ -155,7 +155,7 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine();
 		}
 		
-		public override void OnProperty(Property node)
+		override public void OnProperty(Property node)
 		{
 			WriteAttributes(node.Attributes, true);			
 			WriteModifiers(node);
@@ -186,7 +186,7 @@ namespace Boo.Lang.Ast.Visitors
 			Dedent();
 		}
 		
-		public override void OnEnumMember(EnumMember node)
+		override public void OnEnumMember(EnumMember node)
 		{
 			WriteAttributes(node.Attributes, true);
 			WriteIndented(node.Name);
@@ -198,12 +198,12 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine();
 		}
 
-		public override void OnConstructor(Constructor c)
+		override public void OnConstructor(Constructor c)
 		{
 			OnMethod(c);
 		}
 
-		public override void OnMethod(Method m)
+		override public void OnMethod(Method m)
 		{
 			WriteAttributes(m.Attributes, true);
 			WriteModifiers(m);
@@ -229,54 +229,54 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 
-		public override void OnParameterDeclaration(ParameterDeclaration p)
+		override public void OnParameterDeclaration(ParameterDeclaration p)
 		{
 			WriteAttributes(p.Attributes, false);
 			Write(p.Name);
 			WriteTypeReference(p.Type);
 		}
 
-		public override void OnSimpleTypeReference(SimpleTypeReference t)
+		override public void OnSimpleTypeReference(SimpleTypeReference t)
 		{				
 			Write(t.Name);
 		}
 		
-		public override void OnTupleTypeReference(TupleTypeReference t)
+		override public void OnTupleTypeReference(TupleTypeReference t)
 		{
 			Write("(");
 			Switch(t.ElementType);
 			Write(")");
 		}
 
-		public override void OnMemberReferenceExpression(MemberReferenceExpression e)
+		override public void OnMemberReferenceExpression(MemberReferenceExpression e)
 		{
 			Switch(e.Target);
 			Write(".");
 			Write(e.Name);
 		}
 		
-		public override void OnAsExpression(AsExpression e)
+		override public void OnAsExpression(AsExpression e)
 		{
 			Switch(e.Target);
 			WriteTypeReference(e.Type);
 		}
 		
-		public override void OnNullLiteralExpression(NullLiteralExpression node)
+		override public void OnNullLiteralExpression(NullLiteralExpression node)
 		{
 			WriteKeyword("null");
 		}
 		
-		public override void OnSelfLiteralExpression(SelfLiteralExpression node)
+		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
 			WriteKeyword("self");
 		}
 		
-		public override void OnSuperLiteralExpression(SuperLiteralExpression node)
+		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{
 			WriteKeyword("super");
 		}
 		
-		public override void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
+		override public void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
 		{
 			double days = node.Value.TotalDays;
 			if (days >= 1)
@@ -313,7 +313,7 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 		
-		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
+		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
 			if (node.Value)
 			{
@@ -325,7 +325,7 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 		
-		public override void OnUnaryExpression(UnaryExpression node)
+		override public void OnUnaryExpression(UnaryExpression node)
 		{
 			Write("(");
 			WriteOperator(GetUnaryOperatorText(node.Operator));
@@ -333,7 +333,7 @@ namespace Boo.Lang.Ast.Visitors
 			Write(")");			
 		}
 
-		public override void OnBinaryExpression(BinaryExpression e)
+		override public void OnBinaryExpression(BinaryExpression e)
 		{
 			bool needsParens = !(e.ParentNode is ExpressionStatement);
 			if (needsParens)
@@ -351,7 +351,7 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 		
-		public override void OnTernaryExpression(TernaryExpression node)
+		override public void OnTernaryExpression(TernaryExpression node)
 		{			
 			Write("(");
 			Switch(node.Condition);
@@ -362,7 +362,7 @@ namespace Boo.Lang.Ast.Visitors
 			Write(")");
 		}
 
-		public override void OnRaiseStatement(RaiseStatement rs)
+		override public void OnRaiseStatement(RaiseStatement rs)
 		{
 			WriteIndented();
 			WriteKeyword("raise ");
@@ -371,7 +371,7 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine();
 		}
 
-		public override void OnMethodInvocationExpression(MethodInvocationExpression e)
+		override public void OnMethodInvocationExpression(MethodInvocationExpression e)
 		{
 			Switch(e.Target);
 			Write("(");
@@ -387,19 +387,19 @@ namespace Boo.Lang.Ast.Visitors
 			Write(")");
 		}
 		
-		public override void OnTupleLiteralExpression(TupleLiteralExpression node)
+		override public void OnTupleLiteralExpression(TupleLiteralExpression node)
 		{
 			WriteTuple(node.Items);
 		}
 		
-		public override void OnListLiteralExpression(ListLiteralExpression node)
+		override public void OnListLiteralExpression(ListLiteralExpression node)
 		{			
 			Write("[");
 			WriteCommaSeparatedList(node.Items);
 			Write("]");
 		}
 		
-		public override void OnIteratorExpression(IteratorExpression node)
+		override public void OnIteratorExpression(IteratorExpression node)
 		{			
 			Write("(");
 			Switch(node.Expression);
@@ -411,7 +411,7 @@ namespace Boo.Lang.Ast.Visitors
 			Write(")");
 		}
 
-		public override void OnSlicingExpression(SlicingExpression node)
+		override public void OnSlicingExpression(SlicingExpression node)
 		{
 			Switch(node.Target);
 			Write("[");
@@ -429,7 +429,7 @@ namespace Boo.Lang.Ast.Visitors
 			Write("]");
 		}
 		
-		public override void OnHashLiteralExpression(HashLiteralExpression node)
+		override public void OnHashLiteralExpression(HashLiteralExpression node)
 		{			
 			Write("{");
 			if (node.Items.Count > 0)
@@ -441,19 +441,19 @@ namespace Boo.Lang.Ast.Visitors
 			Write("}");
 		}
 
-		public override void OnExpressionPair(ExpressionPair pair)
+		override public void OnExpressionPair(ExpressionPair pair)
 		{
 			Switch(pair.First);
 			Write(": ");
 			Switch(pair.Second);
 		}
 
-		public override void OnStringLiteralExpression(StringLiteralExpression e)
+		override public void OnStringLiteralExpression(StringLiteralExpression e)
 		{			
 			WriteStringLiteral(e.Value);			
 		}
 
-		public override void OnIntegerLiteralExpression(IntegerLiteralExpression e)
+		override public void OnIntegerLiteralExpression(IntegerLiteralExpression e)
 		{
 			Write(e.Value.ToString());
 			if (e.IsLong)
@@ -462,17 +462,17 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 		
-		public override void OnDoubleLiteralExpression(DoubleLiteralExpression e)
+		override public void OnDoubleLiteralExpression(DoubleLiteralExpression e)
 		{
 			Write(e.Value.ToString("########0.0##########", CultureInfo.InvariantCulture));
 		}
 
-		public override void OnReferenceExpression(ReferenceExpression node)
+		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			Write(node.Name);
 		}
 
-		public override void OnExpressionStatement(ExpressionStatement node)
+		override public void OnExpressionStatement(ExpressionStatement node)
 		{
 			WriteIndented();
 			Switch(node.Expression);
@@ -480,7 +480,7 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine();
 		}
 
-		public override void OnStringFormattingExpression(StringFormattingExpression sfe)
+		override public void OnStringFormattingExpression(StringFormattingExpression sfe)
 		{
 			Write("string.Format(");
 			WriteStringLiteral(sfe.Template);
@@ -489,7 +489,7 @@ namespace Boo.Lang.Ast.Visitors
 			Write(")");
 		}
 
-		public override void OnStatementModifier(StatementModifier sm)
+		override public void OnStatementModifier(StatementModifier sm)
 		{
 			Write(" ");
 			WriteKeyword(sm.Type.ToString().ToLower());
@@ -497,7 +497,7 @@ namespace Boo.Lang.Ast.Visitors
 			Switch(sm.Condition);
 		}
 		
-		public override void OnMacroStatement(MacroStatement node)
+		override public void OnMacroStatement(MacroStatement node)
 		{
 			WriteIndented(node.Name);
 			Write(" ");
@@ -506,7 +506,7 @@ namespace Boo.Lang.Ast.Visitors
 			WriteBlock(node.Block);
 		}
 		
-		public override void OnForStatement(ForStatement fs)
+		override public void OnForStatement(ForStatement fs)
 		{
 			WriteIndented();
 			WriteKeyword("for ");
@@ -521,14 +521,14 @@ namespace Boo.Lang.Ast.Visitors
 			WriteBlock(fs.Block);
 		}
 		
-		public override void OnRetryStatement(RetryStatement node)
+		override public void OnRetryStatement(RetryStatement node)
 		{
 			WriteIndented();
 			WriteKeyword("retry");
 			WriteLine();
 		}
 		
-		public override void OnTryStatement(TryStatement node)
+		override public void OnTryStatement(TryStatement node)
 		{
 			WriteIndented();
 			WriteKeyword("try:");
@@ -551,7 +551,7 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 		
-		public override void OnExceptionHandler(ExceptionHandler node)
+		override public void OnExceptionHandler(ExceptionHandler node)
 		{
 			WriteIndented();
 			WriteKeyword("except");
@@ -564,24 +564,24 @@ namespace Boo.Lang.Ast.Visitors
 			WriteBlock(node.Block);
 		}
 		
-		public override void OnUnlessStatement(UnlessStatement node)
+		override public void OnUnlessStatement(UnlessStatement node)
 		{
 			WriteConditionalBlock("unless", node.Condition, node.Block);
 		}
 		
-		public override void OnBreakStatement(BreakStatement node)
+		override public void OnBreakStatement(BreakStatement node)
 		{
 			WriteIndented();
 			WriteKeyword("break");
 			WriteLine();
 		}
 		
-		public override void OnWhileStatement(WhileStatement node)
+		override public void OnWhileStatement(WhileStatement node)
 		{
 			WriteConditionalBlock("while", node.Condition, node.Block);
 		}
 
-		public override void OnIfStatement(IfStatement ifs)
+		override public void OnIfStatement(IfStatement ifs)
 		{
 			WriteIndented();
 			WriteKeyword("if ");
@@ -596,24 +596,24 @@ namespace Boo.Lang.Ast.Visitors
 			}
 		}
 		
-		public override bool EnterDeclarationStatement(DeclarationStatement node)
+		override public bool EnterDeclarationStatement(DeclarationStatement node)
 		{
 			WriteIndented();
 			return true;
 		}
 		
-		public override void LeaveDeclarationStatement(DeclarationStatement node)
+		override public void LeaveDeclarationStatement(DeclarationStatement node)
 		{
 			WriteLine();
 		}
 
-		public override void OnDeclaration(Declaration d)
+		override public void OnDeclaration(Declaration d)
 		{
 			Write(d.Name);
 			WriteTypeReference(d.Type);
 		}
 
-		public override void OnReturnStatement(ReturnStatement r)
+		override public void OnReturnStatement(ReturnStatement r)
 		{
 			WriteIndented();
 			WriteKeyword("return ");
@@ -622,7 +622,7 @@ namespace Boo.Lang.Ast.Visitors
 			WriteLine();
 		}
 
-		public override void OnUnpackStatement(UnpackStatement us)
+		override public void OnUnpackStatement(UnpackStatement us)
 		{
 			WriteIndented();
 			for (int i=0; i<us.Declarations.Count; ++i)

@@ -45,7 +45,7 @@ namespace Boo.Lang.Ast
 		{
 		}
 		
-		public override NodeType NodeType
+		override public NodeType NodeType
 		{
 			get
 			{
@@ -53,17 +53,17 @@ namespace Boo.Lang.Ast
 			}
 		}
 		
-		public override object Clone()
+		override public object Clone()
 		{
 			return this;
 		}
 
-		public override void Switch(IAstSwitcher switcher)
+		override public void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnOmittedExpression(this);
 		}
 		
-		public override void Switch(IAstTransformer transformer, out Node resultingNode)
+		override public void Switch(IAstTransformer transformer, out Node resultingNode)
 		{
 			Expression result = this;
 			transformer.OnOmittedExpression(this, ref result);

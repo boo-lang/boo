@@ -92,7 +92,7 @@ namespace Boo.Antlr
 			return module;
 		}
 
-		public override void reportError(antlr.RecognitionException x)
+		override public void reportError(antlr.RecognitionException x)
 		{
 			if (null != Error)
 			{

@@ -38,7 +38,7 @@ namespace antlr.debug
 			setValues(type, amount, val);
 		}
 
-		public override string ToString()
+		override public string ToString()
 		{
 			if (Type == LA)
 				return "ParserTokenEvent [LA," + Amount + "," + Value + "]";
