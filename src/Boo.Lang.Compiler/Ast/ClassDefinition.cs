@@ -42,11 +42,19 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public bool HasConstructor
+		public bool HasInstanceConstructor
 		{
 			get
 			{
-				return HasMemberOfType(NodeType.Constructor);
+				foreach (TypeMember member in _members)
+				{
+					if (NodeType.Constructor == member.NodeType &&
+						!member.IsStatic)
+					{
+						return true;
+					}
+				}
+				return false;
 			}
 		}
 		

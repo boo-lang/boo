@@ -2086,7 +2086,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (null == info || TypeSystemServices.IsBuiltin(info))
 				{
 					Visit(node.Right);
-					IType expressionType = GetConcreteExpressionType(node.Right);				
+					IType expressionType = GetConcreteExpressionType(node.Right);
+					CheckIsResolvedType(expressionType, node.Right);
 					DeclareLocal(reference, new Local(reference, false), expressionType);
 					BindExpressionType(node.Left, expressionType);
 					BindExpressionType(node, expressionType);
@@ -2094,6 +2095,19 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			return true;
+		}
+		
+		void CheckIsResolvedType(IType type, Expression expression)
+		{
+			if (TypeSystemServices.IsUnknown(type))
+			{
+				MethodInvocationExpression mie = expression as MethodInvocationExpression;
+				if (null != mie)
+				{
+					InternalMethod entity = (InternalMethod)GetEntity(mie.Target);
+					Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(entity.Method));
+				}
+			}
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
