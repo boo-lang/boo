@@ -114,6 +114,7 @@
 			
 		<exec program="build/booc.exe" useruntimeengine="true" unless="${Boo.NAnt.Tasks-is-uptodate}">		
 			<arg value="-v" />
+			<arg value="-noconfig" />
 			<arg value="-out:build/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
 			<arg value="-r:${NAnt.Core.dll}" />
