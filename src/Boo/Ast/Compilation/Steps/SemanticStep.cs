@@ -110,6 +110,51 @@ namespace Boo.Ast.Compilation.Steps
 			PopNamespace();
 		}
 		
+		public override void OnProperty(Property node, ref Property resultingNode)
+		{
+			Method setter = node.Setter;
+			Method getter = node.Getter;
+			
+			Switch(node.Attributes);
+			Switch(node.Type);
+			Switch(getter);
+			
+			ITypeBinding binding = null;
+			if (null != node.Type)
+			{
+				binding = GetBoundType(node.Type);
+			}
+			else
+			{
+				if (null != getter)
+				{
+					binding = GetBoundType(node.Getter.ReturnType);
+				}
+				else
+				{
+					binding = BindingManager.ObjectTypeBinding;
+				}
+				node.Type = CreateBoundTypeReference(binding);
+			}
+			
+			if (null != setter)
+			{
+				ParameterDeclaration parameter = new ParameterDeclaration();
+				parameter.Type = CreateBoundTypeReference(binding);
+				parameter.Name = "value";
+				setter.Parameters.Add(parameter);
+				Switch(setter);
+				
+				setter.Name = "set_" + node.Name;
+			}
+			if (null != getter)
+			{
+				getter.Name = "get_" + node.Name;
+			}
+			
+			BindingManager.Bind(node, new InternalPropertyBinding(BindingManager, node));
+		}
+		
 		public override void LeaveField(Field node, ref Field resultingNode)
 		{			
 			IBinding binding = GetOptionalBinding(node);
@@ -146,7 +191,7 @@ namespace Boo.Ast.Compilation.Steps
 		}	
 		
 		public override bool EnterMethod(Method method, ref Method resultingNode)
-		{			
+		{				
 			InternalMethodBinding binding = (InternalMethodBinding)GetOptionalBinding(method);
 			if (null == binding)
 			{
@@ -306,7 +351,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnSelfLiteralExpression(SelfLiteralExpression node, ref Expression resultingNode)
 		{
-			BindingManager.Bind(node, BindingManager.GetBinding(_currentMethodInfo.Method.ParentNode));
+			BindingManager.Bind(node, BindingManager.GetBinding(_currentMethodInfo.Method.DeclaringType));
 		}
 		
 		public override void OnReferenceExpression(ReferenceExpression node, ref Expression resultingNode)

@@ -48,6 +48,21 @@ namespace Boo.Ast
 		{
 		}
 		
+		public override TypeDefinition DeclaringType
+		{
+			get
+			{
+				if (null != ParentNode)
+				{
+					if (NodeType.Property == ParentNode.NodeType)
+					{
+						return (TypeDefinition)ParentNode.ParentNode;
+					}					
+				}
+				return (TypeDefinition)ParentNode;
+			}
+		}
+		
 		public override void Switch(IAstSwitcher switcher)
 		{
 			switcher.OnMethod(this);

@@ -126,7 +126,6 @@ namespace Boo.Ast.Visitors
 		public override void OnField(Field f)
 		{
 			WriteAttributes(f.Attributes, true);
-			WriteIndented("");
 			WriteModifiers(f);
 			Write(f.Name);
 			Switch(f.Type);
@@ -135,7 +134,7 @@ namespace Boo.Ast.Visitors
 		
 		public override void OnProperty(Property node)
 		{
-			WriteAttributes(node.Attributes, true);
+			WriteAttributes(node.Attributes, true);			
 			WriteModifiers(node);
 			WriteIndented(node.Name);
 			Switch(node.Type);
@@ -178,7 +177,6 @@ namespace Boo.Ast.Visitors
 		public override void OnMethod(Method m)
 		{
 			WriteAttributes(m.Attributes, true);
-			WriteIndented("");
 			WriteModifiers(m);
 			Write("def ");
 			Write(m.Name);
@@ -710,6 +708,7 @@ namespace Boo.Ast.Visitors
 		
 		void WriteModifiers(TypeMember member)
 		{
+			WriteIndented();
 			if (member.IsPublic)
 			{
 				Write("public ");

@@ -55,7 +55,7 @@ namespace Boo.Ast.Compilation.Steps
 					if (member.NodeType == NodeType.Method)
 					{
 						member.Modifiers |= TypeMemberModifiers.Static;
-					}
+					}					
 				}		
 				
 				if (module.Globals.Statements.Count > 0)
@@ -64,7 +64,7 @@ namespace Boo.Ast.Compilation.Steps
 					method.ReturnType = new TypeReference("void");
 					method.Body = module.Globals;
 					method.Name = MainMethodName;
-					method.Modifiers = TypeMemberModifiers.Static;
+					method.Modifiers = TypeMemberModifiers.Static | TypeMemberModifiers.Private;
 					module.Members.Add(method);				
 				
 					module.Globals = new Block();

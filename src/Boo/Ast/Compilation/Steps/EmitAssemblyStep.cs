@@ -176,7 +176,7 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			TypeBuilder current = _typeBuilder;
 			
-			_typeBuilder = _moduleBuilder.DefineType(node.FullName);
+			_typeBuilder = _moduleBuilder.DefineType(node.FullName, GetTypeAttributes(node));
 			DefineMembers(_typeBuilder, node.Members);
 			SetType(node, _typeBuilder);			
 			node.Members.Switch(this);			
@@ -1115,9 +1115,19 @@ namespace Boo.Ast.Compilation.Steps
 			typeDef[EmitInfoKey] = type;
 		}
 		
+		void SetBuilder(Node node, object builder)
+		{
+			node[EmitInfoKey] = builder;
+		}
+		
 		TypeBuilder GetTypeBuilder(Node node)
 		{
 			return (TypeBuilder)node[EmitInfoKey];
+		}
+		
+		PropertyBuilder GetPropertyBuilder(Node node)
+		{
+			return (PropertyBuilder)node[EmitInfoKey];
 		}
 		
 		FieldBuilder GetFieldBuilder(Node node)
@@ -1125,24 +1135,9 @@ namespace Boo.Ast.Compilation.Steps
 			return (FieldBuilder)node[EmitInfoKey];
 		}
 		
-		void SetFieldBuilder(Field node, FieldBuilder builder)
-		{
-			node[EmitInfoKey] = builder;
-		}
-		
-		void SetMethodBuilder(Method method, MethodBuilder builder)
-		{
-			method[EmitInfoKey] = builder;
-		}
-		
 		MethodBuilder GetMethodBuilder(Method method)
 		{
 			return (MethodBuilder)method[EmitInfoKey];
-		}
-		
-		void SetConstructorBuilder(Method method, ConstructorBuilder builder)
-		{
-			method[EmitInfoKey] = builder;
 		}
 		
 		ConstructorBuilder GetConstructorBuilder(Method method)
@@ -1150,14 +1145,19 @@ namespace Boo.Ast.Compilation.Steps
 			return (ConstructorBuilder)method[EmitInfoKey];
 		}
 		
-		public LocalBuilder GetLocalBuilder(Node local)
+		LocalBuilder GetLocalBuilder(Node local)
 		{
 			return GetLocalBinding(local).LocalBuilder;
 		}
 		
 		PropertyInfo GetPropertyInfo(IBinding binding)
 		{
-			return ((ExternalPropertyBinding)binding).PropertyInfo;
+			ExternalPropertyBinding external = binding as ExternalPropertyBinding;
+			if (null != external)
+			{
+				return external.PropertyInfo;
+			}
+			return GetPropertyBuilder(((InternalPropertyBinding)binding).Property);
 		}
 		
 		FieldInfo GetFieldInfo(IFieldBinding binding)
@@ -1205,6 +1205,47 @@ namespace Boo.Ast.Compilation.Steps
 			return GetType(GetBoundType(node));
 		}
 		
+		TypeAttributes GetTypeAttributes(TypeDefinition type)
+		{
+			TypeAttributes attributes = TypeAttributes.AnsiClass | TypeAttributes.AutoLayout;
+			if (type.IsPublic)
+			{
+				attributes |= TypeAttributes.Public;
+			}
+			else
+			{
+				attributes |= TypeAttributes.NotPublic;
+			}
+			
+			switch (type.NodeType)
+			{
+				case NodeType.ClassDefinition:
+				{
+					attributes |= TypeAttributes.Class;
+					attributes |= TypeAttributes.Serializable;
+					break;
+				}
+				
+				case NodeType.InterfaceDefinition:
+				{
+					attributes |= TypeAttributes.Interface;
+					break;
+				}
+				
+				case NodeType.Module:
+				{
+					attributes |= TypeAttributes.Sealed;
+					break;
+				}
+			}
+			return attributes;
+		}
+		
+		PropertyAttributes GetPropertyAttributes(Property property)
+		{
+			return PropertyAttributes.None;
+		}
+		
 		MethodAttributes GetMethodAttributes(Method method)
 		{
 			MethodAttributes attributes = MethodAttributes.HideBySig;
@@ -1245,21 +1286,44 @@ namespace Boo.Ast.Compilation.Steps
 			return attributes;
 		}
 		
+		void DefineProperty(TypeBuilder typeBuilder, Property property)
+		{
+			PropertyBuilder builder = typeBuilder.DefineProperty(property.Name, 
+			                                            GetPropertyAttributes(property),
+			                                            GetType(property.Type),
+			                                            new Type[0]);
+			Method getter = property.Getter;
+			Method setter = property.Setter;
+			
+			if (null != getter)
+			{
+				MethodBuilder getterBuilder = DefineMethod(typeBuilder, getter, MethodAttributes.SpecialName);
+				builder.SetGetMethod(getterBuilder);
+			}
+			if (null != setter)
+			{
+				MethodBuilder setterBuilder = DefineMethod(typeBuilder, setter, MethodAttributes.SpecialName);
+				builder.SetSetMethod(setterBuilder);
+			}
+			SetBuilder(property, builder);
+		}
+		
 		void DefineField(TypeBuilder typeBuilder, Field field)
 		{
 			FieldBuilder builder = typeBuilder.DefineField(field.Name, 
 			                                               GetType(field), 
 			                                               GetFieldAttributes(field));
-			SetFieldBuilder(field, builder);
+			SetBuilder(field, builder);
 		}
 		
-		void DefineMethod(TypeBuilder typeBuilder, Method method)
+		MethodBuilder DefineMethod(TypeBuilder typeBuilder, Method method, MethodAttributes attributes)
 		{			
 			MethodBuilder builder = typeBuilder.DefineMethod(method.Name, 
-                                        GetMethodAttributes(method),
+                                        GetMethodAttributes(method) | attributes,
                                         GetType(method.ReturnType),
                                         GetParameterTypes(method));
-			SetMethodBuilder(method, builder);			
+			SetBuilder(method, builder);			
+			return builder;
 		}
 		
 		void DefineConstructor(TypeBuilder typeBuilder, Method constructor)
@@ -1267,7 +1331,7 @@ namespace Boo.Ast.Compilation.Steps
 			ConstructorBuilder builder = typeBuilder.DefineConstructor(GetMethodAttributes(constructor),
 			                               CallingConventions.Standard, 
 			                               GetParameterTypes(constructor));
-			SetConstructorBuilder(constructor, builder);
+			SetBuilder(constructor, builder);
 		}
 		
 		void DefineMembers(TypeBuilder typeBuilder, TypeMemberCollection members)
@@ -1278,7 +1342,7 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					case NodeType.Method:
 					{
-						DefineMethod(typeBuilder, (Method)member);
+						DefineMethod(typeBuilder, (Method)member, 0);
 						break;
 					}
 					
@@ -1291,6 +1355,12 @@ namespace Boo.Ast.Compilation.Steps
 					case NodeType.Field:
 					{
 						DefineField(typeBuilder, (Field)member);
+						break;
+					}
+					
+					case NodeType.Property:
+					{
+						DefineProperty(typeBuilder, (Property)member);
 						break;
 					}
 				}

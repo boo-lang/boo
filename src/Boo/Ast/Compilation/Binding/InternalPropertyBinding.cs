@@ -27,90 +27,66 @@
 // mailto:rbo@acm.org
 #endregion
 
-using System;
-using Boo.Ast.Impl;
-
-namespace Boo.Ast
+namespace Boo.Ast.Compilation.Binding
 {
-	[System.Xml.Serialization.XmlInclude(typeof(TypeDefinition))]
-	[System.Xml.Serialization.XmlInclude(typeof(EnumMember))]
-	[System.Xml.Serialization.XmlInclude(typeof(Field))]
-	[System.Xml.Serialization.XmlInclude(typeof(Property))]
-	[System.Xml.Serialization.XmlInclude(typeof(Method))]
-	[Serializable]
-	public abstract class TypeMember : TypeMemberImpl
-	{		
-		protected TypeMember()
-		{
- 		}
+	public class InternalPropertyBinding : IPropertyBinding
+	{
+		BindingManager _bindingManager;
 		
-		protected TypeMember(TypeMemberModifiers modifiers, string name) : base(modifiers, name)
-		{
-		}		
+		Property _property;
 		
-		protected TypeMember(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public InternalPropertyBinding(BindingManager bindingManager, Property property)
 		{
+			_bindingManager = bindingManager;
+			_property = property;
 		}
 		
-		public virtual TypeDefinition DeclaringType
+		public ITypeBinding DeclaringType
 		{
 			get
 			{
-				return (TypeDefinition)ParentNode;
-			}
-		}
-		
-		public bool IsVisibilitySet
-		{
-			get
-			{
-				return IsPublic | IsInternal | IsPrivate | IsProtected;
+				return _bindingManager.ToTypeBinding(_property.DeclaringType);
 			}
 		}
 		
 		public bool IsStatic
 		{
 			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Static);
+			{				
+				return _property.IsStatic;
 			}
 		}
 		
-		public bool IsPublic
+		public string Name
 		{
 			get
 			{
-				return IsModifierSet(TypeMemberModifiers.Public);
+				return _property.Name;
 			}
 		}
 		
-		public bool IsInternal
+		public BindingType BindingType
 		{
 			get
 			{
-				return IsModifierSet(TypeMemberModifiers.Internal);
+				return BindingType.Property;
 			}
 		}
 		
-		public bool IsProtected
+		public ITypeBinding BoundType
 		{
 			get
 			{
-				return IsModifierSet(TypeMemberModifiers.Protected);
+				return _bindingManager.GetBoundType(_property.Type);
 			}
 		}
 		
-		public bool IsPrivate
+		public Property Property
 		{
 			get
 			{
-				return IsModifierSet(TypeMemberModifiers.Private);
+				return _property;
 			}
-		}
-		
-		public bool IsModifierSet(TypeMemberModifiers modifiers)
-		{
-			return modifiers == (_modifiers & modifiers);
 		}
 	}
 }
