@@ -264,6 +264,7 @@ namespace Boo.Lang.Compiler.Steps
 					Error(CompilerErrorFactory.StaticConstructorCannotDeclareParameters(node));
 				}
 			}
+			CheckUnusedLocals(node);
 		}
 		
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
