@@ -949,5 +949,11 @@ namespace Boo.Tests.Lang.Compiler
 		{
 			RunCompilerTestCase("listoperators.boo");
 		}
+		
+		[Test]
+		public void CustomerAddresses()
+		{
+			RunCompilerTestCase("customer_addresses.boo");
+		}
 	}
 }

@@ -1118,7 +1118,10 @@ namespace Boo.Lang.Compiler.Pipeline
 					if (BindingType.Property == member.BindingType)
 					{
 						if (!AstUtil.IsLhsOfAssignment(node) &&
-							!AstUtil.IsTargetOfSlicing(node))
+							!(
+								AstUtil.IsTargetOfSlicing(node) &&
+								IsIndexedProperty(member)
+							 ))
 						{
 							node.ParentNode.Replace(node, CreateMethodInvocation(node.Target, ((IPropertyBinding)member).GetGetMethod()));
 							return;
