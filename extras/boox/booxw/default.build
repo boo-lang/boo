@@ -144,7 +144,7 @@
 			</fileset>
 		</copy>
 		
-		<loadtasks assembly="${boo.dir}/Boo.NAnt.dll" />
+		<loadtasks assembly="${boo.dir}/Boo.NAnt.Tasks.dll" />
 	</target>
 
 </project>

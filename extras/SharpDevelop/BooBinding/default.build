@@ -10,7 +10,7 @@
 	<property name="Boo.dll" value="${boo.dir}/Boo.dll" />
 	<property name="Boo.Lang.Compiler.dll" value="${boo.dir}/Boo.Lang.Compiler.dll" />
 	<property name="Boo.AntlrParser.dll" value="${boo.dir}/Boo.AntlrParser.dll" />	
-	<property name="Boo.NAnt.dll" value="${boo.dir}/Boo.NAnt.dll" />		
+	<property name="Boo.NAnt.Tasks.dll" value="${boo.dir}/Boo.NAnt.Tasks.dll" />		
 	<property name="antlr.runtime.dll" value="${boo.dir}/antlr.runtime.dll" />
 	
 	<target name="rebuild" depends="clean, build" />

@@ -56,7 +56,7 @@
 				<include name="booish.exe" />
 			</fileset>
 		</copy>
-		<loadtasks assembly="${boo.dir}/Boo.NAnt.dll" />
+		<loadtasks assembly="${boo.dir}/Boo.NAnt.Tasks.dll" />
 	</target>
 	
 	<target name="clean">

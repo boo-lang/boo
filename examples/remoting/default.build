@@ -40,7 +40,7 @@
 				<include name="Boo.dll" />
 			</fileset>
 		</copy>
-		<loadtasks assembly="../../bin/Boo.NAnt.dll" />
+		<loadtasks assembly="../../bin/Boo.NAnt.Tasks.dll" />
 	</target>
 	
 </project>

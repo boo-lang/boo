@@ -143,6 +143,6 @@
 			</fileset>
 		</copy>
 		<copy todir="build" file="${nunit.framework.dll}" />
-		<loadtasks assembly="build/Boo.NAnt.dll" />
+		<loadtasks assembly="build/Boo.NAnt.Tasks.dll" />
 	</target>
 </project>

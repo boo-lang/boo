@@ -28,7 +28,7 @@
 			</fileset>
 		</copy>
 		
-		<loadtasks assembly="${boo.bin}/Boo.NAnt.dll" />
+		<loadtasks assembly="${boo.bin}/Boo.NAnt.Tasks.dll" />
 	</target>
 	
 	<target name="clean">

@@ -33,7 +33,7 @@
 		<nant buildfile="tests/default.build" target="compile" />
 	</target>
 	
-	<target name="booish" depends="Boo.NAnt">
+	<target name="booish" depends="Boo.NAnt.Tasks">
 		<booc
 			target="exe"
 			output="build/booish.exe">
@@ -44,7 +44,7 @@
 		</booc>
 	</target>
 	
-	<target name="booi" depends="Boo.NAnt">
+	<target name="booi" depends="Boo.NAnt.Tasks">
 
 		<booc
 			target="exe"
@@ -63,39 +63,39 @@
 		
 	</target>
 	
-	<target name="dump-properties" depends="Boo.NAnt">
+	<target name="dump-properties" depends="Boo.NAnt.Tasks">
 		<boo>
 		for p as System.Collections.DictionaryEntry in Project.Properties:
 			print("${p.Key}: ${p.Value}")		
 		</boo>
 	</target>
 	
-	<target name="Boo.NAnt" depends="booc">
+	<target name="Boo.NAnt.Tasks" depends="booc">
 		<copy file="${NAnt.Core.dll}" todir="build" />
 		
-		<uptodate property="Boo.NAnt-is-uptodate">
-			<sourcefiles basedir="src/Boo.NAnt">
+		<uptodate property="Boo.NAnt.Tasks-is-uptodate">
+			<sourcefiles basedir="src/Boo.NAnt.Tasks">
 				<include name="*.boo" />
 			</sourcefiles>
 			<targetfiles>
-				<include name="build/Boo.NAnt.dll" />
+				<include name="build/Boo.NAnt.Tasks.dll" />
 			</targetfiles>
 		</uptodate>
 		
 		<property name="NAnt.Core.dll" value="build/NAnt.Core.dll"
 			if="${'net-2.0' == framework::get-target-framework()}" />
 			
-		<exec program="build/booc.exe" useruntimeengine="true" unless="${Boo.NAnt-is-uptodate}">		
+		<exec program="build/booc.exe" useruntimeengine="true" unless="${Boo.NAnt.Tasks-is-uptodate}">		
 			<arg value="-v" />
-			<arg value="-out:build/Boo.NAnt.dll" />
+			<arg value="-out:build/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
 			<arg value="-r:${NAnt.Core.dll}" />
-			<arg value="src/Boo.NAnt/BoocTask.boo" />
-			<arg value="src/Boo.NAnt/BooTask.boo" />
-			<arg value="src/Boo.NAnt/AbstractBooTask.boo" />			
+			<arg value="src/Boo.NAnt.Tasks/BoocTask.boo" />
+			<arg value="src/Boo.NAnt.Tasks/BooTask.boo" />
+			<arg value="src/Boo.NAnt.Tasks/AbstractBooTask.boo" />			
 		</exec>
 		
-		<loadtasks assembly="build/Boo.NAnt.dll" />
+		<loadtasks assembly="build/Boo.NAnt.Tasks.dll" />
 	</target>
 	
 	<target name="booc" depends="core">
@@ -131,7 +131,7 @@
 				<include name="pt/Boo.resources.dll" />
 				<include name="Boo.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
-				<include name="Boo.NAnt.dll" />
+				<include name="Boo.NAnt.Tasks.dll" />
 				<include name="Boo.AntlrParser.dll" />
 				<include name="antlr.runtime.dll" />
 				<include name="booc.exe" />
@@ -216,7 +216,7 @@
 		</boo>
 	</target>
 	
-	<target name="SVNUtil" depends="Boo.NAnt">
+	<target name="SVNUtil" depends="Boo.NAnt.Tasks">
 		<booc target="library" output="build/SVNUtil.dll">
 			<sources basedir="scripts">
 				<include name="SVNUtil.boo" />

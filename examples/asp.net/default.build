@@ -6,7 +6,7 @@
 	<property name="Boo.Lang.Compiler.dll" value="../../build/Boo.Lang.Compiler.dll" />
 	<property name="Boo.AntlrParser.dll" value="../../build/Boo.AntlrParser.dll" />
 	<property name="antlr.runtime.dll" value="../../build/antlr.runtime.dll" />
-	<property name="Boo.NAnt.dll" value="../../build/Boo.NAnt.dll" />
+	<property name="Boo.NAnt.Tasks.dll" value="../../build/Boo.NAnt.Tasks.dll" />
 	
 	<target name="rebuild" depends="clean, build" />
 	
@@ -23,7 +23,7 @@
 		<copy todir="output/bin" file="${Boo.AntlrParser.dll}" />
 		<copy todir="output/bin" file="${antlr.runtime.dll}" />
 		
-		<loadtasks assembly="${Boo.NAnt.dll}" />
+		<loadtasks assembly="${Boo.NAnt.Tasks.dll}" />
 		
 		<booc output="output/bin/Boo.Examples.Web.dll" target="library">
 		
