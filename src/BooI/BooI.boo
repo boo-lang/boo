@@ -59,10 +59,10 @@ class AssemblyResolver:
 		return Assembly.LoadFrom(fname) if File.Exists(fname)
 
 def consume(reader as TextReader):
-	lines = []
+	writer = StringWriter()
 	for line in reader:
-		lines.Add(line)
-	return join(lines, "\n")	
+		writer.WriteLine(line)
+	return writer.ToString()
 
 def main(argv as (string)):
 	compiler = BooCompiler()
