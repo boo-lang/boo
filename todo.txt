@@ -315,6 +315,8 @@ done * System.Type must be invocable
 * primitiva cast (CastExpression):
 
 	a = cast(ILogger, _log)
+	
+* métodos recursivos ou mutuamente recursivos devem declarar o tipo de retorno
 
 * check return types for method overrides
 

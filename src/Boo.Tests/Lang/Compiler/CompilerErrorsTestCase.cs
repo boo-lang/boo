@@ -156,6 +156,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("declaration3.boo");
 		}		
 		
+		[Test]
+		public void RecursiveMethodsMustDeclareTheirReturnType()
+		{
+			RunCompilerTestCase("recursive0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.

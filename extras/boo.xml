@@ -95,7 +95,8 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo.xml" FILE_NAME_GLOB="*.boo" />
 			<KEYWORD1>abstract</KEYWORD1>
 			<KEYWORD1>and</KEYWORD1>
 			<KEYWORD1>as</KEYWORD1>			
-			<KEYWORD1>break</KEYWORD1>			
+			<KEYWORD1>break</KEYWORD1>
+			<KEYWORD1>cast</KEYWORD1>			
 			<KEYWORD1>class</KEYWORD1>
 			<KEYWORD1>const</KEYWORD1>
 			<KEYWORD1>constructor</KEYWORD1>

@@ -597,6 +597,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void CastExpression()
+		{
+			RunCompilerTestCase("cast2.boo");
+		}
+		
+		[Test]
 		public void TestSimpleBaseClass()
 		{
 			RunCompilerTestCase("baseclass0.boo");
