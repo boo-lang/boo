@@ -55,5 +55,10 @@ namespace Boo.Lang.Ast
 		{
 			switcher.OnSimpleTypeReference(this);
 		}
+		
+		public override string ToString()
+		{
+			return _name;
+		}
 	}
 }

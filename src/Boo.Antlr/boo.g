@@ -1180,7 +1180,7 @@ boolean_expression returns [Expression e]
 		e=boolean_term
 		(
 			ot:OR!
-			r=boolean_term
+			r=expression
 			{
 				BinaryExpression be = new BinaryExpression(ToLexicalInfo(ot));
 				be.Operator = BinaryOperatorType.Or;
@@ -1202,7 +1202,7 @@ boolean_term returns [Expression e]
 	e=ternary_expression
 	(
 		at:AND!
-		r=ternary_expression
+		r=expression
 		{
 			BinaryExpression be = new BinaryExpression(ToLexicalInfo(at));
 			be.Operator = BinaryOperatorType.And;
@@ -1261,18 +1261,37 @@ conditional_expression returns [Expression e]
 		e = null;		
 		Expression r = null;
 		BinaryOperatorType op = BinaryOperatorType.None;
+		Token token = null;
 	}:
 	e=sum
 	( options { greedy = true; } :
-		op=cmp_operator
-		r=sum
-		{
-			BinaryExpression be = new BinaryExpression(e.LexicalInfo);
-			be.Operator = op;
-			be.Left = e;
-			be.Right = r;
-			e = be;
-		}
+	 (
+	  (
+		 (
+			(t:CMP_OPERATOR { op = ParseCmpOperator(t.getText()); token = t; } ) |
+			(
+				tis:IS! { op = BinaryOperatorType.ReferenceEquality; token = tis; }
+				(NOT! { op = BinaryOperatorType.ReferenceInequality; })?
+			) |	
+			(tisa:ISA! { op = BinaryOperatorType.TypeTest; token = tisa; })
+		 )
+		 r=sum
+	  ) |
+	  (
+	  	(
+			(tin:IN! { op = BinaryOperatorType.Member; token = tin; } ) |
+			(tnint:NOT! IN! { op = BinaryOperatorType.NotMember; token = tnint; })
+		)		
+		r=tuple_or_expression
+	  )
+	)
+	{
+		BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
+		be.Operator = op;
+		be.Left = e;
+		be.Right = r;
+		e = be;
+	}
 	)*
 	;
 
@@ -1371,17 +1390,6 @@ unary_expression returns [Expression e]
 			e = ue; 
 		}
 	}
-	;		
-	
-protected
-cmp_operator returns [BinaryOperatorType op] { op = BinaryOperatorType.None; }:
-	(t:CMP_OPERATOR { op = ParseCmpOperator(t.getText()); } ) |
-	(IS! { op = BinaryOperatorType.ReferenceEquality; }
-		(NOT! { op = BinaryOperatorType.ReferenceInequality; })?
-		) |	
-	(ISA! { op = BinaryOperatorType.TypeTest; }) |
-	(IN! { op = BinaryOperatorType.Member; } ) |
-	(NOT! IN! { op = BinaryOperatorType.NotMember; })
 	;
 
 protected

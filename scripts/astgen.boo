@@ -10,6 +10,8 @@ def WriteNodeTypeEnum(module as Module):
 		writer.WriteLine("""
 namespace Boo.Lang.Ast
 {
+	using System;
+	
 	[Serializable]
 	public enum NodeType
 	{""")
@@ -51,11 +53,39 @@ namespace Boo.Lang.Ast
 }
 """)
 
+def FormatParameterList(fields as List):
+	buffer = System.Text.StringBuilder()
+	last = fields[-1]
+	
+	for field as Field in fields:
+		buffer.Append(field.Type)
+		buffer.Append(" ")
+		buffer.Append(GetParameterName(field))
+		if field is not last:
+			buffer.Append(", ")
+			
+	return buffer.ToString()
+	
+def GetParameterName(field as Field):
+	name = field.Name
+	name = name[0:1].ToLower() + name[1:]
+	if name in "namespace", "operator":
+		name += "_"
+	return name
+		
+def WriteAssignmentsFromParameters(writer as TextWriter, fields as List):
+	for field as Field in fields:
+		writer.Write("""
+			${field.Name} = ${GetParameterName(field)};""")
+	
 def WriteClassImpl(node as ClassDefinition):
+	
+	allFields = GetAllFields(node)
+	
 	using writer=OpenFile(GetPath("Impl/${node.Name}Impl.cs")):
 		WriteLicense(writer)
 		WriteWarning(writer)
-		writer.Write("""
+		writer.WriteLine("""
 namespace Boo.Lang.Ast.Impl
 {
 	using System;
@@ -64,6 +94,12 @@ namespace Boo.Lang.Ast.Impl
 	[Serializable]
 	public abstract class ${node.Name}Impl : ${join(node.BaseTypes, ', ')}
 	{
+""")
+	
+		for field as Field in node.Members:
+			writer.WriteLine("\t\tprotected ${field.Type} ${GetPrivateName(field)};");
+	
+		writer.WriteLine("""
 		protected ${node.Name}Impl()
 		{
 			InitializeFields();
@@ -73,9 +109,179 @@ namespace Boo.Lang.Ast.Impl
 		{
 			InitializeFields();
 		}
-	}
-}
 		""")
+		
+		simpleFields = GetSimpleFields(node)
+		if len(simpleFields):
+			writer.Write("""
+		protected ${node.Name}Impl(${FormatParameterList(simpleFields)})
+		{
+			InitializeFields();""")
+				
+			WriteAssignmentsFromParameters(writer, simpleFields)
+			writer.Write("""
+		}
+			
+		protected ${node.Name}Impl(LexicalInfo lexicalInfo, ${FormatParameterList(simpleFields)}) : base(lexicalInfo)
+		{
+			InitializeFields();""")
+			WriteAssignmentsFromParameters(writer, simpleFields)	
+			writer.Write("""
+		}
+			""")
+			
+		writer.WriteLine("""
+		new public Boo.Lang.Ast.${node.Name} CloneNode()
+		{
+			return (Boo.Lang.Ast.${node.Name})Clone();
+		}""")
+		
+		unless IsAbstract(node):
+			writer.WriteLine("""
+		override public NodeType NodeType
+		{
+			get
+			{
+				return NodeType.${node.Name};
+			}
+		}
+		
+		override public void Switch(IAstTransformer transformer, out Node resultingNode)
+		{
+			Boo.Lang.Ast.${node.Name} thisNode = (Boo.Lang.Ast.${node.Name})this;
+			Boo.Lang.Ast.${GetResultingTransformerNode(node)} resultingTypedNode = thisNode;
+			transformer.On${node.Name}(thisNode, ref resultingTypedNode);
+			resultingNode = resultingTypedNode;
+		}""")
+		
+			writer.WriteLine("""
+		override public bool Replace(Node existing, Node newNode)
+		{
+			if (base.Replace(existing, newNode))
+			{
+				return true;
+			}""")
+			
+			for field as Field in allFields:				
+				fieldType=ResolveFieldType(field)
+				if not fieldType:
+					continue
+					
+				fieldName=GetPrivateName(field)					
+				if IsCollection(fieldType):
+					collectionItemType = GetCollectionItemType(fieldType)
+					writer.WriteLine("""
+			if (${fieldName} != null)
+			{
+				Boo.Lang.Ast.${collectionItemType} item = existing as Boo.Lang.Ast.${collectionItemType};
+				if (null != item)
+				{
+					if (${fieldName}.Replace(item, (Boo.Lang.Ast.${collectionItemType})newNode))
+					{
+						return true;
+					}
+				}
+			}""")
+				else:
+					unless IsEnum(fieldType):
+						writer.WriteLine("""
+			if (${fieldName} == existing)
+			{
+				this.${field.Name} = (Boo.Lang.Ast.${field.Type})newNode;
+				return true;
+			}""")
+			
+			writer.WriteLine("""
+			return false;
+		}""")
+		
+			writer.WriteLine("""
+		override public object Clone()
+		{
+			Boo.Lang.Ast.${node.Name} clone = (Boo.Lang.Ast.${node.Name})System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Boo.Lang.Ast.${node.Name}));
+			clone._lexicalInfo = _lexicalInfo;
+			clone._documentation = _documentation;
+			clone._properties = (System.Collections.Hashtable)_properties.Clone();
+			""")
+			
+			for field as Field in allFields:
+				fieldType = ResolveFieldType(field)
+				fieldName = GetPrivateName(field)
+				if fieldType and not IsEnum(fieldType):
+					writer.WriteLine("""
+			if (null != ${fieldName})
+			{
+				clone.${fieldName} = (${field.Type})${fieldName}.Clone();
+			}""")
+				else:
+					writer.WriteLine("""
+			clone.${fieldName} = ${fieldName};""")
+			
+			writer.Write("""			
+			return clone;
+		}
+			""")
+		
+		for field as Field in node.Members:
+			writer.WriteLine("""
+		public ${field.Type} ${field.Name}
+		{
+			get
+			{
+				return ${GetPrivateName(field)};
+			}
+			""")
+			
+			fieldType = ResolveFieldType(field)
+			if fieldType and not IsEnum(fieldType):
+				writer.WriteLine("""
+			set
+			{
+				if (${GetPrivateName(field)} != value)
+				{
+					${GetPrivateName(field)} = value;
+					if (null != ${GetPrivateName(field)})
+					{
+						${GetPrivateName(field)}.InitializeParent(this);""")
+						
+				if field.Attributes.Contains("LexicalInfo"):
+					writer.WriteLine("""
+						LexicalInfo = value.LexicalInfo;""")
+						
+				writer.WriteLine("""
+					}
+				}
+			}
+			""")
+			else:
+				writer.WriteLine("""
+			set
+			{
+				${GetPrivateName(field)} = value;
+			}""")
+			
+			writer.WriteLine("""
+		}
+		""")
+		
+		writer.WriteLine("""
+		private void InitializeFields()
+		{""")
+		
+		for field as Field in node.Members:
+			if IsCollectionField(field):
+				writer.WriteLine("\t\t\t${GetPrivateName(field)} = new ${field.Type}(this);")
+			else:
+				if field.Attributes.Contains("auto"):
+					writer.WriteLine("""
+			${GetPrivateName(field)} = new ${field.Type}();
+			${GetPrivateName(field)}.InitializeParent(this);
+			""")
+		
+		writer.WriteLine("""
+		}
+	}
+}""")
 		
 
 def WriteClass(node as ClassDefinition):
@@ -114,6 +320,7 @@ namespace Boo.Lang.Ast
 {
 	using System;
 	
+	[Serializable]
 	public class ${node.Name} : Boo.Lang.Ast.Impl.${node.Name}Impl
 	{
 		public ${node.Name}()
@@ -131,6 +338,24 @@ def GetCollectionItemType(node as ClassDefinition):
 	attribute = node.Attributes.Get("collection")[0]
 	reference as ReferenceExpression = attribute.Arguments[0]
 	return reference.Name
+	
+def ResolveFieldType(field as Field):
+	return field.DeclaringType.DeclaringType.Members[(field.Type as SimpleTypeReference).Name]
+	
+def GetResultingTransformerNode(node as ClassDefinition):
+	for subclass in "Statement", "Expression", "TypeReference":
+		if IsSubclassOf(node, subclass):
+			return subclass
+	return node.Name
+	
+def IsSubclassOf(node as ClassDefinition, typename as string):
+	for typeref as SimpleTypeReference in node.BaseTypes:
+		if typename == typeref.Name:
+			return true
+		baseType = node.DeclaringType.Members[typeref.Name]
+		if baseType and IsSubclassOf(baseType, typename):
+			return true
+	return false
 
 def WriteCollectionImpl(node as ClassDefinition):
 	path = GetPath("Impl/${node.Name}Impl.cs")
@@ -221,6 +446,9 @@ def GetPathFromNode(node as TypeMember):
 def IsCollection(node as TypeMember):
 	return node.Attributes.Contains("collection")
 	
+def IsCollectionField(field as Field):
+	return (field.Type as SimpleTypeReference).Name.EndsWith("Collection")
+	
 def IsEnum(node as TypeMember):
 	return NodeType.EnumDefinition == node.NodeType
 	
@@ -231,7 +459,7 @@ def GetConcreteAstNodes(module as Module):
 	nodes = []
 	for member in module.Members:
 		nodes.Add(member) if IsConcreteAstNode(member)
-	return nodes
+	return nodes	
 	
 def IsConcreteAstNode(member as TypeMember):
 	return not (IsCollection(member) or IsEnum(member) or IsAbstract(member))
@@ -279,6 +507,154 @@ def WriteLicense(writer as TextWriter):
 #endregion
 """)
 
+def WriteTransformer(module as Module):
+	using writer=OpenFile(GetPath("IAstTransformer.cs")):
+		WriteLicense(writer)
+		WriteWarning(writer)
+		writer.Write("""
+namespace Boo.Lang.Ast
+{
+	public interface IAstTransformer
+	{""")
+		for member as TypeMember in module.Members:
+			if IsConcreteAstNode(member):
+				writer.WriteLine("""			
+		void On${member.Name}(Boo.Lang.Ast.${member.Name} node, ref Boo.Lang.Ast.${GetResultingTransformerNode(member)} newNode);""")
+			
+		writer.Write("""
+	}
+}""")
+
+def WriteDepthFirstTransformer(module as Module):
+	
+	using writer=OpenFile(GetPath("DepthFirstTransformer.cs")):
+		WriteLicense(writer)
+		WriteWarning(writer)
+		writer.Write("""
+namespace Boo.Lang.Ast
+{
+	using System;
+	
+	public class DepthFirstTransformer : IAstTransformer
+	{""")
+	
+		for item as TypeMember in module.Members:
+			continue unless IsConcreteAstNode(item)
+			
+			switchableFields = GetSwitchableFields(item)
+			resultingNodeType = GetResultingTransformerNode(item)
+			
+			writer.WriteLine("""
+		public virtual void On${item.Name}(Boo.Lang.Ast.${item.Name} node, ref Boo.Lang.Ast.${resultingNodeType} resultingNode)
+		{""")
+		
+			if len(switchableFields):
+				writer.WriteLine("""
+			if (Enter${item.Name}(node, ref resultingNode))
+			{""")
+				for field as Field in switchableFields:
+					if IsCollectionField(field):
+						writer.WriteLine("""
+				Switch(node.${field.Name});""")
+					else:
+						writer.WriteLine("""
+				Boo.Lang.Ast.${field.Type} current${field.Name}Value = node.${field.Name};
+				if (null != current${field.Name}Value)
+				{	
+					Node resulting${field.Name}Value;				
+					current${field.Name}Value.Switch(this, out resulting${field.Name}Value);
+					node.${field.Name} = (${field.Type})resulting${field.Name}Value;
+				}""")
+				
+				writer.WriteLine("""
+				Leave${item.Name}(node, ref resultingNode);
+			}""")
+			
+			writer.WriteLine("""
+		}""")
+		
+			if len(switchableFields):
+				writer.WriteLine("""				
+		public virtual bool Enter${item.Name}(Boo.Lang.Ast.${item.Name} node, ref Boo.Lang.Ast.${resultingNodeType} resultingNode)
+		{
+			return true;
+		}
+		
+		public virtual void Leave${item.Name}(Boo.Lang.Ast.${item.Name} node, ref Boo.Lang.Ast.${resultingNodeType} resultingNode)
+		{
+		}""")
+		
+		writer.WriteLine("""
+		public bool Switch(Node node, out Node resultingNode)
+		{			
+			if (null != node)
+			{			
+				node.Switch(this, out resultingNode);
+				return true;
+			}
+			resultingNode = node;
+			return false;
+		}
+		
+		public Node SwitchNode(Node node)
+		{
+			if (null != node)
+			{
+				Node resultingNode;
+				node.Switch(this, out resultingNode);
+				return resultingNode;
+			}
+			return null;
+		}
+		
+		public Node Switch(Node node)
+		{
+			return SwitchNode(node);
+		}
+		
+		public Expression Switch(Expression node)
+		{
+			return (Expression)SwitchNode(node);
+		}
+		
+		public Statement Switch(Statement node)
+		{
+			return (Statement)SwitchNode(node);
+		}
+		
+		public bool Switch(NodeCollection collection)
+		{
+			if (null != collection)
+			{
+				int removed = 0;
+				
+				Node[] nodes = collection.ToArray();
+				for (int i=0; i<nodes.Length; ++i)
+				{
+					Node resultingNode;
+					Node currentNode = nodes[i];
+					currentNode.Switch(this, out resultingNode);
+					if (currentNode != resultingNode)
+					{
+						int actualIndex = i-removed;
+						if (null == resultingNode)
+						{
+							collection.RemoveAt(actualIndex);
+						}
+						else
+						{
+							collection.ReplaceAt(actualIndex, resultingNode);
+						}
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+	}
+}
+""")
+
 def WriteSwitcher(module as Module):
 	using writer=OpenFile(GetPath("IAstSwitcher.cs")):
 		WriteLicense(writer)
@@ -314,8 +690,27 @@ def ProcessTypeHierarchy(types as List, item as ClassDefinition):
 			ProcessTypeHierarchy(types, baseType)
 	types.Add(item)
 	
-def GetPrivateName(name as string):
+def GetPrivateName(field as Field):
+	name = field.Name
 	return "_" + name[0:1].ToLower() + name[1:]
+	
+def GetSimpleFields(node as ClassDefinition):
+	
+	fields = []
+	for field as Field in node.Members:
+		if IsCollectionField(field) or field.Attributes.Contains("auto"):
+			continue
+		fields.Add(field)
+	return fields
+	
+def GetAllFields(node as ClassDefinition):
+	fields = []
+	module as Module = node.ParentNode
+	
+	for item as TypeDefinition in GetTypeHierarchy(node):
+		for field as Field in item.Members:
+			fields.Add(field)
+	return fields
 
 def GetSwitchableFields(item as ClassDefinition):
 	fields = []
@@ -324,7 +719,7 @@ def GetSwitchableFields(item as ClassDefinition):
 	
 	for item as TypeDefinition in GetTypeHierarchy(item):	
 		for field as Field in item.Members:
-			type = module.Members[(field.Type as SimpleTypeReference).Name]
+			type = ResolveFieldType(field)
 			if type:
 				if not IsEnum(type):
 					fields.Add(field)
@@ -427,6 +822,8 @@ module = BooParser.ParseFile("ast.model.boo").Modules[0]
 
 WriteSwitcher(module)
 WriteDepthFirstSwitcher(module)
+WriteTransformer(module)
+WriteDepthFirstTransformer(module)
 WriteNodeTypeEnum(module)
 for member as TypeMember in module.Members:
 

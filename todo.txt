@@ -261,7 +261,15 @@ done * comportamento de 'as' com value types: erro
 
 done * implementação de interfaces
 
-* check return types for method overrides
+* resoluçao de nomes na visitação recursiva de métodos e classes
+	eg:
+	
+		def foo():
+			local = "foo"
+			bar()
+			
+		def bar():
+			print(local) #<----
 
 * lock attribute para getters/setters:
 	Foo:
@@ -269,13 +277,15 @@ done * implementação de interfaces
 		get:
 			return _foo
 
-* map(fn, enumerable)
+* map(callable, enumerable)
+
+* check return types for method overrides
 
 * print macro
 
 * assert macro
 
-* recriar o gerador de AST em boo
+done * recriar o gerador de AST em boo
 	
 * criar primitivas box, unbox e __reference__ para o semantic step e outros passos
 que precisarem? Isso iria permitir remover os casts 

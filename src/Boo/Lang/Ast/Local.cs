@@ -37,6 +37,10 @@ namespace Boo.Lang.Ast
 	{		
 		protected bool _privateScope;
 		
+		public Local()
+		{
+		}
+		
 		public Local(ReferenceExpression reference, bool privateScope)
 		{
 			_name = reference.Name;
@@ -57,6 +61,11 @@ namespace Boo.Lang.Ast
  			{
  				return _privateScope;
  			}
+			
+			set
+			{
+				_privateScope = true;
+			}
  		}
 		
 		public override void Switch(IAstSwitcher switcher)

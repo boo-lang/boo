@@ -126,6 +126,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("continue0.boo");
 		}
 		
+		[Test]
+		public void StaticLexicalScope()
+		{
+			RunCompilerTestCase("nameresolution0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.

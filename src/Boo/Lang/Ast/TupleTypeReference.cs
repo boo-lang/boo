@@ -55,5 +55,10 @@ namespace Boo.Lang.Ast
 		{
 			switcher.OnTupleTypeReference(this);
 		}
+		
+		public override string ToString()
+		{
+			return "(" + _elementType + ")";
+		}
 	}
 }

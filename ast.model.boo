@@ -109,7 +109,6 @@ class Method(TypeMember):
 	ReturnTypeAttributes as AttributeCollection
 	[auto]
 	Body as Block
-	[lazy]
 	Locals as LocalCollection
 
 class Constructor(Method):
