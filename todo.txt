@@ -144,6 +144,8 @@ done * propriedades podem ser declaradas em qualquer ordem
 	done * usar tipos em atributos (sem precisar do typeof)
 	done * atributos para métodos
 	* indexers (eg: collection[0], collection["rodrigob"])
+		* tuple indexer
+		* generic indexer (DefaultMemberAttribute)
 	* timespan literals	
 	* user métodos definidos em outros módulos no namespace global
 	* tuples should be of the most generic type for its elements:

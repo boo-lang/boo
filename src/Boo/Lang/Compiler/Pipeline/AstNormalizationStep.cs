@@ -194,6 +194,20 @@ namespace Boo.Lang.Compiler.Pipeline
 			}
 		}
 		
+		public override void LeaveUnaryExpression(UnaryExpression node, ref Expression resultingNode)
+		{
+			if (UnaryOperatorType.ArithmeticNegate == node.Operator)
+			{
+				if (NodeType.IntegerLiteralExpression == node.Operand.NodeType)
+				{
+					IntegerLiteralExpression integer = (IntegerLiteralExpression)node.Operand;
+					integer.Value = (long.Parse(integer.Value)*-1).ToString();
+					integer.LexicalInfo = node.LexicalInfo;
+					resultingNode = integer;
+				}
+			}
+		}
+		
 		Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)
 		{
 			Constructor constructor = new Constructor(lexicalInfoProvider.LexicalInfo);
