@@ -72,11 +72,11 @@ using System // Environment
 using System.IO // Directory
 using Boo.IO // TextFile
 
-def ScanFile(fname as string, expression as string):	
+def ScanFile(fname as string, pattern as string):	
 	for index, line in enumerate(TextFile(fname)):
-		print("${fname}(${index}): ${line}") if line =~ expression
+		print("${fname}(${index}): ${line}") if line =~ pattern
 
-_, glob, expression = Environment.GetCommandLineArgs()
+_, glob, pattern = Environment.GetCommandLineArgs()
 for fname in Directory.GetFiles(".", glob):
-	ScanFile(fname, expression)
+	ScanFile(fname, pattern)
 

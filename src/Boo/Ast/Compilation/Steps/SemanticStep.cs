@@ -391,7 +391,8 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				Type expressionType = BindingManager.GetBoundType(args[i]);
 				Type parameterType = method.GetParameterType(i);
-				if (!IsAssignableFrom(parameterType, expressionType))
+				if (!IsAssignableFrom(parameterType, expressionType) &&
+				    !CanReachByDownCast(parameterType, expressionType))
 				{
 					Errors.MethodSignature(sourceNode, GetSignature(args), GetSignature(method));
 					return false;
@@ -411,12 +412,17 @@ namespace Boo.Ast.Compilation.Steps
 					Errors.InvalidArray(iterator);
 				}
 			}
-		}
+		}		
 		
-		bool IsAssignableFrom(Type expectedType, Type actualType)
+		static bool IsAssignableFrom(Type expectedType, Type actualType)
 		{
 			return expectedType.IsAssignableFrom(actualType);
 		}
+		
+		static bool CanReachByDownCast(Type expectedType, Type actualType)
+		{
+			return actualType.IsAssignableFrom(expectedType);
+		}		
 		
 		IConstructorBinding FindCorrectConstructor(ITypeBinding typeBinding, MethodInvocationExpression mie)
 		{
@@ -428,46 +434,100 @@ namespace Boo.Ast.Compilation.Steps
 			return null;
 		}
 		
+		class BindingScore : IComparable
+		{
+			public IBinding Binding;
+			public int Score;
+			
+			public BindingScore(IBinding binding, int score)
+			{
+				Binding = binding;
+				Score = score;
+			}
+			
+			public int CompareTo(object other)
+			{
+				return ((BindingScore)other).Score-Score;
+			}
+			
+			public override string ToString()
+			{
+				return Binding.ToString();
+			}
+		}
+		
 		IBinding ResolveMethodReference(Node node, ExpressionCollection args, IBinding[] bindings)
 		{			
-			List valid = new List();			
-			foreach (IBinding binding in bindings)
-			{
+			List scores = new List();
+			for (int i=0; i<bindings.Length; ++i)
+			{				
+				IBinding binding = bindings[i];
 				if (BindingType.Method == binding.BindingType)
 				{
 					IMethodBinding mb = (IMethodBinding)binding;
 					if (args.Count == mb.ParameterCount)
 					{
-						for (int i=0; i<args.Count; ++i)
+						int score = 0;
+						for (int argIndex=0; argIndex<args.Count; ++argIndex)
 						{
-							Type expressionType = BindingManager.GetBoundType(args[i]);
-							Type parameterType = mb.GetParameterType(i);
-							if (!IsAssignableFrom(parameterType, expressionType))
+							Type expressionType = BindingManager.GetBoundType(args[argIndex]);
+							Type parameterType = mb.GetParameterType(argIndex);						
+							
+							if (parameterType == expressionType)
 							{
-								goto incompatible;
+								// exact match scores 3
+								score += 3;
+							}
+							else if (IsAssignableFrom(parameterType, expressionType))
+							{
+								// upcast scores 2
+								score += 2;
+							}
+							else if (CanReachByDownCast(parameterType, expressionType))
+							{
+								// downcast scores 1
+								score += 1;
+							}
+							else
+							{
+								score = -1;
+								break;
 							}
 						}
-						valid.Add(mb);
+						
+						if (score > 0)
+						{
+							scores.Add(new BindingScore(binding, score));						
+						}
 					}
-					
-					incompatible: continue;
 				}
+			}		
+			
+			if (1 == scores.Count)
+			{
+				return ((BindingScore)scores[0]).Binding;
 			}
 			
-			if (1 == valid.Count)
+			if (scores.Count > 1)
 			{
-				return (IBinding)valid[0];
-			}
-			
-			BindingManager.Error(node);					
-			if (valid.Count > 1)
-			{
-				Errors.AmbiguousName(node, "", valid);							
+				scores.Sort();
+				
+				BindingScore first = (BindingScore)scores[0];
+				BindingScore second = (BindingScore)scores[1];
+				if (first.Score > second.Score)
+				{
+					return first.Binding;
+				}
+				// todo: remove from scores, all the lesser
+				// scored bindings
+				
+				Errors.AmbiguousName(node, "", scores);
 			}
 			else
 			{
 				Errors.NoApropriateOverloadFound(node, GetSignature(args));
 			}
+			BindingManager.Error(node);	
 			return null;
 		}
 		

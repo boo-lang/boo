@@ -14,7 +14,6 @@ namespace Boo.Ast.Compilation.Binding
 		Assembly,
 		Namespace,
 		Ambiguous,
-		Operator,
 		Error
 	}
 	

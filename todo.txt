@@ -44,30 +44,33 @@ done * Quando o argumento do For ou Unpack for do tipo System.Object, não fazer
 mas invocar RuntimeServices.GetEnumerable(object) que tenta encontrar a melhor versão de 
 um enumerável para o objeto passado e, no caso de falha, exibe mensagem de erro mais adequada
 done * RuntimeServices.GetEnumerable(object) deve suportar StreamReader
+done * resolução de métodos
+done * downcast (peverify grep)
 * native regular expression support:
 	* re expression /foo/
 	done * match operator ~=
 done * if stmt modifier
+
+Milestone 3.3 (replace.boo)
+---------------------------
+* if string compare
+* using
+
+Milestone 3.5 (revisão)
+-----------------------
 * expressões simples com inteiros
 * boxing (print e StringFormatting)
 * compilador deve entender o atributo [EnumeratorItemType(typeof(string))] para TextFile e StreamReaderEnumerator
 e declarar os tipos de acordo
 * criar ModuleBinding e unificar com ModuleNamespace;
-* simplificar tratamento de erro em SemanticStep;
 * ? for deve criar um try { } finally { RuntimeServices.DisposeEnumerator(iterator); }
 
-Milestone 3.2 (replace.boo)
----------------------------
-* if string compare
-* using
-
-Milestone 3.3
+Milestone 3.7
 -------------
 * raise
 * concatena��o de strings
 * concatena��o de strings com inteiros
 * statement modifiers:
-	* if
 	* unless
 	* while
 	* until

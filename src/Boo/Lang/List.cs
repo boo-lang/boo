@@ -75,6 +75,11 @@ namespace Boo.Lang
 		{
 			return InnerList.ToArray(targetType);
 		}
+		
+		public void Sort()
+		{
+			InnerList.Sort();
+		}
 
 		public override string ToString()
 		{

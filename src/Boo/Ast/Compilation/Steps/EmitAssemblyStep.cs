@@ -121,7 +121,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void LeaveExpressionStatement(ExpressionStatement node)
 		{
-			Type type = (Type)BindingManager.GetBoundType(node.Expression);
+			Type type = GetBoundType(node.Expression);
 			
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
@@ -160,11 +160,15 @@ namespace Boo.Ast.Compilation.Steps
 			}
 			else
 			{
-				if (BinaryOperatorType.Match == node.Operator)
+				IBinding binding = BindingManager.GetBinding(node);
+				if (BindingType.Method == binding.BindingType)
 				{
+					IMethodBinding methodBinding = (IMethodBinding)binding;
 					node.Left.Switch(this);
+					EmitCastIfNeeded(methodBinding.GetParameterType(0), GetBoundType(node.Left));					
 					node.Right.Switch(this);
-					_il.EmitCall(OpCodes.Call, (MethodInfo)((IMethodBinding)BindingManager.GetBinding(node)).MethodInfo, null);
+					EmitCastIfNeeded(methodBinding.GetParameterType(1), GetBoundType(node.Right));
+					_il.EmitCall(OpCodes.Call, (MethodInfo)methodBinding.MethodInfo, null);
 				}
 				else
 				{
@@ -180,7 +184,8 @@ namespace Boo.Ast.Compilation.Steps
 			{
 				case BindingType.Method:
 				{										
-					MethodInfo mi = (MethodInfo)((IMethodBinding)binding).MethodInfo;
+					IMethodBinding methodBinding = (IMethodBinding)binding;
+					MethodInfo mi = (MethodInfo)methodBinding.MethodInfo;
 					OpCode code = OpCodes.Call;
 					if (!mi.IsStatic)
 					{
@@ -191,15 +196,16 @@ namespace Boo.Ast.Compilation.Steps
 							code = OpCodes.Callvirt;
 						}
 					}
-					node.Arguments.Switch(this);
+					PushArguments(methodBinding, node.Arguments);
 					_il.EmitCall(code, mi, null);
 					break;
 				}
 				
 				case BindingType.Constructor:
 				{
-					node.Arguments.Switch(this);
-					_il.Emit(OpCodes.Newobj, ((IConstructorBinding)binding).ConstructorInfo);
+					IConstructorBinding constructorBinding = (IConstructorBinding)binding;
+					PushArguments(constructorBinding, node.Arguments);
+					_il.Emit(OpCodes.Newobj, constructorBinding.ConstructorInfo);
 					foreach (ExpressionPair pair in node.NamedArguments)
 					{
 						// object reference
@@ -427,12 +433,14 @@ namespace Boo.Ast.Compilation.Steps
 				// for arg in iterator
 				LocalBuilder localValue = GetLocalBuilder(decls[0]);
 				EmitDebugInfo(decls[0]);
-				_il.Emit(OpCodes.Stloc, localValue);
+				StoreLocal(topOfStack, localValue);
 			}
 			else
 			{
 				if (topOfStack.IsArray)
-				{					
+				{	
+					Type elementType = topOfStack.GetElementType();
+					
 					// RuntimeServices.CheckArrayUnpack(array, decls.Count);					
 					_il.Emit(OpCodes.Dup);
 					_il.Emit(OpCodes.Ldc_I4, decls.Count);					
@@ -444,7 +452,8 @@ namespace Boo.Ast.Compilation.Steps
 						_il.Emit(OpCodes.Dup);
 						_il.Emit(OpCodes.Ldc_I4, i); // element index			
 						_il.Emit(OpCodes.Ldelem_Ref);
-						_il.Emit(OpCodes.Stloc, GetLocalBuilder(decls[i]));
+						
+						StoreLocal(elementType, GetLocalBuilder(decls[i]));					
 					}
 				}
 				else
@@ -456,7 +465,7 @@ namespace Boo.Ast.Compilation.Steps
 					{
 						_il.Emit(OpCodes.Dup);
 						_il.EmitCall(OpCodes.Call, RuntimeServices_MoveNext, null);				
-						_il.Emit(OpCodes.Stloc, GetLocalBuilder(d));				
+						StoreLocal(BindingManager.ObjectType, GetLocalBuilder(d));				
 					}					
 				}
 				_il.Emit(OpCodes.Pop);
@@ -476,12 +485,44 @@ namespace Boo.Ast.Compilation.Steps
 			return Binding.BindingManager.IEnumerableType.IsAssignableFrom(type);
 		}
 		
+		void PushArguments(IMethodBinding binding, ExpressionCollection args)
+		{
+			for (int i=0; i<args.Count; ++i)
+			{
+				Expression arg = args[i];
+				
+				Type expectedType = binding.GetParameterType(i);
+				Type actualType = GetBoundType(arg);
+				arg.Switch(this);
+				EmitCastIfNeeded(expectedType, actualType);
+			}
+		}
+		
+		void EmitCastIfNeeded(Type expectedType, Type actualType)
+		{
+			if (!expectedType.IsAssignableFrom(actualType))
+			{
+				_il.Emit(OpCodes.Castclass, expectedType);
+			}
+		}
+		
+		void StoreLocal(Type topOfStack, LocalBuilder localBuilder)
+		{
+			EmitCastIfNeeded(localBuilder.LocalType, topOfStack);
+			_il.Emit(OpCodes.Stloc, localBuilder);
+		}
+		
 		void StoreElementReference(int index, Node value)
 		{
 			_il.Emit(OpCodes.Dup);	// array reference
 			_il.Emit(OpCodes.Ldc_I4, index); // element index
 			value.Switch(this); // value
 			_il.Emit(OpCodes.Stelem_Ref);
+		}
+		
+		Type GetBoundType(Node node)
+		{
+			return BindingManager.GetBoundType(node);
 		}
 	}
 }
