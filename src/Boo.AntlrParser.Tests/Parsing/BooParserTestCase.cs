@@ -178,6 +178,30 @@ namespace Boo.AntlrParser.Tests
 			Assert.AreEqual("rationalPI", module.Members[2].Name);
 			Assert.AreEqual(0, module.Globals.Statements.Count);
 		}
+		
+		[Test]
+		public void InlineIf()
+		{
+			RunParserTestCase("inlineif.boo");
+		}
+		
+		[Test]
+		public void Class()
+		{
+			RunParserTestCase("class_1.boo");
+		}
+		
+		[Test]
+		public void YieldStatement()
+		{
+			RunParserTestCase("yield.boo");
+		}
+		
+		[Test]
+		public void TestGlobalDefs1()
+		{
+			RunParserTestCase("global_defs_1.boo");
+		}
 
 		[Test]
 		public void TestGlobalDefs2()
@@ -621,12 +645,6 @@ namespace Boo.AntlrParser.Tests
 		}
 
 		[Test]
-		public void TestTernaryOperator()
-		{
-			RunParserTestCase("ternary_operator.boo");
-		}
-
-		[Test]
 		public void TestStringInterpolation()
 		{
 			RunParserTestCase("string_interpolation.boo");
@@ -762,6 +780,50 @@ namespace Boo.AntlrParser.Tests
 		public void LineContinuation()
 		{
 			RunParserTestCase("line_continuation0.boo");
+		}
+		
+		[Test]
+		public void Docstrings()
+		{
+			/*
+"""
+A module can have a docstring.
+"""
+namespace Foo.Bar
+"""
+And so can the namespace declaration.
+"""
+
+class Person:
+"""
+A class can have it.
+With multiple lines.
+"""
+	_fname as string
+	"""Fields can have one."""
+	
+	def constructor([required] fname as string):
+	"""
+	And so can a method or constructor.
+	"""
+		_fname = fname
+		
+	FirstName as string:
+	"""And why couldn't a property?"""
+		get:
+			return _fname
+			*/
+			
+			Boo.Lang.Compiler.Ast.Module module = BooParser.ParseFile(GetTestCasePath("docstrings_1.boo")).Modules[0];
+			Assert.AreEqual("A module can have a docstring.", module.Documentation);
+			Assert.AreEqual("And so can the namespace declaration.", module.Namespace.Documentation);
+			
+			ClassDefinition person = (ClassDefinition)module.Members[0];
+			Assert.AreEqual("A class can have it.\nWith multiple lines.", person.Documentation);
+			Assert.AreEqual("Fields can have one.", person.Members[0].Documentation);
+			Assert.AreEqual("And so can a method or constructor.", person.Members[1].Documentation);
+			Assert.AreEqual("And why couldn't a property?", person.Members[2].Documentation);
+			
 		}
 		
 		[TestFixtureSetUp]

@@ -83,7 +83,7 @@ class BooTask(AbstractBooTask):
 		compiler = BooCompiler()
 		parameters = compiler.Parameters
 		parameters.OutputType = CompilerOutputType.Library
-		parameters.Pipeline.Load(BoomPipelineDefinition)
+		parameters.Pipeline.Load(BooInMemoryPipelineDefinition)
 		parameters.Pipeline.InsertAfter("parse", PrepareScriptStep())
 		parameters.Input.Add(StringInput("boo", reindent(code)))
 		parameters.References.Add(typeof(BooTask).Assembly)

@@ -602,7 +602,17 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnBreakStatement(BreakStatement node)
 		{
 			WriteIndented();
-			WriteKeyword("break");
+			WriteKeyword("break ");
+			Switch(node.Modifier);
+			WriteLine();
+		}
+		
+		override public void OnYieldStatement(YieldStatement node)
+		{
+			WriteIndented();
+			WriteKeyword("yield ");
+			Switch(node.Expression);
+			Switch(node.Modifier);
 			WriteLine();
 		}
 		

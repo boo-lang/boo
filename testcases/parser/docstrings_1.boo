@@ -1,26 +1,26 @@
 """
-Este módulo implementa várias classes interessantes.
+A module can have a docstring.
 """
 namespace Foo.Bar
 """
-Esta é a docstring do namespace.
+And so can the namespace declaration.
 """
 
 class Person:
 """
-Esta é a docstring da classe
-que pode conter várias linhas.
+A class can have it.
+With multiple lines.
 """
 	_fname as string
-	"""Campos tbém podem ter docstring"""
+	"""Fields can have one."""
 	
 	def constructor([required] fname as string):
 	"""
-	Um método qualquer também pode especificar docstrings.
+	And so can a method or constructor.
 	"""
 		_fname = fname
 		
 	FirstName as string:
-	"""Uma propriedade, por que não?"""
+	"""And why couldn't a property?"""
 		get:
 			return _fname

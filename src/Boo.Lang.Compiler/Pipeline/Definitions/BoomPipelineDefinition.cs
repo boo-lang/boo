@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Pipeline.Definitions
 	using System;
 	using Boo.Lang.Compiler.Pipeline;
 	
-	public class BoomPipelineDefinition : CorePipelineDefinition
+	public class BooInMemoryPipelineDefinition : CorePipelineDefinition
 	{
 		override public void Define(CompilerPipeline pipeline)
 		{			

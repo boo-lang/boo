@@ -75,7 +75,7 @@ def main(argv as (string)):
 	// boo memory pipeline
 	// compiles the code in memory only
 	pipeline = compiler.Parameters.Pipeline
-	pipeline.Load(BoomPipelineDefinition)	
+	pipeline.Load(BooInMemoryPipelineDefinition)	
 	
 	if "-" == argv[0]:
 		compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))

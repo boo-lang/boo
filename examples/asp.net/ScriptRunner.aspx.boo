@@ -99,7 +99,7 @@ class ScriptRunnerPage(Page):
 		compiler.Parameters.OutputType = CompilerOutputType.Library
 		compiler.Parameters.References.Add(typeof(WebMacro).Assembly)
 		pipeline = compiler.Parameters.Pipeline
-		pipeline.Load(BoomPipelineDefinition)
+		pipeline.Load(BooInMemoryPipelineDefinition)
 		pipeline.InsertAfter("parse", CreateMacroStep())
 		return compiler.Run()		
 			

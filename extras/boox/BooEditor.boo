@@ -134,7 +134,7 @@ class BooEditor(Content):
 		
 		compiler = BooCompiler()
 		compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
-		compiler.Parameters.Pipeline.Load(BoomPipelineDefinition)
+		compiler.Parameters.Pipeline.Load(BooInMemoryPipelineDefinition)
 		compiler.Parameters.References.Add(typeof(Form).Assembly)
 		compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
 

@@ -127,7 +127,7 @@ namespace Boo.Lang.Compiler
 		{
 			_definitions.Add("parse", new ParsePipelineDefinition());
 			_definitions.Add("core", new CorePipelineDefinition());
-			_definitions.Add("boom", new BoomPipelineDefinition());
+			_definitions.Add("boom", new BooInMemoryPipelineDefinition());
 			_definitions.Add("booi", new BooiPipelineDefinition());
 			_definitions.Add("booc", new BoocPipelineDefinition());
 			_definitions.Add("rountrip", new RoundtripPipelineDefinition());
