@@ -96,7 +96,15 @@ ADD: ('+') ('=' { $setType(ASSIGN); })?;
 
 SUBTRACT: ('-') ('=' { $setType(ASSIGN); })?;
 
-MULT_OPERATOR: '%' | '/' | '*';
+MODULUS: '%';
+
+MULTIPLY: '*' ('=' { $setType(ASSIGN); })?;
+
+DIVISION: 
+	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |
+	'/' ('=' { $setType(ASSIGN); })?
+	;
+
 
 CMP_OPERATOR : '<' | "<=" | '>' | ">=" | "!~" | "!=";
 
@@ -114,13 +122,26 @@ SINGLE_QUOTED_STRING :
 		;
 
 protected
-SQS_ESC : '\\'! (
-					('\'') |
-					('r' {$setText("\r");}) |
-					('n' {$setText("\n");}) |
-					('t' {$setText("\t");}) |
-					('\\')
-				);
+DQS_ESC : '\\'! ( SESC | '"' | '$') ;	
+	
+protected
+SQS_ESC : '\\'! ( SESC | '\'' );
+
+protected
+SESC : 
+				( 'r' {$setText("\r"); }) |
+				( 'n' {$setText("\n"); }) |
+				( 't' {$setText("\t"); }) |
+				( '\\' );
+
+protected
+RE_LITERAL : '/' (RE_CHAR)+ '/';
+
+protected
+RE_CHAR : RE_ESC | ~('/' | '\\' | ' ' | '\t' | '\r' | '\n');
+
+protected
+RE_ESC : '\\' ('\\' | '/' | 'r' | 'n' | 't' | '(' | ')' | '.' | '*' | '?' | '[' | ']');
 
 protected
 ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' );

@@ -53,15 +53,7 @@ namespace Boo.Tests.Lang.Compiler
 	
 	[TestFixture]
 	public class CompilerErrorsTestCase : AbstractCompilerTestCase
-	{
-		[SetUp]
-		override public void SetUpTest()
-		{
-			base.SetUpTest();
-			
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;			
-		}
-		
+	{		
 		[Test]
 		public void ReadOnlyProperty()
 		{

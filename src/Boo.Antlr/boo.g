@@ -158,17 +158,6 @@ tokens
 		throw new ArgumentException("op");
 	}
 
-	protected BinaryOperatorType ParseMultOperator(string op)
-	{
-		switch (op)
-		{
-			case "*": return BinaryOperatorType.Multiply;
-			case "/": return BinaryOperatorType.Division;
-			case "%": return BinaryOperatorType.Modulus;
-		}
-		throw new ArgumentException("op");
-	}
-
 	protected BinaryOperatorType ParseAssignOperator(string op)
 	{
 		switch (op)
@@ -1317,14 +1306,20 @@ term returns [Expression e]
 	{
 		e = null;
 		Expression r = null;
+		Token token = null;
+		BinaryOperatorType op = BinaryOperatorType.None; 
 	}:
 	e=unary_expression
 	( options { greedy = true; } :
-		op:MULT_OPERATOR
+	 	(
+		 m:MULTIPLY { op=BinaryOperatorType.Multiply; token=m; } |
+		 d:DIVISION { op=BinaryOperatorType.Division; token=d; } |
+		 md:MODULUS { op=BinaryOperatorType.Modulus; token=md; }
+		 )
 		r=unary_expression
 		{
-			BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
-			be.Operator = ParseMultOperator(op.getText());
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
+			be.Operator = op;
 			be.Left = e;
 			be.Right = r;
 			e = be;
@@ -1845,9 +1840,11 @@ ADD: ('+') ('=' { $setType(ASSIGN); })?;
 
 SUBTRACT: ('-') ('=' { $setType(ASSIGN); })?;
 
-MULT_OPERATOR :
-	'%'| 
-	'*' ('=' { $setType(ASSIGN); })? |
+MODULUS: '%';
+
+MULTIPLY: '*' ('=' { $setType(ASSIGN); })?;
+
+DIVISION: 
 	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |
 	'/' (
 			('/' (~('\n'|'\r'))* { $setType(Token.SKIP); }) |

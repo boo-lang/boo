@@ -119,27 +119,29 @@ namespace Boo.Antlr
 		public const int ADD = 87;
 		public const int SUBTRACT = 88;
 		public const int BITWISE_OR = 89;
-		public const int MULT_OPERATOR = 90;
-		public const int INCREMENT = 91;
-		public const int DECREMENT = 92;
-		public const int CMP_OPERATOR = 93;
-		public const int DOT = 94;
-		public const int INT = 95;
-		public const int DOUBLE_QUOTED_STRING = 96;
-		public const int SINGLE_QUOTED_STRING = 97;
-		public const int LBRACE = 98;
-		public const int RBRACE = 99;
-		public const int RE_LITERAL = 100;
-		public const int SL_COMMENT = 101;
-		public const int WS = 102;
-		public const int ESCAPED_EXPRESSION = 103;
-		public const int DQS_ESC = 104;
-		public const int SQS_ESC = 105;
-		public const int SESC = 106;
-		public const int RE_CHAR = 107;
-		public const int RE_ESC = 108;
-		public const int ID_LETTER = 109;
-		public const int DIGIT = 110;
+		public const int MULTIPLY = 90;
+		public const int DIVISION = 91;
+		public const int MODULUS = 92;
+		public const int INCREMENT = 93;
+		public const int DECREMENT = 94;
+		public const int CMP_OPERATOR = 95;
+		public const int DOT = 96;
+		public const int INT = 97;
+		public const int DOUBLE_QUOTED_STRING = 98;
+		public const int SINGLE_QUOTED_STRING = 99;
+		public const int LBRACE = 100;
+		public const int RBRACE = 101;
+		public const int RE_LITERAL = 102;
+		public const int SL_COMMENT = 103;
+		public const int WS = 104;
+		public const int ESCAPED_EXPRESSION = 105;
+		public const int DQS_ESC = 106;
+		public const int SQS_ESC = 107;
+		public const int SESC = 108;
+		public const int RE_CHAR = 109;
+		public const int RE_ESC = 110;
+		public const int ID_LETTER = 111;
+		public const int DIGIT = 112;
 		
 		
 	
@@ -328,9 +330,21 @@ tryAgain:
 							theRetToken = returnToken_;
 							break;
 						}
-						case '%':  case '*':  case '/':
+						case '%':
 						{
-							mMULT_OPERATOR(true);
+							mMODULUS(true);
+							theRetToken = returnToken_;
+							break;
+						}
+						case '*':
+						{
+							mMULTIPLY(true);
+							theRetToken = returnToken_;
+							break;
+						}
+						case '/':
+						{
+							mDIVISION(true);
 							theRetToken = returnToken_;
 							break;
 						}
@@ -562,7 +576,10 @@ _loop6_breakloop:		;
 					}
 					 }
 				}
-				_ttype = LONG;
+				if (0==inputState.guessing)
+				{
+					_ttype = LONG;
+				}
 			}
 			else {
 				{
@@ -589,7 +606,10 @@ _loop6_breakloop:		;
 _loop13_breakloop:								;
 								}    // ( ... )+
 							}
-							_ttype = DOUBLE;
+							if (0==inputState.guessing)
+							{
+								_ttype = DOUBLE;
+							}
 						}
 						else {
 						}
@@ -630,7 +650,10 @@ _loop13_breakloop:								;
 								}
 								break; }
 							}
-							_ttype = TIMESPAN;
+							if (0==inputState.guessing)
+							{
+								_ttype = TIMESPAN;
+							}
 						}
 						else {
 						}
@@ -674,7 +697,10 @@ _loop13_breakloop:								;
 				}
 _loop19_breakloop:				;
 				}    // ( ... )+
-				_ttype = DOUBLE;
+				if (0==inputState.guessing)
+				{
+					_ttype = DOUBLE;
+				}
 			}
 			else {
 			}
@@ -854,7 +880,10 @@ _loop19_breakloop:				;
 			if ((LA(1)=='='))
 			{
 				match('=');
-				_ttype = ASSIGN;
+				if (0==inputState.guessing)
+				{
+					_ttype = ASSIGN;
+				}
 			}
 			else {
 			}
@@ -880,7 +909,10 @@ _loop19_breakloop:				;
 			if ((LA(1)=='='))
 			{
 				match('=');
-				_ttype = ASSIGN;
+				if (0==inputState.guessing)
+				{
+					_ttype = ASSIGN;
+				}
 			}
 			else {
 			}
@@ -894,33 +926,131 @@ _loop19_breakloop:				;
 		returnToken_ = _token;
 	}
 	
-	public void mMULT_OPERATOR(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+	public void mMODULUS(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
 {
 		int _ttype; Token _token=null; int _begin=text.Length;
-		_ttype = MULT_OPERATOR;
+		_ttype = MODULUS;
 		
-		switch ( LA(1) )
+		match('%');
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
-		case '%':
-		{
-			match('%');
-			break;
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
 		}
-		case '/':
+		returnToken_ = _token;
+	}
+	
+	public void mMULTIPLY(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = MULTIPLY;
+		
+		match('*');
 		{
+			if ((LA(1)=='='))
+			{
+				match('=');
+				if (0==inputState.guessing)
+				{
+					_ttype = ASSIGN;
+				}
+			}
+			else {
+			}
+			
+		}
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	public void mDIVISION(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = DIVISION;
+		
+		bool synPredMatched42 = false;
+		if (((LA(1)=='/') && (tokenSet_0_.member(LA(2))) && (tokenSet_1_.member(LA(3)))))
+		{
+			int _m42 = mark();
+			synPredMatched42 = true;
+			inputState.guessing++;
+			try {
+				{
+					mRE_LITERAL(false);
+				}
+			}
+			catch (RecognitionException)
+			{
+				synPredMatched42 = false;
+			}
+			rewind(_m42);
+			inputState.guessing--;
+		}
+		if ( synPredMatched42 )
+		{
+			mRE_LITERAL(false);
+			if (0==inputState.guessing)
+			{
+				_ttype = RE_LITERAL;
+			}
+		}
+		else if ((LA(1)=='/') && (true) && (true)) {
 			match('/');
-			break;
+			{
+				if ((LA(1)=='='))
+				{
+					match('=');
+					if (0==inputState.guessing)
+					{
+						_ttype = ASSIGN;
+					}
+				}
+				else {
+				}
+				
+			}
 		}
-		case '*':
-		{
-			match('*');
-			break;
-		}
-		default:
+		else
 		{
 			throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
 		}
-		 }
+		
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	protected void mRE_LITERAL(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = RE_LITERAL;
+		
+		match('/');
+		{ // ( ... )+
+		int _cnt66=0;
+		for (;;)
+		{
+			if ((tokenSet_0_.member(LA(1))))
+			{
+				mRE_CHAR(false);
+			}
+			else
+			{
+				if (_cnt66 >= 1) { goto _loop66_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+			}
+			
+			_cnt66++;
+		}
+_loop66_breakloop:		;
+		}    // ( ... )+
+		match('/');
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -994,7 +1124,10 @@ _loop19_breakloop:				;
 					}
 					 }
 				}
-				_ttype = CMP_OPERATOR;
+				if (0==inputState.guessing)
+				{
+					_ttype = CMP_OPERATOR;
+				}
 			}
 			else {
 			}
@@ -1014,7 +1147,7 @@ _loop19_breakloop:				;
 		_ttype = WS;
 		
 		{ // ( ... )+
-		int _cnt44=0;
+		int _cnt50=0;
 		for (;;)
 		{
 			switch ( LA(1) )
@@ -1027,7 +1160,10 @@ _loop19_breakloop:				;
 			case '\t':
 			{
 				match('\t');
-				tab();
+				if (0==inputState.guessing)
+				{
+					tab();
+				}
 				break;
 			}
 			case '\r':
@@ -1038,19 +1174,25 @@ _loop19_breakloop:				;
 			case '\n':
 			{
 				match('\n');
-				newline();
+				if (0==inputState.guessing)
+				{
+					newline();
+				}
 				break;
 			}
 			default:
 			{
-				if (_cnt44 >= 1) { goto _loop44_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
+				if (_cnt50 >= 1) { goto _loop50_breakloop; } else { throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());; }
 			}
 			break; }
-			_cnt44++;
+			_cnt50++;
 		}
-_loop44_breakloop:		;
+_loop50_breakloop:		;
 		}    // ( ... )+
-		_ttype = Token.SKIP;
+		if (0==inputState.guessing)
+		{
+			_ttype = Token.SKIP;
+		}
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
 			_token = makeToken(_ttype);
@@ -1075,18 +1217,18 @@ _loop44_breakloop:		;
 				{
 					mSQS_ESC(false);
 				}
-				else if ((tokenSet_0_.member(LA(1)))) {
+				else if ((tokenSet_2_.member(LA(1)))) {
 					{
-						match(tokenSet_0_);
+						match(tokenSet_2_);
 					}
 				}
 				else
 				{
-					goto _loop48_breakloop;
+					goto _loop54_breakloop;
 				}
 				
 			}
-_loop48_breakloop:			;
+_loop54_breakloop:			;
 		}    // ( ... )*
 		_saveIndex = text.Length;
 		match('\'');
@@ -1111,42 +1253,225 @@ _loop48_breakloop:			;
 		{
 			switch ( LA(1) )
 			{
+			case '\\':  case 'n':  case 'r':  case 't':
+			{
+				mSESC(false);
+				break;
+			}
 			case '\'':
 			{
+				match('\'');
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
+			}
+			 }
+		}
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	protected void mDQS_ESC(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = DQS_ESC;
+		
+		int _saveIndex = 0;
+		_saveIndex = text.Length;
+		match('\\');
+		text.Length = _saveIndex;
+		{
+			switch ( LA(1) )
+			{
+			case '\\':  case 'n':  case 'r':  case 't':
+			{
+				mSESC(false);
+				break;
+			}
+			case '"':
+			{
+				match('"');
+				break;
+			}
+			case '$':
+			{
+				match('$');
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
+			}
+			 }
+		}
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	protected void mSESC(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = SESC;
+		
+		switch ( LA(1) )
+		{
+		case 'r':
+		{
+			{
+				match('r');
+				if (0==inputState.guessing)
 				{
-					match('\'');
+					text.Length = _begin; text.Append("\r");
 				}
+			}
+			break;
+		}
+		case 'n':
+		{
+			{
+				match('n');
+				if (0==inputState.guessing)
+				{
+					text.Length = _begin; text.Append("\n");
+				}
+			}
+			break;
+		}
+		case 't':
+		{
+			{
+				match('t');
+				if (0==inputState.guessing)
+				{
+					text.Length = _begin; text.Append("\t");
+				}
+			}
+			break;
+		}
+		case '\\':
+		{
+			{
+				match('\\');
+			}
+			break;
+		}
+		default:
+		{
+			throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
+		}
+		 }
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	protected void mRE_CHAR(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = RE_CHAR;
+		
+		if ((LA(1)=='\\'))
+		{
+			mRE_ESC(false);
+		}
+		else if ((tokenSet_3_.member(LA(1)))) {
+			{
+				match(tokenSet_3_);
+			}
+		}
+		else
+		{
+			throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine(), getColumn());
+		}
+		
+		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
+		{
+			_token = makeToken(_ttype);
+			_token.setText(text.ToString(_begin, text.Length-_begin));
+		}
+		returnToken_ = _token;
+	}
+	
+	protected void mRE_ESC(bool _createToken) //throws RecognitionException, CharStreamException, TokenStreamException
+{
+		int _ttype; Token _token=null; int _begin=text.Length;
+		_ttype = RE_ESC;
+		
+		match('\\');
+		{
+			switch ( LA(1) )
+			{
+			case '\\':
+			{
+				match('\\');
+				break;
+			}
+			case '/':
+			{
+				match('/');
 				break;
 			}
 			case 'r':
 			{
-				{
-					match('r');
-					text.Length = _begin; text.Append("\r");
-				}
+				match('r');
 				break;
 			}
 			case 'n':
 			{
-				{
-					match('n');
-					text.Length = _begin; text.Append("\n");
-				}
+				match('n');
 				break;
 			}
 			case 't':
 			{
-				{
-					match('t');
-					text.Length = _begin; text.Append("\t");
-				}
+				match('t');
 				break;
 			}
-			case '\\':
+			case '(':
 			{
-				{
-					match('\\');
-				}
+				match('(');
+				break;
+			}
+			case ')':
+			{
+				match(')');
+				break;
+			}
+			case '.':
+			{
+				match('.');
+				break;
+			}
+			case '*':
+			{
+				match('*');
+				break;
+			}
+			case '?':
+			{
+				match('?');
+				break;
+			}
+			case '[':
+			{
+				match('[');
+				break;
+			}
+			case ']':
+			{
+				match(']');
 				break;
 			}
 			default:
@@ -1167,13 +1492,41 @@ _loop48_breakloop:			;
 	private static long[] mk_tokenSet_0_()
 	{
 		long[] data = new long[2048];
+		data[0]=-140741783332360L;
+		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
+		return data;
+	}
+	public static readonly BitSet tokenSet_0_ = new BitSet(mk_tokenSet_0_());
+	private static long[] mk_tokenSet_1_()
+	{
+		long[] data = new long[2048];
+		data[0]=-4294977032L;
+		for (int i = 1; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
+		return data;
+	}
+	public static readonly BitSet tokenSet_1_ = new BitSet(mk_tokenSet_1_());
+	private static long[] mk_tokenSet_2_()
+	{
+		long[] data = new long[2048];
 		data[0]=-549755823112L;
 		data[1]=-268435457L;
 		for (int i = 2; i<=1023; i++) { data[i]=-1L; }
 		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
 		return data;
 	}
-	public static readonly BitSet tokenSet_0_ = new BitSet(mk_tokenSet_0_());
+	public static readonly BitSet tokenSet_2_ = new BitSet(mk_tokenSet_2_());
+	private static long[] mk_tokenSet_3_()
+	{
+		long[] data = new long[2048];
+		data[0]=-140741783332360L;
+		data[1]=-268435457L;
+		for (int i = 2; i<=1023; i++) { data[i]=-1L; }
+		for (int i = 1024; i<=2047; i++) { data[i]=0L; }
+		return data;
+	}
+	public static readonly BitSet tokenSet_3_ = new BitSet(mk_tokenSet_3_());
 	
 }
 }
