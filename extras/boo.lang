@@ -129,6 +129,7 @@ OR
 	<keyword-list _name = "Keywords" style = "Keyword" case-sensitive="true">
 		<keyword>and</keyword>
 		<keyword>break</keyword>
+		<keyword>cast</keyword>
 		<keyword>continue</keyword>
 		<keyword>else</keyword>
 		<keyword>except</keyword>
@@ -143,6 +144,7 @@ OR
 		<keyword>pass</keyword>
 		<keyword>raise</keyword>
 		<keyword>try</keyword>
+		<keyword>unless</keyword>
 		<keyword>while</keyword>
 	</keyword-list>
 
@@ -156,6 +158,7 @@ OR
 		<keyword>property</keyword>
 		<keyword>using</keyword>
 		<keyword>getter</keyword>
+		<keyword>required</keyword>
 		<keyword>lock</keyword>
 		<keyword>range</keyword>
 		<keyword>zip</keyword>
