@@ -31,6 +31,7 @@ namespace Boo.Lang
 	using System;
 	using System.Collections;
 	
+	[Serializable]
 	public class BooHashCodeProvider : IHashCodeProvider
 	{
 		public static readonly IHashCodeProvider Default = new BooHashCodeProvider();
