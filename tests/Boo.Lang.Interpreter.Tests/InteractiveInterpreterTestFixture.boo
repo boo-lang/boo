@@ -151,6 +151,18 @@ p as object = Person(Name: 'John')
 		assert "John" == _interpreter.GetValue("name")
 		
 	[Test]
+	def TreatObjectsAsDucksCanBeDisabled():
+		Eval("""
+class Person:
+	[property(Name)] _name = ''
+	
+p as object = Person(Name: 'John')
+""")
+		_interpreter.Ducky = false
+		result = _interpreter.Eval("name = p.Name")
+		assert 1 == len(result.Errors)
+		
+	[Test]
 	def InterpreterRememberDeclaredTypes():
 		Eval("i as object = 3")
 		assert 3 == _interpreter.GetValue("i")
