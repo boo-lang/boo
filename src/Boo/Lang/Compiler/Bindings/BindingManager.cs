@@ -67,6 +67,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public ExternalTypeBinding TimeSpanTypeBinding;
 		
+		public ExternalTypeBinding DateTimeTypeBinding;
+		
 		public ExternalTypeBinding RuntimeServicesBinding;
 		
 		public ExternalTypeBinding BuiltinsBinding;
@@ -82,6 +84,8 @@ namespace Boo.Lang.Compiler.Bindings
 		public ExternalTypeBinding IListTypeBinding;
 		
 		public ExternalTypeBinding IDictionaryTypeBinding;
+		
+		System.Collections.Hashtable _primitives = new System.Collections.Hashtable();
 		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
@@ -108,7 +112,7 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(SingleTypeBinding = new ExternalTypeBinding(this, Types.Single));
 			Cache(RealTypeBinding = new ExternalTypeBinding(this, Types.Real));
 			Cache(TimeSpanTypeBinding = new ExternalTypeBinding(this, Types.TimeSpan));
-			Cache(new ExternalTypeBinding(this, Types.Date));
+			Cache(DateTimeTypeBinding = new ExternalTypeBinding(this, Types.DateTime));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 			Cache(BuiltinsBinding = new ExternalTypeBinding(this, Types.Builtins));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
@@ -121,6 +125,8 @@ namespace Boo.Lang.Compiler.Bindings
 			Cache(ExceptionTypeBinding = new ExternalTypeBinding(this, Types.Exception));
 			
 			ObjectTupleBinding = AsTupleBinding(ObjectTypeBinding);
+			
+			PreparePrimitives();
 		}
 		
 		public Boo.Lang.Ast.TypeReference CreateBoundTypeReference(ITypeBinding binding)
@@ -369,76 +375,37 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public IBinding ResolvePrimitive(string name)
 		{
-			IBinding binding = null;
-			switch (name)
-			{
-				case "void":
-				{
-					binding = AsTypeReference(VoidTypeBinding);
-					break;
-				}
-				
-				case "bool":
-				{
-					binding = AsTypeReference(BoolTypeBinding);
-					break;
-				}
-				
-				case "date":
-				{
-					binding = AsTypeReference(Types.Date);
-					break;
-				}
-				
-				case "string":
-				{
-					binding = AsTypeReference(StringTypeBinding);
-					break;
-				}
-				
-				case "object":
-				{
-					binding = AsTypeReference(ObjectTypeBinding);
-					break;
-				}
-				
-				case "byte":
-				{
-					binding = AsTypeReference(ByteTypeBinding);
-					break;
-				}
-				
-				case "real":
-				{
-					binding = AsTypeReference(RealTypeBinding);
-					break;
-				}
-				
-				case "int":
-				{
-					binding = AsTypeReference(IntTypeBinding);
-					break;
-				}
-				
-				case "long":
-				{
-					binding = AsTypeReference(LongTypeBinding);
-					break;
-				}
-				
-				case "typeof":
-				{
-					binding = _typeOfBinding;
-					break;
-				}
-				
-				case "len":
-				{
-					binding = _lenBinding;
-					break;
-				}
-			}
-			return binding;
+			return (IBinding)_primitives[name];
+		}
+		
+		public bool IsPrimitive(string name)
+		{
+			return _primitives.ContainsKey(name);
+		}
+		
+		void PreparePrimitives()
+		{
+			AddPrimitiveType("void", VoidTypeBinding);
+			AddPrimitiveType("bool", BoolTypeBinding);
+			AddPrimitiveType("date", DateTimeTypeBinding);
+			AddPrimitiveType("string", StringTypeBinding);
+			AddPrimitiveType("object", ObjectTypeBinding);
+			AddPrimitiveType("byte", ByteTypeBinding);
+			AddPrimitiveType("int", IntTypeBinding);
+			AddPrimitiveType("long", LongTypeBinding);
+			AddPrimitiveType("real", RealTypeBinding);
+			AddPrimitive("typeof", _typeOfBinding);
+			AddPrimitive("len", _lenBinding);
+		}
+		
+		void AddPrimitiveType(string name, ExternalTypeBinding type)
+		{
+			_primitives[name] = AsTypeReference(type);
+		}
+		
+		void AddPrimitive(string name, IBinding binding)
+		{
+			_primitives[name] = binding;
 		}
 		
 		void Cache(ExternalTypeBinding binding)

@@ -227,11 +227,17 @@ done * usar classes em módulos diferentes, no mesmo namespace, sem precisar imp
 
 done * usar métodos definidos em outros módulos no namespace global
 
+* usar métodos definidos no mesmo módulo em uma classe
+
 * usar métodos definidos em outros módulos no mesmo namespace
+
+done * ERROR: can't redefine primitive: 'string'
 
 * assembly attributes: [assembly: AssemblyVersion("foo")]
 
 * remover DepthFirstTransformer pois não é mais necessário e só confunde...
+
+* internal method overloading resolution
 	
 * remover casts dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário

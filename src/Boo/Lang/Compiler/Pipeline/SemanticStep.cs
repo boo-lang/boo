@@ -459,11 +459,12 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				parameter.Type = CreateBoundTypeReference(BindingManager.ObjectTypeBinding);
 			}
+			CheckIdentifierName(parameter, parameter.Name);
 			Bindings.ParameterBinding binding = new Bindings.ParameterBinding(parameter, GetBoundType(parameter.Type));
 			Bind(parameter, binding);
 		}	
 		
-		public override bool EnterMethod(Method method)
+		public override void OnMethod(Method method)
 		{				
 			InternalMethodBinding binding = (InternalMethodBinding)GetOptionalBinding(method);
 			if (null == binding)
@@ -475,24 +476,20 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				if (binding.Visited)
 				{
-					return false;
+					return;
 				}
 			}
 			
 			binding.Visited = true;
+			Switch(method.Attributes);
+			Switch(method.Parameters);
+			Switch(method.ReturnType);
+			Switch(method.ReturnTypeAttributes);
+			
 			PushMethodBinding(binding);
 			PushNamespace(binding);
-			return true;
-		}
-		
-		public override void OnSuperLiteralExpression(SuperLiteralExpression node)
-		{			
-			Bind(node, _currentMethodBinding);
-		}
-		
-		public override void LeaveMethod(Method method)
-		{
-			InternalMethodBinding binding = _currentMethodBinding;
+			
+			Switch(method.Body);
 			
 			PopNamespace();
 			PopMethodBinding();
@@ -514,6 +511,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				ResolveMethodOverride(binding);
 			}
+		}
+		
+		public override void OnSuperLiteralExpression(SuperLiteralExpression node)
+		{			
+			Bind(node, _currentMethodBinding);
 		}
 		
 		internal void ResolveMethodOverride(InternalMethodBinding binding)
@@ -953,6 +955,11 @@ namespace Boo.Lang.Compiler.Pipeline
 			{
 				Bind(node, BindingManager.AsTupleBinding(GetMostGenericType(items)));
 			}
+		}
+		
+		public override void LeaveDeclaration(Declaration node)
+		{
+			CheckIdentifierName(node, node.Name);
 		}
 		
 		public override void LeaveDeclarationStatement(DeclarationStatement node)
@@ -1752,6 +1759,16 @@ namespace Boo.Lang.Compiler.Pipeline
 			
 			Bind(notNode, BindingManager.BoolTypeBinding);
 			return notNode;
+		}
+		
+		bool CheckIdentifierName(Node node, string name)
+		{
+			if (BindingManager.IsPrimitive(name))
+			{
+				Error(CompilerErrorFactory.CantRedefinePrimitive(node, name));
+				return false;
+			}
+			return true;
 		}
 		
 		bool CheckIsNotValueType(BinaryExpression node, Expression expression)
@@ -2644,8 +2661,10 @@ namespace Boo.Lang.Compiler.Pipeline
 					Switch(d.Type);
 					// todo: check types here
 				}
-				
-				DeclareLocal(d, new Local(d, declarePrivateLocals), GetBoundType(d.Type));
+				if (CheckIdentifierName(d, d.Name))
+				{
+					DeclareLocal(d, new Local(d, declarePrivateLocals), GetBoundType(d.Type));
+				}
 			}
 		}		
 		

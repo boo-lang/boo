@@ -73,6 +73,8 @@ namespace Boo.Lang.Compiler.Bindings
 		
 		public static readonly Type TimeSpan = typeof(TimeSpan);
 		
+		public static readonly Type DateTime = typeof(DateTime);
+		
 		public static readonly Type Single = typeof(float);
 		
 		public static readonly Type Real = typeof(double);

@@ -83,6 +83,7 @@ namespace Boo.Lang.Compiler.Pipeline
 					}
 				}
 			}
+			
 			if (null != binding)
 			{
 				_context.TraceInfo("{0}: {1} bound to {2}.", sourceNode.LexicalInfo, name, binding);

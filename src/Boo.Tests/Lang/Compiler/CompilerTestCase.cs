@@ -915,6 +915,12 @@ namespace Boo.Tests.Lang.Compiler
 		}
 		
 		[Test]
+		public void ClassesCanUseModuleMethods()
+		{
+			RunCompilerTestCase("module_methods0.boo");
+		}
+		
+		[Test]
 		public void RangeBuiltin()
 		{
 			RunCompilerTestCase("range.boo");

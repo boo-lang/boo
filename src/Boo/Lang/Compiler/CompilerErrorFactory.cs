@@ -312,6 +312,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0056", new LexicalInfo(fname), fname);
 		}
 		
+		public static CompilerError CantRedefinePrimitive(Node node, string name)
+		{
+			return new CompilerError("BCE0057", node.LexicalInfo, name);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

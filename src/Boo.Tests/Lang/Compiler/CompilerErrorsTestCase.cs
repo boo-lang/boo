@@ -88,6 +88,12 @@ namespace Boo.Tests.Lang.Compiler
 			RunCompilerTestCase("assign0.boo");
 		}
 		
+		[Test]
+		public void PrimitiveNamesCantBeRedefined()
+		{
+			RunCompilerTestCase("primitives0.boo");
+		}
+		
 		protected override void SetUpCompilerPipeline(CompilerPipeline pipeline)
 		{
 			pipeline.
