@@ -151,7 +151,7 @@
 
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
 
-		<if test="${not file::up-to-date('boo.g', 'src/Boo.antlr/BooParserBase.cs')}">
+		<if test="${not file::up-to-date('src/Boo.Antlr/boo.g', 'src/Boo.Antlr/BooParserBase.cs')}">
 			<exec program="${antlr.exe}" failonerror="true" useruntimeengine='true'>
 				<arg value="-o" />
 				<arg value="src/Boo.Antlr/" />
@@ -163,6 +163,8 @@
 				<arg value="src/Boo.Antlr/" />
 				<arg value="src/Boo.Antlr/booel.g" />
 			</exec>
+			
+			<touch file="src/Boo.Antlr/BooParserBase.cs" />
 		</if>
 	</target>
 	

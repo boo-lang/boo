@@ -118,9 +118,9 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("MemberNotFound", node.Name, targetBindingName)));
 		}
 		
-		public void BoolExpressionRequired(Expression node, Type type)
+		public void BoolExpressionRequired(Expression node, string actualType)
 		{
-			Add(new Error(node, Format("BoolExpressionRequired", type)));
+			Add(new Error(node, Format("BoolExpressionRequired", actualType)));
 		}
 		
 		public void NoApropriateOverloadFound(Node node, string args, string name)
@@ -166,9 +166,9 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, msg));
 		}
 
-		public void NotAPublicFieldOrProperty(Node node, Type type, string name)
+		public void NotAPublicFieldOrProperty(Node node, string typeName, string name)
 		{
-			string msg = Format("NotAPublicFieldOrProperty", name, type);
+			string msg = Format("NotAPublicFieldOrProperty", name, typeName);
 			Add(new Error(node, msg));
 		}
 
@@ -194,7 +194,12 @@ namespace Boo.Ast.Compilation
 			Add(new Error(attribute, msg, cause));
 		}
 		
-		public void IncompatibleExpressionType(Node node, Type expected, Type actual)
+		public void AstAttributeMustBeExternal(Attribute attribute, Binding.ITypeBinding resolvedType)
+		{
+			Add(new Error(attribute, Format("AstAttributeMustBeExternal", resolvedType.FullName)));
+		}
+		
+		public void IncompatibleExpressionType(Node node, string expected, string actual)
 		{
 			Add(new Error(node, Format("IncompatibleExpressionType", expected, actual)));
 		}

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -29,7 +29,6 @@
 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 
 namespace Boo.Ast.Compilation.Binding
 {
@@ -37,13 +36,19 @@ namespace Boo.Ast.Compilation.Binding
 	{		
 		BindingManager _bindingManager;
 		TypeDefinition _typeDefinition;
-		TypeBuilder _builder;
 		
-		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition, TypeBuilder builder)
+		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition)
 		{
 			_bindingManager = manager;
 			_typeDefinition = typeDefinition;
-			_builder = builder;
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _typeDefinition.FullName;
+			}
 		}
 		
 		public string Name
@@ -78,20 +83,22 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public Type Type
+		public bool IsValueType
 		{
 			get
 			{
-				return _builder;
+				return false;
 			}
 		}
 		
-		public TypeBuilder TypeBuilder
+		public bool IsSubclassOf(ITypeBinding other)
 		{
-			get
-			{
-				return _builder;
-			}
+			return false;
+		}
+		
+		public bool IsAssignableFrom(ITypeBinding other)
+		{
+			return false;
 		}
 		
 		public IConstructorBinding[] GetConstructors()

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -28,24 +28,27 @@
 #endregion
 
 using System;
-using System.Reflection;
-using System.Reflection.Emit;
 
 namespace Boo.Ast.Compilation.Binding
 {
 	public class InternalMethodBinding : IMethodBinding, INamespace
 	{
-		BindingManager _manager;
+		BindingManager _bindingManager;
 		
 		Boo.Ast.Method _method;
 		
-		MethodBuilder _builder;
-		
-		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method, MethodBuilder builder)
+		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method)
 		{
-			_manager = manager;
+			_bindingManager = manager;
 			_method = method;
-			_builder = builder;
+		}
+		
+		public ITypeBinding DeclaringType
+		{
+			get
+			{
+				return _bindingManager.ToTypeBinding((TypeDefinition)_method.ParentNode);
+			}
 		}
 		
 		public bool IsStatic
@@ -88,32 +91,24 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public Type GetParameterType(int parameterIndex)
+		public Method Method
 		{
-			return _manager.GetBoundType(_method.Parameters[parameterIndex].Type);
+			get
+			{
+				return _method;
+			}
+		}
+		
+		public ITypeBinding GetParameterType(int parameterIndex)
+		{
+			return _bindingManager.GetBoundType(_method.Parameters[parameterIndex].Type);
 		}
 		
 		public ITypeBinding ReturnType
 		{
 			get
 			{
-				return _manager.GetTypeBinding(_method.ReturnType);
-			}
-		}
-		
-		public MethodBase MethodInfo
-		{
-			get
-			{
-				return _builder;
-			}
-		}
-		
-		public MethodBuilder MethodBuilder
-		{
-			get
-			{
-				return _builder;
+				return _bindingManager.GetBoundType(_method.ReturnType);
 			}
 		}
 		
@@ -123,7 +118,7 @@ namespace Boo.Ast.Compilation.Binding
 			{
 				if (name == local.Name)
 				{
-					return _manager.GetBinding(local);
+					return _bindingManager.GetBinding(local);
 				}
 			}
 			
@@ -131,7 +126,7 @@ namespace Boo.Ast.Compilation.Binding
 			{
 				if (name == parameter.Name)
 				{
-					return _manager.GetBinding(parameter);
+					return _bindingManager.GetBinding(parameter);
 				}
 			}
 			return null;

@@ -49,7 +49,7 @@ namespace Boo.Ast
 		{
 		}
 		
-		public virtual string FullyQualifiedName
+		public virtual string FullName
 		{
 			get
 			{

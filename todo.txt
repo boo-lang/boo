@@ -95,11 +95,13 @@ genérico de blocos nos passos (facilitar mover/trocar blocos inteiros de lugar)
 done * mover toda dependência no ANTLR para outro assembly e remover qualquer referência aos simbolos
 antlr dos fontes de Boo.dll e Boo.Tests.dll (incluíndo AST, etc)
 
-* Remover toda e qualquer menção à Assembly.Emit do SemanticStep (e considerar a possibilidade de
+done * mover boo.g e booel.g para src/Boo.Antlr
+
+done * Remover toda e qualquer menção à Assembly.Emit do SemanticStep (e considerar a possibilidade de
 remover o AssemblySetupStep): SemanticStep deve lidar exclusivamente com as semânticas e transformaçoes
 exigidas pela linguagem, permitindo múltiplos backends de geraçao de código
 
-* mover boo.g e booel.g para src/Boo.Antlr
+done * unificar SetupAssemblyStep com EmitAssemblyStep
 
 * transformação de acesso de propriedade em invocaçao de método passa para SemanticStep
 
@@ -113,6 +115,10 @@ e passa a ser utilizado ReferenceExpression em seu lugar
 	
 * remover alguns dos EmitCastIfNeeded do EmitAssemblyStep e move-los para o
 SemanticStep que deverá criar AsExpression sempre que necessário
+
+* BooPrinterVisitor deve imprimir as declaraçoes de variáveis locais
+
+* os próprios nós da AST implementam as interfaces de binding?
 
 
 Milestone 3.8
@@ -180,6 +186,11 @@ Otimiza��es
 	por
 	a = 1
 	b = 2
+
+	criar para isso um novo tipo de statement que pode ser utilizado no lugar de
+	qualquer outro statement:
+		class StatementGroup(Statement):
+			Statements as StatementCollection
 	
 * tail call prefix para funçoes recursivas com a ScanDirectories do rgrep.boo
 

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -29,10 +29,10 @@
 
 using System;
 
-namespace Boo.Ast.Visiting
+namespace Boo.Ast.Visitors
 {
 	/// <summary>
-	/// Imprime a rvore em pseudo-C#.
+	/// Prints a boo ast in pseudo C#.
 	/// </summary>
 	public class PseudoCSharpPrinterVisitor : TextEmitter
 	{

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -44,12 +44,20 @@ namespace Boo.Ast.Compilation.Binding
 		
 		internal ExternalTypeBinding(BindingManager manager, Type type)
 		{
-			if (Types.Void == type)
+			if (null == type)
 			{
 				throw new ArgumentException("type");
 			}
 			_bindingManager = manager;
 			_type = type;
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _type.FullName;
+			}
 		}
 		
 		public string Name
@@ -76,12 +84,40 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public bool IsValueType
+		{
+			get
+			{
+				return _type.IsValueType;
+			}
+		}
+		
 		public Type Type
 		{
 			get
 			{
 				return _type;
 			}
+		}
+		
+		public bool IsSubclassOf(ITypeBinding other)
+		{
+			ExternalTypeBinding external = other as ExternalTypeBinding;
+			if (null == external)
+			{
+				throw new NotImplementedException();
+			}
+			return _type.IsSubclassOf(external._type);
+		}
+		
+		public bool IsAssignableFrom(ITypeBinding other)
+		{
+			ExternalTypeBinding external = other as ExternalTypeBinding;
+			if (null == external)
+			{
+				throw new NotImplementedException();
+			}
+			return _type.IsAssignableFrom(external._type);
 		}
 		
 		public IConstructorBinding[] GetConstructors()
@@ -98,7 +134,7 @@ namespace Boo.Ast.Compilation.Binding
 			return _constructors;
 		}
 		
-		public IBinding Resolve(string name)
+		public virtual IBinding Resolve(string name)
 		{						
 			bool found;
 			IBinding binding = ResolveFromCache(name, out found);

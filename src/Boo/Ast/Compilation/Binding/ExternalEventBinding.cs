@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -41,6 +41,14 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			_bindingManager = bindingManager;
 			_event = event_;
+		}
+		
+		public ITypeBinding DeclaringType
+		{
+			get
+			{
+				return _bindingManager.ToTypeBinding(_event.DeclaringType);
+			}
 		}
 		
 		public System.Reflection.EventInfo EventInfo

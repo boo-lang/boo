@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -29,38 +29,40 @@
 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using Boo.Ast;
 
 namespace Boo.Ast.Compilation.Binding
 {
 	public class BindingManager
 	{		
-		public ITypeBinding ObjectTypeBinding;
+		public ExternalTypeBinding ObjectTypeBinding;
 		
-		public ITypeBinding ObjectArrayBinding;
+		public ExternalTypeBinding ObjectArrayBinding;
 	
-		public ITypeBinding VoidTypeBinding;
+		public ExternalTypeBinding VoidTypeBinding;
 		
-		public ITypeBinding StringTypeBinding;
+		public ExternalTypeBinding StringTypeBinding;
 		
-		public ITypeBinding BoolTypeBinding;
+		public ExternalTypeBinding BoolTypeBinding;
 		
-		public ITypeBinding IntTypeBinding;
+		public ExternalTypeBinding IntTypeBinding;
 		
-		public ITypeBinding RuntimeServicesBinding;
+		public ExternalTypeBinding SingleTypeBinding;
 		
-		public ITypeBinding ListTypeBinding;
+		public ExternalTypeBinding RuntimeServicesBinding;
+		
+		public ExternalTypeBinding ListTypeBinding;
 		
 		System.Collections.Hashtable _bindingCache = new System.Collections.Hashtable();
 		
 		public BindingManager()
 		{
-			Cache(VoidTypeBinding = new VoidTypeBindingImpl());
+			Cache(VoidTypeBinding = new VoidTypeBindingImpl(this));
 			Cache(ObjectTypeBinding = new ExternalTypeBinding(this, Types.Object));
 			Cache(StringTypeBinding = new ExternalTypeBinding(this, Types.String));
 			Cache(BoolTypeBinding = new ExternalTypeBinding(this, Types.Bool));
 			Cache(IntTypeBinding = new ExternalTypeBinding(this, Types.Int));
+			Cache(SingleTypeBinding = new ExternalTypeBinding(this, Types.Single));
 			Cache(new ExternalTypeBinding(this, Types.Date));
 			Cache(RuntimeServicesBinding = new ExternalTypeBinding(this, Types.RuntimeServices));
 			Cache(ListTypeBinding = new ExternalTypeBinding(this, Types.List));
@@ -86,9 +88,9 @@ namespace Boo.Ast.Compilation.Binding
 			node[BindingKey] = binding;
 		}
 		
-		public void Bind(TypeDefinition type, TypeBuilder builder)
+		public void Bind(TypeDefinition type)
 		{
-			Bind(type, ToTypeBinding(type, builder));
+			Bind(type, ToTypeBinding(type));
 		}
 		
 		public void Error(Node node)
@@ -111,19 +113,14 @@ namespace Boo.Ast.Compilation.Binding
 			return binding;
 		}	
 		
-		public ITypeBinding GetTypeBinding(Node node)
+		public ITypeBinding GetBoundType(Node node)
 		{
 			return ((ITypedBinding)GetBinding(node)).BoundType;
 		}
 		
-		public System.Type GetBoundType(Node node)
-		{
-			return GetTypeBinding(node).Type;
-		}	
-		
 		public ITypeBinding ToTypeBinding(System.Type type)
 		{
-			ITypeBinding binding = (ITypeBinding)_bindingCache[type];
+			ExternalTypeBinding binding = (ExternalTypeBinding)_bindingCache[type];
 			if (null == binding)
 			{
 				Cache(binding = new ExternalTypeBinding(this, type));
@@ -131,12 +128,12 @@ namespace Boo.Ast.Compilation.Binding
 			return binding;
 		}
 		
-		public ITypeBinding ToTypeBinding(TypeDefinition typeDefinition, TypeBuilder builder)
+		public ITypeBinding ToTypeBinding(TypeDefinition typeDefinition)
 		{
 			ITypeBinding binding = (ITypeBinding)_bindingCache[typeDefinition];
 			if (null == binding)
 			{
-				Cache(binding = new InternalTypeBinding(this, typeDefinition, builder));
+				Cache(typeDefinition, binding = new InternalTypeBinding(this, typeDefinition));
 			}
 			return binding;
 		}
@@ -234,17 +231,21 @@ namespace Boo.Ast.Compilation.Binding
 			return binding;
 		}
 		
-		void Cache(ITypeBinding binding)
+		void Cache(ExternalTypeBinding binding)
 		{
 			_bindingCache[binding.Type] = binding;
 		}
 		
-		public static string GetSignature(IMethodBinding binding)
+		void Cache(object key, ITypeBinding binding)
 		{
-			MethodBase mi = binding.MethodInfo;
-			System.Text.StringBuilder sb = new System.Text.StringBuilder(mi.DeclaringType.FullName);
+			_bindingCache[key] = binding;
+		}
+		
+		public static string GetSignature(IMethodBinding binding)
+		{			
+			System.Text.StringBuilder sb = new System.Text.StringBuilder(binding.DeclaringType.FullName);
 			sb.Append(".");
-			sb.Append(mi.Name);
+			sb.Append(binding.Name);
 			sb.Append("(");
 			for (int i=0; i<binding.ParameterCount; ++i)
 			{				
@@ -255,7 +256,7 @@ namespace Boo.Ast.Compilation.Binding
 				sb.Append(binding.GetParameterType(i).FullName);
 			}
 			sb.Append(") as ");
-			sb.Append(binding.ReturnType.Type.FullName);
+			sb.Append(binding.ReturnType.FullName);
 			return sb.ToString();
 		}
 		
@@ -267,54 +268,16 @@ namespace Boo.Ast.Compilation.Binding
 		static object BindingKey = new object();		
 		
 		#region VoidTypeBindingImpl
-		class VoidTypeBindingImpl : ITypeBinding
+		class VoidTypeBindingImpl : ExternalTypeBinding
 		{			
-			internal VoidTypeBindingImpl()
+			internal VoidTypeBindingImpl(BindingManager manager) : base(manager, Types.Void)
 			{				
-			}
+			}		
 			
-			public string Name
-			{
-				get
-				{
-					return "void";
-				}
-			}
-			
-			public BindingType BindingType
-			{
-				get
-				{
-					return BindingType.Type;
-				}
-			}
-			
-			public ITypeBinding BoundType
-			{
-				get
-				{
-					return this;
-				}
-			}
-			
-			public Type Type
-			{
-				get
-				{
-					return Types.Void;
-				}
-			}
-			
-			public IConstructorBinding[] GetConstructors()
-			{
-				return new IConstructorBinding[0];
-			}
-			
-			public IBinding Resolve(string name)
+			public override IBinding Resolve(string name)
 			{	
 				return null;
-			}
-	
+			}	
 		}
 
 		#endregion

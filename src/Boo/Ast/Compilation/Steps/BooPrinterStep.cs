@@ -54,7 +54,7 @@ namespace Boo.Ast.Compilation.Steps
 
 		public void Run()
 		{		
-			Boo.Ast.Visiting.BooPrinterVisitor visitor = new Boo.Ast.Visiting.BooPrinterVisitor(Console.Out);
+			Boo.Ast.Visitors.BooPrinterVisitor visitor = new Boo.Ast.Visitors.BooPrinterVisitor(Console.Out);
 			visitor.Print(_context.CompileUnit);
 		}
 	}

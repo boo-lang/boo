@@ -133,7 +133,6 @@
     <File name=".\Ast\Compilation\Steps\AbstractNamespaceSensitiveCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AbstractSwitcherCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AbstractTransformerCompilerStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Compilation\Steps\AssemblySetupStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AstAttributesStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\AstNormalizationStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Compilation\Steps\BooPrinterStep.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -224,10 +223,10 @@
     <File name=".\Ast\Impl\WhenClauseImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\WhileStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Ast\Impl\YieldStatementImpl.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Visiting\BooPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Visiting\PseudoCSharpPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Visiting\TextEmitter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name=".\Ast\Visiting\TreePrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Visitors\BooPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Visitors\PseudoCSharpPrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Visitors\TextEmitter.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\Ast\Visitors\TreePrinterVisitor.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IO\StreamReaderEnumerator.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\IO\TextFile.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\Lang\AstAttribute.cs" subtype="Code" buildaction="Compile" dependson="" data="" />

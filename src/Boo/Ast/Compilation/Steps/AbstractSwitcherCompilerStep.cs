@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -29,7 +29,6 @@
 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using Boo.Ast;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.Binding;
@@ -89,27 +88,7 @@ namespace Boo.Ast.Compilation.Steps
 			return BindingManager.GetBinding(node);
 		}
 		
-		public ITypeBinding GetTypeBinding(Node node)
-		{
-			return BindingManager.GetTypeBinding(node);
-		}
-		
-		public TypeBuilder GetTypeBuilder(TypeDefinition type)
-		{
-			return ((InternalTypeBinding)GetBinding(type)).TypeBuilder;
-		}
-		
-		public MethodBuilder GetMethodBuilder(Method method)
-		{
-			return ((InternalMethodBinding)GetBinding(method)).MethodBuilder;
-		}
-		
-		public MethodInfo GetMethodInfo(Node node)
-		{
-			return (MethodInfo)((IMethodBinding)GetBinding(node)).MethodInfo;
-		}	
-		
-		public System.Type GetBoundType(Node node)
+		public ITypeBinding GetBoundType(Node node)
 		{
 			return BindingManager.GetBoundType(node);
 		}		
@@ -117,11 +96,6 @@ namespace Boo.Ast.Compilation.Steps
 		public LocalBinding GetLocalBinding(Node local)
 		{
 			return (LocalBinding)GetBinding(local);
-		}
-		
-		public LocalBuilder GetLocalBuilder(Node local)
-		{
-			return GetLocalBinding(local).LocalBuilder;
 		}
 		
 		public virtual void Initialize(CompilerContext context)

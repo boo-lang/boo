@@ -6,5 +6,6 @@
 	<step type='Boo.Ast.Compilation.Steps.AstAttributesStep, Boo' />
 	<step type='Boo.Ast.Compilation.Steps.ModuleStep, Boo' />
 	<step type='Boo.Ast.Compilation.Steps.AstNormalizationStep, Boo' />
+	<step type='Boo.Ast.Compilation.Steps.SemanticStep, Boo' />
 
 </pipeline>

@@ -6,6 +6,7 @@ UnknownName=Identificador desconhecido: {0}.
 NotAPublicFieldOrProperty=O nome {0} não representa um campo ou propriedade pública do tipo {1}.
 MissingConstructor=O tipo {0} não possui nenhum constructor com a assinatura {1}.
 AttributeResolution=Erro durante a aplicação do atributo {0}: {1}.
+AstAttributeMustBeExternal={0} é um tipo interno. Atributos para a AST devem ser tipos definidos em outros assemblies.
 StepExecution=Erro durante a execução do passo {0}: {1}.
 ICompilerStepInterface=O tipo {0} não implementa a interface ICompilerStep.
 RequiredAttribute=O elemento {0} deve conter um atributo de nome {1}.

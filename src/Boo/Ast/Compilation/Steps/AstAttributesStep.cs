@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -157,7 +157,7 @@ namespace Boo.Ast.Compilation.Steps
 				}
 				else
 				{
-					_context.Errors.NotAPublicFieldOrProperty(name, _type, name.Name);
+					_context.Errors.NotAPublicFieldOrProperty(name, _type.FullName, name.Name);
 					return false;
 				}
 			}
@@ -173,6 +173,8 @@ namespace Boo.Ast.Compilation.Steps
 		TaskList _tasks;
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
+		
+		ITypeBinding _astAttributeBaseClass;
 
 		public AstAttributesStep()
 		{			
@@ -181,6 +183,8 @@ namespace Boo.Ast.Compilation.Steps
 
 		public override void Run()
 		{
+			_astAttributeBaseClass = BindingManager.ToTypeBinding(typeof(AstAttribute));
+			
 			int step = 0;
 			while (step < CompilerParameters.MaxAttributeSteps)
 			{
@@ -239,13 +243,21 @@ namespace Boo.Ast.Compilation.Steps
 					}
 					else
 					{
-						Type attributeType = ((ITypedBinding)binding).BoundType.Type;
+						ITypeBinding attributeType = ((ITypedBinding)binding).BoundType;
 						if (IsAstAttribute(attributeType))
-						{						
-							ScheduleAttributeApplication(attribute, attributeType);
-							
-							// remove it from parent
-							resultingNode = null;
+						{
+							ExternalTypeBinding externalType = attributeType as ExternalTypeBinding;
+							if (null == externalType)
+							{
+								Errors.AstAttributeMustBeExternal(attribute, attributeType);
+							}
+							else
+							{							
+								ScheduleAttributeApplication(attribute, externalType.Type);
+								
+								// remove it from parent
+								resultingNode = null;
+							}
 						}
 					}
 				}
@@ -274,9 +286,9 @@ namespace Boo.Ast.Compilation.Steps
 			return _buffer.ToString();
 		}
 
-		public static bool IsAstAttribute(Type type)
+		bool IsAstAttribute(ITypeBinding type)
 		{
-			return typeof(AstAttribute).IsAssignableFrom(type);
+			return type.IsSubclassOf(_astAttributeBaseClass);
 		}
 	}
 }

@@ -31,7 +31,7 @@ using System;
 using System.IO;
 using Boo.Ast;
 
-namespace Boo.Ast.Visiting
+namespace Boo.Ast.Visitors
 {
 	/// <summary>
 	/// Imprime uma AST boo em boo. til para visualizar a 

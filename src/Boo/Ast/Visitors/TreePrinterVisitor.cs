@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -31,7 +31,7 @@ using System;
 using System.IO;
 using Boo.Ast;
 
-namespace Boo.Ast.Visiting
+namespace Boo.Ast.Visitors
 {
 	/// <summary>
 	/// Imprime a AST em uma estrutura de rvore.

@@ -34,8 +34,6 @@ using System.Globalization;
 using System.Threading;
 using System.Xml;
 using Assembly = System.Reflection.Assembly;
-using Boo.Ast;
-using Boo.Ast.Visiting;
 using Boo.Ast.Compilation;
 using Boo.Ast.Compilation.IO;
 

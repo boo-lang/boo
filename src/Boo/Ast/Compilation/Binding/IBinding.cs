@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -54,6 +54,7 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			get;
 		}
+		
 		BindingType BindingType
 		{
 			get;
@@ -70,6 +71,11 @@ namespace Boo.Ast.Compilation.Binding
 	
 	public interface IMemberBinding : ITypedBinding
 	{
+		ITypeBinding DeclaringType
+		{
+			get;
+		}
+		
 		bool IsStatic
 		{
 			get;
@@ -77,28 +83,31 @@ namespace Boo.Ast.Compilation.Binding
 	}
 	
 	public interface IFieldBinding : IMemberBinding
-	{
-		System.Reflection.FieldInfo FieldInfo
-		{
-			get;
-		}
+	{		
 	}
 	
 	public interface IPropertyBinding : IMemberBinding
 	{
-		System.Reflection.PropertyInfo PropertyInfo
-		{
-			get;
-		}
+		
 	}
 	
 	public interface ITypeBinding : ITypedBinding, INamespace
-	{		
-		System.Type Type
+	{			
+		string FullName
 		{
 			get;
 		}
+		
+		bool IsValueType
+		{
+			get;
+		}
+		
 		IConstructorBinding[] GetConstructors();
+		
+		bool IsSubclassOf(ITypeBinding other);
+		
+		bool IsAssignableFrom(ITypeBinding other);
 	}
 	
 	public interface IMethodBinding : IMemberBinding
@@ -108,12 +117,7 @@ namespace Boo.Ast.Compilation.Binding
 			get;
 		}
 		
-		Type GetParameterType(int parameterIndex);
-		
-		System.Reflection.MethodBase MethodInfo
-		{
-			get;
-		}
+		ITypeBinding GetParameterType(int parameterIndex);		
 		
 		ITypeBinding ReturnType
 		{
@@ -122,10 +126,6 @@ namespace Boo.Ast.Compilation.Binding
 	}
 	
 	public interface IConstructorBinding : IMethodBinding
-	{
-		System.Reflection.ConstructorInfo ConstructorInfo
-		{
-			get;
-		}
+	{		
 	}	
 }

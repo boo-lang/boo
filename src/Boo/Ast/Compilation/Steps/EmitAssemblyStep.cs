@@ -45,7 +45,31 @@ namespace Boo.Ast.Compilation.Steps
 			return (MethodInfo)cu[EntryPointKey];
 		}
 		
+		public static AssemblyBuilder GetAssemblyBuilder(CompilerContext context)
+		{
+			AssemblyBuilder builder = (AssemblyBuilder)context.CompileUnit[AssemblyBuilderKey];
+			if (null == builder)
+			{
+				throw new ApplicationException(Boo.ResourceManager.GetString("InvalidAssemblySetup"));
+			}
+			return builder;
+		}
+		
+		public static ModuleBuilder GetModuleBuilder(CompilerContext context)
+		{
+			ModuleBuilder builder = (ModuleBuilder)context.CompileUnit[ModuleBuilderKey];
+			if (null == builder)
+			{
+				throw new ApplicationException(Boo.ResourceManager.GetString("InvalidAssemblySetup"));
+			}
+			return builder;
+		}
+		
 		static object EntryPointKey = new object();
+		
+		static object AssemblyBuilderKey = new object();
+		
+		static object ModuleBuilderKey = new object();
 		
 		static MethodInfo String_Format = typeof(string).GetMethod("Format", new Type[] { Binding.Types.String, Binding.Types.ObjectArray });
 		
@@ -75,6 +99,8 @@ namespace Boo.Ast.Compilation.Steps
 		
 		ISymbolDocumentWriter _symbolDocWriter;
 		
+		TypeBuilder _typeBuilder;
+		
 		ILGenerator _il;
 		
 		// keeps track of types on the IL stack
@@ -102,8 +128,7 @@ namespace Boo.Ast.Compilation.Steps
 				return;				
 			}
 			
-			_asmBuilder = AssemblySetupStep.GetAssemblyBuilder(CompilerContext);
-			_moduleBuilder = AssemblySetupStep.GetModuleBuilder(CompilerContext);			
+			SetUpAssembly();			
 			
 			foreach (Boo.Ast.Module module in CompileUnit.Modules)
 			{
@@ -122,15 +147,23 @@ namespace Boo.Ast.Compilation.Steps
 		
 		void EmitTypeDefinition(TypeDefinition node)
 		{
-			node.Members.Switch(this);
+			TypeBuilder current = _typeBuilder;
 			
-			TypeBuilder typeBuilder = GetTypeBuilder(node);
-			typeBuilder.CreateType();
+			_typeBuilder = _moduleBuilder.DefineType(node.FullName);
+			SetType(node, _typeBuilder);			
+			node.Members.Switch(this);			
+			_typeBuilder.CreateType();
+			
+			_typeBuilder = current;
 		}		
 		
 		public override void OnMethod(Method method)
 		{			
-			MethodBuilder methodBuilder = GetMethodBuilder(method);			
+			MethodBuilder methodBuilder = GetMethodBuilder(method);
+			if (null == methodBuilder)
+			{
+				methodBuilder = DefineMethod(method);
+			}
 			_il = methodBuilder.GetILGenerator();
 			method.Locals.Switch(this);
 			method.Body.Switch(this);
@@ -140,7 +173,7 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnLocal(Local local)
 		{			
 			LocalBinding info = GetLocalBinding(local);
-			info.LocalBuilder = _il.DeclareLocal(info.Type);
+			info.LocalBuilder = _il.DeclareLocal(GetType(local));
 			info.LocalBuilder.SetLocalSymInfo(local.Name);			
 		}
 		
@@ -165,8 +198,6 @@ namespace Boo.Ast.Compilation.Steps
 		public override void OnUnpackStatement(UnpackStatement node)
 		{
 			DeclarationCollection decls = node.Declarations;
-			
-			ITypeBinding binding = GetTypeBinding(node.Expression);
 			
 			EmitDebugInfo(decls[0], node.Expression);						
 			node.Expression.Switch(this);
@@ -274,11 +305,11 @@ namespace Boo.Ast.Compilation.Steps
 					// operator
 					IMethodBinding methodBinding = (IMethodBinding)binding;
 					node.Left.Switch(this);
-					EmitCastIfNeeded(methodBinding.GetParameterType(0), PopType());					
+					EmitCastIfNeeded(methodBinding.GetParameterType(0), PopType());
 					node.Right.Switch(this);
 					EmitCastIfNeeded(methodBinding.GetParameterType(1), PopType());
-					_il.EmitCall(OpCodes.Call, (MethodInfo)methodBinding.MethodInfo, null);
-					PushType(methodBinding.ReturnType.Type);
+					_il.EmitCall(OpCodes.Call, GetMethodInfo(methodBinding), null);
+					PushType(GetType(methodBinding.ReturnType));
 				}
 				else
 				{
@@ -295,7 +326,7 @@ namespace Boo.Ast.Compilation.Steps
 				case BindingType.Method:
 				{										
 					IMethodBinding methodBinding = (IMethodBinding)binding;
-					MethodInfo mi = (MethodInfo)methodBinding.MethodInfo;
+					MethodInfo mi = GetMethodInfo(methodBinding);
 					OpCode code = OpCodes.Call;
 					if (!mi.IsStatic)
 					{
@@ -341,7 +372,7 @@ namespace Boo.Ast.Compilation.Steps
 					IConstructorBinding constructorBinding = (IConstructorBinding)binding;
 					PushArguments(constructorBinding, node.Arguments);
 					
-					ConstructorInfo ci = constructorBinding.ConstructorInfo;
+					ConstructorInfo ci = GetConstructorInfo(constructorBinding);
 					_il.Emit(OpCodes.Newobj, ci);
 					foreach (ExpressionPair pair in node.NamedArguments)
 					{
@@ -438,7 +469,7 @@ namespace Boo.Ast.Compilation.Steps
 				case BindingType.Property:
 				{
 					OpCode code = OpCodes.Call;
-					PropertyInfo property = ((IPropertyBinding)binding).PropertyInfo;
+					PropertyInfo property = GetPropertyInfo(binding);
 					MethodInfo getMethod = property.GetGetMethod();
 					if (!getMethod.IsStatic)
 					{
@@ -471,12 +502,12 @@ namespace Boo.Ast.Compilation.Steps
 				case BindingType.Field:
 				{
 					IFieldBinding fieldBinding = (IFieldBinding)binding;
-					FieldInfo fieldInfo = fieldBinding.FieldInfo;
+					FieldInfo fieldInfo = GetFieldInfo(fieldBinding);
 					if (fieldBinding.IsStatic)
 					{
 						if (fieldInfo.DeclaringType.IsEnum)
 						{
-							_il.Emit(OpCodes.Ldc_I4, (int)fieldBinding.FieldInfo.GetValue(null));							
+							_il.Emit(OpCodes.Ldc_I4, (int)GetFieldInfo(fieldBinding).GetValue(null));							
 						}
 						else
 						{
@@ -517,7 +548,7 @@ namespace Boo.Ast.Compilation.Steps
 				{
 					Binding.ParameterBinding param = (Binding.ParameterBinding)info;
 					_il.Emit(OpCodes.Ldarg, param.Index);
-					PushType(param.Type);
+					PushType(GetType(node));
 					break;
 				}
 				
@@ -532,7 +563,7 @@ namespace Boo.Ast.Compilation.Steps
 		
 		void SetProperty(Node sourceNode, IPropertyBinding property, Expression reference, Expression value, bool leaveValueOnStack)
 		{
-			PropertyInfo pi = property.PropertyInfo;			
+			PropertyInfo pi = GetPropertyInfo(property);			
 			MethodInfo setMethod = pi.GetSetMethod();
 			
 			if (null != reference)
@@ -577,7 +608,7 @@ namespace Boo.Ast.Compilation.Steps
 				
 				case BindingType.Event:
 				{
-					MethodBase mi = ((IMethodBinding)GetBinding(value)).MethodInfo;
+					MethodBase mi = GetMethodInfo((IMethodBinding)GetBinding(value));
 					if (!mi.IsStatic)
 					{
 						Errors.NotImplemented(sourceNode, "only static delegates for now");
@@ -754,10 +785,8 @@ namespace Boo.Ast.Compilation.Steps
 			for (int i=0; i<args.Count; ++i)
 			{
 				Expression arg = args[i];
-				
-				Type expectedType = binding.GetParameterType(i);
 				arg.Switch(this);
-				EmitCastIfNeeded(expectedType, PopType());
+				EmitCastIfNeeded(binding.GetParameterType(i), PopType());
 			}
 		}
 		
@@ -770,6 +799,16 @@ namespace Boo.Ast.Compilation.Steps
 			{			
 				StoreElementReference(i, items[i], type);				
 			}
+		}
+		
+		void EmitCastIfNeeded(ITypeBinding expected, ITypeBinding actual)
+		{
+			EmitCastIfNeeded(GetType(expected), GetType(actual));
+		}
+		
+		void EmitCastIfNeeded(ITypeBinding expected, Type actual)
+		{
+			EmitCastIfNeeded(GetType(expected), actual);
 		}
 		
 		void EmitCastIfNeeded(Type expectedType, Type actualType)
@@ -833,7 +872,7 @@ namespace Boo.Ast.Compilation.Steps
 			_il.Emit(OpCodes.Dup);	// array reference
 			_il.Emit(OpCodes.Ldc_I4, index); // element index
 			value.Switch(this); // value
-			EmitCastIfNeeded(elementType, GetBoundType(value));
+			EmitCastIfNeeded(elementType, GetType(value));
 			_il.Emit(OpCodes.Stelem_Ref);
 		}		
 		
@@ -845,7 +884,7 @@ namespace Boo.Ast.Compilation.Steps
 				Method method = ModuleStep.GetMainMethod(main);
 				if (null != method)
 				{
-					Type type = _asmBuilder.GetType(main.FullyQualifiedName, true);
+					Type type = _asmBuilder.GetType(main.FullName, true);
 					MethodInfo mi = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.NonPublic);
 					
 					_asmBuilder.SetEntryPoint(mi, (PEFileKinds)CompilerParameters.OutputType);
@@ -857,6 +896,151 @@ namespace Boo.Ast.Compilation.Steps
 				}
 			}
 		}	
-
+		
+		Type[] GetParameterTypes(Method method)
+		{
+			ParameterDeclarationCollection parameters = method.Parameters;
+			Type[] types = new Type[parameters.Count];
+			for (int i=0; i<types.Length; ++i)
+			{
+				types[i] = GetType(parameters[i].Type);
+			}
+			return types;
+		}
+		
+		static object EmitInfoKey = new object();
+		
+		void SetType(TypeDefinition typeDef, Type type)
+		{
+			typeDef[EmitInfoKey] = type;
+		}
+		
+		TypeBuilder GetTypeBuilder(Node node)
+		{
+			return (TypeBuilder)node[EmitInfoKey];
+		}
+		
+		void SetMethodBuilder(Method method, MethodBuilder builder)
+		{
+			method[EmitInfoKey] = builder;
+		}
+		
+		MethodBuilder GetMethodBuilder(Method method)
+		{
+			return (MethodBuilder)method[EmitInfoKey];
+		}
+		
+		public LocalBuilder GetLocalBuilder(Node local)
+		{
+			return GetLocalBinding(local).LocalBuilder;
+		}
+		
+		PropertyInfo GetPropertyInfo(IBinding binding)
+		{
+			return ((ExternalPropertyBinding)binding).PropertyInfo;
+		}
+		
+		FieldInfo GetFieldInfo(IFieldBinding binding)
+		{
+			return ((ExternalFieldBinding)binding).FieldInfo;
+		}
+		
+		MethodInfo GetMethodInfo(IMethodBinding binding)
+		{
+			ExternalMethodBinding external = binding as ExternalMethodBinding;
+			if (null != external)
+			{
+				return (MethodInfo)external.MethodInfo;
+			}
+			return GetMethodBuilder(((InternalMethodBinding)binding).Method);
+		}
+		
+		ConstructorInfo GetConstructorInfo(IConstructorBinding binding)
+		{
+			return ((ExternalConstructorBinding)binding).ConstructorInfo;
+		}
+		
+		Type GetType(ITypeBinding binding)
+		{
+			return ((ExternalTypeBinding)binding).Type;
+		}
+		
+		Type GetType(Node node)
+		{
+			return GetType(GetBoundType(node));
+		}
+		
+		MethodAttributes GetMethodAttributes(Method method)
+		{
+			MethodAttributes attributes = MethodAttributes.HideBySig;
+			if (method.IsModifierSet(TypeMemberModifiers.Public))
+			{
+				attributes |= MethodAttributes.Public;			
+			}
+			if (method.IsModifierSet(TypeMemberModifiers.Static))
+			{
+				attributes |= MethodAttributes.Static;
+			}
+			return attributes;
+		}
+		
+		MethodBuilder DefineMethod(Method method)
+		{
+			TypeBuilder typeBuilder = GetTypeBuilder(method.ParentNode);
+			MethodBuilder builder = typeBuilder.DefineMethod(method.Name, 
+                                        GetMethodAttributes(method),
+                                        GetType(method.ReturnType),
+                                        GetParameterTypes(method));
+			SetMethodBuilder(method, builder);
+			_context.TraceVerbose("{0}: Method {1} declared as {2}.", method.LexicalInfo, method, builder);
+			return builder;
+		}
+		
+		string GetAssemblyName(string fname)
+		{
+			return Path.GetFileNameWithoutExtension(fname);
+		}
+		
+		string GetTargetDirectory(string fname)
+		{
+			return Path.GetDirectoryName(Path.GetFullPath(fname));
+		}
+		
+		string BuildOutputAssemblyName()
+		{			
+			CompilerParameters parameters = CompilerParameters;
+			string fname = parameters.OutputAssembly;
+			if (!Path.HasExtension(fname))
+			{
+				if (CompilerOutputType.Library == parameters.OutputType)
+				{
+					fname += ".dll";
+				}
+				else
+				{
+					fname += ".exe";
+			
+				}
+			}
+			return Path.GetFullPath(fname);
+		}
+		
+		void SetUpAssembly()
+		{
+			if (0 == CompilerParameters.OutputAssembly.Length)
+			{				
+				CompilerParameters.OutputAssembly = CompileUnit.Modules[0].Name;			
+			}
+			
+			CompilerParameters.OutputAssembly = BuildOutputAssemblyName();
+			
+			AssemblyName asmName = new AssemblyName();
+			asmName.Name = GetAssemblyName(CompilerParameters.OutputAssembly);
+			
+			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(CompilerParameters.OutputAssembly));
+			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(CompilerParameters.OutputAssembly), true);			
+			CompileUnit[AssemblyBuilderKey] = _asmBuilder;
+			CompileUnit[ModuleBuilderKey] = _moduleBuilder;
+		}
 	}
 }

@@ -128,8 +128,7 @@ namespace Boo.Tests.Ast.Compilation
 							Add(new UsingResolutionStep()).
 							Add(new AstAttributesStep()).
 							Add(new ModuleStep()).
-							Add(new AstNormalizationStep()).
-							Add(new AssemblySetupStep()).
+							Add(new AstNormalizationStep()).							
 							Add(new SemanticStep()).
 							Add(new EmitAssemblyStep()).
 							Add(new SaveAssemblyStep()).

@@ -31,7 +31,7 @@ using System;
 using System.IO;
 using System.CodeDom.Compiler;
 
-namespace Boo.Ast.Visiting
+namespace Boo.Ast.Visitors
 {
 	/// <summary>	
 	/// </summary>

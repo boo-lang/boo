@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -45,7 +45,7 @@ namespace Boo.Ast.Compilation.Steps
 				return;
 			}
 			
-			AssemblyBuilder builder = AssemblySetupStep.GetAssemblyBuilder(_context);
+			AssemblyBuilder builder = EmitAssemblyStep.GetAssemblyBuilder(_context);
 			builder.Save(Path.GetFileName(CompilerParameters.OutputAssembly));
 		}	
 	}

@@ -6,6 +6,7 @@ UnknownName=Unknown identifier: {0}.
 NotAPublicFieldOrProperty=The name {0} does not refer to a public property or field of the type {1}.
 MissingConstructor=The {0} type does not have a constructor with the signature {1}.
 AttributeResolution=An error occurred during the resolution of the {0} ast attribute: {1}.
+AstAttributeMustBeExternal={0} is an internal type. Ast attributes must be external types.
 StepExecution=An error occurred during the execution of the step {0}: {1}.
 ICompilerStepInterface=The type {0} does not implement the ICompilerStep interface.
 RequiredAttribute=The element {0} must specify the attribute {1}.

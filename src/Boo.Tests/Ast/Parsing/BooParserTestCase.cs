@@ -58,7 +58,7 @@ namespace Boo.Tests.Ast.Parsing
 			Assert.IsNotNull(module);
 			Assert.AreEqual("simple", module.Name);
 			Assert.AreEqual("module doc string", module.Documentation);
-			Assert.AreEqual("Empty.simple", module.FullyQualifiedName);
+			Assert.AreEqual("Empty.simple", module.FullName);
 			Assert.AreEqual(fname, module.LexicalInfo.FileName);
 
 			Assert.IsNotNull(module.Package);
@@ -83,7 +83,7 @@ namespace Boo.Tests.Ast.Parsing
 			TypeMember cd = module.Members[0];
 			Assert.IsTrue(cd is ClassDefinition);
 			Assert.AreEqual("Customer", cd.Name);
-			Assert.AreEqual("Foo.Bar.Customer", ((TypeDefinition)cd).FullyQualifiedName);
+			Assert.AreEqual("Foo.Bar.Customer", ((TypeDefinition)cd).FullName);
 			Assert.AreSame(module.Package, ((TypeDefinition)cd).EnclosingPackage);
 
 			cd = module.Members[1];

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // boo - an extensible programming language for the CLI
 // Copyright (C) 2004 Rodrigo B. de Oliveira
 //
@@ -34,14 +34,22 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public class ExternalMethodBinding : IMethodBinding
 	{
-		BindingManager _manager;
+		BindingManager _bindingManager;
 		
 		MethodBase _mi;
 		
 		internal ExternalMethodBinding(BindingManager manager, MethodBase mi)
 		{
-			_manager = manager;
+			_bindingManager = manager;
 			_mi = mi;
+		}
+		
+		public ITypeBinding DeclaringType
+		{
+			get
+			{
+				return _bindingManager.ToTypeBinding(_mi.DeclaringType);
+			}
 		}
 		
 		public bool IsStatic
@@ -84,16 +92,16 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public Type GetParameterType(int parameterIndex)
+		public ITypeBinding GetParameterType(int parameterIndex)
 		{
-			return _mi.GetParameters()[parameterIndex].ParameterType;
+			return _bindingManager.ToTypeBinding(_mi.GetParameters()[parameterIndex].ParameterType);
 		}
 		
 		public ITypeBinding ReturnType
 		{
 			get
 			{
-				return _manager.ToTypeBinding(((MethodInfo)_mi).ReturnType);
+				return _bindingManager.ToTypeBinding(((MethodInfo)_mi).ReturnType);
 			}
 		}
 		
