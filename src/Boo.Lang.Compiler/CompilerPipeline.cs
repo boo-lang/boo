@@ -78,6 +78,12 @@ namespace Boo.Lang.Compiler
 			return this;
 		}
 		
+		public CompilerPipeline RemoveAt(int index)
+		{
+			_items.RemoveAt(index);
+			return this;
+		}
+		
 		public CompilerPipeline Insert(int index, ICompilerStep step)
 		{
 			if (null == step)

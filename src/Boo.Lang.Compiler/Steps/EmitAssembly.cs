@@ -371,6 +371,7 @@ namespace Boo.Lang.Compiler.Steps
 			_tryBlock = 0;
 			_types.Clear();
 			_typeCache.Clear();
+			_builders.Clear();
 		}
 		
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)

@@ -39,6 +39,21 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected IType _booModuleAttributeType;
 		
+		protected bool _forceModuleClass = false;
+		
+		public bool ForceModuleClass
+		{
+			get
+			{
+				return _forceModuleClass;
+			}
+			
+			set
+			{
+				_forceModuleClass = true;
+			}
+		}
+		
 		override public void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
@@ -88,7 +103,7 @@ namespace Boo.Lang.Compiler.Steps
 				ContextAnnotations.SetEntryPoint(Context, method);
 			}
 			
-			if (moduleClass.Members.Count > 0)
+			if (_forceModuleClass || (moduleClass.Members.Count > 0))
 			{
 				moduleClass.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Private));
 			

@@ -136,19 +136,19 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 	override def Run():
 		Visit(CompileUnit) if 0 == len(Errors)
 
-	override def OnModule(node as Module):
+	override def EnterModule(node as Module):
 
 		module = cast(ModuleEntity, node.Entity).ModuleClass
-		return unless module
+		return false unless module
 
 		_interpreterField = CodeBuilder.CreateField("ParentInterpreter", TypeSystemServices.Map(InteractiveInterpreter))
 		_interpreterField.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Static
 		module.Members.Add(_interpreterField)
 
-		super(node)
+		return true
 
 	override def OnReferenceExpression(node as ReferenceExpression):
-		super(node)
+		
 		return unless InterpreterEntity.IsInterpreterEntity(node) and not AstUtil.IsLhsOfAssignment(node)
 
 		ReplaceCurrentNode(CreateGetValue(node))
@@ -176,28 +176,62 @@ class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 class InteractiveInterpreter:
 
 	_compiler = BooCompiler()
+	
+	_parser = BooCompiler()
 
 	_values = {}
+	
+	_imports = ImportCollection()
 
 	def constructor():
 		pipeline = Pipelines.CompileToMemory()
+		pipeline.RemoveAt(0)
+		
 		index = pipeline.Find(Steps.ProcessMethodBodiesWithDuckTyping)
 		pipeline[index] = ProcessVariableDeclarations(self)
 		pipeline.InsertBefore(Steps.EmitAssembly, ProcessInterpreterReferences(self))
+		
+		index = pipeline.Find(Steps.IntroduceModuleClasses)
+		cast(Steps.IntroduceModuleClasses, pipeline[index]).ForceModuleClass = true
 		//pipeline.Add(Steps.PrintBoo())
 
 		_compiler.Parameters.Pipeline = pipeline
+		
+		_parser.Parameters.Pipeline = Pipelines.Parse()
 
 	def Eval(code as string):
-		_compiler.Parameters.Input.Clear()
-		_compiler.Parameters.Input.Add(StringInput("src", code))
-
-		result = _compiler.Run()
-		if 0 == len(result.Errors):
-			entry = result.GeneratedAssemblyEntryPoint
-			entry.DeclaringType.GetField("ParentInterpreter").SetValue(null, self)
-			entry.Invoke(null, (null,))
+		result = Parse(code)
+		return result if len(result.Errors)
+		
+		cu = result.CompileUnit
+		module = cu.Modules[0]
+		
+		hasMembers = module.Members.Count > 0
+		hasStatements = module.Globals.Statements.Count > 0
+		
+		_imports.ExtendWithClones(module.Imports)
+		module.Imports = _imports.Clone()
+		
+		if hasStatements:
+			_compiler.Parameters.OutputType = CompilerOutputType.ConsoleApplication
+		else:
+			_compiler.Parameters.OutputType = CompilerOutputType.Library
+		
+		result = _compiler.Run(cu)
+		return result if len(result.Errors)
+		
+		asm = result.GeneratedAssembly
+		_compiler.Parameters.References.Add(asm) if hasMembers
+		
+		InitializeModuleInterpreter(asm, module)
+		
+		result.GeneratedAssemblyEntryPoint.Invoke(null, (null,)) if hasStatements			
 		return result
+		
+	def Parse(code as string):
+		_parser.Parameters.Input.Clear()
+		_parser.Parameters.Input.Add(StringInput("src", code))
+		return _parser.Run()
 
 	def SetValue(name as string, value):
 		_values[name] = value
@@ -205,6 +239,11 @@ class InteractiveInterpreter:
 
 	def GetValue(name as string):
 		return _values[name]
+		
+	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
+										module as Module):
+		moduleType = asm.GetType(cast(ModuleEntity, module.Entity).ModuleClass.FullName)
+		moduleType.GetField("ParentInterpreter").SetValue(null, self)
 
 interpreter = InteractiveInterpreter()
 while line=prompt(">>> "):

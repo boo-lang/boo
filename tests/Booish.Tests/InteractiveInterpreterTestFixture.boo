@@ -35,6 +35,8 @@ import booish
 [TestFixture]
 class InteractiveInterpreterTestFixture:
 	
+	public static LifeTheUniverseAndEverything = 42
+	
 	class ConsoleCapture(IDisposable):	
 		_console = StringWriter()
 		_old
@@ -71,6 +73,57 @@ class InteractiveInterpreterTestFixture:
 
 		Eval("age = 42")
 		assert 42 == _interpreter.GetValue("age")
+		
+	[Test]
+	def Import():
+		Eval("import Booish.Tests from Booish.Tests")
+		Eval("value = InteractiveInterpreterTestFixture.LifeTheUniverseAndEverything")
+		assert 42 == _interpreter.GetValue("value")
+		
+	[Test]
+	def MethodDef():
+		
+		_interpreter.SetValue("eggs", "eggs")
+		
+		Eval("""
+def spam():
+	return eggs
+""")
+		
+		Eval("value = spam()")
+		assert 'eggs' == _interpreter.GetValue("value")
+		
+	[Test]
+	def TypeDef():
+		
+		_interpreter.SetValue("DefaultName", "boo")
+		
+		Eval("""
+class Language:
+	[property(Name)] _name = DefaultName
+""")
+	
+		Eval("language = Language()")
+		language as duck = _interpreter.GetValue("language")
+		assert 'boo' == language.Name
+		
+		Eval("language = Language(Name: 'portuguese')")
+		language = _interpreter.GetValue("language")
+		assert 'portuguese' == language.Name
+		
+	/*
+	[Test]
+	def UnderscoreHoldsLastEvaluatedExpression():
+		Eval("a = 42")
+		Eval("b = _/2")
+		assert 21 == _interpreter.GetValue("b")
+		assert 21 == _interpreter.GetValue("_")
+		
+	[Test]
+	def EvaluateSimpleExpression():
+		Eval("2+2")
+		assert 4 == _interpreter.GetValue("_")
+	*/
 		
 	[Test]
 	def Closures():
