@@ -14,7 +14,7 @@
 		</booc>
 	</target>
 	
-	<target name="compile-example" depends="compile-pipeline">
+	<target name="compile-example" depends="init"> 
 		<booc target="exe"
 			output="build/Example.exe"
 			pipeline="Boo.Docs.Articles.Pipeline.StyleCheckingPipelineDefinition, StyleChecker"
@@ -41,6 +41,7 @@
 				<includes name="Boo.AntlrParser.dll" />
 				<includes name="Boo.NAnt.dll" />
 				<includes name="antlr.runtime.dll" />
+				<includes name="*.pdb" />
 			</fileset>
 		</copy>
 	
