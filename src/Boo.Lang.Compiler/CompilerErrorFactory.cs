@@ -481,6 +481,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0090", node.LexicalInfo, derivedMethod, superMethod, superAccess.ToString().ToLower(), derivedAccess.ToString().ToLower());
 		}
 		
+		public static CompilerError EventIsNotAnExpression(Node node, string eventName)
+		{
+			return new CompilerError("BCE0091", node.LexicalInfo, eventName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

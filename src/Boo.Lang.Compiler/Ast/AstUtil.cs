@@ -76,6 +76,21 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
+		public static bool IsLhsOfInPlaceAddSubtract(Expression node)
+		{
+			if (NodeType.BinaryExpression == node.ParentNode.NodeType)
+			{
+				BinaryExpression be = (BinaryExpression)node.ParentNode;
+				if (node == be.Left)
+				{
+					BinaryOperatorType op = be.Operator;
+					return op == BinaryOperatorType.InPlaceAdd ||
+							op == BinaryOperatorType.InPlaceSubtract;
+				}
+			}
+			return false;
+		}
+		
 		public static bool IsAssignmentOperator(BinaryOperatorType op)
 		{
 			return BinaryOperatorType.Assign == op ||

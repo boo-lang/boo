@@ -37,6 +37,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		Event _event;
 		
+		InternalField _backingField;
+		
 		public InternalEvent(TypeSystemServices tagManager, Event event_)
 		{
 			_typeSystemServices = tagManager;
@@ -127,6 +129,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return false;
+			}
+		}
+		
+		public InternalField BackingField
+		{
+			get
+			{
+				return _backingField;
+			}
+			
+			set
+			{
+				_backingField = value;
 			}
 		}
 	}

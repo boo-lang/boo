@@ -89,6 +89,7 @@ BCE0087=Can't create instance of enum '{0}'.
 BCE0088=Sorry but the '{0}' prefix is reserved by the compiler. Friends?
 BCE0089=Type '{0}' already has a definition for '{1}'.
 BCE0090=Derived method '{0}' can not reduce the accessiblity of '{1}' from '{2}' to '{3}'.
+BCE0091=Event reference '{0}' cannot be used as an expression.
 
 ;Compiler warnings
 BCW0001=Type '{0}' does not provide an implementation for '{1}' and will be marked abstract

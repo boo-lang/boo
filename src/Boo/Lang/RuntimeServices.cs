@@ -172,11 +172,11 @@ namespace Boo.Lang
 			if (index < 0)
 			{
 				index += len;
-			}
-			
-			if (index < 0)
-			{
-				return 0;
+				
+				if (index < 0)
+				{
+					return 0;
+				}
 			}
 			
 			if (index > len)

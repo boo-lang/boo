@@ -380,6 +380,8 @@ namespace Boo.Lang.Compiler.Steps
 			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
 			node.DeclaringType.Members.Add(backingField);
 			
+			((InternalEvent)node.Entity).BackingField = (InternalField)backingField.Entity;
+			
 			if (null == node.Add)
 			{
 				node.Add = CreateEventAddMethod(node, backingField);
@@ -1862,6 +1864,28 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						node.ParentNode.Replace(node, CodeBuilder.CreateMethodInvocation(node.Target, ((IProperty)member).GetGetMethod()));
 						return;
+					}
+				}
+			}
+			
+			if (EntityType.Event == member.EntityType)
+			{
+				if (!AstUtil.IsTargetOfMethodInvocation(node) &&
+					!AstUtil.IsLhsOfInPlaceAddSubtract(node))
+				{
+					if (CurrentType == memberInfo.DeclaringType)
+					{
+						InternalEvent ev = (InternalEvent)member;
+						node.Name = ev.BackingField.Name;
+						node.Entity = ev.BackingField;
+						node.ExpressionType = ev.BackingField.Type;
+						return;
+					}
+					else
+					{
+						Error(node,
+							CompilerErrorFactory.EventIsNotAnExpression(node,
+								member.FullName));
 					}
 				}
 			}
@@ -3922,6 +3946,14 @@ namespace Boo.Lang.Compiler.Steps
 			Bind(sourceNode, tag);
 			
 			return tag;
+		}
+		
+		IType CurrentType
+		{
+			get
+			{
+				return _currentMethod.DeclaringType;
+			}
 		}
 		
 		void PushMethodInfo(InternalMethod tag)
