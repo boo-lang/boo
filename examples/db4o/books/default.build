@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <project name="db4o sample" default="build">
 
-	<property name="db4o.bin" value="../../../../dotnet/db4o30/dll" />
+	<property name="db4o.bin" value="../../../../../dotnet/db4o30/dll" />
+	<property name="boo.bin" value="../../../build" />
 
 	<target name="build" depends="init">
 		<booc target="exe" output="build/books.exe">
@@ -17,7 +18,7 @@
 	<target name="init">
 		<mkdir dir="build" />
 		<copy todir="build">
-			<fileset basedir="../../build">
+			<fileset basedir="${boo.bin}">
 				<include name="Boo.dll" />
 			</fileset>
 		</copy>
@@ -27,7 +28,7 @@
 			</fileset>
 		</copy>
 		
-		<loadtasks assembly="../../build/Boo.NAnt.dll" />
+		<loadtasks assembly="${boo.bin}/Boo.NAnt.dll" />
 	</target>
 	
 	<target name="clean">
