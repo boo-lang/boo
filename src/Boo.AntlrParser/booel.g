@@ -144,7 +144,26 @@ protected
 RE_CHAR : RE_ESC | ~('/' | '\\' | ' ' | '\t' | '\r' | '\n');
 
 protected
-RE_ESC : '\\' ('\\' | '/' | 'r' | 'n' | 't' | '(' | ')' | '.' | '*' | '?' | '[' | ']');
+RE_ESC : '\\' (
+				'd' | /* digit group */
+				's' | /* whitespace */
+				'w' | /* word char */
+				'\\' |
+				'/' |
+				'r'	|
+				'n' |
+				't' |
+				'(' |
+				')' |
+				'.' |
+				'*' |
+				'?' |
+				'$' |
+				'^' |
+				'['	|
+				']'
+			 )
+			 ;
 
 protected
 ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' );
