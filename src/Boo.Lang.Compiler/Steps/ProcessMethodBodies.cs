@@ -1571,7 +1571,6 @@ namespace Boo.Lang.Compiler.Steps
 				// forces anonymous types to be correctly
 				// instantiated
 				IType expressionType = GetConcreteExpressionType(node.Expression);
-				BindExpressionType(node.Expression, expressionType);
 				
 				if (TypeSystemServices.IsUnknown(returnType))
 				{
@@ -1812,6 +1811,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					CreateConcreteCallableType(expression, anonymousType);
 				}
+				BindExpressionType(expression, anonymousType.ConcreteType);
 				return anonymousType.ConcreteType;
 			}
 			return type;
@@ -2338,7 +2338,13 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			IEntity targetInfo = GetEntity(node.Target);
+			IEntity targetInfo = node.Target.Entity;
+			if (null == targetInfo)
+			{
+				ProcessGenericMethodInvocation(node);
+				return;
+			}
+			
 			if (EntityType.Ambiguous == targetInfo.EntityType)
 			{		
 				targetInfo = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetInfo);
@@ -2429,20 +2435,25 @@ namespace Boo.Lang.Compiler.Steps
 				
 				default:
 				{
-					IType type = GetExpressionType(node.Target);
-					if (TypeSystemServices.IsCallable(type))
-					{
-						ProcessMethodInvocationOnCallableExpression(node);
-					}
-					else
-					{						
-						Error(node,
-							CompilerErrorFactory.TypeIsNotCallable(node.Target, type.FullName));
-					}
+					ProcessGenericMethodInvocation(node);
 					break;
 				}
 			}
 		}	
+		
+		void ProcessGenericMethodInvocation(MethodInvocationExpression node)
+		{
+			IType type = GetExpressionType(node.Target);
+			if (TypeSystemServices.IsCallable(type))
+			{
+				ProcessMethodInvocationOnCallableExpression(node);
+			}
+			else
+			{						
+				Error(node,
+					CompilerErrorFactory.TypeIsNotCallable(node.Target, type.FullName));
+			}
+		}
 		
 		void ProcessMethodInvocationOnCallableExpression(MethodInvocationExpression node)
 		{

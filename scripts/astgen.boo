@@ -616,12 +616,23 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			if (null != node)
 			{
-				Node saved = _resultingNode;
-				_resultingNode = node;
-				node.Accept(this);
-				Node result = _resultingNode;
-				_resultingNode = saved;
-				return result;
+				try
+				{
+					Node saved = _resultingNode;
+					_resultingNode = node;
+					node.Accept(this);
+					Node result = _resultingNode;
+					_resultingNode = saved;
+					return result;
+				}
+				catch (Boo.Lang.Compiler.CompilerError)
+				{
+					throw;
+				}
+				catch (Exception error)
+				{
+					throw Boo.Lang.Compiler.CompilerErrorFactory.InternalError(node, error);
+				}
 			}
 			return null;
 		}

@@ -1,19 +1,30 @@
-﻿* addressof cannot be used outside delegate constructors
+﻿* fix event handling
+	* __eval__
+	* delegate1.boo
+	* delegate2.boo
+	* delegate3.boo
+	* delegate4.boo
 
-* callable type adaptation
-
-* anonymous callable type notation
-	def map(fn as callable(object) as object, enumerable)
-	def map(fn as (object)->object, enumerable)
-	def map(fn as object->object, enumerable)	
-	
-* fix event handling
+* fix ICallable for callable types
+	* callable7.boo
+	* callable8.boo
+	* callable6.boo
+	* callable9.boo
 	
 * software de blogging para a apresentação
 	* modelo de objetos simples com Bamboo.Prevalence
 	* editor web com autenticação forms
 	* editor RichClient
 	* segurança com par chave pública/privada
+
+* callable type adaptation
+
+* addressof cannot be used outside delegate constructors
+
+* anonymous callable type notation
+	def map(fn as callable(object) as object, enumerable)
+	def map(fn as (object)->object, enumerable)
+	def map(fn as object->object, enumerable)
 	
 * rever os exemplos de pipeline
 

@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class InjectConversions : AbstractVisitorCompilerStep
+	public class InjectConversions : AbstractTransformerCompilerStep
 	{
 		IMethod _current;
 		
@@ -54,6 +54,29 @@ namespace Boo.Lang.Compiler.Steps
 		bool HasReturnType(IMethod method)
 		{
 			return TypeSystemServices.VoidType != method.ReturnType;
+		}
+		
+		bool IsMethodReference(Expression node)
+		{
+			return EntityType.Method == node.Entity.EntityType;
+		}
+		
+		bool IsNotTargetOfMethodInvocation(Expression node)
+		{
+			MethodInvocationExpression mie = node.ParentNode as MethodInvocationExpression;
+			if (null != mie)
+			{
+				return mie.Target != node;
+			}
+			return true;
+		}
+		
+		bool IsStandaloneMethodReference(Expression node)
+		{
+			return
+				(node is ReferenceExpression) &&
+				IsMethodReference(node) &&
+				IsNotTargetOfMethodInvocation(node);
 		}
 		
 		override public void LeaveReturnStatement(ReturnStatement node)
@@ -104,30 +127,24 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		bool IsNull(IType type)
-		{
-			return EntityType.Null == type.EntityType;
-		}
-		
-		bool IsStandaloneMethodReference(Expression argument)
-		{
-			if (argument is ReferenceExpression)
-			{
-				return EntityType.Method == argument.Entity.EntityType;
-			}
-			return false;
-		}
-		
 		Expression Cast(IType expectedType, Expression argument)
 		{
-			if (IsCallableType(expectedType))
-			{					
-				if (IsStandaloneMethodReference(argument))
+			if (IsStandaloneMethodReference(argument))
+			{
+				// todo: criar o delegate sempre, ainda
+				// que o tipo esperado não seja callable, nesse
+				// caso criar com o próprio tipo do método
+				if (IsCallableType(expectedType))
 				{
-					return CreateDelegate(expectedType, argument);				
+					return CreateDelegate(expectedType, argument);
 				}
 			}
 			return null;
+		}
+		
+		bool IsNull(IType type)
+		{
+			return EntityType.Null == type.EntityType;
 		}
 		
 		bool IsCallableType(IType type)
