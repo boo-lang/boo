@@ -59,25 +59,25 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Node replacement = null;
 			
-			IEntity tag = NameResolutionService.ResolveQualifiedName(node.Name);
-			if (null == tag)
+			IEntity entity = NameResolutionService.ResolveQualifiedName(BuildMacroTypeName(node.Name));
+			if (null == entity)
 			{
-				tag = NameResolutionService.ResolveQualifiedName(BuildMacroTypeName(node.Name));
+				entity = NameResolutionService.ResolveQualifiedName(node.Name); 
 			}
 			
-			if (null == tag)
+			if (null == entity)
 			{
 				Errors.Add(CompilerErrorFactory.UnknownMacro(node, node.Name));
 			}
 			else
 			{
-				if (EntityType.Type != tag.EntityType)
+				if (EntityType.Type != entity.EntityType)
 				{
 					Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
 				}
 				else
 				{
-					IType macroType = (IType)tag;
+					IType macroType = (IType)entity;
 					ExternalType type = macroType as ExternalType;
 					if (null == type)
 					{

@@ -117,6 +117,16 @@ namespace BooCompiler.Tests
 	{
 """)
 
+GenerateTestFixture("testcases/macros", "build/MacrosTestFixture.cs", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
+
+	[TestFixture]
+	public class MacrosTestFixture : AbstractCompilerTestCase
+	{
+""")
+
 GenerateTestFixture("testcases/stdlib", "build/StdlibTestFixture.cs", """
 namespace BooCompiler.Tests
 {

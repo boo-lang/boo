@@ -66,6 +66,7 @@
 				<include name="build/StdlibTestFixture.cs" />
 				<include name="build/AttributesTestFixture.cs" />
 				<include name="build/SemanticsTestFixture.cs" />
+				<include name="build/MacrosTestFixture.cs" />
 			</sources>
 			
 			<references basedir="build">
