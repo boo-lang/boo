@@ -115,11 +115,38 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			MethodInfo mi = BindingManager.GetMethodInfo(node.Target);
-					
-			// Empilha os argumentos
-			node.Arguments.Switch(this);
-			_il.EmitCall(OpCodes.Call, mi, null);
+			IBinding binding = BindingManager.GetBinding(node.Target);
+			switch (binding.BindingType)
+			{
+				case BindingType.Method:
+				{					
+					MethodInfo mi = (MethodInfo)((IMethodBinding)binding).MethodInfo;
+					if (!mi.IsStatic)
+					{
+						// pushes target reference
+						node.Target.Switch(this);
+					}
+					node.Arguments.Switch(this);
+					_il.EmitCall(OpCodes.Call, mi, null);
+					break;
+				}
+				
+				case BindingType.Constructor:
+				{
+					node.Arguments.Switch(this);
+					_il.Emit(OpCodes.Newobj, ((IConstructorBinding)binding).ConstructorInfo);
+					foreach (ExpressionPair pair in node.NamedArguments)
+					{
+						_il.Emit(OpCodes.Dup);
+					}
+					break;
+				}
+				
+				default:
+				{
+					throw new NotImplementedException();
+				}
+			}
 		}
 		
 		public override void OnStringLiteralExpression(StringLiteralExpression node)
@@ -166,9 +193,15 @@ namespace Boo.Ast.Compilation.Steps
 					break;
 				}
 				
+				case BindingType.Assembly:
+				{
+					// ignores "using namespace from assembly" clause
+					break;
+				}
+				
 				default:
 				{
-					throw new NotImplementedException();
+					throw new NotImplementedException(info.ToString());
 				}
 				
 			}			

@@ -32,20 +32,27 @@ namespace Boo.Ast.Compilation.Steps
 		
 		public override bool EnterCompileUnit(CompileUnit cu)
 		{			
-			// builtins resolution at the highest level
-			_namespace = new TypeNameSpace(BindingManager, null, typeof(Boo.Lang.Builtins));
+			// Boo.Lang at the highest level
+			//_namespace = new NameSpaceNameSpace(BindingManager, 
+			                           
+			// then builtins resolution
+			PushNamespace(new ExternalTypeBinding(BindingManager, typeof(Boo.Lang.Builtins)));
 			return true;
 		}
 		
-		public override bool EnterModule(Boo.Ast.Module module)
+		public override void OnModule(Boo.Ast.Module module)
 		{
 			TypeAttributes attributes = TypeAttributes.Public|TypeAttributes.Sealed;
 			_typeBuilder = _moduleBuilder.DefineType(module.FullyQualifiedName, attributes);
 			
-			BindingManager.Bind(module, _typeBuilder);
+			BindingManager.Bind(module, _typeBuilder);			
 			
-			_namespace = new TypeDefinitionNameSpace(BindingManager, _namespace, module);
-			return true;
+			PushNamespace(new ModuleNameSpace(BindingManager, module));
+			
+			module.Attributes.Switch(this);
+			module.Members.Switch(this);
+			
+			PopNamespace();
 		}
 		
 		public override void OnMethod(Method method)
@@ -53,17 +60,19 @@ namespace Boo.Ast.Compilation.Steps
 			_method = method;
 			
 			ProcessParameters(method);
-			ProcessReturnType(method);
+			ProcessReturnType(method);			
 			
-			_namespace = new MethodNameSpace(BindingManager, _namespace, _method);			
-			
-			MethodBuilder mbuilder = _typeBuilder.DefineMethod(method.Name,
+			MethodBuilder builder = _typeBuilder.DefineMethod(method.Name,
 				                     MethodAttributes.Static|MethodAttributes.Private,
 				                     BindingManager.GetBoundType(method.ReturnType),
 				                     GetParameterTypes(method));
-			BindingManager.Bind(method, mbuilder);
 			
+			InternalMethodBinding binding = new InternalMethodBinding(BindingManager, method, builder);
+			BindingManager.Bind(method, binding);
+			
+			PushNamespace(binding);
 			method.Body.Switch(this);
+			PopNamespace();
 		}
 		
 		public override void OnTypeReference(TypeReference node)
@@ -138,6 +147,20 @@ namespace Boo.Ast.Compilation.Steps
 			}
 		}
 		
+		public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+		{
+			ITypedBinding binding = (ITypedBinding)BindingManager.GetBinding(node.Target);			
+			IBinding member = binding.BoundType.Resolve(node.Name);
+			if (null != member)
+			{
+				BindingManager.Bind(node, member);
+			}
+			else
+			{
+				Errors.MemberNotFound(node);
+			}
+		}
+		
 		public override void OnBinaryExpression(BinaryExpression node)
 		{
 			if (node.Operator == BinaryOperatorType.Assign)
@@ -188,22 +211,52 @@ namespace Boo.Ast.Compilation.Steps
 		{
 			// expression type is the same as the right expression's
 			BindingManager.Bind(node, BindingManager.GetBinding(node.Right));
-		}
+		}		
 		
-		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
+		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{			
-			IBinding targetType = BindingManager.GetBinding(node.Target);			
-			if (targetType.BindingType == BindingType.Method)
-			{				
-				IMethodBinding targetMethod = (IMethodBinding)targetType;
-				CheckParameters(targetMethod, node);			
-				// todo: if not CheckParameter
-				// Bind(node, BindingManager.UnknownType)
-				BindingManager.Bind(node, targetMethod.ReturnType);
-			}
-			else
+			node.Target.Switch(this);
+			node.Arguments.Switch(this);
+			
+			IBinding targetBinding = BindingManager.GetBinding(node.Target);
+			switch (targetBinding.BindingType)
 			{
-				throw new NotImplementedException();
+				case BindingType.Method:
+				{				
+					IMethodBinding targetMethod = (IMethodBinding)targetBinding;
+					CheckParameters(targetMethod, node);			
+					if (node.NamedArguments.Count > 0)
+					{
+						Errors.NamedParametersNotAllowed(node.NamedArguments[0]);
+					}
+					// todo: if not CheckParameter
+					// Bind(node, BindingManager.UnknownType)
+					BindingManager.Bind(node, targetMethod.ReturnType);
+					break;
+				}
+				
+				case BindingType.Type:
+				{					
+					ITypeBinding typeBinding = (ITypeBinding)targetBinding;					
+					ResolveNamedArguments(typeBinding, node);
+					
+					IConstructorBinding ctorBinding = FindCorrectConstructor(typeBinding, node);
+					if (null != ctorBinding)
+					{
+						// rebind the target now we know
+						// it is a constructor call
+						BindingManager.Bind(node.Target, ctorBinding);
+						// expression result type is a new object
+						// of type
+						BindingManager.Bind(node, typeBinding);
+					}
+					break;
+				}
+				
+				default:
+				{
+					throw new NotImplementedException();
+				}
 			}
 		}
 		
@@ -253,13 +306,20 @@ namespace Boo.Ast.Compilation.Steps
 			return true;
 		}
 		
+		void ResolveNamedArguments(ITypeBinding typeBinding, MethodInvocationExpression node)
+		{
+			foreach (ExpressionPair arg in node.NamedArguments)
+			{				
+			}
+		}
+		
 		void CheckParameters(IMethodBinding method, MethodInvocationExpression mie)
 		{	
 			ExpressionCollection args = mie.Arguments;
 			if (method.ParameterCount != args.Count)
 			{
 				Errors.MethodArgumentCount(mie, method);
-			}
+			}	
 			
 			for (int i=0; i<args.Count; ++i)
 			{
@@ -271,6 +331,16 @@ namespace Boo.Ast.Compilation.Steps
 					break;
 				}
 			}
+		}
+		
+		IConstructorBinding FindCorrectConstructor(ITypeBinding typeBinding, MethodInvocationExpression mie)
+		{
+			IConstructorBinding[] ctors = typeBinding.GetConstructors();
+			if (ctors.Length > 0)
+			{
+				return ctors[0];
+			}
+			return null;
 		}
 		
 		Type[] GetParameterTypes(Method method)
@@ -316,6 +386,17 @@ namespace Boo.Ast.Compilation.Steps
 			sb.Append(") as ");
 			sb.Append(binding.ReturnType.Type.FullName);
 			return sb.ToString();
+		}
+		
+		void PushNamespace(INameSpace ns)
+		{
+			ns.Parent = _namespace;
+			_namespace = ns;
+		}
+		
+		void PopNamespace()
+		{
+			_namespace = _namespace.Parent;
 		}
 	}
 }

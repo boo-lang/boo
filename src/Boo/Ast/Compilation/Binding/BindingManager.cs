@@ -39,11 +39,6 @@ namespace Boo.Ast.Compilation.Binding
 			Bind(type, new InternalTypeBinding(this, type, builder));
 		}
 		
-		public void Bind(Method method, MethodBuilder builder)
-		{
-			Bind(method, new InternalMethodBinding(this, method, builder));
-		}
-		
 		public void Bind(Expression expression, Type type)
 		{
 			Bind(expression, ToTypeBinding(type));
@@ -106,7 +101,7 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public MethodInfo GetMethodInfo(Node node)
 		{
-			return ((IMethodBinding)GetBinding(node)).MethodInfo;
+			return (MethodInfo)((IMethodBinding)GetBinding(node)).MethodInfo;
 		}
 		
 		public ITypeBinding GetTypeBinding(Node node)
@@ -116,7 +111,7 @@ namespace Boo.Ast.Compilation.Binding
 		
 		public System.Type GetBoundType(Node node)
 		{
-			return GetTypeBinding(node).Type;
+			return ((ITypedBinding)GetBinding(node)).Type;
 		}		
 		
 		public LocalBinding GetLocalBinding(Local local)

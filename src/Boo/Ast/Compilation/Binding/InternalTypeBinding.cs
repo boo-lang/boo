@@ -6,15 +6,28 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public class InternalTypeBinding : ITypeBinding
 	{		
-		BindingManager _manager;
+		BindingManager _bindingManager;
 		TypeDefinition _typeDefinition;
 		TypeBuilder _builder;
+		INameSpace _parent;
 		
 		internal InternalTypeBinding(BindingManager manager, TypeDefinition typeDefinition, TypeBuilder builder)
 		{
-			_manager = manager;
+			_bindingManager = manager;
 			_typeDefinition = typeDefinition;
 			_builder = builder;
+		}
+		
+		public INameSpace Parent
+		{
+			get
+			{
+				return _parent;
+			}
+			set
+			{
+				_parent = value;
+			}
 		}
 		
 		public BindingType BindingType
@@ -33,6 +46,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return this;
+			}
+		}
+		
 		public Type Type
 		{
 			get
@@ -48,5 +69,27 @@ namespace Boo.Ast.Compilation.Binding
 				return _builder;
 			}
 		}
+		
+		public IConstructorBinding[] GetConstructors()
+		{
+			return new IConstructorBinding[0];
+		}
+		
+		public IBinding Resolve(string name)
+		{			
+			foreach (TypeMember member in _typeDefinition.Members)
+			{
+				if (name == member.Name)
+				{
+					return _bindingManager.GetBinding(member);
+				}
+			}			
+			if (null != _parent)
+			{
+				return _parent.Resolve(name);
+			}
+			return null;
+		}
+
 	}
 }

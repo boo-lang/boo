@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace Boo.Ast.Compilation.Binding
 {
-	public class InternalMethodBinding : IMethodBinding
+	public class InternalMethodBinding : IMethodBinding, INameSpace
 	{
 		BindingManager _manager;
 		
@@ -12,11 +12,26 @@ namespace Boo.Ast.Compilation.Binding
 		
 		MethodBuilder _builder;
 		
+		INameSpace _parent;
+		
 		internal InternalMethodBinding(BindingManager manager, Boo.Ast.Method method, MethodBuilder builder)
 		{
 			_manager = manager;
 			_method = method;
 			_builder = builder;
+		}
+		
+		public INameSpace Parent
+		{
+			get
+			{
+				return _parent;
+			}
+			
+			set
+			{
+				_parent = value;
+			}
 		}
 		
 		public BindingType BindingType
@@ -48,7 +63,7 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
-		public MethodInfo MethodInfo
+		public MethodBase MethodInfo
 		{
 			get
 			{
@@ -63,5 +78,26 @@ namespace Boo.Ast.Compilation.Binding
 				return _builder;
 			}
 		}
+		
+		public IBinding Resolve(string name)
+		{
+			foreach (Local local in _method.Locals)
+			{
+				if (name == local.Name)
+				{
+					return _manager.GetBinding(local);
+				}
+			}
+			
+			foreach (ParameterDeclaration parameter in _method.Parameters)
+			{
+				if (name == parameter.Name)
+				{
+					return _manager.GetBinding(parameter);
+				}
+			}
+			return _parent.Resolve(name);
+		}
+
 	}
 }

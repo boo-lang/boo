@@ -1,5 +1,6 @@
 ﻿;Compiler Error Messages
 NamedParameterMustBeReference=Nome do parâmetro deve ser um identificador.
+NamedParametersNotAllowed=Parâmetros são permitidos apenas com construtores.
 AmbiguousName=Referência ambígua {0}: {1}.
 UnknownName=Identificador desconhecido: {0}.
 NotAPublicFieldOrProperty=O nome {0} não representa um campo ou propriedade pública do tipo {1}.
@@ -13,6 +14,8 @@ BindingManager.UnboundNode=O nó {0} na posição {1} não foi resolvido correta
 MethodArgumentCount=Nenhuma versão do método {0} aceita {1} parâmetros.
 MethodSignature=A versão mais próxima do método '{1}' não é compatível com a lista de argumentos '{0}'.
 NameNotType=O nome {0} não denota um tipo válido.
+MemberNotFound=Membro '{0}' não encontrado.
+InvalidNamespace=Espaço {0} não encontrado, talvez você tenha esquecido de adicionar uma referência?
 
 ;Attribute Messages
 InvalidNodeForAttribute=Este atributo só pode ser aplicado a nós do tipo {0}.

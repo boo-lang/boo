@@ -7,15 +7,15 @@ namespace Boo.Ast.Compilation.Binding
 	{
 		BindingManager _manager;
 		
-		MethodInfo _mi;
+		MethodBase _mi;
 		
-		internal ExternalMethodBinding(BindingManager manager, MethodInfo mi)
+		internal ExternalMethodBinding(BindingManager manager, MethodBase mi)
 		{
 			_manager = manager;
 			_mi = mi;
 		}
 		
-		public BindingType BindingType
+		public virtual BindingType BindingType
 		{
 			get
 			{
@@ -40,15 +40,38 @@ namespace Boo.Ast.Compilation.Binding
 		{
 			get
 			{
-				return _manager.ToTypeBinding(_mi.ReturnType);
+				return _manager.ToTypeBinding(((MethodInfo)_mi).ReturnType);
 			}
 		}
 		
-		public MethodInfo MethodInfo
+		public MethodBase MethodInfo
 		{
 			get
 			{
 				return _mi;
+			}
+		}
+	}
+	
+	public class ExternalConstructorBinding : ExternalMethodBinding, IConstructorBinding
+	{
+		public ExternalConstructorBinding(BindingManager manager, ConstructorInfo ci) : base(manager, ci)
+		{			
+		}
+		
+		public override BindingType BindingType
+		{
+			get
+			{
+				return BindingType.Constructor;
+			}
+		}
+		
+		public ConstructorInfo ConstructorInfo
+		{
+			get
+			{
+				return (ConstructorInfo)MethodInfo;
 			}
 		}
 	}

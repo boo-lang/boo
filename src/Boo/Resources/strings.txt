@@ -1,5 +1,6 @@
 ;Compiler Error Messages
 NamedParameterMustBeReference=Parameter name must be an identifier.
+NamedParametersNotAllowed=Named arguments are only allowed for constructors.
 AmbiguousName=Ambiguous reference {0}: {1}.
 UnknownName=Unknown identifier: {0}.
 NotAPublicFieldOrProperty=The name {0} does not refer to a public property or field of the type {1}.
@@ -13,6 +14,8 @@ BindingManager.UnboundNode=Node {0} at {1} is not bound.
 MethodArgumentCount=No overload of the method {0} takes {1} parameters.
 MethodSignature=The best overload for the method '{1}' is not compatible with the argument list '{0}'.
 NameNotType=The name {0} does not denote a type.
+MemberNotFound=Member '{0}' not found.
+InvalidNamespace=Namespace {0} not found, maybe you forgot to add an assembly reference?
 
 ;Attribute Messages
 InvalidNodeForAttribute=This attribute can only be applied to {0} nodes.

@@ -70,10 +70,15 @@ namespace Boo.Lang
 			InnerCollect(target, condition);
 			return target;
 		}
+		
+		public Array ToArray(System.Type targetType)
+		{
+			return InnerList.ToArray(targetType);
+		}
 
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder();			
 			for (int i=0; i<InnerList.Count; ++i)
 			{
 				if (i>0) { sb.Append(", "); }

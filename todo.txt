@@ -6,7 +6,9 @@ Geração de Código
 Milestone 1 (hello.boo)
 -----------------------
 
- done
+done * bultins
+done * local variables
+done * expression interpolation (string formatting)
  
 Milestone 2 (debug)
 -------------------
@@ -14,25 +16,45 @@ Milestone 2 (debug)
 done * line numbers na vers�o de depura��o
 done * depurar com o mscordbg
 
-Milestone 3 (grep.boo)
+Milestone 3 (helloforms.boo - using, métodos estáticos, criação de objetos)
+---------------------------------------------------------------------------
+done * using XXX from XXX
+done * criar objeto (ConstructorBinding)
+done * membros de instancia (f.Show())
+* argumentos nomeados na criação de objetos
+* membros estáticos Application.Run()
+* simplificar código:
+	* InternalTypeBinding e ExternalTypeBinding implements INameSpace
+	unificar codigo;
+	* o mesmo para InternalMethodBinding;
+	* criar ModuleBinding e unificar com ModuleNamespace;
+
+
+Milestone 3.1 (grep.boo)
 ----------------------
 
 done * definição de métodos do módulo
 done * chamada de métodos do módulo
 done * checagem de parametros estrita nas invocaçoes de método
-* using System + Console.Write()
-* for item in enumerator
-* if string
-* if reference
-* raise
 * array unpacking
-* express�es simples com inteiros
-* boxing (print e StringFormatting)
-* concatena��o de strings
-* concatena��o de strings com inteiros
+* for item in enumerator
 * native regular expression support:
 	* re expression /foo/
 	* match operator ~=
+* if stmt modifier
+* expressões simples com inteiros
+* boxing (print e StringFormatting)
+
+Milestone 3.2 (replace.boo)
+---------------------------
+* if string compare
+* using
+
+Milestone 3.3
+-------------
+* raise
+* concatena��o de strings
+* concatena��o de strings com inteiros
 * statement modifiers:
 	* if
 	* unless
@@ -80,5 +102,5 @@ Otimiza��es
 -----------
 * const expression unfolding
 * proper tail recursion (fatorial)
-* for item in array/tuple => traduzir indexa��o direta do array com checagem de
-bounds, o JIT � capaz de detectar esses patterns e otimizar o c�digo de acordo
+* for item in array/tuple => traduzir indexaçãoo direta do array com checagem de
+bounds, o JIT é capaz de detectar esses patterns e otimizar o c�digo de acordo

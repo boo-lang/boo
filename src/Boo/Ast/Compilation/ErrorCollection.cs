@@ -29,6 +29,11 @@ namespace Boo.Ast.Compilation
 			}
 			InnerList.Add(error);
 		}		
+		
+		public void NamedParametersNotAllowed(Node node)
+		{
+			Add(new Error(node, GetString("NamedParametersNotAllowed")));
+		}
 
 		public void NamedParameterMustBeReference(ExpressionPair pair)		
 		{
@@ -40,10 +45,25 @@ namespace Boo.Ast.Compilation
 			Add(new Error(node, Format("NameNotType", name)));
 		}
 		
+		public void MemberNotFound(MemberReferenceExpression node)
+		{
+			Add(new Error(node, Format("MemberNotFound", node.Name)));
+		}
+		
 		public void UnknownName(Node node, string name)
 		{
 			Error error = new Error(node, Format("UnknownName", name));			
 			Add(error);
+		}
+		
+		public void UnableToLoadAssembly(Node node, string assemblyName, Exception cause)
+		{
+			Add(new Error(node, Boo.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName), cause));
+		}
+		
+		public void InvalidNamespace(Using node)
+		{
+			Add(new Error(node, Format("InvalidNamespace", node.Namespace)));
 		}
 
 		public void AmbiguousName(Node node, string name, List resolvedNames)

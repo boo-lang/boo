@@ -6,103 +6,68 @@ namespace Boo.Ast.Compilation.Binding
 {	
 	public interface INameSpace
 	{		
+		INameSpace Parent
+		{
+			get;
+			set;
+		}
 		IBinding Resolve(string name);
 	}
 	
-	class TypeNameSpace : INameSpace
+	class ModuleNameSpace : INameSpace
 	{
-		const BindingFlags DefaultBindingFlags = BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
+		INameSpace _parent;
+		
+		Module _module;
 		
 		BindingManager _bindingManager;
 		
-		INameSpace _parent;
+		INameSpace[] _using;
 		
-		Type _type;
-		
-		public TypeNameSpace(BindingManager bindingManager, INameSpace parent, Type type)
+		public ModuleNameSpace(BindingManager bindingManager, Module module)
 		{
 			_bindingManager = bindingManager;
-			_parent = parent;
-			_type = type;
+			_module = module;
+			_using = new INameSpace[_module.Using.Count];
+			for (int i=0; i<_using.Length; ++i)
+			{
+				_using[i] = (INameSpace)bindingManager.GetBinding(_module.Using[i]);
+			}
 		}
 		
-		public IBinding Resolve(string name)
+		public INameSpace Parent
 		{
-			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
-			if (members.Length > 0)
-			{				
-				return _bindingManager.ToBinding(members);
+			get
+			{
+				return _parent;
 			}
 			
-			if (null != _parent)
+			set
 			{
-				return _parent.Resolve(name);
+				_parent = value;
 			}
-			
-			return null;
-		}
-	}
-	
-	class MethodNameSpace : INameSpace
-	{
-		INameSpace _parent;
-		
-		Method _method;
-		
-		BindingManager _manager;
-		
-		public MethodNameSpace(BindingManager manager, INameSpace parent, Method method)
-		{
-			_manager = manager;
-			_method = method;
-			_parent = parent;
-		}
-		
-		public IBinding Resolve(string name)
-		{
-			foreach (Local local in _method.Locals)
-			{
-				if (name == local.Name)
-				{
-					return _manager.GetBinding(local);
-				}
-			}
-			
-			foreach (ParameterDeclaration parameter in _method.Parameters)
-			{
-				if (name == parameter.Name)
-				{
-					return _manager.GetBinding(parameter);
-				}
-			}
-			return _parent.Resolve(name);
-		}
-	}
-	
-	class TypeDefinitionNameSpace : INameSpace
-	{
-		INameSpace _parent;
-		
-		TypeDefinition _typeDefinition;
-		
-		BindingManager _bindingManager;
-		
-		public TypeDefinitionNameSpace(BindingManager bindingManager, INameSpace parent, TypeDefinition typeDefinition)
-		{
-			_bindingManager = bindingManager;
-			_parent = parent;
-			_typeDefinition = typeDefinition;
 		}
 		
 		public IBinding Resolve(string name)
 		{			
-			foreach (TypeMember member in _typeDefinition.Members)
+			foreach (TypeMember member in _module.Members)
 			{
 				if (name == member.Name)
 				{
 					return _bindingManager.GetBinding(member);
 				}
-			}			
+			}
+			
+			foreach (INameSpace ns in _using)
+			{
+				// todo: resolve name in all namespaces...
+				IBinding binding = ns.Resolve(name);
+				if (null != binding)
+				{
+					return binding;
+				}
+			}
+			
 			if (null != _parent)
 			{
 				return _parent.Resolve(name);
@@ -110,6 +75,4 @@ namespace Boo.Ast.Compilation.Binding
 			return null;
 		}
 	}
-
-
 }

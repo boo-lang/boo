@@ -5,14 +5,32 @@ namespace Boo.Ast.Compilation.Binding
 {
 	public class ExternalTypeBinding : ITypeBinding
 	{
-		BindingManager _manager;
+		const BindingFlags DefaultBindingFlags = BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Static|BindingFlags.Instance;
+		
+		BindingManager _bindingManager;
 		
 		Type _type;
 		
+		IConstructorBinding[] _constructors;
+		
+		INameSpace _parent;
+		
 		internal ExternalTypeBinding(BindingManager manager, Type type)
 		{
-			_manager = manager;
+			_bindingManager = manager;
 			_type = type;
+		}
+		
+		public INameSpace Parent
+		{
+			get
+			{
+				return _parent;
+			}
+			set
+			{
+				_parent = value;
+			}
 		}
 		
 		public BindingType BindingType
@@ -23,6 +41,14 @@ namespace Boo.Ast.Compilation.Binding
 			}
 		}
 		
+		public ITypeBinding BoundType
+		{
+			get
+			{
+				return this;
+			}
+		}
+		
 		public Type Type
 		{
 			get
@@ -30,5 +56,36 @@ namespace Boo.Ast.Compilation.Binding
 				return _type;
 			}
 		}
+		
+		public IConstructorBinding[] GetConstructors()
+		{
+			if (null == _constructors)
+			{
+				ConstructorInfo[] ctors = _type.GetConstructors(BindingFlags.Public|BindingFlags.Instance);
+				_constructors = new IConstructorBinding[ctors.Length];
+				for (int i=0; i<_constructors.Length; ++i)
+				{
+					_constructors[i] = new ExternalConstructorBinding(_bindingManager, ctors[i]);
+				}
+			}
+			return _constructors;
+		}
+		
+		public IBinding Resolve(string name)
+		{
+			System.Reflection.MemberInfo[] members = _type.GetMember(name, DefaultBindingFlags);
+			if (members.Length > 0)
+			{				
+				return _bindingManager.ToBinding(members);
+			}
+			
+			if (null != _parent)
+			{
+				return _parent.Resolve(name);
+			}
+			
+			return null;
+		}
+
 	}
 }
