@@ -2001,6 +2001,20 @@ namespace Boo.Lang.Compiler.Steps
 				TypeCode type = Type.GetTypeCode(value.GetType());
 				switch (type)
 				{
+					case TypeCode.Byte:
+					{
+						_il.Emit(OpCodes.Ldc_I4, (int)(byte)value);
+						_il.Emit(OpCodes.Conv_U1);
+						break;
+					}
+					
+					case TypeCode.SByte:
+					{
+						_il.Emit(OpCodes.Ldc_I4, (int)(sbyte)value);
+						_il.Emit(OpCodes.Conv_I1);
+						break;
+					}
+					
 					case TypeCode.Int32:
 					{
 						_il.Emit(OpCodes.Ldc_I4, (int)value);

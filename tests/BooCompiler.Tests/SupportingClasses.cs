@@ -38,6 +38,20 @@ namespace BooCompiler.Tests
 		Baz = 4
 	}
 	
+	public enum ByteEnum : byte
+	{
+		Foo = 1,
+		Bar = 2,
+		Baz = 4
+	}
+	
+	public enum SByteEnum : sbyte
+	{
+		Foo = -1,
+		Bar = -2,
+		Baz = -4
+	}
+	
 	public class Person
 	{
 		string _fname;
