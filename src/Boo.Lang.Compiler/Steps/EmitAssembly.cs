@@ -2867,7 +2867,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		TypeBuilder CreateTypeBuilder(TypeMember type)
 		{
-			Type baseType = IsEnumDefinition(type) ? typeof(System.Enum) : typeof(object);
+			Type baseType = IsEnumDefinition(type) ? typeof(System.Enum) : null;
 
 			TypeBuilder typeBuilder = null;
 			ClassDefinition  enclosingType = type.ParentNode as ClassDefinition;
