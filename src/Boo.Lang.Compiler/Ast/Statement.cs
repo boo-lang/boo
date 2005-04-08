@@ -34,6 +34,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(DeclarationStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(TryStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(IfStatement))]
+	[System.Xml.Serialization.XmlInclude(typeof(UnlessStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(ForStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(WhileStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(GivenStatement))]
