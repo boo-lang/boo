@@ -42,11 +42,6 @@ abstract class AbstractBooTask(Task):
 	
 	_pipeline as string
 	
-	def constructor():
-		baseAssemblyFolder = Path.GetDirectoryName(GetType().Assembly.Location)
-		System.Reflection.Assembly.LoadFrom(
-			Path.Combine(baseAssemblyFolder, "Boo.Lang.Parser.dll"))
-			
 	[BuildElement("references")]
 	References:
 		get:
