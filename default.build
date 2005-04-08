@@ -474,6 +474,8 @@
 				<include name="extras/**/*.xml" />
 				<include name="extras/**/*.build" />
 				<include name="extras/**/*.lang" />
+				<include name="extras/**/*.keys" />
+				<include name="extras/**/*.mime" />
 				<include name="extras/install-gtksourceview-mode" />
 				<include name="extras/SharpDevelop/**/*.xshd" />
 				<include name="extras/SharpDevelop/**/*.xft" />
@@ -511,6 +513,7 @@
 				<include name="src/boo.snk" />
 				<include name="src/**/*.cs" />
 				<include name="src/**/*.boo" />
+				<include name="src/**/*.in" />
 				<include name="src/**/*.rsp" />
 				<include name="src/**/*.g" />
 				<include name="src/**/*.prjx" />
