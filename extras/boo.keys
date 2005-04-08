@@ -1,0 +1,6 @@
+text/x-boo
+	category=Software Development/Source Code
+	can_be_executable=true
+	default_action_type=application
+	description=Boo source code
+	short_list_application_ids_for_novice_user_level=monodevelop,gedit

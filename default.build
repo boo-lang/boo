@@ -16,6 +16,13 @@
 	<property name="skip.ast" value="False" />
 	
 	<property name="build.dir" value="build" />
+
+	<property name="install.prefix" value="/usr/local" />
+
+	<property name="install.share" value="${path::combine(install.prefix,'share')}" />
+	<property name="install.bindir" value="${path::combine(install.prefix,'bin')}" />
+	<property name="install.libdir" value="${path::combine(install.prefix,'lib')}" />
+	<property name="install.boolib" value="${path::combine(install.libdir,'boo')}" />
 	
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
@@ -43,6 +50,15 @@
 				<include name="Boo.Lang.Interpreter.dll" />
 			</references>
 		</booc>
+
+		<if test="${not(platform::is-win32())}">
+			<copy file="src/booish/booish.in" tofile="build/booish" inputencoding="ASCII">
+				<filterchain>
+					<replacestring from="RUNTIME" to="mono" />
+					<replacestring from="INSTALL_DIR" to="${install.boolib}" />
+				</filterchain>
+			</copy>
+		</if>
 	</target>
 	
 	<target name="booi" depends="Boo.NAnt.Tasks">
@@ -56,6 +72,16 @@
 				<include name="*.boo" />
 			</sources>
 		</booc>		
+
+		<if test="${not(platform::is-win32())}">
+			<copy file="src/booi/booi.in" tofile="build/booi" inputencoding="ASCII">
+				<filterchain>
+					<replacestring from="RUNTIME" to="mono" />
+					<replacestring from="INSTALL_DIR" to="${install.boolib}" />
+				</filterchain>
+			</copy>
+		</if>
+		
 
 		<boo>
 		print("Hello from boo task!")		
@@ -138,6 +164,15 @@
 				<include name="build/Boo.Lang.Compiler.dll" />
 			</references>
 		</csc>
+
+		<if test="${not(platform::is-win32())}">
+			<copy file="src/booc/booc.in" tofile="build/booc" inputencoding="ASCII">
+				<filterchain>
+					<replacestring from="RUNTIME" to="mono" />
+					<replacestring from="INSTALL_DIR" to="${install.boolib}" />
+				</filterchain>
+			</copy>
+		</if>
 		
 		<copy todir="build" file="src/booc/booc.rsp" />
 		
@@ -242,7 +277,109 @@
 			<resources basedir="build">
 				<include name="strings.resources" />
 			</resources>
+
+			<resources basedir="build/pt">
+				<include name="strings.pt.resources" />
+			</resources>
+			<resources basedir="build/it">
+				<include name="strings.it.resources" />
+			</resources>
 		</csc>
+	</target>
+
+	<target name="install" depends="booc, booish, booi">
+		<call target="install-win32" if="${platform::is-win32()}"/>
+		<call target="install-linux" if="${not(platform::is-win32())}"/>
+	</target>
+
+	<target name="install-linux" depends="booc, booish, booi">
+		<mkdir dir="${install.boolib}"/>
+		<mkdir dir="${install.bindir}"/>
+
+		<copy todir="${install.boolib}">
+			<fileset basedir="build">
+				<include name="*.exe"/>
+				<include name="strings.resources"/>
+				<include name="boo.rsp"/>
+				<include name="Boo.NAnt.Tasks.dll" />
+			</fileset>
+		</copy>
+
+		<exec program="gacutil" useruntimeengine="false" workingdir="build">
+			<arg value="/i" />
+			<arg value="Boo.dll" />
+			<arg value="/package" />
+			<arg value="boo" />
+			<arg value="/root" />
+			<arg value="${install.libdir}" />
+		</exec>
+
+		<exec program="gacutil" useruntimeengine="false" workingdir="build">
+			<arg value="/i" />
+			<arg value="Boo.CodeDom.dll" />
+			<arg value="/package" />
+			<arg value="boo" />
+			<arg value="/root" />
+			<arg value="${install.libdir}" />
+		</exec>
+
+		<exec program="gacutil" useruntimeengine="false" workingdir="build">
+			<arg value="/i" />
+			<arg value="Boo.Lang.Compiler.dll" />
+			<arg value="/package" />
+			<arg value="boo" />
+			<arg value="/root" />
+			<arg value="${install.libdir}" />
+		</exec>
+
+		<exec program="gacutil" useruntimeengine="false" workingdir="build">
+			<arg value="/i" />
+			<arg value="Boo.Lang.Interpreter.dll" />
+			<arg value="/package" />
+			<arg value="boo" />
+			<arg value="/root" />
+			<arg value="${install.libdir}" />
+		</exec>
+
+		<exec program="gacutil" useruntimeengine="false" workingdir="build">
+			<arg value="/i" />
+			<arg value="Boo.Lang.Parser.dll" />
+			<arg value="/package" />
+			<arg value="boo" />
+			<arg value="/root" />
+			<arg value="${install.libdir}" />
+		</exec>
+
+		<copy todir="${install.boolib}/pt">
+			<fileset basedir="${build.dir}/pt">
+				<include name="*"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${install.bindir}">
+			<fileset basedir="${build.dir}">
+				<include name="booc"/>
+				<include name="booish"/>
+				<include name="booi"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${install.share}/mime-info">
+			<fileset basedir="extras">
+				<include name="boo.keys" />
+				<include name="boo.mime" />
+			</fileset>
+		</copy>
+
+		<copy file="extras/boo-mime-info.xml" todir="${install.share}/mime/packages/" />
+
+		<exec program="chmod" commandline="+x ${install.bindir}/booc" />
+		<exec program="chmod" commandline="+x ${install.bindir}/booi" />
+		<exec program="chmod" commandline="+x ${install.bindir}/booish" />
+	</target>
+
+	<target name="install-win32" depends="booc, booish, booi">
+		<echo message="Install target not yet supported under Windows"/>
 	</target>
 	
 	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">

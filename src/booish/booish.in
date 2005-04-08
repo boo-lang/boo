@@ -1,0 +1,2 @@
+#!/bin/sh
+env RUNTIME INSTALL_DIR/booish.exe "$@"
