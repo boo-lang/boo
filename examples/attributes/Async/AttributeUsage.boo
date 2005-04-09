@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,14 +26,21 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+import Boo.Examples.Attributes
 
-import Boo.Web
-import System.Web.UI
+class Foo:
 
-class MyControl(UserControl):
+	[async]
+	def Bar():
+		print "Foo.Bar"
+		
+	[async]
+	def Baz():
+		return "Foo.Baz"
+		
+f = Foo()
+result = f.BeginBar({ print "Bar ended" }, null)
+f.EndBar(result)
 
-	[ViewState(Default: 70)]
-	Value as int
-	
-	[ViewState]
-	Text as string
+result = f.BeginBaz({ print "Baz ended" }, null)
+print f.EndBaz(result)

@@ -8,20 +8,25 @@
 			</sources>
 			<references basedir=".">
 				<include name="Attribute.dll" />
-				<include name="System.Web.dll" />
 			</references>
 		</booc>
+		
+		<boo src="AttributeUsage.boo">
+			<references basedir=".">
+				<include name="Attribute.dll" />
+			</references>
+		</boo>
 	</target>
 	
 	<target name="build-attribute" depends="init">
 		<booc target="library" output="Attribute.dll">
 			<sources>
-				<include name="ViewStateAttribute.boo" />
+				<include name="AsyncAttribute.boo" />
 			</sources>
 		</booc>
 	</target>
 	
 	<target name="init">
-		<loadtasks assembly="../../bin/Boo.NAnt.Tasks.dll" />
+		<loadtasks assembly="../../../bin/Boo.NAnt.Tasks.dll" />
 	</target>
 </project>
