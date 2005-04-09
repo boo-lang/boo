@@ -28,7 +28,6 @@
 
 #endregion
 
-
 namespace Boo.Examples.Attributes
 
 import System;
@@ -116,10 +115,10 @@ for a method.
 		_method.DeclaringType.Members.Add(endMethod)
 		
 		# cache the voidType reference because we are going
-		# to loose the context after this method returns
+		# to lose the context after this method returns
 		# (see AbstractCompilerComponent.Dispose)
 		voidType = Context.TypeSystemServices.VoidType
-		Context.Parameters.Pipeline.AfterStep += def (sender as object, e as CompilerStepEventArgs):
+		Context.Parameters.Pipeline.AfterStep += def (sender, e as CompilerStepEventArgs):
 			if e.Step isa ProcessMethodBodies:
 				if _method.ReturnType.Entity is voidType:
 					returnStatement = endMethod.Body.Statements[-1] as ReturnStatement
