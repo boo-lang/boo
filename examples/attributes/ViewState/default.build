@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project name="attributes" default="build">
+
+	<target name="build" depends="build-attribute">
+		<booc pipeline="boo" output="none">
+			<sources>
+				<include name="AttributeUsage.boo" />
+			</sources>
+			<references basedir=".">
+				<include name="Attribute.dll" />
+				<include name="System.Web.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="build-attribute" depends="init">
+		<booc target="library" output="Attribute.dll">
+			<sources>
+				<include name="ViewStateAttribute.boo" />
+			</sources>
+		</booc>
+	</target>
+	
+	<target name="init">
+		<loadtasks assembly="../../../bin/Boo.NAnt.Tasks.dll" />
+	</target>
+</project>
