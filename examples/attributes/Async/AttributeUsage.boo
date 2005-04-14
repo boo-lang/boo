@@ -26,9 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+import System
 import Boo.Examples.Attributes
 
-class Foo:
+class Foo(IDisposable):
+	
+	_disposed = false
 
 	[async]
 	def Bar():
@@ -38,9 +41,26 @@ class Foo:
 	def Baz():
 		return "Foo.Baz"
 		
-f = Foo()
-result = f.BeginBar({ print "Bar ended" }, null)
-f.EndBar(result)
+	[async(_disposed)]
+	def Spam():
+		return "Foo.Spam"
 
-result = f.BeginBaz({ print "Baz ended" }, null)
-print f.EndBaz(result)
+	def Dispose():
+		_disposed = true		
+		
+f = Foo()
+resultBar = f.BeginBar({ print "Bar ended" }, null)
+resultBaz = f.BeginBaz({ print "Baz ended" }, null)
+resultSpam = f.BeginSpam({ print "Spam ended" }, null)
+
+f.EndBar(resultBar)
+print f.EndBaz(resultBaz)
+print f.EndSpam(resultSpam)
+
+f.Dispose()
+try:
+	f.BeginSpam(null, null)
+	print "should never got here!"
+except x as ObjectDisposedException:
+	print x
+

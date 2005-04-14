@@ -43,6 +43,13 @@ for a method.
 """	
 	_method          as Method
 	_accessModifiers as TypeMemberModifiers
+	_disposed		 as ReferenceExpression
+	
+	def constructor():
+		pass
+		
+	def constructor(disposed as ReferenceExpression):
+		_disposed = disposed
 	
 	override def Apply(node as Node):	
 		assert node isa Method
@@ -92,6 +99,7 @@ for a method.
 			asyncInvocation.Arguments.Add(
 					ReferenceExpression(parameter.Name))
 		
+		EmitDisposedObjectCheck(beginMethod) if _disposed is not null
 		beginMethod.Body.Add(ReturnStatement(asyncInvocation))			
 		_method.DeclaringType.Members.Add(beginMethod)
 		
@@ -125,3 +133,16 @@ for a method.
 					endMethod.Body.Statements.Replace(
 							returnStatement,
 							ExpressionStatement(returnStatement.Expression))
+							
+	private def EmitDisposedObjectCheck(method as Method):
+		exceptionCreation = MethodInvocationExpression(
+								Target: MemberReferenceExpression(
+											ReferenceExpression("System"), "ObjectDisposedException"))								
+		exceptionCreation.Arguments.Add(StringLiteralExpression(_method.DeclaringType.Name))
+		# TODO: Access Boo resources to get the exception message.
+		exceptionCreation.Arguments.Add(StringLiteralExpression("<Resources.ObjectDisposedExceptionMessage>"))
+		
+		trueBlock = Block()
+		trueBlock.Add(RaiseStatement(exceptionCreation))
+		method.Body.Add(IfStatement(_disposed, trueBlock, null)) 
+		
