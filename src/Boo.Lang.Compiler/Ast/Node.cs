@@ -222,6 +222,11 @@ namespace Boo.Lang.Compiler.Ast
 		
 		override public string ToString()
 		{
+			return ToCodeString();
+		}
+		
+		public string ToCodeString()
+		{
 			System.IO.StringWriter writer = new System.IO.StringWriter();
 			new Visitors.BooPrinterVisitor(writer).Visit(this);
 			return writer.ToString();
