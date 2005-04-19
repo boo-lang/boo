@@ -9,13 +9,7 @@
 			<formatter type="Plain" />
 			<test>
 				<assemblies basedir="build">				
-					<include name="Boo.Tests.dll" />
-					<include name="Boo.Lang.Parser.Tests.dll" />
-					<include name="Boo.Lang.Compiler.Tests.dll" />
-					<include name="Boo.Lang.Interpreter.Tests.dll" />
-					<include name="BooCompiler.Tests.dll" />					
-					<include name="BooCompilerResources.Tests.dll" />					
-					<include name="Regression.Tests.dll" />					
+					<include name="*.Tests.dll" />					
 				</assemblies>
 			</test>
 		</nunit2>
