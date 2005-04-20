@@ -1,10 +1,10 @@
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		protected IType _runtimeServices;
 		protected IMethod RuntimeServices_Invoke;
+		protected IMethod RuntimeServices_InvokeCallable;
 		protected IMethod RuntimeServices_InvokeBinaryOperator;
 		protected IMethod RuntimeServices_InvokeUnaryOperator;
 		protected IMethod RuntimeServices_SetProperty;
@@ -46,6 +47,7 @@ namespace Boo.Lang.Compiler.Steps
 			base.InitializeMemberCache();
 			_runtimeServices = TypeSystemServices.Map(typeof(Boo.Lang.RuntimeServices));
 			RuntimeServices_Invoke = ResolveMethod(_runtimeServices, "Invoke");
+			RuntimeServices_InvokeCallable = ResolveMethod(_runtimeServices, "InvokeCallable");
 			RuntimeServices_InvokeBinaryOperator = ResolveMethod(_runtimeServices, "InvokeBinaryOperator");
 			RuntimeServices_InvokeUnaryOperator = ResolveMethod(_runtimeServices, "InvokeUnaryOperator");
 			RuntimeServices_SetProperty = ResolveMethod(_runtimeServices, "SetProperty");
@@ -56,8 +58,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (IsQuackBuiltin(function))
 			{
-				ProcessQuackInvocation(node);				
-			}	
+				ProcessQuackInvocation(node);
+			}
 			else
 			{
 				base.ProcessBuiltinInvocation(function, node);
@@ -80,7 +82,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (IsDuckTyped(node.Target))
 			{
-				if (AstUtil.IsTargetOfMethodInvocation(node) || 
+				if (AstUtil.IsTargetOfMethodInvocation(node) ||
 					AstUtil.IsLhsOfAssignment(node))
 				{
 					Bind(node, BuiltinFunction.Quack);
@@ -96,6 +98,22 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override protected void ProcessInvocationOnUnknownCallableExpression(MethodInvocationExpression node)
+		{
+			if (IsDuckTyped(node.Target))
+			{
+				MethodInvocationExpression invoke = CodeBuilder.CreateMethodInvocation(
+								RuntimeServices_InvokeCallable,
+								node.Target,
+								CodeBuilder.CreateObjectArray(node.Arguments));
+				node.ParentNode.Replace(node, invoke);
+			}
+			else
+			{
+				base.ProcessInvocationOnUnknownCallableExpression(node);
+			}
+		}
+		
 		override public void LeaveUnaryExpression(UnaryExpression node)
 		{
 			if (IsDuckTyped(node.Operand) &&
@@ -105,7 +123,7 @@ namespace Boo.Lang.Compiler.Steps
 						RuntimeServices_InvokeUnaryOperator,
 						CodeBuilder.CreateStringLiteral(
 							GetMethodNameForOperator(node.Operator)),
-							node.Operand);							
+							node.Operand);
 				BindExpressionType(mie, TypeSystemServices.DuckType);
 			
 				node.ParentNode.Replace(
@@ -128,11 +146,11 @@ namespace Boo.Lang.Compiler.Steps
 							RuntimeServices_InvokeBinaryOperator,
 							CodeBuilder.CreateStringLiteral(
 								GetMethodNameForOperator(node.Operator)),
-								node.Left, node.Right);							
+								node.Left, node.Right);
 					BindExpressionType(mie, TypeSystemServices.DuckType);
 				
 					node.ParentNode.Replace(
-						node, 
+						node,
 						mie);
 				}
 				else if (BinaryOperatorType.Or == node.Operator ||
@@ -180,9 +198,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsDuckTyped(Expression expression)
 		{
-			return ((expression.ExpressionType == TypeSystemServices.DuckType)  ||
-				(expression.ExpressionType == TypeSystemServices.ObjectType &&
-					Context.Parameters.Ducky ));
+			return TypeSystemServices.IsDuckType(expression.ExpressionType);
 		}
 		
 		bool IsQuackBuiltin(IEntity entity)
@@ -225,6 +241,6 @@ namespace Boo.Lang.Compiler.Steps
 			node.Arguments.Add(CodeBuilder.CreateStringLiteral(target.Name));
 			node.Arguments.Add(args);
 			BindExpressionType(node, TypeSystemServices.DuckType);
-		}		
+		}
 	}
 }

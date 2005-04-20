@@ -1,0 +1,52 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProductVersion>8.0.30703</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <ProjectGuid>{C8E7600D-3D02-4190-BB40-9136D29F24F9}</ProjectGuid>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>Boo</RootNamespace>
+        <AssemblyName>Boo</AssemblyName>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>.\bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugSymbols>false</DebugSymbols>
+        <Optimize>true</Optimize>
+        <OutputPath>.\bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+    </ItemGroup>
+    <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets"/>
+    <ItemGroup>
+        <Compile Include="AssemblyInfo.cs"/>
+        <Compile Include="AssertionFailedException.cs"/>
+        <Compile Include="IO\TextFile.cs"/>
+        <Compile Include="IO\TextReaderEnumerator.cs"/>
+        <Compile Include="Lang\AbstractGenerator.cs"/>
+        <Compile Include="Lang\AbstractGeneratorEnumerator.cs"/>
+        <Compile Include="Lang\BooComparer.cs"/>
+        <Compile Include="Lang\BooHashCodeProvider.cs"/>
+        <Compile Include="Lang\Builtins.cs"/>
+        <Compile Include="Lang\EnumeratorItemTypeAttribute.cs"/>
+        <Compile Include="Lang\Hash.cs"/>
+        <Compile Include="Lang\ICallable.cs"/>
+        <Compile Include="Lang\IQuackFu.cs"/>
+        <Compile Include="Lang\List.cs"/>
+        <Compile Include="Lang\ModuleAttribute.cs"/>
+        <Compile Include="Lang\RuntimeServices.cs"/>
+        <Compile Include="ResourceManager.cs"/>
+        <Compile Include="RuntimeException.cs"/>
+    </ItemGroup>
+</Project>

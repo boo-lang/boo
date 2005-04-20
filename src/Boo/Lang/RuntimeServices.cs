@@ -95,7 +95,31 @@ namespace Boo.Lang
 				throw x.InnerException;
 			}
 		}
-
+		
+		public static object InvokeCallable(object target, object[] args)
+		{
+			if (null == target)
+			{
+				throw new ArgumentNullException("target");
+			}
+			if (null == args)
+			{
+				throw new ArgumentNullException("args");
+			}
+			
+			ICallable c = target as ICallable;
+			if (null != c)
+			{
+				return c.Call(args);
+			}
+			Delegate d = target as Delegate;
+			if (null != c)
+			{
+				return d.DynamicInvoke(args);
+			}
+			return Activator.CreateInstance((Type)target, args);
+		}
+		
 		private static bool IsNumeric(TypeCode code)
 		{
 			switch (code)
@@ -174,7 +198,7 @@ namespace Boo.Lang
 					if (null != duck)
 					{
 						return duck.QuackInvoke(operatorName, args);
-					}				
+					}
 				}
 
 				try

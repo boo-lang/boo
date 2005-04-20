@@ -1,10 +1,10 @@
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -32,11 +32,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System.Diagnostics;
 	using System.Reflection;
 	using System.Text;
-	using Boo.Lang.Compiler;	
+	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 
 	public class TypeSystemServices
-	{			
+	{
 		public DuckTypeImpl DuckType;
 		
 		public ExternalType ExceptionType;
@@ -139,8 +139,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 		}
 		
-		public TypeSystemServices(CompilerContext context)		
-		{			
+		public TypeSystemServices(CompilerContext context)
+		{
 			if (null == context)
 			{
 				throw new ArgumentNullException("context");
@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			_context = context;
 
-			CodeBuilder = new BooCodeBuilder(this);			
+			CodeBuilder = new BooCodeBuilder(this);
 			
 			Cache(typeof(Boo.Lang.Builtins.duck), DuckType = new DuckTypeImpl(this));
 			Cache(VoidType = new VoidTypeImpl(this));
@@ -234,9 +234,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (current.GetTypeDepth() < candidate.GetTypeDepth())
 				{
 					return GetMostGenericType(current.BaseType, candidate);
-				}			
+				}
 				return GetMostGenericType(current, candidate.BaseType);
-			}			
+			}
 			return ObjectType;
 		}
 		
@@ -358,11 +358,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsCallable(IType type)
 		{
-			return (TypeType == type) || IsCallableType(type);
+			return (TypeType == type) || IsCallableType(type) || IsDuckType(type);
+		}
+		
+		public bool IsDuckType(IType type)
+		{
+			return ((type == DuckType)  ||
+					(type == ObjectType && _context.Parameters.Ducky));
 		}
 		
 		bool IsCallableType(IType type)
-		{			
+		{
 			return (ICallableType.IsAssignableFrom(type)) ||
 				(type is Boo.Lang.Compiler.TypeSystem.ICallableType);
 		}
@@ -411,7 +417,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public IType GetExpressionType(Expression node)
-		{			
+		{
 			IType type = node.ExpressionType;
 			if (null == type)
 			{
@@ -446,7 +452,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == _anonymousTypesModule)
 			{
 				_anonymousTypesModule = new Boo.Lang.Compiler.Ast.Module();
-				_anonymousTypesModule.Entity = new ModuleEntity(_context.NameResolutionService, 
+				_anonymousTypesModule.Entity = new ModuleEntity(_context.NameResolutionService,
 																this,
 																_anonymousTypesModule);
 				_context.CompileUnit.Modules.Add(_anonymousTypesModule);
@@ -462,7 +468,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			cd.Name = name;
 			cd.Modifiers = TypeMemberModifiers.Final;
 			cd.Members.Add(CreateCallableConstructor());
-			cd.Members.Add(CreateCallMethod());			
+			cd.Members.Add(CreateCallMethod());
 			cd.Entity = new InternalCallableType(this, cd);
 			return cd;
 		}
@@ -486,7 +492,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 						CodeBuilder.CreateParameterDeclaration(1, "instance", ObjectType));
 			constructor.Parameters.Add(
 						CodeBuilder.CreateParameterDeclaration(2, "method", IntPtrType));
-			constructor.Entity = new InternalConstructor(this, constructor);						
+			constructor.Entity = new InternalConstructor(this, constructor);
 			return constructor;
 		}
 		
@@ -507,9 +513,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			ICallableType other = rhs as ICallableType;
 			if (null != other)
-			{			
+			{
 				CallableSignature lvalue = lhs.GetSignature();
-				CallableSignature rvalue = other.GetSignature(); 
+				CallableSignature rvalue = other.GetSignature();
 				if (lvalue == rvalue)
 				{
 					return true;
@@ -530,7 +536,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 					
 					if (VoidType != lvalue.ReturnType)
-					{				
+					{
 						return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
 					}
 					
@@ -560,7 +566,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
-		{			
+		{
 			if (actualType.IsAssignableFrom(expectedType))
 			{
 				return true;
@@ -574,7 +580,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool CanBeExplicitlyCastToInteger(IType type)
 		{
-			return type.IsEnum || type == this.CharType; 
+			return type.IsEnum || type == this.CharType;
 		}
 		
 		public bool IsIntegerNumber(IType type)
@@ -585,12 +591,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				type == this.LongType ||
 				type == this.SByteType ||
 				type == this.UShortType ||
-				type == this.UIntType ||				
+				type == this.UIntType ||
 				type == this.ULongType ||
 				type == this.ByteType;
 		}
 		
-		public bool IsIntegerOrBool(IType type)	
+		public bool IsIntegerOrBool(IType type)
 		{
 			return BoolType == type || IsIntegerNumber(type);
 		}
@@ -631,7 +637,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public static bool IsError(Expression node)
-		{				 
+		{
 			IType type = node.ExpressionType;
 			if (null != type)
 			{
@@ -659,7 +665,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return BuiltinsType == ((IMethod)tag).DeclaringType;
 			}
 			return false;
-		}		
+		}
 		
 		public static bool IsError(IEntity tag)
 		{
@@ -692,7 +698,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				InvalidNode(node);
 			}
 			return tag;
-		}	
+		}
 		
 		public static IType GetReferencedType(Expression typeref)
 		{
@@ -705,7 +711,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				case NodeType.ReferenceExpression:
 				case NodeType.MemberReferenceExpression:
 				{
-					return typeref.Entity as IType;					
+					return typeref.Entity as IType;
 				}
 			}
 			return null;
@@ -717,14 +723,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public IType Map(System.Type type)
-		{				
+		{
 			ExternalType tag = (ExternalType)_entityCache[type];
 			if (null == tag)
 			{
 				if (type.IsArray)
 				{
 					return GetArrayType(Map(type.GetElementType()), type.GetArrayRank());
-				}				
+				}
 				else
 				{
 					if (type.IsSubclassOf(Types.MulticastDelegate))
@@ -754,7 +760,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		protected class ArrayHash
-		{	
+		{
 			IType _type;
 			int _rank;
 
@@ -786,7 +792,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public IParameter[] Map(System.Reflection.ParameterInfo[] parameters)
-		{			
+		{
 			IParameter[] mapped = new IParameter[parameters.Length];
 			for (int i=0; i<parameters.Length; ++i)
 			{
@@ -841,7 +847,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			IEntity tag = (IEntity)_entityCache[GetCacheKey(mi)];
 			if (null == tag)
-			{			
+			{
 				switch (mi.MemberType)
 				{
 					case MemberTypes.Method:
@@ -1048,7 +1054,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 										"callback", Map(typeof(AsyncCallback)));
 			overload.Parameters.Add(callback);
 
-			mie.Arguments.Add(CodeBuilder.CreateReference(callback));			
+			mie.Arguments.Add(CodeBuilder.CreateReference(callback));
 			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
 			
 			return overload;
@@ -1105,7 +1111,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			IType enumeratorItemTypeAttribute = Map(typeof(EnumeratorItemTypeAttribute));
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
-			{				
+			{
 				IConstructor constructor = GetEntity(attribute) as IConstructor;
 				if (null != constructor)
 				{
@@ -1155,24 +1161,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		public class DuckTypeImpl : ExternalType
-		{	
-			public DuckTypeImpl(TypeSystemServices typeSystemServices) : 
+		{
+			public DuckTypeImpl(TypeSystemServices typeSystemServices) :
 				base(typeSystemServices, Types.Object)
 			{
 			}
-		}	
+		}
 		
 		#region VoidTypeImpl
 		class VoidTypeImpl : ExternalType
-		{			
+		{
 			internal VoidTypeImpl(TypeSystemServices manager) : base(manager, Types.Void)
-			{				
-			}		
+			{
+			}
 			
 			override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
-			{	
+			{
 				return false;
-			}	
+			}
 			
 			override public bool IsSubclassOf(IType other)
 			{
