@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
+	<property name="boo.version" value="0.5.2.99" />
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 
@@ -26,7 +27,7 @@
 	
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
-	<target name="all" depends="booc, booi, booish">	
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig">	
 	</target>
 	
 	<target name="test" depends="all">
@@ -262,6 +263,15 @@
 			</resources>
 		</csc>
 	</target>
+	
+	<target name="boo-pkgconfig">
+		<copy file="extras/boo.pc.in" tofile="build/boo.pc" if="${not(platform::is-win32())}" inputencoding="ASCII">
+			<filterchain>
+				<replacestring from="PREFIX" to="${install.prefix}" />
+				<replacestring from="VERSION" to="${boo.version}" />
+			</filterchain>
+		</copy>
+	</target>
 
 	<target name="install" depends="booc, booish, booi">
 		<call target="install-win32" if="${platform::is-win32()}"/>
@@ -346,7 +356,8 @@
 				<include name="boo.mime" />
 			</fileset>
 		</copy>
-
+		
+		<copy file="build/boo.pc" todir="${install.libdir}/pkgconfig/" />
 		<copy file="extras/boo-mime-info.xml" todir="${install.share}/mime/packages/" />
 
 		<exec program="chmod" commandline="+x ${install.bindir}/booc" />
@@ -411,17 +422,13 @@
 	<target name="upload-distro" depends="distro">
 		<exec program="scp">
 			<arg value="-B" />
-			<arg file="boo-${distro-version}-bin.zip" />
-			<arg file="boo-${distro-version}-src.zip" />
+			<arg file="boo-${boo.version}-bin.zip" />
+			<arg file="boo-${boo.version}-src.zip" />
 			<arg value="${distro-user}@beaver.codehaus.org:/home/projects/boo/dist/distributions/" />
 		</exec>
 	</target>
 	
-	<target name="distro" depends="check-distro-version, src-distro">
-	</target>
-	
-	<target name="check-distro-version" unless="${property::exists('distro-version')}">
-		<fail>You must specify the distro-version property!</fail>
+	<target name="distro" depends="src-distro">
 	</target>
 	
 	<target name="prepare-bin-distro" depends="insert-license">
@@ -469,7 +476,7 @@
 	</target>
 	
 	<target name="bin-distro" depends="prepare-bin-distro">
-		<zip zipfile="boo-${distro-version}-bin.zip" ziplevel="9">
+		<zip zipfile="boo-${boo.version}-bin.zip" ziplevel="9">
 			<fileset basedir="${distro.dir}">
 				<include name="**" />
 			</fileset>
@@ -508,7 +515,7 @@
 	</target>
 	
 	<target name="src-distro" depends="prepare-src-distro">
-		<zip zipfile="boo-${distro-version}-src.zip" ziplevel="9">
+		<zip zipfile="boo-${boo.version}-src.zip" ziplevel="9">
 			<fileset basedir="${distro.dir}">
 				<include name="**" />
 			</fileset>
