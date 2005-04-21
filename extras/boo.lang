@@ -185,5 +185,8 @@ OR
 		<keyword>unchecked</keyword>
 		<keyword>rawArrayIndexing</keyword>
 		<keyword>normalArrayIndexing</keyword>
+		<keyword>print</keyword>
+		<keyword>array</keyword>
+		<keyword>matrix</keyword>
 	</keyword-list>
 </language>
