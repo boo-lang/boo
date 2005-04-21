@@ -1,0 +1,31 @@
+<Project name="Boo.CodeDom.Tests" standardNamespace="Boo.CodeDom.Tests" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="Boo">
+  <Contents>
+    <File name=".\CodeGeneratorTestFixture.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name=".\.svn\empty-file" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\.svn\entries" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\.svn\format" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\.svn\README.txt" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\.svn\prop-base\CodeGeneratorTestFixture.boo.svn-base" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\.svn\props\CodeGeneratorTestFixture.boo.svn-work" subtype="Code" buildaction="Exclude" dependson="" data="" />
+    <File name=".\.svn\text-base\CodeGeneratorTestFixture.boo.svn-base" subtype="Code" buildaction="Exclude" dependson="" data="" />
+  </Contents>
+  <References>
+    <Reference type="Project" refto="Boo.CodeDom" localcopy="True" />
+    <Reference type="Gac" refto="nunit.framework, Version=2.2.2.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77" localcopy="True" />
+  </References>
+  <DeploymentInformation target="" script="" strategy="File" />
+  <Configuration runwithwarnings="True" name="Debug">
+    <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
+    <Output directory=".\bin\Debug" assembly="Boo.CodeDom.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+  </Configuration>
+  <Configurations active="Debug">
+    <Configuration runwithwarnings="True" name="Debug">
+      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
+      <Output directory=".\bin\Debug" assembly="Boo.CodeDom.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+    </Configuration>
+    <Configuration runwithwarnings="True" name="Release">
+      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="False" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
+      <Output directory=".\bin\Release" assembly="Boo.CodeDom.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+    </Configuration>
+  </Configurations>
+</Project>

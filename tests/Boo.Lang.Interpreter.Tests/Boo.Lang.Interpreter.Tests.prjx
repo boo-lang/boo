@@ -19,16 +19,16 @@
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="True" name="Debug">
-    <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" />
+    <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
     <Output directory="..\..\build" assembly="Boo.Lang.Interpreter.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
   </Configuration>
   <Configurations active="Debug">
     <Configuration runwithwarnings="True" name="Debug">
-      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" />
+      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
       <Output directory="..\..\build" assembly="Boo.Lang.Interpreter.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
     </Configuration>
     <Configuration runwithwarnings="True" name="Release">
-      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="False" commandLineParameters="" pauseConsoleOutput="False" />
+      <CompilerOptions runtime="MsNet" compileTarget="Library" includeDebugInformation="False" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
       <Output directory="..\bin\Release" assembly="Boo.Lang.Interpreter.Tests" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
     </Configuration>
   </Configurations>

@@ -30,19 +30,29 @@ namespace Boo.CodeDom.Tests
 
 import System
 import System.CodeDom
+import System.CodeDom.Compiler
+import System.IO
 import NUnit.Framework
 import Boo.CodeDom
 
 [TestFixture]
 class CodeGeneratorTestFixture:
 	
+	_generator as ICodeGenerator
+	
 	[SetUp]
-	def SetUp():
-		_provider = BooCodeProvider()
-		_generator = _provider.CreateGenerator()
+	def SetUp():		
+		_generator = BooCodeProvider().CreateGenerator()
 		Assert.IsNotNull(_generator)
 	
 	[Test]
 	def TestArrayType():
-		// TODO
-		pass
+		stmt = CodeVariableDeclarationStatement()
+		stmt.Name = "anArray"
+		stmt.Type = CodeTypeReference(typeof((int)))
+		
+		expected = "anArray as (int, 1)"
+		
+		buffer = StringWriter()
+		_generator.GenerateCodeFromStatement(stmt, buffer, CodeGeneratorOptions())
+		Assert.AreEqual(expected, buffer.ToString().Trim())
