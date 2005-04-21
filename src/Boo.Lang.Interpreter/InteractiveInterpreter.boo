@@ -136,8 +136,14 @@ class InteractiveInterpreter(AbstractInterpreter):
 		
 	def DescribeType(indent as string, type as Type):
 		
-		baseTypes = (GetBooTypeName(type.BaseType),) + array(GetBooTypeName(t) for t in type.GetInterfaces())
-		_print("class ${type.Name}(${join(baseTypes, ', ')}):")
+		if type.IsInterface:
+			typeDef = "interface"
+			baseTypes = array(GetBooTypeName(t) for t in type.GetInterfaces())
+		else:
+			typeDef = "class"
+			baseTypes = (GetBooTypeName(type.BaseType),) + array(GetBooTypeName(t) for t in type.GetInterfaces())
+			
+		_print("${typeDef} ${type.Name}(${join(baseTypes, ', ')}):")
 		_print("")
 		
 		for ctor in type.GetConstructors():

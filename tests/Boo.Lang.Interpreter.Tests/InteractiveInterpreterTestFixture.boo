@@ -399,12 +399,7 @@ dummy()""")
 			pass
 		
 	[Test]
-	def Help():
-		
-		buffer = System.IO.StringWriter()
-		buffer.WriteLine()		
-		_interpreter.Print = { item | buffer.WriteLine(item) }		
-		_interpreter.help(Customer)
+	def HelpOnClass():
 		
 		expected = """
 class Customer(object):
@@ -430,6 +425,25 @@ class Customer(object):
     event Changed as System.EventHandler
 
 """
+		assertHelp(expected, Customer)
+		
+	[Test]
+	def HelpOnInterface():
+			
+		expected = """
+interface IDisposable():
+
+    def Dispose() as void
+
+"""
+		assertHelp(expected, System.IDisposable)
+		
+	def assertHelp(expected as string, type as System.Type):
+		buffer = System.IO.StringWriter()
+		buffer.WriteLine()		
+		_interpreter.Print = { item | buffer.WriteLine(item) }		
+		_interpreter.help(type)
+		
 		actual = buffer.ToString().Replace("\r\n", "\n")
 		
 		# mono compatibility fix
