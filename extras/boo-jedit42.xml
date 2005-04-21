@@ -177,7 +177,6 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit42.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD2>decimal</KEYWORD2>
 			<KEYWORD2>date</KEYWORD2>
 			<KEYWORD2>timespan</KEYWORD2>
-			<KEYWORD2>array</KEYWORD2>
 			<KEYWORD2>void</KEYWORD2>
 
 			<!-- builtins -->
@@ -185,6 +184,9 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit42.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD3>__addressof__</KEYWORD3>
 			<KEYWORD3>__eval__</KEYWORD3>
 			<KEYWORD3>__switch__</KEYWORD3>
+			
+			<KEYWORD3>array</KEYWORD3>
+			<KEYWORD3>matrix</KEYWORD3>
 			
 			<KEYWORD3>typeof</KEYWORD3>
 			<KEYWORD3>assert</KEYWORD3>

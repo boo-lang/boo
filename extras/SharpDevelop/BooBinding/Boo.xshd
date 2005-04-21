@@ -173,7 +173,6 @@
 				<Key word="object"/>
 				<Key word="string"/>
 				<Key word="regex"/>
-				<Key word="array"/>
 			</KeyWords>
 
 			<KeyWords name="Void" bold="false" italic="false" color="Red" >
@@ -232,6 +231,8 @@
 
 			<KeyWords name="Builtins" bold="false" italic="false" color="Purple" >
 				<Key word="assert"/>
+				<Key word="array"/>
+				<Key word="matrix" />
 				<Key word="print"/>
 				<Key word="gets"/>
 				<Key word="prompt"/>
