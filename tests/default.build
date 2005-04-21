@@ -107,6 +107,20 @@
 			</references>
 		</booc>
 		
+		<booc
+			target="library"
+			output="build/Boo.CodeDom.Tests.dll">
+			
+			<sources basedir="Boo.CodeDom.Tests">
+				<include name="**/*.boo" />
+			</sources>
+			
+			<references basedir="build">
+				<include name="Boo.CodeDom.dll" />
+				<include name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+		
 		<csc
 			target="library"
 			output="build/Boo.Lang.Parser.Tests.dll">

@@ -945,9 +945,9 @@ namespace Boo.CodeDom
 				case "System.Boolean":
 					output = "bool";
 					break;
-				/*case "System.Char":
+				case "System.Char":
 					output = "char";
-					break;*/
+					break;
 				case "System.String":
 					output = "string";
 					break;
@@ -967,10 +967,7 @@ namespace Boo.CodeDom
 
 			int rank = type.ArrayRank;
 			if ( rank > 0 ) {
-				output += "[";
-				for ( --rank; rank > 0; --rank  )
-					output += ",";
-				output += "]";
+				output = "(" + output + ", " + rank + ")";
 			}
 
 			return output;
