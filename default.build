@@ -357,6 +357,7 @@
 			</fileset>
 		</copy>
 		
+		<copy file="extras/boo.lang" todir="${install.share}/gtksourceview-1.0/language-specs/" />
 		<copy file="build/boo.pc" todir="${install.libdir}/pkgconfig/" />
 		<copy file="extras/boo-mime-info.xml" todir="${install.share}/mime/packages/" />
 
@@ -424,6 +425,8 @@
 			<arg value="-B" />
 			<arg file="boo-${boo.version}-bin.zip" />
 			<arg file="boo-${boo.version}-src.zip" />
+			<arg file="boo-${boo.version}-bin.tar.bz2" />
+			<arg file="boo-${boo.version}-src.tar.bz2" />
 			<arg value="${distro-user}@beaver.codehaus.org:/home/projects/boo/dist/distributions/" />
 		</exec>
 	</target>
@@ -432,7 +435,7 @@
 	</target>
 	
 	<target name="prepare-bin-distro" depends="insert-license">
-		<property name="distro.dir" value="build/distro" />
+		<property name="distro.dir" value="${build.dir}/boo-${boo.version}" />
 		
 		<delete dir="${distro.dir}" if="${directory::exists(distro.dir)}" />
 		<mkdir dir="${distro.dir}" />
@@ -481,6 +484,12 @@
 				<include name="**" />
 			</fileset>
 		</zip>
+		
+		<tar destfile="boo-${boo.version}-bin.tar.bz2" compression="BZip2">
+			<fileset basedir="${build.dir}">
+				<include name="boo-${boo.version}/**/*"/>
+			</fileset>
+		</tar>
 	</target>
 	
 	<target name="prepare-src-distro" depends="bin-distro">
@@ -520,6 +529,12 @@
 				<include name="**" />
 			</fileset>
 		</zip>
+		
+		<tar destfile="boo-${boo.version}-src.tar.bz2" compression="BZip2">
+			<fileset basedir="${build.dir}">
+				<include name="boo-${boo.version}/**/*"/>
+			</fileset>
+		</tar>
 	</target>
 	
 	<target name="resources" depends="init">
