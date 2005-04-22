@@ -78,7 +78,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		//override protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
 		override protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
 			if (IsDuckTyped(node.Target))
@@ -95,7 +94,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				//base.ProcessMemberReferenceExpression(node);
 				base.MemberNotFound(node, ns);
 			}
 		}
@@ -201,9 +199,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsDuckTyped(Expression expression)
 		{
 			IType type = expression.ExpressionType;
-			return null != type
-				? TypeSystemServices.IsDuckType(type)
-				: false;
+			return null != type && TypeSystemServices.IsDuckType(type);
 		}
 		
 		bool IsQuackBuiltin(IEntity entity)
