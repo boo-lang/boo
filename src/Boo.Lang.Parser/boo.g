@@ -429,14 +429,19 @@ enum_definition [TypeMemberCollection container]
 protected
 enum_member [EnumDefinition container]
 	{		
-		IntegerLiteralExpression initializer = null;		
+		IntegerLiteralExpression initializer = null;
+		bool negative = false;		
 	}: 
 	attributes
-	id:ID (ASSIGN initializer=integer_literal)?
+	id:ID (ASSIGN (SUBTRACT { negative = true; })? initializer=integer_literal)?
 	{
 		EnumMember em = new EnumMember(ToLexicalInfo(id));
 		em.Name = id.getText();
 		em.Initializer = initializer;
+		if (negative && null != initializer)
+		{
+			initializer.Value *= -1;
+		}
 		AddAttributes(em.Attributes);
 		container.Members.Add(em);
 	}
