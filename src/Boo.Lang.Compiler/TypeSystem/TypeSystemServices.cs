@@ -39,6 +39,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		public DuckTypeImpl DuckType;
 		
+		public ExternalType IQuackFuType;
+		
 		public ExternalType ExceptionType;
 		
 		public ExternalType ApplicationExceptionType;
@@ -151,6 +153,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			CodeBuilder = new BooCodeBuilder(this);
 			
 			Cache(typeof(Boo.Lang.Builtins.duck), DuckType = new DuckTypeImpl(this));
+			Cache(IQuackFuType = new ExternalType(this, typeof(Boo.Lang.IQuackFu)));
 			Cache(VoidType = new VoidTypeImpl(this));
 			Cache(ObjectType = new ExternalType(this, Types.Object));
 			Cache(RegexType = new ExternalType(this, Types.Regex));
@@ -363,8 +366,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsDuckType(IType type)
 		{
+			if (null == type)
+			{
+				throw new ArgumentNullException("type");
+			}
 			return ((type == DuckType)  ||
-					(type == ObjectType && _context.Parameters.Ducky));
+			        (_context.Parameters.Ducky &&
+			         (type == ObjectType || type.IsSubclassOf(IQuackFuType))));
 		}
 		
 		bool IsCallableType(IType type)

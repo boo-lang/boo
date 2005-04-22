@@ -2279,6 +2279,11 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		virtual protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
+		{
+			Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));	
+		}
+		
 		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			IEntity member = node.Entity;
@@ -2288,7 +2293,7 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 				member = NameResolutionService.Resolve(ns, node.Name);
 				if (null == member)
 				{
-					Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
+					MemberNotFound(node, ns);
 					return;
 				}
 			}
