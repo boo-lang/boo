@@ -6,23 +6,9 @@ for open issues.
 
 All the issues on this file will be eventually moved there.
 
+* treat duck as callable
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-* fix property handling with __eval__
-
-* fix MethodReference.EndInvoke with __eval__ para o parametro asyncresult
+* split RuntimeServices
 
 * InjectCasts
 	* simplificar EmitAssembly
@@ -66,7 +52,6 @@ derivada de Control (que tem uma propriedade chamada Size):
 * WARNING: property getter should return a value
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
 * warning levels
-* docbook Step (generates docbook files with all the documentation)
 * statically typed IEnumerator pattern
 *  patterns ((in|is|isa) (not)?) (value1, value2), em outras palavras:
 	BinaryExpression(

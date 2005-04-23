@@ -1,5 +1,4 @@
-#region Licence
-
+﻿#region license
 // Copyright (c) 2005, Sorin Ionescu (sorin.ionescu@gmail.com)
 // All rights reserved.
 // 

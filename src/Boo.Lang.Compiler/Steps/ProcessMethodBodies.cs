@@ -26,19 +26,18 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Text;
+using System.Collections;
+using System.Reflection;
+using Boo;
+using Boo.Lang;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.TypeSystem;
 
-using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	using System.Text;
-	using System.Collections;
-	using System.Reflection;
-	using Boo;
-	using Boo.Lang;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.TypeSystem;
-
 	/// <summary>
 	/// AST semantic evaluation.
 	/// </summary>
@@ -2284,7 +2283,7 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 		
 		virtual protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
-			Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));	
+			Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
 		}
 		
 		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
@@ -3261,7 +3260,7 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 		void ProcessLenInvocation(MethodInvocationExpression node)
 		{
 			if ((node.Arguments.Count < 1) || (node.Arguments.Count > 2))
-  			{						
+  			{
  				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "len", node.Arguments.Count));
   			}
 			else
@@ -3292,7 +3291,7 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						resultingNode = CodeBuilder.CreateMethodInvocation(target, 
+						resultingNode = CodeBuilder.CreateMethodInvocation(target,
 								Array_GetLength, node.Arguments[1]);
 					}
 				}
