@@ -993,11 +993,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_primitives[function.Name] = function;
 		}
 		
-		void AddPrimitive(string name, IEntity tag)
-		{
-			_primitives[name] = tag;
-		}
-		
 		void Cache(ExternalType tag)
 		{
 			_entityCache[tag.ActualType] = tag;
@@ -1179,7 +1174,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		#region VoidTypeImpl
 		class VoidTypeImpl : ExternalType
 		{
-			internal VoidTypeImpl(TypeSystemServices manager) : base(manager, Types.Void)
+			internal VoidTypeImpl(TypeSystemServices typeSystemServices) : base(typeSystemServices, Types.Void)
 			{
 			}
 			

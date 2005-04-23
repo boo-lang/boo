@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Type type = typeof(System.Runtime.Remoting.Messaging.AsyncResult);
 			_asyncResultType = TypeSystemServices.Map(type);
-			_asyncResultTypeAsyncDelegateGetter = (IMethod)TypeSystemServices.Map(type.GetProperty("AsyncDelegate").GetGetMethod());
+			_asyncResultTypeAsyncDelegateGetter = TypeSystemServices.Map(type.GetProperty("AsyncDelegate").GetGetMethod());
 			_adaptors = new Boo.Lang.List();
 		}
 		
@@ -122,7 +122,7 @@ namespace Boo.Lang.Compiler.Steps
 						node.Expression = newExpression;
 					}
 				}
-			}			
+			}
 		}
 		
 		override public void LeaveExpressionPair(ExpressionPair pair)
@@ -161,17 +161,17 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			IParameter[] parameters = null;
-			IMethod entity = node.Target.Entity as IMethod;			
+			IMethod entity = node.Target.Entity as IMethod;
 			if (null != entity)
 			{
 				parameters = entity.GetParameters();
 			}
 			else
-			{			
+			{
 				ICallableType type = node.Target.ExpressionType as ICallableType;
 				if (null == type)
 				{
-					return;					
+					return;
 				}
 				parameters = type.GetSignature().Parameters;
 			}
@@ -179,7 +179,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void ConvertMethodInvocation(MethodInvocationExpression node, IParameter[] parameters)
-		{	
+		{
 			ExpressionCollection arguments = node.Arguments;
 			for (int i=0; i<parameters.Length; ++i)
 			{
@@ -264,9 +264,9 @@ namespace Boo.Lang.Compiler.Steps
 				if (IsCallableType(expectedType))
 				{
 					ICallableType argumentType = (ICallableType)GetExpressionType(argument);
-					if (argumentType.GetSignature() != 
+					if (argumentType.GetSignature() !=
 						((ICallableType)expectedType).GetSignature())
-					{						
+					{
 						return Adapt((ICallableType)expectedType,
 							CreateDelegate(GetConcreteExpressionType(argument), argument));
 					}
@@ -278,13 +278,13 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			else
-			{				
+			{
 				if (IsCallableType(expectedType))
 				{
 					IType argumentType = GetExpressionType(argument);
 					if (Null.Default != argumentType &&
 						expectedType != argumentType)
-					{						
+					{
 						return Adapt((ICallableType)expectedType, argument);
 					}
 				}
@@ -302,7 +302,7 @@ namespace Boo.Lang.Compiler.Steps
 				return null;
 			}
 			ClassDefinition adaptor = GetAdaptor(expected, actual);
-			Method adapt = (Method)adaptor.Members["Adapt"];						
+			Method adapt = (Method)adaptor.Members["Adapt"];
 			return CodeBuilder.CreateMethodInvocation((IMethod)adapt.Entity, callable);
 		}
 		
@@ -317,7 +317,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		class AdaptorRecord
-		{			
+		{
 			public readonly ICallableType To;
 			public readonly ICallableType From;
 			public readonly ClassDefinition Adaptor;
@@ -325,7 +325,7 @@ namespace Boo.Lang.Compiler.Steps
 			public AdaptorRecord(ICallableType to, ICallableType from, ClassDefinition adaptor)
 			{
 				To = to;
-				From = from;				
+				From = from;
 				Adaptor = adaptor;
 			}
 		}
@@ -353,11 +353,11 @@ namespace Boo.Lang.Compiler.Steps
 			BooMethodBuilder constructor = adaptor.AddConstructor();
 			ParameterDeclaration param = constructor.AddParameter("from_", from);
 			constructor.Body.Add(
-				CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));			
+				CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));
 			constructor.Body.Add(
 				CodeBuilder.CreateAssignment(
 					CodeBuilder.CreateReference(callable),
-					CodeBuilder.CreateReference(param)));			
+					CodeBuilder.CreateReference(param)));
 					
 			CallableSignature signature = to.GetSignature();
 			BooMethodBuilder invoke = adaptor.AddMethod("Invoke", signature.ReturnType);
@@ -373,11 +373,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				mie.Arguments.Add(
 					CodeBuilder.CreateReference(invoke.Parameters[i]));
-			}							
-			if (signature.ReturnType != TypeSystemServices.VoidType)
+			}
+			if (signature.ReturnType != TypeSystemServices.VoidType &&
+				from.GetSignature().ReturnType != TypeSystemServices.VoidType)
 			{
 				invoke.Body.Add(new ReturnStatement(mie));
-			}			
+			}
 			else
 			{
 				invoke.Body.Add(mie);
@@ -393,7 +394,7 @@ namespace Boo.Lang.Compiler.Steps
 						CodeBuilder.CreateConstructorInvocation(
 							(IConstructor)constructor.Entity,
 							CodeBuilder.CreateReference(param)),
-						CodeBuilder.CreateAddressOfExpression(invoke.Entity))));					
+						CodeBuilder.CreateAddressOfExpression(invoke.Entity))));
 			
 			RegisterAdaptor(to, from, adaptor.ClassDefinition);
 			
