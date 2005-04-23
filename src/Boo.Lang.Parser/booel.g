@@ -138,10 +138,14 @@ SQS_ESC : '\\'! ( SESC | '\'' );
 
 protected
 SESC : 
-				( 'r' {$setText("\r"); }) |
-				( 'n' {$setText("\n"); }) |
-				( 't' {$setText("\t"); }) |
-				( '\\' {$setText("\\"); });
+				( 'r'! {$setText("\r"); }) |
+				( 'n'! {$setText("\n"); }) |
+				( 't'! {$setText("\t"); }) |
+				( 'a'! {text.Length = _begin; text.Append("\a"); }) |
+				( 'b'! {text.Length = _begin; text.Append("\b"); }) |
+				( 'f'! {text.Length = _begin; text.Append("\f"); }) |
+				( '0'! {text.Length = _begin; text.Append("\0"); }) |
+				( '\\'! {$setText("\\"); });
 
 protected
 RE_LITERAL : '/' (RE_CHAR)+ '/';

@@ -76,6 +76,8 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 		
 		IMethod Array_get_Length;
 		
+		IMethod Array_GetLength;
+		
 		IMethod String_get_Length;
 		
 		IMethod String_Substring_Int;
@@ -177,6 +179,7 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 			RuntimeServices_GetEnumerable = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");
 			RuntimeServices_op_Equality = TypeSystemServices.Map(Types.RuntimeServices.GetMethod("op_Equality", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
+			Array_GetLength = ResolveMethod(TypeSystemServices.ArrayType, "GetLength");
 			String_get_Length = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
 			String_Substring_Int = TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
 			ICollection_get_Count = ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();
@@ -3257,16 +3260,22 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 		
 		void ProcessLenInvocation(MethodInvocationExpression node)
 		{
-			if (node.Arguments.Count != 1)
-			{
-				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "len", 1));
-			}
+			if ((node.Arguments.Count < 1) || (node.Arguments.Count > 2))
+  			{						
+ 				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "len", node.Arguments.Count));
+  			}
 			else
 			{
 				MethodInvocationExpression resultingNode = null;
 				
 				Expression target = node.Arguments[0];
 				IType type = GetExpressionType(target);
+				bool isArray = TypeSystemServices.ArrayType.IsAssignableFrom(type);
+				
+				if ((!isArray) && (node.Arguments.Count != 1))
+				{
+					Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "len", node.Arguments.Count));
+				}
 				if (TypeSystemServices.IsSystemObject(type))
 				{
 					resultingNode = CodeBuilder.CreateMethodInvocation(RuntimeServices_Len, target);
@@ -3275,9 +3284,17 @@ using Boo.Lang.Compiler.Ast;namespace Boo.Lang.Compiler.Steps
 				{
 					resultingNode = CodeBuilder.CreateMethodInvocation(target, String_get_Length);
 				}
-				else if (TypeSystemServices.ArrayType.IsAssignableFrom(type))
+				else if (isArray)
 				{
-					resultingNode = CodeBuilder.CreateMethodInvocation(target, Array_get_Length);
+					if (node.Arguments.Count == 1)
+					{
+						resultingNode = CodeBuilder.CreateMethodInvocation(target, Array_get_Length);
+					}
+					else
+					{
+						resultingNode = CodeBuilder.CreateMethodInvocation(target, 
+								Array_GetLength, node.Arguments[1]);
+					}
 				}
 				else if (TypeSystemServices.ICollectionType.IsAssignableFrom(type))
 				{
