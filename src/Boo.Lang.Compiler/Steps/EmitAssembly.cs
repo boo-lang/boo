@@ -125,7 +125,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EnterLoop(Label breakLabel, Label continueLabel)
 		{
-			_loopInfoStack.Push(_currentLoopInfo = new LoopInfo(breakLabel, continueLabel, _tryBlock));
+			_loopInfoStack.Push(_currentLoopInfo);
+			_currentLoopInfo = new LoopInfo(breakLabel, continueLabel, _tryBlock);
 		}
 		
 		bool InTryInLoop()
