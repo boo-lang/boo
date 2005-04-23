@@ -1045,6 +1045,30 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 						break;
 					}
 					
+					case '\a':
+					{
+						writer.Write(@"\a");
+						break;
+					}
+					
+					case '\b':
+					{
+						writer.Write(@"\b");
+						break;
+					}
+					
+					case '\f':
+					{
+						writer.Write(@"\f");
+						break;
+					}
+					
+					case '\0':
+					{
+						writer.Write(@"\0");
+						break;
+					}
+					
 					case '\'':
 					{
 						if (single)
