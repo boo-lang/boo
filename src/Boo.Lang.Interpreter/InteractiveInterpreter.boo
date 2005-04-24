@@ -77,10 +77,14 @@ class InteractiveInterpreter(AbstractInterpreter):
 		if len(result.Errors):
 			self.DisplayErrors(result.Errors)
 		else:
-			_ = self.LastValue
-			if _ is not null:
-				_print(repr(_))
-				SetValue("_", _)
+			ProcessLastValue()
+		return result
+		
+	private def ProcessLastValue():
+		_ = self.LastValue
+		if _ is not null:
+			_print(repr(_))
+			SetValue("_", _)
 	
 	override def Declare([required] name as string,
 				[required] type as System.Type):
@@ -128,7 +132,18 @@ class InteractiveInterpreter(AbstractInterpreter):
 				and method.IsSpecialName)
 				
 	def load([required] path as string):
-		References.Add(System.Reflection.Assembly.LoadFrom(path))
+		if path.EndsWith(".boo"):
+			result = EvalCompilerInput(FileInput(path))
+			if len(result.Errors):
+				for error in result.Errors:
+					_print(error)
+			else:
+				ProcessLastValue()
+		else:
+			try:
+				References.Add(System.Reflection.Assembly.LoadFrom(path))
+			except e:				
+				print e.Message
 		
 	def help(obj):		
 		type = (obj as Type) or obj.GetType()

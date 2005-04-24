@@ -148,7 +148,10 @@ class AbstractInterpreter:
 		return code
 		
 	def Eval(code as string):
-		result = Parse(code)
+		return EvalCompilerInput(StringInput("input${++_inputId}", code))
+		
+	def EvalCompilerInput(input as ICompilerInput):
+		result = Parse(input)
 		return result if len(result.Errors)
 		return EvalCompileUnit(result.CompileUnit)
 		
@@ -201,9 +204,9 @@ class AbstractInterpreter:
 		result.GeneratedAssemblyEntryPoint.Invoke(null, (null,)) if hasStatements
 		return result
 		
-	def Parse(code as string):
+	def Parse(input as ICompilerInput):
 		_parser.Parameters.Input.Clear()
-		_parser.Parameters.Input.Add(StringInput("input${++_inputId}", code))
+		_parser.Parameters.Input.Add(input)
 		return _parser.Run()
 	
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
