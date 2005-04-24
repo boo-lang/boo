@@ -50,6 +50,15 @@ class BoocTask(AbstractBooTask):
 	
 	_traceLevel = System.Diagnostics.TraceLevel.Off
 	
+	_rebuild = false
+	
+	[BuildElement("rebuild")]
+	Rebuild:
+		get:
+			return _rebuild
+		set:
+			_rebuild = value
+	
 	[BuildElement("resources")]
 	Resources:
 		get:
@@ -91,6 +100,8 @@ class BoocTask(AbstractBooTask):
 			_sourceFiles = value
 	
 	override def ExecuteTask():
+		return unless NeedsCompiling()
+		
 		files = _sourceFiles.FileNames
 		LogInfo("Compiling ${len(files)} file(s) to ${_output}.")
 		
@@ -120,3 +131,24 @@ class BoocTask(AbstractBooTask):
 			if "winexe" == _target:
 				return CompilerOutputType.WindowsApplication
 		return CompilerOutputType.Library
+		
+	private def NeedsCompiling():
+		if _rebuild:
+			LogVerbose("rebuild requested.")
+			return true
+			
+		if not _output.Exists:
+			LogVerbose("${_output} does not exist.")
+			return true
+		return (
+			HasMoreRecentFile(_sourceFiles) or
+			HasMoreRecentFile(_references) or
+			HasMoreRecentFile(_resources))
+			
+	def HasMoreRecentFile(fs as FileSet):
+		found = FileSet.FindMoreRecentLastWriteTime(fs.FileNames, _output.LastWriteTime)
+		if found is not null:
+			LogVerbose("${found} is newer than ${_output}.")
+			return true
+
+
