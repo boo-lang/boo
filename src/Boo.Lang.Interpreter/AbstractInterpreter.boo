@@ -63,7 +63,7 @@ class AbstractInterpreter:
 	
 	_suggestionCompiler as BooCompiler
 	
-	def constructor():
+	def constructor([required] parser as ICompilerStep):
 		
 		pipeline = Pipelines.CompileToMemory()
 		pipeline.RemoveAt(0)
@@ -82,7 +82,10 @@ class AbstractInterpreter:
 		
 		_compiler.Parameters.Pipeline = pipeline
 		_compiler.Parameters.Ducky = true		
-		_parser.Parameters.Pipeline = Pipelines.Parse()
+		_parser.Parameters.Pipeline = CompilerPipeline().Add(parser)
+		
+	def constructor():
+		self(Pipelines.Parse.NewParserStep())
 		
 	abstract def Declare(name as string, type as System.Type):
 		pass

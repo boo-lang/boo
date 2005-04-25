@@ -238,7 +238,7 @@
 			output="build/Boo.dll"
 			debug="${debug}"
 			optimize="${optimize}"
-                        if="${nant.platform.win32}">
+			if="${nant.platform.win32}">
 
 			<sources basedir="src/Boo">
 				<include name="**/*.cs" />
@@ -256,21 +256,20 @@
 		</csc>
 
 		<csc
-                        target="library"
-                        output="build/Boo.dll"
-                        debug="${debug}"
-                        optimize="${optimize}"
-                        unless="${nant.platform.win32}">
-                        
-                        <sources basedir="src/Boo">
-                                <include name="**/*.cs" />
-                        </sources>
-                        
-                        <resources basedir="build">
-                                <include name="strings.resources" />
-                        </resources>
-                </csc>
-
+			target="library"
+			output="build/Boo.dll"
+			debug="${debug}"
+			optimize="${optimize}"
+			unless="${nant.platform.win32}">
+			
+			<sources basedir="src/Boo">
+					<include name="**/*.cs" />
+			</sources>
+			
+			<resources basedir="build">
+					<include name="strings.resources" />
+			</resources>
+		</csc>
 	</target>
 	
 	<target name="boo-pkgconfig">

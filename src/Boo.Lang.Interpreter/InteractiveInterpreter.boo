@@ -45,6 +45,9 @@ class InteractiveInterpreter(AbstractInterpreter):
 	
 	_representers = []
 	
+	[property(BlockStarters, value is not null)]
+	_blockStarters = ":", "\\"
+	
 	[getter(LastValue)]
 	_lastValue
 	
@@ -53,6 +56,10 @@ class InteractiveInterpreter(AbstractInterpreter):
 	
 	def constructor():
 		super()
+		InitializeStandardReferences()
+		
+	def constructor(parser as ICompilerStep):
+		super(parser)
 		InitializeStandardReferences()
 		
 	def Reset():
@@ -64,7 +71,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 	def ConsoleLoopEval():			
 		while line=prompt(">>> "):
 			try:		
-				line = ReadBlock(line) if line[-1:] in ":", "\\"
+				line = ReadBlock(line) if line[-1:] in _blockStarters
 				LoopEval(line)
 			except x as System.Reflection.TargetInvocationException:
 				print(x.InnerException)
