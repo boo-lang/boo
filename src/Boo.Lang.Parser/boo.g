@@ -189,11 +189,6 @@ tokens
 		}
 		throw new ArgumentException(op, "op");
 	}
-
-	static double ParseDouble(string text)
-	{
-		return double.Parse(text, CultureInfo.InvariantCulture);
-	}
 	
 	static bool IsMethodInvocationExpression(Expression e)
 	{
@@ -264,25 +259,28 @@ tokens
 		return LPAREN != token && LBRACK != token;
 	}
 	
+	static double ParseDouble(string text)
+	{
+		return double.Parse(text, CultureInfo.InvariantCulture);
+	}
+	
 	protected IntegerLiteralExpression ParseIntegerLiteralExpression(
 		antlr.Token token, string s, bool isLong)
 	{
 		const string HEX_PREFIX = "0x";
-		bool isHex = s.StartsWith(HEX_PREFIX);
-		long val;
 		
-		if (isHex)
+		long value;
+		
+		if (s.StartsWith(HEX_PREFIX))
 		{
-			s = s.Substring(HEX_PREFIX.Length);
-			val = long.Parse(
-				s, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
+			value = long.Parse(
+				s.Substring(HEX_PREFIX.Length), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
 		}
 		else
 		{
-			val = long.Parse(s, CultureInfo.InvariantCulture);
+			value = long.Parse(s, CultureInfo.InvariantCulture);
 		}
-		
-		return new IntegerLiteralExpression(ToLexicalInfo(token), val, isLong);
+		return new IntegerLiteralExpression(ToLexicalInfo(token), value, isLong);
 	}
 	
 }
