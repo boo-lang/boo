@@ -19,12 +19,18 @@
 	<property name="build.dir" value="build" />
 
 	<property name="install.prefix" value="/usr/local" />
+	<property name="install.destdir" value="/" />
 
 	<property name="install.share" value="${path::combine(install.prefix,'share')}" />
 	<property name="install.bindir" value="${path::combine(install.prefix,'bin')}" />
 	<property name="install.libdir" value="${path::combine(install.prefix,'lib')}" />
 	<property name="install.boolib" value="${path::combine(install.libdir,'boo')}" />
-	
+
+	<property name="fakeroot.boolib" value="${install.destdir}/${install.boolib}" />
+	<property name="fakeroot.bindir" value="${install.destdir}/${install.bindir}" />
+	<property name="fakeroot.libdir" value="${install.destdir}/${install.libdir}" />
+	<property name="fakeroot.share" value="${install.destdir}/${install.share}" />
+
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig">	
@@ -231,7 +237,8 @@
 			target="library"
 			output="build/Boo.dll"
 			debug="${debug}"
-			optimize="${optimize}">
+			optimize="${optimize}"
+                        if="${nant.platform.win32}">
 
 			<sources basedir="src/Boo">
 				<include name="**/*.cs" />
@@ -247,6 +254,23 @@
 				<include name="strings.it.resources" />
 			</resources>
 		</csc>
+
+		<csc
+                        target="library"
+                        output="build/Boo.dll"
+                        debug="${debug}"
+                        optimize="${optimize}"
+                        unless="${nant.platform.win32}">
+                        
+                        <sources basedir="src/Boo">
+                                <include name="**/*.cs" />
+                        </sources>
+                        
+                        <resources basedir="build">
+                                <include name="strings.resources" />
+                        </resources>
+                </csc>
+
 	</target>
 	
 	<target name="boo-pkgconfig">
@@ -264,10 +288,20 @@
 	</target>
 
 	<target name="install-linux" depends="booc, booish, booi">
-		<mkdir dir="${install.boolib}"/>
-		<mkdir dir="${install.bindir}"/>
+		<!--
+		Use pkg-config to find the proper locations for several
+		key files for mime detection, etc
+		-->
 
-		<copy todir="${install.boolib}">
+		<property name="sharedmime.prefix" value="${pkg-config::get-variable('shared-mime-info','prefix')}" />
+		<property name="fakeroot.sharedmime" value="${install.destdir}/${sharedmime.prefix}" />
+		<property name="gsv.prefix" value="${pkg-config::get-variable('gtksourceview-1.0','prefix')}" />
+		<property name="fakeroot.gsv" value="${install.destdir}/${gsv.prefix}" />
+
+		<mkdir dir="${fakeroot.boolib}"/>
+		<mkdir dir="${fakeroot.bindir}"/>
+
+		<copy todir="${fakeroot.boolib}">
 			<fileset basedir="build">
 				<include name="*.exe"/>
 				<include name="strings.resources"/>
@@ -282,7 +316,7 @@
 			<arg value="/package" />
 			<arg value="boo" />
 			<arg value="/root" />
-			<arg value="${install.libdir}" />
+			<arg value="${fakeroot.libdir}" />
 		</exec>
 
 		<exec program="gacutil" useruntimeengine="false" workingdir="build">
@@ -291,7 +325,7 @@
 			<arg value="/package" />
 			<arg value="boo" />
 			<arg value="/root" />
-			<arg value="${install.libdir}" />
+			<arg value="${fakeroot.libdir}" />
 		</exec>
 
 		<exec program="gacutil" useruntimeengine="false" workingdir="build">
@@ -300,7 +334,7 @@
 			<arg value="/package" />
 			<arg value="boo" />
 			<arg value="/root" />
-			<arg value="${install.libdir}" />
+			<arg value="${fakeroot.libdir}" />
 		</exec>
 
 		<exec program="gacutil" useruntimeengine="false" workingdir="build">
@@ -309,7 +343,7 @@
 			<arg value="/package" />
 			<arg value="boo" />
 			<arg value="/root" />
-			<arg value="${install.libdir}" />
+			<arg value="${fakeroot.libdir}" />
 		</exec>
 
 		<exec program="gacutil" useruntimeengine="false" workingdir="build">
@@ -318,16 +352,16 @@
 			<arg value="/package" />
 			<arg value="boo" />
 			<arg value="/root" />
-			<arg value="${install.libdir}" />
+			<arg value="${fakeroot.libdir}" />
 		</exec>
 
-		<copy todir="${install.boolib}/pt">
+		<copy todir="${fakeroot.boolib}/pt">
 			<fileset basedir="${build.dir}/pt">
 				<include name="*"/>
 			</fileset>
 		</copy>
 
-		<copy todir="${install.bindir}">
+		<copy todir="${fakeroot.bindir}">
 			<fileset basedir="${build.dir}">
 				<include name="booc"/>
 				<include name="booish"/>
@@ -335,20 +369,20 @@
 			</fileset>
 		</copy>
 
-		<copy todir="${install.share}/mime-info">
+		<copy todir="${fakeroot.sharedmime}/share/mime-info">
 			<fileset basedir="extras">
 				<include name="boo.keys" />
 				<include name="boo.mime" />
 			</fileset>
 		</copy>
 		
-		<copy file="extras/boo.lang" todir="${install.share}/gtksourceview-1.0/language-specs/" />
-		<copy file="build/boo.pc" todir="${install.libdir}/pkgconfig/" />
-		<copy file="extras/boo-mime-info.xml" todir="${install.share}/mime/packages/" />
+		<copy file="extras/boo.lang" todir="${fakeroot.gsv}/share/gtksourceview-1.0/language-specs/" />
+		<copy file="build/boo.pc" todir="${fakeroot.libdir}/pkgconfig/" />
+		<copy file="extras/boo-mime-info.xml" todir="${fakeroot.sharedmime}/share/mime/packages/" />
 
-		<exec program="chmod" commandline="+x ${install.bindir}/booc" />
-		<exec program="chmod" commandline="+x ${install.bindir}/booi" />
-		<exec program="chmod" commandline="+x ${install.bindir}/booish" />
+		<exec program="chmod" commandline="+x ${fakeroot.bindir}/booc" />
+		<exec program="chmod" commandline="+x ${fakeroot.bindir}/booi" />
+		<exec program="chmod" commandline="+x ${fakeroot.bindir}/booish" />
 	</target>
 
 	<target name="install-win32" depends="booc, booish, booi">
@@ -480,6 +514,7 @@
 	<target name="prepare-src-distro" depends="bin-distro">
 		<copy todir="${distro.dir}">
 			<fileset>				
+				<include name="extras/boo.pc.in" />
 				<include name="default.build" />
 				<include name="notice.txt" />
 				<include name="scripts/*.boo" />				
