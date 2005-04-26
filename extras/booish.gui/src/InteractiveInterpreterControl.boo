@@ -208,7 +208,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 		_console.GetStringBuilder().Length = 0
 		
 	private def ConsumeCurrentLine():		
-		text = CurrentLineText
+		text as string = CurrentLineText # was accessing Control.text member
 		_lineHistory.Add(text)
 		print("")
 		return text
@@ -294,7 +294,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 		suggestion = _interpreter.SuggestCodeCompletion(code) as INamespace
 		return array(IEntity, 0) if suggestion is null
 		return GetChildNamespaces(suggestion) if code.StartsWith("import ")
-		return suggestion.GetMembers()
+		return TypeSystemServices.GetAllMembers(suggestion)
 		
 	private def GetChildNamespaces(parent as INamespace):
 		return array(member

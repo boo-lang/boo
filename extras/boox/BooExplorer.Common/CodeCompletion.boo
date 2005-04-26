@@ -48,7 +48,7 @@ class CodeCompletionHunter(ProcessMethodBodiesWithDuckTyping):
 	
 	override protected def ProcessMemberReferenceExpression(node as MemberReferenceExpression):
 		if node.Name == '__codecomplete__':
-			_members = GetAllMembers(MyGetReferenceNamespace(node))
+			_members = TypeSystemServices.GetAllMembers(MyGetReferenceNamespace(node))
 		else:
 			super(node)
 		
@@ -68,17 +68,4 @@ class CodeCompletionHunter(ProcessMethodBodiesWithDuckTyping):
 		index = pipeline.Find(Boo.Lang.Compiler.Steps.ProcessMethodBodiesWithDuckTyping)
 		pipeline[index] = hunter
 		return pipeline
-		
-	private def GetAllMembers(entity as INamespace):
-		members = []
-		GetAllMembers(members, entity)
-		return members.ToArray(IEntity)
-		
-	def GetAllMembers(members as List, entity as INamespace):
-		if entity isa InternalClass:
-			type = entity as InternalClass
-			members.Extend(type.GetMembers())
-			GetAllMembers(members, type.BaseType)
-		else:
-			members.Extend(entity.GetMembers())
 		

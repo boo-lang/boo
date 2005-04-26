@@ -203,6 +203,15 @@ namespace Boo.Lang
 			}
 			return this;
 		}
+		
+		public List ExtendUnique(IEnumerable enumerable)
+		{
+			foreach (object item in enumerable)
+			{
+				AddUnique(item);
+			}
+			return this;
+		}
 
 		public List Collect(Predicate condition)
 		{

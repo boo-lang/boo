@@ -591,6 +591,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type.IsEnum || type == this.CharType;
 		}
 		
+		public static bool ContainsMethodsOnly(Boo.Lang.List members)
+		{
+			foreach (IEntity member in members)
+			{
+				if (EntityType.Method != member.EntityType)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		
 		public bool IsIntegerNumber(IType type)
 		{
 			return
@@ -691,6 +703,32 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return TypeMemberModifiers.Protected;
 			}
 			return TypeMemberModifiers.Private;
+		}
+		
+		public static IEntity[] GetAllMembers(INamespace entity)
+		{
+			Boo.Lang.List members = new Boo.Lang.List();
+			GetAllMembers(members, entity);
+			return (IEntity[])members.ToArray(typeof(IEntity));
+		}
+		
+		private static void GetAllMembers(Boo.Lang.List members, INamespace entity)
+		{
+			if (null == entity)
+			{
+				return;
+			}
+			
+			IType type = entity as IType;
+			if (null != type)
+			{
+				members.ExtendUnique(type.GetMembers());
+				GetAllMembers(members, type.BaseType);
+			}
+			else
+			{
+				members.Extend(entity.GetMembers());
+			}
 		}
 		
 		public static IEntity GetEntity(Node node)

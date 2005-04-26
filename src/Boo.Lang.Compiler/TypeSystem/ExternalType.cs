@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -26,7 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.TypeSystem
+
+using System;namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Reflection;
@@ -160,7 +161,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _typeSystemServices.Map(_type.BaseType);
+								
+				Type baseType = _type.BaseType;
+				return null == baseType
+					? null
+					: _typeSystemServices.Map(baseType);
 			}
 		}
 		
@@ -241,7 +246,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _members)
 			{
-				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy;
+				BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;// | BindingFlags.FlattenHierarchy;
 				MemberInfo[] members = _type.GetMembers(flags);
 				Type[] nested = _type.GetNestedTypes();
 				_members = new IEntity[members.Length+nested.Length];
@@ -297,6 +302,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 				foreach (IType baseInterface in GetInterfaces())
 				{
 					found |= baseInterface.Resolve(targetList, name, flags);
+				}
+			}
+			else
+			{
+				if (!found || TypeSystemServices.ContainsMethodsOnly(targetList))
+				{
+					IType baseType = BaseType;
+					if (null != baseType)
+					{
+						found |= baseType.Resolve(targetList, name, flags);
+					}
 				}
 			}
 			return found;

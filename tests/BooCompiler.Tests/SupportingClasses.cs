@@ -30,6 +30,29 @@ namespace BooCompiler.Tests
 {
 	using System;
 	
+	public class AmbiguousBase
+	{
+		public string Path(string empty)
+		{
+			return "Base";
+		}
+	}
+
+	public class AmbiguousSub1 : AmbiguousBase
+	{
+        public new string Path
+        {
+        	get
+        	{
+        		return "Sub1";
+        	}
+        }
+	}
+	
+	public class AmbiguousSub2 : AmbiguousSub1
+	{
+	}
+	
 	[Flags]
 	public enum TestEnum
 	{

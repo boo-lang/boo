@@ -1,10 +1,10 @@
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System.Reflection;
 	
 	public class InternalClass : AbstractInternalType
-	{		
+	{
 		IConstructor[] _constructors;
 		
 		IType _baseType;
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			bool found = base.Resolve(targetList, name, flags);
-			if (!found || ContainsMethodsOnly(targetList))
+			if (!found || TypeSystemServices.ContainsMethodsOnly(targetList))
 			{
 				IType baseType = this.BaseType;
 				if (null != baseType)
@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		override public bool IsSubclassOf(IType type)
-		{				
+		{
 			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
 			{
 				IType baseType = TypeSystemServices.GetType(baseTypeReference);
@@ -119,27 +119,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				List constructors = new List();
 				foreach (TypeMember member in _typeDefinition.Members)
-				{					
+				{
 					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
-					{						
+					{
 						constructors.Add(TypeSystemServices.GetEntity(member));
 					}
 				}
 				_constructors = (IConstructor[])constructors.ToArray(typeof(IConstructor));
 			}
 			return _constructors;
-		}
-		
-		bool ContainsMethodsOnly(Boo.Lang.List members)
-		{
-			foreach (IEntity member in members)
-			{
-				if (EntityType.Method != member.EntityType)
-				{
-					return false;
-				}
-			}
-			return true;
 		}
 	}
 }
