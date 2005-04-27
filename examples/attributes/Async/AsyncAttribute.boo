@@ -76,7 +76,7 @@ for a method.
 	
 	private def EmitBeginMethod():
 		beginMethod = Method(
-						_method.LexicalInfo,
+						self.LexicalInfo,
 						Name: "Begin" + _method.Name,
 						Modifiers: _accessModifiers,
 						ReturnType: CodeBuilder.CreateTypeReference(typeof(IAsyncResult)))
@@ -104,7 +104,7 @@ for a method.
 		
 	private def EmitEndMethod():
 		endMethod = Method(
-						_method.LexicalInfo,
+						self.LexicalInfo,
 						Name: "End" + _method.Name,
 						Modifiers: _accessModifiers)		
 		endMethod.Parameters.Add(
@@ -117,6 +117,8 @@ for a method.
 										ReferenceExpression(_method.Name),
 										"EndInvoke"))			
 		asyncInvocation.Arguments.Add(ReferenceExpression("result"))
+		
+		EmitDisposedObjectCheck(endMethod) if _disposed is not null
 		endMethod.Body.Add(ReturnStatement(asyncInvocation))
 		
 		_method.DeclaringType.Members.Add(endMethod)
@@ -143,5 +145,5 @@ for a method.
 		
 		trueBlock = Block()
 		trueBlock.Add(RaiseStatement(exceptionCreation))
-		method.Body.Add(IfStatement(_disposed, trueBlock, null)) 
+		method.Body.Add(IfStatement(_disposed.CloneNode(), trueBlock, null)) 
 		
