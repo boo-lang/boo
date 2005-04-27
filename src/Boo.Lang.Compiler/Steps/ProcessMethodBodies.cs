@@ -1492,7 +1492,7 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
-		bool IsComplexSlice(Slice slice)
+		protected static bool IsComplexSlice(Slice slice)
 		{
 			return null != slice.End || null != slice.Step || OmittedExpression.Default == slice.Begin;
 		}
@@ -1708,6 +1708,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
+			// target[indices]
 			IType targetType = GetExpressionType(node.Target);
 			if (TypeSystemServices.IsError(targetType))
 			{

@@ -26,15 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Diagnostics;
+using System.Reflection;
+using System.Text;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Ast;
+
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using System.Diagnostics;
-	using System.Reflection;
-	using System.Text;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-
 	public class TypeSystemServices
 	{
 		public DuckTypeImpl DuckType;

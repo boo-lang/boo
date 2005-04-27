@@ -26,16 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Reflection;
+using System.Collections;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+
 namespace Boo.Lang
 {
-	using System;
-	using System.Reflection;
-	using System.Collections;
-	using System.Globalization;
-	using System.IO;
-	using System.Text;
-	using System.Text.RegularExpressions;
-
 	public class RuntimeServices
 	{
 		static readonly Type RuntimeServicesType = typeof(RuntimeServices);
@@ -94,6 +94,102 @@ namespace Boo.Lang
 			{
 				throw x.InnerException;
 			}
+		}
+		
+		public static object SetProperty(object target, string name, object value)
+		{
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck)
+			{
+				return duck.QuackSet(name, value);
+			}
+			
+			try
+			{
+				Type type = target as Type;
+				if (null == type)
+				{
+					target.GetType().InvokeMember(name,
+												  SetPropertyBindingFlags,
+												  null,
+												  target,
+												  new object[] { value });
+				}
+				else
+				{	// static member
+					type.InvokeMember(name,
+									  SetPropertyBindingFlags,
+									  null,
+									  null,
+									  new object[] { value });
+				}
+				return value;
+			}
+			catch (TargetInvocationException x)
+			{
+				throw x.InnerException;
+			}
+		}
+		
+		public static object GetProperty(object target, string name)
+		{
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck)
+			{
+				return duck.QuackGet(name);
+			}
+			
+			try
+			{
+				Type type = target as Type;
+				if (null == type)
+				{
+					return target.GetType().InvokeMember(name,
+														 GetPropertyBindingFlags,
+														 null,
+														 target,
+														 null);
+				}
+				else
+				{	// static member
+					return type.InvokeMember(name,
+											 GetPropertyBindingFlags,
+											 null,
+											 null,
+											 null);
+				}
+			}
+			catch (TargetInvocationException x)
+			{
+				throw x.InnerException;
+			}
+		}
+		
+		public static object GetSlice(object target, string name, object[] args)
+		{
+			Type type = target.GetType();
+			if ("" == name)
+			{
+				name = GetDefaultMemberName(type);
+			}
+			try
+			{
+				return type.InvokeMember(name,
+								  GetPropertyBindingFlags,
+								  null,
+								  target,
+								  args);
+			}
+			catch (TargetInvocationException x)
+			{
+				throw x.InnerException;
+			}
+		}
+		
+		private static String GetDefaultMemberName(Type type)
+		{
+			DefaultMemberAttribute attribute = (DefaultMemberAttribute)Attribute.GetCustomAttribute(type, typeof(DefaultMemberAttribute));
+			return attribute != null ? attribute.MemberName : "";
 		}
 		
 		public static object InvokeCallable(object target, object[] args)
@@ -291,75 +387,6 @@ namespace Boo.Lang
 										null,
 										null,
 										args);
-		}
-
-		public static object SetProperty(object target, string name, object value)
-		{
-			IQuackFu duck = target as IQuackFu;
-			if (null != duck)
-			{
-				return duck.QuackSet(name, value);
-			}
-
-			try
-			{
-				Type type = target as Type;
-				if (null == type)
-				{
-					target.GetType().InvokeMember(name,
-										SetPropertyBindingFlags,
-										null,
-										target,
-										new object[] { value });
-				}
-				else
-				{	// static member
-					type.InvokeMember(name,
-										SetPropertyBindingFlags,
-										null,
-										null,
-										new object[] { value });
-				}
-				return value;
-			}
-			catch (TargetInvocationException x)
-			{
-				throw x.InnerException;
-			}
-		}
-
-		public static object GetProperty(object target, string name)
-		{
-			IQuackFu duck = target as IQuackFu;
-			if (null != duck)
-			{
-				return duck.QuackGet(name);
-			}
-
-			try
-			{
-				Type type = target as Type;
-				if (null == type)
-				{
-					return target.GetType().InvokeMember(name,
-										GetPropertyBindingFlags,
-										null,
-										target,
-										null);
-				}
-				else
-				{	// static member
-					return type.InvokeMember(name,
-										GetPropertyBindingFlags,
-										null,
-										null,
-										null);
-				}
-			}
-			catch (TargetInvocationException x)
-			{
-				throw x.InnerException;
-			}
 		}
 
 		public static object MoveNext(IEnumerator enumerator)

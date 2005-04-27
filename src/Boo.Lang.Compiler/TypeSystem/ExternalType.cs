@@ -26,12 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Reflection;
 
-using System;namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using System.Reflection;
-
 	public class ExternalType : IType
 	{
 		protected TypeSystemServices _typeSystemServices;

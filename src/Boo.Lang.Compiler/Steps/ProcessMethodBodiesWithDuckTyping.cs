@@ -26,11 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
+
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class ProcessMethodBodiesWithDuckTyping : ProcessMethodBodies
 	{
@@ -41,6 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected IMethod RuntimeServices_InvokeUnaryOperator;
 		protected IMethod RuntimeServices_SetProperty;
 		protected IMethod RuntimeServices_GetProperty;
+		protected IMethod RuntimeServices_GetSlice;
 		
 		override protected void InitializeMemberCache()
 		{
@@ -52,6 +54,8 @@ namespace Boo.Lang.Compiler.Steps
 			RuntimeServices_InvokeUnaryOperator = ResolveMethod(_runtimeServices, "InvokeUnaryOperator");
 			RuntimeServices_SetProperty = ResolveMethod(_runtimeServices, "SetProperty");
 			RuntimeServices_GetProperty = ResolveMethod(_runtimeServices, "GetProperty");
+			RuntimeServices_GetSlice = ResolveMethod(_runtimeServices, "GetSlice");
+			
 		}
 		
 		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)
@@ -87,6 +91,10 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Bind(node, BuiltinFunction.Quack);
 				}
+				else if (AstUtil.IsTargetOfSlicing(node))
+				{
+					BindDuck(node);
+				}
 				else
 				{
 					ProcessQuackPropertyGet(node);
@@ -106,11 +114,54 @@ namespace Boo.Lang.Compiler.Steps
 								RuntimeServices_InvokeCallable,
 								node.Target,
 								CodeBuilder.CreateObjectArray(node.Arguments));
-				node.ParentNode.Replace(node, invoke);
+				Replace(node, invoke);
 			}
 			else
 			{
 				base.ProcessInvocationOnUnknownCallableExpression(node);
+			}
+		}
+		
+		override public void LeaveSlicingExpression(SlicingExpression node)
+		{
+			if (IsDuckTyped(node.Target))
+			{
+				// todo
+				// a[foo]
+				// RuntimeServices.GetSlice(a, "", (foo,))
+				
+				ArrayLiteralExpression args = new ArrayLiteralExpression();
+				foreach (Slice index in node.Indices)
+				{
+					if (IsComplexSlice(index))
+					{
+						NotImplemented(index, "complex slice for duck");
+					}
+					args.Items.Add(index.Begin);
+				}
+				BindExpressionType(args, TypeSystemServices.ObjectArrayType);
+				
+				Expression target = node.Target;
+				string memberName = "";
+				
+				if (NodeType.MemberReferenceExpression == target.NodeType)
+				{
+					MemberReferenceExpression mre = ((MemberReferenceExpression)target);
+					target = mre.Target;
+					memberName = mre.Name;
+				}
+				
+				MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+							RuntimeServices_GetSlice,
+							target,
+							CodeBuilder.CreateStringLiteral(memberName),
+							args);
+				
+				Replace(node, mie);
+			}
+			else
+			{
+				base.LeaveSlicingExpression(node);
 			}
 		}
 		
@@ -124,16 +175,19 @@ namespace Boo.Lang.Compiler.Steps
 						CodeBuilder.CreateStringLiteral(
 							GetMethodNameForOperator(node.Operator)),
 							node.Operand);
-				BindExpressionType(mie, TypeSystemServices.DuckType);
-			
-				node.ParentNode.Replace(
-					node,
-					mie);
+				
+				Replace(node, mie);
 			}
 			else
 			{
 				base.LeaveUnaryExpression(node);
 			}
+		}
+
+		private void Replace(Expression node, MethodInvocationExpression mie)
+		{
+			BindDuck(mie);
+			node.ParentNode.Replace(node, mie);
 		}
 		
 		override protected void BindBinaryExpression(BinaryExpression node)
@@ -147,11 +201,7 @@ namespace Boo.Lang.Compiler.Steps
 							CodeBuilder.CreateStringLiteral(
 								GetMethodNameForOperator(node.Operator)),
 								node.Left, node.Right);
-					BindExpressionType(mie, TypeSystemServices.DuckType);
-				
-					node.ParentNode.Replace(
-						node,
-						mie);
+					Replace(node, mie);
 				}
 				else if (BinaryOperatorType.Or == node.Operator ||
 				         BinaryOperatorType.And == node.Operator)
@@ -213,8 +263,7 @@ namespace Boo.Lang.Compiler.Steps
 												RuntimeServices_GetProperty,
 												node.Target,
 												CodeBuilder.CreateStringLiteral(node.Name));
-			BindExpressionType(mie, TypeSystemServices.DuckType);
-			node.ParentNode.Replace(node, mie);
+			Replace(node, mie);
 		}
 		
 		void ProcessQuackPropertySet(BinaryExpression node)
@@ -225,8 +274,7 @@ namespace Boo.Lang.Compiler.Steps
 												target.Target,
 												CodeBuilder.CreateStringLiteral(target.Name),
 												node.Right);
-			BindExpressionType(mie, TypeSystemServices.DuckType);
-			node.ParentNode.Replace(node, mie);
+			Replace(node, mie);
 		}
 		
 		void ProcessQuackInvocation(MethodInvocationExpression node)
@@ -241,6 +289,11 @@ namespace Boo.Lang.Compiler.Steps
 			node.Arguments.Add(target.Target);
 			node.Arguments.Add(CodeBuilder.CreateStringLiteral(target.Name));
 			node.Arguments.Add(args);
+			BindDuck(node);
+		}
+
+		private void BindDuck(Expression node)
+		{
 			BindExpressionType(node, TypeSystemServices.DuckType);
 		}
 	}

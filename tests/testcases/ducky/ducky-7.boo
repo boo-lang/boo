@@ -18,10 +18,10 @@ class Expando(IQuackFu):
 		return _attributes[name]
 		
 e = Expando()
-e.FirstName = "Homer"
-e.LastName = "Simpson"
+e.FirstName = "Homer" # e.QuackSet('FirstName', ('Homer',))
+e.LastName = "Simpson" # e.QuackSet
 e.GetName = { return "${e.FirstName} ${e.LastName}" }
 
-print e.FirstName
+print e.FirstName # e.QuackGet('FirstName')
 print e.LastName
-print e.GetName()
+print e.GetName() # e.QuackInvoke('GetName', (,))
