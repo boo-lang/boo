@@ -72,14 +72,21 @@ class InteractiveInterpreter(AbstractInterpreter):
 		while line=prompt(">>> "):
 			try:		
 				line = ReadBlock(line) if line[-1:] in _blockStarters
-				LoopEval(line)
+				InternalLoopEval(line)
 			except x as System.Reflection.TargetInvocationException:
 				print(x.InnerException)
 			except x:
 				print(x)
 		print
-			
+		
 	def LoopEval(code as string):
+		using console = ConsoleCapture():
+			result = InternalLoopEval(code)
+			for line in System.IO.StringReader(console.ToString()):
+				_print(line)
+		return result
+			
+	private def InternalLoopEval(code as string):
 		result = self.Eval(code)
 		if len(result.Errors):
 			self.DisplayErrors(result.Errors)

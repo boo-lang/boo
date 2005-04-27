@@ -38,20 +38,6 @@ class InteractiveInterpreterTestFixture:
 	
 	public static LifeTheUniverseAndEverything = 42
 	
-	class ConsoleCapture(IDisposable):	
-		_console = StringWriter()
-		_old
-		
-		def constructor():
-			_old = Console.Out
-			Console.SetOut(_console)
-			
-		override def ToString():
-			return _console.ToString()
-		
-		def Dispose():
-			Console.SetOut(_old)
-
 	_interpreter as InteractiveInterpreter
 	
 	[SetUp]
@@ -71,6 +57,14 @@ class InteractiveInterpreterTestFixture:
 			Eval("print(name);print(age)")
 		newLine = Environment.NewLine
 		Assert.AreEqual("boo${newLine}3${newLine}", console.ToString())
+		
+	[Test]
+	def LoopEvalCapturesConsoleOut():
+		lines = []
+		_interpreter.Print = { line | lines.Add(line) }
+		_interpreter.LoopEval("System.Console.WriteLine('Hello, world')")
+		Assert.AreEqual(1, len(lines))
+		Assert.AreEqual("Hello, world", lines[0])
 		
 	[Test]
 	def Unpacking():

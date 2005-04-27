@@ -198,7 +198,7 @@ class BooEditor(DockContent):
 		_compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
 
 		try:
-			using console=ConsoleCapture():
+			using console=Boo.Lang.Interpreter.ConsoleCapture():
 				
 				started = date.Now
 				result = _compiler.Run()

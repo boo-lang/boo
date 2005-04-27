@@ -220,7 +220,7 @@ class MainWindow(Window):
 		
 		start = date.Now
 		try:
-			using console=ConsoleCapture():
+			using console=Boo.Lang.Interpreter.ConsoleCapture():
 				result = compiler.Run()		
 			self.DisplayErrors(result.Errors)
 			self.AppendOutput(console.ToString())
