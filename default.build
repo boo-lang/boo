@@ -59,10 +59,10 @@
 		</booc>
 
 		<if test="${not(platform::is-win32())}">
-			<copy file="src/booish/booish.in" tofile="build/booish" inputencoding="ASCII">
+			<copy file="extras/booish.in" tofile="build/booish" inputencoding="ASCII">
 				<filterchain>
-					<replacestring from="RUNTIME" to="mono" />
-					<replacestring from="INSTALL_DIR" to="${install.boolib}" />
+					<replacestring from="@RUNTIME@" to="mono" />
+					<replacestring from="@prefix@" to="${install.prefix}" />
 				</filterchain>
 			</copy>
 		</if>
@@ -81,10 +81,10 @@
 		</booc>		
 
 		<if test="${not(platform::is-win32())}">
-			<copy file="src/booi/booi.in" tofile="build/booi" inputencoding="ASCII">
+			<copy file="extras/booi.in" tofile="build/booi" inputencoding="ASCII">
 				<filterchain>
-					<replacestring from="RUNTIME" to="mono" />
-					<replacestring from="INSTALL_DIR" to="${install.boolib}" />
+					<replacestring from="@RUNTIME@" to="mono" />
+					<replacestring from="@prefix@" to="${install.prefix}" />
 				</filterchain>
 			</copy>
 		</if>
@@ -158,10 +158,10 @@
 		</csc>
 
 		<if test="${not(platform::is-win32())}">
-			<copy file="src/booc/booc.in" tofile="build/booc" inputencoding="ASCII">
+			<copy file="extras/booc.in" tofile="build/booc" inputencoding="ASCII">
 				<filterchain>
-					<replacestring from="RUNTIME" to="mono" />
-					<replacestring from="INSTALL_DIR" to="${install.boolib}" />
+					<replacestring from="@RUNTIME@" to="mono" />
+					<replacestring from="@prefix@" to="${install.prefix}" />
 				</filterchain>
 			</copy>
 		</if>
@@ -275,8 +275,8 @@
 	<target name="boo-pkgconfig">
 		<copy file="extras/boo.pc.in" tofile="build/boo.pc" if="${not(platform::is-win32())}" inputencoding="ASCII">
 			<filterchain>
-				<replacestring from="PREFIX" to="${install.prefix}" />
-				<replacestring from="VERSION" to="${boo.version}" />
+				<replacestring from="@prefix@" to="${install.prefix}" />
+				<replacestring from="@VERSION@" to="${boo.version}" />
 			</filterchain>
 		</copy>
 	</target>
@@ -513,7 +513,7 @@
 	<target name="prepare-src-distro" depends="bin-distro">
 		<copy todir="${distro.dir}">
 			<fileset>				
-				<include name="extras/boo.pc.in" />
+				<include name="extras/*.in" />
 				<include name="default.build" />
 				<include name="notice.txt" />
 				<include name="scripts/*.boo" />				
@@ -524,7 +524,6 @@
 				<include name="src/boo.snk" />
 				<include name="src/**/*.cs" />
 				<include name="src/**/*.boo" />
-				<include name="src/**/*.in" />
 				<include name="src/**/*.rsp" />
 				<include name="src/**/*.g" />
 				<include name="src/**/*.prjx" />

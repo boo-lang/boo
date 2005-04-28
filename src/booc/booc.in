@@ -1,2 +1,0 @@
-#!/bin/sh
-env RUNTIME INSTALL_DIR/booc.exe "$@"
