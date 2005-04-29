@@ -111,13 +111,21 @@ class Resolver:
 				return para.ReturnType if para.Name == name
 			if property.Node != null:
 				varLookup = VariableLookupVisitor(Resolver: self, LookFor: name)
-				// TODO: visit only the correct body
 				print "Visiting property body..."
-				varLookup.Visit(property.Node.Getter) unless property.Node.Getter == null
-				varLookup.Visit(property.Node.Setter) unless property.Node.Setter == null
+				varLookup.Visit(GetPropertyMethod(property))
 				print "Finished visiting property body!"
 				return varLookup.ReturnType
 		return null
+	
+	def GetPropertyMethod(property as Property):
+		return property.Node.Getter if property.Node.Setter == null
+		return property.Node.Setter if property.Node.Getter == null
+		first = property.Node.Getter
+		last = property.Node.Setter
+		if first.LexicalInfo.Line > last.LexicalInfo.Line:
+			first, last = last, first
+		return last if _caretLine > last.LexicalInfo.Line
+		return first
 	
 	def SearchType(name as string) as IClass:
 		expandedName = BooAmbience.ReverseTypeConversionTable[name]
@@ -182,10 +190,8 @@ class Resolver:
 					property as Property = member
 					if property.Node != null:
 						varLookup = VariableListLookupVisitor(Resolver: self)
-						// TODO: visit only the correct body
 						print "Visiting property body..."
-						varLookup.Visit(property.Node.Getter) unless property.Node.Getter == null
-						varLookup.Visit(property.Node.Setter) unless property.Node.Setter == null
+						varLookup.Visit(GetPropertyMethod(property))
 						print "Finished visiting property body!"
 						varList = varLookup.Results
 				if varList != null:

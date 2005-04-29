@@ -161,11 +161,11 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	
 	override def OnReferenceExpression(node as ReferenceExpression):
 		// Resolve reference (to a variable, field, parameter or type)
+		return if ProcessMember(node.Name, _resolver.CallingClass)
 		rt = _resolver.GetTypeFromLocal(node.Name)
 		if rt != null:
 			SetReturnType(rt)
 			return
-		return if ProcessMember(node.Name, _resolver.CallingClass)
 		if _resolver.IsNamespace(node.Name):
 			SetReturnType(NamespaceReturnType(node.Name))
 		else:
