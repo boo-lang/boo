@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.version" value="0.5.2.99" />
+	<property name="boo.version" value="0.5.3.1543" />
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 
@@ -438,13 +438,14 @@
 		</booc>
 	</target>
 	
-	<target name="upload-distro" depends="distro">
+	<target name="upload-distro" depends="distro, make-bin-dist">
 		<exec program="scp">
 			<arg value="-B" />
 			<arg file="boo-${boo.version}-bin.zip" />
 			<arg file="boo-${boo.version}-src.zip" />
 			<arg file="boo-${boo.version}-bin.tar.bz2" />
 			<arg file="boo-${boo.version}-src.tar.bz2" />
+			<arg file="boo-${boo.version}.tar.gz" />
 			<arg value="${distro-user}@beaver.codehaus.org:/home/projects/boo/dist/distributions/" />
 		</exec>
 	</target>
