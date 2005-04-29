@@ -1878,9 +1878,50 @@ namespace Boo.Lang.Compiler.Steps
 			TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
 		}
 		
-		override public void OnMultiGeneratorExpression(MultiGeneratorExpression node)
+		override public void OnExtendedGeneratorExpression(ExtendedGeneratorExpression node)
 		{
-			NotImplemented(node, node.ToString());
+			CallableBlockExpression block = new CallableBlockExpression(node.LexicalInfo);
+			
+			Block body = block.Body;
+			Expression e = node.Items[0].Expression;
+			foreach (GeneratorExpression ge in node.Items)
+			{
+				ForStatement fs = new ForStatement(ge.LexicalInfo);
+				fs.Iterator = ge.Iterator;
+				fs.Declarations = ge.Declarations;
+				
+				body.Add(fs);
+				
+				if (null == ge.Filter)
+				{
+					body = fs.Block;
+				}
+				else
+				{
+					fs.Block.Add(
+						NormalizeStatementModifiers.MapStatementModifier(ge.Filter, out body));
+				}
+				
+				
+			}
+			body.Add(new YieldStatement(e.LexicalInfo, e));
+			
+			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
+			mie.Target = block;
+			
+			Node parentNode = node.ParentNode;
+			bool isGenerator = AstUtil.IsListMultiGenerator(parentNode);
+			parentNode.Replace(node, mie);
+			mie.Accept(this);
+			
+			if (isGenerator)
+			{
+				parentNode.ParentNode.Replace(
+					parentNode,
+					CodeBuilder.CreateConstructorInvocation(
+						TypeSystemServices.Map(ProcessGenerators.List_IEnumerableConstructor),
+						mie));
+			}
 		}
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)

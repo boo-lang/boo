@@ -81,17 +81,36 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static bool IsListGenerator(Node node)
 		{			
-			if (NodeType.ListLiteralExpression == node.NodeType)
-			{
-				return IsListGenerator((ListLiteralExpression)node);
-			}
-			return false;
+			return NodeType.ListLiteralExpression == node.NodeType
+				? IsListGenerator((ListLiteralExpression)node)
+				: false;
 		}
 		
 		public static bool IsListGenerator(ListLiteralExpression node)
 		{
-			return 1 == node.Items.Count &&
-				NodeType.GeneratorExpression == node.Items[0].NodeType;
+			if (1 == node.Items.Count)
+			{
+				NodeType itemType = node.Items[0].NodeType;
+				return NodeType.GeneratorExpression == itemType;
+			}
+			return false;
+		}
+		
+		public static bool IsListMultiGenerator(Node node)
+		{			
+			return NodeType.ListLiteralExpression == node.NodeType
+				? IsListMultiGenerator((ListLiteralExpression)node)
+				: false;
+		}
+
+		public static bool IsListMultiGenerator(ListLiteralExpression node)
+		{
+			if (1 == node.Items.Count)
+			{
+				NodeType itemType = node.Items[0].NodeType;
+				return NodeType.ExtendedGeneratorExpression == itemType;
+			}
+			return false;
 		}		
 		
 		public static bool IsTargetOfMethodInvocation(Expression node)

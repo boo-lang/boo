@@ -1517,7 +1517,7 @@ expression returns [Expression e]
 		e = null;
 		TypeReference tr = null;
 		
-		MultiGeneratorExpression mge = null;
+		ExtendedGeneratorExpression mge = null;
 		GeneratorExpression ge = null;
 	} :
 	e=boolean_expression
@@ -1545,7 +1545,7 @@ expression returns [Expression e]
 			{
 				if (null == mge)
 				{
-					mge = new MultiGeneratorExpression(ToLexicalInfo(f));
+					mge = new ExtendedGeneratorExpression(ToLexicalInfo(f));
 					mge.Items.Add(ge);
 					e = mge;
 				}

@@ -497,7 +497,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Visit(node.Filter);
 		}
 		
-		override public void OnMultiGeneratorExpression(MultiGeneratorExpression node)
+		override public void OnExtendedGeneratorExpression(ExtendedGeneratorExpression node)
 		{
 			Write("(");
 			Visit(node.Items[0].Expression);

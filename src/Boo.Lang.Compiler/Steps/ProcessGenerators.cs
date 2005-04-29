@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class ProcessGenerators : AbstractTransformerCompilerStep
 	{
-		static System.Reflection.ConstructorInfo List_IEnumerableConstructor = Types.List.GetConstructor(new Type[] { Types.IEnumerable });
+		public static System.Reflection.ConstructorInfo List_IEnumerableConstructor = Types.List.GetConstructor(new Type[] { Types.IEnumerable });
 		
 		Method _current;
 		

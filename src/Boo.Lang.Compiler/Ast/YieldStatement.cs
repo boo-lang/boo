@@ -42,7 +42,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public YieldStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public YieldStatement(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
+		
+		public YieldStatement(LexicalInfo lexicalInfo, Expression expression) : base(lexicalInfo, expression)
 		{
 		}
 		

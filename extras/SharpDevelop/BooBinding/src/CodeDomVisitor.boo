@@ -245,6 +245,9 @@ types."""
 	
 	def OnForStatement(node as ForStatement):
 		pass
+		
+	def OnExtendedGeneratorExpression(node as ExtendedGeneratorExpression):
+		pass
 	
 	def OnGeneratorExpression(node as GeneratorExpression):
 		pass

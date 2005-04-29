@@ -420,7 +420,7 @@ class GeneratorExpression(Expression):
 	Iterator as Expression
 	Filter as StatementModifier
 	
-class MultiGeneratorExpression(Expression):
+class ExtendedGeneratorExpression(Expression):
 	Items as GeneratorExpressionCollection
 	
 [collection(GeneratorExpression)]

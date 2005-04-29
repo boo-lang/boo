@@ -169,6 +169,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public static Statement CreateModifiedStatement(StatementModifier modifier, Statement node)
 		{
+			Block block;
+			Statement stmt = MapStatementModifier(modifier, out block);
+			block.Add(node);
+			return stmt;
+		}
+		
+		public static Statement MapStatementModifier(StatementModifier modifier, out Block block)
+		{
 			switch (modifier.Type)
 			{
 				case StatementModifierType.If:
@@ -176,7 +184,7 @@ namespace Boo.Lang.Compiler.Steps
 					IfStatement stmt = new IfStatement(modifier.LexicalInfo);
 					stmt.Condition = modifier.Condition;
 					stmt.TrueBlock = new Block();						
-					stmt.TrueBlock.Statements.Add(node);
+					block = stmt.TrueBlock;
 					return stmt;
 				}
 				
@@ -184,7 +192,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					UnlessStatement stmt = new UnlessStatement(modifier.LexicalInfo);
 					stmt.Condition = modifier.Condition;
-					stmt.Block.Statements.Add(node);
+					block = stmt.Block;
 					return stmt;
 				}
 				
@@ -192,11 +200,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					WhileStatement stmt = new WhileStatement(modifier.LexicalInfo);
 					stmt.Condition = modifier.Condition;
-					stmt.Block.Statements.Add(node);
+					block = stmt.Block;
 					return stmt;
 				}
 			}
-			throw CompilerErrorFactory.NotImplemented(node, string.Format("modifier {0} supported", modifier.Type));
+			throw CompilerErrorFactory.NotImplemented(modifier, string.Format("modifier {0} supported", modifier.Type));
 		}
 		
 		public void LeaveStatement(Statement node)
