@@ -554,6 +554,57 @@
 			</fileset>
 		</tar>
 	</target>
+
+	<target name="make-bin-dist">
+		<copy file="configure.in.in" tofile="configure.in" inputencoding="ASCII">
+			<filterchain>
+				<replacestring from="VERSION" to="${boo.version}" />
+			</filterchain>
+		</copy>
+
+		<!-- Needed to keep automake from freaking -->
+		<touch file="NEWS"/>
+		<touch file="AUTHORS"/>
+		<touch file="ChangeLog"/>
+		<touch file="README"/>
+
+		<!-- "./autogen.sh", effectively -->
+		<exec program="aclocal" useruntimeengine="false" />
+		<exec program="autoconf" useruntimeengine="false" />
+		<exec program="automake" useruntimeengine="false">
+			<arg value="--add-missing" />
+		</exec>
+
+		<exec program="./configure" useruntimeengine="false" />
+
+		<exec program="make" useruntimeengine="false">
+			<arg value="dist" />
+		</exec>
+
+		<exec program="make" useruntimeengine="false">
+			<arg value="distclean" />
+		</exec>
+
+		<!-- Clean up all the crap autotools spits out everywhere -->
+		<delete>
+			<fileset>
+				<include name="NEWS" />
+				<include name="AUTHORS" />
+				<include name="ChangeLog" />
+				<include name="README" />
+				<include name="COPYING" />
+				<include name="INSTALL" />
+				<include name="**/Makefile.in" />
+				<include name="configure" />
+				<include name="autom4te.cache/*" />
+				<include name="autom4te.cache" />
+				<include name="aclocal.m4" />
+				<include name="install-sh" />
+				<include name="missing" />
+				<include name="configure.in" />
+			</fileset>
+		</delete>
+	</target>
 	
 	<target name="resources" depends="init">
 	
