@@ -1878,6 +1878,11 @@ namespace Boo.Lang.Compiler.Steps
 			TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
 		}
 		
+		override public void OnMultiGeneratorExpression(MultiGeneratorExpression node)
+		{
+			NotImplemented(node, node.ToString());
+		}
+		
 		override public void OnGeneratorExpression(GeneratorExpression node)
 		{
 			Visit(node.Iterator);

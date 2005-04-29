@@ -1063,7 +1063,7 @@ stmt_modifier returns [StatementModifier m]
 		u:UNLESS { t = u; type = StatementModifierType.Unless; } |
 		w:WHILE { t = w; type = StatementModifierType.While; }
 	)
-	e=expression
+	e=boolean_expression
 	{
 		m = new StatementModifier(ToLexicalInfo(t));
 		m.Type = type;
@@ -1517,10 +1517,8 @@ expression returns [Expression e]
 		e = null;
 		TypeReference tr = null;
 		
-		GeneratorExpression lde = null;
-		StatementModifier filter = null;
-		Expression iterator = null;
-		DeclarationCollection declarations = null;
+		MultiGeneratorExpression mge = null;
+		GeneratorExpression ge = null;
 	} :
 	e=boolean_expression
 	(
@@ -1537,20 +1535,42 @@ expression returns [Expression e]
 	( options { greedy = true; } :
 		f:FOR
 		{
-			lde = new GeneratorExpression(ToLexicalInfo(f));
-			lde.Expression = e;
-			
-			declarations = lde.Declarations;
+			ge = new GeneratorExpression(ToLexicalInfo(f));
+			ge.Expression = e;
+			e = ge;
 		}
-		declaration_list[declarations]
-		IN
-		iterator=expression { lde.Iterator = iterator; }
+		generator_expression_body[ge]
 		(
-			filter=stmt_modifier { lde.Filter = filter; }
-		)?
-		{ e = lde; }
+			f2:FOR
+			{
+				if (null == mge)
+				{
+					mge = new MultiGeneratorExpression(ToLexicalInfo(f));
+					mge.Items.Add(ge);
+					e = mge;
+				}
+				
+				ge = new GeneratorExpression(ToLexicalInfo(f2));
+				mge.Items.Add(ge);
+			}
+			generator_expression_body[ge]
+		)*
 	)?
-	;
+;
+
+generator_expression_body[GeneratorExpression ge]
+{
+	StatementModifier filter = null;
+	Expression iterator = null;
+	DeclarationCollection declarations = null == ge ? null : ge.Declarations;
+}:
+	declaration_list[declarations]
+	IN
+	iterator=boolean_expression { ge.Iterator = iterator; }
+	(
+		filter=stmt_modifier { ge.Filter = filter; }
+	)?
+;
 	
 protected
 boolean_expression returns [Expression e]

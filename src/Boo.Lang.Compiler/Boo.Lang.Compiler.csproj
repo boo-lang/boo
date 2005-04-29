@@ -77,6 +77,7 @@
         <Compile Include="Ast\Field.cs"/>
         <Compile Include="Ast\ForStatement.cs"/>
         <Compile Include="Ast\GeneratorExpression.cs"/>
+        <Compile Include="Ast\GeneratorExpressionCollection.cs"/>
         <Compile Include="Ast\GivenStatement.cs"/>
         <Compile Include="Ast\GotoStatement.cs"/>
         <Compile Include="Ast\HashLiteralExpression.cs"/>
@@ -116,6 +117,7 @@
         <Compile Include="Ast\Impl\ExpressionStatementImpl.cs"/>
         <Compile Include="Ast\Impl\FieldImpl.cs"/>
         <Compile Include="Ast\Impl\ForStatementImpl.cs"/>
+        <Compile Include="Ast\Impl\GeneratorExpressionCollectionImpl.cs"/>
         <Compile Include="Ast\Impl\GeneratorExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\GivenStatementImpl.cs"/>
         <Compile Include="Ast\Impl\GotoStatementImpl.cs"/>
@@ -136,6 +138,7 @@
         <Compile Include="Ast\Impl\MethodInvocationExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\ModuleCollectionImpl.cs"/>
         <Compile Include="Ast\Impl\ModuleImpl.cs"/>
+        <Compile Include="Ast\Impl\MultiGeneratorExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\NamespaceDeclarationImpl.cs"/>
         <Compile Include="Ast\Impl\NullLiteralExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\ParameterDeclarationCollectionImpl.cs"/>
@@ -194,6 +197,7 @@
         <Compile Include="Ast\MethodInvocationExpression.cs"/>
         <Compile Include="Ast\Module.cs"/>
         <Compile Include="Ast\ModuleCollection.cs"/>
+        <Compile Include="Ast\MultiGeneratorExpression.cs"/>
         <Compile Include="Ast\NamespaceDeclaration.cs"/>
         <Compile Include="Ast\Node.cs"/>
         <Compile Include="Ast\NodeCollection.cs"/>

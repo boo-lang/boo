@@ -484,13 +484,30 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{			
 			Write("(");
 			Visit(node.Expression);
+			WriteGeneratorExpressionBody(node);
+			Write(")");
+		}
+		
+		void WriteGeneratorExpressionBody(GeneratorExpression node)
+		{
 			WriteKeyword(" for ");
 			WriteCommaSeparatedList(node.Declarations);
 			WriteKeyword(" in ");
 			Visit(node.Iterator);
 			Visit(node.Filter);
+		}
+		
+		override public void OnMultiGeneratorExpression(MultiGeneratorExpression node)
+		{
+			Write("(");
+			Visit(node.Items[0].Expression);
+			for (int i=0; i<node.Items.Count; ++i)
+			{
+				WriteGeneratorExpressionBody(node.Items[i]);
+			}
 			Write(")");
 		}
+			
 		
 		override public void OnSlice(Slice node)
 		{
@@ -1133,7 +1150,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		}
 		
 		void WriteCommaSeparatedList(NodeCollection items)
-		{			
+		{	
 			for (int i=0; i<items.Count; ++i)
 			{
 				if (i > 0)

@@ -413,12 +413,19 @@ class ListLiteralExpression(LiteralExpression):
 
 class ArrayLiteralExpression(ListLiteralExpression):
 	pass
-
+	
 class GeneratorExpression(Expression):
 	Expression as Expression
 	Declarations as DeclarationCollection
 	Iterator as Expression
 	Filter as StatementModifier
+	
+class MultiGeneratorExpression(Expression):
+	Items as GeneratorExpressionCollection
+	
+[collection(GeneratorExpression)]
+class GeneratorExpressionCollection:
+	pass
 	
 class Slice(Node):
 	Begin as Expression
