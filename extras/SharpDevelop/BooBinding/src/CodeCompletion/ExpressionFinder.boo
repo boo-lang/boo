@@ -38,8 +38,8 @@ class ExpressionFinder(IExpressionFinder):
 	// implementation note: the text after offset is irrelevant, so
 	// every operation on the string aborts after reaching offset
 	
-	static _closingBrackets = '}])'
-	static _openingBrackets = '{[('
+	final static _closingBrackets = '}])'
+	final static _openingBrackets = '{[('
 	
 	def FindExpression(inText as string, offset as int) as string:
 		return null if inText == null
@@ -121,12 +121,9 @@ class ExpressionFinder(IExpressionFinder):
 		print "Expression is '${b}'"
 		return b.ToString().Trim()
 	
-	// this method makes boo source code "simpler" by removing all comments
-	// and replacing all types of strings through string.Empty.
-	
 	// TODO: We could need some unit tests for this.
 	
-	static _elseIndex = 10
+	final static _elseIndex = 10
 	
 	static _stateTable = ( // "    '    \    \n   $    {    }    #    /    *   else
 	/* 0: in Code       */  ( 1  , 7  , 0  , 0  , 0  , 0  , 0  , 13 , 12 , 0  , 0  ),
@@ -148,6 +145,9 @@ class ExpressionFinder(IExpressionFinder):
 	                     )
 	
 	def SimplifyCode(inText as string, offset as int):
+	"""This method makes boo source code "simpler" by removing all comments
+		and replacing all string litarals through string.Empty.
+		Regular expressions literals are replaced with the simple regex /a/"""
 		result = StringBuilder()
 		inStringResult = StringBuilder(' ')
 		state = 0
@@ -166,10 +166,11 @@ class ExpressionFinder(IExpressionFinder):
 		inputTable[ 35] = 7 // #
 		inputTable[ 47] = 8 // /
 		inputTable[ 42] = 9 // *
-		for i in range(offset + 1):
-			c as Char = inText[i]
-			// TODO: Direct char->int conversion
-			charNum as int = Encoding.ASCII.GetBytes((c,))[0]
+		i = -1
+		while i < offset:
+			i += 1
+			c as char = inText[i]
+			charNum as int = cast(int, c)
 			if charNum > 127:
 				input = _elseIndex
 			else:
@@ -187,12 +188,23 @@ class ExpressionFinder(IExpressionFinder):
 				else:
 					state = 14
 			elif action == 9:
+				// enter inner string expression (${...})
 				if state == 9:
 					inStringResult.Append(c)
 				else:
 					inStringResult.Length = 1
 				state = action
 			elif action == 0 or action == 12:
+				// go to normal code
+				if action == 12:
+					// after / could be a regular expression, do a special check for that
+					regexEnd = SkipRegularExpression(inText, i, offset)
+					if regexEnd > 0:
+						i = regexEnd
+						result.Append('/a')
+					elif regexEnd == -1:
+						// cursor is in regex
+						return null
 				if state == 2 or (state >= 6 and state <= 11):
 					result.Append("string.Empty")
 				if state == 0 or state == 2 or state == 12:
@@ -201,8 +213,31 @@ class ExpressionFinder(IExpressionFinder):
 			else:
 				state = action
 		if state == 0 or state == 2 or state == 12:
+			// cursor is in normal code
 			return result.ToString()
 		elif state == 9:
+			// cursor is in inner string expression (${...})
 			return inStringResult.ToString()
 		else:
+			// cursor is in comment/string
 			return null
+	
+	final static slashChar = '/'[0]
+	
+	def SkipRegularExpression(inText as string, pos as int, maxOffset as int):
+	"""Skips the regular expression in inText at position pos. Returns end position of the ending / if
+	successful or 0 is no regular expression was found at the location.
+	Return -1 if maxOffset is inside the regular expression."""
+		if pos > 0:
+			containsWhitespace = (inText[pos - 1] == '@'[0])
+		else:
+			containsWhitespace = false
+		return -1 if pos == maxOffset             // cursor is after / -> cursor inside regex
+		return 0 if inText[pos + 1] == slashChar // double // is comment, no regex
+		i = pos
+		while i < maxOffset:
+			i += 1
+			if (not containsWhitespace) and Char.IsWhiteSpace(inText, i):
+				return 0; // this is no regex
+			return i if inText[i] == slashChar
+		return -1 // maxOffset inside regex
