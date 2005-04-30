@@ -12,16 +12,16 @@
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="True" name="Debug">
-    <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" />
+    <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
     <Output directory="..\..\build" assembly="booish.gui" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
   </Configuration>
   <Configurations active="Debug">
     <Configuration runwithwarnings="True" name="Debug">
-      <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" />
+      <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
       <Output directory="..\..\build" assembly="booish.gui" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
     </Configuration>
     <Configuration runwithwarnings="True" name="Release">
-      <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="False" commandLineParameters="" pauseConsoleOutput="False" />
+      <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="False" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
       <Output directory="..\bin\Release" assembly="booish.gui" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
     </Configuration>
   </Configurations>

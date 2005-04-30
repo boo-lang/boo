@@ -373,13 +373,10 @@ class MainForm(Form):
 			editor.Open(content) if File.Exists(content)
 			return editor
 		raise ArgumentException("Invalid persistence string: ${persistString}")
-		
-	override protected def OnClosed(args as EventArgs):		
-		SaveDockState()
-		super(args)
 
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)
+		SaveDockState()
 		if not args.Cancel:			
 			dirtyDocuments = [
 							editor.GetSafeFileName()

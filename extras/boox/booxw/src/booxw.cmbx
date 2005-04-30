@@ -5,7 +5,7 @@
     <Execute entry="booish.gui" type="None" />
   </StartMode>
   <Entries>
-    <Entry filename=".\.\booxw.prjx" />
+    <Entry filename=".\booxw.prjx" />
     <Entry filename="..\..\BooExplorer.Common\BooExplorer.Common.prjx" />
     <Entry filename="..\..\..\booish.gui\src\booish.gui.prjx" />
   </Entries>

@@ -17,8 +17,8 @@
     <File name=".\TaskList.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name=".\TaskList.boo~" subtype="Code" buildaction="Exclude" dependson="" data="" />
     <File name=".\TextManipulator.boo" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name="..\..\..\build\BooExplorer.MainForm.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
-    <File name="..\..\..\build\BooExplorer.DocumentOutline.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name="..\..\build\BooExplorer.MainForm.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name="..\..\build\BooExplorer.DocumentOutline.resources" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Project" refto="booish.gui" localcopy="True" />
@@ -28,17 +28,17 @@
   </References>
   <DeploymentInformation target="" script="" strategy="File" />
   <Configuration runwithwarnings="True" name="Debug">
-    <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" />
-    <Output directory="..\..\..\build" assembly="booxw" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+    <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
+    <Output directory="..\..\build" assembly="booxw" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
   </Configuration>
   <Configurations active="Debug">
     <Configuration runwithwarnings="True" name="Debug">
-      <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" />
-      <Output directory="..\..\..\build" assembly="booxw" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+      <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="True" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
+      <Output directory="..\..\build" assembly="booxw" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
     </Configuration>
     <Configuration runwithwarnings="True" name="Release">
-      <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="False" commandLineParameters="" pauseConsoleOutput="False" />
-      <Output directory="..\bin\Release" assembly="booxw" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
+      <CompilerOptions runtime="MsNet" compileTarget="WinExe" includeDebugInformation="False" commandLineParameters="" pauseConsoleOutput="False" duckTypingByDefault="False" />
+      <Output directory=".\bin\Release" assembly="booxw" executeScript="" executeBeforeBuild="" executeAfterBuild="" executeBeforeBuildArguments="" executeAfterBuildArguments="" />
     </Configuration>
   </Configurations>
 </Project>

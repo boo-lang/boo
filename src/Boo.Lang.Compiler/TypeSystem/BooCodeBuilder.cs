@@ -504,6 +504,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new ExpressionStatement(call);
 		}
 		
+		public MethodInvocationExpression CreateSuperMethodInvocation(IMethod superMethod)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(new SuperLiteralExpression());
+			mie.Target.Entity = superMethod;
+			mie.ExpressionType = superMethod.ReturnType;
+			return mie;
+		}
+		
+		public MethodInvocationExpression CreateSuperMethodInvocation(IMethod superMethod, Expression arg)
+		{
+			MethodInvocationExpression mie = CreateSuperMethodInvocation(superMethod);
+			mie.Arguments.Add(arg);
+			return mie;
+		}
+		
 		public Method CreateVirtualMethod(string name, IType returnType)
 		{
 			return CreateVirtualMethod(name, CreateTypeReference(returnType));
