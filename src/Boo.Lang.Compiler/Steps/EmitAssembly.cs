@@ -38,6 +38,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Resources;
 using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
@@ -3404,7 +3405,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return flags;
 		}
-		
+
 		MethodBuilder DefineMethod(TypeBuilder typeBuilder, Method method, MethodAttributes attributes)
 		{
 			ParameterDeclarationCollection parameters = method.Parameters;
