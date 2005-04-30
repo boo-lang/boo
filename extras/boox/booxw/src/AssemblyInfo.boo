@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -38,7 +38,7 @@ import System.Security.Permissions
 [assembly: AssemblyCopyright("(C) 2004 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyVersion("0.5.4.1549")]
 
 [assembly: ReflectionPermission(SecurityAction.RequestMinimum,
 								ReflectionEmit: true,

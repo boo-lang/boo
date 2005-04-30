@@ -757,7 +757,7 @@ def WriteDepthFirstAccept(writer as TextWriter, item as ClassDefinition):
 			{""")
 			
 		for field as Field in fields:
-			writer.WriteLine("\t\t\tVisit(node.${field.Name});")
+			writer.WriteLine("\t\t\t\tVisit(node.${field.Name});")
 			
 		writer.Write(
 """				Leave${item.Name}(node);

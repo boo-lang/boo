@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,17 +26,49 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System.Reflection
-import System.Runtime.CompilerServices
+namespace Boo.NAnt
 
-[assembly: AssemblyTitle("Boo Language Interpreter Library")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2004 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.4.1549")]
-[assembly: AssemblyKeyFile("../src/boo.snk")]
+import System.Diagnostics
+import System.IO
+import System.Text.RegularExpressions
+import NAnt.Core
+import NAnt.Core.Attributes
+import NAnt.Core.Types
+import Boo.IO
 
+[TaskName("updateAssemblyVersion")]
+class UpdateAssemblyVersionTask(Task):
+	
+	_fileSets as (FileSet)
+	
+	_version as string
+	
+	[BuildElementArray("fileset", Required: true)]
+	FileSets:
+		get:
+			return _fileSets
+		set:
+			_fileSets = value
+			
+	[TaskAttribute("version", Required: true)]
+	Version:
+		get:
+			return _version
+		set:
+			_version = value
+			
+	override def ExecuteTask():
+		for fileSet in _fileSets:
+			for fname in fileSet.FileNames:		
+				Update(fname)
+		
+	def Update(fname as string):
+		contents = TextFile.ReadFile(fname)
+		newContents = /AssemblyVersion\((.+)\)/.Replace(contents) do (m as Match):
+			return m.Groups[0].Value.Replace(m.Groups[1].Value, "\"${_version}\"")
+		if newContents != contents:
+			print(fname)
+			TextFile.WriteFile(fname, newContents)
+			
+	def print(message):
+		self.Log(Level.Info, "${message}")

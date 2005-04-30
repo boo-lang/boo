@@ -1,7 +1,10 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.version" value="0.5.4.1544" />
+	<property name="boo.major.minor.release.version" value="0.5.4" />
+	<property name="boo.svn.revision" value="1549" />
+	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="true" />
+	
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 
@@ -136,6 +139,7 @@
 			<arg value="-out:build/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
 			<arg value="-r:${NAnt.Core.dll}" />
+			<arg value="src/Boo.NAnt.Tasks/UpdateAssemblyVersionTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/InsertLicenseTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BoocTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BooTask.boo" />
@@ -694,6 +698,39 @@
 				<arg value="scripts/astgen.boo" />
 			</exec>			
 		</if>
+	</target>
+	
+	<target name="update-svn-revision-number" depends="SVNUtil">
+	    <boo>
+			<references basedir="build">
+				<include name="SVNUtil.dll" />
+			</references>
+			
+			import Boo.IO.TextFile
+			
+			output = svn("info")
+			revision = /Revision:\s+(\d+)/.Match(output).Groups[1].Value
+			Project.Properties["boo.svn.revision"] = revision
+			print Project.Properties["boo.version"]
+			
+			contents = ReadFile("default.build")
+			newContents = /property\s+name="boo.svn.revision"\s+value="\d+"/.Replace(
+								contents,
+								"property name=\"boo.svn.revision\" value=\"${revision}\"")
+			WriteFile("default.build", newContents) if contents != newContents
+		</boo>
+	</target>
+	
+	<target name="update-version-number" depends="Boo.NAnt.Tasks, update-svn-revision-number">
+    	<updateAssemblyVersion version="${boo.version}">
+			<fileset basedir="src">
+				<include name="**/AssemblyInfo.cs" />
+				<include name="**/AssemblyInfo.boo" />
+			</fileset>
+			<fileset basedir="extras">
+				<include name="**/AssemblyInfo.boo" />
+			</fileset>
+		</updateAssemblyVersion>
 	</target>
 
 	<target name="rebuild" depends="clean">

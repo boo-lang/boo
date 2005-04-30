@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Daniel Grunwald (daniel@danielgrunwald.de)
 // All rights reserved.
 //
@@ -29,7 +29,7 @@ import System.Runtime.CompilerServices
 [assembly: AssemblyProduct("SharpDevelop")]
 [assembly: AssemblyCopyright("(c) 2004 Daniel Grunwald")]
 
-[assembly: AssemblyVersion("1.0.2.0")]
+[assembly: AssemblyVersion("0.5.4.1549")]
 
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]

@@ -42,6 +42,21 @@ class CompilerResourcesFixture:
 		resources = ResourceManager("fileresource", asm)
 		Assert.AreEqual("Hello from file!", resources.GetString("message"))
 		Assert.AreEqual([1, 2, 3], resources.GetObject("list"))
+	/*
+	[Test]
+	def TextFileResource():
+		fname = MapPath("resource.txt")
+		Boo.IO.TextFile.WriteFile(fname, "SPAM, SPAM, SPAM, SPAM")
+		
+		asm = CompileResource("TextFileResource.dll", FileResource(fname))
+		files = asm.GetFiles()
+		Assert.AreEqual(1, len(files))
+		Assert.AreEqual(Boo.IO.TextFile.ReadFile(fname), ReadToEnd(files[0]))
+	*/
+		
+	def ReadToEnd(stream as FileStream):
+		using reader=StreamReader(stream):
+			return reader.ReadToEnd()
 		
 	def CompileResource(outputAssembly as string, resource as ICompilerResource):
 		compiler = BooCompiler()
