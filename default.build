@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.version" value="0.5.3.1543" />
+	<property name="boo.version" value="0.5.4.1544" />
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 
