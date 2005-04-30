@@ -29,7 +29,7 @@
 
 import System
 
-version = Project.Properties["distro-version"]
+version = Project.Properties["boo.version"]
 
 trunk = getTrunkUri() 
 tag = Uri(trunk, "tags/${version}")
