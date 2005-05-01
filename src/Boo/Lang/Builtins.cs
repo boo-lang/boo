@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -39,7 +39,7 @@ namespace Boo.Lang
 	/// boo language builtin functions.
 	/// </summary>
 	public class Builtins
-	{		
+	{
 		public class duck
 		{
 		}
@@ -98,7 +98,7 @@ namespace Boo.Lang
 		}
 
 		public static IEnumerable map(object enumerable, ICallable function)
-		{			
+		{
 			if (null == enumerable)
 			{
 				throw new ArgumentNullException("enumerable");
@@ -126,7 +126,7 @@ namespace Boo.Lang
 				throw new ArgumentNullException("elementType");
 			}
 
-			Array array = Array.CreateInstance(elementType, collection.Count);			
+			Array array = Array.CreateInstance(elementType, collection.Count);
 			if (RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(elementType)))
 			{
 				int i=0;
@@ -156,7 +156,7 @@ namespace Boo.Lang
 			}
 			
 			// future optimization, check EnumeratorItemType of enumerable
-			// and get the fast path whenever possible			
+			// and get the fast path whenever possible
 			List l = null;
 			if (RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(elementType)))
 			{
@@ -164,7 +164,7 @@ namespace Boo.Lang
 				foreach (object item in enumerable)
 				{
 					object value = RuntimeServices.CheckNumericPromotion(item).ToType(elementType, null);
-					l.Add(value);							
+					l.Add(value);
 				}
 			}
 			else
@@ -187,7 +187,7 @@ namespace Boo.Lang
 			}
 			return Array.CreateInstance(elementType, lengths);
 		}
-
+		
 		public static IEnumerable iterator(object enumerable)
 		{
 			return RuntimeServices.GetEnumerable(enumerable);
@@ -246,7 +246,7 @@ namespace Boo.Lang
 					Assembly.LoadFrom(_filename).EntryPoint.Invoke(null, new object[1] { _arguments });
 				}
 				finally
-				{					
+				{
 					Console.SetOut(saved);
 					_capturedOutput = output.ToString();
 				}
@@ -262,11 +262,11 @@ namespace Boo.Lang
 		public static string shellm(string filename, string[] arguments)
 		{
 			AppDomainSetup setup = new AppDomainSetup();
-			setup.ApplicationBase = Path.GetDirectoryName(Path.GetFullPath(filename)); 
+			setup.ApplicationBase = Path.GetDirectoryName(Path.GetFullPath(filename));
 				
 			AppDomain domain = AppDomain.CreateDomain("shellm", null, setup);
 			try
-			{					
+			{
 				AssemblyExecutor executor = new AssemblyExecutor(filename, arguments);
 				domain.DoCallBack(new CrossAppDomainDelegate(executor.Execute));
 				return executor.CapturedOutput;
@@ -274,7 +274,7 @@ namespace Boo.Lang
 			finally
 			{
 				AppDomain.Unload(domain);
-			}			
+			}
 		}
 
 		public static EnumerateEnumerator enumerate(object enumerable)
@@ -320,11 +320,26 @@ namespace Boo.Lang
 			}
 			return new RangeEnumerator(begin, end, step);
 		}
-
+		
+		public static IEnumerable reversed(object enumerable)
+		{
+			return new List(iterator(enumerable)).Reversed;
+		}
+		
 		public static ZipEnumerator zip(object first, object second)
 		{
 			return new ZipEnumerator(GetEnumerator(first),
 									GetEnumerator(second));
+		}
+		
+		public static ConcatEnumerator cat(params object[] args)
+		{
+			return new ConcatEnumerator(args);
+		}
+		
+		public static ConcatEnumerator cat(object first, object second)
+		{
+			return new ConcatEnumerator(first, second);
 		}
 		
 		private class MapEnumerable : IEnumerable
@@ -488,7 +503,53 @@ namespace Boo.Lang
 				return this;
 			}
 		}
-
+		
+		public class ConcatEnumerator : IEnumerator, IEnumerable
+		{
+			int _index;
+			object[] _enumerables;
+			IEnumerator _current;
+			
+			internal ConcatEnumerator(params object[] args)
+			{
+				_enumerables = args;
+				Reset();
+			}
+			
+			public void Reset()
+			{
+				_index = 0;
+				_current = iterator(_enumerables[_index]).GetEnumerator();
+			}
+			
+			public bool MoveNext()
+			{
+				if (_current.MoveNext())
+				{
+					return true;
+				}
+				
+				if (++_index < _enumerables.Length)
+				{
+					_current = iterator(_enumerables[_index]).GetEnumerator();
+				}
+				return _current.MoveNext();
+			}
+			
+			public IEnumerator GetEnumerator()
+			{
+				return this;
+			}
+			
+			public object Current
+			{
+				get
+				{
+					return _current.Current;
+				}
+			}
+		}
+		
 		[EnumeratorItemType(typeof(object[]))]
 		public class EnumerateEnumerator : IEnumerator, IEnumerable
 		{

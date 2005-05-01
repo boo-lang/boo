@@ -452,6 +452,14 @@ namespace Boo.Lang
 			return this;
 		}
 		
+		public IEnumerable Reversed
+		{
+			get
+			{
+				return new ReversedListEnumerator(_items, _count);
+			}
+		}
+		
 		void IList.Insert(int index, object item)
 		{
 			Insert(index, item);
@@ -579,6 +587,43 @@ namespace Boo.Lang
 			return index;
 		}
 		
+		class ReversedListEnumerator : IEnumerator, IEnumerable
+		{
+			object[] _items;
+			int _index;
+			int _count;
+			
+			public ReversedListEnumerator(object[] items, int count)
+			{
+				_items = items;
+				_index = count;
+				_count = count;
+			}
+			
+			public void Reset()
+			{
+				_index = _count;
+			}
+			
+			public bool MoveNext()
+			{
+				return --_index >= 0;
+			}
+			
+			public IEnumerator GetEnumerator()
+			{
+				return this;
+			}
+			
+			public object Current
+			{
+				get
+				{
+					return _items[_index];
+				}
+			}
+		}
+		
 		class ListEnumerator : IEnumerator
 		{
 			List _list;
@@ -602,7 +647,7 @@ namespace Boo.Lang
 			
 			public bool MoveNext()
 			{
-				if (_count != _list.Count || _items != _list._items)
+				if (_count != _list._count || _items != _list._items)
 				{
 					throw new InvalidOperationException(Boo.ResourceManager.GetString("ListWasModified"));
 				}
