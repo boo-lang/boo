@@ -74,6 +74,7 @@
         <Compile Include="Ast\ExpressionPair.cs"/>
         <Compile Include="Ast\ExpressionPairCollection.cs"/>
         <Compile Include="Ast\ExpressionStatement.cs"/>
+        <Compile Include="Ast\ExtendedGeneratorExpression.cs"/>
         <Compile Include="Ast\Field.cs"/>
         <Compile Include="Ast\ForStatement.cs"/>
         <Compile Include="Ast\GeneratorExpression.cs"/>
@@ -115,6 +116,7 @@
         <Compile Include="Ast\Impl\ExpressionPairCollectionImpl.cs"/>
         <Compile Include="Ast\Impl\ExpressionPairImpl.cs"/>
         <Compile Include="Ast\Impl\ExpressionStatementImpl.cs"/>
+        <Compile Include="Ast\Impl\ExtendedGeneratorExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\FieldImpl.cs"/>
         <Compile Include="Ast\Impl\ForStatementImpl.cs"/>
         <Compile Include="Ast\Impl\GeneratorExpressionCollectionImpl.cs"/>
@@ -138,7 +140,6 @@
         <Compile Include="Ast\Impl\MethodInvocationExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\ModuleCollectionImpl.cs"/>
         <Compile Include="Ast\Impl\ModuleImpl.cs"/>
-        <Compile Include="Ast\Impl\MultiGeneratorExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\NamespaceDeclarationImpl.cs"/>
         <Compile Include="Ast\Impl\NullLiteralExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\ParameterDeclarationCollectionImpl.cs"/>
@@ -197,7 +198,6 @@
         <Compile Include="Ast\MethodInvocationExpression.cs"/>
         <Compile Include="Ast\Module.cs"/>
         <Compile Include="Ast\ModuleCollection.cs"/>
-        <Compile Include="Ast\MultiGeneratorExpression.cs"/>
         <Compile Include="Ast\NamespaceDeclaration.cs"/>
         <Compile Include="Ast\Node.cs"/>
         <Compile Include="Ast\NodeCollection.cs"/>
@@ -287,6 +287,7 @@
         <Compile Include="Pipelines\CompileToMemory.cs"/>
         <Compile Include="Pipelines\Parse.cs"/>
         <Compile Include="Pipelines\ParseAndPrint.cs"/>
+        <Compile Include="Pipelines\ParseAndPrintAst.cs"/>
         <Compile Include="Pipelines\ParseAndPrintXml.cs"/>
         <Compile Include="Pipelines\ResolveExpressions.cs"/>
         <Compile Include="Pipelines\Run.cs"/>
@@ -316,6 +317,7 @@
         <Compile Include="Steps\NormalizeStatementModifiers.cs"/>
         <Compile Include="Steps\PEVerify.cs"/>
         <Compile Include="Steps\PreErrorChecking.cs"/>
+        <Compile Include="Steps\PrintAst.cs"/>
         <Compile Include="Steps\PrintBoo.cs"/>
         <Compile Include="Steps\PrintErrors.cs"/>
         <Compile Include="Steps\PrintWarnings.cs"/>

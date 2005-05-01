@@ -26,38 +26,17 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Collections;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem;
-
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Pipelines
 {
-	public abstract class AbstractNamespaceSensitiveTransformerCompilerStep : AbstractTransformerCompilerStep
+	using System;
+	using Boo.Lang.Compiler.Steps;
+	
+	public class ParseAndPrintAst : Parse
 	{
-		override public void Initialize(CompilerContext context)
+		public ParseAndPrintAst()
 		{
-			base.Initialize(context);
-			NameResolutionService.Reset();
-		}
-		
-		protected void EnterNamespace(INamespace ns)
-		{
-			NameResolutionService.EnterNamespace(ns);
-		}
-		
-		protected INamespace CurrentNamespace
-		{
-			get
-			{
-				return NameResolutionService.CurrentNamespace;
-			}
-		}
-		
-		protected void LeaveNamespace()
-		{
-			NameResolutionService.LeaveNamespace();
+			BreakOnErrors = false;
+			Add(new PrintAst());
 		}
 	}
 }

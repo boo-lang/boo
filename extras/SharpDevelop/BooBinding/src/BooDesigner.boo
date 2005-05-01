@@ -513,7 +513,6 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 			if designerResourceService != null:
 				designerResourceService.Save()
 			
-		
 	
 	def NotifyBeforeSave():
 		MergeFormChanges()
@@ -531,4 +530,3 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 	override TabPageText as string:
 		get:
 			return super.TabPageText
-

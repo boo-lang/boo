@@ -1,10 +1,10 @@
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,14 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using Boo.Lang;
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
+
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	using Boo.Lang;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;	
-	
 	public class ForeignReferenceCollector : DepthFirstVisitor, IDisposable, ICompilerComponent
 	{
 		Node _sourceNode;
@@ -48,13 +48,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		SelfEntity _selfEntity;
 		
-		CompilerContext _context; 
+		CompilerContext _context;
 		
 		public ForeignReferenceCollector()
-		{				
+		{
 			_references = new List();
 			_referencedEntities = new Hash();
-		}		
+		}
 		
 		public Node SourceNode
 		{
@@ -150,7 +150,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		public void Initialize(CompilerContext context)
-		{			
+		{
 			if (null == _currentType)
 			{
 				throw new InvalidOperationException("CurrentType was not properly initialized!");
@@ -176,18 +176,18 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		public void DeclareFieldsAndConstructor(BooClassBuilder builder)
-		{	
-			// referenced entities turn into fields			
+		{
+			// referenced entities turn into fields
 			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
 			{
 				Field field = builder.AddField("__" + entity.Name + _context.AllocIndex(), entity.Type);
-				field.Modifiers = TypeMemberModifiers.Internal;				
+				field.Modifiers = TypeMemberModifiers.Internal;
 				_referencedEntities[entity] = field.Entity;
 			}
 			
 			// single constructor taking all referenced entities
-			BooMethodBuilder constructor = builder.AddConstructor();			
-			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));			
+			BooMethodBuilder constructor = builder.AddConstructor();
+			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));
 			foreach (ITypedEntity entity in _referencedEntities.Keys)
 			{
 				InternalField field = (InternalField)_referencedEntities[entity];
@@ -199,9 +199,9 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		public void AdjustReferences()
-		{ 			
+		{
 			foreach (Expression reference in _references)
-			{				 
+			{
 				InternalField entity = (InternalField)_referencedEntities[reference.Entity];
 				if (null != entity)
 				{
@@ -212,7 +212,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		public MethodInvocationExpression CreateConstructorInvocationWithReferencedEntities(IType type)
-		{			
+		{
 			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(type.GetConstructors()[0]);
 			foreach (ITypedEntity entity in _referencedEntities.Keys)
 			{
@@ -230,7 +230,7 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				return CodeBuilder.CreateReference(entity);
-			}		
+			}
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -246,7 +246,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IEntity entity = GetSelfEntity();
 			node.Entity = entity;
-			_references.Add(node);			
+			_references.Add(node);
 			_referencedEntities[entity] = null;
 		}
 		
@@ -259,7 +259,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (type == EntityType.Local)
 				{
 					return null == _currentMethod ||
-						!_currentMethod.Locals.ContainsEntity(entity);					
+						!_currentMethod.Locals.ContainsEntity(entity);
 				}
 				else if (type == EntityType.Parameter)
 				{

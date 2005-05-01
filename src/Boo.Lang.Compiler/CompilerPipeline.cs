@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler
 	/// that should be executed in sequence.
 	/// </summary>
 	public class CompilerPipeline : System.MarshalByRefObject
-	{	
+	{
 		public event CompilerStepEventHandler BeforeStep;
 		
 		public event CompilerStepEventHandler AfterStep;
@@ -67,6 +67,7 @@ namespace Boo.Lang.Compiler
 				case "verify": return new Pipelines.CompileToFileAndVerify();
 				case "roundtrip": return new Pipelines.ParseAndPrint();
 				case "boo": return new Pipelines.CompileToBoo();
+				case "ast": return new Pipelines.ParseAndPrintAst();
 				case "xml": return new Pipelines.ParseAndPrintXml();
 				case "dumpreferences":
 				{
@@ -127,10 +128,10 @@ namespace Boo.Lang.Compiler
 			
 			_items.Insert(index, step);
 			return this;
-		} 
+		}
 		
 		public CompilerPipeline InsertAfter(Type stepExactType, ICompilerStep step)
-		{			
+		{
 			return Insert(Find(stepExactType)+1, step);
 		}
 		
@@ -230,7 +231,7 @@ namespace Boo.Lang.Compiler
 		virtual public void Run(CompilerContext context)
 		{
 			foreach (ICompilerStep step in _items)
-			{				
+			{
 				RunStep(context, step);
 				
 				if (_breakOnErrors && context.Errors.Count > 0)
@@ -247,7 +248,7 @@ namespace Boo.Lang.Compiler
 		
 		protected void RunStep(CompilerContext context, ICompilerStep step)
 		{
-			OnBeforeStep(context, step);	
+			OnBeforeStep(context, step);
 				
 			step.Initialize(context);
 			try
@@ -263,7 +264,7 @@ namespace Boo.Lang.Compiler
 				context.Errors.Add(CompilerErrorFactory.StepExecutionError(x, step));
 			}
 			finally
-			{				
+			{
 				OnAfterStep(context, step);
 			}
 		}

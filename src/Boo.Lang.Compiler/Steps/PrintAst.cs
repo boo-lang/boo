@@ -27,37 +27,23 @@
 #endregion
 
 using System;
-using System.Collections;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.Ast.Visitors;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public abstract class AbstractNamespaceSensitiveTransformerCompilerStep : AbstractTransformerCompilerStep
+	/// <summary>
+	/// </summary>
+	public class PrintAst : AbstractCompilerStep
 	{
-		override public void Initialize(CompilerContext context)
+		public PrintAst()
 		{
-			base.Initialize(context);
-			NameResolutionService.Reset();
 		}
 		
-		protected void EnterNamespace(INamespace ns)
+		override public void Run()
 		{
-			NameResolutionService.EnterNamespace(ns);
-		}
-		
-		protected INamespace CurrentNamespace
-		{
-			get
-			{
-				return NameResolutionService.CurrentNamespace;
-			}
-		}
-		
-		protected void LeaveNamespace()
-		{
-			NameResolutionService.LeaveNamespace();
+			TreePrinterVisitor visitor = new TreePrinterVisitor(OutputWriter);
+			visitor.Print(CompileUnit);
 		}
 	}
 }
