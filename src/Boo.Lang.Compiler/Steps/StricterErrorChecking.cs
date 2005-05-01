@@ -240,7 +240,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveMethod(Method node)
 		{
 			InternalMethod derived = (InternalMethod)node.Entity;
-			IMethod super = derived.Override;
+			IMethod super = derived.Overriden;
 			if (null != super)
 			{
 				TypeMemberModifiers derivedAccess = TypeSystemServices.GetAccess(derived);

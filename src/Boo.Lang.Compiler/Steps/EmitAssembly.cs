@@ -1606,7 +1606,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void InvokeSuperMethod(IMethod methodInfo, MethodInvocationExpression node)
 		{
-			IMethod super = ((InternalMethod)methodInfo).Override;
+			IMethod super = ((InternalMethod)methodInfo).Overriden;
 			MethodInfo superMI = GetMethodInfo(super);
 			if (methodInfo.DeclaringType.IsValueType)
 			{

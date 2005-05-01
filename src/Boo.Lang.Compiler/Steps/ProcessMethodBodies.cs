@@ -1287,7 +1287,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void SetOverride(InternalMethod tag, IMethod baseMethod)
 		{
-			tag.Override = baseMethod;
+			tag.Overriden = baseMethod;
 			TraceOverride(tag.Method, baseMethod);
 			tag.Method.Modifiers |= TypeMemberModifiers.Override;
 		}

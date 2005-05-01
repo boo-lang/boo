@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,23 +26,23 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections;
+using System.Text;
+
 namespace Boo.Lang
 {
-	using System;
-	using System.Collections;
-	using System.Text;
-
 	// callable Predicate(item) as bool
 	public delegate bool Predicate(object item);
 	
-	public delegate int Comparer(object lhs, object rhs); 
+	public delegate int Comparer(object lhs, object rhs);
 
 	/// <summary>
 	/// List.
 	/// </summary>
 	[Serializable]
 	public class List : IList
-	{	
+	{
 		static readonly object[] EmptyObjectArray = new object[0];
 		
 		protected object[] _items;
@@ -118,7 +118,7 @@ namespace Boo.Lang
 				throw new ArgumentOutOfRangeException("count");
 			}
 			
-			object[] items = new object[_count*count];			
+			object[] items = new object[_count*count];
 			for (int i=0; i<count; ++i)
 			{
 				Array.Copy(_items, 0, items, i*_count, _count);
@@ -163,7 +163,7 @@ namespace Boo.Lang
 		public object this[int index]
 		{
 			get
-			{				
+			{
 				return _items[CheckIndex(NormalizeIndex(index))];
 			}
 			
@@ -221,9 +221,9 @@ namespace Boo.Lang
 			}
 
 			List newList = new List();
-			InnerCollect(newList, condition);			
+			InnerCollect(newList, condition);
 			return newList;
-		}		
+		}
 
 		public List Collect(List target, Predicate condition)
 		{
@@ -401,7 +401,7 @@ namespace Boo.Lang
 		}
 		
 		public int IndexOf(object item)
-		{			
+		{
 			for (int i=0; i<_count; ++i)
 			{
 				if (RuntimeServices.op_Equality(_items[i], item))
@@ -414,7 +414,7 @@ namespace Boo.Lang
 		
 		public List Insert(int index, object item)
 		{
-			int actual = NormalizeIndex(index);			
+			int actual = NormalizeIndex(index);
 			EnsureCapacity(Math.Max(_count, actual) + 1);
 			
 			if (actual < _count)
@@ -428,7 +428,7 @@ namespace Boo.Lang
 		}
 		
 		public object Pop()
-		{	
+		{
 			return Pop(-1);
 		}
 		
@@ -458,7 +458,7 @@ namespace Boo.Lang
 		}
 		
 		void IList.Remove(object item)
-		{			
+		{
 			InnerRemove(item);
 		}
 		
@@ -468,7 +468,7 @@ namespace Boo.Lang
 		}
 		
 		int IList.Add(object item)
-		{			
+		{
 			Add(item);
 			return _count-1;
 		}
@@ -501,13 +501,13 @@ namespace Boo.Lang
 		
 		object[] NewArray(int minCapacity)
 		{
-			int newLen = Math.Max(1, _items.Length)*2;				
+			int newLen = Math.Max(1, _items.Length)*2;
 			return new object[Math.Max(newLen, minCapacity)];
-		}		
+		}
 		
 		void InnerRemoveAt(int index)
 		{
-			--_count;			
+			--_count;
 			_items[index] = null;
 			if (index != _count)
 			{
@@ -575,7 +575,7 @@ namespace Boo.Lang
 			if (index < 0)
 			{
 				index += _count;
-			}			
+			}
 			return index;
 		}
 		
@@ -603,7 +603,7 @@ namespace Boo.Lang
 			public bool MoveNext()
 			{
 				if (_count != _list.Count || _items != _list._items)
-				{					
+				{
 					throw new InvalidOperationException(Boo.ResourceManager.GetString("ListWasModified"));
 				}
 				
