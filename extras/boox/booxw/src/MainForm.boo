@@ -107,6 +107,7 @@ class MainForm(Form):
 		_timer.Enabled = true
 		
 	override def Dispose(flag as bool):
+		SaveDockState()
 		_container.Dispose()
 		super(flag)
 		
@@ -376,7 +377,6 @@ class MainForm(Form):
 
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)
-		SaveDockState()
 		if not args.Cancel:			
 			dirtyDocuments = [
 							editor.GetSafeFileName()

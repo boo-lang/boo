@@ -114,6 +114,7 @@ BCW0001=AVISO: O tipo '{0}' não possui uma implementação para '{1}' e será m
 BCW0002=AVISO: Modificadores de sentença não afetam rótulos.
 BCW0003=AVISO: Variável local não utilizada '{0}'.
 BCW0004=AVISO: O operando direito do operador 'is' é uma referência a um tipo, tem certeza de que não é o operador 'isa' que você deseja utilizar?
+BCW0005=WARNING: Unsubscribing from event '{0}' with an adapted method reference. Either change the signature of the method to '{1}' or use a cached reference of the correct type.
 
 ; BooC Command Line Errors
 BCE0500=Arquivo '{0}' listado mais de uma vez.

@@ -3172,19 +3172,48 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			IEvent eventInfo = (IEvent)tag;
-			IMethod method = node.Operator == BinaryOperatorType.InPlaceAdd ?
-								eventInfo.GetAddMethod() :
-								eventInfo.GetRemoveMethod();
-								
 			IType rtype = GetExpressionType(node.Right);
-			CheckDelegateArgument(node, eventInfo, rtype);
+			if (!CheckDelegateArgument(node, eventInfo, rtype))
+			{
+				Error(node);
+				return;
+			}
+			
+			IMethod method = null;
+			if (node.Operator == BinaryOperatorType.InPlaceAdd)
+			{
+				method = eventInfo.GetAddMethod();
+			}
+			else
+			{
+				method = eventInfo.GetRemoveMethod();
+				CallableSignature expected = GetCallableSignature(eventInfo.Type);
+				CallableSignature actual = GetCallableSignature(node.Right);
+				if (expected != actual)
+				{
+					Warnings.Add(
+						CompilerWarningFactory.InvalidEventUnsubscribe(
+							node,
+							eventInfo.FullName,
+							expected));
+				}
+			}
 			
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 												((MemberReferenceExpression)node.Left).Target,
 												method,
 												node.Right);
-			
 			node.ParentNode.Replace(node, mie);
+		}
+		
+		CallableSignature GetCallableSignature(Expression node)
+		{
+			return GetCallableSignature(GetExpressionType(node));
+		}
+		
+		CallableSignature GetCallableSignature(IType type)
+		{
+			return ((ICallableType)type).GetSignature();
 		}
 		
 		virtual protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)

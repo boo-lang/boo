@@ -114,6 +114,7 @@ BCW0001=WARNING: Il tipo '{0}' non fornisce una implementazione per '{1}' e' ver
 BCW0002=WARNING: I modificatori di statement non hanno effetto nelle label.
 BCW0003=WARNING: Variabile locale non utilizzata '{0}'.
 BCW0004=WARNING: l'operando di destra di 'is' e' un type reference, 'isa' potrebbe essere piu' appropriato
+BCW0005=WARNING: Unsubscribing from event '{0}' with an adapted method reference. Either change the signature of the method to '{1}' or use a cached reference of the correct type.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' indicato piu' di una volta nella lista.
