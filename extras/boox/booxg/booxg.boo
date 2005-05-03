@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -25,10 +25,10 @@ import Boo.IO
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Ast
-import Gdk from "gdk-sharp" as Gdk
-import Gtk from "gtk-sharp"
-import GtkSourceView from "gtksourceview-sharp"
-import BooExplorer.Common from BooExplorer.Common
+import Gdk as Gdk
+import Gtk
+import GtkSourceView
+import BooExplorer.Common
 
 class BooEditor(ScrolledWindow):
 
