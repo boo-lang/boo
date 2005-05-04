@@ -1466,12 +1466,12 @@ namespace Boo.Lang
 
 		static void Error(string name, params object[] args)
 		{
-			throw new ApplicationException(Boo.ResourceManager.Format(name, args));
+			throw new ApplicationException(Boo.Lang.ResourceManager.Format(name, args));
 		}
 
 		static void Error(string name)
 		{
-			throw new ApplicationException(Boo.ResourceManager.GetString(name));
+			throw new ApplicationException(Boo.Lang.ResourceManager.GetString(name));
 		}
 	}
 }

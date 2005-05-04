@@ -4,7 +4,7 @@ public final transient class Assert0Module(System.Object):
 
 	private static def Main(argv as (System.String)) as System.Void:
 		unless (true and false):
-			raise Boo.AssertionFailedException('assert message')
+			raise Boo.Lang.AssertionFailedException('assert message')
 
 	private def constructor():
 		super()

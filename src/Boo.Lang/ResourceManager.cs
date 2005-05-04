@@ -28,7 +28,7 @@
 
 using System;
 
-namespace Boo
+namespace Boo.Lang
 {
 	/// <summary>
 	/// Resource manager.

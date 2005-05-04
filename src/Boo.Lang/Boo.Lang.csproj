@@ -6,8 +6,8 @@
         <SchemaVersion>2.0</SchemaVersion>
         <ProjectGuid>{C8E7600D-3D02-4190-BB40-9136D29F24F9}</ProjectGuid>
         <OutputType>Exe</OutputType>
-        <RootNamespace>Boo</RootNamespace>
-        <AssemblyName>Boo</AssemblyName>
+        <RootNamespace>Boo.Lang</RootNamespace>
+        <AssemblyName>Boo.Lang</AssemblyName>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -34,18 +34,18 @@
         <Compile Include="AssertionFailedException.cs"/>
         <Compile Include="IO\TextFile.cs"/>
         <Compile Include="IO\TextReaderEnumerator.cs"/>
-        <Compile Include="Lang\AbstractGenerator.cs"/>
-        <Compile Include="Lang\AbstractGeneratorEnumerator.cs"/>
-        <Compile Include="Lang\BooComparer.cs"/>
-        <Compile Include="Lang\BooHashCodeProvider.cs"/>
-        <Compile Include="Lang\Builtins.cs"/>
-        <Compile Include="Lang\EnumeratorItemTypeAttribute.cs"/>
-        <Compile Include="Lang\Hash.cs"/>
-        <Compile Include="Lang\ICallable.cs"/>
-        <Compile Include="Lang\IQuackFu.cs"/>
-        <Compile Include="Lang\List.cs"/>
-        <Compile Include="Lang\ModuleAttribute.cs"/>
-        <Compile Include="Lang\RuntimeServices.cs"/>
+        <Compile Include="AbstractGenerator.cs"/>
+        <Compile Include="AbstractGeneratorEnumerator.cs"/>
+        <Compile Include="BooComparer.cs"/>
+        <Compile Include="BooHashCodeProvider.cs"/>
+        <Compile Include="Builtins.cs"/>
+        <Compile Include="EnumeratorItemTypeAttribute.cs"/>
+        <Compile Include="Hash.cs"/>
+        <Compile Include="ICallable.cs"/>
+        <Compile Include="IQuackFu.cs"/>
+        <Compile Include="List.cs"/>
+        <Compile Include="ModuleAttribute.cs"/>
+        <Compile Include="RuntimeServices.cs"/>
         <Compile Include="ResourceManager.cs"/>
         <Compile Include="RuntimeException.cs"/>
     </ItemGroup>

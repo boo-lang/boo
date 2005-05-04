@@ -649,7 +649,7 @@ namespace Boo.Lang
 			{
 				if (_count != _list._count || _items != _list._items)
 				{
-					throw new InvalidOperationException(Boo.ResourceManager.GetString("ListWasModified"));
+					throw new InvalidOperationException(Boo.Lang.ResourceManager.GetString("ListWasModified"));
 				}
 				
 				if (_index < _count)

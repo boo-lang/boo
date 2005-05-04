@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@ using Boo.Lang.Compiler.Resources;
 namespace BooC
 {
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 	class App
 	{
@@ -54,7 +54,7 @@ namespace BooC
 		[STAThread]
 		static int Main(string[] args)
 		{
-			return new App().Run(args);			
+			return new App().Run(args);
 		}
 		
 		public int Run(string[] args)
@@ -71,7 +71,7 @@ namespace BooC
 				ParseOptions(args, _options);
 				if (0 == _options.Input.Count)
 				{
-					throw new ApplicationException(Boo.ResourceManager.GetString("BooC.NoInputSpecified"));
+					throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.NoInputSpecified"));
 				}
 
 				if (_options.TraceSwitch.TraceInfo)
@@ -80,7 +80,7 @@ namespace BooC
 					compiler.Parameters.Pipeline.AfterStep += new CompilerStepEventHandler(OnAfterStep);
 				}
 				
-				TimeSpan setupTime = DateTime.Now - start;	
+				TimeSpan setupTime = DateTime.Now - start;
 				
 				start = DateTime.Now;
 				CompilerContext context = compiler.Run();
@@ -89,7 +89,7 @@ namespace BooC
 				if (context.Warnings.Count > 0)
 				{
 					Console.WriteLine(context.Warnings);
-					Console.WriteLine(Boo.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
+					Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
 				}
 				
 				if (context.Errors.Count > 0)
@@ -98,7 +98,7 @@ namespace BooC
 					{
 						Console.WriteLine(error.ToString(_options.TraceSwitch.TraceInfo));
 					}
-					Console.WriteLine(Boo.ResourceManager.Format("BooC.Errors", context.Errors.Count));
+					Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.Errors", context.Errors.Count));
 				}
 				else
 				{
@@ -106,15 +106,15 @@ namespace BooC
 				}
 				
 				if (_options.TraceSwitch.TraceWarning)
-				{						
-					Console.WriteLine(Boo.ResourceManager.Format("BooC.ProcessingTime", _options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));					
+				{
+					Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.ProcessingTime", _options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));
 				}
 			}
 			catch (Exception x)
 			{
 				object message = _options.TraceSwitch.TraceWarning ? (object)x : (object)x.Message;
-				Console.WriteLine(Boo.ResourceManager.Format("BooC.FatalError", message));
-			}			
+				Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.FatalError", message));
+			}
 			return resultCode;
 		}
 		
@@ -150,7 +150,7 @@ namespace BooC
 							case 'v':
 							{
 								_options.TraceSwitch.Level = TraceLevel.Warning;
-								Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));								
+								Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
 								if (arg.Length > 2)
 								{
 									switch (arg.Substring(1))
@@ -165,7 +165,7 @@ namespace BooC
 										{
 											_options.TraceSwitch.Level = TraceLevel.Verbose;
 											break;
-										}										
+										}
 									}
 								}
 								else
@@ -206,7 +206,7 @@ namespace BooC
 							case 'o':
 							{
 								_options.OutputAssembly = arg.Substring(arg.IndexOf(":")+1);
-								break;									
+								break;
 							}
 							
 							case 't':
@@ -268,7 +268,7 @@ namespace BooC
 
 									default:
 									{
-										InvalidOption(arg);								
+										InvalidOption(arg);
 										break;
 									}
 								}
@@ -300,7 +300,7 @@ namespace BooC
 									
 									default:
 									{
-										InvalidOption(arg);								
+										InvalidOption(arg);
 										break;
 									}
 								}
@@ -309,7 +309,7 @@ namespace BooC
 							
 							default:
 							{
-								InvalidOption(arg);								
+								InvalidOption(arg);
 								break;
 							}
 						}
@@ -333,20 +333,20 @@ namespace BooC
 			if (_responseFileList.Contains(file))
 			{
 				throw new ApplicationException(
-						Boo.ResourceManager.Format("BCE0500", file));
+						Boo.Lang.ResourceManager.Format("BCE0500", file));
 			}
 			_responseFileList.Add(file);
 			if (!File.Exists(file))
 			{
-				throw new ApplicationException(Boo.ResourceManager.Format("BCE0501", file));
+				throw new ApplicationException(Boo.Lang.ResourceManager.Format("BCE0501", file));
 			}
 			ArrayList arglist = new ArrayList();
 			try
 			{
-				using (StreamReader sr = new StreamReader(file)) 
+				using (StreamReader sr = new StreamReader(file))
 				{
 					string line;
-					while ((line = sr.ReadLine()) != null) 
+					while ((line = sr.ReadLine()) != null)
 					{
 						line = line.Trim();
 						if (line.Length > 0 && line[0] != '#')
@@ -370,7 +370,7 @@ namespace BooC
 			catch (Exception x)
 			{
 				throw new ApplicationException(
-								Boo.ResourceManager.Format("BCE0502", file),
+								Boo.Lang.ResourceManager.Format("BCE0502", file),
 								x);
 			}
 			return	arglist;
@@ -427,11 +427,11 @@ namespace BooC
 				reference = Assembly.LoadFrom(Path.GetFullPath(assemblyName));
 				if (null == reference)
 				{
-					throw new ApplicationException(Boo.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName));
+					throw new ApplicationException(Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName));
 				}
 			}
 			return reference;
-		}		
+		}
 		
 		void OnBeforeStep(object sender, CompilerStepEventArgs args)
 		{
@@ -445,7 +445,7 @@ namespace BooC
 		
 		void InvalidOption(string arg)
 		{
-			Console.WriteLine(Boo.ResourceManager.Format("BooC.InvalidOption", arg));
+			Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.InvalidOption", arg));
 		}
 
 		bool IsFlag(string arg)

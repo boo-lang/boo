@@ -91,7 +91,7 @@ abstract class AbstractBooTask(Task):
 				parameters.References.Add(asm)
 			except x:
 				raise BuildException(
-					Boo.ResourceManager.Format("BCE0041", reference),
+					Boo.Lang.ResourceManager.Format("BCE0041", reference),
 					Location,
 					x)
 	

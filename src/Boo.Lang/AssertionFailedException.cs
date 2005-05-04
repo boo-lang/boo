@@ -26,7 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo
+namespace Boo.Lang
 {
 	using System;
 	using System.Runtime.Serialization;

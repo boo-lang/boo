@@ -598,7 +598,7 @@ namespace Boo.Lang
 
 		private static string GetString(string name)
 		{
-			return Boo.ResourceManager.GetString(name);
+			return Boo.Lang.ResourceManager.GetString(name);
 		}
 
 		private static IEnumerator GetEnumerator(object enumerable)
