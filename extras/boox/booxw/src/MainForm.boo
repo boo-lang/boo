@@ -93,6 +93,10 @@ class MainForm(Form):
 		self.Text = "Boo Explorer"
 		self.IsMdiContainer = true
 
+		_container.Add(_interactiveConsole)
+		_container.Add(_documentOutline)
+		_container.Add(_taskList)
+		_container.Add(_outputPane)
 		_container.Add(_dockPanel)
 		_container.Add(_status)
 		
