@@ -48,7 +48,7 @@
 			
 			<references basedir="build">
 				<include name="${nunit.framework.dll}" />
-				<include name="Boo.dll" />
+				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="BooModules.dll" />
 			</references>
@@ -56,9 +56,9 @@
 	
 		<booc
 			target="library"
-			output="build/Boo.Tests.dll">
+			output="build/Boo.Lang.Tests.dll">
 
-			<sources basedir="Boo.Tests">
+			<sources basedir="Boo.Lang.Tests">
 				<include name="**/*.boo" />
 			</sources>
 

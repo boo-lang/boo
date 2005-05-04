@@ -156,7 +156,7 @@
 			</sources>
 
 			<references>
-				<include name="build/Boo.dll" />
+				<include name="build/Boo.Lang.dll" />
 				<include name="build/Boo.Lang.Compiler.dll" />
 			</references>
 		</csc>
@@ -173,22 +173,22 @@
 		<copy todir="build" file="src/booc/booc.rsp" />
 		
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
-			<arg file='build/Boo.dll' />
+			<arg file='build/Boo.Lang.dll' />
 			<arg file='build/Boo.Lang.Compiler.dll' />			
 			<arg file='build/Boo.Lang.Parser.dll' />
 			<arg file='build/booc.exe' />
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo, Boo.Lang.Compiler, Boo.Lang.Parser, Boo.CodeDom">
+	<target name="core" depends="Boo.Lang, Boo.Lang.Compiler, Boo.Lang.Parser, Boo.CodeDom">
 	</target>
 	
 	<target name="update-bin" depends="all">
 		<mkdir dir="bin" />
 		<copy todir="bin">
 			<fileset basedir="build">
-				<include name="pt/Boo.resources.dll" />
-				<include name="Boo.dll" />
+				<include name="pt/Boo.Lang.resources.dll" />
+				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
@@ -220,7 +220,7 @@
 		</csc>
 	</target>
 	
-	<target name="Boo.Lang.Compiler" depends="Boo, generate-ast">
+	<target name="Boo.Lang.Compiler" depends="Boo.Lang, generate-ast">
 		<csc target="library"
 			output="build/Boo.Lang.Compiler.dll"
 			debug="${debug}"
@@ -231,20 +231,20 @@
 			</sources>
 			
 			<references>
-				<include name="build/Boo.dll" />
+				<include name="build/Boo.Lang.dll" />
 			</references>
 		</csc>
 	</target>
 
-	<target name="Boo" depends="resources">
+	<target name="Boo.Lang" depends="resources">
 		<csc
 			target="library"
-			output="build/Boo.dll"
+			output="build/Boo.Lang.dll"
 			debug="${debug}"
 			optimize="${optimize}"
 			if="${nant.platform.win32}">
 
-			<sources basedir="src/Boo">
+			<sources basedir="src/Boo.Lang">
 				<include name="**/*.cs" />
 			</sources>
 			
@@ -261,12 +261,12 @@
 
 		<csc
 			target="library"
-			output="build/Boo.dll"
+			output="build/Boo.Lang.dll"
 			debug="${debug}"
 			optimize="${optimize}"
 			unless="${nant.platform.win32}">
 			
-			<sources basedir="src/Boo">
+			<sources basedir="src/Boo.Lang">
 					<include name="**/*.cs" />
 			</sources>
 			
@@ -315,7 +315,7 @@
 
 		<exec program="gacutil" useruntimeengine="false" workingdir="build">
 			<arg value="/i" />
-			<arg value="Boo.dll" />
+			<arg value="Boo.Lang.dll" />
 			<arg value="/package" />
 			<arg value="boo" />
 			<arg value="/root" />
@@ -399,7 +399,7 @@
 				<include name="**/*.cs" />
 			</sources>
 			<references>
-				<include name="build/Boo.dll" />
+				<include name="build/Boo.Lang.dll" />
 				<include name="build/Boo.Lang.Compiler.dll" />
 			</references>
 		</csc>
@@ -533,7 +533,7 @@
 				<include name="src/**/*.g" />
 				<include name="src/**/*.prjx" />
 				<include name="src/**/*.cmbx" />
-				<include name="src/Boo/Resources/**/*.txt" />
+				<include name="src/Boo.Lang/Resources/**/*.txt" />
 				
 				<include name="tests/nunit.inc" />
 				<include name="tests/test.snk" />
@@ -614,7 +614,7 @@
 	<target name="resources" depends="init">
 	
 		<resgen
-			input="src/Boo/Resources/strings.txt"
+			input="src/Boo.Lang/Resources/strings.txt"
 			output="build/strings.resources" />
 	
 		<property name="locale" value="pt" />
@@ -629,7 +629,7 @@
 	
 		<mkdir dir="${build.dir}/${locale}" />
 		<resgen
-			input="src/Boo/Resources/${locale}/strings.txt"
+			input="src/Boo.Lang/Resources/${locale}/strings.txt"
 			output="build/${locale}/strings.${locale}.resources" />
 			
 	</target>
