@@ -108,6 +108,7 @@ BCE0106=Failed to access the types defined in the assembly '{0}'.
 BCE0107=Value types cannot declare parameterless constructors.
 BCE0108=Value type fields cannot have initializers.
 BCE0109=Array '{0}' is rank '{1}', not rank '{2}'.
+BCE0110='{0}' is not a namespace.
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
