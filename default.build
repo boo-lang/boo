@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.5.4" />
-	<property name="boo.svn.revision" value="1554" />
+	<property name="boo.svn.revision" value="1560" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="true" />
 	
 	<property name="debug" value="true" />
@@ -180,7 +180,7 @@
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo.Lang, Boo.Lang.Compiler, Boo.Lang.Parser, Boo.CodeDom">
+	<target name="core" depends="Boo.Lang, Boo.Lang.Compiler, Boo.Lang.Parser, Boo.Lang.CodeDom">
 	</target>
 	
 	<target name="update-bin" depends="all">
@@ -193,7 +193,7 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="Boo.NAnt.Tasks.dll" />
-				<include name="Boo.CodeDom.dll" />
+				<include name="Boo.Lang.CodeDom.dll" />
 				<include name="booc.exe" />
 				<include name="booc.rsp" />
 				<include name="booi.exe" />
@@ -202,13 +202,13 @@
 		</copy>
 	</target>
 	
-	<target name="Boo.CodeDom" depends="Boo.Lang.Compiler">
+	<target name="Boo.Lang.CodeDom" depends="Boo.Lang.Compiler">
 		<csc target="library"
-			output="build/Boo.CodeDom.dll"
+			output="build/Boo.Lang.CodeDom.dll"
 			debug="${debug}"
 			optimize="${optimize}">
 			
-			<sources basedir="src/Boo.CodeDom">
+			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.cs" />
 			</sources>
 			
@@ -324,7 +324,7 @@
 
 		<exec program="gacutil" useruntimeengine="false" workingdir="build">
 			<arg value="/i" />
-			<arg value="Boo.CodeDom.dll" />
+			<arg value="Boo.Lang.CodeDom.dll" />
 			<arg value="/package" />
 			<arg value="boo" />
 			<arg value="/root" />

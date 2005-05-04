@@ -20,7 +20,7 @@
 		
 		<copy todir="build/web/bin">
 			<fileset basedir="build">
-				<includes name="Boo.dll" />
+				<includes name="Boo.Lang.dll" />
 				<includes name="BooLog.dll" />
 				<includes name="Bamboo.Prevalence.dll" />
 			</fileset>

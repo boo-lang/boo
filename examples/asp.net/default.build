@@ -3,9 +3,9 @@
 
 	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
 	
-	<property name="Boo.dll" value="${boo.dir}/Boo.dll" />
+	<property name="Boo.Lang.dll" value="${boo.dir}/Boo.Lang.dll" />
 	<property name="Boo.Lang.Compiler.dll" value="${boo.dir}/Boo.Lang.Compiler.dll" />
-	<property name="Boo.CodeDom.dll" value="${boo.dir}/Boo.CodeDom.dll" />
+	<property name="Boo.Lang.CodeDom.dll" value="${boo.dir}/Boo.Lang.CodeDom.dll" />
 	<property name="Boo.Lang.Parser.dll" value="${boo.dir}/Boo.Lang.Parser.dll" />
 	<property name="Boo.NAnt.Tasks.dll" value="${boo.dir}/Boo.NAnt.Tasks.dll" />
 	
@@ -19,10 +19,10 @@
 		<mkdir dir="output" />
 		<mkdir dir="output/bin" />
 		<copy todir="output" file="web.config" />
-		<copy todir="output/bin" file="${Boo.dll}" />
+		<copy todir="output/bin" file="${Boo.Lang.dll}" />
 		<copy todir="output/bin" file="${Boo.Lang.Compiler.dll}" />
 		<copy todir="output/bin" file="${Boo.Lang.Parser.dll}" />
-		<copy todir="output/bin" file="${Boo.CodeDom.dll}" />
+		<copy todir="output/bin" file="${Boo.Lang.CodeDom.dll}" />
 		
 		<loadtasks assembly="${Boo.NAnt.Tasks.dll}" />
 		

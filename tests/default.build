@@ -109,14 +109,14 @@
 		
 		<booc
 			target="library"
-			output="build/Boo.CodeDom.Tests.dll">
+			output="build/Boo.Lang.CodeDom.Tests.dll">
 			
-			<sources basedir="Boo.CodeDom.Tests">
+			<sources basedir="Boo.Lang.CodeDom.Tests">
 				<include name="**/*.boo" />
 			</sources>
 			
 			<references basedir="build">
-				<include name="Boo.CodeDom.dll" />
+				<include name="Boo.Lang.CodeDom.dll" />
 				<include name="${nunit.framework.dll}" />
 			</references>
 		</booc>

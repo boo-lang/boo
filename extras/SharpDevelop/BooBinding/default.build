@@ -44,11 +44,11 @@
 		
 		<copy todir="${addin.dir}">
 			<fileset basedir="${boo.dir}">
-				<include name="Boo.dll" />
+				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
-				<include name="Boo.CodeDom.dll" />
+				<include name="Boo.Lang.CodeDom.dll" />
 				<include name="booc.exe" />
 				<include name="booc.rsp" />
 			</fileset>
@@ -69,7 +69,7 @@
 				<include name="${addin.dir}/Boo.Lang.Compiler.dll" />
 				<include name="${addin.dir}/Boo.Lang.Parser.dll" />
 				<include name="${addin.dir}/Boo.Lang.Interpreter.dll" />
-				<include name="${addin.dir}/Boo.CodeDom.dll" />
+				<include name="${addin.dir}/Boo.Lang.CodeDom.dll" />
 				<include name="${addin.dir}/booish.gui.exe" />
 			</references>
 			<sources basedir=".">

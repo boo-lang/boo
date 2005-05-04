@@ -63,7 +63,7 @@ import ICSharpCode.TextEditor.Document
 import System.CodeDom
 import System.CodeDom.Compiler
 
-import Boo.CodeDom
+import Boo.Lang.CodeDom
 import ICSharpCode.SharpDevelop.FormDesigner
 
 class BooDesignerDisplayBinding(AbstractFormDesignerSecondaryDisplayBinding):
@@ -129,7 +129,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 			
 	protected override def CreateDesignerHost():
 		super.CreateDesignerHost()
-		host.AddService(typeof(CodeDomProvider), Boo.CodeDom.BooCodeProvider()) //Boo.CodeDom
+		host.AddService(typeof(CodeDomProvider), Boo.Lang.CodeDom.BooCodeProvider()) //Boo.CodeDom
 	
 	_parseErrors as string = null
 	

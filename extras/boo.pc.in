@@ -6,4 +6,4 @@ libdir=${prefix}/lib
 Name: Boo
 Description: A wrist friendly language for the CLI
 Version: @VERSION@
-Libs: -r:${libdir}/mono/boo/Boo.dll -r:${libdir}/mono/boo/Boo.CodeDom.dll -r:${libdir}/mono/boo/Boo.Lang.Compiler.dll -r:${libdir}/mono/boo/Boo.Lang.Parser.dll -r:${libdir}/mono/boo/Boo.Lang.Interpreter.dll
+Libs: -r:${libdir}/mono/boo/Boo.Lang.dll -r:${libdir}/mono/boo/Boo.Lang.CodeDom.dll -r:${libdir}/mono/boo/Boo.Lang.Compiler.dll -r:${libdir}/mono/boo/Boo.Lang.Parser.dll -r:${libdir}/mono/boo/Boo.Lang.Interpreter.dll

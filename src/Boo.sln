@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo_Lang_Compiler", "Boo.La
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooC", "booc\BooC.csproj", "{7B7F9729-B676-4C57-861B-730B5DFB34F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo_Lang_CodeDom", "Boo.Lang.CodeDom\Boo.Lang.CodeDom.csproj", "{7B257488-0CA6-4843-AE5B-20F3424AA8E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{7B7F9729-B676-4C57-861B-730B5DFB34F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B7F9729-B676-4C57-861B-730B5DFB34F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B7F9729-B676-4C57-861B-730B5DFB34F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B257488-0CA6-4843-AE5B-20F3424AA8E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B257488-0CA6-4843-AE5B-20F3424AA8E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B257488-0CA6-4843-AE5B-20F3424AA8E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B257488-0CA6-4843-AE5B-20F3424AA8E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,23 +26,33 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Permissions;
+namespace Boo.CodeDom.Tests
 
-[assembly: ReflectionPermission(SecurityAction.RequestMinimum,
-								ReflectionEmit=true,
-								TypeInformation=true)]
-[assembly: AssemblyTitle("boo codedom implementation")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2004 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.4.1554")]
-[assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("../src/boo.snk")]
-[assembly: AssemblyKeyName("")]
+import System
+import System.CodeDom
+import System.CodeDom.Compiler
+import System.IO
+import NUnit.Framework
+import Boo.Lang.CodeDom
 
+[TestFixture]
+class CodeGeneratorTestFixture:
+	
+	_generator as ICodeGenerator
+	
+	[SetUp]
+	def SetUp():		
+		_generator = BooCodeProvider().CreateGenerator()
+		Assert.IsNotNull(_generator)
+	
+	[Test]
+	def TestArrayType():
+		stmt = CodeVariableDeclarationStatement()
+		stmt.Name = "anArray"
+		stmt.Type = CodeTypeReference(typeof((int)))
+		
+		expected = "anArray as (int, 1)"
+		
+		buffer = StringWriter()
+		_generator.GenerateCodeFromStatement(stmt, buffer, CodeGeneratorOptions())
+		Assert.AreEqual(expected, buffer.ToString().Trim())

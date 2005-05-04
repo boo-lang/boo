@@ -19,7 +19,7 @@
 		<mkdir dir="build" />
 		<copy todir="build">
 			<fileset basedir="${boo.bin}">
-				<include name="Boo.dll" />
+				<include name="Boo.Lang.dll" />
 			</fileset>
 		</copy>
 		<copy todir="build">

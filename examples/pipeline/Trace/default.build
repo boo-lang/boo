@@ -38,7 +38,7 @@
 		
 		<copy todir="build">
 			<fileset basedir="${boo.dir}">
-				<include name="Boo.dll" />
+				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.NAnt.Tasks.dll" />
