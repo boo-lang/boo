@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,26 +26,30 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang
-{
-	using System;
-	using System.Runtime.Serialization;
-	
-	/// <summary>
-	/// Base exception for the Boo runtime.
-	/// </summary>
-	[Serializable]
-	public class RuntimeException : System.Exception
-	{
-		public RuntimeException(string message) : base(message)
-		{
-		}
+namespace Boo.Lang.Useful.IO
+
+import System
+import System.Collections
+import System.IO
+import System.Text
+
+[EnumeratorItemType(string)]
+class TextFile(StreamReader, IEnumerable):
+	def constructor(fname as string):
+		super(fname, Encoding.Default, true)
 		
-		protected RuntimeException(
-			SerializationInfo si, StreamingContext sc) : base(si, sc)
-		{
-		}		
-	}	
-}
-
-
+	def GetEnumerator() as IEnumerator:
+		return Boo.Lang.Runtime.TextReaderEnumerator(self)
+		
+	static def ReadFile([required] fname as string):
+		using reader=TextFile(fname):
+			return reader.ReadToEnd()
+			
+	static def WriteFile(fname as string, contents as string):
+		WriteFile(fname, contents, Encoding.UTF8)
+		
+	static def WriteFile([required] fname as string,
+						[required] contents as string,
+						[required] encoding as Encoding):
+		using writer=StreamWriter(fname, false, encoding):
+			writer.Write(contents)

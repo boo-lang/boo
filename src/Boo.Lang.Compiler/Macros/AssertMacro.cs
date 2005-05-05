@@ -40,7 +40,7 @@ namespace Boo.Lang
 	public class AssertMacro : AbstractAstMacro
 	{
 		private static Expression ExceptionTypeReference =
-			AstUtil.CreateReferenceExpression("Boo.Lang.AssertionFailedException");
+			AstUtil.CreateReferenceExpression("Boo.Lang.Runtime.AssertionFailedException");
 		
 		public override Statement Expand(MacroStatement macro)
 		{

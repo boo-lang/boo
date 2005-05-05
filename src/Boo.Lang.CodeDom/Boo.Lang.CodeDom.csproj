@@ -4,24 +4,27 @@
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
         <ProductVersion>8.0.30703</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
-        <ProjectGuid>{C8E7600D-3D02-4190-BB40-9136D29F24F9}</ProjectGuid>
+        <ProjectGuid>{7B257488-0CA6-4843-AE5B-20F3424AA8E4}</ProjectGuid>
         <OutputType>Exe</OutputType>
-        <RootNamespace>Boo.Lang</RootNamespace>
-        <AssemblyName>Boo.Lang</AssemblyName>
+        <RootNamespace>Boo_Lang_CodeDom</RootNamespace>
+        <AssemblyName>Boo_Lang_CodeDom</AssemblyName>
         <WarningLevel>4</WarningLevel>
+        <StartupObject/>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <DebugSymbols>true</DebugSymbols>
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
-        <OutputPath>.\bin\Debug\</OutputPath>
+        <OutputPath>bin\Debug\</OutputPath>
         <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <DebugSymbols>false</DebugSymbols>
         <Optimize>true</Optimize>
-        <OutputPath>.\bin\Release\</OutputPath>
+        <OutputPath>bin\Release\</OutputPath>
         <DefineConstants>TRACE</DefineConstants>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System"/>
@@ -30,22 +33,21 @@
     </ItemGroup>
     <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets"/>
     <ItemGroup>
-        <Compile Include="AbstractGenerator.cs"/>
-        <Compile Include="AbstractGeneratorEnumerator.cs"/>
         <Compile Include="AssemblyInfo.cs"/>
-        <Compile Include="BooComparer.cs"/>
-        <Compile Include="BooHashCodeProvider.cs"/>
-        <Compile Include="Builtins.cs"/>
-        <Compile Include="EnumeratorItemTypeAttribute.cs"/>
-        <Compile Include="Hash.cs"/>
-        <Compile Include="ICallable.cs"/>
-        <Compile Include="IQuackFu.cs"/>
-        <Compile Include="List.cs"/>
-        <Compile Include="ModuleAttribute.cs"/>
-        <Compile Include="ResourceManager.cs"/>
-        <Compile Include="Runtime\AssertionFailedException.cs"/>
-        <Compile Include="Runtime\RuntimeException.cs"/>
-        <Compile Include="Runtime\RuntimeServices.cs"/>
-        <Compile Include="Runtime\TextReaderEnumerator.cs"/>
+        <Compile Include="BooCodeCompiler.cs"/>
+        <Compile Include="BooCodeGenerator.cs"/>
+        <Compile Include="BooCodeProvider.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
+            <Name>Boo.Lang</Name>
+            <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+            <Project>{C8E7600D-3D02-4190-BB40-9136D29F24F9}</Project>
+        </ProjectReference>
+        <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
+            <Name>Boo_Lang_Compiler</Name>
+            <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+            <Project>{BF53F19B-14B5-4B98-8B64-42A914862D2E}</Project>
+        </ProjectReference>
     </ItemGroup>
 </Project>

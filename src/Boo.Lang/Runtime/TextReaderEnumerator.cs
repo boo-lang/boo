@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,17 +26,59 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System.Reflection
-import System.Runtime.CompilerServices
+using System;
+using System.IO;
+using Boo.Lang;
 
-[assembly: AssemblyTitle("Boo Language Interpreter Library")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.4.1564")]
-[assembly: AssemblyKeyFile("../src/boo.snk")]
-
+namespace Boo.Lang.Runtime
+{
+	[EnumeratorItemType(typeof(string))]
+	public class TextReaderEnumerator : System.Collections.IEnumerator, System.Collections.IEnumerable
+	{
+		TextReader _reader;
+		
+		string _currentLine;
+		
+		public TextReaderEnumerator(TextReader reader)
+		{
+			if (null == reader)
+			{
+				throw new ArgumentNullException("reader");
+			}
+			_reader = reader;
+		}
+		
+		public System.Collections.IEnumerator GetEnumerator()
+		{
+			return this;
+		}
+		
+		public void Reset()
+		{
+			StreamReader sreader = _reader as StreamReader;
+			if (null != sreader)
+			{
+				sreader.BaseStream.Position = 0;
+				sreader.DiscardBufferedData();
+			}
+			else
+			{
+				throw new NotSupportedException();
+			}
+		}
+		
+		public bool MoveNext()
+		{
+			_currentLine = _reader.ReadLine();
+			return _currentLine != null;
+		}
+		
+		public object Current
+		{
+			get
+			{
+				return _currentLine;
+			}
+		}
+	}
+}

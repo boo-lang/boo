@@ -31,6 +31,7 @@ namespace Boo.Tests.Lang
 import NUnit.Framework
 import System
 import System.Globalization
+import Boo.Lang.Runtime
 
 [TestFixture]
 class RuntimeServicesTestFixture:

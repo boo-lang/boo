@@ -191,7 +191,7 @@ namespace Boo.Lang.Compiler.Steps
 			MultiDimensionalArray_TypedConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));
 			ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
 			Activator_CreateInstance = TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
-			TextReaderEnumerator_Constructor = TypeSystemServices.Map(typeof(Boo.IO.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
+			TextReaderEnumerator_Constructor = TypeSystemServices.Map(typeof(Boo.Lang.Runtime.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
 			EnumeratorItemType_Constructor = TypeSystemServices.Map(typeof(Boo.Lang.EnumeratorItemTypeAttribute)).GetConstructors()[0];
 			
 			Type delegateType = Types.Delegate;

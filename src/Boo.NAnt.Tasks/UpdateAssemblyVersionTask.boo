@@ -34,7 +34,6 @@ import System.Text.RegularExpressions
 import NAnt.Core
 import NAnt.Core.Attributes
 import NAnt.Core.Types
-import Boo.IO
 
 [TaskName("updateAssemblyVersion")]
 class UpdateAssemblyVersionTask(Task):
@@ -43,6 +42,8 @@ class UpdateAssemblyVersionTask(Task):
 	
 	_version as string
 	
+	_copyright as string
+	
 	[BuildElementArray("fileset", Required: true)]
 	FileSets:
 		get:
@@ -50,12 +51,19 @@ class UpdateAssemblyVersionTask(Task):
 		set:
 			_fileSets = value
 			
-	[TaskAttribute("version", Required: true)]
+	[TaskAttribute("version", Required: false)]
 	Version:
 		get:
 			return _version
 		set:
 			_version = value
+			
+	[TaskAttribute("copyright", Required: false)]
+	Copyright:
+		get:
+			return _copyright
+		set:
+			_copyright = value
 			
 	override def ExecuteTask():
 		for fileSet in _fileSets:
@@ -63,12 +71,20 @@ class UpdateAssemblyVersionTask(Task):
 				Update(fname)
 		
 	def Update(fname as string):
-		contents = TextFile.ReadFile(fname)
-		newContents = /AssemblyVersion\((.+)\)/.Replace(contents) do (m as Match):
-			return m.Groups[0].Value.Replace(m.Groups[1].Value, "\"${_version}\"")
+		if _version is null and _copyright is null:
+			raise BuildException(
+					"At least one of the attributes 'copyright' or 'version' must be set",
+					self.Location)
+		contents = read(fname)
+		if _version is not null:
+			newContents = /AssemblyVersion\((.+)\)/.Replace(contents) do (m as Match):
+				return m.Groups[0].Value.Replace(m.Groups[1].Value, "\"${_version}\"")
+		if _copyright is not null:
+			newContents = /AssemblyCopyright\((.+)\)/.Replace(contents) do (m as Match):
+				return m.Groups[0].Value.Replace(m.Groups[1].Value, "\"${_copyright}\"")
 		if newContents != contents:
 			print(fname)
-			TextFile.WriteFile(fname, newContents)
+			write(fname, newContents)
 			
 	def print(message):
 		self.Log(Level.Info, "${message}")

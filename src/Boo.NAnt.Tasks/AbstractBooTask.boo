@@ -29,6 +29,7 @@
 namespace Boo.NAnt
 
 import System
+import System.Text
 import System.Diagnostics
 import System.IO
 import NAnt.Core
@@ -127,3 +128,12 @@ abstract class AbstractBooTask(Task):
 		
 	def LogError(message):
 		self.Log(Level.Error, "${message}")
+		
+def read(fname as string):
+	using reader=File.OpenText(fname):
+		return reader.ReadToEnd()
+	
+def write(fname as string, contents as string):
+	using writer=StreamWriter(fname, false, System.Text.Encoding.UTF8):
+		writer.Write(contents)
+

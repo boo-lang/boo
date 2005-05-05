@@ -28,7 +28,7 @@
 
 import System
 import System.IO
-import Boo.IO
+import Boo.Lang.Useful.IO from Boo.Lang.Useful
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast

@@ -65,7 +65,7 @@ class BooBindingCompilerManager:
 		cr as CompilerResults = null
 		
 		booDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
-		booLib = Path.Combine(booDir, "Boo.dll")
+		booLib = Path.Combine(booDir, "Boo.Lang.dll")
 		if not File.Exists(booLib):
 			messageService.ShowError(_booLibNotFound)
 			return MakeError(_booLibNotFound)

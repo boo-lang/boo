@@ -37,7 +37,6 @@ import System.IO
 import NAnt.Core
 import NAnt.Core.Attributes
 import NAnt.Core.Types
-import Boo.IO
 
 [TaskName("insertLicense")]
 class InsertLicenseTask(Task):
@@ -61,14 +60,14 @@ class InsertLicenseTask(Task):
 			_license = value
 			
 	override def ExecuteTask():
-		licenseText = TextFile.ReadFile(_license.FullName)
+		licenseText = read(_license.FullName)
 		for fileSet in _fileSets:
 			for fname in fileSet.FileNames:		
 				InsertLicense(fname, licenseText) if GetFirstLine(fname) != "#region license"
 		
 	def InsertLicense(fname as string, license as string):
 		print(fname)
-		contents = TextFile.ReadFile(fname)
+		contents = read(fname)
 		using writer=StreamWriter(fname, false, System.Text.Encoding.UTF8):
 			writer.WriteLine(license)
 			writer.WriteLine()

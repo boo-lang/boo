@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.5.4" />
-	<property name="boo.svn.revision" value="1560" />
+	<property name="boo.svn.revision" value="1564" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="true" />
 	
 	<property name="debug" value="true" />
@@ -36,7 +36,7 @@
 
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig">	
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.Useful">	
 	</target>
 	
 	<target name="test" depends="all">
@@ -189,6 +189,7 @@
 			<fileset basedir="build">
 				<include name="pt/Boo.Lang.resources.dll" />
 				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Useful.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
@@ -200,6 +201,15 @@
 				<include name="booish.exe" />	
 			</fileset>
 		</copy>
+	</target>
+	
+	<target name="Boo.Lang.Useful" depends="Boo.NAnt.Tasks">
+		<booc target="library"
+			output="build/Boo.Lang.Useful.dll">
+			<sources basedir="src/Boo.Lang.Useful">
+				<include name="**/*.boo" />
+			</sources>
+		</booc>
 	</target>
 	
 	<target name="Boo.Lang.CodeDom" depends="Boo.Lang.Compiler">
@@ -700,13 +710,14 @@
 		</if>
 	</target>
 	
-	<target name="update-svn-revision-number" depends="SVNUtil">
+	<target name="update-svn-revision-number" depends="SVNUtil, Boo.Lang.Useful">
 	    <boo>
 			<references basedir="build">
 				<include name="SVNUtil.dll" />
+				<include name="Boo.Lang.Useful.dll" />
 			</references>
 			
-			import Boo.IO.TextFile
+			import Useful.IO.TextFile
 			
 			output = svn("info")
 			revision = /Revision:\s+(\d+)/.Match(output).Groups[1].Value
@@ -721,14 +732,27 @@
 		</boo>
 	</target>
 	
-	<target name="update-version-number" depends="Boo.NAnt.Tasks, update-svn-revision-number">
-    	<updateAssemblyVersion version="${boo.version}">
+	<target name="update-assembly-attributes" depends="Boo.NAnt.Tasks, update-svn-revision-number">
+    	<updateAssemblyVersion
+			version="${boo.version}">
 			<fileset basedir="src">
 				<include name="**/AssemblyInfo.cs" />
 				<include name="**/AssemblyInfo.boo" />
 			</fileset>
 			<fileset basedir="extras">
 				<include name="**/AssemblyInfo.boo" />
+			</fileset>
+		</updateAssemblyVersion>
+		
+		<updateAssemblyVersion
+			copyright="(C) 2003-2005 Rodrigo Barreto de Oliveira">
+			<fileset basedir="src">
+				<include name="**/AssemblyInfo.cs" />
+				<include name="**/AssemblyInfo.boo" />
+			</fileset>
+			<fileset basedir="extras">
+				<include name="**/AssemblyInfo.boo" />
+				<exclude name="SharpDevelop/**/*.*" />
 			</fileset>
 		</updateAssemblyVersion>
 	</target>

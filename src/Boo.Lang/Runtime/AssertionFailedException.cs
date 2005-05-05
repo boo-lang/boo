@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,58 +27,27 @@
 #endregion
 
 using System;
-using System.IO;
-using Boo.Lang;
+using System.Runtime.Serialization;
 
-namespace Boo.IO
+namespace Boo.Lang.Runtime
 {
-	[EnumeratorItemType(typeof(string))]
-	public class TextReaderEnumerator : System.Collections.IEnumerator, System.Collections.IEnumerable
+	/// <summary>
+	/// Raised when an assertion fails.
+	/// The AssertMacro injects code to raise this exception if the provided
+	/// condition evaluates to false.
+	/// </summary>
+	[Serializable]
+	public class AssertionFailedException : RuntimeException
 	{
-		TextReader _reader;
-		
-		string _currentLine;
-		
-		public TextReaderEnumerator(TextReader reader)
+		public AssertionFailedException(string message) : base(message)
 		{
-			if (null == reader)
-			{
-				throw new ArgumentNullException("reader");
-			}
-			_reader = reader;
 		}
 		
-		public System.Collections.IEnumerator GetEnumerator()
+		protected AssertionFailedException(
+			SerializationInfo si, StreamingContext sc) : base(si, sc)
 		{
-			return this;
-		}
-		
-		public void Reset()
-		{
-			StreamReader sreader = _reader as StreamReader;
-			if (null != sreader)
-			{
-				sreader.BaseStream.Position = 0;
-				sreader.DiscardBufferedData();
-			}
-			else
-			{
-				throw new NotSupportedException();
-			}
-		}
-		
-		public bool MoveNext()
-		{
-			_currentLine = _reader.ReadLine();
-			return _currentLine != null;
-		}
-		
-		public object Current
-		{
-			get
-			{
-				return _currentLine;
-			}
 		}
 	}
 }
+
+

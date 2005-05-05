@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Steps
 		override protected void InitializeMemberCache()
 		{
 			base.InitializeMemberCache();
-			_runtimeServices = TypeSystemServices.Map(typeof(Boo.Lang.RuntimeServices));
+			_runtimeServices = TypeSystemServices.Map(typeof(Boo.Lang.Runtime.RuntimeServices));
 			RuntimeServices_Invoke = ResolveMethod(_runtimeServices, "Invoke");
 			RuntimeServices_InvokeCallable = ResolveMethod(_runtimeServices, "InvokeCallable");
 			RuntimeServices_InvokeBinaryOperator = ResolveMethod(_runtimeServices, "InvokeBinaryOperator");

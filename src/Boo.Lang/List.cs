@@ -29,6 +29,7 @@
 using System;
 using System.Collections;
 using System.Text;
+using Boo.Lang.Runtime;
 
 namespace Boo.Lang
 {

@@ -69,6 +69,20 @@
 		
 		<booc
 			target="library"
+			output="build/Boo.Lang.Useful.Tests.dll">
+
+			<sources basedir="Boo.Lang.Useful.Tests">
+				<include name="**/*.boo" />
+			</sources>
+
+			<references>
+				<include name="${nunit.framework.dll}" />
+				<include name="Boo.Lang.Useful.dll" />
+			</references>
+		</booc>
+		
+		<booc
+			target="library"
 			output="build/Boo.Lang.Compiler.Tests.dll">
 			
 			<sources basedir="Boo.Lang.Compiler.Tests">

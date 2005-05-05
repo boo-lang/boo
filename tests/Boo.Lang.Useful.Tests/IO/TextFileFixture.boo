@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,17 +26,35 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System.Reflection
-import System.Runtime.CompilerServices
+namespace Boo.Lang.Tests
 
-[assembly: AssemblyTitle("Boo Language Interpreter Library")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.4.1564")]
-[assembly: AssemblyKeyFile("../src/boo.snk")]
+import NUnit.Framework
+import System.IO
+import System.Text
+import Boo.Lang.Useful.IO
 
+[TestFixture]
+class TextFileFixture:
+	
+	[Test]
+	def TestReadFile():
+		
+		fname = WriteTempFile("cabeÃ§Ã£o", Encoding.Default)		
+		Assert.AreEqual("cabeÃ§Ã£o", TextFile.ReadFile(fname))
+		
+		fname = WriteTempFile("cabeÃ§Ã£o", Encoding.UTF8)
+		Assert.AreEqual("cabeÃ§Ã£o", TextFile.ReadFile(fname))		
+	
+	[Test]
+	def TestWriteFile():
+		TextFile.WriteFile(fname=Path.GetTempFileName(), "zuÃ§aqÃ¼istÃ£o")
+		Assert.AreEqual("zuÃ§aqÃ¼istÃ£o", ReadUTF8File(fname))
+		
+	def ReadUTF8File(fname as string):
+		using reader=File.OpenText(fname):
+			return reader.ReadToEnd()
+			
+	def WriteTempFile(content as string, encoding as Encoding) as string:
+		using writer=StreamWriter(File.OpenWrite(fname=Path.GetTempFileName()), encoding):
+			writer.Write(content)
+			return fname

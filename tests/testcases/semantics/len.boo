@@ -10,7 +10,7 @@ public final transient class LenModule(System.Object):
 		Boo.Lang.Builtins.print(l.get_Count())
 		Boo.Lang.Builtins.print(t.get_Length())
 		Boo.Lang.Builtins.print(s.get_Length())
-		Boo.Lang.Builtins.print(Boo.Lang.RuntimeServices.Len(o))
+		Boo.Lang.Builtins.print(Boo.Lang.Runtime.RuntimeServices.Len(o))
 
 	private def constructor():
 		super()

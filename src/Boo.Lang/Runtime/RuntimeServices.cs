@@ -34,7 +34,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Boo.Lang
+namespace Boo.Lang.Runtime
 {
 	public class RuntimeServices
 	{
@@ -651,7 +651,7 @@ namespace Boo.Lang
 				TextReader reader = enumerable as TextReader;
 				if (null != reader)
 				{
-					iterator = new Boo.IO.TextReaderEnumerator(reader);
+					iterator = new TextReaderEnumerator(reader);
 				}
 				else
 				{

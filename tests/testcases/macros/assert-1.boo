@@ -5,6 +5,7 @@ assert passed
 assert failed: msg 1
 """
 import BooCompiler.Tests from BooCompiler.Tests
+import Boo.Lang.Runtime
 
 
 x = true

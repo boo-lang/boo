@@ -26,7 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import Boo.IO
+import Boo.Lang.Useful.IO from Boo.Lang.Useful
 import System.IO
 		
 def RemoveNotice(fname, notice):
