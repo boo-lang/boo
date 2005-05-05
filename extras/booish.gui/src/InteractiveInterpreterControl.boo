@@ -166,7 +166,6 @@ class InteractiveInterpreterControl(TextEditorControl):
 								RememberLastValue: true,
 								Print: self.print)
 		self._interpreter.SetValue("cls", cls)
-		self._interpreter.SetValue("exec", exec)
 		self._lineHistory = LineHistory(CurrentLineChanged: _lineHistory_CurrentLineChanged)
 		self.Document.HighlightingStrategy = GetBooHighlighting()
 		self.EnableFolding =  false
@@ -345,9 +344,6 @@ class InteractiveInterpreterControl(TextEditorControl):
 		self.Document.TextContent = ""
 		self.ActiveTextAreaControl.Refresh()
 	
-	private def exec(scriptName as string):
-		_interpreter.Eval(Boo.IO.TextFile.ReadFile(scriptName))
-
 	private def _lineHistory_CurrentLineChanged():
 		segment = GetLastLineSegment()
 		self.Document.Replace(segment.Offset + 4,
