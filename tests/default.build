@@ -75,7 +75,7 @@
 				<include name="**/*.boo" />
 			</sources>
 
-			<references>
+			<references basedir="build">
 				<include name="${nunit.framework.dll}" />
 				<include name="Boo.Lang.Useful.dll" />
 			</references>
