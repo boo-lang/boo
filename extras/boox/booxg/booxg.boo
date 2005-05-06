@@ -21,7 +21,7 @@
 
 import System
 import System.IO
-import Boo.IO
+import Boo.Lang.Useful.IO
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Ast

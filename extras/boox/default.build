@@ -14,8 +14,13 @@
 			<sources basedir="booxg">
 				<include name="*.boo" />
 			</sources>
-			<references>
-				<include name="build/BooExplorer.Common.dll" />
+			<references basedir="build">
+				<include name="BooExplorer.Common.dll" />
+				<include name="gtk-sharp.dll" />
+				<include name="gdk-sharp.dll" />
+				<include name="gtksourceview-sharp.dll" />
+				<include name="Boo.Lang.Useful.dll" />
+				<include name="Boo.Lang.Interpreter.dll" />
 			</references>
 		</booc>
 	</target>
@@ -49,6 +54,7 @@
 		<copy todir="build">
 			<fileset basedir="${boo.dir}">
 				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Useful.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
