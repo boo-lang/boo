@@ -43,7 +43,7 @@ namespace Boo.Lang.Parser
 		{
 		}
 
-		public BooToken(antlr.Token original, int type, string text)
+		public BooToken(antlr.IToken original, int type, string text)
 		{
 			setType(type);
 			setText(text);
@@ -72,7 +72,7 @@ namespace Boo.Lang.Parser
 				}
 			}
 			
-			override public antlr.Token Create()
+			override public antlr.IToken Create()
 			{
 				return new BooToken();
 			}

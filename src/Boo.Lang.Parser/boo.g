@@ -46,28 +46,12 @@ options
 	defaultErrorHandler = true;
 }
 tokens
-{
-	TIMESPAN; // timespan literal
-	DOUBLE; // real literal
-	LONG; // long literal
-	ESEPARATOR; // expression separator (imaginary token)	
+{	
 	INDENT;
 	DEDENT;
-	COMPILATION_UNIT;
-	PARAMETERS;
-	PARAMETER;
 	ELIST; // expression list
 	DLIST; // declaration list
-	TYPE;
-	CALL;
-	STMT;
-	BLOCK;
-	FIELD;
-	MODIFIERS;
-	MODULE;
-	LITERAL;
-	LIST_LITERAL;
-	UNPACKING;
+	ESEPARATOR; // expression separator (imaginary token)
 	ABSTRACT="abstract";
 	AND="and";
 	AS="as";		
@@ -150,14 +134,14 @@ tokens
 		_attributes.Clear();
 	}
 
-	protected LexicalInfo ToLexicalInfo(antlr.Token token)
+	protected LexicalInfo ToLexicalInfo(antlr.IToken token)
 	{
 		return new LexicalInfo(token.getFilename(),
 								token.getLine(),
 								token.getColumn());
 	}
 	
-	protected SourceLocation ToSourceLocation(antlr.Token token)
+	protected SourceLocation ToSourceLocation(antlr.IToken token)
 	{
 		return new SourceLocation(token.getLine(), token.getColumn()+token.getText().Length-1);
 	}
@@ -265,7 +249,7 @@ tokens
 	}
 	
 	protected IntegerLiteralExpression ParseIntegerLiteralExpression(
-		antlr.Token token, string s, bool isLong)
+		antlr.IToken token, string s, bool isLong)
 	{
 		const string HEX_PREFIX = "0x";
 		
@@ -317,7 +301,7 @@ eos : (options { greedy = true; }: EOS)+;
 protected
 import_directive[Module container]
 	{
-		Token id;
+		IToken id;
 		Import usingNode = null;
 	}: 
 	IMPORT id=identifier
@@ -351,7 +335,7 @@ import_directive[Module container]
 protected
 namespace_directive[Module container]
 	{
-		Token id;
+		IToken id;
 		NamespaceDeclaration p = null;
 	}:
 	t:NAMESPACE id=identifier
@@ -468,7 +452,7 @@ attributes
 protected
 attribute
 	{		
-		antlr.Token id = null;
+		antlr.IToken id = null;
 		Boo.Lang.Compiler.Ast.Attribute attr = null;
 	}:	
 	id=identifier
@@ -486,7 +470,7 @@ attribute
 protected
 assembly_attribute[Module module]
 	{
-		antlr.Token id = null;
+		antlr.IToken id = null;
 		Boo.Lang.Compiler.Ast.Attribute attr = null;
 	}:
 	ASSEMBLY_ATTRIBUTE_BEGIN
@@ -830,7 +814,7 @@ protected
 parameter_declaration[ParameterDeclarationCollection c]
 	returns [bool variableArguments]
 	{		
-		Token id = null;
+		IToken id = null;
 		TypeReference tr = null;
 		variableArguments = false;
 	}: 
@@ -896,7 +880,7 @@ protected
 type_reference returns [TypeReference tr]
 	{
 		tr=null;
-		Token id = null;
+		IToken id = null;
 	}: 
 	tr=array_type_reference
 	|
@@ -913,7 +897,7 @@ type_reference returns [TypeReference tr]
 	;
 	
 protected
-type_name returns [Token id]
+type_name returns [IToken id]
 	{
 		id = null;
 	}:
@@ -1055,7 +1039,7 @@ stmt_modifier returns [StatementModifier m]
 	{
 		m = null;
 		Expression e = null;
-		Token t = null;
+		IToken t = null;
 		StatementModifierType type = StatementModifierType.Uninitialized;
 	}:
 	(
@@ -1143,7 +1127,7 @@ callable_expression returns [Expression e]
 		e = null;
 		CallableBlockExpression cbe = null;
 		TypeReference rt = null;
-		Token anchor = null;
+		IToken anchor = null;
 	}:
 	(
 		(doAnchor:DO { anchor = doAnchor; }) |
@@ -1705,7 +1689,7 @@ conditional_expression returns [Expression e]
 		e = null;		
 		Expression r = null;
 		BinaryOperatorType op = BinaryOperatorType.None;
-		Token token = null;
+		IToken token = null;
 		TypeReference tr = null;
 	}:
 	e=sum
@@ -1755,7 +1739,7 @@ sum returns [Expression e]
 	{
 		e = null;
 		Expression r = null;
-		Token op = null;
+		IToken op = null;
 		BinaryOperatorType bOperator = BinaryOperatorType.None;
 	}:
 	e=term
@@ -1782,7 +1766,7 @@ term returns [Expression e]
 	{
 		e = null;
 		Expression r = null;
-		Token token = null;
+		IToken token = null;
 		BinaryOperatorType op = BinaryOperatorType.None; 
 	}:
 	e=exponentiation
@@ -1829,7 +1813,7 @@ protected
 unary_expression returns [Expression e]
 	{
 			e = null;
-			Token op = null;
+			IToken op = null;
 			UnaryOperatorType uOperator = UnaryOperatorType.None;
 	}: 
 	(
@@ -1946,7 +1930,7 @@ method_invocation_with_block returns [Statement s]
 	;
 	
 protected
-member returns [Token name]
+member returns [IToken name]
 	{
 		name = null;
 	}:
@@ -2005,7 +1989,7 @@ slicing_expression returns [Expression e]
 		e = null;
 		SlicingExpression se = null;
 		MethodInvocationExpression mce = null;
-		Token memberName = null;
+		IToken memberName = null;
 	} :
 	e=atom
 	( options { greedy=true; }:
@@ -2276,7 +2260,7 @@ argument[INodeWithArguments node]
 	;
 
 protected
-identifier returns [Token value]
+identifier returns [IToken value]
 	{
 		value = null; _sbuilder.Length = 0;
 	}:
@@ -2310,8 +2294,6 @@ options
 {
 	protected int _skipWhitespaceRegion = 0;
 	
-	BooExpressionLexer _el;
-	
 	TokenStreamRecorder _erecorder;
 	
 	antlr.TokenStreamSelector _selector;
@@ -2322,12 +2304,15 @@ options
 		setTokenCreator(tokenCreator);
 		
 		_selector = selector;
-		_el = new BooExpressionLexer(getInputState());
-		_el.setTabSize(tabSize);
-		_el.setTokenCreator(tokenCreator);
-		
 		_erecorder = new TokenStreamRecorder(selector);
-		
+	}
+	
+	internal antlr.TokenStream CreateExpressionLexer()
+	{
+		BooExpressionLexer lexer = new BooExpressionLexer(getInputState());
+		lexer.setTabSize(getTabSize());
+		lexer.setTokenCreator(tokenCreator);
+		return lexer;
 	}
 
 	internal static bool IsDigit(char ch)
@@ -2343,7 +2328,7 @@ options
 		}
 	}
 
-	void Enqueue(antlr.Token token, string text)
+	void Enqueue(antlr.IToken token, string text)
 	{
 		token.setText(text);
 		_erecorder.Enqueue(makeESEPARATOR());
@@ -2351,7 +2336,7 @@ options
 		_erecorder.Enqueue(makeESEPARATOR());
 	}
 	
-	antlr.Token makeESEPARATOR()
+	antlr.IToken makeESEPARATOR()
 	{
 		return makeToken(ESEPARATOR);
 	}
@@ -2493,7 +2478,6 @@ DOUBLE_QUOTED_STRING:
 		if (_erecorder.Count > 0)
 		{
 			Enqueue(makeToken(DOUBLE_QUOTED_STRING), $getText);
-
 			$setType(ESEPARATOR);
 			$setText("");			
 			_selector.push(_erecorder);
@@ -2560,9 +2544,9 @@ NEWLINE:
 		
 protected
 ESCAPED_EXPRESSION : "${"!
-	{		
+	{			
 		_erecorder.Enqueue(makeESEPARATOR());
-		if (0 == _erecorder.RecordUntil(_el, RBRACE, LBRACE))
+		if (0 == _erecorder.RecordUntil(CreateExpressionLexer(), RBRACE, LBRACE))
 		{	
 			_erecorder.Dequeue();			
 		}
@@ -2570,8 +2554,8 @@ ESCAPED_EXPRESSION : "${"!
 		{
 			_erecorder.Enqueue(makeESEPARATOR());
 		}
-		$setText("");
-	}
+		refresh();
+	} 
 	;
 
 protected

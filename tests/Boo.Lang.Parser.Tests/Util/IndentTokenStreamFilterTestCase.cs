@@ -43,17 +43,17 @@ namespace Boo.Lang.Parser.Tests.Util
 			_tokens = tokens;
 		}
 
-		public antlr.Token nextToken()
+		public antlr.IToken nextToken()
 		{
 			if (_tokens.Count > 0)
 			{
-				return _tokens.Dequeue() as antlr.Token;
+				return _tokens.Dequeue() as antlr.IToken;
 			}
 			return null;
 		}
 	}
 	
-		public class SimpleToken : antlr.Token
+	public class SimpleToken : antlr.Token
 	{
 		protected string _buffer;
 

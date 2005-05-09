@@ -53,7 +53,7 @@ lexer as antlr.TokenStream
 if "/r" in argv: 
 	lexer = CreateRawLexer("stdin", reader)
 else:
-	lexer = BooParser.CreateBooLexer("stdin", reader)
+	lexer = BooParser.CreateBooLexer(1, "stdin", reader)
 while token=lexer.nextToken():
 	break if token.Type == Token.EOF_TYPE
 	print(token)

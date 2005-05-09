@@ -77,7 +77,7 @@ namespace Boo.Lang.Parser.Util
 		/// <summary>
 		/// last non whitespace token for accurate location information
 		/// </summary>
-		protected antlr.Token _lastNonWsToken;
+		protected antlr.IToken _lastNonWsToken;
 		
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
@@ -107,20 +107,20 @@ namespace Boo.Lang.Parser.Util
 			}
 		}
 
-		public antlr.Token nextToken()
+		public antlr.IToken nextToken()
 		{
 			if (0 == _pendingTokens.Count)
 			{
 				ProcessNextTokens();
 			}
-			return (antlr.Token)_pendingTokens.Dequeue();
+			return (antlr.IToken)_pendingTokens.Dequeue();
 		}
 		
 		void ProcessNextTokens()
 		{		
 			_buffer.Length = 0;
 				
-			antlr.Token token = null;
+			antlr.IToken token = null;
 			while (true)
 			{	
 				token = _istream.nextToken();
@@ -184,12 +184,12 @@ namespace Boo.Lang.Parser.Util
 			Enqueue(token);
 		}
 		
-		void Enqueue(antlr.Token token)
+		void Enqueue(antlr.IToken token)
 		{
 			_pendingTokens.Enqueue(token);
 		}
 
-		void EnqueueIndent(antlr.Token originalToken)
+		void EnqueueIndent(antlr.IToken originalToken)
 		{
 			_pendingTokens.Enqueue(CreateToken(originalToken, _indentTokenType, "<INDENT>"));
 		}
@@ -199,12 +199,12 @@ namespace Boo.Lang.Parser.Util
 			_pendingTokens.Enqueue(CreateToken(_lastNonWsToken, _dedentTokenType, "<DEDENT>"));
 		}		
 
-		void EnqueueEOS(antlr.Token originalToken)
+		void EnqueueEOS(antlr.IToken originalToken)
 		{
 			_pendingTokens.Enqueue(CreateToken(originalToken, _eosTokenType, "<EOS>"));
 		}
 
-		antlr.Token CreateToken(antlr.Token originalToken, int newTokenType, string newTokenText)
+		antlr.IToken CreateToken(antlr.IToken originalToken, int newTokenType, string newTokenText)
 		{
 			return new BooToken(originalToken, newTokenType, newTokenText);
 		}

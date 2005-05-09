@@ -8,10 +8,8 @@
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 
-	<property name="antlr.home" value="lib/antlr-2.7.4" />
-	<property name="java" value="java" />
-	
-	<property name="antlr.jar" value="${antlr.home}/antlr.jar" />	
+	<property name="antlr.jar" value="lib/antlr-2.7.5.jar" />
+	<property name="java" value="java" />	
 	<property name="NAnt.Core.dll" value="${nant.location}/NAnt.Core.dll" />
 	
 	<property name="ngen.exe" value="${nant.settings.currentframework.frameworkdirectory}/ngen.exe" />
@@ -665,9 +663,9 @@
 				</fileset>
 			</delete>			 
 			
-			<exec program="${java}" failonerror="true">				
+			<exec program="${java}" failonerror="true">
 				<arg value="-cp" />
-				<arg value="${antlr.jar}" />
+				<arg file="${antlr.jar}" />
 				<arg value="antlr.Tool" />
 				<!-- <arg value="-traceParser" /> -->
 				<arg value="-o" />
@@ -677,7 +675,7 @@
 			
 			<exec program="${java}" failonerror="true">
 				<arg value="-cp" />
-				<arg value="${antlr.jar}" />
+				<arg file="${antlr.jar}" />
 				<arg value="antlr.Tool" />
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Parser/" />

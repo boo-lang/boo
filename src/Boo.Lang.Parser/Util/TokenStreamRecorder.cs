@@ -53,27 +53,31 @@ namespace Boo.Lang.Parser.Util
 			}
 		}
 	
-		public void Enqueue(Token token)
+		public void Enqueue(IToken token)
 		{
+			//Console.WriteLine("Enqueue({0})", token);
 			_queue.Enqueue(token);
 		}
 		
-		public Token Dequeue()
+		public IToken Dequeue()
 		{
-			 return (Token)_queue.Dequeue();
+			 return (IToken)_queue.Dequeue();
 		}
 	
 		public int RecordUntil(TokenStream stream, int closeToken, int openToken)
 		{
+			//Console.WriteLine("RecordUntil({0}, {1}, {2})", stream, closeToken, openToken);
 			int cTokens = 0;
 			
 			int expectedCount = 1;
-			Token token = stream.nextToken();
+			IToken token = stream.nextToken();
 			while (true)
 			{			
 				if (closeToken == token.Type)
 				{
 					--expectedCount;
+					
+					//Console.WriteLine("closeToken found. expecting: " + expectedCount);
 					if (0 == expectedCount)
 					{
 						break;
@@ -82,9 +86,11 @@ namespace Boo.Lang.Parser.Util
 				else if (openToken == token.Type)
 				{
 					++expectedCount;
+					//Console.WriteLine("openToken found. expecting: " + expectedCount);
 				}
 				else if (token.Type < Token.MIN_USER_TYPE)
 				{
+					//Console.WriteLine("found {0} which is < Token.MIN_USER_TYPE", token.Type);
 					break;
 				}
 				
@@ -92,10 +98,11 @@ namespace Boo.Lang.Parser.Util
 				++cTokens;			
 				token = stream.nextToken();			
 			}			
+			//Console.WriteLine("RecordUntil() => {0}", cTokens);
 			return cTokens;
 		}
 	
-		public Token nextToken()
+		public IToken nextToken()
 		{
 			if (_queue.Count > 0)
 			{
