@@ -66,6 +66,29 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			_parameters.Add(node);
 		}
+
+		override public void OnDestructor (Destructor node)
+		{
+			Method finalizer = CodeBuilder.CreateMethod(
+								  "Finalize",
+								  TypeSystemServices.VoidType,
+								  TypeMemberModifiers.Protected | TypeMemberModifiers.Override);
+			finalizer.LexicalInfo = node.LexicalInfo;
+
+			MethodInvocationExpression mie = new MethodInvocationExpression (new SuperLiteralExpression());
+
+			Block bodyNew = new Block();
+			Block ensureBlock = new Block();
+			ensureBlock.Add (mie);
+
+			TryStatement tryStatement = new TryStatement(new Block(), ensureBlock);
+			tryStatement.ProtectedBlock = node.Body;
+
+			bodyNew.Add(tryStatement);
+			finalizer.Body = bodyNew;
+
+			node.ParentNode.Replace(node, finalizer);
+		}
 		
 		override public void OnField(Field node)
 		{

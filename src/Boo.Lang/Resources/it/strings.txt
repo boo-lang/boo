@@ -109,6 +109,8 @@ BCE0107=un value type non possono dichiarare costruttori senza parametri.
 BCE0108=un value type non puo' avere inizializzatori per i prorpi campi.
 BCE0109=Array '{0}' is rank '{1}', not rank '{2}'.
 BCE0110='{0}' is not a namespace.
+BCE0111=Destructors cannot have any attributes or modifiers
+BCE0112=Destructors cannot be passed parameters
 
 ;Compiler warnings
 BCW0001=WARNING: Il tipo '{0}' non fornisce una implementazione per '{1}' e' verra' marcato come abstract

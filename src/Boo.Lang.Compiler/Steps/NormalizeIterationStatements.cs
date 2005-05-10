@@ -72,6 +72,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			OnMethod(node);
 		}
+
+		override public void OnDestructor(Destructor node)
+		{
+			OnMethod(node);
+		}
 		
 		override public void OnCallableBlockExpression(CallableBlockExpression node)
 		{

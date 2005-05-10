@@ -142,6 +142,9 @@ class Method(CallableDefinition):
 class Constructor(Method):
 	pass
 
+class Destructor(Method):
+	pass
+
 class ParameterDeclaration(Node, INodeWithAttributes):
 	Name as string
 	Type as TypeReference

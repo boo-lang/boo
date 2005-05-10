@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			_typeSystemServices = typeSystemServices;
 			_method = method;
-			if (method.NodeType != NodeType.Constructor)
+			if (method.NodeType != NodeType.Constructor && method.NodeType != NodeType.Destructor)
 			{
 				if (null == _method.ReturnType)
 				{

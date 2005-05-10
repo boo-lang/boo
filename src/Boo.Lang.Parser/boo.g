@@ -62,6 +62,7 @@ tokens
 	CLASS="class";
 	CONSTRUCTOR="constructor";	
 	DEF="def";
+	DESTRUCTOR="destructor";
 	DO="do";	
 	ELIF="elif";
 	ELSE="else";
@@ -658,7 +659,8 @@ method [TypeMemberCollection container]
 	t:DEF
 	(
 		id:ID { m = new Method(ToLexicalInfo(id)); m.Name = id.getText(); } |
-		c:CONSTRUCTOR { m = new Constructor(ToLexicalInfo(c)); }
+		c:CONSTRUCTOR { m = new Constructor(ToLexicalInfo(c)); } |
+		d:DESTRUCTOR { m = new Destructor(ToLexicalInfo(d)); }
 	)	
 	{
 		m.Modifiers = _modifiers;

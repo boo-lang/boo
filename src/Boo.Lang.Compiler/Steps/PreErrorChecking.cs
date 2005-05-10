@@ -88,6 +88,20 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			NotImplemented(node, "given");
 		}
+
+		override public void LeaveDestructor(Destructor node)
+		{
+			if (node.Modifiers != TypeMemberModifiers.None)
+			{
+				Error(CompilerErrorFactory.InvalidDestructorModifier(node));
+			}
+
+			if (node.Parameters.Count != 0)
+			{
+				Error(CompilerErrorFactory.CantHaveDestructorParameters(node));
+			}
+		}
+
 		
 		void CantBeMarkedAbstract(TypeMember member)
 		{

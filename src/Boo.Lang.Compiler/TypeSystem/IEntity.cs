@@ -261,4 +261,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public interface IConstructor : IMethod
 	{		
 	}
+
+	public interface IDestructor : IMethod
+	{		
+	}
 }

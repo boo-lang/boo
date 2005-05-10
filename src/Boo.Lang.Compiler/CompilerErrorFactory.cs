@@ -580,6 +580,16 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0110", node.LexicalInfo, name);
 		}
+
+		public static CompilerError InvalidDestructorModifier(Node node)
+		{
+			return new CompilerError("BCE0111", node.LexicalInfo);
+		}
+		
+		public static CompilerError CantHaveDestructorParameters(Node node)
+		{
+			return new CompilerError("BCE0112", node.LexicalInfo);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
