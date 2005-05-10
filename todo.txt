@@ -6,7 +6,11 @@ for open issues.
 
 All the issues on this file will be eventually moved there.
 
-* treat duck as callable
+* optimize InitializeNameResolution step and NameResolutionService
+	* NamespaceEntity.IsModule(Type)
+	* NamespaceEntity.Add(Type)
+	* NamespaceEntity.GetChildNamespace(string)
+	* OrganizeAssemblyTypes(Assembly)
 
 * split RuntimeServices
 
