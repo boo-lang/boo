@@ -32,6 +32,7 @@ using Boo.Lang.Compiler.Ast.Impl;
 namespace Boo.Lang.Compiler.Ast
 {	
 	[System.Xml.Serialization.XmlInclude(typeof(Constructor))]
+	[System.Xml.Serialization.XmlInclude(typeof(Destructor))]
 	[Serializable]
 	public class Method : MethodImpl
 	{	

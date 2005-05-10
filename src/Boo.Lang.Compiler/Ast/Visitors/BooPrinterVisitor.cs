@@ -240,6 +240,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			OnMethod(c);
 		}
+
+		override public void OnDestructor(Destructor c)
+		{
+			OnMethod(c);
+		}
 		
 		bool IsSimpleClosure(CallableBlockExpression node)
 		{
