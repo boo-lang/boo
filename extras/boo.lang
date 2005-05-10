@@ -116,6 +116,9 @@ OR
 		<keyword>callable</keyword>
 		
 		<keyword>def</keyword>
+		<keyword>constructor</keyword>
+		<keyword>destructor</keyword>
+		
 		<keyword>do</keyword>
 		<keyword>get</keyword>
 		<keyword>set</keyword>

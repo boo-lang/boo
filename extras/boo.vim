@@ -45,7 +45,7 @@ syn keyword booStatement        self
 syn keyword booStatement        internal final private override static public protected
 syn keyword booStatement        yield
 syn keyword booStatement        enum
-syn keyword booStatement        def class nextgroup=booFunction skipwhite
+syn keyword booStatement        def class constructor destructor nextgroup=booFunction skipwhite
 syn keyword booStatement        def interface nextgroup=booFunction skipwhite
 syn keyword booStatement        def struct nextgroup=booFunction skipwhite
 syn keyword booStatement        namespace event delegate

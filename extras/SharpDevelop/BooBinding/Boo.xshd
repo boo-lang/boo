@@ -247,6 +247,7 @@
 
 			<KeyWords name="Methods" bold="true" italic="false" color="Blue" >
 				<Key word="constructor"/>
+				<Key word="destructor"/>
 				<Key word="def"/>
 				<Key word="include"/>
 				<Key word="event" />

@@ -106,6 +106,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit41.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD1>class</KEYWORD1>			
 			<KEYWORD1>const</KEYWORD1>
 			<KEYWORD1>constructor</KEYWORD1>
+			<KEYWORD1>destructor</KEYWORD1>
 			<KEYWORD1>continue</KEYWORD1>
 			<KEYWORD1>def</KEYWORD1>
 			<KEYWORD1>do</KEYWORD1>
