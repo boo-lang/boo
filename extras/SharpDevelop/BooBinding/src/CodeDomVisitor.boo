@@ -149,6 +149,9 @@ types."""
 	
 	def OnMethod(node as Method):
 		ConvertMethod(node, CodeMemberMethod(Name: node.Name))
+		
+	def OnDestructor(node as Destructor):
+		ConvertMethod(node, CodeMemberMethod(Name: "Finalize"))
 	
 	def ConvertMethod(node as Method, method as CodeMemberMethod):
 		method.Attributes = ConvModifiers(node)
