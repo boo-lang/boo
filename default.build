@@ -321,51 +321,24 @@
 			</fileset>
 		</copy>
 
-		<exec program="gacutil" useruntimeengine="false" workingdir="build">
-			<arg value="/i" />
-			<arg value="Boo.Lang.dll" />
-			<arg value="/package" />
-			<arg value="boo" />
-			<arg value="/root" />
-			<arg value="${fakeroot.libdir}" />
-		</exec>
-
-		<exec program="gacutil" useruntimeengine="false" workingdir="build">
-			<arg value="/i" />
-			<arg value="Boo.Lang.CodeDom.dll" />
-			<arg value="/package" />
-			<arg value="boo" />
-			<arg value="/root" />
-			<arg value="${fakeroot.libdir}" />
-		</exec>
-
-		<exec program="gacutil" useruntimeengine="false" workingdir="build">
-			<arg value="/i" />
-			<arg value="Boo.Lang.Compiler.dll" />
-			<arg value="/package" />
-			<arg value="boo" />
-			<arg value="/root" />
-			<arg value="${fakeroot.libdir}" />
-		</exec>
-
-		<exec program="gacutil" useruntimeengine="false" workingdir="build">
-			<arg value="/i" />
-			<arg value="Boo.Lang.Interpreter.dll" />
-			<arg value="/package" />
-			<arg value="boo" />
-			<arg value="/root" />
-			<arg value="${fakeroot.libdir}" />
-		</exec>
-
-		<exec program="gacutil" useruntimeengine="false" workingdir="build">
-			<arg value="/i" />
-			<arg value="Boo.Lang.Parser.dll" />
-			<arg value="/package" />
-			<arg value="boo" />
-			<arg value="/root" />
-			<arg value="${fakeroot.libdir}" />
-		</exec>
-
+		<foreach item="File" property="filename">
+		<in>
+			<items>
+				<include name="build/Boo.Lang*.dll" />
+			</items>
+		</in>
+		<do>
+			<exec program="gacutil" useruntimeengine="false" workingdir="build">
+				<arg value="/i" />
+				<arg value="${path::get-file-name(filename)}" />
+				<arg value="/package" />
+				<arg value="boo" />
+				<arg value="/root" />
+				<arg value="${fakeroot.libdir}" />
+			</exec>
+		</do>
+		</foreach>
+		
 		<copy todir="${fakeroot.boolib}/pt">
 			<fileset basedir="${build.dir}/pt">
 				<include name="*"/>
@@ -398,6 +371,45 @@
 
 	<target name="install-win32" depends="booc, booish, booi">
 		<echo message="Install target not yet supported under Windows"/>
+	</target>
+	
+	<target name="uninstall">
+		<call target="uninstall-linux" if="${not(platform::is-win32())}"/>
+	</target>
+
+	<target name="uninstall-linux">
+		<!--
+		Use pkg-config to find the proper locations for several
+		key files for mime detection, etc
+		-->
+
+		<property name="sharedmime.prefix" value="${pkg-config::get-variable('shared-mime-info','prefix')}" />
+		<property name="fakeroot.sharedmime" value="${install.destdir}/${sharedmime.prefix}" />
+		<property name="gsv.prefix" value="${pkg-config::get-variable('gtksourceview-1.0','prefix')}" />
+		<property name="fakeroot.gsv" value="${install.destdir}/${gsv.prefix}" />		
+		<foreach item="File" property="filename">
+		<in>
+			<items>
+				<include name="bin/Boo.Lang*.dll" />
+			</items>
+		</in>
+		<do>
+			<exec program="gacutil" useruntimeengine="false">
+				<arg value="/u" />
+				<arg value="${path::get-file-name-without-extension(filename)}" />
+				<arg value="/package" />
+				<arg value="boo" />
+			</exec>
+		</do>
+		</foreach>
+		
+		<delete dir="${fakeroot.boolib}" />
+		
+		<delete file="${fakeroot.sharedmime}/share/mime-info/boo.keys" />
+		<delete file="${fakeroot.sharedmime}/share/mime-info/boo.mime" />
+		<delete file="${fakeroot.gsv}/share/gtksourceview-1.0/language-specs/boo.lang" />
+		<delete file="${fakeroot.libdir}/pkgconfig/boo.pc" />
+		<delete file="${fakeroot.sharedmime}/share/mime/packages/boo-mime-info.xml" />
 	</target>
 	
 	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">
