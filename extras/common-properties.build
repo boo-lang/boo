@@ -21,10 +21,10 @@
 	<!-- full path to SharpDevelop's location -->
 	<property name="sharpdevelop.dir" value="/Fidalgo/SharpDevelop" />
 	
-	<property name="boo.dir" value="${path::get-full-path(path::combine(extras.dir, '../' + boo.profile))}" />
-	
 	<property name="build.properties" value="${path::get-full-path(path::combine(extras.dir, 'build.properties'))}" />	
 	<include buildfile="${build.properties}" if="${file::exists(build.properties)}" />
+	
+	<property name="boo.dir" value="${path::get-full-path(path::combine(extras.dir, '../' + boo.profile))}" />
 	
 	<fail unless="${directory::exists(sharpdevelop.dir) or not nant.platform.win32}">
 	Invalid SharpDevelop application directory!

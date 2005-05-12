@@ -386,7 +386,8 @@
 		<property name="sharedmime.prefix" value="${pkg-config::get-variable('shared-mime-info','prefix')}" />
 		<property name="fakeroot.sharedmime" value="${install.destdir}/${sharedmime.prefix}" />
 		<property name="gsv.prefix" value="${pkg-config::get-variable('gtksourceview-1.0','prefix')}" />
-		<property name="fakeroot.gsv" value="${install.destdir}/${gsv.prefix}" />		
+		<property name="fakeroot.gsv" value="${install.destdir}/${gsv.prefix}" />
+		
 		<foreach item="File" property="filename">
 		<in>
 			<items>
@@ -410,6 +411,9 @@
 		<delete file="${fakeroot.gsv}/share/gtksourceview-1.0/language-specs/boo.lang" />
 		<delete file="${fakeroot.libdir}/pkgconfig/boo.pc" />
 		<delete file="${fakeroot.sharedmime}/share/mime/packages/boo-mime-info.xml" />
+		<delete file="${fakeroot.bindir}/booi" />
+		<delete file="${fakeroot.bindir}/booc" />
+		<delete file="${fakeroot.bindir}/booish" />
 	</target>
 	
 	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">
