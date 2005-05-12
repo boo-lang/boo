@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -20,31 +20,75 @@
 #endregion
 
 import System
+import System.Resources
 import System.IO
 import Boo.Lang.Useful.IO
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Ast
-import Gdk as Gdk
 import Gtk
 import GtkSourceView
-import BooExplorer.Common
 
-class BooEditor(ScrolledWindow):
+class Resources:
+
+	static _manager = ResourceManager("BooExplorer", typeof(MainWindow).Assembly)
+	
+	class Icons:
+		public static final Class = LoadIcon("class")
+		public static final Method = LoadIcon("method")
+		public static final Field = LoadIcon("field")
+		public static final Event = LoadIcon("event")
+		public static final Property = LoadIcon("property")
+		
+		static def LoadIcon(name as string):
+			return Gdk.Pixbuf(cast((byte), _manager.GetObject(name)))
+
+class BooSourceView(SourceView):
 
 	static _booSourceLanguage = SourceLanguagesManager().GetLanguageFromMimeType("text/x-boo")
 	
-	[getter(Buffer)]
-	_buffer = SourceBuffer(_booSourceLanguage,
-							Highlight: true)
-							
-	_view = SourceView(_buffer,
-						ShowLineNumbers: true,
-						AutoIndent: true,
-						TabsWidth: 4)
+	[getter(SourceBuffer)]
+	_buffer as SourceBuffer
+	
+	def constructor():
+		super(_buffer = GtkSourceView.SourceBuffer(
+							_booSourceLanguage,
+							Highlight: true))
+		self.ShowLineNumbers = true
+		self.AutoIndent = false
+		self.TabsWidth = 4
+		font = (
+				Pango.FontDescription.FromString("Lucida Console, 12") or
+				Pango.FontDescription.FromString("monospaced, 12"))
+		self.ModifyFont(font)
+		
+	override def OnKeyPressEvent(ev as Gdk.EventKey):
+		if Gdk.Key.Return == ev.Key:
+			iter = _buffer.GetIterAtMark(_buffer.InsertMark)
+			if iter.BackwardChar():
+				line = GetLine(iter.Line)
+				indent = /^(\s*)/.Match(line).Groups[0].Value
+				if iter.Char == ":":
+					indent += "\t"
+				_buffer.InsertAtCursor("\n${indent}")
+				return true
+		return super(ev)
+		
+	def GetLine(line as int):
+		start = _buffer.GetIterAtLine(line)
+		end = start.Copy()
+		end.ForwardLine()
+		return _buffer.GetText(start, end, false)
+
+class BooEditor(ScrolledWindow):
 	
 	[getter(FileName)]
 	_fname as string
+	
+	_view = BooSourceView()
+	
+	[getter(Buffer)]
+	_buffer = _view.SourceBuffer
 	
 	Label:
 		get:
@@ -53,7 +97,10 @@ class BooEditor(ScrolledWindow):
 	
 	def constructor():
 		self.SetPolicy(PolicyType.Automatic, PolicyType.Automatic)
-		self.Add(_view)	
+		self.Add(_view)
+		
+	def constructor(ptr as System.IntPtr):
+		super(ptr)
 		
 	def Open([required] fname as string):
 		_buffer.Text = TextFile.ReadFile(fname)
@@ -93,7 +140,7 @@ class MainWindow(Window):
 		self.Maximize()
 		self.DeleteEvent += OnDelete		
 		
-		_documentOutline.AppendColumn("Name", CellRendererText (), ("text", 0))		
+		DocumentOutlineProcessor.SetUp(_documentOutline)
 		_notebookOutline.AppendPage(CreateScrolled(_documentOutline), Label("Document Outline"))		
 		_notebookHelpers.AppendPage(CreateScrolled(_output), Label("Output"))
 				
@@ -179,7 +226,7 @@ class MainWindow(Window):
 			// can't do the simpler:
 			// editor as BooEditor = _notebookEditors.CurrentPageWidget
 			// because of gtk# bug #61703
-			return _editors[_notebookEditors.CurrentPage]
+			return _editors[_notebookEditors.CurrentPage] if len(_editors)
 			
 	def AppendOutput(text as string):
 		target = _outputBuffer.EndIter
@@ -193,11 +240,13 @@ class MainWindow(Window):
 		
 	CurrentBuffer:
 		get:
+			return null if CurrentEditor is null
 			return CurrentEditor.Buffer
 			
 	private def _menuItemClose_Activated():
-		_editors.RemoveAt(_notebookEditors.CurrentPage)
-		_notebookEditors.RemovePage(_notebookEditors.CurrentPage)
+		page = _notebookEditors.CurrentPage
+		_notebookEditors.RemovePage(page)
+		_editors.RemoveAt(page)
 		
 	private def _menuItemCut_Activated():	
 		CurrentBuffer.CutClipboard(GetClipboard(), true)
@@ -232,16 +281,21 @@ class MainWindow(Window):
 		self.NewDocument()
 				
 	private def _menuItemOpen_Activated():
-		fs = FileSelection("Open file", SelectMultiple: true)
-		fs.Complete("*.boo")
-		try:			
-			if cast(int, ResponseType.Ok) == fs.Run():
-				for fname in fs.Selections:
-					self.OpenDocument(fname)
-		ensure:
-			fs.Hide()
-			
-		self.UpdateDocumentOutline()
+		fs = FileChooserDialog("Open file", self, FileChooserAction.Open, (,))
+		fs.SelectMultiple = true
+		filter = FileFilter(Name: "Boo Files (*.boo)")
+		filter.AddPattern("*.boo")
+		fs.AddFilter(filter) 
+		filter = FileFilter(Name: "All Files (*.*)")
+		filter.AddPattern("*.*")
+		fs.AddFilter(filter)
+		
+		fs.FileActivated += def():
+			for fname in fs.Filenames:
+				self.OpenDocument(fname)
+			self.UpdateDocumentOutline()
+		fs.Run()
+		fs.Hide()
 		
 	private def UpdateDocumentOutline():
 		try:
@@ -295,9 +349,21 @@ class MainWindow(Window):
 		
 class DocumentOutlineProcessor:
 
-	_store = TreeStore((string,))
+	_store = TreeStore((Gdk.Pixbuf, string))
 	_documentOutline as TreeView
 	_module as Boo.Lang.Compiler.Ast.Module
+	
+	static def SetUp(tree as TreeView):
+		
+		nameColumn = TreeViewColumn()
+		pixbufRender = CellRendererPixbuf()
+		nameColumn.PackStart(pixbufRender, false);
+		nameColumn.AddAttribute(pixbufRender, "pixbuf", 0)
+			
+		labelRender = Gtk.CellRendererText()
+		nameColumn.PackStart(labelRender, false);
+		nameColumn.AddAttribute(labelRender, "text", 1)
+		tree.AppendColumn(nameColumn)
 	
 	def constructor(documentOutline, editor as BooEditor):
 		_module = Parse(editor.Label, editor.Buffer.Text)
@@ -311,7 +377,7 @@ class DocumentOutlineProcessor:
 		
 	def Update():
 		for type in _module.Members:
-			iter = _store.AppendValues((type.Name,))
+			iter = _store.AppendValues((GetIcon(type), type.Name))
 			if type isa TypeDefinition:
 				UpdateType(iter, type)
 		_documentOutline.Model = _store
@@ -319,7 +385,17 @@ class DocumentOutlineProcessor:
 				
 	def UpdateType(parent, type as TypeDefinition):
 		for member in type.Members:
-			_store.AppendValues(parent, (member.Name,))			
+			iter = _store.AppendValues(parent, (GetIcon(member), member.Name))
+			if member isa TypeDefinition:
+				UpdateType(iter, member)
+			
+	def GetIcon(member as TypeMember):
+		type = member.NodeType
+		return Resources.Icons.Class if type == NodeType.ClassDefinition
+		return Resources.Icons.Field if type == NodeType.Field
+		return Resources.Icons.Event if type == NodeType.Event
+		return Resources.Icons.Property if type == NodeType.Property
+		return Resources.Icons.Method
 	
 		
 Application.Init()

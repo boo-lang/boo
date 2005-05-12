@@ -8,16 +8,44 @@
 		<exec program="build/${boox}.exe" useruntimeengine="true">
 		</exec>
 	</target>
+	
+		<target name="create-booxg-resources" depends="init">
+		<boo>
+		import System.IO
+		import System.Resources
+		import Gdk from "gdk-sharp"
+		import Gtk from "gtk-sharp"
+		
+		def MapPath(path):
+			return Path.Combine(Project.BaseDirectory, path)
+			
+		def GetBytes(fname as string):
+			using stream=File.OpenRead(fname):
+				buffer = array(byte, stream.Length)
+				stream.Read(buffer, 0, stream.Length)
+				return buffer
+		
+		using writer=ResourceWriter(MapPath("build/BooExplorer.resources")):
+			for fname in Directory.GetFiles(MapPath("resources/ClassBrowserIcons"), "*.png"):
+				print Path.GetFileNameWithoutExtension(fname)
+				writer.AddResource(Path.GetFileNameWithoutExtension(fname), GetBytes(fname))
+		</boo>
+	</target>
 
-	<target name="booxg" depends="BooExplorer.Common">
+
+	<target name="booxg" depends="create-booxg-resources">
 		<booc target="exe" output="build/booxg.exe">
 			<sources basedir="booxg">
 				<include name="*.boo" />
 			</sources>
+			<resources basedir="build">
+				<include name="BooExplorer.resources" />
+			</resources>
 			<references basedir="build">
 				<include name="BooExplorer.Common.dll" />
 				<include name="gtk-sharp.dll" />
 				<include name="gdk-sharp.dll" />
+				<include name="pango-sharp.dll" />
 				<include name="gtksourceview-sharp.dll" />
 				<include name="Boo.Lang.Useful.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
