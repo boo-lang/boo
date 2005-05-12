@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -21,8 +21,16 @@
 
 namespace BooExplorer
 
-import Gtk
+class Resources:
+
+	static _manager = ResourceManager("BooExplorer", typeof(MainWindow).Assembly)
+	
+	class Icons:
+		public static final Class = LoadIcon("class")
+		public static final Method = LoadIcon("method")
+		public static final Field = LoadIcon("field")
+		public static final Event = LoadIcon("event")
+		public static final Property = LoadIcon("property")
 		
-Application.Init()
-MainWindow().ShowAll()
-Application.Run()
+		static def LoadIcon(name as string):
+			return Gdk.Pixbuf(cast((byte), _manager.GetObject(name)))

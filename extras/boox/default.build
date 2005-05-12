@@ -9,7 +9,7 @@
 		</exec>
 	</target>
 	
-		<target name="create-booxg-resources" depends="init">
+	<target name="create-booxg-resources" depends="init">
 		<boo>
 		import System.IO
 		import System.Resources
