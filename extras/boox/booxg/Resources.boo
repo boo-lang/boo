@@ -21,9 +21,9 @@
 
 namespace BooExplorer
 
-class Resources:
+class ApplicationResources:
 
-	static _manager = ResourceManager("BooExplorer", typeof(MainWindow).Assembly)
+	static _manager = System.Resources.ResourceManager("BooExplorer", typeof(MainWindow).Assembly)
 	
 	class Icons:
 		public static final Class = LoadIcon("class")

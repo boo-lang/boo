@@ -22,6 +22,8 @@
 namespace BooExplorer
 
 import System
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Ast
 import Gtk
 
@@ -69,9 +71,9 @@ class DocumentOutlineProcessor:
 			
 	def GetIcon(member as TypeMember):
 		type = member.NodeType
-		return Resources.Icons.Class if type == NodeType.ClassDefinition
-		return Resources.Icons.Field if type == NodeType.Field
-		return Resources.Icons.Event if type == NodeType.Event
-		return Resources.Icons.Property if type == NodeType.Property
-		return Resources.Icons.Method
+		return ApplicationResources.Icons.Class if type == NodeType.ClassDefinition
+		return ApplicationResources.Icons.Field if type == NodeType.Field
+		return ApplicationResources.Icons.Event if type == NodeType.Event
+		return ApplicationResources.Icons.Property if type == NodeType.Property
+		return ApplicationResources.Icons.Method
 	
