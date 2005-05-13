@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -41,14 +41,18 @@ class BooEditor(ScrolledWindow):
 	[getter(Buffer)]
 	_buffer = _view.SourceBuffer
 	
+	event LabelChanged as EventHandler
+	
 	Label:
 		get:
-			return System.IO.Path.GetFileName(_fname) if _fname
-			return "unnamed.boo"
+			suffix = " *" if _buffer.Modified
+			return System.IO.Path.GetFileName(_fname) + suffix if _fname
+			return "unnamed.boo" + suffix
 	
 	def constructor():
 		self.SetPolicy(PolicyType.Automatic, PolicyType.Automatic)
 		self.Add(_view)
+		_buffer.ModifiedChanged += { LabelChanged(self, EventArgs.Empty) }
 		
 	def constructor(ptr as System.IntPtr):
 		super(ptr)

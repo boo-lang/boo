@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -54,7 +54,8 @@ class MainWindow(Window):
 		self.DeleteEvent += OnDelete		
 		
 		DocumentOutlineProcessor.SetUp(_documentOutline)
-		_notebookOutline.AppendPage(CreateScrolled(_documentOutline), Label("Document Outline"))		
+		_notebookOutline.AppendPage(CreateScrolled(_documentOutline), Label("Document Outline"))
+		_notebookOutline.AppendPage(CreateScrolled(CreateFileChooser()), Label("File System"))		
 		_notebookHelpers.AppendPage(CreateScrolled(_output), Label("Output"))
 				
 		vbox = VBox(false, 2)
@@ -83,7 +84,10 @@ class MainWindow(Window):
 		return sw
 		
 	private def AppendEditor(editor as BooEditor):
-		_notebookEditors.AppendPage(editor, Label(editor.Label))
+		pageIndex = _notebookEditors.AppendPage(editor, Label(editor.Label))
+		page = _notebookEditors.GetNthPage(pageIndex)
+		editor.LabelChanged += def():
+			_notebookEditors.SetTabLabelText(page, editor.Label)
 		_editors.Add(editor)
 		editor.ShowAll()
 		_notebookEditors.CurrentPage = _notebookEditors.NPages-1
@@ -195,20 +199,25 @@ class MainWindow(Window):
 				
 	private def _menuItemOpen_Activated():
 		fs = FileChooserDialog("Open file", self, FileChooserAction.Open, (,))
-		fs.SelectMultiple = true
+		SetUpFileChooser(fs)
+		fs.Run()
+		fs.Hide()
+		
+	private def CreateFileChooser():
+		fs = FileChooserWidget(FileChooserAction.Open)
+		SetUpFileChooser(fs)
+		return fs
+		
+	private def SetUpFileChooser(fs as FileChooser):
 		filter = FileFilter(Name: "Boo Files (*.boo)")
 		filter.AddPattern("*.boo")
 		fs.AddFilter(filter) 
 		filter = FileFilter(Name: "All Files (*.*)")
 		filter.AddPattern("*.*")
 		fs.AddFilter(filter)
-		
 		fs.FileActivated += def():
-			for fname in fs.Filenames:
-				self.OpenDocument(fname)
+			self.OpenDocument(fs.Filename)
 			self.UpdateDocumentOutline()
-		fs.Run()
-		fs.Hide()
 		
 	private def UpdateDocumentOutline():
 		try:
