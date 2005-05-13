@@ -58,7 +58,8 @@ tokens
 	BREAK="break";
 	CONTINUE="continue";
 	CALLABLE="callable";
-	CAST="cast";	
+	CAST="cast";
+	CHAR="char";
 	CLASS="class";
 	CONSTRUCTOR="constructor";	
 	DEF="def";
@@ -903,7 +904,7 @@ type_name returns [IToken id]
 	{
 		id = null;
 	}:
-	id=identifier | c:CALLABLE { id=c; }
+	id=identifier | c:CALLABLE { id=c; } | ch:CHAR { id=ch; }
 	;
 
 protected
@@ -1842,12 +1843,24 @@ atom returns [Expression e]
 	}:	
 	(
 		e=literal |	
+		(CHAR LPAREN)=>e=char_literal |
 		e=reference_expression |
 		e=paren_expression |
 		e=cast_expression |
 		e=typeof_expression
 	)
 	;
+	
+protected
+char_literal returns [Expression e]
+{
+	e = null;
+}:
+	CHAR LPAREN t:SINGLE_QUOTED_STRING RPAREN
+	{
+		e = new CharLiteralExpression(ToLexicalInfo(t), t.getText());
+	}
+;
 	
 protected
 cast_expression returns [Expression e]
@@ -1876,13 +1889,20 @@ typeof_expression returns [Expression e]
 	
 
 protected
-reference_expression returns [ReferenceExpression e] { e = null; }:
-	id:ID
+reference_expression returns [ReferenceExpression e]
+{
+	e = null;
+	IToken t = null;
+}:
+	(
+		id:ID { t = id; } |
+		ch:CHAR { t = ch; }
+	)
 	{
-		e = new ReferenceExpression(ToLexicalInfo(id));
-		e.Name = id.getText();
+		e = new ReferenceExpression(ToLexicalInfo(t));
+		e.Name = t.getText();
 	}	
-	;
+;
 	
 protected
 paren_expression returns [Expression e] { e = null; }:
@@ -2266,7 +2286,7 @@ identifier returns [IToken value]
 	{
 		value = null; _sbuilder.Length = 0;
 	}:
-	id1:ID			
+	id1:ID
 	{					
 		_sbuilder.Append(id1.getText());
 		value = id1;

@@ -46,7 +46,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		string _namespace;
 		
-		public ModuleEntity(NameResolutionService nameResolutionService, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Module module)
+		public ModuleEntity(NameResolutionService nameResolutionService,
+						TypeSystemServices tagManager,
+						Boo.Lang.Compiler.Ast.Module module)
 		{
 			_nameResolutionService = nameResolutionService;
 			_typeSystemServices = tagManager;
@@ -147,10 +149,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			bool found = false;
 			foreach (INamespace ns in _using)
 			{			
-				if (ns.Resolve(targetList, name, flags))
-				{
-					found = true;
-				}
+				found |= ns.Resolve(targetList, name, flags);
 			}
 			return found;
 		}

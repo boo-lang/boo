@@ -38,6 +38,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
  		}
 		
+		public StringLiteralExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
+		
 		public StringLiteralExpression(string value) : base(value)
 		{
 		}

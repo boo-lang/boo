@@ -111,6 +111,7 @@ BCE0109=Array '{0}' is rank '{1}', not rank '{2}'.
 BCE0110='{0}' is not a namespace.
 BCE0111=Destructors cannot have any attributes or modifiers
 BCE0112=Destructors cannot be passed parameters
+BCE0113=Invalid character literal: '{0}'
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract

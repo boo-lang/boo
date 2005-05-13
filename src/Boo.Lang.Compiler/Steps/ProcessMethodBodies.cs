@@ -1436,6 +1436,16 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, TypeSystemServices.StringType);
 		}
 		
+		override public void OnCharLiteralExpression(CharLiteralExpression node)
+		{
+			string value = node.Value;
+			if (null == value || 1 != value.Length)
+			{
+				Errors.Add(CompilerErrorFactory.InvalidCharLiteral(node, value));
+			}
+			BindExpressionType(node, TypeSystemServices.CharType);
+		}
+		
 		IEntity[] GetSetMethods(IEntity[] tags)
 		{
 			Boo.Lang.List setMethods = new Boo.Lang.List();

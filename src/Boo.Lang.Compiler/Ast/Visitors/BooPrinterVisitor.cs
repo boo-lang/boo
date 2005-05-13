@@ -569,6 +569,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteStringLiteral(e.Value);
 		}
+		
+		override public void OnCharLiteralExpression(CharLiteralExpression e)
+		{
+			WriteKeyword("char");
+			Write("(");
+			WriteStringLiteral(e.Value);
+			Write(")");
+		}
 
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression e)
 		{

@@ -250,10 +250,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				case EntityType.Field: return CreateReference((IField)entity);
 				case EntityType.Parameter: return CreateReference((InternalParameter)entity);
 				case EntityType.Custom: return CreateTypedReference(entity.Name, (ITypedEntity)entity);
-                case EntityType.Property: return CreateReference((IProperty)entity);
+				case EntityType.Property: return CreateReference((IProperty)entity);
             }
-            throw new ArgumentException("Failure within CreateReference(IEntity entity): " + entity.EntityType
-                                        + " is not correctly interpreted.");
+            return CreateTypedReference(entity.Name, (ITypedEntity)entity);
         }
 		
 		public ReferenceExpression CreateReference(InternalLocal local)

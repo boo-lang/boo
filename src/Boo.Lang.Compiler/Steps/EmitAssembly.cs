@@ -1869,6 +1869,12 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(TypeSystemServices.StringType);
 		}
 		
+		override public void OnCharLiteralExpression(CharLiteralExpression node)
+		{
+			_il.Emit(OpCodes.Ldc_I4, node.Value[0]);
+			PushType(TypeSystemServices.CharType);
+		}
+		
 		override public void OnSlicingExpression(SlicingExpression node)
 		{
 			if (AstUtil.IsLhsOfAssignment(node))
@@ -3596,6 +3602,11 @@ namespace Boo.Lang.Compiler.Steps
 				case NodeType.StringLiteralExpression:
 				{
 					return ((StringLiteralExpression)expression).Value;
+				}
+				
+				case NodeType.CharLiteralExpression:
+				{
+					return ((CharLiteralExpression)expression).Value[0];
 				}
 				
 				case NodeType.BoolLiteralExpression:

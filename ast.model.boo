@@ -379,6 +379,9 @@ abstract class LiteralExpression(Expression):
 
 class StringLiteralExpression(LiteralExpression):
 	Value as string
+	
+class CharLiteralExpression(StringLiteralExpression):
+	pass
 
 class TimeSpanLiteralExpression(LiteralExpression):
 	Value as System.TimeSpan

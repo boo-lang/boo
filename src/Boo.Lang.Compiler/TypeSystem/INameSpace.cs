@@ -26,12 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections;
+using Boo.Lang.Compiler.Ast;
+
 namespace Boo.Lang.Compiler.TypeSystem
-{
-	using System;
-	using System.Collections;
-	using Boo.Lang.Compiler.Ast;
-	
+{	
 	/// <summary>
 	/// A namespace.
 	/// </summary>

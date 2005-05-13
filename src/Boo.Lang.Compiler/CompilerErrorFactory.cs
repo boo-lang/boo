@@ -591,6 +591,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0112", node.LexicalInfo);
 		}
 		
+		public static CompilerError InvalidCharLiteral(Node node, string value)
+		{
+			return new CompilerError("BCE0113", node.LexicalInfo, value);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
