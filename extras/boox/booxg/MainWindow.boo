@@ -97,6 +97,15 @@ class MainWindow(Window):
 		return editor
 		
 	def OpenDocument(fname as string):
+		fname = System.IO.Path.GetFullPath(fname)
+		
+		i = 0
+		for editor as BooEditor in _editors:
+			if fname == editor.FileName:
+				_notebookEditors.CurrentPage = i
+				return
+			++i
+				
 		editor = BooEditor()
 		editor.Open(fname)
 		self.AppendEditor(editor)

@@ -58,6 +58,7 @@ class BooEditor(ScrolledWindow):
 		super(ptr)
 		
 	def Open([required] fname as string):
+		fname = System.IO.Path.GetFullPath(fname)
 		_buffer.Text = TextFile.ReadFile(fname)
 		_buffer.Modified = false
 		_fname = fname
