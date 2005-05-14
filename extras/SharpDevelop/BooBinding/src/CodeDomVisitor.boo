@@ -270,6 +270,9 @@ types."""
 	def OnStringLiteralExpression(node as StringLiteralExpression):
 		_expression = CodePrimitiveExpression(node.Value)
 	
+	def OnCharLiteralExpression(node as CharLiteralExpression):
+		_expression = CodePrimitiveExpression(node.Value)
+	
 	def OnHashLiteralExpression(node as HashLiteralExpression):
 		pass
 	
