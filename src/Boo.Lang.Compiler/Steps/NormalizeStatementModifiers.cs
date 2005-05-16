@@ -230,31 +230,5 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
-		override public void LeaveBinaryExpression(BinaryExpression node)
-		{
-			if (IsNull(node.Left) || IsNull(node.Right))
-			{
-				switch (node.Operator)
-				{
-					case BinaryOperatorType.Inequality:
-					{		
-						node.Operator = BinaryOperatorType.ReferenceInequality;
-						break;
-					}
-					
-					case BinaryOperatorType.Equality:
-					{
-						node.Operator = BinaryOperatorType.ReferenceEquality;
-						break;
-					}
-				}
-			}
-		}
-		
-		bool IsNull(Expression node)
-		{
-			return NodeType.NullLiteralExpression == node.NodeType;
-		}
 	}
 }

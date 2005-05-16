@@ -30,6 +30,37 @@ namespace BooCompiler.Tests
 {
 	using System;
 	
+	public class OverrideEqualityOperators
+	{
+		public static bool operator==(OverrideEqualityOperators lhs, OverrideEqualityOperators rhs)
+		{
+			if (null == lhs)
+			{
+				Console.WriteLine("lhs is null");
+			}
+			
+			if (null == rhs)
+			{
+				Console.WriteLine("rhs is null");
+			}
+			return true;
+		}
+		
+		public static bool operator!=(OverrideEqualityOperators lhs, OverrideEqualityOperators rhs)
+		{
+			 if (null == lhs)
+			{
+				Console.WriteLine("lhs is null");
+			}
+			
+			if (null == rhs)
+			{
+				Console.WriteLine("rhs is null");
+			}
+			return false;
+		}
+	}
+	
 	public class AmbiguousBase
 	{
 		public string Path(string empty)

@@ -808,7 +808,7 @@ namespace Boo.Lang.Runtime
 			return !op_Member(lhs, rhs);
 		}
 
-		public static bool op_Equality(object lhs, object rhs)
+		public static bool EqualityOperator(object lhs, object rhs)
 		{
 			if (lhs == rhs)
 			{
@@ -824,7 +824,7 @@ namespace Boo.Lang.Runtime
 			TypeCode rhsTypeCode = Type.GetTypeCode(rhs.GetType());
 			if (IsNumeric(lhsTypeCode) && IsNumeric(rhsTypeCode))
 			{
-				return op_Equality(lhs, lhsTypeCode, rhs, rhsTypeCode);
+				return EqualityOperator(lhs, lhsTypeCode, rhs, rhsTypeCode);
 			}
 
 			Array lhsa = lhs as Array;
@@ -867,7 +867,7 @@ namespace Boo.Lang.Runtime
 
 			for (int i=0; i<lhs.Length; ++i)
 			{
-				if (!op_Equality(lhs.GetValue(i), rhs.GetValue(i)))
+				if (!EqualityOperator(lhs.GetValue(i), rhs.GetValue(i)))
 				{
 					return false;
 				}
@@ -1067,7 +1067,7 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
-		private static bool op_Equality(object lhs, TypeCode lhsTypeCode,
+		private static bool EqualityOperator(object lhs, TypeCode lhsTypeCode,
 										  object rhs, TypeCode rhsTypeCode)
 		{
 			IConvertible lhsConvertible = (IConvertible)lhs;

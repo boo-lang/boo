@@ -335,7 +335,7 @@ namespace Boo.Lang
 			
 			for (int i=0; i<_count; ++i)
 			{
-				if (!RuntimeServices.op_Equality(_items[i], rhs[i]))
+				if (!RuntimeServices.EqualityOperator(_items[i], rhs[i]))
 				{
 					return false;
 				}
@@ -405,7 +405,7 @@ namespace Boo.Lang
 		{
 			for (int i=0; i<_count; ++i)
 			{
-				if (RuntimeServices.op_Equality(_items[i], item))
+				if (RuntimeServices.EqualityOperator(_items[i], item))
 				{
 					return i;
 				}

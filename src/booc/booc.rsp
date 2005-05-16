@@ -11,7 +11,8 @@
 -r:System.Messaging
 -r:System.Runtime.Remoting
 -r:System.Runtime.Serialization.Formatters.Soap
--r:System.Security
+# does not work nicely on mono
+#-r:System.Security
 -r:System.ServiceProcess
 -r:System.Web
 -r:System.Web.Services

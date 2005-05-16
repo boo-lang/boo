@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod RuntimeServices_GetEnumerable;
 		
-		IMethod RuntimeServices_op_Equality;
+		IMethod RuntimeServices_EqualityOperator;
 		
 		IMethod Array_get_Length;
 		
@@ -176,7 +176,7 @@ namespace Boo.Lang.Compiler.Steps
 			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
 			RuntimeServices_NormalizeStringIndex = ResolveMethod(TypeSystemServices.RuntimeServicesType, "NormalizeStringIndex");
 			RuntimeServices_GetEnumerable = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");
-			RuntimeServices_op_Equality = TypeSystemServices.Map(Types.RuntimeServices.GetMethod("op_Equality", new Type[] { Types.Object, Types.Object }));
+			RuntimeServices_EqualityOperator = TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));
 			Array_get_Length = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
 			Array_GetLength = ResolveMethod(TypeSystemServices.ArrayType, "GetLength");
 			String_get_Length = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
@@ -1509,7 +1509,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected MethodInvocationExpression CreateEquals(BinaryExpression node)
 		{
-			return CodeBuilder.CreateMethodInvocation(RuntimeServices_op_Equality, node.Left, node.Right);
+			return CodeBuilder.CreateMethodInvocation(RuntimeServices_EqualityOperator, node.Left, node.Right);
 		}
 		
 		IntegerLiteralExpression CreateIntegerLiteral(long value)
@@ -3112,6 +3112,12 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					case BinaryOperatorType.Equality:
 					{
+						if (IsNull(node.Left) || IsNull(node.Right))
+						{
+							node.Operator = BinaryOperatorType.ReferenceEquality;
+							BindReferenceEquality(node);
+							break;
+						}
 						Expression expression = CreateEquals(node);
 						node.ParentNode.Replace(node, expression);
 						break;
@@ -3119,6 +3125,12 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case BinaryOperatorType.Inequality:
 					{
+						if (IsNull(node.Left) || IsNull(node.Right))
+						{
+							node.Operator = BinaryOperatorType.ReferenceInequality;
+							BindReferenceEquality(node);
+							break;
+						}
 						Expression expression = CreateEquals(node);
 						Node parent = node.ParentNode;
 						parent.Replace(node, CodeBuilder.CreateNotExpression(expression));
@@ -3132,6 +3144,11 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
+		}
+		
+		static bool IsNull(Expression node)
+		{
+			return NodeType.NullLiteralExpression == node.NodeType;
 		}
 		
 		void BindLogicalOperator(BinaryExpression node)
@@ -4742,6 +4759,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod FindOperator(IType type, string operatorName, ExpressionCollection args)
 		{
+			//Console.WriteLine("FindOperator('{0}', '{1}', ...)", type, operatorName);
 			IMethod method = null;
 			IEntity entity = NameResolutionService.Resolve(type, operatorName, EntityType.Method);
 			if (null != entity)
