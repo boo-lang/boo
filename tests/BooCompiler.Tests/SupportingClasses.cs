@@ -34,12 +34,12 @@ namespace BooCompiler.Tests
 	{
 		public static bool operator==(OverrideEqualityOperators lhs, OverrideEqualityOperators rhs)
 		{
-			if (null == lhs)
+			if (Object.Equals(null, lhs))
 			{
 				Console.WriteLine("lhs is null");
 			}
 			
-			if (null == rhs)
+			if (Object.Equals(null, rhs))
 			{
 				Console.WriteLine("rhs is null");
 			}
@@ -48,12 +48,12 @@ namespace BooCompiler.Tests
 		
 		public static bool operator!=(OverrideEqualityOperators lhs, OverrideEqualityOperators rhs)
 		{
-			 if (null == lhs)
+			if (Object.Equals(null, lhs))
 			{
 				Console.WriteLine("lhs is null");
 			}
 			
-			if (null == rhs)
+			if (Object.Equals(null, rhs))
 			{
 				Console.WriteLine("rhs is null");
 			}
