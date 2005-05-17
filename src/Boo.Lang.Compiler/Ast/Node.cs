@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		protected Boo.Lang.Compiler.TypeSystem.IEntity _entity;
 		
-		protected System.Collections.Hashtable _properties;
+		protected System.Collections.Hashtable _annotations;
 		
 		protected bool _isSynthetic;
 
@@ -113,11 +113,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get
 			{
-				if (null == _properties)
+				if (null == _annotations)
 				{
 					return null;
 				}
-				return _properties[key];
+				return _annotations[key];
 			}
 			
 			set
@@ -127,11 +127,26 @@ namespace Boo.Lang.Compiler.Ast
 					throw new ArgumentNullException("key");
 				}
 				
-				if (null == _properties)
+				if (null == _annotations)
 				{
-					_properties = new Hashtable();
+					_annotations = new Hashtable();
 				}
-				_properties[key] = value;
+				_annotations[key] = value;
+			}
+		}
+		
+		public bool ContainsAnnotation(object key)
+		{
+			return (null == _annotations)
+				? false
+				: _annotations.ContainsKey(key);
+		}
+		
+		public void RemoveAnnotation(object key)
+		{
+			if (null != _annotations)
+			{
+				_annotations.Remove(key);
 			}
 		}
 		
@@ -214,6 +229,12 @@ namespace Boo.Lang.Compiler.Ast
 		public abstract void Accept(IAstVisitor visitor);
 		
 		public abstract object Clone();
+		
+		public virtual void ClearTypeSystemBindings()
+		{
+			_annotations = null;
+			_entity = null;
+		}
 		
 		public abstract NodeType NodeType
 		{

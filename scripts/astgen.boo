@@ -229,6 +229,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
 			clone._entity = _entity;
+			clone._annotations = null != _annotations ? (Hashtable)_annotations.Clone() : null;
 			""")
 			
 			if IsExpression(node):
@@ -254,6 +255,31 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			return clone;
 		}
 			""")
+			
+			writer.WriteLine("""
+		override public void ClearTypeSystemBindings()
+		{
+			_annotations = null;
+			_entity = null;
+			""")
+			
+			if IsExpression(node):
+				writer.WriteLine("""
+			_expressionType = null;
+			""");
+			
+			for field as Field in allFields:
+				fieldType = ResolveFieldType(field)
+				fieldName = GetPrivateName(field)
+				if fieldType and not IsEnum(fieldType):
+					writer.WriteLine("""
+			if (null != ${fieldName})
+			{
+				${fieldName}.ClearTypeSystemBindings();
+			}""")
+			
+			writer.WriteLine("""
+		}""")
 		
 		for field as Field in node.Members:
 			if field.Name == "Name":

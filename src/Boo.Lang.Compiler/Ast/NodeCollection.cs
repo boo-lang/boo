@@ -165,6 +165,14 @@ namespace Boo.Lang.Compiler.Ast
 			return clone;
 		}
 		
+		public void ClearTypeSystemBindings()
+		{
+			foreach (Node node in _list)
+			{
+				node.ClearTypeSystemBindings();
+			}
+		}
+		
 		protected List InnerList
 		{
 			get

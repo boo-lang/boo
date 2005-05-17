@@ -146,6 +146,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateMethodInvocation(target, _tss.Map(method));
 		}
 		
+		public MethodInvocationExpression CreatePropertyGet(Expression target, IProperty property)
+		{
+			return CreateMethodInvocation(target, property.GetGetMethod());
+		}
+		
+		public MethodInvocationExpression CreatePropertySet(Expression target, IProperty property, Expression value)
+		{
+			return CreateMethodInvocation(target, property.GetSetMethod(), value);
+		}
+		
 		public MethodInvocationExpression CreateMethodInvocation(System.Reflection.MethodInfo staticMethod, Expression arg)
 		{
 			return CreateMethodInvocation(_tss.Map(staticMethod), arg);

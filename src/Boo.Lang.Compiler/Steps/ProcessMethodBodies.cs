@@ -2377,7 +2377,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (EntityType.Property == member.EntityType)
 			{
 				if (!AstUtil.IsLhsOfAssignment(node) &&
-					!IsPreIncDec(node.ParentNode))
+					!IsPreIncDec(node.ParentNode) && 
+					/*BOO-313*/!IsValueTypeParentOfLhsOfAssignment(node))
 				{
 					if (IsIndexedProperty(member))
 					{
@@ -2389,7 +2390,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						node.ParentNode.Replace(node, CodeBuilder.CreateMethodInvocation(node.Target, ((IProperty)member).GetGetMethod()));
+						node.ParentNode.Replace(node, CodeBuilder.CreatePropertyGet(node.Target, (IProperty)member));
 						return;
 					}
 				}
@@ -2832,26 +2833,29 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterBinaryExpression(BinaryExpression node)
 		{
-			if (node.Operator == BinaryOperatorType.Assign &&
-			    NodeType.ReferenceExpression == node.Left.NodeType)
+			if (node.Operator == BinaryOperatorType.Assign)
 			{
-				// Auto local declaration:
-				// assign to unknown reference implies local
-				// declaration
-				ReferenceExpression reference = (ReferenceExpression)node.Left;
-				IEntity info = NameResolutionService.Resolve(reference.Name);
-				if (null == info || TypeSystemServices.IsBuiltin(info))
+				if (NodeType.ReferenceExpression == node.Left.NodeType)
 				{
-					Visit(node.Right);
-					IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
-					CheckIsResolvedType(expressionType, node.Right);
-					IEntity local = DeclareLocal(reference, reference.Name, expressionType);
-					reference.Entity = local;
-					BindExpressionType(node.Left, expressionType);
-					BindExpressionType(node, expressionType);
-					return false;
+					// Auto local declaration:
+					// assign to unknown reference implies local
+					// declaration
+					ReferenceExpression reference = (ReferenceExpression)node.Left;
+					IEntity info = NameResolutionService.Resolve(reference.Name);
+					if (null == info || TypeSystemServices.IsBuiltin(info))
+					{
+						Visit(node.Right);
+						IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
+						CheckIsResolvedType(expressionType, node.Right);
+						IEntity local = DeclareLocal(reference, reference.Name, expressionType);
+						reference.Entity = local;
+						BindExpressionType(node.Left, expressionType);
+						BindExpressionType(node, expressionType);
+						return false;
+					}
 				}
 			}
+			
 			return true;
 		}
 		
@@ -4005,9 +4009,90 @@ namespace Boo.Lang.Compiler.Steps
 							resultingType = TypeSystemServices.ErrorEntity;
 						}
 					}
+					else
+					{
+						// BOO-313
+						if (IsAssignmentToMemberOfValueTypeProperty(node))
+						{
+							ProcessAssignmentToMemberOfValueTypeProperty(node);
+							return;
+						}
+					}
 				}
 			}
 			BindExpressionType(node, resultingType);
+		}
+		
+		bool IsValueTypeParentOfLhsOfAssignment(MemberReferenceExpression node)
+		{
+			if (node.ExpressionType.IsValueType)
+			{
+				MemberReferenceExpression parent = node.ParentNode as MemberReferenceExpression;
+				if (null != parent)
+				{
+					if (AstUtil.IsLhsOfAssignment(parent))
+					{
+						parent["BOO-313"] = true;
+						return true;
+					}
+				}
+			}
+			
+			return false;
+		}
+		
+		bool IsAssignmentToMemberOfValueTypeProperty(BinaryExpression node)
+		{
+			return node.Left.ContainsAnnotation("BOO-313");
+		}
+		
+		// BOO-313
+		// TODO: do it recursively for internal struct properties
+		void ProcessAssignmentToMemberOfValueTypeProperty(BinaryExpression node)
+		{	
+			Node parentNode = node.ParentNode;
+			
+			MemberReferenceExpression memberRef = (MemberReferenceExpression)node.Left;
+			MemberReferenceExpression property = (MemberReferenceExpression)memberRef.Target;			
+			if (!CheckLValue(property))
+			{
+				return;
+			}
+			
+			InternalLocal temp = DeclareTempLocal(property.ExpressionType);
+			
+			BinaryExpression tempInitialization = CodeBuilder.CreateAssignment(
+				node.LexicalInfo,
+				CodeBuilder.CreateReference(temp),
+				CodeBuilder.CreatePropertyGet(
+					property.Target,
+					(IProperty)property.Entity));
+				
+			memberRef.Target = CodeBuilder.CreateReference(temp);
+			
+			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
+			eval.Arguments.Add(tempInitialization);
+			eval.Arguments.Add(
+				CodeBuilder.CreateAssignment(node.LexicalInfo,
+					node.Left, node.Right));
+			eval.Arguments.Add(
+				CodeBuilder.CreatePropertySet(
+					property.Target,
+					(IProperty)property.Entity,
+					CodeBuilder.CreateReference(temp)));
+					
+			parentNode.Replace(node, eval);
+			
+			node.Right.ClearTypeSystemBindings();
+			Visit(node.Right);
+			
+			if (NodeType.ExpressionStatement != parentNode.NodeType)
+			{
+				// TODO: add the expression value as the return value
+				// of __eval__
+				NotImplemented(node, "BOO-313");
+			}
+			
 		}
 		
 		bool CheckIsaArgument(Expression e)
