@@ -137,7 +137,7 @@ protected
 SQS_ESC : '\\'! ( SESC | '\'' );
 
 protected
-SESC : 
+SESC: 
 				( 'r'! {$setText("\r"); }) |
 				( 'n'! {$setText("\n"); }) |
 				( 't'! {$setText("\t"); }) |
@@ -145,6 +145,14 @@ SESC :
 				( 'b'! {text.Length = _begin; text.Append("\b"); }) |
 				( 'f'! {text.Length = _begin; text.Append("\f"); }) |
 				( '0'! {text.Length = _begin; text.Append("\0"); }) |
+				( 'u'!
+					HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+					{
+						char ch = (char)int.Parse(text.ToString(_begin, 4), System.Globalization.NumberStyles.HexNumber);
+						text.Length = _begin;
+						text.Append(ch);
+					}
+				) |
 				( '\\'! {$setText("\\"); });
 
 protected
