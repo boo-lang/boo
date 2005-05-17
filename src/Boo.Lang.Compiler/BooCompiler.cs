@@ -44,6 +44,15 @@ namespace Boo.Lang.Compiler
 		{
 			_parameters = new CompilerParameters();
 		}
+		
+		public BooCompiler(CompilerParameters parameters)
+		{
+			if (null == parameters)
+			{
+				throw new ArgumentNullException("parameters");
+			}
+			_parameters = parameters;
+		}
 
 		public CompilerParameters Parameters
 		{
