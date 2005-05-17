@@ -1,0 +1,235 @@
+#!/bin/sh
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## This file is part of ANTLR. See LICENSE.txt for licence  ##
+## details. Written by W. Haefelinger.                      ##
+##                                                          ##
+##       Copyright (C) Wolfgang Haefelinger, 2004           ##
+##                                                          ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+test -z "${verbose}" && { 
+  verbose=@VERBOSE@
+}
+## This script will be called to compile a list of java files on
+## all UNIX/Cygwin platforms. Whether we'll use SUN java, gcj or
+## another Java compiler doesn't matter.
+
+## precompute some variables required or useful to compile
+## Java source files.
+
+## srcdir shall contain absolute path to package directory.
+srcdir="@abs_top_srcdir@"
+
+## objdir shall contain absolute path to this build directory.
+objdir="@abs_this_builddir@"
+
+## bootclasspath shall contain jar or zip file required to
+## boot Javac. An example where this variable is used is 
+## jikes. Note, this variable can be plain empty.
+bootclasspath="@BOOTCLASSPATH@"
+
+classpath="@ANTLR_JAR@"
+
+case @build_os@ in
+  cygwin)
+    sep=";"
+    ;;
+  macos*)
+    sep=";"
+    ;;
+  *)
+    sep=":"
+    ;;
+esac
+
+## When on cygwin we translage paths into mixed notation (DOS
+## with forward slashes).
+case @build_os@ in
+  cygwin)
+    test -n "$1" && {
+      ARGV="`cygpath -m $*`"
+    }
+    test -n "${srcdir}" && {
+      srcdir="`cygpath -m ${srcdir}`"
+    }
+    test -n "${objdir}" && {
+      objdir="`cygpath -m ${objdir}`"
+    }
+    test -n "${bootclasspath}" && {
+      bootclasspath="`cygpath -m ${bootclasspath}`"
+    }
+    test -n "${classpath}" && {
+      classpath="`cygpath -m ${classpath}`"
+    }
+    ;;
+  *)
+    ARGV="$*"
+    ;;
+esac
+
+## Command JAVAC is precomputed but user may override.
+if test -z "${JAVAC}" ; then
+  JAVAC="@JAVAC@"
+  javac="@javac@"
+else
+  javac=`basename $JAVAC`
+  javac=`echo $javac|sed 's,\..*$,,'`
+fi
+
+## Take environment variable CLASSPATH into account
+if test -n "$CLASSPATH" ; then
+  ifs_save=$IFS
+  IFS=$sep
+  for d in $CLASSPATH ; do
+    d=`@CYGPATH_M@ $d`
+    classpath="$classpath$sep$d"
+  done
+  IFS=$ifs_save
+fi
+## Compute the flags for well known compilers. Note that a user
+## may override this settings by providing JAVACFLAGS - see be-
+## low.
+case "${javac}" in
+  jikes)
+    javacflags="-nowarn -d ."
+    javacflags="${javacflags} -sourcepath ${srcdir}"
+    javacflags="${javacflags} -bootclasspath ${bootclasspath}"
+    javacflags="${javacflags} -classpath ${classpath}"
+    ;;
+  javac)
+    javacflags="-d ."
+    javacflags="${javacflags} -sourcepath ${srcdir}"
+    javacflags="${javacflags} -classpath ${classpath}"
+    ;;
+  gcj)
+    javacflags="-d ."
+    javacflags="${javacflags} -I${srcdir} -C"
+    javacflags="${javacflags} -classpath ${classpath}"
+    ;;
+  *)
+    javacflags="-d ."
+    javacflags="${javacflags} -sourcepath ${srcdir}"
+    javacflags="${javacflags} -classpath ${classpath}"
+    ;;
+esac
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## **NO CHANGE NECESSARY BELOW THIS LINE - EXPERTS ONLY** ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+
+
+## If specific flags have been configured then they overrule
+## our precomputed flags. Still a user can override by using
+## environment variable $JAVACFLAGS - see below.
+test -n "@JAVACFLAGS@" && {
+  set x @JAVACFLAGS@  ; shift
+  case $1 in
+    +)
+      shift
+      JAVACFLAGS="${javacflags} $*"
+      ;;
+    -)
+      shift
+      javacflags="$* ${javacflags}"
+      ;;
+    =)
+      shift
+      javacflags="$*"
+      ;;
+    *)
+      if test -z "$1" ; then
+        javacflags="${javacflags}"
+      else
+        javacflags="$*"
+      fi
+      ;;
+  esac
+}
+
+## Regardless what has been configured, a user should always
+## be able to  override  without  the need to reconfigure or
+## change this file. Therefore we check variable $JAVACFLAGS.
+## In almost all cases the precomputed flags are just ok but
+## some  additional  flags are needed. To support this in an
+## easy way, we check for the very first value. If this val-
+## ue is 
+## '+'  -> append content of JAVACFLAGS to precomputed flags
+## '-'  -> prepend content    -*-
+## '='  -> do not use precomputed flags
+## If none of these characters are given, the behaviour will
+## be the same as if "=" would have been given.
+
+set x ${JAVACFLAGS}  ; shift
+case $1 in
+  +)
+    shift
+    JAVACFLAGS="${javacflags} $*"
+    ;;
+  -)
+    shift
+    JAVACFLAGS="$* ${javacflags}"
+    ;;
+  =)
+    shift
+    JAVACFLAGS="$*"
+    ;;
+  *)
+    if test -z "$1" ; then
+      JAVACFLAGS="${javacflags}"
+    else
+      JAVACFLAGS="$*"
+    fi
+    ;;
+esac
+
+## Any special treatment goes here ..
+case "${javac}" in
+  jikes)
+    ;;
+  javac)
+    ;;
+  gcj)
+    ;;
+  *)
+    ;;
+esac
+
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##    This shall be the command to be excuted below       ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+
+cmd="${JAVAC} ${JAVACFLAGS} ${ARGV}"
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##        standard template to execute a command          ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+case "${verbose}" in
+  0|no|nein|non)
+    set x `echo $ARGV | wc`
+    echo "*** compiling $3 Java file(s)"
+    ;;
+  *)
+    echo CLASSPATH=${CLASSPATH}
+    echo $cmd
+    ;;
+esac
+
+$cmd || {
+  rc=$?
+  cat <<EOF
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                      >> E R R O R <<
+============================================================
+
+$cmd
+
+============================================================
+Got an error while trying to execute  command  above.  Error
+messages (if any) must have shown before. The exit code was:
+exit($rc)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EOF
+  exit $rc
+}
+exit 0

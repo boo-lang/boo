@@ -1,0 +1,57 @@
+###############################################################################
+# $Id:$
+###############################################################################
+## do not change this value 
+subdir=doc
+
+## get configured vars
+@stdvars@
+
+## get configured rules
+@stdmake@
+
+antlr_doc_DIR = $(datadir)/doc/$(versioneddir)
+
+antlr_doc_FILES = \
+  @abs_top_srcdir@/doc/closure.gif \
+  @abs_top_srcdir@/doc/cpp-runtime.html \
+  @abs_top_srcdir@/doc/csharp-runtime.html \
+  @abs_top_srcdir@/doc/err.html \
+  @abs_top_srcdir@/doc/glossary.html \
+  @abs_top_srcdir@/doc/hidden.stream.gif \
+  @abs_top_srcdir@/doc/index.html \
+  @abs_top_srcdir@/doc/inheritance.html \
+  @abs_top_srcdir@/doc/j-guru-blue.jpg \
+  @abs_top_srcdir@/doc/jguru-logo.gif \
+  @abs_top_srcdir@/doc/lexer.html \
+  @abs_top_srcdir@/doc/lexer.to.parser.tokens.gif \
+  @abs_top_srcdir@/doc/logo.gif \
+  @abs_top_srcdir@/doc/metalang.html \
+  @abs_top_srcdir@/doc/optional.gif \
+  @abs_top_srcdir@/doc/options.html \
+  @abs_top_srcdir@/doc/posclosure.gif \
+  @abs_top_srcdir@/doc/python-runtime.html \
+  @abs_top_srcdir@/doc/runtime.html \
+  @abs_top_srcdir@/doc/sor.html \
+  @abs_top_srcdir@/doc/stream.perspectives.gif \
+  @abs_top_srcdir@/doc/stream.selector.gif \
+  @abs_top_srcdir@/doc/streams.html \
+  @abs_top_srcdir@/doc/stream.splitter.gif \
+  @abs_top_srcdir@/doc/subrule.gif \
+  @abs_top_srcdir@/doc/trees.html \
+  @abs_top_srcdir@/doc/vocab.html \
+	$(eol)
+
+install ::
+	@$(MKDIR) -p "$(antlr_doc_DIR)"
+	@echo "install doc files .. "
+	@for f in $(antlr_doc_FILES) ; do \
+		echo "install $${f}" ; \
+		if test -f "$${f}" ; then \
+			$(INSTALL) -m 444 "$${f}" "$(antlr_doc_DIR)" ; \
+		fi ;\
+	done
+
+## get configured dependencies ..
+@stddeps@
+

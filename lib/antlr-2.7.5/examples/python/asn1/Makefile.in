@@ -1,0 +1,86 @@
+## This file is part of ANTLR (http://www.antlr.org).  Have a
+## look into LICENSE.txt for  license  details. This file has 
+## been written by (C) Wolfgang Haefelinger, 2004.
+
+## do not change this value 
+subdir=examples/python/asn1
+
+## get  configured  (standard) variables - checkout or modify
+## scripts/config.vars[.in] for details.
+@stdvars@
+
+### how to get rid of damned dos line ending style and -- al-
+### most equally worse -- stupid tab character.
+### dos2unix  = perl -p -i.tmp -e 's,\r,,g;s,\t, ,g' 
+dos2unix = :
+
+### when running python we invoke python like ..
+python    = /bin/sh @abs_this_builddir@/scripts/python.sh
+
+## get configured rules
+@stdmake@
+
+## By default we compile class files so we are ready to carry
+## out a test. Note that deps have been setup in such a way
+## that you can do a 'make compile' whithout having made 
+## antlr.jar before. 
+this : compile
+all  :: compile
+
+
+%.py : $(_srcdir)/%.py
+	@-rm -f $@ && cp $< $@
+
+ASN1TokenTypes.txt : $(_srcdir)/asn1tokens.txt
+	@-rm -f $@ && cp $< $@
+
+g_FILES  = \
+ $(_srcdir)/asn1.g \
+ $(eol)
+
+g_py_FILES = \
+ asn1_l.py \
+ $(eol)
+
+compile : $(g_py_FILES)
+
+
+test :: test1
+
+test1_deps = \
+	asn1.py \
+	$(g_py_FILES) \
+	$(buildtree)/scripts/python.sh \
+	$(eol)
+
+test1_cmd = \
+	$(python) asn1_l.py < $(_srcdir)/asn1.in \
+	$(eol)
+
+test1 : $(test1_deps)
+	@ $(test1_cmd)
+
+$(g_py_FILES) : $(g_FILES) ASN1TokenTypes.txt
+	@ rm -f $(g_py_FILES)
+	@ @ANTLR_COMPILE_CMD@ $(g_FILES)
+	@ $(dos2unix) $(g_py_FILES)
+
+$(g_py_FILES) : @ANTLR_JAR@
+$(g_py_FILES) : $(buildtree)/scripts/antlr.sh
+
+### cleanup asn1
+clean ::
+	@echo cleaning asn1 ...
+	@ -rm -f $(g_py_FILES)
+	@ -rm -f *.pyc *.tmp *TokenTypes.txt *TokenTypes
+
+
+
+### get configured dependencies - for example, just list
+### autoconf variable ANTLR_JAR as reference and it will
+### be  done  automatically  as stddeps contains appropr.
+### rule. For details, checkout scripts/config.vars[.in] 
+@stddeps@
+
+.PHONY: compile
+.PHONY: test1

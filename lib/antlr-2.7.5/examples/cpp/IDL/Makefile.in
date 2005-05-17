@@ -1,0 +1,214 @@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+
+subdir=examples/cpp/IDL
+
+srcdir=@abs_top_srcdir@/examples/cpp/IDL
+objdir=@abs_this_builddir@/examples/cpp/IDL
+
+this : test
+test : test1
+
+
+all: IDL test
+
+idl_g_FILES = \
+	$(srcdir)/idl.g \
+	$(eol)
+
+idl_g_cxx_FILES = \
+	$(objdir)/IDLParser.cpp \
+	$(objdir)/IDLLexer.cpp \
+	$(eol)
+
+idl_g_hpp_FILES = \
+	$(objdir)/IDLParser.hpp \
+	$(objdir)/IDLTokenTypes.hpp \
+	$(objdir)/IDLLexer.hpp \
+	$(eol)
+
+idl_g_txt_FILES = \
+	$(objdir)/IDLTokenTypes.txt \
+	$(eol)
+
+idl_g_gen_FILES = \
+	$(idl_g_cxx_FILES) \
+	$(idl_g_hpp_FILES) \
+	$(idl_g_txt_FILES) \
+	$(eol)
+
+idl_g_obj_FILES = \
+	$(eol)
+
+## Source files
+IDL_cxx_FILES = \
+	$(idl_g_cxx_files) \
+	$(srcdir)/Main.cpp \
+	$(srcdir)/IDLLexer.cpp \
+	$(srcdir)/IDLParser.cpp \
+	$(eol)
+
+## Object files
+IDL_obj_FILES = \
+	$(idl_g_obj_files) \
+	$(objdir)/Main@OBJEXT@ \
+	$(objdir)/IDLLexer@OBJEXT@ \
+	$(objdir)/IDLParser@OBJEXT@ \
+	$(eol)
+
+## Test commands
+test1_cmd = $(objdir)/IDL < $(srcdir)/test.idl
+
+## Tests to be executed
+test1: IDL
+	@ v="$(verbose)"; if test $$v -gt 0 ; then  echo "$(test1_cmd)" ;  else  echo "exec test1 ..";  fi
+	@ $(test1_cmd)
+
+## How to make binaries
+IDL : $(IDL_obj_FILES) @ANTLR_LIB@
+	@CXX_LINK_CMD@ $@ $(IDL_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(objdir)/.idl.g : $(srcdir)/idl.g @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@ $(srcdir)/idl.g
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.idl.g`
+
+$(idl_g_gen_FILES): $(objdir)/.idl.g
+
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+#####
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	- $(RM) -rf *.o *.obj *.exe \
+	$(idl_g_gen_FILES) \
+	$(objdir)/.idl.g \
+	IDL
+
+distclean: clean
+
+## If cxx.sh script changed ..
+$(idl_g_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+## If link.sh script changed ..
+$(idl_g_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+$(objdir)/Main@OBJEXT@: \
+	$(srcdir)/Main.cpp \
+	$(objdir)/IDLLexer.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/IDLTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(objdir)/IDLParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp
+
+$(objdir)/IDLLexer@OBJEXT@: \
+	$(objdir)/IDLLexer.cpp \
+	$(objdir)/IDLLexer.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/IDLTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamRecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltForCharException.hpp
+
+$(objdir)/IDLParser@OBJEXT@: \
+	$(objdir)/IDLParser.cpp \
+	$(objdir)/IDLParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(objdir)/IDLTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp
+
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+

@@ -1,0 +1,182 @@
+###############################################################################
+# $Id:$
+###############################################################################
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+subdir=examples/cpp/java
+
+srcdir = @abs_top_srcdir@/examples/cpp/java
+objdir = @abs_this_builddir@/examples/cpp/java
+
+this : test
+test : test1
+
+all: java test
+
+java_g_FILES = \
+	$(srcdir)/java.g \
+	$(eol)
+
+java_g_cxx_FILES = \
+	$(objdir)/JavaLexer.cpp \
+	$(objdir)/JavaRecognizer.cpp \
+	$(eol)
+
+java_g_hpp_FILES = \
+	$(objdir)/JavaLexer.hpp \
+	$(objdir)/JavaRecognizer.hpp \
+	$(objdir)/JavaTokenTypes.hpp \
+	$(eol)
+
+java_g_txt_FILES = \
+	$(objdir)/JavaTokenTypes.txt \
+	$(eol)
+
+java_g_gen_FILES = \
+	$(java_g_cxx_FILES) \
+	$(java_g_hpp_FILES) \
+	$(java_g_txt_FILES) \
+	$(eol)
+
+java_g_obj_FILES = \
+	 $(objdir)/JavaLexer@OBJEXT@ \
+	 $(objdir)/JavaRecognizer@OBJEXT@ \
+	 $(eol)
+
+java_tree_g_FILES = \
+	$(srcdir)/java.tree.g \
+	$(eol)
+
+java_tree_g_cxx_FILES = \
+	$(objdir)/JavaTreeParser.cpp \
+	$(eol)
+
+java_tree_g_hpp_FILES = \
+	$(objdir)/JavaTreeParser.hpp \
+	$(objdir)/JavaTreeParserTokenTypes.hpp \
+	$(eol)
+
+java_tree_g_txt_FILES = \
+	$(objdir)/JavaTreeParserTokenTypes.txt \
+	$(eol)
+
+java_tree_g_gen_FILES = \
+	$(java_tree_g_cxx_FILES) \
+	$(java_tree_g_hpp_FILES) \
+	$(java_tree_g_txt_FILES) \
+	$(eol)
+
+java_tree_g_obj_FILES = \
+	 $(objdir)/JavaTreeParser@OBJEXT@ \
+	 $(eol)
+
+## Source files
+java_cxx_FILES = \
+	$(java_g_cxx_FILES) \
+	$(java_tree_g_cxx_FILES) \
+	$(srcdir)/Main.cpp \
+	$(eol)
+
+## Object files
+java_obj_FILES = \
+	$(java_g_obj_FILES) \
+	$(java_tree_g_obj_FILES) \
+	$(objdir)/Main@OBJEXT@  \
+	$(eol)
+
+## Test commands ..
+test1_cmd = $(objdir)/java $(srcdir)/tests/T.java
+test2_cmd = $(objdir)/java $(srcdir)/tests/E.java
+
+## Tests to be executed
+test1 : java
+	@ v="$(verbose)"; \
+    if test $$v -gt 0 ; then \
+      echo "$(test1_cmd)" ; \
+    else \
+      echo "exec test1 .."; \
+    fi
+	@ $(test1_cmd)
+
+## How to make binaries
+java : $(java_obj_FILES) @ANTLR_LIB@
+	@ @CXX_LINK_CMD@ $@ $(java_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(objdir)/.java.g : $(java_g_FILES) @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@  $(java_g_FILES)
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.java.g`
+
+$(objdir)/.java.tree.g : $(java_tree_g_FILES) @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@  $(java_tree_g_FILES)
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.java.tree.g`
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+#####
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	$(RM) -rf *.o *.obj *.exe java \
+		$(java_g_gen_FILES) $(java_tree_g_gen_FILES) \
+		$(objdir)/.java.tree.g $(objdir)/.java.g
+
+distclean: clean
+
+# Dependencies
+
+# the tree parser depends on the parser/lexer
+# these help files are necessary to prevent loops
+$(objdir)/.java.tree.g: $(objdir)/.java.g
+
+$(java_tree_g_gen_FILES): $(objdir)/.java.tree.g
+$(java_g_gen_FILES): $(objdir)/.java.g
+
+$(objdir)/JavaLexer@OBJEXT@: $(objdir)/JavaLexer.hpp $(objdir)/JavaTokenTypes.hpp
+$(objdir)/JavaRecognizer@OBJEXT@: $(objdir)/JavaRecognizer.hpp $(objdir)/JavaTokenTypes.hpp
+$(objdir)/JavaTreeParser@OBJEXT@: $(objdir)/JavaTreeParser.hpp $(objdir)/JavaTreeParserTokenTypes.hpp
+$(objdir)/Main@OBJEXT@: $(objdir)/JavaRecognizer.hpp $(objdir)/JavaTokenTypes.hpp
+$(objdir)/Main@OBJEXT@: $(objdir)/JavaTreeParser.hpp $(objdir)/JavaTreeParserTokenTypes.hpp
+
+## If cxx.sh script changed ..
+$(java_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+
+## If link.sh script changed ..
+$(java_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

@@ -1,0 +1,189 @@
+###############################################################################
+# $Id:$
+###############################################################################
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+subdir=examples/cpp/flexLexer
+
+srcdir = @abs_top_srcdir@/examples/cpp/flexLexer
+objdir = @abs_this_builddir@/examples/cpp/flexLexer
+
+this : test
+test : test1
+
+all: flex test
+
+java_g_FILES = \
+	$(srcdir)/java.g \
+	$(eol)
+
+java_g_cxx_FILES = \
+	$(objdir)/JavaRecognizer.cpp \
+	$(eol)
+
+java_g_hpp_FILES = \
+	$(objdir)/JavaRecognizer.hpp \
+	$(objdir)/JavaTokenTypes.hpp \
+	$(eol)
+
+java_g_txt_FILES = \
+	$(objdir)/JavaTokenTypes.txt \
+	$(eol)
+
+java_g_gen_FILES = \
+	$(java_g_cxx_FILES) \
+	$(java_g_hpp_FILES) \
+	$(java_g_txt_FILES) \
+	$(eol)
+
+java_g_obj_FILES = \
+	 $(objdir)/JavaRecognizer@OBJEXT@ \
+	 $(eol)
+
+java_tree_g_FILES = \
+	$(srcdir)/java.tree.g \
+	$(eol)
+
+java_tree_g_cxx_FILES = \
+	$(objdir)/JavaTreeParser.cpp \
+	$(eol)
+
+java_tree_g_hpp_FILES = \
+	$(objdir)/JavaTreeParser.hpp \
+	$(objdir)/JavaTreeParserTokenTypes.hpp \
+	$(eol)
+
+java_tree_g_txt_FILES = \
+	$(objdir)/JavaTreeParserTokenTypes.txt \
+	$(eol)
+
+java_tree_g_gen_FILES = \
+	$(java_tree_g_cxx_FILES) \
+	$(java_tree_g_hpp_FILES) \
+	$(java_tree_g_txt_FILES) \
+	$(eol)
+
+java_tree_g_obj_FILES = \
+	 $(objdir)/JavaTreeParser@OBJEXT@ \
+	 $(eol)
+
+## Source files
+flex_cxx_FILES = \
+	$(java_g_cxx_FILES) \
+	$(java_tree_g_cxx_FILES) \
+	$(srcdir)/Main.cpp \
+	$(srcdir)/LexTokenStream.cpp \
+	$(eol)
+
+## Object files
+flex_obj_FILES = \
+	$(objdir)/lex.yy@OBJEXT@ \
+	$(java_g_obj_FILES) \
+	$(java_tree_g_obj_FILES) \
+	$(objdir)/Main@OBJEXT@  \
+	$(objdir)/LexTokenStream@OBJEXT@  \
+	$(eol)
+
+## Test commands ..
+test1_cmd = $(objdir)/flex $(srcdir)/T.java
+
+## Tests to be executed
+test1 : flex
+	@ v="$(verbose)"; \
+    if test $$v -gt 0 ; then \
+      echo "$(test1_cmd)" ; \
+    else \
+      echo "exec test1 .."; \
+    fi
+	@ $(test1_cmd)
+
+## How to make binaries
+# FIXME: libfl location via configure
+flex : $(flex_obj_FILES) @ANTLR_LIB@
+	@ @CXX_LINK_CMD@ $@ $(flex_obj_FILES) -lfl
+
+## How to compile ANTLR grammar files
+$(objdir)/.java.g : $(java_g_FILES) @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@  $(java_g_FILES)
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.java.g`
+
+$(objdir)/.java.tree.g : $(java_tree_g_FILES) @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@  $(java_tree_g_FILES)
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.java.tree.g`
+
+## How to make flex stuff
+# FIXME: should go over configure
+$(objdir)/lex.yy.c: $(srcdir)/java.l ;
+	flex -o$(objdir)/lex.yy.c $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+#####
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	$(RM) -rf *.o *.obj *.exe flex \
+		$(java_g_gen_FILES) $(java_tree_g_gen_FILES) \
+		$(objdir)/lex.yy.c \
+		$(objdir)/.java.tree.g $(objdir)/.java.g
+
+distclean: clean
+
+# Dependencies
+
+# the tree parser depends on the parser/lexer
+# these help files are necessary to prevent loops
+$(objdir)/.java.tree.g: $(objdir)/.java.g
+
+$(java_tree_g_gen_FILES): $(objdir)/.java.tree.g
+$(java_g_gen_FILES): $(objdir)/.java.g
+
+$(objdir)/JavaRecognizer@OBJEXT@: $(objdir)/JavaRecognizer.hpp $(objdir)/JavaTokenTypes.hpp
+$(objdir)/JavaTreeParser@OBJEXT@: $(objdir)/JavaTreeParser.hpp $(objdir)/JavaTreeParserTokenTypes.hpp
+$(objdir)/LexTokenStream@OBJEXT@: $(srcdir)/LexTokenStream.hpp
+$(objdir)/Main@OBJEXT@: $(srcdir)/LexTokenStream.hpp $(objdir)/JavaRecognizer.hpp $(objdir)/JavaTokenTypes.hpp
+$(objdir)/Main@OBJEXT@: $(objdir)/JavaTreeParser.hpp $(objdir)/JavaTreeParserTokenTypes.hpp
+$(objdir)/lex.yy@OBJEXT@: $(objdir)/JavaTokenTypes.hpp
+
+## If cxx.sh script changed ..
+$(flex_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+
+## If link.sh script changed ..
+$(flex_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

@@ -1,0 +1,745 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>ANTLR Options</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<h2><a name="Options">Options</a></h2> <h3><a name="File, Grammar, and Rule">File, Grammar, and Rule</a> Options</h3>
+<p>
+	Rather than have the programmer specify a bunch of command-line arguments to the parser generator, an options section within the grammar itself serves this purpose. This solution is preferrable because it associates the required options with the grammar rather than ANTLR invocation. The section is preceded by the <tt>options</tt> keyword and contains a series of option/value assignments surrounded by curly braces such as:
+</p>
+<pre><tt>
+options {
+   k = 2;
+   tokenVocbaulary = IDL;
+   defaultErrorHandler = false;
+</tt>}</pre>
+<p>
+	The options section for an entire (.g) file, if specified, immediately follows the (optional) file header:
+</p>
+<pre><tt>header { package X; }
+options {language=&quot;FOO&quot;;}</tt></pre>
+<p>
+	The options section for a grammar, if specified, must immediately follow the ';' of the class specifier:
+</p>
+<p>
+	<tt>class MyParser extends Parser;
+		<br>
+		options { k=2; }</tt>
+</p>
+<p>
+	The options section for a rule, if specified, must immediately follow the rule name:
+</p>
+<pre><tt>myrule[<em>args</em>] returns [<em>retval</em>]
+   options { defaultErrorHandler=false; }
+   :   // body of rule...
+   ;</tt>    </pre>
+<p>
+	The option names are not keywords in ANTLR, but rather are entries in a symbol table examined by ANTLR. The scope of option names is limited to the <tt>options</tt> section; identifiers within your grammar may overlap with these symbols.
+</p>
+<p>
+	The only ANTLR options not specified in the <tt>options</tt> section are things that do not vary with the grammar, but rather than invocation of ANTLR itself. The best example is debugging information. Typically, the programmer will want a makefile to change an ANTLR flag indicating a debug or release build.
+</p>
+<h3><a name="_bb2"></a><a name="Options supported">Options supported in ANTLR</a></h3>
+<p>
+	<a name="Options supported">Key for the type column: F=file, G=grammar, R=rule, L=lexer, S=subrule, C=C++ only. </a>
+</p>
+<div align="center">
+	<center>
+		<table border="2" cellpadding="4" height="1473">
+			<tr>
+				<th height="19">
+					<a name="Options supported">Symbol</a>
+				</th>
+				<th height="19">
+					<a name="Options supported">Type</a>
+				</th>
+				<th height="19">
+					<a name="Options supported">Description</a>
+				</th>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><tt><a href="#language">language</a></tt></font>
+				</td>
+				<td align="center" height="19">
+					F
+				</td>
+				<td height="19">
+					Set the generated language
+				</td>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><tt><a href="#k">k</a></tt></font>
+				</td>
+				<td align="center" height="19">
+					G
+				</td>
+				<td height="19">
+					Set the lookahead depth
+				</td>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><a href="#importVocab"><tt>importVocab</tt></a></font>
+				</td>
+				<td align="center" height="19">
+					G
+				</td>
+				<td height="19">
+					Initial grammar vocabulary
+				</td>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><a href="#exportVocab"><tt>exportVocab</tt></a></font>
+				</td>
+				<td align="center" height="19">
+					G
+				</td>
+				<td height="19">
+					Vocabulary exported from grammar
+				</td>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><tt>testLiterals</tt></font>
+				</td>
+				<td align="center" height="19">
+					LG,LR
+				</td>
+				<td height="19">
+					Generate literal-testing code
+				</td>
+			</tr>
+			<tr>
+				<td height="38">
+					<font face="Courier New" size="3"><tt><a href="#defaultErrorHandler">defaultErrorHandler</a></tt></font>
+				</td>
+				<td align="center" height="38">
+					G,R
+				</td>
+				<td height="38">
+					Control default exception-handling
+				</td>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><tt><a href="lexer.html#Nongreedy_Subrules">greedy</a></tt></font>
+				</td>
+				<td align="center" height="19">
+					S
+				</td>
+				<td height="19">
+					False implies you want subrule loop, (..)* and (..)+, to exit when it sees lookahead consistent with what follows the loop.
+				</td>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><tt><a href="#codeGenMakeSwitchThreshold">codeGenMakeSwitchThreshold</a></tt></font>
+				</td>
+				<td align="center" height="19">
+					G
+				</td>
+				<td height="19">
+					Control code generation
+				</td>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><tt><a href="#codeBitsetTestThreshold">codeGenBitsetTestThreshold</a></tt></font>
+				</td>
+				<td align="center" height="19">
+					G
+				</td>
+				<td height="19">
+					Control code generation
+				</td>
+			</tr>
+			<tr>
+				<td height="57">
+					<font face="Courier New" size="3"><tt><a href="#buildAST">buildAST</a></tt></font>
+				</td>
+				<td align="center" height="57">
+					G
+				</td>
+				<td height="57">
+					Set automatic AST construction in Parser (transform mode in Tree-Parser)
+				</td>
+			</tr>
+			<tr>
+				<td height="57">
+					<font face="Courier New" size="3"><tt>analyzerDebug</tt></font>
+				</td>
+				<td align="center" height="57">
+					G
+				</td>
+				<td height="57">
+					Spit out lots of debugging information while performing grammar analysis.
+				</td>
+			</tr>
+			<tr>
+				<td height="57">
+					<font face="Courier New" size="3"><tt>codeGenDebug</tt></font>
+				</td>
+				<td align="center" height="57">
+					G
+				</td>
+				<td height="57">
+					Spit out lots of debugging information while doing code generation.
+				</td>
+			</tr>
+			<tr>
+				<td height="57">
+					<font face="Courier New" size="3"><tt>ASTLabelType</tt></font>
+				</td>
+				<td align="center" height="57">
+					G
+				</td>
+				<td height="57">
+					Specify the type of all user-defined labels, overrides default of <tt>AST</tt>.
+				</td>
+			</tr>
+			<tr>
+				<td height="19">
+					<font face="Courier New" size="3"><tt><a href="#charVocabulary">charVocabulary</a></tt></font>
+				</td>
+				<td align="center" height="19">
+					LG
+				</td>
+				<td height="19">
+					Set the lexer character vocabulary
+				</td>
+			</tr>
+			<tr>
+				<td height="76">
+					<font face="Courier New" size="3"><tt>interactive</tt></font>
+				</td>
+				<td align="center" height="76">
+					G
+				</td>
+				<td height="76">
+					Both the lexer and the parser have an interactive option, which defaults to &quot;false&quot;. See the parser speed section above.
+				</td>
+			</tr>
+			<tr>
+				<td height="95">
+					<tt><font face="Courier New" size="3">caseSensitive</font></tt>
+				</td>
+				<td align="center" height="95">
+					LG
+				</td>
+				<td height="95">
+					Case is ignored when comparing against character and string literals in the lexer. The case of the input stream is maintained when stored in the token objects.
+				</td>
+			</tr>
+			<tr>
+				<td height="152">
+					<font face="Courier New" size="3">ignore</font>
+				</td>
+				<td align="center" height="152">
+					LR
+				</td>
+				<td height="152">
+					Specify a lexer rule to use as whitespace between lexical rule atomic elements (chars, strings, and rule references). The grammar analysis and, hence, the lookhaead sets are aware of the whitespace references. This is a lexer rule option.
+				</td>
+			</tr>
+			<tr>
+				<td height="57">
+					<font face="Courier New" size="3"><a href="err.html#Modifying Default Error Messages With Paraphrases">paraphrase</a></font>
+				</td>
+				<td align="center" height="57">
+					LR
+				</td>
+				<td height="57">
+					An easy way to specify a string to use in place of the token name during error processing.
+				</td>
+			</tr>
+			<tr>
+				<td height="38">
+					<font face="Courier New" size="3">caseSensitiveLiterals</font>
+				</td>
+				<td align="center" height="38">
+					LG
+				</td>
+				<td height="38">
+					Case is ignored when comparing tokens against the listerals table.
+				</td>
+			</tr>
+			<tr>
+				<td height="114">
+					<font face="Courier New" size="3">classHeaderPrefix</font>
+				</td>
+				<td align="center" height="114">
+					G
+				</td>
+				<td height="114">
+					Replace the usual class prefix ("public" in Java) for the enclosing class definition.
+				</td>
+			</tr>
+			<tr>
+				<td height="114">
+					<font face="Courier New" size="3">classHeaderSuffix</font>
+				</td>
+				<td align="center" height="114">
+					G
+				</td>
+				<td height="114">
+					Append a string to the enclosing class definition. In Java, this amounts to a comma-separated list of interfaces that your lexer, parser, or tree walker must implement.
+				</td>
+			</tr>
+			<tr>
+				<td height="57">
+					<font size="3"><tt>mangleLiteralPrefix</tt></font>
+				</td>
+				<td align="center" height="57">
+					F
+				</td>
+				<td height="57">
+					Sets the prefix for the token type definitions of literals rather than using the default of &quot;<tt>TOKEN_</tt>&quot;.
+				</td>
+			</tr>
+			<tr>
+				<td height="152">
+					<font size="3"><tt><a href="#warnWhenFollowAmbig">warnWhenFollowAmbig</a></tt></font>
+				</td>
+				<td align="center" height="152">
+					S
+				</td>
+				<td height="152">
+					Warnings will be printed when the lookahead set of what follows a subrule containing an empty alternative conflicts with a subrule alternative or when the implicit exit branch of a closure loop conflicts with an alternative.&nbsp; The default is true.
+				</td>
+			</tr>
+			<tr>
+				<td height="152">
+					<font size="3"><tt>generateAmbigWarnings</tt></font>
+				</td>
+				<td align="center" height="152">
+					S
+				</td>
+				<td height="152">
+					When true, no ambiguity/nondeterminism warning is generated for the decision associated with the subrule.&nbsp; Use this very carefully--you may change the subrule and miss an ambiguity because of the option.&nbsp; Make very sure that the ambiguity you mask is handled properly by ANTLR.&nbsp; ANTLR-generated parsers resolve ambiguous decisions by consuming input as soon as possible (or by choosing the alternative listed first).
+					<p>
+						See the Java and HTML grammars for proper use of this option.&nbsp; A comment should be supplied for each use indicating why it is ok to shut off the warning.
+				</td>
+			</tr>
+			<tr>
+				<td height="152">
+					<font size="3"><tt><a href="lexer.html#Filtering Input Streams">filter</a></tt></font>
+				</td>
+				<td align="center" height="152">
+					LG
+				</td>
+				<td height="152">
+					When true, the lexer ignores any input not exactly matching one of the nonprotected lexer rules.&nbsp; When set to a rule name, the filter option using the rule to parse input characters between valid tokens or those tokens of interest.
+				</td>
+			</tr>
+			<tr>
+				<td height="76">
+					<font size="3"><tt>namespace</tt></font>
+				</td>
+				<td align="center" height="76">
+					FGC
+				</td>
+				<td height="76">
+					When set, all the C++ code generated is wrapped in the namespace mentioned here.
+				</td>
+			</tr>
+			<tr>
+				<td height="76">
+					<font size="3"><tt>namespaceStd</tt></font>
+				</td>
+				<td align="center" height="76">
+					FGC
+				</td>
+				<td height="76">
+					When set, the ANTLR_USE_NAMESPACE(std) macros in the generated C++ code are replaced by this value. This is a cosmetic option that only makes the code more readable. It does not replace this macro in the support C++ files. Note: use this option directly after setting the language to C++.
+				</td>
+			</tr>
+			<tr>
+				<td height="76">
+					<font size="3"><tt>namespaceAntlr</tt></font>
+				</td>
+				<td align="center" height="76">
+					FGC
+				</td>
+				<td height="76">
+					When set, the ANTLR_USE_NAMESPACE(antlr) macros in the generated C++ code are replaced by this value. This is a cosmetic option that only makes the code more readable. It does not replace this macro in the support C++ files. Note: use this option directly after setting the language to C++.
+				</td>
+			</tr>
+			<tr>
+				<td height="76">
+					<font size="3"><tt>genHashLines</tt></font>
+				</td>
+				<td align="center" height="76">
+					FGC
+				</td>
+				<td height="76">
+					Boolean toggle, when set to 'true' #line &lt;linenumber&gt; &quot;filename&quot; lines are inserted in the generated code so compiler errors/warnings refer the .g files.
+				</td>
+			</tr>
+			<tr>
+				<td height="76">
+					<font size="3"><tt>noConstructors</tt></font>
+				</td>
+				<td align="center" height="76">
+					FGLC
+				</td>
+				<td height="76">
+					Boolean toggle, when set to 'true' the default constructors
+               for the generated lexer/parser/treewalker are omitted. The
+               user then has the option to specify them himself (with extra
+               initializers etc.)
+				</td>
+			</tr>
+		</table>
+	</center>
+</div>
+<h3><a name="_bb3"></a><a name="language">language: Setting the generated language</a></h3>
+<p>
+	ANTLR supports multiple, installable code generators. Any code-generator conforming to the ANTLR specification may be invoked via the language option. The default language is &quot;Java&quot;, but &quot;Cpp&quot; and &quot;CSharp&quot; are also supported. &nbsp; The language option is specified at the file-level, for example:
+</p>
+<pre><tt>header { package zparse; }
+options { language=&quot;Java&quot;; }
+... classes follow ...</tt>    </pre> <h3><a name="_bb4"></a><a name="k">k: Setting the lookahead depth </a></h3>
+<p>
+	You may set the lookahead depth for any grammar (parser, lexer, or tree-walker), by using the k= option:
+</p>
+<pre><tt>class MyLexer extends Lexer;
+options { k=3; }
+...</tt></pre>
+<p>
+	Setting the lookahead depth changes the maximum number of tokens that will be examined to select alternative productions, and test for exit conditions of the EBNF constructs (...)?, (...)+, and (...)*. The lookahead analysis is <i>linear approximate</i> (as opposed to full LL(k) ). This is a bit involved to explain in detail, but consider this example with k=2:
+</p>
+<pre><tt>r :  ( A B | B A )
+  |  A A
+  ;</tt></pre>
+<p>
+	Full LL(k) analysis would resolve the ambiguity and produce a lookahead test for the first alternate like:
+</p>
+<pre><tt>if ( (LA(1)==A &amp;&amp; LA(2)==B) || (LA(1)==B &amp;&amp; LA(2)==A) )</tt></pre>
+<p>
+	However, linear approximate analysis would logically OR the lookahead sets at each depth, resulting in a test like:
+</p>
+<pre><tt>if ( (LA(1)==A || LA(1)==B) &amp;&amp; (LA(2)==A || LA(2)==B) )</tt></pre>
+<p>
+	Which is ambiguous with the second alternate for {A,A}. Because of this, setting the lookahead depth very high tends to yield diminishing returns in most cases, because the lookahead sets at large depths will include almost everything.
+</p>
+<h3><a name="_bb5"></a><a name="importVocab">importVocab: Initial Grammar Vocabulary</a></h3>
+<p>
+	[<em>See the documentation on <a href="vocab.html">vocabularies</a> for more information</em>]
+</p>
+<p>
+	To specify an initial vocabulary (tokens, literals, and token types), use the importVocab grammar option.
+</p>
+<p>
+	<tt>class MyParser extends Parser;
+		<br>
+		options {
+		<br>
+		&nbsp;&nbsp; importVocab=V;
+		<br>
+		}</tt>
+</p>
+<p>
+	ANTLR will look for VTokenTypes.txt in the current directory and preload the token manager for MyParser with the enclosed information.
+</p>
+<p>
+	This option is useful, for example, if you create an external lexer and want to connect it to an ANTLR parser. Conversely, you may create an external parser and wish to use the token set with an ANTLR lexer. Finally, you may find it more convenient to place your grammars in separate files, especially if you have multiple tree-walkers that do not add any literals to the token set.
+</p>
+<p>
+	The vocabulary file has an identifier on the first line that names the token vocabulary that is followed by lines of the form ID=value or &quot;literal&quot;=value. For example:
+</p>
+<pre><tt>ANTLR // vocabulary name
+&quot;header&quot;=3
+ACTION=4
+COLON=5
+SEMI=6
+...</tt></pre>
+<p>
+	A file of this form is automatically generated by ANTLR for each grammar.
+</p>
+<p>
+	Note: you must take care to run ANTLR on the vocabulay-generating grammar files <b>before</b> you run ANTLR on the vocabulary-consuming grammar files.
+</p>
+<h3><a name="_bb6"></a><a name="exportVocab">exportVocab: Naming Export Vocabulary</a></h3>
+<p>
+	[<em>See the documentation on <a href="vocab.html">vocabularies</a> for more information</em>]
+</p>
+<p>
+	The vocabulary of a grammar is the union of the set of tokens provided by an importVocab option and the set of tokens and literals defined in the grammar.&nbsp; ANTLR exports a vocabulary for each grammar whose default name is the same as the grammar. &nbsp; So, the following grammar yields a vocabulary called P:
+</p>
+<pre>class P extends Parser;
+a : A;</pre>
+<p>
+	ANTLR generates files PTokenTypes.txt and PTokenTypes.java.
+</p>
+<p>
+	You can specify the name of the exported vocabulary with the exportVocab option. &nbsp; The following grammar generates a vocabulary called V not P.
+</p>
+<pre>class P extends Parser;
+options {
+  exportVocab=V;
+}
+a : A;</pre>
+<p>
+	All grammars in the same file witht the same vocabulary name contribute to the same vocabulary (and resulting files).&nbsp; If the the grammars were in separate files, on the other hand, they would all overwrite the same file.&nbsp; For example, the following parser and lexer grammars both may contribute literals and tokens to the MyTokens vocabulary.
+</p>
+<pre><tt>class MyParser extends Parser;
+options {
+  exportVocab=MyTokens;
+}
+...
+
+class MyLexer extends Lexer;
+options {
+  exportVocab=MyTokens;
+}
+...</tt> </pre> <h3><a name="_bb8"></a><a name="testLiterals">testLiterals: Generate literal-testing code</a></h3>
+<p>
+	By default, ANTLR will generate code in all lexers to test each token against the literals table (the table generated for literal strings), and change the token type if it matches the table. However, you may suppress this code generation in the lexer by using a grammar option:
+</p>
+<pre><tt>class L extends Lexer;
+options { testLiterals=false; }
+...</tt></pre>
+<p>
+	If you turn this option off for a lexer, you may re-enable it for specific rules. This is useful, for example, if all literals are keywords, which are special cases of ID:
+</p>
+<pre><tt>ID
+options { testLiterals=true; }
+   : LETTER (LETTER | DIGIT)*
+   ;</tt></pre>
+<p>
+	<font size="3">If you want to test only a portion of a token's text for a match in the literals table, explicitly test the substring within an action using method:</font>
+</p>
+<pre><font size="3">&nbsp;&nbsp;&nbsp; public int testLiteralsTable(String text, int ttype) {...}</font></pre>
+<p>
+	<font size="3">For example, you might want to test the literals table for just the tag word in an HTML word.</font>
+</p>
+<h3><a name="_bb9"></a><a name="defaultErrorHandler">defaultErrorHandler: Controlling default exception-handling</a></h3>
+<p>
+	By default, ANTLR will generate default exception handling code for a parser or tree-parser rule. The generated code will catch any parser exceptions, synchronize to the follow set of the rule, and return. This is simple and often useful error-handling scheme, but it is not very sophisticated. Eventually, you will want to install your own exepttion handlers. ANTLR will automatically turn off generation of default exception handling for rule where an exception handler is specified. You may also explicitly control generation of default exception handling on a per-grammar or per-rule basis. For example, this will turn off default error-handing for the entire grammar, but turn it back on for rule &quot;r&quot;:
+</p>
+<pre><tt>class P extends Parser;
+options {defaultErrorHandler=false;}
+
+r
+options {defaultErrorHandler=true;}
+: A B C;</tt></pre>
+<p>
+	For more information on exception handling in the lexer, go <a href="err.html#Default Exception Handling in the Lexer">here</a>.
+</p>
+<h3><a name="_bb10"></a><a name="codeGenMakeSwitchThreshold">codeGenMakeSwitchThreshold: controlling code generation</a></h3>
+<p>
+	ANTLR will optimize lookahead tests by generating a switch statement instead of a series of if/else tests for rules containing a sufficiently large number of alternates whose lookahead is strictly LL(1). The option codeGenMakeSwitchThreshold controls this test. You may want to change this to control optimization of the parser. You may also want to disable it entirely for debugging purposes, by setting it to a large number:
+</p>
+<pre><tt>class P extends Parser;
+options { codeGenMakeSwitchThreshold=999; }
+...</tt></pre> <h3><a name="_bb11"></a><a name="codeBitsetTestThreshold">codeGenBitsetTestThreshold: controlling code generation</a></h3>
+<p>
+	ANTLR will optimize lookahead tests by generating a bitset test instead of an if statement, for very complex lookahead sets. The option codeGenBitsetTestThreshold controls this test. You may want to change this to control optimization of the parser:
+</p>
+<pre><tt>class P extends Parser;
+// make bitset if test involves five or more terms
+options { codeGenBitsetTestThreshold=5; }
+...</tt></pre>
+<p>
+	You may also want to disable it entirely for debugging purposes, by setting it to a large number:
+</p>
+<pre><tt>class P extends Parser;
+options { codeGenBitsetTestThreshold=999; }
+...</tt>      </pre> <h3><a name="_bb12"></a><a name="buildAST">buildAST: Automatic AST construction </a></h3>
+<p>
+	In a Parser, you can tell ANTLR to generate code to construct ASTs corresponding to the structure of the recognized syntax. The option, if set to true, will cause ANTLR to generate AST-building code. With this option set, you can then use all of the <a href="trees.html">AST-building syntax and support methods</a>.
+</p>
+<p>
+	In a Tree-Parser, this option turns on &quot;transform mode&quot;, which means an output AST will be generated that is a transformation of the input AST. In a tree-walker, the default action of <tt>buildAST</tt> is to generate a copy of the portion of the input AST that is walked. Tree-transformation is almost identical to building an AST in a Parser, except that the input is an AST, not a stream of tokens.
+</p>
+<h3><a name="_bb13">ASTLabelType: Setting label type</a></h3>
+<p>
+	When you must define your own AST node type, your actions within the grammar will require lots of downcasting from AST (the default type of any user-defined label) to your tree node type; e.g.,
+</p>
+<pre>decl : d:ID {MyAST t=(MyAST)#d;}
+     ;</pre>
+<p>
+	This makes your code a pain to type in and hard to read.&nbsp; To avoid this, use the grammar option <tt>ASTLabelType</tt> to have ANTLR automatically do casts and define labels of the appropriate type.
+</p>
+<pre>class ExprParser extends Parser;
+
+options {
+  buildAST=true;
+  ASTLabelType = &quot;MyAST&quot;;
+}
+
+expr : a:term ;</pre>
+<p>
+	The type of <tt>#a</tt> within an action is <tt>MyAST</tt> not <tt>AST</tt>.
+</p>
+<h3><a name="_bb14"></a><a name="charVocabulary">charVocabulary: Setting the lexer character vocabulary</a></h3>
+<p>
+	ANTLR processes Unicode. Because of this this, ANTLR cannot make any assumptions about the character set in use, else it would wind up generating huge lexers. Instead ANTLR assumes that the character literals, string literals, and character ranges used in the lexer constitute the entire character set of interest. For example, in this lexer:
+</p>
+<pre><tt>class L extends Lexer;
+A : 'a';
+B : 'b';
+DIGIT : '0' .. '9';</tt></pre>
+<p>
+	The implied character set is { 'a', 'b', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' }. This can produce unexpected results if you assume that the normal ASCII character set is always used. For example, in:
+</p>
+<pre><tt>class L extends Lexer;
+A : 'a';
+B : 'b';
+DIGIT : '0' .. '9';
+STRING: '&quot;' (~'&quot;&quot;)* '&quot;';</tt></pre>
+<p>
+	The lexer rule STRING will only match strings containing 'a', 'b' and the digits, which is usually not what you want. To control the character set used by the lexer, use the <tt>charVocbaulary</tt> option. This example will use a general eight-bit character set.
+</p>
+<pre><tt>class L extends Lexer;
+options { charVocabulary = '\3'..'\377'; }
+...</tt></pre>
+<p>
+	This example uses the ASCII character set in conjunction with some values from the extended Unicode character set:
+</p>
+<pre><tt>
+class L extends Lexer;
+options {
+	charVocabulary = '\3'..'\377' | '\u1000'..'\u1fff';
+}
+...</tt></pre> <h3><a name="_bb15"></a><a name="warnWhenFollowAmbig">warnWhenFollowAmbig</a></h3>
+<p>
+	[<strong>Warning</strong>: you should know what you are doing before you use this option.&nbsp; I deliberately made it a pain to shut warnings off (rather than a single character operator) so you would not just start turning off all the warnings.&nbsp; I thought for long time before implementing this exact mechanism.&nbsp; I recommend a comment in front of any use of this option that explains why it is ok to hush the warning.]
+</p>
+<p>
+	This subrule option is true by default and controls the generation of nondeterminism (ambiguity) warnings when comparing the FOLLOW lookahead sets for any subrule with an empty alternative and any closure subrule such as (..)+ and (...)*.&nbsp; For example, the following simple rule has a nondeterministic subrule, which arises from a language ambiguity that you could attach an ELSE clause to the most recent IF <strong>or</strong> to an outer IF because the construct can nest.
+</p>
+<pre>stat	:	&quot;if&quot; expr &quot;then&quot; stat (&quot;else&quot; stat)?
+	|	ID ASSIGN expr SEMI
+	;</pre>
+<p>
+	Because the language is ambiguous, the context-free grammar must be ambiguous and the resulting parser nondeterministic (in theory).&nbsp; However, being the practical language folks that we are, we all know you can trivially solve this problem by having ANTLR resolve conflicts by consuming input as soon as possible; I have yet to see a case where this was the wrong thing to do, by the way.&nbsp; This option, when set to false, merely informs ANTLR that it has made the correct assumption and can shut off an ambiguity related to this subrule and an empty alternative or exit path.&nbsp; Here is a version of the rule that does not yield a warning message:
+</p>
+<p>
+	&nbsp;
+</p>
+<pre>stat	:	&quot;if&quot; expr &quot;then&quot; stat
+		(
+		    // standard if-then-else ambig
+		    options {
+		        warnWhenFollowAmbig=false;
+		    }
+		:	&quot;else&quot; stat
+		)?
+	|	ID ASSIGN expr SEMI
+	;</pre>
+<p>
+	One important note: This option does not affect non-empty alternatives.&nbsp; For example, you will still get a warning for the following subrule between alts 1 and 3 (upon lookahead A):
+</p>
+<pre>(
+	options {
+		warnWhenFollowAmbig=false;
+	}
+:	A
+|	B
+|	A
+)</pre>
+<p>
+	Further, this option is insensitive to lookahead.&nbsp; Only completely empty alternatives count as candidate alternatives for hushing warnings.&nbsp; So, at k=2, just because ANTLR can see past alternatives with single tokens, you still can get warnings.
+</p>
+<h3><a name="Command Line Options">Command Line Options</a></h3>
+<table border="1" width="100%">
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-o outputDir</font>
+		</td>
+		<td width="50%">
+			specify output directory where all output generated.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-glib supergrammarFile</font>
+		</td>
+		<td width="50%">
+			Specify a file with a supergrammar for the generated file.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-debug</font>
+		</td>
+		<td width="50%">
+			launch the ParseView debugger upon parser invocation.&nbsp; Unless you have downloaded and unzipped the debugger over the top of the standard ANTLR distribution, the code emanating from ANTLR with this option will not compile (likewise for Swing).
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-html</font>
+		</td>
+		<td width="50%">
+			generate a HTML file from your grammar without actions and so on. &nbsp; This is only a <strong>prototype</strong>, but seems to do something useful. &nbsp; It only works for parsers, not lexers or tree parsers.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-docbook</font>
+		</td>
+		<td width="50%">
+			generate a docbook SGML file from your grammar without actions and so on. &nbsp; This is only a <strong>prototype</strong>, but seems to do something useful. &nbsp; It only works for parsers, not lexers or tree parsers.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-diagnostic</font>
+		</td>
+		<td width="50%">
+			generate a text file from your grammar with a lot of debugging info.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-trace</font>
+		</td>
+		<td width="50%">
+			have all rules call traceIn/traceOut.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-traceParser</font>
+		</td>
+		<td width="50%">
+			have parser rules call traceIn/traceOut.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-traceLexer</font>
+		</td>
+		<td width="50%">
+			have lexer rules call traceIn/traceOut.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-traceTreeParser</font>
+		</td>
+		<td width="50%">
+			have tree walker rules call traceIn/traceOut.
+		</td>
+	</tr>
+	<tr>
+		<td width="20%">
+			<font face="Courier New">-h|-help|--help</font>
+		</td>
+		<td width="50%">
+		        help message.
+		</td>
+	</tr>
+</table>
+<p>
+	<font face="Arial" size="2">Version: $Id: //depot/code/org.antlr/release/antlr-2.7.5/doc/options.html#1 $</font>
+
+</body>
+</html>

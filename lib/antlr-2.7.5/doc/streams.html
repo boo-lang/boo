@@ -1,0 +1,510 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>ANTLR Specification: Token Streams</title> 
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<h2>Token Streams</h2> 
+<p>
+	Traditionally, a lexer and parser are tightly coupled objects; that is, one does not imagine anything sitting between the parser and the lexer, modifying the stream of tokens. &nbsp; However, language recognition and translation can benefit greatly from treating the connection between lexer and parser as a <em>token stream</em>.&nbsp; This idea is analogous to Java I/O streams, where you can pipeline lots of stream objects to produce highly-processed data streams.
+</p>
+<h3><a name="Introduction">Introduction</a></h3> 
+<p>
+	ANTLR identifies a stream of Token objects as any object that satisfies the <font face="Courier New">TokenStream</font> interface (prior to 2.6, this interface was called <font face="Courier New">Tokenizer</font>); i.e., any object that implements the following method.
+</p>
+<pre>Token nextToken();</pre> 
+<p>
+	Graphically, a normal stream of tokens from a lexer (producer) to a parser (consumer) might look like the following at some point during the parse.
+</p>
+<p>
+	<img src="lexer.to.parser.tokens.gif" width="564" height="81" alt="lexer.to.parser.tokens.gif (3585 bytes)">
+</p>
+<p>
+	The most common token stream is a lexer, but once you imagine a physical stream between the lexer and parser, you start imagining interesting things that you can do.&nbsp; For example, you can:
+<ul>
+	<li>
+		filter a stream of tokens to strip out unwanted tokens
+	</li>
+	<li>
+		insert imaginary tokens to help the parser recognize certain nasty structures
+	</li>
+	<li>
+		split a single stream into multiple streams, sending certain tokens of interest down the various streams
+	</li>
+	<li>
+		multiplex multiple token streams onto one stream, thus, &quot;simulating&quot; the lexer states of tools like PCCTS, lex, and so on.
+	</li>
+</ul>
+<p>
+	The beauty of the token stream concept is that parsers and lexers are not affected--they are merely consumers and producers of streams.&nbsp; Stream objects are filters that produce, process, combine, or separate token streams for use by consumers. &nbsp; Existing lexers and parsers may be combined in new and interesting ways without modification.
+</p>
+<p>
+	This document formalizes the notion of a token stream and describes in detail some very useful stream filters.
+</p>
+<h3><a name="Pass-Through Token Stream">Pass-Through Token Stream</a></h3> 
+<p>
+	A token stream is any object satisfying the following interface.
+</p>
+<pre><small>public interface TokenStream {
+  public Token nextToken()</small>
+<small>    throws java.io.IOException;
+}</small></pre> 
+<p>
+	For example, a &quot;no-op&quot; or pass-through filter stream looks like:
+</p>
+<pre><small>import antlr.*;
+import java.io.IOException;
+
+class TokenStreamPassThrough</small>
+<small>    implements TokenStream {
+  protected TokenStream input;
+
+  /** Stream to read tokens from */</small>
+<small>  public TokenStreamPassThrough(TokenStream in) {
+    input = in;
+  }
+
+  /** This makes us a stream */</small>
+<small>  public Token nextToken() throws IOException {
+    return input.nextToken(); // &quot;short circuit&quot;
+  }
+}</small></pre> 
+<p>
+	You would use this simple stream by having it pull tokens from the lexer and then have the parser pull tokens from it as in the following main() program.
+</p>
+<pre><small>public static void main(String[] args) {
+&nbsp;&nbsp;MyLexer&nbsp;lexer&nbsp;=
+    new&nbsp;MyLexer(new&nbsp;DataInputStream(System.in));
+  TokenStreamPassThrough filter =</small>
+<small>    new TokenStreamPassThrough(lexer);
+  MyParser parser = new MyParser(filter);</small>
+<small>  parser.<em>startRule</em>();
+}</small></pre> <h3><a name="Token Stream Filtering">Token Stream Filtering</a></h3> 
+<p>
+	Most of the time, you want the lexer to discard whitespace and comments, however, what if you also want to reuse the lexer in situations where the parser must see the comments?&nbsp; You can design a single lexer to cover many situations by having the lexer emit comments and whitespace along with the normal tokens.&nbsp; Then, when you want to discard whitespace, put a filter between the lexer and the parser to kill whitespace tokens.
+</p>
+<p>
+	ANTLR provides <small><font face="Courier New">TokenStreamBasicFilter</font></small> for such situations.&nbsp; You can instruct it to discard any token type or types without having to modify the lexer.&nbsp; Here is an example usage of <small><font face="Courier New">TokenStreamBasicFilter</font></small> that filters out comments and whitespace.
+</p>
+<pre><small>public static void main(String[] args) {
+&nbsp;&nbsp;MyLexer&nbsp;lexer&nbsp;=
+    new&nbsp;MyLexer(new&nbsp;DataInputStream(System.in));
+  TokenStreamPassThrough filter =</small>
+<small>    new TokenStreamPassThrough(lexer);
+  filter.discard(MyParser.WS);
+  filter.discard(MyParser.COMMENT);</small>
+<small>  MyParser parser = new MyParser(filter);</small>
+<small>  parser.<em>startRule</em>();
+}</small></pre> 
+<p>
+	Note that it is more efficient to have the lexer immediately discard lexical structures you do not want because you do not have to construct a Token object.&nbsp; On the other hand, filtering the stream leads to more flexible lexers.
+</p>
+<h3><a name="Token Stream Splitting">Token Stream Splitting</a></h3> 
+<p>
+	Sometimes you want a translator to ignore but not discard portions of the input during the recognition phase.&nbsp;&nbsp; For example, you want to ignore comments vis-a-vis parsing, but you need the comments for translation.&nbsp;&nbsp; The solution is to send the comments to the parser on a <em>hidden</em> token stream--one that the parser is not &quot;listening&quot; to.&nbsp; During recognition, actions can then examine the hidden stream or streams, collecting the comments and so on.&nbsp; Stream-splitting filters are like prisms that split white light into rainbows.
+</p>
+<p>
+	The following diagram illustrates a situation in which a single stream of tokens is split into three.
+</p>
+<p>
+	<img src="stream.splitter.gif" width="546" height="232" alt="stream.splitter.gif (5527 bytes)">
+</p>
+<p>
+	You would have the parser pull tokens from the topmost stream.
+</p>
+<p>
+	There are many possible capabilities and implementations of a stream splitter. &nbsp; For example, you could have a &quot;Y-splitter&quot; that actually duplicated a stream of tokens like a cable-TV Y-connector.&nbsp; If the filter were thread-safe and buffered, you could have multiple parsers pulling tokens from the filter at the same time.
+</p>
+<p>
+	This section describes a stream filter supplied with ANTLR called <small><font face="Courier New">TokenStreamHiddenTokenFilter</font></small> that behaves like a coin sorter, sending pennies to one bin, dimes to another, etc...&nbsp; This filter splits the input stream into two streams, a main stream with the majority of the tokens and a <em>hidden</em> stream that is buffered so that you can ask it questions later about its contents. &nbsp; Because of the implementation, however, you cannot attach a parser to the hidden stream.&nbsp; The filter actually weaves the hidden tokens among the main tokens as you will see below.
+</p>
+<h4><a name="Example">Example</a></h4> 
+<p>
+	Consider the following simple grammar that reads in integer variable declarations.
+</p>
+<pre>decls: (decl)+
+     ;
+decl : begin:INT ID end:SEMI
+     ; </pre> 
+<p>
+	Now assume input:
+</p>
+<pre>int n; // list length
+/** doc */
+int f;</pre> 
+<p>
+	Imagine that whitespace is ignored by the lexer and that you have instructed the filter to split comments onto the hidden stream.&nbsp; Now if the parser is pulling tokens from the main stream, it will see only &quot;INT ID SEMI FLOAT ID SEMI&quot; even though the comments are hanging around on the hidden stream.&nbsp; So the parser effectively ignores the comments, but your actions can query the filter for tokens on the hidden stream.
+</p>
+<p>
+	The first time through rule <font face="Courier New">decl</font>, the <font face="Courier New">begin</font> token reference has no hidden tokens before or after, but
+</p>
+<pre><font face="Courier New">filter.getHiddenAfter(end)</font></pre> 
+<p>
+	returns a reference to token
+</p>
+<pre><font face="Courier New">// list length</font></pre> 
+<p>
+	which in turn provides access to
+</p>
+<p>
+	<font face="Courier New">/** doc */</font>
+</p>
+<p>
+	The second time through <font face="Courier New">decl</font>
+</p>
+<pre><font face="Courier New">filter.getHiddenBefore(begin)</font></pre> 
+<p>
+	refers to the
+</p>
+<pre><font face="Courier New">/** doc */</font></pre> 
+<p>
+	comment.
+</p>
+<h4><a name="Filter Implementation">Filter Implementation</a></h4> 
+<p>
+	The following diagram illustrates how the Token objects are physically weaved together to simulate two different streams.
+</p>
+<p align="center">
+	<img src="hidden.stream.gif" width="377" height="148" alt="hidden.stream.gif (3667 bytes)">
+</p>
+<p align="center">
+	&nbsp;
+</p>
+<p>
+	As the tokens are consumed, the <small><font face="Courier New">TokenStreamHiddenTokenFilter</font></small> object hooks the hidden tokens to the main tokens via linked list.&nbsp; There is only one physical TokenStream of tokens emanating from this filter and the interweaved pointers maintain sequence information.
+</p>
+<p>
+	Because of the extra pointers required to link the tokens together, you must use a special token object called <small><font face="Courier New">CommonHiddenStreamToken</font></small> (the normal object is called <small><font face="Courier New">CommonToken</font></small>). &nbsp; Recall that you can instruct a lexer to build tokens of a particular class with
+</p>
+<pre><small>lexer.setTokenObjectClass(&quot;<em>classname</em>&quot;);</small></pre> 
+<p>
+	Technically, this exact filter functionality could be implemented without requiring a special token object, but this filter implementation is extremely efficient and it is easy to tell the lexer what kind of tokens to create.&nbsp; Further, this implementation makes it very easy to automatically have tree nodes built that preserve the hidden stream information.
+</p>
+<p>
+	This filter affects the lazy-consume of ANTLR.&nbsp; After recognizing every main stream token, the <small><font face="Courier New">TokenStreamHiddenTokenFilter</font></small> must grab the next Token to see if it is a hidden token. Consequently, the use of this filter is not be very workable for interactive (e.g., command-line) applications.
+</p>
+<h4><a name="How To Use This Filter">How To Use This Filter</a></h4> 
+<p>
+	To use <small><font face="Courier New">TokenStreamHiddenTokenFilter</font></small>, all you have to do is: 
+<ul>
+	<li type="disc" value="2">
+		Create the lexer and tell it to create token objects augmented with links to hidden tokens.
+	</li>
+</ul>
+<pre><small>MyLexer lexer = new MyLexer(<em>some-input-stream</em>);
+lexer.setTokenObjectClass(</small>
+<small>  &quot;antlr.CommonHiddenStreamToken&quot;</small>
+<small>);</small></pre> 
+<ul>
+	<li>
+		Create a <small><font face="Courier New">TokenStreamHiddenTokenFilter</font></small> object that pulls tokens from the lexer.
+	</li>
+</ul>
+<pre><small><font face="Courier New">TokenStreamHiddenTokenFilter</font> filter =</small>
+<small>  new <font face="Courier New">TokenStreamHiddenTokenFilter</font>(lexer);</small></pre> 
+<ul>
+	<li>
+		Tell the <small><font face="Courier New">TokenStreamHiddenTokenFilter</font></small> which tokens to hide, and which to discard.&nbsp; For example,
+	</li>
+</ul>
+<pre><small>filter.discard(MyParser.WS);
+filter.hide(MyParser.SL_COMMENT);</small></pre> 
+<ul>
+	<li>
+		Create a parser that pulls tokens from the <small><font face="Courier New">TokenStreamHiddenTokenFilter</font></small> rather than the lexer.
+	</li>
+</ul>
+<pre><small>MyParser parser = new MyParser(filter);
+try {
+  parser.<em>startRule</em>(); // parse as usual
+}
+catch (Exception e) {
+  System.err.println(e.getMessage());
+}</small></pre> 
+<p>
+	See the ANTLR fieldguide entry on <a href="http://www.antlr.org/fieldguide/whitespace">preserving whitespace</a> for a complete example.
+</p>
+<h4><a name="Tree Construction">Tree Construction</a></h4> 
+<p>
+	Ultimately, hidden stream tokens are needed during the translation phase, which normally means while tree walking.&nbsp; How do we pass the hidden stream info to the translator without mucking up the tree grammar?&nbsp; Easy: use AST nodes that save the hidden stream tokens.&nbsp; ANTLR defines <small><font face="Courier New">CommonASTWithHiddenTokens</font></small> for you that hooks the hidden stream tokens onto the tree nodes automatically; methods are available to access the hidden tokens associated with a tree node.&nbsp; All you have to do is tell the parser to create nodes of this node type rather than the default <small><font face="Courier New">CommonAST</font></small>.
+</p>
+<pre><small>parser.setASTNodeClass(&quot;antlr.CommonASTWithHiddenTokens&quot;);</small></pre> 
+<p>
+	Tree nodes are created as functions of Token objects.&nbsp; The <small><font face="Courier New">initialize()</font></small> method of the tree node is called with a Token object when the ASTFactory creates the tree node.&nbsp; Tree nodes created from tokens with hidden tokens before or after will have the same hidden tokens.&nbsp; You do not have to use this node definition, but it works for many translation tasks:
+</p>
+<pre><small>package antlr;
+
+/** A CommonAST whose initialization copies
+ *  hidden token information from the Token
+ *  used to create a node.
+ */
+public class CommonASTWithHiddenTokens
+  extends CommonAST {
+  // references to hidden tokens
+  protected Token hiddenBefore, hiddenAfter;
+
+  public CommonHiddenStreamToken <strong>getHiddenAfter</strong>() {</small>
+<small>    return hiddenAfter;</small>
+<small>  }
+  public CommonHiddenStreamToken <strong>getHiddenBefore</strong>() {</small>
+<small>    return hiddenBefore;</small>
+<small>  }
+  public void <strong>initialize</strong>(Token tok) {
+    CommonHiddenStreamToken t =</small>
+<small>      (CommonHiddenStreamToken)tok;
+    super.initialize(t);
+    hiddenBefore = t.getHiddenBefore();
+    hiddenAfter  = t.getHiddenAfter();
+  }
+}</small></pre> 
+<p>
+	Notice that this node definition assumes that you are using <small><font face="Courier New">CommonHiddenStreamToken</font></small> objects.&nbsp; A runtime class cast except occurs if you do not have the lexer create <small><font face="Courier New">CommonHiddenStreamToken</font></small> objects. 
+</p>
+<h4><a name="Garbage Collection Issues">Garbage Collection Issues</a></h4> 
+<p>
+	By partitioning up the input stream and preventing hidden stream tokens from referring to main stream tokens, GC is allowed to work on the Token stream. In the integer declaration example above, when there are no more references to the first SEMI token and the second INT token, the comment tokens are candidates for garbage collection.&nbsp; If all tokens were linked together, a single reference to any token would prevent GC of any tokens.&nbsp; This is not the case in ANTLR's implementation.
+</p>
+<h4><a name="Notes">Notes</a></h4> 
+<p>
+	This filter works great for preserving whitespace and comments during translation, but is not always the best solution for handling comments in situations where the output is very dissimilar to the input.&nbsp; For example, there may be 3 comments interspersed within an input statement that you want to combine at the head of the output statement during translation.&nbsp; Rather than having to ask each parsed token for the comments surrounding it, it would be better to have a real, physically-separate stream that buffered the comments and a means of associating groups of parsed tokens with groups of comment stream tokens.&nbsp; You probably want to support questions like &quot;<em>give me all of the tokens on the comment stream that originally appeared between this beginning parsed token and this ending parsed token</em>.&quot;
+</p>
+<p>
+	This filter implements the exact same functionality as JavaCC's <em>special</em> tokens.&nbsp; Sriram Sankar (father of JavaCC) had a great idea with the special tokens and, at the 1997 <a href="http://www.antlr.org/workshop97/summary.html">Dr. T's Traveling Parsing Revival and Beer Tasting Festival</a>, the revival attendees extended the idea to the more general token stream concept.&nbsp; Now, the JavaCC special token functionality is just another ANTLR stream filter with the bonus that you do not have to modify the lexer to specify which tokens are special.
+</p>
+<h3><a name="lexerstates">Token Stream Multiplexing (aka &quot;Lexer states&quot;)</a></h3> 
+<p>
+	Now, consider the opposite problem where you want to combine multiple streams rather than splitting a single stream.&nbsp; When your input contains sections or slices that are radically diverse such as Java and JavaDoc comments, you will find that it is hard to make a single lexer recognize all slices of the input.&nbsp; This is primarily because merging the token definitions of the various slices results in an ambiguous lexical language or allows invalid tokens.&nbsp; For example, &quot;final&quot; may be a keyword in one section, but an identifier in another.&nbsp; Also, &quot;@author&quot; is a valid javadoc tag within a comment, but is invalid in the surrounding Java code.
+</p>
+<p>
+	Most people solve this problem by having the lexer sit in one of multiple states (for example, &quot;reading Java stuff&quot; vs &quot;reading JavaDoc stuff&quot;).&nbsp; The lexer starts out in Java mode and then, upon &quot;/**&quot;, switches to JavaDoc mode; &quot;*/&quot; forces the lexer to switch back to Java mode.
+</p>
+<h4><a name="Multiple Lexers">Multiple Lexers</a></h4> 
+<p>
+	Having a single lexer with multiple states works, but having multiple lexers that are multiplexed onto the same token stream solves the same problem better because the separate lexers are easier to reuse (no cutting and pasting into a new lexer--just tell the stream multiplexor to switch to it).&nbsp; For example, the JavaDoc lexer could be reused for any language problem that had JavaDoc comments.
+</p>
+<p>
+	ANTLR provides a predefined token stream called <small><font face="Courier New">TokenStreamSelector</font></small> that lets you switch between multiple lexers.&nbsp; Actions in the various lexers control how the selector switches input streams.&nbsp; Consider the following Java fragment.
+</p>
+<pre>/** Test.
+ *  @author Terence
+ */
+int n;</pre> 
+<p>
+	Given two lexers, JavaLexer and JavaDocLexer, the sequence of actions by the two lexers might look like this:
+</p>
+<p>
+	<small><font face="Arial">JavaLexer: match JAVADOC_OPEN, switch to JavaDocLexer
+			<br>
+			JavaDocLexer: match AUTHOR
+			<br>
+			JavaDocLexer: match ID
+			<br>
+			JavaDocLexer: match JAVADOC_CLOSE, switch back to JavaLexer
+			<br>
+			JavaLexer: match INT
+			<br>
+			JavaLexer: match ID
+			<br>
+			JavaLexer: match SEMI</font></small>
+</p>
+<p>
+	In the Java lexer grammar, you will need a rule to perform the switch to the JavaDoc lexer (recording on the stack of streams the &quot;return lexer&quot;):
+</p>
+<pre><small>JAVADOC_OPEN
+    :    &quot;/**&quot; {selector.push(&quot;doclexer&quot;);}
+    ;</small></pre> 
+<p>
+	Similarly, you will need a rule in the JavaDoc lexer to switch back:
+</p>
+<pre><small>JAVADOC_CLOSE
+    :    &quot;*/&quot; {selector.pop();}
+    ;</small></pre> 
+<p>
+	The selector has a stack of streams so the JavaDoc lexer does not need to know who invoked it.
+</p>
+<p>
+	Graphically, the selector combines the two lexer streams into a single stream presented to the parser.
+</p>
+<p>
+	<img src="stream.selector.gif" width="538" height="238" alt="stream.selector.gif (5976 bytes)">
+</p>
+<p>
+	The selector can maintain of list of streams for you so that you can switch to another input stream by name or you can tell it to switch to an actual stream object.
+</p>
+<pre><small>public class TokenStreamSelector implements TokenStream {
+  public <strong>TokenStreamSelector</strong>() {...}
+  public void <strong>addInputStream</strong>(TokenStream stream,</small>
+<small>    String key) {...}
+  public void <strong>pop</strong>() {...}
+  public void <strong>push</strong>(TokenStream stream) {...}
+  public void <strong>push</strong>(String sname) {...}
+  /** Set the stream without pushing old stream */
+  public void <strong>select</strong>(TokenStream stream) {...}
+  public void <strong>select</strong>(String sname)</small>
+<small>    throws IllegalArgumentException {...}
+}</small></pre> 
+<p>
+	Using the selector is easy:
+<ul>
+	<li>
+		Create a selector.
+	</li>
+</ul>
+<pre><small>TokenStreamSelector selector =
+  new TokenStreamSelector();</small></pre> 
+<ul>
+	<li>
+		Name the streams (don't have to name--you can use stream object references instead to avoid the hashtable lookup on each switch).
+	</li>
+</ul>
+<pre><small>selector.addInputStream(mainLexer, &quot;main&quot;);
+selector.addInputStream(doclexer, &quot;doclexer&quot;);</small></pre> 
+<ul>
+	<li>
+		Select which lexer reads from the char stream first.
+	</li>
+</ul>
+<pre><small>// start with main java lexer
+selector.select(&quot;main&quot;);</small></pre> 
+<ul>
+	<li>
+		Attach your parser to the selector instead of one of the lexers.
+	</li>
+</ul>
+<pre><small>JavaParser parser = new JavaParser(selector);</small></pre> <h4><a name="Lexers Sharing Same Character Stream">Lexers Sharing Same Character Stream</a></h4> 
+<p>
+	Before moving on to how the parser uses the selector, note that the two lexers have to read characters from the same input stream.&nbsp; Prior to ANTLR 2.6.0, each lexer had its own line number variable, input char stream variable and so on.&nbsp; In order to share the same input state, ANTLR 2.6.0 factors the portion of a lexer dealing with the character input into an object, <small><font face="Courier New">LexerSharedInputState</font></small>, that can be shared among n lexers (single-threaded).&nbsp; To get multiple lexers to share state, you create the first lexer, ask for its input state object, and then use that when constructing any further lexers that need to share that input state:
+</p>
+<pre><small>// create Java lexer</small>
+<small>JavaLexer mainLexer = new JavaLexer(input);
+// create javadoc lexer; attach to shared</small>
+<small>// input state of java lexer
+JavaDocLexer doclexer =</small>
+<small>  new JavaDocLexer(mainLexer.getInputState());</small></pre> <h4><a name="Parsing Multiplexed Token Streams">Parsing Multiplexed Token Streams</a></h4> 
+<p>
+	Just as a single lexer may have trouble producing a single stream of tokens from diverse input slices or sections, a single parser may have trouble handling the multiplexed token stream.&nbsp; Again, a token that is a keyword in one lexer's vocabulary may be an identifier in another lexer's vocabulary.&nbsp; Factoring the parser into separate subparsers for each input section makes sense to handle the separate vocabularies as well as for promoting grammar reuse.
+</p>
+<p>
+	The following parser grammar uses the main lexer token vocabulary (specified with the importVocab option) and upon <small><font face="Courier New">JAVADOC_OPEN</font></small> it creates and invokes a JavaDoc parser to handle the subsequent stream of tokens from within the comment.
+</p>
+<pre><small>class JavaParser extends Parser;
+options {
+    importVocab=Java;
+}
+
+input
+    :   ( (javadoc)? INT ID SEMI )+
+    ;
+
+javadoc
+    :   JAVADOC_OPEN
+        {</small>
+<small>        // create a parser to handle the javadoc comment
+        JavaDocParser jdocparser =</small>
+<small>          new JavaDocParser(getInputState());
+        jdocparser.content(); // go parse the comment
+        }</small>
+<small>        JAVADOC_CLOSE
+    ;</small></pre> 
+<p>
+	You will note that ANTLR parsers from 2.6.0 also share token input stream state. &nbsp; When creating the &quot;subparser&quot;, <small><font face="Courier New">JavaParser</font></small> tells it to pull tokens from the same input state object.
+</p>
+<p>
+	The JavaDoc parser matches a bunch of tags:
+</p>
+<pre><small>class JavaDocParser extends Parser;
+options {
+    importVocab=JavaDoc;
+}
+
+content
+    :   (   PARAM // includes ID as part of PARAM
+        |   EXCEPTION</small>
+<small>        |   AUTHOR
+        )*
+    ;</small></pre> 
+<p>
+	When the subparser rule <small><font face="Courier New">content</font></small> finishes, control is naturally returned to the invoking method, <small><font face="Courier New">javadoc</font></small>, in the Java parser.
+</p>
+<h4><a name="The Effect of Lookahead Upon Multiplexed Token Streams">The Effect of Lookahead Upon Multiplexed Token Streams</a></h4> 
+<p>
+	What would happen if the parser needed to look two tokens ahead at the start of the JavaDoc comment?&nbsp; In other words, from the perspective of the main parser, what is the token following <small><font face="Courier New">JAVADOC_OPEN</font></small>? &nbsp; Token <small><font face="Courier New">JAVADOC_CLOSE</font></small>, naturally!&nbsp; The main parser treats any JavaDoc comment, no matter how complicated, as a single entity; it does not see into the token stream of the comment nor should it--the subparser handles that stream.
+</p>
+<p>
+	What is the token following the <small><font face="Courier New">content</font></small> rule in the subparser?&nbsp; &quot;End of file&quot;.&nbsp; The analysis of the subparser cannot determine what random method will call it from your code.&nbsp; This is not an issue because there is normally a single token that signifies the termination of the subparser.&nbsp; Even if EOF gets pulled into the analysis somehow, EOF will not be present on the token stream.
+</p>
+<h4><a name="Multiple Lexers Versus Calling Another Lexer Rule">Multiple Lexers Versus Calling Another Lexer Rule</a></h4> 
+<p>
+	Multiple lexer states are also often used to handle very complicated single &nbsp; tokens such as strings with embedded escape characters where input &quot;\t&quot; should not be allowed outside of a string.&nbsp; Typically, upon the initial quote, the lexer switches to a &quot;string state&quot; and then switches back to the &quot;normal state&quot; after having matched the guts of the string.
+</p>
+<p>
+	So-called &quot;modal&quot; programming, where your code does something different depending on a mode, is often a bad practice.&nbsp; In the situation of complex tokens, it is better to explicity specify the complicated token with more rules.&nbsp; Here is the golden rule of when to and when not to use multiplexed token streams:
+</p>
+<blockquote>
+	<p>
+		<em>Complicated single tokens should be matched by calling another (protected) lexer rule whereas streams of tokens from diverse slices or sections should be handled by different lexers multiplexed onto the same stream that feeds the parser.</em>
+	</p>
+</blockquote>
+<p>
+	For example, the definition of a string in a lexer should simply call another rule to handle the nastiness of escape characters:
+</p>
+<pre><small>STRING_LITERAL
+    :    '&quot;' (ESC|~('&quot;'|'\\'))* '&quot;'
+    ;
+
+protected // not a token; only invoked by another rule.
+ESC
+    :    '\\'
+        (    'n'
+        |    'r'
+        |    't'
+        |    'b'
+        |    'f'
+        |    '&quot;'
+        |    '\''
+        |    '\\'
+        |    ('u')+</small>
+<small>             HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT 
+        ...</small>
+       )
+<small>    ;</small></pre>
+
+<h3><a name=rewriteengine>TokenStreamRewriteEngine Easy Syntax-Directed Translation</h3>
+
+There are many common situations where you want to tweak or augment
+a program or data file.  ANTLR 2.7.3 introduced a (Java/C# versions only) a very simple but powerful <tt>TokenStream</tt> targeted at the class of problems where:
+
+<ol>
+<li>the output language and the input language are similar
+<li>the relative order of language elements does not change
+</ol>
+
+See the <a href="http://www.antlr.org/article/rewrite.engine/index.tml"><b>Syntax Directed TokenStream Rewriting</b></a> article on the antlr website.
+
+<h3><a name="The Future">The Future</a></h3> 
+<p>
+	The ANTLR 2.6 release provides the basic structure for using token streams--future versions will be more sophisticated once we have experience using them.
+</p>
+<p>
+	The current &quot;hidden token&quot; stream filter clearly solves the &quot;ignore but preserve whitespace&quot; problem really well, but it does not handle comments too well in most situations.&nbsp; For example, in real translation problems you want to collect comments at various single tree nodes (like DECL or METHOD) for interpretation rather than leaving them strewn throughout the tree.&nbsp; You really need a stream splitter that buffers up the comments on a separate stream so you can say &quot;<em>give me all comments &nbsp; consumed during the recognition of this rule</em>&quot; or &quot;<em>give me all comments found between these two real tokens</em>.&quot; That is almost certainly something you need for translation of comments.
+</p>
+<p>
+	Token streams will lead to fascinating possibilities.&nbsp; Most folks are not used to thinking about token streams so it is hard to imagine what else they could be good for.&nbsp; Let your mind go wild.&nbsp; What about embedded languages where you see slices (aspects) of the input such as Java and SQL (each portion of the input could be sliced off and put through on a different stream).&nbsp; What about parsing Java .class files with and without debugging information?&nbsp; If you have a parser for .class files without debug info and you want to handle .class files with debug info, leave the parser alone and augment the lexer to see the new debug structures.&nbsp; Have a filter split the debug tokens of onto a different stream and the same parser will work for both types of .class files.
+</p>
+<p>
+	Later, I would like to add &quot;perspectives&quot;, which are really just another way to look at filters.&nbsp; Imagine a raw stream of tokens emanating from a lexer--the root perspective.&nbsp; I can build up a tree of perspectives very easily from there.&nbsp; For example, given a Java program with embedded SQL, you might want multiple perspectives on the input stream for parsing or translation reasons:
+</p>
+<p align="center">
+	<img src="stream.perspectives.gif" width="306" height="202" alt="stream.perspectives.gif (2679 bytes)">
+</p>
+<p align="left">
+	You could attach a parser to the SQL stream or the Java stream minus comments, with actions querying the comment stream.
+</p>
+<p align="left">
+	In the future, I would also like to add the ability of a parser to generate a stream of tokens (or text) as output just like it can build trees now.&nbsp; In this manner, multipass parsing becomes a very natural and simple problem because parsers become stream producers also.&nbsp; The output of one parser can be the input to another.
+</p>
+<p align="left">
+	<font face="Arial" size="2">Version: $Id: //depot/code/org.antlr/release/antlr-2.7.5/doc/streams.html#1 $</font> 
+</body>
+</html>

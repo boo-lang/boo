@@ -1,0 +1,16 @@
+###############################################################################
+# $Id:$
+###############################################################################
+## do not change this value 
+subdir=examples/cpp
+
+# get configured vars
+@stdvars@
+
+SUBDIRS_NOT = flexLexer
+
+## get configured rules
+@stdmake@
+
+## get configured deps
+@stddeps@

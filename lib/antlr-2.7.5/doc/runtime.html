@@ -1,0 +1,1235 @@
+<html>
+<head>
+	<title>ANTLR Specification: Run-time</title> 
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<h1><a name="_bb1">Java Runtime Model</a></h1> 
+<hr>
+<h2><a name="_bb2">Programmer's Interface</a></h2> 
+<p>
+	In this section, we describe what ANTLR generates after reading your grammar file and how to use that output to parse input. The classes from which your lexer, token, and parser classes are derived are provided as well. 
+</p>
+<h3><a name="_bb3">What ANTLR generates</a></h3> 
+<p>
+	ANTLR generates the following types of files, where <i>MyParser</i>, <i>MyLexer</i>, and <i>MyTreeParser</i> are names of grammar classes specified in the grammar file. You may have an arbitrary number of parsers, lexers, and tree-parsers per grammar file; a separate class file will be generated for each. In addition, token type files will be generated containing the token vocabularies used in the parsers and lexers. One or more token vocabularies may be defined in a grammar file, and shared between different grammars. For example, given the grammar file: <tt>
+</p>
+<pre>class MyParser extends Parser;
+options {
+  exportVocab=My;
+}
+... rules ...
+
+class MyLexer extends Lexer;
+options {
+  exportVocab=My;
+}
+... rules ...
+
+class MyTreeParser extends TreeParser;
+options {
+  exportVocab=My;
+}
+... rules ...</tt></pre> 
+<p>
+	The following files will be generated: 
+<ul>
+	<li>
+		<tt><i>MyParser</i>.java</tt>. The parser with member methods for the parser rules. 
+	</li>
+	<li>
+		<tt><i>MyLexer</i>.java</tt>. The lexer with the member methods for the lexical rules. 
+	</li>
+	<li>
+		<tt><i>MyTreeParser</i>.java</tt>. The tree-parser with the member methods for the tree-parser rules. 
+	</li>
+	<li>
+		<tt><i>My</i>TokenTypes.java</tt>. An interface containing all of the token types defined by your parsers and lexers using the exported vocabulary named <tt>My</tt>.
+	</li>
+	<li>
+		<tt><i>My</i>TokenTypes.txt</tt>. A text file containing all of the token types, literals, and paraphrases defined by parsers and lexers contributing vocabulary <tt>My</tt>.
+	</li>
+</ul>
+<p>
+	The programmer uses the classes by referring to them: 
+<ol>
+	<li>
+		Create a lexical analyzer. The constructor with no arguments implies that you want to read from standard input. 
+	</li>
+	<li>
+		Create a parser and attach it to the lexer (or other TokenStream). 
+	</li>
+	<li>
+		Call one of the methods in the parser to begin parsing.
+	</li>
+</ol>
+<p>
+	If your parser generates an AST, then get the AST value, create a tree-parser, and invoke one of the tree-parser rules using the AST. 
+</p>
+<tt><pre>MyLexer lex = new MyLexer();
+MyParser p =
+  new MyParser(lex,<i>user-defined-args-if-any</i>);
+p.<i>start-rule</i>();
+// and, if you are tree parsing the result...
+MyTreeParser tp = new MyTreeParser();
+tp.<i>start-rule</i>(p.getAST());</tt></pre> 
+<p>
+	You can also specify the name of the token and/or AST objects that you want the lexer/parser to create. Java's support of dynamic programming makes this quite painless: 
+</p>
+<pre><tt>MyLexer lex = new MyLexer();
+lex.setTokenObjectClass(&quot;mypackage.MyToken&quot;);
+  // defaults to &quot;antlr.CommonToken&quot;
+...
+parser.setASTNodeClass(&quot;mypackage.MyASTNode&quot;);
+  // defaults to &quot;antlr.CommonAST&quot;</tt></pre> 
+<p>
+Make sure you give a fully-qualified class name.
+<p>
+The lexer and parser can cause IOExceptions as well as RecognitionExceptions, which you must catch:
+</p>
+<pre>  CalcLexer lexer =
+    new CalcLexer(new DataInputStream(System.in));
+  CalcParser parser = new CalcParser(lexer);
+  // Parse the input expression
+  try {
+    parser.expr();
+  }
+  catch (IOException io) {
+    System.err.println(&quot;IOException&quot;);
+  }
+  catch(RecognitionException e) {
+    System.err.println(&quot;exception: &quot;+e);
+  }</pre> <h3><a name="sharingstate">Multiple Lexers/Parsers With Shared Input State</a></h3> 
+<p>
+	Occasionally, you will want two parsers or two lexers to share input state; that is, you will want them to pull input from the same source token stream or character stream. &nbsp; The section on <a href="streams.html#lexerstates">multiple lexer &quot;states&quot;</a> describes such a situation.
+</p>
+<p>
+	ANTLR factors the input variables such as line number, guessing state, input stream, etc... into a separate object so that another lexer or parser could same that state.&nbsp; The <small><font face="Courier New">LexerSharedInputState</font></small> and <small><font face="Courier New">ParserSharedInputState</font></small> embody this factoring. &nbsp; Method <small><font face="Courier New">getInputState()</font></small> can be used on either <small><font face="Courier New">CharScanner</font></small> or <small><font face="Courier New">Parser</font></small> objects.&nbsp; Here is how to construct two lexers sharing the same input stream:
+</p>
+<pre><small>// create Java lexer</small>
+<small>JavaLexer mainLexer = new JavaLexer(input);
+// create javadoc lexer; attach to shared</small>
+<small>// input state of java lexer
+JavaDocLexer doclexer =</small>
+<small>  new JavaDocLexer(mainLexer.getInputState());</small></pre> 
+<p>
+	Parsers with shared input state can be created similarly:
+</p>
+<pre><small>JavaDocParser jdocparser =</small>
+<small>  new JavaDocParser(getInputState());
+jdocparser.content(); // go parse the comment</small></pre> 
+<p>
+	Sharing state is easy, but what happens upon exception during the execution of the &quot;subparser&quot;?&nbsp; What about syntactic predicate execution?&nbsp; It turns out that invoking a subparser with the same input state is exactly the same as calling another rule in the same parser as far as error handling and syntactic predicate guessing are concerned.&nbsp; If the parser is guessing before the call to the subparser, the subparser must continue guessing, right?&nbsp; Exceptions thrown inside the subparser must exit the subparser and return to enclosing erro handler or syntactic predicate handler.
+</p>
+<h2><a name="_bb4">Parser Implementation</a></h2> <h3><a name="_bb5">Parser Class</a></h3> 
+<p>
+	ANTLR generates a parser class (an extension of <tt>LLkParser</tt>) that contains a method for every rule in your grammar. The general format looks like: <tt>
+</p>
+<pre>
+public class MyParser extends LLkParser
+    implements MyLexerTokenTypes
+{
+  protected P(TokenBuffer tokenBuf, int k) {
+    super(tokenBuf,k);
+    tokenNames = _tokenNames;
+  }
+  public P(TokenBuffer tokenBuf) {  
+    this(tokenBuf,1);
+  }
+  protected P(TokenStream lexer, int k) {
+    super(lexer,k);
+    tokenNames = _tokenNames;       
+  }
+  public P(TokenStream lexer) {  
+    this(lexer,1);
+  }
+  public P(ParserSharedInputState state) {
+    super(state,1);
+    tokenNames = _tokenNames;
+  }
+  ...
+  // add your own constructors here...
+  <i>rule-definitions</i>
+}
+</tt>  </pre> <h3><a name="_bb6">Parser Methods</a></h3> 
+<p>
+	ANTLR generates recursive-descent parsers, therefore, every rule in the grammar will result in a method that applies the specified grammatical structure to the input token stream. The general form of a parser method looks like: <tt>
+</p>
+<pre>
+public void rule()
+  throws RecognitionException,
+         TokenStreamException
+{
+  <i>init-action-if-present</i>
+  if ( <i>lookahead-predicts-production-1</i> ) {
+     <i>code-to-match-production-1</i>
+  }
+  else if ( <i>lookahead-predicts-production-2</i> ) {
+     <i>code-to-match-production-2</i>
+  }
+  ...
+  else if ( <i>lookahead-predicts-production-n</i> ) {
+     <i>code-to-match-production-n</i>
+  }
+  else {
+    // syntax error
+    throw new NoViableAltException(LT(1));
+  }
+}
+</tt>  This code results from a rule of the form:  <tt></pre> <pre>
+rule:   <i>production-1</i>
+    |   <i>production-2</i>
+   ...
+    |   <i>production-n</i>
+    ;
+</tt>  </pre> 
+<p>
+	If you have specified arguments and a return type for the rule, the method header changes to: <tt>
+</p>
+<pre>
+/* generated from:
+ *    rule(<i>user-defined-args</i>)
+ *      returns <i>return-type</i> : ... ;
+ */
+public <i>return-type</i> rule(<i>user-defined-args</i>)
+  throws RecognitionException,
+         TokenStreamException
+{
+  ...
+}
+</tt>  </pre> 
+<p>
+	Token types are integers and we make heavy use of bit sets and range comparisons to avoid excessively-long test expressions. 
+</p>
+<h3><a name="_bb7">EBNF Subrules</a></h3> 
+<p>
+	Subrules are like unlabeled rules, consequently, the code generated for an EBNF subrule mirrors that generated for a rule. The only difference is induced by the EBNF subrule operators that imply optionality or looping. 
+</p>
+<p>
+	<b><tt>(...)?</tt> optional subrule</b>. The only difference between the code generated for an optional subrule and a rule is that there is no default <tt>else</tt>-clause to throw an exception--the recognition continues on having ignored the optional subrule. <tt>
+</p>
+<pre>
+{
+  <i>init-action-if-present</i>
+  if ( <i>lookahead-predicts-production-1</i> ) {
+     <i>code-to-match-production-1</i>
+  }
+  else if ( <i>lookahead-predicts-production-2</i> ) {
+     <i>code-to-match-production-2</i>
+  }
+  ...
+  else if ( <i>lookahead-predicts-production-n</i> ) {
+     <i>code-to-match-production-n</i>
+  }
+}
+</tt>  </pre> 
+<p>
+	Not testing the optional paths of optional blocks has the potential to delay the detection of syntax errors. 
+</p>
+<p>
+	<b><tt>(...)*</tt> closure subrule</b>. A closure subrule is like an optional looping subrule, therefore, we wrap the code for a simple subrule in a &quot;forever&quot; loop that exits whenever the lookahead is not consistent with any of the alternative productions. <tt>
+</p>
+<pre>
+{
+  <i>init-action-if-present</i>
+loop:
+  do {
+    if ( <i>lookahead-predicts-production-1</i> ) {
+       <i>code-to-match-production-1</i>
+    }
+    else if ( <i>lookahead-predicts-production-2</i> ) {
+       <i>code-to-match-production-2</i>
+    }
+    ...
+    else if ( <i>lookahead-predicts-production-n</i> ) {
+       <i>code-to-match-production-n</i>
+    }
+    else {
+      break loop;
+    }
+  }
+  while (true);
+}
+</tt>  </pre> 
+<p>
+	While there is no need to explicity test the lookahead for consistency with the exit path, the grammar analysis phase computes the lookahead of what follows the block. The lookahead of what follows much be disjoint from the lookahead of each alternative otherwise the loop will not know when to terminate. For example, consider the following subrule that is nondeterministic upon token <tt>A</tt>. <tt>
+</p>
+<pre>
+( A | B )* A
+</tt>  </pre> 
+<p>
+	Upon <tt>A</tt>, should the loop continue or exit? One must also ask if the loop should even begin. Because you cannot answer these questions with only one symbol of lookahead, the decision is non-LL(1). 
+</p>
+<p>
+	Not testing the exit paths of closure loops has the potential to delay the detection of syntax errors. 
+</p>
+<p>
+	As a special case, a closure subrule with one alternative production results in: <tt>
+</p>
+<pre>
+{
+  <i>init-action-if-present</i>
+loop:
+  while ( <i>lookahead-predicts-production-1</i> ) {
+       <i>code-to-match-production-1</i>
+  }
+}
+ </tt>  </pre> 
+<p>
+	This special case results in smaller, faster, and more readable code. 
+</p>
+<p>
+	<b><tt>(...)+</tt> positive closure subrule</b>. A positive closure subrule is a loop around a series of production prediction tests like a closure subrule. However, we must guarantee that at least one iteration of the loop is done before proceeding to the construct beyond the subrule. 
+</p>
+<tt><pre>
+{
+  int _cnt = 0;
+  <i>init-action-if-present</i>
+loop:
+  do {
+    if ( <i>lookahead-predicts-production-1</i> ) {
+       <i>code-to-match-production-1</i>
+    }
+    else if ( <i>lookahead-predicts-production-2</i> ) {
+       <i>code-to-match-production-2</i>
+    }
+    ...
+    else if ( <i>lookahead-predicts-production-n</i> ) {
+       <i>code-to-match-production-n</i>
+    }
+    else if ( _cnt&gt;1 ) {
+      // lookahead predicted nothing and we've
+      // done an iteration
+      break loop;
+    }
+    else {
+      throw new NoViableAltException(LT(1));
+    }
+    _cnt++;  // track times through the loop
+  }
+  while (true);
+}
+</tt>  </pre> 
+<p>
+	While there is no need to explicity test the lookahead for consistency with the exit path, the grammar analysis phase computes the lookahead of what follows the block. The lookahead of what follows much be disjoint from the lookahead of each alternative otherwise the loop will not know when to terminate. For example, consider the following subrule that is nondeterministic upon token <tt>A</tt>. <tt>
+</p>
+<pre>
+( A | B )+ A
+</tt>  </pre> 
+<p>
+	Upon <tt>A</tt>, should the loop continue or exit? Because you cannot answer this with only one symbol of lookahead, the decision is non-LL(1). 
+</p>
+<p>
+	Not testing the exit paths of closure loops has the potential to delay the detection of syntax errors. 
+</p>
+<p>
+	You might ask why we do not have a <tt>while</tt> loop that tests to see if the lookahead is consistent with any of the alternatives (rather than having series of tests inside the loop with a <tt>break</tt>). It turns out that we can generate smaller code for a series of tests than one big one. Moreover, the individual tests must be done anyway to distinguish between alternatives so a <tt>while</tt> condition would be redundant. 
+</p>
+<p>
+	As a special case, if there is only one alternative, the following is generated: <tt>
+</p>
+<pre>
+{
+  <i>init-action-if-present</i>
+  do {
+    <i>code-to-match-production-1</i>
+  }
+  while ( <i>lookahead-predicts-production-1</i> );
+}
+</tt>  </pre> 
+<p>
+	<b>Optimization.</b> When there are a large (where large is user-definable) number of strictly LL(1) prediction alternatives, then a <tt>switch</tt>-statement can be used rather than a sequence of <tt>if</tt>-statements. The non-LL(1) cases are handled by generating the usual <tt>if</tt>-statements in the <tt>default</tt> case. For example: <tt>
+</p>
+<pre>
+switch ( LA(1) ) {
+  case KEY_WHILE :
+  case KEY_IF :
+  case KEY_DO :
+    statement();
+    break;
+  case KEY_INT :
+  case KEY_FLOAT :
+    declaration();
+    break;
+  default :
+    // do whatever else-clause is appropriate
+}
+</tt>  </pre> 
+<p>
+	This optimization relies on the compiler building a more direct jump (via jump table or hash table) to the ith production matching code. This is also more readable and faster than a series of bit set membership tests. 
+</p>
+<h3><a name="_bb8">Production Prediction</a> </h3> 
+<p>
+	<b>LL(1) prediction.</b> Any LL(1) prediction test is a simple set membership test. If the set is a singleton set (a set with only one element), then an integer token type <tt>==</tt> comparison is done. If the set degree is greater than one, a bit set is created and the single input token type is tested for membership against that set. For example, consider the following rule: <tt>
+</p>
+<pre>
+a : A | b ;
+b : B | C | D | E | F;
+</tt>  </pre> 
+<p>
+	The lookahead that predicts production one is {<tt>A</tt>} and the lookahead that predicts production two is {<tt>B,C,D,E,F</tt>}. The following code would be generated by ANTLR for rule <tt>a</tt> (slightly cleaned up for clarity): 
+</p>
+<tt><pre>
+public void a() {
+  if ( LA(1)==A ) {
+    match(A);
+  }
+  else if (token_set1.member(LA(1))) {
+    b();
+  }
+}
+</tt>  </pre> 
+<p>
+	The prediction for the first production can be done with a simple integer comparison, but the second alternative uses a bit set membership test for speed, which you probably didn't recognize as testing <tt>LA(1) member {B,C,D,E,F}</tt>. The complexity threshold above which bitset-tests are generated is user-definable. 
+</p>
+<p>
+	We use arrays of <tt>long int</tt>s (64 bits) to hold bit sets. The ith element of a bitset is stored in the word number <tt>i/64</tt> and the bit position within that word is <tt>i % 64</tt>. The divide and modulo operations are extremely expensive and, but fortunately, a strength reduction can be done. Dividing by a power of two is the same as shifting right and modulo a power of two is the same as masking with that power minus one. All of these details are hidden inside the implementation of the <tt>BitSet</tt> class in the package <tt>antlr.collections.impl</tt>. 
+</p>
+<p>
+	The various bit sets needed by ANTLR are created and initialized in the generated parser (or lexer) class. 
+</p>
+<p>
+	<b>Approximate LL(k) prediction.</b> An extension of LL(1)...basically we do a series of up to k bit set tests rather than a single as we do in LL(1) prediction. Each decision will use a different amount of lookahead, with LL(1) being the dominant decision type. 
+</p>
+<h3><a name="_bb9"></a><a name="Production Element Recognition">Production Element Recognition</a> </h3> 
+<p>
+	<b>Token references.</b> Token references are translated to: <tt>
+</p>
+<pre>
+match(<i>token-type</i>);
+</tt>  </pre> 
+<p>
+	For example, a reference to token <tt>KEY_BEGIN</tt> results in: <tt>
+</p>
+<pre>
+match(KEY_BEGIN);
+</tt>  </pre> 
+<p>
+	where <tt>KEY_BEGIN</tt> will be an integer constant defined in the <tt><i>MyParser</i>TokenType</tt> interface generated by ANTLR. 
+</p>
+<p>
+	<b>String literal references.</b> String literal references are references to automatically generated tokens to which ANTLR automatically assigns a token type (one for each unique string). String references are translated to: 
+</p>
+<tt><pre>
+match(<i>T</i>);
+</tt>  </pre> 
+<p>
+	where <tt><i>T</i></tt> is the token type assigned by ANTLR to that token. 
+</p>
+<p>
+	<b>Character literal references.</b> Referencing a character literal implies that the current rule is a lexical rule. Single characters, '<i>t</i>', are translated to: 
+</p>
+<tt><pre>
+match('<i>t</i>');
+</tt>  </pre> 
+<p>
+	which can be manually inlined with: <tt>
+</p>
+<pre>
+if ( c=='<i>t</i>' ) consume();
+else throw new MismatchedCharException(
+               &quot;mismatched char: '&quot;+(char)c+&quot;'&quot;);
+ </tt>  </pre> 
+<p>
+	if the method call proves slow (at the cost of space). 
+</p>
+<p>
+	<b>Wildcard references.</b> In lexical rules, the wildcard is translated to: <tt>
+</p>
+<pre>
+consume();
+</tt>  </pre> 
+<p>
+	which simply gets the next character of input without doing a test. 
+</p>
+<p>
+	References to the wildcard in a parser rule results in the same thing except that the <tt>consume</tt> call will be with respect to the parser. 
+</p>
+<p>
+	<b>Not operator.</b> When operating on a token, <tt>~<i>T</i></tt> is translated to: 
+</p>
+<tt><pre>
+matchNot(<i>T</i>);
+</tt> </pre> 
+<p>
+	When operating on a character literal, <tt>'<i>t</i>'</tt> is translated to: <tt>
+</p>
+<pre>
+matchNot('<i>t</i>');
+</tt>  </pre> 
+<p>
+	<b>Range operator.</b> In parser rules, the range operator (<tt><i>T1</i>..<i>T2</i></tt>) is translated to: <tt>
+</p>
+<pre>
+matchRange(<i>T1</i>,<i>T2</i>);
+</tt>   </pre> 
+<p>
+	In a lexical rule, the range operator for characters <tt><i>c1..c2</i></tt> is translated to: <tt>
+</p>
+<pre>
+matchRange(<i>c1</i>,<i>c2</i>);
+</tt>  </pre> 
+<p>
+	<b>Labels.</b> Element labels on atom references become <tt>Token</tt> references in parser rules and <tt>int</tt>s in lexical rules. For example, the parser rule: <tt>
+</p>
+<pre>
+a : id:ID {System.out.println(&quot;id is &quot;+id);} ;
+</tt>  would be translated to:  <tt></pre> <pre>
+public void a() {
+  Token id = null;
+  id = LT(1);
+  match(ID);
+  System.out.println(&quot;id is &quot;+id);
+}
+</tt>  For lexical rules such as:  <tt></pre> <pre>
+ID : w:. {System.out.println(&quot;w is &quot;+(char)w);};
+</tt>  the following code would result:  <tt></pre> <pre>
+public void ID() {
+  int w = 0;
+  w = c;
+  consume(); // match wildcard (anything)
+  System.out.println(&quot;w is &quot;+(char)w);
+}
+</tt>  </pre> 
+<p>
+	Labels on rule references result in <tt>AST</tt> references, when generating trees, of the form <tt><i>label</i>_ast</tt>. 
+</p>
+<p>
+	<b>Rule references.</b> Rule references become method calls. Arguments to rules become arguments to the invoked methods. Return values are assigned like Java assignments. Consider rule reference <tt>i=list[1]</tt> to rule: <tt>
+</p>
+<pre>
+list[int scope] returns int
+    :   { return scope+3; }
+    ;
+</tt>  The rule reference would be translated to:  <tt></pre> <pre>
+i = list(1);
+</tt>  </pre> 
+<p>
+	<b>Semantic actions.</b> Actions are translated verbatim to the output parser or lexer except for the <a href="trees.html#Action Translation">translations required for AST generation</a> and the following:
+
+<ul>
+<li><tt>$FOLLOW(r)</tt>: FOLLOW set name for rule r
+<li><tt>$FIRST(r)</tt>: FIRST set name for rule r
+</ul>
+
+<p>
+Omitting the rule argument implies you mean the current rule.  The result type is a BitSet, which you can test via $FIRST(a).member(LBRACK) etc...
+
+<p>
+Here is a sample rule:
+
+<pre>
+a : A {System.out.println($FIRST(a));} B
+  exception
+    catch [RecognitionException e] {    
+        if ( $FOLLOW.member(SEMICOLON) ) {
+        consumeUntil(SEMICOLON);
+    }
+    else {
+        consume();
+    }
+    }
+  ;
+</pre>
+
+Results in
+
+<pre>
+public final void a() throws RecognitionException, TokenStreamException {  
+    try {
+        match(A);
+        System.out.println(_tokenSet_0);
+        match(B);
+    }
+    catch (RecognitionException e) {
+        if ( _tokenSet_1.member(SEMICOLON) ) {
+            consumeUntil(SEMICOLON);
+        }
+        else {
+            consume();
+        }
+    }
+}
+</pre>
+
+<p>
+	To add members to a lexer or parser class definition, add the class member definitions enclosed in {} immediately following the class specification, for example: <tt>
+</p>
+<pre>
+class MyParser;
+{
+   protected int i;
+   public MyParser(TokenStream lexer,
+        int aUsefulArgument) {
+      i = aUsefulArgument;
+   }
+}
+... rules ...
+</tt></pre> 
+<p>
+	ANTLR collects everything inside the {...} and inserts it in the class definition before the rule-method definitions. When generating C++, this may have to be extended to allow actions after the rules due to the wacky ordering restrictions of C++. 
+</p>
+
+<h3><a name="_bb10">Standard Classes</a></h3> 
+<p>
+	ANTLR constructs parser classes that are subclasses of the <tt>antlr.LLkParser</tt> class, which is a subclass of the <tt>antlr.Parser</tt> class. We summarize the more important members of these classes here. See Parser.java and LLkParser.java for details of the implementation. <tt>
+</p>
+<pre>
+public abstract class Parser {
+   protected ParserSharedInputState inputState;
+   protected ASTFactory ASTFactory;
+   public abstract int LA(int i);
+   public abstract Token LT(int i);
+   public abstract void consume();
+   public void consumeUntil(BitSet set) { ... }
+   public void consumeUntil(int tokenType) { ... }
+   public void match(int t)
+      throws MismatchedTokenException { ... }
+   public void matchNot(int t)
+      throws MismatchedTokenException { ... }
+   ...
+}
+
+public class LLkParser extends Parser {
+   public LLkParser(TokenBuffer tokenBuf, int k_)
+     { ... }
+   public LLkParser(TokenStream lexer, int k_)
+     { ... }
+   public int LA(int i) { return input.LA(i); }
+   public Token LT(int i) { return input.LT(i); }
+   public void consume() { input.consume(); }
+   ...
+}
+</pre> </tt><h2><a name="_bb11">Lexer Implementation</a></h2> <h3><a name="_bb12">Lexer Form</a></h3> 
+<p>
+	The lexers produced by ANTLR are a lot like the parsers produced by ANTLR. They only major differences are that (a) scanners use characters instead of tokens, and (b) ANTLR generates a special <tt>nextToken</tt> rule for each scanner which is a production containing each public lexer rule as an alternate. The name of the lexical grammar class provided by the programmer results in a subclass of <tt>CharScanner</tt>, for example <tt>
+</p>
+<pre>
+public class MyLexer extends antlr.CharScanner
+  implements LTokenTypes, TokenStream
+{
+  public L(InputStream in) {
+          this(new ByteBuffer(in));
+  }
+  public L(Reader in) {
+          this(new CharBuffer(in));
+  }
+  public L(InputBuffer ib) {
+          this(new LexerSharedInputState(ib));
+  }
+  public L(LexerSharedInputState state) {
+          super(state);
+          caseSensitiveLiterals = true;
+          setCaseSensitive(true);
+          literals = new Hashtable();
+  }
+
+  public Token nextToken() throws TokenStreamException {
+     <i>scanning logic</i>
+    ...
+  }
+  <i>recursive and other non-inlined lexical methods</i>
+  ...
+}
+</tt>  </pre> 
+<p>
+	When an ANTLR-generated parser needs another token from its lexer, it calls a method called <tt>nextToken</tt>. The general form of the <tt>nextToken</tt> method is: <tt>
+</p>
+<pre>
+public Token nextToken()
+  throws TokenStreamException {
+  int tt;
+  for (;;) {
+     try {
+        resetText();
+        switch ( c ) {
+        <i>case for each char predicting lexical rule</i>
+           <i>call lexical rule gets token type -&gt;</i> tt
+        default :
+           throw new NoViableAltForCharException(
+               &quot;bad char: '&quot;+(char)c+&quot;'&quot;);
+        }
+        if ( tt!=Token.SKIP ) {
+           return makeToken(tt);
+        }
+     }
+     catch (RecognitionException ex) {
+        reportError(ex.toString());
+     }
+  }
+}
+</tt>  </pre> 
+<p>
+	For example, the lexical rules: <tt>
+</p>
+<pre>
+lexclass Lex;
+
+WS   : ('\t' | '\r' | ' ') {_ttype=Token.SKIP;} ;
+PLUS : '+';
+MINUS: '-';
+INT  : ( '0'..'9' )+ ;
+ID   : ( 'a'..'z' )+ ;
+UID  : ( 'A'..'Z' )+ ;
+</tt>  would result in something like:  <tt></pre> <pre>
+public class Lex extends CharScanner
+  implements TTokenTypes {
+...
+public Token nextToken()
+    throws TokenStreamException {
+    int _tt = Token.EOF_TYPE;
+    for (;;) {
+    try {
+       resetText();
+       switch ( _c ) {
+       case '\t': case '\r': case ' ': 
+           _tt=mWS();
+           break;
+       case '+': 
+           _tt=mPLUS();
+           break;
+       case '-': 
+           _tt=mMINUS();
+           break;
+       case '0': case '1': case '2': case '3': 
+       case '4': case '5': case '6': case '7': 
+       case '8': case '9': 
+           _tt=mINT();
+           break;
+       case 'a': case 'b': case 'c': case 'd': 
+       case 'e': case 'f': case 'g': case 'h': 
+       case 'i': case 'j': case 'k': case 'l': 
+       case 'm': case 'n': case 'o': case 'p': 
+       case 'q': case 'r': case 's': case 't': 
+       case 'u': case 'v': case 'w': case 'x': 
+       case 'y': case 'z': 
+           _tt=mID();
+           break;
+       case 'A': case 'B': case 'C': case 'D': 
+       case 'E': case 'F': case 'G': case 'H': 
+       case 'I': case 'J': case 'K': case 'L': 
+       case 'M': case 'N': case 'O': case 'P': 
+       case 'Q': case 'R': case 'S': case 'T': 
+       case 'U': case 'V': case 'W': case 'X': 
+       case 'Y': case 'Z': 
+           _tt=mUID();
+           break;
+       case EOF_CHAR :
+           _tt = Token.EOF_TYPE;
+           break;
+       default :
+          throw new NoViableAltForCharException(
+               &quot;invalid char &quot;+_c);
+       }
+       if ( _tt!=Token.SKIP ) {
+           return makeToken(_tt);
+       }
+    }  // try
+	catch (RecognitionException ex) {
+	  reportError(ex.toString());
+	}
+	}  // for
+}
+
+public int mWS()
+    throws RecognitionException,
+           CharStreamException,
+           TokenStreamException {
+    int _ttype = WS;
+    switch ( _c) {
+    case '\t': 
+        match('\t');
+        break;
+    case '\r': 
+        match('\r');
+        break;
+    case ' ': 
+        match(' ');
+        break;
+    default :
+    {
+        throw new NoViableAltForException(
+               &quot;no viable for char: &quot;+(char)_c);
+    }
+    }
+     _ttype = Token.SKIP;
+    return _ttype;
+}
+
+public int mPLUS()
+    throws RecognitionException,
+           CharStreamException,
+           TokenStreamException {
+    int _ttype = PLUS;
+    match('+');
+    return _ttype;
+}
+
+public int mMINUS()
+    throws RecognitionException,
+           CharStreamException,
+           TokenStreamException {
+
+    int _ttype = MINUS;
+    match('-');
+    return _ttype;
+}
+
+public int mINT()
+    throws RecognitionException,
+           CharStreamException,
+           TokenStreamException {
+
+    int _ttype = INT;
+    {
+    int _cnt=0;
+    _loop:
+    do {
+        if ( _c&gt;='0' &amp;&amp; _c&lt;='9')
+          { matchRange('0','9'); }
+        else
+        if ( _cnt&gt;=1 ) break _loop;
+        else {
+           throw new ScannerException(
+              &quot;no viable alternative for char: &quot;+
+                (char)_c);
+        }
+        _cnt++;
+    } while (true);
+    }
+    return _ttype;
+}
+
+public int mID()
+    throws RecognitionException,
+           CharStreamException,
+           TokenStreamException {
+    int _ttype = ID;
+    {
+    int _cnt=0;
+    _loop:
+    do {
+        if ( _c&gt;='a' &amp;&amp; _c&lt;='z')
+        { matchRange('a','z'); }
+        else
+        if ( _cnt&gt;=1 ) break _loop;
+        else {
+            throw new NoViableAltForCharException(
+               &quot;no viable alternative for char: &quot;+
+                 (char)_c);
+        }
+        _cnt++;
+        } while (true);
+    }
+    return _ttype;
+}
+
+public int mUID()
+    throws RecognitionException,
+           CharStreamException,
+           TokenStreamException {
+
+    int _ttype = UID;
+    {
+    int _cnt=0;
+    _loop:
+    do {
+        if ( _c&gt;='A' &amp;&amp; _c&lt;='Z')
+        { matchRange('A','Z'); }
+        else
+        if ( _cnt&gt;=1 ) break _loop;
+        else {
+            throw new NoViableAltForCharException(
+               &quot;no viable alternative for char: &quot;+
+                 (char)_c);
+        }
+        _cnt++;
+    } while (true);
+    }
+    return _ttype;
+}
+
+}
+</tt>  </pre> 
+<p>
+	ANTLR-generated lexers assume that you will be reading streams of characters. If this is not the case, you must create your own lexer. 
+</p>
+<h3><a name="_bb13">Creating Your Own Lexer</a></h3> 
+<p>
+	To create your own lexer, your Java class that will doing the lexing must implement interface <tt>TokenStream</tt>, which simply states that you must be able to return a stream of tokens via <tt>nextToken</tt>: <tt>
+</p>
+<pre>
+/**This interface allows any object to
+ * pretend it is a stream of tokens.
+ * @author Terence Parr, MageLang Institute
+ */
+public interface TokenStream {
+  public Token nextToken();
+}
+</tt>  </pre> 
+<p>
+	ANTLR will not generate a lexer if you do not specify a lexical class. 
+</p>
+<p>
+	Launching a parser with a non-ANTLR-generated lexer is the same as launching a parser with an ANTLR-generated lexer: 
+</p>
+<tt><pre>HandBuiltLexer lex = new HandBuiltLexer(...);
+MyParser p = new MyParser(lex);
+p.<i>start-rule</i>();</tt></pre> 
+<p>
+	The parser does not care what kind of object you use for scanning as as long as it can answer <tt>nextToken</tt>. 
+</p>
+<p>
+	If you build your own lexer, and the token values are also generated by that lexer, then you should inform the ANTLR-generated parsers about the token type values generated by that lexer. Use the <a href="options.html#importVocab">importVocab</a> in the parsers that use the externally-generated token set, and create a token definition file following the requirements of the importVocab option. 
+</p>
+<h3><a name="_bb14"></a><a name="Lexical Rules">Lexical Rules</a> </h3> 
+<p>
+	Lexical rules are essentially the same as parser rules except that lexical rules apply a structure to a series of characters rather than a series of tokens. As with parser rules, each lexical rule results in a method in the output lexer class. 
+</p>
+<p>
+	<b>Alternative blocks.</b> Consider a simple series of alternatives within a block: <tt>
+</p>
+<pre>
+FORMAT : 'x' | 'f' | 'd';
+</tt>  </pre> 
+<p>
+	The lexer would contain the following method: <tt>
+</p>
+<pre>
+public int mFORMAT() {
+  if ( c=='x' ) {
+    match('x');
+  }
+  else if ( c=='x' ) {
+    match('x');
+  }
+  else if ( c=='f' ) {
+    match('f');
+  }
+  else if ( c=='d' ) {
+    match('d');
+  }
+  else {
+    throw new NoViableAltForCharException(
+        &quot;no viable alternative: '&quot;+(char)c+&quot;'&quot;);
+  }
+  return FORMAT;
+}
+</tt>  </pre> 
+<p>
+	The only real differences between lexical methods and grammar methods are that lookahead prediction expressions do character comparisons rather than <tt>LA(i)</tt> comparisons, <tt>match</tt> matches characters instead of tokens, a <tt>return</tt> is added to the bottom of the rule, and lexical methods throw <tt>CharStreamException</tt> objects in addition to <font face="Courier New">TokenStreamException</font> and <font face="Courier New">RecognitionException</font> objects. 
+</p>
+<p>
+	<b>Optimization: Non-Recursive lexical rules.</b> Rules that do not directly or indirectly call themselves can be inlined into the lexer entry method: <tt>nextToken</tt>. For example, the common identifier rule would be placed directly into the <tt>nextToken</tt> method. That is, rule: <tt>
+</p>
+<pre>
+ID  :   ( 'a'..'z' | 'A'..'Z' )+
+    ;
+</tt> </pre> 
+<p>
+	would not result in a method in your lexer class. This rule would become part of the resulting lexer as it would be probably inlined by ANTLR: <tt>
+</p>
+<pre>
+public Token nextToken() {
+  switch ( c ) {
+  <i>cases for operators and such here</i>
+  case '0': // chars that predict ID token
+  case '1':
+  case '2':
+  case '3':
+  case '4':
+  case '5':
+  case '6':
+  case '7':
+  case '8':
+  case '9':
+    while ( c&gt;='0' &amp;&amp; c&lt;='9' ) {
+      matchRange('0','9');
+    }
+    return makeToken(ID);
+  default :
+    <i>check harder stuff here like rules
+      beginning with a..z</i>
+}
+</tt>  </pre> 
+<p>
+	If not inlined, the method for scanning identifiers would look like: <tt>
+</p>
+<pre>
+public int mID() {
+  while ( c&gt;='0' &amp;&amp; c&lt;='9' ) {
+    matchRange('0','9');
+  }
+  return ID;
+}
+</tt>  </pre> 
+<p>
+	where token names are converted to method names by prefixing them with the letter <tt>m</tt>. The <tt>nextToken</tt> method would become: <tt>
+</p>
+<pre>
+public Token nextToken() {
+  switch ( c ) {
+  <i>cases for operators and such here</i>
+  case '0': // chars that predict ID token
+  case '1':
+  case '2':
+  case '3':
+  case '4':
+  case '5':
+  case '6':
+  case '7':
+  case '8':
+  case '9':
+    return makeToken(mID());
+  default :
+    <i>check harder stuff here like rules
+      beginning with a..z</i>
+}
+</tt>  </pre> 
+<p>
+	Note that this type of range loop is so common that it should probably be optimized to: <tt>
+</p>
+<pre>
+while ( c&gt;='0' &amp;&amp; c&lt;='9' ) {
+  consume();
+}
+</tt>  </pre> 
+<p>
+	<b>Optimization: Recursive lexical rules.</b> Lexical rules that are directly or indirectly recursive are not inlined. For example, consider the following rule that matches nested actions: <tt>
+</p>
+<pre>
+ACTION
+    :   '{' ( ACTION | ~'}' )* '}'
+    ;
+</tt>  </pre> 
+<p>
+	<tt>ACTION</tt> would be result in (assuming a character vocabulary of 'a'..'z', '{', '}'): <tt>
+</p>
+<pre>
+public int mACTION()
+    throws RecognitionException,
+           CharStreamException,
+           TokenStreamException {
+
+    int _ttype = ACTION;
+    match('{');
+    {
+    _loop:
+    do {
+        switch ( _c) {
+        case '{':
+            mACTION();
+            break;
+        case 'a': case 'b': case 'c': case 'd':
+        case 'e': case 'f': case 'g': case 'h':
+        case 'i': case 'j': case 'k': case 'l':
+        case 'm': case 'n': case 'o': case 'p':
+        case 'q': case 'r': case 's': case 't':
+        case 'u': case 'v': case 'w': case 'x':
+        case 'y': case 'z':
+            matchNot('}');
+            break;
+        default :
+            break _loop;
+        }
+    } while (true);
+    }
+    match('}');
+    return _ttype;
+}
+</tt>       </pre> <h2><a name="_bb15">Token Objects</a></h2> 
+<p>
+	The basic token knows only about a token type:
+</p>
+<pre><tt>public class Token {
+  // constants
+  public static final int MIN_USER_TYPE = 3;
+  public static final int INVALID_TYPE = 0;
+  public static final int EOF_TYPE = 1;
+  public static final int SKIP = -1;
+  
+  // each Token has at least a token type
+  int type=INVALID_TYPE;
+  
+  // the illegal token object
+  public static Token badToken =
+    new Token(INVALID_TYPE, &quot;<no text>&quot;);
+  
+  public Token() {;}
+  public Token(int t) { type = t; }
+  public Token(int t, String txt) {
+    type = t; setText(txt);
+  }
+
+  public void setType(int t) { type = t; }
+  public void setLine(int l) {;}
+  public void setColumn(int c) {;}
+  public void setText(String t) {;}
+  
+  public int getType() { return type; }
+  public int getLine() { return 0; }
+  public int getColumn() { return 0; }
+  public String getText() {...}
+}
+</tt></pre> 
+	<p>
+		The raw <tt>Token</tt> class is not very useful.&nbsp; ANTLR supplies a &quot;common&quot; token class that it uses by default, which contains the line number and text associated with the token:<tt>
+	</p>
+	</tt>
+	<p>
+		<tt>public class CommonToken extends Token {
+			<br>
+			&nbsp; // most tokens will want line, text information
+			<br>
+			&nbsp; int line;
+			<br>
+			&nbsp; String text = null;
+			<br>
+			&nbsp; 
+			<br>
+			&nbsp; public CommonToken() {}
+			<br>
+			&nbsp; public CommonToken(String s)&nbsp; { text = s; }
+			<br>
+			&nbsp; public CommonToken(int t, String txt) {
+			<br>
+			&nbsp;&nbsp;&nbsp; type = t;
+			<br>
+			&nbsp;&nbsp;&nbsp; setText(txt);
+			<br>
+			&nbsp; }
+			<br>
+			<br>
+			&nbsp; public void setLine(int l)&nbsp;&nbsp;&nbsp; { line = l; }
+			<br>
+			&nbsp; public int&nbsp; getLine()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { return line; }
+			<br>
+			&nbsp; public void setText(String s) { text = s; }
+			<br>
+			&nbsp; public String getText()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { return text; }
+			<br>
+			}</tt>
+	</p>
+	<p>
+		ANTLR will generate an interface that defines the types of tokens in a token vocabulary. Parser and lexers that share this token vocabulary are generated such that they implement the resulting token types interface: <tt>
+	</p>
+<pre>public interface MyLexerTokenTypes {
+  public static final int ID = 2;
+  public static final int BEGIN = 3;
+  ...
+}</tt></pre> 
+	<p>
+		ANTLR defines a token object for use with the <small><font face="Courier New">TokenStreamHiddenTokenFilter</font></small> object called <small><font face="Courier New">CommonHiddenStreamToken</font></small>:
+	</p>
+<pre>public class CommonHiddenStreamToken
+  extends CommonToken {
+  protected CommonHiddenStreamToken hiddenBefore;
+  protected CommonHiddenStreamToken hiddenAfter;
+
+  public CommonHiddenStreamToken
+    <strong>getHiddenAfter</strong>() {...}
+  public CommonHiddenStreamToken
+    <strong>getHiddenBefore</strong>() {...}
+}</pre> 
+	<p>
+		Hidden tokens are weaved amongst the normal tokens.&nbsp; Note that, for garbage collection reasons, hidden tokens never point back to normal tokens (preventing a linked list of the entire token stream).
+	</p>
+	<h2><a name="_bb16">Token Lookahead Buffer</a></h2> 
+	<p>
+		The parser must always have fast access to k symbols of lookahead. In a world without syntactic predicates, a simple buffer of k <tt>Token</tt> references would suffice. However, given that even LL(1) ANTLR parsers must be able to backtrack, an arbitrarily-large buffer of <tt>Token</tt> references must be maintained. <tt>LT(i)</tt> looks into the token buffer. 
+	</p>
+	<p>
+		Fortunately, the parser itself does not implement the token-buffering and lookahead algorithm. That is handled by the <tt>TokenBuffer</tt> object. We begin the discussion of lookahead by providing an LL(k) parser framework: <tt>
+	</p>
+<pre>
+public class LLkParser extends Parser {
+   TokenBuffer input;
+   public int LA(int i) {
+      return input.LA(i);
+   }
+   public Token LT(int i) {
+      return input.LT(i);
+   }
+   public void consume() {
+      input.consume();
+   }
+}
+</tt>       </pre> 
+	<p>
+		All lookahead-related calls are simply forwarded to the <tt>TokenBuffer</tt> object. In the future, some simple caching may be performed in the parser itself to avoid the extra indirection, or ANTLR may generate the call to input.LT(i) directly. 
+	</p>
+	<p>
+		The <tt>TokenBuffer</tt> object caches the token stream emitted by the scanner. It supplies <tt>LT()</tt> and <tt>LA()</tt> methods for accessing the k<sup>th</sup> lookahead token or token type, as well as methods for consuming tokens, guessing, and backtracking. <tt>
+	</p>
+<pre>
+public class TokenBuffer {
+   ...
+   /** Mark another token for
+    *  deferred consumption */
+   public final void consume() {...}
+
+   /** Get a lookahead token */
+   public final Token LT(int i) { ... }
+
+   /** Get a lookahead token value */
+   public final int LA(int i) { ... }
+
+   /**Return an integer marker that can be used to
+    * rewind the buffer to its current state. */
+   public final int mark() { ... }
+
+   /**Rewind the token buffer to a marker.*/
+   public final void rewind(int mark) { ... }
+}
+</pre> </tt>
+	<p>
+		To begin backtracking, a <tt>mark</tt> is issued, which makes the <tt>TokenBuffer</tt> record the current position so that it can rewind the token stream. A subsequent <tt>rewind</tt> directive will reset the internal state to the point before the last <tt>mark</tt>. 
+	</p>
+	<p>
+		Consider the following rule that employs backtracking: 
+	</p>
+	<tt><pre>
+stat:   (list EQUAL) =&gt; list EQUAL list
+    |   list
+    ;
+list:   LPAREN (ID)* RPAREN
+    ;
+</tt> </pre> 
+<p>
+	Something like the following code would be generated: <tt>
+</p>
+<pre>
+public void stat()
+  throws RecognitionException,
+         TokenStreamException
+{
+  boolean synPredFailed;
+  if ( LA(1)==LPAREN ) { // check lookahead
+    int marker = tokenBuffer.mark();
+    try {
+      list();
+      match(EQUAL);
+      synPredFailed = false;
+    }
+    catch (RecognitionException e) {
+      tokenBuffer.rewind(marker);
+      synPredFailed = true;
+    }
+  }
+  if ( LA(1)==LPAREN &amp;&amp; !synPredFailed ) {
+    // test prediction of alt 1
+    list();
+    match(EQUAL);
+    list();
+  }
+  else if ( LA(1)==LPAREN ) {
+    list();
+  }
+}
+</tt>      </pre> 
+<p>
+	The token lookahead buffer uses a circular token buffer to perform quick indexed access to the lookahead tokens. The circular buffer is expanded as necessary to calculate LT(i) for arbitrary i. <tt>TokenBuffer.consume()</tt> does not actually read more tokens. Instead, it defers the read by counting how many tokens have been consumed, and then adjusts the token buffer and/or reads new tokens when LA() or LT() is called. 
+</p>
+<p>
+	<font face="Arial" size="2">Version: $Id: //depot/code/org.antlr/release/antlr-2.7.5/doc/runtime.html#1 $</font> 
+</body>
+</html>

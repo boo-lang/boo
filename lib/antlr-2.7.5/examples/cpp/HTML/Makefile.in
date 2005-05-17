@@ -1,0 +1,118 @@
+###############################################################################
+# $Id:$
+###############################################################################
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+subdir=examples/cpp/HTML
+
+srcdir = @abs_top_srcdir@/examples/cpp/HTML
+objdir = @abs_this_builddir@/examples/cpp/HTML
+
+this : test
+test : test1
+
+all: HTML test
+
+g_FILES = \
+	$(srcdir)/html.g \
+	$(eol)
+
+g_cxx_FILES = \
+	$(objdir)/HTMLLexer.cpp \
+	$(objdir)/HTMLParser.cpp \
+	$(eol)
+
+g_hpp_FILES = \
+	$(objdir)/HTMLLexer.hpp \
+	$(objdir)/HTMLParser.hpp \
+	$(objdir)/HTMLTokenTypes.hpp \
+	$(eol)
+
+g_txt_FILES = \
+	$(objdir)/HTMLTokenTypes.txt \
+	$(eol)
+
+g_gen_FILES = \
+	$(g_cxx_FILES) \
+	$(g_hpp_FILES) \
+	$(g_txt_FILES) \
+	$(eol)
+
+g_obj_FILES = \
+  $(objdir)/HTMLParser@OBJEXT@ \
+  $(objdir)/HTMLLexer@OBJEXT@ \
+  $(eol)
+
+## Source files
+HTML_cxx_FILES = \
+	$(g_cxx_FILES) \
+	$(srcdir)/Main.cpp  \
+	$(eol)
+
+## Object files
+HTML_obj_FILES = \
+	$(g_obj_FILES) \
+	$(objdir)/Main@OBJEXT@  \
+	$(eol)
+
+## Test commands ..
+test1_cmd = $(objdir)/HTML < $(srcdir)/test.html
+
+## Tests to be executed
+test1 : HTML
+	@ v="$(verbose)"; \
+    if test $$v -gt 0 ; then \
+      echo "$(test1_cmd)" ; \
+    else \
+      echo "exec test1 .."; \
+    fi
+	@ $(test1_cmd)
+
+## How to make binaries
+HTML : $(HTML_obj_FILES) @ANTLR_LIB@
+	@ @CXX_LINK_CMD@ $@ $(HTML_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(g_gen_FILES) : $(g_FILES) @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@  $(g_FILES)
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	rm -rf *.o *.obj *.exe HTML  $(g_gen_FILES)
+
+distclean: clean
+
+# Dependencies
+$(objdir)/HTMLLexer.o: $(objdir)/HTMLLexer.cpp $(objdir)/HTMLLexer.hpp $(objdir)/HTMLTokenTypes.hpp
+$(objdir)/HTMLParser.o: $(objdir)/HTMLParser.cpp $(objdir)/HTMLParser.hpp $(objdir)/HTMLTokenTypes.hpp
+$(objdir)/Main.o: $(srcdir)/Main.cpp $(objdir)/HTMLLexer.hpp
+
+## If cxx.sh script changed ..
+$(HTML_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+
+## If link.sh script changed ..
+$(HTML_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

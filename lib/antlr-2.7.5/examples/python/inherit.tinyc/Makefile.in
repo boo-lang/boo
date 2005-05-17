@@ -1,0 +1,113 @@
+## This file is part of ANTLR (http://www.antlr.org).  Have a
+## look into LICENSE.txt for  license  details. This file has 
+## been written by (C) Wolfgang Haefelinger, 2004.
+
+## do not change this value 
+subdir=examples/python/inherit.tinyc
+
+## get  configured  (standard) variables - checkout or modify
+## scripts/config.vars[.in] for details.
+@stdvars@
+
+
+### how to get rid of damned dos line ending style and -- al-
+### most equally worse -- stupid tab character.
+### dos2unix  = perl -p -i.tmp -e 's,\r,,g;s,\t, ,g' 
+dos2unix = :
+
+### when running python we invoke python like ..
+python    = /bin/sh @abs_this_builddir@/scripts/python.sh
+
+## get configured rules
+@stdmake@
+
+## By default we compile class files so we are ready to carry
+## out a test. Note that deps have been setup in such a way
+## that you can do a 'make compile' whithout having made 
+## antlr.jar before. 
+this : compile
+all  :: compile
+
+
+g_FILES  = \
+ $(_srcdir)/inherit.g \
+ $(eol)
+
+g_py_FILES = \
+ inherit_p.py \
+ tinyc_p.py   \
+ tinyc_l.py  \
+ expandedinherit.g \
+ $(eol)
+
+compile : $(g_py_FILES)
+
+## we need some local Python modules 
+%.py : $(_srcdir)/%.py
+	@-rm -f $@ &&cp $< $@
+
+%.py : @abs_this_builddir@/examples/python/tinyc/%.py
+	cp $< $@
+
+## We  inherit  from  grammar  files  in  tinyc.  Rather than 
+## using them directly we copy them locally to avoid problems
+## due to vocabularies that can't be found.
+%.g : @abs_top_srcdir@/examples/python/tinyc/%.g
+	@-rm -f $@ &&cp $< $@
+
+## This  vocabluary  file is imported by the expanded grammar.
+## Unfortunaly, there is no way to tell ANTLR where to search
+## for it. ANTLR  assumes it's always there where the grammar
+## file resides. Therefore we are going to "make" the base
+## grammar first and then copy required vocabulary over ..
+TinyCTokenTypes.txt : 
+	$(MAKE) -C ../tinyc
+	cp ../tinyc/$@ $@
+
+@abs_this_builddir@/examples/python/tinyc/%.py :
+	$(MAKE) -C ../tinyc
+
+test :: test1
+
+test1_deps = \
+	inherit.py \
+  tinyc_p.py \
+	tinyc_l.py \
+	$(g_py_FILES) \
+	$(buildtree)/scripts/python.sh \
+	$(eol)
+
+test1_cmd = \
+	$(python) inherit.py < $(_srcdir)/inherit.in \
+	$(eol)
+
+test1 : $(test1_deps)
+	@ $(test1_cmd)
+
+$(g_py_FILES) : $(g_FILES) tinyc_p.g tinyc_l.g TinyCTokenTypes.txt
+	@ rm -f $(g_py_FILES)
+	@ rm -f $(g_src_FILES)
+	@ANTLR_COMPILE_CMD@  tinyc_p.g tinyc_l.g
+	@ANTLRFLAGS="-glib `@CYGPATH_W@ tinyc_p.g`" \
+    @ANTLR_COMPILE_CMD@ $(g_FILES)
+	@ $(dos2unix) $(g_py_FILES)
+
+$(g_py_FILES) : @ANTLR_JAR@
+$(g_py_FILES) : $(buildtree)/scripts/antlr.sh
+
+### cleanup tinyc
+clean ::
+	@echo cleaning inherit ...
+	@ -rm -f $(g_py_FILES) tinyc_l.g  tinyc_p.g TinyCTokenTypes.txt
+	@ -rm -f *.pyc *.tmp *TokenTypes.txt *TokenTypes 
+
+
+
+### get configured dependencies - for example, just list
+### autoconf variable ANTLR_JAR as reference and it will
+### be  done  automatically  as stddeps contains appropr.
+### rule. For details, checkout scripts/config.vars[.in] 
+@stddeps@
+
+.PHONY: compile
+.PHONY: test1

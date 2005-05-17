@@ -1,0 +1,174 @@
+#!/bin/sh
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## This file is part of ANTLR. See LICENSE.txt for licence  ##
+## details. Written by W. Haefelinger.                      ##
+##                                                          ##
+##       Copyright (C) Wolfgang Haefelinger, 2004           ##
+##                                                          ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## This script shall wrap/hide how we are going to pack Java class
+## files. We need to wrap  this  as  SUN's jar does not understand
+## UNIX filename notation on Cygwin.
+test -z "${verbose}" && { 
+  verbose=@VERBOSE@
+}
+
+## check whether we have something to do ..
+test -z "$1" && exit 0
+
+
+case @build_os@ in
+  cygwin)
+    ARGV="`cygpath -m $*`"
+    ;;
+  *)
+    ARGV="$*"
+    ;;
+esac
+
+
+## Command JAR is precomputed but user may override.
+if test -z "${JAR}" ; then
+  JAR="@JAR@"
+  jar="@jar@"
+else
+  jar="`basename $JAR`"
+  jar="`echo $jar|sed 's,\..*$,,'`"
+fi
+
+test -z "${DEBUG}" && {
+  DEBUG="@DEBUG@"
+}
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##       Here we set flags for well know programs         ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##
+## Do not set variable JARFLAGS here, just use it's sister
+## variable 'jarflags'. This  allows  the call to override
+## this settings - see handling of JARFLAGS below.
+
+case "${jar}" in
+  jar)
+    jarflags="cf"
+    ;;
+  *)
+    jarflags="cf"
+    ;;
+esac
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## **NO CHANGE NECESSARY BELOW THIS LINE - EXPERTS ONLY** ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+
+
+## If specific flags have been configured then they overrule
+## our precomputed flags. Still a user can override by using
+## environment variable $JARFLAGS - see below.
+test -n "@JARFLAGS@" && {
+  set x @JARFLAGS@  ; shift
+  case $1 in
+    +)
+      shift
+      JARFLAGS="${jarflags} $*"
+      ;;
+    -)
+      shift
+      jarflags="$* ${jarflags}"
+      ;;
+    =)
+      shift
+      jarflags="$*"
+      ;;
+    *)
+      if test -z "$1" ; then
+        jarflags="${jarflags}"
+      else
+        jarflags="$*"
+      fi
+      ;;
+  esac
+}
+
+## Regardless what has been configured, a user should always
+## be able to  override  without  the need to reconfigure or
+## change this file. Therefore we check variable $JARFLAGS.
+## In almost all cases the precomputed flags are just ok but
+## some  additional  flags are needed. To support this in an
+## easy way, we check for the very first value. If this val-
+## ue is 
+## '+'  -> append content of JARFLAGS to precomputed flags
+## '-'  -> prepend content    -*-
+## '='  -> do not use precomputed flags
+## If none of these characters are given, the behaviour will
+## be the same as if "=" would have been given.
+
+set x ${JARFLAGS}  ; shift
+case $1 in
+  +)
+    shift
+    JARFLAGS="${jarflags} $*"
+    ;;
+  -)
+    shift
+    JARFLAGS="$* ${jarflags}"
+    ;;
+  =)
+    shift
+    JARFLAGS="$*"
+    ;;
+  *)
+    if test -z "$1" ; then
+      JARFLAGS="${jarflags}"
+    else
+      JARFLAGS="$*"
+    fi
+    ;;
+esac
+
+## Any special treatment goes here ..
+case "${jar}" in
+  jar)
+    ;;
+  *)
+    ;;
+esac
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##    This shall be the command to be excuted below       ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+
+cmd="${JAR} ${JARFLAGS} ${ARGV}"
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##        standard template to execute a command          ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+case "${verbose}" in
+  0|no|nein|non)
+    set x ${ARGV}
+    echo "*** creating $2 .."
+    ;;
+  *)
+    echo $cmd
+    ;;
+esac
+
+$cmd || {
+  rc=$?
+  cat <<EOF
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                      >> E R R O R <<
+============================================================
+
+$cmd
+
+============================================================
+Got an error while trying to execute  command  above.  Error
+messages (if any) must have shown before. The exit code was:
+exit($rc)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EOF
+  exit $rc
+}
+exit 0

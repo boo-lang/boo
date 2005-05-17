@@ -1,0 +1,35 @@
+class L extends Lexer;
+
+{
+private static boolean done = false;
+
+public void uponEOF() throws TokenStreamException, CharStreamException {
+	done=true;
+}
+
+/** set tabs to 4, just round column up to next tab + 1
+12345678901234567890
+    x   x   x   x
+ */
+public void tab() {
+	int t = 4;
+	int c = getColumn();
+	int nc = (((c-1)/t)+1)*t+1;
+	setColumn( nc );
+}
+
+public static void main(String[] args) throws Exception {
+	L lexer = new L(System.in);
+	while ( !done ) {
+		Token t = lexer.nextToken();
+		System.out.println("Token: "+t);
+	}
+}
+}
+
+INT : ('0'..'9')+ ;
+
+ID : ('a'..'z')+ ;
+
+WS : (' '|'\t'|'\n'{newline();})+ {$setType(Token.SKIP);}
+   ;

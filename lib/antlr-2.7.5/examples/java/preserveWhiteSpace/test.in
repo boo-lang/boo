@@ -1,0 +1,13 @@
+// start comment
+// another comment
+
+a = 2;
+g();
+{
+	a=3*4;
+}
+if 3 then f(4 + b);
+else {
+    b =a; // assign
+}
+// final

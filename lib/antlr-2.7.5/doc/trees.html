@@ -1,0 +1,957 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>ANTLR Tree Construction</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<h1><a name="_bb1">ANTLR Tree Construction</a></h1>
+<p>
+	ANTLR helps you build intermediate form trees, or abstract syntax trees
+	(ASTs), by providing grammar annotations that indicate what tokens are to
+	be treated as subtree roots, which are to be leaves, and which are to be
+	ignored with respect to tree construction.&nbsp; As with PCCTS 1.33, you
+	may manipulate trees using tree grammar actions.     
+</p>
+
+<p>
+	It is often the case that programmers either have existing
+	tree definitions or need a special physical structure, thus,
+	preventing ANTLR from specifically defining the implementation
+	of AST nodes. ANTLR specifies only an interface describing
+	minimum behavior. Your tree implementation must implement this
+	interface so ANTLR knows how to work with your trees. Further,
+	you must tell the parser the name of your tree nodes or
+	provide a tree &quot;factory&quot; so that ANTLR knows how to
+	create nodes with the correct type (rather than hardcoding in
+	a <tt>new AST()</tt> expression everywhere). &nbsp; ANTLR can
+	construct and walk any tree that satisfies the AST
+	interface.&nbsp; A number of common tree definitions are
+	provided.  Unfortunately, ANTLR cannot parse XML DOM trees since our
+	method names conflict (e.g., <tt>getFirstChild()</tt>); ANTLR was here
+	first &lt;wink>.  Argh!
+</p>
+
+<h2><a name="_bb2"></a><a name="Notation">Notation</a></h2>
+<p>
+	In this and other documents, tree structures are represented by a
+	LISP-like notation, for example:
+</p>
+<pre><tt>#(A B C)</tt></pre>
+<p>
+	is a tree with A at the root, and children B and C. This notation can be
+	nested to describe trees of arbitrary structure, for example:
+</p>
+<pre><tt>#(A B #(C D E))</tt></pre>
+<p>
+	is a tree with A at the root, B as a first child, and an entire subtree
+	as the second child. The subtree, in turn, has C at the root and D,E as
+	children.
+</p>
+<h2><a name="_bb3"></a><a name="Controlling AST construction">Controlling AST construction</a></h2>
+<p>
+	AST construction in an ANTLR Parser, or AST transformation in a
+	Tree-Parser, is turned on and off by the <a href="options.html#buildAST">
+	<tt>buildAST</tt> option</a>.
+</p>
+<p>
+	From an AST construction and walking point of view, ANTLR considers all
+	tree nodes to look the same (i.e., they appear to be homogeneous).&nbsp;
+	Through a tree factory or by specification, however, you can instruct ANTLR
+	to create nodes of different types. &nbsp; See the section below on
+	heterogeneous trees.
+</p>
+<h2><a name="_bb4"></a><a name="Grammar annotations for building ASTs">Grammar annotations for building ASTs</a></h2> <h3><a name="_bb5"></a><a name="Leaf nodes">Leaf nodes</a></h3>
+<p>
+	ANTLR assumes that any nonsuffixed token reference or token-range is a
+	leaf node in the resulting tree for the enclosing rule. If no suffixes at
+	all are specified in a grammar, then a Parser will construct a linked-list
+	of the tokens (a degenerate AST), and a Tree-Parser will copy the input
+	AST.
+</p>
+<h3><a name="_bb6"></a><a name="Root nodes">Root nodes</a></h3>
+<p>
+	Any token suffixed with the &quot;<tt>^</tt>&quot; operator is
+	considered a root token. A tree node is constructed for that token and is
+	made the root of whatever portion of the tree has been built
+</p>
+<pre><tt>a : A B^ C^ ;</tt></pre>
+<p>
+	results in tree <tt>#(C #(B A))</tt>.
+</p>
+<p>
+	First A is matched and made a lonely child, followed by B which is made the parent of the current tree, A. Finally, C is matched and made the parent of the current tree, making it the parent of the B node. Note that the same rule without any operators results in the flat tree <tt>A B C</tt>.
+</p>
+<h3><a name="_bb7"></a><a name="Turning off standard tree construction">Turning off standard tree construction</a></h3>
+<p>
+	Suffix a token reference with &quot;<tt>!</tt>&quot; to prevent
+	incorporation of the node for that token into the resulting tree (the AST
+	node for the token is still constructed and may be referenced in actions,
+	it is just not added to the result tree automatically). Suffix a rule
+	reference &quot;<tt>!</tt>&quot; to indicate that the tree constructed by
+	the invoked rule should not be linked into the tree constructed for the
+	current rule.
+</p>
+<p>
+	Suffix a rule definition with &quot;<tt>!</tt>&quot; to indicate that
+	tree construction for the rule is to be turned off. Rules and tokens
+	referenced within that rule still create ASTs, but they are not linked into
+	a result tree. The following rule does no automatic tree construction.
+	Actions must be used to set the return AST value, for example:
+</p>
+<pre><tt>begin!
+    :   INT PLUS i:INT
+        { #begin = #(PLUS INT i); }
+    ;</tt></pre>
+<p>
+	For finer granularity, prefix alternatives with &quot;<tt>!</tt>&quot;
+	to shut off tree construction for that alternative only. This granularity
+	is useful, for example, if you have a large number of alternatives and you
+	only want one to have manual tree construction:
+</p>
+<pre><tt>stat:
+        ID EQUALS^ expr   // auto construction
+    ... some alternatives ...
+    |!  RETURN expr
+        {#stat = #([IMAGINARY_TOKEN_TYPE] expr);}
+    ... more alternatives ...
+    ;</tt> </pre> <h3><a name="_bb8"></a><a name="Tree and tree node construction">Tree node construction</a></h3>
+<p>
+	With automatic tree construction off (but with <code>buildAST</code>
+	on), you must construct your own tree nodes and combine them into tree
+	structures within embedded actions. There are several ways to create a tree
+	node in an action:
+<ol>
+	<li>
+		use <tt>new <i>T</i>(<i>arg</i>)</tt> where <i>T</i> is your tree
+		node type and <i>arg</i> is either a single token type, a token type and
+		token text, or a <tt>Token</tt>.
+	</li>
+	<li>
+		use <tt>ASTFactory.create(<i>arg</i>)</tt> where <i>T</i> is your
+		tree node type and <i>arg</i> is either a single token type, a token type
+		and token text, or a <tt>Token</tt>. Using the factory is more
+		general than creating a new node directly, as it defers the node-type
+		decision to the factory, and can be easily changed for the entire
+		grammar.
+	</li>
+	<li>
+		use the shorthand notation #[TYPE] or #[TYPE,&quot;text&quot;] or
+		#[TYPE,&quot;text&quot;,ASTClassNameToConstruct]. The shorthand notation
+		results in a call to ASTFactory.create() with any specified arguments.
+	</li>
+	<li>
+		use the shorthand notation #<i>id</i>, where <i>id</i> is either a
+		token matched in the rule, a label, or a rule-reference.
+	</li>
+</ol>
+<p>
+	To construct a tree structure from a set of nodes, you can set the
+	first-child and next-sibling references yourself or call the factory
+	<tt>make</tt> method or use <tt>#(...)</tt> notation described below.
+</p>
+<h3><a name="_bb9"></a><a name="ActionTranslation">AST Action Translation</a></h3>
+<p>
+	In parsers and tree parsers with <tt>buildAST</tt> set to true, ANTLR
+	will translate portions of user actions in order to make it easier to build
+	ASTs within actions. In particular, the following constructs starting with
+	'#' will be translated:
+<dl>
+	<dt>
+		<tt>#<i>label</i></tt>
+	</dt>
+	<dd>
+		The AST associated with a labeled token-reference or rule-reference
+		may be accessed as <tt>#<i>label</i></tt>. The translation is to a
+		variable containing the AST node built from that token, or the AST
+		returned from the	rule.
+	</dd>
+	<dt>
+		<tt>#<i>rule</i></tt>
+	</dt>
+	<dd>
+		When <i>rule</i> is the name of the enclosing rule, ANTLR will
+		translate this into the variable containing the result AST for the rule.
+		This allows you to set the return AST for a rule or examine it from
+		within an action. This can be used when AST generation is on or
+		suppressed for the rule or alternate. For example:
+		<pre><tt>r! : a:A	{ #r = #a; }</tt></pre>
+
+	</dd>
+	<dd>
+		<font face="Times New Roman">Setting the return tree is very useful
+		in combination with normal tree construction because you can have
+		ANTLR do all the work of building a tree and then add an imaginary
+		root node such as:</font>
+	</dd>
+	<dd>
+		&nbsp;
+	</dd>
+	<dd>
+<pre><tt>decl : ( TYPE ID )+
+       { #decl = #([DECL,&quot;decl&quot;], #decl); }
+     ;</tt></pre>
+	</dd>
+	<dd>
+		ANTLR allows you to assign to <tt>#rule</tt> anywhere within an
+      alternative of the rule. ANTLR ensures that references of and
+		assignments to <tt>#rule</tt> within an action force the parser's
+		internal AST construction variables into a stable state. After you
+		assign to <tt>#rule</tt>, the state of the parser's automatic AST
+		construction variables will be set as if ANTLR had generated the tree
+		rooted at <tt>#rule</tt>. For example, any children nodes added after
+		the action will be added to the children of <tt>#rule</tt>.
+	</dd>
+	<dt>
+		<tt>#<i>label</i>_in</tt>
+	</dt>
+	<dd>
+		In a tree parser, the <b>input</b> AST associated with a labeled
+		token reference or rule reference may be accessed as
+		<tt>#<i>label</i>_in</tt>. The translation is to a variable containing the
+		input-tree AST node from which the rule or token was extracted. Input
+		variables are seldom used. You almost always want to use
+		<tt>#<i>label</i></tt> instead of <tt>#<i>label</i>_in</tt>.
+	</dd>
+	<dt>
+		&nbsp;
+	</dt>
+	<dt>
+		<tt>#<i>id</i></tt>
+	</dt>
+	<dd>
+		ANTLR supports the translation of unlabeled token references as a
+		shorthand notation, as long as the token is unique within the scope
+		of a single alternative. In these cases, the use of an unlabeled
+		token reference identical to using a label. For example, this:
+<pre><tt>
+r! : A { #r = #A; }
+</tt></pre>
+		<p>
+			is equivalent to:
+		</p>
+<pre><tt>
+r! : a:A { #r = #a; }</tt></pre>
+	</dd>
+	<dd>
+		<tt>#<i>id</i>_in</tt> is given similar treatment to
+		<tt>#<i>label</i>_in.</tt>
+	</dd>
+	<dt>
+		&nbsp;
+	</dt>
+	<dt>
+		<tt>#[<i>TOKEN_TYPE</i>]</tt> or <tt>#[<i>TOKEN_TYPE</i>,&quot;text&quot;] or #[TYPE,&quot;text&quot;,ASTClassNameToConstruct]</tt>
+	</dt>
+	<dd>
+		AST node constructor shorthand. The translation is a call to the <tt>ASTFactory.create()</tt> method.&nbsp; For example, <tt>#[T]</tt> is translated to: <pre><tt>ASFFactory.create(T)</tt></pre>
+	</dd>
+	<dt>
+		<tt>#(<i>root</i>, <i>c1</i>, ..., <i>cn</i>)</tt>
+	</dt>
+	<dd>
+		AST tree construction shorthand. ANTLR looks for the comma character
+to separate the tree arguments. Commas within method call tree elements are
+handled properly; i.e., an element of &quot;<tt>foo(#a,34)</tt>&quot; is ok
+and will not conflict with the comma separator between the other tree
+elements in the tree. This tree construct is translated to a &quot;make
+tree&quot; call. The &quot;make-tree&quot; call is complex due to the need
+to simulate variable arguments in languages like Java, but the result will
+be something like: <pre><tt>ASTFactory.make(<i>root</i>, <i>c1</i>, ...,
+<i>cn</i>);</tt></pre>
+		<p>
+			In addition to the translation of the <tt>#(...)</tt> as a whole,
+the root and each child <tt><i>c1</i>..<i>cn</i></tt> will be translated.
+Within the context of a <tt>#(...)</tt> construct, you may use:
+		<ul>
+			<li>
+				<i><tt>id</tt></i> or <i><tt>label</tt></i> as a shorthand for
+				<tt>#<i>id</i></tt> or <i><tt>#label</tt></i>.
+			</li>
+			<li>
+				<tt>[...]</tt> as a shorthand for <tt>#[...]</tt>.
+			</li>
+			<li>
+				<tt>(...)</tt> as a shorthand for <tt>#(...)</tt>.
+			</li>
+		</ul>
+	</dd>
+</dl>
+<p>
+	The target code generator performs this translation with the help of a
+special lexer that parses the actions and asks the code-generator to create
+appropriate substitutions for each translated item. This lexer might impose
+some restrictions on label names (think of C/C++ preprocessor directives)
+</p>
+<h2><a name="_bb10"></a><a name="Invoking parsers that build trees">Invoking parsers that build trees</a></h2>
+<p>
+	Assuming that you have defined a lexer <tt>L</tt> and a parser <tt>P</tt> in your grammar, you can invoke them sequentially on the system input stream as follows.
+</p>
+<pre><tt><i>L</i> lexer = new <i>L</i>(System.in);
+<i>P</i> parser = new <i>P</i>(lexer);
+parser.setASTNodeType(&quot;MyAST&quot;);
+parser.<i>startRule</i>();</tt>   </pre>
+<p>
+	If you have set <tt>buildAST=true</tt> in your parser grammar, then it will build an AST, which can be accessed via <tt>parser.getAST()</tt>. If you have defined a tree parser called <tt>T</tt>, you can invoke it with:
+</p>
+<pre><tt>T walker = new T();
+walker.<i>startRule</i>(parser.getAST()); // walk tree</tt>  </pre>
+<p>
+	If, in addition, you have set <tt>buildAST=true</tt> in your tree-parser to turn on transform mode, then you can access the resulting AST of the tree-walker:
+</p>
+<pre><tt>AST results = walker.getAST();
+DumpASTVisitor visitor = new DumpASTVisitor();
+visitor.visit(results);</tt></pre>
+<p>
+	Where <tt>DumpASTVisitor</tt> is a predefined <tt>ASTVisitor</tt> implementation that simply prints the tree to the standard output.
+</p>
+<p>
+	You can also use get a LISP-like print out of a tree via
+</p>
+<pre>String s = parser.getAST().toStringList();</pre> <h2><a name="_bb11"></a><a name="AST Factories">AST Factories</a></h2>
+<p>
+	ANTLR uses a factory pattern to create and connect AST nodes. This is done to primarily to separate out the tree construction facility from the parser, but also gives you a hook in between the parser and the tree node construction.&nbsp; Subclass <tt>ASTFactory</tt> to alter the <tt>create</tt> methods.
+</p>
+<p>
+	If you are only interested in specifying the AST node type at runtime, use the
+</p>
+<pre><tt>setASTNodeType(String className)</tt></pre>
+<p>
+	method on the parser or factory.&nbsp; By default, trees are constructed of nodes of type <tt>antlr.CommonAST</tt>.  (You must use the fully-qualified class name).
+</p>
+
+<p>
+You can also specify a different class name for each token type to generate heterogeneous trees:
+
+<pre>
+/** Specify an "override" for the Java AST object created for a
+ *  specific token.  It is provided as a convenience so
+ *  you can specify node types dynamically.  ANTLR sets
+ *  the token type mapping automatically from the tokens{...}
+ *  section, but you can change that mapping with this method.
+ *  ANTLR does it's best to statically determine the node
+ *  type for generating parsers, but it cannot deal with
+ *  dynamic values like #[LT(1)].  In this case, it relies
+ *  on the mapping.  Beware differences in the tokens{...}
+ *  section and what you set via this method.  Make sure
+ *  they are the same.
+ *
+ *  Set className to null to remove the mapping.
+ *
+ *  @since 2.7.2
+ */
+public void setTokenTypeASTNodeType(int tokenType, String className)
+	throws IllegalArgumentException;
+</pre>
+
+<p>
+	The ASTFactory has some generically useful methods:
+</p>
+<pre>
+/** Copy a single node with same Java AST objec type.
+ *  Ignore the tokenType->Class mapping since you know
+ *  the type of the node, t.getClass(), and doing a dup.
+ *
+ *  clone() is not used because we want all AST creation
+ *  to go thru the factory so creation can be
+ *  tracked.  Returns null if t is null.
+ */
+public AST dup(AST t);</pre>
+<pre>
+/** Duplicate tree including siblings
+ * of root.
+ */
+public AST dupList(AST t);</pre> <pre>/**Duplicate a tree, assuming this is a
+ * root node of a tree--duplicate that node
+ * and what's below; ignore siblings of root
+ * node.
+ */
+public AST dupTree(AST t);</pre> <h2><a name="Heterogeneous ASTs">Heterogeneous ASTs</a></h2>
+<p>
+	Each node in an AST must encode information about the kind of node it is; for example, is it an ADD operator or a leaf node such as an INT?&nbsp; There are two ways to encode this: with a token type or with a Java (or C++ etc...) class type.&nbsp; In other words, do you have a single class type with numerous token types or no token types and numerous classes?&nbsp; For lack of better terms, I (Terence) have been calling ASTs with a single class type <em>homogeneous</em> trees and ASTs with many class types <em>heterogeneous</em> trees.
+</p>
+<p>
+	The only reason to have a different class type for the various kinds of nodes is for the case where you want to execute a bunch of hand-coded tree walks or your nodes store radically different kinds of data.&nbsp; The example I use below demonstrates an expression tree where each node overrides <font face="Courier New">value()</font> so that <font face="Courier New">root.value()</font> is the result of evaluating the input expression. &nbsp; From the perspective of building trees and walking them with a generated tree parser, it is best to consider every node as an identical AST node.&nbsp; Hence, the schism that exists between the hetero- and homogeneous AST camps.
+</p>
+<p>
+	ANTLR supports both kinds of tree nodes--at the same time!&nbsp; If you do nothing but turn on the &quot;<font face="Courier New">buildAST=true</font>&quot; option, you get a homogeneous tree.&nbsp; Later, if you want to use physically separate class types for some of the nodes, just specify that in the grammar that builds the tree.&nbsp; Then you can have the best of both worlds--the trees are built automatically, but you can apply different methods to and store different data in the various nodes.&nbsp; Note that the structure of the tree is unaffected; just the type of the nodes changes.
+</p>
+<p>
+	ANTLR applies a &quot;scoping&quot; sort of algorithm for determining the class type of a particular AST node that it needs to create.&nbsp; The default type is <font face="Courier New">CommonAST</font> unless, prior to parser invocation, you override that with a call to:
+</p>
+<pre>  <em>myParser</em>.setASTNodeType(&quot;<em>com.acme.MyAST</em>&quot;);</pre>
+<p>
+where you must use a fully qualified class name.
+<p>
+	In the grammar, you can override the default class type by setting the type for nodes created from a particular input token.&nbsp; Use the element option <font face="Courier New">&lt;AST=<em>typename</em>&gt;</font> in the <font face="Courier New">tokens</font> section:
+</p>
+<pre>tokens {
+    PLUS&lt;AST=PLUSNode&gt;;
+    ...
+}</pre>
+<p>
+	You may further override the class type by annotating a particular token reference in your parser grammar:
+</p>
+<pre>anInt : INT&lt;AST=INTNode&gt; ;</pre>
+<p>
+	This reference override is super useful for tokens such as <font face="Courier New">ID</font> that you might want converted to a <font face="Courier New">TYPENAME</font> node in one context and a <font face="Courier New">VARREF</font> in another context.
+</p>
+<p>
+	ANTLR uses the AST factory to create all AST nodes even if it knows the specific type. &nbsp; In other words, ANTLR generates code similar to the following:
+</p>
+<pre>ANode tmp1_AST = (ANode)astFactory.create(LT(1),"ANode");
+</pre>
+
+from
+
+<pre>a : A&lt;AST=ANode&gt; ;</pre>.
+
+<h3><a name="An Expression Tree Example"><font size="3">An Expression Tree Example</font></a></h3>
+<p>
+	<font size="3">This example includes a parser that constructs expression ASTs, the usual lexer, and some AST node class definitions.</font>
+</p>
+<p>
+	<font size="3">Let's start by describing the AST structure and node types. &nbsp; Expressions have plus and multiply operators and integers.&nbsp; The operators will be subtree roots (nonleaf nodes) and integers will be leaf nodes.&nbsp; For example, input 3+4*5+21 yields a tree with structure:</font>
+</p>
+<p>
+	(&nbsp; + (&nbsp; +&nbsp; 3 (&nbsp; *&nbsp; 4&nbsp; 5 ) )&nbsp; 21 )
+</p>
+<p>
+	or:
+</p>
+<pre>  +
+  |
+  +--21
+  |
+  3--*
+     |
+     4--5</pre>
+<p>
+	All AST nodes are subclasses of <font face="Courier New">CalcAST</font>, which are <font face="Courier New">BaseAST</font>'s that also answer method <font face="Courier New">value()</font>. &nbsp; Method <font face="Courier New">value()</font> evaluates the tree starting at that node.&nbsp; Naturally, for integer nodes, <font face="Courier New">value()</font> will simply return the value stored within that node.&nbsp; Here is <font face="Courier New">CalcAST:</font>
+</p>
+<pre>public abstract class CalcAST
+    extends antlr.BaseAST
+{
+    public abstract int value();
+}</pre>
+<p>
+	The AST operator nodes must combine the results of computing the value of their two subtrees.&nbsp; They must perform a depth-first walk of the tree below them.&nbsp; For fun and to make the operations more obvious, the operator nodes define left() and right() instead, making them appear even more different than the normal child-sibling tree representation.&nbsp; Consequently, these expression trees can be treated as both homogeneous child-sibling trees and heterogeneous expression trees.
+</p>
+<pre>public abstract class BinaryOperatorAST extends
+    CalcAST
+{
+    /** Make me look like a heterogeneous tree */
+    public CalcAST left() {
+        return (CalcAST)getFirstChild();
+    }
+
+    public CalcAST right() {
+        CalcAST t = left();
+        if ( t==null ) return null;
+        return (CalcAST)t.getNextSibling();
+    }
+}</pre>
+<p>
+	The simplest node in the tree looks like:
+</p>
+<pre>import antlr.BaseAST;
+import antlr.Token;
+import antlr.collections.AST;
+import java.io.*;
+
+/** A simple node to represent an INT */
+public class INTNode extends CalcAST {
+    int v=0;
+
+    public INTNode(Token tok) {
+        v = Integer.parseInt(tok.getText());
+    }
+
+    /** Compute value of subtree; this is
+     *  heterogeneous part :)
+     */
+    public int value() {
+        return v;
+    }
+
+    public String toString() {
+        return &quot; &quot;+v;
+    }
+
+    // satisfy abstract methods from BaseAST
+    public void initialize(int t, String txt) {
+    }
+    public void initialize(AST t) {
+    }
+    public void initialize(Token tok) {
+    }
+}</pre>
+<p>
+	The operators derive from <font face="Courier New">BinaryOperatorAST</font> and define <font face="Courier New">value()</font> in terms of <font face="Courier New">left()</font> and <font face="Courier New">right()</font>.&nbsp; For example, here is <font face="Courier New">PLUSNode</font>:
+</p>
+<pre>import antlr.BaseAST;
+import antlr.Token;
+import antlr.collections.AST;
+import java.io.*;
+
+/** A simple node to represent PLUS operation */
+public class PLUSNode extends BinaryOperatorAST {
+    public PLUSNode(Token tok) {
+    }
+
+    /** Compute value of subtree;
+     * this is heterogeneous part :)
+     */
+    public int value() {
+        return left().value() + right().value();
+    }
+
+    public String toString() {
+        return &quot; +&quot;;
+    }
+
+    // satisfy abstract methods from BaseAST
+    public void initialize(int t, String txt) {
+    }
+    public void initialize(AST t) {
+    }
+    public void initialize(Token tok) {
+    }
+}</pre>
+<p>
+	The parser is pretty straightforward except that you have to add the options to tell ANTLR what node types you want to create for which token matched on the input stream. &nbsp; The <font face="Courier New">tokens</font> section lists the operators with element option AST appended to their definitions.&nbsp; This tells ANTLR to build <font face="Courier New">PLUSNode</font> objects for any <font face="Courier New">PLUS</font> tokens seen on the input stream, for example.&nbsp; For demonstration purposes, <font face="Courier New">INT</font> is not included in the <font face="Courier New">tokens</font> section--the specific token references is suffixed with the element option to specify that nodes created from that <font face="Courier New">INT</font> should be of type <font face="Courier New">INTNode</font> (of course, the effect is the same as there is only that one reference to <font face="Courier New">INT</font>).
+</p>
+<pre>class CalcParser extends Parser;
+options {
+    buildAST = true; // uses CommonAST by default
+}
+
+// define a bunch of specific AST nodes to build.
+// can override at actual reference of tokens in
+// grammar below.
+tokens {
+    PLUS&lt;AST=PLUSNode&gt;;
+    STAR&lt;AST=MULTNode&gt;;
+}
+
+expr:   mexpr (PLUS^ mexpr)* SEMI!
+    ;
+
+mexpr
+    :   atom (STAR^ atom)*
+    ;
+
+// Demonstrate token reference option
+atom:   INT&lt;AST=INTNode&gt;
+    ;</pre>
+<p>
+	Invoking the parser is done as usual.&nbsp; Computing the value of the resulting AST is accomplished by simply calling method <font face="Courier New">value()</font> on the root.
+</p>
+<pre>import java.io.*;
+import antlr.CommonAST;
+import antlr.collections.AST;
+
+class Main {
+    public static void main(String[] args) {
+        try {
+            CalcLexer lexer =
+                new CalcLexer(
+                  new DataInputStream(System.in)
+                );
+            CalcParser parser =
+                new CalcParser(lexer);
+            // Parse the input expression
+            parser.expr();
+            CalcAST t = (CalcAST)parser.getAST();
+
+            System.out.println(t.toStringTree());
+
+            // Compute value and return
+            int r = t.value();
+            System.out.println(&quot;value is &quot;+r);
+        } catch(Exception e) {
+            System.err.println(&quot;exception: &quot;+e);
+            e.printStackTrace();
+        }
+    }
+}</pre>
+<p>
+	For completeness, here is the lexer:
+</p>
+<pre>class CalcLexer extends Lexer;
+
+WS  :   (' '
+    |   '\t'
+    |   '\n'
+    |   '\r')
+        { $setType(Token.SKIP); }
+    ;
+
+LPAREN: '(' ;
+
+RPAREN: ')' ;
+
+STAR:   '*' ;
+
+PLUS:   '+' ;
+
+SEMI:   ';' ;
+
+protected
+DIGIT
+    :   '0'..'9' ;
+
+INT :   (DIGIT)+ ;</pre> <h3><a name="Describing Heterogeneous Trees With Grammars">Describing Heterogeneous Trees With Grammars</a></h3>
+<p>
+	So what's the difference between this approach and default homogeneous tree construction?&nbsp; The big difference is that you need a tree grammar to describe the expression tree and compute resulting values.&nbsp; But, that's a good thing as it's &quot;executable documentation&quot; and negates the need to handcode the tree parser (the <font face="Courier New">value()</font> methods).&nbsp; If you used homogeneous trees, here is all you would need beyond the parser/lexer to evaluate the expressions:&nbsp; [<em>This code comes from the <font face="Courier New">examples/java/calc</font> directory</em>.]
+</p>
+<pre>class CalcTreeWalker extends TreeParser;
+
+expr returns [float r]
+{
+    float a,b;
+    r=0;
+}
+    :   #(PLUS a=expr b=expr)   {r = a+b;}
+    |   #(STAR a=expr b=expr)   {r = a*b;}
+    |   i:INT
+        {r = (float)
+         Integer.parseInt(i.getText());}
+    ;</pre>
+<p>
+	Because Terence wants you to use tree grammars even when constructing heterogeneous ASTs (to avoid handcoding methods that implement a depth-first-search), implement the following methods in your various heterogeneous AST node class definitions:
+</p>
+<pre>    /** Get the token text for this node */
+    public String getText();
+    /** Get the token type for this node */
+    public int getType();</pre>
+<p>
+	That is how you can use heterogeneous trees with a tree grammar.&nbsp; Note that your token types must match the <font face="Courier New">PLUS</font> and <font face="Courier New">STAR</font> token types imported from your parser.&nbsp; I.e., make sure <font face="Courier New">PLUSNode.getType()</font> returns <font face="Courier New">CalcParserTokenTypes.PLUS</font>. &nbsp; The token types are generated by ANTLR in interface files that look like:
+</p>
+<pre>public interface CalcParserTokenTypes {
+	...
+        int PLUS = 4;
+        int STAR = 5;
+	...
+}</pre> <h2><a name="AST Serialization">AST (XML) Serialization</a></h2>
+<p>
+	[<font size="2">Oliver Zeigermann <a href="mailto:olli@zeigermann.de">olli@zeigermann.de</a> provided the initial implementation of this serialization.&nbsp; His <a href="http://www.zeigermann.de/xtal.html">XTAL</a> XML translation code is worth checking out; particularly for reading XML-serialized ASTs back in.]</font>
+</p>
+<p>
+	For a variety of reasons, you may want to store an AST or pass it to another program or computer.&nbsp; Class antlr.BaseAST is Serializable using the Java code generator, which means you can write ASTs to the disk using the standard Java stuff.&nbsp; You can also write the ASTs out in XML form using the following methods from <font face="Courier New">BaseAST</font>:
+<ul>
+	<li>
+		<font face="Courier New">public void xmlSerialize(Writer out)</font>
+	</li>
+	<li>
+		<font face="Courier New">public void xmlSerializeNode(Writer out)</font>
+	</li>
+	<li>
+		<font face="Courier New">public void xmlSerializeRootOpen(Writer out)</font>
+	</li>
+	<li>
+		<font face="Courier New">public void xmlSerializeRootClose(Writer out)</font>
+	</li>
+</ul>
+<p>
+	All methods throw <font face="Courier New">IOException</font>.
+</p>
+<p>
+	You can override <font face="Courier New">xmlSerializeNode</font> and so on to change the way nodes are written out.&nbsp; By default the serialization uses the class type name as the tag name and has attributes <font face="Courier New">text</font> and <font face="Courier New">type</font> to store the text and token type of the node.
+</p>
+<p>
+	The output from running the simple heterogeneous tree example, examples/java/heteroAST, yields:
+</p>
+<pre> (  + (  +  3 (  *  4  5 ) )  21 )
+&lt;PLUS&gt;&lt;PLUS&gt;&lt;int&gt;3&lt;/int&gt;&lt;MULT&gt;
+&lt;int&gt;4&lt;/int&gt;&lt;int&gt;5&lt;/int&gt;
+&lt;/MULT&gt;&lt;/PLUS&gt;&lt;int&gt;21&lt;/int&gt;&lt;/PLUS&gt;
+value is 44</pre>
+<p>
+	The LISP-form of the tree shows the structure and contents.&nbsp; The various heterogeneous nodes override the open and close tags and change the way leaf nodes are serialized to use <font face="Courier New">&lt;int&gt;<em>value</em>&lt;/int&gt;</font> instead of tag attributes of a single node.
+</p>
+<p>
+	Here is the code that generates the XML:
+</p>
+<pre>Writer w = new OutputStreamWriter(System.out);
+t.xmlSerialize(w);
+w.write(&quot;\n&quot;);
+w.flush();</pre> <h2><a name="_bb12">AST enumerations</a></h2>
+<p>
+	The AST <tt>findAll</tt> and <tt>findAllPartial</tt> methods return enumerations of tree nodes that you can walk.&nbsp; Interface
+</p>
+<pre>antlr.collections.ASTEnumeration</pre>
+<p>
+	and
+</p>
+<pre>class antlr.Collections.impl.ASTEnumerator</pre>
+<p>
+	implement this functionality.&nbsp; Here is an example:
+</p>
+<pre>// Print out all instances of
+// <em>a-subtree-of-interest
+// </em>found within tree 't'.
+ASTEnumeration enum;
+enum = t.findAll(<em>a-subtree-of-interest</em>);
+while ( enum.hasMoreNodes() ) {
+  System.out.println(
+    enum.nextNode().toStringList()
+  );
+}</pre> <h2><a name="_bb13"></a><a name="A few examples">A few examples</a></h2> <pre><tt>
+sum :term ( PLUS^ term)*
+    ;</tt> </pre>
+<p>
+	The &quot;<tt>^</tt>&quot; suffix on the <tt>PLUS</tt> tells ANTLR to create an additional node and place it as the root of whatever subtree has been constructed up until that point for rule <tt>sum</tt>. The subtrees returned by the <tt>term</tt> references are collected as children of the addition nodes.&nbsp; If the subrule is not matched, the associated nodes would not be added to the tree. The rule returns either the tree matched for the first <tt>term</tt> reference or a <tt>PLUS</tt>-rooted tree.
+</p>
+<p>
+	The grammar annotations should be viewed as operators, not static specifications. In the above example, each iteration of the (...)* will create a new PLUS root, with the previous tree on the left, and the tree from the new <tt>term</tt> on the right, thus preserving the usual associatively for &quot;+&quot;.
+</p>
+<p>
+	Look at the following rule that turns off default tree construction.
+</p>
+<pre><tt>decl!:
+    modifiers type ID SEMI;
+	{ #decl = #([DECL], ID, ([TYPE] type),
+                    ([MOD] modifiers) ); }
+    ;</tt></pre>
+<p>
+	In this example, a declaration is matched. The resulting AST has an &quot;imaginary&quot; <tt>DECL</tt> node at the root, with three children. The first child is the <tt>ID</tt> of the declaration. The second child is a subtree with an imaginary <tt>TYPE</tt> node at the root and the AST from the <tt>type</tt> rule as its child. The third child is a subtree with an imaginary <tt>MOD</tt> at the root and the results of the <tt>modifiers</tt> rule as its child.
+</p>
+<h2><a name="_bb14"></a><a name="Labeled subrules">Labeled subrules</a></h2>
+<p>
+	[<big><i>THIS WILL NOT BE IMPLEMENTED AS LABELED SUBRULES...We'll do something else eventually.</i></big>]
+</p>
+<p>
+	In 2.00 ANTLR, each rule has exactly one tree associated with it. Subrules simply add elements to the tree for the enclosing rule, which is normally what you want. For example, expression trees are easily built via:
+</p>
+<pre><tt>
+expr: ID ( PLUS^ ID )*
+    ;
+</tt>    </pre>
+<p>
+	However, many times you want the elements of a subrule to produce a tree that is independent of the rule's tree. Recall that exponents must be computed before coefficients are multiplied in for exponent terms. The following grammar matches the correct syntax.
+</p>
+<pre><tt>
+// match exponent terms such as &quot;3*x^4&quot;
+eterm
+    :   expr MULT ID EXPONENT expr
+    ;
+</tt>    </pre>
+<p>
+	However, to produce the correct AST, you would normally split the <tt>ID EXPONENT expr</tt> portion into another rule like this:
+</p>
+<pre><tt>
+eterm:
+    expr MULT^ exp
+    ;
+
+exp:
+	ID EXPONENT^ expr
+    ;
+</tt>    </pre>
+<p>
+	In this manner, each operator would be the root of the appropriate subrule. For input <tt>3*x^4</tt>, the tree would look like:
+</p>
+<pre><tt>
+#(MULT 3 #(EXPONENT ID 4))
+</tt>    </pre>
+<p>
+	However, if you attempted to keep this grammar in the same rule:
+</p>
+<pre><tt>
+eterm
+    :   expr MULT^ (ID EXPONENT^ expr)
+    ;
+</tt>    </pre>
+<p>
+	both &quot;<tt>^</tt>&quot; root operators would modify the same tree yielding
+</p>
+<pre><tt>
+#(EXPONENT #(MULT 3 ID) 4)
+</tt>    </pre>
+<p>
+	This tree has the operators as roots, but they are associated with the wrong operands.
+</p>
+<p>
+	Using a labeled subrule allows the original rule to generate the correct tree.
+</p>
+<pre><tt>
+eterm
+    :   expr MULT^ e:(ID EXPONENT^ expr)
+    ;
+</tt>    </pre>
+<p>
+	In this case, for the same input <tt>3*x^4</tt>, the labeled subrule would build up its own subtree and make it the operand of the <tt>MULT</tt> tree of the <tt>eterm</tt> rule. The presence of the label alters the AST code generation for the elements within the subrule, making it operate more like a normal rule. Annotations of &quot;<tt>^</tt>&quot; make the node created for that token reference the root of the tree for the <tt>e</tt> subrule.
+</p>
+<p>
+	Labeled subrules have a result AST that can be accessed just like the result AST for a rule. For example, we could rewrite the above decl example using labeled subrules (note the use of <tt>!</tt> at the start of the subrules to suppress automatic construction for the subrule):
+</p>
+<pre><tt>
+decl!:
+    m:(! modifiers { #m = #([MOD] modifiers); } )
+    t:(! type { #t = #([TYPE] type); } )
+    ID
+    SEMI;
+    { #decl = #( [DECL] ID t m ); }
+    ;
+</tt>    </pre>
+<p>
+	What about subrules that are closure loops? The same rules apply to a closure subrule--there is a single tree for that loop that is built up according to the AST operators annotating the elements of that loop. For example, consider the following rule.
+</p>
+<pre><tt>
+term:   T^ i:(OP^ expr)+
+    ;
+</tt>    </pre>
+<p>
+	For input <tt>T OP A OP B OP C</tt>, the following tree structure would be created:
+</p>
+<pre><tt>
+#(T #(OP #(OP #(OP A) B) C) )
+</tt>    </pre>
+<p>
+	which can be drawn graphically as
+</p>
+<pre><tt>
+T
+|
+OP
+|
+OP--C
+|
+OP--B
+|
+A
+</tt>    </pre>
+<p>
+	The first important thing to note is that each iteration of the loop in the subrule operates on the same tree. The resulting tree, after all iterations of the loop, is associated with the subrule label. The result tree for the above labeled subrule is:
+</p>
+<pre><tt>
+#(OP #(OP #(OP A) B) C)
+</tt>    </pre>
+<p>
+	The second thing to note is that, because <tt>T</tt> is matched first and there is a root operator after it in the rule, <tt>T</tt> would be at the bottom of the tree if it were not for the label on the subrule.
+</p>
+<p>
+	Loops will generally be used to build up lists of subtree. For example, if you want a list of polynomial assignments to produce a sibling list of <tt>ASSIGN</tt> subtrees, then the following rule you would normally split into two rules.
+</p>
+<pre><tt>
+interp
+    :   ( ID ASSIGN poly &quot;;&quot; )+
+    ;
+</tt>    </pre>
+<p>
+	Normally, the following would be required
+</p>
+<pre><tt>
+interp
+    :   ( assign )+
+    ;
+assign
+    :   ID ASSIGN^ poly &quot;;&quot;!
+    ;
+</tt>    </pre>
+<p>
+	Labeling a subrule allows you to write the above example more easily as:
+</p>
+<pre><tt>
+interp
+    :   ( r:(ID ASSIGN^ poly &quot;;&quot;) )+
+    ;
+</tt>    </pre>
+<p>
+	Each recognition of a subrule results in a tree and if the subrule is nested in a loop, all trees are returned as a list of trees (i.e., the roots of the subtrees are siblings). If the labeled subrule is suffixed with a &quot;<tt>!</tt>&quot;, then the tree(s) created by the subrule are not linked into the tree for the enclosing rule or subrule.
+</p>
+<p>
+	Labeled subrules within labeled subrules result in trees that are linked into the surrounding subrule's tree. For example, the following rule results in a tree of the form <tt>X #( A #(B C) D) Y</tt>.
+</p>
+<pre><tt>
+a   :   X r:( A^ s:(B^ C) D) Y
+    ;
+</tt>    </pre>
+<p>
+	Labeled subrules within nonlabeled subrules result in trees that are linked into the surrounding rule's tree. For example, the following rule results in a tree of the form <tt>#(A X #(B C) D Y)</tt>.
+</p>
+<pre><tt>
+a   :   X ( A^ s:(B^ C) D) Y
+    ;</tt>    </pre> <h2><a name="_bb15"></a><a name="Reference nodes">Reference nodes</a></h2>
+<p>
+	<b>Not implemented.</b> A node that does nothing but refer to another node in the tree. Nice for embedding the same tree in multiple lists.
+</p>
+<h2><a name="_bb16"></a><a name="Required AST functionality and form">Required AST functionality and form</a></h2>
+<p>
+	The data structure representing your trees can have any form or type name as long as they implement the <tt>AST</tt> interface:
+</p>
+<pre><tt>package antlr.collections;
+
+/** Minimal AST node interface used by ANTLR
+ *  AST generation and tree-walker.
+ */
+public interface AST {
+    /** Get the token type for this node */
+    public int getType();
+
+    /** Set the token type for this node */
+    public void setType(int ttype);
+
+    /** Get the token text for this node */
+    public String getText();
+
+    /** Set the token text for this node */
+    public void setText(String text);
+
+    /** Get the first child of this node;
+     *  null if no children */
+    public AST getFirstChild();
+
+    /** Set the first child of a node */
+    public void setFirstChild(AST c);
+
+    /** Get the next sibling in line after this
+     * one
+     */
+    public AST getNextSibling();
+
+    /** Set the next sibling after this one */
+    public void setNextSibling(AST n);
+
+    /** Add a (rightmost) child to this node */
+    public void addChild(AST node);</tt></pre> <pre>    /** Are two nodes exactly equal? */
+    public boolean equals(AST t);</pre> <pre>    /** Are two lists of nodes/subtrees exactly
+     *  equal in structure and content? */
+    public boolean equalsList(AST t);</pre> <pre>    /** Are two lists of nodes/subtrees
+     *  partially equal? In other words, 'this'
+     *  can be bigger than 't'
+     */
+    public boolean equalsListPartial(AST t);</pre> <pre>    /** Are two nodes/subtrees exactly equal? */
+    public boolean equalsTree(AST t);</pre> <pre>    /** Are two nodes/subtrees exactly partially
+     *  equal? In other words, 'this' can be
+     *  bigger than 't'.
+     */
+    public boolean equalsTreePartial(AST t);</pre> <pre>    /** Return an enumeration of all exact tree
+     * matches for tree within 'this'.
+     */
+    public ASTEnumeration findAll(AST tree);</pre> <pre>    /** Return an enumeration of all partial
+     *  tree matches for tree within 'this'.
+     */
+    public ASTEnumeration findAllPartial(
+        AST subtree);</pre> <pre>    /** Init a node with token type and text */
+    public void initialize(int t, String txt);</pre> <pre>    /** Init a node using content from 't' */
+    public void initialize(AST t);</pre> <pre>    /** Init a node using content from 't' */
+    public void initialize(Token t);</pre> <pre>    /** Convert node to printable form */
+    public String toString();</pre> <pre>    /** Treat 'this' as list (i.e.,
+     *  consider 'this'
+     *  siblings) and convert to printable
+     *  form
+     */
+    public String toStringList();</pre> <pre>    /** Treat 'this' as tree root
+     *  (i.e., don't consider
+     *  'this' siblings) and convert
+     *   to printable form */
+    public String toStringTree();<tt>
+}</tt></pre>
+<p>
+	This scheme does not preclude the use of heterogeneous trees versus homogeneous trees. However, you will need to write extra code to create heterogeneous trees (via a subclass of <tt>ASTFactory</tt>) or by specifying the node types at the token reference sites or in the <font face="Courier New">tokens</font> section, whereas the homogeneous trees are free.
+</p>
+<pre><font face="Arial" size="2">Version: $Id: //depot/code/org.antlr/release/antlr-2.7.5/doc/trees.html#1 $</font></pre>
+</body>
+</html>

@@ -1,0 +1,69 @@
+## do not change this value 
+subdir=lib/python
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+PYTHON_SETUP = \
+ setup.py \
+ $(eol)
+
+antlr_python_FILES = \
+ $(eol)
+
+all : 
+
+test:
+
+install: install-this
+
+clean:
+
+distclean: clean
+
+
+antlr_py_DIR   = \
+ $(datadir)/$(versioneddir)
+ $(eol)
+
+antlr_py_FILES = \
+ @abs_top_srcdir@/lib/python/antlr/antlr.py \
+ $(eol)
+
+antlr_py1_FILES = \
+ @abs_top_srcdir@/lib/python/antlr/__init__.py \
+ @abs_top_srcdir@/lib/python/antlr/antlr.py \
+ $(eol)
+
+docdir   = $(datadir)/doc/$(versioneddir)
+extradir = $(datadir)/$(versioneddir)
+
+install-this:
+	$(MKDIR) -p "$(antlr_py_DIR)"
+	$(MKDIR) -p "$(libdir)"
+	@echo "install python files .. "
+	@for f in $(antlr_py_FILES) ; do \
+		echo "install $${f}" ; \
+		if test -f "$${f}" ; then \
+			$(INSTALL) -m 444 "$${f}" "$(libdir)" ; \
+		fi ;\
+	done
+	@for f in $(antlr_py1_FILES) ; do \
+		echo "install $${f}" ; \
+		if test -f "$${f}" ; then \
+			$(INSTALL) -m 444 "$${f}" "$(antlr_py_DIR)" ; \
+		fi ;\
+	done
+	@f="$(objdir)/scripts/pyantlr.sh"; \
+	if test -f "$${f}" ; then \
+			echo "install Python installer" ; \
+			$(MKDIR) -p "$(sbindir)" ; \
+			$(INSTALL) -m 555 "$${f}" "$(sbindir)" ; \
+	fi
+
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

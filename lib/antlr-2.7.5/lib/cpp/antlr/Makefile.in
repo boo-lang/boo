@@ -1,0 +1,88 @@
+###############################################################################
+# $Id:$
+###############################################################################
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value 
+subdir=lib/cpp/antlr
+
+antlr_hpp_FILES = \
+  @abs_top_srcdir@/lib/cpp/antlr/ANTLRException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/ANTLRUtil.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/ASTArray.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/ASTFactory.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/AST.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/ASTNULLType.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/ASTPair.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/ASTRefCount.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/BaseAST.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/BitSet.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CharBuffer.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CharInputBuffer.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CharScanner.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CharStreamException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CharStreamIOException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CircularQueue.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CommonAST.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CommonASTWithHiddenTokens.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CommonHiddenStreamToken.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/CommonToken.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/config.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/Countable.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/InputBuffer.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/IOException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/LexerSharedInputState.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/LLkParser.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/MismatchedCharException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/MismatchedTokenException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/NoViableAltException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/NoViableAltForCharException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/Parser.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/ParserSharedInputState.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/RecognitionException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/RefCount.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/SemanticException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/String.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenBuffer.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/Token.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenRefCount.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStreamBasicFilter.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStreamException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStreamHiddenTokenFilter.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStream.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStreamIOException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStreamRecognitionException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStreamRetryException.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStreamRewriteEngine.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenStreamSelector.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TokenWithIndex.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TreeParser.hpp \
+  @abs_top_srcdir@/lib/cpp/antlr/TreeParserSharedInputState.hpp \
+	$(eol)
+
+
+all : 
+
+clean:
+
+distclean: clean
+
+test:
+
+install:
+	@echo "install hpp files .. "
+	@$(MKDIR) -p "$(includedir)/antlr"
+	@for f in $(antlr_hpp_FILES) ; do \
+		echo "install $${f}" ; \
+		if test -f "$${f}" ; then \
+			$(INSTALL) -m 444 "$${f}" "$(includedir)/antlr" ; \
+		fi ;\
+	done
+
+.PHONY: all clean distclean install test
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

@@ -1,0 +1,18 @@
+###############################################################################
+# $Id:$
+###############################################################################
+## do not change this value 
+subdir=examples/java
+
+# get configured vars
+@stdvars@
+
+SUBDIRS_NOT = \
+	pascal | unicode.IDENTs | . \
+	$(eol)
+
+## get configured rules
+@stdmake@
+
+## get configured deps
+@stddeps@

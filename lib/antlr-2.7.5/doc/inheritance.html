@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>ANTLR Specification: Grammar Inheritance</title> 
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<h1><a name="_bb1">Grammar Inheritance</a></h1> 
+<p>
+	Object-oriented programming languages such as C++ and Java allow you to define a new object as it differs from an existing object, which provides a number of benefits. &quot;Programming by difference&quot; saves development/testing time and future changes to the <i>base</i> or <i>superclass</i> are automatically propogated to the <i>derived</i> or <i>subclass</i>. 
+</p>
+<h2><a name="_bb2">Introduction and motivation</a></h2> 
+<p>
+	Allowing the ANTLR programmer to define a new grammar as it differs from an existing grammar provides significant benefits. Development time goes down because the programmer only has to specify the rules that are different or that need to be added. Further, when the base grammar changes, all derived grammars will automatically reflect the change. Grammar inheritance is also an interesting way to change the behavior of an existing grammar. A rule or set of rules can be respecified with the same structure, but with different actions. 
+</p>
+<p>
+	The most obvious use of grammar inheritance involves describing multiple dialects of the same language. Previous solutions would require multiple grammar versions or a single grammar that recognized all dialects at once (using semantics to constrain the input to a single dialect). With grammar inheritance, one could write a base grammar for the common components and then have a derived grammar for each dialect. Code sharing would occur at the grammar and output parser class level. 
+</p>
+<p>
+	Consider a simple subset of English: 
+</p>
+<pre><tt>class PrimarySchoolEnglish;
+
+sentence
+    :   subject predicate
+    ;
+subject
+    :   NOUN
+    ;
+predicate
+    :   VERB
+    ;</tt></pre> 
+<p>
+	This grammar recognizes sentences like: <tt>Dilbert speaks</tt>. 
+</p>
+<p>
+	To extend this grammar to include sentences manageable by most American college students, we might add direct objects to the definition of a sentence. Rather than copying and modifying the <tt>PrimarySchoolEnglish</tt> grammar, we can simply extend it: 
+</p>
+<pre><tt>
+class AmericanCollegeEnglish extends
+        PrimarySchoolEnglish;
+
+sentence
+    :   subject predicate object
+    ;
+object
+    :   PREPOSITION ARTICLE NOUN
+    ;</tt></pre> 
+<p>
+	This grammar describes sentences such as <tt>Dilbert speaks to a dog</tt>. While this looks trivial to implement (just add the appropriate <tt>extends</tt> clause in Java to the output parser class), it involves grammar analysis to preserve grammatical correctness. For example, to generate correct code, ANTLR needs to pull in the base grammar and modify it according to the overridden rules. To see this, consider the following grammar for a simple language: 
+</p>
+<pre><tt>class Simple;
+
+stat:   expr ASSIGN expr
+    |   SEMICOLON
+    ;
+
+expr:   ID
+    ;</tt></pre> 
+<p>
+	Clearly, the <tt>ID</tt> token is the lookahead set that predicts the recognition of the first alternative of <tt>stat</tt>. Now, examine a derived dialect of <tt>Simple</tt>: 
+</p>
+<pre><tt>class Derived extends Simple;
+
+expr:   ID
+    |   INT
+    ;</tt>  </pre> 
+<p>
+	In this case, { <tt>ID</tt>, <tt>INT</tt> } predicts the first alternative of <tt>stat</tt>. Unfortunately, a derived grammar affects the recognition of rules inherited from the base grammar! ANTLR must not only override <tt>expr</tt> in <tt>Derived</tt>, but it must override <tt>stat</tt>. 
+</p>
+<p>
+	Determinining which rules in the base grammar are affected is not easy, so our implementation&nbsp; simply makes a copy of the base grammar and generates a whole new parser with the appropriate modifications. From the programmer's perspective, code/grammar sharing would have occurred, however, from an implementation perspective a copy of the base grammar would be made. 
+</p>
+<h2><a name="_bb3">Functionality</a></h2> 
+<p>
+	Grammar <font size="2" face="Courier New">Derived</font> inherits from Grammar <font size="2" face="Courier New">Base</font> all of the rules, options, and actions of <font size="2" face="Courier New">Base</font> including formal/actual rule parameters and rule actions. <font size="2" face="Courier New">Derived</font> may override any option or rule and specify new options, rules, and member action. The subgrammar does not inherit actions outside of classes or file options. Consider rule <font size="2" face="Courier New">Base</font> defined as:
+</p>
+<pre>class Base extends Parser;
+options {
+  k = 2;
+}
+{
+  int count = 0;
+}
+a : A B {<em>an-action</em>}
+  | A C
+  ;
+c : C
+  ;</pre> 
+<p>
+	A new grammar may be derived as follows:
+</p>
+<pre>class Derived extends Base;
+options {
+  k = 3;        // need more lookahead; override
+  buildAST=true;// add an option
+}
+{
+  int size = 0; // override; no 'count' def here
+}
+a : A B {<em>an-action</em>}
+  | A C {<em>an-extra-action</em>}
+  | Z           // add an alt to rule a
+  ;
+b : a
+  | A B D       // requires LL(3)
+  ;</pre> 
+<p>
+	ANTLR will actually interpret the subgrammar as if you had typed:
+</p>
+<pre>class Derived extends Parser;
+options {
+        k=3;
+        buildAST=true;
+}
+{
+  int size = 0; // override Base action
+}
+a : A B {an-action}
+  | A C {an-extra-action}
+  | Z           // add an alt to rule a
+  ;
+
+b : a
+  | A B D       // requires LL(3)
+  ;
+
+// inherited from grammar Base
+c : C
+  ;</pre> 
+<p>
+	Rules may be overridden to change their signatures such as their parameters or return types:
+</p>
+<pre>class Base extends Parser;
+a[int x] returns [int y]
+  : A
+  ;
+
+class Derived extends Base;
+a[float z]
+  : A
+  ;</pre> 
+<p>
+	ANTLR will generate a warning, however:
+</p>
+<pre><small>warning: rule Derived.a has different signature than Base.a</small></pre> 
+<p>
+	Because of this ability, the subgrammars do not actually inherit, in the Java-sense, from the supergrammar.&nbsp; Different signatures on the generated methods would prevent the parser from compiling.
+</p>
+<h2><a name="_bb4">Where Are Those Supergrammars?</a></h2> 
+<p>
+	The set of potential &quot;supergrammars&quot; available to some grammar P includes any other grammar in the same file as P and any listed on the ANTLR command line with 
+</p>
+<pre>-glib f1.g;f2.g</pre> 
+<p>
+	where the files must include path names if they are located in another directory.
+</p>
+<p>
+	How is supergrammar P found? The grammars defined in the supergrammar list are read in and an inheritance hierarchy is constructed; any repeated grammar definition in this is ignored.&nbsp; The grammars in the normally specified grammar file are also included in the hierarchy.&nbsp; Incomplete hierarchies results in an error message from ANTLR. &nbsp; Grammars in the same file as P are given precendence to those obtained from other files.
+</p>
+<p>
+	The type of grammar (Lexer,Parser,TreeParser) is determined by the type of the highest grammar in the inheritance chain.
+</p>
+<h2><a name="_bb7">Error Messages</a></h2> 
+<p>
+	ANTLR generates a file called <tt>expandedT.g</tt>, given a grammar input file (not the -glib files) called <tt>T.g</tt>.&nbsp; All error messages are relative to this as you really want to see the whole grammar when dealing with ambiguities etc...&nbsp; In the future, we may have a better solution.
+</p>
+<p>
+	<font face="Arial" size="2">Version: $Id: //depot/code/org.antlr/release/antlr-2.7.5/doc/inheritance.html#1 $</font> 
+</body>
+</html>

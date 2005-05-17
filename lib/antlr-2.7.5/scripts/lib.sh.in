@@ -1,0 +1,276 @@
+#!/bin/sh
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## This file is part of ANTLR. See LICENSE.txt for licence  ##
+## details. Written by W. Haefelinger.                      ##
+##                                                          ##
+##       Copyright (C) Wolfgang Haefelinger, 2004           ##
+##                                                          ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## This script shall wrap/hide how we are going to build a library
+## within the ANTLR (www.antlr.org) project.
+test -z "${1}" && exit 0
+
+if test -z "${AR}" ; then
+  AR="@AR@"
+  ar="@ar@"
+else
+  ar="`basename $AR`"
+  ar="`echo $ar|sed 's,\..*$,,'`"
+fi
+
+test -z "${DEBUG}" && {
+  DEBUG="@DEBUG@"
+}
+
+RANLIB="@RANLIB@"
+LIBNAME="@ANTLR_LIB@"
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##             Prepate input arguments                    ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+case "@build_os@" in
+  cygwin)
+    LIBNAME="`cygpath -m ${LIBNAME}`"
+    ARGV="`cygpath -m ${*}`"
+    ;;
+  *)
+    ARGV="${*}"
+    ;;
+esac
+
+L="${ARGV}" ; ARGV=""
+for x in $L ; do
+  if test -f "${x}" ; then
+    ARGV="$ARGV ${x}"
+  fi
+done
+unset L
+
+if test -z "${ARGV}" ; then
+cat <<EOF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Uuups, something went wrong. Have not been able to collect
+a list of object files. Perhaps nothing has been compiled 
+so far?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+EOF
+exit 0
+fi
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##       Here we set flags for well know programs         ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##
+## Do not set variable ARFLAGS here, just use it's sister
+## variable 'arflags'. This  allows  the call to override
+## this settings - see handling of ARFLAGS below.
+
+case "@cxx@" in
+  cl)    
+    ## I'm shamelessly override what has been configured --   
+    ## nothing more than a hack.   
+    AR='lib'   
+    arflags="/nologo /verbose /out:${LIBNAME}"
+    cmd_pfx="rm -f ${LIBNAME}"
+    ## no runlib required   
+    unset RANLIB 
+    ;;
+  bcc32)
+    ## I'm shamelessly override what has been configured --   
+    ## nothing more than a hack.   
+    AR='tlib'  
+    ## to make the general command work   
+    b=`basename "${LIBNAME}"`
+    cmd_pfx="rm -f ${b} ${LIBNAME}"
+    cmd_sfx="cp $b .${b} ; rm ${b}; cp .${b} ${LIBNAME}"
+    arflags="/P128 ${b}" 
+      ## no runlib required   
+    unset RANLIB
+    
+    ## Borland's interface for tlib (making a static library)
+    ## is most stupid ever seen. For example,  it  does  not
+    ## accept "-" in file  names,  not  is it able to handle 
+    ## forward  slashes  in pathnames. Even Microsoft can do 
+    ## this..
+    L="${ARGV}" ; ARGV=""
+    for x in $L ; do
+      ARGV="$ARGV +`basename ${x}`"
+    done
+    unset L
+    ;;
+  CC)
+    AR="@CXX@"
+    arflags="-xar -o ${LIBNAME}"
+    cmd_pfx="rm -f ${LIBNAME}"
+    ;;
+  *)
+    arflags="rus"
+    ARGV="${LIBNAME} ${ARGV}"
+    cmd_pfx="rm -f ${LIBNAME}"
+    ;;
+esac
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## **NO CHANGE NECESSARY BELOW THIS LINE - EXPERTS ONLY** ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+test -z "${verbose}" && { 
+  verbose=@VERBOSE@
+}
+
+## If specific flags have been configured then they overrule
+## our precomputed flags. Still a user can override by using
+## environment variable $ARFLAGS - see below.
+test -n "@ARFLAGS@" && {
+  set x @ARFLAGS@  ; shift
+  case $1 in
+    +)
+      shift
+      ARFLAGS="${arflags} $*"
+      ;;
+    -)
+      shift
+      arflags="$* ${arflags}"
+      ;;
+    =)
+      shift
+      arflags="$*"
+      ;;
+    *)
+      if test -z "$1" ; then
+        arflags="${arflags}"
+      else
+        arflags="$*"
+      fi
+      ;;
+  esac
+}
+
+## Regardless what has been configured, a user should always
+## be able to  override  without  the need to reconfigure or
+## change this file. Therefore we check variable $ARFLAGS.
+## In almost all cases the precomputed flags are just ok but
+## some  additional  flags are needed. To support this in an
+## easy way, we check for the very first value. If this val-
+## ue is 
+## '+'  -> append content of ARFLAGS to precomputed flags
+## '-'  -> prepend content    -*-
+## '='  -> do not use precomputed flags
+## If none of these characters are given, the behaviour will
+## be the same as if "=" would have been given.
+
+set x ${ARFLAGS}  ; shift
+case $1 in
+  +)
+    shift
+    ARFLAGS="${arflags} $*"
+    ;;
+  -)
+    shift
+    ARFLAGS="$* ${arflags}"
+    ;;
+  =)
+    shift
+    ARFLAGS="$*"
+    ;;
+  *)
+    if test -z "$1" ; then
+      ARFLAGS="${arflags}"
+    else
+      ARFLAGS="$*"
+    fi
+    ;;
+esac
+
+## Any special treatment goes here ..
+case "${ar}" in
+  ar)
+    ;;
+  *)
+    ;;
+esac
+
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
+##    No  c u s t o m i z a t i o n  below this line          ##
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
+
+
+## Reset positional args
+set x ${ARGV} ; shift
+
+## This is how we would run 'ranlib' ..
+test -n "${RANLIB}" && {
+  ranlib_cmd="${RANLIB} ${LIBNAME}"
+}
+
+
+
+## This extra copy is a hack for Borland's TLIB which does
+## not accept '-' in filenames.
+cmd="${AR} ${ARFLAGS} ${ARGV}"
+
+## If there's something to be done ..
+test -n "${cmd}" && {
+  
+  test -n "${cmd_pfx}" && {
+    test $verbose -gt 0 && {
+      echo $cmd_pfx
+    }
+    eval ${cmd_pfx} || exit 1
+  }
+
+  ## be verbose of required  
+  case "${verbose}" in
+    0|no|nein|non)
+      echo "*** creating ${LIBNAME}"
+      ;;
+    *)
+      echo $cmd
+      ;;
+  esac
+   
+  ## remove library - just in case.
+  test -n "${LIBNAME}" -a -f "${LIBNAME}" && {
+    rm -f ${LIBNAME}
+  }
+
+ 
+  ## eventually ..
+  $cmd || {
+    rc=$?
+    cat <<EOF
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                      >> E R R O R <<
+============================================================
+
+$cmd
+
+============================================================
+Got an error while trying to execute  command  above.  Error
+messages (if any) must have shown before. The exit code was:
+exit($rc)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EOF
+    exit $rc
+  }
+  
+  test -n "${cmd_sfx}" && {
+    test $verbose -gt 0 && {
+      echo $cmd_sfx
+    }
+    eval ${cmd_sfx} || exit 1
+  }
+
+  ## and even later ..
+  test -n "${RANLIB}" && {
+    cmd="${RANLIB} ${LIBNAME}"
+    test $verbose -gt 0 && {
+      echo $cmd
+    }
+    $cmd || {
+      exit 1
+    }
+  }
+}
+
+exit 0

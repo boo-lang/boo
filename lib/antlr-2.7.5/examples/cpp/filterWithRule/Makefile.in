@@ -1,0 +1,119 @@
+###############################################################################
+# $Id:$
+###############################################################################
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+subdir=examples/cpp/filterWithRule
+
+srcdir = @abs_top_srcdir@/examples/cpp/filter
+objdir = @abs_this_builddir@/examples/cpp/filter
+
+this : test
+test : test1
+
+all: filter test
+
+g_FILES = \
+	$(srcdir)/t.g \
+	$(eol)
+
+g_cxx_FILES = \
+  $(objdir)/T.cpp \
+  $(eol)
+
+g_hpp_FILES = \
+	$(objdir)/T.hpp \
+	$(objdir)/TTokenTypes.hpp \
+	$(eol)
+
+g_txt_FILES = \
+	$(objdir)/TTokenTypes.txt \
+	$(eol)
+
+g_gen_FILES = \
+	$(g_cxx_FILES) \
+	$(g_hpp_FILES) \
+	$(g_txt_FILES) \
+	$(eol)
+
+g_obj_FILES = \
+  $(objdir)/T@OBJEXT@ \
+  $(eol)
+
+## Source files
+filter_cxx_FILES = \
+	$(g_cxx_FILES) \
+	$(srcdir)/Test.cpp  \
+	$(eol)
+
+## Object files
+filter_obj_FILES = \
+	$(g_obj_FILES) \
+	$(objdir)/Test@OBJEXT@  \
+	$(eol)
+
+## Test commands ..
+test1_cmd = $(objdir)/filter < $(srcdir)/test.html
+
+## Tests to be executed
+test1 : filter
+	@ v="$(verbose)"; \
+    if test $$v -gt 0 ; then \
+      echo "$(test1_cmd)" ; \
+    else \
+      echo "exec test1 .."; \
+    fi
+	@ $(test1_cmd)
+
+## How to make binaries
+filter : $(filter_obj_FILES) @ANTLR_LIB@
+	@ @CXX_LINK_CMD@ $@ $(filter_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(g_gen_FILES) : $(g_FILES) @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@  $(g_FILES)
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	rm -rf *.o *.obj *.exe filter  $(g_gen_FILES)
+
+distclean: clean
+
+# Dependencies
+$(objdir)/T@OBJEXT@ :       \
+ $(objdir)/T.hpp            \
+ $(objdir)/TTokenTypes.hpp
+
+$(objdir)/Test@OBJEXT@     :  \
+ $(objdir)/T.hpp           \
+ $(objdir)/TTokenTypes.hpp
+
+## If cxx.sh script changed ..
+$(filter_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+
+## If link.sh script changed ..
+$(filter_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

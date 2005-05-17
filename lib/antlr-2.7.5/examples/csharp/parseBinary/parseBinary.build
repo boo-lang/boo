@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<project name="columns" default="test">
+    <tstamp/>
+    <property name="debug" value="true"/>
+    <property name="project.name" value="ANTLR example - parseBinary"/>
+    <property name="project.FormalName" value="parseBinary"/>
+
+    <property name="src.dir" value="."/>
+    <property name="build.dir" value="bin"/>
+    <property name="antlr.dir" value="..\..\.."/>
+
+    <echo message="Building project: '${project.name}'"/>
+
+    <target name="clean" description="cleans up everything">
+        <echo message="Deleting directory '${build.dir}': You should rebuild VS.NET project in '${build.dir}\..'."/>
+        <delete file="L.cs" failonerror="false"/>
+        <delete file="LTokenTypes.cs" failonerror="false"/>
+        <delete file="LTokenTypes.txt" failonerror="false"/>
+        <delete dir="${build.dir}" failonerror="false"/>
+    </target>
+
+    <target name="generate" description="calls ANTLR to generate Lexers/Parsers">    	
+        <exec program="java.exe" commandline="-cp ${antlr.dir} antlr.Tool data.g" failonerror="true"/>
+    </target>
+
+    <target name="release" depends="clean" description="build non-debug version">
+        <!-- build a clean release distribution for release -->
+        <property name="debug" value="false"/>
+        <echo message="Debug = ${debug}"/>
+        <call target="build"/>
+    </target>
+    
+    <target name="build" depends="generate" description="compiles the source code">
+        <mkdir dir="${build.dir}"/>
+        <!-- copy the assemblies required to build example to the build folder -->
+        <copy file="${antlr.dir}\lib\csharp\src\bin\antlr.runtime.dll" tofile="${build.dir}\antlr.runtime.dll" />
+
+        <!-- compile example's ${project.name}.exe -->
+        <csc target="exe" output="${build.dir}\${project.FormalName}.exe" debug="${debug}">
+            <sources basedir="${src.dir}">
+                <includes name="**/*.cs"/>
+            </sources>
+            <references>
+                <includes name="${build.dir}\antlr.runtime.dll"/>
+            </references>
+            <arg value="/main:AppMain"/>
+            <arg value="/nowarn:1591"/>
+        </csc>
+        <!-- compile example's MkData.exe -->
+        <csc target="exe" output="${build.dir}\MkData.exe" debug="${debug}">
+            <sources basedir="${src.dir}">
+                <includes name="**/*.cs"/>
+            </sources>
+            <references>
+                <includes name="${build.dir}\antlr.runtime.dll"/>
+            </references>
+            <arg value="/main:MkData"/>
+            <arg value="/nowarn:1591"/>
+        </csc>
+    </target>
+
+    <!--
+        Perform unit tests.  If a unit test fails, the build fails.
+        The base directory is set to the Test directory so that tests can easily
+        load external data files wihtout having to worry about complicated paths.
+    -->
+
+    <target name="test" depends="build" description="run unit tests">
+		<sysinfo verbose="false" />
+        <exec program="${sys.os.folder.system}\command.com" commandline="/C ${build.dir}\MkData.exe " failonerror="true"/>        
+        <exec program="${sys.os.folder.system}\command.com" commandline="/C ${build.dir}\${project.FormalName}.exe &lt; ${src.dir}\data" failonerror="true"/>        
+    </target>
+</project>

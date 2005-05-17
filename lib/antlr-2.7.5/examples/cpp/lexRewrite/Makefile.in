@@ -1,0 +1,170 @@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+
+subdir=examples/cpp/lexRewrite
+
+srcdir=@abs_top_srcdir@/examples/cpp/lexRewrite
+objdir=@abs_this_builddir@/examples/cpp/lexRewrite
+
+this : test
+test : test1
+
+all: lexRewrite test
+
+rewrite_g_FILES = \
+	$(srcdir)/rewrite.g \
+	$(eol)
+
+rewrite_g_cxx_FILES = \
+	$(objdir)/Rewrite.cpp \
+	$(eol)
+
+rewrite_g_hpp_FILES = \
+	$(objdir)/Rewrite.hpp \
+	$(objdir)/RewriteTokenTypes.hpp \
+	$(eol)
+
+rewrite_g_txt_FILES = \
+	$(objdir)/RewriteTokenTypes.txt \
+	$(eol)
+
+rewrite_g_gen_FILES = \
+	$(rewrite_g_cxx_FILES) \
+	$(rewrite_g_hpp_FILES) \
+	$(rewrite_g_txt_FILES) \
+	$(eol)
+
+rewrite_g_obj_FILES = \
+	$(objdir)/Rewrite@OBJEXT@ \
+	$(eol)
+
+## Source files
+lexRewrite_cxx_FILES = \
+	$(rewrite_g_cxx_files) \
+	$(srcdir)/Main.cpp \
+	$(srcdir)/Rewrite.cpp \
+	$(eol)
+
+## Object files
+lexRewrite_obj_FILES = \
+	$(rewrite_g_obj_files) \
+	$(objdir)/Main@OBJEXT@ \
+	$(objdir)/Rewrite@OBJEXT@ \
+	$(eol)
+
+## Test commands
+test1_cmd = $(objdir)/lexRewrite < $(srcdir)/test.in
+
+## Tests to be executed
+test1: lexRewrite
+	@ v="$(verbose)"; if test $$v -gt 0 ; then  echo "$(test1_cmd)" ;  else  echo "exec test1 ..";  fi
+	@ $(test1_cmd)
+
+## How to make binaries
+lexRewrite : $(lexRewrite_obj_FILES) @ANTLR_LIB@
+	@CXX_LINK_CMD@ $@ $(lexRewrite_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(objdir)/.rewrite.g : $(srcdir)/rewrite.g @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@ $(srcdir)/rewrite.g
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.rewrite.g`
+
+$(rewrite_g_gen_FILES): $(objdir)/.rewrite.g
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+#####
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	- $(RM) -rf *.o *.obj *.exe \
+	$(rewrite_g_gen_FILES) \
+	$(objdir)/.rewrite.g \
+	lexRewrite
+
+distclean: clean
+
+## If cxx.sh script changed ..
+$(rewrite_g_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+## If link.sh script changed ..
+$(rewrite_g_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+$(objdir)/Main@OBJEXT@: \
+	$(srcdir)/Main.cpp \
+	$(objdir)/Rewrite.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/RewriteTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp
+
+$(objdir)/Rewrite@OBJEXT@: \
+	$(objdir)/Rewrite.cpp \
+	$(objdir)/Rewrite.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/RewriteTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamRecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltForCharException.hpp
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

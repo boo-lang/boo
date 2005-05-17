@@ -1,0 +1,161 @@
+## --*- Makefile -*--
+## Make listed targets even in case a file with same name exists.
+.PHONY: \
+ this \
+ all clean install test distclean \
+ this-all this-clean this-install this-test this-distclean \
+ all-this clean-this install-this test-this distclean-this \
+ $(eof)
+
+## delete suffix rules - shortens output when using -d and is not
+## used anyway (and should not be used).
+.SUFFIXES:
+
+Makefile :: @abs_top_srcdir@/$(subdir)/Makefile.in  \
+            @abs_this_builddir@/scripts/config.deps \
+					  @abs_this_builddir@/scripts/config.make \
+					  @abs_this_builddir@/scripts/config.vars \
+            @abs_this_builddir@/config.status
+	@echo "*** update $(subdir)/Makefile"
+	@cd @abs_this_builddir@ && CONFIG_FILES="$(subdir)/Makefile" @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/config.deps : \
+	@abs_top_srcdir@/scripts/config.deps.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/config.deps @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/config.make : \
+	@abs_top_srcdir@/scripts/config.make.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/config.make @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/config.vars : \
+	@abs_top_srcdir@/scripts/config.vars.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/config.vars @SHELL@ ./config.status -q
+
+@abs_this_builddir@/config.status : \
+	@abs_top_srcdir@/configure
+	@echo "*** reconfigure $@ - stay tuned .."
+	@cd @abs_this_builddir@ && @SHELL@ ./config.status -q --recheck
+	@echo "*** update all configured files .."
+	@cd @abs_this_builddir@ && @SHELL@ ./config.status -q
+
+### In a pure devel mode there should be also a dependency listed on how
+### to make configure out of  configure.in.  This  requires that usr has 
+### m4  and  autoconf (proper version) installed. Appropriate checks are 
+### not done in configure. If so, then uncomment next lines:
+###
+###   @rule_configure_configure_in@
+###
+
+@abs_this_builddir@/scripts/antlr.sh : \
+	@abs_top_srcdir@/scripts/antlr.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/antlr.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/cpp.sh : \
+	@abs_top_srcdir@/scripts/cpp.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/cpp.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/csc.sh : \
+	@abs_top_srcdir@/scripts/csc.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/csc.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/cxx.sh : \
+	@abs_top_srcdir@/scripts/cxx.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/cxx.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/jar.sh : \
+	@abs_top_srcdir@/scripts/jar.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/jar.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/javac.sh : \
+	@abs_top_srcdir@/scripts/javac.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/javac.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/java.sh : \
+	@abs_top_srcdir@/scripts/java.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/java.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/lib.sh : \
+	@abs_top_srcdir@/scripts/lib.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/lib.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/link.sh : \
+	@abs_top_srcdir@/scripts/link.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/link.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/pyinst.sh : \
+	@abs_top_srcdir@/scripts/pyinst.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/pyinst.sh @SHELL@ ./config.status -q
+
+@abs_this_builddir@/scripts/python.sh : \
+	@abs_top_srcdir@/scripts/python.sh.in
+	@echo "*** update $@"
+	@cd @abs_this_builddir@ && CONFIG_FILES=scripts/python.sh @SHELL@ ./config.status -q
+
+
+## This rule shall ensure that ANTLR_NET is up-to-date. The rule is a 
+## double colon rule, ie. further  rules  with the same target may be
+## added. For unknown reasons, double colon rules are always phony,ie.
+## getting executed even in case target exists. We break the infinite
+## loop,  we only  jump  into  subdir  "lib/csharp/src" if we are not 
+## already in. It is very important that  each Makefile[.in] sets the
+## variable $(subdir) proper.
+
+@ANTLR_NET@ :: 
+	@ subdir="lib/csharp/src" ; \
+    case $(subdir) in \
+	  $$subdir ) ;; \
+	  * ) d="@abs_this_builddir@/$$subdir" ; \
+        test -f "$$d/Makefile" && {  \
+         $(MAKE) -C "$$d" $@ ; \
+        } 	\
+        ;; \
+    esac
+
+@ASTFRAME_NET@ :: 
+	@ subdir="lib/csharp/ASTFrame" ; \
+    case $(subdir) in \
+	  $$subdir ) ;; \
+	  * ) d="@abs_this_builddir@/$$subdir" ; \
+        test -f "$$d/Makefile" && {  \
+         $(MAKE) -C "$$d" $@ ; \
+        } 	\
+        ;; \
+    esac
+
+
+@ANTLR_JAR@ ::
+	@ subdir="antlr" ; \
+    case $(subdir) in \
+	  $$subdir ) ;; \
+	  * ) d="@abs_this_builddir@/$$subdir" ; \
+        test -f "$$d/Makefile" && {  \
+         $(MAKE) -C "$$d" $@ ; \
+        } 	\
+        ;; \
+    esac
+
+
+@ANTLR_LIB@ ::
+	@ subdir="lib/cpp/src" ; \
+    case $(subdir) in \
+	  $$subdir ) ;; \
+	  * ) d="@abs_this_builddir@/$$subdir" ; \
+        test -f "$$d/Makefile" && {  \
+         $(MAKE) -C "$$d" $@ ; \
+        } 	\
+        ;; \
+    esac
+

@@ -1,0 +1,970 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>ANTLR Specification: Meta Language </title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h2> <a name="_bb1"> ANTLR Meta-Language</a></h2>
+<p>
+	ANTLR accepts three types of grammar specifications -- parsers, lexers, and tree-parsers (also called tree-walkers). Because ANTLR uses LL(k) analysis for all three grammar variants, the grammar specifications are similar, and the generated lexers and parsers behave similarly.  The generated recognizers are human-readable and you can consult the output to clear up many of your questions about ANTLR's behavior.
+</p>
+<h3> <a name="_bb2"> </a> <a name="Meta-Language Vocabulary"> Meta-Language Vocabulary </a> </h3>
+<p>
+<b> Whitespace. </b> Spaces, tabs, and newlines are separators in that they can separate ANTLR vocabulary symbols such as identifiers, but are ignored beyond that. For example, &quot;<tt>FirstName LastName</tt>&quot; appears as a sequence of two token references to ANTLR not token reference, space, followed by token reference.
+</p>
+<p>
+<b> Comments. </b> ANTLR accepts C-style block comments and C++-style line comments. Java-style documenting comments are allowed on grammar classes and rules, which are passed to the generated output if requested. For example,
+</p>
+<pre><tt>/**This grammar recognizes simple expressions
+ * @author Terence Parr
+ */
+class ExprParser;
+
+/**Match a factor */
+factor : ... ;</tt></pre>
+<p>
+<b> Characters. </b> Character literals are specified just like in Java. They may contain octal-escape characters (e.g., <tt>'\377'</tt>), Unicode characters (e.g., <tt>'\uFF00'</tt>), and the usual special character escapes recognized by Java (<tt>'\b', '\r', '\t', '\n', '\f', '\'', '\\'</tt>). In lexer rules, single quotes represent a character to be matched on the input character stream. Single-quoted characters are not supported in parser rules.
+</p>
+<p>
+<strong>End of file</strong>. The <font face="Courier New">EOF</font> token is automatically generated for use in parser rules:
+</p>
+<pre>rule : (statement)+ EOF;</pre>
+<p>
+You can test for <font face="Courier New">EOF_CHAR</font> in actions of lexer rules:
+</p>
+<pre>// make sure nothing but newline or
+// EOF is past the #endif
+ENDIF
+{
+  boolean eol=false;
+}
+     :   &quot;#endif&quot;
+         ( ('\n' | '\r') {eol=true;} )?
+         {
+           if (!eol) {
+             if (LA(1)==EOF_CHAR) {error(&quot;EOF&quot;);}
+             else {error(&quot;Invalid chars&quot;);}
+           }
+         }
+     ;</pre>
+<p>
+While you can test for end-of-file as a character, it is not really a character--it is a condition.&nbsp; You should instead override <font face="Courier New">CharScanner.uponEOF()</font>, in your lexer grammar:
+</p>
+<pre>/** This method is called by YourLexer.nextToken()
+ *  when the lexer has
+ * hit EOF condition. EOF is NOT a character.
+ * This method is not called if EOF is reached
+ * during syntactic predicate evaluation or during
+ * evaluation of normal lexical rules, which
+ * presumably would be an IOException. This
+ * traps the &quot;normal&quot; EOF * condition.
+ *
+ * uponEOF() is called after the complete evaluation
+ * of the previous token and only if your parser asks
+ * for another token beyond that last non-EOF token.
+ *
+ * You might want to throw token or char stream
+ * exceptions like: &quot;Heh, premature eof&quot; or a retry
+ * stream exception (&quot;I found the end of this file,
+ * go back to referencing file&quot;).
+ */
+public void uponEOF()
+  throws TokenStreamException, CharStreamException
+{
+}</pre>
+<p>
+The end-of-file situation is a bit nutty (since version 2.7.1) because Terence used -1 as a char not an int (-1 is '\uFFFF'...oops).
+</p>
+<p>
+<b>Strings. </b> String literals are sequences of characters enclosed in double quotes. The characters in the string may be represented using the same escapes (octal, Unicode, etc.) that are valid in character literals.  Currently, ANTLR does not actually allow Unicode characters within string literals (you have to use the escape).  This is because the antlr.g file sets the <tt>charVocabulary</tt> option
+to ascii.
+</p>
+<p>
+In lexer rules, strings are interpreted as sequences of characters to be matched on the input character stream (e.g., <tt>&quot;for&quot;</tt> is equivalent to <tt>'f' 'o' 'r'</tt>).
+</p>
+<p>
+In parser rules, strings represent tokens, and each unique string is assigned a token type. However, ANTLR does not create lexer rules to match the strings. Instead, ANTLR enters the strings into a literals table in the associated lexer. ANTLR will generate code to test the text of each token against the literals table, and change the token type when a match is encountered before handing the token off to the parser. You may also perform the test manually -- the automatic code-generation is controllable by a <a href="options.html#testLiterals"> lexer option</a>.
+</p>
+<p>
+You may want to use the token type value of a string literal in your actions, for example in the synchronization part of an error-handler. For string literals that consist of alphabetic characters only, the string literal value will be a constant with a name like LITERAL_xxx, where xxx is the name of the token. For example, the literal &quot;return&quot; will have an associated value of LITERAL_return.&nbsp;&nbsp; You may also assign a specific label to a literal using the tokens section.
+</p>
+<p>
+<b> Token references. </b> Identifiers beginning with an uppercase letter are token references. The subsequent characters may be any letter, digit, or underscore. A token reference in a parser rule results in matching the specified token. A token reference in a lexer rule results in a call to the lexer rule for matching the characters of the token. In other words, token references in the lexer are treated as rule references.
+</p>
+<p>
+<b> Token definitions. </b> Token definitions in a lexer have the same syntax as parser rule definitions, but refer to tokens, not parser rules. For example,
+</p>
+<pre><tt>class MyParser extends Parser;
+idList : ( ID )+;   // parser rule definition
+
+class MyLexer extends Lexer;
+ID : ( 'a'..'z' )+ ;   // token definition</tt>    </pre>
+<p>
+<b> Rule references. </b> Identifiers beginning with a lowercase letter are references to ANTLR parser rules. The subsequent characters may be any letter, digit, or underscore. Lexical rules may not reference parser rules.
+</p>
+<p>
+<b> Actions. </b> Character sequences enclosed in (possibly nested) curly braces are semantic actions. Curly braces within string and character literals are not action delimiters.
+</p>
+<p>
+<b> Arguments Actions. </b> Character sequences in (possibly nested) square brackets are rule argument actions. Square braces within string and character literals are not action delimiters. The arguments within [] are specified using the syntax of the generated language, and should be separated by commas.
+</p>
+<pre><tt>codeBlock
+[int scope, String name] // input arguments
+returns [int x]          // return values
+: ... ;
+
+// pass 2 args, get return
+testcblock
+{int y;}
+	:	y=cblock[1,&quot;John&quot;]
+	;
+</tt></pre>
+<p>
+Many people would prefer that we use normal parentheses for arguments, but parentheses are best used as grammatical grouping symbols for EBNF.
+</p>
+<p>
+<b> Symbols. </b> The following table summarizes punctuation and keywords in ANTLR.
+</p>
+<div align="center">
+<center>
+	<table border="2" cellpadding="4">
+		<tr>
+			<th>
+				Symbol
+			</th>
+			<th align="left">
+				Description
+			</th>
+		</tr>
+		<tr>
+			<td align="center" width="100">
+				<tt>(...)</tt>
+			</td>
+			<td width="200">
+				subrule
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>(...)*</tt>
+			</td>
+			<td>
+				closure subrule zero-or-more
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>(...)+</tt>
+			</td>
+			<td>
+				positive closure subrule one-or-more
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>(...)?</tt>
+			</td>
+			<td>
+				optional zero-or-one
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>{...}</tt>
+			</td>
+			<td>
+				semantic action
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>[...]</tt>
+			</td>
+			<td>
+				rule arguments
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>{...}?</tt>
+			</td>
+			<td>
+				semantic predicate
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>(...)=&gt;</tt>
+			</td>
+			<td>
+				syntactic predicate
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>|</tt>
+			</td>
+			<td>
+				alternative operator
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>..</tt>
+			</td>
+			<td>
+				range operator
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>~</tt>
+			</td>
+			<td>
+				not operator
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>.</tt>
+			</td>
+			<td>
+				wildcard
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>=</tt>
+			</td>
+			<td>
+				assignment operator
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>:</tt>
+			</td>
+			<td>
+				label operator, rule start
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>;</tt>
+			</td>
+			<td>
+				rule end
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>&lt;...&gt;</tt>
+			</td>
+			<td>
+				element option
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>class</tt>
+			</td>
+			<td>
+				grammar class
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>extends</tt>
+			</td>
+			<td>
+				specifies grammar base class
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>returns</tt>
+			</td>
+			<td>
+				specifies return type of rule
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>options</tt>
+			</td>
+			<td>
+				options section
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>tokens</tt>
+			</td>
+			<td>
+				tokens section
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>header</tt>
+			</td>
+			<td>
+				header section
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<tt>tokens</tt>
+			</td>
+			<td>
+				token definition section
+			</td>
+		</tr>
+	</table>
+</center>
+</div>
+<h3> <a name="_bb3"> </a> <a name="Header Section"> Header Section </a> </h3>
+<p>
+A header section contains source code that must be placed before any ANTLR-generated code in the output parser. This is mainly useful for C++ output due to its requirement that elements be declared before being referenced. In Java, this can be used to specify a package for the resulting parser, and any imported classes. A header section looks like:
+</p>
+<pre><tt>header {
+  <i>source code in the language generated by ANTLR</i>;
+}</tt>  </pre>
+<p>
+The header section is the first section in a grammar file. Depending on the
+selected target language more types of header sections might be possible.
+See the respective addendums.
+</p>
+<h3> <a name="_bb4"> </a> <a name="Parser Class Definitions"> Parser Class Definitions</a> </h3>
+<p>
+
+All parser rules must be associated with a parser class. A grammar (.g)
+file may contain only one parser class definitions (along
+with lexers and tree-parsers). A parser class specification precedes the
+options and rule definitions of the parser. A parser specification in a
+grammar file often looks like:
+
+</p>
+<pre><tt><i>{ optional class code preamble }</i>
+class <i>YourParserClass</i> extends Parser;
+<i>options</i>
+<em>tokens</em>
+<em>{ optional action for instance vars/methods }</em>
+<i>parser rules</i>...</tt>    </pre>
+<p>
+When generating code in an object-oriented language, parser classes result
+in classes in the output, and rules become member methods of the class. In C, classes would result in <tt>struct</tt>s, and some name-mangling would be used to make the resulting rule functions globally unique.
+</p>
+<p>
+The optional class preamble is some arbitrary text enclosed in {}. The preamble, if it exists, will be output to the generated class file immediately before the definition of the class.
+</p>
+<p>
+Enclosing curly braces are not used to delimit the class because it is hard to associate the trailing right curly brace at the bottom of a file with the left curly brace at the top of the file. Instead, a parser class is assumed to continue until the next <tt>class</tt> statement.
+</p>
+<p>
+You may specify a parser superclass that is used as the superclass fo the generate parser.  The superclass must be fully-qualified and in double-quotes; it must itself be a subclass of <tt>antlr.LLkParser</tt>.  For example,
+
+<pre>
+class TinyCParser extends Parser("antlr.debug.ParseTreeDebugParser");
+</pre>
+
+<h3> <a name="_bb5"> </a> <a name="Lexical Analyzer Class Definitions"> Lexical Analyzer Class Definitions</a> </h3>
+<p>
+A parser class results in parser objects that know how to apply the associated grammatical structure to an input stream of tokens. To perform lexical analysis, you need to specify a lexer class that describes how to break up the input character stream into a stream of tokens. The syntax is similar to that of a parser class:
+</p>
+<pre><tt>
+<i>{ optional class code preamble }</i>
+class <i>YourLexerClass</i> extends Lexer;
+<i>options</i>
+<em>tokens</em>
+<em>{ optional action for instance vars/methods }</em>
+<i>lexer rules</i>...</tt></pre>
+<p>
+
+Lexical rules contained within a lexer class become member methods in the
+generated class. Each grammar (.g) file may contain only one lexer class.
+The parser and lexer classes may appear in any order.
+
+</p>
+<p>
+The optional class preamble is some arbitrary text enclosed in {}. The preamble, if it exists, will be output to the generated class file immediately before the definition of the class.
+</p>
+
+<p>
+You may specify a lexer superclass that is used as the superclass for the generate lexer.  The superclass must be fully-qualified and in double-quotes; it must itself be a subclass of <tt>antlr.CharScanner</tt>.
+
+<h3> <a name="_bb6"> </a> <a name="Tree-parser Class Definitions"> Tree-parser Class Definitions</a> </h3>
+<p>
+
+A tree-parser is like a parser, except that is processes a two-dimensional
+tree of AST nodes instead of a one-dimensional stream of tokens. Tree
+parsers are specified identically to parsers, except that the rule
+definitions may contain a <a href="#Tree-parser%20rules"> special form </a>
+to indicate descent into the tree. Again only one tree parser may be
+specified per grammar (.g) file.
+
+</p>
+<pre><tt><i>{ optional class code preamble }</i>
+class <i>YourTreeParserClass</i> extends TreeParser;
+<i>options</i>
+<em>tokens</em>
+<em>{ optional action for instance vars/methods }</em>
+<i>tree parser rules</i>...</tt></pre>
+<p>
+You may specify a tree parser superclass that is used as the superclass for the generate tree parser.  The superclass must be fully-qualified and in double-quotes; it must itself be a subclass of <tt>antlr.TreeParser</tt>.
+
+<h3> <a name="_bb8"> </a> <a name="Options Section"> Options Section</a> </h3>
+<p>
+Rather than have the programmer specify a bunch of command-line arguments to the parser generator, an <a href="options.html"> options section </a> within the grammar itself serves this purpose. This solution is preferable because it associates the required options with the grammar rather than ANTLR invocation. The section is preceded by the <tt>options</tt> keyword and contains a series of option/value assignments. An options section may be specified on both a per-file, per-grammar, per-rule, and per-subrule basis.
+</p>
+<p>
+You may also specify an option on an element, such as a token reference.
+</p>
+<h3> <a id="TokensSection" name="TokensSection"> Tokens Section</a> </h3>
+<p>
+If you need to define an &quot;imaginary&quot; token, one that has no corresponding real input symbol, use the tokens section to define them.&nbsp; Imaginary tokens are used often for tree nodes that mark or group a subtree resulting from real input.&nbsp; For example, you may decide to have an <font face="Courier New">EXPR</font> node be the root of every expression subtree and <font face="Courier New">DECL</font> for declaration subtrees for easy reference during tree walking.&nbsp; Because there is no corresponding input symbol for <font face="Courier New">EXPR</font>, you cannot reference it in the grammar to implicitly define it.&nbsp; Use the following to define those imaginary tokens.
+</p>
+<pre>tokens {
+    EXPR;
+    DECL;
+}</pre>
+<p>
+The formal syntax is:
+</p>
+<pre>tokenSpec : &quot;tokens&quot; LCURLY
+            (tokenItem SEMI)+
+            RCURLY
+          ;
+
+tokenItem : TOKEN ASSIGN STRING (tokensSpecOptions)?
+          | TOKEN  (tokensSpecOptions)?
+          | STRING (tokensSpecOptions)?
+          ;</pre> <pre>tokensSpecOptions
+          : &quot;&lt;&quot;
+              id ASSIGN optionValue
+              ( SEMI id ASSIGN optionValue )*
+            &quot;&gt;&quot;
+          ;</pre>
+<p>
+You can also define literals in this section and, most importantly, assign to them a valid label as in the following example.
+</p>
+<pre>tokens {
+    KEYWORD_VOID=&quot;void&quot;;
+    EXPR;
+    DECL;
+    INT=&quot;int&quot;;
+}</pre>
+<p>
+Strings defined in this way are treated just as if you had referenced them in the parser.
+</p>
+<p>
+If a grammar imports a vocabulary containing a token, say <em> T</em>, then you may attach a literal to that token type simply by adding <em> T</em><font face="Courier New">=&quot;a literal&quot;</font> to the tokens section of the grammar.&nbsp; Similarly, if the imported vocabulary defines a literal, say <font face="Courier New">&quot;_int32&quot;</font>, without a label, you may attach a label via <font face="Courier New">INT32=&quot;_int32&quot;</font> in the tokens section.
+</p>
+<p>
+You may define options on the tokens defined in the <font face="Courier New">tokens</font> section.&nbsp; The only option available so far is <font face="Courier New">AST=<em>class-type-to-instantiate</em></font>.
+</p>
+<pre>// Define a bunch of specific AST nodes to build.
+// Can override at actual reference of tokens in
+// grammar.
+tokens {
+    PLUS&lt;AST=PLUSNode&gt;;
+    STAR&lt;AST=MULTNode&gt;;
+}</pre> <h3> <a name="_bb9"> </a> <a name="Grammar Inheritance"> Grammar Inheritance </a> </h3>
+<p>
+Object-oriented programming languages such as C++ and Java allow you to define a new object as it differs from an existing object, which provides a number of benefits. &quot;Programming by difference&quot; saves development/testing time and future changes to the <i> base </i> or <i> superclass </i> are automatically propagated to the <i> derived </i> or <i> subclass</i>. ANTLR= supports <a href="inheritance.html"> grammar inheritance </a> as a mechanism for creating a new grammar class based on a base class. Both the grammatical structure and the actions associated with the grammar may be altered independently.
+</p>
+<h3> <a name="_bb10"> </a> <a name="Rule Definitions"> Rule Definitions</a> </h3>
+<p>
+Because ANTLR considers lexical analysis to be parsing on a character stream, both lexer and parser rules may be discussed simultaneously. When speaking generically about rules, we will use the term <i> atom </i> to mean an element from the input stream (be they characters or tokens).
+</p>
+<p>
+The structure of an input stream of atoms is specified by a set of mutually-referential rules. Each rule has a name, optionally a set of arguments, optionally a &quot;throws&quot; clause, optionally an init-action, optionally a return value, and an alternative or alternatives. Each alternative contains a series of elements that specify what to match and where.
+</p>
+<p>
+The basic form of an ANTLR rule is:
+</p>
+<pre><tt><i>rulename</i>
+    :   <i>alternative_1</i>
+    |   <i>alternative_2</i>
+   ...
+    |   <i>alternative_n</i>
+    ;</tt>    </pre>
+<p>
+If parameters are required for the rule, use the following form:
+</p>
+<pre><tt><i>rulename</i>[<i>formal parameters</i>] : ... ;</tt></pre>
+<p>
+If you want to return a value from the rule, use the <tt>returns</tt> keyword:
+</p>
+<pre><tt><i>rulename</i> returns [<i>type id</i>] : ... ;</tt>    </pre>
+<p>
+where <i><tt>type</tt></i> is a type specifier of the generated language, and id is a valid identifier of the generated language. In Java, a single type identifier would suffice most of the time, but returning an array of strings, for example, would require brackets:
+</p>
+<pre><tt>ids returns [String[] s]: ( ID {...} )* ;</tt>    </pre>
+<p>
+Also, when generating C++, the return type could be complex such as:
+</p>
+<pre><tt>ids returns [char *[] s]: ... ;</tt>    </pre>
+<p>
+The id of the <tt>returns</tt> statement is passed to the output code. An action may assign directly to this id to set the return value.  Do not use a <tt>return</tt> instruction in an action.
+</p>
+<p>
+To specify that your parser (or tree parser rule) can throw a non-ANTLR specific exception, use the exceptions clause.&nbsp; For example, here is a simple parser specification with a rule that throws <font face="Courier New">MyException</font>:
+</p>
+<pre>class P extends Parser;
+
+a throws MyException
+  : A
+  ;</pre>
+<p>
+ANTLR generates the following for rule a:
+</p>
+<pre>    public final void a()
+        throws RecognitionException,
+               TokenStreamException,
+               MyException
+    {
+        try {
+            match(A);
+        }
+        catch (RecognitionException ex) {
+            reportError(ex);
+            consume();
+            consumeUntil(_tokenSet_0);
+        }
+    }</pre>
+<p>
+Lexer rules may not specify exceptions.
+</p>
+<p>
+Init-actions are specified before the colon. Init-actions differ from normal actions because they are always executed regardless of guess mode. In addition, they are suitable for local variable definitions.
+</p>
+<pre><tt>rule
+{
+    init-action
+}
+    :   ...
+    ;</tt>    </pre>
+<p>
+<b> Lexer rules. </b> Rules defined within a lexer grammar must have a name beginning with an uppercase letter. These rules implicitly match characters on the input stream instead of tokens on the token stream. Referenced grammar elements include token references (implicit lexer rule references), characters, and strings. Lexer rules are processed in the exact same manner as parser rules and, hence, may specify arguments and return values; further, lexer rules can also have local variables and use recursion. See more about <a href="lexer.html"> lexical analysis with ANTLR</a>.
+</p>
+<p>
+<b> Parser rules. </b> Parser rules apply structure to a stream of tokens whereas lexer rules apply structure to a stream of characters. Parser rules, therefore, must not reference character literals. Double-quoted strings in parser rules are considered token references and force ANTLR to squirrel away the string literal into a table that can be checked by actions in the associated lexer.
+</p>
+<p>
+All parser rules must begin with lowercase letters.
+</p>
+<p>
+<a name="Tree-parser rules"> <b> Tree-parser rules.</b> </a> In a tree-parser, an additional special syntax is allowed to specify the match of a two-dimensional structure. Whereas a parser rule may look like:
+</p>
+<pre><tt>rule : A B C;</tt>    </pre>
+<p>
+which means &quot;match A B and C sequentially&quot;, a tree-parser rule may also use the syntax:
+</p>
+<pre><tt>rule : #(A B C);</tt>  </pre>
+<p>
+which means &quot;match a node of type A, and then descend into its list of children and match B and C&quot;. This notation can be nested arbitrarily, using #(...) anywhere an EBNF construct could be used, for example:
+</p>
+<pre><tt>rule : #(A B #(C D (E)*) );</tt>      </pre> <h3> <a name="_bb11"> </a> <a name="Atomic Production elements"> Atomic Production elements </a> </h3>
+<p>
+<b> Character literal. </b> A character literal can only be referred to within a lexer rule. The single character is matched on the character input stream. There are no need to escape regular expression meta symbols because regular expressions are not used to match lexical atoms. For example, <tt>'{'</tt> need not have an escape as you are specifying the literal character to match. Meta symbols are used outside of characters and string literals to specify lexical structure.
+</p>
+<p>
+All characters that you reference are implicitly added to the overall character vocabulary (see option <tt>charVocabulary</tt>).  The vocabulary comes into play when you reference the wildcard character, '.', or ~<i>c</i> ("every character but <i>c</i>").
+<p>
+You do not have to treat Unicode character literals specially.  Just reference them as you would any other character literal.  For example, here is a rule called <tt>LETTER</tt> that matches characters considered Unicode letters:
+
+<pre><tt>
+protected
+LETTER
+    :   '\u0024' |
+        '\u0041'..'\u005a' |
+        '\u005f' |
+        '\u0061'..'\u007a' |
+        '\u00c0'..'\u00d6' |
+        '\u00d8'..'\u00f6' |
+        '\u00f8'..'\u00ff' |
+        '\u0100'..'\u1fff' |
+        '\u3040'..'\u318f' |
+        '\u3300'..'\u337f' |
+        '\u3400'..'\u3d2d' |
+        '\u4e00'..'\u9fff' |
+        '\uf900'..'\ufaff'
+    ;
+</tt></pre>
+
+You can reference this rule from another rule:
+
+<pre><tt>
+ID  :   (LETTER)+
+    ;
+</tt></pre>
+
+ANTLR will generate code that tests the input characters against a bit set created in the lexer object.
+<p>
+<b> String literal. </b> Referring to a string literal within a parser rule defines a token type for the string literal, and causes the string literal to be placed in a hash table of the associated lexer. The associated lexer will have an automated check against every matched token to see if it matches a literal.  If so, the token type for that token is set to the token type for that literal defintion imported from the parser.  You may turn off the automatic checking and do it yourself in a convenient rule like <tt>ID</tt>.  References to string literals within the parser may be suffixed with an element option; see token references below.
+</p>
+<p>
+Referring to a string within a lexer rule matches the indicated sequence of characters and is a shorthand notation. For example, consider the following lexer rule definition:
+</p>
+<pre><tt>BEGIN : &quot;begin&quot; ;</tt></pre>
+<p>
+This rule can be rewritten in a functionally equivalent manner:
+</p>
+<pre><tt>BEGIN : 'b' 'e' 'g' 'i' 'n' ;</tt>    </pre>
+<p>
+There are no need to escape regular expression meta symbols because regular expressions are not used to match characters in the lexer.
+</p>
+<p>
+<a name="Token reference."> <b> Token reference.</b> </a> Referencing a token in a parser rule implies that you want to recognize a token with the specified token type. This does not actually call the associated lexer rule--the lexical analysis phase delivers a stream of tokens to the parser.
+</p>
+<p>
+A token reference within a lexer rule implies a method call to that rule, and carries the same analysis semantics as a rule reference within a parser. In this situation, you may specify rule arguments and return values. See the next section on rule references.
+</p>
+<p>
+You may also specify an option on a token reference.&nbsp; Currently, you can only specify the AST node type to create from the token.&nbsp; For example, the following rule instructs ANTLR to build INTNode objects from the INT reference:
+</p>
+<pre>i : INT&lt;AST=INTNode&gt; ;</pre>
+<p>
+The syntax of an element option is
+</p>
+<pre>&lt;<em>option</em>=<em>value</em>; <em>option</em>=<em>value</em>; ...&gt;</pre>
+<p>
+<b> Wildcard. </b> The &quot;<tt>.</tt>&quot; wildcard within a parser rule matches any single token; within a lexer rule it matches any single character. For example, this matches any single token between the B and C:
+</p>
+<pre><tt>r : A B . C;</tt></pre>
+
+<h3> <a name="_bb12"> </a> <a name="Simple Production elements"> Simple Production elements </a> </h3>
+<p>
+<b> Rule reference. </b> Referencing a rule implies a method call to that rule at that point in the parse. You may pass parameters and obtain return values. For example, formal and actual parameters are specified within square brackets:
+</p>
+<pre><tt>funcdef
+    :   type ID &quot;(&quot; args &quot;)&quot; block[1]
+    ;
+block[int scope]
+    :   &quot;begin&quot; ... {/*use arg scope/*} &quot;end&quot;
+    ;</tt></pre>
+<p>
+Return values that are stored into variables use a simple assignment notation:
+</p>
+<pre><tt>set
+{ Vector ids=null; }  // init-action
+    :  &quot;(&quot; ids=idList &quot;)&quot;
+    ;
+idList returns [Vector strs]
+{ strs = new Vector(); }   // init-action
+    :  id:ID
+       { strs.appendElement(id.getText()); }
+       (
+          &quot;,&quot; id2:ID
+          { strs.appendElement(id2.getText()); }
+       )*
+    ;</tt>    </pre>
+<p>
+<b> Semantic action. </b> Actions are blocks of source code (expressed in the target language) enclosed in curly braces. The code is executed after the preceding production element has been recognized and before the recognition of the following element. Actions are typically used to generate output, construct trees, or modify a symbol table. An action's position dictates when it is recognized relative to the surrounding grammar elements.
+</p>
+<p>
+If the action is the first element of a production, it is executed before any other element in that production, but only if that production is predicted by the lookahead.
+</p>
+<p>
+The first action of an EBNF subrule may be followed by ':'. Doing so designates the action as an <i> init-action </i> and associates it with the subrule as a whole, instead of any production. It is executed immediately upon entering the subrule -- before lookahead prediction for the alternates of the subrule -- and is executed even while guessing (testing syntactic predicates). For example:
+</p>
+<pre><tt>(   {init-action}:
+    {action of 1st production} production_1
+|   {action of 2nd production} production_2
+)?</tt>    </pre>
+<p>
+The init-action would be executed regardless of what (if anything) matched in the optional subrule.
+</p>
+<p>The init-actions are placed within the loops generated for subrules <tt>(...)+</tt> and <tt>(...)*</tt>.
+
+<h3> <a name="_bb13"> </a> <a name="Production Element Operators"> Production Element Operators </a> </h3>
+<p>
+<b> Element complement. </b> The &quot;<tt>~</tt>&quot; not unary operator must be applied to an atomic element such as a token identifier. For some token atom <i> <tt>T</tt></i>, <tt>~<i>T</i></tt> matches any token other than <i> <tt>T</tt> </i> except end-of-file. Within lexer rules, <tt>~'<i>a</i>'</tt> matches any character other than character <tt>'<i>a</i>'</tt>. The sequence <tt>~.</tt> (&quot;not anything&quot;) is meaningless and not allowed.
+</p>
+<p>
+The vocabulary space is very important for this operator. In parsers, the complete list of token types is known to ANTLR and, hence, ANTLR simply clones that set and clears the indicated element. For characters, you must specify the character vocabulary if you want to use the complement operator.  Note that for large vocabularies like Unicode character blocks, complementing a character means creating a set with 2^16 elements in the worst case (about 8k). The character vocabulary is the union of characters specified in the <tt>charVocabulary</tt> option and any characters referenced in the lexer rules. Here is a sample use of the character vocabulary option:
+</p>
+<pre>class L extends Lexer;
+options { charVocabulary = '\3'..'\377'; } // LATIN
+
+DIGIT : '0'..'9';
+SL_COMMENT : &quot;//&quot; (~'\n')* '\n'; </pre>
+<p>
+<b> Set complement. </b> the not operator can also be used to construct a token set or character set by <i> complementing </i> another set. This is most useful when you want to match tokens or characters until a certain delimiter set is encountered. Rather than invent a special syntax for such sets, ANTLR allows the placement of <tt>~</tt> in front of a subrule containing only simple elements and no actions. In this specific case, ANTLR will not generate a subrule, and will instead create a set-match. The simple elements may be token references, token ranges, character literals, or character ranges. For example:
+</p>
+<pre><tt>class P extends Parser;
+r : T1 (~(T1|T2|T3))* (T1|T2|T3);
+
+class L extends Lexer;
+SL_COMMENT : &quot;//&quot; (~('\n'|'\r'))* ('\n'|'\r);
+
+STRING : '&quot;' (ESC | ~('\\'|'&quot;'))* '&quot;';
+protected ESC : '\\' ('n' | 'r');</tt></pre>
+<p>
+<b> Range operator. </b> The range binary operator implies a range of atoms may be matched. The expression <tt>'c1'..'c2'</tt> in a lexer matches characters inclusively in that range. The expression <tt><i> T</i>..<i>U</i></tt> in a parser matches any token whose token type is inclusively in that range, which is of dubious value unless the token types are generated externally.
+</p>
+<p>
+<b> AST root operator. </b> When generating abstract syntax trees (ASTs), token references suffixed with the &quot;<tt>^</tt>&quot; root operator force AST nodes to be created and added as the root of the current tree. This symbol is only effective when the <a href="options.html#buildAST"> buildAST option </a> is set. <a href="trees.html"> More information </a> about ASTs is also available.
+</p>
+<p>
+<b> AST exclude operator. </b> When generating abstract syntax trees, token references suffixed with the &quot;<tt>!</tt>&quot; exclude operator are not included in the AST constructed for that rule. Rule references can also be suffixed with the exclude operator, which implies that, while the tree for the referenced rule is constructed, it is not linked into the tree for the referencing rule. This symbol is only effective when the <a href="options.html#buildAST"> buildAST option </a> is set. <a href="trees.html"> More information </a> about ASTs is also available.
+</p>
+<h3> <a name="_bb14"> </a> <a name="tokenclasses"> Token Classes</a> </h3>
+<p>
+By using a range operator, a not operator, or a subrule with purely atomic elements, you implicitly define an &quot;anonymous&quot; token or character class--a set that is very efficient in time and space. For example, you can define a lexer rule such as:
+</p>
+<pre><tt>OPS : (PLUS | MINUS | MULT | DIV) ;</tt></pre>
+<p>
+or
+</p>
+<pre>WS  : (' '|'\n'|'\t') ;</pre>
+<p>
+These describe sets of tokens and characters respectively that are easily optimized to simple, single, bit-sets rather than series of token and character comparisons.
+</p>
+<h3> <a name="_bb15"> </a> <a name="Predicates"> Predicates </a> </h3>
+<p>
+<b> Semantic predicate. </b> Semantics predicates are conditions that must
+be met at parse-time before parsing can continue past them. The
+functionality of <a href="metalang.html#SemanticPredicates"> semantic
+predicates </a> is explained in more detail later. The syntax of a semantic
+predicate is a semantic action suffixed by a question operator:
+</p>
+<pre><tt>{ expression }?</tt></pre>
+<p>
+The expression must not have side-effects and must evaluate to true or false (<tt>boolean</tt> in Java or <tt>bool</tt> in C++). Since semantic predicates can be executed while guessing, they should not rely upon the results of actions or rule parameters.
+</p>
+<p>
+<b> Syntactic predicate. </b> Syntactic predicates specify the lookahead
+language needed to predict an alternative.
+<a href="metalang.html#SyntacticPredicates"> Syntactic predicates </a> are
+explained in more detail later.
+The syntax of a syntactic predicate is a subrule with a <tt>=&gt;</tt>
+operator suffix:
+</p>
+<pre><tt>
+( lookahead-language ) =&gt; production</tt></pre>
+<p>
+Where the lookahead-language can be any valid ANTLR construct including references to other rules. Actions are not executed, however, during the evaluation of a syntactic predicate.
+</p>
+<h3> <a name="_bb16"> </a> <a name="Element Labels">Element Labels</a> </h3>
+<p>
+Any atomic or rule reference production element can be labeled with an
+identifier (case not significant). In the case of a labeled atomic element,
+the identifier is used within a semantic action to access the associated
+<tt>Token</tt> object or character. For example,
+</p>
+<pre><tt>assign
+    :   v:ID &quot;=&quot; expr &quot;;&quot;
+        { System.out.println(
+            &quot;assign to &quot;+v.getText()); }
+    ;</tt></pre>
+<p>
+No &quot;<tt>$</tt>&quot; operator is needed to reference the label from
+within an action as was the case with PCCTS 1.xx.
+</p>
+<p>Inside actions a token reference can be accessed as
+<tt><i>label</i></tt> to acces the Token object, or as
+<tt><i>#label</i></tt> to access the AST generated for
+the token. The AST node constructed for a rule reference may be
+accessed from within actions as <tt><i>#label</i></tt>.
+</p>
+<p>
+Labels on token references can also be used in association with parser
+<a href="err.html#SpecifyingParserException-Handlers"> exception handlers
+</a> to specify what happens when that token cannot be matched.
+</p>
+<p>
+Labels on rule references are used for
+<a href="err.html#ParserExceptionHandling"> parser exception handling </a>
+so that any exceptions generated while executing the labeled rule can be
+caught.
+</p>
+<h3> <a name="_bb17"> </a> <a name="EBNF Rule Elements"> EBNF Rule Elements</a> </h3>
+<p>
+ANTLR supports extended BNF notation according to the following four subrule syntax / syntax diagrams:
+<dl>
+<dt>
+	<tt>( <i> P1 </i> | <i> P2 </i> | ... | <i> Pn </i> )</tt>
+</dt>
+<dd>
+	<img src="subrule.gif" width="144" height="149">
+</dd>
+<dt>
+	<tt>( <i> P1 </i> | <i> P2 </i> | ... | <i> Pn </i> )?</tt>
+</dt>
+<dd>
+	<img src="optional.gif" width="143" height="184">
+</dd>
+<dt>
+	<tt>( <i> P1 </i> | <i> P2 </i> | ... | <i> Pn </i> )*</tt>
+</dt>
+<dd>
+	<img src="closure.gif" width="163" height="197">
+</dd>
+<dt>
+	<tt>( <i> P1 </i> | <i> P2 </i> | ... | <i> Pn </i> )+</tt>
+</dt>
+<dd>
+	<img src="posclosure.gif" width="152" height="185">
+</dd>
+</dl>
+<h3> <a name="_bb18"> </a> <a name="Interpretation Of Semantic Actions"> Interpretation Of Semantic Actions </a> </h3>
+<p>
+Semantic actions are copied to the appropriate position in the output
+parser verbatim with the exception of <a href="trees.html#ActionTranslation">AST action translation</a>.
+</p>
+<p>
+None of the $-variable notation from PCCTS 1.xx carries forward into ANTLR.
+</p>
+<h3><a name="SemanticPredicates">Semantic Predicates</a></h3>
+<p>
+A semantic predicate specifies a condition that must be met (at run-time) before parsing may proceed. We differentiate between two types of semantic predicates: (i) <i>validating</i> predicates that throw exceptions if their conditions are not met while parsing a production (like assertions) and (ii) <i>disambiguating</i> predicates that are <i>hoisted</i> into the prediction expression for the associated production.
+</p>
+<p>
+Semantic predicates are syntactically semantic actions suffixed with a question mark operator:
+</p>
+<pre><tt>{ semantic-predicate-expression }?</tt></pre>
+<p>
+The expression may use any symbol provided by the programmer or generated by ANTLR that is visible at the point in the output the expression appears.
+</p>
+<p>
+The position of a predicate within a production determines which type of predicate it is. For example, consider the following validating predicate (which appear at any non-left-edge position) that ensures an identifier is semantically a type name:
+</p>
+<pre><tt>decl: &quot;var&quot; ID &quot;:&quot; t:ID
+      { isTypeName(t.getText()) }?
+    ;</tt>    </pre>
+<p>
+Validating predicates generate parser exceptions when they fail. The thrown
+exception is is of type SemanticException. You can catch this and other
+parser exceptions in an <a href="err.html#SpecifyingParserException-Handlers"> exception handler</a>.
+</p>
+<p>
+Disambiguating predicates are always the first element in a production because they cannot be hoisted over actions, token, or rule references. For example, the first production of the following rule has a disambiguating predicate that would be hoisted into the prediction expression for the first alternative:
+</p>
+<pre><tt>
+stat:   // declaration &quot;type varName;&quot;
+        {isTypeName(LT(1))}? ID ID &quot;;&quot;
+    |   ID &quot;=&quot; expr &quot;;&quot;            // assignment
+    ;</tt></pre>
+<p>
+If we restrict this grammar to LL(1), it is syntactically nondeterministic because of the common left-prefix: <tt>ID</tt>. However, the semantic predicate correctly provides additional information that disambiguates the parsing decision. The parsing logic would be:
+</p>
+<pre><tt>if ( LA(1)==ID &amp;&amp; isTypeName(LT(1)) ) {
+    <i>match production one</i>
+}
+else if ( LA(1)==ID ) {
+    <i>match production one</i>
+}
+else <i>error</i></tt>    </pre>
+<p>
+Formally, in PCCTS 1.xx, semantic predicates represented the semantic context of a production. As such, the semantic AND syntactic context (lookahead) could be hoisted into other rules. In ANTLR, predicates are not hoisted outside of their enclosing rule. Consequently, rules such as:
+</p>
+<pre><tt>type : {isType(t)}? ID ;</tt></pre>
+<p>
+are meaningless. On the other hand, this &quot;semantic context&quot; feature caused considerable confusion to many PCCTS 1.xx folks.
+</p>
+<h3><a name="SyntacticPredicates">Syntactic Predicates</a> </h3>
+<p>
+There are occasionally parsing decisions that cannot be rendered deterministic with finite lookahead. For example:
+</p>
+<pre><tt>a   :   ( A )+ B
+    |   ( A )+ C
+    ;</tt></pre>
+<p>
+The common left-prefix renders these two productions nondeterministic in the LL(k) sense for any value of k. Clearly, these two productions can be <i> left-factored </i> into:
+</p>
+<pre><tt>a   :   ( A )+ (B|C)
+    ;</tt></pre>
+<p>
+without changing the recognized language. However, when actions are embedded in grammars, left-factoring is not always possible. Further, left-factoring and other grammatical manipulations do not result in natural (readable) grammars.
+</p>
+<p>
+The solution is simply to use arbitrary lookahead in the few cases where finite LL(k) for k&gt;1 is insufficient. ANTLR allows you to specify a lookahead language with possibly infinite strings using the following syntax:
+</p>
+<pre><tt>( prediction block ) =&gt; production</tt></pre>
+<p>
+For example, consider the following rule that distinguishes between sets (comma-separated lists of words) and parallel assignments (one list assigned to another):
+</p>
+<pre><tt>stat:   ( list &quot;=&quot; )=&gt; list &quot;=&quot; list
+    |   list
+    ;</tt></pre>
+<p>
+If a <tt>list</tt> followed by an assignment operator is found on the input stream, the first production is predicted. If not, the second alternative production is attempted.
+</p>
+<p>
+Syntactic predicates are a form of selective backtracking and, therefore, actions are turned off while evaluating a syntactic predicate so that actions do not have to be undone.
+</p>
+<p>
+Syntactic predicates are implemented using exceptions in the target language if they exist. When generating C code, <tt>longjmp</tt> would have to be used.
+</p>
+<p>
+We could have chosen to simply use arbitrary lookahead for any non-LL(k) decision found in a grammar. However, making the arbitrary lookahead explicit in the grammar is useful because you don't have to guess what the parser will be doing. Most importantly, there are language constructs that are ambiguous for which there exists no deterministic grammar! For example, the infamous if-then-else construct has no LL(k) grammar for any k. The following grammar is ambiguous and, hence, nondeterministic:
+</p>
+<pre><tt>
+stat:   &quot;if&quot; expr &quot;then&quot; stat ( &quot;else&quot; stat )?
+    |   ...
+    ;</tt></pre>
+<p>
+Given a choice between two productions in a nondeterministic decision, we simply choose the first one. This works out well is most situations. Forcing this decision to use arbitrary lookahead would simply slow the parse down.
+</p>
+<h4> <a name="_bb21"> </a> <a name="Fixed depth lookahead and syntactic predicates"> Fixed depth lookahead and syntactic predicates</a> </h4>
+<p>
+ANTLR cannot be sure what lookahead can follow a syntactic predicate (the only logical possibility is whatever follows the alternative predicted by the predicate, but erroneous input and so on complicates this), hence, ANTLR assumes anything can follow.&nbsp; This situation is similar to the computation of lexical lookahead when it hits the end of the token rule definition.
+</p>
+<p>
+Consider a predicate with a (...)* whose implicit exit branch forces a computation attempt on what follows the loop, which is the end of the syntactic predicate in this case.
+</p>
+<pre>class parse extends Parser;
+a	:	(A (P)*) =&gt; A (P)*
+	|	A
+	;</pre>
+<p>
+The lookahead is artificially set to &quot;any token&quot; for the exit branch. &nbsp; Normally, the P and the &quot;any token&quot; would conflict, but ANTLR knows that what you mean is to match a bunch of P tokens if they are present--no warning is generated.
+</p>
+<p>
+If more than one path can lead to the end of the predicate in any one decision, ANTLR will generate a warning.&nbsp; The following rule results in two warnings.
+</p>
+<pre>class parse extends Parser;
+a	:	(A (P|)*) =&gt; A (P)*
+	|	A
+	;</pre>
+<p>
+The empty alternative can indirectly be the start of the loop and, hence, conflicts with the P.&nbsp; Further, ANTLR detects the problem that two paths reach end of predicate.&nbsp; The resulting parser will compile but never terminate the (P|)* loop.
+</p>
+<p>
+The situation is complicated by k&gt;1 lookahead.&nbsp; When the nth lookahead depth reaches the end of the predicate, it records the fact and then code generation ignores the lookahead for that depth.
+</p>
+<pre>class parse extends Parser;
+options {
+	k=2;
+}
+a	:	(A (P B|P )*) =&gt; A (P)*
+	|	A
+	;</pre>
+<p>
+ANTLR generates a decision of the following form inside the (..)* of the predicate:
+</p>
+<pre>if ((LA(1)==P) &amp;&amp; (LA(2)==B)) {
+    match(P);
+    match(B);
+}
+else if ((LA(1)==P) &amp;&amp; (true)) {
+    match(P);
+}
+else {
+    break _loop4;
+}</pre>
+<p>
+This computation works in all grammar types.
+</p>
+<h3> <a name="_bb22"> </a> <a name="ANTLR Meta-Language Grammar"> ANTLR Meta-Language Grammar </a> </h3>
+<p>
+See <tt>antlr/antlr.g</tt> for the grammar that describes ANTLR input grammar syntax in ANTLR meta-language itself.
+</p>
+<p>
+<font face="Arial" size="2"> Version: $Id: //depot/code/org.antlr/release/antlr-2.7.5/doc/metalang.html#1 $</font>
+</body>
+</html>

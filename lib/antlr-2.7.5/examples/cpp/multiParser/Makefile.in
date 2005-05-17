@@ -1,0 +1,323 @@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+
+subdir=examples/cpp/multiParser
+
+srcdir=@abs_top_srcdir@/examples/cpp/multiParser
+objdir=@abs_this_builddir@/examples/cpp/multiParser
+
+this : test
+test : test1
+
+all: multiParser test
+
+lexer_g_FILES = \
+	$(srcdir)/lexer.g \
+	$(eol)
+
+lexer_g_cxx_FILES = \
+	$(objdir)/SimpleLexer.cpp \
+	$(eol)
+
+lexer_g_hpp_FILES = \
+	$(objdir)/SimpleLexer.hpp \
+	$(objdir)/SimpleTokenTypes.hpp \
+	$(eol)
+
+lexer_g_txt_FILES = \
+	$(objdir)/SimpleTokenTypes.txt \
+	$(eol)
+
+lexer_g_gen_FILES = \
+	$(lexer_g_cxx_FILES) \
+	$(lexer_g_hpp_FILES) \
+	$(lexer_g_txt_FILES) \
+	$(eol)
+
+lexer_g_obj_FILES = \
+	$(objdir)/SimpleLexer@OBJEXT@ \
+	$(eol)
+
+parser1_g_FILES = \
+	$(srcdir)/parser1.g \
+	$(eol)
+
+parser1_g_cxx_FILES = \
+	$(objdir)/SimpleParser.cpp \
+	$(eol)
+
+parser1_g_hpp_FILES = \
+	$(objdir)/SimpleParser.hpp \
+	$(objdir)/SimpleParserTokenTypes.hpp \
+	$(eol)
+
+parser1_g_txt_FILES = \
+	$(objdir)/SimpleParserTokenTypes.txt \
+	$(eol)
+
+parser1_g_gen_FILES = \
+	$(parser1_g_cxx_FILES) \
+	$(parser1_g_hpp_FILES) \
+	$(parser1_g_txt_FILES) \
+	$(eol)
+
+parser1_g_obj_FILES = \
+	$(objdir)/SimpleParser@OBJEXT@ \
+	$(eol)
+
+parser2_g_FILES = \
+	$(srcdir)/parser2.g \
+	$(eol)
+
+parser2_g_cxx_FILES = \
+	$(objdir)/SimpleParser2.cpp \
+	$(eol)
+
+parser2_g_hpp_FILES = \
+	$(objdir)/SimpleParser2.hpp \
+	$(objdir)/SimpleParser2TokenTypes.hpp \
+	$(eol)
+
+parser2_g_txt_FILES = \
+	$(objdir)/SimpleParser2TokenTypes.txt \
+	$(eol)
+
+parser2_g_gen_FILES = \
+	$(parser2_g_cxx_FILES) \
+	$(parser2_g_hpp_FILES) \
+	$(parser2_g_txt_FILES) \
+	$(eol)
+
+parser2_g_obj_FILES = \
+	$(objdir)/SimpleParser2@OBJEXT@ \
+	$(eol)
+
+## Source files
+multiParser_cxx_FILES = \
+	$(lexer_g_cxx_files) \
+	$(parser1_g_cxx_files) \
+	$(parser2_g_cxx_files) \
+	$(srcdir)/Main.cpp \
+	$(srcdir)/SimpleLexer.cpp \
+	$(srcdir)/SimpleParser.cpp \
+	$(srcdir)/SimpleParser2.cpp \
+	$(eol)
+
+## Object files
+multiParser_obj_FILES = \
+	$(lexer_g_obj_files) \
+	$(parser1_g_obj_files) \
+	$(parser2_g_obj_files) \
+	$(objdir)/Main@OBJEXT@ \
+	$(objdir)/SimpleLexer@OBJEXT@ \
+	$(objdir)/SimpleParser@OBJEXT@ \
+	$(objdir)/SimpleParser2@OBJEXT@ \
+	$(eol)
+
+## Test commands
+test1_cmd = $(objdir)/multiParser < $(srcdir)/test.in
+
+## Tests to be executed
+test1: multiParser
+	@ v="$(verbose)"; if test $$v -gt 0 ; then  echo "$(test1_cmd)" ;  else  echo "exec test1 ..";  fi
+	@ $(test1_cmd)
+
+## How to make binaries
+multiParser : $(multiParser_obj_FILES) @ANTLR_LIB@
+	@CXX_LINK_CMD@ $@ $(multiParser_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(objdir)/.lexer.g : $(srcdir)/lexer.g @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@ $(srcdir)/lexer.g
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.lexer.g`
+
+$(lexer_g_gen_FILES): $(objdir)/.lexer.g
+
+$(objdir)/.parser1.g : $(srcdir)/parser1.g @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@ $(srcdir)/parser1.g
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.parser1.g`
+
+$(parser1_g_gen_FILES): $(objdir)/.parser1.g
+
+$(objdir)/.parser2.g : $(srcdir)/parser2.g @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@ $(srcdir)/parser2.g
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.parser2.g`
+
+$(parser2_g_gen_FILES): $(objdir)/.parser2.g
+
+## Dependencies between .g files
+$(objdir)/.parser1.g: $(objdir)/.lexer.g
+$(objdir)/.parser2.g: $(objdir)/.lexer.g
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+#####
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	- $(RM) -rf *.o *.obj *.exe \
+	$(lexer_g_gen_FILES) \
+	$(objdir)/.lexer.g \
+	$(parser1_g_gen_FILES) \
+	$(objdir)/.parser1.g \
+	$(parser2_g_gen_FILES) \
+	$(objdir)/.parser2.g \
+	multiParser
+
+distclean: clean
+
+## If cxx.sh script changed ..
+$(lexer_g_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+$(parser1_g_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+$(parser2_g_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+## If link.sh script changed ..
+$(lexer_g_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+$(parser1_g_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+$(parser2_g_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+$(objdir)/Main@OBJEXT@: \
+	$(srcdir)/Main.cpp \
+	$(objdir)/SimpleLexer.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/SimpleTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(objdir)/SimpleParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(objdir)/SimpleParserTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp \
+	$(objdir)/SimpleParser2.hpp \
+	$(objdir)/SimpleParser2TokenTypes.hpp
+
+$(objdir)/SimpleLexer@OBJEXT@: \
+	$(objdir)/SimpleLexer.cpp \
+	$(objdir)/SimpleLexer.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/SimpleTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamRecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltForCharException.hpp
+
+$(objdir)/SimpleParser@OBJEXT@: \
+	$(objdir)/SimpleParser.cpp \
+	$(objdir)/SimpleParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(objdir)/SimpleParserTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp
+
+$(objdir)/SimpleParser2@OBJEXT@: \
+	$(objdir)/SimpleParser2.cpp \
+	$(objdir)/SimpleParser2.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(objdir)/SimpleParser2TokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+

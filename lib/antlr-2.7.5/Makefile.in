@@ -1,0 +1,144 @@
+## do not change this value
+subdir=.
+
+## get  standard variables from autoconf - autoconf will replace
+## this variable with content of "scripts/config.vars".
+@stdvars@
+
+## By default, make will jump into any sub directory  containing
+## a file named "Makefile". This is done in the order implied by
+## /bin/ls. You can override this by using variable SUBDIRS. For
+## example, if not set, then make behaves as if
+##   SUBDIRS     = antlr doc examples lib
+## has been set.
+
+SUBDIRS = antlr lib doc 
+
+## When using stdmake  before  any other rule, then the default
+## rule is "all"  and  behaviour  of  make is first to make all
+## subdirectories  and then all "local"  targets with name all,
+## clean, install, test etc.
+## Sometimes it's usefull to make the local target first and then
+## subdirs. To  enforce  this, just listen target in question be-
+## fore "stdmake". By doing so, your target will become the
+## default. This is usually not what you want. Therefore introduce
+## a pseude rule (like this) to tell make about the default target.
+this : all
+
+
+## get standard make rules from autoconf
+@stdmake@
+
+test clean distclean install ::
+	@ if test -f examples/Makefile ; then \
+		$(MAKE) -C examples $@ ; \
+	fi
+
+# Rule  to  remove  all objects, cores, ANTLR generated,
+# configure generated, etc. This is not a recursive rule
+# because distclean removes files unconditionally
+# included by subdirectory Makefiles.
+#
+maintainer-clean: distclean
+	-$(RM) -f configure
+
+#
+# Rule to make a tarball exclusive all kinds of fluff
+#
+
+TIMESTAMP       = $(shell date +%Y%m%d)
+TAR_DIR         = $(versioneddir)
+TAR_FILE	      = $(versioneddir).tar
+
+_tar:
+	-rm -rf $(TAR_DIR)
+	ln -s $(srcdir) $(TAR_DIR)
+	$(TAR) cfh $(TAR_FILE) \
+				--exclude CVS \
+				--exclude *.pyc \
+				--exclude *.o \
+				--exclude *.d \
+				--exclude *.lo \
+				--exclude *.a \
+				--exclude *.la \
+				--exclude *.lai \
+				--exclude *.so \
+				--exclude *.class \
+				--exclude .deps \
+				--exclude .depend \
+				--exclude config.cache \
+				--exclude config.status \
+				--exclude Config.make \
+				--exclude antlr-config \
+				--exclude run-antlr \
+				--exclude *~ \
+				--exclude core \
+				--exclude dmalloc.log \
+				--exclude .gdb_history \
+				--exclude ".nfs*" \
+				--exclude "$(TAR_DIR)/gen_doc/html" \
+				--exclude "$(TAR_DIR)/gen_doc/html/*" \
+				--exclude Makefile \
+				$(TAR_DIR)
+	@CHMOD@ 660 $(TAR_FILE)
+	rm -rf $(TAR_DIR)
+
+tar backup : _tar
+	gzip -f --best $(TAR_FILE)
+
+## When building a release, it's crucial that time stamps are up-to-date and that
+## files have proper permission bit set. Since $(srcdir) might be under the 
+## control of Perforce (or an other versioning system), I'm going to unpack the
+## tar file again in a local directory and update time stamps as well as 
+## permission.
+release : @ANTLR_JAR@ _tar
+	@TAR@ xpf $(TAR_FILE)
+	cp @ANTLR_JAR@ $(TAR_DIR)
+	find $(TAR_DIR) -type f | xargs @CHMOD@ 644
+	find $(TAR_DIR) -type d | xargs @CHMOD@ 755
+	@CHMOD@ 777 $(TAR_DIR)/configure
+	find $(TAR_DIR) | xargs @TOUCH@
+	@TAR@ cf $(TAR_FILE) $(TAR_DIR)
+	gzip -f --best $(TAR_FILE)
+	gzip -t -v $(TAR_FILE).gz
+	rm -rf $(TAR_DIR)
+
+## This one for RK:
+new_version antlr/Version.java:
+	@echo "Rebuilding Version.java"
+	@echo "package antlr;"  > antlr/Version.java
+	@echo "public class Version {"  >> antlr/Version.java
+	@echo " public static final String version    = \"$(VERSION)\";"  >> antlr/Version.java
+	@echo " public static final String subversion = \"$(SUBVERSION)\";"  >> antlr/Version.java
+	@echo " public static final String patchlevel = \"$(PATCHLEVEL)\";"  >> antlr/Version.java
+	@echo " public static final String datestamp  = \"$(TIMESTAMP)\";"  >> antlr/Version.java
+	@echo " public static final String project_version = \"$(VERSION).$(SUBVERSION).$(PATCHLEVEL) ($(TIMESTAMP))\";"  >> antlr/Version.java
+	@echo "}"  >> antlr/Version.java
+
+## Installation is delegated to sub directories - as configured.
+## Here we  just  create  a  bin  directory that should contain
+## scripts to mess up with ANTLR. Other things to do?
+
+docdir   = $(datadir)/doc/$(versioneddir)
+extradir = $(datadir)/$(versioneddir)
+
+install ::
+	$(MKDIR) -p "$(bindir)"
+	$(MKDIR) -p "$(extradir)"
+	$(MKDIR) -p "$(docdir)"
+	$(INSTALL) -m 755 scripts/run-antlr                          "$(bindir)/antlr"
+	$(INSTALL) -m 755 scripts/antlr-config                       "$(bindir)/antlr-config"
+	$(INSTALL) -m 444 @abs_top_srcdir@/extras/antlr-mode.el      "$(extradir)"
+	$(INSTALL) -m 444 @abs_top_srcdir@/extras/antlr-jedit.xml    "$(extradir)"
+	$(INSTALL) -m 444 @abs_top_srcdir@/LICENSE.txt               "$(docdir)"
+	$(INSTALL) -m 444 @abs_top_srcdir@/README.txt                "$(docdir)"
+	$(INSTALL) -m 444 @abs_top_srcdir@/INSTALL.txt               "$(docdir)"
+
+install ::
+	echo "installation done"
+
+### phony targets - make this targets even if file with same name exists.
+.PHONY: bootstrap backup maintainer-clean
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

@@ -1,0 +1,331 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>ANTLR Tree Parsers</title> 
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<h1 align="left"><a name="_bb1">ANTLR Tree Parsers</a></h1> 
+<p>
+	<b><i>Or, The Entity Formerly Known As SORCERER</i></b> 
+</p>
+<p>
+	ANTLR 2.xx helps you build intermediate form trees (ASTs) by augmenting a grammar with tree operators, rewrite rules, and actions. ANTLR also allows you to specify the grammatical structure of ASTs, thus, supporting the manipulation or simple walking of trees to produce translations.
+</p>
+<p>
+	Formerly, a separate tool, SORCERER, was used to generate tree parsers, but ANTLR has taken over this role. ANTLR now builds recognizers for streams of characters, tokens, or tree nodes. 
+</p>
+<h2><a name="_bb2"></a><a name="What's a tree parser">What's a tree parser?</a></h2> 
+<p>
+	Parsing is the application of grammatical structure to a stream of input symbols. ANTLR takes this further than most tools and considers a tree to be a stream of nodes, albeit in two dimensions. In fact, the only real difference in ANTLR's code generation for token stream parsing versus tree parsing lies in the testing of lookahead, rule-method definition headers, and the introduction of a two-dimensional tree structure code-generation template. 
+</p>
+<h2><a name="_bb3"></a><a name="What kinds of trees can be parsed">What kinds of trees can be parsed?</a></h2> 
+<p>
+	ANTLR tree parsers can walk any tree that implements the <tt>AST</tt> interface, which imposes a child-sibling like structure to whatever tree data-structure you may have. The important navigation methods are: 
+<ul>
+	<li>
+		<tt>getFirstChild</tt>: Return a reference to the first child of the sibling list. 
+	</li>
+	<li>
+		<tt>getNextSibling</tt>: Return a reference to the next child in the list of siblings. 
+	</li>
+</ul>
+<p>
+	Each <tt>AST</tt> node is considered to have a list of children, some text, and a &quot;token type&quot;. Trees are self-similar in that a tree node is also a tree. An <tt>AST</tt> is defined completely as: 
+</p>
+<pre><tt>
+/** Minimal AST node interface used by ANTLR AST generation
+ * and tree-walker.
+ */
+public interface AST {
+    /** Add a (rightmost) child to this node */
+    public void addChild(AST c);
+    public boolean equals(AST t);
+    public boolean equalsList(AST t);
+    public boolean equalsListPartial(AST t);
+    public boolean equalsTree(AST t);
+    public boolean equalsTreePartial(AST t);
+    public ASTEnumeration findAll(AST tree);
+    public ASTEnumeration findAllPartial(AST subtree);
+    /** Get the first child of this node; null if no children */
+    public AST getFirstChild();
+    /** Getthe next sibling in line after this one */
+    public AST getNextSibling();
+    /** Get the token text for this node */
+    public String getText();
+    /** Get the token type for this node */
+    public int getType();
+    /** Get number of children of this node; if leaf, returns 0 */
+    public int getNumberOfChildren();
+    public void initialize(int t, String txt);
+    public void initialize(AST t);
+    public void initialize(Token t);
+    /** Set the first child of a node. */
+    public void setFirstChild(AST c);
+    /** Set the next sibling after this one. */
+    public void setNextSibling(AST n);
+    /** Set the token text for this node */
+    public void setText(String text);
+    /** Set the token type for this node */
+    public void setType(int ttype);
+    public String toString();
+    public String toStringList();
+    public String toStringTree();
+}
+</tt></pre>
+
+<h2><a name="_bb4"></a><a name="Tree grammar rules">Tree grammar rules</a></h2> 
+<p>
+	As with the SORCERER tool of PCCTS 1.33 and the ANTLR token grammars, tree grammars are collections of EBNF rules embedded with actions, semantic predicates, and syntactic predicates. 
+</p>
+<pre><tt>
+rule:	alternative1
+    |	alternative2
+   ...
+    |	alternativen
+    ;
+</tt></pre> 
+<p>
+	Each alternative production is composed of a list of elements where an element can be one of the items in a regular ANTLR grammar with the addition of the tree pattern element, which has the form: 
+</p>
+<pre><tt>
+#( <i>root-token</i> <i>child</i>1 <i>child</i>2 ... <i>child</i>n )
+</tt>    
+
+			</pre> 
+<p>
+	For example, the following tree pattern matches a simple <tt>PLUS</tt>-rooted tree with two <tt>INT</tt> children:= 
+</p>
+<pre><tt>
+#( PLUS INT INT )
+</tt></pre> 
+<p>
+	The root of a tree pattern must be a token reference, but the children elements can even be subrules. For example, a common structure is an if-then-else tree where the else-clause statement subtree is optional: 
+</p>
+<pre><tt>
+#( IF expr stat (stat)? )
+</tt>    </pre> 
+<p>
+	An important thing to remember when specifying tree patterns and tree grammars in general is that sufficient matches are done not exact matches. As long as the tree satistfies the pattern, a match is reported, regardless of how much is left unparsed. For example, <tt>#( A B )</tt> will report a match for any larger tree with the same structure such as <tt>#( A #(B C) D)</tt>. 
+</p>
+<h3><a name="_bb5"></a><a name="Syntactic predicates">Syntactic predicates</a></h3> 
+<p>
+	ANTLR tree parsers use only a single symbol of lookahead, which is normally not a problem as intermediate forms are explicitly designed to be easy to walk. However, there is occasionally the need to distinguish between similar tree structures. Syntactic predicates can be used to overcome the limitations of limited fixed lookahead. For example, distinguishing between the unary and binary minus operator is best done by using operator nodes of differing token types, but given the same root node, a syntactic predicate can be used to distinguish between these structures:
+</p>
+<pre><tt>
+expr:   ( #(MINUS expr expr) )=&gt; #( MINUS expr expr )
+    |   #( MINUS expr )
+   ...
+    ;
+</tt></pre> 
+<p>
+	The order of evaluation is very important as the second alternative is a &quot;subset&quot; of the first alternative. 
+</p>
+<h3><a name="_bb6"></a><a name="Semantic predicates">Semantic predicates</a></h3> 
+<p>
+	Semantic predicates at the start of an alternative are simply incorporated into the alternative prediction expressions as with a regular grammar. Semantic predicates in the middle of productions throw exceptions when they evaluate to false just like a regular grammar. 
+</p>
+<h3><a name="_bb7"></a><a name="An Example Tree Walker">An Example Tree Walker</a></h3> 
+<p>
+	Consider how you would build a simple calculator. One approach would be to build a parser that computed expression values as it recognized the input. For the purposes of illustration, we will build a parser that constructs a tree intermediate representation of the input expression and a tree parser that walks the intermediate representation, computing the result.
+</p>
+<p>
+	Our recognizer, <tt>CalcParser</tt>, is defined via the following grammar. 
+</p>
+<pre><tt>
+class CalcParser extends Parser;
+options {
+    buildAST = true;   // uses CommonAST by default
+}
+
+expr:   mexpr (PLUS^ mexpr)* SEMI!
+    ;
+
+mexpr
+    :   atom (STAR^ atom)*
+    ;
+
+atom:   INT
+    ;
+</tt></pre> 
+<p>
+	The <tt>PLUS</tt> and <tt>STAR</tt> tokens are considered operators and, hence, subtree roots; they are annotated with the '<tt>^</tt>' character. The <tt>SEMI</tt> token reference is suffixed with the '<tt>!</tt>' character to indicate it should not be included in the tree. 
+</p>
+<p>
+	The scanner for this calculator is defined as follows: 
+</p>
+<pre><tt>
+class CalcLexer extends Lexer;
+
+WS	:	(' '
+	|	'\t'
+	|	'\n'
+	|	'\r')
+		{ _ttype = Token.SKIP; }
+	;
+
+LPAREN:	'('
+	;
+
+RPAREN:	')'
+	;
+
+STAR:	'*'
+	;
+
+PLUS:	'+'
+	;
+
+SEMI:	';'
+	;
+
+INT	:	('0'..'9')+
+	;
+</tt>    </pre> 
+<p>
+	The trees generated by this recognizer are simple expression trees. For example, input &quot;<tt>3*4+5</tt>&quot; results in a tree of the form <tt>#( + ( * 3 4 ) 5 )</tt>. In order to build a tree walker for trees of this form, you have to describe its structure recursively to ANTLR: 
+</p>
+<pre><tt>
+class CalcTreeWalker extends TreeParser;
+
+expr	:	#(PLUS expr expr)
+	|	#(STAR expr expr)
+	|	INT
+	;
+</tt></pre> 
+<p>
+	Once the structure has been specified, you are free to embed actions to compute the appropriate result. An easy way to accomplish this is to have the <tt>expr</tt> rule return an integer result and then have each alternative compute the subresult for each subtree. The following tree grammar and actions produces the desired effect: 
+</p>
+<pre><tt>
+class CalcTreeWalker extends TreeParser;
+
+expr returns [int r]
+{
+	int a,b;
+	r=0;
+}
+	:	#(PLUS a=expr b=expr) {r = a+b;}
+	|	#(STAR a=expr b=expr) {r = a*b;}
+	|	i:INT		      {r = Integer.parseInt(i.getText());}
+	;
+</tt>    </pre> 
+<p>
+	Notice that no precedence specification is necessary when computing the result of an expression--the structure of the tree encodes this information. That is why intermediate trees are much more than copies of the input in tree form. The input symbols are indeed stored as nodes in the tree, but the structure of the input is encoded as the relationship of those nodes. 
+</p>
+<p>
+	The code needed to launch the parser and tree walker is: 
+</p>
+<pre><tt>
+import java.io.*;
+import antlr.CommonAST;
+import antlr.collections.AST;
+
+class Calc {
+    public static void main(String[] args) {
+        try {
+            CalcLexer lexer =
+                new CalcLexer(new DataInputStream(System.in));
+            CalcParser parser = new CalcParser(lexer);
+            // Parse the input expression
+            parser.expr();
+            CommonAST t = (CommonAST)parser.getAST();
+            // Print the resulting tree out in LISP notation
+            System.out.println(t.toStringList());
+            CalcTreeWalker walker = new CalcTreeWalker();
+            // Traverse the tree created by the parser
+            int r = walker.expr(t);
+            System.out.println(&quot;value is &quot;+r);
+        } catch(Exception e) {
+            System.err.println(&quot;exception: &quot;+e);
+        }
+    }
+}
+</tt>    </pre> <h2><a name="_bb8"></a><a name="Transformations">Transformations </a></h2> 
+<p>
+	While tree parsers are useful to examine trees or generate output from a tree, they must be augmented to handle tree transformations. ANTLR tree parsers support the <tt>buildAST</tt> option just like regular parsers; this is analogous to the transform mode of SORCERER. Without programmer intervention, the tree parser will automatically copy the input tree to a result tree. Each rule has an implicit (automatically defined) result tree; the result tree of the start symbol can be obtained from the tree parser via the <tt>getAST</tt> method. The various alternatives and grammar elements may be annotated with &quot;<tt>!</tt>&quot; to indicate that they should not be automatically linked into the output tree. Portions of, or entire, subtrees may be rewritten. 
+</p>
+<p>
+	Actions embedded within the rules can set the result tree based upon tests and tree constructions. See the section on <a href="trees.html#Action Translation">grammar action translations</a>. 
+</p>
+<h3><a name="_bb9"></a><a name="An Example Tree Transformation">An Example Tree Transformation</a></h3> 
+<p>
+	Revisiting the simple <tt>Calc</tt> example from above, we can perform a few tree transformations instead of computing the expression value. The action in the following tree grammar optimizes away the addition identity operation (addition to zero). 
+</p>
+<pre><tt>
+class CalcTreeWalker extends TreeParser;
+options{
+    buildAST = true;	// &quot;transform&quot; mode
+}
+
+expr:!  #(PLUS left:expr right:expr)
+        // '!' turns off auto transform
+        {
+            // x+0 = x
+            if ( #right.getType()==INT &amp;&amp;
+                 Integer.parseInt(#right.getText())==0 )
+            {
+                #expr = #left;
+            }
+            // 0+x = x
+            else if ( #left.getType()==INT &amp;&amp;
+                      Integer.parseInt(#left.getText())==0 )
+            {
+                #expr = #right;
+            }
+            // x+y
+            else {
+                #expr = #(PLUS, left, right);
+            }
+        }
+    |   #(STAR expr expr)  // use auto transformation
+    |   i:INT
+    ;
+</tt>    </pre> 
+<p>
+	The code to launch the parser and tree transformer is: 
+</p>
+<pre><tt>
+import java.io.*;
+import antlr.CommonAST;
+import antlr.collections.AST;
+
+class Calc {
+    public static void main(String[] args) {
+        try {
+            CalcLexer lexer =
+                new CalcLexer(new DataInputStream(System.in));
+            CalcParser parser = new CalcParser(lexer);
+            // Parse the input expression
+            parser.expr();
+            CommonAST t = (CommonAST)parser.getAST();
+            // Print the resulting tree out in LISP notation
+            System.out.println(t.toLispString());
+
+            CalcTreeWalker walker = new CalcTreeWalker();
+            // Traverse the tree created by the parser
+            walker.expr(t);
+            // Get the result tree from the walker
+            t = (CommonAST)walker.getAST();
+            System.out.println(t.toLispString());
+        } catch(Exception e) {
+            System.err.println(&quot;exception: &quot;+e);
+        }
+    }
+}
+</tt></pre> <h3><a name="Examining_Debugging ASTs">Examining/Debugging ASTs</a></h3> 
+<p>
+	Often when developing a tree parser, you will get parse errors.&nbsp; Unfortunately, your trees are usually very large, making it difficult to determine where your AST structure error is.&nbsp; To help the situation (I found it VERY useful when building the Java tree parser), I created an <font face="Courier New">ASTFrame</font> class (a <font face="Courier New">JFrame</font>) that you can use to view your ASTs in a Swing tree view. &nbsp; It does not copy the tree, but uses a TreeModel.&nbsp; Run <font face="Courier New">antlr.debug.misc.ASTFrame</font> as an application to test it out or see the new Java grammar <font face="Courier New">Main.java</font>. &nbsp; I am not sure it will live in the same package as I'm not sure how debugging etc... will shake out with future ANTLR versions.&nbsp; Here is a simple example usage:
+</p>
+<pre>public static void main(String args[]) {
+  // Create the tree nodes
+  ASTFactory factory = new ASTFactory();
+  CommonAST r = (CommonAST)factory.create(0, &quot;ROOT&quot;);
+  r.addChild((CommonAST)factory.create(0, &quot;C1&quot;));
+  r.addChild((CommonAST)factory.create(0, &quot;C2&quot;));
+  r.addChild((CommonAST)factory.create(0, &quot;C3&quot;));
+
+  ASTFrame frame = new ASTFrame(&quot;AST JTree Example&quot;, r);
+  frame.setVisible(true);
+}</pre> <pre><font face="Arial" size="2">Version: $Id: //depot/code/org.antlr/release/antlr-2.7.5/doc/sor.html#1 $</font></pre> 
+</body>
+</html>

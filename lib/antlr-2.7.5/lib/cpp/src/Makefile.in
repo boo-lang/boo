@@ -1,0 +1,135 @@
+##############################################################################
+# $Id:$
+###############################################################################
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value 
+subdir=lib/cpp/src
+
+all : lib
+
+lib: @ANTLR_LIB@
+
+compile: $(antlr_obj_FILES)
+
+
+antlr_cxx_FILES = \
+ @abs_top_srcdir@/lib/cpp/src/ANTLRUtil.cpp \
+ @abs_top_srcdir@/lib/cpp/src/ASTFactory.cpp \
+ @abs_top_srcdir@/lib/cpp/src/ASTNULLType.cpp \
+ @abs_top_srcdir@/lib/cpp/src/ASTRefCount.cpp \
+ @abs_top_srcdir@/lib/cpp/src/BaseAST.cpp \
+ @abs_top_srcdir@/lib/cpp/src/BitSet.cpp \
+ @abs_top_srcdir@/lib/cpp/src/CharBuffer.cpp \
+ @abs_top_srcdir@/lib/cpp/src/CharScanner.cpp \
+ @abs_top_srcdir@/lib/cpp/src/CommonAST.cpp \
+ @abs_top_srcdir@/lib/cpp/src/CommonASTWithHiddenTokens.cpp \
+ @abs_top_srcdir@/lib/cpp/src/CommonHiddenStreamToken.cpp \
+ @abs_top_srcdir@/lib/cpp/src/CommonToken.cpp \
+ @abs_top_srcdir@/lib/cpp/src/InputBuffer.cpp \
+ @abs_top_srcdir@/lib/cpp/src/LLkParser.cpp \
+ @abs_top_srcdir@/lib/cpp/src/MismatchedCharException.cpp \
+ @abs_top_srcdir@/lib/cpp/src/MismatchedTokenException.cpp \
+ @abs_top_srcdir@/lib/cpp/src/NoViableAltException.cpp \
+ @abs_top_srcdir@/lib/cpp/src/NoViableAltForCharException.cpp \
+ @abs_top_srcdir@/lib/cpp/src/Parser.cpp \
+ @abs_top_srcdir@/lib/cpp/src/RecognitionException.cpp \
+ @abs_top_srcdir@/lib/cpp/src/String.cpp \
+ @abs_top_srcdir@/lib/cpp/src/Token.cpp \
+ @abs_top_srcdir@/lib/cpp/src/TokenBuffer.cpp \
+ @abs_top_srcdir@/lib/cpp/src/TokenStreamBasicFilter.cpp \
+ @abs_top_srcdir@/lib/cpp/src/TokenStreamHiddenTokenFilter.cpp \
+ @abs_top_srcdir@/lib/cpp/src/TokenStreamSelector.cpp \
+ @abs_top_srcdir@/lib/cpp/src/TokenStreamRewriteEngine.cpp \
+ @abs_top_srcdir@/lib/cpp/src/TreeParser.cpp \
+ @abs_top_srcdir@/lib/cpp/src/TokenRefCount.cpp \
+ $(eol)
+
+## contents of this varialbe could also be processed  by
+## some advanced GNU make 'scripting' features. This may
+## simplify maintenance but makes Makefile far less read-
+## able and non-portable.
+antlr_obj_FILES = \
+ @abs_this_builddir@/lib/cpp/src/ANTLRUtil@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/ASTFactory@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/ASTNULLType@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/ASTRefCount@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/BaseAST@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/BitSet@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/CharBuffer@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/CharScanner@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/CommonAST@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/CommonASTWithHiddenTokens@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/CommonHiddenStreamToken@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/CommonToken@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/InputBuffer@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/LLkParser@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/MismatchedCharException@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/MismatchedTokenException@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/NoViableAltException@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/NoViableAltForCharException@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/Parser@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/RecognitionException@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/String@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/Token@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/TokenBuffer@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/TokenStreamBasicFilter@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/TokenStreamHiddenTokenFilter@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/TokenStreamSelector@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/TokenStreamRewriteEngine@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/TreeParser@OBJEXT@ \
+ @abs_this_builddir@/lib/cpp/src/TokenRefCount@OBJEXT@ \
+ $(eol)
+
+
+## GNU make - how to make object file
+@abs_this_builddir@/lib/cpp/src/%@OBJEXT@ : @abs_top_srcdir@/lib/cpp/src/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## Build static library. How the library is build as well as
+## libraries's name is hidden by our script, ie. configured.
+@ANTLR_LIB@ :: $(antlr_obj_FILES)
+	@ @CXX_LIB_CMD@ $(antlr_obj_FILES)
+
+clean:
+	rm -rf *.obj *.o *.a  *.lib *.so *.dll *~ @ANTLR_LIB@
+
+## use this target if you just want to rebuild the lib without
+## compiling again.
+clean-lib:
+	rm -f @ANTLR_LIB@
+
+distclean: clean
+
+test:
+
+install: this-install
+
+antlr_lib_FILES = \
+  @ANTLR_LIB@ \
+  $(eol)
+
+this-install: @ANTLR_LIB@ 
+	@$(MKDIR) -p "$(libdir)"
+	@echo "install C++ core files .. "
+	@for f in $(antlr_lib_FILES) ; do \
+		echo "install $${f}" ; \
+		if test -f "$${f}" ; then \
+			$(INSTALL) -m 444 "$${f}" "$(libdir)" ; \
+		fi ;\
+	done
+
+
+.PHONY: all clean distclean compile lib install test clean-lib this-install
+
+## dependencies
+$(antlr_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+@ANTLR_LIB@        :: @abs_this_builddir@/scripts/lib.sh
+
+## other dependencies to be listed below
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

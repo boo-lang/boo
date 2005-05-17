@@ -1,0 +1,253 @@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+
+subdir=examples/cpp/tinyc
+
+srcdir=@abs_top_srcdir@/examples/cpp/tinyc
+objdir=@abs_this_builddir@/examples/cpp/tinyc
+
+this : test
+test : test1
+
+
+all: tinyc test
+
+lexer_g_FILES = \
+	$(srcdir)/lexer.g \
+	$(eol)
+
+lexer_g_cxx_FILES = \
+	$(objdir)/TinyCLexer.cpp \
+	$(eol)
+
+lexer_g_hpp_FILES = \
+	$(objdir)/TinyCLexer.hpp \
+	$(objdir)/TinyCLexerTokenTypes.hpp \
+	$(objdir)/TinyCTokenTypes.hpp \
+	$(eol)
+
+lexer_g_txt_FILES = \
+	$(objdir)/TinyCLexerTokenTypes.txt \
+	$(objdir)/TinyCTokenTypes.txt \
+	$(eol)
+
+lexer_g_gen_FILES = \
+	$(lexer_g_cxx_FILES) \
+	$(lexer_g_hpp_FILES) \
+	$(lexer_g_txt_FILES) \
+	$(eol)
+
+lexer_g_obj_FILES = \
+	$(objdir)/TinyCLexer@OBJEXT@ \
+	$(eol)
+
+tinyc_g_FILES = \
+	$(srcdir)/tinyc.g \
+	$(eol)
+
+tinyc_g_cxx_FILES = \
+	$(objdir)/TinyCParser.cpp \
+	$(eol)
+
+tinyc_g_hpp_FILES = \
+	$(objdir)/TinyCParser.hpp \
+	$(objdir)/TinyCParserTokenTypes.hpp \
+	$(eol)
+
+tinyc_g_txt_FILES = \
+	$(objdir)/TinyCParserTokenTypes.txt \
+	$(eol)
+
+tinyc_g_gen_FILES = \
+	$(tinyc_g_cxx_FILES) \
+	$(tinyc_g_hpp_FILES) \
+	$(tinyc_g_txt_FILES) \
+	$(eol)
+
+tinyc_g_obj_FILES = \
+	$(objdir)/TinyCParser@OBJEXT@ \
+	$(eol)
+
+## Source files
+tinyc_cxx_FILES = \
+	$(lexer_g_cxx_FILES) \
+	$(tinyc_g_cxx_FILES) \
+	$(srcdir)/Main.cpp \
+	$(eol)
+
+## Object files
+tinyc_obj_FILES = \
+	$(lexer_g_obj_FILES) \
+	$(tinyc_g_obj_FILES) \
+	$(objdir)/Main@OBJEXT@ \
+	$(eol)
+
+## Test commands
+test1_cmd = $(objdir)/tinyc < $(srcdir)/input.c
+
+## Tests to be executed
+test1: tinyc
+	@ v="$(verbose)"; if test $$v -gt 0 ; then  echo "$(test1_cmd)" ;  else  echo "exec test1 ..";  fi
+	@ $(test1_cmd)
+
+## How to make binaries
+tinyc : $(tinyc_obj_FILES) @ANTLR_LIB@
+	@CXX_LINK_CMD@ $@ $(tinyc_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(objdir)/.lexer.g : $(srcdir)/lexer.g @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@ $(srcdir)/lexer.g
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.lexer.g`
+
+$(lexer_g_gen_FILES): $(objdir)/.lexer.g
+
+$(objdir)/.tinyc.g : $(srcdir)/tinyc.g @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@ $(srcdir)/tinyc.g
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.tinyc.g`
+
+$(tinyc_g_gen_FILES): $(objdir)/.tinyc.g
+
+## Dependencies between the .g files
+$(objdir)/.tinyc.g : $(objdir)/.lexer.g
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+#####
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	- $(RM) -rf *.o *.obj *.exe \
+	$(lexer_g_gen_FILES) \
+	$(objdir)/.lexer.g \
+	$(tinyc_g_gen_FILES) \
+	$(objdir)/.tinyc.g \
+	tinyc
+
+distclean: clean
+
+## If cxx.sh script changed ..
+$(lexer_g_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+$(tinyc_g_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+## If link.sh script changed ..
+$(lexer_g_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+$(tinyc_g_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+$(objdir)/Main@OBJEXT@: \
+	$(srcdir)/Main.cpp \
+	$(objdir)/TinyCLexer.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/TinyCTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(objdir)/TinyCParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(objdir)/TinyCParserTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp
+
+$(objdir)/TinyCLexer@OBJEXT@: \
+	$(objdir)/TinyCLexer.cpp \
+	$(objdir)/TinyCLexer.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/TinyCTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamRecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltForCharException.hpp
+
+$(objdir)/TinyCParser@OBJEXT@: \
+	$(objdir)/TinyCParser.cpp \
+	$(objdir)/TinyCParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(objdir)/TinyCParserTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp
+
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+

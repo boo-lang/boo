@@ -1,0 +1,239 @@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+
+subdir=examples/cpp/transform
+
+srcdir=@abs_top_srcdir@/examples/cpp/transform
+objdir=@abs_this_builddir@/examples/cpp/transform
+
+this : test
+test : test1
+
+all: transform test
+
+calc_g_FILES = \
+	$(srcdir)/calc.g \
+	$(eol)
+
+calc_g_cxx_FILES = \
+	$(objdir)/CalcParser.cpp \
+	$(objdir)/CalcLexer.cpp \
+	$(objdir)/CalcTreeWalker.cpp \
+	$(eol)
+
+calc_g_hpp_FILES = \
+	$(objdir)/CalcParser.hpp \
+	$(objdir)/CalcParserTokenTypes.hpp \
+	$(objdir)/CalcLexer.hpp \
+	$(objdir)/CalcTreeWalker.hpp \
+	$(eol)
+
+calc_g_txt_FILES = \
+	$(objdir)/CalcParserTokenTypes.txt \
+	$(eol)
+
+calc_g_gen_FILES = \
+	$(calc_g_cxx_FILES) \
+	$(calc_g_hpp_FILES) \
+	$(calc_g_txt_FILES) \
+	$(eol)
+
+calc_g_obj_FILES = \
+	$(objdir)/CalcParser@OBJEXT@ \
+	$(objdir)/CalcLexer@OBJEXT@ \
+	$(objdir)/CalcTreeWalker@OBJEXT@ \
+	$(eol)
+
+## Source files
+transform_cxx_FILES = \
+	$(calc_g_cxx_FILES) \
+	$(srcdir)/Main.cpp \
+	$(eol)
+
+## Object files
+transform_obj_FILES = \
+	$(calc_g_obj_FILES) \
+	$(objdir)/Main@OBJEXT@ \
+	$(eol)
+
+## Test commands
+test1_cmd = $(objdir)/transform < $(srcdir)/test.in
+
+## Tests to be executed
+test1: transform
+	@ v="$(verbose)"; if test $$v -gt 0 ; then  echo "$(test1_cmd)" ;  else  echo "exec test1 ..";  fi
+	@ $(test1_cmd)
+
+## How to make binaries
+transform : $(transform_obj_FILES) @ANTLR_LIB@
+	@CXX_LINK_CMD@ $@ $(transform_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(objdir)/.calc.g : $(srcdir)/calc.g @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@ $(srcdir)/calc.g
+	$(TOUCH) `@CYGPATH_W@ $(objdir)/.calc.g`
+
+$(calc_g_gen_FILES): $(objdir)/.calc.g
+
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+#####
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.c
+	@ @C_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	- $(RM) -rf *.o *.obj *.exe \
+	$(calc_g_gen_FILES) \
+	$(objdir)/.calc.g \
+	transform
+
+distclean: clean
+
+## If cxx.sh script changed ..
+$(calc_g_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+## If link.sh script changed ..
+$(calc_g_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+$(objdir)/Main@OBJEXT@: \
+	$(srcdir)/Main.cpp \
+	$(objdir)/CalcLexer.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/CalcParserTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(objdir)/CalcParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp \
+	$(objdir)/CalcTreeWalker.hpp \
+	$(sourcetree)/lib/cpp/antlr/TreeParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/TreeParserSharedInputState.hpp
+
+$(objdir)/CalcTreeWalker@OBJEXT@: \
+	$(objdir)/CalcTreeWalker.cpp \
+	$(objdir)/CalcTreeWalker.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(objdir)/CalcParserTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/TreeParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TreeParserSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp
+
+$(objdir)/CalcParser@OBJEXT@: \
+	$(objdir)/CalcParser.cpp \
+	$(objdir)/CalcParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(objdir)/CalcParserTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/LLkParser.hpp \
+	$(sourcetree)/lib/cpp/antlr/Parser.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedTokenException.hpp \
+	$(sourcetree)/lib/cpp/antlr/AST.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTFactory.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTArray.hpp \
+	$(sourcetree)/lib/cpp/antlr/ASTPair.hpp \
+	$(sourcetree)/lib/cpp/antlr/ParserSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp
+
+$(objdir)/CalcLexer@OBJEXT@: \
+	$(objdir)/CalcLexer.cpp \
+	$(objdir)/CalcLexer.hpp \
+	$(sourcetree)/lib/cpp/antlr/config.hpp \
+	$(sourcetree)/lib/cpp/antlr/CommonToken.hpp \
+	$(sourcetree)/lib/cpp/antlr/Token.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenRefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/InputBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/CircularQueue.hpp \
+	$(sourcetree)/lib/cpp/antlr/BitSet.hpp \
+	$(objdir)/CalcParserTokenTypes.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharScanner.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStream.hpp \
+	$(sourcetree)/lib/cpp/antlr/RecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/ANTLRException.hpp \
+	$(sourcetree)/lib/cpp/antlr/SemanticException.hpp \
+	$(sourcetree)/lib/cpp/antlr/MismatchedCharException.hpp \
+	$(sourcetree)/lib/cpp/antlr/LexerSharedInputState.hpp \
+	$(sourcetree)/lib/cpp/antlr/RefCount.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharBuffer.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/TokenStreamRecognitionException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamException.hpp \
+	$(sourcetree)/lib/cpp/antlr/CharStreamIOException.hpp \
+	$(sourcetree)/lib/cpp/antlr/NoViableAltForCharException.hpp
+
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+

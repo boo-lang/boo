@@ -1,0 +1,1191 @@
+dnl --*- sh -*--
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## This file is part of ANTLR. See LICENSE.txt for licence  ##
+## details. Written by W. Haefelinger                       ##
+##                                                          ##
+## ...............Copyright (C) Wolfgang Haefelinger, 2004  ##
+##                                                          ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+
+## Process this file with autoconf to produce a configure
+## script.
+AC_INIT(antlr, 2.7.5)
+AC_CONFIG_SRCDIR([LICENSE.txt])
+AC_CONFIG_AUX_DIR(scripts)
+
+## This shall be the very first config file. Do not change
+## this.
+AC_CONFIG_FILES([scripts/config.vars])
+AC_CONFIG_FILES([scripts/config.deps])
+AC_CONFIG_FILES([scripts/config.make])
+
+AC_CONFIG_FILES([antlr/Version.java])
+
+AC_SUBST_FILE([stdvars])
+AC_SUBST_FILE([stddeps])
+AC_SUBST_FILE([stdmake])
+
+## ANTLR's core libraries for each supporte language. The variable
+## in  uppercase letters denotes the absolute name of the library.
+## When in  lower  cases  letters - see below - the variable just
+## holds the basename.
+AC_SUBST([ANTLR_JAR])
+AC_SUBST([ANTLR_LIB])
+AC_SUBST([ANTLR_NET])
+AC_SUBST([ANTLR_PY])
+AC_SUBST([ASTFRAME_NET])
+
+AC_SUBST([antlr_jar])
+AC_SUBST([antlr_lib])
+AC_SUBST([antlr_net])
+AC_SUBST([antlr_py])
+AC_SUBST([astframe_net])
+
+AC_SUBST([ANTLRFLAGS])
+AC_SUBST([ANTLR])
+AC_SUBST([ANTLR_ACTION_FILES])
+AC_SUBST([ANTLR_ANTLR_FILES])
+AC_SUBST([ANTLR_COMPILE_CMD])
+AC_SUBST([ANTLR_CYGWIN])
+AC_SUBST([ANTLR_MINGW])
+AC_SUBST([ANTLR_TOKDEF_FILES])
+AC_SUBST([ANTLR_WIN32])
+AC_SUBST([ANTLR_WITH_ANTLR_CMD])
+AC_SUBST([ANTLR_WITH_ANTLR_JAR])
+AC_SUBST([ARFLAGS])
+AC_SUBST([AR])
+AC_SUBST([AS])
+AC_SUBST([BOOTCLASSPATH])
+AC_SUBST([CSHARPCFLAGS])
+AC_SUBST([CSHARPC])
+AC_SUBST([CSHARP_COMPILE_CMD])
+AC_SUBST([CLR])
+AC_SUBST([CXX_COMPILE_CMD])
+AC_SUBST([CXX_LIB_CMD])
+AC_SUBST([CXX_LINK_CMD])
+AC_SUBST([CYGPATH])
+AC_SUBST([C_COMPILE_CMD])
+AC_SUBST([DEBUG])
+AC_SUBST([EXEEXT])
+AC_SUBST([JARFLAGS])
+AC_SUBST([JAR])
+AC_SUBST([JAR_CMD])
+AC_SUBST([JAVACFLAGS])
+AC_SUBST([JAVAC])
+AC_SUBST([JAVAFLAGS])
+AC_SUBST([JAVA])
+AC_SUBST([JAVA_CMD])
+AC_SUBST([JAVA_COMPILE_CMD])
+AC_SUBST([LIBEXT])
+AC_SUBST([MAKE])
+AC_SUBST([OBJEXT])
+AC_SUBST([PATCHLEVEL])
+AC_SUBST([PYTHONFLAGS])
+AC_SUBST([PYTHON])
+AC_SUBST([SUBVERSION])
+AC_SUBST([TIMESTAMP])
+AC_SUBST([TOUCH])
+AC_SUBST([VERBOSE])
+AC_SUBST([VERSION])
+AC_SUBST([WITH_EXAMPLES])
+AC_SUBST([abs_this_builddir])
+AC_SUBST([cxx])
+AC_SUBST([jar])
+AC_SUBST([java])
+AC_SUBST([javac])
+AC_SUBST([TAR])
+
+## introduce package information as autoconf vars.
+VERSION=`echo $PACKAGE_VERSION | cut -d . -f 1`
+SUBVERSION=`echo $PACKAGE_VERSION | cut -d . -f 2`
+PATCHLEVEL=`echo $PACKAGE_VERSION | cut -d . -f 3`
+TIMESTAMP=`date +%Y%m%d`
+
+## @abs_this_builddir@  - absolute path to top of build directory.
+## According to GNU autoconf we can rely on that there's a proper
+## pwd around.
+abs_this_builddir=`pwd`
+
+## This is how we compile Java files ..
+JAVA_COMPILE_CMD="/bin/sh $abs_this_builddir/scripts/javac.sh"
+
+## This is how we run Java ..
+JAVA_CMD="/bin/sh $abs_this_builddir/scripts/java.sh"
+
+## This is how we pack Java (class) files ..
+JAR_CMD="/bin/sh $abs_this_builddir/scripts/jar.sh"
+
+## And this is how we are going to compile ANTLR grammar files ..
+ANTLR_COMPILE_CMD="/bin/sh $abs_this_builddir/scripts/antlr.sh"
+
+## This is how we compile CSHARP files ..
+CSHARP_COMPILE_CMD="/bin/sh $abs_this_builddir/scripts/csc.sh"
+
+## This is how we compile C++ files and how we are going to create
+## libantlr.a or antlr.lib etc. ..
+
+CXX_COMPILE_CMD="/bin/sh $abs_this_builddir/scripts/cxx.sh"
+CXX_LIB_CMD="/bin/sh $abs_this_builddir/scripts/lib.sh"
+CXX_LINK_CMD="/bin/sh $abs_this_builddir/scripts/link.sh"
+
+C_COMPILE_CMD="/bin/sh $abs_this_builddir/scripts/c.sh"
+
+ANTLR_JAR="$abs_this_builddir/antlr/antlr.jar"
+ANTLR_NET="$abs_this_builddir/lib/antlr.runtime.dll"
+ASTFRAME_NET="$abs_this_builddir/lib/antlr.astframe.dll"
+ANTLR_PY="$abs_this_builddir/lib/python/antlr/python.py"
+
+## Note: values might be overriden in C++ section.
+OBJEXT=".o"
+LIBEXT=".a"
+ANTLR_LIB="$abs_this_builddir/lib/cpp/src/libantlr.a"
+
+stdvars="scripts/config.vars"
+stddeps="scripts/config.deps"
+stdmake="scripts/config.make"
+
+##
+## option --enable-java
+##
+AX_ARG_ENABLE(
+  [java],
+  [LANG_JAVA],
+  [enable or disable ANTLR for Java (enabled)],
+  [1],
+)
+
+##
+## option --enable-cxx
+##
+AX_ARG_ENABLE(
+  [cxx],
+  [LANG_CXX],
+  [enable or disable ANTLR for C++ (enabled)],
+  [1],
+)
+
+##
+## option --enable-python
+##
+AX_ARG_ENABLE(
+  [python],
+  [LANG_PY],
+  [enable or disable ANTLR for Python (enabled).],
+  [1],
+)
+
+##
+## option --enable-csharp
+##
+AX_ARG_ENABLE(
+  [csharp],
+  [LANG_CS],
+  [enable or disable ANTLR for C# (enabled)],
+  [1],
+)
+
+##
+## option --enable-verbose=<level>
+##
+AX_ARG_ENABLE(
+  [verbose],
+  [VERBOSE],
+  [turn on verbosity when building package.],
+  [0],
+)
+
+##
+## option --enable-debug=<level>
+##
+AX_ARG_ENABLE(
+  [debug],
+  [DEBUG],
+  [set debug level - any value greater zero enables a debug version],
+  [0],
+)
+
+##
+## option --enable-examples
+##
+
+WITH_EXAMPLES=1
+
+AX_ARG_ENABLE(
+  [examples],
+  [WITH_EXAMPLES],
+  [include examples into this configuration (enabled)],
+  [1],
+)
+
+##
+## option --with-antlr-jar
+##
+ANTLR_WITH_ANTLR_JAR=""
+
+AC_ARG_WITH(
+  [antlr-jar],
+  [AC_HELP_STRING(
+      [--with-antlr-jar=ARG],
+      [use given file (antlr.jar) to bootstrap])
+    ],[
+    if test -n "${ANTLR_WITH_ANTLR_CMD}" ; then
+      opts="--with-antlr-jar,--with-antlr-cmd"
+      AC_MSG_ERROR(
+        [this configuration options mutually exclusive: $opts])
+    fi
+    ANTLR_WITH_ANTLR_JAR="${withval}"]
+)
+
+##
+## option --with-antlr-cmd
+##
+ANTLR_WITH_ANTLR_CMD=""
+
+AC_ARG_WITH(
+  [antlr-cmd],
+  [AC_HELP_STRING(
+      [--with-antlr-cmd=ARG],
+      [use given command to compile ANTLR grammar files while bootstrapping..])
+    ],[
+    if test -n "${ANTLR_WITH_ANTLR_JAR}" ; then
+      opts="--with-antlr-jar,--with-antlr-cmd"
+      AC_MSG_ERROR(
+        [this configuration options mutually exclusive: $opts])
+    fi
+    ANTLR_WITH_ANTLR_CMD="${withval}"
+  ]
+)
+
+AC_ARG_WITH(
+  [bootclasspath],
+  [AC_HELP_STRING(
+      [--bootclasspath=ARG],
+      [use this option to set bootclasspath when using jikes. ARG is a white
+        space seperated list of absolute file or directory names, typically
+        /opt/jdk1.3/jre/lib/rt.jar. In most cases this option is not requird
+        as configure tries to detect rt.jar itself. If configure fails or
+        detects the wrong boot library you may use this option. Note that
+        this option is only used when using jikes.
+        ])
+    ],[
+    BOOTCLASSPATH="${withval}"
+  ]
+)
+
+AX_ARG_WITH(
+  [cxx],
+  [CXX],
+)
+
+AX_ARG_WITH(
+  [make],
+  [MAKE],
+)
+
+AX_ARG_WITH(
+  [java],
+  [JAVA],
+)
+
+AX_ARG_WITH(
+  [javac],
+  [JAVAC],
+)
+
+AX_ARG_WITH(
+  [jar],
+  [JAR],
+)
+
+AX_ARG_WITH(
+  [python],
+  [PYTHON],
+)
+
+AX_ARG_WITH(
+  [csharpc],
+  [CSHARPC],
+)
+
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+#                     S T A R T   T E S T S                          #
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+
+# get host_os set
+AC_CANONICAL_HOST
+
+# Detect cygwin or mingw
+ANTLR_CYGWIN=no
+ANTLR_MINGW=no
+
+AC_MSG_CHECKING(whether this is Cygwin)
+case $host_os in
+   *cygwin* )
+    ANTLR_CYGWIN=yes
+    ;;
+  *)
+    AC_MSG_RESULT(no)
+  ;;
+esac
+
+AC_MSG_CHECKING(whether this is MinGW)
+case $host_os in
+   *mingw* )
+    ANTLR_MINGW=yes
+    ;;
+  *)
+    AC_MSG_RESULT(no)
+  ;;
+esac
+
+## Set common file extensions depending on OS we are running on.
+## File extensions depend on C++/C compiler in use. This values
+## are just guesses and redefined further below.
+
+case "${host_os}" in
+  *mingw*|*cygwin*)
+    OBJEXT=".o"
+    LIBEXT=".a"
+    EXEEXT=".exe"
+    ;;
+  *)
+    OBJEXT=".o"
+    LIBEXT=".a"
+    EXEEXT=""
+    ;;
+esac
+
+## Test whether we have cygpath
+test -z "$CYGPATH"    && AC_PATH_PROGS(CYGPATH, cygpath$EXEEXT )
+
+AC_SUBST([CYGPATH_M])
+AC_SUBST([CYGPATH_W])
+
+if test -n "$CYGPATH" ; then
+  CYGPATH_M="${CYGPATH} -m"
+  CYGPATH_W="${CYGPATH} -w"
+else
+  CYGPATH_M="echo"
+  CYGPATH_W="echo"
+fi
+
+AC_ARG_VAR(
+  [ANTLRFLAGS],
+  [Use environment variable ANTLRFLAGS to pass some extra flags to antlr
+   when compiling grammar (*.g) files.
+  ]
+)
+
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+#                             MAKE                                   #
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+## Check whether there's a make program around. We search for a
+## couple of well know names within $PATH. A user may skip this
+## search by providing variable $MAKE.
+AC_ARG_VAR(
+  [MAKE],
+  [By default we search for "make", "gmake" and "gnumake" in your PATH
+   as well as "/bin/make" and "/usr/bin/make". You may  override  this
+   search by  using  enviromnent variable $MAKE.  Note that a GNU make
+   is required to build this package. However,  when  providing   your
+   own candidate a check for GNU make is skipped and all bets are on.
+  ]
+)
+
+## @MAKE@ shall contain absolut path name of make program found.
+
+## Search for well known make programs - take user given MAKE
+## into account. The result will be a list of valid make prog-
+## grams found and will be stored in variable MAKE.
+user_make="${MAKE}"
+AX_PATH_PROGS(
+  [MAKE],
+  [make gmake gnumake /bin/make /usr/bin/make]
+)
+
+## right now we need to have a GNU make around, other makes are
+## not supported and likely to fail.
+if test "x${user_make}" == "x" ; then
+  AX_GNU_MAKE(
+    [MAKE],
+    [AC_MSG_ERROR( [package requires GNU make])]
+  )
+fi
+
+## we lookup 'make' in PATH. If the one found is not the same
+## as the configured one we issue a warning message.
+AC_PATH_PROGS([just_make],[make],[%])
+
+case "${just_make}" in
+  ${MAKE})
+    ;;
+  *)
+    AC_CONFIG_COMMANDS([notice],[
+        AC_MSG_NOTICE([
+ ---------------------------------------------------------
+                   * WARNING *
+
+  This package has been configured to be build by using
+
+   $MAKE
+
+  It is very likely that just running "make" from  the
+  command line will fail. Please remember therefore to
+  use the configured version.
+ =========================================================
+          ])
+        ],[
+        MAKE="${MAKE}"
+      ]
+    )
+  ;;
+esac
+
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+#                             JAVA                                   #
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+## @JAVAC@ shall contain absolut path name of javac program and
+## similar to  CXXFLAGS, @JAVACFLAGS@ shall contain all options
+## required to compile JAVA source files.
+
+AC_ARG_VAR(
+  [JAVAC],
+  [By default we search for "jikes", "javac" and "gcj" in your $PATH
+   on how to comile Java source files.  You may override this search
+   by using enviromnent variable $JAVAC. JAVAC may contain a list of
+   candidates, either as absolute path names or as a relative one.
+   In case a relative name is given, a search  in $PATH will take
+   place, otherwise the absolute name is tried.
+  ]
+)
+AC_ARG_VAR(
+  [JAVACFLAGS],
+  [Environment variable JAVACFLAGS can be used to change or override
+   all flags required to compile Java source files. Note that
+   JAVACFLAGS understands the following:
+   "+ flag1 flag2 .." append  "flag1 flag2 .." to precomputed list
+   "- flag1 flag2 .." prepend "flag1 flag2 .." to precomputed list
+   "= flag1 flag2 ..   override with flag1 flag2 ..". If there is
+   a need to hardwire additional flags then edit scripts/javac.sh.in
+   and run "CONFIG_FILES=scripts/javac.sh ./config.status" again.
+  ]
+)
+## @JAVA@ shall contain absolut path name of java  program and
+## similar to  CXXFLAGS, @JAVAFLAGS@ shall contain all options
+## required to run JAVA class files.
+
+AC_ARG_VAR(
+  [JAVA],
+  [By default we search for "java" and "gij" in your PATH on how
+   to run Java class files. You may override this search by
+   using enviromnent variable $JAVA. JAVA may contain a list of
+   candidates, either as absolute path name or as a relative one.
+   In case of a relative name, a search in $PATH will take place.
+   Otherwise the absolute name will be accepted if existing.
+  ]
+)
+AC_ARG_VAR(
+  [JAVAFLAGS],
+  [Shall contain all flags required to run Java class files.
+   You may override by using environment variable JAVAFLAGS.
+  ]
+)
+
+AX_JAVA_PROGS(
+  [JAVA],
+  [java gij],
+  [AX_VAR_HEAD([JAVA])]
+)
+AX_JAVA_PROGS(
+  [JAVAC],
+  [jikes javac gcj],
+  [AX_VAR_HEAD([JAVAC])]
+)
+AX_JAVA_PROGS(
+  [JAR],
+  [jar],
+  [
+    AX_VAR_HEAD([JAR])
+  ]
+)
+
+case $LANG_JAVA in
+  1)
+    jar="`basename $JAR`"
+    jar="`echo ${jar}|sed 's,\..*$,,'`"
+
+    ## This macro tries to determine which javac compiler is
+    ## being used. Well  known  compilers are gcj, jikes and
+    ## javac. A unknown compiler is treated as  if javac has
+    ## been  given  in  the  very, very naive  hope that all
+    ## javac compiler have at least the same  options as the
+    ## original, ie. javac.
+    ## If your compiler is not in the list  and does not be-
+    ## have like javac, then you need  to  extend this macro
+    ## by writing a specialized test.
+    AX_WHICH_JAVAC([javac])
+    ## Jikes cannot live without having a Java around. Have
+    ## therefore a look into  Java  installations found for
+    ## a 'rt.jar'.
+    test -n "${BOOTCLASSPATH}" && {
+      for f in ${BOOTCLASSPATH} ; do
+        AC_MSG_CHECKING([bootclasspath \"$f\"])
+        test -f "${f}" -o -d "${f}" || {
+          AC_MSG_RESULT([does not exist])
+          AC_MSG_ERROR(
+            [
+===================================================================
+Please check arguments given to
+  --with-bootclasspath
+ or
+  \${BOOTCLASSPATH}
+Each argument must be a valid file or directory. Use whitespace to
+seperate your args.
+===================================================================
+          ])
+        }
+        AC_MSG_RESULT([good])
+      done
+    }
+    test -z "${BOOTCLASSPATH}" && {
+      case "${javac}" in
+        jikes)
+          BOOTCLASSPATH=""
+          set x ${JAVA}
+          while test $# -gt 1 ; do
+            x="$2" ; shift
+            d=`dirname $x`
+            test -d "$d" || continue
+            d=`(cd $d && cd .. && pwd)`
+            test -d "$d" || continue
+            test -f "$d/jre/lib/rt.jar" && {
+              BOOTCLASSPATH="$d/jre/lib/rt.jar"
+              ## we need to try whether jikes accept .. (tbd)
+              break
+            }
+            test -f "$d/lib/rt.jar" && {
+              BOOTCLASSPATH="$d/lib/rt.jar"
+              ## we need to try whether jikes accept .. (tbd)
+              break
+            }
+          done
+          ## go for some unusual locations (MacOS)
+          test -z "${BOOTCLASSPATH}" && {
+            fwdir=/System/Library/Frameworks/JavaVM.framework/Versions
+            for x in 1.4.1 1.3.1 ; do
+              if test -f "$fwdir/$x/Classes/classes.jar" ; then
+                BOOTCLASSPATH="$fwdir/$x/Classes/classes.jar"
+                break
+              fi
+            done
+          }
+          ## give up in case we can't set.
+          test -z "${BOOTCLASSPATH}" && {
+            AC_MSG_ERROR(
+              [Unable to set BOOTCLASSPATH - there is no rt.jar around.])
+          }
+          ;;
+        *)
+          BOOTCLASSPATH=""
+          ;;
+      esac
+    }
+    test -n "${BOOTCLASSPATH}" && {
+      ## Finalize BOOTCLASSPATH. Depending on platform join arguments using
+      ## a different seperator.
+      case $build_os in
+        cygwin)
+          sep=";"
+          ;;
+        *)
+          sep=":"
+          ;;
+      esac
+      set x $BOOTCLASSPATH ; shift
+      BOOTCLASSPATH="$1"
+      shift
+      while test $# -gt 0 ; do
+        BOOTCLASSPATH="${BOOTCLASSPATH}${sep}${1}"
+        shift
+      done
+    }
+    ## Use Java first in list.
+    AX_VAR_HEAD([JAVA])
+
+    ;;
+esac
+
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+#                             C++                                    #
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+
+case $LANG_CXX in
+  1)
+    AX_PATH_PROGS(
+      [AR],
+      [tlib lib ar /usr/bin/ar]
+    )
+    ## Try to figure out what C++ compiler shall be used. Note that CC
+    ## clashes on cygwin. While CC is usually SUN's C++ compiler name,
+    ## CC is also present on Cygwin - it's just an alias for gcc. The
+    ## real alias is  actually  'cc'  but  names  are searched in non-
+    ## sensitive manner. To solve this problem we  use  kind  of  hack
+    ## here and list compilers availabe to known operating systems.
+    case $build_os in
+      cygwin)
+        ## On Cygwin/Microsoft we are aware of Borland C++, Microsoft
+        ## C++ and GNU.
+        cxx_compiler_list="bcc32 cl g++"
+		  # FIXME: for bcc32
+		  c_compiler_list="cl gcc"
+        ;;
+      *)
+        ## On other platforms we now HP C++ (aCC), IBM C++ (xlC*) and
+        ## of  course GNU. If there's a GNU compiler around we prefer
+        ## GNU. This avoids also  a  problem  with  vendors having CC
+        ## a symbolic link to "gcc" instead of "g++".
+        cxx_compiler_list="g++ aCC CC xlC xlC_r cxx c++"
+		  # FIXME: for other unix flavours
+		  c_compiler_list="cc gcc xlc_r acc"
+        ;;
+    esac
+
+    ## Find a compiler for me. If compiler is not in list you can al-
+    ## ways override by using environment varialbe CXX.
+    AC_PROG_CXX([${cxx_compiler_list}])
+    AC_PROG_CC([${c_compiler_list}])
+
+    ## just  overrule what autoconf figured out - we never asked for
+    ## this anyway. Our  handling  of compiler options is done below
+    ## in the fine tuning section.
+    CXXFLAGS=""
+
+    ## 'cxx'  shall  be  the canonical compiler name. For example, gcc
+    ## cl, bcc, CC, etc. Note that this is in general not equal to CXX.
+    ## For example, CYGWIN  appears to have c++ as name for g++ and cc
+    ## as alias for gcc.
+    ## CXX is used to call the compiler, 'cxx' shall be used for
+    ## decisions based on compiler in use.
+    cxx=""
+
+    if test "x$GXX" = xyes; then
+      cxx="gcc"
+    else
+      cxx=`basename $CXX`
+      cxx=`echo ${cxx}|sed 's,\.@<:@^.@:>@*$,,'`
+    fi
+
+    case ${cxx} in
+      gcc*)
+        cxx='gcc'
+        ;;
+      cl*|CL*)
+        cxx='cl'
+        ## check whether this is Microsoft C++ (tbd)
+        ;;
+      bcc32*|BCC32*)
+        cxx='bcc32'
+        ## check whether this is Borland C++ (tbd)
+        ;;
+      CC*)
+        ## check whether this is SUN C++ (tbd)
+        cxx="CC"
+        ;;
+      xlC*|xlC_r*)
+        cxx="xlC"
+        ## check whether this is IBM C++ (tbd)
+        ;;
+      aCC*)
+        cxx='aCC'
+        ## check whether this is HP C++ (tbd)
+        ;;
+      *)
+        ## unknown compiler - good luck.
+        AX_MSG_UNKOWN_CXX
+        ;;
+    esac
+
+    ##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+    ##                  COMPILER TUNING SECTION                     ##
+    ##==============================================================##
+
+    ## compiler tuning has basically removed from this configure
+    ## script as it appears not  to  be handy and practical. All
+    ## compiler flags  are  set  in  cxx.sh.in.  If there is any
+    ## change required, go there and change.
+    ## Note that flags  given in this file may overrule settings
+    ## given in cxx.sh.in. Therefore, if you "add" flags here,
+    ## put a "+" in front of variable CXXFLAGS. For example, let's
+    ## say you want to add "-g". Then do this:
+    ##
+    ##  CXXFLAGS="-g"
+    ##  ..
+    ##  CXXFLAGS="+ ${CXXFLAGS}"
+    ##
+    ## The addition of "+"  CXXFLAGS should be the last action for
+    ## that variable. The net effect is that "-g" will be added to
+    ## flags set in cxx.sh.in. So the result may look like
+    ## gcc -Wall -c -g ..
+    ##
+    ## Similar, put a "-" in front to get "gcc -g -Wall -c .." and
+    ## put nothing or a "=" in front to get "gcc -g ..".
+    ##
+    ## Similar to CXXFLAGS are LDFLAGS and ARFLAGS for linking
+    ## and making a static library.
+
+    case "${cxx}" in
+      cl|bcc32)
+        OBJEXT=".obj"
+        LIBEXT=".lib"
+        EXEEXT=".exe"
+        ANTLR_LIB="$abs_this_builddir/lib/cpp/src/antlr.lib"
+        ;;
+      *)
+        OBJEXT=".o"
+        ;;
+    esac
+
+    LDFLAGS=
+    AX_VAR_HEAD([AR])
+
+    ##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+    ##               END  COMPILER TUNING SECTION                   ##
+    ##==============================================================##
+
+    # Checks for header files.
+    AC_HEADER_STDC
+    AC_CHECK_HEADERS([stdlib.h unistd.h])
+
+    # Checks for typedefs, structures, and compiler characteristics.
+    AC_C_CONST
+    AC_C_INLINE
+
+    # Checks for library functions.
+    AC_FUNC_MALLOC
+    AC_CHECK_FUNCS([strcasecmp])
+
+    ## Some further specific test required as are using std C++.
+    ## (tbd)
+    ;;
+esac
+
+##
+test -z "$DOXYGEN" && AC_PATH_PROG(DOXYGEN, doxygen, doxygen,  )
+
+# This seems to convince configure to use an absolute path to the backup
+# install-sh script.
+ac_install_sh="$PWD/scripts/install-sh"
+AC_PROG_INSTALL
+AC_PROG_RANLIB
+
+test -z "$MKDIR" && AC_PATH_PROG(MKDIR, mkdir$EXEEXT, mkdir$EXEEXT )
+test -z "$RM"    && AC_PATH_PROG(RM,    rm$EXEEXT, rm$EXEEXT )
+
+AX_PATH_PROGS(
+  [TAR],
+  [gnutar tar],
+  [AX_VAR_HEAD([TAR])]
+)
+
+AX_PATH_PROGS(
+  [TOUCH],
+  [/bin/touch /usr/bin/touch touch],
+  [AX_VAR_HEAD([TOUCH])]
+)
+
+test -z "$CHMOD" && AC_PATH_PROG(CHMOD, chmod$EXEEXT, chmod$EXEEXT )
+test -z "$SED"   && AC_PATH_PROG(SED,   sed$EXEEXT, sed$EXEEXT )
+test -z "$CAT"   && AC_PATH_PROG(CAT,   cat$EXEEXT, cat$EXEEXT )
+test -z "$GREP"  && AC_PATH_PROG(GREP,  grep$EXEEXT, grep$EXEEXT )
+
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+#                             PYTHON                                 #
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+
+AC_ARG_VAR([PYTHON],
+  [By default we search for "python" in $PATH to execute Python files.
+    Override this by providing a list of candidates in environment
+    variable $PYTHON and use whitespace as spereration character. A
+    candidate can be either a relative or absolute path name. In
+    the former case a lookup in $PATH takes place, in the latter, the
+    absolute path name must exist.])
+
+AC_ARG_VAR([PYTHONFLAGS],[
+    Shall contain all flags required to run Python. Override the
+    default by using environment variable $PYTHONFLAGS.
+])
+
+AX_PYTHON_PROGS(
+  [PYTHON],
+  [python],
+  [AX_VAR_HEAD([PYTHON])]
+)
+
+case $LANG_PY in
+  1)
+    # We need a script that wrap Python calls in order to make Python
+    # ANTLR aware. This script needs to be executable.
+    AC_CONFIG_FILES(
+      [scripts/python.sh],
+      [${CHMOD} a+x scripts/python.sh],
+      [CHMOD=${CHMOD}]
+    )
+
+    AC_CONFIG_FILES(
+      [scripts/pyantlr.sh:scripts/pyinst.sh.in],
+      [${CHMOD} a+x scripts/pyantlr.sh],
+      [CHMOD=${CHMOD}]
+    )
+
+    AC_CONFIG_FILES(
+      [lib/python/Makefile]
+    )
+
+    # We have a Makefile that loops through all python examples.
+    case $WITH_EXAMPLES in
+      1 )
+        AC_CONFIG_FILES(
+          [examples/python/Makefile]
+        )
+        AC_CONFIG_FILES([
+            examples/python/asn1/Makefile \
+            examples/python/ASTsupport/Makefile \
+            examples/python/calc/Makefile \
+            examples/python/columns/Makefile \
+            examples/python/exprAST/Makefile \
+            examples/python/filter/Makefile \
+            examples/python/filterWithRule/Makefile \
+            examples/python/heteroAST/Makefile \
+            examples/python/HTML/Makefile \
+            examples/python/IDL/Makefile \
+            examples/python/imagNodeAST/Makefile \
+            examples/python/includeFile/Makefile \
+            examples/python/inherit.tinyc/Makefile \
+            examples/python/java/Makefile \
+            examples/python/lexerTester/Makefile \
+            examples/python/lexRewrite/Makefile \
+            examples/python/linkChecker/Makefile \
+            examples/python/multiLexer/Makefile \
+            examples/python/multiParser/Makefile \
+            examples/python/parseBinary/Makefile \
+            examples/python/pascal/Makefile \
+            examples/python/cpp/Makefile \
+            examples/python/preserveWhiteSpace/Makefile \
+            examples/python/tinybasic/Makefile \
+            examples/python/tinyc/Makefile \
+            examples/python/transform/Makefile \
+            examples/python/treewalk/Makefile \
+            examples/python/unicode/Makefile \
+            examples/python/unicode.IDENTs/Makefile \
+            examples/python/xml/Makefile
+        ])
+        ;;
+    esac
+    ;;
+esac
+
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+#                             CSHARP                                 #
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#
+
+AC_ARG_VAR([CSHARPC],
+  [By default we search for "cscc", "msc" and "csc" in $PATH to compile C# files.
+    Override this by providing a list of candidates in environment
+    variable $CSHARP and use whitespace as spereration character. A
+    candidate can be either a relative or absolute path name. In
+    the former case a lookup in $PATH takes place, in the latter, the
+    absolute path name must exist.])
+
+AC_ARG_VAR([CSHARPCFLAGS],[
+    Shall contain all flags required to compile a #C file. Override the
+    default by using environment variable $CSHARPCFLAGS.
+])
+
+AX_CSHARP_PROGS(
+  [CSHARPC],
+  [cscc mcs csc /usr/local/bin/cscc /usr/local/bin/mcs /opt/bin/cscc /opt/bin/mcs],
+  [AX_VAR_HEAD([CSHARPC])]
+)
+
+## get the basename of C# compiler. Depending on basename we try to
+## decide about the CLR.
+test -n "${CSHARPC}"  && {
+  csharpc=`basename ${CSHARPC}`
+  csharpc_d=`dirname ${CSHARPC}`
+}
+
+case $csharpc in
+  cscc*)
+    AX_CSHARP_PROGS(
+      [CLR],
+      [${csharpc_d}/ilrun ilrun /usr/local/bin/ilrun /opt/bin/ilrun],
+      [AX_VAR_HEAD([CLR])]
+    )
+    ;;
+  mcs*)
+    AX_CSHARP_PROGS(
+      [CLR],
+      [${csharpc_d}/mono mono /usr/local/bin/mono /opt/bin/mono],
+      [AX_VAR_HEAD([CLR])]
+    )
+    ;;
+esac
+
+case $LANG_CS in
+  1)
+    AC_CONFIG_FILES(
+      [scripts/csc.sh],
+      [${CHMOD} a+x scripts/csc.sh],
+      [CHMOD=${CHMOD}]
+    )
+
+    AC_CONFIG_FILES([lib/csharp/Makefile])
+    AC_CONFIG_FILES([lib/csharp/src/Makefile])
+    AC_CONFIG_FILES([lib/csharp/ASTFrame/Makefile])
+
+    # We have a Makefile that loops through all python examples.
+    case $WITH_EXAMPLES in
+      1)
+        AC_CONFIG_FILES([examples/csharp/ASTsupport/Makefile])
+        AC_CONFIG_FILES([examples/csharp/HTML/Makefile])
+        AC_CONFIG_FILES([examples/csharp/IDL/Makefile])
+        AC_CONFIG_FILES([examples/csharp/ParseTreeDebug/Makefile])
+        AC_CONFIG_FILES([examples/csharp/TokenStreamRewrite/Makefile])
+        AC_CONFIG_FILES([examples/csharp/calc/Makefile])
+        AC_CONFIG_FILES([examples/csharp/columns/Makefile])
+        AC_CONFIG_FILES([examples/csharp/exprAST/Makefile])
+        AC_CONFIG_FILES([examples/csharp/filter/Makefile])
+        AC_CONFIG_FILES([examples/csharp/filterWithRule/Makefile])
+        AC_CONFIG_FILES([examples/csharp/heteroAST/Makefile])
+        AC_CONFIG_FILES([examples/csharp/java/Makefile])
+        AC_CONFIG_FILES([examples/csharp/multiLexer/Makefile])
+        AC_CONFIG_FILES([examples/csharp/parseBinary/Makefile])
+        AC_CONFIG_FILES([examples/csharp/preserveWhiteSpace/Makefile])
+        AC_CONFIG_FILES([examples/csharp/tinyc/Makefile])
+        AC_CONFIG_FILES([examples/csharp/unicode/Makefile])
+        AC_CONFIG_FILES([examples/csharp/Makefile])
+        ;;
+    esac
+    ;;
+esac
+
+# We need a script that wrap java calls in order to make Java
+# ANTLR aware. This script needs to be executable.
+AC_CONFIG_FILES(
+  [scripts/java.sh],
+  [${CHMOD} a+x scripts/java.sh])
+
+# We need a script that wrap jar calls in order to make Java
+# ANTLR aware. This script needs to be executable.
+AC_CONFIG_FILES(
+  [scripts/jar.sh],
+  [${CHMOD} a+x scripts/jar.sh])
+
+# We need a script that wrap javac calls in order to make Javac
+# ANTLR aware. This script needs to be executable.
+AC_CONFIG_FILES(
+  [scripts/javac.sh],
+  [${CHMOD} a+x scripts/javac.sh])
+
+# We need a script that wraps antlr calls
+AC_CONFIG_FILES(
+  [scripts/antlr.sh],
+  [${CHMOD} a+x scripts/antlr.sh])
+
+case $LANG_CXX in
+  1)
+    # We need a script that wraps how we compile C++
+    AC_CONFIG_FILES([scripts/cxx.sh],[${CHMOD} a+x scripts/cxx.sh])
+
+    # # We need a script that wraps how we link C++
+    AC_CONFIG_FILES([scripts/link.sh],[${CHMOD} a+x scripts/link.sh])
+
+    # There's a few C files around so make sure we can compile those as well
+    AC_CONFIG_FILES([scripts/c.sh],[${CHMOD} a+x scripts/c.sh])
+
+     # We need a script that wraps how we build a (static?) library
+    AC_CONFIG_FILES([scripts/lib.sh],[${CHMOD} a+x scripts/lib.sh])
+
+    # We need a script that wraps how we run the preprocessor
+    AC_CONFIG_FILES([scripts/cpp.sh],[${CHMOD} a+x scripts/cpp.sh])
+
+    # C++ library
+    AC_CONFIG_FILES([lib/cpp/Makefile])
+    AC_CONFIG_FILES([lib/cpp/antlr/Makefile])
+    AC_CONFIG_FILES([lib/cpp/src/Makefile])
+
+    # C++ examples
+    case $WITH_EXAMPLES in
+      1)
+        AC_CONFIG_FILES([examples/cpp/Makefile])
+        AC_CONFIG_FILES([examples/cpp/ASTsupport/Makefile])
+        AC_CONFIG_FILES([examples/cpp/calc/Makefile])
+        AC_CONFIG_FILES([examples/cpp/exprAST/Makefile])
+        AC_CONFIG_FILES([examples/cpp/filter/Makefile])
+        AC_CONFIG_FILES([examples/cpp/filterWithRule/Makefile])
+        AC_CONFIG_FILES([examples/cpp/flexLexer/Makefile])
+        AC_CONFIG_FILES([examples/cpp/HTML/Makefile])
+        AC_CONFIG_FILES([examples/cpp/IDL/Makefile])
+        AC_CONFIG_FILES([examples/cpp/imagNodeAST/Makefile])
+        AC_CONFIG_FILES([examples/cpp/includeFile/Makefile])
+        AC_CONFIG_FILES([examples/cpp/inherit.tinyc/Makefile])
+        AC_CONFIG_FILES([examples/cpp/java/Makefile])
+        AC_CONFIG_FILES([examples/cpp/lexRewrite/Makefile])
+        AC_CONFIG_FILES([examples/cpp/multiLexer/Makefile])
+        AC_CONFIG_FILES([examples/cpp/multiParser/Makefile])
+        AC_CONFIG_FILES([examples/cpp/parseBinary/Makefile])
+        AC_CONFIG_FILES([examples/cpp/preserveWhiteSpace/Makefile])
+        AC_CONFIG_FILES([examples/cpp/tinyc/Makefile])
+        AC_CONFIG_FILES([examples/cpp/tokenStreamRewrite/Makefile])
+        AC_CONFIG_FILES([examples/cpp/transform/Makefile])
+        AC_CONFIG_FILES([examples/cpp/treewalk/Makefile])
+        AC_CONFIG_FILES([examples/cpp/unicode/Makefile])
+        ;;
+    esac
+    ;;
+esac
+
+# Makefile to build supplementary libraries ..
+AC_CONFIG_FILES([lib/Makefile])
+case $WITH_EXAMPLES in
+  1)
+    AC_CONFIG_FILES([examples/Makefile])
+    ;;
+esac
+
+AC_CONFIG_FILES([doc/Makefile])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([scripts/antlr-config scripts/run-antlr scripts/antlr.spec])
+
+case $LANG_JAVA in
+  1)
+    AC_CONFIG_FILES([antlr/Makefile])
+    case $WITH_EXAMPLES in
+      1)
+        AC_CONFIG_FILES([examples/java/ASTsupport/Makefile])
+        AC_CONFIG_FILES([examples/java/HTML/Makefile])
+        AC_CONFIG_FILES([examples/java/IDL/Makefile])
+        AC_CONFIG_FILES([examples/java/calc/Makefile])
+        AC_CONFIG_FILES([examples/java/columns/Makefile])
+        AC_CONFIG_FILES([examples/java/exprAST/Makefile])
+        AC_CONFIG_FILES([examples/java/filter/Makefile])
+        AC_CONFIG_FILES([examples/java/filterWithRule/Makefile])
+        AC_CONFIG_FILES([examples/java/heteroAST/Makefile])
+        AC_CONFIG_FILES([examples/java/imagNodeAST/Makefile])
+        AC_CONFIG_FILES([examples/java/includeFile/Makefile])
+        AC_CONFIG_FILES([examples/java/inherit.tinyc/Makefile])
+        AC_CONFIG_FILES([examples/java/java/Makefile])
+        AC_CONFIG_FILES([examples/java/lexRewrite/Makefile])
+        AC_CONFIG_FILES([examples/java/linkChecker/Makefile])
+        AC_CONFIG_FILES([examples/java/multiLexer/Makefile])
+        AC_CONFIG_FILES([examples/java/parseBinary/Makefile])
+        AC_CONFIG_FILES([examples/java/pascal/Makefile])
+        AC_CONFIG_FILES([examples/java/preserveWhiteSpace/Makefile])
+        AC_CONFIG_FILES([examples/java/tinybasic/Makefile])
+        AC_CONFIG_FILES([examples/java/tinyc/Makefile])
+        AC_CONFIG_FILES([examples/java/transform/Makefile])
+        AC_CONFIG_FILES([examples/java/treewalk/Makefile])
+        AC_CONFIG_FILES([examples/java/unicode.IDENTs/Makefile])
+        AC_CONFIG_FILES([examples/java/unicode/Makefile])
+        AC_CONFIG_FILES([examples/java/xml/Makefile])
+        AC_CONFIG_FILES([examples/java/Makefile])
+        AC_CONFIG_FILES([examples/java/cpp/Makefile])
+        ;;
+    esac
+
+    ANTLR_ACTION_FILES=""
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/cpp/ActionLexer.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/cpp/ActionLexerTokenTypes.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/csharp/ActionLexer.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/csharp/ActionLexerTokenTypes.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/java/ActionLexer.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/java/ActionLexerTokenTypes.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/python/ActionLexer.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/python/ActionLexerTokenTypes.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/python/CodeLexer.java"
+    ANTLR_ACTION_FILES="${ANTLR_ACTION_FILES} actions/python/CodeLexerTokenTypes.java"
+
+    ANTLR_ANTLR_FILES=""
+    ANTLR_ANTLR_FILES="${ANTLR_ANTLR_FILES}   ANTLRParser.java"
+    ANTLR_ANTLR_FILES="${ANTLR_ANTLR_FILES}   ANTLRTokenTypes.java"
+    ANTLR_ANTLR_FILES="${ANTLR_ANTLR_FILES}   ANTLRLexer.java"
+
+    ANTLR_TOKDEF_FILES=""
+    ANTLR_TOKDEF_FILES="${ANTLR_TOKDEF_FILES} ANTLRTokdefParser.java"
+    ANTLR_TOKDEF_FILES="${ANTLR_TOKDEF_FILES} ANTLRTokdefLexer.java"
+    ANTLR_TOKDEF_FILES="${ANTLR_TOKDEF_FILES} ANTLRTokdefParserTokenTypes.java"
+
+    ## This variables can be used in antlr/Makefile
+
+    file_list="${ANTLR_ACTION_FILES} ${ANTLR_ANTLR_FILES} ${ANTLR_TOKDEF_FILES}"
+    if test "x${file_list}" == "x" ; then
+      :
+    else
+      ANTLR_CONFIG_FILES=""
+      ANTLR_FILE_LIST=""
+
+      ## iterate over my file list. If a file exists then  don't copy
+      ## this file - autoconf's behaviour is to delete existing files.
+      for x in ${file_list} ; do
+        f="antlr/${x}"
+        if test -f "${f}" ; then
+          :
+        else
+          f="${f}:${f}"
+          ANTLR_CONFIG_FILES="${ANTLR_CONFIG_FILES} ${f}"
+          ANTLR_FILE_LIST="${ANTLR_FILE_LIST} antlr/${x}"
+        fi
+      done
+
+      ## copy files into build directory and make them writeable  (in
+      ## case we copy them from our depot. The actions necessary here
+      ## to execute  a  command  (chmod)  on  a list  of files is bit
+      ## hackish - it may depend  on autoconf version in  use  (works
+      ## fine for autoconf 2.59).
+      ## The problem is that autoconf takes the file list literally,
+      ## ie. we end up in config.status by something like
+      ##
+      ##  case $ac_file in
+      ##  ..
+      ##  $ANTLR_CONFIG_FILES) chmod a+w .. ;;
+      ##  esac
+      ##
+      ## To make this work I'm introducing ANTLR_CONFIG_FILES as kind
+      ## of 'catch-all'  variable.  The  side   effect  is that every
+      ## file with no explicit action will get a "chmod  a+w ..." But
+      ## that should be ok for Makefiles etc.
+
+      AC_CONFIG_FILES([
+          ${ANTLR_CONFIG_FILES} ],[
+          ### echo "config.status: chmod a+w ${ac_file} .."
+          ${CHMOD} a+w "${ac_file}" ],[
+          ANTLR_CONFIG_FILES='*'
+          ANTLR_FILE_LIST="${ANTLR_FILE_LIST}"
+          CHMOD="${CHMOD}"
+        ]
+      )
+    fi
+    ;;
+esac
+
+## compute basename of core libraries
+antlr_jar=`basename ${ANTLR_JAR}`
+antlr_net=`basename ${ANTLR_NET}`
+antlr_lib=`basename ${ANTLR_LIB}`
+antlr_py=`basename ${ANTLR_PY}`
+astframe_net=`basename ${ASTFRAME_NET}`
+
+test -z "${JAVA}" && {
+  JAVA=java
+}
+
+### cygwin has no (supported) Java - users are requested to have java
+### in their PATH in order to execute "bin/antlr.sh". To support this
+### I'm making sure that just the basename is used.
+case $host_os in
+  *cygwin* |*mingw*|*msys*)
+  AX_BASENAME([JAVA])
+  ;;
+esac
+
+AC_OUTPUT

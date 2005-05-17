@@ -1,0 +1,119 @@
+###############################################################################
+# $Id:$
+###############################################################################
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stdvars@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## do not change this value
+subdir=examples/cpp/ASTsupport
+
+srcdir = @abs_top_srcdir@/examples/cpp/ASTsupport
+objdir = @abs_this_builddir@/examples/cpp/ASTsupport
+
+this : test
+test : test1 
+
+all: ASTSupport test
+
+g_FILES = \
+	$(srcdir)/test.g \
+	$(eol)
+
+g_cxx_FILES = \
+  $(objdir)/SupportTest.cpp \
+  $(eol)
+
+g_hpp_FILES = \
+	$(objdir)/SupportTest.hpp \
+  $(objdir)/SupportTestTokenTypes.hpp \
+  $(eol)
+
+g_txt_FILES = \
+	$(objdir)/SupportTestTokenTypes.txt \
+	$(eol)
+
+g_gen_FILES = \
+	$(g_cxx_FILES) \
+	$(g_hpp_FILES) \
+	$(g_txt_FILES) \
+	$(eol)
+
+g_obj_FILES = \
+	 $(objdir)/SupportTest@OBJEXT@ \
+	 $(eol)
+
+## Source files
+ASTSupport_cxx_FILES = \
+	$(g_cxx_FILES) \
+	$(srcdir)/Main.cpp  \
+	$(eol)
+
+## Object files
+ASTSupport_obj_FILES = \
+	$(g_obj_FILES) \
+	$(objdir)/Main@OBJEXT@  \
+	$(eol)
+
+## Test commands ..
+test1_cmd = $(objdir)/ASTSupport
+
+## Tests to be executed
+test1 : ASTSupport
+	@ v="$(verbose)"; \
+    if test $$v -gt 0 ; then \
+      echo "$(test1_cmd)" ; \
+    else \
+      echo "exec test1 .."; \
+    fi
+	@ $(test1_cmd)
+
+## How to make binaries
+ASTSupport : $(ASTSupport_obj_FILES) @ANTLR_LIB@
+	@ @CXX_LINK_CMD@ $@ $(ASTSupport_obj_FILES)
+
+## How to compile ANTLR grammar files
+$(g_gen_FILES) : $(g_FILES) @ANTLR_JAR@
+	@ANTLR_COMPILE_CMD@  $(g_FILES)
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+$(objdir)/%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(srcdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## GNU make - how to make object file
+%@OBJEXT@ : $(objdir)/%.cpp
+	@ @CXX_COMPILE_CMD@ $<
+
+## Housecleaning
+clean:
+	rm -rf *.o *.obj *.exe ASTSupport $(g_gen_FILES)
+
+distclean: clean
+
+# Dependencies
+$(objdir)/SupportTest@OBJEXT@ :       \
+ $(objdir)/SupportTest.hpp            \
+ $(objdir)/SupportTestTokenTypes.hpp
+
+$(objdir)/Main@OBJEXT@           :  \
+ $(objdir)/SupportTest.hpp            \
+ $(objdir)/SupportTestTokenTypes.hpp
+
+## If cxx.sh script changed ..
+$(ASTSupport_obj_FILES) : @abs_this_builddir@/scripts/cxx.sh
+
+## If link.sh script changed ..
+$(ASTSupport_obj_FILES) : @abs_this_builddir@/scripts/link.sh
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+@stddeps@
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

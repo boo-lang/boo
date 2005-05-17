@@ -1,0 +1,122 @@
+#!/bin/sh
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## This file is part of ANTLR. See LICENSE.txt for licence  ##
+## details. Written by W. Haefelinger.                      ##
+##                                                          ##
+##       Copyright (C) Wolfgang Haefelinger, 2004           ##
+##                                                          ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+test -z "${verbose}" && { 
+  verbose=@VERBOSE@
+}
+
+## If there's nothing to be done we exit gracefully.
+test -z "$1" && exit 0
+
+## This is the top build directory.
+abs_top_build_dir="@abs_this_builddir@"
+
+## If $ANTLR_JAR is given as environment variable we are going
+## to use it, otherwise we are using configured value. The value
+## given by $ANTLR_JAR must be a valid file or directory - this 
+## will be checked. If not, an error gets reported.
+antlr_jar= 
+test -n "${ANTLR_JAR}" && {
+  antlr_jar="${ANTLR_JAR}"
+  test -f "${antlr_jar}" -o -d "${antlr_jar}" || {
+    cat <<EOF
+error: \$ANTLR_JAR is neither file nor directory: "${ANTLR_JAR}"
+EOF
+    exit 1
+  }
+}
+
+
+test -z "${antlr_jar}" && {
+  for x in "@ANTLR_JAR@" ${abs_top_build_dir}/antlr.jar ${abs_top_build_dir}/lib/antlr.jar 
+   do
+   test -f "${x}" -o -d "${x}" && {
+     antlr_jar="$x"
+     break
+   }
+   done
+}
+
+test -z "${antlr_jar}" && {
+  antlr_jar="@ANTLR_WITH_ANTLR_JAR@"
+}
+
+case @build_os@ in
+  cygwin|mingw*)
+    ARGV="`cygpath -w ${*}`"
+    set x ${ARGV} ; shift
+    test -f "${antlr_jar}" && {
+      classpath=`cygpath -m ${antlr_jar}`
+    }
+    ;;
+  *)
+    ARGV="${*}"
+    classpath="${antlr_jar}"
+    ;;
+esac
+
+cmd=""
+if test -f "${antlr_jar}" ; then
+  cmd="@JAVA@ @JAVAFLAGS@ -classpath ${classpath} antlr.Tool ${ANTLRFLAGS}"
+else
+  ### Ok, so there's no $cmd yet
+  if test -n "@ANTLR_WITH_ANTLR_CMD@" ; then
+    cmd="@ANTLR_WITH_ANTLR_CMD@ ${ANTLRFLAGS}"
+  fi
+fi
+
+test -z "$cmd" && {
+  ### We give up.
+  exec 1>&2
+  cat <<EOF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Unable to compile ANTLR grammar file(s)
+ $*
+Reason(s): 
+ (a) there's no @ANTLR_JAR@
+ (b) there's no ${abs_top_build_dir}/antlr.jar
+ (c) there's no ${abs_top_build_dir}/lib/antlr.jar
+ (d) options --with-antlr-jar --with-antlr-cmd not applied
+     or value given is not correct.
+You may resolve this problem by setting environment variable
+\$ANTLR_JAR.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+EOF
+  exit 1
+}
+
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##        standard template to execute a command          ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+for arg in ${ARGV} ; do
+  echo $cmd $arg
+  $cmd $arg || {
+    rc=$?
+    cat <<EOF
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                      >> E R R O R <<
+============================================================
+
+CLASSPATH=$CLASSPATH
+
+$cmd $arg
+
+============================================================
+Got an error while trying to execute  command  above.  Error
+messages (if any) must have shown before. The exit code was:
+exit($rc)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EOF
+    exit $rc
+  }
+done
+exit 0
+
+

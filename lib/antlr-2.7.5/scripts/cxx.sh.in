@@ -1,0 +1,268 @@
+#!/bin/sh
+## This script shall wrap/hide how we are going to compile C++ 
+## source files within the ANTLR (www.antlr.org) project.
+test -z "${verbose}" && { 
+  verbose=@VERBOSE@
+}
+
+## check whether we have something to do ..
+test -z "$1" &&  exit 0
+
+## get arguments
+ARGV="$*"
+
+## Command CXX is precomputed but user may override.
+if test -z "${CXX}" ; then
+  CXX="@CXX@"
+  cxx="@cxx@"
+else
+  cxx="`basename $CXX`"
+  cxx="`echo $cxx|sed 's,\..*$,,'`"
+fi
+
+## use whitespace  to separate dirs, don't use compiler specific
+## options like '-I' etc.  That will be added at runtime when we
+## know what compiler is in use.
+CXXINCLUDE=". @abs_top_srcdir@/lib/cpp"
+
+test -z "${DEBUG}" && {
+  DEBUG="@DEBUG@"
+}
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##       Here we set flags for well know programs         ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+##
+## Do not set variable CXXFLAGS here, just use it's sister
+## variable 'cxxflags'. This  allows  the call to override
+## this settings - see handling of CXXFLAGS below.
+
+case "${cxx}" in
+  gcc)
+    cxxflags="-felide-constructors -pipe"
+    case "${DEBUG}" in
+      0)
+        cxxflags="-O2 -DNDEBUG ${cxxflags}"
+        ;;
+      1)
+        cxxflags="-g ${cxxflags} -W -Wall"
+        ;;
+    esac
+    ;;
+  cl)
+    cxxflags="/nologo -GX -GR" 
+    ;;
+  bcc32)
+    cxxflags="-q -v -w-inl -w-aus -w-par -w-ccc" 
+    ;;
+  CC)
+    cxxflags="-g" 
+    ;;
+  xlC)
+    cxxflags="" 
+    ;;
+  aCC)
+    cxxflags="" 
+    ;;
+  *)
+    cxxflag=""
+    ;;
+esac
+
+case ${cxx} in
+  bcc32|CC|aCC|xlC)
+    CXX_OPT_INCLUDE="-I"
+    ;;
+  *)
+    CXX_OPT_INCLUDE="-I "
+    ;;
+esac
+
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+## **NO CHANGE NECESSARY BELOW THIS LINE - EXPERTS ONLY** ##
+##xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx##
+
+
+## If specific flags have been configured then they overrule
+## our precomputed flags. Still a user can override by using
+## environment variable $CXXFLAGS - see below.
+test -n "@CXXFLAGS@" && {
+  set x @CXXFLAGS@  ; shift
+  case $1 in
+    +)
+      shift
+      CXXFLAGS="${cxxflags} $*"
+      ;;
+    -)
+      shift
+      cxxflags="$* ${cxxflags}"
+      ;;
+    =)
+      shift
+      cxxflags="$*"
+      ;;
+    *)
+      if test -z "$1" ; then
+        cxxflags="${cxxflags}"
+      else
+        cxxflags="$*"
+      fi
+      ;;
+  esac
+}
+
+## Regardless what has been configured, a user should always
+## be able to  override  without  the need to reconfigure or
+## change this file. Therefore we check variable $CXXFLAGS.
+## In almost all cases the precomputed flags are just ok but
+## some  additional  flags are needed. To support this in an
+## easy way, we check for the very first value. If this val-
+## ue is 
+## '+'  -> append content of CXXFLAGS to precomputed flags
+## '-'  -> prepend content    -*-
+## '='  -> do not use precomputed flags
+## If none of these characters are given, the behaviour will
+## be the same as if "=" would have been given.
+
+set x ${CXXFLAGS}  ; shift
+case $1 in
+  +)
+    shift
+    CXXFLAGS="${cxxflags} $*"
+    ;;
+  -)
+    shift
+    CXXFLAGS="$* ${cxxflags}"
+    ;;
+  =)
+    shift
+    CXXFLAGS="$*"
+    ;;
+  *)
+    if test -z "$1" ; then
+      CXXFLAGS="${cxxflags}"
+    else
+      CXXFLAGS="$*"
+    fi
+    ;;
+esac
+
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
+##    No  c u s t o m i z a t i o n  below this line          ##
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
+
+## translate args - requires that we are on cygwin. Other-
+## wise  we have to assume that args are already in proper 
+## format.
+
+case "@build_os@" in
+  cygwin)
+    case "@cxx@" in
+      cl|bcc32)
+        ARGV="`cygpath -m ${ARGV}`"
+        ;;
+    esac
+    ;;
+esac
+
+## we only add valid directories - note that CXXINCLUDE is
+## supposed to  contain  directories  and  not optionized'
+## arguments.
+
+set x ${CXXINCLUDE} ; shift
+Y=""
+
+## filter non valid directories
+while test $# -gt 0 ; do
+  y="$1" ; shift
+  test -d "${y}" && {
+    Y="${Y} ${y}"
+  }
+done
+
+set x ${Y} ; shift ; Y=""
+
+## translate directories on cygwin
+case "@build_os@" in
+  cygwin)
+    set x `cygpath -m ${*}` ; shift
+    ;;
+esac
+
+## prefix each arg with CXX_OPT_INCLUDE (for instance -I)
+while test $# -gt 0 ; do
+  y="$1" ; shift
+  Y="${Y} ${CXX_OPT_INCLUDE}${y}"
+done
+
+CXXINCLUDE="${Y}"
+
+###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
+###            LAST CHANCE COMPILER TUNIG HERE                     ###
+###================================================================###
+
+case "${cxx}" in
+  cl)
+    ;;
+  bcc32)
+    ;;
+  gcc)
+    ;;
+  xlC)
+    ;;
+  CC)
+    ;;
+  aCC)
+    ;;
+  *)
+    ;;
+esac
+
+case "@cxx@" in
+  *)
+    CXXFLAGS="${CXXFLAGS} -c"
+    ;;
+esac
+
+###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+### all variables participating in calling must be set now..
+###---------------------------------------------------------
+
+CXX_CMD="${CXX} ${CXXFLAGS} ${CXXINCLUDE}"
+
+test -z "${ARGV}" && exit 0
+
+for x in ${ARGV} ; do
+  cmd="$CXX_CMD $x"
+  
+  case "${verbose}" in
+    0|no|nein|non)
+      echo "*** compiling $x"
+      ;;
+    *)
+      echo $cmd
+      ;;
+  esac
+  
+  $cmd || {
+    rc=$?
+    cat <<EOF
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                      >> E R R O R <<
+============================================================
+
+$cmd
+
+============================================================
+Got an error while trying to execute  command  above.  Error
+messages (if any) must have shown before. The exit code was:
+exit($rc)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EOF
+    exit $rc
+ }
+
+done
+exit 0
+

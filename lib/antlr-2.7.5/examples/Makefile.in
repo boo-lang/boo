@@ -1,0 +1,14 @@
+###############################################################################
+# $Id:$
+###############################################################################
+## do not change this value 
+subdir=examples
+
+## get configured variables
+@stdvars@
+
+## get configured (standard) rules
+@stdmake@
+
+## get configured dependencies 
+@stddeps@

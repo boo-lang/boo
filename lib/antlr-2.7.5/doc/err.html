@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Error Handling and Recovery</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h2><a name="_bb1"></a><a name="lexicalanalysis">Error
+    Handling and Recovery</a></h2>
+    <p>All syntactic and semantic errors cause parser exceptions to be thrown. In particular,
+    the methods used to match tokens in the parser base class (match et al) throw
+    MismatchedTokenException. If the lookahead predicts no alternative of a production in
+    either the parser or lexer, then a NoViableAltException is thrown. The methods in the
+    lexer base class used to match characters (match et al) throw analogous exceptions.</p>
+    <p>ANTLR will generate default error-handling code, or you may specify your own exception
+    handlers. Either case results (where supported by the language) in the creation of a <tt>try/catch</tt>
+    block. Such <tt>try{}</tt> blocks surround the generated code for the grammar element of
+    interest (rule, alternate, token reference, or rule reference). If no exception handlers
+    (default or otherwise) are specified, then the exception will propagate all the way out of
+    the parser to the calling program. </p>
+    <p>ANTLR's default exception handling is good to get something working, but you will have
+    more control over error-reporting and resynchronization if you write your own exception
+    handlers. </p>
+    <p>Note that the '@' exception specification of PCCTS 1.33 does not apply to ANTLR.</p>
+    <h3><a name="ANTLR Exception Hierarchy">ANTLR Exception Hierarchy</a></h3>
+    <p>ANTLR-generated parsers throw exceptions to signal recognition errors or other stream
+    problems.&nbsp; All exceptions derive from <font face="Courier New">ANTLRException</font>.
+    &nbsp; The following diagram shows the hierarchy:</p>
+    <p><img src="ANTLRException.gif" width="646" height="263"
+    alt="ANTLRException.gif (14504 bytes)"></p>
+    <table border="0" width="100%">
+      <tr>
+        <th width="50%">Exception</th>
+        <th width="50%">Description</th>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">ANTLRException</font></small></td>
+        <td width="50%">Root of the exception hiearchy.&nbsp; You can directly subclass this if
+        you want to define your own exceptions unless they live more properly under one of the
+        specific exceptions below.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"></td>
+        <td width="50%"></td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">CharStreamException</font></small></td>
+        <td width="50%">Something bad that happens on the character input stream.&nbsp; Most of
+        the time it will be an IO problem, but you could define an exception for input coming from
+        a dialog box or whatever.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">CharStreamIOException</font></small></td>
+        <td width="50%">The character input stream had an IO exception (e.g., <font
+        face="Courier New">CharBuffer.fill()</font> can throw this).&nbsp; If <font
+        face="Courier New">nextToken()</font> sees this, it will convert it to a <font
+        face="Courier New">TokenStreamIOException</font>.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"></td>
+        <td width="50%"></td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">RecognitionException</font></small></td>
+        <td width="50%">A generic recognition problem with the input.&nbsp; Use this as your
+        &quot;catch all&quot; exception in your main() or other method that invokes a parser,
+        lexer, or treeparser.&nbsp; All parser rules throw this exception.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">MismatchedCharException</font></small></td>
+        <td width="50%">Thrown by CharScanner.match() when it is looking for a character, but
+        finds a different one on the input stream.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">MismatchedTokenException</font></small></td>
+        <td width="50%">Thrown by Parser.match() when it is looking for a token, but finds a
+        different one on the input stream.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">NoViableAltException</font></small></td>
+        <td width="50%">The parser finds an unexpected token; that is, it finds a token that does
+        not begin any alternative in the current decision.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">NoViableAltForCharException</font></small></td>
+        <td width="50%">The lexer finds an unexpected character; that is, it finds a character
+        that does not begin any alternative in the current decision.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">SemanticException</font></small></td>
+        <td width="50%">Used to indicate syntactically valid, but nonsensical or otherwise bogus
+        input was found on the input stream.&nbsp; This exception is thrown automatically by
+        failed, validating semantic predicates such as:<pre>a : A {false}? B ;</pre>
+        <p>ANTLR generates:</p>
+        <pre><small>match(A);
+if (!(false)) throw new
+  SemanticException(&quot;false&quot;);
+match(B);</small></pre>
+        <p>You can throw this exception yourself during the parse if one of your actions
+        determines that the input is wacked.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"></td>
+        <td width="50%"></td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">TokenStreamException</font></small></td>
+        <td width="50%">Indicates that something went wrong while generating a stream of tokens.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">TokenStreamIOException</font></small></td>
+        <td width="50%">Wraps an IOException in a <font face="Courier New">TokenStreamException</font></td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">TokenStreamRecognitionException</font></small></td>
+        <td width="50%">Wraps a <font face="Courier New">RecognitionException</font> in a <font
+        face="Courier New">TokenStreamException</font> so you can pass it along on a stream.</td>
+      </tr>
+      <tr>
+        <td width="50%" align="left" valign="top"><small><font face="Courier New">TokenStreamRetryException</font></small></td>
+        <td width="50%">Signals aborted recognition of current token. Try to get one again. Used
+        by <small><font face="Courier New">TokenStreamSelector.retry()</font></small> to force <font
+        face="Courier New">nextToken()</font> of stream to re-enter and retry.&nbsp; See the
+        examples/java/includeFile directory.<p>This a great way to handle nested include files and
+        so on or to try out multiple grammars to see which appears to fit the data.&nbsp; You can
+        have something listen on a socket for multiple input types without knowing which type will
+        show up when.</td>
+      </tr>
+    </table>
+    <p><a name="_bb2"></a>The typical main or parser invoker has try-catch around the
+    invocation:</p>
+    <pre>    try {
+       ...
+    }
+    catch(TokenStreamException e) {
+      System.err.println(&quot;problem with stream: &quot;+e);
+    }
+    catch(RecognitionException re) {
+      System.err.println(&quot;bad input: &quot;+re);
+    }</pre>
+    <p>Lexer rules throw <font face="Courier New">RecognitionException</font>, <font
+    face="Courier New">CharStreamException</font>, and <font face="Courier New">TokenStreamException</font>.</p>
+    <p>Parser rules throw <font face="Courier New">RecognitionException</font> and <font
+    face="Courier New">TokenStreamException</font>.</p>
+    <h3><a name="Modifying Default Error Messages With Paraphrases">Modifying Default Error
+    Messages With Paraphrases</a></h3>
+    <p>The name or definition of a token in your lexer is rarely meaningful to the user of
+    your recognizer or translator.&nbsp; For example, instead of seeing</p>
+    <pre>T.java:1:9: expecting ID, found ';'</pre>
+    <p>you can have the parser generate:</p>
+    <pre>T.java:1:9: expecting an identifier, found ';'</pre>
+    <p>ANTLR provides an easy way to specify a string to use in place of the token name.&nbsp;
+    In the definition for ID, use the paraphrase option:</p>
+    <pre>ID
+options {
+  paraphrase = &quot;an identifier&quot;;
+}
+  : ('a'..'z'|'A'..'Z'|'_')
+    ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*
+  ;</pre>
+    <p>Note that this paraphrase goes into the token types text file (ANTLR's persistence
+    file).&nbsp; In other words, a grammar that uses this vocabulary will also use the
+    paraphrase. </p>
+    <h3><a name="ParserExceptionHandling">Parser Exception Handling</a></h3>
+    <p>ANTLR generates recursive-descent recognizers. Since recursive-descent recognizers
+    operate by recursively calling the rule-matching methods, this results in a call stack
+    that is populated by the contexts of the recursive-descent methods. Parser exception
+    handling for grammar rules is a lot like exception handling in a language like C++ or
+    Java. Namely, when an exception is thrown, the normal thread of execution is stopped, and
+    functions on the call stack are exited sequentially until one is encountered that wants to
+    catch the exception. When an exception is caught, execution resumes at that point. </p>
+    <p>In ANTLR, parser exceptions are thrown when (a) there is a syntax error, (b) there
+    is a failed validating semantic predicate, or (c) you throw a parser exception from an
+    action. </p>
+    <p>In all cases, the recursive-descent functions on the call stack are exited until an
+    exception handler is encountered for that exception type or one of its base classes (in
+    non-object-oriented languages, the hierarchy of execption types is not implemented by a
+    class hierarchy). Exception handlers arise in one of two ways. First, if you do nothing,
+    ANTLR will generate a default exception handler for every parser rule. The default
+    exception handler will report an error, sync to the follow set of the rule, and return
+    from that rule. Second, you may specify your own exception handlers in a variety of ways,
+    as described later. </p>
+    <p>If you specify an exception handler for a rule, then the default exception handler is
+    not generated for that rule. In addition, you may control the generation of default
+    exception handlers with a <a href="options.html#defaultErrorHandler">per-grammar or
+    per-rule option</a>. </p>
+    <h3><a name="SpecifyingParserException-Handlers">Specifying Parser Exception-Handlers</a></h3>
+    <p>You may attach exception handlers to a rule, an alternative, or a labeled element. The
+    general form for specifying an exception handler is:</p>
+    <pre><tt>
+exception [label]
+catch [exceptionType exceptionVariable]
+  { action }
+catch ...
+catch ...
+</tt></pre>
+    <p>where the label is only used for attaching exceptions to labeled elements. The <tt>exceptionType</tt>
+    is the exception (or class of exceptions) to catch, and the <tt>exceptionVariable</tt> is
+    the variable name of the caught exception, so that the action can process the exception if
+    desired. Here is an example that catches an exception for the rule, for an alternate and
+    for a labeled element: </p>
+    <pre><tt>
+rule:   a:A B C
+    |   D E
+        exception // for alternate
+          catch [RecognitionException ex] {
+            reportError(ex.toString());
+        }
+    ;
+    exception // for rule
+    catch [RecognitionException ex] {
+       reportError(ex.toString());
+    }
+    exception[a] // for a:A
+    catch [RecognitionException ex] {
+       reportError(ex.toString());
+    }
+</tt>  </pre>
+    <p>Note that exceptions attached to alternates and labeled elements <b>do not</b> cause
+    the rule to exit. Matching and control flow continues as if the error had not occurred.
+    Because of this, you must be careful not to use any variables that would have been set by
+    a successful match when an exception is caught. </p>
+    <h3><a name="Default Exception Handling in the Lexer">Default Exception Handling in the
+    Lexer</a></h3>
+    <p>Normally you want the lexer to keep trying to get a valid token upon lexical error.
+    &nbsp; That way, the parser doesn't have to deal with lexical errors and ask for another
+    token.&nbsp; Sometimes you want exceptions to pop out of the lexer--usually when you want
+    to abort the entire parsing process upon syntax error.&nbsp; To get ANTLR to generate
+    lexers that pass on <font face="Courier New">RecognitionException</font>'s to the parser
+    as <font face="Courier New">TokenStreamException</font>'s, use the <font
+    face="Courier New">defaultErrorHandler=false</font> grammar option.&nbsp; Note that IO
+    exceptions are passed back as <font face="Courier New">TokenStreamIOException</font>'s
+    regardless of this option.</p>
+    <p>Here is an example that uses a bogus semantic exception (which is a subclass of <font
+    face="Courier New">RecognitionException</font>) to demonstrate blasting out of the lexer:</p>
+    <pre>class P extends Parser;
+{
+public static void main(String[] args) {
+        L lexer = new L(System.in);
+        P parser = new P(lexer);
+        try {
+                parser.start();
+        }
+        catch (Exception e) {
+                System.err.println(e);
+        }
+}
+}
+
+start : &quot;int&quot; ID (COMMA ID)* SEMI ;
+
+class L extends Lexer;
+options {
+        defaultErrorHandler=false;
+}
+
+{int x=1;}
+
+ID  : ('a'..'z')+ ;
+
+SEMI: ';'
+      {if ( <em>expr</em> )
+       throw new
+          SemanticException(&quot;test&quot;,
+                            getFilename(),
+                            getLine());} ;
+
+COMMA:',' ;
+
+WS  : (' '|'\n'{newline();})+
+      {$setType(Token.SKIP);}
+    ;</pre>
+    <p>When you type in, say, &quot;<font face="Courier New">int b;</font>&quot; you get the
+    following as output:</p>
+    <pre>antlr.TokenStreamRecognitionException: test</pre>
+    <pre><font face="Arial" size="2">Version: $Id: //depot/code/org.antlr/release/antlr-2.7.5/doc/err.html#1 $</font></pre>
+</body>
+</html>

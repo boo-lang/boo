@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaParser", "..\..\examples\csharp\java\JavaParser.csproj", "{A2DB8AF5-4C4B-4F6D-94D1-A6610E1D21B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "antlr.runtime-2.7.5", "src\antlr.runtime-2.7.5.csproj", "{CB7CC882-ED47-46C0-AAAE-7A437F22F1C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "antlr.astframe", "ASTFrame\antlr.astframe.csproj", "{AAFA5AC9-5967-443D-A564-71236163239D}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{A2DB8AF5-4C4B-4F6D-94D1-A6610E1D21B6}.Debug.ActiveCfg = Debug|.NET
+		{A2DB8AF5-4C4B-4F6D-94D1-A6610E1D21B6}.Debug.Build.0 = Debug|.NET
+		{A2DB8AF5-4C4B-4F6D-94D1-A6610E1D21B6}.Release.ActiveCfg = Release|.NET
+		{A2DB8AF5-4C4B-4F6D-94D1-A6610E1D21B6}.Release.Build.0 = Release|.NET
+		{CB7CC882-ED47-46C0-AAAE-7A437F22F1C6}.Debug.ActiveCfg = Debug|.NET
+		{CB7CC882-ED47-46C0-AAAE-7A437F22F1C6}.Debug.Build.0 = Debug|.NET
+		{CB7CC882-ED47-46C0-AAAE-7A437F22F1C6}.Release.ActiveCfg = Release|.NET
+		{CB7CC882-ED47-46C0-AAAE-7A437F22F1C6}.Release.Build.0 = Release|.NET
+		{AAFA5AC9-5967-443D-A564-71236163239D}.Debug.ActiveCfg = Debug|.NET
+		{AAFA5AC9-5967-443D-A564-71236163239D}.Debug.Build.0 = Debug|.NET
+		{AAFA5AC9-5967-443D-A564-71236163239D}.Release.ActiveCfg = Release|.NET
+		{AAFA5AC9-5967-443D-A564-71236163239D}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
