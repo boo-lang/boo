@@ -8,7 +8,7 @@
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 
-	<property name="antlr.jar" value="lib/antlr-2.7.5.jar" />
+	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
 	<property name="java" value="java" />	
 	<property name="NAnt.Core.dll" value="${nant.location}/NAnt.Core.dll" />
 	
@@ -547,8 +547,6 @@
 				<include name="notice.txt" />
 				<include name="scripts/*.boo" />				
 				<include name="lib/**/*.jar" />
-				<include name="lib/**/*.dll" />
-				<include name="lib/**/*.txt" />
 				
 				<include name="src/boo.snk" />
 				<include name="src/**/*.cs" />
