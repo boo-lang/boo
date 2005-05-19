@@ -232,6 +232,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return typeReference;
 		}
 		
+		public SuperLiteralExpression CreateSuperReference(IType super)
+		{
+			SuperLiteralExpression expression = new SuperLiteralExpression();
+			expression.ExpressionType = super;
+			return expression;
+		}
+		
 		public SelfLiteralExpression CreateSelfReference(IType self)
 		{
 			SelfLiteralExpression expression = new SelfLiteralExpression();
