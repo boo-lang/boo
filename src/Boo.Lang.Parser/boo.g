@@ -1567,17 +1567,6 @@ boolean_expression returns [Expression e]
 	}
 	:
 	(
-		nt:NOT
-		e=boolean_expression
-		{
-			UnaryExpression ue = new UnaryExpression(ToLexicalInfo(nt));
-			ue.Operator = UnaryOperatorType.LogicalNot;
-			ue.Operand = e;
-			e = ue;
-		}
-	)
-	|
-	(
 		e=boolean_term
 		(
 			ot:OR
@@ -1600,7 +1589,7 @@ boolean_term returns [Expression e]
 		Expression r = null;
 	}
 	:
-	e=assignment_expression
+	e=not_expression
 	(
 		at:AND
 		r=expression
@@ -1665,6 +1654,25 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 	;
 	
 protected
+not_expression returns [Expression e]
+	{
+		e = null;
+	}
+	:
+	(nt:NOT)?
+	e=assignment_expression
+	{
+		if (nt != null)
+		{
+			UnaryExpression ue = new UnaryExpression(ToLexicalInfo(nt));
+			ue.Operator = UnaryOperatorType.LogicalNot;
+			ue.Operand = e;
+			e = ue;
+		}
+	}
+	;
+	
+protected
 assignment_expression returns [Expression e]
 	{
 		e = null;
@@ -1703,17 +1711,15 @@ conditional_expression returns [Expression e]
 			(t:CMP_OPERATOR { op = ParseCmpOperator(t.getText()); token = t; } ) |
 			(tgt:GREATER_THAN { op = BinaryOperatorType.GreaterThan; token = tgt; } ) |
 			(tlt:LESS_THAN { op = BinaryOperatorType.LessThan; token = tlt; }) |
-			(
-				tis:IS { op = BinaryOperatorType.ReferenceEquality; token = tis; }
-				(NOT { op = BinaryOperatorType.ReferenceInequality; })?
-			)
+			(tnot:IS NOT { op = BinaryOperatorType.ReferenceInequality; token = tnot; }) |
+			(tis:IS { op = BinaryOperatorType.ReferenceEquality; token = tis; })
 		 )
 		 r=sum
 	  ) |
 	  (
 	  	(
-			(tin:IN { op = BinaryOperatorType.Member; token = tin; } ) |
-			(tnint:NOT IN { op = BinaryOperatorType.NotMember; token = tnint; })
+			(tnint:NOT IN { op = BinaryOperatorType.NotMember; token = tnint; }) |
+			(tin:IN { op = BinaryOperatorType.Member; token = tin; } )
 		)		
 		r=array_or_expression
 	  ) |	
