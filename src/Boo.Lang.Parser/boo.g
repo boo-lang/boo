@@ -1659,8 +1659,10 @@ not_expression returns [Expression e]
 		e = null;
 	}
 	:
-	(nt:NOT)?
-	e=assignment_expression
+	(
+		(nt:NOT e=not_expression) |
+		e=assignment_expression
+	)
 	{
 		if (nt != null)
 		{
