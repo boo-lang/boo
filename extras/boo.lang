@@ -168,6 +168,7 @@ OR
 	</keyword-list>
 
 	<keyword-list name = "Builtins" style = "Others" case-sensitive="true">
+		<keyword>assert</keyword>
 		<keyword>__eval__</keyword>
 		<keyword>__switch__</keyword>
 		<keyword>enumerate</keyword>
