@@ -261,7 +261,7 @@ namespace BooC
 								{
 									case "srcdir":
 									{
-										string path = Path.GetFullPath(arg.Substring(8));
+										string path = arg.Substring(8);
 										AddFilesForPath(path, _options);
 										break;
 									}
@@ -316,7 +316,7 @@ namespace BooC
 					}
 					else
 					{
-						_options.Input.Add(new FileInput(Path.GetFullPath(arg)));
+						_options.Input.Add(new FileInput(arg));
 					}
 				}
 			}
