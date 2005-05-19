@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,35 +26,18 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Useful.IO.Tests
+namespace Boo.Lang.Useful.CommandLine
 
-import NUnit.Framework
-import System.IO
-import System.Text
-import Boo.Lang.Useful.IO
-
-[TestFixture]
-class TextFileFixture:
+class EventBasedParser(AbstractParser):
+"""
+A command line parser that generates events whenever it finds an option
+or an argument.
+"""
+	event ArgumentFound as ArgumentHandler
+	event OptionFound as OptionHandler
 	
-	[Test]
-	def TestReadFile():
+	override protected def OnArgument(arg as string):
+		ArgumentFound(arg)
 		
-		fname = WriteTempFile("cabeÃ§Ã£o", Encoding.Default)		
-		Assert.AreEqual("cabeÃ§Ã£o", TextFile.ReadFile(fname))
-		
-		fname = WriteTempFile("cabeÃ§Ã£o", Encoding.UTF8)
-		Assert.AreEqual("cabeÃ§Ã£o", TextFile.ReadFile(fname))		
-	
-	[Test]
-	def TestWriteFile():
-		TextFile.WriteFile(fname=Path.GetTempFileName(), "zuÃ§aqÃ¼istÃ£o")
-		Assert.AreEqual("zuÃ§aqÃ¼istÃ£o", ReadUTF8File(fname))
-		
-	def ReadUTF8File(fname as string):
-		using reader=File.OpenText(fname):
-			return reader.ReadToEnd()
-			
-	def WriteTempFile(content as string, encoding as Encoding) as string:
-		using writer=StreamWriter(File.OpenWrite(fname=Path.GetTempFileName()), encoding):
-			writer.Write(content)
-			return fname
+	override protected def OnOption(name as string, value as string):
+		OptionFound(name, value)

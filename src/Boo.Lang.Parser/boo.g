@@ -1076,22 +1076,30 @@ closure_parameters_test:
 	;
 	
 protected
-internal_closure_stmt returns [Statement stmt]
+internal_closure_stmt[Block block]
 	{
-		stmt = null;
+		Statement stmt = null;
 		StatementModifier modifier = null;
 	}:
-	stmt=return_expression_stmt |
 	(
+		stmt=return_expression_stmt |
 		(
-			(declaration COMMA)=>stmt=unpack_stmt |
-			{IsValidMacroArgument(LA(2))}? stmt=closure_macro_stmt | 
-			stmt=expression_stmt |
-			stmt=raise_stmt |
-			stmt=yield_stmt			
+			(
+				(declaration COMMA)=>stmt=unpack_stmt |
+				{IsValidMacroArgument(LA(2))}? stmt=closure_macro_stmt | 
+				stmt=expression_stmt |
+				stmt=raise_stmt |
+				stmt=yield_stmt			
+			)
+			(modifier=stmt_modifier { stmt.Modifier = modifier; })?		
 		)
-		(modifier=stmt_modifier { stmt.Modifier = modifier; })?		
 	)
+	{
+		if (null != stmt)
+		{
+			block.Add(stmt);
+		}
+	}
 	;
 	
 protected
@@ -1100,12 +1108,13 @@ closure_expression returns [Expression e]
 		e = null;
 		CallableBlockExpression cbe = null;
 		ParameterDeclarationCollection parameters = null;
-		Statement stmt = null;
+		Block body = null;
 	}:
 	anchorBegin:LBRACE
 		{
 			e = cbe = new CallableBlockExpression(ToLexicalInfo(anchorBegin));
 			parameters = cbe.Parameters;
+			body = cbe.Body;
 		}
 		
 		(
@@ -1115,10 +1124,10 @@ closure_expression returns [Expression e]
 			) |
 		)
 		(
-			stmt=internal_closure_stmt { cbe.Body.Add(stmt); }
+			internal_closure_stmt[body]
 			(
 				eos
-				stmt=internal_closure_stmt { cbe.Body.Add(stmt); }
+				internal_closure_stmt[body]
 			)*
 		)
 	anchorEnd:RBRACE
@@ -2285,7 +2294,7 @@ argument[INodeWithArguments node]
 	) |
 	(
 		value=expression
-		{ node.Arguments.Add(value); }
+		{ if (null != value) { node.Arguments.Add(value); } }
 	)
 	;
 

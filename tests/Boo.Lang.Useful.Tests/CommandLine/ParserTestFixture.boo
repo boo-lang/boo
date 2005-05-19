@@ -26,35 +26,60 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Useful.IO.Tests
+namespace Boo.Lang.Useful.CommandLine.Tests
 
+import System
+import Useful.CommandLine
 import NUnit.Framework
-import System.IO
-import System.Text
-import Boo.Lang.Useful.IO
 
 [TestFixture]
-class TextFileFixture:
-	
+class ParserTestFixture:
+
 	[Test]
-	def TestReadFile():
-		
-		fname = WriteTempFile("cabeÃ§Ã£o", Encoding.Default)		
-		Assert.AreEqual("cabeÃ§Ã£o", TextFile.ReadFile(fname))
-		
-		fname = WriteTempFile("cabeÃ§Ã£o", Encoding.UTF8)
-		Assert.AreEqual("cabeÃ§Ã£o", TextFile.ReadFile(fname))		
-	
-	[Test]
-	def TestWriteFile():
-		TextFile.WriteFile(fname=Path.GetTempFileName(), "zuÃ§aqÃ¼istÃ£o")
-		Assert.AreEqual("zuÃ§aqÃ¼istÃ£o", ReadUTF8File(fname))
-		
-	def ReadUTF8File(fname as string):
-		using reader=File.OpenText(fname):
-			return reader.ReadToEnd()
+	def TestSimpleOptions():
+		args = ("-b", "-r:foo.dll,bar.dll", "--namespace", "foo.boo", "bar.boo")
+
+		bWasFound = false
+		rWasFound = false
+		namespaceWasFound = false
+
+		bHandler = def (value as string):
+			bWasFound = true
+			assert value is null
 			
-	def WriteTempFile(content as string, encoding as Encoding) as string:
-		using writer=StreamWriter(File.OpenWrite(fname=Path.GetTempFileName()), encoding):
-			writer.Write(content)
-			return fname
+		rHandler = def (value as string):
+			rWasFound = true
+			assert value == "foo.dll,bar.dll"
+			
+		namespaceHandler = def (value as string):
+			namespaceWasFound = true
+			assert value is null
+
+		parser = Parser()
+		parser.AddOption(Option(LongForm: "b", Handler: bHandler))
+		parser.AddOption(Option(ShortForm: "r", LongForm: "reference", Handler: rHandler))
+		parser.AddOption(Option(LongForm: "namespace", Handler: namespaceHandler))
+		
+		parser.Parse(args)
+			
+		assert bWasFound
+		assert rWasFound
+		assert namespaceWasFound
+		assert parser.Arguments == ("foo.boo", "bar.boo")
+		
+	[Test]
+	[ExpectedException(CommandLineException)]
+	def TestMinOccurs():
+		parser = Parser()
+		parser.AddOption(Option(ShortForm: "b", MinOccurs: 1, Handler: DoNothing))
+		parser.Parse(("f", ))
+		
+	[Test]
+	[ExpectedException(CommandLineException)]
+	def TestMaxOccurs():
+		parser = Parser()
+		parser.AddOption(Option(ShortForm: "b", MaxOccurs: 1, Handler: DoNothing))
+		parser.Parse(("-b", "-b"))
+		
+	def DoNothing(value as string):
+		pass

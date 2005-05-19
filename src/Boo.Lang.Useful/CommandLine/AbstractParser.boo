@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,35 +26,48 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Useful.IO.Tests
+namespace Boo.Lang.Useful.CommandLine
 
-import NUnit.Framework
-import System.IO
-import System.Text
-import Boo.Lang.Useful.IO
+import System
 
-[TestFixture]
-class TextFileFixture:
-	
-	[Test]
-	def TestReadFile():
+callable ArgumentHandler(argument as string)
+callable OptionHandler(name as string, value as string)
+
+class CommandLineException(ApplicationException):
+	def constructor(message as string):
+		super(message)
 		
-		fname = WriteTempFile("cabeÃ§Ã£o", Encoding.Default)		
-		Assert.AreEqual("cabeÃ§Ã£o", TextFile.ReadFile(fname))
+class MalformedOptionException(CommandLineException):
+	def constructor(message as string):
+		super(message)
+
+class AbstractParser:
+
+	virtual def Parse(args as (string)):
+		for arg in args:
+			if IsOption(arg):
+				ParseOption(arg)
+			else:
+				OnArgument(arg)
+				
+	abstract protected def OnArgument(argument as string):
+		pass
 		
-		fname = WriteTempFile("cabeÃ§Ã£o", Encoding.UTF8)
-		Assert.AreEqual("cabeÃ§Ã£o", TextFile.ReadFile(fname))		
-	
-	[Test]
-	def TestWriteFile():
-		TextFile.WriteFile(fname=Path.GetTempFileName(), "zuÃ§aqÃ¼istÃ£o")
-		Assert.AreEqual("zuÃ§aqÃ¼istÃ£o", ReadUTF8File(fname))
+	abstract protected def OnOption(name as string, value as string):
+		pass
+				
+	virtual def ParseOption(arg as string):
+		name, value = SplitOption(arg)
+		OnOption(name, value)
+				
+	def IsOption(arg as string):
+		return /^-{1,2}\w/.IsMatch(arg)
 		
-	def ReadUTF8File(fname as string):
-		using reader=File.OpenText(fname):
-			return reader.ReadToEnd()
-			
-	def WriteTempFile(content as string, encoding as Encoding) as string:
-		using writer=StreamWriter(File.OpenWrite(fname=Path.GetTempFileName()), encoding):
-			writer.Write(content)
-			return fname
+	def SplitOption(arg as string):
+		m = /^(-|--|\/)(?<name>\w+)(?<value>:.+)?$/.Match(arg)
+		raise MalformedOptionException(arg) unless m.Success
+		name = m.Groups["name"].Value
+		value as string
+		if m.Groups["value"].Success:
+			value = m.Groups["value"].Value[1:]
+		return name, value
