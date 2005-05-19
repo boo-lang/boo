@@ -252,7 +252,6 @@ public class BooCodeGenerator extends CodeGenerator {
 		}
 	}
 	
-	@Override
 	protected void printAction(String s) {
 		if (null == s) {
 			return;
