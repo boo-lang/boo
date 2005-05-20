@@ -2078,10 +2078,20 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod FindExplicitConversionOperator(IType fromType, IType toType)
 		{
+			return FindConversionOperator("op_Explicit", fromType, toType);
+		}
+		
+		IMethod FindImplicitConversionOperator(IType fromType, IType toType)
+		{
+			return FindConversionOperator("op_Implicit", fromType, toType);
+		}
+		
+		IMethod FindConversionOperator(string name, IType fromType, IType toType)
+		{
 			foreach (IEntity entity in fromType.GetMembers())
 			{
 				if (EntityType.Method == entity.EntityType &&
-					"op_Explicit" == entity.Name)
+					name == entity.Name)
 				{
 					IMethod method = (IMethod)entity;
 					if (IsConversionOperator(method, fromType, toType))
@@ -2411,12 +2421,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveUnlessStatement(UnlessStatement node)
 		{
-			CheckBoolContext(node.Condition);
+			node.Condition = CheckBoolContext(node.Condition);
 		}
 		
 		override public void LeaveIfStatement(IfStatement node)
 		{
-			CheckBoolContext(node.Condition);
+			node.Condition = CheckBoolContext(node.Condition);
 		}
 		
 		override public void OnLabelStatement(LabelStatement node)
@@ -2467,7 +2477,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveWhileStatement(WhileStatement node)
 		{
-			CheckBoolContext(node.Condition);
+			node.Condition = CheckBoolContext(node.Condition);
 			LeaveLoop();
 		}
 		
@@ -2776,7 +2786,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case UnaryOperatorType.LogicalNot:
 				{
-					CheckBoolContext(node.Operand);
+					node.Operand = CheckBoolContext(node.Operand);
 					BindExpressionType(node, TypeSystemServices.BoolType);
 					break;
 				}
@@ -3081,15 +3091,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindLogicalOperator(BinaryExpression node)
 		{
-			if (CheckBoolContext(node.Left) &&
-				CheckBoolContext(node.Right))
-			{
-				BindExpressionType(node, GetMostGenericType(node));
-			}
-			else
-			{
-				Error(node);
-			}
+			node.Left = CheckBoolContext(node.Left);
+			node.Right = CheckBoolContext(node.Right);
+			BindExpressionType(node, GetMostGenericType(node));
 		}
 		
 		void BindInPlaceAddSubtract(BinaryExpression node)
@@ -4836,21 +4840,29 @@ namespace Boo.Lang.Compiler.Steps
 			return field.IsInitOnly || field.IsLiteral;
 		}
 		
-		bool CheckBoolContext(Expression expression)
+		Expression CheckBoolContext(Expression expression)
 		{
 			IType type = GetExpressionType(expression);
 			if (type.IsValueType)
 			{
-				if (type == TypeSystemServices.BoolType ||
-				    IsNumber(type))
+				if (type != TypeSystemServices.BoolType &&
+				    !IsNumber(type))
 			    {
-			    	return true;
-			    }
-			    Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.FullName));
-				return false;
+					Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.FullName));
+				}
+			}
+			else
+			{
+				IMethod method = FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
+				if (null != method)
+				{
+					expression = CodeBuilder.CreateMethodInvocation(
+									method,
+									expression);
+				}
 			}
 			// reference types can be used in bool context
-			return true;
+			return expression;
 		}
 		
 		ReferenceExpression CreateTempLocal(LexicalInfo li, IType type)

@@ -30,6 +30,15 @@ namespace BooCompiler.Tests
 {
 	using System;
 	
+	public class OverrideBoolOperator
+	{
+		public static implicit operator bool(OverrideBoolOperator instance)
+		{
+			Console.WriteLine("OverrideBoolOperator.operator bool");
+			return false;
+		}
+	}
+	
 	public class OverrideEqualityOperators
 	{
 		public static bool operator==(OverrideEqualityOperators lhs, OverrideEqualityOperators rhs)
