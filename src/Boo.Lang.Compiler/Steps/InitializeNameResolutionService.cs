@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -38,8 +38,6 @@ namespace Boo.Lang.Compiler.Steps
 	public class InitializeNameResolutionService : AbstractVisitorCompilerStep
 	{
 		Hashtable _namespaces = new Hashtable();
-
-		Boo.Lang.List _buffer = new Boo.Lang.List();
 		
 		public InitializeNameResolutionService()
 		{

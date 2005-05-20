@@ -41,8 +41,6 @@ namespace Boo.Lang.Compiler.Steps
 	{		
 		static System.Reflection.MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		
-		static System.Reflection.MethodInfo RuntimeServices_CheckArrayUnpack = Types.RuntimeServices.GetMethod("CheckArrayUnpack");
-		
 		static System.Reflection.MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");		
 		
 		static System.Reflection.MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");

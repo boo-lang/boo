@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -33,13 +33,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class InternalEnumMember : IInternalEntity, IField
 	{
-		TypeSystemServices _typeSystemServices;
-		
 		EnumMember _member;
 		
 		public InternalEnumMember(TypeSystemServices tagManager, EnumMember member)
 		{
-			_typeSystemServices = tagManager;
 			_member = member;
 		}
 		

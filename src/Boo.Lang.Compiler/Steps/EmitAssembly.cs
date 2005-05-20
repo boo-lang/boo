@@ -603,7 +603,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			++_tryBlock;
 			
-			Label endLabel = _il.BeginExceptionBlock();
+			_il.BeginExceptionBlock();
 			Visit(node.ProtectedBlock);
 			Visit(node.ExceptionHandlers);
 			if (null != node.EnsureBlock)
@@ -1947,8 +1947,6 @@ namespace Boo.Lang.Compiler.Steps
 			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
 		}
 		
-		static Regex _interpolatedExpression = new Regex(@"\{(\d+)\}", RegexOptions.Compiled|RegexOptions.CultureInvariant);
-		
 		override public void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{
 			Type stringBuilderType = typeof(StringBuilder);
@@ -2831,12 +2829,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void StoreLocal(IType topOfStack, InternalLocal local)
-		{
-			EmitCastIfNeeded(local.Type, topOfStack);
-			_il.Emit(OpCodes.Stloc, local.LocalBuilder);
-		}
-		
 		void StoreEntity(OpCode opcode, int index, Node value, IType elementType)
 		{
 			_il.Emit(OpCodes.Dup);	// array reference
@@ -2895,7 +2887,6 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Type type = _asmBuilder.GetType(method.DeclaringType.FullName, true);
 					MethodInfo createdMethod = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic);
-					MethodInfo methodBuilder = GetMethodInfo((IMethod)GetEntity(method));
 					
 					// the mono implementation expects the first argument to
 					// SetEntryPoint to be a MethodBuilder, otherwise it generates
@@ -3007,11 +2998,6 @@ namespace Boo.Lang.Compiler.Steps
 				return external.ConstructorInfo;
 			}
 			return GetConstructorBuilder(((InternalMethod)tag).Method);
-		}
-		
-		IType Map(Type type)
-		{
-			return TypeSystemServices.Map(type);
 		}
 		
 		Type GetSystemType(Node node)

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -595,11 +595,6 @@ namespace Boo.Lang
 			{
 				return this;
 			}
-		}
-
-		private static string GetString(string name)
-		{
-			return Boo.Lang.ResourceManager.GetString(name);
 		}
 
 		private static IEnumerator GetEnumerator(object enumerable)

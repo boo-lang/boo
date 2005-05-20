@@ -83,13 +83,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod ICollection_get_Count;
 		
-		IMethod IList_Contains;
-		
 		IMethod List_GetRange1;
 		
 		IMethod List_GetRange2;
-		
-		IMethod IDictionary_Contains;
 		
 		IMethod Array_EnumerableConstructor;
 		
@@ -182,8 +178,6 @@ namespace Boo.Lang.Compiler.Steps
 			String_get_Length = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
 			String_Substring_Int = TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
 			ICollection_get_Count = ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();
-			IList_Contains = ResolveMethod(TypeSystemServices.IListType, "Contains");
-			IDictionary_Contains = ResolveMethod(TypeSystemServices.IDictionaryType, "Contains");
 			Array_EnumerableConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
 			Array_TypedEnumerableConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
 			Array_TypedCollectionConstructor= TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
@@ -484,8 +478,6 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			MarkVisited(node);
-			
-			InternalProperty property = (InternalProperty)GetEntity(node);
 			
 			Method setter = node.Setter;
 			Method getter = node.Getter;
@@ -1290,11 +1282,6 @@ namespace Boo.Lang.Compiler.Steps
 			tag.Overriden = baseMethod;
 			TraceOverride(tag.Method, baseMethod);
 			tag.Method.Modifiers |= TypeMemberModifiers.Override;
-		}
-		
-		IType GetBaseType(TypeDefinition typeDefinition)
-		{
-			return ((IType)GetEntity(typeDefinition)).BaseType;
 		}
 		
 		bool CanResolveReturnType(InternalMethod tag)
@@ -2789,11 +2776,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case UnaryOperatorType.LogicalNot:
 				{
-					IEntity tag = TypeSystemServices.ErrorEntity;
-					if (CheckBoolContext(node.Operand))
-					{
-						tag = TypeSystemServices.BoolType;
-					}
+					CheckBoolContext(node.Operand);
 					BindExpressionType(node, TypeSystemServices.BoolType);
 					break;
 				}
@@ -2833,7 +2816,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterBinaryExpression(BinaryExpression node)
 		{
-			if (node.Operator == BinaryOperatorType.Assign)
+			if (BinaryOperatorType.Assign == node.Operator)
 			{
 				if (NodeType.ReferenceExpression == node.Left.NodeType)
 				{
@@ -2855,7 +2838,6 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			
 			return true;
 		}
 		
@@ -2914,29 +2896,9 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				case BinaryOperatorType.Subtraction:
-				{
-					BindArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Multiply:
-				{
-					BindArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Division:
-				{
-					BindArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Modulus:
-				{
-					BindArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Exponentiation:
 				{
 					BindArithmeticOperator(node);
@@ -2961,24 +2923,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case BinaryOperatorType.InPlaceMultiply:
-				{
-					BindInPlaceArithmeticOperator(node);
-					break;
-				}
-				
-				case BinaryOperatorType.InPlaceDivide:
-				{
-					BindInPlaceArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Or:
-				{
-					BindLogicalOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.And:
 				{
 					BindLogicalOperator(node);
@@ -2994,47 +2939,26 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				case BinaryOperatorType.InPlaceSubtract:
-				{
-					BindInPlaceAddSubtract(node);
-					break;
-				}
-				
 				case BinaryOperatorType.InPlaceAdd:
 				{
 					BindInPlaceAddSubtract(node);
 					break;
 				}
 				
+				case BinaryOperatorType.InPlaceDivide:				
+				case BinaryOperatorType.InPlaceMultiply:
+				case BinaryOperatorType.InPlaceBitwiseOr:
+				case BinaryOperatorType.InPlaceBitwiseAnd:
+				{
+					BindInPlaceArithmeticOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.GreaterThan:
-				{
-					BindCmpOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.GreaterThanOrEqual:
-				{
-					BindCmpOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.LessThan:
-				{
-					BindCmpOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.LessThanOrEqual:
-				{
-					BindCmpOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Inequality:
-				{
-					BindCmpOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Equality:
 				{
 					BindCmpOperator(node);
@@ -3935,7 +3859,6 @@ namespace Boo.Lang.Compiler.Steps
 			SlicingExpression slice = (SlicingExpression)node.Left;
 			
 			IEntity lhs = GetEntity(node.Left);
-			IType rhs = GetExpressionType(node.Right);
 			IMethod setter = null;
 
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
@@ -4131,31 +4054,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		bool IsDictionary(IType type)
-		{
-			return TypeSystemServices.IDictionaryType.IsAssignableFrom(type);
-		}
-		
-		bool IsList(IType type)
-		{
-			return TypeSystemServices.IListType.IsAssignableFrom(type);
-		}
-		
-		bool CanBeString(IType type)
-		{
-			return TypeSystemServices.IsSystemObject(type) ||
-				TypeSystemServices.StringType == type;
-		}
-		
 		void BindInPlaceArithmeticOperator(BinaryExpression node)
 		{
 			Node parent = node.ParentNode;
 			
 			// if target is a property force a rebinding
 			Expression target = node.Left;
-			if (EntityType.Property == target.Entity.EntityType)
+			if (null != target.Entity && EntityType.Property == target.Entity.EntityType)
 			{
-				target.Entity = null;
 				target.ExpressionType = null;
 			}
 			
@@ -4184,6 +4090,12 @@ namespace Boo.Lang.Compiler.Steps
 					
 				case BinaryOperatorType.InPlaceDivide:
 					return BinaryOperatorType.Division;
+					
+				case BinaryOperatorType.InPlaceBitwiseAnd:
+					return BinaryOperatorType.BitwiseAnd;
+				
+				case BinaryOperatorType.InPlaceBitwiseOr:
+					return BinaryOperatorType.BitwiseOr;
 			}
 			throw new ArgumentException("op");
 		}
@@ -4225,17 +4137,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void Negate(BinaryExpression node, BinaryOperatorType newOperator)
-		{
-			Node parent = node.ParentNode;
-			node.Operator = newOperator;
-			parent.Replace(node, CodeBuilder.CreateNotExpression(node));
-		}
-		
 		static string GetBinaryOperatorText(BinaryOperatorType op)
 		{
 			return Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetBinaryOperatorText(op);
 		}
+		
 		static string GetUnaryOperatorText(UnaryOperatorType op)
 		{
 			return Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetUnaryOperatorText(op);
@@ -4380,11 +4286,6 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool CheckParameterTypes(IMethod method, ExpressionCollection args)
-		{
-			return CheckParameterTypes(method.CallableType, args);
-		}
-		
 		bool CheckParameterTypes(ICallableType method, ExpressionCollection args)
 		{
 			IParameter[] parameters = method.GetSignature().Parameters;
@@ -4429,12 +4330,6 @@ namespace Boo.Lang.Compiler.Steps
 				Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
 			}
 			return true;
-		}
-		
-		
-		bool CheckCallableSignature(ICallableType expected, ICallableType actual)
-		{
-			return expected.GetSignature() == actual.GetSignature();
 		}
 		
 		bool IsRuntimeIterator(IType type)
@@ -4496,11 +4391,6 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.IsNumber(type);
 		}
 		
-		bool IsNumber(Expression expression)
-		{
-			return IsNumber(GetExpressionType(expression));
-		}
-		
 		bool IsPrimitiveNumber(IType type)
 		{
 			return TypeSystemServices.IsPrimitiveNumber(type);
@@ -4509,11 +4399,6 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsPrimitiveNumber(Expression expression)
 		{
 			return IsPrimitiveNumber(GetExpressionType(expression));
-		}
-		
-		bool IsString(Expression expression)
-		{
-			return TypeSystemServices.StringType == GetExpressionType(expression);
 		}
 		
 		IConstructor FindCorrectConstructor(Node sourceNode, IType typeInfo, ExpressionCollection arguments)

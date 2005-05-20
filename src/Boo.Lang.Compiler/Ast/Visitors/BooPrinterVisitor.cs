@@ -878,6 +878,16 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					return "+=";
 				}
 				
+				case BinaryOperatorType.InPlaceBitwiseAnd:
+				{
+					return "&=";
+				}
+				
+				case BinaryOperatorType.InPlaceBitwiseOr:
+				{
+					return "|=";
+				}
+				
 				case BinaryOperatorType.InPlaceSubtract:
 				{
 					return "-=";

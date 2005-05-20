@@ -165,7 +165,9 @@ namespace Boo.Lang.Compiler.Ast
 					BinaryOperatorType.InPlaceAdd == op ||
 					BinaryOperatorType.InPlaceSubtract == op ||
 					BinaryOperatorType.InPlaceMultiply == op ||
-					BinaryOperatorType.InPlaceDivide == op;
+					BinaryOperatorType.InPlaceDivide == op ||
+					BinaryOperatorType.InPlaceBitwiseAnd == op ||
+					BinaryOperatorType.InPlaceBitwiseOr == op;
 		}
 		
 		public static Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)

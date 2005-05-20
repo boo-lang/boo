@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -32,16 +32,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Boo.Lang.Compiler.Ast;
 	
 	public class InternalEvent : IEvent, IInternalEntity
-	{
-		TypeSystemServices _typeSystemServices;
-		
+	{	
 		Event _event;
 		
 		InternalField _backingField;
 		
 		public InternalEvent(TypeSystemServices tagManager, Event event_)
 		{
-			_typeSystemServices = tagManager;
 			_event = event_;
 		}
 		

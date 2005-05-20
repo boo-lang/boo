@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -255,20 +255,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		TypeSystemServices _typeSystemServices;
 		Boo.Lang.Compiler.Ast.DeclarationCollection _declarations;
 		
 		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.DeclarationCollection declarations)
 		{
 			_parent = parent;
-			_typeSystemServices = tagManager;
 			_declarations = declarations;
 		}
 		
 		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Declaration declaration)
 		{
 			_parent = parent;
-			_typeSystemServices = tagManager;
 			_declarations = new Boo.Lang.Compiler.Ast.DeclarationCollection();
 			_declarations.Add(declaration);
 		}

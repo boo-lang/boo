@@ -33,13 +33,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class InternalField : IInternalEntity, IField
 	{
-		TypeSystemServices _typeSystemServices;
 		Field _field;
 		object _staticValue;
 		
 		public InternalField(TypeSystemServices tagManager, Field field)
 		{
-			_typeSystemServices = tagManager;
 			_field = field;
 		}
 		

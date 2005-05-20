@@ -153,6 +153,7 @@ OR
 		<keyword>except</keyword>
 		<keyword>ensure</keyword>
 		<keyword>for</keyword>
+		<keyword>given</keyword>
 		<keyword>goto</keyword>
 		<keyword>if</keyword>
 		<keyword>in</keyword>
@@ -160,10 +161,12 @@ OR
 		<keyword>isa</keyword>
 		<keyword>not</keyword>
 		<keyword>or</keyword>
+		<keyword>otherwise</keyword>
 		<keyword>pass</keyword>
 		<keyword>raise</keyword>
 		<keyword>try</keyword>
 		<keyword>unless</keyword>
+		<keyword>when</keyword>
 		<keyword>while</keyword>
 	</keyword-list>
 

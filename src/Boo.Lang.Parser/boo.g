@@ -1630,7 +1630,9 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 		stmt = null;
 		Expression lhs = null;
 		Expression rhs = null;
-		StatementModifier modifier = null;		
+		StatementModifier modifier = null;
+		BinaryOperatorType binaryOperator = BinaryOperatorType.None;
+		IToken token = null;
 	}:
 	lhs=slicing_expression
 	(
@@ -1639,22 +1641,24 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 			{ stmt = new ExpressionStatement(lhs); }
 		) |
 		(
-			op:ASSIGN
 			(
-				(DEF)=>rhs=callable_expression |
+			op:ASSIGN { token = op; binaryOperator = ParseAssignOperator(op.getText()); }
 				(
-					rhs=array_or_expression
-					(		
-						(DO)=>method_invocation_block[rhs] |
-						(modifier=stmt_modifier eos) |
-						eos
-					)					
+					(DEF)=>rhs=callable_expression |
+					(
+						rhs=array_or_expression
+						(		
+							(DO)=>method_invocation_block[rhs] |
+							(modifier=stmt_modifier eos) |
+							eos
+						)					
+					)
 				)
 			)
 			{
 				stmt = new ExpressionStatement(
-						new BinaryExpression(ToLexicalInfo(op),
-							ParseAssignOperator(op.getText()),
+						new BinaryExpression(ToLexicalInfo(token),
+							binaryOperator,
 							lhs, rhs));
 				stmt.Modifier = modifier;
 			}
@@ -1688,16 +1692,37 @@ assignment_expression returns [Expression e]
 	{
 		e = null;
 		Expression r=null;
+		IToken token = null;
+		BinaryOperatorType binaryOperator = BinaryOperatorType.None;
 	}:
 	e=conditional_expression
 	(
 		options { greedy = true; }:
 		
-		op:ASSIGN
+		(
+			(
+				op:ASSIGN {
+					token = op;
+					binaryOperator = ParseAssignOperator(op.getText());
+				}
+			) |
+			(
+				ipbo:INPLACE_BITWISE_OR	{
+					token = ipbo;
+					binaryOperator = BinaryOperatorType.InPlaceBitwiseOr;
+				}
+			) |
+			(
+				ipba:INPLACE_BITWISE_AND {
+					token = ipba;
+					binaryOperator = BinaryOperatorType.InPlaceBitwiseAnd;
+				}
+			)
+		)
 		r=assignment_expression
 		{
-			BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
-			be.Operator = ParseAssignOperator(op.getText());
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
+			be.Operator = binaryOperator;
 			be.Left = e;
 			be.Right = r;
 			e = be;
@@ -2416,9 +2441,9 @@ DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
 
 COLON : ':';
 
-BITWISE_OR: '|';
+BITWISE_OR: '|' ('=' { $setType(INPLACE_BITWISE_OR); })?;
 
-BITWISE_AND: '&';
+BITWISE_AND: '&' ('=' { $setType(INPLACE_BITWISE_AND); })?;
 
 EXCLUSIVE_OR: '^' ('=' { $setType(ASSIGN); })?;
 

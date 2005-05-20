@@ -1,0 +1,32 @@
+<Combine name="Boo" fileversion="2.0">
+  <Configurations>
+    <Configuration name="Debug" ctype="CombineConfiguration">
+      <Entry build="True" name="Boo.Lang" />
+      <Entry build="True" name="Boo.Lang.Compiler" />
+      <Entry build="True" name="Boo.Lang.Useful" />
+      <Entry build="True" name="Boo.Lang.Interpreter" />
+      <Entry build="True" name="Boo.Lang.Useful.Tests" />
+    </Configuration>
+    <Configuration name="Release" ctype="CombineConfiguration">
+      <Entry build="True" name="Boo.Lang" />
+      <Entry build="True" name="Boo.Lang.Compiler" />
+      <Entry build="True" name="Boo.Lang.Useful" />
+      <Entry build="True" name="Boo.Lang.Interpreter" />
+      <Entry build="True" name="Boo.Lang.Useful.Tests" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="Boo.Lang" single="True">
+    <Execute type="None" entry="Boo.Lang" />
+    <Execute type="None" entry="Boo.Lang.Compiler" />
+    <Execute type="None" entry="Boo.Lang.Useful" />
+    <Execute type="None" entry="Boo.Lang.Interpreter" />
+    <Execute type="None" entry="Boo.Lang.Useful.Tests" />
+  </StartMode>
+  <Entries>
+    <Entry filename="./src/Boo.Lang/Boo.Lang.mdp" />
+    <Entry filename="./src/Boo.Lang.Compiler/Boo.Lang.Compiler.mdp" />
+    <Entry filename="./src/Boo.Lang.Useful/Boo.Lang.Useful.mdp" />
+    <Entry filename="./src/Boo.Lang.Interpreter/Boo.Lang.Interpreter.mdp" />
+    <Entry filename="./tests/Boo.Lang.Useful.Tests/Boo.Lang.Useful.Tests.mdp" />
+  </Entries>
+</Combine>

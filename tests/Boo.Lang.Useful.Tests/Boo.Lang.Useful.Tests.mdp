@@ -24,5 +24,7 @@
     <File name="./IO/TextFileFixture.boo" subtype="Code" buildaction="Compile" />
     <File name="./CommandLine" subtype="Directory" buildaction="Compile" />
     <File name="./CommandLine/ParserTestFixture.boo" subtype="Code" buildaction="Compile" />
+    <File name="./Attributes" subtype="Directory" buildaction="Compile" />
+    <File name="./Attributes/SingletonAttributeTestFixture.boo" subtype="Code" buildaction="Compile" />
   </Contents>
 </Project>

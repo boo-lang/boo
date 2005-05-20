@@ -1,30 +1,29 @@
-<Project name="Boo.Lang.Useful" fileversion="2.0" language="Boo" ctype="DotNetProject">
+<Project name="Boo.Lang.Interpreter" fileversion="2.0" language="Boo" ctype="DotNetProject">
   <Configurations>
     <Configuration name="Debug" ctype="DotNetProjectConfiguration">
-      <Output directory="../../build" assembly="Boo.Lang.Useful" />
+      <Output directory="../../build" assembly="Boo.Lang.Interpreter" />
       <Build debugmode="True" target="Library" />
       <Execution runwithwarnings="True" consolepause="True" runtime="MsNet" />
       <CodeGeneration compiler="Booc" compilerpath="booc" genwarnings="False" ducky="False" culture="" ctype="BooCompilerParameters" />
     </Configuration>
     <Configuration name="Release" ctype="DotNetProjectConfiguration">
-      <Output directory="./bin/Release" assembly="Boo.Lang.Useful" />
+      <Output directory="./bin/Release" assembly="Boo.Lang.Interpreter" />
       <Build debugmode="False" target="Exe" />
       <Execution runwithwarnings="True" consolepause="True" runtime="MsNet" />
       <CodeGeneration compiler="Booc" compilerpath="booc" genwarnings="False" ducky="False" culture="" ctype="BooCompilerParameters" />
     </Configuration>
   </Configurations>
-  <References />
+  <References>
+    <ProjectReference type="Project" localcopy="True" refto="Boo.Lang" />
+    <ProjectReference type="Project" localcopy="True" refto="Boo.Lang.Compiler" />
+  </References>
   <DeploymentInformation strategy="File">
     <excludeFiles />
   </DeploymentInformation>
   <Contents>
+    <File name="./AbstractInterpreter.boo" subtype="Code" buildaction="Compile" />
     <File name="./AssemblyInfo.boo" subtype="Code" buildaction="Compile" />
-    <File name="./IO/TextFile.boo" subtype="Code" buildaction="Compile" />
-    <File name="./CommandLine" subtype="Directory" buildaction="Compile" />
-    <File name="./CommandLine/AbstractParser.boo" subtype="Code" buildaction="Compile" />
-    <File name="./CommandLine/Parser.boo" subtype="Code" buildaction="Compile" />
-    <File name="./CommandLine/EventBasedParser.boo" subtype="Code" buildaction="Compile" />
-    <File name="./Attributes" subtype="Directory" buildaction="Compile" />
-    <File name="./Attributes/SingletonAttribute.boo" subtype="Code" buildaction="Compile" />
+    <File name="./ConsoleCapture.boo" subtype="Code" buildaction="Compile" />
+    <File name="./InteractiveInterpreter.boo" subtype="Code" buildaction="Compile" />
   </Contents>
 </Project>

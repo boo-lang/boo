@@ -335,6 +335,8 @@ enum BinaryOperatorType:
 	InPlaceSubtract
 	InPlaceMultiply
 	InPlaceDivide
+	InPlaceBitwiseAnd
+	InPlaceBitwiseOr
 	ReferenceEquality
 	ReferenceInequality
 	TypeTest

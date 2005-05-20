@@ -32,8 +32,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ArrayType : IArrayType
 	{	
-		TypeSystemServices _typeSystemServices;
-		
 		IType _elementType;
 		
 		IType _array;
@@ -42,7 +40,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ArrayType(TypeSystemServices tagManager, IType elementType)
 		{
-			_typeSystemServices = tagManager;
 			_array = tagManager.ArrayType;
 			_elementType = elementType;
 			_rank = 1;
@@ -50,7 +47,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ArrayType(TypeSystemServices tagManager, IType elementType, int rank)
 		{
-			_typeSystemServices = tagManager;
 			_array = tagManager.ArrayType;
 			_elementType = elementType;
 			_rank = rank;
