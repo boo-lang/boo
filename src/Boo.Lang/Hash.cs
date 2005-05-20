@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -43,7 +43,19 @@ namespace Boo.Lang
 		{
 		}
 		
-		public Hash(IEnumerable enumerable) : base(BooHashCodeProvider.Default, BooComparer.Default)
+		public Hash(IDictionary other) : this()
+		{
+			if (null == other)
+			{
+				throw new ArgumentNullException("other");
+			}
+			foreach (DictionaryEntry entry in other)
+			{
+				Add(entry.Key, entry.Value);
+			}
+		}
+		
+		public Hash(IEnumerable enumerable) : this()
 		{
 			if (null == enumerable)
 			{
