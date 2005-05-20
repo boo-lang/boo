@@ -4058,10 +4058,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Node parent = node.ParentNode;
 			
-			// if target is a property force a rebinding
 			Expression target = node.Left;
 			if (null != target.Entity && EntityType.Property == target.Entity.EntityType)
 			{
+				// if target is a property force a rebinding
 				target.ExpressionType = null;
 			}
 			
