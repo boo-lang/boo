@@ -6,7 +6,7 @@ a water bucket.
 import System
 import System.Collections
 
-class OxfordEnglish (IDictionary):
+class OxfordEnglish(IDictionary):
 	_keys = ArrayList()
 	_values = Hashtable()
 
@@ -30,7 +30,7 @@ class OxfordEnglish (IDictionary):
 		get:
 			return false
 	
-	Item (key as object) as object:
+	Item(key as object) as object:
 		get:
 			return _values[key]
 		set:
@@ -43,12 +43,11 @@ class OxfordEnglish (IDictionary):
 	IDictionary.Values as ICollection:
 		get:
 			return _values.Values
-	
 
-	def CopyTo (array as Array, index as int):
+	def CopyTo(array as Array, index as int):
 		print "COPY!"
 
-	def Add (key, value):
+	def Add(key, value):
 		_keys.Add(key)
 		_values.Add(key, value)
 	
@@ -56,7 +55,7 @@ class OxfordEnglish (IDictionary):
 		_keys.Clear()
 		_values.Clear()
 	
-	def Contains (key) as bool:
+	def Contains(key) as bool:
 		return _values.Contains(key)
 	
 	def IEnumerable.GetEnumerator() as IEnumerator:
@@ -65,22 +64,22 @@ class OxfordEnglish (IDictionary):
 	def IDictionary.GetEnumerator() as IDictionaryEnumerator:
 		return _values.GetEnumerator()
 
-	def Remove (key):
+	def Remove(key):
 		_keys.Remove(key)
 		_values.Remove(key)
 	
-	private class OxfordEnglishEnumerator (IEnumerator):
+	private class OxfordEnglishEnumerator(IEnumerator):
 		private _enumerator as IDictionaryEnumerator
 		
-		def constructor (dictEnumerator as IDictionaryEnumerator):
+		def constructor(dictEnumerator as IDictionaryEnumerator):
 			_enumerator = dictEnumerator
 
-		IEnumerator.Current:
+		IEnumerator.Current as object:
 			get:
 				return _enumerator.Value
 
 		def IEnumerator.MoveNext():
-			_enumerator.MoveNext ()
+			return _enumerator.MoveNext()
 
 		def IEnumerator.Reset():
 			_enumerator.Reset()

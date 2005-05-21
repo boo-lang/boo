@@ -114,6 +114,7 @@ BCE0112=Destructors cannot be passed parameters
 BCE0113=Invalid character literal: '{0}'
 BCE0114=Explicit interface implementation for non interface type '{0}'
 BCE0115=Cannot implement interface item '{0}.{1}' when not implementing the interface '{0}'
+BCE0116=Explicit member implementation for '{0}.{1}' must not declare any modifiers.
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract

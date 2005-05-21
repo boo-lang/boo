@@ -330,17 +330,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void CheckExplicitMemberValidity(IExplicitMember emi)
+		private bool CheckExplicitMemberValidity(IExplicitMember emi)
 		{
-			IMember explicitMember = (IMember)GetEntity((Node)emi);
-			bool parentIsClass = explicitMember.DeclaringType.IsClass;
-
 			if (emi.ExplicitInfo != null)
 			{
+				IMember explicitMember = (IMember)GetEntity((Node)emi);
+				bool parentIsClass = explicitMember.DeclaringType.IsClass;
 				if (parentIsClass)
 				{
 					IType targetInterface = GetType(emi.ExplicitInfo.InterfaceType);
-
 					if (!targetInterface.IsInterface)
 					{
 						Error(CompilerErrorFactory.InvalidInterfaceForInterfaceMember((Node)emi, emi.ExplicitInfo.InterfaceType.Name));
@@ -354,9 +352,16 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					// TODO: Only class ITM's can do explicit interface methods
+					
 				}
+				return true;
 			}
-			
+			return false;
+		}
+		
+		private void SetExplicitImplMethodModifiers(Method method)
+		{
+			method.Modifiers |= TypeMemberModifiers.Virtual;
 		}
 		
 		private void SetMethodOverride(Method method)
@@ -366,8 +371,10 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			InternalMethod intMethod = (InternalMethod)method.Entity;
+			// TODO: infer the type of the method here
+			// or check if is the right one if it's declared
 			
+			InternalMethod intMethod = (InternalMethod)method.Entity;			
 			if (method.DeclaringType.NodeType == NodeType.ClassDefinition)
 			{
 				IType ifaceType = GetType(method.ExplicitInfo.InterfaceType);
@@ -381,6 +388,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (iMethod.Name == method.Name)
 						{
 							method.ExplicitInfo.Entity = iMethod;
+							SetExplicitImplMethodModifiers(method);
 							return;
 						}
 					}
@@ -391,6 +399,7 @@ namespace Boo.Lang.Compiler.Steps
 							if (iProp.GetGetMethod().Name == method.Name)
 							{
 								method.ExplicitInfo.Entity = iProp.GetGetMethod();
+								SetExplicitImplMethodModifiers(method);
 								return;
 							}
 						}
@@ -399,6 +408,7 @@ namespace Boo.Lang.Compiler.Steps
 							if (iProp.GetSetMethod().Name == method.Name)
 							{
 								method.ExplicitInfo.Entity = iProp.GetSetMethod();
+								SetExplicitImplMethodModifiers(method);
 								return;
 							}
 						}
@@ -996,16 +1006,21 @@ namespace Boo.Lang.Compiler.Steps
 			node.Entity = closureEntity;
 		}
 		
-		override public void OnExplicitMemberInfo (ExplicitMemberInfo node)
+		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
 		{
 			if (Visited(node))
 			{
 				return;
 			}
 
-			MarkVisited (node);
+			MarkVisited(node);
 			Visit(node.InterfaceType);
-			CheckExplicitMemberValidity ((IExplicitMember)node.ParentNode);
+			
+			TypeMember member = (TypeMember)node.ParentNode;
+			if (CheckExplicitMemberValidity((IExplicitMember)member))
+			{
+				member.Modifiers |= TypeMemberModifiers.Private;
+			}
 		}
 
 		override public void OnMethod(Method method)

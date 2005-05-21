@@ -11,7 +11,7 @@ interface IBar:
 	def Func() as bool:
 		pass
 
-class FooBar (IFoo, IBar):
+class FooBar(IFoo, IBar):
 	def IFoo.Func():
 		return true
 	
@@ -19,5 +19,5 @@ class FooBar (IFoo, IBar):
 		return false
 
 fb = FooBar()
-print cast(IFoo,fb).Func()
-print cast(IBar,fb).Func()
+print cast(IFoo, fb).Func()
+print cast(IBar, fb).Func()

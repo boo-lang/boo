@@ -606,6 +606,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0115", node.LexicalInfo, iface, item);
 		}
 		
+		public static CompilerError ExplicitImplMustNotHaveModifiers(Node node, string iface, string item)
+		{
+			return new CompilerError("BCE0116", node.LexicalInfo, iface, item);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

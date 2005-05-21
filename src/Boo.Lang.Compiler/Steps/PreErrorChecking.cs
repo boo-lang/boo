@@ -54,10 +54,18 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedAbstract(node);
 		}
 		
+		override public void LeaveProperty(Property node)
+		{
+			CheckMemberName(node);
+			CantBeMarkedTransient(node);
+			CheckExplicitImpl(node);
+		}
+		
 		override public void LeaveMethod(Method node)
 		{
 			CheckMemberName(node);
 			CantBeMarkedTransient(node);
+			CheckExplicitImpl(node);
 		}
 		
 		override public void LeaveEvent(Event node)
@@ -128,6 +136,25 @@ namespace Boo.Lang.Compiler.Steps
 					Error(CompilerErrorFactory.ReservedPrefix(node, prefix));
 					break;
 				}
+			}
+		}
+		
+		void CheckExplicitImpl(IExplicitMember member)
+		{
+			ExplicitMemberInfo ei = member.ExplicitInfo;
+			if (null == ei)
+			{
+				return;
+			}
+			
+			TypeMember node = (TypeMember)member;
+			if (TypeMemberModifiers.None != node.Modifiers)
+			{
+				Error(
+					CompilerErrorFactory.ExplicitImplMustNotHaveModifiers(
+						node,
+						ei.InterfaceType.Name,
+						node.Name));
 			}
 		}
 	}

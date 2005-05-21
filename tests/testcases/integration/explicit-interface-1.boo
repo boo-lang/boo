@@ -13,7 +13,7 @@ interface IBar:
 		get:
 			pass
 
-class FooBar (IFoo, IBar):
+class FooBar(IFoo, IBar):
 	IFoo.Prop:
 		get:
 			return true
@@ -23,5 +23,5 @@ class FooBar (IFoo, IBar):
 			return false
 
 fb = FooBar()
-print cast(IFoo,fb).Prop
-print cast(IBar,fb).Prop
+print cast(IFoo, fb).Prop
+print cast(IBar, fb).Prop

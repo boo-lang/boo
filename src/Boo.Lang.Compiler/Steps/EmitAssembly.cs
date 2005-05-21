@@ -3216,13 +3216,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MethodAttributes attributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
 			Property prop = property as Property;
-
 			
-			if (prop != null && prop.ExplicitInfo != null)
-			{
-				attributes |= MethodAttributes.Private;
-			}
-			else if (property.IsPublic)
+			if (property.IsPublic)
 			{
 				attributes |= MethodAttributes.Public;
 			}
@@ -3251,11 +3246,10 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (method.ExplicitInfo != null)
 			{
-				attributes |= MethodAttributes.Private |
-					      MethodAttributes.NewSlot |
-					      MethodAttributes.Final;
+				attributes |= MethodAttributes.NewSlot;
 			}
-			else if (method.IsPublic)
+			
+			if (method.IsPublic)
 			{
 				attributes |= MethodAttributes.Public;
 			}
