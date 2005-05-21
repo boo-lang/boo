@@ -33,7 +33,7 @@ namespace Boo.Lang.Parser
 	/// <summary>
 	/// A token that stores filename information.
 	/// </summary>
-	internal class BooToken : antlr.CommonToken
+	public class BooToken : antlr.CommonToken
 	{
 		new public static readonly antlr.TokenCreator Creator = new BooTokenCreator();
 		
