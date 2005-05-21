@@ -449,6 +449,9 @@ types."""
 	def OnWhileStatement(node as WhileStatement):
 		pass
 	
+	def OnExplicitMemberInfo(node as ExplicitMemberInfo):
+		pass
+	
 	def OnYieldStatement(node as YieldStatement):
 		pass
 
