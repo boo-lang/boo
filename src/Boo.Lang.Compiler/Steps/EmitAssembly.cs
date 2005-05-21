@@ -487,6 +487,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			MethodBuilder methodBuilder = GetMethodBuilder(method);
+
+			if (null != method.ExplicitInfo)
+			{
+				IMethod ifaceMethod = (IMethod)method.ExplicitInfo.Entity;
+				MethodInfo ifaceInfo = GetMethodInfo(ifaceMethod);
+				MethodInfo implInfo = GetMethodInfo ((IMethod)method.Entity);
+
+				TypeBuilder typeBuilder = GetTypeBuilder((ClassDefinition)method.DeclaringType);
+				typeBuilder.DefineMethodOverride (implInfo, ifaceInfo);
+			}
+
 			_il = methodBuilder.GetILGenerator();
 			_returnLabel = _il.DefineLabel();
 			
@@ -509,7 +520,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			_il.Emit(OpCodes.Ret);
 		}
-
+		
 		override public void OnBlock(Block block)
 		{
 			bool current = _checked;
@@ -3192,13 +3203,26 @@ namespace Boo.Lang.Compiler.Steps
 		
 		PropertyAttributes GetPropertyAttributes(Property property)
 		{
-			return PropertyAttributes.None;
+			PropertyAttributes attributes = PropertyAttributes.None;
+
+			if (property.ExplicitInfo != null)
+			{
+				attributes |= PropertyAttributes.SpecialName | PropertyAttributes.RTSpecialName;
+			}
+			return attributes;
 		}
 		
 		MethodAttributes GetPropertyMethodAttributes(TypeMember property)
 		{
 			MethodAttributes attributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
-			if (property.IsPublic)
+			Property prop = property as Property;
+
+			
+			if (prop != null && prop.ExplicitInfo != null)
+			{
+				attributes |= MethodAttributes.Private;
+			}
+			else if (property.IsPublic)
 			{
 				attributes |= MethodAttributes.Public;
 			}
@@ -3224,7 +3248,14 @@ namespace Boo.Lang.Compiler.Steps
 		MethodAttributes GetMethodAttributes(Method method)
 		{
 			MethodAttributes attributes = MethodAttributes.HideBySig;
-			if (method.IsPublic)
+			
+			if (method.ExplicitInfo != null)
+			{
+				attributes |= MethodAttributes.Private |
+					      MethodAttributes.NewSlot |
+					      MethodAttributes.Final;
+			}
+			else if (method.IsPublic)
 			{
 				attributes |= MethodAttributes.Public;
 			}
@@ -3312,7 +3343,17 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefineProperty(TypeBuilder typeBuilder, Property property)
 		{
-			PropertyBuilder builder = typeBuilder.DefineProperty(property.Name,
+			string name;
+			if (property.ExplicitInfo != null)
+			{
+				name = property.ExplicitInfo.InterfaceType.Name + "." + property.Name;
+			}
+			else
+			{
+				name = property.Name;
+			}
+
+			PropertyBuilder builder = typeBuilder.DefineProperty(name,
 			                                            GetPropertyAttributes(property),
 			                                            GetSystemType(property.Type),
 			                                            GetParameterTypes(property.Parameters));
@@ -3409,7 +3450,17 @@ namespace Boo.Lang.Compiler.Steps
 				methodAttributes |= (MethodAttributes.Virtual | MethodAttributes.Abstract);
 			}
 			
-			MethodBuilder builder = typeBuilder.DefineMethod(method.Name,
+			string name;
+			if (method.ExplicitInfo != null)
+			{
+				name = method.ExplicitInfo.InterfaceType.Name + "." + method.Name;
+			}
+			else
+			{
+				name = method.Name;
+			}
+
+			MethodBuilder builder = typeBuilder.DefineMethod(name,
                                         methodAttributes,
                                         GetSystemType(method.ReturnType),
 										GetParameterTypes(parameters));

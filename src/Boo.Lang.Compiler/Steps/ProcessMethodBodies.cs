@@ -329,7 +329,84 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
+
+		private void CheckExplicitMemberValidity(IExplicitMember emi)
+		{
+			IMember explicitMember = (IMember)GetEntity((Node)emi);
+			bool parentIsClass = explicitMember.DeclaringType.IsClass;
+
+			if (emi.ExplicitInfo != null)
+			{
+				if (parentIsClass)
+				{
+					IType targetInterface = GetType(emi.ExplicitInfo.InterfaceType);
+
+					if (!targetInterface.IsInterface)
+					{
+						Error(CompilerErrorFactory.InvalidInterfaceForInterfaceMember((Node)emi, emi.ExplicitInfo.InterfaceType.Name));
+					}
+					
+					if (!explicitMember.DeclaringType.IsSubclassOf(targetInterface))
+					{
+						Error(CompilerErrorFactory.InterfaceImplForInvalidInterface((Node)emi, targetInterface.Name, ((TypeMember)emi).Name));
+					}
+				}
+				else
+				{
+					// TODO: Only class ITM's can do explicit interface methods
+				}
+			}
+			
+		}
 		
+		private void SetMethodOverride(Method method)
+		{
+			if (null == method.ExplicitInfo)
+			{
+				return;
+			}
+
+			InternalMethod intMethod = (InternalMethod)method.Entity;
+			
+			if (method.DeclaringType.NodeType == NodeType.ClassDefinition)
+			{
+				IType ifaceType = GetType(method.ExplicitInfo.InterfaceType);
+
+				foreach (IEntity member in ifaceType.GetMembers())
+				{
+					IMethod iMethod = member as IMethod;
+					IProperty iProp = member as IProperty;
+					if (null != iMethod)
+					{
+						if (iMethod.Name == method.Name)
+						{
+							method.ExplicitInfo.Entity = iMethod;
+							return;
+						}
+					}
+					else if (null != iProp)
+					{
+						if (null != iProp.GetGetMethod())
+						{
+							if (iProp.GetGetMethod().Name == method.Name)
+							{
+								method.ExplicitInfo.Entity = iProp.GetGetMethod();
+								return;
+							}
+						}
+						if (null != iProp.GetSetMethod())
+						{
+							if (iProp.GetSetMethod().Name == method.Name)
+							{
+								method.ExplicitInfo.Entity = iProp.GetSetMethod();
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+			
 		Method CreateEventMethod(Event node, string prefix)
 		{
 			Method method = CodeBuilder.CreateMethod(prefix + node.Name,
@@ -485,6 +562,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Attributes);
 			Visit(node.Type);
 			Visit(node.Parameters);
+			Visit(node.ExplicitInfo);
 			
 			ResolvePropertyOverride(node);
 			
@@ -496,6 +574,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				getter.Name = "get_" + node.Name;
 				getter.Parameters.ExtendWithClones(node.Parameters);
+				getter.ExplicitInfo = node.ExplicitInfo;
 				
 				SetPropertyAccessorModifiers(node, getter);
 				
@@ -536,6 +615,7 @@ namespace Boo.Lang.Compiler.Steps
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
 				setter.Name = "set_" + node.Name;
+				setter.ExplicitInfo = node.ExplicitInfo;
 				Visit(setter);
 			}
 		}
@@ -916,6 +996,18 @@ namespace Boo.Lang.Compiler.Steps
 			node.Entity = closureEntity;
 		}
 		
+		override public void OnExplicitMemberInfo (ExplicitMemberInfo node)
+		{
+			if (Visited(node))
+			{
+				return;
+			}
+
+			MarkVisited (node);
+			Visit(node.InterfaceType);
+			CheckExplicitMemberValidity ((IExplicitMember)node.ParentNode);
+		}
+
 		override public void OnMethod(Method method)
 		{
 			if (Visited(method))
@@ -928,6 +1020,8 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(method.Parameters);
 			Visit(method.ReturnType);
 			Visit(method.ReturnTypeAttributes);
+			Visit(method.ExplicitInfo);
+			SetMethodOverride(method);
 			
 			if (method.IsRuntime)
 			{
@@ -5199,7 +5293,15 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (TypeMember member in node.Members)
 			{
-				if (tag.Name == member.Name && NodeType.Method == member.NodeType)
+				if (
+					tag.Name == member.Name &&
+					NodeType.Method == member.NodeType &&
+					(
+					 	((Method)member).ExplicitInfo == null ||
+						GetType(baseTypeRef) == GetType(((Method)member).ExplicitInfo.InterfaceType) ||
+						GetType(baseTypeRef).IsSubclassOf(GetType(((Method)member).ExplicitInfo.InterfaceType))
+					)
+				   )
 				{
 					Method method = (Method)member;
 					if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), tag))

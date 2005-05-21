@@ -31,6 +31,9 @@ abstract class TypeMember(Node, INodeWithAttributes):
 	Name as string
 	Attributes as AttributeCollection
 
+class ExplicitMemberInfo(Node):
+	InterfaceType as SimpleTypeReference
+
 [collection(TypeMember)]
 class TypeMemberCollection:
 	pass
@@ -108,11 +111,12 @@ class Field(TypeMember):
 	Type as TypeReference
 	Initializer as Expression
 
-class Property(TypeMember, INodeWithParameters):
+class Property(TypeMember, INodeWithParameters, IExplicitMember):
 	Parameters as ParameterDeclarationCollection
 	Getter as Method
 	Setter as Method
 	Type as TypeReference
+	ExplicitInfo as ExplicitMemberInfo
 	
 class Event(TypeMember):
 	Add as Method
@@ -133,11 +137,12 @@ class CallableBlockExpression(Expression, INodeWithParameters):
 	[auto]
 	Body as Block
 
-class Method(CallableDefinition):	
+class Method(CallableDefinition, IExplicitMember):
 	[auto]
 	Body as Block
 	Locals as LocalCollection
 	ImplementationFlags as MethodImplementationFlags
+	ExplicitInfo as ExplicitMemberInfo
 
 class Constructor(Method):
 	pass

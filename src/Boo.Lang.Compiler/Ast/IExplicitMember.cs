@@ -27,33 +27,24 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Property : PropertyImpl
-	{		
-		public Property()
+	/// <summary>
+	/// Summary description for IExplicitMember.
+	/// </summary>
+	public interface IExplicitMember
+	{
+		ExplicitMemberInfo ExplicitInfo
 		{
- 		}
-		
-		public Property(string name)
-		{
-			Name = name;
+			get;
+			set;
 		}
 		
-		public Property(Method getter, Method setter, TypeReference type) : base(getter, setter, type, null)
+		string Name
 		{
-		}
-		
-		public Property(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnProperty(this);
+			get;
+			set;
 		}
 	}
 }

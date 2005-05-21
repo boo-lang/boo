@@ -46,6 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Entity = new InternalMethod(TypeSystemServices, node);
 			}
 			_parameters.Add(node);
+			Visit(node.ExplicitInfo);
 		}
 		
 		void BindAllParameters()
@@ -108,7 +109,13 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Visit(node.Getter);
 			Visit(node.Setter);
+			Visit(node.ExplicitInfo);
 		}	
+
+		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
+		{
+			Visit(node.InterfaceType);
+		}
 		
 		override public void OnEvent(Event node)
 		{

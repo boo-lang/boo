@@ -652,14 +652,58 @@ event_declaration [TypeMemberCollection container]
 	;
 
 protected
+explicit_member_info returns [ExplicitMemberInfo emi]
+	{
+		emi = null; _sbuilder.Length = 0;
+	}:
+	(ID DOT)=>(
+		(
+			(id:ID DOT)
+			{
+				emi = new ExplicitMemberInfo(ToLexicalInfo(id));
+				_sbuilder.Append(id.getText());
+			}
+			(
+				(id2:ID DOT)
+				{
+					_sbuilder.Append('.');
+					_sbuilder.Append(id2.getText());
+				}
+			)*
+		)
+	)
+	{
+		if (emi != null)
+		{
+			emi.InterfaceType = new SimpleTypeReference(emi.LexicalInfo);
+			emi.InterfaceType.Name = _sbuilder.ToString();
+		}
+	}
+	;
+
+protected
 method [TypeMemberCollection container]
 	{
 		Method m = null;
 		TypeReference rt = null;
+		TypeReference it = null;
+		ExplicitMemberInfo emi = null;
 	}: 
 	t:DEF
 	(
-		id:ID { m = new Method(ToLexicalInfo(id)); m.Name = id.getText(); } |
+		(emi=explicit_member_info)? id:ID {
+			if (emi != null)
+			{
+				m = new Method(emi.LexicalInfo);
+			}
+			else
+			{
+				m = new Method(ToLexicalInfo(id));
+			}
+			m.Name = id.getText();
+			m.ExplicitInfo  = emi;
+		}
+		|
 		c:CONSTRUCTOR { m = new Constructor(ToLexicalInfo(c)); } |
 		d:DESTRUCTOR { m = new Destructor(ToLexicalInfo(d)); }
 	)	
@@ -677,11 +721,14 @@ method [TypeMemberCollection container]
 		container.Add(m);
 	}
 	;	
-	
+
 protected
 property_header:	
-	LPAREN |
-	((AS type_reference)? COLON)
+	(ID (DOT ID)*)
+	(
+		LPAREN |
+		((AS type_reference)? COLON)
+	)
 	;
 	
 protected
@@ -690,18 +737,26 @@ field_or_property [TypeMemberCollection container]
 		TypeMember tm = null;
 		TypeReference tr = null;
 		Property p = null;
+		ExplicitMemberInfo emi = null;
 		Expression initializer = null;
 	}: 
-	id:ID
-	(		
-		(property_header)=>(
-			{ p = new Property(ToLexicalInfo(id)); }			
+	(property_header)=>(
+		(emi=explicit_member_info)? id:ID
+		(		
+			
+			{
+				if (emi != null)
+					p = new Property(emi.LexicalInfo);
+				else
+					p = new Property(ToLexicalInfo(id));
+				p.Name = id.getText();
+				p.ExplicitInfo = emi;
+			}
 			(LPAREN parameter_declaration_list[p.Parameters] RPAREN)?
 			(AS tr=type_reference)?
 			{							
 				p.Type = tr;
 				tm = p;
-				tm.Name = id.getText();
 				tm.Modifiers = _modifiers;
 				AddAttributes(tm.Attributes);
 			}		
@@ -709,8 +764,12 @@ field_or_property [TypeMemberCollection container]
 				(property_accessor[p])+
 			end[p]
 		)
-		|
-		(
+	)
+	{ container.Add(tm); }
+	|
+	(
+		id2:ID
+		(		
 			(AS tr=type_reference)?
 			(
 				(ASSIGN (
@@ -720,11 +779,11 @@ field_or_property [TypeMemberCollection container]
 			)						
 			
 			{
-				Field field = new Field(ToLexicalInfo(id));
+				Field field = new Field(ToLexicalInfo(id2));
 				field.Type = tr;
 				field.Initializer = initializer;
 				tm = field;
-				tm.Name = id.getText();
+				tm.Name = id2.getText();
 				tm.Modifiers = _modifiers;
 				AddAttributes(tm.Attributes);
 			}

@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,34 +26,24 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using Boo.Lang.Compiler.Ast.Impl;
-
 namespace Boo.Lang.Compiler.Ast
 {
+	using System;
+	
 	[Serializable]
-	public class Property : PropertyImpl
-	{		
-		public Property()
-		{
- 		}
-		
-		public Property(string name)
-		{
-			Name = name;
-		}
-		
-		public Property(Method getter, Method setter, TypeReference type) : base(getter, setter, type, null)
+	public class ExplicitMemberInfo : Boo.Lang.Compiler.Ast.Impl.ExplicitMemberInfoImpl
+	{
+		public ExplicitMemberInfo()
 		{
 		}
 		
-		public Property(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public ExplicitMemberInfo(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
-		
-		override public void Accept(IAstVisitor visitor)
+
+		public override void Accept(IAstVisitor visitor)
 		{
-			visitor.OnProperty(this);
+			visitor.OnExplicitMemberInfo(this);
 		}
 	}
 }

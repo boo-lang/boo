@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -111,6 +111,12 @@ namespace Boo.Lang.Compiler.Steps
 						CheckMethodMember(list, (Method)member);
 						break;
 					}
+
+					case NodeType.Property:
+					{
+						CheckPropertyMember(list, (Property)member);
+						break;
+					}
 					
 					default:
 					{
@@ -129,6 +135,29 @@ namespace Boo.Lang.Compiler.Steps
 				MemberNameConflict(member);
 			}
 		}
+
+		void CheckPropertyMember(List existing, TypeMember member)
+		{
+			foreach (TypeMember existingMember in existing)
+			{
+				Property existingProp = existingMember as Property;
+
+				if (existingProp == null)
+				{
+					if (existing.Count > 0)
+					{
+						MemberNameConflict(member);
+					}
+				}
+				else
+				{
+					if (!AreDifferentInterfaceMembers (existingProp, (Property)member))
+					{
+						MemberNameConflict(member);
+					}
+				}
+			}
+		}
 		
 		void CheckMethodMember(List existing, TypeMember member)
 		{
@@ -143,7 +172,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (existingMember.IsStatic == member.IsStatic)
 					{
-						if (AreParametersTheSame(existingMember, member))
+						if (AreParametersTheSame(existingMember, member) && ! AreDifferentInterfaceMembers((Method)existingMember, (Method)member))
 						{
 							MemberConflict(member, TypeSystemServices.GetSignature((IMethod)member.Entity, false));
 						}
@@ -167,6 +196,25 @@ namespace Boo.Lang.Compiler.Steps
 					return false;
 				}
 			}
+			return true;
+		}
+		
+		bool AreDifferentInterfaceMembers (IExplicitMember lhs, IExplicitMember rhs)
+		{
+			if (lhs.ExplicitInfo == null && rhs.ExplicitInfo == null)
+			{
+				return false;
+			}
+			
+			if (
+				lhs.ExplicitInfo != null &&
+				rhs.ExplicitInfo != null &&
+				lhs.ExplicitInfo.InterfaceType.Entity == rhs.ExplicitInfo.InterfaceType.Entity
+			   )
+			{
+				return false;
+			}
+
 			return true;
 		}
 		

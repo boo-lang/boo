@@ -112,6 +112,8 @@ BCE0110='{0}' is not a namespace.
 BCE0111=Destructors cannot have any attributes or modifiers
 BCE0112=Destructors cannot be passed parameters
 BCE0113=Invalid character literal: '{0}'
+BCE0114=Explicit interface implementation for non interface type '{0}'
+BCE0115=Cannot implement interface item '{0}.{1}' when not implementing the interface '{0}'
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract

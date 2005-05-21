@@ -596,6 +596,16 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0113", node.LexicalInfo, value);
 		}
 		
+		public static CompilerError InvalidInterfaceForInterfaceMember(Node node, string value)
+		{
+			return new CompilerError("BCE0114", node.LexicalInfo, value);
+		}
+
+		public static CompilerError InterfaceImplForInvalidInterface(Node node, string iface, string item)
+		{
+			return new CompilerError("BCE0115", node.LexicalInfo, iface, item);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
