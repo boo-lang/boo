@@ -3212,31 +3212,46 @@ namespace Boo.Lang.Compiler.Steps
 			return attributes;
 		}
 		
-		MethodAttributes GetPropertyMethodAttributes(TypeMember property)
+		MethodAttributes GetMethodAttributesFromTypeMember(TypeMember member)
 		{
-			MethodAttributes attributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
-			Property prop = property as Property;
-			
-			if (property.IsPublic)
+			MethodAttributes attributes = (MethodAttributes)0;
+			if (member.IsPublic)
 			{
-				attributes |= MethodAttributes.Public;
+				attributes = MethodAttributes.Public;
 			}
-			else if (property.IsProtected)
+			else if (member.IsProtected)
 			{
-				attributes |= MethodAttributes.Family;
+				attributes = member.IsInternal
+					? MethodAttributes.FamORAssem
+					: MethodAttributes.Family;
 			}
-			else if (property.IsPrivate)
+			else if (member.IsPrivate)
 			{
-				attributes |= MethodAttributes.Private;
+				attributes = MethodAttributes.Private;
 			}
-			if (property.IsStatic)
+			else if (member.IsInternal)
+			{
+				attributes = MethodAttributes.Assembly;
+			}
+			if (member.IsStatic)
 			{
 				attributes |= MethodAttributes.Static;
 			}
-			if (property.IsAbstract)
+			if (member.IsAbstract)
 			{
 				attributes |= (MethodAttributes.Abstract | MethodAttributes.Virtual);
 			}
+			if (member.IsVirtual || member.IsOverride)
+			{
+				attributes |= MethodAttributes.Virtual;	
+			}
+			return attributes;
+		}
+		
+		MethodAttributes GetPropertyMethodAttributes(TypeMember property)
+		{
+			MethodAttributes attributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+			attributes |= GetMethodAttributesFromTypeMember(property);
 			return attributes;
 		}
 		
@@ -3248,36 +3263,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				attributes |= MethodAttributes.NewSlot;
 			}
-			
-			if (method.IsPublic)
-			{
-				attributes |= MethodAttributes.Public;
-			}
-			else if (method.IsProtected)
-			{
-				attributes |= MethodAttributes.Family;
-			}
-			else if (method.IsPrivate)
-			{
-				attributes |= MethodAttributes.Private;
-			}
-			else if (method.IsInternal)
-			{
-				attributes |= MethodAttributes.Assembly;
-			}
-			
-			if (method.IsStatic)
-			{
-				attributes |= MethodAttributes.Static;
-			}
-			else if (method.IsOverride || method.IsVirtual)
-			{
-				attributes |= MethodAttributes.Virtual;
-			}
-			if (method.IsAbstract)
-			{
-				attributes |= (MethodAttributes.Abstract | MethodAttributes.Virtual);
-			}
+			attributes |= GetMethodAttributesFromTypeMember(method);			
 			return attributes;
 		}
 		
@@ -3328,10 +3314,11 @@ namespace Boo.Lang.Compiler.Steps
 			EventBuilder builder = typeBuilder.DefineEvent(node.Name,
 													EventAttributes.None,
 													GetSystemType(node.Type));
-			MethodAttributes attribs = GetPropertyMethodAttributes(node);
-			builder.SetAddOnMethod(DefineMethod(typeBuilder, node.Add, attribs));
-			builder.SetRemoveOnMethod(DefineMethod(typeBuilder, node.Remove, attribs));
-			builder.SetRaiseMethod(DefineMethod(typeBuilder, node.Raise, attribs));
+			//MethodAttributes attribs = GetPropertyMethodAttributes(node);
+			MethodAttributes baseAttributes = MethodAttributes.SpecialName;
+			builder.SetAddOnMethod(DefineMethod(typeBuilder, node.Add, baseAttributes|GetMethodAttributes(node.Add)));
+			builder.SetRemoveOnMethod(DefineMethod(typeBuilder, node.Remove, baseAttributes|GetMethodAttributes(node.Remove)));
+			builder.SetRaiseMethod(DefineMethod(typeBuilder, node.Raise, baseAttributes|GetMethodAttributes(node.Raise)));
 			SetBuilder(node, builder);
 		}
 		

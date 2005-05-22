@@ -372,9 +372,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			// TODO: infer the type of the method here
-			// or check if is the right one if it's declared
-			
-			InternalMethod intMethod = (InternalMethod)method.Entity;			
+			// or check if is the right one if it's declared			
 			if (method.DeclaringType.NodeType == NodeType.ClassDefinition)
 			{
 				IType ifaceType = GetType(method.ExplicitInfo.InterfaceType);
@@ -456,11 +454,30 @@ namespace Boo.Lang.Compiler.Steps
 			return m;
 		}
 		
+		TypeMemberModifiers RemoveAccessiblityModifiers(TypeMemberModifiers modifiers)
+		{
+			TypeMemberModifiers mask = TypeMemberModifiers.Public |
+										TypeMemberModifiers.Protected |
+										TypeMemberModifiers.Private |
+										TypeMemberModifiers.Internal;
+			return modifiers & ~mask ;
+		}
+		
 		Method CreateEventRaiseMethod(Event node, Field backingField)
 		{
+			TypeMemberModifiers modifiers = RemoveAccessiblityModifiers(node.Modifiers);
+			if (node.IsPrivate)
+			{
+				modifiers |= TypeMemberModifiers.Private;
+			}
+			else
+			{
+				modifiers |= TypeMemberModifiers.Protected | TypeMemberModifiers.Internal;
+			}
+			
 			Method method = CodeBuilder.CreateMethod("raise_" + node.Name,
 													TypeSystemServices.VoidType,
-													node.Modifiers);
+													modifiers);
 													
 			ICallableType type = GetEntity(node.Type) as ICallableType;
 			if (null != type)

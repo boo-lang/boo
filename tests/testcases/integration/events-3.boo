@@ -7,6 +7,10 @@ class Clickable:
 	
 	callable ClickHandler(sender as object, args)
 	
-c = Clickable()
+class Clickable2(Clickable):
+	def RaiseClick():
+		self.Click(self, System.EventArgs.Empty)
+	
+c = Clickable2()
 c.Click += { print("Click!") }
-c.Click(null, null)
+c.RaiseClick()

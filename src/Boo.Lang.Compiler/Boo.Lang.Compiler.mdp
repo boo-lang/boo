@@ -369,5 +369,8 @@
     <File name="./Ast/WhenClause.cs" subtype="Code" buildaction="Compile" />
     <File name="./Ast/WhileStatement.cs" subtype="Code" buildaction="Compile" />
     <File name="./Ast/YieldStatement.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Ast/IExplicitMember.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Ast/ExplicitMemberInfo.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Ast/Impl/ExplicitMemberInfoImpl.cs" subtype="Code" buildaction="Compile" />
   </Contents>
 </Project>

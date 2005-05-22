@@ -35,7 +35,7 @@ def CheckEvent(name, serializable):
 	raiseMethod = eventInfo.GetRaiseMethod()
 	assert raiseMethod is not null
 	assert raiseMethod.ReturnType is void
-	assert raiseMethod.IsPublic
+	assert raiseMethod.IsFamilyOrAssembly
 	assert raiseMethod.IsSpecialName
 	assert 2 == len(raiseMethod.GetParameters())
 	assert raiseMethod.GetParameters()[0].ParameterType is object

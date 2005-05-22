@@ -1,7 +1,6 @@
 """
 , foo
 foo, bar
-spam, eggs
 """
 import System
 
@@ -26,7 +25,6 @@ Observable.Changed += handler
 
 Observable.Value = "foo"
 Observable.Value = "bar"
-Observable.Changed("spam", "eggs")
 
 Observable.Changed -= handler
 
