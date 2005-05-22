@@ -101,13 +101,23 @@ namespace Boo.Lang.Compiler.Steps
 										"___iterator" + _context.AllocIndex(),
 										TypeSystemServices.IEnumeratorType);
 			
-			// ___iterator = <node.Iterator>.GetEnumerator()
-			body.Add(
-				CodeBuilder.CreateAssignment(
-					CodeBuilder.CreateReference(iterator),
-					CodeBuilder.CreateMethodInvocation(
-						node.Iterator,
-						IEnumerable_GetEnumerator)));
+			if (TypeSystemServices.IEnumeratorType.IsAssignableFrom(enumeratorType))
+			{
+				body.Add(
+					CodeBuilder.CreateAssignment(
+						CodeBuilder.CreateReference(iterator),
+						node.Iterator));
+			}
+			else
+			{
+				// ___iterator = <node.Iterator>.GetEnumerator()
+				body.Add(
+					CodeBuilder.CreateAssignment(
+						CodeBuilder.CreateReference(iterator),
+						CodeBuilder.CreateMethodInvocation(
+							node.Iterator,
+							IEnumerable_GetEnumerator)));
+			}
 					
 			// while __iterator.MoveNext():
 			WhileStatement ws = new WhileStatement(node.LexicalInfo);
@@ -166,19 +176,31 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalLocal local = codeBuilder.DeclareTempLocal(method,
 												tss.IEnumeratorType);
+												
+			IType expressionType = expression.ExpressionType;
 			
-			if (!expression.ExpressionType.IsSubclassOf(codeBuilder.TypeSystemServices.IEnumerableType))
+			if (expressionType.IsSubclassOf(codeBuilder.TypeSystemServices.IEnumeratorType))
 			{
-				expression = codeBuilder.CreateMethodInvocation(
-					RuntimeServices_GetEnumerable, expression);								
+				block.Add(
+					codeBuilder.CreateAssignment(
+						codeBuilder.CreateReference(local),
+						expression));
 			}
-			
-			block.Add(
-				codeBuilder.CreateAssignment(
-					block.LexicalInfo,
-					codeBuilder.CreateReference(local),
-					codeBuilder.CreateMethodInvocation(
-						expression, IEnumerable_GetEnumerator)));
+			else
+			{
+				if (!expressionType.IsSubclassOf(codeBuilder.TypeSystemServices.IEnumerableType))
+				{
+					expression = codeBuilder.CreateMethodInvocation(
+						RuntimeServices_GetEnumerable, expression);								
+				}
+				
+				block.Add(
+					codeBuilder.CreateAssignment(
+						block.LexicalInfo,
+						codeBuilder.CreateReference(local),
+						codeBuilder.CreateMethodInvocation(
+							expression, IEnumerable_GetEnumerator)));
+			}
 						
 			for (int i=0; i<declarations.Count; ++i)
 			{

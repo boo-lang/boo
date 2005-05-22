@@ -2659,27 +2659,56 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Expression GetCorrectIterator(Expression iterator)
 		{
-			bool runtimeIterator = false;
-			
-			IType iteratorType = GetExpressionType(iterator);
-			if (!TypeSystemServices.IsError(iteratorType))
+			IType type = GetExpressionType(iterator);
+			if (TypeSystemServices.IsError(type))
 			{
-				CheckIterator(iterator, iteratorType, out runtimeIterator);
+				return iterator;
 			}
-			
-			if (runtimeIterator)
+						
+			if (!TypeSystemServices.IEnumerableType.IsAssignableFrom(type) &&
+				!TypeSystemServices.IEnumeratorType.IsAssignableFrom(type))
 			{
-				if (IsTextReader(iteratorType))
+				if (IsRuntimeIterator(type))
 				{
-					return CodeBuilder.CreateConstructorInvocation(TextReaderEnumerator_Constructor, iterator);
+					if (IsTextReader(type))
+					{
+						return CodeBuilder.CreateConstructorInvocation(TextReaderEnumerator_Constructor, iterator);
+					}
+					else
+					{
+						return CodeBuilder.CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
+					}
 				}
 				else
 				{
-					return CodeBuilder.CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
+					IMethod method = ResolveGetEnumerator(type);
+					if (null == method)
+					{ 
+						Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
+					}
+					else
+					{
+						return CodeBuilder.CreateMethodInvocation(iterator, method);
+					}	
 				}
 			}
-			
 			return iterator;
+		}
+		
+		IMethod ResolveGetEnumerator(IType type)
+		{
+			EnsureRelatedNodeWasVisited(type);
+			IMethod method = ResolveMethod(type, "GetEnumerator");
+			if (null != method)
+			{
+				this.EnsureRelatedNodeWasVisited(method);
+				if (0 == method.GetParameters().Length &&
+					method.ReturnType.IsSubclassOf(TypeSystemServices.IEnumeratorType))
+				{
+					return method;
+				}	
+			}
+			return null;
 		}
 		
 		/// <summary>
@@ -4483,21 +4512,6 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsTextReader(IType type)
 		{
 			return IsAssignableFrom(typeof(System.IO.TextReader), type);
-		}
-		
-		void CheckIterator(Expression iterator, IType type, out bool runtimeIterator)
-		{
-			runtimeIterator = false;
-			IType enumerable = TypeSystemServices.IEnumerableType;
-
-			if (!enumerable.IsAssignableFrom(type))
-			{
-				runtimeIterator = IsRuntimeIterator(type);
-				if (!runtimeIterator)
-				{
-					Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
-				}
-			}
 		}
 		
 		bool CheckTargetContext(Expression targetContext, IMember member)
