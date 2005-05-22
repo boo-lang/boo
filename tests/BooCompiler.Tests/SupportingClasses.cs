@@ -39,6 +39,10 @@ namespace BooCompiler.Tests
 		}
 	}
 	
+	public class ExtendsOverridenBoolOperator : OverrideBoolOperator
+	{
+	}
+	
 	public class OverrideEqualityOperators
 	{
 		public static bool operator==(OverrideEqualityOperators lhs, OverrideEqualityOperators rhs)

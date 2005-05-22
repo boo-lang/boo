@@ -2176,7 +2176,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (method.ReturnType == toType)
 				{
 					IParameter[] parameters = method.GetParameters();
-					if (1 == parameters.Length && fromType == parameters[0].Type)
+					if (1 == parameters.Length &&
+						fromType == parameters[0].Type)
 					{
 						return true;
 					}
@@ -2197,16 +2198,27 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod FindConversionOperator(string name, IType fromType, IType toType)
 		{
-			foreach (IEntity entity in fromType.GetMembers())
+			while (fromType != TypeSystemServices.ObjectType)
 			{
-				if (EntityType.Method == entity.EntityType &&
-					name == entity.Name)
+				foreach (IEntity entity in fromType.GetMembers())
 				{
-					IMethod method = (IMethod)entity;
-					if (IsConversionOperator(method, fromType, toType))
+					if (EntityType.Method == entity.EntityType &&
+						name == entity.Name)
 					{
-						return method;
+						IMethod method = (IMethod)entity;
+						if (IsConversionOperator(method, fromType, toType))
+						{
+							return method;
+						}
 					}
+				}
+				fromType = fromType.BaseType;
+				if (null == fromType)
+				{
+				// FIXME: this null check should not be needed
+				// but Boo.Nant.Tasks is failing to compiler
+				// otherwise
+					break;
 				}
 			}
 			return null;
