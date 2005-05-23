@@ -224,6 +224,18 @@ class Visitor(AbstractVisitorCompilerStep):
 		except ex:
 			print ex.ToString()
 			raise
+			
+	override def OnEvent(node as AST.Event):
+		try:
+			print "event ${node.Name}"
+			c as Class = _currentClass.Peek()
+			region = GetRegion(node)
+			e = Event(node.Name, ReturnType.CreateReturnType(node), GetModifier(node), region, region)
+			e.Documentation = node.Documentation
+			c.Events.Add(e)
+		except ex:
+			print ex.ToString()
+			raise
 	
 	override def OnProperty(node as AST.Property):
 		try:

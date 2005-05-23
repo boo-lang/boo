@@ -31,7 +31,7 @@
 	</target>
 	
 	<target name="run" depends="compile">
-		<exec program="${sharpdevelop.dir}bin/SharpDevelop.exe">
+		<exec program="${path::combine(sharpdevelop.dir, 'bin/SharpDevelop.exe')}">
 		</exec>
 	</target>
 	

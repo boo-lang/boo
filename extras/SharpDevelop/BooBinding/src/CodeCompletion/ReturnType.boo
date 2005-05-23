@@ -73,6 +73,8 @@ class ReturnType(AbstractReturnType):
 			t = (node as AST.Property).Type
 		elif node isa AST.Method:
 			t = (node as AST.Method).ReturnType
+		elif node isa AST.Event:
+			t = (node as AST.Event).Type
 		else:
 			raise "Unknown node ${node.GetType().FullName}"
 		str = t as AST.SimpleTypeReference
