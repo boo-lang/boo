@@ -1,5 +1,5 @@
-#region license 
-// Copyright (c) 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+﻿#region license
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -25,7 +25,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
-
 
 namespace Boo.Lang.Useful.Attributes
 
