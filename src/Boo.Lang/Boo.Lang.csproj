@@ -9,19 +9,22 @@
         <RootNamespace>Boo.Lang</RootNamespace>
         <AssemblyName>Boo.Lang</AssemblyName>
         <WarningLevel>4</WarningLevel>
+        <StartupObject/>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <DebugSymbols>true</DebugSymbols>
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
-        <OutputPath>.\bin\Debug\</OutputPath>
+        <OutputPath>bin\Debug\</OutputPath>
         <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <DebugSymbols>false</DebugSymbols>
         <Optimize>true</Optimize>
-        <OutputPath>.\bin\Release\</OutputPath>
+        <OutputPath>bin\Release\</OutputPath>
         <DefineConstants>TRACE</DefineConstants>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System"/>

@@ -1,10 +1,10 @@
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,13 +35,13 @@ namespace Boo.Lang.Compiler.Steps
 	
 	[Serializable]
 	public class BindBaseTypes : AbstractNamespaceSensitiveVisitorCompilerStep
-	{	
+	{
 		public BindBaseTypes()
 		{
 		}
 		
 		override public void Run()
-		{		
+		{
 			Visit(CompileUnit.Modules);
 		}
 		
@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
-		{				
+		{
 			EnterNamespace((INamespace)GetEntity(node));
 			Visit(node.Members);
 			LeaveNamespace();
@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType baseClass = null;
 			foreach (TypeReference baseType in node.BaseTypes)
-			{				
+			{
 				IType baseInfo = GetType(baseType);
 				if (!baseInfo.IsInterface)
 				{
@@ -94,13 +94,13 @@ namespace Boo.Lang.Compiler.Steps
 						    CompilerErrorFactory.ClassAlreadyHasBaseType(baseType,
 								node.Name,
 								baseClass.FullName)
-							); 
+							);
 					}
 					else
 					{
 						baseClass = baseInfo;
 						if (baseClass.IsFinal)
-						{	
+						{
 							Error(
 								CompilerErrorFactory.CannotExtendFinalType(
 									baseType,
@@ -135,7 +135,7 @@ namespace Boo.Lang.Compiler.Steps
 			int removed = 0;
 			int index = 0;
 			foreach (SimpleTypeReference type in node.BaseTypes.ToArray())
-			{                            
+			{
 				NameResolutionService.ResolveSimpleTypeReference(type);
 				IType entity = type.Entity as IType;
 				
@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (null != internalType)
 					{
 						if (visited.Contains(internalType.TypeDefinition))
-						{							
+						{
 							Error(CompilerErrorFactory.InheritanceCycle(type, internalType.FullName));
 							node.BaseTypes.RemoveAt(index-removed);
 							++removed;

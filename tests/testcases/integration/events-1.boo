@@ -32,7 +32,7 @@ def CheckEvent(name, serializable):
 	CheckEventMethod("remove_${name}", eventInfo.GetRemoveMethod())
 	CheckEventField(type.GetField("___${name}", BindingFlags.NonPublic|BindingFlags.Instance), serializable, eventInfo.EventHandlerType)
 
-	raiseMethod = eventInfo.GetRaiseMethod()
+	raiseMethod = eventInfo.GetRaiseMethod(true)
 	assert raiseMethod is not null
 	assert raiseMethod.ReturnType is void
 	assert raiseMethod.IsFamilyOrAssembly

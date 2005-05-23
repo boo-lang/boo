@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -68,7 +68,7 @@ namespace Boo.Lang.Compiler.Steps
 			catch (Exception x)
 			{
 				_context.Errors.Add(CompilerErrorFactory.AttributeApplicationError(x, _attribute, _type));
-			}			
+			}
 		}
 
 		public IAstAttribute CreateAstAttributeInstance()
@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Steps
 				bool initialized = true;
 
 				// Tenta inicializar todas as propriedades
-				// e campos (para obter o maior nmero de erros 
+				// e campos (para obter o maior nmero de erros
 				// de uma nica vez)
 				foreach (ExpressionPair p in _attribute.NamedArguments)
 				{
@@ -111,7 +111,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		bool SetFieldOrProperty(IAstAttribute aa, ExpressionPair p)
-		{			
+		{
 			ReferenceExpression name = p.First as ReferenceExpression;
 			if (null == name)
 			{
@@ -129,7 +129,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (members.Length > 1)
 					{
 						// Essa preocupao parece meio idiota, mas
-						// como ainda no tenho certeza de que o modelo 
+						// como ainda no tenho certeza de que o modelo
 						// IL no permita dois membros diferentes com mesmo
 						// nome vou deixar aqui
 						_context.Errors.Add(CompilerErrorFactory.AmbiguousReference(name, members));
@@ -172,7 +172,8 @@ namespace Boo.Lang.Compiler.Steps
 	/// Step 2. Processes AST attributes.
 	/// </summary>
 	public class BindAndApplyAttributes : AbstractNamespaceSensitiveTransformerCompilerStep
-	{				
+	{
+		
 		TaskList _tasks;
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
@@ -184,7 +185,7 @@ namespace Boo.Lang.Compiler.Steps
 		Boo.Lang.List _elements = new Boo.Lang.List();
 
 		public BindAndApplyAttributes()
-		{			
+		{
 			_tasks = new TaskList();
 		}
 
@@ -198,22 +199,22 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Visit(CompileUnit);
 				if (0 == _tasks.Count)
-				{					
+				{
 					break;
 				}
 				_tasks.Flush();
 				++step;
 			}
-		}		
+		}
 
 		override public bool EnterModule(Boo.Lang.Compiler.Ast.Module module)
-		{			
+		{
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
-			return true;			
+			return true;
 		}
 		
 		override public void LeaveModule(Boo.Lang.Compiler.Ast.Module module)
-		{			
+		{
 			LeaveNamespace();
 		}
 
@@ -223,7 +224,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
-		{			
+		{
 			if (null != attribute.Entity)
 			{
 				return;
@@ -263,7 +264,7 @@ namespace Boo.Lang.Compiler.Steps
 								Error(attribute, CompilerErrorFactory.AstAttributeMustBeExternal(attribute, attributeType.FullName));
 							}
 							else
-							{							
+							{
 								ScheduleAttributeApplication(attribute, externalType.ActualType);
 								
 								RemoveCurrentNode();

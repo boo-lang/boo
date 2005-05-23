@@ -277,7 +277,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
-			foreach (IMember member in type.GetMembers())
+			foreach (IEntity member in type.GetMembers())
 			{				
 				if (elementType == member.EntityType && name == member.Name)
 				{

@@ -53,6 +53,7 @@
         <Compile Include="Ast\CallableDefinition.cs"/>
         <Compile Include="Ast\CallableTypeReference.cs"/>
         <Compile Include="Ast\CastExpression.cs"/>
+        <Compile Include="Ast\CharLiteralExpression.cs"/>
         <Compile Include="Ast\ClassDefinition.cs"/>
         <Compile Include="Ast\CompileUnit.cs"/>
         <Compile Include="Ast\Constructor.cs"/>
@@ -62,12 +63,14 @@
         <Compile Include="Ast\DeclarationStatement.cs"/>
         <Compile Include="Ast\DepthFirstTransformer.cs"/>
         <Compile Include="Ast\DepthFirstVisitor.cs"/>
+        <Compile Include="Ast\Destructor.cs"/>
         <Compile Include="Ast\DoubleLiteralExpression.cs"/>
         <Compile Include="Ast\EnumDefinition.cs"/>
         <Compile Include="Ast\EnumMember.cs"/>
         <Compile Include="Ast\Event.cs"/>
         <Compile Include="Ast\ExceptionHandler.cs"/>
         <Compile Include="Ast\ExceptionHandlerCollection.cs"/>
+        <Compile Include="Ast\ExplicitMemberInfo.cs"/>
         <Compile Include="Ast\Expression.cs"/>
         <Compile Include="Ast\ExpressionCollection.cs"/>
         <Compile Include="Ast\ExpressionInterpolationExpression.cs"/>
@@ -83,6 +86,7 @@
         <Compile Include="Ast\GotoStatement.cs"/>
         <Compile Include="Ast\HashLiteralExpression.cs"/>
         <Compile Include="Ast\IAstVisitor.cs"/>
+        <Compile Include="Ast\IExplicitMember.cs"/>
         <Compile Include="Ast\IfStatement.cs"/>
         <Compile Include="Ast\Impl\ArrayLiteralExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\ArrayTypeReferenceImpl.cs"/>
@@ -97,6 +101,7 @@
         <Compile Include="Ast\Impl\CallableDefinitionImpl.cs"/>
         <Compile Include="Ast\Impl\CallableTypeReferenceImpl.cs"/>
         <Compile Include="Ast\Impl\CastExpressionImpl.cs"/>
+        <Compile Include="Ast\Impl\CharLiteralExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\ClassDefinitionImpl.cs"/>
         <Compile Include="Ast\Impl\CompileUnitImpl.cs"/>
         <Compile Include="Ast\Impl\ConstructorImpl.cs"/>
@@ -104,12 +109,14 @@
         <Compile Include="Ast\Impl\DeclarationCollectionImpl.cs"/>
         <Compile Include="Ast\Impl\DeclarationImpl.cs"/>
         <Compile Include="Ast\Impl\DeclarationStatementImpl.cs"/>
+        <Compile Include="Ast\Impl\DestructorImpl.cs"/>
         <Compile Include="Ast\Impl\DoubleLiteralExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\EnumDefinitionImpl.cs"/>
         <Compile Include="Ast\Impl\EnumMemberImpl.cs"/>
         <Compile Include="Ast\Impl\EventImpl.cs"/>
         <Compile Include="Ast\Impl\ExceptionHandlerCollectionImpl.cs"/>
         <Compile Include="Ast\Impl\ExceptionHandlerImpl.cs"/>
+        <Compile Include="Ast\Impl\ExplicitMemberInfoImpl.cs"/>
         <Compile Include="Ast\Impl\ExpressionCollectionImpl.cs"/>
         <Compile Include="Ast\Impl\ExpressionImpl.cs"/>
         <Compile Include="Ast\Impl\ExpressionInterpolationExpressionImpl.cs"/>

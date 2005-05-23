@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -97,10 +97,10 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void LeaveGeneratorExpression(GeneratorExpression node)
-		{				
+		{
 			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
 			{
-				collector.CurrentType = (IType)AstUtil.GetParentClass(node).Entity;				
+				collector.CurrentType = (IType)AstUtil.GetParentClass(node).Entity;
 				collector.Initialize(_context);
 				collector.Visit(node);
 
@@ -139,7 +139,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_labels = new List();
 			_mapping = new Hashtable();
-			_generator = method;			
+			_generator = method;
 			Initialize(context);
 		}
 		
@@ -169,7 +169,7 @@ namespace Boo.Lang.Compiler.Steps
 			// the enumerable to the enumerator
 			foreach (ParameterDeclaration parameter in _generator.Method.Parameters)
 			{
-				InternalParameter entity = (InternalParameter)parameter.Entity;				
+				InternalParameter entity = (InternalParameter)parameter.Entity;
 				if (entity.IsUsed)
 				{
 					enumerableConstructorInvocation.Arguments.Add(
@@ -183,7 +183,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			// propagate the external self reference if necessary
 			if (null != _externalEnumeratorSelf)
-			{				
+			{
 				IType type = (IType)_externalEnumeratorSelf.Type.Entity;
 				enumerableConstructorInvocation.Arguments.Add(
 					CodeBuilder.CreateSelfReference(type));
@@ -202,7 +202,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void CreateGetEnumerator(Expression enumeratorExpression)
-		{	
+		{
 			BooMethodBuilder method = (BooMethodBuilder)_generator.Method["GetEnumeratorBuilder"];
 			method.Body.Add(new ReturnStatement(enumeratorExpression));
 		}
@@ -229,7 +229,7 @@ namespace Boo.Lang.Compiler.Steps
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
 			
 			CreateEnumeratorConstructor();
-			CreateMoveNext();			
+			CreateMoveNext();
 			
 			_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
 		}
@@ -252,13 +252,13 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (ParameterDeclaration parameter in generator.Parameters)
 			{
-				InternalParameter entity = (InternalParameter)parameter.Entity;				
+				InternalParameter entity = (InternalParameter)parameter.Entity;
 				if (entity.IsUsed)
 				{
 					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
 												entity.Name,
 												entity.Type);
-					_mapping[entity] = field.Entity;					
+					_mapping[entity] = field.Entity;
 				}
 			}
 			
@@ -281,7 +281,7 @@ namespace Boo.Lang.Compiler.Steps
 												string parameterName,
 												IType parameterType)
 		{
-			Field field = DeclareFieldInitializedFromConstructorParameter(_enumerable, _enumerableConstructor, parameterName, parameterType);					
+			Field field = DeclareFieldInitializedFromConstructorParameter(_enumerable, _enumerableConstructor, parameterName, parameterType);
 			enumeratorConstructorInvocation.Arguments.Add(
 					CodeBuilder.CreateReference(field));
 		}
@@ -321,13 +321,13 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
-		{			
+		{
 			if (null == _externalEnumeratorSelf)
 			{
 				IType type = (IType)node.ExpressionType;
 				_externalEnumeratorSelf = DeclareFieldInitializedFromConstructorParameter(
 													_enumerator,
-													_enumeratorConstructor,													
+													_enumeratorConstructor,
 													"self_",	 type);
 			}
 			
@@ -335,14 +335,14 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void LeaveYieldStatement(YieldStatement node)
-		{						
-			Block block = new Block();			
+		{
+			Block block = new Block();
 			block.Add(
 				new ReturnStatement(
 					node.LexicalInfo,
 					CreateYieldInvocation(node.Expression),
-					null));				
-			block.Add(CreateLabel(node));					
+					null));
+			block.Add(CreateLabel(node));
 			ReplaceCurrentNode(block);
 		}
 		
@@ -365,15 +365,15 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		BooMethodBuilder CreateConstructor(BooClassBuilder builder)
-		{	
-			BooMethodBuilder constructor = builder.AddConstructor();			
+		{
+			BooMethodBuilder constructor = builder.AddConstructor();
 			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));
-			return constructor; 
+			return constructor;
 		}
 	}
 	
 	class GeneratorExpressionProcessor : AbstractCompilerComponent
-	{		
+	{
 		GeneratorExpression _generator;
 		
 		BooClassBuilder _enumerable;
@@ -389,15 +389,15 @@ namespace Boo.Lang.Compiler.Steps
 		public GeneratorExpressionProcessor(CompilerContext context,
 								ForeignReferenceCollector collector,
 								GeneratorExpression node)
-		{			
+		{
 			_collector = collector;
 			_generator = node;
 			Initialize(context);
 		}
 		
 		public void Run()
-		{				
-			RemoveReferencedDeclarations();			
+		{
+			RemoveReferencedDeclarations();
 			CreateAnonymousGeneratorType();
 		}
 		
@@ -411,7 +411,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void CreateAnonymousGeneratorType()
-		{	
+		{
 			_enumerable = (BooClassBuilder)_generator["GeneratorClassBuilder"];
 			
 			_enumerator = _collector.CreateSkeletonClass("Enumerator");
@@ -440,13 +440,13 @@ namespace Boo.Lang.Compiler.Steps
 		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
 		{
 			return _collector.CreateConstructorInvocationWithReferencedEntities(
-							_enumerable.Entity);						
-		}		
+							_enumerable.Entity);
+		}
 		
 		void EnumeratorConstructorMustCallReset()
 		{
 			Constructor constructor = _enumerator.ClassDefinition.GetConstructor(0);
-			constructor.Body.Add(CreateMethodInvocation(_enumerator.ClassDefinition, "Reset"));			
+			constructor.Body.Add(CreateMethodInvocation(_enumerator.ClassDefinition, "Reset"));
 		}
 		
 		IMethod GetMemberwiseCloneMethod()
@@ -474,7 +474,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void CreateGetEnumerator()
-		{	
+		{
 			BooMethodBuilder method = (BooMethodBuilder)_generator["GetEnumeratorBuilder"];
 			
 			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
@@ -488,10 +488,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			method.Body.Add(new ReturnStatement(mie));
-		}		
+		}
 		
 		void CreateClone()
-		{			
+		{
 			BooMethodBuilder method = _enumerator.AddVirtualMethod("Clone", TypeSystemServices.ObjectType);
 			method.Body.Add(
 				new ReturnStatement(
@@ -528,14 +528,14 @@ namespace Boo.Lang.Compiler.Steps
 			Block innerBlock = null;
 			
 			if (null == _generator.Filter)
-			{								
+			{
 				IfStatement istmt = new IfStatement(moveNext, new Block(), null);
 				outerBlock = innerBlock = istmt.TrueBlock;
 				
 				stmt = istmt;
 			}
 			else
-			{				 
+			{
 				WhileStatement wstmt = new WhileStatement(moveNext);
 				outerBlock = wstmt.Block;
 				
@@ -548,14 +548,14 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					UnlessStatement ustmt = new UnlessStatement(_generator.Filter.Condition);
-					innerBlock = ustmt.Block;					
+					innerBlock = ustmt.Block;
 					filter = ustmt;
 				}
 				
 				stmt = wstmt;
 			}
 												
-			DeclarationCollection declarations = _generator.Declarations;			
+			DeclarationCollection declarations = _generator.Declarations;
 			if (declarations.Count > 1)
 			{
 				NormalizeIterationStatements.UnpackExpression(CodeBuilder,
