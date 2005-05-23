@@ -75,5 +75,10 @@ namespace Boo.Lang
 		public Hash(SerializationInfo info, StreamingContext context) : base(info, context)
 		{
 		}
+		
+		override public object Clone()
+		{
+			return new Hash(this);
+		}
 	}
 }
