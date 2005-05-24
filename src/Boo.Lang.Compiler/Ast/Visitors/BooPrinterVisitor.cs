@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -26,14 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Text.RegularExpressions;
+using System.Globalization;
+using System.IO;
+using Boo.Lang.Compiler.Ast;
+
 namespace Boo.Lang.Compiler.Ast.Visitors
 {
-	using System;
-	using System.Text.RegularExpressions;
-	using System.Globalization;
-	using System.IO;
-	using Boo.Lang.Compiler.Ast;
-
 	/// <summary>
 	/// Imprime uma AST boo em boo.
 	/// </summary>
@@ -732,6 +732,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			WriteKeyword("break ");
+			Visit(node.Modifier);
+			WriteLine();
+		}
+		
+		override public void OnContinueStatement(ContinueStatement node)
+		{
+			WriteIndented();
+			WriteKeyword("continue ");
 			Visit(node.Modifier);
 			WriteLine();
 		}
