@@ -105,6 +105,9 @@ class BoocTask(AbstractBooTask):
 		files = _sourceFiles.FileNames
 		LogInfo("Compiling ${len(files)} file(s) to ${_output}.")
 		
+		if _traceLevel != TraceLevel.Off:
+			Trace.Listeners.Add(TextWriterTraceListener(System.Console.Out))
+		
 		compiler = BooCompiler()
 		parameters = compiler.Parameters
 		parameters.TraceSwitch.Level = _traceLevel
