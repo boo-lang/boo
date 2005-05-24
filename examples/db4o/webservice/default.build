@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<project name="db4o webservice example" default="build">
+
+	<property name="boo.bin" value="${path::get-full-path('../../../bin')}" />
+	<property name="db4o.dll" value="${path::get-full-path('../../../../db4o-4.5/dll/net/db4o.dll')}" />
+	
+	<target name="run-server" depends="build-server">
+		<exec program="xsp" workingdir="build/server">
+		</exec>
+	</target>
+	
+	<target name="rebuild" depends="clean, build">
+	</target>
+
+	<target name="build" depends="build-client">	
+	</target>
+	
+	<target name="build-server" depends="init">
+		<booc target="library" output="build/server/bin/BooWebService.Server.dll">
+			<sources basedir="server">
+				<include name="*.boo" />
+			</sources>
+			<references>
+				<include name="System.Web.dll" />
+				<include name="System.Web.Services.dll" />
+				<include name="${db4o.dll}" />
+			</references>
+		</booc>
+		
+		<copy todir="build/server">
+			<fileset basedir="server">
+				<include name="*.asmx" />
+				<include name="*.asax" />
+				<include name="web.config" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="build-client" depends="build-server">
+		<booc target="exe" output="build/client/BooWebServiceClient.exe">
+			<sources basedir="client">
+				<include name="*.boo" />
+			</sources>
+			<references>
+				<include name="gtk-sharp.dll" />
+				<include name="System.Xml.dll" />
+				<include name="System.Web.Services.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+	
+	<target name="init">
+		<mkdir dir="build" />
+		<mkdir dir="build/client" />
+		<mkdir dir="build/server" />
+		<mkdir dir="build/server/bin" />
+		
+		<copy todir="build/server/bin" file="${db4o.dll}" />
+		<loadtasks assembly="${boo.bin}/Boo.NAnt.Tasks.dll" />
+	</target>
+</project>

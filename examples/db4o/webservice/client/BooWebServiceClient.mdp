@@ -1,0 +1,26 @@
+<Project name="BooWebServiceClient" fileversion="2.0" language="Boo" ctype="DotNetProject">
+  <Configurations>
+    <Configuration name="Debug" ctype="DotNetProjectConfiguration">
+      <Output directory="../build/client" assembly="BooWebServiceClient" />
+      <Build debugmode="True" target="Exe" />
+      <Execution runwithwarnings="True" consolepause="True" runtime="MsNet" />
+      <CodeGeneration compiler="Booc" compilerpath="booc" genwarnings="False" ducky="False" culture="" ctype="BooCompilerParameters" />
+    </Configuration>
+    <Configuration name="Release" ctype="DotNetProjectConfiguration">
+      <Output directory="./bin/Release" assembly="BooWebServiceClient" />
+      <Build debugmode="False" target="Exe" />
+      <Execution runwithwarnings="True" consolepause="True" runtime="MsNet" />
+      <CodeGeneration compiler="Booc" compilerpath="booc" genwarnings="False" ducky="False" culture="" ctype="BooCompilerParameters" />
+    </Configuration>
+  </Configurations>
+  <References>
+    <ProjectReference type="Gac" localcopy="True" refto="gtk-sharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+  </References>
+  <DeploymentInformation strategy="File">
+    <excludeFiles />
+  </DeploymentInformation>
+  <Contents>
+    <File name="./MainWindow.boo" subtype="Code" buildaction="Compile" />
+    <File name="./WebServiceProxy.boo" subtype="Code" buildaction="Compile" />
+  </Contents>
+</Project>

@@ -1,0 +1,16 @@
+<Combine name="BooWebService.Server" fileversion="2.0">
+  <Configurations>
+    <Configuration name="Debug" ctype="CombineConfiguration">
+      <Entry build="True" name="BooWebService.Server" />
+    </Configuration>
+    <Configuration name="Release" ctype="CombineConfiguration">
+      <Entry build="True" name="BooWebService.Server" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="BooWebService.Server" single="True">
+    <Execute type="None" entry="BooWebService.Server" />
+  </StartMode>
+  <Entries>
+    <Entry filename="./BooWebService.Server.mdp" />
+  </Entries>
+</Combine>
