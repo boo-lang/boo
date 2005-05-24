@@ -424,10 +424,17 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnUnaryExpression(UnaryExpression node)
 		{
-			Write("(");
+			bool addParens = NodeType.ExpressionStatement != node.ParentNode.NodeType;
+			if (addParens)
+			{
+				Write("(");
+			}
 			WriteOperator(GetUnaryOperatorText(node.Operator));
 			Visit(node.Operand);
-			Write(")");
+			if (addParens)
+			{
+				Write(")");
+			}
 		}
 
 		override public void OnBinaryExpression(BinaryExpression e)
