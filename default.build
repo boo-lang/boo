@@ -73,9 +73,8 @@
 
 		<booc
 			target="exe"
-			output="build/booi.exe"
-			tracelevel="Verbose">
-			
+			output="build/booi.exe">
+
 			<sources basedir="src/booi">
 				<include name="*.boo" />
 			</sources>
