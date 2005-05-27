@@ -196,6 +196,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ObjectArrayType = GetArrayType(ObjectType, 1);
 
 			PreparePrimitives();
+			PrepareBuiltinFunctions();
 		}
 		
 		public CompilerContext Context
@@ -992,7 +993,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type == ObjectType || type == DuckType;
 		}
 		
-		void PreparePrimitives()
+		protected virtual void PreparePrimitives()
 		{
 			AddPrimitiveType("duck", DuckType);
 			AddPrimitiveType("void", VoidType);
@@ -1015,6 +1016,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("double", DoubleType);
 			AddPrimitiveType("decimal", DecimalType);
 			AddPrimitiveType("callable", ICallableType);
+		}
+		
+		protected virtual void PrepareBuiltinFunctions()
+		{
 			AddBuiltin(BuiltinFunction.Len);
 			AddBuiltin(BuiltinFunction.AddressOf);
 			AddBuiltin(BuiltinFunction.Eval);
