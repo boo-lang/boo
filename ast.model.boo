@@ -399,6 +399,7 @@ class IntegerLiteralExpression(LiteralExpression):
 
 class DoubleLiteralExpression(LiteralExpression):
 	Value as double
+	IsSingle as bool
 
 class NullLiteralExpression(LiteralExpression):
 	pass

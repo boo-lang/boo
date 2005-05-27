@@ -1541,7 +1541,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
-			BindExpressionType(node, TypeSystemServices.DoubleType);
+			BindExpressionType(node, node.IsSingle ? TypeSystemServices.SingleType : TypeSystemServices.DoubleType);
 		}
 		
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
