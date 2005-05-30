@@ -24,7 +24,6 @@
     <File name="./AbstractCompilerTestCase.cs" subtype="Code" buildaction="Compile" />
     <File name="./BooTestCaseUtil.cs" subtype="Code" buildaction="Compile" />
     <File name="./CompilationTestFixture.cs" subtype="Code" buildaction="Compile" />
-    <File name="./CompilerTestCase.cs" subtype="Code" buildaction="Compile" />
     <File name="./LocalizationTestCase.cs" subtype="Code" buildaction="Compile" />
     <File name="./PipelineTestCase.cs" subtype="Code" buildaction="Compile" />
     <File name="./SupportingClasses.cs" subtype="Code" buildaction="Compile" />
