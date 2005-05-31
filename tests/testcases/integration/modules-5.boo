@@ -38,7 +38,7 @@ assert 1 == len(types)
 type = types[0]
 assert "MyModule" == type.Name
 
-entry = result.GeneratedAssemblyEntryPoint
+entry = result.GeneratedAssembly.EntryPoint
 assert entry is not null
 assert "Main" == entry.Name
 assert Attribute.GetCustomAttribute(entry, STAThreadAttribute) is not null

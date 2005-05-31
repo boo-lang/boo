@@ -57,8 +57,6 @@ namespace Boo.Lang.Compiler
 
 		protected int _localIndex;
 		
-		protected System.Reflection.MethodInfo _generatedEntryPoint;
-		
 		protected Assembly _generatedAssembly;
 		
 		protected string _generatedAssemblyFileName;
@@ -218,20 +216,7 @@ namespace Boo.Lang.Compiler
 				_generatedAssembly = value;
 			}
 		}
-		
-		public System.Reflection.MethodInfo GeneratedAssemblyEntryPoint
-		{
-			get
-			{
-				return _generatedEntryPoint;
-			}
-			
-			set
-			{
-				_generatedEntryPoint = value;
-			}
-		}
-		
+
 		public int AllocIndex()
 		{
 			return ++_localIndex;

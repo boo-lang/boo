@@ -204,7 +204,7 @@ class AbstractInterpreter:
 		
 		InitializeModuleInterpreter(asm, module)
 		
-		result.GeneratedAssemblyEntryPoint.Invoke(null, (null,)) if hasStatements
+		result.GeneratedAssembly.EntryPoint.Invoke(null, (null,)) if hasStatements
 		return result
 		
 	def Parse(input as ICompilerInput):

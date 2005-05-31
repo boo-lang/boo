@@ -2889,24 +2889,20 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefineEntryPoint()
 		{
-			Context.GeneratedAssembly = _asmBuilder;
+			if (Context.Parameters.GenerateInMemory)
+			{
+				Context.GeneratedAssembly = _asmBuilder;
+			}
 			
 			if (CompilerOutputType.Library != Parameters.OutputType)
 			{
 				Method method = ContextAnnotations.GetEntryPoint(Context);
 				if (null != method)
-				{
-					Type type = _asmBuilder.GetType(method.DeclaringType.FullName, true);
-					MethodInfo createdMethod = type.GetMethod(method.Name, BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic);
-					
-					// the mono implementation expects the first argument to
-					// SetEntryPoint to be a MethodBuilder, otherwise it generates
-					// bogus assemblies
-					_asmBuilder.SetEntryPoint(createdMethod, (PEFileKinds)Parameters.OutputType);
-					
-					// for the rest of the world (like RunAssembly)
-					// the created method is the way to go
-					Context.GeneratedAssemblyEntryPoint = createdMethod;
+				{	
+					MethodInfo entryPoint = Context.Parameters.GenerateInMemory
+						? _asmBuilder.GetType(method.DeclaringType.FullName).GetMethod(method.Name, BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Static)
+						: GetMethodBuilder(method);
+					_asmBuilder.SetEntryPoint(entryPoint, (PEFileKinds)Parameters.OutputType);
 				}
 				else
 				{
@@ -3768,11 +3764,16 @@ namespace Boo.Lang.Compiler.Steps
 			string outputFile = BuildOutputAssemblyName(fname);
 			
 			AssemblyName asmName = CreateAssemblyName(outputFile);
-			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave, GetTargetDirectory(outputFile));
+			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, GetAssemblyBuilderAccess(), GetTargetDirectory(outputFile));
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), true);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 			
 			Context.GeneratedAssemblyFileName = outputFile;
+		}
+		
+		AssemblyBuilderAccess GetAssemblyBuilderAccess()
+		{
+			return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
 		}
 		
 		AssemblyName CreateAssemblyName(string outputFile)

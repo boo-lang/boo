@@ -95,7 +95,7 @@ def Main(argv as (string)):
 	else:	
 		try: 
 			resolver.AddAssembly(result.GeneratedAssembly)
-			result.GeneratedAssemblyEntryPoint.Invoke(null, (argv[1:],))			
+			result.GeneratedAssembly.EntryPoint.Invoke(null, (argv[1:],))			
 		except x as TargetInvocationException:
 			print(x.InnerException)
 			return -1

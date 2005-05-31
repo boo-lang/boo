@@ -15,6 +15,7 @@
   </Configurations>
   <References>
     <ProjectReference type="Project" localcopy="True" refto="Boo.Lang.Compiler" />
+    <ProjectReference type="Gac" localcopy="True" refto="nunit.framework, Version=2.2.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77" />
   </References>
   <DeploymentInformation strategy="File">
     <excludeFiles />

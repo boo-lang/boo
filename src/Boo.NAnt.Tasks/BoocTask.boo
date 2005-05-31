@@ -52,6 +52,8 @@ class BoocTask(AbstractBooTask):
 	
 	_rebuild = false
 	
+	_generateInMemory = false
+	
 	[BuildElement("rebuild")]
 	Rebuild:
 		get:
@@ -92,6 +94,13 @@ class BoocTask(AbstractBooTask):
 						Location)
 			_target = value
 			
+	[TaskAttribute("generateInMemory")]
+	GenerateInMemory:
+		get:
+			return _generateInMemory
+		set:
+			_generateInMemory = false
+			
 	[BuildElement("sources", Required: true)]
 	Sources:
 		get:
@@ -113,6 +122,7 @@ class BoocTask(AbstractBooTask):
 		parameters.TraceSwitch.Level = _traceLevel
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
+		parameters.GenerateInMemory = _generateInMemory
 		
 		for fname as string in files:
 			print("source: ${fname}")

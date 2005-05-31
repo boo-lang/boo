@@ -97,3 +97,34 @@ class CompilerTestFixture:
 		Assert.IsTrue(references.Contains(Assembly.LoadWithPartialName("System")), "System.dll must be referenced by default!")
 		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Builtins).Assembly), "Boo.dll must referenced by default!")
 		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Compiler.BooCompiler).Assembly), "Boo.Lang.Compiler.dll must be referenced by default!")
+		
+	[Test]
+	def DefaultGenerateInMemory():
+		assert _compiler.Parameters.GenerateInMemory
+		
+	[Test]
+	def CompileOnlyToFile():
+		_compiler.Parameters.GenerateInMemory = false
+		_compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.CompileToFile()
+		_compiler.Parameters.Input.Add(StringInput("foo", "print 'foo'"))
+		_compiler.Parameters.OutputAssembly = fname = Path.Combine(Path.GetTempPath(), "foo.exe")
+		
+		context = _compiler.Run()
+		Assert.AreEqual(0, len(context.Errors))
+		assert File.Exists(fname)
+		assert context.GeneratedAssembly is null 
+		
+		asm = System.Reflection.Assembly.LoadFrom(fname)
+		assert asm is not null
+		assert asm.EntryPoint is not null
+		types = asm.GetTypes()
+		Assert.AreEqual(1, len(types))
+		writer = System.IO.StringWriter()
+		saved = Console.Out
+		Console.SetOut(writer)
+		try:
+			asm.EntryPoint.Invoke(null, (array(string, 0), ))
+		ensure:
+			Console.SetOut(saved)
+		Assert.AreEqual("foo", writer.ToString().Trim())
+

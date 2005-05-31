@@ -34,7 +34,9 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			if (Errors.Count > 0 || CompilerOutputType.Library == Parameters.OutputType)
+			if (Errors.Count > 0 ||
+				CompilerOutputType.Library == Parameters.OutputType ||
+				null == Context.GeneratedAssembly)
 			{
 				return;
 			}
