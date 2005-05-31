@@ -5,16 +5,16 @@
 
 # Reference the common Framework libraries
 #-r:System (already included by boo)
--r:System.Data
+#-r:System.Data 
 -r:System.Drawing
--r:System.Management
--r:System.Messaging
--r:System.Runtime.Remoting
--r:System.Runtime.Serialization.Formatters.Soap
+#-r:System.Management
+#-r:System.Messaging
+#-r:System.Runtime.Remoting
+#-r:System.Runtime.Serialization.Formatters.Soap
 # does not work nicely on mono
-#-r:System.Security
--r:System.ServiceProcess
--r:System.Web
--r:System.Web.Services
--r:System.Windows.Forms
+-r:System.Security
+#-r:System.ServiceProcess
+#-r:System.Web
+#-r:System.Web.Services
+#-r:System.Windows.Forms
 -r:System.Xml
