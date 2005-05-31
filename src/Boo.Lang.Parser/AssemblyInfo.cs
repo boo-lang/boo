@@ -37,7 +37,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.4.1648")]
+[assembly: AssemblyVersion("0.5.5.1651")]
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("../src/boo.snk")]
 [assembly: AssemblyKeyName("")]
