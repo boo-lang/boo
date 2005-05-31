@@ -65,8 +65,7 @@
 	
 		<booc
 			output="${build.dir}/booxw.exe"
-			target="winexe"
-			tracelevel="Info">
+			target="winexe">
 			<sources basedir="src">
 				<include name="*.boo" />
 			</sources> 

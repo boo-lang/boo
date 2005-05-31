@@ -219,7 +219,7 @@ class BooEditor(DockContent):
 					current = AppDomain.CurrentDomain
 					try:
 						current.AssemblyResolve += AppDomain_AssemblyResolve
-						result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
+						result.GeneratedAssembly.EntryPoint.Invoke(null, (null,))
 					except x:
 						print(x)		
 					ensure:

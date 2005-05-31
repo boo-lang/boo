@@ -38,7 +38,7 @@ class CompiledScript:
 				
 	def Execute():
 		return if len(_ctx.Errors)
-		_ctx.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
+		_ctx.GeneratedAssembly.EntryPoint.Invoke(null, (null,))
 		
 	def GetType(typeName as string):
 		return null if len(_ctx.Errors)
