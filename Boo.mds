@@ -8,6 +8,7 @@
       <Entry build="True" name="Boo.Lang.Useful.Tests" />
       <Entry build="True" name="BooCompiler.Tests" />
       <Entry build="True" name="Boo.Lang.Compiler.Tests" />
+      <Entry build="True" name="Boo.Lang.Interpreter.Tests" />
     </Configuration>
     <Configuration name="Release" ctype="CombineConfiguration">
       <Entry build="True" name="Boo.Lang" />
@@ -17,6 +18,7 @@
       <Entry build="True" name="Boo.Lang.Useful.Tests" />
       <Entry build="True" name="BooCompiler.Tests" />
       <Entry build="True" name="Boo.Lang.Compiler.Tests" />
+      <Entry build="True" name="Boo.Lang.Interpreter.Tests" />
     </Configuration>
   </Configurations>
   <StartMode startupentry="Boo.Lang" single="True">
@@ -27,6 +29,7 @@
     <Execute type="None" entry="Boo.Lang.Useful.Tests" />
     <Execute type="None" entry="BooCompiler.Tests" />
     <Execute type="None" entry="Boo.Lang.Compiler.Tests" />
+    <Execute type="None" entry="Boo.Lang.Interpreter.Tests" />
   </StartMode>
   <Entries>
     <Entry filename="./src/Boo.Lang/Boo.Lang.mdp" />
@@ -36,5 +39,6 @@
     <Entry filename="./tests/Boo.Lang.Useful.Tests/Boo.Lang.Useful.Tests.mdp" />
     <Entry filename="./tests/BooCompiler.Tests/BooCompiler.Tests.mdp" />
     <Entry filename="./tests/Boo.Lang.Compiler.Tests/Boo.Lang.Compiler.Tests.mdp" />
+    <Entry filename="./tests/Boo.Lang.Interpreter.Tests/Boo.Lang.Interpreter.Tests.mdp" />
   </Entries>
 </Combine>

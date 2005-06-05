@@ -59,7 +59,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _type.FullName;
+				// FIXME: don't use Replace but build the name from the parent
+				return _type.FullName.Replace("+", ".");
 			}
 		}
 		

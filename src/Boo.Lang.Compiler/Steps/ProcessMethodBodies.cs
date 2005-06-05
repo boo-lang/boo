@@ -2124,6 +2124,14 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				type = GetType(node.Declaration.Type);
 			}
+			else if (null != node.Initializer)
+			{
+				// The boo syntax does not require this check because
+				// there's no way to create an untyped declaration statement.
+				// This is here to support languages that do allow untyped variable
+				// declarations (unityscript is such an example).
+				type = GetExpressionType(node.Initializer);
+			}
 			
 			CheckDeclarationName(node.Declaration);
 			
@@ -2381,10 +2389,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case EntityType.Type:
 				{
-					if (NodeType.ReferenceExpression == node.NodeType)
-					{
-						node.Name = tag.FullName;
-					}
 					if (IsStandaloneReference(node))
 					{
 						BindExpressionType(node, TypeSystemServices.TypeType);
@@ -2947,6 +2951,37 @@ namespace Boo.Lang.Compiler.Steps
 				BinaryOperatorType.Addition : BinaryOperatorType.Subtraction;
 		}
 		
+		UnaryOperatorType GetRelatedPreOperator(UnaryOperatorType op)
+		{
+			switch (op)
+			{
+				case UnaryOperatorType.PostIncrement:
+				{
+					return UnaryOperatorType.Increment;
+				}
+				case UnaryOperatorType.PostDecrement:
+				{
+					return UnaryOperatorType.Decrement;
+				}
+			}
+			throw new ArgumentException("op");
+		}
+		
+		override public bool EnterUnaryExpression(UnaryExpression node)
+		{
+			if (AstUtil.IsPostUnaryOperator(node.Operator))
+			{
+				UnaryOperatorType op = GetRelatedPreOperator(node.Operator);
+				if (NodeType.ExpressionStatement == node.ParentNode.NodeType)
+				{
+					// nothing to do, a post operator inside a statement
+					// behaves just like its equivalent pre operator
+					node.Operator = op;
+				}
+			}
+			return true;
+		}
+		
 		override public void LeaveUnaryExpression(UnaryExpression node)
 		{
 			switch (node.Operator)
@@ -2959,11 +2994,6 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				case UnaryOperatorType.Increment:
-				{
-					LeaveIncrementDecrement(node);
-					break;
-				}
-				
 				case UnaryOperatorType.Decrement:
 				{
 					LeaveIncrementDecrement(node);

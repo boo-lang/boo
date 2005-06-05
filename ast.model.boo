@@ -359,6 +359,8 @@ enum UnaryOperatorType:
 	UnaryNegation
 	Increment
 	Decrement
+	PostIncrement
+	PostDecrement
 	LogicalNot
 
 class UnaryExpression(Expression):

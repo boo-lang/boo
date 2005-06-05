@@ -30,6 +30,12 @@ namespace Boo.Lang.Compiler.Ast
 {	
 	public class AstUtil
 	{
+		public static bool IsPostUnaryOperator(UnaryOperatorType op)
+		{
+			return UnaryOperatorType.PostIncrement == op ||
+				UnaryOperatorType.PostDecrement == op;
+		}
+
 		public static ClassDefinition GetParentClass(Node node)
 		{
 			Node parent = node.ParentNode;

@@ -30,6 +30,14 @@ namespace BooCompiler.Tests
 {
 	using System;
 	
+	public class OutterClass
+	{
+		public class InnerClass
+		{
+			public static int X = 3;
+		}
+	}
+	
 	public class OverrideBoolOperator
 	{
 		public static implicit operator bool(OverrideBoolOperator instance)

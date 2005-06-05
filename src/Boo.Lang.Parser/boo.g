@@ -1066,7 +1066,7 @@ stmt [StatementCollection container]
 		s=unless_stmt |
 		s=try_stmt |
 		s=given_stmt |
-		{IsValidMacroArgument(LA(2))}? s=macro_stmt |
+		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=macro_stmt |
 		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
 		s=return_stmt |
 		(		
@@ -1921,11 +1921,22 @@ unary_expression returns [Expression e]
 			UnaryOperatorType uOperator = UnaryOperatorType.None;
 	}: 
 	(
-		sub:SUBTRACT { op = sub; uOperator = UnaryOperatorType.UnaryNegation; } |
-		inc:INCREMENT { op = inc; uOperator = UnaryOperatorType.Increment; } |
-		dec:DECREMENT { op = dec; uOperator = UnaryOperatorType.Decrement; }
-	)?
-	e=slicing_expression
+		(
+			(
+				sub:SUBTRACT { op = sub; uOperator = UnaryOperatorType.UnaryNegation; } |
+				inc:INCREMENT { op = inc; uOperator = UnaryOperatorType.Increment; } |
+				dec:DECREMENT { op = dec; uOperator = UnaryOperatorType.Decrement; }
+			)
+			e=unary_expression
+		) |
+		(
+			e=slicing_expression
+			(
+				postinc:INCREMENT { op = postinc; uOperator = UnaryOperatorType.PostIncrement; } |
+				postdec:DECREMENT { op = postdec; uOperator = UnaryOperatorType.PostDecrement; }
+			)?
+		)
+	)
 	{
 		if (null != op)
 		{

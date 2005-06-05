@@ -212,10 +212,12 @@ class Language:
 	
 		Eval("language = Language()")
 		language as duck = _interpreter.GetValue("language")
+		assert language is not null
 		assert 'boo' == language.Name
 		
 		Eval("language = Language(Name: 'portuguese')")
 		language = _interpreter.GetValue("language")
+		assert language is not null
 		assert 'portuguese' == language.Name
 
 	[Test]

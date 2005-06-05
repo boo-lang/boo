@@ -1805,8 +1805,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
-			_il.Emit(OpCodes.Ldc_R8, node.Value);
-			PushType(TypeSystemServices.DoubleType);
+			if (node.IsSingle)
+			{
+				_il.Emit(OpCodes.Ldc_R4, (float)node.Value);
+				PushType(TypeSystemServices.SingleType);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Ldc_R8, node.Value);
+				PushType(TypeSystemServices.DoubleType);
+			}
 		}
 		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)

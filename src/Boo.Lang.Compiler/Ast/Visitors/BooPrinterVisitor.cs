@@ -429,8 +429,17 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			{
 				Write("(");
 			}
-			WriteOperator(GetUnaryOperatorText(node.Operator));
+			
+			bool postOperator = AstUtil.IsPostUnaryOperator(node.Operator);
+			if (!postOperator)
+			{
+				WriteOperator(GetUnaryOperatorText(node.Operator));
+			}
 			Visit(node.Operand);
+			if (postOperator)
+			{
+				WriteOperator(GetUnaryOperatorText(node.Operator));
+			}
 			if (addParens)
 			{
 				Write(")");
@@ -831,11 +840,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			switch (op)
 			{
+				case UnaryOperatorType.PostIncrement:
 				case UnaryOperatorType.Increment:
 				{
 					return "++";
 				}
 					
+				case UnaryOperatorType.PostDecrement:
 				case UnaryOperatorType.Decrement:
 				{
 					return "--";

@@ -6,9 +6,9 @@ public final transient class Using1Module(System.Object):
 
 	private static def Main(argv as (System.String)) as System.Void:
 		try:
-			f1 = System.IO.File.OpenText('using0.boo')
+			f1 = File.OpenText('using0.boo')
 			try:
-				f2 = System.IO.File.OpenText('using1.boo')
+				f2 = File.OpenText('using1.boo')
 				Boo.Lang.Builtins.print(f2.ReadLine())
 			ensure:
 				if (__disposable__ = (f2 as System.IDisposable)):
