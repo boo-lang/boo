@@ -37,6 +37,6 @@ import System.Runtime.CompilerServices
 [assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.5.1656")]
+[assembly: AssemblyVersion("0.5.5.1658")]
 [assembly: AssemblyKeyFile("../src/boo.snk")]
 
