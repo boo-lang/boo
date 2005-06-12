@@ -1670,7 +1670,17 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void OnAddressOf(MethodInvocationExpression node)
 		{
-			_il.Emit(OpCodes.Ldftn, GetMethodInfo((IMethod)GetEntity(node.Arguments[0])));
+			MemberReferenceExpression methodRef = (MemberReferenceExpression)node.Arguments[0];
+			MethodInfo method = GetMethodInfo((IMethod)GetEntity(methodRef));
+			if (method.IsVirtual)
+			{
+				Visit(methodRef.Target); PopType();
+				_il.Emit(OpCodes.Ldvirtftn, method);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Ldftn, method);
+			}
 			PushType(TypeSystemServices.IntPtrType);
 		}
 		
