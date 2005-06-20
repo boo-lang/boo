@@ -1674,7 +1674,7 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInfo method = GetMethodInfo((IMethod)GetEntity(methodRef));
 			if (method.IsVirtual)
 			{
-				Visit(methodRef.Target); PopType();
+				_il.Emit(OpCodes.Dup);
 				_il.Emit(OpCodes.Ldvirtftn, method);
 			}
 			else
