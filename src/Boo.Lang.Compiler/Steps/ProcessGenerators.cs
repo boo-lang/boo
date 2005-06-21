@@ -324,7 +324,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == _externalEnumeratorSelf)
 			{
-				IType type = (IType)node.ExpressionType;
+				IType type = node.ExpressionType;
 				_externalEnumeratorSelf = DeclareFieldInitializedFromConstructorParameter(
 													_enumerator,
 													_enumeratorConstructor,
@@ -496,7 +496,7 @@ namespace Boo.Lang.Compiler.Steps
 			method.Body.Add(
 				new ReturnStatement(
 					CodeBuilder.CreateMethodInvocation(
-						CodeBuilder.CreateSelfReference((IType)_enumerator.Entity),
+						CodeBuilder.CreateSelfReference(_enumerator.Entity),
 						GetMemberwiseCloneMethod())));
 		}
 		

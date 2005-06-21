@@ -28,9 +28,7 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
 	using System.Diagnostics;
-	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
