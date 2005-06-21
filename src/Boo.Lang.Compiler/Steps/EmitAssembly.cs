@@ -3440,10 +3440,6 @@ namespace Boo.Lang.Compiler.Steps
 			ParameterDeclarationCollection parameters = method.Parameters;
 			
 			MethodAttributes methodAttributes = GetMethodAttributes(method) | attributes;
-			if (typeBuilder.IsInterface)
-			{
-				methodAttributes |= (MethodAttributes.Virtual | MethodAttributes.Abstract);
-			}
 			
 			string name;
 			if (method.ExplicitInfo != null)

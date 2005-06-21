@@ -1538,6 +1538,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\NormalizeTypeAndMemberDefinitions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\PEVerify.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -1578,6 +1583,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\ProcessInheritedAbstractMembers.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\ProcessMethodBodies.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -1589,6 +1599,11 @@
                 />
                 <File
                     RelPath = "Steps\ProcessSharedLocals.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ResolveTypeReferences.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

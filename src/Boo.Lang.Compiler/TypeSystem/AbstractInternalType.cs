@@ -287,7 +287,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				buffer.Add(GetMemberEntity(member));
 			}
-
 			return (IEntity[])buffer.ToArray(typeof(IEntity));
 		}
 		

@@ -27,14 +27,15 @@
 #endregion
 
 using System;
-using System.Text;
 using System.Collections;
-using System.Reflection;
-using Boo;
-using Boo.Lang;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Ast.Visitors;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Runtime;
+using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -50,8 +51,6 @@ namespace Boo.Lang.Compiler.Steps
 		protected InternalMethod _currentMethod;
 		
 		Hash _visited;
-		
-		List _newAbstractClasses;
 		
 		IMethod RuntimeServices_Len;
 		
@@ -139,14 +138,11 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = new Stack();
 			_visited = new Hash();
-			_newAbstractClasses = new List();
 			_methodBodyState = new MethodBodyState();
 						
 			InitializeMemberCache();
 			
 			Visit(CompileUnit);
-			
-			ProcessNewAbstractClasses();
 		}
 		
 		protected IMethod ResolveMethod(IType type, string name)
@@ -185,8 +181,8 @@ namespace Boo.Lang.Compiler.Steps
 			MultiDimensionalArray_TypedConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));
 			ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
 			Activator_CreateInstance = TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
-			TextReaderEnumerator_Constructor = TypeSystemServices.Map(typeof(Boo.Lang.Runtime.TextReaderEnumerator).GetConstructor(new Type[] { typeof(System.IO.TextReader) }));
-			EnumeratorItemType_Constructor = TypeSystemServices.Map(typeof(Boo.Lang.EnumeratorItemTypeAttribute)).GetConstructors()[0];
+			TextReaderEnumerator_Constructor = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetConstructor(new Type[] { typeof(TextReader) }));
+			EnumeratorItemType_Constructor = TypeSystemServices.Map(typeof(EnumeratorItemTypeAttribute)).GetConstructors()[0];
 			
 			Type delegateType = Types.Delegate;
 			Type[] delegates = new Type[] { delegateType, delegateType };
@@ -206,7 +202,6 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = null;
 			_visited = null;
-			_newAbstractClasses = null;
 		}
 		
 		void EnterTryBlock()
@@ -257,7 +252,7 @@ namespace Boo.Lang.Compiler.Steps
 			--_methodBodyState.ExceptionHandlerDepth;
 		}
 		
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
+		override public void OnModule(Module module)
 		{
 			if (Visited(module))
 			{
@@ -295,26 +290,15 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			MarkVisited(node);
-			VisitBaseTypes(node);
 			
-			InternalClass tag = (InternalClass)GetEntity(node);
-			EnterNamespace(tag);
+			InternalClass entity = (InternalClass)GetEntity(node);
+			EnterNamespace(entity);
 			Visit(node.Attributes);
 			Visit(node.Members);
 			LeaveNamespace();
-			
-			ProcessInheritedAbstractMembers(node);
 		}
 		
-		void VisitBaseTypes(ClassDefinition node)
-		{
-			foreach (TypeReference baseTypeRef in node.BaseTypes)
-			{
-				EnsureRelatedNodeWasVisited(baseTypeRef.Entity);
-			}
-		}
-		
-		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
+		override public void OnAttribute(Attribute node)
 		{
 			IType tag = node.Entity as IType;
 			if (null != tag && !TypeSystemServices.IsError(tag))
@@ -603,8 +587,6 @@ namespace Boo.Lang.Compiler.Steps
 				getter.Parameters.ExtendWithClones(node.Parameters);
 				getter.ExplicitInfo = node.ExplicitInfo;
 				
-				SetPropertyAccessorModifiers(node, getter);
-				
 				Visit(getter);
 			}
 			
@@ -632,9 +614,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			if (null != setter)
-			{
-				SetPropertyAccessorModifiers(node, setter);
-				
+			{	
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CodeBuilder.CreateTypeReference(typeInfo);
 				parameter.Name = "value";
@@ -644,31 +624,6 @@ namespace Boo.Lang.Compiler.Steps
 				setter.Name = "set_" + node.Name;
 				setter.ExplicitInfo = node.ExplicitInfo;
 				Visit(setter);
-			}
-		}
-		
-		void SetPropertyAccessorModifiers(Property property, Method accessor)
-		{
-			if (property.IsStatic)
-			{
-				accessor.Modifiers |= TypeMemberModifiers.Static;
-			}
-			
-			if (property.IsVirtual)
-			{
-				accessor.Modifiers |= TypeMemberModifiers.Virtual;
-			}
-			
-			/*
-			if (property.IsOverride)
-			{
-				accessor.Modifiers |= TypeMemberModifiers.Override;
-			}
-			*/
-			
-			if (property.IsAbstract)
-			{
-				accessor.Modifiers |= TypeMemberModifiers.Abstract;
 			}
 		}
 		
@@ -1482,41 +1437,6 @@ namespace Boo.Lang.Compiler.Steps
 			return type;
 		}
 		
-		override public void OnArrayTypeReference(ArrayTypeReference node)
-		{
-			NameResolutionService.ResolveArrayTypeReference(node);
-		}
-		
-		override public void OnSimpleTypeReference(SimpleTypeReference node)
-		{
-			NameResolutionService.ResolveSimpleTypeReference(node);
-			if (node.Entity is InternalCallableType)
-			{
-				EnsureRelatedNodeWasVisited(node.Entity);
-			}
-		}
-		
-		override public void LeaveCallableTypeReference(CallableTypeReference node)
-		{
-			IParameter[] parameters = new IParameter[node.Parameters.Count];
-			for (int i=0; i<parameters.Length; ++i)
-			{
-				parameters[i] = new SimpleParameter("arg" + i, GetType(node.Parameters[i]));
-			}
-			
-			IType returnType = null;
-			if (null != node.ReturnType)
-			{
-				returnType = GetType(node.ReturnType);
-			}
-			else
-			{
-				returnType = TypeSystemServices.VoidType;
-			}
-			
-			node.Entity = TypeSystemServices.GetConcreteCallableType(node, new CallableSignature(parameters, returnType));
-		}
-		
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
 			BindExpressionType(node, TypeSystemServices.BoolType);
@@ -1561,7 +1481,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IEntity[] GetSetMethods(IEntity[] tags)
 		{
-			Boo.Lang.List setMethods = new Boo.Lang.List();
+			List setMethods = new List();
 			for (int i=0; i<tags.Length; ++i)
 			{
 				IProperty property = tags[i] as IProperty;
@@ -1579,7 +1499,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IEntity[] GetGetMethods(IEntity[] tags)
 		{
-			Boo.Lang.List getMethods = new Boo.Lang.List();
+			List getMethods = new List();
 			for (int i=0; i<tags.Length; ++i)
 			{
 				IProperty property = tags[i] as IProperty;
@@ -1933,7 +1853,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 												node.Target,
-												(IMethod)TypeSystemServices.Map(
+												TypeSystemServices.Map(
 													typeof(Array).GetMethod("GetValue", new Type[] { typeof(int[]) })),
 												ale);
 			
@@ -2080,7 +2000,7 @@ namespace Boo.Lang.Compiler.Steps
 			BooClassBuilder builder = CodeBuilder.CreateClass(
 														string.Format("___generator{0}", _context.AllocIndex()),
 														TypeMemberModifiers.Private|TypeMemberModifiers.Final);
-			builder.AddBaseType(TypeSystemServices.Map(typeof(Boo.Lang.AbstractGenerator)));
+			builder.AddBaseType(TypeSystemServices.Map(typeof(AbstractGenerator)));
 			builder.AddAttribute(CodeBuilder.CreateAttribute(
 												EnumeratorItemType_Constructor,
 												CodeBuilder.CreateTypeofExpression(generatorItemType)));
@@ -4011,7 +3931,7 @@ namespace Boo.Lang.Compiler.Steps
 								
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 								slice.Target,
-								(IMethod)TypeSystemServices.Map(typeof(Array).GetMethod("SetValue", new Type[] { typeof(object), typeof(int[]) })),
+								TypeSystemServices.Map(typeof(Array).GetMethod("SetValue", new Type[] { typeof(object), typeof(int[]) })),
 								node.Right,
 								ale);
 								
@@ -4340,12 +4260,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		static string GetBinaryOperatorText(BinaryOperatorType op)
 		{
-			return Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetBinaryOperatorText(op);
+			return BooPrinterVisitor.GetBinaryOperatorText(op);
 		}
 		
 		static string GetUnaryOperatorText(UnaryOperatorType op)
 		{
-			return Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetUnaryOperatorText(op);
+			return BooPrinterVisitor.GetUnaryOperatorText(op);
 		}
 		
 		IEntity ResolveName(Node node, string name)
@@ -4541,7 +4461,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsTextReader(IType type)
 		{
-			return IsAssignableFrom(typeof(System.IO.TextReader), type);
+			return IsAssignableFrom(typeof(TextReader), type);
 		}
 		
 		bool CheckTargetContext(Expression targetContext, IMember member)
@@ -4639,7 +4559,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void EnsureRelatedNodesWereVisited(IEntity[] entities)
+		protected void EnsureRelatedNodesWereVisited(IEntity[] entities)
 		{
 			foreach (IEntity entity in entities)
 			{
@@ -4647,7 +4567,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void EnsureRelatedNodeWasVisited(IEntity tag)
+		protected void EnsureRelatedNodeWasVisited(IEntity tag)
 		{
 			if (tag.EntityType == EntityType.Ambiguous)
 			{
@@ -4946,7 +4866,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			mie.Target = new ReferenceExpression(tag.FullName);
 			
-			IMethod operatorMethod = (IMethod)tag;
+			IMethod operatorMethod = tag;
 			BindExpressionType(mie, operatorMethod.ReturnType);
 			BindExpressionType(mie.Target, operatorMethod.Type);
 			Bind(mie.Target, tag);
@@ -5147,7 +5067,7 @@ namespace Boo.Lang.Compiler.Steps
 				Error(CompilerErrorFactory.CantCreateInstanceOfEnum(sourceNode, type.FullName));
 				return false;
 			}
-			if (IsAbstract(type))
+			if (type.IsAbstract)
 			{
 				Error(CompilerErrorFactory.CantCreateInstanceOfAbstractType(sourceNode, type.FullName));
 				return false;
@@ -5277,258 +5197,5 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, tag.ReturnType);
 		}
-
-		#region Abstract Member Processing
-		void ProcessInheritedAbstractMembers(ClassDefinition node)
-		{
-			foreach (TypeReference baseTypeRef in node.BaseTypes)
-			{
-				IType baseType = GetType(baseTypeRef);
-				if (baseType.IsInterface)
-				{
-					ResolveInterfaceMembers(node, baseTypeRef, baseType);
-				}
-				else
-				{
-					if (IsAbstract(baseType))
-					{
-						ResolveAbstractMembers(node, baseTypeRef, baseType);
-					}
-				}
-			}
-		}
-		
-		bool IsAbstract(IType type)
-		{
-			if (type.IsAbstract)
-			{
-				return true;
-			}
-			
-			AbstractInternalType internalType = type as AbstractInternalType;
-			if (null != internalType)
-			{
-				return _newAbstractClasses.Contains(internalType.TypeDefinition);
-			}
-			return false;
-		}
-		
-		void ResolveClassAbstractProperty(ClassDefinition node,
-											Boo.Lang.Compiler.Ast.TypeReference baseTypeRef,
-											IProperty tag)
-		{
-			TypeMember member = node.Members[tag.Name];
-			if (null != member && NodeType.Property == member.NodeType)
-			{
-				if (tag.Type == GetType(member))
-				{
-					if (CheckPropertyAccessors(tag, (IProperty)GetEntity(member)))
-					{
-						Property p = (Property)member;
-						if (null != p.Getter)
-						{
-							p.Getter.Modifiers |= TypeMemberModifiers.Virtual;
-						}
-						if (null != p.Setter)
-						{
-							p.Setter.Modifiers |= TypeMemberModifiers.Virtual;
-						}
-					}
-				}
-			}
-			else
-			{
-				if (null == member)
-				{
-					node.Members.Add(CreateAbstractProperty(baseTypeRef, tag));
-					AbstractMemberNotImplemented(node, baseTypeRef, tag);
-				}
-				else
-				{
-					NotImplemented(baseTypeRef, "member name conflict");
-				}
-			}
-		}
-		
-		Property CreateAbstractProperty(TypeReference reference, IProperty property)
-		{
-			System.Diagnostics.Debug.Assert(0 == property.GetParameters().Length);
-			Property p = CodeBuilder.CreateProperty(property.Name, property.Type);
-			p.Modifiers |= TypeMemberModifiers.Abstract;
-			
-			IMethod getter = property.GetGetMethod();
-			if (getter != null)
-			{
-				p.Getter = CodeBuilder.CreateAbstractMethod(reference.LexicalInfo, getter);
-			}
-			
-			IMethod setter = property.GetSetMethod();
-			if (setter != null)
-			{
-				p.Setter = CodeBuilder.CreateAbstractMethod(reference.LexicalInfo, setter);
-			}
-			return p;
-		}
-		
-		void ResolveAbstractMethod(ClassDefinition node,
-										TypeReference baseTypeRef,
-										IMethod tag)
-		{
-			if (tag.IsSpecialName)
-			{
-				return;
-			}
-			
-			foreach (TypeMember member in node.Members)
-			{
-				if (
-					tag.Name == member.Name &&
-					NodeType.Method == member.NodeType &&
-					(
-					 	((Method)member).ExplicitInfo == null ||
-						GetType(baseTypeRef) == GetType(((Method)member).ExplicitInfo.InterfaceType) ||
-						GetType(baseTypeRef).IsSubclassOf(GetType(((Method)member).ExplicitInfo.InterfaceType))
-					)
-				   )
-				{
-					Method method = (Method)member;
-					if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), tag))
-					{
-						// TODO: check return type here
-						if (!method.IsOverride && !method.IsVirtual)
-						{
-							method.Modifiers |= TypeMemberModifiers.Virtual;
-						}
-						
-						_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, tag);
-						return;
-					}
-				}
-			}
-			
-			node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, tag));
-			AbstractMemberNotImplemented(node, baseTypeRef, tag);
-		}
-		
-		void AbstractMemberNotImplemented(ClassDefinition node, TypeReference baseTypeRef, IMember member)
-		{
-			if (!node.IsAbstract)
-			{
-				Warnings.Add(
-						CompilerWarningFactory.AbstractMemberNotImplemented(baseTypeRef,
-																					node.FullName, member.FullName));
-				_newAbstractClasses.AddUnique(node);
-			}
-		}
-		
-		void ResolveInterfaceMembers(ClassDefinition node,
-											TypeReference baseTypeRef,
-											IType baseType)
-		{
-			foreach (IType tag in baseType.GetInterfaces())
-			{
-				ResolveInterfaceMembers(node, baseTypeRef, tag);
-			}
-			
-			foreach (IMember tag in baseType.GetMembers())
-			{
-				ResolveAbstractMember(node, baseTypeRef, tag);
-			}
-		}
-		
-		void ResolveAbstractMembers(ClassDefinition node,
-											TypeReference baseTypeRef,
-											IType baseType)
-		{
-			foreach (IEntity member in baseType.GetMembers())
-			{
-				switch (member.EntityType)
-				{
-					case EntityType.Method:
-					{
-						IMethod method = (IMethod)member;
-						if (method.IsAbstract)
-						{
-							ResolveAbstractMethod(node, baseTypeRef, method);
-						}
-						break;
-					}
-					
-					case EntityType.Property:
-					{
-						IProperty property = (IProperty)member;
-						if (IsAbstractAccessor(property.GetGetMethod()) ||
-							IsAbstractAccessor(property.GetSetMethod()))
-						{
-							ResolveClassAbstractProperty(node, baseTypeRef, property);
-						}
-						break;
-					}
-				}
-			}
-		}
-		
-		bool IsAbstractAccessor(IMethod accessor)
-		{
-			if (null != accessor)
-			{
-				return accessor.IsAbstract;
-			}
-			return false;
-		}
-		
-		void ResolveAbstractMember(ClassDefinition node,
-											TypeReference baseTypeRef,
-											IMember member)
-		{
-			switch (member.EntityType)
-			{
-				case EntityType.Method:
-				{
-					ResolveAbstractMethod(node, baseTypeRef, (IMethod)member);
-					break;
-				}
-				
-				case EntityType.Property:
-				{
-					ResolveClassAbstractProperty(node, baseTypeRef, (IProperty)member);
-					break;
-				}
-				
-				default:
-				{
-					NotImplemented(baseTypeRef, "abstract member: " + member);
-					break;
-				}
-			}
-		}
-		
-		bool CheckPropertyAccessors(IProperty expected, IProperty actual)
-		{
-			return CheckPropertyAccessor(expected.GetGetMethod(), actual.GetGetMethod()) &&
-				CheckPropertyAccessor(expected.GetSetMethod(), actual.GetSetMethod());
-		}
-		
-		bool CheckPropertyAccessor(IMethod expected, IMethod actual)
-		{
-			if (null != expected)
-			{
-				if (null == actual ||
-					!TypeSystemServices.CheckOverrideSignature(expected, actual))
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-		
-		void ProcessNewAbstractClasses()
-		{
-			foreach (ClassDefinition node in _newAbstractClasses)
-			{
-				node.Modifiers |= TypeMemberModifiers.Abstract;
-			}
-		}
-		#endregion
 	}
 }

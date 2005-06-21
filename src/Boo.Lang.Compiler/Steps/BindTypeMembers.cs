@@ -76,13 +76,14 @@ namespace Boo.Lang.Compiler.Steps
 								  TypeMemberModifiers.Protected | TypeMemberModifiers.Override);
 			finalizer.LexicalInfo = node.LexicalInfo;
 
-			MethodInvocationExpression mie = new MethodInvocationExpression (new SuperLiteralExpression());
+			MethodInvocationExpression mie = new MethodInvocationExpression(new SuperLiteralExpression());
 
 			Block bodyNew = new Block();
 			Block ensureBlock = new Block();
 			ensureBlock.Add (mie);
 
-			TryStatement tryStatement = new TryStatement(new Block(), ensureBlock);
+			TryStatement tryStatement = new TryStatement();
+			tryStatement.EnsureBlock = ensureBlock;
 			tryStatement.ProtectedBlock = node.Body;
 
 			bodyNew.Add(tryStatement);

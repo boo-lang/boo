@@ -559,7 +559,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			IParameter[] implParameters = impl.GetParameters();
 			IParameter[] baseParameters = baseMethod.GetParameters();
-			
+			return CheckOverrideSignature(implParameters, baseParameters);
+		}
+
+		public static bool CheckOverrideSignature(IParameter[] implParameters, IParameter[] baseParameters)
+		{	
 			if (implParameters.Length == baseParameters.Length)
 			{
 				for (int i=0; i<implParameters.Length; ++i)

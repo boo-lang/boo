@@ -45,22 +45,13 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit.Modules);
 		}
 		
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
-		{
-			EnterNamespace((INamespace)GetEntity(module));
-			Visit(module.Members);
-			LeaveNamespace();
-		}
-		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			EnterNamespace((INamespace)GetEntity(node));
-			Visit(node.Members);
-			LeaveNamespace();
+			base.OnClassDefinition(node);
 			
 			ResolveBaseTypes(new Boo.Lang.List(), node);
 			CheckBaseTypes(node);

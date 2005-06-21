@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Collections;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 
@@ -38,79 +36,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			Visit(CompileUnit.Modules);
-		}
-		
-		override public void OnModule(Module node)
-		{
-			Visit(node.Members);
-		}
-		
-		void LeaveTypeDefinition(TypeDefinition node)
-		{
-			if (!node.IsVisibilitySet)
-			{
-				node.Modifiers |= TypeMemberModifiers.Public;
-			}
-		}
-		
-		override public void LeaveEnumDefinition(EnumDefinition node)
-		{
-			LeaveTypeDefinition(node);
-		}
-		
-		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
-		{
-			LeaveTypeDefinition(node);
-		}
-		
-		override public void LeaveClassDefinition(ClassDefinition node)
-		{
-			LeaveTypeDefinition(node);
-			if (!node.HasInstanceConstructor)
-			{
-				node.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Public));
-			}
-
-		}
-		
-		override public void LeaveField(Field node)
-		{
-			if (!node.IsVisibilitySet)
-			{
-				node.Modifiers |= TypeMemberModifiers.Protected;
-			}
-		}
-		
-		override public void LeaveProperty(Property node)
-		{
-			if (!node.IsVisibilitySet)
-			{
-				node.Modifiers |= TypeMemberModifiers.Public;
-			}
-		}
-		
-		override public void LeaveEvent(Event node)
-		{
-			if (!node.IsVisibilitySet)
-			{
-				node.Modifiers |= TypeMemberModifiers.Public;
-			}
-		}
-		
-		override public void LeaveMethod(Method node)
-		{
-			if (!node.IsVisibilitySet)
-			{
-				node.Modifiers |= TypeMemberModifiers.Public;
-			}
-		}
-		
-		override public void LeaveConstructor(Constructor node)
-		{
-			if (!node.IsVisibilitySet)
-			{
-				node.Modifiers |= TypeMemberModifiers.Public;
-			}
 		}
 		
 		override public void LeaveUnpackStatement(UnpackStatement node)

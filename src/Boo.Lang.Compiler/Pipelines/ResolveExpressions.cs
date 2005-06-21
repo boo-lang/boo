@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.Pipelines
 {
-	using System;
 	using Boo.Lang.Compiler.Steps;
 	
 	public class ResolveExpressions : Parse 
@@ -47,11 +46,14 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ExpandMacros());
 			Add(new IntroduceModuleClasses());
 			Add(new NormalizeStatementModifiers());
+			Add(new NormalizeTypeAndMemberDefinitions());
 			
 			Add(new BindTypeDefinitions());
 			Add(new BindBaseTypes());
 			
+			Add(new ResolveTypeReferences());
 			Add(new BindTypeMembers());			
+			Add(new ProcessInheritedAbstractMembers());
 			Add(new ProcessMethodBodiesWithDuckTyping());
 		}
 	}
