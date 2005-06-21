@@ -26,13 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Collections;
-using System.Text;
-using Boo.Lang.Runtime;
-
 namespace Boo.Lang
 {
+	using System;
+	using System.Collections;
+	using Boo.Lang.Runtime;
+
 	// callable Predicate(item) as bool
 	public delegate bool Predicate(object item);
 	
@@ -242,7 +241,7 @@ namespace Boo.Lang
 			return target;
 		}
 		
-		public Array ToArray(System.Type targetType)
+		public Array ToArray(Type targetType)
 		{
 			Array target = Array.CreateInstance(targetType, _count);
 			CopyTo(target, 0);
@@ -650,7 +649,7 @@ namespace Boo.Lang
 			{
 				if (_count != _list._count || _items != _list._items)
 				{
-					throw new InvalidOperationException(Boo.Lang.ResourceManager.GetString("ListWasModified"));
+					throw new InvalidOperationException(ResourceManager.GetString("ListWasModified"));
 				}
 				
 				if (_index < _count)

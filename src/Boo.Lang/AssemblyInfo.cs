@@ -26,9 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("boo - an extensible programming language for the CLI")]
 [assembly: AssemblyDescription("")]
@@ -40,5 +38,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("0.5.5.1659")]
 [assembly: AssemblyDelaySign(false)]
+#if !IGNOREKEYFILE
 [assembly: AssemblyKeyFile("../src/boo.snk")]
+#endif
 [assembly: AssemblyKeyName("")]

@@ -1,36 +1,53 @@
-Microsoft Visual Studio Solution File, Format Version 9.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang", "Boo.Lang/Boo.Lang.csproj", "{C8E7600D-3D02-4190-BB40-9136D29F24F9}"
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang", "Boo.Lang\Boo.Lang.csproj", "{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo_Lang_Compiler", "Boo.Lang.Compiler/Boo.Lang.Compiler.csproj", "{BF53F19B-14B5-4B98-8B64-42A914862D2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Parser", "Boo.Lang.Parser\Boo.Lang.Parser.csproj", "{C1943936-DBBD-4331-94C3-BE4F7E6229DA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooC", "booc\BooC.csproj", "{7B7F9729-B676-4C57-861B-730B5DFB34F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Compiler", "Boo.Lang.Compiler\Boo.Lang.Compiler.csproj", "{83C914F8-1F12-4879-925D-D831A04366BD}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo_Lang_CodeDom", "Boo.Lang.CodeDom\Boo.Lang.CodeDom.csproj", "{7B257488-0CA6-4843-AE5B-20F3424AA8E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.CodeDom", "Boo.Lang.CodeDom\Boo.Lang.CodeDom.csproj", "{9FE6EA62-C7BE-45DB-A099-336CDEFF0966}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "booc", "booc\booc.csproj", "{3D5461D4-F243-41A5-927B-6636CEE2E6B8}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C8E7600D-3D02-4190-BB40-9136D29F24F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8E7600D-3D02-4190-BB40-9136D29F24F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8E7600D-3D02-4190-BB40-9136D29F24F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8E7600D-3D02-4190-BB40-9136D29F24F9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BF53F19B-14B5-4B98-8B64-42A914862D2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BF53F19B-14B5-4B98-8B64-42A914862D2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BF53F19B-14B5-4B98-8B64-42A914862D2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BF53F19B-14B5-4B98-8B64-42A914862D2E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B7F9729-B676-4C57-861B-730B5DFB34F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B7F9729-B676-4C57-861B-730B5DFB34F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B7F9729-B676-4C57-861B-730B5DFB34F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B7F9729-B676-4C57-861B-730B5DFB34F5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B257488-0CA6-4843-AE5B-20F3424AA8E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B257488-0CA6-4843-AE5B-20F3424AA8E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B257488-0CA6-4843-AE5B-20F3424AA8E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B257488-0CA6-4843-AE5B-20F3424AA8E4}.Release|Any CPU.Build.0 = Release|Any CPU
+	GlobalSection(ProjectConfiguration) = postSolution
+		{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}.Debug.ActiveCfg = Debug|.NET
+		{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}.Debug.Build.0 = Debug|.NET
+		{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}.Release.ActiveCfg = Release|.NET
+		{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}.Release.Build.0 = Release|.NET
+		{C1943936-DBBD-4331-94C3-BE4F7E6229DA}.Debug.ActiveCfg = Debug|.NET
+		{C1943936-DBBD-4331-94C3-BE4F7E6229DA}.Debug.Build.0 = Debug|.NET
+		{C1943936-DBBD-4331-94C3-BE4F7E6229DA}.Release.ActiveCfg = Release|.NET
+		{C1943936-DBBD-4331-94C3-BE4F7E6229DA}.Release.Build.0 = Release|.NET
+		{83C914F8-1F12-4879-925D-D831A04366BD}.Debug.ActiveCfg = Debug|.NET
+		{83C914F8-1F12-4879-925D-D831A04366BD}.Debug.Build.0 = Debug|.NET
+		{83C914F8-1F12-4879-925D-D831A04366BD}.Release.ActiveCfg = Release|.NET
+		{83C914F8-1F12-4879-925D-D831A04366BD}.Release.Build.0 = Release|.NET
+		{9FE6EA62-C7BE-45DB-A099-336CDEFF0966}.Debug.ActiveCfg = Debug|.NET
+		{9FE6EA62-C7BE-45DB-A099-336CDEFF0966}.Debug.Build.0 = Debug|.NET
+		{9FE6EA62-C7BE-45DB-A099-336CDEFF0966}.Release.ActiveCfg = Release|.NET
+		{9FE6EA62-C7BE-45DB-A099-336CDEFF0966}.Release.Build.0 = Release|.NET
+		{3D5461D4-F243-41A5-927B-6636CEE2E6B8}.Debug.ActiveCfg = Debug|.NET
+		{3D5461D4-F243-41A5-927B-6636CEE2E6B8}.Debug.Build.0 = Debug|.NET
+		{3D5461D4-F243-41A5-927B-6636CEE2E6B8}.Release.ActiveCfg = Release|.NET
+		{3D5461D4-F243-41A5-927B-6636CEE2E6B8}.Release.Build.0 = Release|.NET
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
 	EndGlobalSection
 EndGlobal

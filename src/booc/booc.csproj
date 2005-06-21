@@ -3,22 +3,22 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{9FE6EA62-C7BE-45DB-A099-336CDEFF0966}"
+        ProjectGuid = "{3D5461D4-F243-41A5-927B-6636CEE2E6B8}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "Boo.Lang.CodeDom"
+                AssemblyName = "booc"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Library"
+                OutputType = "Exe"
                 PreBuildEvent = ""
                 PostBuildEvent = ""
-                RootNamespace = "Boo.Lang.CodeDom"
+                RootNamespace = "booc"
                 RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
@@ -28,7 +28,7 @@
                     BaseAddress = "285212672"
                     CheckForOverflowUnderflow = "false"
                     ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE;IGNOREKEYFILE"
+                    DefineConstants = "DEBUG;TRACE"
                     DocumentationFile = ""
                     DebugSymbols = "true"
                     FileAlignment = "4096"
@@ -94,22 +94,17 @@
         <Files>
             <Include>
                 <File
+                    RelPath = "App.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "App.ico"
+                    BuildAction = "Content"
+                />
+                <File
                     RelPath = "AssemblyInfo.cs"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooCodeCompiler.cs"
                     SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooCodeGenerator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooCodeProvider.cs"
-                    SubType = "Component"
                     BuildAction = "Compile"
                 />
             </Include>

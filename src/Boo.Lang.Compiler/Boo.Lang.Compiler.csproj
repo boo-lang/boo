@@ -1,396 +1,1859 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProductVersion>8.0.30703</ProductVersion>
-        <SchemaVersion>2.0</SchemaVersion>
-        <ProjectGuid>{BF53F19B-14B5-4B98-8B64-42A914862D2E}</ProjectGuid>
-        <OutputType>Exe</OutputType>
-        <RootNamespace>Boo_Lang_Compiler</RootNamespace>
-        <AssemblyName>Boo_Lang_Compiler</AssemblyName>
-        <WarningLevel>4</WarningLevel>
-        <StartupObject/>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <DebugSymbols>false</DebugSymbols>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="System"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Xml"/>
-    </ItemGroup>
-    <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets"/>
-    <ItemGroup>
-        <Compile Include="AbstractAstAttribute.cs"/>
-        <Compile Include="AbstractAstMacro.cs"/>
-        <Compile Include="AbstractCompilerComponent.cs"/>
-        <Compile Include="AssemblyCollection.cs"/>
-        <Compile Include="AssemblyInfo.cs"/>
-        <Compile Include="Ast\ArrayLiteralExpression.cs"/>
-        <Compile Include="Ast\ArrayTypeReference.cs"/>
-        <Compile Include="Ast\AsExpression.cs"/>
-        <Compile Include="Ast\AstUtil.cs"/>
-        <Compile Include="Ast\Attribute.cs"/>
-        <Compile Include="Ast\AttributeCollection.cs"/>
-        <Compile Include="Ast\BinaryExpression.cs"/>
-        <Compile Include="Ast\BinaryOperatorType.cs"/>
-        <Compile Include="Ast\Block.cs"/>
-        <Compile Include="Ast\BoolLiteralExpression.cs"/>
-        <Compile Include="Ast\BreakStatement.cs"/>
-        <Compile Include="Ast\CallableBlockExpression.cs"/>
-        <Compile Include="Ast\CallableDefinition.cs"/>
-        <Compile Include="Ast\CallableTypeReference.cs"/>
-        <Compile Include="Ast\CastExpression.cs"/>
-        <Compile Include="Ast\CharLiteralExpression.cs"/>
-        <Compile Include="Ast\ClassDefinition.cs"/>
-        <Compile Include="Ast\CompileUnit.cs"/>
-        <Compile Include="Ast\Constructor.cs"/>
-        <Compile Include="Ast\ContinueStatement.cs"/>
-        <Compile Include="Ast\Declaration.cs"/>
-        <Compile Include="Ast\DeclarationCollection.cs"/>
-        <Compile Include="Ast\DeclarationStatement.cs"/>
-        <Compile Include="Ast\DepthFirstTransformer.cs"/>
-        <Compile Include="Ast\DepthFirstVisitor.cs"/>
-        <Compile Include="Ast\Destructor.cs"/>
-        <Compile Include="Ast\DoubleLiteralExpression.cs"/>
-        <Compile Include="Ast\EnumDefinition.cs"/>
-        <Compile Include="Ast\EnumMember.cs"/>
-        <Compile Include="Ast\Event.cs"/>
-        <Compile Include="Ast\ExceptionHandler.cs"/>
-        <Compile Include="Ast\ExceptionHandlerCollection.cs"/>
-        <Compile Include="Ast\ExplicitMemberInfo.cs"/>
-        <Compile Include="Ast\Expression.cs"/>
-        <Compile Include="Ast\ExpressionCollection.cs"/>
-        <Compile Include="Ast\ExpressionInterpolationExpression.cs"/>
-        <Compile Include="Ast\ExpressionPair.cs"/>
-        <Compile Include="Ast\ExpressionPairCollection.cs"/>
-        <Compile Include="Ast\ExpressionStatement.cs"/>
-        <Compile Include="Ast\ExtendedGeneratorExpression.cs"/>
-        <Compile Include="Ast\Field.cs"/>
-        <Compile Include="Ast\ForStatement.cs"/>
-        <Compile Include="Ast\GeneratorExpression.cs"/>
-        <Compile Include="Ast\GeneratorExpressionCollection.cs"/>
-        <Compile Include="Ast\GivenStatement.cs"/>
-        <Compile Include="Ast\GotoStatement.cs"/>
-        <Compile Include="Ast\HashLiteralExpression.cs"/>
-        <Compile Include="Ast\IAstVisitor.cs"/>
-        <Compile Include="Ast\IExplicitMember.cs"/>
-        <Compile Include="Ast\IfStatement.cs"/>
-        <Compile Include="Ast\Impl\ArrayLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\ArrayTypeReferenceImpl.cs"/>
-        <Compile Include="Ast\Impl\AsExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\AttributeCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\AttributeImpl.cs"/>
-        <Compile Include="Ast\Impl\BinaryExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\BlockImpl.cs"/>
-        <Compile Include="Ast\Impl\BoolLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\BreakStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\CallableBlockExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\CallableDefinitionImpl.cs"/>
-        <Compile Include="Ast\Impl\CallableTypeReferenceImpl.cs"/>
-        <Compile Include="Ast\Impl\CastExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\CharLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\ClassDefinitionImpl.cs"/>
-        <Compile Include="Ast\Impl\CompileUnitImpl.cs"/>
-        <Compile Include="Ast\Impl\ConstructorImpl.cs"/>
-        <Compile Include="Ast\Impl\ContinueStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\DeclarationCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\DeclarationImpl.cs"/>
-        <Compile Include="Ast\Impl\DeclarationStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\DestructorImpl.cs"/>
-        <Compile Include="Ast\Impl\DoubleLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\EnumDefinitionImpl.cs"/>
-        <Compile Include="Ast\Impl\EnumMemberImpl.cs"/>
-        <Compile Include="Ast\Impl\EventImpl.cs"/>
-        <Compile Include="Ast\Impl\ExceptionHandlerCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\ExceptionHandlerImpl.cs"/>
-        <Compile Include="Ast\Impl\ExplicitMemberInfoImpl.cs"/>
-        <Compile Include="Ast\Impl\ExpressionCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\ExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\ExpressionInterpolationExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\ExpressionPairCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\ExpressionPairImpl.cs"/>
-        <Compile Include="Ast\Impl\ExpressionStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\ExtendedGeneratorExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\FieldImpl.cs"/>
-        <Compile Include="Ast\Impl\ForStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\GeneratorExpressionCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\GeneratorExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\GivenStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\GotoStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\HashLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\IfStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\ImportCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\ImportImpl.cs"/>
-        <Compile Include="Ast\Impl\IntegerLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\InterfaceDefinitionImpl.cs"/>
-        <Compile Include="Ast\Impl\LabelStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\ListLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\LiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\LocalCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\LocalImpl.cs"/>
-        <Compile Include="Ast\Impl\MacroStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\MemberReferenceExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\MethodImpl.cs"/>
-        <Compile Include="Ast\Impl\MethodInvocationExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\ModuleCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\ModuleImpl.cs"/>
-        <Compile Include="Ast\Impl\NamespaceDeclarationImpl.cs"/>
-        <Compile Include="Ast\Impl\NullLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\ParameterDeclarationCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\ParameterDeclarationImpl.cs"/>
-        <Compile Include="Ast\Impl\PropertyImpl.cs"/>
-        <Compile Include="Ast\Impl\RaiseStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\ReferenceExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\RELiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\RetryStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\ReturnStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\SelfLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\SimpleTypeReferenceImpl.cs"/>
-        <Compile Include="Ast\Impl\SliceCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\SliceImpl.cs"/>
-        <Compile Include="Ast\Impl\SlicingExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\StatementCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\StatementImpl.cs"/>
-        <Compile Include="Ast\Impl\StatementModifierImpl.cs"/>
-        <Compile Include="Ast\Impl\StringLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\StructDefinitionImpl.cs"/>
-        <Compile Include="Ast\Impl\SuperLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\TernaryExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\TimeSpanLiteralExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\TryStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\TypeDefinitionCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\TypeDefinitionImpl.cs"/>
-        <Compile Include="Ast\Impl\TypeMemberCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\TypeMemberImpl.cs"/>
-        <Compile Include="Ast\Impl\TypeofExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\TypeReferenceCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\TypeReferenceImpl.cs"/>
-        <Compile Include="Ast\Impl\UnaryExpressionImpl.cs"/>
-        <Compile Include="Ast\Impl\UnlessStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\UnpackStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\WhenClauseCollectionImpl.cs"/>
-        <Compile Include="Ast\Impl\WhenClauseImpl.cs"/>
-        <Compile Include="Ast\Impl\WhileStatementImpl.cs"/>
-        <Compile Include="Ast\Impl\YieldStatementImpl.cs"/>
-        <Compile Include="Ast\Import.cs"/>
-        <Compile Include="Ast\ImportCollection.cs"/>
-        <Compile Include="Ast\INodeWithArguments.cs"/>
-        <Compile Include="Ast\INodeWithAttributes.cs"/>
-        <Compile Include="Ast\INodeWithParameters.cs"/>
-        <Compile Include="Ast\IntegerLiteralExpression.cs"/>
-        <Compile Include="Ast\InterfaceDefinition.cs"/>
-        <Compile Include="Ast\LabelStatement.cs"/>
-        <Compile Include="Ast\LexicalInfo.cs"/>
-        <Compile Include="Ast\ListLiteralExpression.cs"/>
-        <Compile Include="Ast\LiteralExpression.cs"/>
-        <Compile Include="Ast\Local.cs"/>
-        <Compile Include="Ast\LocalCollection.cs"/>
-        <Compile Include="Ast\MacroStatement.cs"/>
-        <Compile Include="Ast\MemberReferenceExpression.cs"/>
-        <Compile Include="Ast\Method.cs"/>
-        <Compile Include="Ast\MethodImplementationFlags.cs"/>
-        <Compile Include="Ast\MethodInvocationExpression.cs"/>
-        <Compile Include="Ast\Module.cs"/>
-        <Compile Include="Ast\ModuleCollection.cs"/>
-        <Compile Include="Ast\NamespaceDeclaration.cs"/>
-        <Compile Include="Ast\Node.cs"/>
-        <Compile Include="Ast\NodeCollection.cs"/>
-        <Compile Include="Ast\NodeType.cs"/>
-        <Compile Include="Ast\NullLiteralExpression.cs"/>
-        <Compile Include="Ast\OmittedExpression.cs"/>
-        <Compile Include="Ast\ParameterDeclaration.cs"/>
-        <Compile Include="Ast\ParameterDeclarationCollection.cs"/>
-        <Compile Include="Ast\Property.cs"/>
-        <Compile Include="Ast\RaiseStatement.cs"/>
-        <Compile Include="Ast\ReferenceExpression.cs"/>
-        <Compile Include="Ast\RELiteralExpression.cs"/>
-        <Compile Include="Ast\RetryStatement.cs"/>
-        <Compile Include="Ast\ReturnStatement.cs"/>
-        <Compile Include="Ast\SelfLiteralExpression.cs"/>
-        <Compile Include="Ast\SimpleTypeReference.cs"/>
-        <Compile Include="Ast\Slice.cs"/>
-        <Compile Include="Ast\SliceCollection.cs"/>
-        <Compile Include="Ast\SlicingExpression.cs"/>
-        <Compile Include="Ast\Statement.cs"/>
-        <Compile Include="Ast\StatementCollection.cs"/>
-        <Compile Include="Ast\StatementModifier.cs"/>
-        <Compile Include="Ast\StatementModifierType.cs"/>
-        <Compile Include="Ast\StringLiteralExpression.cs"/>
-        <Compile Include="Ast\StructDefinition.cs"/>
-        <Compile Include="Ast\SuperLiteralExpression.cs"/>
-        <Compile Include="Ast\TernaryExpression.cs"/>
-        <Compile Include="Ast\TimeSpanLiteralExpression.cs"/>
-        <Compile Include="Ast\TryStatement.cs"/>
-        <Compile Include="Ast\TypeDefinition.cs"/>
-        <Compile Include="Ast\TypeDefinitionCollection.cs"/>
-        <Compile Include="Ast\TypeMember.cs"/>
-        <Compile Include="Ast\TypeMemberCollection.cs"/>
-        <Compile Include="Ast\TypeMemberModifiers.cs"/>
-        <Compile Include="Ast\TypeofExpression.cs"/>
-        <Compile Include="Ast\TypeReference.cs"/>
-        <Compile Include="Ast\TypeReferenceCollection.cs"/>
-        <Compile Include="Ast\UnaryExpression.cs"/>
-        <Compile Include="Ast\UnaryOperatorType.cs"/>
-        <Compile Include="Ast\UnlessStatement.cs"/>
-        <Compile Include="Ast\UnpackStatement.cs"/>
-        <Compile Include="Ast\Visitors\BooPrinterVisitor.cs"/>
-        <Compile Include="Ast\Visitors\PseudoCSharpPrinterVisitor.cs"/>
-        <Compile Include="Ast\Visitors\TextEmitter.cs"/>
-        <Compile Include="Ast\Visitors\TreePrinterVisitor.cs"/>
-        <Compile Include="Ast\WhenClause.cs"/>
-        <Compile Include="Ast\WhenClauseCollection.cs"/>
-        <Compile Include="Ast\WhileStatement.cs"/>
-        <Compile Include="Ast\YieldStatement.cs"/>
-        <Compile Include="Attributes\GetterAttribute.cs"/>
-        <Compile Include="Attributes\PropertyAttribute.cs"/>
-        <Compile Include="Attributes\RequiredAttribute.cs"/>
-        <Compile Include="BooCompiler.cs"/>
-        <Compile Include="CompilerContext.cs"/>
-        <Compile Include="CompilerError.cs"/>
-        <Compile Include="CompilerErrorCollection.cs"/>
-        <Compile Include="CompilerErrorFactory.cs"/>
-        <Compile Include="CompilerInputCollection.cs"/>
-        <Compile Include="CompilerOutputType.cs"/>
-        <Compile Include="CompilerParameters.cs"/>
-        <Compile Include="CompilerPipeline.cs"/>
-        <Compile Include="CompilerResourceCollection.cs"/>
-        <Compile Include="CompilerWarning.cs"/>
-        <Compile Include="CompilerWarningCollection.cs"/>
-        <Compile Include="CompilerWarningFactory.cs"/>
-        <Compile Include="IAstAttribute.cs"/>
-        <Compile Include="IAstMacro.cs"/>
-        <Compile Include="ICompilerComponent.cs"/>
-        <Compile Include="ICompilerInput.cs"/>
-        <Compile Include="ICompilerResource.cs"/>
-        <Compile Include="ICompilerStep.cs"/>
-        <Compile Include="IO\FileInput.cs"/>
-        <Compile Include="IO\ReaderInput.cs"/>
-        <Compile Include="IO\StringInput.cs"/>
-        <Compile Include="Macros\AbstractPrintMacro.cs"/>
-        <Compile Include="Macros\AssertMacro.cs"/>
-        <Compile Include="Macros\CheckedMacro.cs"/>
-        <Compile Include="Macros\DebugMacro.cs"/>
-        <Compile Include="Macros\LockMacro.cs"/>
-        <Compile Include="Macros\PrintMacro.cs"/>
-        <Compile Include="Macros\RawArrayIndexingMacro.cs"/>
-        <Compile Include="Macros\UsingMacro.cs"/>
-        <Compile Include="Pipelines\Compile.cs"/>
-        <Compile Include="Pipelines\CompileToBoo.cs"/>
-        <Compile Include="Pipelines\CompileToFile.cs"/>
-        <Compile Include="Pipelines\CompileToFileAndVerify.cs"/>
-        <Compile Include="Pipelines\CompileToMemory.cs"/>
-        <Compile Include="Pipelines\Parse.cs"/>
-        <Compile Include="Pipelines\ParseAndPrint.cs"/>
-        <Compile Include="Pipelines\ParseAndPrintAst.cs"/>
-        <Compile Include="Pipelines\ParseAndPrintXml.cs"/>
-        <Compile Include="Pipelines\ResolveExpressions.cs"/>
-        <Compile Include="Pipelines\Run.cs"/>
-        <Compile Include="Resources\FileResource.cs"/>
-        <Compile Include="Steps\AbstractCompilerStep.cs"/>
-        <Compile Include="Steps\AbstractNamespaceSensitiveCompilerStep.cs"/>
-        <Compile Include="Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs"/>
-        <Compile Include="Steps\AbstractTransformerCompilerStep.cs"/>
-        <Compile Include="Steps\AbstractVisitorCompilerStep.cs"/>
-        <Compile Include="Steps\AstAnnotations.cs"/>
-        <Compile Include="Steps\BindAndApplyAttributes.cs"/>
-        <Compile Include="Steps\BindBaseTypes.cs"/>
-        <Compile Include="Steps\BindNamespaces.cs"/>
-        <Compile Include="Steps\BindTypeDefinitions.cs"/>
-        <Compile Include="Steps\BindTypeMembers.cs"/>
-        <Compile Include="Steps\DumpReferences.cs"/>
-        <Compile Include="Steps\EmitAssembly.cs"/>
-        <Compile Include="Steps\ExpandMacros.cs"/>
-        <Compile Include="Steps\ForeignReferenceCollector.cs"/>
-        <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs"/>
-        <Compile Include="Steps\InitializeNameResolutionService.cs"/>
-        <Compile Include="Steps\InitializeTypeSystemServices.cs"/>
-        <Compile Include="Steps\InjectCallableConversions.cs"/>
-        <Compile Include="Steps\IntroduceGlobalNamespaces.cs"/>
-        <Compile Include="Steps\IntroduceModuleClasses.cs"/>
-        <Compile Include="Steps\NormalizeIterationStatements.cs"/>
-        <Compile Include="Steps\NormalizeStatementModifiers.cs"/>
-        <Compile Include="Steps\PEVerify.cs"/>
-        <Compile Include="Steps\PreErrorChecking.cs"/>
-        <Compile Include="Steps\PrintAst.cs"/>
-        <Compile Include="Steps\PrintBoo.cs"/>
-        <Compile Include="Steps\PrintErrors.cs"/>
-        <Compile Include="Steps\PrintWarnings.cs"/>
-        <Compile Include="Steps\ProcessClosures.cs"/>
-        <Compile Include="Steps\ProcessGenerators.cs"/>
-        <Compile Include="Steps\ProcessMethodBodies.cs"/>
-        <Compile Include="Steps\ProcessMethodBodiesWithDuckTyping.cs"/>
-        <Compile Include="Steps\ProcessSharedLocals.cs"/>
-        <Compile Include="Steps\RunAssembly.cs"/>
-        <Compile Include="Steps\SaveAssembly.cs"/>
-        <Compile Include="Steps\SerializeToXml.cs"/>
-        <Compile Include="Steps\StricterErrorChecking.cs"/>
-        <Compile Include="Steps\TransformCallableDefinitions.cs"/>
-        <Compile Include="TypeSystem\AbstractInternalType.cs"/>
-        <Compile Include="TypeSystem\AbstractLocalEntity.cs"/>
-        <Compile Include="TypeSystem\Ambiguous.cs"/>
-        <Compile Include="TypeSystem\AnonymousCallableType.cs"/>
-        <Compile Include="TypeSystem\ArrayType.cs"/>
-        <Compile Include="TypeSystem\AssemblyReference.cs"/>
-        <Compile Include="TypeSystem\BooClassBuilder.cs"/>
-        <Compile Include="TypeSystem\BooCodeBuilder.cs"/>
-        <Compile Include="TypeSystem\BooMethodBuilder.cs"/>
-        <Compile Include="TypeSystem\BuiltinFunction.cs"/>
-        <Compile Include="TypeSystem\CallableSignature.cs"/>
-        <Compile Include="TypeSystem\CompileUnit.cs"/>
-        <Compile Include="TypeSystem\EntityType.cs"/>
-        <Compile Include="TypeSystem\Error.cs"/>
-        <Compile Include="TypeSystem\ExternalCallableType.cs"/>
-        <Compile Include="TypeSystem\ExternalEvent.cs"/>
-        <Compile Include="TypeSystem\ExternalField.cs"/>
-        <Compile Include="TypeSystem\ExternalMethod.cs"/>
-        <Compile Include="TypeSystem\ExternalParameter.cs"/>
-        <Compile Include="TypeSystem\ExternalProperty.cs"/>
-        <Compile Include="TypeSystem\ExternalType.cs"/>
-        <Compile Include="TypeSystem\IEntity.cs"/>
-        <Compile Include="TypeSystem\INameSpace.cs"/>
-        <Compile Include="TypeSystem\InternalCallableType.cs"/>
-        <Compile Include="TypeSystem\InternalClass.cs"/>
-        <Compile Include="TypeSystem\InternalConstructor.cs"/>
-        <Compile Include="TypeSystem\InternalEnum.cs"/>
-        <Compile Include="TypeSystem\InternalEnumMember.cs"/>
-        <Compile Include="TypeSystem\InternalEvent.cs"/>
-        <Compile Include="TypeSystem\InternalField.cs"/>
-        <Compile Include="TypeSystem\InternalInterface.cs"/>
-        <Compile Include="TypeSystem\InternalLabel.cs"/>
-        <Compile Include="TypeSystem\InternalLocal.cs"/>
-        <Compile Include="TypeSystem\InternalMethod.cs"/>
-        <Compile Include="TypeSystem\InternalParameter.cs"/>
-        <Compile Include="TypeSystem\InternalProperty.cs"/>
-        <Compile Include="TypeSystem\ModuleEntity.cs"/>
-        <Compile Include="TypeSystem\NameResolutionService.cs"/>
-        <Compile Include="TypeSystem\Namespace.cs"/>
-        <Compile Include="TypeSystem\NamespaceEntity.cs"/>
-        <Compile Include="TypeSystem\SimpleParameter.cs"/>
-        <Compile Include="TypeSystem\Types.cs"/>
-        <Compile Include="TypeSystem\TypeSystemServices.cs"/>
-        <Compile Include="Util\ITask.cs"/>
-        <Compile Include="Util\MarshalByRefCollectionBase.cs"/>
-        <Compile Include="Util\MarshalByRefEnumerator.cs"/>
-        <Compile Include="Util\TaskList.cs"/>
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="../Boo/Boo.csproj">
-            <Name>Boo</Name>
-            <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
-            <Project>{C8E7600D-3D02-4190-BB40-9136D29F24F9}</Project>
-        </ProjectReference>
-    </ItemGroup>
-</Project>
+<VisualStudioProject>
+    <CSHARP
+        ProjectType = "Local"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "2.0"
+        ProjectGuid = "{83C914F8-1F12-4879-925D-D831A04366BD}"
+    >
+        <Build>
+            <Settings
+                ApplicationIcon = ""
+                AssemblyKeyContainerName = ""
+                AssemblyName = "Boo.Lang.Compiler"
+                AssemblyOriginatorKeyFile = ""
+                DefaultClientScript = "JScript"
+                DefaultHTMLPageLayout = "Grid"
+                DefaultTargetSchema = "IE50"
+                DelaySign = "false"
+                OutputType = "Library"
+                PreBuildEvent = ""
+                PostBuildEvent = ""
+                RootNamespace = "Boo.Lang.Compiler"
+                RunPostBuildEvent = "OnBuildSuccess"
+                StartupObject = ""
+            >
+                <Config
+                    Name = "Debug"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "285212672"
+                    CheckForOverflowUnderflow = "false"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = "DEBUG;TRACE;IGNOREKEYFILE"
+                    DocumentationFile = ""
+                    DebugSymbols = "true"
+                    FileAlignment = "4096"
+                    IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
+                    Optimize = "false"
+                    OutputPath = "bin\Debug\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "4"
+                />
+                <Config
+                    Name = "Release"
+                    AllowUnsafeBlocks = "false"
+                    BaseAddress = "285212672"
+                    CheckForOverflowUnderflow = "false"
+                    ConfigurationOverrideFile = ""
+                    DefineConstants = "TRACE"
+                    DocumentationFile = ""
+                    DebugSymbols = "false"
+                    FileAlignment = "4096"
+                    IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
+                    Optimize = "true"
+                    OutputPath = "bin\Release\"
+                    RegisterForComInterop = "false"
+                    RemoveIntegerChecks = "false"
+                    TreatWarningsAsErrors = "false"
+                    WarningLevel = "4"
+                />
+            </Settings>
+            <References>
+                <Reference
+                    Name = "System"
+                    AssemblyName = "System"
+                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll"
+                />
+                <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
+                />
+                <Reference
+                    Name = "System.XML"
+                    AssemblyName = "System.Xml"
+                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
+                />
+                <Reference
+                    Name = "Boo.Lang"
+                    Project = "{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+            </References>
+        </Build>
+        <Files>
+            <Include>
+                <File
+                    RelPath = "AbstractAstAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "AbstractAstMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "AbstractCompilerComponent.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "AssemblyCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "AssemblyInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "BooCompiler.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerContext.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerError.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerErrorCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerErrorFactory.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerInputCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerOutputType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerParameters.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerPipeline.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerResourceCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerWarning.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerWarningCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CompilerWarningFactory.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "IAstAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "IAstMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ICompilerComponent.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ICompilerInput.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ICompilerResource.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ICompilerStep.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ArrayLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ArrayTypeReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\AsExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\AstUtil.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Attribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\AttributeCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\BinaryExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\BinaryOperatorType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Block.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\BoolLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\BreakStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\CallableBlockExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\CallableDefinition.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\CallableTypeReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\CastExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\CharLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ClassDefinition.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\CompileUnit.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Constructor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ContinueStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Declaration.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\DeclarationCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\DeclarationStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\DepthFirstTransformer.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\DepthFirstVisitor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Destructor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\DoubleLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\EnumDefinition.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\EnumMember.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Event.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExceptionHandler.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExceptionHandlerCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExplicitMemberInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Expression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExpressionCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExpressionInterpolationExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExpressionPair.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExpressionPairCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExpressionStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExtendedGeneratorExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ExtendedGeneratorExpression.cs~"
+                    BuildAction = "None"
+                />
+                <File
+                    RelPath = "Ast\Field.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ForStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\GeneratorExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\GeneratorExpressionCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\GivenStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\GotoStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\HashLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\IAstVisitor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\IExplicitMember.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\IfStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Import.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ImportCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\INodeWithArguments.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\INodeWithAttributes.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\INodeWithParameters.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\IntegerLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\InterfaceDefinition.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\LabelStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\LexicalInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ListLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\LiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Local.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\LocalCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\MacroStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\MemberReferenceExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Method.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\MethodImplementationFlags.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\MethodInvocationExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Module.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ModuleCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\NamespaceDeclaration.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Node.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\NodeCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\NodeType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\NullLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\OmittedExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ParameterDeclaration.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ParameterDeclarationCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Property.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\RaiseStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ReferenceExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\RELiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\RetryStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\ReturnStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\SelfLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\SimpleTypeReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Slice.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\SliceCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\SlicingExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Statement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\StatementCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\StatementModifier.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\StatementModifierType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\StringLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\StructDefinition.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\SuperLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TernaryExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TimeSpanLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TryStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TypeDefinition.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TypeDefinitionCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TypeMember.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TypeMemberCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TypeMemberModifiers.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TypeofExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TypeReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\TypeReferenceCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\UnaryExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\UnaryOperatorType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\UnlessStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\UnpackStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\WhenClause.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\WhenClauseCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\WhileStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\YieldStatement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ArrayLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ArrayTypeReferenceImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\AsExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\AttributeCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\AttributeImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\BinaryExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\BlockImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\BoolLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\BreakStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\CallableBlockExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\CallableDefinitionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\CallableTypeReferenceImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\CastExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\CharLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ClassDefinitionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\CompileUnitImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ConstructorImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ContinueStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\DeclarationCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\DeclarationImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\DeclarationStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\DestructorImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\DoubleLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\EnumDefinitionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\EnumMemberImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\EventImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExceptionHandlerCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExceptionHandlerImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExplicitMemberInfoImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExpressionCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExpressionInterpolationExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExpressionPairCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExpressionPairImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExpressionStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ExtendedGeneratorExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\FieldImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ForStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\GeneratorExpressionCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\GeneratorExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\GivenStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\GotoStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\HashLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\IfStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ImportCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ImportImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\IntegerLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\InterfaceDefinitionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\LabelStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ListLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\LiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\LocalCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\LocalImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\MacroStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\MemberReferenceExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\MethodImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\MethodInvocationExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ModuleCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ModuleImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\NamespaceDeclarationImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\NullLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ParameterDeclarationCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ParameterDeclarationImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\PropertyImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\RaiseStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ReferenceExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\RELiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\RetryStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ReturnStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\SelfLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\SimpleTypeReferenceImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\SliceCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\SliceImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\SlicingExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\StatementCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\StatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\StatementModifierImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\StringLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\StructDefinitionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\SuperLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TernaryExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TimeSpanLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TryStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TypeDefinitionCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TypeDefinitionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TypeMemberCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TypeMemberImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TypeofExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TypeReferenceCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TypeReferenceImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\UnaryExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\UnlessStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\UnpackStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\WhenClauseCollectionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\WhenClauseImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\WhileStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\YieldStatementImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Visitors\BooPrinterVisitor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Visitors\PseudoCSharpPrinterVisitor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Visitors\TextEmitter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Visitors\TreePrinterVisitor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Attributes\GetterAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Attributes\PropertyAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Attributes\RequiredAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "IO\FileInput.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "IO\ReaderInput.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "IO\StringInput.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Macros\AbstractPrintMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Macros\AssertMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Macros\CheckedMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Macros\DebugMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Macros\LockMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Macros\PrintMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Macros\RawArrayIndexingMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Macros\UsingMacro.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\Compile.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\CompileToBoo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\CompileToFile.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\CompileToFileAndVerify.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\CompileToMemory.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\Parse.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\ParseAndPrint.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\ParseAndPrintAst.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\ParseAndPrintXml.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\ResolveExpressions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Pipelines\Run.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Resources\FileResource.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\AbstractCompilerStep.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\AbstractNamespaceSensitiveCompilerStep.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\AbstractTransformerCompilerStep.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\AbstractVisitorCompilerStep.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\AstAnnotations.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\BindAndApplyAttributes.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\BindBaseTypes.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\BindNamespaces.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\BindTypeDefinitions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\BindTypeMembers.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\DumpReferences.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\EmitAssembly.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ExpandMacros.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ForeignReferenceCollector.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ImplementICallableOnCallableDefinitions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\InitializeNameResolutionService.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\InitializeTypeSystemServices.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\InjectCallableConversions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\IntroduceGlobalNamespaces.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\IntroduceModuleClasses.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\NormalizeIterationStatements.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\NormalizeStatementModifiers.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\PEVerify.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\PreErrorChecking.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\PrintAst.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\PrintBoo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\PrintErrors.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\PrintWarnings.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ProcessClosures.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ProcessGenerators.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ProcessMethodBodies.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ProcessMethodBodiesWithDuckTyping.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ProcessSharedLocals.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\RunAssembly.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\SaveAssembly.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\SerializeToXml.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\StricterErrorChecking.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\TransformCallableDefinitions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\AbstractInternalType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\AbstractLocalEntity.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\Ambiguous.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\AnonymousCallableType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ArrayType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\AssemblyReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\BooClassBuilder.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\BooCodeBuilder.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\BooMethodBuilder.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\BuiltinFunction.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\CallableSignature.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\CompileUnit.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\EntityType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\Error.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ExternalCallableType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ExternalEvent.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ExternalField.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ExternalMethod.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ExternalParameter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ExternalProperty.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ExternalType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\IEntity.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\INameSpace.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalCallableType.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalClass.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalConstructor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalEnum.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalEnumMember.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalEvent.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalField.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalInterface.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalLabel.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalLocal.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalMethod.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalParameter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\InternalProperty.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\ModuleEntity.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\NameResolutionService.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\Namespace.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\NamespaceEntity.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\SimpleParameter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\Types.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TypeSystem\TypeSystemServices.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\ITask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\MarshalByRefCollectionBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\MarshalByRefEnumerator.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\TaskList.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+            </Include>
+        </Files>
+    </CSHARP>
+</VisualStudioProject>
+
