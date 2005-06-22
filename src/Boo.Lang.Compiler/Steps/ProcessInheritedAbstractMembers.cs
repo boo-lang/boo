@@ -75,6 +75,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
+		{
+			MarkVisited(node);
+		}
+
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
 			MarkVisited(node);
@@ -96,7 +101,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void MarkVisited(ClassDefinition node)
+		private void MarkVisited(TypeDefinition node)
 		{
 			node[this] = true;
 		}
@@ -197,20 +202,22 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (TypeMember member in node.Members)
 			{
-				if (
-					entity.Name == member.Name &&
+				if (entity.Name == member.Name &&
 					NodeType.Method == member.NodeType &&
 					(
 					((Method)member).ExplicitInfo == null ||
 					GetType(baseTypeRef) == GetType(((Method)member).ExplicitInfo.InterfaceType) ||
 					GetType(baseTypeRef).IsSubclassOf(GetType(((Method)member).ExplicitInfo.InterfaceType))
-					)
-					)
+					))
 				{
 					Method method = (Method)member;
 					if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), entity))
 					{
 						// TODO: check return type here
+						if (IsUnknown(method.ReturnType))
+						{
+							method.ReturnType = CodeBuilder.CreateTypeReference(entity.ReturnType);
+						}
 						if (!method.IsOverride && !method.IsVirtual)
 						{
 							method.Modifiers |= TypeMemberModifiers.Virtual;
@@ -224,6 +231,11 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
 			AbstractMemberNotImplemented(node, baseTypeRef, entity);
+		}
+
+		bool IsUnknown(TypeReference typeRef)
+		{
+			return Unknown.Default == typeRef.Entity;
 		}
 		
 		void AbstractMemberNotImplemented(ClassDefinition node, TypeReference baseTypeRef, IMember member)
@@ -241,14 +253,14 @@ namespace Boo.Lang.Compiler.Steps
 			TypeReference baseTypeRef,
 			IType baseType)
 		{
-			foreach (IType tag in baseType.GetInterfaces())
+			foreach (IType entity in baseType.GetInterfaces())
 			{
-				ResolveInterfaceMembers(node, baseTypeRef, tag);
+				ResolveInterfaceMembers(node, baseTypeRef, entity);
 			}
 			
-			foreach (IMember tag in baseType.GetMembers())
+			foreach (IMember entity in baseType.GetMembers())
 			{
-				ResolveAbstractMember(node, baseTypeRef, tag);
+				ResolveAbstractMember(node, baseTypeRef, entity);
 			}
 		}
 		

@@ -1603,6 +1603,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\RemoveDeadCode.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\ResolveTypeReferences.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

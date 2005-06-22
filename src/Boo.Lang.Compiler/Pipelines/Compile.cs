@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler.Pipelines
 		public Compile()
 		{				
 			Add(new StricterErrorChecking());
+			Add(new RemoveDeadCode());
 			Add(new NormalizeIterationStatements());
 			
 			Add(new ProcessSharedLocals());			

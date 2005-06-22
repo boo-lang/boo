@@ -9,7 +9,7 @@ public final transient class Lock1Module(System.Object):
 			__monitor1__ = object
 			System.Threading.Monitor.Enter(__monitor1__)
 			try:
-				pass
+				System.Console.WriteLine('spam')
 			ensure:
 				System.Threading.Monitor.Exit(__monitor1__)
 		ensure:
@@ -19,6 +19,6 @@ public final transient class Lock1Module(System.Object):
 		super()
 """
 lock object(), object:
-	pass
+	System.Console.WriteLine('spam')
 
 
