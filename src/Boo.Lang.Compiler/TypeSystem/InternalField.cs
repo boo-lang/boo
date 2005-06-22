@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
 	using Boo.Lang.Compiler.Ast;
 	
 	public class InternalField : IInternalEntity, IField
@@ -36,7 +35,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Field _field;
 		object _staticValue;
 		
-		public InternalField(TypeSystemServices tagManager, Field field)
+		public InternalField(Field field)
 		{
 			_field = field;
 		}

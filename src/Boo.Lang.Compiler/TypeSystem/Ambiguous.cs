@@ -110,5 +110,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			entities.CopyTo(array, 0);
 			return array;
 		}
+
+		public bool AllEntitiesAre(EntityType entityType)
+		{
+			foreach (IEntity entity in _entities)
+			{
+				if (entityType != entity.EntityType)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 }

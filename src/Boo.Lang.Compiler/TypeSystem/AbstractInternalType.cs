@@ -305,7 +305,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				case NodeType.Field:
 				{
-					return new InternalField(_typeSystemServices,(Field)member);
+					return new InternalField((Field)member);
 				}
 					
 				case NodeType.EnumMember:

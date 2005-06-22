@@ -590,7 +590,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			field.Modifiers = TypeMemberModifiers.Protected;
 			field.Name = name;
 			field.Type = CreateTypeReference(type);
-			field.Entity = new InternalField(_tss, field);
+			field.Entity = new InternalField(field);
 			return field;
 		}
 		

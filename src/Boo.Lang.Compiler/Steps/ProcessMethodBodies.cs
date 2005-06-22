@@ -303,7 +303,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != tag && !TypeSystemServices.IsError(tag))
 			{
 				Visit(node.Arguments);
-				ResolveNamedArguments(node, tag, node.NamedArguments);
+				ResolveNamedArguments(tag, node.NamedArguments);
 				
 				IConstructor constructor = FindCorrectConstructor(node, tag, node.Arguments);
 				if (null != constructor)
@@ -2218,7 +2218,7 @@ namespace Boo.Lang.Compiler.Steps
 			field.Initializer = node;
 			
 			_currentMethod.Method.DeclaringType.Members.Add(field);
-			InternalField tag = new InternalField(TypeSystemServices, field);
+			InternalField tag = new InternalField(field);
 			Bind(field, tag);
 			
 			AddFieldInitializerToStaticConstructor(0, field);
@@ -2277,8 +2277,8 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case EntityType.Ambiguous:
 				{
-					if (NodeType.ReferenceExpression == node.NodeType &&
-						!AstUtil.IsTargetOfMethodInvocation(node))
+					if (!AstUtil.IsTargetOfMethodInvocation(node) &&
+						((Ambiguous)tag).AllEntitiesAre(EntityType.Method))
 					{
 						Error(node, CompilerErrorFactory.AmbiguousReference(
 										node,
@@ -3703,7 +3703,7 @@ namespace Boo.Lang.Compiler.Steps
 				Error(node);
 				return;
 			}
-			ResolveNamedArguments(node, type, node.NamedArguments);
+			ResolveNamedArguments(type, node.NamedArguments);
 			
 			IConstructor ctor = FindCorrectConstructor(node, type, node.Arguments);
 			if (null != ctor)
@@ -4293,7 +4293,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 		
-		void ResolveNamedArguments(Node sourceNode, IType typeInfo, ExpressionPairCollection arguments)
+		void ResolveNamedArguments(IType typeInfo, ExpressionPairCollection arguments)
 		{
 			foreach (ExpressionPair arg in arguments)
 			{

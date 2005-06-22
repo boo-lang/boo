@@ -96,7 +96,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Entity)
 			{
-				node.Entity = new InternalField(TypeSystemServices, node);
+				node.Entity = new InternalField(node);
 			}
 		}
 		

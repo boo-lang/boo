@@ -91,9 +91,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				bool initialized = true;
 
-				// Tenta inicializar todas as propriedades
-				// e campos (para obter o maior nmero de erros
-				// de uma nica vez)
 				foreach (ExpressionPair p in _attribute.NamedArguments)
 				{
 					bool success = SetFieldOrProperty(aa, p);
@@ -127,10 +124,6 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (members.Length > 1)
 					{
-						// Essa preocupao parece meio idiota, mas
-						// como ainda no tenho certeza de que o modelo
-						// IL no permita dois membros diferentes com mesmo
-						// nome vou deixar aqui
 						_context.Errors.Add(CompilerErrorFactory.AmbiguousReference(name, members));
 						return false;
 					}
@@ -151,7 +144,6 @@ namespace Boo.Lang.Compiler.Steps
 							}
 							else
 							{
-								// No poderia chegar aqui jamais!!!
 								throw new InvalidOperationException();
 							}
 						}
