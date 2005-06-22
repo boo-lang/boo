@@ -2391,8 +2391,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (EntityType.Property == member.EntityType)
 			{
 				if (!AstUtil.IsLhsOfAssignment(node) &&
-					!IsPreIncDec(node.ParentNode) && 
-					/*BOO-313*/!IsValueTypeParentOfLhsOfAssignment(node))
+					!IsPreIncDec(node.ParentNode) &&
+					/*BOO-313*/ !IsValueTypeParentOfLhsOfAssignment(node))
 				{
 					if (IsIndexedProperty(member))
 					{
@@ -4845,13 +4845,9 @@ namespace Boo.Lang.Compiler.Steps
 				switch (tag.EntityType)
 				{
 					case EntityType.Parameter:
-					{
-						return true;
-					}
-					
 					case EntityType.Local:
 					{
-						return !((InternalLocal)tag).IsPrivateScope;
+						return true;
 					}
 					
 					case EntityType.Property:
@@ -4866,7 +4862,12 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case EntityType.Field:
 					{
-						return !IsReadOnlyField((IField)tag);
+						if (IsReadOnlyField((IField)tag))
+						{
+							Error(CompilerErrorFactory.FieldIsReadonly(GetMemberAnchor(node), tag.FullName));
+							return false;
+						}
+						return true;
 					}
 				}
 			}

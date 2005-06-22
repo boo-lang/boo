@@ -610,6 +610,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0116", node.LexicalInfo, iface, item);
 		}
+
+		public static CompilerError FieldIsReadonly(Node node, string name)
+		{
+			return new CompilerError("BCE0117", node.LexicalInfo, name);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

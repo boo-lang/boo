@@ -115,6 +115,7 @@ BCE0113=Invalid character literal: '{0}'
 BCE0114=Explicit interface implementation for non interface type '{0}'
 BCE0115=Cannot implement interface item '{0}.{1}' when not implementing the interface '{0}'
 BCE0116=Explicit member implementation for '{0}.{1}' must not declare any modifiers.
+BCE0117=Field '{0}' is read only.
 
 ;Compiler warnings
 BCW0001=WARNING: Il tipo '{0}' non fornisce una implementazione per '{1}' e' verra' marcato come abstract
