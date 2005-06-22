@@ -27,8 +27,7 @@
 #endregion
 
 namespace Boo.Lang.Compiler.Steps
-{
-	using System;
+{	
 	using System.Collections;
 	using Boo.Lang;
 	using Boo.Lang.Compiler;
@@ -305,8 +304,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			CheckUnusedLocals(node);
+			CheckAbstractMethodCantHaveBody(node);
 		}
-		
+
+		private void CheckAbstractMethodCantHaveBody(Method node)
+		{
+			if (node.IsAbstract)
+			{
+				if (node.Body.Statements.Count > 0)
+				{
+					Error(CompilerErrorFactory.AbstractMethodCantHaveBody(node, node.FullName));
+				}
+			}
+		}
+
 		void CheckUnusedLocals(Method node)
 		{
 			foreach (Local local in node.Locals)

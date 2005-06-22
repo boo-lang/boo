@@ -28,7 +28,6 @@
 
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
@@ -855,34 +854,9 @@ namespace Boo.Lang.Compiler.Steps
 		void AddFieldInitializerToStaticConstructor(int index, Field node)
 		{
 			Constructor constructor = GetStaticConstructor(node.DeclaringType);
-			Statement stmt = CreateFieldAssignment(node);
+			Statement stmt = CodeBuilder.CreateFieldAssignment(node, node.Initializer);
 			constructor.Body.Statements.Insert(index, stmt);
 			node.Initializer = null;
-		}
-		
-		Statement CreateFieldAssignment(Field node)
-		{
-			InternalField fieldEntity = (InternalField)GetEntity(node);
-			
-			ExpressionStatement stmt = new ExpressionStatement(node.Initializer.LexicalInfo);
-			
-			Expression context = null;
-			if (node.IsStatic)
-			{
-				context = CodeBuilder.CreateReference(node.LexicalInfo, fieldEntity.DeclaringType);
-			}
-			else
-			{
-				context = CodeBuilder.CreateSelfReference(fieldEntity.Type);
-			}
-			
-			// <node.Name> = <node.Initializer>
-			stmt.Expression = new BinaryExpression(BinaryOperatorType.Assign,
-									CodeBuilder.CreateMemberReference(context, fieldEntity),
-									node.Initializer);
-			BindExpressionType(stmt.Expression, fieldEntity.Type);
-			
-			return stmt;
 		}
 		
 		void CheckRuntimeMethod(Method method)
@@ -1024,56 +998,33 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			bool parentIsClass = method.DeclaringType.NodeType == NodeType.ClassDefinition;
 			
-			InternalMethod tag = (InternalMethod)GetEntity(method);
-			if (method.IsOverride)
+			InternalMethod entity = (InternalMethod)GetEntity(method);
+			if (method.IsOverride && parentIsClass)
 			{
-				if (parentIsClass)
-				{
-					ResolveMethodOverride(tag);
-				}
-				else
-				{
-					// TODO: only class methods can be marked 'override'
-				}
+				ResolveMethodOverride(entity);
 			}
 			
-			if (method.IsAbstract)
-			{
-				if (parentIsClass)
-				{
-					method.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
-					if (method.Body.Statements.Count > 0)
-					{
-						Error(CompilerErrorFactory.AbstractMethodCantHaveBody(method, method.FullName));
-					}
-				}
-				else
-				{
-					// TODO: only class method can be marked 'abstract'
-				}
-			}
-			
-			ProcessMethodBody(tag);
+			ProcessMethodBody(entity);
 			
 			if (parentIsClass)
 			{
-				if (TypeSystemServices.IsUnknown(tag.ReturnType))
+				if (TypeSystemServices.IsUnknown(entity.ReturnType))
 				{
-					TryToResolveReturnType(tag);
+					TryToResolveReturnType(entity);
 				}
 				else
 				{
 					if (!method.IsOverride)
 					{
-						CheckMethodOverride(tag);
+						CheckMethodOverride(entity);
 					}
 					
-					if (tag.IsGenerator)
+					if (entity.IsGenerator)
 					{
-						CheckGeneratorReturnType(method, tag.ReturnType);
+						CheckGeneratorReturnType(method, entity.ReturnType);
 					}
 				}
-				CheckGeneratorCantReturnValues(tag);
+				CheckGeneratorCantReturnValues(entity);
 			}
 		}
 		
@@ -1114,9 +1065,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ProcessMethodBody(InternalMethod tag)
+		void ProcessMethodBody(InternalMethod entity)
 		{
-			ProcessMethodBody(tag, tag);
+			ProcessMethodBody(entity, entity);
 		}
 		
 		void ProcessMethodBody(InternalMethod entity, INamespace ns)
@@ -1129,9 +1080,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ProcessNodeInMethodContext(InternalMethod tag, INamespace ns, Node node)
+		void ProcessNodeInMethodContext(InternalMethod entity, INamespace ns, Node node)
 		{
-			PushMethodInfo(tag);
+			PushMethodInfo(entity);
 			EnterNamespace(ns);
 			
 			MethodBodyState saved = _methodBodyState;
@@ -1406,7 +1357,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (Null.Default == type)
 			{
-					return TypeSystemServices.ObjectType;
+				return TypeSystemServices.ObjectType;
 			}
 			return type;
 		}
@@ -1985,7 +1936,10 @@ namespace Boo.Lang.Compiler.Steps
 		void CreateGeneratorSkeleton(InternalMethod entity)
 		{
 			Method method = entity.Method;
-			IType itemType = GetMostGenericType(entity.YieldExpressions);
+			ExpressionCollection yieldExpressions = entity.YieldExpressions;
+			IType itemType = yieldExpressions.Count > 0
+				? GetMostGenericType(yieldExpressions)
+				: TypeSystemServices.ObjectType;
 			CreateGeneratorSkeleton(method.DeclaringType, method, itemType);
 		}
 		
@@ -2009,6 +1963,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node["GeneratorClassBuilder"] = builder;
 			node["GetEnumeratorBuilder"] = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
+			node["GeneratorItemType"] = generatorItemType;
 			
 			return builder;
 		}
@@ -2551,7 +2506,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				_currentMethod.AddYieldExpression(node.Expression);
+				_currentMethod.AddYieldStatement(node);
 			
 				if (CurrentTryBlockDepth > 0)
 				{

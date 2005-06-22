@@ -135,6 +135,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Hashtable _mapping;
 		
+		IType _generatorItemType;
+
+		/// <summary>
+		/// used for expressionless yield statements when the generator type
+		/// is a value type (and thus 'null' is not an appropriate value)
+		/// </summary>
+		Field _nullValueField;
+
 		public GeneratorMethodProcessor(CompilerContext context, InternalMethod method)
 		{
 			_labels = new List();
@@ -153,6 +161,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
+			_generatorItemType = (IType)_generator.Method["GeneratorItemType"];
 			_enumerable = (BooClassBuilder)_generator.Method["GeneratorClassBuilder"];
 			if (null == _enumerable)
 			{
@@ -347,14 +356,27 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		MethodInvocationExpression CreateYieldInvocation(Expression value)
-		{
+		{	
 			return CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateSelfReference(_enumerator.Entity),
 					_yield,
 					CodeBuilder.CreateIntegerLiteral(_labels.Count),
-					value);
+					value == null ? GetDefaultYieldValue() : value);
 		}
-		
+
+		private Expression GetDefaultYieldValue()
+		{	
+			if (_generatorItemType.IsValueType)
+			{
+				if (null == _nullValueField)
+				{
+					_nullValueField = _enumerator.AddField("______empty", _generatorItemType);
+				}
+				return CodeBuilder.CreateReference(_nullValueField);
+			}
+			return new NullLiteralExpression();
+		}
+
 		LabelStatement CreateLabel(Node sourceNode)
 		{
 			InternalLabel label = CodeBuilder.CreateLabelStatement(sourceNode,

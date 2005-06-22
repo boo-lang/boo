@@ -90,6 +90,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			SetPropertyAccessorModifiers(node, node.Getter);
 			SetPropertyAccessorModifiers(node, node.Setter);
+
+			LeaveMember(node);
 		}
 
 		void SetPropertyAccessorModifiers(Property property, Method accessor)
@@ -137,6 +139,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Modifiers |= TypeMemberModifiers.Abstract;
 			}
+			LeaveMember(node);
 		}
 		
 		override public void LeaveMethod(Method node)
@@ -148,6 +151,18 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsInterface(node.DeclaringType))
 			{
 				node.Modifiers |= TypeMemberModifiers.Abstract;
+			}
+			LeaveMember(node);
+		}
+
+		void LeaveMember(TypeMember node)
+		{
+			if (node.IsAbstract)
+			{
+				if (!IsInterface(node.DeclaringType))
+				{
+					node.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
+				}
 			}
 		}
 

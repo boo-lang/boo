@@ -60,6 +60,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _tss.Context;
 			}
 		}
+
+		public Statement CreateFieldAssignment(Field node, Expression initializer)
+		{
+			InternalField fieldEntity = (InternalField)TypeSystemServices.GetEntity(node);
+			
+			ExpressionStatement stmt = new ExpressionStatement(initializer.LexicalInfo);
+			Expression context = node.IsStatic
+				? (Expression) CreateReference(node.LexicalInfo, fieldEntity.DeclaringType)
+				: CreateSelfReference(fieldEntity.Type);
+			stmt.Expression = this.CreateAssignment(initializer.LexicalInfo,
+				CreateMemberReference(context, fieldEntity),
+				initializer);
+			return stmt;
+		}
 		
 		public Boo.Lang.Compiler.Ast.Attribute CreateAttribute(IConstructor constructor, Expression arg)
 		{

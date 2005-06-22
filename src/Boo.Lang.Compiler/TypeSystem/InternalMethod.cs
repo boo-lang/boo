@@ -52,9 +52,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected ExpressionCollection _returnExpressions;
 		
-		protected ExpressionCollection _yieldExpressions;
-		
 		protected ExpressionCollection _superExpressions;
+
+		protected Boo.Lang.List _yieldStatements;
 		
 		protected Boo.Lang.List _labelReferences;
 		
@@ -242,7 +242,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return null != _yieldExpressions;
+				return null != _yieldStatements;
 			}
 		}
 		
@@ -258,7 +258,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _yieldExpressions;
+				ExpressionCollection expressions = new ExpressionCollection();
+				foreach (YieldStatement stmt in _yieldStatements)
+				{
+					if (null != stmt.Expression)
+					{
+						expressions.Add(stmt.Expression);
+					}
+				}
+				return expressions;
 			}
 		}
 		
@@ -294,13 +302,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public void AddYieldExpression(Expression expression)
+		public void AddYieldStatement(YieldStatement stmt)
 		{
-			if (null == _yieldExpressions)
+			if (null == _yieldStatements)
 			{
-				_yieldExpressions = new ExpressionCollection();
+				_yieldStatements = new List();
 			}
-			_yieldExpressions.Add(expression);
+			_yieldStatements.Add(stmt);
 		}
 		
 		public void AddReturnExpression(Expression expression)

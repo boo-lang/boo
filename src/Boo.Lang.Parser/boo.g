@@ -1368,7 +1368,7 @@ yield_stmt returns [YieldStatement s]
 		s = null;
 		Expression e = null;
 	}:
-	yt:YIELD e=array_or_expression
+	yt:YIELD (e=array_or_expression)?
 	{
 		s = new YieldStatement(ToLexicalInfo(yt));
 		s.Expression = e;
