@@ -524,7 +524,11 @@ interface ICustomer:
 	"""interface property"""
 		get
 	
-	
+enum AnEnum:
+"""and so can an enum"""
+	AnItem
+	"""and its items"""
+	AnotherItem
 			*/
 			
 			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("docstrings_1.boo");
@@ -542,6 +546,10 @@ interface ICustomer:
 			
 			Assert.AreEqual("interface method", customer.Members[0].Documentation);
 			Assert.AreEqual("interface property", customer.Members[1].Documentation);
+			
+			EnumDefinition anEnum = (EnumDefinition)module.Members[2];
+			Assert.AreEqual("and so can an enum", anEnum.Documentation);
+			Assert.AreEqual("and its items", anEnum.Members[0].Documentation);
 			
 		}
 	}

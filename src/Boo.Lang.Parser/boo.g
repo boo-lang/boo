@@ -395,10 +395,9 @@ enum_definition [TypeMemberCollection container]
 	{
 		EnumDefinition ed = null;
 	}:
-	ENUM id:ID
-	begin
+	ENUM id:ID { ed = new EnumDefinition(ToLexicalInfo(id)); }
+	begin_with_doc[ed]
 	{
-		ed = new EnumDefinition(ToLexicalInfo(id));
 		ed.Name = id.getText();
 		ed.Modifiers = _modifiers;
 		AddAttributes(ed.Attributes);
@@ -412,14 +411,15 @@ enum_definition [TypeMemberCollection container]
 	
 protected
 enum_member [EnumDefinition container]
-	{		
+	{	
+		EnumMember em = null;	
 		IntegerLiteralExpression initializer = null;
 		bool negative = false;		
 	}: 
 	attributes
 	id:ID (ASSIGN (SUBTRACT { negative = true; })? initializer=integer_literal)?
 	{
-		EnumMember em = new EnumMember(ToLexicalInfo(id));
+		em = new EnumMember(ToLexicalInfo(id));
 		em.Name = id.getText();
 		em.Initializer = initializer;
 		if (negative && null != initializer)
@@ -430,6 +430,7 @@ enum_member [EnumDefinition container]
 		container.Members.Add(em);
 	}
 	eos
+	docstring[em]
 	;
 			
 protected

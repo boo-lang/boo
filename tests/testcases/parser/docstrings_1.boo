@@ -35,3 +35,10 @@ interface ICustomer:
 	"""interface property"""
 		get
 
+enum AnEnum:
+"""and so can an enum"""
+	AnItem
+	"""and its items"""
+	AnotherItem
+
+
