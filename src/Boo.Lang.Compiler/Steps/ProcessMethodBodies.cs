@@ -2298,13 +2298,15 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnBreakStatement(BreakStatement node)
 		{
-			if (!InLoop())
-			{
-				Error(CompilerErrorFactory.NoEnclosingLoop(node));
-			}
+			CheckInLoop(node);
 		}
-		
+
 		override public void OnContinueStatement(ContinueStatement node)
+		{
+			CheckInLoop(node);
+		}
+
+		private void CheckInLoop(Statement node)
 		{
 			if (!InLoop())
 			{
@@ -3907,7 +3909,7 @@ namespace Boo.Lang.Compiler.Steps
 					CodeBuilder.CreateReference(temp)));
 					
 			parentNode.Replace(node, eval);
-			
+
 			node.Right.ClearTypeSystemBindings();
 			Visit(node.Right);
 			
