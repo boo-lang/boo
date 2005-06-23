@@ -1187,7 +1187,7 @@ closure_expression returns [Expression e]
 			internal_closure_stmt[body]
 			(
 				eos
-				internal_closure_stmt[body]
+				(internal_closure_stmt[body])?
 			)*
 		)
 	anchorEnd:RBRACE
