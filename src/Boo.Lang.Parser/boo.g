@@ -738,6 +738,7 @@ field_or_property [TypeMemberCollection container]
 		TypeMember tm = null;
 		TypeReference tr = null;
 		Property p = null;
+		Field field = null;
 		ExplicitMemberInfo emi = null;
 		Expression initializer = null;
 	}: 
@@ -770,25 +771,24 @@ field_or_property [TypeMemberCollection container]
 	|
 	(
 		id2:ID
+		{
+			tm = field = new Field(ToLexicalInfo(id2));
+			field.Name = id2.getText();
+			field.Modifiers = _modifiers;
+			AddAttributes(field.Attributes);
+		}
 		(		
-			(AS tr=type_reference)?
+			(AS tr=type_reference { field.Type = tr; })?
 			(
 				(ASSIGN (
+							(slicing_expression (DO|DEF))=>
+							(initializer=slicing_expression method_invocation_block[initializer]) |
 							(initializer=array_or_expression eos) |
-							(initializer=callable_expression))) |
+							(initializer=callable_expression))
+				{ field.Initializer = initializer;	}) |
 				eos
-			)						
-			
-			{
-				Field field = new Field(ToLexicalInfo(id2));
-				field.Type = tr;
-				field.Initializer = initializer;
-				tm = field;
-				tm.Name = id2.getText();
-				tm.Modifiers = _modifiers;
-				AddAttributes(tm.Attributes);
-			}
-			docstring[tm]
+			)
+			docstring[field]
 		)
 	)
 	{ container.Add(tm); }

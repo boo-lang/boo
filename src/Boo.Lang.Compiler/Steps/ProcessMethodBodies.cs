@@ -2061,19 +2061,19 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			IEntity tag = ResolveName(node, node.Name);
-			if (null != tag)
+			IEntity entity = ResolveName(node, node.Name);
+			if (null != entity)
 			{
-				EnsureRelatedNodeWasVisited(tag);
+				EnsureRelatedNodeWasVisited(entity);
 				
-				IMember member = tag as IMember;
+				IMember member = entity as IMember;
 				if (null != member)
 				{
 					ResolveMemberInfo(node, member);
 				}
 				else
 				{
-					node.Entity = tag;
+					node.Entity = entity;
 					PostProcessReferenceExpression(node);
 				}
 			}
@@ -4348,29 +4348,24 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected void EnsureRelatedNodeWasVisited(IEntity tag)
+		protected void EnsureRelatedNodeWasVisited(IEntity entity)
 		{
-			if (tag.EntityType == EntityType.Ambiguous)
+			if (entity.EntityType == EntityType.Ambiguous)
 			{
-				EnsureRelatedNodesWereVisited(((Ambiguous)tag).Entities);
+				EnsureRelatedNodesWereVisited(((Ambiguous)entity).Entities);
 				return;
 			}
 			
-			IInternalEntity internalInfo = tag as IInternalEntity;
+			IInternalEntity internalInfo = entity as IInternalEntity;
 			if (null != internalInfo)
 			{
 				if (!Visited(internalInfo.Node))
 				{
-					_context.TraceVerbose("Info {0} needs resolving.", tag.Name);
+					_context.TraceVerbose("Info {0} needs resolving.", entity.Name);
 					
 					INamespace saved = NameResolutionService.CurrentNamespace;
 					try
 					{
-						TypeMember member = internalInfo.Node as TypeMember;
-						if (null != member)
-						{
-							Visit(member.ParentNode);
-						}
 						Visit(internalInfo.Node);
 					}
 					finally
