@@ -61,6 +61,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		public int GetFirstParameterIndex(TypeMember member)
+		{
+			return member.IsStatic ? 0 : 1;
+		}
+
 		public Statement CreateFieldAssignment(Field node, Expression initializer)
 		{
 			InternalField fieldEntity = (InternalField)TypeSystemServices.GetEntity(node);

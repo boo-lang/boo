@@ -146,7 +146,24 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected IType GetConcreteExpressionType(Expression expression)
 		{
-			return TypeSystemServices.GetConcreteExpressionType(expression);
+			IType type = TypeSystemServices.GetConcreteExpressionType(expression);
+			ICallableType callableType = type as ICallableType;
+			if (null != callableType)
+			{
+				// try to detect mutually dependent methods
+				/*
+				 * def foo():
+				 *     a = bar
+				 * 
+				 * def bar():
+				 *     b = foo
+				 */
+				if (callableType.GetSignature().ReturnType == Unknown.Default)
+				{
+					Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(expression));
+				}
+			}
+			return type;
 		}
 		
 		protected IType GetExpressionType(Expression node)

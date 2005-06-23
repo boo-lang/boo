@@ -1,4 +1,6 @@
-﻿#region license
+﻿using System;
+
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -34,7 +36,10 @@ namespace Boo.Lang.Compiler.Steps
 	public class BindTypeMembers : AbstractVisitorCompilerStep
 	{
 		Boo.Lang.List _parameters = new Boo.Lang.List();
-		
+		Boo.Lang.List _events = new Boo.Lang.List();
+		IMethod _delegate_Combine;
+		IMethod _delegate_Remove;
+
 		public BindTypeMembers()
 		{
 		}
@@ -120,9 +125,74 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnEvent(Event node)
 		{
+			_events.Add(node);
+		}
+
+		void BindAllEvents()
+		{
+			foreach (Event node in _events)
+			{
+				BindEvent(node);
+			}
+		}
+
+		void BindEvent(Event node)
+		{
 			if (null == node.Entity)
 			{
 				node.Entity = new InternalEvent(TypeSystemServices, node);
+			}
+
+			IType type = GetType(node.Type);
+			bool typeIsCallable = type is ICallableType;
+			if (!typeIsCallable)
+			{
+				Errors.Add(
+					CompilerErrorFactory.EventTypeIsNotCallable(node.Type,
+					type.FullName));
+			}
+			
+			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
+			if (node.IsTransient)
+			{
+				backingField.Modifiers |= TypeMemberModifiers.Transient;
+			}
+			if (node.IsStatic)
+			{
+				backingField.Modifiers |= TypeMemberModifiers.Static;
+			}
+			node.DeclaringType.Members.Add(backingField);
+			
+			((InternalEvent)node.Entity).BackingField = (InternalField)backingField.Entity;
+			
+			if (null == node.Add)
+			{
+				node.Add = CreateEventAddMethod(node, backingField);
+			}
+			else
+			{
+				Visit(node.Add);
+			}
+			
+			if (null == node.Remove)
+			{
+				node.Remove = CreateEventRemoveMethod(node, backingField);
+			}
+			else
+			{
+				Visit(node.Remove);
+			}
+			
+			if (null == node.Raise)
+			{
+				if (typeIsCallable)
+				{
+					node.Raise = CreateEventRaiseMethod(node, backingField);
+				}
+			}
+			else
+			{
+				Visit(node.Raise);
 			}
 		}
 		
@@ -141,12 +211,140 @@ namespace Boo.Lang.Compiler.Steps
 			NameResolutionService.Reset();
 			Visit(CompileUnit.Modules);
 			BindAllParameters();
+			BindAllEvents();
 		}
 		
 		override public void Dispose()
 		{
-			base.Dispose();
 			_parameters.Clear();
+			_events.Clear();
+			base.Dispose();
+		}
+
+		IMethod Delegate_Combine
+		{
+			get
+			{
+				InitializeDelegateMethods();
+				return _delegate_Combine;
+			}
+		}
+
+		IMethod Delegate_Remove
+		{
+			get
+			{
+				InitializeDelegateMethods();
+				return _delegate_Remove;
+			}
+		}
+
+		void InitializeDelegateMethods()
+		{
+			if (null != _delegate_Combine)
+			{
+				return;
+			}
+			Type delegateType = Types.Delegate;
+			Type[] delegates = new Type[] { delegateType, delegateType };
+			_delegate_Combine = TypeSystemServices.Map(delegateType.GetMethod("Combine", delegates));
+			_delegate_Remove = TypeSystemServices.Map(delegateType.GetMethod("Remove", delegates));
+		}
+
+		Method CreateEventMethod(Event node, string prefix)
+		{
+			Method method = CodeBuilder.CreateMethod(prefix + node.Name,
+				TypeSystemServices.VoidType,
+				node.Modifiers);
+			method.Parameters.Add(
+				CodeBuilder.CreateParameterDeclaration(
+				CodeBuilder.GetFirstParameterIndex(node),
+				"handler",
+				GetType(node.Type)));
+			return method;
+		}
+		
+		Method CreateEventAddMethod(Event node, Field backingField)
+		{
+			Method m = CreateEventMethod(node, "add_");
+			m.Body.Add(
+				CodeBuilder.CreateAssignment(
+				CodeBuilder.CreateReference(backingField),
+				CodeBuilder.CreateMethodInvocation(
+				Delegate_Combine,
+				CodeBuilder.CreateReference(backingField),
+				CodeBuilder.CreateReference(m.Parameters[0]))));
+			return m;
+		}
+		
+		Method CreateEventRemoveMethod(Event node, Field backingField)
+		{
+			Method m = CreateEventMethod(node, "remove_");
+			m.Body.Add(
+				CodeBuilder.CreateAssignment(
+				CodeBuilder.CreateReference(backingField),
+				CodeBuilder.CreateMethodInvocation(
+				Delegate_Remove,
+				CodeBuilder.CreateReference(backingField),
+				CodeBuilder.CreateReference(m.Parameters[0]))));
+			return m;
+		}
+		
+		TypeMemberModifiers RemoveAccessiblityModifiers(TypeMemberModifiers modifiers)
+		{
+			TypeMemberModifiers mask = TypeMemberModifiers.Public |
+				TypeMemberModifiers.Protected |
+				TypeMemberModifiers.Private |
+				TypeMemberModifiers.Internal;
+			return modifiers & ~mask ;
+		}
+		
+		Method CreateEventRaiseMethod(Event node, Field backingField)
+		{
+			TypeMemberModifiers modifiers = RemoveAccessiblityModifiers(node.Modifiers);
+			if (node.IsPrivate)
+			{
+				modifiers |= TypeMemberModifiers.Private;
+			}
+			else
+			{
+				modifiers |= TypeMemberModifiers.Protected | TypeMemberModifiers.Internal;
+			}
+			
+			Method method = CodeBuilder.CreateMethod("raise_" + node.Name,
+				TypeSystemServices.VoidType,
+				modifiers);
+													
+			ICallableType type = GetEntity(node.Type) as ICallableType;
+			if (null != type)
+			{
+				int index = CodeBuilder.GetFirstParameterIndex(node);
+				foreach (IParameter parameter in type.GetSignature().Parameters)
+				{
+					method.Parameters.Add(
+						CodeBuilder.CreateParameterDeclaration(
+						index,
+						parameter.Name,
+						parameter.Type));
+					++index;
+				}
+			}
+			
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+				CodeBuilder.CreateReference(backingField),
+				NameResolutionService.ResolveMethod(GetType(backingField.Type), "Invoke"));
+			foreach (ParameterDeclaration parameter in method.Parameters)
+			{
+				mie.Arguments.Add(CodeBuilder.CreateReference(parameter));
+			}
+			
+			IfStatement stmt = new IfStatement(node.LexicalInfo);
+			stmt.Condition = CodeBuilder.CreateNotNullTest(
+				CodeBuilder.CreateReference(backingField));
+			stmt.TrueBlock = new Block();
+			stmt.TrueBlock.Add(mie);
+			method.Body.Add(stmt);
+			return method;
 		}
 	}
 }

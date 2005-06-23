@@ -63,6 +63,7 @@ class MockInterpreter(AbstractInterpreter):
 
 [TestFixture]
 class AbstractInterpreterTestFixture:
+	[Test]
 	def TestEval():
 		mi = MockInterpreter()
 		mi.Expect("Lookup(foo)")

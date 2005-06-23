@@ -65,7 +65,8 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				if (null != ParentNode)
 				{
-					if (NodeType.Property == ParentNode.NodeType)
+					if (NodeType.Property == ParentNode.NodeType ||
+						NodeType.Event == ParentNode.NodeType)
 					{
 						return (TypeDefinition)ParentNode.ParentNode;
 					}					

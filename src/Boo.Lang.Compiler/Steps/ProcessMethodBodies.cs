@@ -105,10 +105,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IConstructor EnumeratorItemType_Constructor;
 		
-		IMethod Delegate_Combine;
-		
-		IMethod Delegate_Remove;
-		
 		InfoFilter IsPublicEventFilter;
 		
 		InfoFilter IsPublicFieldPropertyEventFilter;
@@ -182,11 +178,6 @@ namespace Boo.Lang.Compiler.Steps
 			Activator_CreateInstance = TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
 			TextReaderEnumerator_Constructor = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetConstructor(new Type[] { typeof(TextReader) }));
 			EnumeratorItemType_Constructor = TypeSystemServices.Map(typeof(EnumeratorItemTypeAttribute)).GetConstructors()[0];
-			
-			Type delegateType = Types.Delegate;
-			Type[] delegates = new Type[] { delegateType, delegateType };
-			Delegate_Combine = TypeSystemServices.Map(delegateType.GetMethod("Combine", delegates));
-			Delegate_Remove = TypeSystemServices.Map(delegateType.GetMethod("Remove", delegates));
 			
 			ApplicationException_StringConstructor =
 					TypeSystemServices.Map(
@@ -396,167 +387,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-		}
-			
-		Method CreateEventMethod(Event node, string prefix)
-		{
-			Method method = CodeBuilder.CreateMethod(prefix + node.Name,
-													TypeSystemServices.VoidType,
-													node.Modifiers);
-			method.Parameters.Add(
-					CodeBuilder.CreateParameterDeclaration(
-						GetFirstParameterIndex(node),
-						"handler",
-						GetType(node.Type)));
-			return method;
-		}
-		
-		Method CreateEventAddMethod(Event node, Field backingField)
-		{
-			Method m = CreateEventMethod(node, "add_");
-			m.Body.Add(
-				CodeBuilder.CreateAssignment(
-					CodeBuilder.CreateReference(backingField),
-					CodeBuilder.CreateMethodInvocation(
-						Delegate_Combine,
-						CodeBuilder.CreateReference(backingField),
-						CodeBuilder.CreateReference(m.Parameters[0]))));
-			return m;
-		}
-		
-		Method CreateEventRemoveMethod(Event node, Field backingField)
-		{
-			Method m = CreateEventMethod(node, "remove_");
-			m.Body.Add(
-				CodeBuilder.CreateAssignment(
-					CodeBuilder.CreateReference(backingField),
-					CodeBuilder.CreateMethodInvocation(
-						Delegate_Remove,
-						CodeBuilder.CreateReference(backingField),
-						CodeBuilder.CreateReference(m.Parameters[0]))));
-			return m;
-		}
-		
-		TypeMemberModifiers RemoveAccessiblityModifiers(TypeMemberModifiers modifiers)
-		{
-			TypeMemberModifiers mask = TypeMemberModifiers.Public |
-										TypeMemberModifiers.Protected |
-										TypeMemberModifiers.Private |
-										TypeMemberModifiers.Internal;
-			return modifiers & ~mask ;
-		}
-		
-		Method CreateEventRaiseMethod(Event node, Field backingField)
-		{
-			TypeMemberModifiers modifiers = RemoveAccessiblityModifiers(node.Modifiers);
-			if (node.IsPrivate)
-			{
-				modifiers |= TypeMemberModifiers.Private;
-			}
-			else
-			{
-				modifiers |= TypeMemberModifiers.Protected | TypeMemberModifiers.Internal;
-			}
-			
-			Method method = CodeBuilder.CreateMethod("raise_" + node.Name,
-													TypeSystemServices.VoidType,
-													modifiers);
-													
-			ICallableType type = GetEntity(node.Type) as ICallableType;
-			if (null != type)
-			{
-				int index = GetFirstParameterIndex(node);
-				foreach (IParameter parameter in type.GetSignature().Parameters)
-				{
-					method.Parameters.Add(
-						CodeBuilder.CreateParameterDeclaration(
-							index,
-							parameter.Name,
-							parameter.Type));
-					++index;
-				}
-			}
-			
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-							CodeBuilder.CreateReference(backingField),
-							ResolveMethod(GetType(backingField.Type), "Invoke"));
-			foreach (ParameterDeclaration parameter in method.Parameters)
-			{
-				mie.Arguments.Add(CodeBuilder.CreateReference(parameter));
-			}
-			
-			IfStatement stmt = new IfStatement(node.LexicalInfo);
-			stmt.Condition = CodeBuilder.CreateNotNullTest(
-								CodeBuilder.CreateReference(backingField));
-			stmt.TrueBlock = new Block();
-			stmt.TrueBlock.Add(mie);
-			method.Body.Add(stmt);
-			return method;
-		}
-		
-		override public void OnEvent(Event node)
-		{
-			if (Visited(node))
-			{
-				return;
-			}
-			MarkVisited(node);
-			
-			Visit(node.Attributes);
-			Visit(node.Type);
-			
-			IType type = GetType(node.Type);
-			bool typeIsCallable = type is ICallableType;
-			if (!typeIsCallable)
-			{
-				Errors.Add(
-					CompilerErrorFactory.EventTypeIsNotCallable(node.Type,
-						type.FullName));
-			}
-			
-			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
-			if (node.IsTransient)
-			{
-				backingField.Modifiers |= TypeMemberModifiers.Transient;
-			}
-			if (node.IsStatic)
-			{
-				backingField.Modifiers |= TypeMemberModifiers.Static;
-			}
-			node.DeclaringType.Members.Add(backingField);
-			
-			((InternalEvent)node.Entity).BackingField = (InternalField)backingField.Entity;
-			
-			if (null == node.Add)
-			{
-				node.Add = CreateEventAddMethod(node, backingField);
-			}
-			else
-			{
-				Visit(node.Add);
-			}
-			
-			if (null == node.Remove)
-			{
-				node.Remove = CreateEventRemoveMethod(node, backingField);
-			}
-			else
-			{
-				Visit(node.Remove);
-			}
-			
-			if (null == node.Raise)
-			{
-				if (typeIsCallable)
-				{
-					node.Raise = CreateEventRaiseMethod(node, backingField);
-				}
-			}
-			else
-			{
-				Visit(node.Raise);
-			}
-		}
+		}	
 		
 		override public void OnProperty(Property node)
 		{
@@ -617,18 +448,13 @@ namespace Boo.Lang.Compiler.Steps
 				ParameterDeclaration parameter = new ParameterDeclaration();
 				parameter.Type = CodeBuilder.CreateTypeReference(typeInfo);
 				parameter.Name = "value";
-				parameter.Entity = new InternalParameter(parameter, node.Parameters.Count+GetFirstParameterIndex(setter));
+				parameter.Entity = new InternalParameter(parameter, node.Parameters.Count+CodeBuilder.GetFirstParameterIndex(setter));
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
 				setter.Name = "set_" + node.Name;
 				setter.ExplicitInfo = node.ExplicitInfo;
 				Visit(setter);
 			}
-		}
-		
-		int GetFirstParameterIndex(TypeMember member)
-		{
-			return member.IsStatic ? 0 : 1;
 		}
 		
 		override public void OnField(Field node)
