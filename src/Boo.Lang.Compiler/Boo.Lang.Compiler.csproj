@@ -1493,6 +1493,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\ExpandProperties.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\ForeignReferenceCollector.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
