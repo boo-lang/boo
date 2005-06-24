@@ -2566,7 +2566,7 @@ namespace Boo.Lang.Compiler.Steps
 						expansion = ExpandSimpleIncrementDecrement(node);
 					}
 					node.ParentNode.Replace(node, expansion);
-					//Visit(expansion);
+					Visit(expansion);
 				}
 			}
 			else
@@ -2600,14 +2600,16 @@ namespace Boo.Lang.Compiler.Steps
 
 			InternalLocal oldValue = DeclareOldValueTempIfNeeded(node);
 			
+			BinaryExpression addition = CodeBuilder.CreateBoundBinaryExpression(
+				GetExpressionType(slicing),
+				GetEquivalentBinaryOperator(node.Operator),
+				CloneOrAssignToTemp(oldValue, slicing),
+				CodeBuilder.CreateIntegerLiteral(1));
 			Expression expansion = CodeBuilder.CreateAssignment(
 					slicing.CloneNode(),
-					CodeBuilder.CreateBoundBinaryExpression(
-						GetExpressionType(slicing),
-						GetEquivalentBinaryOperator(node.Operator),
-						CloneOrAssignToTemp(oldValue, slicing),
-						CodeBuilder.CreateIntegerLiteral(1)));
-						
+					addition);
+			// Resolve operator overloads if any
+			BindArithmeticOperator(addition);
 			if (eval.Arguments.Count > 0 || null != oldValue)
 			{
 				eval.Arguments.Add(expansion);
@@ -2642,10 +2644,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			InternalLocal oldValue = DeclareOldValueTempIfNeeded(node);
 
-			BinaryExpression addition = new BinaryExpression(
+			BinaryExpression addition = CodeBuilder.CreateBoundBinaryExpression(
+											GetExpressionType(node.Operand),
 											GetEquivalentBinaryOperator(node.Operator),
 											CloneOrAssignToTemp(oldValue, node.Operand),
-											new IntegerLiteralExpression(1));
+											CodeBuilder.CreateIntegerLiteral(1));
 												
 			BinaryExpression assign = CodeBuilder.CreateAssignment(
 											node.LexicalInfo,
@@ -2653,7 +2656,7 @@ namespace Boo.Lang.Compiler.Steps
 											addition);
 
 			// Resolve operator overloads if any
-			Visit(addition);
+			BindArithmeticOperator(addition);
 
 			return null == oldValue
 				? (Expression) assign
