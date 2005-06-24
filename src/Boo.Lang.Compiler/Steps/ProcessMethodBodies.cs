@@ -2216,7 +2216,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (EntityType.Property == member.EntityType)
 			{
-				if (!AstUtil.IsLhsOfAssignment(node) &&
+				if (/*!AstUtil.IsLhsOfAssignment(node) &&*/
 					!IsPreIncDec(node.ParentNode) &&
 					/*BOO-313*/ !IsValueTypeParentOfLhsOfAssignment(node))
 				{
@@ -2228,15 +2228,9 @@ namespace Boo.Lang.Compiler.Steps
 							return;
 						}
 					}
-					else
-					{
-						node.ParentNode.Replace(node, CodeBuilder.CreatePropertyGet(node.Target, (IProperty)member));
-						return;
-					}
 				}
 			}
-			
-			if (EntityType.Event == member.EntityType)
+			else if (EntityType.Event == member.EntityType)
 			{
 				if (!AstUtil.IsTargetOfMethodInvocation(node) &&
 					!AstUtil.IsLhsOfInPlaceAddSubtract(node))
@@ -3891,9 +3885,7 @@ namespace Boo.Lang.Compiler.Steps
 			BinaryExpression tempInitialization = CodeBuilder.CreateAssignment(
 				node.LexicalInfo,
 				CodeBuilder.CreateReference(temp),
-				CodeBuilder.CreatePropertyGet(
-					property.Target,
-					(IProperty)property.Entity));
+				property.CloneNode());
 				
 			memberRef.Target = CodeBuilder.CreateReference(temp);
 			
@@ -3909,9 +3901,6 @@ namespace Boo.Lang.Compiler.Steps
 					CodeBuilder.CreateReference(temp)));
 					
 			parentNode.Replace(node, eval);
-
-			node.Right.ClearTypeSystemBindings();
-			Visit(node.Right);
 			
 			if (NodeType.ExpressionStatement != parentNode.NodeType)
 			{

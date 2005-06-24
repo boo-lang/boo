@@ -33,7 +33,8 @@ namespace Boo.Lang.Compiler.Pipelines
 	public class Compile : ResolveExpressions
 	{
 		public Compile()
-		{				
+		{	
+			Add(new ExpandProperties());
 			Add(new StricterErrorChecking());
 			Add(new RemoveDeadCode());
 			Add(new NormalizeIterationStatements());
