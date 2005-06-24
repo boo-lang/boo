@@ -2216,18 +2216,17 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (EntityType.Property == member.EntityType)
 			{
-				if (/*!AstUtil.IsLhsOfAssignment(node) &&*/
-					!IsPreIncDec(node.ParentNode) &&
-					/*BOO-313*/ !IsValueTypeParentOfLhsOfAssignment(node))
+				if (IsIndexedProperty(member))
 				{
-					if (IsIndexedProperty(member))
+					if (!AstUtil.IsTargetOfSlicing(node))
 					{
-						if (!AstUtil.IsTargetOfSlicing(node))
-						{
-							Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), member.FullName));
-							return;
-						}
+						Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), member.FullName));
+						return;
 					}
+				}
+				if (/*BOO-313*/ !IsValueTypeParentOfLhsOfAssignment(node))
+				{
+					
 				}
 			}
 			else if (EntityType.Event == member.EntityType)
@@ -2557,8 +2556,6 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					node.Operand.ExpressionType = null;
-					
 					Node expansion = null;
 					if (IsArraySlicing(node.Operand))
 					{
@@ -2569,7 +2566,7 @@ namespace Boo.Lang.Compiler.Steps
 						expansion = ExpandSimpleIncrementDecrement(node);
 					}
 					node.ParentNode.Replace(node, expansion);
-					Visit(expansion);
+					//Visit(expansion);
 				}
 			}
 			else
@@ -2600,18 +2597,24 @@ namespace Boo.Lang.Compiler.Steps
 					slice.Begin = CodeBuilder.CreateReference(temp);
 				}
 			}
+
+			InternalLocal oldValue = DeclareOldValueTempIfNeeded(node);
 			
 			Expression expansion = CodeBuilder.CreateAssignment(
 					slicing.CloneNode(),
 					CodeBuilder.CreateBoundBinaryExpression(
 						GetExpressionType(slicing),
 						GetEquivalentBinaryOperator(node.Operator),
-						slicing.CloneNode(),
+						CloneOrAssignToTemp(oldValue, slicing),
 						CodeBuilder.CreateIntegerLiteral(1)));
 						
-			if (eval.Arguments.Count > 0)
+			if (eval.Arguments.Count > 0 || null != oldValue)
 			{
 				eval.Arguments.Add(expansion);
+				if (null != oldValue)
+				{
+					eval.Arguments.Add(CodeBuilder.CreateReference(oldValue));
+				}
 				BindExpressionType(eval, GetExpressionType(slicing));
 				expansion = eval;
 			}
@@ -2627,25 +2630,53 @@ namespace Boo.Lang.Compiler.Steps
 						initializer));
 			return temp;
 		}
+
+		InternalLocal DeclareOldValueTempIfNeeded(UnaryExpression node)
+		{
+			return AstUtil.IsPostUnaryOperator(node.Operator)
+				? DeclareTempLocal(GetExpressionType(node.Operand))
+				: null;
+		}
 		
 		Expression ExpandSimpleIncrementDecrement(UnaryExpression node)
 		{
+			InternalLocal oldValue = DeclareOldValueTempIfNeeded(node);
+
 			BinaryExpression addition = new BinaryExpression(
 											GetEquivalentBinaryOperator(node.Operator),
-											node.Operand.CloneNode(),
+											CloneOrAssignToTemp(oldValue, node.Operand),
 											new IntegerLiteralExpression(1));
 												
-			BinaryExpression assign = new BinaryExpression(node.LexicalInfo,
-											BinaryOperatorType.Assign,
+			BinaryExpression assign = CodeBuilder.CreateAssignment(
+											node.LexicalInfo,
 											node.Operand,
 											addition);
-			return assign;
+
+			// Resolve operator overloads if any
+			Visit(addition);
+
+			return null == oldValue
+				? (Expression) assign
+				: CodeBuilder.CreateEvalInvocation(
+					node.LexicalInfo,
+					assign,
+					CodeBuilder.CreateReference(oldValue));
 		}
-		
+
+		Expression CloneOrAssignToTemp(InternalLocal temp, Expression operand)
+		{
+			return null == temp
+				? operand.CloneNode()
+				: CodeBuilder.CreateAssignment(
+					CodeBuilder.CreateReference(temp),
+					operand.CloneNode());
+		}
+
 		BinaryOperatorType GetEquivalentBinaryOperator(UnaryOperatorType op)
 		{
-			return op == UnaryOperatorType.Increment ?
-				BinaryOperatorType.Addition : BinaryOperatorType.Subtraction;
+			return op == UnaryOperatorType.Increment || op == UnaryOperatorType.PostIncrement
+				? BinaryOperatorType.Addition
+				: BinaryOperatorType.Subtraction;
 		}
 		
 		UnaryOperatorType GetRelatedPreOperator(UnaryOperatorType op)
@@ -2668,12 +2699,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (AstUtil.IsPostUnaryOperator(node.Operator))
 			{
-				UnaryOperatorType op = GetRelatedPreOperator(node.Operator);
 				if (NodeType.ExpressionStatement == node.ParentNode.NodeType)
 				{
 					// nothing to do, a post operator inside a statement
 					// behaves just like its equivalent pre operator
-					node.Operator = op;
+					node.Operator = GetRelatedPreOperator(node.Operator);
 				}
 			}
 			return true;
@@ -2691,7 +2721,9 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				case UnaryOperatorType.Increment:
+				case UnaryOperatorType.PostIncrement:
 				case UnaryOperatorType.Decrement:
+				case UnaryOperatorType.PostDecrement:
 				{
 					LeaveIncrementDecrement(node);
 					break;
@@ -2722,7 +2754,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
-				if (NodeType.ReferenceExpression == node.Left.NodeType)
+				if (NodeType.ReferenceExpression == node.Left.NodeType &&
+					null == node.Left.Entity)
 				{
 					// Auto local declaration:
 					// assign to unknown reference implies local
@@ -4796,31 +4829,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return
 				node.NodeType == NodeType.MethodInvocationExpression ||
-				IsAssignment(node) ||
-				IsPreIncDec(node);
-		}
-		
-		static bool IsPreIncDec(Node node)
-		{
-			if (node.NodeType == NodeType.UnaryExpression)
-			{
-				UnaryOperatorType op = ((UnaryExpression)node).Operator;
-				return UnaryOperatorType.Increment == op ||
-					UnaryOperatorType.Decrement == op;
-			}
-			return false;
-		}
-		
-		static bool IsAssignment(Expression node)
-		{
-			if (node.NodeType == NodeType.BinaryExpression)
-			{
-				BinaryOperatorType binaryOperator = ((BinaryExpression)node).Operator;
-				return BinaryOperatorType.Assign == binaryOperator ||
-						BinaryOperatorType.InPlaceAdd == binaryOperator ||
-						BinaryOperatorType.InPlaceSubtract == binaryOperator;
-			}
-			return false;
+				AstUtil.IsAssignment(node) ||
+					AstUtil.IsIncDec(node);
 		}
 		
 		bool CheckCanCreateInstance(Node sourceNode, IType type)

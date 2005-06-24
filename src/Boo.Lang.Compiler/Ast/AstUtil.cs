@@ -36,6 +36,32 @@ namespace Boo.Lang.Compiler.Ast
 				UnaryOperatorType.PostDecrement == op;
 		}
 
+		public static bool IsIncDec(Node node)
+		{
+			if (node.NodeType == NodeType.UnaryExpression)
+			{
+				UnaryOperatorType op = ((UnaryExpression)node).Operator;
+				return UnaryOperatorType.Increment == op ||
+					UnaryOperatorType.PostIncrement == op ||
+					UnaryOperatorType.Decrement == op ||
+					UnaryOperatorType.PostDecrement == op;
+			}
+			return false;
+		}
+
+		public static bool IsAssignment(Expression node)
+		{
+			if (node.NodeType == NodeType.BinaryExpression)
+			{
+				BinaryOperatorType binaryOperator = ((BinaryExpression)node).Operator;
+				return BinaryOperatorType.Assign == binaryOperator ||
+					BinaryOperatorType.InPlaceAdd == binaryOperator ||
+					BinaryOperatorType.InPlaceSubtract == binaryOperator;
+			}
+			return false;
+		}
+
+
 		public static ClassDefinition GetParentClass(Node node)
 		{
 			Node parent = node.ParentNode;

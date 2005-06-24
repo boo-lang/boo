@@ -370,6 +370,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			eval.Target.Entity = BuiltinFunction.Eval;
 			return eval;
 		}
+
+		public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li, Expression arg, Expression value)
+		{
+			MethodInvocationExpression eval = CreateEvalInvocation(li);
+			eval.Arguments.Add(arg);
+			eval.Arguments.Add(value);
+			eval.ExpressionType = value.ExpressionType;
+			return eval;
+		}
 		
 		public UnpackStatement CreateUnpackStatement(DeclarationCollection declarations, Expression expression)
 		{
@@ -655,10 +664,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			test.ExpressionType = _tss.BoolType;
 			return test;
 		}
+
+		public string CreateTempName()
+		{
+			return "___temp" + Context.AllocIndex();
+		}
 		
 		public InternalLocal DeclareTempLocal(Method node, IType type)
 		{
-			InternalLocal local = DeclareLocal(node, "___temp" + Context.AllocIndex(), type);
+			InternalLocal local = DeclareLocal(node, CreateTempName(), type);
 			local.IsPrivateScope = true;
 			return local;
 		}
