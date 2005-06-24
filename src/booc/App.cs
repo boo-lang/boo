@@ -132,6 +132,7 @@ namespace BooC
 
 		void ParseOptions(string[] args, CompilerParameters _options)
 		{
+			bool debugSteps = false;
 			ArrayList arglist = new ArrayList(args);
 			ExpandResponseFiles(ref arglist);
 			AddDefaultResponseFile(ref arglist);
@@ -297,6 +298,12 @@ namespace BooC
 										_options.Ducky = true;
 										break;
 									}
+
+									case "debug-steps":
+									{
+										debugSteps = true;
+										break;
+									}
 									
 									default:
 									{
@@ -325,6 +332,16 @@ namespace BooC
 			{
 				_options.Pipeline = new CompileToFile();
 			}
+			if (debugSteps)
+			{
+				_options.Pipeline.AfterStep += new CompilerStepEventHandler(DebugModuleAfterStep);
+			}
+		}
+
+		private void DebugModuleAfterStep(object sender, CompilerStepEventArgs args)
+		{
+			Console.WriteLine("********* {0} *********", args.Step);
+			Console.WriteLine(args.Context.CompileUnit.ToCodeString());
 		}
 
 		ArrayList LoadResponseFile(string file)
