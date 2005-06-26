@@ -325,6 +325,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		static int GetTypeDepth(Type type)
 		{
+			if (type.IsByRef)
+			{
+				return GetTypeDepth(type.GetElementType());
+			}
 			if (type.IsInterface)
 			{
 				return GetInterfaceDepth(type);
