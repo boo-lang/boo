@@ -29,7 +29,6 @@
 using System;
 using System.Reflection;
 using System.Collections;
-using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -804,6 +803,27 @@ namespace Boo.Lang.Runtime
 		}
 
 		public static bool op_NotMember(object lhs, IDictionary rhs)
+		{
+			return !op_Member(lhs, rhs);
+		}
+
+		public static bool op_Member(object lhs, IEnumerable rhs)
+		{
+			if (null == rhs)
+			{
+				return false;
+			}
+			foreach (object item in rhs)
+			{
+				if (EqualityOperator(lhs, item))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public static bool op_NotMember(object lhs, IEnumerable rhs)
 		{
 			return !op_Member(lhs, rhs);
 		}
