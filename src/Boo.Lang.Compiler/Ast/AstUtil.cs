@@ -60,9 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (node.NodeType == NodeType.BinaryExpression)
 			{
 				BinaryOperatorType binaryOperator = ((BinaryExpression)node).Operator;
-				return BinaryOperatorType.Assign == binaryOperator ||
-					BinaryOperatorType.InPlaceAddition == binaryOperator ||
-					BinaryOperatorType.InPlaceSubtraction == binaryOperator;
+				return IsAssignmentOperator(binaryOperator);
 			}
 			return false;
 		}
@@ -205,7 +203,9 @@ namespace Boo.Lang.Compiler.Ast
 					BinaryOperatorType.InPlaceMultiply == op ||
 					BinaryOperatorType.InPlaceDivision == op ||
 					BinaryOperatorType.InPlaceBitwiseAnd == op ||
-					BinaryOperatorType.InPlaceBitwiseOr == op;
+					BinaryOperatorType.InPlaceBitwiseOr == op ||
+					BinaryOperatorType.InPlaceShiftLeft == op ||
+					BinaryOperatorType.InPlaceShiftRight == op;
 		}
 		
 		public static Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)

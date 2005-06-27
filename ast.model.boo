@@ -353,6 +353,10 @@ enum BinaryOperatorType:
 	BitwiseAnd
 	ExclusiveOr
 	InPlaceExclusiveOr
+	ShiftLeft
+	InPlaceShiftLeft
+	ShiftRight
+	InPlaceShiftRight
 
 enum UnaryOperatorType:
 	None

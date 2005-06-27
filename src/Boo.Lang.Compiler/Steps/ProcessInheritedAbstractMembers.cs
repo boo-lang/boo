@@ -158,6 +158,18 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					p.Setter.Modifiers |= TypeMemberModifiers.Virtual;
 				}
+
+				if (null == p.Type)
+				{
+					p.Type = CodeBuilder.CreateTypeReference(entity.Type);
+				}
+				else
+				{
+					if (entity.Type != p.Type.Entity)
+					{
+						Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, entity.FullName));
+					}
+				}
 			}
 			else
 			{
@@ -208,18 +220,24 @@ namespace Boo.Lang.Compiler.Steps
 					NodeType.Method == member.NodeType &&
 					(
 					((Method)member).ExplicitInfo == null ||
-					GetType(baseTypeRef) == GetType(((Method)member).ExplicitInfo.InterfaceType) ||
-					GetType(baseTypeRef).IsSubclassOf(GetType(((Method)member).ExplicitInfo.InterfaceType))
-					))
+					entity.DeclaringType == GetType(((Method)member).ExplicitInfo.InterfaceType))
+					)
 				{
 					Method method = (Method)member;
 					if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), entity))
-					{
-						// TODO: check return type here
+					{	
 						if (IsUnknown(method.ReturnType))
 						{
 							method.ReturnType = CodeBuilder.CreateTypeReference(entity.ReturnType);
 						}
+						else
+						{	
+							if (entity.ReturnType != method.ReturnType.Entity)
+							{
+								Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, entity.FullName));
+							}
+						}
+
 						if (!method.IsOverride && !method.IsVirtual)
 						{
 							method.Modifiers |= TypeMemberModifiers.Virtual;

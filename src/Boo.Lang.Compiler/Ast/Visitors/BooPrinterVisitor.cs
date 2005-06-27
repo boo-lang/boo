@@ -1023,6 +1023,26 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					return "^";
 				}
+
+				case BinaryOperatorType.ShiftLeft:
+				{
+					return "<<";
+				}
+
+				case BinaryOperatorType.ShiftRight:
+				{
+					return ">>";
+				}
+
+				case BinaryOperatorType.InPlaceShiftLeft:
+				{
+					return "<<=";
+				}
+
+				case BinaryOperatorType.InPlaceShiftRight:
+				{
+					return ">>=";
+				}
 			}
 			throw new NotImplementedException(op.ToString());
 		}

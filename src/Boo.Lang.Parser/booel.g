@@ -35,7 +35,7 @@ options
 	defaultErrorHandler = false;
 	testLiterals = false;
 	importVocab = Boo;	
-	k = 2;
+	k = 3;
 	charVocabulary='\u0003'..'\uFFFE';
 	// without inlining some bitset tests, ANTLR couldn't do unicode;
 	// They need to make ANTLR generate smaller bitsets;
@@ -115,7 +115,19 @@ DIVISION:
 	;
 
 
-CMP_OPERATOR : '<' | "<=" | '>' | ">=" | "!~" | "!=";
+LESS_THAN: '<';
+
+SHIFT_LEFT: "<<";
+
+INPLACE_SHIFT_LEFT: "<<=";
+
+GREATER_THAN: '>';
+
+SHIFT_RIGHT: ">>";
+
+INPLACE_SHIFT_RIGHT: ">>=";
+
+CMP_OPERATOR :  "<=" | ">=" | "!~" | "!=";
 
 ASSIGN : '=' ( ('=' | '~') { $setType(CMP_OPERATOR); } )?;
 

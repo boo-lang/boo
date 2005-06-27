@@ -1777,6 +1777,18 @@ assignment_expression returns [Expression e]
 					token = ipba;
 					binaryOperator = BinaryOperatorType.InPlaceBitwiseAnd;
 				}
+			) |
+			(
+				ipsl:INPLACE_SHIFT_LEFT {
+					token = ipsl;
+					binaryOperator = BinaryOperatorType.InPlaceShiftLeft;
+				}
+			) |
+			(
+				ipsr:INPLACE_SHIFT_RIGHT {
+					token = ipsr;
+					binaryOperator = BinaryOperatorType.InPlaceShiftRight;
+				}
 			)
 		)
 		r=assignment_expression
@@ -1874,7 +1886,7 @@ term returns [Expression e]
 		IToken token = null;
 		BinaryOperatorType op = BinaryOperatorType.None; 
 	}:
-	e=exponentiation
+	e=factor
 	( options { greedy = true; } :
 	 	(
 		 m:MULTIPLY { op=BinaryOperatorType.Multiply; token=m; } |
@@ -1882,6 +1894,31 @@ term returns [Expression e]
 		 md:MODULUS { op=BinaryOperatorType.Modulus; token=md; } |
 		 ba:BITWISE_AND { op=BinaryOperatorType.BitwiseAnd; token=ba; }
 		 )
+		r=factor
+		{
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
+			be.Operator = op;
+			be.Left = e;
+			be.Right = r;
+			e = be;
+		}
+	)*
+	;
+	
+protected
+factor returns [Expression e]
+	{
+		e = null;
+		Expression r = null;
+		IToken token = null;
+		BinaryOperatorType op = BinaryOperatorType.None;
+	}:
+	e=exponentiation
+	(options { greedy = true; }:
+		(
+		shl:SHIFT_LEFT { op=BinaryOperatorType.ShiftLeft; token = shl; } |
+		shr:SHIFT_RIGHT { op=BinaryOperatorType.ShiftRight; token = shr; }
+		)
 		r=exponentiation
 		{
 			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
@@ -2419,7 +2456,7 @@ options
 {
 	testLiterals = false;
 	exportVocab = Boo;	
-	k = 2;
+	k = 3;
 	charVocabulary='\u0003'..'\uFFFE';
 	caseSensitiveLiterals=true;
 	// without inlining some bitset tests, ANTLR couldn't do unicode;
@@ -2564,7 +2601,15 @@ DIVISION:
 
 LESS_THAN: '<';
 
+SHIFT_LEFT: "<<";
+
+INPLACE_SHIFT_LEFT: "<<=";
+
 GREATER_THAN: '>';
+
+SHIFT_RIGHT: ">>";
+
+INPLACE_SHIFT_RIGHT: ">>=";
 
 CMP_OPERATOR :  "<=" | ">=" | "!~" | "!=";
 

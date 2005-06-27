@@ -210,6 +210,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0034", node.LexicalInfo);
 		}
+
+		public static CompilerError ConflictWithInheritedMember(Node node, string member, string baseMember)
+		{
+			return new CompilerError("BCE0035", node.LexicalInfo, member, baseMember);
+		}
 		
 		public static CompilerError InvalidTypeof(Node node)
 		{

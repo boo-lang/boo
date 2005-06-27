@@ -2811,7 +2811,7 @@ namespace Boo.Lang.Compiler.Steps
 					BindReferenceEquality(node);
 					break;
 				}
-				
+
 				case BinaryOperatorType.Or:
 				case BinaryOperatorType.And:
 				{
@@ -2822,6 +2822,8 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.BitwiseAnd:
 				case BinaryOperatorType.BitwiseOr:
 				case BinaryOperatorType.ExclusiveOr:
+				case BinaryOperatorType.ShiftLeft:
+				case BinaryOperatorType.ShiftRight:
 				{
 					BindBitwiseOperator(node);
 					break;
@@ -2834,6 +2836,8 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
+				case BinaryOperatorType.InPlaceShiftLeft:
+				case BinaryOperatorType.InPlaceShiftRight:
 				case BinaryOperatorType.InPlaceDivision:				
 				case BinaryOperatorType.InPlaceMultiply:
 				case BinaryOperatorType.InPlaceBitwiseOr:
@@ -3898,6 +3902,12 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.InPlaceBitwiseOr:
 					return BinaryOperatorType.BitwiseOr;
+
+				case BinaryOperatorType.InPlaceShiftLeft:
+					return BinaryOperatorType.ShiftLeft;
+
+				case BinaryOperatorType.InPlaceShiftRight:
+					return BinaryOperatorType.ShiftRight;
 			}
 			throw new ArgumentException("op");
 		}

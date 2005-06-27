@@ -39,7 +39,6 @@ using System.Text.RegularExpressions;
 using Boo.Lang.Runtime;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Resources;
 using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
@@ -1371,6 +1370,17 @@ namespace Boo.Lang.Compiler.Steps
 					_il.Emit(OpCodes.Xor);
 					break;
 				}
+
+				case BinaryOperatorType.ShiftLeft:
+				{
+					_il.Emit(OpCodes.Shl);
+					break;
+				}
+				case BinaryOperatorType.ShiftRight:
+				{
+					_il.Emit(OpCodes.Shr);
+					break;
+				}
 			}
 			
 			PushType(type);
@@ -1380,6 +1390,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (node.Operator)
 			{
+				case BinaryOperatorType.ShiftLeft:
+				case BinaryOperatorType.ShiftRight:
 				case BinaryOperatorType.ExclusiveOr:
 				case BinaryOperatorType.BitwiseAnd:
 				case BinaryOperatorType.BitwiseOr:
@@ -1401,29 +1413,9 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				case BinaryOperatorType.Addition:
-				{
-					OnArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Subtraction:
-				{
-					OnArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Multiply:
-				{
-					OnArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Division:
-				{
-					OnArithmeticOperator(node);
-					break;
-				}
-				
 				case BinaryOperatorType.Modulus:
 				{
 					OnArithmeticOperator(node);
