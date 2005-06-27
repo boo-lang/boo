@@ -34,6 +34,8 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class ProcessInheritedAbstractMembers : AbstractVisitorCompilerStep
 	{
+		private readonly object VisitedAnnotationKey = new object();
+
 		private Boo.Lang.List _newAbstractClasses;
 
 		public ProcessInheritedAbstractMembers()
@@ -103,7 +105,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void MarkVisited(TypeDefinition node)
 		{
-			node[this] = true;
+			node[VisitedAnnotationKey] = true;
 		}
 
 		private void EnsureRelatedNodeWasVisited(IType type)
@@ -112,7 +114,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != internalType)
 			{
 				TypeDefinition node = internalType.TypeDefinition;
-				if (!node.ContainsAnnotation(this))
+				if (!node.ContainsAnnotation(VisitedAnnotationKey))
 				{
 					Visit(node);
 				}

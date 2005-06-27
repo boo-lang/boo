@@ -1,5 +1,5 @@
 """
-BCW0006-1.boo(12,18): BCW0006: WARNING: Assignment to temporary.
+BCW0006-1.boo(13,12): BCW0006: WARNING: Assignment to temporary.
 """
 struct Foo:
 	value as int

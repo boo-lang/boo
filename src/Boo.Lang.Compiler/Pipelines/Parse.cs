@@ -32,7 +32,6 @@ namespace Boo.Lang.Compiler.Pipelines
 	using System;
 	using System.IO;
 	using System.Reflection;
-	using Boo.Lang.Compiler.Steps;
 	
 	public class Parse : CompilerPipeline
 	{

@@ -167,9 +167,9 @@ tokens
 		switch (op)
 		{
 			case "=": return BinaryOperatorType.Assign;
-			case "+=": return BinaryOperatorType.InPlaceAdd;
-			case "-=": return BinaryOperatorType.InPlaceSubtract;
-			case "/=": return BinaryOperatorType.InPlaceDivide;
+			case "+=": return BinaryOperatorType.InPlaceAddition;
+			case "-=": return BinaryOperatorType.InPlaceSubtraction;
+			case "/=": return BinaryOperatorType.InPlaceDivision;
 			case "*=": return BinaryOperatorType.InPlaceMultiply;
 			case "^=": return BinaryOperatorType.InPlaceExclusiveOr;
 		}

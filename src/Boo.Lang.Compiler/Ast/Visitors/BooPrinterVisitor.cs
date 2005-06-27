@@ -899,7 +899,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					return "**";
 				}
 				
-				case BinaryOperatorType.InPlaceAdd:
+				case BinaryOperatorType.InPlaceAddition:
 				{
 					return "+=";
 				}
@@ -914,7 +914,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					return "|=";
 				}
 				
-				case BinaryOperatorType.InPlaceSubtract:
+				case BinaryOperatorType.InPlaceSubtraction:
 				{
 					return "-=";
 				}
@@ -929,7 +929,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					return "^=";
 				}
 				
-				case BinaryOperatorType.InPlaceDivide:
+				case BinaryOperatorType.InPlaceDivision:
 				{
 					return "/=";
 				}

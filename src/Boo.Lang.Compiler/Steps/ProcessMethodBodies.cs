@@ -2173,7 +2173,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (!AstUtil.IsTargetOfSlicing(node))
 					{
-						Error(node, CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node), member.FullName));
+						Error(node, CompilerErrorFactory.PropertyRequiresParameters(AstUtil.GetMemberAnchor(node), member.FullName));
 						return;
 					}
 				}
@@ -2827,14 +2827,14 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 				
-				case BinaryOperatorType.InPlaceSubtract:
-				case BinaryOperatorType.InPlaceAdd:
+				case BinaryOperatorType.InPlaceSubtraction:
+				case BinaryOperatorType.InPlaceAddition:
 				{
 					BindInPlaceAddSubtract(node);
 					break;
 				}
 				
-				case BinaryOperatorType.InPlaceDivide:				
+				case BinaryOperatorType.InPlaceDivision:				
 				case BinaryOperatorType.InPlaceMultiply:
 				case BinaryOperatorType.InPlaceBitwiseOr:
 				case BinaryOperatorType.InPlaceBitwiseAnd:
@@ -3018,7 +3018,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			IMethod method = null;
-			if (node.Operator == BinaryOperatorType.InPlaceAdd)
+			if (node.Operator == BinaryOperatorType.InPlaceAddition)
 			{
 				method = eventInfo.GetAddMethod();
 			}
@@ -3811,7 +3811,7 @@ namespace Boo.Lang.Compiler.Steps
 						IProperty property = (IProperty)lhs;
 						if (IsIndexedProperty(property))
 						{
-							Error(CompilerErrorFactory.PropertyRequiresParameters(GetMemberAnchor(node.Left), property.FullName));
+							Error(CompilerErrorFactory.PropertyRequiresParameters(AstUtil.GetMemberAnchor(node.Left), property.FullName));
 							resultingType = TypeSystemServices.ErrorEntity;
 						}
 					}
@@ -3881,16 +3881,16 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (op)
 			{
-				case BinaryOperatorType.InPlaceAdd:
+				case BinaryOperatorType.InPlaceAddition:
 					return BinaryOperatorType.Addition;
 					
-				case BinaryOperatorType.InPlaceSubtract:
+				case BinaryOperatorType.InPlaceSubtraction:
 					return BinaryOperatorType.Subtraction;
 					
 				case BinaryOperatorType.InPlaceMultiply:
 					return BinaryOperatorType.Multiply;
 					
-				case BinaryOperatorType.InPlaceDivide:
+				case BinaryOperatorType.InPlaceDivision:
 					return BinaryOperatorType.Division;
 					
 				case BinaryOperatorType.InPlaceBitwiseAnd:
@@ -4723,7 +4723,63 @@ namespace Boo.Lang.Compiler.Steps
 				DeclareLocal(d, true);
 			}
 		}
+
+		protected virtual bool CheckLValue(Node node)
+		{
+			IEntity tag = node.Entity;
+			if (null != tag)
+			{
+				switch (tag.EntityType)
+				{
+					case EntityType.Parameter:
+					case EntityType.Local:
+					{
+						return true;
+					}
+					
+					case EntityType.Property:
+					{
+						if (null == ((IProperty)tag).GetSetMethod())
+						{
+							Error(CompilerErrorFactory.PropertyIsReadOnly(AstUtil.GetMemberAnchor(node), tag.FullName));
+							return false;
+						}
+						return true;
+					}
+					
+					case EntityType.Field:
+					{
+						if (IsReadOnlyField((IField)tag))
+						{
+							Error(CompilerErrorFactory.FieldIsReadonly(AstUtil.GetMemberAnchor(node), tag.FullName));
+							return false;
+						}
+						return true;
+					}
+				}
+			}
+			else
+			{
+				if (IsArraySlicing(node))
+				{
+					return true;
+				}
+			}
+			
+			Error(CompilerErrorFactory.LValueExpected(node));
+			return false;
+		}
 		
+		protected bool IsArraySlicing(Node node)
+		{
+			if (node.NodeType == NodeType.SlicingExpression)
+			{
+				IType type = ((SlicingExpression)node).Target.ExpressionType;
+				return null != type && type.IsArray;
+			}
+			return false;
+		}
+
 		bool IsStandaloneReference(Node node)
 		{
 			return node.ParentNode.NodeType != NodeType.MemberReferenceExpression;

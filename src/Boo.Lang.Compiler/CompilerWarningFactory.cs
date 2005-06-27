@@ -63,6 +63,10 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerWarning("BCW0005", node.LexicalInfo, eventName, expected);
 		}
-		
+
+		public static CompilerWarning AssignmentToTemporary(Node node)
+		{
+			return new CompilerWarning("BCW0006", node.LexicalInfo);
+		}
 	}
 }

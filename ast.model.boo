@@ -336,10 +336,10 @@ enum BinaryOperatorType:
 	Match
 	NotMatch
 	Assign
-	InPlaceAdd
-	InPlaceSubtract
+	InPlaceAddition
+	InPlaceSubtraction
 	InPlaceMultiply
-	InPlaceDivide
+	InPlaceDivision
 	InPlaceBitwiseAnd
 	InPlaceBitwiseOr
 	ReferenceEquality

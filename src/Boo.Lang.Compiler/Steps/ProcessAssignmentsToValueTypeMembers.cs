@@ -1,5 +1,8 @@
+using System;
+
 namespace Boo.Lang.Compiler.Steps
 {
+	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 
@@ -32,68 +35,128 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
 			// BOO-313
-			if (IsAssignmentToMemberOfValueTypeProperty(node))
+			if (IsAssignmentToMemberOfValueType(node))
 			{
 				ProcessAssignmentToMemberOfValueTypeProperty(node);
 			}
 		}
 
-		bool IsAssignmentToMemberOfValueTypeProperty(BinaryExpression node)
+		bool IsAssignmentToMemberOfValueType(BinaryExpression node)
 		{	
 			if (BinaryOperatorType.Assign == node.Operator &&
 				NodeType.MemberReferenceExpression == node.Left.NodeType)
 			{
-				MemberReferenceExpression outter = node.Left as MemberReferenceExpression;
-				if (NodeType.MemberReferenceExpression == outter.Target.NodeType)
-				{
-					return EntityType.Property == outter.Target.Entity.EntityType &&
-						outter.Target.ExpressionType.IsValueType;	
-				}
+				MemberReferenceExpression memberRef = node.Left as MemberReferenceExpression;
+				Expression container = memberRef.Target;
+				return !IsTerminalReferenceNode(container)
+					&& null != container.ExpressionType
+					&& container.ExpressionType.IsValueType;	
 			}
 			return false;
 		}
+
+		class ChainItem
+		{
+			public MemberReferenceExpression Container;
+			public InternalLocal Local;
+
+			public ChainItem(MemberReferenceExpression container)
+			{
+				this.Container = container;
+			}
+		}
 		
 		// BOO-313
-		// TODO: do it recursively for internal struct properties
 		void ProcessAssignmentToMemberOfValueTypeProperty(BinaryExpression node)
 		{	
-			Node parentNode = node.ParentNode;
-			
 			MemberReferenceExpression memberRef = (MemberReferenceExpression)node.Left;
-			MemberReferenceExpression property = (MemberReferenceExpression)memberRef.Target;			
-			if (!CheckLValue(property))
-			{
-				return;
-			}
-			
-			InternalLocal temp = DeclareTempLocal(property.ExpressionType);
-			
-			BinaryExpression tempInitialization = CodeBuilder.CreateAssignment(
-				node.LexicalInfo,
-				CodeBuilder.CreateReference(temp),
-				property.CloneNode());
-				
-			memberRef.Target = CodeBuilder.CreateReference(temp);
-			
+			List chain = WalkMemberChain(memberRef);
+			if (null == chain || 0 == chain.Count) return;
+
 			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
-			eval.Arguments.Add(tempInitialization);
+			foreach (ChainItem item in chain)
+			{
+				item.Local = DeclareTempLocal(item.Container.ExpressionType);
+				BinaryExpression tempInitialization = CodeBuilder.CreateAssignment(
+					node.LexicalInfo,
+					CodeBuilder.CreateReference(item.Local),
+					item.Container.CloneNode());
+				item.Container.ParentNode.Replace(item.Container,
+					CodeBuilder.CreateReference(item.Local));
+				eval.Arguments.Add(tempInitialization);
+			}
+
 			eval.Arguments.Add(
 				CodeBuilder.CreateAssignment(node.LexicalInfo,
 				node.Left, node.Right));
-			eval.Arguments.Add(
-				CodeBuilder.CreatePropertySet(
-				property.Target,
-				(IProperty)property.Entity,
-				CodeBuilder.CreateReference(temp)));
+
+			foreach (ChainItem item in chain.Reversed)
+			{
+				eval.Arguments.Add(
+					CodeBuilder.CreateAssignment(
+						item.Container.CloneNode(),
+						CodeBuilder.CreateReference(item.Local)));
+			}
 					
+			Node parentNode = node.ParentNode;
 			parentNode.Replace(node, eval);
 			
 			if (NodeType.ExpressionStatement != parentNode.NodeType)
 			{
 				// TODO: add the expression value as the return value
 				// of __eval__
-				NotImplemented(node, "BOO-313");
+				throw CompilerErrorFactory.NotImplemented(node, "BOO-313");
 			}
+		}
+
+		List WalkMemberChain(MemberReferenceExpression memberRef)
+		{
+			List chain = new List();
+			while (true)
+			{	
+				MemberReferenceExpression container = memberRef.Target as MemberReferenceExpression;
+				if (null == container || IsReadOnlyMember(container))
+				{	
+					Warnings.Add(
+						CompilerWarningFactory.AssignmentToTemporary(memberRef));
+					return null;
+				}
+				if (EntityType.Field != container.Entity.EntityType)
+				{
+					chain.Insert(0, new ChainItem(container));
+				}
+				if (IsTerminalReferenceNode(container.Target))
+				{
+					break;	
+				}
+				memberRef = container;
+			}
+			return chain;
+		}
+
+		private bool IsTerminalReferenceNode(Expression target)
+		{
+			NodeType type = target.NodeType;
+			return 
+				NodeType.ReferenceExpression == type ||
+				NodeType.SelfLiteralExpression == type ||
+				NodeType.SuperLiteralExpression == type;
+		}
+
+		private bool IsReadOnlyMember(MemberReferenceExpression container)
+		{
+			switch (container.Entity.EntityType)
+			{
+				case EntityType.Property:
+				{
+					return ((IProperty)container.Entity).GetSetMethod() == null;
+				}
+				case EntityType.Field:
+				{
+					return IsReadOnlyField((IField)container.Entity);
+				}
+			}
+			return true;
 		}
 
 		InternalLocal DeclareTempLocal(IType localType)

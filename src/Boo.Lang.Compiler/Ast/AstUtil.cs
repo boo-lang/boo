@@ -30,6 +30,12 @@ namespace Boo.Lang.Compiler.Ast
 {	
 	public class AstUtil
 	{
+		public static Node GetMemberAnchor(Node node)
+		{
+			MemberReferenceExpression member = node as MemberReferenceExpression;
+			return member != null ? member.Target : node;
+		}
+
 		public static bool IsPostUnaryOperator(UnaryOperatorType op)
 		{
 			return UnaryOperatorType.PostIncrement == op ||
@@ -55,8 +61,8 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				BinaryOperatorType binaryOperator = ((BinaryExpression)node).Operator;
 				return BinaryOperatorType.Assign == binaryOperator ||
-					BinaryOperatorType.InPlaceAdd == binaryOperator ||
-					BinaryOperatorType.InPlaceSubtract == binaryOperator;
+					BinaryOperatorType.InPlaceAddition == binaryOperator ||
+					BinaryOperatorType.InPlaceSubtraction == binaryOperator;
 			}
 			return false;
 		}
@@ -184,8 +190,8 @@ namespace Boo.Lang.Compiler.Ast
 				if (node == be.Left)
 				{
 					BinaryOperatorType op = be.Operator;
-					return op == BinaryOperatorType.InPlaceAdd ||
-							op == BinaryOperatorType.InPlaceSubtract;
+					return op == BinaryOperatorType.InPlaceAddition ||
+							op == BinaryOperatorType.InPlaceSubtraction;
 				}
 			}
 			return false;
@@ -194,10 +200,10 @@ namespace Boo.Lang.Compiler.Ast
 		public static bool IsAssignmentOperator(BinaryOperatorType op)
 		{
 			return BinaryOperatorType.Assign == op ||
-					BinaryOperatorType.InPlaceAdd == op ||
-					BinaryOperatorType.InPlaceSubtract == op ||
+					BinaryOperatorType.InPlaceAddition == op ||
+					BinaryOperatorType.InPlaceSubtraction == op ||
 					BinaryOperatorType.InPlaceMultiply == op ||
-					BinaryOperatorType.InPlaceDivide == op ||
+					BinaryOperatorType.InPlaceDivision == op ||
 					BinaryOperatorType.InPlaceBitwiseAnd == op ||
 					BinaryOperatorType.InPlaceBitwiseOr == op;
 		}
