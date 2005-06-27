@@ -11,6 +11,7 @@ class Figure:
     _rect as Rectangle
     
 f = Figure()
+// t1 = f.rect; t2 = t1.topLeft; t2.x = 10; t1.topLeft = t2; f.rect = t1;
 f.rect.topLeft.x = 10
 
 assert 10 == f.rect.topLeft.x

@@ -73,7 +73,7 @@ namespace Boo.Lang.Compiler.Steps
 			_parameters.Add(node);
 		}
 
-		override public void OnDestructor (Destructor node)
+		override public void OnDestructor(Destructor node)
 		{
 			Method finalizer = CodeBuilder.CreateMethod(
 								  "Finalize",

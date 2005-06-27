@@ -185,6 +185,73 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			throw CompilerErrorFactory.NotImplemented(node, feature);
 		}
+
+		protected Node GetMemberAnchor(Node node)
+		{
+			MemberReferenceExpression member = node as MemberReferenceExpression;
+			return member != null ? member.Target : node;
+		}
+		
+		protected virtual bool CheckLValue(Node node)
+		{
+			IEntity tag = node.Entity;
+			if (null != tag)
+			{
+				switch (tag.EntityType)
+				{
+					case EntityType.Parameter:
+					case EntityType.Local:
+					{
+						return true;
+					}
+					
+					case EntityType.Property:
+					{
+						if (null == ((IProperty)tag).GetSetMethod())
+						{
+							Error(CompilerErrorFactory.PropertyIsReadOnly(GetMemberAnchor(node), tag.FullName));
+							return false;
+						}
+						return true;
+					}
+					
+					case EntityType.Field:
+					{
+						if (IsReadOnlyField((IField)tag))
+						{
+							Error(CompilerErrorFactory.FieldIsReadonly(GetMemberAnchor(node), tag.FullName));
+							return false;
+						}
+						return true;
+					}
+				}
+			}
+			else
+			{
+				if (IsArraySlicing(node))
+				{
+					return true;
+				}
+			}
+			
+			Error(CompilerErrorFactory.LValueExpected(node));
+			return false;
+		}
+		
+		protected bool IsArraySlicing(Node node)
+		{
+			if (node.NodeType == NodeType.SlicingExpression)
+			{
+				IType type = ((SlicingExpression)node).Target.ExpressionType;
+				return null != type && type.IsArray;
+			}
+			return false;
+		}
+		
+		protected bool IsReadOnlyField(IField field)
+		{
+			return field.IsInitOnly || field.IsLiteral;
+		}
 		
 		public virtual void Initialize(CompilerContext context)
 		{

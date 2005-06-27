@@ -50,41 +50,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected InternalMethod _currentMethod;
 		
 		Hash _visited;
-		
-		IMethod RuntimeServices_Len;
-		
-		IMethod RuntimeServices_Mid;
-		
-		IMethod RuntimeServices_NormalizeStringIndex;
-		
-		IMethod RuntimeServices_AddArrays;
-		
-		IMethod RuntimeServices_GetRange1;
-		
-		IMethod RuntimeServices_GetRange2;
-	
-		IMethod RuntimeServices_GetMultiDimensionalRange1;
-		
-		IMethod RuntimeServices_SetMultiDimensionalRange1;
 
-		IMethod RuntimeServices_GetEnumerable;
-		
-		IMethod RuntimeServices_EqualityOperator;
-		
-		IMethod Array_get_Length;
-		
-		IMethod Array_GetLength;
-		
-		IMethod String_get_Length;
-		
-		IMethod String_Substring_Int;
-		
-		IMethod ICollection_get_Count;
-		
-		IMethod List_GetRange1;
-		
-		IMethod List_GetRange2;
-		
 		IMethod Array_EnumerableConstructor;
 		
 		IMethod Array_TypedEnumerableConstructor;
@@ -94,16 +60,6 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod Array_TypedConstructor2;
 
 		IMethod MultiDimensionalArray_TypedConstructor;
-		
-		IMethod ICallable_Call;
-		
-		IMethod Activator_CreateInstance;
-		
-		IConstructor ApplicationException_StringConstructor;
-		
-		IConstructor TextReaderEnumerator_Constructor;
-		
-		IConstructor EnumeratorItemType_Constructor;
 		
 		InfoFilter IsPublicEventFilter;
 		
@@ -151,38 +107,12 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		virtual protected void InitializeMemberCache()
-		{
-			List_GetRange1 = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));
-			List_GetRange2 = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));
-			RuntimeServices_AddArrays = ResolveMethod(TypeSystemServices.RuntimeServicesType, "AddArrays");
-			RuntimeServices_GetRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
-			RuntimeServices_GetRange2 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2");
-			RuntimeServices_GetMultiDimensionalRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetMultiDimensionalRange1");
-			RuntimeServices_SetMultiDimensionalRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "SetMultiDimensionalRange1");
-			RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
-			RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
-			RuntimeServices_NormalizeStringIndex = ResolveMethod(TypeSystemServices.RuntimeServicesType, "NormalizeStringIndex");
-			RuntimeServices_GetEnumerable = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");
-			RuntimeServices_EqualityOperator = TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));
-			Array_get_Length = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
-			Array_GetLength = ResolveMethod(TypeSystemServices.ArrayType, "GetLength");
-			String_get_Length = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
-			String_Substring_Int = TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
-			ICollection_get_Count = ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();
+		{	
 			Array_EnumerableConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
 			Array_TypedEnumerableConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
 			Array_TypedCollectionConstructor= TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
 			Array_TypedConstructor2 = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
 			MultiDimensionalArray_TypedConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));
-			ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
-			Activator_CreateInstance = TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
-			TextReaderEnumerator_Constructor = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetConstructor(new Type[] { typeof(TextReader) }));
-			EnumeratorItemType_Constructor = TypeSystemServices.Map(typeof(EnumeratorItemTypeAttribute)).GetConstructors()[0];
-			
-			ApplicationException_StringConstructor =
-					TypeSystemServices.Map(
-						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
-			
 		}
 		
 		override public void Dispose()
@@ -192,6 +122,29 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = null;
 			_visited = null;
+
+			_RuntimeServices_Len = null;
+			_RuntimeServices_Mid = null;
+			_RuntimeServices_NormalizeStringIndex = null;
+			_RuntimeServices_AddArrays = null;
+			_RuntimeServices_GetRange1 = null;
+			_RuntimeServices_GetRange2 = null;
+			_RuntimeServices_GetMultiDimensionalRange1 = null;
+			_RuntimeServices_SetMultiDimensionalRange1 = null;
+			_RuntimeServices_GetEnumerable = null;
+			_RuntimeServices_EqualityOperator = null;
+			_Array_get_Length = null;
+			_Array_GetLength = null;
+			_String_get_Length = null;
+			_String_Substring_Int = null;
+			_ICollection_get_Count = null;
+			_List_GetRange1 = null;
+			_List_GetRange2 = null;
+			_ICallable_Call = null;
+			_Activator_CreateInstance = null;
+			_ApplicationException_StringConstructor = null;
+			_TextReaderEnumerator_Constructor = null;
+			_EnumeratorItemType_Constructor = null;
 		}
 		
 		void EnterTryBlock()
@@ -2224,10 +2177,6 @@ namespace Boo.Lang.Compiler.Steps
 						return;
 					}
 				}
-				if (/*BOO-313*/ !IsValueTypeParentOfLhsOfAssignment(node))
-				{
-					
-				}
 			}
 			else if (EntityType.Event == member.EntityType)
 			{
@@ -3866,85 +3815,9 @@ namespace Boo.Lang.Compiler.Steps
 							resultingType = TypeSystemServices.ErrorEntity;
 						}
 					}
-					else
-					{
-						// BOO-313
-						if (IsAssignmentToMemberOfValueTypeProperty(node))
-						{
-							ProcessAssignmentToMemberOfValueTypeProperty(node);
-							return;
-						}
-					}
 				}
 			}
 			BindExpressionType(node, resultingType);
-		}
-		
-		bool IsValueTypeParentOfLhsOfAssignment(MemberReferenceExpression node)
-		{
-			if (node.ExpressionType.IsValueType)
-			{
-				MemberReferenceExpression parent = node.ParentNode as MemberReferenceExpression;
-				if (null != parent)
-				{
-					if (AstUtil.IsLhsOfAssignment(parent))
-					{
-						parent["BOO-313"] = true;
-						return true;
-					}
-				}
-			}
-			
-			return false;
-		}
-		
-		bool IsAssignmentToMemberOfValueTypeProperty(BinaryExpression node)
-		{
-			return node.Left.ContainsAnnotation("BOO-313");
-		}
-		
-		// BOO-313
-		// TODO: do it recursively for internal struct properties
-		void ProcessAssignmentToMemberOfValueTypeProperty(BinaryExpression node)
-		{	
-			Node parentNode = node.ParentNode;
-			
-			MemberReferenceExpression memberRef = (MemberReferenceExpression)node.Left;
-			MemberReferenceExpression property = (MemberReferenceExpression)memberRef.Target;			
-			if (!CheckLValue(property))
-			{
-				return;
-			}
-			
-			InternalLocal temp = DeclareTempLocal(property.ExpressionType);
-			
-			BinaryExpression tempInitialization = CodeBuilder.CreateAssignment(
-				node.LexicalInfo,
-				CodeBuilder.CreateReference(temp),
-				property.CloneNode());
-				
-			memberRef.Target = CodeBuilder.CreateReference(temp);
-			
-			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
-			eval.Arguments.Add(tempInitialization);
-			eval.Arguments.Add(
-				CodeBuilder.CreateAssignment(node.LexicalInfo,
-					node.Left, node.Right));
-			eval.Arguments.Add(
-				CodeBuilder.CreatePropertySet(
-					property.Target,
-					(IProperty)property.Entity,
-					CodeBuilder.CreateReference(temp)));
-					
-			parentNode.Replace(node, eval);
-			
-			if (NodeType.ExpressionStatement != parentNode.NodeType)
-			{
-				// TODO: add the expression value as the return value
-				// of __eval__
-				NotImplemented(node, "BOO-313");
-			}
-			
 		}
 		
 		bool CheckIsaArgument(Expression e)
@@ -4679,73 +4552,6 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		Node GetMemberAnchor(Node node)
-		{
-			MemberReferenceExpression member = node as MemberReferenceExpression;
-			return member != null ? member.Target : node;
-		}
-		
-		protected virtual bool CheckLValue(Node node)
-		{
-			IEntity tag = node.Entity;
-			if (null != tag)
-			{
-				switch (tag.EntityType)
-				{
-					case EntityType.Parameter:
-					case EntityType.Local:
-					{
-						return true;
-					}
-					
-					case EntityType.Property:
-					{
-						if (null == ((IProperty)tag).GetSetMethod())
-						{
-							Error(CompilerErrorFactory.PropertyIsReadOnly(GetMemberAnchor(node), tag.FullName));
-							return false;
-						}
-						return true;
-					}
-					
-					case EntityType.Field:
-					{
-						if (IsReadOnlyField((IField)tag))
-						{
-							Error(CompilerErrorFactory.FieldIsReadonly(GetMemberAnchor(node), tag.FullName));
-							return false;
-						}
-						return true;
-					}
-				}
-			}
-			else
-			{
-				if (IsArraySlicing(node))
-				{
-					return true;
-				}
-			}
-			
-			Error(CompilerErrorFactory.LValueExpected(node));
-			return false;
-		}
-		
-		bool IsArraySlicing(Node node)
-		{
-			if (node.NodeType == NodeType.SlicingExpression)
-			{
-				IType type = ((SlicingExpression)node).Target.ExpressionType;
-				return null != type && type.IsArray;
-			}
-			return false;
-		}
-		
-		bool IsReadOnlyField(IField field)
-		{
-			return field.IsInitOnly || field.IsLiteral;
-		}
-		
 		Expression CheckBoolContext(Expression expression)
 		{
 			IType type = GetExpressionType(expression);
@@ -4977,6 +4783,316 @@ namespace Boo.Lang.Compiler.Steps
 		void TraceReturnType(Method method, IMethod tag)
 		{
 			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, tag.ReturnType);
+		}
+
+		IMethod _RuntimeServices_Len;
+
+		IMethod RuntimeServices_Len
+		{
+			get
+			{
+				if (null == _RuntimeServices_Len)
+				{
+					_RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
+				}
+				return _RuntimeServices_Len;
+			}
+		}
+
+		IMethod _RuntimeServices_Mid;
+
+		IMethod RuntimeServices_Mid
+		{
+			get
+			{
+				if (null == _RuntimeServices_Mid)
+				{
+					_RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
+				}
+				return _RuntimeServices_Mid;
+			}
+		}
+		
+		IMethod _RuntimeServices_NormalizeStringIndex;
+
+		IMethod RuntimeServices_NormalizeStringIndex
+		{
+			get
+			{
+				if (null == _RuntimeServices_NormalizeStringIndex)
+				{
+					_RuntimeServices_NormalizeStringIndex = ResolveMethod(TypeSystemServices.RuntimeServicesType, "NormalizeStringIndex");	
+				}
+				return _RuntimeServices_NormalizeStringIndex;
+			}
+		}
+		
+		IMethod _RuntimeServices_AddArrays;
+
+		IMethod RuntimeServices_AddArrays
+		{
+			get
+			{
+				if (null == _RuntimeServices_AddArrays)
+				{
+					_RuntimeServices_AddArrays = ResolveMethod(TypeSystemServices.RuntimeServicesType, "AddArrays");
+				}
+				return _RuntimeServices_AddArrays;
+			}
+		}
+		
+		IMethod _RuntimeServices_GetRange1;
+
+		IMethod RuntimeServices_GetRange1
+		{
+			get
+			{
+				if (null == _RuntimeServices_GetRange1)
+				{
+					_RuntimeServices_GetRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
+				}
+				return _RuntimeServices_GetRange1;
+			}
+		}
+		
+		IMethod _RuntimeServices_GetRange2;
+
+		IMethod RuntimeServices_GetRange2
+		{
+			get
+			{
+				if (null == _RuntimeServices_GetRange2)
+				{
+					_RuntimeServices_GetRange2 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2");		
+				}
+				return _RuntimeServices_GetRange2;
+			}
+		}
+	
+		IMethod _RuntimeServices_GetMultiDimensionalRange1;
+
+		IMethod RuntimeServices_GetMultiDimensionalRange1
+		{
+			get
+			{
+				if (null == _RuntimeServices_GetMultiDimensionalRange1)
+				{
+					_RuntimeServices_GetMultiDimensionalRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetMultiDimensionalRange1");
+				}
+				return _RuntimeServices_GetMultiDimensionalRange1;
+			}
+		}
+		
+		IMethod _RuntimeServices_SetMultiDimensionalRange1;
+
+		IMethod RuntimeServices_SetMultiDimensionalRange1
+		{
+			get
+			{
+				if (null == _RuntimeServices_SetMultiDimensionalRange1)
+				{
+					_RuntimeServices_SetMultiDimensionalRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "SetMultiDimensionalRange1");
+				}
+				return _RuntimeServices_SetMultiDimensionalRange1;
+			}
+		}
+
+		IMethod _RuntimeServices_GetEnumerable;
+
+		IMethod RuntimeServices_GetEnumerable
+		{
+			get
+			{
+				if (null == _RuntimeServices_GetEnumerable)
+				{
+					_RuntimeServices_GetEnumerable = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");
+				}
+				return _RuntimeServices_GetEnumerable;
+			}
+		}
+		
+		IMethod _RuntimeServices_EqualityOperator;
+
+		IMethod RuntimeServices_EqualityOperator
+		{
+			get
+			{
+				if (null == _RuntimeServices_EqualityOperator)
+				{
+					_RuntimeServices_EqualityOperator = TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));
+				}
+				return _RuntimeServices_EqualityOperator;
+			}
+		}
+		
+		IMethod _Array_get_Length;
+		
+		IMethod Array_get_Length
+		{
+			get
+			{
+				if (null == _Array_get_Length)
+				{
+					_Array_get_Length = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
+				}
+				return _Array_get_Length;
+			}
+		}
+		
+		IMethod _Array_GetLength;
+		
+		IMethod Array_GetLength
+		{
+			get
+			{
+				if (null == _Array_GetLength)
+				{
+					_Array_GetLength = ResolveMethod(TypeSystemServices.ArrayType, "GetLength");
+				}
+				return _Array_GetLength;
+			}
+		}
+		
+		IMethod _String_get_Length;
+		
+		IMethod String_get_Length
+		{
+			get
+			{
+				if (null == _String_get_Length)
+				{
+					_String_get_Length = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
+				}
+				return _String_get_Length;
+			}
+		}
+		
+		IMethod _String_Substring_Int;
+		
+		IMethod String_Substring_Int
+		{
+			get
+			{
+				if (null == _String_Substring_Int)
+				{
+					_String_Substring_Int = TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
+				}
+				return _String_Substring_Int;
+			}
+		}
+		
+		IMethod _ICollection_get_Count;
+		
+		IMethod ICollection_get_Count
+		{
+			get
+			{
+				if (null == _ICollection_get_Count)
+				{
+					_ICollection_get_Count = ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();
+				}
+				return _ICollection_get_Count;
+			}
+		}
+		
+		IMethod _List_GetRange1;
+		
+		IMethod List_GetRange1
+		{
+			get
+			{
+				if (null == _List_GetRange1)
+				{
+					_List_GetRange1 = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));
+				}
+				return _List_GetRange1;
+			}
+		}
+		
+		IMethod _List_GetRange2;
+		
+		IMethod List_GetRange2
+		{
+			get
+			{
+				if (null == _List_GetRange2)
+				{
+					_List_GetRange2 = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));
+				}
+				return _List_GetRange2;
+			}
+		}
+		
+		IMethod _ICallable_Call;
+		
+		IMethod ICallable_Call
+		{
+			get
+			{
+				if (null == _ICallable_Call)
+				{
+					_ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
+				}
+				return _ICallable_Call;
+			}
+		}
+		
+		IMethod _Activator_CreateInstance;
+		
+		IMethod Activator_CreateInstance
+		{
+			get
+			{
+				if (null == _Activator_CreateInstance)
+				{
+					_Activator_CreateInstance = TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
+				}
+				return _Activator_CreateInstance;
+			}
+		}
+		
+		IConstructor _ApplicationException_StringConstructor;
+		
+		IConstructor ApplicationException_StringConstructor
+		{
+			get
+			{
+				if (null == _ApplicationException_StringConstructor)
+				{
+					_ApplicationException_StringConstructor =
+						TypeSystemServices.Map(
+						Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
+				}
+				return _ApplicationException_StringConstructor;
+			}
+		}
+		
+		IConstructor _TextReaderEnumerator_Constructor;
+		
+		IConstructor TextReaderEnumerator_Constructor
+		{
+			get
+			{
+				if (null == _TextReaderEnumerator_Constructor)
+				{
+					_TextReaderEnumerator_Constructor = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetConstructor(new Type[] { typeof(TextReader) }));
+				}
+				return _TextReaderEnumerator_Constructor;
+			}
+		}
+		
+		IConstructor _EnumeratorItemType_Constructor;
+		
+		IConstructor EnumeratorItemType_Constructor
+		{
+			get
+			{
+				if (null == _EnumeratorItemType_Constructor)
+				{
+					_EnumeratorItemType_Constructor = TypeSystemServices.Map(typeof(EnumeratorItemTypeAttribute)).GetConstructors()[0];		
+				}
+				return _EnumeratorItemType_Constructor;
+			}
 		}
 	}
 }

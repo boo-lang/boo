@@ -55,7 +55,6 @@ namespace Boo.Lang.Compiler.Steps
 			RuntimeServices_SetProperty = ResolveMethod(_runtimeServices, "SetProperty");
 			RuntimeServices_GetProperty = ResolveMethod(_runtimeServices, "GetProperty");
 			RuntimeServices_GetSlice = ResolveMethod(_runtimeServices, "GetSlice");
-			
 		}
 		
 		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)

@@ -31,7 +31,8 @@
 		
 		<csc
 			target="library"
-			output="build/BooCompiler.Tests.dll">
+			output="build/BooCompiler.Tests.dll"
+			unsafe="true">
 			
 			<sources>
 				<include name="BooCompiler.Tests/**/*.cs" />

@@ -1578,6 +1578,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\ProcessAssignmentsToValueTypeMembers.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\ProcessClosures.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

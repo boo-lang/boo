@@ -34,6 +34,7 @@ namespace Boo.Lang.Compiler.Pipelines
 	{
 		public Compile()
 		{	
+			Add(new ProcessAssignmentsToValueTypeMembers());
 			Add(new ExpandProperties());
 			Add(new StricterErrorChecking());
 			Add(new RemoveDeadCode());
