@@ -4348,7 +4348,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case EntityType.Field:
 					{
-						return !IsReadOnlyField((IField)entity);
+						return !TypeSystemServices.IsReadOnlyField((IField)entity);
 					}
 				}
 			}
@@ -4759,7 +4759,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case EntityType.Field:
 					{
-						if (IsReadOnlyField((IField)tag))
+						if (TypeSystemServices.IsReadOnlyField((IField)tag))
 						{
 							Error(CompilerErrorFactory.FieldIsReadonly(AstUtil.GetMemberAnchor(node), tag.FullName));
 							return false;

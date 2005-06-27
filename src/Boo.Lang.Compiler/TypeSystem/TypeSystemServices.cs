@@ -358,6 +358,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return left;
 		}
+
+		public static bool IsReadOnlyField(IField field)
+		{
+			return field.IsInitOnly || field.IsLiteral;
+		}
 		
 		public bool IsCallable(IType type)
 		{

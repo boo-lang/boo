@@ -1,12 +1,13 @@
-using System;
-
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 
-	public class ProcessAssignmentsToValueTypeMembers : AbstractVisitorCompilerStep
+	/// <summary>
+	/// see BOO-313
+	/// </summary>
+	public class ProcessAssignmentsToValueTypeMembers : AbstractTransformerCompilerStep
 	{
 		Method _currentMethod;
 
@@ -34,10 +35,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
-			// BOO-313
 			if (IsAssignmentToMemberOfValueType(node))
 			{
-				ProcessAssignmentToMemberOfValueTypeProperty(node);
+				ProcessAssignmentToMemberOfValueType(node);
 			}
 		}
 
@@ -66,14 +66,22 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		// BOO-313
-		void ProcessAssignmentToMemberOfValueTypeProperty(BinaryExpression node)
+		void ProcessAssignmentToMemberOfValueType(BinaryExpression node)
 		{	
 			MemberReferenceExpression memberRef = (MemberReferenceExpression)node.Left;
 			List chain = WalkMemberChain(memberRef);
 			if (null == chain || 0 == chain.Count) return;
-
+			
 			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
+
+			// right hand side should always be executed before
+			// left hand side
+			InternalLocal value= DeclareTempLocal(GetExpressionType(node.Right));
+			eval.Arguments.Add(
+				CodeBuilder.CreateAssignment(
+				CodeBuilder.CreateReference(value),
+				node.Right));
+
 			foreach (ChainItem item in chain)
 			{
 				item.Local = DeclareTempLocal(item.Container.ExpressionType);
@@ -88,7 +96,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			eval.Arguments.Add(
 				CodeBuilder.CreateAssignment(node.LexicalInfo,
-				node.Left, node.Right));
+				node.Left,
+				CodeBuilder.CreateReference(value)));
 
 			foreach (ChainItem item in chain.Reversed)
 			{
@@ -96,17 +105,15 @@ namespace Boo.Lang.Compiler.Steps
 					CodeBuilder.CreateAssignment(
 						item.Container.CloneNode(),
 						CodeBuilder.CreateReference(item.Local)));
-			}
-					
-			Node parentNode = node.ParentNode;
-			parentNode.Replace(node, eval);
+			}		
 			
-			if (NodeType.ExpressionStatement != parentNode.NodeType)
+			if (NodeType.ExpressionStatement != node.ParentNode.NodeType)
 			{
-				// TODO: add the expression value as the return value
-				// of __eval__
-				throw CompilerErrorFactory.NotImplemented(node, "BOO-313");
+				eval.Arguments.Add(CodeBuilder.CreateReference(value));	
+				BindExpressionType(eval, value.Type);
 			}
+			
+			ReplaceCurrentNode(eval);
 		}
 
 		List WalkMemberChain(MemberReferenceExpression memberRef)
@@ -153,7 +160,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				case EntityType.Field:
 				{
-					return IsReadOnlyField((IField)container.Entity);
+					return TypeSystemServices.IsReadOnlyField((IField)container.Entity);
 				}
 			}
 			return true;

@@ -166,11 +166,6 @@ namespace Boo.Lang.Compiler.Steps
 			return type;
 		}
 
-		protected bool IsReadOnlyField(IField field)
-		{
-			return field.IsInitOnly || field.IsLiteral;
-		}
-		
 		protected IType GetExpressionType(Expression node)
 		{
 			return TypeSystemServices.GetExpressionType(node);
