@@ -3958,7 +3958,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		bool CheckTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
-		{
+		{	
 			if (!TypeSystemServices.AreTypesRelated(expectedType, actualType))
 			{
 				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.FullName, actualType.FullName));
@@ -4416,7 +4416,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod FindOperator(IType type, string operatorName, ExpressionCollection args)
 		{
-			//Console.WriteLine("FindOperator('{0}', '{1}', ...)", type, operatorName);
 			IMethod method = null;
 			IEntity entity = NameResolutionService.Resolve(type, operatorName, EntityType.Method);
 			if (null != entity)

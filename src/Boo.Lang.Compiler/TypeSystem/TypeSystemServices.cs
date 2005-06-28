@@ -511,10 +511,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool AreTypesRelated(IType lhs, IType rhs)
 		{
-			return lhs.IsAssignableFrom(rhs) ||
-				(lhs.IsInterface && !rhs.IsFinal) ||
-				(rhs.IsInterface && !lhs.IsFinal) ||
-				CanBeReachedByDownCastOrPromotion(lhs, rhs);
+			ICallableType ctype = lhs as ICallableType;
+			if (null != ctype)
+			{
+				return ctype.IsAssignableFrom(rhs)
+					|| ctype.IsSubclassOf(rhs);
+			}
+			return lhs.IsAssignableFrom(rhs)
+				|| (lhs.IsInterface && !rhs.IsFinal)
+				|| (rhs.IsInterface && !lhs.IsFinal)
+				|| CanBeReachedByDownCastOrPromotion(lhs, rhs);
 		}
 		
 		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
@@ -543,12 +549,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 						IType lparamType = lparams[i].Type;
 						IType rparamType = rparams[i].Type;
 						if (!AreTypesRelated(lparamType, rparamType))
-						{
+						{	
 							return false;
 						}
 					}
 					
-					if (VoidType != lvalue.ReturnType)
+					if (VoidType != lvalue.ReturnType &&
+						VoidType != rvalue.ReturnType)
 					{
 						return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
 					}
@@ -584,15 +591,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
 		{
-			if (actualType.IsAssignableFrom(expectedType))
-			{
-				return true;
-			}
-			if (expectedType.IsValueType)
-			{
-				return IsNumber(expectedType) && IsNumber(actualType);
-			}
-			return false;
+			return actualType.IsAssignableFrom(expectedType)
+				|| (expectedType.IsValueType
+				&& IsNumber(expectedType)
+				&& IsNumber(actualType));
 		}
 		
 		public bool CanBeExplicitlyCastToInteger(IType type)
@@ -779,8 +781,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType Map(System.Type type)
 		{
-			ExternalType tag = (ExternalType)_entityCache[type];
-			if (null == tag)
+			ExternalType entity = (ExternalType)_entityCache[type];
+			if (null == entity)
 			{
 				if (type.IsArray)
 				{
@@ -789,17 +791,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 				else
 				{
 					if (type.IsSubclassOf(Types.MulticastDelegate))
-					{
-						tag = new ExternalCallableType(this, type);
+					{	
+						entity = new ExternalCallableType(this, type);
 					}
 					else
 					{
-						tag = new ExternalType(this, type);
+						entity = new ExternalType(this, type);
 					}
 				}
-				Cache(tag);
+				Cache(entity);
 			}
-			return tag;
+			return entity;
 		}
 		
 		public IArrayType GetArrayType(IType elementType, int rank)

@@ -29,8 +29,6 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
 	
 	public class AnonymousCallableType : AbstractType, ICallableType
 	{

@@ -156,9 +156,9 @@ class TypeSystemFixture:
 		AssertCallableAssignableFrom(c2, c1)
 		
 		c3 = GetCallableType("Function")
-		AssertCallableNotAssignableFrom(c1, c3)
+		AssertCallableAssignableFrom(c1, c3)
 		AssertCallableNotAssignableFrom(c3, c1)
-		AssertCallableNotAssignableFrom(c2, c3)
+		AssertCallableAssignableFrom(c2, c3)
 		AssertCallableNotAssignableFrom(c3, c2)
 		
 		c4 = GetCallableType("SingleArg")
@@ -166,14 +166,14 @@ class TypeSystemFixture:
 		AssertCallableAssignableFrom(c4, c1)
 		AssertCallableAssignableFrom(c2, c4)
 		AssertCallableAssignableFrom(c4, c2)
-		AssertCallableNotAssignableFrom(c4, c3)
+		AssertCallableAssignableFrom(c4, c3)
 		AssertCallableNotAssignableFrom(c3, c4)
 		
 		c5 = GetCallableType("BoolFunction")
 		AssertCallableAssignableFrom(c1, c5)
 		AssertCallableAssignableFrom(c2, c5)
 		AssertCallableAssignableFrom(c3, c5)
-		AssertCallableNotAssignableFrom(c5, c3) # return type
+		AssertCallableAssignableFrom(c5, c3)
 		
 	def AssertCallableAssignableFrom(lvalue, rvalue):
 		Assert.IsTrue(_tss.IsCallableTypeAssignableFrom(lvalue, rvalue),
