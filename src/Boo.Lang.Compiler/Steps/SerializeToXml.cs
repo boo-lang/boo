@@ -26,13 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Xml.Serialization;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
-
 namespace Boo.Lang.Compiler.Steps
 {
+	using System;
+	using System.Xml.Serialization;
+	using Boo.Lang.Compiler.Ast;
+
 	/// <summary>
 	/// Writes a xml representation of the AST to the console.
 	/// </summary>

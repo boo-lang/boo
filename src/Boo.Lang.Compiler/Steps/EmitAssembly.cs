@@ -2997,24 +2997,24 @@ namespace Boo.Lang.Compiler.Steps
 			return GetFieldBuilder(((InternalField)tag).Field);
 		}
 		
-		MethodInfo GetMethodInfo(IMethod tag)
+		MethodInfo GetMethodInfo(IMethod entity)
 		{
-			ExternalMethod external = tag as ExternalMethod;
+			ExternalMethod external = entity as ExternalMethod;
 			if (null != external)
 			{
 				return (MethodInfo)external.MethodInfo;
 			}
-			return GetMethodBuilder(((InternalMethod)tag).Method);
+			return GetMethodBuilder(((InternalMethod)entity).Method);
 		}
 		
-		ConstructorInfo GetConstructorInfo(IConstructor tag)
+		ConstructorInfo GetConstructorInfo(IConstructor entity)
 		{
-			ExternalConstructor external = tag as ExternalConstructor;
+			ExternalConstructor external = entity as ExternalConstructor;
 			if (null != external)
 			{
 				return external.ConstructorInfo;
 			}
-			return GetConstructorBuilder(((InternalMethod)tag).Method);
+			return GetConstructorBuilder(((InternalMethod)entity).Method);
 		}
 		
 		Type GetSystemType(Node node)
@@ -3600,9 +3600,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			outNamedProperties = (PropertyInfo[])namedProperties.ToArray(typeof(PropertyInfo));
-			outPropertyValues = (object[])propertyValues.ToArray();
+			outPropertyValues = propertyValues.ToArray();
 			outNamedFields = (FieldInfo[])namedFields.ToArray(typeof(FieldInfo));
-			outFieldValues = (object[])fieldValues.ToArray();
+			outFieldValues = fieldValues.ToArray();
 		}
 		
 		object[] GetValues(IParameter[] targetParameters, ExpressionCollection expressions)

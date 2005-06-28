@@ -26,15 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.Util;
-using Reflection = System.Reflection;
-
 namespace Boo.Lang.Compiler.Steps
 {
+	using System;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.TypeSystem;
+	using Boo.Lang.Compiler.Util;
+	using Reflection = System.Reflection;
+
 	class ApplyAttributeTask : ITask
 	{
 		CompilerContext _context;

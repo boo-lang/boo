@@ -26,12 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Ast.Visitors;
-
 namespace Boo.Lang.Compiler.Steps
 {
+	using Boo.Lang.Compiler.Ast.Visitors;
+
 	/// <summary>
 	/// </summary>
 	public class PrintAst : AbstractCompilerStep

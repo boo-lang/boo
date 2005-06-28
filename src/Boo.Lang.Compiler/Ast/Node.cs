@@ -30,7 +30,6 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	using System.Collections;
-	using System.IO;
 	using System.Xml.Serialization;
 
 	/// <summary>

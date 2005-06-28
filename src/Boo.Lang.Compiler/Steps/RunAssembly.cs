@@ -28,8 +28,6 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	
 	public class RunAssembly : AbstractCompilerStep
 	{
 		override public void Run()

@@ -29,7 +29,6 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 
 	public class InternalMethod : IInternalEntity, IMethod, INamespace
@@ -51,8 +50,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected IParameter[] _parameters;
 		
 		protected ExpressionCollection _returnExpressions;
-		
-		protected ExpressionCollection _superExpressions;
 
 		protected Boo.Lang.List _yieldStatements;
 		
@@ -270,14 +267,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public ExpressionCollection SuperExpressions
-		{
-			get
-			{
-				return _superExpressions;
-			}
-		}
-		
 		public ReferenceExpression[] LabelReferences
 		{
 			get
@@ -318,15 +307,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_returnExpressions = new ExpressionCollection();
 			}
 			_returnExpressions.Add(expression);
-		}
-		
-		public void AddSuperExpression(SuperLiteralExpression expression)
-		{
-			if (null == _superExpressions)
-			{
-				_superExpressions = new ExpressionCollection();
-			}
-			_superExpressions.Add(expression);
 		}
 		
 		public void AddLabelReference(ReferenceExpression node)

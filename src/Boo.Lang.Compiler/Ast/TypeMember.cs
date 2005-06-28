@@ -88,6 +88,20 @@ namespace Boo.Lang.Compiler.Ast
 				return null;
 			}
 		}
+
+		public TypeMemberModifiers Visibility
+		{
+			get
+			{
+				return _modifiers & TypeMemberModifiers.VisibilityMask;
+			}
+
+			set
+			{
+				_modifiers &= ~TypeMemberModifiers.VisibilityMask;
+				_modifiers |= value;
+			}
+		}
 		
 		public bool IsVisibilitySet
 		{

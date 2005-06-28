@@ -21,6 +21,7 @@ enum TypeMemberModifiers:
 	Virtual = 128
 	Override = 256
 	Abstract = 512
+	VisibilityMask = 15
 	
 enum MethodImplementationFlags:
 	None = 0

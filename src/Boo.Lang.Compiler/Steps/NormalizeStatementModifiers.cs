@@ -26,11 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
-
 namespace Boo.Lang.Compiler.Steps
 {
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler;
+
 	public class NormalizeStatementModifiers : AbstractTransformerCompilerStep
 	{
 		override public void Run()

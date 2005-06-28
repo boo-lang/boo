@@ -192,12 +192,20 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			WriteLine();
 		}
+
+		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
+		{
+			Visit(node.InterfaceType);
+			Write(".");
+		}
 		
 		override public void OnProperty(Property node)
 		{
 			WriteAttributes(node.Attributes, true);
 			WriteModifiers(node);
-			WriteIndented(node.Name);
+			WriteIndented("");
+			Visit(node.ExplicitInfo);
+			Write(node.Name);
 			if (node.Parameters.Count > 0)
 			{
 				WriteParameterList(node.Parameters);
@@ -302,6 +310,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteAttributes(node.Attributes, true);
 			WriteModifiers(node);
 			WriteKeyword(keyword);
+
+			IExplicitMember em = node as IExplicitMember;
+			if (null != em)
+			{
+				Visit(em.ExplicitInfo);
+			}
 			Write(node.Name);
 			WriteParameterList(node.Parameters);
 			WriteTypeReference(node.ReturnType);
@@ -318,7 +332,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		}
 
 		override public void OnMethod(Method m)
-		{
+		{	
 			WriteCallableDefinitionHeader("def ", m);
 			WriteLine(":");
 			WriteBlock(m.Body);

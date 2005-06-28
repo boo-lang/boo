@@ -30,7 +30,6 @@ namespace Boo.Lang.Compiler.Steps
 {
 	using System;
 	using System.Text;
-	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.TypeSystem;

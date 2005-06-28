@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
 	using System.ComponentModel;
 	using System.Diagnostics;
 	using Boo.Lang.Compiler;

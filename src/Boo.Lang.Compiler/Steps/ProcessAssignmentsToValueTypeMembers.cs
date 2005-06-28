@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			// right hand side should always be executed before
 			// left hand side
-			InternalLocal value= DeclareTempLocal(GetExpressionType(node.Right));
+			InternalLocal value = DeclareTempLocal(GetExpressionType(node.Right));
 			eval.Arguments.Add(
 				CodeBuilder.CreateAssignment(
 				CodeBuilder.CreateReference(value),

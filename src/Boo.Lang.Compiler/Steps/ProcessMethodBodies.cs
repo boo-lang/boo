@@ -48,8 +48,6 @@ namespace Boo.Lang.Compiler.Steps
 		protected Stack _methodStack;
 		
 		protected InternalMethod _currentMethod;
-		
-		Hash _visited;
 
 		IMethod Array_EnumerableConstructor;
 		
@@ -88,7 +86,6 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_currentMethod = null;
 			_methodStack = new Stack();
-			_visited = new Hash();
 			_methodBodyState = new MethodBodyState();
 						
 			InitializeMemberCache();
@@ -121,7 +118,6 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_currentMethod = null;
 			_methodStack = null;
-			_visited = null;
 
 			_RuntimeServices_Len = null;
 			_RuntimeServices_Mid = null;
@@ -197,7 +193,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{
-			if (Visited(module))
+			if (WasVisited(module))
 			{
 				return;
 			}
@@ -213,7 +209,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			if (Visited(node))
+			if (WasVisited(node))
 			{
 				return;
 			}
@@ -228,7 +224,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			if (Visited(node))
+			if (WasVisited(node))
 			{
 				return;
 			}
@@ -256,95 +252,10 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-
-		private bool CheckExplicitMemberValidity(IExplicitMember emi)
-		{
-			if (emi.ExplicitInfo != null)
-			{
-				IMember explicitMember = (IMember)GetEntity((Node)emi);
-				bool parentIsClass = explicitMember.DeclaringType.IsClass;
-				if (parentIsClass)
-				{
-					IType targetInterface = GetType(emi.ExplicitInfo.InterfaceType);
-					if (!targetInterface.IsInterface)
-					{
-						Error(CompilerErrorFactory.InvalidInterfaceForInterfaceMember((Node)emi, emi.ExplicitInfo.InterfaceType.Name));
-					}
-					
-					if (!explicitMember.DeclaringType.IsSubclassOf(targetInterface))
-					{
-						Error(CompilerErrorFactory.InterfaceImplForInvalidInterface((Node)emi, targetInterface.Name, ((TypeMember)emi).Name));
-					}
-				}
-				else
-				{
-					// TODO: Only class ITM's can do explicit interface methods
-					
-				}
-				return true;
-			}
-			return false;
-		}
-		
-		private void SetExplicitImplMethodModifiers(Method method)
-		{
-			method.Modifiers |= TypeMemberModifiers.Virtual;
-		}
-		
-		private void SetMethodOverride(Method method)
-		{
-			if (null == method.ExplicitInfo)
-			{
-				return;
-			}
-
-			// TODO: infer the type of the method here
-			// or check if is the right one if it's declared			
-			if (method.DeclaringType.NodeType == NodeType.ClassDefinition)
-			{
-				IType ifaceType = GetType(method.ExplicitInfo.InterfaceType);
-
-				foreach (IEntity member in ifaceType.GetMembers())
-				{
-					IMethod iMethod = member as IMethod;
-					IProperty iProp = member as IProperty;
-					if (null != iMethod)
-					{
-						if (iMethod.Name == method.Name)
-						{
-							method.ExplicitInfo.Entity = iMethod;
-							SetExplicitImplMethodModifiers(method);
-							return;
-						}
-					}
-					else if (null != iProp)
-					{
-						if (null != iProp.GetGetMethod())
-						{
-							if (iProp.GetGetMethod().Name == method.Name)
-							{
-								method.ExplicitInfo.Entity = iProp.GetGetMethod();
-								SetExplicitImplMethodModifiers(method);
-								return;
-							}
-						}
-						if (null != iProp.GetSetMethod())
-						{
-							if (iProp.GetSetMethod().Name == method.Name)
-							{
-								method.ExplicitInfo.Entity = iProp.GetSetMethod();
-								SetExplicitImplMethodModifiers(method);
-								return;
-							}
-						}
-					}
-				}
-			}
-		}	
 		
 		override public void OnProperty(Property node)
 		{
-			if (Visited(node))
+			if (WasVisited(node))
 			{
 				return;
 			}
@@ -356,8 +267,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Attributes);
 			Visit(node.Type);
 			Visit(node.Parameters);
-			Visit(node.ExplicitInfo);
-			
+
 			ResolvePropertyOverride(node);
 			
 			if (null != getter)
@@ -366,9 +276,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					getter.ReturnType = node.Type.CloneNode();
 				}
-				getter.Name = "get_" + node.Name;
 				getter.Parameters.ExtendWithClones(node.Parameters);
-				getter.ExplicitInfo = node.ExplicitInfo;
 				
 				Visit(getter);
 			}
@@ -405,14 +313,13 @@ namespace Boo.Lang.Compiler.Steps
 				setter.Parameters.ExtendWithClones(node.Parameters);
 				setter.Parameters.Add(parameter);
 				setter.Name = "set_" + node.Name;
-				setter.ExplicitInfo = node.ExplicitInfo;
 				Visit(setter);
 			}
 		}
 		
 		override public void OnField(Field node)
 		{
-			if (Visited(node))
+			if (WasVisited(node))
 			{
 				return;
 			}
@@ -648,7 +555,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnConstructor(Constructor node)
 		{
-			if (Visited(node))
+			if (WasVisited(node))
 			{
 				return;
 			}
@@ -730,27 +637,10 @@ namespace Boo.Lang.Compiler.Steps
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
 		}
-		
-		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
-		{
-			if (Visited(node))
-			{
-				return;
-			}
-
-			MarkVisited(node);
-			Visit(node.InterfaceType);
-			
-			TypeMember member = (TypeMember)node.ParentNode;
-			if (CheckExplicitMemberValidity((IExplicitMember)member))
-			{
-				member.Modifiers |= TypeMemberModifiers.Private;
-			}
-		}
 
 		override public void OnMethod(Method method)
 		{
-			if (Visited(method))
+			if (WasVisited(method))
 			{
 				return;
 			}
@@ -760,8 +650,6 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(method.Parameters);
 			Visit(method.ReturnType);
 			Visit(method.ReturnTypeAttributes);
-			Visit(method.ExplicitInfo);
-			SetMethodOverride(method);
 			
 			if (method.IsRuntime)
 			{
@@ -772,17 +660,206 @@ namespace Boo.Lang.Compiler.Steps
 				ProcessRegularMethod(method);
 			}
 		}
-		
-		void ProcessRegularMethod(Method method)
+
+		void CheckIfIsMethodOverride(InternalMethod entity)
 		{
-			bool parentIsClass = method.DeclaringType.NodeType == NodeType.ClassDefinition;
-			
-			InternalMethod entity = (InternalMethod)GetEntity(method);
-			if (method.IsOverride && parentIsClass)
+			IMethod overriden = FindMethodOverride(entity);
+			if (null != overriden)
 			{
-				ResolveMethodOverride(entity);
+				ProcessMethodOverride(entity, overriden);
+			}
+		}
+
+		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
+		{
+			IProperty baseProperty = ((InternalProperty)property.Entity).Override;
+			if (null != baseProperty)
+			{
+				IMethod baseMethod = null;
+				if (property.Getter == accessor)
+				{
+					baseMethod = baseProperty.GetGetMethod();
+				}
+				else
+				{
+					baseMethod = baseProperty.GetSetMethod();
+				}
+				
+				if (null != baseMethod)
+				{
+					IMethod accessorEntity = (IMethod)accessor.Entity;
+					if (TypeSystemServices.CheckOverrideSignature(accessorEntity, baseMethod))
+					{
+						return baseMethod;
+					}
+				}
+			}
+			return null;
+		}
+		
+		IMethod FindMethodOverride(InternalMethod entity)
+		{
+			Method method = entity.Method;
+			if (NodeType.Property == method.ParentNode.NodeType)
+			{
+				return FindPropertyAccessorOverride((Property)method.ParentNode, method);
 			}
 			
+			IType baseType = entity.DeclaringType.BaseType;
+			IEntity candidates = NameResolutionService.Resolve(baseType, entity.Name, EntityType.Method);
+			if (null != candidates)
+			{
+				IMethod baseMethod = null;
+				if (EntityType.Method == candidates.EntityType)
+				{
+					IMethod candidate = (IMethod)candidates;
+					if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
+					{
+						baseMethod = candidate;
+					}
+				}
+				else if (EntityType.Ambiguous == candidates.EntityType)
+				{
+					IEntity[] entities = ((Ambiguous)candidates).Entities;
+					foreach (IMethod candidate in entities)
+					{
+						if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
+						{
+							baseMethod = candidate;
+							break;
+						}
+					}
+				}
+				if (null != baseMethod)
+				{
+					EnsureRelatedNodeWasVisited(baseMethod);
+				}
+				return baseMethod;
+			}
+			return null;
+		}
+		
+		void ResolveMethodOverride(InternalMethod entity)
+		{
+			IMethod baseMethod = FindMethodOverride(entity);
+			if (null == baseMethod)
+			{
+				Error(CompilerErrorFactory.NoMethodToOverride(entity.Method, entity.ToString()));
+			}
+			else
+			{
+				if (!baseMethod.IsVirtual)
+				{
+					CantOverrideNonVirtual(entity.Method, baseMethod);
+				}
+				else
+				{
+					ProcessMethodOverride(entity, baseMethod);
+				}
+			}
+		}
+
+		void ProcessMethodOverride(InternalMethod entity, IMethod baseMethod)
+		{
+			if (TypeSystemServices.IsUnknown(entity.ReturnType))
+			{
+				entity.Method.ReturnType = CodeBuilder.CreateTypeReference(baseMethod.ReturnType);
+			}
+			else
+			{
+				if (baseMethod.ReturnType != entity.ReturnType)
+				{
+					Error(CompilerErrorFactory.InvalidOverrideReturnType(
+						entity.Method.ReturnType,
+						baseMethod.FullName,
+						baseMethod.ReturnType.FullName,
+						entity.ReturnType.FullName));
+				}
+			}
+			SetOverride(entity, baseMethod);
+		}
+		
+		void CantOverrideNonVirtual(Method method, IMethod baseMethod)
+		{
+			Error(CompilerErrorFactory.CantOverrideNonVirtual(method, baseMethod.ToString()));
+		}
+
+		void SetPropertyAccessorOverride(Method accessor)
+		{
+			if (null != accessor)
+			{
+				accessor.Modifiers |= TypeMemberModifiers.Override;
+			}
+		}
+		
+		void ResolvePropertyOverride(Property property)
+		{
+			InternalProperty entity = (InternalProperty)property.Entity;
+			IType baseType = entity.DeclaringType.BaseType;
+			IEntity baseProperties = NameResolutionService.Resolve(baseType, property.Name, EntityType.Property);
+			if (null != baseProperties)
+			{
+				if (EntityType.Property == baseProperties.EntityType)
+				{
+					entity.Override = (IProperty)baseProperties;
+				}
+			}
+			
+			if (null != entity.Override)
+			{
+				if (property.IsOverride)
+				{
+					SetPropertyAccessorOverride(property.Getter);
+					SetPropertyAccessorOverride(property.Setter);
+				}
+				else
+				{
+					//property.Modifiers |= TypeMemberModifiers.Override;
+					if (null != entity.Override.GetGetMethod())
+					{
+						SetPropertyAccessorOverride(property.Getter);
+					}
+					if (null != entity.Override.GetSetMethod())
+					{
+						SetPropertyAccessorOverride(property.Setter);
+					}
+				}
+				
+				if (null == property.Type)
+				{
+					property.Type = CodeBuilder.CreateTypeReference(entity.Override.Type);
+				}
+			}
+		}
+
+		void SetOverride(InternalMethod entity, IMethod baseMethod)
+		{
+			TraceOverride(entity.Method, baseMethod);
+
+			entity.Overriden = baseMethod;
+			entity.Method.Modifiers |= TypeMemberModifiers.Override;
+		}
+
+
+		void TraceOverride(Method method, IMethod baseMethod)
+		{
+			_context.TraceInfo("{0}: Method '{1}' overrides '{2}'", method.LexicalInfo, method.Name, baseMethod);
+		}
+		
+		void ProcessRegularMethod(Method node)
+		{
+			bool parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
+
+			if (node.IsOverride)
+			{
+				ResolveMethodOverride((InternalMethod) node.Entity);
+			}
+			else
+			{
+				CheckIfIsMethodOverride((InternalMethod) node.Entity);
+			}
+			
+			InternalMethod entity = (InternalMethod)GetEntity(node);
 			ProcessMethodBody(entity);
 			
 			if (parentIsClass)
@@ -793,14 +870,9 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (!method.IsOverride)
-					{
-						CheckMethodOverride(entity);
-					}
-					
 					if (entity.IsGenerator)
 					{
-						CheckGeneratorReturnType(method, entity.ReturnType);
+						CheckGeneratorReturnType(node, entity.ReturnType);
 					}
 				}
 				CheckGeneratorCantReturnValues(entity);
@@ -896,7 +968,6 @@ namespace Boo.Lang.Compiler.Steps
 				if (CanResolveReturnType(tag))
 				{
 					ResolveReturnType(tag);
-					CheckMethodOverride(tag);
 				}
 				else
 				{
@@ -911,188 +982,12 @@ namespace Boo.Lang.Compiler.Steps
 			node.ExpressionType = _currentMethod.DeclaringType.BaseType;
 			if (EntityType.Constructor != _currentMethod.EntityType)
 			{
-				_currentMethod.AddSuperExpression(node);
-			}
-		}
-		
-		/// <summary>
-		/// Checks if the specified method overrides any virtual
-		/// method in the base class.
-		/// </summary>
-		void CheckMethodOverride(InternalMethod tag)
-		{
-			IMethod baseMethod = FindMethodOverride(tag);
-			if (null == baseMethod || tag.ReturnType != baseMethod.ReturnType)
-			{
-				if (null != tag.SuperExpressions)
+				if (null == _currentMethod.Overriden)
 				{
-					foreach (Expression super in tag.SuperExpressions)
-					{
-						Error(CompilerErrorFactory.MethodIsNotOverride(super, GetSignature(tag)));
-					}
+					Error(
+						CompilerErrorFactory.MethodIsNotOverride(node, _currentMethod.ToString()));
 				}
 			}
-			else
-			{
-				if (baseMethod.IsVirtual)
-				{
-					SetOverride(tag, baseMethod);
-				}
-			}
-		}
-		
-		void SetPropertyAccessorOverride(Method accessor)
-		{
-			if (null != accessor)
-			{
-				accessor.Modifiers |= TypeMemberModifiers.Override;
-			}
-		}
-		
-		void ResolvePropertyOverride(Property property)
-		{
-			InternalProperty entity = (InternalProperty)property.Entity;
-			IType baseType = entity.DeclaringType.BaseType;
-			IEntity baseProperties = NameResolutionService.Resolve(baseType, property.Name, EntityType.Property);
-			if (null != baseProperties)
-			{
-				if (EntityType.Property == baseProperties.EntityType)
-				{
-					entity.Override = (IProperty)baseProperties;
-				}
-			}
-			
-			if (null != entity.Override)
-			{
-				if (property.IsOverride)
-				{
-					SetPropertyAccessorOverride(property.Getter);
-					SetPropertyAccessorOverride(property.Setter);
-				}
-				else
-				{
-					//property.Modifiers |= TypeMemberModifiers.Override;
-					if (null != entity.Override.GetGetMethod())
-					{
-						SetPropertyAccessorOverride(property.Getter);
-					}
-					if (null != entity.Override.GetSetMethod())
-					{
-						SetPropertyAccessorOverride(property.Setter);
-					}
-				}
-				
-				if (null == property.Type)
-				{
-					property.Type = CodeBuilder.CreateTypeReference(entity.Override.Type);
-				}
-			}
-		}
-		
-		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
-		{
-			IProperty baseProperty = ((InternalProperty)property.Entity).Override;
-			if (null != baseProperty)
-			{
-				IMethod baseMethod = null;
-				if (property.Getter == accessor)
-				{
-					baseMethod = baseProperty.GetGetMethod();
-				}
-				else
-				{
-					baseMethod = baseProperty.GetSetMethod();
-				}
-				
-				if (null != baseMethod)
-				{
-					IMethod accessorEntity = (IMethod)accessor.Entity;
-					if (TypeSystemServices.CheckOverrideSignature(accessorEntity, baseMethod))
-					{
-						return baseMethod;
-					}
-				}
-			}
-			return null;
-		}
-		
-		IMethod FindMethodOverride(InternalMethod tag)
-		{
-			Method method = tag.Method;
-			if (NodeType.Property == method.ParentNode.NodeType)
-			{
-				return FindPropertyAccessorOverride((Property)method.ParentNode, method);
-			}
-			
-			IType baseType = tag.DeclaringType.BaseType;
-			IEntity baseMethods = NameResolutionService.Resolve(baseType, tag.Name, EntityType.Method);
-			
-			if (null != baseMethods)
-			{
-				IMethod baseMethod = null;
-				if (EntityType.Method == baseMethods.EntityType)
-				{
-					baseMethod = (IMethod)baseMethods;
-				}
-				else if (EntityType.Ambiguous == baseMethods.EntityType)
-				{
-					IEntity[] tags = ((Ambiguous)baseMethods).Entities;
-					baseMethod = (IMethod)ResolveCallableReference(method, method.Parameters, tags, false);
-				}
-				EnsureRelatedNodeWasVisited(baseMethod);
-				if (TypeSystemServices.CheckOverrideSignature(tag, baseMethod))
-				{
-					return baseMethod;
-				}
-			}
-			return null;
-		}
-		
-		void ResolveMethodOverride(InternalMethod tag)
-		{
-			IMethod baseMethod = FindMethodOverride(tag);
-			if (null == baseMethod)
-			{
-				Error(CompilerErrorFactory.NoMethodToOverride(tag.Method, GetSignature(tag)));
-			}
-			else
-			{
-				if (!baseMethod.IsVirtual)
-				{
-					CantOverrideNonVirtual(tag.Method, baseMethod);
-				}
-				else
-				{
-					if (TypeSystemServices.IsUnknown(tag.ReturnType))
-					{
-						tag.Method.ReturnType = CodeBuilder.CreateTypeReference(baseMethod.ReturnType);
-					}
-					else
-					{
-						if (baseMethod.ReturnType != tag.ReturnType)
-						{
-							Error(CompilerErrorFactory.InvalidOverrideReturnType(
-											tag.Method.ReturnType,
-											baseMethod.FullName,
-											baseMethod.ReturnType.FullName,
-											tag.ReturnType.FullName));
-						}
-					}
-					SetOverride(tag, baseMethod);
-				}
-			}
-		}
-		
-		void CantOverrideNonVirtual(Method method, IMethod baseMethod)
-		{
-			Error(CompilerErrorFactory.CantOverrideNonVirtual(method, baseMethod.ToString()));
-		}
-		
-		void SetOverride(InternalMethod tag, IMethod baseMethod)
-		{
-			tag.Overriden = baseMethod;
-			TraceOverride(tag.Method, baseMethod);
-			tag.Method.Modifiers |= TypeMemberModifiers.Override;
 		}
 		
 		bool CanResolveReturnType(InternalMethod tag)
@@ -4258,7 +4153,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected void EnsureRelatedNodeWasVisited(IEntity entity)
+		override protected void EnsureRelatedNodeWasVisited(IEntity entity)
 		{
 			if (entity.EntityType == EntityType.Ambiguous)
 			{
@@ -4269,7 +4164,7 @@ namespace Boo.Lang.Compiler.Steps
 			IInternalEntity internalInfo = entity as IInternalEntity;
 			if (null != internalInfo)
 			{
-				if (!Visited(internalInfo.Node))
+				if (!WasVisited(internalInfo.Node))
 				{
 					_context.TraceVerbose("Info {0} needs resolving.", entity.Name);
 					
@@ -4810,22 +4705,6 @@ namespace Boo.Lang.Compiler.Steps
 			return sb.ToString();
 		}
 		
-		string GetSignature(IMethod tag)
-		{
-			return tag.ToString();
-		}
-		
-		bool Visited(Node node)
-		{
-			return _visited.ContainsKey(node);
-		}
-		
-		void MarkVisited(Node node)
-		{
-			_context.TraceInfo("{0}: node '{1}' mark visited.", node.LexicalInfo, node);
-			_visited.Add(node, null);
-		}
-
 		void InvalidOperatorForType(UnaryExpression node)
 		{
 			Error(node, CompilerErrorFactory.InvalidOperatorForType(node,
@@ -4841,15 +4720,12 @@ namespace Boo.Lang.Compiler.Steps
 							GetExpressionType(node.Right).FullName));
 		}
 		
-		void TraceOverride(Method method, IMethod baseMethod)
-		{
-			_context.TraceInfo("{0}: Method '{1}' overrides '{2}'", method.LexicalInfo, method.Name, baseMethod);
-		}
-		
 		void TraceReturnType(Method method, IMethod tag)
 		{
 			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, tag.ReturnType);
 		}
+
+		#region Method bindings cache
 
 		IMethod _RuntimeServices_Len;
 
@@ -5160,5 +5036,6 @@ namespace Boo.Lang.Compiler.Steps
 				return _EnumeratorItemType_Constructor;
 			}
 		}
+		#endregion
 	}
 }

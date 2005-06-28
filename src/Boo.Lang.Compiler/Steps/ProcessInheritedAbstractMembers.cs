@@ -34,8 +34,6 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class ProcessInheritedAbstractMembers : AbstractVisitorCompilerStep
 	{
-		private readonly object VisitedAnnotationKey = new object();
-
 		private Boo.Lang.List _newAbstractClasses;
 
 		public ProcessInheritedAbstractMembers()
@@ -64,6 +62,8 @@ namespace Boo.Lang.Compiler.Steps
 					node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
 				}
 			}
+
+			Visit(node.ExplicitInfo);
 		}
 
 		override public void OnMethod(Method node)
@@ -74,6 +74,36 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 				}
+			}
+			Visit(node.ExplicitInfo);
+		}
+
+		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
+		{
+			TypeMember member = (TypeMember)node.ParentNode;
+			CheckExplicitMemberValidity((IExplicitMember)member);
+			member.Visibility = TypeMemberModifiers.Private;
+		}
+
+		void CheckExplicitMemberValidity(IExplicitMember node)
+		{
+			IMember explicitMember = (IMember)GetEntity((Node)node);
+			if (explicitMember.DeclaringType.IsClass)
+			{
+				IType targetInterface = GetType(node.ExplicitInfo.InterfaceType);
+				if (!targetInterface.IsInterface)
+				{
+					Error(CompilerErrorFactory.InvalidInterfaceForInterfaceMember((Node)node, node.ExplicitInfo.InterfaceType.Name));
+				}
+				
+				if (!explicitMember.DeclaringType.IsSubclassOf(targetInterface))
+				{
+					Error(CompilerErrorFactory.InterfaceImplForInvalidInterface((Node)node, targetInterface.Name, ((TypeMember)node).Name));
+				}
+			}
+			else
+			{
+				// TODO: Only class ITM's can do explicit interface methods
 			}
 		}
 
@@ -103,24 +133,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void MarkVisited(TypeDefinition node)
-		{
-			node[VisitedAnnotationKey] = true;
-		}
-
-		private void EnsureRelatedNodeWasVisited(IType type)
-		{
-			AbstractInternalType internalType = type as AbstractInternalType;
-			if (null != internalType)
-			{
-				TypeDefinition node = internalType.TypeDefinition;
-				if (!node.ContainsAnnotation(VisitedAnnotationKey))
-				{
-					Visit(node);
-				}
-			}
-		}
-
 		bool IsAbstract(IType type)
 		{
 			if (type.IsAbstract)
@@ -145,20 +157,19 @@ namespace Boo.Lang.Compiler.Steps
 			TypeReference baseTypeRef,
 			IProperty entity)
 		{
-			TypeMember member = node.Members[entity.Name];
-			if (null != member && NodeType.Property == member.NodeType &&
-				TypeSystemServices.CheckOverrideSignature(entity.GetParameters(), GetPropertyEntity(member).GetParameters()))
+			foreach (TypeMember member in node.Members)
 			{
-				Property p = (Property)member;
-				if (null != p.Getter)
+				if (entity.Name != member.Name
+					|| NodeType.Property != member.NodeType
+					|| !IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, entity)
+					|| !TypeSystemServices.CheckOverrideSignature(entity.GetParameters(), GetPropertyEntity(member).GetParameters()))
 				{
-					p.Getter.Modifiers |= TypeMemberModifiers.Virtual;
-				}
-				if (null != p.Setter)
-				{
-					p.Setter.Modifiers |= TypeMemberModifiers.Virtual;
+					continue;
 				}
 
+				Property p = (Property)member;
+				ProcessPropertyAccessor(p, p.Getter, entity.GetGetMethod());
+				ProcessPropertyAccessor(p, p.Setter, entity.GetSetMethod());
 				if (null == p.Type)
 				{
 					p.Type = CodeBuilder.CreateTypeReference(entity.Type);
@@ -170,21 +181,27 @@ namespace Boo.Lang.Compiler.Steps
 						Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, entity.FullName));
 					}
 				}
+				return;
 			}
-			else
+			
+			node.Members.Add(CreateAbstractProperty(baseTypeRef, entity));
+			AbstractMemberNotImplemented(node, baseTypeRef, entity);
+		}
+
+		private void ProcessPropertyAccessor(Property p, Method accessor, IMethod method)
+		{
+			if (null != accessor)
 			{
-				if (null == member)
+				accessor.Modifiers |= TypeMemberModifiers.Virtual;
+				if (null != p.ExplicitInfo)
 				{
-					node.Members.Add(CreateAbstractProperty(baseTypeRef, entity));
-					AbstractMemberNotImplemented(node, baseTypeRef, entity);
-				}
-				else
-				{
-					NotImplemented(baseTypeRef, "member name conflict: " + entity);
+					accessor.ExplicitInfo = p.ExplicitInfo.CloneNode();
+					accessor.ExplicitInfo.Entity = method;
+					accessor.Visibility = TypeMemberModifiers.Private;
 				}
 			}
 		}
-		
+
 		Property CreateAbstractProperty(TypeReference reference, IProperty property)
 		{
 			Debug.Assert(0 == property.GetParameters().Length);
@@ -216,12 +233,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (TypeMember member in node.Members)
 			{
-				if (entity.Name == member.Name &&
-					NodeType.Method == member.NodeType &&
-					(
-					((Method)member).ExplicitInfo == null ||
-					entity.DeclaringType == GetType(((Method)member).ExplicitInfo.InterfaceType))
-					)
+				if (entity.Name == member.Name
+					&& NodeType.Method == member.NodeType
+					&& IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, entity))
 				{
 					Method method = (Method)member;
 					if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), entity))
@@ -238,6 +252,11 @@ namespace Boo.Lang.Compiler.Steps
 							}
 						}
 
+						if (null != method.ExplicitInfo)
+						{
+							method.ExplicitInfo.Entity = entity;
+						}
+
 						if (!method.IsOverride && !method.IsVirtual)
 						{
 							method.Modifiers |= TypeMemberModifiers.Virtual;
@@ -251,6 +270,13 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
 			AbstractMemberNotImplemented(node, baseTypeRef, entity);
+		}
+
+		private bool IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(TypeMember member, IMember entity)
+		{
+			ExplicitMemberInfo info = ((IExplicitMember)member).ExplicitInfo;
+			return info == null
+				|| entity.DeclaringType == GetType(info.InterfaceType);
 		}
 
 		bool IsUnknown(TypeReference typeRef)

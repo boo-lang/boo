@@ -201,5 +201,30 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context = null;
 		}
+		private readonly object VisitedAnnotationKey = new object();
+
+		protected void MarkVisited(Node node)
+		{
+			node[VisitedAnnotationKey] = true;
+			_context.TraceInfo("{0}: node '{1}' mark visited.", node.LexicalInfo, node);
+		}
+
+		protected virtual void EnsureRelatedNodeWasVisited(IEntity entity)
+		{
+			IInternalEntity internalEntity = entity as IInternalEntity;
+			if (null != internalEntity)
+			{
+				Node node = internalEntity.Node;
+				if (!WasVisited(node))
+				{
+					Visit(node);
+				}
+			}
+		}
+
+		protected bool WasVisited(Node node)
+		{
+			return node.ContainsAnnotation(VisitedAnnotationKey);
+		}
 	}
 }

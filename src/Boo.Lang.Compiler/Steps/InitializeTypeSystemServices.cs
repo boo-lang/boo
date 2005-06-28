@@ -28,8 +28,6 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler;
-	
 	public class InitializeTypeSystemServices : AbstractCompilerStep
 	{
 		override public void Run()

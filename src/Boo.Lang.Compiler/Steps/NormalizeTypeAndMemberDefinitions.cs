@@ -79,7 +79,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveProperty(Property node)
 		{
-			if (!node.IsVisibilitySet)
+			if (!node.IsVisibilitySet && null == node.ExplicitInfo)
 			{
 				node.Modifiers |= TypeMemberModifiers.Public;
 			}
@@ -88,19 +88,22 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifiers |= TypeMemberModifiers.Abstract;
 			}
 
-			SetPropertyAccessorModifiers(node, node.Getter);
-			SetPropertyAccessorModifiers(node, node.Setter);
-
+			if (null != node.Getter)
+			{
+				SetPropertyAccessorModifiers(node, node.Getter);
+				node.Getter.Name = "get_" + node.Name;
+			}
+			if (null != node.Setter)
+			{
+				SetPropertyAccessorModifiers(node, node.Setter);
+				node.Setter.Name = "set_" + node.Name;
+			}
+			
 			LeaveMember(node);
 		}
 
 		void SetPropertyAccessorModifiers(Property property, Method accessor)
 		{
-			if (null == accessor)
-			{
-				return;
-			}
-
 			if (property.IsStatic)
 			{
 				accessor.Modifiers |= TypeMemberModifiers.Static;
@@ -144,7 +147,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveMethod(Method node)
 		{
-			if (!node.IsVisibilitySet)
+			if (!node.IsVisibilitySet && null == node.ExplicitInfo)
 			{
 				node.Modifiers |= TypeMemberModifiers.Public;
 			}
@@ -153,6 +156,30 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifiers |= TypeMemberModifiers.Abstract;
 			}
 			LeaveMember(node);
+		}
+
+		override public void OnDestructor(Destructor node)
+		{
+			Method finalizer = CodeBuilder.CreateMethod(
+				"Finalize",
+				TypeSystemServices.VoidType,
+				TypeMemberModifiers.Protected | TypeMemberModifiers.Override);
+			finalizer.LexicalInfo = node.LexicalInfo;
+
+			MethodInvocationExpression mie = new MethodInvocationExpression(new SuperLiteralExpression());
+
+			Block bodyNew = new Block();
+			Block ensureBlock = new Block();
+			ensureBlock.Add (mie);
+
+			TryStatement tryStatement = new TryStatement();
+			tryStatement.EnsureBlock = ensureBlock;
+			tryStatement.ProtectedBlock = node.Body;
+
+			bodyNew.Add(tryStatement);
+			finalizer.Body = bodyNew;
+
+			node.ParentNode.Replace(node, finalizer);
 		}
 
 		void LeaveMember(TypeMember node)
