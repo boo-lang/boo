@@ -248,7 +248,8 @@
 			target="library"
 			output="build/Boo.Lang.dll"
 			debug="${debug}"
-			optimize="${optimize}">
+			optimize="${optimize}"
+			if="${nant.platform.win32}">
 
 			<sources basedir="src/Boo.Lang">
 				<include name="**/*.cs" />
@@ -262,6 +263,22 @@
 			</resources>
 			<resources basedir="build/it">
 				<include name="strings.it.resources" />
+			</resources>
+		</csc>
+		
+		<csc
+			target="library"
+			output="build/Boo.Lang.dll"
+			debug="${debug}"
+			optimize="${optimize}"
+			unless="${nant.platform.win32}">
+			
+			<sources basedir="src/Boo.Lang">
+				<include name="**/*.cs" />
+			</sources>
+			
+			<resources basedir="build">
+				<include name="strings.resources" />
 			</resources>
 		</csc>
 	</target>
