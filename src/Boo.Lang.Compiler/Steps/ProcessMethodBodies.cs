@@ -664,10 +664,9 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckIfIsMethodOverride(InternalMethod entity)
 		{
 			IMethod overriden = FindMethodOverride(entity);
-			if (null != overriden)
-			{
-				ProcessMethodOverride(entity, overriden);
-			}
+			if (null == overriden) return;
+            
+			ProcessMethodOverride(entity, overriden);
 		}
 
 		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
@@ -845,23 +844,80 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context.TraceInfo("{0}: Method '{1}' overrides '{2}'", method.LexicalInfo, method.Name, baseMethod);
 		}
-		
-		void ProcessRegularMethod(Method node)
+
+		class ReturnExpressionFinder : DepthFirstVisitor
 		{
-			bool parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
+			bool _hasReturnStatements = false;
+
+			bool _hasYieldStatements = false;
+
+			public ReturnExpressionFinder(Method node)
+			{
+				Visit(node.Body);
+			}
+
+			public bool HasReturnStatements
+			{
+				get
+				{
+					return _hasReturnStatements;
+				}
+			}
+
+			public bool HasYieldStatements
+			{
+				get
+				{
+					return _hasYieldStatements;
+				}
+			}
+
+			public override void OnReturnStatement(ReturnStatement node)
+			{
+				_hasReturnStatements |= (null != node.Expression);
+			}
+
+			public override void OnYieldStatement(YieldStatement node)
+			{
+				_hasYieldStatements = true;
+			}
+		}
+
+		bool DontHaveReturnExpressionsNorYield(Method node)
+		{
+			ReturnExpressionFinder finder = new ReturnExpressionFinder(node);
+			return !(finder.HasReturnStatements || finder.HasYieldStatements);
+		}
+
+		void PreProcessMethod(Method node)
+		{
+			InternalMethod entity = (InternalMethod)GetEntity(node);
 
 			if (node.IsOverride)
 			{
-				ResolveMethodOverride((InternalMethod) node.Entity);
+				ResolveMethodOverride(entity);
 			}
 			else
-			{
-				CheckIfIsMethodOverride((InternalMethod) node.Entity);
+			{	
+				CheckIfIsMethodOverride(entity);
+				if (TypeSystemServices.IsUnknown(entity.ReturnType))
+				{
+					if (DontHaveReturnExpressionsNorYield(node))
+					{
+						node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
+					}
+				}
 			}
-			
+		}
+		
+		void ProcessRegularMethod(Method node)
+		{
+			PreProcessMethod(node);
+
 			InternalMethod entity = (InternalMethod)GetEntity(node);
 			ProcessMethodBody(entity);
-			
+		
+			bool parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
 			if (parentIsClass)
 			{
 				if (TypeSystemServices.IsUnknown(entity.ReturnType))
