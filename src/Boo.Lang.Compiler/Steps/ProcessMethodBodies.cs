@@ -235,6 +235,19 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Attributes);
 			Visit(node.Members);
 			LeaveNamespace();
+
+			ProcessFieldInitializers(node);
+		}
+
+		void ProcessFieldInitializers(ClassDefinition node)
+		{
+			foreach (TypeMember member in node.Members)
+			{
+				if (NodeType.Field == member.NodeType)
+				{
+					ProcessFieldInitializer((Field) member);
+				}
+			}
 		}
 		
 		override public void OnAttribute(Attribute node)
@@ -338,7 +351,7 @@ namespace Boo.Lang.Compiler.Steps
 						CompilerErrorFactory.ValueTypeFieldsCannotHaveInitializers(
 							node.Initializer));
 				}
-				ProcessFieldInitializer(node);
+				PreProcessFieldInitializer(node);
 			}
 			else
 			{
@@ -385,7 +398,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ProcessFieldInitializer(Field node)
+		void PreProcessFieldInitializer(Field node)
 		{
 			Expression initializer = node.Initializer;
 			if (node.IsFinal && node.IsStatic)
@@ -406,14 +419,25 @@ namespace Boo.Lang.Compiler.Steps
 						BinaryOperatorType.Assign,
 						temp,
 						initializer);
-						
-			method.Body.Add(assignment);
+
 			ProcessNodeInMethodContext(entity, entity, assignment);
 			method.Locals.RemoveByEntity(temp.Entity);
 				
 			IType initializerType = ((ITypedEntity)temp.Entity).Type;
 			ProcessFieldInitializerType(node, initializerType);
-			assignment.Left = CodeBuilder.CreateReference(node);
+			node.Initializer = assignment.Right;
+		}
+
+		void ProcessFieldInitializer(Field node)
+		{
+			Expression initializer = node.Initializer;
+			if (null == initializer) return;
+
+			Method method = GetFieldsInitializerMethod(node);
+			method.Body.Add(
+				CodeBuilder.CreateAssignment(
+					CodeBuilder.CreateReference(node),
+					initializer));
 			node.Initializer = null;
 		}
 		
