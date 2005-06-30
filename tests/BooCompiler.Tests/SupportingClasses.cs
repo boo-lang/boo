@@ -46,6 +46,31 @@ namespace BooCompiler.Tests
 		}
 	}
 	
+	public struct Vector3
+	{
+		public float x, y, z;
+	}
+
+	public class Transform
+	{	
+		Vector3 _position;
+	
+		public Vector3 position
+		{
+			get { return _position; }
+			set { _position = value; }
+		}
+	}
+	
+	public class BOO313BaseClass
+	{
+		Transform _t = new Transform();
+		public Transform transform
+		{
+			get { return _t; }
+		}
+	}
+	
 	public class OutterClass
 	{
 		public class InnerClass
