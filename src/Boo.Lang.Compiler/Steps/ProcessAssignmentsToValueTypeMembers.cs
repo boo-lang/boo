@@ -151,13 +151,16 @@ namespace Boo.Lang.Compiler.Steps
 			while (true)
 			{	
 				MemberReferenceExpression container = memberRef.Target as MemberReferenceExpression;
-				if (null == container || IsReadOnlyMember(container))
+				if (null == container ||
+					(container.ExpressionType.IsValueType
+					&& IsReadOnlyMember(container)))
 				{	
 					Warnings.Add(
 						CompilerWarningFactory.AssignmentToTemporary(memberRef));
 					return null;
 				}
-				if (EntityType.Field != container.Entity.EntityType)
+				if (container.ExpressionType.IsValueType
+					&& EntityType.Field != container.Entity.EntityType)
 				{
 					chain.Insert(0, new ChainItem(container));
 				}
