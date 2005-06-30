@@ -30,6 +30,22 @@ namespace BooCompiler.Tests
 {
 	using System;
 	
+	public struct Point
+	{
+		public int x;
+		public int y;
+	}
+
+	public struct Rectangle
+	{
+		Point _top;
+		public Point topLeft
+		{
+			get { return _top; }
+			set { _top = value; }
+		}
+	}
+	
 	public class OutterClass
 	{
 		public class InnerClass
