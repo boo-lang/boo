@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (TypeReference baseTypeRef in node.BaseTypes)
 			{	
 				IType baseType = GetType(baseTypeRef);
-				EnsureRelatedNodeWasVisited(baseType);
+				EnsureRelatedNodeWasVisited(node, baseType);
 				if (baseType.IsInterface)
 				{
 					ResolveInterfaceMembers(node, baseTypeRef, baseType);

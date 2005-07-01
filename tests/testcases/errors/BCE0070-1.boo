@@ -1,5 +1,5 @@
 """
-BCE0070-1.boo(4,5): BCE0070: Recursive and mutually recursive methods must declare their return types.
+BCE0070-1.boo(6,18): BCE0070: Definition of 'BCE0070-1Module.fatorial' depends on 'BCE0070-1Module.fatorial' whose type could not be resolved because of a cycle. Explicitly declare the type of either one to break the cycle.
 """
 def fatorial(value as int):
 	return 1 if value < 2

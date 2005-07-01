@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override protected void OnError(Node node, Exception error)
 		{
-			_context.TraceError("{0}: Internal compiler error: ${1}", node.LexicalInfo, error);
+			_context.TraceError("{0}: Internal compiler error on node '{2}': {1}", node.LexicalInfo, error, node);
 			base.OnError(node, error);
 		}
 		
@@ -146,24 +146,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected IType GetConcreteExpressionType(Expression expression)
 		{
-			IType type = TypeSystemServices.GetConcreteExpressionType(expression);
-			ICallableType callableType = type as ICallableType;
-			if (null != callableType)
-			{
-				// try to detect mutually dependent methods
-				/*
-				 * def foo():
-				 *     a = bar
-				 * 
-				 * def bar():
-				 *     b = foo
-				 */
-				if (callableType.GetSignature().ReturnType == Unknown.Default)
-				{
-					Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(expression));
-				}
-			}
-			return type;
+			return TypeSystemServices.GetConcreteExpressionType(expression);
 		}
 
 		protected IType GetExpressionType(Expression node)
@@ -205,11 +188,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected void MarkVisited(Node node)
 		{
-			node[VisitedAnnotationKey] = true;
+			node[VisitedAnnotationKey] = VisitedAnnotationKey;
 			_context.TraceInfo("{0}: node '{1}' mark visited.", node.LexicalInfo, node);
 		}
 
-		protected virtual void EnsureRelatedNodeWasVisited(IEntity entity)
+		protected virtual void EnsureRelatedNodeWasVisited(Node sourceNode, IEntity entity)
 		{
 			IInternalEntity internalEntity = entity as IInternalEntity;
 			if (null != internalEntity)

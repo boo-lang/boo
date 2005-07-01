@@ -2498,9 +2498,9 @@ namespace Boo.Lang.Compiler.Steps
 				TypeSystemServices.IntType == type;
 		}
 		
-		void PushArguments(IMethod tag, ExpressionCollection args)
+		void PushArguments(IMethod entity, ExpressionCollection args)
 		{
-			IParameter[] parameters = tag.GetParameters();
+			IParameter[] parameters = entity.GetParameters();
 			for (int i=0; i<args.Count; ++i)
 			{
 				IType parameterType = parameters[i].Type;
@@ -2882,11 +2882,6 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _assemblyAttributes)
 			{
 				_asmBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
-			}
-			
-			if (Parameters.Debug)
-			{
-				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
 			}
 		}
 		
@@ -3780,6 +3775,13 @@ namespace Boo.Lang.Compiler.Steps
 			
 			AssemblyName asmName = CreateAssemblyName(outputFile);
 			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, GetAssemblyBuilderAccess(), GetTargetDirectory(outputFile));
+			if (Parameters.Debug)
+			{
+				// ikvm tip:  Set DebuggableAttribute to assembly before
+				// creating the module, to make sure Visual Studio (Whidbey)
+				// picks up the attribute when debugging dynamically generated code.
+				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
+			}
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), true);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 			

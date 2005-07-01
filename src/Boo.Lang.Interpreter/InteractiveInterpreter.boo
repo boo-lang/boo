@@ -242,7 +242,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 	static def DescribeParameter(p as Reflection.ParameterInfo):
 		return "${p.Name} as ${GetBooTypeName(p.ParameterType)}"
 		
-	static def GetBooTypeName(type as System.Type):
+	static def GetBooTypeName(type as System.Type) as string:
 		return "(${GetBooTypeName(type.GetElementType())})" if type.IsArray
 		return "object" if object is type
 		return "string" if string is type

@@ -92,7 +92,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return TypeSystemServices.GetType(_field.Type);
+				return null != _field.Type 
+					? TypeSystemServices.GetType(_field.Type)
+					: Unknown.Default;
 			}
 		}
 		

@@ -28,8 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-
 	public class ModuleEntity : INamespace, IEntity
 	{
 		NameResolutionService _nameResolutionService;

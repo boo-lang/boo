@@ -381,9 +381,9 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0069", node.LexicalInfo, interfaceName, baseType);
 		}
 		
-		public static CompilerError RecursiveMethodWithoutReturnType(Node node)
+		public static CompilerError UnresolvedDependency(Node node, string source, string target)
 		{
-			return new CompilerError("BCE0070", node.LexicalInfo);
+			return new CompilerError("BCE0070", node.LexicalInfo, source, target);
 		}
 		
 		public static CompilerError InheritanceCycle(Node node, string typeName)

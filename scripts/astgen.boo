@@ -421,7 +421,7 @@ def GetResultingTransformerNode(node as ClassDefinition):
 			return subclass
 	return node.Name
 	
-def IsSubclassOf(node as ClassDefinition, typename as string):
+def IsSubclassOf(node as ClassDefinition, typename as string) as bool:
 	for typeref as SimpleTypeReference in node.BaseTypes:
 		if typename == typeref.Name:
 			return true

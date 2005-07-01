@@ -46,6 +46,9 @@ namespace Boo.Lang.Compiler.Steps
 		static readonly ExpressionCollection EmptyExpressionCollection = new ExpressionCollection();
 		
 		protected Stack _methodStack;
+
+		protected Stack _memberStack;
+		// for accurate error reporting during type inference
 		
 		protected InternalMethod _currentMethod;
 
@@ -87,6 +90,7 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = new Stack();
 			_methodBodyState = new MethodBodyState();
+			_memberStack = new Stack();
 						
 			InitializeMemberCache();
 			
@@ -118,6 +122,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_currentMethod = null;
 			_methodStack = null;
+			_memberStack = null;
 
 			_RuntimeServices_Len = null;
 			_RuntimeServices_Mid = null;
@@ -351,7 +356,15 @@ namespace Boo.Lang.Compiler.Steps
 						CompilerErrorFactory.ValueTypeFieldsCannotHaveInitializers(
 							node.Initializer));
 				}
-				PreProcessFieldInitializer(node);
+				try
+				{
+					PushMember(node);
+					PreProcessFieldInitializer(node);
+				}
+				finally
+				{
+					PopMember();
+				}
 			}
 			else
 			{
@@ -681,7 +694,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				ProcessRegularMethod(method);
+				try
+				{
+					PushMember(method);
+					ProcessRegularMethod(method);
+				}
+				finally
+				{
+					PopMember();
+				}
 			}
 		}
 
@@ -755,7 +776,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				if (null != baseMethod)
 				{
-					EnsureRelatedNodeWasVisited(baseMethod);
+					EnsureRelatedNodeWasVisited(method, baseMethod);
 				}
 				return baseMethod;
 			}
@@ -915,8 +936,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		void PreProcessMethod(Method node)
 		{
-			InternalMethod entity = (InternalMethod)GetEntity(node);
+			if (WasAlreadyPreProcessed(node)) return;
+			MarkPreProcessed(node);
 
+			InternalMethod entity = (InternalMethod)GetEntity(node);
 			if (node.IsOverride)
 			{
 				ResolveMethodOverride(entity);
@@ -933,7 +956,19 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		static readonly object PreProcessedKey = new object();
+
+		private bool WasAlreadyPreProcessed(Method node)
+		{
+			return node.ContainsAnnotation(PreProcessedKey);
+		}
+
+		private void MarkPreProcessed(Method node)
+		{
+			node[PreProcessedKey] = PreProcessedKey;
+		}
+
 		void ProcessRegularMethod(Method node)
 		{
 			PreProcessMethod(node);
@@ -1048,10 +1083,6 @@ namespace Boo.Lang.Compiler.Steps
 				if (CanResolveReturnType(tag))
 				{
 					ResolveReturnType(tag);
-				}
-				else
-				{
-					Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(tag.Method));
 				}
 			}
 		}
@@ -1991,16 +2022,15 @@ namespace Boo.Lang.Compiler.Steps
 			
 			IEntity entity = ResolveName(node, node.Name);
 			if (null != entity)
-			{
-				EnsureRelatedNodeWasVisited(entity);
-				
+			{	
 				IMember member = entity as IMember;
 				if (null != member)
-				{
+				{	
 					ResolveMemberInfo(node, member);
 				}
 				else
 				{
+					EnsureRelatedNodeWasVisited(node, entity);
 					node.Entity = entity;
 					PostProcessReferenceExpression(node);
 				}
@@ -2125,7 +2155,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			EnsureRelatedNodeWasVisited(member);
+			EnsureRelatedNodeWasVisited(node, member);
 			
 			IMember memberInfo = member as IMember;
 			if (null != memberInfo)
@@ -2305,7 +2335,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IMethod method = ResolveGetEnumerator(type);
+					IMethod method = ResolveGetEnumerator(iterator, type);
 					if (null == method)
 					{ 
 						Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
@@ -2319,13 +2349,12 @@ namespace Boo.Lang.Compiler.Steps
 			return iterator;
 		}
 		
-		IMethod ResolveGetEnumerator(IType type)
+		IMethod ResolveGetEnumerator(Node sourceNode, IType type)
 		{
-			EnsureRelatedNodeWasVisited(type);
 			IMethod method = ResolveMethod(type, "GetEnumerator");
 			if (null != method)
 			{
-				this.EnsureRelatedNodeWasVisited(method);
+				EnsureRelatedNodeWasVisited(sourceNode, method);
 				if (0 == method.GetParameters().Length &&
 					method.ReturnType.IsSubclassOf(TypeSystemServices.IEnumeratorType))
 				{
@@ -2693,7 +2722,6 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						Visit(node.Right);
 						IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
-						CheckIsResolvedType(expressionType, node.Right);
 						IEntity local = DeclareLocal(reference, reference.Name, expressionType);
 						reference.Entity = local;
 						BindExpressionType(node.Left, expressionType);
@@ -2703,19 +2731,6 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			return true;
-		}
-		
-		void CheckIsResolvedType(IType type, Expression expression)
-		{
-			if (TypeSystemServices.IsUnknown(type))
-			{
-				MethodInvocationExpression mie = expression as MethodInvocationExpression;
-				if (null != mie)
-				{
-					InternalMethod entity = (InternalMethod)GetEntity(mie.Target);
-					Error(CompilerErrorFactory.RecursiveMethodWithoutReturnType(entity.Method));
-				}
-			}
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
@@ -3451,10 +3466,13 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							eval.Arguments.Add(CodeBuilder.CreateMethodInvocation(
+							eval.Arguments.Add(
+								CodeBuilder.CreateAssignment(
+										node.LexicalInfo,
+										CodeBuilder.CreateMemberReference(
 											local.CloneNode(),
-											setter,
-											pair.Second));
+											property),
+										pair.Second));
 						}
 						break;
 					}
@@ -4177,8 +4195,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IConstructor[] constructors = typeInfo.GetConstructors();
 			if (constructors.Length > 0)
-			{
-				EnsureRelatedNodesWereVisited(constructors);
+			{	
 				return (IConstructor)ResolveCallableReference(sourceNode, arguments, constructors, true);
 			}
 			else
@@ -4225,45 +4242,72 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected void EnsureRelatedNodesWereVisited(IEntity[] entities)
+		override protected void EnsureRelatedNodeWasVisited(Node sourceNode, IEntity entity)
 		{
-			foreach (IEntity entity in entities)
-			{
-				EnsureRelatedNodeWasVisited(entity);
-			}
-		}
-		
-		override protected void EnsureRelatedNodeWasVisited(IEntity entity)
-		{
-			if (entity.EntityType == EntityType.Ambiguous)
-			{
-				EnsureRelatedNodesWereVisited(((Ambiguous)entity).Entities);
-				return;
-			}
-			
 			IInternalEntity internalInfo = entity as IInternalEntity;
 			if (null != internalInfo)
 			{
 				Node node = internalInfo.Node;
-				// don't visit constructors. First because it is not
-				// really necessary (constructors don't have a return type)
-				// and second to avoid circular dependencies issues with
-				// fields (see BOO-369-1)
-				if (NodeType.Constructor != node.NodeType &&
-					!WasVisited(node))
+				switch (node.NodeType)
 				{
-					_context.TraceVerbose("Info {0} needs resolving.", entity.Name);
-					
-					INamespace saved = NameResolutionService.CurrentNamespace;
-					try
+					case NodeType.Property:
+					case NodeType.Field:
 					{
-						Visit(internalInfo.Node);
+						IMember memberEntity = (IMember)entity;
+						if (TypeSystemServices.IsUnknown(memberEntity.Type))
+						{
+							VisitMemberForTypeResolution(node);
+							AssertTypeIsKnown(sourceNode, memberEntity, memberEntity.Type);
+						}
+						break;
 					}
-					finally
-					{
-						NameResolutionService.Restore(saved);
+
+					case NodeType.Method:
+					{	
+						IMethod methodEntity = (IMethod)entity;
+						if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
+						{
+							// try to preprocess the method to resolve its return type
+							Method method = (Method)node;
+							PreProcessMethod(method);
+							if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
+							{
+								// still unknown?
+								VisitMemberForTypeResolution(node);
+								AssertTypeIsKnown(sourceNode, methodEntity, methodEntity.ReturnType);
+							}
+						}
+						break;
 					}
 				}
+			}
+		}
+
+		private void AssertTypeIsKnown(Node sourceNode, IEntity sourceEntity, IType type)
+		{
+			if (TypeSystemServices.IsUnknown(type))
+			{
+				Error(
+					CompilerErrorFactory.UnresolvedDependency(
+						sourceNode,
+						CurrentMember.FullName,
+						sourceEntity.FullName));
+			}
+		}
+
+		void VisitMemberForTypeResolution(Node node)
+		{
+			if (WasVisited(node)) return;
+
+			_context.TraceVerbose("Info {0} needs resolving.", node.Entity.Name);
+			INamespace saved = NameResolutionService.CurrentNamespace;
+			try
+			{
+				Visit(node);
+			}
+			finally
+			{
+				NameResolutionService.Restore(saved);
 			}
 		}
 		
@@ -4602,6 +4646,24 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return _currentMethod.DeclaringType;
 			}
+		}
+
+		void PushMember(TypeMember member)
+		{
+			_memberStack.Push(member);
+		}
+
+		TypeMember CurrentMember
+		{
+			get
+			{
+				return (TypeMember)_memberStack.Peek();
+			}
+		}
+
+		void PopMember()
+		{
+			_memberStack.Pop();
 		}
 		
 		void PushMethodInfo(InternalMethod tag)

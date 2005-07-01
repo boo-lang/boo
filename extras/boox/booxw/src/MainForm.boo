@@ -41,7 +41,7 @@ class MainForm(Form):
 	_timer as Timer
 	
 	[getter(Settings)]
-	_settings = LoadSettings()
+	_settings as BooxSettings = LoadSettings()
 
 	[getter(DocumentOutline)]
 	_documentOutline = BooExplorer.DocumentOutline()
