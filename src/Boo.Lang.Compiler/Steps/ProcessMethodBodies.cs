@@ -4244,7 +4244,13 @@ namespace Boo.Lang.Compiler.Steps
 			IInternalEntity internalInfo = entity as IInternalEntity;
 			if (null != internalInfo)
 			{
-				if (!WasVisited(internalInfo.Node))
+				Node node = internalInfo.Node;
+				// don't visit constructors. First because it is not
+				// really necessary (constructors don't have a return type)
+				// and second to avoid circular dependencies issues with
+				// fields (see BOO-369-1)
+				if (NodeType.Constructor != node.NodeType &&
+					!WasVisited(node))
 				{
 					_context.TraceVerbose("Info {0} needs resolving.", entity.Name);
 					

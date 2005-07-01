@@ -8,6 +8,8 @@ class Action:
 	cb as handler
 	def constructor(callback as handler):
 		cb = callback
+	def Execute():
+		cb(0)
 
 class A:
 	a as Action
@@ -18,4 +20,4 @@ class A:
 		a = ac
 		print p
 
-A(42).Go()
+A(42).Go.Execute()
