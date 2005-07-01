@@ -120,6 +120,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _event.GetAddMethod().IsStatic;
 			}
 		}
+
+		public bool IsAbstract
+		{
+			get
+			{
+				return _event.GetAddMethod().IsAbstract;
+			}
+		}
+
+		public bool IsVirtual
+		{
+			get
+			{
+				return _event.GetAddMethod().IsVirtual;
+			}
+		}
 		
 		override public string ToString()
 		{

@@ -222,6 +222,41 @@ namespace Boo.Lang.Compiler.Steps
 			return p;
 		}
 		
+		void ResolveAbstractEvent(ClassDefinition node,
+			TypeReference baseTypeRef,
+			IEvent entity)
+		{
+			TypeMember member = node.Members[entity.Name];
+			if (null != member)
+			{
+				Event ev = (Event)member;
+
+				Method add = ev.Add;
+				if (add != null)
+				{
+					add.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
+				}
+
+				Method remove = ev.Remove;
+				if (remove != null)
+				{
+					remove.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
+				}
+
+				Method raise = ev.Remove;
+				if (raise != null)
+				{
+					raise.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
+				}
+
+				_context.TraceInfo("{0}: Event {1} implements {2}", ev.LexicalInfo, ev, entity);
+				return;
+			}
+
+			node.Members.Add(CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, entity));
+			AbstractMemberNotImplemented(node, baseTypeRef, entity);
+		}
+
 		void ResolveAbstractMethod(ClassDefinition node,
 			TypeReference baseTypeRef,
 			IMethod entity)
@@ -338,6 +373,17 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						break;
 					}
+
+					case EntityType.Event:
+					{
+						IEvent ev = (IEvent)member;
+						if (ev.IsAbstract)
+						{
+							ResolveAbstractEvent(node, baseTypeRef, ev);
+						}
+						break;
+					}
+					
 				}
 			}
 		}
@@ -366,6 +412,12 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Property:
 				{
 					ResolveClassAbstractProperty(node, baseTypeRef, (IProperty)member);
+					break;
+				}
+
+				case EntityType.Event:
+				{
+					ResolveAbstractEvent(node, baseTypeRef, (IEvent)member);
 					break;
 				}
 				

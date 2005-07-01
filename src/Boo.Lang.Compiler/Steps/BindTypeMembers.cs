@@ -149,6 +149,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IType type = GetType(node.Type);
+			IType declaringType = GetType(node.DeclaringType);
 			bool typeIsCallable = type is ICallableType;
 			if (!typeIsCallable)
 			{
@@ -157,6 +158,26 @@ namespace Boo.Lang.Compiler.Steps
 					type.FullName));
 			}
 			
+			if (declaringType.IsInterface)
+			{
+				BindInterfaceEvent(node);
+			}
+			else
+			{
+				BindClassEvent(node, type, typeIsCallable);
+			}
+		}
+
+		private void BindInterfaceEvent(Event node)
+		{
+			// TODO: Add checks to ensure Add/Remove/Raise are
+			// null before doing this.
+			node.Add = CreateInterfaceEventAddMethod(node);
+			node.Remove = CreateInterfaceEventRemoveMethod(node);
+		}
+
+		private void BindClassEvent (Event node, IType type, bool typeIsCallable)
+		{
 			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
 			if (node.IsTransient)
 			{
@@ -169,7 +190,7 @@ namespace Boo.Lang.Compiler.Steps
 			node.DeclaringType.Members.Add(backingField);
 			
 			((InternalEvent)node.Entity).BackingField = (InternalField)backingField.Entity;
-			
+		
 			if (null == node.Add)
 			{
 				node.Add = CreateEventAddMethod(node, backingField);
@@ -254,6 +275,29 @@ namespace Boo.Lang.Compiler.Steps
 			Type[] delegates = new Type[] { delegateType, delegateType };
 			_delegate_Combine = TypeSystemServices.Map(delegateType.GetMethod("Combine", delegates));
 			_delegate_Remove = TypeSystemServices.Map(delegateType.GetMethod("Remove", delegates));
+		}
+
+		Method CreateInterfaceEventMethod(Event node, string prefix)
+		{
+			Method method = CodeBuilder.CreateMethod(prefix + node.Name,
+				TypeSystemServices.VoidType,
+				TypeMemberModifiers.Public | TypeMemberModifiers.Virtual | TypeMemberModifiers.Abstract);
+			method.Parameters.Add(
+				CodeBuilder.CreateParameterDeclaration(
+				CodeBuilder.GetFirstParameterIndex(node),
+				"handler",
+				GetType(node.Type)));
+			return method;
+		}
+		
+		Method CreateInterfaceEventAddMethod(Event node)
+		{
+			return CreateInterfaceEventMethod(node, "add_"); 
+		}
+
+		Method CreateInterfaceEventRemoveMethod(Event node)
+		{
+			return CreateInterfaceEventMethod(node, "remove_");
 		}
 
 		Method CreateEventMethod(Event node, string prefix)

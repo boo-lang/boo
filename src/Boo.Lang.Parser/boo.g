@@ -544,6 +544,7 @@ interface_definition [TypeMemberCollection container]
 			attributes
 			(
 				interface_method[itf.Members] |
+				event_declaration[itf.Members] |
 				interface_property[itf.Members]
 			)
 		)+

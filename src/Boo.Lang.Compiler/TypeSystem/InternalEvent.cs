@@ -128,7 +128,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _event.IsStatic;
 			}
 		}
-		
+
+		public bool IsVirtual
+		{
+			get
+			{
+				return _event.IsVirtual;
+			}
+		}
+
+		public bool IsAbstract
+		{
+			get
+			{
+				return _event.IsAbstract;
+			}
+		}
+
 		public InternalField BackingField
 		{
 			get

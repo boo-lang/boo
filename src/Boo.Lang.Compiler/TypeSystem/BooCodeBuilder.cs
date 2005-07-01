@@ -654,6 +654,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			method.Entity = new InternalMethod(_tss, method);
 			return method;
 		}
+
+		public Event CreateAbstractEvent(LexicalInfo lexicalInfo, IEvent baseEvent)
+		{
+			Event ev = new Event(lexicalInfo);
+			ev.Name = baseEvent.Name;
+			ev.Type = CreateTypeReference(baseEvent.Type);
+			ev.Add = CreateAbstractMethod(lexicalInfo, baseEvent.GetAddMethod());
+			ev.Remove = CreateAbstractMethod(lexicalInfo, baseEvent.GetRemoveMethod());
+			ev.Entity = new InternalEvent (_tss, ev);
+			return ev;
+		}
 		
 		public Expression CreateNotNullTest(Expression target)
 		{

@@ -3243,6 +3243,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				attributes |= MethodAttributes.Static;
 			}
+			if (member.IsFinal)
+			{
+				attributes |= MethodAttributes.Final;
+			}
 			if (member.IsAbstract)
 			{
 				attributes |= (MethodAttributes.Abstract | MethodAttributes.Virtual);
@@ -3324,7 +3328,12 @@ namespace Boo.Lang.Compiler.Steps
 			MethodAttributes baseAttributes = MethodAttributes.SpecialName;
 			builder.SetAddOnMethod(DefineMethod(typeBuilder, node.Add, baseAttributes|GetMethodAttributes(node.Add)));
 			builder.SetRemoveOnMethod(DefineMethod(typeBuilder, node.Remove, baseAttributes|GetMethodAttributes(node.Remove)));
-			builder.SetRaiseMethod(DefineMethod(typeBuilder, node.Raise, baseAttributes|GetMethodAttributes(node.Raise)));
+
+			if (null != node.Raise)
+			{
+				builder.SetRaiseMethod(DefineMethod(typeBuilder, node.Raise, baseAttributes|GetMethodAttributes(node.Raise)));
+			}
+
 			SetBuilder(node, builder);
 		}
 		
