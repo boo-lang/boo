@@ -73,7 +73,6 @@ def Main(argv as (string)):
 		return -1
 		
 	compiler = BooCompiler()
-	
 	compiler.Parameters.Pipeline = CompileToMemory()	
 	
 	for arg in argv:
@@ -82,6 +81,8 @@ def Main(argv as (string)):
 			break
 		elif "-ducky" == arg:
 			compiler.Parameters.Ducky = true
+		elif "-w" == arg:
+			printWarnings = true
 		else:
 			compiler.Parameters.Input.Add(FileInput(arg))
 			break
@@ -89,6 +90,8 @@ def Main(argv as (string)):
 	resolver = AssemblyResolver()
 	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
 	result = compiler.Run()
+	if printWarnings and len(result.Warnings):
+		print(result.Warnings.ToString())
 	if len(result.Errors):
 		print(result.Errors.ToString(true))
 		return -1
