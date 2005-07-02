@@ -1572,22 +1572,11 @@ protected
 expression returns [Expression e]
 	{
 		e = null;
-		TypeReference tr = null;
 		
 		ExtendedGeneratorExpression mge = null;
 		GeneratorExpression ge = null;
 	} :
 	e=boolean_expression
-	(
-		t:AS
-		tr=type_reference
-		{
-			AsExpression ae = new AsExpression(ToLexicalInfo(t));
-			ae.Target = e;
-			ae.Type = tr;
-			e = ae; 
-		}
-	)?
 		
 	( options { greedy = true; } :
 		f:FOR
@@ -1936,8 +1925,20 @@ exponentiation returns [Expression e]
 	{
 		e = null;
 		Expression r = null;
+		TypeReference tr = null;
 	}:
 	e=unary_expression
+	(
+		t:AS
+		tr=type_reference
+		{
+			AsExpression ae = new AsExpression(ToLexicalInfo(t));
+			ae.Target = e;
+			ae.Type = tr;
+			e = ae; 
+		}
+	)?
+	
 	( options { greedy = true; }:
 	 	token:EXPONENTIATION
 		r=exponentiation
