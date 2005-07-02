@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -93,6 +93,28 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveGivenStatement(GivenStatement node)
 		{
 			NotImplemented(node, "given");
+		}
+		
+		override public void LeaveBinaryExpression(BinaryExpression node)
+		{
+			if (BinaryOperatorType.Assign == node.Operator
+				&& (node.Right.NodeType != NodeType.AsExpression)
+				&& (IsTopLevelOfConditional(node)))
+			{
+				Warnings.Add(CompilerWarningFactory.EqualsInsteadOfAssign(node));
+			}
+		}
+		
+		bool IsTopLevelOfConditional(Node child)
+		{
+			Node parent = child.ParentNode;
+			return (parent.NodeType == NodeType.IfStatement
+				|| parent.NodeType == NodeType.UnlessStatement
+				|| parent.NodeType == NodeType.TernaryExpression
+				|| parent.NodeType == NodeType.WhenClause
+				|| parent.NodeType == NodeType.StatementModifier
+				|| parent.NodeType == NodeType.ReturnStatement
+				|| parent.NodeType == NodeType.YieldStatement);
 		}
 
 		override public void LeaveDestructor(Destructor node)

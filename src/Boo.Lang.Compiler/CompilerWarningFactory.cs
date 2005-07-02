@@ -68,5 +68,10 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerWarning("BCW0006", node.LexicalInfo);
 		}
+		
+		public static CompilerWarning EqualsInsteadOfAssign(BinaryExpression node)
+		{
+			return new CompilerWarning("BCW0007", node.LexicalInfo, node.ToCodeString());
+		}
 	}
 }

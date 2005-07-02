@@ -372,5 +372,16 @@
     <File name="./Ast/IExplicitMember.cs" subtype="Code" buildaction="Compile" />
     <File name="./Ast/ExplicitMemberInfo.cs" subtype="Code" buildaction="Compile" />
     <File name="./Ast/Impl/ExplicitMemberInfoImpl.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Boo.Lang.Compiler.csproj" subtype="Code" buildaction="Exclude" />
+    <File name="./CompilerWarningFactory.cs.orig" subtype="Code" buildaction="Exclude" />
+    <File name="./CompilerWarningFactory.cs.rej" subtype="Code" buildaction="Exclude" />
+    <File name="./Steps/ExpandProperties.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Steps/NormalizeTypeAndMemberDefinitions.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Steps/ProcessAssignmentsToValueTypeMembers.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Steps/ProcessInheritedAbstractMembers.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Steps/RemoveDeadCode.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Steps/ResolveTypeReferences.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Steps/StricterErrorChecking.cs.orig" subtype="Code" buildaction="Exclude" />
+    <File name="./Steps/StricterErrorChecking.cs.rej" subtype="Code" buildaction="Exclude" />
   </Contents>
 </Project>

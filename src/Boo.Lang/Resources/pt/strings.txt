@@ -1,4 +1,4 @@
-﻿;Compiler Error Messages
+;Compiler Error Messages
 BCE0001=A classe '{0}' já tem '{1}' como classe base.
 BCE0002=Nome do parâmetro deve ser um identificador.
 BCE0003=Parâmetros são permitidos apenas com construtores.
@@ -124,6 +124,7 @@ BCW0003=AVISO: Variável local não utilizada '{0}'.
 BCW0004=AVISO: O operando direito do operador 'is' é uma referência a um tipo, tem certeza de que não é o operador 'isa' que você deseja utilizar?
 BCW0005=WARNING: Unsubscribing from event '{0}' with an adapted method reference. Either change the signature of the method to '{1}' or use a cached reference of the correct type.
 BCW0006=WARNING: Assignment to temporary.
+BCW0007=WARNING: Assignment inside a conditional. Did you mean == instead of = here?: '{0}'
 
 ; BooC Command Line Errors
 BCE0500=Arquivo '{0}' listado mais de uma vez.
