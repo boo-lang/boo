@@ -145,10 +145,10 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0019", node.LexicalInfo, node.Name, namespace_);
 		}
-		
-		public static CompilerError MemberNeedsInstance(Node node, string memberName)
+
+		public static CompilerError InstanceRequired(Node node, string typeName, string memberName)
 		{
-			return new CompilerError("BCE0020", node.LexicalInfo, memberName);
+			return new CompilerError("BCE0020", node.LexicalInfo, typeName, memberName);
 		}
 		
 		public static CompilerError InvalidNamespace(Import import)
@@ -320,11 +320,15 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0057", node.LexicalInfo, name);
 		}
-		
+
+		/*
+		 * 
+		 * Deprecated
 		public static CompilerError ObjectRequired(Node node)
 		{
 			return new CompilerError("BCE0058", node.LexicalInfo);
 		}
+		*/
 		
 		public static CompilerError InvalidLockMacroArguments(Node node)
 		{

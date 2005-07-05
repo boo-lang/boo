@@ -184,6 +184,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context = null;
 		}
+
 		private readonly object VisitedAnnotationKey = new object();
 
 		protected void MarkVisited(Node node)

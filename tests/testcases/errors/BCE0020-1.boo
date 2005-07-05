@@ -1,7 +1,15 @@
 """
-BCE0020-1.boo(7,14): BCE0020: 'Person.Name' cannot be used without an instance. 
+BCE0020-1.boo(10,15): BCE0020: An instance of type 'Foo' is required to access non static member 'bar'.
+BCE0020-1.boo(15,5): BCE0020: An instance of type 'Foo' is required to access non static member 'baz'.
 """
-class Person:
-	public Name as string
+class Foo:
+
+	bar = 0
 	
-print(Person.Name)
+	static def go():
+		print bar
+		
+	def baz():
+		print bar
+		
+Foo.baz()

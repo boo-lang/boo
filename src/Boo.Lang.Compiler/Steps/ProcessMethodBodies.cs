@@ -1837,15 +1837,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (_currentMethod.IsStatic)
-				{
-					Error(node, CompilerErrorFactory.ObjectRequired(node));
-				}
-				else
-				{
-					node.Entity = _currentMethod;
-					node.ExpressionType = _currentMethod.DeclaringType;
-				}
+				node.Entity = _currentMethod;
+				node.ExpressionType = _currentMethod.DeclaringType;
 			}
 		}
 		
@@ -1955,7 +1948,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void ResolveMemberInfo(ReferenceExpression node, IMember member)
-		{
+		{	
 			MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
 			memberRef.Name = node.Name;
 			
@@ -4156,9 +4149,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Expression targetReference = ((MemberReferenceExpression)targetContext).Target;
 					IEntity entity = targetReference.Entity;
-					if (null != entity && EntityType.Type == entity.EntityType)
+					if ((null != entity && EntityType.Type == entity.EntityType)
+						|| (NodeType.SelfLiteralExpression == targetReference.NodeType
+							&& _currentMethod.IsStatic))
 					{
-						Error(CompilerErrorFactory.MemberNeedsInstance(targetContext, member.FullName));
+						Error(CompilerErrorFactory.InstanceRequired(targetContext, member.DeclaringType.FullName, member.Name));
 						return false;
 					}
 				}
