@@ -374,6 +374,7 @@
 	
 	<target name="uninstall">
 		<call target="uninstall-linux" if="${not(platform::is-win32())}"/>
+		<call target="uninstall-win32" if="${platform::is-win32()}"/>
 	</target>
 
 	<target name="uninstall-linux">
@@ -413,6 +414,16 @@
 		<delete file="${fakeroot.bindir}/booi" />
 		<delete file="${fakeroot.bindir}/booc" />
 		<delete file="${fakeroot.bindir}/booish" />
+	</target>
+	
+	<target name="uninstall-win32">
+		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
+			<arg value='/delete' />
+			<arg value='Boo.Lang' />
+			<arg value='Boo.Lang.Compiler' />			
+			<arg value='Boo.Lang.Parser' />
+			<arg file='build/booc.exe' />
+		</exec>
 	</target>
 	
 	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">
