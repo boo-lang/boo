@@ -67,6 +67,8 @@ namespace Boo.Lang.Compiler.Steps
 		InfoFilter IsPublicFieldPropertyEventFilter;
 		
 		protected MethodBodyState _methodBodyState;
+
+		protected CallableResolutionService _callableResolution;
 		
 		protected struct MethodBodyState
 		{
@@ -91,6 +93,8 @@ namespace Boo.Lang.Compiler.Steps
 			_methodStack = new Stack();
 			_methodBodyState = new MethodBodyState();
 			_memberStack = new Stack();
+			_callableResolution = new CallableResolutionService();
+			_callableResolution.Initialize(_context);
 						
 			InitializeMemberCache();
 			
@@ -120,6 +124,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.Dispose();
 			
+			_callableResolution.Dispose();
 			_currentMethod = null;
 			_methodStack = null;
 			_memberStack = null;
@@ -4094,7 +4099,7 @@ namespace Boo.Lang.Compiler.Steps
 				IType parameterType = parameters[i].Type;
 				if (parameterType.IsByRef)
 				{
-					if (!IsValidByRefArg(parameterType, expressionType, arg))
+					if (!_callableResolution.IsValidByRefArg(parameterType, expressionType, arg))
 					{
 						return false;
 					}
@@ -4199,42 +4204,31 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return null;
 		}
-		
-		class CallableScore : IComparable
+
+		IEntity ResolveCallableReference(Node sourceNode, NodeCollection args, IEntity[] candidates, bool treatErrors)
 		{
-			public IMethod Info;
-			public int Score;
-			
-			public CallableScore(IMethod tag, int score)
+			IEntity found = _callableResolution.ResolveCallableReference(args, candidates);
+			if (null == found && treatErrors)
 			{
-				Info = tag;
-				Score = score;
-			}
-			
-			public int CompareTo(object other)
-			{
-				return ((CallableScore)other).Score-Score;
-			}
-			
-			override public int GetHashCode()
-			{
-				return Info.GetHashCode();
-			}
-			
-			override public bool Equals(object other)
-			{
-				CallableScore score = other as CallableScore;
-				if (null == score)
+				if (_callableResolution.ValidCandidates.Count > 1)
 				{
-					return false;
+					Error(CompilerErrorFactory.AmbiguousReference(sourceNode, candidates[0].Name, _callableResolution.ValidCandidates));
 				}
-				return object.Equals(Info, score.Info);
+				else
+				{
+					IEntity candidate = candidates[0];
+					IConstructor constructor = candidate as IConstructor;
+					if (null != constructor)
+					{
+						Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, constructor.DeclaringType.FullName, GetSignature(args)));
+					}
+					else
+					{
+						Error(CompilerErrorFactory.NoApropriateOverloadFound(sourceNode, GetSignature(args), candidate.FullName));
+					}
+				}
 			}
-			
-			override public string ToString()
-			{
-				return Info.ToString();
-			}
+			return found;
 		}
 		
 		override protected void EnsureRelatedNodeWasVisited(Node sourceNode, IEntity entity)
@@ -4304,171 +4298,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				NameResolutionService.Restore(saved);
 			}
-		}
-		
-		CallableScore GetBiggerScore(List scores)
-		{
-			scores.Sort();
-			CallableScore first = (CallableScore)scores[0];
-			CallableScore second = (CallableScore)scores[1];
-			if (first.Score > second.Score)
-			{
-				return first;
-			}
-			return null;
-		}
-		
-		void ReScoreByHierarchyDepth(List scores)
-		{
-			foreach (CallableScore score in scores)
-			{
-				score.Score += score.Info.DeclaringType.GetTypeDepth();
-				
-				IParameter[] parameters = score.Info.GetParameters();
-				for (int i=0; i<parameters.Length; ++i)
-				{
-					score.Score += parameters[i].Type.GetTypeDepth();
-				}
-			}
-		}
-		
-		IType GetExpressionTypeOrEntityType(Node node)
-		{
-			Expression e = node as Expression;
-			if (null != e)
-			{
-				return GetExpressionType(e);
-			}
-			return GetType(node);
-		}
-		
-		bool IsValidByRefArg(IType parameterType, IType argType, Node arg)
-		{
-			return parameterType.IsByRef &&
-					(argType == parameterType.GetElementType()) &&
-					CanLoadAddress(arg);
-		}
-		
-		bool CanLoadAddress(Node node)
-		{
-			IEntity entity = node.Entity;
-			if (null != entity)
-			{
-				switch (entity.EntityType)
-				{
-					case EntityType.Local:
-					{
-						return !((InternalLocal)entity).IsPrivateScope;
-					}
-					
-					case EntityType.Parameter:
-					{
-						return true;
-					}
-					
-					case EntityType.Field:
-					{
-						return !TypeSystemServices.IsReadOnlyField((IField)entity);
-					}
-				}
-			}
-			return false;
-		}
-		
-		IEntity ResolveCallableReference(Node node, NodeCollection args, IEntity[] tags, bool treatErrors)
-		{
-			List scores = new List();
-			for (int i=0; i<tags.Length; ++i)
-			{
-				IEntity tag = tags[i];
-				IMethod mb = tag as IMethod;
-				if (null != mb)
-				{
-					IParameter[] parameters = mb.GetParameters();
-					if (args.Count == parameters.Length)
-					{
-						int score = 0;
-						for (int argIndex=0; argIndex<parameters.Length; ++argIndex)
-						{
-							Node arg = args.GetNodeAt(argIndex);
-							IType expressionType = GetExpressionTypeOrEntityType(arg);
-							IType parameterType = parameters[argIndex].Type;
-							
-							if (parameterType == expressionType)
-							{
-								// exact match scores 3
-								score += 3;
-							}
-							else if (IsAssignableFrom(parameterType, expressionType))
-							{
-								// upcast scores 2
-								score += 2;
-							}
-							else if (
-								TypeSystemServices.CanBeReachedByDownCastOrPromotion(parameterType, expressionType) ||
-								IsValidByRefArg(parameterType, expressionType, arg))
-							{
-								// downcast scores 1
-								score += 1;
-							}
-							else
-							{
-								score = -1;
-								break;
-							}
-						}
-						
-						if (score >= 0)
-						{
-							// only positive scores are compatible
-							scores.Add(new CallableScore(mb, score));
-						}
-					}
-				}
-			}
-			
-			if (1 == scores.Count)
-			{
-				return ((CallableScore)scores[0]).Info;
-			}
-			
-			if (scores.Count > 1)
-			{
-				CallableScore score = GetBiggerScore(scores);
-				if (null != score)
-				{
-					return score.Info;
-				}
-				
-				ReScoreByHierarchyDepth(scores);
-				score = GetBiggerScore(scores);
-				if (null != score)
-				{
-					return score.Info;
-				}
-				
-				if (treatErrors)
-				{
-					Error(CompilerErrorFactory.AmbiguousReference(node, tags[0].Name, scores));
-				}
-			}
-			else
-			{
-				if (treatErrors)
-				{
-					IEntity tag = tags[0];
-					IConstructor constructor = tag as IConstructor;
-					if (null != constructor)
-					{
-						Error(CompilerErrorFactory.NoApropriateConstructorFound(node, constructor.DeclaringType.FullName, GetSignature(args)));
-					}
-					else
-					{
-						Error(CompilerErrorFactory.NoApropriateOverloadFound(node, GetSignature(args), tag.FullName));
-					}
-				}
-			}
-			return null;
 		}
 		
 		protected string GetMethodNameForOperator(BinaryOperatorType op)
