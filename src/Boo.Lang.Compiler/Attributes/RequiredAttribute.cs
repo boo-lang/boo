@@ -60,13 +60,29 @@ namespace Boo.Lang
 
 		override public void Apply(Boo.Lang.Compiler.Ast.Node node)
 		{
-			ParameterDeclaration pd = node as ParameterDeclaration;
+			string name;
+			Node parent;
 			string errorMessage = null;
 			
-			if (null == pd)
+			ParameterDeclaration pd = node as ParameterDeclaration;
+			if (pd !=null)
 			{
-				InvalidNodeForAttribute("ParameterDeclaration");
-				return;
+				name = pd.Name;
+				parent = pd.ParentNode;
+			}
+			else
+			{
+				Property prop = node as Property;
+				if (prop != null  && prop.Setter != null)
+				{
+					name = "value";
+					parent = prop.Setter;
+				}
+				else
+				{
+					InvalidNodeForAttribute("ParameterDeclaration or Property");
+					return;
+				}
 			}
 
 			string exceptionClass = null;
@@ -77,7 +93,7 @@ namespace Boo.Lang
 				modifier = new StatementModifier(
 						StatementModifierType.If,
 						new BinaryExpression(BinaryOperatorType.ReferenceEquality,
-							new ReferenceExpression(pd.Name),
+							new ReferenceExpression(name),
 							new NullLiteralExpression()));
 			}
 			else
@@ -97,19 +113,19 @@ namespace Boo.Lang
 			{
 				x.Arguments.Add(new StringLiteralExpression(errorMessage));
 			}
-			x.Arguments.Add(new StringLiteralExpression(pd.Name));
+			x.Arguments.Add(new StringLiteralExpression(name));
 			
 			RaiseStatement rs = new RaiseStatement(x, modifier);
 			rs.LexicalInfo = LexicalInfo;
 
-			Method method = pd.ParentNode as Method;
+			Method method = parent as Method;
 			if (null != method)
 			{
 				method.Body.Statements.Insert(0, rs);
 			}
 			else
 			{
-				Property property = (Property)pd.ParentNode;
+				Property property = (Property)parent;
 				if (null != property.Getter)
 				{
 					property.Getter.Body.Statements.Insert(0, rs);

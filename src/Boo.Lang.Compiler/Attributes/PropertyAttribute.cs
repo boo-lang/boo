@@ -41,6 +41,8 @@ namespace Boo.Lang
 		protected Expression _setPreCondition;
 		
 		protected BoolLiteralExpression _observable;
+		
+		protected ListLiteralExpression _attributes;
 
 		public PropertyAttribute(ReferenceExpression propertyName) : this(propertyName, null)
 		{
@@ -89,6 +91,19 @@ namespace Boo.Lang
 			}
 		}
 		
+		public ListLiteralExpression Attributes
+		{
+			get
+			{
+				return _attributes;
+			}
+			
+			set
+			{
+				_attributes = value;
+			}
+		}
+		
 		override public void Apply(Node node)
 		{
 			Field f = node as Field;
@@ -109,11 +124,39 @@ namespace Boo.Lang
 			p.Setter = CreateSetter(f);
 			p.LexicalInfo = LexicalInfo;
 			
+			if (Attributes != null && Attributes.Items.Count > 0)
+			{
+				foreach (Expression item in Attributes.Items)
+				{
+					p.Attributes.Add(ConvertExpressionToAttribute(item));
+				}
+			}
+			
 			f.DeclaringType.Members.Add(p);
+			
 			if (IsObservable)
 			{
 				f.DeclaringType.Members.Add(CreateChangedEvent(f));
 			}
+		}
+		
+		static public Boo.Lang.Compiler.Ast.Attribute ConvertExpressionToAttribute(
+								Expression item)
+		{
+			Boo.Lang.Compiler.Ast.Attribute att =
+				new Boo.Lang.Compiler.Ast.Attribute(item.LexicalInfo);
+			if (item is MethodInvocationExpression)
+			{
+				MethodInvocationExpression m = (MethodInvocationExpression)item;
+				att.Name = m.Target.ToString();
+				att.Arguments = m.Arguments;
+				att.NamedArguments = m.NamedArguments;
+			}
+			else
+			{
+				att.Name = item.ToString();
+			}
+			return att;
 		}
 		
 		virtual protected Method CreateGetter(Field f)
