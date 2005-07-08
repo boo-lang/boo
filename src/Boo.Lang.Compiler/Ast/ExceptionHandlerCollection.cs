@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang.Compiler.Ast
 {
 	public class ExceptionHandlerCollection : Boo.Lang.Compiler.Ast.Impl.ExceptionHandlerCollectionImpl
@@ -37,6 +35,10 @@ namespace Boo.Lang.Compiler.Ast
 		}
 		
 		public ExceptionHandlerCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
+		{
+		}
+
+		internal ExceptionHandlerCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
 		{
 		}
 	}

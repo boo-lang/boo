@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang.Compiler.Ast
 {
 	public class ImportCollection : Boo.Lang.Compiler.Ast.Impl.ImportCollectionImpl
@@ -38,6 +36,10 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public ImportCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
+		}
+
+		internal ImportCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
+		{	
 		}
 	}
 }

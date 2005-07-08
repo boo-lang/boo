@@ -455,6 +455,10 @@ namespace Boo.Lang.Compiler.Ast.Impl
 		{
 		}
 		
+		protected ${node.Name}Impl(Node parent, Boo.Lang.List list) : base(parent, list)
+		{
+		}
+		
 		public ${itemType} this[int index]
 		{
 			get
@@ -502,6 +506,11 @@ namespace Boo.Lang.Compiler.Ast.Impl
 		public void ReplaceAt(int index, ${itemType} newItem)
 		{
 			base.ReplaceAt(index, newItem);
+		}
+		
+		public ${itemType}Collection PopRange(int begin)
+		{
+			return new ${itemType}Collection(_parent, InnerList.PopRange(begin));
 		}
 		
 		public new ${itemType}[] ToArray()

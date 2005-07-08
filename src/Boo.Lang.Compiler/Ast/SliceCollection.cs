@@ -40,5 +40,9 @@ namespace Boo.Lang.Compiler.Ast
 		public SliceCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
+
+		internal SliceCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
+		{	
+		}
 	}
 }

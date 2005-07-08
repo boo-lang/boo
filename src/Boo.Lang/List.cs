@@ -439,6 +439,18 @@ namespace Boo.Lang
 			InnerRemoveAt(actualIndex);
 			return item;
 		}
+
+		public List PopRange(int begin)
+		{
+			int actualIndex = AdjustIndex(NormalizeIndex(begin));
+			List range = InnerGetRange(actualIndex, AdjustIndex(NormalizeIndex(_count)));
+			for (int i=actualIndex; i<_count; ++i)
+			{
+				_items[i] = null;
+			}
+			_count = actualIndex;
+			return range;
+		}
 		
 		public List Remove(object item)
 		{

@@ -39,6 +39,10 @@ namespace Boo.Lang.Compiler.Ast
 		public DeclarationCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
+
+		internal DeclarationCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
+		{	
+		}
 		
 		public Declaration this[string name]
 		{

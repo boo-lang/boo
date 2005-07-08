@@ -40,5 +40,9 @@ namespace Boo.Lang.Compiler.Ast
 		public GeneratorExpressionCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
+
+		internal GeneratorExpressionCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
+		{	
+		}
 	}
 }

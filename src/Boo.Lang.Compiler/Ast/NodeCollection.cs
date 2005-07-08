@@ -39,15 +39,24 @@ namespace Boo.Lang.Compiler.Ast
 	{
 		protected Node _parent;
 		
-		protected List _list = new List();
+		protected List _list;
 
-		protected NodeCollection(Node parent)
-		{			
-			_parent = parent;
+		protected NodeCollection() : this(null)
+		{
 		}
 
-		protected NodeCollection()
+		protected NodeCollection(Node parent) : this(parent, new List())
+		{			
+		}
+
+		protected NodeCollection(Node parent, List list)
 		{
+			if (null == list)
+			{
+				throw new ArgumentNullException("list");
+			}
+			_parent = parent;
+			_list = list;
 		}
 
 		public int Count

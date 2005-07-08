@@ -40,6 +40,10 @@ namespace Boo.Lang.Compiler.Ast
 		public AttributeCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
+
+		internal AttributeCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
+		{
+		}
 		
 		public bool Contains(string attributeName)
 		{
