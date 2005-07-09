@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 			IsPublicFieldPropertyEventFilter = new InfoFilter(IsPublicFieldPropertyEvent);
 			IsPublicEventFilter = new InfoFilter(IsPublicEvent);
 		}
-		
+
 		override public void Run()
 		{
 			NameResolutionService.Reset();
@@ -93,8 +93,10 @@ namespace Boo.Lang.Compiler.Steps
 			_methodStack = new Stack();
 			_methodBodyState = new MethodBodyState();
 			_memberStack = new Stack();
+
 			_callableResolution = new CallableResolutionService();
 			_callableResolution.Initialize(_context);
+
 						
 			InitializeMemberCache();
 			
@@ -124,7 +126,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.Dispose();
 			
-			_callableResolution.Dispose();
+			if (null != _callableResolution) 
+			{
+				_callableResolution.Dispose();
+				_callableResolution = null;
+			}
+
 			_currentMethod = null;
 			_methodStack = null;
 			_memberStack = null;
@@ -3306,8 +3313,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Visit(node.Target);
 			
-			IEntity targetInfo = node.Target.Entity;
-			if (BuiltinFunction.Switch == targetInfo)
+			IEntity targetEntity = node.Target.Entity;
+			if (BuiltinFunction.Switch == targetEntity)
 			{
 				ProcessSwitchInvocation(node);
 				return;
@@ -3322,38 +3329,38 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			if (null == targetInfo)
+			if (null == targetEntity)
 			{
 				ProcessGenericMethodInvocation(node);
 				return;
 			}
 			
-			if (EntityType.Ambiguous == targetInfo.EntityType)
+			if (EntityType.Ambiguous == targetEntity.EntityType)
 			{
-				targetInfo = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetInfo);
-				if (null == targetInfo)
+				targetEntity = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetEntity);
+				if (null == targetEntity)
 				{
 					Error(node);
 					return;
 				}
 			}
 			
-			switch (targetInfo.EntityType)
+			switch (targetEntity.EntityType)
 			{
 				case EntityType.BuiltinFunction:
 				{
-					ProcessBuiltinInvocation((BuiltinFunction)targetInfo, node);
+					ProcessBuiltinInvocation((BuiltinFunction)targetEntity, node);
 					break;
 				}
 				case EntityType.Event:
 				{
-					ProcessEventInvocation((IEvent)targetInfo, node);
+					ProcessEventInvocation((IEvent)targetEntity, node);
 					break;
 				}
 				
 				case EntityType.Method:
 				{
-					IMethod targetMethod = (IMethod)targetInfo;
+					IMethod targetMethod = (IMethod)targetEntity;
 					if (CheckParameters(node, targetMethod, node.Arguments))
 					{
 						if (node.NamedArguments.Count > 0)
@@ -3374,7 +3381,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case EntityType.Constructor:
 				{
-					InternalConstructor constructorInfo = targetInfo as InternalConstructor;
+					InternalConstructor constructorInfo = targetEntity as InternalConstructor;
 					if (null != constructorInfo)
 					{
 						IType targetType = null;
@@ -4089,24 +4096,23 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool CheckParameterTypes(ICallableType method, ExpressionCollection args)
+		bool CheckParameterTypes(ICallableType method, ExpressionCollection args, int count)
 		{
 			IParameter[] parameters = method.GetSignature().Parameters;
-			for (int i=0; i<args.Count; ++i)
+			for (int i=0; i<count; ++i)
 			{
-				Expression arg = args[i];
-				IType expressionType = GetExpressionType(arg);
 				IType parameterType = parameters[i].Type;
+				IType argumentType = GetExpressionType(args[i]);
 				if (parameterType.IsByRef)
 				{
-					if (!_callableResolution.IsValidByRefArg(parameterType, expressionType, arg))
+					if (!_callableResolution.IsValidByRefArg(parameterType, argumentType, args[i]))
 					{
 						return false;
 					}
 				}
 				else
 				{
-					if (!TypeSystemServices.AreTypesRelated(parameterType, expressionType))
+					if (!TypeSystemServices.AreTypesRelated(parameterType, argumentType))
 					{
 						return false;
 					}
@@ -4122,15 +4128,41 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckParameters(Node sourceNode, IEntity sourceEntity, ICallableType method, ExpressionCollection args)
 		{
+			CallableSignature signature = method.GetSignature();
+			return signature.AcceptVarArgs
+				? CheckVarArgsParameters(sourceNode, sourceEntity, method, args)
+				: CheckExactArgsParameters(sourceNode, sourceEntity, method, args);
+
+		}
+
+		bool CheckVarArgsParameters(Node sourceNode, IEntity sourceEntity, ICallableType method, ExpressionCollection args)
+		{
+			IParameter[] parameters = method.GetSignature().Parameters;
+			if (args.Count < parameters.Length)
+			{
+				Error(CompilerErrorFactory.MethodArgumentCount(sourceNode, sourceEntity.Name, args.Count));
+				return false;
+			}
+			if (_callableResolution.CalculateVarArgsScore(parameters, args) < 0)
+			{
+				Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
+				return false;
+			}
+			return true;
+		}
+
+		bool CheckExactArgsParameters(Node sourceNode, IEntity sourceEntity, ICallableType method, ExpressionCollection args)
+		{
 			if (method.GetSignature().Parameters.Length != args.Count)
 			{
 				Error(CompilerErrorFactory.MethodArgumentCount(sourceNode, sourceEntity.Name, args.Count));
 				return false;
 			}
 			
-			if (!CheckParameterTypes(method, args))
+			if (!CheckParameterTypes(method, args, args.Count))
 			{
 				Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
+				return false;
 			}
 			return true;
 		}

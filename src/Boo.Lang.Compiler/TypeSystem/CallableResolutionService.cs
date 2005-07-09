@@ -52,11 +52,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			override public bool Equals(object other)
 			{
 				CallableScore score = other as CallableScore;
-				if (null == score)
-				{
-					return false;
-				}
-				return object.Equals(Entity, score.Entity);
+				return null == score
+					? false
+					: Entity == score.Entity;
 			}
 			
 			override public string ToString()
@@ -65,18 +63,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		CallableScore GetBiggerScore(List scores)
+		CallableScore GetBiggerScore()
 		{
-			scores.Sort();
-			CallableScore first = (CallableScore)scores[0];
-			CallableScore second = (CallableScore)scores[1];
+			_scores.Sort();
+			CallableScore first = (CallableScore)_scores[0];
+			CallableScore second = (CallableScore)_scores[1];
 			return first.Score > second.Score
-				? first : null;
+				? first
+				: null;
 		}
 		
-		void ReScoreByHierarchyDepth(List scores)
+		void ReScoreByHierarchyDepth()
 		{
-			foreach (CallableScore score in scores)
+			foreach (CallableScore score in _scores)
 			{
 				score.Score += score.Entity.DeclaringType.GetTypeDepth();
 				
@@ -106,24 +105,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool CanLoadAddress(Node node)
 		{
 			IEntity entity = node.Entity;
-			if (null != entity)
+			if (null == entity) return false;
+
+			switch (entity.EntityType)
 			{
-				switch (entity.EntityType)
+				case EntityType.Local:
 				{
-					case EntityType.Local:
-					{
-						return !((InternalLocal)entity).IsPrivateScope;
-					}
-					
-					case EntityType.Parameter:
-					{
-						return true;
-					}
-					
-					case EntityType.Field:
-					{
-						return !TypeSystemServices.IsReadOnlyField((IField)entity);
-					}
+					return !((InternalLocal)entity).IsPrivateScope;
+				}
+				
+				case EntityType.Parameter:
+				{
+					return true;
+				}
+				
+				case EntityType.Field:
+				{
+					return !TypeSystemServices.IsReadOnlyField((IField)entity);
 				}
 			}
 			return false;
@@ -133,54 +131,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{	
 			_scores.Clear();
 
-			for (int i=0; i<candidates.Length; ++i)
-			{
-				IEntity tag = candidates[i];
-				IMethod mb = tag as IMethod;
-				if (null == mb) continue;
+			CalculateScores(candidates, args);
 
-				IParameter[] parameters = mb.GetParameters();
-				if (args.Count == parameters.Length)
-				{
-					int score = 0;
-					for (int argIndex=0; argIndex<parameters.Length; ++argIndex)
-					{
-						Node arg = args.GetNodeAt(argIndex);
-						IType expressionType = GetExpressionTypeOrEntityType(arg);
-						IType parameterType = parameters[argIndex].Type;
-						
-						if (parameterType == expressionType)
-						{
-							// exact match scores 3
-							score += 3;
-						}
-						else if (parameterType.IsAssignableFrom(expressionType))
-						{
-							// upcast scores 2
-							score += 2;
-						}
-						else if (
-							TypeSystemServices.CanBeReachedByDownCastOrPromotion(parameterType, expressionType) ||
-							IsValidByRefArg(parameterType, expressionType, arg))
-						{
-							// downcast scores 1
-							score += 1;
-						}
-						else
-						{
-							score = -1;
-							break;
-						}
-					}
-					
-					if (score >= 0)
-					{
-						// only positive scores are compatible
-						_scores.Add(new CallableScore(mb, score));
-					}
-				}
-			}
-			
 			if (1 == _scores.Count)
 			{
 				return ((CallableScore)_scores[0]).Entity;
@@ -188,20 +140,107 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			if (_scores.Count > 1)
 			{
-				CallableScore score = GetBiggerScore(_scores);
+				CallableScore score = GetBiggerScore();
 				if (null != score)
 				{
 					return score.Entity;
 				}
 				
-				ReScoreByHierarchyDepth(_scores);
-				score = GetBiggerScore(_scores);
+				ReScoreByHierarchyDepth();
+				score = GetBiggerScore();
 				if (null != score)
 				{
 					return score.Entity;
 				}
 			}
 			return null;
+		}
+
+		private void CalculateScores(IEntity[] candidates, NodeCollection args)
+		{
+			for (int i=0; i<candidates.Length; ++i)
+			{
+				IMethod candidate = candidates[i] as IMethod;
+				if (null == candidate) continue;
+
+				IParameter[] parameters = candidate.GetParameters();
+
+				int score = candidate.AcceptVarArgs
+					? CalculateVarArgsScore(parameters, args)
+					: CalculateExactArgsScore(parameters, args);
+				
+				if (score >= 0)
+				{
+					// only positive scores are compatible
+					_scores.Add(new CallableScore(candidate, score));
+				}
+			}
+		}
+
+		public int CalculateVarArgsScore(IParameter[] parameters, NodeCollection args)
+		{
+			int lenMinusOne = parameters.Length-1;
+			IType lastParameterType = parameters[lenMinusOne].Type;
+			if (!lastParameterType.IsArray) return -1;
+
+			int score = CalculateScore(parameters, args, lenMinusOne);
+			if (score < 0) return -1;
+
+			IType varArgType = lastParameterType.GetElementType();
+			for (int i=lenMinusOne; i<args.Count; ++i)
+			{
+				int argumentScore = CalculateArgumentScore(varArgType, args.GetNodeAt(i));
+				if (argumentScore < 0) return -1;
+				score += (argumentScore - 3);
+			}
+			return score;
+		}
+
+		private int CalculateExactArgsScore(IParameter[] parameters, NodeCollection args)
+		{
+			int parameterCount = parameters.Length;
+			return args.Count == parameterCount
+				? CalculateScore(parameters, args, parameterCount)
+				: -1;
+		}
+
+		private int CalculateScore(IParameter[] parameters, NodeCollection args, int count)
+		{
+			int score = 0;
+			for (int i=0; i<count; ++i)
+			{	
+				IType parameterType = parameters[i].Type;
+				int argumentScore = CalculateArgumentScore(parameterType, args.GetNodeAt(i));
+				if (argumentScore < 0) return -1;
+				score += argumentScore;
+			}
+			return score;
+		}
+
+		private int CalculateArgumentScore(IType parameterType, Node arg)
+		{
+			IType argumentType = GetExpressionTypeOrEntityType(arg);
+			if (parameterType == argumentType)
+			{
+				// exact match
+				return 6;
+			}
+			else if (parameterType.IsAssignableFrom(argumentType))
+			{
+				// upcast
+				return 5;
+			}
+			else if (TypeSystemServices.CanBeReachedByDownCastOrPromotion(parameterType, argumentType))
+			{
+				// downcast
+				return 4;
+			}
+			else if (IsValidByRefArg(parameterType, argumentType, arg))
+			{
+				// boo does not like byref
+				return 3;
+			}
+			return -1;
 		}
 	}
 }

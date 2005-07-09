@@ -140,8 +140,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public string Name
 		{
 			get
-			{
+			{	
 				return _method.Name;
+			}
+		}
+
+		public bool AcceptVarArgs
+		{
+			get
+			{
+				return _method.Parameters.VariableNumber;
 			}
 		}
 		

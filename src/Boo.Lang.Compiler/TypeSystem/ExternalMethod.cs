@@ -27,8 +27,7 @@
 #endregion
 
 namespace Boo.Lang.Compiler.TypeSystem
-{
-	using System;
+{	
 	using System.Reflection;
 	
 	public class ExternalMethod : IMethod
@@ -116,6 +115,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return _mi.DeclaringType.FullName + "." + _mi.Name;
+			}
+		}
+
+		public bool AcceptVarArgs
+		{
+			get
+			{
+				return false;
 			}
 		}
 		

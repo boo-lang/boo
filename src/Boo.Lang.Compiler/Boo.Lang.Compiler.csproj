@@ -1498,6 +1498,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\ExpandVarArgsMethodInvocations.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\ForeignReferenceCollector.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

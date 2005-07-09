@@ -443,8 +443,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ArrayLiteralExpression CreateObjectArray(ExpressionCollection items)
 		{
+			return CreateArray(_tss.ObjectArrayType, items);
+		}
+
+		public ArrayLiteralExpression CreateArray(IType arrayType, ExpressionCollection items)
+		{
 			ArrayLiteralExpression array = new ArrayLiteralExpression();
-			array.ExpressionType = _tss.ObjectArrayType;
+			array.ExpressionType = arrayType;
 			array.Items.Extend(items);
 			_tss.MapToConcreteExpressionTypes(array.Items);
 			return array;

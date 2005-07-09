@@ -34,10 +34,13 @@ namespace Boo.Lang.Compiler.Pipelines
 	{
 		public Compile()
 		{	
+			Add(new StricterErrorChecking());
+
 			Add(new ProcessAssignmentsToValueTypeMembers());
 			Add(new ExpandProperties());
-			Add(new StricterErrorChecking());
 			Add(new RemoveDeadCode());
+			Add(new ExpandVarArgsMethodInvocations());
+
 			Add(new NormalizeIterationStatements());
 			
 			Add(new ProcessSharedLocals());			
