@@ -4138,7 +4138,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool CheckVarArgsParameters(Node sourceNode, IEntity sourceEntity, ICallableType method, ExpressionCollection args)
 		{
 			IParameter[] parameters = method.GetSignature().Parameters;
-			if (args.Count < parameters.Length)
+			if (args.Count < parameters.Length-1)
 			{
 				Error(CompilerErrorFactory.MethodArgumentCount(sourceNode, sourceEntity.Name, args.Count));
 				return false;
