@@ -15,7 +15,7 @@ t3 of type System.Int32[,,]
 0
 """
 
-t1 = matrix(int, (4,4,4))
+t1 = matrix(int, 4, 4, 4)
 
 t1[0,0,0]=1
 t1[0,1,0]=2

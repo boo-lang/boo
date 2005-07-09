@@ -39,6 +39,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IParameter[] _parameters;
 		
 		ICallableType _type;
+
+		int _acceptVarArgs = -1;
 		
 		internal ExternalMethod(TypeSystemServices manager, MethodBase mi)
 		{
@@ -122,7 +124,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return false;
+				if (_acceptVarArgs == -1)
+				{
+					ParameterInfo[] parameters = _mi.GetParameters();
+					if (parameters.Length > 0
+						&& System.Attribute.IsDefined(parameters[parameters.Length-1], typeof(System.ParamArrayAttribute)))
+					{
+						_acceptVarArgs = 1;
+					}
+					else
+					{
+						_acceptVarArgs = 0;
+					}
+				}
+				return _acceptVarArgs == 1;
 			}
 		}
 		

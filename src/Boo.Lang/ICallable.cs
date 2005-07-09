@@ -30,6 +30,6 @@ namespace Boo.Lang
 {
 	public interface ICallable
 	{
-		object Call(params object[] args);
+		object Call(object[] args);
 	}
 }

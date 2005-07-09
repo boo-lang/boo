@@ -327,20 +327,19 @@ namespace Boo.Lang
 			return new List(iterator(enumerable)).Reversed;
 		}
 		
-		public static ZipEnumerator zip(object first, object second)
+		public static ZipEnumerator zip(params object[] enumerables)
 		{
-			return new ZipEnumerator(GetEnumerator(first),
-									GetEnumerator(second));
+			IEnumerator[] enumerators = new IEnumerator[enumerables.Length];
+			for (int i=0; i<enumerables.Length; ++i)
+			{
+				enumerators[i] = GetEnumerator(enumerables[i]);
+			}
+			return new ZipEnumerator(enumerators);
 		}
 		
 		public static ConcatEnumerator cat(params object[] args)
 		{
 			return new ConcatEnumerator(args);
-		}
-		
-		public static ConcatEnumerator cat(object first, object second)
-		{
-			return new ConcatEnumerator(first, second);
 		}
 		
 		private class MapEnumerable : IEnumerable

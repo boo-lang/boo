@@ -328,7 +328,7 @@ namespace BooCompiler.Tests
 	
 	public class DerivedClass : BaseClass
 	{
-		protected DerivedClass()
+		public DerivedClass()
 		{
 		}
 		
@@ -346,6 +346,19 @@ namespace BooCompiler.Tests
 			Console.WriteLine("ClassWithNewMethod.Method2");
 		}
 	}	
+	
+	public class VarArgs
+	{
+		public void Method()
+		{
+			Console.WriteLine("VarArgs.Method");
+		}
+		
+		public void Method(params object[] args)
+		{
+			Console.WriteLine("VarArgs.Method({0})", Boo.Lang.Builtins.join(args, ", "));
+		}
+	}
 	
 	public class Disposable : System.IDisposable
 	{

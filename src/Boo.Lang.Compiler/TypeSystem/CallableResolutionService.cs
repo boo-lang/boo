@@ -180,6 +180,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public int CalculateVarArgsScore(IParameter[] parameters, NodeCollection args)
 		{
 			int lenMinusOne = parameters.Length-1;
+			if (args.Count < lenMinusOne) return -1;
+
 			IType lastParameterType = parameters[lenMinusOne].Type;
 			if (!lastParameterType.IsArray) return -1;
 
@@ -191,9 +193,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				int argumentScore = CalculateArgumentScore(varArgType, args.GetNodeAt(i));
 				if (argumentScore < 0) return -1;
-				score += (argumentScore - 3);
+				score += argumentScore;
 			}
-			return score;
+			// varargs should not be preferred over non varargs methods
+			return score - ((args.Count + 1)*3);
 		}
 
 		private int CalculateExactArgsScore(IParameter[] parameters, NodeCollection args)
@@ -205,8 +208,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		private int CalculateScore(IParameter[] parameters, NodeCollection args, int count)
-		{
-			int score = 0;
+		{	
+			int score = 3;
 			for (int i=0; i<count; ++i)
 			{	
 				IType parameterType = parameters[i].Type;

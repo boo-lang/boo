@@ -9,7 +9,7 @@ module = Module()
 module.Globals.Add(
 	MethodInvocationExpression(
 		ReferenceExpression("print"),
-		(StringLiteralExpression("it lives!"),)))
+		StringLiteralExpression("it lives!")))
 
 cu = CompileUnit()
 cu.Modules.Add(module)

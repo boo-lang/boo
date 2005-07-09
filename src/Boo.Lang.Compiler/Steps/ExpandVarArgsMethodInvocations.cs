@@ -22,6 +22,13 @@ namespace Boo.Lang.Compiler.Steps
 			int lenMinusOne = parameters.Length-1;
 			IType varArgType = parameters[lenMinusOne].Type;
 
+			/*
+			if (node.Arguments.Count == parameters.Length
+				&& varArgType == node.Arguments[-1].ExpressionType)
+			{
+				return;
+			}*/
+
 			ExpressionCollection varArgs = node.Arguments.PopRange(lenMinusOne);
 			node.Arguments.Add(CodeBuilder.CreateArray(varArgType, varArgs));
 		}

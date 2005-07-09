@@ -1591,22 +1591,17 @@ namespace Boo.Lang.Compiler.Steps
 				// leave it to LeaveBinaryExpression to resolve
 				return;
 			}
-
-			IArrayType arrayType = (IArrayType)GetExpressionType(node.Target);
-			ArrayLiteralExpression ale = new ArrayLiteralExpression();
-			for (int i = 0; i < node.Indices.Count; i++)
-			{
-				ale.Items.Add(node.Indices[i].Begin);
-			}
 			
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 												node.Target,
 												TypeSystemServices.Map(
-													typeof(Array).GetMethod("GetValue", new Type[] { typeof(int[]) })),
-												ale);
+													typeof(Array).GetMethod("GetValue", new Type[] { typeof(int[]) })));
+			for (int i = 0; i < node.Indices.Count; i++)
+			{
+				mie.Arguments.Add(node.Indices[i].Begin);
+			}
 			
-			IType elementType = arrayType.GetElementType();
-			BindExpressionType(ale, TypeSystemServices.Map(typeof(int[])));
+			IType elementType = node.Target.ExpressionType.GetElementType();
 			node.ParentNode.Replace(node, CodeBuilder.CreateCast(elementType, mie));
 		}
 
@@ -3258,7 +3253,7 @@ namespace Boo.Lang.Compiler.Steps
 				IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
 				if (null != type)
 				{
-					inferredType = TypeSystemServices.GetArrayType(type, ((ArrayLiteralExpression)expression.Arguments[1]).Items.Count);
+					inferredType = TypeSystemServices.GetArrayType(type, expression.Arguments.Count-1);
 				}
 			}
 			else if (Array_EnumerableConstructor == method)
@@ -3687,20 +3682,15 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSimpleSliceArray(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
-			ArrayLiteralExpression ale = new ArrayLiteralExpression();
-			for (int i = 0; i < slice.Indices.Count; i++)
-			{
-				ale.Items.Add(slice.Indices[i].Begin);
-			}
-								
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 								slice.Target,
 								TypeSystemServices.Map(typeof(Array).GetMethod("SetValue", new Type[] { typeof(object), typeof(int[]) })),
-								node.Right,
-								ale);
-								
+								node.Right);
+			for (int i = 0; i < slice.Indices.Count; i++)
+			{
+				mie.Arguments.Add(slice.Indices[i].Begin);
+			}					
 			BindExpressionType(mie, TypeSystemServices.VoidType);
-			BindExpressionType(ale, TypeSystemServices.Map(typeof(int[])));
 			node.ParentNode.Replace(node, mie);
 		}
 

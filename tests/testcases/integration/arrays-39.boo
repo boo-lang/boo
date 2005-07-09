@@ -11,7 +11,7 @@ import System.Reflection
 [DefaultMember("Item")]
 [EnumeratorItemType(int)]
 class Table:
-	_table = matrix(int, (2,2))
+	_table = matrix(int, 2, 2)
 
 	Item(x as int, y as int):
 		get:
