@@ -362,26 +362,28 @@ types."""
 		node.Target.Accept(self)
 		if _expression != null:
 			if _expression isa CodeTypeReferenceExpression:
-				_expression = CodeObjectCreateExpression(cast(CodeTypeReferenceExpression, _expression).Type, ConvertExpressions(node.Arguments))
+				coce = CodeObjectCreateExpression(cast(CodeTypeReferenceExpression, _expression).Type)
+				ConvertExpressions(coce.Parameters, node.Arguments)
+				_expression = coce
 			elif _expression isa CodeMethodReferenceExpression:
-				_expression = CodeMethodInvokeExpression(_expression, ConvertExpressions(node.Arguments))
+				cmie = CodeMethodInvokeExpression(_expression)
+				ConvertExpressions(cmie.Parameters, node.Arguments)
+				_expression = cmie
 			elif _expression isa CodeFieldReferenceExpression:
 				// when a type is unknown, a MemberReferenceExpression is translated into a CodeFieldReferenceExpression
 				cfre as CodeFieldReferenceExpression = _expression
-				_expression = CodeMethodInvokeExpression(cfre.TargetObject, cfre.FieldName, ConvertExpressions(node.Arguments))
+				cmie = CodeMethodInvokeExpression(cfre.TargetObject, cfre.FieldName)
+				ConvertExpressions(cmie.Parameters, node.Arguments)
+				_expression = cmie
 			else:
 				_expression = null
 	
-	def ConvertExpressions(expressions as ExpressionCollection):
+	def ConvertExpressions(args as CodeExpressionCollection, expressions as ExpressionCollection):
 	"""Converts a list of expressions to CodeDom expressions."""
-		args = array(CodeExpression, expressions.Count)
-		i = 0
-		while i < args.Length:
+		for e in expressions:
 			_expression = null
-			expressions[i].Accept(self)
-			args[i] = _expression
-			i += 1
-		return args
+			e.Accept(self)
+			args.Add(_expression)
 	
 	def OnOmittedExpression(node as OmittedExpression):
 		pass

@@ -161,7 +161,7 @@ class DocumentOutline(DockContent):
 		
 	def _tree_DoubleClick(sender, args as EventArgs):
 
-		if (treeNode = _tree.SelectedNode):
+		if (treeNode = _tree.SelectedNode) is not null:
 			GoToNode(treeNode)
 			
 	override protected def GetPersistString():
