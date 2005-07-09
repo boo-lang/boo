@@ -67,6 +67,7 @@ namespace BooC
 				
 				BooCompiler compiler = new BooCompiler();
 				_options = compiler.Parameters;
+				_options.GenerateInMemory = false;
 				
 				ParseOptions(args, _options);
 				if (0 == _options.Input.Count)
