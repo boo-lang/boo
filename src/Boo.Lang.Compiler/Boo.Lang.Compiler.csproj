@@ -1363,6 +1363,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Pipelines\CheckForErrors.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Pipelines\Compile.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

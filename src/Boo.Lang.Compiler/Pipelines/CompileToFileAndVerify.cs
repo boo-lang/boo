@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.Pipelines
 {
-	using System;
 	using Boo.Lang.Compiler.Steps;
 	
 	/// <summary>

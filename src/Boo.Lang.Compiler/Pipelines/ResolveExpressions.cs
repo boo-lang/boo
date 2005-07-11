@@ -58,4 +58,3 @@ namespace Boo.Lang.Compiler.Pipelines
 		}
 	}
 }
-			

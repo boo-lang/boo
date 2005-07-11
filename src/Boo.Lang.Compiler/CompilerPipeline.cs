@@ -29,8 +29,6 @@
 namespace Boo.Lang.Compiler
 {
 	using System;
-	using System.IO;
-	using System.Collections;
 	
 	public class CompilerStepEventArgs : EventArgs
 	{
@@ -69,6 +67,7 @@ namespace Boo.Lang.Compiler
 				case "boo": return new Pipelines.CompileToBoo();
 				case "ast": return new Pipelines.ParseAndPrintAst();
 				case "xml": return new Pipelines.ParseAndPrintXml();
+				case "checkforerrors": return new Pipelines.CheckForErrors();
 				case "dumpreferences":
 				{
 					CompilerPipeline pipeline = new Pipelines.CompileToBoo();
