@@ -4214,7 +4214,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		IConstructor FindCorrectConstructor(Node sourceNode, IType typeInfo, ExpressionCollection arguments)
-		{
+		{	
 			IConstructor[] constructors = typeInfo.GetConstructors();
 			if (constructors.Length > 0)
 			{	
@@ -4222,7 +4222,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeInfo.FullName, GetSignature(arguments)));
+				if (!TypeSystemServices.IsError(typeInfo))
+				{
+					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeInfo.FullName, GetSignature(arguments)));
+				}
 			}
 			return null;
 		}

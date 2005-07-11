@@ -90,7 +90,7 @@ namespace Boo.Lang.Compiler.Steps
 					else
 					{
 						baseClass = baseInfo;
-						if (baseClass.IsFinal)
+						if (baseClass.IsFinal && !TypeSystemServices.IsError(baseClass))
 						{
 							Error(
 								CompilerErrorFactory.CannotExtendFinalType(
