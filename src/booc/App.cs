@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Text;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
@@ -54,7 +55,22 @@ namespace BooC
 		[STAThread]
 		static int Main(string[] args)
 		{
-			return new App().Run(args);
+			if (((IList)args).Contains("-utf8"))
+			{
+				using (StreamWriter writer = new StreamWriter(Console.OpenStandardOutput(), Encoding.UTF8))
+				{
+					Console.SetOut(writer);
+
+					// leave the byte order mark in its own line
+					Console.WriteLine(); 
+
+					return new App().Run(args);
+				}
+			}
+			else
+			{
+				return new App().Run(args);
+			}
 		}
 		
 		public int Run(string[] args)
@@ -144,9 +160,10 @@ namespace BooC
 					_options.Input.Add(new StringInput("<stdin>", Consume(Console.In)));
 				}
 				else
-				{
+				{	
 					if (IsFlag(arg))
 					{
+						if ("-utf8" == arg) continue;
 						switch (arg[1])
 						{
 							case 'v':
