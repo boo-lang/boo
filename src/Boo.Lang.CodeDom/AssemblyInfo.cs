@@ -41,7 +41,7 @@ using System.Security.Permissions;
 [assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.6.1734")]
+[assembly: AssemblyVersion("0.5.6.1736")]
 [assembly: AssemblyDelaySign(false)]
 
 #if !IGNOREKEYFILE

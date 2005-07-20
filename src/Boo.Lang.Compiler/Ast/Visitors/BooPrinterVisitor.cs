@@ -149,6 +149,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Dedent();
 		}
 		
+		override public void OnAttribute(Attribute att)
+		{
+			WriteAttribute(att);
+		}
+		
 		override public void OnClassDefinition(ClassDefinition c)
 		{
 			WriteTypeDefinition("class", c);
@@ -1232,28 +1237,33 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(")");
 		}
 		
+		void WriteAttribute(Attribute attribute)
+		{
+			WriteIndented("[");
+			Write(attribute.Name);
+			if (attribute.Arguments.Count > 0 ||
+			    attribute.NamedArguments.Count > 0)
+			{
+				Write("(");
+				WriteCommaSeparatedList(attribute.Arguments);
+				if (attribute.NamedArguments.Count > 0)
+				{
+					if (attribute.Arguments.Count > 0)
+					{
+						Write(", ");
+					}
+					WriteCommaSeparatedList(attribute.NamedArguments);
+				}
+				Write(")");
+			}
+			Write("]");
+		}
+		
 		void WriteAttributes(AttributeCollection attributes, bool addNewLines)
 		{
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in attributes)
 			{
-				WriteIndented("[");
-				Write(attribute.Name);
-				if (attribute.Arguments.Count > 0 ||
-				    attribute.NamedArguments.Count > 0)
-				{
-					Write("(");
-					WriteCommaSeparatedList(attribute.Arguments);
-					if (attribute.NamedArguments.Count > 0)
-					{
-						if (attribute.Arguments.Count > 0)
-						{
-							Write(", ");
-						}
-						WriteCommaSeparatedList(attribute.NamedArguments);
-					}
-					Write(")");
-				}
-				Write("]");
+				Visit(attribute);
 				if (addNewLines)
 				{
 					WriteLine();
