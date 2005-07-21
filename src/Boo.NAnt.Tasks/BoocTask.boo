@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -53,6 +53,15 @@ class BoocTask(AbstractBooTask):
 	_rebuild = false
 	
 	_generateInMemory = false
+	
+	_debug = false
+	
+	[TaskAttribute("debug")]
+	Debug:
+		get:
+			return _debug
+		set:
+			_debug = value
 	
 	[BuildElement("rebuild")]
 	Rebuild:
@@ -123,6 +132,7 @@ class BoocTask(AbstractBooTask):
 		parameters.OutputAssembly = _output.ToString()
 		parameters.OutputType = GetOutputType()
 		parameters.GenerateInMemory = _generateInMemory
+		parameters.Debug = _debug
 		
 		for fname as string in files:
 			print("source: ${fname}")
