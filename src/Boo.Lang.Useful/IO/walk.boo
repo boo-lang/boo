@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,21 +26,31 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System.Reflection
-import System.Runtime.CompilerServices
-import System.Security.Permissions
+namespace Boo.Lang.Useful.IO
 
-[assembly: AssemblyTitle("Boo Explorer")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.6.1739")]
+import System.IO
+import System.Collections
 
-[assembly: ReflectionPermission(SecurityAction.RequestMinimum,
-								ReflectionEmit: true,
-								TypeInformation: true)]
+callable FileAction(fname as string)
 
+def eachFile([required] top as string, [required] action as FileAction):
+	for fname in Directory.GetFiles(top):
+		action(fname)
+	for subDir in Directory.GetDirectories(top):
+		eachFile(subDir, action)
+		
+[EnumeratorItemType(string)]
+def listFiles([required] top as string) as IEnumerable:
+	for fname in Directory.GetFiles(top):
+		yield fname
+	for subDir in Directory.GetDirectories(top):
+		for fname in listFiles(subDir):
+			yield fname
+
+def walk([required] top as string) as IEnumerable:
+	files = Directory.GetFiles(top)
+	dirs  = Directory.GetDirectories(top)
+	yield (top, dirs, files)
+	for dir in dirs:
+		for t, d, f in walk(dir):
+			yield (t, d, f)

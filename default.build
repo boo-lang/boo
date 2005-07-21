@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.5.6" />
-	<property name="boo.svn.revision" value="1736" />
+	<property name="boo.svn.revision" value="1739" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="true" />
 	
 	<property name="debug" value="true" />
