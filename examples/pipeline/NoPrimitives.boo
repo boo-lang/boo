@@ -9,7 +9,7 @@ class CustomTypeSystem(TypeSystemServices):
 		
 	override def PreparePrimitives():
 		self.AddPrimitiveType("string", self.StringType)
-		self.AddPrimitiveType("void", self.StringType)
+		self.AddPrimitiveType("void", self.VoidType)
 		
 class InitializeCustomTypeSystem(AbstractCompilerStep):
 	override def Run():
