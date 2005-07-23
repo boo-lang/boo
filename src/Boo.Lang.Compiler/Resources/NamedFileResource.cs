@@ -33,52 +33,24 @@ namespace Boo.Lang.Compiler.Resources
 	using System.Collections;
 	using Boo.Lang.Compiler;
 	
-	public class FileResource : ICompilerResource
+	public class NamedFileResource : FileResource
 	{
-		protected string _fname;
+		string _rname;
 		
-		public FileResource(string fname)
+		public NamedFileResource(string fname, string rname) : base(fname)
 		{
-			if (null == fname)
+			if (null == rname)
 			{
-				throw new ArgumentNullException("fname");
+				throw new ArgumentNullException("rname");
 			}
-			_fname = fname;
+			_rname = rname;
 		}
 		
-		public string FileName
+		public override string Name
 		{
 			get
 			{
-				return _fname;
-			}
-		}
-		
-		public virtual string Name
-		{
-			get
-			{
-				return System.IO.Path.GetFileName(_fname);
-			}
-		}
-		
-		public virtual string Description
-		{
-			get
-			{
-				return null;
-			}
-		}
-		
-		public void WriteResources(System.Resources.IResourceWriter writer)
-		{
-			using (ResourceReader reader = new ResourceReader(_fname))
-			{
-				IDictionaryEnumerator e = reader.GetEnumerator();
-				while (e.MoveNext())
-				{
-					writer.AddResource((string)e.Key, e.Value);
-				}
+				return _rname;
 			}
 		}
 	}

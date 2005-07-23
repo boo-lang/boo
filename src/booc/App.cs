@@ -202,8 +202,21 @@ namespace BooC
 									{
 										case "resource":
 										{
-											string resourceFile = arg.Substring(arg.IndexOf(":") + 1);
-											_options.Resources.Add(new FileResource(resourceFile));
+											string resourceFile;
+											int start = arg.IndexOf(":") + 1;
+											int comma = arg.LastIndexOf(',');
+											if (comma >= 0)
+											{
+												resourceFile = arg.Substring(start, comma-start);
+												string resourceName = arg.Substring(comma+1);
+												_options.Resources.Add(new NamedFileResource(resourceFile, resourceName));
+
+											}
+											else
+											{
+												resourceFile = arg.Substring(start);
+												_options.Resources.Add(new FileResource(resourceFile));
+											}
 											break;
 										}
 
