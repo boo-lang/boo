@@ -118,13 +118,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType IDictionaryType;
 		
-		System.Collections.Hashtable _primitives = new System.Collections.Hashtable();
+		protected System.Collections.Hashtable _primitives = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _entityCache = new System.Collections.Hashtable();
+		protected System.Collections.Hashtable _entityCache = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _arrayCache = new System.Collections.Hashtable();
+		protected System.Collections.Hashtable _arrayCache = new System.Collections.Hashtable();
 		
-		System.Collections.Hashtable _anonymousCallableTypes = new System.Collections.Hashtable();
+		protected System.Collections.Hashtable _anonymousCallableTypes = new System.Collections.Hashtable();
 		
 		public static readonly IType ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
 		
@@ -1036,12 +1036,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddBuiltin(BuiltinFunction.Switch);
 		}
 		
-		void AddPrimitiveType(string name, ExternalType type)
+		protected void AddPrimitiveType(string name, ExternalType type)
 		{
 			_primitives[name] = type;
 		}
 		
-		void AddBuiltin(BuiltinFunction function)
+		protected void AddBuiltin(BuiltinFunction function)
 		{
 			_primitives[function.Name] = function;
 		}
