@@ -100,9 +100,6 @@
 			<KeyWords name="OperatorKeywords" bold="true" italic="false" color="DarkCyan" >
 				<Key word="is"/>
 				<Key word="isa"/>
-				<Key word="true"/>
-				<Key word="false"/>
-				<Key word="kindof"/>
 				<Key word="and"/>
 				<Key word="or"/>
 				<Key word="not"/>
