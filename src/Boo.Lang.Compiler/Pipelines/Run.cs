@@ -34,8 +34,14 @@ namespace Boo.Lang.Compiler.Pipelines
 	public class Run : CompileToMemory
 	{
 		public Run()
-		{				
+		{	
 			Add(new RunAssembly());
+		}
+
+		override protected void Prepare(CompilerContext context)
+		{
+			base.Prepare(context);
+			context.Parameters.GenerateInMemory = true;
 		}
 	}
 }

@@ -226,9 +226,15 @@ namespace Boo.Lang.Compiler
 				AfterStep(this, new CompilerStepEventArgs(context, step));
 			}
 		}
+		
+		virtual protected void Prepare(CompilerContext context)
+		{
+		}
 
 		virtual public void Run(CompilerContext context)
 		{
+			Prepare(context);
+			
 			foreach (ICompilerStep step in _items)
 			{
 				RunStep(context, step);
