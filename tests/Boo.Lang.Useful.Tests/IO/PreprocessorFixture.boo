@@ -105,14 +105,50 @@ print 'bar'
 	[Test]
 	def TestNot():
 		code = """
-#if !FOO
+#if !FOO_1_0 
 print 'not foo'
-#else
+#else 
 print 'foo'
 #endif
+print 'either'
+#if FOO_1_0
+print 'foo again'
+	#if BAR
+	print 'bar'
+	#else
+	print 'not bar'
+	#endif
+#else
+print 'not foo again'
+#endif
+print 'either again'
 """
-		AssertPreProcessor("\nprint 'not foo'\n", code)
-		AssertPreProcessor("\nprint 'foo'\n", code, "FOO")
+		expected = """
+print 'not foo'
+print 'either'
+print 'not foo again'
+print 'either again'
+"""
+		AssertPreProcessor(expected, code)
+		
+		expected = """
+print 'foo'
+print 'either'
+print 'foo again'
+	print 'not bar'
+print 'either again'
+"""
+		AssertPreProcessor(expected, code, "FOO_1_0")
+		
+		expected = """
+print 'foo'
+print 'either'
+print 'foo again'
+	print 'bar'
+print 'either again'
+"""
+		AssertPreProcessor(expected, code, "FOO_1_0", "BAR")
+
 		
 		
 	def AssertPreProcessor(expected, actual, *defines as (string)):

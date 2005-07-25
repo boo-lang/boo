@@ -34,7 +34,10 @@ import Boo.Lang.Useful.IO.Impl
 
 class PreProcessor:
 """
-Implements a c# style preprocessor.
+Implements a c# style preprocessor with support for #if, #else and #endif
+directives.
+
+The operators ||, && and ! are supported.
 
 Example:
 	text = "#if SPAM\nSPAM, SPAM, SPAM!\n#endif"
@@ -43,24 +46,7 @@ Example:
 	resultingText = pp.Process(text)
 	print resultingText # SPAM, SPAM, SPAM!
 """
-	
-	callable StringPredicate(s as string) as bool
-	
-	IfPattern = /^\s*#if\s+((.|\s)+)$/
-	
-	ElsePattern = /^\s*#else\s*$/
-	
-	EndIfPattern = /^\s*#endif\s*$/
-	
-	NullPredicate as StringPredicate = def (s as string):
-		return false
-		
-	EndIfCondition as StringPredicate = def (s as string):
-		return EndIfPattern.IsMatch(s)
-	
 	_symbols = Hashtable()
-	
-	_evaluator = PreProcessorExpressionEvaluator(SymbolTable: _symbols)
 		
 	def Define([required] symbol as string):
 		_symbols[symbol] = symbol
@@ -74,36 +60,51 @@ Example:
 		return writer.ToString()
 		
 	def Process([required] reader as TextReader, [required] writer as TextWriter):
-		Parse(reader, writer, true, NullPredicate)
+		Parser(_symbols, reader, writer).Parse()
 		
-	private def Parse(reader as TextReader,
-				writer as TextWriter,
-				printLines as bool,
-				endCondition as StringPredicate):
-					
-		line as string
-		while (line = reader.ReadLine()) is not null:
-			break if endCondition(line)
-			
-			m = IfPattern.Match(line)
-			if m.Success:
-				expression = m.Groups[1].Value
-				if Evaluate(expression):
-					Parse(reader, writer, true, EndIfCondition)
-				else:
-					Parse(reader, writer, false, EndIfCondition)
-			elif ElsePattern.IsMatch(line):
-				Parse(reader, writer, not printLines, endCondition)
-			else:
-				writer.WriteLine(line) if printLines
+	class Parser:
+		IfPattern = /^\s*#if\s+((.|\s)+)$/	
+		ElsePattern = /^\s*#else\s*$/	
+		EndIfPattern = /^\s*#endif\s*$/
+		
+		_reader as TextReader
+		_writer as TextWriter
+		_evaluator = PreProcessorExpressionEvaluator()
+		
+		def constructor(symbolTable, reader, writer):
+			_evaluator.SymbolTable = symbolTable
+			_reader = reader
+			_writer = writer
+		
+		def Parse():
+			while (line = _reader.ReadLine()) is not null:
+				ParseLine(true, line)
 				
-	private def Evaluate(expression as string):
-		return _evaluator.expr(ParseExpression(expression))
-		
-	private def ParseExpression(expression as string) as antlr.CommonAST:
-		lexer = PreProcessorExpressionLexer(antlr.CharBuffer(StringReader(expression)))
-		lexer.setFilename("<expression>")
-		parser = PreProcessorExpressionParser(lexer)
-		parser.setFilename("<expression>")
-		parser.expr()
-		return parser.getAST()
+		private def ParseLine(context as bool, [required] line as string):
+			if IfPattern.IsMatch(line):
+				ParseIfBlock(context, line)
+			else:
+				_writer.WriteLine(line) if context
+					
+		private def ParseIfBlock(context as bool, line as string):
+			m = IfPattern.Match(line)
+			expression = m.Groups[1].Value
+			localContext = context and Evaluate(expression)
+			while (line = _reader.ReadLine()) is not null:
+				if EndIfPattern.IsMatch(line):
+					break					
+				if ElsePattern.IsMatch(line):
+					localContext = context and not localContext
+				else:
+					ParseLine(localContext, line)
+					
+		private def Evaluate(expression as string):
+			return _evaluator.expr(ParseExpression(expression))
+			
+		private def ParseExpression(expression as string) as antlr.CommonAST:
+			lexer = PreProcessorExpressionLexer(antlr.CharBuffer(StringReader(expression)))
+			lexer.setFilename("<expression>")
+			parser = PreProcessorExpressionParser(lexer)
+			parser.setFilename("<expression>")
+			parser.expr()
+			return parser.getAST()
