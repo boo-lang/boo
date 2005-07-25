@@ -1,4 +1,7 @@
 import System
+import System.IO
+import System.Text.RegularExpressions
+import Useful.IO from Boo.Lang.Useful
 import ICSharpCode.SharpRefactory.Parser from "ICSharpCode.SharpRefactory"
 import ICSharpCode.SharpRefactory.Parser.AST
 import ICSharpCode.SharpRefactory.PrettyPrinter
@@ -23,24 +26,37 @@ class PascalCasePrinter(PrettyPrintVisitor):
 		
 	def ToPascalCase(name as string):
 		return name[:1].ToUpper() + name[1:]
+		
+def preprocess(code as string):
+	pp = PreProcessor()
+	pp.Define("foo")
+	return pp.Process(code)
 
 code = """
 class YapFoo {
+#if foo
+	// a comment
 	public void bar() {
 	}
-	
+#endif
+
 	public string Prop	{ get { return null; } }
 	public void baz() {
 		     this.bar();
 		bar();
 	}
+	
+#if bang
+	void bang() {
+	}
+#endif
 }
 """
 
 p = Parser()
-p.Parse(Lexer(StringReader(code)))
+p.Parse(Lexer(StringReader(preprocess(code))))
 
-printer = PascalCasePrinter("foo.cs")
+printer = PascalCasePrinter("code.cs")
 options = printer.PrettyPrintOptions
 options.MethodBraceStyle = BraceStyle.NextLine
 printer.Visit(p.compilationUnit, null)

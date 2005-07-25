@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.5.6" />
-	<property name="boo.svn.revision" value="1745" />
+	<property name="boo.svn.revision" value="1748" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="true" />
 	
 	<property name="debug" value="true" />
@@ -201,11 +201,35 @@
 	</target>
 	
 	<target name="Boo.Lang.Useful" depends="Boo.NAnt.Tasks">
+		<uptodate property="useful-grammars-uptodate">
+			<sourcefiles basedir="src/Boo.Lang.Useful">
+				<include name="**/*.g" />
+			</sourcefiles>
+			<targetfiles basedir="src/Boo.Lang.Useful">
+				<include name="**/*Lexer.boo" />
+			</targetfiles>
+		</uptodate>
+
+		<if test="${not useful-grammars-uptodate}">
+			<exec program="${java}" failonerror="true">
+				<arg value="-cp" />
+				<arg file="${antlr.jar}" />
+				<arg value="antlr.Tool" />
+				<!-- <arg value="-traceParser" /> -->
+				<arg value="-o" />
+				<arg value="src/Boo.Lang.Useful/IO/Impl" />
+				<arg value="src/Boo.Lang.Useful/IO/PreProcessorExpressions.g" />
+			</exec>
+		</if>
+		
 		<booc target="library"
 			output="build/Boo.Lang.Useful.dll">
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
 			</sources>
+			<references basedir="build">
+				<include name="Boo.Lang.Parser.dll" />
+			</references>
 		</booc>
 	</target>
 	

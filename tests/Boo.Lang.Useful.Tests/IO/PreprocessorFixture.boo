@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,17 +26,97 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System.Reflection
-import System.Runtime.CompilerServices
+namespace Boo.Lang.Useful.IO.Tests
 
-[assembly: AssemblyTitle("Boo Language Useful Library")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.5.6.1748")]
-[assembly: AssemblyKeyFile("../src/boo.snk")]
+import NUnit.Framework
+import System.IO
+import System.Text
+import Boo.Lang.Useful.IO
 
+[TestFixture]
+class PreprocessorTestFixture:
+	
+	[Test]
+	def TestNoDefines():
+		code = "print '#ifdef'\n"
+		AssertPreProcessor(code, code)
+		
+	[Test]
+	def TestElse():
+		code = """
+#if FOO
+print 'foo'
+#else
+print 'else'
+#endif
+"""
+		AssertPreProcessor("\nprint 'foo'\n", code, "FOO")
+		AssertPreProcessor("\nprint 'else'\n", code)
+		
+	[Test]
+	def TestNestedDefines():
+		code = """
+#if FOO
+print 'foo'
+#if BAR
+print 'bar'
+#endif
+print 'foo again'
+#endif
+print 'outer foo'
+"""
+		expected = """
+print 'foo'
+print 'foo again'
+print 'outer foo'
+"""
+		AssertPreProcessor(expected, code, "FOO")
+		
+	[Test]
+	def TestSimpleDefines():
+		code = """
+#if FOO
+print 'foo'
+#endif
+#if BAR
+print 'bar'
+#endif"""
+
+		expected = """
+print 'bar'
+"""
+		AssertPreProcessor(expected, code, "BAR")
+		
+		expected = """
+print 'foo'
+"""
+		AssertPreProcessor(expected, code, "FOO")
+		
+		expected = """
+print 'foo'
+print 'bar'
+"""
+		AssertPreProcessor(expected, code, "FOO", "BAR")
+		
+		expected = """
+"""
+		AssertPreProcessor(expected, code)
+		
+	[Test]
+	def TestNot():
+		code = """
+#if !FOO
+print 'not foo'
+#else
+print 'foo'
+#endif
+"""
+		AssertPreProcessor("\nprint 'not foo'\n", code)
+		AssertPreProcessor("\nprint 'foo'\n", code, "FOO")
+		
+		
+	def AssertPreProcessor(expected, actual, *defines as (string)):
+		pp = PreProcessor()
+		for d in defines:
+			pp.Define(d)
+		Assert.AreEqual(expected, pp.Process(actual).Replace("\r\n", "\n"))
