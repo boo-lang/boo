@@ -314,8 +314,7 @@
 		<copy todir="${fakeroot.boolib}">
 			<fileset basedir="build">
 				<include name="*.exe"/>
-				<include name="strings.resources"/>
-				<include name="boo.rsp"/>
+				<include name="*.rsp"/>
 				<include name="Boo.NAnt.Tasks.dll" />
 			</fileset>
 		</copy>
@@ -369,7 +368,37 @@
 	</target>
 
 	<target name="install-win32" depends="booc, booish, booi">
-		<echo message="Install target not yet supported under Windows"/>
+	
+		<fail unless="${property::exists('mono.prefix')}">
+		Please set the property 'mono.prefix' to point to the prefix of your
+		mono installation (example: c:\dotnet\mono-1.1.8).
+		</fail>
+		
+		<copy todir="${path::combine(mono.prefix, 'lib/boo')}">
+			<fileset basedir="build">
+				<include name="*.exe"/>
+				<include name="*.rsp"/>
+				<include name="Boo.NAnt.Tasks.dll" />
+			</fileset>
+		</copy>
+
+		<foreach item="File" property="filename">
+		<in>
+			<items>
+				<include name="build/Boo.Lang*.dll" />
+			</items>
+		</in>
+		<do>
+			<exec program="${path::combine(mono.prefix, 'bin/gacutil.bat')}"
+				useruntimeengine="false" workingdir="build">
+				<arg value="/i" />
+				<arg value="${path::get-file-name(filename)}" />
+				<arg value="/package" />
+				<arg value="boo" />
+			</exec>
+		</do>
+		</foreach>
+
 	</target>
 	
 	<target name="uninstall">
