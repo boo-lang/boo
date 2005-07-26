@@ -116,6 +116,8 @@ BCE0114=Explicit interface implementation for non interface type '{0}'
 BCE0115=Cannot implement interface item '{0}.{1}' when not implementing the interface '{0}'
 BCE0116=Explicit member implementation for '{0}.{1}' must not declare any modifiers.
 BCE0117=Field '{0}' is read only.
+BCE0118=Target of explode expression must be an array.
+BCE0119=Explode expression can only be used as the last argument to a callable which takes a variable number of arguments.
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract

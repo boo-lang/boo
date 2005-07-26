@@ -2123,7 +2123,31 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return (INamespace)GetEntity(target);
 		}
-		
+
+		protected virtual void LeaveExplodeExpression(UnaryExpression node)
+		{
+			IType type = GetConcreteExpressionType(node.Operand);
+			if (!type.IsArray)
+			{
+				Error(CompilerErrorFactory.ExplodedExpressionMustBeArray(node));
+			}
+			if (!IsLastArgumentOfVarArgInvocation(node))
+			{
+				Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
+			}
+			BindExpressionType(node, type);
+		}
+
+		private bool IsLastArgumentOfVarArgInvocation(UnaryExpression node)
+		{
+			MethodInvocationExpression parent = node.ParentNode as MethodInvocationExpression;
+			if (null == parent) return false;
+			if (parent.Arguments.Count == 0 || node != parent.Arguments[-1]) return false;
+			ICallableType type = parent.Target.ExpressionType as ICallableType;
+			if (null == type) return false;
+			return AcceptVarArgs(type);
+		}
+
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			if (TypeSystemServices.IsError(node.Target))
@@ -2669,6 +2693,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (node.Operator)
 			{
+				case UnaryOperatorType.Explode:
+				{
+					LeaveExplodeExpression(node);
+					break;
+				}
 				case UnaryOperatorType.LogicalNot:
 				{
 					node.Operand = CheckBoolContext(node.Operand);
@@ -4116,11 +4145,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return CheckParameters(sourceNode, method, method.CallableType, args);
 		}
+
+		bool AcceptVarArgs(ICallableType method)
+		{
+			return method.GetSignature().AcceptVarArgs;
+		}
 		
 		bool CheckParameters(Node sourceNode, IEntity sourceEntity, ICallableType method, ExpressionCollection args)
-		{
-			CallableSignature signature = method.GetSignature();
-			return signature.AcceptVarArgs
+		{	
+			return AcceptVarArgs(method)
 				? CheckVarArgsParameters(sourceNode, sourceEntity, method, args)
 				: CheckExactArgsParameters(sourceNode, sourceEntity, method, args);
 
@@ -4695,6 +4728,10 @@ namespace Boo.Lang.Compiler.Steps
 				if (sb.Length > 1)
 				{
 					sb.Append(", ");
+				}
+				if (AstUtil.IsExplodeExpression(arg))
+				{
+					sb.Append('*');
 				}
 				sb.Append(GetExpressionType(arg));
 			}

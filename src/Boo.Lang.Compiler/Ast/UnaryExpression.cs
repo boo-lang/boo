@@ -37,12 +37,16 @@ namespace Boo.Lang.Compiler.Ast
 		public UnaryExpression()
 		{
  		}
+
+		public UnaryExpression(LexicalInfo lexicalInfo, UnaryOperatorType operator_, Expression operand) : base(lexicalInfo, operator_, operand)
+		{
+		}
 		
 		public UnaryExpression(UnaryOperatorType operator_, Expression operand) : base(operator_, operand)
 		{
 		}
 		
-		public UnaryExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public UnaryExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		

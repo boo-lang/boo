@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
 	using Boo.Lang.Compiler.Ast;
 
 	public class InternalConstructor : InternalMethod, IConstructor

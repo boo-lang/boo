@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		}
 		#endregion
 		
-		#region IVisitor Members
+		#region IAstVisitor Members
 
 		override public void OnModule(Module m)
 		{
@@ -390,7 +390,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(".");
 			Write(e.Name);
 		}
-		
+
 		override public void OnAsExpression(AsExpression e)
 		{
 			Write("(");
@@ -443,7 +443,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnUnaryExpression(UnaryExpression node)
 		{
-			bool addParens = NodeType.ExpressionStatement != node.ParentNode.NodeType;
+			bool addParens = NodeType.ExpressionStatement != node.ParentNode.NodeType
+				&& !IsMethodInvocationArg(node);
 			if (addParens)
 			{
 				Write("(");
@@ -463,6 +464,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			{
 				Write(")");
 			}
+		}
+
+		private bool IsMethodInvocationArg(UnaryExpression node)
+		{
+			MethodInvocationExpression parent = node.ParentNode as MethodInvocationExpression;
+			return null != parent && node != parent.Target;
 		}
 
 		override public void OnBinaryExpression(BinaryExpression e)
@@ -859,6 +866,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			switch (op)
 			{
+				case UnaryOperatorType.Explode:
+				{
+					return "*";
+				}
 				case UnaryOperatorType.PostIncrement:
 				case UnaryOperatorType.Increment:
 				{

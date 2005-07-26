@@ -242,9 +242,16 @@ namespace Boo.Lang.Compiler.Ast
 			mie.IsSynthetic = true;
 			return mie;
 		}
+
+		public static bool IsExplodeExpression(Node node)
+		{
+			UnaryExpression e = node as UnaryExpression;
+			return null == e ? false : e.Operator == UnaryOperatorType.Explode;
+		}
 		
 		private AstUtil()
 		{
 		}
+
 	}
 }

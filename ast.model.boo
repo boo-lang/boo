@@ -302,7 +302,7 @@ abstract class Expression(Node):
 [collection(Expression)]
 class ExpressionCollection:
 	pass
-
+	
 [ignore]
 class OmittedExpression(Expression):
 	pass
@@ -367,6 +367,7 @@ enum UnaryOperatorType:
 	PostIncrement
 	PostDecrement
 	LogicalNot
+	Explode
 
 class UnaryExpression(Expression):
 	Operator as UnaryOperatorType

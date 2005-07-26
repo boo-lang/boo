@@ -188,12 +188,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 			int score = CalculateScore(parameters, args, lenMinusOne);
 			if (score < 0) return -1;
 
-			IType varArgType = lastParameterType.GetElementType();
-			for (int i=lenMinusOne; i<args.Count; ++i)
+			if (args.Count > 0)
 			{
-				int argumentScore = CalculateArgumentScore(varArgType, args.GetNodeAt(i));
-				if (argumentScore < 0) return -1;
-				score += argumentScore;
+				Node lastArg = args.GetNodeAt(-1);
+				if (AstUtil.IsExplodeExpression(lastArg))
+				{	
+					int argumentScore = CalculateArgumentScore(lastParameterType, lastArg);
+					if (argumentScore < 0) return -1;
+					score += argumentScore;
+				}
+				else
+				{
+					IType varArgType = lastParameterType.GetElementType();
+					for (int i=lenMinusOne; i<args.Count; ++i)
+					{
+						int argumentScore = CalculateArgumentScore(varArgType, args.GetNodeAt(i));
+						if (argumentScore < 0) return -1;
+						score += argumentScore;
+					}
+				}
 			}
 			// varargs should not be preferred over non varargs methods
 			return score - ((args.Count + 1)*3);

@@ -624,6 +624,16 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0117", node.LexicalInfo, name);
 		}
+
+		public static CompilerError ExplodedExpressionMustBeArray(Node node)
+		{
+			return new CompilerError("BCE0118", node.LexicalInfo);
+		}
+
+		public static CompilerError ExplodeExpressionMustMatchVarArgCall(Node node)
+		{
+			return new CompilerError("BCE0119", node.LexicalInfo);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

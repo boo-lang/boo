@@ -2194,11 +2194,38 @@ slicing_expression returns [Expression e]
 					mce = new MethodInvocationExpression(ToLexicalInfo(lparen));
 					mce.Target = e;
 					e = mce;
-				}			
-			argument_list[mce]
+				}
+				(
+					method_invocation_argument[mce] 
+					(
+						COMMA
+						method_invocation_argument[mce]
+					)*
+				)?
 			RPAREN
 		)
 	)*
+	;
+	
+protected
+method_invocation_argument[MethodInvocationExpression mie]
+	{
+		Expression arg = null;
+	}:
+	(
+		t:MULTIPLY arg=expression
+		{
+			if (null != arg)
+			{
+				mie.Arguments.Add(
+					new UnaryExpression(
+						ToLexicalInfo(t),
+						UnaryOperatorType.Explode,
+						arg));
+			}
+		}
+	) |
+	argument[mie]
 	;
 	
 protected
@@ -2586,11 +2613,9 @@ SUBTRACT: ('-') ('=' { $setType(ASSIGN); })?;
 
 MODULUS: '%';
 
-MULTIPLY: '*' (
-					'=' { $setType(ASSIGN); } |
-					'*' { $setType(EXPONENTIATION); } | 
-				);
+MULTIPLY: '*' ('=' { $setType(ASSIGN); })?;
 
+EXPONENTIATION: "**";
 
 DIVISION: 
 	("/*")=> ML_COMMENT { $setType(Token.SKIP); } |

@@ -972,6 +972,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			for (int i=0; i<parameters.Length; ++i)
 			{
 				if (i > 0) { _buffer.Append(", "); }
+				if (method.AcceptVarArgs && i == parameters.Length-1) { _buffer.Append('*'); }
 				_buffer.Append(parameters[i].Type.FullName);
 			}
 			_buffer.Append(")");
