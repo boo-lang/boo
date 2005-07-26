@@ -659,7 +659,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				modifiers |= TypeMemberModifiers.Static;
 			}
-			
+
 			Method closure = CodeBuilder.CreateMethod(
 								"___closure" + _context.AllocIndex(),
 								Unknown.Default,
@@ -3515,6 +3515,7 @@ namespace Boo.Lang.Compiler.Steps
 				// rebind the target now we know
 				// it is a constructor call
 				Bind(node.Target, ctor);
+				BindExpressionType(node.Target, ctor.Type);
 				BindExpressionType(node, type);
 				
 				if (node.NamedArguments.Count > 0)
@@ -3550,7 +3551,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != delegateType)
 			{
 				if (CheckParameters(node.Target, delegateType, delegateType, node.Arguments))
-				{
+				{	
 					IMethod invoke = ResolveMethod(delegateType, "Invoke");
 					node.Target = CodeBuilder.CreateMemberReference(node.Target, invoke);
 					BindExpressionType(node, invoke.ReturnType);

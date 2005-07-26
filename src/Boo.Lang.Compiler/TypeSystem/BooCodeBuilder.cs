@@ -625,10 +625,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateRuntimeMethod(name, CreateTypeReference(returnType));
 		}
 		
-		public Method CreateRuntimeMethod(string name, IType returnType, IParameter[] parameters)
+		public Method CreateRuntimeMethod(string name, IType returnType, IParameter[] parameters, bool variableArguments)
 		{
 			Method method = CreateRuntimeMethod(name, returnType);
 			DeclareParameters(method, 0, parameters);
+			method.Parameters.VariableNumber = variableArguments;
 			return method;
 		}
 		

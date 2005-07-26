@@ -115,6 +115,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			for (int i=0; i<_parameters.Length; ++i)
 			{
 				if (i > 0) { buffer.Append(", "); }
+				if (_acceptVarArgs && i == _parameters.Length-1) buffer.Append('*');
 				buffer.Append(_parameters[i].Type.FullName);
 			}
 			buffer.Append(") as ");

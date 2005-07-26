@@ -1059,7 +1059,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Method CreateBeginInvokeMethod(ICallableType anonymousType)
 		{
 			Method method = CodeBuilder.CreateRuntimeMethod("BeginInvoke", Map(typeof(IAsyncResult)),
-												anonymousType.GetSignature().Parameters);
+			                                                anonymousType.GetSignature().Parameters, false);
 												
 			int delta=method.Parameters.Count;
 			method.Parameters.Add(
@@ -1129,7 +1129,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Method CreateInvokeMethod(AnonymousCallableType anonymousType)
 		{
 			CallableSignature signature = anonymousType.GetSignature();
-			return CodeBuilder.CreateRuntimeMethod("Invoke", signature.ReturnType, signature.Parameters);
+			return CodeBuilder.CreateRuntimeMethod("Invoke", signature.ReturnType, signature.Parameters, signature.AcceptVarArgs);
 		}
 		
 		public IConstructor GetDefaultConstructor(IType type)

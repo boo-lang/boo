@@ -15,10 +15,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void LeaveMethodInvocationExpression(Boo.Lang.Compiler.Ast.MethodInvocationExpression node)
 		{
-			IMethod method = node.Target.Entity as IMethod;
-			if (method == null || !method.AcceptVarArgs) return;
+			ICallableType callable = node.Target.ExpressionType as ICallableType;
+			if (callable == null) return;
 
-			IParameter[] parameters = method.GetParameters();
+			CallableSignature signature = callable.GetSignature();
+			if (!signature.AcceptVarArgs) return;
+
+			IParameter[] parameters = signature.Parameters;
 			int lenMinusOne = parameters.Length-1;
 			IType varArgType = parameters[lenMinusOne].Type;
 

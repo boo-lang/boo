@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class ExternalMethod : IMethod
 	{
-		TypeSystemServices _typeSystemServices;
+		protected TypeSystemServices _typeSystemServices;
 		
 		MethodBase _mi;
 		
@@ -178,7 +178,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _parameters;
 		}
 		
-		public IType ReturnType
+		public virtual IType ReturnType
 		{
 			get
 			{
@@ -217,29 +217,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		override public string ToString()
 		{
 			return _typeSystemServices.GetSignature(this);
-		}
-	}
-	
-	public class ExternalConstructor : ExternalMethod, IConstructor
-	{
-		public ExternalConstructor(TypeSystemServices manager, ConstructorInfo ci) : base(manager, ci)
-		{			
-		}
-		
-		override public EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Constructor;
-			}
-		}
-		
-		public ConstructorInfo ConstructorInfo
-		{
-			get
-			{
-				return (ConstructorInfo)MethodInfo;
-			}
 		}
 	}
 }

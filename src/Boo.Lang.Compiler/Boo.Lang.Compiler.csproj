@@ -1738,6 +1738,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "TypeSystem\ExternalConstructor.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "TypeSystem\ExternalEvent.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
