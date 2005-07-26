@@ -11,6 +11,8 @@ class Test:
 	def Bar(*args as (string)):
 		pass
 		
+callable Baz(*args)
+		
 def assertParams(method as MethodBase, parameterType as Type):
 	assert method is not null
 	assert 1 == len(method.GetParameters())
@@ -24,3 +26,5 @@ type = Test
 assertParams(type.GetConstructors()[0], typeof((object)))
 assertParams(type.GetMethod("Foo"), typeof((object)))
 assertParams(type.GetMethod("Bar"), typeof((string)))
+
+assertParams(typeof(Baz).GetMethod("Invoke"), typeof((object)))

@@ -53,15 +53,9 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 			}
-			
-			foreach (ParameterDeclaration parameter in node.Parameters)
-			{
-				if (null == parameter.Type)
-				{
-					parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
-				}
-			}
-			
+
+			CompleteOmittedParameterType(node);
+
 			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(node.Name);
 			cd.LexicalInfo = node.LexicalInfo;
 			cd.Members.Add(CreateInvokeMethod(node));
@@ -69,7 +63,29 @@ namespace Boo.Lang.Compiler.Steps
 			cd.Members.Add(CreateEndInvokeMethod(node));
 			ReplaceCurrentNode(cd);
 		}
-		
+
+		private void CompleteOmittedParameterType(CallableDefinition node)
+		{
+			ParameterDeclarationCollection parameters = node.Parameters;
+			if (0 == parameters.Count) return;
+
+			ParameterDeclaration last = parameters[-1];
+			foreach (ParameterDeclaration parameter in parameters)
+			{
+				if (null == parameter.Type)
+				{
+					if (parameters.VariableNumber && last == parameter)
+					{
+						parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectArrayType);
+					}
+					else
+					{
+						parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
+					}
+				}
+			}
+		}
+
 		Method CreateInvokeMethod(CallableDefinition node)
 		{
 			Method method = CreateRuntimeMethod("Invoke", node.ReturnType);
