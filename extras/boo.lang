@@ -108,6 +108,7 @@ OR
 		<keyword>protected</keyword>
 		<keyword>private</keyword>
 		<keyword>public</keyword>
+		<keyword>internal</keyword>
 		
 		<keyword>class</keyword>
 		<keyword>struct</keyword>
