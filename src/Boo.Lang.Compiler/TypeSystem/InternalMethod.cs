@@ -112,6 +112,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _method.IsProtected;
 			}
 		}
+
+		public bool IsPrivate
+		{
+			get
+			{
+				return _method.IsPrivate;
+			}
+		}
+
+		public bool IsInternal
+		{
+			get
+			{
+				return _method.IsInternal;
+			}
+		}
 		
 		public bool IsAbstract
 		{

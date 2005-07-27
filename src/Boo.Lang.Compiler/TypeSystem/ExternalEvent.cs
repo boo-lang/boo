@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _event.GetAddMethod().IsPublic;
+				return _event.GetAddMethod(true).IsPublic;
 			}
 		}
 		

@@ -634,6 +634,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0119", node.LexicalInfo);
 		}
+
+		public static CompilerError UnaccessibleMember(Node node, string name)
+		{
+			return new CompilerError("BCE0120", node.LexicalInfo, name);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

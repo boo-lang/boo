@@ -118,6 +118,7 @@ BCE0116=Explicit member implementation for '{0}.{1}' must not declare any modifi
 BCE0117=Field '{0}' is read only.
 BCE0118=Target of explode expression must be an array.
 BCE0119=Explode expression can only be used as the last argument to a callable which takes a variable number of arguments.
+BCE0120='{0}' is unaccessible due to its protection level.
 
 ;Compiler warnings
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract

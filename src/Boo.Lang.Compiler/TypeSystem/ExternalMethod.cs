@@ -76,7 +76,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsFamily;
+				return _mi.IsFamily || _mi.IsFamilyOrAssembly;
+			}
+		}
+
+		public bool IsPrivate
+		{
+			get
+			{
+				return _mi.IsPrivate;
 			}
 		}
 		
@@ -85,6 +93,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return _mi.IsAbstract;
+			}
+		}
+
+		public bool IsInternal
+		{
+			get
+			{
+				return _mi.IsAssembly;
 			}
 		}
 		

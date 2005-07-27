@@ -40,6 +40,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ExpandProperties());
 			Add(new RemoveDeadCode());
 			Add(new ExpandVarArgsMethodInvocations());
+			
+			Add(new CheckMembersProtectionLevel());
 
 			Add(new NormalizeIterationStatements());
 			

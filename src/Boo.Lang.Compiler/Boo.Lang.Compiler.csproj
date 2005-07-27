@@ -1483,6 +1483,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\CheckMembersProtectionLevel.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\DumpReferences.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

@@ -232,6 +232,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get;
 		}
+
+		bool IsInternal
+		{
+			get;
+		}
+
+		bool IsPrivate
+		{
+			get;
+		}
 	}
 	
 	public interface IMethod : IAccessibleMember

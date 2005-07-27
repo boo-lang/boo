@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
 	using Boo.Lang.Compiler.Ast;
 	
 	public class InternalEnumMember : IInternalEntity, IField
@@ -85,6 +84,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return true;
+			}
+		}
+
+		public bool IsInternal
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+		public bool IsPrivate
+		{
+			get
+			{
+				return false;
 			}
 		}
 		

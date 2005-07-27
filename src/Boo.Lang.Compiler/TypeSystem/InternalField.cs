@@ -79,6 +79,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _field.IsProtected;
 			}
 		}
+
+		public bool IsPrivate
+		{
+			get
+			{
+				return _field.IsPrivate;
+			}
+		}
+
+		public bool IsInternal
+		{
+			get
+			{
+				return _field.IsInternal;
+			}
+		}
 		
 		public EntityType EntityType
 		{
