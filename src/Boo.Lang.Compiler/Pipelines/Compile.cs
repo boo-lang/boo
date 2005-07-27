@@ -39,7 +39,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ProcessAssignmentsToValueTypeMembers());
 			Add(new ExpandProperties());
 			Add(new RemoveDeadCode());
-			Add(new ExpandVarArgsMethodInvocations());
 			
 			Add(new CheckMembersProtectionLevel());
 
@@ -48,6 +47,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ProcessSharedLocals());			
 			Add(new ProcessClosures());
 			Add(new ProcessGenerators());
+
+			Add(new ExpandVarArgsMethodInvocations());
 			
 			Add(new InjectCallableConversions());
 			Add(new ImplementICallableOnCallableDefinitions());
