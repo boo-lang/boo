@@ -40,6 +40,7 @@ using Boo.Lang.Runtime;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
+using Module = Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -104,7 +105,7 @@ namespace Boo.Lang.Compiler.Steps
 		IType _returnType;
 		int _tryBlock; // are we in a try block?
 		bool _checked = true;
-		bool _rawarrayindexing = false;
+		bool _rawArrayIndexing = false;
 		Hashtable _typeCache = new Hashtable();
 		
 		// keeps track of types on the IL stack
@@ -387,7 +388,7 @@ namespace Boo.Lang.Compiler.Steps
 			_returnType = null;
 			_tryBlock = 0;
 			_checked = true;
-			_rawarrayindexing = false;
+			_rawArrayIndexing = false;
 			_types.Clear();
 			_typeCache.Clear();
 			_builders.Clear();
@@ -400,22 +401,28 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
+			InitializeDebugInfoWriter(module);
+			Visit(module.Members);
+		}
+
+		private void InitializeDebugInfoWriter(Module module)
+		{
+			if (!Parameters.Debug) return;
 			string fname = module.LexicalInfo.FileName;
 			if (null != fname)
 			{
 				_symbolDocWriter = _moduleBuilder.DefineDocument(
-										fname,
-										Guid.Empty,
-										Guid.Empty,
-										SymDocumentType.Text);
+					fname,
+					Guid.Empty,
+					Guid.Empty,
+					SymDocumentType.Text);
 			}
 			else
 			{
 				_symbolDocWriter = null;
 			}
-			Visit(module.Members);
 		}
-		
+
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
 			Type baseType = typeof(int);
@@ -486,15 +493,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			MethodBuilder methodBuilder = GetMethodBuilder(method);
-
 			if (null != method.ExplicitInfo)
 			{
 				IMethod ifaceMethod = (IMethod)method.ExplicitInfo.Entity;
 				MethodInfo ifaceInfo = GetMethodInfo(ifaceMethod);
-				MethodInfo implInfo = GetMethodInfo ((IMethod)method.Entity);
+				MethodInfo implInfo = GetMethodInfo((IMethod)method.Entity);
 
 				TypeBuilder typeBuilder = GetTypeBuilder((ClassDefinition)method.DeclaringType);
-				typeBuilder.DefineMethodOverride (implInfo, ifaceInfo);
+				typeBuilder.DefineMethodOverride(implInfo, ifaceInfo);
 			}
 
 			_il = methodBuilder.GetILGenerator();
@@ -505,7 +511,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_returnValueLocal = _il.DeclareLocal(GetSystemType(_returnType));
 			}
-			
+
 			DefineLabels(method);
 			Visit(method.Locals);
 			Visit(method.Body);
@@ -519,7 +525,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			_il.Emit(OpCodes.Ret);
 		}
-		
+
 		override public void OnBlock(Block block)
 		{
 			bool current = _checked;
@@ -530,18 +536,18 @@ namespace Boo.Lang.Compiler.Steps
 				_checked = (bool)objChecked;
 			}
 			
-			bool current_indexing = _rawarrayindexing;
+			bool currentArrayIndexing = _rawArrayIndexing;
 			object objRawArrayIndexing = block["rawarrayindexing"];
 			
 			if (objRawArrayIndexing is bool)
 			{
-				_rawarrayindexing = (bool)objRawArrayIndexing;
+				_rawArrayIndexing = (bool)objRawArrayIndexing;
 			}
 
 			Visit(block.Statements);
 
 			_checked = current;
-			_rawarrayindexing = current_indexing;
+			_rawArrayIndexing = currentArrayIndexing;
 		}
 		
 		void DefineLabels(Method method)
@@ -1926,7 +1932,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitNormalizedArrayIndex(Expression index)
 		{
 			bool isNegative = false;
-			if (CanBeNegative(index, ref isNegative) && (!_rawarrayindexing))
+			if (CanBeNegative(index, ref isNegative) && (!_rawArrayIndexing))
 			{
 				if (isNegative)
 				{
@@ -2472,16 +2478,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitDebugInfo(Node startNode, Node endNode)
 		{
-			if (null == _symbolDocWriter)
-			{
-				return;
-			}
+			if (null == _symbolDocWriter) return;
 			
 			LexicalInfo start = startNode.LexicalInfo;
 			if (start.IsValid)
 			{
 				try
-				{
+				{	
 					//_il.Emit(OpCodes.Nop);
 					_il.MarkSequencePoint(_symbolDocWriter, start.Line, 0, start.Line+1, 0);
 				}
