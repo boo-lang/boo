@@ -215,7 +215,16 @@ namespace Boo.Lang.Compiler.Steps
 			Expression newExpression = Convert(node.ExpressionType, node.Target);
 			if (null != newExpression)
 			{
-				node.ParentNode.Replace(node, newExpression);
+				node.Target = newExpression;
+			}
+		}
+		
+		override public void LeaveAsExpression(AsExpression node)
+		{
+			Expression newExpression = Convert(node.ExpressionType, node.Target);
+			if (null != newExpression)
+			{
+				node.Target = newExpression;
 			}
 		}
 		
