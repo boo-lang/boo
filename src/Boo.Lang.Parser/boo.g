@@ -2110,7 +2110,10 @@ member returns [IToken name]
 	}:
 	id:ID { name=id; } |
 	set:SET { name=set; } |
-	get:GET { name=get; }	
+	get:GET { name=get; } |
+	t1:INTERNAL { name=t1; } |
+	t2:PUBLIC { name=t2; } |
+	t3:PROTECTED { name=t3; }
 	;
 	
 protected
@@ -2464,6 +2467,7 @@ protected
 identifier returns [IToken value]
 	{
 		value = null; _sbuilder.Length = 0;
+		IToken id2 = null;
 	}:
 	id1:ID
 	{					
@@ -2472,7 +2476,7 @@ identifier returns [IToken value]
 	}				
 	( options { greedy = true; } :
 		DOT
-		id2:ID
+		id2=member
 		{ _sbuilder.Append('.'); _sbuilder.Append(id2.getText()); }
 	)*
 	{ value.setText(_sbuilder.ToString()); }
