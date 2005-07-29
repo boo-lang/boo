@@ -4451,18 +4451,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool ResolveOperator(Expression node, IType type, string operatorName, MethodInvocationExpression mie)
 		{
-			IMethod tag = FindOperator(type, operatorName, mie.Arguments);
-			if (null == tag)
-			{
-				return false;
-			}
+			IMethod entity = FindOperator(type, operatorName, mie.Arguments);
+			if (null == entity) return false;
+			EnsureRelatedNodeWasVisited(node, entity);
 			
-			mie.Target = new ReferenceExpression(tag.FullName);
+			mie.Target = new ReferenceExpression(entity.FullName);
 			
-			IMethod operatorMethod = tag;
+			IMethod operatorMethod = entity;
 			BindExpressionType(mie, operatorMethod.ReturnType);
 			BindExpressionType(mie.Target, operatorMethod.Type);
-			Bind(mie.Target, tag);
+			Bind(mie.Target, entity);
 			
 			node.ParentNode.Replace(node, mie);
 			
