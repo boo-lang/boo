@@ -105,7 +105,7 @@ print 'bar'
 	[Test]
 	def TestNot():
 		code = """
-#if !FOO_1_0 
+#if !FOO_1_0 // comments are ignored
 print 'not foo'
 #else 
 print 'foo'
@@ -149,7 +149,31 @@ print 'either again'
 """
 		AssertPreProcessor(expected, code, "FOO_1_0", "BAR")
 
+	[Test]
+	def TestExpressions():
+		code = """
+#if FOO || BAR
+print 'foo or bar'
+#endif
+#if FOO && BAR
+print 'foo and bar'
+#endif
+#if (FOO || BAR) && BAZ
+print '(foo or bar) and BAZ
+#endif
+"""
+
+		expected = """
+print 'foo or bar'
+print '(foo or bar) and BAZ
+"""
+		AssertPreProcessor(expected, code, "FOO", "BAZ")
 		
+		expected = """
+print 'foo or bar'
+"""
+		AssertPreProcessor(expected, code, "BAR")
+
 		
 	def AssertPreProcessor(expected, actual, *defines as (string)):
 		pp = PreProcessor()

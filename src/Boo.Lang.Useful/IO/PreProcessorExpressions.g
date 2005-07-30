@@ -16,7 +16,10 @@ mexpr
 	:	atom (AND^ atom)*
 	;
 
-atom:	ID | NOT^ ID
+atom:	ID | NOT^ ID | paren_expr
+	;
+	
+paren_expr: LPAREN! expr RPAREN!
 	;
 
 class PreProcessorExpressionLexer extends Lexer;
@@ -37,8 +40,18 @@ OR:	"||"
 NOT: '!'
 	;
 	
+LPAREN: '('
+	;
+	
+RPAREN: ')'
+	;
+	
 ID: ID_START (ID_PART)*
 	;
+	
+COMMENT: "//" (~('\r'|'\n'))* { $setType(Token.SKIP); }
+	;
+
 
 protected
 ID_START: '_' | LETTER
