@@ -613,6 +613,14 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(node.Exception); PopType();
 				_il.Emit(OpCodes.Throw);
 			}
+			// HACK: workaround - mono reports the position of
+			// raise as being the position of the next instruction
+			// after it
+			if (CanEmitDebugInfo())
+			{
+				EmitDebugInfo(node);
+				_il.Emit(OpCodes.Nop);
+			}
 		}
 		
 		override public void OnTryStatement(TryStatement node)
@@ -2478,7 +2486,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitDebugInfo(Node startNode, Node endNode)
 		{
-			if (null == _symbolDocWriter) return;
+			if (!CanEmitDebugInfo()) return;
 			
 			LexicalInfo start = startNode.LexicalInfo;
 			if (start.IsValid)
@@ -2494,7 +2502,12 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		private bool CanEmitDebugInfo()
+		{
+			return null != _symbolDocWriter;
+		}
+
 		bool IsBoolOrInt(IType type)
 		{
 			return TypeSystemServices.BoolType == type ||
