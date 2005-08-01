@@ -613,6 +613,11 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(node.Exception); PopType();
 				_il.Emit(OpCodes.Throw);
 			}
+			EmitNopDebugInfo(node);
+		}
+
+		private void EmitNopDebugInfo(Statement node)
+		{
 			// HACK: workaround - mono reports the position of
 			// raise as being the position of the next instruction
 			// after it
@@ -622,7 +627,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Nop);
 			}
 		}
-		
+
 		override public void OnTryStatement(TryStatement node)
 		{
 			++_tryBlock;
@@ -665,6 +670,8 @@ namespace Boo.Lang.Compiler.Steps
 			// the stack sane
 			DiscardValueOnStack();
 			AssertStackIsEmpty("stack must be empty after a statement!");
+
+			EmitNopDebugInfo(node);
 		}
 		
 		void DiscardValueOnStack()
@@ -2493,7 +2500,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				try
 				{	
-					//_il.Emit(OpCodes.Nop);
 					_il.MarkSequencePoint(_symbolDocWriter, start.Line, 0, start.Line+1, 0);
 				}
 				catch (Exception x)
@@ -2905,7 +2911,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return new CustomAttributeBuilder(
 								DebuggableAttribute_Constructor,
-								new object[] { true, false });
+								new object[] { true, true });
 		}
 		
 		void DefineEntryPoint()
