@@ -280,15 +280,7 @@ class InteractiveInterpreterControl(TextEditorControl):
 	private def GetSuggestions():		
 		code = CurrentLineText.Insert(self.CaretColumn-4, ".__codecomplete__")
 		code = code.Insert(0, _block.ToString()) if InputState.Block == _state
-		suggestion = _interpreter.SuggestCodeCompletion(code) as INamespace
-		return array(IEntity, 0) if suggestion is null
-		return GetChildNamespaces(suggestion) if code.StartsWith("import ")
-		return TypeSystemServices.GetAllMembers(suggestion)
-		
-	private def GetChildNamespaces(parent as INamespace):
-		return array(member
-					for member in parent.GetMembers()
-					if member.EntityType == EntityType.Namespace)
+		return _interpreter.SuggestCodeCompletion(code)
 		
 	private def HandleDialogKey(key as Keys):
 		return false if InCodeCompletion

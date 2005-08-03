@@ -69,24 +69,7 @@ internal class CodeCompletionData(AbstractCompletionData):
 			
 	Description:
 		get:
-			entity = _entities[0] as IEntity			
-			method = entity as ExternalMethod
-			if method is not null:
-				description = InteractiveInterpreter.DescribeMethod(method.MethodInfo)
-			else:
-				field = entity as ExternalField
-				if field is not null:
-					description = InteractiveInterpreter.DescribeField(field.FieldInfo)
-				else:
-					property = entity as ExternalProperty
-					if property is not null:
-						description = InteractiveInterpreter.DescribeProperty(property.PropertyInfo)
-					else:
-						e = entity as ExternalEvent
-						if e is not null:
-							description = InteractiveInterpreter.DescribeEvent(e.EventInfo)
-						else:
-							description = entity.ToString()
+			description = InteractiveInterpreter.DescribeEntity(_entities[0])
 			return description if 1 == len(_entities)
 			return "${description} (+${len(_entities)-1} overloads)"
 			
@@ -188,10 +171,7 @@ internal class CodeCompletionDataProvider(AbstractCompletionDataProvider):
 
 	override def GenerateCompletionData(fileName as string, textArea as TextArea, charTyped as System.Char) as (ICompletionData):		
 		values = {}
-		for item in _codeCompletion:			
-			continue if IsSpecial(item)
-			continue if not IsPublic(item)
-			
+		for item in _codeCompletion:
 			data as CodeCompletionData
 			data = values[item.Name]
 			if data is null:
@@ -202,12 +182,4 @@ internal class CodeCompletionDataProvider(AbstractCompletionDataProvider):
 				values[item.Name] = data
 			data.AddEntity(item)
 		return array(ICompletionData, values.Values)
-		
-	def IsSpecial(entity as IEntity):
-		for prefix in ".", "___", "add_", "remove_", "raise_", "get_", "set_":
-			return true if entity.Name.StartsWith(prefix)
-			
-	def IsPublic(entity as IEntity):
-		member = entity as IMember
-		return member is null or member.IsPublic
 	

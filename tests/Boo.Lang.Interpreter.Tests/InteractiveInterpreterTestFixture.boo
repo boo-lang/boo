@@ -471,39 +471,39 @@ for i, j in ((1, 2), (3, 4)):
 		Assert.AreEqual([(2, 1), (4, 3)], _interpreter.GetValue("l"))
 		
 	[Test]
-	def SuggestCodeCompletion():
+	def ResolveEntity():
 		Eval("a = 3")
-		suggestion = _interpreter.SuggestCodeCompletion("a.__codecomplete__")
+		suggestion = _interpreter.ResolveEntity("a.__codecomplete__")
 		assert suggestion isa ExternalType
 		assert int is (suggestion as ExternalType).ActualType
 		
-		suggestion = _interpreter.SuggestCodeCompletion("'foo'.ToUpper().__codecomplete__")
+		suggestion = _interpreter.ResolveEntity("'foo'.ToUpper().__codecomplete__")
 		assert suggestion isa ExternalType
 		assert string is (suggestion as ExternalType).ActualType
 		
 	[Test]
-	def SuggestNamespaceCodeCompletion():
-		suggestion = _interpreter.SuggestCodeCompletion("System.__codecomplete__")
+	def ResolveNamespaceEntity():
+		suggestion = _interpreter.ResolveEntity("System.__codecomplete__")
 		assert suggestion is not null
 		assert suggestion.EntityType == EntityType.Namespace
 		
 	[Test]
-	def SuggestCodeCompletionReferencesAreInSync():
+	def ResolveEntityReferencesAreInSync():
 		_interpreter.References.Add(System.Reflection.Assembly.GetExecutingAssembly())
-		suggestion = _interpreter.SuggestCodeCompletion("Boo.Lang.Interpreter.Tests.__codecomplete__")
+		suggestion = _interpreter.ResolveEntity("Boo.Lang.Interpreter.Tests.__codecomplete__")
 		assert suggestion is not null
 		assert suggestion.EntityType == EntityType.Namespace
 		
 	[Test]
-	def SuggestCodeCompletionFromImportedNamespaces():
+	def ResolveEntityFromImportedNamespaces():
 		_interpreter.Eval("import System")
-		suggestion = _interpreter.SuggestCodeCompletion("Console.__codecomplete__")
+		suggestion = _interpreter.ResolveEntity("Console.__codecomplete__")
 		assert suggestion is not null
 		assert System.Console is (suggestion as ExternalType).ActualType
 		
 	[Test]
-	def SuggestCodeCompletionForImportStatement():
-		suggestion = _interpreter.SuggestCodeCompletion("import    System.__codecomplete__")
+	def ResolveEntityForImportStatement():
+		suggestion = _interpreter.ResolveEntity("import    System.__codecomplete__")
 		assert suggestion is not null
 		assert suggestion.EntityType == EntityType.Namespace
 		

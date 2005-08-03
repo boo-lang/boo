@@ -129,13 +129,17 @@ class AbstractInterpreter:
 		get:
 			return _compiler.Parameters.References
 				
-	def SuggestCodeCompletion(code as string) as IEntity:
+	def SuggestCodeCompletion(code as string) as (IEntity):
 	"""
 	The code must contain a __codecomplete__ member reference as a placeholder
 	to the suggestion.
 	
-	The return value is the type or namespace of the parent expression.
+	The return value is a an array of possible members or namespaces to be inserted
+	at the __codecomplete__.
 	"""
+		return FilterSuggestions(code, ResolveEntity(code))
+		
+	def ResolveEntity(code as string) as IEntity:
 		compiler = GetSuggestionCompiler()
 		try:
 			compiler.Parameters.Input.Add(StringInput("<code>", PreProcessImportLine(code)))
@@ -143,6 +147,31 @@ class AbstractInterpreter:
 			return result["suggestion"]			
 		ensure:
 			compiler.Parameters.Input.Clear()
+			
+	def FilterSuggestions(code as string, entity as IEntity):
+		ns = entity as INamespace
+		return array(IEntity, 0) if ns is null
+		return GetChildNamespaces(ns) if code.StartsWith("import ")
+		return FilteredMembers(TypeSystemServices.GetAllMembers(ns))
+		
+	def FilteredMembers(members as (IEntity)):
+		return array(
+				item
+				for item in members
+				unless IsSpecial(item) or not IsPublic(item))
+
+	def IsSpecial(entity as IEntity):
+		for prefix in ".", "___", "add_", "remove_", "raise_", "get_", "set_":
+			return true if entity.Name.StartsWith(prefix)
+			
+	def IsPublic(entity as IEntity):
+		member = entity as IMember
+		return member is null or member.IsPublic
+		
+	private def GetChildNamespaces(parent as INamespace):
+		return array(member
+					for member in parent.GetMembers()
+					if member.EntityType == EntityType.Namespace)
 			
 	private def PreProcessImportLine(code as string):
 		match = @/^\s*import\s+((\w|\.)+)\s*$/.Match(code)
@@ -515,3 +544,5 @@ class AbstractInterpreter:
 					suggestion = target.Entity
 				if suggestion is not null and suggestion.EntityType != EntityType.Error:
 					_context["suggestion"] = suggestion
+					// TODO: use target to display static members only for type reference expressions
+					_context["target"] = target
