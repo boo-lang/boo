@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _name;
+				return GetLastPart(_name);
 			}
 		}
 		
@@ -234,6 +234,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		override public string ToString()
 		{
 			return _name;
+		}
+
+		private string GetLastPart(string name)
+		{
+			int index = name.LastIndexOf('.');
+			return index < 0 ? name : name.Substring(index+1);
 		}
 	}
 }
