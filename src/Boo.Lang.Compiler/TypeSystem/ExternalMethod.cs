@@ -143,19 +143,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (_acceptVarArgs == -1)
 				{
 					ParameterInfo[] parameters = _mi.GetParameters();
-					if (parameters.Length > 0
-						&& System.Attribute.IsDefined(parameters[parameters.Length-1], typeof(System.ParamArrayAttribute)))
-					{
-						_acceptVarArgs = 1;
-					}
-					else
-					{
-						_acceptVarArgs = 0;
-					}
+
+					_acceptVarArgs =
+						parameters.Length > 0 && IsParamArray(parameters[parameters.Length-1]) ? 1 : 0;
 				}
 				return _acceptVarArgs == 1;
 			}
 		}
+
+		private bool IsParamArray(ParameterInfo parameter)
+		{
+			/* Hack to fix problem with mono-1.1.8.* and older */
+			return System.Attribute.IsDefined(parameter, typeof(System.ParamArrayAttribute))
+				|| parameter.GetCustomAttributes(typeof(System.ParamArrayAttribute), false).Length > 0;
+		}
+
 		
 		public virtual EntityType EntityType
 		{
