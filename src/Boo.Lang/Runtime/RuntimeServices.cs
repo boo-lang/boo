@@ -40,6 +40,7 @@ namespace Boo.Lang.Runtime
 		static readonly Type RuntimeServicesType = typeof(RuntimeServices);
 		
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
+												BindingFlags.NonPublic |
 												BindingFlags.OptionalParamBinding |
 												BindingFlags.Static |
 												BindingFlags.FlattenHierarchy |
