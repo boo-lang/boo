@@ -2749,9 +2749,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitUnbox(IType expectedType)
 		{
-			if (TypeSystemServices.IsNumberOrBool(expectedType))
+			string unboxMethodName = GetUnboxMethodName(expectedType);
+			if (null != unboxMethodName)
 			{
-				_il.EmitCall(OpCodes.Call, GetUnboxMethod(expectedType), null);
+				_il.EmitCall(OpCodes.Call, GetRuntimeMethod(unboxMethodName), null);
 			}
 			else
 			{
@@ -2761,9 +2762,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		MethodInfo GetUnboxMethod(IType type)
+		MethodInfo GetRuntimeMethod(string methodName)
 		{
-			return typeof(RuntimeServices).GetMethod(GetUnboxMethodName(type));
+			return Types.RuntimeServices.GetMethod(methodName);
 		}
 		
 		string GetUnboxMethodName(IType type)
@@ -2816,10 +2817,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return "UnboxBoolean";
 			}
-			else
+			else if (type == TypeSystemServices.CharType)
 			{
-				throw new NotImplementedException(string.Format("Numeric promotion for {0} not implemented!", type));
+				return "UnboxChar";
 			}
+			return null;
 		}
 		
 		OpCode GetNumericPromotionOpCode(IType type)
