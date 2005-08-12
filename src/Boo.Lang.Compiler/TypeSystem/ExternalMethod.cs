@@ -41,11 +41,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 		ICallableType _type;
 
 		int _acceptVarArgs = -1;
+
+		int _isDuckTyped = -1;
 		
 		internal ExternalMethod(TypeSystemServices manager, MethodBase mi)
 		{
 			_typeSystemServices = manager;
 			_mi = mi;
+		}
+
+		public bool IsDuckTyped
+		{
+			get
+			{
+				if (-1 == _isDuckTyped)
+				{
+					_isDuckTyped =
+						!ReturnType.IsValueType && System.Attribute.IsDefined(_mi, Types.DuckTypedAttribute)
+						? 1
+						: 0;
+				}
+				return 1 == _isDuckTyped;
+			}
 		}
 		
 		public IType DeclaringType
@@ -154,8 +171,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private bool IsParamArray(ParameterInfo parameter)
 		{
 			/* Hack to fix problem with mono-1.1.8.* and older */
-			return System.Attribute.IsDefined(parameter, typeof(System.ParamArrayAttribute))
-				|| parameter.GetCustomAttributes(typeof(System.ParamArrayAttribute), false).Length > 0;
+			return System.Attribute.IsDefined(parameter, Types.ParamArrayAttribute)
+				|| parameter.GetCustomAttributes(Types.ParamArrayAttribute, false).Length > 0;
 		}
 
 		

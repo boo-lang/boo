@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IType _returnType;
 		int _hashCode;
 		bool _acceptVarArgs;
-		
+
 		public CallableSignature(IMethod method)
 		{
 			if (null == method)
@@ -46,13 +46,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			Initialize(method.GetParameters(), method.ReturnType, method.AcceptVarArgs);
 		}
-		
+
 		public CallableSignature(IParameter[] parameters, IType returnType)
 		{
 			Initialize(parameters, returnType, false);
 		}
 		
-		void Initialize(IParameter[] parameters, IType returnType, bool acceptVarArgs)
+		public CallableSignature(IParameter[] parameters, IType returnType, bool acceptVarArgs)
+		{
+			Initialize(parameters, returnType, acceptVarArgs);
+		}
+
+		private void Initialize(IParameter[] parameters, IType returnType, bool acceptVarArgs)
 		{
 			if (null == parameters)
 			{

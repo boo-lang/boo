@@ -114,6 +114,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "DuckTypedAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "EnumeratorItemTypeAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

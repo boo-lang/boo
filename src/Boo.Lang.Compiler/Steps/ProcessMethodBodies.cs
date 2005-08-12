@@ -3397,7 +3397,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 					}
 					
-					BindExpressionType(node, targetMethod.ReturnType);
+					BindExpressionType(node, GetInferredType(targetMethod));
 					ApplyBuiltinMethodTypeInference(node, targetMethod);
 					
 					break;
@@ -3424,7 +3424,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (null != targetConstructorInfo)
 						{
 							Bind(node.Target, targetConstructorInfo);
-							BindExpressionType(node, targetConstructorInfo.ReturnType);
+							//BindExpressionType(node.Target, TypeSystemServices.VoidType);
 						}
 					}
 					break;
@@ -3449,7 +3449,14 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		private IType GetInferredType(IMethod method)
+		{	
+			return method.IsDuckTyped
+				? this.TypeSystemServices.DuckType
+				: method.ReturnType;
+		}
+
 		void ReplaceTypeInvocationByEval(IType type, MethodInvocationExpression node)
 		{
 			Node parent = node.ParentNode;

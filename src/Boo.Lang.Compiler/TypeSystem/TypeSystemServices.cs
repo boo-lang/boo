@@ -387,7 +387,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public AnonymousCallableType GetCallableType(IMethod method)
-		{
+		{	
 			CallableSignature signature = new CallableSignature(method);
 			return GetCallableType(signature);
 		}

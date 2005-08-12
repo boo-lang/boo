@@ -110,5 +110,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly Type Delegate = typeof(System.Delegate);
 
+		public static readonly Type DuckTypedAttribute = typeof(DuckTypedAttribute);
+
+		public static readonly Type ParamArrayAttribute = typeof(System.ParamArrayAttribute);
+
 	}
 }

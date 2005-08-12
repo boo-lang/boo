@@ -43,20 +43,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return EntityType.Constructor;
 			}
 		}
-
-		override public IType ReturnType
-		{
-			get
-			{
-				return _typeSystemServices.VoidType;
-			}
-		}
 		
 		public ConstructorInfo ConstructorInfo
 		{
 			get
 			{
 				return (ConstructorInfo)MethodInfo;
+			}
+		}
+
+		override public IType ReturnType
+		{
+			get
+			{
+				return _typeSystemServices.VoidType;
 			}
 		}
 	}

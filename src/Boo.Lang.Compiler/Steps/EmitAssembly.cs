@@ -63,8 +63,10 @@ namespace Boo.Lang.Compiler.Steps
 	public class EmitAssembly : AbstractVisitorCompilerStep
 	{
 		static ConstructorInfo DebuggableAttribute_Constructor = typeof(System.Diagnostics.DebuggableAttribute).GetConstructor(new Type[] { Types.Bool, Types.Bool });
+
+		static ConstructorInfo DuckTypedAttribute_Constructor = Types.DuckTypedAttribute.GetConstructor(new Type[0]);
 		
-		static ConstructorInfo ParamArrayAttribute_Constructor = typeof(System.ParamArrayAttribute).GetConstructor(new Type[0]);
+		static ConstructorInfo ParamArrayAttribute_Constructor = Types.ParamArrayAttribute.GetConstructor(new Type[0]);
 		
 		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
 		
@@ -2520,7 +2522,7 @@ namespace Boo.Lang.Compiler.Steps
 				TypeSystemServices.IntType == type;
 		}
 		
-		void PushArguments(IMethod entity, ExpressionCollection args)
+		void PushArguments(IMethodBase entity, ExpressionCollection args)
 		{
 			IParameter[] parameters = entity.GetParameters();
 			for (int i=0; i<args.Count; ++i)
@@ -3489,9 +3491,19 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
+
+			if (GetEntity(method).IsDuckTyped)
+			{
+				builder.SetCustomAttribute(GetDuckTypedCustomAttribute());
+			}
 			return builder;
 		}
-		
+
+		private CustomAttributeBuilder GetDuckTypedCustomAttribute()
+		{
+			return new CustomAttributeBuilder(DuckTypedAttribute_Constructor, new object[0]);
+		}
+
 		void DefineConstructor(TypeBuilder typeBuilder, Method constructor)
 		{
 			ConstructorBuilder builder = typeBuilder.DefineConstructor(GetMethodAttributes(constructor),

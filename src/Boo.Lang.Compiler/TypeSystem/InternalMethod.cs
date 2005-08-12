@@ -76,6 +76,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 		}
+
+		public bool IsDuckTyped
+		{
+			get
+			{
+				return this.ReturnType == _typeSystemServices.DuckType;
+			}
+		}
 		
 		public IType DeclaringType
 		{

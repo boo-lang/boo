@@ -26,61 +26,19 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang
 {
-	using Boo.Lang.Compiler.Ast;
-
-	public class InternalConstructor : InternalMethod, IConstructor
+	using System;
+	
+	/// <summary>
+	/// Marks a method, property or field as being duck typed for type
+	/// inference purposes.
+	/// </summary>
+	[Serializable]
+	public class DuckTypedAttribute : Attribute
 	{
-		bool _hasSuperCall = false;
-		bool _hasSelfCall = false;
-
-		public InternalConstructor(TypeSystemServices typeSystemServices,
-		                                  Constructor constructor) : base(typeSystemServices, constructor)
+		public DuckTypedAttribute()
 		{
 		}
-		  
-		public bool HasSuperCall
-		{
-			get
-			{
-				return _hasSuperCall;
-			}
-			
-			set
-			{
-				_hasSuperCall = value;
-			}
-		}
-
-
-		public bool HasSelfCall
-		{
-			get
-			{
-				return _hasSelfCall;
-			}
-
-			set
-			{
-				_hasSelfCall = value;
-			}
-		}
-
-		override public IType ReturnType
-		{
-			get
-			{
-				return _typeSystemServices.VoidType;
-			}
-		}
-
-	    override public EntityType EntityType
-	    {
-			get
-			{
-				return EntityType.Constructor;
-			}
-	    }
 	}
 }

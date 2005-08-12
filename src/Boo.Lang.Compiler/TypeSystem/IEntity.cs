@@ -243,15 +243,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 	}
-	
-	public interface IMethod : IAccessibleMember
-	{		
-		IParameter[] GetParameters();		
-		
-		IType ReturnType
-		{
-			get;
-		}
+
+	public interface IMethodBase : IAccessibleMember
+	{
+		IParameter[] GetParameters();
 
 		bool AcceptVarArgs
 		{
@@ -259,6 +254,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		ICallableType CallableType
+		{
+			get;
+		}
+	}
+	
+	public interface IMethod : IMethodBase
+	{	
+		bool IsDuckTyped
+		{
+			get;
+		}
+		
+		IType ReturnType
 		{
 			get;
 		}
@@ -279,11 +287,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
-	public interface IConstructor : IMethod
+	public interface IConstructor : IMethodBase
 	{		
 	}
 
-	public interface IDestructor : IMethod
+	public interface IDestructor : IMethodBase
 	{		
 	}
 }

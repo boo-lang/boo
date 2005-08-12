@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.Steps
 				returnType = TypeSystemServices.VoidType;
 			}
 			
-			node.Entity = TypeSystemServices.GetConcreteCallableType(node, new CallableSignature(parameters, returnType));
+			node.Entity = TypeSystemServices.GetConcreteCallableType(node, new CallableSignature(parameters, returnType, false));
 		}
 
 	}
