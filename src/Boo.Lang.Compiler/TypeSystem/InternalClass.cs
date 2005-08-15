@@ -28,10 +28,8 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
 	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
-	using System.Reflection;
 	
 	public class InternalClass : AbstractInternalType
 	{
@@ -77,16 +75,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			bool found = base.Resolve(targetList, name, flags);
-			if (!found || TypeSystemServices.ContainsMethodsOnly(targetList))
+			IType baseType = this.BaseType;
+			if (null != baseType)
 			{
-				IType baseType = this.BaseType;
-				if (null != baseType)
-				{
-					if (baseType.Resolve(targetList, name, flags))
-					{
-						found = true;
-					}
-				}
+				found |= baseType.Resolve(targetList, name, flags);
 			}
 			return found;
 		}

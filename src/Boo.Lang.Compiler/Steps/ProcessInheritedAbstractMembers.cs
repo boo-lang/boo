@@ -273,7 +273,7 @@ namespace Boo.Lang.Compiler.Steps
 					&& IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, entity))
 				{
 					Method method = (Method)member;
-					if (TypeSystemServices.CheckOverrideSignature((IMethod)GetEntity(method), entity))
+					if (TypeSystemServices.CheckOverrideSignature(GetEntity(method), entity))
 					{	
 						if (IsUnknown(method.ReturnType))
 						{

@@ -275,8 +275,8 @@ class AbstractInterpreter:
 			get:
 				return TypeSystem.EntityType.Custom
 	
-		static def IsInterpreterEntity(node as Node):
-			return node.Entity is not null and TypeSystem.EntityType.Custom == node.Entity.EntityType
+		static def IsInterpreterEntity(entity as IEntity):
+			return entity is not null and TypeSystem.EntityType.Custom == entity.EntityType
 	
 	class InterpreterNamespace(INamespace):
 	
@@ -406,10 +406,10 @@ class AbstractInterpreter:
 			return true if _interpreter.RememberLastValue and InEntryPoint
 			return super(node)
 	
-		override def CheckLValue(node as Node):
+		override def CheckLValue(node as Node, entity as IEntity):
 			# prevent 'Expression can't be assigned to' error
-			return true if InterpreterEntity.IsInterpreterEntity(node)
-			return super(node) 
+			return true if InterpreterEntity.IsInterpreterEntity(entity)
+			return super(node, entity) 
 	
 		override def DeclareLocal(sourceNode as Node, name as string, type as IType, privateScope as bool):			
 			return super(sourceNode, name, type, privateScope) if privateScope or not InEntryPoint
@@ -455,12 +455,12 @@ class AbstractInterpreter:
 	
 		override def OnReferenceExpression(node as ReferenceExpression):
 			
-			if (InterpreterEntity.IsInterpreterEntity(node) and
+			if (InterpreterEntity.IsInterpreterEntity(node.Entity) and
 					not AstUtil.IsLhsOfAssignment(node)):	
 				ReplaceCurrentNode(CreateGetValue(node))
 	
 		override def LeaveBinaryExpression(node as BinaryExpression):
-			if InterpreterEntity.IsInterpreterEntity(node.Left):
+			if InterpreterEntity.IsInterpreterEntity(node.Left.Entity):
 				ReplaceCurrentNode(CreateSetValue(node))
 				
 		override def LeaveExpressionStatement(node as ExpressionStatement):

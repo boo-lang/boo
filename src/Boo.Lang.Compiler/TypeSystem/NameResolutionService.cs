@@ -127,10 +127,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{			
-			IEntity tag = _context.TypeSystemServices.ResolvePrimitive(name);
-			if (null != tag)
+			IEntity entity = _context.TypeSystemServices.ResolvePrimitive(name);
+			if (null != entity)
 			{
-				targetList.Add(tag);
+				targetList.Add(entity);
 				return true;
 			}
 			else

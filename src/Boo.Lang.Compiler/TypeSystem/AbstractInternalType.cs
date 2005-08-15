@@ -98,11 +98,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{			
 			bool found = false;
 			
-			foreach (IEntity tag in GetMembers())
+			foreach (IEntity entity in GetMembers())
 			{
-				if (tag.Name == name && NameResolutionService.IsFlagSet(flags, tag.EntityType))
+				if (entity.Name == name && NameResolutionService.IsFlagSet(flags, entity.EntityType))
 				{
-					targetList.Add(tag);
+					targetList.AddUnique(entity);
 					found = true;
 				}
 			}

@@ -115,10 +115,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
-	public interface IProperty : IMember
-	{
-		IParameter[] GetParameters();
-		
+	public interface IProperty : IMember, IEntityWithParameters
+	{	
 		IMethod GetGetMethod();
 		
 		IMethod GetSetMethod();
@@ -244,7 +242,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 
-	public interface IMethodBase : IAccessibleMember
+	public interface IEntityWithParameters : IEntity
 	{
 		IParameter[] GetParameters();
 
@@ -252,7 +250,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get;
 		}
-		
+	}
+
+	public interface IMethodBase : IAccessibleMember, IEntityWithParameters
+	{
 		ICallableType CallableType
 		{
 			get;

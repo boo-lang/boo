@@ -363,7 +363,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 	
 	protected def Reparse(content as string):
 		parserService as IParserService = ICSharpCode.Core.Services.ServiceManager.Services.GetService(typeof(IParserService))
-		info as IParseInformation = parserService.ParseFile(FileName, content, false)
+		info as IParseInformation = parserService.ParseFile(self.FileName, content, false)
 		cu as ICompilationUnit = info.BestCompilationUnit
 		for c as IClass in cu.Classes:
 			if IsBaseClassDesignable(c):
@@ -382,7 +382,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 		return null
 	
 	override def ShowSourceCode():
-		WorkbenchWindow.SwitchView(0)
+		self.WorkbenchWindow.SwitchView(0)
 	
 	override def ShowSourceCode(lineNumber as int):
 		ShowSourceCode()
@@ -517,6 +517,7 @@ class BooDesignerDisplayBindingWrapper(FormDesignerDisplayBindingBase, ISecondar
 	def NotifyBeforeSave():
 		MergeFormChanges()
 		
+	
 	//boo bug?  compiler thinks these methods are not implemented.
 	override def Dispose():
 		super()

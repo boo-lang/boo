@@ -28,10 +28,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
-	using System.Reflection;
 	
 	public class InternalInterface : AbstractInternalType
 	{		

@@ -103,6 +103,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 					: Unknown.Default;
 			}
 		}
+
+		public bool AcceptVarArgs
+		{
+			get
+			{
+				return false;
+			}
+		}
 		
 		public IParameter[] GetParameters()
 		{

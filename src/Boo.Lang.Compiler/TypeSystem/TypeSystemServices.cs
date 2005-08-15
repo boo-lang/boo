@@ -950,12 +950,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return tag;
 		}
 		
-		public string GetSignature(IMethod method)
+		public string GetSignature(IEntityWithParameters method)
 		{
 			return GetSignature(method, true);
 		}
 		
-		public string GetSignature(IMethod method, bool includeFullName)
+		public string GetSignature(IEntityWithParameters method, bool includeFullName)
 		{
 			_buffer.Length = 0;
 			if (includeFullName)

@@ -106,14 +106,9 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					case NodeType.Constructor:
 					case NodeType.Method:
-					{
-						CheckMethodMember(list, (Method)member);
-						break;
-					}
-
 					case NodeType.Property:
 					{
-						CheckPropertyMember(list, (Property)member);
+						CheckOverloadableMember(list, member);
 						break;
 					}
 					
@@ -135,30 +130,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void CheckPropertyMember(List existing, TypeMember member)
-		{
-			foreach (TypeMember existingMember in existing)
-			{
-				Property existingProp = existingMember as Property;
-
-				if (existingProp == null)
-				{
-					if (existing.Count > 0)
-					{
-						MemberNameConflict(member);
-					}
-				}
-				else
-				{
-					if (!AreDifferentInterfaceMembers (existingProp, (Property)member))
-					{
-						MemberNameConflict(member);
-					}
-				}
-			}
-		}
-		
-		void CheckMethodMember(List existing, TypeMember member)
+		void CheckOverloadableMember(List existing, TypeMember member)
 		{
 			NodeType expectedNodeType = member.NodeType;
 			foreach (TypeMember existingMember in existing)
@@ -171,9 +143,10 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (existingMember.IsStatic == member.IsStatic)
 					{
-						if (AreParametersTheSame(existingMember, member) && ! AreDifferentInterfaceMembers((Method)existingMember, (Method)member))
+						if (AreParametersTheSame(existingMember, member)
+							&& !AreDifferentInterfaceMembers((IExplicitMember)existingMember, (IExplicitMember)member))
 						{
-							MemberConflict(member, TypeSystemServices.GetSignature((IMethod)member.Entity, false));
+							MemberConflict(member, TypeSystemServices.GetSignature((IEntityWithParameters)member.Entity, false));
 						}
 					}
 				}
@@ -182,8 +155,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool AreParametersTheSame(TypeMember lhs, TypeMember rhs)
 		{
-			IParameter[] lhsParameters = ((InternalMethod)lhs.Entity).GetParameters();
-			IParameter[] rhsParameters = ((InternalMethod)rhs.Entity).GetParameters();
+			IParameter[] lhsParameters = GetParameters(lhs.Entity);
+			IParameter[] rhsParameters = GetParameters(rhs.Entity);
+			return AreParametersTheSame(lhsParameters, rhsParameters);
+		}
+
+		private static IParameter[] GetParameters(IEntity entity)
+		{
+			return ((IEntityWithParameters)entity).GetParameters();
+		}
+
+		private static bool AreParametersTheSame(IParameter[] lhsParameters, IParameter[] rhsParameters)
+		{
 			if (lhsParameters.Length != rhsParameters.Length)
 			{
 				return false;
@@ -197,8 +180,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return true;
 		}
-		
-		bool AreDifferentInterfaceMembers (IExplicitMember lhs, IExplicitMember rhs)
+
+		bool AreDifferentInterfaceMembers(IExplicitMember lhs, IExplicitMember rhs)
 		{
 			if (lhs.ExplicitInfo == null && rhs.ExplicitInfo == null)
 			{

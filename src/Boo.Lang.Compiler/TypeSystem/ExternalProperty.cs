@@ -106,6 +106,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _property;
 			}
 		}
+
+		public bool AcceptVarArgs
+		{
+			get
+			{
+				return false;
+			}
+		}
 		
 		public IParameter[] GetParameters()
 		{
@@ -121,7 +129,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
 			if (null != getter)
 			{
-				return (IMethod)_typeSystemServices.Map(getter);
+				return _typeSystemServices.Map(getter);
 			}
 			return null;
 		}
@@ -131,7 +139,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
 			if (null != setter)
 			{
-				return (IMethod)_typeSystemServices.Map(setter);
+				return _typeSystemServices.Map(setter);
 			}
 			return null;
 		}
