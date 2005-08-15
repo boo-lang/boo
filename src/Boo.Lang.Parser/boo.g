@@ -754,6 +754,7 @@ field_or_property [TypeMemberCollection container]
 					p = new Property(ToLexicalInfo(id));
 				p.Name = id.getText();
 				p.ExplicitInfo = emi;
+				AddAttributes(p.Attributes);
 			}
 			(LPAREN parameter_declaration_list[p.Parameters] RPAREN)?
 			(AS tr=type_reference)?
@@ -761,7 +762,6 @@ field_or_property [TypeMemberCollection container]
 				p.Type = tr;
 				tm = p;
 				tm.Modifiers = _modifiers;
-				AddAttributes(tm.Attributes);
 			}		
 			begin_with_doc[p]
 				(property_accessor[p])+

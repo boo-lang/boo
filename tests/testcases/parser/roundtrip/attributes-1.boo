@@ -44,6 +44,11 @@ class Person:
 		get:
 			return (_dof - date.Now).TotalDays
 
+	[XmlIgnore]
+	Property([required] key as string):
+		get:
+			return null
+
 """
 [XmlElement("Person", Namespace: "urn:foo:bar")]
 class Person:
@@ -92,3 +97,8 @@ class Person:
 		[memoize]
 		get:
 			return (_dof - date.Now).TotalDays
+
+	[XmlIgnore]
+	Property([required] key as string):
+		get:
+			return null
