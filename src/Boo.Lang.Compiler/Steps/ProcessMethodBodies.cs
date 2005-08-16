@@ -2133,8 +2133,9 @@ namespace Boo.Lang.Compiler.Steps
 						ResolveMemberInfo(node, resolvedMember);
 						break;
 					}
-					if (!AstUtil.IsTargetOfMethodInvocation(node) &&
-						((Ambiguous)tag).AllEntitiesAre(EntityType.Method))
+					if (!AstUtil.IsTargetOfMethodInvocation(node)
+						&& !AstUtil.IsTargetOfSlicing(node)
+						&& !AstUtil.IsLhsOfAssignment(node))
 					{
 						Error(node, CompilerErrorFactory.AmbiguousReference(
 										node,

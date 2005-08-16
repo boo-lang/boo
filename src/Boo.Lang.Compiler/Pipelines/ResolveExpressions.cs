@@ -54,6 +54,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ResolveTypeReferences());
 			Add(new BindTypeMembers());			
 			Add(new ProcessInheritedAbstractMembers());
+			Add(new CheckMemberNames());
 			Add(new ProcessMethodBodiesWithDuckTyping());
 		}
 	}
