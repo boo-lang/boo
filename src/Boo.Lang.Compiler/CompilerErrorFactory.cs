@@ -321,14 +321,10 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0057", node.LexicalInfo, name);
 		}
 
-		/*
-		 * 
-		 * Deprecated
 		public static CompilerError ObjectRequired(Node node)
 		{
 			return new CompilerError("BCE0058", node.LexicalInfo);
 		}
-		*/
 		
 		public static CompilerError InvalidLockMacroArguments(Node node)
 		{

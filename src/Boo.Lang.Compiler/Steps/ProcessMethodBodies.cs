@@ -1899,6 +1899,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
+				if (_currentMethod.IsStatic)
+				{
+					if (NodeType.MemberReferenceExpression != node.ParentNode.NodeType)
+					{
+						// if we are inside a MemberReferenceExpression
+						// let the MemberReferenceExpression deal with it
+						// as it can provide a better message
+						Error(CompilerErrorFactory.ObjectRequired(node));
+					}
+				}
 				node.Entity = _currentMethod;
 				node.ExpressionType = _currentMethod.DeclaringType;
 			}
