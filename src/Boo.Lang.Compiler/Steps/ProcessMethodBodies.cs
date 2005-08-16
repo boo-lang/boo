@@ -2682,15 +2682,24 @@ namespace Boo.Lang.Compiler.Steps
 			SlicingExpression slicing = (SlicingExpression)node.Operand;
 			CheckNoComplexSlicing(slicing);
 			Visit(slicing);
-			
-			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
-			if (HasSideEffect(slicing.Target))
+			return CreateSideEffectAwareSlicingOperation(
+					node.LexicalInfo,
+					GetEquivalentBinaryOperator(node.Operator),
+					slicing,
+					CodeBuilder.CreateIntegerLiteral(1),
+					DeclareOldValueTempIfNeeded(node));
+		}
+
+		private Expression CreateSideEffectAwareSlicingOperation(LexicalInfo lexicalInfo, BinaryOperatorType binaryOperator, SlicingExpression lvalue, Expression rvalue, InternalLocal returnValue)
+		{
+			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(lexicalInfo);
+			if (HasSideEffect(lvalue.Target))
 			{
-				InternalLocal temp = AddInitializedTempLocal(eval, slicing.Target);
-				slicing.Target = CodeBuilder.CreateReference(temp);
+				InternalLocal temp = AddInitializedTempLocal(eval, lvalue.Target);
+				lvalue.Target = CodeBuilder.CreateReference(temp);
 			}
-			
-			foreach (Slice slice in slicing.Indices)
+	
+			foreach (Slice slice in lvalue.Indices)
 			{
 				Expression index = slice.Begin;
 				if (HasSideEffect(index))
@@ -2699,32 +2708,30 @@ namespace Boo.Lang.Compiler.Steps
 					slice.Begin = CodeBuilder.CreateReference(temp);
 				}
 			}
-
-			InternalLocal oldValue = DeclareOldValueTempIfNeeded(node);
-			
+	
 			BinaryExpression addition = CodeBuilder.CreateBoundBinaryExpression(
-				GetExpressionType(slicing),
-				GetEquivalentBinaryOperator(node.Operator),
-				CloneOrAssignToTemp(oldValue, slicing),
-				CodeBuilder.CreateIntegerLiteral(1));
+				GetExpressionType(lvalue),
+				binaryOperator,
+				CloneOrAssignToTemp(returnValue, lvalue),
+				rvalue);
 			Expression expansion = CodeBuilder.CreateAssignment(
-					slicing.CloneNode(),
-					addition);
+				lvalue.CloneNode(),
+				addition);
 			// Resolve operator overloads if any
 			BindArithmeticOperator(addition);
-			if (eval.Arguments.Count > 0 || null != oldValue)
+			if (eval.Arguments.Count > 0 || null != returnValue)
 			{
 				eval.Arguments.Add(expansion);
-				if (null != oldValue)
+				if (null != returnValue)
 				{
-					eval.Arguments.Add(CodeBuilder.CreateReference(oldValue));
+					eval.Arguments.Add(CodeBuilder.CreateReference(returnValue));
 				}
-				BindExpressionType(eval, GetExpressionType(slicing));
+				BindExpressionType(eval, GetExpressionType(lvalue));
 				expansion = eval;
 			}
 			return expansion;
 		}
-		
+
 		InternalLocal AddInitializedTempLocal(MethodInvocationExpression eval, Expression initializer)
 		{
 			InternalLocal temp = DeclareTempLocal(GetExpressionType(initializer));
@@ -4030,6 +4037,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindInPlaceArithmeticOperator(BinaryExpression node)
 		{
+			if (IsArraySlicing(node.Left))
+			{
+				BindInPlaceArithmeticOperatorOnArraySlicing(node);
+				return;
+			}
+
 			Node parent = node.ParentNode;
 			
 			Expression target = node.Left;
@@ -4048,7 +4061,19 @@ namespace Boo.Lang.Compiler.Steps
 			parent.Replace(node, assign);
 			Visit(assign);
 		}
-		
+
+		private void BindInPlaceArithmeticOperatorOnArraySlicing(BinaryExpression node)
+		{
+			Node parent = node.ParentNode;
+			Expression expansion = CreateSideEffectAwareSlicingOperation(
+				node.LexicalInfo,
+				GetRelatedBinaryOperatorForInPlaceOperator(node.Operator),
+				(SlicingExpression) node.Left, 
+				node.Right,
+				null);
+			parent.Replace(node, expansion);
+		}
+
 		BinaryOperatorType GetRelatedBinaryOperatorForInPlaceOperator(BinaryOperatorType op)
 		{
 			switch (op)
