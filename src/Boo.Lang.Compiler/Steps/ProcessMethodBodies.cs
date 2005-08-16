@@ -3125,9 +3125,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindInPlaceAddSubtract(BinaryExpression node)
 		{
-			EntityType elementType = GetEntity(node.Left).EntityType;
-			if (EntityType.Event == elementType ||
-				EntityType.Ambiguous == elementType)
+			IEntity entity = node.Left.Entity;
+			if (null != entity &&
+				(EntityType.Event == entity.EntityType
+				|| EntityType.Ambiguous == entity.EntityType))
 			{
 				BindEventSubscription(node);
 			}
