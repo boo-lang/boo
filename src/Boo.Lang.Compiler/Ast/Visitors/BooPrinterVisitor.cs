@@ -632,6 +632,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression e)
 		{
 			Write(e.Value.ToString("########0.0##########", CultureInfo.InvariantCulture));
+			if (e.IsSingle)
+			{
+				Write("F");
+			}
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)

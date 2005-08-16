@@ -2408,7 +2408,17 @@ re_literal returns [RELiteralExpression re] { re = null; }:
 protected
 double_literal returns [DoubleLiteralExpression rle] { rle = null; }:
 	value:DOUBLE
-	{ rle = new DoubleLiteralExpression(ToLexicalInfo(value), ParseDouble(value.getText())); }
+	{ 
+		rle = new DoubleLiteralExpression(ToLexicalInfo(value), ParseDouble(value.getText())); 
+	}
+	|
+	single:FLOAT
+	{
+		string s = single.getText();
+		s = s.Substring(0, s.Length-1);
+		double val = float.Parse(s, CultureInfo.InvariantCulture);
+		rle = new DoubleLiteralExpression(ToLexicalInfo(single), val, true);
+	}
 	;
 	
 protected
@@ -2571,14 +2581,23 @@ INT :
 	(DIGIT)+
 	(
 		('l' | 'L') { $setType(LONG); } |
+		('f' | 'F') { $setType(FLOAT); } |
 		(
 			({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
-			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+			(
+			('f' | 'F')  { $setType(FLOAT); } |
+			("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); }
+			)?
 		)
 	)
 	;
 
-DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
+DOT : '.' 
+	(
+		(DIGIT)+ {$setType(DOUBLE);}
+		(('f' | 'F')  { $setType(FLOAT); })?
+	)?
+	;
 
 COLON : ':';
 

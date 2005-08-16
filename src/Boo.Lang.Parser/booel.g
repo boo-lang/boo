@@ -63,14 +63,23 @@ INT :
 	(DIGIT)+
 	(
 		('l' | 'L') { $setType(LONG); } |
+		('f' | 'F') { $setType(FLOAT); } |
 		(
 			({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
-			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+			(
+			('f' | 'F')  { $setType(FLOAT); } |
+			("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); }
+			)?
 		)
 	)
 	;
 
-DOT : '.' ((DIGIT)+ {$setType(DOUBLE);})?;
+DOT : '.' 
+	(
+		(DIGIT)+ {$setType(DOUBLE);}
+		(('f' | 'F')  { $setType(FLOAT); })?
+	)?
+	;
 
 COLON : ':';
 

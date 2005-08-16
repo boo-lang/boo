@@ -21,7 +21,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit41.xml" FILE_NAME_GLOB="*.b
 	<RULES
 		ESCAPE="\" IGNORE_CASE="FALSE"
 		HIGHLIGHT_DIGITS="TRUE"
-		DIGIT_RE="(\d+(\.\d+)?(f|l|L|(ms)|s|m|h|d))|(0x([A-Fa-f]|\d)+(l|L)?)"
+		DIGIT_RE="(\d+(\.\d+)?(f|F|l|L|(ms)|s|m|h|d))|(0x([A-Fa-f]|\d)+(l|L)?)"
 		>
 		<!-- Comment -->
 		<EOL_SPAN TYPE="COMMENT1">#</EOL_SPAN>

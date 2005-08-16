@@ -42,7 +42,15 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public DoubleLiteralExpression(double value, bool isSingle) : base(value, isSingle)
+		{
+		}
+		
 		public DoubleLiteralExpression(LexicalInfo lexicalInfo, double value) : base(lexicalInfo, value, false)
+		{
+		}
+		
+		public DoubleLiteralExpression(LexicalInfo lexicalInfo, double value, bool isSingle) : base(lexicalInfo, value, isSingle)
 		{
 		}
 		
