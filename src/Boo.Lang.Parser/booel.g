@@ -77,9 +77,12 @@ INT :
 DOT : '.' 
 	(
 		(DIGIT)+ {$setType(DOUBLE);}
-		(('f' | 'F')  { $setType(FLOAT); })?
+		(
+			(('f' | 'F')  { $setType(FLOAT); }) |
+			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); }) |
+		)
 	)?
-	;
+;
 
 COLON : ':';
 
