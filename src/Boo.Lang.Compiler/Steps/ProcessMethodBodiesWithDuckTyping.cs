@@ -77,6 +77,13 @@ namespace Boo.Lang.Compiler.Steps
 				base.ProcessAssignment(node);
 			}
 		}
+
+		protected override bool ShouldRebindMember(IEntity entity)
+		{
+			// always rebind quack builtins (InPlace operators)
+			return null == entity || IsQuackBuiltin(entity);
+		}
+
 		
 		override protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
@@ -251,6 +258,12 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsQuackBuiltin(IEntity entity)
 		{
 			return BuiltinFunction.Quack == entity;
+		}
+
+		protected override void CheckBuiltinUsage(ReferenceExpression node, IEntity entity)
+		{
+			if (IsQuackBuiltin(entity)) return;
+			base.CheckBuiltinUsage(node, entity);
 		}
 		
 		void ProcessQuackPropertyGet(MemberReferenceExpression node)

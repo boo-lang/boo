@@ -1948,7 +1948,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		IMethod FindConversionOperator(string name, IType fromType, IType toType)
-		{
+		{	
 			while (fromType != TypeSystemServices.ObjectType)
 			{
 				foreach (IEntity entity in fromType.GetMembers())
@@ -1964,13 +1964,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 				fromType = fromType.BaseType;
-				if (null == fromType)
-				{
-				// FIXME: this null check should not be needed
-				// but Boo.Nant.Tasks is failing to compiler
-				// otherwise
-					break;
-				}
+				if (null == fromType) break;
 			}
 			return null;
 		}
@@ -2168,10 +2162,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (EntityType.BuiltinFunction == tag.EntityType)
 					{
-						if (!AstUtil.IsTargetOfMethodInvocation(node))
-						{
-							Error(node, CompilerErrorFactory.BuiltinCannotBeUsedAsExpression(node, tag.Name));
-						}
+						CheckBuiltinUsage(node, tag);
 					}
 					else
 					{
@@ -2184,7 +2175,15 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		protected virtual void CheckBuiltinUsage(ReferenceExpression node, IEntity entity)
+		{
+			if (!AstUtil.IsTargetOfMethodInvocation(node))
+			{
+				Error(node, CompilerErrorFactory.BuiltinCannotBeUsedAsExpression(node, entity.Name));
+			}
+		}
+
 		override public bool EnterMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			return null == node.ExpressionType;
@@ -2227,6 +2226,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
+			_context.TraceVerbose("LeaveMemberReferenceExpression: {0}", node);
+
 			if (TypeSystemServices.IsError(node.Target))
 			{
 				Error(node);
@@ -2241,20 +2242,31 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
 		}
-		
-		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
+
+		virtual protected bool ShouldRebindMember(IEntity entity)
+		{
+			return entity == null;
+		}
+
+		IEntity ResolveMember(MemberReferenceExpression node)
 		{
 			IEntity member = node.Entity;
-			if (null == member)
+			if (ShouldRebindMember(member))
 			{
 				INamespace ns = GetReferenceNamespace(node);
 				member = NameResolutionService.Resolve(ns, node.Name);
 				if (null == member)
 				{
 					MemberNotFound(node, ns);
-					return;
 				}
 			}
+			return member;
+		}
+		
+		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
+		{
+			IEntity member = ResolveMember(node);
+			if (null == member) return;
 			
 			EnsureRelatedNodeWasVisited(node, member);
 
@@ -2922,7 +2934,8 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			if (TypeSystemServices.IsError(node.Left) || TypeSystemServices.IsError(node.Right))
+			if (TypeSystemServices.IsError(node.Left)
+				|| TypeSystemServices.IsError(node.Right))
 			{
 				Error(node);
 				return;
@@ -4078,15 +4091,20 @@ namespace Boo.Lang.Compiler.Steps
 				// if target is a property force a rebinding
 				target.ExpressionType = null;
 			}
-			
-			BinaryExpression assign = new BinaryExpression(node.LexicalInfo);
-			assign.Operator = BinaryOperatorType.Assign;
-			assign.Left = target.CloneNode();
-			assign.Right = node;
-			node.Operator = GetRelatedBinaryOperatorForInPlaceOperator(node.Operator);
-			
+
+			BinaryExpression assign = ExpandInPlaceBinaryExpression(node);
 			parent.Replace(node, assign);
 			Visit(assign);
+		}
+
+		protected BinaryExpression ExpandInPlaceBinaryExpression(BinaryExpression node)
+		{
+			BinaryExpression assign = new BinaryExpression(node.LexicalInfo);
+			assign.Operator = BinaryOperatorType.Assign;
+			assign.Left = node.Left.CloneNode();
+			assign.Right = node;
+			node.Operator = GetRelatedBinaryOperatorForInPlaceOperator(node.Operator);
+			return assign;
 		}
 
 		private void BindInPlaceArithmeticOperatorOnArraySlicing(BinaryExpression node)
