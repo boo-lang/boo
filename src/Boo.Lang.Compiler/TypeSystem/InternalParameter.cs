@@ -102,5 +102,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return false;
 			}
 		}
+
+		public bool IsDuckTyped
+		{
+			get { return false; }
+		}
 	}
 }

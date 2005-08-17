@@ -30,8 +30,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Collections;
+	using System.Reflection;
 	using Boo.Lang.Compiler.Ast;
-	
+	using Attribute = Boo.Lang.Compiler.Ast.Attribute;
+
 	public abstract class AbstractInternalType : IInternalEntity, IType, INamespace
 	{		
 		protected TypeSystemServices _typeSystemServices;
@@ -42,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected INamespace _parentNamespace;
 		
-		protected System.Type _generatedType;
+		protected Type _generatedType;
 		
 		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition)
 		{
@@ -65,7 +67,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _typeDefinition.Name;
 			}
 		}	
-		
+
 		public Node Node
 		{
 			get
@@ -94,7 +96,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public virtual bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public virtual bool Resolve(List targetList, string name, EntityType flags)
 		{			
 			bool found = false;
 			
@@ -210,8 +212,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IEntity GetDefaultMember()
 		{
-			IType defaultMemberAttribute = _typeSystemServices.Map(typeof(System.Reflection.DefaultMemberAttribute));
-			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in _typeDefinition.Attributes)
+			IType defaultMemberAttribute = _typeSystemServices.Map(typeof(DefaultMemberAttribute));
+			foreach (Attribute attribute in _typeDefinition.Attributes)
 			{
 				IConstructor tag = TypeSystemServices.GetEntity(attribute) as IConstructor;
 				if (null != tag)
@@ -221,7 +223,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 						StringLiteralExpression memberName = attribute.Arguments[0] as StringLiteralExpression;
 						if (null != memberName)
 						{
-							Boo.Lang.List buffer = new Boo.Lang.List();
+							List buffer = new List();
 							Resolve(buffer, memberName.Value, EntityType.Any);
 							return NameResolutionService.GetEntityFromList(buffer);
 						}
@@ -264,7 +266,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _interfaces)
 			{
-				Boo.Lang.List buffer = new Boo.Lang.List();
+				List buffer = new List();
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
@@ -336,7 +338,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			throw new ArgumentException("Member type not supported: " + member);
 		}
 		
-		public System.Type GeneratedType
+		public Type GeneratedType
 		{
 			get
 			{

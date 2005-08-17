@@ -26,14 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Reflection;
-using System.Text;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Ast;
-
 namespace Boo.Lang.Compiler.TypeSystem
 {
+	using System;
+	using System.Collections;
+	using System.Reflection;
+	using System.Text;
+	using Boo.Lang.Compiler.Ast;
+	using Attribute = Boo.Lang.Compiler.Ast.Attribute;
+	using Module = Boo.Lang.Compiler.Ast.Module;
+
 	public class TypeSystemServices
 	{
 		public DuckTypeImpl DuckType;
@@ -118,21 +120,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType IDictionaryType;
 		
-		protected System.Collections.Hashtable _primitives = new System.Collections.Hashtable();
+		protected Hashtable _primitives = new Hashtable();
 		
-		protected System.Collections.Hashtable _entityCache = new System.Collections.Hashtable();
+		protected Hashtable _entityCache = new Hashtable();
 		
-		protected System.Collections.Hashtable _arrayCache = new System.Collections.Hashtable();
+		protected Hashtable _arrayCache = new Hashtable();
 		
-		protected System.Collections.Hashtable _anonymousCallableTypes = new System.Collections.Hashtable();
+		protected Hashtable _anonymousCallableTypes = new Hashtable();
 		
-		public static readonly IType ErrorEntity = Boo.Lang.Compiler.TypeSystem.Error.Default;
+		public static readonly IType ErrorEntity = Error.Default;
 		
 		public readonly BooCodeBuilder CodeBuilder;
 		
 		StringBuilder _buffer = new StringBuilder();
 		
-		Boo.Lang.Compiler.Ast.Module _anonymousTypesModule;
+		Module _anonymousTypesModule;
 		
 		CompilerContext _context;
 		
@@ -151,13 +153,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			CodeBuilder = new BooCodeBuilder(this);
 			
-			Cache(typeof(Boo.Lang.Builtins.duck), DuckType = new DuckTypeImpl(this));
-			Cache(IQuackFuType = new ExternalType(this, typeof(Boo.Lang.IQuackFu)));
+			Cache(typeof(Builtins.duck), DuckType = new DuckTypeImpl(this));
+			Cache(IQuackFuType = new ExternalType(this, typeof(IQuackFu)));
 			Cache(VoidType = new VoidTypeImpl(this));
 			Cache(ObjectType = new ExternalType(this, Types.Object));
 			Cache(RegexType = new ExternalType(this, Types.Regex));
-			Cache(ValueTypeType = new ExternalType(this, typeof(System.ValueType)));
-			Cache(EnumType = new ExternalType(this, typeof(System.Enum)));
+			Cache(ValueTypeType = new ExternalType(this, typeof(ValueType)));
+			Cache(EnumType = new ExternalType(this, typeof(Enum)));
 			Cache(ArrayType = new ExternalType(this, Types.Array));
 			Cache(TypeType = new ExternalType(this, Types.Type));
 			Cache(StringType = new ExternalType(this, Types.String));
@@ -182,7 +184,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(HashType = new ExternalType(this, Types.Hash));
 			Cache(ICallableType = new ExternalType(this, Types.ICallable));
 			Cache(IEnumerableType = new ExternalType(this, Types.IEnumerable));
-			Cache(IEnumeratorType = new ExternalType(this, typeof(System.Collections.IEnumerator)));
+			Cache(IEnumeratorType = new ExternalType(this, typeof(IEnumerator)));
 			Cache(ICollectionType = new ExternalType(this, Types.ICollection));
 			Cache(IListType = new ExternalType(this, Types.IList));
 			Cache(IDictionaryType = new ExternalType(this, Types.IDictionary));
@@ -383,7 +385,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool IsCallableType(IType type)
 		{
 			return (ICallableType.IsAssignableFrom(type)) ||
-				(type is Boo.Lang.Compiler.TypeSystem.ICallableType);
+				(type is ICallableType);
 		}
 		
 		public AnonymousCallableType GetCallableType(IMethod method)
@@ -460,11 +462,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public Boo.Lang.Compiler.Ast.Module GetAnonymousTypesModule()
+		public Module GetAnonymousTypesModule()
 		{
 			if (null == _anonymousTypesModule)
 			{
-				_anonymousTypesModule = new Boo.Lang.Compiler.Ast.Module();
+				_anonymousTypesModule = new Module();
 				_anonymousTypesModule.Entity = new ModuleEntity(_context.NameResolutionService,
 																this,
 																_anonymousTypesModule);
@@ -602,7 +604,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type.IsEnum || type == this.CharType;
 		}
 		
-		public static bool ContainsMethodsOnly(Boo.Lang.List members)
+		public static bool ContainsMethodsOnly(List members)
 		{
 			foreach (IEntity member in members)
 			{
@@ -718,12 +720,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static IEntity[] GetAllMembers(INamespace entity)
 		{
-			Boo.Lang.List members = new Boo.Lang.List();
+			List members = new List();
 			GetAllMembers(members, entity);
 			return (IEntity[])members.ToArray(typeof(IEntity));
 		}
 		
-		private static void GetAllMembers(Boo.Lang.List members, INamespace entity)
+		private static void GetAllMembers(List members, INamespace entity)
 		{
 			if (null == entity)
 			{
@@ -779,7 +781,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return ((ITypedEntity)GetEntity(node)).Type;
 		}
 		
-		public IType Map(System.Type type)
+		public IType Map(Type type)
 		{
 			ExternalType entity = (ExternalType)_entityCache[type];
 			if (null == entity)
@@ -838,7 +840,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 			
-		public IParameter[] Map(Boo.Lang.Compiler.Ast.ParameterDeclarationCollection parameters)
+		public IParameter[] Map(ParameterDeclarationCollection parameters)
 		{
 			IParameter[] mapped = new IParameter[parameters.Count];
 			for (int i=0; i<mapped.Length; ++i)
@@ -848,7 +850,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return mapped;
 		}
 		
-		public IParameter[] Map(System.Reflection.ParameterInfo[] parameters)
+		public IParameter[] Map(ParameterInfo[] parameters)
 		{
 			IParameter[] mapped = new IParameter[parameters.Length];
 			for (int i=0; i<parameters.Length; ++i)
@@ -882,7 +884,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return entity;
 		}
 		
-		public IEntity Map(System.Reflection.MemberInfo[] info)
+		public IEntity Map(MemberInfo[] info)
 		{
 			if (info.Length > 1)
 			{
@@ -900,7 +902,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public IEntity Map(System.Reflection.MemberInfo mi)
+		public IEntity Map(MemberInfo mi)
 		{
 			IEntity tag = (IEntity)_entityCache[GetCacheKey(mi)];
 			if (null == tag)
@@ -909,35 +911,35 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					case MemberTypes.Method:
 					{
-						return Map((System.Reflection.MethodInfo)mi);
+						return Map((MethodInfo)mi);
 					}
 					
 					case MemberTypes.Constructor:
 					{
-						return Map((System.Reflection.ConstructorInfo)mi);
+						return Map((ConstructorInfo)mi);
 					}
 					
 					case MemberTypes.Field:
 					{
-						tag = new ExternalField(this, (System.Reflection.FieldInfo)mi);
+						tag = new ExternalField(this, (FieldInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Property:
 					{
-						tag = new ExternalProperty(this, (System.Reflection.PropertyInfo)mi);
+						tag = new ExternalProperty(this, (PropertyInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.Event:
 					{
-						tag = new ExternalEvent(this, (System.Reflection.EventInfo)mi);
+						tag = new ExternalEvent(this, (EventInfo)mi);
 						break;
 					}
 					
 					case MemberTypes.NestedType:
 					{
-						return Map((System.Type)mi);
+						return Map((Type)mi);
 					}
 					
 					default:
@@ -979,7 +981,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _buffer.ToString();
 		}
 		
-		public object GetCacheKey(System.Reflection.MemberInfo mi)
+		public object GetCacheKey(MemberInfo mi)
 		{
 			return mi;
 		}
@@ -1167,7 +1169,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			
 			IType enumeratorItemTypeAttribute = Map(typeof(EnumeratorItemTypeAttribute));
-			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
+			foreach (Attribute attribute in internalType.TypeDefinition.Attributes)
 			{
 				IConstructor constructor = GetEntity(attribute) as IConstructor;
 				if (null != constructor)
@@ -1192,7 +1194,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected virtual IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
-			Boo.Lang.Compiler.Ast.Module module = GetAnonymousTypesModule();
+			Module module = GetAnonymousTypesModule();
 			
 			string name = string.Format("___callable{0}", module.Members.Count);
 			ClassDefinition cd = CreateCallableDefinition(name);
@@ -1232,7 +1234,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 			}
 			
-			override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+			override public bool Resolve(List targetList, string name, EntityType flags)
 			{
 				return false;
 			}

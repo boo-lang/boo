@@ -305,7 +305,7 @@ namespace Boo.Lang.Compiler.Steps
 				return EntityType.Unknown;
 			}
 		}
-		
+
 		public IType Type
 		{
 			get

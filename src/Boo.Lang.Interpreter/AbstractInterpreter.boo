@@ -274,7 +274,7 @@ class AbstractInterpreter:
 		EntityType:
 			get:
 				return TypeSystem.EntityType.Custom
-	
+				
 		static def IsInterpreterEntity(entity as IEntity):
 			return entity is not null and TypeSystem.EntityType.Custom == entity.EntityType
 	

@@ -1,5 +1,6 @@
 """
 Bill
+Bill
 """
 
 // this test makes sure duck types are preserved and recognized in compiled
@@ -25,8 +26,13 @@ class Person:
 	[property(Name)]
 	_name = ''
 	
-def foo() as duck:
-	return Person(Name: 'Bill')
+class Foo:
+	static def bar() as duck:
+		return Person(Name: 'Bill')
+		
+	static baz as duck:
+		get:
+			return Person(Name: 'Bill')
 """
 
 library = compile(code, [])
@@ -35,9 +41,13 @@ code = """
 class App:
 	def Run():
 		print bar().Name
+		print baz().Name
 		
 	def bar():
-		return foo()
+		return Foo.bar()
+		
+	def baz():
+		return Foo.baz
 """
 
 app = compile(code, [library])

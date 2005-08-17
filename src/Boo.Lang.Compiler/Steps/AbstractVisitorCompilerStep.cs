@@ -142,6 +142,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return (IMethod)TypeSystemServices.GetEntity(node);
 		}
+
+		public IProperty GetEntity(Property node)
+		{
+			return (IProperty)TypeSystemServices.GetEntity(node);
+		}
 		
 		protected void BindExpressionType(Expression node, IType type)
 		{

@@ -27,10 +27,10 @@
 #endregion
 
 namespace Boo.Lang.Compiler.TypeSystem
-{	
+{
 	using System;
 	using Boo.Lang.Compiler.Ast;
-	
+
 	public class BooMethodBuilder
 	{
 		BooCodeBuilder _codeBuilder;

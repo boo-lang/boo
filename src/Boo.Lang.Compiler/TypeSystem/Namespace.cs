@@ -29,9 +29,10 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	using System.Reflection;
 	using System.Collections;
-	
+	using System.Reflection;
+	using Boo.Lang.Compiler.Ast;
+
 	public class SimpleNamespace : INamespace
 	{		
 		INamespace _parent;
@@ -55,7 +56,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public virtual bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public virtual bool Resolve(List targetList, string name, EntityType flags)
 		{
 			IEntity element = (IEntity)_children[name];
 			if (null != element && NameResolutionService.IsFlagSet(flags, element.EntityType))
@@ -85,7 +86,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		override public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			if (!base.Resolve(targetList, name, flags))
 			{
@@ -97,10 +98,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class AssemblyQualifiedNamespaceEntity : IEntity, INamespace
 	{
-		System.Reflection.Assembly _assembly;
+		Assembly _assembly;
 		NamespaceEntity _subject;
 		
-		public AssemblyQualifiedNamespaceEntity(System.Reflection.Assembly assembly, NamespaceEntity subject)
+		public AssemblyQualifiedNamespaceEntity(Assembly assembly, NamespaceEntity subject)
 		{
 			_assembly = assembly;
 			_subject = subject;
@@ -138,7 +139,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			return _subject.Resolve(targetList, name, _assembly, flags);
 		}
@@ -192,7 +193,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			if (name == _alias && NameResolutionService.IsFlagSet(flags, _subject.EntityType))
 			{
@@ -232,7 +233,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			bool found = false;
 			foreach (INamespace ns in _namespaces)
@@ -255,18 +256,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 	class DeclarationsNamespace : INamespace
 	{
 		INamespace _parent;
-		Boo.Lang.Compiler.Ast.DeclarationCollection _declarations;
+		DeclarationCollection _declarations;
 		
-		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.DeclarationCollection declarations)
+		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, DeclarationCollection declarations)
 		{
 			_parent = parent;
 			_declarations = declarations;
 		}
 		
-		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Boo.Lang.Compiler.Ast.Declaration declaration)
+		public DeclarationsNamespace(INamespace parent, TypeSystemServices tagManager, Declaration declaration)
 		{
 			_parent = parent;
-			_declarations = new Boo.Lang.Compiler.Ast.DeclarationCollection();
+			_declarations = new DeclarationCollection();
 			_declarations.Add(declaration);
 		}
 		
@@ -278,9 +279,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool Resolve(List targetList, string name, EntityType flags)
 		{
-			Boo.Lang.Compiler.Ast.Declaration found = _declarations[name];
+			Declaration found = _declarations[name];
 			if (null != found)
 			{
 				IEntity element = TypeSystemServices.GetEntity(found);

@@ -30,7 +30,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Collections;
-	
+	using System.Reflection;
+
 	public class NamespaceEntity : IEntity, INamespace
 	{		
 		TypeSystemServices _typeSystemServices;
@@ -43,9 +44,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		Hashtable _childrenNamespaces;
 		
-		Boo.Lang.List _internalModules;
+		List _internalModules;
 		
-		Boo.Lang.List _externalModules;
+		List _externalModules;
 		
 		public NamespaceEntity(INamespace parent, TypeSystemServices tagManager, string name)
 		{			
@@ -55,8 +56,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_assemblies = new Hashtable();
 			_childrenNamespaces = new Hashtable();
 			_assemblies = new Hashtable();
-			_internalModules = new Boo.Lang.List();
-			_externalModules = new Boo.Lang.List();
+			_internalModules = new List();
+			_externalModules = new List();
 		}
 		
 		public string Name
@@ -85,11 +86,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public void Add(Type type)
 		{
-			System.Reflection.Assembly assembly = type.Assembly;
-			Boo.Lang.List types = (Boo.Lang.List)_assemblies[assembly];
+			Assembly assembly = type.Assembly;
+			List types = (List)_assemblies[assembly];
 			if (null == types)
 			{
-				types = new Boo.Lang.List();
+				types = new List();
 				_assemblies[assembly] = types;
 			}
 			types.Add(type);
@@ -102,19 +103,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		bool IsModule(Type type)
 		{
-			return System.Attribute.IsDefined(type, typeof(Boo.Lang.ModuleAttribute));
+			return Attribute.IsDefined(type, typeof(ModuleAttribute));
 		}		
 		
-		public void AddModule(Boo.Lang.Compiler.TypeSystem.ModuleEntity module)
+		public void AddModule(ModuleEntity module)
 		{
 			_internalModules.Add(module);
 		}
 		
 		public IEntity[] GetMembers()
 		{
-			Boo.Lang.List members = new Boo.Lang.List();
+			List members = new List();
 			members.Extend(_childrenNamespaces.Values);
-			foreach (Boo.Lang.List types in _assemblies.Values)
+			foreach (List types in _assemblies.Values)
 			{
 				foreach (Type type in types)
 				{
@@ -135,7 +136,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return tag;
 		}
 		
-		internal bool Resolve(Boo.Lang.List targetList, string name, System.Reflection.Assembly assembly, EntityType flags)
+		internal bool Resolve(List targetList, string name, Assembly assembly, EntityType flags)
 		{
 			NamespaceEntity tag = (NamespaceEntity)_childrenNamespaces[name];
 			if (null != tag)
@@ -144,7 +145,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			}
 			
-			Boo.Lang.List types = (Boo.Lang.List)_assemblies[assembly];
+			List types = (List)_assemblies[assembly];
 			
 			bool found = false;
 			if (null != types)
@@ -178,7 +179,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool Resolve(List targetList, string name, EntityType flags)
 		{	
 			IEntity tag = (IEntity)_childrenNamespaces[name];
 			if (null != tag)
@@ -196,7 +197,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return found;
 		}
 		
-		bool ResolveInternalType(Boo.Lang.List targetList, string name, EntityType flags)
+		bool ResolveInternalType(List targetList, string name, EntityType flags)
 		{
 			foreach (ModuleEntity ns in _internalModules)
 			{
@@ -205,9 +206,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		bool ResolveExternalType(Boo.Lang.List targetList, string name)
+		bool ResolveExternalType(List targetList, string name)
 		{			
-			foreach (Boo.Lang.List types in _assemblies.Values)
+			foreach (List types in _assemblies.Values)
 			{				
 				foreach (Type type in types)
 				{
@@ -221,7 +222,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		bool ResolveExternalModules(Boo.Lang.List targetList, string name, EntityType flags)
+		bool ResolveExternalModules(List targetList, string name, EntityType flags)
 		{
 			bool found = false;
 			foreach (INamespace ns in _externalModules)

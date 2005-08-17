@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool _hasSelfCall = false;
 
 		public InternalConstructor(TypeSystemServices typeSystemServices,
-		                                  Constructor constructor) : base(typeSystemServices, constructor)
+		                           Constructor constructor) : base(typeSystemServices, constructor)
 		{
 		}
 		  

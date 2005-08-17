@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	}
 	
 	public interface ITypedEntity : IEntity
-	{
+	{	
 		IType Type
 		{
 			get;			
@@ -64,6 +64,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public interface IMember : ITypedEntity
 	{
+		bool IsDuckTyped
+		{
+			get;
+		}
+
 		IType DeclaringType
 		{
 			get;
@@ -262,11 +267,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public interface IMethod : IMethodBase
 	{	
-		bool IsDuckTyped
-		{
-			get;
-		}
-		
 		IType ReturnType
 		{
 			get;

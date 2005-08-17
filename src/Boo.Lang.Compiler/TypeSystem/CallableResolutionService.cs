@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Expression e = node as Expression;
 			return null != e
 				? TypeSystemServices.GetExpressionType(e)
-				: TypeSystemServices.GetType(node);
+				: TypeSystem.TypeSystemServices.GetType(node);
 		}
 
 		public bool IsValidByRefArg(IType parameterType, IType argType, Node arg)

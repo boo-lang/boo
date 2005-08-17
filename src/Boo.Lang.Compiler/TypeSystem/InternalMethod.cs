@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected TypeSystemServices _typeSystemServices;
 		
-		protected Boo.Lang.Compiler.Ast.Method _method;
+		protected Method _method;
 		
 		protected IMethod _override;
 		
@@ -51,13 +51,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected ExpressionCollection _returnExpressions;
 
-		protected Boo.Lang.List _yieldStatements;
+		protected List _yieldStatements;
 		
-		protected Boo.Lang.List _labelReferences;
+		protected List _labelReferences;
 		
-		protected Boo.Lang.List _labels;
+		protected List _labels;
 		
-		internal InternalMethod(TypeSystemServices typeSystemServices, Boo.Lang.Compiler.Ast.Method method)
+		internal InternalMethod(TypeSystemServices typeSystemServices, Method method)
 		{
 			_typeSystemServices = typeSystemServices;
 			_method = method;
@@ -345,7 +345,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _labelReferences)
 			{
-				_labelReferences = new Boo.Lang.List();
+				_labelReferences = new List();
 			}
 			_labelReferences.Add(node);
 		}
@@ -359,7 +359,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			if (null == _labels)
 			{
-				_labels = new Boo.Lang.List();
+				_labels = new List();
 			}
 			_labels.Add(node);
 		}
@@ -379,9 +379,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public Boo.Lang.Compiler.Ast.Local ResolveLocal(string name)
+		public Local ResolveLocal(string name)
 		{
-			foreach (Boo.Lang.Compiler.Ast.Local local in _method.Locals)
+			foreach (Local local in _method.Locals)
 			{
 				if (local.PrivateScope)
 				{
@@ -408,11 +408,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			if (NameResolutionService.IsFlagSet(flags, EntityType.Local))
 			{
-				Boo.Lang.Compiler.Ast.Local local = ResolveLocal(name);
+				Local local = ResolveLocal(name);
 				if (null != local)
 				{
 					targetList.Add(TypeSystemServices.GetEntity(local));

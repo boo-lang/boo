@@ -27,10 +27,11 @@
 #endregion
 
 namespace Boo.Lang.Compiler.TypeSystem
-{	
+{
 	using System;
 	using Boo.Lang.Compiler.Ast;
-	
+	using Attribute = Boo.Lang.Compiler.Ast.Attribute;
+
 	public class BooClassBuilder
 	{
 		BooCodeBuilder _codeBuilder;
@@ -103,7 +104,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public void AddAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
+		public void AddAttribute(Attribute attribute)
 		{
 			_cd.Attributes.Add(attribute);
 		}

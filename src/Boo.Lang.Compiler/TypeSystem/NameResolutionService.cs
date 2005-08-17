@@ -28,10 +28,10 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;	
-	using Boo.Lang.Compiler;
+	using System;
+	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
-	
+
 	public class NameResolutionService
 	{
 		public static readonly char[] DotArray = new char[] { '.' };
@@ -42,9 +42,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected INamespace _global = NullNamespace.Default;
 		
-		protected Boo.Lang.List _buffer = new Boo.Lang.List();
+		protected List _buffer = new List();
 		
-		protected Boo.Lang.List _innerBuffer = new Boo.Lang.List();
+		protected List _innerBuffer = new List();
 		
 		public NameResolutionService(CompilerContext context)
 		{
@@ -120,12 +120,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return GetEntityFromBuffer();
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name)
+		public bool Resolve(List targetList, string name)
 		{
 			return Resolve(targetList, name, EntityType.Any);
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool Resolve(List targetList, string name, EntityType flags)
 		{			
 			IEntity entity = _context.TypeSystemServices.ResolvePrimitive(name);
 			if (null != entity)
@@ -155,12 +155,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return GetEntityFromBuffer();
 		}
 		
-		public bool ResolveQualifiedName(Boo.Lang.List targetList, string name)
+		public bool ResolveQualifiedName(List targetList, string name)
 		{
 			return ResolveQualifiedName(targetList, name, EntityType.Any);
 		}
 		
-		public bool ResolveQualifiedName(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool ResolveQualifiedName(List targetList, string name, EntityType flags)
 		{
 			if (!IsQualifiedName(name))
 			{
@@ -304,7 +304,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return GetEntityFromList(_buffer);
 		}
 		
-		public static IEntity GetEntityFromList(System.Collections.IList list)
+		public static IEntity GetEntityFromList(IList list)
 		{
 			IEntity element = null;
 			if (list.Count > 0)

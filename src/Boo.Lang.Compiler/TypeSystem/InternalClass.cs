@@ -28,9 +28,8 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using Boo.Lang;
 	using Boo.Lang.Compiler.Ast;
-	
+
 	public class InternalClass : AbstractInternalType
 	{
 		IConstructor[] _constructors;
@@ -72,7 +71,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		override public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		override public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			bool found = base.Resolve(targetList, name, flags);
 			IType baseType = this.BaseType;

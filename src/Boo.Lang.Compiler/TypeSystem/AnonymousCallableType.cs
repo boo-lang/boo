@@ -29,7 +29,8 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	
+	using System.Diagnostics;
+
 	public class AnonymousCallableType : AbstractType, ICallableType
 	{
 		TypeSystemServices _typeSystemServices;
@@ -59,7 +60,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			set
 			{
-				System.Diagnostics.Debug.Assert(null != value);
+				Debug.Assert(null != value);
 				_concreteType = value;
 			}
 		}

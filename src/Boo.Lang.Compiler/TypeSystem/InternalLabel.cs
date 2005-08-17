@@ -27,15 +27,16 @@
 #endregion
 
 namespace Boo.Lang.Compiler.TypeSystem
-{	
+{
 	using System;
+	using System.Reflection.Emit;
 	using Boo.Lang.Compiler.Ast;
-	
+
 	public class InternalLabel : IEntity
 	{
 		LabelStatement _labelStatement;
 		
-		System.Reflection.Emit.Label _label;
+		Label _label;
 		
 		public InternalLabel(LabelStatement labelStatement)
 		{
@@ -79,7 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public System.Reflection.Emit.Label Label
+		public Label Label
 		{
 			get
 			{

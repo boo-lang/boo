@@ -26,11 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Reflection;
-
 namespace Boo.Lang.Compiler.TypeSystem
 {
+	using System;
+	using System.Reflection;
+
 	public class ExternalType : IType
 	{
 		protected TypeSystemServices _typeSystemServices;
@@ -280,7 +280,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public virtual bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public virtual bool Resolve(List targetList, string name, EntityType flags)
 		{
 			bool found = false;
 			foreach (IEntity member in GetMembers())

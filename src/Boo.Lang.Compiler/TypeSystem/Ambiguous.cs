@@ -26,11 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Collections;
-
 namespace Boo.Lang.Compiler.TypeSystem
 {
+	using System;
+	using System.Collections;
+
 	public delegate bool InfoFilter(IEntity tag);
 	
 	public class Ambiguous : IEntity
@@ -86,9 +86,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public Boo.Lang.List Filter(InfoFilter condition)
+		public List Filter(InfoFilter condition)
 		{
-			Boo.Lang.List found = new Boo.Lang.List();
+			List found = new List();
 			foreach (IEntity tag in _entities)
 			{
 				if (condition(tag))
@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public string ToString()
 		{
-			return string.Format("Ambiguous<{0}>", Boo.Lang.Builtins.join(_entities, ", "));
+			return string.Format("Ambiguous<{0}>", Builtins.join(_entities, ", "));
 		}
 		
 		private static IEntity[] ToArray(IList entities)

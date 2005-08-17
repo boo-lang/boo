@@ -28,10 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;	
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Steps;
-	
 	public class CompileUnitEntity : IEntity
 	{		
 		public CompileUnitEntity()

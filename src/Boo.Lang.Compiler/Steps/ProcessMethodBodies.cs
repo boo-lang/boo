@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
@@ -2174,7 +2175,10 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						BindExpressionType(node, ((ITypedEntity)tag).Type);
+						if (node.ExpressionType == null)
+						{
+							BindExpressionType(node, ((ITypedEntity)tag).Type);
+						}
 					}
 					break;
 				}
@@ -2270,8 +2274,12 @@ namespace Boo.Lang.Compiler.Steps
 						Error(node);
 						return;
 					}
+					BindExpressionType(node, GetInferredType(memberInfo));
 				}
-				BindExpressionType(node, memberInfo.Type);
+				else
+				{
+					BindExpressionType(node, memberInfo.Type);
+				}
 			}
 			
 			if (EntityType.Property == member.EntityType)
@@ -2295,7 +2303,7 @@ namespace Boo.Lang.Compiler.Steps
 						InternalEvent ev = (InternalEvent)member;
 						node.Name = ev.BackingField.Name;
 						node.Entity = ev.BackingField;
-						node.ExpressionType = ev.BackingField.Type;
+						BindExpressionType(node, ev.BackingField.Type);
 						return;
 					}
 					else
@@ -3540,7 +3548,7 @@ namespace Boo.Lang.Compiler.Steps
 							CheckTargetContext(node.Target, targetMethod);
 						}
 					}
-					
+
 					BindExpressionType(node, GetInferredType(targetMethod));
 					ApplyBuiltinMethodTypeInference(node, targetMethod);
 					
@@ -3594,11 +3602,19 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private IType GetInferredType(IMethod method)
+		private IType GetInferredType(IMethod entity)
 		{	
-			return method.IsDuckTyped
+			return entity.IsDuckTyped
 				? this.TypeSystemServices.DuckType
-				: method.ReturnType;
+				: entity.ReturnType;
+		}
+
+		private IType GetInferredType(IMember entity)
+		{	
+			Debug.Assert(EntityType.Method != entity.EntityType);
+			return entity.IsDuckTyped
+				? this.TypeSystemServices.DuckType
+				: entity.Type;
 		}
 
 		void ReplaceTypeInvocationByEval(IType type, MethodInvocationExpression node)

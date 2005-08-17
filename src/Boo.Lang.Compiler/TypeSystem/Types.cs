@@ -26,41 +26,44 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang.Compiler.TypeSystem
 {
+	using System;
+	using System.Collections;
+	using System.Text.RegularExpressions;
+	using Boo.Lang.Runtime;
+
 	public class Types
 	{
-		public static readonly Type RuntimeServices = typeof(Boo.Lang.Runtime.RuntimeServices);
+		public static readonly Type RuntimeServices = typeof(RuntimeServices);
 		
-		public static readonly Type Builtins = typeof(Boo.Lang.Builtins);
+		public static readonly Type Builtins = typeof(Builtins);
 		
-		public static readonly Type Exception = typeof(System.Exception);
+		public static readonly Type Exception = typeof(Exception);
 		
-		public static readonly Type ApplicationException = typeof(System.ApplicationException);
+		public static readonly Type ApplicationException = typeof(ApplicationException);
 		
-		public static readonly Type List = typeof(Boo.Lang.List);
+		public static readonly Type List = typeof(List);
 		
-		public static readonly Type Hash = typeof(Boo.Lang.Hash);
+		public static readonly Type Hash = typeof(Hash);
 		
-		public static readonly Type ICallable = typeof(Boo.Lang.ICallable);
+		public static readonly Type ICallable = typeof(ICallable);
 		
-		public static readonly Type ICollection = typeof(System.Collections.ICollection);
+		public static readonly Type ICollection = typeof(ICollection);
 		
-		public static readonly Type IList = typeof(System.Collections.IList);
+		public static readonly Type IList = typeof(IList);
 		
-		public static readonly Type IDictionary = typeof(System.Collections.IDictionary);
+		public static readonly Type IDictionary = typeof(IDictionary);
 		
-		public static readonly Type IEnumerable = typeof(System.Collections.IEnumerable);
+		public static readonly Type IEnumerable = typeof(IEnumerable);
 		
-		public static readonly Type IEnumerator = typeof(System.Collections.IEnumerator);
+		public static readonly Type IEnumerator = typeof(IEnumerator);
 		
 		public static readonly Type Object = typeof(object);
 		
-		public static readonly Type Regex = typeof(System.Text.RegularExpressions.Regex);
+		public static readonly Type Regex = typeof(Regex);
 		
-		public static readonly Type ValueType = typeof(System.ValueType);
+		public static readonly Type ValueType = typeof(ValueType);
 		
 		public static readonly Type Array = typeof(Array);
 		
@@ -98,21 +101,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly Type Decimal = typeof(decimal);
 		
-		public static readonly Type Date = typeof(System.DateTime);
+		public static readonly Type Date = typeof(DateTime);
 		
 		public static readonly Type Bool = typeof(bool);
 		
 		public static readonly Type IntPtr = typeof(IntPtr);
 		
-		public static readonly Type Type = typeof(System.Type);
+		public static readonly Type Type = typeof(Type);
 		
-		public static readonly Type MulticastDelegate = typeof(System.MulticastDelegate);
+		public static readonly Type MulticastDelegate = typeof(MulticastDelegate);
 		
-		public static readonly Type Delegate = typeof(System.Delegate);
+		public static readonly Type Delegate = typeof(Delegate);
 
 		public static readonly Type DuckTypedAttribute = typeof(DuckTypedAttribute);
 
-		public static readonly Type ParamArrayAttribute = typeof(System.ParamArrayAttribute);
+		public static readonly Type ParamArrayAttribute = typeof(ParamArrayAttribute);
 
 	}
 }

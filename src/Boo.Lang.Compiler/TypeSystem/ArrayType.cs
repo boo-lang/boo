@@ -28,8 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	
 	public class ArrayType : IArrayType
 	{	
 		IType _elementType;
@@ -235,7 +233,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
+		public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			return _array.Resolve(targetList, name, flags);
 		}

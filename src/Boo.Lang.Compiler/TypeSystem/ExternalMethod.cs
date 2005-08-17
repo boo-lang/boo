@@ -27,9 +27,10 @@
 #endregion
 
 namespace Boo.Lang.Compiler.TypeSystem
-{	
+{
+	using System;
 	using System.Reflection;
-	
+
 	public class ExternalMethod : IMethod
 	{
 		protected TypeSystemServices _typeSystemServices;
@@ -57,7 +58,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (-1 == _isDuckTyped)
 				{
 					_isDuckTyped =
-						!ReturnType.IsValueType && System.Attribute.IsDefined(_mi, Types.DuckTypedAttribute)
+						!ReturnType.IsValueType && Attribute.IsDefined(_mi, Types.DuckTypedAttribute)
 						? 1
 						: 0;
 				}
@@ -171,7 +172,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private bool IsParamArray(ParameterInfo parameter)
 		{
 			/* Hack to fix problem with mono-1.1.8.* and older */
-			return System.Attribute.IsDefined(parameter, Types.ParamArrayAttribute)
+			return Attribute.IsDefined(parameter, Types.ParamArrayAttribute)
 				|| parameter.GetCustomAttributes(Types.ParamArrayAttribute, false).Length > 0;
 		}
 

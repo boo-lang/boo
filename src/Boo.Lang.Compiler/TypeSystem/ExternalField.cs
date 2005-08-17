@@ -156,5 +156,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return _field.ToString();
 		}
+
+		public bool IsDuckTyped
+		{
+			get { return false; }
+		}
 	}
 }

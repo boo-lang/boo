@@ -29,7 +29,7 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	
+
 	public class ExternalCallableType : ExternalType, ICallableType
 	{
 		IMethod _invoke;

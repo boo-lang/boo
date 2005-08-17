@@ -3395,6 +3395,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
+
+			bool isDuckTyped = GetEntity(property).IsDuckTyped;
+			if (isDuckTyped)
+			{
+				builder.SetCustomAttribute(CreateDuckTypedCustomAttribute());
+			}
 			
 			SetBuilder(property, builder);
 		}
@@ -3494,12 +3500,12 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (GetEntity(method).IsDuckTyped)
 			{
-				builder.SetCustomAttribute(GetDuckTypedCustomAttribute());
+				builder.SetCustomAttribute(CreateDuckTypedCustomAttribute());
 			}
 			return builder;
 		}
 
-		private CustomAttributeBuilder GetDuckTypedCustomAttribute()
+		private CustomAttributeBuilder CreateDuckTypedCustomAttribute()
 		{
 			return new CustomAttributeBuilder(DuckTypedAttribute_Constructor, new object[0]);
 		}

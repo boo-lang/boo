@@ -28,9 +28,8 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
 	using Boo.Lang.Compiler.Ast;
-	
+
 	public class InternalEvent : IEvent, IInternalEntity
 	{	
 		Event _event;
@@ -156,6 +155,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				_backingField = value;
 			}
+		}
+
+		public bool IsDuckTyped
+		{
+			get { return false; }
 		}
 	}
 }

@@ -28,8 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	
 	public class ExternalEvent : IEvent
 	{
 		TypeSystemServices _typeSystemServices;
@@ -140,6 +138,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		override public string ToString()
 		{
 			return _event.ToString();
+		}
+
+		public bool IsDuckTyped
+		{
+			get { return false; }
 		}
 	}
 }

@@ -29,7 +29,7 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using Boo.Lang.Compiler.Ast;
-	
+
 	public class InternalField : IInternalEntity, IField
 	{
 		Field _field;
@@ -171,6 +171,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		override public string ToString()
 		{
 			return FullName;
+		}
+
+		public bool IsDuckTyped
+		{
+			get { return false; }
 		}
 	}
 }

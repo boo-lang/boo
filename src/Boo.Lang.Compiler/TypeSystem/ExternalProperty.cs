@@ -35,6 +35,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		System.Reflection.PropertyInfo _property;
 		
 		IParameter[] _parameters;
+
+		int _isDuckTyped = -1;
 		
 		public ExternalProperty(TypeSystemServices tagManager, System.Reflection.PropertyInfo property)
 		{
@@ -57,6 +59,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return GetAccessor().IsStatic;
 			}
 		}
+		public bool IsDuckTyped
+		{
+			get
+			{
+				if (-1 == _isDuckTyped)
+				{
+					_isDuckTyped =
+						!_property.PropertyType.IsValueType && System.Attribute.IsDefined(_property, Types.DuckTypedAttribute)
+						? 1
+						: 0;
+				}
+				return 1 == _isDuckTyped;
+			}
+		}
+
 		
 		public bool IsPublic
 		{

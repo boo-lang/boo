@@ -29,7 +29,7 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	
+
 	[Flags]
 	public enum EntityType
 	{
