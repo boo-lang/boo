@@ -651,6 +651,7 @@ event_declaration [TypeMemberCollection container]
 		AddAttributes(e.Attributes);
 		container.Add(e);
 	}
+	docstring[e]
 	;
 
 protected
