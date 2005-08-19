@@ -54,7 +54,8 @@ tokens
 	ESEPARATOR; // expression separator (imaginary token)
 	ABSTRACT="abstract";
 	AND="and";
-	AS="as";		
+	AS="as";
+	AST="ast";
 	BREAK="break";
 	CONTINUE="continue";
 	CALLABLE="callable";
@@ -1674,6 +1675,68 @@ method_invocation_block[Expression mi]
 		((MethodInvocationExpression)mi).Arguments.Add(block);
 	}
 	;
+	
+ast_literal_expression returns [AstLiteralExpression e]
+{
+	e = null;
+}:
+	t:AST { e = new AstLiteralExpression(ToLexicalInfo(t)); }
+	ast_literal_closure[e]
+;
+	
+ast_literal returns [AstLiteralExpression e]
+{
+	e = null;
+}:
+	t:AST { e = new AstLiteralExpression(ToLexicalInfo(t)); }
+	(ast_literal_block[e] | ast_literal_closure[e] eos)
+;
+
+ast_literal_block[AstLiteralExpression e]
+{
+	// TODO: either cache or construct these objects on demand
+	TypeMemberCollection collection = new TypeMemberCollection();
+	Block block = new Block();
+	StatementCollection statements = block.Statements;
+	Node node = null;
+}:
+	begin 
+	(
+		type_member[collection] { e.Node = collection[0]; } |
+		node=expression { e.Node = node; } |
+		((stmt[statements])+ { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
+	)
+	end[e]
+;
+
+ast_literal_closure[AstLiteralExpression e]
+{
+	Node node = null;
+}:
+	LBRACE
+	(
+		(expression)=>node=expression { e.Node = node; } |
+		node=ast_literal_closure_stmt { e.Node = node; }
+	)
+	RBRACE
+;
+
+ast_literal_closure_stmt returns [Statement s]
+{
+	s = null;
+	StatementModifier modifier;
+}:
+	s=return_expression_stmt |
+	(
+		(
+			(declaration COMMA)=>s=unpack_stmt |
+			{IsValidMacroArgument(LA(2))}? s=closure_macro_stmt |
+			s=raise_stmt |
+			s=yield_stmt			
+		)
+		(modifier=stmt_modifier { s.Modifier = modifier; })?		
+	)
+;
 
 protected
 assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
@@ -1695,7 +1758,7 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 			(
 			op:ASSIGN { token = op; binaryOperator = ParseAssignOperator(op.getText()); }
 				(
-					(DEF)=>rhs=callable_expression |
+					(DEF|DO)=>rhs=callable_expression |
 					(
 						rhs=array_or_expression
 						(		
@@ -1703,7 +1766,8 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 							(modifier=stmt_modifier eos) |
 							eos
 						)					
-					)
+					) |
+					rhs=ast_literal
 				)
 			)
 			{
@@ -2243,6 +2307,7 @@ literal returns [Expression e]
 		e=list_literal |
 		(hash_literal_test)=>e=hash_literal |
 		e=closure_expression |
+		e=ast_literal_expression |
 		e=re_literal |
 		e=bool_literal |
 		e=null_literal |

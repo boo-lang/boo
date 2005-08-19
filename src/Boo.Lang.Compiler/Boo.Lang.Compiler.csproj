@@ -224,6 +224,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Ast\AstLiteralExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Ast\AstUtil.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -407,10 +412,6 @@
                     RelPath = "Ast\ExtendedGeneratorExpression.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Ast\ExtendedGeneratorExpression.cs~"
-                    BuildAction = "None"
                 />
                 <File
                     RelPath = "Ast\Field.cs"
@@ -799,6 +800,11 @@
                 />
                 <File
                     RelPath = "Ast\Impl\AsExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\AstLiteralExpressionImpl.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -1499,6 +1505,11 @@
                 />
                 <File
                     RelPath = "Steps\EmitAssembly.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\ExpandAstLiterals.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -105,6 +105,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		public override void OnAstLiteralExpression(Boo.Lang.Compiler.Ast.AstLiteralExpression node)
+		{
+			// ignore ast literals
+		}
+
 		protected void Bind(Node node, IEntity tag)
 		{
 			node.Entity = tag;

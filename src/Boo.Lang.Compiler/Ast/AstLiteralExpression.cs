@@ -1,5 +1,5 @@
-#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+﻿#region license
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,38 +26,24 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Pipelines
+namespace Boo.Lang.Compiler.Ast
 {
-	using Boo.Lang.Compiler.Steps;
+	using System;
 	
-	public class ResolveExpressions : Parse 
+	[Serializable]
+	public class AstLiteralExpression : Boo.Lang.Compiler.Ast.Impl.AstLiteralExpressionImpl
 	{
-		public ResolveExpressions()
+		public AstLiteralExpression()
 		{
-			Add(new InitializeTypeSystemServices());
-			Add(new PreErrorChecking());
-			Add(new InitializeNameResolutionService());
-			Add(new IntroduceGlobalNamespaces());
-			Add(new TransformCallableDefinitions());
-			Add(new BindTypeDefinitions());			
-			Add(new BindNamespaces());
-			Add(new BindBaseTypes());
-			Add(new BindAndApplyAttributes());
-			Add(new ExpandMacros());
-			Add(new IntroduceModuleClasses());
-			Add(new NormalizeStatementModifiers());
-			Add(new NormalizeTypeAndMemberDefinitions());
-			
-			Add(new BindTypeDefinitions());
-			Add(new BindBaseTypes());
-			
-			Add(new ResolveTypeReferences());
-			Add(new BindTypeMembers());			
-			Add(new ProcessInheritedAbstractMembers());
-			Add(new CheckMemberNames());
-			
-			Add(new ExpandAstLiterals());
-			Add(new ProcessMethodBodiesWithDuckTyping());
+		}
+		
+		public AstLiteralExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
+		
+		override public void Accept(IAstVisitor visitor)
+		{
+			visitor.OnAstLiteralExpression(this);
 		}
 	}
 }

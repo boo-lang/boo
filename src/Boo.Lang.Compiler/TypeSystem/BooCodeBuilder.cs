@@ -127,6 +127,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			expression.Entity = type;
 			return expression;
 		}
+
+		public Expression CreateTypeofExpression(System.Type type)
+		{
+			return CreateTypeofExpression(_tss.Map(type));
+		}
 		
 		public InternalLabel CreateLabelStatement(Node sourceNode, string name)
 		{
@@ -358,6 +363,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ReferenceExpression expression = CreateReference(type);
 			expression.LexicalInfo = info;
 			return expression;
+		}
+
+		public ReferenceExpression CreateReference(LexicalInfo li, System.Type type)
+		{
+			return CreateReference(li, _tss.Map(type));
 		}
 		
 		public ReferenceExpression CreateReference(IType type)

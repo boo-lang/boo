@@ -391,6 +391,9 @@ class MemberReferenceExpression(ReferenceExpression):
 
 abstract class LiteralExpression(Expression):
 	pass
+	
+class AstLiteralExpression(LiteralExpression):
+	Node as Node
 
 class StringLiteralExpression(LiteralExpression):
 	Value as string

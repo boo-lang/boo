@@ -104,7 +104,12 @@ namespace Boo.Lang.Compiler.Steps
 				return _context.TypeSystemServices;
 			}
 		}
-		
+
+		public override void OnAstLiteralExpression(Boo.Lang.Compiler.Ast.AstLiteralExpression node)
+		{
+			// ignore ast literals
+		}
+
 		override protected void OnError(Node node, Exception error)
 		{
 			_context.TraceError("{0}: Internal compiler error on node '{2}': {1}", node.LexicalInfo, error, node);

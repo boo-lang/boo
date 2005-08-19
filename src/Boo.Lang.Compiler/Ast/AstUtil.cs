@@ -1,4 +1,8 @@
-﻿#region license
+﻿using System;
+using System.IO;
+using System.Xml.Serialization;
+
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -216,7 +220,7 @@ namespace Boo.Lang.Compiler.Ast
 			return constructor;
 		}
 		
-		public static Expression CreateReferenceExpression(string fullname)
+		public static ReferenceExpression CreateReferenceExpression(string fullname)
 		{
 			string[] parts = fullname.Split('.');
 			ReferenceExpression expression = new ReferenceExpression(parts[0]);
@@ -253,5 +257,17 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 
+		public static string ToXml(Node node)
+		{
+			StringWriter writer = new StringWriter();
+			XmlSerializer serializer = new XmlSerializer(node.GetType());
+			serializer.Serialize(writer, node);
+			return writer.ToString();
+		}
+
+		public static Node FromXml(Type type, string code)
+		{
+			return (Node)new XmlSerializer(type).Deserialize(new StringReader(code));
+		}
 	}
 }

@@ -606,6 +606,26 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			Write(e.Value);
 		}
+		
+		override public void OnAstLiteralExpression(AstLiteralExpression e)
+		{
+			WriteIndented();
+			WriteKeyword("ast");
+			if (e.Node is Expression)
+			{
+				Write(" { ");
+				Visit(e.Node);
+				Write(" }");
+			}
+			else
+			{
+				WriteLine(":");
+				Indent();
+				Visit(e.Node);
+				Dedent();
+				WriteLine();
+			}
+		}
 
 		override public void OnStringLiteralExpression(StringLiteralExpression e)
 		{
