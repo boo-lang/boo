@@ -82,8 +82,6 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteLine();
 			}
 
-			// m.Globals iria causar um Indent()
-			// invlido
 			if (null != m.Globals)
 			{
 				Visit(m.Globals.Statements);

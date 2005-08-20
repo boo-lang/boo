@@ -605,8 +605,12 @@ namespace Boo.Lang.Compiler.Ast
 						writer.WriteLine("""
 				${field.Type} current${field.Name}Value = node.${field.Name};
 				if (null != current${field.Name}Value)
-				{											
-					node.${field.Name} = (${field.Type})VisitNode(current${field.Name}Value);
+				{			
+					${field.Type} newValue = (${field.Type})VisitNode(current${field.Name}Value);
+					if (!object.ReferenceEquals(newValue, current${field.Name}Value))
+					{
+						node.${field.Name} = newValue;
+					}
 				}""")
 				
 				writer.WriteLine("""
