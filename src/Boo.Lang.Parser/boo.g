@@ -787,7 +787,8 @@ field_or_property [TypeMemberCollection container]
 							(slicing_expression (DO|DEF))=>
 							(initializer=slicing_expression method_invocation_block[initializer]) |
 							(initializer=array_or_expression eos) |
-							(initializer=callable_expression))
+							(initializer=callable_expression) |
+							(initializer=ast_literal))
 				{ field.Initializer = initializer;	}) |
 				eos
 			)

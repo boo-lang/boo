@@ -1,5 +1,5 @@
 <settings>
-  <outputType>exe</outputType>
+  <outputType>library</outputType>
   <references>
     <booclipse.core.internal.GlobalAssemblyCacheReference-Remembrance>
       <name>nunit.framework</name>

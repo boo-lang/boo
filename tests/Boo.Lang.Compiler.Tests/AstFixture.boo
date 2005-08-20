@@ -153,16 +153,12 @@ class AstTestFixture:
 					
 		node.Merge(mix)
 		
-		expected = """
-[SomeAttribute]
-class AClass(BaseType, OtherBaseType):
-
-	def foo():
-		pass
-
-	def constructor(i as int):
-		pass
-"""
-		Assert.AreEqual(
-			expected.Trim().Replace("\r\n", "\n"),
-			node.ToCodeString().Trim().Replace("\r\n", "\n"))
+		expected = ast:
+			[SomeAttribute]
+			class AClass(BaseType, OtherBaseType):
+				def foo():
+					pass
+				def constructor(i as int):
+					pass
+					
+		assert expected.Matches(node)

@@ -26,25 +26,24 @@ Example:
 		assert ExtendsObject(classDef), "cannot introduce AbstractCollection base class"		
 		RemoveObjectBaseType(classDef)
 		
-		template = GetCollectionTemplate()
+		template = CollectionTemplate.CloneNode()
 		template.ReplaceNodes(SimpleTypeReference("T"), _itemType)
 		classDef.Merge(template)
 		
-	def GetCollectionTemplate():
-		return ast:
-			[EnumeratorItemType(typeof(T))]
-			[System.Reflection.DefaultMember("Item")]
-			class Collection(Boo.Lang.Useful.Collections.AbstractCollection):
-				def constructor():
-					pass
-				def constructor([required] enumerable):
-					for item as T in enumerable:
-						self.Add(item)
-				def Add([required] item as T):
-					self.InnerList.Add(item)
-				Item(index as int) as T:
-					get:
-						return self.InnerList[index]
+	static final CollectionTemplate = ast:
+		[EnumeratorItemType(typeof(T))]
+		[System.Reflection.DefaultMember("Item")]
+		class Collection(Boo.Lang.Useful.Collections.AbstractCollection):
+			def constructor():
+				pass
+			def constructor([required] enumerable):
+				for item as T in enumerable:
+					self.Add(item)
+			def Add([required] item as T):
+				self.InnerList.Add(item)
+			Item(index as int) as T:
+				get:
+					return self.InnerList[index]
 						
 	def ExtendsObject(classDef as ClassDefinition):
 		return cast(IType, classDef.Entity).BaseType is TypeSystemServices.ObjectType
