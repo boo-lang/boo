@@ -26,40 +26,27 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 namespace Boo.Lang.Useful.Tests.Attributes
 
+import Boo.Lang.Compiler
 import NUnit.Framework
 
-[TestFixture]
-class SingletonAttributeTestFixture(AbstractAttributeTestFixture):
-"""
-@author Sorin Ionescu (sorin.ionescu@gmail.com)
-@author Rodrigo B. de Oliveira
-"""	
-	[Test]
-	def TestSingleton():
-		code = """
-import Useful.Attributes
-
-[Singleton]
-class SingletonObject:
-	pass
-"""
-		expected = """
-import Useful.Attributes
-
-public final class SingletonObject(System.Object):
-
-	private def constructor():
-		super()
-
-	private static ___instance as SingletonObject
-
-	public static Instance as SingletonObject:
-		public static get:
-			if (SingletonObject.___instance is null):
-				SingletonObject.___instance = SingletonObject()
-			return SingletonObject.___instance
-"""
-		RunTestCase(expected, code)
+abstract class AbstractAttributeTestFixture:
+	
+	_compiler as BooCompiler	
+	
+	[TestFixtureSetUp]
+	def SetUpFixture():
+		_compiler = BooCompiler()
+		_compiler.Parameters.Pipeline = Pipelines.Compile()
+		_compiler.Parameters.References.Add(typeof(Useful.IO.TextFile).Assembly)
+		
+	def RunTestCase(expected as string, code as string):
+		_compiler.Parameters.Input.Clear()
+		_compiler.Parameters.Input.Add(Boo.Lang.Compiler.IO.StringInput("code", code))
+		result = _compiler.Run()
+		Assert.AreEqual(0, len(result.Errors), result.Errors.ToString())
+		Assert.AreEqual(normalize(expected), normalize(result.CompileUnit.Modules[0].ToCodeString()))
+		
+	def normalize(s as string):
+		return s.Trim().Replace("\r\n", "\n")
