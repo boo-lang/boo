@@ -213,6 +213,7 @@
 				<Key word="value"/>
 				<Key word="true"/>
 				<Key word="false"/>
+				<Key word="ast" />
 			</KeyWords>
 
 			<KeyWords name="DefaultMacros" bold="false" italic="false" color="Maroon" >

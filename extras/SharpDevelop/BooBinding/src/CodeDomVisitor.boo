@@ -356,6 +356,9 @@ types."""
 	
 	def GetParserService() as ICSharpCode.SharpDevelop.Services.IParserService:
 		return ICSharpCode.Core.Services.ServiceManager.Services.GetService(typeof(ICSharpCode.SharpDevelop.Services.IParserService))
+		
+	def OnAstLiteralExpression(node as AstLiteralExpression):
+		_expression = CodeObjectCreateExpression(node.Node.GetType())
 	
 	def OnMethodInvocationExpression(node as MethodInvocationExpression):
 		_expression = null
