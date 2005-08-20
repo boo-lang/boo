@@ -1353,6 +1353,9 @@ return_stmt returns [ReturnStatement s]
 			(
 				e=callable_expression
 			) |
+			(AST)=>(
+				e=ast_literal
+			) |
 			(
 				(modifier=stmt_modifier)?
 				eos

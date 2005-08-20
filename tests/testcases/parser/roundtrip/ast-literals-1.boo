@@ -5,7 +5,6 @@ literal = ast:
 		def bar():
 			print 'Hello'
 
-
 literal = ast:
 	def main():
 		print('Hello, world!')

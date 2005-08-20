@@ -621,7 +621,6 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Indent();
 				Visit(e.Node);
 				Dedent();
-				WriteLine();
 			}
 		}
 

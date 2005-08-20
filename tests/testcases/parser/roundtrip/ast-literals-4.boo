@@ -2,7 +2,6 @@
 a = ast:
 	return 3
 
-
 d = ast:
 	print 'Hello, world'
 """
