@@ -227,6 +227,17 @@ namespace Boo.Lang.Compiler.Ast
 			InnerList.RemoveAt(index);
 		}
 		
+		public bool Matches(NodeCollection collection)
+		{
+			if (null == collection) return false;
+			if (Count != collection.Count) return false;
+			for (int i=0; i<Count; ++i)
+			{
+				if (!Node.Matches(GetNodeAt(i), collection.GetNodeAt(i))) return false;
+			}
+			return true;
+		}
+		
 		internal void ReplaceAt(int i, Node newItem)
 		{
 			//Node existing = (Node)InnerList[i];

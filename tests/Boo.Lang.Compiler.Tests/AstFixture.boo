@@ -82,6 +82,63 @@ class AstTestFixture:
 		Assert.AreSame(clone, clone.Right.ParentNode, "clone.Right")
 		
 	[Test]
+	def TestMatches():
+		assert SimpleTypeReference("T").Matches(SimpleTypeReference("T"))
+		assert not SimpleTypeReference("T").Matches(SimpleTypeReference("T0"))
+		
+		assert ast { typeof(T) }.Matches(ast { typeof(T) })
+		assert not ast { typeof(T) }.Matches(ast { typeof(R) })
+		
+		assert ast { 2 + 2 }.Matches(ast { 2 + 2 })
+		assert not ast { 2 - 2 }.Matches(ast { 2 + 2 })
+		assert not ast { 3 + 2 }.Matches(ast { 2 + 3 })
+
+		lhs = ast:
+			public def foo():
+				return 3
+				
+		rhs = ast:
+			public def foo():
+				return 3
+		assert lhs.Matches(rhs)
+		
+		rhs = ast:
+			private def foo():
+				return 3
+		assert not lhs.Matches(rhs), 'different accessibility'
+		
+		rhs = ast:
+			public def bar():
+				return 3
+		assert not lhs.Matches(rhs), 'different name'
+		
+		rhs = ast:
+			public def foo():
+				return '3'
+		assert not lhs.Matches(rhs), 'different return value'
+		
+		assert ast { return i if 3 < 2 }.Matches(ast { return i if 3 < 2 })
+		assert not ast { return i if 3 < 2 }.Matches(ast { return i unless 3 < 2 })
+		assert not ast { return i if 3 < 2 }.Matches(ast { return i if 3 > 2 })
+		
+	[Test]
+	def TestReplaceNodes():
+		model = ast:
+			def foo(i):
+				return i if i < 3
+				return i*3
+				
+		node = model.CloneNode()
+		assert 2 == node.ReplaceNodes(ast { 3 }, ast { 42 })
+		
+		expected = ast:
+			def foo(i):
+				return i if i < 42
+				return i*42
+				
+		assert expected.Matches(node)
+		
+	[Test]
 	def TestMerge():
 		node = ast:
 			class AClass(BaseType):

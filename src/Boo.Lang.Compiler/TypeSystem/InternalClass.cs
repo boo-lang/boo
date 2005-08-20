@@ -34,8 +34,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		IConstructor[] _constructors;
 		
-		IType _baseType;
-		
 		int _typeDepth = -1;
 		
 		internal InternalClass(TypeSystemServices manager, TypeDefinition typeDefinition) :
@@ -55,19 +53,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (null == _baseType)
+				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
-					foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+					IType entity = (IType)baseType.Entity;
+					if (null != entity && !entity.IsInterface)
 					{
-						IType entity = (IType)baseType.Entity;
-						if (null != entity && !entity.IsInterface)
-						{
-							_baseType = entity;
-							break;
-						}
+						return entity;
 					}
 				}
-				return _baseType;
+				return null;
 			}
 		}
 		

@@ -61,5 +61,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			visitor.OnOmittedExpression(this);
 		}
+		
+		override public bool Matches(Node node)
+		{
+			return node is OmittedExpression;
+		}
 	}	
 }

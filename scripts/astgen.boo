@@ -109,6 +109,28 @@ def WriteAssignmentsFromParameters(writer as TextWriter, fields as List):
 	for field as Field in fields:
 		writer.Write("""
 			${field.Name} = ${GetParameterName(field)};""")
+			
+def WriteMatchesImpl(writer as TextWriter, node as ClassDefinition):
+	writer.WriteLine("""
+		override public bool Matches(Node node)
+		{	
+			${node.Name} other = node as ${node.Name};
+			if (null == other) return false;""")
+	
+	for field as Field in GetAllFields(node):
+		fieldName = GetPrivateName(field)
+		fieldType = ResolveFieldType(field)
+		if fieldType is null or IsEnum(fieldType):
+			writer.WriteLine("""
+			if (${fieldName} != other.${fieldName}) return false;""")
+			continue
+		writer.WriteLine("""
+			if (!Node.Matches(${fieldName}, other.${fieldName})) return false;""")
+	
+	writer.WriteLine("""
+			return true;
+		}
+	""");
 	
 def WriteClassImpl(node as ClassDefinition):
 	
@@ -178,6 +200,8 @@ namespace Boo.Lang.Compiler.Ast.Impl
 				return NodeType.${node.Name};
 			}
 		}""")
+		
+			WriteMatchesImpl(writer, node)
 		
 			writer.WriteLine("""
 		override public bool Replace(Node existing, Node newNode)

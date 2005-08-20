@@ -61,15 +61,21 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
 			EnterNamespace((INamespace)GetEntity(module));
-			Visit(module.Members);
+			VisitTypeDefinitionBody(module);
 			LeaveNamespace();
 		}
 
 		override public void OnClassDefinition(ClassDefinition node)
 		{
 			EnterNamespace((INamespace)GetEntity(node));
-			Visit(node.Members);
+			VisitTypeDefinitionBody(node);
 			LeaveNamespace();
+		}
+		
+		void VisitTypeDefinitionBody(TypeDefinition node)
+		{
+			Visit(node.Attributes);
+			Visit(node.Members);
 		}
 	}
 }

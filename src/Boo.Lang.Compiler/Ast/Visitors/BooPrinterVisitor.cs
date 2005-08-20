@@ -356,6 +356,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(p.Name);
 			WriteTypeReference(p.Type);
 		}
+		
+		override public void OnTypeofExpression(TypeofExpression node)
+		{
+			Write("typeof(");
+			Visit(node.Type);
+			Write(")");
+		}
 
 		override public void OnSimpleTypeReference(SimpleTypeReference t)
 		{

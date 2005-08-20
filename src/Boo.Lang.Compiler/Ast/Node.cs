@@ -219,6 +219,52 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return false;
 		}
+		
+		private class ReplaceVisitor : DepthFirstTransformer
+		{
+			Node _pattern;
+			Node _template;	
+			int _matches;
+			
+			public ReplaceVisitor(Node pattern, Node template)
+			{
+				_pattern = pattern;
+				_template = template;
+			}
+			
+			public int Matches
+			{
+				get
+				{
+					return _matches;
+				}
+			}
+	
+			override protected void OnNode(Node node)
+			{
+				if (_pattern.Matches(node))
+				{
+					++_matches;
+					ReplaceCurrentNode(_template.CloneNode());
+				}
+				else
+				{
+					base.OnNode(node);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Replaces all occurrences of the pattern pattern anywhere in the tree
+		/// with a clone of template.
+		/// </summary>
+		/// <returns>the number of which matched the specified pattern</returns>
+		public int ReplaceNodes(Node pattern, Node template)
+		{
+			ReplaceVisitor visitor = new ReplaceVisitor(pattern, template);
+			Accept(visitor);
+			return visitor.Matches;
+		}
 
 		internal void InitializeParent(Node parent)
 		{			
@@ -228,6 +274,22 @@ namespace Boo.Lang.Compiler.Ast
 		public abstract void Accept(IAstVisitor visitor);
 		
 		public abstract object Clone();
+		
+		public abstract bool Matches(Node other);
+		
+		public static bool Matches(Node lhs, Node rhs)
+		{
+			return lhs == null
+				? rhs == null
+				: lhs.Matches(rhs);
+		}
+		
+		public static bool Matches(NodeCollection lhs, NodeCollection rhs)
+		{
+			return lhs == null
+				? rhs == null
+				: lhs.Matches(rhs);
+		}
 		
 		public virtual void ClearTypeSystemBindings()
 		{
