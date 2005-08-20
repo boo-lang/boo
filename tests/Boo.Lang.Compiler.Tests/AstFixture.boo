@@ -80,3 +80,32 @@ class AstTestFixture:
 		clone = be.CloneNode()
 		Assert.AreSame(clone, clone.Left.ParentNode, "clone.Left")
 		Assert.AreSame(clone, clone.Right.ParentNode, "clone.Right")
+		
+	[Test]
+	def TestMerge():
+		node = ast:
+			class AClass(BaseType):
+				def foo():
+					pass
+					
+		mix = ast:
+			[SomeAttribute]
+			class Mix(OtherBaseType):
+				def constructor(i as int):
+					pass
+					
+		node.Merge(mix)
+		
+		expected = """
+[SomeAttribute]
+class AClass(BaseType, OtherBaseType):
+
+	def foo():
+		pass
+
+	def constructor(i as int):
+		pass
+"""
+		Assert.AreEqual(
+			expected.Trim().Replace("\r\n", "\n"),
+			node.ToCodeString().Trim().Replace("\r\n", "\n"))

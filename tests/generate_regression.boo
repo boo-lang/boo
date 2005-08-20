@@ -117,6 +117,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
+
 GenerateTestFixture("testcases/integration", "build/IntegrationTestFixture.cs", """
 namespace BooCompiler.Tests
 {

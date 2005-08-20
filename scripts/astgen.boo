@@ -643,7 +643,12 @@ namespace Boo.Lang.Compiler.Ast
 			_resultingNode = replacement;
 		}
 		
-		public Node VisitNode(Node node)
+		protected virtual void OnNode(Node node)
+		{
+			node.Accept(this);
+		}
+		
+		public virtual Node VisitNode(Node node)
 		{
 			if (null != node)
 			{
@@ -651,7 +656,7 @@ namespace Boo.Lang.Compiler.Ast
 				{
 					Node saved = _resultingNode;
 					_resultingNode = node;
-					node.Accept(this);
+					OnNode(node);
 					Node result = _resultingNode;
 					_resultingNode = saved;
 					return result;
