@@ -511,18 +511,24 @@ class_definition [TypeMemberCollection container]
 		(PASS eos) |
 		(
 			(EOS)*
-			attributes
-			modifiers
-			(						
-				method[td.Members] |
-				event_declaration[td.Members] |
-				field_or_property[td.Members] |
-				type_definition[td.Members]
-			)
+			type_definition_member[td.Members]			
 		)+
 	)
 	end[td]
 	;
+	
+type_definition_member[TypeMemberCollection container]
+{
+}:
+	attributes
+	modifiers
+	(						
+		method[container] |
+		event_declaration[container] |
+		field_or_property[container] |
+		type_definition[container]
+	)
+;
 			
 protected
 interface_definition [TypeMemberCollection container]
@@ -1733,7 +1739,7 @@ ast_literal_block[AstLiteralExpression e]
 }:
 	begin 
 	(
-		type_member[collection] { e.Node = collection[0]; } |
+		type_definition_member[collection] { e.Node = collection[0]; } |
 		node=expression { e.Node = node; } |
 		((stmt[statements])+ { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
 	)

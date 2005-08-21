@@ -45,7 +45,7 @@ abstract class AbstractAttributeTestFixture:
 		_compiler.Parameters.Input.Clear()
 		_compiler.Parameters.Input.Add(Boo.Lang.Compiler.IO.StringInput("code", code))
 		result = _compiler.Run()
-		Assert.AreEqual(0, len(result.Errors), result.Errors.ToString())
+		Assert.AreEqual(0, len(result.Errors), result.Errors.ToString(true))
 		Assert.AreEqual(normalize(expected), normalize(result.CompileUnit.Modules[0].ToCodeString()))
 		
 	def normalize(s as string):

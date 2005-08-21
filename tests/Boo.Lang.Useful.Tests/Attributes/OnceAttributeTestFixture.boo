@@ -26,14 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
  
-namespace Boo.Lang.Useful.Attributes.Tests
+namespace Boo.Lang.Useful.Tests.Attributes
 
 import System
 import Boo.Lang.Useful.Attributes
 import NUnit.Framework
 
 [TestFixture]
-class OnceAttributeTestFixture:
+class OnceAttributeTestFixture(AbstractAttributeTestFixture):
 """
 @author Sorin Ionescu (sorin.ionescu@gmail.com)
 """
@@ -62,3 +62,44 @@ class OnceAttributeTestFixture:
 		assert 1000 == m1.Cube(20)
 		assert 27 == m2.Cube(3)
 		assert 27 == m2.Cube(10)
+		
+	[Test]
+	def TestModuleMethod():
+		code = """
+import Useful.Attributes
+
+[once]
+def foo():
+	return 3
+"""
+
+		expected = """
+import Useful.Attributes
+
+[Boo.Lang.ModuleAttribute]
+public final transient class CodeModule(System.Object):
+
+	public static def foo() as System.Int32:
+		if (not CodeModule.___foo_cached):
+			System.Threading.Monitor.Enter(CodeModule.___foo_lock)
+			try:
+				if (not CodeModule.___foo_cached):
+					CodeModule.___foo_returnValue = 3
+					CodeModule.___foo_cached = true
+			ensure:
+				System.Threading.Monitor.Exit(CodeModule.___foo_lock)
+		return CodeModule.___foo_returnValue
+
+	private static ___foo_cached as System.Boolean
+
+	private static ___foo_lock as System.Object
+
+	private def constructor():
+		super()
+
+	public static def constructor():
+		CodeModule.___foo_lock = object()
+
+	protected static ___foo_returnValue as System.Int32
+"""
+		RunTestCase(expected, code)

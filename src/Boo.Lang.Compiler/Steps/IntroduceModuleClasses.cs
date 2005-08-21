@@ -87,6 +87,7 @@ namespace Boo.Lang.Compiler.Steps
 			for (int i=0; i<members.Length; ++i)
 			{
 				TypeMember member = members[i];
+				if (member is TypeDefinition) continue;
 				if (member.NodeType == NodeType.Method)
 				{
 					if (EntryPointMethodName == member.Name)
@@ -94,10 +95,10 @@ namespace Boo.Lang.Compiler.Steps
 						entryPoint = (Method)member;
 					}
 					member.Modifiers |= TypeMemberModifiers.Static;
-					node.Members.RemoveAt(i-removed);
-					moduleClass.Members.Add(member);
-					++removed;
 				}
+				node.Members.RemoveAt(i-removed);
+				moduleClass.Members.Add(member);
+				++removed;
 			}
 			
 			if (node.Globals.Statements.Count > 0)

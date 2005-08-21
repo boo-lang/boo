@@ -67,15 +67,16 @@ Caches the return value of a method.
 				returnStatement,
 				ExpressionStatement(returnValueAssignment))
 				
-	_codeBuilder as BooCodeBuilder
-	_compilerContext as CompilerContext
-	_typeSystemServices as TypeSystemServices
 	_method as Method
-	_fieldModifiers as TypeMemberModifiers
 	_methodLock as Field
 	_cached as Field
 	_returnValue as Field
-	_constructors = []
+	
+	override def Dispose():
+	"""
+	Dont get rid of the context because we'll need it later.
+	"""
+		pass
 		
 	override def Apply(node as Node):
 	"""
@@ -89,56 +90,35 @@ Caches the return value of a method.
 		
 		_method = node
 		
-		# The follwing must be cached since they will be
-		# lost once the method returns.
-		_codeBuilder = CodeBuilder
-		_compilerContext = Context
-		_typeSystemServices = TypeSystemServices
-		
-		_fieldModifiers = TypeMemberModifiers.Private
-		_fieldModifiers |= TypeMemberModifiers.Static if _method.IsStatic
-		
+		CreateCachedField()
+		CreateMethodLockField()		
+	
 		Context.Parameters.Pipeline.AfterStep += def(
 			sender,
 			e as CompilerStepEventArgs):
 				
-			if e.Step isa ProcessMethodBodies:	
-				# Void methods cannot be cached.
-				assert _method.ReturnType.Entity is not \
-					_compilerContext.TypeSystemServices.VoidType
-				
-				CreateReturnValueField()
-				CreateCachedField()
-				CreateMethodLockField()
-				GetConstructors()
-				
-				if len(_constructors) == 0:
-					CreateConstructor()
-				
-				CreateMethodLockFieldInitialization()
-				
-				# Visit the node and replace return statements
-				# with binary expressions that store the return
-				# statement values.
-				returnVisitor = ReturnValueStorageVisitor(
-					_codeBuilder.CreateReference(_returnValue))
-				
-				returnVisitor.Visit(_method)
-				
-				MakeMethodCacheable()
+			return if not e.Step isa ProcessMethodBodies	
+			
+			# Void methods cannot be cached.
+			assert _method.ReturnType.Entity is not \
+				self.TypeSystemServices.VoidType, "once attribute cannot be applied to void methods"
+			
+			CreateReturnValueField()
+			
+			# Visit the node and replace return statements
+			# with binary expressions that store the return
+			# statement values.
+			_method.Accept(
+				ReturnValueStorageVisitor(self.CodeBuilder.CreateReference(_returnValue)))
+			
+			MakeMethodCacheable()
 				
 	def CreateReturnValueField():	
 	"""
 	Creates the field that stores the return value of the cached method.
 	"""
-		_returnValue = _codeBuilder.CreateField(
-			"___${_method.Name}_returnValue",
-			_method.ReturnType.Entity)
-		
-		_returnValue.Modifiers = _fieldModifiers
-	
-		_method.DeclaringType.Members.Add(_returnValue)
-
+		template = self.CodeBuilder.CreateField('field', _method.ReturnType.Entity)
+		_returnValue = AddField(template, "___${_method.Name}_returnValue")
 
 	def CreateCachedField():
 	"""
@@ -147,13 +127,9 @@ Caches the return value of a method.
 	Remarks:
 		The flag is used to check whether the method has been cached.
 	"""
-		_cached = _codeBuilder.CreateField(
-			"___${_method.Name}_cached",
-			_typeSystemServices.Map(bool))
-		
-		_cached.Modifiers = _fieldModifiers
-		
-		_method.DeclaringType.Members.Add(_cached)
+		template = ast:
+			private field as bool			 	
+		_cached = AddField(template, "___${_method.Name}_cached")
 		
 	def CreateMethodLockField():
 	"""
@@ -162,18 +138,19 @@ Caches the return value of a method.
 	Remarks:
 		The field is used to lock on when the operatation is thread safe.
 	"""
-		_methodLock = _codeBuilder.CreateField(
-			"___${_method.Name}_lock",
-			_typeSystemServices.Map(object))
+		template = ast:
+			private field as object = object()			
+		_methodLock = AddField(template, "___${_method.Name}_lock")
 		
-		_methodLock.Modifiers = _fieldModifiers
+	def AddField(template as Field, name as string):
+		template.LexicalInfo = self.LexicalInfo
+		template.Name = name
+		template.Modifiers |= TypeMemberModifiers.Static if IsStaticMethod()
+		_method.DeclaringType.Members.Add(template)
+		return template
 		
-		objectConstructors = _typeSystemServices.Map(object).GetConstructors()
-		objectConstructor = objectConstructors[0]
-		_methodLock.Initializer = _codeBuilder.CreateConstructorInvocation(
-			objectConstructor)
-		
-		_method.DeclaringType.Members.Add(_methodLock)
+	def IsStaticMethod():
+		return _method.IsStatic or _method.ParentNode isa Module
 	
 	def MakeMethodCacheable():
 	"""
@@ -184,11 +161,8 @@ Caches the return value of a method.
 		# Create the double checked lock pattern.
 		outerIfNotCached = IfStatement(
 			LexicalInfo: LexicalInfo,
-			Condition: BinaryExpression(
-				LexicalInfo,
-				BinaryOperatorType.Inequality,
-				_codeBuilder.CreateReference(_cached),
-				_codeBuilder.CreateBoolLiteral(true)),
+			Condition: self.CodeBuilder.CreateNotExpression(
+						self.CodeBuilder.CreateReference(_cached)),
 			TrueBlock: Block())	
 			
 		innerIfNotCached = outerIfNotCached.CloneNode()
@@ -197,16 +171,16 @@ Caches the return value of a method.
 			BinaryExpression(
 				LexicalInfo,
 				BinaryOperatorType.Assign,
-				_codeBuilder.CreateReference(_cached),
-				_codeBuilder.CreateBoolLiteral(true)))
+				self.CodeBuilder.CreateReference(_cached),
+				self.CodeBuilder.CreateBoolLiteral(true)))
 			
-		monitorEnterInvocation = _codeBuilder.CreateMethodInvocation(
-			_typeSystemServices.Map(typeof(Monitor).GetMethod('Enter')),
-			_codeBuilder.CreateReference(_methodLock))
+		monitorEnterInvocation = self.CodeBuilder.CreateMethodInvocation(
+			self.TypeSystemServices.Map(typeof(Monitor).GetMethod('Enter')),
+			self.CodeBuilder.CreateReference(_methodLock))
 		
-		monitorExitInvocation = _codeBuilder.CreateMethodInvocation(
-			_typeSystemServices.Map(typeof(Monitor).GetMethod('Exit')),
-			_codeBuilder.CreateReference(_methodLock))
+		monitorExitInvocation = self.CodeBuilder.CreateMethodInvocation(
+			self.TypeSystemServices.Map(typeof(Monitor).GetMethod('Exit')),
+			self.CodeBuilder.CreateReference(_methodLock))
 		
 		protectedBlock = Block(LexicalInfo)
 		protectedBlock.Add(innerIfNotCached)
@@ -225,49 +199,6 @@ Caches the return value of a method.
 		methodBody.Add(
 			ReturnStatement(
 				LexicalInfo: LexicalInfo,
-				Expression: _codeBuilder.CreateReference(_returnValue)))
+				Expression: self.CodeBuilder.CreateReference(_returnValue)))
 				
 		_method.Body = methodBody
-		
-	private def GetConstructors():
-	"""
-	Gets the constructors.
-	
-	Returns:
-		The constructors of the type.
-	"""
-		for member in _method.DeclaringType.Members:
-			ctor = member as Constructor
-			if ctor is not null:
-				if (ctor.IsStatic and _methodLock.IsStatic) or \
-					(not ctor.IsStatic and not _methodLock.IsStatic):
-						_constructors.Add(ctor)
-	
-	private def CreateConstructor():
-	"""
-	Creates the default constructor.
-	"""
-		ctorModifiers = TypeMemberModifiers.Public
-		
-		if _methodLock.IsStatic:
-			ctorModifiers |= TypeMemberModifiers.Static
-		
-		ctor = _codeBuilder.CreateConstructor(ctorModifiers)
-		
-		_constructors.Add(ctor)
-		_method.DeclaringType.Members.Add(ctor)
-	
-	private def CreateMethodLockFieldInitialization():
-	"""
-	Initializes the field.
-	"""
-		for ctor as Constructor in _constructors:
-			ctor.Body.Insert(
-				0,
-				BinaryExpression(
-					LexicalInfo,
-					BinaryOperatorType.Assign,
-					_codeBuilder.CreateReference(_methodLock),
-					_methodLock.Initializer))
-					
-		_methodLock.Initializer = null
