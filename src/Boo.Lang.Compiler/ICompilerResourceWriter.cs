@@ -28,9 +28,11 @@
 
 namespace Boo.Lang.Compiler
 {	
-	public interface ICompilerResourceWriter
+	using System.Resources;
+
+	public interface IResourceService
 	{
-		bool EmbedFileResource (ICompilerResource resource);
-		bool AddFileResource (ICompilerResource resource);
+		IResourceWriter DefineResource(string resourceName, string resourceDescription);
+		bool EmbedFile(string resourceName, string path);
 	}
 }

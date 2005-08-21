@@ -204,6 +204,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ICompilerResourceWriter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ICompilerStep.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -1429,7 +1434,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Resources\EmbeddedFileResource.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Resources\FileResource.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Resources\NamedEmbeddedFileResource.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Resources\NamedFileResource.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

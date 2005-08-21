@@ -70,9 +70,17 @@ namespace Boo.Lang.Compiler.Resources
 			}
 		}
 		
-		public void WriteResource(ICompilerResourceWriter writer)
-		{
-			writer.AddFileResource (this);
+		public void WriteResource(IResourceService service)
+		{	
+			using (ResourceReader reader = new ResourceReader(this.FileName))
+			{
+				IResourceWriter writer = service.DefineResource(this.Name,  this.Description);
+				IDictionaryEnumerator e = reader.GetEnumerator();
+				while (e.MoveNext())
+				{
+					writer.AddResource((string)e.Key, e.Value);
+				}
+			}
 		}
 	}
 }

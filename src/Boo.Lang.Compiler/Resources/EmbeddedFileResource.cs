@@ -29,10 +29,6 @@
 namespace Boo.Lang.Compiler.Resources
 {
 	using System;
-	using System.Resources;
-	using System.Reflection;
-	using System.Collections;
-	using System.IO;
 	using Boo.Lang.Compiler;
 	
 	public class EmbeddedFileResource : ICompilerResource
@@ -64,17 +60,9 @@ namespace Boo.Lang.Compiler.Resources
 			}
 		}
 		
-		public virtual string Description
+		public void WriteResource(IResourceService resourceService)
 		{
-			get
-			{
-				return null;
-			}
-		}
-		
-		public void WriteResource(ICompilerResourceWriter writer)
-		{
-			writer.EmbedFileResource (this);
+			resourceService.EmbedFile(this.Name,  this.FileName);
 		}
 	}
 }

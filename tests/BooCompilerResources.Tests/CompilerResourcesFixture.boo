@@ -11,15 +11,8 @@ import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Steps
 
 class TestResource(ICompilerResource):
-	Name:
-		get:
-			return "strings1.resources"
-	
-	Description:
-		get:
-			return ""
-			
-	def WriteResources(writer as IResourceWriter):
+	def WriteResource(service as IResourceService):		
+		writer = service.DefineResource("strings1.resources", "")
 		writer.AddResource("message", "Hello, world!")
 
 [TestFixture]
@@ -66,7 +59,7 @@ class CompilerResourcesFixture:
 		parameters.Resources.Add(resource)
 		parameters.Pipeline = CompileToFile()
 		context = compiler.Run()
-		Assert.AreEqual(0, len(context.Errors), context.Errors.ToString())
+		Assert.AreEqual(0, len(context.Errors), context.Errors.ToString(true))
 		
 		asm = Assembly.LoadFrom(parameters.OutputAssembly)
 		Assert.IsNotNull(asm, "Assembly must be loadable after Run.")

@@ -3804,51 +3804,39 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (ICompilerResource resource in Parameters.Resources)
 			{
-				resource.WriteResource(_sreCompilerResourceWriter);
+				resource.WriteResource(_sreResourceService);
 			}
 		}
 
-		SRECompilerResourceWriter _sreCompilerResourceWriter;
+		SREResourceService _sreResourceService;
 
-		class SRECompilerResourceWriter : ICompilerResourceWriter
+		class SREResourceService : IResourceService
 		{
 			AssemblyBuilder _asmBuilder;
 			ModuleBuilder _moduleBuilder;
-			public SRECompilerResourceWriter (AssemblyBuilder asmBuilder, ModuleBuilder modBuilder)
+
+			public SREResourceService (AssemblyBuilder asmBuilder, ModuleBuilder modBuilder)
 			{
 				this._asmBuilder = asmBuilder;
 				this._moduleBuilder = modBuilder;
 			}
 
-			public bool EmbedFileResource(ICompilerResource resource)
+			public bool EmbedFile(string resourceName, string fname)
 			{
 				MethodInfo embed_res = typeof (System.Reflection.Emit.AssemblyBuilder).GetMethod(
 					"EmbedResourceFile", BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic,
 					null, CallingConventions.Any, new Type[] { typeof(string), typeof(string) }, null);
 				if (embed_res != null)
 				{
-
-					embed_res.Invoke (this._asmBuilder, new object[] { resource.Name, resource.FileName });
+					embed_res.Invoke(this._asmBuilder, new object[] { resourceName, fname });
 					return true;
 				}
-				else
-				{
-					return false;
-				}
+				return false;
 			}
 
-			public bool AddFileResource(ICompilerResource resource)
+			public IResourceWriter DefineResource(string resourceName, string resourceDescription)
 			{
-				IResourceWriter writer = this._moduleBuilder.DefineResource(resource.Name, resource.Description);
-				using (ResourceReader reader = new ResourceReader(resource.FileName))
-				{
-					IDictionaryEnumerator e = reader.GetEnumerator();
-					while (e.MoveNext())
-					{
-						writer.AddResource((string)e.Key, e.Value);
-					}
-				}
-				return true;
+				return this._moduleBuilder.DefineResource(resourceName, resourceDescription);
 			}
 		}
 		
@@ -3872,7 +3860,7 @@ namespace Boo.Lang.Compiler.Steps
 				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
 			}
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), true);
-			_sreCompilerResourceWriter = new SRECompilerResourceWriter (_asmBuilder, _moduleBuilder);
+			_sreResourceService = new SREResourceService (_asmBuilder, _moduleBuilder);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 			
 			Context.GeneratedAssemblyFileName = outputFile;
