@@ -3822,7 +3822,6 @@ namespace Boo.Lang.Compiler.Steps
 
 			public bool EmbedFileResource(ICompilerResource resource)
 			{
-				System.Console.WriteLine("About to embed the resource {0}, {1}!", resource.Name, resource.FileName);
 				MethodInfo embed_res = typeof (System.Reflection.Emit.AssemblyBuilder).GetMethod(
 					"EmbedResourceFile", BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic,
 					null, CallingConventions.Any, new Type[] { typeof(string), typeof(string) }, null);
