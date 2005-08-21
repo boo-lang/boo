@@ -128,7 +128,7 @@ Caches the return value of a method.
 		The flag is used to check whether the method has been cached.
 	"""
 		template = ast:
-			field as bool			 	
+			private field as bool			 	
 		_cached = AddField(template, "___${_method.Name}_cached")
 		
 	def CreateMethodLockField():
@@ -139,7 +139,7 @@ Caches the return value of a method.
 		The field is used to lock on when the operatation is thread safe.
 	"""
 		template = ast:
-			field as object = object()			
+			private field as object = object()			
 		_methodLock = AddField(template, "___${_method.Name}_lock")
 		
 	def AddField(template as Field, name as string):
