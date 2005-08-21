@@ -100,6 +100,6 @@ public final transient class CodeModule(System.Object):
 	public static def constructor():
 		CodeModule.___foo_lock = object()
 
-	protected static ___foo_returnValue as System.Int32
+	private static ___foo_returnValue as System.Int32
 """
 		RunTestCase(expected, code)
