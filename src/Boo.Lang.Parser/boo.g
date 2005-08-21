@@ -783,21 +783,28 @@ field_or_property [TypeMemberCollection container]
 		(		
 			(AS tr=type_reference { field.Type = tr; })?
 			(
-				(ASSIGN (
-							(slicing_expression (DO|DEF))=>
-							(initializer=slicing_expression method_invocation_block[initializer]) |
-							(initializer=array_or_expression eos) |
-							(initializer=callable_expression) |
-							(initializer=ast_literal))
-				{ field.Initializer = initializer;	}) |
+				(
+					ASSIGN initializer=declaration_initializer
+					{ field.Initializer = initializer;	}
+				) |
 				eos
 			)
 			docstring[field]
 		)
 	)
 	{ container.Add(tm); }
-	;
-			
+;
+	
+declaration_initializer returns [Expression e]
+{
+	e = null;
+}:
+	(slicing_expression (DO|DEF))=>(e=slicing_expression method_invocation_block[e]) |
+	(e=array_or_expression eos) |
+	(e=callable_expression) |
+	(e=ast_literal)
+;
+
 protected
 property_accessor[Property p]
 	{		
@@ -1074,6 +1081,8 @@ stmt [StatementCollection container]
 		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=macro_stmt |
 		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
 		s=return_stmt |
+		(declaration COMMA)=> s=unpack_stmt |
+		s=declaration_stmt |
 		(		
 			(
 				s=goto_stmt |
@@ -1083,8 +1092,6 @@ stmt [StatementCollection container]
 				s=continue_stmt |				
 				s=raise_stmt |
 				s=retry_stmt |
-				(declaration COMMA)=> s=unpack_stmt |
-				s=declaration_stmt |				
 				s=expression_stmt				
 			)
 			(			
@@ -1149,7 +1156,7 @@ internal_closure_stmt[Block block]
 		stmt=return_expression_stmt |
 		(
 			(
-				(declaration COMMA)=>stmt=unpack_stmt |
+				(declaration COMMA)=>stmt=unpack |
 				{IsValidMacroArgument(LA(2))}? stmt=closure_macro_stmt | 
 				stmt=expression_stmt |
 				stmt=raise_stmt |
@@ -1294,8 +1301,13 @@ declaration_stmt returns [DeclarationStatement s]
 		s = null;
 		TypeReference tr = null;
 		Expression initializer = null;
+		StatementModifier m = null;
 	}:
-	id:ID AS tr=type_reference (ASSIGN initializer=array_or_expression)?
+	id:ID AS tr=type_reference
+	(
+		(ASSIGN initializer=declaration_initializer) |
+		((m=stmt_modifier)? eos)
+	)
 	{
 		Declaration d = new Declaration(ToLexicalInfo(id));
 		d.Name = id.getText();
@@ -1304,6 +1316,7 @@ declaration_stmt returns [DeclarationStatement s]
 		s = new DeclarationStatement(d.LexicalInfo);
 		s.Declaration = d;
 		s.Initializer = initializer;
+		s.Modifier = m;
 	}
 	;
 
@@ -1313,7 +1326,6 @@ expression_stmt returns [ExpressionStatement s]
 		s = null;
 		Expression e = null;
 	}:
-	//e=expression
 	e=assignment_expression
 	{
 		s = new ExpressionStatement(e);
@@ -1506,17 +1518,32 @@ if_stmt returns [IfStatement returnValue]
 protected
 unpack_stmt returns [UnpackStatement s]
 	{
-		Declaration d = null;
-		s = new UnpackStatement();
-		Expression e = null;
+		s = null;
+		StatementModifier m = null;
 	}:	
+	s=unpack (m=stmt_modifier)? eos
+	{
+		s.Modifier = m;
+	}
+;		
+
+protected
+unpack returns [UnpackStatement s]
+{
+	Declaration d = null;
+	s = new UnpackStatement();
+	Expression e = null;
+}:
 	d=declaration COMMA { s.Declarations.Add(d); }
-	(declaration_list[s.Declarations])? t:ASSIGN e=array_or_expression
+	(declaration_list[s.Declarations])?
+	t:ASSIGN e=array_or_expression
 	{
 		s.Expression = e;
 		s.LexicalInfo = ToLexicalInfo(t);
 	}
-	;		
+;
+	
+
 		
 protected
 declaration_list[DeclarationCollection dc]
@@ -1733,7 +1760,7 @@ ast_literal_closure_stmt returns [Statement s]
 	s=return_expression_stmt |
 	(
 		(
-			(declaration COMMA)=>s=unpack_stmt |
+			(declaration COMMA)=>s=unpack |
 			{IsValidMacroArgument(LA(2))}? s=closure_macro_stmt |
 			s=raise_stmt |
 			s=yield_stmt			
