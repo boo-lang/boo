@@ -522,6 +522,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return parameter;
 		}
 		
+		public Constructor CreateConstructor(TypeMemberModifiers modifiers)
+		{
+			Constructor constructor = new Constructor();
+			constructor.Modifiers = modifiers;
+			constructor.Entity = new InternalConstructor(_tss, constructor);
+			return constructor;
+		}
+		
 		public MethodInvocationExpression CreateConstructorInvocation(ClassDefinition cd)
 		{
 			IConstructor constructor = ((IType)cd.Entity).GetConstructors()[0];
