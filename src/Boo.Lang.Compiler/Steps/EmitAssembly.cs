@@ -3804,8 +3804,52 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (ICompilerResource resource in Parameters.Resources)
 			{
-				IResourceWriter writer = _moduleBuilder.DefineResource(resource.Name, resource.Description);
-				resource.WriteResources(writer);
+				resource.WriteResource(_sreCompilerResourceWriter);
+			}
+		}
+
+		SRECompilerResourceWriter _sreCompilerResourceWriter;
+
+		class SRECompilerResourceWriter : ICompilerResourceWriter
+		{
+			AssemblyBuilder _asmBuilder;
+			ModuleBuilder _moduleBuilder;
+			public SRECompilerResourceWriter (AssemblyBuilder asmBuilder, ModuleBuilder modBuilder)
+			{
+				this._asmBuilder = asmBuilder;
+				this._moduleBuilder = modBuilder;
+			}
+
+			public bool EmbedFileResource(ICompilerResource resource)
+			{
+				System.Console.WriteLine("About to embed the resource {0}, {1}!", resource.Name, resource.FileName);
+				MethodInfo embed_res = typeof (System.Reflection.Emit.AssemblyBuilder).GetMethod(
+					"EmbedResourceFile", BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic,
+					null, CallingConventions.Any, new Type[] { typeof(string), typeof(string) }, null);
+				if (embed_res != null)
+				{
+
+					embed_res.Invoke (this._asmBuilder, new object[] { resource.Name, resource.FileName });
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+
+			public bool AddFileResource(ICompilerResource resource)
+			{
+				IResourceWriter writer = this._moduleBuilder.DefineResource(resource.Name, resource.Description);
+				using (ResourceReader reader = new ResourceReader(resource.FileName))
+				{
+					IDictionaryEnumerator e = reader.GetEnumerator();
+					while (e.MoveNext())
+					{
+						writer.AddResource((string)e.Key, e.Value);
+					}
+				}
+				return true;
 			}
 		}
 		
@@ -3829,6 +3873,7 @@ namespace Boo.Lang.Compiler.Steps
 				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
 			}
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), true);
+			_sreCompilerResourceWriter = new SRECompilerResourceWriter (_asmBuilder, _moduleBuilder);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 			
 			Context.GeneratedAssemblyFileName = outputFile;

@@ -345,6 +345,39 @@ namespace BooC
 								break;
 							}
 							
+							case 'e':
+							{
+								switch (arg.Substring(1,8))
+								{
+									case "embedres":
+									{
+										// TODO: Add check for runtime support for "mono resources"
+										string resourceFile;
+										int start = arg.IndexOf(":") + 1;
+										int comma = arg.LastIndexOf(',');
+										if (comma >= 0)
+										{
+											resourceFile = arg.Substring(start, comma-start);
+											string resourceName = arg.Substring(comma+1);
+											_options.Resources.Add(new NamedEmbeddedFileResource(resourceFile, resourceName));
+										}
+										else
+										{
+											resourceFile = arg.Substring(start);
+											_options.Resources.Add(new EmbeddedFileResource(resourceFile));
+										}
+										break;
+									}
+
+									default:
+									{
+										InvalidOption(arg);
+										break;
+									}
+								}
+								break;
+							}
+							
 							default:
 							{
 								InvalidOption(arg);

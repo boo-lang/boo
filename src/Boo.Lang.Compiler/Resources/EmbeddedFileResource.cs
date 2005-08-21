@@ -30,14 +30,16 @@ namespace Boo.Lang.Compiler.Resources
 {
 	using System;
 	using System.Resources;
+	using System.Reflection;
 	using System.Collections;
+	using System.IO;
 	using Boo.Lang.Compiler;
 	
-	public class FileResource : ICompilerResource
+	public class EmbeddedFileResource : ICompilerResource
 	{
 		protected string _fname;
 		
-		public FileResource(string fname)
+		public EmbeddedFileResource(string fname)
 		{
 			if (null == fname)
 			{
@@ -72,7 +74,7 @@ namespace Boo.Lang.Compiler.Resources
 		
 		public void WriteResource(ICompilerResourceWriter writer)
 		{
-			writer.AddFileResource (this);
+			writer.EmbedFileResource (this);
 		}
 	}
 }
