@@ -246,9 +246,9 @@ tokens
 		return LPAREN != token && LBRACK != token;
 	}
 	
-	static double ParseDouble(string text)
+	static double ParseDouble(string s)
 	{
-		return double.Parse(text, CultureInfo.InvariantCulture);
+		return double.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture);
 	}
 	
 	protected IntegerLiteralExpression ParseIntegerLiteralExpression(
@@ -261,11 +261,13 @@ tokens
 		if (s.StartsWith(HEX_PREFIX))
 		{
 			value = long.Parse(
-				s.Substring(HEX_PREFIX.Length), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
+				s.Substring(HEX_PREFIX.Length), NumberStyles.AllowHexSpecifier, 
+					CultureInfo.InvariantCulture);
 		}
 		else
 		{
-			value = long.Parse(s, CultureInfo.InvariantCulture);
+			value = long.Parse(s, NumberStyles.Integer | NumberStyles.AllowExponent,
+					CultureInfo.InvariantCulture);
 		}
 		return new IntegerLiteralExpression(ToLexicalInfo(token), value, isLong);
 	}
@@ -2678,29 +2680,37 @@ LINE_CONTINUATION:
 	'\\'! NEWLINE
 	{ $setType(Token.SKIP); }
 	;
-
+	
 INT : 
-	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
-	(DIGIT)+
-	(
-		('l' | 'L') { $setType(LONG); } |
-		('f' | 'F') { $setType(FLOAT); } |
-		(
-			({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
-			(
-			('f' | 'F')  { $setType(FLOAT); } |
-			("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); }
-			)?
-		)
-	)
-	;
-
+  	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
+  	(DIGIT)+
+ 	(('e'|'E')('+'|'-')? (DIGIT)+)?
+  	(
+  		('l' | 'L') { $setType(LONG); } |
+  		(
+ 			(
+ 				{BooLexer.IsDigit(LA(2))}? 
+ 				(
+ 					'.' (DIGIT)+
+ 					(('e'|'E')('+'|'-')? (DIGIT)+)?
+ 				)
+				(
+					(('f' | 'F') { $setType(FLOAT); }) |
+					{ $setType(DOUBLE); }
+				)
+ 			)?
+  			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+  		)
+  	)
+;
+  
 DOT : '.' 
 	(
-		(DIGIT)+ {$setType(DOUBLE);}
+		(DIGIT)+ (('e'|'E')('+'|'-')? (DIGIT)+)?
 		(
 			(('f' | 'F')  { $setType(FLOAT); }) |
 			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); }) |
+			{$setType(DOUBLE);}
 		)
 	)?
 ;

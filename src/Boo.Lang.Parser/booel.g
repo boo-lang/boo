@@ -59,27 +59,35 @@ ID options { testLiterals = true; }:
 	;
 
 INT : 
-	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
-	(DIGIT)+
-	(
-		('l' | 'L') { $setType(LONG); } |
-		('f' | 'F') { $setType(FLOAT); } |
-		(
-			({BooLexer.IsDigit(LA(2))}? ('.' (DIGIT)+) { $setType(DOUBLE); })?
-			(
-			('f' | 'F')  { $setType(FLOAT); } |
-			("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); }
-			)?
-		)
-	)
-	;
-
+  	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
+  	(DIGIT)+
+ 	(('e'|'E')('+'|'-')? (DIGIT)+)?
+  	(
+  		('l' | 'L') { $setType(LONG); } |
+  		(
+ 			(
+ 				{BooLexer.IsDigit(LA(2))}? 
+ 				(
+ 					'.' (DIGIT)+
+ 					(('e'|'E')('+'|'-')? (DIGIT)+)?
+ 				)
+				(
+					(('f' | 'F') { $setType(FLOAT); }) |
+					{ $setType(DOUBLE); }
+				)
+ 			)?
+  			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); })?
+  		)
+  	)
+;
+  
 DOT : '.' 
 	(
-		(DIGIT)+ {$setType(DOUBLE);}
+		(DIGIT)+ (('e'|'E')('+'|'-')? (DIGIT)+)?
 		(
 			(('f' | 'F')  { $setType(FLOAT); }) |
 			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); }) |
+			{$setType(DOUBLE);}
 		)
 	)?
 ;
