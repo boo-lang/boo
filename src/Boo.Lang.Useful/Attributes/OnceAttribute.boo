@@ -158,8 +158,8 @@ Caches the return value of a method.
 				ensure:
 					System.Threading.Monitor.Exit(methodLock)
 		
-		replaceReferences(newMethodBodyTemplate, 'cached', _cached.Name)
-		replaceReferences(newMethodBodyTemplate, 'methodLock', _methodLock.Name)
+		ReplaceReferences(newMethodBodyTemplate, 'cached', _cached.Name)
+		ReplaceReferences(newMethodBodyTemplate, 'methodLock', _methodLock.Name)
 		newMethodBodyTemplate.ReplaceNodes(
 			MacroStatement(Name: 'oldMethodBody'),
 			_method.Body)
@@ -167,7 +167,7 @@ Caches the return value of a method.
 		_method.Body = Block()
 		_method.Body.Add(newMethodBodyTemplate)
 		
-	def replaceReferences(node as Node, what as string, value as string):
+	def ReplaceReferences(node as Node, what as string, value as string):
 		node.ReplaceNodes(
 			ReferenceExpression(what),
 			ReferenceExpression(value))
