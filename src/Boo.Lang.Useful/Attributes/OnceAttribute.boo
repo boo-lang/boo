@@ -39,6 +39,11 @@ class OnceAttribute(AbstractAstAttribute):
 """
 Caches the return value of a method.
 
+Usage
+	[once]
+	def foo():
+		return Math.Sin(Math.PI*3)
+
 @author Sorin Ionescu (sorin.ionescu@gmail.com)
 """
 	private class ReturnValueStorageVisitor(DepthFirstVisitor):
