@@ -91,7 +91,8 @@ Caches the return value of a method.
 		_method = node
 		
 		CreateCachedField()
-		CreateMethodLockField()		
+		CreateMethodLockField()
+		PrepareMethodBody()		
 	
 		Context.Parameters.Pipeline.AfterStep += def(
 			sender,
@@ -104,14 +105,7 @@ Caches the return value of a method.
 				self.TypeSystemServices.VoidType, "once attribute cannot be applied to void methods"
 			
 			CreateReturnValueField()
-			
-			# Visit the node and replace return statements
-			# with binary expressions that store the return
-			# statement values.
-			_method.Accept(
-				ReturnValueStorageVisitor(self.CodeBuilder.CreateReference(_returnValue)))
-			
-			MakeMethodCacheable()
+			PostProcessMethod()
 				
 	def CreateReturnValueField():	
 	"""
@@ -152,54 +146,44 @@ Caches the return value of a method.
 		
 	def IsStaticMethod():
 		return _method.IsStatic or _method.ParentNode isa Module
+		
+	def PrepareMethodBody():
+		newMethodBodyTemplate = ast:
+			if not cached:
+				System.Threading.Monitor.Enter(methodLock)
+				try:
+					if not cached:
+						oldMethodBody
+						cached = true
+				ensure:
+					System.Threading.Monitor.Exit(methodLock)
+		
+		replaceReferences(newMethodBodyTemplate, 'cached', _cached.Name)
+		replaceReferences(newMethodBodyTemplate, 'methodLock', _methodLock.Name)
+		newMethodBodyTemplate.ReplaceNodes(
+			MacroStatement(Name: 'oldMethodBody'),
+			_method.Body)
+			
+		_method.Body = Block()
+		_method.Body.Add(newMethodBodyTemplate)
+		
+	def replaceReferences(node as Node, what as string, value as string):
+		node.ReplaceNodes(
+			ReferenceExpression(what),
+			ReferenceExpression(value))
 	
-	def MakeMethodCacheable():
+	def PostProcessMethod():
 	"""
-	Modifies the method body to make it cacheable.
+	Visit the node and replace return statements
+	with binary expressions that store the return
+	statement values.
+	Add a single return statement at the end
+	to return the cached value.
 	"""
-		methodBody = Block(LexicalInfo)
-		
-		# Create the double checked lock pattern.
-		outerIfNotCached = IfStatement(
-			LexicalInfo: LexicalInfo,
-			Condition: self.CodeBuilder.CreateNotExpression(
-						self.CodeBuilder.CreateReference(_cached)),
-			TrueBlock: Block())	
-			
-		innerIfNotCached = outerIfNotCached.CloneNode()
-		innerIfNotCached.TrueBlock.Add(_method.Body)
-		innerIfNotCached.TrueBlock.Add(
-			BinaryExpression(
-				LexicalInfo,
-				BinaryOperatorType.Assign,
-				self.CodeBuilder.CreateReference(_cached),
-				self.CodeBuilder.CreateBoolLiteral(true)))
-			
-		monitorEnterInvocation = self.CodeBuilder.CreateMethodInvocation(
-			self.TypeSystemServices.Map(typeof(Monitor).GetMethod('Enter')),
-			self.CodeBuilder.CreateReference(_methodLock))
-		
-		monitorExitInvocation = self.CodeBuilder.CreateMethodInvocation(
-			self.TypeSystemServices.Map(typeof(Monitor).GetMethod('Exit')),
-			self.CodeBuilder.CreateReference(_methodLock))
-		
-		protectedBlock = Block(LexicalInfo)
-		protectedBlock.Add(innerIfNotCached)
-		
-		ensureBlock = Block(LexicalInfo)
-		ensureBlock.Add(monitorExitInvocation)
-		
-		outerIfNotCached.TrueBlock.Add(monitorEnterInvocation)			
-		outerIfNotCached.TrueBlock.Add(
-			TryStatement(
-				LexicalInfo: LexicalInfo,
-				ProtectedBlock: protectedBlock,
-				EnsureBlock: ensureBlock))
-		
-		methodBody.Add(outerIfNotCached)
-		methodBody.Add(
+		_method.Accept(
+				ReturnValueStorageVisitor(
+					self.CodeBuilder.CreateReference(_returnValue)))
+		_method.Body.Add(
 			ReturnStatement(
 				LexicalInfo: LexicalInfo,
 				Expression: self.CodeBuilder.CreateReference(_returnValue)))
-				
-		_method.Body = methodBody
