@@ -494,6 +494,8 @@ protected
 class_definition [TypeMemberCollection container]
 	{
 		TypeDefinition td = null;
+		TypeReferenceCollection baseTypes = null;
+		TypeMemberCollection members = null;
 	}:
 	(
 		CLASS { td = new ClassDefinition(); } |
@@ -506,14 +508,16 @@ class_definition [TypeMemberCollection container]
 		td.Modifiers = _modifiers;
 		AddAttributes(td.Attributes);
 		container.Add(td);
+		baseTypes = td.BaseTypes;
+		members = td.Members;
 	}
-	(base_types[td.BaseTypes])?
+	(base_types[baseTypes])?
 	begin_with_doc[td]					
 	(
 		(PASS eos) |
 		(
 			(EOS)*
-			type_definition_member[td.Members]			
+			type_definition_member[members]			
 		)+
 	)
 	end[td]
@@ -536,6 +540,7 @@ protected
 interface_definition [TypeMemberCollection container]
 	{
 		InterfaceDefinition itf = null;
+		TypeMemberCollection members = null;
 	} :
 	INTERFACE id:ID
 	{
@@ -544,6 +549,7 @@ interface_definition [TypeMemberCollection container]
 		itf.Modifiers = _modifiers;
 		AddAttributes(itf.Attributes);
 		container.Add(itf);
+		members = itf.Members;
 	}
 	(base_types[itf.BaseTypes])?
 	begin_with_doc[itf]
@@ -552,9 +558,9 @@ interface_definition [TypeMemberCollection container]
 		(
 			attributes
 			(
-				interface_method[itf.Members] |
-				event_declaration[itf.Members] |
-				interface_property[itf.Members]
+				interface_method[members] |
+				event_declaration[members] |
+				interface_property[members]
 			)
 		)+
 	)
@@ -700,6 +706,9 @@ method [TypeMemberCollection container]
 		TypeReference rt = null;
 		TypeReference it = null;
 		ExplicitMemberInfo emi = null;
+		ParameterDeclarationCollection parameters = null;
+		Block body = null;
+		StatementCollection statements = null;
 	}: 
 	t:DEF
 	(
@@ -722,13 +731,16 @@ method [TypeMemberCollection container]
 	{
 		m.Modifiers = _modifiers;
 		AddAttributes(m.Attributes);
+		parameters = m.Parameters;
+		body = m.Body;
+		statements = body.Statements;
 	}
-	LPAREN parameter_declaration_list[m.Parameters] RPAREN
+	LPAREN parameter_declaration_list[parameters] RPAREN
 			(AS rt=type_reference { m.ReturnType = rt; })?
 			attributes { AddAttributes(m.ReturnTypeAttributes); }
-			begin_block_with_doc[m, m.Body]
-				block[m.Body.Statements]
-			end[m.Body]
+			begin_block_with_doc[m, body]
+				block[statements]
+			end[body]
 	{ 
 		container.Add(m);
 	}
@@ -752,6 +764,7 @@ field_or_property [TypeMemberCollection container]
 		Field field = null;
 		ExplicitMemberInfo emi = null;
 		Expression initializer = null;
+		ParameterDeclarationCollection parameters = null;
 	}: 
 	(property_header)=>(
 		(emi=explicit_member_info)? id:ID
@@ -765,8 +778,9 @@ field_or_property [TypeMemberCollection container]
 				p.Name = id.getText();
 				p.ExplicitInfo = emi;
 				AddAttributes(p.Attributes);
+				parameters = p.Parameters;
 			}
-			(LPAREN parameter_declaration_list[p.Parameters] RPAREN)?
+			(LPAREN parameter_declaration_list[parameters] RPAREN)?
 			(AS tr=type_reference)?
 			{							
 				p.Type = tr;
@@ -817,6 +831,7 @@ protected
 property_accessor[Property p]
 	{		
 		Method m = null;
+		Block body = null;
 	}:
 	attributes
 	modifiers
@@ -842,8 +857,9 @@ property_accessor[Property p]
 	{
 		AddAttributes(m.Attributes);
 		m.Modifiers = _modifiers;
+		body = m.Body;
 	}
-	compound_stmt[m.Body]
+	compound_stmt[body]
 	;
 	
 protected
@@ -865,22 +881,22 @@ block[StatementCollection container]:
 	
 protected
 modifiers
-	{
-		_modifiers = TypeMemberModifiers.None;
-	}:
+{
+	_modifiers = TypeMemberModifiers.None;
+}:
 	(
-		STATIC { _modifiers |= TypeMemberModifiers.Static; } |
-		PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |
-		PROTECTED { _modifiers |= TypeMemberModifiers.Protected; } |
-		PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
-		INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
-		FINAL { _modifiers |= TypeMemberModifiers.Final; } |
-		TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
-		OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
-		ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
-		VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; }
+	STATIC { _modifiers |= TypeMemberModifiers.Static; } |
+	PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |
+	PROTECTED { _modifiers |= TypeMemberModifiers.Protected; } |
+	PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
+	INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
+	FINAL { _modifiers |= TypeMemberModifiers.Final; } |
+	TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
+	OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
+	ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
+	VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; }	
 	)*
-	;
+;
 	
 protected	
 parameter_declaration_list[ParameterDeclarationCollection c]
@@ -1008,9 +1024,16 @@ end[Node node] :
 	;
 
 protected
-compound_stmt[Block b] :
-		COLON begin:INDENT { b.LexicalInfo = ToLexicalInfo(begin); }
-			block[b.Statements]
+compound_stmt[Block b]
+{
+	StatementCollection statements = null;
+}:
+		COLON begin:INDENT
+		{
+			b.LexicalInfo = ToLexicalInfo(begin);
+			statements = b.Statements;
+		}
+			block[statements]
 		end[b]
 		;
 		
@@ -1435,11 +1458,18 @@ for_stmt returns [ForStatement fs]
 	{
 		fs = null;
 		Expression iterator = null;
+		DeclarationCollection declarations = null;
+		Block body = null;
 	}:
-	f:FOR { fs = new ForStatement(ToLexicalInfo(f)); }
-		declaration_list[fs.Declarations] IN iterator=array_or_expression
+	f:FOR
+	{
+		fs = new ForStatement(ToLexicalInfo(f));
+		declarations = fs.Declarations;
+		body = fs.Block;
+	}
+		declaration_list[declarations] IN iterator=array_or_expression
 		{ fs.Iterator = iterator; }
-		compound_stmt[fs.Block]
+		compound_stmt[body]
 	;
 		
 protected
@@ -1731,6 +1761,12 @@ ast_literal returns [AstLiteralExpression e]
 	(ast_literal_block[e] | ast_literal_closure[e] eos)
 ;
 
+type_definition_member_prediction:
+	attributes
+	modifiers
+	(CLASS|INTERFACE|STRUCT|DEF|EVENT|(ID (AS|ASSIGN)))
+;
+
 ast_literal_block[AstLiteralExpression e]
 {
 	// TODO: either cache or construct these objects on demand
@@ -1741,8 +1777,7 @@ ast_literal_block[AstLiteralExpression e]
 }:
 	begin 
 	(
-		type_definition_member[collection] { e.Node = collection[0]; } |
-		node=expression { e.Node = node; } |
+		(type_definition_member_prediction)=>(type_definition_member[collection] { e.Node = collection[0]; }) |
 		((stmt[statements])+ { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
 	)
 	end[e]
