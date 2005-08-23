@@ -4741,7 +4741,7 @@ namespace Boo.Lang.Compiler.Steps
 			return entity;
 		}
 		
-		IType CurrentType
+		protected IType CurrentType
 		{
 			get
 			{

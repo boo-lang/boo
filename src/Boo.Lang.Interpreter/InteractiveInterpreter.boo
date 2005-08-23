@@ -241,10 +241,10 @@ class InteractiveInterpreter(AbstractInterpreter):
 		return ""
 		
 	static def DescribeModifiers(e as Reflection.EventInfo):
-		return DescribeModifiers(e.GetAddMethod() or e.GetRemoveMethod())
+		return DescribeModifiers(e.GetAddMethod(true) or e.GetRemoveMethod(true))
 		
 	static def DescribeModifiers(p as Reflection.PropertyInfo):
-		accessor = p.GetGetMethod() or p.GetSetMethod()
+		accessor = p.GetGetMethod(true) or p.GetSetMethod(true)
 		return DescribeModifiers(accessor)
 			
 	static def DescribePropertyParameters(parameters as (Reflection.ParameterInfo)):
