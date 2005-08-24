@@ -745,7 +745,6 @@
 				<arg value="-cp" />
 				<arg file="${antlr.jar}" />
 				<arg value="antlr.Tool" />
-				<!-- <arg value="-traceParser" /> -->
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Parser/" />
 				<arg value="src/Boo.Lang.Parser/boo.g" />

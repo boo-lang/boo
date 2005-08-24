@@ -517,8 +517,8 @@ class_definition [TypeMemberCollection container]
 		(PASS eos) |
 		(
 			(EOS)*
-			type_definition_member[members]			
-		)+
+			(type_definition_member[members])+			
+		)
 	)
 	end[td]
 	;
