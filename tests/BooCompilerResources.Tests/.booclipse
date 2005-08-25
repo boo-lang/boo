@@ -1,0 +1,11 @@
+<settings>
+  <outputType>library</outputType>
+  <references>
+    <booclipse.core.internal.GlobalAssemblyCacheReference-Remembrance>
+      <name>nunit.framework</name>
+      <version>2.2.0.0</version>
+      <culture>neutral</culture>
+      <token>96d09a1eb7f44a77</token>
+    </booclipse.core.internal.GlobalAssemblyCacheReference-Remembrance>
+  </references>
+</settings>

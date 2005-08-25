@@ -857,7 +857,7 @@ namespace Boo.Lang.Runtime
 					return ArrayEqualityImpl(lhsa, rhsa);
 				}
 			}
-			return lhs.Equals(rhs);
+			return lhs.Equals(rhs) || rhs.Equals(lhs);
 		}
 
 		public static bool op_Equality(Array lhs, Array rhs)
