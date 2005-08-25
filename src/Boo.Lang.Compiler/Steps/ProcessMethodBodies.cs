@@ -384,8 +384,10 @@ namespace Boo.Lang.Compiler.Steps
 				if (null == node.Type)
 				{
 					node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
+					node.Type.LexicalInfo = node.LexicalInfo;
 				}
 			}
+			CheckFieldType(node.Type);
 		}
 		
 		bool IsValidLiteralInitializer(Expression e)
@@ -417,6 +419,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Type)
 			{
 				node.Type = CodeBuilder.CreateTypeReference(initializerType);
+				node.Type.LexicalInfo = node.LexicalInfo;
 			}
 			else
 			{
@@ -651,6 +654,25 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveParameterDeclaration(ParameterDeclaration node)
 		{
 			CheckIdentifierName(node, node.Name);
+			CheckParameterType(node.Type);
+		}
+
+		void CheckParameterType(TypeReference type)
+		{
+			if (type.Entity != TypeSystemServices.VoidType) return;
+			Error(CompilerErrorFactory.InvalidParameterType(type, type.Entity.FullName));
+		}
+
+		void CheckFieldType(TypeReference type)
+		{
+			if (type.Entity != TypeSystemServices.VoidType) return;
+			Error(CompilerErrorFactory.InvalidFieldType(type, type.Entity.FullName));
+		}
+
+		void CheckDeclarationType(TypeReference type)
+		{
+			if (type.Entity != TypeSystemServices.VoidType) return;
+			Error(CompilerErrorFactory.InvalidDeclarationType(type, type.Entity.FullName));
 		}
 		
 		override public void OnCallableBlockExpression(CallableBlockExpression node)
@@ -1838,6 +1860,12 @@ namespace Boo.Lang.Compiler.Steps
 				TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
 				BindExpressionType(node, TypeSystemServices.GetArrayType(GetMostGenericType(items), 1));
 			}
+		}
+
+		override public void LeaveDeclaration(Declaration node)
+		{
+			if (null == node.Type) return;
+			CheckDeclarationType(node.Type);
 		}
 		
 		override public void LeaveDeclarationStatement(DeclarationStatement node)

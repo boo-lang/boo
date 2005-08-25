@@ -121,6 +121,10 @@ BCE0119=Explode expression can only be used as the last argument to a callable w
 BCE0120='{0}' não está acessível devido ao seu nível de proteção.
 BCE0121='super' não é válida neste contexto.
 BCE0122=Value type '{0}' does not provide an implementation for '{1}'. Value types cannot have abstract members.
+BCE0123=Invalid parameter type '{0}'.
+BCE0124=Invalid field type '{0}'.
+BCE0125=Invalid declaration type '{0}'.
+BCE0126=It is not possible to evaluate an expression of type '{0}'.
 
 ;Compiler warnings
 BCW0001=AVISO: O tipo '{0}' não possui uma implementação para '{1}' e será marcado como abstrato.

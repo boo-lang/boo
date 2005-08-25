@@ -645,6 +645,26 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0122", node.LexicalInfo, typeName, memberName);
 		}
+
+		public static CompilerError InvalidParameterType(Node node, string typeName)
+		{
+			return new CompilerError("BCE0123", node.LexicalInfo, typeName);
+		}
+
+		public static CompilerError InvalidFieldType(Node node, string typeName)
+		{
+			return new CompilerError("BCE0124", node.LexicalInfo, typeName);
+		}
+
+		public static CompilerError InvalidDeclarationType(Node node, string typeName)
+		{
+			return new CompilerError("BCE0125", node.LexicalInfo, typeName);
+		}
+
+		public static CompilerError InvalidExpressionType(Node node, string typeName)
+		{
+			return new CompilerError("BCE0126", node.LexicalInfo, typeName);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
