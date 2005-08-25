@@ -323,9 +323,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!node.IsAbstract)
 			{
+				IMethod method = member as IMethod;
+				string memberDescription = method != null
+					? TypeSystemServices.GetSignature(method)
+					: member.FullName;
 				Warnings.Add(
 					CompilerWarningFactory.AbstractMemberNotImplemented(baseTypeRef,
-					node.FullName, member.FullName));
+					node.FullName, memberDescription));
 				_newAbstractClasses.AddUnique(node);
 			}
 		}
