@@ -640,6 +640,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0121", node.LexicalInfo);
 		}
+
+		public static CompilerError ValueTypeCantHaveAbstractMember(Node node, string typeName, string memberName)
+		{
+			return new CompilerError("BCE0122", node.LexicalInfo, typeName, memberName);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
