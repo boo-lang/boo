@@ -2722,6 +2722,7 @@ INT :
  	(('e'|'E')('+'|'-')? (DIGIT)+)?
   	(
   		('l' | 'L') { $setType(LONG); } |
+		(('f' | 'F') { $setType(FLOAT); }) |
   		(
  			(
  				{BooLexer.IsDigit(LA(2))}? 
