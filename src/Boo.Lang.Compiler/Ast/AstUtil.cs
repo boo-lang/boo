@@ -158,6 +158,12 @@ namespace Boo.Lang.Compiler.Ast
 			return node.ParentNode.NodeType == NodeType.MethodInvocationExpression &&
 					node == ((MethodInvocationExpression)node.ParentNode).Target;
 		}
+
+		public static bool IsTargetOfMemberReference(Expression node)
+		{
+			return node.ParentNode.NodeType == NodeType.MemberReferenceExpression &&
+				node == ((MemberReferenceExpression)node.ParentNode).Target;
+		}
 		
 		public static bool IsTargetOfSlicing(Expression node)
 		{

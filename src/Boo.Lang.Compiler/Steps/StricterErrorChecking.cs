@@ -38,6 +38,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(CompileUnit);
 		}
+
+		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
+		{
+			if (AstUtil.IsTargetOfMethodInvocation(node)) return;
+			if (AstUtil.IsTargetOfMemberReference(node)) return;
+			Error(CompilerErrorFactory.InvalidSuper(node));
+		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
