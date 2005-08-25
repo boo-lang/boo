@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.major.minor.release.version" value="0.5.6" />
-	<property name="boo.svn.revision" value="1767" />
+	<property name="boo.major.minor.release.version" value="0.6.0" />
+	<property name="boo.svn.revision" value="1858" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="true" />
+	<property name="boo.assembly.version" value="1.0.0.0" />
 	
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
@@ -807,9 +808,22 @@
 		</boo>
 	</target>
 	
-	<target name="update-assembly-attributes" depends="Boo.NAnt.Tasks, update-svn-revision-number">
-    	<updateAssemblyVersion
-			version="${boo.version}">
+	<target name="update-assembly-attributes" depends="Boo.NAnt.Tasks, update-svn-revision-number">	
+		<boo>
+		import Useful.IO.TextFile from Boo.Lang.Useful
+		
+		fname = "src/Boo.Lang/Builtins.cs"
+		builtins = ReadFile(fname)
+		
+		version = Project.Properties["boo.version"]
+		newBuiltins = @/new System.Version\(".+"\)/.Replace(builtins, "new System.Version(\"${version}\")")
+		if builtins != newBuiltins:
+			print fname
+			WriteFile(fname, newBuiltins) 
+		</boo>
+		
+    		<updateAssemblyVersion
+			version="${boo.assembly.version}">
 			<fileset basedir="src">
 				<include name="**/AssemblyInfo.cs" />
 				<include name="**/AssemblyInfo.boo" />

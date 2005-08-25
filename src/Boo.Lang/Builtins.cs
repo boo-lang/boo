@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -43,6 +43,14 @@ namespace Boo.Lang
 	{
 		public class duck
 		{
+		}
+		
+		public static System.Version BooVersion
+		{
+			get
+			{
+				return new System.Version("0.6.0.1858");
+			}
 		}
 
 		public static void print(object o)
