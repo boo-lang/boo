@@ -39,4 +39,16 @@ if "--print-modules" in argv:
 if "--debug" in argv:
 	Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
 
+print """Welcome to booish, an interpreter for the boo programming language.
+
+Running boo ${BooVersion}.
+
+The following builtin functions are available:
+    dir(Type): lists the members of a type
+    help(Type): prints detailed information about a type
+    load(string): evals an external boo file
+    globals(): returns the names of all variables known to the interpreter
+
+Enter boo code in the prompt below."""
+
 interpreter.ConsoleLoopEval()
