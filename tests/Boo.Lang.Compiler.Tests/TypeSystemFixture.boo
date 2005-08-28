@@ -136,7 +136,7 @@ class TypeSystemFixture:
 	[Test]
 	def CreateCallableDefinition():
 		cd = _tss.CreateCallableDefinition("Function")
-		Assert.AreEqual(3, cast(IType, cd.Entity).GetTypeDepth())
+		Assert.AreEqual(3, cast(IType, TypeSystemServices.GetEntity(cd)).GetTypeDepth())
 		
 	def Function() as void:
 		pass

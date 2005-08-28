@@ -252,8 +252,8 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
-			clone._entity = _entity;
-			clone._annotations = null != _annotations ? (Hashtable)_annotations.Clone() : null;
+			//clone._entity = _entity;
+			clone._annotations = (Hashtable)_annotations.Clone();
 			""")
 			
 			if IsExpression(node):
@@ -281,10 +281,10 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			""")
 			
 			writer.WriteLine("""
-		override public void ClearTypeSystemBindings()
+		override internal void ClearTypeSystemBindings()
 		{
-			_annotations = null;
-			_entity = null;
+			_annotations.Clear();
+			//_entity = null;
 			""")
 			
 			if IsExpression(node):

@@ -46,9 +46,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		protected string _documentation;
 		
-		protected Boo.Lang.Compiler.TypeSystem.IEntity _entity;
-		
-		protected System.Collections.Hashtable _annotations;
+		protected System.Collections.Hashtable _annotations = new System.Collections.Hashtable();
 		
 		protected bool _isSynthetic;
 
@@ -95,16 +93,16 @@ namespace Boo.Lang.Compiler.Ast
 		}
 		
 		[XmlIgnore]
-		public Boo.Lang.Compiler.TypeSystem.IEntity Entity
+		internal Boo.Lang.Compiler.TypeSystem.IEntity Entity
 		{
 			get
 			{
-				return _entity;
+				return Boo.Lang.Compiler.TypeSystem.TypeSystemServices.GetOptionalEntity(this);
 			}
 			
 			set
 			{
-				_entity = value;
+				Boo.Lang.Compiler.TypeSystem.TypeSystemServices.Bind(this, value);
 			}
 		}
 		
@@ -112,41 +110,28 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get
 			{
-				if (null == _annotations)
-				{
-					return null;
-				}
 				return _annotations[key];
 			}
 			
-			set
+			set			
 			{
-				if (null == key)
-				{
-					throw new ArgumentNullException("key");
-				}
-				
-				if (null == _annotations)
-				{
-					_annotations = new Hashtable();
-				}
 				_annotations[key] = value;
 			}
 		}
 		
 		public bool ContainsAnnotation(object key)
 		{
-			return (null == _annotations)
-				? false
-				: _annotations.ContainsKey(key);
+			return _annotations.ContainsKey(key);
 		}
 		
 		public void RemoveAnnotation(object key)
 		{
-			if (null != _annotations)
-			{
-				_annotations.Remove(key);
-			}
+			_annotations.Remove(key);
+		}
+		
+		internal virtual void ClearTypeSystemBindings()
+		{
+			_annotations.Clear();
 		}
 		
 		public Node ParentNode
@@ -289,12 +274,6 @@ namespace Boo.Lang.Compiler.Ast
 			return lhs == null
 				? rhs == null
 				: lhs.Matches(rhs);
-		}
-		
-		public virtual void ClearTypeSystemBindings()
-		{
-			_annotations = null;
-			_entity = null;
 		}
 		
 		public abstract NodeType NodeType

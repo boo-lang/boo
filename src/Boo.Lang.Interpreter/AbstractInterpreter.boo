@@ -244,8 +244,17 @@ class AbstractInterpreter:
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
 										module as Module):
 		moduleType = cast(AbstractInternalType,
-						cast(ModuleEntity, module.Entity).ModuleClass.Entity).GeneratedType
+						GetEntity(GetModuleEntity(module).ModuleClass)).GeneratedType
 		moduleType.GetField("ParentInterpreter").SetValue(null, self)
+		
+	private static def GetModuleEntity(module as Module) as ModuleEntity:
+		return GetEntity(module)
+		
+	static def GetEntity(node as Node):
+		return TypeSystemServices.GetEntity(node)
+		
+	static def GetOptionalEntity(node as Node):
+		return TypeSystemServices.GetOptionalEntity(node)
 		
 	private def RecordImports(imports as ImportCollection):
 		for imp in imports:
@@ -437,7 +446,7 @@ class AbstractInterpreter:
 	
 		override def EnterModule(node as Module):
 	
-			module = cast(ModuleEntity, node.Entity).ModuleClass
+			module = GetModuleEntity(node).ModuleClass
 			return false unless module
 	
 			_interpreterField = CodeBuilder.CreateField("ParentInterpreter", TypeSystemServices.Map(AbstractInterpreter))
@@ -455,12 +464,12 @@ class AbstractInterpreter:
 	
 		override def OnReferenceExpression(node as ReferenceExpression):
 			
-			if (InterpreterEntity.IsInterpreterEntity(node.Entity) and
+			if (InterpreterEntity.IsInterpreterEntity(GetOptionalEntity(node)) and
 					not AstUtil.IsLhsOfAssignment(node)):	
 				ReplaceCurrentNode(CreateGetValue(node))
 	
 		override def LeaveBinaryExpression(node as BinaryExpression):
-			if InterpreterEntity.IsInterpreterEntity(node.Left.Entity):
+			if InterpreterEntity.IsInterpreterEntity(GetOptionalEntity(node.Left)):
 				ReplaceCurrentNode(CreateSetValue(node))
 				
 		override def LeaveExpressionStatement(node as ExpressionStatement):
@@ -541,7 +550,7 @@ class AbstractInterpreter:
 				if target.ExpressionType is not null:									
 					suggestion = target.ExpressionType
 				else:
-					suggestion = target.Entity
+					suggestion = GetOptionalEntity(target)
 				if suggestion is not null and suggestion.EntityType != EntityType.Error:
 					_context["suggestion"] = suggestion
 					// TODO: use target to display static members only for type reference expressions

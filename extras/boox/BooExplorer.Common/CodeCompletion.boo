@@ -54,14 +54,10 @@ class CodeCompletionHunter(ProcessMethodBodiesWithDuckTyping):
 		
 	protected def MyGetReferenceNamespace(expression as MemberReferenceExpression) as INamespace:		
 		target as Expression = expression.Target
-		
-		print("ExpressionType: ${target.ExpressionType}")
-		print("Entity: ${target.Entity}")
-		
 		if target.ExpressionType is not null:
 			if target.ExpressionType.EntityType != EntityType.Error:
 				return cast(INamespace, target.ExpressionType)
-		return cast(INamespace, target.Entity)
+		return cast(INamespace, TypeSystemServices.GetOptionalEntity(target))
 	
 	protected static def MakePipeline(hunter):
 		pipeline = ResolveExpressions(BreakOnErrors: false)

@@ -744,18 +744,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		static object EntityAnnotationKey = new object();
+		
+		public static void Bind(Node node, IEntity entity)
+		{
+			if (null == node) throw new ArgumentNullException("node");
+			node[EntityAnnotationKey] = entity;
+		}
+		
+		public static IEntity GetOptionalEntity(Node node)
+		{
+			if (null == node) throw new ArgumentNullException("node");
+			return (IEntity)node[EntityAnnotationKey];
+		}
+		
 		public static IEntity GetEntity(Node node)
 		{
-			if (null == node)
-			{
-				throw new ArgumentNullException("node");
-			}
-			
-			IEntity tag = node.Entity;
-			if (null == tag)
-			{
-				InvalidNode(node);
-			}
+			IEntity tag = GetOptionalEntity(node);
+			if (null == tag) InvalidNode(node);
 			return tag;
 		}
 		

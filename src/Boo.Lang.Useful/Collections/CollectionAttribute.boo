@@ -46,11 +46,14 @@ Example:
 					return self.InnerList[index]
 						
 	def ExtendsObject(classDef as ClassDefinition):
-		return cast(IType, classDef.Entity).BaseType is TypeSystemServices.ObjectType
+		return IsObject(cast(IType, TypeSystemServices.GetEntity(classDef)).BaseType)
 		
 	def RemoveObjectBaseType(classDef as ClassDefinition):
 		for item in classDef.BaseTypes:
-			if item.Entity is TypeSystemServices.ObjectType:
+			if IsObject(TypeSystemServices.GetEntity(item)):
 				classDef.BaseTypes.Remove(item)
 				return
 		assert false
+		
+	def IsObject(entity as IEntity):
+		 return entity is TypeSystemServices.ObjectType
