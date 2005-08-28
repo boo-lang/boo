@@ -2113,6 +2113,18 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 					
+					case TypeCode.Int16:
+					{
+						_il.Emit(OpCodes.Ldc_I4, (int)(short)value);
+						break;
+					}
+
+					case TypeCode.UInt16:
+					{
+						_il.Emit(OpCodes.Ldc_I4, (int)(ushort)value);
+						break;
+					}
+					
 					case TypeCode.Int32:
 					{
 						_il.Emit(OpCodes.Ldc_I4, (int)value);
