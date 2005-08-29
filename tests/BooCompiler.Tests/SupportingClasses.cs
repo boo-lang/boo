@@ -30,6 +30,28 @@ namespace BooCompiler.Tests
 {
 	using System;
 	
+	public class ReturnDucks
+	{
+		public class DuckBase {}
+		
+		public class DuckFoo : DuckBase
+		{
+			public string Foo() { return "foo"; }
+		}
+		
+		public class DuckBar : DuckBase
+		{
+			public string Bar() { return "bar"; }
+		}
+		
+		[Boo.Lang.DuckTypedAttribute]
+		public DuckBase GetDuck(bool foo)
+		{
+			if (foo) return new DuckFoo();
+			return new DuckBar();
+		}
+	}
+	
 	public struct Point
 	{
 		public int x;
