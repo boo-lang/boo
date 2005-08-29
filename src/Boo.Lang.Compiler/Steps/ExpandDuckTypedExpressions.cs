@@ -41,7 +41,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void Run()
 		{
-			Visit(CompileUnit);
+			if (0 == Errors.Count)
+			{
+				Visit(CompileUnit);
+			}
 		}
 
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
