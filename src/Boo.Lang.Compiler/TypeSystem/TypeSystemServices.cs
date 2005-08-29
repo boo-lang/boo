@@ -370,6 +370,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return (TypeType == type) || IsCallableType(type) || IsDuckType(type);
 		}
+
+		public bool IsDuckTyped(Expression expression)
+		{
+			IType type = expression.ExpressionType;
+			return null != type && this.IsDuckType(type);
+		}
+
+		public bool IsQuackBuiltin(Expression node)
+		{
+			return IsQuackBuiltin(GetOptionalEntity(node));
+		}
+		
+		public bool IsQuackBuiltin(IEntity entity)
+		{
+			return BuiltinFunction.Quack == entity;
+		}
 		
 		public bool IsDuckType(IType type)
 		{
@@ -377,9 +393,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				throw new ArgumentNullException("type");
 			}
-			return ((type == DuckType)  ||
-			        (_context.Parameters.Ducky &&
-			         (type == ObjectType || type.IsSubclassOf(IQuackFuType))));
+			return (
+				(type == DuckType)
+				|| (_context.Parameters.Ducky
+					&& (type == ObjectType
+						|| type.IsSubclassOf(IQuackFuType))));
 		}
 		
 		bool IsCallableType(IType type)

@@ -36,6 +36,8 @@ namespace Boo.Lang.Compiler.Pipelines
 		{	
 			Add(new StricterErrorChecking());
 
+			Add(new ExpandDuckTypedExpressions());
+
 			Add(new ProcessAssignmentsToValueTypeMembers());
 			Add(new ExpandProperties());
 			Add(new RemoveDeadCode());

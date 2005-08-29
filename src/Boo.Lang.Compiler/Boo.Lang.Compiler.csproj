@@ -1534,6 +1534,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\ExpandDuckTypedExpressions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\ExpandMacros.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

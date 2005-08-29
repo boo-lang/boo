@@ -1314,29 +1314,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CheckNoComplexSlicing(SlicingExpression node)
 		{
-			if (IsComplexSlicing(node))
+			if (AstUtil.IsComplexSlicing(node))
 			{
 				NotImplemented(node, "complex slicing");
 			}
-		}
-		
-		bool IsComplexSlicing(SlicingExpression node)
-		{
-			foreach (Slice slice in node.Indices)
-			{
-				if (IsComplexSlice(slice))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		protected static bool IsComplexSlice(Slice slice)
-		{
-			return null != slice.End
-				|| null != slice.Step
-				|| OmittedExpression.Default == slice.Begin;
 		}
 		
 		protected MethodInvocationExpression CreateEquals(BinaryExpression node)
@@ -1578,7 +1559,7 @@ namespace Boo.Lang.Compiler.Steps
 						Error(node, CompilerErrorFactory.InvalidArrayRank(node, node.Target.ToString(), arrayType.GetArrayRank(), node.Indices.Count));
 					}
 
-					if (IsComplexSlicing(node))
+					if (AstUtil.IsComplexSlicing(node))
 					{
 						BindComplexArraySlicing(node);
 					}
@@ -1596,7 +1577,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (IsComplexSlicing(node))
+					if (AstUtil.IsComplexSlicing(node))
 					{
 						if (TypeSystemServices.StringType == targetType)
 						{
@@ -3892,7 +3873,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (slice.Indices.Count > 1)
 			{
-				if (IsComplexSlicing(slice))
+				if (AstUtil.IsComplexSlicing(slice))
 				{
 					// FIXME: Check type compatibility
 					BindAssignmentToComplexSliceArray(node);
@@ -4607,22 +4588,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		protected string GetMethodNameForOperator(BinaryOperatorType op)
-		{
-			return "op_" + op.ToString();
-		}
-		
-		protected string GetMethodNameForOperator(UnaryOperatorType op)
-		{
-			return "op_" + op.ToString();
-		}
-		
 		bool ResolveOperator(UnaryExpression node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
 			mie.Arguments.Add(node.Operand);
 			
-			string operatorName = GetMethodNameForOperator(node.Operator);
+			string operatorName = AstUtil.GetMethodNameForOperator(node.Operator);
 			IType operand = GetExpressionType(node.Operand);
 			if (ResolveOperator(node, operand, operatorName, mie))
 			{
@@ -4637,7 +4608,7 @@ namespace Boo.Lang.Compiler.Steps
 			mie.Arguments.Add(node.Left);
 			mie.Arguments.Add(node.Right);
 			
-			string operatorName = GetMethodNameForOperator(node.Operator);
+			string operatorName = AstUtil.GetMethodNameForOperator(node.Operator);
 			IType lhs = GetExpressionType(node.Left);
 			if (ResolveOperator(node, lhs, operatorName, mie))
 			{

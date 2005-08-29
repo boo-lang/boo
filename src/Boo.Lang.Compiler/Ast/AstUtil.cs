@@ -34,6 +34,62 @@ namespace Boo.Lang.Compiler.Ast
 {	
 	public class AstUtil
 	{
+		public static bool IsOverloadableOperator(BinaryOperatorType op)
+		{
+			switch (op)
+			{
+				case BinaryOperatorType.Addition:
+				case BinaryOperatorType.Subtraction:
+				case BinaryOperatorType.Multiply:
+				case BinaryOperatorType.Division:
+				case BinaryOperatorType.Modulus:
+				case BinaryOperatorType.Exponentiation:
+				case BinaryOperatorType.LessThan:
+				case BinaryOperatorType.LessThanOrEqual:
+				case BinaryOperatorType.GreaterThan:
+				case BinaryOperatorType.GreaterThanOrEqual:
+				case BinaryOperatorType.Match:
+				case BinaryOperatorType.NotMatch:
+				case BinaryOperatorType.Member:
+				case BinaryOperatorType.NotMember:
+				case BinaryOperatorType.BitwiseOr:
+				case BinaryOperatorType.BitwiseAnd:
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public static string GetMethodNameForOperator(BinaryOperatorType op)
+		{
+			return "op_" + op.ToString();
+		}
+		
+		public static string GetMethodNameForOperator(UnaryOperatorType op)
+		{
+			return "op_" + op.ToString();
+		}
+
+		public static bool IsComplexSlicing(SlicingExpression node)
+		{
+			foreach (Slice slice in node.Indices)
+			{
+				if (IsComplexSlice(slice))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		public static bool IsComplexSlice(Slice slice)
+		{
+			return null != slice.End
+				|| null != slice.Step
+				|| OmittedExpression.Default == slice.Begin;
+		}
+
 		public static Node GetMemberAnchor(Node node)
 		{
 			MemberReferenceExpression member = node as MemberReferenceExpression;
