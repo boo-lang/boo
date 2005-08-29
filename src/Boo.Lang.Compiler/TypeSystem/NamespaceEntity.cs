@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		bool IsModule(Type type)
 		{
-			return Attribute.IsDefined(type, typeof(ModuleAttribute));
+			return MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
 		}		
 		
 		public void AddModule(ModuleEntity module)

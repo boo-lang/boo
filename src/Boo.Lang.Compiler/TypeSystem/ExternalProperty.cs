@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (-1 == _isDuckTyped)
 				{
 					_isDuckTyped =
-						!_property.PropertyType.IsValueType && System.Attribute.IsDefined(_property, Types.DuckTypedAttribute)
+						!_property.PropertyType.IsValueType && MetadataUtil.IsAttributeDefined(_property, Types.DuckTypedAttribute)
 						? 1
 						: 0;
 				}

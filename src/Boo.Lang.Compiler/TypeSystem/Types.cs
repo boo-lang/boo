@@ -115,6 +115,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type DuckTypedAttribute = typeof(DuckTypedAttribute);
 
+		public static readonly Type ModuleAttribute = typeof(ModuleAttribute);
+
 		public static readonly Type ParamArrayAttribute = typeof(ParamArrayAttribute);
 
 	}

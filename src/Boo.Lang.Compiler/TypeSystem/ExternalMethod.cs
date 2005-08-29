@@ -58,7 +58,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (-1 == _isDuckTyped)
 				{
 					_isDuckTyped =
-						!ReturnType.IsValueType && Attribute.IsDefined(_mi, Types.DuckTypedAttribute)
+						!ReturnType.IsValueType && MetadataUtil.IsAttributeDefined(_mi, Types.DuckTypedAttribute)
 						? 1
 						: 0;
 				}
