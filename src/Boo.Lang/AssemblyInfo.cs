@@ -42,3 +42,5 @@ using System.Reflection;
 [assembly: AssemblyKeyFile("../src/boo.snk")]
 #endif
 [assembly: AssemblyKeyName("")]
+
+[assembly: System.Resources.NeutralResourcesLanguage("en")]

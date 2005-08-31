@@ -130,6 +130,37 @@ namespace Boo.Lang.Runtime
 				throw x.InnerException;
 			}
 		}
+
+		public struct ValueTypeChange
+		{
+			public object Target;
+			public string Member;
+			public object Value;
+
+			public ValueTypeChange(object target, string member, object value)
+			{
+				this.Target = target;
+				this.Member = member;
+				this.Value = value;
+			}
+		}
+
+		public static void PropagateValueTypeChanges(ValueTypeChange[] changes)
+		{
+			foreach (ValueTypeChange change in changes)
+			{
+				if (!(change.Value is ValueType)) break;
+				try
+				{
+					SetProperty(change.Target,  change.Member, change.Value);
+				}
+				catch (System.MissingFieldException x)
+				{
+					// hit a readonly property
+					break;
+				}
+			}
+		}
 		
 		public static object GetProperty(object target, string name)
 		{

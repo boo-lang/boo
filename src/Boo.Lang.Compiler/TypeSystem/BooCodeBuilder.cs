@@ -462,6 +462,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ArrayLiteralExpression CreateArray(IType arrayType, ExpressionCollection items)
 		{
+			if (!arrayType.IsArray) throw new ArgumentException(string.Format("'{0}'  is not an array type!", arrayType), "arrayType");
 			ArrayLiteralExpression array = new ArrayLiteralExpression();
 			array.ExpressionType = arrayType;
 			array.Items.Extend(items);
