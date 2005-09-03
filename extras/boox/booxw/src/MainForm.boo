@@ -128,7 +128,6 @@ class MainForm(Form):
 		return BooxSettings()
 
 	private def CreateMainMenu():
-
 		menu = MainMenu()
 		file = MenuItem(Text: "&File", MergeOrder: 0)
 		file.MenuItems.Add(MenuItem(Text: "&Open...",
@@ -322,6 +321,8 @@ class MainForm(Form):
 		ShowContent(_outputPane)
 		
 	def ShowPrompt():
+		if _interactiveConsole.IsDisposed:
+			_interactiveConsole = BooExplorer.InteractiveConsole(self)
 		ShowContent(_interactiveConsole)
 
 	def _menuItemOutputPane_Click(sender, args as EventArgs):
@@ -336,6 +337,7 @@ class MainForm(Form):
 							PropertySort: PropertySort.Alphabetical))
 		dlg.ShowDialog()
 		SaveSettings()
+		dlg.Dispose()
 
 	def _menuItemOpen_Click(sender, args as EventArgs):
 		dlg = OpenFileDialog(
@@ -344,6 +346,7 @@ class MainForm(Form):
 		if DialogResult.OK == dlg.ShowDialog(self):
 			for fname in dlg.FileNames:
 				OpenDocument(fname)
+		dlg.Dispose()
 
 	def _menuItemNew_Click(sender, args as EventArgs):
 		NewDocument()
