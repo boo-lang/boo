@@ -57,6 +57,14 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Expression) return;
 			CheckExpressionType(node.Expression);
 		}
+
+		public override void LeaveExpressionInterpolationExpression(ExpressionInterpolationExpression node)
+		{
+			foreach (Expression e in node.Expressions)
+			{
+				CheckExpressionType(e);
+			}
+		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
