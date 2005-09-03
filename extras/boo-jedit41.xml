@@ -149,6 +149,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit41.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD1>when</KEYWORD1>			
 			<KEYWORD1>unless</KEYWORD1>
 			<KEYWORD1>yield</KEYWORD1>
+			<KEYWORD1>ref</KEYWORD1>
 			
 			<KEYWORD1>public</KEYWORD1>
 			<KEYWORD1>protected</KEYWORD1>

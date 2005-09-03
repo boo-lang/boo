@@ -4350,11 +4350,18 @@ namespace Boo.Lang.Compiler.Steps
 			IParameter[] parameters = method.GetSignature().Parameters;
 			for (int i=0; i<count; ++i)
 			{
-				IType parameterType = parameters[i].Type;
+				IParameter param = parameters[i];
+				IType parameterType = param.Type;
 				IType argumentType = GetExpressionType(args[i]);
-				if (parameterType.IsByRef)
+				if (param.IsByRef)
 				{
-					if (!_callableResolution.IsValidByRefArg(parameterType, argumentType, args[i]))
+					if (!(args[i] is ReferenceExpression ||
+						args[i] is SlicingExpression))
+					{
+						Error(CompilerErrorFactory.RefArgTakesLValue(args[i]));
+						return false;
+					}
+					if (!_callableResolution.IsValidByRefArg(param, parameterType, argumentType, args[i]))
 					{
 						return false;
 					}

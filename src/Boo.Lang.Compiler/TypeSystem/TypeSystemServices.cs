@@ -586,6 +586,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
+		public static string GetReferenceTypeName(Type t)
+		{
+			string name = t.FullName;
+			if (!(name.EndsWith("&")))
+			{
+				return name+"&";
+			}
+			return name;		}
+		
+		public static string DeReferenceTypeName(IType t)
+		{
+			string name = t.FullName;
+			if (name.EndsWith("&"))
+			{
+				return name.Substring(0, t.FullName.Length-1);
+			}
+			return name;
+		}
+		
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
 		{
 			IParameter[] implParameters = impl.GetParameters();
@@ -599,7 +618,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				for (int i=0; i<implParameters.Length; ++i)
 				{
-					if (implParameters[i].Type != baseParameters[i].Type)
+					IType impltype = implParameters[i].Type;
+					IType basetype = baseParameters[i].Type;
+					
+					if (basetype.IsByRef)
+					{
+						if (!(implParameters[i].IsByRef))
+						{
+							return false;
+						}
+						if (DeReferenceTypeName(basetype) != impltype.FullName)
+						{
+							return false;
+						}
+					}
+					else if (impltype != basetype)
 					{
 						return false;
 					}
@@ -1147,7 +1180,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			CallableSignature signature = anonymousType.GetSignature();
 			Method method = CodeBuilder.CreateRuntimeMethod("EndInvoke", signature.ReturnType);
-			int delta=method.Parameters.Count;
+			
+			int delta=1;
+			foreach(IParameter p in signature.Parameters)
+			{
+				if (p.IsByRef)
+				{
+					method.Parameters.Add(
+						CodeBuilder.CreateParameterDeclaration(++delta,
+								p.Name,
+								p.Type,
+								true));
+				}			
+			}
+			delta=method.Parameters.Count;
 			method.Parameters.Add(
 				CodeBuilder.CreateParameterDeclaration(delta+1, "result", Map(typeof(IAsyncResult))));
 			return method;

@@ -7,7 +7,7 @@ for i in -1, 0, 5:
 	Assert.AreEqual(i, value)
 	
 	
-ref = null
+reference = null
 for o in object(), "", object():
-	ByRef.SetRef(o, ref)
-	Assert.AreSame(o, ref)
+	ByRef.SetRef(o, reference)
+	Assert.AreSame(o, reference)

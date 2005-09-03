@@ -374,7 +374,7 @@ namespace Boo.Lang.Compiler.Steps
 			BooMethodBuilder invoke = adaptor.AddMethod("Invoke", signature.ReturnType);
 			foreach (IParameter parameter in signature.Parameters)
 			{
-				invoke.AddParameter(parameter.Name, parameter.Type);
+				invoke.AddParameter(parameter.Name, parameter.Type, parameter.IsByRef);
 			}
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 							CodeBuilder.CreateReference(callable),
@@ -429,7 +429,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ReplaceEndInvokeTargetByGetAsyncDelegate(MethodInvocationExpression node)
 		{
-			Expression asyncResult = node.Arguments[0];
+			Expression asyncResult = node.Arguments[node.Arguments.Count-1];
 			MemberReferenceExpression endInvoke = (MemberReferenceExpression)node.Target;
 			IType callableType = ((IMember)endInvoke.Entity).DeclaringType;
 			

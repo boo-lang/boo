@@ -107,5 +107,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get { return false; }
 		}
+		
+		public bool IsByRef
+		{
+			get
+			{
+				return _parameter.IsByRef;
+			}
+		}
 	}
 }

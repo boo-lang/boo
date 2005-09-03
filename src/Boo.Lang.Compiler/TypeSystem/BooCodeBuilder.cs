@@ -516,11 +516,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return notNode;
 		}
 		
-		public ParameterDeclaration CreateParameterDeclaration(int index, string name, IType type)
+		public ParameterDeclaration CreateParameterDeclaration(int index, string name, IType type, bool byref)
 		{
-			ParameterDeclaration parameter = new ParameterDeclaration(name, CreateTypeReference(type));
+			ParameterModifiers modifiers = ParameterModifiers.None;
+			if (byref)
+			{
+				modifiers |= ParameterModifiers.Ref;
+			}
+			ParameterDeclaration parameter = new ParameterDeclaration(name, 
+								CreateTypeReference(type),
+								modifiers);
 			parameter.Entity = new InternalParameter(parameter, index);
 			return parameter;
+		}
+		
+		public ParameterDeclaration CreateParameterDeclaration(int index, string name, IType type)
+		{
+			return CreateParameterDeclaration(index, name, type, false);
 		}
 		
 		public Constructor CreateConstructor(TypeMemberModifiers modifiers)
@@ -664,7 +676,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 				method.Parameters.Add(
 					CreateParameterDeclaration(parameterIndexDelta + i,
 						p.Name,
-						p.Type));
+						p.Type,
+						p.IsByRef));
 			}
 		}
 		
@@ -677,7 +690,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IParameter[] parameters = baseMethod.GetParameters();
 			for (int i=0; i<parameters.Length; ++i)
 			{
-				method.Parameters.Add(CreateParameterDeclaration(i + 1, "arg" + i, parameters[i].Type));
+				method.Parameters.Add(CreateParameterDeclaration(i + 1, 
+								"arg" + i, 
+								parameters[i].Type,
+								parameters[i].IsByRef));
 			}
 			method.ReturnType = CreateTypeReference(baseMethod.ReturnType);			
 			method.Entity = new InternalMethod(_tss, method);

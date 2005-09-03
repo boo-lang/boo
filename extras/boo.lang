@@ -169,6 +169,7 @@ OR
 		<keyword>unless</keyword>
 		<keyword>when</keyword>
 		<keyword>while</keyword>
+		<keyword>ref</keyword>
 	</keyword-list>
 
 	<keyword-list name = "Builtins" style = "Others" case-sensitive="true">

@@ -38,7 +38,11 @@ namespace Boo.Lang.Compiler.Ast
 		{			
  		}
 		
-		public ParameterDeclaration(string name, TypeReference type) : base(name, type)
+		public ParameterDeclaration(string name, TypeReference type, ParameterModifiers modifiers) : base(name, type, modifiers)
+		{
+		}
+		
+		public ParameterDeclaration(string name, TypeReference type) : base(name, type, ParameterModifiers.None)
 		{
 		}
 		
@@ -49,6 +53,14 @@ namespace Boo.Lang.Compiler.Ast
 		override public void Accept(IAstVisitor visitor)
 		{
 			visitor.OnParameterDeclaration(this);
+		}
+		
+		public bool IsByRef
+		{
+			get
+			{
+				return (Modifiers & ParameterModifiers.Ref) == ParameterModifiers.Ref;
+			}
 		}
 	}
 }

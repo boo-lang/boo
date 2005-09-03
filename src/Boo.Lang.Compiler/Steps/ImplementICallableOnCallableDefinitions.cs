@@ -60,18 +60,58 @@ namespace Boo.Lang.Compiler.Steps
 			Method call = (Method)node.Members["Call"];
 			Debug.Assert(null != call);
 			Debug.Assert(0 == call.Body.Statements.Count);
-			
+						
 			CallableSignature signature = type.GetSignature();
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(CodeBuilder.CreateSelfReference(type),
-													type.GetInvokeMethod());
-							
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+								CodeBuilder.CreateSelfReference(type),
+								type.GetInvokeMethod());
+			
+			int byrefcount = 0;
+			ILocalEntity invokeresults = null;
+			ILocalEntity[] tempvals;
 			IParameter[] parameters = signature.Parameters;
+			ReferenceExpression args = null;
+			
+			foreach(IParameter param in parameters)
+			{
+				if (param.IsByRef)
+				{
+					++byrefcount;
+				}
+			}
+			
+			tempvals = new InternalLocal[byrefcount];
+			
 			if (parameters.Length > 0)
 			{
-				ReferenceExpression args = CodeBuilder.CreateReference(call.Parameters[0]);
-				for (int i=0; i<parameters.Length; ++i)
+				args = CodeBuilder.CreateReference(call.Parameters[0]);
+			}
+			
+			int byrefindex = 0;
+			for (int i=0; i<parameters.Length; ++i)
+			{
+				SlicingExpression slice = CodeBuilder.CreateSlicing(args.CloneNode(), i);
+				
+				if (parameters[i].IsByRef)
 				{
-					mie.Arguments.Add(CodeBuilder.CreateSlicing(args.CloneNode(), i));
+						tempvals[byrefindex] = CodeBuilder.DeclareLocal(call,
+									"__temp_"+parameters[i].Name,
+									parameters[i].Type);
+									
+						call.Body.Add(
+							CodeBuilder.CreateAssignment(
+							CodeBuilder.CreateReference(tempvals[byrefindex]),
+								CodeBuilder.CreateCast(
+									parameters[i].Type,
+									slice)));
+							
+						mie.Arguments.Add(CodeBuilder.CreateReference(tempvals[byrefindex]));
+						
+						++byrefindex;
+				}
+				else
+				{
+					mie.Arguments.Add(slice);
 				}
 			}
 			
@@ -79,9 +119,43 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				call.Body.Add(mie);
 			}
-			else
+			else if (byrefcount > 0)
 			{
-				call.Body.Add(new ReturnStatement(mie));
+				invokeresults = CodeBuilder.DeclareLocal(call,
+							"__result", signature.ReturnType);
+				call.Body.Add(
+					CodeBuilder.CreateAssignment(
+						CodeBuilder.CreateReference(invokeresults),
+						mie));
+			}
+			
+			byrefindex = 0;
+			for (int i=0; i<parameters.Length; ++i)
+			{
+				if (parameters[i].IsByRef)
+				{
+						SlicingExpression slice = CodeBuilder.CreateSlicing(args.CloneNode(), i);
+						
+						call.Body.Add(
+							CodeBuilder.CreateAssignment(
+							slice,
+							CodeBuilder.CreateReference(tempvals[byrefindex])));
+						
+						++byrefindex;
+				}
+			}
+			
+			if (TypeSystemServices.VoidType != signature.ReturnType)
+			{
+				if (byrefcount > 0)
+				{
+					call.Body.Add(new ReturnStatement(
+						CodeBuilder.CreateReference(invokeresults)));
+				}
+				else
+				{
+					call.Body.Add(new ReturnStatement(mie));
+				}
 			}
 		}
 	}

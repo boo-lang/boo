@@ -1149,6 +1149,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					InternalParameter param = (InternalParameter)tag;
 					
+					if (param.Parameter.IsByRef)
+					{
+						LoadParam(param);
+					}
+					
 					Visit(node.Right);
 					EmitCastIfNeeded(param.Type, PopType());
 					
@@ -1157,7 +1162,23 @@ namespace Boo.Lang.Compiler.Steps
 						_il.Emit(OpCodes.Dup);
 						PushType(param.Type);
 					}
-					_il.Emit(OpCodes.Starg, param.Index);
+					
+					if (param.Parameter.IsByRef)
+					{
+						OpCode storecode = GetStoreRefParamCode(param.Type);
+						if (IsStobj(storecode)) //passing struct/decimal byref
+						{
+							_il.Emit(storecode, GetSystemType(param.Type));
+						}
+						else
+						{
+							_il.Emit(storecode);
+						}
+					}
+					else
+					{
+						_il.Emit(OpCodes.Starg, param.Index);
+					}
 					break;
 				}
 				
@@ -2245,7 +2266,15 @@ namespace Boo.Lang.Compiler.Steps
 				
 					case EntityType.Parameter:
 					{
-						_il.Emit(OpCodes.Ldarga, ((InternalParameter)tag).Index);
+						InternalParameter param = (InternalParameter)tag;
+						if (param.Parameter.IsByRef)
+						{
+							LoadParam(param);
+						}
+						else
+						{
+							_il.Emit(OpCodes.Ldarga, param.Index);
+						}
 						return;
 					}
 					
@@ -2334,44 +2363,17 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Parameter:
 				{
 					TypeSystem.InternalParameter param = (TypeSystem.InternalParameter)info;
-					int index = param.Index;
-					switch (index)
+					LoadParam(param);
+					
+					if (param.Parameter.IsByRef)
 					{
-						case 0:
+						OpCode code = GetLoadRefParamCode(param.Type);
+						if (code.Value == OpCodes.Ldobj.Value)
 						{
-							_il.Emit(OpCodes.Ldarg_0);
-							break;
+							_il.Emit(code, GetSystemType(param.Type));
 						}
-						
-						case 1:
-						{
-							_il.Emit(OpCodes.Ldarg_1);
-							break;
-						}
-						
-						case 2:
-						{
-							_il.Emit(OpCodes.Ldarg_2);
-							break;
-						}
-						
-						case 3:
-						{
-							_il.Emit(OpCodes.Ldarg_3);
-							break;
-						}
-						
-						default:
-						{
-							if (index < 256)
-							{
-								_il.Emit(OpCodes.Ldarg_S, index);
-							}
-							else
-							{
-								_il.Emit(OpCodes.Ldarg, index);
-							}
-							break;
+						else {
+							_il.Emit(code);
 						}
 					}
 					PushType(param.Type);
@@ -2394,6 +2396,50 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void LoadParam(TypeSystem.InternalParameter param)
+		{
+			int index = param.Index;
+			
+			switch (index)
+			{
+				case 0:
+				{
+					_il.Emit(OpCodes.Ldarg_0);
+					break;
+				}
+				
+				case 1:
+				{
+					_il.Emit(OpCodes.Ldarg_1);
+					break;
+				}
+				
+				case 2:
+				{
+					_il.Emit(OpCodes.Ldarg_2);
+					break;
+				}
+				
+				case 3:
+				{
+					_il.Emit(OpCodes.Ldarg_3);
+					break;
+				}
+				
+				default:
+				{
+					if (index < 256)
+					{
+						_il.Emit(OpCodes.Ldarg_S, index);
+					}
+					else
+					{
+						_il.Emit(OpCodes.Ldarg, index);
+					}
+					break;
+				}
+			}
+		}
 		void SetLocal(BinaryExpression node, InternalLocal tag, bool leaveValueOnStack)
 		{
 			node.Right.Accept(this); // leaves type on stack
@@ -2540,9 +2586,15 @@ namespace Boo.Lang.Compiler.Steps
 			for (int i=0; i<args.Count; ++i)
 			{
 				IType parameterType = parameters[i].Type;
-				
 				Expression arg = args[i];
-				if (parameterType.IsByRef)
+				/*
+				InternalParameter internalparam = parameters[i] as InternalParameter;
+				if ((parameterType.IsByRef) || 
+					(internalparam != null && 
+					internalparam.Parameter.IsByRef)
+					)
+				*/
+				if (parameters[i].IsByRef)
 				{
 					LoadAddress(arg);
 				}
@@ -2705,6 +2757,86 @@ namespace Boo.Lang.Compiler.Steps
 				return OpCodes.Stobj;
 			}
 			return OpCodes.Stelem_Ref;
+		}
+		
+		OpCode GetLoadRefParamCode(IType tag)
+		{
+			if (tag.IsValueType)
+			{
+				if (TypeSystemServices.IntType == tag ||
+					tag.IsEnum)
+				{
+					return OpCodes.Ldind_I4;
+				}
+				if (TypeSystemServices.LongType == tag)
+				{
+					return OpCodes.Ldind_I8;
+				}
+				if (TypeSystemServices.ByteType == tag)
+				{
+					return OpCodes.Ldind_I1;
+				}
+				if (TypeSystemServices.ShortType == tag ||
+					TypeSystemServices.CharType == tag)
+				{
+					return OpCodes.Ldind_I2;
+				}
+				if (TypeSystemServices.SingleType == tag)
+				{
+					return OpCodes.Ldind_R4;
+				}
+				if (TypeSystemServices.DoubleType == tag)
+				{
+					return OpCodes.Ldind_R8;
+				}
+				if (TypeSystemServices.UShortType == tag)
+				{
+					return OpCodes.Ldind_U2;
+				}
+				if (TypeSystemServices.UIntType == tag)
+				{
+					return OpCodes.Ldind_U4;
+				}
+				
+				return OpCodes.Ldobj;
+			}
+			return OpCodes.Ldind_Ref;
+		}
+		
+		OpCode GetStoreRefParamCode(IType tag)
+		{
+			if (tag.IsValueType)
+			{
+				if (TypeSystemServices.IntType == tag ||
+					tag.IsEnum)
+				{
+					return OpCodes.Stind_I4;
+				}
+				if (TypeSystemServices.LongType == tag)
+				{
+					return OpCodes.Stind_I8;
+				}
+				if (TypeSystemServices.ByteType == tag)
+				{
+					return OpCodes.Stind_I1;
+				}
+				if (TypeSystemServices.ShortType == tag ||
+					TypeSystemServices.CharType == tag)
+				{
+					return OpCodes.Stind_I2;
+				}
+				if (TypeSystemServices.SingleType == tag)
+				{
+					return OpCodes.Stind_R4;
+				}
+				if (TypeSystemServices.DoubleType == tag)
+				{
+					return OpCodes.Stind_R8;
+				}
+				
+				return OpCodes.Stobj;
+			}
+			return OpCodes.Stind_Ref;
 		}
 		
 		void EmitCastIfNeeded(IType expectedType, IType actualType)
@@ -2960,6 +3092,19 @@ namespace Boo.Lang.Compiler.Steps
 			for (int i=0; i<types.Length; ++i)
 			{
 				types[i] = GetSystemType(parameters[i].Type);
+				if (parameters[i].IsByRef)
+				{
+					string typename = TypeSystemServices.GetReferenceTypeName(types[i]);
+					Type byreftype = types[i].Assembly.GetType(typename);
+					
+					if (byreftype == null) //internal type
+					{
+						byreftype = _moduleBuilder.GetType(typename,true);
+						//TODO ? - test that nested types work too
+						//GetTypeBuilder(parameters[i].Type).GetNestedType(typename);
+					}
+					types[i] = byreftype;
+				}
 			}
 			return types;
 		}
@@ -3352,6 +3497,11 @@ namespace Boo.Lang.Compiler.Steps
 			return attributes;
 		}
 		
+		ParameterAttributes GetParameterAttributes(ParameterDeclaration param)
+		{
+			return ParameterAttributes.None;
+		}
+		
 		void DefineEvent(TypeBuilder typeBuilder, Event node)
 		{
 			EventBuilder builder = typeBuilder.DefineEvent(node.Name,
@@ -3434,7 +3584,7 @@ namespace Boo.Lang.Compiler.Steps
 			int last = parameters.Count - 1;
 			for (int i=0; i<parameters.Count; ++i)
 			{
-				ParameterBuilder paramBuilder = builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+				ParameterBuilder paramBuilder = builder.DefineParameter(i+1, GetParameterAttributes(parameters[i]), parameters[i].Name);
 				if (last == i && parameters.VariableNumber)
 				{
 					SetParamArrayAttribute(paramBuilder);
@@ -3452,7 +3602,7 @@ namespace Boo.Lang.Compiler.Steps
 			int last = parameters.Count - 1;
 			for (int i=0; i<parameters.Count; ++i)
 			{
-				ParameterBuilder paramBuilder = builder.DefineParameter(i+1, ParameterAttributes.None, parameters[i].Name);
+				ParameterBuilder paramBuilder = builder.DefineParameter(i+1, GetParameterAttributes(parameters[i]), parameters[i].Name);
 				if (last == i && parameters.VariableNumber)
 				{
 					SetParamArrayAttribute(paramBuilder);

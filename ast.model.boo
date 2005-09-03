@@ -27,6 +27,12 @@ enum MethodImplementationFlags:
 	None = 0
 	Runtime = 1
 
+enum ParameterModifiers:
+	None = 0
+	Val = 0
+	Ref = 1
+
+
 abstract class TypeMember(Node, INodeWithAttributes):
 	Modifiers as TypeMemberModifiers
 	Name as string
@@ -50,7 +56,7 @@ class ArrayTypeReference(TypeReference):
 	Rank as IntegerLiteralExpression
 	
 class CallableTypeReference(TypeReference):
-	Parameters as TypeReferenceCollection
+	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
 
 [collection(TypeReference)]
@@ -154,6 +160,7 @@ class Destructor(Method):
 class ParameterDeclaration(Node, INodeWithAttributes):
 	Name as string
 	Type as TypeReference
+	Modifiers as ParameterModifiers
 	Attributes as AttributeCollection
 
 [collection(ParameterDeclaration)]

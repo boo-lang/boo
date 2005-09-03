@@ -666,6 +666,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0126", node.LexicalInfo, typeName);
 		}
 		
+		public static CompilerError RefArgTakesLValue(Node node)
+		{
+			return new CompilerError("BCE0127", node.LexicalInfo, node.ToString());
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

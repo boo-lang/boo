@@ -110,6 +110,15 @@ namespace Boo.Lang.Compiler.Steps
 		Method CreateEndInvokeMethod(CallableDefinition node)
 		{
 			Method method = CreateRuntimeMethod("EndInvoke", node.ReturnType);
+			
+			foreach(ParameterDeclaration p in node.Parameters)
+			{
+				if (p.IsByRef)
+				{
+					method.Parameters.Add(p.CloneNode());
+				}
+			}
+			
 			method.Parameters.Add(
 				new ParameterDeclaration("asyncResult",
 					CodeBuilder.CreateTypeReference(typeof(IAsyncResult))));

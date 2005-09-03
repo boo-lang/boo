@@ -98,6 +98,7 @@ tokens
 	PROTECTED="protected";
 	PRIVATE="private";
 	RAISE="raise";
+	REF="ref";
 	RETURN="return";
 	RETRY="retry";
 	SET="set";	
@@ -897,7 +898,17 @@ modifiers
 	VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; }	
 	)*
 ;
-	
+
+protected
+parameter_modifier returns [ParameterModifiers pm]
+	{
+		pm = ParameterModifiers.None;
+	}:
+	(
+		REF { pm = ParameterModifiers.Ref; }
+	)
+	;
+
 protected	
 parameter_declaration_list[ParameterDeclarationCollection c]
 	{
@@ -914,6 +925,7 @@ parameter_declaration[ParameterDeclarationCollection c]
 	{		
 		IToken id = null;
 		TypeReference tr = null;
+		ParameterModifiers pm = ParameterModifiers.None;
 		variableArguments = false;
 	}: 
 	attributes
@@ -925,6 +937,7 @@ parameter_declaration[ParameterDeclarationCollection c]
 		)
 		|
 		(
+			(pm=parameter_modifier)?
 			id2:ID (AS tr=type_reference)?
 			{ id = id2; }
 		)
@@ -933,7 +946,33 @@ parameter_declaration[ParameterDeclarationCollection c]
 		ParameterDeclaration pd = new ParameterDeclaration(ToLexicalInfo(id));
 		pd.Name = id.getText();
 		pd.Type = tr;
+		pd.Modifiers = pm;
 		AddAttributes(pd.Attributes);
+		c.Add(pd);
+	} 
+	;
+	
+protected	
+callable_parameter_declaration_list[ParameterDeclarationCollection c]:
+	(callable_parameter_declaration[c]
+	(COMMA callable_parameter_declaration[c])*)?
+	;
+
+protected
+callable_parameter_declaration[ParameterDeclarationCollection c]
+	{		
+		TypeReference tr = null;
+		ParameterModifiers pm = ParameterModifiers.None;
+	}: 
+	(
+		(pm=parameter_modifier)?
+		(tr=type_reference)
+	)
+	{
+		ParameterDeclaration pd = new ParameterDeclaration(tr.LexicalInfo);
+		pd.Name = "arg" + c.Count;
+		pd.Type = tr;
+		pd.Modifiers = pm;
 		c.Add(pd);
 	} 
 	;
@@ -943,17 +982,19 @@ callable_type_reference returns [CallableTypeReference ctr]
 	{
 		ctr = null;
 		TypeReference tr = null;
+		ParameterDeclarationCollection parameters = null;
 	}:	
 	c:CALLABLE LPAREN
 	{
 		ctr = new CallableTypeReference(ToLexicalInfo(c));
+		parameters = ctr.Parameters;
 	}
-	(
-		tr=type_reference { ctr.Parameters.Add(tr); }
-		(COMMA tr=type_reference { ctr.Parameters.Add(tr); })*
-	)?
+	callable_parameter_declaration_list[parameters]
 	RPAREN
-	(AS tr=type_reference { ctr.ReturnType = tr; })?
+	(AS tr=type_reference { 
+		ctr.ReturnType = tr; 
+		}
+	)?
 	;
 	
 protected
@@ -1172,6 +1213,7 @@ callable_or_expression returns [Expression e]
 
 protected
 closure_parameters_test:
+	(parameter_modifier)?
 	(ID (AS type_reference)?)
 	(COMMA ID (AS type_reference)?)*
 	BITWISE_OR
@@ -2252,7 +2294,8 @@ member returns [IToken name]
 	get:GET { name=get; } |
 	t1:INTERNAL { name=t1; } |
 	t2:PUBLIC { name=t2; } |
-	t3:PROTECTED { name=t3; }
+	t3:PROTECTED { name=t3; } |
+	r:REF { name=r; }
 	;
 	
 protected

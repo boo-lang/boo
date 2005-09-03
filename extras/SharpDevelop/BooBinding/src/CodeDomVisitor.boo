@@ -55,9 +55,9 @@ types."""
 		else:
 			return attr
 	
-	def ConvTypeRef(ref as TypeReference):
-		return null if ref == null
-		name = ref.ToString()
+	def ConvTypeRef(tr as TypeReference):
+		return null if tr == null
+		name = tr.ToString()
 		expandedName = BooAmbience.ReverseTypeConversionTable[name]
 		name = expandedName if expandedName != null
 		return CodeTypeReference(name)

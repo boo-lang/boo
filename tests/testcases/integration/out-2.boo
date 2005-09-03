@@ -3,7 +3,7 @@ import NUnit.Framework
 
 class Foo:
 	public value = 0
-	public ref
+	public reference
 
 f = Foo()
 for i in -1, 0, 5:
@@ -12,5 +12,5 @@ for i in -1, 0, 5:
 	
 
 for o in object(), "", object():
-	ByRef.ReturnRef(o, f.ref)
-	Assert.AreSame(o, f.ref)
+	ByRef.ReturnRef(o, f.reference)
+	Assert.AreSame(o, f.reference)

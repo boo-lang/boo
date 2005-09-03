@@ -133,7 +133,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ParameterDeclaration AddParameter(string name, IType type)
 		{
-			ParameterDeclaration pd = _codeBuilder.CreateParameterDeclaration(GetNextParameterIndex(), name, type);
+			return AddParameter(name, type, false);
+		}
+		
+		public ParameterDeclaration AddParameter(string name, IType type, bool byref)
+		{
+			ParameterDeclaration pd = _codeBuilder.CreateParameterDeclaration(GetNextParameterIndex(), name, type, byref);
 			_method.Parameters.Add(pd);
 			return pd;
 		}

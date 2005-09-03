@@ -353,8 +353,21 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnParameterDeclaration(ParameterDeclaration p)
 		{
 			WriteAttributes(p.Attributes, false);
-			Write(p.Name);
-			WriteTypeReference(p.Type);
+			
+			if (p.IsByRef)
+			{
+				WriteKeyword("ref ");
+			}
+			
+			if (p.ParentNode.NodeType == NodeType.CallableTypeReference)
+			{
+				Visit(p.Type);
+			}
+			else
+			{
+				Write(p.Name);
+				WriteTypeReference(p.Type);
+			}
 		}
 		
 		override public void OnTypeofExpression(TypeofExpression node)

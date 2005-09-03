@@ -73,8 +73,8 @@ namespace Boo.Lang.Compiler.Ast
 
 	[Serializable]
 """)
-		if node.Name == "TypeMemberModifiers":
-			writer.WriteLine("	[FlagsAttribute]")
+		if node.Name.EndsWith("Modifiers"):
+			writer.WriteLine("	[Flags]")
 		writer.Write("""	public enum ${node.Name}
 	{	
 """)
@@ -312,7 +312,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			elif field.Name == "Modifiers":
 				writer.Write("""
 		[System.Xml.Serialization.XmlAttribute,
-		System.ComponentModel.DefaultValue(TypeMemberModifiers.None)]""")
+		System.ComponentModel.DefaultValue(${field.Type}.None)]""")
 			else:
 				writer.Write("""
 		[System.Xml.Serialization.XmlElement]""")

@@ -43,6 +43,7 @@ syn keyword booStatement        return try
 syn keyword booStatement        assert
 syn keyword booStatement        self
 syn keyword booStatement        internal final private override static public protected
+syn keyword booStatement        ref
 syn keyword booStatement        yield
 syn keyword booStatement        enum
 syn keyword booStatement        def class constructor destructor nextgroup=booFunction skipwhite

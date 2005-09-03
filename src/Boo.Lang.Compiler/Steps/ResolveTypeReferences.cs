@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Steps
 			IParameter[] parameters = new IParameter[node.Parameters.Count];
 			for (int i=0; i<parameters.Length; ++i)
 			{
-				parameters[i] = new SimpleParameter("arg" + i, GetType(node.Parameters[i]));
+				parameters[i] = new InternalParameter(node.Parameters[i], i);
 			}
 			
 			IType returnType = null;
@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.Steps
 				returnType = TypeSystemServices.VoidType;
 			}
 			
-			node.Entity = TypeSystemServices.GetConcreteCallableType(node, new CallableSignature(parameters, returnType, false));
+			node.Entity = TypeSystemServices.GetConcreteCallableType(node, new CallableSignature(parameters, returnType));
 		}
 
 	}

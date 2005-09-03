@@ -374,7 +374,8 @@ namespace Boo.Lang.Compiler.Steps
 						CodeBuilder.CreateParameterDeclaration(
 						index,
 						parameter.Name,
-						parameter.Type));
+						parameter.Type,
+						parameter.IsByRef));
 					++index;
 				}
 			}

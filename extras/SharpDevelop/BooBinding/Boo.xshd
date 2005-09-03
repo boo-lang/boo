@@ -249,6 +249,8 @@
 				<Key word="def"/>
 				<Key word="include"/>
 				<Key word="event" />
+				<Key word="ref"/>
+				<Key word="out"/>
 			</KeyWords>
 
 			<KeyWords name="Pass" bold="false" italic="false" color="Gray" >

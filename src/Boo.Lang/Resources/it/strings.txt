@@ -125,6 +125,7 @@ BCE0123=Invalid parameter type '{0}'.
 BCE0124=Invalid field type '{0}'.
 BCE0125=Invalid declaration type '{0}'.
 BCE0126=It is not possible to evaluate an expression of type '{0}'.
+BCE0127=A ref or out argument must be an lvalue: '{0}'
 
 ;Compiler warnings
 BCW0001=WARNING: Il tipo '{0}' non fornisce una implementazione per '{1}' e' verra' marcato come abstract

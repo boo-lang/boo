@@ -1,3 +1,32 @@
+#region license
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+//     * Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//     * Neither the name of Rodrigo B. de Oliveira nor the names of its
+//     contributors may be used to endorse or promote products derived from this
+//     software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#endregion
+
+
 using System;
 using Boo.Lang.Compiler.Ast;
 
@@ -94,19 +123,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 				? TypeSystemServices.GetExpressionType(e)
 				: TypeSystem.TypeSystemServices.GetType(node);
 		}
-
-		public bool IsValidByRefArg(IType parameterType, IType argType, Node arg)
+		
+		public bool IsValidByRefArg(IParameter param, IType parameterType, IType argType, Node arg)
 		{
-			return parameterType.IsByRef &&
-				(argType == parameterType.GetElementType()) &&
-				CanLoadAddress(arg);
+			if ((parameterType.IsByRef &&
+				argType == parameterType.GetElementType()))
+			{
+				return CanLoadAddress(arg);
+			}
+			else if (param.IsByRef &&
+				argType == parameterType)
+			{
+				return true;
+			}
+			return false;
 		}
 		
 		bool CanLoadAddress(Node node)
 		{
 			IEntity entity = node.Entity;
+			
 			if (null == entity) return false;
-
+			
 			switch (entity.EntityType)
 			{
 				case EntityType.Local:
@@ -182,7 +220,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			int lenMinusOne = parameters.Length-1;
 			if (args.Count < lenMinusOne) return -1;
 
-			IType lastParameterType = parameters[lenMinusOne].Type;
+			IParameter lastParameter = parameters[lenMinusOne];
+			IType lastParameterType = lastParameter.Type;
 			if (!lastParameterType.IsArray) return -1;
 
 			int score = CalculateScore(parameters, args, lenMinusOne);
@@ -193,7 +232,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				Node lastArg = args.GetNodeAt(-1);
 				if (AstUtil.IsExplodeExpression(lastArg))
 				{	
-					int argumentScore = CalculateArgumentScore(lastParameterType, lastArg);
+					int argumentScore = CalculateArgumentScore(lastParameter, lastParameterType, lastArg);
 					if (argumentScore < 0) return -1;
 					score += argumentScore;
 				}
@@ -202,7 +241,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					IType varArgType = lastParameterType.GetElementType();
 					for (int i=lenMinusOne; i<args.Count; ++i)
 					{
-						int argumentScore = CalculateArgumentScore(varArgType, args.GetNodeAt(i));
+						int argumentScore = CalculateArgumentScore(lastParameter, varArgType, args.GetNodeAt(i));
 						if (argumentScore < 0) return -1;
 						score += argumentScore;
 					}
@@ -226,17 +265,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			for (int i=0; i<count; ++i)
 			{	
 				IType parameterType = parameters[i].Type;
-				int argumentScore = CalculateArgumentScore(parameterType, args.GetNodeAt(i));
+				int argumentScore = CalculateArgumentScore(parameters[i], parameterType, args.GetNodeAt(i));
 				if (argumentScore < 0) return -1;
 				score += argumentScore;
 			}
 			return score;
 		}
 
-		private int CalculateArgumentScore(IType parameterType, Node arg)
+		private int CalculateArgumentScore(IParameter param, IType parameterType, Node arg)
 		{
 			IType argumentType = GetExpressionTypeOrEntityType(arg);
-			if (parameterType == argumentType)
+			if (IsValidByRefArg(param, parameterType, argumentType, arg))
+			{
+				// boo does not like byref
+				return 3;
+			}
+			else if (parameterType == argumentType)
 			{
 				// exact match
 				return 6;
@@ -250,11 +294,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				// downcast
 				return 4;
-			}
-			else if (IsValidByRefArg(parameterType, argumentType, arg))
-			{
-				// boo does not like byref
-				return 3;
 			}
 			return -1;
 		}
