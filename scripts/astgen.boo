@@ -547,7 +547,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 
 def OpenFile(fname as string):	
 	print(fname)
-	return StreamWriter(fname, false, System.Text.Encoding.UTF8)
+	return StreamWriter(fname)//, false, System.Text.Encoding.UTF8)
 	
 def GetPath(fname as string):
 	return Path.Combine("src/Boo.Lang.Compiler/Ast", fname)
