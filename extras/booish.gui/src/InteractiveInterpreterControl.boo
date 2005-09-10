@@ -288,7 +288,9 @@ class InteractiveInterpreterControl(TextEditorControl):
 		if key == Keys.Enter:
 			try:
 				(SingleLineInputState, BlockInputState)[_state]()
-			except x:				
+			except x as System.Reflection.TargetInvocationException:
+				print(x.InnerException)
+			except x:
 				print(x)
 			prompt()
 			return true

@@ -125,12 +125,12 @@ class BooVisitor(AbstractASTVisitor):
 					_sourceText.Append(", ")
 			
 			for i in range(attr.NamedArguments.Count):
+				if (i > 0 or attr.PositionalArguments.Count > 0):
+					_sourceText.Append(", ")
 				named as NamedArgument = attr.NamedArguments[i]
 				_sourceText.Append(named.Name)
 				_sourceText.Append(": ")
 				_sourceText.Append(named.Expr.AcceptVisitor(self, data).ToString())
-				if (i + 1 < attr.NamedArguments.Count):
-					_sourceText.Append(", ")
 			
 			_sourceText.Append(")")
 			if (j + 1 < attributeSection.Attributes.Count):
@@ -897,7 +897,6 @@ class BooVisitor(AbstractASTVisitor):
 	
 	override def Visit(checkedStatement as CheckedStatement, data):
 		DebugOutput(checkedStatement)
-		// Supported or not, let's output it
 		AppendIndentation()
 		_sourceText.Append("checked:")
 		AppendNewLine()
@@ -909,7 +908,6 @@ class BooVisitor(AbstractASTVisitor):
 	
 	override def Visit(uncheckedStatement as UncheckedStatement, data):
 		DebugOutput(uncheckedStatement)
-		// Supported or not, let's output it
 		AppendIndentation()
 		_sourceText.Append("unchecked:")
 		AppendNewLine()
@@ -927,20 +925,26 @@ class BooVisitor(AbstractASTVisitor):
 	
 	def ConvertChar(ch as Char, b as StringBuilder):
 		// TODO: Are there any more char literals in Boo?
-		if (ch == Char.Parse("\n")):
+		if ch == char('\n'):
 			b.Append("\\n")
-		elif (ch == Char.Parse("\r")):
+		elif ch == char('\r'):
 			b.Append("\\r")
-		/*elif (ch == Char.Parse("\0")):
-			b.Append("\\0")*/
-		elif ch == Char.Parse("'"):
+		elif ch == char('\0'):
+			b.Append("\\0")
+		elif ch == char('\a'):
+			b.Append("\\a")
+		elif ch == char('\b'):
+			b.Append("\\b")
+		elif ch == char('\f'):
+			b.Append("\\f")
+		elif ch == char('\''):
 			b.Append("\\'")
-		elif ch == Char.Parse("\\"):
+		elif ch == char('\\'):
 			b.Append("\\\\")
-		elif (Char.IsControl(ch)):
-			// TODO: Is this possible in boo? Missing: Convert ch to int
-			// b.Append("\\u")
-			b.Append(ch)
+		elif char.IsControl(ch):
+			// TODO: Is this possible in boo?
+			b.Append("\\u")
+			b.Append(cast(int, ch))
 		else:
 			b.Append(ch)
 	
@@ -1102,7 +1106,7 @@ class BooVisitor(AbstractASTVisitor):
 	
 	override def Visit(uncheckedExpression as UncheckedExpression, data):
 		DebugOutput(uncheckedExpression)
-		_errors.Error(-1, -1, "checked expression not supported by Boo")
+		_errors.Error(-1, -1, "unchecked expression not supported by Boo")
 		return null
 	
 	override def Visit(pointerReferenceExpression as PointerReferenceExpression, data):
@@ -1196,10 +1200,11 @@ class BooVisitor(AbstractASTVisitor):
 	#endregion
 	
 	def ConvertTypeString(typeString as string):
-		return "Char"   if typeString == "char"
 		return "single" if typeString == "float"
-		return "date"   if typeString == "DateTime"
-		convertedType = BooAmbience.TypeConversionTable[typeString]
+		if typeString.StartsWith("System."):
+			convertedType = BooAmbience.TypeConversionTable[typeString]
+		else:
+			convertedType = BooAmbience.TypeConversionTable["System." + typeString]
 		return convertedType if convertedType != null
 		return typeString
 	
@@ -1256,10 +1261,6 @@ class BooVisitor(AbstractASTVisitor):
 		builder.Append("volatile ")  if (modifier & Modifier.Volatile) == Modifier.Volatile
 		builder.Append("unsafe ")    if (modifier & Modifier.Unsafe)   == Modifier.Unsafe
 		
-		if ((modifier & Modifier.Readonly) == Modifier.Readonly):
-			_errors.Error(-1, -1, "'readonly' modifier not convertable")
-		if ((modifier & Modifier.Extern) == Modifier.Extern):
-			_errors.Error(-1, -1, "'extern' modifier not convertable")
 		if ((modifier & Modifier.Volatile) == Modifier.Volatile):
 			_errors.Error(-1, -1, "'volatile' modifier not convertable")
 		if ((modifier & Modifier.Unsafe) == Modifier.Unsafe):

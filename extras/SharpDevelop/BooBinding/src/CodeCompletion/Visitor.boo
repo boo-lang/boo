@@ -249,24 +249,6 @@ class Visitor(AbstractVisitorCompilerStep):
 			raise
 	
 	/*
-	// TODO: Event Declaration
-	override def Visit(eventDeclaration as AST.EventDeclaration, data as object) as object:
-		region as DefaultRegion = GetRegion(eventDeclaration.StartLocation, eventDeclaration.EndLocation)
-		bodyRegion as DefaultRegion = GetRegion(eventDeclaration.BodyStart, eventDeclaration.BodyEnd)
-		type as ReturnType = ReturnType(eventDeclaration.TypeReference)
-		c as Class = _currentClass.Peek()
-		e as Event = null
-		if eventDeclaration.VariableDeclarators != null:
-			for varDecl as ICSharpCode.SharpRefactory.Parser.AST.VariableDeclaration in eventDeclaration.VariableDeclarators:
-				e = Event(varDecl.Name, type, eventDeclaration.Modifier, region, bodyRegion)
-				c.Events.Add(e)
-			
-		else:
-			e = Event(eventDeclaration.Name, type, eventDeclaration.Modifier, region, bodyRegion)
-			c.Events.Add(e)
-		
-		return null
-	
 	// TODO: Detect indexer method and add it as Indexer
 	override def Visit(indexerDeclaration as AST.IndexerDeclaration, data as object) as object:
 		region as DefaultRegion = GetRegion(indexerDeclaration.StartLocation, indexerDeclaration.EndLocation)
