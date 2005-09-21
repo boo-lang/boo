@@ -3035,8 +3035,8 @@ RE_ESC : '\\' (
 				'n' |
 				'e' |
 				(DIGIT)+ |
-				'x' DIGIT DIGIT |
-				'u' DIGIT DIGIT DIGIT DIGIT |
+				'x' HEXDIGIT HEXDIGIT |
+				'u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT |
 				'\\' |
 				
 	// character classes

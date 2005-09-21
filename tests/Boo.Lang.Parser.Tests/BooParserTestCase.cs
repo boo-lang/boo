@@ -303,6 +303,19 @@ namespace Boo.Lang.Parser.Tests
 		}
 
 		[Test]
+		public void TestRELiteral3()
+		{
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("re_literal_3.boo");
+			
+			StatementCollection stmts = module.Globals.Statements;
+			Assert.AreEqual(2, stmts.Count);
+			
+			BinaryExpression ae = (BinaryExpression)((ExpressionStatement)stmts[0]).Expression;
+			Assert.AreEqual(BinaryOperatorType.Assign, ae.Operator);
+			Assert.AreEqual("/\\x2f\\u002f/", ((RELiteralExpression)ae.Right).Value);
+		}
+
+		[Test]
 		public void TestIfElse1()
 		{
 			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("if_else_1.boo");
