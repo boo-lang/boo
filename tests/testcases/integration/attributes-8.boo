@@ -1,6 +1,8 @@
 """
 DemoAttribute constructor
 DemoAttribute
+DemoAttribute constructor
+DemoAttribute
 """
 import System
 
@@ -10,8 +12,14 @@ class DemoAttribute(Attribute):
 		print "DemoAttribute constructor"
 
 class DemoClass:
-	def DemoMethod([Demo] demoArg):
+	def constructor([Demo] arg1):
+		pass
+	def DemoMethod([Demo] demoArg) as int [Demo]:
 		pass
 			
 print typeof(DemoClass).GetMethod("DemoMethod").GetParameters()[0].GetCustomAttributes(true)[0]
+print typeof(DemoClass).GetConstructor((object,)).GetParameters()[0].GetCustomAttributes(true)[0]
+
+//uncomment when DefineParameter(0...) bug is not around
+//print typeof(DemoClass).GetMethod("DemoMethod").ReturnTypeCustomAttributes.GetCustomAttributes(true)[0]
 

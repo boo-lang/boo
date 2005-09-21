@@ -3607,6 +3607,10 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					SetParamArrayAttribute(paramBuilder);
 				}
+				foreach (Boo.Lang.Compiler.Ast.Attribute attribute in parameters[i].Attributes)
+				{
+					paramBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+				}
 			}
 		}
 		
