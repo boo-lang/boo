@@ -670,6 +670,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0127", node.LexicalInfo, node.ToString());
 		}
+
+		public static CompilerError InvalidTryStatement(Node node)
+		{
+			return new CompilerError("BCE0128", node.LexicalInfo);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

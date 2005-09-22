@@ -94,6 +94,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			NotImplemented(node, "given");
 		}
+
+		override public void LeaveTryStatement(TryStatement node)
+		{
+			if (node.EnsureBlock == null && node.ExceptionHandlers.Count == 0)
+			{
+				Error(CompilerErrorFactory.InvalidTryStatement(node));
+			}
+		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
