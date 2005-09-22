@@ -86,6 +86,17 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			{
 				Visit(m.Globals.Statements);
 			}
+
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in m.AssemblyAttributes)
+			{
+				WriteAssemblyAttribute(attribute);
+			}
+		}
+
+		private void WriteAssemblyAttribute(Attribute attribute)
+		{
+			WriteAttribute(attribute, "assembly: ");
+			WriteLine();
 		}
 
 		override public void OnNamespaceDeclaration(NamespaceDeclaration node)
@@ -1291,7 +1302,16 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		void WriteAttribute(Attribute attribute)
 		{
+			WriteAttribute(attribute, null);
+		}
+
+		void WriteAttribute(Attribute attribute, string prefix)
+		{
 			WriteIndented("[");
+			if (null != prefix)
+			{
+				Write(prefix);
+			}
 			Write(attribute.Name);
 			if (attribute.Arguments.Count > 0 ||
 			    attribute.NamedArguments.Count > 0)
