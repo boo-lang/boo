@@ -1069,6 +1069,7 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckGeneratorReturnType(Method method, IType returnType)
 		{
 			if (TypeSystemServices.IEnumerableType != returnType &&
+				TypeSystemServices.IEnumeratorType != returnType &&
 				!TypeSystemServices.IsSystemObject(returnType))
 			{
 				Error(CompilerErrorFactory.InvalidGeneratorReturnType(method.ReturnType));

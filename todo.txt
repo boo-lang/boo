@@ -4,6 +4,13 @@ Please refer to our issue tracker at
  	
 for open issues.
 
+
+Named parameters:
+	def logHistoryFile(to: [required] fname, since: startDate as date):
+		print fname
+		
+	logHistoryFile(to: "foo.txt", since: date.Now - 10s)
+
 All the issues on this file will be eventually moved there.
 
 * optimize InitializeNameResolution step and NameResolutionService

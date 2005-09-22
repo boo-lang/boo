@@ -207,15 +207,42 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Block body = _generator.Method.Body;
 			body.Clear();
-			body.Add(new ReturnStatement(enumerableConstructorInvocation));
+
+			body.Add(
+				new ReturnStatement(
+					GeneratorReturnsIEnumerator()
+					? CreateGetEnumeratorInvocation(enumerableConstructorInvocation)
+					: enumerableConstructorInvocation));
 		}
-		
+
+		private MethodInvocationExpression CreateGetEnumeratorInvocation(MethodInvocationExpression enumerableConstructorInvocation)
+		{
+			return CodeBuilder.CreateMethodInvocation(
+				enumerableConstructorInvocation,
+				GetGetEnumeratorEntity());
+		}
+
+		private InternalMethod GetGetEnumeratorEntity()
+		{
+			return GetGetEnumeratorBuilder().Entity;
+		}
+
+		private bool GeneratorReturnsIEnumerator()
+		{
+			return _generator.ReturnType == TypeSystemServices.IEnumeratorType;
+		}
+
 		void CreateGetEnumerator(Expression enumeratorExpression)
 		{
-			BooMethodBuilder method = (BooMethodBuilder)_generator.Method["GetEnumeratorBuilder"];
+			BooMethodBuilder method = GetGetEnumeratorBuilder();
 			method.Body.Add(new ReturnStatement(enumeratorExpression));
 		}
-		
+
+		private BooMethodBuilder GetGetEnumeratorBuilder()
+		{
+			return (BooMethodBuilder)_generator.Method["GetEnumeratorBuilder"];
+		}
+
 		void CreateEnumerableConstructor()
 		{
 			_enumerableConstructor = CreateConstructor(_enumerable);
