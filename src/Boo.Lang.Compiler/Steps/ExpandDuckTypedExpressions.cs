@@ -1,4 +1,3 @@
-using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
@@ -51,9 +50,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (TypeSystemServices.IsQuackBuiltin(node.Target))
 			{
-				Visit(node.Arguments);
-				Visit(node.NamedArguments);
-				ProcessQuackInvocation(node);
+				ExpandQuackInvocation(node);
 				return;
 			}
 
@@ -64,9 +61,10 @@ namespace Boo.Lang.Compiler.Steps
 				RuntimeServices_InvokeCallable,
 				node.Target,
 				CodeBuilder.CreateObjectArray(node.Arguments));
+
 			Replace(invoke);
 		}
-		
+
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
 			if (!IsDuckTyped(node.Target)) return;
@@ -144,6 +142,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			if (!TypeSystemServices.IsQuackBuiltin(node)) return;
+			
 			if (AstUtil.IsLhsOfAssignment(node)
 				|| AstUtil.IsTargetOfSlicing(node)) return;
 
@@ -166,9 +165,14 @@ namespace Boo.Lang.Compiler.Steps
 			Replace(mie);
 		}
 		
-		void ProcessQuackInvocation(MethodInvocationExpression node)
+		void ExpandQuackInvocation(MethodInvocationExpression node)
 		{
+			Visit(node.Arguments);
+			Visit(node.NamedArguments);
+
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Target;
+			target.Target = (Expression)VisitNode(target.Target);
+
 			node.Target = CodeBuilder.CreateMemberReference(
 				CodeBuilder.CreateReference(node.LexicalInfo, _runtimeServices),
 				RuntimeServices_Invoke);

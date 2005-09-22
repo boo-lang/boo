@@ -67,7 +67,7 @@ namespace Boo.Lang.Compiler.Steps
 		override protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
 			if (TypeSystemServices.IsDuckTyped(node.Target))
-			{
+			{	
 				Bind(node, BuiltinFunction.Quack);
 				BindDuck(node);
 			}
