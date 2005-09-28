@@ -9,4 +9,4 @@ a += 5
 b += 2.5
 
 print(a)
-print(b)
+print(b.ToString(System.Globalization.CultureInfo.InvariantCulture))

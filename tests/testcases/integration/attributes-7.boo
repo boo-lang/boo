@@ -31,6 +31,10 @@ class Bar:
 class Baz:
 	pass
 	
-print GradeAttribute.GetGradeValue(Foo)
-print GradeAttribute.GetGradeValue(Bar)
-print GradeAttribute.GetGradeValue(Baz)
+def printGrade(t as Type):
+	value = GradeAttribute.GetGradeValue(t)
+	print value.ToString(System.Globalization.CultureInfo.InvariantCulture)
+	
+printGrade(Foo)
+printGrade(Bar)
+printGrade(Baz)

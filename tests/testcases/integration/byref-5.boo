@@ -86,13 +86,13 @@ sh as short = 42
 arr = (1,2,3)
 
 storerefdouble(d)
-print "storerefdouble", d, d==4.3
+print "storerefdouble", d.ToString(System.Globalization.CultureInfo.InvariantCulture), d==4.3
 storerefchar(c)
 print "storerefchar", c, c=="b"[0]
 
 dec as decimal = 6.66666
 storerefdecimal(dec)
-print "storerefdecimal", dec, dec==10.5555555
+print "storerefdecimal", dec.ToString(System.Globalization.CultureInfo.InvariantCulture), dec==10.5555555
 
 storerefshort(sh)
 print "storerefshort", sh, sh==67

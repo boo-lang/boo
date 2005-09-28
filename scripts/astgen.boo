@@ -28,16 +28,19 @@
 
 import System
 import System.IO
-import Boo.Lang.Useful.IO from Boo.Lang.Useful
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast
 
 class LicenseWriter:
-	static _license = TextFile.ReadFile("notice.txt")
+	static _license = read("notice.txt")
 	
 	static def WriteLicenseNotice(writer as TextWriter):
-		writer.Write(_license)	
+		writer.Write(_license)
+		
+def read(fname as string):
+	using reader=File.OpenText(fname):
+		return reader.ReadToEnd()
 
 def WriteNodeTypeEnum(module as Module):
 	using writer=OpenFile(GetPath("NodeType.cs")):

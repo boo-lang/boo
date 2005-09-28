@@ -346,7 +346,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		}
 
 		override public void OnMethod(Method m)
-		{	
+		{
+            if (m.IsRuntime)
+            {
+                WriteIndented("// runtime");
+                WriteLine();
+            }
 			WriteCallableDefinitionHeader("def ", m);
 			WriteLine(":");
 			WriteBlock(m.Body);

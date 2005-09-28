@@ -504,14 +504,20 @@ namespace BooC
 
 		Assembly LoadAssembly(string assemblyName)
 		{
-			Assembly reference = Assembly.LoadWithPartialName(assemblyName);
+			string fname = Path.GetFullPath(assemblyName);
+			if (File.Exists(fname)) return Assembly.LoadFrom(fname);
+		
+			Assembly reference = null;
+			try
+			{
+				reference = Assembly.LoadWithPartialName(assemblyName);
+			}
+			catch (FileLoadException x)
+			{
+			}			
 			if (null == reference)
 			{
-				reference = Assembly.LoadFrom(Path.GetFullPath(assemblyName));
-				if (null == reference)
-				{
-					throw new ApplicationException(Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName));
-				}
+				throw new ApplicationException(Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName));
 			}
 			return reference;
 		}

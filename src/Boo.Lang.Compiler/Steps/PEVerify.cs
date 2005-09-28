@@ -58,7 +58,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			try
 			{
-				Process p = Boo.Lang.Builtins.shellp("peverify.exe", Context.GeneratedAssemblyFileName);
+				Process p = Boo.Lang.Builtins.shellp("peverify.exe", "\"" + Context.GeneratedAssemblyFileName + "\"");
 				p.WaitForExit();
 				if (0 != p.ExitCode)
 				{

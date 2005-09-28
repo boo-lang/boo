@@ -11,5 +11,5 @@ c = 10.5
 print(a-b)
 print(b-a)
 print(a+b)
-print(c+a)
-print(c-b)
+print((c+a).ToString(System.Globalization.CultureInfo.InvariantCulture))
+print((c-b).ToString(System.Globalization.CultureInfo.InvariantCulture))

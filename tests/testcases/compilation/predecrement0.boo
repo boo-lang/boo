@@ -11,5 +11,7 @@ print(--a); print(a); print(--a)
 --a
 
 b = 3.5
-print(--b); print(b); print(--b)
+print((--b).ToString(System.Globalization.CultureInfo.InvariantCulture))
+print(b.ToString(System.Globalization.CultureInfo.InvariantCulture))
+print((--b).ToString(System.Globalization.CultureInfo.InvariantCulture))
 --b

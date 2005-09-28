@@ -2,7 +2,6 @@
 A plant, a species of Morinda allied to the madder, the roots of which yield a red dye.
 a water bucket.
 """
-
 import System
 import System.Collections
 
@@ -89,11 +88,6 @@ t = OxfordEnglish()
 t.Add("Aal", "A plant, a species of Morinda allied to the madder, the roots of which yield a red dye.")
 t.Add("Aam", "a water bucket.")
 
-for obj as string in t:
-	if obj is not null:
-		print "${obj}"
-
-/*
-for obj in (t as IDictionary):
-	print "${obj2.Value}"
-	*/
+items = [obj for obj in t if obj is not null].Sort()
+for item in items:
+	print item

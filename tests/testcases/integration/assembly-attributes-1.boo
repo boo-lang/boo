@@ -10,7 +10,6 @@ import System.Reflection
 
 [assembly: AssemblyTitle('foo')]
 [assembly: AssemblyDescription('bar')]
-[assembly: AssemblyKeyFile('')]
 """
 
 compiler = BooCompiler()
@@ -30,5 +29,7 @@ description as AssemblyDescriptionAttribute = Attribute.GetCustomAttribute(asm, 
 Assert.IsNotNull(description, "AssemblyDescriptionAttribute")
 Assert.AreEqual("bar", description.Description)
 
-Assert.IsNull(asm.GetName().GetPublicKeyToken())
+key = asm.GetName().GetPublicKeyToken()
+assert key is null or 0 == len(key)
+
 

@@ -3,4 +3,4 @@
 """
 x as decimal = 2.5
 d as duck = x
-print 6.7 + d 
+print cast(decimal, 6.7 + d).ToString(System.Globalization.CultureInfo.InvariantCulture) 

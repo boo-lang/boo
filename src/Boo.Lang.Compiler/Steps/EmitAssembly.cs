@@ -1884,13 +1884,15 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (ExpressionPair pair in node.Items)
 			{
 				_il.Emit(OpCodes.Dup);
+				
 				Visit(pair.First);
 				EmitCastIfNeeded(objType, PopType());
 				
 				Visit(pair.Second);
 				EmitCastIfNeeded(objType, PopType());
-				_il.EmitCall(OpCodes.Call, Hash_Add, null);
+				_il.EmitCall(OpCodes.Callvirt, Hash_Add, null);
 			}
+			
 			PushType(TypeSystemServices.HashType);
 		}
 		

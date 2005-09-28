@@ -38,6 +38,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class TypeSystemServices
 	{
+		private static readonly bool Version1 = Environment.Version < new Version(2, 0);
+		
 		public DuckTypeImpl DuckType;
 		
 		public ExternalType IQuackFuType;
@@ -1134,7 +1136,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			InternalMethod beginInvokeEntity = (InternalMethod)beginInvoke.Entity;
 			
 			Method overload = CodeBuilder.CreateMethod("BeginInvoke", Map(typeof(IAsyncResult)),
-										TypeMemberModifiers.Public);
+										TypeMemberModifiers.Public|TypeMemberModifiers.Virtual);
 			CodeBuilder.DeclareParameters(overload, 1, anonymousType.GetSignature().Parameters);
 			
 			mie = CodeBuilder.CreateMethodInvocation(
@@ -1275,8 +1277,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			Method beginInvoke = CreateBeginInvokeMethod(anonymousType);
 			cd.Members.Add(beginInvoke);
-			cd.Members.Add(CreateBeginInvokeCallbackOnlyOverload(anonymousType, beginInvoke));
-			cd.Members.Add(CreateBeginInvokeSimplerOverload(anonymousType, beginInvoke));
+			
+			// XXX: find an alternative way to support BeginInvoke overloads... 
+			if (Version1)
+			{
+				cd.Members.Add(CreateBeginInvokeCallbackOnlyOverload(anonymousType, beginInvoke));
+				cd.Members.Add(CreateBeginInvokeSimplerOverload(anonymousType, beginInvoke));
+			}
 			
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
 			_anonymousTypesModule.Members.Add(cd);
