@@ -45,6 +45,14 @@ namespace Boo.Lang.Parser
 		{
 		}
 		
+		protected CompilerContext Context
+		{
+			get
+			{
+				return _context;
+			}
+		}
+		
 		public int TabSize
 		{
 			get
@@ -82,7 +90,7 @@ namespace Boo.Lang.Parser
 				{
 					using (System.IO.TextReader reader = input.Open())
 					{
-						BooParser.ParseModule(_tabSize, _context.CompileUnit, input.Name, reader, errorHandler);
+						ParseModule(input.Name, reader, errorHandler);
 					}
 				}				
 				catch (CompilerError error)
@@ -98,6 +106,11 @@ namespace Boo.Lang.Parser
 					_context.Errors.Add(CompilerErrorFactory.InputError(input.Name, x));
 				}
 			}
+		}
+		
+		protected virtual void ParseModule(string inputName, System.IO.TextReader reader, ParserErrorHandler errorHandler)
+		{
+			BooParser.ParseModule(_tabSize, _context.CompileUnit, inputName, reader, errorHandler); 
 		}
 
 		void OnParserError(antlr.RecognitionException error)

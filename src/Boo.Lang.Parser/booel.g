@@ -40,7 +40,7 @@ options
 	// without inlining some bitset tests, ANTLR couldn't do unicode;
 	// They need to make ANTLR generate smaller bitsets;
 	codeGenBitsetTestThreshold=20;	
-	classHeaderPrefix="internal";
+	classHeaderPrefix="public";
 }
 {
 	

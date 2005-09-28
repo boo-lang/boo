@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<project name="WASBoo" default="test">
+
+	<property name="antlr.jar" value="../../lib/antlr-2.7.5/antlr-2.7.5.jar" />
+	<property name="java" value="java" />
+	
+	<property name="extras.dir" value="${path::get-full-path('..')}" />
+	<include buildfile="${extras.dir}/common-properties.build" />
+	<include buildfile="../../tests/nunit.inc" />
+
+	<target name="test" depends="build">
+		<nunit2>       
+			<formatter type="Plain" />
+			<test>
+				<assemblies basedir="build">				
+					<include name="*.Tests.dll" />					
+				</assemblies>
+			</test>
+		</nunit2>
+	</target>
+	
+	<target name="build" depends="compile-grammar">
+		<csc target="library" output="build/WSABoo.Parser.dll">
+			<sources basedir="src/WSABoo.Parser">
+				<include name="*.cs" />
+			</sources>
+			<references basedir="build">
+				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Parser.dll" />
+			</references>
+		</csc>
+		
+		<booc target="library" output="build/WSABoo.Parser.Tests.dll">
+			<sources basedir="src/WSABoo.Parser.Tests">
+				<include name="*.boo" />
+			</sources>
+			<references basedir="build">
+				<include name="WSABoo.Parser.dll" />
+				<include name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="compile-grammar" depends="init">
+		<exec program="${java}" failonerror="true">
+			<arg value="-cp" />
+			<arg file="${antlr.jar}" />
+			<arg value="antlr.Tool" />
+			<arg value="-o" />
+			<arg value="src/WSABoo.Parser/" />
+			<arg value="src/WSABoo.Parser/boo.g" />
+		</exec>
+			
+		<!--
+		<exec program="${java}" failonerror="true">
+			<arg value="-cp" />
+			<arg file="${antlr.jar}" />
+			<arg value="antlr.Tool" />
+			<arg value="-o" />
+			<arg value="src/WSABoo.Parser/" />
+			<arg value="src/WSABoo.Parser/booel.g" />
+		</exec>
+		-->
+	</target>
+	
+	<target name="init">
+		<mkdir dir="build" unless="${directory::exists('build')}" />
+		<copy todir="build">
+			<fileset basedir="${boo.dir}">
+				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Parser.dll" />
+			</fileset>
+		</copy>
+		<loadtasks assembly="${boo.dir}/Boo.NAnt.Tasks.dll" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="build" if="${directory::exists('build')}" />
+	</target>
+	
+</project>
