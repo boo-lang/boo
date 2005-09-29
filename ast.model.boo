@@ -375,6 +375,7 @@ enum UnaryOperatorType:
 	PostDecrement
 	LogicalNot
 	Explode
+	OnesComplement
 
 class UnaryExpression(Expression):
 	Operator as UnaryOperatorType

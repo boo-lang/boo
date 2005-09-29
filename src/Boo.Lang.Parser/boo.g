@@ -2146,7 +2146,8 @@ unary_expression returns [Expression e]
 			(
 				sub:SUBTRACT { op = sub; uOperator = UnaryOperatorType.UnaryNegation; } |
 				inc:INCREMENT { op = inc; uOperator = UnaryOperatorType.Increment; } |
-				dec:DECREMENT { op = dec; uOperator = UnaryOperatorType.Decrement; }
+				dec:DECREMENT { op = dec; uOperator = UnaryOperatorType.Decrement; } |
+				oc:ONES_COMPLEMENT { op = oc; uOperator = UnaryOperatorType.OnesComplement; }
 			)
 			e=unary_expression
 		) |
@@ -2855,6 +2856,8 @@ GREATER_THAN: '>';
 SHIFT_RIGHT: ">>";
 
 INPLACE_SHIFT_RIGHT: ">>=";
+
+ONES_COMPLEMENT: '~';
 
 CMP_OPERATOR :  "<=" | ">=" | "!~" | "!=";
 

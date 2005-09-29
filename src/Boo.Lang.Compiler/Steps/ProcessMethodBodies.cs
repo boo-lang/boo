@@ -2873,8 +2873,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				case UnaryOperatorType.LogicalNot:
 				{
-					node.Operand = CheckBoolContext(node.Operand);
-					BindExpressionType(node, TypeSystemServices.BoolType);
+					LeaveLogicalNot(node);
 					break;
 				}
 				
@@ -2889,14 +2888,13 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case UnaryOperatorType.UnaryNegation:
 				{
-					if (IsPrimitiveNumber(node.Operand))
-					{
-						BindExpressionType(node, GetExpressionType(node.Operand));
-					}
-					else if (! ResolveOperator(node))
-					{
-						InvalidOperatorForType(node);
-					}
+					LeaveUnaryNegation(node);
+					break;
+				}
+
+				case UnaryOperatorType.OnesComplement:
+				{
+					LeaveOnesComplement(node);
 					break;
 				}
 					
@@ -2907,7 +2905,51 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		private void LeaveOnesComplement(UnaryExpression node)
+		{
+			if (IsPrimitiveOnesComplementOperand(node.Operand))
+			{
+				BindExpressionType(node, GetExpressionType(node.Operand));
+			}
+			else
+			{
+				ProcessOperatorOverload(node);
+			}
+		}
+
+		private bool IsPrimitiveOnesComplementOperand(Expression operand)
+		{
+			IType type = GetExpressionType(operand);
+			return TypeSystemServices.IsIntegerNumber(type);
+		}
+
+		private void LeaveLogicalNot(UnaryExpression node)
+		{
+			node.Operand = CheckBoolContext(node.Operand);
+			BindExpressionType(node, TypeSystemServices.BoolType);
+		}
+
+		private void LeaveUnaryNegation(UnaryExpression node)
+		{
+			if (IsPrimitiveNumber(node.Operand))
+			{
+				BindExpressionType(node, GetExpressionType(node.Operand));
+			}
+			else
+			{
+				ProcessOperatorOverload(node);
+			}
+		}
+
+		private void ProcessOperatorOverload(UnaryExpression node)
+		{
+			if (! ResolveOperator(node))
+			{
+				InvalidOperatorForType(node);
+			}
+		}
+
 		override public bool EnterBinaryExpression(BinaryExpression node)
 		{
 			if (BinaryOperatorType.Assign == node.Operator)

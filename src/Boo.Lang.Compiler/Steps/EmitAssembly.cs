@@ -1025,28 +1025,19 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case UnaryOperatorType.LogicalNot:
 				{
-					node.Operand.Accept(this);
-					IType typeOnStack = PopType();
-					if (IsBoolOrInt(typeOnStack) || EmitToBoolIfNeeded(typeOnStack))
-					{
-						EmitIntNot();
-					}
-					else
-					{
-						EmitGenericNot();
-					}
-					PushBool();
+					EmitLogicalNot(node);
 					break;
 				}
 				
 				case UnaryOperatorType.UnaryNegation:
 				{
-					node.Operand.Accept(this);
-					IType type = PopType();
-					_il.Emit(OpCodes.Ldc_I4, -1);
-					EmitCastIfNeeded(type, TypeSystemServices.IntType);
-					_il.Emit(OpCodes.Mul);
-					PushType(type);
+					EmitUnaryNegation(node);
+					break;
+				}
+
+				case UnaryOperatorType.OnesComplement:
+				{
+					EmitOnesComplement(node);
 					break;
 				}
 				
@@ -1057,7 +1048,38 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		private void EmitOnesComplement(UnaryExpression node)
+		{
+			node.Operand.Accept(this);
+			_il.Emit(OpCodes.Not);
+		}
+
+		private void EmitLogicalNot(UnaryExpression node)
+		{
+			node.Operand.Accept(this);
+			IType typeOnStack = PopType();
+			if (IsBoolOrInt(typeOnStack) || EmitToBoolIfNeeded(typeOnStack))
+			{
+				EmitIntNot();
+			}
+			else
+			{
+				EmitGenericNot();
+			}
+			PushBool();
+		}
+
+		private void EmitUnaryNegation(UnaryExpression node)
+		{
+			node.Operand.Accept(this);
+			IType type = PopType();
+			_il.Emit(OpCodes.Ldc_I4, -1);
+			EmitCastIfNeeded(type, TypeSystemServices.IntType);
+			_il.Emit(OpCodes.Mul);
+			PushType(type);
+		}
+
 		bool ShouldLeaveValueOnStack(Expression node)
 		{
 			return node.ParentNode.NodeType != NodeType.ExpressionStatement;

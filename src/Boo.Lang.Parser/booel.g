@@ -148,6 +148,8 @@ SHIFT_RIGHT: ">>";
 
 INPLACE_SHIFT_RIGHT: ">>=";
 
+ONES_COMPLEMENT: '~';
+
 CMP_OPERATOR :  "<=" | ">=" | "!~" | "!=";
 
 ASSIGN : '=' ( ('=' | '~') { $setType(CMP_OPERATOR); } )?;

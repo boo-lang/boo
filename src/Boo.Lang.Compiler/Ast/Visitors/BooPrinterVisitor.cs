@@ -948,6 +948,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					return "not ";
 				}
+
+				case UnaryOperatorType.OnesComplement:
+				{
+					return "~";
+				}
 			}
 			throw new ArgumentException("op");
 		}
