@@ -2036,7 +2036,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
+                               //check if found entity can't possibly be a member of self:
+			       if (member.DeclaringType != CurrentType &&
+				       !(CurrentType.IsSubclassOf(member.DeclaringType)))
+			       {
+				       Error(CompilerErrorFactory.InstanceRequired(node,
+				       	member.DeclaringType.ToString(),
+					member.Name));
+			       }
+			       memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
 			}
 			
 			Bind(memberRef, member);
