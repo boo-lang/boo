@@ -132,28 +132,29 @@ using System.Globalization;
 		public const int EXPONENTIATION = 104;
 		public const int INCREMENT = 105;
 		public const int DECREMENT = 106;
-		public const int INT = 107;
-		public const int LONG = 108;
-		public const int RE_LITERAL = 109;
-		public const int DOUBLE = 110;
-		public const int FLOAT = 111;
-		public const int TIMESPAN = 112;
-		public const int LINE_CONTINUATION = 113;
-		public const int SL_COMMENT = 114;
-		public const int ML_COMMENT = 115;
-		public const int WS = 116;
-		public const int X_RE_LITERAL = 117;
-		public const int NEWLINE = 118;
-		public const int ESCAPED_EXPRESSION = 119;
-		public const int DQS_ESC = 120;
-		public const int SQS_ESC = 121;
-		public const int SESC = 122;
-		public const int RE_CHAR = 123;
-		public const int X_RE_CHAR = 124;
-		public const int RE_ESC = 125;
-		public const int ID_LETTER = 126;
-		public const int DIGIT = 127;
-		public const int HEXDIGIT = 128;
+		public const int ONES_COMPLEMENT = 107;
+		public const int INT = 108;
+		public const int LONG = 109;
+		public const int RE_LITERAL = 110;
+		public const int DOUBLE = 111;
+		public const int FLOAT = 112;
+		public const int TIMESPAN = 113;
+		public const int LINE_CONTINUATION = 114;
+		public const int SL_COMMENT = 115;
+		public const int ML_COMMENT = 116;
+		public const int WS = 117;
+		public const int X_RE_LITERAL = 118;
+		public const int NEWLINE = 119;
+		public const int ESCAPED_EXPRESSION = 120;
+		public const int DQS_ESC = 121;
+		public const int SQS_ESC = 122;
+		public const int SESC = 123;
+		public const int RE_CHAR = 124;
+		public const int X_RE_CHAR = 125;
+		public const int RE_ESC = 126;
+		public const int ID_LETTER = 127;
+		public const int DIGIT = 128;
+		public const int HEXDIGIT = 129;
 		
 				
 	protected System.Text.StringBuilder _sbuilder = new System.Text.StringBuilder();
@@ -447,6 +448,7 @@ _loop5_breakloop:				;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -2230,6 +2232,7 @@ _loop187_breakloop:				;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -3528,6 +3531,7 @@ _loop439_breakloop:								;
 								case LBRACE:
 								case INCREMENT:
 								case DECREMENT:
+								case ONES_COMPLEMENT:
 								case INT:
 								case LONG:
 								case RE_LITERAL:
@@ -3673,6 +3677,7 @@ _loop445_breakloop:				;
 			case LBRACE:
 			case INCREMENT:
 			case DECREMENT:
+			case ONES_COMPLEMENT:
 			case INT:
 			case LONG:
 			case RE_LITERAL:
@@ -4214,6 +4219,7 @@ _loop304_breakloop:										;
 										case LBRACE:
 										case INCREMENT:
 										case DECREMENT:
+										case ONES_COMPLEMENT:
 										case INT:
 										case LONG:
 										case RE_LITERAL:
@@ -4888,6 +4894,7 @@ _loop164_breakloop:						;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -5371,6 +5378,7 @@ _loop287_breakloop:				;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -5532,6 +5540,7 @@ _loop243_breakloop:				;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -5602,6 +5611,7 @@ _loop243_breakloop:				;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -6379,6 +6389,7 @@ _loop309_breakloop:						;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -6523,6 +6534,7 @@ _loop309_breakloop:						;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -6731,6 +6743,7 @@ _loop315_breakloop:					;
 			case LBRACE:
 			case INCREMENT:
 			case DECREMENT:
+			case ONES_COMPLEMENT:
 			case INT:
 			case LONG:
 			case RE_LITERAL:
@@ -6901,6 +6914,7 @@ _loop217_breakloop:				;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -7055,6 +7069,7 @@ _loop217_breakloop:				;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -7278,6 +7293,7 @@ _loop217_breakloop:				;
 								case LBRACE:
 								case INCREMENT:
 								case DECREMENT:
+								case ONES_COMPLEMENT:
 								case INT:
 								case LONG:
 								case RE_LITERAL:
@@ -7754,6 +7770,7 @@ _loop318_breakloop:				;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -8825,6 +8842,7 @@ _loop402_breakloop:				;
 		IToken  sub = null;
 		IToken  inc = null;
 		IToken  dec = null;
+		IToken  oc = null;
 		IToken  postinc = null;
 		IToken  postdec = null;
 		
@@ -8840,6 +8858,7 @@ _loop402_breakloop:				;
 				case SUBTRACT:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				{
 					{
 						{
@@ -8872,6 +8891,16 @@ _loop402_breakloop:				;
 								if (0==inputState.guessing)
 								{
 									op = dec; uOperator = UnaryOperatorType.Decrement;
+								}
+								break;
+							}
+							case ONES_COMPLEMENT:
+							{
+								oc = LT(1);
+								match(ONES_COMPLEMENT);
+								if (0==inputState.guessing)
+								{
+									op = oc; uOperator = UnaryOperatorType.OnesComplement;
 								}
 								break;
 							}
@@ -9496,6 +9525,7 @@ _loop402_breakloop:				;
 						case LBRACE:
 						case INCREMENT:
 						case DECREMENT:
+						case ONES_COMPLEMENT:
 						case INT:
 						case LONG:
 						case RE_LITERAL:
@@ -9782,6 +9812,7 @@ _loop423_breakloop:								;
 							case LBRACE:
 							case INCREMENT:
 							case DECREMENT:
+							case ONES_COMPLEMENT:
 							case INT:
 							case LONG:
 							case RE_LITERAL:
@@ -9839,6 +9870,7 @@ _loop423_breakloop:								;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -9877,6 +9909,7 @@ _loop423_breakloop:								;
 								case LBRACE:
 								case INCREMENT:
 								case DECREMENT:
+								case ONES_COMPLEMENT:
 								case INT:
 								case LONG:
 								case RE_LITERAL:
@@ -10022,6 +10055,7 @@ _loop423_breakloop:								;
 			case LBRACE:
 			case INCREMENT:
 			case DECREMENT:
+			case ONES_COMPLEMENT:
 			case INT:
 			case LONG:
 			case RE_LITERAL:
@@ -10246,6 +10280,7 @@ _loop423_breakloop:								;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -10371,6 +10406,7 @@ _loop466_breakloop:								;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -10446,6 +10482,7 @@ _loop466_breakloop:								;
 				case LBRACE:
 				case INCREMENT:
 				case DECREMENT:
+				case ONES_COMPLEMENT:
 				case INT:
 				case LONG:
 				case RE_LITERAL:
@@ -10979,6 +11016,7 @@ _loop460_breakloop:				;
 		@"""EXPONENTIATION""",
 		@"""INCREMENT""",
 		@"""DECREMENT""",
+		@"""ONES_COMPLEMENT""",
 		@"""INT""",
 		@"""LONG""",
 		@"""RE_LITERAL""",
@@ -11005,7 +11043,7 @@ _loop460_breakloop:				;
 	
 	private static long[] mk_tokenSet_0_()
 	{
-		long[] data = { -1234106704589357886L, 560750949670895L, 0L, 0L};
+		long[] data = { -1234106704589357886L, 1123700903092207L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_0_ = new BitSet(mk_tokenSet_0_());
@@ -11029,31 +11067,31 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_3_ = new BitSet(mk_tokenSet_3_());
 	private static long[] mk_tokenSet_4_()
 	{
-		long[] data = { -1162049101885997886L, 560750949670895L, 0L, 0L};
+		long[] data = { -1162049101885997886L, 1123700903092207L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_4_ = new BitSet(mk_tokenSet_4_());
 	private static long[] mk_tokenSet_5_()
 	{
-		long[] data = { -1153027059222577470L, 562949953413103L, 0L, 0L};
+		long[] data = { -1153027059222577470L, 1125899906834415L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_5_ = new BitSet(mk_tokenSet_5_());
 	private static long[] mk_tokenSet_6_()
 	{
-		long[] data = { -1234388179566068542L, 560750949670895L, 0L, 0L};
+		long[] data = { -1234388179566068542L, 1123700903092207L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_6_ = new BitSet(mk_tokenSet_6_());
 	private static long[] mk_tokenSet_7_()
 	{
-		long[] data = { -1234388248285545278L, 560750949670895L, 0L, 0L};
+		long[] data = { -1234388248285545278L, 1123700903092207L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_7_ = new BitSet(mk_tokenSet_7_());
 	private static long[] mk_tokenSet_8_()
 	{
-		long[] data = { 5102598227002186816L, 560750949146471L, 0L, 0L};
+		long[] data = { 5102598227002186816L, 1123700902567783L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_8_ = new BitSet(mk_tokenSet_8_());
@@ -11071,7 +11109,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_10_ = new BitSet(mk_tokenSet_10_());
 	private static long[] mk_tokenSet_11_()
 	{
-		long[] data = { -1162330576862708542L, 560750983225327L, 0L, 0L};
+		long[] data = { -1162330576862708542L, 1123700936646639L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_11_ = new BitSet(mk_tokenSet_11_());
@@ -11095,7 +11133,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_14_ = new BitSet(mk_tokenSet_14_());
 	private static long[] mk_tokenSet_15_()
 	{
-		long[] data = { -1234388248210047806L, 560750949670895L, 0L, 0L};
+		long[] data = { -1234388248210047806L, 1123700903092207L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_15_ = new BitSet(mk_tokenSet_15_());
@@ -11155,7 +11193,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_24_ = new BitSet(mk_tokenSet_24_());
 	private static long[] mk_tokenSet_25_()
 	{
-		long[] data = { -9338772073874238L, 560750949670911L, 0L, 0L};
+		long[] data = { -9338772073874238L, 1123700903092223L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_25_ = new BitSet(mk_tokenSet_25_());
@@ -11221,7 +11259,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_35_ = new BitSet(mk_tokenSet_35_());
 	private static long[] mk_tokenSet_36_()
 	{
-		long[] data = { -1234388248218436416L, 560750949146623L, 0L, 0L};
+		long[] data = { -1234388248218436416L, 1123700902567935L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_36_ = new BitSet(mk_tokenSet_36_());
@@ -11233,13 +11271,13 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_37_ = new BitSet(mk_tokenSet_37_());
 	private static long[] mk_tokenSet_38_()
 	{
-		long[] data = { 5102598227010575424L, 560750949146599L, 0L, 0L};
+		long[] data = { 5102598227010575424L, 1123700902567911L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_38_ = new BitSet(mk_tokenSet_38_());
 	private static long[] mk_tokenSet_39_()
 	{
-		long[] data = { -1225366205547282750L, 562949953413103L, 0L, 0L};
+		long[] data = { -1225366205547282750L, 1125899906834415L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_39_ = new BitSet(mk_tokenSet_39_());
@@ -11257,31 +11295,31 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_41_ = new BitSet(mk_tokenSet_41_());
 	private static long[] mk_tokenSet_42_()
 	{
-		long[] data = { 432363160708629568L, 554153877249795L, 0L, 0L};
+		long[] data = { 432363160708629568L, 1108307737648899L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_42_ = new BitSet(mk_tokenSet_42_());
 	private static long[] mk_tokenSet_43_()
 	{
-		long[] data = { 463897154194555968L, 560750994628419L, 0L, 0L};
+		long[] data = { 463897154194555968L, 1123700948049731L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_43_ = new BitSet(mk_tokenSet_43_());
 	private static long[] mk_tokenSet_44_()
 	{
-		long[] data = { 432371956801651776L, 560750947180291L, 0L, 0L};
+		long[] data = { 432371956801651776L, 1123700900601603L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_44_ = new BitSet(mk_tokenSet_44_());
 	private static long[] mk_tokenSet_45_()
 	{
-		long[] data = { 463938388026771264L, 562949950791619L, 0L, 0L};
+		long[] data = { 463938388026771264L, 1125899904212931L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_45_ = new BitSet(mk_tokenSet_45_());
 	private static long[] mk_tokenSet_46_()
 	{
-		long[] data = { -1234388248210047806L, 560750949670767L, 0L, 0L};
+		long[] data = { -1234388248210047806L, 1123700903092079L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_46_ = new BitSet(mk_tokenSet_46_());
@@ -11293,19 +11331,19 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_47_ = new BitSet(mk_tokenSet_47_());
 	private static long[] mk_tokenSet_48_()
 	{
-		long[] data = { 432415389659743554L, 560759505944487L, 0L, 0L};
+		long[] data = { 432415389659743554L, 1123709459365799L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_48_ = new BitSet(mk_tokenSet_48_());
 	private static long[] mk_tokenSet_49_()
 	{
-		long[] data = { 432371956801651776L, 560750947049219L, 0L, 0L};
+		long[] data = { 432371956801651776L, 1123700900470531L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_49_ = new BitSet(mk_tokenSet_49_());
 	private static long[] mk_tokenSet_50_()
 	{
-		long[] data = { 463940587051337538L, 562949952896999L, 0L, 0L};
+		long[] data = { 463940587051337538L, 1125899906318311L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_50_ = new BitSet(mk_tokenSet_50_());
@@ -11317,43 +11355,43 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_51_ = new BitSet(mk_tokenSet_51_());
 	private static long[] mk_tokenSet_52_()
 	{
-		long[] data = { -1234338220429934654L, 562949953421311L, 0L, 0L};
+		long[] data = { -1234338220429934654L, 1125899906842623L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_52_ = new BitSet(mk_tokenSet_52_());
 	private static long[] mk_tokenSet_53_()
 	{
-		long[] data = { -9338772073874238L, 560750949670783L, 0L, 0L};
+		long[] data = { -9338772073874238L, 1123700903092095L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_53_ = new BitSet(mk_tokenSet_53_());
 	private static long[] mk_tokenSet_54_()
 	{
-		long[] data = { 432374155824907328L, 560750949146535L, 0L, 0L};
+		long[] data = { 432374155824907328L, 1123700902567847L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_54_ = new BitSet(mk_tokenSet_54_());
 	private static long[] mk_tokenSet_55_()
 	{
-		long[] data = { 463897154194555968L, 560750994644803L, 0L, 0L};
+		long[] data = { 463897154194555968L, 1123700948066115L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_55_ = new BitSet(mk_tokenSet_55_());
 	private static long[] mk_tokenSet_56_()
 	{
-		long[] data = { 472895591714708544L, 560750949146435L, 0L, 0L};
+		long[] data = { 472895591714708544L, 1123700902567747L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_56_ = new BitSet(mk_tokenSet_56_());
 	private static long[] mk_tokenSet_57_()
 	{
-		long[] data = { 463905400530454080L, 562949950791655L, 0L, 0L};
+		long[] data = { 463905400530454080L, 1125899904212967L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_57_ = new BitSet(mk_tokenSet_57_());
 	private static long[] mk_tokenSet_58_()
 	{
-		long[] data = { 5102598227010575426L, 560750949670759L, 0L, 0L};
+		long[] data = { 5102598227010575426L, 1123700903092071L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_58_ = new BitSet(mk_tokenSet_58_());
@@ -11395,7 +11433,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_64_ = new BitSet(mk_tokenSet_64_());
 	private static long[] mk_tokenSet_65_()
 	{
-		long[] data = { 463940587051337536L, 562949950791655L, 0L, 0L};
+		long[] data = { 463940587051337536L, 1125899904212967L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_65_ = new BitSet(mk_tokenSet_65_());
@@ -11407,13 +11445,13 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_66_ = new BitSet(mk_tokenSet_66_());
 	private static long[] mk_tokenSet_67_()
 	{
-		long[] data = { 432374155824907328L, 560750980603815L, 0L, 0L};
+		long[] data = { 432374155824907328L, 1123700934025127L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_67_ = new BitSet(mk_tokenSet_67_());
 	private static long[] mk_tokenSet_68_()
 	{
-		long[] data = { 432363160708629568L, 560750947049219L, 0L, 0L};
+		long[] data = { 432363160708629568L, 1123700900470531L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_68_ = new BitSet(mk_tokenSet_68_());
@@ -11431,19 +11469,19 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_70_ = new BitSet(mk_tokenSet_70_());
 	private static long[] mk_tokenSet_71_()
 	{
-		long[] data = { 454881158845482560L, 560750955831107L, 0L, 0L};
+		long[] data = { 454881158845482560L, 1123700909252419L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_71_ = new BitSet(mk_tokenSet_71_());
 	private static long[] mk_tokenSet_72_()
 	{
-		long[] data = { 454881158845482048L, 560750947049283L, 0L, 0L};
+		long[] data = { 454881158845482048L, 1123700900470595L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_72_ = new BitSet(mk_tokenSet_72_());
 	private static long[] mk_tokenSet_73_()
 	{
-		long[] data = { 6255519731768417346L, 560750949670759L, 0L, 0L};
+		long[] data = { 6255519731768417346L, 1123700903092071L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_73_ = new BitSet(mk_tokenSet_73_());
@@ -11461,7 +11499,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_75_ = new BitSet(mk_tokenSet_75_());
 	private static long[] mk_tokenSet_76_()
 	{
-		long[] data = { 463938388026771264L, 562949950791491L, 0L, 0L};
+		long[] data = { 463938388026771264L, 1125899904212803L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_76_ = new BitSet(mk_tokenSet_76_());
@@ -11473,7 +11511,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_77_ = new BitSet(mk_tokenSet_77_());
 	private static long[] mk_tokenSet_78_()
 	{
-		long[] data = { 432374155824907840L, 560750980734759L, 0L, 0L};
+		long[] data = { 432374155824907840L, 1123700934156071L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_78_ = new BitSet(mk_tokenSet_78_());
@@ -11485,13 +11523,13 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_79_ = new BitSet(mk_tokenSet_79_());
 	private static long[] mk_tokenSet_80_()
 	{
-		long[] data = { 463905400531764800L, 562949952888807L, 0L, 0L};
+		long[] data = { 463905400531764800L, 1125899906310119L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_80_ = new BitSet(mk_tokenSet_80_());
 	private static long[] mk_tokenSet_81_()
 	{
-		long[] data = { 432374155824907328L, 560750980603687L, 0L, 0L};
+		long[] data = { 432374155824907328L, 1123700934024999L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_81_ = new BitSet(mk_tokenSet_81_());
@@ -11509,7 +11547,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_83_ = new BitSet(mk_tokenSet_83_());
 	private static long[] mk_tokenSet_84_()
 	{
-		long[] data = { 432376354848171072L, 560750947180291L, 0L, 0L};
+		long[] data = { 432376354848171072L, 1123700900601603L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_84_ = new BitSet(mk_tokenSet_84_());
@@ -11551,13 +11589,13 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_90_ = new BitSet(mk_tokenSet_90_());
 	private static long[] mk_tokenSet_91_()
 	{
-		long[] data = { 432371956801651776L, 560750980603651L, 0L, 0L};
+		long[] data = { 432371956801651776L, 1123700934024963L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_91_ = new BitSet(mk_tokenSet_91_());
 	private static long[] mk_tokenSet_92_()
 	{
-		long[] data = { 463888358100223040L, 560750959632195L, 0L, 0L};
+		long[] data = { 463888358100223040L, 1123700913053507L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_92_ = new BitSet(mk_tokenSet_92_());
@@ -11569,7 +11607,7 @@ _loop460_breakloop:				;
 	public static readonly BitSet tokenSet_93_ = new BitSet(mk_tokenSet_93_());
 	private static long[] mk_tokenSet_94_()
 	{
-		long[] data = { 463938388026771264L, 562949950799683L, 0L, 0L};
+		long[] data = { 463938388026771264L, 1125899904220995L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_94_ = new BitSet(mk_tokenSet_94_());

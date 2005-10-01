@@ -52,7 +52,6 @@
 			<arg value="src/WSABoo.Parser/boo.g" />
 		</exec>
 			
-		<!--
 		<exec program="${java}" failonerror="true">
 			<arg value="-cp" />
 			<arg file="${antlr.jar}" />
@@ -61,7 +60,6 @@
 			<arg value="src/WSABoo.Parser/" />
 			<arg value="src/WSABoo.Parser/booel.g" />
 		</exec>
-		-->
 	</target>
 	
 	<target name="init">

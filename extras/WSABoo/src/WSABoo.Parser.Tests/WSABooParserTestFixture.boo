@@ -76,6 +76,22 @@ class Foo(Bar):
 """
 		Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()))
 		
+	[Test]
+	def SanityCheckUsingDoubleQuotes():
+		code = """
+		def SayHello(name as string):
+			return "Hello, \${name}"
+		end
+		"""
+		
+		module = parse(code)
+		
+		expected = """
+def SayHello(name as string):
+	return "Hello, \${name}"
+"""
+		Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()))
+	
 	def normalize(s as string):
 		return s.Trim().Replace("\r\n", "\n")
 		

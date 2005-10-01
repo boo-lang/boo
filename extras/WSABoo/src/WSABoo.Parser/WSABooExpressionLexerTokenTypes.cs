@@ -1,8 +1,8 @@
-// $ANTLR 2.7.5 (20050517): "src/WSABoo.Parser/boo.g" -> "WSABooLexer.cs"$
+// $ANTLR 2.7.5 (20050517): "src/WSABoo.Parser/booel.g" -> "WSABooExpressionLexer.cs"$
 
 namespace WSABoo.Parser
 {
-	public class WSABooTokenTypes
+	public class WSABooExpressionLexerTokenTypes
 	{
 		public const int EOF = 1;
 		public const int NULL_TREE_LOOKAHEAD = 3;
