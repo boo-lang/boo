@@ -2623,13 +2623,10 @@ namespace Boo.Lang.Compiler.Steps
 				IType exceptionType = GetExpressionType(node.Exception);
 				if (TypeSystemServices.StringType == exceptionType)
 				{
-					MethodInvocationExpression expression = new MethodInvocationExpression(node.Exception.LexicalInfo);
-					expression.Arguments.Add(node.Exception);
-					expression.Target = new ReferenceExpression("System.ApplicationException");
-					Bind(expression.Target, ApplicationException_StringConstructor);
-					BindExpressionType(expression, TypeSystemServices.ApplicationExceptionType);
-
-					node.Exception = expression;
+					node.Exception = CodeBuilder.CreateConstructorInvocation(
+						node.Exception.LexicalInfo,
+						ApplicationException_StringConstructor,
+						node.Exception);
 				}
 				else if (!TypeSystemServices.ExceptionType.IsAssignableFrom(exceptionType))
 				{

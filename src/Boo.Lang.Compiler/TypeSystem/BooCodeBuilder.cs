@@ -563,6 +563,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			mie.Arguments.Add(arg);
 			return mie;
 		}
+
+		public MethodInvocationExpression CreateConstructorInvocation(LexicalInfo lexicalInfo, IConstructor constructor, params Expression[] args)
+		{
+			MethodInvocationExpression mie = CreateConstructorInvocation(constructor);
+			mie.LexicalInfo = lexicalInfo;
+			mie.Arguments.Extend(args);
+			return mie;
+		}
 		
 		public MethodInvocationExpression CreateConstructorInvocation(IConstructor constructor)
 		{
@@ -719,6 +727,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 											CreateNullLiteral());
 			test.ExpressionType = _tss.BoolType;
 			return test;
+		}
+
+		public RaiseStatement RaiseException(LexicalInfo lexicalInfo, IConstructor exceptionConstructor, params Expression[] args)
+		{
+			Debug.Assert(exceptionConstructor.DeclaringType.IsSubclassOf(this._tss.ExceptionType));
+			return new RaiseStatement(lexicalInfo, CreateConstructorInvocation(lexicalInfo, exceptionConstructor, args));
 		}
 
 		public string CreateTempName()

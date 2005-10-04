@@ -154,7 +154,7 @@ namespace Boo.Lang.Runtime
 				{
 					SetProperty(change.Target,  change.Member, change.Value);
 				}
-				catch (System.MissingFieldException x)
+				catch (System.MissingFieldException)
 				{
 					// hit a readonly property
 					break;
