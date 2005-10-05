@@ -200,7 +200,12 @@ namespace Boo.Lang.Runtime
 		{
 			Type type = target.GetType();
 			if ("" == name)
-			{
+			{	
+				if (args.Length == 1 && target is System.Array)
+				{
+					IList list = (IList)target;
+					return list[NormalizeIndex(list.Count, (int)args[0])];
+				}
 				name = GetDefaultMemberName(type);
 			}
 			try
