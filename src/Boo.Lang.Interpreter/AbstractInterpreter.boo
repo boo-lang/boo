@@ -39,16 +39,20 @@ import Boo.Lang.Compiler.IO
 
 class AbstractInterpreter:
 
-	_compiler = BooCompiler()
+	_compiler as BooCompiler
 	
-	_parser = BooCompiler()
+	_parser as BooCompiler
 	
-	_imports = ImportCollection()
+	_imports as ImportCollection
 	
-	_referenceProcessor = ProcessInterpreterReferences(self)
+	_referenceProcessor as ProcessInterpreterReferences
 	
 	[property(RememberLastValue)]
-	_rememberLastValue = false
+	_rememberLastValue as bool
+	
+	_inputId as int
+	
+	_suggestionCompiler as BooCompiler
 	
 	Ducky:
 		get:
@@ -59,11 +63,12 @@ class AbstractInterpreter:
 			if _suggestionCompiler is not null:
 				_suggestionCompiler.Parameters.Ducky = value
 	
-	_inputId = 0
-	
-	_suggestionCompiler as BooCompiler
-	
 	def constructor([required] parser as ICompilerStep):
+		
+		_compiler = BooCompiler()
+		_parser = BooCompiler()
+		_imports = ImportCollection()
+		_referenceProcessor = ProcessInterpreterReferences(self)
 		
 		pipeline = Pipelines.CompileToMemory()
 		pipeline.RemoveAt(0)

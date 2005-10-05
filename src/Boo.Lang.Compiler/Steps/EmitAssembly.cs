@@ -1636,44 +1636,60 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
 		{
-			OpCode code = OpCodes.Call;
 			if (!mi.IsStatic)
 			{
-				Expression target = ((MemberReferenceExpression)node.Target).Target;
-				IType targetType = target.ExpressionType;
-				if (targetType.IsValueType)
-				{
-					if (mi.DeclaringType.IsValueType)
-					{
-						LoadAddress(target);
-					}
-					else
-					{
-						Visit(node.Target);
-						EmitBox(PopType());
-						code = OpCodes.Callvirt;
-					}
-				}
-				else
-				{
-					code = OpCodes.Callvirt;
-					
-					// pushes target reference
-					Visit(node.Target); PopType();
-				}
-				
-				if (NodeType.SuperLiteralExpression == target.NodeType)
-				{
-					code = OpCodes.Call;
-				}
+				PushTargetObject(node, mi);
 			}
 			
 			PushArguments(method, node.Arguments);
-			_il.EmitCall(code, mi, null);
+			_il.EmitCall(GetCallOpCode(node, method, mi), mi, null);
 			
 			PushType(method.ReturnType);
 		}
-		
+
+		private void PushTargetObject(MethodInvocationExpression node, MethodInfo mi)
+		{
+			Expression target = GetTargetObject(node);
+			IType targetType = target.ExpressionType;
+			if (targetType.IsValueType)
+			{
+				if (mi.DeclaringType.IsValueType)
+				{
+					LoadAddress(target);
+				}
+				else
+				{
+					Visit(node.Target);
+					EmitBox(PopType());
+				}
+			}
+			else
+			{	
+				// pushes target reference
+				Visit(node.Target);
+				PopType();
+			}
+		}
+
+		private static Expression GetTargetObject(MethodInvocationExpression node)
+		{
+			return ((MemberReferenceExpression)node.Target).Target;
+		}
+
+		private OpCode GetCallOpCode(MethodInvocationExpression node, IMethod method, MethodInfo mi)
+		{
+			if (method.IsStatic) return OpCodes.Call;
+			if (NodeType.SuperLiteralExpression == GetTargetObject(node).NodeType) return OpCodes.Call;
+			if (IsValueTypeMethodCall(node, method)) return OpCodes.Call;
+			return OpCodes.Callvirt;
+		}
+
+		private bool IsValueTypeMethodCall(MethodInvocationExpression node, IMethod method)
+		{
+			IType type = GetTargetObject(node).ExpressionType;
+			return type.IsValueType && method.DeclaringType == type;
+		}
+
 		void InvokeSuperMethod(IMethod methodInfo, MethodInvocationExpression node)
 		{
 			IMethod super = ((InternalMethod)methodInfo).Overriden;
