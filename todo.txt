@@ -54,7 +54,6 @@ derivada de Control (que tem uma propriedade chamada Size):
 		de ser chamado ou não);
 
 * StatementGroup para permitir o agrupamento de statements com mesmo propósito
-* float literals: 3.0f
 * binary literals: 0b001
 * WARNING: property getter should return a value
 * CompilerParameters.Properties (passed in the command line as -D:name=value just like nant)
