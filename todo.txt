@@ -4,6 +4,8 @@ Please refer to our issue tracker at
  	
 for open issues.
 
+Those with patches are also listed here:
+http://boo.codehaus.org/Open+Issues+With+Patches
 
 Named parameters:
 	def logHistoryFile(to: [required] fname, since: startDate as date):
