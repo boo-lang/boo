@@ -41,10 +41,6 @@ super APÓS qualquer validação:
 
 * ITypeBinding.GetDefaultMember() as IBinding => ITypeBinding.GetDefaultMembers() as (IBinding)
 
-* private base method implementations:
-	class Foo(Base):
-		override def Base.Method():
-			super()
 * macros para o SharpDevelop em boo
 
 * resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
