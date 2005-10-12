@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<project name="WASBoo" default="test">
+
+	<property name="build.parser" value="true" unless="${property::exists('build.parser')}" />
+	<property name="extras.dir" value="${path::get-full-path('..')}" />
+	<include buildfile="${extras.dir}/common-properties.build" />
+	<include buildfile="../../tests/nunit.inc" />
+
+	<target name="test" depends="build">
+		<nunit2>       
+			<formatter type="Plain" />
+			<test>
+				<assemblies basedir="build">				
+					<include name="*.Tests.dll" />					
+				</assemblies>
+			</test>
+		</nunit2>
+	</target>
+	
+	<target name="build" depends="compile-parser">
+		<booc target="library" output="build/BooTemplate.dll">
+			<sources basedir="src/BooTemplate">
+				<include name="*.boo" />
+			</sources>
+			<references basedir="build">
+				<include name="WSABoo.Parser.dll" />
+			</references>
+		</booc>
+		
+		<booc target="library" output="build/BooTemplate.Tests.dll">
+			<sources basedir="src/BooTemplate.Tests">
+				<include name="*.boo" />
+			</sources>
+			<references basedir="build">
+				<include name="BooTemplate.dll" />
+				<include name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="compile-parser" depends="init">
+		<nant
+			if="${build.parser}"
+			buildfile="${path::combine(extras.dir, 'WSABoo/default.build')}" />
+		<copy todir="build" file="../WSABoo/build/WSABoo.Parser.dll" />
+	</target>
+	
+	<target name="init">
+		<mkdir dir="build" unless="${directory::exists('build')}" />
+		<copy todir="build">
+			<fileset basedir="${boo.dir}">
+				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Parser.dll" />
+			</fileset>
+		</copy>
+		<loadtasks assembly="${boo.dir}/Boo.NAnt.Tasks.dll" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="build" if="${directory::exists('build')}" />
+	</target>
+	
+</project>
