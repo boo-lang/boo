@@ -1,4 +1,4 @@
-namespace BooTemplate
+namespace Boo.Lang.Useful.BooTemplate
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Steps

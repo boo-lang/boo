@@ -1,7 +1,7 @@
-namespace BooTemplate.Tests
+namespace Boo.Lang.Useful.BooTemplate.Tests
 
 import NUnit.Framework
-import BooTemplate
+import Useful.BooTemplate
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 

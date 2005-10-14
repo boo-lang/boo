@@ -1,4 +1,4 @@
-namespace BooTemplate
+namespace Boo.Lang.Useful.BooTemplate
 
 import Boo.Lang.Compiler
 		
@@ -19,7 +19,7 @@ class TemplateCompiler:
 		compiler.Parameters.OutputType = CompilerOutputType.Library
 		
 		pipeline = Pipelines.CompileToMemory()
-		pipeline[0] = WSABoo.Parser.WSABooParsingStep()
+		pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
 		pipeline.Insert(0, TemplatePreProcessor())
 		pipeline.InsertAfter(
 				Steps.InitializeTypeSystemServices,
