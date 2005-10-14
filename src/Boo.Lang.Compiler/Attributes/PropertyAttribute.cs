@@ -40,6 +40,8 @@ namespace Boo.Lang
 		
 		protected Expression _setPreCondition;
 		
+		protected BoolLiteralExpression _protected;
+		
 		protected BoolLiteralExpression _observable;
 		
 		protected ListLiteralExpression _attributes;
@@ -56,6 +58,31 @@ namespace Boo.Lang
 			}
 			_propertyName = propertyName;
 			_setPreCondition = setPreCondition;
+		}
+		
+		public BoolLiteralExpression Protected
+		{
+			get
+			{
+				return _protected;
+			}
+			
+			set
+			{
+				_protected = value;
+			}
+		}
+		
+		protected bool IsProtected
+		{
+			get
+			{
+				if (null == _protected)
+				{
+					return false;
+				}
+				return _protected.Value;
+			}
 		}
 		
 		public BoolLiteralExpression Observable
@@ -117,6 +144,10 @@ namespace Boo.Lang
 			if (f.IsStatic)
 			{
 				p.Modifiers |= TypeMemberModifiers.Static;
+			}
+			if (IsProtected)
+			{
+				p.Modifiers |= TypeMemberModifiers.Protected;
 			}
 			p.Name = _propertyName.Name;
 			p.Type = f.Type;
