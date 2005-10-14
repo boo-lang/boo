@@ -1553,32 +1553,34 @@ if_stmt returns [IfStatement returnValue]
 		
 		IfStatement s = null;
 		Expression e = null;
+		Block lastBlock = null;
 	}:
 	it:IF e=expression
 	{
 		returnValue = s = new IfStatement(ToLexicalInfo(it));
 		s.Condition = e;
-		s.TrueBlock = new Block();
+		lastBlock = s.TrueBlock = new Block();
 	}
-	compound_stmt[s.TrueBlock]
+	begin block[s.TrueBlock.Statements]
 	(
 		ei:ELIF e=expression
 		{
 			s.FalseBlock = new Block();
 			
 			IfStatement elif = new IfStatement(ToLexicalInfo(ei));
-			elif.TrueBlock = new Block();
+			lastBlock = elif.TrueBlock = new Block();
 			elif.Condition = e;
 			
 			s.FalseBlock.Add(elif);
 			s = elif;
 		}
-		compound_stmt[s.TrueBlock]
+		begin block[s.TrueBlock.Statements]
 	)*
 	(
-		et:ELSE { s.FalseBlock = new Block(ToLexicalInfo(et)); }
-		compound_stmt[s.FalseBlock]
+		et:ELSE { lastBlock = s.FalseBlock = new Block(ToLexicalInfo(et)); }
+		begin block[s.FalseBlock.Statements]
 	)?
+	end[lastBlock]
 	;
 		
 protected

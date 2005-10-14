@@ -34,7 +34,7 @@ namespace WSABoo.Parser.Tests
 	using Boo.Lang.Parser;
 
 	[TestFixture]
-	class WSABooParserTestFixture
+	public class WSABooParserTestFixture
 	{	
 		[Test]
 		public void SanityCheck()
@@ -44,6 +44,13 @@ namespace WSABoo.Parser.Tests
 				def foo():
 					if foo:
 					print 'foo'
+					end
+					if bar:
+					    print 'bar'
+					elif foo:
+					    print 'foo'
+					else:
+						print 'uops...'
 					end
 				print 'foo again'
 				end
@@ -62,19 +69,26 @@ namespace WSABoo.Parser.Tests
 			Module module = parse(code);
 			
 			string expected = @"
-	class Foo(Bar):
-	
-		def foo():
+class Foo(Bar):
+
+	def foo():
+		if foo:
+			print 'foo'
+		if bar:
+			print 'bar'
+		else:
 			if foo:
 				print 'foo'
-			print 'foo again'
-	
-		item(key):
-			get:
-				return key
-	
-		def empty():
-			pass
+			else:
+				print 'uops...'
+		print 'foo again'
+
+	item(key):
+		get:
+			return key
+
+	def empty():
+		pass
 	";
 			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
 		}
@@ -91,8 +105,8 @@ namespace WSABoo.Parser.Tests
 			Module module = parse(code);
 			
 			string expected = @"
-	def SayHello(name as string):
-		return ""Hello, ${name}""
+def SayHello(name as string):
+	return ""Hello, ${name}""
 	";
 			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
 		}
