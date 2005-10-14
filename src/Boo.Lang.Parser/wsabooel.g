@@ -27,7 +27,7 @@
 options
 {
 	language="CSharp";
-	namespace = "WSABoo.Parser";
+	namespace = "Boo.Lang.Parser";
 }
 class WSABooExpressionLexer extends Lexer;
 options

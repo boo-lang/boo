@@ -32,8 +32,18 @@ using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Parser.Util;
 
-namespace WSABoo.Parser
+namespace Boo.Lang.Parser
 {
+	/// <summary>
+	/// With this parser indentation is not used as
+	/// a block delimiter but COLON end.
+	///
+	/// class Foo:
+	/// def foo():
+	///    print 'Hello'
+	/// end
+	/// end
+	/// </summary>
 	public class WSABooParser : WSABooParserBase
 	{	
 		protected Boo.Lang.Parser.ParserErrorHandler Error;

@@ -27,12 +27,11 @@
 options
 {
 	language = "CSharp";
-	namespace = "WSABoo.Parser";
+	namespace = "Boo.Lang.Parser";
 }
 
 {
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Parser;
 using Boo.Lang.Parser.Util;
 using System.Globalization;
 }
@@ -2663,7 +2662,6 @@ identifier returns [IToken value]
 	{ value.setText(_sbuilder.ToString()); }
 	;	 
 {
-using Boo.Lang.Parser;
 using Boo.Lang.Parser.Util;
 }
 class WSABooLexer extends Lexer;

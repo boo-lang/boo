@@ -25,85 +25,96 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace WSABoo.Parser.Tests
+{
 
-import NUnit.Framework
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.IO
-import WSABoo.Parser
+	using NUnit.Framework;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.IO;
+	using Boo.Lang.Parser;
 
-[TestFixture]
-class WSABooParserTestFixture:
-
-	[Test]
-	def SanityCheck():
-	
-		code = """
-		class Foo(Bar):
-			def foo():
-				if foo:
-				print 'foo'
+	[TestFixture]
+	class WSABooParserTestFixture
+	{	
+		[Test]
+		public void SanityCheck()
+		{		
+			string code = @"
+			class Foo(Bar):
+				def foo():
+					if foo:
+					print 'foo'
+					end
+				print 'foo again'
 				end
-			print 'foo again'
+				
+				item(key):
+				get:
+					return key
+				end
+				end
+				
+				def empty():
+				end
 			end
+			";
 			
-			item(key):
+			Module module = parse(code);
+			
+			string expected = @"
+	class Foo(Bar):
+	
+		def foo():
+			if foo:
+				print 'foo'
+			print 'foo again'
+	
+		item(key):
 			get:
 				return key
-			end
-			end
-			
-			def empty():
-			end
-		end
-		"""
-		
-		module = parse(code)
-		
-		expected = """
-class Foo(Bar):
-
-	def foo():
-		if foo:
-			print 'foo'
-		print 'foo again'
-
-	item(key):
-		get:
-			return key
-
-	def empty():
-		pass
-"""
-		Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()))
-		
-	[Test]
-	def SanityCheckUsingDoubleQuotes():
-		code = """
-		def SayHello(name as string):
-			return "Hello, \${name}"
-		end
-		"""
-		
-		module = parse(code)
-		
-		expected = """
-def SayHello(name as string):
-	return "Hello, \${name}"
-"""
-		Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()))
 	
-	def normalize(s as string):
-		return s.Trim().Replace("\r\n", "\n")
+		def empty():
+			pass
+	";
+			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
+		}
+			
+		[Test]
+		public void SanityCheckUsingDoubleQuotes()
+		{
+			string code = @"
+			def SayHello(name as string):
+				return ""Hello, ${name}""
+			end
+			";
+			
+			Module module = parse(code);
+			
+			string expected = @"
+	def SayHello(name as string):
+		return ""Hello, ${name}""
+	";
+			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
+		}
 		
-	def parse(code as string):
-		pipeline = CompilerPipeline()
-		pipeline.Add(WSABooParsingStep())
-		
-		compiler = BooCompiler()
-		compiler.Parameters.Pipeline = pipeline
-		compiler.Parameters.Input.Add(StringInput("code", code))
-		result = compiler.Run()
-		Assert.AreEqual(0, len(result.Errors), result.Errors.ToString())
-		Assert.AreEqual(1, len(result.CompileUnit.Modules))
-		return result.CompileUnit.Modules[0]
-		
+		string normalize(string s)
+		{
+			return s.Trim().Replace("\r\n", "\n");
+		}
+			
+		Module parse(string code)
+		{
+			CompilerPipeline pipeline = new CompilerPipeline();
+			pipeline.Add(new WSABooParsingStep());
+			
+			BooCompiler compiler = new BooCompiler();
+			compiler.Parameters.Pipeline = pipeline;
+			compiler.Parameters.Input.Add(new StringInput("code", code));
+			CompilerContext result = compiler.Run();
+			Assert.AreEqual(0, result.Errors.Count, result.Errors.ToString());
+			Assert.AreEqual(1, result.CompileUnit.Modules.Count);
+			return result.CompileUnit.Modules[0];
+		}
+	}
+}
+			

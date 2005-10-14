@@ -31,7 +31,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
 
-namespace WSABoo.Parser
+namespace Boo.Lang.Parser
 {
 	public class WSABooParsingStep : BooParsingStep
 	{

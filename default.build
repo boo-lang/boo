@@ -727,10 +727,14 @@
 			<sourcefiles basedir="src/Boo.Lang.Parser">
 				<include name="boo.g" />
 				<include name="booel.g" />
+				<include name="wsaboo.g" />
+				<include name="wsabooel.g" />
 			</sourcefiles>
 			<targetfiles basedir="src/Boo.Lang.Parser">
 				<include name="BooParserBase.cs" />
 				<include name="BooExpressionLexer.cs" />
+				<include name="WSABooParserBase.cs" />
+				<include name="WSABooExpressionLexer.cs" />
 			</targetfiles>
 		</uptodate>
 
@@ -758,6 +762,24 @@
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Parser/" />
 				<arg value="src/Boo.Lang.Parser/booel.g" />
+			</exec>
+			
+			<exec program="${java}" failonerror="true">
+				<arg value="-cp" />
+				<arg file="${antlr.jar}" />
+				<arg value="antlr.Tool" />
+				<arg value="-o" />
+				<arg value="src/Boo.Lang.Parser/" />
+				<arg value="src/Boo.Lang.Parser/wsaboo.g" />
+			</exec>
+			
+			<exec program="${java}" failonerror="true">
+				<arg value="-cp" />
+				<arg file="${antlr.jar}" />
+				<arg value="antlr.Tool" />
+				<arg value="-o" />
+				<arg value="src/Boo.Lang.Parser/" />
+				<arg value="src/Boo.Lang.Parser/wsabooel.g" />
 			</exec>
 			
 			<touch file="src/Boo.Lang.Parser/BooParserBase.cs" />
