@@ -2101,6 +2101,17 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity entity = ResolveName(node, node.Name);
 			if (null != entity)
 			{	
+				// BOO-314 - if we are trying to invoke
+				// something, let's make sure it is
+				// something callable, otherwise, let's
+				// try to find something callable
+				if (AstUtil.IsTargetOfMethodInvocation(node)
+					&& !IsCallableEntity(entity))
+				{
+					IEntity callable = ResolveCallable(node);
+					if (null != callable) entity = callable;
+				}
+
 				IMember member = entity as IMember;
 				if (null != member)
 				{	
@@ -2114,11 +2125,39 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			else
-			{
+			{	
 				Error(node);
 			}
 		}
-		
+
+		private IEntity ResolveCallable(ReferenceExpression node)
+		{
+			return NameResolutionService.Resolve(node.Name, 
+			                                     EntityType.Type
+			                                     	| EntityType.Method
+			                                     	| EntityType.BuiltinFunction
+			                                     	| EntityType.Event);
+		}
+
+		private bool IsCallableEntity(IEntity entity)
+		{
+			switch (entity.EntityType)
+			{
+				case EntityType.Method:
+				case EntityType.Type:
+				case EntityType.Event:
+				case EntityType.BuiltinFunction:
+				case EntityType.Constructor:
+					return true;
+
+				case EntityType.Ambiguous:
+					// let overload resolution deal with it
+					return true;
+			}
+			ITypedEntity typed = entity as ITypedEntity;
+			return null == typed ? false : TypeSystemServices.IsCallable(typed.Type);
+		}
+
 		void PostProcessReferenceExpression(ReferenceExpression node)
 		{
 			IEntity tag = GetEntity(node);
