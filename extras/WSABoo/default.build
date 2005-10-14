@@ -49,7 +49,7 @@
 			<arg value="antlr.Tool" />
 			<arg value="-o" />
 			<arg value="src/WSABoo.Parser/" />
-			<arg value="src/WSABoo.Parser/boo.g" />
+			<arg value="src/WSABoo.Parser/wsaboo.g" />
 		</exec>
 			
 		<exec program="${java}" failonerror="true">
@@ -58,7 +58,7 @@
 			<arg value="antlr.Tool" />
 			<arg value="-o" />
 			<arg value="src/WSABoo.Parser/" />
-			<arg value="src/WSABoo.Parser/booel.g" />
+			<arg value="src/WSABoo.Parser/wsabooel.g" />
 		</exec>
 	</target>
 	

@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "src/WSABoo.Parser/booel.g" -> "WSABooExpressionLexer.cs"$
+// $ANTLR 2.7.5 (20050517): "src/WSABoo.Parser/wsabooel.g" -> "WSABooExpressionLexer.cs"$
 
 namespace WSABoo.Parser
 {
