@@ -18,6 +18,10 @@ class ApplyTemplateSemantics(AbstractCompilerStep):
 		assert 1 == len(CompileUnit.Modules)
 		
 		module = CompileUnit.Modules[0]
+		
+		for ns in _compiler.DefaultImports:
+			module.Imports.Add(Import(Namespace:ns))
+			
 		template = ClassDefinition(Name: _compiler.TemplateClassName)
 		template.BaseTypes.Add(CodeBuilder.CreateTypeReference(_compiler.TemplateBaseClass))
 		template.Members.Extend(module.Members)

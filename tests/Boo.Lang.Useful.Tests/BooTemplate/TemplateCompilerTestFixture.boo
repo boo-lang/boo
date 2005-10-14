@@ -21,15 +21,29 @@ class TemplateCompilerTestFixture:
 		compiler = TemplateCompiler(
 						TemplateClassName: 'MyTemplate',
 						TemplateBaseClass: MyBaseClass)
-		results = compiler.Compile(StringInput('code', text))		
+		CheckTemplate("123", compiler, text)
+		
+	[Test]
+	def TestDefaultImports():
+		text = """<%
+		node = SimpleTypeReference('foo')
+		%>\${node}"""
+		
+		compiler = TemplateCompiler()
+		compiler.DefaultImports.Add("Boo.Lang.Compiler.Ast")
+		CheckTemplate("foo", compiler, text)
+		
+	def CheckTemplate(expected as string, compiler as TemplateCompiler, text as string):
+		results = compiler.Compile(StringInput('code', text))
 		Assert.AreEqual(0, len(results.Errors), results.Errors.ToString())
 		Assert.AreEqual(0, len(results.Warnings), results.Warnings.ToString())
 		
-		templateType = results.GeneratedAssembly.GetType('MyTemplate')
+		templateType = results.GeneratedAssembly.GetType(compiler.TemplateClassName)		
 		assert templateType is not null
-		assert MyBaseClass is templateType.BaseType
+		assert compiler.TemplateBaseClass is templateType.BaseType
 		
 		template as ITemplate = templateType()
 		template.Output = StringWriter()
 		template.Execute()
-		Assert.AreEqual("123", normalize(template.Output.ToString()))
+		Assert.AreEqual(expected, normalize(template.Output.ToString()))
+		

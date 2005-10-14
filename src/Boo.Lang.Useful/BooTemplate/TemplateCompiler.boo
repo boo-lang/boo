@@ -10,6 +10,9 @@ class TemplateCompiler:
 	[property(TemplateBaseClass, ValidateBaseClass(value))]
 	_baseClass = AbstractTemplate
 	
+	[getter(DefaultImports)]
+	_imports = System.Collections.Specialized.StringCollection()
+	
 	def CompileFile([required] fname as string):
 		return Compile(Boo.Lang.Compiler.IO.FileInput(fname))
 	
