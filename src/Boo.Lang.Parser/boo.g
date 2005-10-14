@@ -2502,23 +2502,27 @@ string_literal returns [Expression e]
 	
 protected
 expression_interpolation returns [ExpressionInterpolationExpression e]
-	{
-		e = null;
-		Expression param = null;	
-	}:
-	separator:ESEPARATOR
-	{
-		LexicalInfo info = ToLexicalInfo(separator);
-		e = new ExpressionInterpolationExpression(info);		
-	}
-	(  options { greedy = true; } :
-		
-		ESEPARATOR		
-		param=expression { if (null != param) { e.Expressions.Add(param); } }
-		ESEPARATOR
-	)*
-	;
-	
+{
+	e = null;
+	Expression param = null;
+	LexicalInfo info = null;
+}:
+	(firstseparator:ESEPARATOR)?
+	(options { greedy = true; }:
+		startsep:ESEPARATOR
+		{
+			if (info == null)
+			{
+				info = ToLexicalInfo(startsep);
+				e = new ExpressionInterpolationExpression(info);
+			}
+		}
+		param=expression
+		{ if (null != param) { e.Expressions.Add(param); } }
+		endsep:ESEPARATOR
+	)+
+	(lastseparator:ESEPARATOR)?
+;
 
 protected
 list_literal returns [Expression e]
