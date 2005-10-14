@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.7.0" />
-	<property name="boo.svn.revision" value="1936" />
+	<property name="boo.svn.revision" value="1938" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="true" />
 	<property name="boo.assembly.version" value="1.0.0.0" />
 	
@@ -792,6 +792,7 @@
 			<sourcefiles>
 				<include name="ast.model.boo" />
 				<include name="scripts/astgen.boo" />
+				<include name="scripts/Templates/*.cs" />
 			</sourcefiles>
 			<targetfiles>
 				<include name="src/Boo.Lang.Compiler/Ast/Impl/CompileUnitImpl.cs" />
