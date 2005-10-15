@@ -184,7 +184,8 @@ class AbstractInterpreter:
 			return match.Groups[1].Value
 		return code
 		
-	def Eval(code as string):
+	def Eval([required] code as string):
+		return CompilerContext() if 0 == len(code)
 		return EvalCompilerInput(StringInput("input${++_inputId}", code))
 		
 	def EvalCompilerInput(input as ICompilerInput):

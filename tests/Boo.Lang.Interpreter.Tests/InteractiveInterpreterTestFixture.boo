@@ -52,6 +52,11 @@ class InteractiveInterpreterTestFixture:
 		assert _interpreter.LastValue is null
 		
 	[Test]
+	def EvalEmptyString():
+		Eval("")
+		assert _interpreter.LastValue is null
+		
+	[Test]
 	def UseInterpreterValues():
 		using console=ConsoleCapture():
 			Eval("print(name);print(age)")
