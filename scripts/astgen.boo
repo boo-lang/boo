@@ -169,7 +169,7 @@ def parse(fname):
 	compiler.Parameters.Pipeline = Parse()
 	compiler.Parameters.Input.Add(Boo.Lang.Compiler.IO.FileInput(fname))
 	result = compiler.Run()
-	raise join(result.Errors, "\n") if len(result.Errors)
+	assert 0 == len(result.Errors), result.Errors.ToString()
 	return result.CompileUnit.Modules[0]
 	
 def loadTemplate(model, fname as string):

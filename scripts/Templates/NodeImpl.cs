@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			${node.Name} other = node as ${node.Name};
 			if (null == other) return false;
 <%
-	for field as Field in allFields:
+	for field in allFields:
 		fieldName = GetPrivateName(field)
 		fieldType = model.ResolveFieldType(field)
 		if fieldType is null or model.IsEnum(fieldType):
@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 				return true;
 			}
 <%			
-	for field as Field in allFields:				
+	for field in allFields:				
 		fieldType = model.ResolveFieldType(field)
 		continue if fieldType is null
 		continue if model.IsEnum(fieldType)
@@ -153,7 +153,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 	end	
 	
 	
-	for field as Field in allFields:
+	for field in allFields:
 		fieldType = model.ResolveFieldType(field)
 		fieldName = GetPrivateName(field)
 		if fieldType is not null and not model.IsEnum(fieldType):
@@ -184,7 +184,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 <%
 	end
 		
-	for field as Field in allFields:
+	for field in allFields:
 		fieldType = model.ResolveFieldType(field)
 		fieldName = GetPrivateName(field)
 		if fieldType is not null and not model.IsEnum(fieldType):

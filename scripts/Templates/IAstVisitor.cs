@@ -6,7 +6,7 @@ namespace Boo.Lang.Compiler.Ast
 	public interface IAstVisitor
 	{
 <%
-	for member as TypeMember in model.GetConcreteAstNodes():
+	for member in model.GetConcreteAstNodes():
 %>		void On${member.Name}(${member.Name} node);
 <%
 	end
