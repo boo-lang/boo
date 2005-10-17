@@ -42,6 +42,12 @@ class AssemblyResolver:
 	
 	def AddAssembly([required] asm as Assembly):
 		_cache[GetSimpleName(asm.FullName)] = asm
+		
+	def LoadAssembly([required] name as string):
+		asm = ProbeFile(name)
+		if asm is not null:
+			_cache[asm.GetName().Name] = asm
+		return asm
 	
 	def AssemblyResolve(sender, args as ResolveEventArgs) as Assembly:		
 		simpleName = GetSimpleName(args.Name)
@@ -73,8 +79,12 @@ def Main(argv as (string)):
 		return -1
 		
 	compiler = BooCompiler()
-	compiler.Parameters.Pipeline = CompileToMemory()	
+	compiler.Parameters.Pipeline = CompileToMemory()
+
+	resolver = AssemblyResolver()
+	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve	
 	
+	consumedArgs = 1
 	for arg in argv:
 		if "-" == arg:
 			compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))
@@ -83,12 +93,13 @@ def Main(argv as (string)):
 			compiler.Parameters.Ducky = true
 		elif "-w" == arg:
 			printWarnings = true
+		elif arg.StartsWith("-r:"):			
+			compiler.Parameters.References.Add(resolver.LoadAssembly(arg[3:]))
 		else:
 			compiler.Parameters.Input.Add(FileInput(arg))
 			break
+		++consumedArgs
 	
-	resolver = AssemblyResolver()
-	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
 	result = compiler.Run()
 	if printWarnings and len(result.Warnings):
 		print(result.Warnings.ToString())
@@ -98,7 +109,7 @@ def Main(argv as (string)):
 	else:	
 		try: 
 			resolver.AddAssembly(result.GeneratedAssembly)
-			result.GeneratedAssembly.EntryPoint.Invoke(null, (argv[1:],))			
+			result.GeneratedAssembly.EntryPoint.Invoke(null, (argv[consumedArgs:],))			
 		except x as TargetInvocationException:
 			print(x.InnerException)
 			return -1
