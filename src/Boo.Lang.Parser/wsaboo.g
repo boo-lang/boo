@@ -2750,17 +2750,17 @@ LINE_CONTINUATION:
 	
 INT : 
   	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
-  	(DIGIT)+
- 	(('e'|'E')('+'|'-')? (DIGIT)+)?
+  	DIGIT_GROUP
+ 	(('e'|'E')('+'|'-')? DIGIT_GROUP)?
   	(
   		('l' | 'L') { $setType(LONG); } |
 		(('f' | 'F') { $setType(FLOAT); }) |
   		(
  			(
- 				{WSABooLexer.IsDigit(LA(2))}? 
+ 				{BooLexer.IsDigit(LA(2))}? 
  				(
- 					'.' (DIGIT)+
- 					(('e'|'E')('+'|'-')? (DIGIT)+)?
+ 					'.' REVERSE_DIGIT_GROUP
+ 					(('e'|'E')('+'|'-')? DIGIT_GROUP)?
  				)
 				(
 					(('f' | 'F') { $setType(FLOAT); }) |
@@ -2774,7 +2774,7 @@ INT :
   
 DOT : '.' 
 	(
-		(DIGIT)+ (('e'|'E')('+'|'-')? (DIGIT)+)?
+		REVERSE_DIGIT_GROUP (('e'|'E')('+'|'-')? DIGIT_GROUP)?
 		(
 			(('f' | 'F')  { $setType(FLOAT); }) |
 			(("ms" | 's' | 'm' | 'h' | 'd') { $setType(TIMESPAN); }) |
@@ -3073,6 +3073,12 @@ RE_ESC : '\\' (
 				'}'
 			 )
 			 ;
+
+protected
+DIGIT_GROUP : DIGIT (('_'! DIGIT DIGIT DIGIT) | DIGIT)*;
+
+protected
+REVERSE_DIGIT_GROUP : (DIGIT DIGIT DIGIT ({BooLexer.IsDigit(LA(2))}? '_'!)? | DIGIT)+;
 
 protected
 ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' );
