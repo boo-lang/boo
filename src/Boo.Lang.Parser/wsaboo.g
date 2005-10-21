@@ -2757,7 +2757,7 @@ INT :
 		(('f' | 'F') { $setType(FLOAT); }) |
   		(
  			(
- 				{BooLexer.IsDigit(LA(2))}? 
+ 				{WSABooLexer.IsDigit(LA(2))}? 
  				(
  					'.' REVERSE_DIGIT_GROUP
  					(('e'|'E')('+'|'-')? DIGIT_GROUP)?
@@ -3078,7 +3078,7 @@ protected
 DIGIT_GROUP : DIGIT (('_'! DIGIT DIGIT DIGIT) | DIGIT)*;
 
 protected
-REVERSE_DIGIT_GROUP : (DIGIT DIGIT DIGIT ({BooLexer.IsDigit(LA(2))}? '_'!)? | DIGIT)+;
+REVERSE_DIGIT_GROUP : (DIGIT DIGIT DIGIT ({WSABooLexer.IsDigit(LA(2))}? '_'!)? | DIGIT)+;
 
 protected
 ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' );
