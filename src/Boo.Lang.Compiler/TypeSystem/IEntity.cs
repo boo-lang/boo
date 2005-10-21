@@ -120,7 +120,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
-	public interface IProperty : IMember, IEntityWithParameters
+	public interface IProperty : IAccessibleMember, IEntityWithParameters
 	{	
 		IMethod GetGetMethod();
 		

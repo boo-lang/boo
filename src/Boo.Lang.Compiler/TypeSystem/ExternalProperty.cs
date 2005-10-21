@@ -84,6 +84,30 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		public bool IsProtected
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
+		public bool IsInternal
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
+		public bool IsPrivate
+		{
+			get
+			{
+				return false;
+			}
+		}
+		
 		public string Name
 		{
 			get
@@ -173,7 +197,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return mi;
 			}
-			return _property.GetSetMethod(true)
-;		}
+			return _property.GetSetMethod(true);
+		}
 	}
 }

@@ -70,6 +70,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		
+		public bool IsProtected
+		{
+			get
+			{
+				return _property.Setter != null &&
+					_property.Setter.IsProtected;
+			}
+		}
+		
+		public bool IsInternal
+		{
+			get
+			{
+				return _property.Setter != null &&
+					_property.Setter.IsInternal;
+			}
+		}
+		
+		public bool IsPrivate
+		{
+			get
+			{
+				return _property.Setter != null &&
+					_property.Setter.IsPrivate;
+			}
+		}
+		
 		public string Name
 		{
 			get

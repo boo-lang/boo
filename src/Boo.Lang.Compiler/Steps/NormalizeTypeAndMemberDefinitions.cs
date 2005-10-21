@@ -104,6 +104,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		void SetPropertyAccessorModifiers(Property property, Method accessor)
 		{
+			if (!accessor.IsVisibilitySet)
+			{
+				accessor.Modifiers |= property.Visibility;
+			}
+			
 			if (property.IsStatic)
 			{
 				accessor.Modifiers |= TypeMemberModifiers.Static;
@@ -147,7 +152,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveMethod(Method node)
 		{
-			if (!node.IsVisibilitySet && null == node.ExplicitInfo)
+			if (!node.IsVisibilitySet && null == node.ExplicitInfo
+				&& !(node.ParentNode.NodeType == NodeType.Property))
 			{
 				node.Modifiers |= TypeMemberModifiers.Public;
 			}
