@@ -141,19 +141,5 @@ namespace Boo.Lang.Compiler.Steps
 				ReplaceCurrentNode(CreateModifiedStatement(modifier, node));
 			}
 		}
-		
-		override public void LeaveUnaryExpression(UnaryExpression node)
-		{
-			if (UnaryOperatorType.UnaryNegation == node.Operator)
-			{
-				if (NodeType.IntegerLiteralExpression == node.Operand.NodeType)
-				{
-					IntegerLiteralExpression integer = (IntegerLiteralExpression)node.Operand;
-					integer.Value *= -1;
-					integer.LexicalInfo = node.LexicalInfo;
-					ReplaceCurrentNode(integer);
-				}
-			}
-		}
 	}
 }

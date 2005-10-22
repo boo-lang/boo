@@ -249,7 +249,21 @@ tokens
 	
 	static double ParseDouble(string s)
 	{
-		return double.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture);
+		return ParseDouble(s,false);
+	}
+	
+	static double ParseDouble(string s, bool isSingle)
+	{
+		double val;
+		if (isSingle)
+		{
+			val = float.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture);
+		}
+		else
+		{
+			val = double.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture);
+		}
+		return val;
 	}
 	
 	protected IntegerLiteralExpression ParseIntegerLiteralExpression(
@@ -258,17 +272,30 @@ tokens
 		const string HEX_PREFIX = "0x";
 		
 		long value;
-		
-		if (s.StartsWith(HEX_PREFIX))
+		NumberStyles style = NumberStyles.Integer | NumberStyles.AllowExponent;
+		int hex_start = s.IndexOf(HEX_PREFIX);
+		bool negative = false;
+
+		if (hex_start >=0)
 		{
-			value = long.Parse(
-				s.Substring(HEX_PREFIX.Length), NumberStyles.AllowHexSpecifier, 
-					CultureInfo.InvariantCulture);
+			if (s.StartsWith("-"))
+			{
+				negative = true;
+			}
+			s = s.Substring(hex_start+HEX_PREFIX.Length);
+			style = NumberStyles.HexNumber;
+		}
+		if (isLong)
+		{
+			value = long.Parse(s, style, CultureInfo.InvariantCulture);
 		}
 		else
 		{
-			value = long.Parse(s, NumberStyles.Integer | NumberStyles.AllowExponent,
-					CultureInfo.InvariantCulture);
+			value = int.Parse(s, style, CultureInfo.InvariantCulture);
+		}
+		if (negative) //negative hex number
+		{
+			value *= -1;
 		}
 		return new IntegerLiteralExpression(ToLexicalInfo(token), value, isLong);
 	}
@@ -2466,18 +2493,28 @@ bool_literal returns [BoolLiteralExpression e] { e = null; }:
 	;
 
 protected
-integer_literal returns [IntegerLiteralExpression e] { e = null; } :
-	i:INT
+integer_literal returns [IntegerLiteralExpression e] 
 	{
-		e = ParseIntegerLiteralExpression(i, i.getText(), false);
-	}
-	|
-	l:LONG
-	{
-		string s = l.getText();
-		s = s.Substring(0, s.Length-1);
-		e = ParseIntegerLiteralExpression(l, s, true);
-	}
+		e = null;
+		string val;
+	} :
+	(neg:SUBTRACT)?
+	(
+		i:INT
+		{
+			val = i.getText();
+			if (neg != null) val = neg.getText() + val;
+			e = ParseIntegerLiteralExpression(i, val, false);
+		}
+		|
+		l:LONG
+		{
+			val = l.getText();
+			val = val.Substring(0, val.Length-1);
+			if (neg != null) val = neg.getText() + val;
+			e = ParseIntegerLiteralExpression(l, val, true);
+		}
+	)
 	;
 	
 protected
@@ -2594,25 +2631,37 @@ re_literal returns [RELiteralExpression re] { re = null; }:
 	;
 	
 protected
-double_literal returns [DoubleLiteralExpression rle] { rle = null; }:
+double_literal returns [DoubleLiteralExpression rle]
+	{
+		rle = null;
+		string val;
+	}:
+	(neg:SUBTRACT)?
 	value:DOUBLE
-	{ 
-		rle = new DoubleLiteralExpression(ToLexicalInfo(value), ParseDouble(value.getText())); 
+	{
+		val = value.getText();
+		if (neg != null) val = neg.getText() + val;
+		rle = new DoubleLiteralExpression(ToLexicalInfo(value), ParseDouble(val));
 	}
 	|
 	single:FLOAT
 	{
-		string s = single.getText();
-		s = s.Substring(0, s.Length-1);
-		double val = float.Parse(s, CultureInfo.InvariantCulture);
-		rle = new DoubleLiteralExpression(ToLexicalInfo(single), val, true);
+		val = single.getText();
+		val = val.Substring(0, val.Length-1);
+		if (neg != null) val = neg.getText() + val;
+		rle = new DoubleLiteralExpression(ToLexicalInfo(single), ParseDouble(val, true), true);
 	}
 	;
 	
 protected
 timespan_literal returns [TimeSpanLiteralExpression tsle] { tsle = null; }:
+	(neg:SUBTRACT)?
 	value:TIMESPAN
-	{ tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), ParseTimeSpan(value.getText())); }
+	{
+		string val = value.getText();
+		if (neg != null) val = neg.getText() + val;
+		tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), ParseTimeSpan(val)); 
+	}
 	;
 
 protected
