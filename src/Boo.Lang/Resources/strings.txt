@@ -1,4 +1,5 @@
 ;Compiler Error Messages
+BCE0000='{0}'
 BCE0001=The class '{0}' already has '{1}' as its base class. 
 BCE0002=Parameter name must be an identifier.
 BCE0003=Named arguments are only allowed for constructors.
@@ -129,6 +130,7 @@ BCE0127=A ref or out argument must be an lvalue: '{0}'
 BCE0128='try' block must be followed by either 'except' or 'ensure'.
 
 ;Compiler warnings
+BCW0000=WARNING: {0}
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
 BCW0002=WARNING: Statement modifiers have no effect in labels.
 BCW0003=WARNING: Unused local variable '{0}'.

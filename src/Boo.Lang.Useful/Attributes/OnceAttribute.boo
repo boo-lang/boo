@@ -90,7 +90,9 @@ Usage
 		node
 			The node to apply the <OnceAttribute> to.
 	"""
-		assert node isa Method
+		if not node isa Method:
+			InvalidNodeForAttribute("Method")
+			return
 		
 		_method = node
 		

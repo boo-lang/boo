@@ -49,10 +49,15 @@ Example:
 		_itemType = SimpleTypeReference(itemType.ToString())	
 		
 	override def Apply(node as Node):
-		assert node isa ClassDefinition
+		if not node isa ClassDefinition:
+			InvalidNodeForAttribute("Class")
+			return
 		
 		classDef as ClassDefinition = node
-		assert ExtendsObject(classDef), "cannot introduce AbstractCollection base class"		
+		if not ExtendsObject(classDef):
+			Errors.Add(CompilerErrorFactory.CustomError(node.LexicalInfo,
+				"Cannot introduce AbstractCollection base class."))
+			return
 		RemoveObjectBaseType(classDef)
 		
 		template = CollectionTemplate.CloneNode()

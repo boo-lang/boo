@@ -66,16 +66,6 @@ namespace Boo.Lang.Compiler
 			_lexicalInfo = lexicalInfo;
 		}
 		
-		public CompilerError(string code, LexicalInfo lexicalInfo) : base(ResourceManager.GetString(code))
-		{
-			if (null == lexicalInfo)
-			{
-				throw new ArgumentNullException("lexicalInfo");
-			}
-			_code = code;
-			_lexicalInfo = lexicalInfo;
-		}
-		
 		public CompilerError(string code, LexicalInfo lexicalInfo, string message, Exception cause) : base(message, cause)
 		{
 			if (null == lexicalInfo)
@@ -86,7 +76,7 @@ namespace Boo.Lang.Compiler
 			_lexicalInfo = lexicalInfo;
 		}
 		
-		public CompilerError(LexicalInfo lexicalInfo, string message, Exception cause) : this("BCE0040", lexicalInfo, message, cause)
+		public CompilerError(LexicalInfo lexicalInfo, string message, Exception cause) : this("BCE0000", lexicalInfo, message, cause)
 		{
 		}
 		
@@ -103,6 +93,10 @@ namespace Boo.Lang.Compiler
 		}
 
 		public CompilerError(LexicalInfo data, Exception cause) : this(data, cause.Message, cause)
+		{
+		}
+
+		public CompilerError(string message) : this(LexicalInfo.Empty, message, null)
 		{
 		}
 		

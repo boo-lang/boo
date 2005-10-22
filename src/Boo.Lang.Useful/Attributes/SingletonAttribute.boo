@@ -44,7 +44,9 @@ Implements the singleton pattern for a class.
 	_singletonType as ClassDefinition
 	
 	override def Apply(node as Node):
-		assert node isa ClassDefinition
+		if not node isa ClassDefinition:
+			InvalidNodeForAttribute("Class");
+			return
 		
 		_singletonType = node
 		

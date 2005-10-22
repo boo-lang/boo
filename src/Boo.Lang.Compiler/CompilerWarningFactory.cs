@@ -39,6 +39,16 @@ namespace Boo.Lang.Compiler
 		{
 		}
 		
+		public static CompilerWarning CustomWarning(LexicalInfo lexicalInfo, string msg)
+		{
+			return new CompilerWarning(lexicalInfo, msg);
+		}
+		
+		public static CompilerWarning CustomWarning(string msg)
+		{
+			return new CompilerWarning(msg);
+		}
+		
 		public static CompilerWarning AbstractMemberNotImplemented(Node node, string typeName, string memberName)
 		{
 			return new CompilerWarning("BCW0001", node.LexicalInfo, typeName, memberName);

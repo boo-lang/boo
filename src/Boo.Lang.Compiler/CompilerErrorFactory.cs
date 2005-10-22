@@ -38,6 +38,16 @@ namespace Boo.Lang.Compiler
 		{
 		}
 		
+		public static CompilerError CustomError(LexicalInfo lexicalInfo, string msg)
+		{
+			return new CompilerError(lexicalInfo, msg);
+		}
+		
+		public static CompilerError CustomError(string msg)
+		{
+			return new CompilerError(msg);
+		}
+		
 		public static CompilerError ClassAlreadyHasBaseType(Node node, string className, string baseType)
 		{
 			return new CompilerError("BCE0001", node.LexicalInfo, className, baseType);

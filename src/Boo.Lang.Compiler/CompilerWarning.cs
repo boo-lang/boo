@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler
 		
 		LexicalInfo _lexicalInfo;
 		
-		public CompilerWarning(string message)
+		public CompilerWarning(LexicalInfo lexicalInfo, string message)
 		{
 			if (null == message)
 			{
@@ -52,8 +52,12 @@ namespace Boo.Lang.Compiler
 			}
 			
 			_code = "BCW0000";
-			_lexicalInfo = LexicalInfo.Empty;
+			_lexicalInfo = lexicalInfo;
 			_message = message;
+		}
+		
+		public CompilerWarning(string message) : this(LexicalInfo.Empty, message)
+		{
 		}
 		
 		public CompilerWarning(string code, LexicalInfo lexicalInfo,  params object[] args)

@@ -1,4 +1,5 @@
 ;Compiler Error Messages
+BCE0000='{0}'
 BCE0001=La classe '{0}' eredita gia' da '{1}'.
 BCE0002=Il nome del parametro deve essere un dentifier.
 BCE0003=Argomenti con nome sono permessi solo nei costruttori.
@@ -129,6 +130,7 @@ BCE0127=A ref or out argument must be an lvalue: '{0}'
 BCE0128='try' block must be followed by either 'except' or 'ensure'.
 
 ;Compiler warnings
+BCW0000=WARNING: {0}
 BCW0001=WARNING: Il tipo '{0}' non fornisce una implementazione per '{1}' e' verra' marcato come abstract
 BCW0002=WARNING: I modificatori di statement non hanno effetto nelle label.
 BCW0003=WARNING: Variabile locale non utilizzata '{0}'.
