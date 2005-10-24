@@ -128,6 +128,7 @@ BCE0125=Invalid declaration type '{0}'.
 BCE0126=It is not possible to evaluate an expression of type '{0}'.
 BCE0127=A ref or out argument must be an lvalue: '{0}'
 BCE0128='try' block must be followed by either 'except' or 'ensure'.
+BCE0129=Invalid extension definition, only static methods are allowed.
 
 ;Compiler warnings
 BCW0000=AVISO: {0}

@@ -58,12 +58,18 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedTransient(node);
 			CheckExplicitImpl(node);
 		}
+
+		override public void LeaveConstructor(Constructor node)
+		{
+			CheckExtensionSemantics(node);
+		}
 		
 		override public void LeaveMethod(Method node)
 		{
 			CheckMemberName(node);
 			CantBeMarkedTransient(node);
 			CheckExplicitImpl(node);
+			CheckExtensionSemantics(node);
 		}
 		
 		override public void LeaveEvent(Event node)
@@ -138,6 +144,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		void CheckExtensionSemantics(Method node)
+		{
+			if (MethodImplementationFlags.Extension != (node.ImplementationFlags & MethodImplementationFlags.Extension)) return;
+			if (NodeType.Method == node.NodeType && (node.IsStatic || node.DeclaringType is Module)) return;
+			Error(CompilerErrorFactory.InvalidExtensionDefinition(node));
+		}
 		
 		void CantBeMarkedAbstract(TypeMember member)
 		{

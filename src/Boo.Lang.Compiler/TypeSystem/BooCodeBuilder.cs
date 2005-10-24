@@ -423,6 +423,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{			
 			return CreateMemberReference(method);
 		}
+
+		public Expression CreateMethodReference(LexicalInfo lexicalInfo, IMethod method)
+		{
+			Expression e = CreateMethodReference(method);
+			e.LexicalInfo = lexicalInfo;
+			return e;
+		}
 		
 		public BinaryExpression CreateBoundBinaryExpression(IType expressionType,
 												BinaryOperatorType op,

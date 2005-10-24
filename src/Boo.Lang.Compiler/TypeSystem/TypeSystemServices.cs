@@ -1152,6 +1152,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return overload;
 		}
 		
+#if FALSE
 		Method CreateBeginInvokeSimplerOverload(ICallableType anonymousType, Method beginInvoke)
 		{
 			MethodInvocationExpression mie;
@@ -1177,6 +1178,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			return overload;
 		}
+#endif
 		
 		public Method CreateEndInvokeMethod(ICallableType anonymousType)
 		{
@@ -1278,12 +1280,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Method beginInvoke = CreateBeginInvokeMethod(anonymousType);
 			cd.Members.Add(beginInvoke);
 			
-			// XXX: find an alternative way to support BeginInvoke overloads... 
-			if (Version1)
-			{
-				cd.Members.Add(CreateBeginInvokeCallbackOnlyOverload(anonymousType, beginInvoke));
-				cd.Members.Add(CreateBeginInvokeSimplerOverload(anonymousType, beginInvoke));
-			}
+			// XXX: find an alternative way to support BeginInvoke overloads...			
+			//if (Version1)
+			//{
+			//	cd.Members.Add(CreateBeginInvokeCallbackOnlyOverload(anonymousType, beginInvoke));
+			//	cd.Members.Add(CreateBeginInvokeSimplerOverload(anonymousType, beginInvoke));
+			//}
 			
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
 			_anonymousTypesModule.Members.Add(cd);

@@ -451,6 +451,16 @@ namespace Boo.Lang
 			_count = actualIndex;
 			return range;
 		}
+
+		public List RemoveAll(Predicate match)
+		{
+			if (null == match) throw new ArgumentNullException("match");
+			for (int i=0; i<_count; ++i)
+			{
+				if (match(_items[i])) InnerRemoveAt(i--);
+			}
+			return this;
+		}
 		
 		public List Remove(object item)
 		{

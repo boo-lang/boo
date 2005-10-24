@@ -1584,6 +1584,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\InlineMethods.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\IntroduceGlobalNamespaces.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -1615,6 +1620,11 @@
                 />
                 <File
                     RelPath = "Steps\PreErrorChecking.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Steps\PreProcessExtensionMethods.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

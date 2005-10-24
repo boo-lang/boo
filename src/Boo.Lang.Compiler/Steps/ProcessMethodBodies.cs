@@ -2308,15 +2308,15 @@ namespace Boo.Lang.Compiler.Steps
 		IEntity ResolveMember(MemberReferenceExpression node)
 		{
 			IEntity member = node.Entity;
-			if (ShouldRebindMember(member))
-			{
-				INamespace ns = GetReferenceNamespace(node);
-				member = NameResolutionService.Resolve(ns, node.Name);
-				if (null == member)
-				{
-					MemberNotFound(node, ns);
-				}
-			}
+			if (!ShouldRebindMember(member)) return member;
+
+			INamespace ns = GetReferenceNamespace(node);
+			member = NameResolutionService.Resolve(ns, node.Name);
+			if (null != member) return member;
+		
+			member = NameResolutionService.ResolveExtension(ns, node.Name);
+			if (null == member) MemberNotFound(node, ns);
+
 			return member;
 		}
 		
@@ -3646,6 +3646,13 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Method:
 				{
 					IMethod targetMethod = (IMethod)targetEntity;
+					if (targetMethod.IsExtension)
+					{
+						Expression target = node.Target;
+						node.Arguments.Insert(0, ((MemberReferenceExpression)target).Target);
+						node.Target = CodeBuilder.CreateMethodReference(target.LexicalInfo, targetMethod);
+					}
+
 					if (CheckParameters(node, targetMethod, node.Arguments))
 					{
 						if (node.NamedArguments.Count > 0)

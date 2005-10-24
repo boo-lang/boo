@@ -685,6 +685,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0128", node.LexicalInfo);
 		}
+
+		public static CompilerError InvalidExtensionDefinition(Node node)
+		{
+			return new CompilerError("BCE0129", node.LexicalInfo);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

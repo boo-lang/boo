@@ -293,6 +293,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get;
 		}
+
+		bool IsExtension
+		{
+			get;
+		}
 	}
 	
 	public interface IConstructor : IMethodBase

@@ -24,7 +24,7 @@ x = 1
 print("starting - byrefdelegate.BeginInvoke")
 c = run as byrefdelegate
 result = c.BeginInvoke(x, { print("called back") }, null)
-Thread.Sleep(5ms)
+Thread.Sleep(50ms)
 c.EndInvoke(x, result)
 print("done")
 print x, x==2
@@ -32,7 +32,7 @@ print x, x==2
 x = 1
 print("starting - normal run.BeginInvoke")
 result2 = run.BeginInvoke(x, { print("called back") }, null)
-Thread.Sleep(5ms)
+Thread.Sleep(50ms)
 run.EndInvoke(x, result2)
 print("done")
 print x, x==2

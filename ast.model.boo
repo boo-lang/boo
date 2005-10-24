@@ -26,12 +26,12 @@ enum TypeMemberModifiers:
 enum MethodImplementationFlags:
 	None = 0
 	Runtime = 1
+	Extension = 2
 
 enum ParameterModifiers:
 	None = 0
 	Val = 0
 	Ref = 1
-
 
 abstract class TypeMember(Node, INodeWithAttributes):
 	Modifiers as TypeMemberModifiers
