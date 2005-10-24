@@ -2,7 +2,7 @@
 <project name="db4o sample" default="test">
 
 	<property name="db4o.bin" value="${path::get-full-path('build')}" />
-	<property name="db4o.dll" value="${path::combine(db4o.bin, 'db4o-4.0-net1.dll')}" />
+	<property name="db4o.dll" value="${path::combine(db4o.bin, 'db4o.dll')}" />
 	<property name="boo.base" value="${path::get-full-path('../../..')}" />
 	<property name="boo.bin" value="${boo.base}/bin" />
 	
