@@ -232,7 +232,12 @@ namespace Boo.Lang.Compiler.Ast.Impl
 					if (null != ${GetPrivateName(field)})
 					{
 						${GetPrivateName(field)}.InitializeParent(this);
-					}
+<%
+				if field.Attributes.Contains("LexicalInfo"):
+%>						this.LexicalInfo = value.LexicalInfo;
+<%
+				end
+%>					}
 				}
 			}
 <%
