@@ -537,11 +537,13 @@ namespace Boo.Lang
 					return true;
 				}
 				
-				if (++_index < _enumerables.Length)
+				while (++_index < _enumerables.Length)
 				{
 					_current = iterator(_enumerables[_index]).GetEnumerator();
+					if (_current.MoveNext()) 
+						return true;
 				}
-				return _current.MoveNext();
+				return false;
 			}
 			
 			public IEnumerator GetEnumerator()
