@@ -3203,7 +3203,10 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					InvalidOperatorForTypes(node);
+					if (!ResolveOperator(node))
+					{
+						InvalidOperatorForTypes(node);
+					}
 				}
 			}
 			else if (!ResolveOperator(node))
@@ -4749,26 +4752,40 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod FindOperator(IType type, string operatorName, ExpressionCollection args)
 		{
-			IMethod method = null;
 			IEntity entity = NameResolutionService.Resolve(type, operatorName, EntityType.Method);
 			if (null != entity)
 			{
-				if (EntityType.Ambiguous == entity.EntityType)
+				IMethod method = ResolveOperatorEntity(entity, args);
+				if (null != method) return method;
+			}
+			
+			entity = NameResolutionService.ResolveExtension(type, operatorName);
+			if (null != entity)
+			{
+				return ResolveOperatorEntity(entity, args);
+			}
+			
+			return null;
+		}
+
+		private IMethod ResolveOperatorEntity(IEntity op, ExpressionCollection args)
+		{
+			if (EntityType.Ambiguous == op.EntityType)
+			{
+				return ResolveAmbiguousOperator(((Ambiguous)op).Entities, args);
+			}
+
+			if (EntityType.Method == op.EntityType)
+			{
+				IMethod candidate = (IMethod)op;
+				if (HasOperatorSignature(candidate, args))
 				{
-					method = ResolveAmbiguousOperator(((Ambiguous)entity).Entities, args);
-				}
-				else if (EntityType.Method == entity.EntityType)
-				{
-					IMethod candidate = (IMethod)entity;
-					if (HasOperatorSignature(candidate, args))
-					{
-						method = candidate;
-					}
+					return candidate;
 				}
 			}
-			return method;
+			return null;
 		}
-		
+
 		bool ResolveOperator(Expression node, IType type, string operatorName, MethodInvocationExpression mie)
 		{
 			IMethod entity = FindOperator(type, operatorName, mie.Arguments);
