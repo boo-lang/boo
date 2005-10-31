@@ -363,7 +363,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != node.Initializer)
 			{
-				if (tag.DeclaringType.IsValueType)
+				if (tag.DeclaringType.IsValueType && !node.IsStatic)
 				{
 					Error(
 						CompilerErrorFactory.ValueTypeFieldsCannotHaveInitializers(
