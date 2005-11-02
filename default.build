@@ -609,7 +609,8 @@
 				<include name="extras/*.in" />
 				<include name="default.build" />
 				<include name="notice.txt" />
-				<include name="scripts/*.boo" />				
+				<include name="scripts/*.boo" />
+				<include name="scripts/Templates/*.cs" />
 				<include name="lib/**/*.jar" />
 				
 				<include name="src/boo.snk" />
