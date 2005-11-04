@@ -687,6 +687,9 @@ namespace Boo.Lang.Compiler.Steps
 								"___closure" + _context.AllocIndex(),
 								Unknown.Default,
 								modifiers);
+
+			MarkVisited(closure);
+
 			InternalMethod closureEntity = (InternalMethod)closure.Entity;
 							
 			closure.LexicalInfo = node.LexicalInfo;

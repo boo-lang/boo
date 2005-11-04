@@ -33,6 +33,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Globalization;
 using System.Threading;
+using Boo.Lang.Compiler.Ast.Visitors;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
@@ -407,7 +408,7 @@ namespace BooC
 		private void DebugModuleAfterStep(object sender, CompilerStepEventArgs args)
 		{
 			Console.WriteLine("********* {0} *********", args.Step);
-			Console.WriteLine(args.Context.CompileUnit.ToCodeString());
+			args.Context.CompileUnit.Accept(new BooPrinterVisitor(Console.Out, BooPrinterVisitor.PrintOptions.PrintLocals));
 		}
 
 		ArrayList LoadResponseFile(string file)

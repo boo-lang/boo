@@ -39,12 +39,31 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 	/// </summary>
 	public class BooPrinterVisitor : TextEmitter
 	{
+		[Flags]
+		public enum PrintOptions
+		{
+			None,
+			PrintLocals = 1
+		}
+
 		static Regex _identifierRE = new Regex("^[a-zA-Z.]+$");
 		
 		static Regex _extendedRE = new Regex(@"\s");
+
+		public PrintOptions Options = PrintOptions.None;
 		
 		public BooPrinterVisitor(TextWriter writer) : base(writer)
 		{
+		}
+
+		public BooPrinterVisitor(TextWriter writer, PrintOptions options) : this(writer)
+		{
+			this.Options = options;
+		}
+
+		public bool IsOptionSet(PrintOptions option)
+		{
+			return (option & Options) == option;
 		}
 
 		public void Print(CompileUnit ast)
@@ -354,7 +373,20 @@ namespace Boo.Lang.Compiler.Ast.Visitors
             }
 			WriteCallableDefinitionHeader("def ", m);
 			WriteLine(":");
+			WriteLocals(m);
 			WriteBlock(m.Body);
+		}
+
+		public override void OnLocal(Local node)
+		{
+			WriteIndented("// Local {0}, {1}, PrivateScope: {2}", node.Name, node.Entity, node.PrivateScope);
+			WriteLine();
+		}
+
+		void WriteLocals(Method m)
+		{
+			if (!IsOptionSet(PrintOptions.PrintLocals)) return;
+			Visit(m.Locals);
 		}
 		
 		void WriteTypeReference(TypeReference t)

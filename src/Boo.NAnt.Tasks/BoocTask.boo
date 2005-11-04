@@ -54,7 +54,7 @@ class BoocTask(AbstractBooTask):
 	
 	_generateInMemory = false
 	
-	_debug = false
+	_debug = true
 	
 	[TaskAttribute("debug")]
 	Debug:
