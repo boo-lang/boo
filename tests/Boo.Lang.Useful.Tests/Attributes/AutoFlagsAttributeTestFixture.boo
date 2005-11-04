@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2005 Arron Washington (l33ts0n@gmail.com)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -10,7 +10,7 @@
 //     * Redistributions in binary form must reproduce the above copyright notice,
 //     this list of conditions and the following disclaimer in the documentation
 //     and/or other materials provided with the distribution.
-//     * Neither the name of Rodrigo B. de Oliveira nor the names of its
+//     * Neither the name of Arron Washington nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
 // 
@@ -25,43 +25,34 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
+namespace Boo.Lang.Useful.Tests.Attributes
 
-namespace Boo.Lang.Compiler.Pipelines
-{
-	using Boo.Lang.Compiler.Steps;
+import Boo.Lang.Useful.Attributes
+import NUnit.Framework
+
+[TestFixture]
+class AutoFlagsAttributeTestFixture:
 	
-	public class ResolveExpressions : Parse 
-	{
-		public ResolveExpressions()
-		{
-			Add(new InitializeTypeSystemServices());
-			Add(new PreErrorChecking());
-			Add(new PreProcessExtensionMethods());
-			Add(new InitializeNameResolutionService());
-			Add(new IntroduceGlobalNamespaces());
-			Add(new TransformCallableDefinitions());
-			Add(new BindTypeDefinitions());			
-			Add(new BindNamespaces());
-			Add(new BindBaseTypes());
-			Add(new BindAndApplyAttributes());
-			Add(new ExpandMacros());
-			Add(new IntroduceModuleClasses());
-			Add(new NormalizeStatementModifiers());
-			Add(new NormalizeTypeAndMemberDefinitions());
-			
-			Add(new BindTypeDefinitions());
-			Add(new BindEnumMembers());
-			Add(new BindBaseTypes());
-
-			Add(new ResolveTypeReferences());
-			Add(new BindTypeMembers());			
-			Add(new ProcessInheritedAbstractMembers());
-			Add(new CheckMemberNames());
-			
-
-			
-			Add(new ExpandAstLiterals());
-			Add(new ProcessMethodBodiesWithDuckTyping());
-		}
-	}
-}
+	[Test]
+	def BitwiseOperations():
+		var = Ninja.Grey
+		assert var & Ninja.White != Ninja.None
+		assert var & Ninja.Black != Ninja.None
+		assert var & Ninja.Grey != Ninja.None
+		assert var & Ninja.None == Ninja.None
+		var = Ninja.Black | Ninja.Stylish
+		assert var & Ninja.Black != Ninja.None
+		assert var & Ninja.Stylish != Ninja.None
+		assert var & Ninja.White == Ninja.None
+		
+	[Test]
+	def FlagsAttribute():
+		assert System.Attribute.IsDefined(Ninja, System.FlagsAttribute)
+		
+[AutoFlags]
+enum Ninja:
+	None = 0
+	White
+	Black
+	Grey = 3 # White | Black
+	Stylish

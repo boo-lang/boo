@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2005 Arron Washington (l33ts0n@gmail.com)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -10,7 +10,7 @@
 //     * Redistributions in binary form must reproduce the above copyright notice,
 //     this list of conditions and the following disclaimer in the documentation
 //     and/or other materials provided with the distribution.
-//     * Neither the name of Rodrigo B. de Oliveira nor the names of its
+//     * Neither the name of Arron Washington nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
 // 
@@ -25,43 +25,34 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
+namespace Boo.Lang.Useful.Attributes
 
-namespace Boo.Lang.Compiler.Pipelines
-{
-	using Boo.Lang.Compiler.Steps;
-	
-	public class ResolveExpressions : Parse 
-	{
-		public ResolveExpressions()
-		{
-			Add(new InitializeTypeSystemServices());
-			Add(new PreErrorChecking());
-			Add(new PreProcessExtensionMethods());
-			Add(new InitializeNameResolutionService());
-			Add(new IntroduceGlobalNamespaces());
-			Add(new TransformCallableDefinitions());
-			Add(new BindTypeDefinitions());			
-			Add(new BindNamespaces());
-			Add(new BindBaseTypes());
-			Add(new BindAndApplyAttributes());
-			Add(new ExpandMacros());
-			Add(new IntroduceModuleClasses());
-			Add(new NormalizeStatementModifiers());
-			Add(new NormalizeTypeAndMemberDefinitions());
-			
-			Add(new BindTypeDefinitions());
-			Add(new BindEnumMembers());
-			Add(new BindBaseTypes());
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Ast
 
-			Add(new ResolveTypeReferences());
-			Add(new BindTypeMembers());			
-			Add(new ProcessInheritedAbstractMembers());
-			Add(new CheckMemberNames());
-			
-
-			
-			Add(new ExpandAstLiterals());
-			Add(new ProcessMethodBodiesWithDuckTyping());
-		}
-	}
-}
+class AutoFlagsAttribute(AbstractAstAttribute):
+"""
+Automatically increment enum values using base 2.
+Makes bitflags a snap, but beware: 
+assign your own values with care!
+By default, AutoFlags starts with 1 - you can make a "none" enum by specifying it directly:
+enum Ninjas:
+	None = 0
+	Black #assigned 1
+	White #assigned 2
+	Grey = Black | White #assigned 3, 1 + 2
+"""
+	override def Apply(node as Node):
+		unless node isa EnumDefinition:
+			InvalidNodeForAttribute("Enum")
+			return
+		#Set the values of the enum members to base 2 values.
+		enumDef = node as EnumDefinition
+		members = array(EnumMember, enumDef.Members.Select(NodeType.EnumMember))
+		lastVal = 1
+		for member in members:
+			continue unless member.Initializer is null
+			member.Initializer = IntegerLiteralExpression(lastVal)
+			lastVal = 2 * lastVal		
+		#Finally, apply the 'Flags' attribute - for reflection / interop with other languages.		
+		enumDef.Attributes.Add(Attribute("System.FlagsAttribute"))

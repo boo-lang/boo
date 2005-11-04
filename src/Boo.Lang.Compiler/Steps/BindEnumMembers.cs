@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -31,86 +31,30 @@ namespace Boo.Lang.Compiler.Steps
 	using System;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
-	
 	[Serializable]
-	public class BindTypeDefinitions : AbstractTransformerCompilerStep
+	public class BindEnumMembers : AbstractTransformerCompilerStep
 	{
 		override public void Run()
 		{
 			Visit(CompileUnit.Modules);
 		}
-		
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module node)
-		{
-			Visit(node.Members);
-		}
-		
-		override public void OnStructDefinition(StructDefinition node)
-		{
-			ClassDefinition cd = new ClassDefinition(node.LexicalInfo);
-			cd.Name = node.Name;
-			cd.Attributes = node.Attributes;
-			cd.Modifiers = node.Modifiers;
-			cd.Members = node.Members;
-			cd.BaseTypes = node.BaseTypes;
-			cd.BaseTypes.Insert(0, CodeBuilder.CreateTypeReference(TypeSystemServices.ValueTypeType));
-			foreach (TypeMember member in cd.Members)
-			{
-				NormalizeVisibility(member);
-			}
-			OnClassDefinition(cd);
-			ReplaceCurrentNode(cd);
-		}
-			
-		override public void OnClassDefinition(ClassDefinition node)
-		{
-			if (null == node.Entity)
-			{
-				node.Entity = new InternalClass(TypeSystemServices, node);
-			}
-			
-			NormalizeVisibility(node);
-			Visit(node.Members);
-		}
-		
-		override public void OnInterfaceDefinition(InterfaceDefinition node)
-		{
-			if (null != node.Entity)
-			{
-				return;
-			}
-			
-			NormalizeVisibility(node);
-			node.Entity = new InternalInterface(TypeSystemServices, node);
-		}	
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			if (null != node.Entity)
+			long lastValue = 0;
+			foreach (EnumMember member in node.Members)
 			{
-				return;
-			}			
-			NormalizeVisibility(node);
-			node.Entity = new InternalEnum(TypeSystemServices, node);
-			
-		}
-		void NormalizeVisibility(TypeMember node)
-		{
-			if (!node.IsVisibilitySet)
-			{
-				node.Modifiers |= TypeMemberModifiers.Public;
+				if (null == member.Initializer)
+				{
+					member.Initializer = new IntegerLiteralExpression(lastValue);
+				}
+				lastValue = member.Initializer.Value + 1;
+				
+				if (null == member.Entity)
+				{
+					member.Entity = new InternalEnumMember(TypeSystemServices, member);
+				}
 			}
 		}
-		
-		override public void OnMethod(Method method)
-		{
-		}
-		
-		override public void OnProperty(Property property)
-		{
-		}
-		
-		override public void OnField(Field field)
-		{
-		}
 	}
+
 }
