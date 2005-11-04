@@ -263,6 +263,14 @@ namespace Boo.Lang.Compiler
 				Trace.WriteLine(message);
 			}
 		}
+
+		public void TraceWarning(string message, params object[] args)
+		{
+			if (_traceSwitch.TraceWarning)
+			{
+				Trace.WriteLine(string.Format(message, args));
+			}
+		}
 		
 		public void TraceVerbose(string format, params object[] args)
 		{			
