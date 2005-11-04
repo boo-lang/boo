@@ -153,6 +153,8 @@ namespace BooC
 		void ParseOptions(string[] args, CompilerParameters _options)
 		{
 			bool debugSteps = false;
+			bool whiteSpaceAgnostic = false;
+			
 			ArrayList arglist = new ArrayList(args);
 			ExpandResponseFiles(ref arglist);
 			AddDefaultResponseFile(ref arglist);
@@ -169,6 +171,19 @@ namespace BooC
 						if ("-utf8" == arg) continue;
 						switch (arg[1])
 						{
+							case 'w':
+							{
+								if (arg == "-wsa")
+								{
+									whiteSpaceAgnostic = true;
+								}
+								else
+								{
+									InvalidOption(arg);
+								}
+								break;
+							}
+							
 							case 'v':
 							{
 								_options.TraceSwitch.Level = TraceLevel.Warning;
@@ -398,6 +413,10 @@ namespace BooC
 			if (null == _options.Pipeline)
 			{
 				_options.Pipeline = new CompileToFile();
+			}
+			if (whiteSpaceAgnostic)
+			{
+				_options.Pipeline[0] = new Boo.Lang.Parser.WSABooParsingStep();
 			}
 			if (debugSteps)
 			{

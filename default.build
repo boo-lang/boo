@@ -156,6 +156,7 @@
 			<references>
 				<include name="build/Boo.Lang.dll" />
 				<include name="build/Boo.Lang.Compiler.dll" />
+				<include name="build/Boo.Lang.Parser.dll" />
 			</references>
 		</csc>
 

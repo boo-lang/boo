@@ -154,7 +154,19 @@ CMP_OPERATOR :  "<=" | ">=" | "!~" | "!=";
 
 ASSIGN : '=' ( ('=' | '~') { $setType(CMP_OPERATOR); } )?;
 
-WS: (' ' | '\t' { tab(); } | '\r' | '\n' { newline(); })+ { $setType(Token.SKIP); };
+WS:
+	(
+		' '
+		| '\t' { tab(); }
+		|
+		(
+			(('\r' ('\n')?)
+			| '\n')
+			{ newline(); }
+		)
+	)+
+	{ $setType(Token.SKIP); }
+;
 
 SINGLE_QUOTED_STRING :
 		'\''!

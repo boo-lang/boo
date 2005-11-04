@@ -2980,7 +2980,7 @@ ML_COMMENT:
 WS :
 	(
 		' ' |
-		'\t' |
+		'\t' { tab(); } |
 		'\f'
 	)+
 	{
@@ -2994,13 +2994,16 @@ X_RE_LITERAL: '@'!'/' (X_RE_CHAR)+ '/' { $setType(RE_LITERAL); };
 
 NEWLINE:
 	(
-		'\n' |
 		(
+			'\n'
+			|
+			(
 			'\r' ('\n')?
+			)
 		)
+		{ newline(); }
 	)+
 	{
-		newline();
 		if (SkipWhitespace)
 		{
 			$setType(Token.SKIP);
