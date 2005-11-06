@@ -1659,6 +1659,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void SliceMember(SlicingExpression node, IEntity member)
 		{
+			EnsureRelatedNodeWasVisited(node, member);
 			if (AstUtil.IsLhsOfAssignment(node))
 			{
 				// leave it to LeaveBinaryExpression to resolve
@@ -1687,7 +1688,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			if (null != getter)
-			{
+			{	
 				if (CheckParameters(node, getter, mie.Arguments))
 				{
 					Expression target = GetIndexedPropertySlicingTarget(node);
@@ -4638,7 +4639,8 @@ namespace Boo.Lang.Compiler.Steps
 					case NodeType.Field:
 					{
 						IMember memberEntity = (IMember)entity;
-						if (TypeSystemServices.IsUnknown(memberEntity.Type))
+						if (EntityType.Property == entity.EntityType
+							|| TypeSystemServices.IsUnknown(memberEntity.Type))
 						{
 							VisitMemberForTypeResolution(node);
 							AssertTypeIsKnown(sourceNode, memberEntity, memberEntity.Type);
