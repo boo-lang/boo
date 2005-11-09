@@ -115,29 +115,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		override protected void BindBinaryExpression(BinaryExpression node)
-		{
+		protected override bool ResolveRuntimeOperator(BinaryExpression node, string operatorName, MethodInvocationExpression mie)
+		{			
 			if (TypeSystemServices.IsDuckTyped(node.Left)
 				|| TypeSystemServices.IsDuckTyped(node.Right))
 			{
-				if (AstUtil.IsOverloadableOperator(node.Operator))
+				if (AstUtil.IsOverloadableOperator(node.Operator)
+					|| BinaryOperatorType.Or == node.Operator
+					|| BinaryOperatorType.And == node.Operator)
 				{
 					BindDuck(node);
-				}
-				else if (BinaryOperatorType.Or == node.Operator ||
-				         BinaryOperatorType.And == node.Operator)
-				{
-					BindDuck(node);
-				}
-				else
-				{
-					base.BindBinaryExpression(node);
+					return true;
 				}
 			}
-			else
-			{
-				base.BindBinaryExpression(node);
-			}
+			return base.ResolveRuntimeOperator(node, operatorName, mie);
 		}
 		
 		protected override void CheckBuiltinUsage(ReferenceExpression node, IEntity entity)

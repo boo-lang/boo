@@ -4729,6 +4729,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return true;
 			}
+			return ResolveRuntimeOperator(node, operatorName, mie);
+		}
+
+		protected virtual bool ResolveRuntimeOperator(BinaryExpression node, string operatorName, MethodInvocationExpression mie)
+		{
 			return ResolveOperator(node, TypeSystemServices.RuntimeServicesType, operatorName, mie);
 		}
 		
