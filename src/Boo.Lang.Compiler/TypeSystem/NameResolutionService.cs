@@ -178,7 +178,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				IMethod m = item as IMethod;
 				if (m == null) return true;
 				if (!m.IsExtension) return true;
-				return _type != m.GetParameters()[0].Type;
+				return !m.GetParameters()[0].Type.IsAssignableFrom(_type);
 			}
 		}
 

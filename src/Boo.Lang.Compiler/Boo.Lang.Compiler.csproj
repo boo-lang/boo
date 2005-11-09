@@ -1499,6 +1499,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\BindEnumMembers.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\BindNamespaces.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -1580,11 +1585,6 @@
                 />
                 <File
                     RelPath = "Steps\InjectCallableConversions.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Steps\InlineMethods.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
