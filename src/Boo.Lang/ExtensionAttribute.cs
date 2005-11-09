@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,40 +26,18 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Pipelines
+namespace Boo.Lang
 {
-	using Boo.Lang.Compiler.Steps;
+	using System;
 	
-	public class ResolveExpressions : Parse 
+	/// <summary>
+	/// Marks a member as an extension for an existing type.
+	/// </summary>
+	[Serializable]
+	public class ExtensionAttribute : Attribute
 	{
-		public ResolveExpressions()
+		public ExtensionAttribute()
 		{
-			Add(new InitializeTypeSystemServices());
-			Add(new PreErrorChecking());
-			Add(new PreProcessExtensionMethods());
-			Add(new InitializeNameResolutionService());
-			Add(new IntroduceGlobalNamespaces());
-			Add(new TransformCallableDefinitions());
-			Add(new BindTypeDefinitions());			
-			Add(new BindNamespaces());
-			Add(new BindBaseTypes());
-			Add(new BindAndApplyAttributes());
-			Add(new ExpandMacros());
-			Add(new IntroduceModuleClasses());
-			Add(new NormalizeStatementModifiers());
-			Add(new NormalizeTypeAndMemberDefinitions());
-			
-			Add(new BindTypeDefinitions());
-			Add(new BindEnumMembers());
-			Add(new BindBaseTypes());
-
-			Add(new ResolveTypeReferences());
-			Add(new BindTypeMembers());			
-			Add(new ProcessInheritedAbstractMembers());
-			Add(new CheckMemberNames());
-			
-			Add(new ExpandAstLiterals());
-			Add(new ProcessMethodBodiesWithDuckTyping());
 		}
 	}
 }
