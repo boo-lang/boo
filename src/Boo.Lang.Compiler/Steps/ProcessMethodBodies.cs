@@ -3626,13 +3626,15 @@ namespace Boo.Lang.Compiler.Steps
 				ProcessGenericMethodInvocation(node);
 				return;
 			}
+
+			if (IsOrContainsExtensionMethod(targetEntity))
+			{
+				PreNormalizeExtensionInvocation(node);
+			}
 			
 			if (EntityType.Ambiguous == targetEntity.EntityType)
 			{
 				Ambiguous ambiguous = (Ambiguous)targetEntity;
-				//if (IsExtensionMethod(ambiguous.Entities[0]))
-				{
-				}
 				targetEntity = ResolveAmbiguousMethodInvocation(node, ambiguous);
 				if (null == targetEntity)
 				{
@@ -3656,24 +3658,20 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case EntityType.Method:
 				{
+					if (node.NamedArguments.Count > 0)
+					{
+						Error(CompilerErrorFactory.NamedArgumentsNotAllowed(node.NamedArguments[0]));
+					}
+
 					IMethod targetMethod = (IMethod)targetEntity;
 					if (targetMethod.IsExtension)
 					{
-						Expression target = node.Target;
-						node.Arguments.Insert(0, ((MemberReferenceExpression)target).Target);
-						node.Target = CodeBuilder.CreateMethodReference(target.LexicalInfo, targetMethod);
+						PostNormalizeExtensionInvocation(node, targetMethod);
 					}
 
 					if (CheckParameters(node, targetMethod, node.Arguments))
 					{
-						if (node.NamedArguments.Count > 0)
-						{
-							Error(CompilerErrorFactory.NamedArgumentsNotAllowed(node.NamedArguments[0]));
-						}
-						else
-						{
-							CheckTargetContext(node.Target, targetMethod);
-						}
+						CheckTargetContext(node.Target, targetMethod);
 					}
 
 					BindExpressionType(node, GetInferredType(targetMethod));
@@ -3727,6 +3725,28 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 			}
+		}
+
+		private bool IsOrContainsExtensionMethod(IEntity entity)
+		{
+			if (entity.EntityType == EntityType.Ambiguous) return IsExtensionMethod(((Ambiguous)entity).Entities[0]);
+			return IsExtensionMethod(entity);
+		}
+
+		private bool IsExtensionMethod(IEntity entity)
+		{
+			if (EntityType.Method != entity.EntityType) return false;
+			return ((IMethod)entity).IsExtension;
+		}
+
+		private void PostNormalizeExtensionInvocation(MethodInvocationExpression node, IMethod targetMethod)
+		{
+			node.Target = CodeBuilder.CreateMethodReference(node.Target.LexicalInfo, targetMethod);
+		}
+
+		private static void PreNormalizeExtensionInvocation(MethodInvocationExpression node)
+		{
+			node.Arguments.Insert(0, ((MemberReferenceExpression)node.Target).Target);
 		}
 
 		private IType GetInferredType(IMethod entity)
