@@ -3629,7 +3629,11 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (EntityType.Ambiguous == targetEntity.EntityType)
 			{
-				targetEntity = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetEntity);
+				Ambiguous ambiguous = (Ambiguous)targetEntity;
+				//if (IsExtensionMethod(ambiguous.Entities[0]))
+				{
+				}
+				targetEntity = ResolveAmbiguousMethodInvocation(node, ambiguous);
 				if (null == targetEntity)
 				{
 					Error(node);
