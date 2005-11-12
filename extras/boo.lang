@@ -197,5 +197,6 @@ OR
 		<keyword>print</keyword>
 		<keyword>array</keyword>
 		<keyword>matrix</keyword>
+		<keyword>yieldAll</keyword>
 	</keyword-list>
 </language>

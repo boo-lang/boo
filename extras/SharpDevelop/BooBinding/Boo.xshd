@@ -230,6 +230,7 @@
 				<Key word="required"/>
 				<Key word="rawArrayIndexing"/>
 				<Key word="normalArrayIndexing"/>
+				<Key word="yieldAll" />
 			</KeyWords>
 
 			<KeyWords name="Builtins" bold="false" italic="false" color="Purple" >

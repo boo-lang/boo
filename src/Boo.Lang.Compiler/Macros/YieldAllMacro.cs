@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,37 +26,36 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using Boo.Lang.Compiler.Ast.Impl;
-
-namespace Boo.Lang.Compiler.Ast
+namespace Boo.Lang
 {
-	[Serializable]
-	public class Declaration : DeclarationImpl
-	{		
-		public Declaration()
-		{
- 		}
-		
-		public Declaration(string name, TypeReference type) : base(name, type)
-		{
-		}
-		
-		public Declaration(LexicalInfo token, string name, TypeReference type) : base(token, name, type)
-		{
-		}
-		
-		public Declaration(LexicalInfo lexicalInfo, string name) : base(lexicalInfo, name, null)
-		{
-		}
-		
-		public Declaration(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnDeclaration(this);
+	using System;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.Ast;
+	
+	/// <summary>
+	/// yieldAll range(1, 5)
+	///    expands to
+	/// for ___item in range(1, 5):
+	///    yield ___item
+	/// </summary>
+	public class YieldAllMacro : AbstractAstMacro
+	{
+		override public Statement Expand(MacroStatement macro)
+		{	
+			if (1 != macro.Arguments.Count || 0 != macro.Block.Statements.Count)
+			{
+				Errors.Add(
+					CompilerErrorFactory.CustomError(macro.LexicalInfo, "yieldAll <expression>"));
+				return null;
+			}
+			
+			ForStatement fs = new ForStatement(macro.LexicalInfo);
+			fs.Declarations.Add(new Declaration(macro.LexicalInfo, "___item"));
+			fs.Iterator = macro.Arguments[0];
+			fs.Block.Add(
+				new YieldStatement(macro.LexicalInfo, new ReferenceExpression("___item")));
+			return fs;
 		}
 	}
 }
+
