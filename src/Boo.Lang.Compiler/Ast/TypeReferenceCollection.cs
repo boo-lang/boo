@@ -41,5 +41,14 @@ namespace Boo.Lang.Compiler.Ast
 		internal TypeReferenceCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
 		{	
 		}
+		
+		public bool Contains(string name)
+		{
+			foreach (SimpleTypeReference item in this)
+			{
+				if (name == item.Name) return true;
+			}
+			return false;
+		}
 	}
 }

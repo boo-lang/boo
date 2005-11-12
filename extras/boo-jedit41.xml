@@ -129,6 +129,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit41.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD1>is</KEYWORD1>
 			<KEYWORD1>isa</KEYWORD1>
 			<KEYWORD1>mixin</KEYWORD1>
+			<KEYWORD1>partial</KEYWORD1>
 			<KEYWORD1>namespace</KEYWORD1>
 			<KEYWORD1>not</KEYWORD1>
 			<KEYWORD1>or</KEYWORD1>

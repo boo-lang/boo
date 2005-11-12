@@ -289,17 +289,42 @@ namespace Boo.Lang.Compiler.TypeSystem
 				info = Resolve(node.Name, EntityType.Type);
 			}
 			
-			if (null == info || EntityType.Type != info.EntityType)
+			if (null == info)
 			{
-				_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));
-				info = TypeSystemServices.ErrorEntity;
+				info = NameNotType(node);
 			}
 			else
 			{
-				node.Name = info.FullName;
+				if (EntityType.Type != info.EntityType)
+				{
+					if (EntityType.Ambiguous == info.EntityType)
+					{
+						info = AmbiguousReference(node, (Ambiguous)info);
+					}
+					else
+					{
+						info = NameNotType(node);
+					}
+				}
+				else
+				{
+					node.Name = info.FullName;
+				}
 			}
 			
 			node.Entity = info;
+		}
+		
+		private IEntity NameNotType(SimpleTypeReference node)
+		{
+			_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));
+			return TypeSystemServices.ErrorEntity;
+		}
+		
+		private IEntity AmbiguousReference(SimpleTypeReference node, Ambiguous entity)
+		{
+			_context.Errors.Add(CompilerErrorFactory.AmbiguousReference(node, node.Name, entity.Entities));
+			return TypeSystemServices.ErrorEntity;
 		}
 		
 		public IField ResolveField(IType type, string name)

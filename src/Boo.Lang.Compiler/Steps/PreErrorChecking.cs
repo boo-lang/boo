@@ -28,6 +28,7 @@
 
 namespace Boo.Lang.Compiler.Steps
 {	
+	using System.Text;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	
@@ -50,17 +51,22 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
+			CantBeMarkedPartial(node);
 		}
 		
 		override public void LeaveProperty(Property node)
 		{
 			CheckMemberName(node);
 			CantBeMarkedTransient(node);
+			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
+			CheckModifierCombination(node);
 		}
 
 		override public void LeaveConstructor(Constructor node)
 		{
+			CantBeMarkedTransient(node);
+			CantBeMarkedPartial(node);
 			CheckExtensionSemantics(node);
 		}
 		
@@ -68,13 +74,17 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			CheckMemberName(node);
 			CantBeMarkedTransient(node);
+			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
 			CheckExtensionSemantics(node);
+			CheckModifierCombination(node);
 		}
 		
 		override public void LeaveEvent(Event node)
 		{
 			CheckMemberName(node);
+			CantBeMarkedPartial(node);
+			CheckModifierCombination(node);
 		}
 		
 		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
@@ -82,6 +92,7 @@ namespace Boo.Lang.Compiler.Steps
 			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedTransient(node);
+			CantBeMarkedPartial(node);
 		}
 		
 		override public void LeaveCallableDefinition(CallableDefinition node)
@@ -89,6 +100,7 @@ namespace Boo.Lang.Compiler.Steps
 			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedTransient(node);
+			CantBeMarkedPartial(node);
 		}
 		
 		override public void LeaveClassDefinition(ClassDefinition node)
@@ -195,6 +207,37 @@ namespace Boo.Lang.Compiler.Steps
 						node,
 						ei.InterfaceType.Name,
 						node.Name));
+			}
+		}
+		
+		void CheckModifierCombination(TypeMember member)
+		{
+			InvalidCombination(member, TypeMemberModifiers.Static, TypeMemberModifiers.Abstract);
+			InvalidCombination(member, TypeMemberModifiers.Static, TypeMemberModifiers.Virtual);
+			InvalidCombination(member, TypeMemberModifiers.Static, TypeMemberModifiers.Override);
+			
+			if (member.NodeType != NodeType.Field)
+			{
+				InvalidCombination(member, TypeMemberModifiers.Static, TypeMemberModifiers.Final);
+			}
+		}
+		
+		void InvalidCombination(TypeMember member, TypeMemberModifiers mod1, TypeMemberModifiers mod2)
+		{
+			if (!member.IsModifierSet(mod1) || !member.IsModifierSet(mod2)) return;
+			Error(
+				CompilerErrorFactory.InvalidCombinationOfModifiers(
+					member,
+					member.Name,
+					string.Format("{0}, {1}", mod1.ToString().ToLower(), mod2.ToString().ToLower())));
+		}
+		
+		
+		void CantBeMarkedPartial(TypeMember member)
+		{
+			if (member.IsPartial)
+			{
+				Error(CompilerErrorFactory.CantBeMarkedPartial(member));
 			}
 		}
 	}

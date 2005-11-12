@@ -119,6 +119,16 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
+		public void Annotate(object key)
+		{
+			Annotate(key, key);
+		}
+		
+		public void Annotate(object key, object value)
+		{
+			_annotations.Add(key, value);
+		}
+		
 		public bool ContainsAnnotation(object key)
 		{
 			return _annotations.ContainsKey(key);

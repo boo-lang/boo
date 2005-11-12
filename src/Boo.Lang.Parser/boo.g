@@ -94,6 +94,7 @@ tokens
 	OVERRIDE="override";	
 	PASS="pass";
 	NAMESPACE="namespace";
+	PARTIAL="partial";
 	PUBLIC="public";
 	PROTECTED="protected";
 	PRIVATE="private";
@@ -929,7 +930,8 @@ modifiers
 	TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
 	OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
 	ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
-	VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; }	
+	VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; } |
+	PARTIAL { _modifiers |= TypeMemberModifiers.Partial; }
 	)*
 ;
 

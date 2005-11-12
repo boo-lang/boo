@@ -193,6 +193,7 @@
 				<Key word="abstract"/>
 				<Key word="final"/>
 				<Key word="transient"/>
+				<Key word="partial"/>
 			</KeyWords>
 
 			<KeyWords name="AccessModifiers" bold="true" italic="false" color="Blue" >

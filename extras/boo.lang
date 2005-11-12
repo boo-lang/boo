@@ -109,6 +109,7 @@ OR
 		<keyword>private</keyword>
 		<keyword>public</keyword>
 		<keyword>internal</keyword>
+		<keyword>partial</keyword>
 		
 		<keyword>class</keyword>
 		<keyword>struct</keyword>

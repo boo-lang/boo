@@ -75,13 +75,22 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get
 			{
+				Module enclosing = this.EnclosingModule;
+				return enclosing == null ? null : enclosing.Namespace;
+			}
+		}
+		
+		public virtual Module EnclosingModule
+		{
+			get
+			{
 				Node parent = _parent;
 				while (parent != null)
 				{
 					Module module = parent as Module;
 					if (null != module)
 					{
-						return module.Namespace;
+						return module;
 					}
 					parent = parent.ParentNode;
 				}
@@ -188,6 +197,14 @@ namespace Boo.Lang.Compiler.Ast
 			get
 			{
 				return IsModifierSet(TypeMemberModifiers.Transient);
+			}
+		}
+		
+		public bool IsPartial
+		{
+			get
+			{
+				return IsModifierSet(TypeMemberModifiers.Partial);
 			}
 		}
 		

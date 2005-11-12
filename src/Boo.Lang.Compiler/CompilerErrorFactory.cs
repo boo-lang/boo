@@ -691,6 +691,16 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0129", node.LexicalInfo);
 		}
 		
+		public static CompilerError CantBeMarkedPartial(Node node)
+		{
+			return new CompilerError("BCE0130", node.LexicalInfo);
+		}
+		
+		public static CompilerError InvalidCombinationOfModifiers(Node node, string name, string modifiers)
+		{
+			return new CompilerError("BCE0131", node.LexicalInfo, name, modifiers);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
