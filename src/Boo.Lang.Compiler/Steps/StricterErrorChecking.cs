@@ -28,15 +28,56 @@
 
 namespace Boo.Lang.Compiler.Steps
 {	
+	using System.Collections;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class StricterErrorChecking : AbstractVisitorCompilerStep
 	{	
+		Hashtable _types = new Hashtable();
+		
 		override public void Run()
 		{
 			Visit(CompileUnit);
+		}
+		
+		override public void Dispose()
+		{
+			base.Dispose();
+			_types.Clear();
+		}
+		
+		override public void LeaveClassDefinition(ClassDefinition node)
+		{
+			LeaveTypeDefinition(node);
+		}
+		
+		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
+		{
+			LeaveTypeDefinition(node);
+		}
+		
+		override public void LeaveEnumDefinition(EnumDefinition node)
+		{
+			LeaveTypeDefinition(node);
+		}
+		
+		void LeaveTypeDefinition(TypeDefinition node)
+		{
+			string fullName = node.FullName;
+			if (_types.Contains(fullName))
+			{
+				Errors.Add(CompilerErrorFactory.NamespaceAlreadyContainsMember(node, GetNamespace(node), node.Name));
+				return;
+			}
+			_types.Add(fullName, node); 
+		}
+		
+		string GetNamespace(TypeDefinition node)
+		{
+			NamespaceDeclaration ns = node.EnclosingNamespace;
+			return ns == null ? "" : ns.Name;
 		}
 
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)

@@ -701,6 +701,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0131", node.LexicalInfo, name, modifiers);
 		}
 		
+		public static CompilerError NamespaceAlreadyContainsMember(Node node, string container, string member)
+		{
+			return new CompilerError("BCE0132", node.LexicalInfo, container, member);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

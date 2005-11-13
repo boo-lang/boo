@@ -131,6 +131,7 @@ BCE0128='try' block must be followed by either 'except' or 'ensure'.
 BCE0129=Invalid extension definition, only static methods are allowed.
 BCE0130='partial' can only be applied to class definitions.
 BCE0131=Invalid combination of modifiers on '{0}': {1}.
+BCE0132=The namespace '{0}' already contains a definition for '{1}'.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

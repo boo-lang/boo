@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.Steps
 			Error(
 				CompilerErrorFactory.InvalidCombinationOfModifiers(
 					member,
-					member.Name,
+					member.FullName,
 					string.Format("{0}, {1}", mod1.ToString().ToLower(), mod2.ToString().ToLower())));
 		}
 		

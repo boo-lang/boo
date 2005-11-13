@@ -45,6 +45,13 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit.Modules);
 		}
 		
+		override public void Dispose()
+		{
+			base.Dispose();
+			_current = null;
+			_partials.Clear();
+		}
+		
 		override public bool EnterClassDefinition(ClassDefinition node)
 		{
 			if (!node.IsPartial)
