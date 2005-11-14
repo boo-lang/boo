@@ -59,6 +59,11 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = node;
 			Visit(node.Body);
 		}
+		
+		override public void OnConstructor(Constructor node)
+		{
+			OnMethod(node);
+		}
 
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
