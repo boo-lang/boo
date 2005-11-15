@@ -430,6 +430,25 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(t.Name);
 		}
 		
+		override public void OnGenericTypeReference(GenericTypeReference node)
+		{
+			OnSimpleTypeReference(node);
+			WriteGenericArguments(node.GenericArguments);
+		}
+		
+		override public void OnGenericReferenceExpression(GenericReferenceExpression node)
+		{
+			Visit(node.Target);
+			WriteGenericArguments(node.GenericArguments);
+		}
+		
+		void WriteGenericArguments(TypeReferenceCollection arguments)
+		{
+			Write("[of ");
+			WriteCommaSeparatedList(arguments);
+			Write("]");
+		}
+		
 		override public void OnArrayTypeReference(ArrayTypeReference t)
 		{
 			Write("(");

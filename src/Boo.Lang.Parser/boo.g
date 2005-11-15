@@ -89,6 +89,7 @@ tokens
 	IN="in";	
 	NOT="not";	
 	NULL="null";
+	OF="of";
 	OR="or";
 	OTHERWISE="otherwise";
 	OVERRIDE="override";	
@@ -1070,10 +1071,20 @@ array_type_reference returns [ArrayTypeReference atr]
 	;
 
 protected
+type_reference_list [TypeReferenceCollection container]
+	{
+		TypeReference tr = null;
+	}:
+	tr=type_reference { container.Add(tr); }
+	(COMMA tr=type_reference { container.Add(tr); })*
+;
+
+protected
 type_reference returns [TypeReference tr]
 	{
-		tr=null;
+		tr = null;
 		IToken id = null;
+		TypeReferenceCollection arguments = null;
 	}: 
 	tr=array_type_reference
 	|
@@ -1081,11 +1092,33 @@ type_reference returns [TypeReference tr]
 	|
 	(
 		id=type_name
-		{
-			SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
-			str.Name = id.getText();
-			tr = str;
-		}
+		(
+			(
+				LBRACK OF
+				{
+					GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
+					arguments = gtr.GenericArguments;
+					tr = gtr;
+				}
+				type_reference_list[arguments]
+				RBRACK
+			)
+			|
+			(
+				OF tr=type_reference
+				{
+					GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
+					gtr.GenericArguments.Add(tr);
+					tr = gtr;
+				}
+			)
+			|
+			{
+				SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
+				str.Name = id.getText();
+				tr = str;
+			}
+		)
 	)
 	;
 	
@@ -2404,18 +2437,43 @@ slicing_expression returns [Expression e]
 		SlicingExpression se = null;
 		MethodInvocationExpression mce = null;
 		IToken memberName = null;
+		TypeReference genericArgument = null;
+		TypeReferenceCollection genericArguments = null;
 	} :
 	e=atom
 	( options { greedy=true; }:
 		(
 			lbrack:LBRACK
-			{
-				se = new SlicingExpression(ToLexicalInfo(lbrack));				
-				se.Target = e;
-				e = se;
-			}
-			slice[se] (COMMA slice[se])*
+			(
+				(
+					OF
+					{
+						GenericReferenceExpression gre = new GenericReferenceExpression(ToLexicalInfo(lbrack));
+						gre.Target = e;
+						e = gre;
+						genericArguments = gre.GenericArguments;
+					}
+					type_reference_list[genericArguments]					
+				)
+				|				
+				{
+					se = new SlicingExpression(ToLexicalInfo(lbrack));				
+					se.Target = e;
+					e = se;
+				}
+				slice[se] (COMMA slice[se])*
+			)
 			RBRACK
+		)
+		|
+		(
+			oft:OF genericArgument=type_reference
+			{
+				GenericReferenceExpression gre = new GenericReferenceExpression(ToLexicalInfo(oft));
+				gre.Target = e;
+				e = gre;
+				gre.GenericArguments.Add(genericArgument);
+			}
 		)
 		|
 		(

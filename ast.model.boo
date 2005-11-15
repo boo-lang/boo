@@ -59,6 +59,9 @@ class ArrayTypeReference(TypeReference):
 class CallableTypeReference(TypeReference):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
+	
+class GenericTypeReference(SimpleTypeReference):
+	GenericArguments as TypeReferenceCollection
 
 [collection(TypeReference)]
 class TypeReferenceCollection:
@@ -397,6 +400,10 @@ class ReferenceExpression(Expression):
 
 class MemberReferenceExpression(ReferenceExpression):
 	Target as Expression
+	
+class GenericReferenceExpression(Expression):
+	Target as Expression
+	GenericArguments as TypeReferenceCollection
 
 abstract class LiteralExpression(Expression):
 	pass
