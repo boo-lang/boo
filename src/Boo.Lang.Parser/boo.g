@@ -1076,7 +1076,9 @@ type_reference_list [TypeReferenceCollection container]
 		TypeReference tr = null;
 	}:
 	tr=type_reference { container.Add(tr); }
-	(COMMA tr=type_reference { container.Add(tr); })*
+	(options { greedy=true; }:
+		COMMA tr=type_reference { container.Add(tr); }
+	)*
 ;
 
 protected
