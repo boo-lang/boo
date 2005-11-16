@@ -3068,16 +3068,29 @@ RE_CHAR : RE_ESC | ~('/' | '\\' | '\r' | '\n' | ' ' | '\t' );
 protected
 X_RE_CHAR: RE_CHAR | ' ' | '\t';
 
-
 protected
-RE_ESC : '\\' (
+RE_ESC : '\\' (				
+				'+' |
+				'/' |
+				'(' |
+				')' |
+				'|' |
+				'.' |
+				'*' |
+				'?' |
+				'$' |
+				'^' |
+				'['	|
+				']' |
+				'{' |
+				'}' |
 	
 	// character scapes
 	// ms-help://MS.NETFrameworkSDKv1.1/cpgenref/html/cpconcharacterescapes.htm
 	
 				'a' |
 				'b' |
-				'c' 'A'..'Z' |
+				('c' 'A'..'Z') |
 				't' |
 				'r' |
 				'v' |
@@ -3085,8 +3098,8 @@ RE_ESC : '\\' (
 				'n' |
 				'e' |
 				(DIGIT)+ |
-				'x' HEXDIGIT HEXDIGIT |
-				'u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT |
+				('x' HEXDIGIT HEXDIGIT) |
+				('u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT) |
 				'\\' |
 				
 	// character classes
@@ -3109,25 +3122,10 @@ RE_ESC : '\\' (
 				'Z' |
 				'g' |
 				'B' |
-				
-				'k' |
-				
-				'/' |
-				'(' |
-				')' |
-				'|' |
-				'.' |
-				'*' |
-				'?' |
-				'$' |
-				'^' |
-				'['	|
-				']' |
-				'{' |
-				'}'
+				'k'			
 			 )
 			 ;
-
+			 
 protected
 DIGIT_GROUP : DIGIT (('_'! DIGIT DIGIT DIGIT) | DIGIT)*;
 
