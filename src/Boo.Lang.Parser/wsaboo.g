@@ -621,22 +621,28 @@ interface_method [TypeMemberCollection container]
 			
 protected
 interface_property [TypeMemberCollection container]
-	{
-		Property p = null;
-		TypeReference tr = null;
-	}:
-	id:ID (AS tr=type_reference)?
-	{
-		p = new Property(ToLexicalInfo(id));
-		p.Name = id.getText();
-		p.Type = tr;
-		AddAttributes(p.Attributes);
-		container.Add(p);
-	}
-	begin_with_doc[p]
-		(interface_property_accessor[p])+
-	end[p]
-	;
+        {
+                Property p = null;
+                TypeReference tr = null;
+                ParameterDeclarationCollection parameters = null;
+        }:
+        (id:ID)
+        {
+                p = new Property(ToLexicalInfo(id));
+                p.Name = id.getText();
+                AddAttributes(p.Attributes);
+                container.Add(p);
+                parameters = p.Parameters;
+        }
+        (LPAREN parameter_declaration_list[parameters] RPAREN)?
+        (AS tr=type_reference)?
+        {
+                p.Type = tr;
+        }
+        begin_with_doc[p]
+                (interface_property_accessor[p])+
+        end[p]
+        ; 
 			
 protected
 interface_property_accessor[Property p]

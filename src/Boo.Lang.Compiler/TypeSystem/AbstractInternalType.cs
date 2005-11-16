@@ -230,10 +230,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 			}
-			if (null != BaseType)
-			{
-				return BaseType.GetDefaultMember();
-			}
+                        if (_typeDefinition.BaseTypes.Count > 0)
+                        {
+				List buffer = new List();
+				
+				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+				{
+					IType tag = TypeSystemServices.GetType(baseType);
+					IEntity defaultMember = tag.GetDefaultMember();
+					if (defaultMember != null)
+					{
+						if (tag.IsInterface)
+						{
+							buffer.AddUnique(defaultMember);
+						}
+						else //non-interface base class trumps interfaces
+						{
+							return defaultMember;
+						}
+					}
+				}
+				return NameResolutionService.GetEntityFromList(buffer);
+			} 
 			return null;
 		}
 		

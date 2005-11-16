@@ -1608,7 +1608,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							node.Target = new MemberReferenceExpression(node.Target, member.Name);
+							node.Target = new MemberReferenceExpression(node.LexicalInfo, node.Target, member.Name);
 							node.Target.Entity = member;
 							// to be resolved later
 							node.Target.ExpressionType = Null.Default;
@@ -1676,10 +1676,16 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod getter = null;
 			if (EntityType.Ambiguous == member.EntityType)
 			{
-				IProperty found = ResolveAmbiguousPropertyReference((ReferenceExpression)node.Target, (Ambiguous)member, mie.Arguments) as IProperty;
+				IEntity result = ResolveAmbiguousPropertyReference((ReferenceExpression)node.Target, (Ambiguous)member, mie.Arguments);
+				IProperty found = result as IProperty;
 				if (null != found)
 				{
 					getter = found.GetGetMethod();
+				}
+				else if (EntityType.Ambiguous == result.EntityType)
+				{
+					Error(node);
+					return;
 				}
 			}
 			else if (EntityType.Property == member.EntityType)
@@ -4103,7 +4109,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (EntityType.Ambiguous == lhs.EntityType)
 			{
-				setter = (IMethod)ResolveCallableReference(node.Left, mie.Arguments, GetSetMethods(lhs), false);
+				setter = (IMethod)ResolveCallableReference(node.Left, mie.Arguments, GetSetMethods(lhs), true);
+				if (setter == null)
+				{
+					Error(node.Left);
+					return;
+				}
 			}
 			
 			if (null == setter)
@@ -5034,7 +5045,6 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != entity) return CheckLValue(node, entity);
 			
 			if (IsArraySlicing(node)) return true;
-			
 			Error(CompilerErrorFactory.LValueExpected(node));
 			return false;
 		}
