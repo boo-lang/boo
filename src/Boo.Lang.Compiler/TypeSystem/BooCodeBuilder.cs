@@ -483,6 +483,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			integer.ExpressionType = _tss.IntType;
 			return integer;
 		}
+
+		public IntegerLiteralExpression CreateIntegerLiteral(long value)
+		{
+			IntegerLiteralExpression integer = new IntegerLiteralExpression(value);
+			integer.ExpressionType = _tss.LongType;
+			return integer;
+		}
 		
 		public SlicingExpression CreateSlicing(Expression target, int begin)
 		{

@@ -3933,6 +3933,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return GetSystemType(((TypeofExpression)expression).Type);
 				}
+
+				case NodeType.CastExpression:
+				{
+					return GetValue(expectedType, ((CastExpression)expression).Target);
+				}
 				
 				default:
 				{
@@ -3958,9 +3963,20 @@ namespace Boo.Lang.Compiler.Steps
 		
 		object ConvertValue(IType expectedType, object value)
 		{
+			if (expectedType.IsEnum)
+			{
+				return Convert.ChangeType(value, GetUnderlyingEnumType(expectedType));
+			}
 			return Convert.ChangeType(value, GetSystemType(expectedType));
 		}
-		
+
+		private Type GetUnderlyingEnumType(IType expectedType)
+		{	
+			return expectedType is IInternalEntity
+				? Types.Int
+				: Enum.GetUnderlyingType(GetSystemType(expectedType));
+		}
+
 		void DefineTypeMembers(TypeDefinition typeDefinition)
 		{
 			if (IsEnumDefinition(typeDefinition))

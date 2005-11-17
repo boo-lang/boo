@@ -1724,6 +1724,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\UnfoldConstants.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "TypeSystem\AbstractInternalType.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
