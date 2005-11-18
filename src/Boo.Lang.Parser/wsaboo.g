@@ -1278,6 +1278,7 @@ closure_expression returns [Expression e]
 	anchorBegin:LBRACE
 		{
 			e = cbe = new CallableBlockExpression(ToLexicalInfo(anchorBegin));
+			cbe.Annotate("inline");
 			parameters = cbe.Parameters;
 			body = cbe.Body;
 		}

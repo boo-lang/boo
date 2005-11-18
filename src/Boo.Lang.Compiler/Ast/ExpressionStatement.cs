@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Ast
 		public ExpressionStatement(Expression expression) : base(expression)
 		{
 		}
-		
+
 		override public void Accept(IAstVisitor visitor)
 		{
 			visitor.OnExpressionStatement(this);

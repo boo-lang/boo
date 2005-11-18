@@ -1153,7 +1153,6 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Parameter:
 				{
 					InternalParameter param = (InternalParameter)tag;
-					
 					if (param.Parameter.IsByRef)
 					{
 						LoadParam(param);

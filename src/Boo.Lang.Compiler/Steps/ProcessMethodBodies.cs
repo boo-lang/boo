@@ -45,6 +45,8 @@ namespace Boo.Lang.Compiler.Steps
 	public class ProcessMethodBodies : AbstractNamespaceSensitiveVisitorCompilerStep
 	{
 		static readonly ExpressionCollection EmptyExpressionCollection = new ExpressionCollection();
+
+		static readonly object OptionalReturnStatementAnnotation = new object();
 		
 		protected Stack _methodStack;
 
@@ -677,6 +679,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnCallableBlockExpression(CallableBlockExpression node)
 		{
+			if (WasVisited(node)) return;
+			MarkVisited(node);
+
 			TypeMemberModifiers modifiers = TypeMemberModifiers.Internal;
 			if (_currentMethod.IsStatic)
 			{
@@ -703,6 +708,11 @@ namespace Boo.Lang.Compiler.Steps
 			// check for invalid names and
 			// resolve parameter types
 			Visit(closure.Parameters);
+
+			if (node.ContainsAnnotation("inline"))
+			{
+				AddOptionalReturnStatement(node.Body);
+			}
 			
 			// Connects the closure method namespace with the current
 			NamespaceDelegator ns = new NamespaceDelegator(CurrentNamespace, closureEntity);
@@ -711,6 +721,17 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+		}
+
+		private void AddOptionalReturnStatement(Block body)
+		{
+			if (body.Statements.Count != 1) return;
+			ExpressionStatement stmt = body.Statements[0] as ExpressionStatement;
+			if (null == stmt) return;
+
+			ReturnStatement rs = new ReturnStatement(stmt.LexicalInfo, stmt.Expression, null);
+			rs.Annotate(OptionalReturnStatementAnnotation);
+			body.Replace(stmt, rs);
 		}
 
 		override public void OnMethod(Method method)
@@ -2524,22 +2545,28 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveReturnStatement(ReturnStatement node)
 		{
-			if (null != node.Expression)
+			if (null == node.Expression) return;
+
+			// forces anonymous types to be correctly
+			// instantiated
+			IType expressionType = GetConcreteExpressionType(node.Expression);
+			if (TypeSystemServices.VoidType == expressionType
+				&& node.ContainsAnnotation(OptionalReturnStatementAnnotation))
 			{
-				IType returnType = _currentMethod.ReturnType;
-				
-				// forces anonymous types to be correctly
-				// instantiated
-				IType expressionType = GetConcreteExpressionType(node.Expression);
-				
-				if (TypeSystemServices.IsUnknown(returnType))
-				{
-					_currentMethod.AddReturnExpression(node.Expression);
-				}
-				else
-				{
-					CheckTypeCompatibility(node.Expression, returnType, expressionType);
-				}
+				node.ParentNode.Replace(
+					node,
+					new ExpressionStatement(node.Expression));
+				return;
+			}
+			
+			IType returnType = _currentMethod.ReturnType;
+			if (TypeSystemServices.IsUnknown(returnType))
+			{
+				_currentMethod.AddReturnExpression(node.Expression);
+			}
+			else
+			{
+				CheckTypeCompatibility(node.Expression, returnType, expressionType);
 			}
 		}
 		

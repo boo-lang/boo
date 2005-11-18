@@ -7,7 +7,7 @@
 x = do(ref x as int):
 	x = 3
 	
-y = {ref x as int | x = 4}
+y = { ref x as int | x = 4; return 4 }
 
 a = 1
 b = 2
