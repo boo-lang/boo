@@ -68,6 +68,7 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CheckExtensionSemantics(node);
+			CannotReturnValue(node);
 		}
 		
 		override public void LeaveMethod(Method node)
@@ -153,6 +154,16 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.Parameters.Count != 0)
 			{
 				Error(CompilerErrorFactory.CantHaveDestructorParameters(node));
+			}
+
+			CannotReturnValue(node);
+		}
+
+		private void CannotReturnValue(Method node)
+		{
+			if (node.ReturnType != null)
+			{
+				Error(CompilerErrorFactory.CannotReturnValue(node));
 			}
 		}
 

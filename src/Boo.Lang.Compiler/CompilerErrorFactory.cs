@@ -710,6 +710,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0133", node.LexicalInfo);
 		}
+
+		public static CompilerError CannotReturnValue(Method node)
+		{
+			return new CompilerError("BCE0134", node.LexicalInfo, node);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
