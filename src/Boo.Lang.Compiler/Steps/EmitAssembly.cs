@@ -1106,8 +1106,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (leaveValueOnStack)
 			{
 				_il.Emit(OpCodes.Dup);
-				temp = _il.DeclareLocal(GetSystemType(elementType));
-				_il.Emit(OpCodes.Stloc, temp);
+				temp = StoreTempLocal(elementType);
 			}
 			
 			if (stobj)
@@ -1121,15 +1120,28 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (leaveValueOnStack)
 			{
-				_il.Emit(OpCodes.Ldloc, temp);
-				PushType(elementType);
+				LoadLocal(temp, elementType);
 			}
 			else
 			{
 				PushVoid();
 			}
 		}
-		
+
+		private void LoadLocal(LocalBuilder local, IType localType)
+		{
+			_il.Emit((OpCode) OpCodes.Ldloc, (LocalBuilder) local);
+			PushType(localType);
+		}
+
+		private LocalBuilder StoreTempLocal(IType elementType)
+		{
+			LocalBuilder temp;
+			temp = _il.DeclareLocal(GetSystemType(elementType));
+			_il.Emit(OpCodes.Stloc, temp);
+			return temp;
+		}
+
 		void OnAssignment(BinaryExpression node)
 		{
 			if (NodeType.SlicingExpression == node.Left.NodeType)
@@ -1155,7 +1167,8 @@ namespace Boo.Lang.Compiler.Steps
 					InternalParameter param = (InternalParameter)tag;
 					if (param.Parameter.IsByRef)
 					{
-						LoadParam(param);
+						SetByRefParam(param, node.Right, leaveValueOnStack);
+						break;
 					}
 					
 					Visit(node.Right);
@@ -1166,23 +1179,7 @@ namespace Boo.Lang.Compiler.Steps
 						_il.Emit(OpCodes.Dup);
 						PushType(param.Type);
 					}
-					
-					if (param.Parameter.IsByRef)
-					{
-						OpCode storecode = GetStoreRefParamCode(param.Type);
-						if (IsStobj(storecode)) //passing struct/decimal byref
-						{
-							_il.Emit(storecode, GetSystemType(param.Type));
-						}
-						else
-						{
-							_il.Emit(storecode);
-						}
-					}
-					else
-					{
-						_il.Emit(OpCodes.Starg, param.Index);
-					}
+					_il.Emit(OpCodes.Starg, param.Index);
 					break;
 				}
 				
@@ -1210,7 +1207,46 @@ namespace Boo.Lang.Compiler.Steps
 				PushVoid();
 			}
 		}
-		
+
+		private void SetByRefParam(InternalParameter param, Expression right, bool leaveValueOnStack)
+		{	
+			LocalBuilder temp = null;
+			IType tempType = null;
+			if (leaveValueOnStack)
+			{
+				Visit(right);
+				tempType = PopType();
+				temp = StoreTempLocal(tempType);
+			}
+
+			LoadParam(param);
+			if (temp != null)
+			{
+				LoadLocal(temp, tempType);
+			}
+			else
+			{
+				Visit(right);
+			}
+			
+			EmitCastIfNeeded(param.Type, PopType());
+					
+			OpCode storecode = GetStoreRefParamCode(param.Type);
+			if (IsStobj(storecode)) //passing struct/decimal byref
+			{
+				_il.Emit(storecode, GetSystemType(param.Type));
+			}
+			else
+			{
+				_il.Emit(storecode);
+			}
+
+			if (null != temp)
+			{
+				LoadLocal(temp, tempType);
+			}
+		}
+
 		void EmitTypeTest(BinaryExpression node)
 		{
 			Visit(node.Left); PopType();
