@@ -1599,6 +1599,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\MergePartialClasses.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\NormalizeIterationStatements.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

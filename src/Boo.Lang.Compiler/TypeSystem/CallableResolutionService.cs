@@ -235,6 +235,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 					int argumentScore = CalculateArgumentScore(lastParameter, lastParameterType, lastArg);
 					if (argumentScore < 0) return -1;
 					score += argumentScore;
+					// this is the one the user wants
+					return score;
 				}
 				else
 				{
@@ -248,7 +250,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			// varargs should not be preferred over non varargs methods
-			return score - ((args.Count + 1)*3);
+			return score - ((args.Count + 1) * 3);
 		}
 
 		private int CalculateExactArgsScore(IParameter[] parameters, NodeCollection args)

@@ -1,3 +1,5 @@
+using System;
+
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
@@ -106,6 +108,17 @@ namespace Boo.Lang.Compiler.Steps
 				CheckExpressionType(e);
 			}
 		}
+
+		public override void LeaveUnaryExpression(UnaryExpression node)
+		{
+			switch (node.Operator)
+			{
+				case UnaryOperatorType.Explode:
+					LeaveExplodeExpression(node);
+					break;
+			}
+		}
+
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
@@ -118,6 +131,26 @@ namespace Boo.Lang.Compiler.Steps
 						CompilerWarningFactory.IsInsteadOfIsa(node));
 				}
 			}
+		}
+
+		protected virtual void LeaveExplodeExpression(UnaryExpression node)
+		{	
+			if (!IsLastArgumentOfVarArgInvocation(node))
+			{
+				Console.WriteLine(node.ParentNode);
+				Console.WriteLine(((MethodInvocationExpression)node.ParentNode).Target.Entity);
+				Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
+			}
+		}
+
+		private bool IsLastArgumentOfVarArgInvocation(UnaryExpression node)
+		{
+			MethodInvocationExpression parent = node.ParentNode as MethodInvocationExpression;
+			if (null == parent) return false;
+			if (parent.Arguments.Count == 0 || node != parent.Arguments[-1]) return false;
+			ICallableType type = parent.Target.ExpressionType as ICallableType;
+			if (null == type) return false;
+			return type.GetSignature().AcceptVarArgs;
 		}
 		
 		bool IsTypeReference(Expression node)

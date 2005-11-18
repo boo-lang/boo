@@ -2274,21 +2274,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Error(CompilerErrorFactory.ExplodedExpressionMustBeArray(node));
 			}
-			if (!IsLastArgumentOfVarArgInvocation(node))
-			{
-				Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
-			}
 			BindExpressionType(node, type);
-		}
-
-		private bool IsLastArgumentOfVarArgInvocation(UnaryExpression node)
-		{
-			MethodInvocationExpression parent = node.ParentNode as MethodInvocationExpression;
-			if (null == parent) return false;
-			if (parent.Arguments.Count == 0 || node != parent.Arguments[-1]) return false;
-			ICallableType type = parent.Target.ExpressionType as ICallableType;
-			if (null == type) return false;
-			return AcceptVarArgs(type);
 		}
 
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
