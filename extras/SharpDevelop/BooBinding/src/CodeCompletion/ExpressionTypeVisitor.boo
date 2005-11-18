@@ -248,7 +248,7 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 	override def OnArrayLiteralExpression(node as ArrayLiteralExpression):
 		CreateReturnType("System.Array")
 	
-	override def OnAsExpression(node as AsExpression):
+	override def OnTryCastExpression(node as TryCastExpression):
 		CreateReturnType(node.Type)
 	
 	override def OnCastExpression(node as CastExpression):

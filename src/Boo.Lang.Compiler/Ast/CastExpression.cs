@@ -41,11 +41,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public CastExpression(LexicalInfo lexicalInfo, TypeReference type, Expression target) : base(lexicalInfo, type, target)
+		public CastExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo, target, type)
 		{
 		}
 		
-		public CastExpression(TypeReference type, Expression target) : base(type, target)
+		public CastExpression(Expression target, TypeReference type) : base(target, type)
 		{
 		}
 		

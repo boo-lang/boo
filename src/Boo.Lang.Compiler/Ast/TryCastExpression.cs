@@ -32,27 +32,27 @@ using Boo.Lang.Compiler.Ast.Impl;
 namespace Boo.Lang.Compiler.Ast
 {
 	[Serializable]
-	public class AsExpression : AsExpressionImpl
+	public class TryCastExpression : TryCastExpressionImpl
 	{		
-		public AsExpression()
+		public TryCastExpression()
 		{
  		}
 		
-		public AsExpression(Expression target, TypeReference type) : base(target, type)
+		public TryCastExpression(Expression target, TypeReference type) : base(target, type)
 		{
 		}
 		
-		public AsExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo, target, type)
+		public TryCastExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo, target, type)
 		{
 		}
 		
-		public AsExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+		public TryCastExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		
 		override public void Accept(IAstVisitor visitor)
 		{
-			visitor.OnAsExpression(this);
+			visitor.OnTryCastExpression(this);
 		}
 	}
 }

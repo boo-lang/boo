@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
         override public void OnAstLiteralExpression(AstLiteralExpression node)
         {
 			Type type = node.Node.GetType();
-			CastExpression ce = new CastExpression(CodeBuilder.CreateTypeReference(type), CreateFromXmlInvocation(node.Node.LexicalInfo, type, AstUtil.ToXml(node.Node)));
+			CastExpression ce = new CastExpression(CreateFromXmlInvocation(node.Node.LexicalInfo, type, AstUtil.ToXml(node.Node)), CodeBuilder.CreateTypeReference(type));
 			ce.LexicalInfo = node.LexicalInfo;
 
 			ReplaceCurrentNode(ce);

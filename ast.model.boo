@@ -481,13 +481,13 @@ class SlicingExpression(Expression):
 	Target as Expression
 	Indices as SliceCollection
 
-class AsExpression(Expression):
+class TryCastExpression(Expression):
 	Target as Expression
 	Type as TypeReference
 	
 class CastExpression(Expression):
-	Type as TypeReference
 	Target as Expression
+	Type as TypeReference
 	
 class TypeofExpression(Expression):
 	Type as TypeReference

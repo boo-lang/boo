@@ -2208,7 +2208,7 @@ exponentiation returns [Expression e]
 		t:AS
 		tr=type_reference
 		{
-			AsExpression ae = new AsExpression(ToLexicalInfo(t));
+			TryCastExpression ae = new TryCastExpression(ToLexicalInfo(t));
 			ae.Target = e;
 			ae.Type = tr;
 			e = ae; 
@@ -2300,7 +2300,7 @@ cast_expression returns [Expression e]
 	}:
 	t:CAST LPAREN tr=type_reference COMMA target=expression RPAREN
 	{
-		e = new CastExpression(ToLexicalInfo(t), tr, target);
+		e = new CastExpression(ToLexicalInfo(t), target, tr);
 	}
 	;
 	

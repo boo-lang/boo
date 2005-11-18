@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(GeneratorExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(ExtendedGeneratorExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(SlicingExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(AsExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(TryCastExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(TypeofExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(CastExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(CallableBlockExpression))]

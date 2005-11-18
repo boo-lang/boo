@@ -2018,7 +2018,7 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, toType);
 		}
 		
-		override public void LeaveAsExpression(AsExpression node)
+		override public void LeaveTryCastExpression(TryCastExpression node)
 		{
 			IType target = GetExpressionType(node.Target);
 			IType toType = GetType(node.Type);

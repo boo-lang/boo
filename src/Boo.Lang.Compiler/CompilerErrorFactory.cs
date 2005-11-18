@@ -705,6 +705,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0132", node.LexicalInfo, container, member);
 		}
+
+		public static CompilerError InvalidEntryPoint(Node node)
+		{
+			return new CompilerError("BCE0133", node.LexicalInfo);
+		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

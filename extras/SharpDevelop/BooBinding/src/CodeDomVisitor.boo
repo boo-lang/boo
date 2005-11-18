@@ -172,7 +172,7 @@ types."""
 	def OnArrayTypeReference(node as ArrayTypeReference):
 		pass
 	
-	def OnAsExpression(node as AsExpression):
+	def OnTryCastExpression(node as TryCastExpression):
 		pass
 	
 	def OnAttribute(node as Boo.Lang.Compiler.Ast.Attribute):
@@ -458,5 +458,11 @@ types."""
 		pass
 	
 	def OnYieldStatement(node as YieldStatement):
+		pass
+		
+	def OnGenericReferenceExpression(node as GenericReferenceExpression):
+		pass
+		
+	def OnGenericTypeReference(node as GenericTypeReference):
 		pass
 

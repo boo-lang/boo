@@ -224,11 +224,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Ast\AsExpression.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Ast\AstLiteralExpression.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -435,6 +430,16 @@
                 />
                 <File
                     RelPath = "Ast\GeneratorExpressionCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\GenericReferenceExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\GenericTypeReference.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -714,6 +719,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Ast\TryCastExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Ast\TryStatement.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -805,11 +815,6 @@
                 />
                 <File
                     RelPath = "Ast\Impl\ArrayTypeReferenceImpl.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Ast\Impl\AsExpressionImpl.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -1000,6 +1005,16 @@
                 />
                 <File
                     RelPath = "Ast\Impl\GeneratorExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\GenericReferenceExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\GenericTypeReferenceImpl.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -1210,6 +1225,11 @@
                 />
                 <File
                     RelPath = "Ast\Impl\TimeSpanLiteralExpressionImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\TryCastExpressionImpl.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

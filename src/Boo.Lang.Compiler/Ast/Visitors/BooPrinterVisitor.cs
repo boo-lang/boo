@@ -476,7 +476,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(e.Name);
 		}
 
-		override public void OnAsExpression(AsExpression e)
+		override public void OnTryCastExpression(TryCastExpression e)
 		{
 			Write("(");
 			Visit(e.Target);

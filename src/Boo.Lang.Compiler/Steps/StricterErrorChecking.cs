@@ -49,7 +49,36 @@ namespace Boo.Lang.Compiler.Steps
 			base.Dispose();
 			_types.Clear();
 		}
-		
+
+		public override void LeaveCompileUnit(CompileUnit node)
+		{
+			CheckEntryPoint();
+		}
+
+		private void CheckEntryPoint()
+		{
+			Method method = ContextAnnotations.GetEntryPoint(Context);
+			if (null == method) return;
+
+			IMethod entity = (IMethod)TypeSystemServices.GetEntity(method);
+			if (IsValidEntryPointReturnType(entity.ReturnType) && IsValidEntryPointParameterList(entity.GetParameters())) return;
+
+			Errors.Add(CompilerErrorFactory.InvalidEntryPoint(method));
+		}
+
+		private bool IsValidEntryPointParameterList(IParameter[] parameters)
+		{
+			if (parameters.Length == 0) return true;
+			if (parameters.Length != 1) return false;
+			return parameters[0].Type == TypeSystemServices.GetArrayType(TypeSystemServices.StringType, 1);
+		}
+
+		private bool IsValidEntryPointReturnType(IType type)
+		{
+			return type == TypeSystemServices.VoidType
+				|| type == TypeSystemServices.IntType;
+		}
+
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
 			LeaveTypeDefinition(node);

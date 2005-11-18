@@ -219,7 +219,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveAsExpression(AsExpression node)
+		override public void LeaveTryCastExpression(TryCastExpression node)
 		{
 			Expression newExpression = Convert(node.ExpressionType, node.Target);
 			if (null != newExpression)

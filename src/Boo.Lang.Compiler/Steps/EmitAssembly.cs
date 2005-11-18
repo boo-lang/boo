@@ -1563,7 +1563,7 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(type);
 		}
 		
-		override public void OnAsExpression(AsExpression node)
+		override public void OnTryCastExpression(TryCastExpression node)
 		{
 			Type type = GetSystemType(node.Type);
 			

@@ -92,7 +92,7 @@ namespace Boo.Lang
 			stmt.Condition = new BinaryExpression(
 								BinaryOperatorType.Assign,
 								new ReferenceExpression(DisposableLocalName),
-								new AsExpression(reference, new SimpleTypeReference("System.IDisposable"))
+								new TryCastExpression(reference, new SimpleTypeReference("System.IDisposable"))
 								);			
 			
 			stmt.TrueBlock = new Block();
