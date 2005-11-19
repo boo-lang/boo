@@ -602,7 +602,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			WriteArray(node.Items);
+			WriteArray(node.Items, node.Type);
 		}
 		
 		override public void OnListLiteralExpression(ListLiteralExpression node)

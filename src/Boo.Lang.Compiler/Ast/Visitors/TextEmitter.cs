@@ -160,10 +160,21 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Visit(items.GetNodeAt(i));
 			}
 		}
-		
+
 		protected void WriteArray(NodeCollection items)
 		{
+			WriteArray(items, null);
+		}
+		
+		protected void WriteArray(NodeCollection items, ArrayTypeReference type)
+		{
 			Write("(");
+			if (null != type)
+			{
+				Write("of ");
+				type.ElementType.Accept(this);
+				Write(": ");
+			}
 			if (items.Count > 1)
 			{
 				for (int i=0; i<items.Count; ++i)

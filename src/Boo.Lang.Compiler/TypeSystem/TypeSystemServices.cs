@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType TypeType;
 		
-		public IType ObjectArrayType;
+		public IArrayType ObjectArrayType;
 	
 		public ExternalType VoidType;
 		

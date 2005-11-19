@@ -1750,32 +1750,32 @@ array_or_expression returns [Expression e]
 		e = null;
 		ArrayLiteralExpression tle = null;
 	} :
-		(
-			// tupla vazia: , ou (,)
-			c:COMMA { e = new ArrayLiteralExpression(ToLexicalInfo(c)); }
-		) |
-		(
-			e=expression
+	(
+		// tupla vazia: , ou (,)
+		c:COMMA { e = new ArrayLiteralExpression(ToLexicalInfo(c)); }
+	) |
+	(
+		e=expression
+		( options { greedy=true; }:
+			t:COMMA
+			{					
+				tle = new ArrayLiteralExpression(e.LexicalInfo);
+				tle.Items.Add(e);		
+			}
 			( options { greedy=true; }:
-				t:COMMA
-				{					
-					tle = new ArrayLiteralExpression(e.LexicalInfo);
-					tle.Items.Add(e);		
-				}
+				e=expression { tle.Items.Add(e); }
 				( options { greedy=true; }:
+					COMMA
 					e=expression { tle.Items.Add(e); }
-					( options { greedy=true; }:
-						COMMA
-						e=expression { tle.Items.Add(e); }
-					)*
-					(COMMA)?
-				)?
-				{
-					e = tle;
-				}
+				)*
+				(COMMA)?
 			)?
-		)
-	;
+			{
+				e = tle;
+			}
+		)?
+	)
+;
 			
 protected
 expression returns [Expression e]
@@ -2336,34 +2336,37 @@ reference_expression returns [ReferenceExpression e]
 	
 protected
 paren_expression returns [Expression e] { e = null; }:
-	LPAREN e=array_or_expression RPAREN
-	;
+    (LPAREN OF)=>e=typed_array
+	| LPAREN e=array_or_expression RPAREN
+;
 
 protected
-array returns [Expression e]
+typed_array returns [Expression e]
 	{
-		ArrayLiteralExpression tle = null;
 		e = null;
+		ArrayLiteralExpression tle = null;
+		TypeReference tr = null;
+		Expression item = null;
 	}:
 	t:LPAREN
-	e=expression
+	OF tr=type_reference COLON
+	{
+		e = tle = new ArrayLiteralExpression(ToLexicalInfo(t));
+		tle.Type = new ArrayTypeReference(tr.LexicalInfo, tr);
+	}
 	(
 		COMMA
-		{
-			tle = new ArrayLiteralExpression(ToLexicalInfo(t));
-			tle.Items.Add(e);
-		}
+		|
 		(
-			e=expression { tle.Items.Add(e); }
+			item=expression { tle.Items.Add(item); }
 			(
 				COMMA
-				e=expression { tle.Items.Add(e); }
+				item=expression { tle.Items.Add(item); }
 			)*
-		)?
-		{ e = tle; }
-	)?
+		)
+	)
 	RPAREN
-	;
+;
 	
 protected
 method_invocation_with_block returns [Statement s]

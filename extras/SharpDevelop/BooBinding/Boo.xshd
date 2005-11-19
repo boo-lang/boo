@@ -271,6 +271,7 @@
 				<Key word="mixin"/>
 				<Key word="callable"/>
 				<Key word="do" />
+				<Key word="of" >
 			</KeyWords>
 
 		</RuleSet>

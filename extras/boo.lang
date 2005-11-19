@@ -116,6 +116,7 @@ OR
 		<keyword>interface</keyword>
 		<keyword>enum</keyword>
 		<keyword>callable</keyword>
+		<keyword>of</keyword>
 		
 		<keyword>def</keyword>
 		<keyword>constructor</keyword>

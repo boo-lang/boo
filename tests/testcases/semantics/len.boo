@@ -4,7 +4,7 @@ public final transient class LenModule(System.Object):
 
 	private static def Main(argv as (System.String)) as System.Void:
 		l = []
-		t = (,)
+		t = (of System.Object: ,)
 		s = ''
 		o = ('' as System.Object)
 		Boo.Lang.Builtins.print(l.get_Count())

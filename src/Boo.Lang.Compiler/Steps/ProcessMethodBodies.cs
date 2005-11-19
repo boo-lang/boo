@@ -1862,16 +1862,24 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			ExpressionCollection items = node.Items;
-			if (0 == items.Count)
+			TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
+			IArrayType type = InferArrayType(node);
+			BindExpressionType(node, type);
+			if (null == node.Type)
 			{
-				BindExpressionType(node, TypeSystemServices.ObjectArrayType);
+				node.Type = (ArrayTypeReference)CodeBuilder.CreateTypeReference(type);
 			}
 			else
 			{
-				TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
-				BindExpressionType(node, TypeSystemServices.GetArrayType(GetMostGenericType(items), 1));
+				CheckItems(type.GetElementType(), node.Items);
 			}
+		}
+
+		private IArrayType InferArrayType(ArrayLiteralExpression node)
+		{
+			if (null != node.Type) return (IArrayType)node.Type.Entity;
+			if (0 == node.Items.Count) return TypeSystemServices.ObjectArrayType;
+			return TypeSystemServices.GetArrayType(GetMostGenericType(node.Items), 1);
 		}
 
 		override public void LeaveDeclaration(Declaration node)
@@ -3536,15 +3544,18 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckListLiteralArgumentInArrayConstructor(IType expectedElementType, MethodInvocationExpression constructor)
 		{
 			ListLiteralExpression elements = constructor.Arguments[1] as ListLiteralExpression;
-			if (null != elements)
+			if (null == elements) return;
+			CheckItems(expectedElementType, elements.Items);
+		}
+
+		private void CheckItems(IType expectedElementType, ExpressionCollection items)
+		{
+			foreach (Expression element in items)
 			{
-				foreach (Expression element in elements.Items)
-				{
-					CheckTypeCompatibility(element, expectedElementType, GetExpressionType(element));
-				}
+				CheckTypeCompatibility(element, expectedElementType, GetExpressionType(element));
 			}
 		}
-		
+
 		void ApplyBuiltinMethodTypeInference(MethodInvocationExpression expression, IMethod method)
 		{
 			IType inferredType = null;

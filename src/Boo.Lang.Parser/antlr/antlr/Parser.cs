@@ -44,11 +44,18 @@ namespace antlr
 	public abstract class Parser : IParserDebugSubject
 	{
 		// Used to store event delegates
-		private EventHandlerList events_ = new EventHandlerList();
+		private EventHandlerList events_; 
 
 		protected internal EventHandlerList Events 
 		{
-			get	{ return events_;	}
+			get
+			{
+				if (null == events_)
+				{
+					events_ = new EventHandlerList();
+				}
+				return events_;
+			}
 		}
 
 		// The unique keys for each event that Parser [objects] can generate

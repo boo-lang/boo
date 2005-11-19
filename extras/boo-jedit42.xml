@@ -137,6 +137,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit42.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD1>mixin</KEYWORD1>
 			<KEYWORD1>namespace</KEYWORD1>
 			<KEYWORD1>not</KEYWORD1>
+			<KEYWORD1>of</KEYWORD1>
 			<KEYWORD1>or</KEYWORD1>
 			<KEYWORD1>otherwise</KEYWORD1>
 			<KEYWORD1>override</KEYWORD1>

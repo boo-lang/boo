@@ -453,7 +453,7 @@ class ListLiteralExpression(LiteralExpression):
 	Items as ExpressionCollection
 
 class ArrayLiteralExpression(ListLiteralExpression):
-	pass
+	Type as ArrayTypeReference
 	
 class GeneratorExpression(Expression):
 	Expression as Expression
