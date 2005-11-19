@@ -35,7 +35,7 @@ namespace Boo.Lang.Parser
 	/// </summary>
 	public class BooToken : antlr.CommonToken
 	{
-		new public static readonly antlr.TokenCreator Creator = new BooTokenCreator();
+		new public static readonly antlr.TokenCreator TokenCreator = new BooTokenCreator();
 		
 		protected string _fname;
 
@@ -62,13 +62,13 @@ namespace Boo.Lang.Parser
 			return _fname;
 		}
 		
-		class BooTokenCreator : antlr.TokenCreator
+		public class BooTokenCreator : antlr.TokenCreator
 		{
 			override public string TokenTypeName
 			{
 				get
 				{
-					return "Boo.Lang.Parser.BooToken";
+					return typeof(BooToken).FullName;
 				}
 			}
 			
