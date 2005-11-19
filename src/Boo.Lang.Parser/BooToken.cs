@@ -35,7 +35,7 @@ namespace Boo.Lang.Parser
 	/// </summary>
 	public class BooToken : antlr.CommonToken
 	{
-		new public static readonly antlr.TokenCreator TokenCreator = new BooTokenCreator();
+		public static readonly antlr.TokenCreator TokenCreator = new BooTokenCreator();
 		
 		protected string _fname;
 

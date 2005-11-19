@@ -632,11 +632,6 @@ namespace antlr
 			text.Append(s);
 		}
 		
-		public virtual void  setTokenObjectClass(string cl)
-		{
-			this.tokenCreator = new ReflectionBasedTokenCreator(this, cl);
-		}
-		
 		public virtual void  setTokenCreator(TokenCreator tokenCreator)
 		{
 			this.tokenCreator = tokenCreator;
@@ -718,83 +713,5 @@ namespace antlr
 		{
 		}
 
-		private class ReflectionBasedTokenCreator : TokenCreator
-		{
-			protected ReflectionBasedTokenCreator() {}
-
-			public ReflectionBasedTokenCreator(CharScanner owner, string tokenTypeName)
-			{
-				this.owner = owner;
-				SetTokenType(tokenTypeName);
-			}
-
-			private CharScanner owner;
-
-			/// <summary>
-			/// The fully qualified name of the Token type to create.
-			/// </summary>
-			private string tokenTypeName;
-
-			/// <summary>
-			/// Type object used as a template for creating tokens by reflection.
-			/// </summary>
-			private Type tokenTypeObject;
-
-			/// <summary>
-			/// Returns the fully qualified name of the Token type that this
-			/// class creates.
-			/// </summary>
-			private void SetTokenType(string tokenTypeName)
-			{
-				this.tokenTypeName = tokenTypeName;
-				foreach (Assembly assem in AppDomain.CurrentDomain.GetAssemblies())
-				{
-					try
-					{
-						tokenTypeObject = assem.GetType(tokenTypeName);
-						if (tokenTypeObject != null)
-						{
-							break;
-						}
-					}
-					catch
-					{
-						throw new TypeLoadException("Unable to load Type for Token class '" + tokenTypeName + "'");
-					}
-				}
-				if (tokenTypeObject==null)
-					throw new TypeLoadException("Unable to load Type for Token class '" + tokenTypeName + "'");
-			}
-
-			/// <summary>
-			/// Returns the fully qualified name of the Token type that this
-			/// class creates.
-			/// </summary>
-			public override string TokenTypeName
-			{
-				get
-				{ 
-					return tokenTypeName; 
-				}
-			}
-
-			/// <summary>
-			/// Constructs a <see cref="Token"/> instance.
-			/// </summary>
-			public override IToken Create()
-			{
-				IToken newToken = null;
-
-				try
-				{
-					newToken = (Token) Activator.CreateInstance(tokenTypeObject);
-				}
-				catch
-				{
-					// supress exception
-				}
-				return newToken;
-			}
-		}
 	}
 }
