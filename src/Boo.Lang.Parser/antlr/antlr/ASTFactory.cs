@@ -564,7 +564,7 @@ namespace antlr
 				{
 					try
 					{
-						nodeTypeObject = assem.GetType(nodeTypeName);
+						nodeTypeObject = assem.GetType(nodeTypeName, false);
 						if (nodeTypeObject != null)
 						{
 							typeCreated = true;

@@ -81,7 +81,7 @@ namespace antlr
 		protected internal AST returnAST;
 		
 		/*AST support code; parser and treeparser delegate to this object */
-		protected internal ASTFactory astFactory = new ASTFactory();
+		protected internal ASTFactory _astFactory;
 		
 		private bool ignoreInvalidDebugCalls = false;
 		
@@ -262,6 +262,24 @@ namespace antlr
 		{
 			return returnAST;
 		}
+		
+		public virtual ASTFactory astFactory
+		{
+			get
+			{
+				if (null == _astFactory)
+				{
+					_astFactory = new ASTFactory();
+				}
+				return _astFactory;
+			}
+			
+			set
+			{
+				_astFactory = value;
+			}
+		}
+		
 		public virtual ASTFactory getASTFactory()
 		{
 			return astFactory;
