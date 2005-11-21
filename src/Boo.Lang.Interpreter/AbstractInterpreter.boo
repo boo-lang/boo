@@ -433,6 +433,28 @@ class AbstractInterpreter:
 			_interpreter.Declare(name, external.ActualType) if external
 			
 			return _namespace.Declare(name, type)
+			
+		override protected def CreateDefaultLocalInitializer(sourceNode as Node, local as IEntity):
+			return super(sourceNode, local) unless InterpreterEntity.IsInterpreterEntity(local)
+
+			entity as InterpreterEntity = local
+			return CodeBuilder.CreateAssignment(
+				sourceNode.LexicalInfo,
+				CodeBuilder.CreateReference(entity),
+				CreateInitializer(sourceNode, entity.Type))
+				
+		private def CreateInitializer(sourceNode as Node, type as IType):
+			return InitTempValueType(sourceNode, type) if type.IsValueType
+			return CodeBuilder.CreateNullLiteral()
+				
+		private def InitTempValueType(sourceNode as Node, type as IType):
+			temp = DeclareTempLocal(type)
+			eval = CodeBuilder.CreateEvalInvocation(sourceNode.LexicalInfo)
+			eval.Arguments.Add(CodeBuilder.CreateInitValueType(sourceNode.LexicalInfo, temp))			
+			eval.Arguments.Add(CodeBuilder.CreateReference(temp))
+			BindExpressionType(eval, type)
+			return eval
+						
 	
 	class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 	

@@ -44,7 +44,7 @@ class InteractiveInterpreterTestFixture:
 	def SetUp():
 		_interpreter = InteractiveInterpreter()
 		_interpreter.SetValue("name", "boo")
-		_interpreter.SetValue("age", 3)
+		_interpreter.SetValue("age", 3)	
 		
 	[Test]
 	def DefaultValues():
@@ -512,6 +512,38 @@ for i, j in ((1, 2), (3, 4)):
 		assert suggestion is not null
 		assert suggestion.EntityType == EntityType.Namespace
 		
+	[Test]
+	def DeclarationInitializesRefType():
+		Eval("""
+for i in range(3):
+	item as string
+	assert item is null
+	item = i.ToString()""")
+		assert "2" == _interpreter.GetValue("item")
+		
+		
+	[Test]
+	def DeclarationInitializesValueType():
+		Eval("""
+for i in range(3):
+	item as int
+	assert 0 == item
+	item = i""")
+		assert 2 == _interpreter.GetValue("item")
+		
+	[Test]
+	def DeclarationInitializersInsideMethod():
+		Eval("""
+def foo():
+	for i in range(3):
+		item as string
+		assert item is null
+		item = i.ToString()
+	return item
+		
+value = foo()""")
+		assert "2" == _interpreter.GetValue("value")
+
 	def Eval(code as string):
 		result = _interpreter.Eval(code)
 		assert 0 == len(result.Errors), result.Errors.ToString(true)

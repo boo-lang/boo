@@ -1920,13 +1920,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (!(localInfo is InternalLocal)) return;
 				node.ReplaceBy(
 					new ExpressionStatement(
-						CodeBuilder.CreateDefaultInitializer(
-							node.LexicalInfo,
-							(InternalLocal)localInfo)));
+						CreateDefaultLocalInitializer(node, localInfo)));
 			}
+		}
+		
+		virtual protected Expression CreateDefaultLocalInitializer(Node sourceNode, IEntity local)
+		{
+			return CodeBuilder.CreateDefaultInitializer(
+						sourceNode.LexicalInfo,
+						(InternalLocal)local);
 		}
 
 		override public void LeaveExpressionStatement(ExpressionStatement node)
@@ -4939,7 +4943,7 @@ namespace Boo.Lang.Compiler.Steps
 			return reference;
 		}
 		
-		InternalLocal DeclareTempLocal(IType localType)
+		protected InternalLocal DeclareTempLocal(IType localType)
 		{
 			return CodeBuilder.DeclareTempLocal(_currentMethod.Method, localType);
 		}
