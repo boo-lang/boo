@@ -4912,25 +4912,17 @@ namespace Boo.Lang.Compiler.Steps
 		Expression CheckBoolContext(Expression expression)
 		{
 			IType type = GetExpressionType(expression);
-			if (type.IsValueType)
-			{
-				if (type != TypeSystemServices.BoolType &&
-				    !IsNumber(type))
-			    {
-					Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.FullName));
-				}
-			}
-			else
-			{
-				IMethod method = FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
-				if (null != method)
-				{
-					expression = CodeBuilder.CreateMethodInvocation(
-									method,
-									expression);
-				}
-			}
+			if (type == TypeSystemServices.BoolType) return expression;
+			if (IsNumber(type)) return expression;
+			if (type.IsEnum) return expression;
+
+			IMethod method = FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
+			if (null != method) return CodeBuilder.CreateMethodInvocation(method, expression);
+
 			// reference types can be used in bool context
+			if (!type.IsValueType) return expression;
+			
+			Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.FullName));
 			return expression;
 		}
 		
