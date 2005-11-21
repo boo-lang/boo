@@ -769,6 +769,16 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.ReferenceEquality:
 				{
+					if (IsNull(expression.Left))
+					{
+						EmitRawBranchFalse(expression.Right, label);
+						break;
+					}
+					if (IsNull(expression.Right))
+					{
+						EmitRawBranchFalse(expression.Left, label);
+						break;
+					}
 					Visit(expression.Left); PopType();
 					Visit(expression.Right); PopType();
 					_il.Emit(OpCodes.Beq, label);
@@ -777,6 +787,16 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case BinaryOperatorType.ReferenceInequality:
 				{
+					if (IsNull(expression.Left))
+					{
+						EmitRawBranchTrue(expression.Right, label);
+						break;
+					}
+					if (IsNull(expression.Right))
+					{
+						EmitRawBranchTrue(expression.Left, label);
+						break;
+					}
 					Visit(expression.Left); PopType();
 					Visit(expression.Right); PopType();
 					_il.Emit(OpCodes.Ceq);
@@ -819,7 +839,19 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		private void EmitRawBranchFalse(Expression expression, Label label)
+		{
+			Visit(expression); PopType();
+			_il.Emit(OpCodes.Brfalse, label);
+		}
+
+		private void EmitRawBranchTrue(Expression expression, Label label)
+		{
+			Visit(expression); PopType();
+			_il.Emit(OpCodes.Brtrue, label);
+		}
+
 		void EmitBranchTrue(Expression expression, Label label)
 		{
 			switch (expression.NodeType)
@@ -877,6 +909,74 @@ namespace Boo.Lang.Compiler.Steps
 					EmitBranchFalse(expression.Right, label);
 					break;
 				}
+
+				case BinaryOperatorType.ReferenceEquality:
+				{
+					if (IsNull(expression.Left))
+					{
+						EmitRawBranchTrue(expression.Right,  label);
+					}
+					else if (IsNull(expression.Right))
+					{
+						EmitRawBranchTrue(expression.Left, label);
+					}
+					else
+					{
+						DefaultBranchFalse(expression, label);
+					}
+					break;
+				}
+
+				case BinaryOperatorType.ReferenceInequality:
+				{
+					if (IsNull(expression.Left))
+					{
+						EmitRawBranchFalse(expression.Right,  label);
+					}
+					else if (IsNull(expression.Right))
+					{
+						EmitRawBranchFalse(expression.Left, label);
+					}
+					else
+					{
+						DefaultBranchFalse(expression, label);
+					}
+					break;
+				}
+
+				case BinaryOperatorType.Equality:
+				{
+					if (IsZeroOrFalse(expression.Left))
+					{
+						EmitRawBranchTrue(expression.Right, label);
+					}
+					else if (IsZeroOrFalse(expression.Right))
+					{
+						EmitRawBranchTrue(expression.Left, label);
+					}
+					else
+					{
+						DefaultBranchFalse(expression, label);
+					}
+					break;
+				}
+
+				case BinaryOperatorType.Inequality:
+				{
+					if (IsZeroOrFalse(expression.Left))
+					{
+						EmitBranchFalse(expression.Right, label);
+					}
+					else if (IsZeroOrFalse(expression.Right))
+					{
+						EmitBranchFalse(expression.Left, label);
+					}
+					else
+					{
+						DefaultBranchFalse(expression, label);
+					}
+					break;
+				}
 				
 				default:
 				{
@@ -885,7 +985,29 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		private bool IsNull(Expression expression)
+		{
+			return NodeType.NullLiteralExpression == expression.NodeType;
+		}
+
+		private bool IsZeroOrFalse(Expression expression)
+		{
+			return IsZero(expression) || IsFalse(expression);
+		}
+
+		private bool IsFalse(Expression expression)
+		{
+			return NodeType.BoolLiteralExpression == expression.NodeType
+				&& (false == ((BoolLiteralExpression)expression).Value);
+		}
+
+		private bool IsZero(Expression expression)
+		{
+			return NodeType.IntegerLiteralExpression == expression.NodeType
+				&& (0 == ((IntegerLiteralExpression)expression).Value);
+		}
+
 		void EmitBranchFalse(Expression expression, Label label)
 		{
 			switch (expression.NodeType)

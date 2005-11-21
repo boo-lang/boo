@@ -3230,7 +3230,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (lhs.IsEnum || rhs.IsEnum || IsChar(lhs) || IsChar(rhs))
 			{
-				if (lhs == rhs)
+				if (lhs == rhs || IsPrimitiveNumber(rhs) || IsPrimitiveNumber(lhs))
 				{
 					BindExpressionType(node, TypeSystemServices.BoolType);
 				}
