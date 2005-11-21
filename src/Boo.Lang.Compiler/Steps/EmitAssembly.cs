@@ -1130,7 +1130,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void LoadLocal(LocalBuilder local, IType localType)
 		{
-			_il.Emit((OpCode) OpCodes.Ldloc, (LocalBuilder) local);
+			_il.Emit(OpCodes.Ldloc, local);
 			PushType(localType);
 		}
 
@@ -1797,6 +1797,12 @@ namespace Boo.Lang.Compiler.Steps
 					OnEval(node);
 					break;
 				}
+
+				case BuiltinFunctionType.InitValueType:
+				{
+					OnInitValueType(node);
+					break;
+				}
 				
 				default:
 				{
@@ -1805,7 +1811,21 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		private void OnInitValueType(MethodInvocationExpression node)
+		{
+			Debug.Assert(1 == node.Arguments.Count);
+			InternalLocal local = (InternalLocal)node.Arguments[0].Entity;
+
+			Debug.Assert(local.Type.IsValueType);
+			
+			LocalBuilder builder = local.LocalBuilder;
+			_il.Emit(OpCodes.Ldloca, builder);
+			_il.Emit(OpCodes.Initobj, builder.LocalType);
+
+			PushVoid();
+		}
+
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			IEntity tag = TypeSystemServices.GetEntity(node.Target);

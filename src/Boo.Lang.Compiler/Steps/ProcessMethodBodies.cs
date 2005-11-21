@@ -278,7 +278,7 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(node.Arguments);
 				ResolveNamedArguments(tag, node.NamedArguments);
 				
-				IConstructor constructor = FindCorrectConstructor(node, tag, node.Arguments);
+				IConstructor constructor = GetCorrectConstructor(node, tag, node.Arguments);
 				if (null != constructor)
 				{
 					Bind(node, constructor);
@@ -643,7 +643,7 @@ namespace Boo.Lang.Compiler.Steps
 					!entity.IsStatic)
 				{
 					IType baseType = entity.DeclaringType.BaseType;
-					IConstructor super = FindCorrectConstructor(node, baseType, EmptyExpressionCollection);
+					IConstructor super = GetCorrectConstructor(node, baseType, EmptyExpressionCollection);
 					if (null != super)
 					{
 						node.Body.Statements.Insert(0,
@@ -1911,25 +1911,24 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				CheckTypeCompatibility(node.Initializer, type, GetExpressionType(node.Initializer));
 				
-				ReferenceExpression var = new ReferenceExpression(node.Declaration.LexicalInfo);
-				var.Name = node.Declaration.Name;
-				Bind(var, localInfo);
-				BindExpressionType(var, type);
-				
-				BinaryExpression assign = new BinaryExpression(node.LexicalInfo);
-				assign.Operator = BinaryOperatorType.Assign;
-				assign.Left = var;
-				assign.Right = node.Initializer;
-				BindExpressionType(assign, type);
-				
-				node.ReplaceBy(new ExpressionStatement(assign));
+				node.ReplaceBy(
+					new ExpressionStatement(
+						CodeBuilder.CreateAssignment(
+							node.LexicalInfo,
+							CodeBuilder.CreateReference(localInfo),
+							node.Initializer)));
 			}
 			else
 			{
-				node.ReplaceBy(null);
+				if (!(localInfo is InternalLocal)) return;
+				node.ReplaceBy(
+					new ExpressionStatement(
+						CodeBuilder.CreateDefaultInitializer(
+							node.LexicalInfo,
+							(InternalLocal)localInfo)));
 			}
 		}
-		
+
 		override public void LeaveExpressionStatement(ExpressionStatement node)
 		{
 			CheckHasSideEffect(node.Expression);
@@ -3726,7 +3725,7 @@ namespace Boo.Lang.Compiler.Steps
 							targetType = constructorInfo.DeclaringType;
 						}
 
-						IConstructor targetConstructorInfo = FindCorrectConstructor(node, targetType, node.Arguments);
+						IConstructor targetConstructorInfo = GetCorrectConstructor(node, targetType, node.Arguments);
 						if (null != targetConstructorInfo)
 						{
 							Bind(node.Target, targetConstructorInfo);
@@ -3801,55 +3800,9 @@ namespace Boo.Lang.Compiler.Steps
 			ReferenceExpression local = CreateTempLocal(node.Target.LexicalInfo, type);
 			
 			eval.Arguments.Add(CodeBuilder.CreateAssignment(local.CloneNode(), node));
-			foreach (ExpressionPair pair in node.NamedArguments)
-			{
-				IEntity entity = GetEntity(pair.First);
-				switch (entity.EntityType)
-				{
-					case EntityType.Event:
-					{
-						IEvent member = (IEvent)entity;
-						eval.Arguments.Add(CodeBuilder.CreateMethodInvocation(
-											local.CloneNode(),
-											member.GetAddMethod(),
-											pair.Second));
-						break;
-					}
-					
-					case EntityType.Field:
-					{
-						eval.Arguments.Add(CodeBuilder.CreateAssignment(
-											CodeBuilder.CreateMemberReference(
-												local.CloneNode(),
-												(IMember)entity),
-												pair.Second));
-						break;
-					}
-					
-					case EntityType.Property:
-					{
-						IProperty property = (IProperty)entity;
-						IMethod setter = property.GetSetMethod();
-						if (null == setter)
-						{
-							Error(CompilerErrorFactory.PropertyIsReadOnly(
-										pair.First,
-										property.FullName));
-						}
-						else
-						{
-							eval.Arguments.Add(
-								CodeBuilder.CreateAssignment(
-										node.LexicalInfo,
-										CodeBuilder.CreateMemberReference(
-											local.CloneNode(),
-											property),
-										pair.Second));
-						}
-						break;
-					}
-				}
-			}
+
+			AddResolvedNamedArgumentsToEval(node.NamedArguments, eval, local);
+
 			node.NamedArguments.Clear();
 			
 			eval.Arguments.Add(local);
@@ -3858,7 +3811,64 @@ namespace Boo.Lang.Compiler.Steps
 			
 			parent.Replace(node, eval);
 		}
-		
+
+		private void AddResolvedNamedArgumentsToEval(ExpressionPairCollection namedArguments, MethodInvocationExpression eval, ReferenceExpression instance)
+		{
+			foreach (ExpressionPair pair in namedArguments)
+			{
+				IEntity entity = GetEntity(pair.First);
+				switch (entity.EntityType)
+				{
+					case EntityType.Event:
+						{
+							IEvent member = (IEvent)entity;
+							eval.Arguments.Add(
+								CodeBuilder.CreateMethodInvocation(
+									pair.First.LexicalInfo,
+									instance.CloneNode(),
+									member.GetAddMethod(),
+									pair.Second));
+							break;
+						}
+					
+					case EntityType.Field:
+						{
+							eval.Arguments.Add(
+								CodeBuilder.CreateAssignment(
+									pair.First.LexicalInfo,
+									CodeBuilder.CreateMemberReference(
+										instance.CloneNode(),
+										(IMember)entity),
+									pair.Second));
+							break;
+						}
+					
+					case EntityType.Property:
+						{
+							IProperty property = (IProperty)entity;
+							IMethod setter = property.GetSetMethod();
+							if (null == setter)
+							{
+								Error(CompilerErrorFactory.PropertyIsReadOnly(
+									pair.First,
+									property.FullName));
+							}
+							else
+							{
+								eval.Arguments.Add(
+									CodeBuilder.CreateAssignment(
+										pair.First.LexicalInfo,
+										CodeBuilder.CreateMemberReference(
+											instance.CloneNode(),
+											property),
+										pair.Second));
+							}
+							break;
+						}
+				}
+			}
+		}
+
 		void ProcessEventInvocation(IEvent ev, MethodInvocationExpression node)
 		{
 			IMethod method = ev.GetRaiseMethod();
@@ -3873,15 +3883,20 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessTypeInvocation(MethodInvocationExpression node)
 		{
 			IType type = (IType)node.Target.Entity;
-			
 			if (!CheckCanCreateInstance(node.Target, type))
 			{
 				Error(node);
 				return;
 			}
+
 			ResolveNamedArguments(type, node.NamedArguments);
+			if (type.IsValueType && node.Arguments.Count == 0)
+			{
+				ProcessValueTypeInstantiation(type, node);
+				return;
+			}
 			
-			IConstructor ctor = FindCorrectConstructor(node, type, node.Arguments);
+			IConstructor ctor = GetCorrectConstructor(node, type, node.Arguments);
 			if (null != ctor)
 			{
 				// rebind the target now we know
@@ -3900,7 +3915,25 @@ namespace Boo.Lang.Compiler.Steps
 				Error(node);
 			}
 		}
-		
+
+		private void ProcessValueTypeInstantiation(IType type, MethodInvocationExpression node)
+		{
+			// XXX: naive and unoptimized but correct approach
+			// simply initialize a new temporary value type
+			// TODO: OPTIMIZE by detecting assignments to local variables
+
+			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
+			BindExpressionType(eval, type);
+
+			InternalLocal local = DeclareTempLocal(type);
+			ReferenceExpression localReference = CodeBuilder.CreateReference(local);
+			eval.Arguments.Add(CodeBuilder.CreateDefaultInitializer(node.LexicalInfo, local));
+			AddResolvedNamedArgumentsToEval(node.NamedArguments, eval, localReference);
+			eval.Arguments.Add(localReference);
+
+			node.ParentNode.Replace(node, eval);
+		}
+
 		void ProcessGenericMethodInvocation(MethodInvocationExpression node)
 		{
 			IType type = GetExpressionType(node.Target);
@@ -4642,18 +4675,18 @@ namespace Boo.Lang.Compiler.Steps
 			return IsPrimitiveNumber(GetExpressionType(expression));
 		}
 		
-		IConstructor FindCorrectConstructor(Node sourceNode, IType typeInfo, ExpressionCollection arguments)
+		IConstructor GetCorrectConstructor(Node sourceNode, IType type, ExpressionCollection arguments)
 		{	
-			IConstructor[] constructors = typeInfo.GetConstructors();
+			IConstructor[] constructors = type.GetConstructors();
 			if (constructors.Length > 0)
 			{	
 				return (IConstructor)ResolveCallableReference(sourceNode, arguments, constructors, true);
 			}
 			else
 			{
-				if (!TypeSystemServices.IsError(typeInfo))
+				if (!TypeSystemServices.IsError(type))
 				{
-					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, typeInfo.FullName, GetSignature(arguments)));
+					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type.FullName, GetSignature(arguments)));
 				}
 			}
 			return null;

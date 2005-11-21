@@ -104,7 +104,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 			builder.Modifiers = modifiers;
 			return builder;
 		}
-		
+
+		public Expression CreateDefaultInitializer(LexicalInfo li, InternalLocal local)
+		{
+			if (local.Type.IsValueType)
+			{
+				return CreateInitValueType(li, local);
+			}
+			return CreateAssignment(
+					li,
+					CreateReference(local),
+					CreateNullLiteral());
+		}
+
+		public Expression CreateInitValueType(LexicalInfo li, InternalLocal local)
+		{
+			MethodInvocationExpression mie = CreateBuiltinInvocation(li, BuiltinFunction.InitValueType);
+			mie.Arguments.Add(CreateReference(local));
+			return mie;
+		}
+
 		public Expression CreateCast(IType type, Expression target)
 		{
 			if (type == target.ExpressionType)
@@ -147,9 +166,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public Statement CreateSwitch(Expression offset, IEnumerable labels)
 		{
-			MethodInvocationExpression sw = new MethodInvocationExpression();
-			sw.Target = new ReferenceExpression("__switch__");
-			sw.Target.Entity = BuiltinFunction.Switch;
+			MethodInvocationExpression sw = CreateBuiltinInvocation(offset.LexicalInfo, BuiltinFunction.Switch);
 			sw.Arguments.Add(offset);
 			foreach (LabelStatement label in labels)
 			{
@@ -162,8 +179,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public Expression CreateAddressOfExpression(IMethod method)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression();
-			mie.Target = new ReferenceExpression("__addressof__");
-			mie.Target.Entity = BuiltinFunction.AddressOf;
+			mie.Target = CreateBuiltinReference(BuiltinFunction.AddressOf);
 			mie.Arguments.Add(CreateMethodReference(method));
 			mie.ExpressionType = _tss.IntPtrType;
 			return mie;
@@ -187,6 +203,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public MethodInvocationExpression CreateMethodInvocation(MethodInfo staticMethod, Expression arg)
 		{
 			return CreateMethodInvocation(_tss.Map(staticMethod), arg);
+		}
+
+		public MethodInvocationExpression CreateMethodInvocation(LexicalInfo li, Expression target, IMethod tag, Expression arg)
+		{
+			MethodInvocationExpression mie = CreateMethodInvocation(target, tag, arg);
+			mie.LexicalInfo = li;
+			return mie;
 		}
 		
 		public MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag, Expression arg)
@@ -379,10 +402,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li)
 		{
+			return CreateBuiltinInvocation(li, BuiltinFunction.Eval);
+		}
+
+		private static MethodInvocationExpression CreateBuiltinInvocation(LexicalInfo li, BuiltinFunction builtin)
+		{
 			MethodInvocationExpression eval = new MethodInvocationExpression(li);
-			eval.Target = new ReferenceExpression("__eval__");
-			eval.Target.Entity = BuiltinFunction.Eval;
+			eval.Target = CreateBuiltinReference(builtin);
 			return eval;
+		}
+
+		public static ReferenceExpression CreateBuiltinReference(BuiltinFunction builtin)
+		{
+			ReferenceExpression target = new ReferenceExpression(builtin.Name);
+			target.Entity = builtin;
+			return target;
 		}
 
 		public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li, Expression arg, Expression value)
