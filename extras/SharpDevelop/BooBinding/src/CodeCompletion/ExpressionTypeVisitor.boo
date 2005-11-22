@@ -152,7 +152,7 @@ class ExpressionTypeVisitor(DepthFirstVisitor):
 		Debug(node)
 		CombineTypes(node.Left, node.Right)
 	
-	override def OnTernaryExpression(node as TernaryExpression):
+	override def OnConditionalExpression(node as ConditionalExpression):
 		Debug(node)
 		CombineTypes(node.TrueValue, node.FalseValue)
 	

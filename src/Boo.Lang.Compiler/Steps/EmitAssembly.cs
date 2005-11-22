@@ -700,6 +700,29 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(((InternalLabel)node.Entity).Label);
 		}
 		
+		override public void OnConditionalExpression(ConditionalExpression node)
+		{
+			IType type = GetExpressionType(node);
+			
+			Label endLabel = _il.DefineLabel();
+			
+			EmitBranchFalse(node.Condition, endLabel);
+			node.TrueValue.Accept(this);
+			EmitCastIfNeeded(type, PopType());
+			
+			Label elseEndLabel = _il.DefineLabel();
+			_il.Emit(OpCodes.Br, elseEndLabel);
+			_il.MarkLabel(endLabel);
+			
+			endLabel = elseEndLabel;
+			node.FalseValue.Accept(this);
+			EmitCastIfNeeded(type, PopType());
+			
+			_il.MarkLabel(endLabel);
+			
+			PushType(type);
+		}
+		
 		override public void OnIfStatement(IfStatement node)
 		{
 			EmitDebugInfo(node);

@@ -304,6 +304,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Ast\ConditionalExpression.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Ast\Constructor.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -709,11 +714,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Ast\TernaryExpression.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Ast\TimeSpanLiteralExpression.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -885,6 +885,11 @@
                 />
                 <File
                     RelPath = "Ast\Impl\CompileUnitImpl.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Ast\Impl\ConditionalExpressionImpl.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -1215,11 +1220,6 @@
                 />
                 <File
                     RelPath = "Ast\Impl\SuperLiteralExpressionImpl.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Ast\Impl\TernaryExpressionImpl.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -31,19 +31,19 @@ namespace Boo.Lang.Compiler.Ast
 	using System;
 	
 	[Serializable]
-	public class TernaryExpression : Boo.Lang.Compiler.Ast.Impl.TernaryExpressionImpl
+	public class ConditionalExpression : Boo.Lang.Compiler.Ast.Impl.ConditionalExpressionImpl
 	{
-		public TernaryExpression()
+		public ConditionalExpression()
 		{
 		}
 		
-		public TernaryExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		public ConditionalExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		
 		override public void Accept(IAstVisitor visitor)
 		{
-			visitor.OnTernaryExpression(this);
+			visitor.OnConditionalExpression(this);
 		}
 	}
 }

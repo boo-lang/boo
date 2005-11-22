@@ -390,7 +390,7 @@ class BinaryExpression(Expression):
 	Left as Expression
 	Right as Expression
 	
-class TernaryExpression(Expression):
+class ConditionalExpression(Expression):
 	Condition as Expression
 	TrueValue as Expression
 	FalseValue as Expression

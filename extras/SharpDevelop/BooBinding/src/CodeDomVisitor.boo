@@ -427,7 +427,7 @@ types."""
 	def OnSuperLiteralExpression(node as SuperLiteralExpression):
 		_expression = CodeBaseReferenceExpression()
 	
-	def OnTernaryExpression(node as TernaryExpression):
+	def OnConditionalExpression(node as ConditionalExpression):
 		pass
 	
 	def OnTimeSpanLiteralExpression(node as TimeSpanLiteralExpression):

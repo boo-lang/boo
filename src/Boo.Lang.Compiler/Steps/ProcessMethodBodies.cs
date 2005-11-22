@@ -2483,6 +2483,16 @@ namespace Boo.Lang.Compiler.Steps
 			node.Condition = CheckBoolContext(node.Condition);
 		}
 		
+		override public void LeaveConditionalExpression(ConditionalExpression node)
+		{
+			node.Condition = CheckBoolContext(node.Condition);
+			
+			IType trueType = GetExpressionType(node.TrueValue);
+			IType falseType = GetExpressionType(node.FalseValue);
+			
+			BindExpressionType(node, GetMostGenericType(trueType, falseType));
+		}
+		
 		override public void OnLabelStatement(LabelStatement node)
 		{
 			ContextAnnotations.SetTryBlockDepth(node, CurrentTryBlockDepth);

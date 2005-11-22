@@ -137,7 +137,7 @@ namespace Boo.Lang.Compiler.Steps
 			Node parent = child.ParentNode;
 			return (parent.NodeType == NodeType.IfStatement
 				|| parent.NodeType == NodeType.UnlessStatement
-				|| parent.NodeType == NodeType.TernaryExpression
+				|| parent.NodeType == NodeType.ConditionalExpression
 				|| parent.NodeType == NodeType.WhenClause
 				|| parent.NodeType == NodeType.StatementModifier
 				|| parent.NodeType == NodeType.ReturnStatement

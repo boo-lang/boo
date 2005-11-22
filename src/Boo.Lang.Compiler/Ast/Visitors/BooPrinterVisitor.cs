@@ -556,6 +556,17 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			MethodInvocationExpression parent = node.ParentNode as MethodInvocationExpression;
 			return null != parent && node != parent.Target;
 		}
+		
+		override public void OnConditionalExpression(ConditionalExpression e)
+		{
+			Write("(");
+			Visit(e.TrueValue);
+			WriteKeyword(" if ");
+			Visit(e.Condition);
+			WriteKeyword(" else ");
+			Visit(e.FalseValue);
+			Write(")");
+		}
 
 		override public void OnBinaryExpression(BinaryExpression e)
 		{

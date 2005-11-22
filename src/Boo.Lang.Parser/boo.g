@@ -1774,9 +1774,9 @@ array_or_expression returns [Expression e]
 				e = tle;
 			}
 		)?
-	)
+	)	
 ;
-			
+
 protected
 expression returns [Expression e]
 	{
@@ -1785,8 +1785,7 @@ expression returns [Expression e]
 		ExtendedGeneratorExpression mge = null;
 		GeneratorExpression ge = null;
 	} :
-	e=boolean_expression
-		
+	e=boolean_expression		
 	( options { greedy = true; } :
 		f:FOR
 		{
@@ -2335,9 +2334,31 @@ reference_expression returns [ReferenceExpression e]
 ;
 	
 protected
-paren_expression returns [Expression e] { e = null; }:
+paren_expression returns [Expression e]
+{
+	e = null;
+	Expression condition = null;
+	Expression falseValue = null;
+}:
     (LPAREN OF)=>e=typed_array
-	| LPAREN e=array_or_expression RPAREN
+	|
+	(
+		lparen:LPAREN
+		e=array_or_expression
+		(
+			IF condition=boolean_expression
+			ELSE falseValue=array_or_expression
+			{
+				ConditionalExpression ce = new ConditionalExpression(ToLexicalInfo(lparen));
+				ce.Condition = condition;
+				ce.TrueValue = e;
+				ce.FalseValue = falseValue;
+				
+				e = ce;
+			}
+		)?
+		RPAREN
+	)
 ;
 
 protected

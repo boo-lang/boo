@@ -309,6 +309,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void LeaveConditionalExpression(ConditionalExpression node)
+		{
+			CheckExpressionType(node.TrueValue);
+			CheckExpressionType(node.FalseValue);
+		}
+		
 		bool IsSecondArgumentOfDelegateConstructor(Expression node)
 		{                 
 			MethodInvocationExpression mie = node.ParentNode as MethodInvocationExpression;
