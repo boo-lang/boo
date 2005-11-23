@@ -2015,17 +2015,12 @@ conditional_expression returns [Expression e]
 			(tgt:GREATER_THAN { op = BinaryOperatorType.GreaterThan; token = tgt; } ) |
 			(tlt:LESS_THAN { op = BinaryOperatorType.LessThan; token = tlt; }) |
 			(tnot:IS NOT { op = BinaryOperatorType.ReferenceInequality; token = tnot; }) |
-			(tis:IS { op = BinaryOperatorType.ReferenceEquality; token = tis; })
+			(tis:IS { op = BinaryOperatorType.ReferenceEquality; token = tis; }) |
+			(tnint:NOT IN { op = BinaryOperatorType.NotMember; token = tnint; }) |
+			(tin:IN { op = BinaryOperatorType.Member; token = tin; } )
 		 )
 		 r=sum
 	  ) |
-	  (
-	  	(
-			(tnint:NOT IN { op = BinaryOperatorType.NotMember; token = tnint; }) |
-			(tin:IN { op = BinaryOperatorType.Member; token = tin; } )
-		)		
-		r=array_or_expression
-	  ) |	
 	  (
 	  	tisa:ISA
 		tr=type_reference

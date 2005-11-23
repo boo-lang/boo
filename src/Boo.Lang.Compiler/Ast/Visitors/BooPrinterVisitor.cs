@@ -528,8 +528,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnUnaryExpression(UnaryExpression node)
 		{
-			bool addParens = NodeType.ExpressionStatement != node.ParentNode.NodeType
-				&& !IsMethodInvocationArg(node);
+			bool addParens = NeedParensAround(node) && !IsMethodInvocationArg(node);
 			if (addParens)
 			{
 				Write("(");
@@ -567,10 +566,25 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Visit(e.FalseValue);
 			Write(")");
 		}
+		
+		bool NeedParensAround(Expression e)
+		{
+			if (e.ParentNode == null) return false;
+			switch (e.ParentNode.NodeType)
+			{
+				case NodeType.ExpressionStatement:
+				case NodeType.MacroStatement:
+				case NodeType.IfStatement:
+				case NodeType.WhileStatement:
+				case NodeType.UnlessStatement:
+					return false;
+			}
+			return true;
+		}
 
 		override public void OnBinaryExpression(BinaryExpression e)
 		{
-			bool needsParens = !(e.ParentNode is ExpressionStatement);
+			bool needsParens = NeedParensAround(e);
 			if (needsParens)
 			{
 				Write("(");

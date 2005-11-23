@@ -7,7 +7,7 @@ public final transient class Using0Module(System.Object):
 			f = System.IO.File.OpenText('using0.boo')
 			Boo.Lang.Builtins.print(f.ReadLine())
 		ensure:
-			if (__disposable__ = (f as System.IDisposable)):
+			if __disposable__ = (f as System.IDisposable):
 				__disposable__.Dispose()
 				__disposable__ = null
 

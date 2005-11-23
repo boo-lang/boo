@@ -1,6 +1,6 @@
 """
 assert passed
-assert failed: (x and z)
+assert failed: x and z
 assert passed
 assert failed: msg 1
 """

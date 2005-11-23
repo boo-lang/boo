@@ -80,10 +80,10 @@ import Useful.Attributes
 public final transient class CodeModule(System.Object):
 
 	public static def foo() as System.Int32:
-		if (not CodeModule.___foo_cached):
+		if not CodeModule.___foo_cached:
 			System.Threading.Monitor.Enter(CodeModule.___foo_lock)
 			try:
-				if (not CodeModule.___foo_cached):
+				if not CodeModule.___foo_cached:
 					CodeModule.___foo_returnValue = 3
 					CodeModule.___foo_cached = true
 			ensure:

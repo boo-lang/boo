@@ -2086,16 +2086,11 @@ conditional_expression returns [Expression e]
 			(tgt:GREATER_THAN { op = BinaryOperatorType.GreaterThan; token = tgt; } ) |
 			(tlt:LESS_THAN { op = BinaryOperatorType.LessThan; token = tlt; }) |
 			(tnot:IS NOT { op = BinaryOperatorType.ReferenceInequality; token = tnot; }) |
-			(tis:IS { op = BinaryOperatorType.ReferenceEquality; token = tis; })
-		 )
-		 r=sum
-	  ) |
-	  (
-	  	(
+			(tis:IS { op = BinaryOperatorType.ReferenceEquality; token = tis; }) |
 			(tnint:NOT IN { op = BinaryOperatorType.NotMember; token = tnint; }) |
 			(tin:IN { op = BinaryOperatorType.Member; token = tin; } )
-		)		
-		r=array_or_expression
+		 )
+		 r=sum
 	  ) |	
 	  (
 	  	tisa:ISA

@@ -45,7 +45,7 @@ namespace Boo.Lang.Parser.Tests
 		{
 			string code = @"3 + 2 * 5";
 			Expression e = BooParser.ParseExpression("test", code);
-			Assert.AreEqual("(3 + (2 * 5))", e.ToString());
+			Assert.AreEqual("3 + (2 * 5)", e.ToString());
 		}
 		
 		[Test]

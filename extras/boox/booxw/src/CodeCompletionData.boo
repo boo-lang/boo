@@ -84,7 +84,7 @@ class CodeCompletionDataProvider(ICompletionDataProvider):
 	def GenerateCompletionData(fileName as string, textArea as TextArea, charTyped as System.Char) as (ICompletionData):
 		values = {}
 		for item in _codeCompletion:
-			continue if item.Name[:4] in "add_", "remove_", "get_", "set_"
+			continue if item.Name[:4] in ("add_", "remove_", "get_", "set_")
 			if not "." in item.Name:
 				if not values[item.Name]:
 					values[item.Name] = CodeCompletionData(GetImageIndex(item), item.Name, item.ToString())
@@ -104,7 +104,7 @@ class CodeCompletionDataProvider(ICompletionDataProvider):
 			return cast(int, TypeIcon.PrivateField)
 		if EntityType.Event == type:
 			return cast(int, TypeIcon.PublicEvent)
-		if type in EntityType.Method, EntityType.Constructor:
+		if type in (EntityType.Method, EntityType.Constructor):
 			m as IMethod = entity
 			return cast(int, TypeIcon.PublicMethod) if m.IsPublic
 			return cast(int, TypeIcon.PrivateMethod)

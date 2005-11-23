@@ -58,7 +58,7 @@ public final class SingletonObject(System.Object):
 
 	public static Instance as SingletonObject:
 		public static get:
-			if (SingletonObject.___instance is null):
+			if SingletonObject.___instance is null:
 				SingletonObject.___instance = SingletonObject()
 			return SingletonObject.___instance
 """

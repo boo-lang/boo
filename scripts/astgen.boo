@@ -88,7 +88,7 @@ class Model:
 		return IsSubclassOf(node, "Expression")
 	
 	def GetResultingTransformerNode(node as ClassDefinition):
-		for subclass in "Statement", "Expression", "TypeReference":
+		for subclass in ("Statement", "Expression", "TypeReference"):
 			if IsSubclassOf(node, subclass):
 				return subclass
 		return node.Name
@@ -141,7 +141,7 @@ class CodeTemplate(AbstractTemplate):
 	def GetParameterName(field as Field):
 		name = field.Name
 		name = name[0:1].ToLower() + name[1:]
-		if name in "namespace", "operator":
+		if name in ("namespace", "operator"):
 			name += "_"
 		return name	
 		

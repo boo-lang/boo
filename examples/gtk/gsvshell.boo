@@ -44,7 +44,7 @@ class PromptView(SourceView):
 				Highlight: true))
 		self.WrapMode = Gtk.WrapMode.Word
 		
-		//if Environment.OSVersion.Platform in PlatformID.Win32NT, PlatformID.Win32Windows:
+		//if Environment.OSVersion.Platform in (PlatformID.Win32NT, PlatformID.Win32Windows):
 		self.ModifyFont(Pango.FontDescription(Family: "Lucida Console"))
 			
 		_interpreter.References.Add(typeof(TextView).Assembly)
@@ -63,7 +63,7 @@ class PromptView(SourceView):
 				print(x)
 			prompt()
 			return true
-		elif ev.Key in Gdk.Key.BackSpace, Gdk.Key.Left:
+		elif ev.Key in (Gdk.Key.BackSpace, Gdk.Key.Left):
 			if Buffer.GetIterAtMark(Buffer.InsertMark).LineOffset < 5:
 				return true
 			
