@@ -591,7 +591,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return name+"&";
 			}
-			return name;		}
+			return name;
+		}
 		
 		public static string DeReferenceTypeName(IType t)
 		{
@@ -616,12 +617,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				for (int i=0; i<implParameters.Length; ++i)
 				{
-					IType impltype = implParameters[i].Type;
-					IType basetype = baseParameters[i].Type;
+					IParameter implParameter = implParameters[i];
+					IParameter baseParameter = baseParameters[i];
+					IType impltype = implParameter.Type;
+					IType basetype = baseParameter.Type;
 					
 					if (basetype.IsByRef)
 					{
-						if (!(implParameters[i].IsByRef))
+						if (!(implParameter.IsByRef))
 						{
 							return false;
 						}

@@ -421,7 +421,7 @@ class AbstractInterpreter:
 			return true if _interpreter.RememberLastValue and InEntryPoint
 			return super(node)
 	
-		override def CheckLValue(node as Node, entity as IEntity):
+		override def AssertLValue(node as Node, entity as IEntity):
 			# prevent 'Expression can't be assigned to' error
 			return true if InterpreterEntity.IsInterpreterEntity(entity)
 			return super(node, entity) 

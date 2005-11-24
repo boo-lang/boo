@@ -1,10 +1,8 @@
-using System;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	/// <summary>
-	/// Summary description for PreProcessExtensionMethods.
 	/// </summary>
 	public class PreProcessExtensionMethods : AbstractTransformerCompilerStep
 	{

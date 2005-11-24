@@ -255,9 +255,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private int CalculateExactArgsScore(IParameter[] parameters, NodeCollection args)
 		{
-			int parameterCount = parameters.Length;
-			return args.Count == parameterCount
-				? CalculateScore(parameters, args, parameterCount)
+			return args.Count == parameters.Length
+				? CalculateScore(parameters, args, args.Count)
 				: -1;
 		}
 
@@ -265,9 +264,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{	
 			int score = 3;
 			for (int i=0; i<count; ++i)
-			{	
-				IType parameterType = parameters[i].Type;
-				int argumentScore = CalculateArgumentScore(parameters[i], parameterType, args.GetNodeAt(i));
+			{
+				IParameter parameter = parameters[i];
+				IType parameterType = parameter.Type;
+				int argumentScore = CalculateArgumentScore(parameter, parameterType, args.GetNodeAt(i));
 				if (argumentScore < 0) return -1;
 				score += argumentScore;
 			}

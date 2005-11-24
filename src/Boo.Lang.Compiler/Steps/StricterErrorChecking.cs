@@ -147,7 +147,6 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 			}
 		}
-
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
@@ -257,6 +256,51 @@ namespace Boo.Lang.Compiler.Steps
 			
 			CheckUnusedLocals(node);
 			CheckAbstractMethodCantHaveBody(node);
+			CheckValidExtension(node);
+		}
+
+		private void CheckValidExtension(Method node)
+		{
+			IMethod method = GetEntity(node);
+			if (!method.IsExtension) return;
+
+			IType extendedType = method.GetParameters()[0].Type;
+			IEntity entity = NameResolutionService.Resolve(extendedType, method.Name, EntityType.Method);
+			if (null == entity) return;
+			IMethod conflicting = FindConflictingMember(method, entity);
+			if (null == conflicting) return;
+
+			Error(CompilerErrorFactory.MemberNameConflict(node, extendedType.FullName, TypeSystemServices.GetSignature(conflicting, false)));
+		}
+
+		private IMethod FindConflictingMember(IMethod extension, IEntity entity)
+		{
+			if (EntityType.Ambiguous == entity.EntityType) return FindConflictingMember(extension, ((Ambiguous)entity).Entities);
+
+			IMethod method = (IMethod)entity;
+			if (IsConflictingMember(extension, method)) return method;
+			return null;
+		}
+
+		private IMethod FindConflictingMember(IMethod extension, IEntity[] methods)
+		{
+			foreach (IMethod m in methods)
+			{
+				if (IsConflictingMember(extension, m)) return m;
+			}
+			return null;
+		}
+
+		private bool IsConflictingMember(IMethod extension, IMethod method)
+		{
+			IParameter[] xp = extension.GetParameters();
+			IParameter[] mp = method.GetParameters();
+			if (mp.Length != (xp.Length-1)) return false;
+			for (int i=0; i<mp.Length; ++i)
+			{
+				if (xp[i+1].Type != mp[i].Type) return false;
+			}
+			return true;
 		}
 
 		private void CheckAbstractMethodCantHaveBody(Method node)
