@@ -1,7 +1,9 @@
 """
+// extension
 def foo(self as string):
 	return self.ToUpper()
 
+// extension
 def join(self as string, items):
 	return join(items, self)
 """

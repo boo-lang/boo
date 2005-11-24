@@ -368,13 +368,22 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
             if (m.IsRuntime)
             {
-                WriteIndented("// runtime");
-                WriteLine();
+                WriteImplementationComment("runtime");
             }
+			if (m.IsExtension)
+			{
+				WriteImplementationComment("extension");
+			}
 			WriteCallableDefinitionHeader("def ", m);
 			WriteLine(":");
 			WriteLocals(m);
 			WriteBlock(m.Body);
+		}
+		
+		private void WriteImplementationComment(string comment)
+		{
+			WriteIndented("// {0}", comment);
+			WriteLine();
 		}
 
 		public override void OnLocal(Local node)

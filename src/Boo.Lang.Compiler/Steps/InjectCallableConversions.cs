@@ -415,7 +415,7 @@ namespace Boo.Lang.Compiler.Steps
 		void RegisterAdaptor(ICallableType to, ICallableType from, ClassDefinition adaptor)
 		{
 			_adaptors.Add(new AdaptorRecord(to, from, adaptor));
-			TypeSystemServices.GetAnonymousTypesModule().Members.Add(adaptor);
+			TypeSystemServices.GetCompilerGeneratedTypesModule().Members.Add(adaptor);
 		}
 		
 		bool IsEndInvokeOnStandaloneMethodReference(MemberReferenceExpression node)

@@ -136,7 +136,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		StringBuilder _buffer = new StringBuilder();
 		
-		Module _anonymousTypesModule;
+		Module _compilerGeneratedTypesModule;
+
+		Module _compilerGeneratedExtensionsModule;
+
+		ClassDefinition _compilerGeneratedExtensionsClass;
 		
 		CompilerContext _context;
 		
@@ -477,20 +481,57 @@ namespace Boo.Lang.Compiler.TypeSystem
 				GetConcreteExpressionType(item);
 			}
 		}
-		
-		public Module GetAnonymousTypesModule()
+
+		public ClassDefinition GetCompilerGeneratedExtensionsClass()
 		{
-			if (null == _anonymousTypesModule)
+			if (null == _compilerGeneratedExtensionsClass)
 			{
-				_anonymousTypesModule = new Module();
-				_anonymousTypesModule.Entity = new ModuleEntity(_context.NameResolutionService,
-																this,
-																_anonymousTypesModule);
-				_context.CompileUnit.Modules.Add(_anonymousTypesModule);
+				BooClassBuilder builder = CodeBuilder.CreateClass("CompilerGeneratedExtensions");
+				builder.Modifiers = TypeMemberModifiers.Final|TypeMemberModifiers.Transient|TypeMemberModifiers.Public;
+				builder.AddBaseType(ObjectType);
+
+				BooMethodBuilder ctor = builder.AddConstructor();
+				ctor.Modifiers = TypeMemberModifiers.Private;
+				ctor.Body.Add(
+					CodeBuilder.CreateSuperConstructorInvocation(ObjectType));
+
+				ClassDefinition cd = builder.ClassDefinition;
+				Module module = GetCompilerGeneratedExtensionsModule();
+				module.Members.Add(cd);
+				((ModuleEntity)module.Entity).InitializeModuleClass(cd);
+
+				_compilerGeneratedExtensionsClass = cd;
 			}
-			return _anonymousTypesModule;
+			return _compilerGeneratedExtensionsClass;
+		}
+
+		public Module GetCompilerGeneratedExtensionsModule()
+		{
+			if (null == _compilerGeneratedExtensionsModule)
+			{
+				_compilerGeneratedExtensionsModule = NewModule(null);
+			}
+			return _compilerGeneratedExtensionsModule;
 		}
 		
+		public Module GetCompilerGeneratedTypesModule()
+		{
+			if (null == _compilerGeneratedTypesModule)
+			{
+				_compilerGeneratedTypesModule = NewModule("CompilerGenerated");
+			}
+			return _compilerGeneratedTypesModule;
+		}
+
+		private Module NewModule(string ns)
+		{
+			Module module = new Module();
+			if (null != ns) module.Namespace = new NamespaceDeclaration(ns);
+			module.Entity = new ModuleEntity(_context.NameResolutionService, this, module);
+			_context.CompileUnit.Modules.Add(module);
+			return module;
+		}
+
 		public ClassDefinition CreateCallableDefinition(string name)
 		{
 			ClassDefinition cd = new ClassDefinition();
@@ -797,7 +838,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		static object EntityAnnotationKey = new object();
-		
+
 		public static void Bind(Node node, IEntity entity)
 		{
 			if (null == node) throw new ArgumentNullException("node");
@@ -1130,32 +1171,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 		
-		Method CreateBeginInvokeOverload(ICallableType anonymousType, Method beginInvoke, out MethodInvocationExpression mie)
+		Method CreateBeginInvokeExtension(ICallableType anonymousType, Method beginInvoke, out MethodInvocationExpression mie)
 		{
 			InternalMethod beginInvokeEntity = (InternalMethod)beginInvoke.Entity;
 			
-			Method overload = CodeBuilder.CreateMethod("BeginInvoke", Map(typeof(IAsyncResult)),
-										TypeMemberModifiers.Public|TypeMemberModifiers.Virtual);
-			CodeBuilder.DeclareParameters(overload, 1, anonymousType.GetSignature().Parameters);
+			Method extension = CodeBuilder.CreateMethod("BeginInvoke", Map(typeof(IAsyncResult)),
+										TypeMemberModifiers.Public|TypeMemberModifiers.Static);
+			extension.ImplementationFlags = MethodImplementationFlags.Extension;
+
+			ParameterDeclaration self = CodeBuilder.CreateParameterDeclaration(0, "self", beginInvokeEntity.DeclaringType);
+			
+			extension.Parameters.Add(self);
+			CodeBuilder.DeclareParameters(extension, 1, anonymousType.GetSignature().Parameters);
 			
 			mie = CodeBuilder.CreateMethodInvocation(
-						CodeBuilder.CreateSelfReference(beginInvokeEntity.DeclaringType),
+						CodeBuilder.CreateReference(self),
 						beginInvokeEntity);
-						
-			foreach (ParameterDeclaration parameter in overload.Parameters)
+
+			ParameterDeclarationCollection parameters = extension.Parameters;
+			for (int i=1; i<parameters.Count; ++i)
 			{
-				mie.Arguments.Add(CodeBuilder.CreateReference(parameter));
+				mie.Arguments.Add(CodeBuilder.CreateReference(parameters[i]));
 			}
-			
-			overload.Body.Add(new ReturnStatement(mie));
-			return overload;
+			extension.Body.Add(new ReturnStatement(mie));
+			return extension;
 		}
 		
-#if FALSE
-		Method CreateBeginInvokeSimplerOverload(ICallableType anonymousType, Method beginInvoke)
+		Method CreateBeginInvokeSimplerExtension(ICallableType anonymousType, Method beginInvoke)
 		{
 			MethodInvocationExpression mie;
-			Method overload = CreateBeginInvokeOverload(anonymousType, beginInvoke, out mie);
+			Method overload = CreateBeginInvokeExtension(anonymousType, beginInvoke, out mie);
 			
 			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
 			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
@@ -1163,12 +1208,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return overload;
 		}
 		
-		Method CreateBeginInvokeCallbackOnlyOverload(ICallableType anonymousType, Method beginInvoke)
+		Method CreateBeginInvokeCallbackOnlyExtension(ICallableType anonymousType, Method beginInvoke)
 		{
 			MethodInvocationExpression mie;
 			
-			Method overload = CreateBeginInvokeOverload(anonymousType, beginInvoke, out mie);
-			ParameterDeclaration callback = CodeBuilder.CreateParameterDeclaration(overload.Parameters.Count+1,
+			Method overload = CreateBeginInvokeExtension(anonymousType, beginInvoke, out mie);
+			ParameterDeclaration callback = CodeBuilder.CreateParameterDeclaration(overload.Parameters.Count,
 										"callback", Map(typeof(AsyncCallback)));
 			overload.Parameters.Add(callback);
 
@@ -1177,8 +1222,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			return overload;
 		}
-#endif
-		
+	
 		public Method CreateEndInvokeMethod(ICallableType anonymousType)
 		{
 			CallableSignature signature = anonymousType.GetSignature();
@@ -1267,7 +1311,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected virtual IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
-			Module module = GetAnonymousTypesModule();
+			Module module = GetCompilerGeneratedTypesModule();
 			
 			string name = string.Format("___callable{0}", module.Members.Count);
 			ClassDefinition cd = CreateCallableDefinition(name);
@@ -1279,19 +1323,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Method beginInvoke = CreateBeginInvokeMethod(anonymousType);
 			cd.Members.Add(beginInvoke);
 			
-			// XXX: find an alternative way to support BeginInvoke overloads...			
-			//if (Version1)
-			//{
-			//	cd.Members.Add(CreateBeginInvokeCallbackOnlyOverload(anonymousType, beginInvoke));
-			//	cd.Members.Add(CreateBeginInvokeSimplerOverload(anonymousType, beginInvoke));
-			//}
-			
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
-			_anonymousTypesModule.Members.Add(cd);
-			
+			_compilerGeneratedTypesModule.Members.Add(cd);
+
+			CreateCallableTypeBeginInvokeExtensions(anonymousType, beginInvoke);
+
 			return (IType)cd.Entity;
 		}
-		
+
+		private void CreateCallableTypeBeginInvokeExtensions(AnonymousCallableType anonymousType, Method beginInvoke)
+		{
+			ClassDefinition extensions = GetCompilerGeneratedExtensionsClass();
+			extensions.Members.Add(CreateBeginInvokeCallbackOnlyExtension(anonymousType, beginInvoke));
+			extensions.Members.Add(CreateBeginInvokeSimplerExtension(anonymousType, beginInvoke));
+		}
+
 		private static void InvalidNode(Node node)
 		{
 			throw CompilerErrorFactory.InvalidNode(node);

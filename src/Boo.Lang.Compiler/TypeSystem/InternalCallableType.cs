@@ -43,7 +43,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _signature)
 			{
-				_signature = GetInvokeMethod().CallableType.GetSignature();
+				IMethod invoke = GetInvokeMethod();
+				if (null == invoke) return null;
+				_signature = invoke.CallableType.GetSignature();
 			}
 			return _signature;
 		}
@@ -65,7 +67,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public string ToString()
 		{
-			return GetSignature().ToString();
+			CallableSignature signature = GetSignature();
+			if (null == signature) return base.ToString();
+			return signature.ToString();
 		}
 	}
 }

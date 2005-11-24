@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return MethodImplementationFlags.Extension == (_method.ImplementationFlags & MethodImplementationFlags.Extension);
+				return _method.IsExtension;
 			}
 		}
 

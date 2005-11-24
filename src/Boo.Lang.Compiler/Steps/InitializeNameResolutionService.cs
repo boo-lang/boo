@@ -65,10 +65,16 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					module.Imports.Add(new Import(namespaceDeclaration.LexicalInfo, namespaceDeclaration.Name));
 				}
-				GetNamespace(moduleEntity.Namespace).AddModule(moduleEntity);
+				AddInternalModule(moduleEntity);
 			}
+			AddInternalModule((ModuleEntity) TypeSystemServices.GetCompilerGeneratedExtensionsModule().Entity);
 		}
-		
+
+		private void AddInternalModule(ModuleEntity moduleEntity)
+		{
+			GetNamespace(moduleEntity.Namespace).AddModule(moduleEntity);
+		}
+
 		Assembly FindOrLoadAssembly(string name)
 		{
 			Assembly found = Parameters.References.Find(name);

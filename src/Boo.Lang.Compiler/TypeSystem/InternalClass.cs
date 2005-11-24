@@ -71,7 +71,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IType baseType = this.BaseType;
 			if (null != baseType)
 			{
-				found |= baseType.Resolve(targetList, name, flags);
+				if (baseType.Resolve(targetList, name, flags))
+				{
+					found = true;
+				}
 			}
 			return found;
 		}

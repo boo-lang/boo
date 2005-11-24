@@ -767,6 +767,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void CheckIfIsMethodOverride(InternalMethod entity)
 		{
+			if (entity.IsStatic) return;
+			
 			IMethod overriden = FindMethodOverride(entity);
 			if (null == overriden) return;
             
@@ -3636,15 +3638,26 @@ namespace Boo.Lang.Compiler.Steps
 				return resolved;
 			}
 
+			if (TryToProcessAsExtensionInvocation(node)) return null;
+			
+			return CantResolveAmbiguousMethodInvocation(node, entities);
+		}
+
+		private bool TryToProcessAsExtensionInvocation(MethodInvocationExpression node)
+		{
+			IEntity extension = ResolveExtension(node);
+			if (null == extension) return false;
+
+			ProcessExtensionMethodInvocation(node, extension);
+			return true;
+		}
+
+		private IEntity ResolveExtension(MethodInvocationExpression node)
+		{
 			MemberReferenceExpression mre = node.Target as MemberReferenceExpression;
-			if (mre == null) return CantResolveAmbiguousMethodInvocation(node, entities);
-
-			resolved = NameResolutionService.ResolveExtension(GetReferenceNamespace(mre), mre.Name);
-			if (null == resolved) return CantResolveAmbiguousMethodInvocation(node, entities);
-
-			ProcessExtensionMethodInvocation(node, resolved);
-
-			return null;
+			if (mre == null) return null;
+	
+			return NameResolutionService.ResolveExtension(GetReferenceNamespace(mre), mre.Name);
 		}
 
 		private IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
@@ -3692,84 +3705,108 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			if (EntityType.Ambiguous == targetEntity.EntityType)
-			{
-				targetEntity = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetEntity);
-				if (null == targetEntity) return;
-			}
-			
+			ProcessMethodInvocationExpression(node, targetEntity);
+		}
+
+		private void ProcessMethodInvocationExpression(MethodInvocationExpression node, IEntity targetEntity)
+		{
 			switch (targetEntity.EntityType)
 			{
+				case EntityType.Ambiguous:
+					{
+						ProcessAmbiguousMethodInvocation(node, targetEntity);
+						break;
+					}
 				case EntityType.BuiltinFunction:
-				{
-					ProcessBuiltinInvocation((BuiltinFunction)targetEntity, node);
-					break;
-				}
+					{
+						ProcessBuiltinInvocation((BuiltinFunction)targetEntity, node);
+						break;
+					}
 				case EntityType.Event:
-				{
-					ProcessEventInvocation((IEvent)targetEntity, node);
-					break;
-				}
+					{
+						ProcessEventInvocation((IEvent)targetEntity, node);
+						break;
+					}
 				
 				case EntityType.Method:
-				{
-					NamedArgumentsNotAllowed(node);
-
-					IMethod targetMethod = (IMethod)targetEntity;
-					AssertParameters(node, targetMethod, node.Arguments);
-					AssertTargetContext(node.Target, targetMethod);
-					
-					BindExpressionType(node, GetInferredType(targetMethod));
-					ApplyBuiltinMethodTypeInference(node, targetMethod);
-					
-					break;
-				}
+					{
+						ProcessMethodInvocation(node, targetEntity);
+						break;
+					}
 				
 				case EntityType.Constructor:
-				{
-					InternalConstructor constructorInfo = targetEntity as InternalConstructor;
-					if (null != constructorInfo)
 					{
-						IType targetType = null;
-						if (NodeType.SuperLiteralExpression == node.Target.NodeType)
-						{
-							constructorInfo.HasSuperCall = true;
-							targetType = constructorInfo.DeclaringType.BaseType;
-						}
-						else if (node.Target.NodeType == NodeType.SelfLiteralExpression)
-						{
-							constructorInfo.HasSelfCall = true;
-							targetType = constructorInfo.DeclaringType;
-						}
-
-						IConstructor targetConstructorInfo = GetCorrectConstructor(node, targetType, node.Arguments);
-						if (null != targetConstructorInfo)
-						{
-							Bind(node.Target, targetConstructorInfo);
-							//BindExpressionType(node.Target, TypeSystemServices.VoidType);
-						}
+						ProcessConstructorInvocation(node, targetEntity);
+						break;
 					}
-					break;
-				}
 				
 				case EntityType.Type:
-				{
-					ProcessTypeInvocation(node);
-					break;
-				}
+					{
+						ProcessTypeInvocation(node);
+						break;
+					}
 				
 				case EntityType.Error:
-				{
-					Error(node);
-					break;
-				}
+					{
+						Error(node);
+						break;
+					}
 				
 				default:
+					{
+						ProcessGenericMethodInvocation(node);
+						break;
+					}
+			}
+		}
+
+		private void ProcessAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
+		{
+			targetEntity = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetEntity);
+			if (null == targetEntity) return;
+			ProcessMethodInvocationExpression(node, targetEntity);
+		}
+
+		private void ProcessConstructorInvocation(MethodInvocationExpression node, IEntity targetEntity)
+		{
+			InternalConstructor constructorInfo = targetEntity as InternalConstructor;
+			if (null != constructorInfo)
+			{
+				IType targetType = null;
+				if (NodeType.SuperLiteralExpression == node.Target.NodeType)
 				{
-					ProcessGenericMethodInvocation(node);
-					break;
+					constructorInfo.HasSuperCall = true;
+					targetType = constructorInfo.DeclaringType.BaseType;
+				}
+				else if (node.Target.NodeType == NodeType.SelfLiteralExpression)
+				{
+					constructorInfo.HasSelfCall = true;
+					targetType = constructorInfo.DeclaringType;
+				}
+
+				IConstructor targetConstructorInfo = GetCorrectConstructor(node, targetType, node.Arguments);
+				if (null != targetConstructorInfo)
+				{
+					Bind(node.Target, targetConstructorInfo);
+					//BindExpressionType(node.Target, TypeSystemServices.VoidType);
 				}
 			}
+		}
+
+		private void ProcessMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
+		{
+			IMethod targetMethod = (IMethod)targetEntity;
+			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false))
+			{
+				if (TryToProcessAsExtensionInvocation(node)) return;
+				AssertParameters(node, targetMethod, node.Arguments);
+			}
+
+			AssertTargetContext(node.Target, targetMethod);
+			NamedArgumentsNotAllowed(node);
+	
+			BindExpressionType(node, GetInferredType(targetMethod));
+			ApplyBuiltinMethodTypeInference(node, targetMethod);
 		}
 
 		private void NamedArgumentsNotAllowed(MethodInvocationExpression node)

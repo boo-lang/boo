@@ -113,10 +113,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool ResolveMember(Boo.Lang.List targetList, string name, EntityType flags)
 		{
-			if (ResolveModuleMember(targetList, name, flags))
-			{
-				return true;
-			}
+			if (ResolveModuleMember(targetList, name, flags)) return true;
 			return _moduleClassNamespace.Resolve(targetList, name, flags);
 		}
 		

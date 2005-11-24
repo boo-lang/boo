@@ -164,7 +164,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (external.ActualType.Assembly == assembly)
 					{
-						found |= external.Resolve(targetList, name, flags); 
+						if (external.Resolve(targetList, name, flags)) found = true; 
 					}
 				}
 			}
@@ -188,22 +188,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			}
 			
-			bool found = false;
-			if (!ResolveInternalType(targetList, name, flags))
-			{
-				found = ResolveExternalType(targetList, name);
-				found |= ResolveExternalModules(targetList, name, flags);
-			}
+			bool found = ResolveInternalType(targetList, name, flags);
+			if (found) return true;
+			
+			found = ResolveExternalType(targetList, name);
+			if (ResolveExternalModules(targetList, name, flags)) found = true;
 			return found;
 		}
 		
 		bool ResolveInternalType(List targetList, string name, EntityType flags)
 		{
+			bool found = false;
 			foreach (ModuleEntity ns in _internalModules)
 			{
-				ns.ResolveMember(targetList, name, flags);
+				if (ns.ResolveMember(targetList, name, flags)) found = true;
 			}
-			return false;
+			return found;
 		}
 		
 		bool ResolveExternalType(List targetList, string name)
@@ -227,7 +227,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			bool found = false;
 			foreach (INamespace ns in _externalModules)
 			{
-				found |= ns.Resolve(targetList, name, flags);
+				if (ns.Resolve(targetList, name, flags)) found = true;
 			}
 			return found;
 		}
