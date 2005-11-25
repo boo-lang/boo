@@ -3948,6 +3948,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessEventInvocation(IEvent ev, MethodInvocationExpression node)
 		{
+			NamedArgumentsNotAllowed(node);
+			
 			IMethod method = ev.GetRaiseMethod();
 			if (AssertParameters(node, method, node.Arguments))
 			{
@@ -3957,9 +3959,43 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void ProcessCallableTypeInvocation(MethodInvocationExpression node, ICallableType type)
+		{
+			NamedArgumentsNotAllowed(node);
+			
+			if (node.Arguments.Count == 1)
+			{
+				node.ParentNode.Replace(
+					node,
+					CodeBuilder.CreateCast(
+						type,
+						node.Arguments[0]));
+			}
+			else
+			{
+				IConstructor ctor = GetCorrectConstructor(node, type, node.Arguments);
+				if (null != ctor)
+				{
+					BindConstructorInvocation(node, ctor);
+				}
+				else
+				{
+					Error(node);
+				}
+			}
+		}
+		
 		void ProcessTypeInvocation(MethodInvocationExpression node)
 		{
 			IType type = (IType)node.Target.Entity;
+
+			ICallableType callableType = type as ICallableType;
+			if (null != callableType)
+			{
+				ProcessCallableTypeInvocation(node, callableType);
+				return;
+			}
+			
 			if (!AssertCanCreateInstance(node.Target, type))
 			{
 				Error(node);
@@ -3976,11 +4012,7 @@ namespace Boo.Lang.Compiler.Steps
 			IConstructor ctor = GetCorrectConstructor(node, type, node.Arguments);
 			if (null != ctor)
 			{
-				// rebind the target now we know
-				// it is a constructor call
-				Bind(node.Target, ctor);
-				BindExpressionType(node.Target, ctor.Type);
-				BindExpressionType(node, type);
+				BindConstructorInvocation(node, ctor);
 				
 				if (node.NamedArguments.Count > 0)
 				{
@@ -3991,6 +4023,15 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Error(node);
 			}
+		}
+		
+		void BindConstructorInvocation(MethodInvocationExpression node, IConstructor ctor)
+		{
+			// rebind the target now we know
+			// it is a constructor call
+			Bind(node.Target, ctor);
+			BindExpressionType(node.Target, ctor.Type);
+			BindExpressionType(node, ctor.DeclaringType);
 		}
 
 		private void ProcessValueTypeInstantiation(IType type, MethodInvocationExpression node)
