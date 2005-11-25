@@ -3965,6 +3965,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (node.Arguments.Count == 1)
 			{
+				AssertTypeCompatibility(node.Arguments[0], type, GetExpressionType(node.Arguments[0]));
 				node.ParentNode.Replace(
 					node,
 					CodeBuilder.CreateCast(
