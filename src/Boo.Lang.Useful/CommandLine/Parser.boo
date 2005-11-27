@@ -30,43 +30,6 @@ namespace Boo.Lang.Useful.CommandLine
 
 import System
 
-class Option:
-"""
-Describes a command line option.
-@see Parser
-"""
-	[property(ShortForm, value is not null and len(value) == 1)]
-	_short as string
-	
-	[property(LongForm, value is not null and len(value) > 0)]
-	_long as string
-	
-	[property(MinOccurs, value >= 0)]
-	_minOccurs = 0
-	
-	[property(MaxOccurs, value > 0)]
-	_maxOccurs = 1
-	
-	[property(Handler, value is not null)]
-	_handler as ArgumentHandler
-	
-	[getter(Occurred)]
-	_occurred = 0
-	
-	def PreValidate():
-		assert ShortForm is not null or LongForm is not null
-		assert Handler is not null
-		
-	def PostValidate():
-		if _occurred < _minOccurs:
-			raise CommandLineException("${_long or _short} must be specified at least ${_minOccurs} time(s)") 
-	
-	def Handle(value as string):
-		++_occurred
-		if _occurred > _maxOccurs:
-			raise CommandLineException("${_long or _short} cannot be used more than ${_maxOccurs} time(s)")
-		_handler(value)
-
 class Parser(AbstractParser):
 """
 Parses a command line based on a description of acceptable options.
@@ -75,35 +38,37 @@ Parses a command line based on a description of acceptable options.
 """
 
 	_options = {}
-	_arguments = []
 	
-	Arguments:
-		get:
-			return array(string, _arguments)
+	event ArgumentFound as ArgumentHandler
 
-	def AddOption([required] option as Option):
+	def AddOption([required] option as OptionAttribute, [required] handler as ArgumentHandler):
 		option.PreValidate()
-		TryToAddOption(option.ShortForm, option)
-		TryToAddOption(option.LongForm, option)
-		
-	def GetOption([required] key as string) as Option:
-		return _options[key]
+		TryToAddOption(option.ShortForm, option, handler)
+		TryToAddOption(option.LongForm, option, handler)
 		
 	override def Parse(args as (string)):
 		super(args)
-		for option as Option in _options.Values:
-			option.PostValidate()
+		PostValidate()
 		
-	private def TryToAddOption(key as string, option as Option):
+	private def TryToAddOption(key as string, option as OptionAttribute, handler as ArgumentHandler):
 		return if key is null
 		raise ArgumentException("'${key}' was specified more than once") if key in _options
-		_options[key] = option
+		_options[key] = (option, handler)
 		
+	private def PostValidate():
+		for option as OptionAttribute, handler in _options.Values:
+			option.PostValidate()
+
 	override protected def OnOption(name as string, value as string):
-		option = GetOption(name)
-		if option is null:
-			raise CommandLineException("'${name}' is not a valid option")
-		option.Handle(value)
+		option = _options[name]
+		InvalidOption(name) if option is null
+			
+		attribute as OptionAttribute, handler as ArgumentHandler = option
+		attribute.Validate(value)
+		handler(value)
+		
+	protected def InvalidOption(value as string):
+		raise CommandLineException("'${value}' is not a valid option")
 		
 	override protected def OnArgument(value as string):
-		_arguments.Add(value)
+		ArgumentFound(value)

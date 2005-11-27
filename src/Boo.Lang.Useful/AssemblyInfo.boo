@@ -38,5 +38,5 @@ import System.Runtime.CompilerServices
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyKeyFile("../src/boo.snk")]
+#[assembly: AssemblyKeyFile("../src/boo.snk")]
 

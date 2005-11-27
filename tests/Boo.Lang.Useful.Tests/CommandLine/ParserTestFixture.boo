@@ -56,29 +56,33 @@ class ParserTestFixture:
 			assert value is null
 
 		parser = Parser()
-		parser.AddOption(Option(LongForm: "b", Handler: bHandler))
-		parser.AddOption(Option(ShortForm: "r", LongForm: "reference", Handler: rHandler))
-		parser.AddOption(Option(LongForm: "namespace", Handler: namespaceHandler))
+		parser.AddOption(OptionAttribute(LongForm: "b"), bHandler)
+		parser.AddOption(OptionAttribute(ShortForm: "r", LongForm: "reference"), rHandler)
+		parser.AddOption(OptionAttribute(LongForm: "namespace"), namespaceHandler)
 		
+		arguments = []
+		parser.ArgumentFound += def (value as string):
+			arguments.Add(value)
+			
 		parser.Parse(args)
 			
 		assert bWasFound
 		assert rWasFound
 		assert namespaceWasFound
-		assert parser.Arguments == ("foo.boo", "bar.boo")
+		assert arguments == ["foo.boo", "bar.boo"]
 		
 	[Test]
 	[ExpectedException(CommandLineException)]
 	def TestMinOccurs():
 		parser = Parser()
-		parser.AddOption(Option(ShortForm: "b", MinOccurs: 1, Handler: DoNothing))
+		parser.AddOption(OptionAttribute(ShortForm: "b", LongForm: "boo", MinOccurs: 1), DoNothing)
 		parser.Parse(("f", ))
 		
 	[Test]
 	[ExpectedException(CommandLineException)]
 	def TestMaxOccurs():
 		parser = Parser()
-		parser.AddOption(Option(ShortForm: "b", MaxOccurs: 1, Handler: DoNothing))
+		parser.AddOption(OptionAttribute(ShortForm: "b", LongForm: "boo", MaxOccurs: 1), DoNothing)
 		parser.Parse(("-b", "-b"))
 		
 	def DoNothing(value as string):
