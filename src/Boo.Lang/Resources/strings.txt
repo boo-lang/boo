@@ -176,3 +176,20 @@ CantUnpackNull=Cannot unpack null.
 UnpackArrayOfWrongSize=Unpack array of wrong size (expected={0}, actual={1}).
 CantCompareItems=At least one side must implement IComparable or both sides should implement IEnumerable.
 AssertArgCount=expecting 1 or 2 args to assert; got {0}
+
+;boo command line utility
+boo.CommandLine.culture=the culture {code} to use when running the application
+boo.CommandLine.debug=emit debugging information
+boo.CommandLine.ducky=treat object references as duck
+boo.CommandLine.embedres=embeds the specified file as a unmanaged resource
+boo.CommandLine.output=file name for the generated assembly
+boo.CommandLine.pipeline=which compilation pipeline to use, it can be either the name of a builtin pipeline like 'boo' or a full type name
+boo.CommandLine.reference=references an assembly
+boo.CommandLine.resource=adds a managed resource
+boo.CommandLine.target=one of exe, winexe, library
+boo.CommandLine.utf8=use UTF8 when writing to the console
+boo.CommandLine.wsa=use the white space agnostic parser
+boo.CommandLine.help=display help information and exit
+
+boo.CommandLine.header=boo command line utility
+boo.CommandLine.usage=Usage: boo [options] [source files]

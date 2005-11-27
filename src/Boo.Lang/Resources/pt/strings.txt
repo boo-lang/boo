@@ -177,3 +177,20 @@ CantUnpackNull=null não pode ser desempacotado.
 UnpackArrayOfWrongSize=Desempacotamento de array de tamanho errado. (esperado={0}, real={1}).
 CantCompareItems=Pelo menos um lado deve implementar IComparable ou ambos devem implementar IEnumerable..
 AssertArgCount=macro assert espera 1 ou 2 argumentos; aplicados: {0}
+
+;boo command line utility
+boo.CommandLine.culture=the culture {code} to use when running the application
+boo.CommandLine.debug=emit debugging information
+boo.CommandLine.ducky=treat object references as duck
+boo.CommandLine.embedres=embeds the specified file as a unmanaged resource
+boo.CommandLine.output=file name for the generated assembly
+boo.CommandLine.pipeline=which compilation pipeline to use, it can be either the name of a builtin pipeline like 'boo' or a full type name
+boo.CommandLine.reference=references an assembly
+boo.CommandLine.resource=adds a managed resource
+boo.CommandLine.target=one of exe, winexe, library
+boo.CommandLine.utf8=use UTF8 when writing to the console
+boo.CommandLine.wsa=use the white space agnostic parser
+boo.CommandLine.help=display help information and exit
+
+boo.CommandLine.header=boo command line utility
+boo.CommandLine.usage=Usage: boo [options] [source files]

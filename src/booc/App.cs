@@ -60,11 +60,10 @@ namespace BooC
 			{
 				using (StreamWriter writer = new StreamWriter(Console.OpenStandardOutput(), Encoding.UTF8))
 				{
+					// leave the byte order mark in its own line and out
+					writer.WriteLine();
+					
 					Console.SetOut(writer);
-
-					// leave the byte order mark in its own line
-					Console.WriteLine(); 
-
 					return new App().Run(args);
 				}
 			}

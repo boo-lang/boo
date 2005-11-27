@@ -35,7 +35,7 @@
 
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.Useful">	
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.Useful, boo">	
 	</target>
 	
 	<target name="test" depends="all">
@@ -44,6 +44,22 @@
 	
 	<target name="compile-tests" depends="all">
 		<nant buildfile="tests/default.build" target="compile" />
+	</target>
+	
+	<target name="boo" depends="Boo.Lang.Useful, Boo.Lang.Interpreter">
+		<booc
+			target="exe"
+			output="build/boo.exe">
+			
+			<sources basedir="src/boo">
+				<include name="*.boo" />
+			</sources>
+			
+			<references basedir="build">
+				<include name="Boo.Lang.Useful.dll" />
+				<include name="Boo.Lang.Interpreter.dll" /> 
+			</references>
+		</booc>
 	</target>
 	
 	<target name="booish" depends="Boo.Lang.Interpreter">
