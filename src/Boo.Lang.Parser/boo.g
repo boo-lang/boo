@@ -1837,7 +1837,7 @@ boolean_expression returns [Expression e]
 		e=boolean_term
 		(
 			ot:OR
-			r=expression
+			r=boolean_term
 			{
 				BinaryExpression be = new BinaryExpression(ToLexicalInfo(ot));
 				be.Operator = BinaryOperatorType.Or;
@@ -1859,7 +1859,7 @@ boolean_term returns [Expression e]
 	e=not_expression
 	(
 		at:AND
-		r=expression
+		r=not_expression
 		{
 			BinaryExpression be = new BinaryExpression(ToLexicalInfo(at));
 			be.Operator = BinaryOperatorType.And;
