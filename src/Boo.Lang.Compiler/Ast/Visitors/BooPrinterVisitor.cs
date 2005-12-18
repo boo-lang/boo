@@ -1445,6 +1445,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		void WriteModifiers(TypeMember member)
 		{
 			WriteIndented();
+			if (member.IsPartial)
+			{
+				WriteKeyword("partial ");
+			}
 			if (member.IsPublic)
 			{
 				WriteKeyword("public ");
