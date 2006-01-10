@@ -485,7 +485,7 @@ namespace Boo.Lang.Compiler.Steps
 				MethodInfo ifaceInfo = GetMethodInfo(ifaceMethod);
 				MethodInfo implInfo = GetMethodInfo((IMethod)method.Entity);
 
-				TypeBuilder typeBuilder = GetTypeBuilder((ClassDefinition)method.DeclaringType);
+				TypeBuilder typeBuilder = GetTypeBuilder(method.DeclaringType);
 				typeBuilder.DefineMethodOverride(implInfo, ifaceInfo);
 			}
 
@@ -1960,15 +1960,36 @@ namespace Boo.Lang.Compiler.Steps
 		private void OnInitValueType(MethodInvocationExpression node)
 		{
 			Debug.Assert(1 == node.Arguments.Count);
-			InternalLocal local = (InternalLocal)node.Arguments[0].Entity;
 
-			Debug.Assert(local.Type.IsValueType);
-			
-			LocalBuilder builder = local.LocalBuilder;
-			_il.Emit(OpCodes.Ldloca, builder);
-			_il.Emit(OpCodes.Initobj, builder.LocalType);
-
+			Expression argument = node.Arguments[0];
+			LoadAddressForInitObj(argument);
+			System.Type type = GetSystemType(GetExpressionType(argument));
+			Debug.Assert(type.IsValueType);
+			_il.Emit(OpCodes.Initobj, type);
 			PushVoid();
+		}
+
+		private void LoadAddressForInitObj(Expression argument)
+		{
+			IEntity entity = argument.Entity;
+			switch (entity.EntityType)
+			{
+				case EntityType.Local:
+					{
+						InternalLocal local = (InternalLocal)entity;
+						LocalBuilder builder = local.LocalBuilder;
+						_il.Emit(OpCodes.Ldloca, builder);
+						break;
+					}
+				case EntityType.Field:
+					{
+						EmitLoadFieldAddress(argument, (IField)entity);
+						break;
+					}
+				default:
+					NotImplemented(argument, "__initobj__");
+					break;
+			}
 		}
 
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
