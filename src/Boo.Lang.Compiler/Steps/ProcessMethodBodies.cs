@@ -72,6 +72,8 @@ namespace Boo.Lang.Compiler.Steps
 		protected MethodBodyState _methodBodyState;
 
 		protected CallableResolutionService _callableResolution;
+
+		protected bool _optimizeNullComparisons = true;
 		
 		protected struct MethodBodyState
 		{
@@ -3260,7 +3262,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					case BinaryOperatorType.Equality:
 					{
-						if (IsNull(node.Left) || IsNull(node.Right))
+						if (OptimizeNullComparisons && (IsNull(node.Left) || IsNull(node.Right)))
 						{
 							node.Operator = BinaryOperatorType.ReferenceEquality;
 							BindReferenceEquality(node);
@@ -3273,7 +3275,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case BinaryOperatorType.Inequality:
 					{
-						if (IsNull(node.Left) || IsNull(node.Right))
+						if (OptimizeNullComparisons && (IsNull(node.Left) || IsNull(node.Right)))
 						{
 							node.Operator = BinaryOperatorType.ReferenceInequality;
 							BindReferenceEquality(node);
@@ -5604,6 +5606,13 @@ namespace Boo.Lang.Compiler.Steps
 				return _EnumeratorItemType_Constructor;
 			}
 		}
+
+		public bool OptimizeNullComparisons
+		{
+			get { return _optimizeNullComparisons; }
+			set { _optimizeNullComparisons = value; }
+		}
+
 		#endregion
 	}
 }

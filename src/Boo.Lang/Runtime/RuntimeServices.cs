@@ -869,15 +869,12 @@ namespace Boo.Lang.Runtime
 
 		public static bool EqualityOperator(object lhs, object rhs)
 		{
-			if (lhs == rhs)
-			{
-				return true;
-			}
-
-			if (null == lhs || null == rhs)
-			{
-				return false;
-			}
+			if (lhs == rhs) return true;
+			
+			// Some types do overload Equals to compare
+			// against null values
+			if (null == lhs) return rhs.Equals(lhs);			
+			if (null == rhs) return lhs.Equals(rhs);
 
 			TypeCode lhsTypeCode = Type.GetTypeCode(lhs.GetType());
 			TypeCode rhsTypeCode = Type.GetTypeCode(rhs.GetType());
