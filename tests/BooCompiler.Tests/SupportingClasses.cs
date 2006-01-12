@@ -110,6 +110,15 @@ namespace BooCompiler.Tests
 		}
 	}
 	
+	public struct ValueTypeOverrideBoolOperator
+	{
+		public static implicit operator bool(ValueTypeOverrideBoolOperator instance)
+		{
+			Console.WriteLine("ValueTypeOverrideBoolOperator.operator bool");
+			return false;
+		}
+	}
+	
 	public class ExtendsOverridenBoolOperator : OverrideBoolOperator
 	{
 	}
