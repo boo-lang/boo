@@ -52,7 +52,8 @@ namespace Boo.Lang.Runtime
 
 		const BindingFlags InvokeOperatorBindingFlags = BindingFlags.Public |
 												BindingFlags.Static |
-												BindingFlags.InvokeMethod;
+												BindingFlags.InvokeMethod |
+												BindingFlags.FlattenHierarchy;
 
 		const BindingFlags SetPropertyBindingFlags = DefaultBindingFlags |
 												BindingFlags.SetProperty |
@@ -1591,15 +1592,16 @@ namespace Boo.Lang.Runtime
 		}
 
 		private static MethodInfo FindImplicitConversionOperator(Type from, Type to)
-		{	
-			MethodInfo[] methods = from.GetMethods(BindingFlags.Static | BindingFlags.Public);
+		{
+			const BindingFlags ConversionOperatorFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy;
+			MethodInfo[] methods = from.GetMethods(ConversionOperatorFlags);
 			foreach (MethodInfo m in methods)
 			{
 				if (m.Name != "op_Implicit") continue;
 				if (m.ReturnType != to) continue;
 				ParameterInfo[] parameters = m.GetParameters();
 				if (parameters.Length != 1) continue;
-				if (parameters[0].ParameterType != from) continue;
+				if (!parameters[0].ParameterType.IsAssignableFrom(from)) continue;
 				return m;
 			}
 			return null;
