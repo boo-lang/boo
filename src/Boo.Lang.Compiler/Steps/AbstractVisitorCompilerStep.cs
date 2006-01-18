@@ -164,7 +164,7 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.GetConcreteExpressionType(expression);
 		}
 
-		protected IType GetExpressionType(Expression node)
+		protected virtual IType GetExpressionType(Expression node)
 		{
 			return TypeSystemServices.GetExpressionType(node);
 		}

@@ -3807,6 +3807,7 @@ namespace Boo.Lang.Compiler.Steps
 			AssertTargetContext(node.Target, targetMethod);
 			NamedArgumentsNotAllowed(node);
 	
+			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
 		}
@@ -3958,6 +3959,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Target = CodeBuilder.CreateMemberReference(
 						((MemberReferenceExpression)node.Target).Target,
 						method);
+				BindExpressionType(node, method.ReturnType);
 			}
 		}
 		

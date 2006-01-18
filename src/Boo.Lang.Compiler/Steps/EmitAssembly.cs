@@ -901,8 +901,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefaultBranchTrue(Expression expression, Label label)
 		{
-			expression.Accept(this);
-			EmitToBoolIfNeeded(PopType());
+			expression.Accept(this); PopType();
+			EmitToBoolIfNeeded(expression);
 			_il.Emit(OpCodes.Brtrue, label);
 		}
 		
@@ -1075,8 +1075,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefaultBranchFalse(Expression expression, Label label)
 		{
-			expression.Accept(this);
-			EmitToBoolIfNeeded(PopType());
+			expression.Accept(this); PopType();
+			EmitToBoolIfNeeded(expression);
 			_il.Emit(OpCodes.Brfalse, label);
 		}
 		
@@ -1185,9 +1185,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void EmitLogicalNot(UnaryExpression node)
 		{
-			node.Operand.Accept(this);
+			Expression operand = node.Operand;
+			operand.Accept(this); 
 			IType typeOnStack = PopType();
-			if (IsBoolOrInt(typeOnStack) || EmitToBoolIfNeeded(typeOnStack))
+			if (IsBoolOrInt(typeOnStack) || EmitToBoolIfNeeded(operand))
 			{
 				EmitIntNot();
 			}
@@ -1496,15 +1497,16 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(type);
 		}
 		
-		bool EmitToBoolIfNeeded(IType topOfStack)
+		bool EmitToBoolIfNeeded(Expression expression)
 		{
-			if (TypeSystemServices.ObjectType == topOfStack ||
-				TypeSystemServices.DuckType == topOfStack)
+			IType type = GetExpressionType(expression);
+			if (TypeSystemServices.ObjectType == type ||
+				TypeSystemServices.DuckType == type)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Object, null);
 				return true;
 			}
-			if (TypeSystemServices.DecimalType == topOfStack)
+			if (TypeSystemServices.DecimalType == type)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Decimal, null);
 				return true;
@@ -1524,7 +1526,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void EmitLogicalOperator(BinaryExpression node, OpCode brForValueType, OpCode brForRefType)
 		{
-			IType type = node.ExpressionType;
+			IType type = GetExpressionType(node);
 			Visit(node.Left);
 			
 			IType lhsType = PopType();
@@ -1537,7 +1539,7 @@ namespace Boo.Lang.Compiler.Steps
 				Label end = _il.DefineLabel();
 				
 				_il.Emit(OpCodes.Dup);
-				EmitToBoolIfNeeded(lhsType);	// may need to convert decimal to bool
+				EmitToBoolIfNeeded(node.Left);	// may need to convert decimal to bool
 				_il.Emit(brForValueType, evalRhs);
 				EmitCastIfNeeded(type, lhsType);
 				_il.Emit(OpCodes.Br, end);
@@ -1557,7 +1559,7 @@ namespace Boo.Lang.Compiler.Steps
 				EmitCastIfNeeded(type, lhsType);
 				_il.Emit(OpCodes.Dup);
 				
-				EmitToBoolIfNeeded(lhsType);
+				EmitToBoolIfNeeded(node.Left);
 				
 				_il.Emit(brForRefType, end);
 				
@@ -2725,7 +2727,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			value.Accept(this);
+			value.Accept(this); 
 			EmitCastIfNeeded(field.Type, PopType());
 			
 			FieldInfo fi = GetFieldInfo(field);
@@ -4404,6 +4406,13 @@ namespace Boo.Lang.Compiler.Steps
 				return attributes[0];
 			}
 			return null;
+		}
+
+		protected override IType GetExpressionType(Expression node)
+		{
+			IType type = base.GetExpressionType(node);
+			if (TypeSystemServices.IsUnknown(type)) throw CompilerErrorFactory.InvalidNode(node);
+			return type;
 		}
 	}
 }

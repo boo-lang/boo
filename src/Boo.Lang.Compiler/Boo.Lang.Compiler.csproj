@@ -1609,6 +1609,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Steps\InjectCastsAndConversions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Steps\IntroduceGlobalNamespaces.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Text;
-
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -29,36 +26,22 @@ using System.Text;
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+
+using System;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
+
 namespace Boo.Lang.Compiler.Steps
 {
-	using System.IO;
-	using Boo.Lang.Compiler;
-	
-	public class PrintErrors : AbstractCompilerComponent, ICompilerStep
-	{
-		public void Run()
+	public class InjectCastsAndConversions : AbstractTransformerCompilerStep
+	{	
+		public InjectCastsAndConversions()
 		{
-			Print(OutputWriter, Errors);
 		}
 
-		public static void Print(TextWriter writer, CompilerErrorCollection errors)
+		override public void Run()
 		{
-			Hashtable reported = new Hashtable();
-			StringBuilder buffer = new StringBuilder();
-			foreach (CompilerError error in errors)
-			{
-				buffer.Length = 0;
-				buffer.Append(Path.GetFileName(error.LexicalInfo.FileName));
-				buffer.AppendFormat("({0},{1}): ", error.LexicalInfo.Line, error.LexicalInfo.Column);
-				buffer.AppendFormat("{0}: ", error.Code);
-				buffer.Append(error.Message);
-
-				string message = buffer.ToString();
-				if (reported.ContainsKey(message)) continue;
-
-				reported.Add(message, message);
-				writer.WriteLine(message);
-			}
+			Visit(CompileUnit);
 		}
 	}
 }

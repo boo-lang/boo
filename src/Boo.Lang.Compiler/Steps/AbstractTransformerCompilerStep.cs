@@ -121,16 +121,11 @@ namespace Boo.Lang.Compiler.Steps
 			node.ExpressionType = type;
 		}
 		
-		protected IType GetExpressionType(Expression node)
+		protected virtual IType GetExpressionType(Expression node)
 		{
-			IType type = node.ExpressionType;
-			if (null == type)
-			{
-				throw CompilerErrorFactory.InvalidNode(node);
-			}
-			return type;
+			return TypeSystemServices.GetExpressionType(node);
 		}
-		
+
 		public IEntity GetEntity(Node node)
 		{
 			return TypeSystemServices.GetEntity(node);

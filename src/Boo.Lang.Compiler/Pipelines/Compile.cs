@@ -46,7 +46,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			
 			Add(new CheckMembersProtectionLevel());
 
-			//Add(new OptimizeIterationStatements());
+			// TODO: 
+			// Add(new OptimizeIterationStatements());
 			Add(new NormalizeIterationStatements());
 			
 			Add(new ProcessSharedLocals());			
@@ -57,6 +58,9 @@ namespace Boo.Lang.Compiler.Pipelines
 			
 			Add(new InjectCallableConversions());
 			Add(new ImplementICallableOnCallableDefinitions());
+
+			// TODO:
+			//Add(new InjectCastsAndConversions());
 		}
 	}
 }

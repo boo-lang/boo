@@ -121,6 +121,11 @@ namespace BooCompiler.Tests
 	
 	public class ExtendsOverridenBoolOperator : OverrideBoolOperator
 	{
+		[Boo.Lang.DuckTypedAttribute]
+		public ExtendsOverridenBoolOperator GetFoo()
+		{
+			return new ExtendsOverridenBoolOperator();
+		}
 	}
 	
 	public class OverrideEqualityOperators
