@@ -277,10 +277,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private int CalculateArgumentScore(IParameter param, IType parameterType, Node arg)
 		{
 			IType argumentType = GetExpressionTypeOrEntityType(arg);
-			if (IsValidByRefArg(param, parameterType, argumentType, arg))
+			if (param.IsByRef)
 			{
-				// boo does not like byref
-				return 3;
+				if (IsValidByRefArg(param, parameterType, argumentType, arg))
+				{
+					return 7;
+				}
 			}
 			else if (parameterType == argumentType)
 			{
