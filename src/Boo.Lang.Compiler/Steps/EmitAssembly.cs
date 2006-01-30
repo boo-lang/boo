@@ -478,6 +478,11 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
+			if (IsPInvoke(method))
+			{
+				return;
+			}
+			
 			MethodBuilder methodBuilder = GetMethodBuilder(method);
 			if (null != method.ExplicitInfo)
 			{
@@ -510,6 +515,11 @@ namespace Boo.Lang.Compiler.Steps
 				_returnValueLocal = null;
 			}
 			_il.Emit(OpCodes.Ret);
+		}
+
+		private bool IsPInvoke(Method method)
+		{
+			return GetEntity(method).IsPInvoke;
 		}
 
 		override public void OnBlock(Block block)
@@ -3725,10 +3735,14 @@ namespace Boo.Lang.Compiler.Steps
 		MethodAttributes GetMethodAttributes(Method method)
 		{
 			MethodAttributes attributes = MethodAttributes.HideBySig;
-			
 			if (method.ExplicitInfo != null)
 			{
 				attributes |= MethodAttributes.NewSlot;
+			}
+			if (IsPInvoke(method))
+			{
+				Debug.Assert(method.IsStatic);
+				attributes |= MethodAttributes.PinvokeImpl;
 			}
 			attributes |= GetMethodAttributesFromTypeMember(method);			
 			return attributes;

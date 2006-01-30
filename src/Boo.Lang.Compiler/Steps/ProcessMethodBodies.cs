@@ -749,9 +749,14 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(method.ReturnType);
 			Visit(method.ReturnTypeAttributes);
 			
-			if (method.IsRuntime)
+			bool ispinvoke = ((IMethod)GetEntity(method)).IsPInvoke;
+			if (method.IsRuntime || ispinvoke)
 			{
 				CheckRuntimeMethod(method);
+				if (ispinvoke)
+				{
+					method.Modifiers |= TypeMemberModifiers.Static;
+				}
 			}
 			else
 			{

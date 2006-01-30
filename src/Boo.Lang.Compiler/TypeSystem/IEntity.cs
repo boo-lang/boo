@@ -298,6 +298,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get;
 		}
+		
+		bool IsPInvoke
+		{
+			get;
+		}
 	}
 	
 	public interface IConstructor : IMethodBase

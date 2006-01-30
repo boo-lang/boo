@@ -47,6 +47,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		int _isExtension = -1;
 		
+		int _isPInvoke = -1;
+		
 		internal ExternalMethod(TypeSystemServices manager, MethodBase mi)
 		{
 			_typeSystemServices = manager;
@@ -79,6 +81,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 						: 0;
 				}
 				return 1 == _isDuckTyped;
+			}
+		}
+		
+		public bool IsPInvoke
+		{
+			get
+			{
+				if (-1 == _isPInvoke)
+				{
+					_isPInvoke = MetadataUtil.IsAttributeDefined(_mi,  Types.DllImportAttribute)
+						? 1
+						: 0;
+				}
+				return 1 == _isPInvoke;
 			}
 		}
 		

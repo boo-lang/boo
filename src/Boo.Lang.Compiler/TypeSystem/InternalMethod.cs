@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected List _labelReferences;
 		
 		protected List _labels;
-		
+				
 		internal InternalMethod(TypeSystemServices typeSystemServices, Method method)
 		{
 			_typeSystemServices = typeSystemServices;
@@ -90,6 +90,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return this.ReturnType == _typeSystemServices.DuckType;
+			}
+		}
+		
+		public bool IsPInvoke
+		{
+			get
+			{
+				IType dllimporttype = _typeSystemServices.Map(Types.DllImportAttribute);
+				foreach (Boo.Lang.Compiler.Ast.Attribute att in _method.Attributes)
+				{
+					IConstructor constructor = TypeSystemServices.GetEntity(att) as IConstructor;
+					if (null != constructor)
+					{
+						if (constructor.DeclaringType == dllimporttype)
+						{
+							return true;
+						}
+					}
+				}
+				return false;
 			}
 		}
 		
