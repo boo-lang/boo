@@ -134,6 +134,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 		SetValue("print", { value | _print(value) })
 		SetValue("load", load)
 		SetValue("globals", globals)
+		SetValue("getRootNamespace", Namespace.GetRootNamespace)
 		
 	def globals():
 		return array(string, _values.Keys)

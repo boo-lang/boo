@@ -48,6 +48,7 @@ The following builtin functions are available:
     help(Type): prints detailed information about a type
     load(string): evals an external boo file
     globals(): returns the names of all variables known to the interpreter
+	getRootNamespace(): namespace navigation
 
 Enter boo code in the prompt below."""
 
