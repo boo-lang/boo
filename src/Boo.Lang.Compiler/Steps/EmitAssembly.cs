@@ -3709,6 +3709,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (member.IsStatic)
 			{
 				attributes |= MethodAttributes.Static;
+				
+				if (member.Name.StartsWith("op_"))
+				{
+					attributes |= MethodAttributes.SpecialName;
+				}
 			}
 			if (member.IsFinal)
 			{
