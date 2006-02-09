@@ -4882,6 +4882,19 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						break;
 					}
+					case NodeType.ClassDefinition:
+					case NodeType.StructDefinition:
+					case NodeType.InterfaceDefinition:
+					{
+						if (WasVisited(node)) break;
+						
+						//visit dependent attributes such as EnumeratorItemType
+						foreach(Attribute att in ((TypeDefinition)node).Attributes)
+						{
+							VisitMemberForTypeResolution(att);
+						}
+						break;
+					}
 				}
 			}
 		}
