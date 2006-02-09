@@ -2023,6 +2023,18 @@ namespace Boo.Lang.Compiler.Steps
 						}
 					}
 				}
+				foreach (IEntity entity in toType.GetMembers())
+				{
+					if (EntityType.Method == entity.EntityType &&
+						name == entity.Name)
+					{
+						IMethod method = (IMethod)entity;
+						if (IsConversionOperator(method, fromType, toType))
+						{
+							return method;
+						}
+					}
+				}
 				fromType = fromType.BaseType;
 				if (null == fromType) break;
 			}
