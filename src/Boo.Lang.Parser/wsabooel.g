@@ -273,7 +273,7 @@ protected
 REVERSE_DIGIT_GROUP : (DIGIT DIGIT DIGIT ({WSABooLexer.IsDigit(LA(2))}? '_'!)? | DIGIT)+;
 
 protected
-ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' );
+ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' | {System.Char.IsLetter(LA(1))}? '\u0080'..'\uFFFE');
 
 protected
 DIGIT : '0'..'9';
