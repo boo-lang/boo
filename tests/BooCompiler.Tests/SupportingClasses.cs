@@ -360,6 +360,21 @@ namespace BooCompiler.Tests
 		{
 			Console.WriteLine("BaseClass.Method1");
 		}
+		
+		//for BOO-632 regression test
+		protected int _protectedfield = 0;
+		protected int ProtectedProperty
+		{
+			get
+			{
+				return _protectedfield;
+			}
+			
+			set
+			{
+				_protectedfield = value;
+			}
+		}
 	}
 	
 	public class DerivedClass : BaseClass

@@ -73,14 +73,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return 1 == _isDuckTyped;
 			}
 		}
-
 		
 		public bool IsPublic
 		{
 			get
 			{
-				return (null != _property.GetGetMethod() ||
-						null != _property.GetSetMethod());
+				System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
+				if (null != setter)
+				{
+					return setter.IsPublic;
+				}
+				return false;
 			}
 		}
 		
@@ -88,6 +91,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
+				System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
+				if (null != setter)
+				{
+					return setter.IsFamily || setter.IsFamilyOrAssembly;
+				}
 				return false;
 			}
 		}
@@ -96,6 +104,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
+				System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
+				if (null != setter)
+				{
+					return setter.IsAssembly;
+				}
 				return false;
 			}
 		}
@@ -104,6 +117,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
+				System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
+				if (null != setter)
+				{
+					return setter.IsPrivate;
+				}
 				return false;
 			}
 		}
