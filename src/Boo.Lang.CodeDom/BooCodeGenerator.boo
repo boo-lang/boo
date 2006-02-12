@@ -286,11 +286,6 @@ class BooCodeGenerator(CodeGenerator):
 	protected def FixIndent(code as string) as string:
 		return string.Empty if code is null or code==string.Empty
 		
-		if Options.IndentString.StartsWith(" "):
-			code = code.Replace("\t",Options.IndentString)
-		elif Options.IndentString.StartsWith("\t"):
-			code = code.Replace("    ","\t")
-		
 		//find first line that has non-whitespace and isn't a comment
 		lines = newlinePattern.Split(code.Replace("\r\n", "\n"))
 		foundfirst = false  //1st non-whitespace, non-commented line
