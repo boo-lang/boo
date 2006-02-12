@@ -286,10 +286,10 @@ class BooCodeGenerator(CodeGenerator):
 	protected def FixIndent(code as string) as string:
 		return string.Empty if code is null or code==string.Empty
 		
-		spacespertab = 4
-		indentspaces = " "*spacespertab
-		
-		code = code.Replace("\t",indentspaces)
+		if Options.IndentString.StartsWith(" "):
+			code = code.Replace("\t",Options.IndentString)
+		elif Options.IndentString.StartsWith("\t"):
+			code = code.Replace("    ","\t")
 		
 		//find first line that has non-whitespace and isn't a comment
 		lines = newlinePattern.Split(code.Replace("\r\n", "\n"))
@@ -337,7 +337,7 @@ class BooCodeGenerator(CodeGenerator):
 		
 		indentprefix = string.Empty
 		//how much the code should be indented:
-		indentprefix = " " * (Indent * spacespertab) if Indent > 0
+		indentprefix = Options.IndentString * Indent if Indent > 0
 		
 		//how much the code actually is indented:
 		indent = whiteSpacePattern.Match(first).Groups[0].Value

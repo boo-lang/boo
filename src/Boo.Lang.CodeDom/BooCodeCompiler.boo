@@ -58,7 +58,9 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 			if unit.ReferencedAssemblies:
 				for asm in unit.ReferencedAssemblies:
 					assemblies.Add(asm) unless assemblies.Contains(asm)
-			(self as ICodeGenerator).GenerateCodeFromCompileUnit(unit, writer, CodeGeneratorOptions())
+			generator_options = CodeGeneratorOptions()
+			//generator_options.IndentString = "\t" //default is "    "
+			(self as ICodeGenerator).GenerateCodeFromCompileUnit(unit, writer, generator_options)
 			writer.Close()
 		return self.CompileAssemblyFromFileBatch(params, array(string, files))
 	def CompileAssemblyFromFile(params as System.CodeDom.Compiler.CompilerParameters, file as string):
