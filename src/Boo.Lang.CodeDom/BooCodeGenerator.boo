@@ -438,7 +438,8 @@ class BooCodeGenerator(CodeGenerator):
 		Indent--
 
 	protected override def GenerateNamespaceStart(e as CodeNamespace) :
-		Output.WriteLine("namespace ${e.Name}")	
+		if e and e.Name and e.Name != string.Empty:
+			Output.WriteLine("namespace ${e.Name}")	
 		
 	protected override def GenerateNamespaceEnd(e as CodeNamespace) :
 		pass
