@@ -35,7 +35,7 @@
 
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.Useful, boo">	
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo">	
 	</target>
 	
 	<target name="test" depends="all">
@@ -195,7 +195,7 @@
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo.Lang, Boo.Lang.Compiler, Boo.Lang.Parser, Boo.Lang.CodeDom">
+	<target name="core" depends="Boo.Lang, Boo.Lang.Compiler, Boo.Lang.Parser">
 	</target>
 	
 	<target name="update-bin" depends="all">
@@ -252,22 +252,19 @@
 		</booc>
 	</target>
 	
-	<target name="Boo.Lang.CodeDom" depends="Boo.Lang.Compiler">
-		<csc target="library"
+	<target name="Boo.Lang.CodeDom" depends="Boo.NAnt.Tasks">
+		<booc target="library"
 			output="build/Boo.Lang.CodeDom.dll"
-			debug="${debug}"
-			optimize="${optimize}">
-			
+			tracelevel="Off">
 			<sources basedir="src/Boo.Lang.CodeDom">
-				<include name="**/*.cs" />
+				<include name="**/*.boo" />
 			</sources>
-			
-			<references>
+			<references basedir="build">
 				<include name="System.Data.dll" />
 				<include name="System.Xml.dll" />
-				<include name="build/Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
 			</references>
-		</csc>
+		</booc>
 	</target>
 	
 	<target name="Boo.Lang.Compiler" depends="Boo.Lang, generate-ast">

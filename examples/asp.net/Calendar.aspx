@@ -1,10 +1,15 @@
 <script language="Boo" runat="server">
-    def Calendar1Selected():
+         /* 
+	 Inline boo code is supported:
+	 */
+
+def Calendar1Selected():
         Label1.Text = 'Boo for .NET says you picked ' + Calendar1.SelectedDate.ToString('D')
 
-    def Button1Click():
+def Button1Click():
         Calendar1.VisibleDate = System.Convert.ToDateTime(Edit1.Text)
         Label1.Text = 'Boo for .NET says you set ' + Calendar1.VisibleDate.ToString('D')
+	
 </script>
 
 <body style="font:18pt Verdana">

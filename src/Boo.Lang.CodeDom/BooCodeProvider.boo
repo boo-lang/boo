@@ -1,10 +1,10 @@
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,33 +26,23 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.CodeDom.Tests
+// authors:
+// Arron Washington
+// Ian MacLean (original C# version)
+
+namespace Boo.Lang.CodeDom
 
 import System
-import System.CodeDom
 import System.CodeDom.Compiler
-import System.IO
-import NUnit.Framework
-import Boo.Lang.CodeDom
+class BooCodeProvider(CodeDomProvider):
+"""Description of BooCodeProvider"""
+	[getter(FileExtension)]
+	_ext = ".boo"
+	
+	def CreateCompiler():		
+		return BooCodeCompiler()
+	def CreateGenerator():		
+		return BooCodeGenerator()
+	override def GetConverter(type as Type) as System.ComponentModel.TypeConverter:
+		raise NotImplementedException()
 
-[TestFixture]
-class CodeGeneratorTestFixture:
-	
-	_generator as ICodeGenerator
-	
-	[SetUp]
-	def SetUp():		
-		_generator = BooCodeProvider().CreateGenerator()
-		Assert.IsNotNull(_generator)
-	
-	[Test]
-	def TestArrayType():
-		stmt = CodeVariableDeclarationStatement()
-		stmt.Name = "anArray"
-		stmt.Type = CodeTypeReference(typeof((int)))
-		
-		expected = "anArray as (int)"
-		
-		buffer = StringWriter()
-		_generator.GenerateCodeFromStatement(stmt, buffer, CodeGeneratorOptions())
-		Assert.AreEqual(expected, buffer.ToString().Trim())

@@ -3,7 +3,7 @@ Boo.CodeDom
 
 Using boo with code gen tools like xsd:
 
-xsd.exe test.xsd /d /l:"Boo.CodeDom.BooCodeProvider, Boo.CodeDom, Version=1.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67"
+xsd.exe test.xsd /d /l:"Boo.Lang.CodeDom.BooCodeProvider, Boo.Lang.CodeDom, Version=1.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67"
 
 Boo.CodeDom.dll and its dependencies will need to be registered for this to work.
 
