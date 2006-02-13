@@ -43,11 +43,11 @@ import Boo.Lang.Compiler
 internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 	def constructor():
 		pass
+		
 	def CompileAssemblyFromDom(params as System.CodeDom.Compiler.CompilerParameters, unit as CodeCompileUnit):
 		return CompileAssemblyFromDomBatch(params, (unit,))
+		
 	def CompileAssemblyFromDomBatch(params as System.CodeDom.Compiler.CompilerParameters, units as (CodeCompileUnit)):
-		#I followed basic structure of the C# implementation when writing this.
-		#Thanks, dude. ;)
 		params = System.CodeDom.Compiler.CompilerParameters() unless params
 		files = []
 		assemblies = []
@@ -63,10 +63,13 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 			(self as ICodeGenerator).GenerateCodeFromCompileUnit(unit, writer, generator_options)
 			writer.Close()
 		return self.CompileAssemblyFromFileBatch(params, array(string, files))
+		
 	def CompileAssemblyFromFile(params as System.CodeDom.Compiler.CompilerParameters, file as string):
 		return HeavyLifter(params, (file, ), false)
+		
 	def CompileAssemblyFromFileBatch(params as System.CodeDom.Compiler.CompilerParameters, files as (string)):
 		return HeavyLifter(params, files, false)
+		
 	def HeavyLifter(params as System.CodeDom.Compiler.CompilerParameters, sources as (string),
 			rawSource as bool):
 		params = System.CodeDom.Compiler.CompilerParameters() unless params
@@ -110,8 +113,10 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 		else:
 			results.CompiledAssembly = context.GeneratedAssembly
 		return results
+		
 	def CompileAssemblyFromSource(params as System.CodeDom.Compiler.CompilerParameters, src as string):
 		return HeavyLifter(params, (src,), true)
+		
 	def CompileAssemblyFromSourceBatch(params as System.CodeDom.Compiler.CompilerParameters, src as (string)):
 		return HeavyLifter(params, (src), true)
 				

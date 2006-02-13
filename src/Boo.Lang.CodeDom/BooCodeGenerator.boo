@@ -45,10 +45,6 @@ import System.Collections
 import System.Text.RegularExpressions
 
 class BooCodeGenerator(CodeGenerator):
-	static newlinePattern = Regex("\\n",RegexOptions.Compiled)
-	
-	static whiteSpacePattern = Regex("(\\s*)",RegexOptions.Compiled)
-	
 	static primitives = { "System.Double" : "double",
 						"System.Single" : "single",
 						"System.Int32" : "int",
@@ -271,89 +267,17 @@ class BooCodeGenerator(CodeGenerator):
 		
 	protected override def GenerateSnippetMember(e as CodeSnippetTypeMember) :
 		OutputAttributeDeclarations(e.CustomAttributes) if e.CustomAttributes		
-		Output.Write(FixIndent(e.Text))
+		Output.Write(FixIndent(e.Text, Options.IndentString, Indent, false))
 	
 	protected override def GenerateSnippetExpression(e as CodeSnippetExpression) :
 		//Output.Write("("+e.Value+")")
 		Output.Write(e.Value)
 		
 	protected override def GenerateSnippetCompileUnit(e as CodeSnippetCompileUnit) :
-		Output.Write(FixIndent(e.Value))
+		Output.Write(FixIndent(e.Value, Options.IndentString, Indent, false))
 		
 	protected override def GenerateSnippetStatement(e as CodeSnippetStatement) :
-		Output.Write(FixIndent(e.Value))
-		
-	protected def FixIndent(code as string) as string:
-		return string.Empty if code is null or code==string.Empty
-		
-		//find first line that has non-whitespace and isn't a comment
-		lines = newlinePattern.Split(code.Replace("\r\n", "\n"))
-		foundfirst = false  //1st non-whitespace, non-commented line
-		insidecomment = 0
-		for line in lines:
-			trimmed = line.Trim()
-			if trimmed == string.Empty:
-				continue
-			
-			startmultiline = trimmed.StartsWith("/*")
-			
-			//if not whitespace and not a comment...
-			if (insidecomment <= 0 and
-					not startmultiline and 
-					not trimmed.StartsWith("#") and
-					not trimmed.StartsWith("//")):
-				foundfirst = true
-				first = line
-				break //stop for loop
-			
-			//special stuff for handling multiline comments
-			if startmultiline or insidecomment > 0:
-				j = 0
-				linelen = len(trimmed) - 1
-				while j < linelen:
-					rawArrayIndexing:
-						c = trimmed[j]
-					if c==char('/'):
-						rawArrayIndexing:
-							nextc = trimmed[j+1]
-						if nextc==char('*'):
-							++insidecomment
-							++j
-					elif c==char('*') and insidecomment > 0:
-						rawArrayIndexing:
-							nextc = trimmed[j+1]
-						if nextc==char('/'):
-							--insidecomment
-							++j
-					++j
-		
-		if not foundfirst:  //all whitespace or comments
-			return code
-		
-		indentprefix = string.Empty
-		//how much the code should be indented:
-		indentprefix = Options.IndentString * Indent if Indent > 0
-		
-		//how much the code actually is indented:
-		indent = whiteSpacePattern.Match(first).Groups[0].Value
-		
-		//if code is properly indented, return now
-		return code if indent == indentprefix
-		
-		buffer = System.Text.StringBuilder()
-		sz = len(indent)
-		firstline = true
-		for line in lines:
-			if not firstline: //indentedtextwriter will handle indenting first line
-				buffer.Append(indentprefix)
-			else:
-				firstline = false
-			if sz==0 or not line.StartsWith(indent):
-				buffer.Append(line)
-			else:
-				buffer.Append(line[sz:])
-			buffer.Append("\n")
-		return buffer.ToString()
+		Output.Write(FixIndent(e.Value, Options.IndentString, Indent, false))
 		
 	protected override def GenerateEntryPointMethod(e as CodeEntryPointMethod, c as CodeTypeDeclaration) :
 		Method(e, "Main")
@@ -616,5 +540,139 @@ class BooCodeGenerator(CodeGenerator):
 			Output.WriteLine("")
 		
 		GenerateCompileUnitEnd(compileUnit)
-
+		
+#region FixIndent
+	static newlinePattern = Regex("\\n",RegexOptions.Compiled)
+	static whiteSpacePattern = Regex("(\\s*)",RegexOptions.Compiled)
+	
+	static public def FixIndent(code as string, indentstring as string,
+				indentlevel as int, indentfirst as bool) as string:
+		//how much the code should be indented:
+		indentprefix = string.Empty
+		indentprefix = indentstring * indentlevel if indentlevel > 0
+		nonEmptyPrefix = (indentprefix != string.Empty)
+		
+		if code is null or code==string.Empty:
+			if indentfirst:
+				return indentprefix
+			else:
+				return string.Empty
+		
+		lines = newlinePattern.Split(code.Replace("\r\n","\n"))
+		
+		foundFirstCodeLine = false //first line of real code
+		insidecomment = 0 //inside /* */
+		insidestring = false  //inside """ """
+		firstline = true
+		buffer = System.Text.StringBuilder()
+		indent = ""
+		indentSize = 0
+		toTabs = indentprefix.StartsWith("\t") //otherwise, assume spaces
+		for line in lines:
+			//ignore comments before the first line of real code
+			if not foundFirstCodeLine:
+				trimmed = line.Trim()
+				startmultiline = trimmed.StartsWith("/*")
+				
+				//if not whitespace and not a comment...
+				if (insidecomment <= 0 and
+						not startmultiline and
+						not trimmed == string.Empty and
+						not trimmed.StartsWith("#") and
+						not trimmed.StartsWith("//")):
+					foundFirstCodeLine = true
+					indent = whiteSpacePattern.Match(line).Groups[0].Value
+					indentSize = len(indent)
+					insidecomment = 0
+				
+				//special stuff for handling multiline comments before code
+				if startmultiline or insidecomment > 0:
+					j = 0
+					linelen = len(trimmed) - 1
+					while j < linelen:
+						rawArrayIndexing:
+							c = trimmed[j]
+						if c==char('/'):
+							rawArrayIndexing:
+								nextc = trimmed[j+1]
+							if nextc==char('*'):
+								++insidecomment
+								++j
+						elif c==char('*') and insidecomment > 0:
+							rawArrayIndexing:
+								nextc = trimmed[j+1]
+							if nextc==char('/'):
+								--insidecomment
+								++j
+						++j
+			
+			if not foundFirstCodeLine or not insidestring:
+				if firstline:
+					firstline = false
+					if indentfirst and nonEmptyPrefix:
+						buffer.Append(indentprefix)
+				else:
+					if nonEmptyPrefix:
+						buffer.Append(indentprefix)
+						
+				if not foundFirstCodeLine:
+					buffer.Append(line + "\n")
+					continue
+				
+				if line.StartsWith(indent):
+					if indentSize > 0:
+						rest = line[indentSize:]
+					else:
+						rest = line
+					if len(rest) > 0:
+						//convert any more leading whitespace to tabs or spaces
+						//so we don't mix tabs and spaces on same line
+						ws = whiteSpacePattern.Match(rest).Groups[0].Value
+						sz = len(ws)
+						if len(ws):
+							rawArrayIndexing:
+								c = rest[0]
+							if toTabs:
+								if c==char(' '):
+									rest = rest[sz:]
+									ws = ws.Replace("    ","\t")
+									ws = ws.Replace("   ","\t")
+									ws = ws.Replace("  ","\t")
+									ws = ws.Replace(" ","\t")
+									buffer.Append(ws)
+							else:
+								if c==char('\t'):
+									rest = rest[sz:]
+									ws = ws.Replace("\t","    ")
+									buffer.Append(ws)
+						buffer.Append(rest)
+				else: //line is not indented as expected, pass it on as is:
+					buffer.Append(line)
+			else: //we are inside a triple quoted string:
+				buffer.Append(line)
+			
+			buffer.Append("\n")
+			
+			//scan for triple quoted string literals:
+			//   for speed reasons, I'm not also checking for insidecomment,
+			//   so if you have an odd # of triple quotes inside a comment,
+			//   you can break this.
+			j = 0
+			linelen = len(line) - 2
+			while j < linelen:
+				rawArrayIndexing:
+					c1 = line[j]
+				if c1==char('"'):
+					rawArrayIndexing:
+						c2 = line[j+1]
+					if c2==char('"'):
+						rawArrayIndexing:
+							c3 = line[j+2]
+						if c3==char('"'):
+							insidestring = not insidestring
+							j += 2
+				++j
+				
+		return buffer.ToString()
+#endregion
 
