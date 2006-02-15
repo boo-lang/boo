@@ -37,7 +37,7 @@ import System.CodeDom.Compiler
 class BooCodeProvider(CodeDomProvider):
 """Description of BooCodeProvider"""
 	[getter(FileExtension)]
-	_ext = ".boo"
+	_ext = "boo"
 	
 	def CreateCompiler():		
 		return BooCodeCompiler()
