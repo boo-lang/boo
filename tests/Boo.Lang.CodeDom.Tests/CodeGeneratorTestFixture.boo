@@ -58,6 +58,27 @@ class CodeGeneratorTestFixture:
 		Assert.AreEqual(expected, buffer.ToString().Trim())
 		
 	[Test]
+	def TestArrayCreateSingle():
+		e = CodeArrayCreateExpression(CodeTypeReference(int), *(CodePrimitiveExpression(2),))
+		
+		expected = "(of int: 2,)"
+		
+		buffer = StringWriter()
+		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
+		Assert.AreEqual(expected, buffer.ToString().Trim())
+		
+	[Test]
+	def TestArrayCreateMultiple():
+		e = CodeArrayCreateExpression(CodeTypeReference(int), CodePrimitiveExpression(2),
+			CodePrimitiveExpression(3), CodePrimitiveExpression(4))
+		
+		expected = "(of int: 2, 3, 4)"
+		
+		buffer = StringWriter()
+		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
+		Assert.AreEqual(expected, buffer.ToString().Trim())
+	
+	[Test]
 	def TestFixIndent1():
 		//1. code is indented one tab, but needs to be indented 8 spaces.
 		//2. also, there are comments before the code that should be ignored
