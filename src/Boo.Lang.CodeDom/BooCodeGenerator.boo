@@ -294,8 +294,8 @@ class BooCodeGenerator(CodeGenerator):
 	protected override def GenerateProperty(e as CodeMemberProperty, c as CodeTypeDeclaration) :		
 		ModifiersAndAttributes(e)
 		
-		Output.Write(" ${e.Name} ")
-		if len(e.Parameters) > 1:
+		Output.Write(" ${e.Name}")
+		if len(e.Parameters) > 0:
 			Output.Write("(")
 			OutputParameters(e.Parameters)
 			Output.Write(")")
@@ -335,7 +335,7 @@ class BooCodeGenerator(CodeGenerator):
 		if e.TypeAttributes & TypeAttributes.Sealed:
 			e.TypeAttributes = (e.TypeAttributes.ToInt() & ~TypeAttributes.Sealed.ToInt()).ToEnum(TypeAttributes)
 			Output.Write("final ")
-		if e isa CodeTypeDelegate:		
+		if e isa CodeTypeDelegate:
 			GenerateDelegate(e)
 			return
 		OutputTypeAttributes(e.TypeAttributes, e.IsStruct, e.IsEnum)
