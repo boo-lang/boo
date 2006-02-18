@@ -5260,7 +5260,11 @@ namespace Boo.Lang.Compiler.Steps
 						
 					case EntityType.Field:
 					{
-						if (TypeSystemServices.IsReadOnlyField((IField)entity))
+						IField fld = (IField)entity;
+						if (TypeSystemServices.IsReadOnlyField(fld)
+							&& !(EntityType.Constructor == _currentMethod.EntityType
+							&& _currentMethod.DeclaringType == fld.DeclaringType
+							&& fld.IsStatic == _currentMethod.IsStatic))
 						{
 							Error(CompilerErrorFactory.FieldIsReadonly(AstUtil.GetMemberAnchor(node), entity.FullName));
 							return false;
