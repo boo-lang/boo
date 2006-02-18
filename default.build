@@ -50,8 +50,7 @@
 &lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" 
 		if="${string::starts-with(framework::get-target-framework(),'mono')}" />
 	
-	<!-- TODO: Enable Boo.Microsoft.Build.Tasks target -->
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo">	
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks">	
 	</target>
 	
 	<target name="test" depends="all">
