@@ -176,8 +176,8 @@
 			<arg value="-noconfig" />
 			<arg value="-out:build/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
-			<arg value="-r:${nant.dir}NAnt.Core.dll" />
-			<arg value="-r:${nant.dir}NAnt.DotNetTasks.dll" />
+			<arg value="-r:${nant.dir}/NAnt.Core.dll" />
+			<arg value="-r:${nant.dir}/NAnt.DotNetTasks.dll" />
 			<arg value="src/Boo.NAnt.Tasks/UpdateAssemblyVersionTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/InsertLicenseTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BoocTask.boo" />
@@ -690,6 +690,10 @@
 				<include name="scripts/*.boo" />
 				<include name="scripts/Templates/*.cs" />
 				<include name="lib/**/*.jar" />
+				<include name="configure.in.in" />
+				<include name="Makefile.am" />
+				<include name="bin/Makefile.am" />
+				<include name="extras/Makefile.am" />
 				
 				<include name="src/boo.snk" />
 				<include name="src/**/*.cs" />

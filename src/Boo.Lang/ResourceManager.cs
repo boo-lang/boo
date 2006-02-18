@@ -47,7 +47,11 @@ namespace Boo.Lang
 		{
 			//return _rm.GetString(name);
 			//TODO: uncomment above and comment below when mono bug 77242 fixed
-			string lang = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
+			string lang = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+                        if (lang == "pt" || lang == "it")
+                                return _rm.GetString(name);
+			//this is so the boo br locale test will pass:
+			lang = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
                         if (lang == "pt" || lang == "it")
                                 return _rm.GetString(name);
                         return _rm.GetString(name, CultureInfo.InvariantCulture);
