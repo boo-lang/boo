@@ -450,7 +450,11 @@ namespace BooC
 		
 		private string StripQuotes(string s)
 		{
-			return s.Trim(new char[] {'"'});
+			if (s.Length > 1 && s.StartsWith("\"") && s.EndsWith("\""))
+			{
+				return s.Substring(1,s.Length-2);
+			}
+			return s;
 		}
 		
 		private void DebugModuleAfterStep(object sender, CompilerStepEventArgs args)
