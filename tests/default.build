@@ -161,10 +161,13 @@
 			<fileset basedir="../build">
 				<include name="*.dll" />
 				<include name="*.pdb" />
+				<include name="*.config" />
+				<include name="*.targets" />
 				<include name="pt/*.dll" />
 			</fileset>
 		</copy>
 		<copy todir="build" file="${nunit.framework.dll}" />
 		<loadtasks assembly="build/Boo.NAnt.Tasks.dll" />
+		<echo message="Starting boo tests.  Running in framework: ${nant.settings.currentframework}" />
 	</target>
 </project>
