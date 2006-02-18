@@ -30,14 +30,17 @@ using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class BindNamespaces : AbstractCompilerStep
+	public class BindNamespaces : AbstractTransformerCompilerStep
 	{
 		override public void Run()
 		{
 			NameResolutionService.Reset();
+			
+			Hash nameSpaces = new Hash();
 			
 			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
 			{
@@ -58,6 +61,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
+							string name = entity.FullName;
 							if (null != import.AssemblyReference)
 							{
 								NamespaceEntity nsInfo = entity as NamespaceEntity;
@@ -66,10 +70,31 @@ namespace Boo.Lang.Compiler.Steps
 									entity = new AssemblyQualifiedNamespaceEntity(GetBoundAssembly(import.AssemblyReference), nsInfo);
 								}
 							}
+							
 							if (null != import.Alias)
 							{
 								entity = new AliasedNamespace(import.Alias.Name, entity);
 								import.Alias.Entity = entity;
+								name = entity.Name; //use alias name instead of namespace name
+							}
+							
+							//only add unique namespaces
+							Import cachedImport = nameSpaces[name] as Import;
+							if (cachedImport == null)
+							{
+								nameSpaces[name] = import;
+							}
+							else
+							{
+								//duplicate import
+								MarkForDeletion(import as Node);
+								
+								//ignore for partial classes in separate files
+								if (cachedImport.LexicalInfo.FileName == import.LexicalInfo.FileName)
+								{
+									Warnings.Add(CompilerWarningFactory.DuplicateNamespace(
+											import, import.Namespace));
+								}
 							}
 						}
 					}
@@ -77,7 +102,26 @@ namespace Boo.Lang.Compiler.Steps
 					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.Name);
 					import.Entity = entity;
 				}
+				nameSpaces.Clear();
+				Visit(module.Imports);
 			}
+		}
+		
+		private readonly object DeletionKey = new object();
+		protected void MarkForDeletion(Node node)
+		{
+			node[DeletionKey] = DeletionKey;
+		}
+		
+		protected bool ShouldBeDeleted(Node node)
+		{
+			return node.ContainsAnnotation(DeletionKey);
+		}
+		
+		public override void OnImport(Boo.Lang.Compiler.Ast.Import node)
+		{
+			if (ShouldBeDeleted(node as Node))
+				RemoveCurrentNode();
 		}
 		
 		private bool IsValidNamespace(IEntity entity)

@@ -143,6 +143,7 @@ BCW0004=WARNING: l'operando di destra di 'is' e' un type reference, 'isa' potreb
 BCW0005=WARNING: Unsubscribing from event '{0}' with an adapted method reference. Either change the signature of the method to '{1}' or use a cached reference of the correct type.
 BCW0006=WARNING: Assignment to temporary.
 BCW0007=WARNING: Assignment inside a conditional. Did you mean == instead of = here?: '{0}'
+BCW0008=WARNING: Duplicate namespace: '{0}'.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' indicato piu' di una volta nella lista.

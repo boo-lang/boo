@@ -83,5 +83,10 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerWarning("BCW0007", node.LexicalInfo, node.ToCodeString());
 		}
+		
+		public static CompilerWarning DuplicateNamespace(Import import, string name)
+		{
+			return new CompilerWarning("BCW0008", import.LexicalInfo, name);
+		}
 	}
 }
