@@ -111,7 +111,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return false;
 			}
-			return Equals(_parameters, rhs._parameters);
+			return AreSameParameters(_parameters, rhs._parameters);
 		}
 		
 		override public string ToString()
@@ -129,7 +129,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return buffer.ToString();
 		}
 		
-		bool Equals(IParameter[] lhs, IParameter[] rhs)
+		static public bool AreSameParameters(IParameter[] lhs, IParameter[] rhs)
 		{
 			if (lhs.Length != rhs.Length)
 			{

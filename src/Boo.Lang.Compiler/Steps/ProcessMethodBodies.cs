@@ -2373,12 +2373,12 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity member = ResolveMember(node);
 			if (null == member) return;
 			
-			EnsureRelatedNodeWasVisited(node, member);
-
 			if (EntityType.Ambiguous == member.EntityType)
 			{
 				member = ResolveAmbiguousReference(node, (Ambiguous)member);
 			}
+			
+			EnsureRelatedNodeWasVisited(node, member);
 			
 			IMember memberInfo = member as IMember;
 			if (null != memberInfo)
@@ -2463,14 +2463,32 @@ namespace Boo.Lang.Compiler.Steps
 		private IEntity ResolveAmbiguousReference(ReferenceExpression node, Ambiguous candidates)
 		{
 			if (!AstUtil.IsTargetOfSlicing(node)
-				&& !AstUtil.IsLhsOfAssignment(node)
-				&& candidates.AllEntitiesAre(EntityType.Property))
+				&& !AstUtil.IsLhsOfAssignment(node))
 			{
-				return ResolveAmbiguousPropertyReference(node, candidates, EmptyExpressionCollection);
+				if (candidates.AllEntitiesAre(EntityType.Property))
+				{
+					return ResolveAmbiguousPropertyReference(node, candidates, EmptyExpressionCollection);
+				}
+				else if (candidates.AllEntitiesAre(EntityType.Method))
+				{
+					return ResolveAmbiguousMethodReference(node, candidates, EmptyExpressionCollection);
+				}
 			}
 			return candidates;
 		}
-
+		
+		private IEntity ResolveAmbiguousMethodReference(ReferenceExpression node, Ambiguous candidates, ExpressionCollection args)
+		{
+			//BOO-656
+			if (!AstUtil.IsTargetOfMethodInvocation(node)
+				&& !AstUtil.IsTargetOfSlicing(node)
+				&& !AstUtil.IsLhsOfAssignment(node))
+			{
+				return candidates.Entities[0];
+			}
+			return candidates;
+		}
+		
 		private IEntity ResolveAmbiguousPropertyReference(ReferenceExpression node, Ambiguous candidates, ExpressionCollection args)
 		{
 			IEntity[] entities = candidates.Entities;
