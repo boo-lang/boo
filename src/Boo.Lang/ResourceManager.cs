@@ -27,6 +27,8 @@
 #endregion
 
 using System;
+using System.Globalization;
+using System.Threading;
 
 namespace Boo.Lang
 {
@@ -43,7 +45,12 @@ namespace Boo.Lang
 
 		public static string GetString(string name)
 		{
-			return _rm.GetString(name);
+			//return _rm.GetString(name);
+			//TODO: uncomment above and comment below when mono bug 77242 fixed
+			string lang = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
+                        if (lang == "pt" || lang == "it")
+                                return _rm.GetString(name);
+                        return _rm.GetString(name, CultureInfo.InvariantCulture);
 		}
 
 		public static string Format(string name, params object[] args)
