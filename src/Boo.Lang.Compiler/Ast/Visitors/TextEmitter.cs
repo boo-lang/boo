@@ -192,7 +192,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					Visit(items.GetNodeAt(0));
 				}
-				Write(",");
+				//don't write trailing comma for "of" arrays with 1 item
+				if (items.Count == 0 || null == type)
+				{
+					Write(",");
+				}
 			}
 			Write(")");
 		}

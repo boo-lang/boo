@@ -72,7 +72,8 @@ class BooCodeGenerator(CodeGenerator):
 				OutputType(exp.CreateType)
 				Output.Write(": ")
 			OutputExpressionList(exp.Initializers)
-			if exp.Initializers.Count == 1:
+			//no trailing comma needed for single item with "of" type
+			if exp.Initializers.Count==0 or (exp.Initializers.Count==1 and not exp.CreateType):
 				Output.Write(",")
 			Output.Write(")")
 		else:
