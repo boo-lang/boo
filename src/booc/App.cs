@@ -39,6 +39,7 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipelines;
 using Boo.Lang.Compiler.Resources;
+using Boo.Lang;
 
 namespace BooC
 {
@@ -148,11 +149,18 @@ namespace BooC
 			}
 			return writer.ToString();
 		}
-
+		
+		void DoLogo()
+		{
+			; //TODO: enable this after SharpDevelop has been updated with new MSBuild
+			//Console.WriteLine("Boo Compiler version "+Builtins.BooVersion.ToString());
+		}
+		
 		void ParseOptions(string[] args, CompilerParameters _options)
 		{
 			bool debugSteps = false;
 			bool whiteSpaceAgnostic = false;
+			bool noLogo = false;
 			
 			ArrayList arglist = new ArrayList(args);
 			ExpandResponseFiles(ref arglist);
@@ -213,7 +221,7 @@ namespace BooC
 
 							case 'r':
 							{
-								if (arg.IndexOf(":") > 2)
+								if (arg.IndexOf(":") > 2 && arg.Substring(1, 9) != "reference")
 								{
 									switch (arg.Substring(1, 8))
 									{
@@ -225,13 +233,13 @@ namespace BooC
 											if (comma >= 0)
 											{
 												resourceFile = arg.Substring(start, comma-start);
-												string resourceName = arg.Substring(comma+1);
+												string resourceName = StripQuotes(arg.Substring(comma+1));
 												_options.Resources.Add(new NamedFileResource(resourceFile, resourceName));
 
 											}
 											else
 											{
-												resourceFile = arg.Substring(start);
+												resourceFile = StripQuotes(arg.Substring(start));
 												_options.Resources.Add(new FileResource(resourceFile));
 											}
 											break;
@@ -246,15 +254,28 @@ namespace BooC
 								}
 								else
 								{
-									string assemblyName = arg.Substring(3);
+									string assemblyName = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
 									_options.References.Add(LoadAssembly(assemblyName));
+								}
+								break;
+							}
+							
+							case 'n':
+							{
+								if (arg == "-nologo")
+								{
+									noLogo = true;
+								}
+								else
+								{
+									InvalidOption(arg);
 								}
 								break;
 							}
 							
 							case 'o':
 							{
-								_options.OutputAssembly = arg.Substring(arg.IndexOf(":")+1);
+								_options.OutputAssembly = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
 								break;
 							}
 							
@@ -310,7 +331,7 @@ namespace BooC
 								{
 									case "srcdir":
 									{
-										string path = arg.Substring(8);
+										string path = StripQuotes(arg.Substring(8));
 										AddFilesForPath(path, _options);
 										break;
 									}
@@ -375,12 +396,12 @@ namespace BooC
 										if (comma >= 0)
 										{
 											resourceFile = arg.Substring(start, comma-start);
-											string resourceName = arg.Substring(comma+1);
+											string resourceName = StripQuotes(arg.Substring(comma+1));
 											_options.Resources.Add(new NamedEmbeddedFileResource(resourceFile, resourceName));
 										}
 										else
 										{
-											resourceFile = arg.Substring(start);
+											resourceFile = StripQuotes(arg.Substring(start));
 											_options.Resources.Add(new EmbeddedFileResource(resourceFile));
 										}
 										break;
@@ -404,7 +425,7 @@ namespace BooC
 					}
 					else
 					{
-						_options.Input.Add(new FileInput(arg));
+						_options.Input.Add(new FileInput(StripQuotes(arg)));
 					}
 				}
 			}
@@ -421,8 +442,17 @@ namespace BooC
 			{
 				_options.Pipeline.AfterStep += new CompilerStepEventHandler(DebugModuleAfterStep);
 			}
+			if (!noLogo)
+			{
+				DoLogo();
+			}
 		}
-
+		
+		private string StripQuotes(string s)
+		{
+			return s.Trim(new char[] {'"'});
+		}
+		
 		private void DebugModuleAfterStep(object sender, CompilerStepEventArgs args)
 		{
 			Console.WriteLine("********* {0} *********", args.Step);

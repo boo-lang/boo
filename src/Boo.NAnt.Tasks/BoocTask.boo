@@ -28,150 +28,111 @@
 
 namespace Boo.NAnt
 
-import System.Diagnostics
+import System
+import System.Globalization
 import System.IO
+import System.Text.RegularExpressions
 import NAnt.Core
 import NAnt.Core.Attributes
 import NAnt.Core.Types
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Resources
+import NAnt.Core.Util
+import NAnt.DotNet.Types
 
-[TaskName("booc")]
-class BoocTask(AbstractBooTask):
-	
-	_output as FileInfo
-	
-	_target = "exe"
-	
-	_sourceFiles = FileSet()
-	
-	_resources = FileSet()
-	
-	_traceLevel = System.Diagnostics.TraceLevel.Off
-	
-	_rebuild = false
-	
-	_generateInMemory = false
-	
-	_debug = true
-	
-	[TaskAttribute("debug")]
-	Debug:
-		get:
-			return _debug
-		set:
-			_debug = value
-	
-	[BuildElement("rebuild")]
-	Rebuild:
-		get:
-			return _rebuild
-		set:
-			_rebuild = value
-	
-	[BuildElement("resources")]
-	Resources:
-		get:
-			return _resources
-		set:
-			_resources = value
-	
-	[TaskAttribute("output", Required: true)]
-	Output:
-		get:
-			return _output
-		set:
-			_output = value
-			
-	[TaskAttribute("tracelevel")]
-	TraceLevel:
-		get:
-			return _traceLevel
-			
-		set:
-			_traceLevel = value
-			
-	[TaskAttribute("target")]
-	Target:
-		get:
-			return _target
-		set:
-			if value not in ("exe", "winexe", "library"):
-				raise BuildException(
-						"target must be one of: exe, winexe, library",
-						Location)
-			_target = value
-			
-	[TaskAttribute("generateInMemory")]
-	GenerateInMemory:
-		get:
-			return _generateInMemory
-		set:
-			_generateInMemory = false
-			
-	[BuildElement("sources", Required: true)]
-	Sources:
-		get:
-			return _sourceFiles
-		set:
-			_sourceFiles = value
-	
-	override def ExecuteTask():
-		return unless NeedsCompiling()
-		
-		files = _sourceFiles.FileNames
-		LogInfo("Compiling ${len(files)} file(s) to ${_output}.")
-		
-		if _traceLevel != TraceLevel.Off:
-			Trace.Listeners.Add(TextWriterTraceListener(System.Console.Out))
-		
-		compiler = BooCompiler()
-		parameters = compiler.Parameters
-		parameters.TraceSwitch.Level = _traceLevel
-		parameters.OutputAssembly = _output.ToString()
-		parameters.OutputType = GetOutputType()
-		parameters.GenerateInMemory = _generateInMemory
-		parameters.Debug = _debug
-		
-		for fname as string in files:
-			print("source: ${fname}")
-			parameters.Input.Add(FileInput(fname))
-			
-		for fname as string in _resources.FileNames:
-			LogVerbose(fname)
-			parameters.Resources.Add(FileResource(fname))
-			
-		RunCompiler(compiler)
-		
-	override def GetDefaultPipeline():
-		return Boo.Lang.Compiler.Pipelines.CompileToFile()
+import NAnt.DotNet.Tasks
+import System.Reflection
 
-	private def GetOutputType():
-		if "exe" == _target:
-			return CompilerOutputType.ConsoleApplication
+[TaskName('booc')]
+public class BoocTask(CompilerBase):
+
+	#region Private Instance Fields
+	private _debugOutput as DebugOutput = DebugOutput.None
+
+	private _noconfig as bool
+	
+	private _use_runtime = true
+
+	#endregion Private Instance Fields
+	#region Private Static Fields
+	private static _classNameRegex = Regex('^((?<comment>/\\*.*?(\\*/|$))|[\\s\\.\\{]+|class\\s+(?<class>\\w+)|(?<keyword>\\w+))*')
+
+	private static _namespaceRegex = Regex('^((?<comment>/\\*.*?(\\*/|$))|[\\s\\.\\{]+|namespace\\s+(?<namespace>(\\w+(\\.\\w+)*)+)|(?<keyword>\\w+))*')
+
+	#endregion Private Static Fields
+	
+	public override ExeName as string:
+		get:
+			return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "booc.exe")
+		set:
+			pass
+	
+	#region Public Instance Properties
+
+	[TaskAttribute('debug')]
+	public DebugOutput as DebugOutput:
+		get:
+			return _debugOutput
+		set:
+			_debugOutput = value
+
+	public Debug as bool:
+		get:
+			return (DebugOutput != DebugOutput.None)
+		set:
+			DebugOutput = DebugOutput.Enable
+
+	[FrameworkConfigurable('noconfig')]
+	[TaskAttribute('noconfig')]
+	[BooleanValidator]
+	public NoConfig as bool:
+		get:
+			return _noconfig
+		set:
+			_noconfig = value
+
+	#endregion Public Instance Properties
+	#region Override implementation of CompilerBase
+	protected override def WriteOptions(writer as TextWriter):
+		converterGeneratedName1 = DebugOutput
+		// handle debug builds.
+		if converterGeneratedName1 == DebugOutput.None:
+			pass
 		else:
-			if "winexe" == _target:
-				return CompilerOutputType.WindowsApplication
-		return CompilerOutputType.Library
+			if converterGeneratedName1 == DebugOutput.Enable:
+				WriteOption(writer, 'debug')
+			else:
+				if converterGeneratedName1 == DebugOutput.Full:
+					WriteOption(writer, 'debug')
+				else:
+					raise BuildException(string.Format(CultureInfo.InvariantCulture, ResourceUtils.GetString('NA2011'), DebugOutput), Location)
+		if NoConfig and (not Arguments.Contains('-noconfig')):
+			Arguments.Add(Argument('-noconfig'))
+			
+	protected override def WriteOption(writer as TextWriter, name as string):
+		writer.WriteLine("-{0}", name)
 		
-	private def NeedsCompiling():
-		if _rebuild:
-			LogVerbose("rebuild requested.")
-			return true
-			
-		if not _output.Exists:
-			LogVerbose("${_output} does not exist.")
-			return true
-		return (
-			HasMoreRecentFile(_sourceFiles) or
-			HasMoreRecentFile(_references) or
-			HasMoreRecentFile(_resources))
-			
-	def HasMoreRecentFile(fs as FileSet):
-		found = FileSet.FindMoreRecentLastWriteTime(fs.FileNames, _output.LastWriteTime)
-		if found is not null:
-			LogVerbose("${found} is newer than ${_output}.")
-			return true
+	protected override def WriteOption(writer as TextWriter, name as string, value as string):
+		if value.IndexOf(" ") > 0 and (not value.StartsWith("\"")
+						or not value.EndsWith("\"")):
+			writer.WriteLine("-{0}:\"{1}\"", name, value)
+		else:
+			writer.WriteLine("-{0}:{1}", name, value)
+		
+	public override UseRuntimeEngine as bool:
+		get:
+			return _use_runtime
+		set:
+			_use_runtime = value
+	
+	public Extension as string:
+		get:
+			return 'boo'
 
+	protected ClassNameRegex as Regex:
+		get:
+			return _classNameRegex
+
+	protected NamespaceRegex as Regex:
+		get:
+			return _namespaceRegex
+	#endregion Override implementation of CompilerBase
 
