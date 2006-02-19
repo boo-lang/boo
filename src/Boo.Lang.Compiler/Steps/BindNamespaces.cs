@@ -36,92 +36,77 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class BindNamespaces : AbstractTransformerCompilerStep
 	{
+		private Hash nameSpaces = new Hash();
+		
 		override public void Run()
 		{
 			NameResolutionService.Reset();
 			
-			Hash nameSpaces = new Hash();
-			
-			foreach (Boo.Lang.Compiler.Ast.Module module in CompileUnit.Modules)
+			Visit(CompileUnit.Modules);
+		}
+		
+		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
+		{
+			Visit(module.Imports);
+			nameSpaces.Clear();
+		}
+		
+		public override void OnImport(Boo.Lang.Compiler.Ast.Import import)
+		{
+			IEntity entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+			if (null == entity)
 			{
-				foreach (Import import in module.Imports)
+				Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
+				entity = TypeSystemServices.ErrorEntity;
+			}
+			else
+			{
+				if (!IsValidNamespace(entity))
 				{
-					IEntity entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
-					if (null == entity)
+					Errors.Add(CompilerErrorFactory.NotANamespace(import, entity.FullName));
+					entity = TypeSystemServices.ErrorEntity;
+				}
+				else
+				{
+					string name = entity.FullName;
+					if (null != import.AssemblyReference)
 					{
-						Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
-						entity = TypeSystemServices.ErrorEntity;
-					}
-					else
-					{
-						if (!IsValidNamespace(entity))
+						NamespaceEntity nsInfo = entity as NamespaceEntity;
+						if (null != nsInfo)
 						{
-							Errors.Add(CompilerErrorFactory.NotANamespace(import, entity.FullName));
-							entity = TypeSystemServices.ErrorEntity;
-						}
-						else
-						{
-							string name = entity.FullName;
-							if (null != import.AssemblyReference)
-							{
-								NamespaceEntity nsInfo = entity as NamespaceEntity;
-								if (null != nsInfo)
-								{
-									entity = new AssemblyQualifiedNamespaceEntity(GetBoundAssembly(import.AssemblyReference), nsInfo);
-								}
-							}
-							
-							if (null != import.Alias)
-							{
-								entity = new AliasedNamespace(import.Alias.Name, entity);
-								import.Alias.Entity = entity;
-								name = entity.Name; //use alias name instead of namespace name
-							}
-							
-							//only add unique namespaces
-							Import cachedImport = nameSpaces[name] as Import;
-							if (cachedImport == null)
-							{
-								nameSpaces[name] = import;
-							}
-							else
-							{
-								//duplicate import
-								MarkForDeletion(import as Node);
-								
-								//ignore for partial classes in separate files
-								if (cachedImport.LexicalInfo.FileName == import.LexicalInfo.FileName)
-								{
-									Warnings.Add(CompilerWarningFactory.DuplicateNamespace(
-											import, import.Namespace));
-								}
-							}
+							entity = new AssemblyQualifiedNamespaceEntity(GetBoundAssembly(import.AssemblyReference), nsInfo);
 						}
 					}
 					
-					_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.Name);
-					import.Entity = entity;
+					if (null != import.Alias)
+					{
+						entity = new AliasedNamespace(import.Alias.Name, entity);
+						import.Alias.Entity = entity;
+						name = entity.Name; //use alias name instead of namespace name
+					}
+					
+					//only add unique namespaces
+					Import cachedImport = nameSpaces[name] as Import;
+					if (cachedImport == null)
+					{
+						nameSpaces[name] = import;
+					}
+					else
+					{
+						//ignore for partial classes in separate files
+						if (cachedImport.LexicalInfo.FileName == import.LexicalInfo.FileName)
+						{
+							Warnings.Add(CompilerWarningFactory.DuplicateNamespace(
+									import, import.Namespace));
+						}
+						RemoveCurrentNode();
+						return;
+					}
 				}
-				nameSpaces.Clear();
-				Visit(module.Imports);
 			}
-		}
-		
-		private readonly object DeletionKey = new object();
-		protected void MarkForDeletion(Node node)
-		{
-			node[DeletionKey] = DeletionKey;
-		}
-		
-		protected bool ShouldBeDeleted(Node node)
-		{
-			return node.ContainsAnnotation(DeletionKey);
-		}
-		
-		public override void OnImport(Boo.Lang.Compiler.Ast.Import node)
-		{
-			if (ShouldBeDeleted(node as Node))
-				RemoveCurrentNode();
+			
+			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.Name);
+			import.Entity = entity;
 		}
 		
 		private bool IsValidNamespace(IEntity entity)
