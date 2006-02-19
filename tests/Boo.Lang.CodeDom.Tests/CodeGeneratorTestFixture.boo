@@ -61,7 +61,7 @@ class CodeGeneratorTestFixture:
 	def TestArrayCreateSingle():
 		e = CodeArrayCreateExpression(CodeTypeReference(int), *(CodePrimitiveExpression(2),))
 		
-		expected = "(of int: 2,)"
+		expected = "(of int: 2)"
 		
 		buffer = StringWriter()
 		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
