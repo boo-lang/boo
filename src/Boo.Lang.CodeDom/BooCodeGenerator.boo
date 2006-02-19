@@ -146,14 +146,18 @@ class BooCodeGenerator(CodeGenerator):
 		GenerateExpression(e.Expression)
 		Output.WriteLine();
 
-	protected override def GenerateIterationStatement(e as CodeIterationStatement) :
-		GenerateStatement(e.InitStatement)
+	protected override def GenerateIterationStatement(e as CodeIterationStatement):
+		if e.InitStatement:
+			GenerateStatement(e.InitStatement)
 		Output.Write("while ")
 		GenerateExpression(e.TestExpression)
 		Output.WriteLine(":")
 		Indent++
 		GenerateStatements(e.Statements)
-		GenerateStatement(e.IncrementStatement)
+		if e.IncrementStatement:
+			GenerateStatement(e.IncrementStatement)
+		else:
+			passcheck(e.Statements)
 		Indent--
 		EndBlock()
 
@@ -428,7 +432,7 @@ class BooCodeGenerator(CodeGenerator):
 
 	def Method(method as duck, name as string):		
 		ModifiersAndAttributes(method)		
-		Output.Write("def ${name} (")
+		Output.Write("def ${name}(")
 		OutputParameters(method.Parameters)		
 		Output.Write(")")
 		unless GetTypeOutput(method.ReturnType) == "void":
@@ -437,17 +441,22 @@ class BooCodeGenerator(CodeGenerator):
 			OutputAttributeDeclarations(method.ReturnTypeCustomAttributes) if method.ReturnTypeCustomAttributes				
 		Output.WriteLine(":")
 		Indent++
-		if bugged = method as CodeConstructor:
-			if bugged.BaseConstructorArgs.IsValid():
+		ctor = method as CodeConstructor
+		do_pass = true
+		if ctor:
+			if ctor.BaseConstructorArgs.IsValid():
 				Output.Write("super(")
-				OutputExpressionList(bugged.BaseConstructorArgs)
+				OutputExpressionList(ctor.BaseConstructorArgs)
 				Output.WriteLine(")")
-			if bugged.ChainedConstructorArgs.IsValid():
+				do_pass = false
+			if ctor.ChainedConstructorArgs.IsValid():
 				Output.Write("self(")
-				OutputExpressionList(bugged.ChainedConstructorArgs)			
+				OutputExpressionList(ctor.ChainedConstructorArgs)			
 				Output.WriteLine(")")
+				do_pass = false
 		GenerateStatements(method.Statements)
-		passcheck(method.Statements)
+		if do_pass:
+			passcheck(method.Statements)
 		Indent--
 		EndBlock()
 		
