@@ -229,17 +229,16 @@ namespace BooC
 										{
 											string resourceFile;
 											int start = arg.IndexOf(":") + 1;
-											int comma = arg.LastIndexOf(',');
+											resourceFile = StripQuotes(arg.Substring(start));
+											int comma = resourceFile.LastIndexOf(',');
 											if (comma >= 0)
 											{
-												resourceFile = arg.Substring(start, comma-start);
-												string resourceName = StripQuotes(arg.Substring(comma+1));
+												string resourceName = resourceFile.Substring(comma+1);
+												resourceFile = arg.Substring(0, comma);
 												_options.Resources.Add(new NamedFileResource(resourceFile, resourceName));
-
 											}
 											else
 											{
-												resourceFile = StripQuotes(arg.Substring(start));
 												_options.Resources.Add(new FileResource(resourceFile));
 											}
 											break;
@@ -392,16 +391,16 @@ namespace BooC
 										// TODO: Add check for runtime support for "mono resources"
 										string resourceFile;
 										int start = arg.IndexOf(":") + 1;
-										int comma = arg.LastIndexOf(',');
+										resourceFile = StripQuotes(arg.Substring(start));
+										int comma = resourceFile.LastIndexOf(',');
 										if (comma >= 0)
 										{
-											resourceFile = arg.Substring(start, comma-start);
-											string resourceName = StripQuotes(arg.Substring(comma+1));
+											string resourceName = resourceFile.Substring(comma+1);
+											resourceFile = arg.Substring(0, comma);
 											_options.Resources.Add(new NamedEmbeddedFileResource(resourceFile, resourceName));
 										}
 										else
 										{
-											resourceFile = StripQuotes(arg.Substring(start));
 											_options.Resources.Add(new EmbeddedFileResource(resourceFile));
 										}
 										break;

@@ -531,7 +531,7 @@ class BooCodeGenerator(CodeGenerator):
 		
 		//for future:
 		//if AsBool(compileUnit.UserData["WhiteSpaceAgnostic"]):
-		//	Output.WriteLine("Option WhiteSpaceAgnostic")
+		//	Output.WriteLine("//option WhiteSpaceAgnostic")
 			
 		super.GenerateCompileUnitStart(compileUnit)
 
@@ -566,6 +566,7 @@ class BooCodeGenerator(CodeGenerator):
 				return string.Empty
 		
 		lines = newlinePattern.Split(code.Replace("\r\n","\n"))
+		//or: lines = code.Split(System.Environment.NewLine.ToCharArray())
 		
 		foundFirstCodeLine = false //first line of real code
 		insidecomment = 0 //inside /* */
@@ -623,7 +624,7 @@ class BooCodeGenerator(CodeGenerator):
 						buffer.Append(indentprefix)
 						
 				if not foundFirstCodeLine:
-					buffer.Append(line + "\n")
+					buffer.Append(line + System.Environment.NewLine)
 					continue
 				
 				if line.StartsWith(indent):
@@ -658,7 +659,7 @@ class BooCodeGenerator(CodeGenerator):
 			else: //we are inside a triple quoted string:
 				buffer.Append(line)
 			
-			buffer.Append("\n")
+			buffer.Append(System.Environment.NewLine)
 			
 			//scan for triple quoted string literals:
 			//   for speed reasons, I'm not also checking for insidecomment,
