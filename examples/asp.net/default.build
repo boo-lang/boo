@@ -1,13 +1,7 @@
 <?xml version="1.0"?>
 <project name="Boo asp.net examples" default="build">
 
-	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
-	
-	<property name="Boo.Lang.dll" value="${boo.dir}/Boo.Lang.dll" />
-	<property name="Boo.Lang.Compiler.dll" value="${boo.dir}/Boo.Lang.Compiler.dll" />
-	<property name="Boo.Lang.CodeDom.dll" value="${boo.dir}/Boo.Lang.CodeDom.dll" />
-	<property name="Boo.Lang.Parser.dll" value="${boo.dir}/Boo.Lang.Parser.dll" />
-	<property name="Boo.NAnt.Tasks.dll" value="${boo.dir}/Boo.NAnt.Tasks.dll" />
+	<property name="boo.dir" value="${path::get-full-path('../../build')}" />
 	
 	<target name="rebuild" depends="clean, build" />
 	
@@ -19,12 +13,14 @@
 		<mkdir dir="output" />
 		<mkdir dir="output/bin" />
 		<copy todir="output" file="web.config" />
-		<copy todir="output/bin" file="${Boo.Lang.dll}" />
-		<copy todir="output/bin" file="${Boo.Lang.Compiler.dll}" />
-		<copy todir="output/bin" file="${Boo.Lang.Parser.dll}" />
-		<copy todir="output/bin" file="${Boo.Lang.CodeDom.dll}" />
+		<copy todir="output/bin" file="${boo.dir}/Boo.Lang.dll" />
+		<copy todir="output/bin" file="${boo.dir}/Boo.Lang.Compiler.dll" />
+		<copy todir="output/bin" file="${boo.dir}/Boo.Lang.Parser.dll" />
+		<copy todir="output/bin" file="${boo.dir}/Boo.Lang.CodeDom.dll" />
+		<copy todir="output/bin" file="${boo.dir}/booc.exe" />
+		<copy todir="output/bin" file="${boo.dir}/booc.exe.config" />
 		
-		<loadtasks assembly="${Boo.NAnt.Tasks.dll}" />
+		<loadtasks assembly="${boo.dir}/Boo.NAnt.Tasks.dll" />
 		
 		<booc output="output/bin/Boo.Examples.Web.dll" target="library">
 		
@@ -35,7 +31,7 @@
 			<references>
 				<include name="System.Web.dll" />
 				<include name="System.Web.Services.dll" />
-				<include name="${Boo.Lang.Parser.dll}" />
+				<include name="${boo.dir}/Boo.Lang.Parser.dll" />
 			</references>
 			
 		</booc>

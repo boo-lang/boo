@@ -150,11 +150,12 @@ class BooCodeGenerator(CodeGenerator):
 		GenerateStatement(e.InitStatement)
 		Output.Write("while ")
 		GenerateExpression(e.TestExpression)
-		Output.Write(":")
+		Output.WriteLine(":")
 		Indent++
 		GenerateStatements(e.Statements)
 		GenerateStatement(e.IncrementStatement)
 		Indent--
+		EndBlock()
 
 	protected override def GenerateThrowExceptionStatement(e as CodeThrowExceptionStatement) :
 		Output.Write("raise ")
@@ -191,29 +192,39 @@ class BooCodeGenerator(CodeGenerator):
 		Output.WriteLine(":")
 		Indent++
 		GenerateStatements(e.TrueStatements)
-		Output.WriteLine ("pass") if len(e.TrueStatements) == 0
+		passcheck(e.TrueStatements)
 		Indent--
-		return unless e.FalseStatements.IsValid()
-		Output.WriteLine("else:")
-		Indent++
-		GenerateStatements(e.FalseStatements)
-		Output.WriteLine ("pass") if len(e.TrueStatements) == 0
-		Indent--
+		if e.FalseStatements and e.FalseStatements.IsValid():
+			Output.WriteLine("else:")
+			Indent++
+			GenerateStatements(e.FalseStatements)
+			passcheck(e.FalseStatements)
+			Indent--
+		EndBlock()
 
 	protected override def GenerateTryCatchFinallyStatement(e as CodeTryCatchFinallyStatement) :
 		Output.Write("try:")
 		Indent++
 		GenerateStatements(e.TryStatements)
+		passcheck(e.TryStatements)
 		Indent--
 		for exp as CodeCatchClause in e.CatchClauses:
 			Output.Write("except ")
 			Output.Write("${exp.LocalName} as ")
 			OutputType(exp.CatchExceptionType)
-			Output.Write(":")
+			Output.WriteLine(":")
 			Indent++
 			GenerateStatements(exp.Statements)
+			passcheck(exp.Statements)
 			Indent--
-		GenerateStatements(e.FinallyStatements)
+		
+		if e.FinallyStatements and e.FinallyStatements.Count > 0:
+			Output.WriteLine("ensure:")
+			Indent++
+			GenerateStatements(e.FinallyStatements)
+			passcheck(e.FinallyStatements)
+			Indent--
+		EndBlock()
 		
 
 	protected override def GenerateAssignStatement(e as CodeAssignStatement) :
@@ -310,16 +321,17 @@ class BooCodeGenerator(CodeGenerator):
 			GenerateStatements(e.GetStatements)
 			passcheck(e.GetStatements)
 			Indent--
-			Output.WriteLine()
+			EndBlock() //TODO: Remove when BOO-631 accepted
 		if e.HasSet:
 			Output.WriteLine("set:")
 			Indent++
 			GenerateStatements(e.SetStatements)
 			passcheck(e.SetStatements)
 			Indent--
-			Output.WriteLine()
+			EndBlock() //TODO: Remove when BOO-631 accepted
 		Indent--
-		Output.WriteLine()
+		EndBlock()
+		
 	protected override def GenerateConstructor(e as CodeConstructor, c as CodeTypeDeclaration) :
 		Method(e, "constructor")
 		
@@ -362,6 +374,7 @@ class BooCodeGenerator(CodeGenerator):
 		
 	protected override def GenerateTypeEnd(e as CodeTypeDeclaration) :
 		Indent--
+		EndBlock()
 
 	protected override def GenerateNamespaceStart(e as CodeNamespace) :
 		if e and e.Name and e.Name != string.Empty:
@@ -436,6 +449,7 @@ class BooCodeGenerator(CodeGenerator):
 		GenerateStatements(method.Statements)
 		passcheck(method.Statements)
 		Indent--
+		EndBlock()
 		
 	def MemberReference(target as CodeExpression, member as string):
 		GenerateExpression(target)
@@ -455,7 +469,8 @@ class BooCodeGenerator(CodeGenerator):
 		
 	def passcheck(stuff as ICollection):
 		return if stuff.IsValid()
-		Output.Write("pass")
+		if not AsBool(Options["WhiteSpaceAgnostic"]):
+			Output.Write("pass")
 		
 	override def OutputTypeNamePair(type as CodeTypeReference, name as string):
 		Output.Write("${name} as ")
@@ -530,8 +545,9 @@ class BooCodeGenerator(CodeGenerator):
 		Output.WriteLine()
 		
 		//for future:
-		//if AsBool(compileUnit.UserData["WhiteSpaceAgnostic"]):
-		//	Output.WriteLine("//option WhiteSpaceAgnostic")
+		if AsBool(Options["WhiteSpaceAgnostic"]):
+			Output.WriteLine("//option WhiteSpaceAgnostic")
+			Output.WriteLine()
 			
 		super.GenerateCompileUnitStart(compileUnit)
 
@@ -547,6 +563,10 @@ class BooCodeGenerator(CodeGenerator):
 			Output.WriteLine("")
 		
 		GenerateCompileUnitEnd(compileUnit)
+		
+	private def EndBlock():
+		if AsBool(Options["WhiteSpaceAgnostic"]):
+			Output.WriteLine("end")
 		
 #region FixIndent
 	static newlinePattern = Regex("\\n",RegexOptions.Compiled)

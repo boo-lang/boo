@@ -320,6 +320,7 @@
 				<include name="System.Data.dll" />
 				<include name="System.Xml.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Parser.dll" />
 			</references>
 		</booc>
 	</target>

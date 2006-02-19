@@ -38,6 +38,8 @@ import System.CodeDom
 import System.CodeDom.Compiler
 import System.IO
 import Boo.Lang.Compiler
+import System.Text
+import Boo.Lang.Parser
 
 #This class is *NOT* meant to be consumed direclty; use BooCodeProvider for that.
 internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
@@ -52,7 +54,7 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 		files = []
 		assemblies = []
 		for unit as CodeCompileUnit in units:
-			filename = params.TempFiles.AddExtension('.boo')
+			filename = params.TempFiles.AddExtension('boo')
 			files.Add(filename)
 			writer = StreamWriter(File.OpenWrite(filename))
 			if unit.ReferencedAssemblies:
@@ -60,6 +62,8 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 					assemblies.Add(asm) unless assemblies.Contains(asm)
 			generator_options = CodeGeneratorOptions()
 			//generator_options.IndentString = "\t" //default is "    "
+			if params.CompilerOptions and "-wsa" in params.CompilerOptions.Split():
+				generator_options["WhiteSpaceAgnostic"] = true
 			(self as ICodeGenerator).GenerateCodeFromCompileUnit(unit, writer, generator_options)
 			writer.Close()
 		return self.CompileAssemblyFromFileBatch(params, array(string, files))
@@ -79,7 +83,7 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 		if params.OutputAssembly:
 			compiler.Parameters.OutputAssembly = params.OutputAssembly
 		else:
-			compiler.Parameters.OutputAssembly = params.TempFiles.AddExtension(".dll")
+			compiler.Parameters.OutputAssembly = params.TempFiles.AddExtension("dll")
 		if params.GenerateInMemory:
 			compiler.Parameters.Pipeline = Pipelines.CompileToMemory()
 		else:
@@ -89,6 +93,8 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 		else:
 			compiler.Parameters.OutputType = CompilerOutputType.Library
 		compiler.Parameters.Debug = params.IncludeDebugInformation
+		if params.CompilerOptions and "-wsa" in params.CompilerOptions.Split():
+			compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
 		if params.ReferencedAssemblies:
 			for asm in params.ReferencedAssemblies:
 				compiler.Parameters.References.Add(Assembly.LoadFrom(asm))
@@ -119,4 +125,47 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 		
 	def CompileAssemblyFromSourceBatch(params as System.CodeDom.Compiler.CompilerParameters, src as (string)):
 		return HeavyLifter(params, (src), true)
-				
+		
+	//unused at the moment:
+	static private def BuildArgs(options as System.CodeDom.Compiler.CompilerParameters, 
+				files as (string)) as string:
+		args = StringBuilder()
+		
+		args.Append("-nologo ")
+		
+		if options.GenerateExecutable:
+			args.Append("-t:exe ")
+			extension = "exe"
+		else:
+			args.Append("-t:library ")
+			extension = "dll"
+		
+		if options.Win32Resource:
+			args.AppendFormat("-resource:\"{0}\" ",
+					options.Win32Resource)
+		
+		if options.IncludeDebugInformation:
+			args.Append("-debug ")
+		else:
+			args.Append("-debug- ")
+			
+		//if options.TreatWarningsAsErrors:
+		//	pass
+		
+		if options.OutputAssembly is null:
+			options.OutputAssembly = options.TempFiles.AddExtension(extension, true)
+		args.AppendFormat("-o:\"{0}\" ", options.OutputAssembly);
+		
+		if options.ReferencedAssemblies:
+			for r as string in options.ReferencedAssemblies:
+				args.AppendFormat("-r:\"{0}\" ",r)
+		
+		if options.CompilerOptions:
+			args.Append(options.CompilerOptions)
+			args.Append(" ")
+		
+		for f as string in files:
+			args.AppendFormat("\"{0}\" ",f)
+		
+		return args.ToString()
+

@@ -1,6 +1,9 @@
 <script language="Boo" runat="server">
          /* 
-	 Inline boo code is supported:
+	 Inline boo code is supported, as is -wsa mode ("end" instead of indenting):
+	 
+	 To enable whitespace agnostic mode, add this to the top of your asp page:
+	 < %@ Page Language="Boo" CompilerOptions="-wsa" % >
 	 */
 
 def Calendar1Selected():
