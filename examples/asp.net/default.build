@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Boo asp.net examples" default="build">
 
-	<property name="boo.dir" value="${path::get-full-path('../../build')}" />
+	<property name="boo.dir" value="${path::get-full-path('../../bin')}" />
 	
 	<target name="rebuild" depends="clean, build" />
 	
