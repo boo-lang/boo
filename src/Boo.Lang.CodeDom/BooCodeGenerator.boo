@@ -144,7 +144,7 @@ class BooCodeGenerator(CodeGenerator):
 
 	protected override def GenerateExpressionStatement(e as CodeExpressionStatement) :
 		GenerateExpression(e.Expression)
-		Output.WriteLine();
+		Output.WriteLine()
 
 	protected override def GenerateIterationStatement(e as CodeIterationStatement):
 		if e.InitStatement:
@@ -153,7 +153,8 @@ class BooCodeGenerator(CodeGenerator):
 		GenerateExpression(e.TestExpression)
 		Output.WriteLine(":")
 		Indent++
-		GenerateStatements(e.Statements)
+		if e.Statements and e.Statements.IsValid():
+			GenerateStatements(e.Statements)
 		if e.IncrementStatement:
 			GenerateStatement(e.IncrementStatement)
 		else:
@@ -164,6 +165,7 @@ class BooCodeGenerator(CodeGenerator):
 	protected override def GenerateThrowExceptionStatement(e as CodeThrowExceptionStatement) :
 		Output.Write("raise ")
 		GenerateExpression(e.ToThrow)
+		Output.WriteLine()
 
 	protected override def GenerateComment(comment as CodeComment) :
 		//TODO: check comment.DocComment when boo doc format is available
@@ -250,7 +252,8 @@ class BooCodeGenerator(CodeGenerator):
 		Output.WriteLine("goto ${e.Label}")		
 	protected override def GenerateLabeledStatement(e as CodeLabeledStatement) :
 		Output.WriteLine(":${e.Label}")
-		GenerateStatement(e.Statement) if e.Statement		
+		if e.Statement:
+			GenerateStatement(e.Statement)
 	protected override def GenerateVariableDeclarationStatement(e as CodeVariableDeclarationStatement) :		
 		Output.Write("${e.Name} as ")
 		OutputType(e.Type)
@@ -289,17 +292,17 @@ class BooCodeGenerator(CodeGenerator):
 		
 	protected override def GenerateSnippetMember(e as CodeSnippetTypeMember) :
 		OutputAttributeDeclarations(e.CustomAttributes) if e.CustomAttributes		
-		Output.Write(FixIndent(e.Text, Options.IndentString, Indent, false))
+		Output.WriteLine(FixIndent(e.Text, Options.IndentString, Indent, false))
 	
 	protected override def GenerateSnippetExpression(e as CodeSnippetExpression) :
 		//Output.Write("("+e.Value+")")
 		Output.Write(e.Value)
 		
 	protected override def GenerateSnippetCompileUnit(e as CodeSnippetCompileUnit) :
-		Output.Write(FixIndent(e.Value, Options.IndentString, Indent, false))
+		Output.WriteLine(FixIndent(e.Value, Options.IndentString, Indent, false))
 		
 	protected override def GenerateSnippetStatement(e as CodeSnippetStatement) :
-		Output.Write(FixIndent(e.Value, Options.IndentString, Indent, false))
+		Output.WriteLine(FixIndent(e.Value, Options.IndentString, Indent, false))
 		
 	protected override def GenerateEntryPointMethod(e as CodeEntryPointMethod, c as CodeTypeDeclaration) :
 		Method(e, "Main")
