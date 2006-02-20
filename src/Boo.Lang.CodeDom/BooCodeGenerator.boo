@@ -151,15 +151,13 @@ class BooCodeGenerator(CodeGenerator):
 			GenerateStatement(e.InitStatement)
 		Output.Write("while ")
 		GenerateExpression(e.TestExpression)
-		Output.WriteLine(":")
-		Indent++
+		BeginBlock()
 		if e.Statements and e.Statements.IsValid():
 			GenerateStatements(e.Statements)
 		if e.IncrementStatement:
 			GenerateStatement(e.IncrementStatement)
 		else:
 			passcheck(e.Statements)
-		Indent--
 		EndBlock()
 
 	protected override def GenerateThrowExceptionStatement(e as CodeThrowExceptionStatement) :
@@ -195,42 +193,40 @@ class BooCodeGenerator(CodeGenerator):
 	protected override def GenerateConditionStatement(e as CodeConditionStatement) :
 		Output.Write("if ")
 		GenerateExpression(e.Condition)
-		Output.WriteLine(":")
-		Indent++
+		BeginBlock()
 		GenerateStatements(e.TrueStatements)
 		passcheck(e.TrueStatements)
-		Indent--
+		EndBlock(false)
 		if e.FalseStatements and e.FalseStatements.IsValid():
-			Output.WriteLine("else:")
-			Indent++
+			Output.Write("else")
+			BeginBlock()
 			GenerateStatements(e.FalseStatements)
 			passcheck(e.FalseStatements)
-			Indent--
-		EndBlock()
+			EndBlock(false)
+		End()
 
 	protected override def GenerateTryCatchFinallyStatement(e as CodeTryCatchFinallyStatement) :
-		Output.Write("try:")
-		Indent++
+		Output.Write("try")
+		BeginBlock()
 		GenerateStatements(e.TryStatements)
 		passcheck(e.TryStatements)
-		Indent--
+		EndBlock(false)
 		for exp as CodeCatchClause in e.CatchClauses:
 			Output.Write("except ")
 			Output.Write("${exp.LocalName} as ")
 			OutputType(exp.CatchExceptionType)
-			Output.WriteLine(":")
-			Indent++
+			BeginBlock()
 			GenerateStatements(exp.Statements)
 			passcheck(exp.Statements)
-			Indent--
+			EndBlock(false)
 		
 		if e.FinallyStatements and e.FinallyStatements.Count > 0:
-			Output.WriteLine("ensure:")
-			Indent++
+			Output.Write("ensure")
+			BeginBlock()
 			GenerateStatements(e.FinallyStatements)
 			passcheck(e.FinallyStatements)
-			Indent--
-		EndBlock()
+			EndBlock(false)
+		End()
 		
 
 	protected override def GenerateAssignStatement(e as CodeAssignStatement) :
@@ -291,7 +287,8 @@ class BooCodeGenerator(CodeGenerator):
 		Output.WriteLine()
 		
 	protected override def GenerateSnippetMember(e as CodeSnippetTypeMember) :
-		OutputAttributeDeclarations(e.CustomAttributes) if e.CustomAttributes		
+		if e.CustomAttributes:
+			OutputAttributes(e.CustomAttributes, null, false)
 		Output.WriteLine(FixIndent(e.Text, Options.IndentString, Indent, false))
 	
 	protected override def GenerateSnippetExpression(e as CodeSnippetExpression) :
@@ -320,23 +317,19 @@ class BooCodeGenerator(CodeGenerator):
 			Output.Write(")")
 		Output.Write(" as ")		
 		OutputType(e.Type)
-		Output.WriteLine(":")		
-		Indent++
+		BeginBlock()
 		if e.HasGet:
-			Output.WriteLine("get:")
-			Indent++
+			Output.Write("get")
+			BeginBlock()
 			GenerateStatements(e.GetStatements)
 			passcheck(e.GetStatements)
-			Indent--
-			EndBlock() //TODO: Remove when BOO-631 accepted
+			EndBlock() //TODO: Change to EndBlock(false) when BOO-631 accepted
 		if e.HasSet:
-			Output.WriteLine("set:")
-			Indent++
+			Output.Write("set")
+			BeginBlock()
 			GenerateStatements(e.SetStatements)
 			passcheck(e.SetStatements)
-			Indent--
-			EndBlock() //TODO: Remove when BOO-631 accepted
-		Indent--
+			EndBlock() //TODO: Change to EndBlock(false) when BOO-631 accepted
 		EndBlock()
 		
 	protected override def GenerateConstructor(e as CodeConstructor, c as CodeTypeDeclaration) :
@@ -349,29 +342,68 @@ class BooCodeGenerator(CodeGenerator):
 		Method(e, "constructor")
 
 	protected override def GenerateTypeStart(e as CodeTypeDeclaration):		
-		Output.WriteLine()
-		OutputAttributeDeclarations(e.CustomAttributes)
-		Output.WriteLine()
-		if e.TypeAttributes & TypeAttributes.Sealed:
-			e.TypeAttributes = (e.TypeAttributes.ToInt() & ~TypeAttributes.Sealed.ToInt()).ToEnum(TypeAttributes)
-			Output.Write("final ")
+		if e.CustomAttributes:
+			OutputAttributes(e.CustomAttributes, null, false)
 		if e isa CodeTypeDelegate:
 			GenerateDelegate(e)
 			return
+			
+		//TODO: move this to an override of OutputTypeAttributes
+		
+		//FIXME: When boo gets preprocessor directives, i.e. #if NET_2_0
+		//Til then we have to partially rely on super.OutputTypeAttributes
+		
+		//output "final", since super.OutputTypeAttributes outputs "sealed"
+		if e.TypeAttributes & TypeAttributes.Sealed == TypeAttributes.Sealed:
+			Output.Write("final ")
+			
+			//remove sealed from attributes:
+				
+			//FIXME: when boo enum processing fixed
+			//e.TypeAttributes &= ~TypeAttributes.Sealed
+			e.TypeAttributes &= cast(TypeAttributes,~cast(int,TypeAttributes.Sealed))
+			
+		visibility = e.TypeAttributes & TypeAttributes.VisibilityMask
+		if visibility == TypeAttributes.Public or visibility == TypeAttributes.NestedPublic:
+			pass //Output.Write("public ") //public by default
+		elif visibility == TypeAttributes.NestedPrivate:
+			Output.Write("private ")
+		elif (visibility == TypeAttributes.NotPublic or
+			TypeAttributes.NestedFamANDAssem or
+			TypeAttributes.NestedAssembly):
+			Output.Write("internal ")
+		elif visibility == TypeAttributes.NestedFamily:
+			//FIXME: BOO-666
+			Output.Write("protected ")
+		elif visibility == TypeAttributes.NestedFamORAssem:
+			//FIXME: BOO-666
+			Output.Write("internal ")
+			
+		//super OutputTypeAttributes ignores TypeAttributes.NotPublic (internal)
+		//FIXME: when boo enum processing fixed
+		//e.TypeAttributes &= ~TypeAttributes.VisibilityMask
+		e.TypeAttributes &= cast(TypeAttributes,~cast(int,TypeAttributes.VisibilityMask))
+		e.TypeAttributes |= TypeAttributes.NotPublic //not really nec. since val is 0
+		
+		//TODO: Remove call to OutputTypeAttributes
 		OutputTypeAttributes(e.TypeAttributes, e.IsStruct, e.IsEnum)
-		Output.Write(" ${e.Name}(")
+		/////////////////////////////////////
+		
+		Output.Write("${e.Name}(")
 		for index in range(len(e.BaseTypes)):
 			var as CodeTypeReference = e.BaseTypes[index]
 			OutputType(var)
 			continue unless index + 1 != e.BaseTypes.Count
 			Output.Write(",")
-		Output.Write("):")
-		Indent++		
+		Output.Write(")")
+		BeginBlock()
 		#Ah hah hah, yeah, no. Empty class.
 		passcheck(e.Members)
 
 		
 	private def GenerateDelegate(e as CodeTypeDelegate):
+		if e.TypeAttributes & TypeAttributes.Sealed == TypeAttributes.Sealed:
+			Output.Write("sealed ")
 		if e.TypeAttributes & TypeAttributes.NestedFamORAssem == TypeAttributes.Public:
 			Output.Write("public ")
 		Output.Write("callable ${e.Name}(")
@@ -380,7 +412,6 @@ class BooCodeGenerator(CodeGenerator):
 		OutputType(e.ReturnType)
 		
 	protected override def GenerateTypeEnd(e as CodeTypeDeclaration) :
-		Indent--
 		EndBlock()
 
 	protected override def GenerateNamespaceStart(e as CodeNamespace) :
@@ -441,9 +472,9 @@ class BooCodeGenerator(CodeGenerator):
 		unless GetTypeOutput(method.ReturnType) == "void":
 			Output.Write(" as ")
 			OutputType(method.ReturnType)
-			OutputAttributeDeclarations(method.ReturnTypeCustomAttributes) if method.ReturnTypeCustomAttributes				
-		Output.WriteLine(":")
-		Indent++
+		if method.ReturnTypeCustomAttributes:
+			OutputAttributes(method.ReturnTypeCustomAttributes, null, true)
+		BeginBlock()
 		ctor = method as CodeConstructor
 		do_pass = true
 		if ctor:
@@ -460,7 +491,6 @@ class BooCodeGenerator(CodeGenerator):
 		GenerateStatements(method.Statements)
 		if do_pass:
 			passcheck(method.Statements)
-		Indent--
 		EndBlock()
 		
 	def MemberReference(target as CodeExpression, member as string):
@@ -489,7 +519,7 @@ class BooCodeGenerator(CodeGenerator):
 		OutputType(type)
 		
 	protected override def GenerateParameterDeclarationExpression(e as CodeParameterDeclarationExpression):
-		OutputAttributes(e.CustomAttributes, null, true);
+		OutputAttributes(e.CustomAttributes, null, true)
 		OutputDirection(e.Direction)
 		OutputTypeNamePair(e.Type, e.Name)
 	
@@ -499,8 +529,8 @@ class BooCodeGenerator(CodeGenerator):
 			Output.Write(prefix) if prefix
 			OutputAttributeDeclaration(att)
 			GenerateAttributeDeclarationsEnd(attributes)
-			if inline:
-				Output.Write(" ")
+			if inline:  //for parameter and return type attributes
+				pass //Output.Write(" ")
 			else:
 				Output.WriteLine()
 	
@@ -517,20 +547,24 @@ class BooCodeGenerator(CodeGenerator):
 				OutputAttributeArgument(argument)
 		Output.Write(')')
 		
-	def ModifiersAndAttributes(typeMember as CodeTypeMember):		
-		OutputAttributeDeclarations(typeMember.CustomAttributes) if typeMember.CustomAttributes
-		Output.WriteLine()
-		to = { ziggy| return cast(int, ziggy) }
-		fro = { ziggy| return cast(MemberAttributes, ziggy) }
+	def ModifiersAndAttributes(typeMember as CodeTypeMember):
+		if typeMember.CustomAttributes:
+			OutputAttributes(typeMember.CustomAttributes, null, false)
+		
+		//FIXME: We just ignore "new" methods, since they are unsupported in boo
 		if typeMember.Attributes & MemberAttributes.VTableMask == MemberAttributes.New:
-			typeMember.Attributes = fro(to(typeMember.Attributes) & ~ to(MemberAttributes.New))		
+			typeMember.Attributes &= cast(MemberAttributes,~cast(int,MemberAttributes.New))
+			
+		//TODO: Override these.  Right now we are lucky C# and boo are the same
+		//with respect to keywords and defaults (such as final/sealed by default).
+		//We should override for example to not print out "public" since it is boo default.
 		OutputMemberAccessModifier(typeMember.Attributes)
 		OutputMemberScopeModifier(typeMember.Attributes)
 		
 	def OutputAttributeArgument(arg as CodeAttributeArgument):
 		if arg.Name and arg.Name != "":
 			Output.Write(arg.Name)
-			Output.Write(" : ")
+			Output.Write(":")
 		GenerateExpression(arg.Value)
 		
 	protected override def OutputDirection(direction as FieldDirection):
@@ -576,7 +610,19 @@ class BooCodeGenerator(CodeGenerator):
 		
 		GenerateCompileUnitEnd(compileUnit)
 		
-	private def EndBlock():
+	protected virtual def BeginBlock():
+		Output.WriteLine(":")
+		++Indent
+		
+	protected virtual def EndBlock():
+		EndBlock(true)
+		
+	protected virtual def EndBlock(realend as bool):
+		--Indent
+		if realend:
+			End()
+			
+	protected virtual def End():
 		if AsBool(Options["WhiteSpaceAgnostic"]):
 			Output.WriteLine("end")
 		
