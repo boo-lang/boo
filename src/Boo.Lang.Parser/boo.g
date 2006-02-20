@@ -2379,6 +2379,7 @@ typed_array returns [Expression e]
 				COMMA
 				item=expression { tle.Items.Add(item); }
 			)*
+			(COMMA)?
 		)
 	)
 	RPAREN
@@ -2722,6 +2723,7 @@ hash_literal returns [HashLiteralExpression dle]
 			pair=expression_pair
 			{ dle.Items.Add(pair); }
 		)*
+		(COMMA)?
 	)?
 	RBRACE
 	;
