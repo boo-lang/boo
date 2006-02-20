@@ -403,7 +403,7 @@ class BooCodeGenerator(CodeGenerator):
 		
 	private def GenerateDelegate(e as CodeTypeDelegate):
 		if e.TypeAttributes & TypeAttributes.Sealed == TypeAttributes.Sealed:
-			Output.Write("sealed ")
+			Output.Write("final ")
 		if e.TypeAttributes & TypeAttributes.NestedFamORAssem == TypeAttributes.Public:
 			Output.Write("public ")
 		Output.Write("callable ${e.Name}(")
