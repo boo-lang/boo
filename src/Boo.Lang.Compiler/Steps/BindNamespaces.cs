@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
@@ -54,6 +55,17 @@ namespace Boo.Lang.Compiler.Steps
 		public override void OnImport(Boo.Lang.Compiler.Ast.Import import)
 		{
 			IEntity entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+			
+			//if 'import X', try 'import X from X'
+			//comment out next if block if this is not wanted
+			if (null == entity && null == import.AssemblyReference)
+			{
+				if (TryAutoAddAssemblyReference(import))
+				{
+					entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+				}
+			}
+			
 			if (null == entity)
 			{
 				Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
@@ -107,6 +119,40 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.Name);
 			import.Entity = entity;
+		}
+		
+		private bool TryAutoAddAssemblyReference(Boo.Lang.Compiler.Ast.Import import)
+		{
+			Assembly asm = NameResolutionService.FindAssembly(import.Namespace);
+			if (asm != null)
+			{
+				//name resolution already failed earlier, don't try twice
+				return false;
+			}
+			try
+			{
+				asm = NameResolutionService.LoadAssembly(import.Namespace);
+			}
+			catch (Exception x)
+			{
+				return false;
+			}
+			if (asm != null)
+			{
+				try
+				{
+					NameResolutionService.OrganizeAssemblyTypes(asm);
+				}
+				catch (Exception x)
+				{
+					return false;
+				}
+				NameResolutionService.AddAssembly(asm);
+				import.AssemblyReference = new ReferenceExpression(import.LexicalInfo, import.Namespace);
+				import.AssemblyReference.Entity = new AssemblyReference(asm);
+				return true;
+			}
+			return false;
 		}
 		
 		private bool IsValidNamespace(IEntity entity)

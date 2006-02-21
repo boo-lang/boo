@@ -35,8 +35,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class SimpleNamespace : INamespace
 	{		
-		INamespace _parent;
-		IDictionary _children;
+		protected INamespace _parent;
+		protected IDictionary _children;
 		
 		public SimpleNamespace(INamespace parent, IDictionary children)
 		{
@@ -77,6 +77,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		INamespace _empty;
 		
+		public GlobalNamespace() : this(new Hashtable())
+		{
+		}
+		
 		public GlobalNamespace(IDictionary children) : base(null, children)
 		{
 			_empty = (INamespace)children[""];
@@ -93,6 +97,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _empty.Resolve(targetList, name, flags);
 			}
 			return true;
+		}
+		
+		public INamespace GetChild(string name)
+		{
+			return (INamespace)_children[name];
+		}
+		
+		public void SetChild(string name, INamespace entity)
+		{
+			_children[name] = entity;
+			if (name == "")
+			{
+				_empty = entity;
+			}
 		}
 	}
 	

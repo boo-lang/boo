@@ -37,20 +37,18 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class InitializeNameResolutionService : AbstractVisitorCompilerStep
 	{
-		Hashtable _namespaces = new Hashtable();
-		
 		public InitializeNameResolutionService()
 		{
 		}
 		
 		override public void Run()
 		{
+			NameResolutionService.GlobalNamespace = new GlobalNamespace();
+			
 			ResolveImportAssemblyReferences();
 			
 			OrganizeExternalNamespaces();
 			ResolveInternalModules();
-			
-			NameResolutionService.GlobalNamespace = new GlobalNamespace(_namespaces);
 		}
 		
 		void ResolveInternalModules()
@@ -72,21 +70,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void AddInternalModule(ModuleEntity moduleEntity)
 		{
-			GetNamespace(moduleEntity.Namespace).AddModule(moduleEntity);
-		}
-
-		Assembly FindOrLoadAssembly(string name)
-		{
-			Assembly found = Parameters.References.Find(name);
-			if (null == found)
-			{
-				found = Assembly.LoadWithPartialName(name);
-				if (null == found)
-				{
-					found = Assembly.Load(name);
-				}
-			}
-			return found;
+			NameResolutionService.GetNamespace(moduleEntity.Namespace).AddModule(moduleEntity);
 		}
 		
 		void ResolveImportAssemblyReferences()
@@ -103,8 +87,15 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						try
 						{
-							Assembly asm = FindOrLoadAssembly(reference.Name);
-							Parameters.References.Add(asm);
+							Assembly asm = NameResolutionService.FindAssembly(reference.Name);
+							if (null == asm)
+							{
+								asm = NameResolutionService.LoadAssembly(reference.Name);
+								if (null != asm)
+								{
+									NameResolutionService.AddAssembly(asm);
+								}
+							}
 							reference.Entity = new TypeSystem.AssemblyReference(asm);
 						}
 						catch (Exception x)
@@ -123,7 +114,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				try
 				{
-					OrganizeAssemblyTypes(asm);
+					NameResolutionService.OrganizeAssemblyTypes(asm);
 				}
 				catch (Exception x)
 				{
@@ -131,53 +122,6 @@ namespace Boo.Lang.Compiler.Steps
 						CompilerErrorFactory.FailedToLoadTypesFromAssembly(asm.FullName, x));
 				}
 			}
-		}
-		
-		void OrganizeAssemblyTypes(Assembly asm)
-		{
-			Type[] types = asm.GetTypes();
-			foreach (Type type in types)
-			{
-				if (type.IsPublic)
-				{
-					string ns = type.Namespace;
-					if (null == ns)
-					{
-						ns = string.Empty;
-					}
-				
-					GetNamespace(ns).Add(type);
-				}
-			}
-		}
-		
-		NamespaceEntity GetNamespace(string ns)
-		{
-			string[] namespaceHierarchy = ns.Split('.');
-			string topLevelName = namespaceHierarchy[0];
-			NamespaceEntity topLevel = GetTopLevelNamespace(topLevelName);
-			NamespaceEntity current = topLevel;
-			for (int i=1; i<namespaceHierarchy.Length; ++i)
-			{
-				current = current.GetChildNamespace(namespaceHierarchy[i]);
-			}
-			return current;
-		}
-		
-		NamespaceEntity GetTopLevelNamespace(string topLevelName)
-		{
-			NamespaceEntity tag = (NamespaceEntity)_namespaces[topLevelName];
-			if (null == tag)
-			{
-				_namespaces[topLevelName] = tag = new NamespaceEntity(null, TypeSystemServices, topLevelName);
-			}
-			return tag;
-		}
-		
-		override public void Dispose()
-		{
-			base.Dispose();
-			_namespaces.Clear();
 		}
 	}
 }

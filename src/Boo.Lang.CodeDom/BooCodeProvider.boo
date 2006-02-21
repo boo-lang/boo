@@ -45,4 +45,14 @@ class BooCodeProvider(CodeDomProvider):
 		return BooCodeGenerator()
 	override def GetConverter(type as Type) as System.ComponentModel.TypeConverter:
 		raise NotImplementedException()
+		
+	//TODO: When boo has preprocessor directives:
+	//http://msdn2.microsoft.com/en-us/library/system.codedom.compiler.codedomprovider.generatecodefrommember.aspx
+	/*
+	#if NET_2_0
+	override def GenerateCodeFromMember(member as CodeTypeMember, 
+		writer as TextWriter, options as CodeGeneratorOptions):
+		raise NotImplementedException()
+	#endif
+	*/
 

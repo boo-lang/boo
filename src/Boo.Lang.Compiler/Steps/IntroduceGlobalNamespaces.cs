@@ -45,8 +45,8 @@ namespace Boo.Lang.Compiler.Steps
 			globals[1] = TypeSystemServices.BuiltinsType;
 			
 			NameResolutionService.GlobalNamespace = new NamespaceDelegator(
-															NameResolutionService.GlobalNamespace,
-															globals);
+										NameResolutionService.GlobalNamespace,
+										globals);
 		}
 		
 		private INamespace SafeGetNamespace(INamespace ns)
