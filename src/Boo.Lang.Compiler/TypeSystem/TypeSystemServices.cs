@@ -1342,7 +1342,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			throw CompilerErrorFactory.InvalidNode(node);
 		}
-
+		
 		public class DuckTypeImpl : ExternalType
 		{
 			public DuckTypeImpl(TypeSystemServices typeSystemServices) :

@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler.Pipelines
 		{	
 			Add(new UnfoldConstants());
 
+			Add(new CheckIdentifiers());
 			Add(new StricterErrorChecking());
 
 			Add(new ExpandDuckTypedExpressions());
