@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (name == null || name == string.Empty) return false;
 			char c = name[0];
-			return char.IsLetter(c) || c=='_';
+			return char.IsLetter(c) || c=='(' || c=='_';
 		}
 		
 		private void CheckName(Node node, string name)
