@@ -161,6 +161,7 @@
 			<fileset basedir="../build">
 				<include name="*.dll" />
 				<include name="*.pdb" />
+				<include name="boo*.exe" />
 				<include name="*.config" />
 				<include name="*.targets" />
 				<include name="pt/*.dll" />
