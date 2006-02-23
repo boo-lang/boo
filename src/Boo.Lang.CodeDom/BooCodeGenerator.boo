@@ -447,7 +447,7 @@ class BooCodeGenerator(CodeGenerator):
 	protected override def CreateValidIdentifier(value as string) as string:
 		return value
 
-	protected override def GetTypeOutput(typeRef as CodeTypeReference):
+	protected override def GetTypeOutput(typeRef as CodeTypeReference) as string:
 		if typeRef.ArrayElementType:
 			out = GetTypeOutput(typeRef.ArrayElementType)
 		elif typeRef.BaseType in primitives:
@@ -455,11 +455,12 @@ class BooCodeGenerator(CodeGenerator):
 		else:
 			out = typeRef.BaseType
 		
-		if typeRef.ArrayRank > 0:
-			if typeRef.ArrayRank > 1:
-				return "(${out}, ${typeRef.ArrayRank})"
+		if typeRef.ArrayRank == 0:
+			return out
+		elif typeRef.ArrayRank == 1:
 			return "(${out})"
-		return out
+		else:
+			return "(${out}, ${typeRef.ArrayRank})"
 
 	protected override def QuoteSnippetString(snippet as string) as string:		
 		s = snippet.Replace("\\", "\\\\")
@@ -514,6 +515,20 @@ class BooCodeGenerator(CodeGenerator):
 		OutputExpressionList(parameters)
 		Output.Write(")")
 		
+	protected override def OutputExpressionList(exps as CodeExpressionCollection):
+		if exps is null or exps.Count == 0:
+			return
+		total = exps.Count
+		i = 0
+		while i < total:
+			e as CodeExpression = exps[i]
+			if AsBool(e.UserData["Explode"]):
+				Output.Write("*")
+			GenerateExpression(e)
+			if i < total-1:
+				Output.Write(", ")
+			++i
+		
 	def passcheck(stuff as ICollection):
 		return if stuff.IsValid()
 		if not AsBool(Options["WhiteSpaceAgnostic"]):
@@ -524,9 +539,20 @@ class BooCodeGenerator(CodeGenerator):
 		OutputType(type)
 		
 	protected override def GenerateParameterDeclarationExpression(e as CodeParameterDeclarationExpression):
+		name = e.Name
+		if e.Type.ArrayElementType:
+			paramarray as CodeAttributeDeclaration = null
+			for att as CodeAttributeDeclaration in e.CustomAttributes:
+				if att.Name.EndsWith("ParamArrayAttribute") or att.Name.EndsWith("ParamArray"):
+					paramarray = att
+					break
+			if paramarray:
+				e.CustomAttributes.Remove(paramarray)
+				name = "*"+e.Name
+				
 		OutputAttributes(e.CustomAttributes, null, true)
 		OutputDirection(e.Direction)
-		OutputTypeNamePair(e.Type, e.Name)
+		OutputTypeNamePair(e.Type, name)
 	
 	private def OutputAttributes(attributes as CodeAttributeDeclarationCollection, prefix as string, inline as bool):
 		for att as CodeAttributeDeclaration in attributes:
@@ -649,7 +675,7 @@ class BooCodeGenerator(CodeGenerator):
 				return string.Empty
 		
 		lines = newlinePattern.Split(code.Replace("\r\n","\n"))
-		//or: lines = code.Split(System.Environment.NewLine.ToCharArray())
+		//lines = code.Split(System.Environment.NewLine.ToCharArray())
 		
 		foundFirstCodeLine = false //first line of real code
 		insidecomment = 0 //inside /* */
