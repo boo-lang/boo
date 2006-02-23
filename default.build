@@ -37,16 +37,16 @@
 	
 	<property name="boo.distro.name" value="boo-${boo.version}-${nant.settings.currentframework}" />
 	
-	<property name="supported.runtimes" value="&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
+	<property name="supported.runtimes" value="&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;
+&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;" />
 	
 	<property name="supported.runtimes" 
 		value="&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
-&lt;supportedRuntime version=&quot;v2.0.50215&quot;/&gt;" 
+&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" 
 		if="${'net-2.0' == framework::get-target-framework()}" />
 		
 	<property name="supported.runtimes" 
 		value="&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
-&lt;supportedRuntime version=&quot;v2.0.50215&quot;/&gt;
 &lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" 
 		if="${string::starts-with(framework::get-target-framework(),'mono')}" />
 	
