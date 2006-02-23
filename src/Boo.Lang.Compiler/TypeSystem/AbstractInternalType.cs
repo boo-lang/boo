@@ -212,7 +212,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IEntity GetDefaultMember()
 		{
-			IType defaultMemberAttribute = _typeSystemServices.Map(typeof(DefaultMemberAttribute));
+			IType defaultMemberAttribute = _typeSystemServices.Map(Types.DefaultMemberAttribute);
 			foreach (Attribute attribute in _typeDefinition.Attributes)
 			{
 				IConstructor tag = TypeSystemServices.GetEntity(attribute) as IConstructor;

@@ -622,11 +622,12 @@ interface_method [TypeMemberCollection container]
 protected
 interface_property [TypeMemberCollection container]
         {
+		IToken id = null;
                 Property p = null;
                 TypeReference tr = null;
                 ParameterDeclarationCollection parameters = null;
         }:
-        (id:ID)
+        (id1:ID {id=id1;} | s:SELF {id=s;})
         {
                 p = new Property(ToLexicalInfo(id));
                 p.Name = id.getText();
@@ -634,7 +635,7 @@ interface_property [TypeMemberCollection container]
                 container.Add(p);
                 parameters = p.Parameters;
         }
-        (LPAREN parameter_declaration_list[parameters] RPAREN)?
+        ((LBRACK|LPAREN) parameter_declaration_list[parameters] (RBRACK|RPAREN))?
         (AS tr=type_reference)?
         {
                 p.Type = tr;
@@ -773,8 +774,9 @@ method [TypeMemberCollection container]
 
 protected
 property_header:	
-	(ID (DOT ID)*)
+	((ID|SELF) (DOT ID)*)
 	(
+		LBRACK |
 		LPAREN |
 		((AS type_reference)? COLON)
 	)
@@ -783,6 +785,7 @@ property_header:
 protected
 field_or_property [TypeMemberCollection container]
 	{
+		IToken id = null;
 		TypeMember tm = null;
 		TypeReference tr = null;
 		Property p = null;
@@ -792,7 +795,7 @@ field_or_property [TypeMemberCollection container]
 		ParameterDeclarationCollection parameters = null;
 	}: 
 	(property_header)=>(
-		(emi=explicit_member_info)? id:ID
+		(emi=explicit_member_info)? (id1:ID {id=id1;}| s:SELF {id=s;})
 		(		
 			
 			{
@@ -805,7 +808,7 @@ field_or_property [TypeMemberCollection container]
 				AddAttributes(p.Attributes);
 				parameters = p.Parameters;
 			}
-			(LPAREN parameter_declaration_list[parameters] RPAREN)?
+			((LBRACK|LPAREN) parameter_declaration_list[parameters] (RBRACK|RPAREN))?
 			(AS tr=type_reference)?
 			{							
 				p.Type = tr;

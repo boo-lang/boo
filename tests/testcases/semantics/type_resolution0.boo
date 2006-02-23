@@ -8,6 +8,7 @@ public class Item(System.Object):
 	public def constructor():
 		super()
 
+[System.Reflection.DefaultMemberAttribute('Item')]
 public class Collection(System.Object):
 
 	public Item(index as System.Int32) as TypeResolution.Item:

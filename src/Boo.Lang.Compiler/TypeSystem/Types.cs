@@ -122,6 +122,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static readonly Type ModuleAttribute = typeof(Boo.Lang.ModuleAttribute);
 
 		public static readonly Type ParamArrayAttribute = typeof(ParamArrayAttribute);
+		
+		public static readonly Type DefaultMemberAttribute = typeof(System.Reflection.DefaultMemberAttribute);
 
 	}
 }

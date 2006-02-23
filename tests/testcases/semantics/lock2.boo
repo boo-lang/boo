@@ -1,4 +1,5 @@
 """
+[System.Reflection.DefaultMemberAttribute('Item')]
 public class LockedList(System.Object):
 
 	protected _list as Boo.Lang.List
