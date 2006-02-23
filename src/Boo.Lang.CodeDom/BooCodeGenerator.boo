@@ -43,6 +43,7 @@ import System.IO
 import System.Reflection
 import System.Collections
 import System.Text.RegularExpressions
+import System.Globalization
 
 class BooCodeGenerator(CodeGenerator):
 	static primitives = { "System.Double" : "double",
@@ -310,11 +311,15 @@ class BooCodeGenerator(CodeGenerator):
 	protected override def GenerateProperty(e as CodeMemberProperty, c as CodeTypeDeclaration) :		
 		ModifiersAndAttributes(e)
 		
-		Output.Write(" ${e.Name}")
+		if (e.Parameters.Count > 0
+			and string.Compare(e.Name, "Item", true, CultureInfo.InvariantCulture) == 0):
+			Output.Write(" self")
+		else:
+			Output.Write(" ${e.Name}")
 		if len(e.Parameters) > 0:
-			Output.Write("(")
+			Output.Write("[")
 			OutputParameters(e.Parameters)
-			Output.Write(")")
+			Output.Write("]")
 		Output.Write(" as ")		
 		OutputType(e.Type)
 		BeginBlock()

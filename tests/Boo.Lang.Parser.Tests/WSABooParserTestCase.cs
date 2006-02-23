@@ -55,7 +55,7 @@ namespace WSABoo.Parser.Tests
 				print 'foo again'
 				end
 				
-				item(key):
+				item[key]:
 				get:
 					return key
 				end
@@ -83,7 +83,7 @@ class Foo(Bar):
 				print 'uops...'
 		print 'foo again'
 
-	item(key):
+	item[key]:
 		get:
 			return key
 

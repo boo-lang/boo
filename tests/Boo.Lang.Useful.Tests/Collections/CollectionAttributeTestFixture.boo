@@ -37,7 +37,7 @@ public class StringCollection(Boo.Lang.Useful.Collections.AbstractCollection):
 			raise System.ArgumentNullException('item')
 		self.InnerList.Add(item)
 
-	public Item(index as System.Int32) as System.String:
+	public Item[index as System.Int32] as System.String:
 		public get:
 			return self.InnerList.get_Item(index)
 """

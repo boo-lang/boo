@@ -45,7 +45,7 @@ class Person:
 			return (_dof - date.Now).TotalDays
 
 	[XmlIgnore]
-	Property([required] key as string):
+	Property[[required] key as string]:
 		get:
 			return null
 
@@ -99,6 +99,6 @@ class Person:
 			return (_dof - date.Now).TotalDays
 
 	[XmlIgnore]
-	Property([required] key as string):
+	Property[[required] key as string]:
 		get:
 			return null

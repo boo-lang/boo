@@ -241,7 +241,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(node.Name);
 			if (node.Parameters.Count > 0)
 			{
-				WriteParameterList(node.Parameters);
+				WriteParameterList(node.Parameters, "[", "]");
 			}
 			WriteTypeReference(node.Type);
 			WriteLine(":");
@@ -1378,7 +1378,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		void WriteParameterList(ParameterDeclarationCollection items)
 		{
-			Write("(");
+			WriteParameterList(items, "(", ")");
+		}
+		
+		void WriteParameterList(ParameterDeclarationCollection items, string st, string ed)
+		{
+			Write(st);
 			int last = items.Count-1;
 			for (int i=0; i<items.Count; ++i)
 			{
@@ -1392,7 +1397,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				}
 				Visit(items.GetNodeAt(i));
 			}
-			Write(")");
+			Write(ed);
 		}
 		
 		void WriteAttribute(Attribute attribute)
