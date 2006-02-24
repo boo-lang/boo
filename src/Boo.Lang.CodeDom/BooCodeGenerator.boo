@@ -300,7 +300,12 @@ class BooCodeGenerator(CodeGenerator):
 		Output.WriteLine(FixIndent(e.Value, Options.IndentString, Indent, false))
 		
 	protected override def GenerateSnippetStatement(e as CodeSnippetStatement) :
-		Output.WriteLine(FixIndent(e.Value, Options.IndentString, Indent, false))
+		//FIXME: need preprocessor directives here. .NET2 resets Indent to 0
+		#if NET_2_0
+		Output.WriteLine(e.Value, Options.IndentString, Indent, false)
+		#else
+		//Output.WriteLine(FixIndent(e.Value, Options.IndentString, Indent, false))
+		#endif
 		
 	protected override def GenerateEntryPointMethod(e as CodeEntryPointMethod, c as CodeTypeDeclaration) :
 		Method(e, "Main")
