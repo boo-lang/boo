@@ -41,7 +41,7 @@ if "--debug" in argv:
 
 print """Welcome to booish, an interpreter for the boo programming language.
 
-Running boo ${BooVersion}.
+Running boo ${BooVersion} in CLR v${Environment.Version}.
 
 The following builtin functions are available:
     dir(Type): lists the members of a type
