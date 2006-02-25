@@ -674,7 +674,7 @@ class BooCodeGenerator(CodeGenerator):
 			nonEmptyPrefix = (indentprefix != string.Empty)
 		else:
 			indentprefix = string.Empty
-			nonEmptyPrefix = true
+			nonEmptyPrefix = false
 		
 		if code is null or code==string.Empty:
 			if indentfirst:
