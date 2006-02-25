@@ -46,6 +46,8 @@ import System.Text.RegularExpressions
 import System.Globalization
 
 class BooCodeGenerator(CodeGenerator):
+	static _NET_2_0 as bool = System.Environment.Version >= System.Version(2, 0)
+	
 	static primitives = { "System.Double" : "double",
 						"System.Single" : "single",
 						"System.Int32" : "int",
@@ -300,12 +302,10 @@ class BooCodeGenerator(CodeGenerator):
 		Output.WriteLine(FixIndent(e.Value, Options.IndentString, Indent, false))
 		
 	protected override def GenerateSnippetStatement(e as CodeSnippetStatement) :
-		//FIXME: need preprocessor directives here. .NET2 resets Indent to 0
-		#if NET_2_0
-		Output.WriteLine(e.Value)
-		#else
-		//Output.WriteLine(FixIndent(e.Value, Options.IndentString, Indent, false))
-		#endif
+		if _NET_2_0:
+			Output.WriteLine(e.Value)
+		else:
+			Output.WriteLine(FixIndent(e.Value, Options.IndentString, Indent, false))
 		
 	protected override def GenerateEntryPointMethod(e as CodeEntryPointMethod, c as CodeTypeDeclaration) :
 		Method(e, "Main")
@@ -669,9 +669,12 @@ class BooCodeGenerator(CodeGenerator):
 	static public def FixIndent(code as string, indentstring as string,
 				indentlevel as int, indentfirst as bool) as string:
 		//how much the code should be indented:
-		indentprefix = string.Empty
-		indentprefix = indentstring * indentlevel if indentlevel > 0
-		nonEmptyPrefix = (indentprefix != string.Empty)
+		if indentlevel > 0:
+			indentprefix = indentstring * indentlevel
+			nonEmptyPrefix = (indentprefix != string.Empty)
+		else:
+			indentprefix = string.Empty
+			nonEmptyPrefix = true
 		
 		if code is null or code==string.Empty:
 			if indentfirst:
@@ -680,7 +683,6 @@ class BooCodeGenerator(CodeGenerator):
 				return string.Empty
 		
 		lines = newlinePattern.Split(code.Replace("\r\n","\n"))
-		//lines = code.Split(System.Environment.NewLine.ToCharArray())
 		
 		foundFirstCodeLine = false //first line of real code
 		insidecomment = 0 //inside /* */
