@@ -169,6 +169,7 @@ BooC.UnableToLoadPipeline=Não foi possível carregar a pipeline {0}, causa: {1}
 BooC.NoPipeline=Nenhuma pipeline de compilação especificada (/p:<PIPELINE>)
 BooC.NoInputSpecified=Nenhum fonte especificado
 BooC.NoOutputSpecified=Arquivo de saída não especificado
+BooC.UnableToLoadAssembly=Unable to load assembly: {0}
 
 ;Boo.Lang
 ListWasModified=Não é possível continuar a iteração pois a lista foi modificada. 

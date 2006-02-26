@@ -165,6 +165,7 @@ BooC.UnableToLoadPipeline=Impossibile caricare la pipaline {0}, causa: {1}.
 BooC.NoPipeline=Nessuna pipeline di compilazione specificata (/p:<PIPELINE>)
 BooC.NoInputSpecified=Nessun inputs specificato
 BooC.NoOutputSpecified=Nessun output specificato
+BooC.UnableToLoadAssembly=Unable to load assembly: {0}
 
 ;Boo.Lang
 ListWasModified=La lista e' stata modificata.
