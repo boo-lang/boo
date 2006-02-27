@@ -123,20 +123,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		private bool TryAutoAddAssemblyReference(Boo.Lang.Compiler.Ast.Import import)
 		{
-			Assembly asm = NameResolutionService.FindAssembly(import.Namespace);
-			if (asm != null)
-			{
-				//name resolution already failed earlier, don't try twice
-				return false;
-			}
-			try
-			{
-				asm = NameResolutionService.LoadAssembly(import.Namespace);
-			}
-			catch (Exception x)
-			{
-				return false;
-			}
+			Assembly asm = Parameters.FindAssembly(import.Namespace);
+			if (asm != null) return false; //name resolution already failed earlier, don't try twice
+			
+			asm = Parameters.LoadAssembly(import.Namespace, false);
+			if (asm == null) return false;
+			
 			if (asm != null)
 			{
 				try
@@ -147,7 +139,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return false;
 				}
-				NameResolutionService.AddAssembly(asm);
+				Parameters.AddAssembly(asm);
 				import.AssemblyReference = new ReferenceExpression(import.LexicalInfo, import.Namespace);
 				import.AssemblyReference.Entity = new AssemblyReference(asm);
 				return true;

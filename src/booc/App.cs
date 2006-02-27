@@ -48,9 +48,12 @@ namespace BooC
 	/// </summary>
 	class App
 	{
-        ArrayList _responseFileList = new ArrayList();
-        CompilerParameters _options = null;
-
+		ArrayList _responseFileList = new ArrayList();
+		CompilerParameters _options = null;
+		
+		ArrayList _references = new ArrayList();
+		bool _noConfig = false;
+		
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -78,22 +81,39 @@ namespace BooC
 		{
 			int resultCode = -1;
 			
-			AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
-			
 			try
 			{
 				DateTime start = DateTime.Now;
 				
-				BooCompiler compiler = new BooCompiler();
-				_options = compiler.Parameters;
+				_options = new CompilerParameters(false); //false means no stdlib loading yet
 				_options.GenerateInMemory = false;
 				
+				BooCompiler compiler = new BooCompiler(_options);
+				
 				ParseOptions(args, _options);
+				
 				if (0 == _options.Input.Count)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.NoInputSpecified"));
 				}
-
+				
+				//move standard libpaths below any new ones:
+				_options.LibPaths.Add(_options.LibPaths[0]);
+				_options.LibPaths.Add(_options.LibPaths[1]);
+				_options.LibPaths.RemoveAt(0);
+				_options.LibPaths.RemoveAt(0);
+				
+				if (_options.StdLib)
+				{
+					_options.LoadDefaultReferences();
+				}
+				else if (!_noConfig)
+				{
+					_references.Insert(0,"mscorlib");
+				}
+				
+				LoadReferences();
+				
 				if (_options.TraceSwitch.TraceInfo)
 				{
 					compiler.Parameters.Pipeline.BeforeStep += new CompilerStepEventHandler(OnBeforeStep);
@@ -136,6 +156,14 @@ namespace BooC
 				Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.FatalError", message));
 			}
 			return resultCode;
+		}
+		
+		public void LoadReferences()
+		{
+			foreach(string r in _references)
+			{
+				_options.References.Add(_options.LoadAssembly(r, true));
+			}
 		}
 		
 		string Consume(TextReader reader)
@@ -254,7 +282,43 @@ namespace BooC
 								else
 								{
 									string assemblyName = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
-									_options.References.Add(LoadAssembly(assemblyName));
+									_references.Add(assemblyName);
+								}
+								break;
+							}
+							
+							case 'l':
+							{
+								switch (arg.Substring(1, 3))
+								{
+									case "lib":
+									{
+										string paths = arg.Substring(arg.IndexOf(":")+1);
+										if (paths == "")
+										{
+											Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
+											break;
+										}
+										
+										foreach(string dir in paths.Split(new Char[] {','}))
+										{
+											if (Directory.Exists(dir))
+											{
+												_options.LibPaths.Add(dir);
+											}
+											else
+											{
+												Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
+											}
+										}
+										break;
+									}
+
+									default:
+									{
+										InvalidOption(arg);
+										break;
+									}
 								}
 								break;
 							}
@@ -264,6 +328,14 @@ namespace BooC
 								if (arg == "-nologo")
 								{
 									noLogo = true;
+								}
+								else if (arg == "-noconfig")
+								{
+									_noConfig = true;
+								}
+								else if (arg == "-nostdlib")
+								{
+									_options.StdLib = false;
 								}
 								else
 								{
@@ -531,19 +603,18 @@ namespace BooC
 		void AddDefaultResponseFile(ref ArrayList arglist)
 		{
 			ArrayList result = new ArrayList();
-			bool loadDefault = true;
 			foreach (string arg in arglist)
 			{
 				if (arg == "-noconfig")
 				{
-					loadDefault = false;
+					_noConfig = true;
 				}
 				else
 				{
 					result.Add(arg);
 				}
 			}
-			if (loadDefault)
+			if (!_noConfig)
 			{
 				string file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "booc.rsp");
 				if (File.Exists(file))
@@ -552,26 +623,6 @@ namespace BooC
 				}
 			}
 			arglist = result;
-		}
-
-		Assembly LoadAssembly(string assemblyName)
-		{
-			string fname = Path.GetFullPath(assemblyName);
-			if (File.Exists(fname)) return Assembly.LoadFrom(fname);
-		
-			Assembly reference = null;
-			try
-			{
-				reference = Assembly.LoadWithPartialName(assemblyName);
-			}
-			catch (FileLoadException x)
-			{
-			}			
-			if (null == reference)
-			{
-				throw new ApplicationException(Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", assemblyName));
-			}
-			return reference;
 		}
 		
 		void OnBeforeStep(object sender, CompilerStepEventArgs args)
@@ -605,18 +656,6 @@ namespace BooC
 			{
 				AddFilesForPath(dirName, _options);
 			}
-		}
-		
-		static public Assembly AssemblyResolve(object sender, ResolveEventArgs args)
-		{
-			string simpleName = args.Name.Split(',')[0];
-			string fileName = Path.Combine(Environment.CurrentDirectory, 
-							simpleName + ".dll");
-			if (File.Exists(fileName))
-			{
-				return Assembly.LoadFile(fileName);
-			}
-			return null;
 		}
 	}
 }

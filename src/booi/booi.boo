@@ -81,10 +81,10 @@ def Main(argv as (string)):
 	compiler = BooCompiler()
 	compiler.Parameters.Pipeline = CompileToMemory()
 
-	resolver = AssemblyResolver()
-	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve	
+	resolver = AssemblyResolver()	
 	
 	consumedArgs = 1
+	asm as Assembly = null
 	for arg in argv:
 		if "-" == arg:
 			compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))
@@ -94,7 +94,16 @@ def Main(argv as (string)):
 		elif "-w" == arg:
 			printWarnings = true
 		elif arg.StartsWith("-r:"):			
-			compiler.Parameters.References.Add(resolver.LoadAssembly(arg[3:]))
+			//compiler.Parameters.References.Add(resolver.LoadAssembly(arg[3:]))
+			try:
+				asm = compiler.Parameters.LoadAssembly(arg[3:])
+				if asm is null:
+					print Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", arg[3:])
+				else:
+					compiler.Parameters.References.Add(asm)
+					resolver.AddAssembly(asm)
+			except e:
+				print e.Message
 		else:
 			compiler.Parameters.Input.Add(FileInput(arg))
 			break
@@ -109,6 +118,7 @@ def Main(argv as (string)):
 	else:	
 		try: 
 			resolver.AddAssembly(result.GeneratedAssembly)
+			AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
 			result.GeneratedAssembly.EntryPoint.Invoke(null, (argv[consumedArgs:],))			
 		except x as TargetInvocationException:
 			print(x.InnerException)

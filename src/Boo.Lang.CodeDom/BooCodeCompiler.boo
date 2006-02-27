@@ -97,7 +97,7 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 			compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
 		if params.ReferencedAssemblies:
 			for asm in params.ReferencedAssemblies:
-				compiler.Parameters.References.Add(Assembly.LoadFrom(asm))
+				compiler.Parameters.References.Add(compiler.Parameters.LoadAssembly(asm, true))
 		for code in sources:
 			if rawSource:
 				compiler.Parameters.Input.Add(Boo.Lang.Compiler.IO.StringInput("source", code))

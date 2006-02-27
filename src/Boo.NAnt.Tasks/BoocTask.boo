@@ -43,14 +43,12 @@ import System.Reflection
 
 [TaskName('booc')]
 public class BoocTask(CompilerBase):
-
 	#region Private Instance Fields
 	private _debugOutput as DebugOutput = DebugOutput.None
-
-	private _noconfig as bool
 	
-	private _use_runtime = true
-
+	private _noconfig = false
+	private _nostdlib = false
+	
 	#endregion Private Instance Fields
 	#region Private Static Fields
 	private static _classNameRegex = Regex('^((?<comment>/\\*.*?(\\*/|$))|[\\s\\.\\{]+|class\\s+(?<class>\\w+)|(?<keyword>\\w+))*')
@@ -88,7 +86,16 @@ public class BoocTask(CompilerBase):
 			return _noconfig
 		set:
 			_noconfig = value
-
+			
+	[FrameworkConfigurable('nostdlib')]
+	[TaskAttribute('nostdlib')]
+	[BooleanValidator]
+	public NoStdLib as bool:
+		get:
+			return _nostdlib
+		set:
+			_nostdlib = value
+	
 	#endregion Public Instance Properties
 	#region Override implementation of CompilerBase
 	protected override def WriteOptions(writer as TextWriter):
@@ -105,8 +112,10 @@ public class BoocTask(CompilerBase):
 				else:
 					raise BuildException(string.Format(CultureInfo.InvariantCulture, ResourceUtils.GetString('NA2011'), DebugOutput), Location)
 		if NoConfig and (not Arguments.Contains('-noconfig')):
-			Arguments.Add(Argument('-noconfig'))
-			
+			Arguments.Add(Argument('noconfig'))
+		if NoStdLib:
+			WriteOption(writer, "nostdlib")
+	
 	protected override def WriteOption(writer as TextWriter, name as string):
 		writer.WriteLine("-{0}", name)
 		
@@ -116,12 +125,6 @@ public class BoocTask(CompilerBase):
 			writer.WriteLine("-{0}:\"{1}\"", name, value)
 		else:
 			writer.WriteLine("-{0}:{1}", name, value)
-		
-	public override UseRuntimeEngine as bool:
-		get:
-			return _use_runtime
-		set:
-			_use_runtime = value
 	
 	public Extension as string:
 		get:

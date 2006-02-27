@@ -166,6 +166,11 @@ BooC.NoPipeline=Nessuna pipeline di compilazione specificata (/p:<PIPELINE>)
 BooC.NoInputSpecified=Nessun inputs specificato
 BooC.NoOutputSpecified=Nessun output specificato
 BooC.UnableToLoadAssembly=Unable to load assembly: {0}
+BooC.BadFormat=Unable to load assembly (bad file format): {0}
+BooC.NullAssembly=Unable to load assembly (null argument)
+BooC.CannotFindAssembly=Cannot find assembly: '{0}'
+BooC.NoSystemPath=Cannot find path to mscorlib.
+BooC.BadLibPath=Not a valid directory for -lib argument: '{0}'
 
 ;Boo.Lang
 ListWasModified=La lista e' stata modificata.

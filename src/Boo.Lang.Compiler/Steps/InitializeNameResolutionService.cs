@@ -87,13 +87,13 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						try
 						{
-							Assembly asm = NameResolutionService.FindAssembly(reference.Name);
+							Assembly asm = Parameters.FindAssembly(reference.Name);
 							if (null == asm)
 							{
-								asm = NameResolutionService.LoadAssembly(reference.Name);
+								asm = Parameters.LoadAssembly(reference.Name);
 								if (null != asm)
 								{
-									NameResolutionService.AddAssembly(asm);
+									Parameters.AddAssembly(asm);
 								}
 							}
 							reference.Entity = new TypeSystem.AssemblyReference(asm);
@@ -116,10 +116,23 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					NameResolutionService.OrganizeAssemblyTypes(asm);
 				}
+				catch (ReflectionTypeLoadException x)
+				{
+					string load_errors = "";
+					foreach(Exception e in x.LoaderExceptions)
+					{
+						load_errors += e.Message+"\n";
+					}
+					
+					Errors.Add(
+						CompilerErrorFactory.FailedToLoadTypesFromAssembly(
+							asm.FullName+":\n"+load_errors, x));
+				}
 				catch (Exception x)
 				{
 					Errors.Add(
-						CompilerErrorFactory.FailedToLoadTypesFromAssembly(asm.FullName, x));
+						CompilerErrorFactory.FailedToLoadTypesFromAssembly(
+							asm.FullName, x));
 				}
 			}
 		}

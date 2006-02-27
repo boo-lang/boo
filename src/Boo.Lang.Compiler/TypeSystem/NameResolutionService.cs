@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	using System.Reflection;
-
+	
 	public class NameResolutionService
 	{
 		public static readonly char[] DotArray = new char[] { '.' };
@@ -398,29 +398,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static bool IsFlagSet(EntityType flags, EntityType flag)
 		{
 			return flag == (flags & flag);
-		}
-		
-		public Assembly FindAssembly(string name)
-		{
-			return _context.Parameters.References.Find(name);
-		}
-		
-		public Assembly LoadAssembly(string name)
-		{
-			Assembly found = Assembly.LoadWithPartialName(name);
-			if (null == found)
-			{
-				found = Assembly.Load(name);
-			}
-			return found;
-		}
-		
-		public void AddAssembly(Assembly asm)
-		{
-			if (asm != null)
-			{
-				_context.Parameters.References.Add(asm);
-			}
 		}
 		
 		public void OrganizeAssemblyTypes(Assembly asm)
