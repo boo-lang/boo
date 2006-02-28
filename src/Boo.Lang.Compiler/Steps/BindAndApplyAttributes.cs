@@ -272,6 +272,7 @@ namespace Boo.Lang.Compiler.Steps
 								// remember the attribute's type
 								attribute.Name = attributeType.FullName;
 								attribute.Entity = attributeType;
+								CheckAttributeParameters(attribute);
 							}
 						}
 					}
@@ -280,6 +281,18 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				Error(attribute, CompilerErrorFactory.UnknownAttribute(attribute, attribute.Name));
+			}
+		}
+		
+		private void CheckAttributeParameters(Boo.Lang.Compiler.Ast.Attribute node)
+		{
+			foreach(Expression e in node.Arguments)
+			{
+				if (e.NodeType == NodeType.BinaryExpression
+					&& ((BinaryExpression)e).Operator == BinaryOperatorType.Assign)
+				{
+					Error(node, CompilerErrorFactory.ColonInsteadOfEquals(node));
+				}
 			}
 		}
 		
