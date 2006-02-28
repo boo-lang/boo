@@ -113,7 +113,19 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			NotImplemented(node, "given");
 		}
-
+		
+		override public void LeaveAttribute(Attribute node)
+		{
+			foreach(Expression e in node.Arguments)
+			{
+				if (e.NodeType == NodeType.BinaryExpression
+					&& ((BinaryExpression)e).Operator == BinaryOperatorType.Assign)
+				{
+					Error(CompilerErrorFactory.ColonInsteadOfEquals(node));
+				}
+			}
+		}
+		
 		override public void LeaveTryStatement(TryStatement node)
 		{
 			if (node.EnsureBlock == null && node.ExceptionHandlers.Count == 0)

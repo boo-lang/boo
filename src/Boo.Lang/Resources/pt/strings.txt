@@ -134,6 +134,7 @@ BCE0132=The namespace '{0}' already contains a definition for '{1}'.
 BCE0133=Invalid signature for Main. It should be one of: 'Main() as void', 'Main() as int', 'Main(argv as (string)) as void', 'Main(argv as (string)) as int'.
 BCE0134='{0}' cannot return values.
 BCE0135=Invalid name: '{0}'
+BCE0136=Use a colon(:) instead of equal sign(=) for named parameters.
 
 ;Compiler warnings
 BCW0000=AVISO: {0}

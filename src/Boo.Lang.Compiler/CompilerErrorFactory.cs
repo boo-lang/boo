@@ -721,6 +721,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0135", node.LexicalInfo, name);
 		}
 		
+		public static CompilerError ColonInsteadOfEquals(Node node)
+		{
+			return new CompilerError("BCE0136", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
