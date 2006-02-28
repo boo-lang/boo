@@ -201,7 +201,7 @@ namespace Boo.Lang.Parser.Util
 
 		void EnqueueEOS(antlr.IToken originalToken)
 		{
-			_pendingTokens.Enqueue(CreateToken(originalToken, _eosTokenType, "<EOS>"));
+			_pendingTokens.Enqueue(CreateToken(originalToken, _eosTokenType, "<EOL>"));
 		}
 
 		antlr.IToken CreateToken(antlr.IToken originalToken, int newTokenType, string newTokenText)

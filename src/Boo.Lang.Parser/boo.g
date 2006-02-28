@@ -52,6 +52,7 @@ tokens
 	ELIST; // expression list
 	DLIST; // declaration list
 	ESEPARATOR; // expression separator (imaginary token)
+	EOL;
 	ABSTRACT="abstract";
 	AND="and";
 	AS="as";
@@ -312,9 +313,9 @@ start[CompileUnit cu] returns [Module module]
 		
 		cu.Modules.Add(module);
 	}:
-	(options { greedy=true;}: EOS)*
+	(eos)?
 	docstring[module]
-	(options { greedy=true;}: EOS)*			 
+	(eos)?
 	(namespace_directive[module])?
 	(import_directive[module])*
 	(type_member[module.Members])*	
@@ -326,12 +327,12 @@ start[CompileUnit cu] returns [Module module]
 protected docstring[Node node]:
 	(
 		doc:TRIPLE_QUOTED_STRING { node.Documentation = MassageDocString(doc.getText()); }
-		(options { greedy=true; }: EOS)*
+		(eos)?
 	)?
 	;
 			
 protected
-eos : (options { greedy = true; }: EOS)+;
+eos : (options { greedy = true; }: (EOL|EOS))+;
 
 protected
 import_directive[Module container]
@@ -481,7 +482,7 @@ attributes
 			)*
 		)?
 		RBRACK		
-		(EOS)*
+		(eos)?
 	)*
 	;
 			
@@ -546,7 +547,7 @@ class_definition [TypeMemberCollection container]
 	(
 		(PASS eos) |
 		(
-			(EOS)*
+			(eos)?
 			(type_definition_member[members])+			
 		)
 	)
@@ -626,7 +627,7 @@ interface_method [TypeMemberCollection container]
 	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 	(AS rt=type_reference { m.ReturnType=rt; })?			
 	(
-		(eos docstring[m]) | (empty_block[m] (EOS)*)
+		(eos docstring[m]) | (empty_block[m] (eos)?)
 	)
 	;
 			
@@ -910,13 +911,13 @@ property_accessor[Property p]
 	
 protected
 globals[Module container]:	
-	(EOS)*
+	(eos)?
 	(stmt[container.Globals.Statements])*
 	;
 	
 protected
 block[StatementCollection container]:
-	(EOS)* 
+	(eos)?
 	(
 		(PASS eos) |
 		(			
@@ -1145,11 +1146,11 @@ protected
 begin: COLON INDENT;
 
 protected
-begin_with_doc[Node node]: COLON (EOS docstring[node])? INDENT;
+begin_with_doc[Node node]: COLON (eos docstring[node])? INDENT;
 	
 protected
 begin_block_with_doc[Node node, Block block]:
-	COLON (EOS docstring[node])?
+	COLON (eos docstring[node])?
 	begin:INDENT
 	{
 		block.LexicalInfo = ToLexicalInfo(begin);
@@ -1159,23 +1160,36 @@ begin_block_with_doc[Node node, Block block]:
 protected
 end[Node node] :
 	t:DEDENT { node.EndSourceLocation = ToSourceLocation(t); }
-	(options { greedy=true; }: EOS)*
+	(eos)?
 	;
 
 protected
 compound_stmt[Block b]
 {
-	StatementCollection statements = null;
+	StatementCollection statements = b.Statements;
 }:
-		COLON begin:INDENT
-		{
-			b.LexicalInfo = ToLexicalInfo(begin);
-			statements = b.Statements;
-		}
+		(
+			COLON
+			(
+				PASS
+				|
+				(
+				simple_stmt[statements]
+				(options { greedy = true; }: EOS (simple_stmt[statements])?)*
+				)
+			)
+			(options { greedy = true; }: EOL)+
+		) |
+		(
+			COLON begin:INDENT
+			{
+				b.LexicalInfo = ToLexicalInfo(begin);
+			}
 			block[statements]
-		end[b]
+			end[b]
+		)
 		;
-		
+
 protected
 closure_macro_stmt returns [MacroStatement returnValue]
 	{
@@ -1204,6 +1218,21 @@ macro_stmt returns [MacroStatement returnValue]
 		eos |
 		modifier=stmt_modifier eos { macro.Modifier = modifier; }
 	)
+	{
+		macro.Name = id.getText();
+		macro.LexicalInfo = ToLexicalInfo(id);
+		
+		returnValue = macro;
+	}
+;
+
+protected
+simple_macro_stmt returns [MacroStatement returnValue]
+	{
+		returnValue = null;
+		MacroStatement macro = new MacroStatement();
+	}:
+	id:ID expression_list[macro.Arguments]
 	{
 		macro.Name = id.getText();
 		macro.LexicalInfo = ToLexicalInfo(id);
@@ -1277,6 +1306,38 @@ stmt [StatementCollection container]
 		}
 	}
 	;		
+
+protected
+simple_stmt [StatementCollection container]
+	{
+		Statement s = null;
+	}:		
+	(
+		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=simple_macro_stmt |
+		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
+		s=return_stmt |
+		(declaration COMMA)=> s=unpack_stmt |
+		s=declaration_stmt |
+		(		
+			(
+				s=goto_stmt |
+				s=label_stmt |
+				s=yield_stmt |
+				s=break_stmt |
+				s=continue_stmt |				
+				s=raise_stmt |
+				s=retry_stmt |
+				s=expression_stmt				
+			)
+		)
+	)
+	{
+		if (null != s)
+		{
+			container.Add(s);
+		}
+	}
+	;
 
 protected
 stmt_modifier returns [StatementModifier m]
@@ -3110,7 +3171,7 @@ ML_COMMENT:
     "*/"
     { $setType(Token.SKIP); }
 	;   
-			
+
 WS :
 	(
 		' ' |
@@ -3125,7 +3186,7 @@ WS :
 		}
 	}
 	;
-		
+
 EOS: ';';
 
 X_RE_LITERAL: '@'!'/' (X_RE_CHAR)+ '/' { $setType(RE_LITERAL); };
