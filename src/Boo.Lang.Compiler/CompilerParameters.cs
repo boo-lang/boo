@@ -273,8 +273,16 @@ namespace Boo.Lang.Compiler
 
 			foreach (Assembly a in assemblies)
 			{
-				string codebase = a.Location;
-                                string fn = System.IO.Path.GetFileName(codebase);
+				string codebase;
+				try
+				{
+					codebase = a.Location;
+				}
+				catch (Exception e) //dynamic assembly, ignore
+				{
+					continue;
+				}
+				string fn = System.IO.Path.GetFileName(codebase);
 				if (fn == "corlib.dll" || fn == "mscorlib.dll")
 				{
 					return codebase.Substring(0, codebase.LastIndexOf(Path.DirectorySeparatorChar));

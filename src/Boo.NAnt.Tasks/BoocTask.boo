@@ -109,13 +109,18 @@ public class BoocTask(CompilerBase):
 			_nostdlib = value
 	
 	private def FindBooc() as string:
+		path as string
 		dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 		if Project.TargetFramework:
 			path = Path.Combine(dir, Project.TargetFramework.Name)
 			path = Path.Combine(path, "booc.exe")
 			if File.Exists(path):
 				return path
-		return Path.Combine(dir, "booc.exe")
+		path = Path.Combine(dir, "booc.exe")
+		if File.Exists(path):
+			return path
+		_useruntime = false
+		return "booc" //try booc in PATH
 		
 	protected override def ExecuteTask():
 		if not ExeName or ExeName == string.Empty:
