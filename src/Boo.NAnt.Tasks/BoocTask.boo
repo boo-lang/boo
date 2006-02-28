@@ -128,7 +128,7 @@ public class BoocTask(CompilerBase):
 				else:
 					raise BuildException(string.Format(CultureInfo.InvariantCulture, ResourceUtils.GetString('NA2011'), DebugOutput), Location)
 		if NoConfig and (not Arguments.Contains('-noconfig')):
-			Arguments.Add(Argument('noconfig'))
+			Arguments.Add(Argument('-noconfig'))
 		if NoStdLib:
 			WriteOption(writer, "nostdlib")
 	
