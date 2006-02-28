@@ -47,6 +47,7 @@ public class BoocTask(CompilerBase):
 	private _debugOutput as DebugOutput = DebugOutput.None
 	private _exe as string
 	
+	private _useruntime = true //keep true for mono compatibility (don't call booc.exe directly)
 	private _noconfig = false
 	private _nostdlib = false
 	
@@ -65,6 +66,14 @@ public class BoocTask(CompilerBase):
 			return _exe
 		set:
 			_exe = value
+	
+	[FrameworkConfigurable("useruntimeengine")]
+	[TaskAttribute('useruntimeengine')]
+	override UseRuntimeEngine as bool:
+		get:
+			return _useruntime
+		set:
+			_useruntime = value
 	
 	#region Public Instance Properties
 
