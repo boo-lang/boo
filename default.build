@@ -274,7 +274,8 @@
 	
 	<target name="msbuild">
 		<booc target="library"
-			output="build/Boo.Microsoft.Build.Tasks.dll">
+			output="build/Boo.Microsoft.Build.Tasks.dll"
+			failonerror="false">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
