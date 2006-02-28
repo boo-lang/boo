@@ -153,11 +153,13 @@ namespace Boo.Lang.Compiler
 		{
 			Assembly a = null;
 			
-			try {
+			try 
+			{
 				char[] path_chars = { '/', '\\' };
 				
 				//hack: remove path if already in LibPaths (nant workaround)
-				if (assembly.IndexOfAny (path_chars) != -1) {
+				if (assembly.IndexOfAny(path_chars) != -1)
+				{
 					string assembly_dir = Path.GetDirectoryName(assembly);
 					foreach (string dir in _libpaths)
 					{
@@ -169,28 +171,39 @@ namespace Boo.Lang.Compiler
 					}
 				}
 				
-				if (assembly.IndexOfAny(path_chars) != -1) {
+				if (assembly.IndexOfAny(path_chars) != -1)
+				{
 					a = Assembly.LoadFrom(assembly);
-				} else {
+				}
+				else
+				{
 					a = LoadAssemblyFromGac(assembly, throw_errors);
 				}
-			} catch (FileNotFoundException f){
+			}
+			catch (FileNotFoundException f)
+			{
 				return LoadAssemblyFromLibPaths(assembly, throw_errors);
-			} catch (BadImageFormatException f) {
+			}
+			catch (BadImageFormatException f)
+			{
 				if (throw_errors)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
 						"BooC.BadFormat", 
 						f.FusionLog));
 				}
-			} catch (FileLoadException f){
+			} 
+			catch (FileLoadException f)
+			{
 				if (throw_errors)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
 						"BooC.UnableToLoadAssembly", 
 						f.FusionLog));
 				}
-			} catch (ArgumentNullException){
+			} 
+			catch (ArgumentNullException)
+			{
 				if (throw_errors)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
@@ -209,18 +222,22 @@ namespace Boo.Lang.Compiler
 		{
 			Assembly a = null;
 			string total_log = "";
-			foreach (string dir in _libpaths){
+			foreach (string dir in _libpaths)
+			{
 				string full_path = Path.Combine(dir, assembly);
 				if (!assembly.EndsWith(".dll") && !assembly.EndsWith(".exe"))
 					full_path += ".dll";
 
-				try {
+				try 
+				{
 					a = Assembly.LoadFrom(full_path);
 					if (a != null)
 					{
 						return a;
 					}
-				} catch (FileNotFoundException ff) {
+				} 
+				catch (FileNotFoundException ff)
+				{
 					total_log += ff.FusionLog;
 					continue;
 				}
@@ -256,7 +273,8 @@ namespace Boo.Lang.Compiler
 		{
 			Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-			foreach (Assembly a in assemblies){
+			foreach (Assembly a in assemblies)
+			{
 				string codebase = a.Location;
                                 string fn = System.IO.Path.GetFileName(codebase);
 				if (fn == "corlib.dll" || fn == "mscorlib.dll")
