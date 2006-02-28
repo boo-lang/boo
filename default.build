@@ -360,7 +360,7 @@
 			output="build/Boo.Lang.dll"
 			debug="${debug}"
 			optimize="${optimize}"
-			if="${nant.platform.win32}">
+			if="${string::starts-with(framework::get-target-framework(), 'net-')}">
 
 			<sources basedir="src/Boo.Lang">
 				<include name="**/*.cs" />
@@ -382,7 +382,7 @@
 			output="build/Boo.Lang.dll"
 			debug="${debug}"
 			optimize="${optimize}"
-			unless="${nant.platform.win32}">
+			unless="${string::starts-with(framework::get-target-framework(), 'net-')}">
 			
 			<sources basedir="src/Boo.Lang">
 				<include name="**/*.cs" />
