@@ -218,25 +218,6 @@
 			</filterchain>
 		</copy>
 		
-		<if test="${'net-1.1' == framework::get-target-framework()}">
-			<copy file="build/booc.exe" tofile="build/booc-net-2.0.exe" />
-			<copy file="extras/template.config.in" tofile="build/booc-net-2.0.config">
-				<filterchain>
-					<replacestring from="@SUPPORTEDVERSIONS@" 
-						to="${supported.runtimes.net-2.0}" />
-				</filterchain>
-			</copy>
-		</if>
-		<ifnot test="${'net-1.1' == framework::get-target-framework()}">
-			<copy file="build/booc.exe" tofile="build/booc-net-1.1.exe" />
-			<copy file="extras/template.config.in" tofile="build/booc-net-1.1.config">
-				<filterchain>
-					<replacestring from="@SUPPORTEDVERSIONS@" 
-						to="${supported.runtimes.net-1.1}" />
-				</filterchain>
-			</copy>
-		</ifnot>
-		
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='build/Boo.Lang.dll' />
 			<arg file='build/Boo.Lang.Compiler.dll' />			
@@ -259,6 +240,22 @@
 			</fileset>
 		</delete>
 		<copy todir="bin">
+			<fileset basedir="build">
+				<include name="pt/Boo.Lang.resources.dll" />
+				<include name="Boo.*.dll" />
+				<include name="boo*.exe" />
+				<include name="boo*.rsp" />
+				<include name="*.config" />
+				<include name="*.targets" />
+			</fileset>
+		</copy>
+		<mkdir dir="bin/${nant.settings.currentframework}" />
+		<delete>
+			<fileset basedir="bin/${nant.settings.currentframework}">
+				<include name="*" />
+			</fileset>
+		</delete>
+		<copy todir="bin/${nant.settings.currentframework}">
 			<fileset basedir="build">
 				<include name="pt/Boo.Lang.resources.dll" />
 				<include name="Boo.*.dll" />
@@ -654,10 +651,10 @@
 				<include name="docs/**/*.build" />
 				<include name="docs/**/*.sxw" />
 				<include name="bin/**/*.dll" />
-				<include name="bin/*.exe" />
-				<include name="bin/*.rsp" />
-				<include name="bin/*.config" />
-				<include name="bin/*.targets" />
+				<include name="bin/**/*.exe" />
+				<include name="bin/**/*.rsp" />
+				<include name="bin/**/*.config" />
+				<include name="bin/**/*.targets" />
 				
 				<include name="extras/**/*.boo" />
 				<include name="extras/**/*.cs" />

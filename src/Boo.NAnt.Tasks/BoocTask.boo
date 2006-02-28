@@ -111,7 +111,8 @@ public class BoocTask(CompilerBase):
 	private def FindBooc() as string:
 		dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 		if Project.TargetFramework:
-			path = Path.Combine(dir, "booc-"+Project.TargetFramework.Name+".exe")
+			path = Path.Combine(dir, Project.TargetFramework.Name)
+			path = Path.Combine(path, "booc.exe")
 			if File.Exists(path):
 				return path
 		return Path.Combine(dir, "booc.exe")
