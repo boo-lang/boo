@@ -45,6 +45,7 @@ import System.Reflection
 public class BoocTask(CompilerBase):
 	#region Private Instance Fields
 	private _debugOutput as DebugOutput = DebugOutput.None
+	private _exe as string
 	
 	private _noconfig = false
 	private _nostdlib = false
@@ -57,11 +58,13 @@ public class BoocTask(CompilerBase):
 
 	#endregion Private Static Fields
 	
+	[FrameworkConfigurable("exename")]
+	[TaskAttribute('exename')]
 	public override ExeName as string:
 		get:
-			return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "booc.exe")
+			return _exe
 		set:
-			pass
+			_exe = value
 	
 	#region Public Instance Properties
 
@@ -96,6 +99,19 @@ public class BoocTask(CompilerBase):
 		set:
 			_nostdlib = value
 	
+	private def FindBooc() as string:
+		dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+		if Project.TargetFramework:
+			path = Path.Combine(dir, "booc-"+Project.TargetFramework.Name+".exe")
+			if File.Exists(path):
+				return path
+		return Path.Combine(dir, "booc.exe")
+		
+	protected override def ExecuteTask():
+		if not ExeName or ExeName == string.Empty:
+			ExeName = FindBooc()
+		super()
+		
 	#endregion Public Instance Properties
 	#region Override implementation of CompilerBase
 	protected override def WriteOptions(writer as TextWriter):

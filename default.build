@@ -37,18 +37,17 @@
 	
 	<property name="boo.distro.name" value="boo-${boo.version}-${nant.settings.currentframework}" />
 	
-	<property name="supported.runtimes" value="&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;
+	<property name="supported.runtimes.net-1.1" value="&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;
 &lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;" />
 	
-	<property name="supported.runtimes" 
+	<property name="supported.runtimes.net-2.0" 
 		value="&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
-&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" 
-		if="${'net-2.0' == framework::get-target-framework()}" />
-		
+&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
+
+	<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
 	<property name="supported.runtimes" 
-		value="&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
-&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" 
-		if="${string::starts-with(framework::get-target-framework(),'mono')}" />
+			value="${supported.runtimes.net-1.1}"
+			if="${'net-1.1' == framework::get-target-framework()}" />
 	
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks">	
 	</target>
@@ -219,6 +218,25 @@
 			</filterchain>
 		</copy>
 		
+		<if test="${'net-1.1' == framework::get-target-framework()}">
+			<copy file="build/booc.exe" tofile="build/booc-net-2.0.exe" />
+			<copy file="extras/template.config.in" tofile="build/booc-net-2.0.config">
+				<filterchain>
+					<replacestring from="@SUPPORTEDVERSIONS@" 
+						to="${supported.runtimes.net-2.0}" />
+				</filterchain>
+			</copy>
+		</if>
+		<ifnot test="${'net-1.1' == framework::get-target-framework()}">
+			<copy file="build/booc.exe" tofile="build/booc-net-1.1.exe" />
+			<copy file="extras/template.config.in" tofile="build/booc-net-1.1.config">
+				<filterchain>
+					<replacestring from="@SUPPORTEDVERSIONS@" 
+						to="${supported.runtimes.net-1.1}" />
+				</filterchain>
+			</copy>
+		</ifnot>
+		
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='build/Boo.Lang.dll' />
 			<arg file='build/Boo.Lang.Compiler.dll' />			
@@ -243,10 +261,7 @@
 			<fileset basedir="build">
 				<include name="pt/Boo.Lang.resources.dll" />
 				<include name="Boo.*.dll" />
-				<include name="booc.exe" />
-				<include name="booc.rsp" />
-				<include name="booi.exe" />
-				<include name="booish.exe" />	
+				<include name="boo*.exe" />
 				<include name="*.config" />
 				<include name="*.targets" />
 			</fileset>
