@@ -258,13 +258,11 @@ namespace Boo.Lang.Compiler
 			string ass = assembly;
 			if (ass.EndsWith(".dll") || ass.EndsWith(".exe"))
 				ass = ass.Substring(0, ass.Length - 4);
-			if (_NET_2_0)
+			
+			a = Assembly.LoadWithPartialName(ass);
+			if (a==null)
 			{
 				a = Assembly.Load(ass);
-			}
-			else
-			{
-				a = Assembly.LoadWithPartialName(ass);
 			}
 			return a;
 		}
