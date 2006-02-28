@@ -255,6 +255,7 @@
 				<include name="*.Tasks.dll" />
 				<include name="*.targets" />
 				<include name="*.config" />
+				<include name="*.exe" />
 			</fileset>
 		</delete>
 		<copy todir="bin">
