@@ -263,6 +263,7 @@
 				<include name="pt/Boo.Lang.resources.dll" />
 				<include name="Boo.*.dll" />
 				<include name="boo*.exe" />
+				<include name="boo*.rsp" />
 				<include name="*.config" />
 				<include name="*.targets" />
 			</fileset>
