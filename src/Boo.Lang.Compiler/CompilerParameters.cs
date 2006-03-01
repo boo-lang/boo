@@ -196,7 +196,6 @@ namespace Boo.Lang.Compiler
 					return _booAssembly;
 				}
 				else if (assembly_lowercase.EndsWith("boo.lang.compiler.dll"))
-				//else if (assembly_lowercase.EndsWith("boo.lang.compiler.dll"))
 				{
 					return GetType().Assembly;
 				}
