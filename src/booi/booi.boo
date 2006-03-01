@@ -77,11 +77,12 @@ def Main(argv as (string)):
 	if len(argv) < 1:
 		print("booi <script.boo>") 
 		return -1
-		
+	
+	resolver = AssemblyResolver()
+	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
+	
 	compiler = BooCompiler()
 	compiler.Parameters.Pipeline = CompileToMemory()
-
-	resolver = AssemblyResolver()	
 	
 	consumedArgs = 1
 	asm as Assembly = null
@@ -118,7 +119,6 @@ def Main(argv as (string)):
 	else:	
 		try: 
 			resolver.AddAssembly(result.GeneratedAssembly)
-			AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
 			result.GeneratedAssembly.EntryPoint.Invoke(null, (argv[consumedArgs:],))			
 		except x as TargetInvocationException:
 			print(x.InnerException)

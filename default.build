@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.7.6" />
-	<property name="boo.svn.revision" value="2122" />
+	<property name="boo.svn.revision" value="2127" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
 	<property name="boo.assembly.version" value="1.0.0.0" />
 	
@@ -348,8 +348,6 @@
 			<references basedir="${build.dir}">
 				<include name="System.Data.dll" />
 				<include name="System.Xml.dll" />
-				<include name="Boo.Lang.Compiler.dll" />
-				<include name="Boo.Lang.Parser.dll" />
 			</references>
 		</booc>
 	</target>

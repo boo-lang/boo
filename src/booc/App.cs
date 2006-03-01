@@ -81,6 +81,8 @@ namespace BooC
 		{
 			int resultCode = -1;
 			
+			AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
+			
 			try
 			{
 				DateTime start = DateTime.Now;
@@ -688,6 +690,18 @@ namespace BooC
 				loc = "<dynamic>"+a.FullName;
 			}
 			return loc;
+		}
+		
+		static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+		{
+			string simpleName = args.Name.Split(',')[0];
+			string fileName = Path.Combine(Environment.CurrentDirectory, 
+							simpleName + ".dll");
+			if (File.Exists(fileName))
+			{
+				return Assembly.LoadFile(fileName);
+			}
+			return null;
 		}
 	}
 }
