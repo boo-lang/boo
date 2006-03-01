@@ -32,6 +32,7 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Globalization;
+using Boo.Lang;
 
 namespace Boo.Lang.Compiler
 {
@@ -71,6 +72,10 @@ namespace Boo.Lang.Compiler
 		
 		ArrayList _libpaths;
 		
+		string _systemDir;
+		
+		Assembly _booAssembly;
+		
 		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
 		
 		public CompilerParameters(): this(true)
@@ -80,7 +85,8 @@ namespace Boo.Lang.Compiler
 		public CompilerParameters(bool load_default_references)
 		{
 			_libpaths = new ArrayList();
-			_libpaths.Add(GetSystemDir());
+			_systemDir = GetSystemDir();
+			_libpaths.Add(_systemDir);
 			_libpaths.Add(Directory.GetCurrentDirectory());
 			
 			_pipeline = null;
@@ -110,9 +116,16 @@ namespace Boo.Lang.Compiler
 				LoadAssembly("System", true)
 				);
 			//boo.lang.dll
-			_assemblyReferences.Add(LoadAssembly("Boo.Lang.dll", true));
+			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
+			_assemblyReferences.Add(_booAssembly);
 			//boo.lang.compiler.dll
 			_assemblyReferences.Add(GetType().Assembly);
+			
+			if (TraceSwitch.TraceInfo)
+			{
+				Trace.WriteLine("BOO LANG DLL: "+_booAssembly.Location);
+				Trace.WriteLine("BOO COMPILER DLL: "+GetType().Assembly.Location);
+			}
 		}
 		
 		static public bool NET_2_0
@@ -128,6 +141,23 @@ namespace Boo.Lang.Compiler
 			get
 			{
 				return _NET_1_1;
+			}
+		}
+		
+		public Assembly BooAssembly
+		{
+			get
+			{
+				return _booAssembly;
+			}
+			set
+			{
+				if (value != null)
+				{
+					(_assemblyReferences as IList).Remove(_booAssembly);
+					_booAssembly = value;
+					_assemblyReferences.Add(value);
+				}
 			}
 		}
 		
@@ -151,29 +181,44 @@ namespace Boo.Lang.Compiler
 		
 		public Assembly LoadAssembly (string assembly, bool throw_errors)
 		{
+			if (TraceSwitch.TraceInfo)
+			{
+				Trace.WriteLine("ATTEMPTING LOADASSEMBLY: "+assembly);
+			}
+			
+			string assembly_lowercase = assembly.ToLower();
+			
+			//essentially, ignore references to boo dlls already referenced:
+			if (_StdLib)
+			{
+				if (assembly_lowercase.EndsWith("boo.lang.dll"))
+				{
+					return _booAssembly;
+				}
+				else if (assembly_lowercase.EndsWith("boo.lang.compiler.dll"))
+				//else if (assembly_lowercase.EndsWith("boo.lang.compiler.dll"))
+				{
+					return GetType().Assembly;
+				}
+			}
+			
 			Assembly a = null;
 			
 			try 
 			{
 				char[] path_chars = { '/', '\\' };
 				
-				//hack: remove path if already in LibPaths (nant workaround)
 				if (assembly.IndexOfAny(path_chars) != -1)
 				{
-					string assembly_dir = Path.GetDirectoryName(assembly);
-					foreach (string dir in _libpaths)
+					//nant passes full path to gac dlls, which compiler doesn't like:
+					if (assembly_lowercase.StartsWith(_systemDir.ToLower()))
 					{
-						if (string.Compare(dir,assembly_dir,true,CultureInfo.InvariantCulture)==0)
-						{
-							assembly = Path.GetFileName(assembly);
-							break;
-						}
+						return LoadAssemblyFromGac(Path.GetFileName(assembly), throw_errors);
 					}
-				}
-				
-				if (assembly.IndexOfAny(path_chars) != -1)
-				{
-					a = Assembly.LoadFrom(assembly);
+					else //load using path
+					{
+						a = Assembly.LoadFrom(assembly);
+					}
 				}
 				else
 				{
@@ -210,7 +255,6 @@ namespace Boo.Lang.Compiler
 						"BooC.NullAssembly"));
 				}
 			}
-			//this is for .net 1.1, which doesn't throw a filenotfoundexception:
 			if (a==null)
 			{
 				return LoadAssemblyFromLibPaths(assembly, throw_errors);

@@ -230,6 +230,7 @@ namespace BooC
 										case "vv":
 										{
 											_options.TraceSwitch.Level = TraceLevel.Info;
+											MonitorAppDomain();
 											break;
 										}
 										
@@ -642,7 +643,7 @@ namespace BooC
 
 		bool IsFlag(string arg)
 		{
-            return arg[0] == '-';
+			return arg[0] == '-';
 		}
 
 		void AddFilesForPath(string path, CompilerParameters _options)
@@ -656,6 +657,37 @@ namespace BooC
 			{
 				AddFilesForPath(dirName, _options);
 			}
+		}
+		
+		void MonitorAppDomain()
+		{
+			if (_options.TraceSwitch.TraceInfo)
+			{
+				AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(OnAssemblyLoad);
+				foreach(Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+				{
+					Trace.WriteLine("ASSEMBLY AT STARTUP: "+GetAssemblyLocation(a));
+				}
+			}
+		}
+		
+		static void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
+		{
+			Trace.WriteLine("ASSEMBLY LOADED: " + GetAssemblyLocation(args.LoadedAssembly));
+		}
+		
+		static string GetAssemblyLocation(Assembly a)
+		{
+			string loc;
+			try
+			{
+				loc = a.Location;
+			}
+			catch (Exception x)
+			{
+				loc = "<dynamic>"+a.FullName;
+			}
+			return loc;
 		}
 	}
 }

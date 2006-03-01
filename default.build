@@ -8,6 +8,7 @@
 	
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
+	<property name="verbose" value="false" />
 
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
 	<property name="java" value="java" />	
@@ -65,7 +66,8 @@
 	<target name="boo" depends="Boo.Lang.Useful, Boo.Lang.Interpreter">
 		<booc
 			target="exe"
-			output="${build.dir}/boo.exe">
+			output="${build.dir}/boo.exe"
+			verbose="${verbose}">
 			
 			<sources basedir="src/boo">
 				<include name="*.boo" />
@@ -81,7 +83,8 @@
 	<target name="booish" depends="Boo.Lang.Interpreter">
 		<booc
 			target="exe"
-			output="${build.dir}/booish.exe">
+			output="${build.dir}/booish.exe"
+			verbose="${verbose}">
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
@@ -113,7 +116,8 @@
 
 		<booc
 			target="exe"
-			output="${build.dir}/booi.exe">
+			output="${build.dir}/booi.exe"
+			verbose="${verbose}">
 
 			<sources basedir="src/booi">
 				<include name="*.boo" />
@@ -154,7 +158,8 @@
 	<target name="Boo.Lang.Interpreter" depends="Boo.NAnt.Tasks">
 		<booc 
 			target="library"
-			output="${build.dir}/Boo.Lang.Interpreter.dll">
+			output="${build.dir}/Boo.Lang.Interpreter.dll"
+			verbose="${verbose}">
 			
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="*.boo" />
@@ -281,7 +286,8 @@
 	<target name="msbuild">
 		<booc target="library"
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
-			failonerror="false">
+			failonerror="false" 
+			verbose="${verbose}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
@@ -321,7 +327,8 @@
 		</if>
 		
 		<booc target="library"
-			output="${build.dir}/Boo.Lang.Useful.dll">
+			output="${build.dir}/Boo.Lang.Useful.dll"
+			verbose="${verbose}">
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
 			</sources>
@@ -333,13 +340,16 @@
 	
 	<target name="Boo.Lang.CodeDom" depends="Boo.NAnt.Tasks">
 		<booc target="library"
-			output="${build.dir}/Boo.Lang.CodeDom.dll">
+			output="${build.dir}/Boo.Lang.CodeDom.dll"
+			verbose="${verbose}">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="System.Data.dll" />
 				<include name="System.Xml.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Parser.dll" />
 			</references>
 		</booc>
 	</target>

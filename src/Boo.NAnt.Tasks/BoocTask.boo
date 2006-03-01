@@ -146,6 +146,8 @@ public class BoocTask(CompilerBase):
 			Arguments.Add(Argument('-noconfig'))
 		if NoStdLib:
 			WriteOption(writer, "nostdlib")
+		if Verbose:
+			WriteOption(writer, "vv")
 	
 	protected override def WriteOption(writer as TextWriter, name as string):
 		writer.WriteLine("-{0}", name)
