@@ -186,21 +186,6 @@ namespace Boo.Lang.Compiler
 				Trace.WriteLine("ATTEMPTING LOADASSEMBLY: "+assembly);
 			}
 			
-			string assembly_lowercase = assembly.ToLower();
-			
-			//essentially, ignore references to boo dlls already referenced:
-			if (_StdLib)
-			{
-				if (assembly_lowercase.EndsWith("boo.lang.dll"))
-				{
-					return _booAssembly;
-				}
-				else if (assembly_lowercase.EndsWith("boo.lang.compiler.dll"))
-				{
-					return GetType().Assembly;
-				}
-			}
-			
 			Assembly a = null;
 			
 			try 
@@ -210,7 +195,7 @@ namespace Boo.Lang.Compiler
 				if (assembly.IndexOfAny(path_chars) != -1)
 				{
 					//nant passes full path to gac dlls, which compiler doesn't like:
-					if (assembly_lowercase.StartsWith(_systemDir.ToLower()))
+					if (assembly.ToLower().StartsWith(_systemDir.ToLower()))
 					{
 						return LoadAssemblyFromGac(Path.GetFileName(assembly), throw_errors);
 					}

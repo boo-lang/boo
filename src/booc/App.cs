@@ -83,6 +83,8 @@ namespace BooC
 			
 			AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
 			
+			CheckBooCompiler();
+			
 			try
 			{
 				DateTime start = DateTime.Now;
@@ -160,11 +162,36 @@ namespace BooC
 			return resultCode;
 		}
 		
-		public void LoadReferences()
+		void LoadReferences()
 		{
 			foreach(string r in _references)
 			{
 				_options.References.Add(_options.LoadAssembly(r, true));
+			}
+		}
+		
+		void CheckBooCompiler()
+		{
+			string path = Path.Combine(Path.GetDirectoryName(
+						Assembly.GetExecutingAssembly().Location),
+					"Boo.Lang.Compiler.dll");
+			if (File.Exists(path))
+			{
+				foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+				{
+					if (a.FullName.StartsWith("Boo.Lang.Compiler"))
+					{
+						if (string.Compare(a.Location, path, true) != 0)
+						{
+							//can't use ResourceManager, boo.lang.dll may be out of date
+							string msg=string.Format("WARNING: booc is not using the Boo.Lang.Compiler.dll next to booc.exe.  Using '{0}' instead of '{1}'.  You may need to remove boo dlls from the GAC using gacutil or manually (/windows/assembly/ on windows).",
+									a.Location, path);
+							//has to be all 1 line for things like msbuild that parse booc output.
+							Console.WriteLine(msg);
+						}
+						break;
+					}
+				}
 			}
 		}
 		
