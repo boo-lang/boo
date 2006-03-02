@@ -646,12 +646,17 @@
 		</exec>
 	</target>
 	
+	<target name="distro">
+		<call target="distro-win32" if="${platform::is-win32()}"/>
+		<call target="distro-linux" if="${not(platform::is-win32())}"/>
+	</target>
+	
 	<!-- Deprecated, now that binaries are built for multiple frameworks. -->
-	<target name="old-distro" depends="src-distro">
+	<target name="distro-linux" depends="src-distro">
 	</target>
 	
 	<!-- meant to be run on Windows with both .net 1.1 and .net 2.0 installed -->
-	<target name="distro">
+	<target name="distro-win32">
 		<fail unless="${nant.platform.win32}">
 		Use the make-bin-dist or install targets instead on non-win32 platforms.
 		</fail>
