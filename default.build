@@ -67,7 +67,8 @@
 		<booc
 			target="exe"
 			output="${build.dir}/boo.exe"
-			verbose="${verbose}">
+			verbose="${verbose}"
+			debug="${debug}">
 			
 			<sources basedir="src/boo">
 				<include name="*.boo" />
@@ -84,7 +85,8 @@
 		<booc
 			target="exe"
 			output="${build.dir}/booish.exe"
-			verbose="${verbose}">
+			verbose="${verbose}"
+			debug="${debug}">
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
@@ -117,7 +119,8 @@
 		<booc
 			target="exe"
 			output="${build.dir}/booi.exe"
-			verbose="${verbose}">
+			verbose="${verbose}"
+			debug="${debug}">
 
 			<sources basedir="src/booi">
 				<include name="*.boo" />
@@ -159,7 +162,8 @@
 		<booc 
 			target="library"
 			output="${build.dir}/Boo.Lang.Interpreter.dll"
-			verbose="${verbose}">
+			verbose="${verbose}"
+			debug="${debug}">
 			
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="*.boo" />
@@ -287,7 +291,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="false" 
-			verbose="${verbose}">
+			verbose="${verbose}"
+			debug="${debug}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
@@ -328,7 +333,8 @@
 		
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
-			verbose="${verbose}">
+			verbose="${verbose}"
+			debug="${debug}">
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
 			</sources>
@@ -341,7 +347,8 @@
 	<target name="Boo.Lang.CodeDom" depends="Boo.NAnt.Tasks">
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
-			verbose="${verbose}">
+			verbose="${verbose}"
+			debug="${debug}">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>

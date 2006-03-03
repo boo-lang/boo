@@ -44,7 +44,7 @@ import System.Reflection
 [TaskName('booc')]
 public class BoocTask(CompilerBase):
 	#region Private Instance Fields
-	private _debugOutput as DebugOutput = DebugOutput.None
+	private _debugOutput as DebugOutput = DebugOutput.Enable
 	private _exe as string
 	
 	private _useruntime = true //keep true for mono compatibility (don't call booc.exe directly)
@@ -88,7 +88,10 @@ public class BoocTask(CompilerBase):
 		get:
 			return (DebugOutput != DebugOutput.None)
 		set:
-			DebugOutput = DebugOutput.Enable
+			if value:
+				DebugOutput = DebugOutput.Enable
+			else:
+				DebugOutput = DebugOutput.None
 
 	[FrameworkConfigurable('noconfig')]
 	[TaskAttribute('noconfig')]
