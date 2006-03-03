@@ -132,7 +132,8 @@ public class BoocTask(CompilerBase):
 	protected override def WriteOptions(writer as TextWriter):
 		if DebugOutput != DebugOutput.None:
 			WriteOption(writer, 'debug')
-			
+		else:
+			WriteOption(writer, 'debug-')
 		if NoConfig and (not Arguments.Contains('-noconfig')):
 			Arguments.Add(Argument('-noconfig'))
 		if NoStdLib:
