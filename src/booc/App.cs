@@ -184,7 +184,7 @@ namespace BooC
 						if (string.Compare(a.Location, path, true) != 0)
 						{
 							//can't use ResourceManager, boo.lang.dll may be out of date
-							string msg=string.Format("WARNING: booc is not using the Boo.Lang.Compiler.dll next to booc.exe.  Using '{0}' instead of '{1}'.  You may need to remove boo dlls from the GAC using gacutil or manually (/windows/assembly/ on windows).",
+							string msg=string.Format("WARNING: booc is not using the Boo.Lang.Compiler.dll next to booc.exe.  Using '{0}' instead of '{1}'.  You may need to remove boo dlls from the GAC using gacutil or Mscorcfg.",
 									a.Location, path);
 							//has to be all 1 line for things like msbuild that parse booc output.
 							Console.WriteLine(msg);

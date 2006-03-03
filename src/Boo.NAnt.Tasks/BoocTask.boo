@@ -130,18 +130,9 @@ public class BoocTask(CompilerBase):
 	#endregion Public Instance Properties
 	#region Override implementation of CompilerBase
 	protected override def WriteOptions(writer as TextWriter):
-		converterGeneratedName1 = DebugOutput
-		// handle debug builds.
-		if converterGeneratedName1 == DebugOutput.None:
-			pass
-		else:
-			if converterGeneratedName1 == DebugOutput.Enable:
-				WriteOption(writer, 'debug')
-			else:
-				if converterGeneratedName1 == DebugOutput.Full:
-					WriteOption(writer, 'debug')
-				else:
-					raise BuildException(string.Format(CultureInfo.InvariantCulture, ResourceUtils.GetString('NA2011'), DebugOutput), Location)
+		if DebugOutput != DebugOutput.None:
+			WriteOption(writer, 'debug')
+			
 		if NoConfig and (not Arguments.Contains('-noconfig')):
 			Arguments.Add(Argument('-noconfig'))
 		if NoStdLib:
