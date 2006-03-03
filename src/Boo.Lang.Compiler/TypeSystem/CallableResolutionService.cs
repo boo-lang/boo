@@ -290,8 +290,50 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return 6;
 			}
 			else if (parameterType.IsAssignableFrom(argumentType))
-			{
+			{				
 				// upcast
+				// parameterType == ICallableType, "ThreadStart"
+				// argumentType == ICallableType, "Anonymous Closure"
+				// RULES:
+				// Number of arguments for argumentType && parameterType == same
+				// Either: all arguments "IsAssignableFrom"
+				//			OR
+				//			all arguments == exactly (best case scenario)
+				// 7 -- "exact match" (best case)
+				// 6 -- "not exact match, but very close" (this is OK)
+				// 5 -- "assignable, but wrong number of parameters / whatever" (boo does the normal thing)
+				ICallableType callableType = parameterType as ICallableType;
+				ICallableType callableArg = argumentType as ICallableType;
+				if (callableType != null && callableArg != null)
+				{
+					CallableSignature siggyType = callableType.GetSignature();
+					CallableSignature siggyArg = callableArg.GetSignature();
+					// Ensuring that these callables have same number of arguments.
+					// def foo(a, b,c) == { a, b, c| print foobar }					
+					if (siggyType.Parameters.Length == siggyArg.Parameters.Length)
+					{
+						bool exactMatch = true;
+						bool closeEnough = true;
+						
+						for (int i = 0; i < siggyType.Parameters.Length; i++)
+						{
+							if (siggyType.Parameters[i] != siggyArg.Parameters[i])
+							{
+								exactMatch = false;
+								// In the case that these parameters simply don't match								
+								if (!siggyType.Parameters[i].Type.IsAssignableFrom(siggyArg.Parameters[i].Type))
+								{
+									closeEnough = false;
+									break;
+								}
+							}
+						}
+						if (closeEnough)
+						{
+							return exactMatch == true ? 7 : 6;
+						}
+					}
+				}
 				return 5;
 			}
 			else if (TypeSystemServices.CanBeReachedByDownCastOrPromotion(parameterType, argumentType))
