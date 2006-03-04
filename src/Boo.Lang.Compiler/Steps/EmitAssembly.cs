@@ -574,7 +574,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			InternalLocal info = GetInternalLocal(local);
 			info.LocalBuilder = _il.DeclareLocal(GetSystemType(local));
-			info.LocalBuilder.SetLocalSymInfo(local.Name);
+			if (Parameters.Debug)
+			{
+				info.LocalBuilder.SetLocalSymInfo(local.Name);
+			}
 		}
 		
 		override public void OnForStatement(ForStatement node)
@@ -4350,7 +4353,7 @@ namespace Boo.Lang.Compiler.Steps
 				// picks up the attribute when debugging dynamically generated code.
 				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
 			}
-			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), true);
+			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), Parameters.Debug);
 			_sreResourceService = new SREResourceService (_asmBuilder, _moduleBuilder);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 			
