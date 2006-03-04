@@ -181,9 +181,17 @@
 			</targetfiles>
 		</uptodate>
 		
+		<if test="${debug}">
+			<property name="debugflag" value="-debug"/>
+		</if>
+		<if test="${not debug}">
+			<property name="debugflag" value="-debug-"/>
+		</if>
+		
 		<exec program="${build.dir}/booc.exe" useruntimeengine="true" unless="${Boo.NAnt.Tasks-is-uptodate}">		
 			<arg value="-v" />
 			<arg value="-noconfig" />
+			<arg value="${debugflag}" />
 			<arg value="-out:${build.dir}/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
 			<arg value="-r:${nant.location}/NAnt.Core.dll" />
