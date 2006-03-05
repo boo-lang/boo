@@ -130,8 +130,6 @@ tokens
 
 	protected bool _inArray;
 	
-	protected bool _compact = false;
-	
 	protected void ResetMemberData()
 	{
 		_modifiers = TypeMemberModifiers.None;
@@ -876,14 +874,6 @@ declaration_initializer returns [Expression e]
 	(e=ast_literal)
 ;
 
-simple_initializer returns [Expression e]
-{
-	e = null;
-}:
-	e=array_or_expression |
-	e=callable_expression
-;
-
 protected
 property_accessor[Property p]
 	{		
@@ -1224,11 +1214,25 @@ macro_stmt returns [MacroStatement returnValue]
 	}:
 	id:ID expression_list[macro.Arguments]
 	(
-		{_compact}? |
 		compound_stmt[macro.Block] |
 		eos |
-		modifier=stmt_modifier eos { macro.Modifier = modifier; } |
+		modifier=stmt_modifier eos { macro.Modifier = modifier; }
 	)
+	{
+		macro.Name = id.getText();
+		macro.LexicalInfo = ToLexicalInfo(id);
+		
+		returnValue = macro;
+	}
+;
+
+protected
+simple_macro_stmt returns [MacroStatement returnValue]
+	{
+		returnValue = null;
+		MacroStatement macro = new MacroStatement();
+	}:
+	id:ID expression_list[macro.Arguments]
 	{
 		macro.Name = id.getText();
 		macro.LexicalInfo = ToLexicalInfo(id);
@@ -1307,11 +1311,10 @@ protected
 simple_stmt [StatementCollection container]
 	{
 		Statement s = null;
-		_compact = true;
 	}:		
 	(
-		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=macro_stmt |
-		(slicing_expression ASSIGN)=> s=assignment_or_method_invocation_with_block_stmt |
+		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=simple_macro_stmt |
+		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
 		s=return_stmt |
 		(declaration COMMA)=> s=unpack_stmt |
 		s=declaration_stmt |
@@ -1334,7 +1337,6 @@ simple_stmt [StatementCollection container]
 			container.Add(s);
 		}
 	}
-	{_compact=false;}
 	;
 
 protected
@@ -1536,15 +1538,8 @@ declaration_stmt returns [DeclarationStatement s]
 	}:
 	id:ID AS tr=type_reference
 	(
-		(
-			ASSIGN 
-			(
-				{_compact}?initializer=simple_initializer |
-				initializer=declaration_initializer
-			)
-		) 
-		|
-		({!_compact}? (m=stmt_modifier)? eos)
+		(ASSIGN initializer=declaration_initializer) |
+		((m=stmt_modifier)? eos)
 	)
 	{
 		Declaration d = new Declaration(ToLexicalInfo(id));
@@ -1765,12 +1760,8 @@ unpack_stmt returns [UnpackStatement s]
 	{
 		s = null;
 		StatementModifier m = null;
-	}:
-	s=unpack
-	(
-		{_compact}? |
-		(m=stmt_modifier)? eos
-	)
+	}:	
+	s=unpack (m=stmt_modifier)? eos
 	{
 		s.Modifier = m;
 	}
@@ -2042,11 +2033,10 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 			(
 			op:ASSIGN { token = op; binaryOperator = ParseAssignOperator(op.getText()); }
 				(
-					{_compact}?rhs=array_or_expression |
 					(DEF|DO)=>rhs=callable_expression |
 					(
 						rhs=array_or_expression
-						(
+						(		
 							(DO)=>method_invocation_block[rhs] |
 							(modifier=stmt_modifier eos) |
 							eos

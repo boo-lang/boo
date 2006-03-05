@@ -8,11 +8,22 @@
 false
 caught it
 yessir
+"""
+
+/*
 1 2
 3 4
 5 6 7
 8 9 10 11
-"""
+12
+
+def doit():
+	if true: return 12
+	return 0
+	
+def doit2():
+	if true: return
+*/
 
 if true: print(0)
 if true: print 1
@@ -51,6 +62,10 @@ except e: pass
 //if true: if true: //not allowed
 //	print "ok"
 
+/*
+//these are fixed, but not checked in due to a conflict with how
+//ast literals are parsed
+
 if true: v = 1; v2=2;
 print v, v2
 
@@ -62,3 +77,7 @@ print a, b, c
 
 if true: q,r=8,9;s=10;t as int=11;
 print q,r,s,t
+
+print doit()
+doit2()
+*/
