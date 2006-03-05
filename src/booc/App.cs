@@ -209,7 +209,8 @@ namespace BooC
 		
 		void DoLogo()
 		{
-			Console.WriteLine("Boo Compiler version "+Builtins.BooVersion.ToString());
+			Console.Write("Boo Compiler version "+Builtins.BooVersion.ToString());
+			Console.WriteLine(" (CLR v"+Environment.Version.ToString()+")");
 		}
 		
 		void ParseOptions(string[] args, CompilerParameters _options)
