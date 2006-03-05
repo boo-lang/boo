@@ -307,26 +307,26 @@ start[CompileUnit cu] returns [Module module]
 		
 		cu.Modules.Add(module);
 	}:
-	(options { greedy=true;}: EOS)*
+	(eos)?
 	docstring[module]
-	(options { greedy=true;}: EOS)*			 
+	(eos)?		 
 	(namespace_directive[module])?
 	(import_directive[module])*
 	(type_member[module.Members])*	
 	globals[module]
 	(assembly_attribute[module] eos)*
-	EOF
+	(EOF)?
 	;
 			
 protected docstring[Node node]:
 	(
 		doc:TRIPLE_QUOTED_STRING { node.Documentation = MassageDocString(doc.getText()); }
-		(options { greedy=true; }: EOS)*
+		(eos)?
 	)?
 	;
 			
 protected
-eos : (options { greedy = true; }: EOS)+;
+eos : EOF | (options { greedy = true; }: EOS)+;
 
 protected
 import_directive[Module container]
@@ -476,7 +476,7 @@ attributes
 			)*
 		)?
 		RBRACK		
-		(EOS)*
+		(eos)?
 	)*
 	;
 			
@@ -539,7 +539,7 @@ class_definition [TypeMemberCollection container]
 	(base_types[baseTypes])?
 	begin_with_doc[td]					
 	(
-		(EOS)*
+		(eos)?
 		(type_definition_member[members])+
 	)
 	end[td]
@@ -615,7 +615,7 @@ interface_method [TypeMemberCollection container]
 	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 	(AS rt=type_reference { m.ReturnType=rt; })?			
 	(
-		(eos docstring[m]) | (empty_block[m] (EOS)*)
+		(eos docstring[m]) | (empty_block[m] (eos)?)
 	)
 	;
 			
@@ -892,13 +892,13 @@ property_accessor[Property p]
 	
 protected
 globals[Module container]:	
-	(EOS)*
+	(eos)?
 	(stmt[container.Globals.Statements])*
 	;
 	
 protected
 block[StatementCollection container]:
-	(EOS)*
+	(eos)?
 	(			
 		stmt[container]
 	)*
@@ -1072,11 +1072,11 @@ protected
 begin: COLON;
 
 protected
-begin_with_doc[Node node]: COLON (EOS docstring[node])?;
+begin_with_doc[Node node]: COLON (eos docstring[node])?;
 	
 protected
 begin_block_with_doc[Node node, Block block]:
-	begin:COLON (EOS docstring[node])?
+	begin:COLON (eos docstring[node])?
 	{
 		block.LexicalInfo = ToLexicalInfo(begin);
 	}
@@ -1085,7 +1085,7 @@ begin_block_with_doc[Node node, Block block]:
 protected
 end[Node node] :
 	t:END { node.EndSourceLocation = ToSourceLocation(t); }
-	(options { greedy=true; }: EOS)*
+	(eos)?
 	;
 
 protected

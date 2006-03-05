@@ -111,6 +111,18 @@ def SayHello(name as string):
 			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
 		}
 		
+		[Test]
+		public void NoLineBreakBeforeEOF()
+		{
+			string code = "print \"hello\"";
+			
+			Module module = parse(code);
+			
+			string expected = "print 'hello'";
+			
+			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
+		}
+		
 		string normalize(string s)
 		{
 			return s.Trim().Replace("\r\n", "\n");
