@@ -209,8 +209,7 @@ namespace BooC
 		
 		void DoLogo()
 		{
-			; //TODO: enable this after SharpDevelop has been updated with new MSBuild
-			//Console.WriteLine("Boo Compiler version "+Builtins.BooVersion.ToString());
+			Console.WriteLine("Boo Compiler version "+Builtins.BooVersion.ToString());
 		}
 		
 		void ParseOptions(string[] args, CompilerParameters _options)
