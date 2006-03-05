@@ -130,6 +130,8 @@ tokens
 
 	protected bool _inArray;
 	
+	protected bool _compact = false;
+	
 	protected void ResetMemberData()
 	{
 		_modifiers = TypeMemberModifiers.None;
@@ -874,6 +876,14 @@ declaration_initializer returns [Expression e]
 	(e=ast_literal)
 ;
 
+simple_initializer returns [Expression e]
+{
+	e = null;
+}:
+	e=array_or_expression |
+	e=callable_expression
+;
+
 protected
 property_accessor[Property p]
 	{		
@@ -1227,21 +1237,6 @@ macro_stmt returns [MacroStatement returnValue]
 ;
 
 protected
-simple_macro_stmt returns [MacroStatement returnValue]
-	{
-		returnValue = null;
-		MacroStatement macro = new MacroStatement();
-	}:
-	id:ID expression_list[macro.Arguments]
-	{
-		macro.Name = id.getText();
-		macro.LexicalInfo = ToLexicalInfo(id);
-		
-		returnValue = macro;
-	}
-;
-
-protected
 goto_stmt returns [GotoStatement stmt]
 	{
 		stmt = null;
@@ -1311,12 +1306,13 @@ protected
 simple_stmt [StatementCollection container]
 	{
 		Statement s = null;
-	}:		
+		_compact = true;
+	}:
 	(
-		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=simple_macro_stmt |
-		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
-		s=return_stmt |
-		(declaration COMMA)=> s=unpack_stmt |
+		{IsValidMacroArgument(LA(2))}? s=closure_macro_stmt |
+		(slicing_expression ASSIGN)=> s=assignment_or_method_invocation |
+		s=return_expression_stmt |
+		(declaration COMMA)=> s=unpack |
 		s=declaration_stmt |
 		(		
 			(
@@ -1337,6 +1333,7 @@ simple_stmt [StatementCollection container]
 			container.Add(s);
 		}
 	}
+	{_compact=false;}
 	;
 
 protected
@@ -1538,8 +1535,15 @@ declaration_stmt returns [DeclarationStatement s]
 	}:
 	id:ID AS tr=type_reference
 	(
-		(ASSIGN initializer=declaration_initializer) |
-		((m=stmt_modifier)? eos)
+		(
+			ASSIGN 
+			(
+				{_compact}?initializer=simple_initializer |
+				initializer=declaration_initializer
+			)
+		) 
+		|
+		({!_compact}? (m=stmt_modifier)? eos)
 	)
 	{
 		Declaration d = new Declaration(ToLexicalInfo(id));
@@ -1572,7 +1576,7 @@ return_expression_stmt returns [ReturnStatement s]
 		StatementModifier modifier = null;
 	}:
 	r:RETURN (e=array_or_expression)?
-	(modifier=stmt_modifier)?
+	({!_compact}?modifier=stmt_modifier)?
 	{
 		s = new ReturnStatement(ToLexicalInfo(r));
 		s.Modifier = modifier;
@@ -1760,7 +1764,7 @@ unpack_stmt returns [UnpackStatement s]
 	{
 		s = null;
 		StatementModifier m = null;
-	}:	
+	}:
 	s=unpack (m=stmt_modifier)? eos
 	{
 		s.Modifier = m;
@@ -1986,20 +1990,35 @@ ast_literal_block[AstLiteralExpression e]
 
 ast_literal_closure[AstLiteralExpression e]
 {
+	Block block = new Block();
 	Node node = null;
 }:
 	LBRACE
 	(
-		(expression)=>node=expression { e.Node = node; } |
-		node=ast_literal_closure_stmt { e.Node = node; }
+		(expression RBRACE)=>node=expression { e.Node = node; } |
+		(
+			internal_closure_stmt[block]
+			(
+				eos
+				(internal_closure_stmt[block])?
+			)*
+			{ 
+				e.Node = block;
+				if (block.Statements.Count == 1)
+				{
+					e.Node = block.Statements[0];
+				}
+			}
+		)
 	)
 	RBRACE
 ;
 
-ast_literal_closure_stmt returns [Statement s]
+
+ast_literal_closure_stmt[Block block]
 {
-	s = null;
-	StatementModifier modifier;
+		Statement s = null;
+		StatementModifier modifier = null;
 }:
 	s=return_expression_stmt |
 	(
@@ -2011,6 +2030,12 @@ ast_literal_closure_stmt returns [Statement s]
 		)
 		(modifier=stmt_modifier { s.Modifier = modifier; })?		
 	)
+	{
+		if (null != s)
+		{
+			block.Add(s);
+		}
+	}
 ;
 
 protected
@@ -2033,10 +2058,11 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 			(
 			op:ASSIGN { token = op; binaryOperator = ParseAssignOperator(op.getText()); }
 				(
+					{_compact}?rhs=array_or_expression |
 					(DEF|DO)=>rhs=callable_expression |
 					(
 						rhs=array_or_expression
-						(		
+						(
 							(DO)=>method_invocation_block[rhs] |
 							(modifier=stmt_modifier eos) |
 							eos
@@ -2054,6 +2080,34 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 			}
 		)
 	)
+	;
+	
+protected
+assignment_or_method_invocation returns [Statement stmt]
+	{
+		stmt = null;
+		Expression lhs = null;
+		Expression rhs = null;
+		StatementModifier modifier = null;
+		BinaryOperatorType binaryOperator = BinaryOperatorType.None;
+		IToken token = null;
+	}:
+	lhs=slicing_expression
+	(
+		op:ASSIGN { token = op; binaryOperator = ParseAssignOperator(op.getText()); }
+		(
+			rhs=array_or_expression
+			|
+			rhs=ast_literal
+		)
+	)
+	{
+		stmt = new ExpressionStatement(
+				new BinaryExpression(ToLexicalInfo(token),
+					binaryOperator,
+					lhs, rhs));
+		stmt.Modifier = modifier;
+	}
 	;
 	
 protected
