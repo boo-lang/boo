@@ -8,6 +8,10 @@
 false
 caught it
 yessir
+1 2
+3 4
+5 6 7
+8 9 10 11
 """
 
 if true: print(0)
@@ -47,3 +51,14 @@ except e: pass
 //if true: if true: //not allowed
 //	print "ok"
 
+if true: v = 1; v2=2;
+print v, v2
+
+if true: i as int = 3; x as string = "4"
+print i, x
+
+if true: a, b, c = 5,6,7
+print a, b, c
+
+if true: q,r=8,9;s=10;t as int=11;
+print q,r,s,t
