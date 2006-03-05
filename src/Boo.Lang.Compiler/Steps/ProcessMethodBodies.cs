@@ -3088,7 +3088,7 @@ namespace Boo.Lang.Compiler.Steps
 					// declaration
 					ReferenceExpression reference = (ReferenceExpression)node.Left;
 					IEntity info = NameResolutionService.Resolve(reference.Name);
-					if (null == info || TypeSystemServices.IsBuiltin(info))
+					if (null == info || TypeSystemServices.IsBuiltin(info) || IsInaccessible(info))
 					{
 						Visit(node.Right);
 						IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
@@ -3101,6 +3101,17 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			return true;
+		}
+		
+		bool IsInaccessible(IEntity info)
+		{
+			IAccessibleMember accessible = info as IAccessibleMember;
+			if (accessible != null && accessible.IsPrivate
+				&& accessible.DeclaringType != CurrentType)
+			{
+				return true;
+			}
+			return false;
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
