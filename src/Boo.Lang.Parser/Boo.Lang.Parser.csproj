@@ -1,660 +1,188 @@
-<VisualStudioProject>
-    <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.10.3077"
-        SchemaVersion = "2.0"
-        ProjectGuid = "{C1943936-DBBD-4331-94C3-BE4F7E6229DA}"
-    >
-        <Build>
-            <Settings
-                ApplicationIcon = ""
-                AssemblyKeyContainerName = ""
-                AssemblyName = "Boo.Lang.Parser"
-                AssemblyOriginatorKeyFile = ""
-                DefaultClientScript = "JScript"
-                DefaultHTMLPageLayout = "Grid"
-                DefaultTargetSchema = "IE50"
-                DelaySign = "false"
-                OutputType = "Library"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
-                RootNamespace = "Boo.Lang.Parser"
-                RunPostBuildEvent = "OnBuildSuccess"
-                StartupObject = ""
-            >
-                <Config
-                    Name = "Debug"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE;IGNOREKEYFILE"
-                    DocumentationFile = ""
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "false"
-                    OutputPath = "bin\Debug\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-                <Config
-                    Name = "Release"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
-                    DocumentationFile = ""
-                    DebugSymbols = "false"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "true"
-                    OutputPath = "bin\Release\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-            </Settings>
-            <References>
-                <Reference
-                    Name = "System"
-                    AssemblyName = "System"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll"
-                />
-                <Reference
-                    Name = "System.Data"
-                    AssemblyName = "System.Data"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
-                />
-                <Reference
-                    Name = "System.XML"
-                    AssemblyName = "System.Xml"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
-                />
-                <Reference
-                    Name = "Boo.Lang.Compiler"
-                    Project = "{83C914F8-1F12-4879-925D-D831A04366BD}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "Boo.Lang"
-                    Project = "{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-            </References>
-        </Build>
-        <Files>
-            <Include>
-                <File
-                    RelPath = "AssemblyInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooExpressionLexer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooExpressionLexerTokenTypes.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooLexer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooParser.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooParserBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooParsingStep.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooToken.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooTokenTypes.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\SupportClass.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ANTLRException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ANTLRPanicException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ASTFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ASTNodeCreator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ASTNULLType.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ASTPair.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ASTVisitor.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\BaseAST.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ByteBuffer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CharBuffer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CharQueue.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CharScanner.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CharStreamException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CharStreamIOException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CommonAST.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CommonASTWithHiddenTokens.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CommonHiddenStreamToken.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\CommonToken.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\DefaultFileLineFormatter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\DumpASTVisitor.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\FileLineFormatter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\IHiddenStreamToken.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\InputBuffer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\IToken.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\LexerSharedInputState.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\LLkParser.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\MismatchedCharException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\MismatchedTokenException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\NoViableAltException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\NoViableAltForCharException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\Parser.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ParserSharedInputState.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ParseTree.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ParseTreeRule.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\ParseTreeToken.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\RecognitionException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\SemanticException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\StringUtils.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\Token.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenBuffer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenCreator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenQueue.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStream.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStreamBasicFilter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStreamException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStreamHiddenTokenFilter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStreamIOException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStreamRecognitionException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStreamRetryException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStreamRewriteEngine.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenStreamSelector.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TokenWithIndex.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TreeParser.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr\TreeParserSharedInputState.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.collections\AST.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.collections.impl\ASTArray.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.collections.impl\BitSet.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ANTLREventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\DebuggingCharScanner.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\DebuggingInputBuffer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\DebuggingParser.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\GuessingEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ICharScannerDebugSubject.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\IDebugSubject.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\InputBufferEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\InputBufferEventSupport.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\InputBufferListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\InputBufferListenerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\InputBufferReporter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\IParserDebugSubject.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\Listener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\LLkDebuggingParser.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\MessageEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\MessageListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\MessageListenerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\NewLineEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\NewLineListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserController.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserEventSupport.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserListenerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserMatchEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserMatchListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserMatchListenerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserReporter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserTokenEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserTokenListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParserTokenListenerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ParseTreeDebugParser.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\ScannerEventSupport.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\SemanticPredicateEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\SemanticPredicateListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\SemanticPredicateListenerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\SyntacticPredicateEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\SyntacticPredicateListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\SyntacticPredicateListenerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\TraceEventArgs.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\TraceListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\TraceListenerBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "antlr\antlr.debug\Tracer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Util\IndentTokenStreamFilter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Util\TokenStreamRecorder.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-            </Include>
-        </Files>
-    </CSHARP>
-</VisualStudioProject>
-
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C1943936-DBBD-4331-94C3-BE4F7E6229DA}</ProjectGuid>
+    <RootNamespace>Boo.Lang.Parser</RootNamespace>
+    <AssemblyName>Boo.Lang.Parser</AssemblyName>
+    <OutputType>Library</OutputType>
+    <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
+    <NoConfig>false</NoConfig>
+    <DebugType>None</DebugType>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <NoStdLib>false</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>false</Optimize>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE;IGNOREKEYFILE</DefineConstants>
+    <OutputPath>..\..\ide-build</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <NoStdLib>false</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\..\ide-build</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BooExpressionLexer.cs" />
+    <Compile Include="BooExpressionLexerTokenTypes.cs" />
+    <Compile Include="BooLexer.cs" />
+    <Compile Include="BooParser.cs" />
+    <Compile Include="BooParserBase.cs" />
+    <Compile Include="BooParsingStep.cs" />
+    <Compile Include="BooToken.cs" />
+    <Compile Include="BooTokenTypes.cs" />
+    <Compile Include="antlr\SupportClass.cs" />
+    <Compile Include="antlr\antlr\ANTLRException.cs" />
+    <Compile Include="antlr\antlr\ANTLRPanicException.cs" />
+    <Compile Include="antlr\antlr\ASTFactory.cs" />
+    <Compile Include="antlr\antlr\ASTNodeCreator.cs" />
+    <Compile Include="antlr\antlr\ASTNULLType.cs" />
+    <Compile Include="antlr\antlr\ASTPair.cs" />
+    <Compile Include="antlr\antlr\ASTVisitor.cs" />
+    <Compile Include="antlr\antlr\BaseAST.cs" />
+    <Compile Include="antlr\antlr\ByteBuffer.cs" />
+    <Compile Include="antlr\antlr\CharBuffer.cs" />
+    <Compile Include="antlr\antlr\CharQueue.cs" />
+    <Compile Include="antlr\antlr\CharScanner.cs" />
+    <Compile Include="antlr\antlr\CharStreamException.cs" />
+    <Compile Include="antlr\antlr\CharStreamIOException.cs" />
+    <Compile Include="antlr\antlr\CommonAST.cs" />
+    <Compile Include="antlr\antlr\CommonASTWithHiddenTokens.cs" />
+    <Compile Include="antlr\antlr\CommonHiddenStreamToken.cs" />
+    <Compile Include="antlr\antlr\CommonToken.cs" />
+    <Compile Include="antlr\antlr\DefaultFileLineFormatter.cs" />
+    <Compile Include="antlr\antlr\DumpASTVisitor.cs" />
+    <Compile Include="antlr\antlr\FileLineFormatter.cs" />
+    <Compile Include="antlr\antlr\IHiddenStreamToken.cs" />
+    <Compile Include="antlr\antlr\InputBuffer.cs" />
+    <Compile Include="antlr\antlr\IToken.cs" />
+    <Compile Include="antlr\antlr\LexerSharedInputState.cs" />
+    <Compile Include="antlr\antlr\LLkParser.cs" />
+    <Compile Include="antlr\antlr\MismatchedCharException.cs" />
+    <Compile Include="antlr\antlr\MismatchedTokenException.cs" />
+    <Compile Include="antlr\antlr\NoViableAltException.cs" />
+    <Compile Include="antlr\antlr\NoViableAltForCharException.cs" />
+    <Compile Include="antlr\antlr\Parser.cs" />
+    <Compile Include="antlr\antlr\ParserSharedInputState.cs" />
+    <Compile Include="antlr\antlr\ParseTree.cs" />
+    <Compile Include="antlr\antlr\ParseTreeRule.cs" />
+    <Compile Include="antlr\antlr\ParseTreeToken.cs" />
+    <Compile Include="antlr\antlr\RecognitionException.cs" />
+    <Compile Include="antlr\antlr\SemanticException.cs" />
+    <Compile Include="antlr\antlr\StringUtils.cs" />
+    <Compile Include="antlr\antlr\Token.cs" />
+    <Compile Include="antlr\antlr\TokenBuffer.cs" />
+    <Compile Include="antlr\antlr\TokenCreator.cs" />
+    <Compile Include="antlr\antlr\TokenQueue.cs" />
+    <Compile Include="antlr\antlr\TokenStream.cs" />
+    <Compile Include="antlr\antlr\TokenStreamBasicFilter.cs" />
+    <Compile Include="antlr\antlr\TokenStreamException.cs" />
+    <Compile Include="antlr\antlr\TokenStreamHiddenTokenFilter.cs" />
+    <Compile Include="antlr\antlr\TokenStreamIOException.cs" />
+    <Compile Include="antlr\antlr\TokenStreamRecognitionException.cs" />
+    <Compile Include="antlr\antlr\TokenStreamRetryException.cs" />
+    <Compile Include="antlr\antlr\TokenStreamRewriteEngine.cs" />
+    <Compile Include="antlr\antlr\TokenStreamSelector.cs" />
+    <Compile Include="antlr\antlr\TokenWithIndex.cs" />
+    <Compile Include="antlr\antlr\TreeParser.cs" />
+    <Compile Include="antlr\antlr\TreeParserSharedInputState.cs" />
+    <Compile Include="antlr\antlr.collections\AST.cs" />
+    <Compile Include="antlr\antlr.collections.impl\ASTArray.cs" />
+    <Compile Include="antlr\antlr.collections.impl\BitSet.cs" />
+    <Compile Include="antlr\antlr.debug\ANTLREventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\DebuggingCharScanner.cs" />
+    <Compile Include="antlr\antlr.debug\DebuggingInputBuffer.cs" />
+    <Compile Include="antlr\antlr.debug\DebuggingParser.cs" />
+    <Compile Include="antlr\antlr.debug\GuessingEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\ICharScannerDebugSubject.cs" />
+    <Compile Include="antlr\antlr.debug\IDebugSubject.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferEventSupport.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferListener.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferReporter.cs" />
+    <Compile Include="antlr\antlr.debug\IParserDebugSubject.cs" />
+    <Compile Include="antlr\antlr.debug\Listener.cs" />
+    <Compile Include="antlr\antlr.debug\LLkDebuggingParser.cs" />
+    <Compile Include="antlr\antlr.debug\MessageEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\MessageListener.cs" />
+    <Compile Include="antlr\antlr.debug\MessageListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\NewLineEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\NewLineListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParserController.cs" />
+    <Compile Include="antlr\antlr.debug\ParserEventSupport.cs" />
+    <Compile Include="antlr\antlr.debug\ParserListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParserListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\ParserMatchEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\ParserMatchListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParserMatchListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\ParserReporter.cs" />
+    <Compile Include="antlr\antlr.debug\ParserTokenEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\ParserTokenListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParserTokenListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\ParseTreeDebugParser.cs" />
+    <Compile Include="antlr\antlr.debug\ScannerEventSupport.cs" />
+    <Compile Include="antlr\antlr.debug\SemanticPredicateEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\SemanticPredicateListener.cs" />
+    <Compile Include="antlr\antlr.debug\SemanticPredicateListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\SyntacticPredicateEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\SyntacticPredicateListener.cs" />
+    <Compile Include="antlr\antlr.debug\SyntacticPredicateListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\TraceEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\TraceListener.cs" />
+    <Compile Include="antlr\antlr.debug\TraceListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\Tracer.cs" />
+    <Compile Include="Util\IndentTokenStreamFilter.cs" />
+    <Compile Include="Util\TokenStreamRecorder.cs" />
+    <Compile Include="WSABooTokenTypes.cs" />
+    <Compile Include="WSABooExpressionLexer.cs" />
+    <Compile Include="WSABooExpressionLexerTokenTypes.cs" />
+    <Compile Include="WSABooLexer.cs" />
+    <Compile Include="WSABooParser.cs" />
+    <Compile Include="WSABooParserBase.cs" />
+    <Compile Include="WSABooParsingStep.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Boo\stable\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
+      <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
+      <Name>Boo.Lang.Compiler</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Boo\stable\src\Boo.Lang\Boo.Lang.csproj">
+      <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
+      <Name>Boo.Lang</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+</Project>

@@ -1,185 +1,78 @@
-<VisualStudioProject>
-    <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.10.3077"
-        SchemaVersion = "2.0"
-        ProjectGuid = "{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}"
-    >
-        <Build>
-            <Settings
-                ApplicationIcon = ""
-                AssemblyKeyContainerName = ""
-                AssemblyName = "Boo.Lang"
-                AssemblyOriginatorKeyFile = ""
-                DefaultClientScript = "JScript"
-                DefaultHTMLPageLayout = "Grid"
-                DefaultTargetSchema = "IE50"
-                DelaySign = "false"
-                OutputType = "Library"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
-                RootNamespace = "Boo.Lang"
-                RunPostBuildEvent = "OnBuildSuccess"
-                StartupObject = ""
-            >
-                <Config
-                    Name = "Debug"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE;IGNOREKEYFILE"
-                    DocumentationFile = ""
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "false"
-                    OutputPath = "bin\Debug\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-                <Config
-                    Name = "Release"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
-                    DocumentationFile = ""
-                    DebugSymbols = "false"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "true"
-                    OutputPath = "bin\Release\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-            </Settings>
-            <References>
-                <Reference
-                    Name = "System"
-                    AssemblyName = "System"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll"
-                />
-                <Reference
-                    Name = "System.Data"
-                    AssemblyName = "System.Data"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
-                />
-                <Reference
-                    Name = "System.XML"
-                    AssemblyName = "System.Xml"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
-                />
-            </References>
-        </Build>
-        <Files>
-            <Include>
-                <File
-                    RelPath = "AbstractGenerator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "AbstractGeneratorEnumerator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "AssemblyInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooComparer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooHashCodeProvider.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Builtins.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "DuckTypedAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "EnumeratorItemTypeAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ExtensionAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Hash.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ICallable.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "IQuackFu.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "List.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ModuleAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ResourceManager.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\AssertionFailedException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\RuntimeException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\RuntimeServices.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\TextReaderEnumerator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-            </Include>
-        </Files>
-    </CSHARP>
-</VisualStudioProject>
-
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</ProjectGuid>
+    <RootNamespace>Boo.Lang</RootNamespace>
+    <AssemblyName>Boo.Lang</AssemblyName>
+    <OutputType>Library</OutputType>
+    <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
+    <NoConfig>false</NoConfig>
+    <DebugType>None</DebugType>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <NoStdLib>false</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>false</Optimize>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE;IGNOREKEYFILE</DefineConstants>
+    <OutputPath>..\..\ide-build</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <NoStdLib>false</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\..\ide-build</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AbstractGenerator.cs" />
+    <Compile Include="AbstractGeneratorEnumerator.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BooComparer.cs" />
+    <Compile Include="BooHashCodeProvider.cs" />
+    <Compile Include="Builtins.cs" />
+    <Compile Include="DuckTypedAttribute.cs" />
+    <Compile Include="EnumeratorItemTypeAttribute.cs" />
+    <Compile Include="ExtensionAttribute.cs" />
+    <Compile Include="Hash.cs" />
+    <Compile Include="ICallable.cs" />
+    <Compile Include="IQuackFu.cs" />
+    <Compile Include="List.cs" />
+    <Compile Include="ModuleAttribute.cs" />
+    <Compile Include="ResourceManager.cs" />
+    <Compile Include="Runtime\AssertionFailedException.cs" />
+    <Compile Include="Runtime\RuntimeException.cs" />
+    <Compile Include="Runtime\RuntimeServices.cs" />
+    <Compile Include="Runtime\TextReaderEnumerator.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+</Project>

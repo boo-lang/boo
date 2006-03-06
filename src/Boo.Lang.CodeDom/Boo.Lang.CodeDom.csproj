@@ -1,120 +1,75 @@
-<VisualStudioProject>
-    <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.10.3077"
-        SchemaVersion = "2.0"
-        ProjectGuid = "{9FE6EA62-C7BE-45DB-A099-336CDEFF0966}"
-    >
-        <Build>
-            <Settings
-                ApplicationIcon = ""
-                AssemblyKeyContainerName = ""
-                AssemblyName = "Boo.Lang.CodeDom"
-                AssemblyOriginatorKeyFile = ""
-                DefaultClientScript = "JScript"
-                DefaultHTMLPageLayout = "Grid"
-                DefaultTargetSchema = "IE50"
-                DelaySign = "false"
-                OutputType = "Library"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
-                RootNamespace = "Boo.Lang.CodeDom"
-                RunPostBuildEvent = "OnBuildSuccess"
-                StartupObject = ""
-            >
-                <Config
-                    Name = "Debug"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE;IGNOREKEYFILE"
-                    DocumentationFile = ""
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "false"
-                    OutputPath = "bin\Debug\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-                <Config
-                    Name = "Release"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
-                    DocumentationFile = ""
-                    DebugSymbols = "false"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "true"
-                    OutputPath = "bin\Release\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-            </Settings>
-            <References>
-                <Reference
-                    Name = "System"
-                    AssemblyName = "System"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll"
-                />
-                <Reference
-                    Name = "System.Data"
-                    AssemblyName = "System.Data"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
-                />
-                <Reference
-                    Name = "System.XML"
-                    AssemblyName = "System.Xml"
-                    HintPath = "..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
-                />
-                <Reference
-                    Name = "Boo.Lang.Compiler"
-                    Project = "{83C914F8-1F12-4879-925D-D831A04366BD}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "Boo.Lang"
-                    Project = "{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-            </References>
-        </Build>
-        <Files>
-            <Include>
-                <File
-                    RelPath = "AssemblyInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooCodeCompiler.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooCodeGenerator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BooCodeProvider.cs"
-                    SubType = "Component"
-                    BuildAction = "Compile"
-                />
-            </Include>
-        </Files>
-    </CSHARP>
-</VisualStudioProject>
-
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" xmlns:Conversion="urn:Conversion">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9FE6EA62-C7BE-45DB-A099-336CDEFF0966}</ProjectGuid>
+    <RootNamespace>Boo.Lang.CodeDom</RootNamespace>
+    <AssemblyName>Boo.Lang.CodeDom</AssemblyName>
+    <OutputType>Library</OutputType>
+    <ApplicationIcon />
+    <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
+    <PreBuildEvent />
+    <PostBuildEvent />
+    <StartupObject />
+    <NoConfig>false</NoConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <NoStdLib>false</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn />
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE;IGNOREKEYFILE</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <NoStdLib>false</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn />
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>bin\Release\</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll</HintPath>
+      <Private />
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll</HintPath>
+      <Private />
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll</HintPath>
+      <Private />
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BooCodeCompiler.cs" />
+    <Compile Include="BooCodeGenerator.cs" />
+    <Compile Include="BooCodeProvider.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Boo\stable\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
+      <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
+      <Name>Boo.Lang.Compiler</Name>
+      <Private />
+    </ProjectReference>
+    <ProjectReference Include="C:\Boo\stable\src\Boo.Lang\Boo.Lang.csproj">
+      <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
+      <Name>Boo.Lang</Name>
+      <Private />
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+</Project>
