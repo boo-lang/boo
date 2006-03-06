@@ -147,6 +147,7 @@ BCW0006=WARNING: Assignment to temporary.
 BCW0007=WARNING: Assignment inside a conditional. Did you mean == instead of = here?: '{0}'
 BCW0008=WARNING: Duplicate namespace: '{0}'.
 BCW0009=WARNING: The -keyfile option will override your AssemblyKeyFile attribute.
+BCW0010=WARNING: The -keycontainer option will override your AssemblyKeyName attribute.
 
 ; BooC Command Line Errors
 BCE0500=Arquivo '{0}' listado mais de uma vez.

@@ -4376,14 +4376,30 @@ namespace Boo.Lang.Compiler.Steps
 		
 		StrongNameKeyPair GetAssemblyKeyPair(string outputFile)
 		{
+			Attribute attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyNameAttribute");
 			if (Parameters.KeyContainer != null)
 			{
-				return new StrongNameKeyPair(Parameters.KeyContainer);
+				if (attribute != null)
+				{
+					Warnings.Add(CompilerWarningFactory.HaveBothKeyNameAndAttribute(attribute));
+				}
+				if (Parameters.KeyContainer != "")
+				{
+					return new StrongNameKeyPair(Parameters.KeyContainer);
+				}
+			}
+			else if (attribute != null)
+			{
+				string asmName = ((StringLiteralExpression)attribute.Arguments[0]).Value;
+				if (asmName != "") //ignore empty AssemblyKeyName values, like C# does
+				{
+					return new StrongNameKeyPair(asmName);
+				}
 			}
 			
 			string fname = null;
 			string srcFile = null;
-			Attribute attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyFileAttribute");
+			attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyFileAttribute");
 			
 			if (Parameters.KeyFile != null)
 			{
