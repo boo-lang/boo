@@ -68,8 +68,7 @@
 			target="exe"
 			output="${build.dir}/boo.exe"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="src/boo.snk">
+			debug="${debug}">
 			
 			<sources basedir="src/boo">
 				<include name="*.boo" />
@@ -164,8 +163,7 @@
 			target="library"
 			output="${build.dir}/Boo.Lang.Interpreter.dll"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="src/boo.snk">
+			debug="${debug}">
 			
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="*.boo" />
@@ -305,8 +303,7 @@
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="false" 
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="src/boo.snk">
+			debug="${debug}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
@@ -348,8 +345,7 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="src/boo.snk">
+			debug="${debug}">
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
 			</sources>
@@ -363,8 +359,7 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="src/boo.snk">
+			debug="${debug}">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
