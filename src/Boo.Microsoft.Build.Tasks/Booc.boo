@@ -277,6 +277,8 @@ Authors:
 		commandLine.AppendSwitchIfNotNull('-o:', OutputAssembly)
 		commandLine.AppendSwitchIfNotNull('-c:', Culture)
 		commandLine.AppendSwitchIfNotNull('-srcdir:', SourceDirectory)
+		commandLine.AppendSwitchIfNotNull('-keyfile:', KeyFile)
+		commandLine.AppendSwitchIfNotNull('-keycontainer:', KeyContainer)
 		
 		if Pipelines:
 			for pipeline in Pipelines:

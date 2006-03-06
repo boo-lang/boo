@@ -59,6 +59,10 @@ public class BoocTask(CompilerBase):
 
 	#endregion Private Static Fields
 	
+	def constructor():
+		SupportsKeyFile = true
+		SupportsKeyContainer = true
+	
 	[FrameworkConfigurable("exename")]
 	[TaskAttribute('exename')]
 	public override ExeName as string:

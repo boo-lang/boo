@@ -70,6 +70,12 @@ namespace Boo.Lang.Compiler
 		
 		bool _StdLib;
 		
+		string _keyFile;
+		
+		string _keyContainer;
+		
+		bool _delaySign;
+		
 		ArrayList _libpaths;
 		
 		string _systemDir;
@@ -101,6 +107,8 @@ namespace Boo.Lang.Compiler
 			_debug = true;
 			_generateInMemory = true;
 			_StdLib = true;
+			
+			_delaySign = false;
 			
 			if (load_default_references) LoadDefaultReferences();
 		}
@@ -504,6 +512,45 @@ namespace Boo.Lang.Compiler
 			set
 			{
 				_ducky = value;
+			}
+		}
+		
+		public string KeyFile
+		{
+			get
+			{
+				return _keyFile;
+			}
+			
+			set
+			{
+				_keyFile = value;
+			}
+		}
+		
+		public string KeyContainer
+		{
+			get
+			{
+				return _keyContainer;
+			}
+			
+			set
+			{
+				_keyContainer = value;
+			}
+		}
+		
+		public bool DelaySign
+		{
+			get
+			{
+				return _delaySign;
+			}
+			
+			set
+			{
+				_delaySign = value;
 			}
 		}
 	}

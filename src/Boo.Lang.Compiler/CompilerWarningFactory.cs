@@ -88,5 +88,10 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerWarning("BCW0008", import.LexicalInfo, name);
 		}
+		
+		public static CompilerWarning HaveBothKeyFileAndAttribute(Node node)
+		{
+			return new CompilerWarning("BCW0009", node.LexicalInfo);
+		}
 	}
 }

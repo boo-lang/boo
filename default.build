@@ -68,7 +68,8 @@
 			target="exe"
 			output="${build.dir}/boo.exe"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="src/boo.snk">
 			
 			<sources basedir="src/boo">
 				<include name="*.boo" />
@@ -163,7 +164,8 @@
 			target="library"
 			output="${build.dir}/Boo.Lang.Interpreter.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="src/boo.snk">
 			
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="*.boo" />
@@ -207,7 +209,10 @@
 	</target>
 	
 	<target name="booc" depends="core">
-		<csc target="exe" output="${build.dir}/booc.exe" debug="${debug}" optimize="${optimize}">
+		<csc target="exe" 
+				output="${build.dir}/booc.exe" 
+				debug="${debug}" 
+				optimize="${optimize}">
 			<sources basedir="src/booc">
 				<include name="*.cs" />
 			</sources>
@@ -300,7 +305,8 @@
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="false" 
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="src/boo.snk">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
@@ -342,7 +348,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="src/boo.snk">
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
 			</sources>
@@ -356,7 +363,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="src/boo.snk">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
@@ -685,9 +693,7 @@
 		<delete dir="${distrobuild.dir}" if="${directory::exists(distrobuild.dir)}" />
 		<mkdir dir="${distrobuild.dir}"/>
 		
-		<!-- Copy the key file.
-			Necessary until nant versions newer than rc3 are more common, 
-			which support a keyfile attribute for csc task. -->
+		<!-- necessary so AssemblyKeyFile attribute can find key (for .net 1.1 csc tasks) -->
 		<mkdir dir="${distrobuild.dir}/src"/>
 		<copy todir="${distrobuild.dir}/src" file="src/boo.snk" />
 		

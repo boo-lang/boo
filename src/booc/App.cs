@@ -445,7 +445,24 @@ namespace BooC
 								}
 								break;
 							}
-
+							
+							case 'k':
+							{
+								if (arg.Substring(1, 7) == "keyfile")
+								{
+									_options.KeyFile = StripQuotes(arg.Substring(9));
+								}
+								else if (arg.Substring(1, 12) == "keycontainer")
+								{
+									_options.KeyContainer = StripQuotes(arg.Substring(14));
+								}	
+								else
+								{
+									InvalidOption(arg);
+								}
+								break;
+							}
+							
 							case 'd':
 							{
 								switch (arg.Substring(1))
@@ -472,6 +489,12 @@ namespace BooC
 									case "debug-steps":
 									{
 										debugSteps = true;
+										break;
+									}
+									
+									case "delaysign":
+									{
+										_options.DelaySign = true;
 										break;
 									}
 									

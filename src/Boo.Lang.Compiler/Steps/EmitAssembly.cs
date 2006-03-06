@@ -4376,27 +4376,74 @@ namespace Boo.Lang.Compiler.Steps
 		
 		StrongNameKeyPair GetAssemblyKeyPair(string outputFile)
 		{
-			string fname = GetAssemblyAttributeValue("System.Reflection.AssemblyKeyFileAttribute");
+			if (Parameters.KeyContainer != null)
+			{
+				return new StrongNameKeyPair(Parameters.KeyContainer);
+			}
+			
+			string fname = null;
+			string srcFile = null;
+			Attribute attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyFileAttribute");
+			
+			if (Parameters.KeyFile != null)
+			{
+				fname = Parameters.KeyFile;
+				if (attribute != null)
+				{
+					Warnings.Add(CompilerWarningFactory.HaveBothKeyFileAndAttribute(attribute));
+				}
+			}
+			else if (attribute != null)
+			{
+				fname = ((StringLiteralExpression)attribute.Arguments[0]).Value;
+				if (attribute.LexicalInfo != null)
+				{
+					srcFile = attribute.LexicalInfo.FileName;
+				}
+			}
+			
 			if (null != fname && fname.Length > 0)
 			{
 				if (!Path.IsPathRooted(fname))
 				{
-					fname = ResolveRelative(outputFile, fname);
+					fname = ResolveRelative(outputFile, srcFile, fname);
 				}
 				using (FileStream stream = File.OpenRead(fname))
 				{
+					//Parameters.DelaySign is ignored.
 					return new StrongNameKeyPair(stream);
 				}
 			}
 			return null;
 		}
 		
-		string ResolveRelative(string targetFile, string relativeFile)
+		string ResolveRelative(string targetFile, string srcFile, string relativeFile)
 		{
-			return Path.GetFullPath(
-						Path.Combine(
-							Path.GetDirectoryName(targetFile),
+			//relative to current directory:
+			string fname = Path.GetFullPath(relativeFile);
+			if (File.Exists(fname))
+			{
+				return fname;
+			}
+			
+			//relative to source file:
+			if (srcFile != null)
+			{
+				fname = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(srcFile),
+								relativeFile));
+				if (File.Exists(fname))
+				{
+					return fname;
+				}
+			}
+			
+			//relative to output assembly:
+			if (targetFile != null)
+			{
+				fname = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(targetFile),
 							relativeFile));
+			}
+			return fname;
 		}
 		
 		Version GetAssemblyVersion()
