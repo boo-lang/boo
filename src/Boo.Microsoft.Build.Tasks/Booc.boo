@@ -45,6 +45,9 @@ Represents the Boo compiler MSBuild task.
 Authors:
 	Sorin Ionescu (sorin.ionescu@gmail.com)
 """
+	def constructor():
+		NoLogo = true
+	
 	Pipelines:
 	"""
 	Gets/sets the aditional pipelines to add to the compiler process.
@@ -86,7 +89,7 @@ Authors:
 	Gets the tool name.
 	"""
 		get:
-			return "Booc.exe"
+			return "booc.exe"
 	
 	override def Execute():
 	"""
@@ -272,7 +275,6 @@ Authors:
 	Returns:
 		The Boo compiler command line.
 	"""	
-		commandLine.AppendSwitch('-nologo')
 		commandLine.AppendSwitchIfNotNull('-t:', TargetType)
 		commandLine.AppendSwitchIfNotNull('-o:', OutputAssembly)
 		commandLine.AppendSwitchIfNotNull('-c:', Culture)
@@ -280,17 +282,35 @@ Authors:
 		commandLine.AppendSwitchIfNotNull('-keyfile:', KeyFile)
 		commandLine.AppendSwitchIfNotNull('-keycontainer:', KeyContainer)
 		
+		commandLine.AppendSwitchIfNotNull("-lib:", AdditionalLibPaths, ",")
+		
+		if NoLogo:
+			commandLine.AppendSwitch('-nologo')
+		if NoConfig:
+			commandLine.AppendSwitch('-noconfig')
+		if DelaySign:
+			commandLine.AppendSwitch('-delaysign')
+			
+		if EmitDebugInformation:
+			commandLine.AppendSwitch('-debug')
+		else:
+			commandLine.AppendSwitch('-debug-')
+		
+		if ResponseFiles:
+			for rsp in ResponseFiles:
+				commandLine.AppendSwitchIfNotNull("@", rsp.ItemSpec)
+				
 		if Pipelines:
 			for pipeline in Pipelines:
 				commandLine.AppendSwitchIfNotNull('-p:', pipeline)
 			
 		if References:
 			for reference in References:
-				commandLine.AppendSwitchIfNotNull('-r:', reference)
+				commandLine.AppendSwitchIfNotNull('-r:', reference.ItemSpec)
 				
 		if Resources:
 			for resource in Resources:
-				commandLine.AppendSwitchIfNotNull('-resource:', resource)
+				commandLine.AppendSwitchIfNotNull('-resource:', resource.ItemSpec)
 		
 		if Verbosity:
 			if string.Compare(
@@ -333,25 +353,27 @@ Authors:
 	"""
 	Generats the full path to booc.exe.
 	"""
-		toolPath as string = ToolPath
-		if toolPath is not null:
-			path = Path.Combine(toolPath, ToolName)
+		path = ""
 		
-		if path is null or not File.Exists(path):
+		if ToolPath:
+			path = Path.Combine(ToolPath, ToolName)
+		
+		if not File.Exists(path):
 			path = Path.Combine(
 				Path.GetDirectoryName(typeof(Booc).Assembly.Location),
 				ToolName)
 		
-		unless File.Exists(path):
+		if not File.Exists(path):
 			path = ToolLocationHelper.GetPathToDotNetFrameworkFile(
 				ToolName,
 				TargetDotNetFrameworkVersion.Version20)
 		
-		unless File.Exists(path):
+		if not File.Exists(path):
 			Log.LogErrorWithCodeFromResources(
 				"General.FrameworksFileNotFound",
 				ToolName,
 				ToolLocationHelper.GetDotNetFrameworkVersionFolderPrefix(
 					TargetDotNetFrameworkVersion.Version20))
+			path = "booc"
 						
 		return path
