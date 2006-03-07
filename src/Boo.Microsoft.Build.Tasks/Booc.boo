@@ -358,22 +358,27 @@ Authors:
 		if ToolPath:
 			path = Path.Combine(ToolPath, ToolName)
 		
-		if not File.Exists(path):
-			path = Path.Combine(
-				Path.GetDirectoryName(typeof(Booc).Assembly.Location),
-				ToolName)
+		return path if File.Exists(path)
 		
-		if not File.Exists(path):
-			path = ToolLocationHelper.GetPathToDotNetFrameworkFile(
-				ToolName,
-				TargetDotNetFrameworkVersion.Version20)
+		path = Path.Combine(
+			Path.GetDirectoryName(typeof(Booc).Assembly.Location),
+			ToolName)
 		
-		if not File.Exists(path):
-			Log.LogErrorWithCodeFromResources(
-				"General.FrameworksFileNotFound",
-				ToolName,
-				ToolLocationHelper.GetDotNetFrameworkVersionFolderPrefix(
-					TargetDotNetFrameworkVersion.Version20))
-			path = "booc"
+		return path if File.Exists(path)
+		
+		path = ToolLocationHelper.GetPathToDotNetFrameworkFile(
+			ToolName,
+			TargetDotNetFrameworkVersion.VersionLatest)
+		
+		return path if File.Exists(path)
+		
+		/* //removed this error message for mono compatibility
+		Log.LogErrorWithCodeFromResources(
+			"General.FrameworksFileNotFound",
+			ToolName,
+			ToolLocationHelper.GetDotNetFrameworkVersionFolderPrefix(
+				TargetDotNetFrameworkVersion.Version20))
+		*/
+		path = "booc"
 						
 		return path
