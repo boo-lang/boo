@@ -172,6 +172,11 @@ namespace Boo.Lang.Compiler.Steps
 			string name = module.Name;
 			if (null != name)
 			{
+				char c = name[0];
+				if (!(char.IsLetter(c) || c=='_'))
+				{
+					name = "_"+name;
+				}
 				name = name.Substring(0, 1).ToUpper() + name.Substring(1) + "Module";
 			}
 			else
