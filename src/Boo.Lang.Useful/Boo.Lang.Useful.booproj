@@ -55,9 +55,9 @@
     <Compile Include="IO\Impl\PreProcessorExpressionEvaluator.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionLexer.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionParser.boo" />
+    <Compile Include="Functional\anyall.boo" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="New Folder" />
     <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
       <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
       <Name>Boo.Lang</Name>
@@ -66,16 +66,12 @@
       <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
       <Name>Boo.Lang.Compiler</Name>
     </ProjectReference>
-    <Folder Include="New Folder" />
-    <Folder Include="New Folder" />
-    <Folder Include="New Folder" />
-    <Folder Include="New Folder" />
-    <Folder Include="New Folder" />
     <Folder Include="IO\New Folder" />
     <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
       <Project>{C1943936-DBBD-4331-94C3-BE4F7E6229DA}</Project>
       <Name>Boo.Lang.Parser</Name>
     </ProjectReference>
+    <Folder Include="New Folder" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>
