@@ -1352,9 +1352,9 @@ public class BooCodeGenerator extends CodeGenerator {
 		// containing the string literals used in the lexer
 		// The literals variable itself is in CharScanner
 		if (g.caseSensitiveLiterals)
-			println("literals = Hashtable(100, 0.4, null, Comparer.Default)");
+			println("literals = Hashtable(100, 0.4f, null, Comparer.Default)");
 		else
-			println("literals = Hashtable(100, 0.4, CaseInsensitiveHashCodeProvider.Default, CaseInsensitiveComparer.Default)");
+			println("literals = Hashtable(100, 0.4f, CaseInsensitiveHashCodeProvider.Default, CaseInsensitiveComparer.Default)");
 		Enumeration keys = grammar.tokenManager.getTokenSymbolKeys();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
