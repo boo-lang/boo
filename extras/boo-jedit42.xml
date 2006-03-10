@@ -168,6 +168,7 @@ JEdit Catalog Entry: <MODE NAME="boo" FILE="boo-jedit42.xml" FILE_NAME_GLOB="*.b
 			<KEYWORD1>static</KEYWORD1>
 			
 			<KEYWORD2>bool</KEYWORD2>
+			<KEYWORD2>regex</KEYWORD2>
 			<KEYWORD2>string</KEYWORD2>
 			<KEYWORD2>object</KEYWORD2>
 			<KEYWORD2>duck</KEYWORD2>
