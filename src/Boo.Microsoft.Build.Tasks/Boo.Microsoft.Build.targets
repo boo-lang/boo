@@ -199,6 +199,8 @@
 			Verbosity="$(BoocVerbosity)"
 			Culture="$(AssemblyCulture)"
 			SourceDirectory="$(SourceDirectory)"
+			KeyFile="$(AssemblyOriginatorKeyFile)"
+			KeyContainer="$(AssemblyKeyContainerName)"
 		/>
 		
 		<Copy
