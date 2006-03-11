@@ -68,15 +68,14 @@ any([1, 2, 3]).MaxValue > 3 #true!"""
 		#used this syntax: any(list).Width > 5.
 		#Parent will then be elements in _innerList,
 		#while _list will be Width values.
-		try:
-			
+		try:			
 			for element, parent in zip(_list, _innerList):
 				if isValid(element, filter):					
 					_passed.Add(parent)					
 				else:					
 					_failed.Add(parent)				
 		except e:
-			raise InvalidOperationException("One or more operations are not supported by all contained elements.")
+			raise InvalidOperationException("One or more operations are not supported by all contained elements.", e)
 	private def check():
 		#default check
 		check({it| return true if it })
@@ -157,7 +156,7 @@ any([1, 2, 3]).MaxValue > 3 #true!"""
 			return field.GetValue(self)
 		#It might be contained inside of the elements then
 		subset = []
-		types = array(Type, element.GetType() for element in _list)
+		types = array(Type, element.GetType() for element in _list if element)
 		for type as Type, element in zip(types, _list):			
 			if property = type.GetProperty(name):
 				value = property.GetValue(element, null)
