@@ -6,6 +6,10 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{86284E52-4C54-48CB-A286-4E34047AF1EF}</ProjectGuid>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
@@ -61,10 +65,6 @@
     <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
       <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
       <Name>Boo.Lang</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
-      <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
-      <Name>Boo.Lang.Compiler</Name>
     </ProjectReference>
     <Folder Include="IO\New Folder" />
     <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser.csproj">

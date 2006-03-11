@@ -30,13 +30,9 @@
     <Compile Include="Booc.boo" />
     <Compile Include="Properties\AssemblyInfo.boo" />
     <Compile Include="CreateBooManifestResourceName.boo" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Project.booproj" />
-    <Content Include="..\RequiredLibraries\Boo.Microsoft.Build.targets">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <Link>Boo.Microsoft.Build.targets</Link>
-    </Content>
+    <None Include="Boo.Microsoft.Build.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>
