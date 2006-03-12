@@ -175,11 +175,11 @@
     <Compile Include="WSABooParsingStep.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="C:\Boo\stable\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
+    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
       <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
       <Name>Boo.Lang.Compiler</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Boo\stable\src\Boo.Lang\Boo.Lang.csproj">
+    <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
       <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
       <Name>Boo.Lang</Name>
     </ProjectReference>

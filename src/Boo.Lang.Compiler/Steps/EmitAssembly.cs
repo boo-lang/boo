@@ -982,11 +982,11 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.Equality:
 				{
-					if (IsZeroOrFalse(expression.Left))
+					if (CanOptimizeAwayZeroOrFalseComparison(expression.Left, expression.Right))
 					{
 						EmitRawBranchTrue(expression.Right, label);
 					}
-					else if (IsZeroOrFalse(expression.Right))
+					else if (CanOptimizeAwayZeroOrFalseComparison(expression.Right, expression.Left))
 					{
 						EmitRawBranchTrue(expression.Left, label);
 					}
@@ -999,11 +999,11 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.Inequality:
 				{
-					if (IsZeroOrFalse(expression.Left))
+					if (CanOptimizeAwayZeroOrFalseComparison(expression.Left, expression.Right))
 					{
 						EmitBranchFalse(expression.Right, label);
 					}
-					else if (IsZeroOrFalse(expression.Right))
+					else if (CanOptimizeAwayZeroOrFalseComparison(expression.Right, expression.Left))
 					{
 						EmitBranchFalse(expression.Left, label);
 					}
@@ -1027,12 +1027,22 @@ namespace Boo.Lang.Compiler.Steps
 			return NodeType.NullLiteralExpression == expression.NodeType;
 		}
 
-		private bool IsZeroOrFalse(Expression expression)
+		private bool CanOptimizeAwayZeroOrFalseComparison(Expression expression, Expression operand)
 		{
-			return IsZero(expression) || IsFalse(expression);
+			return (IsZero(expression)
+			        || IsFalse(expression)) 
+			    && IsNotSingleDoubleOrLong(GetExpressionType(operand));
 		}
 
-		private bool IsFalse(Expression expression)
+	    private bool IsNotSingleDoubleOrLong(IType type)
+	    {
+            if (type == TypeSystemServices.SingleType) return false;
+            if (type == TypeSystemServices.DoubleType) return false;
+            if (type == TypeSystemServices.LongType) return false;
+            return true;
+	    }
+
+	    private bool IsFalse(Expression expression)
 		{
 			return NodeType.BoolLiteralExpression == expression.NodeType
 				&& (false == ((BoolLiteralExpression)expression).Value);
