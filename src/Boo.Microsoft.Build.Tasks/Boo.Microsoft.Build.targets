@@ -195,12 +195,15 @@
 			Sources="@(Compile)"
 			TargetType="$(OutputType)"
 			ToolPath="$(BoocToolPath)"
-			Pipelines="@(Pipeline)"
+			Pipeline="$(Pipeline)"
 			Verbosity="$(BoocVerbosity)"
 			Culture="$(AssemblyCulture)"
 			SourceDirectory="$(SourceDirectory)"
 			KeyFile="$(AssemblyOriginatorKeyFile)"
 			KeyContainer="$(AssemblyKeyContainerName)"
+			EmitDebugInformation="$(DebugSymbols)"
+			DelaySign="$(DelaySign)"
+			NoStandardLib="$(NoStdLib)"
 		/>
 		
 		<Copy

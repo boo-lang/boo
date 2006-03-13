@@ -48,15 +48,22 @@ Authors:
 	def constructor():
 		NoLogo = true
 	
-	Pipelines:
+	Pipeline:
 	"""
-	Gets/sets the aditional pipelines to add to the compiler process.
+	Gets/sets a specific pipeline to add to the compiler process.
 	"""
 		get:
-			return Bag['Pipelines'] as (string)
+			return Bag['Pipelines'] as string
 		set:
 			Bag['Pipelines'] = value
-	
+	NoStandardLib:
+	"""
+	Gets/sets if we want to link to the standard libraries or not.
+	"""
+		get:
+			return GetBoolParameterWithDefault("NoStandardLib", false)
+		set:
+			Bag['NoStandardLib'] = value
 	Verbosity:
 	"""
 	Gets/sets the verbosity level.
@@ -204,7 +211,7 @@ Authors:
 				buildSuccess = false
 		
 			else:
-				Log.LogMessage(MessageImportance.Low, line)
+				Log.LogMessage(MessageImportance.Normal, line)
 				
 		readStandardOutput = def():
 			while true:
@@ -281,13 +288,15 @@ Authors:
 		commandLine.AppendSwitchIfNotNull('-srcdir:', SourceDirectory)
 		commandLine.AppendSwitchIfNotNull('-keyfile:', KeyFile)
 		commandLine.AppendSwitchIfNotNull('-keycontainer:', KeyContainer)
-		
+		commandLine.AppendSwitchIfNotNull('-p:', Pipeline)
 		commandLine.AppendSwitchIfNotNull("-lib:", AdditionalLibPaths, ",")
 		
 		if NoLogo:
 			commandLine.AppendSwitch('-nologo')
 		if NoConfig:
 			commandLine.AppendSwitch('-noconfig')
+		if NoStandardLib:
+			commandLine.AppendSwitch('-nostdlib')
 		if DelaySign:
 			commandLine.AppendSwitch('-delaysign')
 			
@@ -298,12 +307,8 @@ Authors:
 		
 		if ResponseFiles:
 			for rsp in ResponseFiles:
-				commandLine.AppendSwitchIfNotNull("@", rsp.ItemSpec)
-				
-		if Pipelines:
-			for pipeline in Pipelines:
-				commandLine.AppendSwitchIfNotNull('-p:', pipeline)
-			
+				commandLine.AppendSwitchIfNotNull("@", rsp.ItemSpec)				
+
 		if References:
 			for reference in References:
 				commandLine.AppendSwitchIfNotNull('-r:', reference.ItemSpec)
