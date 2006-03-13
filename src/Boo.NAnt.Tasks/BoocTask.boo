@@ -119,8 +119,13 @@ public class BoocTask(CompilerBase):
 		path as string
 		dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 		if Project.TargetFramework:
-			path = Path.Combine(dir, Project.TargetFramework.Name)
-			path = Path.Combine(path, "booc.exe")
+			frameworkname = Project.TargetFramework.Name
+			path = Path.Combine(Path.Combine(dir, frameworkname), "booc.exe")
+			if File.Exists(path):
+				return path
+			//treat mono-1.0==net-1.1 and mono-##==net-##
+			frameworkname = frameworkname.Replace("mono-1.0","net-1.1").Replace("mono-","net-")
+			path = Path.Combine(Path.Combine(dir, frameworkname), "booc.exe")
 			if File.Exists(path):
 				return path
 		path = Path.Combine(dir, "booc.exe")
