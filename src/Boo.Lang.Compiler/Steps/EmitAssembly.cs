@@ -473,15 +473,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethod(Method method)
 		{
-			if (method.IsRuntime)
-			{
-				return;
-			}
-			
-			if (IsPInvoke(method))
-			{
-				return;
-			}
+			if (method.IsRuntime) return;			
+			if (IsPInvoke(method)) return;
 			
 			MethodBuilder methodBuilder = GetMethodBuilder(method);
 			if (null != method.ExplicitInfo)
@@ -494,21 +487,34 @@ namespace Boo.Lang.Compiler.Steps
 				typeBuilder.DefineMethodOverride(implInfo, ifaceInfo);
 			}
 
-			_il = methodBuilder.GetILGenerator();
-			_returnLabel = _il.DefineLabel();
+			EmitMethod(method, methodBuilder.GetILGenerator());
+		}
+		
+		void EmitMethod(Method method, ILGenerator generator)
+		{
+			_il = generator;
 			
-			_returnType = GetEntity(method).ReturnType;
+			DefineLabels(method);
+			Visit(method.Locals);
+			
+			BeginMethodBody(GetEntity(method).ReturnType);
+			Visit(method.Body);
+			EndMethodBody();
+		}
+		
+		void BeginMethodBody(IType returnType)
+		{
+			_returnType = returnType;
+			_returnLabel = _il.DefineLabel();			
 			if (TypeSystemServices.VoidType != _returnType)
 			{
 				_returnValueLocal = _il.DeclareLocal(GetSystemType(_returnType));
 			}
-
-			DefineLabels(method);
-			Visit(method.Locals);
-			Visit(method.Body);
-			
-			_il.MarkLabel(_returnLabel);
-			
+		}
+		
+		void EndMethodBody()
+		{
+			_il.MarkLabel(_returnLabel);			
 			if (null != _returnValueLocal)
 			{
 				_il.Emit(OpCodes.Ldloc, _returnValueLocal);
@@ -556,18 +562,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnConstructor(Constructor constructor)
 		{
-			if (constructor.IsRuntime)
-			{
-				return;
-			}
+			if (constructor.IsRuntime) return;
 			
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
-			_il = builder.GetILGenerator();
-
-			DefineLabels(constructor);
-			Visit(constructor.Locals);
-			Visit(constructor.Body);
-			_il.Emit(OpCodes.Ret);
+			EmitMethod(constructor, builder.GetILGenerator());
 		}
 		
 		override public void OnLocal(Local local)
