@@ -143,7 +143,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			IEntity entity = node.Entity;
 			
-			if (null == entity) return false;
+			if (null == entity) return true;
 			
 			switch (entity.EntityType)
 			{
