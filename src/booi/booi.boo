@@ -31,6 +31,7 @@ import System.IO
 import System.Reflection
 import System.Security.Permissions
 import System.Threading
+import Boo.Lang.Parser
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
@@ -92,6 +93,8 @@ def Main(argv as (string)):
 			break
 		elif "-ducky" == arg:
 			compiler.Parameters.Ducky = true
+		elif "-wsa" == arg:
+			compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
 		elif "-w" == arg:
 			printWarnings = true
 		elif arg.StartsWith("-r:"):			

@@ -64,6 +64,22 @@ Authors:
 			return GetBoolParameterWithDefault("NoStandardLib", false)
 		set:
 			Bag['NoStandardLib'] = value
+	WhiteSpaceAgnostic:
+	"""
+	Gets/sets if we want to use whitespace agnostic mode.
+	"""
+		get:
+			return GetBoolParameterWithDefault("WhiteSpaceAgnostic", false)
+		set:
+			Bag['WhiteSpaceAgnostic'] = value
+	Ducky:
+	"""
+	Gets/sets if we want to use ducky mode.
+	"""
+		get:
+			return GetBoolParameterWithDefault("Ducky", false)
+		set:
+			Bag['Ducky'] = value
 	Verbosity:
 	"""
 	Gets/sets the verbosity level.
@@ -299,7 +315,11 @@ Authors:
 			commandLine.AppendSwitch('-nostdlib')
 		if DelaySign:
 			commandLine.AppendSwitch('-delaysign')
-			
+		if WhiteSpaceAgnostic:
+			commandLine.AppendSwitch('-wsa')
+		if Ducky:
+			commandLine.AppendSwitch('-ducky')
+		
 		if EmitDebugInformation:
 			commandLine.AppendSwitch('-debug')
 		else:

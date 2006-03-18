@@ -121,7 +121,11 @@
 			output="${build.dir}/booi.exe"
 			verbose="${verbose}"
 			debug="${debug}">
-
+			
+			<references basedir="${build.dir}">
+				<include name="Boo.Lang.Parser.dll" />
+			</references>
+			
 			<sources basedir="src/booi">
 				<include name="*.boo" />
 			</sources>

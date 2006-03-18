@@ -93,8 +93,14 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 		else:
 			compiler.Parameters.OutputType = CompilerOutputType.Library
 		compiler.Parameters.Debug = params.IncludeDebugInformation
-		if params.CompilerOptions and "-wsa" in params.CompilerOptions.Split():
-			compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
+		
+		if params.CompilerOptions:
+			extra_options = params.CompilerOptions.Split()
+			if "-wsa" in extra_options:
+				compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
+			if "-ducky" in extra_options:
+				compiler.Parameters.Ducky = true
+				
 		if params.ReferencedAssemblies:
 			for asm in params.ReferencedAssemblies:
 				compiler.Parameters.References.Add(compiler.Parameters.LoadAssembly(asm, true))

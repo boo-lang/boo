@@ -196,6 +196,8 @@
 			TargetType="$(OutputType)"
 			ToolPath="$(BoocToolPath)"
 			Pipeline="$(Pipeline)"
+			WhiteSpaceAgnostic="$(WhiteSpaceAgnostic)"
+			Ducky="$(Ducky)"
 			Verbosity="$(BoocVerbosity)"
 			Culture="$(AssemblyCulture)"
 			SourceDirectory="$(SourceDirectory)"

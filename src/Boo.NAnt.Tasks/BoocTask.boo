@@ -50,6 +50,8 @@ public class BoocTask(CompilerBase):
 	private _useruntime = true //keep true for mono compatibility (don't call booc.exe directly)
 	private _noconfig = false
 	private _nostdlib = false
+	private _wsa = false
+	private _ducky = false
 	
 	#endregion Private Instance Fields
 	#region Private Static Fields
@@ -115,6 +117,22 @@ public class BoocTask(CompilerBase):
 		set:
 			_nostdlib = value
 	
+	[TaskAttribute('wsa')]
+	[BooleanValidator]
+	public WhiteSpaceAgnostic as bool:
+		get:
+			return _wsa
+		set:
+			_wsa = value
+	
+	[TaskAttribute('ducky')]
+	[BooleanValidator]
+	public Ducky as bool:
+		get:
+			return _ducky
+		set:
+			_ducky = value
+	
 	private def FindBooc() as string:
 		path as string
 		dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
@@ -152,6 +170,10 @@ public class BoocTask(CompilerBase):
 			WriteOption(writer, "nostdlib")
 		if Verbose:
 			WriteOption(writer, "vv")
+		if WhiteSpaceAgnostic:
+			WriteOption(writer, "wsa")
+		if Ducky:
+			WriteOption(writer, "ducky")
 	
 	protected override def WriteOption(writer as TextWriter, name as string):
 		writer.WriteLine("-{0}", name)
