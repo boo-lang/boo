@@ -269,7 +269,7 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod conflicting = FindConflictingMember(method, entity);
 			if (null == conflicting) return;
 
-			Error(CompilerErrorFactory.MemberNameConflict(node, extendedType.FullName, TypeSystemServices.GetSignature(conflicting, false)));
+			Error(CompilerErrorFactory.MemberNameConflict(node, extendedType.ToString(), TypeSystemServices.GetSignature(conflicting, false)));
 		}
 
 		private IMethod FindConflictingMember(IMethod extension, IEntity entity)
@@ -390,7 +390,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType type = node.ExpressionType;
 			if (type != TypeSystemServices.VoidType) return;
-			Error(CompilerErrorFactory.InvalidExpressionType(node, type.FullName));
+			Error(CompilerErrorFactory.InvalidExpressionType(node, type.ToString()));
 		}
 	}
 }

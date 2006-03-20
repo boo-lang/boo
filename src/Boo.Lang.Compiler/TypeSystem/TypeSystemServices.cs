@@ -1074,7 +1074,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (i > 0) { _buffer.Append(", "); }
 				if (method.AcceptVarArgs && i == parameters.Length-1) { _buffer.Append('*'); }
-				_buffer.Append(parameters[i].Type.FullName);
+				_buffer.Append(parameters[i].Type);
 			}
 			_buffer.Append(")");
 			return _buffer.ToString();
@@ -1141,6 +1141,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected void AddPrimitiveType(string name, ExternalType type)
 		{
 			_primitives[name] = type;
+			type.PrimitiveName = name;
 		}
 		
 		protected void AddBuiltin(BuiltinFunction function)

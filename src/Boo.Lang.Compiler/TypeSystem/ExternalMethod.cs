@@ -182,7 +182,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.DeclaringType.FullName + "." + _mi.Name;
+				return this.DeclaringType + "." + _mi.Name;
 			}
 		}
 

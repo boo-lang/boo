@@ -3,7 +3,7 @@
 public final transient class Method7Module(System.Object):
 
 	public static def greeting(who as System.String) as System.Object:
-		if System.String.op_Inequality(who, 'bamboo'):
+		if string.op_Inequality(who, 'bamboo'):
 			return 'wassup, g?'
 		return Method7Module.g()
 

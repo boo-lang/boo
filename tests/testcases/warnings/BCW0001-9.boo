@@ -1,6 +1,6 @@
 """
-BCW0001-9.boo(14,12): BCW0001: WARNING: Type 'Ship' does not provide an implementation for 'GameObject.fireOn(System.Single)' and will be marked abstract
-BCW0001-9.boo(5,17): BCW0001: WARNING: Type 'AlienShip' does not provide an implementation for 'Ship.fireOn(System.Single)' and will be marked abstract
+BCW0001-9.boo(14,12): BCW0001: WARNING: Type 'Ship' does not provide an implementation for 'GameObject.fireOn(single)' and will be marked abstract
+BCW0001-9.boo(5,17): BCW0001: WARNING: Type 'AlienShip' does not provide an implementation for 'Ship.fireOn(single)' and will be marked abstract
 """
 class AlienShip(Ship):
 	pass

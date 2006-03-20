@@ -5,7 +5,7 @@ public final transient class Equality0Module(System.Object):
 	private static def Main(argv as (System.String)) as System.Void:
 		o1 = object()
 		o2 = object()
-		Boo.Lang.Builtins.print(System.String.op_Equality('foo', 'bar'))
+		Boo.Lang.Builtins.print(string.op_Equality('foo', 'bar'))
 		Boo.Lang.Builtins.print((3 == 3.0))
 		Boo.Lang.Builtins.print(Boo.Lang.Runtime.RuntimeServices.EqualityOperator(o1, o2))
 		Boo.Lang.Builtins.print(Boo.Lang.Runtime.RuntimeServices.EqualityOperator('foo', o2))

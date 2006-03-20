@@ -45,6 +45,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		int _typeDepth = -1;
 		
+		string _primitiveName;
+		
+		string _fullName;
+		
 		internal ExternalType(TypeSystemServices manager, Type type)
 		{
 			if (null == type)
@@ -59,8 +63,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				// FIXME: don't use Replace but build the name from the parent
-				return _type.FullName.Replace("+", ".");
+				if (null == _fullName)
+				{
+					_fullName = BuildFullName();
+				}
+				return _fullName;
+			}
+		}
+		
+		internal string PrimitiveName
+		{
+			get
+			{
+				return _primitiveName;
+			}
+			
+			set
+			{
+				_primitiveName = value;
 			}
 		}
 		
@@ -101,6 +121,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return _type.IsByRef;
+			}
+		}
+		
+		public IType DeclaringType
+		{
+			get
+			{
+				System.Type declaringType = _type.DeclaringType;
+				return null != declaringType
+					? _typeSystemServices.Map(declaringType)
+					: null;
 			}
 		}
 		
@@ -320,7 +351,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public string ToString()
 		{
-			return FullName;
+			return _primitiveName != null ? _primitiveName : FullName;
 		}
 		
 		static int GetTypeDepth(Type type)
@@ -365,6 +396,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return 1+current;
 			}
 			return 1;
+		}
+		
+		string BuildFullName()
+		{
+			if (_type.IsByRef) return "ref " + this.GetElementType().ToString();
+			if (_type.DeclaringType != null) return this.DeclaringType.ToString() + "." + _type.Name;
+			return _type.FullName;
 		}
 	}
 }

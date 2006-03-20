@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -44,7 +44,7 @@ import System.Runtime.InteropServices
 [assembly: AssemblyConfiguration('')]
 [assembly: AssemblyCompany('')]
 [assembly: AssemblyProduct('Boo.Microsoft.Build.Tasks')]
-[assembly: AssemblyCopyright('Copyright (C) 2005')]
+[assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark('')]
 [assembly: AssemblyCulture('')]
 
@@ -66,5 +66,5 @@ import System.Runtime.InteropServices
 #
 # You can specify all the values or you can default the Revision and
 # Build Numbers by using the '*' as shown below:
-[assembly: AssemblyVersion('1.0.0.0')]
+[assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion('1.0.0.0')]

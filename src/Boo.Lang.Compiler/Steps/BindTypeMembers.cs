@@ -155,7 +155,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Errors.Add(
 					CompilerErrorFactory.EventTypeIsNotCallable(node.Type,
-					type.FullName));
+					type.ToString()));
 			}
 			
 			if (declaringType.IsInterface)

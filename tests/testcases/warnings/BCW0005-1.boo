@@ -1,6 +1,6 @@
 """
-BCW0005-1.boo(21,8): BCW0005: WARNING: Unsubscribing from event 'Foo.Bang' with an adapted method reference. Either change the signature of the method to 'callable(System.Object, System.EventArgs) as System.Void' or use a cached reference of the correct type.
-BCW0005-1.boo(22,9): BCW0005: WARNING: Unsubscribing from event 'Foo.Crash' with an adapted method reference. Either change the signature of the method to 'callable(System.Object) as System.Void' or use a cached reference of the correct type.
+BCW0005-1.boo(21,8): BCW0005: WARNING: Unsubscribing from event 'Foo.Bang' with an adapted method reference. Either change the signature of the method to 'callable(object, System.EventArgs) as void' or use a cached reference of the correct type.
+BCW0005-1.boo(22,9): BCW0005: WARNING: Unsubscribing from event 'Foo.Crash' with an adapted method reference. Either change the signature of the method to 'callable(object) as void' or use a cached reference of the correct type.
 """
 import System
 

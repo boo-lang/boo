@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -40,7 +40,7 @@ import System.Security.Permissions;
 [assembly: AssemblyTitle("Boo CodeDom")]
 [assembly: AssemblyDescription("An implementation of System.CodeDom for Boo.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCopyright("(C) 2006 Rodrigo B. de Oliveira, Arron Washington, Ian MacLean")]
+[assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDelaySign(false)]

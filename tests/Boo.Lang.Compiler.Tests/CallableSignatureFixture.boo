@@ -98,11 +98,11 @@ class CallableSignatureFixture:
 		
 	[Test]
 	def TestToString():
-		Assert.AreEqual("callable() as System.Void", _signature1.ToString())
-		Assert.AreEqual("callable() as System.Int32", _signature2.ToString())
-		Assert.AreEqual("callable(System.Int32) as System.Void", _signature3.ToString())
-		Assert.AreEqual("callable(System.Int32) as System.Int32", _signature4.ToString())
-		Assert.AreEqual("callable(System.Int32, System.Int32) as System.Int32",
+		Assert.AreEqual("callable() as void", _signature1.ToString())
+		Assert.AreEqual("callable() as int", _signature2.ToString())
+		Assert.AreEqual("callable(int) as void", _signature3.ToString())
+		Assert.AreEqual("callable(int) as int", _signature4.ToString())
+		Assert.AreEqual("callable(int, int) as int",
 						CallableSignature(GetMethod("IntIntAsInt")).ToString())
 						
 	[Test]

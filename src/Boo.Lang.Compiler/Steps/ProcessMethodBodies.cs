@@ -664,19 +664,19 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckParameterType(TypeReference type)
 		{
 			if (type.Entity != TypeSystemServices.VoidType) return;
-			Error(CompilerErrorFactory.InvalidParameterType(type, type.Entity.FullName));
+			Error(CompilerErrorFactory.InvalidParameterType(type, type.Entity.ToString()));
 		}
 
 		void CheckFieldType(TypeReference type)
 		{
 			if (type.Entity != TypeSystemServices.VoidType) return;
-			Error(CompilerErrorFactory.InvalidFieldType(type, type.Entity.FullName));
+			Error(CompilerErrorFactory.InvalidFieldType(type, type.Entity.ToString()));
 		}
 
 		void CheckDeclarationType(TypeReference type)
 		{
 			if (type.Entity != TypeSystemServices.VoidType) return;
-			Error(CompilerErrorFactory.InvalidDeclarationType(type, type.Entity.FullName));
+			Error(CompilerErrorFactory.InvalidDeclarationType(type, type.Entity.ToString()));
 		}
 		
 		override public void OnCallableBlockExpression(CallableBlockExpression node)
@@ -884,8 +884,8 @@ namespace Boo.Lang.Compiler.Steps
 					Error(CompilerErrorFactory.InvalidOverrideReturnType(
 						entity.Method.ReturnType,
 						baseMethod.FullName,
-						baseMethod.ReturnType.FullName,
-						entity.ReturnType.FullName));
+						baseMethod.ReturnType.ToString(),
+						entity.ReturnType.ToString()));
 				}
 			}
 			SetOverride(entity, baseMethod);
@@ -1633,7 +1633,7 @@ namespace Boo.Lang.Compiler.Steps
 						IEntity member = targetType.GetDefaultMember();
 						if (null == member)
 						{
-							Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.FullName));
+							Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.ToString()));
 						}
 						else
 						{
@@ -2064,8 +2064,8 @@ namespace Boo.Lang.Compiler.Steps
 				Error(
 					CompilerErrorFactory.IncompatibleExpressionType(
 						node,
-						toType.FullName,
-						fromType.FullName));
+						toType.ToString(),
+						fromType.ToString()));
 			}
 			BindExpressionType(node, toType);
 		}
@@ -2077,11 +2077,11 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (target.IsValueType)
 			{
-				Error(CompilerErrorFactory.CantCastToValueType(node.Target, target.FullName));
+				Error(CompilerErrorFactory.CantCastToValueType(node.Target, target.ToString()));
 			}
 			else if (toType.IsValueType)
 			{
-				Error(CompilerErrorFactory.CantCastToValueType(node.Type, toType.FullName));
+				Error(CompilerErrorFactory.CantCastToValueType(node.Type, toType.ToString()));
 			}
 			BindExpressionType(node, toType);
 		}
@@ -2345,7 +2345,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		virtual protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
-			Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).FullName));
+			Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).ToString()));
 		}
 
 		virtual protected bool ShouldRebindMember(IEntity entity)
@@ -2657,7 +2657,7 @@ namespace Boo.Lang.Compiler.Steps
 					IMethod method = ResolveGetEnumerator(iterator, type);
 					if (null == method)
 					{ 
-						Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.FullName));
+						Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.ToString()));
 					}
 					else
 					{
@@ -2752,7 +2752,7 @@ namespace Boo.Lang.Compiler.Steps
 				else if (!TypeSystemServices.ExceptionType.IsAssignableFrom(exceptionType))
 				{
 					Error(CompilerErrorFactory.InvalidRaiseArgument(node.Exception,
-								exceptionType.FullName));
+								exceptionType.ToString()));
 				}
 			}
 			else
@@ -3595,7 +3595,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					Error(CompilerErrorFactory.InvalidLen(target, type.FullName));
+					Error(CompilerErrorFactory.InvalidLen(target, type.ToString()));
 				}
 				if (null != resultingNode)
 				{
@@ -4113,7 +4113,7 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				Error(node,
-					CompilerErrorFactory.TypeIsNotCallable(node.Target, type.FullName));
+					CompilerErrorFactory.TypeIsNotCallable(node.Target, type.ToString()));
 			}
 		}
 		
@@ -4189,7 +4189,7 @@ namespace Boo.Lang.Compiler.Steps
 				Error(CompilerErrorFactory.OperatorCantBeUsedWithValueType(
 								expression,
 								GetBinaryOperatorText(node.Operator),
-								tag.FullName));
+								tag.ToString()));
 								
 				return false;
 			}
@@ -4633,7 +4633,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			Error(CompilerErrorFactory.NotAPublicFieldOrProperty(sourceNode, type.FullName, name));
+			Error(CompilerErrorFactory.NotAPublicFieldOrProperty(sourceNode, type.ToString(), name));
 			return null;
 		}
 		
@@ -4674,7 +4674,7 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			if (!TypeSystemServices.AreTypesRelated(expectedType, actualType))
 			{
-				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.FullName, actualType.FullName));
+				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.ToString(), actualType.ToString()));
 				return false;
 			}
 			return true;
@@ -4684,7 +4684,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!delegateMember.Type.IsAssignableFrom(argumentInfo.Type))
 			{
-				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.FullName, delegateMember.Type.FullName));
+				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.FullName, delegateMember.Type.ToString()));
 				return false;
 			}
 			return true;
@@ -4797,7 +4797,7 @@ namespace Boo.Lang.Compiler.Steps
 				|| (NodeType.SelfLiteralExpression == targetReference.NodeType
 					&& _currentMethod.IsStatic))
 			{
-				Error(CompilerErrorFactory.InstanceRequired(targetContext, member.DeclaringType.FullName, member.Name));
+				Error(CompilerErrorFactory.InstanceRequired(targetContext, member.DeclaringType.ToString(), member.Name));
 				return false;
 			}
 			return true;
@@ -4839,7 +4839,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (!TypeSystemServices.IsError(type))
 				{
-					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type.FullName, GetSignature(arguments)));
+					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type.ToString(), GetSignature(arguments)));
 				}
 			}
 			return null;
@@ -4864,7 +4864,7 @@ namespace Boo.Lang.Compiler.Steps
 				IConstructor constructor = candidate as IConstructor;
 				if (null != constructor)
 				{
-					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, constructor.DeclaringType.FullName, GetSignature(args)));
+					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, constructor.DeclaringType.ToString(), GetSignature(args)));
 				}
 				else
 				{
@@ -5086,7 +5086,7 @@ namespace Boo.Lang.Compiler.Steps
 			// reference types can be used in bool context
 			if (!type.IsValueType) return expression;
 			
-			Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.FullName));
+			Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.ToString()));
 			return expression;
 		}
 		
@@ -5177,17 +5177,17 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (type.IsInterface)
 			{
-				Error(CompilerErrorFactory.CantCreateInstanceOfInterface(sourceNode, type.FullName));
+				Error(CompilerErrorFactory.CantCreateInstanceOfInterface(sourceNode, type.ToString()));
 				return false;
 			}
 			if (type.IsEnum)
 			{
-				Error(CompilerErrorFactory.CantCreateInstanceOfEnum(sourceNode, type.FullName));
+				Error(CompilerErrorFactory.CantCreateInstanceOfEnum(sourceNode, type.ToString()));
 				return false;
 			}
 			if (type.IsAbstract)
 			{
-				Error(CompilerErrorFactory.CantCreateInstanceOfAbstractType(sourceNode, type.FullName));
+				Error(CompilerErrorFactory.CantCreateInstanceOfAbstractType(sourceNode, type.ToString()));
 				return false;
 			}
 			return true;
@@ -5344,15 +5344,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Error(node, CompilerErrorFactory.InvalidOperatorForType(node,
 							GetUnaryOperatorText(node.Operator),
-							GetExpressionType(node.Operand).FullName));
+							GetExpressionType(node.Operand).ToString()));
 		}
 		
 		void InvalidOperatorForTypes(BinaryExpression node)
 		{
 			Error(node, CompilerErrorFactory.InvalidOperatorForTypes(node,
 							GetBinaryOperatorText(node.Operator),
-							GetExpressionType(node.Left).FullName,
-							GetExpressionType(node.Right).FullName));
+							GetExpressionType(node.Left).ToString(),
+							GetExpressionType(node.Right).ToString()));
 		}
 		
 		void TraceReturnType(Method method, IMethod tag)

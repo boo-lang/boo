@@ -2949,7 +2949,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		MethodInfo GetFromDecimalConversionMethod(IType type)
 		{
-			string toType = "To" + type.ToString().Replace("System.", "");
+			string toType = "To" + type.Name;
 
 			MethodInfo method =
 				typeof(Decimal).GetMethod(toType, new Type[] { typeof(Decimal) });

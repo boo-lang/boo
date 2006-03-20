@@ -57,9 +57,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (_rank > 1)
 				{
-					return "(" + _elementType.FullName + ", " + _rank + ")";
+					return "(" + _elementType.ToString() + ", " + _rank + ")";
 				}
-				return "(" + _elementType.FullName + ")";
+				return "(" + _elementType.ToString() + ")";
 			}
 		}
 		
