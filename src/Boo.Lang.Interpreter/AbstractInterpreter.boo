@@ -185,7 +185,7 @@ class AbstractInterpreter:
 		return code
 		
 	def Eval([required] code as string):
-		return CompilerContext() if 0 == len(code)
+		return CompilerContext(false) if 0 == len(code)
 		return EvalCompilerInput(StringInput("input${++_inputId}", code))
 		
 	def EvalCompilerInput(input as ICompilerInput):

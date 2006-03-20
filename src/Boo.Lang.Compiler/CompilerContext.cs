@@ -71,6 +71,10 @@ namespace Boo.Lang.Compiler
 		{				
 		}
 
+		public CompilerContext(bool stdlib) : this(new CompilerParameters(stdlib), new CompileUnit())
+		{
+		}
+		
 		public CompilerContext(CompilerParameters options, CompileUnit unit)
 		{
 			if (null == options)
