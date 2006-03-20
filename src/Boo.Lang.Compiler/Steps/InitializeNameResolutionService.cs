@@ -118,23 +118,30 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				catch (ReflectionTypeLoadException x)
 				{
-					string load_errors = "";
+					System.IO.StringWriter loadErrors = new System.IO.StringWriter();
+					loadErrors.Write("'" + asm.FullName + "' - (" + GetLocation(asm) + "):");
+					loadErrors.WriteLine(x.Message);
 					foreach(Exception e in x.LoaderExceptions)
 					{
-						load_errors += e.Message+"\n";
+						loadErrors.WriteLine(e.Message);
 					}
-					
 					Errors.Add(
 						CompilerErrorFactory.FailedToLoadTypesFromAssembly(
-							asm.FullName+":\n"+load_errors, x));
+							loadErrors.ToString(), x));
 				}
 				catch (Exception x)
 				{
 					Errors.Add(
 						CompilerErrorFactory.FailedToLoadTypesFromAssembly(
-							asm.FullName, x));
+							"'" + asm.FullName + "' - (" + GetLocation(asm) + "): " + x.Message, x));
 				}
 			}
+		}
+		
+		string GetLocation(Assembly asm)
+		{
+			try { return asm.Location; } catch (Exception x) {}
+			return "location unavailable";
 		}
 	}
 }
