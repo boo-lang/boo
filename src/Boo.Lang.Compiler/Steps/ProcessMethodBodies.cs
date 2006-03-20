@@ -4672,6 +4672,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool AssertTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
 		{	
+			if (TypeSystemServices.IsError(expectedType)
+				|| TypeSystemServices.IsError(actualType))
+			{
+				return false;
+			}
+			
 			if (!TypeSystemServices.AreTypesRelated(expectedType, actualType))
 			{
 				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.ToString(), actualType.ToString()));
