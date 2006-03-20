@@ -268,7 +268,7 @@ namespace Boo.Lang
 		/// The base directory for the new application domain will be set to
 		/// directory containing filename (Path.GetDirectoryName(Path.GetFullPath(filename))).
 		/// </summary>
-		public static string shellm(string filename, string[] arguments)
+		public static string shellm(string filename, params string[] arguments)
 		{
 			AppDomainSetup setup = new AppDomainSetup();
 			setup.ApplicationBase = Path.GetDirectoryName(Path.GetFullPath(filename));
