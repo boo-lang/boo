@@ -544,6 +544,32 @@ def foo():
 value = foo()""")
 		assert "2" == _interpreter.GetValue("value")
 
+	[Test]
+	def MethodReturningDynamicallyDefinedClassInstance():
+		
+		code = """class Foo:
+	[getter(Value)] _value
+	def constructor(value):
+		_value = value
+
+def foo():
+	return Foo(42)	
+
+value = foo().Value
+"""
+		oldIn = Console.In
+		oldOut = Console.Out
+		try:
+			Console.SetIn(StringReader(code))
+			Console.SetOut(writer = StringWriter())
+			_interpreter.ConsoleLoopEval()
+			assert 42 == _interpreter.GetValue("value")
+		ensure:
+			Console.SetIn(oldIn)
+			Console.SetOut(oldOut)
+		
 	def Eval(code as string):
 		result = _interpreter.Eval(code)
 		assert 0 == len(result.Errors), result.Errors.ToString(true)
+		
+
