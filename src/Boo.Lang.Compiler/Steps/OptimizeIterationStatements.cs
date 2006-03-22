@@ -1,0 +1,602 @@
+#region license
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+//     * Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//     * Neither the name of Rodrigo B. de Oliveira nor the names of its
+//     contributors may be used to endorse or promote products derived from this
+//     software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#endregion
+
+//Authored by Cameron Kenneth Knight: http://jira.codehaus.org/browse/BOO-137
+
+namespace Boo.Lang.Compiler.Steps
+{
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.TypeSystem;
+
+	/// <summary>
+	/// AST semantic evaluation.
+	/// </summary>
+	public class OptimizeIterationStatements : AbstractTransformerCompilerStep
+	{
+		static readonly System.Reflection.MethodInfo Array_get_Length = Types.Array.GetProperty("Length").GetGetMethod();
+		static readonly System.Reflection.MethodInfo System_Math_Ceiling = typeof(System.Math).GetMethod("Ceiling", new System.Type[] { typeof(double) });
+		static readonly System.Reflection.ConstructorInfo System_ArgumentOutOfRangeException_ctor = typeof(System.ArgumentOutOfRangeException).GetConstructor(new System.Type[] { typeof(string) });
+
+		Method _current;
+
+		public OptimizeIterationStatements()
+		{
+		}
+		
+		override public void Run()
+		{
+			Visit(CompileUnit);
+		}
+		
+		override public void OnMethod(Method node)
+		{
+			_current = node;
+			Visit(node.Body);
+		}
+		
+		override public void OnConstructor(Constructor node)
+		{
+			OnMethod(node);
+		}
+
+		override public void OnDestructor(Destructor node)
+		{
+			OnMethod(node);
+		}
+		
+		override public void OnCallableBlockExpression(CallableBlockExpression node)
+		{
+			// ignore closure's body since it will be visited
+			// through the closure's newly created method
+		}
+		
+		override public void LeaveForStatement(ForStatement node)
+		{
+			CheckForItemInRangeLoop(node);
+			CheckForItemInArrayLoop(node);
+		}
+
+		/// <summary>
+		/// Optimize the <c>for item in range()</c> construct
+		/// </summary>
+		/// <param name="node">the for statement to check</param>
+		private void CheckForItemInRangeLoop(ForStatement node)
+		{
+			MethodInvocationExpression mi = node.Iterator as MethodInvocationExpression;
+			DeclarationCollection declarations = node.Declarations;
+			Block body = new Block(node.LexicalInfo);
+
+			if ((mi == null) || (mi.Target.ToCodeString() != "Boo.Lang.Builtins.range"))
+			{
+				return;
+			}
+			ExpressionCollection args = mi.Arguments;
+
+			if ((args.Count < 1) || (args.Count > 3) ||
+				(declarations.Count != 1))
+			{
+				return;
+			}
+
+			Expression min;
+			Expression max;
+			Expression step;
+
+			if (args.Count == 1)
+			{
+				min = CodeBuilder.CreateIntegerLiteral(0);
+				max = args[0];
+				step = CodeBuilder.CreateIntegerLiteral(1);
+			}
+			else if (args.Count == 2)
+			{
+				min = args[0];
+				max = args[1];
+				step = CodeBuilder.CreateIntegerLiteral(1);
+			}
+			else
+			{
+				min = args[0];
+				max = args[1];
+				step = args[2];
+			}
+
+			InternalLocal numVar = CodeBuilder.DeclareTempLocal(
+										_current,
+										TypeSystemServices.IntType);
+			Expression numRef = CodeBuilder.CreateReference(numVar);
+
+			// __num = <min>
+			body.Add(
+				CodeBuilder.CreateAssignment(
+					numRef,
+					min));
+			
+			Expression endRef;
+
+			if (max.NodeType == NodeType.IntegerLiteralExpression)
+			{
+				endRef = max;
+			}
+			else
+			{
+				InternalLocal endVar = CodeBuilder.DeclareTempLocal(
+							_current,
+							TypeSystemServices.IntType);
+				endRef = CodeBuilder.CreateReference(endVar);
+
+				// __end = <end>
+				body.Add(
+					CodeBuilder.CreateAssignment(
+						endRef,
+						max));
+			}
+
+			if (args.Count == 1)
+			{
+				if (max.NodeType == NodeType.IntegerLiteralExpression)
+				{
+					if (((IntegerLiteralExpression)max).Value < 0)
+					{
+						// raise ArgumentOutOfRangeException("max") (if <max> < 0)
+						Statement statement = CodeBuilder.RaiseException(
+							body.LexicalInfo,
+							TypeSystemServices.Map(System_ArgumentOutOfRangeException_ctor),
+							CodeBuilder.CreateStringLiteral("max"));
+
+						body.Add(statement);
+					}
+				}
+				else
+				{
+					IfStatement ifStatement = new IfStatement(body.LexicalInfo);
+					ifStatement.TrueBlock = new Block();
+					
+					// raise ArgumentOutOfRangeException("max") if __end < 0
+					Statement statement = CodeBuilder.RaiseException(
+							body.LexicalInfo,
+							TypeSystemServices.Map(System_ArgumentOutOfRangeException_ctor),
+							CodeBuilder.CreateStringLiteral("max"));
+
+					ifStatement.Condition = CodeBuilder.CreateBoundBinaryExpression(
+							TypeSystemServices.BoolType,
+							BinaryOperatorType.LessThan,
+							endRef,
+							CodeBuilder.CreateIntegerLiteral(0));
+
+					ifStatement.TrueBlock.Add(statement);
+
+					body.Add(ifStatement);
+				}
+			}
+
+			Expression stepRef;
+
+			switch (args.Count)
+			{
+				case 1:
+					stepRef = CodeBuilder.CreateIntegerLiteral(1);
+					break;
+				case 2:
+					if ((min.NodeType == NodeType.IntegerLiteralExpression) &&
+					(max.NodeType == NodeType.IntegerLiteralExpression) &&
+					(((IntegerLiteralExpression)max).Value < ((IntegerLiteralExpression)min).Value))
+					{
+						// __step = -1
+						stepRef = CodeBuilder.CreateIntegerLiteral(-1);
+					}
+					else if ((min.NodeType == NodeType.IntegerLiteralExpression) &&
+					(max.NodeType == NodeType.IntegerLiteralExpression))
+					{
+						// __step = 1
+						stepRef = CodeBuilder.CreateIntegerLiteral(1);
+					}
+					else
+					{
+						InternalLocal stepVar = CodeBuilder.DeclareTempLocal(
+								_current,
+								TypeSystemServices.IntType);
+						stepRef = CodeBuilder.CreateReference(stepVar);
+
+						// __step = 1
+						body.Add(
+							CodeBuilder.CreateAssignment(
+								stepRef,
+								CodeBuilder.CreateIntegerLiteral(1)));
+
+						// __step = -1 if __end < __num
+						IfStatement ifStatement = new IfStatement(node.LexicalInfo);
+
+						ifStatement.Condition = CodeBuilder.CreateBoundBinaryExpression(
+							TypeSystemServices.BoolType,
+							BinaryOperatorType.LessThan,
+							endRef,
+							numRef);
+
+						ifStatement.TrueBlock = new Block();
+
+						ifStatement.TrueBlock.Add(
+							CodeBuilder.CreateAssignment(
+								stepRef,
+								CodeBuilder.CreateIntegerLiteral(-1)));
+
+						body.Add(ifStatement);
+					}
+					break;
+				default:
+					if (step.NodeType == NodeType.IntegerLiteralExpression)
+					{
+						stepRef = step;
+					}
+					else
+					{
+						InternalLocal stepVar = CodeBuilder.DeclareTempLocal(
+									_current,
+									TypeSystemServices.IntType);
+						stepRef = CodeBuilder.CreateReference(stepVar);
+
+						// __step = <step>
+						body.Add(
+							CodeBuilder.CreateAssignment(
+								stepRef,
+								step));
+					}
+					break;
+			}
+
+
+			if (args.Count == 3)
+			{
+				Expression condition = null;
+				bool run = false;
+
+				if (step.NodeType == NodeType.IntegerLiteralExpression)
+				{
+					if (((IntegerLiteralExpression)step).Value < 0)
+					{
+						if ((max.NodeType == NodeType.IntegerLiteralExpression) &&
+							(min.NodeType == NodeType.IntegerLiteralExpression))
+						{
+							run = (((IntegerLiteralExpression)max).Value > ((IntegerLiteralExpression)min).Value);
+						}
+						else
+						{
+							condition = new BinaryExpression(
+								BinaryOperatorType.GreaterThan,
+								endRef,
+								numRef);
+						}
+					}
+					else
+					{
+						if ((max.NodeType == NodeType.IntegerLiteralExpression) &&
+							(min.NodeType == NodeType.IntegerLiteralExpression))
+						{
+							run = (((IntegerLiteralExpression)max).Value < ((IntegerLiteralExpression)min).Value);
+						}
+						else
+						{
+							condition = new BinaryExpression(
+								BinaryOperatorType.LessThan,
+								endRef,
+								numRef);
+						}
+					}
+				}
+				else
+				{
+					if ((max.NodeType == NodeType.IntegerLiteralExpression) &&
+						(min.NodeType == NodeType.IntegerLiteralExpression))
+					{
+						if (((IntegerLiteralExpression)max).Value < ((IntegerLiteralExpression)min).Value)
+						{
+							condition = new BinaryExpression(
+								BinaryOperatorType.GreaterThan,
+								stepRef,
+								CodeBuilder.CreateIntegerLiteral(0));
+						}
+						else
+						{
+							condition = new BinaryExpression(
+								BinaryOperatorType.LessThan,
+								stepRef,
+								CodeBuilder.CreateIntegerLiteral(0));
+						}
+					}
+					else
+					{
+						condition = new BinaryExpression(
+							BinaryOperatorType.Or,
+							new BinaryExpression(
+								BinaryOperatorType.And,
+								new BinaryExpression(
+									BinaryOperatorType.LessThan,
+									stepRef,
+									CodeBuilder.CreateIntegerLiteral(0)),
+								new BinaryExpression(
+									BinaryOperatorType.GreaterThan,
+									endRef,
+									numRef)),
+							new BinaryExpression(
+								BinaryOperatorType.And,
+								new BinaryExpression(
+									BinaryOperatorType.GreaterThan,
+									stepRef,
+									CodeBuilder.CreateIntegerLiteral(0)),
+								new BinaryExpression(
+									BinaryOperatorType.LessThan,
+									endRef,
+									numRef)));
+					}
+				}
+
+				// raise ArgumentOutOfRangeException("step") if (__step < 0 and __end > __begin) or (__step > 0 and __end < __begin)
+				Statement statement = CodeBuilder.RaiseException(
+							body.LexicalInfo,
+							TypeSystemServices.Map(System_ArgumentOutOfRangeException_ctor),
+							CodeBuilder.CreateStringLiteral("step"));
+
+				if (condition != null)
+				{
+					IfStatement ifStatement = new IfStatement(body.LexicalInfo);
+					ifStatement.TrueBlock = new Block();
+
+					ifStatement.Condition = condition;
+
+					ifStatement.TrueBlock.Add(statement);
+
+					body.Add(ifStatement);
+				}
+				else if (run)
+				{
+					body.Add(statement);
+				}
+
+				// __end = __num + __step * cast(int, Math.Ceiling((__end - __num)/cast(double, __step)))
+				if ((step.NodeType == NodeType.IntegerLiteralExpression) &&
+					(max.NodeType == NodeType.IntegerLiteralExpression) &&
+					(min.NodeType == NodeType.IntegerLiteralExpression))
+				{
+					int stepVal = (int)((IntegerLiteralExpression)step).Value;
+					int maxVal = (int)((IntegerLiteralExpression)max).Value;
+					int minVal = (int)((IntegerLiteralExpression)min).Value;
+					endRef = CodeBuilder.CreateIntegerLiteral(
+						minVal + stepVal * (int)System.Math.Ceiling((maxVal - minVal) / ((double)stepVal)));
+				}
+				else
+				{
+					Expression endBak = endRef;
+					if (max.NodeType == NodeType.IntegerLiteralExpression)
+					{
+						InternalLocal endVar = CodeBuilder.DeclareTempLocal(
+									_current,
+									TypeSystemServices.IntType);
+						endRef = CodeBuilder.CreateReference(endVar);
+					}
+
+					body.Add(
+						CodeBuilder.CreateAssignment(
+							endRef,
+							CodeBuilder.CreateBoundBinaryExpression(
+								TypeSystemServices.IntType,
+								BinaryOperatorType.Addition,
+								numRef,
+								CodeBuilder.CreateBoundBinaryExpression(
+									TypeSystemServices.IntType,
+									BinaryOperatorType.Multiply,
+									stepRef,
+									CodeBuilder.CreateCast(
+										TypeSystemServices.IntType,
+										CodeBuilder.CreateMethodInvocation(
+											TypeSystemServices.Map(System_Math_Ceiling),
+											CodeBuilder.CreateBoundBinaryExpression(
+												TypeSystemServices.DoubleType,
+												BinaryOperatorType.Division,
+												CodeBuilder.CreateBoundBinaryExpression(
+													TypeSystemServices.IntType,
+													BinaryOperatorType.Subtraction,
+													endBak,
+													numRef),
+												CodeBuilder.CreateCast(
+													TypeSystemServices.DoubleType,
+													stepRef))))))));
+				}
+			}
+
+			// while __num != __end:
+			WhileStatement ws = new WhileStatement(node.LexicalInfo);
+
+			BinaryOperatorType op = BinaryOperatorType.Inequality;
+
+			if (stepRef.NodeType == NodeType.IntegerLiteralExpression)
+			{
+				if (((IntegerLiteralExpression)stepRef).Value > 0)
+				{
+					op = BinaryOperatorType.LessThan;
+				}
+				else
+				{
+					op = BinaryOperatorType.GreaterThan;
+				}
+			}
+
+			ws.Condition = new BinaryExpression(
+				op,
+				numRef,
+				endRef);
+
+			//	item = __num
+			ws.Block.Add(
+				CodeBuilder.CreateAssignment(
+					CodeBuilder.CreateReference((InternalLocal)declarations[0].Entity),
+					numRef));
+
+			Block rawBlock = new Block();
+			rawBlock["checked"] = false;
+			
+			//  __num += __step
+			rawBlock.Add(
+				CodeBuilder.CreateAssignment(
+					numRef,
+					CodeBuilder.CreateBoundBinaryExpression(
+						TypeSystemServices.IntType,
+						BinaryOperatorType.Addition,
+						numRef,
+						stepRef)));
+
+			ws.Block.Add(rawBlock as Statement);
+
+			//	<block>
+			ws.Block.Add(node.Block);
+
+			body.Add(ws);
+
+			ReplaceCurrentNode(body);
+		}
+
+		/// <summary>
+		/// Optimize the <c>for item in array</c> construct
+		/// </summary>
+		/// <param name="node">the for statement to check</param>
+		private void CheckForItemInArrayLoop(ForStatement node)
+		{
+			IType enumeratorType = GetExpressionType(node.Iterator);
+			IType enumeratorItemType = TypeSystemServices.GetEnumeratorItemType(enumeratorType);
+			if ((!enumeratorType.IsArray) || (((ArrayType)enumeratorType).GetArrayRank() > 1) || (enumeratorItemType is InternalCallableType))
+			{
+				return;
+			}
+
+			DeclarationCollection declarations = node.Declarations;
+			Block body = new Block(node.LexicalInfo);
+
+			InternalLocal numVar = CodeBuilder.DeclareTempLocal(
+				_current,
+				TypeSystemServices.IntType);
+			Expression numRef = CodeBuilder.CreateReference(numVar);
+
+			// __num = 0
+			body.Add(
+				CodeBuilder.CreateAssignment(
+					numRef,
+					CodeBuilder.CreateIntegerLiteral(0)));
+			
+			
+			InternalLocal arrayVar = CodeBuilder.DeclareTempLocal(
+										_current,
+										node.Iterator.ExpressionType);
+			ReferenceExpression arrayRef = CodeBuilder.CreateReference(arrayVar);
+
+			// __arr = <arr>
+			body.Add(
+				CodeBuilder.CreateAssignment(
+					arrayRef,
+					node.Iterator));
+
+			InternalLocal endVar = CodeBuilder.DeclareTempLocal(
+							_current,
+							TypeSystemServices.IntType);
+			ReferenceExpression endRef = CodeBuilder.CreateReference(endVar);
+
+			// __end = __arr.Length
+			body.Add(
+				CodeBuilder.CreateAssignment(
+					endRef,
+					CodeBuilder.CreateMethodInvocation(
+							arrayRef,
+							Array_get_Length)));
+
+			// while __num < __end:
+			WhileStatement ws = new WhileStatement(node.LexicalInfo);
+			
+			ws.Condition = new BinaryExpression(
+				BinaryOperatorType.LessThan,
+				numRef,
+				endRef);
+
+			Block rawBlock = new Block();
+			rawBlock["rawarrayindexing"] = true;
+			if (1 == declarations.Count)
+			{
+				//	item = arr[__num]
+				rawBlock.Add(
+					CodeBuilder.CreateAssignment(
+						CodeBuilder.CreateReference((InternalLocal)declarations[0].Entity),
+						new SlicingExpression(
+							arrayRef,
+							numRef)));
+			}
+			else
+			{
+				//  alpha, bravo, charlie = arr[__num]
+				UnpackExpression(
+					rawBlock,
+					CodeBuilder.CreateCast(
+						enumeratorItemType,
+						new SlicingExpression(
+							arrayRef,
+							numRef)),
+					node.Declarations);
+			}
+			ws.Block.Add(rawBlock as Statement);
+
+			rawBlock = new Block();
+			rawBlock["checked"] = false;
+
+			//  __num += 1
+			rawBlock.Add(
+				CodeBuilder.CreateAssignment(
+					numRef,
+					CodeBuilder.CreateBoundBinaryExpression(
+						TypeSystemServices.IntType,
+						BinaryOperatorType.Addition,
+						numRef,
+						CodeBuilder.CreateIntegerLiteral(1))));
+
+			ws.Block.Add(rawBlock as Statement);
+
+			//	<block>
+			ws.Block.Add(node.Block);
+
+			body.Add(ws);
+
+			ReplaceCurrentNode(body);
+		}
+
+		/// <summary>
+		/// Unpacks an expression onto a list of declarations.
+		/// </summary>
+		/// <param name="block">Block this takes place in</param>
+		/// <param name="expression">expression to explode</param>
+		/// <param name="declarations">list of declarations to set</param>
+		void UnpackExpression(Block block, Expression expression, DeclarationCollection declarations)
+		{
+			NormalizeIterationStatements.UnpackExpression(CodeBuilder, _current, block, expression, declarations);
+		}
+	}
+}

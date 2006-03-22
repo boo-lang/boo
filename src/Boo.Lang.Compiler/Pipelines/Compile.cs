@@ -35,6 +35,7 @@ namespace Boo.Lang.Compiler.Pipelines
 		public Compile()
 		{	
 			Add(new UnfoldConstants());
+			Add(new OptimizeIterationStatements());
 
 			Add(new CheckIdentifiers());
 			Add(new StricterErrorChecking());
