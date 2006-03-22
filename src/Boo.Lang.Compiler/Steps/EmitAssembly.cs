@@ -3148,6 +3148,12 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (!expectedType.IsAssignableFrom(actualType))
 			{
+				IMethod method = TypeSystemServices.FindImplicitConversionOperator(actualType,expectedType);
+				if (method != null)
+				{
+					_il.EmitCall(OpCodes.Call, GetMethodInfo(method), null);
+					return;
+				}
 				if (expectedType.IsValueType)
 				{
 					if (actualType.IsValueType)

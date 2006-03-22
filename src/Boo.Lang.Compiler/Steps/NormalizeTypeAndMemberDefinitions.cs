@@ -161,6 +161,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Modifiers |= TypeMemberModifiers.Abstract;
 			}
+			if (node.Name != null && node.Name.StartsWith("op_"))
+			{
+				node.Modifiers |= TypeMemberModifiers.Static;
+			}
 			LeaveMember(node);
 		}
 

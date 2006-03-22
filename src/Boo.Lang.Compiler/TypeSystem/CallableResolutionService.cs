@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				int score = candidate.AcceptVarArgs
 					? CalculateVarArgsScore(parameters, args)
 					: CalculateExactArgsScore(parameters, args);
-				
+
 				if (score >= 0)
 				{
 					// only positive scores are compatible
@@ -281,12 +281,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (IsValidByRefArg(param, parameterType, argumentType, arg))
 				{
-					return 7;
+					return 8;
 				}
 			}
 			else if (parameterType == argumentType)
 			{
 				// exact match
+				return 7;
+			}
+			else if (TypeSystemServices.FindImplicitConversionOperator(argumentType, parameterType) != null)
+			{
+				// implicit conversion
 				return 6;
 			}
 			else if (parameterType.IsAssignableFrom(argumentType))

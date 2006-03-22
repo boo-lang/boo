@@ -1980,67 +1980,6 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, TypeSystemServices.TypeType);
 		}
 		
-		bool IsConversionOperator(IMethod method, IType fromType, IType toType)
-		{
-			if (method.IsStatic)
-			{
-				if (method.ReturnType == toType)
-				{
-					IParameter[] parameters = method.GetParameters();
-					if (1 == parameters.Length &&
-						fromType == parameters[0].Type)
-					{
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-		
-		IMethod FindExplicitConversionOperator(IType fromType, IType toType)
-		{
-			return FindConversionOperator("op_Explicit", fromType, toType);
-		}
-		
-		IMethod FindImplicitConversionOperator(IType fromType, IType toType)
-		{
-			return FindConversionOperator("op_Implicit", fromType, toType);
-		}
-		
-		IMethod FindConversionOperator(string name, IType fromType, IType toType)
-		{	
-			while (fromType != TypeSystemServices.ObjectType)
-			{
-				foreach (IEntity entity in fromType.GetMembers())
-				{
-					if (EntityType.Method == entity.EntityType &&
-						name == entity.Name)
-					{
-						IMethod method = (IMethod)entity;
-						if (IsConversionOperator(method, fromType, toType))
-						{
-							return method;
-						}
-					}
-				}
-				foreach (IEntity entity in toType.GetMembers())
-				{
-					if (EntityType.Method == entity.EntityType &&
-						name == entity.Name)
-					{
-						IMethod method = (IMethod)entity;
-						if (IsConversionOperator(method, fromType, toType))
-						{
-							return method;
-						}
-					}
-				}
-				fromType = fromType.BaseType;
-				if (null == fromType) break;
-			}
-			return null;
-		}
-		
 		override public void LeaveCastExpression(CastExpression node)
 		{
 			IType fromType = GetExpressionType(node.Target);
@@ -2050,7 +1989,7 @@ namespace Boo.Lang.Compiler.Steps
 				!(TypeSystemServices.IsIntegerNumber(toType) && TypeSystemServices.CanBeExplicitlyCastToInteger(fromType)) &&
 				!(TypeSystemServices.IsIntegerNumber(fromType) && TypeSystemServices.CanBeExplicitlyCastToInteger(toType)))
 			{
-				IMethod explicitOperator = FindExplicitConversionOperator(fromType, toType);
+				IMethod explicitOperator = TypeSystemServices.FindExplicitConversionOperator(fromType, toType);
 				if (null != explicitOperator)
 				{
 					node.ParentNode.Replace(
@@ -4704,7 +4643,8 @@ namespace Boo.Lang.Compiler.Steps
 				IType expressionType = GetExpressionType(args[i]);
 				IType parameterType = parameters[i].Type;
 				if (!IsAssignableFrom(parameterType, expressionType) &&
-					!(IsNumber(expressionType) && IsNumber(parameterType)))
+					!(IsNumber(expressionType) && IsNumber(parameterType))
+					&& TypeSystemServices.FindImplicitConversionOperator(expressionType,parameterType) == null)
 				{
 					return false;
 				}
@@ -5086,7 +5026,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsNumber(type)) return expression;
 			if (type.IsEnum) return expression;
 
-			IMethod method = FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
+			IMethod method = TypeSystemServices.FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
 			if (null != method) return CodeBuilder.CreateMethodInvocation(method, expression);
 
 			// reference types can be used in bool context

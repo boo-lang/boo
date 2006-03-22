@@ -131,7 +131,8 @@ namespace Boo.Lang.Compiler.Steps
 					if (existingMember.IsStatic == member.IsStatic)
 					{
 						if (AreParametersTheSame(existingMember, member)
-							&& !AreDifferentInterfaceMembers((IExplicitMember)existingMember, (IExplicitMember)member))
+							&& !AreDifferentInterfaceMembers((IExplicitMember)existingMember, (IExplicitMember)member)
+							&& !AreDifferentConversionOperators(existingMember, member))
 						{
 							MemberConflict(member, TypeSystemServices.GetSignature((IEntityWithParameters)member.Entity, false));
 						}
@@ -144,28 +145,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IParameter[] lhsParameters = GetParameters(lhs.Entity);
 			IParameter[] rhsParameters = GetParameters(rhs.Entity);
-			return AreParametersTheSame(lhsParameters, rhsParameters);
+			return CallableSignature.AreSameParameters(lhsParameters, rhsParameters);
 		}
 
 		private static IParameter[] GetParameters(IEntity entity)
 		{
 			return ((IEntityWithParameters)entity).GetParameters();
-		}
-
-		private static bool AreParametersTheSame(IParameter[] lhsParameters, IParameter[] rhsParameters)
-		{
-			if (lhsParameters.Length != rhsParameters.Length)
-			{
-				return false;
-			}
-			for (int i=0; i<lhsParameters.Length; ++i)
-			{
-				if (lhsParameters[i].Type != rhsParameters[i].Type)
-				{
-					return false;
-				}
-			}
-			return true;
 		}
 
 		bool AreDifferentInterfaceMembers(IExplicitMember lhs, IExplicitMember rhs)
@@ -186,6 +171,23 @@ namespace Boo.Lang.Compiler.Steps
 
 			return true;
 		}
+
+		bool AreDifferentConversionOperators(TypeMember existing, TypeMember actual)
+		{
+			if ((existing.Name == "op_Implicit" || existing.Name == "op_Explicit")
+				&& existing.Name == actual.Name
+				&& existing.NodeType == NodeType.Method
+				&& existing.IsStatic && actual.IsStatic)
+			{
+				IMethod one = existing.Entity as IMethod;
+				IMethod two = actual.Entity as IMethod;
+				if (one != null && two != null && one.ReturnType != two.ReturnType)
+				{
+					return true;
+				}
+			}
+			return false;
+ 		}
 
 		protected void MemberNameConflict(TypeMember member)
 		{

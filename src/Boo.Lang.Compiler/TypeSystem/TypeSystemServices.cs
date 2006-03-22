@@ -579,7 +579,69 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return lhs.IsAssignableFrom(rhs)
 				|| (lhs.IsInterface && !rhs.IsFinal)
 				|| (rhs.IsInterface && !lhs.IsFinal)
-				|| CanBeReachedByDownCastOrPromotion(lhs, rhs);
+				|| CanBeReachedByDownCastOrPromotion(lhs, rhs)
+				|| FindImplicitConversionOperator(rhs,lhs) != null;
+		}
+		
+		public IMethod FindExplicitConversionOperator(IType fromType, IType toType)
+		{
+			return FindConversionOperator("op_Explicit", fromType, toType);
+		}
+		
+		public IMethod FindImplicitConversionOperator(IType fromType, IType toType)
+		{
+			return FindConversionOperator("op_Implicit", fromType, toType);
+		}
+
+		public IMethod FindConversionOperator(string name, IType fromType, IType toType)
+		{	
+			while (fromType != this.ObjectType)
+			{
+				foreach (IEntity entity in fromType.GetMembers())
+				{
+					if (EntityType.Method == entity.EntityType &&
+						name == entity.Name)
+					{
+						IMethod method = (IMethod)entity;
+						if (IsConversionOperator(method, fromType, toType))
+						{
+							return method;
+						}
+					}
+				}
+				foreach (IEntity entity in toType.GetMembers())
+				{
+					if (EntityType.Method == entity.EntityType &&
+						name == entity.Name)
+					{
+						IMethod method = (IMethod)entity;
+						if (IsConversionOperator(method, fromType, toType))
+						{
+							return method;
+						}
+					}
+				}
+				fromType = fromType.BaseType;
+				if (null == fromType) break;
+			}
+			return null;
+		}
+		
+		bool IsConversionOperator(IMethod method, IType fromType, IType toType)
+		{
+			if (method.IsStatic)
+			{
+				if (method.ReturnType == toType)
+				{
+					IParameter[] parameters = method.GetParameters();
+					if (1 == parameters.Length &&
+						fromType == parameters[0].Type)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 		
 		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
