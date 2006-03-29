@@ -54,6 +54,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType IntPtrType;
 		
+		public ExternalType UIntPtrType;
+		
 		public ExternalType ObjectType;
 		
 		public ExternalType ValueTypeType;
@@ -197,6 +199,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(ApplicationExceptionType = new ExternalType(this, Types.ApplicationException));
 			Cache(ExceptionType = new ExternalType(this, Types.Exception));
 			Cache(IntPtrType = new ExternalType(this, Types.IntPtr));
+			Cache(UIntPtrType = new ExternalType(this, Types.UIntPtr));
 			Cache(MulticastDelegateType = new ExternalType(this, Types.MulticastDelegate));
 			Cache(DelegateType = new ExternalType(this, Types.Delegate));
 						

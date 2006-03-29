@@ -3139,6 +3139,18 @@ namespace Boo.Lang.Compiler.Steps
 			return OpCodes.Stind_Ref;
 		}
 		
+		bool IsAssignableFrom(IType expectedType, IType actualType)
+		{			
+			return (IsPtr(expectedType) && IsPtr(actualType))
+				|| expectedType.IsAssignableFrom(actualType);
+		}
+		
+		bool IsPtr(IType type)
+		{
+			return (type == TypeSystemServices.IntPtrType)
+				|| (type == TypeSystemServices.UIntPtrType);
+		}
+		
 		void EmitCastIfNeeded(IType expectedType, IType actualType)
 		{
 			if (null == actualType) // see NullLiteralExpression
@@ -3146,7 +3158,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			if (!expectedType.IsAssignableFrom(actualType))
+			if (!IsAssignableFrom(expectedType, actualType))
 			{
 				IMethod method = TypeSystemServices.FindImplicitConversionOperator(actualType,expectedType);
 				if (method != null)
