@@ -9,7 +9,7 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 
 def createUIntPtrDelegateAssembly():
-	name = AssemblyName("UIntPtrDelegateAssembly")
+	name = AssemblyName(Name: "UIntPtrDelegateAssembly")
 	assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Save, Path.GetTempPath())
 	module = assembly.DefineDynamicModule("UIntPtrDelegateAssembly.dll")
 	
