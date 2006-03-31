@@ -1593,6 +1593,18 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(type);
 		}
 		
+		IType GetExpectedTypeForBitwiseRightOperand(BinaryExpression node)
+		{
+			switch (node.Operator)
+			{
+				// BOO-705
+				case BinaryOperatorType.ShiftLeft:
+				case BinaryOperatorType.ShiftRight:
+					return TypeSystemServices.IntType;
+			}
+			return GetExpressionType(node);
+		}
+		
 		void EmitBitwiseOperator(BinaryExpression node)
 		{
 			IType type = node.ExpressionType;
@@ -1601,7 +1613,9 @@ namespace Boo.Lang.Compiler.Steps
 			EmitCastIfNeeded(type, PopType());
 			
 			Visit(node.Right);
-			EmitCastIfNeeded(type, PopType());
+			EmitCastIfNeeded(
+				GetExpectedTypeForBitwiseRightOperand(node),
+				PopType());
 			
 			switch (node.Operator)
 			{
