@@ -135,7 +135,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					NameResolutionService.OrganizeAssemblyTypes(asm);
 				}
-				catch (Exception x)
+				catch (Exception /*ignored*/)
 				{
 					return false;
 				}

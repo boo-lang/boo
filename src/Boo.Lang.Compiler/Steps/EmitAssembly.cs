@@ -805,12 +805,12 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsNull(expression.Left))
 					{
-						EmitRawBranchFalse(expression.Right, label);
+						EmitBranchFalse(expression.Right, label);
 						break;
 					}
 					if (IsNull(expression.Right))
 					{
-						EmitRawBranchFalse(expression.Left, label);
+						EmitBranchFalse(expression.Left, label);
 						break;
 					}
 					Visit(expression.Left); PopType();
@@ -823,12 +823,12 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsNull(expression.Left))
 					{
-						EmitRawBranchTrue(expression.Right, label);
+						EmitBranchTrue(expression.Right, label);
 						break;
 					}
 					if (IsNull(expression.Right))
 					{
-						EmitRawBranchTrue(expression.Left, label);
+						EmitBranchTrue(expression.Left, label);
 						break;
 					}
 					Visit(expression.Left); PopType();
@@ -872,18 +872,6 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 			}
-		}
-
-		private void EmitRawBranchFalse(Expression expression, Label label)
-		{
-			Visit(expression); PopType();
-			_il.Emit(OpCodes.Brfalse, label);
-		}
-
-		private void EmitRawBranchTrue(Expression expression, Label label)
-		{
-			Visit(expression); PopType();
-			_il.Emit(OpCodes.Brtrue, label);
 		}
 
 		void EmitBranchTrue(Expression expression, Label label)
@@ -962,11 +950,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsNull(expression.Left))
 					{
-						EmitRawBranchTrue(expression.Right,  label);
+						EmitBranchTrue(expression.Right,  label);
 					}
 					else if (IsNull(expression.Right))
 					{
-						EmitRawBranchTrue(expression.Left, label);
+						EmitBranchTrue(expression.Left, label);
 					}
 					else
 					{
@@ -979,11 +967,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsNull(expression.Left))
 					{
-						EmitRawBranchFalse(expression.Right,  label);
+						EmitBranchFalse(expression.Right,  label);
 					}
 					else if (IsNull(expression.Right))
 					{
-						EmitRawBranchFalse(expression.Left, label);
+						EmitBranchFalse(expression.Left, label);
 					}
 					else
 					{
@@ -996,11 +984,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (CanOptimizeAwayZeroOrFalseComparison(expression.Left, expression.Right))
 					{
-						EmitRawBranchTrue(expression.Right, label);
+						EmitBranchTrue(expression.Right, label);
 					}
 					else if (CanOptimizeAwayZeroOrFalseComparison(expression.Right, expression.Left))
 					{
-						EmitRawBranchTrue(expression.Left, label);
+						EmitBranchTrue(expression.Left, label);
 					}
 					else
 					{
@@ -1041,18 +1029,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool CanOptimizeAwayZeroOrFalseComparison(Expression expression, Expression operand)
 		{
-			return (IsZero(expression)
-			        || IsFalse(expression)) 
-			    && IsNotSingleDoubleOrLong(GetExpressionType(operand));
+			return (IsZero(expression) || IsFalse(expression));
 		}
-
-	    private bool IsNotSingleDoubleOrLong(IType type)
-	    {
-            if (type == TypeSystemServices.SingleType) return false;
-            if (type == TypeSystemServices.DoubleType) return false;
-            if (type == TypeSystemServices.LongType) return false;
-            return true;
-	    }
 
 	    private bool IsFalse(Expression expression)
 		{

@@ -140,7 +140,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		string GetLocation(Assembly asm)
 		{
-			try { return asm.Location; } catch (Exception x) {}
+			try { return asm.Location; } catch (Exception /*ignored*/) {}
 			return "location unavailable";
 		}
 	}

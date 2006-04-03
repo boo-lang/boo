@@ -438,6 +438,7 @@
     <Compile Include="Util\MarshalByRefEnumerator.cs" />
     <Compile Include="Util\TaskList.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
+    <Compile Include="Steps\OptimizeIterationStatements.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">

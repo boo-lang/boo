@@ -217,7 +217,7 @@ namespace Boo.Lang.Compiler
 					a = LoadAssemblyFromGac(assembly, throw_errors);
 				}
 			}
-			catch (FileNotFoundException f)
+			catch (FileNotFoundException /*ignored*/)
 			{
 				return LoadAssemblyFromLibPaths(assembly, throw_errors);
 			}
@@ -314,7 +314,7 @@ namespace Boo.Lang.Compiler
 				{
 					codebase = a.Location;
 				}
-				catch (Exception e) //dynamic assembly, ignore
+				catch (Exception /*ignored*/) //dynamic assembly, ignore
 				{
 					continue;
 				}
