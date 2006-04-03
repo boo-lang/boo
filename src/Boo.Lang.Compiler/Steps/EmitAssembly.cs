@@ -1088,9 +1088,25 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefaultBranchFalse(Expression expression, Label label)
 		{
-			expression.Accept(this); PopType();
-			EmitToBoolIfNeeded(expression);
-			_il.Emit(OpCodes.Brfalse, label);
+			expression.Accept(this);
+			IType type = PopType();
+			if (TypeSystemServices.DoubleType == type)
+			{
+				_il.Emit(OpCodes.Ldc_R8, (double)0.0);
+				_il.Emit(OpCodes.Ceq);
+				_il.Emit(OpCodes.Brtrue, label);
+			}
+			else if (TypeSystemServices.SingleType == type)
+			{
+				_il.Emit(OpCodes.Ldc_R4, (float)0.0);
+				_il.Emit(OpCodes.Ceq);
+				_il.Emit(OpCodes.Brtrue, label);
+			}
+			else
+			{
+				EmitToBoolIfNeeded(expression);
+				_il.Emit(OpCodes.Brfalse, label);
+			}
 		}
 		
 		override public void OnBreakStatement(BreakStatement node)
@@ -1523,19 +1539,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Decimal, null);
 				return true;
-			}
-			if (TypeSystemServices.DoubleType == type)
-			{
-				_il.Emit(OpCodes.Ldc_R8, 0.0);
-				_il.Emit(OpCodes.Ceq);
-				return true;
-			}
-			if (TypeSystemServices.SingleType == type)
-			{
-				_il.Emit(OpCodes.Ldc_R4, 0.0f);
-				_il.Emit(OpCodes.Ceq);
-				return true;
-			}
+			}			
 			return false;
 		}
 		
