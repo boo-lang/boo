@@ -12,6 +12,7 @@ test3
 test3
 21
 """
+import System.Globalization
 
 //test overload resolution
 def test1(ref x as int):
@@ -43,7 +44,7 @@ print a1
 
 a2 = 1.1
 test1(a2)
-print a2
+print a2.ToString(CultureInfo.InvariantCulture)
 
 
 ba1 = 2
