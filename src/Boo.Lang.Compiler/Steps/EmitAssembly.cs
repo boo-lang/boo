@@ -222,7 +222,133 @@ namespace Boo.Lang.Compiler.Steps
 					OnModule(module);
 				}
 				
+				EmitAttributes();
 				CreateTypes(types);
+			}
+		}
+		
+		class AttributeEmitVisitor : DepthFirstVisitor
+		{
+			EmitAssembly _emitter;
+			
+			public AttributeEmitVisitor(EmitAssembly emitter)
+			{
+				_emitter = emitter;
+			}
+			
+			public override void OnField(Field node)
+			{
+				_emitter.EmitFieldAttributes(node);
+			}
+			
+			public override void OnEnumMember(EnumMember node)
+			{
+				_emitter.EmitFieldAttributes(node);
+			}
+			
+			public override void OnEvent(Event node)
+			{
+				_emitter.EmitEventAttributes(node);
+			}
+			
+			public override void OnProperty(Property node)
+			{
+				Visit(node.Getter);
+				Visit(node.Setter);
+				_emitter.EmitPropertyAttributes(node);
+			}
+			
+			public override void OnConstructor(Constructor node)
+			{
+				Visit(node.Parameters);
+				_emitter.EmitConstructorAttributes(node);
+			}
+			
+			public override void OnMethod(Method node)
+			{
+				Visit(node.Parameters);
+				_emitter.EmitMethodAttributes(node);
+			}
+			
+			public override void OnParameterDeclaration(ParameterDeclaration node)
+			{
+				_emitter.EmitParameterAttributes(node);
+			}
+			
+			public override void LeaveClassDefinition(ClassDefinition node)
+			{
+				_emitter.EmitTypeAttributes(node);
+			}
+			
+			public override void LeaveInterfaceDefinition(InterfaceDefinition node)
+			{
+				_emitter.EmitTypeAttributes(node);
+			}
+			
+			public override void LeaveEnumDefinition(EnumDefinition node)
+			{
+				_emitter.EmitTypeAttributes(node);
+			}
+		}
+		
+		delegate void CustomAttributeSetter(CustomAttributeBuilder attribute);
+		
+		void EmitAttributes(INodeWithAttributes node, CustomAttributeSetter setCustomAttribute)
+		{
+			foreach (Attribute attribute in node.Attributes)
+			{
+				setCustomAttribute(GetCustomAttributeBuilder(attribute));
+			}
+		}
+		
+		void EmitPropertyAttributes(Property node)
+		{
+			PropertyBuilder builder = GetPropertyBuilder(node);
+			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+		}
+		
+		void EmitParameterAttributes(ParameterDeclaration node)
+		{
+			ParameterBuilder builder = (ParameterBuilder)GetBuilder(node);
+			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+		}
+		
+		void EmitEventAttributes(Event node)
+		{
+			EventBuilder builder = (EventBuilder)GetBuilder(node);
+			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+		}
+		
+		void EmitConstructorAttributes(Constructor node)
+		{
+			ConstructorBuilder builder = (ConstructorBuilder)GetBuilder(node);
+			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+		}
+		
+		void EmitMethodAttributes(Method node)
+		{
+			MethodBuilder builder = GetMethodBuilder(node);
+			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+		}
+		
+		void EmitTypeAttributes(TypeDefinition node)
+		{
+			TypeBuilder builder = GetTypeBuilder(node);
+			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+		}
+		
+		void EmitFieldAttributes(TypeMember node)
+		{
+			FieldBuilder builder = GetFieldBuilder(node);
+			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+		}
+		
+		void EmitAttributes()
+		{
+			AttributeEmitVisitor visitor = new AttributeEmitVisitor(this);
+			foreach (Module module in CompileUnit.Modules)
+			{
+				module.Accept(visitor);
 			}
 		}
 		
@@ -427,9 +553,8 @@ namespace Boo.Lang.Compiler.Steps
 									FieldAttributes.Static |
 									FieldAttributes.Literal);
 				field.SetConstant((int)member.Initializer.Value);
-				EmitFieldAttributes(field, member.Attributes);
+				SetBuilder(member, field);
 			}
-			EmitAttributes(builder, node);
 		}
 		
 		override public void OnArrayTypeReference(ArrayTypeReference node)
@@ -457,7 +582,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				builder.AddInterfaceImplementation(GetSystemType(baseType));
 			}
-			EmitAttributes(builder, node);
 		}
 		
 		override public void OnCallableDefinition(CallableDefinition node)
@@ -3902,12 +4026,6 @@ namespace Boo.Lang.Compiler.Steps
 					DefineMethod(typeBuilder, setter, attribs);
 				builder.SetSetMethod(setterBuilder);
 			}
-			
-			foreach (Attribute attribute in property.Attributes)
-			{
-				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
-			}
-
 			bool isDuckTyped = GetEntity(property).IsDuckTyped;
 			if (isDuckTyped)
 			{
@@ -3922,50 +4040,32 @@ namespace Boo.Lang.Compiler.Steps
 			FieldBuilder builder = typeBuilder.DefineField(field.Name,
 			                                               GetSystemType(field),
 			                                               GetFieldAttributes(field));
-			EmitFieldAttributes(builder, field.Attributes);
 			SetBuilder(field, builder);
 		}
 		
-		void EmitFieldAttributes(FieldBuilder builder, AttributeCollection attributes)
+		delegate ParameterBuilder ParameterFactory(int index, System.Reflection.ParameterAttributes attributes, string name);
+		
+		void DefineParameters(ConstructorBuilder builder, ParameterDeclarationCollection parameters)
 		{
-			foreach (Attribute attribute in attributes)
-			{
-				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
-			}
+			DefineParameters(parameters, new ParameterFactory(builder.DefineParameter));
 		}
 		
 		void DefineParameters(MethodBuilder builder, ParameterDeclarationCollection parameters)
 		{
-			int last = parameters.Count - 1;
-			for (int i=0; i<parameters.Count; ++i)
-			{
-				ParameterBuilder paramBuilder = builder.DefineParameter(i+1, GetParameterAttributes(parameters[i]), parameters[i].Name);
-				if (last == i && parameters.VariableNumber)
-				{
-					SetParamArrayAttribute(paramBuilder);
-				}
-				foreach (Attribute attribute in parameters[i].Attributes)
-				{
-					paramBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
-				}
-			}
-			
+			DefineParameters(parameters, new ParameterFactory(builder.DefineParameter));
 		}
 		
-		void DefineParameters(ConstructorBuilder builder, ParameterDeclarationCollection parameters)
+		void DefineParameters(ParameterDeclarationCollection parameters, ParameterFactory defineParameter)
 		{
 			int last = parameters.Count - 1;
 			for (int i=0; i<parameters.Count; ++i)
 			{
-				ParameterBuilder paramBuilder = builder.DefineParameter(i+1, GetParameterAttributes(parameters[i]), parameters[i].Name);
+				ParameterBuilder paramBuilder = defineParameter(i+1, GetParameterAttributes(parameters[i]), parameters[i].Name);
 				if (last == i && parameters.VariableNumber)
 				{
 					SetParamArrayAttribute(paramBuilder);
 				}
-				foreach (Attribute attribute in parameters[i].Attributes)
-				{
-					paramBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
-				}
+				SetBuilder(parameters[i], paramBuilder);
 			}
 		}
 		
@@ -4014,11 +4114,7 @@ namespace Boo.Lang.Compiler.Steps
 			DefineParameters(builder, parameters);
 			
 			SetBuilder(method, builder);
-			foreach (Attribute attribute in method.Attributes)
-			{
-				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
-			}
-
+			
 			IMethod methodEntity = GetEntity(method);
 			if (methodEntity.IsDuckTyped)
 			{
@@ -4113,15 +4209,6 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					typeBuilder.AddInterfaceImplementation(type);
 				}
-			}
-			EmitAttributes(typeBuilder, typeDefinition);
-		}
-		
-		void EmitAttributes(TypeBuilder typeBuilder, TypeDefinition typeDefinition)
-		{
-			foreach (Attribute attribute in typeDefinition.Attributes)
-			{
-				typeBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
 		}
 		
