@@ -124,6 +124,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType IDictionaryType;
 		
+		public ExternalType SystemAttribute;
+		
 		protected Hashtable _primitives = new Hashtable();
 		
 		protected Hashtable _entityCache = new Hashtable();
@@ -202,6 +204,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(UIntPtrType = new ExternalType(this, Types.UIntPtr));
 			Cache(MulticastDelegateType = new ExternalType(this, Types.MulticastDelegate));
 			Cache(DelegateType = new ExternalType(this, Types.Delegate));
+			Cache(SystemAttribute = new ExternalType(this, typeof(System.Attribute)));
 						
 			ObjectArrayType = GetArrayType(ObjectType, 1);
 
@@ -938,6 +941,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			return null;
+		}
+		
+		public bool IsAttribute(IType type)
+		{
+			return type.IsSubclassOf(SystemAttribute);
 		}
 		
 		public static IType GetType(Node node)

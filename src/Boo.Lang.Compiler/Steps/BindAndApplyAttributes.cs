@@ -171,8 +171,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IType _astAttributeInterface;
 		
-		IType _systemAttributeBaseClass;
-		
 		Boo.Lang.List _elements = new Boo.Lang.List();
 
 		public BindAndApplyAttributes()
@@ -183,7 +181,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			_astAttributeInterface = TypeSystemServices.Map(typeof(IAstAttribute));
-			_systemAttributeBaseClass = TypeSystemServices.Map(typeof(System.Attribute));
 			
 			int step = 0;
 			while (step < Parameters.MaxAttributeSteps)
@@ -358,7 +355,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsSystemAttribute(IType type)
 		{
-			return type.IsSubclassOf(_systemAttributeBaseClass);
+			return TypeSystemServices.IsAttribute(type);
 		}
 
 		bool IsAstAttribute(IType type)
