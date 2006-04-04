@@ -427,6 +427,7 @@ namespace Boo.Lang.Compiler.Steps
 									FieldAttributes.Static |
 									FieldAttributes.Literal);
 				field.SetConstant((int)member.Initializer.Value);
+				EmitFieldAttributes(field, member.Attributes);
 			}
 			EmitAttributes(builder, node);
 		}
@@ -3921,11 +3922,16 @@ namespace Boo.Lang.Compiler.Steps
 			FieldBuilder builder = typeBuilder.DefineField(field.Name,
 			                                               GetSystemType(field),
 			                                               GetFieldAttributes(field));
-			foreach (Attribute attribute in field.Attributes)
+			EmitFieldAttributes(builder, field.Attributes);
+			SetBuilder(field, builder);
+		}
+		
+		void EmitFieldAttributes(FieldBuilder builder, AttributeCollection attributes)
+		{
+			foreach (Attribute attribute in attributes)
 			{
 				builder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
 			}
-			SetBuilder(field, builder);
 		}
 		
 		void DefineParameters(MethodBuilder builder, ParameterDeclarationCollection parameters)
