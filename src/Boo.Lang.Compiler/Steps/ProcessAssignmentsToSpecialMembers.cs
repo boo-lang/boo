@@ -90,10 +90,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		public class ChainItem
 		{
-			public MemberReferenceExpression Container;
+			public Expression Container;
 			public InternalLocal Local;
 
-			public ChainItem(MemberReferenceExpression container)
+			public ChainItem(Expression container)
 			{
 				this.Container = container;
 			}
