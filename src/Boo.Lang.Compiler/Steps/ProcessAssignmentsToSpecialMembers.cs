@@ -154,7 +154,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		List WalkMemberChain(MemberReferenceExpression memberRef)
+		protected virtual List WalkMemberChain(MemberReferenceExpression memberRef)
 		{
 			List chain = new List();
 			while (true)
