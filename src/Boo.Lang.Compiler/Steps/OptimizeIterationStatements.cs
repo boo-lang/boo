@@ -30,6 +30,7 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
+	using System;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 
@@ -41,11 +42,30 @@ namespace Boo.Lang.Compiler.Steps
 		static readonly System.Reflection.MethodInfo Array_get_Length = Types.Array.GetProperty("Length").GetGetMethod();
 		static readonly System.Reflection.MethodInfo System_Math_Ceiling = typeof(System.Math).GetMethod("Ceiling", new System.Type[] { typeof(double) });
 		static readonly System.Reflection.ConstructorInfo System_ArgumentOutOfRangeException_ctor = typeof(System.ArgumentOutOfRangeException).GetConstructor(new System.Type[] { typeof(string) });
+		
+		IMethod _range_End;
+		IMethod _range_Begin_End;
+		IMethod _range_Begin_End_Step;
 
 		Method _current;
 
 		public OptimizeIterationStatements()
 		{
+		}
+		
+		override public void Initialize(CompilerContext context)
+		{
+			base.Initialize(context);
+			
+			Type builtins = typeof(Boo.Lang.Builtins);
+			_range_End = Map(builtins.GetMethod("range", new Type[] { Types.Int }));
+			_range_Begin_End = Map(builtins.GetMethod("range", new Type[] { Types.Int, Types.Int }));
+			_range_Begin_End_Step = Map(builtins.GetMethod("range", new Type[] { Types.Int, Types.Int, Types.Int }));
+		}
+		
+		IMethod Map(System.Reflection.MethodInfo method)
+		{
+			return TypeSystemServices.Map(method);
 		}
 		
 		override public void Run()
@@ -80,6 +100,14 @@ namespace Boo.Lang.Compiler.Steps
 			CheckForItemInRangeLoop(node);
 			CheckForItemInArrayLoop(node);
 		}
+		
+		bool IsRangeInvocation(MethodInvocationExpression mi)
+		{
+			IEntity entity = mi.Target.Entity;
+			return entity == _range_End
+				|| entity == _range_Begin_End
+				|| entity == _range_Begin_End_Step;
+		}
 
 		/// <summary>
 		/// Optimize the <c>for item in range()</c> construct
@@ -88,20 +116,14 @@ namespace Boo.Lang.Compiler.Steps
 		private void CheckForItemInRangeLoop(ForStatement node)
 		{
 			MethodInvocationExpression mi = node.Iterator as MethodInvocationExpression;
+			if (null == mi) return;
+			if (!IsRangeInvocation(mi)) return;
+			
 			DeclarationCollection declarations = node.Declarations;
-			Block body = new Block(node.LexicalInfo);
-
-			if ((mi == null) || (mi.Target.ToCodeString() != "Boo.Lang.Builtins.range"))
-			{
-				return;
-			}
+			if (declarations.Count != 1) return;			
+						
 			ExpressionCollection args = mi.Arguments;
-
-			if ((args.Count < 1) || (args.Count > 3) ||
-				(declarations.Count != 1))
-			{
-				return;
-			}
+			Block body = new Block(node.LexicalInfo);
 
 			Expression min;
 			Expression max;
@@ -286,7 +308,8 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							condition = new BinaryExpression(
+							condition = CodeBuilder.CreateBoundBinaryExpression(
+								TypeSystemServices.BoolType,
 								BinaryOperatorType.GreaterThan,
 								endRef,
 								numRef);
@@ -301,7 +324,8 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							condition = new BinaryExpression(
+							condition = CodeBuilder.CreateBoundBinaryExpression(
+								TypeSystemServices.BoolType,
 								BinaryOperatorType.LessThan,
 								endRef,
 								numRef);
@@ -315,14 +339,16 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						if (((IntegerLiteralExpression)max).Value < ((IntegerLiteralExpression)min).Value)
 						{
-							condition = new BinaryExpression(
+							condition = CodeBuilder.CreateBoundBinaryExpression(
+								TypeSystemServices.BoolType,
 								BinaryOperatorType.GreaterThan,
 								stepRef,
 								CodeBuilder.CreateIntegerLiteral(0));
 						}
 						else
 						{
-							condition = new BinaryExpression(
+							condition = CodeBuilder.CreateBoundBinaryExpression(
+								TypeSystemServices.BoolType,
 								BinaryOperatorType.LessThan,
 								stepRef,
 								CodeBuilder.CreateIntegerLiteral(0));
@@ -330,25 +356,32 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						condition = new BinaryExpression(
+						condition = CodeBuilder.CreateBoundBinaryExpression(
+							TypeSystemServices.BoolType,
 							BinaryOperatorType.Or,
-							new BinaryExpression(
+							CodeBuilder.CreateBoundBinaryExpression(
+								TypeSystemServices.BoolType,
 								BinaryOperatorType.And,
-								new BinaryExpression(
+								CodeBuilder.CreateBoundBinaryExpression(
+									TypeSystemServices.BoolType,
 									BinaryOperatorType.LessThan,
 									stepRef,
 									CodeBuilder.CreateIntegerLiteral(0)),
-								new BinaryExpression(
+								CodeBuilder.CreateBoundBinaryExpression(
+									TypeSystemServices.BoolType,
 									BinaryOperatorType.GreaterThan,
 									endRef,
 									numRef)),
-							new BinaryExpression(
+							CodeBuilder.CreateBoundBinaryExpression(
+								TypeSystemServices.BoolType,
 								BinaryOperatorType.And,
-								new BinaryExpression(
+								CodeBuilder.CreateBoundBinaryExpression(
+									TypeSystemServices.BoolType,
 									BinaryOperatorType.GreaterThan,
 									stepRef,
 									CodeBuilder.CreateIntegerLiteral(0)),
-								new BinaryExpression(
+								CodeBuilder.CreateBoundBinaryExpression(
+									TypeSystemServices.BoolType,
 									BinaryOperatorType.LessThan,
 									endRef,
 									numRef)));
@@ -445,10 +478,12 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			ws.Condition = new BinaryExpression(
+			ws.Condition = CodeBuilder.CreateBoundBinaryExpression(
+			    TypeSystemServices.BoolType,
 				op,
 				numRef,
 				endRef);
+			ws.Condition.LexicalInfo = node.LexicalInfo;
 
 			//	item = __num
 			ws.Block.Add(
