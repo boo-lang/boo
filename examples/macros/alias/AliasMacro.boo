@@ -12,10 +12,9 @@ class AliasMacro(AbstractAstMacro):
 				CompilerErrorFactory.CustomError(macro.LexicalInfo, Usage))
 			return null
 		
-		expression as TryCastExpression = macro.Arguments[0]
-		reference = ReferenceExpression(Name: expression.Type.ToString())
-		
-		macro.ParentNode.ReplaceNodes(reference, expression.Target)
+		argument as TryCastExpression = macro.Arguments[0]
+		reference = ReferenceExpression(Name: argument.Type.ToString())		
+		macro.ParentNode.ReplaceNodes(reference, argument.Target)
 		
 	def CheckUsage(macro as MacroStatement):
 		if len(macro.Block.Statements) > 0: return false
