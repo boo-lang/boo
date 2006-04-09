@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project name="alias macro" default="expand">
+
+	<target name="expand" depends="compile-macro">
+		<booc
+			output="nothanks"
+			target="exe"
+			pipeline="boo">
+			
+			<sources>
+				<include name="MacroUsage.boo" />
+			</sources>
+			
+			<references>
+				<include name="Macros.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="compile-macro" depends="init">
+		<booc target="library" output="Macros.dll">
+			<sources>
+				<include name="*Macro.boo" />
+			</sources>
+		</booc>
+	</target>
+	
+	<target name="init">
+		<loadtasks assembly="../../../build/Boo.NAnt.Tasks.dll" />
+	</target>
+	
+</project>
+			
