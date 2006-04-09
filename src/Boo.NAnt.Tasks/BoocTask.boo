@@ -52,6 +52,7 @@ public class BoocTask(CompilerBase):
 	private _nostdlib = false
 	private _wsa = false
 	private _ducky = false
+	private _pipeline as string
 	
 	#endregion Private Instance Fields
 	#region Private Static Fields
@@ -89,6 +90,13 @@ public class BoocTask(CompilerBase):
 			return _debugOutput
 		set:
 			_debugOutput = value
+			
+	[TaskAttribute('pipeline')]
+	public Pipeline:
+		get:
+			return _pipeline
+		set:
+			_pipeline = value
 
 	public Debug as bool:
 		get:
@@ -174,6 +182,8 @@ public class BoocTask(CompilerBase):
 			WriteOption(writer, "wsa")
 		if Ducky:
 			WriteOption(writer, "ducky")
+		if Pipeline:
+			WriteOption(writer, "p", _pipeline)
 	
 	protected override def WriteOption(writer as TextWriter, name as string):
 		writer.WriteLine("-{0}", name)
