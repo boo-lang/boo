@@ -1386,6 +1386,11 @@ namespace Boo.Lang.Runtime
 		public static IConvertible CheckNumericPromotion(object value)
 		{
 			IConvertible convertible = (IConvertible)value;
+			return CheckNumericPromotion(convertible);
+		}
+		
+		public static IConvertible CheckNumericPromotion(IConvertible convertible)
+		{
 			if (IsPromotableNumeric(convertible.GetTypeCode()))
 			{
 				return convertible;

@@ -69,7 +69,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 		InitializeStandardReferences()
 		
 	def ConsoleLoopEval():			
-		while line=prompt(">>> "):
+		while (line=prompt(">>> ")) is not null:
 			try:		
 				line = ReadBlock(line) if line[-1:] in _blockStarters
 				InternalLoopEval(line)

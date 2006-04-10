@@ -927,17 +927,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				
 				case BinaryOperatorType.ReferenceEquality:
-				{
-					if (IsNull(expression.Left))
-					{
-						EmitBranchFalse(expression.Right, label);
-						break;
-					}
-					if (IsNull(expression.Right))
-					{
-						EmitBranchFalse(expression.Left, label);
-						break;
-					}
+				{					
 					Visit(expression.Left); PopType();
 					Visit(expression.Right); PopType();
 					_il.Emit(OpCodes.Beq, label);
@@ -948,12 +938,12 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsNull(expression.Left))
 					{
-						EmitBranchTrue(expression.Right, label);
+						EmitRawBranchTrue(expression.Right, label);
 						break;
 					}
 					if (IsNull(expression.Right))
 					{
-						EmitBranchTrue(expression.Left, label);
+						EmitRawBranchTrue(expression.Left, label);
 						break;
 					}
 					Visit(expression.Left); PopType();
@@ -998,7 +988,13 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-
+		
+		void EmitRawBranchTrue(Expression expression, Label label)
+		{
+			expression.Accept(this); PopType();
+			_il.Emit(OpCodes.Brtrue, label);
+		}
+		
 		void EmitBranchTrue(Expression expression, Label label)
 		{
 			switch (expression.NodeType)
@@ -1068,40 +1064,6 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					EmitBranchFalse(expression.Left, label);
 					EmitBranchFalse(expression.Right, label);
-					break;
-				}
-
-				case BinaryOperatorType.ReferenceEquality:
-				{
-					if (IsNull(expression.Left))
-					{
-						EmitBranchTrue(expression.Right,  label);
-					}
-					else if (IsNull(expression.Right))
-					{
-						EmitBranchTrue(expression.Left, label);
-					}
-					else
-					{
-						DefaultBranchFalse(expression, label);
-					}
-					break;
-				}
-
-				case BinaryOperatorType.ReferenceInequality:
-				{
-					if (IsNull(expression.Left))
-					{
-						EmitBranchFalse(expression.Right,  label);
-					}
-					else if (IsNull(expression.Right))
-					{
-						EmitBranchFalse(expression.Left, label);
-					}
-					else
-					{
-						DefaultBranchFalse(expression, label);
-					}
 					break;
 				}
 

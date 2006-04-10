@@ -33,6 +33,9 @@ import NUnit.Framework
 import Boo.Lang.Interpreter
 import Boo.Lang.Compiler.TypeSystem
 
+struct AValueType:
+	pass
+
 [TestFixture]
 class InteractiveInterpreterTestFixture:
 	
@@ -557,19 +560,34 @@ def foo():
 
 value = foo().Value
 """
+		ConsoleLoopEval(code)			
+		assert 42 == _interpreter.GetValue("value")
+			
+	[Test]
+	def ValueType():
+		code = """
+import Boo.Lang.Interpreter.Tests from Boo.Lang.Interpreter.Tests
+
+v = AValueType()
+"""
+		_interpreter.RememberLastValue = true
+		ConsoleLoopEval(code)
+		assert AValueType().Equals(_interpreter.GetValue("v"))
+		
+	def Eval(code as string):
+		result = _interpreter.Eval(code)
+		assert 0 == len(result.Errors), result.Errors.ToString(true)
+		
+	def ConsoleLoopEval(code as string):
 		oldIn = Console.In
 		oldOut = Console.Out
 		try:
 			Console.SetIn(StringReader(code))
 			Console.SetOut(writer = StringWriter())
-			_interpreter.ConsoleLoopEval()
-			assert 42 == _interpreter.GetValue("value")
+			_interpreter.ConsoleLoopEval()			
 		ensure:
 			Console.SetIn(oldIn)
 			Console.SetOut(oldOut)
-		
-	def Eval(code as string):
-		result = _interpreter.Eval(code)
-		assert 0 == len(result.Errors), result.Errors.ToString(true)
+		return writer.ToString()
 		
 
