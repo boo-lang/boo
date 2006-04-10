@@ -946,6 +946,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (null != entity.Override)
 			{
+				EnsureRelatedNodeWasVisited(property, entity.Override);
 				if (property.IsOverride)
 				{
 					SetPropertyAccessorOverride(property.Getter);
