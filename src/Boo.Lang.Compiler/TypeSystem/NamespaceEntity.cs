@@ -95,16 +95,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			types.Add(type);
 			
-			if (IsModule(type))
+			if (_typeSystemServices.IsModule(type))
 			{
 				_externalModules.Add(_typeSystemServices.Map(type));
 			}
 		}
-		
-		bool IsModule(Type type)
-		{
-			return MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
-		}		
 		
 		public void AddModule(ModuleEntity module)
 		{
