@@ -947,6 +947,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			//return MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
 			return type.IsClass
+				&& type.IsSealed
 				&& !type.IsNestedPublic
 				&& MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);			
 		}
