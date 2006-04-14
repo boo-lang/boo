@@ -54,6 +54,9 @@ class BooxSettings:
 	[property(LoadPlugins)]
 	_loadPlugins = true
 	
+	[property(Ducky)]
+	_ducky = false
+	
 	[XmlIgnore]
 	TextFont:
 		get:

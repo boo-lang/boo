@@ -190,6 +190,7 @@ class BooEditor(DockContent):
 		if _compiler is null:
 			_compiler = BooCompiler()		
 			// enable duck typing
+			_compiler.Parameters.Ducky = _main.Settings.Ducky
 			_compiler.Parameters.Pipeline = CompileToMemory()
 			_compiler.Parameters.References.Add(typeof(Form).Assembly)
 			_compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
