@@ -58,6 +58,27 @@ class CodeGeneratorTestFixture:
 		Assert.AreEqual(expected, buffer.ToString().Trim())
 		
 	[Test]
+	def TestArrayCreateSize():
+		e = CodeArrayCreateExpression(CodeTypeReference(int), 10)
+		
+		expected = "array(int, 10)"
+		
+		buffer = StringWriter()
+		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
+		Assert.AreEqual(expected, buffer.ToString().Trim())
+		
+	[Test]
+	def TestArrayCreateSizeExpression():
+		e = CodeArrayCreateExpression(CodeTypeReference(int), 
+			CodeVariableReferenceExpression("sz"))
+		
+		expected = "array(int, sz)"
+		
+		buffer = StringWriter()
+		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
+		Assert.AreEqual(expected, buffer.ToString().Trim())
+		
+	[Test]
 	def TestArrayCreateSingle():
 		e = CodeArrayCreateExpression(CodeTypeReference(int), *(CodePrimitiveExpression(2),))
 		

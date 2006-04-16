@@ -68,7 +68,7 @@ class BooCodeGenerator(CodeGenerator):
 		Output.Write(GetTypeOutput(typeRef))
 
 	protected override def GenerateArrayCreateExpression(exp as CodeArrayCreateExpression) :
-		if exp.Initializers:
+		if exp.Initializers and exp.Size==0 and not exp.SizeExpression:
 			Output.Write("(")
 			if exp.CreateType:
 				Output.Write("of ")
