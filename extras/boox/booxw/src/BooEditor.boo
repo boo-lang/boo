@@ -253,14 +253,19 @@ class BooEditor(DockContent):
 
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)
-		if (not args.Cancel) and _dirty:
-			result = MessageBox.Show("Save changes to ${GetSafeFileName()}?",
-									"File not saved",
-									MessageBoxButtons.YesNoCancel)
-			if DialogResult.Yes == result:
-				Save()
-			else:
-				args.Cancel = DialogResult.Cancel == result
+		return if args.Cancel or (not _dirty) or _main.IsClosing
+		
+		result = MessageBox.Show("Save changes to ${GetSafeFileName()}?",
+								"File not saved",
+								MessageBoxButtons.YesNoCancel)
+		if DialogResult.Yes == result:
+			Save()
+			
+		if result in (DialogResult.Yes, DialogResult.No):
+			_dirty = false
+			args.Cancel = false
+		else:
+			args.Cancel = true
 
 	def GetSafeFileName():
 		return _fname if _fname

@@ -40,6 +40,9 @@ class MainForm(Form):
 	_statusPanel1 as StatusBarPanel
 	_timer as Timer
 	
+	[property(IsClosing)]
+	_isClosing = false
+	
 	[getter(Settings)]
 	_settings as BooxSettings = LoadSettings()
 
@@ -110,9 +113,8 @@ class MainForm(Form):
 		_timer = Timer(Tick: _timer_Tick, Interval: 50ms.TotalMilliseconds)
 		_timer.Enabled = true
 		
-	override def Dispose(flag as bool):
+	override def Dispose(flag as bool):		
 		SaveDockState()
-		_container.Dispose()
 		super(flag)
 		
 	private def GetSettingsFileName():
@@ -329,24 +331,22 @@ class MainForm(Form):
 		ShowOutputPane()
 		
 	def _menuItemOptions_Click():
-		dlg = Form(Text: "Options")
-		dlg.Controls.Add(PropertyGrid(
-							Dock: DockStyle.Fill,
-							SelectedObject: _settings,
-							Font: Font,
-							PropertySort: PropertySort.Alphabetical))
-		dlg.ShowDialog()
-		SaveSettings()
-		dlg.Dispose()
+		using dlg = Form(Text: "Options"):
+			dlg.Controls.Add(PropertyGrid(
+								Dock: DockStyle.Fill,
+								SelectedObject: _settings,
+								Font: Font,
+								PropertySort: PropertySort.Alphabetical))
+			dlg.ShowDialog()
+			SaveSettings()
 
 	def _menuItemOpen_Click(sender, args as EventArgs):
-		dlg = OpenFileDialog(
+		using dlg = OpenFileDialog(
 					Filter: "boo files (*.boo)|*.boo|All files (*.*)|*.*",
-					Multiselect: true)
-		if DialogResult.OK == dlg.ShowDialog(self):
-			for fname in dlg.FileNames:
-				OpenDocument(fname)
-		dlg.Dispose()
+					Multiselect: true):
+			if DialogResult.OK == dlg.ShowDialog(self):
+				for fname in dlg.FileNames:
+					OpenDocument(fname)
 
 	def _menuItemNew_Click(sender, args as EventArgs):
 		NewDocument()
@@ -384,7 +384,7 @@ class MainForm(Form):
 
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)
-		if not args.Cancel:			
+		if not _isClosing and not args.Cancel:			
 			dirtyDocuments = [
 							editor.GetSafeFileName()
 							for document in _dockPanel.Documents
@@ -399,6 +399,7 @@ class MainForm(Form):
 											"\n\nAre you sure you want to leave and lose all your changes?",
 											"Boo Explorer",
 											MessageBoxButtons.YesNo))
+		_isClosing = not args.Cancel
 
 	def FindEditor(fname as string):
 		for document in _dockPanel.Documents:

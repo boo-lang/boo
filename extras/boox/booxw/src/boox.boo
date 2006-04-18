@@ -36,4 +36,7 @@ def Main(argv as (string)):
 	HighlightingManager.Manager.AddSyntaxModeFileProvider(
 		FileSyntaxModeProvider(GetAssemblyFolder()))
 
-	Application.Run(MainForm(argv))
+	try:
+		Application.Run(MainForm(argv))
+	except x:
+		print x
