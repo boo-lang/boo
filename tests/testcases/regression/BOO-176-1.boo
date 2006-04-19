@@ -11,7 +11,7 @@ abstract class AbstractOne:
 			print "abstractone.myclass.doit"
 
 class ConcreteOne:
-	def Foo() as string:
+	virtual def Foo() as string:
 		m = MyClass()
 		m.doit()
 
