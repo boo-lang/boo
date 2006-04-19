@@ -521,7 +521,7 @@ namespace BooC
 										if (comma >= 0)
 										{
 											string resourceName = resourceFile.Substring(comma+1);
-											resourceFile = arg.Substring(0, comma);
+											resourceFile = resourceFile.Substring(0, comma);
 											_options.Resources.Add(new NamedEmbeddedFileResource(resourceFile, resourceName));
 										}
 										else
