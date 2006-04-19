@@ -17,9 +17,6 @@ class B(A):
 	Foo:
 		override get:
 			return "B.Foo"
-			
-		set:
-			print("B.Foo.set")
 
 a = A()
 a.Foo = "foo"

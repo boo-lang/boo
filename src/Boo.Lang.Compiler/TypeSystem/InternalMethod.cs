@@ -177,7 +177,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return !_method.IsFinal;
+				return _method.IsVirtual
+					|| _method.IsAbstract
+					|| _method.IsOverride;
 			}
 		}
 		

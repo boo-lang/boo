@@ -738,10 +738,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnMethod(Method method)
 		{
-			if (WasVisited(method))
-			{
-				return;
-			}
+			if (WasVisited(method)) return;
 			MarkVisited(method);
 			
 			Visit(method.Attributes);
