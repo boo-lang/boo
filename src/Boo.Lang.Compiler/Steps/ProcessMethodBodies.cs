@@ -215,10 +215,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{
-			if (WasVisited(module))
-			{
-				return;
-			}
+			if (WasVisited(module)) return;
 			MarkVisited(module);
 			
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
@@ -231,14 +228,25 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			if (WasVisited(node))
-			{
-				return;
-			}
+			if (WasVisited(node)) return;
 			MarkVisited(node);
 			
-			InternalInterface tag = (InternalInterface)GetEntity(node);
-			EnterNamespace(tag);
+			VisitTypeDefinition(node);
+		}
+		
+		private void VisitBaseTypes(TypeDefinition node)
+		{
+			foreach (TypeReference typeRef in node.BaseTypes)
+			{
+				EnsureRelatedNodeWasVisited(typeRef, typeRef.Entity);
+			}
+		}
+		
+		private void VisitTypeDefinition(TypeDefinition node)
+		{
+			INamespace ns = (INamespace)GetEntity(node);
+			EnterNamespace(ns);
+			VisitBaseTypes(node);
 			Visit(node.Attributes);
 			Visit(node.Members);
 			LeaveNamespace();
@@ -246,18 +254,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			if (WasVisited(node))
-			{
-				return;
-			}
+			if (WasVisited(node)) return;
 			MarkVisited(node);
 			
-			InternalClass entity = (InternalClass)GetEntity(node);
-			EnterNamespace(entity);
-			Visit(node.Attributes);
-			Visit(node.Members);
-			LeaveNamespace();
-
+			VisitTypeDefinition(node);
 			ProcessFieldInitializers(node);
 		}
 
@@ -4823,57 +4823,78 @@ namespace Boo.Lang.Compiler.Steps
 		override protected void EnsureRelatedNodeWasVisited(Node sourceNode, IEntity entity)
 		{
 			IInternalEntity internalInfo = entity as IInternalEntity;
-			if (null != internalInfo)
+			if (null == internalInfo)
 			{
-				Node node = internalInfo.Node;
-				switch (node.NodeType)
+				ITypedEntity typedEntity = entity as ITypedEntity;
+				if (null == typedEntity) return;
+				
+				internalInfo = typedEntity.Type as IInternalEntity;
+				if (null == internalInfo) return;
+			}
+			
+			Node node = internalInfo.Node;
+			switch (node.NodeType)
+			{
+				case NodeType.Property:
+				case NodeType.Field:
 				{
-					case NodeType.Property:
-					case NodeType.Field:
+					IMember memberEntity = (IMember)entity;
+					if (EntityType.Property == entity.EntityType
+						|| TypeSystemServices.IsUnknown(memberEntity.Type))
 					{
-						IMember memberEntity = (IMember)entity;
-						if (EntityType.Property == entity.EntityType
-							|| TypeSystemServices.IsUnknown(memberEntity.Type))
-						{
-							VisitMemberForTypeResolution(node);
-							AssertTypeIsKnown(sourceNode, memberEntity, memberEntity.Type);
-						}
-						break;
+						VisitMemberForTypeResolution(node);
+						AssertTypeIsKnown(sourceNode, memberEntity, memberEntity.Type);
 					}
+					break;
+				}
 
-					case NodeType.Method:
-					{	
-						IMethod methodEntity = (IMethod)entity;
+				case NodeType.Method:
+				{	
+					IMethod methodEntity = (IMethod)entity;
+					if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
+					{
+						// try to preprocess the method to resolve its return type
+						Method method = (Method)node;
+						PreProcessMethod(method);
 						if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
 						{
-							// try to preprocess the method to resolve its return type
-							Method method = (Method)node;
-							PreProcessMethod(method);
-							if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
-							{
-								// still unknown?
-								VisitMemberForTypeResolution(node);
-								AssertTypeIsKnown(sourceNode, methodEntity, methodEntity.ReturnType);
-							}
+							// still unknown?
+							VisitMemberForTypeResolution(node);
+							AssertTypeIsKnown(sourceNode, methodEntity, methodEntity.ReturnType);
 						}
-						break;
 					}
-					case NodeType.ClassDefinition:
-					case NodeType.StructDefinition:
-					case NodeType.InterfaceDefinition:
+					break;
+				}
+				case NodeType.ClassDefinition:
+				case NodeType.StructDefinition:
+				case NodeType.InterfaceDefinition:
+				{
+					if (WasVisited(node)) break;
+					VisitInParentNamespace(node);
+					//visit dependent attributes such as EnumeratorItemType
+					//foreach (Attribute att in ((TypeDefinition)node).Attributes)
 					{
-						if (WasVisited(node)) break;
-						
-						//visit dependent attributes such as EnumeratorItemType
-						foreach(Attribute att in ((TypeDefinition)node).Attributes)
-						{
-							VisitMemberForTypeResolution(att);
-						}
-						break;
+						//VisitMemberForTypeResolution(att);
 					}
+					break;
 				}
 			}
 		}
+		
+		private void VisitInParentNamespace(Node node)
+		{
+			INamespace saved = NameResolutionService.CurrentNamespace;
+			try
+			{
+				NameResolutionService.EnterNamespace((INamespace)node.ParentNode.Entity);
+				Visit(node);
+			}
+			finally
+			{
+				NameResolutionService.Restore(saved);
+			}
+		}
+		
 
 		private void AssertTypeIsKnown(Node sourceNode, IEntity sourceEntity, IType type)
 		{
