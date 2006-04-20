@@ -4924,7 +4924,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool ResolveOperator(UnaryExpression node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
-			mie.Arguments.Add(node.Operand);
+			mie.Arguments.Add(node.Operand.CloneNode());
 			
 			string operatorName = AstUtil.GetMethodNameForOperator(node.Operator);
 			IType operand = GetExpressionType(node.Operand);
@@ -4938,8 +4938,8 @@ namespace Boo.Lang.Compiler.Steps
 		bool ResolveOperator(BinaryExpression node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(node.LexicalInfo);
-			mie.Arguments.Add(node.Left);
-			mie.Arguments.Add(node.Right);
+			mie.Arguments.Add(node.Left.CloneNode());
+			mie.Arguments.Add(node.Right.CloneNode());
 			
 			string operatorName = AstUtil.GetMethodNameForOperator(node.Operator);
 			IType lhs = GetExpressionType(node.Left);
