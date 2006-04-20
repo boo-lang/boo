@@ -302,6 +302,14 @@ namespace Boo.Lang.Compiler.Ast
 			new Visitors.BooPrinterVisitor(writer).Visit(this);
 			return writer.ToString();
 		}
+		
+		protected void OnReplace(Node oldNode, Node newNode)
+		{
+		}
+		
+		protected void OnReplace(NodeCollection oldCollection, NodeCollection newCollection)
+		{
+		}
 	}
 
 }

@@ -113,22 +113,17 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			if (_closureDepth > 0)
-			{
-				ILocalEntity local = node.Entity as ILocalEntity;
-				if (null != local)
-				{
-					if (!local.IsPrivateScope &&
-						(
-							_currentMethod.Locals.ContainsEntity(local) ||
-							_currentMethod.Parameters.ContainsEntity(local)
-						))
-					{
-						local.IsShared = true;
-					}
-				}
-			}
+			ILocalEntity local = node.Entity as ILocalEntity;
+			if (null == local) return;
+			if (local.IsPrivateScope) return;
+			
 			_references.Add(node);
+			
+			if (_closureDepth == 0) return;
+			
+			local.IsShared = _currentMethod.Locals.ContainsEntity(local)
+							|| _currentMethod.Parameters.ContainsEntity(local);
+			
 		}
 		
 		void Map()
@@ -139,14 +134,13 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (ReferenceExpression reference in _references)
 			{
 				IField mapped = (IField)_mappings[reference.Entity];
-				if (null != mapped)
-				{
-					reference.ParentNode.Replace(
-						reference,
-						CodeBuilder.CreateMemberReference(
-							CodeBuilder.CreateReference(locals),
-							mapped));
-				}
+				if (null == mapped) continue;
+				
+				reference.ParentNode.Replace(
+					reference,
+					CodeBuilder.CreateMemberReference(
+						CodeBuilder.CreateReference(locals),
+						mapped));
 			}
 			
 			Block initializationBlock = new Block();

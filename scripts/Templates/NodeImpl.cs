@@ -142,7 +142,6 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
-			//clone._entity = _entity;
 			clone._annotations = (Hashtable)_annotations.Clone();
 		
 <%			
@@ -177,7 +176,6 @@ namespace Boo.Lang.Compiler.Ast.Impl
 		override internal void ClearTypeSystemBindings()
 		{
 			_annotations.Clear();
-			//_entity = null;
 <%
 	if model.IsExpression(node):
 %>			_expressionType = null;
@@ -228,6 +226,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			{
 				if (${GetPrivateName(field)} != value)
 				{
+					OnReplace(${GetPrivateName(field)}, value);
 					${GetPrivateName(field)} = value;
 					if (null != ${GetPrivateName(field)})
 					{

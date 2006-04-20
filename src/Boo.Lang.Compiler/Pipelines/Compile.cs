@@ -48,8 +48,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			
 			Add(new CheckMembersProtectionLevel());
 
-			// TODO: 
-			// Add(new OptimizeIterationStatements());
 			Add(new NormalizeIterationStatements());
 			
 			Add(new ProcessSharedLocals());			

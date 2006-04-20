@@ -360,5 +360,25 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return (Node)new XmlSerializer(type).Deserialize(new StringReader(code));
 		}
+		
+		public static void DebugNode(Node node)
+		{
+			System.Console.WriteLine("{0}: {1} - {2}",
+					node.LexicalInfo,
+					node.NodeType,
+					SafeToCodeString(node));
+		}
+		
+		public static string SafeToCodeString(Node node)
+		{
+			try
+			{
+				return node.ToCodeString();
+			}
+			catch (Exception)
+			{
+				return "<unavailable>";
+			}
+		}
 	}
 }

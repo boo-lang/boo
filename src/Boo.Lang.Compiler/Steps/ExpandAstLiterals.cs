@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.Steps
 
         override public void Run()
         {
-        	Visit(CompileUnit);
+	        	Visit(CompileUnit);
         }
 
         override public void OnAstLiteralExpression(AstLiteralExpression node)
