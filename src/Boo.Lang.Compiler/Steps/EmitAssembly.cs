@@ -3306,9 +3306,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (actualType.IsValueType &&
-						(expectedType.IsInterface ||
-						TypeSystemServices.IsSystemObject(expectedType)))
+				if (actualType.IsValueType && !expectedType.IsValueType)
 				{
 					EmitBox(actualType);
 				}
