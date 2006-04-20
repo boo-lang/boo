@@ -564,7 +564,7 @@ namespace BooC
 			}
 			if (debugSteps)
 			{
-				_options.Pipeline.AfterStep += new CompilerStepEventHandler(DebugModuleAfterStep);
+				_options.Pipeline.AfterStep += new CompilerStepEventHandler(new StepDebugger().AfterStep);
 			}
 			if (!noLogo)
 			{
@@ -581,10 +581,27 @@ namespace BooC
 			return s;
 		}
 		
-		private void DebugModuleAfterStep(object sender, CompilerStepEventArgs args)
+		private class StepDebugger
 		{
-			Console.WriteLine("********* {0} *********", args.Step);
-			args.Context.CompileUnit.Accept(new BooPrinterVisitor(Console.Out, BooPrinterVisitor.PrintOptions.PrintLocals));
+			string _last;
+			
+			public void AfterStep(object sender, CompilerStepEventArgs args)
+			{
+				Console.WriteLine("********* {0} *********", args.Step);
+				
+				StringWriter writer = new StringWriter();				
+				args.Context.CompileUnit.Accept(new BooPrinterVisitor(writer, BooPrinterVisitor.PrintOptions.PrintLocals));
+				string code = writer.ToString();
+				if (code != _last)
+				{
+					Console.WriteLine(code);
+				}
+				else
+				{
+					Console.WriteLine("no changes");
+				}
+				_last = code;
+			}
 		}
 
 		ArrayList LoadResponseFile(string file)
