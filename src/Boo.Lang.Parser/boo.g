@@ -1432,7 +1432,10 @@ closure_expression returns [Expression e]
 			)*
 		)
 	anchorEnd:RBRACE
-	;
+	{
+		cbe.EndSourceLocation = ToSourceLocation(anchorEnd);
+	}
+;
 	
 protected
 callable_expression returns [Expression e]
