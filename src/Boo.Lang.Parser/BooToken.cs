@@ -43,13 +43,13 @@ namespace Boo.Lang.Parser
 		{
 		}
 
-		public BooToken(antlr.IToken original, int type, string text)
+		public BooToken(int type, string text, string fname, int line, int column)
 		{
 			setType(type);
 			setText(text);
-			setFilename(original.getFilename());
-			setLine(original.getLine());
-			setColumn(original.getColumn());
+			setFilename(fname);
+			setLine(line);
+			setColumn(column);
 		}
 
 		override public void setFilename(string name)

@@ -116,10 +116,13 @@ namespace Boo.Lang.Parser.Util
 			return (antlr.IToken)_pendingTokens.Dequeue();
 		}
 		
-		void ProcessNextTokens()
-		{		
+		void ResetBuffer()
+		{
 			_buffer.Length = 0;
-				
+		}
+		
+		antlr.IToken BufferUntilNextNonWhiteSpaceToken()
+		{
 			antlr.IToken token = null;
 			while (true)
 			{	
@@ -139,49 +142,67 @@ namespace Boo.Lang.Parser.Util
 				
 				break;
 			}
+			return token;
+		}
+		
+		void FlushBuffer(antlr.IToken token)
+		{
+			if (0 == _buffer.Length) return;
 			
-			if (0 != _buffer.Length)
-			{
-				string text = _buffer.ToString();
-				string[] lines = text.Split(NewLineCharArray);					
+			string text = _buffer.ToString();
+			string[] lines = text.Split(NewLineCharArray);					
 
-				if (lines.Length > 1)
+			if (lines.Length > 1)
+			{
+				string lastLine = lines[lines.Length-1];
+				if (lastLine.Length > CurrentIndentLevel)
 				{
-					string lastLine = lines[lines.Length-1];
-					if (lastLine.Length > CurrentIndentLevel)
+					EnqueueIndent(token);
+					_indentStack.Push(lastLine.Length);
+				}
+				else if (lastLine.Length < CurrentIndentLevel)
+				{
+					EnqueueEOS(token);
+					do 
 					{
-						EnqueueIndent(token);
-						_indentStack.Push(lastLine.Length);
+						EnqueueDedent();
+						_indentStack.Pop();
 					}
-					else if (lastLine.Length < CurrentIndentLevel)
-					{
-						EnqueueEOS(token);
-						do 
-						{
-							EnqueueDedent();
-							_indentStack.Pop();
-						}
-						while (lastLine.Length < CurrentIndentLevel);
-					}
-					else
-					{
-						EnqueueEOS(token);
-					}
+					while (lastLine.Length < CurrentIndentLevel);
+				}
+				else
+				{
+					EnqueueEOS(token);
 				}
 			}
+		}
+		
+		void CheckForEOF(antlr.IToken token)
+		{
+			if (antlr.Token.EOF_TYPE != token.Type) return;
 			
-			if (antlr.Token.EOF_TYPE == token.Type)
-			{					
-				EnqueueEOS(token);	
-				while (CurrentIndentLevel > 0)
-				{
-					EnqueueDedent();
-					_indentStack.Pop();					
-				}
+			EnqueueEOS(token);	
+			while (CurrentIndentLevel > 0)
+			{
+				EnqueueDedent();
+				_indentStack.Pop();					
 			}
-			
+		}
+		
+		void ProcessNextNonWhiteSpaceToken(antlr.IToken token)
+		{
 			_lastNonWsToken = token;
 			Enqueue(token);
+		}
+		
+		void ProcessNextTokens()
+		{		
+			ResetBuffer();
+				
+			antlr.IToken token = BufferUntilNextNonWhiteSpaceToken();
+			FlushBuffer(token);			
+			CheckForEOF(token);			
+			ProcessNextNonWhiteSpaceToken(token);
 		}
 		
 		void Enqueue(antlr.IToken token)
@@ -189,9 +210,9 @@ namespace Boo.Lang.Parser.Util
 			_pendingTokens.Enqueue(token);
 		}
 
-		void EnqueueIndent(antlr.IToken originalToken)
+		void EnqueueIndent(antlr.IToken prototype)
 		{
-			_pendingTokens.Enqueue(CreateToken(originalToken, _indentTokenType, "<INDENT>"));
+			_pendingTokens.Enqueue(CreateToken(prototype, _indentTokenType, "<INDENT>"));
 		}
 
 		void EnqueueDedent()
@@ -199,14 +220,22 @@ namespace Boo.Lang.Parser.Util
 			_pendingTokens.Enqueue(CreateToken(_lastNonWsToken, _dedentTokenType, "<DEDENT>"));
 		}		
 
-		void EnqueueEOS(antlr.IToken originalToken)
+		void EnqueueEOS(antlr.IToken prototype)
 		{
-			_pendingTokens.Enqueue(CreateToken(originalToken, _eosTokenType, "<EOL>"));
+			_pendingTokens.Enqueue(CreateToken(prototype, _eosTokenType, "<EOL>"));
 		}
 
-		antlr.IToken CreateToken(antlr.IToken originalToken, int newTokenType, string newTokenText)
+		antlr.IToken CreateToken(antlr.IToken prototype, int newTokenType, string newTokenText)
 		{
-			return new BooToken(originalToken, newTokenType, newTokenText);
+			return new BooToken(newTokenType, newTokenText,
+				prototype.getFilename(),
+				prototype.getLine(),
+				prototype.getColumn()+SafeGetLength(prototype.getText()));
+		}
+		
+		int SafeGetLength(string s)
+		{
+			return s == null ? 0 : s.Length;
 		}
 	}
 }

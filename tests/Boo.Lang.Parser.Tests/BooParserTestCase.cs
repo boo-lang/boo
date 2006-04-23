@@ -41,6 +41,34 @@ namespace Boo.Lang.Parser.Tests
 	public class BooParserTestCase : AbstractParserTestFixture
 	{
 		[Test]
+		public void TestEndSourceLocationForInlineClosures()
+		{
+			string code = @"foo = { a = 3;
+return a; }";
+			EnsureClosureEndSourceLocation(code, 2, 11);
+		}
+		
+		[Test]
+		public void TestEndSourceLocationForBlockClosures()
+		{
+			string code = @"
+foo = def():
+    return a
+";
+			EnsureClosureEndSourceLocation(code, 3, 13);
+		}
+		
+		void EnsureClosureEndSourceLocation(string code, int line, int column)
+		{
+			CompileUnit cu = BooParser.ParseString("closures", code);
+			Expression e = ((ExpressionStatement)cu.Modules[0].Globals.Statements[0]).Expression;
+			CallableBlockExpression cbe = (CallableBlockExpression)((BinaryExpression)e).Right;
+			SourceLocation esl = cbe.Body.EndSourceLocation;
+			Assert.AreEqual(line, esl.Line);
+			Assert.AreEqual(column, esl.Column);
+		}		
+		
+		[Test]
 		public void TestParseExpression()
 		{
 			string code = @"3 + 2 * 5";

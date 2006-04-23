@@ -152,7 +152,13 @@ tokens
 	
 	protected SourceLocation ToSourceLocation(antlr.IToken token)
 	{
-		return new SourceLocation(token.getLine(), token.getColumn()+token.getText().Length-1);
+		return new SourceLocation(token.getLine(), token.getColumn());
+	}
+	
+	protected SourceLocation ToEndSourceLocation(antlr.IToken token)
+	{
+		return new SourceLocation(token.getLine(),
+						token.getColumn()+token.getText().Length-1);
 	}
 
 	protected BinaryOperatorType ParseCmpOperator(string op)
@@ -1177,6 +1183,7 @@ protected
 compound_stmt[Block b]
 {
 	StatementCollection statements = b.Statements;
+	IToken lastEOL = null;
 }:
 		(
 			COLON
@@ -1188,7 +1195,8 @@ compound_stmt[Block b]
 				(options { greedy = true; }: EOS (simple_stmt[statements])?)*
 				)
 			)
-			(options { greedy = true; }: EOL)+
+			(options { greedy = true; }: eolToken:EOL { lastEOL = eolToken; })+
+			{ b.EndSourceLocation = ToSourceLocation(lastEOL); }
 		) |
 		(
 			COLON begin:INDENT
@@ -1433,7 +1441,7 @@ closure_expression returns [Expression e]
 		)
 	anchorEnd:RBRACE
 	{
-		cbe.EndSourceLocation = ToSourceLocation(anchorEnd);
+		body.EndSourceLocation = ToEndSourceLocation(anchorEnd);
 	}
 ;
 	
