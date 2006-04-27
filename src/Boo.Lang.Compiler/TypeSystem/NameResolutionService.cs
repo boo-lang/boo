@@ -433,6 +433,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		NamespaceEntity GetTopLevelNamespace(string topLevelName)
 		{
+			GlobalNamespace globalNS = GetGlobalNamespace();
+			if (globalNS == null) return null;
+			
+			NamespaceEntity entity = (NamespaceEntity)globalNS.GetChild(topLevelName);
+			if (null == entity)
+			{
+				entity = new NamespaceEntity(null, _context.TypeSystemServices, topLevelName);
+				globalNS.SetChild(topLevelName, entity);
+			}
+			return entity;
+		}
+		
+		GlobalNamespace GetGlobalNamespace()
+		{
 			INamespace ns = _global;
 			GlobalNamespace globals = ns as GlobalNamespace;
 			while (globals == null && ns != null)
@@ -440,15 +454,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				ns = ns.ParentNamespace;
 				globals = ns as GlobalNamespace;
 			}
-			if (globals == null) return null;
-			
-			NamespaceEntity tag = (NamespaceEntity)globals.GetChild(topLevelName);
-			if (null == tag)
-			{
-				tag = new NamespaceEntity(null, _context.TypeSystemServices, topLevelName);
-				globals.SetChild(topLevelName, tag);
-			}
-			return tag;
+			return globals;
 		}
 		
 	}

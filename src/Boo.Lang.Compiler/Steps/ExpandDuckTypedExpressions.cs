@@ -36,7 +36,6 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class ExpandDuckTypedExpressions : AbstractTransformerCompilerStep
 	{
-		protected IType _runtimeServices;
 		protected IMethod RuntimeServices_Invoke;
 		protected IMethod RuntimeServices_InvokeCallable;
 		protected IMethod RuntimeServices_InvokeBinaryOperator;
@@ -52,19 +51,31 @@ namespace Boo.Lang.Compiler.Steps
 		public override void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
-			_runtimeServices = TypeSystemServices.Map(typeof(Boo.Lang.Runtime.RuntimeServices));
-			RuntimeServices_Invoke = ResolveMethod(_runtimeServices, "Invoke");
-			RuntimeServices_InvokeCallable = ResolveMethod(_runtimeServices, "InvokeCallable");
-			RuntimeServices_InvokeBinaryOperator = ResolveMethod(_runtimeServices, "InvokeBinaryOperator");
-			RuntimeServices_InvokeUnaryOperator = ResolveMethod(_runtimeServices, "InvokeUnaryOperator");
-			RuntimeServices_SetProperty = ResolveMethod(_runtimeServices, "SetProperty");
-			RuntimeServices_GetProperty = ResolveMethod(_runtimeServices, "GetProperty");
-			RuntimeServices_GetSlice = ResolveMethod(_runtimeServices, "GetSlice");
+			InitializeDuckTypingServices();
+		}
+		
+		protected virtual void InitializeDuckTypingServices()
+		{
+			IType duckTypingServices = GetDuckTypingServicesType();
+			RuntimeServices_Invoke = ResolveMethod(duckTypingServices, "Invoke");
+			RuntimeServices_InvokeCallable = ResolveMethod(duckTypingServices, "InvokeCallable");
+			RuntimeServices_InvokeBinaryOperator = ResolveMethod(duckTypingServices, "InvokeBinaryOperator");
+			RuntimeServices_InvokeUnaryOperator = ResolveMethod(duckTypingServices, "InvokeUnaryOperator");
+			RuntimeServices_SetProperty = ResolveMethod(duckTypingServices, "SetProperty");
+			RuntimeServices_GetProperty = ResolveMethod(duckTypingServices, "GetProperty");
+			RuntimeServices_GetSlice = ResolveMethod(duckTypingServices, "GetSlice");
+		}
+		
+		protected virtual IType GetDuckTypingServicesType()
+		{
+			return TypeSystemServices.Map(typeof(Boo.Lang.Runtime.RuntimeServices));
 		}
 
 		private IMethod ResolveMethod(IType type, string name)
 		{
-			return NameResolutionService.ResolveMethod(type, name);
+			IMethod method = NameResolutionService.ResolveMethod(type, name);
+			if (null == method) throw new System.ArgumentException(string.Format("Method '{0}' not found in type '{1}'", type, name));
+			return method;
 		}
 
 		public override void Run()
@@ -201,10 +212,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Target;
 			target.Target = (Expression)VisitNode(target.Target);
-
-			node.Target = CodeBuilder.CreateMemberReference(
-				CodeBuilder.CreateReference(node.LexicalInfo, _runtimeServices),
-				RuntimeServices_Invoke);
+			node.Target = CodeBuilder.CreateMemberReference(RuntimeServices_Invoke);			
 			
 			Expression args = CodeBuilder.CreateObjectArray(node.Arguments);
 			node.Arguments.Clear();

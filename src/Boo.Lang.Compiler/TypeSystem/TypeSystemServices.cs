@@ -945,7 +945,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual bool IsModule(Type type)
 		{
-			//return MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
 			return type.IsClass
 				&& type.IsSealed
 				&& !type.IsNestedPublic
@@ -990,13 +989,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IArrayType GetArrayType(IType elementType, int rank)
 		{
 			ArrayHash key = new ArrayHash(elementType, rank);
-			IArrayType tag = (IArrayType)_arrayCache[key];
-			if (null == tag)
+			IArrayType entity = (IArrayType)_arrayCache[key];
+			if (null == entity)
 			{
-				tag = new ArrayType(this, elementType, rank);
-				_arrayCache.Add(key, tag);
+				entity = new ArrayType(this, elementType, rank);
+				_arrayCache.Add(key, entity);
 			}
-			return tag;
+			return entity;
 		}
 
 		protected class ArrayHash
