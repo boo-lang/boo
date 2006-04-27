@@ -38,6 +38,49 @@ namespace Boo.Lang.Runtime
 {
 	public class RuntimeServices
 	{
+		public enum TargetInvocationExceptionAction
+		{
+			Rethrow,
+			ThrowInner,
+		}
+		
+		public class TargetInvocationExceptionThrownEventArgs
+		{
+			TargetInvocationException _exception;
+			TargetInvocationExceptionAction _action;
+			
+			public TargetInvocationExceptionThrownEventArgs(
+				TargetInvocationException exception,
+				TargetInvocationExceptionAction action)
+			{
+				_exception = exception;
+				_action = action;
+			}
+			
+			public TargetInvocationException Exception
+			{
+				get { return _exception; }
+			}
+			
+			public TargetInvocationExceptionAction Action
+			{
+				get { return _action; }
+				set { _action = value; }
+			}
+		}
+		
+		public delegate void TargetInvocationExceptionThrownEvent(object sender, TargetInvocationExceptionThrownEventArgs args);
+		
+		public static event TargetInvocationExceptionThrownEvent TargetInvocationExceptionThrown;
+		
+		public static TargetInvocationExceptionAction DefaultTargetInvocationExceptionAction
+		{
+			get { return _defaultTargetInvocationExceptionAction; }
+			set { _defaultTargetInvocationExceptionAction = value; }
+		}
+		
+		static TargetInvocationExceptionAction _defaultTargetInvocationExceptionAction = TargetInvocationExceptionAction.ThrowInner;
+		
 		static readonly Type RuntimeServicesType = typeof(RuntimeServices);
 		
 		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
@@ -93,8 +136,9 @@ namespace Boo.Lang.Runtime
 				}
 			}
 			catch (TargetInvocationException x)
-			{		
-				throw x.InnerException;
+			{	
+				OnTargetInvocationExceptionThrown(x);
+				throw;
 			}
 		}
 		
@@ -129,7 +173,8 @@ namespace Boo.Lang.Runtime
 			}
 			catch (TargetInvocationException x)
 			{
-				throw x.InnerException;
+				OnTargetInvocationExceptionThrown(x);
+				throw;
 			}
 		}
 
@@ -194,6 +239,22 @@ namespace Boo.Lang.Runtime
 			}
 			catch (TargetInvocationException x)
 			{
+				OnTargetInvocationExceptionThrown(x);
+				throw;
+			}
+		}
+		
+		private static void OnTargetInvocationExceptionThrown(TargetInvocationException x)
+		{
+			TargetInvocationExceptionAction action = _defaultTargetInvocationExceptionAction;
+			if (null != TargetInvocationExceptionThrown)
+			{
+				TargetInvocationExceptionThrownEventArgs args = new TargetInvocationExceptionThrownEventArgs(x, action);
+				TargetInvocationExceptionThrown(null, args);
+				action = args.Action;
+			}
+			if (TargetInvocationExceptionAction.ThrowInner == action)
+			{
 				throw x.InnerException;
 			}
 		}
@@ -220,7 +281,8 @@ namespace Boo.Lang.Runtime
 			}
 			catch (TargetInvocationException x)
 			{
-				throw x.InnerException;
+				OnTargetInvocationExceptionThrown(x);
+				throw;
 			}
 		}
 		
