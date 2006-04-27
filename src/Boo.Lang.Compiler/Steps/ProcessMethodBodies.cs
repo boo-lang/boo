@@ -1829,30 +1829,32 @@ namespace Boo.Lang.Compiler.Steps
 			IType itemType = yieldExpressions.Count > 0
 				? GetMostGenericType(yieldExpressions)
 				: TypeSystemServices.ObjectType;
-			CreateGeneratorSkeleton(method.DeclaringType, method, itemType);
+			CreateGeneratorSkeleton(method, method, itemType);
 		}
 		
 		BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression node)
 		{
-			return CreateGeneratorSkeleton(_currentMethod.Method.DeclaringType, node, GetConcreteExpressionType(node.Expression));
+			return CreateGeneratorSkeleton(node, _currentMethod.Method, GetConcreteExpressionType(node.Expression));
 		}
 		
-		BooClassBuilder CreateGeneratorSkeleton(TypeDefinition parentType, Node node, IType generatorItemType)
+		BooClassBuilder CreateGeneratorSkeleton(Node sourceNode, Method method, IType generatorItemType)
 		{
+			TypeDefinition parentType = method.DeclaringType;
+			
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
-														string.Format("___generator{0}", _context.AllocIndex()),
+														string.Format("{0}___generator{1}", method.Name, _context.AllocIndex()),
 														TypeMemberModifiers.Private|TypeMemberModifiers.Final);
 			builder.AddBaseType(TypeSystemServices.Map(typeof(AbstractGenerator)));
 			builder.AddAttribute(CodeBuilder.CreateAttribute(
 												EnumeratorItemType_Constructor,
 												CodeBuilder.CreateTypeofExpression(generatorItemType)));
-			builder.LexicalInfo = node.LexicalInfo;
+			builder.LexicalInfo = sourceNode.LexicalInfo;
 			parentType.Members.Add(builder.ClassDefinition);
 			
-			node["GeneratorClassBuilder"] = builder;
-			node["GetEnumeratorBuilder"] = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
-			node["GeneratorItemType"] = generatorItemType;
+			sourceNode["GeneratorClassBuilder"] = builder;
+			sourceNode["GetEnumeratorBuilder"] = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
+			sourceNode["GeneratorItemType"] = generatorItemType;
 			
 			return builder;
 		}
