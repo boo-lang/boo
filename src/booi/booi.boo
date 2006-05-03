@@ -73,11 +73,14 @@ def consume(reader as TextReader):
 	return join(line for line in reader, "\n")
 
 [STAThread]
-def Main(argv as (string)):
+def Main(argv as (string)) as int:
+	
+	DefaultErrorCode = 255
+	DefaultSuccessCode = 0
 	
 	if len(argv) < 1:
 		print("booi <script.boo>") 
-		return -1
+		return DefaultErrorCode
 	
 	resolver = AssemblyResolver()
 	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
@@ -118,15 +121,20 @@ def Main(argv as (string)):
 		print(result.Warnings.ToString())
 	if len(result.Errors):
 		print(result.Errors.ToString(true))
-		return -1
+		return DefaultErrorCode
 	else:	
 		try: 
 			resolver.AddAssembly(result.GeneratedAssembly)
-			result.GeneratedAssembly.EntryPoint.Invoke(null, (argv[consumedArgs:],))			
+			main = result.GeneratedAssembly.EntryPoint
+			if len(main.GetParameters()) > 0:
+				returnValue = main.Invoke(null, (argv[consumedArgs:],))
+			else:
+				returnValue = main.Invoke(null, null)
+			return returnValue if returnValue is not null
 		except x as TargetInvocationException:
 			print(x.InnerException)
-			return -1
-	return 0
+			return DefaultErrorCode
+	return DefaultSuccessCode
 	
 [assembly: SecurityPermission(
 						SecurityAction.RequestMinimum,
