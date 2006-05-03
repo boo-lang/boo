@@ -115,5 +115,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _parameter.IsByRef;
 			}
 		}
+		
+		public IType GetElementType()
+		{
+			return this.Type;
+		}
 	}
 }

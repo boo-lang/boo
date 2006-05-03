@@ -703,16 +703,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return name;
 		}
 		
-		public static string DeReferenceTypeName(IType t)
-		{
-			string name = t.FullName;
-			if (name.EndsWith("&"))
-			{
-				return name.Substring(0, t.FullName.Length-1);
-			}
-			return name;
-		}
-		
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
 		{
 			IParameter[] implParameters = impl.GetParameters();
@@ -737,7 +727,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 						{
 							return false;
 						}
-						if (DeReferenceTypeName(basetype) != impltype.FullName)
+						if (basetype.GetElementType().FullName != impltype.FullName)
 						{
 							return false;
 						}
