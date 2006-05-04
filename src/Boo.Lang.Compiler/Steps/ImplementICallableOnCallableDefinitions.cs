@@ -55,6 +55,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		int GetByRefParamCount(CallableSignature signature)
+		{
+			int count = 0;
+			foreach (IParameter param in signature.Parameters)
+			{
+				if (param.IsByRef) ++count;
+			}
+			return count;
+		}
+		
 		void ImplementICallableCall(InternalCallableType type, ClassDefinition node)
 		{
 			Method call = (Method)node.Members["Call"];
@@ -62,52 +72,58 @@ namespace Boo.Lang.Compiler.Steps
 			Debug.Assert(0 == call.Body.Statements.Count);
 						
 			CallableSignature signature = type.GetSignature();
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-								CodeBuilder.CreateSelfReference(type),
-								type.GetInvokeMethod());
-			
-			int byrefcount = 0;
-			ILocalEntity invokeresults = null;
-			ILocalEntity[] tempvals;
-			IParameter[] parameters = signature.Parameters;
-			ReferenceExpression args = null;
-			
-			foreach(IParameter param in parameters)
+			int byRefCount = GetByRefParamCount(signature);
+			if (byRefCount > 0)
 			{
-				if (param.IsByRef)
-				{
-					++byrefcount;
-				}
+				ImplementByRefICallableCall(call, type, node, signature, byRefCount);
 			}
-			
-			tempvals = new InternalLocal[byrefcount];
-			
-			if (parameters.Length > 0)
+			else
 			{
-				args = CodeBuilder.CreateReference(call.Parameters[0]);
+				ImplementRegularICallableCall(call, type, node, signature);
 			}
+		}
+		
+		void ImplementByRefICallableCall(
+									Method call,
+									InternalCallableType type,
+									ClassDefinition node,
+									CallableSignature signature,
+									int byRefCount)
+		{			
+			MethodInvocationExpression mie = CreateInvokeInvocation(type);
+			IParameter[] parameters = signature.Parameters;			
+			ReferenceExpression args = CodeBuilder.CreateReference(call.Parameters[0]);
+			InternalLocal[] temporaries = new InternalLocal[byRefCount];
 			
-			int byrefindex = 0;
+			int byRefIndex = 0;
 			for (int i=0; i<parameters.Length; ++i)
-			{
+			{				
 				SlicingExpression slice = CodeBuilder.CreateSlicing(args.CloneNode(), i);
-				
-				if (parameters[i].IsByRef)
+
+				IParameter parameter = parameters[i];				
+				if (parameter.IsByRef)
 				{
-						tempvals[byrefindex] = CodeBuilder.DeclareLocal(call,
-									"__temp_"+parameters[i].Name,
-									parameters[i].Type);
-									
-						call.Body.Add(
-							CodeBuilder.CreateAssignment(
-							CodeBuilder.CreateReference(tempvals[byrefindex]),
-								CodeBuilder.CreateCast(
-									parameters[i].Type,
-									slice)));
-							
-						mie.Arguments.Add(CodeBuilder.CreateReference(tempvals[byrefindex]));
+					IType tempType = parameter.Type;
+					if (tempType.IsByRef)
+					{
+						tempType = tempType.GetElementType();
+					}
+					temporaries[byRefIndex] = CodeBuilder.DeclareLocal(call,
+								"__temp_" + parameter.Name,
+								tempType);
+								
+					call.Body.Add(
+						CodeBuilder.CreateAssignment(
+						CodeBuilder.CreateReference(temporaries[byRefIndex]),
+							CodeBuilder.CreateCast(
+								tempType,
+								slice)));
 						
-						++byrefindex;
+					mie.Arguments.Add(
+						CodeBuilder.CreateReference(
+							temporaries[byRefIndex]));
+					
+					++byRefIndex;
 				}
 				else
 				{
@@ -118,45 +134,72 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.VoidType == signature.ReturnType)
 			{
 				call.Body.Add(mie);
+				PropagateByRefParameterChanges(call, parameters, temporaries);
 			}
-			else if (byrefcount > 0)
+			else
 			{
-				invokeresults = CodeBuilder.DeclareLocal(call,
-							"__result", signature.ReturnType);
+				InternalLocal invokeReturnValue = CodeBuilder.DeclareLocal(call,
+							"__returnValue", signature.ReturnType);
 				call.Body.Add(
 					CodeBuilder.CreateAssignment(
-						CodeBuilder.CreateReference(invokeresults),
+						CodeBuilder.CreateReference(invokeReturnValue),
 						mie));
+				PropagateByRefParameterChanges(call, parameters, temporaries);
+				call.Body.Add(
+					new ReturnStatement(
+						CodeBuilder.CreateReference(invokeReturnValue)));
 			}
-			
-			byrefindex = 0;
+		}
+		
+		void PropagateByRefParameterChanges(Method call, IParameter[] parameters, InternalLocal[] temporaries)
+		{
+			int byRefIndex = 0;
 			for (int i=0; i<parameters.Length; ++i)
 			{
-				if (parameters[i].IsByRef)
-				{
-						SlicingExpression slice = CodeBuilder.CreateSlicing(args.CloneNode(), i);
-						
-						call.Body.Add(
-							CodeBuilder.CreateAssignment(
-							slice,
-							CodeBuilder.CreateReference(tempvals[byrefindex])));
-						
-						++byrefindex;
-				}
+				if (!parameters[i].IsByRef) continue;
+				
+				SlicingExpression slice = CodeBuilder.CreateSlicing(
+											CodeBuilder.CreateReference(call.Parameters[0]),
+											i);						
+				call.Body.Add(
+					CodeBuilder.CreateAssignment(
+						slice,
+						CodeBuilder.CreateReference(temporaries[byRefIndex])));
+				++byRefIndex;
+			}
+		}
+		
+		void ImplementRegularICallableCall(
+									Method call,
+									InternalCallableType type,
+									ClassDefinition node,
+									CallableSignature signature)
+		{	
+			MethodInvocationExpression mie = CreateInvokeInvocation(type);			
+			IParameter[] parameters = signature.Parameters;				
+			for (int i=0; i<parameters.Length; ++i)
+			{
+				SlicingExpression slice = CodeBuilder.CreateSlicing(
+							CodeBuilder.CreateReference(call.Parameters[0]),
+							i);
+				mie.Arguments.Add(slice);
 			}
 			
-			if (TypeSystemServices.VoidType != signature.ReturnType)
+			if (TypeSystemServices.VoidType == signature.ReturnType)
 			{
-				if (byrefcount > 0)
-				{
-					call.Body.Add(new ReturnStatement(
-						CodeBuilder.CreateReference(invokeresults)));
-				}
-				else
-				{
-					call.Body.Add(new ReturnStatement(mie));
-				}
+				call.Body.Add(mie);
 			}
+			else
+			{
+				call.Body.Add(new ReturnStatement(mie));
+			}
+		}
+		
+		MethodInvocationExpression CreateInvokeInvocation(InternalCallableType type)
+		{
+			return CodeBuilder.CreateMethodInvocation(
+								CodeBuilder.CreateSelfReference(type),
+								type.GetInvokeMethod());
 		}
 	}
 }
