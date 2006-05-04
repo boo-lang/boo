@@ -3511,6 +3511,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		private static string GetReferenceTypeName(Type t)
+		{
+			//return t.FullName + "&";
+			string name = t.FullName;
+			return name.EndsWith("&")
+				? name
+				: name + "&";
+		}
+		
 		Type[] GetParameterTypes(ParameterDeclarationCollection parameters)
 		{
 			Type[] types = new Type[parameters.Count];
@@ -3519,7 +3528,7 @@ namespace Boo.Lang.Compiler.Steps
 				types[i] = GetSystemType(parameters[i].Type);
 				if (parameters[i].IsByRef)
 				{
-					string typename = TypeSystemServices.GetReferenceTypeName(types[i]);
+					string typename = GetReferenceTypeName(types[i]);
 					Type byreftype = types[i].Assembly.GetType(typename);
 					
 					if (byreftype == null) //internal type

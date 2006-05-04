@@ -693,16 +693,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		public static string GetReferenceTypeName(Type t)
-		{
-			string name = t.FullName;
-			if (!(name.EndsWith("&")))
-			{
-				return name+"&";
-			}
-			return name;
-		}
-		
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
 		{
 			IParameter[] implParameters = impl.GetParameters();
@@ -712,34 +702,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static bool CheckOverrideSignature(IParameter[] implParameters, IParameter[] baseParameters)
 		{	
-			if (implParameters.Length == baseParameters.Length)
+			if (implParameters.Length != baseParameters.Length) return false;
+			
+			for (int i=0; i<implParameters.Length; ++i)
 			{
-				for (int i=0; i<implParameters.Length; ++i)
+				IParameter implParameter = implParameters[i];
+				IParameter baseParameter = baseParameters[i];
+				IType implType = implParameter.Type;
+				IType baseType = baseParameter.Type;
+				
+				if (baseType.IsByRef)
 				{
-					IParameter implParameter = implParameters[i];
-					IParameter baseParameter = baseParameters[i];
-					IType impltype = implParameter.Type;
-					IType basetype = baseParameter.Type;
-					
-					if (basetype.IsByRef)
-					{
-						if (!(implParameter.IsByRef))
-						{
-							return false;
-						}
-						if (basetype.GetElementType().FullName != impltype.FullName)
-						{
-							return false;
-						}
-					}
-					else if (impltype != basetype)
-					{
-						return false;
-					}
+					if (!implParameter.IsByRef) return false;
+					if (baseType.GetElementType() != implType) return false;
 				}
-				return true;
+				else
+				{
+					if (implType != baseType) return false;
+				}
 			}
-			return false;
+			return true;
 		}
 		
 		public bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
