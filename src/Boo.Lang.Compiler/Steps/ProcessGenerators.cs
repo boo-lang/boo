@@ -309,6 +309,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			mn.Body.Insert(0,
 				CodeBuilder.CreateSwitch(
+					generator.LexicalInfo,
 					CodeBuilder.CreateMemberReference(_state),
 					_labels));
 		}

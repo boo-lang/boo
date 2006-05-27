@@ -833,6 +833,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnLabelStatement(LabelStatement node)
 		{
+			EmitDebugInfo(node);
 			_il.MarkLabel(((InternalLabel)node.Entity).Label);
 		}
 		

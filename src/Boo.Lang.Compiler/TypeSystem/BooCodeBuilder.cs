@@ -164,6 +164,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return reference;
 		}
 		
+		public Statement CreateSwitch(LexicalInfo li, Expression offset, IEnumerable labels)
+		{
+			Statement stmt = CreateSwitch(offset, labels);
+			stmt.LexicalInfo = li;
+			return stmt;
+		}
+		
 		public Statement CreateSwitch(Expression offset, IEnumerable labels)
 		{
 			MethodInvocationExpression sw = CreateBuiltinInvocation(offset.LexicalInfo, BuiltinFunction.Switch);
