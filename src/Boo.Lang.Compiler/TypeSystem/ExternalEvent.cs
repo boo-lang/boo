@@ -50,17 +50,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IMethod GetAddMethod()
 		{
-			return (IMethod)_typeSystemServices.Map(_event.GetAddMethod());
+			return (IMethod)_typeSystemServices.Map(_event.GetAddMethod(true));
 		}
 		
 		public IMethod GetRemoveMethod()
 		{
-			return (IMethod)_typeSystemServices.Map(_event.GetRemoveMethod());
+			return (IMethod)_typeSystemServices.Map(_event.GetRemoveMethod(true));
 		}
 		
 		public IMethod GetRaiseMethod()
 		{
-			return (IMethod)_typeSystemServices.Map(_event.GetRaiseMethod());
+			return (IMethod)_typeSystemServices.Map(_event.GetRaiseMethod(true));
 		}
 		
 		public System.Reflection.EventInfo EventInfo
@@ -115,7 +115,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _event.GetAddMethod().IsStatic;
+				return _event.GetAddMethod(true).IsStatic;
 			}
 		}
 
@@ -123,7 +123,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _event.GetAddMethod().IsAbstract;
+				return _event.GetAddMethod(true).IsAbstract;
+				
 			}
 		}
 
@@ -131,7 +132,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _event.GetAddMethod().IsVirtual;
+				return _event.GetAddMethod(true).IsVirtual;
 			}
 		}
 		
