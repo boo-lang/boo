@@ -505,8 +505,11 @@ class BooCodeGenerator(CodeGenerator):
 		EndBlock()
 		
 	def MemberReference(target as CodeExpression, member as string):
-		GenerateExpression(target)
-		Output.Write(".${member}")
+		if target: #target.method( ... )
+			GenerateExpression(target)
+			Output.Write(".${member}")
+		else: #method( ... )
+			Output.Write(member)
 		
 	def Indexer(target as CodeExpression, indices as CodeExpressionCollection):
 		GenerateExpression(target)
