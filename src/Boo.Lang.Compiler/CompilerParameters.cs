@@ -46,6 +46,8 @@ namespace Boo.Lang.Compiler
 		static private bool _NET_1_1 = (Environment.Version.Major == 1 &&
 						Environment.Version.Minor == 1);
 		
+		static private List _validFileExtensions = new List(new string[] { ".dll", ".exe" });
+		
 		TextWriter _outputWriter;
 		
 		CompilerPipeline _pipeline;
@@ -261,7 +263,8 @@ namespace Boo.Lang.Compiler
 			foreach (string dir in _libpaths)
 			{
 				string full_path = Path.Combine(dir, assembly);
-				if (!assembly.EndsWith(".dll") && !assembly.EndsWith(".exe"))
+				FileInfo file = new FileInfo(full_path);
+				if (!_validFileExtensions.Contains(file.Extension.ToLower()))
 					full_path += ".dll";
 
 				try 
