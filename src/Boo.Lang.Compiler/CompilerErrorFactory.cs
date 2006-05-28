@@ -726,6 +726,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0136", node.LexicalInfo);
 		}
 		
+		public static CompilerError PropertyIsWriteOnly(Node node, string propertyName)
+		{
+			return new CompilerError("BCE0137", node.LexicalInfo, propertyName);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

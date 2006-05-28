@@ -2344,8 +2344,19 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (!AstUtil.IsTargetOfSlicing(node))
 					{
-						Error(node, CompilerErrorFactory.PropertyRequiresParameters(AstUtil.GetMemberAnchor(node), member.FullName));
+						Error(node, CompilerErrorFactory.PropertyRequiresParameters(
+								AstUtil.GetMemberAnchor(node),
+								member.FullName));
 						return;
+					}
+				}
+				if (!AstUtil.IsLhsOfAssignment(node))
+				{
+					if (null == ((IProperty)member).GetGetMethod())
+					{
+						Error(node, CompilerErrorFactory.PropertyIsWriteOnly(
+								AstUtil.GetMemberAnchor(node),
+								member.FullName));
 					}
 				}
 			}
