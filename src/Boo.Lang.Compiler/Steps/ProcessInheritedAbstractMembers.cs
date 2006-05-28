@@ -66,7 +66,8 @@ namespace Boo.Lang.Compiler.Steps
 	public class ProcessInheritedAbstractMembers : AbstractVisitorCompilerStep
 	{
 		private Boo.Lang.List _newAbstractClasses;
-
+		private Boo.Lang.Hash _classDefinitionList;
+		private int depth = 0;
 		public ProcessInheritedAbstractMembers()
 		{
 		}
@@ -74,7 +75,9 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{	
 			_newAbstractClasses = new List();
+			_classDefinitionList = new Hash();
 			Visit(CompileUnit.Modules);
+			_classDefinitionList.Clear();
 			ProcessNewAbstractClasses();
 		}
 
@@ -146,10 +149,15 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
 			MarkVisited(node);
+			if(!_classDefinitionList.Contains(node.Name))
+			{
+				_classDefinitionList.Add(node.Name, node);
+			}
 			foreach (TypeReference baseTypeRef in node.BaseTypes)
 			{	
 				IType baseType = GetType(baseTypeRef);
 				EnsureRelatedNodeWasVisited(node, baseType);
+				
 				if (baseType.IsInterface)
 				{
 					ResolveInterfaceMembers(node, baseTypeRef, baseType);
@@ -163,7 +171,110 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-
+		/// <summary>
+		/// This function checks for inheriting implementatinos from EXTERNAL classes only.
+		/// </summary>
+		bool CheckInheritsInterfaceImplementation(ClassDefinition node, IEntity entity)
+		{
+			foreach( TypeReference baseTypeRef in node.BaseTypes)
+			{
+				IType type = GetType(baseTypeRef);
+				if( type.IsClass && !type.IsInterface)
+				{	
+					//TODO: figure out why this freakish incidence happens:
+					//entity.Name == "CopyTo"
+					//vs
+					//entity.Name == "System.ICollection.CopyTo" ... ... ...
+					//Technically correct, but completely useless.
+					IEntity inheritedImpl = null;					
+					foreach(IEntity oddjob in type.GetMembers())
+					{
+						string[] temp = oddjob.FullName.Split('.');
+						string actualName = temp[temp.Length - 1];
+						if( actualName == entity.Name)
+						{
+							inheritedImpl = oddjob;
+						}
+					}
+					//inheritedImpl = NameResolutionService.ResolveMember(type, entity.Name, entity.EntityType);
+					if( null != inheritedImpl)
+					{
+						if(inheritedImpl == entity)
+						{
+							return false; //Evaluating yourself is a very bad habit.
+						}
+						switch( entity.EntityType)
+						{
+							case EntityType.Method:
+								return CheckInheritedMethodImpl(inheritedImpl as IMethod, entity as IMethod);								
+							case EntityType.Event:
+								return CheckInheritedEventImpl(inheritedImpl as IEvent, entity as IEvent);
+							case EntityType.Property:
+								return CheckInheritedPropertyImpl(inheritedImpl as IProperty, entity as IProperty);
+						}
+					}
+				}
+			}
+			return false;
+		}
+		bool CheckInheritedMethodImpl(IMethod impl, IMethod target)
+		{
+			if(TypeSystemServices.CheckOverrideSignature(impl, target))
+			{
+				
+				if(impl.ReturnType == target.ReturnType)
+				{					
+					return true;
+				}
+				//TODO: Oh snap! No reusable error messages for this!
+				//Errors(CompilerErrorFactory.ConflictWithInheritedMember());
+			}
+			return false;
+		}
+		bool CheckInheritedEventImpl(IEvent impl, IEvent target)
+		{
+			return impl.Type == target.Type;
+		}
+		bool CheckInheritedPropertyImpl(IProperty impl, IProperty target)
+		{
+			if(impl.Type == target.Type)
+			{
+				if(TypeSystemServices.CheckOverrideSignature(impl.GetParameters(), target.GetParameters()))
+				{					
+					if(HasGetter(target))
+					{
+						if(!HasGetter(impl))
+						{
+							return false;
+						}
+					}
+					if(HasSetter(target))
+					{
+						if(!HasSetter(impl))
+						{
+							return false;
+						}
+					}
+					/* Unnecessary?
+					  if(impl.IsPublic != target.IsPublic || 
+					   impl.IsProtected != target.IsProtected ||
+					   impl.IsPrivate != target.IsPrivate)
+					{
+						return false;
+					}*/
+					return true;
+				}
+			}
+			return false;
+		}
+		bool HasGetter(IProperty property)
+		{
+			return property.GetGetMethod() != null;
+		}
+		bool HasSetter(IProperty property)
+		{
+			return property.GetSetMethod() != null;
+		}
 		bool IsAbstract(IType type)
 		{
 			if (type.IsAbstract)
@@ -187,7 +298,8 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveClassAbstractProperty(ClassDefinition node,
 			TypeReference baseTypeRef,
 			IProperty entity)
-		{
+		{			
+			
 			foreach (TypeMember member in node.Members)
 			{
 				if (entity.Name != member.Name
@@ -214,9 +326,24 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				return;
 			}
-			
-			node.Members.Add(CreateAbstractProperty(baseTypeRef, entity));
-			AbstractMemberNotImplemented(node, baseTypeRef, entity);
+			foreach(SimpleTypeReference parent in node.BaseTypes)
+			{
+				if(_classDefinitionList.Contains(parent.Name))
+				{
+					depth++;
+					ResolveClassAbstractProperty(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, entity);
+					depth--;
+				}
+			}
+			if(CheckInheritsInterfaceImplementation(node, entity))
+			{
+				return;
+			}
+			if(depth == 0)
+			{
+				node.Members.Add(CreateAbstractProperty(baseTypeRef, entity));
+				AbstractMemberNotImplemented(node, baseTypeRef, entity);
+			}
 		}
 
 		private void ProcessPropertyAccessor(Property p, Method accessor, IMethod method)
@@ -256,7 +383,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveAbstractEvent(ClassDefinition node,
 			TypeReference baseTypeRef,
 			IEvent entity)
-		{
+		{			
 			TypeMember member = node.Members[entity.Name];
 			if (null != member)
 			{
@@ -283,9 +410,24 @@ namespace Boo.Lang.Compiler.Steps
 				_context.TraceInfo("{0}: Event {1} implements {2}", ev.LexicalInfo, ev, entity);
 				return;
 			}
-
-			node.Members.Add(CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, entity));
-			AbstractMemberNotImplemented(node, baseTypeRef, entity);
+			if(CheckInheritsInterfaceImplementation(node, entity))
+			{
+				return;
+			}
+			foreach(SimpleTypeReference parent in node.BaseTypes)
+			{
+				if(_classDefinitionList.Contains(parent.Name))
+				{
+					depth++;
+					ResolveAbstractEvent(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, entity);
+					depth--;
+				}
+			}
+			if(depth == 0)
+			{
+				node.Members.Add(CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, entity));
+				AbstractMemberNotImplemented(node, baseTypeRef, entity);
+			}
 		}
 
 		void ResolveAbstractMethod(ClassDefinition node,
@@ -305,13 +447,13 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Method method = (Method)member;
 					if (TypeSystemServices.CheckOverrideSignature(GetEntity(method), entity))
-					{	
+					{
 						if (IsUnknown(method.ReturnType))
 						{
 							method.ReturnType = CodeBuilder.CreateTypeReference(entity.ReturnType);
 						}
 						else
-						{	
+						{
 							if (entity.ReturnType != method.ReturnType.Entity)
 							{
 								Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, entity.FullName));
@@ -333,9 +475,24 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			
-			node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
-			AbstractMemberNotImplemented(node, baseTypeRef, entity);
+			foreach(SimpleTypeReference parent in node.BaseTypes)
+			{
+				if(_classDefinitionList.Contains(parent.Name))
+				{
+					depth++;
+					ResolveAbstractMethod(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, entity);
+					depth--;
+				}
+			}
+			if(CheckInheritsInterfaceImplementation(node, entity))
+			{
+				return;
+			}	
+			if(depth == 0)
+			{
+				node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
+				AbstractMemberNotImplemented(node, baseTypeRef, entity);
+			}
 		}
 
 		private bool IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(TypeMember member, IMember entity)
