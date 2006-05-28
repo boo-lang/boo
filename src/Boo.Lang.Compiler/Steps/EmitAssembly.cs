@@ -4580,6 +4580,27 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				version = "0.0.0.0";
 			}
+			/* 1.0.* -- BUILD -- based on days since January 1, 2000
+			 * 1.0.0.* -- REVISION -- based on seconds since midnight, January 1, 2000, divided by 2			 *
+			 */
+			string[] sliced = version.Split('.');
+			if (sliced.Length > 2)
+			{
+				DateTime baseTime = new DateTime(2000, 1, 1);
+				TimeSpan mark = (DateTime.Now - baseTime);				
+				if (sliced[2].StartsWith("*"))
+				{
+					sliced[2] = Math.Round(mark.TotalDays).ToString();
+				}
+				if (sliced.Length > 3)
+				{
+					if (sliced[3].StartsWith("*"))
+					{
+						sliced[3] = Math.Round(mark.TotalSeconds).ToString();
+					}
+				}
+				version = Boo.Lang.Builtins.join(sliced, ".");
+			}
 			return new Version(version);
 		}
 		
