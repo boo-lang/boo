@@ -4306,7 +4306,20 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						IField field = (IField)tag;
 						if (field.IsLiteral)
-						{
+						{	
+							//Scenario:
+							//IF:
+							//SomeType.StaticReference = "hamsandwich"
+							//[RandomAttribute(SomeType.StaticReferenece)]
+							//THEN:
+							//field.StaticValue != "hamsandwich"
+							//field.StaticValue == SomeType.StaticReference
+							//SO:
+							//If field.StaticValue is an AST Expression, call GetValue() on it
+							if (field.StaticValue is Expression)
+							{
+								return GetValue(expectedType, field.StaticValue as Expression);
+							}
 							return field.StaticValue;
 						}
 					}
