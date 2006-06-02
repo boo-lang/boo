@@ -188,7 +188,8 @@ namespace Boo.Lang.Compiler.Steps
 			return 
 				NodeType.ReferenceExpression == type ||
 				NodeType.SelfLiteralExpression == type ||
-				NodeType.SuperLiteralExpression == type;
+				NodeType.SuperLiteralExpression == type ||
+				ProcessMethodBodies.IsArraySlicing(target);
 		}
 
 		protected virtual bool IsReadOnlyMember(MemberReferenceExpression container)

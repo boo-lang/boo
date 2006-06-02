@@ -5286,14 +5286,11 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		protected bool IsArraySlicing(Node node)
+		public static bool IsArraySlicing(Node node)
 		{
-			if (node.NodeType == NodeType.SlicingExpression)
-			{
-				IType type = ((SlicingExpression)node).Target.ExpressionType;
-				return null != type && type.IsArray;
-			}
-			return false;
+			if (node.NodeType != NodeType.SlicingExpression) return false;
+			IType type = ((SlicingExpression)node).Target.ExpressionType;
+			return null != type && type.IsArray;
 		}
 
 		bool IsStandaloneReference(Node node)
