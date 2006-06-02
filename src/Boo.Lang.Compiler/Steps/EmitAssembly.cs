@@ -531,7 +531,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnModule(Module module)
-		{
+		{		
 			Visit(module.Members);
 		}
 
@@ -560,9 +560,9 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnArrayTypeReference(ArrayTypeReference node)
 		{
 		}
-
+		
 		override public void OnClassDefinition(ClassDefinition node)
-		{
+		{			
 			EmitTypeDefinition(node);
 		}
 		
@@ -710,8 +710,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReturnStatement(ReturnStatement node)
 		{
-			EmitDebugInfo(node);
-			
+			EmitDebugInfo(node);			
 			OpCode retOpCode = _tryBlock > 0 ? OpCodes.Leave : OpCodes.Br;
 			
 			if (null != node.Expression)
@@ -720,7 +719,8 @@ namespace Boo.Lang.Compiler.Steps
 				EmitCastIfNeeded(_returnType, PopType());
 				_il.Emit(OpCodes.Stloc, _returnValueLocal);
 			}
-			_il.Emit(retOpCode, _returnLabel);
+			_il.Emit(retOpCode, _returnLabel);			
+			EmitNopDebugInfo(node);
 		}
 		
 		override public void OnRaiseStatement(RaiseStatement node)
@@ -804,13 +804,29 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnUnlessStatement(UnlessStatement node)
-		{
-			EmitDebugInfo(node);
-			
+		{			
 			Label endLabel = _il.DefineLabel();
+			EmitDebugInfo(node);
 			EmitBranchTrue(node.Condition, endLabel);
+			EmitNopDebugInfo(node);
 			node.Block.Accept(this);
 			_il.MarkLabel(endLabel);
+		}
+		
+		void OnSwitch(MethodInvocationExpression node)
+		{
+			ExpressionCollection args = node.Arguments;
+			Visit(args[0]);
+			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
+			
+			Label[] labels = new Label[args.Count-1];
+			for (int i=0; i<labels.Length; ++i)
+			{
+				labels[i] = ((InternalLabel)args[i+1].Entity).Label;
+			}
+			_il.Emit(OpCodes.Switch, labels);
+			
+			PushVoid();
 		}
 		
 		override public void OnGotoStatement(GotoStatement node)
@@ -835,6 +851,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EmitDebugInfo(node);
 			_il.MarkLabel(((InternalLabel)node.Entity).Label);
+			EmitNopDebugInfo(node);
 		}
 		
 		override public void OnConditionalExpression(ConditionalExpression node)
@@ -861,12 +878,13 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnIfStatement(IfStatement node)
-		{
-			EmitDebugInfo(node);
-			
+		{			
 			Label endLabel = _il.DefineLabel();
 			
+			EmitDebugInfo(node);
 			EmitBranchFalse(node.Condition, endLabel);
+			EmitNopDebugInfo(node);
+			
 			node.TrueBlock.Accept(this);
 			if (null != node.FalseBlock)
 			{
@@ -1225,14 +1243,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnWhileStatement(WhileStatement node)
 		{
-			EmitDebugInfo(node);
-			
 			Label endLabel = _il.DefineLabel();
 			Label bodyLabel = _il.DefineLabel();
 			Label conditionLabel = _il.DefineLabel();
 			
-			_il.Emit(OpCodes.Br, conditionLabel);
-			
+			_il.Emit(OpCodes.Br, conditionLabel);			
 			_il.MarkLabel(bodyLabel);
 			
 			EnterLoop(endLabel, conditionLabel);
@@ -1240,7 +1255,9 @@ namespace Boo.Lang.Compiler.Steps
 			LeaveLoop();
 			
 			_il.MarkLabel(conditionLabel);
+			EmitDebugInfo(node);
 			EmitBranchTrue(node.Condition, bodyLabel);
+			EmitNopDebugInfo(node);
 			_il.MarkLabel(endLabel);
 		}
 		
@@ -2008,23 +2025,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Ldtoken, type);
 			_il.EmitCall(OpCodes.Call, Type_GetTypeFromHandle, null);
 			PushType(TypeSystemServices.TypeType);
-		}
-		
-		void OnSwitch(MethodInvocationExpression node)
-		{
-			ExpressionCollection args = node.Arguments;
-			Visit(args[0]);
-			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
-			
-			Label[] labels = new Label[args.Count-1];
-			for (int i=0; i<labels.Length; ++i)
-			{
-				labels[i] = ((InternalLabel)args[i+1].Entity).Label;
-			}
-			_il.Emit(OpCodes.Switch, labels);
-			
-			PushVoid();
-		}
+		}		
 		
 		void OnEval(MethodInvocationExpression node)
 		{
@@ -2935,7 +2936,7 @@ namespace Boo.Lang.Compiler.Steps
 			LexicalInfo start = startNode.LexicalInfo;
 			if (!start.IsValid) return false;
 
-			ISymbolDocumentWriter writer = GetDocumentWriter(start.FileName);
+			ISymbolDocumentWriter writer = GetDocumentWriter(start.FullPath);
 			if (null == writer) return false;
 
 			try
@@ -2952,31 +2953,18 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		private ISymbolDocumentWriter GetDocumentWriter(string fname)
-		{	
-			string fullname = SafeGetFullPath(fname);
-			ISymbolDocumentWriter writer = GetCachedDocumentWriter(fullname);
+		{				
+			ISymbolDocumentWriter writer = GetCachedDocumentWriter(fname);
 			if (null != writer) return writer;
 			
 			writer = _moduleBuilder.DefineDocument(
-				fullname,
+				fname,
 				Guid.Empty,
 				Guid.Empty,
 				SymDocumentType.Text);
-			_symbolDocWriters.Add(fullname, writer);
+			_symbolDocWriters.Add(fname, writer);
 			
 			return writer;
-		}
-
-		private string SafeGetFullPath(string fname)
-		{
-			try
-			{
-				return Path.GetFullPath(fname);
-			}
-			catch (Exception)
-			{
-			}
-			return fname;
 		}
 
 		private ISymbolDocumentWriter GetCachedDocumentWriter(string fname)
@@ -3778,6 +3766,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
 					attributes |= TypeAttributes.Class;
+					attributes |= TypeAttributes.BeforeFieldInit;
 					
 					if (!type.IsTransient)
 					{

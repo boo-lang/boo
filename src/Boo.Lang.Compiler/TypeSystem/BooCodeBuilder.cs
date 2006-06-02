@@ -166,9 +166,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public Statement CreateSwitch(LexicalInfo li, Expression offset, IEnumerable labels)
 		{
-			Statement stmt = CreateSwitch(offset, labels);
-			stmt.LexicalInfo = li;
-			return stmt;
+			offset.LexicalInfo = li;
+			return CreateSwitch(offset, labels);
 		}
 		
 		public Statement CreateSwitch(Expression offset, IEnumerable labels)

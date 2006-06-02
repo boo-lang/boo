@@ -1845,15 +1845,17 @@ namespace Boo.Lang.Compiler.Steps
 			BooClassBuilder builder = CodeBuilder.CreateClass(
 														string.Format("{0}___generator{1}", method.Name, _context.AllocIndex()),
 														TypeMemberModifiers.Private|TypeMemberModifiers.Final);
+			builder.LexicalInfo = sourceNode.LexicalInfo;
 			builder.AddBaseType(TypeSystemServices.Map(typeof(AbstractGenerator)));
 			builder.AddAttribute(CodeBuilder.CreateAttribute(
 												EnumeratorItemType_Constructor,
 												CodeBuilder.CreateTypeofExpression(generatorItemType)));
-			builder.LexicalInfo = sourceNode.LexicalInfo;
 			parentType.Members.Add(builder.ClassDefinition);
 			
+			BooMethodBuilder getEnumeratorBuilder = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
+			getEnumeratorBuilder.Method.LexicalInfo = sourceNode.LexicalInfo;
 			sourceNode["GeneratorClassBuilder"] = builder;
-			sourceNode["GetEnumeratorBuilder"] = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
+			sourceNode["GetEnumeratorBuilder"] = getEnumeratorBuilder;
 			sourceNode["GeneratorItemType"] = generatorItemType;
 			
 			return builder;

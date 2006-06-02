@@ -78,6 +78,8 @@ namespace Boo.Lang.Compiler.Ast
 		
 		protected string _filename;
 		
+		private string _fullPath;
+		
 		public LexicalInfo(string filename, int line, int column)
 			: base(line, column)
 		{
@@ -103,10 +105,32 @@ namespace Boo.Lang.Compiler.Ast
 				return _filename;
 			}
 		}
+		
+		public string FullPath
+		{
+			get
+			{
+				if (null != _fullPath) return _fullPath;
+				_fullPath = SafeGetFullPath(_filename);
+				return _fullPath;
+			}
+		}
 
 		override public string ToString()
 		{
 			return string.Format("{0}({1},{2})", _filename, _line, _column);
+		}
+		
+		private static string SafeGetFullPath(string fname)
+		{
+			try
+			{
+				return System.IO.Path.GetFullPath(fname);
+			}
+			catch (Exception)
+			{
+			}
+			return fname;
 		}
 	}
 }

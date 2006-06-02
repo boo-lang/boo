@@ -151,12 +151,14 @@ namespace Boo.Lang.Compiler.Steps
 			Initialize(context);
 		}
 		
+		public LexicalInfo LexicalInfo
+		{
+			get { return _generator.Method.LexicalInfo; }
+		}
+		
 		public InternalMethod MoveNextMethod
 		{
-			get
-			{
-				return _moveNext;
-			}
+			get { return _moveNext; }
 		}
 		
 		override public void Run()
@@ -261,6 +263,7 @@ namespace Boo.Lang.Compiler.Steps
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
 			
 			_enumerator = CodeBuilder.CreateClass("Enumerator");
+			_enumerator.LexicalInfo = this.LexicalInfo;
 			_enumerator.AddBaseType(abstractEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
 			
@@ -275,6 +278,7 @@ namespace Boo.Lang.Compiler.Steps
 			Method generator = _generator.Method;
 			
 			BooMethodBuilder mn = _enumerator.AddVirtualMethod("MoveNext", TypeSystemServices.BoolType);
+			mn.Method.LexicalInfo = this.LexicalInfo;
 			_moveNext = mn.Entity;
 			
 			foreach (Local local in generator.Locals)
@@ -309,7 +313,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			mn.Body.Insert(0,
 				CodeBuilder.CreateSwitch(
-					generator.LexicalInfo,
+					this.LexicalInfo,
 					CodeBuilder.CreateMemberReference(_state),
 					_labels));
 		}
