@@ -62,12 +62,12 @@ namespace BooC
 		{
 			if (((IList)args).Contains("-utf8"))
 			{
-				using (StreamWriter writer = new StreamWriter(Console.OpenStandardOutput(), Encoding.UTF8))
+				using (StreamWriter writer = new StreamWriter(Console.OpenStandardError(), Encoding.UTF8))
 				{
 					// leave the byte order mark in its own line and out
 					writer.WriteLine();
 					
-					Console.SetOut(writer);
+					Console.SetError(writer);
 					return new App().Run(args);
 				}
 			}
@@ -132,17 +132,17 @@ namespace BooC
 
 				if (context.Warnings.Count > 0)
 				{
-					Console.WriteLine(context.Warnings);
-					Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
+					Console.Error.WriteLine(context.Warnings);
+					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
 				}
 				
 				if (context.Errors.Count > 0)
 				{
 					foreach (CompilerError error in context.Errors)
 					{
-						Console.WriteLine(error.ToString(_options.TraceSwitch.TraceInfo));
+						Console.Error.WriteLine(error.ToString(_options.TraceSwitch.TraceInfo));
 					}
-					Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.Errors", context.Errors.Count));
+					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.Errors", context.Errors.Count));
 				}
 				else
 				{
@@ -151,13 +151,13 @@ namespace BooC
 				
 				if (_options.TraceSwitch.TraceWarning)
 				{
-					Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.ProcessingTime", _options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));
+					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.ProcessingTime", _options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));
 				}
 			}
 			catch (Exception x)
 			{
 				object message = _options.TraceSwitch.TraceWarning ? (object)x : (object)x.Message;
-				Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.FatalError", message));
+				Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.FatalError", message));
 			}
 			return resultCode;
 		}
@@ -187,7 +187,7 @@ namespace BooC
 							string msg=string.Format("WARNING: booc is not using the Boo.Lang.Compiler.dll next to booc.exe.  Using '{0}' instead of '{1}'.  You may need to remove boo dlls from the GAC using gacutil or Mscorcfg.",
 									a.Location, path);
 							//has to be all 1 line for things like msbuild that parse booc output.
-							Console.WriteLine(msg);
+							Console.Error.WriteLine(msg);
 						}
 						break;
 					}
@@ -326,7 +326,7 @@ namespace BooC
 										string paths = arg.Substring(arg.IndexOf(":")+1);
 										if (paths == "")
 										{
-											Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
+											Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
 											break;
 										}
 										
@@ -338,7 +338,7 @@ namespace BooC
 											}
 											else
 											{
-												Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
+												Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
 											}
 										}
 										break;
@@ -707,7 +707,7 @@ namespace BooC
 		
 		void InvalidOption(string arg)
 		{
-			Console.WriteLine(Boo.Lang.ResourceManager.Format("BooC.InvalidOption", arg));
+			Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.InvalidOption", arg));
 		}
 
 		bool IsFlag(string arg)
