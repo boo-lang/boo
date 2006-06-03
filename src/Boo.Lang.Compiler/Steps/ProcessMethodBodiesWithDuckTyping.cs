@@ -33,6 +33,31 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class ProcessMethodBodiesWithDuckTyping : ProcessMethodBodies
 	{
+		override protected IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
+		{
+			if (_callableResolution.ValidCandidates.Count == 0)
+			{				
+				return base.CantResolveAmbiguousMethodInvocation(node, entities);
+			}
+			
+			// ok, we have valid method invocation matches, let's 
+			// let the runtime decide which method is the best
+			// match
+			NormalizeMethodInvocationTarget(node);
+			BindQuack(node.Target);
+			BindDuckTypedMethodInvocation(node);
+			return null;
+		}
+		
+		void NormalizeMethodInvocationTarget(MethodInvocationExpression node)
+		{
+			if (node.Target.NodeType != NodeType.ReferenceExpression) return;
+			
+			node.Target = MemberReferenceFromReference(
+							(ReferenceExpression)node.Target,
+							((CallableResolutionService.CallableScore)_callableResolution.ValidCandidates[0]).Entity);
+		}
+		
 		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)
 		{
 			if (TypeSystemServices.IsQuackBuiltin(function))
@@ -68,8 +93,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (TypeSystemServices.IsDuckTyped(node.Target))
 			{	
-				Bind(node, BuiltinFunction.Quack);
-				BindDuck(node);
+				BindQuack(node);
 			}
 			else
 			{
@@ -77,12 +101,23 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void BindQuack(Expression node)
+		{
+			Bind(node, BuiltinFunction.Quack);
+			BindDuck(node);
+		}
+		
+		void BindDuckTypedMethodInvocation(MethodInvocationExpression node)
+		{
+			Bind(node, BuiltinFunction.Quack);
+			BindDuck(node);
+		}
+		
 		override protected void ProcessInvocationOnUnknownCallableExpression(MethodInvocationExpression node)
 		{
 			if (TypeSystemServices.IsDuckTyped(node.Target))
 			{
-				Bind(node, BuiltinFunction.Quack);
-				BindDuck(node);
+				BindDuckTypedMethodInvocation(node);
 			}
 			else
 			{

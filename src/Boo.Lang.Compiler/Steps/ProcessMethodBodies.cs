@@ -2027,32 +2027,44 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, toType);
 		}
 		
-		void ResolveMemberInfo(ReferenceExpression node, IMember member)
-		{	
-			MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
-			memberRef.Name = node.Name;
+		protected Expression CreateMemberReferenceTarget(Node sourceNode, IMember member)
+		{
+			Expression target = null;
 			
 			if (member.IsStatic)
 			{
-				memberRef.Target = new ReferenceExpression(node.LexicalInfo, member.DeclaringType.FullName);
-				Bind(memberRef.Target, member.DeclaringType);
+				target = new ReferenceExpression(sourceNode.LexicalInfo, member.DeclaringType.FullName);
+				Bind(target, member.DeclaringType);
 			}
 			else
 			{
-                               //check if found entity can't possibly be a member of self:
-			       if (member.DeclaringType != CurrentType &&
-				       !(CurrentType.IsSubclassOf(member.DeclaringType)))
-			       {
-				       Error(CompilerErrorFactory.InstanceRequired(node,
-				       	member.DeclaringType.ToString(),
-					member.Name));
-			       }
-			       memberRef.Target = new SelfLiteralExpression(node.LexicalInfo);
+				//check if found entity can't possibly be a member of self:
+				if (member.DeclaringType != CurrentType
+					&& !(CurrentType.IsSubclassOf(member.DeclaringType)))
+				{
+					Error(
+						CompilerErrorFactory.InstanceRequired(sourceNode,
+							member.DeclaringType.ToString(),
+							member.Name));
+				}
+				target = new SelfLiteralExpression(sourceNode.LexicalInfo);
 			}
-			
-			Bind(memberRef, member);
-			BindExpressionType(memberRef.Target, member.DeclaringType);
-			
+			BindExpressionType(target, member.DeclaringType);
+			return target;
+		}
+		
+		protected MemberReferenceExpression MemberReferenceFromReference(ReferenceExpression node, IMember member)
+		{
+			MemberReferenceExpression memberRef = new MemberReferenceExpression(node.LexicalInfo);
+			memberRef.Name = node.Name;
+			memberRef.Target = CreateMemberReferenceTarget(node, member);
+			return memberRef;
+		}
+		
+		void ResolveMemberInfo(ReferenceExpression node, IMember member)
+		{	
+			MemberReferenceExpression memberRef = MemberReferenceFromReference(node, member);			
+			Bind(memberRef, member);			
 			node.ParentNode.Replace(node, memberRef);
 			Visit(memberRef);
 		}
@@ -3617,7 +3629,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, Ambiguous entity)
+		protected virtual IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, Ambiguous entity)
 		{
 			_context.TraceVerbose("{0}: resolving ambigous method invocation: {1}", node.LexicalInfo, entity);
 			
@@ -3660,7 +3672,7 @@ namespace Boo.Lang.Compiler.Steps
 			return NameResolutionService.ResolveExtension(GetReferenceNamespace(mre), mre.Name);
 		}
 
-		private IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
+		protected virtual IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
 		{
 			EmitCallableResolutionError(node, entities, node.Arguments);
 			Error(node);
@@ -3686,8 +3698,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Visit(node.Arguments);
 			
-			if (TypeSystemServices.IsError(node.Target) ||
-				TypeSystemServices.IsErrorAny(node.Arguments))
+			if (TypeSystemServices.IsError(node.Target)
+				|| TypeSystemServices.IsErrorAny(node.Arguments))
 			{
 				Error(node);
 				return;
@@ -3760,7 +3772,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void ProcessAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
+		protected virtual void ProcessAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
 		{
 			targetEntity = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetEntity);
 			if (null == targetEntity) return;
@@ -3788,7 +3800,6 @@ namespace Boo.Lang.Compiler.Steps
 				if (null != targetConstructorInfo)
 				{
 					Bind(node.Target, targetConstructorInfo);
-					//BindExpressionType(node.Target, TypeSystemServices.VoidType);
 				}
 			}
 		}
@@ -3812,10 +3823,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void NamedArgumentsNotAllowed(MethodInvocationExpression node)
 		{
-			if (node.NamedArguments.Count > 0)
-			{
-				Error(CompilerErrorFactory.NamedArgumentsNotAllowed(node.NamedArguments[0]));
-			}
+			if (node.NamedArguments.Count == 0) return;
+			Error(CompilerErrorFactory.NamedArgumentsNotAllowed(node.NamedArguments[0]));
 		}
 
 		private void ProcessExtensionMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
