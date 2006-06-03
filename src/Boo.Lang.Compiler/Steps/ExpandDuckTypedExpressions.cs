@@ -42,6 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected IMethod RuntimeServices_InvokeUnaryOperator;
 		protected IMethod RuntimeServices_SetProperty;
 		protected IMethod RuntimeServices_GetProperty;
+		protected IMethod RuntimeServices_SetSlice;
 		protected IMethod RuntimeServices_GetSlice;
 		
 		public ExpandDuckTypedExpressions()
@@ -63,6 +64,7 @@ namespace Boo.Lang.Compiler.Steps
 			RuntimeServices_InvokeUnaryOperator = ResolveMethod(duckTypingServices, "InvokeUnaryOperator");
 			RuntimeServices_SetProperty = ResolveMethod(duckTypingServices, "SetProperty");
 			RuntimeServices_GetProperty = ResolveMethod(duckTypingServices, "GetProperty");
+			RuntimeServices_SetSlice = ResolveMethod(duckTypingServices, "SetSlice");
 			RuntimeServices_GetSlice = ResolveMethod(duckTypingServices, "GetSlice");
 		}
 		
@@ -108,6 +110,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
 			if (!IsDuckTyped(node.Target)) return;
+			if (AstUtil.IsLhsOfAssignment(node)) return;
 
 			// todo
 			// a[foo]
@@ -161,6 +164,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
+				if (NodeType.SlicingExpression == node.Left.NodeType)
+				{
+					SlicingExpression slice = (SlicingExpression)node.Left;
+					if(IsDuckTyped(slice.Target))
+					{
+						ProcessDuckSlicingPropertySet(node);
+					}
+				} else
 				if (TypeSystemServices.IsQuackBuiltin(node.Left))
 				{
 					ProcessQuackPropertySet(node);
@@ -194,6 +205,40 @@ namespace Boo.Lang.Compiler.Steps
 			Replace(mie);
 		}
 		
+		void ProcessDuckSlicingPropertySet(BinaryExpression node)
+		{
+			SlicingExpression slice = (SlicingExpression)node.Left;
+
+			ArrayLiteralExpression args = new ArrayLiteralExpression();
+			foreach (Slice index in slice.Indices)
+			{
+				if (AstUtil.IsComplexSlice(index))
+				{
+					throw CompilerErrorFactory.NotImplemented(index, "complex slice for duck");
+				}
+				args.Items.Add(index.Begin);
+			}
+			args.Items.Add(node.Right);
+			BindExpressionType(args, TypeSystemServices.ObjectArrayType);
+			
+			Expression target = slice.Target;
+			string memberName = "";
+			
+			if (NodeType.MemberReferenceExpression == target.NodeType)
+			{
+				MemberReferenceExpression mre = ((MemberReferenceExpression)target);
+				target = mre.Target;
+				memberName = mre.Name;
+			}
+			
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+				RuntimeServices_SetSlice,
+				target,
+				CodeBuilder.CreateStringLiteral(memberName),
+				args);
+			Replace(mie);
+		}
+
 		void ProcessQuackPropertySet(BinaryExpression node)
 		{
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Left;

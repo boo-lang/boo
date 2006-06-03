@@ -2364,14 +2364,12 @@ namespace Boo.Lang.Compiler.Steps
 						return;
 					}
 				}
-				if (!AstUtil.IsLhsOfAssignment(node))
+				if (IsWriteOnlyProperty((IProperty)member)
+					&& !IsBeingAssignedTo(node))
 				{
-					if (null == ((IProperty)member).GetGetMethod())
-					{
-						Error(node, CompilerErrorFactory.PropertyIsWriteOnly(
-								AstUtil.GetMemberAnchor(node),
-								member.FullName));
-					}
+					Error(node, CompilerErrorFactory.PropertyIsWriteOnly(
+							AstUtil.GetMemberAnchor(node),
+							member.FullName));
 				}
 			}
 			else if (EntityType.Event == member.EntityType)
@@ -2398,6 +2396,24 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Bind(node, member);
 			PostProcessReferenceExpression(node);
+		}
+		
+		private bool IsBeingAssignedTo(MemberReferenceExpression node)
+		{			
+			Node current = node;
+			Node parent = current.ParentNode;
+			while (!(parent is BinaryExpression))
+			{				 
+				current = parent;
+				parent = parent.ParentNode;
+				if (parent == null || !(parent is Expression)) return false;
+			}
+			return ((BinaryExpression)parent).Left == current;
+		}
+		
+		private bool IsWriteOnlyProperty(IProperty property)
+		{
+			return null == property.GetGetMethod();
 		}
 
 		private IEntity ResolveAmbiguousLValue(Expression sourceNode, Ambiguous candidates, Expression rvalue)
@@ -4165,6 +4181,10 @@ namespace Boo.Lang.Compiler.Steps
 				&& GetExpressionType(slice.Target).IsArray)
 			{
 				BindAssignmentToSliceArray(node);
+			}
+			else if (TypeSystemServices.IsDuckTyped(slice.Target))
+			{
+				BindExpressionType(node, TypeSystemServices.DuckType);
 			}
 			else
 			{

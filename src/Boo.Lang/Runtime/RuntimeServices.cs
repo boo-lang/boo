@@ -285,6 +285,33 @@ namespace Boo.Lang.Runtime
 				throw;
 			}
 		}
+
+		public static object SetSlice(object target, string name, object[] args)
+		{
+			Type type = target.GetType();
+			if ("" == name)
+			{
+				if (args.Length == 2 && target is System.Array)
+				{
+					IList list = (IList)target;
+					list[NormalizeIndex(list.Count, (int)args[0])] = args[1];
+					return args[1];
+				}
+				name = GetDefaultMemberName(type);
+			}
+			try
+			{
+				return type.InvokeMember(name,
+								  SetPropertyBindingFlags,
+								  null,
+								  target,
+								  args);
+			}
+			catch (TargetInvocationException x)
+			{
+				throw x.InnerException;
+			}
+		}
 		
 		private static String GetDefaultMemberName(Type type)
 		{
