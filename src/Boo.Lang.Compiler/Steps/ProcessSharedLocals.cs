@@ -90,7 +90,8 @@ namespace Boo.Lang.Compiler.Steps
 			CreateSharedLocalsClass();
 			if (null != _sharedLocalsClass)
 			{
-				node.DeclaringType.Members.Add(_sharedLocalsClass);
+				//node.DeclaringType.Members.Add(_sharedLocalsClass);
+				TypeSystemServices.AddCompilerGeneratedType(_sharedLocalsClass);
 				Map();
 			}
 		}
@@ -184,6 +185,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				BooClassBuilder builder = CodeBuilder.CreateClass(
 											string.Format("___locals{0}", _context.AllocIndex()));
+				builder.Modifiers |= TypeMemberModifiers.Internal;
 				builder.AddBaseType(TypeSystemServices.ObjectType);
 				
 				int i=0;

@@ -73,11 +73,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public Statement CreateFieldAssignment(Field node, Expression initializer)
 		{
 			InternalField fieldEntity = (InternalField)TypeSystem.TypeSystemServices.GetEntity(node);
-			
+			return CreateFieldAssignment(node.LexicalInfo, fieldEntity, initializer);
+		}
+		
+		public Statement CreateFieldAssignment(LexicalInfo lexicalInfo, IField fieldEntity, Expression initializer)
+		{
 			ExpressionStatement stmt = new ExpressionStatement(initializer.LexicalInfo);
-			Expression context = node.IsStatic
-				? (Expression) CreateReference(node.LexicalInfo, fieldEntity.DeclaringType)
-				: CreateSelfReference(fieldEntity.Type);
+			Expression context = fieldEntity.IsStatic
+				? (Expression) CreateReference(lexicalInfo, fieldEntity.DeclaringType)
+				: CreateSelfReference(fieldEntity.DeclaringType);
 			stmt.Expression = this.CreateAssignment(initializer.LexicalInfo,
 				CreateMemberReference(context, fieldEntity),
 				initializer);
@@ -254,12 +258,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return mie;
 		}
 		
-		public MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod)
+		public MethodInvocationExpression CreateMethodInvocation(IMethod method)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression();
-			mie.Target = new ReferenceExpression(staticMethod.FullName);
-			mie.Target.Entity = staticMethod;
-			mie.ExpressionType = staticMethod.ReturnType;
+			mie.Target = CreateMemberReference(method);
+			mie.ExpressionType = method.ReturnType;
 			return mie;
 		}
 		
@@ -745,9 +748,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public Method CreateAbstractMethod(LexicalInfo lexicalInfo, IMethod baseMethod)
 		{
+			return CreateMethodFromPrototype(lexicalInfo, baseMethod, TypeMemberModifiers.Public | TypeMemberModifiers.Abstract);
+		}
+		
+		public Method CreateMethodFromPrototype(LexicalInfo lexicalInfo, IMethod baseMethod, TypeMemberModifiers newModifiers)
+		{
 			Method method = new Method(lexicalInfo);
 			method.Name = baseMethod.Name;
-			method.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
+			method.Modifiers = newModifiers;
 			
 			IParameter[] parameters = baseMethod.GetParameters();
 			for (int i=0; i<parameters.Length; ++i)

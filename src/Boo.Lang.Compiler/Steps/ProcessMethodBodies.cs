@@ -1819,6 +1819,7 @@ namespace Boo.Lang.Compiler.Steps
 			LeaveNamespace();
 			
 			BooClassBuilder generatorType = CreateGeneratorSkeleton(node);
+			
 			BindExpressionType(node, generatorType.Entity);
 		}
 		
@@ -1829,18 +1830,19 @@ namespace Boo.Lang.Compiler.Steps
 			IType itemType = yieldExpressions.Count > 0
 				? GetMostGenericType(yieldExpressions)
 				: TypeSystemServices.ObjectType;
-			CreateGeneratorSkeleton(method, method, itemType);
+			BooClassBuilder builder = CreateGeneratorSkeleton(method, method, itemType);
+			TypeSystemServices.AddCompilerGeneratedType(builder.ClassDefinition);
 		}
 		
 		BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression node)
 		{
-			return CreateGeneratorSkeleton(node, _currentMethod.Method, GetConcreteExpressionType(node.Expression));
+			BooClassBuilder builder = CreateGeneratorSkeleton(node, _currentMethod.Method, GetConcreteExpressionType(node.Expression));
+			_currentMethod.Method.DeclaringType.Members.Add(builder.ClassDefinition);
+			return builder;
 		}
 		
 		BooClassBuilder CreateGeneratorSkeleton(Node sourceNode, Method method, IType generatorItemType)
 		{
-			TypeDefinition parentType = method.DeclaringType;
-			
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
 														string.Format("{0}___generator{1}", method.Name, _context.AllocIndex()),
@@ -1850,7 +1852,6 @@ namespace Boo.Lang.Compiler.Steps
 			builder.AddAttribute(CodeBuilder.CreateAttribute(
 												EnumeratorItemType_Constructor,
 												CodeBuilder.CreateTypeofExpression(generatorItemType)));
-			parentType.Members.Add(builder.ClassDefinition);
 			
 			BooMethodBuilder getEnumeratorBuilder = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
 			getEnumeratorBuilder.Method.LexicalInfo = sourceNode.LexicalInfo;

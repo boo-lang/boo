@@ -76,7 +76,6 @@ namespace Boo.Lang.Compiler.Steps
 			parent.Members.Remove(method);
 			
 			BooClassBuilder builder = collector.CreateSkeletonClass(closure.Name);
-			
 			parent.Members.Add(builder.ClassDefinition);
 			builder.ClassDefinition.Members.Add(method);
 			method.Name = "Invoke";

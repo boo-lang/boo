@@ -3748,8 +3748,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		TypeAttributes GetNestedTypeAttributes(TypeMember type)
 		{
-			TypeAttributes attributes = type.IsPublic ? TypeAttributes.NestedPublic : TypeAttributes.NestedPrivate;
-			return GetExtendedTypeAttributes(attributes, type);
+			return GetExtendedTypeAttributes(GetNestedTypeAccessibility(type), type);
+		}
+		
+		TypeAttributes GetNestedTypeAccessibility(TypeMember type)
+		{
+			if (type.IsPublic) return TypeAttributes.NestedPublic;
+			if (type.IsInternal) return TypeAttributes.NestedAssembly;
+			return TypeAttributes.NestedPrivate;
 		}
 		
 		TypeAttributes GetTypeAttributes(TypeMember type)

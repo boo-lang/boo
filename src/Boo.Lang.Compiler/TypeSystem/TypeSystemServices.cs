@@ -487,7 +487,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				GetConcreteExpressionType(item);
 			}
 		}
-
+		
 		public ClassDefinition GetCompilerGeneratedExtensionsClass()
 		{
 			if (null == _compilerGeneratedExtensionsClass)
@@ -510,7 +510,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _compilerGeneratedExtensionsClass;
 		}
-
+		
 		public Module GetCompilerGeneratedExtensionsModule()
 		{
 			if (null == _compilerGeneratedExtensionsModule)
@@ -519,6 +519,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _compilerGeneratedExtensionsModule;
 		}
+		
+		public void AddCompilerGeneratedType(TypeDefinition type)
+		{
+			GetCompilerGeneratedTypesModule().Members.Add(type);
+		}		
 		
 		public Module GetCompilerGeneratedTypesModule()
 		{

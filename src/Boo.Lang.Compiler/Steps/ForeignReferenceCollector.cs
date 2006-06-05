@@ -170,6 +170,8 @@ namespace Boo.Lang.Compiler.Steps
 		public BooClassBuilder CreateSkeletonClass(string name)
 		{
 			BooClassBuilder builder = CodeBuilder.CreateClass(name);
+			builder.Modifiers |= TypeMemberModifiers.Internal;
+			
 			builder.AddBaseType(CodeBuilder.TypeSystemServices.ObjectType);
 			DeclareFieldsAndConstructor(builder);
 			return builder;
@@ -187,6 +189,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			// single constructor taking all referenced entities
 			BooMethodBuilder constructor = builder.AddConstructor();
+			constructor.Modifiers = TypeMemberModifiers.Public;			
 			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));
 			foreach (ITypedEntity entity in _referencedEntities.Keys)
 			{
