@@ -38,7 +38,8 @@ if "--print-modules" in argv:
 	
 if "--debug" in argv:
 	Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
-
+if "-w" in argv:
+	interpreter.ShowWarnings = true
 print """Welcome to booish, an interpreter for the boo programming language.
 
 Running boo ${BooVersion} in CLR v${Environment.Version}.

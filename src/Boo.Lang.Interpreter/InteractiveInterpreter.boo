@@ -45,6 +45,9 @@ class InteractiveInterpreter(AbstractInterpreter):
 	
 	_representers = []
 	
+	[property(ShowWarnings)]
+	_showWarnings = false
+	
 	[property(BlockStarters, value is not null)]
 	_blockStarters = ":", "\\"
 	
@@ -88,9 +91,9 @@ class InteractiveInterpreter(AbstractInterpreter):
 			
 	private def InternalLoopEval(code as string):
 		result = self.Eval(code)
-		if len(result.Errors):
-			self.DisplayErrors(result.Errors)
-		else:
+		if ShowWarnings:
+			self.DisplayProblems(result.Warnings)
+		if not self.DisplayProblems(result.Errors):
 			ProcessLastValue()
 		return result
 		
@@ -120,13 +123,29 @@ class InteractiveInterpreter(AbstractInterpreter):
 		
 		value = GetValue(name)
 		return value.GetType() if value is not null
-		
+	
+	def DisplayProblems(problems as ICollection):
+		return if problems is null or problems.Count == 0
+		for problem as duck in problems:
+			markLocation(problem.LexicalInfo)
+			type = ("WARNING", "ERROR")[problem isa CompilerError]
+			_print("${type}: ${problem.Message}")
+		if problems.Count > 0:
+			return true
+		return false
+	/*def DisplayWarnings(warnings as CompilerWarningCollection):
+		for warning in warnings:
+			markLocation(warning.LexicalInfo)
+			_print("WARNING: ${warning.Message}")
+			
 	def DisplayErrors(errors as CompilerErrorCollection):
-		for error in errors:
-			pos = error.LexicalInfo.Column
-			_print("---" + "-" * pos + "^") if pos > 0
+		for error in errors:			
+			markLocation(error.LexicalInfo)
 			_print("ERROR: ${error.Message}")
-		
+	*/		
+	private def markLocation(location as LexicalInfo):
+		pos = location.Column
+		_print("---" + "-" * pos + "^") if pos > 0
 	private def InitializeStandardReferences():
 		SetValue("interpreter", self)
 		SetValue("dir", dir)
@@ -149,11 +168,10 @@ class InteractiveInterpreter(AbstractInterpreter):
 	def load([required] path as string):
 		if path.EndsWith(".boo"):
 			result = EvalCompilerInput(FileInput(path))
-			if len(result.Errors):
-				for error in result.Errors:
-					_print(error)
-			else:
-				ProcessLastValue()
+			if ShowWarnings:
+				DisplayProblems(result.Warnings)
+			if not DisplayProblems(result.Errors):
+				ProcessLastValue()			
 		else:
 			try:
 				References.Add(System.Reflection.Assembly.LoadFrom(path))

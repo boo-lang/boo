@@ -35,5 +35,11 @@
   <ItemGroup>
     <Compile Include="booish.boo" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Boo.Lang.Interpreter\Boo.Lang.Interpreter.booproj">
+      <Project>{5AB9F617-B157-4BFC-B251-EB64C4697FC0}</Project>
+      <Name>Boo.Lang.Interpreter</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

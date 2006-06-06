@@ -43,5 +43,11 @@
     <Compile Include="ConsoleCapture.boo" />
     <Compile Include="InteractiveInterpreter.boo" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
+      <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
+      <Name>Boo.Lang.Compiler</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>
