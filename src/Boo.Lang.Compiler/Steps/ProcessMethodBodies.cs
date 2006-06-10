@@ -3821,7 +3821,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void ProcessMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
+		protected virtual void ProcessMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
 		{
 			IMethod targetMethod = (IMethod)targetEntity;
 			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false))
