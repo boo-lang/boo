@@ -2,8 +2,9 @@
 ToUpper
 BOO
 """
-def ToUpper(self as string, beginIndex as int, endIndex as int):
+[Extension]
+def ToUpper(s as string, beginIndex as int, endIndex as int):
 	print "ToUpper"
-	return self[beginIndex:endIndex].ToUpper()
+	return s[beginIndex:endIndex].ToUpper()
 	
 print "zaboomba".ToUpper(2, 5)

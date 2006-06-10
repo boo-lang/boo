@@ -369,11 +369,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
             if (m.IsRuntime)
             {
                 WriteImplementationComment("runtime");
-            }
-			if (m.IsExtension)
-			{
-				WriteImplementationComment("extension");
-			}
+            }			
 			WriteCallableDefinitionHeader("def ", m);
 			WriteLine(":");
 			WriteLocals(m);

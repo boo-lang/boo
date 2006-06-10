@@ -1,5 +1,5 @@
 """
-BCE0089-13.boo(12,5): BCE0089: Type 'Foo' already has a definition for 'bar()'.
+BCE0089-13.boo(13,5): BCE0089: Type 'Foo' already has a definition for 'bar()'.
 """
 class Foo:
 
@@ -9,5 +9,6 @@ class Foo:
 	def bar(value):
 		pass
 		
-def bar(self as Foo):
+[Extension]
+def bar(f as Foo):
 	pass

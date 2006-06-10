@@ -67,7 +67,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
-			CheckExtensionSemantics(node);
 			CannotReturnValue(node);
 		}
 		
@@ -77,7 +76,6 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
-			CheckExtensionSemantics(node);
 			CheckModifierCombination(node);
 		}
 		
@@ -167,13 +165,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void CheckExtensionSemantics(Method node)
-		{
-			if (MethodImplementationFlags.Extension != (node.ImplementationFlags & MethodImplementationFlags.Extension)) return;
-			if (NodeType.Method == node.NodeType && (node.IsStatic || node.DeclaringType is Module)) return;
-			Error(CompilerErrorFactory.InvalidExtensionDefinition(node));
-		}
-		
 		void CantBeMarkedAbstract(TypeMember member)
 		{
 			if (member.IsAbstract)

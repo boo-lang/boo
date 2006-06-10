@@ -42,6 +42,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public MacroStatement(LexicalInfo lexicalInfoProvider, string name) : base(lexicalInfoProvider, name)
+		{
+		}
+		
 		override public string ToString()
 		{
 			return _name;

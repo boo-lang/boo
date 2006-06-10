@@ -28,13 +28,14 @@
 
 
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	/// <summary>
 	/// </summary>
-	public class PreProcessExtensionMethods : AbstractTransformerCompilerStep
-	{
+	public class PreProcessExtensionMethods : AbstractVisitorCompilerStep
+	{	
 		public PreProcessExtensionMethods()
 		{
 		}
@@ -46,10 +47,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void OnConstructor(Constructor node)
 		{
+			CheckExtensionSemantics(node);
 		}
 
 		public override void OnDestructor(Destructor node)
 		{
+			CheckExtensionSemantics(node);
 		}
 
 		public override void OnProperty(Property node)
@@ -61,15 +64,15 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		public override void OnMethod(Boo.Lang.Compiler.Ast.Method node)
-		{
-			if (MethodImplementationFlags.Extension != (node.ImplementationFlags & MethodImplementationFlags.Extension)) return;
-
-			Visit(node.Body);
+		{			
+			CheckExtensionSemantics(node);
 		}
-
-		public override void OnSelfLiteralExpression(SelfLiteralExpression node)
+		
+		void CheckExtensionSemantics(Method node)
 		{
-			ReplaceCurrentNode(new ReferenceExpression(node.LexicalInfo, "self"));
+			if (!((IMethod)node.Entity).IsExtension) return;
+			if (NodeType.Method == node.NodeType && (node.IsStatic || node.DeclaringType is Module)) return;
+			Errors.Add(CompilerErrorFactory.InvalidExtensionDefinition(node));
 		}
 	}
 }

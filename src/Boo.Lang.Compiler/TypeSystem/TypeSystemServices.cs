@@ -1236,7 +1236,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			Method extension = CodeBuilder.CreateMethod("BeginInvoke", Map(typeof(IAsyncResult)),
 										TypeMemberModifiers.Public|TypeMemberModifiers.Static);
-			extension.ImplementationFlags = MethodImplementationFlags.Extension;
+			extension.Attributes.Add(CodeBuilder.CreateAttribute(Types.ExtensionAttribute));
 
 			ParameterDeclaration self = CodeBuilder.CreateParameterDeclaration(0, "self", beginInvokeEntity.DeclaringType);
 			

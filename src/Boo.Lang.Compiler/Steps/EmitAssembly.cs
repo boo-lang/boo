@@ -66,8 +66,6 @@ namespace Boo.Lang.Compiler.Steps
 		static ConstructorInfo DebuggableAttribute_Constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { Types.Bool, Types.Bool });
 
 		static ConstructorInfo DuckTypedAttribute_Constructor = Types.DuckTypedAttribute.GetConstructor(new Type[0]);
-
-		static ConstructorInfo ExtensionAttribute_Constructor = Types.ExtensionAttribute.GetConstructor(new Type[0]);
 		
 		static ConstructorInfo ParamArrayAttribute_Constructor = Types.ParamArrayAttribute.GetConstructor(new Type[0]);
 		
@@ -4085,22 +4083,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				builder.SetCustomAttribute(CreateDuckTypedCustomAttribute());
 			}
-			if (methodEntity.IsExtension)
-			{
-				builder.SetCustomAttribute(CreateExtensionAttribute());
-			}
-
 			return builder;
 		}
 
 		private CustomAttributeBuilder CreateDuckTypedCustomAttribute()
 		{
 			return new CustomAttributeBuilder(DuckTypedAttribute_Constructor, new object[0]);
-		}
-
-		private CustomAttributeBuilder CreateExtensionAttribute()
-		{
-			return new CustomAttributeBuilder(ExtensionAttribute_Constructor, new object[0]);
 		}
 
 		void DefineConstructor(TypeBuilder typeBuilder, Method constructor)

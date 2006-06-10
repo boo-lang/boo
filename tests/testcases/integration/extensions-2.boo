@@ -7,13 +7,15 @@ op_Equality(self as char, rhs as string)
 op_Equality(self as string, rhs as char)
 True
 """
-internal def op_Equality(self as string, rhs as char):
+[Extension]
+internal def op_Equality(lhs as string, rhs as char):
 	print "op_Equality(self as string, rhs as char)"
-	return len(self) == 1 and self[0] == rhs
+	return len(lhs) == 1 and lhs[0] == rhs
 	
-internal def op_Equality(self as char, rhs as string):
+[Extension]
+internal def op_Equality(lhs as char, rhs as string):
 	print "op_Equality(self as char, rhs as string)"
-	return rhs == self
+	return rhs == lhs
 	
 print "a" == char('a')
 print "ab" == char('a')

@@ -783,17 +783,12 @@ method [TypeMemberCollection container]
 		body = m.Body;
 		statements = body.Statements;
 	}
-	LPAREN	
-	(
-		(SELF)=>extension_method_parameter_declaration_list[m]
-		| parameter_declaration_list[parameters]
-	)
-	RPAREN
-			(AS rt=type_reference { m.ReturnType = rt; })?
-			attributes { AddAttributes(m.ReturnTypeAttributes); }
-			begin_block_with_doc[m, body]
-				block[statements]
-			end[body]
+	LPAREN parameter_declaration_list[parameters] RPAREN
+	(AS rt=type_reference { m.ReturnType = rt; })?
+	attributes { AddAttributes(m.ReturnTypeAttributes); }
+	begin_block_with_doc[m, body]
+		block[statements]
+	end[body]
 	{ 
 		container.Add(m);
 	}
@@ -970,24 +965,6 @@ parameter_modifier returns [ParameterModifiers pm]
 	(
 		REF { pm = ParameterModifiers.Ref; }
 	)
-;
-	
-protected
-extension_method_parameter_declaration_list[Method m]
-{
-	TypeReference tr = null;
-	ParameterDeclarationCollection parameters = m.Parameters;
-}: 
-	id:SELF (AS tr=type_reference)?
-	{
-		ParameterDeclaration pd = new ParameterDeclaration(ToLexicalInfo(id));
-		pd.Name = id.getText();
-		pd.Type = tr;
-		parameters.Add(pd);
-		
-		m.ImplementationFlags |= MethodImplementationFlags.Extension;
-	}
-	(COMMA parameter_declaration_list[parameters])?
 ;
 
 protected

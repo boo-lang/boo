@@ -59,16 +59,6 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
-		public bool IsExtension
-		{
-			get
-			{
-				return
-					MethodImplementationFlags.Extension ==
-						(_implementationFlags & MethodImplementationFlags.Extension);
-			}
-		}
-		
 		override public TypeDefinition DeclaringType
 		{
 			get

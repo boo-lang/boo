@@ -6,7 +6,8 @@ class Foo:
 	def Bar():
 		print "Foo.Bar"
 		
-def Bar(self as Foo, i as int):
+[Extension]
+def Bar(f as Foo, i as int):
 	print "Extension.Bar"
 	
 Foo().Bar()

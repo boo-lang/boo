@@ -88,11 +88,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return stmt;
 		}
 		
-		public Attribute CreateAttribute(IConstructor constructor, Expression arg)
+		public Attribute CreateAttribute(System.Type type)
+		{
+			return CreateAttribute(_tss.Map(type));
+		}
+		
+		public Attribute CreateAttribute(IType type)
+		{
+			// TODO: check for the existence of a default constructor
+			return CreateAttribute(_tss.GetDefaultConstructor(type));
+		}
+		
+		public Attribute CreateAttribute(IConstructor constructor)
 		{
 			Attribute attribute = new Attribute();
 			attribute.Name = constructor.DeclaringType.FullName;
 			attribute.Entity = constructor;
+			return attribute;
+		}
+		
+		public Attribute CreateAttribute(IConstructor constructor, Expression arg)
+		{
+			Attribute attribute = CreateAttribute(constructor);
 			attribute.Arguments.Add(arg);
 			return attribute;
 		}

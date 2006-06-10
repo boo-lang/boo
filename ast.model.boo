@@ -27,7 +27,6 @@ enum TypeMemberModifiers:
 enum MethodImplementationFlags:
 	None = 0
 	Runtime = 1
-	Extension = 2
 
 enum ParameterModifiers:
 	None = 0

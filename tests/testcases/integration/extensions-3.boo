@@ -4,9 +4,10 @@ Hello
 interface
 extensions
 """
-def Each(self as System.Collections.IEnumerable, action as callable(object)):
+[Extension]
+def Each(e as System.Collections.IEnumerable, action as callable(object)):
 	print "IEnumerable.Each"
-	for item in self:
+	for item in e:
 		action(item)
 		
 ["Hello", "interface", "extensions"].Each(print)

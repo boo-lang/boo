@@ -1,7 +1,8 @@
 """
 Hello Extension Methods
 """
-def ToTitle(self as string):
-	return join(word[:1].ToUpper() + word[1:] for word in self.Split(char(' ')))
+[Extension]
+def ToTitle(s as string):
+	return join(word[:1].ToUpper() + word[1:] for word in s.Split(char(' ')))
 	
 print "hello extension methods".ToTitle()

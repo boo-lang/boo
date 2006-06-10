@@ -1,14 +1,16 @@
 """
-// extension
-def foo(self as string):
-	return self.ToUpper()
+[Extension]
+static def foo(item as string):
+	return item.ToUpper()
 
-// extension
-def join(self as string, items):
+[Extension]
+static def join(item as string, items):
 	return join(items, self)
 """
-def foo(self as string):
-	return self.ToUpper()
+[Extension]
+static def foo(item as string):
+	return item.ToUpper()
 	
-def join(self as string, items):
+[Extension]
+static def join(item as string, items):
 	return join(items, self)
