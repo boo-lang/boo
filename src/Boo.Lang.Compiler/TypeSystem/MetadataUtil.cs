@@ -45,7 +45,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			foreach (Boo.Lang.Compiler.Ast.Attribute attr in member.Attributes)
 			{
-				IConstructor constructor = TypeSystemServices.GetEntity(attr) as IConstructor;
+				IEntity entity = TypeSystemServices.GetEntity(attr);
+				if (entity == attributeType) return true; // pre bound attribute
+				IConstructor constructor = entity as IConstructor;
 				if (null == constructor) continue;				
 				if (constructor.DeclaringType == attributeType) return true;
 			}

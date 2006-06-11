@@ -42,11 +42,13 @@ namespace Boo.Lang.CodeDom
 
 import System
 import System.Collections
-def IsValid(self as ICollection):
-	return false unless self is not null
-	return len(self) > 0
-def ToInt(self as object):
-	return cast(int, self)
-def ToEnum(self as int, type as Type):
-	return Enum.Parse(type, "${self}")
+
+[Extension]
+def IsValid(c as ICollection):
+	return false unless c is not null
+	return len(c) > 0
+	
+[Extension]
+def ToEnum(i as int, type as Type):
+	return Enum.Parse(type, "${i}")
 
