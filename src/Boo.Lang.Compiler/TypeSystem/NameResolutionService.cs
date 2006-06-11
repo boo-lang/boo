@@ -176,17 +176,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			public bool Match(object item)
 			{
-				IMethod m = item as IMethod;
-				if (m == null) return true;
-				if (!m.IsExtension) return true;
-				return !m.GetParameters()[0].Type.IsAssignableFrom(_type);
+				IExtensionEnabled e = item as IExtensionEnabled;
+				if (e == null) return true;
+				if (!e.IsExtension) return true;
+				IParameter[] parameters = e.GetParameters();
+				if (parameters.Length == 0) return true;
+				return !parameters[0].Type.IsAssignableFrom(_type);
 			}
 		}
 
 		private IEntity ResolveExtensionForType(INamespace ns, IType type, string name)
 		{
 			_buffer.Clear();
-			if (!ns.Resolve(_buffer, name, EntityType.Method)) return null;
+			if (!ns.Resolve(_buffer, name, EntityType.Method|EntityType.Property)) return null;
 			_buffer.RemoveAll(new Predicate(new IsNotExtensionOf(type).Match));
 			return GetEntityFromBuffer();
 		}

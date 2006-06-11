@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_typeSystemServices = manager;
 			_mi = mi;
 		}
-
+		
 		public bool IsExtension
 		{
 			get

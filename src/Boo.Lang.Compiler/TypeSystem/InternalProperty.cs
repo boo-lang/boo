@@ -46,6 +46,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_property = property;
 		}
 		
+		public bool IsExtension
+		{
+			get
+			{
+				return MetadataUtil.IsAttributeDefined(_property, _typeSystemServices.Map(Types.ExtensionAttribute));
+			}
+		}
+		
 		public IType DeclaringType
 		{
 			get

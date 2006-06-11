@@ -219,7 +219,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public MethodInvocationExpression CreatePropertyGet(Expression target, IProperty property)
 		{
-			return CreateMethodInvocation(target, property.GetGetMethod());
+			return property.IsExtension
+				? CreateMethodInvocation(property.GetGetMethod(), target)
+				: CreateMethodInvocation(target, property.GetGetMethod());
 		}
 		
 		public MethodInvocationExpression CreatePropertySet(Expression target, IProperty property, Expression value)

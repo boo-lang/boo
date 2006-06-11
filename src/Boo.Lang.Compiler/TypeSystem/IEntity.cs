@@ -85,6 +85,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
+	public interface IExtensionEnabled : IEntityWithParameters
+	{
+		bool IsExtension { get; }
+	}
+	
 	public interface IEvent : IMember
 	{		
 		IMethod GetAddMethod();
@@ -120,7 +125,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
-	public interface IProperty : IAccessibleMember, IEntityWithParameters
+	public interface IProperty : IAccessibleMember, IEntityWithParameters, IExtensionEnabled
 	{	
 		IMethod GetGetMethod();
 		
@@ -272,7 +277,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 	
-	public interface IMethod : IMethodBase
+	public interface IMethod : IMethodBase, IExtensionEnabled
 	{	
 		IType ReturnType
 		{
@@ -294,11 +299,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 
-		bool IsExtension
-		{
-			get;
-		}
-		
 		bool IsPInvoke
 		{
 			get;

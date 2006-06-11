@@ -38,10 +38,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		int _isDuckTyped = -1;
 		
+		int _isExtension = -1;
+		
 		public ExternalProperty(TypeSystemServices tagManager, System.Reflection.PropertyInfo property)
 		{
 			_typeSystemServices = tagManager;
 			_property = property;
+		}
+		
+		public bool IsExtension
+		{
+			get
+			{
+				if (-1 == _isExtension)
+				{
+					_isExtension = IsStatic && MetadataUtil.IsAttributeDefined(_property,  Types.ExtensionAttribute)
+						? 1
+						: 0;
+				}
+				return 1 == _isExtension;
+			}
 		}
 		
 		public IType DeclaringType

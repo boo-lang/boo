@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return ContainsAttribute(Types.ExtensionAttribute);
+				return IsAttributeDefined(Types.ExtensionAttribute);
 			}
 		}
 
@@ -97,20 +97,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return ContainsAttribute(Types.DllImportAttribute);
+				return IsAttributeDefined(Types.DllImportAttribute);
 			}
 		}
 		
-		bool ContainsAttribute(System.Type attributeType)
+		bool IsAttributeDefined(System.Type attributeType)
 		{
 			IType entity = _typeSystemServices.Map(attributeType);
-			foreach (Boo.Lang.Compiler.Ast.Attribute attr in _method.Attributes)
-			{
-				IConstructor constructor = TypeSystemServices.GetEntity(attr) as IConstructor;
-				if (null == constructor) continue;				
-				if (constructor.DeclaringType == entity) return true;
-			}
-			return false;
+			return MetadataUtil.IsAttributeDefined(_method, entity);
 		}
 		
 		public IType DeclaringType

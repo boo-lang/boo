@@ -2355,9 +2355,11 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (EntityType.Property == member.EntityType)
 			{
-				if (IsIndexedProperty(member))
+				IProperty property = (IProperty)member;
+				if (IsIndexedProperty(property))
 				{
-					if (!AstUtil.IsTargetOfSlicing(node))
+					if (!AstUtil.IsTargetOfSlicing(node)
+						&& (!property.IsExtension || property.GetParameters().Length > 1))
 					{
 						Error(node, CompilerErrorFactory.PropertyRequiresParameters(
 								AstUtil.GetMemberAnchor(node),
@@ -2365,8 +2367,7 @@ namespace Boo.Lang.Compiler.Steps
 						return;
 					}
 				}
-				if (IsWriteOnlyProperty((IProperty)member)
-					&& !IsBeingAssignedTo(node))
+				if (IsWriteOnlyProperty(property) && !IsBeingAssignedTo(node))
 				{
 					Error(node, CompilerErrorFactory.PropertyIsWriteOnly(
 							AstUtil.GetMemberAnchor(node),
