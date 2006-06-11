@@ -2796,34 +2796,44 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		protected virtual bool IsValidIncrementDecrementOperand(Expression e)
+		{
+			IType type = GetExpressionType(e);
+			return IsNumber(type) || TypeSystemServices.IsDuckType(type);
+		}
+		
 		void LeaveIncrementDecrement(UnaryExpression node)
 		{
 			if (AssertLValue(node.Operand))
-			{
-				IType type = GetExpressionType(node.Operand);
-				if (!IsNumber(type))
+			{				
+				if (!IsValidIncrementDecrementOperand(node.Operand))
 				{
 					InvalidOperatorForType(node);
 				}
 				else
 				{
-					Node expansion = null;
-					if (IsArraySlicing(node.Operand))
-					{
-						expansion = ExpandIncrementDecrementArraySlicing(node);
-					}
-					else
-					{
-						expansion = ExpandSimpleIncrementDecrement(node);
-					}
-					node.ParentNode.Replace(node, expansion);
-					Visit(expansion);
+					ExpandIncrementDecrement(node);
 				}
 			}
 			else
 			{
 				Error(node);
 			}
+		}
+		
+		void ExpandIncrementDecrement(UnaryExpression node)
+		{
+			Node expansion = null;
+			if (IsArraySlicing(node.Operand))
+			{
+				expansion = ExpandIncrementDecrementArraySlicing(node);
+			}
+			else
+			{
+				expansion = ExpandSimpleIncrementDecrement(node);
+			}
+			node.ParentNode.Replace(node, expansion);
+			Visit(expansion);
 		}
 		
 		Expression ExpandIncrementDecrementArraySlicing(UnaryExpression node)
