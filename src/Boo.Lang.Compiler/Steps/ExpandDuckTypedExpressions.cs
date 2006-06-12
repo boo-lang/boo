@@ -250,14 +250,19 @@ namespace Boo.Lang.Compiler.Steps
 			Replace(mie);
 		}
 		
-		void ExpandQuackInvocation(MethodInvocationExpression node)
+		protected virtual void ExpandQuackInvocation(MethodInvocationExpression node)
+		{
+			ExpandQuackInvocation(node, RuntimeServices_Invoke);
+		}
+		
+		protected virtual void ExpandQuackInvocation(MethodInvocationExpression node, IMethod runtimeInvoke)
 		{
 			Visit(node.Arguments);
 			Visit(node.NamedArguments);
 
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Target;
 			target.Target = (Expression)VisitNode(target.Target);
-			node.Target = CodeBuilder.CreateMemberReference(RuntimeServices_Invoke);			
+			node.Target = CodeBuilder.CreateMemberReference(runtimeInvoke);			
 			
 			Expression args = CodeBuilder.CreateObjectArray(node.Arguments);
 			node.Arguments.Clear();

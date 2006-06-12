@@ -37,9 +37,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Module = Boo.Lang.Compiler.Ast.Module;
 
 	public class TypeSystemServices
-	{
-		private static readonly bool Version1 = Environment.Version < new Version(2, 0);
-		
+	{	
 		public DuckTypeImpl DuckType;
 		
 		public ExternalType IQuackFuType;
@@ -608,51 +606,40 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{	
 			while (fromType != this.ObjectType)
 			{
-				foreach (IEntity entity in fromType.GetMembers())
-				{
-					if (EntityType.Method == entity.EntityType &&
-						name == entity.Name)
-					{
-						IMethod method = (IMethod)entity;
-						if (IsConversionOperator(method, fromType, toType))
-						{
-							return method;
-						}
-					}
-				}
-				foreach (IEntity entity in toType.GetMembers())
-				{
-					if (EntityType.Method == entity.EntityType &&
-						name == entity.Name)
-					{
-						IMethod method = (IMethod)entity;
-						if (IsConversionOperator(method, fromType, toType))
-						{
-							return method;
-						}
-					}
-				}
+				IMethod method = FindConversionOperator(name, fromType, toType, fromType.GetMembers());
+				if (null != method) return method;
+				method = FindConversionOperator(name, fromType, toType, toType.GetMembers());
+				if (null != method) return method;
+				
 				fromType = fromType.BaseType;
 				if (null == fromType) break;
 			}
 			return null;
 		}
 		
-		bool IsConversionOperator(IMethod method, IType fromType, IType toType)
+		IMethod FindConversionOperator(string name, IType fromType, IType toType, IEntity[] candidates)
 		{
-			if (method.IsStatic)
+			foreach (IEntity entity in candidates)
 			{
-				if (method.ReturnType == toType)
+				if (EntityType.Method == entity.EntityType &&
+					name == entity.Name)
 				{
-					IParameter[] parameters = method.GetParameters();
-					if (1 == parameters.Length &&
-						fromType == parameters[0].Type)
+					IMethod method = (IMethod)entity;
+					if (IsConversionOperator(method, fromType, toType))
 					{
-						return true;
+						return method;
 					}
 				}
 			}
-			return false;
+			return null;
+		}
+		
+		bool IsConversionOperator(IMethod method, IType fromType, IType toType)
+		{
+			if (!method.IsStatic) return false;
+			if (method.ReturnType != toType) return false;
+			IParameter[] parameters = method.GetParameters();
+			return  (1 == parameters.Length &&	fromType == parameters[0].Type);
 		}
 		
 		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
