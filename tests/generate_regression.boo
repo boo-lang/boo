@@ -30,19 +30,16 @@ import System
 import System.IO
 import Boo.Lang.Useful.IO from Boo.Lang.Useful
 
-def MapPath(path):
-	return Path.Combine(Project.BaseDirectory, path) 
-
 def GetTestCaseName(fname as string):
 	return Path.GetFileNameWithoutExtension(fname).Replace("-", "_")
-	
-def GetTestCases(baseDir as string, recursive as bool):
-	if recursive: return listFiles(MapPath(baseDir))
-	return Directory.GetFiles(MapPath(baseDir))	
-	
-def WriteTestCases(writer as TextWriter, baseDir as string, recursive as bool):
+
+def MapPath(path):
+#	return Path.Combine(Project.BaseDirectory, path) 
+	return Path.GetFullPath(path)
+
+def WriteTestCases(writer as TextWriter, baseDir as string):
 	count = 0
-	for fname as string in GetTestCases(baseDir, recursive):
+	for fname as string in Directory.GetFiles(MapPath(baseDir)):
 		continue unless fname.EndsWith(".boo")
 		++count		
 		writer.Write("""
@@ -55,16 +52,39 @@ def WriteTestCases(writer as TextWriter, baseDir as string, recursive as bool):
 	print("${count} test cases found in ${baseDir}.")
 	
 def GenerateTestFixture(srcDir as string, targetFile as string, header as string):
-	GenerateTestFixture(srcDir, false, targetFile, header)
-
-def GenerateTestFixture(srcDir as string, recursive as bool, targetFile as string, header as string):
 	using writer=StreamWriter(MapPath(targetFile)):
 		writer.Write(header)	
-		WriteTestCases(writer, srcDir, recursive)
+		WriteTestCases(writer, srcDir)
 		writer.Write("""
 	}
 }
 """)
+
+def GenerateIntegrationTestFixtures():
+	for dir in Directory.GetDirectories("testcases/integration"):
+		if /\.svn/.IsMatch(dir): continue
+		GenerateIntegrationTestFixture(dir)
+		
+def PascalCase(name as string):
+	return name[:1].ToUpper() + name[1:]
+		
+def IntegrationTestFixtureName(dir as string):
+	baseName = join(PascalCase(part) for part in /-/.Split(Path.GetFileName(dir)), '')
+	return "${baseName}IntegrationTestFixture"
+		
+def GenerateIntegrationTestFixture(dir as string):	
+	fixtureName = IntegrationTestFixtureName(dir)
+	header = """namespace BooCompiler.Tests	
+{
+	using NUnit.Framework;
+
+	[TestFixture]
+	public class ${fixtureName} : AbstractCompilerTestCase
+	{
+	"""
+	GenerateTestFixture(dir, "build/${fixtureName}.cs", header)
+	
+GenerateIntegrationTestFixtures()
 
 GenerateTestFixture("testcases/regression", "build/RegressionTestFixture.cs", """
 namespace BooCompiler.Tests
@@ -123,17 +143,6 @@ namespace BooCompiler.Tests
 			pipeline.Add(new Boo.Lang.Compiler.Steps.PrintWarnings());
 			return pipeline;
 		}
-""")
-
-
-GenerateTestFixture("testcases/integration", true, "build/IntegrationTestFixture.cs", """
-namespace BooCompiler.Tests
-{
-	using NUnit.Framework;
-
-	[TestFixture]
-	public class IntegrationTestFixture : AbstractCompilerTestCase
-	{
 """)
 
 GenerateTestFixture("testcases/macros", "build/MacrosTestFixture.cs", """
