@@ -1,4 +1,5 @@
 <settings>
+  <language>boo</language>
   <outputType>library</outputType>
   <references>
     <booclipse.core.internal.GlobalAssemblyCacheReference-Remembrance>
@@ -11,4 +12,5 @@
       <path>/boo/src/Boo.Lang.Useful</path>
     </booclipse.core.internal.AssemblySourceReference-Remembrance>
   </references>
+  <outputFolder>/boo/build</outputFolder>
 </settings>

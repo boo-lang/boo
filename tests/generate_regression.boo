@@ -28,6 +28,7 @@
 
 import System
 import System.IO
+import Boo.Lang.Useful.IO from Boo.Lang.Useful
 
 def MapPath(path):
 	return Path.Combine(Project.BaseDirectory, path) 
@@ -35,9 +36,13 @@ def MapPath(path):
 def GetTestCaseName(fname as string):
 	return Path.GetFileNameWithoutExtension(fname).Replace("-", "_")
 	
-def WriteTestCases(writer as TextWriter, baseDir as string):
+def GetTestCases(baseDir as string, recursive as bool):
+	if recursive: return listFiles(MapPath(baseDir))
+	return Directory.GetFiles(MapPath(baseDir))	
+	
+def WriteTestCases(writer as TextWriter, baseDir as string, recursive as bool):
 	count = 0
-	for fname in Directory.GetFiles(MapPath(baseDir)):
+	for fname as string in GetTestCases(baseDir, recursive):
 		continue unless fname.EndsWith(".boo")
 		++count		
 		writer.Write("""
@@ -48,11 +53,14 @@ def WriteTestCases(writer as TextWriter, baseDir as string):
 		}
 		""")
 	print("${count} test cases found in ${baseDir}.")
-
+	
 def GenerateTestFixture(srcDir as string, targetFile as string, header as string):
+	GenerateTestFixture(srcDir, false, targetFile, header)
+
+def GenerateTestFixture(srcDir as string, recursive as bool, targetFile as string, header as string):
 	using writer=StreamWriter(MapPath(targetFile)):
 		writer.Write(header)	
-		WriteTestCases(writer, srcDir)
+		WriteTestCases(writer, srcDir, recursive)
 		writer.Write("""
 	}
 }
@@ -118,7 +126,7 @@ namespace BooCompiler.Tests
 """)
 
 
-GenerateTestFixture("testcases/integration", "build/IntegrationTestFixture.cs", """
+GenerateTestFixture("testcases/integration", true, "build/IntegrationTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
