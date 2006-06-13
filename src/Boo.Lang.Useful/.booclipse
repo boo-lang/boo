@@ -1,8 +1,10 @@
 <settings>
+  <language>boo</language>
   <outputType>library</outputType>
   <references>
     <booclipse.core.internal.LocalAssemblyReference-Remembrance>
       <path>/boo/build/Boo.Lang.Parser.dll</path>
     </booclipse.core.internal.LocalAssemblyReference-Remembrance>
   </references>
+  <outputFolder>/boo/build</outputFolder>
 </settings>
