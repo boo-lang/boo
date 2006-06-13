@@ -28,6 +28,7 @@
 
 namespace Boo.NAnt
 
+import System
 import System.Diagnostics
 import System.IO
 import NAnt.Core
@@ -71,7 +72,14 @@ class PrepareScriptStep(AbstractCompilerStep):
 		
 		module.Members.Clear()
 		module.Members.Add(script)		
-	
+		
+class WithWorkingDir(IDisposable):
+	_saved as string
+	def constructor(dir as string):
+		_saved = Environment.CurrentDirectory
+		Environment.CurrentDirectory = dir
+	def Dispose():
+		Environment.CurrentDirectory = _saved
 
 [TaskName("boo")]
 class BooTask(AbstractBooTask):
@@ -100,15 +108,15 @@ class BooTask(AbstractBooTask):
 		result = RunCompiler(compiler)		
 
 		print("script successfully compiled.")
-		
-		try:
-			scriptType = result.GeneratedAssembly.GetType("__Script__", true)
-			script as AbstractScript = scriptType()
-			script.Project = Project
-			script.Task = self
-			script.Run()
-		except x:
-			raise BuildException(x.Message, Location, x)
+		using WithWorkingDir(Project.BaseDirectory):
+			try:
+				scriptType = result.GeneratedAssembly.GetType("__Script__", true)
+				script as AbstractScript = scriptType()
+				script.Project = Project
+				script.Task = self
+				script.Run()
+			except x:
+				raise BuildException(x.Message, Location, x)
 			
 	override def GetDefaultPipeline():
 		pipeline = CompileToMemory()
