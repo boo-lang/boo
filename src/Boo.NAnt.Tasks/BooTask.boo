@@ -73,12 +73,12 @@ class PrepareScriptStep(AbstractCompilerStep):
 		module.Members.Clear()
 		module.Members.Add(script)		
 		
-class WithWorkingDir(IDisposable):
-	_saved as string
-	def constructor(dir as string):
-		_saved = Environment.CurrentDirectory
-		Environment.CurrentDirectory = dir
-	def Dispose():
+def WithWorkingDir(dir as string, block as callable()):
+	_saved = Environment.CurrentDirectory
+	Environment.CurrentDirectory = dir
+	try:
+		block()
+	ensure:	
 		Environment.CurrentDirectory = _saved
 
 [TaskName("boo")]
@@ -108,15 +108,15 @@ class BooTask(AbstractBooTask):
 		result = RunCompiler(compiler)		
 
 		print("script successfully compiled.")
-		using WithWorkingDir(Project.BaseDirectory):
-			try:
-				scriptType = result.GeneratedAssembly.GetType("__Script__", true)
-				script as AbstractScript = scriptType()
-				script.Project = Project
-				script.Task = self
+		try:
+			scriptType = result.GeneratedAssembly.GetType("__Script__", true)
+			script as AbstractScript = scriptType()
+			script.Project = Project
+			script.Task = self
+			WithWorkingDir(Project.BaseDirectory) do:
 				script.Run()
-			except x:
-				raise BuildException(x.Message, Location, x)
+		except x:
+			raise BuildException(x.Message, Location, x)
 			
 	override def GetDefaultPipeline():
 		pipeline = CompileToMemory()
