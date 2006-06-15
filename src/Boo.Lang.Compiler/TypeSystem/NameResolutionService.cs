@@ -161,7 +161,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (null != found) return found;
 				current = current.ParentNamespace;
 			}
-
 			return null;
 		}
 

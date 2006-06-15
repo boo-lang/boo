@@ -367,9 +367,11 @@
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
-			<references basedir="${build.dir}">
+			<references>
+			<!--
 				<include name="System.Data.dll" />
 				<include name="System.Xml.dll" />
+			-->
 			</references>
 		</booc>
 	</target>

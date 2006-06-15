@@ -354,6 +354,8 @@
     <Compile Include="Steps\ExpandProperties.cs" />
     <Compile Include="Steps\ExpandVarArgsMethodInvocations.cs" />
     <Compile Include="Steps\ForeignReferenceCollector.cs" />
+    <Compile Include="Steps\GeneratorExpressionProcessor.cs" />
+    <Compile Include="Steps\GeneratorMethodProcessor.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
     <Compile Include="Steps\InitializeNameResolutionService.cs" />
     <Compile Include="Steps\InitializeTypeSystemServices.cs" />

@@ -35,6 +35,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	
 	public class Ambiguous : IEntity
 	{
+		public static readonly IEntity[] NoEntities = new IEntity[0];
+		
 		IEntity[] _entities;
 		
 		public Ambiguous(IList entities) : this(ToArray(entities))
@@ -87,7 +89,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public List Filter(InfoFilter condition)
-		{
+		{	
 			List found = new List();
 			foreach (IEntity tag in _entities)
 			{
@@ -106,6 +108,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private static IEntity[] ToArray(IList entities)
 		{
+			if (entities.Count == 0) return NoEntities;
 			IEntity[] array = new IEntity[entities.Count];
 			entities.CopyTo(array, 0);
 			return array;

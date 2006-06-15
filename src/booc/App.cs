@@ -94,7 +94,7 @@ namespace BooC
 				
 				BooCompiler compiler = new BooCompiler(_options);
 				
-				ParseOptions(args, _options);
+				ParseOptions(args);
 				
 				if (0 == _options.Input.Count)
 				{
@@ -113,7 +113,7 @@ namespace BooC
 				}
 				else if (!_noConfig)
 				{
-					_references.Insert(0,"mscorlib");
+					_references.Insert(0, "mscorlib");
 				}
 				
 				LoadReferences();
@@ -164,7 +164,7 @@ namespace BooC
 		
 		void LoadReferences()
 		{
-			foreach(string r in _references)
+			foreach (string r in _references)
 			{
 				_options.References.Add(_options.LoadAssembly(r, true));
 			}
@@ -213,7 +213,7 @@ namespace BooC
 			Console.WriteLine(" (CLR v"+Environment.Version.ToString()+")");
 		}
 		
-		void ParseOptions(string[] args, CompilerParameters _options)
+		void ParseOptions(string[] args)
 		{
 			bool debugSteps = false;
 			bool whiteSpaceAgnostic = false;

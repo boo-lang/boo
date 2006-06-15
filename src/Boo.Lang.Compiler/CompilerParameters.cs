@@ -31,7 +31,6 @@ using System.Diagnostics;
 using System.Collections;
 using System.IO;
 using System.Reflection;
-using System.Globalization;
 using Boo.Lang;
 
 namespace Boo.Lang.Compiler
@@ -41,11 +40,6 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerParameters : System.MarshalByRefObject
 	{
-		static private bool _NET_2_0 = Environment.Version >= new Version(2, 0);
-		
-		static private bool _NET_1_1 = (Environment.Version.Major == 1 &&
-						Environment.Version.Minor == 1);
-		
 		static private List _validFileExtensions = new List(new string[] { ".dll", ".exe" });
 		
 		TextWriter _outputWriter;
@@ -90,7 +84,7 @@ namespace Boo.Lang.Compiler
 		{
 		}
 		
-		public CompilerParameters(bool load_default_references)
+		public CompilerParameters(bool loadDefaultReferences)
 		{
 			_libpaths = new ArrayList();
 			_systemDir = GetSystemDir();
@@ -112,7 +106,7 @@ namespace Boo.Lang.Compiler
 			
 			_delaySign = false;
 			
-			if (load_default_references) LoadDefaultReferences();
+			if (loadDefaultReferences) LoadDefaultReferences();
 		}
 		
 		public void LoadDefaultReferences()
@@ -135,22 +129,6 @@ namespace Boo.Lang.Compiler
 			{
 				Trace.WriteLine("BOO LANG DLL: "+_booAssembly.Location);
 				Trace.WriteLine("BOO COMPILER DLL: "+GetType().Assembly.Location);
-			}
-		}
-		
-		static public bool NET_2_0
-		{
-			get
-			{
-				return _NET_2_0;
-			}
-		}
-		
-		static public bool NET_1_1
-		{
-			get
-			{
-				return _NET_1_1;
 			}
 		}
 		
@@ -189,77 +167,76 @@ namespace Boo.Lang.Compiler
 			return LoadAssembly(assembly, true);
 		}
 		
-		public Assembly LoadAssembly (string assembly, bool throw_errors)
+		public Assembly LoadAssembly (string assembly, bool throwOnError)
 		{
 			if (TraceSwitch.TraceInfo)
 			{
-				Trace.WriteLine("ATTEMPTING LOADASSEMBLY: "+assembly);
+				Trace.WriteLine("ATTEMPTING LOADASSEMBLY: " + assembly);
 			}
 			
 			Assembly a = null;
 			
 			try 
 			{
-				char[] path_chars = { '/', '\\' };
-				
-				if (assembly.IndexOfAny(path_chars) != -1)
+				if (assembly.IndexOfAny(new char[] { '/', '\\' }) != -1)
 				{
+
 					//nant passes full path to gac dlls, which compiler doesn't like:
 					if (assembly.ToLower().StartsWith(_systemDir.ToLower()))
 					{
-						return LoadAssemblyFromGac(Path.GetFileName(assembly), throw_errors);
+						return LoadAssemblyFromGac(Path.GetFileName(assembly));
 					}
-					else //load using path
+					else //load using path  
 					{
 						a = Assembly.LoadFrom(assembly);
 					}
 				}
 				else
 				{
-					a = LoadAssemblyFromGac(assembly, throw_errors);
+					a = LoadAssemblyFromGac(assembly);
 				}
 			}
 			catch (FileNotFoundException /*ignored*/)
 			{
-				return LoadAssemblyFromLibPaths(assembly, throw_errors);
+				return LoadAssemblyFromLibPaths(assembly, throwOnError);
 			}
-			catch (BadImageFormatException f)
+			catch (BadImageFormatException e)
 			{
-				if (throw_errors)
+				if (throwOnError)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
 						"BooC.BadFormat", 
-						f.FusionLog));
+						e.FusionLog), e);
 				}
 			} 
-			catch (FileLoadException f)
+			catch (FileLoadException e)
 			{
-				if (throw_errors)
+				if (throwOnError)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
 						"BooC.UnableToLoadAssembly", 
-						f.FusionLog));
+						e.FusionLog), e);
 				}
 			} 
-			catch (ArgumentNullException)
+			catch (ArgumentNullException e)
 			{
-				if (throw_errors)
+				if (throwOnError)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-						"BooC.NullAssembly"));
+						"BooC.NullAssembly"), e);
 				}
 			}
-			if (a==null)
+			if (a == null)
 			{
-				return LoadAssemblyFromLibPaths(assembly, throw_errors);
+				return LoadAssemblyFromLibPaths(assembly, throwOnError);
 			}
 			return a;
 		}
 		
-		private Assembly LoadAssemblyFromLibPaths(string assembly, bool throw_errors)
+		private Assembly LoadAssemblyFromLibPaths(string assembly, bool throwOnError)
 		{
 			Assembly a = null;
-			string total_log = "";
+			string fullLog = "";
 			foreach (string dir in _libpaths)
 			{
 				string full_path = Path.Combine(dir, assembly);
@@ -277,11 +254,11 @@ namespace Boo.Lang.Compiler
 				} 
 				catch (FileNotFoundException ff)
 				{
-					total_log += ff.FusionLog;
+					fullLog += ff.FusionLog;
 					continue;
 				}
 			}
-			if (throw_errors)
+			if (throwOnError)
 			{
 				throw new ApplicationException(Boo.Lang.ResourceManager.Format(
 					"BooC.CannotFindAssembly", 
@@ -291,44 +268,26 @@ namespace Boo.Lang.Compiler
 			return a;
 		}
 		
-		private Assembly LoadAssemblyFromGac(string assembly, bool throw_errors)
+		private Assembly LoadAssemblyFromGac(string assemblyName)
 		{
-			Assembly a = null;
-			string ass = assembly;
-			if (ass.EndsWith(".dll") || ass.EndsWith(".exe"))
-				ass = ass.Substring(0, ass.Length - 4);
-			
-			a = Assembly.LoadWithPartialName(ass);
-			if (a==null)
-			{
-				a = Assembly.Load(ass);
-			}
-			return a;
+			assemblyName = NormalizeAssemblyName(assemblyName);
+			Assembly assembly = Assembly.LoadWithPartialName(assemblyName);
+			if (assembly != null) return assembly;
+			return Assembly.Load(assemblyName);
 		}
-		
+
+		private static string NormalizeAssemblyName(string assembly)
+		{
+			if (assembly.EndsWith(".dll") || assembly.EndsWith(".exe"))
+			{
+				assembly = assembly.Substring(0, assembly.Length - 4);
+			}
+			return assembly;
+		}
+
 		private string GetSystemDir()
 		{
-			Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-			foreach (Assembly a in assemblies)
-			{
-				string codebase;
-				try
-				{
-					codebase = a.Location;
-				}
-				catch (Exception /*ignored*/) //dynamic assembly, ignore
-				{
-					continue;
-				}
-				string fn = System.IO.Path.GetFileName(codebase);
-				if (fn == "corlib.dll" || fn == "mscorlib.dll")
-				{
-					return codebase.Substring(0, codebase.LastIndexOf(Path.DirectorySeparatorChar));
-				}
-			}
-			throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-						"BooC.NoSystemPath"));
+			return Path.GetDirectoryName(typeof(string).Assembly.Location);
 		}
 		
 		/// <summary>

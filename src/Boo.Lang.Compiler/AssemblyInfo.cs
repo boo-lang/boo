@@ -30,8 +30,7 @@ using System.Reflection;
 using System.Security.Permissions;
 
 [assembly: ReflectionPermission(SecurityAction.RequestMinimum,
-								ReflectionEmit=true,
-								TypeInformation=true)]
+								ReflectionEmit=true)]
 [assembly: AssemblyTitle("boo - an extensible programming language for the CLI")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]

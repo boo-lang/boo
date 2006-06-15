@@ -610,26 +610,32 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (null != method) return method;
 				method = FindConversionOperator(name, fromType, toType, toType.GetMembers());
 				if (null != method) return method;
-				
+				method = FindConversionOperator(name, fromType, toType, FindExtension(fromType, name));
+				if (null != method) return method;
+
 				fromType = fromType.BaseType;
 				if (null == fromType) break;
 			}
 			return null;
 		}
-		
+
+		private IEntity[] FindExtension(IType fromType, string name)
+		{
+			IEntity extension = _context.NameResolutionService.ResolveExtension(fromType, name);
+			if (null == extension) return Ambiguous.NoEntities;
+			
+			Ambiguous a = extension as Ambiguous;
+			if (null != a) return a.Entities;
+			return new IEntity[] { extension };
+		}
+
 		IMethod FindConversionOperator(string name, IType fromType, IType toType, IEntity[] candidates)
 		{
 			foreach (IEntity entity in candidates)
 			{
-				if (EntityType.Method == entity.EntityType &&
-					name == entity.Name)
-				{
-					IMethod method = (IMethod)entity;
-					if (IsConversionOperator(method, fromType, toType))
-					{
-						return method;
-					}
-				}
+				if (EntityType.Method != entity.EntityType || name != entity.Name) continue;
+				IMethod method = (IMethod)entity;
+				if (IsConversionOperator(method, fromType, toType)) return method;
 			}
 			return null;
 		}
@@ -733,10 +739,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			foreach (IEntity member in members)
 			{
-				if (EntityType.Method != member.EntityType)
-				{
-					return false;
-				}
+				if (EntityType.Method != member.EntityType) return false;
 			}
 			return true;
 		}
