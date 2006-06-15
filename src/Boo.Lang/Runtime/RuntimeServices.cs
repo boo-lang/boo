@@ -93,10 +93,12 @@ namespace Boo.Lang.Runtime
 		const BindingFlags InvokeBindingFlags = DefaultBindingFlags |
 												BindingFlags.InvokeMethod;
 
-		const BindingFlags InvokeOperatorBindingFlags = BindingFlags.Public |
+		const BindingFlags StaticMemberBindingFlags = BindingFlags.Public |
 												BindingFlags.Static |
-												BindingFlags.InvokeMethod |
 												BindingFlags.FlattenHierarchy;
+
+		const BindingFlags InvokeOperatorBindingFlags = StaticMemberBindingFlags |
+												BindingFlags.InvokeMethod;
 
 		const BindingFlags SetPropertyBindingFlags = DefaultBindingFlags |
 												BindingFlags.SetProperty |
@@ -106,7 +108,44 @@ namespace Boo.Lang.Runtime
 												BindingFlags.GetProperty |
 												BindingFlags.GetField;
 
-
+		const BindingFlags InvokeExtensionBindingFlags = InvokeOperatorBindingFlags;
+		
+		const BindingFlags GetPropertyExtensionBindingFlags = StaticMemberBindingFlags |
+		                                                      BindingFlags.GetProperty |
+		                                                      BindingFlags.GetField;
+		
+		
+		static List _extensions = new List();
+		
+		public static void RegisterExtensions(System.Type extensionContainer)
+		{
+			if (null == extensionContainer) throw new ArgumentNullException("extensionContainer");
+			lock (_extensions.SyncRoot)
+			{
+				_extensions.AddUnique(extensionContainer);
+			}
+		}
+		
+		public static void UnRegisterExtensions(System.Type extensionContainer)
+		{
+			if (null == extensionContainer) throw new ArgumentNullException("extensionContainer");
+			lock (_extensions.SyncRoot)
+			{
+				_extensions.Remove(extensionContainer);
+			}
+		}
+		
+		internal static Type[] RegisteredExtensions
+		{
+			get
+			{
+				lock (_extensions.SyncRoot)
+				{
+					return (Type[]) _extensions.ToArray(typeof(Type));
+				}
+			}
+		}
+		                                                      
 		public static object Invoke(object target, string name, object[] args)
 		{
 			IQuackFu duck = target as IQuackFu;
@@ -120,11 +159,33 @@ namespace Boo.Lang.Runtime
 				Type type = target as Type;
 				if (null == type)
 				{
-					return target.GetType().InvokeMember(name,
-														InvokeBindingFlags,
-														null,
-														target,
-														args);
+					try
+					{
+						return target.GetType().InvokeMember(name,
+						                                     InvokeBindingFlags,
+						                                     null,
+						                                     target,
+						                                     args);
+					}
+					catch (System.MissingMemberException)
+					{
+						object[] extensionArgs = GetExtensionArgs(target, args);
+						foreach (Type extension in RegisteredExtensions)
+						{
+							try
+							{
+								return extension.InvokeMember(name,
+													   InvokeExtensionBindingFlags,
+													   null,
+													   null,
+													   extensionArgs);
+							}
+							catch (System.MissingMemberException)
+							{
+							}
+						}
+						throw;
+					}
 				}
 				else
 				{	// static method
@@ -141,7 +202,15 @@ namespace Boo.Lang.Runtime
 				throw;
 			}
 		}
-		
+
+		private static object[] GetExtensionArgs(object target, object[] args)
+		{
+			object[] extensionArgs = new object[args.Length + 1];
+			extensionArgs[0] = target;
+			Array.Copy(args, 0, extensionArgs, 1, args.Length);
+			return extensionArgs;
+		}
+
 		public static object SetProperty(object target, string name, object value)
 		{
 			IQuackFu duck = target as IQuackFu;
@@ -156,10 +225,10 @@ namespace Boo.Lang.Runtime
 				if (null == type)
 				{
 					target.GetType().InvokeMember(name,
-												  SetPropertyBindingFlags,
-												  null,
-												  target,
-												  new object[] { value });
+					                              SetPropertyBindingFlags,
+					                              null,
+					                              target,
+					                              new object[] { value });
 				}
 				else
 				{	// static member
@@ -222,11 +291,32 @@ namespace Boo.Lang.Runtime
 				Type type = target as Type;
 				if (null == type)
 				{
-					return target.GetType().InvokeMember(name,
-														 GetPropertyBindingFlags,
-														 null,
-														 target,
-														 null);
+					try
+					{
+						return target.GetType().InvokeMember(name,
+						                                     GetPropertyBindingFlags,
+						                                     null,
+						                                     target,
+						                                     null);
+					}
+					catch (System.MissingMemberException)
+					{
+						foreach (Type extension in RegisteredExtensions)
+						{
+							try
+							{
+								return extension.InvokeMember(name,
+								                       GetPropertyExtensionBindingFlags,
+								                       null,
+								                       null,
+								                       new object[] {target});
+							}
+							catch (System.MissingMemberException)
+							{	
+							}
+						}
+						throw;
+					}
 				}
 				else
 				{	// static member
