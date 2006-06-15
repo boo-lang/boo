@@ -3259,6 +3259,7 @@ namespace Boo.Lang.Compiler.Steps
 				IMethod method = TypeSystemServices.FindImplicitConversionOperator(actualType,expectedType);
 				if (method != null)
 				{
+					EmitBoxIfNeeded(method.GetParameters()[0].Type, actualType);
 					_il.EmitCall(OpCodes.Call, GetMethodInfo(method), null);
 					return;
 				}
@@ -3293,13 +3294,18 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (actualType.IsValueType && !expectedType.IsValueType)
-				{
-					EmitBox(actualType);
-				}
+				EmitBoxIfNeeded(expectedType, actualType);
 			}
 		}
-		
+
+		private void EmitBoxIfNeeded(IType expectedType, IType actualType)
+		{
+			if (actualType.IsValueType && !expectedType.IsValueType)
+			{
+				EmitBox(actualType);
+			}
+		}
+
 		void EmitBox(IType type)
 		{
 			_il.Emit(OpCodes.Box, GetSystemType(type));
