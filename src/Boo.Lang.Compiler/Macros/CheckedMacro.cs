@@ -26,9 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Steps;
+
 namespace Boo.Lang
 {
-	using System;
 	using System.Diagnostics;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
@@ -38,7 +39,7 @@ namespace Boo.Lang
 		public override Statement Expand(MacroStatement macro)
 		{
 			Debug.Assert(0 == macro.Arguments.Count);
-			macro.Block["checked"] = false;
+			AstAnnotations.MarkUnchecked(macro.Block);
 			return macro.Block;
 		}
 	}
@@ -48,7 +49,7 @@ namespace Boo.Lang
 		public override Statement Expand(MacroStatement macro)
 		{
 			Debug.Assert(0 == macro.Arguments.Count);
-			macro.Block["checked"] = true;
+			AstAnnotations.MarkChecked(macro.Block);
 			return macro.Block;
 		}
 	}

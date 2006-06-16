@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+
 namespace Boo.Lang.Compiler.Pipelines
 {
 	using Boo.Lang.Compiler.Steps;
@@ -36,6 +38,8 @@ namespace Boo.Lang.Compiler.Pipelines
 		{	
 			Add(new UnfoldConstants());
 			Add(new OptimizeIterationStatements());
+
+			Add(new BranchChecking());
 
 			Add(new CheckIdentifiers());
 			Add(new StricterErrorChecking());

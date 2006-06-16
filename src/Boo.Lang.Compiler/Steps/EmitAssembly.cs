@@ -653,28 +653,18 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnBlock(Block block)
 		{
-			bool current = _checked;
-			object objChecked = block["checked"];
-			
-			if (objChecked is bool)
-			{
-				_checked = (bool)objChecked;
-			}
+			bool currentChecked = _checked;
+			_checked = AstAnnotations.IsChecked(block);
 			
 			bool currentArrayIndexing = _rawArrayIndexing;
-			object objRawArrayIndexing = block["rawarrayindexing"];
-			
-			if (objRawArrayIndexing is bool)
-			{
-				_rawArrayIndexing = (bool)objRawArrayIndexing;
-			}
+			_rawArrayIndexing = AstAnnotations.IsRawIndexing(block);
 
 			Visit(block.Statements);
 
-			_checked = current;
 			_rawArrayIndexing = currentArrayIndexing;
+			_checked = currentChecked;
 		}
-		
+
 		void DefineLabels(Method method)
 		{
 			foreach (InternalLabel label in ((InternalMethod)method.Entity).Labels)
@@ -831,9 +821,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EmitDebugInfo(node);
 			
-			InternalLabel label = (InternalLabel)node.Label.Entity;
-			int gotoDepth = ContextAnnotations.GetTryBlockDepth(node);
-			int targetDepth = ContextAnnotations.GetTryBlockDepth(label.LabelStatement);
+			InternalLabel label = (InternalLabel)GetEntity(node.Label);
+			int gotoDepth = AstAnnotations.GetTryBlockDepth(node);
+			int targetDepth = AstAnnotations.GetTryBlockDepth(label.LabelStatement);
 	
 			if (targetDepth == gotoDepth)
 			{
@@ -1368,7 +1358,7 @@ namespace Boo.Lang.Compiler.Steps
 			OpCode opcode = GetStoreEntityOpCode(elementType);
 			
 			Slice index = slice.Indices[0];
-			EmitNormalizedArrayIndex(index.Begin);
+			EmitNormalizedArrayIndex(slice, index.Begin);
 			
 			bool stobj = IsStobj(opcode);
 			if (stobj)
@@ -2326,7 +2316,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target);
 			
 			IArrayType type = (IArrayType)PopType();
-			EmitNormalizedArrayIndex(node.Indices[0].Begin);
+			EmitNormalizedArrayIndex(node, node.Indices[0].Begin);
 			
 			IType elementType = type.GetElementType();
 			OpCode opcode = GetLoadEntityOpCode(elementType);
@@ -2343,10 +2333,12 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(elementType);
 		}
 		
-		void EmitNormalizedArrayIndex(Expression index)
+		void EmitNormalizedArrayIndex(SlicingExpression sourceNode, Expression index)
 		{
 			bool isNegative = false;
-			if (CanBeNegative(index, ref isNegative) && (!_rawArrayIndexing))
+			if (CanBeNegative(index, ref isNegative)
+			    && !_rawArrayIndexing
+				&& !AstAnnotations.IsRawIndexing(sourceNode))
 			{
 				if (isNegative)
 				{
@@ -2672,7 +2664,7 @@ namespace Boo.Lang.Compiler.Steps
 				SlicingExpression slicing = (SlicingExpression)expression;
 				Visit(slicing.Target);
 				IArrayType arrayType = (IArrayType)PopType();
-				EmitNormalizedArrayIndex(slicing.Indices[0].Begin);
+				EmitNormalizedArrayIndex(slicing, slicing.Indices[0].Begin);
 				_il.Emit(OpCodes.Ldelema, GetSystemType(arrayType.GetElementType()));
 			}
 			else

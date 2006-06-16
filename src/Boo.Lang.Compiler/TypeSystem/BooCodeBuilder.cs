@@ -173,11 +173,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateTypeofExpression(_tss.Map(type));
 		}
 		
-		public InternalLabel CreateLabelStatement(Node sourceNode, string name)
-		{
-			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
-		}
-		
 		public ReferenceExpression CreateLabelReference(LabelStatement label)
 		{
 			ReferenceExpression reference = new ReferenceExpression(label.LexicalInfo, label.Name);

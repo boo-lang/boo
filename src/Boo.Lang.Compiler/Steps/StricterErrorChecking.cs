@@ -192,8 +192,8 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			LabelStatement target = ((InternalLabel)node.Label.Entity).LabelStatement; 
 					
-			int gotoDepth = ContextAnnotations.GetTryBlockDepth(node);
-			int targetDepth = ContextAnnotations.GetTryBlockDepth(target);
+			int gotoDepth = AstAnnotations.GetTryBlockDepth(node);
+			int targetDepth = AstAnnotations.GetTryBlockDepth(target);
 			if (gotoDepth < targetDepth)
 			{
 				BranchError(node, target);

@@ -26,20 +26,20 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Steps;
+
 namespace Boo.Lang
 {
-	using System;
 	using System.Diagnostics;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 
 	public class NormalArrayIndexingMacro : AbstractAstMacro
-	{
-		
+	{	
 		public override Statement Expand(MacroStatement macro)
 		{
 			Debug.Assert(0 == macro.Arguments.Count);
-			macro.Block["rawarrayindexing"] = false;
+			macro.Block[AstAnnotations.RawArrayIndexing] = false;
 			return macro.Block;
 		}
 	}
@@ -49,7 +49,7 @@ namespace Boo.Lang
 		public override Statement Expand(MacroStatement macro)
 		{
 			Debug.Assert(0 == macro.Arguments.Count);
-			macro.Block["rawarrayindexing"] = true;
+			macro.Block[AstAnnotations.RawArrayIndexing] = true;
 			return macro.Block;
 		}
 	}

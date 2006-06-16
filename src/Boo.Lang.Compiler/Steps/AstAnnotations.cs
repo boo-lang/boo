@@ -26,78 +26,58 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Ast;
+
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
-	
-	public class ContextAnnotations
-	{		
-		static object EntryPointKey = new object();
+	public class AstAnnotations
+	{
+		private static object TryBlockDepthKey = new object();
+		public const string RawArrayIndexing = "rawarrayindexing";
+
+		public const string Checked = "checked";
 		
-		static object AssemblyBuilderKey = new object();
-		
-		static object TryBlockDepthKey = new object();
-		
-		public static Method GetEntryPoint(CompilerContext context)
+		public static void MarkChecked(Node node)
 		{
-			if (null == context)
-			{
-				throw new ArgumentNullException("context");
-			}
-			return (Method)context.Properties[EntryPointKey];
+			node[AstAnnotations.Checked] = true;
+		}
+
+		public static void MarkUnchecked(Node node)
+		{
+			node[AstAnnotations.Checked] = false;
 		}
 		
-		public static void SetEntryPoint(CompilerContext context, Method method)
+		public static bool IsChecked(Node node)
 		{
-			if (null == method)
-			{
-				throw new ArgumentNullException("method");
-			}
-			
-			Method current = GetEntryPoint(context);
-			if (null != current)
-			{
-				throw CompilerErrorFactory.MoreThanOneEntryPoint(method);
-			}
-			context.Properties[EntryPointKey] = method;
+			return GetBoolAnnotationValue(node, AstAnnotations.Checked, true);
 		}
-		
-		public static System.Reflection.Emit.AssemblyBuilder GetAssemblyBuilder(CompilerContext context)
+
+		public static bool IsRawIndexing(Node node)
 		{
-			System.Reflection.Emit.AssemblyBuilder builder = (System.Reflection.Emit.AssemblyBuilder)context.Properties[AssemblyBuilderKey];
-			if (null == builder)
-			{
-				throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
-			}
-			return builder;
+			return GetBoolAnnotationValue(node, AstAnnotations.RawArrayIndexing, false);
 		}
-		
-		public static void SetAssemblyBuilder(CompilerContext context, System.Reflection.Emit.AssemblyBuilder builder)
+
+		public static bool GetBoolAnnotationValue(Node node, string annotation, bool defaultValue)
 		{
-			if (null == context)
-			{
-				throw new ArgumentNullException("context");
-			}
-			if (null == builder)
-			{
-				throw new ArgumentNullException("builder");
-			}
-			context.Properties[AssemblyBuilderKey] = builder;
+			object value = node[annotation];
+			return value is bool
+			       	? (bool)value
+			       	: defaultValue;
 		}
-		
+
+		public static void MarkRawArrayIndexing(Node node)
+		{
+			node[AstAnnotations.RawArrayIndexing] = true;
+		}
+
 		public static void SetTryBlockDepth(Node node, int depth)
 		{
 			node[TryBlockDepthKey] = depth;
 		}
-		
+
 		public static int GetTryBlockDepth(Node node)
 		{
 			return (int)node[TryBlockDepthKey];
-		}
-		
-		private ContextAnnotations()
-		{
 		}
 	}
 }

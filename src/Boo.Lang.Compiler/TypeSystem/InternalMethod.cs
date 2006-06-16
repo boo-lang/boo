@@ -32,9 +32,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Boo.Lang.Compiler.Ast;
 
 	public class InternalMethod : IInternalEntity, IMethod, INamespace
-	{
-		public static readonly ReferenceExpression[] EmptyReferenceExpressionArray = new ReferenceExpression[0];
-		
+	{	
 		public static readonly InternalLabel[] EmptyInternalLabelArray = new InternalLabel[0];
 		
 		protected TypeSystemServices _typeSystemServices;
@@ -52,8 +50,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected ExpressionCollection _returnExpressions;
 
 		protected List _yieldStatements;
-		
-		protected List _labelReferences;
 		
 		protected List _labels;
 				
@@ -314,24 +310,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				ExpressionCollection expressions = new ExpressionCollection();
 				foreach (YieldStatement stmt in _yieldStatements)
 				{
-					if (null != stmt.Expression)
-					{
-						expressions.Add(stmt.Expression);
-					}
+					if (null != stmt.Expression) expressions.Add(stmt.Expression);
 				}
 				return expressions;
-			}
-		}
-		
-		public ReferenceExpression[] LabelReferences
-		{
-			get
-			{
-				if (null == _labelReferences)
-				{
-					return EmptyReferenceExpressionArray;
-				}
-				return (ReferenceExpression[])_labelReferences.ToArray(typeof(ReferenceExpression));
 			}
 		}
 		
@@ -339,83 +320,66 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (null == _labels)
-				{
-					return EmptyInternalLabelArray;
-				}
+				if (null == _labels) return EmptyInternalLabelArray;
 				return (InternalLabel[])_labels.ToArray(typeof(InternalLabel));
 			}
 		}
 		
+		public void MoveLabelsTo(InternalMethod other)
+		{
+			if (other == null) throw new ArgumentNullException("other");
+			if (other == this) throw new ArgumentException("other != this");
+			if (other._labels != null) throw new ArgumentException("other._labels != null");
+			other._labels = _labels;
+			_labels = null;
+		}
+		
 		public void AddYieldStatement(YieldStatement stmt)
 		{
-			if (null == _yieldStatements)
-			{
-				_yieldStatements = new List();
-			}
+			if (null == _yieldStatements) _yieldStatements = new List();
 			_yieldStatements.Add(stmt);
 		}
 		
 		public void AddReturnExpression(Expression expression)
 		{
-			if (null == _returnExpressions)
-			{
-				_returnExpressions = new ExpressionCollection();
-			}
+			if (null == _returnExpressions) _returnExpressions = new ExpressionCollection();
 			_returnExpressions.Add(expression);
-		}
-		
-		public void AddLabelReference(ReferenceExpression node)
-		{
-			if (null == _labelReferences)
-			{
-				_labelReferences = new List();
-			}
-			_labelReferences.Add(node);
 		}
 		
 		public void AddLabel(InternalLabel node)
 		{
-			if (null == node)
-			{
-				throw new ArgumentNullException("node");
-			}
-			
-			if (null == _labels)
-			{
-				_labels = new List();
-			}
+			if (null == node) throw new ArgumentNullException("node");
+			if (null == _labels) _labels = new List();
+			if (null != InternalResolveLabel(node.Name)) LabelAlreadyDefined(node);
 			_labels.Add(node);
 		}
-		
+
+		private void LabelAlreadyDefined(InternalLabel node)
+		{
+			throw new ArgumentException(string.Format("Method '{0}' already contains a label '{1}'.", this, node.Name));
+		}
+
 		public InternalLabel ResolveLabel(string name)
 		{
-			if (null != _labels)
+			if (null == _labels) return null;
+			return InternalResolveLabel(name);
+		}
+
+		private InternalLabel InternalResolveLabel(string name)
+		{
+			foreach (InternalLabel label in _labels)
 			{
-				foreach (InternalLabel label in _labels)
-				{
-					if (name == label.Name)
-					{
-						return label;
-					}
-				}
+				if (name == label.Name) return label;
 			}
 			return null;
 		}
-		
+
 		public Local ResolveLocal(string name)
 		{
 			foreach (Local local in _method.Locals)
 			{
-				if (local.PrivateScope)
-				{
-					continue;
-				}
-				
-				if (name == local.Name)
-				{
-					return local;
-				}
+				if (local.PrivateScope) continue;
+				if (name == local.Name) return local;
 			}
 			return null;
 		}
@@ -424,10 +388,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			foreach (ParameterDeclaration parameter in _method.Parameters)
 			{
-				if (name == parameter.Name)
-				{
-					return parameter;
-				}
+				if (name == parameter.Name) return parameter;
 			}
 			return null;
 		}

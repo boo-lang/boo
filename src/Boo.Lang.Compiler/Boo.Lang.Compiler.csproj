@@ -344,8 +344,10 @@
     <Compile Include="Steps\BindNamespaces.cs" />
     <Compile Include="Steps\BindTypeDefinitions.cs" />
     <Compile Include="Steps\BindTypeMembers.cs" />
+    <Compile Include="Steps\BranchChecking.cs" />
     <Compile Include="Steps\CheckMemberNames.cs" />
     <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
+    <Compile Include="Steps\ContextAnnotations.cs" />
     <Compile Include="Steps\DumpReferences.cs" />
     <Compile Include="Steps\EmitAssembly.cs" />
     <Compile Include="Steps\ExpandAstLiterals.cs" />
@@ -356,6 +358,7 @@
     <Compile Include="Steps\ForeignReferenceCollector.cs" />
     <Compile Include="Steps\GeneratorExpressionProcessor.cs" />
     <Compile Include="Steps\GeneratorMethodProcessor.cs" />
+    <Compile Include="Steps\GotoOnTopLevelContinue.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
     <Compile Include="Steps\InitializeNameResolutionService.cs" />
     <Compile Include="Steps\InitializeTypeSystemServices.cs" />

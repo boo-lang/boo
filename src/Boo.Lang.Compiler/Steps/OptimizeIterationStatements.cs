@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod _range_Begin_End;
 		IMethod _range_Begin_End_Step;
 
-		Method _current;
+		Method _currentMethod;
 
 		public OptimizeIterationStatements()
 		{
@@ -75,7 +75,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethod(Method node)
 		{
-			_current = node;
+			_currentMethod = node;
 			Visit(node.Body);
 		}
 		
@@ -149,7 +149,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			InternalLocal numVar = CodeBuilder.DeclareTempLocal(
-										_current,
+										_currentMethod,
 										TypeSystemServices.IntType);
 			Expression numRef = CodeBuilder.CreateReference(numVar);
 
@@ -168,7 +168,7 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				InternalLocal endVar = CodeBuilder.DeclareTempLocal(
-							_current,
+							_currentMethod,
 							TypeSystemServices.IntType);
 				endRef = CodeBuilder.CreateReference(endVar);
 
@@ -241,7 +241,7 @@ namespace Boo.Lang.Compiler.Steps
 					else
 					{
 						InternalLocal stepVar = CodeBuilder.DeclareTempLocal(
-								_current,
+								_currentMethod,
 								TypeSystemServices.IntType);
 						stepRef = CodeBuilder.CreateReference(stepVar);
 
@@ -278,7 +278,7 @@ namespace Boo.Lang.Compiler.Steps
 					else
 					{
 						InternalLocal stepVar = CodeBuilder.DeclareTempLocal(
-									_current,
+									_currentMethod,
 									TypeSystemServices.IntType);
 						stepRef = CodeBuilder.CreateReference(stepVar);
 
@@ -427,7 +427,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (max.NodeType == NodeType.IntegerLiteralExpression)
 					{
 						InternalLocal endVar = CodeBuilder.DeclareTempLocal(
-									_current,
+									_currentMethod,
 									TypeSystemServices.IntType);
 						endRef = CodeBuilder.CreateReference(endVar);
 					}
@@ -519,32 +519,25 @@ namespace Boo.Lang.Compiler.Steps
 		/// </summary>
 		/// <param name="node">the for statement to check</param>
 		private void CheckForItemInArrayLoop(ForStatement node)
-		{
-			IType enumeratorType = GetExpressionType(node.Iterator);
-			IType enumeratorItemType = TypeSystemServices.GetEnumeratorItemType(enumeratorType);
-			if ((!enumeratorType.IsArray) || (((ArrayType)enumeratorType).GetArrayRank() > 1) || (enumeratorItemType is InternalCallableType))
-			{
-				return;
-			}
+		{	
+			ArrayType enumeratorType = GetExpressionType(node.Iterator) as ArrayType;
+			if (enumeratorType == null || enumeratorType.GetArrayRank() > 1) return;
+			IType elementType = enumeratorType.GetElementType();
+			if (elementType is InternalCallableType) return;
 
-			DeclarationCollection declarations = node.Declarations;
 			Block body = new Block(node.LexicalInfo);
 
-			InternalLocal numVar = CodeBuilder.DeclareTempLocal(
-				_current,
-				TypeSystemServices.IntType);
-			Expression numRef = CodeBuilder.CreateReference(numVar);
+			InternalLocal indexVariable = DeclareTempLocal(TypeSystemServices.IntType);
+			Expression indexReference = CodeBuilder.CreateReference(indexVariable);
 
 			// __num = 0
 			body.Add(
 				CodeBuilder.CreateAssignment(
-					numRef,
+					indexReference,
 					CodeBuilder.CreateIntegerLiteral(0)));
 			
 			
-			InternalLocal arrayVar = CodeBuilder.DeclareTempLocal(
-										_current,
-										node.Iterator.ExpressionType);
+			InternalLocal arrayVar = DeclareTempLocal(node.Iterator.ExpressionType);
 			ReferenceExpression arrayRef = CodeBuilder.CreateReference(arrayVar);
 
 			// __arr = <arr>
@@ -554,7 +547,7 @@ namespace Boo.Lang.Compiler.Steps
 					node.Iterator));
 
 			InternalLocal endVar = CodeBuilder.DeclareTempLocal(
-							_current,
+							_currentMethod,
 							TypeSystemServices.IntType);
 			ReferenceExpression endRef = CodeBuilder.CreateReference(endVar);
 
@@ -569,58 +562,74 @@ namespace Boo.Lang.Compiler.Steps
 			// while __num < __end:
 			WhileStatement ws = new WhileStatement(node.LexicalInfo);
 			
-			ws.Condition = new BinaryExpression(
-				BinaryOperatorType.LessThan,
-				numRef,
-				endRef);
+			ws.Condition = CodeBuilder.CreateBoundBinaryExpression(
+					TypeSystemServices.BoolType,
+					BinaryOperatorType.LessThan,
+					indexReference,
+					endRef);
 
-			Block rawBlock = new Block();
-			rawBlock["rawarrayindexing"] = true;
-			if (1 == declarations.Count)
+			if (1 == node.Declarations.Count)
 			{
-				//	item = arr[__num]
-				rawBlock.Add(
-					CodeBuilder.CreateAssignment(
-						CodeBuilder.CreateReference((InternalLocal)declarations[0].Entity),
-						new SlicingExpression(
-							arrayRef,
-							numRef)));
+				node.Block.ReplaceNodes(
+					new ReferenceExpression(node.Declarations[0].Entity.Name),
+					CreateRawArraySlicing(arrayRef, indexReference, elementType));
 			}
 			else
 			{
 				//  alpha, bravo, charlie = arr[__num]
 				UnpackExpression(
-					rawBlock,
-					CodeBuilder.CreateCast(
-						enumeratorItemType,
-						new SlicingExpression(
-							arrayRef,
-							numRef)),
+					ws.Block,
+					CreateRawArraySlicing(arrayRef, indexReference, elementType),
 					node.Declarations);
 			}
-			ws.Block.Add(rawBlock as Statement);
-
-			rawBlock = new Block();
-			rawBlock["checked"] = false;
-
-			//  __num += 1
-			rawBlock.Add(
-				CodeBuilder.CreateAssignment(
-					numRef,
-					CodeBuilder.CreateBoundBinaryExpression(
-						TypeSystemServices.IntType,
-						BinaryOperatorType.Addition,
-						numRef,
-						CodeBuilder.CreateIntegerLiteral(1))));
-
-			ws.Block.Add(rawBlock as Statement);
 
 			//	<block>
 			ws.Block.Add(node.Block);
 
-			body.Add(ws);
+			FixContinueStatements(node, ws);
 
+			//  __num += 1
+			BinaryExpression assignment = CodeBuilder.CreateAssignment(
+				indexReference,
+				CodeBuilder.CreateBoundBinaryExpression(
+					TypeSystemServices.IntType,
+					BinaryOperatorType.Addition,
+					indexReference,
+					CodeBuilder.CreateIntegerLiteral(1)));
+			AstAnnotations.MarkUnchecked(assignment);
+			
+			ws.Block.Add(assignment);
+			body.Add(ws);
 			ReplaceCurrentNode(body);
+		}
+
+		private void FixContinueStatements(ForStatement node, WhileStatement ws)
+		{
+			// :update
+			LabelStatement label = CreateUpdateLabel(node);
+			GotoOnTopLevelContinue continueFixup = new GotoOnTopLevelContinue(label);
+			node.Block.Accept(continueFixup);
+			if (continueFixup.UsageCount > 0) ws.Block.Add(label);
+		}
+
+		private LabelStatement CreateUpdateLabel(ForStatement node)
+		{
+			return new LabelStatement(LexicalInfo.Empty, "___" + _context.AllocIndex());
+		}
+
+		private static SlicingExpression CreateRawArraySlicing(ReferenceExpression arrayRef, Expression numRef, IType elementType)
+		{
+			SlicingExpression expression = new SlicingExpression(arrayRef.CloneNode(), numRef.CloneNode());
+			expression.ExpressionType = elementType;
+			AstAnnotations.MarkRawArrayIndexing(expression);
+			return expression;
+		}
+
+		private InternalLocal DeclareTempLocal(IType type)
+		{
+			return CodeBuilder.DeclareTempLocal(
+				_currentMethod,
+				type);
 		}
 
 		/// <summary>
@@ -631,7 +640,7 @@ namespace Boo.Lang.Compiler.Steps
 		/// <param name="declarations">list of declarations to set</param>
 		void UnpackExpression(Block block, Expression expression, DeclarationCollection declarations)
 		{
-			NormalizeIterationStatements.UnpackExpression(CodeBuilder, _current, block, expression, declarations);
+			NormalizeIterationStatements.UnpackExpression(CodeBuilder, _currentMethod, block, expression, declarations);
 		}
 	}
 }

@@ -1,0 +1,240 @@
+using System;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
+
+namespace Boo.Lang.Compiler.Steps
+{
+	class MethodBodyState
+	{
+		private int _loopDepth;
+
+		private int _exceptionHandlerDepth;
+
+		private int _tryBlockDepth;
+
+		private List _labelReferences = new List();
+		
+		public void Reset()
+		{
+			_loopDepth = 0;
+			_exceptionHandlerDepth = 0;
+			_tryBlockDepth = 0;
+			_labelReferences.Clear();
+		}
+
+		public void AddLabelReference(ReferenceExpression node)
+		{
+			_labelReferences.Add(node);
+		}
+
+		public List LabelReferences
+		{
+			get { return _labelReferences; }
+		}
+		
+
+		public void EnterTryBlock()
+		{
+			++_tryBlockDepth;
+		}
+
+		public void LeaveTryBlock()
+		{
+			--_tryBlockDepth;
+		}
+
+		public int CurrentTryBlockDepth
+		{
+			get { return _tryBlockDepth; }
+		}
+
+		public void EnterExceptionHandler()
+		{
+			++_exceptionHandlerDepth;
+		}
+
+		public bool InExceptionHandler
+		{
+			get { return _exceptionHandlerDepth > 0; }
+		}
+
+		public void LeaveExceptionHandler()
+		{
+			--_exceptionHandlerDepth;
+		}
+
+		public void EnterLoop()
+		{
+			++_loopDepth;
+		}
+
+		public bool InLoop
+		{
+			get { return _loopDepth > 0; }
+		}
+
+		public void LeaveLoop()
+		{
+			--_loopDepth;
+		}
+	}
+	
+	public class BranchChecking : AbstractVisitorCompilerStep
+	{
+		private InternalMethod _currentMethod;
+
+		private MethodBodyState _state = new MethodBodyState();
+
+		public override void Run()
+		{
+			Visit(CompileUnit);
+		}
+
+		override public void OnTryStatement(TryStatement node)
+		{
+			_state.EnterTryBlock();
+			Visit(node.ProtectedBlock);
+
+			_state.EnterTryBlock();
+			Visit(node.ExceptionHandlers);
+
+			_state.EnterTryBlock();
+			Visit(node.EnsureBlock);
+			_state.LeaveTryBlock();
+
+			_state.LeaveTryBlock();
+			_state.LeaveTryBlock();
+		}
+
+		override public void OnExceptionHandler(ExceptionHandler node)
+		{	
+			_state.EnterExceptionHandler();
+			Visit(node.Block);
+			_state.LeaveExceptionHandler();
+		}
+
+		override public void LeaveRaiseStatement(RaiseStatement node)
+		{
+			if (node.Exception != null) return;
+			if (_state.InExceptionHandler) return;
+			Error(CompilerErrorFactory.ReRaiseOutsideExceptionHandler(node));
+		}
+
+		public override void OnConstructor(Constructor node)
+		{
+			OnMethod(node);
+		}
+
+		public override void OnDestructor(Destructor node)
+		{
+			OnMethod(node);
+		}
+		
+		override public void OnMethod(Method node)
+		{
+			_currentMethod = (InternalMethod) node.Entity;
+			_state.Reset();
+			Visit(node.Body);
+			ResolveLabelReferences();
+		}
+
+		void ResolveLabelReferences()
+		{
+			foreach (ReferenceExpression reference in _state.LabelReferences)
+			{
+				InternalLabel label = _currentMethod.ResolveLabel(reference.Name);
+				if (null == label)
+				{
+					Error(reference, CompilerErrorFactory.NoSuchLabel(reference, reference.Name));
+				}
+				else
+				{
+					reference.Entity = label;
+				}
+			}
+		}
+
+		override public void OnWhileStatement(WhileStatement node)
+		{
+			VisitLoop(node.Block);
+		}
+
+		private void VisitLoop(Block block)
+		{
+			_state.EnterLoop();
+			Visit(block);
+			_state.LeaveLoop();
+		}
+
+		override public void OnForStatement(ForStatement node)
+		{
+			VisitLoop(node.Block);
+		}
+
+		override public void OnLabelStatement(LabelStatement node)
+		{
+			AstAnnotations.SetTryBlockDepth(node, _state.CurrentTryBlockDepth);
+
+			if (null == _currentMethod.ResolveLabel(node.Name))
+			{
+				_currentMethod.AddLabel(new InternalLabel(node));
+			}
+			else
+			{
+				Error(
+					CompilerErrorFactory.LabelAlreadyDefined(node,
+											_currentMethod.FullName,
+											node.Name));
+			}
+		}
+		
+		override public void OnYieldStatement(YieldStatement node)
+		{
+			if (_state.CurrentTryBlockDepth > 0)
+			{
+				Error(CompilerErrorFactory.YieldInsideTryBlock(node));
+			}
+		}
+
+		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
+		{
+			if (BuiltinFunction.Switch != node.Target.Entity) return;
+
+			for (int i = 1; i < node.Arguments.Count; ++i)
+			{
+				ReferenceExpression label = (ReferenceExpression)node.Arguments[i];
+				_state.AddLabelReference(label);
+			}
+		}
+
+		override public void OnGotoStatement(GotoStatement node)
+		{
+			AstAnnotations.SetTryBlockDepth(node, _state.CurrentTryBlockDepth);
+
+			_state.AddLabelReference(node.Label);
+		}
+
+		override public void OnBreakStatement(BreakStatement node)
+		{
+			CheckInLoop(node);
+		}
+
+		override public void OnContinueStatement(ContinueStatement node)
+		{
+			CheckInLoop(node);
+		}
+		
+		override public void OnCallableBlockExpression(CallableBlockExpression node)
+		{
+			// nothing to do
+		}
+
+		private void CheckInLoop(Statement node)
+		{
+			if (!_state.InLoop)
+			{
+				Error(CompilerErrorFactory.NoEnclosingLoop(node));
+			}
+		}
+	}
+}

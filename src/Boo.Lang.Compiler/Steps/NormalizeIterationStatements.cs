@@ -48,10 +48,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		Method _current;
 		
-		public NormalizeIterationStatements()
-		{
-		}
-		
 		override public void Run()
 		{
 			Visit(CompileUnit);

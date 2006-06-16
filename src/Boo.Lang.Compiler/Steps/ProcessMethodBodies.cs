@@ -68,21 +68,10 @@ namespace Boo.Lang.Compiler.Steps
 		InfoFilter IsPublicEventFilter;
 		
 		InfoFilter IsPublicFieldPropertyEventFilter;
-		
-		protected MethodBodyState _methodBodyState;
 
 		protected CallableResolutionService _callableResolution;
 
 		protected bool _optimizeNullComparisons = true;
-		
-		protected struct MethodBodyState
-		{
-			public int LoopDepth;
-		
-			public int TryBlockDepth;
-		
-			public int ExceptionHandlerDepth;
-		};
 		
 		public ProcessMethodBodies()
 		{
@@ -96,12 +85,10 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_currentMethod = null;
 			_methodStack = new Stack();
-			_methodBodyState = new MethodBodyState();
 			_memberStack = new Stack();
 
 			_callableResolution = new CallableResolutionService();
 			_callableResolution.Initialize(_context);
-
 						
 			InitializeMemberCache();
 			
@@ -164,55 +151,7 @@ namespace Boo.Lang.Compiler.Steps
 			_TextReaderEnumerator_Constructor = null;
 			_EnumeratorItemType_Constructor = null;
 		}
-		
-		void EnterTryBlock()
-		{
-			++_methodBodyState.TryBlockDepth;
-		}
-		
-		void LeaveTryBlock()
-		{
-			--_methodBodyState.TryBlockDepth;
-		}
-		
-		int CurrentTryBlockDepth
-		{
-			get
-			{
-				return _methodBodyState.TryBlockDepth;
-			}
-		}
-		
-		void EnterLoop()
-		{
-			++_methodBodyState.LoopDepth;
-		}
-		
-		bool InLoop()
-		{
-			return _methodBodyState.LoopDepth > 0;
-		}
-		
-		void LeaveLoop()
-		{
-			--_methodBodyState.LoopDepth;
-		}
-		
-		void EnterExceptionHandler()
-		{
-			++_methodBodyState.ExceptionHandlerDepth;
-		}
-		
-		bool InExceptionHandler()
-		{
-			return _methodBodyState.ExceptionHandlerDepth > 0;
-		}
-		
-		void LeaveExceptionHandler()
-		{
-			--_methodBodyState.ExceptionHandlerDepth;
-		}
-		
+
 		override public void OnModule(Module module)
 		{
 			if (WasVisited(module)) return;
@@ -1107,23 +1046,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ResolveLabelReferences(InternalMethod entity)
-		{
-			foreach (ReferenceExpression reference in entity.LabelReferences)
-			{
-				InternalLabel label = entity.ResolveLabel(reference.Name);
-				if (null == label)
-				{
-					Error(reference,
-						CompilerErrorFactory.NoSuchLabel(reference, reference.Name));
-				}
-				else
-				{
-					reference.Entity = label;
-				}
-			}
-		}
-		
 		void ProcessMethodBody(InternalMethod entity)
 		{
 			ProcessMethodBody(entity, entity);
@@ -1132,7 +1054,6 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessMethodBody(InternalMethod entity, INamespace ns)
 		{
 			ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
-			ResolveLabelReferences(entity);
 			if (entity.IsGenerator)
 			{
 				CreateGeneratorSkeleton(entity);
@@ -1143,16 +1064,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			PushMethodInfo(entity);
 			EnterNamespace(ns);
-			
-			MethodBodyState saved = _methodBodyState;
-			_methodBodyState = new MethodBodyState();
 			try
 			{
 				Visit(node);
 			}
 			finally
 			{
-				_methodBodyState = saved;
 				LeaveNamespace();
 				PopMethodInfo();
 			}
@@ -2514,58 +2431,14 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
 		}
 		
-		override public void OnLabelStatement(LabelStatement node)
-		{
-			ContextAnnotations.SetTryBlockDepth(node, CurrentTryBlockDepth);
-			
-			if (null == _currentMethod.ResolveLabel(node.Name))
-			{
-				_currentMethod.AddLabel(new InternalLabel(node));
-			}
-			else
-			{
-				Error(
-					CompilerErrorFactory.LabelAlreadyDefined(node,
-											_currentMethod.FullName,
-											node.Name));
-			}
-		}
-		
-		override public void OnGotoStatement(GotoStatement node)
-		{
-			ContextAnnotations.SetTryBlockDepth(node, CurrentTryBlockDepth);
-			
-			_currentMethod.AddLabelReference(node.Label);
-		}
-		
-		override public void OnBreakStatement(BreakStatement node)
-		{
-			CheckInLoop(node);
-		}
-
-		override public void OnContinueStatement(ContinueStatement node)
-		{
-			CheckInLoop(node);
-		}
-
-		private void CheckInLoop(Statement node)
-		{
-			if (!InLoop())
-			{
-				Error(CompilerErrorFactory.NoEnclosingLoop(node));
-			}
-		}
-		
 		override public bool EnterWhileStatement(WhileStatement node)
 		{
-			EnterLoop();
 			return true;
 		}
 
 		override public void LeaveWhileStatement(WhileStatement node)
 		{
 			node.Condition = AssertBoolContext(node.Condition);
-			LeaveLoop();
 		}
 		
 		override public void LeaveYieldStatement(YieldStatement node)
@@ -2577,11 +2450,6 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				_currentMethod.AddYieldStatement(node);
-			
-				if (CurrentTryBlockDepth > 0)
-				{
-					Error(CompilerErrorFactory.YieldInsideTryBlock(node));
-				}
 			}
 		}
 		
@@ -2675,6 +2543,11 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessDeclarationsForIterator(declarations, GetExpressionType(iterator));
 			return iterator;
 		}
+
+		public override void OnGotoStatement(GotoStatement node)
+		{
+			// don't try to resolve label references
+		}
 		
 		override public void OnForStatement(ForStatement node)
 		{
@@ -2683,9 +2556,7 @@ namespace Boo.Lang.Compiler.Steps
 			node.Iterator = ProcessIterator(node.Iterator, node.Declarations);
 			
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));
-			EnterLoop();
 			Visit(node.Block);
-			LeaveLoop();
 			LeaveNamespace();
 		}
 		
@@ -2721,45 +2592,21 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveRaiseStatement(RaiseStatement node)
 		{
-			if (node.Exception != null)
+			if (node.Exception == null) return;
+			
+			IType exceptionType = GetExpressionType(node.Exception);
+			if (TypeSystemServices.StringType == exceptionType)
 			{
-				IType exceptionType = GetExpressionType(node.Exception);
-				if (TypeSystemServices.StringType == exceptionType)
-				{
-					node.Exception = CodeBuilder.CreateConstructorInvocation(
-						node.Exception.LexicalInfo,
-						ApplicationException_StringConstructor,
-						node.Exception);
-				}
-				else if (!TypeSystemServices.ExceptionType.IsAssignableFrom(exceptionType))
-				{
-					Error(CompilerErrorFactory.InvalidRaiseArgument(node.Exception,
-								exceptionType.ToString()));
-				}
+				node.Exception = CodeBuilder.CreateConstructorInvocation(
+					node.Exception.LexicalInfo,
+					ApplicationException_StringConstructor,
+					node.Exception);
 			}
-			else
+			else if (!TypeSystemServices.ExceptionType.IsAssignableFrom(exceptionType))
 			{
-				if (!InExceptionHandler())
-				{
-					Error(CompilerErrorFactory.ReRaiseOutsideExceptionHandler(node));
-				}
+				Error(CompilerErrorFactory.InvalidRaiseArgument(node.Exception,
+							exceptionType.ToString()));
 			}
-		}
-		
-		override public void OnTryStatement(TryStatement node)
-		{
-			EnterTryBlock();
-			Visit(node.ProtectedBlock);
-			
-			EnterTryBlock();
-			Visit(node.ExceptionHandlers);
-			
-			EnterTryBlock();
-			Visit(node.EnsureBlock);
-			LeaveTryBlock();
-			
-			LeaveTryBlock();
-			LeaveTryBlock();
 		}
 		
 		override public void OnExceptionHandler(ExceptionHandler node)
@@ -2784,14 +2631,12 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.Declaration.Entity = DeclareLocal(node.Declaration, node.Declaration.Name, GetType(node.Declaration.Type), true);
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
-			EnterExceptionHandler();
 			try
 			{
 				Visit(node.Block);
 			}
 			finally
 			{
-				LeaveExceptionHandler();
 				LeaveNamespace();
 			}
 		}
@@ -3458,22 +3303,20 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ProcessSwitchInvocation(MethodInvocationExpression node)
 		{
-			if (CheckSwitchArguments(node))
+			BindSwitchLabelReferences(node);
+			if (CheckSwitchArguments(node)) return;
+			Error(node, CompilerErrorFactory.InvalidSwitch(node.Target));
+		}
+
+		private static void BindSwitchLabelReferences(MethodInvocationExpression node)
+		{
+			for (int i = 1; i < node.Arguments.Count; ++i)
 			{
-				for (int i=1; i<node.Arguments.Count; ++i)
-				{
-					ReferenceExpression label = (ReferenceExpression)node.Arguments[i];
-					_currentMethod.AddLabelReference(label);
-					label.ExpressionType = Unknown.Default;
-				}
-			}
-			else
-			{
-				Error(node,
-					CompilerErrorFactory.InvalidSwitch(node.Target));
+				ReferenceExpression label = (ReferenceExpression)node.Arguments[i];
+				label.ExpressionType = Unknown.Default;
 			}
 		}
-		
+
 		bool CheckSwitchArguments(MethodInvocationExpression node)
 		{
 			ExpressionCollection args = node.Arguments;
@@ -3482,7 +3325,7 @@ namespace Boo.Lang.Compiler.Steps
 				 Visit(args[0]);
 				 if (TypeSystemServices.IsIntegerNumber(GetExpressionType(args[0])))
 				 {
-					 for (int i=1; i<args.Count; ++i)
+					for (int i=1; i<args.Count; ++i)
 					{
 						 if (NodeType.ReferenceExpression != args[i].NodeType)
 						 {
