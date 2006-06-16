@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
@@ -14,12 +15,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		private List _labelReferences = new List();
 		
+		private Hashtable _labels = new Hashtable();
+		
 		public void Reset()
 		{
 			_loopDepth = 0;
 			_exceptionHandlerDepth = 0;
 			_tryBlockDepth = 0;
 			_labelReferences.Clear();
+			_labels.Clear();
 		}
 
 		public void AddLabelReference(ReferenceExpression node)
@@ -31,7 +35,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get { return _labelReferences; }
 		}
-		
 
 		public void EnterTryBlock()
 		{
@@ -76,6 +79,16 @@ namespace Boo.Lang.Compiler.Steps
 		public void LeaveLoop()
 		{
 			--_loopDepth;
+		}
+
+		public InternalLabel ResolveLabel(string name)
+		{
+			return (InternalLabel)_labels[name];
+		}
+
+		public void AddLabel(InternalLabel label)
+		{
+			_labels.Add(label.Name, label);
 		}
 	}
 	
@@ -142,7 +155,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (ReferenceExpression reference in _state.LabelReferences)
 			{
-				InternalLabel label = _currentMethod.ResolveLabel(reference.Name);
+				InternalLabel label = _state.ResolveLabel(reference.Name);
 				if (null == label)
 				{
 					Error(reference, CompilerErrorFactory.NoSuchLabel(reference, reference.Name));
@@ -175,9 +188,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			AstAnnotations.SetTryBlockDepth(node, _state.CurrentTryBlockDepth);
 
-			if (null == _currentMethod.ResolveLabel(node.Name))
+			if (null == _state.ResolveLabel(node.Name))
 			{
-				_currentMethod.AddLabel(new InternalLabel(node));
+				_state.AddLabel(new InternalLabel(node));
 			}
 			else
 			{
@@ -187,7 +200,7 @@ namespace Boo.Lang.Compiler.Steps
 											node.Name));
 			}
 		}
-		
+
 		override public void OnYieldStatement(YieldStatement node)
 		{
 			if (_state.CurrentTryBlockDepth > 0)

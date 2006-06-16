@@ -384,8 +384,6 @@ namespace Boo.Lang.Compiler.Steps
 			BooMethodBuilder mn = _enumerator.AddVirtualMethod("MoveNext", TypeSystemServices.BoolType);
 			mn.Method.LexicalInfo = this.LexicalInfo;
 			_moveNext = mn.Entity;
-			// TODO: remove this hack by making InternalMethod.Labels a calculated property
-			((InternalMethod)generator.Entity).MoveLabelsTo(_moveNext);
 			
 			foreach (Local local in generator.Locals)
 			{
@@ -518,10 +516,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		LabelStatement CreateLabel(Node sourceNode)
 		{
-			LabelStatement label = new LabelStatement(sourceNode.LexicalInfo, "___state_" + _labels.Count);
-			_labels.Add(label);
-			_moveNext.AddLabel(new InternalLabel(label));
-			return label;
+			InternalLabel label = CodeBuilder.CreateLabel(sourceNode, "___state_" + _labels.Count);
+			_labels.Add(label.LabelStatement);
+			return label.LabelStatement;
 		}
 		
 		BooMethodBuilder CreateConstructor(BooClassBuilder builder)

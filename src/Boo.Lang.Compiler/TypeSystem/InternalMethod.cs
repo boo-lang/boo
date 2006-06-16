@@ -33,8 +33,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class InternalMethod : IInternalEntity, IMethod, INamespace
 	{	
-		public static readonly InternalLabel[] EmptyInternalLabelArray = new InternalLabel[0];
-		
 		protected TypeSystemServices _typeSystemServices;
 		
 		protected Method _method;
@@ -50,8 +48,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected ExpressionCollection _returnExpressions;
 
 		protected List _yieldStatements;
-		
-		protected List _labels;
 				
 		internal InternalMethod(TypeSystemServices typeSystemServices, Method method)
 		{
@@ -316,22 +312,37 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		
+		class LabelCollector : DepthFirstVisitor
+		{
+			public static readonly InternalLabel[] EmptyInternalLabelArray = new InternalLabel[0];
+
+			protected List _labels;
+		
+			public override void OnLabelStatement(LabelStatement node)
+			{
+				if (null == _labels) _labels = new List();
+				_labels.Add(node.Entity);
+			}
+			
+			public InternalLabel[] Labels
+			{
+				get
+				{
+					if (null == _labels) return EmptyInternalLabelArray;
+					return (InternalLabel[])_labels.ToArray(typeof(InternalLabel));
+				}
+			}
+		}
+		
 		public InternalLabel[] Labels
 		{
 			get
 			{
-				if (null == _labels) return EmptyInternalLabelArray;
-				return (InternalLabel[])_labels.ToArray(typeof(InternalLabel));
+				LabelCollector collector = new LabelCollector();
+				_method.Accept(collector);
+				return collector.Labels;
 			}
-		}
-		
-		public void MoveLabelsTo(InternalMethod other)
-		{
-			if (other == null) throw new ArgumentNullException("other");
-			if (other == this) throw new ArgumentException("other != this");
-			if (other._labels != null) throw new ArgumentException("other._labels != null");
-			other._labels = _labels;
-			_labels = null;
 		}
 		
 		public void AddYieldStatement(YieldStatement stmt)
@@ -344,34 +355,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _returnExpressions) _returnExpressions = new ExpressionCollection();
 			_returnExpressions.Add(expression);
-		}
-		
-		public void AddLabel(InternalLabel node)
-		{
-			if (null == node) throw new ArgumentNullException("node");
-			if (null == _labels) _labels = new List();
-			if (null != InternalResolveLabel(node.Name)) LabelAlreadyDefined(node);
-			_labels.Add(node);
-		}
-
-		private void LabelAlreadyDefined(InternalLabel node)
-		{
-			throw new ArgumentException(string.Format("Method '{0}' already contains a label '{1}'.", this, node.Name));
-		}
-
-		public InternalLabel ResolveLabel(string name)
-		{
-			if (null == _labels) return null;
-			return InternalResolveLabel(name);
-		}
-
-		private InternalLabel InternalResolveLabel(string name)
-		{
-			foreach (InternalLabel label in _labels)
-			{
-				if (name == label.Name) return label;
-			}
-			return null;
 		}
 
 		public Local ResolveLocal(string name)

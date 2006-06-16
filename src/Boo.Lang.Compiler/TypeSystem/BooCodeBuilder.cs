@@ -855,5 +855,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				parameter.Entity = new InternalParameter(parameter, i + delta);
 			}
 		}
+
+		public InternalLabel CreateLabel(Node sourceNode, string name)
+		{
+			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
+		}
 	}
 }
