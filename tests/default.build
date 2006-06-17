@@ -56,6 +56,8 @@
 				<include name="build/SemanticsTestFixture.cs" />
 				<include name="build/MacrosTestFixture.cs" />
 				<include name="build/DuckyTestFixture.cs" />
+				<include name="build/GenericsTestFixture.cs" />
+				<include name="build/Net2ErrorsTestFixture.cs" />
 			</sources>
 			
 			<references basedir="build">

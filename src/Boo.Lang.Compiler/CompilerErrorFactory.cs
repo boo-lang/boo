@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem;
+
 namespace Boo.Lang.Compiler
 {
 	using System;
@@ -729,6 +731,16 @@ namespace Boo.Lang.Compiler
 		public static CompilerError PropertyIsWriteOnly(Node node, string propertyName)
 		{
 			return new CompilerError("BCE0137", node.LexicalInfo, propertyName);
+		}
+
+		public static CompilerError NotAGenericDefinition(Node node, string name)
+		{
+			return new CompilerError("BCE0138", node.LexicalInfo, name);
+		}
+
+		public static CompilerError GenericDefinitionArgumentCount(Node node, string name, int expectedCount)
+		{
+			return new CompilerError("BCE0139", node.LexicalInfo, name, expectedCount);
 		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)

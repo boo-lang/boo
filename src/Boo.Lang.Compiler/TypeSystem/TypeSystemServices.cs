@@ -933,26 +933,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ExternalType entity = (ExternalType)_entityCache[type];
 			if (null == entity)
 			{
-				if (type.IsArray)
-				{
-					return GetArrayType(Map(type.GetElementType()), type.GetArrayRank());
-				}
-				else
-				{
-					if (type.IsSubclassOf(Types.MulticastDelegate))
-					{	
-						entity = new ExternalCallableType(this, type);
-					}
-					else
-					{
-						entity = new ExternalType(this, type);
-					}
-				}
+				if (type.IsArray) return GetArrayType(Map(type.GetElementType()), type.GetArrayRank());
+				entity = CreateEntityForType(type);
 				Cache(entity);
 			}
 			return entity;
 		}
-		
+
+		private ExternalType CreateEntityForType(Type type)
+		{
+			if (type.IsSubclassOf(Types.MulticastDelegate)) return new ExternalCallableType(this, type);
+#if NET_2_0
+			if (type.IsGenericTypeDefinition) return new ExternalGenericTypeDefinition(this, type);
+#endif
+			return new ExternalType(this, type);
+		}
+
 		public IArrayType GetArrayType(IType elementType, int rank)
 		{
 			ArrayHash key = new ArrayHash(elementType, rank);

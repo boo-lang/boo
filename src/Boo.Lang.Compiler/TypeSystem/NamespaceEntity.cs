@@ -133,10 +133,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		internal bool Resolve(List targetList, string name, Assembly assembly, EntityType flags)
 		{
-			NamespaceEntity tag = (NamespaceEntity)_childrenNamespaces[name];
-			if (null != tag)
+			NamespaceEntity entity = (NamespaceEntity)_childrenNamespaces[name];
+			if (null != entity)
 			{
-				targetList.Add(new AssemblyQualifiedNamespaceEntity(assembly, tag));
+				targetList.Add(new AssemblyQualifiedNamespaceEntity(assembly, entity));
 				return true;
 			}
 			
@@ -145,15 +145,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			bool found = false;
 			if (null != types)
 			{
-				foreach (Type type in types)
-				{
-					if (name == type.Name)
-					{
-						targetList.Add(_typeSystemServices.Map(type));
-						found = true;
-						break;
-					}
-				}
+				found = ResolveType(targetList, name, types);
 				
 				foreach (ExternalType external in _externalModules)
 				{
@@ -204,19 +196,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool ResolveExternalType(List targetList, string name)
 		{			
 			foreach (List types in _assemblies.Values)
-			{				
-				foreach (Type type in types)
+			{
+				if (ResolveType(targetList, name, types)) return true;
+			}
+			return false;
+		}
+
+		private bool ResolveType(List targetList, string name, IEnumerable types)
+		{
+			foreach (Type type in types)
+			{
+				if (name == TypeName(type))
 				{
-					if (name == type.Name)
-					{
-						targetList.Add(_typeSystemServices.Map(type));
-						return true;
-					}
+					targetList.Add(_typeSystemServices.Map(type));
+					return true;
 				}
 			}
 			return false;
 		}
-		
+
+		private static string TypeName(Type type)
+		{
+#if NET_2_0
+			if (!type.IsGenericTypeDefinition) return type.Name;
+			string name = type.Name;
+			return name.Substring(0, name.IndexOf('`'));
+#else
+			return type.Name;
+#endif
+		}
+
 		bool ResolveExternalModules(List targetList, string name, EntityType flags)
 		{
 			bool found = false;

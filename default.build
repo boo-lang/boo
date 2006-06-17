@@ -52,6 +52,10 @@
 			value="${supported.runtimes.net-1.1}"
 			if="${'net-1.1' == framework::get-target-framework()}" />
 	
+	<property name="csc.define" value="NET_1_1" />
+	<property name="csc.define" value="NET_2_0"
+			if="${2 == version::get-major(framework::get-version(framework::get-target-framework()))}" />
+	
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks">	
 	</target>
 	
@@ -380,7 +384,8 @@
 		<csc target="library"
 			output="${build.dir}/Boo.Lang.Compiler.dll"
 			debug="${debug}"
-			optimize="${optimize}">
+			optimize="${optimize}"
+			define="${csc.define}">
 			
 			<sources basedir="src/Boo.Lang.Compiler">
 				<include name="**/*.cs" />

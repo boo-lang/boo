@@ -2024,6 +2024,44 @@ namespace Boo.Lang.Compiler.Steps
 									tag));
 		}
 		
+		override public void LeaveGenericReferenceExpression(GenericReferenceExpression node)
+		{
+			CompilerError error = CheckGenericReferenceExpression(node);
+			if (null != error)
+			{
+				Error(node, error);
+				return;
+			}
+
+			IGenericTypeDefinition typeDef = (IGenericTypeDefinition) node.Target.Entity;
+			IType genericType = typeDef.MakeGenericType(GetGenericArguments(node));
+			Bind(node, genericType);
+			BindExpressionType(node, this.TypeSystemServices.TypeType);
+		}
+
+		private IType[] GetGenericArguments(GenericReferenceExpression node)
+		{
+			IType[] types = new IType[node.GenericArguments.Count];
+			for (int i = 0; i < node.GenericArguments.Count; ++i)
+			{
+				IType type = node.GenericArguments[i].Entity as IType;
+				types[i] = type;
+			}
+			return types;
+		}
+
+		CompilerError CheckGenericReferenceExpression(GenericReferenceExpression node)
+		{
+			IEntity entity = node.Target.Entity;
+			IGenericTypeDefinition typeDef = entity as IGenericTypeDefinition;
+			if (typeDef == null) return CompilerErrorFactory.NotAGenericDefinition(AstUtil.GetMemberAnchor(node.Target), entity.FullName);
+			
+			IGenericParameter[] parameters = typeDef.GetGenericParameters();
+			if (parameters.Length != node.GenericArguments.Count) return CompilerErrorFactory.GenericDefinitionArgumentCount(AstUtil.GetMemberAnchor(node.Target), entity.FullName, parameters.Length);
+			
+			return null;
+		}
+
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			if (null != node.ExpressionType)

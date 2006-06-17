@@ -146,7 +146,7 @@ namespace BooCompiler.Tests
 			return bool.Parse(value);
 		}
 		
-		protected void RunCompilerTestCase(string name)
+		protected virtual void RunCompilerTestCase(string name)
 		{					
 			string fname = GetTestCasePath(name);
 			_parameters.Input.Add(new FileInput(fname));

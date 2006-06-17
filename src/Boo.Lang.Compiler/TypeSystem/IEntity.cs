@@ -194,6 +194,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool IsAssignableFrom(IType other);
 	}
 	
+	public interface IGenericParameter : IEntity
+	{	
+	}
+	
+	public interface IGenericTypeDefinition : IType
+	{
+		IGenericParameter[] GetGenericParameters();
+		IType MakeGenericType(IType[] arguments);
+	}
+	
 	public interface ICallableType : IType
 	{
 		CallableSignature GetSignature();

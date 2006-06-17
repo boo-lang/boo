@@ -50,7 +50,7 @@ def WriteTestCases(writer as TextWriter, baseDir as string):
 		}
 		""")
 	print("${count} test cases found in ${baseDir}.")
-	
+
 def GenerateTestFixture(srcDir as string, targetFile as string, header as string):
 	using writer=StreamWriter(MapPath(targetFile)):
 		writer.Write(header)	
@@ -103,29 +103,8 @@ namespace BooCompiler.Tests
 	using Boo.Lang.Compiler;	
 
 	[TestFixture]
-	public class CompilerErrorsTestFixture : AbstractCompilerTestCase
+	public class CompilerErrorsTestFixture : AbstractCompilerErrorsTestFixture
 	{			
-		public class PrintErrors : Boo.Lang.Compiler.Pipelines.Compile
-		{
-			override public void Run(CompilerContext context)
-			{
-				base.Run(context);
-				RunStep(context, new Boo.Lang.Compiler.Steps.PrintErrors());
-			}
-		}
-		
-		protected override CompilerPipeline SetUpCompilerPipeline()
-		{
-			return new PrintErrors();
-		}
-		
-		protected override bool IgnoreErrors
-		{
-			get
-			{
-				return true;
-			}
-		}
 """)
 
 GenerateTestFixture("testcases/warnings", "build/CompilerWarningsTestFixture.cs", """
@@ -234,5 +213,32 @@ namespace BooCompiler.Tests
 		}
 """)
 
-
+GenerateTestFixture("testcases/net2/generics", "build/GenericsTestFixture.cs", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
 	
+	[TestFixture]		
+	public class GenericsTestFixture : AbstractCompilerTestCase
+	{
+		override protected void RunCompilerTestCase(string name)
+		{
+			if (System.Environment.Version.Major < 2) Assert.Ignore("Test requires .net 2.");
+			base.RunCompilerTestCase(name);
+		}
+""")
+
+GenerateTestFixture("testcases/net2/errors", "build/Net2ErrorsTestFixture.cs", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
+	
+	[TestFixture]		
+	public class Net2ErrorsTestFixture : AbstractCompilerErrorsTestFixture
+	{
+		override protected void RunCompilerTestCase(string name)
+		{
+			if (System.Environment.Version.Major < 2) Assert.Ignore("Test requires .net 2.");
+			base.RunCompilerTestCase(name);
+		}
+""")

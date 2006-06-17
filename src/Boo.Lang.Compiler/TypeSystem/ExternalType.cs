@@ -49,13 +49,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		string _fullName;
 		
-		internal ExternalType(TypeSystemServices manager, Type type)
+		internal ExternalType(TypeSystemServices tss, Type type)
 		{
 			if (null == type)
 			{
 				throw new ArgumentException("type");
 			}
-			_typeSystemServices = manager;
+			_typeSystemServices = tss;
 			_type = type;
 		}
 		
@@ -398,7 +398,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return 1;
 		}
 		
-		string BuildFullName()
+		protected virtual string BuildFullName()
 		{
 			if (_type.IsByRef) return "ref " + this.GetElementType().ToString();
 			if (_type.DeclaringType != null) return this.DeclaringType.ToString() + "." + _type.Name;
