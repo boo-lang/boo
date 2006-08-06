@@ -390,12 +390,18 @@ namespace Boo.Lang.Runtime
 				name = GetDefaultMemberName(type);
 			}
 			try
-			{
+			{	
 				return type.InvokeMember(name,
 								  SetPropertyBindingFlags,
 								  null,
 								  target,
 								  args);
+			}
+			catch (System.ArgumentException)
+			{
+				FieldInfo field = type.GetField(name);
+				if (null == field) throw;
+				return SetSlice(field.GetValue(target), "", args);
 			}
 			catch (TargetInvocationException x)
 			{

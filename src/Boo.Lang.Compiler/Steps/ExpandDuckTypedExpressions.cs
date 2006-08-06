@@ -171,8 +171,8 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						ProcessDuckSlicingPropertySet(node);
 					}
-				} else
-				if (TypeSystemServices.IsQuackBuiltin(node.Left))
+				}
+				else if (TypeSystemServices.IsQuackBuiltin(node.Left))
 				{
 					ProcessQuackPropertySet(node);
 				}
