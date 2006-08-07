@@ -390,25 +390,76 @@ namespace Boo.Lang.Runtime
 				name = GetDefaultMemberName(type);
 			}
 			try
-			{	
-				return type.InvokeMember(name,
-								  SetPropertyBindingFlags,
-								  null,
-								  target,
-								  args);
-			}
-			catch (System.ArgumentException)
 			{
-				FieldInfo field = type.GetField(name);
-				if (null == field) throw;
-				return SetSlice(field.GetValue(target), "", args);
+				MemberInfo[] found = type.GetMember(name, DefaultBindingFlags);
+				if (null == found || 0 == found.Length)
+				{
+					throw new System.MissingMemberException(type.FullName, name);
+				}
+
+				MemberInfo member = SelectSetSliceMember(found, ref args);
+				switch (member.MemberType)
+				{
+					case MemberTypes.Field:
+					{
+						FieldInfo field = (FieldInfo) member;
+						SetSlice(field.GetValue(target), "", args);
+						break;
+					}
+					case MemberTypes.Method:
+					{
+						MethodInfo method = (MethodInfo) member;
+						method.Invoke(target, args);
+						break;
+					}
+					case MemberTypes.Property:
+					{
+						GetSetMethod((PropertyInfo) member).Invoke(target, args);
+						break;
+					}
+				default:
+					{
+						MemberNotSupported(member);
+						break;
+					}
+				}
+				// last argument is the value
+				return args[args.Length-1];
 			}
 			catch (TargetInvocationException x)
 			{
-				throw x.InnerException;
+				OnTargetInvocationExceptionThrown(x);
+				throw;
 			}
 		}
-		
+
+		private static void MemberNotSupported(MemberInfo member)
+		{
+			throw new ArgumentException(string.Format("Member not supported: {0}", member));
+		}
+
+		private static MemberInfo SelectSetSliceMember(MemberInfo[] found, ref object[] args)
+		{
+			if (1 == found.Length) return found[0];
+			MethodBase[] candidates = new MethodBase[found.Length];
+			for (int i = 0; i < found.Length; ++i)
+			{
+				MemberInfo member = found[i];
+				PropertyInfo property = member as PropertyInfo;
+				if (null == property) MemberNotSupported(member);
+				candidates[i] = GetSetMethod(property);
+			}
+			object state = null;
+			return Type.DefaultBinder.BindToMethod(DefaultBindingFlags | BindingFlags.OptionalParamBinding, candidates, ref args, null, null, null, out state);
+		}
+
+		private static MethodInfo GetSetMethod(PropertyInfo property)
+		{
+			MethodInfo method = property.GetSetMethod(true);
+			if (null == method) MemberNotSupported(property);
+			return method;
+		}
+
 		private static String GetDefaultMemberName(Type type)
 		{
 			DefaultMemberAttribute attribute = (DefaultMemberAttribute)Attribute.GetCustomAttribute(type, typeof(DefaultMemberAttribute));
