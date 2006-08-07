@@ -363,17 +363,43 @@ namespace Boo.Lang.Runtime
 			}
 			try
 			{
-				return type.InvokeMember(name,
-								  GetPropertyBindingFlags,
-								  null,
-								  target,
-								  args);
+				MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Get);
+				switch (member.MemberType)
+				{
+					case MemberTypes.Field:
+						{
+							FieldInfo field = (FieldInfo)member;
+							return GetSlice(field.GetValue(target), "", args);
+						}
+					case MemberTypes.Method:
+						{
+							MethodInfo method = (MethodInfo)member;
+							return method.Invoke(target, args);
+						}
+					case MemberTypes.Property:
+						{
+							return GetGetMethod((PropertyInfo)member).Invoke(target, args);
+						}
+					default:
+						{
+							MemberNotSupported(member);
+							break;
+						}
+				}
 			}
 			catch (TargetInvocationException x)
 			{
 				OnTargetInvocationExceptionThrown(x);
 				throw;
 			}
+			return null;
+		}
+
+		private static MethodInfo GetGetMethod(PropertyInfo property)
+		{
+			MethodInfo method = property.GetGetMethod(true);
+			if (null == method) MemberNotSupported(property);
+			return method;
 		}
 
 		public static object SetSlice(object target, string name, object[] args)
@@ -391,13 +417,7 @@ namespace Boo.Lang.Runtime
 			}
 			try
 			{
-				MemberInfo[] found = type.GetMember(name, DefaultBindingFlags);
-				if (null == found || 0 == found.Length)
-				{
-					throw new System.MissingMemberException(type.FullName, name);
-				}
-
-				MemberInfo member = SelectSetSliceMember(found, ref args);
+				MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Set);
 				switch (member.MemberType)
 				{
 					case MemberTypes.Field:
@@ -433,12 +453,24 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
+		private static MemberInfo[] GetMember(Type type, string name)
+		{
+			MemberInfo[] found = type.GetMember(name, DefaultBindingFlags);
+			if (null == found || 0 == found.Length)
+			{
+				throw new System.MissingMemberException(type.FullName, name);
+			}
+			return found;
+		}
+
 		private static void MemberNotSupported(MemberInfo member)
 		{
 			throw new ArgumentException(string.Format("Member not supported: {0}", member));
 		}
 
-		private static MemberInfo SelectSetSliceMember(MemberInfo[] found, ref object[] args)
+		enum SetOrGet { Set, Get };
+		
+		private static MemberInfo SelectSliceMember(MemberInfo[] found, ref object[] args, SetOrGet sliceKind)
 		{
 			if (1 == found.Length) return found[0];
 			MethodBase[] candidates = new MethodBase[found.Length];
@@ -447,7 +479,8 @@ namespace Boo.Lang.Runtime
 				MemberInfo member = found[i];
 				PropertyInfo property = member as PropertyInfo;
 				if (null == property) MemberNotSupported(member);
-				candidates[i] = GetSetMethod(property);
+				MethodInfo method = sliceKind == SetOrGet.Get ? GetGetMethod(property) : GetSetMethod(property);
+				candidates[i] = method;
 			}
 			object state = null;
 			return Type.DefaultBinder.BindToMethod(DefaultBindingFlags | BindingFlags.OptionalParamBinding, candidates, ref args, null, null, null, out state);
