@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" xmlns:Conversion="urn:Conversion">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -7,17 +7,12 @@
     <RootNamespace>Boo.Lang.CodeDom</RootNamespace>
     <AssemblyName>Boo.Lang.CodeDom</AssemblyName>
     <OutputType>Library</OutputType>
-    <ApplicationIcon />
     <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
-    <PreBuildEvent />
-    <PostBuildEvent />
-    <StartupObject />
     <NoConfig>false</NoConfig>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <NoStdLib>false</NoStdLib>
     <WarningLevel>4</WarningLevel>
-    <NoWarn />
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -29,7 +24,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <NoStdLib>false</NoStdLib>
     <WarningLevel>4</WarningLevel>
-    <NoWarn />
     <DebugSymbols>false</DebugSymbols>
     <Optimize>true</Optimize>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -41,35 +35,28 @@
   <ItemGroup>
     <Reference Include="System">
       <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.dll</HintPath>
-      <Private />
     </Reference>
     <Reference Include="System.Data">
       <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.Data.dll</HintPath>
-      <Private />
     </Reference>
     <Reference Include="System.Xml">
       <HintPath>..\..\..\..\WINNT\Microsoft.NET\Framework\v1.1.4322\System.XML.dll</HintPath>
-      <Private />
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="BooCodeCompiler.cs" />
-    <Compile Include="BooCodeGenerator.cs" />
-    <Compile Include="BooCodeProvider.cs" />
-  </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="C:\Boo\stable\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
       <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
       <Name>Boo.Lang.Compiler</Name>
-      <Private />
     </ProjectReference>
     <ProjectReference Include="C:\Boo\stable\src\Boo.Lang\Boo.Lang.csproj">
       <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
       <Name>Boo.Lang</Name>
-      <Private />
     </ProjectReference>
+    <Content Include="AssemblyInfo.boo" />
+    <Content Include="BooCodeCompiler.boo" />
+    <Content Include="BooCodeGenerator.boo" />
+    <Content Include="BooCodeProvider.boo" />
+    <Content Include="Extensions.boo" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

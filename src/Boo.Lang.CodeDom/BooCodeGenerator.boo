@@ -343,11 +343,13 @@ class BooCodeGenerator(CodeGenerator):
 		EndBlock()
 		
 	protected override def GenerateConstructor(e as CodeConstructor, c as CodeTypeDeclaration) :
+		e.Attributes |= MemberAttributes.Final
 		Method(e, "constructor")
 		
 
 	protected override def GenerateTypeConstructor(e as CodeTypeConstructor) :		
 		e.Attributes |= MemberAttributes.Static
+		e.Attributes |= MemberAttributes.Public
 		e.Parameters.Clear()
 		Method(e, "constructor")
 
@@ -540,7 +542,7 @@ class BooCodeGenerator(CodeGenerator):
 	def passcheck(stuff as ICollection):
 		return if stuff.IsValid()
 		if not AsBool(Options["WhiteSpaceAgnostic"]):
-			Output.Write("pass")
+			Output.WriteLine("pass")
 		
 	override def OutputTypeNamePair(type as CodeTypeReference, name as string):
 		Output.Write("${name} as ")
