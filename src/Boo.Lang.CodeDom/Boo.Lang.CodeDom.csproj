@@ -44,6 +44,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="BooCodeCompiler.boo" />
+    <Compile Include="BooCodeGenerator.boo" />
+    <Compile Include="BooCodeProvider.boo" />
+    <Compile Include="Extensions.boo" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="C:\Boo\stable\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
       <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
       <Name>Boo.Lang.Compiler</Name>
@@ -52,11 +59,6 @@
       <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
       <Name>Boo.Lang</Name>
     </ProjectReference>
-    <Content Include="AssemblyInfo.boo" />
-    <Content Include="BooCodeCompiler.boo" />
-    <Content Include="BooCodeGenerator.boo" />
-    <Content Include="BooCodeProvider.boo" />
-    <Content Include="Extensions.boo" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
