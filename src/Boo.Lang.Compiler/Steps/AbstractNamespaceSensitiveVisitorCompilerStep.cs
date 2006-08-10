@@ -62,6 +62,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EnterNamespace((INamespace)GetEntity(module));
 			VisitTypeDefinitionBody(module);
+			Visit(module.AssemblyAttributes);
 			LeaveNamespace();
 		}
 
