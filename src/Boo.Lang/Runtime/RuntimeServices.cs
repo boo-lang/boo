@@ -334,6 +334,14 @@ namespace Boo.Lang.Runtime
 			}
 		}
 		
+		public static object DuckImplicitCast(object value, Type toType)
+		{
+			if (value == null) return null;
+			MethodInfo method = FindImplicitConversionOperator(value.GetType(), toType);
+			if (null == method) return value;
+			return method.Invoke(null, new object[] {value});
+		}
+		
 		private static void OnTargetInvocationExceptionThrown(TargetInvocationException x)
 		{
 			TargetInvocationExceptionAction action = _defaultTargetInvocationExceptionAction;

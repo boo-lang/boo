@@ -75,6 +75,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		static MethodInfo RuntimeServices_ToBool_Decimal = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Decimal });
 
+		static MethodInfo RuntimeServices_DuckImplicitCast = Types.RuntimeServices.GetMethod("DuckImplicitCast", new Type[] { Types.Object, Types.Type });
+
 		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
 		
 		static MethodInfo Builtins_ArrayTypedCollectionConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection });
@@ -3280,6 +3282,8 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
+					EmitDuckImplicitCastIfNeeded(expectedType, actualType);
+
 					_context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
 					_il.Emit(OpCodes.Castclass, GetSystemType(expectedType));
 				}
@@ -3287,6 +3291,16 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				EmitBoxIfNeeded(expectedType, actualType);
+			}
+		}
+
+		private void EmitDuckImplicitCastIfNeeded(IType expectedType, IType actualType)
+		{
+			if (TypeSystemServices.IsDuckType(actualType))
+			{
+				EmitGetTypeFromHandle(GetSystemType(expectedType));
+				PopType();
+				_il.EmitCall(OpCodes.Call, RuntimeServices_DuckImplicitCast, null);
 			}
 		}
 
