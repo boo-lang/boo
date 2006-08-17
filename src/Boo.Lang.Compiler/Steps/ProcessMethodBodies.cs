@@ -1727,7 +1727,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnGeneratorExpression(GeneratorExpression node)
 		{
 			Visit(node.Iterator);
-			
 			node.Iterator = ProcessIterator(node.Iterator, node.Declarations);
 			
 			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));
@@ -2518,7 +2517,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		Expression GetCorrectIterator(Expression iterator)
+		protected Expression GetCorrectIterator(Expression iterator)
 		{
 			IType type = GetExpressionType(iterator);
 			if (TypeSystemServices.IsError(type))
@@ -2575,7 +2574,7 @@ namespace Boo.Lang.Compiler.Steps
 		/// Process a iterator and its declarations and returns a new iterator
 		/// expression if necessary.
 		/// </summary>
-		Expression ProcessIterator(Expression iterator, DeclarationCollection declarations)
+		protected Expression ProcessIterator(Expression iterator, DeclarationCollection declarations)
 		{
 			iterator = GetCorrectIterator(iterator);
 			ProcessDeclarationsForIterator(declarations, GetExpressionType(iterator));
@@ -2590,14 +2589,22 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnForStatement(ForStatement node)
 		{
 			Visit(node.Iterator);
-			
 			node.Iterator = ProcessIterator(node.Iterator, node.Declarations);
-			
-			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));
+			VisitForStatementBlock(node);
+		}
+
+		protected void VisitForStatementBlock(ForStatement node)
+		{
+			EnterForNamespace(node);
 			Visit(node.Block);
 			LeaveNamespace();
 		}
-		
+
+		private void EnterForNamespace(ForStatement node)
+		{
+			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));
+		}
+
 		override public void OnUnpackStatement(UnpackStatement node)
 		{
 			Visit(node.Expression);
@@ -5141,7 +5148,7 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.GetEnumeratorItemType(iteratorType);
 		}
 		
-		void ProcessDeclarationsForIterator(DeclarationCollection declarations, IType iteratorType)
+		protected void ProcessDeclarationsForIterator(DeclarationCollection declarations, IType iteratorType)
 		{
 			IType defaultDeclType = GetEnumeratorItemType(iteratorType);
 			if (declarations.Count > 1)
