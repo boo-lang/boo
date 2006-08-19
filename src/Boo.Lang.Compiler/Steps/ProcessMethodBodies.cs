@@ -5143,7 +5143,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		IType GetEnumeratorItemType(IType iteratorType)
+		protected IType GetEnumeratorItemType(IType iteratorType)
 		{
 			return TypeSystemServices.GetEnumeratorItemType(iteratorType);
 		}
@@ -5159,9 +5159,14 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (Declaration d in declarations)
 			{
-				ProcessDeclarationType(defaultDeclType, d);
-				DeclareLocal(d, true);
+				ProcessDeclarationForIterator(d, defaultDeclType);
 			}
+		}
+
+		protected void ProcessDeclarationForIterator(Declaration d, IType defaultDeclType)
+		{
+			ProcessDeclarationType(defaultDeclType, d);
+			DeclareLocal(d, true);
 		}
 
 		protected virtual bool AssertLValue(Node node)
