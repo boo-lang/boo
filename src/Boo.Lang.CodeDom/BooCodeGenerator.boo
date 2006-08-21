@@ -189,6 +189,9 @@ class BooCodeGenerator(CodeGenerator):
 		Output.WriteLine()
 
 	protected override def GenerateMethodReturnStatement(e as CodeMethodReturnStatement) :
+		if e.Expression is null:
+			Output.WriteLine("return")			
+			return
 		Output.Write("return ")
 		GenerateExpression(e.Expression)
 		Output.WriteLine()
