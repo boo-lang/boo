@@ -41,6 +41,10 @@ class TemplateCompilerTestFixture:
 		templateType = results.GeneratedAssembly.GetType(compiler.TemplateClassName)		
 		assert templateType is not null
 		assert compiler.TemplateBaseClass is templateType.BaseType
+		assert 1 == len(templateType.GetConstructors())
+		ctor = templateType.GetConstructors()[0]
+		assert ctor.IsPublic
+		assert 0 == len(ctor.GetParameters())
 		
 		template as ITemplate = templateType()
 		template.Output = StringWriter()

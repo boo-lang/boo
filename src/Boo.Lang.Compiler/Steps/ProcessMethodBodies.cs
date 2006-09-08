@@ -3436,51 +3436,50 @@ namespace Boo.Lang.Compiler.Steps
 			if ((node.Arguments.Count < 1) || (node.Arguments.Count > 2))
   			{
  				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "len", node.Arguments.Count));
+				return;
   			}
-			else
+
+			MethodInvocationExpression resultingNode = null;
+			
+			Expression target = node.Arguments[0];
+			IType type = GetExpressionType(target);
+			bool isArray = TypeSystemServices.ArrayType.IsAssignableFrom(type);
+			
+			if ((!isArray) && (node.Arguments.Count != 1))
 			{
-				MethodInvocationExpression resultingNode = null;
-				
-				Expression target = node.Arguments[0];
-				IType type = GetExpressionType(target);
-				bool isArray = TypeSystemServices.ArrayType.IsAssignableFrom(type);
-				
-				if ((!isArray) && (node.Arguments.Count != 1))
+				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "len", node.Arguments.Count));
+			}
+			if (TypeSystemServices.IsSystemObject(type))
+			{
+				resultingNode = CodeBuilder.CreateMethodInvocation(RuntimeServices_Len, target);
+			}
+			else if (TypeSystemServices.StringType == type)
+			{
+				resultingNode = CodeBuilder.CreateMethodInvocation(target, String_get_Length);
+			}
+			else if (isArray)
+			{
+				if (node.Arguments.Count == 1)
 				{
-					Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "len", node.Arguments.Count));
-				}
-				if (TypeSystemServices.IsSystemObject(type))
-				{
-					resultingNode = CodeBuilder.CreateMethodInvocation(RuntimeServices_Len, target);
-				}
-				else if (TypeSystemServices.StringType == type)
-				{
-					resultingNode = CodeBuilder.CreateMethodInvocation(target, String_get_Length);
-				}
-				else if (isArray)
-				{
-					if (node.Arguments.Count == 1)
-					{
-						resultingNode = CodeBuilder.CreateMethodInvocation(target, Array_get_Length);
-					}
-					else
-					{
-						resultingNode = CodeBuilder.CreateMethodInvocation(target,
-								Array_GetLength, node.Arguments[1]);
-					}
-				}
-				else if (TypeSystemServices.ICollectionType.IsAssignableFrom(type))
-				{
-					resultingNode = CodeBuilder.CreateMethodInvocation(target, ICollection_get_Count);
+					resultingNode = CodeBuilder.CreateMethodInvocation(target, Array_get_Length);
 				}
 				else
 				{
-					Error(CompilerErrorFactory.InvalidLen(target, type.ToString()));
+					resultingNode = CodeBuilder.CreateMethodInvocation(target,
+							Array_GetLength, node.Arguments[1]);
 				}
-				if (null != resultingNode)
-				{
-					node.ParentNode.Replace(node, resultingNode);
-				}
+			}
+			else if (TypeSystemServices.ICollectionType.IsAssignableFrom(type))
+			{
+				resultingNode = CodeBuilder.CreateMethodInvocation(target, ICollection_get_Count);
+			}
+			else
+			{
+				Error(CompilerErrorFactory.InvalidLen(target, type.ToString()));
+			}
+			if (null != resultingNode)
+			{
+				node.ParentNode.Replace(node, resultingNode);
 			}
 		}
 		
@@ -4023,26 +4022,28 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (TypeSystemServices.TypeType == type)
 			{
-				Expression targetType = node.Target;
-				
-				node.Target = new ReferenceExpression(targetType.LexicalInfo,
-											"System.Activator.CreateInstance");
-										
-				ArrayLiteralExpression args = CodeBuilder.CreateObjectArray(node.Arguments);
-				
-				node.Arguments.Clear();
-				node.Arguments.Add(targetType);
-				node.Arguments.Add(args);
-				
-				Bind(node.Target, Activator_CreateInstance);
-				BindExpressionType(node, Activator_CreateInstance.ReturnType);
+				ProcessSystemTypeInvocation(node);
 			}
 			else
 			{
 				ProcessInvocationOnUnknownCallableExpression(node);
 			}
 		}
-		
+
+		private void ProcessSystemTypeInvocation(MethodInvocationExpression node)
+		{
+			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(Activator_CreateInstance, node.Target);
+			if (Activator_CreateInstance.AcceptVarArgs)
+			{
+				invocation.Arguments.Extend(node.Arguments);
+			}
+			else
+			{
+				invocation.Arguments.Add(CodeBuilder.CreateObjectArray(node.Arguments));
+			}
+			node.ParentNode.Replace(node, invocation);
+		}
+
 		protected virtual void ProcessInvocationOnUnknownCallableExpression(MethodInvocationExpression node)
 		{
 			NotImplemented(node, "Method invocation on type '" + node.Target.ExpressionType + "'.");
@@ -5538,7 +5539,7 @@ namespace Boo.Lang.Compiler.Steps
 				return _Activator_CreateInstance;
 			}
 		}
-		
+
 		IConstructor _ApplicationException_StringConstructor;
 		
 		IConstructor ApplicationException_StringConstructor

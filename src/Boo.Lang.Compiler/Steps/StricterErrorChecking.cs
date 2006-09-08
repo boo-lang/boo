@@ -164,8 +164,6 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			if (!IsLastArgumentOfVarArgInvocation(node))
 			{
-				Console.WriteLine(node.ParentNode);
-				Console.WriteLine(((MethodInvocationExpression)node.ParentNode).Target.Entity);
 				Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
 			}
 		}
@@ -176,8 +174,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == parent) return false;
 			if (parent.Arguments.Count == 0 || node != parent.Arguments[-1]) return false;
 			ICallableType type = parent.Target.ExpressionType as ICallableType;
-			if (null == type) return false;
-			return type.GetSignature().AcceptVarArgs;
+			if (null != type) return type.GetSignature().AcceptVarArgs;
+			
+			IMethod method = TypeSystemServices.GetOptionalEntity(parent.Target) as IMethod;
+			return null != method && method.AcceptVarArgs;
 		}
 		
 		bool IsTypeReference(Expression node)

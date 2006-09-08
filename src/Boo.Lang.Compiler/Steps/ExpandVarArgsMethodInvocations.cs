@@ -45,11 +45,23 @@ namespace Boo.Lang.Compiler.Steps
 		public override void LeaveMethodInvocationExpression(Boo.Lang.Compiler.Ast.MethodInvocationExpression node)
 		{
 			ICallableType callable = node.Target.ExpressionType as ICallableType;
-			if (callable == null) return;
-
-			CallableSignature signature = callable.GetSignature();
-			if (!signature.AcceptVarArgs) return;
+			if (callable != null)
+			{
+				CallableSignature signature = callable.GetSignature();
+				if (!signature.AcceptVarArgs) return;
+				
+				ExpandInvocation(node, signature.Parameters);
+				return;
+			}
 			
+			IMethod method = TypeSystemServices.GetOptionalEntity(node.Target) as IMethod;
+			if (null == method || !method.AcceptVarArgs) return;
+			
+			ExpandInvocation(node, method.GetParameters());
+		}
+		
+		private void ExpandInvocation(MethodInvocationExpression node, IParameter[] parameters)
+		{
 			if (node.Arguments.Count > 0 &&
 				AstUtil.IsExplodeExpression(node.Arguments[-1]))
 			{
@@ -58,7 +70,6 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IParameter[] parameters = signature.Parameters;
 			int lenMinusOne = parameters.Length-1;
 			IType varArgType = parameters[lenMinusOne].Type;
 
