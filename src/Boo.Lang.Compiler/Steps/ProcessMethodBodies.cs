@@ -4256,22 +4256,15 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		virtual protected void ProcessAssignment(BinaryExpression node)
-		{	
-			IEntity lhs = node.Left.Entity;
-			if (null != lhs && EntityType.Ambiguous == lhs.EntityType)
-			{
-				Expression lvalue = node.Left;
-				lhs = ResolveAmbiguousLValue(lvalue,  (Ambiguous)lhs, node.Right);
-				if (NodeType.ReferenceExpression == lvalue.NodeType)
-				{
-					IMember member = lhs as IMember;
-					if (null != member)
-					{
-						ResolveMemberInfo((ReferenceExpression) lvalue,  member);
-					}
-				}
-			}
+		{
+			TryToResolveAmbiguousAssignment(node);
+			ValidateAssignment(node);
+			BindExpressionType(node, GetExpressionType(node.Right));
+		}
 
+		virtual protected void ValidateAssignment(BinaryExpression node)
+		{
+			IEntity lhs = node.Left.Entity;
 			IType rtype = GetExpressionType(node.Right);
 			if (AssertLValue(node.Left, lhs))
 			{
@@ -4279,7 +4272,24 @@ namespace Boo.Lang.Compiler.Steps
 				AssertTypeCompatibility(node.Right, lhsType, rtype);
 				CheckAssignmentToIndexedProperty(node.Left, lhs);
 			}
-			BindExpressionType(node, rtype);
+		}
+
+		virtual protected void TryToResolveAmbiguousAssignment(BinaryExpression node)
+		{
+			IEntity lhs = node.Left.Entity;
+			if (null == lhs) return;
+			if (EntityType.Ambiguous != lhs.EntityType) return;
+			
+			Expression lvalue = node.Left;
+			lhs = ResolveAmbiguousLValue(lvalue, (Ambiguous)lhs, node.Right);
+			if (NodeType.ReferenceExpression == lvalue.NodeType)
+			{
+				IMember member = lhs as IMember;
+				if (null != member)
+				{
+					ResolveMemberInfo((ReferenceExpression)lvalue, member);
+				}
+			}
 		}
 
 		private void CheckAssignmentToIndexedProperty(Node node, IEntity lhs)
