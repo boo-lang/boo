@@ -78,8 +78,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				base.ProcessAssignment(node);
+				ProcessStaticallyTypedAssignment(node);
 			}
+		}
+
+		virtual protected void ProcessStaticallyTypedAssignment(BinaryExpression node)
+		{
+			base.ProcessAssignment(node);
 		}
 
 		protected override bool ShouldRebindMember(IEntity entity)
@@ -172,7 +177,7 @@ namespace Boo.Lang.Compiler.Steps
 			base.CheckBuiltinUsage(node, entity);
 		}
 
-		private void BindDuck(Expression node)
+		protected void BindDuck(Expression node)
 		{
 			BindExpressionType(node, TypeSystemServices.DuckType);
 		}
