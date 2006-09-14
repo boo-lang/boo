@@ -315,7 +315,15 @@ class BooCodeGenerator(CodeGenerator):
 		
 	protected override def GenerateMethod(e as CodeMemberMethod, c as CodeTypeDeclaration) :
 		Method(e, e.Name)
-		
+	
+	protected override def GeneratePrimitiveExpression(e as CodePrimitiveExpression) :
+		if e.Value isa char:
+			Output.Write("char(")
+			super.GeneratePrimitiveExpression(e)
+			Output.Write(")")
+		else:
+			super.GeneratePrimitiveExpression(e)
+	
 	protected override def GenerateProperty(e as CodeMemberProperty, c as CodeTypeDeclaration) :		
 		ModifiersAndAttributes(e)
 		
