@@ -2522,12 +2522,8 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case TypeCode.UInt32:
 					{
-						uint uValue = (uint)value;
-						if (uValue > int.MaxValue)
-						{
-							_il.Emit(OpCodes.Ldc_I8, (long)uValue);
-						}
-						else
+                        uint uValue = (uint)value;
+						unchecked
 						{
 							_il.Emit(OpCodes.Ldc_I4, (int)uValue);
 						}
@@ -2544,7 +2540,7 @@ namespace Boo.Lang.Compiler.Steps
 					case TypeCode.UInt64:
 					{
 						ulong uValue = (ulong)value;
-						checked
+						unchecked
 						{
 							_il.Emit(OpCodes.Ldc_I8, (long)uValue);
 						}

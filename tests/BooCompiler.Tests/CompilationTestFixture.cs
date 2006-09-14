@@ -277,6 +277,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void StaticLiteralField()
+		{
+			RunCompilerTestCase("static_literalfield0.boo");
+		}
+		
+		[Test]
 		public void StaticConstructorIsCalledBeforeFirstStaticFieldAccess()
 		{
 			RunCompilerTestCase("static_constructor0.boo");
