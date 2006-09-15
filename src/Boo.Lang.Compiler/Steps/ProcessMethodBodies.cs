@@ -3547,27 +3547,31 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, Ambiguous entity)
 		{
 			_context.TraceVerbose("{0}: resolving ambigous method invocation: {1}", node.LexicalInfo, entity);
-			
-			IEntity[] entities = entity.Entities;
-			IEntity resolved = _callableResolution.ResolveCallableReference(node.Arguments, entities);
-			if (null != resolved)
-			{
-				IMember member = (IMember)resolved;
-				if (NodeType.ReferenceExpression == node.Target.NodeType)
-				{
-					ResolveMemberInfo((ReferenceExpression)node.Target, member);
-				}
-				else
-				{
-					Bind(node.Target, member);
-					BindExpressionType(node.Target, member.Type);
-				}
-				return resolved;
-			}
+
+			IEntity resolved = ResolveCallableReference(node, entity);
+			if (null != resolved) return resolved;
 
 			if (TryToProcessAsExtensionInvocation(node)) return null;
 			
-			return CantResolveAmbiguousMethodInvocation(node, entities);
+			return CantResolveAmbiguousMethodInvocation(node, entity.Entities);
+		}
+
+		private IEntity ResolveCallableReference(MethodInvocationExpression node, Ambiguous entity)
+		{
+			IEntity resolved = _callableResolution.ResolveCallableReference(node.Arguments, entity.Entities);
+			if (null == resolved) return null;
+			
+			IMember member = (IMember)resolved;
+			if (NodeType.ReferenceExpression == node.Target.NodeType)
+			{
+				ResolveMemberInfo((ReferenceExpression)node.Target, member);
+			}
+			else
+			{
+				Bind(node.Target, member);
+				BindExpressionType(node.Target, member.Type);
+			}
+			return resolved;
 		}
 
 		private bool TryToProcessAsExtensionInvocation(MethodInvocationExpression node)
@@ -3747,7 +3751,7 @@ namespace Boo.Lang.Compiler.Steps
 			PreNormalizeExtensionInvocation(node);
 			if (EntityType.Ambiguous == targetEntity.EntityType)
 			{
-				targetEntity = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetEntity);
+				targetEntity = ResolveAmbiguousExtension(node, (Ambiguous)targetEntity);
 				if (null == targetEntity) return;
 			}
 			IMethod targetMethod = (IMethod)targetEntity;
@@ -3755,6 +3759,14 @@ namespace Boo.Lang.Compiler.Steps
 			NamedArgumentsNotAllowed(node);
 			AssertParameters(node, targetMethod, node.Arguments);
 			BindExpressionType(node, targetMethod.ReturnType);
+		}
+
+		private IEntity ResolveAmbiguousExtension(MethodInvocationExpression node, Ambiguous ambiguous)
+		{
+			IEntity resolved = ResolveCallableReference(node, ambiguous);
+			if (null != resolved) return resolved;
+			CantResolveAmbiguousMethodInvocation(node, ambiguous.Entities);
+			return null;
 		}
 
 		private bool IsOrContainsExtensionMethod(IEntity entity)
