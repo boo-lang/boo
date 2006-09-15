@@ -126,15 +126,16 @@ def Main(argv as (string)) as int:
 		try: 
 			resolver.AddAssembly(result.GeneratedAssembly)
 			main = result.GeneratedAssembly.EntryPoint
+			Environment.ExitCode = DefaultSuccessCode
 			if len(main.GetParameters()) > 0:
 				returnValue = main.Invoke(null, (argv[consumedArgs:],))
 			else:
 				returnValue = main.Invoke(null, null)
-			return returnValue if returnValue is not null
+			Environment.ExitCode = returnValue if returnValue is not null
 		except x as TargetInvocationException:
 			print(x.InnerException)
 			return DefaultErrorCode
-	return DefaultSuccessCode
+	return Environment.ExitCode
 	
 [assembly: SecurityPermission(
 						SecurityAction.RequestMinimum,
