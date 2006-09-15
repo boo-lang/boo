@@ -48,6 +48,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType MakeGenericType(IType[] arguments)
 		{
+			return _typeSystemServices.Map(ActualType.MakeGenericType(ToSystemType(arguments)));
+		}
+
+		private Type[] ToSystemType(IType[] arguments)
+		{
 			Type[] externalTypes = new Type[arguments.Length];
 			for (int i = 0; i < arguments.Length; ++i)
 			{
@@ -55,7 +60,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (null == externalType) throw new NotImplementedException("only generics for externally defined types for now");
 				externalTypes[i] = externalType.ActualType;
 			}
-			return _typeSystemServices.Map(ActualType.MakeGenericType(externalTypes));
+			return externalTypes;
 		}
 
 		protected override string BuildFullName()
