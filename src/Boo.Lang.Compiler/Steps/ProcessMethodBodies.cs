@@ -461,7 +461,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void AddInitializerToStaticConstructor(TypeDefinition type, InternalMethod initializer)
 		{
-			GetStaticConstructor(type).Body.Add(
+			GetStaticConstructor(type).Body.Insert(0,
 						CodeBuilder.CreateMethodInvocation(initializer));
 		}
 		
