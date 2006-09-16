@@ -75,7 +75,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			throw new NotImplementedException();
 		}
 		
-		IGenericType IGenericConstructedType.GetGenericTypeDefinition()
+		IGenericTypeDefinition IGenericType.GetGenericTypeDefinition()
 		{
 			throw new NotImplementedException();
 		}

@@ -1354,6 +1354,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
+#if NET_2_0
 		IType GetEnumeratorItemTypeFromGenericEnumerable(IType iteratorType)
 		{			
 			IGenericTypeDefinition genericEnumerable =
@@ -1405,6 +1406,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				type = type.BaseType;
 			}
 		}
+#endif
 						                                         
 		public virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
