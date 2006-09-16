@@ -26,57 +26,64 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.TypeSystem
 {
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-	
-	public class ResolveTypeReferences : AbstractNamespaceSensitiveVisitorCompilerStep
+	using System;
+
+	public class ExternalGenericType : ExternalType, IGenericType
 	{
-		public ResolveTypeReferences()
-		{
-		}
-
-		override public void Run()
-		{
-			Visit(CompileUnit.Modules);
-		}
-
-		override public void OnArrayTypeReference(ArrayTypeReference node)
-		{
-			NameResolutionService.ResolveArrayTypeReference(node);
-		}
+		IType[] _arguments = null;
+		bool _constructed;
 		
-		override public void OnSimpleTypeReference(SimpleTypeReference node)
+#if NET_2_0
+		public ExternalGenericType(TypeSystemServices tss, Type type) : base(tss, type)
 		{
-			NameResolutionService.ResolveSimpleTypeReference(node);
-		}
+			_constructed = !type.ContainsGenericParameters;
+		}		
 
-		override public void OnGenericTypeReference(GenericTypeReference node)
+		public IType[] GetGenericArguments()
 		{
-			NameResolutionService.ResolveSimpleTypeReference(node);
-		}
-		
-		override public void LeaveCallableTypeReference(CallableTypeReference node)
-		{
-			IParameter[] parameters = new IParameter[node.Parameters.Count];
-			for (int i=0; i<parameters.Length; ++i)
+			if (_arguments == null)
 			{
-				parameters[i] = new InternalParameter(node.Parameters[i], i);
+				Type[] actualArguments = ActualType.GetGenericArguments();
+				_arguments = new IType[actualArguments.Length];
+				
+				Converter<Type, IType> map = _typeSystemServices.Map;
+				_arguments = Array.ConvertAll(actualArguments, map);
 			}
 			
-			IType returnType = null;
-			if (null != node.ReturnType)
-			{
-				returnType = GetType(node.ReturnType);
-			}
-			else
-			{
-				returnType = TypeSystemServices.VoidType;
-			}
-			
-			node.Entity = TypeSystemServices.GetConcreteCallableType(node, new CallableSignature(parameters, returnType));
+			return _arguments;
 		}
+		
+		public IGenericTypeDefinition GetGenericTypeDefinition()
+		{
+			return (IGenericTypeDefinition)_typeSystemServices.Map(ActualType.GetGenericTypeDefinition());
+		}
+		
+		public bool FullyConstructed
+		{
+			get { return _constructed; }
+		}		
 
+#else
+		public ExternalGenericType(TypeSystemServices tss, Type type) : base(tss, type)
+		{
+		}		
+
+		IType[] IGenericType.GetGenericArguments()
+		{
+			throw new NotImplementedException();
+		}
+		
+		IGenericType IGenericConstructedType.GetGenericTypeDefinition()
+		{
+			throw new NotImplementedException();
+		}
+		
+		bool IGenericType.FullyConstructed
+		{
+			get { throw new NotImplementedException(); }
+		}
+#endif
 	}
 }

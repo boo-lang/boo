@@ -2036,6 +2036,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType genericType = typeDef.MakeGenericType(GetGenericArguments(node));
 			Bind(node, genericType);
 			BindExpressionType(node, this.TypeSystemServices.TypeType);
+			
 		}
 
 		private IType[] GetGenericArguments(GenericReferenceExpression node)

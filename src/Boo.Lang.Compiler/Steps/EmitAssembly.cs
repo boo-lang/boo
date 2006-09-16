@@ -2575,6 +2575,25 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void OnGenericReferenceExpression(GenericReferenceExpression node)
+		{
+			IEntity tag = TypeSystem.TypeSystemServices.GetEntity(node);
+			switch (tag.EntityType)
+			{
+				case EntityType.Type:
+				{
+					EmitGetTypeFromHandle(GetSystemType(node));
+					break;
+				}
+
+				default:
+				{
+					NotImplemented(node, tag.ToString());
+					break;
+				}
+			}
+		}
+		
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			IEntity tag = TypeSystem.TypeSystemServices.GetEntity(node);

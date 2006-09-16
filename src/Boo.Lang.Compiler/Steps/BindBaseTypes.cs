@@ -128,26 +128,21 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (SimpleTypeReference type in node.BaseTypes.ToArray())
 			{
 				NameResolutionService.ResolveSimpleTypeReference(type);
-				IType entity = type.Entity as IType;
-				
-				if (null != entity)
+
+				AbstractInternalType internalType = type.Entity as AbstractInternalType;
+				if (null != internalType)
 				{
-					AbstractInternalType internalType = entity as AbstractInternalType;
-					if (null != internalType)
+					if (visited.Contains(internalType.TypeDefinition))
 					{
-						if (visited.Contains(internalType.TypeDefinition))
-						{
-							Error(CompilerErrorFactory.InheritanceCycle(type, internalType.FullName));
-							node.BaseTypes.RemoveAt(index-removed);
-							++removed;
-						}
-						else
-						{
-							ResolveBaseTypes(visited, internalType.TypeDefinition);
-						}
+						Error(CompilerErrorFactory.InheritanceCycle(type, internalType.FullName));
+						node.BaseTypes.RemoveAt(index-removed);
+						++removed;
+					}
+					else
+					{
+						ResolveBaseTypes(visited, internalType.TypeDefinition);
 					}
 				}
-				
 				++index;
 			}
 		}

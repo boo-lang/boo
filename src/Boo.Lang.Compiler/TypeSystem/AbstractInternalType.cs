@@ -230,8 +230,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 			}
-                        if (_typeDefinition.BaseTypes.Count > 0)
-                        {
+	        if (_typeDefinition.BaseTypes.Count > 0)
+	        {
 				List buffer = new List();
 				
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)

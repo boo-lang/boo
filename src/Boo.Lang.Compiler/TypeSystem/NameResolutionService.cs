@@ -274,49 +274,66 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
+		private IEntity MakeGenericType(GenericTypeReference node, IGenericTypeDefinition entity)
+		{
+			IType[] arguments = ResolveGenericArguments(node);
+			return entity.MakeGenericType(arguments);
+		}
+
+		private IType[] ResolveGenericArguments(GenericTypeReference node)
+		{
+			IType[] arguments = new IType[node.GenericArguments.Count];
+			for (int i = 0; i < arguments.Length; ++i)
+			{
+				ResolveTypeReference(node.GenericArguments[i]);
+				arguments[i] = (IType)node.GenericArguments[i].Entity;
+			}
+			return arguments;
+		}
+
+
 		public void ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
-			if (null != node.Entity)
+			if (null != node.Entity) return;
+			
+			IEntity entity = ResolveTypeName(node);
+			if (null == entity)
 			{
+				node.Entity = NameNotType(node);
 				return;
 			}
-			
-			IEntity info = null;
-			if (IsQualifiedName(node.Name))
+			if (EntityType.Type != entity.EntityType)
 			{
-				info = ResolveQualifiedName(node.Name);
-			}
-			else
-			{
-				info = Resolve(node.Name, EntityType.Type);
-			}
-			
-			if (null == info)
-			{
-				info = NameNotType(node);
-			}
-			else
-			{
-				if (EntityType.Type != info.EntityType)
+				if (EntityType.Ambiguous == entity.EntityType)
 				{
-					if (EntityType.Ambiguous == info.EntityType)
-					{
-						info = AmbiguousReference(node, (Ambiguous)info);
-					}
-					else
-					{
-						info = NameNotType(node);
-					}
+					entity = AmbiguousReference(node, (Ambiguous)entity);
 				}
 				else
 				{
-					node.Name = info.FullName;
+					entity = NameNotType(node);
 				}
 			}
-			
-			node.Entity = info;
+			else
+			{
+#if NET_2_0
+				GenericTypeReference gtr = node as GenericTypeReference;
+				if (null != gtr)
+				{
+					entity = MakeGenericType(gtr, (IGenericTypeDefinition) entity);
+				}
+#endif
+				node.Name = entity.FullName;
+			}
+			node.Entity = entity;
 		}
-		
+
+		private IEntity ResolveTypeName(SimpleTypeReference node)
+		{	
+			return IsQualifiedName(node.Name)
+				? ResolveQualifiedName(node.Name)
+				: Resolve(node.Name, EntityType.Type);
+		}
+
 		private IEntity NameNotType(SimpleTypeReference node)
 		{
 			_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));

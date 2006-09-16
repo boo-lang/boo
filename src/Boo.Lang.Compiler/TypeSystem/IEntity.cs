@@ -194,14 +194,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool IsAssignableFrom(IType other);
 	}
 	
-	public interface IGenericParameter : IEntity
-	{	
+	public interface IGenericParameter : IType
+	{
+		IGenericTypeDefinition GetDeclaringType();
+		bool Constructed { get; }
 	}
 	
 	public interface IGenericTypeDefinition : IType
 	{
 		IGenericParameter[] GetGenericParameters();
 		IType MakeGenericType(IType[] arguments);
+	}
+	
+	public interface IGenericType : IType
+	{
+		IType[] GetGenericArguments();
+		IGenericTypeDefinition GetGenericTypeDefinition();
+		bool FullyConstructed { get; }
 	}
 	
 	public interface ICallableType : IType

@@ -27,7 +27,7 @@
     <Optimize>false</Optimize>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE NET_2_0</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE;NET_2_0</DefineConstants>
     <OutputPath>..\..\ide-build</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -445,6 +445,7 @@
     <Compile Include="Util\TaskList.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
     <Compile Include="Steps\OptimizeIterationStatements.cs" />
+    <Compile Include="TypeSystem\ExternalGenericType.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">

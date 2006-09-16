@@ -75,33 +75,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IGenericParameter[] parameters = new IGenericParameter[arguments.Length];
 			for (int i=0; i<arguments.Length; ++i)
 			{
-				parameters[i] = new ExternalGenericParameter(arguments[i]);
+				parameters[i] = new ExternalGenericParameter(_typeSystemServices, arguments[i]);
 			}
 			return parameters;
 		}
 
-		class ExternalGenericParameter : IGenericParameter
+		public class ExternalGenericParameter : ExternalType, IGenericParameter
 		{
-			Type _type;
+			bool _constructed;
 			
-			public ExternalGenericParameter(Type type)
-			{	
-				_type = type;
+			public ExternalGenericParameter(TypeSystemServices tss, Type type) : base(tss, type)
+			{					
+				_constructed = type.IsGenericParameter;
 			}
 			
-			public string Name
+			public IGenericTypeDefinition GetDeclaringType()
 			{
-				get { return _type.Name; }
+				return (IGenericTypeDefinition)_typeSystemServices.Map(ActualType.DeclaringType);
 			}
-
-			public string FullName
+			
+			public bool Constructed
 			{
-				get { return _type.FullName; }
-			}
-
-			public EntityType EntityType
-			{
-				get { return TypeSystem.EntityType.GenericParameter; }
+				get { return _constructed; }
 			}
 		}
 	}

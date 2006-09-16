@@ -451,6 +451,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					return enumeratorItemType;
 				}
+
+#if NET_2_0		
+				enumeratorItemType = GetEnumeratorItemTypeFromGenericEnumerable(iteratorType);
+				if (null != enumeratorItemType)
+				{
+					return enumeratorItemType;
+				}
+#endif				
 			}
 			return ObjectType;
 		}
@@ -945,6 +953,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (type.IsSubclassOf(Types.MulticastDelegate)) return new ExternalCallableType(this, type);
 #if NET_2_0
 			if (type.IsGenericTypeDefinition) return new ExternalGenericTypeDefinition(this, type);
+			if (type.IsGenericType) return new ExternalGenericType(this, type);
 #endif
 			return new ExternalType(this, type);
 		}
@@ -1345,6 +1354,58 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
+		IType GetEnumeratorItemTypeFromGenericEnumerable(IType iteratorType)
+		{			
+			IGenericTypeDefinition genericEnumerable =
+				(IGenericTypeDefinition) Map(typeof(System.Collections.Generic.IEnumerable<>));
+
+			IType itemType = null;
+			foreach (IGenericType type in FindConstructedTypes(iteratorType, genericEnumerable))
+			{
+				IType candidateItemType = type.GetGenericArguments()[0];
+				_context.TraceVerbose("Candidate enumerable item type for {0}: {1}", 
+				                      iteratorType, candidateItemType);
+				
+				if (itemType != null)
+				{
+					itemType = GetMostGenericType(itemType, candidateItemType);
+				}
+				else
+				{					 
+					itemType = candidateItemType;
+				}				
+			}
+			
+			return itemType;
+		}
+		
+		System.Collections.Generic.IEnumerable<IGenericType> FindConstructedTypes(IType type, IGenericTypeDefinition genericTypeDef)
+		{			
+			while (type != null)
+			{
+				string typeName = (type is ExternalType ? ((ExternalType)type).ActualType.Name : type.Name);				
+
+				IGenericType genericType = type as IGenericType;
+				
+				if (genericType != null && 
+				    genericType.FullyConstructed && 
+				    genericType.GetGenericTypeDefinition() == genericTypeDef)
+				{
+					yield return genericType;
+				}
+
+				foreach (IType interfaceType in type.GetInterfaces())
+				{
+					foreach (IGenericType match in FindConstructedTypes(interfaceType, genericTypeDef))
+					{
+						yield return match;
+					}
+				}
+				
+				type = type.BaseType;
+			}
+		}
+						                                         
 		public virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			if (null == anonymousType.ConcreteType)
