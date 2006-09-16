@@ -329,11 +329,11 @@ class InteractiveInterpreter(AbstractInterpreter):
 		AddRepresenter(IDictionary) do (value as IDictionary, writer as TextWriter):
 			writer.Write("{")
 			i = 0
-			for item as DictionaryEntry in value:
+			for key in value.Keys:
 				writer.Write(", ") if i
-				repr(item.Key, writer)
+				repr(key, writer)
 				writer.Write(": ")
-				repr(item.Value, writer)
+				repr(value[key], writer)
 				++i
 			writer.Write("}")
 			
