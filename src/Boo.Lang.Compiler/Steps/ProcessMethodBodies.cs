@@ -3579,7 +3579,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IEntity extension = ResolveExtension(node);
 			if (null == extension) return false;
-
+			
 			ProcessExtensionMethodInvocation(node, extension);
 			return true;
 		}
@@ -3593,7 +3593,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		protected virtual IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
-		{
+		{			
 			EmitCallableResolutionError(node, entities, node.Arguments);
 			Error(node);
 			return null;
@@ -3766,8 +3766,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IEntity resolved = ResolveCallableReference(node, ambiguous);
 			if (null != resolved) return resolved;
-			CantResolveAmbiguousMethodInvocation(node, ambiguous.Entities);
-			return null;
+			
+			return CantResolveAmbiguousMethodInvocation(node, ambiguous.Entities);
 		}
 
 		private bool IsOrContainsExtensionMethod(IEntity entity)

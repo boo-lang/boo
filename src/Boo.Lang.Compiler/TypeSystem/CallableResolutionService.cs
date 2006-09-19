@@ -111,9 +111,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 				IParameter[] parameters = score.Entity.GetParameters();
 				for (int i=0; i<parameters.Length; ++i)
 				{
-					score.Score += parameters[i].Type.GetTypeDepth();
+					IType parameterType = parameters[i].Type;
+					score.Score += GetLogicalTypeDepth(parameterType);
 				}
 			}
+		}
+		
+		public int GetLogicalTypeDepth(IType type)
+		{
+			return type.IsValueType
+				? type.GetTypeDepth() - 1  /* do not count System.ValueType */
+				: type.GetTypeDepth();
 		}
 		
 		IType GetExpressionTypeOrEntityType(Node node)
@@ -273,7 +281,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return score;
 		}
-
+		
 		private int CalculateArgumentScore(IParameter param, IType parameterType, Node arg)
 		{
 			IType argumentType = GetExpressionTypeOrEntityType(arg);
@@ -284,7 +292,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 					return 8;
 				}
 			}
-			else if (parameterType == argumentType)
+			else if (parameterType == argumentType
+				|| (TypeSystemServices.IsSystemObject(argumentType) && 
+					TypeSystemServices.IsSystemObject(parameterType)))
 			{
 				// exact match
 				return 7;
