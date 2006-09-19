@@ -57,8 +57,13 @@ namespace Boo.Lang.Compiler.Steps
 
 			_classStack.Pop();
 		}
-
+		
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+		{
+			OnReferenceExpression(node);
+		}
+		
+		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			IAccessibleMember member = node.Entity as IAccessibleMember;
 			if (null == member) return;
