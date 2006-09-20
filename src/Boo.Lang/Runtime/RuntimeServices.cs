@@ -136,6 +136,11 @@ namespace Boo.Lang.Runtime
 			}
 		}
 		
+		internal static bool HasRegisteredExtensions
+		{
+			get { return _extensions.Count > 0; }
+		}
+		
 		internal static Type[] RegisteredExtensions
 		{
 			get
@@ -170,6 +175,15 @@ namespace Boo.Lang.Runtime
 			}
 		}
 		
+		private static object InvokeMethod(object target, string name, object[] args)
+		{
+			return target.GetType().InvokeMember(name,
+												 InvokeBindingFlags,
+												 null,
+												 target,
+												 args);
+		}
+		
 		private static object DoInvoke(object target, string name, object[] args)
 		{
 			Type type = target as Type;
@@ -182,13 +196,14 @@ namespace Boo.Lang.Runtime
 										args);
 			}
 			
+			if (!HasRegisteredExtensions)
+			{
+				return InvokeMethod(target, name, args);
+			}
+			
 			try
 			{
-				return target.GetType().InvokeMember(name,
-													 InvokeBindingFlags,
-													 null,
-													 target,
-													 args);
+				return InvokeMethod(target, name, args);
 			}
 			catch (System.MissingMemberException)
 			{
