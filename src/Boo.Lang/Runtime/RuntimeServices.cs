@@ -42,6 +42,7 @@ namespace Boo.Lang.Runtime
 		{
 			Rethrow,
 			ThrowInner,
+			PassThrough
 		}
 		
 		public class TargetInvocationExceptionThrownEventArgs
@@ -145,60 +146,67 @@ namespace Boo.Lang.Runtime
 				}
 			}
 		}
+		
+		static bool PassThroughExceptions
+		{
+			get { return _defaultTargetInvocationExceptionAction == TargetInvocationExceptionAction.PassThrough; }
+		}
 		                                                      
 		public static object Invoke(object target, string name, object[] args)
 		{
 			IQuackFu duck = target as IQuackFu;
-			if (null != duck)
-			{
-				return duck.QuackInvoke(name, args);
-			}
+			if (null != duck) return duck.QuackInvoke(name, args);
+			
+			if (PassThroughExceptions) return DoInvoke(target, name, args);
 
 			try
 			{
-				Type type = target as Type;
-				if (null == type)
-				{
-					try
-					{
-						return target.GetType().InvokeMember(name,
-						                                     InvokeBindingFlags,
-						                                     null,
-						                                     target,
-						                                     args);
-					}
-					catch (System.MissingMemberException)
-					{
-						object[] extensionArgs = GetExtensionArgs(target, args);
-						foreach (Type extension in RegisteredExtensions)
-						{
-							try
-							{
-								return extension.InvokeMember(name,
-													   InvokeExtensionBindingFlags,
-													   null,
-													   null,
-													   extensionArgs);
-							}
-							catch (System.MissingMemberException)
-							{
-							}
-						}
-						throw;
-					}
-				}
-				else
-				{	// static method
-					return type.InvokeMember(name,
-														InvokeBindingFlags,
-														null,
-														null,
-														args);
-				}
+				return DoInvoke(target, name, args);
 			}
 			catch (TargetInvocationException x)
 			{	
 				OnTargetInvocationExceptionThrown(x);
+				throw;
+			}
+		}
+		
+		private static object DoInvoke(object target, string name, object[] args)
+		{
+			Type type = target as Type;
+			if (null != type)
+			{	// static method
+				return type.InvokeMember(name,
+										InvokeBindingFlags,
+										null,
+										null,
+										args);
+			}
+			
+			try
+			{
+				return target.GetType().InvokeMember(name,
+													 InvokeBindingFlags,
+													 null,
+													 target,
+													 args);
+			}
+			catch (System.MissingMemberException)
+			{
+				object[] extensionArgs = GetExtensionArgs(target, args);
+				foreach (Type extension in RegisteredExtensions)
+				{
+					try
+					{
+						return extension.InvokeMember(name,
+											   InvokeExtensionBindingFlags,
+											   null,
+											   null,
+											   extensionArgs);
+					}
+					catch (System.MissingMemberException)
+					{
+					}
+				}
 				throw;
 			}
 		}
@@ -214,37 +222,41 @@ namespace Boo.Lang.Runtime
 		public static object SetProperty(object target, string name, object value)
 		{
 			IQuackFu duck = target as IQuackFu;
-			if (null != duck)
-			{
-				return duck.QuackSet(name, value);
-			}
+			if (null != duck) return duck.QuackSet(name, value);
+			
+			if (PassThroughExceptions) return DoSetProperty(target, name, value);
 			
 			try
 			{
-				Type type = target as Type;
-				if (null == type)
-				{
-					target.GetType().InvokeMember(name,
-					                              SetPropertyBindingFlags,
-					                              null,
-					                              target,
-					                              new object[] { value });
-				}
-				else
-				{	// static member
-					type.InvokeMember(name,
-									  SetPropertyBindingFlags,
-									  null,
-									  null,
-									  new object[] { value });
-				}
-				return value;
+				return DoSetProperty(target, name, value);
 			}
 			catch (TargetInvocationException x)
 			{
 				OnTargetInvocationExceptionThrown(x);
 				throw;
 			}
+		}
+		
+		private static object DoSetProperty(object target, string name, object value)
+		{
+			Type type = target as Type;
+			if (null == type)
+			{
+				target.GetType().InvokeMember(name,
+											  SetPropertyBindingFlags,
+											  null,
+											  target,
+											  new object[] { value });
+			}
+			else
+			{	// static member
+				type.InvokeMember(name,
+								  SetPropertyBindingFlags,
+								  null,
+								  null,
+								  new object[] { value });
+			}
+			return value;
 		}
 
 		public struct ValueTypeChange
@@ -281,56 +293,60 @@ namespace Boo.Lang.Runtime
 		public static object GetProperty(object target, string name)
 		{
 			IQuackFu duck = target as IQuackFu;
-			if (null != duck)
-			{
-				return duck.QuackGet(name);
-			}
+			if (null != duck) return duck.QuackGet(name);
+			
+			if (PassThroughExceptions) return DoGetProperty(target, name);
 			
 			try
 			{
-				Type type = target as Type;
-				if (null == type)
-				{
-					try
-					{
-						return target.GetType().InvokeMember(name,
-						                                     GetPropertyBindingFlags,
-						                                     null,
-						                                     target,
-						                                     null);
-					}
-					catch (System.MissingMemberException)
-					{
-						foreach (Type extension in RegisteredExtensions)
-						{
-							try
-							{
-								return extension.InvokeMember(name,
-								                       GetPropertyExtensionBindingFlags,
-								                       null,
-								                       null,
-								                       new object[] {target});
-							}
-							catch (System.MissingMemberException)
-							{	
-							}
-						}
-						throw;
-					}
-				}
-				else
-				{	// static member
-					return type.InvokeMember(name,
-											 GetPropertyBindingFlags,
-											 null,
-											 null,
-											 null);
-				}
+				return DoGetProperty(target, name);
 			}
 			catch (TargetInvocationException x)
 			{
 				OnTargetInvocationExceptionThrown(x);
 				throw;
+			}
+		}
+		
+		private static object DoGetProperty(object target, string name)
+		{
+			Type type = target as Type;
+			if (null == type)
+			{
+				try
+				{
+					return target.GetType().InvokeMember(name,
+														 GetPropertyBindingFlags,
+														 null,
+														 target,
+														 null);
+				}
+				catch (System.MissingMemberException)
+				{
+					foreach (Type extension in RegisteredExtensions)
+					{
+						try
+						{
+							return extension.InvokeMember(name,
+												   GetPropertyExtensionBindingFlags,
+												   null,
+												   null,
+												   new object[] {target});
+						}
+						catch (System.MissingMemberException)
+						{	
+						}
+					}
+					throw;
+				}
+			}
+			else
+			{	// static member
+				return type.InvokeMember(name,
+										 GetPropertyBindingFlags,
+										 null,
+										 null,
+										 null);
 			}
 		}
 		
