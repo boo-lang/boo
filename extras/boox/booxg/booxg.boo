@@ -21,7 +21,10 @@
 
 namespace BooExplorer
 
-import Gtk
+import Gtk from "gtk-sharp"
+import GtkSourceView from "gtksourceview-sharp"
+import Gdk from "gdk-sharp"
+import Pango from "pango-sharp"
 		
 Application.Init()
 MainWindow().ShowAll()

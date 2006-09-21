@@ -29,7 +29,7 @@ import Gtk
 
 class DocumentOutlineProcessor:
 
-	_store = TreeStore((Gdk.Pixbuf, string))
+	_store = TreeStore(Gdk.Pixbuf, string)
 	_documentOutline as TreeView
 	_module as Boo.Lang.Compiler.Ast.Module
 	

@@ -43,10 +43,6 @@
 			</resources>
 			<references basedir="build">
 				<include name="BooExplorer.Common.dll" />
-				<include name="gtk-sharp.dll" />
-				<include name="gdk-sharp.dll" />
-				<include name="pango-sharp.dll" />
-				<include name="gtksourceview-sharp.dll" />
 				<include name="Boo.Lang.Useful.dll" />
 				<include name="Boo.Lang.Interpreter.dll" />
 			</references>
