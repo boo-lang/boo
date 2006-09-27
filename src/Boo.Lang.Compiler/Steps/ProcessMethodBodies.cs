@@ -3816,7 +3816,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			eval.Arguments.Add(CodeBuilder.CreateAssignment(local.CloneNode(), node));
 
-			AddResolvedNamedArgumentsToEval(node.NamedArguments, eval, local);
+			AddResolvedNamedArgumentsToEval(eval, node.NamedArguments, local);
 
 			node.NamedArguments.Clear();
 			
@@ -3827,59 +3827,66 @@ namespace Boo.Lang.Compiler.Steps
 			parent.Replace(node, eval);
 		}
 
-		private void AddResolvedNamedArgumentsToEval(ExpressionPairCollection namedArguments, MethodInvocationExpression eval, ReferenceExpression instance)
+		private void AddResolvedNamedArgumentsToEval(MethodInvocationExpression eval, ExpressionPairCollection namedArguments, ReferenceExpression instance)
 		{
 			foreach (ExpressionPair pair in namedArguments)
 			{
-				IEntity entity = GetEntity(pair.First);
-				switch (entity.EntityType)
+				if (TypeSystemServices.IsError(pair.First)) continue;
+
+				AddResolvedNamedArgumentToEval(eval, pair, instance);
+			}
+		}
+
+		protected virtual void AddResolvedNamedArgumentToEval(MethodInvocationExpression eval, ExpressionPair pair, ReferenceExpression instance)
+		{
+			IEntity entity = GetEntity(pair.First);
+			switch (entity.EntityType)
+			{
+				case EntityType.Event:
 				{
-					case EntityType.Event:
-						{
-							IEvent member = (IEvent)entity;
-							eval.Arguments.Add(
-								CodeBuilder.CreateMethodInvocation(
-									pair.First.LexicalInfo,
+					IEvent member = (IEvent)entity;
+					eval.Arguments.Add(
+						CodeBuilder.CreateMethodInvocation(
+							pair.First.LexicalInfo,
+							instance.CloneNode(),
+							member.GetAddMethod(),
+							pair.Second));
+					break;
+				}
+					
+				case EntityType.Field:
+				{
+					eval.Arguments.Add(
+						CodeBuilder.CreateAssignment(
+							pair.First.LexicalInfo,
+							CodeBuilder.CreateMemberReference(
+								instance.CloneNode(),
+								(IMember)entity),
+							pair.Second));
+					break;
+				}
+					
+				case EntityType.Property:
+				{
+					IProperty property = (IProperty)entity;
+					IMethod setter = property.GetSetMethod();
+					if (null == setter)
+					{
+						Error(CompilerErrorFactory.PropertyIsReadOnly(
+						      	pair.First,
+						      	property.FullName));
+					}
+					else
+					{
+						eval.Arguments.Add(
+							CodeBuilder.CreateAssignment(
+								pair.First.LexicalInfo,
+								CodeBuilder.CreateMemberReference(
 									instance.CloneNode(),
-									member.GetAddMethod(),
-									pair.Second));
-							break;
-						}
-					
-					case EntityType.Field:
-						{
-							eval.Arguments.Add(
-								CodeBuilder.CreateAssignment(
-									pair.First.LexicalInfo,
-									CodeBuilder.CreateMemberReference(
-										instance.CloneNode(),
-										(IMember)entity),
-									pair.Second));
-							break;
-						}
-					
-					case EntityType.Property:
-						{
-							IProperty property = (IProperty)entity;
-							IMethod setter = property.GetSetMethod();
-							if (null == setter)
-							{
-								Error(CompilerErrorFactory.PropertyIsReadOnly(
-									pair.First,
-									property.FullName));
-							}
-							else
-							{
-								eval.Arguments.Add(
-									CodeBuilder.CreateAssignment(
-										pair.First.LexicalInfo,
-										CodeBuilder.CreateMemberReference(
-											instance.CloneNode(),
-											property),
-										pair.Second));
-							}
-							break;
-						}
+									property),
+								pair.Second));
+					}
+					break;
 				}
 			}
 		}
@@ -3986,7 +3993,7 @@ namespace Boo.Lang.Compiler.Steps
 			InternalLocal local = DeclareTempLocal(type);
 			ReferenceExpression localReference = CodeBuilder.CreateReference(local);
 			eval.Arguments.Add(CodeBuilder.CreateDefaultInitializer(node.LexicalInfo, local));
-			AddResolvedNamedArgumentsToEval(node.NamedArguments, eval, localReference);
+			AddResolvedNamedArgumentsToEval(eval, node.NamedArguments, localReference);
 			eval.Arguments.Add(localReference);
 
 			node.ParentNode.Replace(node, eval);
@@ -4489,60 +4496,44 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool IsPublicEvent(IEntity tag)
+		private bool IsPublicEvent(IEntity tag)
 		{
-			if (EntityType.Event == tag.EntityType)
-			{
-				return ((IMember)tag).IsPublic;
-			}
-			return false;
+			return (EntityType.Event == tag.EntityType) && ((IMember)tag).IsPublic;
 		}
 		
-		bool IsPublicFieldPropertyEvent(IEntity tag)
+		private bool IsPublicFieldPropertyEvent(IEntity entity)
 		{
-			EntityType flags = EntityType.Field|EntityType.Property|EntityType.Event;
-			if ((flags & tag.EntityType) > 0)
-			{
-				IMember member = (IMember)tag;
-				return member.IsPublic;
-			}
-			return false;
+			return IsFieldPropertyOrEvent(entity) && ((IMember)entity).IsPublic;
 		}
-		
-		IMember ResolvePublicFieldPropertyEvent(Node sourceNode, IType type, string name)
+
+		private static bool IsFieldPropertyOrEvent(IEntity entity)
 		{
-			IEntity candidate = NameResolutionService.Resolve(type, name, EntityType.Property|EntityType.Event|EntityType.Field);
-			if (null != candidate)
-			{
-				if (IsPublicFieldPropertyEvent(candidate))
-				{
-					return (IMember)candidate;
-				}
-				else
-				{
-					if (candidate.EntityType == EntityType.Ambiguous)
-					{
-						IList found = ((Ambiguous)candidate).Filter(IsPublicFieldPropertyEventFilter);
-						if (found.Count > 0)
-						{
-							if (found.Count > 1)
-							{
-								Error(CompilerErrorFactory.AmbiguousReference(sourceNode, name, found));
-								return null;
-							}
-							else
-							{
-								return (IMember)found[0];
-							}
-						}
-					}
-				}
-			}
-			Error(CompilerErrorFactory.NotAPublicFieldOrProperty(sourceNode, type.ToString(), name));
+			return ((EntityType.Field|EntityType.Property|EntityType.Event) & entity.EntityType) > 0;
+		}
+
+		private IMember ResolvePublicFieldPropertyEvent(Expression sourceNode, IType type, string name)
+		{
+			IEntity candidate = ResolveFieldPropertyEvent(type, name);
+			if (null == candidate) return null;
+			
+			if (IsPublicFieldPropertyEvent(candidate)) return (IMember)candidate;
+			
+			if (candidate.EntityType != EntityType.Ambiguous) return null;
+			
+			IList found = ((Ambiguous)candidate).Filter(IsPublicFieldPropertyEventFilter);
+			if (found.Count == 0) return null;
+			if (found.Count == 1) return (IMember)found[0];
+			
+			Error(sourceNode, CompilerErrorFactory.AmbiguousReference(sourceNode, name, found));
 			return null;
 		}
-		
-		void ResolveNamedArguments(IType typeInfo, ExpressionPairCollection arguments)
+
+		protected IEntity ResolveFieldPropertyEvent(IType type, string name)
+		{
+			return NameResolutionService.Resolve(type, name, EntityType.Property|EntityType.Event|EntityType.Field);
+		}
+
+		void ResolveNamedArguments(IType type, ExpressionPairCollection arguments)
 		{
 			foreach (ExpressionPair arg in arguments)
 			{
@@ -4550,31 +4541,41 @@ namespace Boo.Lang.Compiler.Steps
 				
 				if (NodeType.ReferenceExpression != arg.First.NodeType)
 				{
-					Error(CompilerErrorFactory.NamedParameterMustBeIdentifier(arg));
+					Error(arg.First, CompilerErrorFactory.NamedParameterMustBeIdentifier(arg));
 					continue;
 				}
-				
-				ReferenceExpression name = (ReferenceExpression)arg.First;
-				IMember member = ResolvePublicFieldPropertyEvent(name, typeInfo, name.Name);
-				if (null == member)
-				{
-					continue;
-				}
-				
-				Bind(arg.First, member);
-				
-				IType memberType = member.Type;
-				if (member.EntityType == EntityType.Event)
-				{
-					AssertDelegateArgument(arg.First, member, GetExpressionType(arg.Second));
-				}
-				else
-				{
-					AssertTypeCompatibility(arg, memberType, GetExpressionType(arg.Second));
-				}
+
+				ResolveNamedArgument(type, (ReferenceExpression)arg.First, arg.Second);
 			}
 		}
-		
+
+		void ResolveNamedArgument(IType type, ReferenceExpression name, Expression value)
+		{
+			IMember member = ResolvePublicFieldPropertyEvent(name, type, name.Name);
+			if (null == member)
+			{
+				NamedArgumentNotFound(type, name);
+				return;
+			}
+
+			Bind(name, member);
+
+			IType memberType = member.Type;
+			if (member.EntityType == EntityType.Event)
+			{	
+				AssertDelegateArgument(value, member, GetExpressionType(value));
+			}
+			else
+			{
+				AssertTypeCompatibility(value, memberType, GetExpressionType(value));
+			}
+		}
+
+		protected virtual void NamedArgumentNotFound(IType type, ReferenceExpression name)
+		{
+			Error(name, CompilerErrorFactory.NotAPublicFieldOrProperty(name, type.ToString(), name.Name));
+		}
+
 		bool AssertTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
 		{	
 			if (TypeSystemServices.IsError(expectedType)

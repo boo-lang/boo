@@ -405,11 +405,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return (
 				(type == DuckType)
-				|| type.IsSubclassOf(IQuackFuType)
+				|| KnowsQuackFu(type)
 				|| (_context.Parameters.Ducky
 					&& (type == ObjectType)));
 		}
-		
+
+		public bool KnowsQuackFu(IType type)
+		{
+			return type.IsSubclassOf(IQuackFuType);
+		}
+
 		bool IsCallableType(IType type)
 		{
 			return (ICallableType.IsAssignableFrom(type)) ||

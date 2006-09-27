@@ -98,6 +98,37 @@ namespace Boo.Lang.Compiler.Steps
 			return null == entity || TypeSystemServices.IsQuackBuiltin(entity);
 		}
 
+		protected override void NamedArgumentNotFound(IType type, ReferenceExpression name)
+		{
+			if (!TypeSystemServices.KnowsQuackFu(type))
+			{
+				base.NamedArgumentNotFound(type, name);
+				return;
+			}
+
+			Bind(name, BuiltinFunction.Quack);
+		}
+
+		protected override void AddResolvedNamedArgumentToEval(MethodInvocationExpression eval, ExpressionPair pair, ReferenceExpression instance)
+		{
+			if (!TypeSystemServices.IsQuackBuiltin(pair.First))
+			{
+				base.AddResolvedNamedArgumentToEval(eval, pair, instance);
+				return;
+			}
+			
+			MemberReferenceExpression memberRef = new MemberReferenceExpression(
+				pair.First.LexicalInfo,
+				instance.CloneNode(),
+				((ReferenceExpression)pair.First).Name);
+			BindQuack(memberRef);
+			
+			eval.Arguments.Add(
+				CodeBuilder.CreateAssignment(
+					pair.First.LexicalInfo,
+					memberRef,
+					pair.Second));
+		}
 		
 		override protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
