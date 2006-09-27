@@ -3701,6 +3701,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessConstructorInvocation(MethodInvocationExpression node, IEntity targetEntity)
 		{
+			NamedArgumentsNotAllowed(node);
 			InternalConstructor constructorInfo = targetEntity as InternalConstructor;
 			if (null != constructorInfo)
 			{

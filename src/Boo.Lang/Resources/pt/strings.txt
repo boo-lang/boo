@@ -2,7 +2,7 @@
 BCE0000='{0}'
 BCE0001=A classe '{0}' já tem '{1}' como classe base.
 BCE0002=Nome do parâmetro deve ser um identificador.
-BCE0003=Parâmetros são permitidos apenas com construtores.
+BCE0003=Parâmetros nomeados são permitidos apenas na criação de objetos.
 BCE0004=Referência ambígua {0}: {1}.
 BCE0005=Identificador desconhecido: {0}.
 BCE0006='{0}' é um tipo-valor. O operador 'as' pode ser utilizado somente com tipos referência.
