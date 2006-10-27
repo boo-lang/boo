@@ -220,7 +220,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 #if NET_2_0
 			if (!type.IsGenericTypeDefinition) return type.Name;
 			string name = type.Name;
-			return name.Substring(0, name.IndexOf('`'));
+			return name.Substring(0, name.LastIndexOf('`'));
 #else
 			return type.Name;
 #endif

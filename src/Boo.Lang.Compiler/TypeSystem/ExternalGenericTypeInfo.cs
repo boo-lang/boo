@@ -1,5 +1,5 @@
-﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,59 +26,53 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+#if NET_2_0
+
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System.Reflection;
+	using System;
 
-	public class ExternalParameter : IParameter
+	public class ExternalGenericTypeInfo : IGenericTypeInfo
 	{
-		TypeSystemServices _typeSystemServices;
-		protected ParameterInfo _parameter;
+		TypeSystemServices _tss;
+		ExternalType _type;
+		IType[] _arguments = null;
+		bool _constructed;
 		
-		public ExternalParameter(TypeSystemServices service, ParameterInfo parameter)
+		public ExternalGenericTypeInfo(TypeSystemServices tss, ExternalType type)
 		{
-			_typeSystemServices = service;
-			_parameter = parameter;
-		}
-		
-		public string Name
+			_tss = tss;
+			_type = type;
+			_constructed = !_type.ActualType.ContainsGenericParameters;
+		}		
+
+		public IType[] GenericArguments
 		{
-			get
+			get 
 			{
-				return _parameter.Name;
+				if (_arguments == null)
+				{
+					_arguments = Array.ConvertAll<Type, IType>(
+						_type.ActualType.GetGenericArguments(),
+						_tss.Map);
+				}
+				
+				return _arguments;
 			}
 		}
 		
-		public string FullName
+		public IType GenericDefinition
 		{
-			get
+			get 
 			{
-				return _parameter.Name;
+				return _tss.Map(_type.ActualType.GetGenericTypeDefinition());
 			}
 		}
 		
-		public EntityType EntityType
+		public bool FullyConstructed
 		{
-			get
-			{
-				return EntityType.Parameter;
-			}
-		}
-		
-		public virtual IType Type
-		{
-			get
-			{
-				return _typeSystemServices.Map(_parameter.ParameterType);
-			}
-		}
-		
-		public bool IsByRef
-		{
-			get
-			{
-				return Type.IsByRef;
-			}
-		}
-	}
+			get { return _constructed; }
+		}		
+	}	
 }
+#endif

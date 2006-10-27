@@ -274,10 +274,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		private IEntity MakeGenericType(GenericTypeReference node, IGenericTypeDefinition entity)
+		private IEntity MakeGenericType(GenericTypeReference node, IType entity)
 		{
 			IType[] arguments = ResolveGenericArguments(node);
-			return entity.MakeGenericType(arguments);
+			if (entity.GenericTypeDefinitionInfo == null)
+			{
+				throw CompilerErrorFactory.NotAGenericDefinition(node, node.Name);
+			}
+			return entity.GenericTypeDefinitionInfo.MakeGenericType(arguments);
 		}
 
 		private IType[] ResolveGenericArguments(GenericTypeReference node)
@@ -294,6 +298,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public void ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
+			
 			if (null != node.Entity) return;
 			
 			IEntity entity = ResolveTypeName(node);
@@ -319,12 +324,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				GenericTypeReference gtr = node as GenericTypeReference;
 				if (null != gtr)
 				{
-					entity = MakeGenericType(gtr, (IGenericTypeDefinition) entity);
+					entity = MakeGenericType(gtr, (IType)entity);
 				}
 #endif
+
 				node.Name = entity.FullName;
 			}
-			node.Entity = entity;
+			
+			node.Entity = entity;		
 		}
 
 		private IEntity ResolveTypeName(SimpleTypeReference node)

@@ -19,11 +19,11 @@
     <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <NoStdLib>false</NoStdLib>
     <WarningLevel>4</WarningLevel>
-    <DebugSymbols>false</DebugSymbols>
     <Optimize>false</Optimize>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -34,7 +34,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <NoStdLib>false</NoStdLib>
     <WarningLevel>4</WarningLevel>
-    <DebugSymbols>false</DebugSymbols>
     <Optimize>true</Optimize>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -412,7 +411,7 @@
     <Compile Include="TypeSystem\ExternalConstructor.cs" />
     <Compile Include="TypeSystem\ExternalEvent.cs" />
     <Compile Include="TypeSystem\ExternalField.cs" />
-    <Compile Include="TypeSystem\ExternalGenericTypeDefinition.cs" />
+    <Compile Include="TypeSystem\ExternalGenericTypeDefinitionInfo.cs" />
     <Compile Include="TypeSystem\ExternalMethod.cs" />
     <Compile Include="TypeSystem\ExternalParameter.cs" />
     <Compile Include="TypeSystem\ExternalProperty.cs" />
@@ -445,7 +444,8 @@
     <Compile Include="Util\TaskList.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
     <Compile Include="Steps\OptimizeIterationStatements.cs" />
-    <Compile Include="TypeSystem\ExternalGenericType.cs" />
+    <Compile Include="TypeSystem\ExternalGenericTypeInfo.cs" />
+    <Compile Include="TypeSystem\MixedGenericType.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">

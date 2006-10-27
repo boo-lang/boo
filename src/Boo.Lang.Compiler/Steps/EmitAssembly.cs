@@ -3631,21 +3631,40 @@ namespace Boo.Lang.Compiler.Steps
 		
 		MethodInfo GetMethodInfo(IMethod entity)
 		{
+#if NET_2_0
+			MixedGenericType.MappedMethod mapped = entity as MixedGenericType.MappedMethod;
+			if (null != mapped)
+			{
+				return TypeBuilder.GetMethod(
+					GetSystemType(mapped.DeclaringType), (MethodInfo)mapped.MethodInfo);
+			}
+#endif			
 			ExternalMethod external = entity as ExternalMethod;
 			if (null != external)
 			{
 				return (MethodInfo)external.MethodInfo;
 			}
+			
 			return GetMethodBuilder(((InternalMethod)entity).Method);
 		}
 		
 		ConstructorInfo GetConstructorInfo(IConstructor entity)
 		{
+#if NET_2_0
+			MixedGenericType.MappedConstructor mapped = entity as MixedGenericType.MappedConstructor;
+			if (null != mapped)
+			{
+				return TypeBuilder.GetConstructor(
+					GetSystemType(mapped.DeclaringType), 
+					mapped.ConstructorInfo);
+			}
+#endif			
 			ExternalConstructor external = entity as ExternalConstructor;
 			if (null != external)
 			{
 				return external.ConstructorInfo;
 			}
+			
 			return GetConstructorBuilder(((InternalMethod)entity).Method);
 		}
 		
@@ -3657,54 +3676,67 @@ namespace Boo.Lang.Compiler.Steps
 		Type GetSystemType(IType tag)
 		{
 			Type type = (Type)_typeCache[tag];
-			if (null == type)
+			if (type != null) 
 			{
-				ExternalType external = tag as ExternalType;
-				if (null != external)
+				return type;
+			}
+			
+			ExternalType external = tag as ExternalType;
+			if (null != external)
+			{
+#if NET_2_0
+				MixedGenericType mixed = tag as MixedGenericType;
+				if (null != mixed)
+				{
+					Type[] arguments = new Type[mixed.GenericArguments.Length];
+					for (int i = 0; i < arguments.Length; i++)
+					{
+						arguments[i] = GetSystemType(mixed.GenericArguments[i]);
+					}
+					type = GetSystemType(mixed.GenericDefinition).MakeGenericType(arguments);
+				}
+				else
+#endif
 				{
 					type = external.ActualType;
 				}
+			}
+			else if (tag.IsArray)
+			{
+				IArrayType arrayType = (IArrayType)tag;
+				IType elementType = GetSimpleEntityType(arrayType);
+				if (elementType is IInternalEntity)
+				{
+					string typeName = GetArrayTypeName(arrayType);
+					type = _moduleBuilder.GetType(typeName, true);
+				}
 				else
 				{
-					if (tag.IsArray)
+					if (arrayType.GetArrayRank() > 1)
 					{
-						IArrayType arrayType = (IArrayType)tag;
-						IType elementType = GetSimpleEntityType(arrayType);
-						if (elementType is IInternalEntity)
-						{
-							string typeName = GetArrayTypeName(arrayType);
-							type = _moduleBuilder.GetType(typeName, true);
-						}
-						else
-						{
-							if (arrayType.GetArrayRank() > 1)
-							{
-								type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), new int[arrayType.GetArrayRank()]).GetType();
-							}
-							else
-							{
-								type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), 0).GetType();
-							}
-						}
+						type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), new int[arrayType.GetArrayRank()]).GetType();
 					}
 					else
 					{
-						if (Null.Default == tag)
-						{
-							type = Types.Object;
-						}
-						else
-						{
-							type = (Type)GetBuilder(((AbstractInternalType)tag).TypeDefinition);
-						}
+						type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), 0).GetType();
 					}
 				}
-				if (null == type)
-				{
-					throw new InvalidOperationException(string.Format("Could not find a Type for {0}.", tag));
-				}
-				_typeCache.Add(tag, type);
 			}
+			else if (Null.Default == tag)
+			{
+				type = Types.Object;
+			}
+			else
+			{
+				type = (Type)GetBuilder(((AbstractInternalType)tag).TypeDefinition);
+			}
+
+			if (null == type)
+			{
+				throw new InvalidOperationException(string.Format("Could not find a Type for {0}.", tag));
+			}
+
+			_typeCache.Add(tag, type);
 			return type;
 		}
 		
@@ -4187,6 +4219,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (TypeReference baseType in typeDefinition.BaseTypes)
 			{
 				Type type = GetSystemType(baseType);
+				
 				if (type.IsClass)
 				{
 					typeBuilder.SetParent(type);

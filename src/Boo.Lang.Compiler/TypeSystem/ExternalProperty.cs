@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class ExternalProperty : IProperty
 	{
-		TypeSystemServices _typeSystemServices;
+		protected TypeSystemServices _typeSystemServices;
 		
 		System.Reflection.PropertyInfo _property;
 		
@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IType DeclaringType
+		public virtual IType DeclaringType
 		{
 			get
 			{
@@ -154,7 +154,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _property.DeclaringType.FullName + "." + _property.Name;
+				return DeclaringType.FullName + "." + Name;
 			}
 		}
 		
@@ -166,7 +166,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IType Type
+		public virtual IType Type
 		{
 			get
 			{
@@ -190,7 +190,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IParameter[] GetParameters()
+		public virtual IParameter[] GetParameters()
 		{
 			if (null == _parameters)
 			{
@@ -199,7 +199,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _parameters;
 		}
 		
-		public IMethod GetGetMethod()
+		public virtual IMethod GetGetMethod()
 		{
 			System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
 			if (null != getter)
@@ -209,7 +209,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public IMethod GetSetMethod()
+		public virtual IMethod GetSetMethod()
 		{
 			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
 			if (null != setter)

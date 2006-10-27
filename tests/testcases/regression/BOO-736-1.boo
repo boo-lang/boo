@@ -1,5 +1,5 @@
 """
-<code>(8,34): BCE0023: No apropriate version of 'CompilerGeneratedExtensions.BeginInvoke' for the argument list '(callable(string) as int)' was found.
+<code>(8,34): BCE0023: No appropriate version of 'CompilerGeneratedExtensions.BeginInvoke' for the argument list '(callable(string) as int)' was found.
 """
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO

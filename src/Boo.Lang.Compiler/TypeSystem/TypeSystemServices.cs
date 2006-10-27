@@ -456,15 +456,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					return enumeratorItemType;
 				}
-
-#if NET_2_0		
-				enumeratorItemType = GetEnumeratorItemTypeFromGenericEnumerable(iteratorType);
-				if (null != enumeratorItemType)
-				{
-					return enumeratorItemType;
-				}
-#endif				
 			}
+#if NET_2_0		
+			IType genericItemType = GetEnumeratorItemTypeFromGenericEnumerable(iteratorType);
+			if (null != genericItemType)
+			{
+				return genericItemType;
+			}
+#endif				
 			return ObjectType;
 		}
 		
@@ -598,6 +597,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ctype.IsAssignableFrom(rhs)
 					|| ctype.IsSubclassOf(rhs);
 			}
+			
 			return lhs.IsAssignableFrom(rhs)
 				|| (lhs.IsInterface && !rhs.IsFinal)
 				|| (rhs.IsInterface && !lhs.IsFinal)
@@ -701,6 +701,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					return true;
 				}
 			}
+			
 			return false;
 		}
 		
@@ -903,6 +904,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			IEntity tag = GetOptionalEntity(node);
 			if (null == tag) InvalidNode(node);
+			
 			return tag;
 		}
 		
@@ -955,11 +957,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private ExternalType CreateEntityForType(Type type)
 		{
-			if (type.IsSubclassOf(Types.MulticastDelegate)) return new ExternalCallableType(this, type);
 #if NET_2_0
-			if (type.IsGenericTypeDefinition) return new ExternalGenericTypeDefinition(this, type);
-			if (type.IsGenericType) return new ExternalGenericType(this, type);
+			if (type.IsGenericParameter) return new ExternalGenericParameter(this, type);
 #endif
+			if (type.IsSubclassOf(Types.MulticastDelegate)) return new ExternalCallableType(this, type);
 			return new ExternalType(this, type);
 		}
 
@@ -1362,13 +1363,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 #if NET_2_0
 		IType GetEnumeratorItemTypeFromGenericEnumerable(IType iteratorType)
 		{			
-			IGenericTypeDefinition genericEnumerable =
-				(IGenericTypeDefinition) Map(typeof(System.Collections.Generic.IEnumerable<>));
+			IType genericEnumerable = (IType)Map(typeof(System.Collections.Generic.IEnumerable<>));
 
 			IType itemType = null;
-			foreach (IGenericType type in FindConstructedTypes(iteratorType, genericEnumerable))
+			foreach (IType type in FindConstructedTypes(iteratorType, genericEnumerable))
 			{
-				IType candidateItemType = type.GetGenericArguments()[0];
+				IType candidateItemType = type.GenericTypeInfo.GenericArguments[0];
 				_context.TraceVerbose("Candidate enumerable item type for {0}: {1}", 
 				                      iteratorType, candidateItemType);
 				
@@ -1385,24 +1385,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return itemType;
 		}
 		
-		System.Collections.Generic.IEnumerable<IGenericType> FindConstructedTypes(IType type, IGenericTypeDefinition genericTypeDef)
+		System.Collections.Generic.IEnumerable<IType> FindConstructedTypes(IType type, IType definition)
 		{			
 			while (type != null)
 			{
 				string typeName = (type is ExternalType ? ((ExternalType)type).ActualType.Name : type.Name);				
 
-				IGenericType genericType = type as IGenericType;
-				
-				if (genericType != null && 
-				    genericType.FullyConstructed && 
-				    genericType.GetGenericTypeDefinition() == genericTypeDef)
+				if (type.GenericTypeInfo != null && 
+				    type.GenericTypeInfo.FullyConstructed && 
+				    type.GenericTypeInfo.GenericDefinition == definition)
 				{
-					yield return genericType;
+					yield return type;
 				}
 
 				foreach (IType interfaceType in type.GetInterfaces())
 				{
-					foreach (IGenericType match in FindConstructedTypes(interfaceType, genericTypeDef))
+					foreach (IType match in FindConstructedTypes(interfaceType, definition))
 					{
 						yield return match;
 					}

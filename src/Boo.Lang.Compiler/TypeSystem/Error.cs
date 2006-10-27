@@ -185,6 +185,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return Name;
 		}
+		
+		IGenericTypeDefinitionInfo IType.GenericTypeDefinitionInfo
+		{
+			get { return null; }
+		}
+
+		IGenericTypeInfo IType.GenericTypeInfo
+		{
+			get { return null; }
+		}		
 	}
 	
 	public class Null : AbstractType

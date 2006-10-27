@@ -192,26 +192,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool IsSubclassOf(IType other);
 		
 		bool IsAssignableFrom(IType other);
+		
+		IGenericTypeDefinitionInfo GenericTypeDefinitionInfo { get; }
+		
+		IGenericTypeInfo GenericTypeInfo { get; }
 	}
 	
-	public interface IGenericParameter : IType
+	public interface IGenericTypeDefinitionInfo
 	{
-		IGenericTypeDefinition GetDeclaringType();
-		bool Constructed { get; }
-	}
-	
-	public interface IGenericTypeDefinition : IType
-	{
-		IGenericParameter[] GetGenericParameters();
+		IGenericParameter[] GenericParameters { get; }
 		IType MakeGenericType(IType[] arguments);
 	}
-	
-	public interface IGenericType : IType
+
+	public interface IGenericTypeInfo
 	{
-		IType[] GetGenericArguments();
-		IGenericTypeDefinition GetGenericTypeDefinition();
+		IType[] GenericArguments { get; }
+		IType GenericDefinition { get; }
 		bool FullyConstructed { get; }
 	}
+	
+	public interface IGenericParameter: IType
+	{
+		IType DeclaringType { get; }
+		int GenericParameterPosition { get; }
+		// TODO: Constraints { get; }
+	}	
 	
 	public interface ICallableType : IType
 	{

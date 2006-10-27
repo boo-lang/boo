@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class ExternalField : IField
 	{
-		TypeSystemServices _typeSystemServices;
+		protected TypeSystemServices _typeSystemServices;
 		
 		System.Reflection.FieldInfo _field;
 		
@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_field = field;
 		}
 		
-		public IType DeclaringType
+		public virtual IType DeclaringType
 		{
 			get
 			{
@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.DeclaringType.FullName + "." + _field.Name;
+				return DeclaringType.FullName + "." + _field.Name;
 			}
 		}
 		
@@ -128,7 +128,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IType Type
+		public virtual IType Type
 		{
 			get
 			{

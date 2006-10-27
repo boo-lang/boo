@@ -98,7 +98,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IType DeclaringType
+		public virtual IType DeclaringType
 		{
 			get
 			{
@@ -239,7 +239,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IParameter[] GetParameters()
+		public virtual IParameter[] GetParameters()
 		{
 			if (null == _parameters)
 			{

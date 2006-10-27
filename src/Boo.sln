@@ -1,6 +1,5 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+﻿Microsoft Visual Studio Solution File, Format Version 9.00
+# SharpDevelop 2.1.0.1825
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang", "Boo.Lang\Boo.Lang.csproj", "{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Parser", "Boo.Lang.Parser\Boo.Lang.Parser.csproj", "{C1943936-DBBD-4331-94C3-BE4F7E6229DA}"
@@ -31,6 +30,10 @@ Global
 		{3D5461D4-F243-41A5-927B-6636CEE2E6B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D5461D4-F243-41A5-927B-6636CEE2E6B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D5461D4-F243-41A5-927B-6636CEE2E6B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86284E52-4C54-48CB-A286-4E34047AF1EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86284E52-4C54-48CB-A286-4E34047AF1EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86284E52-4C54-48CB-A286-4E34047AF1EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86284E52-4C54-48CB-A286-4E34047AF1EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

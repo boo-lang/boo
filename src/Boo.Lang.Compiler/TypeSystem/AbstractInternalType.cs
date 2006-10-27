@@ -373,6 +373,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return FullName;
 		}
+		
+		IGenericTypeDefinitionInfo IType.GenericTypeDefinitionInfo 
+		{
+			get { return null; }
+		}
+		
+		IGenericTypeInfo IType.GenericTypeInfo
+		{
+			get { return null; }
+		}
 	}
 
 }
