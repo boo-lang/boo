@@ -401,8 +401,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected virtual string BuildFullName()
 		{
 			if (_type.IsByRef) return "ref " + this.GetElementType().ToString();
-			if (_type.DeclaringType != null) return this.DeclaringType.ToString() + "." + _type.Name;		
+			if (_type.DeclaringType != null) return this.DeclaringType.ToString() + "." + _type.Name;
 			
+#if NET_2_0
 			// HACK: Some constructed generic types report a FullName of null
 			if (_type.FullName == null) 
 			{
@@ -416,6 +417,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					string.Join(",", argumentNames));
 				
 			}
+#endif
 			return _type.FullName;
 		}
 		
