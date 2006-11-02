@@ -63,7 +63,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType MakeGenericType(IType[] arguments)
 		{
-			if (Array.TrueForAll(arguments, delegate(IType t) { return t is ExternalType; }))
+			Predicate<IType> isExternal = delegate(IType t)
+			{
+				return (t is ExternalType && !(t is MixedGenericType));
+			};
+			
+			if (Array.TrueForAll(arguments, isExternal))
 			{
 				Type[] actualTypes = Array.ConvertAll<IType, Type>(
 					arguments,
@@ -136,6 +141,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public int GenericParameterPosition
 		{
 			get { return ActualType.GenericParameterPosition; }
+		}
+		
+		public override string FullName 
+		{
+			get 
+			{
+				return string.Format("{0}.{1}", DeclaringType.FullName, Name);
+			}
 		}
 	}
 }

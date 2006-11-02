@@ -250,15 +250,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			// Map open constructed type using generic parameters to closed constructed type 
 			// using corresponding arguments
-			if (null != sourceType.GenericTypeInfo && !sourceType.GenericTypeInfo.FullyConstructed)
+			if (null != sourceType.GenericTypeInfo)
 			{
 				IType[] mappedArguments = Array.ConvertAll<IType, IType>(
 					sourceType.GenericTypeInfo.GenericArguments, 
 					MapType);
 				
-				return sourceType.GenericTypeInfo.
+				IType mapped = sourceType.GenericTypeInfo.
 					GenericDefinition.GenericTypeDefinitionInfo.
 					MakeGenericType(mappedArguments);
+				
+				return mapped;
 			}
 			
 			// Map array of generic parameter to array of corresponding argument

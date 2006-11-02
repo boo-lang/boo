@@ -113,9 +113,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ExternalType ICallableType;
 		
 		public ExternalType IEnumerableType;
-		
+
 		public ExternalType IEnumeratorType;
 		
+#if NET_2_0
+		public ExternalType	IEnumerableGenericType;
+
+		public ExternalType	IEnumeratorGenericType;
+#endif	
+
 		public ExternalType ICollectionType;
 		
 		public ExternalType IListType;
@@ -202,7 +208,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(UIntPtrType = new ExternalType(this, Types.UIntPtr));
 			Cache(MulticastDelegateType = new ExternalType(this, Types.MulticastDelegate));
 			Cache(DelegateType = new ExternalType(this, Types.Delegate));
-			Cache(SystemAttribute = new ExternalType(this, typeof(System.Attribute)));
+			Cache(SystemAttribute = new ExternalType(this, typeof(System.Attribute)));			
+#if NET_2_0
+			Cache(IEnumerableGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerable<>)));
+			Cache(IEnumeratorGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerator<>)));
+#endif
 						
 			ObjectArrayType = GetArrayType(ObjectType, 1);
 
@@ -1362,8 +1372,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 #if NET_2_0
 		IType GetEnumeratorItemTypeFromGenericEnumerable(IType iteratorType)
-		{			
-			IType genericEnumerable = (IType)Map(typeof(System.Collections.Generic.IEnumerable<>));
+		{	
+			IType genericEnumerable = IEnumerableGenericType;
 
 			IType itemType = null;
 			foreach (IType type in FindConstructedTypes(iteratorType, genericEnumerable))
@@ -1386,13 +1396,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		System.Collections.Generic.IEnumerable<IType> FindConstructedTypes(IType type, IType definition)
-		{			
+		{	
 			while (type != null)
-			{
-				string typeName = (type is ExternalType ? ((ExternalType)type).ActualType.Name : type.Name);				
-
+			{			
 				if (type.GenericTypeInfo != null && 
-				    type.GenericTypeInfo.FullyConstructed && 
 				    type.GenericTypeInfo.GenericDefinition == definition)
 				{
 					yield return type;
