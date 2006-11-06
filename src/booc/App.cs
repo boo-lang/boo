@@ -213,6 +213,35 @@ namespace BooC
 			Console.WriteLine(" (CLR v"+Environment.Version.ToString()+")");
 		}
 		
+		void Help ()
+		{
+				Console.WriteLine(
+						"Usage is: booc [options] file1 ...\n" +
+						"Options:\n" +
+						" -c:CULTURE           Sets the UI culture to be CULTURE\n" +
+						" -debug[+|-]          Generate debugging information\n" +
+						" -delaysign           Delay assembly signing\n" +
+						" -ducky               Turns on duck typing by default\n" +
+						" -embedres:FILE[,ID]  Embeds FILE with the optional ID\n"+
+						" -lib:DIRS            Adds the comma-separated DIRS to the assembly search path\n" +
+						" -noconfig            Do not load the standard configuration\n" +
+						" -nostdlib            Do not reference any of the default libraries\n" +
+						" -nologo              Do not display the compiler logo\n" +
+						" -p:PIPELINE          Sets the pipeline to PIPELINE\n" +
+						" -o:FILE              Set the output file name to FILE\n" +
+						" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
+						" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
+						" -reference:ASS       References the specified assembly (-r:ASS)\n" +
+						" -srcdir:DIR          Adds DIR as a directory where sources can be found\n" +
+						" -target:TYPE         Set the target type (exe, library or winexe)\n" +
+						" -resource:FILE[,ID]  Embed FILE as a resource\n" +
+						" -utf8                Source file is in utf8 format\n" +
+						" -v, -vv, -vvv        Set verbosity level from warnings to very detailed\n" +
+						" -wsa                 Enable white-space-agnostic builds\n"
+						);
+		}
+
+		
 		void ParseOptions(string[] args)
 		{
 			bool debugSteps = false;
@@ -235,6 +264,15 @@ namespace BooC
 						if ("-utf8" == arg) continue;
 						switch (arg[1])
 						{
+							case 'h':
+							{
+								if (arg == "-help" || arg == "-h")
+								{
+									Help();
+								}
+								break;
+							}
+							
 							case 'w':
 							{
 								if (arg == "-wsa")
