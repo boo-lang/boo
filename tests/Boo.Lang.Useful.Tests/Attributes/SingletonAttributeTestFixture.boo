@@ -34,6 +34,7 @@ import NUnit.Framework
 [TestFixture]
 class SingletonAttributeTestFixture(AbstractAttributeTestFixture):
 """
+@author Marcus Griep (neoeinstein+boo@gmail.com)
 @author Sorin Ionescu (sorin.ionescu@gmail.com)
 @author Rodrigo B. de Oliveira
 """	
@@ -54,12 +55,18 @@ public final class SingletonObject(System.Object):
 	private def constructor():
 		super()
 
-	private static ___instance as SingletonObject
-
 	public static Instance as SingletonObject:
 		public static get:
-			if SingletonObject.___instance is null:
-				SingletonObject.___instance = SingletonObject()
-			return SingletonObject.___instance
+			return __Nested.instance
+
+	private class __Nested(System.Object):
+
+		internal static final instance as SingletonObject
+
+		public def constructor():
+			super()
+
+		public static def constructor():
+			SingletonObject.__Nested.instance = SingletonObject()
 """
 		RunTestCase(expected, code)
