@@ -27,8 +27,6 @@
 #endregion
 
 using System;
-using System.Globalization;
-using System.Threading;
 
 namespace Boo.Lang
 {
@@ -37,7 +35,12 @@ namespace Boo.Lang
 	/// </summary>
 	public sealed class ResourceManager
 	{
-		static System.Resources.ResourceManager _rm = new System.Resources.ResourceManager("strings", typeof(ResourceManager).Assembly);
+#if VISUAL_STUDIO
+        const string StringsResourceId = "Boo.Lang.Resources.strings";
+#else
+        const string StringsResourceId = "strings";
+#endif
+		static System.Resources.ResourceManager _rm = new System.Resources.ResourceManager(StringsResourceId, typeof(ResourceManager).Assembly);
 
 		private ResourceManager()
 		{

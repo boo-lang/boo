@@ -31,7 +31,6 @@ namespace BooCompiler.Tests
 	using System;
 	using System.Diagnostics;
 	using System.IO;
-	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.IO;
 	using Boo.Lang.Compiler.Steps;
@@ -52,8 +51,12 @@ namespace BooCompiler.Tests
 		{
 			get
 			{
+#if VISUAL_STUDIO
+			    return false;
+#else
 				return Boo.Lang.Compiler.Steps.PEVerify.IsSupported &&
 						GetEnvironmentFlag("peverify", true);
+#endif
 			}
 		}
 		
@@ -70,10 +73,10 @@ namespace BooCompiler.Tests
 			_compiler = new BooCompiler();
 			_parameters = _compiler.Parameters;			
 			_parameters.OutputWriter = _output = new StringWriter();
-			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			_parameters.Pipeline = SetUpCompilerPipeline();
 			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
+            _parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			CustomizeCompilerParameters();
 		}
 		
@@ -87,8 +90,10 @@ namespace BooCompiler.Tests
 			CopyAssembly(typeof(Boo.Lang.Compiler.BooCompiler).Assembly);
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
+#if !VISUAL_STUDIO
 			CopyAssembly(System.Reflection.Assembly.LoadWithPartialName("BooModules"));
-		}
+#endif
+        }
 		
 		public void CopyAssembly(System.Reflection.Assembly assembly)
 		{
@@ -154,7 +159,7 @@ namespace BooCompiler.Tests
 		}
 		
 		protected void RunMultiFileTestCase(params string[] files)
-		{
+		{   
 			foreach (string file in files)
 			{
 				_parameters.Input.Add(new FileInput(GetTestCasePath(file)));

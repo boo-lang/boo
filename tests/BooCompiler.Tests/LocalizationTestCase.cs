@@ -54,11 +54,13 @@ namespace BooCompiler.Tests
 			AssertCultureDependentMessage("Unexpected token: foo.", CultureInfo.CreateSpecificCulture("en-US"));
 		}
 
+#if !VISUAL_STUDIO
 		[Test]
 		public void TestPtBrCulture()
 		{
 			AssertCultureDependentMessage("Token inesperado: foo.", CultureInfo.CreateSpecificCulture("pt-BR"));
 		}
+#endif
 
 		void AssertCultureDependentMessage(string message, CultureInfo culture)
 		{

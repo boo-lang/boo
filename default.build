@@ -56,7 +56,7 @@
 	<property name="csc.define" value="NET_2_0"
 			if="${2 == version::get-major(framework::get-version(framework::get-target-framework()))}" />
 	
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks">	
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env">	
 	</target>
 	
 	<target name="test" depends="all">
@@ -997,6 +997,12 @@
 			
 			<touch file="src/Boo.Lang.Parser/BooParserBase.cs" />
 		</if>
+	</target>
+	
+	<target name="update-vs2005-env">
+		<exec program="bin/booi.exe" useruntimeengine="true">
+			<arg value="scripts/update-vs2005-env.boo" />
+		</exec>	
 	</target>
 	
 	<target name="generate-ast" depends="init" unless="${skip.ast}">

@@ -1,4 +1,4 @@
-Please refer to our issue tracker at
+﻿Please refer to our issue tracker at
 
  	http://jira.codehaus.org/secure/BrowseProject.jspa?id=10671
  	
@@ -44,16 +44,6 @@ super APÓS qualquer validação:
 * ITypeBinding.GetDefaultMember() as IBinding => ITypeBinding.GetDefaultMembers() as (IBinding)
 
 * macros para o SharpDevelop em boo
-
-* resolução de tipos em MethodInvocationExpression quando existe um nome no mesmo
-escopo mas que não resolve para um tipo, exemplo, tipo Size dentro de um classe
-derivada de Control (que tem uma propriedade chamada Size):
-	* uma solução possível:
-		* OnMethodInvocationExpression antes de resolver o target liga uma flag
-		dizendo que o nome (quando uma referência) deve ser resolvido
-		para todas as suas possibilidades; assim, temos um AmbiguousBinding
-		que pode ser resolvido (levando em conta primariamente a capacidade
-		de ser chamado ou não);
 
 * StatementGroup para permitir o agrupamento de statements com mesmo propósito
 * binary literals: 0b001

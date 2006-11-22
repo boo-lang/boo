@@ -1,6 +1,5 @@
 namespace BooCompiler.Tests
 {
-	using NUnit.Framework;
 	using Boo.Lang.Compiler;	
 
 	public class AbstractCompilerErrorsTestFixture : AbstractCompilerTestCase

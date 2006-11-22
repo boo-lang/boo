@@ -82,11 +82,11 @@ def GenerateIntegrationTestFixture(dir as string):
 	public class ${fixtureName} : AbstractCompilerTestCase
 	{
 	"""
-	GenerateTestFixture(dir, "build/${fixtureName}.cs", header)
+	GenerateTestFixture(dir, "BooCompiler.Tests/${fixtureName}.cs", header)
 	
 GenerateIntegrationTestFixtures()
 
-GenerateTestFixture("testcases/regression", "build/RegressionTestFixture.cs", """
+GenerateTestFixture("testcases/regression", "BooCompiler.Tests/RegressionTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -96,7 +96,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("testcases/errors", "build/CompilerErrorsTestFixture.cs", """
+GenerateTestFixture("testcases/errors", "BooCompiler.Tests/CompilerErrorsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -107,7 +107,7 @@ namespace BooCompiler.Tests
 	{			
 """)
 
-GenerateTestFixture("testcases/warnings", "build/CompilerWarningsTestFixture.cs", """
+GenerateTestFixture("testcases/warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -124,7 +124,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/macros", "build/MacrosTestFixture.cs", """
+GenerateTestFixture("testcases/macros", "BooCompiler.Tests/MacrosTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -134,7 +134,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("testcases/stdlib", "build/StdlibTestFixture.cs", """
+GenerateTestFixture("testcases/stdlib", "BooCompiler.Tests/StdlibTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -144,7 +144,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("testcases/attributes", "build/AttributesTestFixture.cs", """
+GenerateTestFixture("testcases/attributes", "BooCompiler.Tests/AttributesTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -181,7 +181,7 @@ namespace Boo.Lang.Parser.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/semantics", "build/SemanticsTestFixture.cs", """
+GenerateTestFixture("testcases/semantics", "BooCompiler.Tests/SemanticsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -197,7 +197,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/ducky", "build/DuckyTestFixture.cs", """
+GenerateTestFixture("testcases/ducky", "BooCompiler.Tests/DuckyTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -213,7 +213,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/net2/generics", "build/GenericsTestFixture.cs", """
+GenerateTestFixture("testcases/net2/generics", "BooCompiler.Tests/GenericsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -228,7 +228,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/net2/errors", "build/Net2ErrorsTestFixture.cs", """
+GenerateTestFixture("testcases/net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
