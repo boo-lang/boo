@@ -403,20 +403,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (_type.IsByRef) return "ref " + this.GetElementType().ToString();
 			if (_type.DeclaringType != null) return this.DeclaringType.ToString() + "." + _type.Name;		
 			
-			// HACK: Some constructed generic types report a FullName of null
-			if (_type.FullName == null) 
-			{
-				string[] argumentNames = Array.ConvertAll<Type, string>(
-					_type.GetGenericArguments(),
-					delegate(Type t) { return t.FullName; });
-				
-				return string.Format(
-					"{0}[{1}]",
-					_type.GetGenericTypeDefinition().FullName,
-					string.Join(",", argumentNames));
-				
-			}
-			
 #if NET_2_0
 			// HACK: Some constructed generic types report a FullName of null
 			if (_type.FullName == null) 
@@ -430,7 +416,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					_type.GetGenericTypeDefinition().FullName,
 					string.Join(",", argumentNames));
 				
-			}
+			}			
 #endif
 			return _type.FullName;
 		}
