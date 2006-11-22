@@ -6,7 +6,6 @@ class Person:
 	public def constructor(name as string):
 		Name = name
 
-
 def GetPerson() as Person:
 	return Person("Avish")
 
@@ -17,4 +16,3 @@ assert d.Method().Name == "Avish"
 
 d.Event += Base[of Person].EventType(GetPerson)
 d.Event -= Base[of Person].EventType(GetPerson)
-
