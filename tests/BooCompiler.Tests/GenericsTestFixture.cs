@@ -9,7 +9,15 @@ namespace BooCompiler.Tests
 		override protected void RunCompilerTestCase(string name)
 		{
 			if (System.Environment.Version.Major < 2) Assert.Ignore("Test requires .net 2.");
-			base.RunCompilerTestCase(name);
+			System.ResolveEventHandler resolver = InstallAssemblyResolver(System.IO.Path.GetDirectoryName(name));
+			try
+			{
+				base.RunCompilerTestCase(name);
+			}
+			finally
+			{
+				RemoveAssemblyResolver(resolver);
+			}
 		}
 
 		[Test]
@@ -79,9 +87,27 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void mixed_3()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\net2\generics\mixed-3.boo");
+		}
+		
+		[Test]
+		public void mixed_4()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\net2\generics\mixed-4.boo");
+		}
+		
+		[Test]
 		public void name_resolution_1()
 		{
 			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\net2\generics\name-resolution-1.boo");
+		}
+		
+		[Test]
+		public void override_1()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\net2\generics\override-1.boo");
 		}
 		
 		[Test]

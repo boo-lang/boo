@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Reflection;
+
 namespace BooCompiler.Tests
 {
 	using System;
@@ -242,5 +244,55 @@ namespace BooCompiler.Tests
 		{
 			return Path.Combine(_baseTestCasesPath, fname);
 		}
+	    
+	    class AssemblyResolver
+	    {
+            string _path;
+	        
+	        public AssemblyResolver(string path)
+	        {
+	            _path = path;
+	        }
+	        
+	        public System.Reflection.Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+	        {
+	            string simpleName = GetSimpleName(args.Name);
+	            string basePath = Path.Combine(_path, simpleName);
+	            Assembly asm = ProbeFile(basePath + ".dll");
+	            if (asm != null) return asm;
+	            return ProbeFile(basePath + ".exe");
+	        }
+	        
+	        private string GetSimpleName(string name)
+	        {
+	            return System.Text.RegularExpressions.Regex.Split(name, ",\\s*")[0];
+	        }
+	        
+	        private Assembly ProbeFile(string fname)
+	        {
+	            if (!File.Exists(fname)) return null;
+                try
+                {
+                    return Assembly.LoadFrom(fname);
+                }
+	            catch (Exception x)
+	            {
+	                Console.Error.WriteLine(x);
+	            }
+	            return null;
+	        }
+	    }
+	    
+	    protected System.ResolveEventHandler InstallAssemblyResolver(string path)
+	    {
+	        ResolveEventHandler handler = new ResolveEventHandler(new AssemblyResolver(path).AssemblyResolve);
+	        AppDomain.CurrentDomain.AssemblyResolve += handler;
+	        return handler;
+	    }
+	    
+	    protected void RemoveAssemblyResolver(System.ResolveEventHandler handler)
+	    {
+	        AppDomain.CurrentDomain.AssemblyResolve -= handler;
+	    }
 	}
 }

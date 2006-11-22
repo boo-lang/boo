@@ -224,7 +224,15 @@ namespace BooCompiler.Tests
 		override protected void RunCompilerTestCase(string name)
 		{
 			if (System.Environment.Version.Major < 2) Assert.Ignore("Test requires .net 2.");
-			base.RunCompilerTestCase(name);
+			System.ResolveEventHandler resolver = InstallAssemblyResolver(System.IO.Path.GetDirectoryName(name));
+			try
+			{
+				base.RunCompilerTestCase(name);
+			}
+			finally
+			{
+				RemoveAssemblyResolver(resolver);
+			}
 		}
 """)
 

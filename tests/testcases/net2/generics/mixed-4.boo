@@ -1,4 +1,4 @@
-import MixedBase
+import MixedBase from "mixedbase"
 
 class Person:
 	public Name as string
@@ -14,5 +14,5 @@ assert d.Field.Name == "Avish"
 assert d.Property.Name == "Avish"
 assert d.Method().Name == "Avish"
 
-d.Event += Base[of Person].EventType(GetPerson)
-d.Event -= Base[of Person].EventType(GetPerson)
+d.Event += GetPerson
+d.Event -= GetPerson
