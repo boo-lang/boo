@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	public class ExternalEvent : IEvent
 	{
-		TypeSystemServices _typeSystemServices;
+		protected TypeSystemServices _typeSystemServices;
 		
 		System.Reflection.EventInfo _event;
 		
@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_event = event_;
 		}
 		
-		public IType DeclaringType
+		public virtual IType DeclaringType
 		{
 			get
 			{
@@ -48,17 +48,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IMethod GetAddMethod()
+		public virtual IMethod GetAddMethod()
 		{
 			return (IMethod)_typeSystemServices.Map(_event.GetAddMethod(true));
 		}
 		
-		public IMethod GetRemoveMethod()
+		public virtual IMethod GetRemoveMethod()
 		{
 			return (IMethod)_typeSystemServices.Map(_event.GetRemoveMethod(true));
 		}
 		
-		public IMethod GetRaiseMethod()
+		public virtual IMethod GetRaiseMethod()
 		{
 			return (IMethod)_typeSystemServices.Map(_event.GetRaiseMethod(true));
 		}
@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IType Type
+		public virtual IType Type
 		{
 			get
 			{

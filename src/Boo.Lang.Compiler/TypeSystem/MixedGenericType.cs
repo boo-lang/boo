@@ -83,7 +83,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		#region Properties
 
-		public override IGenericTypeInfo GenericTypeInfo 
+		public override IGenericTypeInfo GenericTypeInfo
 		{
 			get { return this; }
 		}
@@ -116,7 +116,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _fullName;
 			}
 		}
-					
+		
 		#endregion
 
 		#region Private Methods
@@ -169,13 +169,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return Array.ConvertAll<IConstructor, IConstructor>(
 				_definition.GetConstructors(),
-				delegate(IConstructor c) { return (IConstructor)MapMember(c); });			
+				delegate(IConstructor c) { return (IConstructor)MapMember(c); });
 		}
-						
+		
 		public override IType[] GetInterfaces()
 		{
 			return Array.ConvertAll<IType, IType>(
-				_definition.GetInterfaces(), 
+				_definition.GetInterfaces(),
 				MapType);
 		}
 		
@@ -204,7 +204,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public override bool IsAssignableFrom(IType other)
-		{		
+		{
 			if (other == null)
 			{
 				return false;
@@ -214,29 +214,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return true;
 			}
-			    			
+			
 			return false;
 		}
-				
-		#endregion 
+		
+		#endregion
 		
 		#region Mapping methods
-				
+		
 		/// <summary>
-		/// Maps a type involving generic parameters to the corresponding type after substituting concrete 
+		/// Maps a type involving generic parameters to the corresponding type after substituting concrete
 		/// arguments for generic parameters.
 		/// </summary>
 		/// <remarks>
-		/// If the source type is a generic parameter of this type's definition, it is mapped to the 
+		/// If the source type is a generic parameter of this type's definition, it is mapped to the
 		/// corresponding argument.
-		/// If the source type is an open generic type using parameters from the type's definition, it 
+		/// If the source type is an open generic type using parameters from the type's definition, it
 		/// is mapped to a closed constructed type based on this type's arguments.
 		/// If the source type is an array of a generic parameter of this type's definition, it is mapped
 		/// to the array type of the corresponding argument, of the same rank.
 		/// </remarks>
 		protected IType MapType(IType sourceType)
 		{
-			if (sourceType == null) 
+			if (sourceType == null)
 			{
 				return null;
 			}
@@ -248,12 +248,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return GenericArguments[gp.GenericParameterPosition];
 			}
 
-			// Map open constructed type using generic parameters to closed constructed type 
+			// Map own definition to this mixed type
+			if (sourceType == GenericDefinition)
+			{
+				return this;
+			}
+			
+			// Map open constructed type using generic parameters to closed constructed type
 			// using corresponding arguments
 			if (null != sourceType.GenericTypeInfo)
 			{
 				IType[] mappedArguments = Array.ConvertAll<IType, IType>(
-					sourceType.GenericTypeInfo.GenericArguments, 
+					sourceType.GenericTypeInfo.GenericArguments,
 					MapType);
 				
 				IType mapped = sourceType.GenericTypeInfo.
@@ -269,7 +275,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return _typeSystemServices.GetArrayType(MapType(array.GetElementType()), array.GetArrayRank());
 			}
-						
+			
 			// TODO: Handle ref/out types of generic parameters
 			
 			// If source type doesn't require mapping, return it as is
@@ -295,21 +301,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 				case EntityType.Method:
 					mapped = new MappedMethod(_typeSystemServices, ((ExternalMethod)source).MethodInfo, this);
 					break;
-				
+					
 				case EntityType.Constructor:
 					mapped = new MappedConstructor(_typeSystemServices, ((ExternalConstructor)source).ConstructorInfo, this);
 					break;
-				
+					
 				case EntityType.Field:
 					mapped = new MappedField(_typeSystemServices, ((ExternalField)source).FieldInfo, this);
 					break;
-				
+					
 				case EntityType.Property:
 					mapped = new MappedProperty(_typeSystemServices, ((ExternalProperty)source).PropertyInfo, this);
 					break;
-				
+					
 				case EntityType.Type:
 					mapped = MapType((IType)source);
+					break;
+					
+				case EntityType.Event:
+					mapped = new MappedEvent(_typeSystemServices, ((ExternalEvent)source).EventInfo, this);
 					break;
 					
 				default:
@@ -336,15 +346,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				_parentType = parentType;
 			}
-					
-			public override IType DeclaringType 
+			
+			public override IType DeclaringType
+			{
+				// get { return _parentType; }
+				get { return _parentType.MapType(base.DeclaringType); }
+			}
+			
+			public IType MixedType
 			{
 				get { return _parentType; }
-			}		
-
+			}
 			public override IType ReturnType
 			{
-				get 
+				get
 				{
 					return _parentType.MapType(base.ReturnType);
 				}
@@ -354,11 +369,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return Array.ConvertAll<IParameter, MappedParameter>(
 					base.GetParameters(),
-					delegate(IParameter p) 
+					delegate(IParameter p)
 					{
 						return new MappedParameter(_typeSystemServices, (ExternalParameter)p, _parentType);
-					});				
-			}			
+					});
+			}
 		}
 		
 		#endregion
@@ -379,19 +394,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 				get { return EntityType.Constructor; }
 			}
 			
-			public override IType ReturnType 
+			public override IType ReturnType
 			{
 				get { return _typeSystemServices.VoidType; }
 			}
 			
 			public ConstructorInfo ConstructorInfo
 			{
-				get 
+				get
 				{
 					return (ConstructorInfo)MethodInfo;
 				}
 			}
-		} 
+		}
 		
 		#endregion
 
@@ -411,33 +426,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_baseParameter = parameter;
 			}
 			
-			public bool IsByRef 
+			public bool IsByRef
 			{
 				get { return _baseParameter.IsByRef; }
 			}
 			
-			public IType Type 
+			public IType Type
 			{
 				get { return _parentType.MapType(_baseParameter.Type); }
 			}
 			
-			public string Name 
+			public string Name
 			{
 				get { return _baseParameter.Name; }
 			}
 			
-			public string FullName 
+			public string FullName
 			{
 				get { return _baseParameter.FullName; }
 			}
 			
-			public EntityType EntityType 
+			public EntityType EntityType
 			{
 				get { return EntityType.Parameter; }
 			}
 		}
 		
-		#endregion		
+		#endregion
 		
 		#region class MappedProperty
 		
@@ -450,7 +465,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_parentType = parentType;
 			}
 			
-			public override IType Type 
+			public override IType Type
 			{
 				get { return _parentType.MapType(base.Type); }
 			}
@@ -465,9 +480,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				IParameter[] baseParams = base.GetParameters();
 				return Array.ConvertAll<IParameter, MappedParameter>(
 					baseParams,
-					delegate(IParameter p) 
-					{ 
-						return new MappedParameter(_typeSystemServices, (ExternalParameter)p, _parentType); 
+					delegate(IParameter p)
+					{
+						return new MappedParameter(_typeSystemServices, (ExternalParameter)p, _parentType);
 					});
 			}
 			
@@ -494,14 +509,53 @@ namespace Boo.Lang.Compiler.TypeSystem
 						"{0} {1} [{2}]",
 						Type.Name,
 						Name,
-						string.Join(", ", parameterNames));							
+						string.Join(", ", parameterNames));
 				}
 				
 				return string.Format("{0} {1}", Type.Name, Name);
-			}		
+			}
 		}
 		#endregion
 
+		#region class MappedEvent
+		
+		public class MappedEvent : ExternalEvent
+		{
+			private MixedGenericType _parentType;
+
+			public MappedEvent(TypeSystemServices tss, EventInfo evt, MixedGenericType parentType) : base(tss, evt)
+			{
+				_parentType = parentType;
+			}
+			
+			public override IType DeclaringType
+			{
+				get { return _parentType.MapType(base.DeclaringType); }
+			}
+			
+			public override IMethod GetAddMethod()
+			{
+				return (IMethod)_parentType.MapMember(base.GetAddMethod());
+			}
+			
+			public override IMethod GetRemoveMethod()
+			{
+				return (IMethod)_parentType.MapMember(base.GetRemoveMethod());
+			}
+			
+			public override IMethod GetRaiseMethod()
+			{
+				return (IMethod)_parentType.MapMember(base.GetRaiseMethod());
+			}
+			
+			public override IType Type
+			{
+				get { return _parentType.MapType(base.Type); }
+			}
+		}
+		
+		#endregion
+		
 		#region class MappedField
 		
 		public class MappedField : ExternalField
@@ -513,12 +567,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_parentType = parentType;
 			}
 			
-			public override IType DeclaringType 
+			public override IType DeclaringType
 			{
-				get { return _parentType; }
+				get { return _parentType.MapType(base.DeclaringType); }
 			}
 			
-			public override IType Type 
+			public override IType Type
 			{
 				get { return _parentType.MapType(base.Type); }
 			}
@@ -536,7 +590,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			base(tss, definition, arguments)
 		{
 			_definition = definition;
-		}				
+		}
 
 		public CallableSignature GetSignature()
 		{
@@ -546,8 +600,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 				IParameter[] parameters = Array.ConvertAll<IParameter, IParameter>(
 					definitionSignature.Parameters,
-					delegate(IParameter p) 
-					{ 
+					delegate(IParameter p)
+					{
 						return new MappedParameter(_typeSystemServices, (ExternalParameter)p, this);
 					});
 				
@@ -558,10 +612,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		override public bool IsAssignableFrom(IType other)
-		{	
+		{
 			return _typeSystemServices.IsCallableTypeAssignableFrom(this, other);
 		}
-	}	
+	}
 }
 
 #endif

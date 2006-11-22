@@ -63,17 +63,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType MakeGenericType(IType[] arguments)
 		{
-			Predicate<IType> isExternal = delegate(IType t)
+			if (Array.TrueForAll(arguments, IsExternal))
 			{
-				return (t is ExternalType && !(t is MixedGenericType));
-			};
-			
-			if (Array.TrueForAll(arguments, isExternal))
-			{
-				Type[] actualTypes = Array.ConvertAll<IType, Type>(
-					arguments,
-					delegate(IType t) { return ((ExternalType)t).ActualType; });
-				
+				Type[] actualTypes = Array.ConvertAll<IType, Type>(arguments, GetSystemType);
+
 				return _tss.Map(_type.ActualType.MakeGenericType(actualTypes));
 			}
 			else if (_instances.ContainsKey(arguments))
@@ -102,6 +95,41 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 				
+		private bool IsExternal(IType type)
+		{
+			if (type is ExternalType && !(type is MixedGenericType))
+			{
+				return true;				
+			}
+			
+			if (type is ArrayType)
+			{
+				return IsExternal(type.GetElementType());
+			}
+			
+			return false;
+		}
+		
+		private Type GetSystemType(IType type)
+		{
+			if (type is ExternalType) 
+			{
+				return ((ExternalType)type).ActualType;
+			}
+			
+			ArrayType arrayType = type as ArrayType;
+			if (arrayType != null)
+			{			
+				Type elementType = GetSystemType(arrayType.GetElementType());
+				
+				return Array.CreateInstance(
+					elementType, 
+					new int[arrayType.GetArrayRank()]).GetType();
+			}
+			
+			return null;
+		}
+		
 		private class GenericArgumentsComparer: IEqualityComparer<IType[]>
 		{
 			public bool Equals(IType[] x, IType[] y)
