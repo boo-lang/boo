@@ -6,7 +6,6 @@ Disposable.Dispose
 after block
 """
 import BooCompiler.Tests from BooCompiler.Tests
-import NUnit.Framework
 
 class Foo:
 
@@ -17,4 +16,4 @@ print("before block")
 using f.Bar:
 	print("inside block")
 print("after block")
-Assert.IsNotNull(f.Bar)
+assert f.Bar is not null

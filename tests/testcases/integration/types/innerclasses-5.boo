@@ -1,5 +1,3 @@
-import NUnit.Framework
-
 class Outer:	
 
 	[getter(Values)]
@@ -16,7 +14,7 @@ class Outer:
 		_values = Inner("foo"), Inner("bar")
 
 outer = Outer()
-Assert.AreEqual(2, len(outer.Values))
-Assert.AreEqual("foo", outer.Values[0].Name)
-Assert.AreEqual("bar", outer.Values[1].Name)
+assert 2 == len(outer.Values)
+assert "foo" == outer.Values[0].Name
+assert "bar" == outer.Values[1].Name
 		

@@ -1,5 +1,3 @@
-import NUnit.Framework
-
 class Outer:
 
 	class Inner:
@@ -10,5 +8,5 @@ class Outer:
 	_innerValue = Inner(Value: "foo")
 
 outer = Outer()
-Assert.AreEqual("foo", outer.InnerValue.Value)
+assert "foo" == outer.InnerValue.Value
 		

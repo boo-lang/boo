@@ -1,5 +1,3 @@
-import NUnit.Framework
-
 class Outer:
 	class Inner:
 		pass
@@ -12,4 +10,4 @@ class Outer:
 		
 value = Outer.Inner()
 outer = Outer(value)
-Assert.AreSame(value, outer.Value)
+assert value is outer.Value

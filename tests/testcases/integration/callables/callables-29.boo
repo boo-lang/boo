@@ -1,5 +1,4 @@
 ﻿import System
-import NUnit.Framework
 
 callable Function(item) as object
 
@@ -13,4 +12,4 @@ class Handler:
 		return "${_prefix} - ${value}"
 
 fn = cast(StringFunction, cast(Function, Handler(Prefix: "Function").Handle))
-Assert.AreEqual("Function - 14", fn("14"))
+assert "Function - 14" == fn("14")
