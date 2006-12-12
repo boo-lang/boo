@@ -28,7 +28,6 @@
 
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Reflection;
@@ -202,9 +201,10 @@ namespace Boo.Lang
 			return RuntimeServices.GetEnumerable(enumerable);
 		}
 
-		public static Process shellp(string filename, string arguments)
+#if !NO_SYSTEM_DLL
+		public static System.Diagnostics.Process shellp(string filename, string arguments)
 		{
-			Process p = new Process();
+            System.Diagnostics.Process p = new System.Diagnostics.Process();
 			p.StartInfo.Arguments = arguments;
 			p.StartInfo.CreateNoWindow = true;
 			p.StartInfo.UseShellExecute = false;
@@ -218,11 +218,12 @@ namespace Boo.Lang
 
 		public static string shell(string filename, string arguments)
 		{
-			Process p = shellp(filename, arguments);
+            System.Diagnostics.Process p = shellp(filename, arguments);
 			string output = p.StandardOutput.ReadToEnd();
 			p.WaitForExit();
 			return output;
 		}
+#endif
 		
 		internal class AssemblyExecutor : MarshalByRefObject
 		{

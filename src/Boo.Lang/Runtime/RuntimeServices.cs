@@ -32,7 +32,6 @@ using System.Collections;
 using System.IO;
 using System.Reflection.Emit;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Boo.Lang.Runtime
 {
@@ -1101,20 +1100,22 @@ namespace Boo.Lang.Runtime
 			return rhs.IndexOf(lhs) > -1;
 		}
 
-		public static bool op_Match(string input, Regex pattern)
+#if !NO_SYSTEM_DLL
+		public static bool op_Match(string input, System.Text.RegularExpressions.Regex pattern)
 		{
 			return pattern.IsMatch(input);
 		}
 
 		public static bool op_Match(string input, string pattern)
 		{
-			return Regex.IsMatch(input, pattern);
+            return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
 		}
 
 		public static bool op_NotMatch(string input, string pattern)
 		{
 			return !op_Match(input, pattern);
 		}
+#endif
 
 		public static string op_Modulus(string lhs, IEnumerable rhs)
  		{
