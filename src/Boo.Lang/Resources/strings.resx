@@ -117,583 +117,583 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data xml:space="preserve" name="BCE0000">
+  <data space="preserve" name="BCE0000">
     <value>'{0}'</value>
   </data>
-  <data xml:space="preserve" name="BCE0001">
+  <data space="preserve" name="BCE0001">
     <value>The class '{0}' already has '{1}' as its base class.</value>
   </data>
-  <data xml:space="preserve" name="BCE0002">
+  <data space="preserve" name="BCE0002">
     <value>Parameter name must be an identifier.</value>
   </data>
-  <data xml:space="preserve" name="BCE0003">
+  <data space="preserve" name="BCE0003">
     <value>Named arguments are only allowed when creating objects.</value>
   </data>
-  <data xml:space="preserve" name="BCE0004">
+  <data space="preserve" name="BCE0004">
     <value>Ambiguous reference '{0}': {1}.</value>
   </data>
-  <data xml:space="preserve" name="BCE0005">
+  <data space="preserve" name="BCE0005">
     <value>Unknown identifier: '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0006">
+  <data space="preserve" name="BCE0006">
     <value>'{0}' is a value type. The 'as' operator can only be used with reference types.</value>
   </data>
-  <data xml:space="preserve" name="BCE0007">
+  <data space="preserve" name="BCE0007">
     <value>The name '{0}' does not represent a public property or field of the type '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0008">
+  <data space="preserve" name="BCE0008">
     <value>The '{0}' type does not have a constructor with the signature '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0009">
+  <data space="preserve" name="BCE0009">
     <value>An error occurred during the resolution of the '{0}' ast attribute: '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0010">
+  <data space="preserve" name="BCE0010">
     <value>'{0}' is an internal type. Ast attributes must be compiled to a separate assembly before they can be used.</value>
   </data>
-  <data xml:space="preserve" name="BCE0011">
+  <data space="preserve" name="BCE0011">
     <value>An error occurred during the execution of the step '{0}': '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0012">
+  <data space="preserve" name="BCE0012">
     <value>The type '{0}' does not implement the ICompilerStep interface.</value>
   </data>
-  <data xml:space="preserve" name="BCE0013">
+  <data space="preserve" name="BCE0013">
     <value>The element '{0}' must specify the attribute '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0014">
+  <data space="preserve" name="BCE0014">
     <value>AssemblyBuilder was not correctly set up.</value>
   </data>
-  <data xml:space="preserve" name="BCE0015">
+  <data space="preserve" name="BCE0015">
     <value>Node '{0}' has not been correctly processed.</value>
   </data>
-  <data xml:space="preserve" name="BCE0016">
+  <data space="preserve" name="BCE0016">
     <value>No overload of the method '{0}' takes '{1}' parameter(s).</value>
   </data>
-  <data xml:space="preserve" name="BCE0017">
+  <data space="preserve" name="BCE0017">
     <value>The best overload for the method '{0}' is not compatible with the argument list '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0018">
+  <data space="preserve" name="BCE0018">
     <value>The name '{0}' does not denote a valid type.</value>
   </data>
-  <data xml:space="preserve" name="BCE0019">
+  <data space="preserve" name="BCE0019">
     <value>'{0}' is not a member of '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0020">
+  <data space="preserve" name="BCE0020">
     <value>An instance of type '{0}' is required to access non static member '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0021">
+  <data space="preserve" name="BCE0021">
     <value>Namespace '{0}' not found, maybe you forgot to add an assembly reference?</value>
   </data>
-  <data xml:space="preserve" name="BCE0022">
+  <data space="preserve" name="BCE0022">
     <value>Cannot convert '{1}' to '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0023">
+  <data space="preserve" name="BCE0023">
     <value>No appropriate version of '{1}' for the argument list '{0}' was found.</value>
   </data>
-  <data xml:space="preserve" name="BCE0024">
+  <data space="preserve" name="BCE0024">
     <value>The type '{0}' does not have a visible constructor that matches the argument list '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0025">
+  <data space="preserve" name="BCE0025">
     <value>Only unidimensional arrays are supported.</value>
   </data>
-  <data xml:space="preserve" name="BCE0026">
+  <data space="preserve" name="BCE0026">
     <value>'{0}' cannot be used in a boolean context.</value>
   </data>
-  <data xml:space="preserve" name="BCE0027">
+  <data space="preserve" name="BCE0027">
     <value>Ambiguous type reference, it could be any of the following: '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0028">
+  <data space="preserve" name="BCE0028">
     <value>No entry point found.</value>
   </data>
-  <data xml:space="preserve" name="BCE0029">
+  <data space="preserve" name="BCE0029">
     <value>More than one entry point found.</value>
   </data>
-  <data xml:space="preserve" name="BCE0030">
+  <data space="preserve" name="BCE0030">
     <value>The node '{0}' is not in the collection.</value>
   </data>
-  <data xml:space="preserve" name="BCE0031">
+  <data space="preserve" name="BCE0031">
     <value>Language feature still not implemented: '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0032">
+  <data space="preserve" name="BCE0032">
     <value>The event '{0}' expects a callable reference compatible with '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0033">
+  <data space="preserve" name="BCE0033">
     <value>The type '{0}' is not a valid attribute.</value>
   </data>
-  <data xml:space="preserve" name="BCE0034">
+  <data space="preserve" name="BCE0034">
     <value>Expressions in statements must only be executed for their side-effects.</value>
   </data>
-  <data xml:space="preserve" name="BCE0035">
+  <data space="preserve" name="BCE0035">
     <value>'{0}' conflicts with inherited member '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0036">
+  <data space="preserve" name="BCE0036">
     <value>typeof must be used with a type reference as its single argument.</value>
   </data>
-  <data xml:space="preserve" name="BCE0037">
+  <data space="preserve" name="BCE0037">
     <value>Unknown macro: '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0038">
+  <data space="preserve" name="BCE0038">
     <value>'{0}' is not a valid macro.</value>
   </data>
-  <data xml:space="preserve" name="BCE0039">
+  <data space="preserve" name="BCE0039">
     <value>'{0}' is internal. Only external macros can be expanded.</value>
   </data>
-  <data xml:space="preserve" name="BCE0040">
+  <data space="preserve" name="BCE0040">
     <value>Generic error.</value>
   </data>
-  <data xml:space="preserve" name="BCE0041">
+  <data space="preserve" name="BCE0041">
     <value>Failed to load assembly '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0042">
+  <data space="preserve" name="BCE0042">
     <value>Error reading from '{0}': '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0043">
+  <data space="preserve" name="BCE0043">
     <value>Unexpected token: {0}.</value>
   </data>
-  <data xml:space="preserve" name="BCE0044">
+  <data space="preserve" name="BCE0044">
     <value>{0}.</value>
   </data>
-  <data xml:space="preserve" name="BCE0045">
+  <data space="preserve" name="BCE0045">
     <value>Macro expansion error: '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0046">
+  <data space="preserve" name="BCE0046">
     <value>'{0}' can't be used with a value type ('{1}')</value>
   </data>
-  <data xml:space="preserve" name="BCE0047">
+  <data space="preserve" name="BCE0047">
     <value>Method '{0}' cannot be overriden because it is not virtual.</value>
   </data>
-  <data xml:space="preserve" name="BCE0048">
+  <data space="preserve" name="BCE0048">
     <value>Type '{0}' does not support slicing.</value>
   </data>
-  <data xml:space="preserve" name="BCE0049">
+  <data space="preserve" name="BCE0049">
     <value>Expression cannot be assigned to.</value>
   </data>
-  <data xml:space="preserve" name="BCE0050">
+  <data space="preserve" name="BCE0050">
     <value>Operator '{0}' cannot be used with an expression of type '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0051">
+  <data space="preserve" name="BCE0051">
     <value>Operator '{0}' cannot be used with a left hand side of type '{1}' and a right hand side of type '{2}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0052">
+  <data space="preserve" name="BCE0052">
     <value>Type '{0}' is not a valid argument for 'len'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0053">
+  <data space="preserve" name="BCE0053">
     <value>Property '{0}' is read only.</value>
   </data>
-  <data xml:space="preserve" name="BCE0054">
+  <data space="preserve" name="BCE0054">
     <value>'isa' expects a type reference, a System.Type instance or a type array.</value>
   </data>
-  <data xml:space="preserve" name="BCE0055">
+  <data space="preserve" name="BCE0055">
     <value>Internal compiler error: {0}.</value>
   </data>
-  <data xml:space="preserve" name="BCE0056">
+  <data space="preserve" name="BCE0056">
     <value>File '{0}' was not found.</value>
   </data>
-  <data xml:space="preserve" name="BCE0057">
+  <data space="preserve" name="BCE0057">
     <value>Primitive '{0}' can't be redefined.</value>
   </data>
-  <data xml:space="preserve" name="BCE0058">
+  <data space="preserve" name="BCE0058">
     <value>Object required.</value>
   </data>
-  <data xml:space="preserve" name="BCE0059">
+  <data space="preserve" name="BCE0059">
     <value>The 'lock' macro expects at least one argument.</value>
   </data>
-  <data xml:space="preserve" name="BCE0060">
+  <data space="preserve" name="BCE0060">
     <value>'{0}': no suitable method found to override.</value>
   </data>
-  <data xml:space="preserve" name="BCE0061">
+  <data space="preserve" name="BCE0061">
     <value>'{0}' is not an override.</value>
   </data>
-  <data xml:space="preserve" name="BCE0062">
+  <data space="preserve" name="BCE0062">
     <value>Could not infer the return type for the method '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0063">
+  <data space="preserve" name="BCE0063">
     <value>No enclosing loop out of which to break or continue.</value>
   </data>
-  <data xml:space="preserve" name="BCE0064">
+  <data space="preserve" name="BCE0064">
     <value>No attribute with the name '{0}' or '{0}Attribute' was found (attribute names are case insensitive).</value>
   </data>
-  <data xml:space="preserve" name="BCE0065">
+  <data space="preserve" name="BCE0065">
     <value>Cannot iterate over expression of type '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0066">
+  <data space="preserve" name="BCE0066">
     <value>The attribute '{0}' can only be applied to '{1}' nodes.</value>
   </data>
-  <data xml:space="preserve" name="BCE0067">
+  <data space="preserve" name="BCE0067">
     <value>There is already a local variable with the name '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0068">
+  <data space="preserve" name="BCE0068">
     <value>The property '{0}' cannot be used without parameters.</value>
   </data>
-  <data xml:space="preserve" name="BCE0069">
+  <data space="preserve" name="BCE0069">
     <value>Interface '{0}' can only inherit from another interface but the type '{1}' is not an interface.</value>
   </data>
-  <data xml:space="preserve" name="BCE0070">
+  <data space="preserve" name="BCE0070">
     <value>Definition of '{0}' depends on '{1}' whose type could not be resolved because of a cycle. Explicitly declare the type of either one to break the cycle.</value>
   </data>
-  <data xml:space="preserve" name="BCE0071">
+  <data space="preserve" name="BCE0071">
     <value>Inheritance cycle detected: '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0072">
+  <data space="preserve" name="BCE0072">
     <value>Overriden method '{0}' has a return type of '{1}' not '{2}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0073">
+  <data space="preserve" name="BCE0073">
     <value>Abstract method '{0}' cannot have a body.</value>
   </data>
-  <data xml:space="preserve" name="BCE0074">
+  <data space="preserve" name="BCE0074">
     <value>'self' cannot be used outside a method.</value>
   </data>
-  <data xml:space="preserve" name="BCE0075">
+  <data space="preserve" name="BCE0075">
     <value>'{0}' is a namespace. Namespaces cannot be used as expressions.</value>
   </data>
-  <data xml:space="preserve" name="BCE0076">
+  <data space="preserve" name="BCE0076">
     <value>Runtime and PInvoke methods must have an empty body.</value>
   </data>
-  <data xml:space="preserve" name="BCE0077">
+  <data space="preserve" name="BCE0077">
     <value>It is not possible to invoke an expression of type '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0078">
+  <data space="preserve" name="BCE0078">
     <value>A method reference was expected.</value>
   </data>
-  <data xml:space="preserve" name="BCE0079">
+  <data space="preserve" name="BCE0079">
     <value>__addressof__ builtin function can only be used in delegate constructors.</value>
   </data>
-  <data xml:space="preserve" name="BCE0080">
+  <data space="preserve" name="BCE0080">
     <value>'{0}' builtin function cannot be used as an expression.</value>
   </data>
-  <data xml:space="preserve" name="BCE0081">
+  <data space="preserve" name="BCE0081">
     <value>A raise statement with no arguments is not allowed outside an exception handler.</value>
   </data>
-  <data xml:space="preserve" name="BCE0082">
+  <data space="preserve" name="BCE0082">
     <value>'{0}' is not callable. Event type must be callable.</value>
   </data>
-  <data xml:space="preserve" name="BCE0083">
+  <data space="preserve" name="BCE0083">
     <value>Static constructors must be public.</value>
   </data>
-  <data xml:space="preserve" name="BCE0084">
+  <data space="preserve" name="BCE0084">
     <value>Static constructors can not declare parameters.</value>
   </data>
-  <data xml:space="preserve" name="BCE0085">
+  <data space="preserve" name="BCE0085">
     <value>Cannot create instance of abstract class '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0086">
+  <data space="preserve" name="BCE0086">
     <value>Cannot create instance of interface '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0087">
+  <data space="preserve" name="BCE0087">
     <value>Cannot create instance of enum '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0088">
+  <data space="preserve" name="BCE0088">
     <value>Sorry but the '{0}' prefix is reserved by the compiler. Friends?</value>
   </data>
-  <data xml:space="preserve" name="BCE0089">
+  <data space="preserve" name="BCE0089">
     <value>Type '{0}' already has a definition for '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0090">
+  <data space="preserve" name="BCE0090">
     <value>Derived method '{0}' can not reduce the accessiblity of '{1}' from '{2}' to '{3}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0091">
+  <data space="preserve" name="BCE0091">
     <value>Event reference '{0}' cannot be used as an expression.</value>
   </data>
-  <data xml:space="preserve" name="BCE0092">
+  <data space="preserve" name="BCE0092">
     <value>'{0}' is not a valid argument type for raise, only strings and exceptions are allowed.</value>
   </data>
-  <data xml:space="preserve" name="BCE0093">
+  <data space="preserve" name="BCE0093">
     <value>Cannot branch into ensure block.</value>
   </data>
-  <data xml:space="preserve" name="BCE0094">
+  <data space="preserve" name="BCE0094">
     <value>Cannot branch into exception handler.</value>
   </data>
-  <data xml:space="preserve" name="BCE0095">
+  <data space="preserve" name="BCE0095">
     <value>No such label '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0096">
+  <data space="preserve" name="BCE0096">
     <value>Method '{0}' already has a label '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0097">
+  <data space="preserve" name="BCE0097">
     <value>Cannot branch into try block.</value>
   </data>
-  <data xml:space="preserve" name="BCE0098">
+  <data space="preserve" name="BCE0098">
     <value>Invalid arguments for __switch__.</value>
   </data>
-  <data xml:space="preserve" name="BCE0099">
+  <data space="preserve" name="BCE0099">
     <value>yield cannot be used inside a try, except or ensure block.</value>
   </data>
-  <data xml:space="preserve" name="BCE0100">
+  <data space="preserve" name="BCE0100">
     <value>yield cannot be used inside constructors.</value>
   </data>
-  <data xml:space="preserve" name="BCE0101">
+  <data space="preserve" name="BCE0101">
     <value>The return type of a generator must be either 'System.Collections.IEnumerable' or 'object'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0102">
+  <data space="preserve" name="BCE0102">
     <value>Generators cannot return values.</value>
   </data>
-  <data xml:space="preserve" name="BCE0103">
+  <data space="preserve" name="BCE0103">
     <value>Cannot extend final type '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0104">
+  <data space="preserve" name="BCE0104">
     <value>'transient' can only be applied to class, field and event definitions.</value>
   </data>
-  <data xml:space="preserve" name="BCE0105">
+  <data space="preserve" name="BCE0105">
     <value>'abstract' can only be applied to class, method, property and event definitions.</value>
   </data>
-  <data xml:space="preserve" name="BCE0106">
+  <data space="preserve" name="BCE0106">
     <value>Failed to access the types defined in assembly {0}.</value>
   </data>
-  <data xml:space="preserve" name="BCE0107">
+  <data space="preserve" name="BCE0107">
     <value>Value types cannot declare parameterless constructors.</value>
   </data>
-  <data xml:space="preserve" name="BCE0108">
+  <data space="preserve" name="BCE0108">
     <value>Value type fields cannot have initializers.</value>
   </data>
-  <data xml:space="preserve" name="BCE0109">
+  <data space="preserve" name="BCE0109">
     <value>Array '{0}' is rank '{1}', not rank '{2}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0110">
+  <data space="preserve" name="BCE0110">
     <value>'{0}' is not a namespace.</value>
   </data>
-  <data xml:space="preserve" name="BCE0111">
+  <data space="preserve" name="BCE0111">
     <value>Destructors cannot have any attributes or modifiers</value>
   </data>
-  <data xml:space="preserve" name="BCE0112">
+  <data space="preserve" name="BCE0112">
     <value>Destructors cannot be passed parameters</value>
   </data>
-  <data xml:space="preserve" name="BCE0113">
+  <data space="preserve" name="BCE0113">
     <value>Invalid character literal: '{0}'</value>
   </data>
-  <data xml:space="preserve" name="BCE0114">
+  <data space="preserve" name="BCE0114">
     <value>Explicit interface implementation for non interface type '{0}'</value>
   </data>
-  <data xml:space="preserve" name="BCE0115">
+  <data space="preserve" name="BCE0115">
     <value>Cannot implement interface item '{0}.{1}' when not implementing the interface '{0}'</value>
   </data>
-  <data xml:space="preserve" name="BCE0116">
+  <data space="preserve" name="BCE0116">
     <value>Explicit member implementation for '{0}.{1}' must not declare any modifiers.</value>
   </data>
-  <data xml:space="preserve" name="BCE0117">
+  <data space="preserve" name="BCE0117">
     <value>Field '{0}' is read only.</value>
   </data>
-  <data xml:space="preserve" name="BCE0118">
+  <data space="preserve" name="BCE0118">
     <value>Target of explode expression must be an array.</value>
   </data>
-  <data xml:space="preserve" name="BCE0119">
+  <data space="preserve" name="BCE0119">
     <value>Explode expression can only be used as the last argument to a callable which takes a variable number of arguments.</value>
   </data>
-  <data xml:space="preserve" name="BCE0120">
+  <data space="preserve" name="BCE0120">
     <value>'{0}' is unaccessible due to its protection level.</value>
   </data>
-  <data xml:space="preserve" name="BCE0121">
+  <data space="preserve" name="BCE0121">
     <value>'super' is not valid in this context.</value>
   </data>
-  <data xml:space="preserve" name="BCE0122">
+  <data space="preserve" name="BCE0122">
     <value>Value type '{0}' does not provide an implementation for '{1}'. Value types cannot have abstract members.</value>
   </data>
-  <data xml:space="preserve" name="BCE0123">
+  <data space="preserve" name="BCE0123">
     <value>Invalid parameter type '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0124">
+  <data space="preserve" name="BCE0124">
     <value>Invalid field type '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0125">
+  <data space="preserve" name="BCE0125">
     <value>Invalid declaration type '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0126">
+  <data space="preserve" name="BCE0126">
     <value>It is not possible to evaluate an expression of type '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0127">
+  <data space="preserve" name="BCE0127">
     <value>A ref or out argument must be an lvalue: '{0}'</value>
   </data>
-  <data xml:space="preserve" name="BCE0128">
+  <data space="preserve" name="BCE0128">
     <value>'try' block must be followed by either 'except' or 'ensure'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0129">
+  <data space="preserve" name="BCE0129">
     <value>Invalid extension definition, only static methods are allowed.</value>
   </data>
-  <data xml:space="preserve" name="BCE0130">
+  <data space="preserve" name="BCE0130">
     <value>'partial' can only be applied to class definitions.</value>
   </data>
-  <data xml:space="preserve" name="BCE0131">
+  <data space="preserve" name="BCE0131">
     <value>Invalid combination of modifiers on '{0}': {1}.</value>
   </data>
-  <data xml:space="preserve" name="BCE0132">
+  <data space="preserve" name="BCE0132">
     <value>The namespace '{0}' already contains a definition for '{1}'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0133">
+  <data space="preserve" name="BCE0133">
     <value>Invalid signature for Main. It should be one of: 'Main() as void', 'Main() as int', 'Main(argv as (string)) as void', 'Main(argv as (string)) as int'.</value>
   </data>
-  <data xml:space="preserve" name="BCE0134">
+  <data space="preserve" name="BCE0134">
     <value>'{0}' cannot return values.</value>
   </data>
-  <data xml:space="preserve" name="BCE0135">
+  <data space="preserve" name="BCE0135">
     <value>Invalid name: '{0}'</value>
   </data>
-  <data xml:space="preserve" name="BCE0136">
+  <data space="preserve" name="BCE0136">
     <value>Use a colon(:) instead of equal sign(=) for named parameters.</value>
   </data>
-  <data xml:space="preserve" name="BCE0137">
+  <data space="preserve" name="BCE0137">
     <value>Property '{0}' is write only.</value>
   </data>
-  <data xml:space="preserve" name="BCE0138">
+  <data space="preserve" name="BCE0138">
     <value>'{0}' is not a generic definition.</value>
   </data>
-  <data xml:space="preserve" name="BCE0139">
+  <data space="preserve" name="BCE0139">
     <value>'{0}' requires '{1}' arguments.</value>
   </data>
-  <data xml:space="preserve" name="BCW0000">
+  <data space="preserve" name="BCW0000">
     <value>WARNING: {0}</value>
   </data>
-  <data xml:space="preserve" name="BCW0001">
+  <data space="preserve" name="BCW0001">
     <value>WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract</value>
   </data>
-  <data xml:space="preserve" name="BCW0002">
+  <data space="preserve" name="BCW0002">
     <value>WARNING: Statement modifiers have no effect in labels.</value>
   </data>
-  <data xml:space="preserve" name="BCW0003">
+  <data space="preserve" name="BCW0003">
     <value>WARNING: Unused local variable '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCW0004">
+  <data space="preserve" name="BCW0004">
     <value>WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?</value>
   </data>
-  <data xml:space="preserve" name="BCW0005">
+  <data space="preserve" name="BCW0005">
     <value>WARNING: Unsubscribing from event '{0}' with an adapted method reference. Either change the signature of the method to '{1}' or use a cached reference of the correct type.</value>
   </data>
-  <data xml:space="preserve" name="BCW0006">
+  <data space="preserve" name="BCW0006">
     <value>WARNING: Assignment to temporary.</value>
   </data>
-  <data xml:space="preserve" name="BCW0007">
+  <data space="preserve" name="BCW0007">
     <value>WARNING: Assignment inside a conditional. Did you mean '==' instead of '=' here: '{0}'?</value>
   </data>
-  <data xml:space="preserve" name="BCW0008">
+  <data space="preserve" name="BCW0008">
     <value>WARNING: Duplicate namespace: '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="BCW0009">
+  <data space="preserve" name="BCW0009">
     <value>WARNING: The -keyfile option will override your AssemblyKeyFile attribute.</value>
   </data>
-  <data xml:space="preserve" name="BCW0010">
+  <data space="preserve" name="BCW0010">
     <value>WARNING: The -keycontainer option will override your AssemblyKeyName attribute.</value>
   </data>
-  <data xml:space="preserve" name="BCE0500">
+  <data space="preserve" name="BCE0500">
     <value>Response file '{0}' listed more than once.</value>
   </data>
-  <data xml:space="preserve" name="BCE0501">
+  <data space="preserve" name="BCE0501">
     <value>Response file '{0}' could not be found.</value>
   </data>
-  <data xml:space="preserve" name="BCE0502">
+  <data space="preserve" name="BCE0502">
     <value>An error occurred while loading response file '{0}'.</value>
   </data>
-  <data xml:space="preserve" name="Boo.Lang.Compiler.GlobalNamespaceIsNotSet">
+  <data space="preserve" name="Boo.Lang.Compiler.GlobalNamespaceIsNotSet">
     <value>Global namespace is not set!</value>
   </data>
-  <data xml:space="preserve" name="BooC.Errors">
+  <data space="preserve" name="BooC.Errors">
     <value>{0} error(s).</value>
   </data>
-  <data xml:space="preserve" name="BooC.Warnings">
+  <data space="preserve" name="BooC.Warnings">
     <value>{0} warning(s).</value>
   </data>
-  <data xml:space="preserve" name="BooC.ProcessingTime">
+  <data space="preserve" name="BooC.ProcessingTime">
     <value>{0} module(s) processed in {1}ms after {2}ms of environment setup.</value>
   </data>
-  <data xml:space="preserve" name="BooC.FatalError">
+  <data space="preserve" name="BooC.FatalError">
     <value>Fatal error: {0}.</value>
   </data>
-  <data xml:space="preserve" name="BooC.InvalidOption">
+  <data space="preserve" name="BooC.InvalidOption">
     <value>Invalid option: {0}.</value>
   </data>
-  <data xml:space="preserve" name="BooC.CantRunWithoutPipeline">
+  <data space="preserve" name="BooC.CantRunWithoutPipeline">
     <value>A pipeline must be specified!</value>
   </data>
-  <data xml:space="preserve" name="BooC.UnableToLoadPipeline">
+  <data space="preserve" name="BooC.UnableToLoadPipeline">
     <value>Failed to load pipeline {0}, cause: {1}.</value>
   </data>
-  <data xml:space="preserve" name="BooC.NoPipeline">
+  <data space="preserve" name="BooC.NoPipeline">
     <value>No compilation pipeline specified (/p:&lt;PIPELINE&gt;)</value>
   </data>
-  <data xml:space="preserve" name="BooC.NoInputSpecified">
+  <data space="preserve" name="BooC.NoInputSpecified">
     <value>No inputs specified</value>
   </data>
-  <data xml:space="preserve" name="BooC.NoOutputSpecified">
+  <data space="preserve" name="BooC.NoOutputSpecified">
     <value>No output specified</value>
   </data>
-  <data xml:space="preserve" name="BooC.UnableToLoadAssembly">
+  <data space="preserve" name="BooC.UnableToLoadAssembly">
     <value>Unable to load assembly: {0}</value>
   </data>
-  <data xml:space="preserve" name="BooC.BadFormat">
+  <data space="preserve" name="BooC.BadFormat">
     <value>Unable to load assembly (bad file format): {0}</value>
   </data>
-  <data xml:space="preserve" name="BooC.NullAssembly">
+  <data space="preserve" name="BooC.NullAssembly">
     <value>Unable to load assembly (null argument)</value>
   </data>
-  <data xml:space="preserve" name="BooC.CannotFindAssembly">
+  <data space="preserve" name="BooC.CannotFindAssembly">
     <value>Cannot find assembly: '{0}'</value>
   </data>
-  <data xml:space="preserve" name="BooC.NoSystemPath">
+  <data space="preserve" name="BooC.NoSystemPath">
     <value>Cannot find path to mscorlib.</value>
   </data>
-  <data xml:space="preserve" name="BooC.BadLibPath">
+  <data space="preserve" name="BooC.BadLibPath">
     <value>Not a valid directory for -lib argument: '{0}'</value>
   </data>
-  <data xml:space="preserve" name="ListWasModified">
+  <data space="preserve" name="ListWasModified">
     <value>The list was modified.</value>
   </data>
-  <data xml:space="preserve" name="ArgumentNotEnumerable">
+  <data space="preserve" name="ArgumentNotEnumerable">
     <value>Argument is not enumerable (does not implement System.Collections.IEnumerable).</value>
   </data>
-  <data xml:space="preserve" name="CantEnumerateNull">
+  <data space="preserve" name="CantEnumerateNull">
     <value>Cannot enumerate null.</value>
   </data>
-  <data xml:space="preserve" name="UnpackListOfWrongSize">
+  <data space="preserve" name="UnpackListOfWrongSize">
     <value>Unpack list of wrong size.</value>
   </data>
-  <data xml:space="preserve" name="CantUnpackNull">
+  <data space="preserve" name="CantUnpackNull">
     <value>Cannot unpack null.</value>
   </data>
-  <data xml:space="preserve" name="UnpackArrayOfWrongSize">
+  <data space="preserve" name="UnpackArrayOfWrongSize">
     <value>Unpack array of wrong size (expected={0}, actual={1}).</value>
   </data>
-  <data xml:space="preserve" name="CantCompareItems">
+  <data space="preserve" name="CantCompareItems">
     <value>At least one side must implement IComparable or both sides should implement IEnumerable.</value>
   </data>
-  <data xml:space="preserve" name="AssertArgCount">
+  <data space="preserve" name="AssertArgCount">
     <value>expecting 1 or 2 args to assert; got {0}</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.culture">
+  <data space="preserve" name="boo.CommandLine.culture">
     <value>the culture {code} to use when running the application</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.debug">
+  <data space="preserve" name="boo.CommandLine.debug">
     <value>emit debugging information</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.ducky">
+  <data space="preserve" name="boo.CommandLine.ducky">
     <value>treat object references as duck</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.embedres">
+  <data space="preserve" name="boo.CommandLine.embedres">
     <value>embeds the specified file as a unmanaged resource</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.output">
+  <data space="preserve" name="boo.CommandLine.output">
     <value>file name for the generated assembly</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.pipeline">
+  <data space="preserve" name="boo.CommandLine.pipeline">
     <value>which compilation pipeline to use, it can be either the name of a builtin pipeline like 'boo' or a full type name</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.reference">
+  <data space="preserve" name="boo.CommandLine.reference">
     <value>references an assembly</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.resource">
+  <data space="preserve" name="boo.CommandLine.resource">
     <value>adds a managed resource</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.target">
+  <data space="preserve" name="boo.CommandLine.target">
     <value>one of exe, winexe, library</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.utf8">
+  <data space="preserve" name="boo.CommandLine.utf8">
     <value>use UTF8 when writing to the console</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.wsa">
+  <data space="preserve" name="boo.CommandLine.wsa">
     <value>use the white space agnostic parser</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.help">
+  <data space="preserve" name="boo.CommandLine.help">
     <value>display help information and exit</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.header">
+  <data space="preserve" name="boo.CommandLine.header">
     <value>boo command line utility</value>
   </data>
-  <data xml:space="preserve" name="boo.CommandLine.usage">
+  <data space="preserve" name="boo.CommandLine.usage">
     <value>Usage: boo [options] [source files]</value>
   </data>
 </root>
