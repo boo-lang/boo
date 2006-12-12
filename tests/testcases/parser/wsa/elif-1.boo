@@ -1,0 +1,27 @@
+"""
+i = int.Parse(prompt('i: '))
+if i > 5:
+	print('i > 5')
+else:
+	if i < 3:
+		print('i < 3')
+	else:
+		if i > 3:
+			print('4')
+		else:
+			print('3')
+"""
+i = int.Parse(prompt('i: '))
+if i > 5:
+	print('i > 5')
+else:
+	if i < 3:
+		print('i < 3')
+	else:
+		if i > 3:
+			print('4')
+		else:
+			print('3')
+		end
+	end
+end

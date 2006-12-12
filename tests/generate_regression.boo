@@ -1,3 +1,4 @@
+#!env booi
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
@@ -29,6 +30,36 @@
 import System
 import System.IO
 import Boo.Lang.Useful.IO from Boo.Lang.Useful
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Ast.Visitors
+import Boo.Lang.Parser
+
+def PortParserTestCases():
+"""
+Generates WSA parser test cases from
+normal parser test cases.
+"""
+	for testcase in Directory.GetFiles("testcases/parser/roundtrip", "*.boo"):
+		fname = Path.GetFileName(testcase)
+		wsaTestCase = Path.Combine("testcases/parser/wsa", fname)
+		if not File.Exists(wsaTestCase):
+			PortParserTestCase(testcase, wsaTestCase)
+			print fname
+			
+def CopyDocstring(fname as string, writer as TextWriter):
+	using file=File.OpenText(fname):
+		tripleQuoteCount = 0
+		for line in file:
+			writer.WriteLine(line)
+			if line.Trim() == '"""':
+				++tripleQuoteCount
+				break if tripleQuoteCount == 2
+			
+def PortParserTestCase(fromTestCase as string, toTestCase as string):
+	using writer = StreamWriter(toTestCase):
+		CopyDocstring(fromTestCase, writer)
+		module=BooParser.ParseFile(fromTestCase).Modules[0]
+		module.Accept(BooPrinterVisitor(writer, BooPrinterVisitor.PrintOptions.WSA))
 
 def GetTestCaseName(fname as string):
 	return Path.GetFileNameWithoutExtension(fname).Replace("-", "_")
@@ -174,6 +205,21 @@ namespace Boo.Lang.Parser.Tests
 	
 	[TestFixture]
 	public class ParserRoundtripTestFixture : AbstractParserTestFixture
+	{
+		void RunCompilerTestCase(string fname)
+		{
+			RunParserTestCase(fname);
+		}
+""")
+
+PortParserTestCases()
+GenerateTestFixture("testcases/parser/wsa", "build/WSAParserRoundtripTestFixture.cs", """
+namespace Boo.Lang.Parser.Tests
+{
+	using NUnit.Framework;
+	
+	[TestFixture]
+	public class WSAParserRoundtripTestFixture : AbstractWSAParserTestFixture
 	{
 		void RunCompilerTestCase(string fname)
 		{

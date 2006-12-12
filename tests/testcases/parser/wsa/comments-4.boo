@@ -1,0 +1,5 @@
+"""
+namespace CPlusPlusStyleComments
+"""
+namespace CPlusPlusStyleComments
+

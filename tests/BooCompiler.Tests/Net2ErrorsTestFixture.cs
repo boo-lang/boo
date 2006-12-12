@@ -15,13 +15,13 @@ namespace BooCompiler.Tests
 		[Test]
 		public void BCE0138_1()
 		{
-			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\net2\errors\BCE0138-1.boo");
+			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\net2\errors\BCE0138-1.boo");
 		}
 		
 		[Test]
 		public void BCE0139_1()
 		{
-			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\net2\errors\BCE0139-1.boo");
+			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\net2\errors\BCE0139-1.boo");
 		}
 		
 	}

@@ -43,7 +43,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		public enum PrintOptions
 		{
 			None,
-			PrintLocals = 1
+			PrintLocals = 1,
+			WSA = 2,
 		}
 
 		static Regex _identifierRE = new Regex("^[a-zA-Z.]+$");
@@ -160,21 +161,60 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			WriteLine();
 		}
-
-		public void WriteBlock(Block b)
+		
+		public bool IsWhiteSpaceAgnostic
 		{
-			Indent();
-			if (0 == b.Statements.Count)
+			get { return IsOptionSet(PrintOptions.WSA); }
+		}
+		
+		private void WritePass()
+		{
+			if (!IsWhiteSpaceAgnostic)
 			{
 				WriteIndented();
 				WriteKeyword("pass");
 				WriteLine();
 			}
+		}
+		
+		private void WriteBlockStatements(Block b)
+		{
+			if (0 == b.Statements.Count)
+			{
+				WritePass();
+			}
 			else
 			{
 				Visit(b.Statements);
 			}
+		}
+
+		public void WriteBlock(Block b)
+		{
+			BeginBlock();
+			WriteBlockStatements(b);
+			EndBlock();
+		}
+		
+		private void BeginBlock()
+		{
+			Indent();
+		}
+		
+		private void EndBlock()
+		{
 			Dedent();
+			if (IsWhiteSpaceAgnostic)
+			{
+				WriteEnd();
+			}
+		}
+		
+		private void WriteEnd()
+		{
+			WriteIndented();
+			WriteKeyword("end");
+			WriteLine();
 		}
 		
 		override public void OnAttribute(Attribute att)
@@ -245,7 +285,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			WriteTypeReference(node.Type);
 			WriteLine(":");
-			Indent();
+			BeginBlock();
 			if (null != node.Getter)
 			{
 				WriteAttributes(node.Getter.Attributes, true);
@@ -262,7 +302,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteLine(":");
 				WriteBlock(node.Setter.Body);
 			}
-			Dedent();
+			EndBlock();
 		}
 		
 		override public void OnEnumMember(EnumMember node)
@@ -598,7 +638,15 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(" ");
 			WriteOperator(GetBinaryOperatorText(e.Operator));
 			Write(" ");
-			Visit(e.Right);
+			if (e.Operator == BinaryOperatorType.TypeTest)
+			{
+				// isa rhs is encoded in a typeof expression
+				Visit(((TypeofExpression)e.Right).Type);
+			}
+			else
+			{
+				Visit(e.Right);
+			}
 			if (needsParens)
 			{
 				Write(")");
@@ -735,9 +783,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			else
 			{
 				WriteLine(":");
-				Indent();
+				BeginBlock();
 				Visit(e.Node);
-				Dedent();
+				EndBlock();
 			}
 		}
 
@@ -944,13 +992,22 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteKeyword("if ");
 			Visit(ifs.Condition);
 			WriteLine(":");
-			WriteBlock(ifs.TrueBlock);
+			Indent();
+			WriteBlockStatements(ifs.TrueBlock);
+			Dedent();
 			if (null != ifs.FalseBlock)
 			{
 				WriteIndented();
 				WriteKeyword("else:");
 				WriteLine();
 				WriteBlock(ifs.FalseBlock);
+			}
+			else
+			{
+				if (IsWhiteSpaceAgnostic)
+				{
+					WriteEnd();
+				}
 			}
 		}
 		
@@ -1511,7 +1568,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Write(")");
 			}
 			WriteLine(":");
-			Indent();
+			BeginBlock();
 			if (td.Members.Count > 0)
 			{
 				foreach (TypeMember member in td.Members)
@@ -1522,11 +1579,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			else
 			{
-				WriteIndented();
-				WriteKeyword("pass");
-				WriteLine();
+				WritePass();
 			}
-			Dedent();
+			EndBlock();
 		}
 		
 		bool WasOmitted(Expression node)

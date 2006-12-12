@@ -9,19 +9,19 @@ namespace BooCompiler.Tests
 		[Test]
 		public void ast_literals_1()
 		{
-			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\integration\ast\ast-literals-1.boo");
+			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\ast\ast-literals-1.boo");
 		}
 		
 		[Test]
 		public void ast_literals_2()
 		{
-			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\integration\ast\ast-literals-2.boo");
+			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\ast\ast-literals-2.boo");
 		}
 		
 		[Test]
 		public void compile_1()
 		{
-			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\integration\ast\compile-1.boo");
+			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\ast\compile-1.boo");
 		}
 		
 	}

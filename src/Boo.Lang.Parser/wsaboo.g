@@ -86,6 +86,7 @@ tokens
 	IN="in";	
 	NOT="not";	
 	NULL="null";
+	OF="of";
 	OR="or";
 	OTHERWISE="otherwise";
 	OVERRIDE="override";	
@@ -326,7 +327,7 @@ protected docstring[Node node]:
 	;
 			
 protected
-eos : EOF | (options { greedy = true; }: EOS)+;
+eos : EOF | (options { greedy = true; }: (EOS | NEWLINE))+;
 
 protected
 import_directive[Module container]
@@ -538,10 +539,7 @@ class_definition [TypeMemberCollection container]
 	}
 	(base_types[baseTypes])?
 	begin_with_doc[td]					
-	(
-		(eos)?
-		(type_definition_member[members])+
-	)
+	(type_definition_member[members])*
 	end[td]
 	;
 	
@@ -582,7 +580,7 @@ interface_definition [TypeMemberCollection container]
 			event_declaration[members] |
 			interface_property[members]
 		)
-	)+
+	)*
 	end[itf]
 	;
 			
@@ -1041,10 +1039,22 @@ array_type_reference returns [ArrayTypeReference atr]
 	;
 
 protected
+type_reference_list [TypeReferenceCollection container]
+	{
+		TypeReference tr = null;
+	}:
+	tr=type_reference { container.Add(tr); }
+	(options { greedy=true; }:
+		COMMA tr=type_reference { container.Add(tr); }
+	)*
+;
+
+protected
 type_reference returns [TypeReference tr]
 	{
-		tr=null;
+		tr = null;
 		IToken id = null;
+		TypeReferenceCollection arguments = null;
 	}: 
 	tr=array_type_reference
 	|
@@ -1052,13 +1062,36 @@ type_reference returns [TypeReference tr]
 	|
 	(
 		id=type_name
-		{
-			SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
-			str.Name = id.getText();
-			tr = str;
-		}
+		(
+			(
+				LBRACK OF
+				{
+					GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
+					arguments = gtr.GenericArguments;
+					tr = gtr;
+				}
+				type_reference_list[arguments]
+				RBRACK
+			)
+			|
+			(
+				OF tr=type_reference
+				{
+					GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
+					gtr.GenericArguments.Add(tr);
+					tr = gtr;
+				}
+			)
+			|
+			{
+				SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
+				str.Name = id.getText();
+				tr = str;
+			}
+		)
 	)
 	;
+
 	
 protected
 type_name returns [IToken id]
@@ -1167,13 +1200,14 @@ stmt [StatementCollection container]
 		Statement s = null;
 		StatementModifier m = null;
 	}:		
-	(
+	(		 
 		s=for_stmt |
 		s=while_stmt |
 		s=if_stmt |
 		s=unless_stmt |
 		s=try_stmt |
 		s=given_stmt |
+		(atom (NEWLINE)+ DOT)=>(s=expression_stmt eos) |
 		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=macro_stmt |
 		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
 		s=return_stmt |
@@ -1827,7 +1861,7 @@ ast_literal returns [AstLiteralExpression e]
 	e = null;
 }:
 	t:AST { e = new AstLiteralExpression(ToLexicalInfo(t)); }
-	(ast_literal_block[e] | ast_literal_closure[e] eos)
+	(ast_literal_block[e] | (ast_literal_closure[e] eos))
 ;
 
 type_definition_member_prediction:
@@ -1843,11 +1877,13 @@ ast_literal_block[AstLiteralExpression e]
 	Block block = new Block();
 	StatementCollection statements = block.Statements;
 	Node node = null;
+	//System.Console.WriteLine("ast_literal_block");
 }:
-	begin 
+	begin (eos)?
 	(
-		(type_definition_member_prediction)=>(type_definition_member[collection] { e.Node = collection[0]; }) |
-		((stmt[statements])+ { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
+		(type_definition_member_prediction)=>(type_definition_member[collection] { e.Node = collection[0]; })
+		|
+		((stmt[statements])* { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
 	)
 	end[e]
 ;
@@ -2261,9 +2297,31 @@ reference_expression returns [ReferenceExpression e]
 ;
 	
 protected
-paren_expression returns [Expression e] { e = null; }:
+paren_expression returns [Expression e]
+{
+	e = null;
+	Expression condition = null;
+	Expression falseValue = null;
+}:
     (LPAREN OF)=>e=typed_array
-	| LPAREN e=array_or_expression RPAREN
+	|
+	(
+		lparen:LPAREN
+		e=array_or_expression
+		(
+			IF condition=boolean_expression
+			ELSE falseValue=array_or_expression
+			{
+				ConditionalExpression ce = new ConditionalExpression(ToLexicalInfo(lparen));
+				ce.Condition = condition;
+				ce.TrueValue = e;
+				ce.FalseValue = falseValue;
+				
+				e = ce;
+			}
+		)?
+		RPAREN
+	)
 ;
 
 protected
@@ -2370,34 +2428,73 @@ slice[SlicingExpression se]
 	;
 	
 protected
+member_reference_expression[Expression target] returns [Expression e]
+	{
+		e = null;
+		IToken memberName = null;
+	}:
+	memberName=member
+	{
+		MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(memberName));
+		mre.Target = target;
+		mre.Name = memberName.getText();
+		e = mre;
+	}
+;
+
+protected
 slicing_expression returns [Expression e]
 	{
 		e = null;
 		SlicingExpression se = null;
 		MethodInvocationExpression mce = null;
-		IToken memberName = null;
+		TypeReference genericArgument = null;
+		TypeReferenceCollection genericArguments = null;
 	} :
 	e=atom
 	( options { greedy=true; }:
 		(
 			lbrack:LBRACK
-			{
-				se = new SlicingExpression(ToLexicalInfo(lbrack));				
-				se.Target = e;
-				e = se;
-			}
-			slice[se] (COMMA slice[se])*
+			(
+				(
+					OF
+					{
+						GenericReferenceExpression gre = new GenericReferenceExpression(ToLexicalInfo(lbrack));
+						gre.Target = e;
+						e = gre;
+						genericArguments = gre.GenericArguments;
+					}
+					type_reference_list[genericArguments]					
+				)
+				|				
+				{
+					se = new SlicingExpression(ToLexicalInfo(lbrack));				
+					se.Target = e;
+					e = se;
+				}
+				slice[se] (COMMA slice[se])*
+			)
 			RBRACK
 		)
 		|
 		(
-			DOT memberName=member
-				{
-					MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(memberName));
-					mre.Target = e;
-					mre.Name = memberName.getText();
-					e = mre;
-				}
+			oft:OF genericArgument=type_reference
+			{
+				GenericReferenceExpression gre = new GenericReferenceExpression(ToLexicalInfo(oft));
+				gre.Target = e;
+				e = gre;
+				gre.GenericArguments.Add(genericArgument);
+			}
+		)
+		|
+		((NEWLINE)+ DOT)=>(
+			((NEWLINE)+ DOT)
+			e=member_reference_expression[e]
+		)
+		|
+		(
+			DOT (NEWLINE)*
+			e=member_reference_expression[e]
 		)
 		|
 		(
@@ -3019,10 +3116,6 @@ NEWLINE:
 		if (SkipWhitespace)
 		{
 			$setType(Token.SKIP);
-		}
-		else
-		{
-			$setType(EOS);
 		}
 	}
 ;
