@@ -51,7 +51,7 @@ class TracePipelineStep(AbstractVisitorCompilerStep):
 		method.Body = Block()
 		method.Body.Add(stmt)
 		
-	def MethodStart(msg):
+	def MethodStart(msg as string):
 		// { print(msg)
 		block = Block()
 		mie = MethodInvocationExpression(ReferenceExpression("print"))
@@ -66,7 +66,7 @@ class TracePipelineStep(AbstractVisitorCompilerStep):
 			ReferenceExpression("__start"), dateNow))
 		return block
 		
-	def MethodEnd(msg):
+	def MethodEnd(msg as string):
 		// { __time = date.Now - __start
 		block = Block()
 		dateNow = MemberReferenceExpression(
