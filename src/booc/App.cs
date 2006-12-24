@@ -454,7 +454,7 @@ namespace BooC
 
 							case 'p':
 							{
-								_pipelineName = arg.Substring(3);
+								_pipelineName = StripQuotes(arg.Substring(3));
 								break;
 							}
 

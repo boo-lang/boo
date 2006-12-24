@@ -162,7 +162,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		public Assembly LoadAssembly (string assembly)
+		public Assembly LoadAssembly(string assembly)
 		{
 			return LoadAssembly(assembly, true);
 		}
@@ -175,7 +175,6 @@ namespace Boo.Lang.Compiler
 			}
 			
 			Assembly a = null;
-			
 			try 
 			{
 				if (assembly.IndexOfAny(new char[] { '/', '\\' }) != -1)

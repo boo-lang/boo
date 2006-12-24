@@ -29,6 +29,7 @@
 namespace Boo.Lang.Compiler
 {
 	using System;
+    using System.Reflection;
 	
 	public class CompilerStepEventArgs : EventArgs
 	{
@@ -56,6 +57,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerPipeline GetPipeline(string name)
 		{
+            if (null == name) throw new ArgumentNullException("name");
 			switch (name)
 			{
 				case "parse": return new Pipelines.Parse();
@@ -75,10 +77,42 @@ namespace Boo.Lang.Compiler
 					return pipeline;
 				}
 			}
-			return (CompilerPipeline)Activator.CreateInstance(Type.GetType(name, true));
+			return LoadCustomPipeline(name);
 		}
 		
-		protected Boo.Lang.List _items;
+		private static CompilerPipeline LoadCustomPipeline(string typeName)
+		{
+            if (typeName.IndexOf(',') < 0) throw new ArgumentException("typeName");
+			return (CompilerPipeline)Activator.CreateInstance(FindPipelineType(typeName));
+		}
+		
+		private static System.Type FindPipelineType(string typeName)
+		{
+			Assembly loaded = FindLoadedAssembly(AssemblySimpleNameFromFullTypeName(typeName));
+			if (null != loaded) return loaded.GetType(SimpleTypeNameFromFullTypeName(typeName));
+			return Type.GetType(typeName, true);
+		}
+
+	    private static string SimpleTypeNameFromFullTypeName(string name)
+	    {
+	        return name.Split(',')[0].Trim();
+	    }
+
+	    private static string AssemblySimpleNameFromFullTypeName(string name)
+	    {
+	        return name.Split(',')[1].Trim();
+	    }
+
+	    private static Assembly FindLoadedAssembly(string assemblyName)
+	    {
+	        foreach (Assembly loaded in AppDomain.CurrentDomain.GetAssemblies())
+	        {
+	            if (loaded.GetName().Name == assemblyName) return loaded;
+	        }
+	        return null;
+	    }
+
+	    protected Boo.Lang.List _items;
 		
 		protected bool _breakOnErrors;
 

@@ -7,7 +7,7 @@
 		<booc target="library"
 			output="build/HelloPipeline.dll">
 			
-			<sources basedir=".">
+			<sources basedir="src">
 				<include name="HelloPipeline.boo" />
 			</sources>
 		</booc>
@@ -18,7 +18,7 @@
 			output="build/HelloWorld.exe"
 			pipeline="HelloPipeline.HelloPipeline, HelloPipeline">
 			
-			<sources basedir=".">
+			<sources basedir="src">
 				<include name="HelloWorld.boo" />
 			</sources>
 			

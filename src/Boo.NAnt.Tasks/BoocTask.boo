@@ -189,8 +189,8 @@ public class BoocTask(CompilerBase):
 		writer.WriteLine("-{0}", name)
 		
 	protected override def WriteOption(writer as TextWriter, name as string, value as string):
-		if name == "resource":
-			name = "embedres"
+		if name == "resource": name = "embedres"
+		
 		if " " in value and not IsQuoted(value):
 			writer.WriteLine("-{0}:\"{1}\"", name, value)
 		else:
