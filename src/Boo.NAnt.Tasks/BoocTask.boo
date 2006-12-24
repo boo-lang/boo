@@ -191,11 +191,13 @@ public class BoocTask(CompilerBase):
 	protected override def WriteOption(writer as TextWriter, name as string, value as string):
 		if name == "resource":
 			name = "embedres"
-		if value.IndexOf(" ") > 0 and (not value.StartsWith("\"")
-						or not value.EndsWith("\"")):
+		if " " in value and not IsQuoted(value):
 			writer.WriteLine("-{0}:\"{1}\"", name, value)
 		else:
 			writer.WriteLine("-{0}:{1}", name, value)
+			
+	def IsQuoted(value as string):
+		return value.StartsWith("\"") and value.EndsWith("\"")
 	
 	public Extension as string:
 		get:

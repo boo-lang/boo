@@ -53,6 +53,9 @@ namespace BooC
 		
 		ArrayList _references = new ArrayList();
 		bool _noConfig = false;
+		string _pipelineName = null;
+		bool _debugSteps = false;
+		bool _whiteSpaceAgnostic = false;
 		
 		/// <summary>
 		/// The main entry point for the application.
@@ -117,6 +120,7 @@ namespace BooC
 				}
 				
 				LoadReferences();
+				ConfigurePipeline();
 				
 				if (_options.TraceSwitch.TraceInfo)
 				{
@@ -244,9 +248,7 @@ namespace BooC
 		
 		void ParseOptions(string[] args)
 		{
-			bool debugSteps = false;
-			bool whiteSpaceAgnostic = false;
-			bool noLogo = false;
+			bool noLogo = false;		
 			
 			ArrayList arglist = new ArrayList(args);
 			ExpandResponseFiles(ref arglist);
@@ -277,7 +279,7 @@ namespace BooC
 							{
 								if (arg == "-wsa")
 								{
-									whiteSpaceAgnostic = true;
+									_whiteSpaceAgnostic = true;
 								}
 								else
 								{
@@ -452,8 +454,7 @@ namespace BooC
 
 							case 'p':
 							{
-								string pipelineName = arg.Substring(3);
-								_options.Pipeline = CompilerPipeline.GetPipeline(pipelineName);
+								_pipelineName = arg.Substring(3);
 								break;
 							}
 
@@ -526,7 +527,7 @@ namespace BooC
 
 									case "debug-steps":
 									{
-										debugSteps = true;
+										_debugSteps = true;
 										break;
 									}
 									
@@ -591,22 +592,29 @@ namespace BooC
 					}
 				}
 			}
-			
-			if (null == _options.Pipeline)
-			{
-				_options.Pipeline = new CompileToFile();
-			}
-			if (whiteSpaceAgnostic)
-			{
-				_options.Pipeline[0] = new Boo.Lang.Parser.WSABooParsingStep();
-			}
-			if (debugSteps)
-			{
-				_options.Pipeline.AfterStep += new CompilerStepEventHandler(new StepDebugger().AfterStep);
-			}
 			if (!noLogo)
 			{
 				DoLogo();
+			}
+		}
+		
+		private void ConfigurePipeline()
+		{
+			if (null != _pipelineName)
+			{
+				_options.Pipeline = CompilerPipeline.GetPipeline(_pipelineName);
+			}
+			else
+			{
+				_options.Pipeline = new CompileToFile();
+			}			
+			if (_whiteSpaceAgnostic)
+			{
+				_options.Pipeline[0] = new Boo.Lang.Parser.WSABooParsingStep();
+			}
+			if (_debugSteps)
+			{
+				_options.Pipeline.AfterStep += new CompilerStepEventHandler(new StepDebugger().AfterStep);
 			}
 		}
 		
