@@ -3,6 +3,10 @@ QuackSet("", ("param1",), "value1")
 QuackGet("", ("param2",))
 QuackSet("", ("param3", "param4"), "value2")
 QuackGet("", ("param5", "param6"))
+QuackSet("Item", ("param7",), "value3")
+QuackGet("Item", ("param8",))
+QuackSet("Item", ("param9", "param10"), "value4")
+QuackGet("Item", ("param11", "param12"))
 """
 import System
 
@@ -37,3 +41,9 @@ value = e["param2"]
 
 e["param3", "param4"] = "value2"
 value = e["param5", "param6"]
+
+e.Item["param7"] = "value3"
+value = e.Item["param8"]
+
+e.Item["param9", "param10"] = "value4"
+value = e.Item["param11", "param12"]
