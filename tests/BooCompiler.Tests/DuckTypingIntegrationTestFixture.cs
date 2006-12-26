@@ -61,6 +61,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void duck_18()
+		{
+			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\duck-typing\duck-18.boo");
+		}
+		
+		[Test]
 		public void duck_2()
 		{
 			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\duck-typing\duck-2.boo");

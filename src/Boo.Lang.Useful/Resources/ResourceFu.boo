@@ -68,10 +68,11 @@ Example:
 	def destructor():
 		_rm.ReleaseAllResources()
 
-	def QuackGet([required]name as string):
+	def QuackGet([required]name as string, parameters as (object)):
+		assert parameters is null
 		return _rm.GetObject(name, _culture)
 
-	def QuackSet(name as string, value):
+	def QuackSet(name as string, parameters as (object), value):
 		raise ArgumentException("You are not allowed to alter embedded resources!")
 		
 	def QuackInvoke(name as string, args as (object)):

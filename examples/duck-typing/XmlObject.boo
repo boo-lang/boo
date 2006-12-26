@@ -65,10 +65,12 @@ class XmlObject(IQuackFu):
 		else:
 			raise System.InvalidOperationException("Method ${name} not found in class ${self.GetType()}")
 		
-	def QuackSet(name as string, value) as object:
+	def QuackSet(name as string, parameters as (object), value) as object:
 		pass
 		
-	def QuackGet(name as string) as object:
+	def QuackGet(name as string, parameters as (object)) as object:
+		assert parameters is null
+		
 		elements = _element.SelectNodes(name)
 		if elements is not null:
 			return XmlObject(elements[0]) if elements.Count == 1

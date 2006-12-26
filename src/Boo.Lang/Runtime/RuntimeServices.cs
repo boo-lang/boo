@@ -236,7 +236,7 @@ namespace Boo.Lang.Runtime
 		public static object SetProperty(object target, string name, object value)
 		{
 			IQuackFu duck = target as IQuackFu;
-			if (null != duck) return duck.QuackSet(name, value);
+			if (null != duck) return duck.QuackSet(name, null, value);
 			
 			if (PassThroughExceptions) return DoSetProperty(target, name, value);
 			
@@ -307,7 +307,7 @@ namespace Boo.Lang.Runtime
 		public static object GetProperty(object target, string name)
 		{
 			IQuackFu duck = target as IQuackFu;
-			if (null != duck) return duck.QuackGet(name);
+			if (null != duck) return duck.QuackGet(name, null);
 			
 			if (PassThroughExceptions) return DoGetProperty(target, name);
 			
@@ -389,51 +389,69 @@ namespace Boo.Lang.Runtime
 		
 		public static object GetSlice(object target, string name, object[] args)
 		{
+            IQuackFu duck = target as IQuackFu;
+            if (null != duck) return duck.QuackGet(name, args);
+
 			Type type = target.GetType();
 			if ("" == name)
 			{	
-				if (args.Length == 1 && target is System.Array)
+				if (IsGetArraySlice(target, args))
 				{
-					IList list = (IList)target;
-					return list[NormalizeIndex(list.Count, (int)args[0])];
+				    return GetArraySlice(target, args);
 				}
 				name = GetDefaultMemberName(type);
 			}
+
 			try
 			{
 				MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Get);
-				switch (member.MemberType)
-				{
-					case MemberTypes.Field:
-						{
-							FieldInfo field = (FieldInfo)member;
-							return GetSlice(field.GetValue(target), "", args);
-						}
-					case MemberTypes.Method:
-						{
-							MethodInfo method = (MethodInfo)member;
-							return method.Invoke(target, args);
-						}
-					case MemberTypes.Property:
-						{
-							return GetGetMethod((PropertyInfo)member).Invoke(target, args);
-						}
-					default:
-						{
-							MemberNotSupported(member);
-							break;
-						}
-				}
+			    return GetSlice(target, member, args);
 			}
 			catch (TargetInvocationException x)
 			{
 				OnTargetInvocationExceptionThrown(x);
 				throw;
 			}
-			return null;
 		}
 
-		private static MethodInfo GetGetMethod(PropertyInfo property)
+        private static object GetSlice(object target, MemberInfo member, object[] args)
+        {
+            switch (member.MemberType)
+            {
+                case MemberTypes.Field:
+                    {
+                        FieldInfo field = (FieldInfo)member;
+                        return GetSlice(field.GetValue(target), "", args);
+                    }
+                case MemberTypes.Method:
+                    {
+                        MethodInfo method = (MethodInfo)member;
+                        return method.Invoke(target, args);
+                    }
+                case MemberTypes.Property:
+                    {
+                        return GetGetMethod((PropertyInfo)member).Invoke(target, args);
+                    }
+                default:
+                    {
+                        MemberNotSupported(member);
+                        return null; // this line is never reached
+                    }
+            }
+        }
+
+	    private static object GetArraySlice(object target, object[] args)
+	    {
+	        IList list = (IList)target;
+	        return list[NormalizeIndex(list.Count, (int)args[0])];
+	    }
+
+	    private static bool IsGetArraySlice(object target, object[] args)
+	    {
+	        return args.Length == 1 && target is System.Array;
+	    }
+
+	    private static MethodInfo GetGetMethod(PropertyInfo property)
 		{
 			MethodInfo method = property.GetGetMethod(true);
 			if (null == method) MemberNotSupported(property);
@@ -442,47 +460,22 @@ namespace Boo.Lang.Runtime
 
 		public static object SetSlice(object target, string name, object[] args)
 		{
+            IQuackFu duck = target as IQuackFu;
+            if (null != duck) return duck.QuackSet(name, (object[])GetRange2(args, 0, args.Length-1), args[args.Length-1]);
+
 			Type type = target.GetType();
 			if ("" == name)
 			{
-				if (args.Length == 2 && target is System.Array)
+				if (IsSetArraySlice(target, args))
 				{
-					IList list = (IList)target;
-					list[NormalizeIndex(list.Count, (int)args[0])] = args[1];
-					return args[1];
+				    return SetArraySlice(target, args);
 				}
 				name = GetDefaultMemberName(type);
 			}
 			try
 			{
 				MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Set);
-				switch (member.MemberType)
-				{
-					case MemberTypes.Field:
-					{
-						FieldInfo field = (FieldInfo) member;
-						SetSlice(field.GetValue(target), "", args);
-						break;
-					}
-					case MemberTypes.Method:
-					{
-						MethodInfo method = (MethodInfo) member;
-						method.Invoke(target, args);
-						break;
-					}
-					case MemberTypes.Property:
-					{
-						GetSetMethod((PropertyInfo) member).Invoke(target, args);
-						break;
-					}
-				default:
-					{
-						MemberNotSupported(member);
-						break;
-					}
-				}
-				// last argument is the value
-				return args[args.Length-1];
+			    return SetSlice(target, member, args);
 			}
 			catch (TargetInvocationException x)
 			{
@@ -491,7 +484,50 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
-		private static MemberInfo[] GetMember(Type type, string name)
+	    private static object SetSlice(object target, MemberInfo member, object[] args)
+	    {
+	        switch (member.MemberType)
+	        {
+	            case MemberTypes.Field:
+	                {
+	                    FieldInfo field = (FieldInfo) member;
+	                    SetSlice(field.GetValue(target), "", args);
+	                    break;
+	                }
+	            case MemberTypes.Method:
+	                {
+	                    MethodInfo method = (MethodInfo) member;
+	                    method.Invoke(target, args);
+	                    break;
+	                }
+	            case MemberTypes.Property:
+	                {
+	                    GetSetMethod((PropertyInfo) member).Invoke(target, args);
+	                    break;
+	                }
+	            default:
+	                {
+	                    MemberNotSupported(member);
+	                    break;
+	                }
+	        }
+	        // last argument is the value
+	        return args[args.Length-1];
+	    }
+
+	    private static object SetArraySlice(object target, object[] args)
+	    {
+	        IList list = (IList)target;
+	        list[NormalizeIndex(list.Count, (int)args[0])] = args[1];
+	        return args[1];
+	    }
+
+	    private static bool IsSetArraySlice(object target, object[] args)
+	    {
+	        return args.Length == 2 && target is System.Array;
+	    }
+
+	    private static MemberInfo[] GetMember(Type type, string name)
 		{
 			MemberInfo[] found = type.GetMember(name, DefaultBindingFlags);
 			if (null == found || 0 == found.Length)

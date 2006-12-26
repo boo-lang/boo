@@ -6,9 +6,11 @@ class QuackTest(IQuackFu):
 		assert name == "op_UnaryNegation"
 		assert 1 == len(args)
 		return QuackTest(- cast(QuackTest, args[0]).i)
-	def QuackSet(name as string, value) as object:
+	def QuackSet(name as string, parameters as (object), value) as object:
+		assert parameters is null
 		i = value
-	def QuackGet(name as string) as object:
+	def QuackGet(name as string, parameters as (object)) as object:
+		assert parameters is null
 		return i
 
 _quacker as duck = QuackTest(17)

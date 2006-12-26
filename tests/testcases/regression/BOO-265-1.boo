@@ -4,11 +4,12 @@ Foo = 42
 Bar = 3
 """
 class Dynamic(IQuackFu):
-	def QuackGet(name as string) as object:
+	def QuackGet(name as string, parameters as (object)) as object:
 		pass
 	def QuackInvoke(name as string, args as (object)) as object:
 		pass
-	def QuackSet(name as string, value as object) as object:
+	def QuackSet(name as string, parameters as (object), value as object) as object:
+		assert parameters is null
 		print name, "=", value
 
 Dynamic(Bar: 1)

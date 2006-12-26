@@ -10,11 +10,13 @@ class Expando(IQuackFu):
 	def QuackInvoke(name as string, args as (object)) as object:
 		return (_attributes[name] as callable).Call(args)
 		
-	def QuackSet(name as string, value) as object:
+	def QuackSet(name as string, parameters as (object), value) as object:
+		assert parameters is null
 		_attributes[name] = value
 		return value
 		
-	def QuackGet(name as string) as object:
+	def QuackGet(name as string, parameters as (object)) as object:
+		assert parameters is null
 		return _attributes[name]
 		
 e = Expando()

@@ -14,12 +14,14 @@ class Expando(IQuackFu):
 
 	_attributes = {}
 	
-	def QuackSet(name as string, value):
+	def QuackSet(name as string, parameters as (object), value):
+		assert parameters is null
 		print "QuackSet(${name}, ${value})"
 		_attributes[name] = value
 		return value
 
-	def QuackGet(name as string):
+	def QuackGet(name as string, parameters as (object)):
+		assert parameters is null
 		print "QuackGet(${name})"
 		raise "attribute not found: ${name}" if name not in _attributes
 		return _attributes[name]
