@@ -41,11 +41,6 @@ class XmlObject(IQuackFu):
 	
 	_element as XmlElement
 	
-	Item([required] key):
-		get:
-			item = _element.Attributes.GetNamedItem(key)
-			return item.InnerText if item
-			
 	def constructor(element as XmlElement):
 		_element = element
 		
@@ -69,12 +64,18 @@ class XmlObject(IQuackFu):
 		pass
 		
 	def QuackGet(name as string, parameters as (object)) as object:
-		assert parameters is null
+		if name == "":
+			assert len(parameters) == 1
+			return GetAttribute(parameters[0])
 		
 		elements = _element.SelectNodes(name)
 		if elements is not null:
 			return XmlObject(elements[0]) if elements.Count == 1
 			return XmlObject(e) for e in elements
+			
+	def GetAttribute(name as string):
+		item = _element.Attributes.GetNamedItem(name)
+		return item.InnerText if item
 		
 	override def ToString():
 		return _element.InnerText
@@ -89,7 +90,7 @@ xml = """
 </Person>
 """
 
-person as duck = XmlObject(xml)
+person = XmlObject(xml)
 print person.FirstName
 print person.LastName
 person += "<Phone place=\"cell\">3333-333-333</Phone>"
