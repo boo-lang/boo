@@ -33,9 +33,14 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class ProcessMethodBodiesWithDuckTyping : ProcessMethodBodies
 	{
-		bool DuckyMode
+		protected virtual bool DuckyMode
 		{
 			get { return _context.Parameters.Ducky; }
+		}
+		
+		protected virtual bool IsDuckTyped(Expression e)
+		{
+			return TypeSystemServices.IsDuckTyped(e);
 		}
 		
 		override protected IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
@@ -132,7 +137,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
-			if (TypeSystemServices.IsDuckTyped(node.Target))
+			if (IsDuckTyped(node.Target))
 			{	
 				BindQuack(node);
 			}
@@ -156,7 +161,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override protected void ProcessInvocationOnUnknownCallableExpression(MethodInvocationExpression node)
 		{
-			if (TypeSystemServices.IsDuckTyped(node.Target))
+			if (IsDuckTyped(node.Target))
 			{
 				BindDuckTypedMethodInvocation(node);
 			}
@@ -168,7 +173,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
-			if (TypeSystemServices.IsDuckTyped(node.Target))
+			if (IsDuckTyped(node.Target))
 			{
 				BindDuck(node);
 			}
@@ -180,7 +185,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveUnaryExpression(UnaryExpression node)
 		{
-			if (TypeSystemServices.IsDuckTyped(node.Operand) &&
+			if (IsDuckTyped(node.Operand) &&
 			   node.Operator == UnaryOperatorType.UnaryNegation)
 			{
 				BindDuck(node);
@@ -193,8 +198,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected override bool ResolveRuntimeOperator(BinaryExpression node, string operatorName, MethodInvocationExpression mie)
 		{			
-			if (TypeSystemServices.IsDuckTyped(node.Left)
-				|| TypeSystemServices.IsDuckTyped(node.Right))
+			if (IsDuckTyped(node.Left)
+				|| IsDuckTyped(node.Right))
 			{
 				if (AstUtil.IsOverloadableOperator(node.Operator)
 					|| BinaryOperatorType.Or == node.Operator

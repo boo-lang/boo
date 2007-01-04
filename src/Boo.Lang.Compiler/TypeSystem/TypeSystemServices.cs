@@ -391,7 +391,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (TypeType == type) || IsCallableType(type) || IsDuckType(type);
 		}
 
-		public bool IsDuckTyped(Expression expression)
+		public virtual bool IsDuckTyped(Expression expression)
 		{
 			IType type = expression.ExpressionType;
 			return null != type && this.IsDuckType(type);
