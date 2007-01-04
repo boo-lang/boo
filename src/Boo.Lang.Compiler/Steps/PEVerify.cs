@@ -44,6 +44,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{			
+#if !NO_SYSTEM_DLL
 			if (Errors.Count > 0)
 			{
 				return;
@@ -69,6 +70,7 @@ namespace Boo.Lang.Compiler.Steps
             {
                 _context.TraceWarning("Could not start peverify.exe: " + e.Message);
 			}
+#endif
 		}
 	}
 }
