@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.7.6" />
-	<property name="boo.svn.revision" value="2379" />
+	<property name="boo.svn.revision" value="2383" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
 	<property name="boo.assembly.version" value="1.0.0.0" />
 	
@@ -53,6 +53,7 @@
 			if="${'net-1.1' == framework::get-target-framework()}" />
 			
 			
+	<property name="csc.noconfig" value="false" />
 	<property name="csc.define" value="NET_1_1" />
 	<property name="csc.define" value="NET_2_0"
 			if="${2 == version::get-major(framework::get-version(framework::get-target-framework()))}" />
@@ -62,6 +63,7 @@
 	
 	<target name="nostdlib">
 		<property name="csc.define" value="${csc.define},NO_SYSTEM_DLL" />
+		<property name="csc.noconfig" value="true" />
 	</target>
 	
 	<target name="test" depends="all">
@@ -410,7 +412,7 @@
 			optimize="${optimize}"
 			if="${string::starts-with(framework::get-target-framework(), 'net-')}"
 			define="${csc.define}"
-			noconfig="true">
+			noconfig="${csc.noconfig}">
 
 			<sources basedir="src/Boo.Lang">
 				<include name="**/*.cs" />
@@ -434,7 +436,7 @@
 			optimize="${optimize}"
 			unless="${string::starts-with(framework::get-target-framework(), 'net-')}"
 			define="${csc.define}"
-			noconfig="true">
+			noconfig="${csc.noconfig}">
 			
 			<sources basedir="src/Boo.Lang">
 				<include name="**/*.cs" />

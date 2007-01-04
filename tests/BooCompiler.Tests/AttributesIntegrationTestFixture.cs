@@ -9,61 +9,61 @@ namespace BooCompiler.Tests
 		[Test]
 		public void assembly_attributes_1()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\assembly-attributes-1.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\assembly-attributes-1.boo");
 		}
 		
 		[Test]
 		public void assembly_attributes_2()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\assembly-attributes-2.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\assembly-attributes-2.boo");
 		}
 		
 		[Test]
 		public void attributes_1()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\attributes-1.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-1.boo");
 		}
 		
 		[Test]
 		public void attributes_2()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\attributes-2.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-2.boo");
 		}
 		
 		[Test]
 		public void attributes_3()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\attributes-3.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-3.boo");
 		}
 		
 		[Test]
 		public void attributes_4()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\attributes-4.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-4.boo");
 		}
 		
 		[Test]
 		public void attributes_5()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\attributes-5.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-5.boo");
 		}
 		
 		[Test]
 		public void attributes_6()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\attributes-6.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-6.boo");
 		}
 		
 		[Test]
 		public void attributes_7()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\attributes-7.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-7.boo");
 		}
 		
 		[Test]
 		public void attributes_8()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\attributes\attributes-8.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-8.boo");
 		}
 		
 	}
