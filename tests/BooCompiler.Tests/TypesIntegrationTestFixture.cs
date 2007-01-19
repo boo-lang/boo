@@ -937,6 +937,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void value_type_propagation_1()
+		{
+			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\types\value-type-propagation-1.boo");
+		}
+		
+		[Test]
 		public void value_types_1()
 		{
 			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\types\value-types-1.boo");

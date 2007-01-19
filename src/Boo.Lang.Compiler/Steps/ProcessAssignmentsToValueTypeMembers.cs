@@ -38,8 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		protected override bool IsSpecialMemberTarget(Expression container)
 		{
-			return null != container.ExpressionType
-				&& container.ExpressionType.IsValueType;
+			return null != container.ExpressionType && container.ExpressionType.IsValueType;
 		}
 	}
 }

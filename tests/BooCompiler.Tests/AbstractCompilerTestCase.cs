@@ -193,6 +193,11 @@ namespace BooCompiler.Tests
 			CompilerContext context;
 			return Run(stdin, out context);
 		}
+		
+		private bool HasErrors(CompilerContext context)
+		{
+			return context.Errors.Count > 0;
+		}
 
 		protected string Run(string stdin, out CompilerContext context)
 		{
@@ -209,12 +214,12 @@ namespace BooCompiler.Tests
 
 				context = _compiler.Run();
 
-				if (context.Errors.Count > 0)
+				if (HasErrors(context) && !IgnoreErrors)
 				{
-					if (!IgnoreErrors)
-					{
-						Assert.Fail(GetFirstInputName(context) + ": " + context.Errors.ToString(false));
-					}
+					Assert.Fail(GetFirstInputName(context)
+								+ ": "
+								+ context.Errors.ToString(false)
+								+ context.Warnings.ToString());				
 				}
 				return _output.ToString().Replace("\r\n", "\n");
 			}
