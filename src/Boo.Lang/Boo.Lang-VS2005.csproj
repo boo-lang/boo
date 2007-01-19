@@ -55,7 +55,6 @@
     <EmbeddedResource Include="Resources\strings.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="strings.resources" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

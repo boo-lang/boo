@@ -513,6 +513,21 @@ namespace Boo.Lang.Compiler.Steps
 
 			ReplaceCurrentNode(body);
 		}
+		
+		private class EntityPredicate
+		{
+			private IEntity _entity;
+
+			public EntityPredicate(IEntity entity)
+			{
+				_entity = entity;
+			}
+			
+			public bool Matches(Node node)
+			{
+				return _entity == TypeSystemServices.GetOptionalEntity(node);
+			}
+		}
 
 		/// <summary>
 		/// Optimize the <c>for item in array</c> construct
@@ -570,8 +585,9 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (1 == node.Declarations.Count)
 			{
+				IEntity loopVariable = node.Declarations[0].Entity;
 				node.Block.ReplaceNodes(
-					new ReferenceExpression(node.Declarations[0].Entity.Name),
+					new NodePredicate(new EntityPredicate(loopVariable).Matches),
 					CreateRawArraySlicing(arrayRef, indexReference, elementType));
 			}
 			else

@@ -29,8 +29,9 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using System.Collections;
 	using System.Xml.Serialization;
+	
+	public delegate bool NodePredicate(Node node);
 
 	/// <summary>
 	/// Base class for every node in the AST.
@@ -217,13 +218,13 @@ namespace Boo.Lang.Compiler.Ast
 		
 		private class ReplaceVisitor : DepthFirstTransformer
 		{
-			Node _pattern;
+			NodePredicate _predicate;
 			Node _template;	
 			int _matches;
 			
-			public ReplaceVisitor(Node pattern, Node template)
+			public ReplaceVisitor(NodePredicate predicate, Node template)
 			{
-				_pattern = pattern;
+				_predicate = predicate;
 				_template = template;
 			}
 			
@@ -237,7 +238,7 @@ namespace Boo.Lang.Compiler.Ast
 	
 			override protected void OnNode(Node node)
 			{
-				if (_pattern.Matches(node))
+				if (_predicate(node))
 				{
 					++_matches;
 					ReplaceCurrentNode(_template.CloneNode());
@@ -253,10 +254,21 @@ namespace Boo.Lang.Compiler.Ast
 		/// Replaces all occurrences of the pattern pattern anywhere in the tree
 		/// with a clone of template.
 		/// </summary>
-		/// <returns>the number of which matched the specified pattern</returns>
+		/// <returns>the number of nodes replaced</returns>
 		public int ReplaceNodes(Node pattern, Node template)
 		{
-			ReplaceVisitor visitor = new ReplaceVisitor(pattern, template);
+			NodePredicate predicate = new NodePredicate(pattern.Matches);
+			return ReplaceNodes(predicate, template);
+		}
+
+		/// <summary>
+		/// Replaces all node for which predicate returns true anywhere in the tree
+		/// with a clone of template.
+		/// </summary>
+		/// <returns>the number of nodes replaced</returns>
+		public int ReplaceNodes(NodePredicate predicate, Node template)
+		{
+			ReplaceVisitor visitor = new ReplaceVisitor(predicate, template);
 			Accept(visitor);
 			return visitor.Matches;
 		}
