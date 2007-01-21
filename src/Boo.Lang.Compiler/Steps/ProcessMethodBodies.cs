@@ -1762,7 +1762,7 @@ namespace Boo.Lang.Compiler.Steps
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
 														string.Format("{0}___generator{1}", method.Name, _context.AllocIndex()),
-														TypeMemberModifiers.Private|TypeMemberModifiers.Final);
+														TypeMemberModifiers.Internal|TypeMemberModifiers.Final);
 			builder.LexicalInfo = sourceNode.LexicalInfo;
 			builder.AddBaseType(TypeSystemServices.Map(typeof(AbstractGenerator)));
 			builder.AddAttribute(CodeBuilder.CreateAttribute(

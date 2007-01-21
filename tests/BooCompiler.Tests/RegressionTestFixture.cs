@@ -727,5 +727,11 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\regression\BOO-99-1.boo");
 		}
 		
+		[Test]
+		public void generators_1()
+		{
+			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\regression\generators-1.boo");
+		}
+		
 	}
 }
