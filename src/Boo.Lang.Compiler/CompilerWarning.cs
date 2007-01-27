@@ -53,13 +53,12 @@ namespace Boo.Lang.Compiler
 			
 			_code = "BCW0000";
 			_lexicalInfo = lexicalInfo;
-			_message = message;
+			_message = Boo.Lang.ResourceManager.Format(_code, message);
 		}
 		
 		public CompilerWarning(string message) : this(LexicalInfo.Empty, message)
 		{
-		}
-		
+		}		
 		public CompilerWarning(string code, LexicalInfo lexicalInfo,  params object[] args)
 		{
 			if (null == code)
