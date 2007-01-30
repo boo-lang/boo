@@ -125,8 +125,8 @@ Authors:
 		AddResponseFileCommands(boocCommandLine)
 		
 		warningPattern = regex(
-			'^(?<file>.*?)\\((?<line>\\d+),(?<column>\\d+)\\):' +
-				' (?<code>BCW\\d{4}): WARNING: (?<message>.*)$',
+			'^(?<file>.*?)(\\((?<line>\\d+),(?<column>\\d+)\\):)?' +
+				'(\\s?)(?<code>BCW\\d{4}):(\\s)WARNING:(\\s)(?<message>.*)$',
 			RegexOptions.Compiled)
 		# Captures the file, line, column, code, and message from a BOO warning
 		# in the form of: Program.boo(1,1): BCW0000: WARNING: This is a warning.
@@ -180,13 +180,17 @@ Authors:
 			errorPatternMatch = errorPattern.Match(line)
 		
 			if warningPatternMatch.Success:
+				lineOut = 0
+				columnOut = 0
+				int.TryParse(warningPatternMatch.Groups['line'].Value, lineOut)
+				int.TryParse(warningPatternMatch.Groups['column'].Value, columnOut)
 				Log.LogWarning(
 					null,
 					warningPatternMatch.Groups['code'].Value,
 					null,
 					warningPatternMatch.Groups['file'].Value,
-					int.Parse(warningPatternMatch.Groups['line'].Value),
-					int.Parse(warningPatternMatch.Groups['column'].Value),
+					lineOut,
+					columnOut,
 					0,
 					0,
 					warningPatternMatch.Groups['message'].Value)
