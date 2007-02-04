@@ -468,7 +468,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 #if NET_2_0		
-			IType genericItemType = GetEnumeratorItemTypeFromGenericEnumerable(iteratorType);
+			IType genericItemType = GetGenericEnumerableItemType(iteratorType);
 			if (null != genericItemType)
 			{
 				return genericItemType;
@@ -928,6 +928,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 				case NodeType.ReferenceExpression:
 				case NodeType.MemberReferenceExpression:
+				case NodeType.GenericReferenceExpression:
 				{
 					return typeref.Entity as IType;
 				}
@@ -1371,16 +1372,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 #if NET_2_0
-		IType GetEnumeratorItemTypeFromGenericEnumerable(IType iteratorType)
-		{	
-			IType genericEnumerable = IEnumerableGenericType;
+		public IType GetGenericEnumerableItemType(IType iteratorType)		
+		{
+			// Arrays implicitly implement IEnumerable<elementType>
+			if (iteratorType is ArrayType) return iteratorType.GetElementType();
+			
+			// If type is not an array, try to find IEnumerable<T> in its interfaces
+			IType genericEnumerable = IEnumerableGenericType;			
 
 			IType itemType = null;
 			foreach (IType type in FindConstructedTypes(iteratorType, genericEnumerable))
 			{
-				IType candidateItemType = type.GenericTypeInfo.GenericArguments[0];
-				_context.TraceVerbose("Candidate enumerable item type for {0}: {1}", 
-				                      iteratorType, candidateItemType);
+				IType candidateItemType = type.GenericTypeInfo.GenericArguments[0];				
 				
 				if (itemType != null)
 				{
@@ -1395,7 +1398,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return itemType;
 		}
 		
-		System.Collections.Generic.IEnumerable<IType> FindConstructedTypes(IType type, IType definition)
+		public System.Collections.Generic.IEnumerable<IType> FindConstructedTypes(IType type, IType definition)
 		{	
 			while (type != null)
 			{			
@@ -1405,13 +1408,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 					yield return type;
 				}
 
-				foreach (IType interfaceType in type.GetInterfaces())
+				IType[] interfaces = type.GetInterfaces();
+				if (interfaces != null)
 				{
-					foreach (IType match in FindConstructedTypes(interfaceType, definition))
+					foreach (IType interfaceType in interfaces)
 					{
-						yield return match;
+						foreach (IType match in FindConstructedTypes(interfaceType, definition))
+						{
+							yield return match;
+						}
 					}
 				}
+				
 				
 				type = type.BaseType;
 			}

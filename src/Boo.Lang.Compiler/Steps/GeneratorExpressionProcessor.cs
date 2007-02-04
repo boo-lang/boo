@@ -49,6 +49,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ForeignReferenceCollector _collector;
 		
+		IType _sourceItemType;
+		IType _sourceEnumeratorType; 
+		IType _sourceEnumerableType;
+
+		IType _resultItemType;
+		IType _resultEnumeratorType; 
+		
 		public GeneratorExpressionProcessor(CompilerContext context,
 								ForeignReferenceCollector collector,
 								GeneratorExpression node)
@@ -76,21 +83,47 @@ namespace Boo.Lang.Compiler.Steps
 		void CreateAnonymousGeneratorType()
 		{
 			_enumerable = (BooClassBuilder)_generator["GeneratorClassBuilder"];
+
+			_sourceItemType = TypeSystemServices.ObjectType;
+			_sourceEnumeratorType = TypeSystemServices.IEnumeratorType;
+			_sourceEnumerableType = TypeSystemServices.IEnumerableType;
+			
+			_resultItemType = (IType)_generator["GeneratorItemType"];
+			_resultEnumeratorType = TypeSystemServices.IEnumeratorType;
 			
 			//_enumerator = _collector.CreateSkeletonClass(_enumerable.ClassDefinition.Name + "Enumerator");
 			_enumerator = _collector.CreateSkeletonClass("Enumerator");
-			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
-			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(ICloneable)));
 			
-			_enumeratorField = _enumerator.AddField("____enumerator",
-									TypeSystemServices.IEnumeratorType);
-			_current = _enumerator.AddField("____current",
-									TypeSystemServices.ObjectType);
+#if NET_2_0
+			// If source item type isn't object, use a generic enumerator for the source type
+			_sourceItemType = TypeSystemServices.GetGenericEnumerableItemType(_generator.Iterator.ExpressionType);
+			
+			if (_sourceItemType != null && _sourceItemType != TypeSystemServices.ObjectType)
+			{
+				_sourceEnumerableType = TypeSystemServices.IEnumerableGenericType.GenericTypeDefinitionInfo.MakeGenericType(_sourceItemType);
+				_sourceEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericTypeDefinitionInfo.MakeGenericType(_sourceItemType);
+			}
+			else
+			{
+				_sourceItemType = TypeSystemServices.ObjectType;
+			}
+			
+			// Expose a generic enumerator
+			_resultEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericTypeDefinitionInfo.MakeGenericType(_resultItemType);
+#endif
+
+			_enumerator.AddBaseType(_resultEnumeratorType);
+			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(ICloneable)));
+			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(IDisposable)));
+			
+			_enumeratorField = _enumerator.AddField("____enumerator", _sourceEnumeratorType);
+			_current = _enumerator.AddField("____current", _resultItemType);
 			
 			CreateReset();
 			CreateCurrent();
 			CreateMoveNext();
 			CreateClone();
+			CreateDispose();
 			EnumeratorConstructorMustCallReset();
 			
 			_collector.AdjustReferences();
@@ -136,6 +169,24 @@ namespace Boo.Lang.Compiler.Steps
 			property.Getter.Body.Add(
 				new ReturnStatement(
 					CodeBuilder.CreateReference(_current)));
+
+#if NET_2_0
+			// If item type is object, we're done
+			if (_resultItemType == TypeSystemServices.ObjectType) return;
+				
+			// Since enumerator is generic, this object-typed property should be the 
+			// explicit interface implementation for the non-generic IEnumerator interface
+			property.ExplicitInfo = new ExplicitMemberInfo();
+			property.ExplicitInfo.InterfaceType =
+				(SimpleTypeReference)CodeBuilder.CreateTypeReference(TypeSystemServices.IEnumeratorType);
+			
+			// ...and now we create a typed property for the generic IEnumerator<> interface
+			Property typedProperty = _enumerator.AddReadOnlyProperty("Current", _resultItemType);
+			typedProperty.Getter.Modifiers |= TypeMemberModifiers.Virtual;
+			typedProperty.Getter.Body.Add(
+				new ReturnStatement(
+					CodeBuilder.CreateReference(_current)));		
+#endif
 		}
 		
 		void CreateGetEnumerator()
@@ -171,8 +222,9 @@ namespace Boo.Lang.Compiler.Steps
 			method.Body.Add(
 				CodeBuilder.CreateAssignment(
 					CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
-					CodeBuilder.CreateMethodInvocation(_generator.Iterator,
-						TypeSystemServices.Map(Types.IEnumerable.GetMethod("GetEnumerator")))));
+					CodeBuilder.CreateMethodInvocation(
+						_generator.Iterator, 
+						GetMethod(_sourceEnumerableType, "GetEnumerator"))));
 		}
 		
 		void CreateMoveNext()
@@ -180,12 +232,12 @@ namespace Boo.Lang.Compiler.Steps
 			BooMethodBuilder method = _enumerator.AddVirtualMethod("MoveNext", TypeSystemServices.BoolType);
 			
 			Expression moveNext = CodeBuilder.CreateMethodInvocation(
-												CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
-												TypeSystemServices.Map(Types.IEnumerator.GetMethod("MoveNext")));
-												
+				CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
+				TypeSystemServices.Map(Types.IEnumerator.GetMethod("MoveNext")));
+						
 			Expression current = CodeBuilder.CreateMethodInvocation(
-									CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
-									TypeSystemServices.Map(Types.IEnumerator.GetProperty("Current").GetGetMethod()));
+				CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
+				GetProperty(_sourceEnumeratorType, "Current").GetGetMethod());
 			
 			Statement filter = null;
 			Statement stmt = null;
@@ -255,6 +307,67 @@ namespace Boo.Lang.Compiler.Steps
 			
 			method.Body.Add(stmt);
 			method.Body.Add(new ReturnStatement(new BoolLiteralExpression(false)));
+		}
+		
+		private void CreateDispose()
+		{
+			BooMethodBuilder dispose = _enumerator.AddVirtualMethod("Dispose", TypeSystemServices.VoidType);
+			if (TypeSystemServices.Map(typeof(IDisposable)).IsAssignableFrom(_sourceEnumeratorType))
+			{			
+				dispose.Body.Add(CodeBuilder.CreateMethodInvocation(
+					CodeBuilder.CreateReference(_enumeratorField),
+					typeof(IDisposable).GetMethod("Dispose")));
+			}
+		}
+
+		private IMethod GetMethod(IType type, string name)
+		{
+			ExternalType external = type as ExternalType;
+
+#if NET_2_0
+			MixedGenericType mixed = type as MixedGenericType;
+			
+			if (mixed != null)
+			{
+				IMethod definition = GetMethod(mixed.GenericDefinition, name);
+				return (IMethod)mixed.MapMember(definition);
+			}
+#endif
+
+			if (external != null)
+			{
+				return TypeSystemServices.Map(external.ActualType.GetMethod(name));
+			}
+			
+			else
+			{
+				throw new ArgumentException(string.Format("Invalid type for GetMethod: {0}", type));
+			}
+		}	
+		
+		private IProperty GetProperty(IType type, string name)
+		{
+			ExternalType external = type as ExternalType;
+
+#if NET_2_0
+			MixedGenericType mixed = type as MixedGenericType;
+			
+			if (mixed != null)
+			{
+				IProperty definition = GetProperty(mixed.GenericDefinition, name);
+				return (IProperty)mixed.MapMember(definition);
+			}
+#endif
+
+			if (external != null)
+			{
+				return (IProperty)TypeSystemServices.Map(external.ActualType.GetProperty(name));
+			}
+			
+			else
+			{
+				throw new ArgumentException(string.Format("Invalid type for GetMethod: {0}", type));
+			}
 		}
 	}
 }

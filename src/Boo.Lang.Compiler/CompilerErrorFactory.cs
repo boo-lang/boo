@@ -743,6 +743,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0139", node.LexicalInfo, name, expectedCount);
 		}
 		
+		public static CompilerError YieldTypeDoesNotMatchReturnType(Node node, string yieldType, string returnType)
+		{
+			return new CompilerError("BCE0140", node.LexicalInfo, yieldType, returnType);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

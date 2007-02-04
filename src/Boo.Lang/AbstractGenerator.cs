@@ -30,7 +30,26 @@ namespace Boo.Lang
 {
 	using System;
 	using System.Collections;
-	
+
+#if NET_2_0
+	using System.Collections.Generic;
+
+	public abstract class AbstractGenerator<T> : IEnumerable<T>
+	{
+		public abstract IEnumerator<T> GetEnumerator();
+		
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+		
+		override public string ToString()
+		{
+			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)Attribute.GetCustomAttribute(GetType(), typeof(EnumeratorItemTypeAttribute));
+			return string.Format("generator({0})", attribute.ItemType);
+		}
+	}
+#else
 	public abstract class AbstractGenerator : IEnumerable
 	{
 		public abstract IEnumerator GetEnumerator();
@@ -41,4 +60,5 @@ namespace Boo.Lang
 			return string.Format("generator({0})", attribute.ItemType);
 		}
 	}
+#endif
 }

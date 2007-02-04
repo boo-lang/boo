@@ -139,6 +139,7 @@ BCE0136=Use a colon(:) instead of equal sign(=) for named parameters.
 BCE0137=Property '{0}' is write only.
 BCE0138='{0}' is not a generic definition.
 BCE0139='{0}' requires '{1}' arguments.
+BCE0140=Yield statement type '{0}' does not match generator element type '{1}'.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

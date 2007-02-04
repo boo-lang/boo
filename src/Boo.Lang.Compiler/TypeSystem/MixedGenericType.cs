@@ -285,7 +285,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// <summary>
 		/// Maps a member from the type's definition to its constructed version.
 		/// </summary>
-		protected IEntity MapMember(IEntity source)
+		public IEntity MapMember(IEntity source)
 		{
 			if (source == null) return null;
 			

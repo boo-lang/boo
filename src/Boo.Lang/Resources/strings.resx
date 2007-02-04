@@ -537,6 +537,9 @@
   <data space="preserve" name="BCE0139">
     <value>'{0}' requires '{1}' arguments.</value>
   </data>
+  <data space="preserve" name="BCE0140">
+    <value>Yield statement type '{0}' does not match generator element type '{1}'.</value>
+  </data>
   <data space="preserve" name="BCW0000">
     <value>WARNING: {0}</value>
   </data>

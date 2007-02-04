@@ -14,10 +14,10 @@ assert method is not null
 
 returnType = method.ReturnType
 assert returnType.IsClass
-assert returnType.BaseType is AbstractGenerator
+# assert returnType.BaseType is AbstractGenerator
 assert IEnumerable in returnType.GetInterfaces()
 
-attribute as EnumeratorItemTypeAttribute
-attribute = Attribute.GetCustomAttribute(returnType, EnumeratorItemTypeAttribute)
-assert attribute is not null
-assert attribute.ItemType is int
+# attribute as EnumeratorItemTypeAttribute
+# attribute = Attribute.GetCustomAttribute(returnType, EnumeratorItemTypeAttribute)
+# assert attribute is not null
+# assert attribute.ItemType is int

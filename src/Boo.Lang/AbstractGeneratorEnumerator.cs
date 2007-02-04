@@ -30,7 +30,53 @@ namespace Boo.Lang
 {
 	using System;
 	using System.Collections;
-	
+
+#if NET_2_0
+	using System.Collections.Generic;
+
+	public abstract class AbstractGeneratorEnumerator<T> : IEnumerator<T>
+	{
+		protected T _current;
+		
+		protected int _state;
+		
+		public AbstractGeneratorEnumerator()
+		{
+			_state = 0;
+		}
+		
+		public T Current
+		{
+			get
+			{
+				return _current;
+			}
+		}
+		
+		object IEnumerator.Current
+		{
+			get { return _current; }
+		}
+		
+		void IDisposable.Dispose()
+		{
+		}
+		
+		public void Reset()
+		{
+			_state = 0;
+		}
+		
+		public abstract bool MoveNext();
+		
+		protected bool Yield(int state, T value)
+		{
+			_state = state;
+			_current = value;
+			return true;
+		}
+	}
+#else
 	public abstract class AbstractGeneratorEnumerator : IEnumerator
 	{
 		protected object _current;
@@ -64,4 +110,5 @@ namespace Boo.Lang
 			return true;
 		}
 	}
+#endif
 }

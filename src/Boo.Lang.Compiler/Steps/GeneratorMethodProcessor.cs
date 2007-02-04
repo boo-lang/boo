@@ -219,7 +219,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IField _state;
 		
-		IMethod _yield;
+		IMethod _yield;		
 		
 		Field _externalEnumeratorSelf;
 		
@@ -334,7 +334,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool GeneratorReturnsIEnumerator()
 		{
-			return _generator.ReturnType == TypeSystemServices.IEnumeratorType;
+			bool returnsEnumerator = _generator.ReturnType == TypeSystemServices.IEnumeratorType;
+
+#if NET_2_0
+			returnsEnumerator |=
+				_generator.ReturnType.GenericTypeInfo != null &&
+				_generator.ReturnType.GenericTypeInfo.GenericDefinition == TypeSystemServices.IEnumeratorGenericType;
+#endif
+			
+			return returnsEnumerator;
 		}
 
 		void CreateGetEnumerator(Expression enumeratorExpression)
@@ -360,7 +368,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateEnumerator()
 		{
+#if NET_2_0
+			IType abstractEnumeratorType = 
+				TypeSystemServices.Map(typeof(Boo.Lang.AbstractGeneratorEnumerator<>)).
+					GenericTypeDefinitionInfo.MakeGenericType(new IType[] {_generatorItemType});
+#else
 			IType abstractEnumeratorType = TypeSystemServices.Map(typeof(Boo.Lang.AbstractGeneratorEnumerator));
+#endif
 			
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
@@ -413,7 +427,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Visit(mn.Body);
 			
-			mn.Body.Add(CreateYieldInvocation(CodeBuilder.CreateNullLiteral()));
+			mn.Body.Add(CreateYieldInvocation(null));
 			mn.Body.Add(CreateLabel(generator));
 			
 			mn.Body.Insert(0,
@@ -488,7 +502,7 @@ namespace Boo.Lang.Compiler.Steps
 			block.Add(
 				new ReturnStatement(
 					node.LexicalInfo,
-					CreateYieldInvocation(node.Expression),
+					CreateYieldInvocation(node.Expression), 
 					null));
 			block.Add(CreateLabel(node));
 			ReplaceCurrentNode(block);
@@ -498,7 +512,7 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			return CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateSelfReference(_enumerator.Entity),
-					_yield,
+					_yield, 
 					CodeBuilder.CreateIntegerLiteral(_labels.Count),
 					value == null ? GetDefaultYieldValue() : value);
 		}

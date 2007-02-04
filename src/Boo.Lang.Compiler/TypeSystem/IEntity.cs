@@ -201,7 +201,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public interface IGenericTypeDefinitionInfo
 	{
 		IGenericParameter[] GenericParameters { get; }
-		IType MakeGenericType(IType[] arguments);
+		IType MakeGenericType(params IType[] arguments);
 	}
 
 	public interface IGenericTypeInfo
