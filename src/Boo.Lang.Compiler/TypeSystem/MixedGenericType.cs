@@ -210,7 +210,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return false;
 			}
 			
-			if (other == this || other.IsSubclassOf(this))
+			if (other == this || other.IsSubclassOf(this) || (other == Null.Default && !IsValueType))
 			{
 				return true;
 			}
