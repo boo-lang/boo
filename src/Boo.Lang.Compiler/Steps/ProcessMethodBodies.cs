@@ -3002,7 +3002,7 @@ namespace Boo.Lang.Compiler.Steps
 		private bool IsPrimitiveOnesComplementOperand(Expression operand)
 		{
 			IType type = GetExpressionType(operand);
-			return TypeSystemServices.IsIntegerNumber(type);
+			return TypeSystemServices.IsIntegerNumber(type) || type.IsEnum;
 		}
 
 		private void LeaveLogicalNot(UnaryExpression node)
@@ -3089,6 +3089,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected virtual void BindBinaryExpression(BinaryExpression node)
 		{
+			if(IsEnumOperation(node))
+			{
+				BindEnumOperation(node);
+				return;
+			}
 			switch (node.Operator)
 			{
 				case BinaryOperatorType.Assign:
@@ -3169,11 +3174,12 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.InPlaceMultiply:
 				case BinaryOperatorType.InPlaceBitwiseOr:
 				case BinaryOperatorType.InPlaceBitwiseAnd:
-					{
-						BindInPlaceArithmeticOperator(node);
-						break;
-					}
-					
+				case BinaryOperatorType.InPlaceExclusiveOr:
+				{
+					BindInPlaceArithmeticOperator(node);
+					break;
+				}
+				
 				case BinaryOperatorType.GreaterThan:
 				case BinaryOperatorType.GreaterThanOrEqual:
 				case BinaryOperatorType.LessThan:
@@ -3203,6 +3209,78 @@ namespace Boo.Lang.Compiler.Steps
 				GetExpressionType(node.Right));
 		}
 		
+		bool IsEnumOperation(BinaryExpression node)
+		{
+			switch(node.Operator)
+			{
+				case BinaryOperatorType.Addition:
+				case BinaryOperatorType.Subtraction:
+				case BinaryOperatorType.BitwiseAnd:
+				case BinaryOperatorType.BitwiseOr:
+				case BinaryOperatorType.ExclusiveOr:
+					return (GetExpressionType(node.Left).IsEnum || 
+					        GetExpressionType(node.Right).IsEnum);
+				default:
+					return false;
+			}
+//			switch(node.Operator)
+//			{
+//				case BinaryOperatorType.Addition:
+//					return lhs.IsEnum != rhs.IsEnum;
+//				case BinaryOperatorType.Subtraction:
+//					return lhs.IsEnum && !rhs.IsEnum || lhs == rhs;
+//				case BinaryOperatorType.BitwiseAnd:
+//				case BinaryOperatorType.BitwiseOr:
+//				case BinaryOperatorType.ExclusiveOr:
+//					return lhs == rhs;
+//				default:
+//					return false;
+//			}
+		}
+		
+		void BindEnumOperation(BinaryExpression node)
+		{
+			IType lhs = GetExpressionType(node.Left);
+			IType rhs = GetExpressionType(node.Right);
+			
+			switch(node.Operator)
+			{
+				case BinaryOperatorType.Addition:
+					if (lhs.IsEnum != rhs.IsEnum)
+					{
+						BindExpressionType(node, lhs.IsEnum?lhs:rhs);
+					}
+					else goto default;
+					break;
+				case BinaryOperatorType.Subtraction:
+					if (lhs == rhs)
+					{
+						BindExpressionType(node, TypeSystemServices.IntType);
+					}
+					else if (lhs.IsEnum && !rhs.IsEnum)
+					{
+						BindExpressionType(node, lhs);
+					}
+					else goto default;
+					break;
+				case BinaryOperatorType.BitwiseAnd:
+				case BinaryOperatorType.BitwiseOr:
+				case BinaryOperatorType.ExclusiveOr:
+					if (lhs == rhs)
+					{
+						BindExpressionType(node, lhs);
+					}
+					else goto default;
+					break;
+				default:
+					if (!ResolveOperator(node))
+					{
+						InvalidOperatorForTypes(node);
+					}
+					break;
+			}
+		}
+		
 		void BindBitwiseOperator(BinaryExpression node)
 		{
 			IType lhs = GetExpressionType(node.Left);
@@ -3215,17 +3293,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (lhs.IsEnum && rhs == lhs)
-				{
-					BindExpressionType(node, lhs);
-				}
-				else
-				{
+//				if (lhs.IsEnum && rhs == lhs)
+//				{
+//					BindExpressionType(node, lhs);
+//				}				
+//				else
+//				{
 					if (!ResolveOperator(node))
 					{
 						InvalidOperatorForTypes(node);
 					}
-				}
+//				}
 			}
 		}
 		

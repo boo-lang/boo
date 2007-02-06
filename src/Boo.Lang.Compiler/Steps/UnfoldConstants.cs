@@ -54,6 +54,18 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.BitwiseOr:
 					LeaveBitwiseOr(node);
 					break;
+				case BinaryOperatorType.BitwiseAnd:
+					LeaveBitwiseAnd(node);
+					break;
+				case BinaryOperatorType.Addition:
+					LeaveAddition(node);
+					break;
+				case BinaryOperatorType.Subtraction:
+					LeaveSubtraction(node);
+					break;
+				case BinaryOperatorType.ExclusiveOr:
+					LeaveExclusiveOr(node);
+					break;
 			}
 		}
 
@@ -88,6 +100,70 @@ namespace Boo.Lang.Compiler.Steps
 					CodeBuilder.CreateIntegerLiteral(GetLongValue(rhs)|GetLongValue(lhs))));
 		}
 
+		private void LeaveBitwiseAnd(BinaryExpression node)
+		{
+			IType type = TypeSystemServices.GetExpressionType(node);
+			if (!type.IsEnum) return;
+
+			object lhs = GetLiteral(node.Left);
+			if (null == lhs) return;
+
+			object rhs = GetLiteral(node.Right);
+			if (null == rhs) return;
+
+			ReplaceCurrentNode(
+				CodeBuilder.CreateCast(type,
+					CodeBuilder.CreateIntegerLiteral(GetLongValue(rhs)&GetLongValue(lhs))));
+		}
+
+		private void LeaveAddition(BinaryExpression node)
+		{
+			IType type = TypeSystemServices.GetExpressionType(node);
+			if (!type.IsEnum) return;
+
+			object lhs = GetLiteral(node.Left);
+			if (null == lhs) return;
+
+			object rhs = GetLiteral(node.Right);
+			if (null == rhs) return;
+
+			ReplaceCurrentNode(
+				CodeBuilder.CreateCast(type,
+					CodeBuilder.CreateIntegerLiteral(GetLongValue(lhs)+GetLongValue(rhs))));
+		}
+
+		private void LeaveSubtraction(BinaryExpression node)
+		{
+			IType type = TypeSystemServices.GetExpressionType(node);
+			if (!type.IsEnum) return;
+
+			object lhs = GetLiteral(node.Left);
+			if (null == lhs) return;
+
+			object rhs = GetLiteral(node.Right);
+			if (null == rhs) return;
+
+			ReplaceCurrentNode(
+				CodeBuilder.CreateCast(type,
+					CodeBuilder.CreateIntegerLiteral(GetLongValue(lhs)-GetLongValue(rhs))));
+		}
+
+		private void LeaveExclusiveOr(BinaryExpression node)
+		{
+			IType type = TypeSystemServices.GetExpressionType(node);
+			if (!type.IsEnum) return;
+
+			object lhs = GetLiteral(node.Left);
+			if (null == lhs) return;
+
+			object rhs = GetLiteral(node.Right);
+			if (null == rhs) return;
+
+			ReplaceCurrentNode(
+				CodeBuilder.CreateCast(type,
+					CodeBuilder.CreateIntegerLiteral(GetLongValue(rhs)^GetLongValue(lhs))));
+		}
+		
 		private long GetLongValue(object o)
 		{
 			return (long) Convert.ChangeType(o, typeof(long));
@@ -100,6 +176,11 @@ namespace Boo.Lang.Compiler.Steps
 				case UnaryOperatorType.UnaryNegation:
 				{
 					LeaveUnaryNegation(node);
+					break;
+				}
+				case UnaryOperatorType.OnesComplement:
+				{
+					LeaveOnesCompliment(node);
 					break;
 				}
 			}
@@ -115,6 +196,19 @@ namespace Boo.Lang.Compiler.Steps
 					ReplaceCurrentNode(operand);
 					break;
 			}
+		}
+		
+		private void LeaveOnesCompliment(UnaryExpression node)
+		{
+			IType type = TypeSystemServices.GetExpressionType(node);
+			if (!type.IsEnum) return;
+			
+			object operand = GetLiteral(node.Operand);
+			if (null == operand) return;
+
+			ReplaceCurrentNode(
+				CodeBuilder.CreateCast(type,
+					CodeBuilder.CreateIntegerLiteral(~GetLongValue(operand))));
 		}
 	}
 }
