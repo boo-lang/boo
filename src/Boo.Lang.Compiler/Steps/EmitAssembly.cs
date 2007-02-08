@@ -3797,15 +3797,26 @@ namespace Boo.Lang.Compiler.Steps
 					string typeName = GetArrayTypeName(arrayType);
 					type = _moduleBuilder.GetType(typeName, true);
 				}
-				else
-				{
-					if (arrayType.GetArrayRank() > 1)
+				else 
+				{					
+					Type systemType = GetSystemType(arrayType.GetElementType());
+					int rank = arrayType.GetArrayRank();
+					
+					if (rank == 1)
 					{
-						type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), new int[arrayType.GetArrayRank()]).GetType();
+#if NET_2_0
+						type = systemType.MakeArrayType();
+#else
+						type = Array.CreateInstance(systemType, 0).GetType();
+#endif
 					}
 					else
 					{
-						type = Array.CreateInstance(GetSystemType(arrayType.GetElementType()), 0).GetType();
+#if NET_2_0
+						type = systemType.MakeArrayType(rank);
+#else
+						type = Array.CreateInstance(systemType, new int[rank]).GetType();
+#endif
 					}
 				}
 			}
