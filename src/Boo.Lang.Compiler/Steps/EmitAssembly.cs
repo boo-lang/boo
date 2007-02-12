@@ -2400,17 +2400,44 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{
 			Type stringBuilderType = typeof(StringBuilder);
-			ConstructorInfo constructor =  stringBuilderType.GetConstructor(new Type[0]);
+			ConstructorInfo constructor = stringBuilderType.GetConstructor(new Type[0]);
+			ConstructorInfo constructorString = stringBuilderType.GetConstructor(new Type[] { typeof(string) });
 			MethodInfo appendObject = stringBuilderType.GetMethod("Append", new Type[] { typeof(object) });
 			MethodInfo appendString = stringBuilderType.GetMethod("Append", new Type[] { typeof(string) });
-			
-			_il.Emit(OpCodes.Newobj, constructor);
+			Expression arg0 = node.Expressions[0];
+			IType argType = arg0.ExpressionType;
+
+			/* if arg0 is a string, let's call StringBuilder constructor
+			 * directly with the string */
+			if ( ( typeof(StringLiteralExpression) == arg0.GetType()
+				   && ((StringLiteralExpression) arg0).Value.Length > 0 )
+				|| ( typeof(StringLiteralExpression) != arg0.GetType()
+					 && TypeSystemServices.StringType == argType ) )
+			{
+				Visit(arg0);
+				PopType();
+				_il.Emit(OpCodes.Newobj, constructorString);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Newobj, constructor);
+				arg0 = null; /* arg0 is not a string so we want it to be appended below */
+			}
 			
 			foreach (Expression arg in node.Expressions)
 			{
+				/* we do not need to append literal string.Empty
+				 * or arg0 if it has been handled by ctor */
+				if ( ( typeof(StringLiteralExpression) == arg.GetType() 
+					   && ((StringLiteralExpression) arg).Value.Length == 0 )
+					|| arg == arg0 )
+				{
+					continue;
+				}
+
 				Visit(arg);
 				
-				IType argType = PopType();
+				argType = PopType();
 				if (TypeSystemServices.StringType == argType)
 				{
 					_il.EmitCall(OpCodes.Call, appendString, null);
@@ -3729,7 +3756,6 @@ namespace Boo.Lang.Compiler.Steps
 				Type definition = field.DeclaringType.GetGenericTypeDefinition();
 				field = definition.GetField(field.Name);
 			}
-			
 			return TypeBuilder.GetField(GetSystemType(targetType), field);
 		}
 
