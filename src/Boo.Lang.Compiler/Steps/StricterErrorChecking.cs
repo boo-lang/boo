@@ -146,6 +146,11 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 			}
 		}
+
+        public override void LeaveGeneratorExpression(GeneratorExpression node)
+        {
+            CheckExpressionType(node.Expression);
+        }
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
@@ -380,8 +385,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return false;
 		}
-		
-		bool IsAddressOfBuiltin(Expression node)
+
+	    static bool IsAddressOfBuiltin(Expression node)
 		{
 			return BuiltinFunction.AddressOf == node.Entity;
 		}
