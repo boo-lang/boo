@@ -502,6 +502,7 @@ namespace Boo.Lang
 			}
 		}
 
+		[EnumeratorItemType(typeof(int))]
 		public class RangeEnumerable : IEnumerable
 		{
 			int _begin;
@@ -520,7 +521,7 @@ namespace Boo.Lang
 				return new RangeEnumerator(_begin, _end, _step);
 			}			
 		}
-
+		
 		[EnumeratorItemType(typeof(int))]
 		public class RangeEnumerator : IEnumerator
 		{
