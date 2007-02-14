@@ -18,7 +18,7 @@ True
 l = [1, 2, 3]
 h = { 1: "1", 2: "2" }
 a = (1, 2, 3)
-e = range(3)
+e = range(1, 3)
 
 print 1 in l
 print 1 in h

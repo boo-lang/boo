@@ -28,6 +28,9 @@
 
 using System;
 using System.Collections;
+#if NET_2_0
+using System.Collections.Generic;
+#endif
 using System.IO;
 using System.Text;
 using System.Reflection;
@@ -292,27 +295,67 @@ namespace Boo.Lang
 			return new EnumerateEnumerator(GetEnumerator(enumerable));
 		}
 
-		public static RangeEnumerator range(int max)
+#if NET_2_0
+		public static IEnumerable<int> range(int max)
+		{
+			return range(0, max);
+		}
+		
+		public static IEnumerable<int> range(int begin, int end)
+		{
+			if (begin < end)
+			{
+				for (int i = begin; i<end; ++i) yield return i;
+			}
+			else
+			{
+				for (int i = begin; i>end; --i) yield return i;
+			}
+		}
+
+		public static IEnumerable<int> range(int begin, int end, int step)
+		{
+			if (step < 0)
+			{
+				if (begin < end)
+				{
+					throw new ArgumentOutOfRangeException("step");
+				}
+				
+				for (int i = begin; i > end; i += step) yield return i;
+			}
+			else
+			{
+				if (begin > end)
+				{
+					throw new ArgumentOutOfRangeException("step");
+				}
+				for (int i = begin; i < end; i += step) yield return i;
+			}
+			
+		}
+#else // ifdef NET_2_0
+		public static RangeEnumerable range(int max)
 		{
 			if (max < 0)
 			{
 				throw new ArgumentOutOfRangeException("max");
 			}
 
-			return new RangeEnumerator(0, max, 1);
+			return new RangeEnumerable(0, max, 1);
 		}
-
-		public static RangeEnumerator range(int begin, int end)
+		
+		public static RangeEnumerable range(int begin, int end)
 		{
 			int step = 1;
 			if (begin > end)
 			{
 				step = -1;
 			}
-			return new RangeEnumerator(begin, end, step);
+			return new RangeEnumerable(begin, end, step);
 		}
-
-		public static RangeEnumerator range(int begin, int end, int step)
+		
+		public static RangeEnumerable range(int begin, int end, int step)
 		{
 			if (step < 0)
 			{
@@ -328,9 +371,10 @@ namespace Boo.Lang
 					throw new ArgumentOutOfRangeException("step");
 				}
 			}
-			return new RangeEnumerator(begin, end, step);
-		}
-		
+			return new RangeEnumerable(begin, end, step);
+		}		
+#endif
+
 		public static IEnumerable reversed(object enumerable)
 		{
 			return new List(iterator(enumerable)).Reversed;
@@ -458,8 +502,27 @@ namespace Boo.Lang
 			}
 		}
 
+		public class RangeEnumerable : IEnumerable
+		{
+			int _begin;
+			int _end;
+			int _step;			
+		
+			internal RangeEnumerable(int begin, int end, int step)
+			{
+				_begin = begin;
+				_end = end;
+				_step = step;
+			}
+					
+			public IEnumerator GetEnumerator()
+			{
+				return new RangeEnumerator(_begin, _end, _step);
+			}			
+		}
+
 		[EnumeratorItemType(typeof(int))]
-		public class RangeEnumerator : IEnumerator, IEnumerable
+		public class RangeEnumerator : IEnumerator
 		{
 			int _index;
 			int _begin;
@@ -476,7 +539,6 @@ namespace Boo.Lang
 				{
 					_end = begin + (step * (int)Math.Ceiling(Math.Abs(begin-end)/((double)Math.Abs(step))));
 				}
-
 
 				_end -= step;
 				_begin = begin-step;
@@ -506,11 +568,7 @@ namespace Boo.Lang
 					return _index;
 				}
 			}
-
-			public IEnumerator GetEnumerator()
-			{
-				return this;
-			}
+			
 		}
 		
 		public class ConcatEnumerator : IEnumerator, IEnumerable
@@ -613,3 +671,4 @@ namespace Boo.Lang
 		}
 	}
 }
+
