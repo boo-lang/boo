@@ -45,8 +45,7 @@ namespace Boo.Lang
 		
 		override public string ToString()
 		{
-			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)Attribute.GetCustomAttribute(GetType(), typeof(EnumeratorItemTypeAttribute));
-			return string.Format("generator({0})", attribute.ItemType);
+			return string.Format("generator({0})", typeof(T));
 		}
 	}
 #else
