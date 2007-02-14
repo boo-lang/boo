@@ -9,7 +9,7 @@ namespace BooCompiler.Tests
 		[Test]
 		public void RealProxy_1()
 		{
-			RunCompilerTestCase(@"e:\projects\boo\tests\testcases\integration\clr\RealProxy-1.boo");
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\clr\RealProxy-1.boo");
 		}
 		
 	}
