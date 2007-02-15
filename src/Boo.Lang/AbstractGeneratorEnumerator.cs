@@ -38,7 +38,10 @@ namespace Boo.Lang
 	{
 		protected T _current;
 		
-		protected int _state;
+		// HACK: _state should be protected, not public. 
+		// Marked public because of a bug in Mono. See BOO-796 and
+		// http://lists.ximian.com/pipermail/mono-devel-list/2007-February/022431.html
+		public int _state;
 		
 		public AbstractGeneratorEnumerator()
 		{
