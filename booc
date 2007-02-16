@@ -1,2 +1,2 @@
 #!/bin/sh
-env mono $HOME/dotnet/boo/build/booc.exe "$@"
+env mono build/booc.exe "$@"
