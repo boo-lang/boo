@@ -725,7 +725,6 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Stloc, _returnValueLocal);
 			}
 			_il.Emit(retOpCode, _returnLabel);
-			EmitNopDebugInfo(node);
 		}
 		
 		override public void OnRaiseStatement(RaiseStatement node)
@@ -739,18 +738,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Visit(node.Exception); PopType();
 				_il.Emit(OpCodes.Throw);
-			}
-			EmitNopDebugInfo(node);
-		}
-
-		private void EmitNopDebugInfo(Statement node)
-		{
-			// HACK: workaround - mono reports the position of
-			// raise as being the position of the next instruction
-			// after it
-			if (EmitDebugInfo(node))
-			{
-				_il.Emit(OpCodes.Nop);
 			}
 		}
 
@@ -796,8 +783,6 @@ namespace Boo.Lang.Compiler.Steps
 			// the stack sane
 			DiscardValueOnStack();
 			AssertStackIsEmpty("stack must be empty after a statement!");
-
-			EmitNopDebugInfo(node);
 		}
 		
 		void DiscardValueOnStack()
@@ -813,7 +798,6 @@ namespace Boo.Lang.Compiler.Steps
 			Label endLabel = _il.DefineLabel();
 			EmitDebugInfo(node);
 			EmitBranchTrue(node.Condition, endLabel);
-			EmitNopDebugInfo(node);
 			node.Block.Accept(this);
 			_il.MarkLabel(endLabel);
 		}
@@ -856,7 +840,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EmitDebugInfo(node);
 			_il.MarkLabel(((InternalLabel)node.Entity).Label);
-			EmitNopDebugInfo(node);
 		}
 		
 		override public void OnConditionalExpression(ConditionalExpression node)
@@ -888,7 +871,6 @@ namespace Boo.Lang.Compiler.Steps
 			
 			EmitDebugInfo(node);
 			EmitBranchFalse(node.Condition, endLabel);
-			EmitNopDebugInfo(node);
 			
 			node.TrueBlock.Accept(this);
 			if (null != node.FalseBlock)
@@ -1262,7 +1244,6 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(conditionLabel);
 			EmitDebugInfo(node);
 			EmitBranchTrue(node.Condition, bodyLabel);
-			EmitNopDebugInfo(node);
 			_il.MarkLabel(endLabel);
 		}
 		
