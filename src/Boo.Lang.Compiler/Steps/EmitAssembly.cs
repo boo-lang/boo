@@ -2294,7 +2294,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
 		{
-			_il.Emit(OpCodes.Ldstr, node.Value);
+			if (0 != node.Value.Length)
+			{ 
+				_il.Emit(OpCodes.Ldstr, node.Value);
+			}
+			else /* force use of CLR-friendly string.Empty */
+			{
+				_il.Emit(OpCodes.Ldsfld, typeof(string).GetField("Empty"));
+			}
 			PushType(TypeSystemServices.StringType);
 		}
 		
