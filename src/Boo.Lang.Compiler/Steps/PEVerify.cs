@@ -34,13 +34,6 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class PEVerify : AbstractCompilerStep
 	{
-		public static bool IsSupported
-		{
-			get
-			{
-				return 128 != (int)System.Environment.OSVersion.Platform;
-			}
-		}
 		
 		override public void Run()
 		{			
@@ -48,27 +41,45 @@ namespace Boo.Lang.Compiler.Steps
 			if (Errors.Count > 0)
 			{
 				return;
-			}			
+			}
+
+			string command = null;
+			string arguments = string.Empty;
 			
-			if (!IsSupported)
+			switch ((int) System.Environment.OSVersion.Platform)
 			{
-				Warnings.Add(new CompilerWarning("PEVerify is not supported on this platform."));
-				// linux
+				#if NET_2_0
+				case (int)System.PlatformID.Unix:
+				#endif
+				case 128:// mono's PlatformID.Unix workaround on 1.1
+					command = "pedump";
+					arguments = "--verify all \"" + Context.GeneratedAssemblyFileName + "\"";
+					break;
+				default: // Windows
+					command = "peverify.exe";
+					arguments = "\"" + Context.GeneratedAssemblyFileName + "\"";
+					break;					
+			}
+			
+			if (null == command)
+			{
+				Errors.Add(new CompilerError(Boo.Lang.ResourceManager.GetString("BooC.VerifyPipelineUnsupported")));
 				return;
 			}
 			
 			try
 			{
-				Process p = Boo.Lang.Builtins.shellp("peverify.exe", "\"" + Context.GeneratedAssemblyFileName + "\"");
+				Process p = Boo.Lang.Builtins.shellp(command, arguments);
 				p.WaitForExit();
 				if (0 != p.ExitCode)
 				{
 					Errors.Add(new CompilerError(Boo.Lang.Compiler.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
 				}
 			}
-			catch (Win32Exception e)
+			catch (System.Exception e)
             {
-                _context.TraceWarning("Could not start peverify.exe: " + e.Message);
+				Warnings.Add(new CompilerWarning("Could not start " + command));      
+                _context.TraceWarning("Could not start " + command +" : " + e.Message);
 			}
 #endif
 		}
