@@ -56,8 +56,7 @@ namespace BooCompiler.Tests
 #if VISUAL_STUDIO
 				return false;
 #else
-				return Boo.Lang.Compiler.Steps.PEVerify.IsSupported &&
-						GetEnvironmentFlag("peverify", true);
+				return GetEnvironmentFlag("peverify", true);
 #endif
 			}
 		}

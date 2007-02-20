@@ -110,7 +110,7 @@ class CompilerTestFixture:
 		_compiler.Parameters.OutputAssembly = fname = Path.Combine(Path.GetTempPath(), "foo.exe")
 		
 		context = _compiler.Run()
-		Assert.AreEqual(0, len(context.Errors))
+		Assert.AreEqual(0, len(context.Errors), "context.Errors")
 		assert File.Exists(fname)
 		assert context.GeneratedAssembly is null 
 		
@@ -128,3 +128,10 @@ class CompilerTestFixture:
 			Console.SetOut(saved)
 		Assert.AreEqual("foo", writer.ToString().Trim())
 
+
+	[Test]
+	def VerboseCompile():
+		_compiler.Parameters.TraceSwitch.Level = System.Diagnostics.TraceLevel.Verbose; 
+		CompileOnlyToFile()
+		
+		
