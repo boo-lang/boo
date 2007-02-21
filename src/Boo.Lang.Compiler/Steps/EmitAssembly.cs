@@ -2964,7 +2964,14 @@ namespace Boo.Lang.Compiler.Steps
 		bool EmitDebugInfo(Node node)
 		{
 			return EmitDebugInfo(node, node);
-		}
+		}		
+		
+		private const int _DBG_SYMBOLS_QUEUE_CAPACITY = 5; 
+		#if NET_2_0
+		private System.Collections.Generic.Queue<LexicalInfo> _dbgSymbols = new System.Collections.Generic.Queue<LexicalInfo>(_DBG_SYMBOLS_QUEUE_CAPACITY);
+		#else
+		private System.Collections.Queue _dbgSymbols = new System.Collections.Queue(_DBG_SYMBOLS_QUEUE_CAPACITY);
+		#endif
 		
 		bool EmitDebugInfo(Node startNode, Node endNode)
 		{
@@ -2975,6 +2982,14 @@ namespace Boo.Lang.Compiler.Steps
 
 			ISymbolDocumentWriter writer = GetDocumentWriter(start.FullPath);
 			if (null == writer) return false;
+			
+			// ensure there is no duplicate emitted
+			if (_dbgSymbols.Contains(start)) {
+				_context.TraceInfo("duplicate symbol emit attempt for '{0}' : '{1}'.", start.ToString(), startNode.ToString()); 
+				return false;
+			}
+			if (_dbgSymbols.Count >= _DBG_SYMBOLS_QUEUE_CAPACITY) _dbgSymbols.Dequeue();
+			_dbgSymbols.Enqueue(start);
 
 			try
 			{
