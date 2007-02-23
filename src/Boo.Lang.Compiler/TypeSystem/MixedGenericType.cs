@@ -241,6 +241,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return null;
 			}
 			
+			// If sourceType is a reference type, map its element type 
+			if (sourceType.IsByRef)
+			{
+				return MapType(sourceType.GetElementType());
+			}
+
 			// Map generic parameter to corresponding argument
 			IGenericParameter gp = sourceType as IGenericParameter;
 			if (null != gp && gp.DeclaringType == _definition)
@@ -275,8 +281,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return _typeSystemServices.GetArrayType(MapType(array.GetElementType()), array.GetArrayRank());
 			}
-			
-			// TODO: Handle ref/out types of generic parameters
 			
 			// If source type doesn't require mapping, return it as is
 			return sourceType;
@@ -373,7 +377,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					{
 						return new MappedParameter(_typeSystemServices, (ExternalParameter)p, _parentType);
 					});
-			}
+			}			
 		}
 		
 		#endregion
