@@ -129,7 +129,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	protected def ConsolePrintSuggestions():
 		cursorLeft = Console.CursorLeft
 		cursorTop = Console.CursorTop
-		Console.Write("\n")
+		Console.Write(Environment.NewLine)
 		
 		i = 0
 
@@ -156,7 +156,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		Console.ResetColor()
 		Console.CursorLeft = cursorLeft
 		Console.CursorTop = cursorTop
-		Console.Write("\n")
+		Console.Write(Environment.NewLine)
 		ConsolePrintPrompt()
 		Console.Write(_buffer.ToString())
 
@@ -236,7 +236,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			keyChar = cki.KeyChar
 			control = false
 			
-			newLine = keyChar in Environment.NewLine #FIXME: win32 is "\r\n"
+			newLine = keyChar in Environment.NewLine
 
 			if char.IsControl(keyChar):
 				control = true
@@ -404,8 +404,9 @@ Enter boo code in the prompt below."""
 
 	def DisplayGoodbye():	// booish is friendly
 		Console.ForegroundColor = _interpreterColor
-		print "\nHave a nice day!" if date.Now.Hour < 16
-		print "\nHave a nice evening!" if date.Now.Hour >= 16
+		print ""
+		print "Have a nice day!" if date.Now.Hour < 16
+		print "Have a nice evening!" if date.Now.Hour >= 16
 		Console.ResetColor()
 
 
