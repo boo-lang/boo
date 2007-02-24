@@ -101,6 +101,7 @@
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
+				<exclude name="booish2.boo" />
 			</sources>
 			
 			<references basedir="${build.dir}">
@@ -123,6 +124,33 @@
 				</filterchain>
 			</copy>
 		</if>
+	</target>
+
+	<!-- TEMP: -->
+	<target name="booish2" depends="Boo.Lang.Interpreter">
+		<booc
+			target="exe"
+			output="${build.dir}/booish2.exe"
+			verbose="${verbose}"
+			debug="${debug}">
+			
+			<sources basedir="src">
+				<include name="booish/*.boo" />
+				<exclude name="booish/booish.boo" />
+				<include name="Boo.Lang.Interpreter/InteractiveInterpreter2.boo" />
+			</sources>
+			
+			<references basedir="${build.dir}">
+				<include name="Boo.Lang.Interpreter.dll" />
+			</references>
+		</booc>
+		
+		<copy file="extras/template.config.in" tofile="${build.dir}/booish2.exe.config">
+			<filterchain>
+				<replacestring from="@SUPPORTEDVERSIONS@" 
+					to="${supported.runtimes}" />
+			</filterchain>
+		</copy>
 	</target>
 	
 	<target name="booi" depends="Boo.NAnt.Tasks">
@@ -182,6 +210,7 @@
 			
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="*.boo" />
+				<exclude name="InteractiveInterpeter2.boo" />
 			</sources>
 		</booc>
 	</target>
