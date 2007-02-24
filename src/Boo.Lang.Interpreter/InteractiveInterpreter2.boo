@@ -279,7 +279,8 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			_selectedSuggestionIndex = -1
 			
 			_buffer.Append(keyChar) if not newLine and not control
-			Console.Write(keyChar)
+			Console.Write(keyChar) if not newLine
+			Console.Write(Environment.NewLine) if newLine
 			if newLine:
 				line = _buffer.ToString()
 				
@@ -293,7 +294,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 					ConsolePrintPrompt()
 					continue
 				
-				_buffer.Append(keyChar)
+				_buffer.Append(Environment.NewLine)
 				line = _buffer.ToString()
 				
 				try:
