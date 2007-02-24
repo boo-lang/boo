@@ -186,7 +186,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			
 		if not _suggestions or 0 == len(_suggestions):
 			_selectedSuggestionIndex = -1
-			Console.Beep()
+			#Console.Beep() #TODO: flash background?
 		elif 1 == len(_suggestions):
 			AutoComplete()
 		else:
@@ -231,12 +231,12 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		lastChar = char('0')
 		key = ConsoleKey.LeftArrow		
 		while key != ConsoleKey.Escape:						
-			cki = Console.ReadKey()
+			cki = Console.ReadKey(true) #TODO: fix mono different behavior when ()
 			key = cki.Key
 			keyChar = cki.KeyChar
 			control = false
 			
-			newLine = keyChar.ToString() == Environment.NewLine
+			newLine = keyChar in Environment.NewLine #FIXME: win32 is "\r\n"
 
 			if char.IsControl(keyChar):
 				control = true
@@ -255,8 +255,8 @@ class InteractiveInterpreter2(AbstractInterpreter):
 						Console.Write(" ")
 						Console.CursorLeft--
 						_buffer.Length--
-					else:
-						Console.Beep()
+					#else:	#TODO: flash background?
+					#	Console.Beep()
 				if CanAutoComplete:
 					if key == ConsoleKey.LeftArrow:
 						if _selectedSuggestionIndex > 0:
