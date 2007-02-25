@@ -1,7 +1,7 @@
 """
 import System.IO
 
-[Boo.Lang.ModuleAttribute]
+[System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
 public final transient class Using1Module(System.Object):
 
 	private static def Main(argv as (System.String)) as System.Void:

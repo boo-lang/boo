@@ -1,7 +1,7 @@
 """
 import System.Collections
 
-[Boo.Lang.ModuleAttribute]
+[System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
 public final transient class Slice_propertyModule(System.Object):
 
 	private static def Main(argv as (System.String)) as System.Void:

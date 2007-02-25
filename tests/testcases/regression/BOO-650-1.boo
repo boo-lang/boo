@@ -8,7 +8,7 @@ import System
 import System.Collections
 import System.Reflection
 
-[Module]
+[System.Runtime.CompilerServices.CompilerGlobalScope]
 class MyClass:
     public static def Main(argv as (string)):
         c = FooCollection() //FooCollection's enumeratoritemtype visited now

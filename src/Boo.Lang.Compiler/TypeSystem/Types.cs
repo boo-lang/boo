@@ -121,7 +121,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly Type DllImportAttribute = typeof(System.Runtime.InteropServices.DllImportAttribute);
 
-		public static readonly Type ModuleAttribute = typeof(Boo.Lang.ModuleAttribute);
+		public static readonly Type ModuleAttribute = typeof(System.Runtime.CompilerServices.CompilerGlobalScopeAttribute);
 
 		public static readonly Type ParamArrayAttribute = typeof(ParamArrayAttribute);
 		

@@ -1,5 +1,5 @@
 """
-[Boo.Lang.ModuleAttribute]
+[System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
 public final transient class Method6Module(System.Object):
 
 	public static def greeting(who as System.String) as System.String:

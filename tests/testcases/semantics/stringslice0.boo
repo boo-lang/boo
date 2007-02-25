@@ -1,5 +1,5 @@
 """
-[Boo.Lang.ModuleAttribute]
+[System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
 public final transient class Stringslice0Module(System.Object):
 
 	private static def Main(argv as (System.String)) as System.Void:

@@ -152,7 +152,7 @@ class BooVisitor(AbstractASTVisitor):
 				method = child as MethodDeclaration
 				if method is not null and method.Name == "Main":
 					AppendIndentation()
-					_sourceText.Append("[Module]")
+					_sourceText.Append("[System.Runtime.CompilerServices.CompilerGlobalScope]")
 					AppendNewLine()
 			
 		modifier = GetModifier(typeDeclaration.Modifier, Modifier.Public)

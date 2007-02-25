@@ -6,7 +6,7 @@ import Boo.Lang.Compiler.Pipelines
 code = """
 import System
 
-[Module]
+[System.Runtime.CompilerServices.CompilerGlobalScope]
 class MyModule:
 	
 	static def constructor():

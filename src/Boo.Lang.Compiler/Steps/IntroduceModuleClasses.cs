@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
-			_booModuleAttributeType = TypeSystemServices.Map(typeof(Boo.Lang.ModuleAttribute));
+			_booModuleAttributeType = TypeSystemServices.Map(typeof(System.Runtime.CompilerServices.CompilerGlobalScopeAttribute));
 		}
 		
 		override public void Run()
@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (TypeMember member in node.Members)
 			{
 				if (NodeType.ClassDefinition == member.NodeType &&
-					member.Attributes.Contains("Boo.Lang.ModuleAttribute"))
+					member.Attributes.Contains("System.Runtime.CompilerServices.CompilerGlobalScopeAttribute"))
 				{
 					if (null == found)
 					{
@@ -162,7 +162,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Boo.Lang.Compiler.Ast.Attribute CreateBooModuleAttribute()
 		{
-			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute("Boo.Lang.ModuleAttribute");
+			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute("System.Runtime.CompilerServices.CompilerGlobalScopeAttribute");
 			attribute.Entity = _booModuleAttributeType;
 			return attribute;
 		}
