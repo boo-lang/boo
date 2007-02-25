@@ -76,7 +76,7 @@ def foo():
 		expected = """
 import Useful.Attributes
 
-[Boo.Lang.ModuleAttribute]
+[System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
 public final transient class CodeModule(System.Object):
 
 	public static def foo() as System.Int32:
