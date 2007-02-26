@@ -26,7 +26,7 @@ options).
 
 How to use:
 
-booi path/to/showsteps.boo [-xml | (-ent | -exp | -nodes) [-short]
+booi path/to/showcompilersteps.boo [-xml | (-ent | -exp | -nodes) [-short]
 [-bind]]
                            path/to/your/script.boo
 
