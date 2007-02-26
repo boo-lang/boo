@@ -566,6 +566,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ClassDefinition CreateCallableDefinition(string name)
 		{
 			ClassDefinition cd = new ClassDefinition();
+			cd.IsSynthetic = true;
 			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(this.MulticastDelegateType));
 			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(this.ICallableType));
 			cd.Name = name;
@@ -579,6 +580,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Method CreateCallMethod()
 		{
 			Method method = new Method("Call");
+			method.IsSynthetic = true;
 			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
 			method.Parameters.Add(CodeBuilder.CreateParameterDeclaration(1, "args", ObjectArrayType));
 			method.ReturnType = CodeBuilder.CreateTypeReference(ObjectType);
@@ -589,6 +591,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Constructor CreateCallableConstructor()
 		{
 			Constructor constructor = new Constructor();
+			constructor.IsSynthetic = true;
 			constructor.Modifiers = TypeMemberModifiers.Public;
 			constructor.ImplementationFlags = MethodImplementationFlags.Runtime;
 			constructor.Parameters.Add(

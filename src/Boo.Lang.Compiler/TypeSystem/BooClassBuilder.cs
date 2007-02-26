@@ -52,6 +52,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_cd = new ClassDefinition();
 			_cd.Name = name;
 			_cd.Entity = new InternalClass(_codeBuilder.TypeSystemServices, _cd);
+			_cd.IsSynthetic = true;
 		}
 		
 		public BooCodeBuilder CodeBuilder
@@ -117,6 +118,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public BooMethodBuilder AddConstructor()
 		{
 			Constructor constructor = new Constructor();
+			constructor.IsSynthetic = true;
 			constructor.Modifiers = TypeMemberModifiers.Public;
 			constructor.Entity = new InternalConstructor(_codeBuilder.TypeSystemServices, constructor);
 			_cd.Members.Add(constructor);

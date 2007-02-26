@@ -406,10 +406,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		override public void OnMethod(Method m)
 		{
-            if (m.IsRuntime)
-            {
-                WriteImplementationComment("runtime");
-            }			
+			if (m.IsRuntime)
+			{
+				WriteImplementationComment("runtime");
+			}
 			WriteCallableDefinitionHeader("def ", m);
 			WriteLine(":");
 			WriteLocals(m);
@@ -1549,7 +1549,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 		}
 
-		void WriteTypeDefinition(string keyword, TypeDefinition td)
+		virtual protected void WriteTypeDefinition(string keyword, TypeDefinition td)
 		{
 			WriteAttributes(td.Attributes, true);
 			WriteModifiers(td);

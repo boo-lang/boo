@@ -400,7 +400,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(target.LexicalInfo);
 			mie.Target = CreateMemberReference(target, tag);			
-			mie.ExpressionType = tag.ReturnType;			
+			mie.ExpressionType = tag.ReturnType;
 			return mie;			
 		}
 		
@@ -420,6 +420,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			ReferenceExpression reference = new ReferenceExpression(type.FullName);
 			reference.Entity = type;
+			reference.IsSynthetic = true;
 			return reference;
 		}
 		
@@ -611,6 +612,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Constructor constructor = new Constructor();
 			constructor.Modifiers = modifiers;
 			constructor.Entity = new InternalConstructor(_tss, constructor);
+			constructor.IsSynthetic = true;
 			return constructor;
 		}
 		
@@ -705,6 +707,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			method.Modifiers = modifiers;
 			method.ReturnType = returnType;
 			method.Entity = new InternalMethod(_tss, method);
+			method.IsSynthetic = true;
 			return method;
 		}
 		
@@ -714,6 +717,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			property.Modifiers = TypeMemberModifiers.Public;
 			property.Type = CreateTypeReference(type);
 			property.Entity = new InternalProperty(_tss, property);
+			property.IsSynthetic = true;
 			return property;
 		}
 		
@@ -724,6 +728,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			field.Name = name;
 			field.Type = CreateTypeReference(type);
 			field.Entity = new InternalField(field);
+			field.IsSynthetic = true;
 			return field;
 		}
 		
@@ -770,6 +775,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Method method = new Method(lexicalInfo);
 			method.Name = baseMethod.Name;
 			method.Modifiers = newModifiers;
+			method.IsSynthetic = true;
 			
 			IParameter[] parameters = baseMethod.GetParameters();
 			for (int i=0; i<parameters.Length; ++i)

@@ -77,6 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == moduleClass)
 			{
 				moduleClass = new ClassDefinition();
+				moduleClass.IsSynthetic = true;
 				hasModuleClass = false;
 			}
 			
@@ -104,6 +105,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.Globals.Statements.Count > 0)
 			{
 				Method method = new Method(node.Globals.LexicalInfo);
+				method.IsSynthetic = true;
 				method.Parameters.Add(new ParameterDeclaration("argv", new ArrayTypeReference(new SimpleTypeReference("string"))));
 				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 				method.Body = node.Globals;

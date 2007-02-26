@@ -68,6 +68,7 @@ namespace Boo.Lang.Compiler.Ast
 		protected void InitializeFrom(Node other)
 		{
 			_lexicalInfo = other.LexicalInfo;
+			_isSynthetic = other.IsSynthetic;
 		}
 		
 		public Node CloneNode()
