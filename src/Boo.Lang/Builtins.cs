@@ -298,6 +298,12 @@ namespace Boo.Lang
 #if NET_2_0
 		public static IEnumerable<int> range(int max)
 		{
+			if (max < 0) /* added for coherence with behavior of compiler-optimized 
+						  * for-in-range() loops, should compiler loops automatically
+						  * inverse iteration in this case? */
+			{
+				throw new ArgumentOutOfRangeException("max < 0");
+			}		
 			return range(0, max);
 		}
 		
@@ -305,30 +311,33 @@ namespace Boo.Lang
 		{
 			if (begin < end)
 			{
-				for (int i = begin; i<end; ++i) yield return i;
+				for (int i = begin; i < end; ++i) yield return i;
 			}
-			else
+			else if (begin > end)
 			{
-				for (int i = begin; i>end; --i) yield return i;
+				for (int i = begin; i > end; --i) yield return i;
 			}
 		}
 
 		public static IEnumerable<int> range(int begin, int end, int step)
 		{
+			if (0 ==step)
+			{
+				throw new ArgumentOutOfRangeException("step == 0");
+			}
 			if (step < 0)
 			{
 				if (begin < end)
 				{
-					throw new ArgumentOutOfRangeException("step");
+					throw new ArgumentOutOfRangeException("begin < end && step < 0");
 				}
-				
 				for (int i = begin; i > end; i += step) yield return i;
 			}
 			else
 			{
 				if (begin > end)
 				{
-					throw new ArgumentOutOfRangeException("step");
+					throw new ArgumentOutOfRangeException("begin > end && step > 0");
 				}
 				for (int i = begin; i < end; i += step) yield return i;
 			}
@@ -339,9 +348,8 @@ namespace Boo.Lang
 		{
 			if (max < 0)
 			{
-				throw new ArgumentOutOfRangeException("max");
+				throw new ArgumentOutOfRangeException("max < 0");
 			}
-
 			return new RangeEnumerable(0, max, 1);
 		}
 		
@@ -357,21 +365,95 @@ namespace Boo.Lang
 		
 		public static RangeEnumerable range(int begin, int end, int step)
 		{
+			if (0 ==step)
+			{
+				throw new ArgumentOutOfRangeException("step == 0");
+			}
 			if (step < 0)
 			{
 				if (begin < end)
 				{
-					throw new ArgumentOutOfRangeException("step");
+					throw new ArgumentOutOfRangeException("begin < end && step < 0");
 				}
 			}
 			else
 			{
 				if (begin > end)
 				{
-					throw new ArgumentOutOfRangeException("step");
+					throw new ArgumentOutOfRangeException("begin > end && step > 0");
 				}
 			}
 			return new RangeEnumerable(begin, end, step);
+		}
+		
+		[EnumeratorItemType(typeof(int))]
+		public class RangeEnumerable : IEnumerable
+		{
+			int _begin;
+			int _end;
+			int _step;			
+		
+			internal RangeEnumerable(int begin, int end, int step)
+			{
+				_begin = begin;
+				_end = end;
+				_step = step;
+			}
+					
+			public IEnumerator GetEnumerator()
+			{
+				return new RangeEnumerator(_begin, _end, _step);
+			}			
+		}
+		
+		[EnumeratorItemType(typeof(int))]
+		public class RangeEnumerator : IEnumerator
+		{
+			int _index;
+			int _begin;
+			int _end;
+			int _step;
+
+			internal RangeEnumerator(int begin, int end, int step)
+			{
+				if (step > 0)
+				{
+					_end = begin + (step * (int)Math.Ceiling(Math.Abs(end-begin)/((double)step)));
+				}
+				else
+				{
+					_end = begin + (step * (int)Math.Ceiling(Math.Abs(begin-end)/((double)Math.Abs(step))));
+				}
+
+				_end -= step;
+				_begin = begin-step;
+				_step = step;
+				_index = _begin;
+			}
+
+			public void Reset()
+			{
+				_index = _begin;
+			}
+
+			public bool MoveNext()
+			{
+				if (_index != _end)
+				{
+					_index += _step;
+					return true;
+				}
+				return false;
+			}
+
+			public object Current
+			{
+				get
+				{
+					return _index;
+				}
+			}
+			
 		}		
 #endif
 
@@ -500,76 +582,6 @@ namespace Boo.Lang
 			{
 				return this;
 			}
-		}
-
-		[EnumeratorItemType(typeof(int))]
-		public class RangeEnumerable : IEnumerable
-		{
-			int _begin;
-			int _end;
-			int _step;			
-		
-			internal RangeEnumerable(int begin, int end, int step)
-			{
-				_begin = begin;
-				_end = end;
-				_step = step;
-			}
-					
-			public IEnumerator GetEnumerator()
-			{
-				return new RangeEnumerator(_begin, _end, _step);
-			}			
-		}
-		
-		[EnumeratorItemType(typeof(int))]
-		public class RangeEnumerator : IEnumerator
-		{
-			int _index;
-			int _begin;
-			int _end;
-			int _step;
-
-			internal RangeEnumerator(int begin, int end, int step)
-			{
-				if (step > 0)
-				{
-					_end = begin + (step * (int)Math.Ceiling(Math.Abs(end-begin)/((double)step)));
-				}
-				else
-				{
-					_end = begin + (step * (int)Math.Ceiling(Math.Abs(begin-end)/((double)Math.Abs(step))));
-				}
-
-				_end -= step;
-				_begin = begin-step;
-				_step = step;
-				_index = _begin;
-			}
-
-			public void Reset()
-			{
-				_index = _begin;
-			}
-
-			public bool MoveNext()
-			{
-				if (_index != _end)
-				{
-					_index += _step;
-					return true;
-				}
-				return false;
-			}
-
-			public object Current
-			{
-				get
-				{
-					return _index;
-				}
-			}
-			
 		}
 		
 		public class ConcatEnumerator : IEnumerator, IEnumerable
