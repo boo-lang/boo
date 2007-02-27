@@ -85,7 +85,7 @@ namespace Boo.Lang.Parser
 		public static CompileUnit ParseReader(int tabSize, string readerName, TextReader reader)
 		{		
 			CompileUnit cu = new CompileUnit();
-			cu.Modules.Add(ParseModule(tabSize, cu, readerName, reader, null));
+			ParseModule(tabSize, cu, readerName, reader, null);
 			return cu;
 		}
 	
