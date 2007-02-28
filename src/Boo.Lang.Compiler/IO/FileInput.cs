@@ -57,11 +57,13 @@ namespace Boo.Lang.Compiler.IO
 
 		public System.IO.TextReader Open()
 		{
-			if (!System.IO.File.Exists(_fname))
-			{
+			try {
+				return System.IO.File.OpenText(_fname);
+			} catch (System.IO.FileNotFoundException e) {
 				throw CompilerErrorFactory.FileNotFound(_fname);
+			} catch (Exception e) {
+				throw CompilerErrorFactory.InputError(_fname, e);
 			}
-			return System.IO.File.OpenText(_fname);
 		}
 	}
 }
