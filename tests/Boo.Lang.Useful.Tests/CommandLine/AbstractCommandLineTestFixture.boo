@@ -89,10 +89,12 @@ class AbstractCommandLineTestFixture:
 		
 	[Test]
 	def TestBooleanParse():
-		argv = ("-debug-",)
-		cmdLine = BooCommandLine(argv)
 		
-		assert not cmdLine.Debug
+		argv = ("-debug-",)
+		assert not BooCommandLine(argv).Debug
+		
+		argv = ("-debug+",)
+		assert BooCommandLine(argv).Debug
 		
 	[Test]
 	def TestArgumentToListField():

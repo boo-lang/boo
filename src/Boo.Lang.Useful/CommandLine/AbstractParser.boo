@@ -70,5 +70,6 @@ class AbstractParser:
 		name = m.Groups["name"].Value
 		value as string
 		if m.Groups["value"].Success:
-			value = m.Groups["value"].Value[1:]
+			value = m.Groups["value"].Value
+			if value.StartsWith(":"): value = value[1:]
 		return name, value
