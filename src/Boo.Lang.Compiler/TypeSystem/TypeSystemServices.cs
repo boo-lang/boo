@@ -535,7 +535,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _compilerGeneratedExtensionsModule)
 			{
-				_compilerGeneratedExtensionsModule = NewModule(null);
+				_compilerGeneratedExtensionsModule = NewModule(null, "CompilerGeneratedExtensions");
 			}
 			return _compilerGeneratedExtensionsModule;
 		}
@@ -554,10 +554,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _compilerGeneratedTypesModule;
 		}
 
-		private Module NewModule(string ns)
-		{
-			Module module = new Module();
-			if (null != ns) module.Namespace = new NamespaceDeclaration(ns);
+        private Module NewModule(string nameSpace)
+        {
+            return NewModule(nameSpace, nameSpace);
+        }
+
+		private Module NewModule(string nameSpace, string moduleName)
+		{  
+            Module module = new Module();
+		    module.Name = moduleName;
+			if (null != nameSpace) module.Namespace = new NamespaceDeclaration(nameSpace);
 			module.Entity = new ModuleEntity(_context.NameResolutionService, this, module);
 			_context.CompileUnit.Modules.Add(module);
 			return module;
