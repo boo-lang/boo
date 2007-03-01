@@ -73,7 +73,6 @@ tokens
 	ENUM="enum";
 	EVENT="event";
 	EXCEPT="except";
-	FAILURE="failure";
 	FINAL="final";	
 	FROM="from";	
 	FOR="for";
