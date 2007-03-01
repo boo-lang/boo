@@ -169,7 +169,6 @@
     <Compile Include="Ast\RaiseStatement.cs" />
     <Compile Include="Ast\ReferenceExpression.cs" />
     <Compile Include="Ast\RELiteralExpression.cs" />
-    <Compile Include="Ast\RetryStatement.cs" />
     <Compile Include="Ast\ReturnStatement.cs" />
     <Compile Include="Ast\SelfLiteralExpression.cs" />
     <Compile Include="Ast\SimpleTypeReference.cs" />
@@ -272,7 +271,6 @@
     <Compile Include="Ast\Impl\RaiseStatementImpl.cs" />
     <Compile Include="Ast\Impl\ReferenceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\RELiteralExpressionImpl.cs" />
-    <Compile Include="Ast\Impl\RetryStatementImpl.cs" />
     <Compile Include="Ast\Impl\ReturnStatementImpl.cs" />
     <Compile Include="Ast\Impl\SelfLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SimpleTypeReferenceImpl.cs" />

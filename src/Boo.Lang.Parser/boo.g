@@ -102,12 +102,10 @@ tokens
 	RAISE="raise";
 	REF="ref";
 	RETURN="return";
-	RETRY="retry";
 	SET="set";	
 	SELF="self";
 	SUPER="super";
 	STATIC="static";
-	SUCCESS="success";
 	STRUCT="struct";
 	TRY="try";
 	TRANSIENT="transient";
@@ -1269,7 +1267,6 @@ stmt [StatementCollection container]
 				s=break_stmt |
 				s=continue_stmt |				
 				s=raise_stmt |
-				s=retry_stmt |
 				s=expression_stmt				
 			)
 			(			
@@ -1306,7 +1303,6 @@ simple_stmt [StatementCollection container]
 				s=break_stmt |
 				s=continue_stmt |				
 				s=raise_stmt |
-				s=retry_stmt |
 				s=expression_stmt				
 			)
 		)
@@ -1445,14 +1441,6 @@ callable_expression returns [Expression e]
 	
 	
 protected
-retry_stmt returns [RetryStatement rs]
-	{
-		rs = null;
-	}:
-	t:RETRY { rs = new RetryStatement(ToLexicalInfo(t)); }
-	;
-	
-protected
 try_stmt returns [TryStatement s]
 	{
 		s = null;		
@@ -1464,11 +1452,6 @@ try_stmt returns [TryStatement s]
 	(
 		exception_handler[s]
 	)*
-	(
-		stoken:SUCCESS { sblock = new Block(ToLexicalInfo(stoken)); }
-			compound_stmt[sblock]
-		{ s.SuccessBlock = sblock; }
-	)?
 	(
 		etoken:ENSURE { eblock = new Block(ToLexicalInfo(etoken)); }
 			compound_stmt[eblock]

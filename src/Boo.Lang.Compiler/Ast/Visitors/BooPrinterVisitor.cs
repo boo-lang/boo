@@ -908,13 +908,6 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteBlock(fs.Block);
 		}
 		
-		override public void OnRetryStatement(RetryStatement node)
-		{
-			WriteIndented();
-			WriteKeyword("retry");
-			WriteLine();
-		}
-		
 		override public void OnTryStatement(TryStatement node)
 		{
 			WriteIndented();
@@ -922,13 +915,6 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteLine();
 			WriteBlock(node.ProtectedBlock);
 			Visit(node.ExceptionHandlers);
-			if (null != node.SuccessBlock)
-			{
-				WriteIndented();
-				WriteKeyword("success:");
-				WriteLine();
-				WriteBlock(node.SuccessBlock);
-			}
 			if (null != node.EnsureBlock)
 			{
 				WriteIndented();

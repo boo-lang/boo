@@ -40,7 +40,6 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(GivenStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(BreakStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(ContinueStatement))]
-	[System.Xml.Serialization.XmlInclude(typeof(RetryStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(ReturnStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(YieldStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(RaiseStatement))]

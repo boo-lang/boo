@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
  		}
 		
-		public TryStatement(Block successBlock, Block ensureBlock) : base(successBlock, ensureBlock)
+		public TryStatement(Block ensureBlock) : base(ensureBlock)
 		{
 		}
 		
