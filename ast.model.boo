@@ -228,7 +228,6 @@ class TryStatement(Statement):
 	[auto]
 	ProtectedBlock as Block
 	ExceptionHandlers as ExceptionHandlerCollection
-	SuccessBlock as Block
 	EnsureBlock as Block
 	
 class ExceptionHandler(Node):
@@ -284,9 +283,6 @@ class BreakStatement(Statement):
 	pass
 
 class ContinueStatement(Statement):
-	pass
-
-class RetryStatement(Statement):
 	pass
 
 class ReturnStatement(Statement):
