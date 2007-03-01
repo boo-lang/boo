@@ -21,6 +21,18 @@ namespace BooCompiler.Tests
 		}
 
 		[Test]
+		public void array_enumerable_1()
+		{
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\net2\generics\array-enumerable-1.boo");
+		}
+		
+		[Test]
+		public void array_enumerable_2()
+		{
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\net2\generics\array-enumerable-2.boo");
+		}
+		
+		[Test]
 		public void callable_1()
 		{
 			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\net2\generics\callable-1.boo");
@@ -156,6 +168,18 @@ namespace BooCompiler.Tests
 		public void mixed_4()
 		{
 			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\net2\generics\mixed-4.boo");
+		}
+		
+		[Test]
+		public void mixed_ref_parameter_1()
+		{
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\net2\generics\mixed-ref-parameter-1.boo");
+		}
+		
+		[Test]
+		public void mixed_ref_parameter_2()
+		{
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\net2\generics\mixed-ref-parameter-2.boo");
 		}
 		
 		[Test]

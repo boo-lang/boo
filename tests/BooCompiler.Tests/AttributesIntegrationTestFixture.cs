@@ -66,5 +66,11 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\attributes-8.boo");
 		}
 		
+		[Test]
+		public void ns_alias_on_attribute()
+		{
+			RunCompilerTestCase(@"c:\dev\boo\tests\testcases\integration\attributes\ns_alias_on_attribute.boo");
+		}
+		
 	}
 }
