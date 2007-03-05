@@ -1,0 +1,18 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+# SharpDevelop 2.1.0.2201
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Useful", "Boo.Lang.Useful.booproj", "{86284E52-4C54-48CB-A286-4E34047AF1EF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{86284E52-4C54-48CB-A286-4E34047AF1EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86284E52-4C54-48CB-A286-4E34047AF1EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86284E52-4C54-48CB-A286-4E34047AF1EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86284E52-4C54-48CB-A286-4E34047AF1EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -64,6 +64,14 @@ class AnotherCommandLine(AbstractCommandLine):
 	def constructor(argv as (string)):
 		Parse(argv)
 		
+class JiraCommandLine(AbstractCommandLine):
+	
+	[Option("jira.login", ShortForm: "l", LongForm: "jira-login", MinOccurs: 1, MaxOccurs: 1)]
+	public JiraLogin as string
+	
+	def constructor(argv as (string)):
+		Parse(argv)
+		
 [TestFixture]
 class AbstractCommandLineTestFixture:
 
@@ -103,3 +111,9 @@ class AbstractCommandLineTestFixture:
 		cmdLine = AnotherCommandLine(argv)
 		
 		Assert.AreEqual(["arg1", "arg2"], cmdLine.Arguments)
+		
+	[Test]
+	def TestOptionWithDashes():
+		argv = ("-jira-login:foo",)
+		cmdLine = JiraCommandLine(argv)
+		Assert.AreEqual("foo", cmdLine.JiraLogin)
