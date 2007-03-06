@@ -3150,9 +3150,13 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldelem_I8;
 				}
-				if (TypeSystemServices.ByteType == tag)
+				if (TypeSystemServices.SByteType == tag)
 				{
 					return OpCodes.Ldelem_I1;
+				}				
+				if (TypeSystemServices.ByteType == tag)
+				{
+					return OpCodes.Ldelem_U1;
 				}
 				if (TypeSystemServices.ShortType == tag ||
 				    TypeSystemServices.CharType == tag)
