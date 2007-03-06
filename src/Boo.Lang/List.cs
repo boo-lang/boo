@@ -373,6 +373,11 @@ namespace Boo.Lang
 			return -1 != IndexOf(condition);
 		}
 		
+		public bool ContainsByIdentity(object item)
+		{
+			return -1 != IndexOfByIdentity(item);
+		}
+		
 		public object Find(Predicate condition)
 		{
 			int index = IndexOf(condition);
@@ -399,6 +404,19 @@ namespace Boo.Lang
 			}
 			return -1;
 		}
+		
+		public int IndexOfByIdentity(object item)
+		{
+			for (int i=0; i<_count; ++i)
+			{
+				if (_items[i] == item)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+
 		
 		public int IndexOf(object item)
 		{
