@@ -3146,10 +3146,14 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldelem_I4;
 				}
+				if (TypeSystemServices.UIntType == tag)
+				{
+					return OpCodes.Ldelem_U4;
+				}				
 				if (TypeSystemServices.LongType == tag)
 				{
 					return OpCodes.Ldelem_I8;
-				}
+				}	
 				if (TypeSystemServices.SByteType == tag)
 				{
 					return OpCodes.Ldelem_I1;
@@ -3163,6 +3167,10 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldelem_I2;
 				}
+				if (TypeSystemServices.UShortType == tag)
+				{
+					return OpCodes.Ldelem_U2;
+				}				
 				if (TypeSystemServices.SingleType == tag)
 				{
 					return OpCodes.Ldelem_R4;
