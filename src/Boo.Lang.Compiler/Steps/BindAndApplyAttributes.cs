@@ -42,12 +42,25 @@ namespace Boo.Lang.Compiler.Steps
 		Boo.Lang.Compiler.Ast.Attribute _attribute;
 
 		Type _type;
+		
+		Node _targetNode;
 
 		public ApplyAttributeTask(CompilerContext context, Boo.Lang.Compiler.Ast.Attribute attribute, Type type)
 		{
 			_context = context;
 			_attribute = attribute;
 			_type = type;
+			_targetNode = GetTargetNode();
+		}
+		
+		private Node GetTargetNode()
+		{
+			Module module = _attribute.ParentNode as Module;
+			if (module != null && module.AssemblyAttributes.ContainsNode(_attribute))
+			{
+				return module.ParentNode;
+			}
+			return _attribute.ParentNode;
 		}
 
 		public void Execute()
@@ -60,7 +73,7 @@ namespace Boo.Lang.Compiler.Steps
 					aa.Initialize(_context);
 					using (aa)
 					{
-						aa.Apply(_attribute.ParentNode);
+						aa.Apply(_targetNode);
 					}
 				}
 			}
@@ -194,16 +207,47 @@ namespace Boo.Lang.Compiler.Steps
 				++step;
 			}
 		}
-
-		override public bool EnterModule(Boo.Lang.Compiler.Ast.Module module)
+		
+		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
-			return true;
+			try
+			{
+				Visit(module.Members);
+				Visit(module.Globals);
+				Visit(module.Attributes);
+				Visit(module.AssemblyAttributes);
+			}
+			finally
+			{
+				LeaveNamespace();
+			}
 		}
 		
-		override public void LeaveModule(Boo.Lang.Compiler.Ast.Module module)
+		void VisitTypeDefinition(TypeDefinition node)
 		{
-			LeaveNamespace();
+			Visit(node.Members);
+			Visit(node.Attributes);
+		}
+		
+		override public void OnClassDefinition(ClassDefinition node)
+		{
+			VisitTypeDefinition(node);
+		}
+		
+		override public void OnInterfaceDefinition(InterfaceDefinition node)
+		{
+			VisitTypeDefinition(node);
+		}
+		
+		override public void OnStructDefinition(StructDefinition node)
+		{
+			VisitTypeDefinition(node);
+		}
+		
+		override public void OnEnumDefinition(EnumDefinition node)
+		{
+			VisitTypeDefinition(node);
 		}
 
 		override public void OnBlock(Block node)

@@ -5,13 +5,13 @@ class Customer:
 
 	_lname
 
-	LastName:
-		get:
-			return _lname
-
 	FirstName as string:
 		get:
 			return _fname
+
+	LastName:
+		get:
+			return _lname
 """
 class Customer:
 	[getter(FirstName)] _fname as string

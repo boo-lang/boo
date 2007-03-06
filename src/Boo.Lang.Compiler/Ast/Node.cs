@@ -273,7 +273,7 @@ namespace Boo.Lang.Compiler.Ast
 			Accept(visitor);
 			return visitor.Matches;
 		}
-
+		
 		internal void InitializeParent(Node parent)
 		{			
 			_parent = parent;

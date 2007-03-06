@@ -37,6 +37,7 @@
     <Compile Include="Attributes\SingletonAttribute.boo" />
     <Compile Include="Attributes\AutoFlagsAttribute.boo" />
     <Compile Include="Attributes\OnceAttribute.boo" />
+    <Compile Include="Attributes\TraceMethodCallsAttribute.boo" />
     <Compile Include="BooTemplate\TemplatePreProcessor.boo" />
     <Compile Include="BooTemplate\ApplyTemplateSemantics.boo" />
     <Compile Include="BooTemplate\ITemplate.boo" />

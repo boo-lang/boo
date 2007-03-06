@@ -34,7 +34,15 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class IntroduceModuleClasses : AbstractVisitorCompilerStep
 	{
+		public const string ModuleAttributeName = "System.Runtime.CompilerServices.CompilerGlobalScopeAttribute";
+		
 		public const string EntryPointMethodName = "Main";
+		
+		public static bool IsModuleClass(TypeMember member)
+		{
+			return NodeType.ClassDefinition == member.NodeType &&
+					member.Attributes.Contains(ModuleAttributeName);
+		}
 		
 		protected IType _booModuleAttributeType;
 		
@@ -146,8 +154,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (TypeMember member in node.Members)
 			{
-				if (NodeType.ClassDefinition == member.NodeType &&
-					member.Attributes.Contains("System.Runtime.CompilerServices.CompilerGlobalScopeAttribute"))
+				if (IsModuleClass(member))
 				{
 					if (null == found)
 					{
@@ -164,7 +171,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Boo.Lang.Compiler.Ast.Attribute CreateBooModuleAttribute()
 		{
-			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute("System.Runtime.CompilerServices.CompilerGlobalScopeAttribute");
+			Boo.Lang.Compiler.Ast.Attribute attribute = new Boo.Lang.Compiler.Ast.Attribute(ModuleAttributeName);
 			attribute.Entity = _booModuleAttributeType;
 			return attribute;
 		}

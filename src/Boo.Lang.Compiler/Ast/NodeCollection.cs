@@ -123,6 +123,11 @@ namespace Boo.Lang.Compiler.Ast
 			return (Node[])result.ToArray(typeof(Node));
 		}
 		
+		public bool ContainsNode(Node node)
+		{
+			return _list.ContainsByIdentity(node);
+		}
+		
 		public bool Contains(Predicate condition)
 		{
 			return _list.Contains(condition);

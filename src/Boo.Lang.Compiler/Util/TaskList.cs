@@ -30,16 +30,10 @@ using System;
 
 namespace Boo.Lang.Compiler.Util
 {
-	/// <summary>
-	/// Uma lista de tarefas.
-	/// </summary>
 	public class TaskList
 	{
 		System.Collections.ArrayList _tasks = new System.Collections.ArrayList();
 
-		/// <summary>
-		/// Nmero de tarefas na lista.
-		/// </summary>
 		public int Count
 		{
 			get
@@ -48,10 +42,6 @@ namespace Boo.Lang.Compiler.Util
 			}
 		}
 
-		/// <summary>
-		/// Adiciona uma nova tarefa  lista.
-		/// </summary>
-		/// <param name="task"></param>
 		public void Add(ITask task)
 		{
 			if (null == task)
@@ -61,16 +51,12 @@ namespace Boo.Lang.Compiler.Util
 			_tasks.Add(task);
 		}
 
-		/// <summary>
-		/// Executa todas as tarefas pendentes na lista.
-		/// </summary>
 		public void Flush()
 		{
 			try
 			{
-				for (int i=_tasks.Count; i>0; --i)
+				foreach (ITask task in _tasks)
 				{
-					ITask task = (ITask)_tasks[i-1];
 					task.Execute();
 				}
 			}
