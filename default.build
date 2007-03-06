@@ -1090,6 +1090,15 @@
 		</boo>
 	</target>
 	
+	<target name="update-sharpdevelop" depends="all">
+		<copy todir="${sharpdevelop.dir}/AddIns/AddIns/BackendBindings/BooBinding">
+			<fileset basedir="${build.dir}">
+				<include name="*.dll" />
+				<include name="*.exe" />
+			</fileset>
+		</copy>
+	</target>
+	
 	<target name="update-assembly-attributes" depends="Boo.NAnt.Tasks, update-svn-revision-number">	
 		<boo>
 		import Useful.IO.TextFile from Boo.Lang.Useful
