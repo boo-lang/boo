@@ -125,7 +125,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public bool ContainsNode(Node node)
 		{
-			return _list.ContainsByIdentity(node);
+			return _list.ContainsReference(node);
 		}
 		
 		public bool Contains(Predicate condition)

@@ -373,9 +373,9 @@ namespace Boo.Lang
 			return -1 != IndexOf(condition);
 		}
 		
-		public bool ContainsByIdentity(object item)
+		public bool ContainsReference(object item)
 		{
-			return -1 != IndexOfByIdentity(item);
+			return -1 != IndexOfReference(item);
 		}
 		
 		public object Find(Predicate condition)
@@ -405,7 +405,7 @@ namespace Boo.Lang
 			return -1;
 		}
 		
-		public int IndexOfByIdentity(object item)
+		public int IndexOfReference(object item)
 		{
 			for (int i=0; i<_count; ++i)
 			{
