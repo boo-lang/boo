@@ -2189,18 +2189,19 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				switch (node.Value)
 				{
-					case 0L:
-						{
-							_il.Emit(OpCodes.Ldc_I4_0);
-							break;
-						}
-						
-					case 1L:
-						{
-							_il.Emit(OpCodes.Ldc_I4_1);
-							break;
-						}
-						
+					case -1L: _il.Emit(OpCodes.Ldc_I4_M1); break;
+										
+					case 0L: _il.Emit(OpCodes.Ldc_I4_0); break;					
+					case 1L: _il.Emit(OpCodes.Ldc_I4_1); break;
+										
+					case 2L: _il.Emit(OpCodes.Ldc_I4_2); break;
+					case 3L: _il.Emit(OpCodes.Ldc_I4_3); break;
+					case 4L: _il.Emit(OpCodes.Ldc_I4_4); break;
+					case 5L: _il.Emit(OpCodes.Ldc_I4_5); break;
+					case 6L: _il.Emit(OpCodes.Ldc_I4_6); break;
+					case 7L: _il.Emit(OpCodes.Ldc_I4_7); break;
+					case 8L: _il.Emit(OpCodes.Ldc_I4_8); break;					
+
 					default:
 						{
 							_il.Emit(OpCodes.Ldc_I4, (int)node.Value);
