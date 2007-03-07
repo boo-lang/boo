@@ -2517,14 +2517,14 @@ namespace Boo.Lang.Compiler.Steps
 					case TypeCode.Byte:
 						{
 							_il.Emit(OpCodes.Ldc_I4, (int)(byte)value);
-							_il.Emit(OpCodes.Conv_U1);
+							_il.Emit(_checked ? OpCodes.Conv_Ovf_U1 : OpCodes.Conv_U1);
 							break;
 						}
 						
 					case TypeCode.SByte:
 						{
 							_il.Emit(OpCodes.Ldc_I4, (int)(sbyte)value);
-							_il.Emit(OpCodes.Conv_I1);
+							_il.Emit(_checked ? OpCodes.Conv_Ovf_I1 : OpCodes.Conv_I1);
 							break;
 						}
 						
@@ -2559,7 +2559,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								_il.Emit(OpCodes.Ldc_I4, (int)uValue);
 							}
-							_il.Emit(OpCodes.Conv_U4);
+							_il.Emit(_checked ? OpCodes.Conv_Ovf_U4 : OpCodes.Conv_U4);
 							break;
 						}
 						
@@ -2576,7 +2576,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								_il.Emit(OpCodes.Ldc_I8, (long)uValue);
 							}
-							_il.Emit(OpCodes.Conv_U8);
+							_il.Emit(_checked ? OpCodes.Conv_Ovf_U8 : OpCodes.Conv_U8);
 							break;
 						}
 						
@@ -3116,22 +3116,22 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				switch (op)
 				{
-						case BinaryOperatorType.Addition: return OpCodes.Add_Ovf;
-						case BinaryOperatorType.Subtraction: return OpCodes.Sub_Ovf;
-						case BinaryOperatorType.Multiply: return OpCodes.Mul_Ovf;
-						case BinaryOperatorType.Division: return OpCodes.Div;
-						case BinaryOperatorType.Modulus: return OpCodes.Rem;
+					case BinaryOperatorType.Addition: return OpCodes.Add_Ovf;
+					case BinaryOperatorType.Subtraction: return OpCodes.Sub_Ovf;
+					case BinaryOperatorType.Multiply: return OpCodes.Mul_Ovf;
+					case BinaryOperatorType.Division: return OpCodes.Div;
+					case BinaryOperatorType.Modulus: return OpCodes.Rem;
 				}
 			}
 			else
 			{
 				switch (op)
 				{
-						case BinaryOperatorType.Addition: return OpCodes.Add;
-						case BinaryOperatorType.Subtraction: return OpCodes.Sub;
-						case BinaryOperatorType.Multiply: return OpCodes.Mul;
-						case BinaryOperatorType.Division: return OpCodes.Div;
-						case BinaryOperatorType.Modulus: return OpCodes.Rem;
+					case BinaryOperatorType.Addition: return OpCodes.Add;
+					case BinaryOperatorType.Subtraction: return OpCodes.Sub;
+					case BinaryOperatorType.Multiply: return OpCodes.Mul;
+					case BinaryOperatorType.Division: return OpCodes.Div;
+					case BinaryOperatorType.Modulus: return OpCodes.Rem;
 				}
 			}
 			throw new ArgumentException("op");
@@ -3478,37 +3478,37 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (type == TypeSystemServices.SByteType)
 			{
-				return OpCodes.Conv_I1;
+				return _checked ? OpCodes.Conv_Ovf_I1 : OpCodes.Conv_I1;
 			}
 			else if (type == TypeSystemServices.ByteType)
 			{
-				return OpCodes.Conv_U1;
+				return _checked ? OpCodes.Conv_Ovf_U1 : OpCodes.Conv_U1;
 			}
 			else if (type == TypeSystemServices.ShortType)
 			{
-				return OpCodes.Conv_I2;
+				return _checked ? OpCodes.Conv_Ovf_I2 : OpCodes.Conv_I2;
 			}
 			else if (type == TypeSystemServices.UShortType ||
 			         type == TypeSystemServices.CharType)
 			{
-				return OpCodes.Conv_U2;
+				return _checked ? OpCodes.Conv_Ovf_U2 : OpCodes.Conv_U2;
 			}
 			if (type == TypeSystemServices.IntType ||
 			    type.IsEnum)
 			{
-				return OpCodes.Conv_I4;
+				return _checked ? OpCodes.Conv_Ovf_I4 : OpCodes.Conv_I4;
 			}
 			else if (type == TypeSystemServices.UIntType)
 			{
-				return OpCodes.Conv_U4;
+				return _checked ? OpCodes.Conv_Ovf_U4 :OpCodes.Conv_U4;
 			}
 			else if (type == TypeSystemServices.LongType)
 			{
-				return OpCodes.Conv_I8;
+				return _checked ? OpCodes.Conv_Ovf_I8 : OpCodes.Conv_I8;
 			}
 			else if (type == TypeSystemServices.ULongType)
 			{
-				return OpCodes.Conv_U8;
+				return _checked ? OpCodes.Conv_Ovf_U8 :OpCodes.Conv_U8;
 			}
 			else if (type == TypeSystemServices.SingleType)
 			{
