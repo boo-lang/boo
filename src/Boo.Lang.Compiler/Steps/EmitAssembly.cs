@@ -2518,14 +2518,14 @@ namespace Boo.Lang.Compiler.Steps
 					case TypeCode.Byte:
 						{
 							_il.Emit(OpCodes.Ldc_I4, (int)(byte)value);
-							_il.Emit(_checked ? OpCodes.Conv_Ovf_U1 : OpCodes.Conv_U1);
+							_il.Emit(OpCodes.Conv_U1);
 							break;
 						}
 						
 					case TypeCode.SByte:
 						{
 							_il.Emit(OpCodes.Ldc_I4, (int)(sbyte)value);
-							_il.Emit(_checked ? OpCodes.Conv_Ovf_I1 : OpCodes.Conv_I1);
+							_il.Emit(OpCodes.Conv_I1);
 							break;
 						}
 						
@@ -2556,11 +2556,8 @@ namespace Boo.Lang.Compiler.Steps
 					case TypeCode.UInt32:
 						{
 							uint uValue = (uint)value;
-							unchecked
-							{
-								_il.Emit(OpCodes.Ldc_I4, (int)uValue);
-							}
-							_il.Emit(_checked ? OpCodes.Conv_Ovf_U4 : OpCodes.Conv_U4);
+							_il.Emit(OpCodes.Ldc_I4, unchecked((int)uValue));
+							_il.Emit(OpCodes.Conv_U4);
 							break;
 						}
 						
@@ -2573,11 +2570,8 @@ namespace Boo.Lang.Compiler.Steps
 					case TypeCode.UInt64:
 						{
 							ulong uValue = (ulong)value;
-							unchecked
-							{
-								_il.Emit(OpCodes.Ldc_I8, (long)uValue);
-							}
-							_il.Emit(_checked ? OpCodes.Conv_Ovf_U8 : OpCodes.Conv_U8);
+							_il.Emit(OpCodes.Ldc_I8, unchecked((long)uValue));
+							_il.Emit(OpCodes.Conv_U8);
 							break;
 						}
 						
