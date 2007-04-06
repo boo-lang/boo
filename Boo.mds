@@ -1,26 +1,27 @@
 <Combine name="Boo" fileversion="2.0">
-  <Configurations>
+  <Configurations active="Debug">
     <Configuration name="Debug" ctype="CombineConfiguration">
-      <Entry build="True" name="Boo.Lang" />
-      <Entry build="True" name="Boo.Lang.Compiler" />
-      <Entry build="True" name="Boo.Lang.Useful" />
-      <Entry build="True" name="Boo.Lang.Interpreter" />
-      <Entry build="True" name="Boo.Lang.Useful.Tests" />
-      <Entry build="True" name="BooCompiler.Tests" />
-      <Entry build="True" name="Boo.Lang.Compiler.Tests" />
-      <Entry build="True" name="Boo.Lang.Interpreter.Tests" />
+      <Entry build="True" name="Boo.Lang" configuration="Debug" />
+      <Entry build="True" name="Boo.Lang.Compiler" configuration="Debug" />
+      <Entry build="True" name="Boo.Lang.Useful" configuration="Debug" />
+      <Entry build="True" name="Boo.Lang.Interpreter" configuration="Debug" />
+      <Entry build="True" name="Boo.Lang.Useful.Tests" configuration="Debug" />
+      <Entry build="True" name="BooCompiler.Tests" configuration="Debug" />
+      <Entry build="True" name="Boo.Lang.Compiler.Tests" configuration="Debug" />
+      <Entry build="True" name="Boo.Lang.Interpreter.Tests" configuration="Debug" />
     </Configuration>
     <Configuration name="Release" ctype="CombineConfiguration">
-      <Entry build="True" name="Boo.Lang" />
-      <Entry build="True" name="Boo.Lang.Compiler" />
-      <Entry build="True" name="Boo.Lang.Useful" />
-      <Entry build="True" name="Boo.Lang.Interpreter" />
-      <Entry build="True" name="Boo.Lang.Useful.Tests" />
-      <Entry build="True" name="BooCompiler.Tests" />
-      <Entry build="True" name="Boo.Lang.Compiler.Tests" />
-      <Entry build="True" name="Boo.Lang.Interpreter.Tests" />
+      <Entry build="True" name="Boo.Lang" configuration="Release" />
+      <Entry build="True" name="Boo.Lang.Compiler" configuration="Release" />
+      <Entry build="True" name="Boo.Lang.Useful" configuration="Release" />
+      <Entry build="True" name="Boo.Lang.Interpreter" configuration="Release" />
+      <Entry build="True" name="Boo.Lang.Useful.Tests" configuration="Release" />
+      <Entry build="True" name="BooCompiler.Tests" configuration="Release" />
+      <Entry build="True" name="Boo.Lang.Compiler.Tests" configuration="Release" />
+      <Entry build="True" name="Boo.Lang.Interpreter.Tests" configuration="Release" />
     </Configuration>
   </Configurations>
+  <DeployTargets />
   <StartMode startupentry="Boo.Lang" single="True">
     <Execute type="None" entry="Boo.Lang" />
     <Execute type="None" entry="Boo.Lang.Compiler" />

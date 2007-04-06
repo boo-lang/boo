@@ -1,22 +1,19 @@
-<Project name="Boo.Lang" fileversion="2.0" language="C#" ctype="DotNetProject">
+<Project name="Boo.Lang" fileversion="2.0" language="C#" clr-version="Net_2_0" ctype="DotNetProject">
   <Configurations active="Debug">
     <Configuration name="Debug" ctype="DotNetProjectConfiguration">
-      <Output directory="../../build" assembly="Boo" />
+      <Output directory="../../ide-build" assembly="Boo" />
       <Build debugmode="True" target="Library" />
-      <Execution runwithwarnings="False" consolepause="False" runtime="MsNet" />
-      <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+      <Execution runwithwarnings="False" consolepause="False" runtime="MsNet" clr-version="Net_2_0" />
+      <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" definesymbols="NET_2_0" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
     </Configuration>
     <Configuration name="Release" ctype="DotNetProjectConfiguration">
-      <Output directory="../../build" assembly="Boo" />
+      <Output directory="../../ide-build" assembly="Boo" />
       <Build debugmode="True" target="Library" />
-      <Execution runwithwarnings="False" consolepause="False" runtime="MsNet" />
-      <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+      <Execution runwithwarnings="False" consolepause="False" runtime="MsNet" clr-version="Net_2_0" />
+      <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" definesymbols="NET_2_0" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
     </Configuration>
   </Configurations>
-  <References />
-  <DeploymentInformation strategy="File">
-    <excludeFiles />
-  </DeploymentInformation>
+  <DeployTargets />
   <Contents>
     <File name="./AssemblyInfo.cs" subtype="Code" buildaction="Compile" />
     <File name="./ResourceManager.cs" subtype="Code" buildaction="Compile" />
@@ -39,5 +36,13 @@
     <File name="./IQuackFu.cs" subtype="Code" buildaction="Compile" />
     <File name="./List.cs" subtype="Code" buildaction="Compile" />
     <File name="./ModuleAttribute.cs" subtype="Code" buildaction="Compile" />
+    <File name="./DuckTypedAttribute.cs" subtype="Code" buildaction="Compile" />
+    <File name="./ExtensionAttribute.cs" subtype="Code" buildaction="Compile" />
   </Contents>
+  <References>
+    <ProjectReference type="Gac" localcopy="True" refto="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  </References>
+  <DeploymentInformation strategy="File">
+    <excludeFiles />
+  </DeploymentInformation>
 </Project>
