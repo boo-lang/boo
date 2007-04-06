@@ -2101,10 +2101,20 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IType genericType = ((IType)node.Target.Entity).GenericTypeDefinitionInfo.MakeGenericType(GetGenericArguments(node));
-			Bind(node, genericType);
-			BindExpressionType(node, this.TypeSystemServices.TypeType);
-			
+			switch (node.Target.Entity.EntityType)
+			{
+				case EntityType.Type:
+					IType genericType = ((IType)node.Target.Entity).GenericTypeDefinitionInfo.MakeGenericType(GetGenericArguments(node));
+					Bind(node, genericType);
+					BindExpressionType(node, this.TypeSystemServices.TypeType);
+					break;
+				
+				case EntityType.Method:
+					IMethod genericMethod = ((IMethod)node.Target.Entity).GenericMethodDefinitionInfo.MakeGenericMethod(GetGenericArguments(node));
+					Bind(node, genericMethod);
+					BindExpressionType(node, genericMethod.ReturnType);
+					break;				
+			}
 		}
 
 		private IType[] GetGenericArguments(GenericReferenceExpression node)
@@ -2122,15 +2132,31 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IEntity entity = node.Target.Entity;
 			IType type = entity as IType;
-			if (type == null || type.GenericTypeDefinitionInfo == null)
+			IMethod method = entity as IMethod;
+			IGenericParameter[] parameters = null;
+
+			// Test for a generic type definition			
+			if (type != null && type.GenericTypeDefinitionInfo != null)
+			{
+				parameters = type.GenericTypeDefinitionInfo.GenericParameters;
+			}
+			// Test for a generic method definition
+			else if (method != null && method.GenericMethodDefinitionInfo != null)
+			{
+				parameters = method.GenericMethodDefinitionInfo.GenericParameters;
+			}
+		
+			if (parameters == null)
 			{
 				return CompilerErrorFactory.NotAGenericDefinition(AstUtil.GetMemberAnchor(node.Target), entity.FullName);
 			}
 			
-			IGenericParameter[] parameters = type.GenericTypeDefinitionInfo.GenericParameters;
-			if (parameters.Length != node.GenericArguments.Count) return CompilerErrorFactory.GenericDefinitionArgumentCount(AstUtil.GetMemberAnchor(node.Target), entity.FullName, parameters.Length);
+			if (parameters.Length != node.GenericArguments.Count) 
+			{
+				return CompilerErrorFactory.GenericDefinitionArgumentCount(AstUtil.GetMemberAnchor(node.Target), entity.FullName, parameters.Length);
+			}
 			
-			return null;
+			return null; 
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)

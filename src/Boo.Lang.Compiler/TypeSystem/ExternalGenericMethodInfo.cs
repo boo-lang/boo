@@ -32,23 +32,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 
-	public class ExternalGenericTypeInfo : IGenericTypeInfo
+	public class ExternalGenericMethodInfo : IGenericMethodInfo
 	{
-		ExternalType _type;
+		ExternalMethod _method;
 		TypeSystemServices _tss;
 		IType[] _arguments = null;
 		
-		public ExternalGenericTypeInfo(TypeSystemServices tss, ExternalType type)
+		public ExternalGenericMethodInfo(TypeSystemServices tss, ExternalMethod method)
 		{
-			_type = type;
+			_method = method;
 			_tss = tss;
 		}		
 
-		public IType GenericDefinition
+		public IMethod GenericDefinition
 		{
 			get 
 			{
-				return _tss.Map(_type.ActualType.GetGenericTypeDefinition());
+				return _tss.Map(((System.Reflection.MethodInfo)_method.MethodInfo).GetGenericMethodDefinition());
 			}
 		}
 		
@@ -59,17 +59,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (_arguments == null)
 				{
 					_arguments = Array.ConvertAll<Type, IType>(
-						_type.ActualType.GetGenericArguments(), _tss.Map);
+						_method.MethodInfo.GetGenericArguments(), _tss.Map);
 				}
 				
 				return _arguments;
 			}
 		}
-					
-		public bool FullyConstructed	
+		
+		public bool FullyConstructed
 		{
-			get { return !_type.ActualType.ContainsGenericParameters; }
-		}
+			get { return !_method.MethodInfo.ContainsGenericParameters; }
+		}		
 	}	
 }
 #endif

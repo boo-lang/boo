@@ -410,5 +410,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return _typeSystemServices.GetSignature(this);
 		}
+		
+		IGenericMethodInfo IMethod.GenericMethodInfo
+		{
+			get { return null; }
+		}
+
+		IGenericMethodDefinitionInfo IMethod.GenericMethodDefinitionInfo
+		{
+			get { return null; }
+		}
 	}
 }

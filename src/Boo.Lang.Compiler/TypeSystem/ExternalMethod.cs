@@ -170,7 +170,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public string Name
+		public virtual string Name
 		{
 			get
 			{
@@ -178,7 +178,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public string FullName
+		public virtual string FullName
 		{
 			get
 			{
@@ -288,5 +288,52 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return _typeSystemServices.GetSignature(this);
 		}
+		
+#if NET_2_0		
+		ExternalGenericMethodDefinitionInfo _genericMethodDefinitionInfo = null;		
+		public IGenericMethodDefinitionInfo GenericMethodDefinitionInfo
+		{
+			get
+			{
+				if (MethodInfo.IsGenericMethodDefinition)
+				{
+					if (_genericMethodDefinitionInfo == null)
+					{
+						_genericMethodDefinitionInfo = 
+							new ExternalGenericMethodDefinitionInfo(_typeSystemServices, this);
+					}
+					return _genericMethodDefinitionInfo;
+				}
+				return null;
+			}
+		}
+
+		ExternalGenericMethodInfo _genericMethodInfo = null;
+		public virtual IGenericMethodInfo GenericMethodInfo
+		{
+			get
+			{
+				if (MethodInfo.IsGenericMethod)
+				{
+					if (_genericMethodInfo == null)
+					{
+						_genericMethodInfo = new ExternalGenericMethodInfo(_typeSystemServices, this);
+					}
+					return _genericMethodInfo;
+				}
+				return null;
+			}
+		}	
+#else
+		IGenericMethodDefinitionInfo IMethod.GenericMethodDefinitionInfo
+		{
+			get { return null; }
+		}
+		
+		IGenericMethodInfo IMethod.GenericMethodInfo
+		{
+			get { return null; }
+		}		
+#endif
 	}
 }

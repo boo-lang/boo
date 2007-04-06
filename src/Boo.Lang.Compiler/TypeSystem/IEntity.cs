@@ -211,13 +211,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool FullyConstructed { get; }
 	}
 	
+	public interface IGenericMethodDefinitionInfo
+	{
+		IGenericParameter[] GenericParameters { get; }
+		IMethod MakeGenericMethod(params IType[] arguments);
+	}
+	
+	public interface IGenericMethodInfo
+	{
+		IType[] GenericArguments { get; }
+		IMethod GenericDefinition { get; }
+		bool FullyConstructed { get; }
+	}
+	
 	public interface IGenericParameter: IType
 	{
 		IType DeclaringType { get; }
 		int GenericParameterPosition { get; }
 		// TODO: Constraints { get; }
 	}	
-	
+
 	public interface ICallableType : IType
 	{
 		CallableSignature GetSignature();
@@ -324,6 +337,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		bool IsPInvoke
+		{
+			get;
+		}
+		
+		IGenericMethodInfo GenericMethodInfo
+		{
+			get; 
+		}
+		
+		IGenericMethodDefinitionInfo GenericMethodDefinitionInfo
 		{
 			get;
 		}

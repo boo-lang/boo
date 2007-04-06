@@ -3702,6 +3702,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return MapGenericMethod(mapped.DeclaringType, (MethodInfo)mapped.MethodInfo);
 			}
+			
+			// If method is a mixed generic method, get its mapped MethodInfo
+			MixedGenericMethod generic = entity as MixedGenericMethod;
+			if (null != generic)
+			{
+				return MapGenericMethod(generic);
+			}
 #endif
 			ExternalMethod external = entity as ExternalMethod;
 			if (null != external)
@@ -3752,6 +3759,18 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeBuilder.GetMethod(GetSystemType(targetType), method);
 		}
 		
+		/// <summary>
+		/// Maps a generic method to its constructed version.
+		/// </summary>
+		private MethodInfo MapGenericMethod(MixedGenericMethod method)
+		{
+			Type[] arguments = Array.ConvertAll<IType, Type>(
+				method.GenericArguments,
+				GetSystemType);
+				
+			return ((MethodInfo)method.MethodInfo).MakeGenericMethod(arguments);
+		}
+
 		/// <summary>
 		/// Maps a field declared on a generic type definition or an open constructed type
 		/// to the corresponding field on a closed constructed type.

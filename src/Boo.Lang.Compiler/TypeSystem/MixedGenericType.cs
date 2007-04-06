@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -38,13 +38,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// <summary>
 	/// A generic type constructed from an external definition but involving internal parameters.
 	/// </summary>
-	public class MixedGenericType : ExternalType, IGenericTypeInfo
+	public class MixedGenericType : ExternalType, IGenericTypeInfo, ITypeMapper
 	{
 		#region Data Members
 
 		ExternalType _definition;
-		IType[] _arguments = null;
-		bool _constructed;
+		IType[] _arguments;
+		GenericTypeMapper _typeMapper;
+		bool _constructed;		
 		string _name = null;
 		string _fullName = null;
 		Dictionary<IEntity, IEntity> _mappedMembers = new Dictionary<IEntity, IEntity>();
@@ -58,6 +59,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_definition = definition;
 			_arguments = arguments;
 			_constructed = IsConstructed();
+			_typeMapper = new GenericTypeMapper(
+			    tss,
+				definition.GenericTypeDefinitionInfo.GenericParameters,
+				arguments);
 		}
 		
 		#endregion
@@ -115,6 +120,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 				return _fullName;
 			}
+		}
+		
+		public GenericTypeMapper TypeMapper
+		{
+			get { return _typeMapper; }
 		}
 		
 		#endregion
@@ -222,68 +232,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		#region Mapping methods
 		
-		/// <summary>
-		/// Maps a type involving generic parameters to the corresponding type after substituting concrete
-		/// arguments for generic parameters.
-		/// </summary>
-		/// <remarks>
-		/// If the source type is a generic parameter of this type's definition, it is mapped to the
-		/// corresponding argument.
-		/// If the source type is an open generic type using parameters from the type's definition, it
-		/// is mapped to a closed constructed type based on this type's arguments.
-		/// If the source type is an array of a generic parameter of this type's definition, it is mapped
-		/// to the array type of the corresponding argument, of the same rank.
-		/// </remarks>
-		protected IType MapType(IType sourceType)
+		public IType MapType(IType sourceType)
 		{
-			if (sourceType == null)
-			{
-				return null;
-			}
-			
-			// If sourceType is a reference type, map its element type 
-			if (sourceType.IsByRef)
-			{
-				return MapType(sourceType.GetElementType());
-			}
-
-			// Map generic parameter to corresponding argument
-			IGenericParameter gp = sourceType as IGenericParameter;
-			if (null != gp && gp.DeclaringType == _definition)
-			{
-				return GenericArguments[gp.GenericParameterPosition];
-			}
-
 			// Map own definition to this mixed type
 			if (sourceType == GenericDefinition)
 			{
 				return this;
 			}
 			
-			// Map open constructed type using generic parameters to closed constructed type
-			// using corresponding arguments
-			if (null != sourceType.GenericTypeInfo)
-			{
-				IType[] mappedArguments = Array.ConvertAll<IType, IType>(
-					sourceType.GenericTypeInfo.GenericArguments,
-					MapType);
-				
-				IType mapped = sourceType.GenericTypeInfo.
-					GenericDefinition.GenericTypeDefinitionInfo.
-					MakeGenericType(mappedArguments);
-				
-				return mapped;
-			}
-			
-			// Map array of generic parameter to array of corresponding argument
-			IArrayType array = (sourceType as IArrayType);
-			if (array != null)
-			{
-				return _typeSystemServices.GetArrayType(MapType(array.GetElementType()), array.GetArrayRank());
-			}
-			
-			// If source type doesn't require mapping, return it as is
-			return sourceType;
+			// For all other cases use the generic type mapper
+			return _typeMapper.MapType(sourceType);		
 		}
 		
 		/// <summary>
@@ -353,7 +311,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			public override IType DeclaringType
 			{
-				// get { return _parentType; }
 				get { return _parentType.MapType(base.DeclaringType); }
 			}
 			
@@ -377,7 +334,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					{
 						return new MappedParameter(_typeSystemServices, (ExternalParameter)p, _parentType);
 					});
-			}			
+			}
 		}
 		
 		#endregion
@@ -414,50 +371,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		#endregion
 
-		#region class MappedParameter
-		
-		/// <summary>
-		/// A parameter in a method or constructor of a mixed generic type.
-		/// </summary>
-		public class MappedParameter : IParameter
-		{
-			private MixedGenericType _parentType;
-			private ExternalParameter _baseParameter;
-			
-			public MappedParameter(TypeSystemServices tss, ExternalParameter parameter, MixedGenericType parentType)
-			{
-				_parentType = parentType;
-				_baseParameter = parameter;
-			}
-			
-			public bool IsByRef
-			{
-				get { return _baseParameter.IsByRef; }
-			}
-			
-			public IType Type
-			{
-				get { return _parentType.MapType(_baseParameter.Type); }
-			}
-			
-			public string Name
-			{
-				get { return _baseParameter.Name; }
-			}
-			
-			public string FullName
-			{
-				get { return _baseParameter.FullName; }
-			}
-			
-			public EntityType EntityType
-			{
-				get { return EntityType.Parameter; }
-			}
-		}
-		
-		#endregion
-		
 		#region class MappedProperty
 		
 		public class MappedProperty : ExternalProperty

@@ -33,43 +33,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using System.Collections.Generic;
 
-	public class ExternalGenericTypeDefinitionInfo : AbstractExternalGenericDefinitionInfo, IGenericTypeDefinitionInfo
+	public class ExternalGenericMethodDefinitionInfo : AbstractExternalGenericDefinitionInfo, IGenericMethodDefinitionInfo
 	{
-		private ExternalType _type;
+		private ExternalMethod _method;
 
-		public ExternalGenericTypeDefinitionInfo(TypeSystemServices tss, ExternalType type) : base(tss)
+		public ExternalGenericMethodDefinitionInfo(TypeSystemServices tss, ExternalMethod method) :	base(tss)
 		{	
-			_type = type;
+			_method = method;
 		}
 
-		public IType MakeGenericType(IType[] arguments)
+		public IMethod MakeGenericMethod(IType[] arguments)
 		{
-			return (IType)MakeGenericEntity(arguments);
+			return (IMethod)MakeGenericEntity(arguments);
 		}
-
+		
 		protected override Type[] GetActualGenericParameters()
 		{
-			return _type.ActualType.GetGenericArguments();
+			return _method.MethodInfo.GetGenericArguments();
 		}
 		
 		protected override IEntity MakeExternalEntity(Type[] arguments)
 		{
-			return _tss.Map(_type.ActualType.MakeGenericType(arguments));
+			return _tss.Map(((System.Reflection.MethodInfo)_method.MethodInfo).MakeGenericMethod(arguments));
 		}
 		
 		protected override IEntity MakeMixedEntity(IType[] arguments)
 		{
-			ExternalCallableType callable = _type as ExternalCallableType;
-			if (null != callable)
-			{
-				return new MixedGenericCallableType(_tss, callable, arguments);
-			}
-			else
-			{
-				return new MixedGenericType(_tss, _type, arguments);
-			}
+			return new MixedGenericMethod(_tss, _method, arguments);
 		}
 	}
 }
+
 #endif
 
