@@ -33,6 +33,8 @@ namespace Boo.Lang.Compiler.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(SimpleTypeReference))]
 	[System.Xml.Serialization.XmlInclude(typeof(ArrayTypeReference))]
+	[System.Xml.Serialization.XmlInclude(typeof(GenericTypeReference))]
+	[System.Xml.Serialization.XmlInclude(typeof(GenericTypeDefinitionReference))]
 	[Serializable]
 	public abstract class TypeReference : TypeReferenceImpl
 	{		

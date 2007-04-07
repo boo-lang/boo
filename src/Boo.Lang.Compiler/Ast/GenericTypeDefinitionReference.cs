@@ -46,6 +46,11 @@ namespace Boo.Lang.Compiler.Ast
 		public GenericTypeDefinitionReference(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
+		
+		override public void Accept(IAstVisitor visitor)
+		{
+			visitor.OnGenericTypeDefinitionReference(this);
+		}
 	}
 }
 

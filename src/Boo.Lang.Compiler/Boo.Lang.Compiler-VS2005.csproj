@@ -129,6 +129,7 @@
     <Compile Include="Ast\GeneratorExpression.cs" />
     <Compile Include="Ast\GeneratorExpressionCollection.cs" />
     <Compile Include="Ast\GenericReferenceExpression.cs" />
+    <Compile Include="Ast\GenericTypeDefinitionReference.cs" />
     <Compile Include="Ast\GenericTypeReference.cs" />
     <Compile Include="Ast\GivenStatement.cs" />
     <Compile Include="Ast\GotoStatement.cs" />
@@ -243,6 +244,7 @@
     <Compile Include="Ast\Impl\GeneratorExpressionCollectionImpl.cs" />
     <Compile Include="Ast\Impl\GeneratorExpressionImpl.cs" />
     <Compile Include="Ast\Impl\GenericReferenceExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\GenericTypeDefinitionReferenceImpl.cs" />
     <Compile Include="Ast\Impl\GenericTypeReferenceImpl.cs" />
     <Compile Include="Ast\Impl\GivenStatementImpl.cs" />
     <Compile Include="Ast\Impl\GotoStatementImpl.cs" />
@@ -398,6 +400,7 @@
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
     <Compile Include="Steps\UnfoldConstants.cs" />
+    <Compile Include="TypeSystem\AbstractExternalGenericDefinitionInfo.cs" />
     <Compile Include="TypeSystem\AbstractInternalType.cs" />
     <Compile Include="TypeSystem\AbstractLocalEntity.cs" />
     <Compile Include="TypeSystem\Ambiguous.cs" />
@@ -417,6 +420,8 @@
     <Compile Include="TypeSystem\ExternalConstructor.cs" />
     <Compile Include="TypeSystem\ExternalEvent.cs" />
     <Compile Include="TypeSystem\ExternalField.cs" />
+    <Compile Include="TypeSystem\ExternalGenericMethodDefinitionInfo.cs" />
+    <Compile Include="TypeSystem\ExternalGenericMethodInfo.cs" />
     <Compile Include="TypeSystem\ExternalGenericType.cs" />
     <Compile Include="TypeSystem\ExternalGenericTypeDefinition.cs" />
     <Compile Include="TypeSystem\ExternalGenericTypeDefinitionInfo.cs" />
@@ -425,6 +430,7 @@
     <Compile Include="TypeSystem\ExternalParameter.cs" />
     <Compile Include="TypeSystem\ExternalProperty.cs" />
     <Compile Include="TypeSystem\ExternalType.cs" />
+    <Compile Include="TypeSystem\GenericTypeMapper.cs" />
     <Compile Include="TypeSystem\IEntity.cs" />
     <Compile Include="TypeSystem\INameSpace.cs" />
     <Compile Include="TypeSystem\InternalCallableType.cs" />
@@ -441,6 +447,7 @@
     <Compile Include="TypeSystem\InternalParameter.cs" />
     <Compile Include="TypeSystem\InternalProperty.cs" />
     <Compile Include="TypeSystem\MetadataUtil.cs" />
+    <Compile Include="TypeSystem\MixedGenericMethod.cs" />
     <Compile Include="TypeSystem\MixedGenericType.cs" />
     <Compile Include="TypeSystem\ModuleEntity.cs" />
     <Compile Include="TypeSystem\NameResolutionService.cs" />
