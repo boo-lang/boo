@@ -276,26 +276,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private IEntity MakeGenericType(GenericTypeReference node, IType entity)
 		{
-			IType[] arguments = ResolveGenericArguments(node);
 			if (entity.GenericTypeDefinitionInfo == null)
 			{
-				throw CompilerErrorFactory.NotAGenericDefinition(node, node.Name);
+				_context.Errors.Add(CompilerErrorFactory.NotAGenericDefinition(node, node.Name));
+				return TypeSystemServices.ErrorEntity;
 			}
+			
+			if (entity.GenericTypeDefinitionInfo.GenericParameters.Length != node.GenericArguments.Count)
+			{
+				return GenericArgumentsCountMismatch(node, entity);
+			}
+
+			IType[] arguments = ResolveGenericArguments(node);
 			return entity.GenericTypeDefinitionInfo.MakeGenericType(arguments);
 		}
 
 		private IType[] ResolveGenericArguments(GenericTypeReference node)
 		{
 			IType[] arguments = new IType[node.GenericArguments.Count];
+			
 			for (int i = 0; i < arguments.Length; ++i)
 			{
 				ResolveTypeReference(node.GenericArguments[i]);
 				arguments[i] = (IType)node.GenericArguments[i].Entity;
 			}
+			
 			return arguments;
 		}
-
-
+		
 		public void ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
 			
@@ -326,6 +334,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					entity = MakeGenericType(gtr, (IType)entity);
 				}
+				
+				GenericTypeDefinitionReference gtdr = node as GenericTypeDefinitionReference;
+				if (null != gtdr)
+				{
+					IType type = (IType)entity;
+					if (gtdr.GenericPlaceholders != type.GenericTypeDefinitionInfo.GenericParameters.Length)
+					{
+						entity = GenericArgumentsCountMismatch(gtdr, type);
+					}
+				}
 #endif
 
 				node.Name = entity.FullName;
@@ -336,14 +354,47 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IEntity ResolveTypeName(SimpleTypeReference node)
 		{	
-			return IsQualifiedName(node.Name)
-				? ResolveQualifiedName(node.Name)
-				: Resolve(node.Name, EntityType.Type);
+			_buffer.Clear();
+			if (IsQualifiedName(node.Name))
+			{
+				ResolveQualifiedName(_buffer, node.Name);
+			}
+			else
+			{
+				Resolve(_buffer, node.Name, EntityType.Type);
+			}
+
+#if NET_2_0			
+			// Remove from the buffer types that do not match requested generity
+			FilterGenericTypes(_buffer, node);
+#endif			
+			
+			return GetEntityFromBuffer();
 		}
+
+#if NET_2_0
+		private void FilterGenericTypes(List types, SimpleTypeReference node)		
+		{			
+			bool genericRequested = (node is GenericTypeReference || node is GenericTypeDefinitionReference);
+			
+			for (int i = 0; i < types.Count; i++)
+			{
+				IType type = types[i] as IType;
+				if (type == null) continue;
+				
+				// Remove type from list of matches if it doesn't match requested generity
+				if (type.GenericTypeDefinitionInfo != null ^ genericRequested)
+				{
+					types.RemoveAt(i);
+					i--;
+				}
+			}			
+		}
+#endif
 
 		private IEntity NameNotType(SimpleTypeReference node)
 		{
-			_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.Name));
+			_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.ToCodeString()));
 			return TypeSystemServices.ErrorEntity;
 		}
 		
@@ -351,6 +402,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			_context.Errors.Add(CompilerErrorFactory.AmbiguousReference(node, node.Name, entity.Entities));
 			return TypeSystemServices.ErrorEntity;
+		}
+		
+		private IEntity GenericArgumentsCountMismatch(TypeReference node, IType type)
+		{
+			_context.Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(node, type.FullName, type.GenericTypeDefinitionInfo.GenericParameters.Length));
+			return TypeSystemServices.ErrorEntity; 
 		}
 		
 		public IField ResolveField(IType type, string name)

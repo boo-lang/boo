@@ -2106,13 +2106,13 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Type:
 					IType genericType = ((IType)node.Target.Entity).GenericTypeDefinitionInfo.MakeGenericType(GetGenericArguments(node));
 					Bind(node, genericType);
-					BindExpressionType(node, this.TypeSystemServices.TypeType);
+					BindTypeReferenceExpressionType(node, genericType);
 					break;
 				
 				case EntityType.Method:
 					IMethod genericMethod = ((IMethod)node.Target.Entity).GenericMethodDefinitionInfo.MakeGenericMethod(GetGenericArguments(node));
 					Bind(node, genericMethod);
-					BindExpressionType(node, genericMethod.ReturnType);
+					BindExpressionType(node, genericMethod.Type);
 					break;				
 			}
 		}
@@ -2233,14 +2233,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case EntityType.Type:
 					{
-						if (IsStandaloneReference(node))
-						{
-							BindExpressionType(node, TypeSystemServices.TypeType);
-						}
-						else
-						{
-							BindExpressionType(node, (IType)tag);
-						}
+						BindTypeReferenceExpressionType(node, (IType)tag);
 						break;
 					}
 					
@@ -2251,6 +2244,11 @@ namespace Boo.Lang.Compiler.Steps
 						if (null != resolvedMember)
 						{
 							ResolveMemberInfo(node, resolvedMember);
+							break;
+						}
+						if (tag is IType)
+						{
+							BindTypeReferenceExpressionType(node, (IType)tag);
 							break;
 						}
 						if (!AstUtil.IsTargetOfMethodInvocation(node)
@@ -2299,6 +2297,18 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 			}
+		}
+
+		protected virtual void BindTypeReferenceExpressionType(Expression node, IType type)
+		{
+			if (IsStandaloneReference(node))
+			{
+				BindExpressionType(node, TypeSystemServices.TypeType);
+			}
+			else
+			{
+				BindExpressionType(node, type);
+			}		
 		}
 
 		protected virtual void CheckBuiltinUsage(ReferenceExpression node, IEntity entity)
@@ -2508,6 +2518,10 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return ResolveAmbiguousMethodReference(node, candidates, EmptyExpressionCollection);
 				}
+				else if (candidates.AllEntitiesAre(EntityType.Type))
+				{
+					return ResolveAmbiguousTypeReference(node, candidates);
+				}
 			}
 			return candidates;
 		}
@@ -2536,6 +2550,36 @@ namespace Boo.Lang.Compiler.Steps
 				return property;
 			}
 			return candidates;
+		}
+
+		private IEntity ResolveAmbiguousTypeReference(ReferenceExpression node, Ambiguous candidates)
+		{
+			bool isGenericReference = (node.ParentNode is GenericReferenceExpression);
+			bool isGenericType;
+			
+			List matches = new List();
+			
+			foreach (IEntity candidate in candidates.Entities)
+			{
+				IType type = candidate as IType;
+				isGenericType = (type != null && type.GenericTypeDefinitionInfo != null);
+				
+				if (isGenericType == isGenericReference)
+				{
+					matches.Add(candidate);
+				}
+			}
+			
+			if (matches.Count == 1)
+			{
+				Bind(node, (IEntity)matches[0]);
+			}
+			else
+			{
+				Bind(node, new Ambiguous(matches));
+			}
+			
+			return node.Entity;
 		}
 
 		private int GetIndex(IEntity[] entities, IEntity entity)
@@ -4660,6 +4704,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IEntity tag = NameResolutionService.Resolve(name);
 			CheckNameResolution(node, name, tag);
+			
 			return tag;
 		}
 		
@@ -5431,7 +5476,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool IsStandaloneReference(Node node)
 		{
-			return node.ParentNode.NodeType != NodeType.MemberReferenceExpression;
+			Node parent = node.ParentNode;
+			if (parent is GenericReferenceExpression)
+			{
+				parent = parent.ParentNode;
+			}
+
+			return parent.NodeType != NodeType.MemberReferenceExpression;
 		}
 		
 		string GetSignature(NodeCollection args)

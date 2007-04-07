@@ -204,15 +204,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private bool ResolveType(List targetList, string name, IEnumerable types)
 		{
+			bool found = false;
 			foreach (Type type in types)
 			{
 				if (name == TypeName(type))
 				{
 					targetList.Add(_typeSystemServices.Map(type));
-					return true;
+					found = true;
+					// Can't return right away, since we can have several types
+					// with the same name but different number of generic arguments. 
 				}
 			}
-			return false;
+			return found;
 		}
 
 		private static string TypeName(Type type)

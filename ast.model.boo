@@ -62,6 +62,9 @@ class CallableTypeReference(TypeReference):
 class GenericTypeReference(SimpleTypeReference):
 	GenericArguments as TypeReferenceCollection
 
+class GenericTypeDefinitionReference(SimpleTypeReference):
+	GenericPlaceholders as int
+	
 [collection(TypeReference)]
 class TypeReferenceCollection:
 	pass

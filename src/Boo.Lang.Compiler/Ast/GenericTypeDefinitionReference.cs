@@ -37,29 +37,14 @@ namespace Boo.Lang.Compiler.Ast
 	using System;
 	
 	[Serializable]
-	public class GenericTypeReference : Boo.Lang.Compiler.Ast.Impl.GenericTypeReferenceImpl
+	public class GenericTypeDefinitionReference : Boo.Lang.Compiler.Ast.Impl.GenericTypeDefinitionReferenceImpl
 	{
-		public GenericTypeReference()
+		public GenericTypeDefinitionReference()
 		{
 		}
 		
-		public GenericTypeReference(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		public GenericTypeDefinitionReference(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-		
-		public GenericTypeReference(LexicalInfo lexicalInfo, string name) : base(lexicalInfo)
-		{
-			this.Name = name;
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnGenericTypeReference(this);
-		}
-		
-		override public string ToString()
-		{
-			return ToCodeString();
 		}
 	}
 }

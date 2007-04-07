@@ -474,11 +474,22 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			Write(t.Name);
 		}
-		
+			
 		override public void OnGenericTypeReference(GenericTypeReference node)
 		{
 			OnSimpleTypeReference(node);
 			WriteGenericArguments(node.GenericArguments);
+		}
+		
+		override public void OnGenericTypeDefinitionReference(GenericTypeDefinitionReference node)
+		{
+			OnSimpleTypeReference(node);
+			Write("[of *");
+			for (int i = 1; i < node.GenericPlaceholders; i++)
+			{
+				Write(", *");
+			}
+			Write("]");						
 		}
 		
 		override public void OnGenericReferenceExpression(GenericReferenceExpression node)

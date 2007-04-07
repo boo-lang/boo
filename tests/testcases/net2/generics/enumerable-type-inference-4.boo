@@ -1,4 +1,4 @@
-﻿"""
+"""
 A => Avish
 B => Bamboo
 C => Cedric
@@ -17,6 +17,7 @@ persons.Add(Person("A"), Person("Avish"))
 persons.Add(Person("B"), Person("Bamboo"))
 persons.Add(Person("C"), Person("Cedric"))
 
-for kvp in persons:
-	print "${kvp.Key.Name} => ${kvp.Value.Name}"
+strings = array("${kvp.Key.Name} => ${kvp.Value.Name}" for kvp in persons)
+System.Array.Sort[of string](strings)
+for s in strings: print s
 
