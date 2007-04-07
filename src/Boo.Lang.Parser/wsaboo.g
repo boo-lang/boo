@@ -1052,6 +1052,7 @@ type_reference returns [TypeReference tr]
 		tr = null;
 		IToken id = null;
 		TypeReferenceCollection arguments = null;
+		GenericTypeDefinitionReference gtdr = null;
 	}: 
 	tr=array_type_reference
 	|
@@ -1061,14 +1062,45 @@ type_reference returns [TypeReference tr]
 		id=type_name
 		(
 			(
-				LBRACK OF
+				LBRACK OF 
+				(
+					(
+						MULTIPLY
+						{
+							gtdr = new GenericTypeDefinitionReference(ToLexicalInfo(id));
+							gtdr.Name = id.getText();
+							gtdr.GenericPlaceholders = 1;
+							tr = gtdr;										
+						}
+						( 
+							COMMA MULTIPLY
+							{
+								gtdr.GenericPlaceholders++;
+							}
+						)*
+						RBRACK
+					)
+					|
+					(
+						{
+							GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
+							arguments = gtr.GenericArguments;
+							tr = gtr;
+						}
+						type_reference_list[arguments]
+						RBRACK
+					)
+				)
+			)
+			|
+			(
+				OF MULTIPLY
 				{
-					GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
-					arguments = gtr.GenericArguments;
-					tr = gtr;
+					gtdr = new GenericTypeDefinitionReference(ToLexicalInfo(id));
+					gtdr.Name = id.getText();
+					gtdr.GenericPlaceholders = 1;
+					tr = gtdr;
 				}
-				type_reference_list[arguments]
-				RBRACK
 			)
 			|
 			(
