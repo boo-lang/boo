@@ -57,6 +57,11 @@ namespace Boo.Lang.Compiler.Steps
 			NameResolutionService.ResolveSimpleTypeReference(node);
 		}
 		
+		override public void OnGenericTypeDefinitionReference(GenericTypeDefinitionReference node)
+		{
+			NameResolutionService.ResolveSimpleTypeReference(node);
+		}
+		
 		override public void LeaveCallableTypeReference(CallableTypeReference node)
 		{
 			IParameter[] parameters = new IParameter[node.Parameters.Count];

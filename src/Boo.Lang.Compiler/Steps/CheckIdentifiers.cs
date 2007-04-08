@@ -78,6 +78,16 @@ namespace Boo.Lang.Compiler.Steps
 			CheckName(node,node.Name);
 		}
 		
+		override public void OnGenericTypeReference(GenericTypeReference node)
+		{
+			CheckName(node,node.Name);
+		}
+		
+		override public void OnGenericTypeDefinitionReference(GenericTypeDefinitionReference node)
+		{
+			CheckName(node,node.Name);
+		}
+		
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			CheckName(node,node.Name);
