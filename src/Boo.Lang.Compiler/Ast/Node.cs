@@ -323,6 +323,20 @@ namespace Boo.Lang.Compiler.Ast
 		protected void OnReplace(NodeCollection oldCollection, NodeCollection newCollection)
 		{
 		}
+
+		public Node GetAncestor(NodeType ancestorType)
+		{
+			Node parent = this.ParentNode;
+			while (null != parent)
+			{
+				if (ancestorType == parent.NodeType)
+				{
+					return parent;
+				}
+				parent = parent.ParentNode;
+			}
+			return null;
+		}
 	}
 
 }
