@@ -317,12 +317,18 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0054", node.LexicalInfo);
 		}
-		
+
 		public static CompilerError InternalError(Node node, Exception error)
 		{
-			return new CompilerError("BCE0055", node.LexicalInfo, error, error.Message);
+			string message = error != null ? error.Message : string.Empty;
+			return InternalError(node, message, error);
 		}
-		
+
+		public static CompilerError InternalError(Node node, string message, Exception cause)
+		{
+			return new CompilerError("BCE0055", node.LexicalInfo, cause, message);
+		}
+
 		public static CompilerError FileNotFound(string fname)
 		{
 			return new CompilerError("BCE0056", new LexicalInfo(fname), fname);
