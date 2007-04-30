@@ -85,14 +85,15 @@ namespace Boo.Lang
 				}
 			}
 
-			// check if parameter is not a valuetype
+			// error if parameter is a valuetype
+			// TODO: check nullable (type.IsValueType true or not here?) 
 			if (null != type && type.IsValueType) {
 				Errors.Add(CompilerErrorFactory.ValueTypeParameterCannotUseDefaultAttribute(parent, name));
 				return;
 			}
 			
 			//TODO: check if default value is type-compatible with argument type?
-
+			//TODO: handle nullable through assignIfHasValue
 			IfStatement assignIfNull = new IfStatement(LexicalInfo);
 			assignIfNull.Condition = new BinaryExpression(
 										BinaryOperatorType.ReferenceEquality,
@@ -114,7 +115,7 @@ namespace Boo.Lang
 				Property property = (Property) parent;
 				if (null != property.Setter)
 				{
-					property.Getter.Body.Statements.Insert(0, assignIfNull);
+					property.Setter.Body.Statements.Insert(0, assignIfNull);
 				}
 			}		
 		}
