@@ -741,15 +741,24 @@ namespace Boo.Lang.Compiler
 		public static CompilerError GenericDefinitionArgumentCount(Node node, string name, int expectedCount)
 		{
 			return new CompilerError("BCE0139", node.LexicalInfo, name, expectedCount);
-		}		
+		}
+				
 		public static CompilerError YieldTypeDoesNotMatchReturnType(Node node, string yieldType, string returnType)
 		{
 			return new CompilerError("BCE0140", node.LexicalInfo, yieldType, returnType);
 		}
+		
 		public static CompilerError DuplicateParameterName(Node node, string parameter, string method)
 		{
 			return new CompilerError("BCE0141", node.LexicalInfo, parameter, method);
 		}
+		
+		public static CompilerError ValueTypeParameterCannotUseDefaultAttribute(Node node, string parameter)
+		{
+			string method = (null != node as Method) ? (node as Method).Name : (node as Property).Name;  
+			return new CompilerError("BCE0142", node.LexicalInfo, parameter, method);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
