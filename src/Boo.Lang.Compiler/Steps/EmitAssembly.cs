@@ -671,7 +671,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnBlock(Block block)
 		{
 			bool currentChecked = _checked;
-			_checked = AstAnnotations.IsChecked(block);
+			_checked = AstAnnotations.IsChecked(block, Parameters.Checked);
 			
 			bool currentArrayIndexing = _rawArrayIndexing;
 			_rawArrayIndexing = AstAnnotations.IsRawIndexing(block);

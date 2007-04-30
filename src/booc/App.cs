@@ -219,30 +219,31 @@ namespace BooC
 		
 		void Help ()
 		{
-				Console.WriteLine(
-						"Usage is: booc [options] file1 ...\n" +
-						"Options:\n" +
-						" -c:CULTURE           Sets the UI culture to be CULTURE\n" +
-						" -debug[+|-]          Generate debugging information\n" +
-						" -delaysign           Delay assembly signing\n" +
-						" -ducky               Turns on duck typing by default\n" +
-						" -embedres:FILE[,ID]  Embeds FILE with the optional ID\n"+
-						" -lib:DIRS            Adds the comma-separated DIRS to the assembly search path\n" +
-						" -noconfig            Do not load the standard configuration\n" +
-						" -nostdlib            Do not reference any of the default libraries\n" +
-						" -nologo              Do not display the compiler logo\n" +
-						" -p:PIPELINE          Sets the pipeline to PIPELINE\n" +
-						" -o:FILE              Set the output file name to FILE\n" +
-						" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
-						" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
-						" -reference:ASS       References the specified assembly (-r:ASS)\n" +
-						" -srcdir:DIR          Adds DIR as a directory where sources can be found\n" +
-						" -target:TYPE         Set the target type (exe, library or winexe)\n" +
-						" -resource:FILE[,ID]  Embed FILE as a resource\n" +
-						" -utf8                Source file is in utf8 format\n" +
-						" -v, -vv, -vvv        Set verbosity level from warnings to very detailed\n" +
-						" -wsa                 Enable white-space-agnostic builds\n"
-						);
+			Console.WriteLine(
+					"Usage is: booc [options] file1 ...\n" +
+					"Options:\n" +
+					" -c:CULTURE           Sets the UI culture to be CULTURE\n" +
+					" -debug[+|-]          Generate debugging information (default: +)\n" +
+					" -delaysign           Delay assembly signing\n" +
+					" -ducky               Turns on duck typing by default\n" +
+					" -checked[+|-]        Turns on or off checked operations (default: +)\n" +
+					" -embedres:FILE[,ID]  Embeds FILE with the optional ID\n"+
+					" -lib:DIRS            Adds the comma-separated DIRS to the assembly search path\n" +
+					" -noconfig            Do not load the standard configuration\n" +
+					" -nostdlib            Do not reference any of the default libraries\n" +
+					" -nologo              Do not display the compiler logo\n" +
+					" -p:PIPELINE          Sets the pipeline to PIPELINE\n" +
+					" -o:FILE              Set the output file name to FILE\n" +
+					" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
+					" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
+					" -reference:ASS       References the specified assembly (-r:ASS)\n" +
+					" -srcdir:DIR          Adds DIR as a directory where sources can be found\n" +
+					" -target:TYPE         Set the target type (exe, library or winexe)\n" +
+					" -resource:FILE[,ID]  Embed FILE as a resource\n" +
+					" -utf8                Source file is in utf8 format\n" +
+					" -v, -vv, -vvv        Set verbosity level from warnings to very detailed\n" +
+					" -wsa                 Enable white-space-agnostic builds\n"
+					);
 		}
 
 		
@@ -258,324 +259,191 @@ namespace BooC
 				if ("-" == arg)
 				{
 					_options.Input.Add(new StringInput("<stdin>", Consume(Console.In)));
+					continue;
 				}
-				else
-				{	
-					if (IsFlag(arg))
+				if (!IsFlag(arg))
+				{
+					_options.Input.Add(new FileInput(StripQuotes(arg)));
+					continue;
+				}
+				if ("-utf8" == arg) continue;
+				
+				switch (arg[1])
+				{
+					case 'h':
 					{
-						if ("-utf8" == arg) continue;
-						switch (arg[1])
+						if (arg == "-help" || arg == "-h")
 						{
-							case 'h':
+							Help();
+						}
+						break;
+					}
+					
+					case 'w':
+					{
+						if (arg == "-wsa")
+						{
+							_whiteSpaceAgnostic = true;
+						}
+						else
+						{
+							InvalidOption(arg);
+						}
+						break;
+					}
+					
+					case 'v':
+					{
+						_options.TraceSwitch.Level = TraceLevel.Warning;
+						Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
+						if (arg.Length > 2)
+						{
+							switch (arg.Substring(1))
 							{
-								if (arg == "-help" || arg == "-h")
+								case "vv":
 								{
-									Help();
+									_options.TraceSwitch.Level = TraceLevel.Info;
+									MonitorAppDomain();
+									break;
 								}
-								break;
+								
+								case "vvv":
+								{
+									_options.TraceSwitch.Level = TraceLevel.Verbose;
+									break;
+								}
 							}
-							
-							case 'w':
+						}
+						else
+						{
+							_options.TraceSwitch.Level = TraceLevel.Warning;
+						}
+						break;
+					}
+
+					case 'r':
+					{
+						if (arg.IndexOf(":") > 2 && arg.Substring(1, 9) != "reference")
+						{
+							switch (arg.Substring(1, 8))
 							{
-								if (arg == "-wsa")
+								case "resource":
 								{
-									_whiteSpaceAgnostic = true;
+									string resourceFile;
+									int start = arg.IndexOf(":") + 1;
+									resourceFile = StripQuotes(arg.Substring(start));
+									int comma = resourceFile.LastIndexOf(',');
+									if (comma >= 0)
+									{
+										string resourceName = resourceFile.Substring(comma+1);
+										resourceFile = resourceFile.Substring(0, comma);
+										_options.Resources.Add(new NamedFileResource(resourceFile, resourceName));
+									}
+									else
+									{
+										_options.Resources.Add(new FileResource(resourceFile));
+									}
+									break;
 								}
-								else
+
+								default:
 								{
 									InvalidOption(arg);
+									break;
 								}
+							}
+						}
+						else
+						{
+							string assemblyName = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
+							_references.Add(assemblyName);
+						}
+						break;
+					}
+					
+					case 'l':
+					{
+						switch (arg.Substring(1, 3))
+						{
+							case "lib":
+							{
+								string paths = arg.Substring(arg.IndexOf(":")+1);
+								if (paths == "")
+								{
+									Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
+									break;
+								}
+								
+								foreach(string dir in paths.Split(new Char[] {','}))
+								{
+									if (Directory.Exists(dir))
+									{
+										_options.LibPaths.Add(dir);
+									}
+									else
+									{
+										Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
+									}
+								}
+								break;
+							}
+
+							default:
+							{
+								InvalidOption(arg);
+								break;
+							}
+						}
+						break;
+					}
+					
+					case 'n':
+					{
+						if (arg == "-nologo")
+						{
+							noLogo = true;
+						}
+						else if (arg == "-noconfig")
+						{
+							_noConfig = true;
+						}
+						else if (arg == "-nostdlib")
+						{
+							_options.StdLib = false;
+						}
+						else
+						{
+							InvalidOption(arg);
+						}
+						break;
+					}
+					
+					case 'o':
+					{
+						_options.OutputAssembly = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
+						break;
+					}
+					
+					case 't':
+					{
+						string targetType = arg.Substring(arg.IndexOf(":")+1);
+						switch (targetType)
+						{
+							case "library":
+							{
+								_options.OutputType = CompilerOutputType.Library;
 								break;
 							}
 							
-							case 'v':
+							case "exe":
 							{
-								_options.TraceSwitch.Level = TraceLevel.Warning;
-								Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
-								if (arg.Length > 2)
-								{
-									switch (arg.Substring(1))
-									{
-										case "vv":
-										{
-											_options.TraceSwitch.Level = TraceLevel.Info;
-											MonitorAppDomain();
-											break;
-										}
-										
-										case "vvv":
-										{
-											_options.TraceSwitch.Level = TraceLevel.Verbose;
-											break;
-										}
-									}
-								}
-								else
-								{
-									_options.TraceSwitch.Level = TraceLevel.Warning;
-								}
-								break;
-							}
-
-							case 'r':
-							{
-								if (arg.IndexOf(":") > 2 && arg.Substring(1, 9) != "reference")
-								{
-									switch (arg.Substring(1, 8))
-									{
-										case "resource":
-										{
-											string resourceFile;
-											int start = arg.IndexOf(":") + 1;
-											resourceFile = StripQuotes(arg.Substring(start));
-											int comma = resourceFile.LastIndexOf(',');
-											if (comma >= 0)
-											{
-												string resourceName = resourceFile.Substring(comma+1);
-												resourceFile = resourceFile.Substring(0, comma);
-												_options.Resources.Add(new NamedFileResource(resourceFile, resourceName));
-											}
-											else
-											{
-												_options.Resources.Add(new FileResource(resourceFile));
-											}
-											break;
-										}
-
-										default:
-										{
-											InvalidOption(arg);
-											break;
-										}
-									}
-								}
-								else
-								{
-									string assemblyName = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
-									_references.Add(assemblyName);
-								}
+								_options.OutputType = CompilerOutputType.ConsoleApplication;
 								break;
 							}
 							
-							case 'l':
+							case "winexe":
 							{
-								switch (arg.Substring(1, 3))
-								{
-									case "lib":
-									{
-										string paths = arg.Substring(arg.IndexOf(":")+1);
-										if (paths == "")
-										{
-											Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
-											break;
-										}
-										
-										foreach(string dir in paths.Split(new Char[] {','}))
-										{
-											if (Directory.Exists(dir))
-											{
-												_options.LibPaths.Add(dir);
-											}
-											else
-											{
-												Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
-											}
-										}
-										break;
-									}
-
-									default:
-									{
-										InvalidOption(arg);
-										break;
-									}
-								}
-								break;
-							}
-							
-							case 'n':
-							{
-								if (arg == "-nologo")
-								{
-									noLogo = true;
-								}
-								else if (arg == "-noconfig")
-								{
-									_noConfig = true;
-								}
-								else if (arg == "-nostdlib")
-								{
-									_options.StdLib = false;
-								}
-								else
-								{
-									InvalidOption(arg);
-								}
-								break;
-							}
-							
-							case 'o':
-							{
-								_options.OutputAssembly = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
-								break;
-							}
-							
-							case 't':
-							{
-								string targetType = arg.Substring(arg.IndexOf(":")+1);
-								switch (targetType)
-								{
-									case "library":
-									{
-										_options.OutputType = CompilerOutputType.Library;
-										break;
-									}
-									
-									case "exe":
-									{
-										_options.OutputType = CompilerOutputType.ConsoleApplication;
-										break;
-									}
-									
-									case "winexe":
-									{
-										_options.OutputType = CompilerOutputType.WindowsApplication;
-										break;
-									}
-									
-									default:
-									{
-										InvalidOption(arg);
-										break;
-									}
-								}
-								break;
-							}
-
-							case 'p':
-							{
-								_pipelineName = StripQuotes(arg.Substring(3));
-								break;
-							}
-
-							case 'c':
-							{
-								string culture = arg.Substring(3);
-								Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture(culture);
-								break;
-							}
-
-							case 's':
-							{
-								switch (arg.Substring(1, 6))
-								{
-									case "srcdir":
-									{
-										string path = StripQuotes(arg.Substring(8));
-										AddFilesForPath(path, _options);
-										break;
-									}
-
-									default:
-									{
-										InvalidOption(arg);
-										break;
-									}
-								}
-								break;
-							}
-							
-							case 'k':
-							{
-								if (arg.Substring(1, 7) == "keyfile")
-								{
-									_options.KeyFile = StripQuotes(arg.Substring(9));
-								}
-								else if (arg.Substring(1, 12) == "keycontainer")
-								{
-									_options.KeyContainer = StripQuotes(arg.Substring(14));
-								}	
-								else
-								{
-									InvalidOption(arg);
-								}
-								break;
-							}
-							
-							case 'd':
-							{
-								switch (arg.Substring(1))
-								{
-									case "debug":
-									case "debug+":
-									{
-										_options.Debug = true;
-										break;
-									}
-									
-									case "debug-":
-									{
-										_options.Debug = false;
-										break;
-									}
-									
-									case "ducky":
-									{
-										_options.Ducky = true;
-										break;
-									}
-
-									case "debug-steps":
-									{
-										_debugSteps = true;
-										break;
-									}
-									
-									case "delaysign":
-									{
-										_options.DelaySign = true;
-										break;
-									}
-									
-									default:
-									{
-										InvalidOption(arg);
-										break;
-									}
-								}
-								break;
-							}
-							
-							case 'e':
-							{
-								switch (arg.Substring(1,8))
-								{
-									case "embedres":
-									{
-										// TODO: Add check for runtime support for "mono resources"
-										string resourceFile;
-										int start = arg.IndexOf(":") + 1;
-										resourceFile = StripQuotes(arg.Substring(start));
-										int comma = resourceFile.LastIndexOf(',');
-										if (comma >= 0)
-										{
-											string resourceName = resourceFile.Substring(comma+1);
-											resourceFile = resourceFile.Substring(0, comma);
-											_options.Resources.Add(new NamedEmbeddedFileResource(resourceFile, resourceName));
-										}
-										else
-										{
-											_options.Resources.Add(new EmbeddedFileResource(resourceFile));
-										}
-										break;
-									}
-
-									default:
-									{
-										InvalidOption(arg);
-										break;
-									}
-								}
+								_options.OutputType = CompilerOutputType.WindowsApplication;
 								break;
 							}
 							
@@ -585,13 +453,164 @@ namespace BooC
 								break;
 							}
 						}
+						break;
 					}
-					else
+
+					case 'p':
 					{
-						_options.Input.Add(new FileInput(StripQuotes(arg)));
+						_pipelineName = StripQuotes(arg.Substring(3));
+						break;
+					}
+
+					case 'c':
+					{
+						switch (arg.Substring(1))
+						{
+							case "checked":
+							case "checked+":
+							{
+								_options.Checked = true;
+								break;
+							}
+							
+							case "checked-":
+							{
+								_options.Checked = false;
+								break;
+							}
+							
+							default:
+							{							
+								string culture = arg.Substring(3);
+								Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture(culture);
+								break;
+							}
+						}
+						break;					
+					}
+
+					case 's':
+					{
+						switch (arg.Substring(1, 6))
+						{
+							case "srcdir":
+							{
+								string path = StripQuotes(arg.Substring(8));
+								AddFilesForPath(path, _options);
+								break;
+							}
+
+							default:
+							{
+								InvalidOption(arg);
+								break;
+							}
+						}
+						break;
+					}
+					
+					case 'k':
+					{
+						if (arg.Substring(1, 7) == "keyfile")
+						{
+							_options.KeyFile = StripQuotes(arg.Substring(9));
+						}
+						else if (arg.Substring(1, 12) == "keycontainer")
+						{
+							_options.KeyContainer = StripQuotes(arg.Substring(14));
+						}	
+						else
+						{
+							InvalidOption(arg);
+						}
+						break;
+					}
+					
+					case 'd':
+					{
+						switch (arg.Substring(1))
+						{
+							case "debug":
+							case "debug+":
+							{
+								_options.Debug = true;
+								break;
+							}
+							
+							case "debug-":
+							{
+								_options.Debug = false;
+								break;
+							}
+							
+							case "ducky":
+							{
+								_options.Ducky = true;
+								break;
+							}
+
+							case "debug-steps":
+							{
+								_debugSteps = true;
+								break;
+							}
+							
+							case "delaysign":
+							{
+								_options.DelaySign = true;
+								break;
+							}
+							
+							default:
+							{
+								InvalidOption(arg);
+								break;
+							}
+						}
+						break;
+					}
+					
+					case 'e':
+					{
+						switch (arg.Substring(1,8))
+						{
+							case "embedres":
+							{
+								// TODO: Add check for runtime support for "mono resources"
+								string resourceFile;
+								int start = arg.IndexOf(":") + 1;
+								resourceFile = StripQuotes(arg.Substring(start));
+								int comma = resourceFile.LastIndexOf(',');
+								if (comma >= 0)
+								{
+									string resourceName = resourceFile.Substring(comma+1);
+									resourceFile = resourceFile.Substring(0, comma);
+									_options.Resources.Add(new NamedEmbeddedFileResource(resourceFile, resourceName));
+								}
+								else
+								{
+									_options.Resources.Add(new EmbeddedFileResource(resourceFile));
+								}
+								break;
+							}
+
+							default:
+							{
+								InvalidOption(arg);
+								break;
+							}
+						}
+						break;
+					}
+					
+					default:
+					{
+						InvalidOption(arg);
+						break;
 					}
 				}
 			}
+			
 			if (!noLogo)
 			{
 				DoLogo();
@@ -798,7 +817,7 @@ namespace BooC
 			{
 				loc = a.Location;
 			}
-			catch (Exception x)
+			catch (Exception)
 			{
 				loc = "<dynamic>"+a.FullName;
 			}

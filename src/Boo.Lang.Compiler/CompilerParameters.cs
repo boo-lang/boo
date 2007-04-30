@@ -62,6 +62,8 @@ namespace Boo.Lang.Compiler
 		
 		bool _ducky;
 		
+		bool _checked;
+		
 		bool _generateInMemory;
 		
 		bool _StdLib;
@@ -101,6 +103,7 @@ namespace Boo.Lang.Compiler
 			_outputType = CompilerOutputType.ConsoleApplication;
 			_outputWriter = System.Console.Out;
 			_debug = true;
+			_checked = true;
 			_generateInMemory = true;
 			_StdLib = true;
 			
@@ -475,7 +478,20 @@ namespace Boo.Lang.Compiler
 				_ducky = value;
 			}
 		}
-		
+
+		public bool Checked
+		{
+			get
+			{
+				return _checked;
+			}
+			
+			set
+			{
+				_checked = value;
+			}
+		}
+
 		public string KeyFile
 		{
 			get
