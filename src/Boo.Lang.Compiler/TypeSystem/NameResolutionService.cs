@@ -130,21 +130,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{			
 			IEntity entity = _context.TypeSystemServices.ResolvePrimitive(name);
 			if (null != entity)
-			{
+			{ 
 				targetList.Add(entity);
 				return true;
 			}
-			else
-			{
-				INamespace ns = _current;
-				while (null != ns)
-				{					
-					if (ns.Resolve(targetList, name, flags))
-					{
-						return true;
-					}
-					ns = ns.ParentNamespace;
+
+			INamespace ns = _current;
+			while (null != ns)
+			{					
+				if (ns.Resolve(targetList, name, flags))
+				{
+					return true;
 				}
+				ns = ns.ParentNamespace;
 			}
 			return false;
 		}
