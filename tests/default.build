@@ -18,7 +18,11 @@
 	
 	<target name="compile" depends="init">	
 	
-		<boo src="generate_regression.boo" />
+		<boo src="generate_regression.boo">
+			<references basedir="build">
+				<include name="Boo.Lang.Useful.dll" />
+			</references>
+		</boo>
 		
 		<booc 
 			target="library"
