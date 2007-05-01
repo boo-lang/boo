@@ -141,10 +141,11 @@ BCE0138='{0}' is not a generic definition.
 BCE0139='{0}' requires '{1}' arguments.
 BCE0140=Yield statement type '{0}' does not match generator element type '{1}'.
 BCE0141=Duplicate parameter name '{0}' in '{1}'.
+BCE0142=Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}
-BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract
+BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.
 BCW0002=WARNING: Statement modifiers have no effect in labels.
 BCW0003=WARNING: Unused local variable '{0}'.
 BCW0004=WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?
@@ -154,6 +155,7 @@ BCW0007=WARNING: Assignment inside a conditional. Did you mean '==' instead of '
 BCW0008=WARNING: Duplicate namespace: '{0}'.
 BCW0009=WARNING: The -keyfile option will override your AssemblyKeyFile attribute.
 BCW0010=WARNING: The -keycontainer option will override your AssemblyKeyName attribute.
+BCW0011=WARNING: Type '{0}' does not provide an implementation for '{1}', a stub has been created.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.
