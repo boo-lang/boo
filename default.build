@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.7.6" />
-	<property name="boo.svn.revision" value="2437" />
+	<property name="boo.svn.revision" value="2448" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
 	<property name="boo.assembly.version" value="1.0.0.0" />
 	
@@ -654,8 +654,11 @@
 	</target>
 	
 	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">
-		<csc target="library" output="${build.dir}/Boo.Lang.Parser.dll"
-			debug="${debug}" optimize="${optimize}">
+		<csc target="library"
+			output="${build.dir}/Boo.Lang.Parser.dll"
+			debug="${debug}"
+			optimize="${optimize}"
+			define="${csc.define}">
 			<sources basedir="src/Boo.Lang.Parser">
 				<include name="**/*.cs" />
 			</sources>
