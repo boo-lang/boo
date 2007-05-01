@@ -489,9 +489,12 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}	
 			if(depth == 0)
-			{
-				node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
-				AbstractMemberNotImplemented(node, baseTypeRef, entity);
+			{			
+				if (!AbstractMemberNotImplemented(node, baseTypeRef, entity))
+				{
+					//BEHAVIOR < 0.7.7: no stub, mark class as abstract
+					node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
+				}				
 			}
 		}
 
@@ -507,19 +510,44 @@ namespace Boo.Lang.Compiler.Steps
 			return Unknown.Default == typeRef.Entity;
 		}
 		
-		void AbstractMemberNotImplemented(ClassDefinition node, TypeReference baseTypeRef, IMember member)
+		//returns true if a stub has been created, false otherwise.
+		//TODO: add entity argument to the method to not need return type?
+		bool AbstractMemberNotImplemented(ClassDefinition node, TypeReference baseTypeRef, IMember member)
 		{
 			if (IsValueType(node))
 			{
 				Error(CompilerErrorFactory.ValueTypeCantHaveAbstractMember(baseTypeRef, node.FullName, GetAbstractMemberSignature(member)));
+				return false;
 			}
-			else if (!node.IsAbstract)
+			if (!node.IsAbstract)
 			{
-				Warnings.Add(
-					CompilerWarningFactory.AbstractMemberNotImplemented(baseTypeRef,
-					node.FullName, GetAbstractMemberSignature(member)));
-				_newAbstractClasses.AddUnique(node);
+				//BEHAVIOR >= 0.7.7:	(see BOO-789 for details)
+				//create a stub for this not implemented member
+				//it will raise a NotImplementedException if called at runtime
+				TypeMember m = CodeBuilder.CreateStub(member);
+				CompilerWarning warning = null;				
+				if (null != m)
+				{
+					//FIXME: cannot reorder upstream? => base before derived
+					foreach (TypeMember existing in node.Members) {
+						if (existing.Name == m.Name) {
+							return true;
+						}
+					}
+					warning = CompilerWarningFactory.AbstractMemberNotImplementedStubCreated(baseTypeRef,
+										node.FullName, GetAbstractMemberSignature(member));
+					node.Members.Add(m);
+				}
+				else
+				{
+					warning = CompilerWarningFactory.AbstractMemberNotImplemented(baseTypeRef,
+										node.FullName, GetAbstractMemberSignature(member));
+					_newAbstractClasses.AddUnique(node);
+				}
+				Warnings.Add(warning);
+				return (null != m);
 			}
+			return false;
 		}
 
 		private bool IsValueType(ClassDefinition node)

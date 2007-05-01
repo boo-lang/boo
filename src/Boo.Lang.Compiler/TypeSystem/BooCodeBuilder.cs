@@ -866,5 +866,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
 		}
+		
+		
+		public TypeMember CreateStub(IMember member)
+		{
+			IMethod md = (member as IMethod);
+			if (null == md) return null;				
+				
+			Method m = CreateVirtualMethod(md.Name, md.ReturnType);
+			int idx = 0;
+			foreach (IParameter param in md.GetParameters()) {
+				m.Parameters.Add(
+					CreateParameterDeclaration(idx,
+											param.Name,
+											param.Type,
+											param.IsByRef));
+				idx++;
+			}
+			
+			MethodInvocationExpression x = new MethodInvocationExpression();
+			x.Target = new MemberReferenceExpression(
+								new ReferenceExpression("System"),
+								"NotImplementedException");
+			RaiseStatement rs = new RaiseStatement(x);
+			rs.LexicalInfo = LexicalInfo.Empty;			
+			m.Body.Statements.Insert(0, rs);
+			
+			return m;
+		}
+		
 	}
 }

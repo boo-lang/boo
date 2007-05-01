@@ -98,5 +98,10 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerWarning("BCW0010", node.LexicalInfo);
 		}
+
+		public static CompilerWarning AbstractMemberNotImplementedStubCreated(Node node, string typeName, string memberName)
+		{
+			return new CompilerWarning("BCW0011", node.LexicalInfo, typeName, memberName);
+		}
 	}
 }
