@@ -1183,6 +1183,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return type == ObjectType || type == DuckType;
 		}
+
+		public bool RequiresBoxing(IType expectedType, IType actualType)
+		{
+			if (!actualType.IsValueType) return false;
+			return IsSystemObject(expectedType);
+		}
 		
 		protected virtual void PreparePrimitives()
 		{
