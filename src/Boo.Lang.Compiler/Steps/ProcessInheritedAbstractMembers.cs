@@ -490,8 +490,7 @@ namespace Boo.Lang.Compiler.Steps
 			}	
 			if(depth == 0)
 			{
-				//BEHAVIOR<0.7.7
-				//node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
+				node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
 				AbstractMemberNotImplemented(node, baseTypeRef, entity);
 			}
 		}
@@ -519,13 +518,7 @@ namespace Boo.Lang.Compiler.Steps
 				Warnings.Add(
 					CompilerWarningFactory.AbstractMemberNotImplemented(baseTypeRef,
 					node.FullName, GetAbstractMemberSignature(member)));
-				//BEHAVIOR < 0.7.7: no stub, mark class as abstract
-				//_newAbstractClasses.AddUnique(node);
-
-				//BEHAVIOR >= 0.7.7:	(see BOO-789 for details)
-				//create a stub for this not implemented member
-				//it will raise a NotImplementedException if called at runtime								
-				node.Members.Add(CodeBuilder.CreateStub(member));
+				_newAbstractClasses.AddUnique(node);
 			}
 		}
 

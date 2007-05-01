@@ -139,6 +139,7 @@ BCE0137=Property '{0}' is write only.
 
 ;Compiler warnings
 BCW0000=AVISO: {0}
+BCW0001=AVISO: O tipo '{0}' não possui uma implementação para '{1}' e será marcado como abstrato.
 BCW0002=AVISO: Modificadores de sentença não afetam rótulos.
 BCW0003=AVISO: Variável local não utilizada '{0}'.
 BCW0004=AVISO: O operando direito do operador 'is' é uma referência a um tipo, tem certeza de que não é o operador 'isa' que você deseja utilizar?
