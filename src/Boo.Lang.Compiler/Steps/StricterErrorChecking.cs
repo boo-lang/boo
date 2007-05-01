@@ -38,6 +38,8 @@ namespace Boo.Lang.Compiler.Steps
 	{	
 		Hashtable _types = new Hashtable();
 		
+		int _finallyBlock;
+		
 		override public void Run()
 		{
 			Visit(CompileUnit);
@@ -116,9 +118,27 @@ namespace Boo.Lang.Compiler.Steps
 			if (AstUtil.IsTargetOfMemberReference(node)) return;
 			Error(CompilerErrorFactory.InvalidSuper(node));
 		}
+		
+		bool InsideEnsure
+		{
+			get { return _finallyBlock > 0; }
+		}
+		
+		public override void OnTryStatement(TryStatement node)
+		{
+			Visit(node.ProtectedBlock);
+			Visit(node.ExceptionHandlers);
+			++_finallyBlock;
+			Visit(node.EnsureBlock);
+			--_finallyBlock;
+		}
 
 		public override void LeaveReturnStatement(ReturnStatement node)
 		{
+			if (InsideEnsure)
+			{
+				Error(CompilerErrorFactory.CantReturnFromEnsure(node));
+			}
 			if (null == node.Expression) return;
 			CheckExpressionType(node.Expression);
 		}

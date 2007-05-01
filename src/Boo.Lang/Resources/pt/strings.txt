@@ -136,6 +136,12 @@ BCE0134='{0}' cannot return values.
 BCE0135=Invalid name: '{0}'
 BCE0136=Use a colon(:) instead of equal sign(=) for named parameters.
 BCE0137=Property '{0}' is write only.
+BCE0138='{0}' is not a generic definition.
+BCE0139='{0}' requires '{1}' arguments.
+BCE0140=Yield statement type '{0}' does not match generator element type '{1}'.
+BCE0141=Duplicate parameter name '{0}' in '{1}'.
+BCE0142=Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.
+BCE0143=Cannot return from an ensure block.
 
 ;Compiler warnings
 BCW0000=AVISO: {0}

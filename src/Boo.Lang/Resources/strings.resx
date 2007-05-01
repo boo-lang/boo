@@ -543,11 +543,17 @@
   <data space="preserve" name="BCE0141">
     <value>Duplicate parameter name '{0}' in '{1}'.</value>
   </data>
+  <data space="preserve" name="BCE0142">
+    <value>Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.</value>
+  </data>
+  <data space="preserve" name="BCE0143">
+    <value>Cannot return from an ensure block.</value>
+  </data>
   <data space="preserve" name="BCW0000">
     <value>WARNING: {0}</value>
   </data>
   <data space="preserve" name="BCW0001">
-    <value>WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract</value>
+    <value>WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.</value>
   </data>
   <data space="preserve" name="BCW0002">
     <value>WARNING: Statement modifiers have no effect in labels.</value>
@@ -575,6 +581,9 @@
   </data>
   <data space="preserve" name="BCW0010">
     <value>WARNING: The -keycontainer option will override your AssemblyKeyName attribute.</value>
+  </data>
+  <data space="preserve" name="BCW0011">
+    <value>WARNING: Type '{0}' does not provide an implementation for '{1}', a stub has been created.</value>
   </data>
   <data space="preserve" name="BCE0500">
     <value>Response file '{0}' listed more than once.</value>

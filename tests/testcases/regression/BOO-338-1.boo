@@ -2,9 +2,11 @@
 ok
 """
 def foo():
+	msg as string
 	try:
 		pass
 	ensure:
-		return "ok"
+		msg = "ok"
+	return msg
 		
 print foo()

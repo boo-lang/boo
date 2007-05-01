@@ -142,6 +142,7 @@ BCE0139='{0}' requires '{1}' arguments.
 BCE0140=Yield statement type '{0}' does not match generator element type '{1}'.
 BCE0141=Duplicate parameter name '{0}' in '{1}'.
 BCE0142=Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.
+BCE0143=Cannot return from an ensure block.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

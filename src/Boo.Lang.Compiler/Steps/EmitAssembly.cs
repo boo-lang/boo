@@ -744,10 +744,11 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnTryStatement(TryStatement node)
 		{
 			++_tryBlock;
-			
 			_il.BeginExceptionBlock();
 			Visit(node.ProtectedBlock);
 			Visit(node.ExceptionHandlers);
+			--_tryBlock;
+			
 			if (null != node.EnsureBlock)
 			{
 				_il.BeginFinallyBlock();
@@ -755,7 +756,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			_il.EndExceptionBlock();
 			
-			--_tryBlock;
+			
 		}
 		
 		override public void OnExceptionHandler(ExceptionHandler node)

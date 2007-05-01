@@ -765,6 +765,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0142", node.LexicalInfo, parameter, method);
 		}
 		
+		public static CompilerError CantReturnFromEnsure(Node node)
+		{
+			return new CompilerError("BCE0143", node.LexicalInfo);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
