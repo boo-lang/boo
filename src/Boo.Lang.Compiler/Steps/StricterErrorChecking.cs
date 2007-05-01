@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 	{	
 		Hashtable _types = new Hashtable();
 		
-		int _finallyBlock;
+		int _ensureBlock;
 		
 		override public void Run()
 		{
@@ -121,16 +121,26 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool InsideEnsure
 		{
-			get { return _finallyBlock > 0; }
+			get { return _ensureBlock > 0; }
 		}
 		
 		public override void OnTryStatement(TryStatement node)
 		{
 			Visit(node.ProtectedBlock);
 			Visit(node.ExceptionHandlers);
-			++_finallyBlock;
+			EnterEnsureBlock();
 			Visit(node.EnsureBlock);
-			--_finallyBlock;
+			LeaveEnsureBlock();
+		}
+		
+		private void EnterEnsureBlock()
+		{
+			++_ensureBlock;
+		}
+		
+		private void LeaveEnsureBlock()
+		{
+			--_ensureBlock;
 		}
 
 		public override void LeaveReturnStatement(ReturnStatement node)
