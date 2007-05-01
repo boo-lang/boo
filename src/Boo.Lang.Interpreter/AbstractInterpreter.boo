@@ -263,12 +263,14 @@ class AbstractInterpreter:
 	
 	private def InitializeModuleInterpreter(asm as System.Reflection.Assembly,
 										module as Module):
-		moduleType = cast(AbstractInternalType,
-						GetEntity(GetModuleEntity(module).ModuleClass)).GeneratedType
+		moduleType = GetGeneratedType(asm, GetEntity(GetModuleEntity(module).ModuleClass))
 		moduleType.GetField("ParentInterpreter").SetValue(null, self)
 		
 	private static def GetModuleEntity(module as Module) as ModuleEntity:
 		return GetEntity(module)
+		
+	private static def GetGeneratedType(asm as System.Reflection.Assembly, type as IType):
+		return asm.GetType(type.FullName)
 		
 	static def GetEntity(node as Node):
 		return TypeSystemServices.GetEntity(node)
@@ -389,7 +391,7 @@ class AbstractInterpreter:
 			debug "caching", len(types), "callable types"
 			for type as InternalCallableType in types:
 				debug type
-				services.CachedCallableTypes.Add(type.GeneratedType)
+				services.CachedCallableTypes.Add(GetGeneratedType(self.Context.GeneratedAssembly, type))
 				
 	class ProcessExpressionsWithInterpreterNamespace(Steps.ProcessMethodBodiesWithDuckTyping):
 		

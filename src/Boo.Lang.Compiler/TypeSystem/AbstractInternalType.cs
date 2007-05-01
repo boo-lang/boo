@@ -44,8 +44,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected INamespace _parentNamespace;
 		
-		protected Type _generatedType;
-		
 		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition)
 		{
 			_typeSystemServices = typeSystemServices;
@@ -354,19 +352,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			throw new ArgumentException("Member type not supported: " + member);
-		}
-		
-		public Type GeneratedType
-		{
-			get
-			{
-				return _generatedType;
-			}
-			
-			set
-			{
-				_generatedType = value;
-			}
 		}
 		
 		override public string ToString()

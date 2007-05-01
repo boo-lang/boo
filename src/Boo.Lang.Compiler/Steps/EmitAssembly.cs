@@ -445,7 +445,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 					}
 					
-					((AbstractInternalType)type.Entity).GeneratedType = _emitter.GetTypeBuilder(type).CreateType();
+					_emitter.GetTypeBuilder(type).CreateType();
 					
 					Trace("type '{0}' successfully created", type);
 					

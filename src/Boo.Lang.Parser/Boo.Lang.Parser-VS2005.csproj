@@ -9,9 +9,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Boo.Lang.Parser</RootNamespace>
     <AssemblyName>Boo.Lang.Parser</AssemblyName>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>boo.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -187,6 +186,9 @@
       <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
       <Name>Boo.Lang-VS2005</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="boo.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
