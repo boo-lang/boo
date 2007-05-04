@@ -1115,8 +1115,17 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveGeneratorReturnType(InternalMethod entity)
 		{
 			Method method = entity.Method;
-			BooClassBuilder generatorType = (BooClassBuilder)method["GeneratorClassBuilder"];
-			method.ReturnType = CodeBuilder.CreateTypeReference(generatorType.Entity);
+#if NET_2_0
+			// Make method return a generic IEnumerable	
+			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
+			IType itemType = (IType)method["GeneratorItemType"];
+			
+			method.ReturnType = CodeBuilder.CreateTypeReference(
+				enumerableType.GenericTypeDefinitionInfo.MakeGenericType(itemType));
+#else
+			// Make method return a non-generic IEnumerable
+			method.ReturnType = TypeSystemServices.IEnumerableType;
+#endif			
 		}
 		
 		void TryToResolveReturnType(InternalMethod tag)
