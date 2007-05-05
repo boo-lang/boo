@@ -1124,7 +1124,7 @@ namespace Boo.Lang.Compiler.Steps
 				enumerableType.GenericTypeDefinitionInfo.MakeGenericType(itemType));
 #else
 			// Make method return a non-generic IEnumerable
-			method.ReturnType = TypeSystemServices.IEnumerableType;
+			method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.IEnumerableType);
 #endif			
 		}
 		
