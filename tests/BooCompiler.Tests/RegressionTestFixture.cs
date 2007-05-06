@@ -716,6 +716,30 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BOO_809_1()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\regression\BOO-809-1.boo");
+		}
+		
+		[Test]
+		public void BOO_809_2()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\regression\BOO-809-2.boo");
+		}
+		
+		[Test]
+		public void BOO_809_3()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\regression\BOO-809-3.boo");
+		}
+		
+		[Test]
+		public void BOO_809_4()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\regression\BOO-809-4.boo");
+		}
+		
+		[Test]
 		public void BOO_85_1()
 		{
 			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\regression\BOO-85-1.boo");

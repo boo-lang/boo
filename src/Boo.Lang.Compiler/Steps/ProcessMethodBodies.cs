@@ -1119,6 +1119,13 @@ namespace Boo.Lang.Compiler.Steps
 			// Make method return a generic IEnumerable
 			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
 			IType itemType = (IType)method["GeneratorItemType"];
+		
+			if (TypeSystemServices.VoidType == itemType)
+			{
+				// circunvent exception in MakeGenericType
+				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.ErrorEntity);
+				return;
+			}
 			
 			method.ReturnType = CodeBuilder.CreateTypeReference(
 				enumerableType.GenericTypeDefinitionInfo.MakeGenericType(itemType));
