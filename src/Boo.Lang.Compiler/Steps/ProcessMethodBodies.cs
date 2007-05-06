@@ -1116,15 +1116,25 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Method method = entity.Method;
 #if NET_2_0
-			// Make method return a generic IEnumerable	
+			// Make method return a generic IEnumerable
 			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
 			IType itemType = (IType)method["GeneratorItemType"];
 			
 			method.ReturnType = CodeBuilder.CreateTypeReference(
 				enumerableType.GenericTypeDefinitionInfo.MakeGenericType(itemType));
 #else
-			// Make method return a non-generic IEnumerable
-			method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.IEnumerableType);
+			if (method.IsVirtual)
+			{
+				// Make method return a non-generic IEnumerable
+				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.IEnumerableType);
+			}
+			else
+			{
+				// Otherwise use the specific type to allow type inference
+				// to discover the item type
+				BooClassBuilder generatorType = (BooClassBuilder)method["GeneratorClassBuilder"];
+				method.ReturnType = CodeBuilder.CreateTypeReference(generatorType.Entity);
+			}
 #endif			
 		}
 		
