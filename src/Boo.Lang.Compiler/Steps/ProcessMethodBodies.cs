@@ -1847,7 +1847,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				builder.AddBaseType(
 					TypeSystemServices.Map(
-						typeof(AbstractGenerator<>)).GenericTypeDefinitionInfo.MakeGenericType(generatorItemType));
+						typeof(GenericGenerator<>)).GenericTypeDefinitionInfo.MakeGenericType(generatorItemType));
 				
 				getEnumeratorBuilder = builder.AddVirtualMethod(
 					"GetEnumerator",

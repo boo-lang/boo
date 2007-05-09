@@ -15,4 +15,9 @@ assert method is not null
 returnType = method.ReturnType
 assert IEnumerable in returnType.GetInterfaces()
 
-assert "1 0 3" == join(Generators().onetwothree())
+g = Generators().onetwothree()
+if Environment.Version > Version(1, 1, 0, 0):
+	assert g.GetType().BaseType.Name.StartsWith("GenericGenerator")
+else:
+	assert g.GetType().BaseType == AbstractGenerator
+assert "1 0 3" == join(g)

@@ -61,6 +61,8 @@
     <Compile Include="DuckTypedAttribute.cs" />
     <Compile Include="EnumeratorItemTypeAttribute.cs" />
     <Compile Include="ExtensionAttribute.cs" />
+    <Compile Include="GenericGenerator.cs" />
+    <Compile Include="GenericGeneratorEnumerator.cs" />
     <Compile Include="Hash.cs" />
     <Compile Include="ICallable.cs" />
     <Compile Include="IQuackFu.cs" />
@@ -79,6 +81,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="boo.snk" />

@@ -370,7 +370,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 #if NET_2_0
 			IType abstractEnumeratorType = 
-				TypeSystemServices.Map(typeof(Boo.Lang.AbstractGeneratorEnumerator<>)).
+				TypeSystemServices.Map(typeof(Boo.Lang.GenericGeneratorEnumerator<>)).
 					GenericTypeDefinitionInfo.MakeGenericType(new IType[] {_generatorItemType});
 #else
 			IType abstractEnumeratorType = TypeSystemServices.Map(typeof(Boo.Lang.AbstractGeneratorEnumerator));
