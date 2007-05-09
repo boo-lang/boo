@@ -1,7 +1,7 @@
 """
-BCE0120-3.boo(24,7): BCE0120: 'NS2.Foo.get_C' is unaccessible due to its protection level.
-BCE0120-3.boo(25,7): BCE0120: 'NS2.Foo.get_D' is unaccessible due to its protection level.
-BCE0120-3.boo(26,3): BCE0120: 'NS2.Foo.D' is unaccessible due to its protection level.
+BCE0120-3.boo(24,7): BCE0120: 'NS2.Foo.get_C' is inaccessible due to its protection level.
+BCE0120-3.boo(25,7): BCE0120: 'NS2.Foo.get_D' is inaccessible due to its protection level.
+BCE0120-3.boo(26,3): BCE0120: 'NS2.Foo.D' is inaccessible due to its protection level.
 """
 namespace NS2
 

@@ -1,7 +1,7 @@
 """
-BCE0120-1.boo(16,20): BCE0120: 'NS.Foo._baz' is unaccessible due to its protection level.
-BCE0120-1.boo(20,9): BCE0120: 'NS.Foo._bar' is unaccessible due to its protection level.
-BCE0120-1.boo(21,9): BCE0120: 'NS.Foo._baz' is unaccessible due to its protection level.
+BCE0120-1.boo(16,20): BCE0120: 'NS.Foo._baz' is inaccessible due to its protection level.
+BCE0120-1.boo(20,9): BCE0120: 'NS.Foo._bar' is inaccessible due to its protection level.
+BCE0120-1.boo(21,9): BCE0120: 'NS.Foo._baz' is inaccessible due to its protection level.
 """
 namespace NS
 
