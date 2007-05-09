@@ -193,7 +193,7 @@
     <value>The type '{0}' does not have a visible constructor that matches the argument list '{1}'.</value>
   </data>
   <data space="preserve" name="BCE0025">
-    <value>Only unidimensional arrays are supported.</value>
+    <value>Only uni-dimensional arrays are supported.</value>
   </data>
   <data space="preserve" name="BCE0026">
     <value>'{0}' cannot be used in a boolean context.</value>
@@ -259,7 +259,7 @@
     <value>'{0}' can't be used with a value type ('{1}')</value>
   </data>
   <data space="preserve" name="BCE0047">
-    <value>Method '{0}' cannot be overriden because it is not virtual.</value>
+    <value>Method '{0}' cannot be overridden because it is not virtual.</value>
   </data>
   <data space="preserve" name="BCE0048">
     <value>Type '{0}' does not support slicing.</value>
@@ -334,7 +334,7 @@
     <value>Inheritance cycle detected: '{0}'.</value>
   </data>
   <data space="preserve" name="BCE0072">
-    <value>Overriden method '{0}' has a return type of '{1}' not '{2}'.</value>
+    <value>Overridden method '{0}' has a return type of '{1}' not '{2}'.</value>
   </data>
   <data space="preserve" name="BCE0073">
     <value>Abstract method '{0}' cannot have a body.</value>
@@ -346,7 +346,7 @@
     <value>'{0}' is a namespace. Namespaces cannot be used as expressions.</value>
   </data>
   <data space="preserve" name="BCE0076">
-    <value>Runtime and PInvoke methods must have an empty body.</value>
+    <value>Run-time and PInvoke methods must have an empty body.</value>
   </data>
   <data space="preserve" name="BCE0077">
     <value>It is not possible to invoke an expression of type '{0}'.</value>
@@ -355,10 +355,10 @@
     <value>A method reference was expected.</value>
   </data>
   <data space="preserve" name="BCE0079">
-    <value>__addressof__ builtin function can only be used in delegate constructors.</value>
+    <value>__addressof__ built-in function can only be used in delegate constructors.</value>
   </data>
   <data space="preserve" name="BCE0080">
-    <value>'{0}' builtin function cannot be used as an expression.</value>
+    <value>'{0}' built-in function cannot be used as an expression.</value>
   </data>
   <data space="preserve" name="BCE0081">
     <value>A raise statement with no arguments is not allowed outside an exception handler.</value>
@@ -388,7 +388,7 @@
     <value>Type '{0}' already has a definition for '{1}'.</value>
   </data>
   <data space="preserve" name="BCE0090">
-    <value>Derived method '{0}' can not reduce the accessiblity of '{1}' from '{2}' to '{3}'.</value>
+    <value>Derived method '{0}' can not reduce the accessibility of '{1}' from '{2}' to '{3}'.</value>
   </data>
   <data space="preserve" name="BCE0091">
     <value>Event reference '{0}' cannot be used as an expression.</value>
@@ -439,7 +439,7 @@
     <value>Failed to access the types defined in assembly {0}.</value>
   </data>
   <data space="preserve" name="BCE0107">
-    <value>Value types cannot declare parameterless constructors.</value>
+    <value>Value types cannot declare parameter-less constructors.</value>
   </data>
   <data space="preserve" name="BCE0108">
     <value>Value type fields cannot have initializers.</value>
@@ -478,7 +478,7 @@
     <value>Explode expression can only be used as the last argument to a callable which takes a variable number of arguments.</value>
   </data>
   <data space="preserve" name="BCE0120">
-    <value>'{0}' is unaccessible due to its protection level.</value>
+    <value>'{0}' is inaccessible due to its protection level.</value>
   </data>
   <data space="preserve" name="BCE0121">
     <value>'super' is not valid in this context.</value>
@@ -691,7 +691,7 @@
     <value>file name for the generated assembly</value>
   </data>
   <data space="preserve" name="boo.CommandLine.pipeline">
-    <value>which compilation pipeline to use, it can be either the name of a builtin pipeline like 'boo' or a full type name</value>
+    <value>which compilation pipeline to use, it can be either the name of a built-in pipeline like 'boo' or a full type name</value>
   </data>
   <data space="preserve" name="boo.CommandLine.reference">
     <value>references an assembly</value>

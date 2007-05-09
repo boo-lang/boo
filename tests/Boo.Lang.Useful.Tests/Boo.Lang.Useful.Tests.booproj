@@ -1,0 +1,49 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{69186382-466B-4D10-997E-569F3F5FD0FE}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Boo.Lang.Useful.Tests</RootNamespace>
+    <AssemblyName>Boo.Lang.Useful.Tests</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\AbstractAttributeTestFixture.boo" />
+    <Compile Include="Attributes\AutoFlagsAttributeTestFixture.boo" />
+    <Compile Include="Attributes\OnceAttributeTestFixture.boo" />
+    <Compile Include="Attributes\SingletonAttributeTestFixture.boo" />
+    <Compile Include="BooTemplate\Globals.boo" />
+    <Compile Include="BooTemplate\TemplateCompilerTestFixture.boo" />
+    <Compile Include="BooTemplate\TemplatePreProcessorTestFixture.boo" />
+    <Compile Include="Collections\CacheTestFixture.boo" />
+    <Compile Include="Collections\CollectionAttributeTestFixture.boo" />
+    <Compile Include="Collections\SetTestFixture.boo" />
+    <Compile Include="CommandLine\AbstractCommandLineTestFixture.boo" />
+    <Compile Include="CommandLine\ParserTestFixture.boo" />
+    <Compile Include="IO\PreprocessorFixture.boo" />
+    <Compile Include="IO\TextFileFixture.boo" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Attributes" />
+    <Folder Include="BooTemplate" />
+    <Folder Include="Collections" />
+    <Folder Include="CommandLine" />
+    <Folder Include="IO" />
+    <ProjectReference Include="..\..\src\Boo.Lang.Useful\Boo.Lang.Useful.booproj">
+      <Project>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</Project>
+      <Name>Boo.Lang.Useful</Name>
+    </ProjectReference>
+    <Reference Include="nunit.framework" />
+  </ItemGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+</Project>

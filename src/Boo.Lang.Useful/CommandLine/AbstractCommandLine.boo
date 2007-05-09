@@ -130,21 +130,33 @@ class AbstractCommandLine:
 	private def AddOption(parser as Parser, option as OptionAttribute, member):
 		field = member as FieldInfo
 		if field is not null:
-			if IsIListField(field):
-				parser.AddOption(option) do (value as string):
-					AddToListField(field, value)
-			elif IsBoolField(field):
-				parser.AddOption(option) do (value as string):
-					boolValue = value is null or value == "+"
-					field.SetValue(self, boolValue)
-			else:
-				parser.AddOption(option) do (value as string):
-					field.SetValue(
-						self,
-						Convert.ChangeType(value, field.FieldType))
+			AddOptionField(parser, option, field)
+			return
+			
+		method = member as MethodInfo
+		if method is not null and len(method.GetParameters()) == 1:
+			AddOptionMethod(parser, option, method)
 			return
 			
 		assert false, "OptionAttribute not implemented for '${member}'"
+		
+	private def AddOptionMethod(parser as Parser, option as OptionAttribute, method as MethodInfo):
+		parser.AddOption(option) do (value as string):
+			method.Invoke(self, (value,))
+		
+	private def AddOptionField(parser as Parser, option as OptionAttribute, field as FieldInfo):
+		if IsIListField(field):
+			parser.AddOption(option) do (value as string):
+				AddToListField(field, value)
+		elif IsBoolField(field):
+			parser.AddOption(option) do (value as string):
+				boolValue = value is null or value == "+"
+				field.SetValue(self, boolValue)
+		else:
+			parser.AddOption(option) do (value as string):
+				field.SetValue(
+					self,
+					Convert.ChangeType(value, field.FieldType))
 		
 	private def AddArgument(parser as Parser, argument as ArgumentAttribute, member):
 		method = member as MethodInfo

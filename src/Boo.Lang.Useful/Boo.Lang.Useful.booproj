@@ -1,71 +1,64 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <ProjectGuid>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>Boo.Lang.Useful</RootNamespace>
     <AssemblyName>Boo.Lang.Useful</AssemblyName>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{86284E52-4C54-48CB-A286-4E34047AF1EF}</ProjectGuid>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
     <OutputPath>bin\Debug\</OutputPath>
-    <Optimize>False</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugSymbols>True</DebugSymbols>
     <DebugType>Full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>obj\Release\</IntermediateOutputPath>
     <OutputPath>bin\Release\</OutputPath>
-    <Optimize>True</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Security" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
-    <Compile Include="Attributes\SingletonAttribute.boo" />
     <Compile Include="Attributes\AutoFlagsAttribute.boo" />
     <Compile Include="Attributes\OnceAttribute.boo" />
+    <Compile Include="Attributes\SingletonAttribute.boo" />
     <Compile Include="Attributes\TraceMethodCallsAttribute.boo" />
-    <Compile Include="BooTemplate\TemplatePreProcessor.boo" />
     <Compile Include="BooTemplate\ApplyTemplateSemantics.boo" />
     <Compile Include="BooTemplate\ITemplate.boo" />
     <Compile Include="BooTemplate\TemplateCompiler.boo" />
-    <Compile Include="Collections\Set.boo" />
+    <Compile Include="BooTemplate\TemplatePreProcessor.boo" />
     <Compile Include="Collections\AbstractCollection.boo" />
     <Compile Include="Collections\Cache.boo" />
     <Compile Include="Collections\CollectionAttribute.boo" />
-    <Compile Include="CommandLine\Parser.boo" />
+    <Compile Include="Collections\Set.boo" />
     <Compile Include="CommandLine\AbstractCommandLine.boo" />
     <Compile Include="CommandLine\AbstractParser.boo" />
     <Compile Include="CommandLine\ArgumentAttribute.boo" />
     <Compile Include="CommandLine\EventBasedParser.boo" />
     <Compile Include="CommandLine\OptionAttribute.boo" />
-    <Compile Include="IO\walk.boo" />
-    <Compile Include="IO\PreProcessor.boo" />
-    <Compile Include="IO\TextFile.boo" />
-    <Compile Include="Resources\ResourceFu.boo" />
-    <Compile Include="IO\Impl\PreProcessorExpressionParserTokenTypes.boo" />
+    <Compile Include="CommandLine\Parser.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionEvaluator.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionLexer.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionParser.boo" />
+    <Compile Include="IO\Impl\PreProcessorExpressionParserTokenTypes.boo" />
+    <Compile Include="IO\PreProcessor.boo" />
+    <Compile Include="IO\TextFile.boo" />
+    <Compile Include="IO\walk.boo" />
+    <Compile Include="PlatformInformation.boo" />
+    <Compile Include="Resources\ResourceFu.boo" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
-      <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
-      <Name>Boo.Lang</Name>
-    </ProjectReference>
+    <Folder Include="Attributes" />
+    <Folder Include="BooTemplate" />
+    <Folder Include="Collections" />
+    <Folder Include="CommandLine" />
+    <Folder Include="IO" />
+    <Folder Include="IO\Impl" />
+    <Folder Include="Resources" />
     <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
       <Project>{C1943936-DBBD-4331-94C3-BE4F7E6229DA}</Project>
       <Name>Boo.Lang.Parser</Name>
