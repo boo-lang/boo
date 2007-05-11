@@ -1973,7 +1973,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static Expression GetTargetObject(MethodInvocationExpression node)
 		{
-			return ((MemberReferenceExpression)node.Target).Target;
+			MemberReferenceExpression memberRef = node.Target as MemberReferenceExpression;
+			
+			// Target might be a generic reference expression rather than a member reference expression
+			if (memberRef == null) 
+			{
+				memberRef = ((GenericReferenceExpression)node.Target).Target as MemberReferenceExpression;
+			}
+			
+			return memberRef.Target;
 		}
 
 		private OpCode GetCallOpCode(MethodInvocationExpression node, IMethod method, MethodInfo mi)
@@ -2613,7 +2621,13 @@ namespace Boo.Lang.Compiler.Steps
 						EmitGetTypeFromHandle(GetSystemType(node));
 						break;
 					}
-
+					
+				case EntityType.Method:
+					{
+						node.Target.Accept(this);
+						break;
+					}
+					
 				default:
 					{
 						NotImplemented(node, tag.ToString());
