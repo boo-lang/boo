@@ -755,7 +755,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return true;
 		}
 		
-		public bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
+		public virtual bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
 		{
 			return actualType.IsAssignableFrom(expectedType)
 				|| (expectedType.IsValueType
