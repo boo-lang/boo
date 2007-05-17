@@ -740,6 +740,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BOO_826()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\regression\BOO-826.boo");
+		}
+		
+		[Test]
 		public void BOO_85_1()
 		{
 			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\regression\BOO-85-1.boo");
