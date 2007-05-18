@@ -757,12 +757,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
 		{
-			return actualType.IsAssignableFrom(expectedType)
-				|| (expectedType.IsValueType
-				&& IsNumber(expectedType)
-				&& IsNumber(actualType));
+			return CanBeReachedByDowncast(expectedType, actualType)
+				|| CanBeReachedByPromotion(expectedType, actualType);
 		}
-		
+
+		public virtual bool CanBeReachedByDowncast(IType expectedType, IType actualType)
+		{
+			return actualType.IsAssignableFrom(expectedType);
+		}
+
+		public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)
+		{
+			return (expectedType.IsValueType
+			        && IsNumber(expectedType)
+			        && IsNumber(actualType));
+		}
+
 		public bool CanBeExplicitlyCastToInteger(IType type)
 		{
 			return type.IsEnum || type == this.CharType;

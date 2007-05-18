@@ -65,7 +65,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.Target = MemberReferenceFromReference(
 							(ReferenceExpression)node.Target,
-							((CallableResolutionService.CallableScore)_callableResolution.ValidCandidates[0]).Entity);
+							((CallableResolutionService.Candidate)_callableResolution.ValidCandidates[0]).Method);
 		}
 		
 		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)

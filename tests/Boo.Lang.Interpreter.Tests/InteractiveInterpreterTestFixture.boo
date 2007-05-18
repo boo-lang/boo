@@ -252,7 +252,7 @@ result = foo.EndInvoke(handle)
 		assert handle.IsCompleted
 		assert handle.EndInvokeCalled
 		
-		Assert.AreEqual(42, _interpreter.GetValue("result"))		
+		Assert.AreEqual(42, cast(int, _interpreter.GetValue("result")))		
 
 	[Test]
 	def BeginInvokeEndInvokeInSequentialEvals():
@@ -268,7 +268,7 @@ handle = foo.BeginInvoke(null, null)
 
 		Eval("result = foo.EndInvoke(handle)")
 
-		Assert.AreEqual(42, _interpreter.GetValue("result"))
+		Assert.AreEqual(42, cast(int, _interpreter.GetValue("result")))
 		
 		assert handle.IsCompleted
 		assert handle.EndInvokeCalled

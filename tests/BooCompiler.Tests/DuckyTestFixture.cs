@@ -14,6 +14,12 @@ namespace BooCompiler.Tests
 		}
 
 		[Test]
+		public void BOO_827_1()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\BOO-827-1.boo");
+		}
+		
+		[Test]
 		public void duck_12()
 		{
 			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\duck-12.boo");

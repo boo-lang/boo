@@ -1,7 +1,7 @@
 """
 test_implicit_B
 test_implicit_int
-test_overload(int)
+test_overload(object)
 method1(A)
 """
 
@@ -25,12 +25,12 @@ def test_implicit_B(p as B):
 def test_implicit_int(p as int):
 	print "test_implicit_int"
 
-//op_implicit favored over up/down cast
+//upcast favored over op_implicit
 def test_overload(p as int):
-	print "test_overload(int)"
+	print "ERROR: test_overload(int)"
 
 def test_overload(p as object):
-	print "ERROR: test_overload(object)"
+	print "test_overload(object)"
 
 //exact match still favored most of course
 def method1(p as A):

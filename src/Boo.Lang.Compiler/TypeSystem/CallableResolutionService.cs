@@ -28,6 +28,7 @@
 
 
 using System;
+using System.Collections;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
@@ -37,91 +38,116 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// </summary>
 	public class CallableResolutionService : AbstractCompilerComponent
 	{
-		List _scores = new List();
+		private const int ExactMatchScore = 7;
+		private const int UpCastScore = 6;
+		private const int ImplicitConversionScore = 5;
+		private const int PromotionScore = 4;
+		private const int DowncastScore = 3;
+
+		private List _candidates = new List();
+		private NodeCollection _arguments;
 
 		public CallableResolutionService()
 		{
+		}
+
+		private Node GetArgument(int index)
+		{
+			return _arguments.GetNodeAt(index);
 		}
 
 		public List ValidCandidates
 		{
 			get
 			{
-				return _scores;
+				return _candidates;
 			}
 		}
 
 		public override void Dispose()
 		{
-			_scores.Clear();
+			_candidates.Clear();
 			base.Dispose();
 		}
 
-		public class CallableScore : IComparable
+		public class Candidate
 		{
-			public IMethod Entity;
-			public int Score;
-			
-			public CallableScore(IMethod entity, int score)
+			public IMethod Method;
+			private CallableResolutionService _crs;
+			int[] _scores = null;
+			bool _expanded = false;
+
+			public Candidate(CallableResolutionService crs, IMethod entity)
 			{
-				Entity = entity;
-				Score = score;
+				_crs = crs;
+				Method = entity;
+				_scores = new int[crs._arguments.Count];
 			}
-			
-			public int CompareTo(object other)
+
+			public IParameter[] Parameters
 			{
-				return ((CallableScore)other).Score-Score;
+				get { return Method.GetParameters();  }
+			}
+
+			public int[] ArgumentScores
+			{
+				get
+				{
+					return _scores;
+				}
+			}
+
+			public bool Expanded
+			{
+				get { return _expanded; }
+				set { _expanded = value; }
+			}
+
+			public int Score(int argumentIndex)
+			{
+				_scores[argumentIndex] = _crs.CalculateArgumentScore(
+					Parameters[argumentIndex],
+					Parameters[argumentIndex].Type,
+					_crs.GetArgument(argumentIndex));
+
+				return _scores[argumentIndex];
+			}
+
+			public int ScoreVarArgs(int argumentIndex)
+			{
+				IParameter parameter = Parameters[Parameters.Length-1];
+				_scores[argumentIndex] = _crs.CalculateArgumentScore(
+					parameter,
+					parameter.Type.GetElementType(),
+					_crs.GetArgument(argumentIndex));
+
+				return _scores[argumentIndex];
 			}
 			
 			override public int GetHashCode()
 			{
-				return Entity.GetHashCode();
+				return Method.GetHashCode();
 			}
 			
 			override public bool Equals(object other)
 			{
-				CallableScore score = other as CallableScore;
+				Candidate score = other as Candidate;
 				return null == score
 					? false
-					: Entity == score.Entity;
+					: Method == score.Method;
 			}
 			
 			override public string ToString()
 			{
-				return Entity.ToString();
-			}
-		}
-
-		CallableScore GetBiggerScore()
-		{
-			_scores.Sort();
-			CallableScore first = (CallableScore)_scores[0];
-			CallableScore second = (CallableScore)_scores[1];
-			return first.Score > second.Score
-				? first
-				: null;
-		}
-		
-		void ReScoreByHierarchyDepth()
-		{
-			foreach (CallableScore score in _scores)
-			{
-				score.Score += score.Entity.DeclaringType.GetTypeDepth();
-				
-				IParameter[] parameters = score.Entity.GetParameters();
-				for (int i=0; i<parameters.Length; ++i)
-				{
-					IType parameterType = parameters[i].Type;
-					score.Score += GetLogicalTypeDepth(parameterType);
-				}
+				return Method.ToString();
 			}
 		}
 		
 		public int GetLogicalTypeDepth(IType type)
 		{
-			return type.IsValueType
-				? type.GetTypeDepth() - 1  /* do not count System.ValueType */
-				: type.GetTypeDepth();
+			int depth = type.GetTypeDepth();
+			if (type.IsValueType) return depth - 1;
+			return depth;
 		}
 		
 		IType GetExpressionTypeOrEntityType(Node node)
@@ -142,12 +168,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			else if (param.IsByRef &&
 				argType == parameterType)
 			{
-				return true;
+				return CanLoadAddress(arg);
 			}
 			return false;
 		}
-		
-		bool CanLoadAddress(Node node)
+
+		static bool CanLoadAddress(Node node)
 		{
 			IEntity entity = node.Entity;
 			
@@ -174,58 +200,240 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public IEntity ResolveCallableReference(NodeCollection args, IEntity[] candidates)
-		{	
-			_scores.Clear();
-
-			CalculateScores(candidates, args);
-
-			if (1 == _scores.Count)
-			{
-				return ((CallableScore)_scores[0]).Entity;
-			}
-			
-			if (_scores.Count > 1)
-			{
-				CallableScore score = GetBiggerScore();
-				if (null != score)
-				{
-					return score.Entity;
-				}
-				
-				ReScoreByHierarchyDepth();
-				score = GetBiggerScore();
-				if (null != score)
-				{
-					return score.Entity;
-				}
-			}
-			return null;
+		{
+			Reset(args);
+			FindApplicableCandidates(candidates);
+			if (ValidCandidates.Count == 0) return null;
+			if (ValidCandidates.Count == 1) return ((Candidate)ValidCandidates[0]).Method;
+			return BestCandidate();
 		}
 
-		private void CalculateScores(IEntity[] candidates, NodeCollection args)
+		private IEntity BestCandidate()
 		{
-			for (int i=0; i<candidates.Length; ++i)
+			_candidates.Sort(new Comparer(BetterCandidate));
+
+			if (BetterCandidate(_candidates[-1], _candidates[-2]) == 0)
 			{
-				IMethod candidate = candidates[i] as IMethod;
-				if (null == candidate) continue;
-
-				IParameter[] parameters = candidate.GetParameters();
-
-				int score = candidate.AcceptVarArgs
-					? CalculateVarArgsScore(parameters, args)
-					: CalculateExactArgsScore(parameters, args);
-
-				if (score >= 0)
+				object pivot = _candidates[-2];
+#if NET_2_0
+				_candidates.RemoveAll(delegate(object item)
+				                      	{	
+				                      		return 0 != BetterCandidate(item, pivot);
+				                      	});
+#else
+				for (int i=0; i<_candidates.Count; ++i)
 				{
-					// only positive scores are compatible
-					_scores.Add(new CallableScore(candidate, score));
+					if (0 != BetterCandidate(_candidates[i], pivot))
+					{
+						_candidates.RemoveAt(i--);
+					}
+				}
+#endif
+				// Ambiguous match
+				return null;
+			}
+
+			// SUCCESS: _candidates[-1] is the winner
+			return ((Candidate)_candidates[-1]).Method;
+
+		}
+
+		private int BetterCandidate(object lhs, object rhs)
+		{
+			return BetterCandidate((Candidate) lhs, (Candidate) rhs);
+		}
+
+		private bool ApplicableCandidate(Candidate candidate)
+		{
+			// Figure out whether method should be varargs-expanded
+			bool expand =
+				candidate.Method.AcceptVarArgs &&
+				(_arguments.Count == 0 || (
+		_arguments.Count > 0 && 
+				!AstUtil.IsExplodeExpression(_arguments.GetNodeAt(-1))));
+
+			// Determine number of fixed (non-varargs) parameters
+			int fixedParams =
+				(expand ? candidate.Parameters.Length - 1 : candidate.Parameters.Length);
+
+			// Validate number of parameters against number of arguments
+			if (_arguments.Count < fixedParams) return false;
+			if (_arguments.Count > fixedParams && !expand) return false;
+
+			// Score each argument against a fixed parameter
+			for (int i = 0; i < fixedParams; i++)
+			{
+				if (candidate.Score(i) < 0)
+				{
+					return false;
 				}
 			}
+
+			// If method should be expanded, match remaining arguments against
+			// last parameter
+			if (expand)
+			{
+				candidate.Expanded = true;
+				for (int i = fixedParams; i < _arguments.Count; i++)
+				{
+					if (candidate.ScoreVarArgs(i) < 0)
+					{
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
+
+		private int BetterCandidate(Candidate c1, Candidate c2)
+		{
+			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
+//			int result = 0;
+			if (false)
+			{
+				for (int i = 0; i < _arguments.Count; i++)
+				{
+					// Compare methods based on their score for the current argument 
+					int better = Math.Sign(c1.ArgumentScores[i] - c2.ArgumentScores[i]);
+					if (better == 0) continue;
+
+					// If neither method has been selecteed yet, select one
+					// based on this argument
+					if (result == 0)
+					{
+						result = better;
+					}
+						// If this argument comparison is in conflict with previous selection,
+						// neither method is better
+					else if (result != better)
+					{
+						return 0;
+					}
+				}
+			}
+			
+			if (result != 0)
+			{
+				return result;
+			}
+
+			result = c1.Method.DeclaringType.GetTypeDepth() - c2.Method.DeclaringType.GetTypeDepth();
+			if (result != 0)
+			{
+				return result;
+			}
+
+//			Console.WriteLine("{0} tied to {1}", c1, c2);
+
+			// --- Tie breaking mode! ---
+
+			// Non-generic methods are better than generic ones
+//			IGenericMethodInfo generic1 = c1.Method.GenericMethodInfo;
+//			IGenericMethodInfo generic2 = c2.Method.GenericMethodInfo;
+//			if (generic1 == null && generic2 != null)
+//			{
+//				return 1;
+//			}
+//			else if (generic1 != null && generic2 == null)
+//			{
+//				return -1;
+//			}
+
+			// Non-expanded methods are better than expanded ones
+			if (!c1.Expanded && c2.Expanded)
+			{
+				return 1;
+			}
+			else if (c1.Expanded && !c2.Expanded)
+			{
+				return -1;
+			}
+
+			// An expanded method with more fixed parameters is better
+			result = c1.Parameters.Length - c2.Parameters.Length;
+			if (result != 0) return result;
+
+			// As a last means of breaking this desparate tie, we select the
+			// "more specific" candidate, if one exists
+			return MoreSpecific(c1, c2);
+		}
+
+		private int TotalScore(Candidate c1)
+		{
+			int total = 0;
+			foreach (int score in c1.ArgumentScores)
+			{
+				total += score;
+			}
+			return total;
+		}
+
+		private int MoreSpecific(Candidate c1, Candidate c2)
+		{
+			int result = 0;
+			for (int i = 0; i < _arguments.Count && i < c1.Parameters.Length; ++i)
+			{
+				if (c1.ArgumentScores[i] <= DowncastScore)
+				{
+					continue;
+				}
+				int better = MoreSpecific(c1.Parameters[i].Type, c2.Parameters[i].Type);
+				if (better == 0) continue;
+
+				if (result == 0)
+				{
+					result = better;
+				}
+				else if (result != better)
+				{
+					return 0;
+				}
+			}
+			return result;
+		}
+
+		private int MoreSpecific(IType t1, IType t2)
+		{
+			if (t1.IsArray && t2.IsArray)
+			{
+				return MoreSpecific(t1.GetElementType(), t2.GetElementType());
+			}
+			return GetLogicalTypeDepth(t1) - GetLogicalTypeDepth(t2);
+
+			// TODO: if one of the types was once a generic parameter, the other
+			// one is the more specific
+
+			// TODO: recursively examine constructed types
+
+			// Neither type is more specific
+			return 0;
+		}
+
+		private void FindApplicableCandidates(IEntity[] candidates)
+		{
+			foreach (IEntity entity in candidates)
+			{
+				IMethod method = entity as IMethod;
+				if (null == method) continue;
+
+				Candidate candidate = new Candidate(this, method);
+
+				if (!ApplicableCandidate(candidate)) continue;
+
+				_candidates.AddUnique(candidate);
+			}
+		}
+
+		private void Reset(NodeCollection arguments)
+		{
+			_arguments = arguments;
+			_candidates.Clear();
 		}
 
 		public int CalculateVarArgsScore(IParameter[] parameters, NodeCollection args)
 		{
-			int lenMinusOne = parameters.Length-1;
+			int lenMinusOne = parameters.Length - 1;
 			if (args.Count < lenMinusOne) return -1;
 
 			IParameter lastParameter = parameters[lenMinusOne];
@@ -239,7 +447,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				Node lastArg = args.GetNodeAt(-1);
 				if (AstUtil.IsExplodeExpression(lastArg))
-				{	
+				{
 					int argumentScore = CalculateArgumentScore(lastParameter, lastParameterType, lastArg);
 					if (argumentScore < 0) return -1;
 					score += argumentScore;
@@ -249,7 +457,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				else
 				{
 					IType varArgType = lastParameterType.GetElementType();
-					for (int i=lenMinusOne; i<args.Count; ++i)
+					for (int i = lenMinusOne; i < args.Count; ++i)
 					{
 						int argumentScore = CalculateArgumentScore(lastParameter, varArgType, args.GetNodeAt(i));
 						if (argumentScore < 0) return -1;
@@ -261,17 +469,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return score - ((args.Count + 1) * 3);
 		}
 
-		private int CalculateExactArgsScore(IParameter[] parameters, NodeCollection args)
-		{
-			return args.Count == parameters.Length
-				? CalculateScore(parameters, args, args.Count)
-				: -1;
-		}
-
 		private int CalculateScore(IParameter[] parameters, NodeCollection args, int count)
-		{	
+		{
 			int score = 3;
-			for (int i=0; i<count; ++i)
+			for (int i = 0; i < count; ++i)
 			{
 				IParameter parameter = parameters[i];
 				IType parameterType = parameter.Type;
@@ -281,6 +482,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return score;
 		}
+
 		
 		private int CalculateArgumentScore(IParameter param, IType parameterType, Node arg)
 		{
@@ -289,20 +491,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (IsValidByRefArg(param, parameterType, argumentType, arg))
 				{
-					return 8;
+					return ExactMatchScore;
 				}
+				return -1;
 			}
 			else if (parameterType == argumentType
 				|| (TypeSystemServices.IsSystemObject(argumentType) && 
 					TypeSystemServices.IsSystemObject(parameterType)))
 			{
 				// exact match
-				return 7;
-			}
-			else if (TypeSystemServices.FindImplicitConversionOperator(argumentType, parameterType) != null)
-			{
-				// implicit conversion
-				return 6;
+				return ExactMatchScore;
 			}
 			else if (parameterType.IsAssignableFrom(argumentType))
 			{				
@@ -345,16 +543,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 						}
 						if (closeEnough)
 						{
-							return exactMatch == true ? 7 : 6;
+							return exactMatch == true ? ExactMatchScore : UpCastScore;
 						}
 					}
 				}
-				return 5;
+				return UpCastScore;
 			}
-			else if (TypeSystemServices.CanBeReachedByDownCastOrPromotion(parameterType, argumentType))
+			else if (TypeSystemServices.FindImplicitConversionOperator(argumentType, parameterType) != null)
+			{
+				return ImplicitConversionScore;
+			}
+			else if (TypeSystemServices.CanBeReachedByPromotion(parameterType, argumentType))
+			{
+				return PromotionScore;
+			}
+			else if (TypeSystemServices.CanBeReachedByDowncast(parameterType, argumentType))
 			{
 				// downcast
-				return 4;
+				return DowncastScore;
 			}
 			return -1;
 		}

@@ -59,9 +59,28 @@ class CallableResolutionServiceTestFixture:
 	def TestResolveAmbiguousCallable():
 		entity = _crs.ResolveCallableReference(
 			NewExpressionCollection(NewObjectInvocationExpression()),
-			(GetMethod("foo", int), GetMethod("foo", string)))
+			(GetMethod("foo", E), GetMethod("foo", string)))
 		Assert.AreEqual(2, _crs.ValidCandidates.Count, _crs.ValidCandidates.ToString())
-		assert entity is null
+		assert entity is null, entity.ToString()
+		
+	[Test]
+	def CloserMemberWins():
+		entity = _crs.ResolveCallableReference(
+			ExpressionCollection(),
+			(intMethod = GetMethod(int, "ToString"),
+			GetMethod(System.ValueType, "ToString"),
+			GetMethod(object, "ToString")))
+		Assert.AreSame(intMethod, entity)
+		
+	[Test]
+	def UpcastPlusMatchBetterThanMatchPlusDowncast():
+		entity = _crs.ResolveCallableReference(
+			NewExpressionCollection(
+				CodeBuilder.CreateIntegerLiteral(42),
+				NewObjectInvocationExpression()),
+			(objectMethod = GetMethod("bar", object, object),
+			GetMethod("bar", int, int)))
+		Assert.AreSame(objectMethod, entity)
 		
 	def GetLogicalTypeDepth(type as System.Type):
 		return _crs.GetLogicalTypeDepth(TypeSystemServices.Map(type))
@@ -76,7 +95,10 @@ class CallableResolutionServiceTestFixture:
 			TypeSystemServices.Map(typeof(object).GetConstructors()[0]))
 		
 	def GetMethod(methodName as string, *types as (System.Type)):
-		return TypeSystemServices.Map(GetType().GetMethod(methodName, types))
+		return GetMethod(GetType(), methodName, *types)
+		
+	def GetMethod(type as System.Type, methodName as string, *types as (System.Type)):
+		return TypeSystemServices.Map(type.GetMethod(methodName, types))
 		
 	CodeBuilder:
 		get:
@@ -85,11 +107,22 @@ class CallableResolutionServiceTestFixture:
 	TypeSystemServices:
 		get:
 			return _context.TypeSystemServices
+			
+	enum E:
+		A
+		B
+		C
 		
-	static def foo(i as int):
+	static def foo(i as E):
 		pass
 		
 	static def foo(s as string):
+		pass
+		
+	static def bar(x as int, y as int):
+		pass
+		
+	static def bar(x as object, y as object):
 		pass
 		
 
