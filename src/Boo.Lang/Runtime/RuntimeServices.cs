@@ -430,7 +430,15 @@ namespace Boo.Lang.Runtime
                     }
                 case MemberTypes.Property:
                     {
-                        return GetGetMethod((PropertyInfo)member).Invoke(target, args);
+						MethodInfo getter = GetGetMethod((PropertyInfo)member);
+						if (getter.GetParameters().Length > 0)
+						{
+							// is this a indexed property?
+							return getter.Invoke(target, args);
+						}
+						// otherwise its a simple property and the slice
+						// should be applied to the return value
+						return GetSlice(getter.Invoke(target, null), "", args);
                     }
                 default:
                     {
@@ -502,7 +510,16 @@ namespace Boo.Lang.Runtime
 	                }
 	            case MemberTypes.Property:
 	                {
-	                    GetSetMethod((PropertyInfo) member).Invoke(target, args);
+						PropertyInfo property = (PropertyInfo) member;
+						MethodInfo setter = property.GetSetMethod(true);
+						if (null != setter && setter.GetParameters().Length > 0)
+						{
+							setter.Invoke(target, args);
+						}
+						else
+						{
+							SetSlice(GetPropertyValue(target, property), "", args);
+						}
 	                    break;
 	                }
 	            default:
@@ -514,6 +531,16 @@ namespace Boo.Lang.Runtime
 	        // last argument is the value
 	        return args[args.Length-1];
 	    }
+		
+		private static object GetPropertyValue(object target, PropertyInfo property)
+		{
+			MethodInfo getter = property.GetGetMethod(true);
+			if (null == getter || getter.GetParameters().Length > 0)
+			{
+				MemberNotSupported(property);
+			}
+			return getter.Invoke(target, new object[0]);
+		}
 
 	    private static object SetArraySlice(object target, object[] args)
 	    {
