@@ -543,6 +543,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 						{
 							return UpCastScore;
 						}
+						return DowncastScore;
 					}
 				}
 				return ExactMatchScore;
