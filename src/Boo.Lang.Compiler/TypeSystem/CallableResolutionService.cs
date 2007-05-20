@@ -419,7 +419,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 				if (!ApplicableCandidate(candidate)) continue;
 
-				_candidates.AddUnique(candidate);
+				_candidates.Add(candidate);
 			}
 		}
 
