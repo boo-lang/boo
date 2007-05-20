@@ -1,6 +1,6 @@
 """
-int 42
 object foo
+int 42
 """
 
 def foo(c as callable(int) as object):

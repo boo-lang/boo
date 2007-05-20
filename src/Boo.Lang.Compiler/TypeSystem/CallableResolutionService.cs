@@ -532,23 +532,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 			CallableSignature siggyArg = argType.GetSignature();
 			// Ensuring that these callables have same number of arguments.
 			// def foo(a, b,c) == { a, b, c| print foobar }					
-			if (siggyType.Parameters.Length == siggyArg.Parameters.Length)
+			if (siggyType.Parameters.Length != siggyArg.Parameters.Length)
 			{
-				for (int i = 0; i < siggyType.Parameters.Length; i++)
-				{
-					if (siggyType.Parameters[i].Type != siggyArg.Parameters[i].Type)
-					{
-						// In the case that these parameters simply don't match								
-						if (!siggyType.Parameters[i].Type.IsAssignableFrom(siggyArg.Parameters[i].Type))
-						{
-							return UpCastScore;
-						}
-						return DowncastScore;
-					}
-				}
-				return ExactMatchScore;
+				return UpCastScore;
 			}
-			return ImplicitConversionScore;
+			for (int i = 0; i < siggyType.Parameters.Length; i++)
+			{
+				if (siggyType.Parameters[i].Type != siggyArg.Parameters[i].Type)
+				{
+					// In the case that these parameters simply don't match								
+					if (!siggyType.Parameters[i].Type.IsAssignableFrom(siggyArg.Parameters[i].Type))
+					{
+						return ImplicitConversionScore;
+					}
+					return UpCastScore;
+				}
+			}
+			return ExactMatchScore;
 		}
 	}
 }
