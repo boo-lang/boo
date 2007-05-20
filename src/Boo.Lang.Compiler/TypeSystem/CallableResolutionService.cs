@@ -374,10 +374,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			int result = 0;
 			for (int i = 0; i < _arguments.Count && i < c1.Parameters.Length; ++i)
 			{
-				if (c1.ArgumentScores[i] <= DowncastScore)
-				{
-					continue;
-				}
+				if (c1.ArgumentScores[i] <= DowncastScore) continue;
+
 				int better = MoreSpecific(c1.Parameters[i].Type, c2.Parameters[i].Type);
 				if (better == 0) continue;
 
@@ -431,56 +429,46 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_candidates.Clear();
 		}
 
-		public int CalculateVarArgsScore(IParameter[] parameters, NodeCollection args)
+		public bool IsValidVargsInvocation(IParameter[] parameters, NodeCollection args)
 		{
-			int lenMinusOne = parameters.Length - 1;
-			if (args.Count < lenMinusOne) return -1;
+			int lastIndex = parameters.Length - 1;
+			if (args.Count < lastIndex) return false;
 
-			IParameter lastParameter = parameters[lenMinusOne];
-			IType lastParameterType = lastParameter.Type;
-			if (!lastParameterType.IsArray) return -1;
+			IType lastParameterType = parameters[lastIndex].Type;
+			if (!lastParameterType.IsArray) return false;
 
-			int score = CalculateScore(parameters, args, lenMinusOne);
-			if (score < 0) return -1;
+			if (!IsValidInvocation(parameters, args, lastIndex)) return false;
 
 			if (args.Count > 0)
 			{
 				Node lastArg = args.GetNodeAt(-1);
 				if (AstUtil.IsExplodeExpression(lastArg))
 				{
-					int argumentScore = CalculateArgumentScore(lastParameter, lastParameterType, lastArg);
-					if (argumentScore < 0) return -1;
-					score += argumentScore;
-					// this is the one the user wants
-					return score;
+					return CalculateArgumentScore(parameters[lastIndex], lastParameterType, lastArg) > 0;
 				}
 				else
 				{
 					IType varArgType = lastParameterType.GetElementType();
-					for (int i = lenMinusOne; i < args.Count; ++i)
+					for (int i = lastIndex; i < args.Count; ++i)
 					{
-						int argumentScore = CalculateArgumentScore(lastParameter, varArgType, args.GetNodeAt(i));
-						if (argumentScore < 0) return -1;
-						score += argumentScore;
+						int argumentScore = CalculateArgumentScore(parameters[lastIndex], varArgType, args.GetNodeAt(i));
+						if (argumentScore < 0) return false;
 					}
 				}
 			}
-			// varargs should not be preferred over non varargs methods
-			return score - ((args.Count + 1) * 3);
+			return true;
 		}
 
-		private int CalculateScore(IParameter[] parameters, NodeCollection args, int count)
+		private bool IsValidInvocation(IParameter[] parameters, NodeCollection args, int count)
 		{
-			int score = 3;
 			for (int i = 0; i < count; ++i)
 			{
 				IParameter parameter = parameters[i];
 				IType parameterType = parameter.Type;
 				int argumentScore = CalculateArgumentScore(parameter, parameterType, args.GetNodeAt(i));
-				if (argumentScore < 0) return -1;
-				score += argumentScore;
+				if (argumentScore < 0) return false;
 			}
-			return score;
+			return true;
 		}
 
 		
@@ -499,53 +487,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				|| (TypeSystemServices.IsSystemObject(argumentType) && 
 					TypeSystemServices.IsSystemObject(parameterType)))
 			{
-				// exact match
 				return ExactMatchScore;
 			}
 			else if (parameterType.IsAssignableFrom(argumentType))
 			{				
-				// upcast
-				// parameterType == ICallableType, "ThreadStart"
-				// argumentType == ICallableType, "Anonymous Closure"
-				// RULES:
-				// Number of arguments for argumentType && parameterType == same
-				// Either: all arguments "IsAssignableFrom"
-				//			OR
-				//			all arguments == exactly (best case scenario)
-				// 7 -- "exact match" (best case)
-				// 6 -- "not exact match, but very close" (this is OK)
-				// 5 -- "assignable, but wrong number of parameters / whatever" (boo does the normal thing)
 				ICallableType callableType = parameterType as ICallableType;
 				ICallableType callableArg = argumentType as ICallableType;
 				if (callableType != null && callableArg != null)
 				{
-					CallableSignature siggyType = callableType.GetSignature();
-					CallableSignature siggyArg = callableArg.GetSignature();
-					// Ensuring that these callables have same number of arguments.
-					// def foo(a, b,c) == { a, b, c| print foobar }					
-					if (siggyType.Parameters.Length == siggyArg.Parameters.Length)
-					{
-						bool exactMatch = true;
-						bool closeEnough = true;
-						
-						for (int i = 0; i < siggyType.Parameters.Length; i++)
-						{
-							if (siggyType.Parameters[i] != siggyArg.Parameters[i])
-							{
-								exactMatch = false;
-								// In the case that these parameters simply don't match								
-								if (!siggyType.Parameters[i].Type.IsAssignableFrom(siggyArg.Parameters[i].Type))
-								{
-									closeEnough = false;
-									break;
-								}
-							}
-						}
-						if (closeEnough)
-						{
-							return exactMatch == true ? ExactMatchScore : UpCastScore;
-						}
-					}
+					return CalculateCallableScore(callableType, callableArg);
 				}
 				return UpCastScore;
 			}
@@ -559,10 +509,45 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			else if (TypeSystemServices.CanBeReachedByDowncast(parameterType, argumentType))
 			{
-				// downcast
 				return DowncastScore;
 			}
 			return -1;
+		}
+
+		private static int CalculateCallableScore(ICallableType parameterType, ICallableType argType)
+		{
+			// upcast
+			// parameterType == ICallableType, "ThreadStart"
+			// argumentType == ICallableType, "Anonymous Closure"
+			// RULES:
+			// Number of arguments for argumentType && parameterType == same
+			// Either: all arguments "IsAssignableFrom"
+			//			OR
+			//			all arguments == exactly (best case scenario)
+			// ExactMatch -- (best case)
+			// UpCast -- "not exact match, but very close" (this is OK)
+			// ImplicitConversion -- "assignable, but wrong number of parameters / whatever" (boo does the normal thing)
+			
+			CallableSignature siggyType = parameterType.GetSignature();
+			CallableSignature siggyArg = argType.GetSignature();
+			// Ensuring that these callables have same number of arguments.
+			// def foo(a, b,c) == { a, b, c| print foobar }					
+			if (siggyType.Parameters.Length == siggyArg.Parameters.Length)
+			{
+				for (int i = 0; i < siggyType.Parameters.Length; i++)
+				{
+					if (siggyType.Parameters[i].Type != siggyArg.Parameters[i].Type)
+					{
+						// In the case that these parameters simply don't match								
+						if (!siggyType.Parameters[i].Type.IsAssignableFrom(siggyArg.Parameters[i].Type))
+						{
+							return UpCastScore;
+						}
+					}
+				}
+				return ExactMatchScore;
+			}
+			return ImplicitConversionScore;
 		}
 	}
 }

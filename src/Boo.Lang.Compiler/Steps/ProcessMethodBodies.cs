@@ -4930,9 +4930,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool CheckVarArgsParameters(ICallableType method, ExpressionCollection args)
 		{
-			IParameter[] parameters = method.GetSignature().Parameters;
-			if (args.Count < parameters.Length-1) return false;
-			return _callableResolution.CalculateVarArgsScore(parameters, args) >= 0;
+			return _callableResolution.IsValidVargsInvocation(method.GetSignature().Parameters, args);
 		}
 
 		bool CheckExactArgsParameters(ICallableType method, ExpressionCollection args, bool reportErrors)
