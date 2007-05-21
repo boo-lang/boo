@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, 2007 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification,
@@ -79,43 +79,45 @@ namespace Boo.Lang.Runtime
 			set { _defaultTargetInvocationExceptionAction = value; }
 		}
 		
-		static TargetInvocationExceptionAction _defaultTargetInvocationExceptionAction = TargetInvocationExceptionAction.ThrowInner;
+		private static TargetInvocationExceptionAction _defaultTargetInvocationExceptionAction = TargetInvocationExceptionAction.ThrowInner;
 		
-		static readonly Type RuntimeServicesType = typeof(RuntimeServices);
+		private static readonly Type RuntimeServicesType = typeof(RuntimeServices);
+
+		internal const BindingFlags InstanceMemberFlags = BindingFlags.Public |
+		                                                 BindingFlags.NonPublic |
+		                                                 BindingFlags.Instance;
 		
-		const BindingFlags DefaultBindingFlags = BindingFlags.Public |
-												BindingFlags.NonPublic |
+		internal const BindingFlags DefaultBindingFlags = InstanceMemberFlags |
 												BindingFlags.OptionalParamBinding |
-												BindingFlags.Static |
-												BindingFlags.FlattenHierarchy |
-												BindingFlags.Instance;
-
-		const BindingFlags InvokeBindingFlags = DefaultBindingFlags |
-												BindingFlags.InvokeMethod;
-
-		const BindingFlags StaticMemberBindingFlags = BindingFlags.Public |
 												BindingFlags.Static |
 												BindingFlags.FlattenHierarchy;
 
-		const BindingFlags InvokeOperatorBindingFlags = StaticMemberBindingFlags |
+		private const BindingFlags InvokeBindingFlags = DefaultBindingFlags |
 												BindingFlags.InvokeMethod;
 
-		const BindingFlags SetPropertyBindingFlags = DefaultBindingFlags |
+		private const BindingFlags StaticMemberBindingFlags = BindingFlags.Public |
+												BindingFlags.Static |
+												BindingFlags.FlattenHierarchy;
+
+		private const BindingFlags InvokeOperatorBindingFlags = StaticMemberBindingFlags |
+												BindingFlags.InvokeMethod;
+
+		private const BindingFlags SetPropertyBindingFlags = DefaultBindingFlags |
 												BindingFlags.SetProperty |
 												BindingFlags.SetField;
 
-		const BindingFlags GetPropertyBindingFlags = DefaultBindingFlags |
+		private const BindingFlags GetPropertyBindingFlags = DefaultBindingFlags |
 												BindingFlags.GetProperty |
 												BindingFlags.GetField;
 
-		const BindingFlags InvokeExtensionBindingFlags = InvokeOperatorBindingFlags;
+		private const BindingFlags InvokeExtensionBindingFlags = InvokeOperatorBindingFlags;
 		
-		const BindingFlags GetPropertyExtensionBindingFlags = StaticMemberBindingFlags |
+		private const BindingFlags GetPropertyExtensionBindingFlags = StaticMemberBindingFlags |
 		                                                      BindingFlags.GetProperty |
 		                                                      BindingFlags.GetField;
 		
 		
-		static List _extensions = new List();
+		private static List _extensions = new List();
 		
 		public static void RegisterExtensions(System.Type extensionContainer)
 		{
@@ -176,13 +178,19 @@ namespace Boo.Lang.Runtime
 		
 		private static object InvokeMethod(object target, string name, object[] args)
 		{
-			return target.GetType().InvokeMember(name,
-												 InvokeBindingFlags,
-												 null,
-												 target,
-												 args);
+			Type targetType = target.GetType();
+			if (targetType.IsCOMObject)
+			{
+				// COM methods cant be seen through reflection
+				// so maybe the proper way to support parameter conversions
+				// is indeed by creating a specific Binder object
+				// which knows the boo conversion rules
+				return targetType.InvokeMember(name, InvokeBindingFlags, null, target, args);
+			}
+			MethodResolver resolver = new MethodResolver(targetType, name, args);
+			return resolver.InvokeResolvedMethod(target);
 		}
-		
+
 		private static object DoInvoke(object target, string name, object[] args)
 		{
 			Type type = target as Type;
@@ -337,15 +345,17 @@ namespace Boo.Lang.Runtime
 				}
 				catch (System.MissingMemberException)
 				{
+					object[] extensionArgs = new object[] { target };
 					foreach (Type extension in RegisteredExtensions)
 					{
 						try
 						{
+							
 							return extension.InvokeMember(name,
 												   GetPropertyExtensionBindingFlags,
 												   null,
 												   null,
-												   new object[] {target});
+												   extensionArgs);
 						}
 						catch (System.MissingMemberException)
 						{	
@@ -1965,7 +1975,7 @@ namespace Boo.Lang.Runtime
 			return type.CreateType().GetMethod("Invoke");
 		}
 
-		private static MethodInfo FindImplicitConversionOperator(Type from, Type to)
+		internal static MethodInfo FindImplicitConversionOperator(Type from, Type to)
 		{
 			const BindingFlags ConversionOperatorFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy;
 			MethodInfo[] methods = from.GetMethods(ConversionOperatorFlags);

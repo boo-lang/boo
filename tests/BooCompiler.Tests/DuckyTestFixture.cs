@@ -26,6 +26,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void duck_slice_1()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\duck-slice-1.boo");
+		}
+		
+		[Test]
 		public void ducky_1()
 		{
 			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\ducky-1.boo");
@@ -107,6 +113,24 @@ namespace BooCompiler.Tests
 		public void method_dispatch_2()
 		{
 			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\method-dispatch-2.boo");
+		}
+		
+		[Test]
+		public void method_dispatch_3()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\method-dispatch-3.boo");
+		}
+		
+		[Test]
+		public void method_dispatch_4()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\method-dispatch-4.boo");
+		}
+		
+		[Test]
+		public void method_dispatch_5()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\method-dispatch-5.boo");
 		}
 		
 	}

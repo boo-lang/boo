@@ -523,6 +523,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void overload_resolution_1()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\integration\callables\overload-resolution-1.boo");
+		}
+		
+		[Test]
 		public void params_1()
 		{
 			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\integration\callables\params-1.boo");

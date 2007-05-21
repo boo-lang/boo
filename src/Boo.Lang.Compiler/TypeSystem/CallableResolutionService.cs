@@ -242,8 +242,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// Figure out whether method should be varargs-expanded
 			bool expand =
 				candidate.Method.AcceptVarArgs &&
-				(_arguments.Count == 0 || (
-		_arguments.Count > 0 && 
+				(_arguments.Count == 0 || (_arguments.Count > 0 && 
 				!AstUtil.IsExplodeExpression(_arguments.GetNodeAt(-1))));
 
 			// Determine number of fixed (non-varargs) parameters
@@ -278,6 +277,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 
 			return true;
+		}
+
+		private int TotalScore(Candidate c1)
+		{
+			int total = 0;
+			foreach (int score in c1.ArgumentScores)
+			{
+				total += score;
+			}
+			return total;
 		}
 
 		private int BetterCandidate(Candidate c1, Candidate c2)
@@ -351,16 +360,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// As a last means of breaking this desparate tie, we select the
 			// "more specific" candidate, if one exists
 			return MoreSpecific(c1, c2);
-		}
-
-		private int TotalScore(Candidate c1)
-		{
-			int total = 0;
-			foreach (int score in c1.ArgumentScores)
-			{
-				total += score;
-			}
-			return total;
 		}
 
 		private int MoreSpecific(Candidate c1, Candidate c2)
