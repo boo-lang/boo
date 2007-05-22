@@ -159,7 +159,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	protected def ConsolePrintSuggestions():
 		cursorLeft = Console.CursorLeft
-		cursorTop = Console.CursorTop
+		#cursorTop = Console.CursorTop
 		Console.Write(Environment.NewLine)
 		
 		i = 0
@@ -167,8 +167,10 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		if _suggestions isa (string):
 			for l in _suggestions as (string):
 				Console.ForegroundColor = _suggestionsColor
-				if i > 0:				
-					Console.Write(", ")
+				Console.Write(", ") if i > 0
+				if i > 20: #TODO: maxcandidates pref + paging?
+					Console.Write("... (too much candidates)")
+					break
 				if i == _selectedSuggestionIndex:
 					Console.ForegroundColor = _selectedSuggestionColor			
 				Console.Write(l)
@@ -177,19 +179,21 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		elif _suggestions isa (IEntity):
 			for e in _suggestions as (IEntity):
 				Console.ForegroundColor = _suggestionsColor
-				if i > 0:				
-					Console.Write(", ")
+				Console.Write(", ") if i > 0
+				if i > 20: #TODO: maxcandidates pref + paging?
+					Console.Write("... (too much candidates)")
+					break
 				if i == _selectedSuggestionIndex:
 					Console.ForegroundColor = _selectedSuggestionColor			
 				Console.Write(DescribeEntity(e))
 				i++
 		
 		Console.ResetColor()
-		Console.CursorLeft = cursorLeft
-		Console.CursorTop = cursorTop
+		#Console.CursorTop = cursorTop
 		Console.Write(Environment.NewLine)
 		ConsolePrintPrompt()
 		Console.Write(_line.ToString())
+		Console.CursorLeft = cursorLeft
 
 
 	private static re_open = Regex("\\(", RegexOptions.Singleline)
@@ -288,7 +292,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				if keyChar == char('\t'):
 					test = char(' ')
 					test = _line.ToString()[_line.Length-1] if _line.Length > 0
-					if char.IsLetterOrDigit(test) or test == char('.'): 
+					if char.IsLetterOrDigit(test) or test == char('.'):
 						_selectedSuggestionIndex = 0
 						DisplaySuggestions(_line.ToString())					
 					else:
@@ -304,12 +308,13 @@ class InteractiveInterpreter2(AbstractInterpreter):
 						Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
 						Console.CursorLeft = cx2
 				if key == ConsoleKey.Delete:
-					if Console.CursorLeft >= len(CurrentPrompt) and _line.Length > 1:
-						cx = Console.CursorLeft-len(CurrentPrompt)-1
-						_line.Remove(cx+1, 1)
-						cx2 = --Console.CursorLeft
-						Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
-						Console.CursorLeft = cx2						
+					if Console.CursorLeft >= len(CurrentPrompt) and _line.Length > 0:
+						cx = Console.CursorLeft-len(CurrentPrompt)
+						if cx < _line.Length:
+							_line.Remove(cx, 1)
+							cx2 = Console.CursorLeft
+							Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
+							Console.CursorLeft = cx2
 				if key == ConsoleKey.LeftArrow:
 					if Console.CursorLeft > len(CurrentPrompt) and _line.Length > 0:
 						Console.CursorLeft--
@@ -345,7 +350,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 						else:
 							_selectedSuggestionIndex = 0
 						DisplaySuggestions(_line.ToString())
-					if newLine:					
+					if newLine:
 						AutoComplete()
 						continue
 				if not newLine:
@@ -381,7 +386,8 @@ class InteractiveInterpreter2(AbstractInterpreter):
 							_indent-- if line[len(line)-1] == keyChar and _indent > 0
 						else:
 							_indent--
-						if _indent == 0:							InternalLoopEval(_buffer.ToString())
+						if _indent == 0:
+							InternalLoopEval(_buffer.ToString())
 							_buffer.Length = 0
 					except x as System.Reflection.TargetInvocationException:
 						ConsolePrintException(x.InnerException)
@@ -518,7 +524,7 @@ The following builtin functions are available:
     /s[ave] file : writes your current booish session into file
     /g[lobals] : returns names of all variables known to interpreter
     /n[ames] : namespace navigation
-    /q[uit] : exits the interpreter
+    /q[uit] : exits the interpreter (escape key works too)
 
 Enter boo code in the prompt below."""
 		Console.ResetColor()
