@@ -53,7 +53,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	_showWarnings = false
 	
 	[property(BlockStarters, value is not null)]
-	_blockStarters = ":", "\\"
+	_blockStarters = (char(':'), char('\\'),)
 	
 	[getter(LastValue)]
 	_lastValue
@@ -64,22 +64,46 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	def constructor():
 		super()
 		InitializeStandardReferences()
+		LoadHistory()
 		
 	def constructor(parser as ICompilerStep):
 		super(parser)
 		InitializeStandardReferences()
+		LoadHistory()
 		
 	def Reset():
 		_values.Clear()
 		_declarations.Clear()
 		_lastValue = null
+		_indent = 0
 		InitializeStandardReferences()
 	
-	private _buffer = StringBuilder()
+
+	public final static HISTORY_FILENAME = "booish_history"
+	public final static HISTORY_CAPACITY = 100	
+	protected _history = System.Collections.Generic.Queue of string(HISTORY_CAPACITY)
+	protected _historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
+	protected _historyIndex = 0
+	protected _session = System.Collections.Generic.List of string()
+		
+	private _buffer = StringBuilder()	#buffer to be executed
+	private _line = StringBuilder()		#line being edited
+
+	
+	CurrentPrompt as string:
+		get:
+			if _indent > 0:
+				return BlockPrompt
+			return DefaultPrompt
 	
 	
-	# color for messages from the interpreter (not from user code)
-	[property(InterpreterColor)]
+	[property(DefaultPrompt)]
+	_defaultPrompt = ">>>"
+
+	[property(BlockPrompt)]
+	_blockPrompt = "..."
+
+	[property(InterpreterColor)] # messages from the interpreter (not from user code)
 	_interpreterColor = ConsoleColor.Gray
 	
 	[property(PromptColor)]
@@ -100,31 +124,38 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	[property(Suggestions)]
 	_suggestions as (object)
 	
-	_builtins as (IEntity)
-	
-	_filter as string
-	
 	CanAutoComplete as bool:
 		get:
 			return _selectedSuggestionIndex >= 0 and _suggestions is not null
 	
+	
+	private _builtins as (IEntity)
+	private _filter as string
+
+
 	private def ConsolePrintPrompt():
 		Console.ForegroundColor = _promptColor
-		if _indent == 0:
-			Console.Write(">>>")
-		else:
-			Console.Write("...")
-			#TODO: automatic indentation option ?
-			#for i in range(_indent):
-			#	_buffer.Append("\t")
-			#	Console.Write("\t")			
+		Console.Write(CurrentPrompt)
+		#TODO: automatic indentation option ?
+		#for i in range(_indent):
+		#	_line.Append("\t")
+		#	Console.Write("\t")
 		Console.ResetColor()
-	
+
+	private def ConsolePrintMessage(msg as string):
+		Console.ForegroundColor = _interpreterColor
+		print msg
+		Console.ResetColor()
+
 	private def ConsolePrintException(e as Exception):
 		Console.ForegroundColor = _exceptionColor
 		print e
 		Console.ResetColor()
 
+	private def ConsolePrintError(msg as string):
+		Console.ForegroundColor = _exceptionColor
+		print msg
+		Console.ResetColor()
 
 	protected def ConsolePrintSuggestions():
 		cursorLeft = Console.CursorLeft
@@ -158,7 +189,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		Console.CursorTop = cursorTop
 		Console.Write(Environment.NewLine)
 		ConsolePrintPrompt()
-		Console.Write(_buffer.ToString())
+		Console.Write(_line.ToString())
 
 
 	private static re_open = Regex("\\(", RegexOptions.Singleline)
@@ -192,7 +223,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		else:
 			ConsolePrintSuggestions()
 
-		
+	
 	def AutoComplete():
 		if not _suggestions:
 			raise InvalidOperationException("no suggestions")
@@ -202,35 +233,49 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			if s.EntityType == EntityType.Method:
 				m = s as IMethod		
 				completion = s.Name[len(_filter):]
-				Console.Write(completion)
-				_buffer.Append(completion)
+				Console.Write(completion) #FIXME: insert at cursor!
+				_line.Append(completion) 
 				if not m.GetParameters() or m.GetParameters().Length == 0:
-					Console.Write('()')
-					_buffer.Append('()')
+					Console.Write('()') #FIXME: insert at cursor!
+					_line.Append('()')
 				else:
-					Console.Write('(')
-					_buffer.Append('(')
+					Console.Write('(') #FIXME: insert at cursor!
+					_line.Append('(')
 			
 			else: # not a Method
 				completion = s.Name[len(_filter):]
-				Console.Write(completion)
-				_buffer.Append(completion)
+				Console.Write(completion) #FIXME: insert at cursor!
+				_line.Append(completion)
 		else:
 			completion = (_suggestions[_selectedSuggestionIndex] as string)[len(_filter):]
-			Console.Write(completion)
-			_buffer.Append(completion)			
+			Console.Write(completion) #FIXME: insert at cursor!
+			_line.Append(completion)
 			
 		_selectedSuggestionIndex = -1
 		_suggestions = null
 	
+	
+	private _beforeHistory = string.Empty
+	
+	def DisplayHistory():
+		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
+			return
+		Console.CursorLeft = len(CurrentPrompt)
+		Console.Write(string.Empty.PadLeft(_line.Length, char(' ')))
+		line = _history.ToArray()[_historyIndex]
+		_line.Length = 0
+		_line.Append(line)
+		Console.CursorLeft = len(CurrentPrompt)
+		Console.Write(line)
+		
 	
 	def ConsoleLoopEval():
 		Console.CursorVisible = true
 		ConsolePrintPrompt()
 		
 		lastChar = char('0')
-		key = ConsoleKey.LeftArrow		
-		while key != ConsoleKey.Escape:						
+		key = ConsoleKey.LeftArrow
+		while key != ConsoleKey.Escape and not _quit:						
 			cki = Console.ReadKey(true) #TODO: fix mono different behavior when ()
 			key = cki.Key
 			keyChar = cki.KeyChar
@@ -242,77 +287,148 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				control = true
 				if keyChar == char('\t'):
 					test = char(' ')
-					test = _buffer.ToString()[_buffer.Length-1] if _buffer.Length > 0
+					test = _line.ToString()[_line.Length-1] if _line.Length > 0
 					if char.IsLetterOrDigit(test) or test == char('.'): 
 						_selectedSuggestionIndex = 0
-						DisplaySuggestions(_buffer.ToString())					
+						DisplaySuggestions(_line.ToString())					
 					else:
-						_buffer.Append("\t")
-						Console.Write("\t")
+						_line.Append("    ") #TODO: _tabWidth pref
+						Console.Write("    ")
+						
+				#line-editing support
 				if key == ConsoleKey.Backspace:
-					if Console.CursorLeft > 3 and _buffer.Length > 0:
+					if Console.CursorLeft > len(CurrentPrompt) and _line.Length > 0:
+						cx = Console.CursorLeft-len(CurrentPrompt)-1
+						_line.Remove(cx, 1)
+						cx2 = --Console.CursorLeft
+						Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
+						Console.CursorLeft = cx2
+				if key == ConsoleKey.Delete:
+					if Console.CursorLeft >= len(CurrentPrompt) and _line.Length > 1:
+						cx = Console.CursorLeft-len(CurrentPrompt)-1
+						_line.Remove(cx+1, 1)
+						cx2 = --Console.CursorLeft
+						Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
+						Console.CursorLeft = cx2						
+				if key == ConsoleKey.LeftArrow:
+					if Console.CursorLeft > len(CurrentPrompt) and _line.Length > 0:
 						Console.CursorLeft--
-						Console.Write(" ")
-						Console.CursorLeft--
-						_buffer.Length--
-					#else:	#TODO: flash background?
-					#	Console.Beep()
+				if key == ConsoleKey.RightArrow:
+					if Console.CursorLeft < (len(CurrentPrompt)+_line.Length):
+						Console.CursorLeft++
+				if key == ConsoleKey.Home:
+					Console.CursorLeft = len(CurrentPrompt)
+				if key == ConsoleKey.End:
+					Console.CursorLeft = len(CurrentPrompt) + _line.Length
+
+				#history support
+				if key == ConsoleKey.UpArrow:
+					if _historyIndex > 0:
+						_historyIndex--
+						DisplayHistory()
+				if key == ConsoleKey.DownArrow:
+					if _historyIndex < _history.Count-1:
+						_historyIndex++
+						DisplayHistory()
+					
+				#auto-completion support
 				if CanAutoComplete:
 					if key == ConsoleKey.LeftArrow:
 						if _selectedSuggestionIndex > 0:
 							_selectedSuggestionIndex--
 						else:
 							_selectedSuggestionIndex = len(_suggestions)					 
-						DisplaySuggestions(_buffer.ToString())
+						DisplaySuggestions(_line.ToString())
 					if key == ConsoleKey.RightArrow:
 						if _selectedSuggestionIndex+1 < len(_suggestions):
 							_selectedSuggestionIndex++
 						else:
 							_selectedSuggestionIndex = 0
-						DisplaySuggestions(_buffer.ToString())
+						DisplaySuggestions(_line.ToString())
 					if newLine:					
 						AutoComplete()
 						continue
 				if not newLine:
 					continue
-					
+			
 			_selectedSuggestionIndex = -1
 			
-			_buffer.Append(keyChar) if not newLine and not control
-			Console.Write(keyChar) if not newLine
-			Console.Write(Environment.NewLine) if newLine
-			if newLine:
-				line = _buffer.ToString()
-				
-				#TODO: refactor this into runCommand(line)
-				if line == "/q":						
-					break				
-				if line == "/?":
-					DisplayHelp()
-					_selectedSuggestionIndex = -1
-					_buffer.Length = 0
-					ConsolePrintPrompt()
-					continue
-				
-				_buffer.Append(Environment.NewLine)
-				line = _buffer.ToString()
-				
-				try:
-					_indent++ if lastChar.ToString() in _blockStarters
-					_indent-- if lastChar == keyChar and _indent > 0
-					if _indent == 0:
-						_buffer.Length = 0
-						InternalLoopEval(line)
-				except x as System.Reflection.TargetInvocationException:
-					ConsolePrintException(x.InnerException)
-				except x:
-					ConsolePrintException(x)
-				ConsolePrintPrompt()
+			cx = Console.CursorLeft-len(CurrentPrompt)			
+			line = _line.ToString()
 			
-			lastChar = keyChar	
+			if not newLine:
+				if cx < len(line):	#line-editing support
+					_line.Insert(cx, keyChar) if not control
+					Console.Write(_line.ToString(cx, _line.Length-cx))
+					Console.CursorLeft = len(CurrentPrompt)+cx+1
+				else:
+					_line.Append(keyChar) if not control
+					Console.Write(keyChar)
+			
+			line = _line.ToString()
+			
+			if newLine:
+				Console.Write(Environment.NewLine)
+								
+				if not TryRunCommand(line):
+					_buffer.Append(line)
+					_buffer.Append(Environment.NewLine)
+					AddToHistory(line)
+					
+					try:
+						if len(line) > 0:
+							_indent++ if line[len(line)-1] in _blockStarters
+							_indent-- if line[len(line)-1] == keyChar and _indent > 0
+						else:
+							_indent--
+						if _indent == 0:							InternalLoopEval(_buffer.ToString())
+							_buffer.Length = 0
+					except x as System.Reflection.TargetInvocationException:
+						ConsolePrintException(x.InnerException)
+					except x:
+						ConsolePrintException(x)
+					
+					_line.Length = 0
+					ConsolePrintPrompt()
+			
+			lastChar = keyChar
 
+		SaveHistory()
 		DisplayGoodbye()
+
+
+	/* returns false if no command has been processed, true otherwise */
+	def TryRunCommand(line as string):
+		if not line.StartsWith("/"):
+			return false
 		
+		cmd = line.Split()
+		
+		if len(cmd) == 1:
+			if cmd[0] == "/q" or cmd[0] == "/quit":						
+				quit()
+			elif cmd[0] == "/?" or cmd[0] == "/h" or cmd[0] == "/help":
+				DisplayHelp()
+				_selectedSuggestionIndex = -1
+				_buffer.Length = 0
+				ConsolePrintPrompt()
+			elif cmd[0] == "/g" or cmd[0] == "/globals":
+				globals()
+			else:
+				return false
+			
+		elif len(cmd) == 2:
+			if cmd[0] == "/l" or cmd[0] == "/load":
+				load(cmd[1])
+			elif cmd[0] == "/s" or cmd[0] == "/save":
+				save(cmd[1])
+			else:
+				return false
+		
+		else:
+			return false
+		return true
+
 	
 	private _indent as int = 0
 		
@@ -329,6 +445,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			self.DisplayProblems(result.Warnings)
 		if not self.DisplayProblems(result.Errors):
 			ProcessLastValue()
+			_session.Add(code)
 		return result
 		
 	private def ProcessLastValue():
@@ -394,6 +511,7 @@ The following builtin functions are available:
     /d[ir] type : lists the members of a type
     /h[elp] type : prints detailed information about a type 
     /l[oad] file : evals an external boo file
+    /s[ave] file : writes your current booish session into file
     /g[lobals] : returns names of all variables known to interpreter
     /n[ames] : namespace navigation
     /q[uit] : exits the interpreter
@@ -410,17 +528,39 @@ Enter boo code in the prompt below."""
 		Console.ResetColor()
 
 
-	def globals():
-		return array(string, _values.Keys)
+	def LoadHistory():
+		try:
+			using history = File.OpenText(_historyFile):
+				while line = history.ReadLine():
+					AddToHistory(line)
+		except:
+			ConsolePrintError("Cannot load history from '${_historyFile}'")
+
+	def AddToHistory(line as string):
+		return if 0 == (len(line) - len(Environment.NewLine))
+		_history.Dequeue() if _history.Count >= HISTORY_CAPACITY
+		line = line.Replace(Environment.NewLine, "")
+		_history.Enqueue(line)
+		_historyIndex = _history.Count
 		
+	def SaveHistory():
+		try:
+			using sw = System.IO.File.CreateText(_historyFile):
+				for line in _history:
+					sw.WriteLine(line)
+		except:
+			ConsolePrintError("Cannot save history to '${_historyFile}'.")
+		
+
+	def globals():
+		return array(string, _values.Keys)		
 					
 	def dir([required] obj):
 		type = (obj as Type) or obj.GetType()
-		return array(
-				member for member in type.GetMembers()
-				unless (method=(member as System.Reflection.MethodInfo))
-				and method.IsSpecialName)
-				
+		return array(member for member in type.GetMembers()
+						unless (method=(member as System.Reflection.MethodInfo))
+							and method.IsSpecialName)
+	
 	def load([required] path as string):
 		if path.EndsWith(".boo"):
 			result = EvalCompilerInput(FileInput(path))
@@ -433,11 +573,29 @@ Enter boo code in the prompt below."""
 				References.Add(System.Reflection.Assembly.LoadFrom(path))
 			except e:				
 				print e.Message
-		
+	
+	def save([required] path as string):
+		if path is string.Empty:
+			path = "booish_session.boo"
+		elif not path.EndsWith(".boo"):
+			path = "${path}.boo"
+		try:
+			using sw = System.IO.File.CreateText(path):
+				for line in _session:
+					sw.Write(line)
+			ConsolePrintMessage("Session saved to '${path}'.")
+		except:
+			ConsolePrintError("Cannot save to '${path}'. Check if path is valid and has correct permissions.")			
+	
 	def help(obj):		
 		type = (obj as Type) or obj.GetType()
 		DescribeType("    ", type)
-		
+
+	private _quit = false	
+	def quit():
+		_quit = true
+
+	
 	def DescribeType(indent as string, type as Type):		
 		if type.IsInterface:
 			typeDef = "interface"
