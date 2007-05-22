@@ -78,6 +78,10 @@ class RuntimeServicesTestFixture:
 			except x as ApplicationException:
 				pass
 				
+			if Environment.Version >= Version(2, 0, 0, 0):
+				// under 2.0 boo does not use reflection
+				return
+				
 			RuntimeServices.DefaultTargetInvocationExceptionAction = RuntimeServices.TargetInvocationExceptionAction.Rethrow
 			try:
 				foo.bar()

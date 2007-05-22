@@ -187,20 +187,22 @@ namespace Boo.Lang.Runtime
 				// which knows the boo conversion rules
 				return targetType.InvokeMember(name, InvokeBindingFlags, null, target, args);
 			}
-			MethodResolver resolver = new MethodResolver(targetType, name, args);
-			return resolver.InvokeResolvedMethod(target);
+			return ResolveAndInvokeMethod(target, targetType, name, args);
+		}
+
+		private static object ResolveAndInvokeMethod(object target, Type targetType, string name, object[] args)
+		{
+			MethodResolver resolver = new MethodResolver(target, targetType, name, args);
+			return resolver.InvokeResolvedMethod();
 		}
 
 		private static object DoInvoke(object target, string name, object[] args)
 		{
 			Type type = target as Type;
 			if (null != type)
-			{	// static method
-				return type.InvokeMember(name,
-										InvokeBindingFlags,
-										null,
-										null,
-										args);
+			{	
+				// static method
+				return ResolveAndInvokeMethod(null, type, name, args);
 			}
 			
 			if (!HasRegisteredExtensions)
@@ -717,21 +719,16 @@ namespace Boo.Lang.Runtime
 
 				try
 				{
-					return lhsType.InvokeMember(operatorName,
-										InvokeOperatorBindingFlags,
-										null,
-										null,
-										args);
+					// TODO: first resolve the right method on either
+					// lhs and rhs
+					// and then cache the final information
+					return ResolveAndInvokeMethod(null, lhsType, operatorName, args);
 				}
 				catch (MissingMethodException)
 				{
 					try
 					{
-						return rhsType.InvokeMember(operatorName,
-										InvokeOperatorBindingFlags,
-										null,
-										null,
-										args);
+						return ResolveAndInvokeMethod(null, rhsType, operatorName, args);
 					}
 					catch (MissingMethodException)
 					{

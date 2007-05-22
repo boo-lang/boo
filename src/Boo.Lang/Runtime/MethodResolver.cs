@@ -28,6 +28,10 @@
 
 using System;
 using System.Reflection;
+#if NET_2_0
+using System.Collections.Generic;
+using System.Reflection.Emit;
+#endif
 
 namespace Boo.Lang.Runtime
 {
@@ -39,23 +43,147 @@ namespace Boo.Lang.Runtime
 		public const int PromotionScore = 4;
 		public const int DowncastScore = 3;
 
+		private object _target;
 		private Type _type;
 		private string _methodName;
 		private object[] _arguments;
 
-		public MethodResolver(Type type, string methodName, object[] arguments)
+#if NET_2_0
+		private delegate object MethodDispatcher(object target, object[] args);
+
+		private static Dictionary<MethodDispatcherKey, MethodDispatcher> _cache =
+			new Dictionary<MethodDispatcherKey, MethodDispatcher>(MethodDispatcherKey.EqualityComparer);
+#endif
+		public MethodResolver(object target, Type type, string methodName, object[] arguments)
 		{
+			_target = target;
 			_type = type;
 			_methodName = methodName;
 			_arguments = arguments;
 		}
 
-		public object InvokeResolvedMethod(object instance)
+		bool IsStaticMethodInvocation
 		{
-			Candidate found = ResolveMethod();
-			return found.Method.Invoke(instance, AdjustArguments(found));
+			get { return _target == null;  }
 		}
 
+		public object InvokeResolvedMethod()
+		{
+#if NET_2_0
+			MethodDispatcherKey key = new MethodDispatcherKey(_type, _methodName, GetArgumentTypes());
+			MethodDispatcher dispatcher;
+			if (!_cache.TryGetValue(key, out dispatcher))
+			{
+				Candidate found = ResolveMethod();
+				dispatcher = EmitMethodDispatcher(found);
+				_cache.Add(key, dispatcher);
+			}
+			return dispatcher(_target, _arguments);
+#else
+			Candidate found = ResolveMethod();
+			return found.Method.Invoke(_target, AdjustArguments(found));
+#endif
+		}
+
+#if NET_2_0
+		private static Type[] NoArguments = new Type[0];
+
+		private Type[] GetArgumentTypes()
+		{
+			if (_arguments.Length == 0) return NoArguments;
+
+			Type[] types = new Type[_arguments.Length];
+			for (int i=0; i<types.Length; ++i)
+			{
+				types[i] = GetArgumentType(i);
+			}
+			return types;
+		}
+
+		private MethodDispatcher EmitMethodDispatcher(Candidate found)
+		{
+			DynamicMethod method = new DynamicMethod(string.Empty, typeof(object), new Type[] { typeof(object), typeof(object[])}, _type);
+			ILGenerator il = method.GetILGenerator();
+			EmitLoadTargetObject(il);
+			EmitMethodArguments(found, il);
+			EmitMethodCall(found, il);
+			EmitMethodReturn(found, il);
+			return (MethodDispatcher)method.CreateDelegate(typeof(MethodDispatcher));
+		}
+
+		private void EmitMethodCall(Candidate found, ILGenerator il)
+		{
+			il.Emit(IsStaticMethodInvocation ? OpCodes.Call : OpCodes.Callvirt, found.Method);
+		}
+
+		private void EmitMethodArguments(Candidate found, ILGenerator il)
+		{
+			for (int i = 0; i < _arguments.Length; ++i)
+			{
+				il.Emit(OpCodes.Ldarg_1);
+				il.Emit(OpCodes.Ldc_I4, i);
+				il.Emit(OpCodes.Ldelem_Ref);
+
+				Type paramType = found.GetParameterType(i);
+				switch (found.ArgumentScores[i])
+				{
+					case PromotionScore:
+						il.Emit(OpCodes.Castclass, typeof(IConvertible));
+						il.Emit(OpCodes.Ldnull);
+						il.Emit(OpCodes.Callvirt, GetPromotionMethod(paramType));
+						break;
+					case ImplicitConversionScore:
+						EmitCastOrUnbox(il, GetArgumentType(i));
+						il.Emit(OpCodes.Call, found.GetArgumentConversion(i));
+						break;
+					default:
+						EmitCastOrUnbox(il, paramType);
+						break;
+				}
+			}
+		}
+
+		private void EmitLoadTargetObject(ILGenerator il)
+		{
+			if (IsStaticMethodInvocation) return;
+			il.Emit(OpCodes.Ldarg_0); // target object is the first argument
+		}
+
+		private static void EmitMethodReturn(Candidate found, ILGenerator il)
+		{
+			Type returnType = found.Method.ReturnType;
+			if (returnType == typeof(void))
+			{
+				il.Emit(OpCodes.Ldnull);
+			}
+			else
+			{
+				if (returnType.IsValueType)
+				{
+					il.Emit(OpCodes.Box, returnType);
+				}
+			}
+			il.Emit(OpCodes.Ret);
+		}
+
+		private static void EmitCastOrUnbox(ILGenerator il, Type type)
+		{
+			if (type.IsValueType)
+			{
+				il.Emit(OpCodes.Unbox, type);
+				il.Emit(OpCodes.Ldobj, type);
+			}
+			else
+			{
+				il.Emit(OpCodes.Castclass, type);
+			}
+		}
+
+		private MethodInfo GetPromotionMethod(Type type)
+		{
+			return typeof(IConvertible).GetMethod("To" + Type.GetTypeCode(type));
+		}
+#else
 		private object[] AdjustArguments(Candidate candidate)
 		{
 			for (int i = 0; i < _arguments.Length; ++i)
@@ -76,6 +204,7 @@ namespace Boo.Lang.Runtime
 			}
 			return argument;
 		}
+
 
 		private object PromoteNumericArgument(Type type, object argument)
 		{
@@ -98,7 +227,7 @@ namespace Boo.Lang.Runtime
 			}
 			throw new ArgumentException();
 		}
-
+#endif
 		private Candidate ResolveMethod()
 		{
 			List applicable = FindApplicableMethods();
@@ -255,5 +384,43 @@ namespace Boo.Lang.Runtime
 				return _argumentConversions[argumentIndex];
 			}
 		}
+
+#if NET_2_0
+		class MethodDispatcherKey
+		{
+			public static readonly IEqualityComparer<MethodDispatcherKey> EqualityComparer = new _EqualityComparer();
+
+			private Type _type;
+			private string _methodName;
+			private Type[] _arguments;
+
+			public MethodDispatcherKey(Type type, string methodName, Type[] arguments)
+			{
+				_type = type;
+				_methodName = methodName;
+				_arguments = arguments;
+			}
+
+			class _EqualityComparer : IEqualityComparer<MethodDispatcherKey>
+			{
+				public int GetHashCode(MethodDispatcherKey key)
+				{
+					return key._type.GetHashCode() ^ key._methodName.GetHashCode() ^ key._arguments.Length;
+				}
+
+				public bool Equals(MethodDispatcherKey x, MethodDispatcherKey y)
+				{
+					if (x._type != y._type) return false;
+					if (x._methodName != y._methodName) return false;
+					if (x._arguments.Length != y._arguments.Length) return false;
+					for (int i = 0; i < x._arguments.Length; ++i)
+					{
+						if (x._arguments[i] != y._arguments[i]) return false;
+					}
+					return true;
+				}
+			}
+		}
+#endif
 	}
 }
