@@ -524,7 +524,7 @@ The following builtin functions are available:
     /s[ave] file : writes your current booish session into file
     /g[lobals] : returns names of all variables known to interpreter
     /n[ames] : namespace navigation
-    /q[uit] : exits the interpreter (escape key works too)
+    /q[uit] : exits the interpreter (or just press the damn escape key!)
 
 Enter boo code in the prompt below."""
 		Console.ResetColor()
