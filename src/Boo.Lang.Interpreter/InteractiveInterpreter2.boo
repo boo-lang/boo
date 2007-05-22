@@ -420,8 +420,12 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		elif len(cmd) == 2:
 			if cmd[0] == "/l" or cmd[0] == "/load":
 				load(cmd[1])
+				_line.Length = 0
+				ConsolePrintPrompt()
 			elif cmd[0] == "/s" or cmd[0] == "/save":
 				save(cmd[1])
+				_line.Length = 0
+				ConsolePrintPrompt()
 			else:
 				return false
 		
@@ -567,7 +571,7 @@ Enter boo code in the prompt below."""
 			if ShowWarnings:
 				DisplayProblems(result.Warnings)
 			if not DisplayProblems(result.Errors):
-				ProcessLastValue()			
+				ProcessLastValue()
 		else:
 			try:
 				References.Add(System.Reflection.Assembly.LoadFrom(path))
@@ -584,12 +588,8 @@ Enter boo code in the prompt below."""
 				for line in _session:
 					sw.Write(line)
 			ConsolePrintMessage("Session saved to '${path}'.")
-			_line.Length = 0
-			ConsolePrintPrompt()
 		except:
 			ConsolePrintError("Cannot save to '${path}'. Check if path is valid and has correct permissions.")
-			_line.Length = 0
-			ConsolePrintPrompt()
 	
 	def help(obj):		
 		type = (obj as Type) or obj.GetType()
