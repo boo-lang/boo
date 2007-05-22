@@ -533,8 +533,7 @@ Enter boo code in the prompt below."""
 	def DisplayGoodbye():	// booish is friendly
 		Console.ForegroundColor = _interpreterColor
 		print ""
-		print "Have a nice day!" if date.Now.Hour < 16
-		print "Have a nice evening!" if date.Now.Hour >= 16
+		print "All your boo are belong to us!"
 		Console.ResetColor()
 
 
