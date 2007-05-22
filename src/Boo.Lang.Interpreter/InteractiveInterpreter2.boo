@@ -584,8 +584,12 @@ Enter boo code in the prompt below."""
 				for line in _session:
 					sw.Write(line)
 			ConsolePrintMessage("Session saved to '${path}'.")
+			_line.Length = 0
+			ConsolePrintPrompt()
 		except:
-			ConsolePrintError("Cannot save to '${path}'. Check if path is valid and has correct permissions.")			
+			ConsolePrintError("Cannot save to '${path}'. Check if path is valid and has correct permissions.")
+			_line.Length = 0
+			ConsolePrintPrompt()
 	
 	def help(obj):		
 		type = (obj as Type) or obj.GetType()
