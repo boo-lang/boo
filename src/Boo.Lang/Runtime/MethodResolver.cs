@@ -118,28 +118,89 @@ namespace Boo.Lang.Runtime
 
 		private void EmitMethodArguments(Candidate found, ILGenerator il)
 		{
-			for (int i = 0; i < _arguments.Length; ++i)
+			for (int i = 0; i < found.MinimumArgumentCount; ++i)
 			{
-				il.Emit(OpCodes.Ldarg_1);
-				il.Emit(OpCodes.Ldc_I4, i);
-				il.Emit(OpCodes.Ldelem_Ref);
-
 				Type paramType = found.GetParameterType(i);
-				switch (found.ArgumentScores[i])
+
+				EmitMethodArgument(found, il, i, paramType);
+			}
+			if (found.VarArgs)
+			{
+				int varArgCount = _arguments.Length - found.MinimumArgumentCount;
+				Type varArgType = found.VarArgsParameterType;
+				OpCode storeOpCode = GetStoreElementOpCode(varArgType);
+				il.Emit(OpCodes.Ldc_I4, varArgCount);
+				il.Emit(OpCodes.Newarr, varArgType);
+				for (int i=0; i<varArgCount; ++i)
 				{
-					case PromotionScore:
-						il.Emit(OpCodes.Castclass, typeof(IConvertible));
-						il.Emit(OpCodes.Ldnull);
-						il.Emit(OpCodes.Callvirt, GetPromotionMethod(paramType));
-						break;
-					case ImplicitConversionScore:
-						EmitCastOrUnbox(il, GetArgumentType(i));
-						il.Emit(OpCodes.Call, found.GetArgumentConversion(i));
-						break;
-					default:
-						EmitCastOrUnbox(il, paramType);
-						break;
+					il.Emit(OpCodes.Dup);
+					il.Emit(OpCodes.Ldc_I4, i);
+					if (IsStobj(storeOpCode)) 
+					{
+						il.Emit(OpCodes.Ldelema, varArgType);
+						EmitMethodArgument(found, il, found.MinimumArgumentCount + i, varArgType);
+						il.Emit(storeOpCode, varArgType);
+					}
+					else
+					{
+						EmitMethodArgument(found, il, found.MinimumArgumentCount + i, varArgType);
+						il.Emit(storeOpCode);
+					}
 				}
+			}
+		}
+		
+		bool IsStobj(OpCode code)
+		{
+			return OpCodes.Stobj.Value == code.Value;
+		}
+
+		OpCode GetStoreElementOpCode(Type type)
+		{
+			if (type.IsValueType)
+			{
+				if (type.IsEnum) return OpCodes.Stelem_I4;
+
+				switch (Type.GetTypeCode(type))
+				{
+					case TypeCode.Byte:
+						return OpCodes.Stelem_I1;
+					case TypeCode.Int16:
+						return OpCodes.Stelem_I2;
+					case TypeCode.Int32:
+						return OpCodes.Stelem_I4;
+					case TypeCode.Int64:
+						return OpCodes.Stelem_I8;
+					case TypeCode.Single:
+						return OpCodes.Stelem_R4;
+					case TypeCode.Double:
+						return OpCodes.Stelem_R8;
+				}
+				return OpCodes.Stobj;
+			}
+			return OpCodes.Stelem_Ref;
+		}
+
+		private void EmitMethodArgument(Candidate found, ILGenerator il, int argumentIndex, Type paramType)
+		{
+			il.Emit(OpCodes.Ldarg_1);
+			il.Emit(OpCodes.Ldc_I4, argumentIndex);
+			il.Emit(OpCodes.Ldelem_Ref);
+
+			switch (found.ArgumentScores[argumentIndex])
+			{
+				case PromotionScore:
+					il.Emit(OpCodes.Castclass, typeof(IConvertible));
+					il.Emit(OpCodes.Ldnull);
+					il.Emit(OpCodes.Callvirt, GetPromotionMethod(paramType));
+					break;
+				case ImplicitConversionScore:
+					EmitCastOrUnbox(il, GetArgumentType(argumentIndex));
+					il.Emit(OpCodes.Call, found.GetArgumentConversion(argumentIndex));
+					break;
+				default:
+					EmitCastOrUnbox(il, paramType);
+					break;
 			}
 		}
 
@@ -259,7 +320,11 @@ namespace Boo.Lang.Runtime
 
 		private int BetterCandidate(Candidate c1, Candidate c2)
 		{
-			return Math.Sign(TotalScore(c1) - TotalScore(c2));
+			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
+			if (result != 0) return result;
+			
+			if (c1.VarArgs) return c2.VarArgs ? 0 : -1;
+			return c2.VarArgs ? 1 : 0;
 		}
 
 		private List FindApplicableMethods()
@@ -278,40 +343,81 @@ namespace Boo.Lang.Runtime
 		private Candidate IsApplicableMethod(MethodInfo method)
 		{
 			ParameterInfo[] parameters = method.GetParameters();
-			if (parameters.Length != _arguments.Length) return null;
+			bool varargs = IsVarArgs(parameters);
+			if (!ValidArgumentCount(parameters, varargs)) return null;
 
-			Candidate candidate = new Candidate(method, _arguments.Length);
+			Candidate candidate = new Candidate(method, _arguments.Length, varargs);
 			if (CalculateCandidateScore(candidate)) return candidate;
 
 			return null;
 		}
 
+		private bool ValidArgumentCount(ParameterInfo[] parameters, bool varargs)
+		{
+			if (varargs)
+			{
+				int minArgumentCount = parameters.Length - 1;
+				return _arguments.Length >= minArgumentCount;
+			}
+			return _arguments.Length == parameters.Length;
+		}
+
+		private bool IsVarArgs(ParameterInfo[] parameters)
+		{
+			if (parameters.Length == 0) return false;
+			return HasParamArrayAttribute(parameters[parameters.Length - 1]);
+		}
+
+		private bool HasParamArrayAttribute(ParameterInfo info)
+		{
+			return info.IsDefined(typeof(ParamArrayAttribute), true);
+		}
+
 		private bool CalculateCandidateScore(Candidate candidate)
 		{
-			ParameterInfo[] parameters = candidate.Method.GetParameters();
-			for (int i=0; i<parameters.Length; ++i)
+			ParameterInfo[] parameters = candidate.Parameters;
+			for (int i=0; i<candidate.MinimumArgumentCount; ++i)
 			{
-				int score = CalculateArgumentScore(candidate, i, parameters[i], GetArgumentType(i));
-				if (score < 0) return false;
+				if (parameters[i].IsOut) return false;
 
-				candidate.ArgumentScores[i] = score;
+				if (!CalculateCandidateArgumentScore(candidate, i, parameters[i].ParameterType))
+				{
+					return false;
+				}
+			}
+
+			if (candidate.VarArgs)
+			{
+				Type varArgItemType = candidate.VarArgsParameterType;
+				for (int i = candidate.MinimumArgumentCount; i < _arguments.Length; ++i)
+				{
+					if (!CalculateCandidateArgumentScore(candidate, i, varArgItemType))
+					{
+						return false;
+					}
+				}
 			}
 			return true;
 		}
 
-		private int CalculateArgumentScore(Candidate candidate, int argumentIndex, ParameterInfo parameter, Type argType)
+		private bool CalculateCandidateArgumentScore(Candidate candidate, int argumentIndex, Type paramType)
 		{
-			if (parameter.IsOut) return -1;
+			int score = CalculateArgumentScore(candidate, argumentIndex, paramType, GetArgumentType(argumentIndex));
+			if (score < 0) return false;
 
+			candidate.ArgumentScores[argumentIndex] = score;
+			return true;
+		}
+
+		private int CalculateArgumentScore(Candidate candidate, int argumentIndex, Type paramType, Type argType)
+		{
 			if (null == argType)
-			{
-				if (parameter.ParameterType.IsValueType) return -1;
+			{	
+				if (paramType.IsValueType) return -1;
 				return ExactMatchScore;
 			}
 			else
 			{
-				Type paramType = parameter.ParameterType;
-
 				if (paramType == argType) return ExactMatchScore;
 
 				if (paramType.IsAssignableFrom(argType)) return UpCastScore;
@@ -348,11 +454,13 @@ namespace Boo.Lang.Runtime
 			private MethodInfo _method;
 			private int[] _argumentScores;
 			private MethodInfo[] _argumentConversions;
+			private bool _varArgs;
 
-			public Candidate(MethodInfo method, int argumentCount)
+			public Candidate(MethodInfo method, int argumentCount, bool varArgs)
 			{
 				_method = method;
 				_argumentScores = new int[argumentCount];
+				_varArgs = varArgs;
 			}
 
 			public MethodInfo Method
@@ -365,9 +473,32 @@ namespace Boo.Lang.Runtime
 				get { return _argumentScores;  }
 			}
 
+			public bool VarArgs
+			{
+				get { return _varArgs;  }
+			}
+
+			public int MinimumArgumentCount
+			{
+				get
+				{
+					return _varArgs ? Parameters.Length - 1 : Parameters.Length;
+				}
+			}
+
+			public ParameterInfo[] Parameters
+			{
+				get { return _method.GetParameters();  }
+			}
+
+			public Type VarArgsParameterType
+			{
+				get { return GetParameterType(Parameters.Length-1).GetElementType(); }
+			}
+
 			public Type GetParameterType(int i)
 			{
-				return _method.GetParameters()[i].ParameterType;
+				return Parameters[i].ParameterType;
 			}
 
 			public void RememberArgumentConversion(int argumentIndex, MethodInfo conversion)

@@ -139,5 +139,23 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\method-dispatch-6.boo");
 		}
 		
+		[Test]
+		public void method_dispatch_7()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\method-dispatch-7.boo");
+		}
+		
+		[Test]
+		public void method_dispatch_8()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\method-dispatch-8.boo");
+		}
+		
+		[Test]
+		public void method_dispatch_9()
+		{
+			RunCompilerTestCase(@"c:\projects\boo\tests\testcases\ducky\method-dispatch-9.boo");
+		}
+		
 	}
 }
