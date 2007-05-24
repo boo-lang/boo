@@ -118,34 +118,45 @@ namespace Boo.Lang.Runtime
 
 		private void EmitMethodArguments(Candidate found, ILGenerator il)
 		{
+			EmitFixedMethodArguments(found, il);
+
+			if (found.VarArgs)
+			{
+				EmitVarArgsMethodArguments(found, il);
+			}
+		}
+
+		private void EmitFixedMethodArguments(Candidate found, ILGenerator il)
+		{
 			for (int i = 0; i < found.MinimumArgumentCount; ++i)
 			{
 				Type paramType = found.GetParameterType(i);
 
 				EmitMethodArgument(found, il, i, paramType);
 			}
-			if (found.VarArgs)
+		}
+
+		private void EmitVarArgsMethodArguments(Candidate found, ILGenerator il)
+		{
+			int varArgCount = _arguments.Length - found.MinimumArgumentCount;
+			Type varArgType = found.VarArgsParameterType;
+			OpCode storeOpCode = GetStoreElementOpCode(varArgType);
+			il.Emit(OpCodes.Ldc_I4, varArgCount);
+			il.Emit(OpCodes.Newarr, varArgType);
+			for (int i = 0; i < varArgCount; ++i)
 			{
-				int varArgCount = _arguments.Length - found.MinimumArgumentCount;
-				Type varArgType = found.VarArgsParameterType;
-				OpCode storeOpCode = GetStoreElementOpCode(varArgType);
-				il.Emit(OpCodes.Ldc_I4, varArgCount);
-				il.Emit(OpCodes.Newarr, varArgType);
-				for (int i=0; i<varArgCount; ++i)
+				il.Emit(OpCodes.Dup);
+				il.Emit(OpCodes.Ldc_I4, i);
+				if (IsStobj(storeOpCode))
 				{
-					il.Emit(OpCodes.Dup);
-					il.Emit(OpCodes.Ldc_I4, i);
-					if (IsStobj(storeOpCode)) 
-					{
-						il.Emit(OpCodes.Ldelema, varArgType);
-						EmitMethodArgument(found, il, found.MinimumArgumentCount + i, varArgType);
-						il.Emit(storeOpCode, varArgType);
-					}
-					else
-					{
-						EmitMethodArgument(found, il, found.MinimumArgumentCount + i, varArgType);
-						il.Emit(storeOpCode);
-					}
+					il.Emit(OpCodes.Ldelema, varArgType);
+					EmitMethodArgument(found, il, found.MinimumArgumentCount + i, varArgType);
+					il.Emit(storeOpCode, varArgType);
+				}
+				else
+				{
+					EmitMethodArgument(found, il, found.MinimumArgumentCount + i, varArgType);
+					il.Emit(storeOpCode);
 				}
 			}
 		}
