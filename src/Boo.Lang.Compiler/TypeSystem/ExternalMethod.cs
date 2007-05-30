@@ -223,11 +223,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (null == _type)
-				{
-					_type = _typeSystemServices.GetCallableType(this);
-				}
-				return _type;
+				if (null != _type) return _type;
+
+                return _type = _typeSystemServices.GetCallableType(this);
 			}
 		}
 		
@@ -241,11 +239,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual IParameter[] GetParameters()
 		{
-			if (null == _parameters)
-			{
-				_parameters = _typeSystemServices.Map(_mi.GetParameters());
-			}
-			return _parameters;
+            if (null != _parameters) return _parameters;
+            return _parameters = _typeSystemServices.Map(_mi.GetParameters());
 		}
 		
 		public virtual IType ReturnType
@@ -263,19 +258,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public MethodBase MethodInfo
 		{
-			get
-			{
-				return _mi;
-			}
+			get { return _mi; }
 		}
 		
 		override public bool Equals(object other)
 		{
 			ExternalMethod rhs = other as ExternalMethod;
-			if (null == rhs)
-			{
-				return false;
-			}
+			if (null == rhs) return false;
 			return _mi.MethodHandle.Value == rhs._mi.MethodHandle.Value;
 		}
 		

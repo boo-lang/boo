@@ -63,11 +63,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (null == _fullName)
-				{
-					_fullName = BuildFullName();
-				}
-				return _fullName;
+                if (null != _fullName) return _fullName;
+                return _fullName = BuildFullName();
 			}
 		}
 		

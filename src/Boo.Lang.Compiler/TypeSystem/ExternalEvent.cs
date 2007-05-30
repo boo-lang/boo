@@ -32,7 +32,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		protected TypeSystemServices _typeSystemServices;
 		
-		System.Reflection.EventInfo _event;
+		private System.Reflection.EventInfo _event;
+
+	    private IMethod _add;
+
+	    private IMethod _remove;
 		
 		public ExternalEvent(TypeSystemServices tagManager, System.Reflection.EventInfo event_)
 		{
@@ -42,41 +46,44 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual IType DeclaringType
 		{
-			get
-			{
-				return _typeSystemServices.Map(_event.DeclaringType);
-			}
+			get { return _typeSystemServices.Map(_event.DeclaringType); }
 		}
 		
 		public virtual IMethod GetAddMethod()
 		{
-			return (IMethod)_typeSystemServices.Map(_event.GetAddMethod(true));
+            if (null != _add) return _add;
+			return _add = FindAddMethod();
 		}
-		
-		public virtual IMethod GetRemoveMethod()
+
+	    private IMethod FindAddMethod()
+	    {
+	        return _typeSystemServices.Map(_event.GetAddMethod(true));
+	    }
+
+	    public virtual IMethod GetRemoveMethod()
 		{
-			return (IMethod)_typeSystemServices.Map(_event.GetRemoveMethod(true));
+            if (null != _remove) return _remove;
+			return _remove = FindRemoveMethod();
 		}
-		
-		public virtual IMethod GetRaiseMethod()
+
+	    private IMethod FindRemoveMethod()
+	    {
+	        return _typeSystemServices.Map(_event.GetRemoveMethod(true));
+	    }
+
+	    public virtual IMethod GetRaiseMethod()
 		{
-			return (IMethod)_typeSystemServices.Map(_event.GetRaiseMethod(true));
+			return _typeSystemServices.Map(_event.GetRaiseMethod(true));
 		}
 		
 		public System.Reflection.EventInfo EventInfo
 		{
-			get
-			{
-				return _event;
-			}
+			get { return _event; }
 		}
 		
 		public bool IsPublic
 		{
-			get
-			{
-				return _event.GetAddMethod(true).IsPublic;
-			}
+			get { return GetAddMethod().IsPublic; }
 		}
 		
 		public string Name
@@ -115,7 +122,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _event.GetAddMethod(true).IsStatic;
+				return GetAddMethod().IsStatic;
 			}
 		}
 
@@ -123,7 +130,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _event.GetAddMethod(true).IsAbstract;
+				return GetAddMethod().IsAbstract;
 				
 			}
 		}
@@ -132,7 +139,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _event.GetAddMethod(true).IsVirtual;
+				return GetAddMethod().IsVirtual;
 			}
 		}
 		

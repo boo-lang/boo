@@ -32,13 +32,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		protected TypeSystemServices _typeSystemServices;
 		
-		System.Reflection.PropertyInfo _property;
+		private System.Reflection.PropertyInfo _property;
 		
-		IParameter[] _parameters;
+		private IParameter[] _parameters;
 
-		int _isDuckTyped = -1;
+		private int _isDuckTyped = -1;
 		
-		int _isExtension = -1;
+		private int _isExtension = -1;
+
+	    private System.Reflection.MethodInfo _accessor = null;
+
+	    private IMethod _getter = null;
 		
 		public ExternalProperty(TypeSystemServices tagManager, System.Reflection.PropertyInfo property)
 		{
@@ -94,12 +98,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
-				if (null != setter)
-				{
-					return setter.IsPublic;
-				}
-				return false;
+			    return GetAccessor().IsPublic;
 			}
 		}
 		
@@ -107,12 +106,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
-				if (null != setter)
-				{
-					return setter.IsFamily || setter.IsFamilyOrAssembly;
-				}
-				return false;
+			    System.Reflection.MethodInfo accessor = GetAccessor();
+                return accessor.IsFamily || accessor.IsFamilyOrAssembly;
 			}
 		}
 		
@@ -120,12 +115,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
-				if (null != setter)
-				{
-					return setter.IsAssembly;
-				}
-				return false;
+			    return GetAccessor().IsAssembly;
 			}
 		}
 		
@@ -133,12 +123,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
-				if (null != setter)
-				{
-					return setter.IsPrivate;
-				}
-				return false;
+			    return GetAccessor().IsPrivate;
 			}
 		}
 		
@@ -192,31 +177,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual IParameter[] GetParameters()
 		{
-			if (null == _parameters)
-			{
-				_parameters = _typeSystemServices.Map(_property.GetIndexParameters());
-			}
-			return _parameters;
+            if (null != _parameters) return _parameters;
+
+            return _parameters = _typeSystemServices.Map(_property.GetIndexParameters());
 		}
 		
 		public virtual IMethod GetGetMethod()
 		{
-			System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
-			if (null != getter)
-			{
-				return _typeSystemServices.Map(getter);
-			}
-			return null;
+            if (null != _getter) return _getter;
+		    return _getter = FindGetMethod();
 		}
-		
-		public virtual IMethod GetSetMethod()
+
+	    private IMethod FindGetMethod()
+	    {
+	        System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
+	        if (null == getter) return null;
+	        return _typeSystemServices.Map(getter);
+	    }
+
+	    public virtual IMethod GetSetMethod()
 		{
 			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
-			if (null != setter)
-			{
-				return _typeSystemServices.Map(setter);
-			}
-			return null;
+			if (null == setter) return null;
+            return _typeSystemServices.Map(setter);
 		}
 		
 		override public string ToString()
@@ -224,14 +207,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _property.ToString();
 		}
 		
-		System.Reflection.MethodInfo GetAccessor()
+		private System.Reflection.MethodInfo GetAccessor()
 		{
-			System.Reflection.MethodInfo mi = _property.GetGetMethod(true);
-			if (null != mi)
-			{
-				return mi;
-			}
-			return _property.GetSetMethod(true);
+            if (null != _accessor) return _accessor;
+
+            return _accessor = FindAccessor();
 		}
+
+	    private System.Reflection.MethodInfo FindAccessor()
+	    {
+	        System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
+	        if (null != getter) return getter;
+	        return _property.GetSetMethod(true);
+	    }
 	}
 }
