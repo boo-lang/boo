@@ -10,7 +10,7 @@
     <RootNamespace>Boo.Lang</RootNamespace>
     <AssemblyName>Boo.Lang</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>boo.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>../boo.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>

@@ -2549,10 +2549,11 @@ namespace Boo.Lang.Compiler.Steps
 					return ResolveAmbiguousTypeReference(node, candidates);
 				}
 			}
-			return candidates;
+
+            return ResolveAmbiguousReferenceByAccessibility(candidates);
 		}
-		
-		private IEntity ResolveAmbiguousMethodReference(ReferenceExpression node, Ambiguous candidates, ExpressionCollection args)
+
+        private IEntity ResolveAmbiguousMethodReference(ReferenceExpression node, Ambiguous candidates, ExpressionCollection args)
 		{
 			//BOO-656
 			if (!AstUtil.IsTargetOfMethodInvocation(node)
@@ -2581,15 +2582,13 @@ namespace Boo.Lang.Compiler.Steps
 		private IEntity ResolveAmbiguousTypeReference(ReferenceExpression node, Ambiguous candidates)
 		{
 			bool isGenericReference = (node.ParentNode is GenericReferenceExpression);
-			bool isGenericType;
-			
-			List matches = new List();
+
+		    List matches = new List();
 			
 			foreach (IEntity candidate in candidates.Entities)
 			{
 				IType type = candidate as IType;
-				isGenericType = (type != null && type.GenericTypeDefinitionInfo != null);
-				
+			    bool isGenericType = (type != null && type.GenericTypeDefinitionInfo != null);
 				if (isGenericType == isGenericReference)
 				{
 					matches.Add(candidate);
@@ -2608,7 +2607,22 @@ namespace Boo.Lang.Compiler.Steps
 			return node.Entity;
 		}
 
-		private int GetIndex(IEntity[] entities, IEntity entity)
+		private IEntity ResolveAmbiguousReferenceByAccessibility(Ambiguous candidates)
+        {
+            List newEntities = new List();
+            foreach (IEntity entity in candidates.Entities)
+            {
+                if (!IsInaccessible(entity))
+                { newEntities.Add(entity); }
+            }
+
+            if (newEntities.Count == 1)
+            { return (IEntity)newEntities[0]; }
+
+            return new Ambiguous(newEntities);
+        }
+
+        private int GetIndex(IEntity[] entities, IEntity entity)
 		{
 			for (int i=0; i<entities.Length; ++i)
 			{
