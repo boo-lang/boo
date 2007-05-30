@@ -26,8 +26,21 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Reflection;
+
 namespace Boo.Lang.Compiler.TypeSystem
 {	
+    class CachedMethod
+    {
+        public readonly IMethod Value;
+
+        public CachedMethod(IMethod value)
+        {
+            Value = value;
+        }
+    }
+
 	public class ExternalProperty : IProperty
 	{
 		protected TypeSystemServices _typeSystemServices;
@@ -42,7 +55,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	    private System.Reflection.MethodInfo _accessor = null;
 
-	    private IMethod _getter = null;
+	    private CachedMethod _getter = null;
+
+	    private CachedMethod _setter = null;
 		
 		public ExternalProperty(TypeSystemServices tagManager, System.Reflection.PropertyInfo property)
 		{
@@ -184,25 +199,56 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual IMethod GetGetMethod()
 		{
-            if (null != _getter) return _getter;
-		    return _getter = FindGetMethod();
+            if (null != _getter) return _getter.Value;
+		    return (_getter = new CachedMethod(FindGetMethod())).Value;
 		}
 
 	    private IMethod FindGetMethod()
 	    {
 	        System.Reflection.MethodInfo getter = _property.GetGetMethod(true);
-	        if (null == getter) return null;
+            if (null == getter)
+            {
+                PropertyInfo baseProperty = FindBaseProperty();
+                if (null == baseProperty) return null;
+
+                getter = baseProperty.GetGetMethod(true);
+                if (null == getter) return null;
+            }
 	        return _typeSystemServices.Map(getter);
 	    }
 
-	    public virtual IMethod GetSetMethod()
+	    private PropertyInfo FindBaseProperty()
+	    {
+	        return _property.DeclaringType.BaseType.GetProperty(
+                                                        _property.Name,
+                                                        _property.PropertyType,
+                                                        GetParameterTypes(_property.GetIndexParameters()));
+	    }
+
+	    private static Type[] GetParameterTypes(ParameterInfo[] parameters)
+	    {
+	        Type[] types = new Type[parameters.Length];
+            for (int i=0; i<parameters.Length; ++i)
+            {
+                types[i] = parameters[i].ParameterType;
+            }
+	        return types;
+	    }
+
+        public virtual IMethod GetSetMethod()
 		{
-			System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
-			if (null == setter) return null;
-            return _typeSystemServices.Map(setter);
+            if (null != _setter) return _setter.Value;
+            return (_setter = new CachedMethod(FindSetMethod())).Value;
 		}
-		
-		override public string ToString()
+
+	    private IMethod FindSetMethod()
+	    {
+	        System.Reflection.MethodInfo setter = _property.GetSetMethod(true);
+	        if (null == setter) return null;
+	        return _typeSystemServices.Map(setter);
+	    }
+
+	    override public string ToString()
 		{
 			return _property.ToString();
 		}
