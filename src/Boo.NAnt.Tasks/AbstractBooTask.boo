@@ -84,9 +84,22 @@ abstract class AbstractBooTask(Task):
 			baseDir = Project.BaseDirectory
 		
 		for reference as string in _references.Includes:
-			print("reference: ${reference}")
+			path = reference
+			if not Path.IsPathRooted(path):
+				path = Path.Combine(baseDir, reference)
+				if not File.Exists(path):
+					print("${path} doesn't exist.")
+					asm = Reflection.Assembly.LoadWithPartialName(Path.GetFileNameWithoutExtension(reference))
+				else:
+					asm = Reflection.Assembly.LoadFrom(path)
+			else:
+				asm = Reflection.Assembly.LoadFrom(path)
+
+			print("reference: ${path}")
 			try:
-				parameters.References.Add(parameters.LoadAssembly(reference))
+				parameters.References.Add(asm)
+				//TODO: rationalize above call to parameters.References.Add(parameters.LoadAssembly(reference)) ?
+				//      move basedir into CompilerParameters ?
 			except x:
 				raise BuildException(
 					Boo.Lang.ResourceManager.Format("BCE0041", reference),
