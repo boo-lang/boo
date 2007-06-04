@@ -289,36 +289,42 @@ namespace Boo.Lang.Compiler
 		}
 		
 		public void LoadReferencesFromPackage(string package)
-		{
-			ProcessStartInfo psi = new ProcessStartInfo("pkg-config");
-			psi.Arguments = string.Format("--libs {0}", package);
-			psi.UseShellExecute = false;
-			psi.RedirectStandardOutput = true;
-			psi.RedirectStandardError = true;
-			
-			Process process;
-			try {
-				 process = Process.Start(psi);
-			} catch (Exception e) {
-				throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.PkgConfigNotFound"));
-			}
-			
-			process.WaitForExit();
-			if (process.ExitCode != 0) {
-				throw new ApplicationException(Boo.Lang.ResourceManager.Format("BooC.PkgConfigReportedErrors", process.StandardError.ReadToEnd()));
-			}
-			
-			string output = process.StandardOutput.ReadToEnd();
-			string[] libs = Regex.Split(output, @"\-r\:", RegexOptions.CultureInvariant);
-			foreach (string r in libs) {
-				string reference = r.Trim();
-				if (reference.Length == 0) continue; 
-				Trace.WriteLine("LOADING REFERENCE FROM PKGCONFIG '"+package+"' : "+reference);
-				References.Add(LoadAssembly(reference));
-			}
+		{    
+            string[] libs = Regex.Split(pkgconfig(package), @"\-r\:", RegexOptions.CultureInvariant);
+            foreach (string r in libs)
+            {
+                string reference = r.Trim();
+                if (reference.Length == 0) continue; 
+                Trace.WriteLine("LOADING REFERENCE FROM PKGCONFIG '"+package+"' : "+reference);
+                References.Add(LoadAssembly(reference));
+            }
 		}
 
-		private string GetSystemDir()
+	    private static string pkgconfig(string package)
+	    {
+#if NO_SYSTEM_DLL
+	        throw new System.NotSupportedException();
+#else
+	        Process process;
+	        try
+	        {
+	            process = Builtins.shellp("pkg-config", string.Format("--libs {0}", package));
+	        }
+	        catch (Exception e)
+	        {
+	            throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.PkgConfigNotFound"));
+	        }
+            process.WaitForExit();
+            if (process.ExitCode != 0)
+            {
+                throw new ApplicationException(
+                    Boo.Lang.ResourceManager.Format("BooC.PkgConfigReportedErrors", process.StandardError.ReadToEnd()));
+            }
+	        return process.StandardOutput.ReadToEnd();
+#endif
+	    }
+
+	    private string GetSystemDir()
 		{
 			return Path.GetDirectoryName(typeof(string).Assembly.Location);
 		}
