@@ -65,6 +65,7 @@ public class BoocTask(CompilerBase):
 	def constructor():
 		SupportsKeyFile = true
 		SupportsKeyContainer = true
+		SupportsPackageReferences = true
 	
 	[FrameworkConfigurable("exename")]
 	[TaskAttribute('exename')]

@@ -52,6 +52,7 @@ namespace BooC
 		CompilerParameters _options = null;
 		
 		ArrayList _references = new ArrayList();
+		ArrayList _packages = new ArrayList();
 		bool _noConfig = false;
 		string _pipelineName = null;
 		bool _debugSteps = false;
@@ -171,6 +172,10 @@ namespace BooC
 			foreach (string r in _references)
 			{
 				_options.References.Add(_options.LoadAssembly(r, true));
+			}
+			foreach (string p in _packages)
+			{
+				_options.LoadReferencesFromPackage(p);
 			}
 		}
 		
@@ -458,7 +463,14 @@ namespace BooC
 
 					case 'p':
 					{
-						_pipelineName = StripQuotes(arg.Substring(3));
+						if (arg.StartsWith("-pkg:"))
+						{
+							string packages = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
+							_packages.Add(packages);
+						}
+						else { 
+							_pipelineName = StripQuotes(arg.Substring(3));
+						}
 						break;
 					}
 
@@ -835,5 +847,6 @@ namespace BooC
 			}
 			return null;
 		}
+		
 	}
 }

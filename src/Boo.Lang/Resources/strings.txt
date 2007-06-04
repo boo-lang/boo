@@ -186,6 +186,8 @@ BooC.NullAssembly=Unable to load assembly (null argument)
 BooC.CannotFindAssembly=Cannot find assembly: '{0}'
 BooC.NoSystemPath=Cannot find path to mscorlib.
 BooC.BadLibPath=Not a valid directory for -lib argument: '{0}'
+BooC.PkgConfigNotFound=Cannot execute pkg-config, is it in your PATH ?
+BooC.PkgConfigReportedErrors=pkg-config returned errors: {0}
 
 ;Boo.Lang
 ListWasModified=The list was modified. 
