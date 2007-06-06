@@ -1,5 +1,7 @@
 import System.Xml
 import System.IO
+import System.Resources
+import System.Windows.Forms
 import Useful.IO from Boo.Lang.Useful
 
 class XmlDocumentWrapper:
@@ -52,23 +54,6 @@ class VS2005Project(XmlDocumentWrapper):
 		compile.SetAttribute("Include", item.Replace('/', '\\'))
 		_compileItemGroup.AppendChild(compile)		
 		
-class ResxFile(XmlDocumentWrapper):
-	def constructor(fname as string):
-		super(fname)
-		
-	def ResetData():
-		for node as XmlNode in _document.SelectNodes("//*[local-name()='data']"):
-			node.ParentNode.RemoveChild(node)	
-			
-	def AddData(key as string, value as string):
-		data = _document.CreateElement("data")
-		data.SetAttribute("xml:space", "preserve")
-		data.SetAttribute("name", key)
-		valueNode = _document.CreateElement("value")
-		valueNode.InnerText = value
-		data.AppendChild(valueNode)
-		_document.DocumentElement.AppendChild(data)
-		
 def updateProjectFile(fname as string):
 	project = VS2005Project.Load(fname)
 	project.ResetCompileItemGroup()
@@ -85,23 +70,23 @@ def updateProjectFile(fname as string):
 	
 	
 def updateStringResources(txtFile as string):
-	resourceFile = ResxFile(Path.ChangeExtension(txtFile, ".resx"))
-	resourceFile.ResetData()
+	fname = Path.ChangeExtension(txtFile, ".resx")
+	File.Delete(fname)
 	
-	using file=File.OpenText(txtFile):
-		for line in file:
-			if line.StartsWith(";"): continue
-			line = line.Trim()
-			if len(line) == 0: continue
-			index = line.IndexOf('=')
-			key = line[:index]
-			value = line[index+1:]
-			
-			resourceFile.AddData(key, value)
-			
-	resourceFile.Save()
+	using resourceFile = ResXResourceWriter(fname):
 	
-	print resourceFile.AbsolutePath
+		using file=File.OpenText(txtFile):
+			for line in file:
+				if line.StartsWith(";"): continue
+				line = line.Trim()
+				if len(line) == 0: continue
+				index = line.IndexOf('=')
+				key = line[:index]
+				value = line[index+1:]
+				
+				resourceFile.AddResource(key, value)
+			
+	print fname
 	
 def rebase(fname as string):
 	#return Path.Combine("c:/projects/boo/", fname)
