@@ -35,7 +35,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Eval,
 		Quack, // duck typing support,
 		Switch, // switch IL opcode
-		InitValueType // initobj IL opcode
+		InitValueType, // initobj IL opcode
+		Custom // custom builtin function
 	}
 	
 	public class BuiltinFunction : IEntity
