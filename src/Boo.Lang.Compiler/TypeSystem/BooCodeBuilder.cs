@@ -229,6 +229,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateMethodInvocation(_tss.Map(staticMethod), arg);
 		}
 
+		public MethodInvocationExpression CreateMethodInvocation(MethodInfo staticMethod, Expression arg0, Expression arg1)
+		{
+			return CreateMethodInvocation(_tss.Map(staticMethod), arg0, arg1);
+		}
+
 		public MethodInvocationExpression CreateMethodInvocation(LexicalInfo li, Expression target, IMethod tag, Expression arg)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(target, tag, arg);

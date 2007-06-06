@@ -3601,7 +3601,7 @@ namespace Boo.Lang.Compiler.Steps
 					
 				default:
 					{
-						NotImplemented(node, "BuiltinFunction: " + function.FunctionType);
+						NotImplemented(node, "BuiltinFunction: " + function);
 						break;
 					}
 			}

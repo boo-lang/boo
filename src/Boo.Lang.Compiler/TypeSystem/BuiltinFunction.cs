@@ -53,14 +53,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static BuiltinFunction InitValueType = new BuiltinFunction("__initobj__", BuiltinFunctionType.InitValueType);
 		
-		BuiltinFunctionType _function;
+		BuiltinFunctionType _type;
 		
 		string _name;
 		
 		public BuiltinFunction(string name, BuiltinFunctionType type)
 		{
 			_name = name;
-			_function = type;
+			_type = type;
 		}
 		
 		public string Name
@@ -91,8 +91,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _function;
+				return _type;
 			}
+		}
+
+		public override string ToString()
+		{
+			return string.Format("BuiltinFunction(\"{0}\", {1})", _name, _type);
 		}
 	}
 }
