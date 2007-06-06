@@ -62,11 +62,6 @@ namespace Boo.Lang.Runtime
 			_arguments = arguments;
 		}
 
-		bool IsStaticMethodInvocation
-		{
-			get { return _target == null;  }
-		}
-
 		public object InvokeResolvedMethod()
 		{
 #if NET_2_0
@@ -104,7 +99,7 @@ namespace Boo.Lang.Runtime
 		{
 			DynamicMethod method = new DynamicMethod(string.Empty, typeof(object), new Type[] { typeof(object), typeof(object[])}, _type);
 			ILGenerator il = method.GetILGenerator();
-			EmitLoadTargetObject(il);
+			EmitLoadTargetObject(found, il);
 			EmitMethodArguments(found, il);
 			EmitMethodCall(found, il);
 			EmitMethodReturn(found, il);
@@ -113,7 +108,7 @@ namespace Boo.Lang.Runtime
 
 		private void EmitMethodCall(Candidate found, ILGenerator il)
 		{
-			il.Emit(IsStaticMethodInvocation ? OpCodes.Call : OpCodes.Callvirt, found.Method);
+			il.Emit(found.Method.IsStatic ? OpCodes.Call : OpCodes.Callvirt, found.Method);
 		}
 
 		private void EmitMethodArguments(Candidate found, ILGenerator il)
@@ -215,9 +210,9 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
-		private void EmitLoadTargetObject(ILGenerator il)
+		private void EmitLoadTargetObject(Candidate found, ILGenerator il)
 		{
-			if (IsStaticMethodInvocation) return;
+			if (found.Method.IsStatic) return;
 			il.Emit(OpCodes.Ldarg_0); // target object is the first argument
 		}
 

@@ -52,6 +52,8 @@
     <Compile Include="DuckTypedAttribute.cs" />
     <Compile Include="EnumeratorItemTypeAttribute.cs" />
     <Compile Include="ExtensionAttribute.cs" />
+    <Compile Include="GenericGenerator.cs" />
+    <Compile Include="GenericGeneratorEnumerator.cs" />
     <Compile Include="Hash.cs" />
     <Compile Include="ICallable.cs" />
     <Compile Include="IQuackFu.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="ModuleAttribute.cs" />
     <Compile Include="ResourceManager.cs" />
     <Compile Include="Runtime\AssertionFailedException.cs" />
+    <Compile Include="Runtime\MethodResolver.cs" />
     <Compile Include="Runtime\RuntimeException.cs" />
     <Compile Include="Runtime\RuntimeServices.cs" />
     <Compile Include="Runtime\TextReaderEnumerator.cs" />

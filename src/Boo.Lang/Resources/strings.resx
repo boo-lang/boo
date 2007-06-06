@@ -651,6 +651,12 @@
   <data space="preserve" name="BooC.BadLibPath">
     <value>Not a valid directory for -lib argument: '{0}'</value>
   </data>
+  <data space="preserve" name="BooC.PkgConfigNotFound">
+    <value>Cannot execute pkg-config, is it in your PATH ?</value>
+  </data>
+  <data space="preserve" name="BooC.PkgConfigReportedErrors">
+    <value>pkg-config returned errors: {0}</value>
+  </data>
   <data space="preserve" name="ListWasModified">
     <value>The list was modified.</value>
   </data>
