@@ -35,21 +35,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
 	public abstract class AbstractInternalType : IInternalEntity, IType, INamespace
-	{		
+	{
 		protected TypeSystemServices _typeSystemServices;
-		
+
 		protected TypeDefinition _typeDefinition;
-		
-		protected IType[] _interfaces;
-		
+
 		protected INamespace _parentNamespace;
-		
+
 		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition)
 		{
 			_typeSystemServices = typeSystemServices;
-			_typeDefinition = typeDefinition;			
+			_typeDefinition = typeDefinition;
 		}
-		
+
 		public string FullName
 		{
 			get
@@ -57,14 +55,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _typeDefinition.FullName;
 			}
 		}
-		
+
 		public string Name
 		{
 			get
 			{
 				return _typeDefinition.Name;
 			}
-		}	
+		}
 
 		public Node Node
 		{
@@ -73,7 +71,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _typeDefinition;
 			}
 		}
-		
+
 		public IType NestingType
 		{
 			get
@@ -81,7 +79,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _typeDefinition.ParentNode.Entity as IType;
 			}
 		}
-		
+
 		public virtual INamespace ParentNamespace
 		{
 			get
@@ -93,11 +91,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _parentNamespace;
 			}
 		}
-		
+
 		public virtual bool Resolve(List targetList, string name, EntityType flags)
-		{			
+		{
 			bool found = false;
-			
+
 			foreach (IEntity entity in GetMembers())
 			{
 				if (entity.Name == name && NameResolutionService.IsFlagSet(flags, entity.EntityType))
@@ -106,10 +104,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 					found = true;
 				}
 			}
-			
+
 			return found;
 		}
-		
+
 		public virtual IType BaseType
 		{
 			get
@@ -117,7 +115,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return null;
 			}
 		}
-		
+
 		public TypeDefinition TypeDefinition
 		{
 			get
@@ -125,7 +123,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _typeDefinition;
 			}
 		}
-		
+
 		public IType Type
 		{
 			get
@@ -133,7 +131,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return this;
 			}
 		}
-		
+
 		public bool IsByRef
 		{
 			get
@@ -141,12 +139,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return false;
 			}
 		}
-		
+
 		public IType GetElementType()
 		{
 			return null;
 		}
-		
+
 		public bool IsClass
 		{
 			get
@@ -154,7 +152,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return NodeType.ClassDefinition == _typeDefinition.NodeType;
 			}
 		}
-		
+
 		public bool IsAbstract
 		{
 			get
@@ -162,7 +160,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _typeDefinition.IsAbstract;
 			}
 		}
-		
+
 		virtual public bool IsFinal
 		{
 			get
@@ -170,7 +168,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _typeDefinition.IsFinal || IsValueType;
 			}
 		}
-		
+
 		public bool IsInterface
 		{
 			get
@@ -178,7 +176,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return NodeType.InterfaceDefinition == _typeDefinition.NodeType;
 			}
 		}
-		
+
 		public bool IsEnum
 		{
 			get
@@ -186,7 +184,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return NodeType.EnumDefinition == _typeDefinition.NodeType;
 			}
 		}
-		
+
 		virtual public bool IsValueType
 		{
 			get
@@ -194,7 +192,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return false;
 			}
 		}
-		
+
 		public bool IsArray
 		{
 			get
@@ -202,12 +200,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return false;
 			}
 		}
-		
+
 		public virtual int GetTypeDepth()
 		{
 			return 1;
 		}
-		
+
 		public IEntity GetDefaultMember()
 		{
 			IType defaultMemberAttribute = _typeSystemServices.Map(Types.DefaultMemberAttribute);
@@ -228,10 +226,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 			}
-	        if (_typeDefinition.BaseTypes.Count > 0)
-	        {
+			if (_typeDefinition.BaseTypes.Count > 0)
+			{
 				List buffer = new List();
-				
+
 				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 				{
 					IType tag = TypeSystemServices.GetType(baseType);
@@ -249,10 +247,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 				return NameResolutionService.GetEntityFromList(buffer);
-			} 
+			}
 			return null;
 		}
-		
+
 		public virtual EntityType EntityType
 		{
 			get
@@ -260,46 +258,37 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return EntityType.Type;
 			}
 		}
-		
+
 		public virtual bool IsSubclassOf(IType other)
 		{
 			return false;
 		}
-		
+
 		public virtual bool IsAssignableFrom(IType other)
 		{
 			return this == other ||
 					(!this.IsValueType && Null.Default == other) ||
 					other.IsSubclassOf(this);
 		}
-		
+
 		public virtual IConstructor[] GetConstructors()
 		{
 			return new IConstructor[0];
 		}
-		
+
 		public IType[] GetInterfaces()
 		{
-			if (null == _interfaces)
+			List buffer = new List();
+			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				List buffer = new List();
-				
-				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
-				{
-					IType tag = TypeSystemServices.GetType(baseType);
-					if (tag.IsInterface)
-					{
-						buffer.AddUnique(tag);
-					}
-				}
-				
-				_interfaces = (IType[])buffer.ToArray(typeof(IType));
+				IType tag = TypeSystemServices.GetType(baseType);
+				if (tag.IsInterface) buffer.AddUnique(tag);
 			}
-			return _interfaces;
+			return (IType[])buffer.ToArray(typeof(IType));
 		}
-		
+
 		public virtual IEntity[] GetMembers()
-		{			
+		{
 			ArrayList buffer = new ArrayList();
 			foreach (TypeMember member in _typeDefinition.Members)
 			{
@@ -307,7 +296,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return (IEntity[])buffer.ToArray(typeof(IEntity));
 		}
-		
+
 		private IEntity GetMemberEntity(TypeMember member)
 		{
 			if (null == member.Entity)
@@ -316,54 +305,54 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return member.Entity;
 		}
-		
+
 		private IEntity CreateEntity(TypeMember member)
 		{
 			switch (member.NodeType)
 			{
 				case NodeType.Field:
-				{
-					return new InternalField((Field)member);
-				}
-					
+					{
+						return new InternalField((Field)member);
+					}
+
 				case NodeType.EnumMember:
-				{
-					return new InternalEnumMember(_typeSystemServices, (EnumMember)member);
-				}
-					
+					{
+						return new InternalEnumMember(_typeSystemServices, (EnumMember)member);
+					}
+
 				case NodeType.Method:
-				{
-					return new InternalMethod(_typeSystemServices, (Method)member);
-				}
-					
+					{
+						return new InternalMethod(_typeSystemServices, (Method)member);
+					}
+
 				case NodeType.Constructor:
-				{
-					return new InternalConstructor(_typeSystemServices, (Constructor)member);
-				}
-					
+					{
+						return new InternalConstructor(_typeSystemServices, (Constructor)member);
+					}
+
 				case NodeType.Property:
-				{
-					return new InternalProperty(_typeSystemServices, (Property)member);
-				}
-					
+					{
+						return new InternalProperty(_typeSystemServices, (Property)member);
+					}
+
 				case NodeType.Event:
-				{
-					return new InternalEvent(_typeSystemServices, (Event)member);
-				}
+					{
+						return new InternalEvent(_typeSystemServices, (Event)member);
+					}
 			}
 			throw new ArgumentException("Member type not supported: " + member);
 		}
-		
+
 		override public string ToString()
 		{
 			return FullName;
 		}
-		
-		IGenericTypeDefinitionInfo IType.GenericTypeDefinitionInfo 
+
+		IGenericTypeDefinitionInfo IType.GenericTypeDefinitionInfo
 		{
 			get { return null; }
 		}
-		
+
 		IGenericTypeInfo IType.GenericTypeInfo
 		{
 			get { return null; }
