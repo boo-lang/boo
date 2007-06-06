@@ -389,7 +389,7 @@ dummy()""")
 		
 	class Customer:
 		
-		[property(FirstName)]
+		[Boo.Lang.Property(FirstName)]
 		_fname as string
 		
 		public LastName as string
@@ -444,17 +444,17 @@ interface IDisposable():
 		
 	def assertHelp(expected as string, type as System.Type):
 		buffer = System.IO.StringWriter()
-		buffer.WriteLine()		
 		_interpreter.Print = { item | buffer.WriteLine(item) }		
 		_interpreter.help(type)
 		
-		actual = buffer.ToString().Replace("\r\n", "\n")
-		
 		# mono compatibility fix
 		# object.Equals arg on mono is called o
-		actual = actual.Replace("o as object", "obj as object")
+		actual = buffer.ToString().Replace("o as object", "obj as object")
 		
-		Assert.AreEqual(expected, actual)
+		Assert.AreEqual(ns(expected), ns(actual))
+		
+	static def ns(s as string):
+		return s.Trim().Replace("\r\n", Environment.NewLine)
 	
 		
 	[Test]

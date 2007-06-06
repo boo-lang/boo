@@ -42,63 +42,64 @@ namespace Boo.Lang.Compiler
 	public class CompilerParameters : System.MarshalByRefObject
 	{
 		static private List _validFileExtensions = new List(new string[] { ".dll", ".exe" });
-		
+
 		TextWriter _outputWriter;
-		
+
 		CompilerPipeline _pipeline;
 
 		CompilerInputCollection _input;
-		
+
 		CompilerResourceCollection _resources;
 
 		AssemblyCollection _assemblyReferences;
 
 		int _maxAttributeSteps;
-		
+
 		string _outputAssembly;
-		
+
 		CompilerOutputType _outputType;
-		
+
 		bool _debug;
-		
+
 		bool _ducky;
-		
+
 		bool _checked;
-		
+
 		bool _generateInMemory;
-		
+
 		bool _StdLib;
-		
+
 		string _keyFile;
-		
+
 		string _keyContainer;
-		
+
 		bool _delaySign;
-		
+
 		ArrayList _libpaths;
-		
+
 		string _systemDir;
-		
+
 		Assembly _booAssembly;
-		
+
 		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
-		
-		public CompilerParameters(): this(true)
+
+		public CompilerParameters()
+			: this(true)
 		{
 		}
-		
+
 		public CompilerParameters(bool loadDefaultReferences)
 		{
 			_libpaths = new ArrayList();
 			_systemDir = GetSystemDir();
 			_libpaths.Add(_systemDir);
 			_libpaths.Add(Directory.GetCurrentDirectory());
-			
+
 			_pipeline = null;
 			_input = new CompilerInputCollection();
 			_resources = new CompilerResourceCollection();
 			_assemblyReferences = new AssemblyCollection();
-			
+
 			_maxAttributeSteps = 2;
 			_outputAssembly = string.Empty;
 			_outputType = CompilerOutputType.ConsoleApplication;
@@ -107,12 +108,12 @@ namespace Boo.Lang.Compiler
 			_checked = true;
 			_generateInMemory = true;
 			_StdLib = true;
-			
+
 			_delaySign = false;
-			
+
 			if (loadDefaultReferences) LoadDefaultReferences();
 		}
-		
+
 		public void LoadDefaultReferences()
 		{
 			//mscorlib
@@ -128,14 +129,14 @@ namespace Boo.Lang.Compiler
 			_assemblyReferences.Add(_booAssembly);
 			//boo.lang.compiler.dll
 			_assemblyReferences.Add(GetType().Assembly);
-			
+
 			if (TraceSwitch.TraceInfo)
 			{
-				Trace.WriteLine("BOO LANG DLL: "+_booAssembly.Location);
-				Trace.WriteLine("BOO COMPILER DLL: "+GetType().Assembly.Location);
+				Trace.WriteLine("BOO LANG DLL: " + _booAssembly.Location);
+				Trace.WriteLine("BOO COMPILER DLL: " + GetType().Assembly.Location);
 			}
 		}
-		
+
 		public Assembly BooAssembly
 		{
 			get
@@ -152,12 +153,12 @@ namespace Boo.Lang.Compiler
 				}
 			}
 		}
-		
+
 		public Assembly FindAssembly(string name)
 		{
 			return _assemblyReferences.Find(name);
 		}
-		
+
 		public void AddAssembly(Assembly asm)
 		{
 			if (asm != null)
@@ -165,21 +166,21 @@ namespace Boo.Lang.Compiler
 				_assemblyReferences.Add(asm);
 			}
 		}
-		
+
 		public Assembly LoadAssembly(string assembly)
 		{
 			return LoadAssembly(assembly, true);
 		}
-		
-		public Assembly LoadAssembly (string assembly, bool throwOnError)
+
+		public Assembly LoadAssembly(string assembly, bool throwOnError)
 		{
 			if (TraceSwitch.TraceInfo)
 			{
 				Trace.WriteLine("ATTEMPTING LOADASSEMBLY: " + assembly);
 			}
-			
+
 			Assembly a = null;
-			try 
+			try
 			{
 				if (assembly.IndexOfAny(new char[] { '/', '\\' }) != -1)
 				{
@@ -208,19 +209,19 @@ namespace Boo.Lang.Compiler
 				if (throwOnError)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-						"BooC.BadFormat", 
+						"BooC.BadFormat",
 						e.FusionLog), e);
 				}
-			} 
+			}
 			catch (FileLoadException e)
 			{
 				if (throwOnError)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-						"BooC.UnableToLoadAssembly", 
+						"BooC.UnableToLoadAssembly",
 						e.FusionLog), e);
 				}
-			} 
+			}
 			catch (ArgumentNullException e)
 			{
 				if (throwOnError)
@@ -235,7 +236,7 @@ namespace Boo.Lang.Compiler
 			}
 			return a;
 		}
-		
+
 		private Assembly LoadAssemblyFromLibPaths(string assembly, bool throwOnError)
 		{
 			Assembly a = null;
@@ -247,14 +248,14 @@ namespace Boo.Lang.Compiler
 				if (!_validFileExtensions.Contains(file.Extension.ToLower()))
 					full_path += ".dll";
 
-				try 
+				try
 				{
 					a = Assembly.LoadFrom(full_path);
 					if (a != null)
 					{
 						return a;
 					}
-				} 
+				}
 				catch (FileNotFoundException ff)
 				{
 					fullLog += ff.FusionLog;
@@ -264,13 +265,13 @@ namespace Boo.Lang.Compiler
 			if (throwOnError)
 			{
 				throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-					"BooC.CannotFindAssembly", 
-					assembly)); 
-					//assembly, total_log)); //total_log contains the fusion log
+					"BooC.CannotFindAssembly",
+					assembly));
+				//assembly, total_log)); //total_log contains the fusion log
 			}
 			return a;
 		}
-		
+
 		private Assembly LoadAssemblyFromGac(string assemblyName)
 		{
 			assemblyName = NormalizeAssemblyName(assemblyName);
@@ -287,48 +288,48 @@ namespace Boo.Lang.Compiler
 			}
 			return assembly;
 		}
-		
+
 		public void LoadReferencesFromPackage(string package)
-		{    
-            string[] libs = Regex.Split(pkgconfig(package), @"\-r\:", RegexOptions.CultureInvariant);
-            foreach (string r in libs)
-            {
-                string reference = r.Trim();
-                if (reference.Length == 0) continue; 
-                Trace.WriteLine("LOADING REFERENCE FROM PKGCONFIG '"+package+"' : "+reference);
-                References.Add(LoadAssembly(reference));
-            }
+		{
+			string[] libs = Regex.Split(pkgconfig(package), @"\-r\:", RegexOptions.CultureInvariant);
+			foreach (string r in libs)
+			{
+				string reference = r.Trim();
+				if (reference.Length == 0) continue;
+				Trace.WriteLine("LOADING REFERENCE FROM PKGCONFIG '" + package + "' : " + reference);
+				References.Add(LoadAssembly(reference));
+			}
 		}
 
-	    private static string pkgconfig(string package)
-	    {
+		private static string pkgconfig(string package)
+		{
 #if NO_SYSTEM_DLL
 	        throw new System.NotSupportedException();
 #else
-	        Process process;
-	        try
-	        {
-	            process = Builtins.shellp("pkg-config", string.Format("--libs {0}", package));
-	        }
-	        catch (Exception e)
-	        {
-	            throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.PkgConfigNotFound"));
-	        }
-            process.WaitForExit();
-            if (process.ExitCode != 0)
-            {
-                throw new ApplicationException(
-                    Boo.Lang.ResourceManager.Format("BooC.PkgConfigReportedErrors", process.StandardError.ReadToEnd()));
-            }
-	        return process.StandardOutput.ReadToEnd();
+			Process process;
+			try
+			{
+				process = Builtins.shellp("pkg-config", string.Format("--libs {0}", package));
+			}
+			catch (Exception e)
+			{
+				throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.PkgConfigNotFound"));
+			}
+			process.WaitForExit();
+			if (process.ExitCode != 0)
+			{
+				throw new ApplicationException(
+					Boo.Lang.ResourceManager.Format("BooC.PkgConfigReportedErrors", process.StandardError.ReadToEnd()));
+			}
+			return process.StandardOutput.ReadToEnd();
 #endif
-	    }
+		}
 
-	    private string GetSystemDir()
+		private string GetSystemDir()
 		{
 			return Path.GetDirectoryName(typeof(string).Assembly.Location);
 		}
-		
+
 		/// <summary>
 		/// Max number of steps for the resolution of AST attributes.		
 		/// </summary>
@@ -352,7 +353,7 @@ namespace Boo.Lang.Compiler
 				return _input;
 			}
 		}
-		
+
 		public ArrayList LibPaths
 		{
 			get
@@ -360,7 +361,7 @@ namespace Boo.Lang.Compiler
 				return _libpaths;
 			}
 		}
-		
+
 		public CompilerResourceCollection Resources
 		{
 			get
@@ -375,7 +376,7 @@ namespace Boo.Lang.Compiler
 			{
 				return _assemblyReferences;
 			}
-			
+
 			set
 			{
 				if (null == value)
@@ -395,13 +396,13 @@ namespace Boo.Lang.Compiler
 			{
 				return _pipeline;
 			}
-			
+
 			set
 			{
 				_pipeline = value;
 			}
 		}
-		
+
 		/// <summary>
 		/// The name (full or partial) for the file
 		/// that should receive the resulting assembly.
@@ -412,7 +413,7 @@ namespace Boo.Lang.Compiler
 			{
 				return _outputAssembly;
 			}
-			
+
 			set
 			{
 				if (null == value)
@@ -426,7 +427,7 @@ namespace Boo.Lang.Compiler
 				_outputAssembly = value;
 			}
 		}
-		
+
 		/// <summary>
 		/// Type and execution subsystem for the generated portable
 		/// executable file.
@@ -437,46 +438,46 @@ namespace Boo.Lang.Compiler
 			{
 				return _outputType;
 			}
-			
+
 			set
 			{
 				_outputType = value;
 			}
 		}
-		
+
 		public bool GenerateInMemory
 		{
 			get
 			{
 				return _generateInMemory;
 			}
-			
+
 			set
 			{
 				_generateInMemory = value;
 			}
 		}
-		
+
 		public bool StdLib
 		{
 			get
 			{
 				return _StdLib;
 			}
-			
+
 			set
 			{
 				_StdLib = value;
 			}
 		}
-		
+
 		public TextWriter OutputWriter
 		{
 			get
 			{
 				return _outputWriter;
 			}
-			
+
 			set
 			{
 				if (null == value)
@@ -486,20 +487,20 @@ namespace Boo.Lang.Compiler
 				_outputWriter = value;
 			}
 		}
-		
+
 		public bool Debug
 		{
 			get
 			{
 				return _debug;
 			}
-			
+
 			set
 			{
 				_debug = value;
 			}
 		}
-		
+
 		/// <summary>
 		/// Use duck instead of object as the most generic type.
 		/// </summary>
@@ -509,7 +510,7 @@ namespace Boo.Lang.Compiler
 			{
 				return _ducky;
 			}
-			
+
 			set
 			{
 				_ducky = value;
@@ -522,7 +523,7 @@ namespace Boo.Lang.Compiler
 			{
 				return _checked;
 			}
-			
+
 			set
 			{
 				_checked = value;
@@ -535,33 +536,33 @@ namespace Boo.Lang.Compiler
 			{
 				return _keyFile;
 			}
-			
+
 			set
 			{
 				_keyFile = value;
 			}
 		}
-		
+
 		public string KeyContainer
 		{
 			get
 			{
 				return _keyContainer;
 			}
-			
+
 			set
 			{
 				_keyContainer = value;
 			}
 		}
-		
+
 		public bool DelaySign
 		{
 			get
 			{
 				return _delaySign;
 			}
-			
+
 			set
 			{
 				_delaySign = value;

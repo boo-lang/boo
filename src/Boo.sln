@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-# SharpDevelop 2.1.0.2201
+# SharpDevelop 2.1.0.2527
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang", "Boo.Lang\Boo.Lang.csproj", "{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Parser", "Boo.Lang.Parser\Boo.Lang.Parser.csproj", "{C1943936-DBBD-4331-94C3-BE4F7E6229DA}"
@@ -15,6 +15,8 @@ EndProject
 Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Useful", "Boo.Lang.Useful\Boo.Lang.Useful.booproj", "{C7CA440B-2A76-420D-8B0E-5E5C1676F451}"
 EndProject
 Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Useful.Tests", "..\tests\Boo.Lang.Useful.Tests\Boo.Lang.Useful.Tests.booproj", "{69186382-466B-4D10-997E-569F3F5FD0FE}"
+EndProject
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Interpreter.Tests", "..\tests\Boo.Lang.Interpreter.Tests\Boo.Lang.Interpreter.Tests.booproj", "{6B5F795B-0317-4C25-9115-115965CC78BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +60,14 @@ Global
 		{69186382-466B-4D10-997E-569F3F5FD0FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{69186382-466B-4D10-997E-569F3F5FD0FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{69186382-466B-4D10-997E-569F3F5FD0FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		2CCD02C3-ACA5-48BF-9CDE-D28B1D4C4A64.Debug|Any CPU.Build.0 = Debug|Any CPU
+		2CCD02C3-ACA5-48BF-9CDE-D28B1D4C4A64.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		2CCD02C3-ACA5-48BF-9CDE-D28B1D4C4A64.Release|Any CPU.Build.0 = Release|Any CPU
+		2CCD02C3-ACA5-48BF-9CDE-D28B1D4C4A64.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B5F795B-0317-4C25-9115-115965CC78BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B5F795B-0317-4C25-9115-115965CC78BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B5F795B-0317-4C25-9115-115965CC78BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B5F795B-0317-4C25-9115-115965CC78BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
