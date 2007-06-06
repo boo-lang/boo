@@ -61,6 +61,11 @@
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env">	
 	</target>
 	
+	<target name="set-release-configuration">
+		<property name="debug" value="false" />
+		<property name="optimize" value="true" />
+	</target>
+	
 	<target name="nostdlib">
 		<property name="csc.define" value="${csc.define},NO_SYSTEM_DLL" />
 		<property name="csc.noconfig" value="true" />
