@@ -182,8 +182,7 @@ namespace Boo.Lang.Compiler.Steps
 			// referenced entities turn into fields
 			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
 			{
-				Field field = builder.AddField("__" + entity.Name + _context.AllocIndex(), entity.Type);
-				field.Modifiers = TypeMemberModifiers.Internal;
+				Field field = builder.AddInternalField("__" + entity.Name + _context.AllocIndex(), entity.Type);
 				_referencedEntities[entity] = field.Entity;
 			}
 			

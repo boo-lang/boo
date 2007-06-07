@@ -191,10 +191,9 @@ namespace Boo.Lang.Compiler.Steps
 				int i=0;
 				foreach (ILocalEntity local in _shared)
 				{
-					Field field = builder.AddField(
+					Field field = builder.AddInternalField(
 									string.Format("___{0}_{1}", local.Name, i),
 									local.Type);
-					field.Modifiers = TypeMemberModifiers.Internal;
 					++i;
 					
 					_mappings[local] = field.Entity;

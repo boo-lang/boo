@@ -403,8 +403,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				InternalLocal entity = (InternalLocal)local.Entity;
 				
-				Field field = _enumerator.AddField("___" + entity.Name + _context.AllocIndex(), entity.Type);
-				field.Modifiers |= TypeMemberModifiers.Internal;
+				Field field = _enumerator.AddInternalField("___" + entity.Name + _context.AllocIndex(), entity.Type);
 				_mapping[entity] = field.Entity;
 			}
 			generator.Locals.Clear();
@@ -451,8 +450,7 @@ namespace Boo.Lang.Compiler.Steps
 													string parameterName,
 													IType parameterType)
 		{
-			Field field = type.AddField("___" + parameterName + _context.AllocIndex(), parameterType);
-			field.Modifiers |= TypeMemberModifiers.Internal;
+			Field field = type.AddInternalField("___" + parameterName + _context.AllocIndex(), parameterType);
 			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
 			return field;
 		}
