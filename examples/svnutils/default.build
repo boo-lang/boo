@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<project name="svnutils" default="all">
+	
+	<property name="build.dir" value="bin" />
+	<property name="boo.build.dir" value="../../build" />
+	
+	<target name="all" depends="init">
+		<booc target="exe" output="${build.dir}/svn_ignore.exe">
+			<sources basedir="src">
+				<include name="svn_ignore.boo" />
+				<include name="svn.boo" />
+			</sources>
+		</booc>
+		
+		<booc target="exe" output="${build.dir}/svn_ignore_all.exe">
+			<sources basedir="src">
+				<include name="svn_ignore_all.boo" />
+				<include name="svn.boo" />
+			</sources>
+		</booc>
+		
+		<booc target="exe" output="${build.dir}/svn_locals.exe">
+			<sources basedir="src">
+				<include name="svn_locals.boo" />
+				<include name="svn.boo" />
+			</sources>
+		</booc>
+		
+		<booc target="exe" output="${build.dir}/svn_changed.exe">
+			<sources basedir="src">
+				<include name="svn_changed.boo" />
+				<include name="svn.boo" />
+			</sources>
+		</booc>
+	</target>
+	
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<copy todir="${build.dir}">
+			<fileset basedir="${boo.build.dir}">
+				<include name="Boo.Lang*.dll" />
+			</fileset>
+		</copy>
+		<loadtasks assembly="${boo.build.dir}/Boo.NAnt.Tasks.dll" />
+	</target>
+</project>
