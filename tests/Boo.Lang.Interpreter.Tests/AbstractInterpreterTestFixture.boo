@@ -73,7 +73,7 @@ class AbstractInterpreterTestFixture:
 		mi.Expect("SetValue(foo)")
 		
 		result = mi.Eval("foo = 'foo'; foo = bar")
-		Assert.Fail(result.Errors.ToString()) if len(result.Errors)
+		Assert.Fail(result.Errors.ToString(true)) if len(result.Errors)
 		Assert.IsNull(mi.PopExpected())
 		
 		

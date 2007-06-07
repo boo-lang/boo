@@ -55,71 +55,91 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(node.Block);
 			Visit(node.Arguments);
-			
-			Statement replacement = null;
-			
-			IEntity entity = NameResolutionService.ResolveQualifiedName(BuildMacroTypeName(node.Name));
+
+			IEntity entity = ResolveMacroName(node);
 			if (null == entity)
 			{
-				entity = NameResolutionService.ResolveQualifiedName(node.Name);
+				TreatMacroAsMethodInvocation(node);
+				return;
 			}
 			
-			if (null == entity)
+			if (EntityType.Type != entity.EntityType)
 			{
-				Errors.Add(CompilerErrorFactory.UnknownMacro(node, node.Name));
-			}
-			else
-			{
-				if (EntityType.Type != entity.EntityType)
+				if (EntityType.Method == entity.EntityType)
 				{
-					Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
+					TreatMacroAsMethodInvocation(node);
+					return;
 				}
-				else
-				{
-					IType macroType = (IType)entity;
-					ExternalType type = macroType as ExternalType;
-					if (null == type)
-					{
-						Errors.Add(CompilerErrorFactory.AstMacroMustBeExternal(node, macroType.FullName));
-					}
-					else
-					{
-						object macroInstance = Activator.CreateInstance(type.ActualType);
-						if (!(macroInstance is IAstMacro))
-						{
-							Errors.Add(CompilerErrorFactory.InvalidMacro(node, macroType.FullName));
-						}
-						else
-						{
-							try
-							{
-								using (IAstMacro macro = ((IAstMacro)macroInstance))
-								{
-									macro.Initialize(_context);
-									replacement = macro.Expand(node);
-								}
-							}
-							catch (Exception error)
-							{
-								Errors.Add(CompilerErrorFactory.MacroExpansionError(node, error));
-							}
-						}
-					}
-				}
+				Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
+				return;
 			}
-			if (null != node.Modifier)
+			
+			IType macroType = (IType)entity;
+			ExternalType type = macroType as ExternalType;
+			if (null == type)
 			{
-				replacement = NormalizeStatementModifiers.CreateModifiedStatement(node.Modifier, replacement);
+				Errors.Add(CompilerErrorFactory.AstMacroMustBeExternal(node, macroType.FullName));
+				return;
 			}
-			ReplaceCurrentNode(replacement);
+
+			Type actualType = type.ActualType;
+			if (!typeof(IAstMacro).IsAssignableFrom(actualType))
+			{
+				Errors.Add(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
+				return;
+			}
+			
+			try
+			{
+				Statement replacement = ExpandMacro(actualType, node);
+				if (null != node.Modifier)
+				{
+					replacement = NormalizeStatementModifiers.CreateModifiedStatement(node.Modifier, replacement);
+				}
+				ReplaceCurrentNode(replacement);
+			}
+			catch (Exception error)
+			{
+				Errors.Add(CompilerErrorFactory.MacroExpansionError(node, error));
+			}
 		}
-		
+
+		private void TreatMacroAsMethodInvocation(MacroStatement node)
+		{
+			MethodInvocationExpression invocation = new MethodInvocationExpression(
+				node.LexicalInfo,
+				new ReferenceExpression(node.LexicalInfo, node.Name));
+			invocation.Arguments = node.Arguments;
+			if (node.Block != null && node.Block.Statements.Count > 0)
+			{
+				invocation.Arguments.Add(new CallableBlockExpression(node.Block));
+			}
+
+			ReplaceCurrentNode(new ExpressionStatement(invocation));
+		}
+
+		private Statement ExpandMacro(Type macroType, MacroStatement node)
+		{	
+			using (IAstMacro macro = (IAstMacro)Activator.CreateInstance(macroType))
+			{
+				macro.Initialize(_context);
+				return macro.Expand(node);
+			}
+		}
+
+		private IEntity ResolveMacroName(MacroStatement node)
+		{
+			IEntity entity = NameResolutionService.ResolveQualifiedName(BuildMacroTypeName(node.Name));
+			if (null != entity) return entity;
+			return NameResolutionService.ResolveQualifiedName(node.Name);
+		}
+
 		string BuildMacroTypeName(string name)
 		{
 			_buffer.Length = 0;
 			if (!Char.IsUpper(name[0]))
 			{
-				_buffer.Append(Char.ToUpper(name[0]));
+				_buffer.Append(char.ToUpper(name[0]));
 				_buffer.Append(name.Substring(1));
 				_buffer.Append("Macro");
 			}

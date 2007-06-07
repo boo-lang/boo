@@ -1459,6 +1459,38 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return anonymousType.ConcreteType;
 		}
+
+		public IEntity GetMemberEntity(TypeMember member)
+		{
+			if (null == member.Entity)
+			{
+				member.Entity = CreateEntity(member);
+			}
+			return member.Entity;
+		}
+
+		private IEntity CreateEntity(TypeMember member)
+		{
+			switch (member.NodeType)
+			{
+				case NodeType.ClassDefinition:
+					return new InternalClass(this, (TypeDefinition) member);
+				case NodeType.Field:
+					return new InternalField((Field)member);
+				case NodeType.EnumMember:
+					return new InternalEnumMember(this, (EnumMember)member);
+				case NodeType.Method:
+					return new InternalMethod(this, (Method)member);
+				case NodeType.Constructor:
+					return new InternalConstructor(this, (Constructor)member);
+				case NodeType.Property:
+					return new InternalProperty(this, (Property)member);
+				case NodeType.Event:
+					return new InternalEvent(this, (Event)member);
+			}
+			throw new ArgumentException("Member type not supported: " + member);
+		}
+
 		
 		protected virtual IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{

@@ -40,16 +40,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		INamespace _moduleClassNamespace = NullNamespace.Default;
 		
-		INamespace[] _using;
+		INamespace[] _importedNamespaces;
 		
 		string _namespace;
 		
 		public ModuleEntity(NameResolutionService nameResolutionService,
-						TypeSystemServices tagManager,
+						TypeSystemServices typeSystemServices,
 						Boo.Lang.Compiler.Ast.Module module)
 		{
 			_nameResolutionService = nameResolutionService;
-			_typeSystemServices = tagManager;
+			_typeSystemServices = typeSystemServices;
 			_module = module;			
 			if (null == module.Namespace)
 			{
@@ -103,12 +103,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public void InitializeModuleClass(Boo.Lang.Compiler.Ast.ClassDefinition moduleClass)
 		{
-			if (null == moduleClass.Entity)
-			{
-				moduleClass.Entity = new InternalClass(_typeSystemServices, moduleClass);
-				_moduleClass = moduleClass;
-			}
-			_moduleClassNamespace = (INamespace)moduleClass.Entity;
+			_moduleClassNamespace = (INamespace) _typeSystemServices.GetMemberEntity(moduleClass);
+			_moduleClass = moduleClass;
 		}
 		
 		public bool ResolveMember(Boo.Lang.List targetList, string name, EntityType flags)
@@ -127,41 +123,47 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
-			if (ResolveMember(targetList, name, flags))
-			{
-				return true;
-			}
-			
-			if (null == _using)
-			{
-				_using = new INamespace[_module.Imports.Count];
-				for (int i=0; i<_using.Length; ++i)
-				{
-					_using[i] = (INamespace)TypeSystemServices.GetEntity(_module.Imports[i]);
-				}
-			}
+			if (ResolveMember(targetList, name, flags)) return true;
 				
 			bool found = false;
-			foreach (INamespace ns in _using)
+			foreach (INamespace ns in ImportedNamespaces)
 			{			
 				found |= ns.Resolve(targetList, name, flags);
 			}
 			return found;
 		}
-		
+
+		private INamespace[] ImportedNamespaces
+		{
+			get
+			{
+				if (null != _importedNamespaces) return _importedNamespaces;
+				return _importedNamespaces = CreateImportedNamespaces();
+			}
+		}
+
+		private INamespace[] CreateImportedNamespaces()
+		{
+			INamespace[] namespaces = new INamespace[_module.Imports.Count];
+			for (int i = 0; i < namespaces.Length; ++i)
+			{
+				namespaces[i] = (INamespace)TypeSystemServices.GetEntity(_module.Imports[i]);
+			}
+			return namespaces;
+		}
+
 		bool ResolveModuleMember(Boo.Lang.List targetList, string name, EntityType flags)
 		{
 			bool found = false;
 			foreach (Boo.Lang.Compiler.Ast.TypeMember member in _module.Members)
 			{
-				if (name == member.Name)
+				if (name != member.Name) continue;
+
+				IEntity entity = _typeSystemServices.GetMemberEntity(member);
+				if (NameResolutionService.IsFlagSet(flags, entity.EntityType))
 				{
-					IEntity tag = TypeSystemServices.GetEntity(member);
-					if (NameResolutionService.IsFlagSet(flags, tag.EntityType))
-					{
-						targetList.Add(tag);
-						found = true;
-					}
+					targetList.Add(entity);
+					found = true;
 				}
 			}
 			return found;

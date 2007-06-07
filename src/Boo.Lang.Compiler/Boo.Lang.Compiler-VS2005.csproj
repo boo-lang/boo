@@ -396,6 +396,7 @@
     <Compile Include="Steps\ResolveTypeReferences.cs" />
     <Compile Include="Steps\RunAssembly.cs" />
     <Compile Include="Steps\SaveAssembly.cs" />
+    <Compile Include="Steps\SelfEntity.cs" />
     <Compile Include="Steps\SerializeToXml.cs" />
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />

@@ -1,0 +1,40 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{6B5F795B-0317-4C25-9115-115965CC78BE}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Boo.Lang.Interpreter.Tests</RootNamespace>
+    <AssemblyName>Boo.Lang.Interpreter.Tests</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+  </PropertyGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+  <ItemGroup>
+    <Compile Include="AbstractInterpreterTestFixture.boo" />
+    <Compile Include="InteractiveInterpreterTestFixture.boo" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
+      <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
+      <Name>Boo.Lang.Compiler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Boo.Lang.Interpreter\Boo.Lang.Interpreter.booproj">
+      <Project>{5AB9F617-B157-4BFC-B251-EB64C4697FC0}</Project>
+      <Name>Boo.Lang.Interpreter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
+      <Project>{C1943936-DBBD-4331-94C3-BE4F7E6229DA}</Project>
+      <Name>Boo.Lang.Parser</Name>
+    </ProjectReference>
+    <Reference Include="nunit.framework" />
+  </ItemGroup>
+</Project>

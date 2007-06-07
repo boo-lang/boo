@@ -36,6 +36,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public abstract class AbstractInternalType : IInternalEntity, IType, INamespace
 	{
+		public static readonly IConstructor[] NoConstructors = new IConstructor[0];
+
 		protected TypeSystemServices _typeSystemServices;
 
 		protected TypeDefinition _typeDefinition;
@@ -273,75 +275,35 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual IConstructor[] GetConstructors()
 		{
-			return new IConstructor[0];
+			return NoConstructors;
 		}
 
 		public IType[] GetInterfaces()
 		{
-			List buffer = new List();
+			List buffer = new List(_typeDefinition.BaseTypes.Count);
 			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
 			{
-				IType tag = TypeSystemServices.GetType(baseType);
-				if (tag.IsInterface) buffer.AddUnique(tag);
+				IType type = TypeSystemServices.GetType(baseType);
+				if (type.IsInterface) buffer.AddUnique(type);
 			}
 			return (IType[])buffer.ToArray(typeof(IType));
 		}
 
 		public virtual IEntity[] GetMembers()
 		{
-			ArrayList buffer = new ArrayList();
-			foreach (TypeMember member in _typeDefinition.Members)
-			{
-				buffer.Add(GetMemberEntity(member));
-			}
-			return (IEntity[])buffer.ToArray(typeof(IEntity));
+			return GetMemberEntities(_typeDefinition.Members);
 		}
 
-		private IEntity GetMemberEntity(TypeMember member)
+		private IEntity[] GetMemberEntities(TypeMemberCollection members)
 		{
-			if (null == member.Entity)
+			IEntity[] entities = new IEntity[members.Count];
+			for (int i = 0; i < entities.Length; ++i)
 			{
-				member.Entity = CreateEntity(member);
+				entities[i] = _typeSystemServices.GetMemberEntity(members[i]);
 			}
-			return member.Entity;
+			return entities;
 		}
 
-		private IEntity CreateEntity(TypeMember member)
-		{
-			switch (member.NodeType)
-			{
-				case NodeType.Field:
-					{
-						return new InternalField((Field)member);
-					}
-
-				case NodeType.EnumMember:
-					{
-						return new InternalEnumMember(_typeSystemServices, (EnumMember)member);
-					}
-
-				case NodeType.Method:
-					{
-						return new InternalMethod(_typeSystemServices, (Method)member);
-					}
-
-				case NodeType.Constructor:
-					{
-						return new InternalConstructor(_typeSystemServices, (Constructor)member);
-					}
-
-				case NodeType.Property:
-					{
-						return new InternalProperty(_typeSystemServices, (Property)member);
-					}
-
-				case NodeType.Event:
-					{
-						return new InternalEvent(_typeSystemServices, (Event)member);
-					}
-			}
-			throw new ArgumentException("Member type not supported: " + member);
-		}
 
 		override public string ToString()
 		{

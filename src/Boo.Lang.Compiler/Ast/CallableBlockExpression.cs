@@ -40,6 +40,11 @@ namespace Boo.Lang.Compiler.Ast
 		public CallableBlockExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
+
+		public CallableBlockExpression(Block body) : base(body.LexicalInfo)
+		{
+			_body = body;
+		}
 		
 		override public void Accept(IAstVisitor visitor)
 		{
