@@ -82,10 +82,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			foreach (TypeMember member in _members)
 			{
-				if (memberType == member.NodeType)
-				{
-					return true;
-				}
+				if (memberType == member.NodeType) return true;
 			}
 			return false;
 		}

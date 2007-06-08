@@ -48,10 +48,7 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				foreach (TypeMember member in InnerList)
 				{
-					if (member.Name == name)
-					{
-						return member;
-					}
+					if (member.Name == name) return member;
 				}
 				return null;
 			}
