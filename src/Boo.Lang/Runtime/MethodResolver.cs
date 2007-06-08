@@ -30,27 +30,18 @@ using System;
 using System.Reflection;
 #if NET_2_0
 using System.Collections.Generic;
-using System.Reflection.Emit;
 #endif
 
 namespace Boo.Lang.Runtime
 {
-	public class MethodResolver
+	internal class MethodResolver
 	{
-		public const int ExactMatchScore = 7;
-		public const int UpCastScore = 6;
-		public const int ImplicitConversionScore = 5;
-		public const int PromotionScore = 4;
-		public const int DowncastScore = 3;
-
 		private object _target;
 		private Type _type;
 		private string _methodName;
 		private object[] _arguments;
 
 #if NET_2_0
-		private delegate object MethodDispatcher(object target, object[] args);
-
 		private static Dictionary<MethodDispatcherKey, MethodDispatcher> _cache =
 			new Dictionary<MethodDispatcherKey, MethodDispatcher>(MethodDispatcherKey.EqualityComparer);
 #endif
@@ -65,17 +56,18 @@ namespace Boo.Lang.Runtime
 		public object InvokeResolvedMethod()
 		{
 #if NET_2_0
-			MethodDispatcherKey key = new MethodDispatcherKey(_type, _methodName, GetArgumentTypes());
+			Type[] argumentTypes = GetArgumentTypes();
+			MethodDispatcherKey key = new MethodDispatcherKey(_type, _methodName, argumentTypes);
 			MethodDispatcher dispatcher;
 			if (!_cache.TryGetValue(key, out dispatcher))
 			{
-				Candidate found = ResolveMethod();
-				dispatcher = EmitMethodDispatcher(found);
+				CandidateMethod found = ResolveMethod();
+				dispatcher = EmitMethodDispatcher(found, argumentTypes);
 				_cache.Add(key, dispatcher);
 			}
 			return dispatcher(_target, _arguments);
 #else
-			Candidate found = ResolveMethod();
+			CandidateMethod found = ResolveMethod();
 			return found.Method.Invoke(_target, AdjustArguments(found));
 #endif
 		}
@@ -88,186 +80,36 @@ namespace Boo.Lang.Runtime
 			if (_arguments.Length == 0) return NoArguments;
 
 			Type[] types = new Type[_arguments.Length];
-			for (int i=0; i<types.Length; ++i)
+			for (int i = 0; i < types.Length; ++i)
 			{
 				types[i] = GetArgumentType(i);
 			}
 			return types;
 		}
 
-		private MethodDispatcher EmitMethodDispatcher(Candidate found)
+		private MethodDispatcher EmitMethodDispatcher(CandidateMethod found, Type[] argumentTypes)
 		{
-			DynamicMethod method = new DynamicMethod(string.Empty, typeof(object), new Type[] { typeof(object), typeof(object[])}, _type);
-			ILGenerator il = method.GetILGenerator();
-			EmitLoadTargetObject(found, il);
-			EmitMethodArguments(found, il);
-			EmitMethodCall(found, il);
-			EmitMethodReturn(found, il);
-			return (MethodDispatcher)method.CreateDelegate(typeof(MethodDispatcher));
+			return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 		}
 
-		private void EmitMethodCall(Candidate found, ILGenerator il)
-		{
-			il.Emit(found.Method.IsStatic ? OpCodes.Call : OpCodes.Callvirt, found.Method);
-		}
-
-		private void EmitMethodArguments(Candidate found, ILGenerator il)
-		{
-			EmitFixedMethodArguments(found, il);
-
-			if (found.VarArgs)
-			{
-				EmitVarArgsMethodArguments(found, il);
-			}
-		}
-
-		private void EmitFixedMethodArguments(Candidate found, ILGenerator il)
-		{
-			for (int i = 0; i < found.MinimumArgumentCount; ++i)
-			{
-				Type paramType = found.GetParameterType(i);
-
-				EmitMethodArgument(found, il, i, paramType);
-			}
-		}
-
-		private void EmitVarArgsMethodArguments(Candidate found, ILGenerator il)
-		{
-			int varArgCount = _arguments.Length - found.MinimumArgumentCount;
-			Type varArgType = found.VarArgsParameterType;
-			OpCode storeOpCode = GetStoreElementOpCode(varArgType);
-			il.Emit(OpCodes.Ldc_I4, varArgCount);
-			il.Emit(OpCodes.Newarr, varArgType);
-			for (int i = 0; i < varArgCount; ++i)
-			{
-				il.Emit(OpCodes.Dup);
-				il.Emit(OpCodes.Ldc_I4, i);
-				if (IsStobj(storeOpCode))
-				{
-					il.Emit(OpCodes.Ldelema, varArgType);
-					EmitMethodArgument(found, il, found.MinimumArgumentCount + i, varArgType);
-					il.Emit(storeOpCode, varArgType);
-				}
-				else
-				{
-					EmitMethodArgument(found, il, found.MinimumArgumentCount + i, varArgType);
-					il.Emit(storeOpCode);
-				}
-			}
-		}
-		
-		bool IsStobj(OpCode code)
-		{
-			return OpCodes.Stobj.Value == code.Value;
-		}
-
-		OpCode GetStoreElementOpCode(Type type)
-		{
-			if (type.IsValueType)
-			{
-				if (type.IsEnum) return OpCodes.Stelem_I4;
-
-				switch (Type.GetTypeCode(type))
-				{
-					case TypeCode.Byte:
-						return OpCodes.Stelem_I1;
-					case TypeCode.Int16:
-						return OpCodes.Stelem_I2;
-					case TypeCode.Int32:
-						return OpCodes.Stelem_I4;
-					case TypeCode.Int64:
-						return OpCodes.Stelem_I8;
-					case TypeCode.Single:
-						return OpCodes.Stelem_R4;
-					case TypeCode.Double:
-						return OpCodes.Stelem_R8;
-				}
-				return OpCodes.Stobj;
-			}
-			return OpCodes.Stelem_Ref;
-		}
-
-		private void EmitMethodArgument(Candidate found, ILGenerator il, int argumentIndex, Type paramType)
-		{
-			il.Emit(OpCodes.Ldarg_1);
-			il.Emit(OpCodes.Ldc_I4, argumentIndex);
-			il.Emit(OpCodes.Ldelem_Ref);
-
-			switch (found.ArgumentScores[argumentIndex])
-			{
-				case PromotionScore:
-					il.Emit(OpCodes.Castclass, typeof(IConvertible));
-					il.Emit(OpCodes.Ldnull);
-					il.Emit(OpCodes.Callvirt, GetPromotionMethod(paramType));
-					break;
-				case ImplicitConversionScore:
-					EmitCastOrUnbox(il, GetArgumentType(argumentIndex));
-					il.Emit(OpCodes.Call, found.GetArgumentConversion(argumentIndex));
-					break;
-				default:
-					EmitCastOrUnbox(il, paramType);
-					break;
-			}
-		}
-
-		private void EmitLoadTargetObject(Candidate found, ILGenerator il)
-		{
-			if (found.Method.IsStatic) return;
-			il.Emit(OpCodes.Ldarg_0); // target object is the first argument
-		}
-
-		private static void EmitMethodReturn(Candidate found, ILGenerator il)
-		{
-			Type returnType = found.Method.ReturnType;
-			if (returnType == typeof(void))
-			{
-				il.Emit(OpCodes.Ldnull);
-			}
-			else
-			{
-				if (returnType.IsValueType)
-				{
-					il.Emit(OpCodes.Box, returnType);
-				}
-			}
-			il.Emit(OpCodes.Ret);
-		}
-
-		private static void EmitCastOrUnbox(ILGenerator il, Type type)
-		{
-			if (type.IsValueType)
-			{
-				il.Emit(OpCodes.Unbox, type);
-				il.Emit(OpCodes.Ldobj, type);
-			}
-			else
-			{
-				il.Emit(OpCodes.Castclass, type);
-			}
-		}
-
-		private MethodInfo GetPromotionMethod(Type type)
-		{
-			return typeof(IConvertible).GetMethod("To" + Type.GetTypeCode(type));
-		}
 #else
-		private object[] AdjustArguments(Candidate candidate)
+		private object[] AdjustArguments(CandidateMethod candidateMethod)
 		{
 			for (int i = 0; i < _arguments.Length; ++i)
 			{
-				_arguments[i] = AdjustArgument(candidate, i, _arguments[i]);
+				_arguments[i] = AdjustArgument(candidateMethod, i, _arguments[i]);
 			}
 			return _arguments;
 		}
 
-		private object AdjustArgument(Candidate candidate, int argumentIndex, object argument)
+		private object AdjustArgument(CandidateMethod candidateMethod, int argumentIndex, object argument)
 		{
-			switch(candidate.ArgumentScores[argumentIndex])
+			switch(candidateMethod.ArgumentScores[argumentIndex])
 			{
-				case PromotionScore:
-					return PromoteNumericArgument(candidate.GetParameterType(argumentIndex), argument);
-				case ImplicitConversionScore:
-					return candidate.GetArgumentConversion(argumentIndex).Invoke(null, new object[] {argument});
+				case CandidateMethod.PromotionScore:
+					return PromoteNumericArgument(candidateMethod.GetParameterType(argumentIndex), argument);
+				case CandidateMethod.ImplicitConversionScore:
+					return candidateMethod.GetArgumentConversion(argumentIndex).Invoke(null, new object[] {argument});
 			}
 			return argument;
 		}
@@ -295,21 +137,21 @@ namespace Boo.Lang.Runtime
 			throw new ArgumentException();
 		}
 #endif
-		private Candidate ResolveMethod()
+		private CandidateMethod ResolveMethod()
 		{
 			List applicable = FindApplicableMethods();
-			if (applicable.Count == 1) return ((Candidate)applicable[0]);
+			if (applicable.Count == 1) return ((CandidateMethod)applicable[0]);
 			if (applicable.Count == 0) throw new System.MissingMethodException(_type.FullName, _methodName);
 			return BestMethod(applicable);
 		}
 
-		private Candidate BestMethod(List applicable)
+		private CandidateMethod BestMethod(List applicable)
 		{
 			applicable.Sort(new Comparer(BetterCandidate));
-			return ((Candidate)applicable[-1]);
+			return ((CandidateMethod)applicable[-1]);
 		}
 
-		private int TotalScore(Candidate c1)
+		private int TotalScore(CandidateMethod c1)
 		{
 			int total = 0;
 			foreach (int score in c1.ArgumentScores)
@@ -321,14 +163,14 @@ namespace Boo.Lang.Runtime
 
 		private int BetterCandidate(object lhs, object rhs)
 		{
-			return BetterCandidate((Candidate)lhs, (Candidate)rhs);
+			return BetterCandidate((CandidateMethod)lhs, (CandidateMethod)rhs);
 		}
 
-		private int BetterCandidate(Candidate c1, Candidate c2)
+		private int BetterCandidate(CandidateMethod c1, CandidateMethod c2)
 		{
 			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
 			if (result != 0) return result;
-			
+
 			if (c1.VarArgs) return c2.VarArgs ? 0 : -1;
 			return c2.VarArgs ? 1 : 0;
 		}
@@ -339,21 +181,21 @@ namespace Boo.Lang.Runtime
 			foreach (MethodInfo method in _type.GetMethods(RuntimeServices.DefaultBindingFlags))
 			{
 				if (_methodName != method.Name) continue;
-				Candidate candidate = IsApplicableMethod(method);
-				if (null == candidate) continue;
-				applicable.Add(candidate);
+				CandidateMethod candidateMethod = IsApplicableMethod(method);
+				if (null == candidateMethod) continue;
+				applicable.Add(candidateMethod);
 			}
 			return applicable;
 		}
 
-		private Candidate IsApplicableMethod(MethodInfo method)
+		private CandidateMethod IsApplicableMethod(MethodInfo method)
 		{
 			ParameterInfo[] parameters = method.GetParameters();
 			bool varargs = IsVarArgs(parameters);
 			if (!ValidArgumentCount(parameters, varargs)) return null;
 
-			Candidate candidate = new Candidate(method, _arguments.Length, varargs);
-			if (CalculateCandidateScore(candidate)) return candidate;
+			CandidateMethod candidateMethod = new CandidateMethod(method, _arguments.Length, varargs);
+			if (CalculateCandidateScore(candidateMethod)) return candidateMethod;
 
 			return null;
 		}
@@ -379,25 +221,25 @@ namespace Boo.Lang.Runtime
 			return info.IsDefined(typeof(ParamArrayAttribute), true);
 		}
 
-		private bool CalculateCandidateScore(Candidate candidate)
+		private bool CalculateCandidateScore(CandidateMethod candidateMethod)
 		{
-			ParameterInfo[] parameters = candidate.Parameters;
-			for (int i=0; i<candidate.MinimumArgumentCount; ++i)
+			ParameterInfo[] parameters = candidateMethod.Parameters;
+			for (int i = 0; i < candidateMethod.MinimumArgumentCount; ++i)
 			{
 				if (parameters[i].IsOut) return false;
 
-				if (!CalculateCandidateArgumentScore(candidate, i, parameters[i].ParameterType))
+				if (!CalculateCandidateArgumentScore(candidateMethod, i, parameters[i].ParameterType))
 				{
 					return false;
 				}
 			}
 
-			if (candidate.VarArgs)
+			if (candidateMethod.VarArgs)
 			{
-				Type varArgItemType = candidate.VarArgsParameterType;
-				for (int i = candidate.MinimumArgumentCount; i < _arguments.Length; ++i)
+				Type varArgItemType = candidateMethod.VarArgsParameterType;
+				for (int i = candidateMethod.MinimumArgumentCount; i < _arguments.Length; ++i)
 				{
-					if (!CalculateCandidateArgumentScore(candidate, i, varArgItemType))
+					if (!CalculateCandidateArgumentScore(candidateMethod, i, varArgItemType))
 					{
 						return false;
 					}
@@ -406,37 +248,37 @@ namespace Boo.Lang.Runtime
 			return true;
 		}
 
-		private bool CalculateCandidateArgumentScore(Candidate candidate, int argumentIndex, Type paramType)
+		private bool CalculateCandidateArgumentScore(CandidateMethod candidateMethod, int argumentIndex, Type paramType)
 		{
-			int score = CalculateArgumentScore(candidate, argumentIndex, paramType, GetArgumentType(argumentIndex));
+			int score = CalculateArgumentScore(candidateMethod, argumentIndex, paramType, GetArgumentType(argumentIndex));
 			if (score < 0) return false;
 
-			candidate.ArgumentScores[argumentIndex] = score;
+			candidateMethod.ArgumentScores[argumentIndex] = score;
 			return true;
 		}
 
-		private int CalculateArgumentScore(Candidate candidate, int argumentIndex, Type paramType, Type argType)
+		private int CalculateArgumentScore(CandidateMethod candidateMethod, int argumentIndex, Type paramType, Type argType)
 		{
 			if (null == argType)
-			{	
+			{
 				if (paramType.IsValueType) return -1;
-				return ExactMatchScore;
+				return CandidateMethod.ExactMatchScore;
 			}
 			else
 			{
-				if (paramType == argType) return ExactMatchScore;
+				if (paramType == argType) return CandidateMethod.ExactMatchScore;
 
-				if (paramType.IsAssignableFrom(argType)) return UpCastScore;
+				if (paramType.IsAssignableFrom(argType)) return CandidateMethod.UpCastScore;
 
-				if (argType.IsAssignableFrom(paramType)) return DowncastScore;
+				if (argType.IsAssignableFrom(paramType)) return CandidateMethod.DowncastScore;
 
-				if (IsNumericPromotion(paramType, argType)) return PromotionScore;
+				if (IsNumericPromotion(paramType, argType)) return CandidateMethod.PromotionScore;
 
 				MethodInfo conversion = RuntimeServices.FindImplicitConversionOperator(argType, paramType);
 				if (null != conversion)
 				{
-					candidate.RememberArgumentConversion(argumentIndex, conversion);
-					return ImplicitConversionScore;
+					candidateMethod.RememberArgumentConversion(argumentIndex, conversion);
+					return CandidateMethod.ImplicitConversionScore;
 				}
 			}
 			return -1;
@@ -453,73 +295,6 @@ namespace Boo.Lang.Runtime
 			object arg = _arguments[i];
 			if (null == arg) return null;
 			return arg.GetType();
-		}
-
-		public class Candidate
-		{
-			private MethodInfo _method;
-			private int[] _argumentScores;
-			private MethodInfo[] _argumentConversions;
-			private bool _varArgs;
-
-			public Candidate(MethodInfo method, int argumentCount, bool varArgs)
-			{
-				_method = method;
-				_argumentScores = new int[argumentCount];
-				_varArgs = varArgs;
-			}
-
-			public MethodInfo Method
-			{
-				get { return _method;  }
-			}
-
-			public int[] ArgumentScores
-			{
-				get { return _argumentScores;  }
-			}
-
-			public bool VarArgs
-			{
-				get { return _varArgs;  }
-			}
-
-			public int MinimumArgumentCount
-			{
-				get
-				{
-					return _varArgs ? Parameters.Length - 1 : Parameters.Length;
-				}
-			}
-
-			public ParameterInfo[] Parameters
-			{
-				get { return _method.GetParameters();  }
-			}
-
-			public Type VarArgsParameterType
-			{
-				get { return GetParameterType(Parameters.Length-1).GetElementType(); }
-			}
-
-			public Type GetParameterType(int i)
-			{
-				return Parameters[i].ParameterType;
-			}
-
-			public void RememberArgumentConversion(int argumentIndex, MethodInfo conversion)
-			{
-				if (null == _argumentConversions)
-				{
-					_argumentConversions = new MethodInfo[_argumentScores.Length];
-				}
-				_argumentConversions[argumentIndex] = conversion;
-			}
-
-			public MethodInfo GetArgumentConversion(int argumentIndex)
-			{
-				return _argumentConversions[argumentIndex];
-			}
 		}
 
 #if NET_2_0
