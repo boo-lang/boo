@@ -44,6 +44,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected IMethod RuntimeServices_GetProperty;
 		protected IMethod RuntimeServices_SetSlice;
 		protected IMethod RuntimeServices_GetSlice;
+		protected IType _duckTypingServicesType;
 		
 		public ExpandDuckTypedExpressions()
 		{
@@ -57,17 +58,32 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected virtual void InitializeDuckTypingServices()
 		{
-			IType duckTypingServices = GetDuckTypingServicesType();
-			RuntimeServices_Invoke = ResolveMethod(duckTypingServices, "Invoke");
-			RuntimeServices_InvokeCallable = ResolveMethod(duckTypingServices, "InvokeCallable");
-			RuntimeServices_InvokeBinaryOperator = ResolveMethod(duckTypingServices, "InvokeBinaryOperator");
-			RuntimeServices_InvokeUnaryOperator = ResolveMethod(duckTypingServices, "InvokeUnaryOperator");
-			RuntimeServices_SetProperty = ResolveMethod(duckTypingServices, "SetProperty");
-			RuntimeServices_GetProperty = ResolveMethod(duckTypingServices, "GetProperty");
-			RuntimeServices_SetSlice = ResolveMethod(duckTypingServices, "SetSlice");
-			RuntimeServices_GetSlice = ResolveMethod(duckTypingServices, "GetSlice");
+			_duckTypingServicesType = GetDuckTypingServicesType();
+			RuntimeServices_Invoke = GetInvokeMethod();
+			RuntimeServices_InvokeCallable = ResolveMethod(_duckTypingServicesType, "InvokeCallable");
+			RuntimeServices_InvokeBinaryOperator = ResolveMethod(_duckTypingServicesType, "InvokeBinaryOperator");
+			RuntimeServices_InvokeUnaryOperator = ResolveMethod(_duckTypingServicesType, "InvokeUnaryOperator");
+			RuntimeServices_SetProperty = GetSetPropertyMethod();
+			RuntimeServices_GetProperty = GetGetPropertyMethod();
+			RuntimeServices_SetSlice = ResolveMethod(_duckTypingServicesType, "SetSlice");
+			RuntimeServices_GetSlice = ResolveMethod(_duckTypingServicesType, "GetSlice");
 		}
-		
+
+		protected virtual IMethod GetInvokeMethod()
+		{
+			return ResolveMethod(_duckTypingServicesType, "Invoke");
+		}
+
+		protected virtual IMethod GetGetPropertyMethod()
+		{
+			return ResolveMethod(_duckTypingServicesType, "GetProperty");
+		}
+
+		protected virtual IMethod GetSetPropertyMethod()
+		{
+			return ResolveMethod(_duckTypingServicesType, "SetProperty");
+		}
+
 		protected virtual IType GetDuckTypingServicesType()
 		{
 			return TypeSystemServices.Map(typeof(Boo.Lang.Runtime.RuntimeServices));

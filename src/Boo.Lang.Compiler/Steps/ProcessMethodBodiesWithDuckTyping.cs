@@ -147,13 +147,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void BindQuack(Expression node)
+		protected void BindQuack(Expression node)
 		{
 			Bind(node, BuiltinFunction.Quack);
 			BindDuck(node);
 		}
 		
-		void BindDuckTypedMethodInvocation(MethodInvocationExpression node)
+		protected void BindDuckTypedMethodInvocation(MethodInvocationExpression node)
 		{
 			Bind(node, BuiltinFunction.Quack);
 			BindDuck(node);
