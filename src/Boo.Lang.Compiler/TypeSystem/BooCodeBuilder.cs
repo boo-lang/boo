@@ -41,28 +41,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public BooCodeBuilder(TypeSystemServices tss)
 		{
-			if (null == tss)
-			{
-				throw new ArgumentNullException("tss");
-			}
-			
+			if (null == tss) throw new ArgumentNullException("tss");
 			_tss = tss;
 		}
 		
 		public TypeSystemServices TypeSystemServices
 		{
-			get
-			{
-				return _tss;
-			}
+			get { return _tss; }
 		}
 		
 		public CompilerContext Context
 		{
-			get
-			{
-				return _tss.Context;
-			}
+			get { return _tss.Context; }
 		}
 
 		public int GetFirstParameterIndex(TypeMember member)
@@ -79,9 +69,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public Statement CreateFieldAssignment(LexicalInfo lexicalInfo, IField fieldEntity, Expression initializer)
 		{
 			ExpressionStatement stmt = new ExpressionStatement(initializer.LexicalInfo);
-			Expression context = fieldEntity.IsStatic
-				? (Expression) CreateReference(lexicalInfo, fieldEntity.DeclaringType)
-				: CreateSelfReference(fieldEntity.DeclaringType);
+			Expression context = CreateReference(fieldEntity);
 			stmt.Expression = this.CreateAssignment(initializer.LexicalInfo,
 				CreateMemberReference(context, fieldEntity),
 				initializer);
@@ -377,17 +365,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public MemberReferenceExpression CreateMemberReference(IMember member)
 		{
-			IType declaringType = member.DeclaringType;
-			
-			Expression target = null;
-			if (member.IsStatic)
-			{
-				target = CreateReference(declaringType);
-			}
-			else
-			{
-				target = CreateSelfReference(declaringType);
-			}
+        	Expression target = member.IsStatic
+				? (Expression)CreateReference(member.DeclaringType)
+				: (Expression)CreateSelfReference(member.DeclaringType);
 			return CreateMemberReference(target, member);
 		}
 		
