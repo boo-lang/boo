@@ -40,17 +40,17 @@ namespace Boo.Lang.Runtime
 
 	internal class MethodDispatcherEmitter
 	{
-		private readonly CandidateMethod found;
-		private readonly Type[] argumentTypes;
-		private readonly DynamicMethod method;
-		private readonly ILGenerator il;
+		private readonly CandidateMethod _found;
+		private readonly Type[] _argumentTypes;
+		private readonly DynamicMethod _method;
+		private readonly ILGenerator _il;
 
 		public MethodDispatcherEmitter(Type owner, CandidateMethod found, Type[] argumentTypes)
 		{
-			this.found = found;
-			this.argumentTypes = argumentTypes;
-			method = new DynamicMethod(string.Empty, typeof(object), new Type[] { typeof(object), typeof(object[]) }, owner);
-			il = method.GetILGenerator();
+			_found = found;
+			_argumentTypes = argumentTypes;
+			_method = new DynamicMethod(string.Empty, typeof(object), new Type[] { typeof(object), typeof(object[]) }, owner);
+			_il = _method.GetILGenerator();
 		}
 
 		public MethodDispatcher Emit()
@@ -59,25 +59,30 @@ namespace Boo.Lang.Runtime
 			EmitMethodArguments();
 			EmitMethodCall();
 			EmitMethodReturn();
-			return (MethodDispatcher)method.CreateDelegate(typeof(MethodDispatcher));
+			return CreateMethodDispatcher();
+		}
+
+		private MethodDispatcher CreateMethodDispatcher()
+		{
+			return (MethodDispatcher)_method.CreateDelegate(typeof(MethodDispatcher));
 		}
 
 		private void EmitMethodCall()
 		{
-			il.Emit(found.Method.IsStatic ? OpCodes.Call : OpCodes.Callvirt, found.Method);
+			_il.Emit(_found.Method.IsStatic ? OpCodes.Call : OpCodes.Callvirt, _found.Method);
 		}
 
 		private void EmitMethodArguments()
 		{
 			EmitFixedMethodArguments();
-			if (found.VarArgs) EmitVarArgsMethodArguments();
+			if (_found.VarArgs) EmitVarArgsMethodArguments();
 		}
 
 		private void EmitFixedMethodArguments()
 		{
-			for (int i = 0; i < found.MinimumArgumentCount; ++i)
+			for (int i = 0; i < _found.MinimumArgumentCount; ++i)
 			{
-				Type paramType = found.GetParameterType(i);
+				Type paramType = _found.GetParameterType(i);
 
 				EmitMethodArgument(i, paramType);
 			}
@@ -85,25 +90,25 @@ namespace Boo.Lang.Runtime
 
 		private void EmitVarArgsMethodArguments()
 		{
-			int varArgCount = argumentTypes.Length - found.MinimumArgumentCount;
-			Type varArgType = found.VarArgsParameterType;
+			int varArgCount = _argumentTypes.Length - _found.MinimumArgumentCount;
+			Type varArgType = _found.VarArgsParameterType;
 			OpCode storeOpCode = GetStoreElementOpCode(varArgType);
-			il.Emit(OpCodes.Ldc_I4, varArgCount);
-			il.Emit(OpCodes.Newarr, varArgType);
+			_il.Emit(OpCodes.Ldc_I4, varArgCount);
+			_il.Emit(OpCodes.Newarr, varArgType);
 			for (int i = 0; i < varArgCount; ++i)
 			{
-				il.Emit(OpCodes.Dup);
-				il.Emit(OpCodes.Ldc_I4, i);
+				_il.Emit(OpCodes.Dup);
+				_il.Emit(OpCodes.Ldc_I4, i);
 				if (IsStobj(storeOpCode))
 				{
-					il.Emit(OpCodes.Ldelema, varArgType);
-					EmitMethodArgument(found.MinimumArgumentCount + i, varArgType);
-					il.Emit(storeOpCode, varArgType);
+					_il.Emit(OpCodes.Ldelema, varArgType);
+					EmitMethodArgument(_found.MinimumArgumentCount + i, varArgType);
+					_il.Emit(storeOpCode, varArgType);
 				}
 				else
 				{
-					EmitMethodArgument(found.MinimumArgumentCount + i, varArgType);
-					il.Emit(storeOpCode);
+					EmitMethodArgument(_found.MinimumArgumentCount + i, varArgType);
+					_il.Emit(storeOpCode);
 				}
 			}
 		}
@@ -141,20 +146,20 @@ namespace Boo.Lang.Runtime
 
 		private void EmitMethodArgument(int argumentIndex, Type paramType)
 		{
-			il.Emit(OpCodes.Ldarg_1);
-			il.Emit(OpCodes.Ldc_I4, argumentIndex);
-			il.Emit(OpCodes.Ldelem_Ref);
+			_il.Emit(OpCodes.Ldarg_1);
+			_il.Emit(OpCodes.Ldc_I4, argumentIndex);
+			_il.Emit(OpCodes.Ldelem_Ref);
 
-			switch (found.ArgumentScores[argumentIndex])
+			switch (_found.ArgumentScores[argumentIndex])
 			{
 				case CandidateMethod.PromotionScore:
-					il.Emit(OpCodes.Castclass, typeof(IConvertible));
-					il.Emit(OpCodes.Ldnull);
-					il.Emit(OpCodes.Callvirt, GetPromotionMethod(paramType));
+					_il.Emit(OpCodes.Castclass, typeof(IConvertible));
+					_il.Emit(OpCodes.Ldnull);
+					_il.Emit(OpCodes.Callvirt, GetPromotionMethod(paramType));
 					break;
 				case CandidateMethod.ImplicitConversionScore:
-					EmitCastOrUnbox(argumentTypes[argumentIndex]);
-					il.Emit(OpCodes.Call, found.GetArgumentConversion(argumentIndex));
+					EmitCastOrUnbox(_argumentTypes[argumentIndex]);
+					_il.Emit(OpCodes.Call, _found.GetArgumentConversion(argumentIndex));
 					break;
 				default:
 					EmitCastOrUnbox(paramType);
@@ -164,37 +169,37 @@ namespace Boo.Lang.Runtime
 
 		private void EmitLoadTargetObject()
 		{
-			if (found.Method.IsStatic) return;
-			il.Emit(OpCodes.Ldarg_0); // target object is the first argument
+			if (_found.Method.IsStatic) return;
+			_il.Emit(OpCodes.Ldarg_0); // target object is the first argument
 		}
 
 		private void EmitMethodReturn()
 		{
-			Type returnType = found.Method.ReturnType;
+			Type returnType = _found.Method.ReturnType;
 			if (returnType == typeof(void))
 			{
-				il.Emit(OpCodes.Ldnull);
+				_il.Emit(OpCodes.Ldnull);
 			}
 			else
 			{
 				if (returnType.IsValueType)
 				{
-					il.Emit(OpCodes.Box, returnType);
+					_il.Emit(OpCodes.Box, returnType);
 				}
 			}
-			il.Emit(OpCodes.Ret);
+			_il.Emit(OpCodes.Ret);
 		}
 
 		private void EmitCastOrUnbox(Type type)
 		{
 			if (type.IsValueType)
 			{
-				il.Emit(OpCodes.Unbox, type);
-				il.Emit(OpCodes.Ldobj, type);
+				_il.Emit(OpCodes.Unbox, type);
+				_il.Emit(OpCodes.Ldobj, type);
 			}
 			else
 			{
-				il.Emit(OpCodes.Castclass, type);
+				_il.Emit(OpCodes.Castclass, type);
 			}
 		}
 
