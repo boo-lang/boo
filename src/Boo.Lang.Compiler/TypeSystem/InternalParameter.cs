@@ -30,7 +30,7 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {	
-	public class InternalParameter : AbstractLocalEntity, IParameter, ILocalEntity
+	public class InternalParameter : AbstractLocalEntity, IParameter, ILocalEntity, IInternalEntity
 	{
 		ParameterDeclaration _parameter;
 		
@@ -41,66 +41,47 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_parameter = parameter;
 			_index = index;
 		}
+
+		public Node Node
+		{
+			get { return _parameter;  }
+		}
 		
 		public string Name
 		{
-			get
-			{
-				return _parameter.Name;
-			}
+			get { return _parameter.Name; }
 		}
 		
 		public string FullName
 		{
-			get
-			{
-				return _parameter.Name;
-			}
+			get { return _parameter.Name; }
 		}
 		
 		public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Parameter;
-			}
+			get { return EntityType.Parameter; }
 		}
 		
 		public ParameterDeclaration Parameter
 		{
-			get
-			{
-				return _parameter;
-			}
+			get { return _parameter; }
 		}
 		
 		public IType Type
 		{
-			get
-			{
-				return (IType)TypeSystemServices.GetEntity(_parameter.Type);
-			}
+			get { return (IType)TypeSystemServices.GetEntity(_parameter.Type); }
 		}
 		
 		public int Index
 		{
-			get
-			{
-				return _index;
-			}
+			get { return _index; }
 			
-			set
-			{
-				_index = value;
-			}
+			set { _index = value; }
 		}
 		
 		public bool IsPrivateScope
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public bool IsDuckTyped
@@ -110,15 +91,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsByRef
 		{
-			get
-			{
-				return _parameter.IsByRef;
-			}
-		}
-		
-		public IType GetElementType()
-		{
-			return this.Type;
+			get { return _parameter.IsByRef; }
 		}
 	}
 }

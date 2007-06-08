@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {	
-	public class InternalLocal : AbstractLocalEntity, ITypedEntity, ILocalEntity
+	public class InternalLocal : AbstractLocalEntity, ITypedEntity, ILocalEntity, IInternalEntity
 	{		
 		Boo.Lang.Compiler.Ast.Local _local;
 		
@@ -42,76 +42,54 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_type = type;
 			_shared = false;
 		}
+
+		public Boo.Lang.Compiler.Ast.Node Node
+		{
+			get { return _local;  }
+		}
 		
 		public string Name
 		{
-			get
-			{
-				return _local.Name;
-			}
+			get { return _local.Name; }
 		}
 		
 		public string FullName
 		{
-			get
-			{
-				return _local.Name;
-			}
+			get { return _local.Name; }
 		}
 		
 		public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Local;
-			}
+			get { return EntityType.Local; }
 		}
 		
 		public bool IsPrivateScope
 		{
-			get
-			{
-				return _local.PrivateScope;
-			}
+			get { return _local.PrivateScope; }
 			
-			set
-			{
-				_local.PrivateScope = value;
-			}
+			set { _local.PrivateScope = value; }
 		}
 		
 		public Boo.Lang.Compiler.Ast.Local Local
 		{
-			get
-			{
-				return _local;
-			}
+			get { return _local; }
 		}
 		
 		public IType Type
 		{
-			get
-			{
-				return _type;
-			}
+			get { return _type; }
 		}
 		
 		public System.Reflection.Emit.LocalBuilder LocalBuilder
 		{
-			get
-			{
-				return _builder;
-			}
+			get { return _builder; }
 			
-			set
-			{
-				_builder = value;
-			}
+			set { _builder = value; }
 		}
 		
 		override public string ToString()
 		{
-			return string.Format("Local<Name={0}, Type={1}>", Name, Type);
+			return string.Format("Local({0}, {1})", Name, Type);
 		}
 	}
 }
