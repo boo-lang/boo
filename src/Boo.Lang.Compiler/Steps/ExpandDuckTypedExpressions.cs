@@ -59,27 +59,27 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void InitializeDuckTypingServices()
 		{
 			_duckTypingServicesType = GetDuckTypingServicesType();
-			RuntimeServices_Invoke = GetInvokeMethod();
+			RuntimeServices_Invoke = ResolveInvokeMethod();
 			RuntimeServices_InvokeCallable = ResolveMethod(_duckTypingServicesType, "InvokeCallable");
 			RuntimeServices_InvokeBinaryOperator = ResolveMethod(_duckTypingServicesType, "InvokeBinaryOperator");
 			RuntimeServices_InvokeUnaryOperator = ResolveMethod(_duckTypingServicesType, "InvokeUnaryOperator");
-			RuntimeServices_SetProperty = GetSetPropertyMethod();
-			RuntimeServices_GetProperty = GetGetPropertyMethod();
+			RuntimeServices_SetProperty = ResolveSetPropertyMethod();
+			RuntimeServices_GetProperty = ResolveGetPropertyMethod();
 			RuntimeServices_SetSlice = ResolveMethod(_duckTypingServicesType, "SetSlice");
 			RuntimeServices_GetSlice = ResolveMethod(_duckTypingServicesType, "GetSlice");
 		}
 
-		protected virtual IMethod GetInvokeMethod()
+		protected virtual IMethod ResolveInvokeMethod()
 		{
 			return ResolveMethod(_duckTypingServicesType, "Invoke");
 		}
 
-		protected virtual IMethod GetGetPropertyMethod()
+		protected virtual IMethod ResolveGetPropertyMethod()
 		{
 			return ResolveMethod(_duckTypingServicesType, "GetProperty");
 		}
 
-		protected virtual IMethod GetSetPropertyMethod()
+		protected virtual IMethod ResolveSetPropertyMethod()
 		{
 			return ResolveMethod(_duckTypingServicesType, "SetProperty");
 		}
@@ -89,7 +89,17 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.Map(typeof(Boo.Lang.Runtime.RuntimeServices));
 		}
 
-		private IMethod ResolveMethod(IType type, string name)
+		protected virtual IMethod GetGetPropertyMethod()
+		{
+			return RuntimeServices_GetProperty;
+		}
+
+		protected virtual IMethod GetSetPropertyMethod()
+		{
+			return RuntimeServices_SetProperty;
+		}
+
+		protected IMethod ResolveMethod(IType type, string name)
 		{
 			IMethod method = NameResolutionService.ResolveMethod(type, name);
 			if (null == method) throw new System.ArgumentException(string.Format("Method '{0}' not found in type '{1}'", type, name));
@@ -131,6 +141,39 @@ namespace Boo.Lang.Compiler.Steps
 			// todo
 			// a[foo]
 			// RuntimeServices.GetSlice(a, "", (foo,))
+
+			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+				RuntimeServices_GetSlice,
+				GetSlicingTarget(node),
+				CodeBuilder.CreateStringLiteral(GetSlicingMemberName(node)),
+				GetArrayForIndices(node));
+			
+			Replace(mie);
+		}
+
+		private static string GetSlicingMemberName(SlicingExpression node)
+		{
+			if (NodeType.MemberReferenceExpression == node.Target.NodeType)
+			{
+				MemberReferenceExpression mre = ((MemberReferenceExpression)node.Target);
+				return mre.Name;
+			}
+			return "";
+		}
+
+		private static Expression GetSlicingTarget(SlicingExpression node)
+		{
+			Expression target = node.Target;
+			if (NodeType.MemberReferenceExpression == target.NodeType)
+			{
+				MemberReferenceExpression mre = ((MemberReferenceExpression)target);
+				return mre.Target;
+			}
+			return target;
+		}
+
+		private ArrayLiteralExpression GetArrayForIndices(SlicingExpression node)
+		{
 			ArrayLiteralExpression args = new ArrayLiteralExpression();
 			foreach (Slice index in node.Indices)
 			{
@@ -141,26 +184,9 @@ namespace Boo.Lang.Compiler.Steps
 				args.Items.Add(index.Begin);
 			}
 			BindExpressionType(args, TypeSystemServices.ObjectArrayType);
-			
-			Expression target = node.Target;
-			string memberName = "";
-			
-			if (NodeType.MemberReferenceExpression == target.NodeType)
-			{
-				MemberReferenceExpression mre = ((MemberReferenceExpression)target);
-				target = mre.Target;
-				memberName = mre.Name;
-			}
-			
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-				RuntimeServices_GetSlice,
-				target,
-				CodeBuilder.CreateStringLiteral(memberName),
-				args);
-			
-			Replace(mie);
+			return args;
 		}
-		
+
 		override public void LeaveUnaryExpression(UnaryExpression node)
 		{
 			if (IsDuckTyped(node.Operand) &&
@@ -180,18 +206,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
-				if (NodeType.SlicingExpression == node.Left.NodeType)
-				{
-					SlicingExpression slice = (SlicingExpression)node.Left;
-					if(IsDuckTyped(slice.Target))
-					{
-						ProcessDuckSlicingPropertySet(node);
-					}
-				}
-				else if (TypeSystemServices.IsQuackBuiltin(node.Left))
-				{
-					ProcessQuackPropertySet(node);
-				}
+				ProcessAssignment(node);
 				return;
 			}
 
@@ -206,6 +221,22 @@ namespace Boo.Lang.Compiler.Steps
 			Replace(mie);
 		}
 
+		private void ProcessAssignment(BinaryExpression node)
+		{
+			if (NodeType.SlicingExpression == node.Left.NodeType)
+			{
+				SlicingExpression slice = (SlicingExpression)node.Left;
+				if (IsDuckTyped(slice.Target))
+				{
+					ProcessDuckSlicingPropertySet(node);
+				}
+			}
+			else if (TypeSystemServices.IsQuackBuiltin(node.Left))
+			{
+				ProcessQuackPropertySet(node);
+			}
+		}
+
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			if (!TypeSystemServices.IsQuackBuiltin(node)) return;
@@ -214,13 +245,13 @@ namespace Boo.Lang.Compiler.Steps
 				|| AstUtil.IsTargetOfSlicing(node)) return;
 
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-				RuntimeServices_GetProperty,
+				GetGetPropertyMethod(),
 				node.Target,
 				CodeBuilder.CreateStringLiteral(node.Name));
 
 			Replace(mie);
 		}
-		
+
 		void ProcessDuckSlicingPropertySet(BinaryExpression node)
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
@@ -259,13 +290,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Left;
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-				RuntimeServices_SetProperty,
+				GetSetPropertyMethod(),
 				target.Target,
 				CodeBuilder.CreateStringLiteral(target.Name),
 				node.Right);
 			Replace(mie);
 		}
-		
+
 		protected virtual void ExpandQuackInvocation(MethodInvocationExpression node)
 		{
 			ExpandQuackInvocation(node, RuntimeServices_Invoke);
