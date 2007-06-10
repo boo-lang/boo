@@ -796,6 +796,7 @@ namespace BooC
 		{
 			foreach (string fname in Directory.GetFiles(path, "*.boo"))
 			{
+				if (!fname.EndsWith(".boo")) continue;
 				_options.Input.Add(new FileInput(Path.GetFullPath(fname)));
 			}
 								
