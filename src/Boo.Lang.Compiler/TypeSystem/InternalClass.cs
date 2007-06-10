@@ -113,7 +113,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 						constructors.Add(TypeSystemServices.GetEntity(member));
 					}
 				}
-				_constructors = (IConstructor[])constructors.ToArray(typeof(IConstructor));
+				_constructors = (IConstructor[])constructors.ToArray(new IConstructor[constructors.Count]);
 			}
 			return _constructors;
 		}

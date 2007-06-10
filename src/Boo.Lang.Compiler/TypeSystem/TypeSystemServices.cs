@@ -893,7 +893,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			List members = new List();
 			GetAllMembers(members, entity);
-			return (IEntity[])members.ToArray(typeof(IEntity));
+			return (IEntity[])members.ToArray(new IEntity[members.Count]);
 		}
 		
 		private static void GetAllMembers(List members, INamespace entity)

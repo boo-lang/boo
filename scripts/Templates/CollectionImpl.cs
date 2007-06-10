@@ -80,7 +80,7 @@ itemType = "Boo.Lang.Compiler.Ast." + model.GetCollectionItemType(node)
 		
 		public new ${itemType}[] ToArray()
 		{
-			return (${itemType}[])InnerList.ToArray(typeof(${itemType}));
+			return (${itemType}[])InnerList.ToArray(new ${itemType}[InnerList.Count]);
 		}
 	}
 }

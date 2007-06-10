@@ -1302,7 +1302,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			return (IEntity[])setMethods.ToArray(typeof(IEntity));
+			return ToEntityArray(setMethods);
 		}
 		
 		IEntity[] GetGetMethods(IEntity[] entities)
@@ -1320,9 +1320,14 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			return (IEntity[])getMethods.ToArray(typeof(IEntity));
+			return ToEntityArray(getMethods);
 		}
-		
+
+		private static IEntity[] ToEntityArray(List entities)
+		{
+			return (IEntity[])entities.ToArray(new IEntity[entities.Count]);
+		}
+
 		void CheckNoComplexSlicing(SlicingExpression node)
 		{
 			if (AstUtil.IsComplexSlicing(node))

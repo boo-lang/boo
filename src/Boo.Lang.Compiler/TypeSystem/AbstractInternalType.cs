@@ -286,7 +286,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				IType type = TypeSystemServices.GetType(baseType);
 				if (type.IsInterface) buffer.AddUnique(type);
 			}
-			return (IType[])buffer.ToArray(typeof(IType));
+			return (IType[])buffer.ToArray(new IType[buffer.Count]);
 		}
 
 		public virtual IEntity[] GetMembers()

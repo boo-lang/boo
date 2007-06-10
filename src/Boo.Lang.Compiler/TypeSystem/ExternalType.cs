@@ -48,6 +48,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		string _primitiveName;
 		
 		string _fullName;
+
+		private string _name;
 		
 		internal ExternalType(TypeSystemServices tss, Type type)
 		{
@@ -85,8 +87,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _type.Name;
+				if (_name == null) _name = TypeName(_type);
+				return _name;
 			}
+		}
+
+		private static string TypeName(Type type)
+		{
+#if NET_2_0
+			if (!type.IsGenericTypeDefinition) return type.Name;
+			string name = type.Name;
+			int index = name.LastIndexOf('`');
+			if (index < 0) return name;
+			return name.Substring(0, index);
+#else
+			return type.Name;
+#endif
 		}
 		
 		public EntityType EntityType
@@ -313,7 +329,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			bool found = false;
 			foreach (IEntity member in GetMembers())
 			{
-				if (member.Name == name && NameResolutionService.IsFlagSet(flags, member.EntityType))
+				if (!NameResolutionService.IsFlagSet(flags, member.EntityType)) continue;
+
+				if (member.Name == name)
 				{
 					targetList.AddUnique(member);
 					found = true;

@@ -186,11 +186,11 @@ namespace Boo.Lang.Compiler
 				{
 
 					//nant passes full path to gac dlls, which compiler doesn't like:
-					if (assembly.ToLower().StartsWith(_systemDir.ToLower()))
+					//if (assembly.ToLower().StartsWith(_systemDir.ToLower()))
 					{
-						return LoadAssemblyFromGac(Path.GetFileName(assembly));
+						//return LoadAssemblyFromGac(Path.GetFileName(assembly));
 					}
-					else //load using path  
+					//else //load using path  
 					{
 						a = Assembly.LoadFrom(assembly);
 					}

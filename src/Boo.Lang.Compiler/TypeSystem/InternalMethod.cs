@@ -330,7 +330,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				get
 				{
 					if (null == _labels) return EmptyInternalLabelArray;
-					return (InternalLabel[])_labels.ToArray(typeof(InternalLabel));
+					return (InternalLabel[])_labels.ToArray(new InternalLabel[_labels.Count]);
 				}
 			}
 		}

@@ -43,16 +43,16 @@ namespace Boo.Lang
 	[Serializable]
 	public class List : IList
 	{
+		private const int DefaultCapacity = 16;
+
 		static readonly object[] EmptyObjectArray = new object[0];
 		
 		protected object[] _items;
 		
 		protected int _count;
 		
-		public List()
-		{
-			_items = EmptyObjectArray;
-			_count = 0;
+		public List() : this(DefaultCapacity)
+		{	
 		}
 		
 		public List(IEnumerable enumerable) : this()
@@ -246,6 +246,12 @@ namespace Boo.Lang
 			Array target = Array.CreateInstance(targetType, _count);
 			CopyTo(target, 0);
 			return target;
+		}
+
+		public object[] ToArray(object[] array)
+		{
+			CopyTo(array, 0);
+			return array;
 		}
 		
 		public object[] ToArray()

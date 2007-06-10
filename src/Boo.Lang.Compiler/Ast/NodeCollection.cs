@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public Node[] ToArray()
 		{
-			return (Node[])_list.ToArray(typeof(Node));
+			return (Node[])_list.ToArray(new Node[_list.Count]);
 		}
 		
 		public Node[] ToReverseArray()
@@ -120,7 +120,7 @@ namespace Boo.Lang.Compiler.Ast
 					result.Add(node);
 				}
 			}
-			return (Node[])result.ToArray(typeof(Node));
+			return (Node[])result.ToArray(new Node[result.Count]);
 		}
 		
 		public bool ContainsNode(Node node)

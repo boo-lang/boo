@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		static Regex _identifierRE = new Regex("^[a-zA-Z.]+$");
 		
-		static Regex _extendedRE = new Regex(@"\s");
+		//static Regex _extendedRE = new Regex(@"\s");
 
 		public PrintOptions Options = PrintOptions.None;
 		
@@ -126,12 +126,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteLine();
 		}
 		
-		bool IsExtendedRE(string s)
+		static bool IsExtendedRE(string s)
 		{
-			return _extendedRE.IsMatch(s);
+			return s.IndexOfAny(new char[] { ' ', '\t' }) > -1;
+			//return _extendedRE.IsMatch(s);
 		}
 		
-		bool IsSimpleIdentifier(string s)
+		static bool IsSimpleIdentifier(string s)
 		{
 			return _identifierRE.IsMatch(s);
 		}
