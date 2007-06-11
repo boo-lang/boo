@@ -257,7 +257,6 @@ namespace Boo.Lang.Compiler.Steps
 				GetGetPropertyMethod(),
 				node.Target,
 				CodeBuilder.CreateStringLiteral(node.Name));
-
 			Replace(mie);
 		}
 
@@ -265,32 +264,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			SlicingExpression slice = (SlicingExpression)node.Left;
 
-			ArrayLiteralExpression args = new ArrayLiteralExpression();
-			foreach (Slice index in slice.Indices)
-			{
-				if (AstUtil.IsComplexSlice(index))
-				{
-					throw CompilerErrorFactory.NotImplemented(index, "complex slice for duck");
-				}
-				args.Items.Add(index.Begin);
-			}
+			ArrayLiteralExpression args = GetArrayForIndices(slice);
 			args.Items.Add(node.Right);
-			BindExpressionType(args, TypeSystemServices.ObjectArrayType);
-			
-			Expression target = slice.Target;
-			string memberName = "";
-			
-			if (NodeType.MemberReferenceExpression == target.NodeType)
-			{
-				MemberReferenceExpression mre = ((MemberReferenceExpression)target);
-				target = mre.Target;
-				memberName = mre.Name;
-			}
 			
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 				RuntimeServices_SetSlice,
-				target,
-				CodeBuilder.CreateStringLiteral(memberName),
+				GetSlicingTarget(slice),
+				CodeBuilder.CreateStringLiteral(GetSlicingMemberName(slice)),
 				args);
 			Replace(mie);
 		}
