@@ -3968,34 +3968,41 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			NamedArgumentsNotAllowed(node);
 			InternalConstructor constructorInfo = targetEntity as InternalConstructor;
-			if (null != constructorInfo)
-			{
-				IType targetType = null;
-				if (NodeType.SuperLiteralExpression == node.Target.NodeType)
-				{
-					constructorInfo.HasSuperCall = true;
-					targetType = constructorInfo.DeclaringType.BaseType;
-				}
-				else if (node.Target.NodeType == NodeType.SelfLiteralExpression)
-				{
-					constructorInfo.HasSelfCall = true;
-					targetType = constructorInfo.DeclaringType;
-				}
+			if (null == constructorInfo) return;
 
-				IConstructor targetConstructorInfo = GetCorrectConstructor(node, targetType, node.Arguments);
-				if (null != targetConstructorInfo)
-				{
-					Bind(node.Target, targetConstructorInfo);
-				}
+			IType targetType = null;
+			if (NodeType.SuperLiteralExpression == node.Target.NodeType)
+			{
+				constructorInfo.HasSuperCall = true;
+				targetType = constructorInfo.DeclaringType.BaseType;
+			}
+			else if (node.Target.NodeType == NodeType.SelfLiteralExpression)
+			{
+				constructorInfo.HasSelfCall = true;
+				targetType = constructorInfo.DeclaringType;
+			}
+
+			IConstructor targetConstructorInfo = GetCorrectConstructor(node, targetType, node.Arguments);
+			if (null != targetConstructorInfo)
+			{
+				Bind(node.Target, targetConstructorInfo);
 			}
 		}
 
+		protected virtual bool ProcessMethodInvocationWithInvalidParameters(MethodInvocationExpression node, IMethod targetMethod)
+		{
+			return false;
+		}
+		
 		protected virtual void ProcessMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
 		{
 			IMethod targetMethod = (IMethod)targetEntity;
 			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false))
 			{
 				if (TryToProcessAsExtensionInvocation(node)) return;
+
+				if (ProcessMethodInvocationWithInvalidParameters(node, targetMethod)) return;
+				
 				AssertParameters(node, targetMethod, node.Arguments);
 			}
 
@@ -4935,9 +4942,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool AssertParameters(Node sourceNode, IEntity sourceEntity, ICallableType method, ExpressionCollection args)
 		{
-			bool ok = CheckParameters(method, args, true);
-			if (!ok) Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
-			return ok;
+			if (CheckParameters(method, args, true)) return true;
+			
+			Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
+			return false;
 		}
 
 		private bool CheckParameters(ICallableType method, ExpressionCollection args, bool reportErrors)

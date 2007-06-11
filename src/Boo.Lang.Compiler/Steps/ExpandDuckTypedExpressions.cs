@@ -116,6 +116,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
+			if (!IsDuckTyped(node.Target))
+			{
+				base.OnMethodInvocationExpression(node);
+				return;
+			}
+
 			if (TypeSystemServices.IsQuackBuiltin(node.Target))
 			{
 				ExpandQuackInvocation(node);
@@ -123,8 +129,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			base.OnMethodInvocationExpression(node);
-			if (!IsDuckTyped(node.Target)) return;
-			
+			ExpandCallableInvocation(node);
+		}
+
+		private void ExpandCallableInvocation(MethodInvocationExpression node)
+		{
 			MethodInvocationExpression invoke = CodeBuilder.CreateMethodInvocation(
 				RuntimeServices_InvokeCallable,
 				node.Target,
@@ -307,7 +316,17 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Arguments);
 			Visit(node.NamedArguments);
 
-			MemberReferenceExpression target = (MemberReferenceExpression)node.Target;
+			MemberReferenceExpression target = node.Target as MemberReferenceExpression;
+			if (target == null)
+			{
+				ExpandCallableInvocation(node);
+				return;
+			}
+			ExpandMemberInvocation(node, target, runtimeInvoke);
+		}
+
+		private void ExpandMemberInvocation(MethodInvocationExpression node, MemberReferenceExpression target, IMethod runtimeInvoke)
+		{
 			target.Target = (Expression)VisitNode(target.Target);
 			node.Target = CodeBuilder.CreateMemberReference(runtimeInvoke);			
 			

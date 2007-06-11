@@ -38,11 +38,6 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _context.Parameters.Ducky; }
 		}
 		
-		protected virtual bool IsDuckTyped(Expression e)
-		{
-			return TypeSystemServices.IsDuckTyped(e);
-		}
-		
 		override protected IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
 		{
 			if (!DuckyMode || _callableResolution.ValidCandidates.Count == 0)
@@ -55,7 +50,7 @@ namespace Boo.Lang.Compiler.Steps
 			// match
 			NormalizeMethodInvocationTarget(node);
 			BindQuack(node.Target);
-			BindDuckTypedMethodInvocation(node);
+			BindDuck(node);
 			return null;
 		}
 		
@@ -111,7 +106,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			Bind(name, BuiltinFunction.Quack);
+			BindQuack(name);
 		}
 
 		protected override void AddResolvedNamedArgumentToEval(MethodInvocationExpression eval, ExpressionPair pair, ReferenceExpression instance)
@@ -146,24 +141,42 @@ namespace Boo.Lang.Compiler.Steps
 				base.MemberNotFound(node, ns);
 			}
 		}
-		
+
+		protected virtual bool IsDuckTyped(Expression e)
+		{
+			return TypeSystemServices.IsDuckTyped(e);
+		}
+
 		protected void BindQuack(Expression node)
 		{
 			Bind(node, BuiltinFunction.Quack);
 			BindDuck(node);
 		}
-		
-		protected void BindDuckTypedMethodInvocation(MethodInvocationExpression node)
+
+		protected void BindDuck(Expression node)
 		{
-			Bind(node, BuiltinFunction.Quack);
-			BindDuck(node);
+			BindExpressionType(node, TypeSystemServices.DuckType);
 		}
+
+		override protected bool ProcessMethodInvocationWithInvalidParameters(MethodInvocationExpression node, IMethod targetMethod)
+		{
+			if (!TypeSystemServices.IsSystemObject(targetMethod.DeclaringType)) return false;
+
+			MemberReferenceExpression target = node.Target as MemberReferenceExpression;
+			if (null == target) return false;
+			if (!IsDuckTyped(target.Target)) return false;
+
+			BindQuack(node.Target);
+			BindDuck(node);
+			return true;
+		}
+
 		
 		override protected void ProcessInvocationOnUnknownCallableExpression(MethodInvocationExpression node)
 		{
 			if (IsDuckTyped(node.Target))
 			{
-				BindDuckTypedMethodInvocation(node);
+				BindDuck(node);
 			}
 			else
 			{
@@ -216,11 +229,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (TypeSystemServices.IsQuackBuiltin(entity)) return;
 			base.CheckBuiltinUsage(node, entity);
-		}
-
-		protected void BindDuck(Expression node)
-		{
-			BindExpressionType(node, TypeSystemServices.DuckType);
 		}
 	}
 }

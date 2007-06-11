@@ -170,7 +170,18 @@ namespace Boo.Lang.Runtime
 		private void EmitLoadTargetObject()
 		{
 			if (_found.Method.IsStatic) return;
+
 			_il.Emit(OpCodes.Ldarg_0); // target object is the first argument
+
+			Type declaringType = _found.Method.DeclaringType;
+			if (declaringType.IsValueType) 
+			{
+				_il.Emit(OpCodes.Unbox, declaringType);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Castclass, declaringType);
+			}
 		}
 
 		private void EmitMethodReturn()
