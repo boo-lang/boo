@@ -51,7 +51,7 @@ namespace Boo.Lang
 		{
 			get
 			{
-				return new System.Version("0.7.7.2544");
+				return new System.Version("0.7.7.2549");
 			}
 		}
 
