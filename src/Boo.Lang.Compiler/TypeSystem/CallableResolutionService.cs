@@ -36,6 +36,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// </summary>
 	public class CallableResolutionService : AbstractCompilerComponent
 	{
+		private const int CallableExactMatchScore = 9;
+		private const int CallableUpCastScore = 8;
+		private const int CallableImplicitConversionScore = 7;
 		private const int ExactMatchScore = 7;
 		private const int UpCastScore = 6;
 		private const int ImplicitConversionScore = 5;
@@ -480,7 +483,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				|| (TypeSystemServices.IsSystemObject(argumentType) && 
 					TypeSystemServices.IsSystemObject(parameterType)))
 			{
-				return ExactMatchScore;
+				return parameterType is ICallableType
+					? CallableExactMatchScore
+					: ExactMatchScore;
 			}
 			else if (parameterType.IsAssignableFrom(argumentType))
 			{				
@@ -527,21 +532,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// def foo(a, b,c) == { a, b, c| print foobar }					
 			if (siggyType.Parameters.Length != siggyArg.Parameters.Length)
 			{
-				return UpCastScore;
+				return CallableUpCastScore;
 			}
 			for (int i = 0; i < siggyType.Parameters.Length; i++)
 			{
 				if (siggyType.Parameters[i].Type != siggyArg.Parameters[i].Type)
-				{
-					// In the case that these parameters simply don't match								
-					if (!siggyType.Parameters[i].Type.IsAssignableFrom(siggyArg.Parameters[i].Type))
-					{
-						return ImplicitConversionScore;
-					}
-					return UpCastScore;
+				{	
+					return CallableImplicitConversionScore;
 				}
+				return CallableUpCastScore;
 			}
-			return ExactMatchScore;
+			return siggyType.ReturnType == siggyArg.ReturnType
+				? CallableExactMatchScore : CallableUpCastScore;
 		}
 	}
 }
