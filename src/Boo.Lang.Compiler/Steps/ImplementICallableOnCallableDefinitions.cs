@@ -175,14 +175,31 @@ namespace Boo.Lang.Compiler.Steps
 									ClassDefinition node,
 									CallableSignature signature)
 		{	
-			MethodInvocationExpression mie = CreateInvokeInvocation(type);			
-			IParameter[] parameters = signature.Parameters;				
-			for (int i=0; i<parameters.Length; ++i)
+			MethodInvocationExpression mie = CreateInvokeInvocation(type);
+			IParameter[] parameters = signature.Parameters;
+			int fixedParametersLength = signature.AcceptVarArgs ? parameters.Length - 1 : parameters.Length;
+			for (int i=0; i<fixedParametersLength; ++i)
 			{
 				SlicingExpression slice = CodeBuilder.CreateSlicing(
 							CodeBuilder.CreateReference(call.Parameters[0]),
 							i);
 				mie.Arguments.Add(slice);
+			}
+
+			if (signature.AcceptVarArgs)
+			{
+				if (parameters.Length == 1)
+				{
+					mie.Arguments.Add(CodeBuilder.CreateReference(call.Parameters[0]));
+				}
+				else
+				{
+					mie.Arguments.Add(
+						CodeBuilder.CreateMethodInvocation(
+							RuntimeServices_GetRange1,
+							CodeBuilder.CreateReference(call.Parameters[0]),
+							CodeBuilder.CreateIntegerLiteral(fixedParametersLength)));
+				}
 			}
 			
 			if (TypeSystemServices.VoidType == signature.ReturnType)
@@ -200,6 +217,20 @@ namespace Boo.Lang.Compiler.Steps
 			return CodeBuilder.CreateMethodInvocation(
 								CodeBuilder.CreateSelfReference(type),
 								type.GetInvokeMethod());
+		}
+
+		IMethod _RuntimeServices_GetRange1;
+
+		IMethod RuntimeServices_GetRange1
+		{
+			get
+			{
+				if (null == _RuntimeServices_GetRange1)
+				{
+					_RuntimeServices_GetRange1 = NameResolutionService.ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
+				}
+				return _RuntimeServices_GetRange1;
+			}
 		}
 	}
 }
