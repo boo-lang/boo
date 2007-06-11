@@ -2430,15 +2430,14 @@ namespace Boo.Lang.Compiler.Steps
 			IMember memberInfo = member as IMember;
 			if (null != memberInfo)
 			{
-				// methods will be checked later
-				if (EntityType.Method != memberInfo.EntityType)
+				if (!AssertTargetContext(node, memberInfo))
 				{
-					if (!AssertTargetContext(node, memberInfo))
-					{
-						Error(node);
-						return;
-					}
-					
+					Error(node);
+					return;
+				}
+
+				if (EntityType.Method != memberInfo.EntityType)
+				{	
 					BindExpressionType(node, GetInferredType(memberInfo));
 				}
 				else
