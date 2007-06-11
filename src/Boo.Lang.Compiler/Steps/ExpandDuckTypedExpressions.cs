@@ -317,11 +317,8 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.NamedArguments);
 
 			MemberReferenceExpression target = node.Target as MemberReferenceExpression;
-			if (target == null)
-			{
-				ExpandCallableInvocation(node);
-				return;
-			}
+			if (target == null) return;
+
 			ExpandMemberInvocation(node, target, runtimeInvoke);
 		}
 
