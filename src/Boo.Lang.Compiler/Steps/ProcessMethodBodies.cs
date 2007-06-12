@@ -1117,18 +1117,16 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = entity.Method;
 #if NET_2_0
 			// Make method return a generic IEnumerable
-			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
 			IType itemType = (IType)method["GeneratorItemType"];
-		
 			if (TypeSystemServices.VoidType == itemType)
 			{
 				// circunvent exception in MakeGenericType
 				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.ErrorEntity);
 				return;
 			}
-			
-			method.ReturnType = CodeBuilder.CreateTypeReference(
-				enumerableType.GenericTypeDefinitionInfo.MakeGenericType(itemType));
+
+			IType returnType = GetGeneratorReturnType(itemType);
+			method.ReturnType = CodeBuilder.CreateTypeReference(returnType);
 #else
 			if (method.IsVirtual)
 			{
@@ -1144,18 +1142,27 @@ namespace Boo.Lang.Compiler.Steps
 			}
 #endif			
 		}
-		
-		void TryToResolveReturnType(InternalMethod tag)
+
+#if NET_2_0
+		protected virtual IType GetGeneratorReturnType(IType itemType)
 		{
-			if (tag.IsGenerator)
+			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
+			IType returnType = enumerableType.GenericTypeDefinitionInfo.MakeGenericType(itemType);
+			return returnType;
+		}
+#endif
+		
+		void TryToResolveReturnType(InternalMethod entity)
+		{
+			if (entity.IsGenerator)
 			{
-				ResolveGeneratorReturnType(tag);
+				ResolveGeneratorReturnType(entity);
 			}
 			else
 			{
-				if (CanResolveReturnType(tag))
+				if (CanResolveReturnType(entity))
 				{
-					ResolveReturnType(tag);
+					ResolveReturnType(entity);
 				}
 			}
 		}
@@ -1838,6 +1845,13 @@ namespace Boo.Lang.Compiler.Steps
 			return builder;
 		}
 		
+#if NET_2_0
+		protected IType MakeGenericType(IType genericType, IType argType)
+		{
+			return genericType.GenericTypeDefinitionInfo.MakeGenericType(argType);
+		}
+#endif
+		
 		BooClassBuilder CreateGeneratorSkeleton(Node sourceNode, Method method, IType generatorItemType)
 		{
 			// create the class skeleton for type inference to work
@@ -1851,13 +1865,15 @@ namespace Boo.Lang.Compiler.Steps
 			if (generatorItemType != TypeSystemServices.VoidType)
 			{
 				builder.AddBaseType(
-					TypeSystemServices.Map(
-						typeof(GenericGenerator<>)).GenericTypeDefinitionInfo.MakeGenericType(generatorItemType));
+					MakeGenericType(
+						TypeSystemServices.Map(	typeof(GenericGenerator<>)),
+						generatorItemType));
 				
 				getEnumeratorBuilder = builder.AddVirtualMethod(
 					"GetEnumerator",
-					TypeSystemServices.IEnumeratorGenericType.
-					GenericTypeDefinitionInfo.MakeGenericType(generatorItemType));
+					MakeGenericType(
+						TypeSystemServices.IEnumeratorGenericType,
+						generatorItemType));
 
 				getEnumeratorBuilder.Method.LexicalInfo = sourceNode.LexicalInfo;
 			}
