@@ -288,6 +288,11 @@ namespace BooCompiler.Tests
 				RemoveAssemblyResolver(resolver);
 			}
 		}
+		
+		override protected void CopyDependencies()
+		{
+			CopyAssembliesFromTestCasePath();
+		}
 """)
 
 GenerateTestFixture("net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.cs", """

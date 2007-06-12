@@ -142,7 +142,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
-			clone._annotations = (Hashtable)_annotations.Clone();
+			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 		
 <%			
 	if model.IsExpression(node):
@@ -175,7 +175,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 		
 		override internal void ClearTypeSystemBindings()
 		{
-			_annotations.Clear();
+			_annotations = null;
 <%
 	if model.IsExpression(node):
 %>			_expressionType = null;

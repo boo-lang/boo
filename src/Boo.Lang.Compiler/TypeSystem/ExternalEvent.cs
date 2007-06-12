@@ -88,18 +88,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public string Name
 		{
-			get
-			{
-				return _event.Name;
-			}
+			get { return _event.Name; }
 		}
 		
 		public string FullName
 		{
-			get
-			{
-				return _event.DeclaringType.FullName + "." + _event.Name;
-			}
+			get { return _event.DeclaringType.FullName + "." + _event.Name; }
 		}
 		
 		public EntityType EntityType

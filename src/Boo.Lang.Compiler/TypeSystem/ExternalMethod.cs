@@ -48,6 +48,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		int _isExtension = -1;
 		
 		int _isPInvoke = -1;
+
+		private string _name = null;
+
+		private string _fullName = null;
 		
 		internal ExternalMethod(TypeSystemServices manager, MethodBase mi)
 		{
@@ -174,7 +178,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.Name;
+				if (_name != null) return _name;
+				return _name = _mi.Name;
 			}
 		}
 		
@@ -182,7 +187,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return this.DeclaringType + "." + _mi.Name;
+				if (_fullName != null) return _fullName;
+				return _fullName = (DeclaringType + "." + _mi.Name);
 			}
 		}
 

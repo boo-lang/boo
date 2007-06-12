@@ -94,10 +94,9 @@ namespace BooCompiler.Tests
 #if !VISUAL_STUDIO
 			CopyAssembly(System.Reflection.Assembly.LoadWithPartialName("BooModules"));
 #endif
-			CopyAssembliesFromTestCasePath();
 		}
 		
-		private void CopyAssembliesFromTestCasePath()
+		protected void CopyAssembliesFromTestCasePath()
 		{
 			foreach (string fname in Directory.GetFiles(_baseTestCasesPath, "*.dll"))
 			{

@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		protected string _documentation;
 		
-		protected System.Collections.Hashtable _annotations = new System.Collections.Hashtable();
+		protected System.Collections.Hashtable _annotations;
 		
 		protected bool _isSynthetic;
 
@@ -112,11 +112,13 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get
 			{
+				if (_annotations == null) return null;
 				return _annotations[key];
 			}
 			
 			set			
 			{
+				if (_annotations == null) _annotations = new System.Collections.Hashtable();
 				_annotations[key] = value;
 			}
 		}
@@ -128,22 +130,25 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public void Annotate(object key, object value)
 		{
+			if (_annotations == null) _annotations = new System.Collections.Hashtable();
 			_annotations.Add(key, value);
 		}
 		
 		public bool ContainsAnnotation(object key)
 		{
+			if (_annotations == null) return false;
 			return _annotations.ContainsKey(key);
 		}
 		
 		public void RemoveAnnotation(object key)
 		{
+			if (_annotations == null) return;
 			_annotations.Remove(key);
 		}
 		
 		internal virtual void ClearTypeSystemBindings()
 		{
-			_annotations.Clear();
+			_annotations = null;
 		}
 		
 		public Node ParentNode
