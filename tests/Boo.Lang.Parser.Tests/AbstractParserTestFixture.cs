@@ -31,10 +31,15 @@ namespace Boo.Lang.Parser.Tests
 			((StringWriter)_compiler.Parameters.OutputWriter).GetStringBuilder().Length = 0;
 		}
 		
+		protected virtual string GetRelativeTestCasesPath()
+		{
+			return "parser";
+		}
+		
 		protected string GetTestCasePath(string fname)
 		{
 			return Path.Combine(
-						BooCompiler.Tests.BooTestCaseUtil.GetTestCasePath("parser"),
+						BooCompiler.Tests.BooTestCaseUtil.GetTestCasePath(GetRelativeTestCasesPath()),
 						fname);
 		}
 		

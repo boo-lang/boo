@@ -64,13 +64,7 @@ namespace BooCompiler.Tests
 		[TestFixtureSetUp]
 		public virtual void SetUpFixture()
 		{
-			if (VerifyGeneratedAssemblies)
-			{
-				CopyDependencies();
-			}
-
-			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, "compilation");
-
+			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, GetRelativeTestCasesPath());
 			_compiler = new BooCompiler();
 			_parameters = _compiler.Parameters;
 			_parameters.OutputWriter = _output = new StringWriter();
@@ -79,6 +73,12 @@ namespace BooCompiler.Tests
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			CustomizeCompilerParameters();
+			if (VerifyGeneratedAssemblies) CopyDependencies();
+		}
+		
+		protected virtual string GetRelativeTestCasesPath()
+		{
+			return "compilation";
 		}
 
 		protected virtual void CustomizeCompilerParameters()
@@ -94,15 +94,25 @@ namespace BooCompiler.Tests
 #if !VISUAL_STUDIO
 			CopyAssembly(System.Reflection.Assembly.LoadWithPartialName("BooModules"));
 #endif
+			CopyAssembliesFromTestCasePath();
+		}
+		
+		private void CopyAssembliesFromTestCasePath()
+		{
+			foreach (string fname in Directory.GetFiles(_baseTestCasesPath, "*.dll"))
+			{
+				CopyAssembly(fname);
+			}
 		}
 
 		public void CopyAssembly(System.Reflection.Assembly assembly)
 		{
-			if (null == assembly)
-			{
-				throw new ArgumentNullException("assembly");
-			}
-			string location = assembly.Location;
+			if (null == assembly) throw new ArgumentNullException("assembly");
+			CopyAssembly(assembly.Location);
+		}
+		
+		public void CopyAssembly(string location)
+		{
 			File.Copy(location, Path.Combine(Path.GetTempPath(), Path.GetFileName(location)), true);
 		}
 
@@ -242,6 +252,11 @@ namespace BooCompiler.Tests
 		string GetFirstInputName(CompilerContext context)
 		{
 			return context.Parameters.Input[0].Name;
+		}
+		
+		public string BaseTestCasesPath
+		{
+			get { return _baseTestCasesPath; }
 		}
 
 		protected virtual string GetTestCasePath(string fname)

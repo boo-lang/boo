@@ -70,14 +70,14 @@ def MapPath(path):
 
 def WriteTestCases(writer as TextWriter, baseDir as string):
 	count = 0
-	for fname as string in Directory.GetFiles(MapPath(baseDir)):
+	for fname as string in Directory.GetFiles(MapPath("testcases/${baseDir}")):
 		continue unless fname.EndsWith(".boo")
 		++count		
 		writer.Write("""
 		[Test]
 		public void ${GetTestCaseName(fname)}()
 		{
-			RunCompilerTestCase(@"${Path.GetFullPath(fname)}");
+			RunCompilerTestCase(@"${NormalizePath(Path.GetFileName(fname))}");
 		}
 		""")
 	print("${count} test cases found in ${baseDir}.")
@@ -87,14 +87,22 @@ def GenerateTestFixture(srcDir as string, targetFile as string, header as string
 		writer.Write(header)	
 		WriteTestCases(writer, srcDir)
 		writer.Write("""
+		
+		override protected string GetRelativeTestCasesPath()
+		{
+			return "${NormalizePath(srcDir)}";
+		}
 	}
 }
 """)
 
+def NormalizePath(path as string):
+	return path.Replace('\\', '/')
+
 def GenerateIntegrationTestFixtures():
 	for dir in Directory.GetDirectories("testcases/integration"):
 		if /\.svn/.IsMatch(dir): continue
-		GenerateIntegrationTestFixture(dir)
+		GenerateIntegrationTestFixture("integration/${Path.GetFileName(dir)}")
 		
 def PascalCase(name as string):
 	return name[:1].ToUpper() + name[1:]
@@ -117,7 +125,7 @@ def GenerateIntegrationTestFixture(dir as string):
 	
 GenerateIntegrationTestFixtures()
 
-GenerateTestFixture("testcases/regression", "BooCompiler.Tests/RegressionTestFixture.cs", """
+GenerateTestFixture("regression", "BooCompiler.Tests/RegressionTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -127,7 +135,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("testcases/errors", "BooCompiler.Tests/CompilerErrorsTestFixture.cs", """
+GenerateTestFixture("errors", "BooCompiler.Tests/CompilerErrorsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -138,7 +146,7 @@ namespace BooCompiler.Tests
 	{			
 """)
 
-GenerateTestFixture("testcases/warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.cs", """
+GenerateTestFixture("warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -155,7 +163,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/macros", "BooCompiler.Tests/MacrosTestFixture.cs", """
+GenerateTestFixture("macros", "BooCompiler.Tests/MacrosTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -165,7 +173,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("testcases/stdlib", "BooCompiler.Tests/StdlibTestFixture.cs", """
+GenerateTestFixture("stdlib", "BooCompiler.Tests/StdlibTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -175,7 +183,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("testcases/attributes", "BooCompiler.Tests/AttributesTestFixture.cs", """
+GenerateTestFixture("attributes", "BooCompiler.Tests/AttributesTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -198,7 +206,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/parser/roundtrip", "build/ParserRoundtripTestFixture.cs", """
+GenerateTestFixture("parser/roundtrip", "build/ParserRoundtripTestFixture.cs", """
 namespace Boo.Lang.Parser.Tests
 {
 	using NUnit.Framework;
@@ -213,7 +221,7 @@ namespace Boo.Lang.Parser.Tests
 """)
 
 PortParserTestCases()
-GenerateTestFixture("testcases/parser/wsa", "build/WSAParserRoundtripTestFixture.cs", """
+GenerateTestFixture("parser/wsa", "build/WSAParserRoundtripTestFixture.cs", """
 namespace Boo.Lang.Parser.Tests
 {
 	using NUnit.Framework;
@@ -227,7 +235,7 @@ namespace Boo.Lang.Parser.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/semantics", "BooCompiler.Tests/SemanticsTestFixture.cs", """
+GenerateTestFixture("semantics", "BooCompiler.Tests/SemanticsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -243,7 +251,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/ducky", "BooCompiler.Tests/DuckyTestFixture.cs", """
+GenerateTestFixture("ducky", "BooCompiler.Tests/DuckyTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -259,7 +267,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/net2/generics", "BooCompiler.Tests/GenericsTestFixture.cs", """
+GenerateTestFixture("net2/generics", "BooCompiler.Tests/GenericsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -270,7 +278,7 @@ namespace BooCompiler.Tests
 		override protected void RunCompilerTestCase(string name)
 		{
 			if (System.Environment.Version.Major < 2) Assert.Ignore("Test requires .net 2.");
-			System.ResolveEventHandler resolver = InstallAssemblyResolver(System.IO.Path.GetDirectoryName(name));
+			System.ResolveEventHandler resolver = InstallAssemblyResolver(BaseTestCasesPath);
 			try
 			{
 				base.RunCompilerTestCase(name);
@@ -282,7 +290,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("testcases/net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.cs", """
+GenerateTestFixture("net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.cs", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
