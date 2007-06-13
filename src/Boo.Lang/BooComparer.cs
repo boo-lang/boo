@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,7 +30,7 @@ namespace Boo.Lang
 {
 	using System;
 	using System.Collections;
-	
+
 	/// <summary>
 	/// Compares items lexicographically through IEnumerable whenever
 	/// they don't implement IComparable.
@@ -39,11 +39,11 @@ namespace Boo.Lang
 	public class BooComparer : IComparer
 	{
 		public static readonly IComparer Default = new BooComparer();
-		
+
 		private BooComparer()
 		{
 		}
-		
+
 		public int Compare(object lhs, object rhs)
 		{
 			if (null == lhs)
@@ -52,7 +52,7 @@ namespace Boo.Lang
 				{
 					return 0;
 				}
-				
+
 				return -1;
 			}
 			else
@@ -61,7 +61,7 @@ namespace Boo.Lang
 				{
 					return 1;
 				}
-				
+
 				IComparable lhsComparable = lhs as IComparable;
 				if (null == lhsComparable)
 				{
@@ -82,19 +82,19 @@ namespace Boo.Lang
 				return lhsComparable.CompareTo(rhs);
 			}
 		}
-		
+
 		int CompareEnumerables(IEnumerable lhs, IEnumerable rhs)
 		{
 			IEnumerator lhsEnum = lhs.GetEnumerator();
 			IEnumerator rhsEnum = rhs.GetEnumerator();
-			
+
 			while (lhsEnum.MoveNext())
 			{
 				if (!rhsEnum.MoveNext())
 				{
 					return 1;
 				}
-				
+
 				int value = Compare(lhsEnum.Current, rhsEnum.Current);
 				if (0 == value)
 				{
@@ -102,12 +102,12 @@ namespace Boo.Lang
 				}
 				return value;
 			}
-			
+
 			if (rhsEnum.MoveNext())
 			{
 				return -1;
 			}
-			
+
 			return 0;
 		}
 	}

@@ -34,7 +34,7 @@ namespace Boo.Lang
 
 	// callable Predicate(item) as bool
 	public delegate bool Predicate(object item);
-	
+
 	public delegate int Comparer(object lhs, object rhs);
 
 	/// <summary>
@@ -46,20 +46,20 @@ namespace Boo.Lang
 		private const int DefaultCapacity = 16;
 
 		static readonly object[] EmptyObjectArray = new object[0];
-		
+
 		protected object[] _items;
-		
+
 		protected int _count;
-		
+
 		public List() : this(DefaultCapacity)
-		{	
+		{
 		}
-		
+
 		public List(IEnumerable enumerable) : this()
 		{
 			Extend(enumerable);
 		}
-		
+
 		public List(int initialCapacity)
 		{
 			if (initialCapacity < 0)
@@ -69,14 +69,14 @@ namespace Boo.Lang
 			_items = new object[initialCapacity];
 			_count = 0;
 		}
-		
+
 		public List(object[] items, bool takeOwnership)
 		{
 			if (null == items)
 			{
 				throw new ArgumentNullException("items");
 			}
-			
+
 			if (takeOwnership)
 			{
 				_items = items;
@@ -87,17 +87,17 @@ namespace Boo.Lang
 			}
 			_count = items.Length;
 		}
-		
+
 		public static List operator*(List lhs, int count)
 		{
 			return lhs.Multiply(count);
 		}
-		
+
 		public static List operator*(int count, List rhs)
 		{
 			return rhs.Multiply(count);
 		}
-		
+
 		public static List operator+(List lhs, IEnumerable rhs)
 		{
 			List result = new List(lhs.Count);
@@ -105,19 +105,19 @@ namespace Boo.Lang
 			result.Extend(rhs);
 			return result;
 		}
-		
+
 		public static string operator%(string format, List rhs)
 		{
 			return string.Format(format, rhs.ToArray());
 		}
-		
+
 		public List Multiply(int count)
 		{
 			if (count < 0)
 			{
 				throw new ArgumentOutOfRangeException("count");
 			}
-			
+
 			object[] items = new object[_count*count];
 			for (int i=0; i<count; ++i)
 			{
@@ -125,7 +125,7 @@ namespace Boo.Lang
 			}
 			return new List(items, true);
 		}
-		
+
 		public int Count
 		{
 			get
@@ -133,17 +133,17 @@ namespace Boo.Lang
 				return _count;
 			}
 		}
-		
+
 		public IEnumerator GetEnumerator()
 		{
 			return new ListEnumerator(this);
 		}
-		
+
 		public void CopyTo(Array target, int index)
 		{
 			Array.Copy(_items, 0, target, index, _count);
 		}
-		
+
 		public bool IsSynchronized
 		{
 			get
@@ -151,7 +151,7 @@ namespace Boo.Lang
 				return false;
 			}
 		}
-		
+
 		public object SyncRoot
 		{
 			get
@@ -166,13 +166,13 @@ namespace Boo.Lang
 			{
 				return _items[CheckIndex(NormalizeIndex(index))];
 			}
-			
+
 			set
 			{
 				_items[CheckIndex(NormalizeIndex(index))] = value;
 			}
 		}
-		
+
 		public List Push(object item)
 		{
 			return Add(item);
@@ -194,7 +194,7 @@ namespace Boo.Lang
 			}
 			return this;
 		}
-		
+
 		public List Extend(IEnumerable enumerable)
 		{
 			foreach (object item in enumerable)
@@ -203,7 +203,7 @@ namespace Boo.Lang
 			}
 			return this;
 		}
-		
+
 		public List ExtendUnique(IEnumerable enumerable)
 		{
 			foreach (object item in enumerable)
@@ -240,7 +240,7 @@ namespace Boo.Lang
 			InnerCollect(target, condition);
 			return target;
 		}
-		
+
 		public Array ToArray(Type targetType)
 		{
 			Array target = Array.CreateInstance(targetType, _count);
@@ -253,39 +253,39 @@ namespace Boo.Lang
 			CopyTo(array, 0);
 			return array;
 		}
-		
+
 		public object[] ToArray()
 		{
 			return (object[])ToArray(typeof(object));
 		}
-		
+
 		public List Sort()
 		{
 			Array.Sort(_items, 0, _count, BooComparer.Default);
 			return this;
 		}
-		
+
 		public List Sort(IComparer comparer)
 		{
 			Array.Sort(_items, 0, _count, comparer);
 			return this;
 		}
-		
+
 		private class ComparerImpl : IComparer
 		{
 			Comparer _comparer;
-			
+
 			public ComparerImpl(Comparer comparer)
 			{
 				_comparer = comparer;
 			}
-			
+
 			public int Compare(object lhs, object rhs)
 			{
 				return _comparer(lhs, rhs);
 			}
 		}
-		
+
 		public List Sort(Comparer comparer)
 		{
 			if (null == comparer)
@@ -299,16 +299,16 @@ namespace Boo.Lang
 		{
 			return "[" + Join(", ") + "]";
 		}
-		
+
 		public string Join(string separator)
 		{
 			return Builtins.join(this, separator);
 		}
-		
+
 		override public int GetHashCode()
 		{
 			int hash = _count;
-			
+
 			for (int i=0; i<_count; ++i)
 			{
 				object item = _items[i];
@@ -319,25 +319,25 @@ namespace Boo.Lang
 			}
 			return hash;
 		}
-		
+
 		override public bool Equals(object other)
 		{
 			if (other == this)
 			{
 				return true;
 			}
-			
+
 			List rhs = other as List;
 			if (null == rhs)
 			{
 				return false;
 			}
-			
+
 			if (_count != rhs.Count)
 			{
 				return false;
 			}
-			
+
 			for (int i=0; i<_count; ++i)
 			{
 				if (!RuntimeServices.EqualityOperator(_items[i], rhs[i]))
@@ -347,7 +347,7 @@ namespace Boo.Lang
 			}
 			return true;
 		}
-		
+
 		public void Clear()
 		{
 			for (int i=0; i<_count; ++i)
@@ -356,34 +356,34 @@ namespace Boo.Lang
 			}
 			_count = 0;
 		}
-		
+
 		public List GetRange(int begin)
 		{
 			return InnerGetRange(AdjustIndex(NormalizeIndex(begin)), _count);
 		}
-		
+
 		public List GetRange(int begin, int end)
 		{
 			return InnerGetRange(
 					AdjustIndex(NormalizeIndex(begin)),
 					AdjustIndex(NormalizeIndex(end)));
 		}
-		
+
 		public bool Contains(object item)
 		{
 			return -1 != IndexOf(item);
 		}
-		
+
 		public bool Contains(Predicate condition)
 		{
 			return -1 != IndexOf(condition);
 		}
-		
+
 		public bool ContainsReference(object item)
 		{
 			return -1 != IndexOfReference(item);
 		}
-		
+
 		public object Find(Predicate condition)
 		{
 			int index = IndexOf(condition);
@@ -393,14 +393,14 @@ namespace Boo.Lang
 			}
 			return null;
 		}
-		
+
 		public int IndexOf(Predicate condition)
 		{
 			if (null == condition)
 			{
 				throw new ArgumentNullException("condition");
 			}
-			
+
 			for (int i=0; i<_count; ++i)
 			{
 				if (condition(_items[i]))
@@ -410,7 +410,7 @@ namespace Boo.Lang
 			}
 			return -1;
 		}
-		
+
 		public int IndexOfReference(object item)
 		{
 			for (int i=0; i<_count; ++i)
@@ -423,7 +423,7 @@ namespace Boo.Lang
 			return -1;
 		}
 
-		
+
 		public int IndexOf(object item)
 		{
 			for (int i=0; i<_count; ++i)
@@ -435,27 +435,27 @@ namespace Boo.Lang
 			}
 			return -1;
 		}
-		
+
 		public List Insert(int index, object item)
 		{
 			int actual = NormalizeIndex(index);
 			EnsureCapacity(Math.Max(_count, actual) + 1);
-			
+
 			if (actual < _count)
 			{
 				Array.Copy(_items, actual, _items, actual+1, _count-actual);
 			}
-			
+
 			_items[actual] = item;
 			++_count;
 			return this;
 		}
-		
+
 		public object Pop()
 		{
 			return Pop(-1);
 		}
-		
+
 		public object Pop(int index)
 		{
 			int actualIndex = CheckIndex(NormalizeIndex(index));
@@ -485,19 +485,19 @@ namespace Boo.Lang
 			}
 			return this;
 		}
-		
+
 		public List Remove(object item)
 		{
 			InnerRemove(item);
 			return this;
 		}
-		
+
 		public List RemoveAt(int index)
 		{
 			InnerRemoveAt(CheckIndex(NormalizeIndex(index)));
 			return this;
 		}
-		
+
 		public IEnumerable Reversed
 		{
 			get
@@ -505,28 +505,28 @@ namespace Boo.Lang
 				return new ReversedListEnumerator(_items, _count);
 			}
 		}
-		
+
 		void IList.Insert(int index, object item)
 		{
 			Insert(index, item);
 		}
-		
+
 		void IList.Remove(object item)
 		{
 			InnerRemove(item);
 		}
-		
+
 		void IList.RemoveAt(int index)
 		{
 			InnerRemoveAt(CheckIndex(NormalizeIndex(index)));
 		}
-		
+
 		int IList.Add(object item)
 		{
 			Add(item);
 			return _count-1;
 		}
-		
+
 		bool IList.IsReadOnly
 		{
 			get
@@ -534,7 +534,7 @@ namespace Boo.Lang
 				return false;
 			}
 		}
-		
+
 		bool IList.IsFixedSize
 		{
 			get
@@ -542,7 +542,7 @@ namespace Boo.Lang
 				return false;
 			}
 		}
-		
+
 		void EnsureCapacity(int minCapacity)
 		{
 			if (minCapacity > _items.Length)
@@ -552,13 +552,13 @@ namespace Boo.Lang
 				_items = items;
 			}
 		}
-		
+
 		object[] NewArray(int minCapacity)
 		{
 			int newLen = Math.Max(1, _items.Length)*2;
 			return new object[Math.Max(newLen, minCapacity)];
 		}
-		
+
 		void InnerRemoveAt(int index)
 		{
 			--_count;
@@ -568,7 +568,7 @@ namespace Boo.Lang
 				Array.Copy(_items, index+1, _items, index, _count-index);
 			}
 		}
-		
+
 		void InnerRemove(object item)
 		{
 			int index = IndexOf(item);
@@ -589,7 +589,7 @@ namespace Boo.Lang
 				}
 			}
 		}
-		
+
 		List InnerGetRange(int begin, int end)
 		{
 			int targetLen = end-begin;
@@ -601,7 +601,7 @@ namespace Boo.Lang
 			}
 			return new List();
 		}
-		
+
 		int AdjustIndex(int index)
 		{
 			if (index > _count)
@@ -614,7 +614,7 @@ namespace Boo.Lang
 			}
 			return index;
 		}
-		
+
 		int CheckIndex(int index)
 		{
 			if (index >= _count)
@@ -623,7 +623,7 @@ namespace Boo.Lang
 			}
 			return index;
 		}
-		
+
 		int NormalizeIndex(int index)
 		{
 			if (index < 0)
@@ -632,35 +632,35 @@ namespace Boo.Lang
 			}
 			return index;
 		}
-		
+
 		class ReversedListEnumerator : IEnumerator, IEnumerable
 		{
 			object[] _items;
 			int _index;
 			int _count;
-			
+
 			public ReversedListEnumerator(object[] items, int count)
 			{
 				_items = items;
 				_index = count;
 				_count = count;
 			}
-			
+
 			public void Reset()
 			{
 				_index = _count;
 			}
-			
+
 			public bool MoveNext()
 			{
 				return --_index >= 0;
 			}
-			
+
 			public IEnumerator GetEnumerator()
 			{
 				return this;
 			}
-			
+
 			public object Current
 			{
 				get
@@ -669,7 +669,7 @@ namespace Boo.Lang
 				}
 			}
 		}
-		
+
 		class ListEnumerator : IEnumerator
 		{
 			List _list;
@@ -677,7 +677,7 @@ namespace Boo.Lang
 			int _count;
 			int _index;
 			object _current;
-			
+
 			public ListEnumerator(List list)
 			{
 				_list = list;
@@ -685,19 +685,19 @@ namespace Boo.Lang
 				_count = list._count;
 				_index = 0;
 			}
-			
+
 			public void Reset()
 			{
 				_index = 0;
 			}
-			
+
 			public bool MoveNext()
 			{
 				if (_count != _list._count || _items != _list._items)
 				{
 					throw new InvalidOperationException(ResourceManager.GetString("ListWasModified"));
 				}
-				
+
 				if (_index < _count)
 				{
 					_current = _items[_index];
@@ -706,7 +706,7 @@ namespace Boo.Lang
 				}
 				return false;
 			}
-			
+
 			public object Current
 			{
 				get

@@ -35,7 +35,6 @@ using Boo.Lang.Compiler.Ast;
 namespace Boo.Lang.Compiler.Ast.Visitors
 {
 	/// <summary>
-	/// Imprime uma AST boo em boo.
 	/// </summary>
 	public class BooPrinterVisitor : TextEmitter
 	{

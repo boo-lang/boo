@@ -44,7 +44,7 @@ namespace Boo.Lang
 		public class duck
 		{
 		}
-		
+
 		public static System.Version BooVersion
 		{
 			get
@@ -84,7 +84,7 @@ namespace Boo.Lang
 			}
 			return sb.ToString();
 		}
-		
+
 		public static string join(IEnumerable enumerable, char separator)
 		{
 			StringBuilder sb = new StringBuilder();
@@ -163,7 +163,7 @@ namespace Boo.Lang
 			{
 				throw new ArgumentNullException("elementType");
 			}
-			
+
 			// future optimization, check EnumeratorItemType of enumerable
 			// and get the fast path whenever possible
 			List l = null;
@@ -182,7 +182,7 @@ namespace Boo.Lang
 			}
 			return l.ToArray(elementType);
 		}
-		
+
 		public static Array array(Type elementType, int length)
 		{
 			return matrix(elementType, length);
@@ -196,7 +196,7 @@ namespace Boo.Lang
 			}
 			return Array.CreateInstance(elementType, lengths);
 		}
-		
+
 		public static IEnumerable iterator(object enumerable)
 		{
 			return RuntimeServices.GetEnumerable(enumerable);
@@ -225,19 +225,19 @@ namespace Boo.Lang
 			return output;
 		}
 #endif
-		
+
 		internal class AssemblyExecutor : MarshalByRefObject
 		{
 			string _filename;
 			string[] _arguments;
 			string _capturedOutput = "";
-			
+
 			public AssemblyExecutor(string filename, string[] arguments)
 			{
 				_filename = filename;
 				_arguments = arguments;
 			}
-			
+
 			public string CapturedOutput
 			{
 				get
@@ -245,7 +245,7 @@ namespace Boo.Lang
 					return _capturedOutput;
 				}
 			}
-			
+
 			public void Execute()
 			{
 				StringWriter output = new System.IO.StringWriter();
@@ -263,7 +263,7 @@ namespace Boo.Lang
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Execute the specified MANAGED application in a new AppDomain.
 		///
@@ -274,7 +274,7 @@ namespace Boo.Lang
 		{
 			AppDomainSetup setup = new AppDomainSetup();
 			setup.ApplicationBase = Path.GetDirectoryName(Path.GetFullPath(filename));
-				
+
 			AppDomain domain = AppDomain.CreateDomain("shellm", null, setup);
 			try
 			{
@@ -299,15 +299,15 @@ namespace Boo.Lang
 
 		public static IEnumerable<int> range(int max)
 		{
-			if (max < 0) /* added for coherence with behavior of compiler-optimized 
+			if (max < 0) /* added for coherence with behavior of compiler-optimized
 						  * for-in-range() loops, should compiler loops automatically
 						  * inverse iteration in this case? */
 			{
 				throw new ArgumentOutOfRangeException("max < 0");
-			}		
+			}
 			return range(0, max);
 		}
-		
+
 		public static IEnumerable<int> range(int begin, int end)
 		{
 			if (begin < end)
@@ -342,14 +342,14 @@ namespace Boo.Lang
 				}
 				for (int i = begin; i < end; i += step) yield return i;
 			}
-			
+
 		}
 
 		public static IEnumerable reversed(object enumerable)
 		{
 			return new List(iterator(enumerable)).Reversed;
 		}
-		
+
 		public static ZipEnumerator zip(params object[] enumerables)
 		{
 			IEnumerator[] enumerators = new IEnumerator[enumerables.Length];
@@ -359,7 +359,7 @@ namespace Boo.Lang
 			}
 			return new ZipEnumerator(enumerators);
 		}
-		
+
 		public static IEnumerable<object> cat(params object[] args)
 		{
 			foreach (object e in args)
@@ -419,7 +419,7 @@ namespace Boo.Lang
 				return this;
 			}
 		}
-		
+
 		private static IEnumerator GetEnumerator(object enumerable)
 		{
 			return RuntimeServices.GetEnumerable(enumerable).GetEnumerator();

@@ -268,8 +268,8 @@ namespace Boo.Lang.Runtime
 				public bool Equals(MethodDispatcherKey x, MethodDispatcherKey y)
 				{
 					if (x._type != y._type) return false;
-					if (x._methodName != y._methodName) return false;
 					if (x._arguments.Length != y._arguments.Length) return false;
+					if (x._methodName != y._methodName) return false;
 					for (int i = 0; i < x._arguments.Length; ++i)
 					{
 						if (x._arguments[i] != y._arguments[i]) return false;

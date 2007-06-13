@@ -1055,25 +1055,16 @@ namespace Boo.Lang.Runtime
 
 		public static IEnumerable GetEnumerable(object enumerable)
 		{
-			if (null == enumerable)
-			{
-				Error("CantEnumerateNull");
-			}
+			if (null == enumerable) Error("CantEnumerateNull");
 
 			IEnumerable iterator = enumerable as IEnumerable;
-			if (null == iterator)
-			{
-				TextReader reader = enumerable as TextReader;
-				if (null != reader)
-				{
-					iterator = TextReaderEnumerator.lines(reader);
-				}
-				else
-				{
-					Error("ArgumentNotEnumerable");
-				}
-			}
-			return iterator;
+			if (null != iterator) return iterator;
+
+			TextReader reader = enumerable as TextReader;
+			if (null != reader) return TextReaderEnumerator.lines(reader);
+			
+			Error("ArgumentNotEnumerable");
+			return null;
 		}
 
 		#region global operators
