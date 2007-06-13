@@ -1,2 +1,6 @@
 #!/bin/sh
-env @RUNTIME@ @prefix@/lib/boo/booish.exe "$@"
+if [ -x /usr/bin/cli ]; then
+    env /usr/bin/cli $MONO_OPTIONS @prefix@/lib/boo/booish.exe "$@"
+else
+    env @RUNTIME@ $MONO_OPTIONS @prefix@/lib/boo/booish.exe "$@"
+fi
