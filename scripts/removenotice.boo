@@ -26,15 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import Boo.Lang.Useful.IO from Boo.Lang.Useful
 import System.IO
 		
 def RemoveNotice(fname, notice):
-	contents = TextFile.ReadFile(fname)
+	contents = File.ReadAllText(fname)
 	newContents = contents.Replace(notice, "")
 	if contents != newContents:
 		print(fname)
-		TextFile.WriteFile(fname, newContents)
+		File.WriteAllText(fname, newContents)
 
 def ScanDirectory(name as string, notice as string):
 	for fname in Directory.GetFiles(name, "*.cs"):		
@@ -44,5 +43,5 @@ def ScanDirectory(name as string, notice as string):
 	for dir in Directory.GetDirectories(name):
 		ScanDirectory(dir, notice)
 
-notice = TextFile.ReadFile(argv[0])
+notice = File.ReadAllText(argv[0])
 ScanDirectory(".", notice)

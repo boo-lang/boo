@@ -1,10 +1,10 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.7.8" />
-	<property name="boo.svn.revision" value="2567" />
+	<property name="boo.svn.revision" value="2569" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
-	<property name="boo.assembly.version" value="1.0.0.0" />
+	<property name="boo.assembly.version" value="2.0.0.0" />
 	
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
@@ -17,6 +17,7 @@
 	<property name="skip.ngen" value="True" />
 	<property name="skip.antlr" value="False" />
 	<property name="skip.ast" value="False" />
+	<property name="skip.vs2005" value="False" />
 	
 	<property name="build.dir" value="build" dynamic="True"/>
 	<property name="distrobuild.dir" value="distrobuild"/>
@@ -737,7 +738,6 @@
 		.NET 2.0 SDK required to make distro (as well as .NET 2.0).
 		</fail>
 		
-		<property name="build.dir" value="${distrobuild.dir}/net-2.0" />
 		<call target="rebuild" />
 		<call target="update-bin" />
 	</target>
@@ -794,12 +794,6 @@
 				<include name="**" />
 			</fileset>
 		</zip>
-		
-		<tar destfile="${boo.distro.name}-bin.tar.bz2" compression="BZip2">
-			<fileset basedir="${build.dir}">
-				<include name="${boo.distro.name}/**/*"/>
-			</fileset>
-		</tar>
 	</target>
 	
 	<target name="prepare-src-distro" depends="bin-distro">
@@ -991,7 +985,7 @@
 		</if>
 	</target>
 	
-	<target name="update-vs2005-env">
+	<target name="update-vs2005-env" unless="${skip.vs2005}">
 		<exec program="bin/booi.exe" managed="true">
 			<arg value="scripts/update-vs2005-env.boo" />
 		</exec>	
@@ -1027,18 +1021,18 @@
 				<include name="Boo.Lang.Useful.dll" />
 			</references>
 			
-			import Useful.IO.TextFile
+			import System.IO
 			
 			output = svn("info")
 			revision = /Revision:\s+(\d+)/.Match(output).Groups[1].Value
 			Project.Properties["boo.svn.revision"] = revision
 			print Project.Properties["boo.version"]
 			
-			contents = ReadFile("default.build")
+			contents = File.ReadAllText("default.build")
 			newContents = /property\s+name="boo.svn.revision"\s+value="\d*"/.Replace(
 								contents,
 								"property name=\"boo.svn.revision\" value=\"${revision}\"")
-			WriteFile("default.build", newContents) if contents != newContents
+			File.WriteAllText("default.build", newContents) if contents != newContents
 		</boo>
 	</target>
 	
@@ -1053,16 +1047,16 @@
 	
 	<target name="update-assembly-attributes" depends="Boo.NAnt.Tasks, update-svn-revision-number">	
 		<boo>
-		import Useful.IO.TextFile from Boo.Lang.Useful
+		import System.IO
 		
 		fname = "src/Boo.Lang/Builtins.cs"
-		builtins = ReadFile(fname)
+		builtins = File.ReadAllText(fname)
 		
 		version = Project.Properties["boo.version"]
 		newBuiltins = @/new System.Version\(".+"\)/.Replace(builtins, "new System.Version(\"${version}\")")
 		if builtins != newBuiltins:
 			print fname
-			WriteFile(fname, newBuiltins) 
+			File.WriteAllText(fname, newBuiltins) 
 		</boo>
 		
     		<updateAssemblyVersion
@@ -1077,7 +1071,7 @@
 		</updateAssemblyVersion>
 		
 		<updateAssemblyVersion
-			copyright="(C) 2003-2005 Rodrigo Barreto de Oliveira">
+			copyright="(C) 2003-2007 Rodrigo Barreto de Oliveira">
 			<fileset basedir="src">
 				<include name="**/AssemblyInfo.cs" />
 				<include name="**/AssemblyInfo.boo" />

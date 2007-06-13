@@ -30,8 +30,6 @@ namespace Boo.Lang
 {
 	using System;
 	using System.Collections;
-
-#if NET_2_0
 	using System.Collections.Generic;
 
 	public abstract class GenericGeneratorEnumerator<T> : IEnumerator<T>
@@ -79,5 +77,4 @@ namespace Boo.Lang
 			return true;
 		}
 	}
-#endif
 }

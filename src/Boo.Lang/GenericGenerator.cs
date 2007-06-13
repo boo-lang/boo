@@ -31,7 +31,6 @@ namespace Boo.Lang
 	using System;
 	using System.Collections;
 
-#if NET_2_0
 	using System.Collections.Generic;
 
 	public abstract class GenericGenerator<T> : IEnumerable<T>
@@ -48,5 +47,4 @@ namespace Boo.Lang
 			return string.Format("generator({0})", typeof(T));
 		}
 	}
-#endif
 }

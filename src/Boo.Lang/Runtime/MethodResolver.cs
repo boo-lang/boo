@@ -28,9 +28,7 @@
 
 using System;
 using System.Reflection;
-#if NET_2_0
 using System.Collections.Generic;
-#endif
 
 namespace Boo.Lang.Runtime
 {
@@ -41,10 +39,9 @@ namespace Boo.Lang.Runtime
 		private string _methodName;
 		private object[] _arguments;
 
-#if NET_2_0
 		private static Dictionary<MethodDispatcherKey, MethodDispatcher> _cache =
 			new Dictionary<MethodDispatcherKey, MethodDispatcher>(MethodDispatcherKey.EqualityComparer);
-#endif
+
 		public MethodResolver(object target, Type type, string methodName, object[] arguments)
 		{
 			_target = target;
@@ -55,7 +52,6 @@ namespace Boo.Lang.Runtime
 
 		public object InvokeResolvedMethod()
 		{
-#if NET_2_0
 			Type[] argumentTypes = GetArgumentTypes();
 			MethodDispatcherKey key = new MethodDispatcherKey(_type, _methodName, argumentTypes);
 			MethodDispatcher dispatcher;
@@ -66,13 +62,8 @@ namespace Boo.Lang.Runtime
 				_cache.Add(key, dispatcher);
 			}
 			return dispatcher(_target, _arguments);
-#else
-			CandidateMethod found = ResolveMethod();
-			return found.Method.Invoke(_target, AdjustArguments(found));
-#endif
 		}
 
-#if NET_2_0
 		private static Type[] NoArguments = new Type[0];
 
 		private Type[] GetArgumentTypes()
@@ -92,51 +83,6 @@ namespace Boo.Lang.Runtime
 			return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 		}
 
-#else
-		private object[] AdjustArguments(CandidateMethod candidateMethod)
-		{
-			for (int i = 0; i < _arguments.Length; ++i)
-			{
-				_arguments[i] = AdjustArgument(candidateMethod, i, _arguments[i]);
-			}
-			return _arguments;
-		}
-
-		private object AdjustArgument(CandidateMethod candidateMethod, int argumentIndex, object argument)
-		{
-			switch(candidateMethod.ArgumentScores[argumentIndex])
-			{
-				case CandidateMethod.PromotionScore:
-					return PromoteNumericArgument(candidateMethod.GetParameterType(argumentIndex), argument);
-				case CandidateMethod.ImplicitConversionScore:
-					return candidateMethod.GetArgumentConversion(argumentIndex).Invoke(null, new object[] {argument});
-			}
-			return argument;
-		}
-
-
-		private object PromoteNumericArgument(Type type, object argument)
-		{
-			IConvertible convertible = (IConvertible) argument;
-			switch (Type.GetTypeCode(type))
-			{
-				case TypeCode.Byte: return convertible.ToByte(null);
-				case TypeCode.SByte: return convertible.ToSByte(null);
-				case TypeCode.Int16: return convertible.ToInt16(null);
-				case TypeCode.Int32: return convertible.ToInt32(null);
-				case TypeCode.Int64: return convertible.ToInt64(null);
-				case TypeCode.UInt16: return convertible.ToUInt16(null);
-				case TypeCode.UInt32: return convertible.ToUInt32(null);
-				case TypeCode.UInt64: return convertible.ToUInt64(null);
-				case TypeCode.Single: return convertible.ToSingle(null);
-				case TypeCode.Double: return convertible.ToDouble(null);
-				case TypeCode.Boolean: return convertible.ToBoolean(null);
-				case TypeCode.Decimal: return convertible.ToDecimal(null);
-				case TypeCode.Char: return convertible.ToChar(null);
-			}
-			throw new ArgumentException();
-		}
-#endif
 		private CandidateMethod ResolveMethod()
 		{
 			List applicable = FindApplicableMethods();
@@ -297,7 +243,6 @@ namespace Boo.Lang.Runtime
 			return arg.GetType();
 		}
 
-#if NET_2_0
 		class MethodDispatcherKey
 		{
 			public static readonly IEqualityComparer<MethodDispatcherKey> EqualityComparer = new _EqualityComparer();
@@ -333,6 +278,5 @@ namespace Boo.Lang.Runtime
 				}
 			}
 		}
-#endif
 	}
 }

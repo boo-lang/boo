@@ -46,7 +46,6 @@
     <Compile Include="IO\Impl\PreProcessorExpressionParser.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionParserTokenTypes.boo" />
     <Compile Include="IO\PreProcessor.boo" />
-    <Compile Include="IO\TextFile.boo" />
     <Compile Include="IO\walk.boo" />
     <Compile Include="PlatformInformation.boo" />
     <Compile Include="Resources\ResourceFu.boo" />

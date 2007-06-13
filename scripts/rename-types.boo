@@ -1,5 +1,4 @@
 #!/usr/bin/env booi
-import Boo.Lang.Useful.IO from Boo.Lang.Useful
 import System
 import System.IO
 
@@ -20,12 +19,12 @@ class Program:
 			processFile(fname)
 			
 	def processFile(fname as string):
-		originalContents = contents = TextFile.ReadFile(fname)
+		originalContents = contents = File.ReadAllText(fname)
 		for systemType, builtinType in types:
 			contents = contents.Replace(systemType, builtinType)
 		if contents != originalContents:
 			print fname
-			TextFile.WriteFile(fname, contents)
+			File.WriteAllText(fname, contents)
 			
 path, = argv
 Program().run(path)

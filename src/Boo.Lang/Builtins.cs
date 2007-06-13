@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -28,9 +28,7 @@
 
 using System;
 using System.Collections;
-#if NET_2_0
 using System.Collections.Generic;
-#endif
 using System.IO;
 using System.Text;
 using System.Reflection;
@@ -51,7 +49,7 @@ namespace Boo.Lang
 		{
 			get
 			{
-				return new System.Version("0.7.8.2567");
+				return new System.Version("0.7.8.2569");
 			}
 		}
 
@@ -110,15 +108,15 @@ namespace Boo.Lang
 
 		public static IEnumerable map(object enumerable, ICallable function)
 		{
-			if (null == enumerable)
+			if (null == enumerable) throw new ArgumentNullException("enumerable");
+			if (null == function) throw new ArgumentNullException("function");
+
+			object[] args = new object[1];
+			foreach (object item in iterator(enumerable))
 			{
-				throw new ArgumentNullException("enumerable");
+				args[0] = item;
+				yield return function.Call(args);
 			}
-			if (null == function)
-			{
-				throw new ArgumentNullException("function");
-			}
-			return new MapEnumerable(RuntimeServices.GetEnumerable(enumerable), function);
 		}
 
 		public static object[] array(IEnumerable enumerable)
@@ -290,12 +288,15 @@ namespace Boo.Lang
 			}
 		}
 
-		public static EnumerateEnumerator enumerate(object enumerable)
+		public static IEnumerable<object[]> enumerate(object enumerable)
 		{
-			return new EnumerateEnumerator(GetEnumerator(enumerable));
+			int i = 0;
+			foreach (object item in iterator(enumerable))
+			{
+				yield return new object[] { i++, item };
+			}
 		}
 
-#if NET_2_0
 		public static IEnumerable<int> range(int max)
 		{
 			if (max < 0) /* added for coherence with behavior of compiler-optimized 
@@ -343,119 +344,6 @@ namespace Boo.Lang
 			}
 			
 		}
-#else // ifdef NET_2_0
-		public static RangeEnumerable range(int max)
-		{
-			if (max < 0)
-			{
-				throw new ArgumentOutOfRangeException("max < 0");
-			}
-			return new RangeEnumerable(0, max, 1);
-		}
-		
-		public static RangeEnumerable range(int begin, int end)
-		{
-			int step = 1;
-			if (begin > end)
-			{
-				step = -1;
-			}
-			return new RangeEnumerable(begin, end, step);
-		}
-		
-		public static RangeEnumerable range(int begin, int end, int step)
-		{
-			if (0 ==step)
-			{
-				throw new ArgumentOutOfRangeException("step == 0");
-			}
-			if (step < 0)
-			{
-				if (begin < end)
-				{
-					throw new ArgumentOutOfRangeException("begin < end && step < 0");
-				}
-			}
-			else
-			{
-				if (begin > end)
-				{
-					throw new ArgumentOutOfRangeException("begin > end && step > 0");
-				}
-			}
-			return new RangeEnumerable(begin, end, step);
-		}
-		
-		[EnumeratorItemType(typeof(int))]
-		public class RangeEnumerable : IEnumerable
-		{
-			int _begin;
-			int _end;
-			int _step;			
-		
-			internal RangeEnumerable(int begin, int end, int step)
-			{
-				_begin = begin;
-				_end = end;
-				_step = step;
-			}
-					
-			public IEnumerator GetEnumerator()
-			{
-				return new RangeEnumerator(_begin, _end, _step);
-			}			
-		}
-		
-		[EnumeratorItemType(typeof(int))]
-		public class RangeEnumerator : IEnumerator
-		{
-			int _index;
-			int _begin;
-			int _end;
-			int _step;
-
-			internal RangeEnumerator(int begin, int end, int step)
-			{
-				if (step > 0)
-				{
-					_end = begin + (step * (int)Math.Ceiling(Math.Abs(end-begin)/((double)step)));
-				}
-				else
-				{
-					_end = begin + (step * (int)Math.Ceiling(Math.Abs(begin-end)/((double)Math.Abs(step))));
-				}
-
-				_end -= step;
-				_begin = begin-step;
-				_step = step;
-				_index = _begin;
-			}
-
-			public void Reset()
-			{
-				_index = _begin;
-			}
-
-			public bool MoveNext()
-			{
-				if (_index != _end)
-				{
-					_index += _step;
-					return true;
-				}
-				return false;
-			}
-
-			public object Current
-			{
-				get
-				{
-					return _index;
-				}
-			}
-			
-		}		
-#endif
 
 		public static IEnumerable reversed(object enumerable)
 		{
@@ -472,65 +360,13 @@ namespace Boo.Lang
 			return new ZipEnumerator(enumerators);
 		}
 		
-		public static ConcatEnumerator cat(params object[] args)
+		public static IEnumerable<object> cat(params object[] args)
 		{
-			return new ConcatEnumerator(args);
-		}
-		
-		private class MapEnumerable : IEnumerable
-		{
-			IEnumerable _enumerable;
-			ICallable _function;
-			
-			public MapEnumerable(IEnumerable enumerable, ICallable function)
+			foreach (object e in args)
 			{
-				_enumerable = enumerable;
-				_function = function;
-			}
-			
-			public IEnumerator GetEnumerator()
-			{
-				return new MapEnumerator(_enumerable.GetEnumerator(), _function);
-			}
-		}
-
-		private class MapEnumerator : IEnumerator
-		{
-			IEnumerator _enumerator;
-
-			ICallable _function;
-
-			object _current;
-
-			object[] _arguments = new object[1];
-
-			public MapEnumerator(IEnumerator enumerator, ICallable function)
-			{
-				_enumerator = enumerator;
-				_function = function;
-			}
-
-			public void Reset()
-			{
-				_enumerator.Reset();
-			}
-
-			public bool MoveNext()
-			{
-				if (_enumerator.MoveNext())
+				foreach (object item in iterator(e))
 				{
-					_arguments[0] = _enumerator.Current;
-					_current = _function.Call(_arguments);
-					return true;
-				}
-				return false;
-			}
-
-			public object Current
-			{
-				get
-				{
-					return _current;
+					yield return item;
 				}
 			}
 		}
@@ -584,100 +420,6 @@ namespace Boo.Lang
 			}
 		}
 		
-		public class ConcatEnumerator : IEnumerator, IEnumerable
-		{
-			int _index;
-			object[] _enumerables;
-			IEnumerator _current;
-			
-			internal ConcatEnumerator(params object[] args)
-			{
-				_enumerables = args;
-				Reset();
-			}
-			
-			public void Reset()
-			{
-				_index = 0;
-				_current = iterator(_enumerables[_index]).GetEnumerator();
-			}
-			
-			public bool MoveNext()
-			{
-				if (_current.MoveNext())
-				{
-					return true;
-				}
-				
-				while (++_index < _enumerables.Length)
-				{
-					_current = iterator(_enumerables[_index]).GetEnumerator();
-					if (_current.MoveNext()) 
-						return true;
-				}
-				return false;
-			}
-			
-			public IEnumerator GetEnumerator()
-			{
-				return this;
-			}
-			
-			public object Current
-			{
-				get
-				{
-					return _current.Current;
-				}
-			}
-		}
-		
-		[EnumeratorItemType(typeof(object[]))]
-		public class EnumerateEnumerator : IEnumerator, IEnumerable
-		{
-			int _index = -1;
-
-			IEnumerator _enumerator;
-
-			internal EnumerateEnumerator(IEnumerator enumerator)
-			{
-				if (null == enumerator)
-				{
-					throw new ArgumentNullException("enumerator");
-				}
-				_enumerator = enumerator;
-			}
-
-			public void Reset()
-			{
-				_index = -1;
-				_enumerator.Reset();
-			}
-
-			public bool MoveNext()
-			{
-				if (_enumerator.MoveNext())
-				{
-					++_index;
-					return true;
-				}
-				return false;
-			}
-
-			public object Current
-			{
-				get
-				{
-					return new object[2] { _index, _enumerator.Current };
-				}
-			}
-
-			public IEnumerator GetEnumerator()
-			{
-				return this;
-			}
-		}
-
 		private static IEnumerator GetEnumerator(object enumerable)
 		{
 			return RuntimeServices.GetEnumerable(enumerable).GetEnumerator();

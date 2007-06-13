@@ -28,14 +28,11 @@
 
 using System;
 using System.Reflection;
-#if NET_2_0
 using System.Collections.Generic;
 using System.Reflection.Emit;
-#endif
 
 namespace Boo.Lang.Runtime
 {
-#if NET_2_0
 	internal delegate object MethodDispatcher(object target, object[] args);
 
 	internal class MethodDispatcherEmitter
@@ -219,5 +216,4 @@ namespace Boo.Lang.Runtime
 			return typeof(IConvertible).GetMethod("To" + Type.GetTypeCode(type));
 		}
 	}
-#endif
 }

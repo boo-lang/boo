@@ -26,58 +26,19 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
+using System.Collections.Generic;
 using System.IO;
-using Boo.Lang;
 
 namespace Boo.Lang.Runtime
 {
-	[EnumeratorItemType(typeof(string))]
-	public class TextReaderEnumerator : System.Collections.IEnumerator, System.Collections.IEnumerable
-	{
-		TextReader _reader;
-		
-		string _currentLine;
-		
-		public TextReaderEnumerator(TextReader reader)
+	public class TextReaderEnumerator
+	{	
+		public static IEnumerable<string> lines(TextReader reader)
 		{
-			if (null == reader)
+			string line;
+			while (null != (line = reader.ReadLine()))
 			{
-				throw new ArgumentNullException("reader");
-			}
-			_reader = reader;
-		}
-		
-		public System.Collections.IEnumerator GetEnumerator()
-		{
-			return this;
-		}
-		
-		public void Reset()
-		{
-			StreamReader sreader = _reader as StreamReader;
-			if (null != sreader)
-			{
-				sreader.BaseStream.Position = 0;
-				sreader.DiscardBufferedData();
-			}
-			else
-			{
-				throw new NotSupportedException();
-			}
-		}
-		
-		public bool MoveNext()
-		{
-			_currentLine = _reader.ReadLine();
-			return _currentLine != null;
-		}
-		
-		public object Current
-		{
-			get
-			{
-				return _currentLine;
+				yield return line;
 			}
 		}
 	}

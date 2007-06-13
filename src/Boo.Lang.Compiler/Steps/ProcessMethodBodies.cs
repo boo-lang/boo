@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.Steps
 			_ICallable_Call = null;
 			_Activator_CreateInstance = null;
 			_ApplicationException_StringConstructor = null;
-			_TextReaderEnumerator_Constructor = null;
+			_TextReaderEnumerator_lines = null;
 			_EnumeratorItemType_Constructor = null;
 		}
 
@@ -2699,7 +2699,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (IsTextReader(type))
 					{
-						return CodeBuilder.CreateConstructorInvocation(TextReaderEnumerator_Constructor, iterator);
+						return CodeBuilder.CreateMethodInvocation(TextReaderEnumerator_lines, iterator);
 					}
 					else
 					{
@@ -5843,17 +5843,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		IConstructor _TextReaderEnumerator_Constructor;
+		IMethod _TextReaderEnumerator_lines;
 		
-		IConstructor TextReaderEnumerator_Constructor
+		IMethod TextReaderEnumerator_lines
 		{
 			get
 			{
-				if (null == _TextReaderEnumerator_Constructor)
+				if (null == _TextReaderEnumerator_lines)
 				{
-					_TextReaderEnumerator_Constructor = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetConstructor(new Type[] { typeof(TextReader) }));
+					_TextReaderEnumerator_lines = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetMethod("lines"));
 				}
-				return _TextReaderEnumerator_Constructor;
+				return _TextReaderEnumerator_lines;
 			}
 		}
 		

@@ -39,7 +39,7 @@ abstract class AbstractAttributeTestFixture:
 	def SetUpFixture():
 		_compiler = BooCompiler()
 		_compiler.Parameters.Pipeline = Pipelines.ResolveExpressions()
-		_compiler.Parameters.References.Add(typeof(Useful.IO.TextFile).Assembly)
+		_compiler.Parameters.References.Add(typeof(Useful.PlatformInformation).Assembly)
 		
 	def RunTestCase(expected as string, code as string):
 		_compiler.Parameters.Input.Clear()

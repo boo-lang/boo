@@ -44,7 +44,7 @@ import System.Runtime.InteropServices
 [assembly: AssemblyConfiguration('')]
 [assembly: AssemblyCompany('')]
 [assembly: AssemblyProduct('Boo.Microsoft.Build.Tasks')]
-[assembly: AssemblyCopyright("(C) 2003-2005 Rodrigo Barreto de Oliveira")]
+[assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark('')]
 [assembly: AssemblyCulture('')]
 
@@ -66,5 +66,5 @@ import System.Runtime.InteropServices
 #
 # You can specify all the values or you can default the Revision and
 # Build Numbers by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
 [assembly: AssemblyFileVersion('1.0.0.0')]

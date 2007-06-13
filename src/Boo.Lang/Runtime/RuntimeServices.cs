@@ -1066,7 +1066,7 @@ namespace Boo.Lang.Runtime
 				TextReader reader = enumerable as TextReader;
 				if (null != reader)
 				{
-					iterator = new TextReaderEnumerator(reader);
+					iterator = TextReaderEnumerator.lines(reader);
 				}
 				else
 				{

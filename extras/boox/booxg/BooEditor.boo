@@ -59,12 +59,12 @@ class BooEditor(ScrolledWindow):
 		
 	def Open([required] fname as string):
 		fname = System.IO.Path.GetFullPath(fname)
-		_buffer.Text = TextFile.ReadFile(fname)
+		_buffer.Text = File.ReadAllText(fname)
 		_buffer.Modified = false
 		_fname = fname
 		
 	def SaveAs([required] fname as string):
-		TextFile.WriteFile(fname, _buffer.Text)
+		File.WriteAllText(fname, _buffer.Text)
 		_fname = fname
 		_buffer.Modified = false
 			
