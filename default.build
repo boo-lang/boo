@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.7.8" />
-	<property name="boo.svn.revision" value="2559" />
+	<property name="boo.svn.revision" value="2567" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
 	<property name="boo.assembly.version" value="1.0.0.0" />
 	
@@ -17,8 +17,6 @@
 	<property name="skip.ngen" value="True" />
 	<property name="skip.antlr" value="False" />
 	<property name="skip.ast" value="False" />
-	<property name="skip.copytobin" value="False" dynamic="True"/>
-	<property name="skip.copytosubfolder" value="False" dynamic="True"/>
 	
 	<property name="build.dir" value="build" dynamic="True"/>
 	<property name="distrobuild.dir" value="distrobuild"/>
@@ -48,15 +46,9 @@
 &lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
 
 	<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
-	<property name="supported.runtimes" 
-			value="${supported.runtimes.net-1.1}"
-			if="${'net-1.1' == framework::get-target-framework()}" />
 			
-			
-	<property name="csc.noconfig" value="false" />
-	<property name="csc.define" value="NET_1_1" />
-	<property name="csc.define" value="NET_2_0"
-			if="${2 == version::get-major(framework::get-version(framework::get-target-framework()))}" />
+	<property name="csc.noconfig" value="false" />	
+	<property name="csc.define" value="NET_2_0" />
 	
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env">	
 	</target>
@@ -237,7 +229,7 @@
 			<property name="debugflag" value="-debug-"/>
 		</if>
 		
-		<exec program="${build.dir}/booc.exe" useruntimeengine="true" unless="${Boo.NAnt.Tasks-is-uptodate}">		
+		<exec program="${build.dir}/booc.exe" managed="true" unless="${Boo.NAnt.Tasks-is-uptodate}">		
 			<arg value="-v" />
 			<arg value="-noconfig" />
 			<arg value="${debugflag}" />
@@ -302,44 +294,24 @@
 	
 	<target name="update-bin" depends="all">
 		<mkdir dir="bin" />
-		<if test="${not skip.copytobin}">
-			<delete>
-				<fileset basedir="bin">
-					<include name="*.Tasks.dll" />
-					<include name="*.targets" />
-					<include name="*.config" />
-					<include name="*.exe" />
-				</fileset>
-			</delete>
-			<copy todir="bin">
-				<fileset basedir="${build.dir}">
-					<include name="pt/Boo.Lang.resources.dll" />
-					<include name="Boo.*.dll" />
-					<include name="boo*.exe" />
-					<include name="boo*.rsp" />
-					<include name="*.config" />
-					<include name="*.targets" />
-				</fileset>
-			</copy>
-		</if>
-		<if test="${not skip.copytosubfolder}">
-			<mkdir dir="bin/${nant.settings.currentframework}" />
-			<delete>
-				<fileset basedir="bin/${nant.settings.currentframework}">
-					<include name="*" />
-				</fileset>
-			</delete>
-			<copy todir="bin/${nant.settings.currentframework}">
-				<fileset basedir="${build.dir}">
-					<include name="pt/Boo.Lang.resources.dll" />
-					<include name="Boo.*.dll" />
-					<include name="boo*.exe" />
-					<include name="boo*.rsp" />
-					<include name="*.config" />
-					<include name="*.targets" />
-				</fileset>
-			</copy>
-		</if>
+		<delete>
+			<fileset basedir="bin">
+				<include name="*.Tasks.dll" />
+				<include name="*.targets" />
+				<include name="*.config" />
+				<include name="*.exe" />
+			</fileset>
+		</delete>
+		<copy todir="bin">
+			<fileset basedir="${build.dir}">
+				<include name="pt/Boo.Lang.resources.dll" />
+				<include name="Boo.*.dll" />
+				<include name="boo*.exe" />
+				<include name="boo*.rsp" />
+				<include name="*.config" />
+				<include name="*.targets" />
+			</fileset>
+		</copy>
 	</target>
 	
 	<target name="Boo.Microsoft.Build.Tasks" depends="Boo.NAnt.Tasks">
@@ -527,7 +499,7 @@
 			</items>
 		</in>
 		<do>
-			<exec program="gacutil" useruntimeengine="false" workingdir="${build.dir}">
+			<exec program="gacutil" managed="false" workingdir="${build.dir}">
 				<arg value="/i" />
 				<arg value="${path::get-file-name(filename)}" />
 				<arg value="/package" />
@@ -593,7 +565,7 @@
 		</in>
 		<do>
 			<exec program="${path::combine(mono.prefix, 'bin/gacutil.bat')}"
-				useruntimeengine="false" workingdir="${build.dir}">
+				managed="false" workingdir="${build.dir}">
 				<arg value="/i" />
 				<arg value="${path::get-file-name(filename)}" />
 				<arg value="/package" />
@@ -627,7 +599,7 @@
 			</items>
 		</in>
 		<do>
-			<exec program="gacutil" useruntimeengine="false">
+			<exec program="gacutil" managed="false">
 				<arg value="/u" />
 				<arg value="${path::get-file-name-without-extension(filename)}" />
 				<arg value="/package" />
@@ -747,42 +719,16 @@
 		<delete dir="${distrobuild.dir}" if="${directory::exists(distrobuild.dir)}" />
 		<mkdir dir="${distrobuild.dir}"/>
 		
-		<!-- necessary so AssemblyKeyFile attribute can find key (for .net 1.1 csc tasks) -->
-		<mkdir dir="${distrobuild.dir}/src"/>
-		<copy todir="${distrobuild.dir}/src" file="src/boo.snk" />
-		
-		<!-- We call nant externally so we can target multiple frameworks. -->
-		<exec program="${nant.location}/NAnt.exe">
-			<arg value="-t:net-1.1" />
-			<arg value="distro-net-1.1" />
-		</exec>
-		
+		<!-- We call nant externally so we can target multiple frameworks. -->		
 		<exec program="${nant.location}/NAnt.exe">
 			<arg value="-t:net-2.0" />
 			<arg value="distro-net-2.0" />
 		</exec>
 		
-		<property name="build.dir" value="${distrobuild.dir}/net-2.0" />
-		
 		<!-- Here we actually build the zip files. -->
 		<call target="src-distro" />
 	</target>
-	
-	<target name="distro-net-1.1">
-		<fail unless="${'net-1.1' == framework::get-target-framework()}">
-		Run first distro target using -t:net-1.1
-		</fail>
-		<fail unless="${framework::sdk-exists('net-1.1')}">
-		.NET 1.1 SDK required to make distro (as well as .NET 2.0).
-		</fail>
-		
-		<property name="build.dir" value="${distrobuild.dir}/net-1.1" />
-		<call target="rebuild" />
-		<property name="skip.copytosubfolder" value="True" />
-		<property name="skip.copytobin" value="False" />
-		<call target="update-bin" />
-	</target>
-	
+
 	<target name="distro-net-2.0">
 		<fail unless="${'net-2.0' == framework::get-target-framework()}">
 		Run first distro target using -t:net-2.0
@@ -793,8 +739,6 @@
 		
 		<property name="build.dir" value="${distrobuild.dir}/net-2.0" />
 		<call target="rebuild" />
-		<property name="skip.copytosubfolder" value="False" />
-		<property name="skip.copytobin" value="True" />
 		<call target="update-bin" />
 	</target>
 	
@@ -921,19 +865,19 @@
 		<touch file="README"/>
 
 		<!-- "./autogen.sh", effectively -->
-		<exec program="aclocal" useruntimeengine="false" />
-		<exec program="autoconf" useruntimeengine="false" />
-		<exec program="automake" useruntimeengine="false">
+		<exec program="aclocal" managed="false" />
+		<exec program="autoconf" managed="false" />
+		<exec program="automake" managed="false">
 			<arg value="--add-missing" />
 		</exec>
 
-		<exec program="./configure" useruntimeengine="false" />
+		<exec program="./configure" managed="false" />
 
-		<exec program="make" useruntimeengine="false">
+		<exec program="make" managed="false">
 			<arg value="dist" />
 		</exec>
 
-		<exec program="make" useruntimeengine="false">
+		<exec program="make" managed="false">
 			<arg value="distclean" />
 		</exec>
 
@@ -1048,7 +992,7 @@
 	</target>
 	
 	<target name="update-vs2005-env">
-		<exec program="bin/booi.exe" useruntimeengine="true">
+		<exec program="bin/booi.exe" managed="true">
 			<arg value="scripts/update-vs2005-env.boo" />
 		</exec>	
 	</target>
@@ -1070,7 +1014,7 @@
 			<delete dir="src/Boo.Lang.Compiler/Ast/Impl"
 					if="${directory::exists('src/Boo.Lang.Compiler/Ast/Impl')}" />
 			<mkdir dir="src/Boo.Lang.Compiler/Ast/Impl" />
-			<exec program="bin/booi.exe" useruntimeengine="true">
+			<exec program="bin/booi.exe" managed="true">
 				<arg value="scripts/astgen.boo" />
 			</exec>			
 		</if>
