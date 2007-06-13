@@ -39,16 +39,15 @@ Examples:
 import System
 import System.Text.RegularExpressions
 import System.IO
-import Boo.IO.TextFile // static members of TextFile will be available in the global scope
 
 def Replace(folder as string, glob as string, expression as Regex, replacement as string):
 	
 	for fname in Directory.GetFiles(folder, glob):
-		contents = ReadFile(fname)
+		contents = File.ReadAllText(fname)
 		newContents = expression.Replace(contents, replacement)
 		if newContents != contents:
 			print(fname)
-			WriteFile(fname, newContents)
+			File.WriteAllText(fname, newContents)
 			
 	for subFolder in Directory.GetDirectories(folder):
 		Replace(subFolder, glob, expression, replacement)

@@ -26,9 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System
-import Boo.IO
+import System.IO
 
-_, fname = Environment.GetCommandLineArgs()
-for index, line in enumerate(TextFile(fname)):
-	print("${index}: ${line}")
+fname, = argv
+using stream = File.OpenText(fname):
+	for index, line in enumerate(stream):
+		print("${index}: ${line}")

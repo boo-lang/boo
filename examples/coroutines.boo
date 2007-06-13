@@ -32,17 +32,17 @@ class XPer:
 	def Test():
 		while true:
 			print "testing"
-			yield null
+			yield
 			
 	def Code():
 		while true:
 			print "coding"
-			yield null
+			yield
 			
 	def Refactor():
 		while true:
 			print "refactoring"
-			yield null
+			yield
 			
 	def Iterate(times as int):
 		assert times > 0

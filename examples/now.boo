@@ -26,4 +26,4 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-print(System.DateTime.Now.ToString())
+print date.Now

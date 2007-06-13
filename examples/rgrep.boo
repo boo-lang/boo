@@ -34,11 +34,11 @@ example: grep *.cs Boo.IO
 """
 import System // Environment
 import System.IO // Directory
-import Useful.IO from Boo.Lang.Useful // TextFile
 
-def ScanFile(fname as string, pattern as string):	
-	for index, line as string in enumerate(TextFile(fname)):
-		print("${fname}(${index}): ${line.Trim()}") if line =~ pattern
+def ScanFile(fname as string, pattern as string):
+	using stream = File.OpenText(fname):	
+		for index, line as string in enumerate(stream):
+			print("${fname}(${index}): ${line.Trim()}") if line =~ pattern
 		
 def ScanDirectory(path as string, glob as string, pattern as string):	
 	for fname in Directory.GetFiles(path, glob):
@@ -46,6 +46,6 @@ def ScanDirectory(path as string, glob as string, pattern as string):
 	for dir in Directory.GetDirectories(path):
 		ScanDirectory(dir, glob, pattern)
 
-_, glob, pattern = Environment.GetCommandLineArgs()
+glob, pattern = argv
 ScanDirectory(".", glob, pattern)
 

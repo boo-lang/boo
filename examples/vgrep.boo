@@ -26,18 +26,18 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import Boo.IO
 import System
 import System.IO
 import System.Drawing from System.Drawing
 import System.Windows.Forms from System.Windows.Forms
 
-def ScanFile(lv as ListView, fname as string, pattern as string):	
-	for index as int, line as string in enumerate(TextFile(fname)):
-		if line =~ pattern:
-			lvItem = lv.Items.Add(fname)
-			lvItem.SubItems.Add(index.ToString())
-			lvItem.Tag = [fname, index]
+def ScanFile(lv as ListView, fname as string, pattern as string):
+	using stream=File.OpenText(fname):	
+		for index as int, line as string in enumerate(fname):
+			if line =~ pattern:
+				lvItem = lv.Items.Add(fname)
+				lvItem.SubItems.Add(index.ToString())
+				lvItem.Tag = [fname, index]
 		
 def ScanDirectory(lv as ListView, path as string, glob as string, pattern as string):
 	for fname in Directory.GetFiles(path, glob):
@@ -50,7 +50,7 @@ def fileList_SelectedIndexChanged(sender, args as EventArgs):
 	txtBox as TextBox = fileList.Tag
 	for item as ListViewItem in fileList.SelectedItems:
 		fname as string, index as int = item.Tag
-		txtBox.Text = TextFile.ReadFile(fname)
+		txtBox.Text = File.ReadAllText(fname)
 		txtBox.Focus()
 		txtBox.SelectionLength = 0		
 		txtBox.SelectionStart = index		
@@ -89,7 +89,7 @@ f.Controls.Add(fileTab)
 f.Controls.Add(splitter)
 f.Controls.Add(fileList)
 
-_, glob, pattern = System.Environment.GetCommandLineArgs()
+glob, pattern = argv
 ScanDirectory(fileList, ".", glob, pattern)
 
 Application.Run(f)
