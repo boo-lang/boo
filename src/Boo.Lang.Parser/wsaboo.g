@@ -728,6 +728,7 @@ method [TypeMemberCollection container]
 		TypeReference it = null;
 		ExplicitMemberInfo emi = null;
 		ParameterDeclarationCollection parameters = null;
+		GenericParameterDeclarationCollection genericParameters = null;
 		Block body = null;
 		StatementCollection statements = null;
 	}: 
@@ -753,9 +754,19 @@ method [TypeMemberCollection container]
 		m.Modifiers = _modifiers;
 		AddAttributes(m.Attributes);
 		parameters = m.Parameters;
+		genericParameters = m.GenericParameters;
 		body = m.Body;
 		statements = body.Statements;
 	}
+	(
+		(
+			LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK
+		)
+		|
+		(
+			OF generic_parameter_declaration[genericParameters]
+		)
+	)?
 	LPAREN parameter_declaration_list[parameters] RPAREN
 			(AS rt=type_reference { m.ReturnType = rt; })?
 			attributes { AddAttributes(m.ReturnTypeAttributes); }
@@ -995,6 +1006,24 @@ callable_parameter_declaration[ParameterDeclarationCollection c]
 		pd.Modifiers = pm;
 		c.Add(pd);
 	} 
+	;
+	
+protected
+generic_parameter_declaration_list[GenericParameterDeclarationCollection c]:
+	generic_parameter_declaration[c]
+	(
+		COMMA generic_parameter_declaration[c]
+	)*
+	;
+
+protected 
+generic_parameter_declaration[GenericParameterDeclarationCollection c]:
+	id:ID 
+	{
+		GenericParameterDeclaration gpd = new GenericParameterDeclaration(ToLexicalInfo(id));
+		gpd.Name = id.getText();
+		c.Add(gpd);
+	}
 	;
 	
 protected

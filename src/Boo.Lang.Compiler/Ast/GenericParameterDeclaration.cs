@@ -26,47 +26,25 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-
-	public class ExternalGenericTypeInfo : IGenericTypeInfo
+	
+	[Serializable]
+	public class GenericParameterDeclaration : Boo.Lang.Compiler.Ast.Impl.GenericParameterDeclarationImpl
 	{
-		ExternalType _type;
-		TypeSystemServices _tss;
-		IType[] _arguments = null;
-		
-		public ExternalGenericTypeInfo(TypeSystemServices tss, ExternalType type)
+		public GenericParameterDeclaration()
 		{
-			_type = type;
-			_tss = tss;
-		}		
+		}
+		
+		public GenericParameterDeclaration(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
 
-		public IType GenericDefinition
+		override public void Accept(IAstVisitor visitor)
 		{
-			get 
-			{
-				return _tss.Map(_type.ActualType.GetGenericTypeDefinition());
-			}
+			visitor.OnGenericParameterDeclaration(this);
 		}
-		
-		public IType[] GenericArguments
-		{
-			get 
-			{
-				if (_arguments == null)
-				{
-					_arguments = Array.ConvertAll<Type, IType>(
-						_type.ActualType.GetGenericArguments(), _tss.Map);
-				}
-				
-				return _arguments;
-			}
-		}
-					
-		public bool FullyConstructed	
-		{
-			get { return !_type.ActualType.ContainsGenericParameters; }
-		}
-	}	
+	}
 }
+

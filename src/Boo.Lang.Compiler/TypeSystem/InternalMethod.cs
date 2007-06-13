@@ -193,7 +193,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public string FullName
+		public virtual string FullName
 		{
 			get
 			{
@@ -376,7 +376,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-		public bool Resolve(List targetList, string name, EntityType flags)
+		public virtual bool Resolve(List targetList, string name, EntityType flags)
 		{
 			if (NameResolutionService.IsFlagSet(flags, EntityType.Local))
 			{
@@ -411,12 +411,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _typeSystemServices.GetSignature(this);
 		}
 		
-		IGenericMethodInfo IMethod.GenericMethodInfo
+		public virtual IGenericMethodInfo GenericMethodInfo
 		{
 			get { return null; }
 		}
 
-		IGenericMethodDefinitionInfo IMethod.GenericMethodDefinitionInfo
+		public virtual IGenericMethodDefinitionInfo GenericMethodDefinitionInfo
 		{
 			get { return null; }
 		}

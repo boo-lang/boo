@@ -326,7 +326,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			else
 			{
-#if NET_2_0
 				GenericTypeReference gtr = node as GenericTypeReference;
 				if (null != gtr)
 				{
@@ -342,7 +341,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 						entity = GenericArgumentsCountMismatch(gtdr, type);
 					}
 				}
-#endif
 
 				node.Name = entity.FullName;
 			}
@@ -362,15 +360,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				Resolve(_buffer, node.Name, EntityType.Type);
 			}
 
-#if NET_2_0			
+
 			// Remove from the buffer types that do not match requested generity
 			FilterGenericTypes(_buffer, node);
-#endif			
-			
 			return GetEntityFromBuffer();
 		}
 
-#if NET_2_0
 		private void FilterGenericTypes(List types, SimpleTypeReference node)		
 		{			
 			bool genericRequested = (node is GenericTypeReference || node is GenericTypeDefinitionReference);
@@ -388,7 +383,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}			
 		}
-#endif
 
 		private IEntity NameNotType(SimpleTypeReference node)
 		{

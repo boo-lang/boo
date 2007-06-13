@@ -41,6 +41,21 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(CompileUnit.Modules);
 		}
+		
+		public override void OnMethod (Method node)
+		{
+			// If method is generic, enter its namespace			
+			if (node.GenericParameters.Count != 0)
+			{
+				EnterNamespace((INamespace)TypeSystemServices.GetEntity(node));
+				base.OnMethod(node);
+				LeaveNamespace();
+			}
+			else
+			{
+				base.OnMethod(node);
+			}
+		}
 
 		override public void OnArrayTypeReference(ArrayTypeReference node)
 		{

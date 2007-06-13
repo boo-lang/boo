@@ -55,9 +55,9 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new BindTypeDefinitions());
 			Add(new BindEnumMembers());
 			Add(new BindBaseTypes());
-
-			Add(new ResolveTypeReferences());
 			
+			Add(new BindMethods());
+			Add(new ResolveTypeReferences());
 			Add(new BindTypeMembers());
 			
 			Add(new ProcessInheritedAbstractMembers());

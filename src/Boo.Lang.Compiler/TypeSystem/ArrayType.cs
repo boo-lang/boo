@@ -36,9 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		int _rank;
 			
-#if NET_2_0
 		IType _enumerable;
-#endif
 
 		public ArrayType(TypeSystemServices tagManager, IType elementType) : this(tagManager, elementType, 1)
 		{
@@ -49,10 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_array = tagManager.ArrayType;
 			_elementType = elementType;
 			_rank = rank;
-			
-#if NET_2_0
 			_enumerable = tagManager.IEnumerableGenericType;
-#endif
 		}
 
 		
@@ -188,7 +183,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (other.IsAssignableFrom(_array)) return true;
 			
-#if NET_2_0
 			// Arrays also implement generic IEnumerable of their element type 
 			if (other.GenericTypeInfo != null && 
 				other.GenericTypeInfo.GenericDefinition == _enumerable &&
@@ -196,7 +190,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return true;
 			}
-#endif
 			return false;
 		}
 		

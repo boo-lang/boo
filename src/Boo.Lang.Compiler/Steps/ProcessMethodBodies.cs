@@ -1053,18 +1053,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckGenericGeneratorReturnType(IType returnType)
 		{
-#if NET_2_0
 			return returnType.GenericTypeInfo != null &&
 			    (returnType.GenericTypeInfo.GenericDefinition == TypeSystemServices.IEnumerableGenericType ||
 			     returnType.GenericTypeInfo.GenericDefinition == TypeSystemServices.IEnumeratorGenericType);
-#else
-			return false;
-#endif
 		}
 		
 		void CheckGeneratorYieldType(InternalMethod method, IType returnType)
 		{
-#if NET_2_0
 			if (CheckGenericGeneratorReturnType(returnType))
 			{
 				IType returnElementType = returnType.GenericTypeInfo.GenericArguments[0];
@@ -1080,7 +1075,6 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-#endif
 		}
 		
 		void ProcessMethodBody(InternalMethod entity)
@@ -1115,7 +1109,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveGeneratorReturnType(InternalMethod entity)
 		{
 			Method method = entity.Method;
-#if NET_2_0
+
 			// Make method return a generic IEnumerable
 			IType itemType = (IType)method["GeneratorItemType"];
 			if (TypeSystemServices.VoidType == itemType)
@@ -1127,30 +1121,15 @@ namespace Boo.Lang.Compiler.Steps
 
 			IType returnType = GetGeneratorReturnType(itemType);
 			method.ReturnType = CodeBuilder.CreateTypeReference(returnType);
-#else
-			if (method.IsVirtual)
-			{
-				// Make method return a non-generic IEnumerable
-				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.IEnumerableType);
-			}
-			else
-			{
-				// Otherwise use the specific type to allow type inference
-				// to discover the item type
-				BooClassBuilder generatorType = (BooClassBuilder)method["GeneratorClassBuilder"];
-				method.ReturnType = CodeBuilder.CreateTypeReference(generatorType.Entity);
-			}
-#endif			
 		}
 
-#if NET_2_0
+
 		protected virtual IType GetGeneratorReturnType(IType itemType)
 		{
 			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
 			IType returnType = enumerableType.GenericTypeDefinitionInfo.MakeGenericType(itemType);
 			return returnType;
 		}
-#endif
 		
 		void TryToResolveReturnType(InternalMethod entity)
 		{
@@ -1819,13 +1798,10 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = entity.Method;
 			IType itemType = null;
 
-#if NET_2_0
 			if (CheckGenericGeneratorReturnType(entity.ReturnType))
 			{
 				itemType = entity.ReturnType.GenericTypeInfo.GenericArguments[0];
 			}
-#endif
-			
 			if (itemType == null)
 			{
 				ExpressionCollection yieldExpressions = entity.YieldExpressions;
@@ -1845,12 +1821,10 @@ namespace Boo.Lang.Compiler.Steps
 			return builder;
 		}
 		
-#if NET_2_0
 		protected IType MakeGenericType(IType genericType, IType argType)
 		{
 			return genericType.GenericTypeDefinitionInfo.MakeGenericType(argType);
 		}
-#endif
 		
 		BooClassBuilder CreateGeneratorSkeleton(Node sourceNode, Method method, IType generatorItemType)
 		{
@@ -1861,7 +1835,6 @@ namespace Boo.Lang.Compiler.Steps
 			builder.LexicalInfo = sourceNode.LexicalInfo;
 			
 			BooMethodBuilder getEnumeratorBuilder = null;
-#if NET_2_0
 			if (generatorItemType != TypeSystemServices.VoidType)
 			{
 				builder.AddBaseType(
@@ -1877,15 +1850,6 @@ namespace Boo.Lang.Compiler.Steps
 
 				getEnumeratorBuilder.Method.LexicalInfo = sourceNode.LexicalInfo;
 			}
-#else
-			builder.AddBaseType(TypeSystemServices.Map(typeof(AbstractGenerator)));
-			builder.AddAttribute(CodeBuilder.CreateAttribute(
-				EnumeratorItemType_Constructor,
-				CodeBuilder.CreateTypeofExpression(generatorItemType)));
-			
-			getEnumeratorBuilder = builder.AddVirtualMethod("GetEnumerator", TypeSystemServices.IEnumeratorType);
-			getEnumeratorBuilder.Method.LexicalInfo = sourceNode.LexicalInfo;
-#endif
 			
 			sourceNode["GeneratorClassBuilder"] = builder;
 			sourceNode["GetEnumeratorBuilder"] = getEnumeratorBuilder;

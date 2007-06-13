@@ -71,6 +71,7 @@ class TypeReferenceCollection:
 
 class CallableDefinition(TypeMember, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
+	GenericParameters as GenericParameterDeclarationCollection
 	ReturnType as TypeReference
 	ReturnTypeAttributes as AttributeCollection
 
@@ -171,6 +172,13 @@ class ParameterDeclaration(Node, INodeWithAttributes):
 
 [collection(ParameterDeclaration)]
 class ParameterDeclarationCollection:
+	pass
+
+class GenericParameterDeclaration(Node):
+	Name as string
+
+[collection(GenericParameterDeclaration)]
+class GenericParameterDeclarationCollection:
 	pass
 
 class Declaration(Node):

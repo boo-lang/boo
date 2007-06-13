@@ -28,36 +28,43 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using System.Collections.Generic;
-
-	public class ExternalGenericMethodDefinitionInfo : AbstractExternalGenericDefinitionInfo, IGenericMethodDefinitionInfo
+	/// <summary>
+	/// A parameter in a mixed generic type's method or constructor, or a mixed generic method.
+	/// </summary>
+	public class MappedParameter : IParameter
 	{
-		private ExternalMethod _method;
-
-		public ExternalGenericMethodDefinitionInfo(TypeSystemServices tss, ExternalMethod method) :	base(tss)
-		{	
-			_method = method;
-		}
-
-		public IMethod MakeGenericMethod(IType[] arguments)
+		private ITypeMapper _typeMapper;
+		private IParameter _baseParameter;
+		
+		public MappedParameter(TypeSystemServices tss, IParameter parameter, ITypeMapper typeMapper)
 		{
-			return (IMethod)MakeGenericEntity(arguments);
+			_typeMapper = typeMapper;
+			_baseParameter = parameter;
 		}
 		
-		protected override Type[] GetActualGenericParameters()
+		public bool IsByRef
 		{
-			return _method.MethodInfo.GetGenericArguments();
+			get { return _baseParameter.IsByRef; }
 		}
 		
-		protected override IEntity MakeExternalEntity(Type[] arguments)
+		public IType Type
 		{
-			return _tss.Map(((System.Reflection.MethodInfo)_method.MethodInfo).MakeGenericMethod(arguments));
+			get { return _typeMapper.MapType(_baseParameter.Type); }
 		}
 		
-		protected override IEntity MakeMixedEntity(IType[] arguments)
+		public string Name
 		{
-			return new MixedGenericMethod(_tss, _method, arguments);
+			get { return _baseParameter.Name; }
+		}
+		
+		public string FullName
+		{
+			get { return _baseParameter.FullName; }
+		}
+		
+		public EntityType EntityType
+		{
+			get { return EntityType.Parameter; }
 		}
 	}
 }

@@ -94,7 +94,6 @@ namespace Boo.Lang.Compiler.Steps
 			//_enumerator = _collector.CreateSkeletonClass(_enumerable.ClassDefinition.Name + "Enumerator");
 			_enumerator = _collector.CreateSkeletonClass("Enumerator");
 			
-#if NET_2_0
 			// If source item type isn't object, use a generic enumerator for the source type
 			_sourceItemType = TypeSystemServices.GetGenericEnumerableItemType(_generator.Iterator.ExpressionType);
 			
@@ -110,7 +109,6 @@ namespace Boo.Lang.Compiler.Steps
 			
 			// Expose a generic enumerator
 			_resultEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericTypeDefinitionInfo.MakeGenericType(_resultItemType);
-#endif
 
 			_enumerator.AddBaseType(_resultEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(ICloneable)));
@@ -170,7 +168,6 @@ namespace Boo.Lang.Compiler.Steps
 				new ReturnStatement(
 					CodeBuilder.CreateReference(_current)));
 
-#if NET_2_0
 			// If item type is object, we're done
 			if (_resultItemType == TypeSystemServices.ObjectType) return;
 				
@@ -186,7 +183,6 @@ namespace Boo.Lang.Compiler.Steps
 			typedProperty.Getter.Body.Add(
 				new ReturnStatement(
 					CodeBuilder.CreateReference(_current)));		
-#endif
 		}
 		
 		void CreateGetEnumerator()
@@ -324,7 +320,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			ExternalType external = type as ExternalType;
 
-#if NET_2_0
 			MixedGenericType mixed = type as MixedGenericType;
 			
 			if (mixed != null)
@@ -332,7 +327,6 @@ namespace Boo.Lang.Compiler.Steps
 				IMethod definition = GetMethod(mixed.GenericDefinition, name);
 				return (IMethod)mixed.MapMember(definition);
 			}
-#endif
 
 			if (external != null)
 			{
@@ -349,7 +343,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			ExternalType external = type as ExternalType;
 
-#if NET_2_0
 			MixedGenericType mixed = type as MixedGenericType;
 			
 			if (mixed != null)
@@ -357,7 +350,6 @@ namespace Boo.Lang.Compiler.Steps
 				IProperty definition = GetProperty(mixed.GenericDefinition, name);
 				return (IProperty)mixed.MapMember(definition);
 			}
-#endif
 
 			if (external != null)
 			{

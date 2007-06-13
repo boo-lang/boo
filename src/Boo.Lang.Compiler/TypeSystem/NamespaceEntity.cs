@@ -220,13 +220,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private static string TypeName(Type type)
 		{
-#if NET_2_0
 			if (!type.IsGenericTypeDefinition) return type.Name;
 			string name = type.Name;
 			return name.Substring(0, name.LastIndexOf('`'));
-#else
-			return type.Name;
-#endif
 		}
 
 		bool ResolveExternalModules(List targetList, string name, EntityType flags)

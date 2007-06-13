@@ -391,6 +391,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Visit(em.ExplicitInfo);
 			}
 			Write(node.Name);
+			if (node.GenericParameters.Count > 0)
+			{
+				WriteGenericParameterList(node.GenericParameters);
+			}
 			WriteParameterList(node.Parameters);
 			WriteTypeReference(node.ReturnType);
 			if (node.ReturnTypeAttributes.Count > 0)
@@ -462,6 +466,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Write(p.Name);
 				WriteTypeReference(p.Type);
 			}
+		}
+
+		override public void OnGenericParameterDeclaration(GenericParameterDeclaration gp)
+		{
+			Write(gp.Name);
 		}
 		
 		override public void OnTypeofExpression(TypeofExpression node)
@@ -1449,6 +1458,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Visit(items.GetNodeAt(i));
 			}
 			Write(ed);
+		}
+		
+		void WriteGenericParameterList(GenericParameterDeclarationCollection items)
+		{
+			Write("[of ");
+			WriteCommaSeparatedList(items);
+			Write("]");
 		}
 		
 		void WriteAttribute(Attribute attribute)

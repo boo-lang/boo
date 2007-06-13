@@ -284,7 +284,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _typeSystemServices.GetSignature(this);
 		}
 		
-#if NET_2_0		
 		ExternalGenericMethodDefinitionInfo _genericMethodDefinitionInfo = null;		
 		public IGenericMethodDefinitionInfo GenericMethodDefinitionInfo
 		{
@@ -318,17 +317,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 				return null;
 			}
-		}	
-#else
-		IGenericMethodDefinitionInfo IMethod.GenericMethodDefinitionInfo
-		{
-			get { return null; }
 		}
-		
-		IGenericMethodInfo IMethod.GenericMethodInfo
-		{
-			get { return null; }
-		}		
-#endif
 	}
 }

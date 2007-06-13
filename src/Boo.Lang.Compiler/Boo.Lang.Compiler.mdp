@@ -13,7 +13,6 @@
       <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" definesymbols="/home/avish/Dev/Boo/ide-build/" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
     </Configuration>
   </Configurations>
-  <DeployTargets />
   <Contents>
     <File name="./AbstractAstAttribute.cs" subtype="Code" buildaction="Compile" />
     <File name="./AbstractAstMacro.cs" subtype="Code" buildaction="Compile" />
@@ -414,6 +413,17 @@
     <File name="./TypeSystem/GenericTypeMapper.cs" subtype="Code" buildaction="Compile" />
     <File name="./Ast/GenericTypeDefinitionReference.cs" subtype="Code" buildaction="Compile" />
     <File name="./Ast/Impl/GenericTypeDefinitionReferenceImpl.cs" subtype="Code" buildaction="Compile" />
+    <File name="./TypeSystem/InternalGenericParameter.cs" subtype="Code" buildaction="Compile" />
+    <File name="./TypeSystem/ExternalGenericParameter.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Ast/GenericParameterDeclaration.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Ast/GenericParameterDeclarationCollection.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Ast/Impl/GenericParameterDeclarationCollectionImpl.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Ast/Impl/GenericParameterDeclarationImpl.cs" subtype="Code" buildaction="Compile" />
+    <File name="./TypeSystem/InternalGenericMethodDefinition.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Steps/BindMethods.cs" subtype="Code" buildaction="Compile" />
+    <File name="./TypeSystem/InternalGenericMethod.cs" subtype="Code" buildaction="Compile" />
+    <File name="./TypeSystem/MappedParameter.cs" subtype="Code" buildaction="Compile" />
+    <File name="./TypeSystem/ArrayEqualityComparer.cs" subtype="Code" buildaction="Compile" />
   </Contents>
   <References>
     <ProjectReference type="Gac" localcopy="True" refto="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />

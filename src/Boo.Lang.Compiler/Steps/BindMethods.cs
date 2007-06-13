@@ -1,5 +1,7 @@
+using System;
+
 #region license
-// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,47 +28,52 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-
-	public class ExternalGenericTypeInfo : IGenericTypeInfo
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.TypeSystem;
+	
+	public class BindMethods : AbstractVisitorCompilerStep
 	{
-		ExternalType _type;
-		TypeSystemServices _tss;
-		IType[] _arguments = null;
-		
-		public ExternalGenericTypeInfo(TypeSystemServices tss, ExternalType type)
+		public BindMethods()
 		{
-			_type = type;
-			_tss = tss;
-		}		
-
-		public IType GenericDefinition
-		{
-			get 
-			{
-				return _tss.Map(_type.ActualType.GetGenericTypeDefinition());
-			}
 		}
 		
-		public IType[] GenericArguments
+		override public void OnMethod(Method node)
 		{
-			get 
+			if (null == node.Entity)
 			{
-				if (_arguments == null)
+				if (node.GenericParameters.Count == 0)
 				{
-					_arguments = Array.ConvertAll<Type, IType>(
-						_type.ActualType.GetGenericArguments(), _tss.Map);
+					node.Entity = new InternalMethod(TypeSystemServices, node);
 				}
-				
-				return _arguments;
+				else
+				{
+					node.Entity = new InternalGenericMethodDefinition(TypeSystemServices, node);
+				}
 			}
+			Visit(node.ExplicitInfo);
 		}
-					
-		public bool FullyConstructed	
+		
+		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
 		{
-			get { return !_type.ActualType.ContainsGenericParameters; }
+			Visit(node.InterfaceType);
 		}
-	}	
+		
+		override public void OnClassDefinition(ClassDefinition node)
+		{
+			Visit(node.Members);
+		}
+		
+		override public void OnModule(Module node)
+		{
+			Visit(node.Members);
+		}
+		
+		override public void Run()
+		{			
+			NameResolutionService.Reset();
+			Visit(CompileUnit.Modules);
+		}
+	}
 }

@@ -38,6 +38,9 @@
     <File name="./ModuleAttribute.cs" subtype="Code" buildaction="Compile" />
     <File name="./DuckTypedAttribute.cs" subtype="Code" buildaction="Compile" />
     <File name="./ExtensionAttribute.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/MethodResolver.cs" subtype="Code" buildaction="Compile" />
+    <File name="./GenericGenerator.cs" subtype="Code" buildaction="Compile" />
+    <File name="./GenericGeneratorEnumerator.cs" subtype="Code" buildaction="Compile" />
   </Contents>
   <References>
     <ProjectReference type="Gac" localcopy="True" refto="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />

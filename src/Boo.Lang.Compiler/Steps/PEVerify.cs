@@ -47,10 +47,8 @@ namespace Boo.Lang.Compiler.Steps
 			string arguments = string.Empty;
 			
 			switch ((int) System.Environment.OSVersion.Platform)
-			{
-				#if NET_2_0
+			{	
 				case (int)System.PlatformID.Unix:
-				#endif
 				case 128:// mono's PlatformID.Unix workaround on 1.1
 					command = "pedump";
 					arguments = "--verify all \"" + Context.GeneratedAssemblyFileName + "\"";

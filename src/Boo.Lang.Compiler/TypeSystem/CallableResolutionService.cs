@@ -212,20 +212,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (BetterCandidate(_candidates[-1], _candidates[-2]) == 0)
 			{
 				object pivot = _candidates[-2];
-#if NET_2_0
+
 				_candidates.RemoveAll(delegate(object item)
 				                      	{	
 				                      		return 0 != BetterCandidate(item, pivot);
 				                      	});
-#else
-				for (int i=0; i<_candidates.Count; ++i)
-				{
-					if (0 != BetterCandidate(_candidates[i], pivot))
-					{
-						_candidates.RemoveAt(i--);
-					}
-				}
-#endif
 				// Ambiguous match
 				return null;
 			}

@@ -127,6 +127,8 @@
     <Compile Include="Ast\ForStatement.cs" />
     <Compile Include="Ast\GeneratorExpression.cs" />
     <Compile Include="Ast\GeneratorExpressionCollection.cs" />
+    <Compile Include="Ast\GenericParameterDeclaration.cs" />
+    <Compile Include="Ast\GenericParameterDeclarationCollection.cs" />
     <Compile Include="Ast\GenericReferenceExpression.cs" />
     <Compile Include="Ast\GenericTypeDefinitionReference.cs" />
     <Compile Include="Ast\GenericTypeReference.cs" />
@@ -242,6 +244,8 @@
     <Compile Include="Ast\Impl\ForStatementImpl.cs" />
     <Compile Include="Ast\Impl\GeneratorExpressionCollectionImpl.cs" />
     <Compile Include="Ast\Impl\GeneratorExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\GenericParameterDeclarationCollectionImpl.cs" />
+    <Compile Include="Ast\Impl\GenericParameterDeclarationImpl.cs" />
     <Compile Include="Ast\Impl\GenericReferenceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\GenericTypeDefinitionReferenceImpl.cs" />
     <Compile Include="Ast\Impl\GenericTypeReferenceImpl.cs" />
@@ -346,6 +350,7 @@
     <Compile Include="Steps\BindAndApplyAttributes.cs" />
     <Compile Include="Steps\BindBaseTypes.cs" />
     <Compile Include="Steps\BindEnumMembers.cs" />
+    <Compile Include="Steps\BindMethods.cs" />
     <Compile Include="Steps\BindNamespaces.cs" />
     <Compile Include="Steps\BindTypeDefinitions.cs" />
     <Compile Include="Steps\BindTypeMembers.cs" />
@@ -406,6 +411,7 @@
     <Compile Include="TypeSystem\AbstractLocalEntity.cs" />
     <Compile Include="TypeSystem\Ambiguous.cs" />
     <Compile Include="TypeSystem\AnonymousCallableType.cs" />
+    <Compile Include="TypeSystem\ArrayEqualityComparer.cs" />
     <Compile Include="TypeSystem\ArrayType.cs" />
     <Compile Include="TypeSystem\AssemblyReference.cs" />
     <Compile Include="TypeSystem\BooClassBuilder.cs" />
@@ -423,6 +429,7 @@
     <Compile Include="TypeSystem\ExternalField.cs" />
     <Compile Include="TypeSystem\ExternalGenericMethodDefinitionInfo.cs" />
     <Compile Include="TypeSystem\ExternalGenericMethodInfo.cs" />
+    <Compile Include="TypeSystem\ExternalGenericParameter.cs" />
     <Compile Include="TypeSystem\ExternalGenericType.cs" />
     <Compile Include="TypeSystem\ExternalGenericTypeDefinition.cs" />
     <Compile Include="TypeSystem\ExternalGenericTypeDefinitionInfo.cs" />
@@ -441,12 +448,16 @@
     <Compile Include="TypeSystem\InternalEnumMember.cs" />
     <Compile Include="TypeSystem\InternalEvent.cs" />
     <Compile Include="TypeSystem\InternalField.cs" />
+    <Compile Include="TypeSystem\InternalGenericMethod.cs" />
+    <Compile Include="TypeSystem\InternalGenericMethodDefinition.cs" />
+    <Compile Include="TypeSystem\InternalGenericParameter.cs" />
     <Compile Include="TypeSystem\InternalInterface.cs" />
     <Compile Include="TypeSystem\InternalLabel.cs" />
     <Compile Include="TypeSystem\InternalLocal.cs" />
     <Compile Include="TypeSystem\InternalMethod.cs" />
     <Compile Include="TypeSystem\InternalParameter.cs" />
     <Compile Include="TypeSystem\InternalProperty.cs" />
+    <Compile Include="TypeSystem\MappedParameter.cs" />
     <Compile Include="TypeSystem\MetadataUtil.cs" />
     <Compile Include="TypeSystem\MixedGenericMethod.cs" />
     <Compile Include="TypeSystem\MixedGenericType.cs" />

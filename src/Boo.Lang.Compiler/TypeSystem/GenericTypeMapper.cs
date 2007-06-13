@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-#if NET_2_0
-
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
@@ -143,50 +141,4 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		#endregion
 	}
-	
-	#region class MappedParameter
-	
-	/// <summary>
-	/// A parameter in a mixed generic type's method or constructor, or a mixed generic method.
-	/// </summary>
-	public class MappedParameter : IParameter
-	{
-		private ITypeMapper _typeMapper;
-		private ExternalParameter _baseParameter;
-		
-		public MappedParameter(TypeSystemServices tss, ExternalParameter parameter, ITypeMapper typeMapper)
-		{
-			_typeMapper = typeMapper;
-			_baseParameter = parameter;
-		}
-		
-		public bool IsByRef
-		{
-			get { return _baseParameter.IsByRef; }
-		}
-		
-		public IType Type
-		{
-			get { return _typeMapper.MapType(_baseParameter.Type); }
-		}
-		
-		public string Name
-		{
-			get { return _baseParameter.Name; }
-		}
-		
-		public string FullName
-		{
-			get { return _baseParameter.FullName; }
-		}
-		
-		public EntityType EntityType
-		{
-			get { return EntityType.Parameter; }
-		}
-	}
-	
-	#endregion
 }
-
-#endif

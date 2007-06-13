@@ -26,38 +26,46 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Reflection;
+using Boo.Lang.Compiler;
+
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using System.Collections.Generic;
-
-	public class ExternalGenericMethodDefinitionInfo : AbstractExternalGenericDefinitionInfo, IGenericMethodDefinitionInfo
+	public class ExternalGenericParameter : ExternalType, IGenericParameter
 	{
-		private ExternalMethod _method;
-
-		public ExternalGenericMethodDefinitionInfo(TypeSystemServices tss, ExternalMethod method) :	base(tss)
-		{	
-			_method = method;
-		}
-
-		public IMethod MakeGenericMethod(IType[] arguments)
+		IMethod _declaringMethod = null;
+		
+		public ExternalGenericParameter(TypeSystemServices tss, Type type) : base(tss, type)
 		{
-			return (IMethod)MakeGenericEntity(arguments);
+			if (type.DeclaringMethod != null)
+			{
+				_declaringMethod = (IMethod)tss.Map(type.DeclaringMethod);
+			}
 		}
 		
-		protected override Type[] GetActualGenericParameters()
+		public int GenericParameterPosition
 		{
-			return _method.MethodInfo.GetGenericArguments();
+			get { return ActualType.GenericParameterPosition; }
 		}
 		
-		protected override IEntity MakeExternalEntity(Type[] arguments)
+		public override string FullName 
 		{
-			return _tss.Map(((System.Reflection.MethodInfo)_method.MethodInfo).MakeGenericMethod(arguments));
+			get 
+			{
+				IEntity declaringEntity = 
+					(DeclaringMethod == null ? (IEntity)DeclaringType : (IEntity)DeclaringMethod);
+					
+				return string.Format("{0}.{1}", declaringEntity.FullName, Name);
+			}
 		}
 		
-		protected override IEntity MakeMixedEntity(IType[] arguments)
+		public IMethod DeclaringMethod
 		{
-			return new MixedGenericMethod(_tss, _method, arguments);
+			get 
+			{
+				return _declaringMethod;
+			}
 		}
 	}
 }

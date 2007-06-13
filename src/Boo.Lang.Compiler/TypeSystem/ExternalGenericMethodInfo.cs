@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-#if NET_2_0
-
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
@@ -72,4 +70,3 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}		
 	}	
 }
-#endif

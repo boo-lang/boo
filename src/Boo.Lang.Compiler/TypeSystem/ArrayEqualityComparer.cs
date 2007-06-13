@@ -31,33 +31,41 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using System.Collections.Generic;
 
-	public class ExternalGenericMethodDefinitionInfo : AbstractExternalGenericDefinitionInfo, IGenericMethodDefinitionInfo
+	/// <summary>
+	/// Compares arrays based on their items.
+	/// </summary>
+	internal class ArrayEqualityComparer<T>: IEqualityComparer<T[]>
 	{
-		private ExternalMethod _method;
-
-		public ExternalGenericMethodDefinitionInfo(TypeSystemServices tss, ExternalMethod method) :	base(tss)
-		{	
-			_method = method;
-		}
-
-		public IMethod MakeGenericMethod(IType[] arguments)
+		public bool Equals(T[] x, T[] y)
 		{
-			return (IMethod)MakeGenericEntity(arguments);
+			// Null equals null, and nothing else
+			if (x == null && y == null) return true;			
+			if (x == null || y == null) return false;
+			
+			// Compare arrays' lengths
+			if (x.Length != y.Length) return false;
+			
+			// Compare arrays' contents
+			for (int i = 0; i < x.Length; i++)
+			{
+				if ((x[i] == null && y[i] != null) || (!x[i].Equals(y[i])))
+				{
+					return false;
+				}
+			}
+			
+			return true;
 		}
 		
-		protected override Type[] GetActualGenericParameters()
+		public int GetHashCode(T[] args)
 		{
-			return _method.MethodInfo.GetGenericArguments();
+			// Make a simple hash code from the hash codes of the items
+			int hash = 0;
+			for (int i = 0; i < args.Length; i++)
+			{
+				hash ^= i ^ args[i].GetHashCode();
+			}
+			
+			return hash;
 		}
-		
-		protected override IEntity MakeExternalEntity(Type[] arguments)
-		{
-			return _tss.Map(((System.Reflection.MethodInfo)_method.MethodInfo).MakeGenericMethod(arguments));
-		}
-		
-		protected override IEntity MakeMixedEntity(IType[] arguments)
-		{
-			return new MixedGenericMethod(_tss, _method, arguments);
-		}
-	}
-}
+	}	}

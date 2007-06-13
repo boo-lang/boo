@@ -94,15 +94,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private static string TypeName(Type type)
 		{
-#if NET_2_0
+
 			if (!type.IsGenericTypeDefinition) return type.Name;
 			string name = type.Name;
 			int index = name.LastIndexOf('`');
 			if (index < 0) return name;
 			return name.Substring(0, index);
-#else
-			return type.Name;
-#endif
 		}
 		
 		public EntityType EntityType
@@ -418,7 +415,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (_type.IsByRef) return "ref " + this.GetElementType().ToString();
 			if (_type.DeclaringType != null) return this.DeclaringType.ToString() + "." + _type.Name;		
 			
-#if NET_2_0
 			// HACK: Some constructed generic types report a FullName of null
 			if (_type.FullName == null) 
 			{
@@ -431,12 +427,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 					_type.GetGenericTypeDefinition().FullName,
 					string.Join(",", argumentNames));
 				
-			}			
-#endif
+			}
 			return _type.FullName;
 		}
 		
-#if NET_2_0		
 		ExternalGenericTypeDefinitionInfo _genericTypeDefinitionInfo = null;		
 		public virtual IGenericTypeDefinitionInfo GenericTypeDefinitionInfo
 		{
@@ -470,17 +464,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return null;
 			}
 		}	
-#else
-		IGenericTypeDefinitionInfo IType.GenericTypeDefinitionInfo
-		{
-			get { return null; }
-		}
-		
-		IGenericTypeInfo IType.GenericTypeInfo
-		{
-			get { return null; }
-		}		
-#endif
-
 	}
 }

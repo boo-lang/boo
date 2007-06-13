@@ -116,11 +116,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ExternalType IEnumeratorType;
 		
-#if NET_2_0
 		public ExternalType	IEnumerableGenericType;
 
 		public ExternalType	IEnumeratorGenericType;
-#endif	
 
 		public ExternalType ICollectionType;
 		
@@ -209,11 +207,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(MulticastDelegateType = new ExternalType(this, Types.MulticastDelegate));
 			Cache(DelegateType = new ExternalType(this, Types.Delegate));
 			Cache(SystemAttribute = new ExternalType(this, typeof(System.Attribute)));			
-#if NET_2_0
 			Cache(IEnumerableGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerable<>)));
 			Cache(IEnumeratorGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerator<>)));
-#endif
-						
+
 			ObjectArrayType = GetArrayType(ObjectType, 1);
 
 			PreparePrimitives();
@@ -467,13 +463,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 					return enumeratorItemType;
 				}
 			}
-#if NET_2_0		
+
 			IType genericItemType = GetGenericEnumerableItemType(iteratorType);
 			if (null != genericItemType)
 			{
 				return genericItemType;
 			}
-#endif				
 			return ObjectType;
 		}
 		
@@ -987,9 +982,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private ExternalType CreateEntityForType(Type type)
 		{
-#if NET_2_0
 			if (type.IsGenericParameter) return new ExternalGenericParameter(this, type);
-#endif
 			if (type.IsSubclassOf(Types.MulticastDelegate)) return new ExternalCallableType(this, type);
 			return new ExternalType(this, type);
 		}
@@ -1396,7 +1389,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 		
-#if NET_2_0
+
 		public IType GetGenericEnumerableItemType(IType iteratorType)		
 		{
 			// Arrays implicitly implement IEnumerable<elementType>
@@ -1444,12 +1437,30 @@ namespace Boo.Lang.Compiler.TypeSystem
 						}
 					}
 				}
-				
-				
+								
 				type = type.BaseType;
 			}
 		}
-#endif
+		
+		public static bool IsOpenGenericType(IType type)
+		{
+			if (type is IGenericParameter)
+			{
+				return true;
+			}
+			
+			if (type.GenericTypeInfo != null)
+			{
+				return !type.GenericTypeInfo.FullyConstructed;
+			}
+			
+			if (type.IsByRef || type.IsArray)
+			{
+				return IsOpenGenericType(type.GetElementType());
+			}
+			
+			return false;
+		}
 						                                         
 		public virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{

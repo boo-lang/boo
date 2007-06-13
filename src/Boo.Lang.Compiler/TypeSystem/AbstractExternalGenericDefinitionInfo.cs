@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-#if NET_2_0
-
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
@@ -38,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected TypeSystemServices _tss;
 		private IGenericParameter[] _parameters;
 		private Dictionary<IType[], IEntity> _instances = 
-			new Dictionary<IType[], IEntity>(new GenericArgumentsComparer());
+			new Dictionary<IType[], IEntity>(new ArrayEqualityComparer<IType>());
 
 		public AbstractExternalGenericDefinitionInfo(TypeSystemServices tss)
 		{	
@@ -118,57 +116,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			return null;
 		}
-		
-		private class GenericArgumentsComparer: IEqualityComparer<IType[]>
-		{
-			public bool Equals(IType[] x, IType[] y)
-			{
-				for (int i = 0; i < x.Length; i++)
-				{
-					if ((x[i] == null && y[i] != null) || (!x[i].Equals(y[i])))
-					{
-						return false;
-					}
-				}
-				
-				return true;
-			}
-			
-			public int GetHashCode(IType[] args)
-			{
-				// Make a simple hash code from the hash codes of the arguments
-				int hash = 0;
-				for (int i = 0; i < args.Length; i++)
-				{
-					hash ^= i ^ args[i].GetHashCode();
-				}
-				
-				return hash;
-			}
-		}
-	}
-	
-	public class ExternalGenericParameter : ExternalType, IGenericParameter
-	{
-		public ExternalGenericParameter(TypeSystemServices tss, Type type) : base(tss, type)
-		{
-		}
-		
-		public int GenericParameterPosition
-		{
-			get { return ActualType.GenericParameterPosition; }
-		}
-		
-		public override string FullName 
-		{
-			get 
-			{
-				// FIXME: use DeclaringMethod rather than DeclaringType for  
-				// parameters of generic methods
-				return string.Format("{0}.{1}", DeclaringType.FullName, Name);
-			}
-		}
-	}
+	}		
 }
-#endif
-
