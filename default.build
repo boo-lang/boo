@@ -1161,5 +1161,9 @@
 	<target name="init">
 		<mkdir dir="${build.dir}" />
 	</target>
+	
+	<target name="makedeb" depends="all">
+		<nant buildfile="extras/makedeb.build" />
+	</target>
 
 </project>

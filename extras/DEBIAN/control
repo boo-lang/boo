@@ -1,0 +1,17 @@
+Package: boo
+Priority: extra
+Section: devel
+Installed-Size: 3800
+Maintainer: Cedric Vivier <cedricv@neonux.com>
+Architecture: all
+Version: @VERSION@-1
+Depends: mono,mono-gac,libmono-system2.0-cil,libmono-corlib2.0-cil
+Description: Boo Programming Language
+ a python-like language and compiler for the CLI
+ Boo is an object oriented statically typed programming language
+ for the Common Language Infrastructure (CLI) with a Python inspired
+ syntax and a special focus on language and compiler extensibility.
+ This package includes the Boo libraries as well as a compiler (booc),
+ interpreter (booi) and interactive shell (booish).
+ The boo compiler and the programs it produces are 100% CIL and can be
+ run on any compliant CLI virtual machine (MS.NET, Mono, ...).

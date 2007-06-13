@@ -1,0 +1,84 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH BOOC 1 "maggio 31, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+booc \- BOO compiler
+.SH SYNOPSIS
+.B booc
+.RI [ options ] " files " ...
+.SH DESCRIPTION
+This manual page documents briefly
+.B booc,
+the compiler for the BOO language.
+.SH OPTIONS
+A summary of options is included below.
+.TP
+.B \-v, \-vv, \-vvv
+Compiles using various levels of verbosity.
+.TP
+.B \-r:refname
+Adds a reference where refname is the reference name.
+.TP
+.B \-pkg:pkgname
+Adds references described in the package pkgname, as returned by pkg-config.
+.TP
+.B \-o:outfile
+Place output in file outfile.
+.TP
+.B \-t:type
+Output file will be of given type. Available types are library (to create a
+\&.dll file) or exe and winexe (to create executable files.)
+.TP
+.B \-p:pipeline
+Adds the step pipeline to the compile process.
+.TP
+.B \-c:culture
+CultureInfo to use.
+.TP
+.B \-srcdir:dir
+Specifies where to look for souce files.
+.TP
+.B \-resource:<file>[,<name>]
+Specify a resource file.
+.TP
+.B \-embedres:<file>[,<name>]
+Embed a file as resource.
+.TP
+.B \-debug
+Adds debug flags to your code. Good for non-production. (On by default)
+.TP
+.B \-debug-
+Does not add debug flags to your code. Good for production environment.
+.TP
+.B \-checked
+Arithmetic operations are checked and will throw an error if an overflow 
+occurs. (On by default)
+.TP
+.B \-checked-
+Does not check arithmetic operations. Use this to get the best 
+performance if you are confident that it won't affect negatively your 
+code.
+.SH SEE ALSO
+.BR booi (1),
+.BR booish (1).
+.br
+.SH AUTHOR
+BOO was written by Rodrigo Barreto de Oliveira <rbo@acm.org>.
+.PP
+This manual page was written by Federico Di Gregorio <fog@debian.org>,
+for the Debian project (but may be used by others).
+Updated by Cedric Vivier <cedricv@neonux.com>.

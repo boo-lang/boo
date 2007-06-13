@@ -1,0 +1,100 @@
+﻿<?xml version="1.0"?>
+<project name="boo.makdeb" default="makedeb" basedir="..">
+
+	<target name="makedeb">
+	
+		<echo level="Warning">
+		!!!
+		If you are making a deb for public distribution, please make sure you
+		have set 'debug' property to false and 'optimize' property to true in 
+		default.build
+		!!!
+		</echo>
+	
+		<!-- DEBIAN package configuration files -->
+		<mkdir dir="build/deb/DEBIAN" />
+		<copy todir="build/deb/DEBIAN" outputencoding="ASCII">
+			<filterchain>
+				<replacestring from="@VERSION@" to="${boo.version}" />
+			</filterchain>
+			<fileset basedir="extras/DEBIAN">
+				<include name="*" />
+			</fileset>
+		</copy>
+		<!-- chmod them just to make sure -->
+		<exec program="chmod" useruntimeengine="false"
+			commandline="755 build/deb/DEBIAN/postinst" />
+		<exec program="chmod" useruntimeengine="false"
+			commandline="755 build/deb/DEBIAN/prerm" />
+
+		<!-- binary files -->
+		<mkdir dir="build/deb/usr/lib/boo" />
+		<copy todir="build/deb/usr/lib/boo">
+		    <fileset basedir="build">
+				<include name="*.exe*" />
+				<include name="*.dll*" />
+				<include name="booc.rsp" />
+		    </fileset>
+		</copy>
+		<mkdir dir="build/deb/usr/lib/pkgconfig" />
+		<copy todir="build/deb/usr/lib/pkgconfig">
+		    <fileset basedir="build">
+			<include name="boo.pc" />
+		    </fileset>
+		</copy>
+		<!-- chmod them just to make sure -->
+		<exec program="chmod" useruntimeengine="false"
+			commandline="755 build/booc" />
+		<exec program="chmod" useruntimeengine="false"
+			commandline="755 build/booi" />
+		<exec program="chmod" useruntimeengine="false"
+			commandline="755 build/booish" />
+		<mkdir dir="build/deb/usr/bin" />
+		<copy todir="build/deb/usr/bin">
+		    <fileset basedir="build">
+		        <include name="booc" />
+		        <include name="booi" />
+		        <include name="booish" />
+		    </fileset>
+		</copy>
+		
+		<!-- boo nant tasks -->
+		<mkdir dir="build/deb/usr/share/NAnt/bin" />
+		<copy todir="build/deb/usr/share/NAnt/bin">
+			<fileset basedir="build">
+				<include name="Boo.NAnt.Tasks.dll" />
+			</fileset>
+		</copy>
+		
+		<!-- documentation -->
+		<mkdir dir="build/deb/usr/share/doc" />
+		<copy todir="build/deb/usr/share/doc">
+		    <fileset>
+		        <include name="notice.txt" />
+		        <include name="readme.txt" />
+		        <include name="examples" />
+		    </fileset>
+		</copy>
+		<mkdir dir="build/deb/usr/share/man/man1" />
+		<zip zipfile="build/deb/usr/share/man/man1/booc.1.gz">
+			<fileset basedir="extras/man">
+				<include name="booc.1" />
+			</fileset>
+		</zip>
+		<zip zipfile="build/deb/usr/share/man/man1/booi.1.gz">
+			<fileset basedir="extras/man">
+				<include name="booi.1" />
+			</fileset>
+		</zip>
+		<zip zipfile="build/deb/usr/share/man/man1/booish.1.gz">
+			<fileset basedir="extras/man">
+				<include name="booish.1" />
+			</fileset>
+		</zip>
+
+		<!-- call dpkg-deb to actually build the deb package -->
+		<exec program="dpkg-deb" useruntimeengine="false"
+			commandline="-b build/deb build/boo-${boo.version}-1-all.deb" />
+			
+	</target>
+</project>
