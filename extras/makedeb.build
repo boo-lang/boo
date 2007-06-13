@@ -67,12 +67,12 @@
 		</copy>
 		
 		<!-- documentation -->
-		<mkdir dir="build/deb/usr/share/doc" />
-		<copy todir="build/deb/usr/share/doc">
+		<mkdir dir="build/deb/usr/share/doc/boo" />
+		<copy todir="build/deb/usr/share/doc/boo">
 		    <fileset>
 		        <include name="notice.txt" />
 		        <include name="readme.txt" />
-		        <include name="examples" />
+		        <include name="examples/**" />
 		    </fileset>
 		</copy>
 		<mkdir dir="build/deb/usr/share/man/man1" />
