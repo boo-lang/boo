@@ -27,23 +27,25 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Import : ImportImpl
+	public partial class Import
 	{		
 		public Import()
 		{
  		}
 		
-		public Import(string namespace_, ReferenceExpression assemblyReference, ReferenceExpression alias) : base(namespace_, assemblyReference, alias)
+		public Import(string namespace_, ReferenceExpression assemblyReference, ReferenceExpression alias)
 		{
+			this.Namespace = namespace_;
+			this.AssemblyReference = assemblyReference;
+			this.Alias = alias;
 		}
 		
-		public Import(LexicalInfo lexicalInfo, string namespace_) : base(lexicalInfo, namespace_, null, null)
+		public Import(LexicalInfo lexicalInfo, string namespace_) : base(lexicalInfo)
 		{
+			this.Namespace = namespace_;
 		}
 		
 		public Import(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
@@ -53,11 +55,6 @@ namespace Boo.Lang.Compiler.Ast
 		override public string ToString()
 		{
 			return _namespace;
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnImport(this);
 		}
 	}
 }

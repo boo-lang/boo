@@ -27,28 +27,22 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class WhenClause : WhenClauseImpl
+	public partial class WhenClause
 	{		
 		public WhenClause()
 		{
  		}
 		
-		public WhenClause(Expression condition) : base(condition)
+		public WhenClause(Expression condition)
 		{
+			this.Condition = condition;
 		}
 		
 		public WhenClause(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnWhenClause(this);
 		}
 	}
 }

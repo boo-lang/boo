@@ -27,36 +27,31 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class IntegerLiteralExpression : IntegerLiteralExpressionImpl
+	public partial class IntegerLiteralExpression
 	{		
 		public IntegerLiteralExpression()
 		{
  		}
 		
-		public IntegerLiteralExpression(long value) : base(value, value > int.MaxValue)
+		public IntegerLiteralExpression(long value) : this(LexicalInfo.Empty, value)
 		{
 		}
 		
-		public IntegerLiteralExpression(LexicalInfo lexicalInfo, long value) : base(lexicalInfo, value, value > int.MaxValue)
+		public IntegerLiteralExpression(LexicalInfo lexicalInfo, long value) : this(lexicalInfo, value, value > int.MaxValue)
 		{
 		}
 		
-		public IntegerLiteralExpression(LexicalInfo lexicalInfo, long value, bool isLong) : base(lexicalInfo, value, isLong)
+		public IntegerLiteralExpression(LexicalInfo lexicalInfo, long value, bool isLong) : base(lexicalInfo)
 		{
+			this.Value = value;
+			this.IsLong = isLong;
 		}
 		
 		public IntegerLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnIntegerLiteralExpression(this);
 		}
 	}
 }

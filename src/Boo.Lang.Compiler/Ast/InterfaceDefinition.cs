@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class InterfaceDefinition : InterfaceDefinitionImpl
+	public partial class InterfaceDefinition
 	{		
 		public InterfaceDefinition()
 		{
@@ -40,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public InterfaceDefinition(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnInterfaceDefinition(this);
 		}
 	}
 }

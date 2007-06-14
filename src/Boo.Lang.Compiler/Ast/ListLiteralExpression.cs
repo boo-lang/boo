@@ -27,13 +27,11 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(ArrayLiteralExpression))]
-	[Serializable]
-	public class ListLiteralExpression : ListLiteralExpressionImpl
+	public partial class ListLiteralExpression
 	{		
 		public ListLiteralExpression()
 		{			
@@ -41,11 +39,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public ListLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnListLiteralExpression(this);
 		}
 	}
 }

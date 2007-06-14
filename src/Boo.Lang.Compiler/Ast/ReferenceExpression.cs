@@ -27,33 +27,28 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(MemberReferenceExpression))]
-	[Serializable]
-	public class ReferenceExpression : ReferenceExpressionImpl
+	public partial class ReferenceExpression
 	{		
 		public ReferenceExpression()
 		{
  		}
 		
-		public ReferenceExpression(string name) : base(name)
+		public ReferenceExpression(string name)
 		{
+			this.Name = name;
 		}		
 		
 		public ReferenceExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		
-		public ReferenceExpression(LexicalInfo lexicalInfo, string name): base(lexicalInfo, name)
+		public ReferenceExpression(LexicalInfo lexicalInfo, string name): base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnReferenceExpression(this);
+			this.Name = name;
 		}
 	}
 }

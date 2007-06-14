@@ -27,28 +27,24 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class GeneratorExpression : GeneratorExpressionImpl
+	public partial class GeneratorExpression
 	{		
 		public GeneratorExpression()
 		{			
  		}
 		
-		public GeneratorExpression(Expression expression, Expression iterator, StatementModifier filter) : base(expression, iterator, filter)
+		public GeneratorExpression(Expression expression, Expression iterator, StatementModifier filter)
 		{
+			this.Expression = expression;
+			this.Iterator = iterator;
+			this.Filter = filter;
 		}
 		
 		public GeneratorExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnGeneratorExpression(this);
 		}
 	}
 }

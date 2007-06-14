@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.Ast
 {
-	public class ModuleCollection : Boo.Lang.Compiler.Ast.Impl.ModuleCollectionImpl
+	public partial class ModuleCollection
 	{
 		public ModuleCollection()
 		{
@@ -36,10 +36,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public ModuleCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
-		}
-
-		internal ModuleCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
-		{	
 		}
 	}
 }

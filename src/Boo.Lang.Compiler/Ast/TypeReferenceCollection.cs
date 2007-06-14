@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.Ast
 {
-	public class TypeReferenceCollection : Boo.Lang.Compiler.Ast.Impl.TypeReferenceCollectionImpl
+	public partial class TypeReferenceCollection
 	{
 		public TypeReferenceCollection()
 		{
@@ -36,10 +36,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public TypeReferenceCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
-		}
-
-		internal TypeReferenceCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
-		{	
 		}
 		
 		public bool Contains(string name)

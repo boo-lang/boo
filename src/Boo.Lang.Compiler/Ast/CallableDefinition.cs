@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class CallableDefinition : Boo.Lang.Compiler.Ast.Impl.CallableDefinitionImpl
+	public partial class CallableDefinition
 	{
 		public CallableDefinition()
 		{
@@ -56,11 +55,6 @@ namespace Boo.Lang.Compiler.Ast
 				}
 				return base.FullName;
 			}
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnCallableDefinition(this);
 		}
 	}
 }

@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class StringLiteralExpression : StringLiteralExpressionImpl
+	public partial class StringLiteralExpression
 	{		
 		public StringLiteralExpression()
 		{
@@ -42,17 +40,14 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public StringLiteralExpression(string value) : base(value)
+		public StringLiteralExpression(string value)
 		{
+			this.Value = value;
 		}
 		
-		public StringLiteralExpression(LexicalInfo lexicalInfoProvider, string value) : base(lexicalInfoProvider, value)
+		public StringLiteralExpression(LexicalInfo lexicalInfoProvider, string value) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnStringLiteralExpression(this);
+			this.Value = value;
 		}
 	}
 }

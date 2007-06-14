@@ -27,28 +27,23 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class StatementModifier : StatementModifierImpl
+	public partial class StatementModifier
 	{		
 		public StatementModifier()
 		{
  		}
 		
-		public StatementModifier(StatementModifierType type, Expression condition) : base(type, condition)
+		public StatementModifier(StatementModifierType type, Expression condition)
 		{
+			this.Type = type;
+			this.Condition = condition;
 		}		
 		
 		public StatementModifier(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnStatementModifier(this);
 		}
 	}
 }

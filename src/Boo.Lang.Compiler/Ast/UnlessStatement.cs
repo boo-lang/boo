@@ -27,28 +27,22 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class UnlessStatement : UnlessStatementImpl
+	public partial class UnlessStatement
 	{		
 		public UnlessStatement()
 		{
  		}
 		
-		public UnlessStatement(Expression condition) : base(condition)
+		public UnlessStatement(Expression condition)
 		{
+			this.Condition = condition;
 		}
 		
 		public UnlessStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnUnlessStatement(this);
 		}
 	}
 }

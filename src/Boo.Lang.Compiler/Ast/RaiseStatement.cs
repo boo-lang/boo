@@ -27,42 +27,39 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class RaiseStatement : RaiseStatementImpl
+	public partial class RaiseStatement
 	{		
 		public RaiseStatement()
 		{
  		}
 		
-		public RaiseStatement(Expression exception) : base(exception)
+		public RaiseStatement(Expression exception)
 		{
+			this.Exception = exception;
 		}
 
-		public RaiseStatement(LexicalInfo lexicalInfo, Expression exception) : base(lexicalInfo,  exception)
-		{	
+		public RaiseStatement(LexicalInfo lexicalInfo, Expression exception) : base(lexicalInfo)
+		{
+			this.Exception = exception;
 		}
 		
-		public RaiseStatement(LexicalInfo li, Expression exception, StatementModifier modifier) : base(li, exception)
+		public RaiseStatement(LexicalInfo li, Expression exception, StatementModifier modifier) : base(li)
 		{
+			this.Exception = exception;
 			this.Modifier = modifier;
 		}
 		
-		public RaiseStatement(Expression exception, StatementModifier modifier) : base(exception)
+		public RaiseStatement(Expression exception, StatementModifier modifier)
 		{
+			this.Exception = exception;
 			this.Modifier = modifier;
 		}
 		
 		public RaiseStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnRaiseStatement(this);
 		}
 	}
 }

@@ -27,40 +27,35 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class DoubleLiteralExpression : DoubleLiteralExpressionImpl
+	public partial class DoubleLiteralExpression
 	{		
 		public DoubleLiteralExpression()
 		{
  		}
 		
-		public DoubleLiteralExpression(double value) : base(value, false)
+		public DoubleLiteralExpression(double value) : this(value, false)
 		{
 		}
 		
-		public DoubleLiteralExpression(double value, bool isSingle) : base(value, isSingle)
+		public DoubleLiteralExpression(double value, bool isSingle) : this(LexicalInfo.Empty, value, isSingle)
 		{
 		}
 		
-		public DoubleLiteralExpression(LexicalInfo lexicalInfo, double value) : base(lexicalInfo, value, false)
+		public DoubleLiteralExpression(LexicalInfo lexicalInfo, double value) : this(lexicalInfo, value, false)
 		{
 		}
 		
-		public DoubleLiteralExpression(LexicalInfo lexicalInfo, double value, bool isSingle) : base(lexicalInfo, value, isSingle)
+		public DoubleLiteralExpression(LexicalInfo lexicalInfo, double value, bool isSingle) : base(lexicalInfo)
 		{
+			this.Value = value;
+			this.IsSingle = isSingle;
 		}
 		
 		public DoubleLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnDoubleLiteralExpression(this);
 		}
 	}
 }

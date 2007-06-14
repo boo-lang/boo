@@ -27,14 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
 	/// <summary>
-	/// Permite diferenar entre uma expresso que no foi
-	/// passada de uma que foi omitidade como nosso caso
-	/// de slices na forma [expression:] ou [:expression]
 	/// </summary>
 	public sealed class OmittedExpression : Expression
 	{

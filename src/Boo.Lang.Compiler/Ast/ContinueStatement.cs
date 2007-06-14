@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class ContinueStatement : ContinueStatementImpl
+	public partial class ContinueStatement
 	{		
 		public ContinueStatement()
 		{
@@ -40,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public ContinueStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnContinueStatement(this);
 		}
 	}
 }

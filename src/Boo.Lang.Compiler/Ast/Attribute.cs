@@ -27,32 +27,27 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Attribute : AttributeImpl
+	public partial class Attribute
 	{		
 		public Attribute()
 		{
  		}
 		
-		public Attribute(string name) : base(name)
+		public Attribute(string name)
 		{
+			this.Name = name;
 		}
 		
 		public Attribute(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		
-		public Attribute(LexicalInfo lexicalInfo, string name) : base(lexicalInfo, name)
+		public Attribute(LexicalInfo lexicalInfo, string name) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnAttribute(this);
+			this.Name = name;
 		}
 	}
 }

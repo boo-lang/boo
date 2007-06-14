@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Property : PropertyImpl
+	public partial class Property
 	{		
 		public Property()
 		{
@@ -40,20 +38,18 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public Property(string name)
 		{
-			Name = name;
+			this.Name = name;
 		}
 		
-		public Property(Method getter, Method setter, TypeReference type) : base(getter, setter, type, null)
+		public Property(Method getter, Method setter, TypeReference type)
 		{
+			this.Getter = getter;
+			this.Setter = setter;
+			this.Type = type;
 		}
 		
 		public Property(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnProperty(this);
 		}
 	}
 }

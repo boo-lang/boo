@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]	
-	public class SliceCollection : Boo.Lang.Compiler.Ast.Impl.SliceCollectionImpl
+	public partial class SliceCollection
 	{
 		public SliceCollection()
 		{
@@ -39,10 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public SliceCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
-		}
-
-		internal SliceCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
-		{	
 		}
 	}
 }

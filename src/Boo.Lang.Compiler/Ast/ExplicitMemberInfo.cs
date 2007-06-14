@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class ExplicitMemberInfo : Boo.Lang.Compiler.Ast.Impl.ExplicitMemberInfoImpl
+	public partial class ExplicitMemberInfo
 	{
 		public ExplicitMemberInfo()
 		{
@@ -39,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public ExplicitMemberInfo(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-
-		public override void Accept(IAstVisitor visitor)
-		{
-			visitor.OnExplicitMemberInfo(this);
 		}
 	}
 }

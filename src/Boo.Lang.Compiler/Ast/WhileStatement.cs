@@ -27,33 +27,28 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class WhileStatement : WhileStatementImpl
+	public partial class WhileStatement
 	{		
 		public WhileStatement()
 		{			
  		}
 		
-		public WhileStatement(Expression condition) : base(condition)
+		public WhileStatement(Expression condition)
 		{
+			this.Condition = condition;
 		}
 		
-		public WhileStatement(Expression condition, Block block) : base(condition)
+		public WhileStatement(Expression condition, Block block)
 		{
+			this.Condition = condition;
 			this.Block = block;
 		}
 		
 		public WhileStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnWhileStatement(this);
 		}
 	}
 }

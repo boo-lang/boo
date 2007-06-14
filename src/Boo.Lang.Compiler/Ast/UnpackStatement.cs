@@ -27,28 +27,22 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class UnpackStatement : UnpackStatementImpl
+	public partial class UnpackStatement
 	{		
 		public UnpackStatement()
 		{		
  		}
 		
-		public UnpackStatement(Expression expression) : base(expression)
+		public UnpackStatement(Expression expression)
 		{
+			this.Expression = expression;
 		}
 		
 		public UnpackStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnUnpackStatement(this);
 		}
 	}
 }

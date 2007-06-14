@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class MacroStatement : MacroStatementImpl
+	public partial class MacroStatement
 	{		
 		public MacroStatement()
 		{
@@ -42,18 +40,14 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public MacroStatement(LexicalInfo lexicalInfoProvider, string name) : base(lexicalInfoProvider, name)
+		public MacroStatement(LexicalInfo lexicalInfoProvider, string name) : base(lexicalInfoProvider)
 		{
+			this.Name = name;
 		}
 		
 		override public string ToString()
 		{
 			return _name;
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnMacroStatement(this);
 		}
 	}
 }

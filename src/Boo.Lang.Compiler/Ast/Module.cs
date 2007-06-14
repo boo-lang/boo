@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Module : ModuleImpl
+	public partial class Module
 	{		
 		public Module()
 		{			
@@ -67,11 +65,6 @@ namespace Boo.Lang.Compiler.Ast
 				if (null != _namespace) return _namespace.Name + "." + Name;
 				return Name;
 			}
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnModule(this);
 		}
 	}
 }

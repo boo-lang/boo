@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class ClassDefinition : ClassDefinitionImpl
+	public partial class ClassDefinition
 	{		
 		public ClassDefinition()
 		{
@@ -70,11 +68,6 @@ namespace Boo.Lang.Compiler.Ast
 				}
 			}
 			throw new ArgumentException("index");
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnClassDefinition(this);
 		}
 		
 		public void Merge(ClassDefinition node)

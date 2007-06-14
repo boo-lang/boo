@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class CallableTypeReference : Boo.Lang.Compiler.Ast.Impl.CallableTypeReferenceImpl
+	public partial class CallableTypeReference
 	{
 		public CallableTypeReference()
 		{
@@ -39,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public CallableTypeReference(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnCallableTypeReference(this);
 		}
 	}
 }

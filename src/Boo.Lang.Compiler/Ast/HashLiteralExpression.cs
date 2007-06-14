@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class HashLiteralExpression : HashLiteralExpressionImpl
+	public partial class HashLiteralExpression
 	{
 		public HashLiteralExpression()
 		{
@@ -45,11 +43,6 @@ namespace Boo.Lang.Compiler.Ast
 		public HashLiteralExpression(params ExpressionPair[] items)
 		{
 			this.Items.Extend(items);
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnHashLiteralExpression(this);
 		}
 	}
 }

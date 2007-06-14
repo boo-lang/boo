@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Local : LocalImpl
+	public partial class Local
 	{		
 		protected bool _privateScope;
 		
@@ -40,8 +38,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public Local(LexicalInfo lexicalInfo, string name) : base(lexicalInfo, name)
+		public Local(LexicalInfo lexicalInfo, string name) : base(lexicalInfo)
 		{
+			_name = name;
 		}
 		
 		public Local(ReferenceExpression reference, bool privateScope)
@@ -76,10 +75,5 @@ namespace Boo.Lang.Compiler.Ast
 				_privateScope = true;
 			}
  		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnLocal(this);
-		}
 	}
 }

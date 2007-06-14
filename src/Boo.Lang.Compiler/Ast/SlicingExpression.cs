@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class SlicingExpression : SlicingExpressionImpl
+	public partial class SlicingExpression
 	{
 		public SlicingExpression()
 		{
@@ -52,11 +50,6 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Target = target;
 			this.Indices.Extend(indices);
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnSlicingExpression(this);
 		}
 	}
 }

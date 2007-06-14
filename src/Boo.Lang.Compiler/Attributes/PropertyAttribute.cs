@@ -200,8 +200,7 @@ namespace Boo.Lang
 				new ReturnStatement(
 					base.LexicalInfo,
 					new ReferenceExpression(f.Name),
-					null
-					)
+					null)
 				);
 			return getter;
 		}

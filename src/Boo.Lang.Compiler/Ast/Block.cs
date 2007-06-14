@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Block : BlockImpl
+	public partial class Block
 	{	
 		public Block()
 		{
@@ -44,37 +42,41 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public void Clear()
 		{
-			_statements.Clear();
+			if (null != _statements) _statements = null;
 		}
 		
-		override public void Accept(IAstVisitor visitor)
+		public bool HasStatements
 		{
-			visitor.OnBlock(this);
+			get
+			{
+				if (_statements == null) return false;
+				return _statements.Count > 0;
+			}
 		}
 		
 		public void Add(Statement stmt)
 		{
-			_statements.Add(stmt);
+			this.Statements.Add(stmt);
 		}
 		
 		public void Add(Block block)
 		{
-			_statements.Extend(block.Statements);
+			this.Statements.Extend(block.Statements);
 		}
 		
 		public void Add(Expression expression)
 		{
-			_statements.Add(new ExpressionStatement(expression));
+			this.Statements.Add(new ExpressionStatement(expression));
 		}
 		
 		public void Insert(int index, Expression expression)
 		{
-			_statements.Insert(index, new ExpressionStatement(expression));
+			this.Statements.Insert(index, new ExpressionStatement(expression));
 		}
 		
 		public void Insert(int index, Statement stmt)
 		{
-			_statements.Insert(index, stmt);
+			this.Statements.Insert(index, stmt);
 		}
 	}
 }

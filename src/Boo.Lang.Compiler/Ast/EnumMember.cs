@@ -27,32 +27,27 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class EnumMember : EnumMemberImpl
+	public partial class EnumMember
 	{		
 		public EnumMember()
 		{
  		}
 		
-		public EnumMember(IntegerLiteralExpression initializer) : base(initializer)
+		public EnumMember(IntegerLiteralExpression initializer)
 		{
+			this.Initializer = initializer;
 		}
 		
-		public EnumMember(LexicalInfo token, IntegerLiteralExpression initializer) : base(token, initializer)
+		public EnumMember(LexicalInfo token, IntegerLiteralExpression initializer) : base(token)
 		{
+			this.Initializer = initializer;
 		}
 		
 		public EnumMember(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnEnumMember(this);
 		}
 	}
 }

@@ -46,11 +46,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private const int DowncastScore = 3;
 
 		private List _candidates = new List();
-		private NodeCollection _arguments;
+		private ExpressionCollection _arguments;
 
-		private Node GetArgument(int index)
+		private Expression GetArgument(int index)
 		{
-			return _arguments.GetNodeAt(index);
+			return _arguments[index];
 		}
 
 		public List ValidCandidates
@@ -196,7 +196,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 		
-		public IEntity ResolveCallableReference(NodeCollection args, IEntity[] candidates)
+		public IEntity ResolveCallableReference(ExpressionCollection args, IEntity[] candidates)
 		{
 			Reset(args);
 			FindApplicableCandidates(candidates);
@@ -237,7 +237,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			bool expand =
 				candidate.Method.AcceptVarArgs &&
 				(_arguments.Count == 0 || (_arguments.Count > 0 && 
-				!AstUtil.IsExplodeExpression(_arguments.GetNodeAt(-1))));
+				!AstUtil.IsExplodeExpression(_arguments[-1])));
 
 			// Determine number of fixed (non-varargs) parameters
 			int fixedParams =
@@ -410,13 +410,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		private void Reset(NodeCollection arguments)
+		private void Reset(ExpressionCollection arguments)
 		{
 			_arguments = arguments;
 			_candidates.Clear();
 		}
 
-		public bool IsValidVargsInvocation(IParameter[] parameters, NodeCollection args)
+		public bool IsValidVargsInvocation(IParameter[] parameters, ExpressionCollection args)
 		{
 			int lastIndex = parameters.Length - 1;
 			if (args.Count < lastIndex) return false;
@@ -428,7 +428,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			if (args.Count > 0)
 			{
-				Node lastArg = args.GetNodeAt(-1);
+				Node lastArg = args[-1];
 				if (AstUtil.IsExplodeExpression(lastArg))
 				{
 					return CalculateArgumentScore(parameters[lastIndex], lastParameterType, lastArg) > 0;
@@ -438,7 +438,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					IType varArgType = lastParameterType.GetElementType();
 					for (int i = lastIndex; i < args.Count; ++i)
 					{
-						int argumentScore = CalculateArgumentScore(parameters[lastIndex], varArgType, args.GetNodeAt(i));
+						int argumentScore = CalculateArgumentScore(parameters[lastIndex], varArgType, args[i]);
 						if (argumentScore < 0) return false;
 					}
 				}
@@ -446,13 +446,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return true;
 		}
 
-		private bool IsValidInvocation(IParameter[] parameters, NodeCollection args, int count)
+		private bool IsValidInvocation(IParameter[] parameters, ExpressionCollection args, int count)
 		{
 			for (int i = 0; i < count; ++i)
 			{
 				IParameter parameter = parameters[i];
 				IType parameterType = parameter.Type;
-				int argumentScore = CalculateArgumentScore(parameter, parameterType, args.GetNodeAt(i));
+				int argumentScore = CalculateArgumentScore(parameter, parameterType, args[i]);
 				if (argumentScore < 0) return false;
 			}
 			return true;
@@ -531,7 +531,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{	
 					return CallableImplicitConversionScore;
 				}
-				return CallableUpCastScore;
 			}
 			return siggyType.ReturnType == siggyArg.ReturnType
 				? CallableExactMatchScore : CallableUpCastScore;

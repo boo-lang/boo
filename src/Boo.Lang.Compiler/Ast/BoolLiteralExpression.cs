@@ -27,32 +27,27 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class BoolLiteralExpression : BoolLiteralExpressionImpl
+	public partial class BoolLiteralExpression
 	{		
 		public BoolLiteralExpression()
 		{
  		}
 		
-		public BoolLiteralExpression(bool value) : base(value)
+		public BoolLiteralExpression(bool value)
 		{
+			this.Value = value;
 		}
 		
-		public BoolLiteralExpression(LexicalInfo token, bool value) : base(token, value)
+		public BoolLiteralExpression(LexicalInfo token, bool value) : base(token)
 		{
+			this.Value = value;
 		}
 		
 		public BoolLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}		
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnBoolLiteralExpression(this);
-		}
 	}
 }

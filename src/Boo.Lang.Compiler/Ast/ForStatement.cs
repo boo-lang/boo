@@ -27,28 +27,22 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class ForStatement : ForStatementImpl
+	public partial class ForStatement
 	{		
 		public ForStatement()
 		{
  		}
 		
-		public ForStatement(Expression iterator) : base(iterator)
+		public ForStatement(Expression iterator)
 		{
+			this.Iterator = iterator;
 		}
 		
 		public ForStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnForStatement(this);
 		}
 	}
 }

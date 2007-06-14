@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Boo.Lang.Compiler.Ast.Visitors
@@ -148,25 +149,23 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented(format, args);
 			WriteLine();
 		}
-		
-		protected void WriteCommaSeparatedList(NodeCollection items)
+
+		protected void WriteCommaSeparatedList<T>(IEnumerable<T> items) where T : Node
 		{
-			for (int i=0; i<items.Count; ++i)
+			int i = 0;
+			foreach (T node in items)
 			{
-				if (i > 0)
-				{
-					Write(", ");
-				}
-				Visit(items.GetNodeAt(i));
+				if (i++ > 0) Write(", ");
+				Visit(node);
 			}
 		}
 
-		protected void WriteArray(NodeCollection items)
+		protected void WriteArray<T>(NodeCollection<T> items)  where T : Node
 		{
 			WriteArray(items, null);
 		}
-		
-		protected void WriteArray(NodeCollection items, ArrayTypeReference type)
+
+		protected void WriteArray<T>(NodeCollection<T> items, ArrayTypeReference type) where T : Node
 		{
 			Write("(");
 			if (null != type)
@@ -183,14 +182,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					{
 						Write(", ");
 					}
-					Visit(items.GetNodeAt(i));
+					Visit(items[i]);
 				}
 			}
 			else
 			{
 				if (items.Count > 0)
 				{
-					Visit(items.GetNodeAt(0));
+					Visit(items[0]);
 				}
 				//don't write trailing comma for "of" arrays with 1 item
 				if (items.Count == 0 || null == type)

@@ -1,12 +1,16 @@
-${header}
-namespace Boo.Lang.Compiler.Ast.Impl
+${header}<%
+
+if model.IsAbstract(node):
+	abstractClass = "abstract "
+end
+
+%>namespace Boo.Lang.Compiler.Ast
 {	
-	using Boo.Lang.Compiler.Ast;
 	using System.Collections;
 	using System.Runtime.Serialization;
 	
 	[System.Serializable]
-	public abstract class ${node.Name}Impl : ${join(node.BaseTypes, ', ')}
+	public ${abstractClass}partial class ${node.Name} : ${join(node.BaseTypes, ', ')}
 	{
 <%
 
@@ -18,48 +22,11 @@ namespace Boo.Lang.Compiler.Ast.Impl
 
 <%
 	end
-%>		protected ${node.Name}Impl()
-		{
-			InitializeFields();
-		}
-		
-		protected ${node.Name}Impl(LexicalInfo info) : base(info)
-		{
-			InitializeFields();
-		}
-		
-<%
-	simpleFields = model.GetSimpleFields(node)
-	if len(simpleFields):
-	
-%>		protected ${node.Name}Impl(${FormatParameterList(simpleFields)})
-		{
-			InitializeFields();
-<%
-		for field as Field in simpleFields:
-%>			${field.Name} = ${GetParameterName(field)};
-<%
-		end
-%>		}
-			
-		protected ${node.Name}Impl(LexicalInfo lexicalInfo, ${FormatParameterList(simpleFields)}) : base(lexicalInfo)
-		{
-			InitializeFields();
-<%
-		for field as Field in simpleFields:
-%>			${field.Name} = ${GetParameterName(field)};
-<%
-		end
-%>		}
-
-<%
-	end
-	
-%>		new public ${node.Name} CloneNode()
+%>	
+		new public ${node.Name} CloneNode()
 		{
 			return Clone() as ${node.Name};
 		}
-
 <%
 	unless model.IsAbstract(node):
 %>		override public NodeType NodeType
@@ -70,6 +37,10 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			}
 		}
 		
+		override public void Accept(IAstVisitor visitor)
+		{
+			visitor.On${node.Name}(this);
+		}
 <%
 	end
 
@@ -83,10 +54,12 @@ namespace Boo.Lang.Compiler.Ast.Impl
 		fieldType = model.ResolveFieldType(field)
 		if fieldType is null or model.IsEnum(fieldType):
 		
-%>			if (${fieldName} != other.${fieldName}) return false;
+	%>			if (${fieldName} != other.${fieldName}) return NoMatch("${node.Name}.${fieldName}");
 <%
-		else:
-%>			if (!Node.Matches(${fieldName}, other.${fieldName})) return false;
+		elif model.IsCollectionField(field):
+%>			if (!Node.AllMatch(${fieldName}, other.${fieldName})) return NoMatch("${node.Name}.${fieldName}");
+<%		else:
+%>			if (!Node.Matches(${fieldName}, other.${fieldName})) return NoMatch("${node.Name}.${fieldName}");
 <%
 		end
 	end
@@ -215,6 +188,20 @@ namespace Boo.Lang.Compiler.Ast.Impl
 		{
 			get
 			{
+<%
+	if model.IsCollectionField(field):
+%>
+			if (${GetPrivateName(field)} == null) ${GetPrivateName(field)} = new ${field.Type}(this);
+<%
+	elif field.Attributes.Contains("auto"):
+%>			if (${GetPrivateName(field)} == null)
+			{
+				${GetPrivateName(field)} = new ${field.Type}();
+				${GetPrivateName(field)}.InitializeParent(this);
+			}
+<%
+	end
+%>
 				return ${GetPrivateName(field)};
 			}
 
@@ -226,7 +213,6 @@ namespace Boo.Lang.Compiler.Ast.Impl
 			{
 				if (${GetPrivateName(field)} != value)
 				{
-					OnReplace(${GetPrivateName(field)}, value);
 					${GetPrivateName(field)} = value;
 					if (null != ${GetPrivateName(field)})
 					{
@@ -253,23 +239,7 @@ namespace Boo.Lang.Compiler.Ast.Impl
 		
 <%
 	end
-
-%>		private void InitializeFields()
-		{
-<%
-	for field as Field in node.Members:
-		if model.IsCollectionField(field):
 %>
-			${GetPrivateName(field)} = new ${field.Type}(this);
-<%
-		elif field.Attributes.Contains("auto"):
-%>			${GetPrivateName(field)} = new ${field.Type}();
-			${GetPrivateName(field)}.InitializeParent(this);
-<%
-		end
-	end
-%>
-		}
 	}
 }
 

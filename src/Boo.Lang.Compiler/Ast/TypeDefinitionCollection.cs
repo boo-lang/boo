@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.Ast
 {
-	public class TypeDefinitionCollection : Boo.Lang.Compiler.Ast.Impl.TypeDefinitionCollectionImpl
+	public partial class TypeDefinitionCollection
 	{
 		public TypeDefinitionCollection()
 		{
@@ -36,10 +36,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public TypeDefinitionCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
-		}
-
-		internal TypeDefinitionCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
-		{	
 		}
 	}
 }

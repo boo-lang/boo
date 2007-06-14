@@ -27,28 +27,22 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class NamespaceDeclaration : NamespaceDeclarationImpl
+	public partial class NamespaceDeclaration
 	{		
 		public NamespaceDeclaration()
 		{
  		}
 		
-		public NamespaceDeclaration(string name) : base(name)
+		public NamespaceDeclaration(string name)
 		{
+			this.Name = name;
 		}
 		
 		public NamespaceDeclaration(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnNamespaceDeclaration(this);
 		}
 	}
 }

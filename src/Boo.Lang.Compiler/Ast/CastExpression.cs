@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class CastExpression : Boo.Lang.Compiler.Ast.Impl.CastExpressionImpl
+	public partial class CastExpression
 	{
 		public CastExpression()
 		{
@@ -41,17 +40,16 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public CastExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo, target, type)
+		public CastExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo)
 		{
+			this.Target = target;
+			this.Type = type;
 		}
 		
-		public CastExpression(Expression target, TypeReference type) : base(target, type)
+		public CastExpression(Expression target, TypeReference type)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnCastExpression(this);
+			this.Target = target;
+			this.Type = type;
 		}
 	}
 }

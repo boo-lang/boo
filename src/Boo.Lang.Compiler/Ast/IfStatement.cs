@@ -27,32 +27,28 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class IfStatement : IfStatementImpl
+	public partial class IfStatement
 	{		
 		public IfStatement()
 		{
  		}
 		
-		public IfStatement(Expression expression, Block trueBlock, Block falseBlock) : base(expression, trueBlock, falseBlock)
+		public IfStatement(Expression condition, Block trueBlock, Block falseBlock) : this(Ast.LexicalInfo.Empty, condition, trueBlock, falseBlock)
 		{
 		}
 		
-		public IfStatement(LexicalInfo token, Expression expression, Block trueBlock, Block falseBlock) : base(token, expression, trueBlock, falseBlock)
+		public IfStatement(LexicalInfo token, Expression condition, Block trueBlock, Block falseBlock) : base(token)
 		{
+			this.Condition = condition;
+			this.TrueBlock = trueBlock;
+			this.FalseBlock = falseBlock;
 		}
 		
 		public IfStatement(LexicalInfo token) : base(token)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnIfStatement(this);
 		}
 	}
 }

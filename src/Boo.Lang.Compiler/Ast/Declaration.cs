@@ -27,36 +27,31 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Declaration : DeclarationImpl
+	public partial class Declaration
 	{		
 		public Declaration()
 		{
  		}
 		
-		public Declaration(string name, TypeReference type) : base(name, type)
+		public Declaration(string name, TypeReference type) : this(LexicalInfo.Empty, name, type)
 		{
 		}
 		
-		public Declaration(LexicalInfo token, string name, TypeReference type) : base(token, name, type)
+		public Declaration(LexicalInfo token, string name, TypeReference type) : base(token)
 		{
+			this.Name = name;
+			this.Type = type;
 		}
 		
-		public Declaration(LexicalInfo lexicalInfo, string name) : base(lexicalInfo, name, null)
+		public Declaration(LexicalInfo lexicalInfo, string name) : this(lexicalInfo, name, null)
 		{
 		}
 		
 		public Declaration(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnDeclaration(this);
 		}
 	}
 }

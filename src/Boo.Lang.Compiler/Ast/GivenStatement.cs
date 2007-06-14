@@ -27,32 +27,17 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class GivenStatement : GivenStatementImpl
+	public partial class GivenStatement
 	{		
 		public GivenStatement()
 		{
  		}
-		
-		public GivenStatement(Expression expression, Block otherwiseBlock) : base(expression, otherwiseBlock)
-		{
-		}
-		
-		public GivenStatement(LexicalInfo token, Expression expression, Block otherwiseBlock) : base(token, expression, otherwiseBlock)
-		{
-		}
-		
-		public GivenStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnGivenStatement(this);
+
+		public GivenStatement(LexicalInfo li) : base(li)
+		{	
 		}
 	}
 }

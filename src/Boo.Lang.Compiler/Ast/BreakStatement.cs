@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
-{
-	[Serializable]
-	public class BreakStatement : BreakStatementImpl
+{	
+	public partial class BreakStatement
 	{		
 		public BreakStatement()
 		{
@@ -40,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public BreakStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnBreakStatement(this);
 		}
 	}
 }

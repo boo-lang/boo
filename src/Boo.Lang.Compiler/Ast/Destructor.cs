@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class Destructor : Boo.Lang.Compiler.Ast.Impl.DestructorImpl
+	public partial class Destructor
 	{
 		public Destructor()
 		{
@@ -41,11 +40,6 @@ namespace Boo.Lang.Compiler.Ast
 		public Destructor(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 			_name = "destructor";
-		}
-
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnDestructor(this);
 		}
 	}
 }

@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class CallableBlockExpression : Boo.Lang.Compiler.Ast.Impl.CallableBlockExpressionImpl
+	public partial class CallableBlockExpression
 	{
 		public CallableBlockExpression()
 		{
@@ -44,11 +43,6 @@ namespace Boo.Lang.Compiler.Ast
 		public CallableBlockExpression(Block body) : base(body.LexicalInfo)
 		{
 			_body = body;
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnCallableBlockExpression(this);
 		}
 	}
 }

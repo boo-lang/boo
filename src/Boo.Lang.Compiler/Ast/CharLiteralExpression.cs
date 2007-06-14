@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class CharLiteralExpression : Boo.Lang.Compiler.Ast.Impl.CharLiteralExpressionImpl
+	public partial class CharLiteralExpression
 	{
 		public CharLiteralExpression()
 		{
@@ -46,9 +45,5 @@ namespace Boo.Lang.Compiler.Ast
 			_value = value;
 		}
 		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnCharLiteralExpression(this);
-		}
 	}
 }

@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Constructor : ConstructorImpl
+	public partial class Constructor
 	{		
 		public Constructor()
 		{
@@ -42,11 +40,6 @@ namespace Boo.Lang.Compiler.Ast
 		public Constructor(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 			_name = "constructor";
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnConstructor(this);
 		}
 	}
 }

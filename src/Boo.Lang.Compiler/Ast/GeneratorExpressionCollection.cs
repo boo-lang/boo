@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]	
-	public class GeneratorExpressionCollection : Boo.Lang.Compiler.Ast.Impl.GeneratorExpressionCollectionImpl
+	public partial class GeneratorExpressionCollection
 	{
 		public GeneratorExpressionCollection()
 		{
@@ -39,10 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public GeneratorExpressionCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
-		}
-
-		internal GeneratorExpressionCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
-		{	
 		}
 	}
 }

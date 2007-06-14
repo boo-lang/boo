@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class GenericParameterDeclaration : Boo.Lang.Compiler.Ast.Impl.GenericParameterDeclarationImpl
+	public partial class GenericParameterDeclaration
 	{
 		public GenericParameterDeclaration()
 		{
@@ -39,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public GenericParameterDeclaration(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnGenericParameterDeclaration(this);
 		}
 	}
 }

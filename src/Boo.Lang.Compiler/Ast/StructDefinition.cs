@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class StructDefinition : Boo.Lang.Compiler.Ast.Impl.StructDefinitionImpl
+	public partial class StructDefinition
 	{
 		public StructDefinition()
 		{
@@ -39,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public StructDefinition(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnStructDefinition(this);
 		}
 	}
 }

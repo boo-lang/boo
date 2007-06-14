@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class CompileUnit : CompileUnitImpl
+	public partial class CompileUnit
 	{		
 		public CompileUnit()
 		{			
@@ -40,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		internal CompileUnit(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnCompileUnit(this);
 		}
 	}
 }

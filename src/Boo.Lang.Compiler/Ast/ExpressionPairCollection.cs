@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.Ast
 {
-	public class ExpressionPairCollection : Boo.Lang.Compiler.Ast.Impl.ExpressionPairCollectionImpl
+	public partial class ExpressionPairCollection
 	{
 		public ExpressionPairCollection()
 		{
@@ -36,10 +36,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public ExpressionPairCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
-		}
-
-		internal ExpressionPairCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
-		{	
 		}
 	}
 }

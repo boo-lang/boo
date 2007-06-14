@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class AstLiteralExpression : Boo.Lang.Compiler.Ast.Impl.AstLiteralExpressionImpl
+	public partial class AstLiteralExpression
 	{
 		public AstLiteralExpression()
 		{
@@ -40,10 +39,6 @@ namespace Boo.Lang.Compiler.Ast
 		public AstLiteralExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnAstLiteralExpression(this);
-		}
+	
 	}
 }

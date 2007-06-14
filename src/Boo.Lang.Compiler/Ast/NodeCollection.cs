@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Boo.Lang;
 
 namespace Boo.Lang.Compiler.Ast
@@ -35,52 +36,56 @@ namespace Boo.Lang.Compiler.Ast
 	/// <summary>
 	/// Node collection base class.
 	/// </summary>
-	public class NodeCollection : ICollection, ICloneable
+	public class NodeCollection<T> : ICollection, ICloneable, IEnumerable<T>
+		where T : Node
 	{
 		protected Node _parent;
 		
 		protected List _list;
 
-		protected NodeCollection() : this(null)
+		protected NodeCollection()
 		{
+			_list = new List();
 		}
 
-		protected NodeCollection(Node parent) : this(parent, new List())
-		{			
-		}
-
-		protected NodeCollection(Node parent, List list)
+		protected NodeCollection(Node parent)
 		{
-			if (null == list)
-			{
-				throw new ArgumentNullException("list");
-			}
 			_parent = parent;
-			_list = list;
+			_list = new List();
+		}
+
+		protected NodeCollection(Node parent, IEnumerable<T> list)
+		{
+			if (null == list) throw new ArgumentNullException("list");
+
+			_parent = parent;
+			_list = new List(list);
+		}
+
+		public T this[int index]
+		{
+			get { return (T) _list[index];  }
+			set { _list[index] = value; }
+		}
+
+		public IEnumerator<T> GetEnumerator()
+		{
+			foreach (T item in _list) yield return item;
 		}
 
 		public int Count
 		{
-			get
-			{
-				return _list.Count;
-			}
+			get { return _list.Count; }
 		}
 		
 		public bool IsSynchronized
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public object SyncRoot
 		{
-			get
-			{
-				return this;
-			}
+			get { return this; }
 		}
 		
 		public void CopyTo(Array array, int index)
@@ -88,7 +93,7 @@ namespace Boo.Lang.Compiler.Ast
 			_list.CopyTo(array, index);
 		}
 		
-		public IEnumerator GetEnumerator()
+		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return _list.GetEnumerator();
 		}
@@ -98,19 +103,19 @@ namespace Boo.Lang.Compiler.Ast
 			_list.Clear();
 		}
 		
-		public Node[] ToArray()
+		public T[] ToArray()
 		{
-			return (Node[])_list.ToArray(new Node[_list.Count]);
+			return (T[])_list.ToArray(new T[_list.Count]);
 		}
 		
-		public Node[] ToReverseArray()
+		public T[] ToReverseArray()
 		{
-			Node[] array = ToArray();
+			T[] array = ToArray();
 			Array.Reverse(array);
 			return array;
 		}
 		
-		public Node[] Select(NodeType type)
+		public T[] Select(NodeType type)
 		{
 			List result = new List();
 			foreach (Node node in _list)
@@ -120,10 +125,10 @@ namespace Boo.Lang.Compiler.Ast
 					result.Add(node);
 				}
 			}
-			return (Node[])result.ToArray(new Node[result.Count]);
+			return (T[])result.ToArray(new T[result.Count]);
 		}
 		
-		public bool ContainsNode(Node node)
+		public bool ContainsNode(T node)
 		{
 			return _list.ContainsReference(node);
 		}
@@ -163,14 +168,9 @@ namespace Boo.Lang.Compiler.Ast
 			return null;
 		}
 		
-		public Node GetNodeAt(int index)
-		{
-			return (Node)_list[index];
-		}
-		
 		public object Clone()
 		{
-			NodeCollection clone = (NodeCollection)Activator.CreateInstance(GetType());
+			NodeCollection<T> clone = (NodeCollection<T>)Activator.CreateInstance(GetType());
 			List cloneList = clone._list;
 			foreach (Node node in _list)
 			{
@@ -232,18 +232,15 @@ namespace Boo.Lang.Compiler.Ast
 			InnerList.RemoveAt(index);
 		}
 		
-		public bool Matches(NodeCollection collection)
+		public void ExtendWithClones(IEnumerable<T> items)
 		{
-			if (null == collection) return false;
-			if (Count != collection.Count) return false;
-			for (int i=0; i<Count; ++i)
+			foreach (T item in items)
 			{
-				if (!Node.Matches(GetNodeAt(i), collection.GetNodeAt(i))) return false;
+				InnerList.Add(item.CloneNode());
 			}
-			return true;
 		}
 		
-		internal void ReplaceAt(int i, Node newItem)
+		public void ReplaceAt(int i, T newItem)
 		{
 			//Node existing = (Node)InnerList[i];
 			//existing.InitializeParent(null);
@@ -251,22 +248,22 @@ namespace Boo.Lang.Compiler.Ast
 			Initialize(newItem);			
 		}
 
-		protected void AddNode(Node item)
+		public void Add(T item)
 		{
 			Initialize(item);
 			_list.Add(item);
 		}
 
-		protected void AddNodes(Node[] items)
+		public void Extend(IEnumerable<T> items)
 		{
 			AssertNotNull("items", items);
-			foreach (Node item in items)
+			foreach (T item in items)
 			{
-				AddNode(item);
+				Add(item);
 			}
 		}
 
-		protected bool ReplaceNode(Node existing, Node newItem)
+		public bool Replace(T existing, T newItem)
 		{
 			AssertNotNull("existing", existing);			
 			for (int i=0; i<_list.Count; ++i)
@@ -287,7 +284,7 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 
-		protected void InsertNode(int index, Node item)
+		public void Insert(int index, T item)
 		{			
 			Initialize(item);
 			InnerList.Insert(index, item);
@@ -305,21 +302,16 @@ namespace Boo.Lang.Compiler.Ast
 
 		override public bool Equals(object rhs)
 		{
-			NodeCollection other = rhs as NodeCollection;
-			if (null == other)
+			NodeCollection<T> other = rhs as NodeCollection<T>;
+			if (null == other) return false;
+
+			if (InnerList.Count != other.Count) return false;
+
+			IEnumerator<T> enumerator = other.GetEnumerator();
+			foreach (T mine in this)
 			{
-				return false;
-			}
-			if (InnerList.Count != other.Count)
-			{
-				return false;
-			}
-			for (int i=0; i<InnerList.Count; ++i)
-			{
-				if (!InnerList[i].Equals(other.InnerList[i]))
-				{
-					return false;
-				}
+				if (!enumerator.MoveNext()) return false;
+				if (!mine.Equals(enumerator.Current)) return false;
 			}
 			return true;
 		}

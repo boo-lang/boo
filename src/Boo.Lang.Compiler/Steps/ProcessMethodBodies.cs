@@ -5015,14 +5015,14 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 
-		IEntity GetCorrectCallableReference(Node sourceNode, NodeCollection args, IEntity[] candidates)
+		IEntity GetCorrectCallableReference(Node sourceNode, ExpressionCollection args, IEntity[] candidates)
 		{
 			IEntity found = _callableResolution.ResolveCallableReference(args, candidates);
 			if (null == found) EmitCallableResolutionError(sourceNode, candidates, args);
 			return found;
 		}
 
-		private void EmitCallableResolutionError(Node sourceNode, IEntity[] candidates, NodeCollection args)
+		private void EmitCallableResolutionError(Node sourceNode, IEntity[] candidates, ExpressionCollection args)
 		{
 			if (_callableResolution.ValidCandidates.Count > 1)
 			{
@@ -5520,7 +5520,7 @@ namespace Boo.Lang.Compiler.Steps
 			return parent.NodeType != NodeType.MemberReferenceExpression;
 		}
 		
-		string GetSignature(NodeCollection args)
+		string GetSignature(IEnumerable args)
 		{
 			StringBuilder sb = new StringBuilder("(");
 			foreach (Expression arg in args)

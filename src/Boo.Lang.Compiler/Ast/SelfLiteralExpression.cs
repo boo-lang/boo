@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class SelfLiteralExpression : SelfLiteralExpressionImpl
+	public partial class SelfLiteralExpression
 	{		
 		public SelfLiteralExpression()
 		{
@@ -40,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public SelfLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnSelfLiteralExpression(this);
 		}
 	}
 }

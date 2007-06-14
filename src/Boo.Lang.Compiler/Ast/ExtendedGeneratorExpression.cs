@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class ExtendedGeneratorExpression : Boo.Lang.Compiler.Ast.Impl.ExtendedGeneratorExpressionImpl
+	public partial class ExtendedGeneratorExpression
 	{
 		public ExtendedGeneratorExpression()
 		{
@@ -40,11 +39,5 @@ namespace Boo.Lang.Compiler.Ast
 		public ExtendedGeneratorExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
-		
-		public override void Accept(IAstVisitor visitor)
-		{
-			visitor.OnExtendedGeneratorExpression(this);
-		}
-		
 	}
 }

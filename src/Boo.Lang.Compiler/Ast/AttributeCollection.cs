@@ -31,7 +31,7 @@ using System.Collections;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	public class AttributeCollection : Boo.Lang.Compiler.Ast.Impl.AttributeCollectionImpl
+	public partial class AttributeCollection
 	{
 		public AttributeCollection()
 		{
@@ -41,10 +41,6 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 
-		internal AttributeCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
-		{
-		}
-		
 		public bool Contains(string attributeName)
 		{
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in this)

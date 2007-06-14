@@ -27,32 +27,27 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class YieldStatement : YieldStatementImpl
+	public partial class YieldStatement
 	{		
 		public YieldStatement()
 		{
  		}
 		
-		public YieldStatement(Expression expression) : base(expression)
+		public YieldStatement(Expression expression)
 		{
+			this.Expression = expression;
 		}
 		
 		public YieldStatement(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		
-		public YieldStatement(LexicalInfo lexicalInfo, Expression expression) : base(lexicalInfo, expression)
+		public YieldStatement(LexicalInfo lexicalInfo, Expression expression) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnYieldStatement(this);
+			this.Expression = expression;
 		}
 	}
 }

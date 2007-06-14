@@ -27,38 +27,34 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class ReturnStatement : ReturnStatementImpl
+	public partial class ReturnStatement
 	{		
 		public ReturnStatement()
 		{
  		}
 		
-		public ReturnStatement(Expression expression) : base(expression)
+		public ReturnStatement(Expression expression)
 		{
+			this.Expression = expression;
 		}
 		
 		public ReturnStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
 		
-		public ReturnStatement(LexicalInfo li, Expression expression, StatementModifier modifier) : base(li, expression)
+		public ReturnStatement(LexicalInfo li, Expression expression, StatementModifier modifier) : base(li)
 		{
+			this.Expression = expression;
 			this.Modifier = modifier;
 		}
 		
-		public ReturnStatement(Expression expression, StatementModifier modifier) : base(expression)
+		public ReturnStatement(Expression expression, StatementModifier modifier)
 		{
+			this.Expression = expression;
 			this.Modifier = modifier;
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnReturnStatement(this);
 		}
 	}
 }

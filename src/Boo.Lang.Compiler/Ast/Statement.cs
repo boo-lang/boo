@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -46,15 +45,15 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(UnpackStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(ExpressionStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(MacroStatement))]
-	[Serializable]
-	public abstract class Statement : StatementImpl
+	public abstract partial class Statement
 	{		
 		public Statement()
 		{
  		}
 		
-		public Statement(StatementModifier modifier) : base(modifier)
+		public Statement(StatementModifier modifier)
 		{
+			this.Modifier = modifier;
 		}	
 		
 		public Statement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)

@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Util
 	using System;
 	using System.Collections;
 	
-	public class MarshalByRefCollectionBase : System.MarshalByRefObject, ICollection
+	public class MarshalByRefCollectionBase : ICollection
 	{
 		protected ArrayList _items = new ArrayList();
 		
@@ -79,7 +79,7 @@ namespace Boo.Lang.Compiler.Util
 		
 		public IEnumerator GetEnumerator()
 		{
-			return new MarshalByRefEnumerator(_items.GetEnumerator());
+			return _items.GetEnumerator();
 		}
 	}
 }

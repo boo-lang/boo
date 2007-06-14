@@ -27,32 +27,27 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class SimpleTypeReference : SimpleTypeReferenceImpl
+	public partial class SimpleTypeReference
 	{		
 		public SimpleTypeReference()
 		{
  		}
 		
-		public SimpleTypeReference(string name) : base(name)
+		public SimpleTypeReference(string name)
 		{
+			this.Name = name;
 		}
 		
-		public SimpleTypeReference(LexicalInfo lexicalInfo, string name) : base(lexicalInfo, name)
+		public SimpleTypeReference(LexicalInfo lexicalInfo, string name) : base(lexicalInfo)
 		{
+			this.Name = name;
 		}
 		
 		public SimpleTypeReference(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnSimpleTypeReference(this);
 		}
 		
 		override public string ToString()

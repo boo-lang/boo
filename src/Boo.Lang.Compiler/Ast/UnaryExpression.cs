@@ -27,32 +27,27 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class UnaryExpression : UnaryExpressionImpl
+	public partial class UnaryExpression
 	{		
 		public UnaryExpression()
 		{
  		}
 
-		public UnaryExpression(LexicalInfo lexicalInfo, UnaryOperatorType operator_, Expression operand) : base(lexicalInfo, operator_, operand)
+		public UnaryExpression(LexicalInfo lexicalInfo, UnaryOperatorType operator_, Expression operand) : base(lexicalInfo)
 		{
+			this.Operator = operator_;
+			this.Operand = operand;
 		}
 		
-		public UnaryExpression(UnaryOperatorType operator_, Expression operand) : base(operator_, operand)
+		public UnaryExpression(UnaryOperatorType operator_, Expression operand) : this(LexicalInfo.Empty, operator_, operand)
 		{
 		}
 		
 		public UnaryExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnUnaryExpression(this);
 		}
 	}
 }

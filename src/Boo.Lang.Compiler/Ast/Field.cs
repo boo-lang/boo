@@ -27,32 +27,29 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class Field : FieldImpl
+	public partial class Field
 	{		
 		public Field()
 		{
  		}
 		
-		public Field(TypeReference type, Expression initializer) : base(type, initializer)
+		public Field(TypeReference type, Expression initializer)
 		{
+			this.Type = type;
+			this.Initializer = initializer;
 		}
 		
-		public Field(LexicalInfo lexicalInfo, TypeReference type, Expression initializer) : base(lexicalInfo, type, initializer)
+		public Field(LexicalInfo lexicalInfo, TypeReference type, Expression initializer) : base(lexicalInfo)
 		{
+			this.Type = type;
+			this.Initializer = initializer;
 		}
 		
 		public Field(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnField(this);
 		}
 	}
 }

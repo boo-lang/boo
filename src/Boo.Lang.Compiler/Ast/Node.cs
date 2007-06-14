@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections.Generic;
+
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
@@ -39,6 +41,36 @@ namespace Boo.Lang.Compiler.Ast
 	[Serializable]
 	public abstract class Node : ICloneable
 	{
+		public static bool Matches<T>(T lhs, T rhs) where T : Node
+		{
+			return lhs == null ? rhs == null : lhs.Matches(rhs);
+		}
+		
+		public static bool Matches(Block lhs, Block rhs)
+		{
+			return lhs == null ? rhs == null || !rhs.HasStatements : lhs.Matches(rhs);
+		}
+
+		public static bool AllMatch<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) where T : Node
+		{
+			if (lhs == null) return rhs == null || IsEmpty(rhs);
+			if (rhs == null) return IsEmpty(lhs);
+
+			IEnumerator<T> r = rhs.GetEnumerator();
+			foreach (T item in lhs)
+			{
+				if (!r.MoveNext()) return false;
+				if (!Matches(item, r.Current)) return false;
+			}
+			if (r.MoveNext()) return false;
+			return true;
+		}
+
+		private static bool IsEmpty<T>(IEnumerable<T> e)
+		{
+			return !e.GetEnumerator().MoveNext();
+		}
+
 		protected LexicalInfo _lexicalInfo = LexicalInfo.Empty;
 		
 		protected SourceLocation _endSourceLocation = LexicalInfo.Empty;
@@ -289,21 +321,14 @@ namespace Boo.Lang.Compiler.Ast
 		public abstract object Clone();
 		
 		public abstract bool Matches(Node other);
-		
-		public static bool Matches(Node lhs, Node rhs)
+
+		protected bool NoMatch(string fieldName)
 		{
-			return lhs == null
-				? rhs == null
-				: lhs.Matches(rhs);
+			//helps debugging Node.Matches logic
+			//Console.Error.WriteLine("No match for '{0}'.", fieldName);
+			return false;
 		}
-		
-		public static bool Matches(NodeCollection lhs, NodeCollection rhs)
-		{
-			return lhs == null
-				? rhs == null
-				: lhs.Matches(rhs);
-		}
-		
+
 		public abstract NodeType NodeType
 		{
 			get;
@@ -321,14 +346,6 @@ namespace Boo.Lang.Compiler.Ast
 			return writer.ToString();
 		}
 		
-		protected void OnReplace(Node oldNode, Node newNode)
-		{
-		}
-		
-		protected void OnReplace(NodeCollection oldCollection, NodeCollection newCollection)
-		{
-		}
-
 		public Node GetAncestor(NodeType ancestorType)
 		{
 			Node parent = this.ParentNode;

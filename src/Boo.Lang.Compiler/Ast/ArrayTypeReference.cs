@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class ArrayTypeReference : ArrayTypeReferenceImpl
+	public partial class ArrayTypeReference
 	{		
 		public ArrayTypeReference()
 		{
@@ -42,25 +40,22 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public ArrayTypeReference(LexicalInfo lexicalInfo, TypeReference elementType) : base(lexicalInfo, elementType, new IntegerLiteralExpression(1))
+		public ArrayTypeReference(LexicalInfo lexicalInfo, TypeReference elementType) : this(lexicalInfo, elementType, new IntegerLiteralExpression(1))
 		{
 		}
 		
-		public ArrayTypeReference(TypeReference elementType, IntegerLiteralExpression rank) : base(elementType, rank)
+		public ArrayTypeReference(TypeReference elementType, IntegerLiteralExpression rank) : this(LexicalInfo.Empty, elementType, rank)
  		{
  		}
  		
-		public ArrayTypeReference(LexicalInfo lexicalInfo, TypeReference elementType, IntegerLiteralExpression rank) : base(lexicalInfo, elementType, rank)
+		public ArrayTypeReference(LexicalInfo lexicalInfo, TypeReference elementType, IntegerLiteralExpression rank) : base(lexicalInfo)
  		{
+			this.ElementType = elementType;
+			this.Rank = rank;
  		}
 		
 		public ArrayTypeReference(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnArrayTypeReference(this);
 		}
 		
 		override public string ToString()

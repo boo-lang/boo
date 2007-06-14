@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -35,8 +34,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(ArrayTypeReference))]
 	[System.Xml.Serialization.XmlInclude(typeof(GenericTypeReference))]
 	[System.Xml.Serialization.XmlInclude(typeof(GenericTypeDefinitionReference))]
-	[Serializable]
-	public abstract class TypeReference : TypeReferenceImpl
+	public abstract partial class TypeReference
 	{		
 		public TypeReference()
 		{

@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class ExpressionStatement : ExpressionStatementImpl
+	public partial class ExpressionStatement
 	{		
 		public ExpressionStatement()
 		{
@@ -42,13 +40,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public ExpressionStatement(Expression expression) : base(expression)
+		public ExpressionStatement(Expression expression)
 		{
-		}
-
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnExpressionStatement(this);
+			this.Expression = expression;
 		}
 	}
 }

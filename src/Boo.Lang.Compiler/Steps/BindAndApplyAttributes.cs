@@ -79,7 +79,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			catch (Exception x)
 			{
+				_context.TraceError(x);
 				_context.Errors.Add(CompilerErrorFactory.AttributeApplicationError(x, _attribute, _type));
+				System.Console.WriteLine(x.StackTrace);
 			}
 		}
 

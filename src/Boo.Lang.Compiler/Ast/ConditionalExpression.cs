@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class ConditionalExpression : Boo.Lang.Compiler.Ast.Impl.ConditionalExpressionImpl
+	public partial class ConditionalExpression
 	{
 		public ConditionalExpression()
 		{
@@ -39,11 +38,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public ConditionalExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnConditionalExpression(this);
 		}
 	}
 }

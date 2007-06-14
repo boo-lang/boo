@@ -27,34 +27,29 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class MemberReferenceExpression : MemberReferenceExpressionImpl
+	public partial class MemberReferenceExpression
 	{		
 		public MemberReferenceExpression()
 		{
  		}
 		
-		public MemberReferenceExpression(LexicalInfo lexicalInfo, Expression target, string name) : base(lexicalInfo, target)
+		public MemberReferenceExpression(LexicalInfo lexicalInfo, Expression target, string name) : base(lexicalInfo)
 		{
-			Name = name;
+			this.Target = target;
+			this.Name = name;
 		}
 		
-		public MemberReferenceExpression(Expression target, string name) : base(target)
+		public MemberReferenceExpression(Expression target, string name)
 		{
-			Name = name;
+			this.Target = target;
+			this.Name = name;
 		}
 		
 		public MemberReferenceExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnMemberReferenceExpression(this);
 		}
 	}
 }

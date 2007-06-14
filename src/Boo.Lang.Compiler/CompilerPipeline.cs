@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler
 	/// A ordered set of <see cref="ICompilerStep"/> implementations
 	/// that should be executed in sequence.
 	/// </summary>
-	public class CompilerPipeline : System.MarshalByRefObject
+	public class CompilerPipeline
 	{
 		public event CompilerStepEventHandler BeforeStep;
 		

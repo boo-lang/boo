@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -36,15 +35,16 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(Field))]
 	[System.Xml.Serialization.XmlInclude(typeof(Property))]
 	[System.Xml.Serialization.XmlInclude(typeof(Method))]
-	[Serializable]
-	public abstract class TypeMember : TypeMemberImpl
+	public abstract partial class TypeMember
 	{		
 		protected TypeMember()
 		{
  		}
 		
-		protected TypeMember(TypeMemberModifiers modifiers, string name) : base(modifiers, name)
+		protected TypeMember(TypeMemberModifiers modifiers, string name)
 		{
+			this.Modifiers = modifiers;
+			this.Name = name;
 		}		
 		
 		protected TypeMember(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)

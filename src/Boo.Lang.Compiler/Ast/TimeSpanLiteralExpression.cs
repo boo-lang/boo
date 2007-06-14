@@ -27,28 +27,23 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class TimeSpanLiteralExpression : TimeSpanLiteralExpressionImpl
+	public partial class TimeSpanLiteralExpression
 	{		
 		public TimeSpanLiteralExpression()
 		{
  		}
 		
-		public TimeSpanLiteralExpression(TimeSpan value) : base(value)
+		public TimeSpanLiteralExpression(TimeSpan value)
 		{
+			this.Value = value;
 		}
 		
-		public TimeSpanLiteralExpression(LexicalInfo lexicalInfoProvider, TimeSpan value) : base(lexicalInfoProvider, value)
+		public TimeSpanLiteralExpression(LexicalInfo lexicalInfoProvider, TimeSpan value) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnTimeSpanLiteralExpression(this);
+			this.Value = value;
 		}
 	}
 }

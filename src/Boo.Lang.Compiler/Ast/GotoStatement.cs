@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class GotoStatement : Boo.Lang.Compiler.Ast.Impl.GotoStatementImpl
+	public partial class GotoStatement
 	{
 		public GotoStatement()
 		{
@@ -41,13 +40,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public GotoStatement(LexicalInfo lexicalInfo, ReferenceExpression label) : base(lexicalInfo, label)
+		public GotoStatement(LexicalInfo lexicalInfo, ReferenceExpression label) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnGotoStatement(this);
+			this.Label = label;
 		}
 	}
 }

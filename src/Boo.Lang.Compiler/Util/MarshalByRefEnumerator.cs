@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Util
 	using System;
 	using System.Collections;
 	
-	public class MarshalByRefEnumerator : System.MarshalByRefObject, IEnumerator
+	public class MarshalByRefEnumerator : IEnumerator
 	{
 		IEnumerator _enumerator;
 		

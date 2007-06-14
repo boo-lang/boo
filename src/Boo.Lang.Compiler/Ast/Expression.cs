@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -45,8 +44,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(TypeofExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(CastExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(CallableBlockExpression))]
-	[Serializable]
-	public abstract class Expression : ExpressionImpl
+	public abstract partial class Expression
 	{
 		protected Boo.Lang.Compiler.TypeSystem.IType _expressionType;
 		

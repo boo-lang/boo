@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class LabelStatement : Boo.Lang.Compiler.Ast.Impl.LabelStatementImpl
+	public partial class LabelStatement
 	{
 		public LabelStatement()
 		{
@@ -41,13 +40,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public LabelStatement(LexicalInfo lexicalInfo, string name) : base(lexicalInfo, name)
+		public LabelStatement(LexicalInfo lexicalInfo, string name) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnLabelStatement(this);
+			this.Name = name;
 		}
 	}
 }

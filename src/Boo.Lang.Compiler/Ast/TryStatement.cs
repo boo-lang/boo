@@ -27,28 +27,22 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class TryStatement : TryStatementImpl
+	public partial class TryStatement
 	{		
 		public TryStatement()
 		{
  		}
 		
-		public TryStatement(Block ensureBlock) : base(ensureBlock)
+		public TryStatement(Block ensureBlock)
 		{
+			this.EnsureBlock = ensureBlock;
 		}
 		
 		public TryStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnTryStatement(this);
 		}
 	}
 }

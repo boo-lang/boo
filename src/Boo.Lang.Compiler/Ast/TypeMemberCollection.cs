@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Compiler.Ast
 {
-	public class TypeMemberCollection : Boo.Lang.Compiler.Ast.Impl.TypeMemberCollectionImpl
+	public partial class TypeMemberCollection
 	{
 		public TypeMemberCollection()
 		{
@@ -36,10 +36,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public TypeMemberCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
-		}
-
-		internal TypeMemberCollection(Boo.Lang.Compiler.Ast.Node parent, Boo.Lang.List list) : base(parent, list)
-		{	
 		}
 		
 		public TypeMember this[string name]

@@ -27,34 +27,30 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class ParameterDeclaration : ParameterDeclarationImpl
+	public partial class ParameterDeclaration
 	{		
 		public ParameterDeclaration()
 		{			
  		}
 		
-		public ParameterDeclaration(string name, TypeReference type, ParameterModifiers modifiers) : base(name, type, modifiers)
+		public ParameterDeclaration(string name, TypeReference type, ParameterModifiers modifiers)
 		{
+			this.Name = name;
+			this.Type = type;
+			this.Modifiers = modifiers;
 		}
 		
-		public ParameterDeclaration(string name, TypeReference type) : base(name, type, ParameterModifiers.None)
+		public ParameterDeclaration(string name, TypeReference type) : this(name, type, ParameterModifiers.None)
 		{
 		}
 		
 		public ParameterDeclaration(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnParameterDeclaration(this);
-		}
-		
+
 		public bool IsByRef
 		{
 			get

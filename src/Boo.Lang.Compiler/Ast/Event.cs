@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class Event : Boo.Lang.Compiler.Ast.Impl.EventImpl
+	public partial class Event
 	{
 		public Event()
 		{
@@ -45,11 +44,6 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Name = name;
 			this.Type = type;
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnEvent(this);
 		}
 	}
 }

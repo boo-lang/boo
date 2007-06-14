@@ -27,32 +27,27 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class TryCastExpression : TryCastExpressionImpl
+	public partial class TryCastExpression
 	{		
 		public TryCastExpression()
 		{
  		}
 		
-		public TryCastExpression(Expression target, TypeReference type) : base(target, type)
+		public TryCastExpression(Expression target, TypeReference type) : this(LexicalInfo.Empty, target, type)
 		{
 		}
 		
-		public TryCastExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo, target, type)
+		public TryCastExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo)
 		{
+			this.Target = target;
+			this.Type = type;
 		}
 		
 		public TryCastExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnTryCastExpression(this);
 		}
 	}
 }

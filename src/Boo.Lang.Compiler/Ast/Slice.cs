@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class Slice : Boo.Lang.Compiler.Ast.Impl.SliceImpl
+	public partial class Slice
 	{
 		public Slice()
 		{
@@ -41,22 +40,23 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public Slice(LexicalInfo lexicalInfo, Expression begin, Expression end, Expression step) : base(begin, end, step)
+		public Slice(LexicalInfo lexicalInfo, Expression begin, Expression end, Expression step) : base(lexicalInfo)
 		{
+			this.Begin = begin;
+			this.End = end;
+			this.Step = step;
 		}
 		
-		public Slice(Expression begin, Expression end, Expression step) : base(begin, end, step)
+		public Slice(Expression begin, Expression end, Expression step)
 		{
+			this.Begin = begin;
+			this.End = end;
+			this.Step = step;
 		}
 		
 		public Slice(Expression begin) : base(begin.LexicalInfo)
 		{
 			this.Begin = begin;
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnSlice(this);
 		}
 	}
 }

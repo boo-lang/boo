@@ -30,8 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class TypeofExpression : Boo.Lang.Compiler.Ast.Impl.TypeofExpressionImpl
+	public partial class TypeofExpression
 	{
 		public TypeofExpression()
 		{
@@ -41,13 +40,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public TypeofExpression(LexicalInfo lexicalInfo, TypeReference typeReference) : base(lexicalInfo, typeReference)
+		public TypeofExpression(LexicalInfo lexicalInfo, TypeReference typeReference) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnTypeofExpression(this);
+			this.Type = typeReference;
 		}
 	}
 }

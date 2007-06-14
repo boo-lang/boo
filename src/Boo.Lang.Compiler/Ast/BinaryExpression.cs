@@ -27,12 +27,10 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class BinaryExpression : BinaryExpressionImpl
+	public partial class BinaryExpression
 	{		
 		public BinaryExpression()
 		{
@@ -42,17 +40,15 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}		
 		
-		public BinaryExpression(BinaryOperatorType operator_, Expression left, Expression right) : base(operator_, left, right)
+		public BinaryExpression(BinaryOperatorType operator_, Expression left, Expression right) : this(LexicalInfo.Empty, operator_, left, right)
 		{
 		}
 
-		public BinaryExpression(LexicalInfo lexicalInfoProvider, BinaryOperatorType operator_, Expression left, Expression right) : base(lexicalInfoProvider, operator_, left, right)
+		public BinaryExpression(LexicalInfo lexicalInfoProvider, BinaryOperatorType operator_, Expression left, Expression right) : base(lexicalInfoProvider)
 		{
+			this.Operator = operator_;
+			this.Left = left;
+			this.Right = right;
 		}				
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnBinaryExpression(this);
-		}
 	}
 }

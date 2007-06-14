@@ -1444,7 +1444,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			Write(st);
 			int last = items.Count-1;
-			for (int i=0; i<items.Count; ++i)
+			int i = 0;
+			foreach (ParameterDeclaration item in items)
 			{
 				if (i > 0)
 				{
@@ -1454,7 +1455,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					Write("*");
 				}
-				Visit(items.GetNodeAt(i));
+				Visit(item);
+				++i;
 			}
 			Write(ed);
 		}

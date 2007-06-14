@@ -225,6 +225,8 @@
     <Compile Include="Ast\Impl\DeclarationCollectionImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationStatementImpl.cs" />
+    <Compile Include="Ast\Impl\DepthFirstTransformer.cs" />
+    <Compile Include="Ast\Impl\DepthFirstVisitor.cs" />
     <Compile Include="Ast\Impl\DestructorImpl.cs" />
     <Compile Include="Ast\Impl\DoubleLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\EnumDefinitionImpl.cs" />

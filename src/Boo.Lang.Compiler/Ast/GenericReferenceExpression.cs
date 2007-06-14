@@ -36,8 +36,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	[Serializable]
-	public class GenericReferenceExpression : Boo.Lang.Compiler.Ast.Impl.GenericReferenceExpressionImpl
+	public partial class GenericReferenceExpression
 	{
 		public GenericReferenceExpression()
 		{
@@ -45,11 +44,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public GenericReferenceExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnGenericReferenceExpression(this);
 		}
 	}
 }

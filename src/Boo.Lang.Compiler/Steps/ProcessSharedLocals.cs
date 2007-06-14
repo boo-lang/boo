@@ -206,9 +206,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void CollectSharedLocalEntities(NodeCollection nodes)
+		void CollectSharedLocalEntities<T>(System.Collections.Generic.IEnumerable<T> nodes) where T : Node
 		{
-			foreach (Node node in nodes)
+			foreach (T node in nodes)
 			{
 				ILocalEntity local = (ILocalEntity)node.Entity;
 				if (local.IsShared)

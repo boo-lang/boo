@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -42,8 +41,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(HashLiteralExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(ListLiteralExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(DoubleLiteralExpression))]
-	[Serializable]
-	public abstract class LiteralExpression : LiteralExpressionImpl
+	public abstract partial class LiteralExpression
 	{		
 		public LiteralExpression()
 		{

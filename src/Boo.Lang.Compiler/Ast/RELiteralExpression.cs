@@ -27,28 +27,23 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class RELiteralExpression : RELiteralExpressionImpl
+	public partial class RELiteralExpression
 	{		
 		public RELiteralExpression()
 		{
  		}
 		
-		public RELiteralExpression(string value) : base(value)
+		public RELiteralExpression(string value)
 		{
+			this.Value = value;
 		}	
 		
-		public RELiteralExpression(LexicalInfo lexicalInfoProvider, string value) : base(lexicalInfoProvider, value)
+		public RELiteralExpression(LexicalInfo lexicalInfoProvider, string value) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnRELiteralExpression(this);
+			this.Value = value;
 		}
 	}
 }

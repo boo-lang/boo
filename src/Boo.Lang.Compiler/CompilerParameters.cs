@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Compiler parameters.
 	/// </summary>
-	public class CompilerParameters : System.MarshalByRefObject
+	public class CompilerParameters
 	{
 		static private List _validFileExtensions = new List(new string[] { ".dll", ".exe" });
 

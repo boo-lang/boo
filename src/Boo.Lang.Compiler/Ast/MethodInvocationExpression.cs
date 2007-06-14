@@ -27,37 +27,33 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast.Impl;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[Serializable]
-	public class MethodInvocationExpression : MethodInvocationExpressionImpl
+	public partial class MethodInvocationExpression
 	{		
 		public MethodInvocationExpression()
 		{
  		}
 		
-		public MethodInvocationExpression(Expression target) : base(target)
+		public MethodInvocationExpression(Expression target)
 		{
+			this.Target = target;
 		}
 		
-		public MethodInvocationExpression(LexicalInfo li, Expression target) : base(li, target)
+		public MethodInvocationExpression(LexicalInfo li, Expression target) : base(li)
 		{
+			this.Target = target;
 		}
 		
-		public MethodInvocationExpression(Expression target, params Expression[] args) : base(target)
+		public MethodInvocationExpression(Expression target, params Expression[] args)
 		{
+			this.Target = target;
 			this.Arguments.Extend(args);
 		}
 		
 		public MethodInvocationExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-		
-		override public void Accept(IAstVisitor visitor)
-		{
-			visitor.OnMethodInvocationExpression(this);
 		}
 	}
 }
