@@ -49,7 +49,7 @@
 	<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
 			
 	<property name="csc.noconfig" value="false" />	
-	<property name="csc.define" value="NET_2_0" />
+	<property name="csc.define" value="NET_2_0;TRACE;DEBUG" />
 	
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env">	
 	</target>
@@ -57,10 +57,11 @@
 	<target name="set-release-configuration">
 		<property name="debug" value="false" />
 		<property name="optimize" value="true" />
+		<property name="csc.define" value="NET_2_0" />
 	</target>
 	
 	<target name="nostdlib">
-		<property name="csc.define" value="${csc.define},NO_SYSTEM_DLL" />
+		<property name="csc.define" value="${csc.define};NO_SYSTEM_DLL" />
 		<property name="csc.noconfig" value="true" />
 	</target>
 	
@@ -252,7 +253,8 @@
 		<csc target="exe" 
 				output="${build.dir}/booc.exe" 
 				debug="${debug}" 
-				optimize="${optimize}">
+				optimize="${optimize}"
+				define="${csc.define}">
 			<sources basedir="src/booc">
 				<include name="*.cs" />
 			</sources>
