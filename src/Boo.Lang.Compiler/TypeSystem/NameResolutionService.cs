@@ -476,22 +476,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public void OrganizeAssemblyTypes(Assembly asm)
 		{
-			Type[] types = asm.GetTypes();
+			CatalogPublicTypes(asm.GetTypes());
+		}
+
+		private void CatalogPublicTypes(Type[] types)
+		{
 			foreach (Type type in types)
 			{
-				if (type.IsPublic)
-				{
-					string ns = type.Namespace;
-					if (null == ns)
-					{
-						ns = string.Empty;
-					}
-				
-					GetNamespace(ns).Add(type);
-				}
+				if (type.IsPublic) CatalogType(type);
 			}
 		}
-		
+
+		private void CatalogType(Type type)
+		{
+			string ns = type.Namespace ?? string.Empty;
+			GetNamespace(ns).Add(type);
+		}
+
 		public NamespaceEntity GetNamespace(string ns)
 		{
 			string[] namespaceHierarchy = ns.Split('.');
