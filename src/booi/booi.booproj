@@ -29,6 +29,8 @@
     <Reference Include="Boo.Lang.Useful" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="AssemblyResolver.boo" />
     <Compile Include="booi.boo" />
   </ItemGroup>
   <ItemGroup>

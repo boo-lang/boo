@@ -26,48 +26,117 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+namespace booi
+
 import System
 import System.IO
 import System.Reflection
-import System.Security.Permissions
 import System.Threading
 import Boo.Lang.Parser
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Steps
+import Useful.Attributes
 
-class AssemblyResolver:
-
-	_cache = {}
+class Program:
 	
-	def AddAssembly([required] asm as Assembly):
-		_cache[GetSimpleName(asm.FullName)] = asm
-		
-	def LoadAssembly([required] name as string):
-		asm = ProbeFile(name)
-		if asm is not null:
-			_cache[asm.GetName().Name] = asm
-		return asm
+	public static final DefaultErrorCode = 255
+	public static final DefaultSuccessCode = 0
 	
-	def AssemblyResolve(sender, args as ResolveEventArgs) as Assembly:		
-		simpleName = GetSimpleName(args.Name)
+	_cmdLine as (string)
+	_assemblyResolver = AssemblyResolver()
+	_compiler = BooCompiler()
+	_printWarnings = false
+	
+	def constructor(cmdLine as (string)):
+		_cmdLine = cmdLine
+		_compiler.Parameters.Pipeline = CompileToMemory()
+	
+	def run():
+		installAssemblyResolver()
+		consumedArguments = processCommandLine()		
+		assembly = compile()	
+		if assembly is null: return DefaultErrorCode
+		return execute(assembly, _cmdLine[consumedArguments:])
 		
-		asm as Assembly = _cache[simpleName]
-		if asm is null:
-			basePath = Path.GetFullPath(simpleName)
-			asm = ProbeFile(basePath + ".dll")
-			if asm is null:
-				asm = ProbeFile(basePath + ".exe")
-			_cache[simpleName] = asm
+	def compile():
+		result = _compiler.Run()
+		if _printWarnings and len(result.Warnings):
+			print(result.Warnings.ToString())
+		if len(result.Errors):
+			print(result.Errors.ToString(true))
+			return null
+		return result.GeneratedAssembly
+		
+	def execute(generatedAssembly as Assembly, argv as (string)):	
+		try: 
+			_assemblyResolver.AddAssembly(generatedAssembly)
+			main = generatedAssembly.EntryPoint
+			Environment.ExitCode = DefaultSuccessCode
+			if len(main.GetParameters()) > 0:
+				returnValue = main.Invoke(null, (argv,))
+			else:
+				returnValue = main.Invoke(null, null)
+			Environment.ExitCode = returnValue if returnValue is not null
+		except x as TargetInvocationException:
+			print(x.InnerException)
+			return DefaultErrorCode
 			
-		return asm
+		return Environment.ExitCode
 		
-	private def GetSimpleName(name as string):
-		return /,\s*/.Split(name)[0]
+	def processCommandLine():
+		consumedArgs = 1
+		for arg in _cmdLine:
+			if "-" == arg:
+				_compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))
+				break
+			elif "-ducky" == arg:
+				_compiler.Parameters.Ducky = true
+			elif "-wsa" == arg:
+				_compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
+			elif "-w" == arg:
+				_printWarnings = true
+			elif arg.StartsWith("-r:"):
+				try:
+					asm = _compiler.Parameters.LoadAssembly(arg[3:])
+					if asm is null:
+						print Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", arg[3:])
+					else:
+						_compiler.Parameters.References.Add(asm)
+						_assemblyResolver.AddAssembly(asm)
+				except e:
+					print e.Message
+			else:
+				_compiler.Parameters.Input.Add(FileInput(translatePath(arg)))
+				break
+			++consumedArgs
+		return consumedArgs
 		
-	private def ProbeFile(fname as string):	
-		return Assembly.LoadFrom(fname) if File.Exists(fname)
+	def translatePath(path as string):
+		if isCygwin(): 	return translateCygwinPath(path)
+		return path
+		
+	[once]
+	def isCygwin():
+		return Environment.GetEnvironmentVariable("TERM") == "cygwin"
+	
+	def translateCygwinPath(path as string):
+		if not path.StartsWith("/"): return path
+		if path.StartsWith("/cygdrive"):
+			path = path[len("/cygdrive/"):]
+			driveLetter = path[0]
+			return driveLetter + ":" + path[1:]
+		return Path.Combine(cygwinRoot(), path[1:])
+		
+	[once]
+	def cygwinRoot():
+		home = Environment.GetEnvironmentVariable("HOME")
+		assert home is not null
+		return home[:home.IndexOf("\\home")]
+		
+	def installAssemblyResolver():
+		AppDomain.CurrentDomain.AssemblyResolve += _assemblyResolver.AssemblyResolve
 
 def consume(reader as TextReader):
 	return join(line for line in reader, "\n")
@@ -75,70 +144,11 @@ def consume(reader as TextReader):
 [STAThread]
 def Main(argv as (string)) as int:
 	
-	DefaultErrorCode = 255
-	DefaultSuccessCode = 0
-	
 	if len(argv) < 1:
 		print("booi <script.boo>") 
-		return DefaultErrorCode
+		return Program.DefaultErrorCode
+		
+	return Program(argv).run();
 	
-	resolver = AssemblyResolver()
-	AppDomain.CurrentDomain.AssemblyResolve += resolver.AssemblyResolve
-	
-	compiler = BooCompiler()
-	compiler.Parameters.Pipeline = CompileToMemory()
-	
-	consumedArgs = 1
-	asm as Assembly = null
-	for arg in argv:
-		if "-" == arg:
-			compiler.Parameters.Input.Add(StringInput("<stdin>", consume(Console.In)))
-			break
-		elif "-ducky" == arg:
-			compiler.Parameters.Ducky = true
-		elif "-wsa" == arg:
-			compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
-		elif "-w" == arg:
-			printWarnings = true
-		elif arg.StartsWith("-r:"):			
-			//compiler.Parameters.References.Add(resolver.LoadAssembly(arg[3:]))
-			try:
-				asm = compiler.Parameters.LoadAssembly(arg[3:])
-				if asm is null:
-					print Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", arg[3:])
-				else:
-					compiler.Parameters.References.Add(asm)
-					resolver.AddAssembly(asm)
-			except e:
-				print e.Message
-		else:
-			compiler.Parameters.Input.Add(FileInput(arg))
-			break
-		++consumedArgs
-	
-	result = compiler.Run()
-	if printWarnings and len(result.Warnings):
-		print(result.Warnings.ToString())
-	if len(result.Errors):
-		print(result.Errors.ToString(true))
-		return DefaultErrorCode
-	else:	
-		try: 
-			resolver.AddAssembly(result.GeneratedAssembly)
-			main = result.GeneratedAssembly.EntryPoint
-			Environment.ExitCode = DefaultSuccessCode
-			if len(main.GetParameters()) > 0:
-				returnValue = main.Invoke(null, (argv[consumedArgs:],))
-			else:
-				returnValue = main.Invoke(null, null)
-			Environment.ExitCode = returnValue if returnValue is not null
-		except x as TargetInvocationException:
-			print(x.InnerException)
-			return DefaultErrorCode
-	return Environment.ExitCode
-	
-[assembly: SecurityPermission(
-						SecurityAction.RequestMinimum,
-						ControlAppDomain: true)] 
 	
 

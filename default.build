@@ -152,7 +152,7 @@
 		</copy>
 	</target>
 	
-	<target name="booi" depends="Boo.NAnt.Tasks">
+	<target name="booi" depends="Boo.NAnt.Tasks, Boo.Lang.Useful, Boo.Lang.Parser">
 
 		<booc
 			target="exe"
@@ -162,6 +162,7 @@
 			
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
+				<include name="Boo.Lang.Useful.dll" />
 			</references>
 			
 			<sources basedir="src/booi">
