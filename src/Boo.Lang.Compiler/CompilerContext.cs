@@ -77,15 +77,8 @@ namespace Boo.Lang.Compiler
 		
 		public CompilerContext(CompilerParameters options, CompileUnit unit)
 		{
-			if (null == options)
-			{
-				throw new ArgumentNullException("options");
-			}
-
-			if (null == unit)
-			{
-				throw new ArgumentNullException("unit");
-			}
+			if (null == options) throw new ArgumentNullException("options");
+			if (null == unit) throw new ArgumentNullException("unit");
 
 			_unit = unit;
 			_errors = new CompilerErrorCollection();			
@@ -226,6 +219,7 @@ namespace Boo.Lang.Compiler
 			return ++_localIndex;
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceEnter(string format, object param)
 		{
 			if (_traceSwitch.TraceInfo)
@@ -235,6 +229,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceLeave(string format, object param)
 		{
 			if (_traceSwitch.TraceInfo)
@@ -244,6 +239,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceInfo(string format, params object[] args)
 		{			
 			if (_traceSwitch.TraceInfo)
@@ -252,6 +248,7 @@ namespace Boo.Lang.Compiler
 			}			
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceInfo(string message)
 		{
 			if (_traceSwitch.TraceInfo)
@@ -260,6 +257,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceWarning(string message)
 		{
 			if (_traceSwitch.TraceWarning)
@@ -268,6 +266,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
+		[Conditional("TRACE")]
 		public void TraceWarning(string message, params object[] args)
 		{
 			if (_traceSwitch.TraceWarning)
@@ -276,6 +275,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceVerbose(string format, params object[] args)
 		{			
 			if (_traceSwitch.TraceVerbose)
@@ -284,6 +284,7 @@ namespace Boo.Lang.Compiler
 			}			
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceVerbose(string format, object param1, object param2)
 		{
 			if (_traceSwitch.TraceVerbose)
@@ -292,6 +293,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceVerbose(string format, object param1, object param2, object param3)
 		{
 			if (_traceSwitch.TraceVerbose)
@@ -300,6 +302,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceVerbose(string format, object param)
 		{
 			if (_traceSwitch.TraceVerbose)			
@@ -308,6 +311,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceVerbose(string message)
 		{
 			if (_traceSwitch.TraceVerbose)
@@ -316,6 +320,7 @@ namespace Boo.Lang.Compiler
 			}
 		}	
 		
+		[Conditional("TRACE")]
 		public void TraceError(string message, params object[] args)
 		{
 			if (_traceSwitch.TraceError)
@@ -324,6 +329,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
+		[Conditional("TRACE")]
 		public void TraceError(Exception x)
 		{
 			if (_traceSwitch.TraceError)
