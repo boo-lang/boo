@@ -14,10 +14,7 @@ itemType = "Boo.Lang.Compiler.Ast." + model.GetCollectionItemType(node)
 		public ${itemType}Collection PopRange(int begin)
 		{
 			${itemType}Collection range = new ${itemType}Collection(_parent);
-			foreach (object item in InnerList.PopRange(begin))
-			{
-				range.InnerList.Add(item);
-			}
+			range.InnerList.Extend(InternalPopRange(begin));
 			return range;
 		}
 	}

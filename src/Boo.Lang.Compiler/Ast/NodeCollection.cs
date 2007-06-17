@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.Ast
 		where T : Node
 	{
 		protected Node _parent;
-		
+
 		protected List _list;
 
 		protected NodeCollection()
@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public T this[int index]
 		{
-			get { return (T) _list[index];  }
+			get { return (T)_list[index]; }
 			set { _list[index] = value; }
 		}
 
@@ -77,44 +77,44 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get { return _list.Count; }
 		}
-		
+
 		public bool IsSynchronized
 		{
 			get { return false; }
 		}
-		
+
 		public object SyncRoot
 		{
 			get { return this; }
 		}
-		
+
 		public void CopyTo(Array array, int index)
 		{
 			_list.CopyTo(array, index);
 		}
-		
+
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return _list.GetEnumerator();
 		}
-		
+
 		public void Clear()
-		{			
+		{
 			_list.Clear();
 		}
-		
+
 		public T[] ToArray()
 		{
 			return (T[])_list.ToArray(new T[_list.Count]);
 		}
-		
+
 		public T[] ToReverseArray()
 		{
 			T[] array = ToArray();
 			Array.Reverse(array);
 			return array;
 		}
-		
+
 		public T[] Select(NodeType type)
 		{
 			List result = new List();
@@ -127,17 +127,22 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return (T[])result.ToArray(new T[result.Count]);
 		}
-		
+
+		protected IEnumerable InternalPopRange(int begin)
+		{
+			return _list.PopRange(begin);
+		}
+
 		public bool ContainsNode(T node)
 		{
 			return _list.ContainsReference(node);
 		}
-		
+
 		public bool Contains(Predicate condition)
 		{
 			return _list.Contains(condition);
 		}
-		
+
 		public bool ContainsEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
 		{
 			foreach (Node node in _list)
@@ -149,14 +154,14 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return false;
 		}
-		
+
 		public Node RemoveByEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
 		{
 			if (null == entity)
 			{
 				throw new ArgumentNullException("entity");
 			}
-			for (int i=0; i<_list.Count; ++i)
+			for (int i = 0; i < _list.Count; ++i)
 			{
 				Node node = (Node)_list[i];
 				if (entity == node.Entity)
@@ -167,7 +172,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return null;
 		}
-		
+
 		public object Clone()
 		{
 			NodeCollection<T> clone = (NodeCollection<T>)Activator.CreateInstance(GetType());
@@ -178,7 +183,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return clone;
 		}
-		
+
 		public void ClearTypeSystemBindings()
 		{
 			foreach (Node node in _list)
@@ -186,7 +191,7 @@ namespace Boo.Lang.Compiler.Ast
 				node.ClearTypeSystemBindings();
 			}
 		}
-		
+
 		protected List InnerList
 		{
 			get
@@ -203,14 +208,14 @@ namespace Boo.Lang.Compiler.Ast
 				node.InitializeParent(_parent);
 			}
 		}
-		
+
 		public void Reject(Predicate condition)
 		{
 			if (null == condition)
 			{
 				throw new ArgumentNullException("condition");
 			}
-			
+
 			int index = 0;
 			foreach (Node node in ToArray())
 			{
@@ -224,14 +229,14 @@ namespace Boo.Lang.Compiler.Ast
 				}
 			}
 		}
-		
+
 		public void RemoveAt(int index)
 		{
 			//Node existing = (Node)InnerList[index];
 			//existing.InitializeParent(null);
 			InnerList.RemoveAt(index);
 		}
-		
+
 		public void ExtendWithClones(IEnumerable<T> items)
 		{
 			foreach (T item in items)
@@ -239,13 +244,13 @@ namespace Boo.Lang.Compiler.Ast
 				InnerList.Add(item.CloneNode());
 			}
 		}
-		
+
 		public void ReplaceAt(int i, T newItem)
 		{
 			//Node existing = (Node)InnerList[i];
 			//existing.InitializeParent(null);
 			_list[i] = newItem;
-			Initialize(newItem);			
+			Initialize(newItem);
 		}
 
 		public void Add(T item)
@@ -265,8 +270,8 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool Replace(T existing, T newItem)
 		{
-			AssertNotNull("existing", existing);			
-			for (int i=0; i<_list.Count; ++i)
+			AssertNotNull("existing", existing);
+			for (int i = 0; i < _list.Count; ++i)
 			{
 				if (_list[i] == existing)
 				{
@@ -280,12 +285,12 @@ namespace Boo.Lang.Compiler.Ast
 					}
 					return true;
 				}
-			}			
+			}
 			return false;
 		}
 
 		public void Insert(int index, T item)
-		{			
+		{
 			Initialize(item);
 			InnerList.Insert(index, item);
 		}
@@ -324,7 +329,7 @@ namespace Boo.Lang.Compiler.Ast
 				item.InitializeParent(_parent);
 			}
 		}
-		
+
 		private void AssertNotNull(string descrip, object o)
 		{
 			if (o == null)
@@ -333,6 +338,6 @@ namespace Boo.Lang.Compiler.Ast
 					String.Format("null reference for: {0}", descrip));
 			}
 		}
-		
+
 	}
 }
