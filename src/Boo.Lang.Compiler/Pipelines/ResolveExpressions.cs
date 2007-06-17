@@ -36,6 +36,8 @@ namespace Boo.Lang.Compiler.Pipelines
 		{
 			Add(new InitializeTypeSystemServices());
 			Add(new PreErrorChecking());
+
+			Add(new ExpandAstLiterals());
 			
 			Add(new MergePartialClasses());
 			
@@ -63,7 +65,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ProcessInheritedAbstractMembers());
 			Add(new CheckMemberNames());
 			
-			Add(new ExpandAstLiterals());
 			Add(new ProcessMethodBodiesWithDuckTyping());
 			
 			Add(new PreProcessExtensionMethods());

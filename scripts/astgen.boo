@@ -75,13 +75,16 @@ class Model:
 		for item as TypeDefinition in GetTypeHierarchy(node):
 			fields.Extend(item.Members)
 		return array(Field, fields)
+		
+	def IsVisitableField(field as Field):
+		type = ResolveFieldType(field)
+		return type is not null and not IsEnum(type)
 
 	def GetVisitableFields(item as ClassDefinition):	
 		fields = []
 		for item as TypeDefinition in GetTypeHierarchy(item):	
 			for field as Field in item.Members:
-				type = ResolveFieldType(field)
-				fields.Add(field) if type and not IsEnum(type)
+				fields.Add(field) if IsVisitableField(field)
 		return array(Field, fields)
 		
 	def IsExpression(node as ClassDefinition):
@@ -210,6 +213,7 @@ model = Model(parse("ast.model.boo"))
 applyModelTemplate(model, "IAstVisitor.cs", true)
 applyModelTemplate(model, "DepthFirstVisitor.cs", "Impl/DepthFirstVisitor.cs", true)
 applyModelTemplate(model, "DepthFirstTransformer.cs", "Impl/DepthFirstTransformer.cs", true)
+applyModelTemplate(model, "CodeSerializer.cs", "Impl/CodeSerializer.cs", true)
 applyModelTemplate(model, "NodeType.cs", true)
 
 enumTemplate = loadTemplate(model, "Enum.cs")

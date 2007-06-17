@@ -33,32 +33,20 @@ using Boo.Lang.Compiler.Ast;
 namespace Boo.Lang.Compiler.Steps
 {
 	public class ExpandAstLiterals : AbstractTransformerCompilerStep
-	{	
+	{
 		public ExpandAstLiterals()
 		{
 		}
 
-        override public void Run()
-        {
-	        	Visit(CompileUnit);
-        }
-
-        override public void OnAstLiteralExpression(AstLiteralExpression node)
-        {
-			Type type = node.Node.GetType();
-			CastExpression ce = new CastExpression(CreateFromXmlInvocation(node.Node.LexicalInfo, type, AstUtil.ToXml(node.Node)), CodeBuilder.CreateTypeReference(type));
-			ce.LexicalInfo = node.LexicalInfo;
-
-			ReplaceCurrentNode(ce);
-        }
-
-		private Expression CreateFromXmlInvocation(LexicalInfo li, Type type, string xml)
+		override public void Run()
 		{
-			MethodInvocationExpression e = new MethodInvocationExpression(li);
-			e.Target = AstUtil.CreateReferenceExpression("Boo.Lang.Compiler.Ast.AstUtil.FromXml");
-			e.Arguments.Add(CodeBuilder.CreateTypeofExpression(type));
-			e.Arguments.Add(new StringLiteralExpression(xml));
-			return e;
+			Visit(CompileUnit);
+		}
+
+		override public void OnAstLiteralExpression(AstLiteralExpression node)
+		{
+			CodeSerializer serializer = new CodeSerializer();
+			ReplaceCurrentNode(serializer.Serialize(node));
 		}
 	}
 }

@@ -99,6 +99,7 @@
     <Compile Include="Ast\CastExpression.cs" />
     <Compile Include="Ast\CharLiteralExpression.cs" />
     <Compile Include="Ast\ClassDefinition.cs" />
+    <Compile Include="Ast\CodeSerializer.cs" />
     <Compile Include="Ast\CompileUnit.cs" />
     <Compile Include="Ast\ConditionalExpression.cs" />
     <Compile Include="Ast\Constructor.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Ast\Impl\CastExpressionImpl.cs" />
     <Compile Include="Ast\Impl\CharLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ClassDefinitionImpl.cs" />
+    <Compile Include="Ast\Impl\CodeSerializer.cs" />
     <Compile Include="Ast\Impl\CompileUnitImpl.cs" />
     <Compile Include="Ast\Impl\ConditionalExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ConstructorImpl.cs" />
