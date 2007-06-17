@@ -45,8 +45,12 @@ class Model:
 			return _module.Members
 		
 	def GetConcreteAstNodes():
-		for member as TypeDefinition in _module.Members:
+		for member as TypeDefinition in Members:
 			yield member if IsConcreteAstNode(member)
+			
+	def GetEnums():
+		for member as TypeDefinition in Members:
+			yield member if IsEnum(member)
 	
 	def IsConcreteAstNode(member as TypeMember):
 		return not (IsCollection(member) or IsEnum(member) or IsAbstract(member))

@@ -1383,7 +1383,7 @@ stmt_modifier returns [StatementModifier m]
 		m = null;
 		Expression e = null;
 		IToken t = null;
-		StatementModifierType type = StatementModifierType.Uninitialized;
+		StatementModifierType type = StatementModifierType.None;
 	}:
 	(
 		i:IF { t = i; type = StatementModifierType.If; } |

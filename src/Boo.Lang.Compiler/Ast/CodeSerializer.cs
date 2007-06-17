@@ -26,6 +26,16 @@ namespace Boo.Lang.Compiler.Ast
 			return AstUtil.CreateReferenceExpression(qname);
 		}
 
+		public bool ShouldSerialize<T>(NodeCollection<T> c) where T: Node
+		{
+			return c.Count > 0;
+		}
+
+		public bool ShouldSerialize(object value)
+		{
+			return value != null;
+		}
+
 		public Expression Serialize(string value)
 		{
 			return new StringLiteralExpression(value);
@@ -51,36 +61,6 @@ namespace Boo.Lang.Compiler.Ast
 			return new TimeSpanLiteralExpression(value);
 		}
 
-		public Expression Serialize(StatementModifierType value)
-		{
-			return SerializeEnum("StatementModifierType", (long)value);
-		}
-
-		public Expression Serialize(ParameterModifiers value)
-		{
-			return SerializeEnum("ParameterModifiers", (long)value);
-		}
-
-		public Expression Serialize(BinaryOperatorType value)
-		{
-			return SerializeEnum("BinaryOperatorType", (long)value);
-		}
-
-		public Expression Serialize(UnaryOperatorType value)
-		{
-			return SerializeEnum("UnaryOperatorType", (long)value);
-		}
-
-		public Expression Serialize(TypeMemberModifiers value)
-		{
-			return SerializeEnum("TypeMemberModifiers", (long) value);
-		}
-
-		public Expression Serialize(MethodImplementationFlags value)
-		{
-			return SerializeEnum("MethodImplementationFlags", (long) value);
-		}
-
 		private Expression SerializeEnum(string enumType, long value)
 		{	
 			return new CastExpression(
@@ -96,6 +76,11 @@ namespace Boo.Lang.Compiler.Ast
 				mie.Arguments.Add(Serialize(item));
 			}
 			return mie;
+		}
+
+		public override void OnOmittedExpression(OmittedExpression node)
+		{
+			Push(CreateReference("Boo.Lang.Compiler.Ast.OmittedExpression.Default"));
 		}
 
 		private void Push(Expression node)

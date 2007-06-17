@@ -199,7 +199,7 @@ class AttributeCollection:
 	pass
 
 enum StatementModifierType:
-	Uninitialized
+	None
 	If
 	Unless
 	While
