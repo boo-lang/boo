@@ -20,7 +20,7 @@ end
 
 for item in model.GetConcreteAstNodes():
 	continue if item.Attributes.Contains("ignore")
-	continue if item.Name.StartsWith("InterpolatedAst")
+	continue if item.Name.StartsWith("Splice")
 	
 	fields = model.GetAllFields(item)
 	itemType = "Boo.Lang.Compiler.Ast.${item.Name}"

@@ -64,7 +64,7 @@ Example:
 		template.ReplaceNodes(SimpleTypeReference("T"), _itemType)
 		classDef.Merge(template)
 		
-	static final CollectionTemplate = ast:
+	static final CollectionTemplate = [|
 		[EnumeratorItemType(typeof(T))]
 		[System.Reflection.DefaultMember("Item")]
 		class Collection(Boo.Lang.Useful.Collections.AbstractCollection):
@@ -78,6 +78,7 @@ Example:
 			Item(index as int) as T:
 				get:
 					return self.InnerList[index]
+	|]
 						
 	def ExtendsObject(classDef as ClassDefinition):
 		return IsObject(cast(IType, TypeSystemServices.GetEntity(classDef)).BaseType)

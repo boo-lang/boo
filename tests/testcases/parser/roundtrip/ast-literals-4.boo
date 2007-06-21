@@ -1,12 +1,14 @@
 """
-a = ast:
+a = [|
 	return 3
+|]
 
-d = ast:
+d = [|
 	print 'Hello, world'
+|]
 
-e = ast { print('Hello, world') }
+e = [| print('Hello, world') |]
 """
-a = ast { return 3 }
-d = ast { print "Hello, world" }
-e = ast { print("Hello, world") }
+a = [| return 3 |]
+d = [| print "Hello, world" |]
+e = [| print("Hello, world") |]

@@ -56,7 +56,6 @@ tokens
 	ABSTRACT="abstract";
 	AND="and";
 	AS="as";
-	AST="ast";
 	BREAK="break";
 	CONTINUE="continue";
 	CALLABLE="callable";
@@ -136,7 +135,7 @@ tokens
 
 	protected void AddAttributes(AttributeCollection target)
 	{
-		target.Extend(_attributes);
+		if (target != null) target.Extend(_attributes);
 		_attributes.Clear();
 	}
 
@@ -881,8 +880,7 @@ declaration_initializer returns [Expression e]
 }:
 	(slicing_expression (DO|DEF))=>(e=slicing_expression method_invocation_block[e]) |
 	(e=array_or_expression eos) |
-	(e=callable_expression) |
-	(e=ast_literal)
+	(e=callable_expression)
 ;
 
 simple_initializer returns [Expression e]
@@ -902,7 +900,7 @@ property_accessor[Property p]
 	attributes
 	modifiers
 	(
-		{ null == p.Getter }?
+		{ null != p && null == p.Getter }?
 		(
 			gt:GET
 			{
@@ -911,7 +909,7 @@ property_accessor[Property p]
 			}
 		)
 		|
-		{ null == p.Setter }?
+		{ null != p && null == p.Setter }?
 		(
 			st:SET
 			{
@@ -1217,7 +1215,7 @@ end[Node node] :
 protected
 compound_stmt[Block b]
 {
-	StatementCollection statements = b.Statements;
+	StatementCollection statements = b != null ? b.Statements : null;
 	IToken lastEOL = null;
 }:
 		(
@@ -1634,9 +1632,6 @@ return_stmt returns [ReturnStatement s]
 			(
 				e=callable_expression
 			) |
-			(AST)=>(
-				e=ast_literal
-			) |
 			(
 				(modifier=stmt_modifier)?
 				eos
@@ -1985,16 +1980,14 @@ ast_literal_expression returns [AstLiteralExpression e]
 {
 	e = null;
 }:
-	t:AST { e = new AstLiteralExpression(ToLexicalInfo(t)); }
-	ast_literal_closure[e]
-;
-	
-ast_literal returns [AstLiteralExpression e]
-{
-	e = null;
-}:
-	t:AST { e = new AstLiteralExpression(ToLexicalInfo(t)); }
-	(ast_literal_block[e] | ast_literal_closure[e] eos)
+	begin:QQ_BEGIN
+	{ e = new AstLiteralExpression(ToLexicalInfo(begin)); }
+	(
+		(INDENT ast_literal_block[e] DEDENT (eos)?)
+		| ast_literal_closure[e]
+	)
+	end:QQ_END
+	{ e.EndSourceLocation = ToSourceLocation(end); }
 ;
 
 type_definition_member_prediction:
@@ -2010,39 +2003,32 @@ ast_literal_block[AstLiteralExpression e]
 	Block block = new Block();
 	StatementCollection statements = block.Statements;
 	Node node = null;
-}:
-	begin 
-	(
-		(type_definition_member_prediction)=>(type_definition_member[collection] { e.Node = collection[0]; }) |
-		((stmt[statements])+ { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
-	)
-	end[e]
+}: 
+	(type_definition_member_prediction)=>(type_definition_member[collection] { e.Node = collection[0]; })
+	| ((stmt[statements])+ { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
 ;
 
 ast_literal_closure[AstLiteralExpression e]
 {
-	Block block = new Block();
+	Block block = null;
 	Node node = null;
 }:
-	LBRACE
-	(
-		(expression RBRACE)=>node=expression { e.Node = node; } |
+	(expression QQ_END)=>node=expression { e.Node = node; }
+	| (
+		{ block = new Block(); }
+		internal_closure_stmt[block]
 		(
-			internal_closure_stmt[block]
-			(
-				eos
-				(internal_closure_stmt[block])?
-			)*
-			{ 
-				e.Node = block;
-				if (block.Statements.Count == 1)
-				{
-					e.Node = block.Statements[0];
-				}
+			eos
+			(internal_closure_stmt[block])?
+		)*
+		{ 
+			e.Node = block;
+			if (block.Statements.Count == 1)
+			{
+				e.Node = block.Statements[0];
 			}
-		)
+		}
 	)
-	RBRACE
 ;
 
 
@@ -2098,8 +2084,7 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 							(modifier=stmt_modifier eos) |
 							eos
 						)					
-					) |
-					rhs=ast_literal
+					)
 				)
 			)
 			{
@@ -2126,11 +2111,7 @@ assignment_or_method_invocation returns [Statement stmt]
 	lhs=slicing_expression
 	(
 		op:ASSIGN { token = op; binaryOperator = ParseAssignOperator(op.getText()); }
-		(
-			rhs=array_or_expression
-			|
-			rhs=ast_literal
-		)
+		rhs=array_or_expression
 	)
 	{
 		stmt = new ExpressionStatement(
@@ -2421,19 +2402,18 @@ atom returns [Expression e]
 		e=paren_expression |
 		e=cast_expression |
 		e=typeof_expression |
-		e=interpolated_ast_expression
+		e=splice_expression
 	)
 ;
 
 protected
-interpolated_ast_expression returns [Expression e]
+splice_expression returns [Expression e]
 {
 	e = null;
 }:
-	begin:INTERPOLATION_BEGIN e=expression end:RBRACE
+	begin:SPLICE_BEGIN e=atom
 	{
-		e = new InterpolatedAstExpression(ToLexicalInfo(begin), e);
-		e.EndSourceLocation = ToSourceLocation(end);
+		e = new SpliceExpression(ToLexicalInfo(begin), e);
 	}
 ;
 	
@@ -3149,10 +3129,14 @@ LBRACK : '[' { EnterSkipWhitespaceRegion(); }
 RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
 
 LBRACE : '{' { EnterSkipWhitespaceRegion(); };
-
-INTERPOLATION_BEGIN : "${" { EnterSkipWhitespaceRegion(); };
 	
 RBRACE : '}' { LeaveSkipWhitespaceRegion(); };
+
+SPLICE_BEGIN : "$";
+
+QQ_BEGIN: "[|"; 
+
+QQ_END: "|]";
 
 INCREMENT: "++";
 
@@ -3419,7 +3403,7 @@ protected
 REVERSE_DIGIT_GROUP : (DIGIT DIGIT DIGIT ({BooLexer.IsDigit(LA(2))}? '_'!)? | DIGIT)+;
 
 protected
-ID_PREFIX : '$' | '@' | '?';
+ID_PREFIX : '@' | '?';
 
 protected
 ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' | {System.Char.IsLetter(LA(1))}? '\u0080'..'\uFFFE');

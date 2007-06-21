@@ -1,54 +1,68 @@
 """
-literal = ast:
+literal = [|
 	class Foo:
 
 		def bar():
 			print 'Hello'
+|]
 
-literal = ast:
+literal = [|
 	def main():
 		print('Hello, world!')
+|]
 
-literal = ast:
+literal = [|
 	private foo as int
+|]
 
-literal = ast:
+literal = [|
 	private foo = 0
+|]
 
-literal = ast:
+literal = [|
 	private foo as object = object()
+|]
 
-literal = ast:
+literal = [|
 	event Foo as Bar
+|]
 
-litera = ast:
+litera = [|
 	[once]
 	def bar():
 		return foo()
-
+|]
 """
-literal = ast:
+literal = [|
 	class Foo:
+
 		def bar():
 			print 'Hello'
-			
-literal = ast:
+|]
+
+literal = [|
 	def main():
 		print('Hello, world!')
-		
-literal = ast:
+|]
+
+literal = [|
 	private foo as int
-	
-literal = ast:
+|]
+
+literal = [|
 	private foo = 0
-	
-literal = ast:
+|]
+
+literal = [|
 	private foo as object = object()
-	
-literal = ast:
+|]
+
+literal = [|
 	event Foo as Bar
-	
-litera = ast:
+|]
+
+litera = [|
 	[once]
 	def bar():
 		return foo()
+|]

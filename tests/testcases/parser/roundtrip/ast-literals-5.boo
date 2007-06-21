@@ -1,14 +1,18 @@
 """
-a = ast:
+a = [|
 	return 42
+|]
 
-b = ast:
+b = [|
 	while not foo:
 		print 'bar'
+|]
 """
-a = ast:
+a = [|
 	return 42
+|]
 
-b = ast:
+b = [|
 	while not foo:
 		print 'bar'
+|]

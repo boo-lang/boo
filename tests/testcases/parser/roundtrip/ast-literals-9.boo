@@ -1,15 +1,18 @@
 """
-a = ast:
+a = [|
 	print 'foo'
+|]
 
-b = ast:
+b = [|
 	System.Console.WriteLine('foo')
 	System.Console.WriteLine('bar')
+|]
 """
-a = ast:
+a = [|
 	print 'foo'
+|]
 
-// ast blocks must always parse expressions as statements	
-b = ast:
+b = [|
 	System.Console.WriteLine('foo')
 	System.Console.WriteLine('bar')
+|]

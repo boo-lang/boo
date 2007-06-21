@@ -40,6 +40,8 @@ Generates WSA parser test cases from
 normal parser test cases.
 """
 	for testcase in Directory.GetFiles("testcases/parser/roundtrip", "*.boo"):
+		if not testcase.EndsWith(".boo"): continue
+		
 		fname = Path.GetFileName(testcase)
 		wsaTestCase = Path.Combine("testcases/parser/wsa", fname)
 		if not File.Exists(wsaTestCase):

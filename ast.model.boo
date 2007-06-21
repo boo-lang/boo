@@ -449,7 +449,7 @@ class BoolLiteralExpression(LiteralExpression):
 class RELiteralExpression(LiteralExpression):
 	Value as string
 	
-class InterpolatedAstExpression(Expression):
+class SpliceExpression(Expression):
 	Expression as Expression
 
 class ExpressionInterpolationExpression(Expression):

@@ -1,24 +1,23 @@
 """
 def foo():
-	return ast:
+	return [|
 		return 3
+	|]
 
 
 def bar():
-	return ast:
+	return [|
 		print 'Hello, world'
+	|]
 """
 def foo():
-	return ast:
+	return [|
 		return 3
-	end
-
+	|]
 end
 
 def bar():
-	return ast:
+	return [|
 		print 'Hello, world'
-	end
-
+	|]
 end
-

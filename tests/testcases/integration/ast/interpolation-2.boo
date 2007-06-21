@@ -2,10 +2,10 @@
 def foo():
 	print('Hello, world')
 """
-invocation = [| print("Hello, world") |]
 literal = [|
 	def foo():
-		$invocation
+		// splice(qq(x)) => x
+		$([| print("Hello, world") |])
 |]
 		
 print literal.ToCodeString()

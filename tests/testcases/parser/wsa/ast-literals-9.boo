@@ -1,17 +1,18 @@
 """
-a = ast:
+a = [|
 	print 'foo'
+|]
 
-b = ast:
+b = [|
 	System.Console.WriteLine('foo')
 	System.Console.WriteLine('bar')
+|]
 """
-a = ast:
+a = [|
 	print 'foo'
-end
+|]
 
-b = ast:
+b = [|
 	System.Console.WriteLine('foo')
 	System.Console.WriteLine('bar')
-end
-
+|]

@@ -1,6 +1,6 @@
 """
-literal = ast { print('Hello, world') }
-literal = ast { System.Console.WriteLine("\${message}") }
+literal = [| print('Hello, world') |]
+literal = [| System.Console.WriteLine("\${message}") |]
 """
-literal = ast { print("Hello, world") }
-literal = ast { System.Console.WriteLine("${message}") }
+literal = [| print("Hello, world") |]
+literal = [| System.Console.WriteLine("${message}") |]

@@ -127,8 +127,9 @@ Usage
 	Remarks:
 		The flag is used to check whether the method has been cached.
 	"""
-		template = ast:
-			private field as bool			 	
+		template = [|
+			private field as bool
+		|]
 		_cached = AddField(template, "___${_method.Name}_cached")
 		
 	def CreateMethodLockField():
@@ -138,8 +139,9 @@ Usage
 	Remarks:
 		The field is used to lock on when the operatation is thread safe.
 	"""
-		template = ast:
-			private field as object = object()			
+		template = [|
+			private field as object = object()
+		|]			
 		_methodLock = AddField(template, "___${_method.Name}_lock")
 		
 	def AddField(template as Field, name as string):
@@ -154,7 +156,7 @@ Usage
 		return _method.IsStatic or _method.ParentNode isa Module
 		
 	def PrepareMethodBody():
-		newMethodBodyTemplate = ast:
+		newMethodBodyTemplate = [|
 			if not cached:
 				System.Threading.Monitor.Enter(methodLock)
 				try:
@@ -163,6 +165,7 @@ Usage
 						cached = true
 				ensure:
 					System.Threading.Monitor.Exit(methodLock)
+		|]
 		
 		ReplaceReferences(newMethodBodyTemplate, 'cached', _cached.Name)
 		ReplaceReferences(newMethodBodyTemplate, 'methodLock', _methodLock.Name)

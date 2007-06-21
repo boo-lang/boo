@@ -51,7 +51,6 @@ tokens
 	ABSTRACT="abstract";
 	AND="and";
 	AS="as";
-	AST="ast";
 	BREAK="break";
 	CONTINUE="continue";
 	CALLABLE="callable";
@@ -857,8 +856,7 @@ declaration_initializer returns [Expression e]
 }:
 	(slicing_expression (DO|DEF))=>(e=slicing_expression method_invocation_block[e]) |
 	(e=array_or_expression eos) |
-	(e=callable_expression) |
-	(e=ast_literal)
+	(e=callable_expression)
 ;
 
 protected
@@ -1541,9 +1539,6 @@ return_stmt returns [ReturnStatement s]
 			(
 				e=callable_expression
 			) |
-			(AST)=>(
-				e=ast_literal
-			) |
 			(
 				(modifier=stmt_modifier)?
 				eos
@@ -1893,18 +1888,17 @@ method_invocation_block[Expression mi]
 	
 ast_literal_expression returns [AstLiteralExpression e]
 {
+	Node node = null;
 	e = null;
 }:
-	t:AST { e = new AstLiteralExpression(ToLexicalInfo(t)); }
-	ast_literal_closure[e]
-;
-	
-ast_literal returns [AstLiteralExpression e]
-{
-	e = null;
-}:
-	t:AST { e = new AstLiteralExpression(ToLexicalInfo(t)); }
-	(ast_literal_block[e] | (ast_literal_closure[e] eos))
+	begin:QQ_BEGIN
+	{ e = new AstLiteralExpression(ToLexicalInfo(begin)); }
+	(
+		(expression QQ_END)=>node=expression { e.Node = node; }
+		| ((eos)? ast_literal_block[e])
+	)
+	end:QQ_END
+	{ e.EndSourceLocation = ToSourceLocation(end); }
 ;
 
 type_definition_member_prediction:
@@ -1920,45 +1914,22 @@ ast_literal_block[AstLiteralExpression e]
 	Block block = new Block();
 	StatementCollection statements = block.Statements;
 	Node node = null;
-	//System.Console.WriteLine("ast_literal_block");
-}:
-	begin (eos)?
-	(
-		(type_definition_member_prediction)=>(type_definition_member[collection] { e.Node = collection[0]; })
-		|
-		((stmt[statements])* { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
+}: 
+	(type_definition_member_prediction)=>(
+		type_definition_member[collection]
+		{ e.Node = collection[0]; }
 	)
-	end[e]
+	| (
+		(stmt[statements])+
+		{
+			if (block.Statements.Count > 0)
+			{
+				e.Node = block.Statements.Count > 1 ? block : block.Statements[0];
+			}
+		}
+	)
 ;
 
-ast_literal_closure[AstLiteralExpression e]
-{
-	Node node = null;
-}:
-	LBRACE
-	(
-		(expression)=>node=expression { e.Node = node; } |
-		node=ast_literal_closure_stmt { e.Node = node; }
-	)
-	RBRACE
-;
-
-ast_literal_closure_stmt returns [Statement s]
-{
-	s = null;
-	StatementModifier modifier;
-}:
-	s=return_expression_stmt |
-	(
-		(
-			(declaration COMMA)=>s=unpack |
-			{IsValidMacroArgument(LA(2))}? s=closure_macro_stmt |
-			s=raise_stmt |
-			s=yield_stmt			
-		)
-		(modifier=stmt_modifier { s.Modifier = modifier; })?		
-	)
-;
 
 protected
 assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
@@ -1988,8 +1959,7 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 							(modifier=stmt_modifier eos) |
 							eos
 						)					
-					) |
-					rhs=ast_literal
+					)
 				)
 			)
 			{
@@ -3010,6 +2980,12 @@ RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
 LBRACE : '{' { EnterSkipWhitespaceRegion(); };
 	
 RBRACE : '}' { LeaveSkipWhitespaceRegion(); };
+
+SPLICE_BEGIN : "$(" { EnterSkipWhitespaceRegion(); };
+
+QQ_BEGIN: "[|"; 
+
+QQ_END: "|]";
 
 INCREMENT: "++";
 

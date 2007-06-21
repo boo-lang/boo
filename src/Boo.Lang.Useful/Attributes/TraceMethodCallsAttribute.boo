@@ -50,7 +50,7 @@ class TraceMethodCallsAttribute(AbstractAstAttribute):
 	_traceMethod as ReferenceExpression
 	
 	def constructor():
-		self(ast { System.Console.WriteLine });
+		self([| System.Console.WriteLine |]);
 		
 	def constructor(traceMethod as ReferenceExpression):
 		_traceMethod = traceMethod

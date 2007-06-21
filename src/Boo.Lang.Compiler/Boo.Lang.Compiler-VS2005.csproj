@@ -146,7 +146,6 @@
     <Compile Include="Ast\INodeWithParameters.cs" />
     <Compile Include="Ast\IntegerLiteralExpression.cs" />
     <Compile Include="Ast\InterfaceDefinition.cs" />
-    <Compile Include="Ast\InterpolatedAstExpression.cs" />
     <Compile Include="Ast\LabelStatement.cs" />
     <Compile Include="Ast\LexicalInfo.cs" />
     <Compile Include="Ast\ListLiteralExpression.cs" />
@@ -179,6 +178,7 @@
     <Compile Include="Ast\Slice.cs" />
     <Compile Include="Ast\SliceCollection.cs" />
     <Compile Include="Ast\SlicingExpression.cs" />
+    <Compile Include="Ast\SpliceExpression.cs" />
     <Compile Include="Ast\Statement.cs" />
     <Compile Include="Ast\StatementCollection.cs" />
     <Compile Include="Ast\StatementModifier.cs" />
@@ -262,7 +262,6 @@
     <Compile Include="Ast\Impl\ImportImpl.cs" />
     <Compile Include="Ast\Impl\IntegerLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\InterfaceDefinitionImpl.cs" />
-    <Compile Include="Ast\Impl\InterpolatedAstExpressionImpl.cs" />
     <Compile Include="Ast\Impl\LabelStatementImpl.cs" />
     <Compile Include="Ast\Impl\ListLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\LiteralExpressionImpl.cs" />
@@ -288,6 +287,7 @@
     <Compile Include="Ast\Impl\SliceCollectionImpl.cs" />
     <Compile Include="Ast\Impl\SliceImpl.cs" />
     <Compile Include="Ast\Impl\SlicingExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\SpliceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\StatementCollectionImpl.cs" />
     <Compile Include="Ast\Impl\StatementImpl.cs" />
     <Compile Include="Ast\Impl\StatementModifierImpl.cs" />

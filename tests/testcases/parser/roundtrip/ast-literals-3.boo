@@ -1,8 +1,9 @@
 """
-print(ast { print('Hello, world') })
-print ast { System.Console.WriteLine("\${message}") }
-nodes = [ast { foo }, ast { bar }]
+print([| print('Hello, world') |])
+print [| System.Console.WriteLine("\${message}") |]
+nodes = [[| foo |], [| bar |]]
 """
-print(ast { print("Hello, world") })
-print ast { System.Console.WriteLine("${message}") }
-nodes = [ast { foo }, ast { bar }]
+print([| print("Hello, world") |])
+print [| System.Console.WriteLine("${message}") |]
+nodes = [[| foo |], [| bar |]]
+

@@ -790,22 +790,37 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Write(e.Value);
 		}
 		
-		override public void OnAstLiteralExpression(AstLiteralExpression e)
+		override public void OnSpliceExpression(SpliceExpression e)
+		{
+			WriteOperator("$(");
+			Visit(e.Expression);
+			WriteOperator(")");
+		}
+		
+		void WriteIndentedOperator(string op)
 		{
 			WriteIndented();
-			WriteKeyword("ast");
+			WriteOperator(op);
+		}
+		
+		override public void OnAstLiteralExpression(AstLiteralExpression e)
+		{
+			WriteIndentedOperator("[|");
 			if (e.Node is Expression)
 			{
-				Write(" { ");
+				Write(" ");
 				Visit(e.Node);
-				Write(" }");
+				Write(" ");
+				WriteIndentedOperator("|]");
 			}
 			else
 			{
-				WriteLine(":");
-				BeginBlock();
+				WriteLine();
+				Indent();
 				Visit(e.Node);
-				EndBlock();
+				Dedent();
+				WriteIndentedOperator("|]");
+				WriteLine();
 			}
 		}
 

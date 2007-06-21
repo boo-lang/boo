@@ -32,7 +32,8 @@ One way of implementing assert would be:
 				raise $exception
 		|]
 	
-Where [| |] are the quasi-quotation delimiters.
+Where [| |] are the quasi-quotation delimiters. Quasi-quotation evaluates its body
+as a code tree expression.
 
 $ is generally called the "splice" operator and it means "evaluate me at
 compilation time".
@@ -118,4 +119,44 @@ Now our 'using' implementation could be rewritten as the more palatable:
 =============================================
 END GRAY AREA
 =============================================
+
+=============================================
+BEGIN HAIRY GRAY AREA
+=============================================
+
+Meta extension methods
+======================
+
+
+[extension(IEnumerable)]
+meta def each(e as Expression, b as Block):
+"""
+Automatically defines the 'it' variable for iterators
+
+Example:
+    (1, 2, 3).each:
+		print it
+"""
+	return [|
+		for it in $e:
+			$b
+	|]
+	
+
+
+Meta operators
+========================
+
+meta def =>(x as ReferenceExpression, y as Expression):
+"""
+c# lambda syntax operator.
+	
+	a => b > 2
+"""
+	return [| { $(x.Name) | return $y } |] 
+
+=============================================
+END HAIRY GRAY AREA
+=============================================
+
 

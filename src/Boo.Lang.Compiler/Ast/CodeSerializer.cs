@@ -83,9 +83,12 @@ namespace Boo.Lang.Compiler.Ast
 			Push(CreateReference("Boo.Lang.Compiler.Ast.OmittedExpression.Default"));
 		}
 
-		public override void OnInterpolatedAstExpression(InterpolatedAstExpression node)
+		public override void OnSpliceExpression(SpliceExpression node)
 		{
-			Push(node.Expression);
+			MethodInvocationExpression lift = new MethodInvocationExpression(
+					CreateReference("Boo.Lang.Compiler.Ast.Expression.Lift"));
+			lift.Arguments.Add(node.Expression);
+			Push(lift);
 		}
 
 		private void Push(Expression node)

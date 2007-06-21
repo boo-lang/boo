@@ -86,79 +86,84 @@ class AstTestFixture:
 		assert SimpleTypeReference("T").Matches(SimpleTypeReference("T"))
 		assert not SimpleTypeReference("T").Matches(SimpleTypeReference("T0"))
 		
-		assert ast { typeof(T) }.Matches(ast { typeof(T) })
-		assert not ast { typeof(T) }.Matches(ast { typeof(R) })
+		assert [| typeof(T) |].Matches([| typeof(T) |])
+		assert not [| typeof(T) |].Matches([| typeof(R) |])
 		
-		assert ast { 2 + 2 }.Matches(ast { 2 + 2 })
-		assert not ast { 2 - 2 }.Matches(ast { 2 + 2 })
-		assert not ast { 3 + 2 }.Matches(ast { 2 + 3 })
+		assert [| 2 + 2 |].Matches([| 2 + 2 |])
+		assert not [| 2 - 2 |].Matches([| 2 + 2 |])
+		assert not [| 3 + 2 |].Matches([| 2 + 3 |])
 
-		lhs = ast:
+		lhs = [|
 			public def foo():
 				return 3
-				
-		rhs = ast:
+		|]				
+		rhs = [|
 			public def foo():
 				return 3
+		|]
 		assert lhs.Matches(rhs)
 		
-		rhs = ast:
+		rhs = [|
 			private def foo():
 				return 3
+		|]
 		assert not lhs.Matches(rhs), 'different accessibility'
 		
-		rhs = ast:
+		rhs = [|
 			public def bar():
 				return 3
+		|]
 		assert not lhs.Matches(rhs), 'different name'
 		
-		rhs = ast:
+		rhs = [|
 			public def foo():
 				return '3'
+		|]
 		assert not lhs.Matches(rhs), 'different return value'
 		
-		assert ast { return i if 3 < 2 }.Matches(ast { return i if 3 < 2 })
-		assert not ast { return i if 3 < 2 }.Matches(ast { return i unless 3 < 2 })
-		assert not ast { return i if 3 < 2 }.Matches(ast { return i if 3 > 2 })
+		assert [| return i if 3 < 2 |].Matches([| return i if 3 < 2 |])
+		assert not [| return i if 3 < 2 |].Matches([| return i unless 3 < 2 |])
+		assert not [| return i if 3 < 2 |].Matches([| return i if 3 > 2 |])
 		
 	[Test]
 	def TestReplaceNodes():
-		model = ast:
+		model = [|
 			def foo(i):
 				return i if i < 3
 				return i*3
+		|]
 				
 		node = model.CloneNode()
-		assert 2 == node.ReplaceNodes(ast { 3 }, ast { 42 })
+		assert 2 == node.ReplaceNodes([| 3 |], [| 42 |])
 		
-		expected = ast:
+		expected = [|
 			def foo(i):
 				return i if i < 42
 				return i*42
-				
+		|]	
 		assert expected.Matches(node)
 		
 	[Test]
 	def TestMerge():
-		node = ast:
+		node = [|
 			class AClass(BaseType):
 				def foo():
 					pass
-					
-		mix = ast:
+		|]		
+		mix = [|
 			[SomeAttribute]
 			class Mix(OtherBaseType):
 				def constructor(i as int):
 					pass
-					
+		|]		
 		node.Merge(mix)
 		
-		expected = ast:
+		expected = [|
 			[SomeAttribute]
 			class AClass(BaseType, OtherBaseType):
 				def foo():
 					pass
 				def constructor(i as int):
 					pass
-					
+		|]		
 		assert expected.Matches(node)

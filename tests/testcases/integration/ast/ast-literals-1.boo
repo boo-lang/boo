@@ -2,8 +2,9 @@
 def foo():
 	print('Hello, world')
 """
-literal = ast:
+literal = [|
 	def foo():
 		print("Hello, world")
+|]
 		
 print literal.ToCodeString()
