@@ -4,26 +4,7 @@ Meta Methods
 Content published at
 
 http://blogs.codehaus.org/people/bamboo/archives/001593_boo_meta_methods.html
-
-TODO
-----
-
-Named arguments can also be used with meta methods:
-
-    a = dict(A: "foo", B: "bar")
-	
-Possible implementation:
-
-	[meta]
-	def dict(keywords as (ExpressionPair)):
-		h = [| {} |]
-		for pair in keywords:
-			h.Items.Add([| $(pair.First): $(pair.Second) |])
-		return h
-		
-Keyword arguments are all collected into an array passed always as the
-first argument to the meta method. That way, meta methods can still do
-pattern matching on the number and types of expression arguments.
+http://blogs.codehaus.org/people/bamboo/archives/001594_boo_meta_methods_ii.html
 
 
 Context specific quasi-quotation

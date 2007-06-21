@@ -147,7 +147,6 @@ Usage
 	def AddField(template as Field, name as string):
 		template.LexicalInfo = self.LexicalInfo
 		template.Name = name
-		template.Modifiers = TypeMemberModifiers.Private
 		template.Modifiers |= TypeMemberModifiers.Static if IsStaticMethod()
 		_method.DeclaringType.Members.Add(template)
 		return template
