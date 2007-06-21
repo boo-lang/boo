@@ -73,6 +73,7 @@
     <Compile Include="Runtime\CandidateMethod.cs" />
     <Compile Include="Runtime\MethodDispatcherEmitter.cs" />
     <Compile Include="Runtime\MethodInvoker.cs" />
+    <Compile Include="Runtime\MethodResolver.cs" />
     <Compile Include="Runtime\RuntimeException.cs" />
     <Compile Include="Runtime\RuntimeServices.cs" />
     <Compile Include="Runtime\TextReaderEnumerator.cs" />

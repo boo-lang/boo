@@ -57,25 +57,32 @@ namespace Boo.Lang.Runtime
 			MethodDispatcher dispatcher;
 			if (!_cache.TryGetValue(key, out dispatcher))
 			{
-				CandidateMethod found = ResolveMethod();
+				CandidateMethod found = ResolveMethod(argumentTypes);
 				dispatcher = EmitMethodDispatcher(found, argumentTypes);
 				_cache.Add(key, dispatcher);
 			}
 			return dispatcher(_target, _arguments);
 		}
 
-		private static Type[] NoArguments = new Type[0];
+		private CandidateMethod ResolveMethod(Type[] argumentTypes)
+		{
+			CandidateMethod found = new MethodResolver(argumentTypes).ResolveMethod(GetCandidates());
+			if (found == null) throw new System.MissingMethodException(_type.FullName, _methodName);
+			return found;
+		}
+
+		private IEnumerable<MethodInfo> GetCandidates()
+		{
+			foreach (MethodInfo method in _type.GetMethods(RuntimeServices.DefaultBindingFlags))
+			{
+				if (_methodName != method.Name) continue;
+				yield return method;
+			}
+		}
 
 		private Type[] GetArgumentTypes()
 		{
-			if (_arguments.Length == 0) return NoArguments;
-
-			Type[] types = new Type[_arguments.Length];
-			for (int i = 0; i < types.Length; ++i)
-			{
-				types[i] = GetArgumentType(i);
-			}
-			return types;
+			return MethodResolver.GetArgumentTypes(_arguments);
 		}
 
 		private MethodDispatcher EmitMethodDispatcher(CandidateMethod found, Type[] argumentTypes)
@@ -83,173 +90,13 @@ namespace Boo.Lang.Runtime
 			return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 		}
 
-		private CandidateMethod ResolveMethod()
-		{
-			List applicable = FindApplicableMethods();
-			if (applicable.Count == 1) return ((CandidateMethod)applicable[0]);
-			if (applicable.Count == 0) throw new System.MissingMethodException(_type.FullName, _methodName);
-			return BestMethod(applicable);
-		}
-
-		private CandidateMethod BestMethod(List applicable)
-		{
-			applicable.Sort(new Comparer(BetterCandidate));
-			return ((CandidateMethod)applicable[-1]);
-		}
-
-		private int TotalScore(CandidateMethod c1)
-		{
-			int total = 0;
-			foreach (int score in c1.ArgumentScores)
-			{
-				total += score;
-			}
-			return total;
-		}
-
-		private int BetterCandidate(object lhs, object rhs)
-		{
-			return BetterCandidate((CandidateMethod)lhs, (CandidateMethod)rhs);
-		}
-
-		private int BetterCandidate(CandidateMethod c1, CandidateMethod c2)
-		{
-			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
-			if (result != 0) return result;
-
-			if (c1.VarArgs) return c2.VarArgs ? 0 : -1;
-			return c2.VarArgs ? 1 : 0;
-		}
-
-		private List FindApplicableMethods()
-		{
-			List applicable = new List();
-			foreach (MethodInfo method in _type.GetMethods(RuntimeServices.DefaultBindingFlags))
-			{
-				if (_methodName != method.Name) continue;
-				CandidateMethod candidateMethod = IsApplicableMethod(method);
-				if (null == candidateMethod) continue;
-				applicable.Add(candidateMethod);
-			}
-			return applicable;
-		}
-
-		private CandidateMethod IsApplicableMethod(MethodInfo method)
-		{
-			ParameterInfo[] parameters = method.GetParameters();
-			bool varargs = IsVarArgs(parameters);
-			if (!ValidArgumentCount(parameters, varargs)) return null;
-
-			CandidateMethod candidateMethod = new CandidateMethod(method, _arguments.Length, varargs);
-			if (CalculateCandidateScore(candidateMethod)) return candidateMethod;
-
-			return null;
-		}
-
-		private bool ValidArgumentCount(ParameterInfo[] parameters, bool varargs)
-		{
-			if (varargs)
-			{
-				int minArgumentCount = parameters.Length - 1;
-				return _arguments.Length >= minArgumentCount;
-			}
-			return _arguments.Length == parameters.Length;
-		}
-
-		private bool IsVarArgs(ParameterInfo[] parameters)
-		{
-			if (parameters.Length == 0) return false;
-			return HasParamArrayAttribute(parameters[parameters.Length - 1]);
-		}
-
-		private bool HasParamArrayAttribute(ParameterInfo info)
-		{
-			return info.IsDefined(typeof(ParamArrayAttribute), true);
-		}
-
-		private bool CalculateCandidateScore(CandidateMethod candidateMethod)
-		{
-			ParameterInfo[] parameters = candidateMethod.Parameters;
-			for (int i = 0; i < candidateMethod.MinimumArgumentCount; ++i)
-			{
-				if (parameters[i].IsOut) return false;
-
-				if (!CalculateCandidateArgumentScore(candidateMethod, i, parameters[i].ParameterType))
-				{
-					return false;
-				}
-			}
-
-			if (candidateMethod.VarArgs)
-			{
-				Type varArgItemType = candidateMethod.VarArgsParameterType;
-				for (int i = candidateMethod.MinimumArgumentCount; i < _arguments.Length; ++i)
-				{
-					if (!CalculateCandidateArgumentScore(candidateMethod, i, varArgItemType))
-					{
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-
-		private bool CalculateCandidateArgumentScore(CandidateMethod candidateMethod, int argumentIndex, Type paramType)
-		{
-			int score = CalculateArgumentScore(candidateMethod, argumentIndex, paramType, GetArgumentType(argumentIndex));
-			if (score < 0) return false;
-
-			candidateMethod.ArgumentScores[argumentIndex] = score;
-			return true;
-		}
-
-		private int CalculateArgumentScore(CandidateMethod candidateMethod, int argumentIndex, Type paramType, Type argType)
-		{
-			if (null == argType)
-			{
-				if (paramType.IsValueType) return -1;
-				return CandidateMethod.ExactMatchScore;
-			}
-			else
-			{
-				if (paramType == argType) return CandidateMethod.ExactMatchScore;
-
-				if (paramType.IsAssignableFrom(argType)) return CandidateMethod.UpCastScore;
-
-				if (argType.IsAssignableFrom(paramType)) return CandidateMethod.DowncastScore;
-
-				if (IsNumericPromotion(paramType, argType)) return CandidateMethod.PromotionScore;
-
-				MethodInfo conversion = RuntimeServices.FindImplicitConversionOperator(argType, paramType);
-				if (null != conversion)
-				{
-					candidateMethod.RememberArgumentConversion(argumentIndex, conversion);
-					return CandidateMethod.ImplicitConversionScore;
-				}
-			}
-			return -1;
-		}
-
-		private bool IsNumericPromotion(Type paramType, Type argType)
-		{
-			return RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(paramType))
-				&& RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(argType));
-		}
-
-		private Type GetArgumentType(int i)
-		{
-			object arg = _arguments[i];
-			if (null == arg) return null;
-			return arg.GetType();
-		}
-
 		class MethodDispatcherKey
 		{
 			public static readonly IEqualityComparer<MethodDispatcherKey> EqualityComparer = new _EqualityComparer();
 
-			private Type _type;
-			private string _methodName;
-			private Type[] _arguments;
+			private readonly Type _type;
+			private readonly string _methodName;
+			private readonly Type[] _arguments;
 
 			public MethodDispatcherKey(Type type, string methodName, Type[] arguments)
 			{

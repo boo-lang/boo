@@ -32,7 +32,7 @@ using System.Reflection;
 
 namespace Boo.Lang.Runtime
 {
-	internal class CandidateMethod
+	public class CandidateMethod
 	{
 		public const int ExactMatchScore = 7;
 		public const int UpCastScore = 6;

@@ -30,12 +30,14 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Ast.Visitors;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
+using Module=Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -3890,9 +3892,22 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity targetEntity = node.Target.Entity;
 			if (null == targetEntity) return false;
 			if (!IsOrContainMetaMethod(targetEntity)) return false;
-			
-			ExternalMethod method = (ExternalMethod) targetEntity;
-			Node replacement = (Node)method.MethodInfo.Invoke(null, node.Arguments.ToArray());
+
+			Expression[] arguments = node.Arguments.ToArray();
+			Type[] argumentTypes = MethodResolver.GetArgumentTypes(arguments);
+			MethodResolver resolver = new MethodResolver(argumentTypes);
+			CandidateMethod method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
+			MethodDispatcherEmitter emitter = new MethodDispatcherEmitter(method, argumentTypes);
+
+			// TODO: cache emitted dispatchers
+			Node replacement = (Node)emitter.Emit().Invoke(null, arguments);
+			ReplaceMetaMethodInvocationSite(node, replacement);
+
+			return true;
+		}
+
+		private void ReplaceMetaMethodInvocationSite(MethodInvocationExpression node, Node replacement)
+		{
 			if (replacement is Statement)
 			{
 				if (node.ParentNode.NodeType != NodeType.ExpressionStatement)
@@ -3905,8 +3920,26 @@ namespace Boo.Lang.Compiler.Steps
 				node.ParentNode.Replace(node, replacement);
 			}
 			Visit(replacement);
+		}
 
-			return true;
+		private System.Collections.Generic.IEnumerable<System.Reflection.MethodInfo> EnumerateMetaMethods(IEntity entity)
+		{
+			if (entity.EntityType == EntityType.Method)
+			{
+				yield return GetMethodInfo(entity);
+			}
+			else
+			{
+				foreach (IEntity item in ((Ambiguous)entity).Entities)
+				{
+					yield return GetMethodInfo(item);
+				}
+			}
+		}
+
+		private static MethodInfo GetMethodInfo(IEntity entity)
+		{
+			return (MethodInfo)((ExternalMethod) entity).MethodInfo;
 		}
 
 		private bool IsOrContainMetaMethod(IEntity entity)

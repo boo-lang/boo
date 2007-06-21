@@ -33,14 +33,18 @@ using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	internal delegate object MethodDispatcher(object target, object[] args);
+	public delegate object MethodDispatcher(object target, object[] args);
 
-	internal class MethodDispatcherEmitter
+	public class MethodDispatcherEmitter
 	{
 		private readonly CandidateMethod _found;
 		private readonly Type[] _argumentTypes;
 		private readonly DynamicMethod _method;
 		private readonly ILGenerator _il;
+
+		public MethodDispatcherEmitter(CandidateMethod found, Type[] argumentTypes) : this(found.Method.DeclaringType, found, argumentTypes)
+		{	
+		}
 
 		public MethodDispatcherEmitter(Type owner, CandidateMethod found, Type[] argumentTypes)
 		{
@@ -115,7 +119,7 @@ namespace Boo.Lang.Runtime
 			return OpCodes.Stobj.Value == code.Value;
 		}
 
-		OpCode GetStoreElementOpCode(Type type)
+		static OpCode GetStoreElementOpCode(Type type)
 		{
 			if (type.IsValueType)
 			{
