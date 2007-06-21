@@ -34,12 +34,22 @@ import System
 import System.IO
 
 class ResourceStatus:
+	static def parse(line as string):
+		parts = /\s+/.Split(line.Trim(), 2)
+		return ResourceStatus(code: parts[0], resource: parts[1])
+		
 	public code as string
 	public resource as string
+	
+	override def ToString():
+		return "${code}\t${resource}"
 
 def svn_status(resource as string):
-	for line in lines(shell("svn", "status ${resource}")):
-		yield ResourceStatus(code: line[:7].Trim(), resource: line[7:])
+	return parse_status(shell("svn", "status ${resource}"))
+	
+def parse_status(status as string):
+	for line in lines(status):
+		yield ResourceStatus.parse(line)
 
 def svn_pg(resource as string, propertyName as string):
 	return shell("svn", "pg ${propertyName} ${resource}")
