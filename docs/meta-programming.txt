@@ -1,7 +1,9 @@
 Meta Methods
 ============
 Meta methods are methods that take code trees as input and return code
-trees as output.
+trees as output. In addition they must be marked with the 
+Boo.Lang.Compiler.MetaProgramming.MetaAttribute for the compiler to recognize
+them as so.
 
 The compiler invokes meta methods during the type resolution phase
 and replaces the code tree at the point of invocation with
