@@ -14,7 +14,7 @@ def assert_(e as Expression):
 		if not $e: raise $(e.ToCodeString())
 	|]
 
-code = [|
+typeDef = [|
 	class Test:
 		def Run():
 			print "runtime"
@@ -22,7 +22,7 @@ code = [|
 			assert_ x is not null
 |]
 
-type = compile(code, System.Reflection.Assembly.GetExecutingAssembly())
+type = compile(typeDef, System.Reflection.Assembly.GetExecutingAssembly())
 print "before runtime"
 try:
 	(type() as duck).Run()
