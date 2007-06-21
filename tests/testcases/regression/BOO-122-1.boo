@@ -42,7 +42,7 @@ level4 = """
 class TestStatic(Level3):
         def RunForestRun():
                 MethodFromLevel1()
-                
+
 t = TestStatic()
 t.RunForestRun()
 print("Level 4 cleared.")

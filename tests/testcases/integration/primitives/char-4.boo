@@ -6,7 +6,7 @@ import System
 class CharAttribute(Attribute):
 	public Value as char
 	
-[CharAttribute(Value: char('b'))] 
+[CharAttribute(Value: char('b'))]
 class Attributed:
 	pass
 	

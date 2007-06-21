@@ -4,7 +4,7 @@ struct Point:
 
 struct Rectangle:
     topLeft as Point
-    
+
 class Figure:
 	[property(rect)]
 	_rect as Rectangle

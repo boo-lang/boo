@@ -25,4 +25,4 @@ foo.Foo()
 foo = Bar()
 base = foo
 
-foo.Foo() 
+foo.Foo()

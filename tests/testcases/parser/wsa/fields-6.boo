@@ -9,7 +9,7 @@ class Action:
 class A:
 
 	[property(Go)]
-	action = Action({ print('Hello World') }) 
+	action = Action({ print('Hello World') })
 """
 class Action:
 

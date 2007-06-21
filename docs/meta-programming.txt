@@ -1,133 +1,33 @@
 Meta Methods
 ============
-Meta methods are methods that take code trees as input and return code
-trees as output. In addition they must be marked with the 
-Boo.Lang.Compiler.MetaProgramming.MetaAttribute for the compiler to recognize
-them as so.
 
-The compiler invokes meta methods during the type resolution phase
-and replaces the code tree at the point of invocation with
-the code tree returned by the meta method.
+Content published at
 
-Multiple overloads can be specified in which case the types of the code
-tree arguments will be used for the purpose of overload resolution.
+http://blogs.codehaus.org/people/bamboo/archives/001593_boo_meta_methods.html
 
-An example, assert
-------------------
+TODO
+----
 
-Assert can be invoked with one or two arguments:
+Named arguments can also be used with meta methods:
 
-	assert x is null // use the code as the assertion message
-	assert x is not null, "x shouldn't be null" // custom exception or string
+    a = dict(A: "foo", B: "bar")
 	
-One way of implementing assert would be:
+Possible implementation:
 
-	meta def assert(condition as Expression):
-		return [|
-			if not $condition:
-				raise AssertionFailedException($(condition.ToCodeString()))
-		|]
-	
-	meta def assert(condition as Expression, exception as Expression):
-		return [|
-			if not $condition:
-				raise $exception
-		|]
-	
-Where [| |] are the quasi-quotation delimiters. A quasi-quote evaluates its body
-as a code tree expression.
-
-$ is generally called the "splice" operator and it means "evaluate me at
-compilation time".
-	
-Alternatively, assert could declare a variable parameter list:
-
-	meta def assert(*arguments as (Expression)):
-		condition = arguments[0]
-		if len(arguments) > 1:
-			// assume 2 arguments
-			exception = arguments[1]
-		else:
-			exception = [| AssertionFailedException($(condition.ToCodeString())) |]
-		return [|
-			if not $condition:
-				raise $exception
-		|] 
-	
-An interesting aspect of boo's splicing semantics is exemplified by the
-subexpression:
-
-    [| AssertionFailedException($(condition.ToCodeString())) |]
-	
-The splice application $(condition.ToCodeString()) automatically lifts the
-string value returned by ToCodeString to a proper StringLiteralExpression.
-
-Another example, using
-----------------------
-
-'using' provides for deterministic disposal of resources. The argument
-should implement the IDisposable interface to have its Dispose method called
-at the end of a provided code block.
-
-For instance, the following code:
-
-	using socket=OpenConnection():
-		socket.Send("ping")
+	[meta]
+	def dict(keywords as (ExpressionPair)):
+		h = [| {} |]
+		for pair in keywords:
+			h.Items.Add([| $(pair.First): $(pair.Second) |])
+		return h
 		
-should be expanded to something equivalent to:
+Keyword arguments are all collected into an array passed always as the
+first argument to the meta method. That way, meta methods can still do
+pattern matching on the number and types of expression arguments.
 
-	socket=OpenConnection()
-	try:
-		socket.Send("ping")
-	ensure:
-		if socket isa IDisposable: (socket as IDisposable).Dispose()
-		
-A possible implementation for 'using' follows:
 
-	meta def using(e as Expression, block as BlockExpression):
-		temp = uniqueName()
-		return [|
-			$temp = $e
-			try:
-				$(block.Body)
-			ensure:
-				if $temp isa IDisposable: ($temp as IDisposable).Dispose()
-		|]
-		
-More about quasi-quotation
---------------------------
-
-Due to the reuse of syntactic elements in different context the parser needs
-to follow some conventions in order to infer the meaning of a quasi-quote
-expression.
-
-Take the quasi-quote [| a as string |]. What does it mean? If we were to
-interpret it as an expression it would mean a try cast expression. If we were
-to interpret it as a type member it would mean a field definition.
-
-For the inline form the convention is to try to interpret it as either an
-expression or an expression pair or an import declaration or
-a namespace declaration.
-
-The block form is first probed for a type member definition then for a 
-single statement, then for a block of statements.and then for a module. 
-
-In other words:
-
-    e = [| a as string |] 
-	assert e isa TryCastExpression
-	
-	f = [|
-		a as string
-	|]
-	assert f isa Field
-	
-	m = [|
-		namespace Spam
-		
-		print "Spam! "*3
-	|]
-	assert m isa Module
+Context specific quasi-quotation
+--------------------------------
 	
 It is still possible to specify the exact context of quasi-quotation by using
 special delimiters for:

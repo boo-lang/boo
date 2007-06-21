@@ -1,4 +1,4 @@
-﻿"""
+"""
 BCE0046-1.boo(8,12): BCE0046: 'is' can't be used with a value type ('int')
 BCE0046-1.boo(9,6): BCE0046: 'is' can't be used with a value type ('int')
 BCE0046-1.boo(10,6): BCE0046: 'is not' can't be used with a value type ('int')

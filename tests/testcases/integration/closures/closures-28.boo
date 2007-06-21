@@ -2,7 +2,7 @@ a = 0
 f1 = def ():
 	b = 1
 	a = 5
-	return { return a+b } 
+	return { return a+b }
 	
 f = f1()
 assert f is not null

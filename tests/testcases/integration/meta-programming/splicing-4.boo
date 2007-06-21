@@ -18,5 +18,5 @@ method.Body = [|
 	ensure:
 		print "after"
 |]
-		
+
 print method.ToCodeString()

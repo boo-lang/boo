@@ -23,7 +23,7 @@ class Foo:
         _name as string
 
         def constructor(name as string):
-                _name = name 
+                _name = name
 		
 
 [EnumeratorItemType(Foo)]
@@ -55,5 +55,5 @@ class FooCollection(ICollection):
 
         Item(index as int) as Foo:
                 get:
-                        return _items[index] 
+                        return _items[index]
 

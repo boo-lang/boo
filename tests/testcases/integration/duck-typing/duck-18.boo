@@ -13,7 +13,7 @@ import System
 class Expando(IQuackFu):
 	
 	def QuackSet(name as string, parameters as (object), value):
-		traceMethod("QuackSet", name, parameters, value) 
+		traceMethod("QuackSet", name, parameters, value)
 
 	def QuackGet(name as string, parameters as (object)):
 		traceMethod("QuackGet", name, parameters)

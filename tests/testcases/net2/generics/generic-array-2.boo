@@ -1,5 +1,5 @@
 """
-arr[0] is 
+arr[0] is
 """
 import System.Collections.Generic
 

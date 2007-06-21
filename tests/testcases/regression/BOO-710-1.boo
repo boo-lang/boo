@@ -3,7 +3,7 @@ import System.Reflection
 
 class SimpleAttribute(System.Attribute):
 	pass
-	   
+	
 enum testEnums:
 	[Simple]
 	Thang

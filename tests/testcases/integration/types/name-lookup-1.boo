@@ -11,4 +11,4 @@ class C:
 	def doit():
 		fld()
 
-C().doit() 
+C().doit()

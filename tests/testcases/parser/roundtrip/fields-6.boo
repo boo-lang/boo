@@ -9,7 +9,7 @@ class Action:
 class A:
 
 	[property(Go)]
-	action = Action({ print('Hello World') }) 
+	action = Action({ print('Hello World') })
 """
 class Action:
 	cb
@@ -19,4 +19,4 @@ class Action:
 class A:
 	[property(Go)]
 	action = Action() def():
-		print("Hello World") 
+		print("Hello World")

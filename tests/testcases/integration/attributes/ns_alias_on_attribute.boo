@@ -19,5 +19,5 @@ class Class1:
 
 c = Class1()
 assert "A!" == c.A
-assert "B!" == c.B 
+assert "B!" == c.B
 assert "C!" == c.C

@@ -1,9 +1,9 @@
 import NUnit.Framework
 import System.Reflection
 
-class Foo: 
-	static def constructor(): 
-		pass 
+class Foo:
+	static def constructor():
+		pass
 
 constructors = typeof(Foo).GetConstructors(BindingFlags.Public|BindingFlags.Instance)
 Assert.AreEqual(1, len(constructors), "Instance constructor expected.")

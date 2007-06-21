@@ -5,7 +5,7 @@ class Person:
 
 	def constructor(id as string, name as string):
 		_id = id
-		_name = name 
+		_name = name
 
 	ID as string:
 		get:

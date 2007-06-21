@@ -16,4 +16,4 @@ compiler.Parameters.Input.Add(StringInput("test", code))
 compiler.Parameters.Pipeline = Compile()
 
 result = compiler.Run()
-Assert.Fail(result.Errors.ToString(true)) if len(result.Errors) 
+Assert.Fail(result.Errors.ToString(true)) if len(result.Errors)

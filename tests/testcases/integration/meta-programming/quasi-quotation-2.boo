@@ -14,5 +14,5 @@ literal = [|
 		def run(message as string):
 			print message
 |]
-		
+
 print literal.ToCodeString()

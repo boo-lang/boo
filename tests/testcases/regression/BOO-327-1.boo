@@ -21,4 +21,4 @@ a,b,c = Test.Arr(3, [1, 2, 3, 4, 5, 6])
 print a+1, b+1, c+1   # will break if a etc aren't numbers!
 d,e,f = Arr(3, [1, 2, 3, 4, 5, 6])
 print d+1, e+1, f+1
- 
+

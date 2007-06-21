@@ -14,6 +14,6 @@ print(- 1.0)
 print(-0xAA)
 
 //x = 2147483648 //error, value one too big for an int:
-xlong = 9223372036854775807L //ok, max value allowed for long 
+xlong = 9223372036854775807L //ok, max value allowed for long
 print (xlong)
 

@@ -9,5 +9,5 @@ def assert(condition as Expression):
 		if not $condition:
 			raise AssertionFailedException($(condition.ToCodeString()))
 	|]
-	
-print assert([| x == y |]).ToCodeString() 
+
+print assert([| x == y |]).ToCodeString()

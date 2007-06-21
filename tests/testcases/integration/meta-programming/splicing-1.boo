@@ -7,5 +7,5 @@ literal = [|
 	def foo():
 		$invocation
 |]
-		
+
 print literal.ToCodeString()

@@ -4,10 +4,10 @@ struct Point:
 
 struct Rectangle:
     topLeft as Point
-    
+
 class Figure:
     public rect as Rectangle
-    
+
 f = Figure()
 f.rect.topLeft.x = 10
 

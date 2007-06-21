@@ -3892,8 +3892,8 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity targetEntity = node.Target.Entity;
 			if (null == targetEntity) return false;
 			if (!IsOrContainMetaMethod(targetEntity)) return false;
-
-			Expression[] arguments = node.Arguments.ToArray();
+			
+			object[] arguments = GetMetaMethodInvocationArguments(node);
 			Type[] argumentTypes = MethodResolver.GetArgumentTypes(arguments);
 			MethodResolver resolver = new MethodResolver(argumentTypes);
 			CandidateMethod method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
@@ -3905,6 +3905,16 @@ namespace Boo.Lang.Compiler.Steps
 			ReplaceMetaMethodInvocationSite(node, replacement);
 
 			return true;
+		}
+
+		private static object[] GetMetaMethodInvocationArguments(MethodInvocationExpression node)
+		{
+			if (node.NamedArguments.Count == 0) return node.Arguments.ToArray();
+
+			List arguments = new List();
+			arguments.Add(node.NamedArguments.ToArray());
+			arguments.Extend(node.Arguments);
+			return arguments.ToArray();
 		}
 
 		private void ReplaceMetaMethodInvocationSite(MethodInvocationExpression node, Node replacement)

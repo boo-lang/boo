@@ -1,4 +1,4 @@
-﻿import System
+import System
 
 callable Function(item) as object
 

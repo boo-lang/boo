@@ -4,5 +4,5 @@ def foo():
 	pass
 	
 f = foo
-Assert.IsTrue(f isa ICallable, 
+Assert.IsTrue(f isa ICallable,
 			"anonymous callable type implements ICallable")

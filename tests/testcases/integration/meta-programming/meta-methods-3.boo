@@ -9,7 +9,7 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.MetaProgramming
 
 [meta]
-def surround(block as BlockExpression):	
+def surround(block as BlockExpression):
 	print "compile time"
 	return [|
 		print("before")
@@ -24,10 +24,7 @@ typeDef = [|
 				print "during"
 |]
 
-try:
-	type = compile(typeDef, System.Reflection.Assembly.GetExecutingAssembly())
-except x as CompilationErrorsException:
-	print x.Errors.ToString(true)
+type = compile(typeDef, System.Reflection.Assembly.GetExecutingAssembly())
 print "runtime"
 (type() as duck).Run()
 

@@ -4,7 +4,7 @@ BCE0137-2.boo(15,11): BCE0137: Property 'Foo.Baz' is write only.
 class Bar:
 	TheFoo as Foo:
 		get:
-			return Foo() 
+			return Foo()
 			
 class Foo:
 	Baz as string:

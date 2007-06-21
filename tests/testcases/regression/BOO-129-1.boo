@@ -5,4 +5,4 @@ class A:
 	def constructor():
 		super()
 
-assert cast(int, A.snack.yummy) == 0 
+assert cast(int, A.snack.yummy) == 0

@@ -30,6 +30,7 @@ namespace Boo.Lang.Useful.IO
 
 import System.IO
 import System.Collections
+import System.Collections.Generic
 
 callable FileAction(fname as string)
 
@@ -39,8 +40,7 @@ def eachFile([required] top as string, [required] action as FileAction):
 	for subDir in Directory.GetDirectories(top):
 		eachFile(subDir, action)
 		
-[EnumeratorItemType(string)]
-def listFiles([required] top as string) as IEnumerable:
+def listFiles([required] top as string) as IEnumerable[of string]:
 	for fname in Directory.GetFiles(top):
 		yield fname
 	for subDir in Directory.GetDirectories(top):

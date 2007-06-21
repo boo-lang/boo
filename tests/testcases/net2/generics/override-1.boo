@@ -5,7 +5,7 @@
 
 import System.Collections.Generic
 
-public class Person: 
+public class Person:
 	public Name as string
 
 	public def constructor(name as string):

@@ -9,7 +9,7 @@ struct Vector3:
     x as single
     y as single
     z as single
-    
+
 class Test:
 	public transform = Transform()
 	

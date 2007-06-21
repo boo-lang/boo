@@ -6,5 +6,5 @@ literal = [|
 	def foo():
 		print("Hello, world")
 |]
-		
+
 print literal.ToCodeString()

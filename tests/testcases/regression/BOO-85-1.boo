@@ -10,4 +10,4 @@ def PathJoin(files):
 
 files = "foo.bar", "spam.eggs"
 separator = string((Path.PathSeparator,))
-Assert.AreEqual(PathJoin(files), join(files, separator)) 
+Assert.AreEqual(PathJoin(files), join(files, separator))

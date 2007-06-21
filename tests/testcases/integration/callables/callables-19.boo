@@ -49,7 +49,7 @@ def CheckDelegate(name as string, parameters as (ParamInfo), returnType as Type)
 		Assert.AreSame(parameters[i].Type, actualParameters[i].ParameterType)
 
 
-CheckDelegate("MyFirstCallable", 
+CheckDelegate("MyFirstCallable",
 			(ParamInfo("arg0", object), ParamInfo("arg1", object)),
 			void)
 			

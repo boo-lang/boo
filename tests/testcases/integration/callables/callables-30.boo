@@ -1,4 +1,4 @@
-﻿import System
+import System
 
 callable StringFunction(item as string) as string
 

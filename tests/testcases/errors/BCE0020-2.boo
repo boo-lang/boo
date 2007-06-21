@@ -11,5 +11,5 @@ class foo:
 			print types
 
 f = foo()
-f.fu() 
+f.fu()
 

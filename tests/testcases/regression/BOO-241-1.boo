@@ -25,7 +25,7 @@ class StepChild(Base):
 		pass
 	
 class ChildChild(StepChild.ChildBase):
-	pass 
+	pass
 	
 def AssertBaseType(type as System.Type, expected as System.Type):
 	assert type.BaseType is expected

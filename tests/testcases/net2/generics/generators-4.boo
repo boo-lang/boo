@@ -16,5 +16,5 @@ def YieldPersons():
 	yield
 	yield Person(Name: "Charlie")
 
-for p in YieldPersons(): 
+for p in YieldPersons():
 	print p.Name if p

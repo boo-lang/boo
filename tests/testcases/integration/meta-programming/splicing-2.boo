@@ -7,5 +7,5 @@ literal = [|
 		// splice(qq(x)) => x
 		$([| print("Hello, world") |])
 |]
-		
+
 print literal.ToCodeString()

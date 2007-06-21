@@ -1,4 +1,4 @@
-﻿"""
+"""
 BCE0051-2.boo(13,20): BCE0051: Operator '|' cannot be used with a left hand side of type 'BooCompiler.Tests.TestEnum' and a right hand side of type 'int'.
 BCE0051-2.boo(14,9): BCE0051: Operator '|' cannot be used with a left hand side of type 'int' and a right hand side of type 'BooCompiler.Tests.TestEnum'.
 BCE0051-2.boo(15,20): BCE0051: Operator '&' cannot be used with a left hand side of type 'BooCompiler.Tests.TestEnum' and a right hand side of type 'int'.

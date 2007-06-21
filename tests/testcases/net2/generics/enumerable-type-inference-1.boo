@@ -1,4 +1,4 @@
-﻿"""
+"""
 2
 4
 6
@@ -9,5 +9,5 @@ ints = List of int()
 ints.Add(1)
 ints.Add(2)
 ints.Add(3)
-for i in ints: 
-	print i * 2 
+for i in ints:
+	print i * 2

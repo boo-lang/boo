@@ -21,7 +21,7 @@ class Observable:
 
 	
 handler = { old, new | print "${old}, ${new}" }
-Observable.Changed += handler 
+Observable.Changed += handler
 
 Observable.Value = "foo"
 Observable.Value = "bar"

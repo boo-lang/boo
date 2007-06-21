@@ -7,7 +7,7 @@ import System.Xml.Serialization from System.Xml
 
 [XmlRoot("p", Namespace: "Foo.Bar")]
 class Person:
-	pass 
+	pass
 	
 xmlroot as XmlRootAttribute = Attribute.GetCustomAttribute(Person, XmlRootAttribute)
 print(xmlroot.ElementName)

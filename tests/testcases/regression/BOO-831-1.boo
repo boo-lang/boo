@@ -10,7 +10,7 @@ def CallableAsTimeSpan():
 	return DateTime.Now - DateTime.Today
 
 # This creates compiler generated extensions
-# for callable() as TimeSpan, including 
+# for callable() as TimeSpan, including
 # BeginInvoke(c as callable() as TimeSpan)
 _callableAsTimeSpan = CallableAsTimeSpan
 

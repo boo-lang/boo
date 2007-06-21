@@ -19,5 +19,5 @@ class Clickable:
 	def Click():
 		Clicked()
 
-Foo().Bar.Click() 
+Foo().Bar.Click()
 		

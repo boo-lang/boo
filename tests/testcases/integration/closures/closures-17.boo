@@ -13,6 +13,6 @@ def foo(o1, o2):
 o1 = object()
 o2 = object()
 c = foo(o1, o2)
-Assert.AreSame(o2, c()) 
+Assert.AreSame(o2, c())
 
 

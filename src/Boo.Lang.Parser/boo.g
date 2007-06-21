@@ -2011,10 +2011,21 @@ ast_literal_block[QuasiquoteExpression e]
 ast_literal_closure[QuasiquoteExpression e]
 {
 	Block block = null;
-	Node node = null;
+	Expression node = null;
 }:
-	(expression QQ_END)=>node=expression { e.Node = node; }
-	| (
+	(expression (COLON | QQ_END))=>(
+		node=expression { e.Node = node; }
+		(
+			c:COLON node=expression
+			{
+				e.Node = new ExpressionPair(
+								ToLexicalInfo(c),
+								(Expression)e.Node,
+								node);
+			}
+		)?
+	) 
+	|(
 		{ block = new Block(); }
 		internal_closure_stmt[block]
 		(

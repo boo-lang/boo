@@ -1,7 +1,7 @@
-""" 
-0 
-""" 
-def foo(): 
-	return (,) 
+"""
+0
+"""
+def foo():
+	return (,)
 
 print(len(foo()))

@@ -16,6 +16,6 @@ def wait(result as IAsyncResult):
 wait(foo.BeginInvoke("1st", { result as IAsyncResult | print result.AsyncState }, "finished"))
 
 wait(foo.BeginInvoke("2nd", { print "finished again" }))
- 
+
 wait(foo.BeginInvoke("3rd"))
 

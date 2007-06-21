@@ -3,7 +3,7 @@ ASDF
 """
 class Bravo:
 	def Thing():
-		return Alpha.Item['asdf'] 
+		return Alpha.Item['asdf']
 
 class Alpha:
 	static Item(name) as string:

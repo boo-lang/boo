@@ -10,4 +10,4 @@ class test:
 	def foo():
 		return self._model
 
-t = test() 
+t = test()

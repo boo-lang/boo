@@ -29,6 +29,7 @@
 using System;
 using System.Collections;
 using System.Runtime.Serialization;
+using Boo.Lang.Runtime;
 
 namespace Boo.Lang
 {
@@ -79,6 +80,23 @@ namespace Boo.Lang
 		override public object Clone()
 		{
 			return new Hash(this);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (this == obj) return true;
+			if (obj == null) return false;
+			if (GetType() != obj.GetType()) return false;
+
+			Hash other = (Hash) obj;
+			if (Count != other.Count) return false;
+
+			foreach (DictionaryEntry entry in other)
+			{
+				if (!ContainsKey(entry.Key)) return false;
+				if (!RuntimeServices.EqualityOperator(entry.Value, this[entry.Key])) return false;
+			}
+			return true;
 		}
 	}
 }

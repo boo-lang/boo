@@ -4,7 +4,7 @@ callable StringFunction() as string
 
 def foo():
 	return "foo"
-   
+
 a = foo
 Assert.AreEqual("foo", a())
 

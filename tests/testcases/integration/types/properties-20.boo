@@ -7,4 +7,4 @@ class Foo(IFoo):
 	_bar
 
 f as IFoo = Foo(Bar: "value")
-assert "value" == f.Bar 
+assert "value" == f.Bar

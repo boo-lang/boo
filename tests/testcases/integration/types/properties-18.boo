@@ -9,4 +9,4 @@ class Foo(IFoo):
 			
 
 f as IFoo = Foo()
-assert "Bar" == f.Bar 
+assert "Bar" == f.Bar
