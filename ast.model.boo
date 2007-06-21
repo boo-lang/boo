@@ -448,6 +448,9 @@ class BoolLiteralExpression(LiteralExpression):
 
 class RELiteralExpression(LiteralExpression):
 	Value as string
+	
+class InterpolatedAstExpression(Expression):
+	Expression as Expression
 
 class ExpressionInterpolationExpression(Expression):
 	Expressions as ExpressionCollection

@@ -83,6 +83,11 @@ namespace Boo.Lang.Compiler.Ast
 			Push(CreateReference("Boo.Lang.Compiler.Ast.OmittedExpression.Default"));
 		}
 
+		public override void OnInterpolatedAstExpression(InterpolatedAstExpression node)
+		{
+			Push(node.Expression);
+		}
+
 		private void Push(Expression node)
 		{
 			_stack.Push(node);

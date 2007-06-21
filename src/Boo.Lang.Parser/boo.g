@@ -2420,9 +2420,22 @@ atom returns [Expression e]
 		e=reference_expression |
 		e=paren_expression |
 		e=cast_expression |
-		e=typeof_expression
+		e=typeof_expression |
+		e=interpolated_ast_expression
 	)
-	;
+;
+
+protected
+interpolated_ast_expression returns [Expression e]
+{
+	e = null;
+}:
+	begin:INTERPOLATION_BEGIN e=expression end:RBRACE
+	{
+		e = new InterpolatedAstExpression(ToLexicalInfo(begin), e);
+		e.EndSourceLocation = ToSourceLocation(end);
+	}
+;
 	
 protected
 char_literal returns [Expression e]
@@ -3136,6 +3149,8 @@ LBRACK : '[' { EnterSkipWhitespaceRegion(); }
 RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
 
 LBRACE : '{' { EnterSkipWhitespaceRegion(); };
+
+INTERPOLATION_BEGIN : "${" { EnterSkipWhitespaceRegion(); };
 	
 RBRACE : '}' { LeaveSkipWhitespaceRegion(); };
 

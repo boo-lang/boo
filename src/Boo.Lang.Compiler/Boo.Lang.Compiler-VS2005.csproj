@@ -146,6 +146,7 @@
     <Compile Include="Ast\INodeWithParameters.cs" />
     <Compile Include="Ast\IntegerLiteralExpression.cs" />
     <Compile Include="Ast\InterfaceDefinition.cs" />
+    <Compile Include="Ast\InterpolatedAstExpression.cs" />
     <Compile Include="Ast\LabelStatement.cs" />
     <Compile Include="Ast\LexicalInfo.cs" />
     <Compile Include="Ast\ListLiteralExpression.cs" />
@@ -261,6 +262,7 @@
     <Compile Include="Ast\Impl\ImportImpl.cs" />
     <Compile Include="Ast\Impl\IntegerLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\InterfaceDefinitionImpl.cs" />
+    <Compile Include="Ast\Impl\InterpolatedAstExpressionImpl.cs" />
     <Compile Include="Ast\Impl\LabelStatementImpl.cs" />
     <Compile Include="Ast\Impl\ListLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\LiteralExpressionImpl.cs" />
