@@ -105,9 +105,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		public override void OnAstLiteralExpression(Boo.Lang.Compiler.Ast.AstLiteralExpression node)
+		public override void OnQuasiquoteExpression(Boo.Lang.Compiler.Ast.QuasiquoteExpression node)
 		{
-			// ignore ast literals
+			// ignore quasi-quotes
 		}
 
 		override protected void OnError(Node node, Exception error)

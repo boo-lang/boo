@@ -1886,13 +1886,13 @@ method_invocation_block[Expression mi]
 	}
 	;
 	
-ast_literal_expression returns [AstLiteralExpression e]
+ast_literal_expression returns [QuasiquoteExpression e]
 {
 	Node node = null;
 	e = null;
 }:
 	begin:QQ_BEGIN
-	{ e = new AstLiteralExpression(ToLexicalInfo(begin)); }
+	{ e = new QuasiquoteExpression(ToLexicalInfo(begin)); }
 	(
 		(expression QQ_END)=>node=expression { e.Node = node; }
 		| ((eos)? ast_literal_block[e])
@@ -1907,7 +1907,7 @@ type_definition_member_prediction:
 	(CLASS|INTERFACE|STRUCT|DEF|EVENT|(ID (AS|ASSIGN)))
 ;
 
-ast_literal_block[AstLiteralExpression e]
+ast_literal_block[QuasiquoteExpression e]
 {
 	// TODO: either cache or construct these objects on demand
 	TypeMemberCollection collection = new TypeMemberCollection();

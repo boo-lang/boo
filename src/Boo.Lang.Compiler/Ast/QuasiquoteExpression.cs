@@ -30,13 +30,14 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	public partial class AstLiteralExpression
+	public partial class QuasiquoteExpression
 	{
-		public AstLiteralExpression()
+		public QuasiquoteExpression()
 		{
 		}
-		
-		public AstLiteralExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
+
+		public QuasiquoteExpression(LexicalInfo lexicalInfo)
+			: base(lexicalInfo)
 		{
 		}
 	

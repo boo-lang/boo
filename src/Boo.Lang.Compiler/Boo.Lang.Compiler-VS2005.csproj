@@ -84,7 +84,6 @@
     <Compile Include="ICompilerStep.cs" />
     <Compile Include="Ast\ArrayLiteralExpression.cs" />
     <Compile Include="Ast\ArrayTypeReference.cs" />
-    <Compile Include="Ast\AstLiteralExpression.cs" />
     <Compile Include="Ast\AstUtil.cs" />
     <Compile Include="Ast\Attribute.cs" />
     <Compile Include="Ast\AttributeCollection.cs" />
@@ -169,6 +168,7 @@
     <Compile Include="Ast\ParameterDeclarationCollection.cs" />
     <Compile Include="Ast\ParameterModifiers.cs" />
     <Compile Include="Ast\Property.cs" />
+    <Compile Include="Ast\QuasiquoteExpression.cs" />
     <Compile Include="Ast\RaiseStatement.cs" />
     <Compile Include="Ast\ReferenceExpression.cs" />
     <Compile Include="Ast\RELiteralExpression.cs" />
@@ -207,7 +207,6 @@
     <Compile Include="Ast\YieldStatement.cs" />
     <Compile Include="Ast\Impl\ArrayLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ArrayTypeReferenceImpl.cs" />
-    <Compile Include="Ast\Impl\AstLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\AttributeCollectionImpl.cs" />
     <Compile Include="Ast\Impl\AttributeImpl.cs" />
     <Compile Include="Ast\Impl\BinaryExpressionImpl.cs" />
@@ -278,6 +277,7 @@
     <Compile Include="Ast\Impl\ParameterDeclarationCollectionImpl.cs" />
     <Compile Include="Ast\Impl\ParameterDeclarationImpl.cs" />
     <Compile Include="Ast\Impl\PropertyImpl.cs" />
+    <Compile Include="Ast\Impl\QuasiquoteExpressionImpl.cs" />
     <Compile Include="Ast\Impl\RaiseStatementImpl.cs" />
     <Compile Include="Ast\Impl\ReferenceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\RELiteralExpressionImpl.cs" />

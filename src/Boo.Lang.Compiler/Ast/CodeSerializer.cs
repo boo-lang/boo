@@ -7,7 +7,7 @@ namespace Boo.Lang.Compiler.Ast
 	{
 		private Stack<Expression> _stack = new Stack<Expression>();
 
-		public Expression Serialize(AstLiteralExpression node)
+		public Expression Serialize(QuasiquoteExpression node)
 		{
 			Expression e = Serialize(node.Node);
 			if (_stack.Count != 0) throw new InvalidOperationException();

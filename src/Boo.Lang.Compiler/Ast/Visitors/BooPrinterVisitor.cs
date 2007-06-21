@@ -803,7 +803,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteOperator(op);
 		}
 		
-		override public void OnAstLiteralExpression(AstLiteralExpression e)
+		override public void OnQuasiquoteExpression(QuasiquoteExpression e)
 		{
 			WriteIndentedOperator("[|");
 			if (e.Node is Expression)

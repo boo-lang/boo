@@ -414,7 +414,7 @@ class GenericReferenceExpression(Expression):
 abstract class LiteralExpression(Expression):
 	pass
 	
-class AstLiteralExpression(LiteralExpression):
+class QuasiquoteExpression(LiteralExpression):
 	Node as Node
 
 class StringLiteralExpression(LiteralExpression):
