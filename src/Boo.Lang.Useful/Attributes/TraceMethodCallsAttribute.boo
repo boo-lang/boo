@@ -63,7 +63,7 @@ class TraceMethodCallsAttribute(AbstractAstAttribute):
 		[getter(IsGenerator)]
 		_isGenerator = false
 		
-		override def OnCallableBlockExpression(node as CallableBlockExpression):
+		override def OnBlockExpression(node as BlockExpression):
 			pass
 		
 		override def OnYieldStatement(node as YieldStatement):

@@ -95,8 +95,8 @@ namespace Boo.Lang.Compiler.Steps
 				Map();
 			}
 		}
-		
-		override public void OnCallableBlockExpression(CallableBlockExpression node)
+
+		override public void OnBlockExpression(BlockExpression node)
 		{
 			++_closureDepth;
 			Visit(node.Body);

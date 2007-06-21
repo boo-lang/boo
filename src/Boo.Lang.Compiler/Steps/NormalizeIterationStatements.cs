@@ -68,8 +68,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			OnMethod(node);
 		}
-		
-		override public void OnCallableBlockExpression(CallableBlockExpression node)
+
+		override public void OnBlockExpression(BlockExpression node)
 		{
 			// ignore closure's body since it will be visited
 			// through the closure's newly created method

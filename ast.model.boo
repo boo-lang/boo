@@ -145,7 +145,7 @@ class Local(Node):
 class LocalCollection:
 	pass
 	
-class CallableBlockExpression(Expression, INodeWithParameters):
+class BlockExpression(Expression, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
 	[auto]

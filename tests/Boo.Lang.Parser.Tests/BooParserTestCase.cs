@@ -62,7 +62,7 @@ foo = def():
 		{
 			CompileUnit cu = BooParser.ParseString("closures", code);
 			Expression e = ((ExpressionStatement)cu.Modules[0].Globals.Statements[0]).Expression;
-			CallableBlockExpression cbe = (CallableBlockExpression)((BinaryExpression)e).Right;
+			BlockExpression cbe = (BlockExpression)((BinaryExpression)e).Right;
 			SourceLocation esl = cbe.Body.EndSourceLocation;
 			Assert.AreEqual(line, esl.Line);
 			Assert.AreEqual(column, esl.Column);

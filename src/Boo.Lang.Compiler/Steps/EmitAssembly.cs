@@ -597,6 +597,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		override public void OnMacroStatement(MacroStatement node)
+		{
+			NotImplemented(node, "Unexpected macro: " + node.ToCodeString());
+		}
+		
 		override public void OnCallableDefinition(CallableDefinition node)
 		{
 			NotImplemented(node, "Unexpected callable definition!");

@@ -265,8 +265,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			CheckInLoop(node);
 		}
-		
-		override public void OnCallableBlockExpression(CallableBlockExpression node)
+
+		override public void OnBlockExpression(BlockExpression node)
 		{
 			// nothing to do
 		}

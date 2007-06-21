@@ -619,8 +619,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (type.Entity != TypeSystemServices.VoidType) return;
 			Error(CompilerErrorFactory.InvalidDeclarationType(type, type.Entity.ToString()));
 		}
-		
-		override public void OnCallableBlockExpression(CallableBlockExpression node)
+
+		override public void OnBlockExpression(BlockExpression node)
 		{
 			if (WasVisited(node)) return;
 			MarkVisited(node);
@@ -1736,7 +1736,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnExtendedGeneratorExpression(ExtendedGeneratorExpression node)
 		{
-			CallableBlockExpression block = new CallableBlockExpression(node.LexicalInfo);
+			BlockExpression block = new BlockExpression(node.LexicalInfo);
 			
 			Block body = block.Body;
 			Expression e = node.Items[0].Expression;

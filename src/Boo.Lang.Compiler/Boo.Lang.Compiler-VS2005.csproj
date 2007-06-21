@@ -90,9 +90,9 @@
     <Compile Include="Ast\BinaryExpression.cs" />
     <Compile Include="Ast\BinaryOperatorType.cs" />
     <Compile Include="Ast\Block.cs" />
+    <Compile Include="Ast\BlockExpression.cs" />
     <Compile Include="Ast\BoolLiteralExpression.cs" />
     <Compile Include="Ast\BreakStatement.cs" />
-    <Compile Include="Ast\CallableBlockExpression.cs" />
     <Compile Include="Ast\CallableDefinition.cs" />
     <Compile Include="Ast\CallableTypeReference.cs" />
     <Compile Include="Ast\CastExpression.cs" />
@@ -210,10 +210,10 @@
     <Compile Include="Ast\Impl\AttributeCollectionImpl.cs" />
     <Compile Include="Ast\Impl\AttributeImpl.cs" />
     <Compile Include="Ast\Impl\BinaryExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\BlockExpressionImpl.cs" />
     <Compile Include="Ast\Impl\BlockImpl.cs" />
     <Compile Include="Ast\Impl\BoolLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\BreakStatementImpl.cs" />
-    <Compile Include="Ast\Impl\CallableBlockExpressionImpl.cs" />
     <Compile Include="Ast\Impl\CallableDefinitionImpl.cs" />
     <Compile Include="Ast\Impl\CallableTypeReferenceImpl.cs" />
     <Compile Include="Ast\Impl\CastExpressionImpl.cs" />

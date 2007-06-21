@@ -326,8 +326,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			OnMethod(c);
 		}
-		
-		bool IsSimpleClosure(CallableBlockExpression node)
+
+		bool IsSimpleClosure(BlockExpression node)
 		{
 			if (1 == node.Body.Statements.Count)
 			{
@@ -352,8 +352,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 			return false;
 		}
-		
-		override public void OnCallableBlockExpression(CallableBlockExpression node)
+
+		override public void OnBlockExpression(BlockExpression node)
 		{
 			if (IsSimpleClosure(node))
 			{

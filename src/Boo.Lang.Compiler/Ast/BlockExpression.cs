@@ -30,17 +30,17 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	
-	public partial class CallableBlockExpression
+	public partial class BlockExpression
 	{
-		public CallableBlockExpression()
+		public BlockExpression()
 		{
 		}
 		
-		public CallableBlockExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		public BlockExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 
-		public CallableBlockExpression(Block body) : base(body.LexicalInfo)
+		public BlockExpression(Block body) : base(body.LexicalInfo)
 		{
 			_body = body;
 		}

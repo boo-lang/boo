@@ -37,8 +37,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(CompileUnit);
 		}
-		
-		override public void LeaveCallableBlockExpression(CallableBlockExpression node)
+
+		override public void LeaveBlockExpression(BlockExpression node)
 		{
 			InternalMethod closureEntity = (InternalMethod)GetEntity(node);
 						

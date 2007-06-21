@@ -1445,13 +1445,13 @@ protected
 closure_expression returns [Expression e]
 	{
 		e = null;
-		CallableBlockExpression cbe = null;
+		BlockExpression cbe = null;
 		ParameterDeclarationCollection parameters = null;
 		Block body = null;
 	}:
 	anchorBegin:LBRACE
 		{
-			e = cbe = new CallableBlockExpression(ToLexicalInfo(anchorBegin));
+			e = cbe = new BlockExpression(ToLexicalInfo(anchorBegin));
 			cbe.Annotate("inline");
 			parameters = cbe.Parameters;
 			body = cbe.Body;
@@ -1480,7 +1480,7 @@ protected
 callable_expression returns [Expression e]
 	{
 		e = null;
-		CallableBlockExpression cbe = null;
+		BlockExpression cbe = null;
 		TypeReference rt = null;
 		IToken anchor = null;
 	}:
@@ -1489,7 +1489,7 @@ callable_expression returns [Expression e]
 		(defAnchor:DEF { anchor = defAnchor; })
 	)
 	{
-		e = cbe = new CallableBlockExpression(ToLexicalInfo(anchor));
+		e = cbe = new BlockExpression(ToLexicalInfo(anchor));
 	}
 	(
 		LPAREN parameter_declaration_list[cbe.Parameters] RPAREN

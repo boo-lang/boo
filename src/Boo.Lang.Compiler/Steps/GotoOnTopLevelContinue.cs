@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 		}
 
-		public override void OnCallableBlockExpression(CallableBlockExpression node)
+		public override void OnBlockExpression(BlockExpression node)
 		{	
 		}
 

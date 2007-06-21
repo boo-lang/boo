@@ -104,7 +104,7 @@ namespace Boo.Lang.Compiler.Steps
 			invocation.Arguments = node.Arguments;
 			if (node.Block != null && node.Block.Statements.Count > 0)
 			{
-				invocation.Arguments.Add(new CallableBlockExpression(node.Block));
+				invocation.Arguments.Add(new BlockExpression(node.Block));
 			}
 
 			ReplaceCurrentNode(new ExpressionStatement(invocation));
