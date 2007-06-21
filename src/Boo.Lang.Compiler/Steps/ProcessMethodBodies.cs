@@ -3591,11 +3591,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ProcessSwitchInvocation(MethodInvocationExpression node)
+		bool ProcessSwitchInvocation(MethodInvocationExpression node)
 		{
+			if (BuiltinFunction.Switch != node.Target.Entity) return false;
 			BindSwitchLabelReferences(node);
-			if (CheckSwitchArguments(node)) return;
+			if (CheckSwitchArguments(node)) return true;
 			Error(node, CompilerErrorFactory.InvalidSwitch(node.Target));
+			return true;
 		}
 
 		private static void BindSwitchLabelReferences(MethodInvocationExpression node)
@@ -3853,10 +3855,14 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Visit(node.Target);
 			
-			IEntity targetEntity = node.Target.Entity;
-			if (BuiltinFunction.Switch == targetEntity)
+			
+			if (ProcessSwitchInvocation(node))
 			{
-				ProcessSwitchInvocation(node);
+				return;
+			}
+
+			if (ProcessMetaMethodInvocation(node))
+			{
 				return;
 			}
 			
@@ -3868,7 +3874,8 @@ namespace Boo.Lang.Compiler.Steps
 				Error(node);
 				return;
 			}
-			
+
+			IEntity targetEntity = node.Target.Entity;
 			if (null == targetEntity)
 			{
 				ProcessGenericMethodInvocation(node);
@@ -3882,6 +3889,39 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			ProcessMethodInvocationExpression(node, targetEntity);
+		}
+
+		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node)
+		{
+			IEntity targetEntity = node.Target.Entity;
+			if (!IsOrContainMetaMethod(targetEntity)) return false;
+			
+			ExternalMethod method = (ExternalMethod) targetEntity;
+			Node replacement = (Node)method.MethodInfo.Invoke(null, node.Arguments.ToArray());
+			if (replacement is Statement)
+			{
+				if (node.ParentNode.NodeType != NodeType.ExpressionStatement)
+					throw new InvalidOperationException();
+				node.ParentNode.ParentNode.Replace(
+					node.ParentNode, replacement);
+			}
+			else
+			{
+				node.ParentNode.Replace(node, replacement);
+			}
+			Visit(replacement);
+
+			return true;
+		}
+
+		private bool IsOrContainMetaMethod(IEntity entity)
+		{
+			if (null == entity) return false;
+
+			ExternalMethod m = entity as ExternalMethod;
+			if (m != null) return m.IsMeta;
+
+			return false;
 		}
 
 		private void ProcessMethodInvocationExpression(MethodInvocationExpression node, IEntity targetEntity)

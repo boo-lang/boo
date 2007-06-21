@@ -42,20 +42,13 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public Module(Block globals)
 		{
-			if (null == globals)
-			{
-				throw new ArgumentNullException("globals");
-			}
-			
+			if (null == globals) throw new ArgumentNullException("globals");
 			this.Globals = globals;
 		}
 		
 		override public NamespaceDeclaration EnclosingNamespace
 		{
-			get
-			{
-				return _namespace;
-			}
+			get { return _namespace; }
 		}
 		
 		override public string FullName

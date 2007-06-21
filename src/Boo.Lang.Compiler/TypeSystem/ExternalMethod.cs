@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		ICallableType _type;
 
+		// TODO: replace by bool?
+
 		int _acceptVarArgs = -1;
 
 		int _isDuckTyped = -1;
@@ -48,6 +50,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		int _isExtension = -1;
 		
 		int _isPInvoke = -1;
+
+		private int _isMeta = -1;
 
 		private string _name = null;
 
@@ -57,6 +61,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			_typeSystemServices = manager;
 			_mi = mi;
+		}
+
+		public bool IsMeta
+		{
+			get
+			{
+				if (-1 == _isMeta)
+				{
+					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_mi, typeof(Boo.Lang.Compiler.MetaProgramming.MetaAttribute))
+					          	? 1
+					          	: 0;
+				}
+				return _isMeta == 1;
+			}
 		}
 		
 		public bool IsExtension

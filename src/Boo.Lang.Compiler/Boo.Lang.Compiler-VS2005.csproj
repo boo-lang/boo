@@ -331,6 +331,8 @@
     <Compile Include="Macros\RawArrayIndexingMacro.cs" />
     <Compile Include="Macros\UsingMacro.cs" />
     <Compile Include="Macros\YieldAllMacro.cs" />
+    <Compile Include="MetaProgramming\Compilation.cs" />
+    <Compile Include="MetaProgramming\MetaAttribute.cs" />
     <Compile Include="Pipelines\CheckForErrors.cs" />
     <Compile Include="Pipelines\Compile.cs" />
     <Compile Include="Pipelines\CompileToBoo.cs" />
