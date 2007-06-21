@@ -24,7 +24,10 @@ typeDef = [|
 				print "during"
 |]
 
-type = compile(typeDef, System.Reflection.Assembly.GetExecutingAssembly())
+try:
+	type = compile(typeDef, System.Reflection.Assembly.GetExecutingAssembly())
+except x as CompilationErrorsException:
+	print x.Errors.ToString(true)
 print "runtime"
 (type() as duck).Run()
 

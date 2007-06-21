@@ -44,5 +44,20 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			_body = body;
 		}
+
+		public bool IsSimpleBlock
+		{
+			get { return !HasReturnType && !HasParameters; }
+		}
+
+		public bool HasReturnType
+		{
+			get { return _returnType != null; }
+		}
+
+		public bool HasParameters
+		{
+			get { return _parameters != null && _parameters.Count > 0; }
+		}
 	}
 }

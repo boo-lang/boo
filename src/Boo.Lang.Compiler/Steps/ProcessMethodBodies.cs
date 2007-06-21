@@ -3897,9 +3897,10 @@ namespace Boo.Lang.Compiler.Steps
 			Type[] argumentTypes = MethodResolver.GetArgumentTypes(arguments);
 			MethodResolver resolver = new MethodResolver(argumentTypes);
 			CandidateMethod method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
-			MethodDispatcherEmitter emitter = new MethodDispatcherEmitter(method, argumentTypes);
+			if (null == method) return false;
 
 			// TODO: cache emitted dispatchers
+			MethodDispatcherEmitter emitter = new MethodDispatcherEmitter(method, argumentTypes);
 			Node replacement = (Node)emitter.Emit().Invoke(null, arguments);
 			ReplaceMetaMethodInvocationSite(node, replacement);
 
@@ -3911,9 +3912,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (replacement is Statement)
 			{
 				if (node.ParentNode.NodeType != NodeType.ExpressionStatement)
-					throw new InvalidOperationException();
-				node.ParentNode.ParentNode.Replace(
-					node.ParentNode, replacement);
+					NotImplemented(node, "Cant use an statement where an expression is expected.");
+				node.ParentNode.ParentNode.Replace(node.ParentNode, replacement);
 			}
 			else
 			{

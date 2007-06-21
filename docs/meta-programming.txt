@@ -84,12 +84,12 @@ should be expanded to something equivalent to:
 		
 A possible implementation for 'using' follows:
 
-	meta def using(e as Expression, block as Block):
+	meta def using(e as Expression, block as BlockExpression):
 		temp = uniqueName()
 		return [|
 			$temp = $e
 			try:
-				$block
+				$(block.Body)
 			ensure:
 				if $temp isa IDisposable: ($temp as IDisposable).Dispose()
 		|]
@@ -166,12 +166,12 @@ meta method definition:
 		
 Now our 'using' implementation could be rewritten as the more palatable:
 
-	meta def using(e as Expression, block as Block):
+	meta def using(e as Expression, block as BlockExpression):
 		temp = uniqueName()
 		return code:
 			$temp = $e
 			try:
-				$block
+				$(block.Body)
 			ensure:
 				if $temp isa IDisposable: ($temp as IDisposable).Dispose()
 				
@@ -188,7 +188,7 @@ Meta extension methods
 
 
 [extension(IEnumerable)]
-meta def each(e as Expression, b as Block):
+meta def each(e as Expression, b as BlockExpression):
 """
 Automatically defines the 'it' variable for iterators
 
@@ -198,7 +198,7 @@ Example:
 """
 	return [|
 		for it in $e:
-			$b
+			$(b.Body)
 	|]
 	
 
