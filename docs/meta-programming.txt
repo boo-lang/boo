@@ -106,7 +106,8 @@ interpret it as an expression it would mean a try cast expression. If we were
 to interpret it as a type member it would mean a field definition.
 
 For the inline form the convention is to try to interpret it as either an
-expression or an import declaration or an namespace declaration.
+expression or an expression pair or an import declaration or
+a namespace declaration.
 
 The block form is first probed for a type member definition then for a 
 single statement, then for a block of statements.and then for a module. 
@@ -128,7 +129,7 @@ In other words:
 	|]
 	assert m isa Module
 	
-It is still possible to specify the exact context of a quasi-quotation by using
+It is still possible to specify the exact context of quasi-quotation by using
 special delimiters for:
 
  * Expressions - [e| a as int |] # try cast expression

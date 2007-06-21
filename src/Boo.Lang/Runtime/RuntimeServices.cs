@@ -192,8 +192,8 @@ namespace Boo.Lang.Runtime
 
 		private static object ResolveAndInvokeMethod(object target, Type targetType, string name, object[] args)
 		{
-			MethodResolver resolver = new MethodResolver(target, targetType, name, args);
-			return resolver.InvokeResolvedMethod();
+			MethodInvoker invoker = new MethodInvoker(target, targetType, name, args);
+			return invoker.InvokeResolvedMethod();
 		}
 
 		private static object DoInvoke(object target, string name, object[] args)

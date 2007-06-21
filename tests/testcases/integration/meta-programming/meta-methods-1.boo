@@ -8,10 +8,10 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.MetaProgramming
 
 [meta]
-def assert_(e as Expression):
-	print "compile time: ${e.ToCodeString()}"
+def assert_(condition as Expression):
+	print "compile time:", condition.ToCodeString()
 	return [|
-		if not $e: raise $(e.ToCodeString())
+		if not $condition: raise $(condition.ToCodeString())
 	|]
 
 typeDef = [|

@@ -31,13 +31,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using System.Collections;
 
-	public delegate bool InfoFilter(IEntity tag);
+	public delegate bool EntityPredicate(IEntity entity);
 	
 	public class Ambiguous : IEntity
 	{
 		public static readonly IEntity[] NoEntities = new IEntity[0];
 		
-		IEntity[] _entities;
+		private IEntity[] _entities;
 		
 		public Ambiguous(IList entities) : this(ToArray(entities))
 		{
@@ -45,65 +45,44 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public Ambiguous(IEntity[] entities)
 		{
-			if (null == entities)
-			{
-				throw new ArgumentNullException("entities");
-			}
-			if (0 == entities.Length)
-			{
-				throw new ArgumentException("entities");
-			}
+			if (null == entities) throw new ArgumentNullException("entities");
+			if (0 == entities.Length) throw new ArgumentException("entities");
 			_entities = entities;
 		}
 		
 		public string Name
 		{
-			get
-			{
-				return _entities[0].Name;
-			}
+			get { return _entities[0].Name; }
 		}
 		
 		public string FullName
 		{
-			get
-			{
-				return _entities[0].FullName;
-			}
+			get { return _entities[0].FullName; }
 		}
 		
 		public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Ambiguous;
-			}
+			get { return EntityType.Ambiguous; }
 		}
 		
 		public IEntity[] Entities
 		{
-			get
-			{
-				return _entities;
-			}
+			get { return _entities; }
 		}
 		
-		public List Filter(InfoFilter condition)
+		public List Select(EntityPredicate predicate)
 		{	
 			List found = new List();
-			foreach (IEntity tag in _entities)
+			foreach (IEntity entity in _entities)
 			{
-				if (condition(tag))
-				{
-					found.Add(tag);
-				}
+				if (predicate(entity)) found.Add(entity);
 			}
 			return found;
 		}
 		
 		override public string ToString()
 		{
-			return string.Format("Ambiguous<{0}>", Builtins.join(_entities, ", "));
+			return string.Format("Ambiguous({0})", Builtins.join(_entities, ", "));
 		}
 		
 		private static IEntity[] ToArray(IList entities)
@@ -118,12 +97,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			foreach (IEntity entity in _entities)
 			{
-				if (entityType != entity.EntityType)
-				{
-					return false;
-				}
+				if (entityType != entity.EntityType) return false;
 			}
 			return true;
+		}
+
+		public bool Any(EntityPredicate predicate)
+		{
+			foreach (IEntity entity in _entities)
+			{
+				if (predicate(entity)) return true;
+			}
+			return false;
 		}
 	}
 }

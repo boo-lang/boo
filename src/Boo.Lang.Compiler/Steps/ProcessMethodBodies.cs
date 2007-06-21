@@ -65,9 +65,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod MultiDimensionalArray_TypedConstructor;
 		
-		InfoFilter IsPublicEventFilter;
+		EntityPredicate IsPublicEventPredicate;
 		
-		InfoFilter IsPublicFieldPropertyEventFilter;
+		EntityPredicate IsPublicFieldPropertyEventPredicate;
 
 		protected CallableResolutionService _callableResolution;
 
@@ -75,8 +75,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public ProcessMethodBodies()
 		{
-			IsPublicFieldPropertyEventFilter = new InfoFilter(IsPublicFieldPropertyEvent);
-			IsPublicEventFilter = new InfoFilter(IsPublicEvent);
+			IsPublicFieldPropertyEventPredicate = new EntityPredicate(IsPublicFieldPropertyEvent);
+			IsPublicEventPredicate = new EntityPredicate(IsPublicEvent);
 		}
 
 		override public void Run()
@@ -3503,7 +3503,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (EntityType.Ambiguous == tag.EntityType)
 				{
-					IList found = ((Ambiguous)tag).Filter(IsPublicEventFilter);
+					IList found = ((Ambiguous)tag).Select(IsPublicEventPredicate);
 					if (found.Count != 1)
 					{
 						tag = null;
@@ -3856,15 +3856,9 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target);
 			
 			
-			if (ProcessSwitchInvocation(node))
-			{
-				return;
-			}
+			if (ProcessSwitchInvocation(node)) return;
 
-			if (ProcessMetaMethodInvocation(node))
-			{
-				return;
-			}
+			if (ProcessMetaMethodInvocation(node)) return;
 			
 			Visit(node.Arguments);
 			
@@ -3894,6 +3888,7 @@ namespace Boo.Lang.Compiler.Steps
 		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node)
 		{
 			IEntity targetEntity = node.Target.Entity;
+			if (null == targetEntity) return false;
 			if (!IsOrContainMetaMethod(targetEntity)) return false;
 			
 			ExternalMethod method = (ExternalMethod) targetEntity;
@@ -3916,12 +3911,21 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool IsOrContainMetaMethod(IEntity entity)
 		{
-			if (null == entity) return false;
-
-			ExternalMethod m = entity as ExternalMethod;
-			if (m != null) return m.IsMeta;
-
+			switch (entity.EntityType)
+			{
+				case EntityType.Ambiguous:
+					return ((Ambiguous) entity).Any(IsMetaMethod);
+				case EntityType.Method:
+					return IsMetaMethod(entity);
+			}
 			return false;
+		}
+
+		private static bool IsMetaMethod(IEntity entity)
+		{
+			ExternalMethod m = entity as ExternalMethod;
+			if (m == null) return false;
+			return m.IsMeta;
 		}
 
 		private void ProcessMethodInvocationExpression(MethodInvocationExpression node, IEntity targetEntity)
@@ -4818,7 +4822,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (candidate.EntityType != EntityType.Ambiguous) return null;
 			
-			IList found = ((Ambiguous)candidate).Filter(IsPublicFieldPropertyEventFilter);
+			IList found = ((Ambiguous)candidate).Select(IsPublicFieldPropertyEventPredicate);
 			if (found.Count == 0) return null;
 			if (found.Count == 1) return (IMember)found[0];
 			

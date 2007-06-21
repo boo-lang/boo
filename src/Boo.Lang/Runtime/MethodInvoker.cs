@@ -32,7 +32,7 @@ using System.Collections.Generic;
 
 namespace Boo.Lang.Runtime
 {
-	internal class MethodResolver
+	internal class MethodInvoker
 	{
 		private object _target;
 		private Type _type;
@@ -42,7 +42,7 @@ namespace Boo.Lang.Runtime
 		private static Dictionary<MethodDispatcherKey, MethodDispatcher> _cache =
 			new Dictionary<MethodDispatcherKey, MethodDispatcher>(MethodDispatcherKey.EqualityComparer);
 
-		public MethodResolver(object target, Type type, string methodName, object[] arguments)
+		public MethodInvoker(object target, Type type, string methodName, object[] arguments)
 		{
 			_target = target;
 			_type = type;

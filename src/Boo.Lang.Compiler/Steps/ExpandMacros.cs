@@ -56,25 +56,17 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Block);
 			Visit(node.Arguments);
 
-			IEntity entity = ResolveMacroName(node);
-			if (null == entity)
+			IType entity = ResolveMacroName(node) as IType;
+			if (null != entity)
 			{
-				TreatMacroAsMethodInvocation(node);
+				ProcessMacro(entity, node);
 				return;
 			}
-			
-			if (EntityType.Type != entity.EntityType)
-			{
-				if (EntityType.Method == entity.EntityType)
-				{
-					TreatMacroAsMethodInvocation(node);
-					return;
-				}
-				Errors.Add(CompilerErrorFactory.InvalidMacro(node, node.Name));
-				return;
-			}
-			
-			IType macroType = (IType)entity;
+			TreatMacroAsMethodInvocation(node);
+		}
+
+		private void ProcessMacro(IType macroType, MacroStatement node)
+		{
 			ExternalType type = macroType as ExternalType;
 			if (null == type)
 			{
