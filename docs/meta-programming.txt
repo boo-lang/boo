@@ -1,0 +1,121 @@
+Meta Methods
+============
+Meta methods are methods that take code trees as input and return code
+trees as output.
+
+The compiler invokes meta methods during the type resolution phase
+and replaces the code tree at the point of invocation with
+the code tree returned by the meta method.
+
+Multiple overloads can be specified in which case the types of the code
+tree arguments will be used for overload resolution.
+
+An example, assert
+------------------
+
+Assert can be invoked with one or two arguments:
+
+	assert x is null // use the code as the assertion message
+	assert x is not null, "x shouldn't be null" // custom exception or string
+	
+One way of implementing assert would be:
+
+	meta def assert(condition as Expression):
+		return [|
+			if not $condition:
+				raise AssertionFailedException($(condition.ToCodeString()))
+		|]
+	
+	meta def assert(condition as Expression, exception as Expression):
+		return [|
+			if not $condition:
+				raise $exception
+		|]
+	
+Where [| |] are the quasi-quotation delimiters.
+
+$ is generally called the "splice" operator and it means "evaluate me at
+compilation time".
+	
+Alternatively, assert could declare a variable parameter list:
+
+	meta def assert(*arguments as (Expression)):
+		condition = arguments[0]
+		if len(arguments) > 1:
+			// assume 2 arguments
+			exception = arguments[1]
+		else:
+			exception = [| AssertionFailedException($(condition.ToCodeString())) |]
+		return [|
+			if not $condition:
+				raise $exception
+		|] 
+	
+An interesting aspect of boo's splicing semantics is exemplified by the
+subexpression:
+
+    [| AssertionFailedException($(condition.ToCodeString())) |]
+	
+The splice application $(condition.ToCodeString()) automatically lifts the
+string value returned by ToCodeString to a proper StringLiteralExpression.
+
+Another example, using
+----------------------
+
+'using' provides for deterministic disposal of resources. The argument
+should implement the IDisposable interface to have its Dispose method called
+at the end of a provided code block.
+
+For instance, the following code:
+
+	using socket=OpenConnection():
+		socket.Send("ping")
+		
+should be expanded to something equivalent to:
+
+	socket=OpenConnection()
+	try:
+		socket.Send("ping")
+	ensure:
+		if socket isa IDisposable: (socket as IDisposable).Dispose()
+		
+A possible implementation for 'using' follows:
+
+	meta def using(e as Expression, block as Block):
+		temp = uniqueName()
+		return [|
+			$temp = $e
+			try:
+				$block
+			ensure:
+				if $temp isa IDisposable: ($temp as IDisposable).Dispose()
+		|]
+	
+=============================================
+BEGIN GRAY AREA
+=============================================
+
+It's an arguable point that a more keyword oriented approach to quasi-quotation
+would be more in boo's spirit. This should be achievable with a very simple
+meta method definition:
+
+	meta def code(tree as Node): 
+		// returns a code tree that reconstructs
+		// the original tree
+		return CodeSerializer().Serialize(tree)
+		
+Now our 'using' implementation could be rewritten as the more palatable:
+
+	meta def using(e as Expression, block as Block):
+		temp = uniqueName()
+		return code:
+			$temp = $e
+			try:
+				$block
+			ensure:
+				if $temp isa IDisposable: ($temp as IDisposable).Dispose()
+				
+=============================================
+END GRAY AREA
+=============================================
+
