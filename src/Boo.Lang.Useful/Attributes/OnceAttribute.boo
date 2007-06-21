@@ -118,6 +118,7 @@ Usage
 	Creates the field that stores the return value of the cached method.
 	"""
 		template = self.CodeBuilder.CreateField('field', TypeSystemServices.GetEntity(_method.ReturnType))
+		template.Modifiers = TypeMemberModifiers.Private
 		_returnValue = AddField(template, "___${_method.Name}_returnValue")
 
 	def CreateCachedField():
