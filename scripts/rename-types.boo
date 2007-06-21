@@ -13,11 +13,11 @@ class Program:
 		("System.Object", "object"),
 		("System.String", "string"),
 	)
-	
+
 	def run(path as string):
 		for fname in Directory.GetFiles(path, "*.boo"):
 			processFile(fname)
-			
+
 	def processFile(fname as string):
 		originalContents = contents = File.ReadAllText(fname)
 		for systemType, builtinType in types:
@@ -25,9 +25,9 @@ class Program:
 		if contents != originalContents:
 			print fname
 			File.WriteAllText(fname, contents)
-			
+
 path, = argv
 Program().run(path)
 
 
-	
+
