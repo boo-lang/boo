@@ -47,6 +47,16 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(MacroStatement))]
 	public abstract partial class Statement
 	{		
+		public static Statement Lift(Statement node)
+		{
+			return node;
+		}
+		
+		public static Statement Lift(Expression node)
+		{
+			return new ExpressionStatement(node);
+		}
+		
 		public Statement()
 		{
  		}
@@ -58,6 +68,13 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public Statement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
+		}
+
+		public virtual Block ToBlock()
+		{
+			Block b = new Block(LexicalInfo);
+			b.Add(this);
+			return b;
 		}
 		
 		public void ReplaceBy(Statement other)

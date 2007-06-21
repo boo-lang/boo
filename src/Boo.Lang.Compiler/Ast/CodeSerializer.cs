@@ -21,6 +21,11 @@ namespace Boo.Lang.Compiler.Ast
 			return _stack.Pop();
 		}
 
+		public Expression CreateReference(Node sourceNode, string qname)
+		{
+			return AstUtil.CreateReferenceExpression(sourceNode.LexicalInfo, qname);
+		}
+		
 		public Expression CreateReference(string qname)
 		{
 			return AstUtil.CreateReferenceExpression(qname);
@@ -67,28 +72,80 @@ namespace Boo.Lang.Compiler.Ast
 				Serialize(value),
 				new SimpleTypeReference("Boo.Lang.Compiler.Ast." + enumType));
 		}
-
-		protected Expression SerializeCollection(string typeName, System.Collections.IEnumerable items)
+		
+		protected Expression SerializeCollection(Node sourceNode, string typeName, StatementCollection items)
 		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(CreateReference(typeName + ".FromArray"));
+			MethodInvocationExpression mie = CreateFromArrayInvocation(sourceNode, typeName);
+			foreach (Statement item in items)
+			{
+				mie.Arguments.Add(LiftStatement(Serialize(item)));
+			}
+			return mie;
+		}
+		
+		private MethodInvocationExpression CreateFromArrayInvocation(Node sourceNode, string typeName)
+		{
+			return new MethodInvocationExpression(
+							sourceNode.LexicalInfo,
+							CreateReference(sourceNode, typeName + ".FromArray"));
+		}
+
+		protected Expression SerializeCollection(Node sourceNode, string typeName, System.Collections.IEnumerable items)
+		{
+			MethodInvocationExpression mie = CreateFromArrayInvocation(sourceNode, typeName);
 			foreach (Node item in items)
 			{
 				mie.Arguments.Add(Serialize(item));
 			}
 			return mie;
 		}
+		
+		public override void OnExpressionStatement(ExpressionStatement node)
+		{
+			Visit(node.Expression);
+		}
 
 		public override void OnOmittedExpression(OmittedExpression node)
 		{
-			Push(CreateReference("Boo.Lang.Compiler.Ast.OmittedExpression.Default"));
+			Push(CreateReference(node, "Boo.Lang.Compiler.Ast.OmittedExpression.Default"));
 		}
 
 		public override void OnSpliceExpression(SpliceExpression node)
 		{
-			MethodInvocationExpression lift = new MethodInvocationExpression(
-					CreateReference("Boo.Lang.Compiler.Ast.Expression.Lift"));
-			lift.Arguments.Add(node.Expression);
-			Push(lift);
+			if (IsStatementExpression(node))
+			{
+				Push(LiftStatement(node.Expression));
+				return;
+			}
+
+			Push(LiftExpression(node.Expression));
+		}
+
+		private MethodInvocationExpression LiftStatement(Expression node)
+		{
+			return Lift("Boo.Lang.Compiler.Ast.Statement.Lift", node);
+		}
+
+		private MethodInvocationExpression LiftExpression(Expression node)
+		{
+			return Lift("Boo.Lang.Compiler.Ast.Expression.Lift", node);
+		}
+
+		private MethodInvocationExpression Lift(string methodName, Expression node)
+		{
+			MethodInvocationExpression lift = CreateInvocation(node, methodName);
+			lift.Arguments.Add(node);
+			return lift;
+		}
+
+		private MethodInvocationExpression CreateInvocation(Node sourceNode, string reference)
+		{
+			return new MethodInvocationExpression(sourceNode.LexicalInfo, CreateReference(sourceNode, reference));
+		}
+
+		private static bool IsStatementExpression(SpliceExpression node)
+		{
+			return node.ParentNode.NodeType == NodeType.ExpressionStatement;
 		}
 
 		private void Push(Expression node)

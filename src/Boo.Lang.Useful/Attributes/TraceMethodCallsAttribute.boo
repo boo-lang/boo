@@ -102,12 +102,12 @@ class TraceMethodCallsAttribute(AbstractAstAttribute):
 			if IsGenerator(method):
 				return
 				
-			stmt = TryStatement()
-			stmt.ProtectedBlock = method.Body
-			stmt.EnsureBlock = Block()
-			stmt.EnsureBlock.Add(TraceCall("TRACE: Leaving ${fullName}"))
-			method.Body = Block()
-			method.Body.Add(stmt)
+			method.Body = [|
+				try:
+					$(method.Body)
+				ensure:
+					$(TraceCall("TRACE: Leaving ${fullName}"))
+			|].ToBlock()
 			
 		def IsGenerator(method as Method):
 			visitor = IsGeneratorVisitor()
@@ -120,7 +120,5 @@ class TraceMethodCallsAttribute(AbstractAstAttribute):
 			return true
 			
 		def TraceCall(msg as string):
-			mie = MethodInvocationExpression(Target: _traceMethod.CloneNode())
-			mie.Arguments.Add(StringLiteralExpression(msg))
-			return mie
+			return [| $_traceMethod($msg) |]
 			

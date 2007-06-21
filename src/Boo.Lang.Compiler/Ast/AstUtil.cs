@@ -273,6 +273,13 @@ namespace Boo.Lang.Compiler.Ast
 			return constructor;
 		}
 		
+		public static ReferenceExpression CreateReferenceExpression(LexicalInfo li, string fullname)
+		{
+			ReferenceExpression e = CreateReferenceExpression(fullname);
+			e.LexicalInfo = li;
+			return e;
+		}
+		
 		public static ReferenceExpression CreateReferenceExpression(string fullname)
 		{
 			string[] parts = fullname.Split('.');

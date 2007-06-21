@@ -156,30 +156,21 @@ Usage
 		return _method.IsStatic or _method.ParentNode isa Module
 		
 	def PrepareMethodBody():
-		newMethodBodyTemplate = [|
-			if not cached:
-				System.Threading.Monitor.Enter(methodLock)
+		
+		cached = ReferenceExpression(_cached.Name)
+		methodLock = ReferenceExpression(_methodLock.Name)
+		
+		_method.Body = [|
+			if not $cached:
+				System.Threading.Monitor.Enter($methodLock)
 				try:
-					if not cached:
-						oldMethodBody
-						cached = true
+					if not $cached:
+						$(_method.Body)
+						$cached = true
 				ensure:
-					System.Threading.Monitor.Exit(methodLock)
-		|]
-		
-		ReplaceReferences(newMethodBodyTemplate, 'cached', _cached.Name)
-		ReplaceReferences(newMethodBodyTemplate, 'methodLock', _methodLock.Name)
-		newMethodBodyTemplate.ReplaceNodes(
-			MacroStatement(Name: 'oldMethodBody'),
-			_method.Body)
-			
-		_method.Body = Block()
-		_method.Body.Add(newMethodBodyTemplate)
-		
-	def ReplaceReferences(node as Node, what as string, value as string):
-		node.ReplaceNodes(
-			ReferenceExpression(what),
-			ReferenceExpression(value))
+					System.Threading.Monitor.Exit($methodLock)
+		|].ToBlock()
+	
 	
 	def PostProcessMethod():
 	"""

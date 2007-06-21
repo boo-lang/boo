@@ -53,6 +53,11 @@ namespace Boo.Lang.Compiler.Ast
 				return _statements.Count > 0;
 			}
 		}
+
+		public override Block ToBlock()
+		{
+			return this;
+		}
 		
 		public void Add(Statement stmt)
 		{
