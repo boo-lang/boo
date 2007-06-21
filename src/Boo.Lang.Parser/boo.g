@@ -2042,30 +2042,6 @@ ast_literal_closure[QuasiquoteExpression e]
 	)
 ;
 
-
-ast_literal_closure_stmt[Block block]
-{
-		Statement s = null;
-		StatementModifier modifier = null;
-}:
-	s=return_expression_stmt |
-	(
-		(
-			(declaration COMMA)=>s=unpack |
-			{IsValidMacroArgument(LA(2))}? s=closure_macro_stmt |
-			s=raise_stmt |
-			s=yield_stmt			
-		)
-		(modifier=stmt_modifier { s.Modifier = modifier; })?		
-	)
-	{
-		if (null != s)
-		{
-			block.Add(s);
-		}
-	}
-;
-
 protected
 assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 	{
