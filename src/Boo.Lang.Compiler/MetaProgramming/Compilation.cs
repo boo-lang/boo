@@ -55,10 +55,21 @@ namespace Boo.Lang.Compiler.MetaProgramming
 	{
 		public static Type compile(ClassDefinition klass, params System.Reflection.Assembly[] references)
 		{
+			Assembly generatedAssembly = compile(CreateCompileUnit(klass), references);
+			return generatedAssembly.GetType(klass.Name);
+		}
+
+		public static Assembly compile(Module module, params System.Reflection.Assembly[] references)
+		{
+			return compile(new CompileUnit(module), references);
+		}
+
+		private static Assembly compile(CompileUnit unit, params Assembly[] references)
+		{
 			BooCompiler compiler = CreateLibraryCompiler(references);
-			CompilerContext result = compiler.Run(CreateCompileUnit(klass));
+			CompilerContext result = compiler.Run(unit);
 			if (result.Errors.Count > 0) throw new CompilationErrorsException(result.Errors);
-			return result.GeneratedAssembly.GetType(klass.Name);
+			return result.GeneratedAssembly;
 		}
 
 		private static BooCompiler CreateLibraryCompiler(Assembly[] references)
