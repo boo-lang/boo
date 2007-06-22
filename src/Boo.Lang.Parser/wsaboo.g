@@ -298,22 +298,29 @@ tokens
 
 protected
 start[CompileUnit cu] returns [Module module]
-	{
-		module = new Module();		
-		module.LexicalInfo = new LexicalInfo(getFilename(), 1, 1);
-		
-		cu.Modules.Add(module);
-	}:
+{
+	module = new Module();		
+	module.LexicalInfo = new LexicalInfo(getFilename(), 1, 1);
+	
+	cu.Modules.Add(module);
+}:
+	parse_module[module]
+	(EOF)?
+;
+	
+protected
+parse_module[Module module]
+{
+}:
 	(eos)?
 	docstring[module]
-	(eos)?		 
+	(eos)?
 	(namespace_directive[module])?
 	(import_directive[module])*
 	(type_member[module.Members])*	
 	globals[module]
 	(assembly_attribute[module] eos)*
-	(EOF)?
-	;
+;
 			
 protected docstring[Node node]:
 	(
@@ -854,7 +861,7 @@ declaration_initializer returns [Expression e]
 {
 	e = null;
 }:
-	(slicing_expression (DO|DEF))=>(e=slicing_expression method_invocation_block[e]) |
+	(slicing_expression (COLON|DO|DEF))=>(e=slicing_expression e=method_invocation_block[e]) |
 	(e=array_or_expression eos) |
 	(e=callable_expression)
 ;
@@ -1265,7 +1272,7 @@ stmt [StatementCollection container]
 		s=given_stmt |
 		(atom (NEWLINE)+ DOT)=>(s=expression_stmt eos) |
 		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=macro_stmt |
-		(slicing_expression (ASSIGN|(DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
+		(slicing_expression (ASSIGN|(COLON|DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
 		s=return_stmt |
 		(declaration COMMA)=> s=unpack_stmt |
 		s=declaration_stmt |
@@ -1393,25 +1400,34 @@ closure_expression returns [Expression e]
 	
 protected
 callable_expression returns [Expression e]
-	{
-		e = null;
-		BlockExpression cbe = null;
-		TypeReference rt = null;
-		IToken anchor = null;
-	}:
-	(
-		(doAnchor:DO { anchor = doAnchor; }) |
-		(defAnchor:DEF { anchor = defAnchor; })
+{
+	e = null;
+	Block body = null;
+	BlockExpression cbe = null;
+	TypeReference rt = null;
+	IToken anchor = null;
+}:
+	(COLON)=>(
+		{ body = new Block(); }
+		compound_stmt[body]
+		{ e = new BlockExpression(body.LexicalInfo, body); }
 	)
-	{
-		e = cbe = new BlockExpression(ToLexicalInfo(anchor));
-	}
-	(
-		LPAREN parameter_declaration_list[cbe.Parameters] RPAREN
-		(AS rt=type_reference { cbe.ReturnType = rt; })?
-	)?
-		compound_stmt[cbe.Body]
-	;
+	|(
+		(
+			(doAnchor:DO { anchor = doAnchor; }) |
+			(defAnchor:DEF { anchor = defAnchor; })
+		)
+		{
+			e = cbe = new BlockExpression(ToLexicalInfo(anchor));
+			body = cbe.Body;
+		}
+		(
+			LPAREN parameter_declaration_list[cbe.Parameters] RPAREN
+			(AS rt=type_reference { cbe.ReturnType = rt; })?
+		)?
+			compound_stmt[body]
+	)
+;
 	
 protected
 try_stmt returns [TryStatement s]
@@ -1532,7 +1548,7 @@ return_stmt returns [ReturnStatement s]
 			(
 				e=array_or_expression
 				(
-					(DO)=>method_invocation_block[e] |
+					(COLON|DO)=>e=method_invocation_block[e] |
 					((modifier=stmt_modifier)? eos)
 				)
 			) |
@@ -1875,16 +1891,21 @@ boolean_term returns [Expression e]
 	;
 	
 protected
-method_invocation_block[Expression mi]
-	{
-		Expression block = null;
-	}:
-	{IsMethodInvocationExpression(mi)}?
+method_invocation_block[Expression e] returns [MethodInvocationExpression mi]
+{
+	Expression block = null;
+	mi = null;
+}:
 	block=callable_expression
 	{
-		((MethodInvocationExpression)mi).Arguments.Add(block);
+		mi = e as MethodInvocationExpression;
+		if (null == mi) 
+		{
+			mi = new MethodInvocationExpression(e.LexicalInfo, e);
+		}
+		mi.Arguments.Add(block);
 	}
-	;
+;
 	
 ast_literal_expression returns [QuasiquoteExpression e]
 {
@@ -1943,19 +1964,19 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 	}:
 	lhs=slicing_expression
 	(
-		(DO)=>(
-			method_invocation_block[lhs]
+		(COLON|DO)=>(
+			lhs=method_invocation_block[lhs]
 			{ stmt = new ExpressionStatement(lhs); }
 		) |
 		(
 			(
 			op:ASSIGN { token = op; binaryOperator = ParseAssignOperator(op.getText()); }
 				(
-					(DEF|DO)=>rhs=callable_expression |
+					(COLON|DEF|DO)=>rhs=callable_expression |
 					(
 						rhs=array_or_expression
 						(		
-							(DO)=>method_invocation_block[rhs] |
+							(COLON|DO)=>rhs=method_invocation_block[rhs] |
 							(modifier=stmt_modifier eos) |
 							eos
 						)					

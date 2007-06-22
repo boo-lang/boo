@@ -45,9 +45,12 @@ namespace Boo.Lang.Compiler.Ast
 		public SpliceExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
+		
+		public SpliceExpression(Expression e) : this(e.LexicalInfo, e)
+		{
+		}
 
-		public SpliceExpression(LexicalInfo lexicalInfo, Expression e)
-			: base(lexicalInfo)
+		public SpliceExpression(LexicalInfo lexicalInfo, Expression e) : base(lexicalInfo)
 		{
 			Expression = e;
 		}

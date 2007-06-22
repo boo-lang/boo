@@ -35,6 +35,11 @@ namespace Boo.Lang.Compiler.Ast
 		public BlockExpression()
 		{
 		}
+
+		public BlockExpression(LexicalInfo lexicalInfo, Block body) : base(lexicalInfo)
+		{
+			this.Body = body;
+		}
 		
 		public BlockExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
@@ -42,7 +47,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public BlockExpression(Block body) : base(body.LexicalInfo)
 		{
-			_body = body;
+			this.Body = body;
 		}
 
 		public bool IsSimpleBlock
