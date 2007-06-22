@@ -173,7 +173,8 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		private static bool IsStatementExpression(SpliceExpression node)
-		{
+		{	
+			if (node.ParentNode == null) return false;
 			return node.ParentNode.NodeType == NodeType.ExpressionStatement;
 		}
 
