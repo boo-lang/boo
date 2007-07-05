@@ -97,7 +97,7 @@ namespace Boo.Lang.Compiler.Ast
 			return (Statement)VisitNode(node);
 		}
 
-		public virtual bool Visit<T>(NodeCollection<T> collection) where T : Node
+		public bool Visit<T>(NodeCollection<T> collection) where T : Node
 		{
 			if (null == collection) return false;
 			

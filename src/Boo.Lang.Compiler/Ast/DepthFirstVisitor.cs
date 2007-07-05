@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Ast
 			throw Boo.Lang.Compiler.CompilerErrorFactory.InternalError(node, error);
 		}
 
-		public virtual void Visit(Node[] array, NodeType nodeType)
+		public void Visit(Node[] array, NodeType nodeType)
 		{
 			foreach (Node node in array)
 			{
@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 
-		public virtual bool Visit<T>(NodeCollection<T> collection, NodeType nodeType) where T : Node
+		public bool Visit<T>(NodeCollection<T> collection, NodeType nodeType) where T : Node
 		{
 			if (null != collection)
 			{
@@ -80,7 +80,7 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 
-		public virtual void Visit(Node[] array)
+		public void Visit(Node[] array)
 		{
 			foreach (Node node in array)
 			{
@@ -88,7 +88,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 
-		public virtual bool Visit<T>(NodeCollection<T> collection) where T : Node
+		public bool Visit<T>(NodeCollection<T> collection) where T : Node
 		{
 			if (null != collection)
 			{
