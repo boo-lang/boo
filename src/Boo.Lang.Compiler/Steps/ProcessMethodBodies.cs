@@ -3901,7 +3901,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			// TODO: cache emitted dispatchers
 			MethodDispatcherEmitter emitter = new MethodDispatcherEmitter(method, argumentTypes);
-			Node replacement = (Node)emitter.Emit().Invoke(null, arguments);
+			Node replacement = (Node)emitter.Emit()(null, arguments);
 			ReplaceMetaMethodInvocationSite(node, replacement);
 
 			return true;
