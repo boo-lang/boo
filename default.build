@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.7.8" />
-	<property name="boo.svn.revision" value="2607" />
+	<property name="boo.svn.revision" value="2616" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
 	<property name="boo.assembly.version" value="2.0.0.0" />
 	
@@ -713,13 +713,6 @@
 		<fail unless="${nant.platform.win32}">
 		Use the make-bin-dist or install targets instead on non-win32 platforms.
 		</fail>
-		<fail unless="${framework::sdk-exists('net-1.1')}">
-		.NET 1.1 SDK required to make distro (as well as .NET 2.0).
-		</fail>
-		<fail unless="${framework::sdk-exists('net-2.0')}">
-		.NET 2.0 SDK required to make distro (as well as .NET 1.1).
-		</fail>
-		
 		<delete dir="${distrobuild.dir}" if="${directory::exists(distrobuild.dir)}" />
 		<mkdir dir="${distrobuild.dir}"/>
 		
@@ -734,13 +727,6 @@
 	</target>
 
 	<target name="distro-net-2.0">
-		<fail unless="${'net-2.0' == framework::get-target-framework()}">
-		Run first distro target using -t:net-2.0
-		</fail>
-		<fail unless="${framework::sdk-exists('net-2.0')}">
-		.NET 2.0 SDK required to make distro (as well as .NET 2.0).
-		</fail>
-		
 		<call target="rebuild" />
 		<call target="update-bin" />
 	</target>
