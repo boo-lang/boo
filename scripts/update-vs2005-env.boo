@@ -17,7 +17,9 @@ class XmlDocumentWrapper:
 
 	NamespaceURI:
 		get:
-			return _document.DocumentElement.Attributes["xmlns"].Value
+			xmlns = _document.DocumentElement.Attributes["xmlns"]
+			if xmlns is null: return null
+			return xmlns.Value
 
 	BaseURI:
 		get:
@@ -29,41 +31,66 @@ class XmlDocumentWrapper:
 
 	def Save():
 		_document.Save(AbsolutePath)
-
-class VS2005Project(XmlDocumentWrapper):
+		
+class Project(XmlDocumentWrapper):
 
 	static def Load(fname as string):
 		doc = XmlDocument()
 		doc.Load(fname)
+		if fname.EndsWith(".mdp"):
+			return MDProject(doc)
+		return VS2005Project(doc)
 
-		compileItem = doc.SelectSingleNode("//*[local-name()='ItemGroup']/*[local-name()='Compile']")
-		compileItemGroup = compileItem.ParentNode
-		return VS2005Project(doc, compileItemGroup)
-
-	_compileItemGroup as XmlElement
-
-	def constructor(document as XmlDocument, compileItemGroup as XmlElement):
+	_sourceFiles as XmlElement
+	
+	def constructor(document as XmlDocument, sourceFiles as XmlElement):
 		super(document)
-		_compileItemGroup = compileItemGroup
+		_sourceFiles = sourceFiles
+		
+	def ResetSourceFiles():
+		_sourceFiles.RemoveAll()
 
-	def ResetCompileItemGroup():
-		_compileItemGroup.RemoveAll()
+	def AddSourceFile(item as string):
+		_sourceFiles.AppendChild(CreateSourceElement(item))
 
-	def AddCompileItem(item as string):
+	protected abstract def CreateSourceElement(src as string) as XmlElement:
+		pass
+
+class MDProject(Project):
+	def constructor(document as XmlDocument):
+		super(document, document.SelectSingleNode("/Project/Contents"))
+		
+	override protected def CreateSourceElement(src as string):
+		file = _document.CreateElement("File", NamespaceURI)
+		file.SetAttribute("name", src)
+		file.SetAttribute("buildaction", "Compile")
+		file.SetAttribute("subtype", "Code")
+		return file
+
+class VS2005Project(Project):
+
+	def constructor(document as XmlDocument):
+		super(document, selectCompileItemGroup(document))
+		
+	private def selectCompileItemGroup(document as XmlDocument):
+		compileItem = document.SelectSingleNode("//*[local-name()='ItemGroup']/*[local-name()='Compile']")
+		return compileItem.ParentNode
+
+	override protected def CreateSourceElement(src as string):
 		compile = _document.CreateElement("Compile", NamespaceURI)
-		compile.SetAttribute("Include", item.Replace('/', '\\'))
-		_compileItemGroup.AppendChild(compile)
+		compile.SetAttribute("Include", src.Replace('/', '\\'))
+		return compile
 
 def updateProjectFile(fname as string):
-	project = VS2005Project.Load(fname)
-	project.ResetCompileItemGroup()
+	project = Project.Load(fname)
+	project.ResetSourceFiles()
 
 	baseURI = project.BaseURI
 	for item as string in listFiles(Path.GetDirectoryName(baseURI.AbsolutePath)):
 		if item =~ /\.svn/: continue
 		if not item.EndsWith(".cs"): continue
 		uri = baseURI.MakeRelative(System.Uri(item))
-		project.AddCompileItem(uri)
+		project.AddSourceFile(uri)
 	project.Save()
 
 	print project.AbsolutePath
@@ -96,7 +123,9 @@ fnames = (
 "src/Boo.Lang/Boo.Lang-VS2005.csproj",
 "src/Boo.Lang.Parser/Boo.Lang.Parser-VS2005.csproj",
 "src/Boo.Lang.Compiler/Boo.Lang.Compiler-VS2005.csproj",
-"tests/BooCompiler.Tests/BooCompiler.Tests-VS2005.csproj"
+"tests/BooCompiler.Tests/BooCompiler.Tests-VS2005.csproj",
+
+"src/Boo.Lang.Compiler/Boo.Lang.Compiler.mdp",
 )
 for fname in fnames:
 	updateProjectFile(rebase(fname))
