@@ -151,7 +151,6 @@ namespace Boo.Lang.Compiler.Steps
 			_Activator_CreateInstance = null;
 			_ApplicationException_StringConstructor = null;
 			_TextReaderEnumerator_lines = null;
-			_EnumeratorItemType_Constructor = null;
 		}
 
 		override public void OnModule(Module module)
@@ -5941,20 +5940,6 @@ namespace Boo.Lang.Compiler.Steps
 					_TextReaderEnumerator_lines = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetMethod("lines"));
 				}
 				return _TextReaderEnumerator_lines;
-			}
-		}
-		
-		IConstructor _EnumeratorItemType_Constructor;
-		
-		IConstructor EnumeratorItemType_Constructor
-		{
-			get
-			{
-				if (null == _EnumeratorItemType_Constructor)
-				{
-					_EnumeratorItemType_Constructor = TypeSystemServices.Map(typeof(EnumeratorItemTypeAttribute)).GetConstructors()[0];
-				}
-				return _EnumeratorItemType_Constructor;
 			}
 		}
 

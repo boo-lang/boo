@@ -45,8 +45,6 @@ namespace Boo.Lang
 	{
 		private const int DefaultCapacity = 16;
 
-		static readonly object[] EmptyObjectArray = new object[0];
-
 		protected object[] _items;
 
 		protected int _count;

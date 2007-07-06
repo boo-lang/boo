@@ -313,7 +313,7 @@ namespace Boo.Lang.Compiler
 			}
 			catch (Exception e)
 			{
-				throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.PkgConfigNotFound"));
+				throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.PkgConfigNotFound"), e);
 			}
 			process.WaitForExit();
 			if (process.ExitCode != 0)

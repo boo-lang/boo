@@ -392,7 +392,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// TODO: recursively examine constructed types
 
 			// Neither type is more specific
-			return 0;
+			// return 0;
 		}
 
 		private void FindApplicableCandidates(IEntity[] candidates)
