@@ -41,6 +41,9 @@
     <File name="./Runtime/MethodResolver.cs" subtype="Code" buildaction="Compile" />
     <File name="./GenericGenerator.cs" subtype="Code" buildaction="Compile" />
     <File name="./GenericGeneratorEnumerator.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/CandidateMethod.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/MethodDispatcherEmitter.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/MethodInvoker.cs" subtype="Code" buildaction="Compile" />
   </Contents>
   <References>
     <ProjectReference type="Gac" localcopy="True" refto="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
