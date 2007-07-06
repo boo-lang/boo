@@ -550,15 +550,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			Type baseType = typeof(int);
-			
-			TypeBuilder builder = GetTypeBuilder(node);
-			
-			builder.DefineField("value__", baseType,
-			                    FieldAttributes.Public |
-			                    FieldAttributes.SpecialName |
-			                    FieldAttributes.RTSpecialName);
-			
+			TypeBuilder builder = GetTypeBuilder(node);			
 			foreach (EnumMember member in node.Members)
 			{
 				FieldBuilder field = builder.DefineField(member.Name, builder,
@@ -4300,7 +4292,23 @@ namespace Boo.Lang.Compiler.Steps
 				                                                             GetNestedTypeAttributes(type),
 				                                                             baseType);
 			}
+			
+			if (IsEnumDefinition(type))
+			{
+				// Mono cant construct enum array types unless
+				// the fields is already defined
+				DefineEnumField(typeBuilder);
+			}
 			return typeBuilder;
+		}
+		
+		void DefineEnumField(TypeBuilder builder)
+		{
+			Type baseType = typeof(int);			
+			builder.DefineField("value__", baseType,
+			                    FieldAttributes.Public |
+			                    FieldAttributes.SpecialName |
+			                    FieldAttributes.RTSpecialName);
 		}
 		
 		void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, TypeBuilder typeBuilder)
