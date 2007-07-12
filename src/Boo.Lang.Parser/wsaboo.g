@@ -1081,6 +1081,18 @@ type_reference_list [TypeReferenceCollection container]
 ;
 
 protected
+splice_type_reference returns [SpliceTypeReference tr]
+{
+	tr = null;
+	Expression e = null;
+}:
+	begin:SPLICE_BEGIN e=atom
+	{
+		tr = new SpliceTypeReference(ToLexicalInfo(begin), e);
+	}
+;
+
+protected
 type_reference returns [TypeReference tr]
 	{
 		tr = null;
@@ -1088,6 +1100,8 @@ type_reference returns [TypeReference tr]
 		TypeReferenceCollection arguments = null;
 		GenericTypeDefinitionReference gtdr = null;
 	}: 
+	tr=splice_type_reference
+	|
 	tr=array_type_reference
 	|
 	(CALLABLE LPAREN)=>(tr=callable_type_reference)
@@ -2273,9 +2287,21 @@ atom returns [Expression e]
 		e=reference_expression |
 		e=paren_expression |
 		e=cast_expression |
-		e=typeof_expression
+		e=typeof_expression |
+		e=splice_expression
 	)
-	;
+;
+
+protected
+splice_expression returns [Expression e]
+{
+	e = null;
+}:
+	begin:SPLICE_BEGIN e=atom
+	{
+		e = new SpliceExpression(ToLexicalInfo(begin), e);
+	}
+;
 	
 protected
 char_literal returns [Expression e]
@@ -3002,7 +3028,7 @@ LBRACE : '{' { EnterSkipWhitespaceRegion(); };
 	
 RBRACE : '}' { LeaveSkipWhitespaceRegion(); };
 
-SPLICE_BEGIN : "$(" { EnterSkipWhitespaceRegion(); };
+SPLICE_BEGIN : "$";
 
 QQ_BEGIN: "[|"; 
 
@@ -3276,7 +3302,7 @@ protected
 REVERSE_DIGIT_GROUP : (DIGIT DIGIT DIGIT ({WSABooLexer.IsDigit(LA(2))}? '_'!)? | DIGIT)+;
 
 protected
-ID_PREFIX : '$' | '@' | '?';
+ID_PREFIX : '@' | '?';
 
 protected
 ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' | {System.Char.IsLetter(LA(1))}? '\u0080'..'\uFFFE');

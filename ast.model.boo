@@ -451,6 +451,9 @@ class RELiteralExpression(LiteralExpression):
 	
 class SpliceExpression(Expression):
 	Expression as Expression
+	
+class SpliceTypeReference(TypeReference):
+	Expression as Expression
 
 class ExpressionInterpolationExpression(Expression):
 	Expressions as ExpressionCollection

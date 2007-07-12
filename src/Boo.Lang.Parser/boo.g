@@ -1116,6 +1116,18 @@ type_reference_list [TypeReferenceCollection container]
 ;
 
 protected
+splice_type_reference returns [SpliceTypeReference tr]
+{
+	tr = null;
+	Expression e = null;
+}:
+	begin:SPLICE_BEGIN e=atom
+	{
+		tr = new SpliceTypeReference(ToLexicalInfo(begin), e);
+	}
+;
+
+protected
 type_reference returns [TypeReference tr]
 	{
 		tr = null;
@@ -1123,6 +1135,8 @@ type_reference returns [TypeReference tr]
 		TypeReferenceCollection arguments = null;
 		GenericTypeDefinitionReference gtdr = null;
 	}: 
+	tr=splice_type_reference
+	|
 	tr=array_type_reference
 	|
 	(CALLABLE LPAREN)=>(tr=callable_type_reference)

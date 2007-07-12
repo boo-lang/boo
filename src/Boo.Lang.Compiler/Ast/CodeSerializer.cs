@@ -138,6 +138,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			Push(CreateReference(node, "Boo.Lang.Compiler.Ast.OmittedExpression.Default"));
 		}
+		
+		public override void OnSpliceTypeReference(SpliceTypeReference node)
+		{
+			Push(LiftTypeReference(node.Expression));
+		}
 
 		public override void OnSpliceExpression(SpliceExpression node)
 		{
@@ -158,6 +163,11 @@ namespace Boo.Lang.Compiler.Ast
 		private MethodInvocationExpression LiftExpression(Expression node)
 		{
 			return Lift("Boo.Lang.Compiler.Ast.Expression.Lift", node);
+		}
+		
+		private MethodInvocationExpression LiftTypeReference(Expression node)
+		{
+			return Lift("Boo.Lang.Compiler.Ast.TypeReference.Lift", node);
 		}
 
 		private MethodInvocationExpression Lift(string methodName, Expression node)

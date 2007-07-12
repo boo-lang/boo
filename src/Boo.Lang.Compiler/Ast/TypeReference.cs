@@ -35,7 +35,22 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(GenericTypeReference))]
 	[System.Xml.Serialization.XmlInclude(typeof(GenericTypeDefinitionReference))]
 	public abstract partial class TypeReference
-	{		
+	{	
+		public static TypeReference Lift(System.Type type)
+		{
+			return new SimpleTypeReference(type.FullName);
+		}
+		
+		public static TypeReference Lift(string name)
+		{
+			return new SimpleTypeReference(name);
+		}
+		
+		public static TypeReference Lift(TypeReference typeRef)
+		{
+			return typeRef;
+		}
+		
 		public TypeReference()
 		{
  		}

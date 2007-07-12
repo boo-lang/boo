@@ -797,6 +797,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteOperator(")");
 		}
 		
+		override public void OnSpliceTypeReference(SpliceTypeReference node)
+		{
+			WriteOperator("$(");
+			Visit(node.Expression);
+			WriteOperator(")");
+		}
+		
 		void WriteIndentedOperator(string op)
 		{
 			WriteIndented();
