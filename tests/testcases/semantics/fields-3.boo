@@ -1,19 +1,19 @@
 """
-public class Foo(System.Object):
+public class Foo(object):
 
-	protected _first as System.Int32
+	protected _first as int
 
-	protected _second as System.Int32
+	protected _second as int
 
 	public def constructor():
 		super()
 		self.___initializer()
 
-	public def constructor(bar as System.Object):
+	public def constructor(bar as object):
 		super()
 		self.___initializer()
 
-	def ___initializer() as System.Void:
+	def ___initializer() as void:
 		self._first = 14
 		self._second = (self._first * 2)
 """

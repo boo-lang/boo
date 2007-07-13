@@ -1,8 +1,8 @@
 """
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Lock1Module(System.Object):
+public final transient class Lock1Module(object):
 
-	private static def Main(argv as (System.String)) as System.Void:
+	private static def Main(argv as (string)) as void:
 		__monitor2__ = object()
 		System.Threading.Monitor.Enter(__monitor2__)
 		try:

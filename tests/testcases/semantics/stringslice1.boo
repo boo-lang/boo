@@ -1,8 +1,8 @@
 """
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Stringslice1Module(System.Object):
+public final transient class Stringslice1Module(object):
 
-	private static def Main(argv as (System.String)) as System.Void:
+	private static def Main(argv as (string)) as void:
 		Boo.Lang.Builtins.print('foo'.Substring(1).get_Chars(0))
 
 	private def constructor():

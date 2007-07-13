@@ -1,9 +1,9 @@
 """
 public final class Size(System.ValueType):
 
-	public Width as System.Int32
+	public Width as int
 
-	public Height as System.Int32
+	public Height as int
 
 	public def constructor():
 		pass

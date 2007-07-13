@@ -1,7 +1,7 @@
 """
-public class ClassWithoutConstructor(System.Object):
+public class ClassWithoutConstructor(object):
 
-	public def run() as System.Void:
+	public def run() as void:
 		Boo.Lang.Builtins.print('it worked!')
 
 	public def constructor():

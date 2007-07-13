@@ -1,8 +1,8 @@
 """
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Slice_property_intModule(System.Object):
+public final transient class Slice_property_intModule(object):
 
-	private static def Main(argv as (System.String)) as System.Void:
+	private static def Main(argv as (string)) as void:
 		l = ['foo']
 		l.set_Item(0, 'bar')
 		Boo.Lang.Builtins.print(l.get_Item(0))

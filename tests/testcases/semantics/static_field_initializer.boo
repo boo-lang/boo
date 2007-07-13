@@ -1,7 +1,7 @@
 """
-public class Person(System.Object):
+public class Person(object):
 
-	public static InstanceCount as System.Int32
+	public static InstanceCount as int
 
 	public def constructor():
 		super()

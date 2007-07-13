@@ -1,8 +1,8 @@
 """
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class In_stringModule(System.Object):
+public final transient class In_stringModule(object):
 
-	private static def Main(argv as (System.String)) as System.Void:
+	private static def Main(argv as (string)) as void:
 		Boo.Lang.Builtins.print(Boo.Lang.Runtime.RuntimeServices.op_Member('f', 'foo'))
 		Boo.Lang.Builtins.print(Boo.Lang.Runtime.RuntimeServices.op_NotMember('f', 'foo'))
 

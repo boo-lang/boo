@@ -1,7 +1,7 @@
 """
-public class ClassWithField(System.Object):
+public class ClassWithField(object):
 
-	protected _name as System.String
+	protected _name as string
 
 	public def constructor():
 		super()

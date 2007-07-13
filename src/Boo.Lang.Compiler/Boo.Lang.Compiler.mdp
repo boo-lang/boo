@@ -58,7 +58,6 @@
     <File name="TypeSystem/CallableSignature.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalProperty.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalConstructor.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericTypeMapper.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IEntity.cs" buildaction="Compile" subtype="Code" />
@@ -70,6 +69,7 @@
     <File name="TypeSystem/Ambiguous.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalGenericMethodInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalInterface.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ExternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/MixedGenericMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalGenericMethodDefinitionInfo.cs" buildaction="Compile" subtype="Code" />
@@ -86,7 +86,6 @@
     <File name="TypeSystem/ModuleEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalGenericMethodDefinition.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalEvent.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/NameResolutionService.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalField.cs" buildaction="Compile" subtype="Code" />
@@ -94,7 +93,6 @@
     <File name="TypeSystem/InternalLocal.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractExternalGenericDefinitionInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalEnumMember.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/NamespaceEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Namespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalGenericTypeInfo.cs" buildaction="Compile" subtype="Code" />
@@ -109,6 +107,8 @@
     <File name="TypeSystem/MappedParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AnonymousCallableType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/CallableResolutionService.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ExternalMethod.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/NamespaceEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExpressionPair.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ClassDefinition.cs" buildaction="Compile" subtype="Code" />
@@ -417,6 +417,7 @@
     <File name="Util/TaskList.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/MarshalByRefEnumerator.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/MarshalByRefCollectionBase.cs" buildaction="Compile" subtype="Code" />
+    <File name="Util/TypeUtilities.cs" buildaction="Compile" subtype="Code" />
     <File name="Attributes/GetterAttribute.cs" buildaction="Compile" subtype="Code" />
     <File name="Attributes/RequiredAttribute.cs" buildaction="Compile" subtype="Code" />
     <File name="Attributes/DefaultAttribute.cs" buildaction="Compile" subtype="Code" />

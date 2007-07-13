@@ -1,13 +1,13 @@
 """
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Numericpromo0Module(System.Object):
+public final transient class Numericpromo0Module(object):
 
-	public static def d() as System.Double:
+	public static def d() as double:
 		return 3.0
 		return 1L
 		return 2
 
-	public static def l() as System.Int64:
+	public static def l() as long:
 		return 1
 		return 2L
 

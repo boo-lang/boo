@@ -1,18 +1,18 @@
 """
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Null0Module(System.Object):
+public final transient class Null0Module(object):
 
-	public static def foo(n as System.Boolean) as System.String:
+	public static def foo(n as bool) as string:
 		if n:
 			return null
 		return 'null'
 
-	public static def bar(n as System.Boolean) as System.String:
+	public static def bar(n as bool) as string:
 		if n:
 			return 'null'
 		return null
 
-	public static def baz(n as System.Boolean) as System.Object:
+	public static def baz(n as bool) as object:
 		if n:
 			return null
 		return 14

@@ -5,14 +5,14 @@
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
 //
-//     * Redistributions of source code must retain the above copyright notice,
-//     this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright notice,
-//     this list of conditions and the following disclaimer in the documentation
-//     and/or other materials provided with the distribution.
-//     * Neither the name of Rodrigo B. de Oliveira nor the names of its
-//     contributors may be used to endorse or promote products derived from this
-//     software without specific prior written permission.
+//	   * Redistributions of source code must retain the above copyright notice,
+//	   this list of conditions and the following disclaimer.
+//	   * Redistributions in binary form must reproduce the above copyright notice,
+//	   this list of conditions and the following disclaimer in the documentation
+//	   and/or other materials provided with the distribution.
+//	   * Neither the name of Rodrigo B. de Oliveira nor the names of its
+//	   contributors may be used to endorse or promote products derived from this
+//	   software without specific prior written permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Util;
+
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
@@ -34,106 +36,80 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public class ExternalType : IType
 	{
 		protected TypeSystemServices _typeSystemServices;
-		
-		Type _type;
-		
+
+		private readonly Type _type;
+
 		IConstructor[] _constructors;
-		
+
 		IType[] _interfaces;
-		
+
 		IEntity[] _members;
-		
+
 		int _typeDepth = -1;
-		
+
 		string _primitiveName;
-		
+
 		string _fullName;
 
 		private string _name;
-		
+
 		internal ExternalType(TypeSystemServices tss, Type type)
 		{
-			if (null == type)
-			{
-				throw new ArgumentException("type");
-			}
+			if (null == type) throw new ArgumentException("type");
 			_typeSystemServices = tss;
 			_type = type;
 		}
-		
+
 		public virtual string FullName
 		{
 			get
 			{
-                if (null != _fullName) return _fullName;
-                return _fullName = BuildFullName();
+				if (null != _fullName) return _fullName;
+				return _fullName = BuildFullName();
 			}
 		}
-		
+
 		internal string PrimitiveName
 		{
-			get
-			{
-				return _primitiveName;
-			}
-			
-			set
-			{
-				_primitiveName = value;
-			}
+			get { return _primitiveName; }
+
+			set { _primitiveName = value; }
 		}
-		
+
 		public virtual string Name
 		{
 			get
 			{
-				if (_name == null) _name = TypeName(_type);
-				return _name;
+				if (null != _name) return _name;
+				return _name = TypeName();
 			}
 		}
 
-		private static string TypeName(Type type)
+		private string TypeName()
 		{
-
-			if (!type.IsGenericTypeDefinition) return type.Name;
-			string name = type.Name;
-			int index = name.LastIndexOf('`');
-			if (index < 0) return name;
-			return name.Substring(0, index);
+			return TypeUtilities.TypeName(_type);
 		}
-		
+
 		public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Type;
-			}
+			get { return EntityType.Type; }
 		}
-		
+
 		public IType Type
 		{
-			get
-			{
-				return this;
-			}
+			get { return this; }
 		}
-		
+
 		public virtual bool IsFinal
 		{
-			get
-			{
-				return _type.IsSealed;
-			}
+			get { return _type.IsSealed; }
 		}
-		
+
 		public bool IsByRef
 		{
-			get
-			{
-				return _type.IsByRef;
-			}
+			get { return _type.IsByRef; }
 		}
-		
+
 		public IType DeclaringType
 		{
 			get
@@ -144,85 +120,64 @@ namespace Boo.Lang.Compiler.TypeSystem
 					: null;
 			}
 		}
-		
+
 		public virtual IType GetElementType()
 		{
 			return _typeSystemServices.Map(_type.GetElementType());
 		}
-		
+
 		public bool IsClass
 		{
-			get
-			{
-				return _type.IsClass;
-			}
+			get { return _type.IsClass; }
 		}
-		
+
 		public bool IsAbstract
 		{
-			get
-			{
-				return _type.IsAbstract;
-			}
+			get { return _type.IsAbstract; }
 		}
-		
+
 		public bool IsInterface
 		{
-			get
-			{
-				return _type.IsInterface;
-			}
+			get { return _type.IsInterface; }
 		}
-		
+
 		public bool IsEnum
 		{
-			get
-			{
-				return _type.IsEnum;
-			}
+			get { return _type.IsEnum; }
 		}
-		
+
 		public bool IsValueType
 		{
-			get
-			{
-				return _type.IsValueType;
-			}
+			get { return _type.IsValueType; }
 		}
-		
+
 		public bool IsArray
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
-		
+
 		public virtual IType BaseType
 		{
 			get
 			{
-								
+
 				Type baseType = _type.BaseType;
 				return null == baseType
 					? null
 					: _typeSystemServices.Map(baseType);
 			}
 		}
-		
+
 		public virtual IEntity GetDefaultMember()
 		{
 			return _typeSystemServices.Map(_type.GetDefaultMembers());
 		}
-		
+
 		public Type ActualType
 		{
-			get
-			{
-				return _type;
-			}
+			get { return _type; }
 		}
-		
+
 		public virtual bool IsSubclassOf(IType other)
 		{
 			ExternalType external = other as ExternalType;
@@ -230,12 +185,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return false;
 			}
-			
+
 			return _type.IsSubclassOf(external._type) ||
 				(external.IsInterface && external._type.IsAssignableFrom(_type))
 				;
 		}
-		
+
 		public virtual bool IsAssignableFrom(IType other)
 		{
 			ExternalType external = other as ExternalType;
@@ -253,7 +208,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _type.IsAssignableFrom(external._type);
 		}
-		
+
 		public virtual IConstructor[] GetConstructors()
 		{
 			if (null == _constructors)
@@ -268,7 +223,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _constructors;
 		}
-		
+
 		public virtual IType[] GetInterfaces()
 		{
 			if (null == _interfaces)
@@ -282,7 +237,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _interfaces;
 		}
-		
+
 		public virtual IEntity[] GetMembers()
 		{
 			if (null == _members)
@@ -303,7 +258,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _members;
 		}
-		
+
 		public int GetTypeDepth()
 		{
 			if (-1 == _typeDepth)
@@ -312,15 +267,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _typeDepth;
 		}
-		
+
 		public virtual INamespace ParentNamespace
 		{
-			get
-			{
-				return null;
-			}
+			get { return null; }
 		}
-		
+
 		public virtual bool Resolve(List targetList, string name, EntityType flags)
 		{
 			bool found = false;
@@ -334,14 +286,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 					found = true;
 				}
 			}
-			
+
 			if (IsInterface)
 			{
 				if (_typeSystemServices.ObjectType.Resolve(targetList, name, flags))
 				{
 					found = true;
 				}
-				
+
 				foreach (IType baseInterface in GetInterfaces())
 				{
 					found |= baseInterface.Resolve(targetList, name, flags);
@@ -360,12 +312,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return found;
 		}
-		
+
 		override public string ToString()
 		{
-			return _primitiveName != null ? _primitiveName : FullName;
+			return FullName;
 		}
-		
+
 		static int GetTypeDepth(Type type)
 		{
 			if (type.IsByRef)
@@ -378,7 +330,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return GetClassDepth(type);
 		}
-		
+
 		static int GetClassDepth(Type type)
 		{
 			int depth = 0;
@@ -390,7 +342,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return depth;
 		}
-		
+
 		static int GetInterfaceDepth(Type type)
 		{
 			Type[] interfaces = type.GetInterfaces();
@@ -409,13 +361,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return 1;
 		}
-		
+
 		protected virtual string BuildFullName()
 		{
+			if (_primitiveName != null) return _primitiveName;
+
+			// keep builtin names pretty ('ref int' instead of 'ref System.Int32')
+			if (_type.IsByRef) return "ref " + GetElementType().FullName;
+
 			return Boo.Lang.Compiler.Util.TypeUtilities.GetFullName(_type);
 		}
-		
-		ExternalGenericTypeDefinitionInfo _genericTypeDefinitionInfo = null;		
+
+		ExternalGenericTypeDefinitionInfo _genericTypeDefinitionInfo = null;
 		public virtual IGenericTypeDefinitionInfo GenericTypeDefinitionInfo
 		{
 			get
@@ -447,6 +404,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 				return null;
 			}
-		}	
+		}
 	}
 }

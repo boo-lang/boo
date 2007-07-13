@@ -1,5 +1,5 @@
 """
-public class B(System.Object):
+public class B(object):
 
 	public def constructor():
 		super()
@@ -7,11 +7,11 @@ public class B(System.Object):
 		System.Console.WriteLine(self.a)
 		System.Console.WriteLine(self.b)
 
-	protected b as System.String
+	protected b as string
 
-	protected a as System.String
+	protected a as string
 
-	def ___initializer() as System.Void:
+	def ___initializer() as void:
 		self.b = 'foo'
 		self.a = 'bar'
 """

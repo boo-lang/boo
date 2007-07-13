@@ -1,10 +1,10 @@
 """
-public class Person(System.Object):
+public class Person(object):
 
 	public def constructor():
 		super()
 
-internal class Info(System.Object):
+internal class Info(object):
 
 	protected def constructor():
 		super()

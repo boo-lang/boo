@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Util;
+
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
@@ -207,7 +209,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			bool found = false;
 			foreach (Type type in types)
 			{
-				if (name == TypeName(type))
+				if (name == TypeUtilities.TypeName(type))
 				{
 					targetList.Add(_typeSystemServices.Map(type));
 					found = true;
@@ -216,13 +218,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			return found;
-		}
-
-		private static string TypeName(Type type)
-		{
-			if (!type.IsGenericTypeDefinition) return type.Name;
-			string name = type.Name;
-			return name.Substring(0, name.LastIndexOf('`'));
 		}
 
 		bool ResolveExternalModules(List targetList, string name, EntityType flags)
@@ -240,7 +235,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _name;
 		}
 
-		private string GetLastPart(string name)
+		private static string GetLastPart(string name)
 		{
 			int index = name.LastIndexOf('.');
 			return index < 0 ? name : name.Substring(index+1);

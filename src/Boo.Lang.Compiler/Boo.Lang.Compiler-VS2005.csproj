@@ -101,7 +101,6 @@
     <Compile Include="TypeSystem\CallableSignature.cs" />
     <Compile Include="TypeSystem\InternalProperty.cs" />
     <Compile Include="TypeSystem\InternalConstructor.cs" />
-    <Compile Include="TypeSystem\ExternalMethod.cs" />
     <Compile Include="TypeSystem\GenericTypeMapper.cs" />
     <Compile Include="TypeSystem\ArrayEqualityComparer.cs" />
     <Compile Include="TypeSystem\IEntity.cs" />
@@ -113,6 +112,7 @@
     <Compile Include="TypeSystem\Ambiguous.cs" />
     <Compile Include="TypeSystem\ExternalGenericMethodInfo.cs" />
     <Compile Include="TypeSystem\InternalInterface.cs" />
+    <Compile Include="TypeSystem\ExternalType.cs" />
     <Compile Include="TypeSystem\MixedGenericMethod.cs" />
     <Compile Include="TypeSystem\Types.cs" />
     <Compile Include="TypeSystem\ExternalGenericMethodDefinitionInfo.cs" />
@@ -129,7 +129,6 @@
     <Compile Include="TypeSystem\ModuleEntity.cs" />
     <Compile Include="TypeSystem\ExternalParameter.cs" />
     <Compile Include="TypeSystem\InternalGenericMethodDefinition.cs" />
-    <Compile Include="TypeSystem\ExternalType.cs" />
     <Compile Include="TypeSystem\ExternalEvent.cs" />
     <Compile Include="TypeSystem\NameResolutionService.cs" />
     <Compile Include="TypeSystem\ExternalField.cs" />
@@ -137,7 +136,6 @@
     <Compile Include="TypeSystem\InternalLocal.cs" />
     <Compile Include="TypeSystem\AbstractExternalGenericDefinitionInfo.cs" />
     <Compile Include="TypeSystem\InternalEnumMember.cs" />
-    <Compile Include="TypeSystem\NamespaceEntity.cs" />
     <Compile Include="TypeSystem\TypeSystemServices.cs" />
     <Compile Include="TypeSystem\Namespace.cs" />
     <Compile Include="TypeSystem\ExternalGenericTypeInfo.cs" />
@@ -152,6 +150,8 @@
     <Compile Include="TypeSystem\MappedParameter.cs" />
     <Compile Include="TypeSystem\AnonymousCallableType.cs" />
     <Compile Include="TypeSystem\CallableResolutionService.cs" />
+    <Compile Include="TypeSystem\ExternalMethod.cs" />
+    <Compile Include="TypeSystem\NamespaceEntity.cs" />
     <Compile Include="Ast\ExpressionPair.cs" />
     <Compile Include="Ast\ArrayLiteralExpression.cs" />
     <Compile Include="Ast\ClassDefinition.cs" />
@@ -460,6 +460,7 @@
     <Compile Include="Util\TaskList.cs" />
     <Compile Include="Util\MarshalByRefEnumerator.cs" />
     <Compile Include="Util\MarshalByRefCollectionBase.cs" />
+    <Compile Include="Util\TypeUtilities.cs" />
     <Compile Include="Attributes\GetterAttribute.cs" />
     <Compile Include="Attributes\RequiredAttribute.cs" />
     <Compile Include="Attributes\DefaultAttribute.cs" />

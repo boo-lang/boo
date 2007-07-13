@@ -50,7 +50,7 @@ class SingletonObject:
 		expected = """
 import Useful.Attributes
 
-public final class SingletonObject(System.Object):
+public final class SingletonObject(object):
 
 	private def constructor():
 		super()
@@ -59,7 +59,7 @@ public final class SingletonObject(System.Object):
 		public static get:
 			return __Nested.instance
 
-	private class __Nested(System.Object):
+	private class __Nested(object):
 
 		internal static final instance as SingletonObject
 

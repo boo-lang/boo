@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				if (_fullName != null) return _fullName;
-				return _fullName = (DeclaringType.FullName + "." + _mi.Name);
+				return _fullName = (DeclaringType + "." + _mi.Name);
 			}
 		}
 

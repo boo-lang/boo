@@ -2,9 +2,9 @@
 import System.IO
 
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Using1Module(System.Object):
+public final transient class Using1Module(object):
 
-	private static def Main(argv as (System.String)) as System.Void:
+	private static def Main(argv as (string)) as void:
 		try:
 			f1 = File.OpenText('using0.boo')
 			try:

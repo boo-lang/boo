@@ -1,9 +1,9 @@
 """
-public class Person(System.Object):
+public class Person(object):
 
-	protected _name as System.String
+	protected _name as string
 
-	public Name as System.String:
+	public Name as string:
 		public get:
 			return self._name
 		public set:
@@ -13,9 +13,9 @@ public class Person(System.Object):
 		super()
 
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Assign_propertyModule(System.Object):
+public final transient class Assign_propertyModule(object):
 
-	private static def Main(argv as (System.String)) as System.Void:
+	private static def Main(argv as (string)) as void:
 		p = Person()
 		p.Name = 'boo'
 		Boo.Lang.Builtins.print(p.get_Name())

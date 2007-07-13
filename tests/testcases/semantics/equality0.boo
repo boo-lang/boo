@@ -1,8 +1,8 @@
 """
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Equality0Module(System.Object):
+public final transient class Equality0Module(object):
 
-	private static def Main(argv as (System.String)) as System.Void:
+	private static def Main(argv as (string)) as void:
 		o1 = object()
 		o2 = object()
 		Boo.Lang.Builtins.print(string.op_Equality('foo', 'bar'))

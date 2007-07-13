@@ -1,10 +1,10 @@
 """
-public class Disposable(System.Object, System.IDisposable):
+public class Disposable(object, System.IDisposable):
 
 	public def constructor():
 		super()
 
-	public virtual def Dispose() as System.Void:
+	public virtual def Dispose() as void:
 		raise System.NotImplementedException()
 """
 class Disposable(System.IDisposable):

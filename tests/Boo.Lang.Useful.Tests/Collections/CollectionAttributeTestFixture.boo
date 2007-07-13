@@ -18,26 +18,26 @@ class StringCollection:
 		expected = """
 import Useful.Collections
 
-[Boo.Lang.EnumeratorItemTypeAttribute(typeof(System.String))]
+[Boo.Lang.EnumeratorItemTypeAttribute(typeof(string))]
 [System.Reflection.DefaultMemberAttribute('Item')]
 public class StringCollection(Boo.Lang.Useful.Collections.AbstractCollection):
 
 	public def constructor():
 		super()
 
-	public def constructor(enumerable as System.Object):
+	public def constructor(enumerable as object):
 		super()
 		if enumerable is null:
 			raise System.ArgumentNullException('enumerable')
-		for item as System.String in Boo.Lang.Runtime.RuntimeServices.GetEnumerable(enumerable):
+		for item as string in Boo.Lang.Runtime.RuntimeServices.GetEnumerable(enumerable):
 			self.Add(item)
 
-	public def Add(item as System.String) as System.Void:
+	public def Add(item as string) as void:
 		if item is null:
 			raise System.ArgumentNullException('item')
 		self.InnerList.Add(item)
 
-	public Item[index as System.Int32] as System.String:
+	public Item[index as int] as string:
 		public get:
 			return self.InnerList.get_Item(index)
 """

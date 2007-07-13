@@ -1,12 +1,12 @@
 """
 public interface IFoo:
 
-	public abstract def Bar() as System.Object:
+	public abstract def Bar() as object:
 		pass
 
-public class Foo(System.Object, IFoo):
+public class Foo(object, IFoo):
 
-	public virtual def Bar() as System.Object:
+	public virtual def Bar() as object:
 		return 'Foo.Bar'
 
 	public def constructor():

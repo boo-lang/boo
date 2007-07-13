@@ -1,7 +1,7 @@
 """
-public abstract class Foo(System.Object):
+public abstract class Foo(object):
 
-	public abstract def Bar() as System.Void:
+	public abstract def Bar() as void:
 		pass
 
 	public def constructor():

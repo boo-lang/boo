@@ -1,10 +1,10 @@
 """
-public class Test(System.Object):
+public class Test(object):
 
-	public static def IsNotNull(o as System.Object) as System.Boolean:
+	public static def IsNotNull(o as object) as bool:
 		return (o is not null)
 
-	public static def IsNull(o as System.Object) as System.Boolean:
+	public static def IsNull(o as object) as bool:
 		return (o is null)
 
 	public def constructor():

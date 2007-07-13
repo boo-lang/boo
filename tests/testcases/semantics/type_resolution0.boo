@@ -3,15 +3,15 @@ namespace TypeResolution
 
 import TypeResolution
 
-public class Item(System.Object):
+public class Item(object):
 
 	public def constructor():
 		super()
 
 [System.Reflection.DefaultMemberAttribute('Item')]
-public class Collection(System.Object):
+public class Collection(object):
 
-	public Item[index as System.Int32] as TypeResolution.Item:
+	public Item[index as int] as TypeResolution.Item:
 		public get:
 			pass
 

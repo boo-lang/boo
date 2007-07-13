@@ -1,9 +1,9 @@
 """
-public class Foo(System.Object):
+public class Foo(object):
 
-	protected static FinalSolution as System.String
+	protected static FinalSolution as string
 
-	protected _some as System.Int32
+	protected _some as int
 
 	public def constructor():
 		super()
@@ -12,7 +12,7 @@ public class Foo(System.Object):
 	public static def constructor():
 		Foo.FinalSolution = '42'
 
-	def ___initializer() as System.Void:
+	def ___initializer() as void:
 		self._some = 3
 """
 class Foo:

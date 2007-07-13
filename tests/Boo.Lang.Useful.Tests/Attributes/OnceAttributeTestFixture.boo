@@ -77,9 +77,9 @@ def foo():
 import Useful.Attributes
 
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class CodeModule(System.Object):
+public final transient class CodeModule(object):
 
-	public static def foo() as System.Int32:
+	public static def foo() as int:
 		if not CodeModule.___foo_cached:
 			System.Threading.Monitor.Enter(CodeModule.___foo_lock)
 			try:
@@ -90,9 +90,9 @@ public final transient class CodeModule(System.Object):
 				System.Threading.Monitor.Exit(CodeModule.___foo_lock)
 		return CodeModule.___foo_returnValue
 
-	private static ___foo_cached as System.Boolean
+	private static ___foo_cached as bool
 
-	private static ___foo_lock as System.Object
+	private static ___foo_lock as object
 
 	private def constructor():
 		super()
@@ -100,6 +100,6 @@ public final transient class CodeModule(System.Object):
 	public static def constructor():
 		CodeModule.___foo_lock = object()
 
-	private static ___foo_returnValue as System.Int32
+	private static ___foo_returnValue as int
 """
 		RunTestCase(expected, code)

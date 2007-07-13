@@ -1,13 +1,13 @@
 """
-public class ClassWithField(System.Object):
+public class ClassWithField(object):
 
 	public def constructor():
 		super()
 		self.___initializer()
 
-	protected _name as System.String
+	protected _name as string
 
-	def ___initializer() as System.Void:
+	def ___initializer() as void:
 		self._name = ''
 """
 
