@@ -67,12 +67,12 @@
     <Compile Include="BooLexer.cs" />
     <Compile Include="BooParserBase.cs" />
     <Compile Include="BooTokenTypes.cs" />
-    <Compile Include="WSABooExpressionLexerTokenTypes.cs" />
-    <Compile Include="BooExpressionLexer.cs" />
     <Compile Include="BooExpressionLexerTokenTypes.cs" />
+    <Compile Include="WSABooTokenTypes.cs" />
+    <Compile Include="BooExpressionLexer.cs" />
+    <Compile Include="WSABooExpressionLexerTokenTypes.cs" />
     <Compile Include="WSABooParserBase.cs" />
     <Compile Include="WSABooLexer.cs" />
-    <Compile Include="WSABooTokenTypes.cs" />
     <Compile Include="antlr\SupportClass.cs" />
     <Compile Include="antlr\antlr\FileLineFormatter.cs" />
     <Compile Include="antlr\antlr\TreeParser.cs" />

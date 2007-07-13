@@ -165,7 +165,7 @@
     <File name="Ast/YieldStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/DepthFirstVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/DepthFirstTransformer.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/TypeReference.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/CodeSerializer.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StringLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/MemberReferenceExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeDefinitionCollection.cs" buildaction="Compile" subtype="Code" />
@@ -217,7 +217,6 @@
     <File name="Ast/NamespaceDeclaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/RELiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/LabelStatement.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/CodeSerializer.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericTypeDefinitionReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/CallableDefinition.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExceptionHandlerCollection.cs" buildaction="Compile" subtype="Code" />
@@ -232,10 +231,12 @@
     <File name="Ast/StatementModifierType.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/BinaryOperatorType.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnaryOperatorType.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/SpliceTypeReference.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/TypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Visitors/TextEmitter.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/Visitors/BooPrinterVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Visitors/TreePrinterVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Visitors/PseudoCSharpPrinterVisitor.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Visitors/BooPrinterVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/DepthFirstVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/DepthFirstTransformer.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/CodeSerializer.cs" buildaction="Compile" subtype="Code" />
@@ -329,6 +330,7 @@
     <File name="Ast/Impl/BoolLiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/RELiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SpliceExpressionImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/SpliceTypeReferenceImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ExpressionInterpolationExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/HashLiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ListLiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />

@@ -208,7 +208,7 @@
     <Compile Include="Ast\YieldStatement.cs" />
     <Compile Include="Ast\DepthFirstVisitor.cs" />
     <Compile Include="Ast\DepthFirstTransformer.cs" />
-    <Compile Include="Ast\TypeReference.cs" />
+    <Compile Include="Ast\CodeSerializer.cs" />
     <Compile Include="Ast\StringLiteralExpression.cs" />
     <Compile Include="Ast\MemberReferenceExpression.cs" />
     <Compile Include="Ast\TypeDefinitionCollection.cs" />
@@ -260,7 +260,6 @@
     <Compile Include="Ast\NamespaceDeclaration.cs" />
     <Compile Include="Ast\RELiteralExpression.cs" />
     <Compile Include="Ast\LabelStatement.cs" />
-    <Compile Include="Ast\CodeSerializer.cs" />
     <Compile Include="Ast\GenericTypeDefinitionReference.cs" />
     <Compile Include="Ast\CallableDefinition.cs" />
     <Compile Include="Ast\ExceptionHandlerCollection.cs" />
@@ -275,10 +274,12 @@
     <Compile Include="Ast\StatementModifierType.cs" />
     <Compile Include="Ast\BinaryOperatorType.cs" />
     <Compile Include="Ast\UnaryOperatorType.cs" />
+    <Compile Include="Ast\SpliceTypeReference.cs" />
+    <Compile Include="Ast\TypeReference.cs" />
     <Compile Include="Ast\Visitors\TextEmitter.cs" />
-    <Compile Include="Ast\Visitors\BooPrinterVisitor.cs" />
     <Compile Include="Ast\Visitors\TreePrinterVisitor.cs" />
     <Compile Include="Ast\Visitors\PseudoCSharpPrinterVisitor.cs" />
+    <Compile Include="Ast\Visitors\BooPrinterVisitor.cs" />
     <Compile Include="Ast\Impl\DepthFirstVisitor.cs" />
     <Compile Include="Ast\Impl\DepthFirstTransformer.cs" />
     <Compile Include="Ast\Impl\CodeSerializer.cs" />
@@ -372,6 +373,7 @@
     <Compile Include="Ast\Impl\BoolLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\RELiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SpliceExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\SpliceTypeReferenceImpl.cs" />
     <Compile Include="Ast\Impl\ExpressionInterpolationExpressionImpl.cs" />
     <Compile Include="Ast\Impl\HashLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ListLiteralExpressionImpl.cs" />
