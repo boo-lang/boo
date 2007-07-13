@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Ast
 	{	
 		public static TypeReference Lift(System.Type type)
 		{
-			return new SimpleTypeReference(type.FullName);
+			return new SimpleTypeReference(Boo.Lang.Compiler.Util.TypeUtilities.GetFullName(type));
 		}
 		
 		public static TypeReference Lift(string name)
