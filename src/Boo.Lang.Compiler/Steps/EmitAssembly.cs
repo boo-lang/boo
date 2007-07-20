@@ -1932,9 +1932,10 @@ namespace Boo.Lang.Compiler.Steps
 		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
 		{
 			IType targetType = null;
+			Expression target = GetTargetObject(node);
 			if (!mi.IsStatic)
 			{
-				targetType = GetTargetObject(node).ExpressionType;
+				targetType = target.ExpressionType;
 				PushTargetObject(node, mi);
 			}
 			
@@ -1945,7 +1946,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_il.Emit(OpCodes.Constrained, GetSystemType(targetType));  
 			}
-			_il.EmitCall(GetCallOpCode(node, method, mi), mi, null);
+			_il.EmitCall(GetCallOpCode(target, method), mi, null);
 			
 			PushType(method.ReturnType);
 		}
@@ -1984,28 +1985,35 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static Expression GetTargetObject(MethodInvocationExpression node)
 		{
-			MemberReferenceExpression memberRef = node.Target as MemberReferenceExpression;
+			Expression target = node.Target;
 			
-			// Target might be a generic reference expression rather than a member reference expression
-			if (memberRef == null) 
+			// Bypass generic reference expressions
+			GenericReferenceExpression genericRef = target as GenericReferenceExpression;
+			if (genericRef != null)
 			{
-				memberRef = ((GenericReferenceExpression)node.Target).Target as MemberReferenceExpression;
+				target = genericRef.Target;
 			}
 			
-			return memberRef.Target;
+			MemberReferenceExpression memberRef = target as MemberReferenceExpression;			
+			if (memberRef != null)
+			{
+				return memberRef.Target;
+			}
+			
+			return null;
 		}
 
-		private OpCode GetCallOpCode(MethodInvocationExpression node, IMethod method, MethodInfo mi)
+		private OpCode GetCallOpCode(Expression target, IMethod method)
 		{
 			if (method.IsStatic) return OpCodes.Call;
-			if (NodeType.SuperLiteralExpression == GetTargetObject(node).NodeType) return OpCodes.Call;
-			if (IsValueTypeMethodCall(node, method)) return OpCodes.Call;
+			if (NodeType.SuperLiteralExpression == target.NodeType) return OpCodes.Call;
+			if (IsValueTypeMethodCall(target, method)) return OpCodes.Call;
 			return OpCodes.Callvirt;
 		}
-
-		private bool IsValueTypeMethodCall(MethodInvocationExpression node, IMethod method)
+		
+		private bool IsValueTypeMethodCall(Expression target, IMethod method)
 		{
-			IType type = GetTargetObject(node).ExpressionType;
+			IType type = target.ExpressionType;
 			return type.IsValueType && method.DeclaringType == type;
 		}
 
@@ -2135,6 +2143,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			IEntity tag = TypeSystemServices.GetEntity(node.Target);
+			
 			switch (tag.EntityType)
 			{
 				case EntityType.BuiltinFunction:
@@ -2959,7 +2968,8 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						callOpCode = OpCodes.Callvirt;
+						callOpCode = GetCallOpCode(target, property.GetSetMethod());
+						
 						target.Accept(this);
 						PopType();
 					}
