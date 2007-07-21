@@ -5103,6 +5103,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		IEntity GetCorrectCallableReference(Node sourceNode, ExpressionCollection args, IEntity[] candidates)
 		{
+            // BOO-844: Ensure all candidates were visited (to make property setters have correct signature)
+            foreach (IEntity candidate in candidates)
+            {
+                EnsureRelatedNodeWasVisited(sourceNode, candidate);
+            }
+
 			IEntity found = _callableResolution.ResolveCallableReference(args, candidates);
 			if (null == found) EmitCallableResolutionError(sourceNode, candidates, args);
 			return found;
