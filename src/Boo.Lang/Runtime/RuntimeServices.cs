@@ -1912,8 +1912,15 @@ namespace Boo.Lang.Runtime
 			BoolConverter converter = (BoolConverter) _converterCache[type];
 			if (null == converter)
 			{
-				converter = CreateBoolConverter(type);
-				_converterCache.Add(type, converter);
+				lock(_converterCache)
+				{
+					converter = (BoolConverter) _converterCache[type];
+					if(null == converter)
+					{
+						converter = CreateBoolConverter(type);
+						_converterCache.Add(type, converter);
+					}
+				}
 			}
 			return converter;
 		}

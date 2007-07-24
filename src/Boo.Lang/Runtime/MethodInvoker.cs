@@ -57,9 +57,15 @@ namespace Boo.Lang.Runtime
 			MethodDispatcher dispatcher;
 			if (!_cache.TryGetValue(key, out dispatcher))
 			{
-				CandidateMethod found = ResolveMethod(argumentTypes);
-				dispatcher = EmitMethodDispatcher(found, argumentTypes);
-				_cache.Add(key, dispatcher);
+				lock(_cache)
+				{
+					if (!_cache.TryGetValue(key, out dispatcher))
+					{
+						CandidateMethod found = ResolveMethod(argumentTypes);
+						dispatcher = EmitMethodDispatcher(found, argumentTypes);
+						_cache.Add(key, dispatcher);
+					}
+				}
 			}
 			return dispatcher(_target, _arguments);
 		}
