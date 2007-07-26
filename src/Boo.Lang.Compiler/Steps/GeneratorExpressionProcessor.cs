@@ -322,7 +322,7 @@ namespace Boo.Lang.Compiler.Steps
 		/// </summary>
 		private IEntity GetMember(IType type, string name, EntityType entityType)
 		{
-
+			// For external types we can use GetMethod or GetProperty to optimize things a little
 			ExternalType external = type as ExternalType;
 			if (external != null)
 			{
@@ -340,16 +340,15 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
+			// For constructed types which aren't external we can use the TypeMapper to 
+			// (maybe) optimize things a little
             if (type.ConstructedInfo != null)
             {
                 return ((GenericConstructedType)type).TypeMapper.Map(
                     GetMember(type.ConstructedInfo.GenericDefinition, name, entityType));
             }
 
-            // NOTE: This can be optimized to use System.Type's GetMethod or GetProperty, 
-            // since the "type" argument is always either an external type or an internal 
-            // generic type constructed from an external definition. 
-
+            // For other cases we just scan through the members collection
             return Array.Find<IEntity>(
                 type.GetMembers(), 
                 delegate(IEntity e) { 
