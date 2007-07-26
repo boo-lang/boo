@@ -29,44 +29,43 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
+	using System.Collections.Generic;
 
-	public class ExternalGenericTypeInfo : IGenericTypeInfo
+	public class ExternalGenericTypeInfo : AbstractExternalGenericInfo<IType>, IGenericTypeInfo
 	{
-		ExternalType _type;
-		TypeSystemServices _tss;
-		IType[] _arguments = null;
-		
-		public ExternalGenericTypeInfo(TypeSystemServices tss, ExternalType type)
-		{
-			_type = type;
-			_tss = tss;
-		}		
+		private ExternalType _type;
 
-		public IType GenericDefinition
+		public ExternalGenericTypeInfo(TypeSystemServices tss, ExternalType type) : base(tss)
+		{	
+			_type = type;
+		}
+
+		public IType ConstructType(IType[] arguments)
 		{
-			get 
-			{
-				return _tss.Map(_type.ActualType.GetGenericTypeDefinition());
-			}
+			return ConstructEntity(arguments);
+		}
+
+		protected override Type[] GetActualGenericParameters()
+		{
+			return _type.ActualType.GetGenericArguments();
 		}
 		
-		public IType[] GenericArguments
+		protected override IType ConstructExternalEntity(Type[] arguments)
 		{
-			get 
+			return _tss.Map(_type.ActualType.MakeGenericType(arguments));
+		}
+		
+		protected override IType ConstructInternalEntity(IType[] arguments)
+		{
+			ExternalCallableType callable = _type as ExternalCallableType;
+			if (null != callable)
 			{
-				if (_arguments == null)
-				{
-					_arguments = Array.ConvertAll<Type, IType>(
-						_type.ActualType.GetGenericArguments(), _tss.Map);
-				}
-				
-				return _arguments;
+				return new GenericConstructedCallableType(_tss, callable, arguments);
+			}
+			else
+			{
+				return new GenericConstructedType(_tss, _type, arguments);
 			}
 		}
-					
-		public bool FullyConstructed	
-		{
-			get { return !_type.ActualType.ContainsGenericParameters; }
-		}
-	}	
+	}
 }

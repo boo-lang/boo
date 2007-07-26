@@ -84,44 +84,44 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_enumerable = (BooClassBuilder)_generator["GeneratorClassBuilder"];
 
+			// Set up some important types
 			_sourceItemType = TypeSystemServices.ObjectType;
 			_sourceEnumeratorType = TypeSystemServices.IEnumeratorType;
 			_sourceEnumerableType = TypeSystemServices.IEnumerableType;
 			
 			_resultItemType = (IType)_generator["GeneratorItemType"];
-			_resultEnumeratorType = TypeSystemServices.IEnumeratorType;
+			_resultEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(_resultItemType);
 			
-			//_enumerator = _collector.CreateSkeletonClass(_enumerable.ClassDefinition.Name + "Enumerator");
 			_enumerator = _collector.CreateSkeletonClass("Enumerator");
-			
-			// If source item type isn't object, use a generic enumerator for the source type
-			_sourceItemType = TypeSystemServices.GetGenericEnumerableItemType(_generator.Iterator.ExpressionType);
-			
+
+			// use a generic enumerator for the source type if possible
+			_sourceItemType = TypeSystemServices.GetGenericEnumerableItemType(_generator.Iterator.ExpressionType);			
 			if (_sourceItemType != null && _sourceItemType != TypeSystemServices.ObjectType)
 			{
-				_sourceEnumerableType = TypeSystemServices.IEnumerableGenericType.GenericTypeDefinitionInfo.MakeGenericType(_sourceItemType);
-				_sourceEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericTypeDefinitionInfo.MakeGenericType(_sourceItemType);
+				_sourceEnumerableType = TypeSystemServices.IEnumerableGenericType.GenericInfo.ConstructType(_sourceItemType);
+				_sourceEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(_sourceItemType);
 			}
 			else
 			{
 				_sourceItemType = TypeSystemServices.ObjectType;
 			}
 			
-			// Expose a generic enumerator
-			_resultEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericTypeDefinitionInfo.MakeGenericType(_resultItemType);
-
+			// Add base types
 			_enumerator.AddBaseType(_resultEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(ICloneable)));
 			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(IDisposable)));
 			
+			// Add fields
 			_enumeratorField = _enumerator.AddField("____enumerator", _sourceEnumeratorType);
 			_current = _enumerator.AddField("____current", _resultItemType);
 			
+			// Add methods 
 			CreateReset();
 			CreateCurrent();
 			CreateMoveNext();
 			CreateClone();
 			CreateDispose();
+			
 			EnumeratorConstructorMustCallReset();
 			
 			_collector.AdjustReferences();
@@ -130,7 +130,6 @@ namespace Boo.Lang.Compiler.Steps
 			
 			CreateGetEnumerator();
 			_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
-			//TypeSystemServices.AddCompilerGeneratedType(_enumerator.ClassDefinition);
 		}
 		
 		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
@@ -214,13 +213,15 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateReset()
 		{
+            // Find GetEnumerator method on the source type
+            IMethod getEnumerator = (IMethod)GetMember(_sourceEnumerableType, "GetEnumerator", EntityType.Method);
+
+            // Build Reset method that calls GetEnumerator on the source            
 			BooMethodBuilder method = _enumerator.AddVirtualMethod("Reset", TypeSystemServices.VoidType);
 			method.Body.Add(
 				CodeBuilder.CreateAssignment(
 					CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
-					CodeBuilder.CreateMethodInvocation(
-						_generator.Iterator, 
-						GetMethod(_sourceEnumerableType, "GetEnumerator"))));
+					CodeBuilder.CreateMethodInvocation(_generator.Iterator, getEnumerator)));
 		}
 		
 		void CreateMoveNext()
@@ -233,7 +234,7 @@ namespace Boo.Lang.Compiler.Steps
 						
 			Expression current = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
-				GetProperty(_sourceEnumeratorType, "Current").GetGetMethod());
+				((IProperty)GetMember(_sourceEnumeratorType, "Current", EntityType.Property)).GetGetMethod());
 			
 			Statement filter = null;
 			Statement stmt = null;
@@ -316,50 +317,44 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private IMethod GetMethod(IType type, string name)
+		/// <summary>
+		/// Gets the member of the specified type with the specified name, assuming there is only one.
+		/// </summary>
+		private IEntity GetMember(IType type, string name, EntityType entityType)
 		{
+
 			ExternalType external = type as ExternalType;
-
-			MixedGenericType mixed = type as MixedGenericType;
-			
-			if (mixed != null)
-			{
-				IMethod definition = GetMethod(mixed.GenericDefinition, name);
-				return (IMethod)mixed.MapMember(definition);
-			}
-
 			if (external != null)
 			{
-				return TypeSystemServices.Map(external.ActualType.GetMethod(name));
-			}
-			
-			else
-			{
-				throw new ArgumentException(string.Format("Invalid type for GetMethod: {0}", type));
-			}
-		}	
-		
-		private IProperty GetProperty(IType type, string name)
-		{
-			ExternalType external = type as ExternalType;
+				if (entityType == EntityType.Property)
+				{
+					return TypeSystemServices.Map(
+						((ExternalType)type).ActualType.GetProperty(name));
+				}
 
-			MixedGenericType mixed = type as MixedGenericType;
-			
-			if (mixed != null)
-			{
-				IProperty definition = GetProperty(mixed.GenericDefinition, name);
-				return (IProperty)mixed.MapMember(definition);
+				else if (entityType == EntityType.Method)
+				{
+					return TypeSystemServices.Map(
+						((ExternalType)type).ActualType.GetMethod(name));
+
+				}
 			}
 
-			if (external != null)
-			{
-				return (IProperty)TypeSystemServices.Map(external.ActualType.GetProperty(name));
-			}
-			
-			else
-			{
-				throw new ArgumentException(string.Format("Invalid type for GetMethod: {0}", type));
-			}
+            if (type.ConstructedInfo != null)
+            {
+                return ((GenericConstructedType)type).TypeMapper.Map(
+                    GetMember(type.ConstructedInfo.GenericDefinition, name, entityType));
+            }
+
+            // NOTE: This can be optimized to use System.Type's GetMethod or GetProperty, 
+            // since the "type" argument is always either an external type or an internal 
+            // generic type constructed from an external definition. 
+
+            return Array.Find<IEntity>(
+                type.GetMembers(), 
+                delegate(IEntity e) { 
+                    return entityType == e.EntityType && e.Name == name; 
+                });
 		}
 	}
 }

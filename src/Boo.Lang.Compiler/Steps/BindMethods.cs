@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					node.Entity = new InternalGenericMethodDefinition(TypeSystemServices, node);
+					node.Entity = new InternalGenericMethod(TypeSystemServices, node);
 				}
 			}
 			Visit(node.ExplicitInfo);

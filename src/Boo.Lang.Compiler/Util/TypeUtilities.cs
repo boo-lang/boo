@@ -19,7 +19,7 @@ namespace Boo.Lang.Compiler.Util
 				return string.Format(
 					"{0}[{1}]",
 					GetFullName(type.GetGenericTypeDefinition()),
-					string.Join(",", argumentNames));
+					string.Join(", ", argumentNames));
 				
 			}
 			return type.FullName;

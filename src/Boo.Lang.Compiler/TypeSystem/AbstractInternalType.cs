@@ -310,12 +310,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return FullName;
 		}
 
-		IGenericTypeDefinitionInfo IType.GenericTypeDefinitionInfo
+		IGenericTypeInfo IType.GenericInfo
 		{
 			get { return null; }
 		}
 
-		IGenericTypeInfo IType.GenericTypeInfo
+		IConstructedTypeInfo IType.ConstructedInfo
 		{
 			get { return null; }
 		}

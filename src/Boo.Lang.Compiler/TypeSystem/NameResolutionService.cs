@@ -272,21 +272,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		private IEntity MakeGenericType(GenericTypeReference node, IType entity)
+		private IEntity GetGenericConstructedType(GenericTypeReference node, IType entity)
 		{
-			if (entity.GenericTypeDefinitionInfo == null)
+			if (entity.GenericInfo == null)
 			{
 				_context.Errors.Add(CompilerErrorFactory.NotAGenericDefinition(node, node.Name));
 				return TypeSystemServices.ErrorEntity;
 			}
 			
-			if (entity.GenericTypeDefinitionInfo.GenericParameters.Length != node.GenericArguments.Count)
+			if (entity.GenericInfo.GenericParameters.Length != node.GenericArguments.Count)
 			{
 				return GenericArgumentsCountMismatch(node, entity);
 			}
 
 			IType[] arguments = ResolveGenericArguments(node);
-			return entity.GenericTypeDefinitionInfo.MakeGenericType(arguments);
+			return entity.GenericInfo.ConstructType(arguments);
 		}
 
 		private IType[] ResolveGenericArguments(GenericTypeReference node)
@@ -329,14 +329,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				GenericTypeReference gtr = node as GenericTypeReference;
 				if (null != gtr)
 				{
-					entity = MakeGenericType(gtr, (IType)entity);
+					entity = GetGenericConstructedType(gtr, (IType)entity);
 				}
 				
 				GenericTypeDefinitionReference gtdr = node as GenericTypeDefinitionReference;
 				if (null != gtdr)
 				{
 					IType type = (IType)entity;
-					if (gtdr.GenericPlaceholders != type.GenericTypeDefinitionInfo.GenericParameters.Length)
+					if (gtdr.GenericPlaceholders != type.GenericInfo.GenericParameters.Length)
 					{
 						entity = GenericArgumentsCountMismatch(gtdr, type);
 					}
@@ -376,7 +376,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (type == null) continue;
 				
 				// Remove type from list of matches if it doesn't match requested generity
-				if (type.GenericTypeDefinitionInfo != null ^ genericRequested)
+				if (type.GenericInfo != null ^ genericRequested)
 				{
 					types.RemoveAt(i);
 					i--;
@@ -398,7 +398,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private IEntity GenericArgumentsCountMismatch(TypeReference node, IType type)
 		{
-			_context.Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(node, type.FullName, type.GenericTypeDefinitionInfo.GenericParameters.Length));
+			_context.Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(node, type.FullName, type.GenericInfo.GenericParameters.Length));
 			return TypeSystemServices.ErrorEntity; 
 		}
 		

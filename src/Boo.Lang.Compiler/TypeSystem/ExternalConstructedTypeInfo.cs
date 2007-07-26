@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,4 +26,47 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+namespace Boo.Lang.Compiler.TypeSystem
+{
+	using System;
 
+	public class ExternalConstructedTypeInfo : IConstructedTypeInfo
+	{
+		ExternalType _type;
+		TypeSystemServices _tss;
+		IType[] _arguments = null;
+		
+		public ExternalConstructedTypeInfo(TypeSystemServices tss, ExternalType type)
+		{
+			_type = type;
+			_tss = tss;
+		}		
+
+		public IType GenericDefinition
+		{
+			get 
+			{
+				return _tss.Map(_type.ActualType.GetGenericTypeDefinition());
+			}
+		}
+		
+		public IType[] GenericArguments
+		{
+			get 
+			{
+				if (_arguments == null)
+				{
+					_arguments = Array.ConvertAll<Type, IType>(
+						_type.ActualType.GetGenericArguments(), _tss.Map);
+				}
+				
+				return _arguments;
+			}
+		}
+					
+		public bool FullyConstructed	
+		{
+			get { return !_type.ActualType.ContainsGenericParameters; }
+		}
+	}	
+}

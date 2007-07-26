@@ -193,31 +193,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		bool IsAssignableFrom(IType other);
 		
-		IGenericTypeDefinitionInfo GenericTypeDefinitionInfo { get; }
+		IGenericTypeInfo GenericInfo { get; }
 		
-		IGenericTypeInfo GenericTypeInfo { get; }
+		IConstructedTypeInfo ConstructedInfo { get; }
 	}
 	
-	public interface IGenericTypeDefinitionInfo
+	public interface IGenericTypeInfo
 	{
 		IGenericParameter[] GenericParameters { get; }
-		IType MakeGenericType(params IType[] arguments);
+		IType ConstructType(params IType[] arguments);
 	}
 
-	public interface IGenericTypeInfo
+	public interface IConstructedTypeInfo
 	{
 		IType[] GenericArguments { get; }
 		IType GenericDefinition { get; }
 		bool FullyConstructed { get; }
 	}
 	
-	public interface IGenericMethodDefinitionInfo
+	public interface IGenericMethodInfo
 	{
 		IGenericParameter[] GenericParameters { get; }
-		IMethod MakeGenericMethod(params IType[] arguments);
+		IMethod ConstructMethod(params IType[] arguments);
 	}
 	
-	public interface IGenericMethodInfo
+	public interface IConstructedMethodInfo
 	{
 		IType[] GenericArguments { get; }
 		IMethod GenericDefinition { get; }
@@ -342,12 +342,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 		
-		IGenericMethodInfo GenericMethodInfo
+		IConstructedMethodInfo ConstructedInfo
 		{
 			get; 
 		}
 		
-		IGenericMethodDefinitionInfo GenericMethodDefinitionInfo
+		IGenericMethodInfo GenericInfo
 		{
 			get;
 		}

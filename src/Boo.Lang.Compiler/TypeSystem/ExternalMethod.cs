@@ -302,8 +302,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _typeSystemServices.GetSignature(this);
 		}
 		
-		ExternalGenericMethodDefinitionInfo _genericMethodDefinitionInfo = null;		
-		public IGenericMethodDefinitionInfo GenericMethodDefinitionInfo
+		ExternalGenericMethodInfo _genericMethodDefinitionInfo = null;		
+		public IGenericMethodInfo GenericInfo
 		{
 			get
 			{
@@ -312,7 +312,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					if (_genericMethodDefinitionInfo == null)
 					{
 						_genericMethodDefinitionInfo = 
-							new ExternalGenericMethodDefinitionInfo(_typeSystemServices, this);
+							new ExternalGenericMethodInfo(_typeSystemServices, this);
 					}
 					return _genericMethodDefinitionInfo;
 				}
@@ -320,8 +320,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		ExternalGenericMethodInfo _genericMethodInfo = null;
-		public virtual IGenericMethodInfo GenericMethodInfo
+		ExternalConstructedMethodInfo _genericMethodInfo = null;
+		public virtual IConstructedMethodInfo ConstructedInfo
 		{
 			get
 			{
@@ -329,7 +329,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (_genericMethodInfo == null)
 					{
-						_genericMethodInfo = new ExternalGenericMethodInfo(_typeSystemServices, this);
+						_genericMethodInfo = new ExternalConstructedMethodInfo(_typeSystemServices, this);
 					}
 					return _genericMethodInfo;
 				}

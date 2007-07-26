@@ -184,9 +184,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (other.IsAssignableFrom(_array)) return true;
 			
 			// Arrays also implement generic IEnumerable of their element type 
-			if (other.GenericTypeInfo != null && 
-				other.GenericTypeInfo.GenericDefinition == _enumerable &&
-				other.GenericTypeInfo.GenericArguments[0].IsAssignableFrom(_elementType))
+			if (other.ConstructedInfo != null && 
+				other.ConstructedInfo.GenericDefinition == _enumerable &&
+				other.ConstructedInfo.GenericArguments[0].IsAssignableFrom(_elementType))
 			{
 				return true;
 			}
@@ -253,12 +253,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return Name;
 		}
 
-		IGenericTypeDefinitionInfo IType.GenericTypeDefinitionInfo
+		IGenericTypeInfo IType.GenericInfo
 		{
 			get { return null; }
 		}
 		
-		IGenericTypeInfo IType.GenericTypeInfo
+		IConstructedTypeInfo IType.ConstructedInfo
 		{
 			get { return null; }
 		}

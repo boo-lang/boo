@@ -31,14 +31,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using System.Collections.Generic;
 
-	public abstract class AbstractExternalGenericDefinitionInfo
+	public abstract class AbstractExternalGenericInfo<T> where T : IEntity
 	{
 		protected TypeSystemServices _tss;
 		private IGenericParameter[] _parameters;
-		private Dictionary<IType[], IEntity> _instances = 
-			new Dictionary<IType[], IEntity>(new ArrayEqualityComparer<IType>());
+		private Dictionary<IType[], T> _instances = new Dictionary<IType[], T>(new ArrayEqualityComparer<IType>());
 
-		public AbstractExternalGenericDefinitionInfo(TypeSystemServices tss)
+		public AbstractExternalGenericInfo(TypeSystemServices tss)
 		{	
 			_tss = tss;
 		}
@@ -57,13 +56,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		protected IEntity MakeGenericEntity(IType[] arguments)
+		protected T ConstructEntity(IType[] arguments)
 		{
 			if (Array.TrueForAll(arguments, IsExternal))
 			{
 				Type[] actualTypes = Array.ConvertAll<IType, Type>(arguments, GetSystemType);
 
-				return MakeExternalEntity(actualTypes);
+				return ConstructExternalEntity(actualTypes);
 			}
 			else if (_instances.ContainsKey(arguments))
 			{
@@ -71,7 +70,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			else
 			{
-				IEntity instance = MakeMixedEntity(arguments);
+				T instance = ConstructInternalEntity(arguments);
 				_instances.Add(arguments, instance);
 				
 				return instance;
@@ -79,12 +78,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		protected abstract Type[] GetActualGenericParameters();
-		protected abstract IEntity MakeMixedEntity(IType[] arguments);
-		protected abstract IEntity MakeExternalEntity(Type[] arguments);
+		protected abstract T ConstructInternalEntity(IType[] arguments);
+		protected abstract T ConstructExternalEntity(Type[] arguments);
 		
 		private bool IsExternal(IType type)
 		{
-			if (type is ExternalType && !(type is MixedGenericType))
+			if (type is ExternalType)
 			{
 				return true;				
 			}
@@ -99,21 +98,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private Type GetSystemType(IType type)
 		{
+			// Get system type from external types
 			if (type is ExternalType) 
 			{
 				return ((ExternalType)type).ActualType;
 			}
 			
+			// Get system array types from arrays of external types
 			ArrayType arrayType = type as ArrayType;
 			if (arrayType != null)
 			{			
 				Type elementType = GetSystemType(arrayType.GetElementType());
-				
-				return Array.CreateInstance(
-					elementType, 
-					new int[arrayType.GetArrayRank()]).GetType();
+				int rank = arrayType.GetArrayRank();
+
+				// Calling MakeArrayType(1) gives a multi-dimensional array with 1 dimensions,
+				// which is (surprisingly) not the same as calling MakeArrayType() which gives
+				// a single-dimensional array
+				return (rank == 1 ? elementType.MakeArrayType() : elementType.MakeArrayType(rank));
 			}
 			
+			// This shouldn't happen since we only call GetSystemType on external types or arrays of such
 			return null;
 		}
 	}		

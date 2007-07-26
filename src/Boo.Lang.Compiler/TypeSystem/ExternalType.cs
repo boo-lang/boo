@@ -372,8 +372,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return Boo.Lang.Compiler.Util.TypeUtilities.GetFullName(_type);
 		}
 
-		ExternalGenericTypeDefinitionInfo _genericTypeDefinitionInfo = null;
-		public virtual IGenericTypeDefinitionInfo GenericTypeDefinitionInfo
+		ExternalGenericTypeInfo _genericTypeDefinitionInfo = null;
+		public virtual IGenericTypeInfo GenericInfo
 		{
 			get
 			{
@@ -381,7 +381,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (_genericTypeDefinitionInfo == null)
 					{
-						_genericTypeDefinitionInfo = new ExternalGenericTypeDefinitionInfo(_typeSystemServices, this);
+						_genericTypeDefinitionInfo = new ExternalGenericTypeInfo(_typeSystemServices, this);
 					}
 					return _genericTypeDefinitionInfo;
 				}
@@ -389,8 +389,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		ExternalGenericTypeInfo _genericTypeInfo = null;
-		public virtual IGenericTypeInfo GenericTypeInfo
+		ExternalConstructedTypeInfo _genericTypeInfo = null;
+		public virtual IConstructedTypeInfo ConstructedInfo
 		{
 			get
 			{
@@ -398,7 +398,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (_genericTypeInfo == null)
 					{
-						_genericTypeInfo = new ExternalGenericTypeInfo(_typeSystemServices, this);
+						_genericTypeInfo = new ExternalConstructedTypeInfo(_typeSystemServices, this);
 					}
 					return _genericTypeInfo;
 				}

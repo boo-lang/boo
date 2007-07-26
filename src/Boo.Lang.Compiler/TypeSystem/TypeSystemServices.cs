@@ -1368,13 +1368,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IType GetEnumeratorItemTypeFromAttribute(IType iteratorType)
 		{
-			AbstractInternalType internalType = iteratorType as AbstractInternalType;
-			if (null == internalType)
-			{
-				return GetExternalEnumeratorItemType(iteratorType);
-			}
-			
-			IType enumeratorItemTypeAttribute = Map(typeof(EnumeratorItemTypeAttribute));
+            // If iterator type is external get its attributes via reflection
+            if (iteratorType is ExternalType)
+            {
+                return GetExternalEnumeratorItemType(iteratorType);
+            }
+
+            // If iterator type is a generic constructed type map its attribute from its definition
+            GenericConstructedType constructedType = iteratorType as GenericConstructedType;
+            if (constructedType != null)
+            {
+                return constructedType.TypeMapper.Map(
+                    GetEnumeratorItemTypeFromAttribute(constructedType.GenericDefinition));
+            }
+
+            // If iterator type is internal get its attributes from its type definition
+			AbstractInternalType internalType = (AbstractInternalType)iteratorType;
+            IType enumeratorItemTypeAttribute = Map(typeof(EnumeratorItemTypeAttribute));
 			foreach (Attribute attribute in internalType.TypeDefinition.Attributes)
 			{
 				IConstructor constructor = GetEntity(attribute) as IConstructor;
@@ -1401,7 +1411,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IType itemType = null;
 			foreach (IType type in FindConstructedTypes(iteratorType, genericEnumerable))
 			{
-				IType candidateItemType = type.GenericTypeInfo.GenericArguments[0];				
+				IType candidateItemType = type.ConstructedInfo.GenericArguments[0];				
 				
 				if (itemType != null)
 				{
@@ -1420,8 +1430,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{	
 			while (type != null)
 			{			
-				if (type.GenericTypeInfo != null && 
-				    type.GenericTypeInfo.GenericDefinition == definition)
+				if (type.ConstructedInfo != null && 
+				    type.ConstructedInfo.GenericDefinition == definition)
 				{
 					yield return type;
 				}
@@ -1449,9 +1459,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			}
 			
-			if (type.GenericTypeInfo != null)
+			if (type.ConstructedInfo != null)
 			{
-				return !type.GenericTypeInfo.FullyConstructed;
+				return !type.ConstructedInfo.FullyConstructed;
 			}
 			
 			if (type.IsByRef || type.IsArray)

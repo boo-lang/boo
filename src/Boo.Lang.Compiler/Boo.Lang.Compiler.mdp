@@ -373,7 +373,7 @@
     <File name="Steps/StricterErrorChecking.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/TransformCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/UnfoldConstants.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AbstractExternalGenericDefinitionInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Ambiguous.cs" buildaction="Compile" subtype="Code" />
@@ -391,20 +391,21 @@
     <File name="TypeSystem/EntityType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Error.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalCallableType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ExternalConstructedMethodInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ExternalConstructedTypeInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalConstructor.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalEvent.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalField.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalGenericMethodDefinitionInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalGenericMethodInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalGenericParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalGenericType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalGenericTypeDefinition.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalGenericTypeDefinitionInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalGenericTypeInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalProperty.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/GenericConstructedMethod.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/GenericConstructedType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/GenericMappedMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericTypeMapper.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/INameSpace.cs" buildaction="Compile" subtype="Code" />
@@ -416,7 +417,6 @@
     <File name="TypeSystem/InternalEvent.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalField.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalGenericMethod.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalGenericMethodDefinition.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalGenericParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalInterface.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalLabel.cs" buildaction="Compile" subtype="Code" />
@@ -424,10 +424,7 @@
     <File name="TypeSystem/InternalMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalProperty.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/MappedParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/MetadataUtil.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/MixedGenericMethod.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/MixedGenericType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ModuleEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/NameResolutionService.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Namespace.cs" buildaction="Compile" subtype="Code" />

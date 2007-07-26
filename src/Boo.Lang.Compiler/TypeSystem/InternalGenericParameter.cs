@@ -33,6 +33,9 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
+    /// <summary>
+    /// A generic type parameter of an internal generic type or method.
+    /// </summary>
 	public class InternalGenericParameter : IType, IInternalEntity, IGenericParameter
 	{
 		TypeSystemServices _tss;
@@ -175,12 +178,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (other == this);
 		}
 		
-		IGenericTypeDefinitionInfo IType.GenericTypeDefinitionInfo 
+		IGenericTypeInfo IType.GenericInfo 
 		{ 
 			get { return null; } 
 		}
 		
-		IGenericTypeInfo IType.GenericTypeInfo 
+		IConstructedTypeInfo IType.ConstructedInfo 
 		{ 
 			get { return null; } 
 		}

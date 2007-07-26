@@ -1054,16 +1054,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool CheckGenericGeneratorReturnType(IType returnType)
 		{
-			return returnType.GenericTypeInfo != null &&
-			    (returnType.GenericTypeInfo.GenericDefinition == TypeSystemServices.IEnumerableGenericType ||
-			     returnType.GenericTypeInfo.GenericDefinition == TypeSystemServices.IEnumeratorGenericType);
+			return returnType.ConstructedInfo != null &&
+			    (returnType.ConstructedInfo.GenericDefinition == TypeSystemServices.IEnumerableGenericType ||
+			     returnType.ConstructedInfo.GenericDefinition == TypeSystemServices.IEnumeratorGenericType);
 		}
 		
 		void CheckGeneratorYieldType(InternalMethod method, IType returnType)
 		{
 			if (CheckGenericGeneratorReturnType(returnType))
 			{
-				IType returnElementType = returnType.GenericTypeInfo.GenericArguments[0];
+				IType returnElementType = returnType.ConstructedInfo.GenericArguments[0];
 				
 				foreach (Expression yieldExpression in method.YieldExpressions)
 				{
@@ -1128,7 +1128,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual IType GetGeneratorReturnType(IType itemType)
 		{
 			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
-			IType returnType = enumerableType.GenericTypeDefinitionInfo.MakeGenericType(itemType);
+			IType returnType = enumerableType.GenericInfo.ConstructType(itemType);
 			return returnType;
 		}
 		
@@ -1801,7 +1801,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (CheckGenericGeneratorReturnType(entity.ReturnType))
 			{
-				itemType = entity.ReturnType.GenericTypeInfo.GenericArguments[0];
+				itemType = entity.ReturnType.ConstructedInfo.GenericArguments[0];
 			}
 			if (itemType == null)
 			{
@@ -1822,9 +1822,9 @@ namespace Boo.Lang.Compiler.Steps
 			return builder;
 		}
 		
-		protected IType MakeGenericType(IType genericType, IType argType)
+		protected IType GetConstructedType(IType genericType, IType argType)
 		{
-			return genericType.GenericTypeDefinitionInfo.MakeGenericType(argType);
+			return genericType.GenericInfo.ConstructType(argType);
 		}
 		
 		BooClassBuilder CreateGeneratorSkeleton(Node sourceNode, Method method, IType generatorItemType)
@@ -1839,13 +1839,13 @@ namespace Boo.Lang.Compiler.Steps
 			if (generatorItemType != TypeSystemServices.VoidType)
 			{
 				builder.AddBaseType(
-					MakeGenericType(
+					GetConstructedType(
 						TypeSystemServices.Map(	typeof(GenericGenerator<>)),
 						generatorItemType));
 				
 				getEnumeratorBuilder = builder.AddVirtualMethod(
 					"GetEnumerator",
-					MakeGenericType(
+					GetConstructedType(
 						TypeSystemServices.IEnumeratorGenericType,
 						generatorItemType));
 
@@ -2116,13 +2116,13 @@ namespace Boo.Lang.Compiler.Steps
 			switch (node.Target.Entity.EntityType)
 			{
 				case EntityType.Type:
-					IType genericType = ((IType)node.Target.Entity).GenericTypeDefinitionInfo.MakeGenericType(GetGenericArguments(node));
+					IType genericType = ((IType)node.Target.Entity).GenericInfo.ConstructType(GetGenericArguments(node));
 					Bind(node, genericType);
 					BindTypeReferenceExpressionType(node, genericType);
 					break;
 				
 				case EntityType.Method:
-					IMethod genericMethod = ((IMethod)node.Target.Entity).GenericMethodDefinitionInfo.MakeGenericMethod(GetGenericArguments(node));
+					IMethod genericMethod = ((IMethod)node.Target.Entity).GenericInfo.ConstructMethod(GetGenericArguments(node));
 					Bind(node, genericMethod);
 					BindExpressionType(node, genericMethod.Type);
 					break;				
@@ -2148,14 +2148,14 @@ namespace Boo.Lang.Compiler.Steps
 			IGenericParameter[] parameters = null;
 
 			// Test for a generic type definition			
-			if (type != null && type.GenericTypeDefinitionInfo != null)
+			if (type != null && type.GenericInfo != null)
 			{
-				parameters = type.GenericTypeDefinitionInfo.GenericParameters;
+				parameters = type.GenericInfo.GenericParameters;
 			}
 			// Test for a generic method definition
-			else if (method != null && method.GenericMethodDefinitionInfo != null)
+			else if (method != null && method.GenericInfo != null)
 			{
-				parameters = method.GenericMethodDefinitionInfo.GenericParameters;
+				parameters = method.GenericInfo.GenericParameters;
 			}
 		
 			if (parameters == null)
@@ -2573,7 +2573,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (IEntity candidate in candidates.Entities)
 			{
 				IType type = candidate as IType;
-			    bool isGenericType = (type != null && type.GenericTypeDefinitionInfo != null);
+			    bool isGenericType = (type != null && type.GenericInfo != null);
 				if (isGenericType == isGenericReference)
 				{
 					matches.Add(candidate);

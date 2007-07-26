@@ -428,10 +428,11 @@ namespace Boo.Lang.Compiler.Steps
 								CreateType(tag.TypeDefinition);
 							}
 
-							// If base type is generic, create any internal parameters it might have
-							if (baseType.GenericTypeInfo != null)
+							// If base type is a constructed generic type, create any internal 
+                            // parameters it might have
+							if (baseType.ConstructedInfo != null)
 							{
-								foreach (IType argument in baseType.GenericTypeInfo.GenericArguments)
+								foreach (IType argument in baseType.ConstructedInfo.GenericArguments)
 								{
 									tag = argument as AbstractInternalType;
 									if (null != tag)
@@ -1987,7 +1988,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Expression target = node.Target;
 			
-			// Bypass generic reference expressions
+			// Skip over generic reference expressions
 			GenericReferenceExpression genericRef = target as GenericReferenceExpression;
 			if (genericRef != null)
 			{
@@ -3679,129 +3680,139 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			// If field is mapped from a generic type, get its mapped FieldInfo
 			// on the constructed type
-			MixedGenericType.MappedField mapped = tag as MixedGenericType.MappedField;
-			if (null != mapped && mapped.FieldInfo.DeclaringType.IsGenericType)
-			{
-				return MapGenericField(mapped.DeclaringType, mapped.FieldInfo);
-			}
+            GenericMappedField mapped = tag as GenericMappedField;
+            if (mapped != null)
+            {
+                return GetMappedFieldInfo(mapped.DeclaringType, mapped.Source);
+            }
+
+            // If field is external, get its existing FieldInfo
 			ExternalField external = tag as ExternalField;
 			if (null != external)
 			{
 				return external.FieldInfo;
 			}
+
+            // If field is internal, get its FieldBuilder
 			return GetFieldBuilder(((InternalField)tag).Field);
 		}
 		
 		MethodInfo GetMethodInfo(IMethod entity)
 		{
-			// If method is mapped from a generic type, get its mapped MethodInfo
-			// on the constructed type
-			MixedGenericType.MappedMethod mapped = entity as MixedGenericType.MappedMethod;
-			if (null != mapped && mapped.MethodInfo.DeclaringType.IsGenericType)
-			{
-				return MapGenericMethod(mapped.DeclaringType, (MethodInfo)mapped.MethodInfo);
-			}
+			// If method is mapped from a generic type, get its MethodInfo on the constructed type
+            GenericMappedMethod mapped = entity as GenericMappedMethod;
+            if (mapped != null)
+            {
+                return GetMappedMethodInfo(mapped.DeclaringType, mapped.Source);
+            }
 			
-			// If method is a mixed or internal constructed generic method, 
-			// get its mapped MethodInfo
-			if (entity is MixedGenericMethod || entity is InternalGenericMethod)
+			// If method is a constructed generic method, get its MethodInfo from its definition
+			if (entity is GenericConstructedMethod)
 			{
-				return MapGenericMethod(entity.GenericMethodInfo);
+				return GetConstructedMethodInfo(entity.ConstructedInfo);
 			}			
-			ExternalMethod external = entity as ExternalMethod;
+
+            // If method is external, get its existing MethodInfo
+            ExternalMethod external = entity as ExternalMethod;
 			if (null != external)
 			{
 				return (MethodInfo)external.MethodInfo;
 			}
 			
+            // If method is internal, get its MethodBuilder
 			return GetMethodBuilder(((InternalMethod)entity).Method);
 		}
 
 		ConstructorInfo GetConstructorInfo(IConstructor entity)
 		{
-			// If constructor is mapped from a generic type, get its mapped ConstructorInfo
-			MixedGenericType.MappedConstructor mapped = entity as MixedGenericType.MappedConstructor;
-			if (null != mapped && mapped.ConstructorInfo.DeclaringType.IsGenericType)
-			{
-				return MapGenericConstructor(mapped.DeclaringType, mapped.ConstructorInfo);
-			}
-			ExternalConstructor external = entity as ExternalConstructor;
-			if (null != external)
-			{
-				return external.ConstructorInfo;
-			}
-			
+            // If constructor is external, get its existing ConstructorInfo
+            ExternalConstructor external = entity as ExternalConstructor;
+            if (null != external)
+            {
+                return external.ConstructorInfo;
+            }
+
+            // If constructor is mapped from a generic type, get its ConstructorInfo on the constructed type
+            GenericMappedConstructor mapped = entity as GenericMappedConstructor;
+            if (mapped != null)
+            {
+                return TypeBuilder.GetConstructor(GetSystemType(mapped.DeclaringType), GetConstructorInfo((IConstructor)mapped.Source));
+            }
+
+            // If constructor is internal, get its MethodBuilder
 			return GetConstructorBuilder(((InternalMethod)entity).Method);
 		}
 		
 		/// <summary>
-		/// Maps a method declared on a generic type definition or an open constructed type
-		/// to the corresponding method on a closed constructed type.
+		/// Retrieves the MethodInfo for a generic constructed method.
 		/// </summary>
-		private MethodInfo MapGenericMethod(IType targetType, MethodInfo method)
-		{
-			if (!method.DeclaringType.IsGenericTypeDefinition)
-			{
-				// HACK: .NET Reflection doesn't allow calling TypeBuilder.GetMethod(Type, MethodInfo)
-				// on types that aren't generic definitions, so we have to manually find the
-				// corresponding MethodInfo on the declaring type's definition before mapping it
-				Type definition = method.DeclaringType.GetGenericTypeDefinition();
-				method = Array.Find<MethodInfo>(
-					definition.GetMethods(),
-					delegate(MethodInfo mi) { return mi.MetadataToken == method.MetadataToken; });
-			}
-			
-			return TypeBuilder.GetMethod(GetSystemType(targetType), method);
-		}
-		
-		/// <summary>
-		/// Maps a generic method to its constructed version.
-		/// </summary>
-		private MethodInfo MapGenericMethod(IGenericMethodInfo genericMethodInfo)
+		private MethodInfo GetConstructedMethodInfo(IConstructedMethodInfo constructedInfo)
 		{
 			Type[] arguments = Array.ConvertAll<IType, Type>(
-				genericMethodInfo.GenericArguments,
+				constructedInfo.GenericArguments,
 				GetSystemType);
 				
-			return GetMethodInfo(genericMethodInfo.GenericDefinition).MakeGenericMethod(arguments);
+			return GetMethodInfo(constructedInfo.GenericDefinition).MakeGenericMethod(arguments);
 		}
 
 		/// <summary>
-		/// Maps a field declared on a generic type definition or an open constructed type
-		/// to the corresponding field on a closed constructed type.
+        /// Retrieves the FieldInfo for a field as mapped on a generic type.
 		/// </summary>
-		private FieldInfo MapGenericField(IType targetType, FieldInfo field)
+		private FieldInfo GetMappedFieldInfo(IType targetType, IField source)
 		{
-			if (!field.DeclaringType.IsGenericTypeDefinition)
+            FieldInfo fi = GetFieldInfo(source);
+			if (!fi.DeclaringType.IsGenericTypeDefinition)
 			{
-				// HACK: .NET Reflection doesn't allow calling TypeBuilder.GetMethod(Type, FieldInfo)
-				// on types that aren't generic definitions, so we have to manually find the
-				// corresponding FieldInfo on the declaring type's definition before mapping it
-				Type definition = field.DeclaringType.GetGenericTypeDefinition();
-				field = definition.GetField(field.Name);
+				// HACK: .NET Reflection doesn't allow calling TypeBuilder.GetField(Type, FieldInfo)
+				// on types that aren't generic definitions (like open constructed types), so we have 
+                // to manually find the corresponding FieldInfo on the declaring type's definition 
+                // before mapping it
+                Type definition = fi.DeclaringType.GetGenericTypeDefinition();
+                fi = definition.GetField(fi.Name);
 			}
-			return TypeBuilder.GetField(GetSystemType(targetType), field);
+            return TypeBuilder.GetField(GetSystemType(targetType), fi);
 		}
 
-		/// <summary>
-		/// Maps a constructor declared on a generic type definition or an open constructed type
-		/// to the corresponding constructor on a closed constructed type.
-		/// </summary>
-		private ConstructorInfo MapGenericConstructor(IType targetType, ConstructorInfo ctor)
+        /// <summary>
+        /// Retrieves the MethodInfo for a method as mapped on a generic type.
+        /// </summary>
+        private MethodInfo GetMappedMethodInfo(IType targetType, IMethod source)
+        {
+            MethodInfo mi = GetMethodInfo(source);
+            if (!mi.DeclaringType.IsGenericTypeDefinition)
+            {
+                // HACK: .NET Reflection doesn't allow calling TypeBuilder.GetMethod(Type, MethodInfo) 
+                // on types that aren't generic definitions (like open constructed types), so we have to 
+                // manually find the corresponding MethodInfo on the declaring type's definition before 
+                // mapping it
+                Type definition = mi.DeclaringType.GetGenericTypeDefinition();
+                mi = Array.Find<MethodInfo>(
+                    definition.GetMethods(),
+                    delegate(MethodInfo other) { return other.MetadataToken == mi.MetadataToken; });
+            }
+
+            return TypeBuilder.GetMethod(GetSystemType(targetType), mi);
+        }
+        
+        /// <summary>
+        /// Retrieves the ConstructorInfo for a constructor as mapped on a generic type.
+        /// </summary>
+		private ConstructorInfo GetMappedConstructorInfo(IType targetType, IConstructor source)
 		{
-			if (!ctor.DeclaringType.IsGenericTypeDefinition)
+            ConstructorInfo ci = GetConstructorInfo(source);
+			if (!ci.DeclaringType.IsGenericTypeDefinition)
 			{
 				// HACK: .NET Reflection doesn't allow calling
 				// TypeBuilder.GetConstructor(Type, ConstructorInfo) on types that aren't generic
 				// definitions, so we have to manually find the corresponding ConstructorInfo on the
 				// declaring type's definition before mapping it
-				Type definition = ctor.DeclaringType.GetGenericTypeDefinition();
-				ctor = Array.Find<ConstructorInfo>(
+				Type definition = ci.DeclaringType.GetGenericTypeDefinition();
+				ci = Array.Find<ConstructorInfo>(
 					definition.GetConstructors(),
-					delegate(ConstructorInfo ci) { return ci.MetadataToken == ctor.MetadataToken; });
+					delegate(ConstructorInfo other) { return other.MetadataToken == ci.MetadataToken; });
 			}
 
-			return TypeBuilder.GetConstructor(GetSystemType(targetType), ctor);
+			return TypeBuilder.GetConstructor(GetSystemType(targetType), ci);
 		}
 		
 		Type GetSystemType(Node node)
@@ -3816,26 +3827,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return type;
 			}
-			
+
 			ExternalType external = tag as ExternalType;
 			if (null != external)
 			{
-				MixedGenericType mixed = tag as MixedGenericType;
-				if (null != mixed)
-				{
-					Type[] arguments = new Type[mixed.GenericArguments.Length];
-					for (int i = 0; i < arguments.Length; i++)
-					{
-						arguments[i] = GetSystemType(mixed.GenericArguments[i]);
-					}
-					type = GetSystemType(mixed.GenericDefinition).MakeGenericType(arguments);
-				}
-				else
-				{
-					type = external.ActualType;
-				}
+				type = external.ActualType;
 			}
-			else if (tag.IsArray)
+    		else if (tag.IsArray)
 			{
 				IArrayType arrayType = (IArrayType)tag;
 				Type systemType = GetSystemType(arrayType.GetElementType());
@@ -3854,14 +3852,20 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				type = Types.Object;
 			}
-			else if (tag is InternalGenericParameter)
-			{
-				return (Type)GetBuilder(((InternalGenericParameter)tag).Node);
-			}
-			else if (tag is AbstractInternalType)
-			{
-				type = (Type)GetBuilder(((AbstractInternalType)tag).TypeDefinition);
-			}
+            else if (tag.ConstructedInfo != null)
+            {
+                // Type is a constructed generic type - create it using its definition's system type
+                Type[] arguments = Array.ConvertAll<IType, Type>(tag.ConstructedInfo.GenericArguments, GetSystemType);
+                type = GetSystemType(tag.ConstructedInfo.GenericDefinition).MakeGenericType(arguments);
+            }
+            else if (tag is InternalGenericParameter)
+            {
+                return (Type)GetBuilder(((InternalGenericParameter)tag).Node);
+            }
+            else if (tag is AbstractInternalType)
+            {
+                type = (Type)GetBuilder(((AbstractInternalType)tag).TypeDefinition);
+            }
 
 			if (null == type)
 			{

@@ -411,12 +411,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _typeSystemServices.GetSignature(this);
 		}
 		
-		public virtual IGenericMethodInfo GenericMethodInfo
+		public virtual IConstructedMethodInfo ConstructedInfo
 		{
 			get { return null; }
 		}
 
-		public virtual IGenericMethodDefinitionInfo GenericMethodDefinitionInfo
+		public virtual IGenericMethodInfo GenericInfo
 		{
 			get { return null; }
 		}

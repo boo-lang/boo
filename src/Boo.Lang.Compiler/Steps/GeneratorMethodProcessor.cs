@@ -336,8 +336,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			bool returnsEnumerator = _generator.ReturnType == TypeSystemServices.IEnumeratorType;
 			returnsEnumerator |=
-				_generator.ReturnType.GenericTypeInfo != null &&
-				_generator.ReturnType.GenericTypeInfo.GenericDefinition == TypeSystemServices.IEnumeratorGenericType;
+				_generator.ReturnType.ConstructedInfo != null &&
+				_generator.ReturnType.ConstructedInfo.GenericDefinition == TypeSystemServices.IEnumeratorGenericType;
 			
 			return returnsEnumerator;
 		}
@@ -367,7 +367,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType abstractEnumeratorType = 
 				TypeSystemServices.Map(typeof(Boo.Lang.GenericGeneratorEnumerator<>)).
-					GenericTypeDefinitionInfo.MakeGenericType(new IType[] {_generatorItemType});
+					GenericInfo.ConstructType(new IType[] {_generatorItemType});
 			
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");

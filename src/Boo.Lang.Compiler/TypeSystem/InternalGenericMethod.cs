@@ -29,229 +29,96 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
+	using System.Collections.Generic;
 	using Boo.Lang.Compiler.TypeSystem;
 	using Boo.Lang.Compiler.Ast;
 
-	public class InternalGenericMethod : IMethod, IGenericMethodInfo, ITypeMapper
+    /// <summary>
+    /// A generic method definition on an internal type.
+    /// </summary>
+	public class InternalGenericMethod : InternalMethod, IGenericMethodInfo
 	{
-		TypeSystemServices _tss; 
-		IType[] _genericArguments;
-		IMethod _definition;
+		InternalGenericParameter[] _genericParameters = null;
+		Dictionary<IType[], IMethod> _instances = new Dictionary<IType[], IMethod>(new ArrayEqualityComparer<IType>());
 		
-		GenericTypeMapper _typeMapper;		
-		ICallableType _callableType;		
-		bool _fullyConstructed;
-		string _name = null;
-		string _fullName = null;
-		IParameter[] _parameters = null;		
-		
-		public InternalGenericMethod(TypeSystemServices tss, IMethod definition, IType[] arguments)
+		public InternalGenericMethod(TypeSystemServices tss, Method method) : base(tss, method)
 		{
-			_tss = tss;
-			_definition = definition;
-			_genericArguments = arguments;
-			
-			_typeMapper = new GenericTypeMapper(
-				tss, 
-				definition.GenericMethodDefinitionInfo.GenericParameters, 
-				arguments);
-				
-			_fullyConstructed = IsFullyConstructed();
+			BuildGenericParameters(method.GenericParameters);
 		}
-		
-		private bool IsFullyConstructed()
+	
+		private void BuildGenericParameters(GenericParameterDeclarationCollection declarations)
 		{
-			foreach (IType arg in GenericArguments)
-			{
-				if (TypeSystemServices.IsOpenGenericType(arg))
-				{
-					return false;
-				}
+			_genericParameters = new InternalGenericParameter[declarations.Count];
+			
+			int i = 0;
+			foreach (GenericParameterDeclaration gpd in declarations)
+			{	
+				gpd.Entity = _genericParameters[i] = new InternalGenericParameter(_typeSystemServices, gpd, this, i);
+				i++;
 			}
-			return true;
 		}
-		
-		private void BuildName()
-		{
-			string[] argumentNames = Array.ConvertAll<IType, string>(
-				GenericArguments,
-				delegate(IType t) { return "[" + t.Name + "]"; });
-			
-			_name = string.Format(
-				"{0}`[{1}]", 
-				_definition.Name, 
-				string.Join(",", argumentNames));
-		}
-
-		private void BuildFullName()
-		{
-			string[] argumentNames = Array.ConvertAll<IType, string>(
-				GenericArguments,
-				delegate(IType t) { return t.FullName; });
-			
-			_fullName = string.Format(
-				"{0}[{1}]", 
-				_definition.FullName, 
-				string.Join(",", argumentNames));
-		}
-		
-		public IType MapType(IType source)
-		{
-			return _typeMapper.MapType(source);
-		}
-		
-		public IParameter[] GetParameters()
-		{
-			if (_parameters == null)
-			{
-				_parameters = Array.ConvertAll<IParameter, IParameter>(
-					_definition.GetParameters(), 
-					delegate(IParameter p) { return new MappedParameter(_tss, p, this); });
-			}
-			return _parameters;
-		}
-
-		public IType ReturnType
-		{
-			get { return MapType(_definition.ReturnType); }
-		}
-		
-		public bool IsAbstract
-		{
-			get { return _definition.IsAbstract; }
-		}
-		
-		public bool IsVirtual
-		{
-			get { return _definition.IsVirtual; }
-		}
-		
-		public bool IsSpecialName
-		{
-			get { return _definition.IsSpecialName; }
-		}
-
-		public bool IsPInvoke
-		{
-			get { return _definition.IsPInvoke; }
-		}
-		
-		public IGenericMethodInfo GenericMethodInfo
+	
+		public override IGenericMethodInfo GenericInfo 
 		{
 			get { return this; }
 		}
 		
-		public IGenericMethodDefinitionInfo GenericMethodDefinitionInfo
-		{
-			get { return null; }
-		}
-
-		public ICallableType CallableType
-		{
-			get
-			{
-				if (null == _callableType)
-				{
-					_callableType = _tss.GetCallableType(this);
-				}
-				return _callableType;
-			}
-		}
-		
-		public bool IsExtension 
-		{ 
-			get { return _definition.IsExtension; } 
-		}		
-
-		public bool IsProtected
-		{
-			get { return _definition.IsProtected; }
-		}
-
-		public bool IsInternal
-		{
-			get { return _definition.IsInternal; }
-		}
-
-		public bool IsPrivate
-		{
-			get { return _definition.IsPrivate; }
-		}
-
-		public bool AcceptVarArgs
-		{
-			get { return _definition.AcceptVarArgs; }
-		}	
-		public bool IsDuckTyped
-		{
-			get { return _definition.IsDuckTyped; }
-		}
-
-		public IType DeclaringType
-		{
-			get { return _definition.DeclaringType; }
-		}
-		
-		public bool IsStatic
-		{
-			get { return _definition.IsStatic; }
-		}
-		
-		public bool IsPublic
-		{
-			get { return _definition.IsPublic; }
-		}
-
-		public IType Type
-		{
-			get { return CallableType; }			
-		}
-
-		public string Name
+		public IGenericParameter[] GenericParameters
 		{
 			get 
 			{ 
-				if (_name == null) BuildName();
-				return _name; 
+				if (_genericParameters == null)
+				{
+					BuildGenericParameters(_method.GenericParameters);
+				}
+				return _genericParameters; 
 			}
 		}
 		
-		public string FullName
+		public IMethod ConstructMethod(IType[] arguments)
 		{
-			get
+			IMethod constructed = null;
+			if (!_instances.TryGetValue(arguments, out constructed))
 			{
-				if (_fullName == null) BuildFullName();
-				return _fullName;
+				constructed = new GenericConstructedMethod(_typeSystemServices, this, arguments);
+				_instances.Add(arguments, constructed);
 			}
+			
+			return constructed;
 		}
 		
-		public EntityType EntityType
-		{
-			get { return EntityType.Method; }
-		}
-		
-		public IMethod GenericDefinition
-		{
-			get { return _definition; }
-		}
-		
-		public IType[] GenericArguments
-		{
-			get { return _genericArguments; }
-		}
-		
-		public bool FullyConstructed
+		public override string FullName 
 		{
 			get 
 			{
-				return _fullyConstructed;
+				return string.Format("{0}`{1}", base.FullName, _genericParameters.Length);
 			}
 		}
 		
-		public override string ToString()
+		private IGenericParameter GetGenericParameter(string name)
 		{
-			return FullName;
+			// This can be optimized using a hash, but generally we'll have 
+			// very few generic parameters, so it isn't worth the bother
+			return Array.Find(
+				_genericParameters, 
+				delegate(InternalGenericParameter gp) { return gp.Name == name; });
 		}
-
+		
+		public override bool Resolve(List targetList, string name, EntityType flags)
+		{
+			// Try to resolve name as a generic parameter
+			if (NameResolutionService.IsFlagSet(flags, EntityType.Type))
+			{
+				IGenericParameter gp = GetGenericParameter(name);
+				if (gp != null)
+				{
+					targetList.Add(gp);
+					return true;
+				}
+			}
+			
+			return base.Resolve(targetList, name, flags);
+		}
 	}	
 }
+

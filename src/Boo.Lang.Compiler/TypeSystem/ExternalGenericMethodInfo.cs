@@ -29,44 +29,35 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
+	using System.Collections.Generic;
 
-	public class ExternalGenericMethodInfo : IGenericMethodInfo
+	public class ExternalGenericMethodInfo : AbstractExternalGenericInfo<IMethod>, IGenericMethodInfo
 	{
-		ExternalMethod _method;
-		TypeSystemServices _tss;
-		IType[] _arguments = null;
-		
-		public ExternalGenericMethodInfo(TypeSystemServices tss, ExternalMethod method)
-		{
-			_method = method;
-			_tss = tss;
-		}		
+		private ExternalMethod _method;
 
-		public IMethod GenericDefinition
+		public ExternalGenericMethodInfo(TypeSystemServices tss, ExternalMethod method) : base(tss)
+		{	
+			_method = method;
+		}
+
+		public IMethod ConstructMethod(IType[] arguments)
 		{
-			get 
-			{
-				return _tss.Map(((System.Reflection.MethodInfo)_method.MethodInfo).GetGenericMethodDefinition());
-			}
+			return ConstructEntity(arguments);
 		}
 		
-		public IType[] GenericArguments
+		protected override Type[] GetActualGenericParameters()
 		{
-			get 
-			{
-				if (_arguments == null)
-				{
-					_arguments = Array.ConvertAll<Type, IType>(
-						_method.MethodInfo.GetGenericArguments(), _tss.Map);
-				}
-				
-				return _arguments;
-			}
+			return _method.MethodInfo.GetGenericArguments();
 		}
 		
-		public bool FullyConstructed
+		protected override IMethod ConstructExternalEntity(Type[] arguments)
 		{
-			get { return !_method.MethodInfo.ContainsGenericParameters; }
-		}		
-	}	
+			return _tss.Map(((System.Reflection.MethodInfo)_method.MethodInfo).MakeGenericMethod(arguments));
+		}
+		
+		protected override IMethod ConstructInternalEntity(IType[] arguments)
+		{
+			return new GenericConstructedMethod(_tss, _method, arguments);
+		}
+	}
 }
