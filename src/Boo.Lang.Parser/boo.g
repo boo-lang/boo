@@ -420,6 +420,7 @@ callable_definition [TypeMemberCollection container]
 	{
 		CallableDefinition cd = null;
 		TypeReference returnType = null;
+		GenericParameterDeclarationCollection genericParameters = null;
 	}:
 	CALLABLE id:ID
 	{
@@ -428,7 +429,12 @@ callable_definition [TypeMemberCollection container]
 		cd.Modifiers = _modifiers;
 		AddAttributes(cd.Attributes);
 		container.Add(cd);
+		genericParameters = cd.GenericParameters;
 	}
+	(
+		(LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK) |
+		(OF generic_parameter_declaration[genericParameters])
+	)?
 	LPAREN parameter_declaration_list[cd.Parameters] RPAREN
 	(AS returnType=type_reference { cd.ReturnType=returnType; })?			
 	eos
@@ -538,6 +544,7 @@ class_definition [TypeMemberCollection container]
 		TypeDefinition td = null;
 		TypeReferenceCollection baseTypes = null;
 		TypeMemberCollection members = null;
+		GenericParameterDeclarationCollection genericParameters = null;
 	}:
 	(
 		CLASS { td = new ClassDefinition(); } |
@@ -552,7 +559,12 @@ class_definition [TypeMemberCollection container]
 		container.Add(td);
 		baseTypes = td.BaseTypes;
 		members = td.Members;
+		genericParameters = td.GenericParameters;
 	}
+	(
+		(LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK) |
+		(OF generic_parameter_declaration[genericParameters])
+	)?
 	(base_types[baseTypes])?
 	begin_with_doc[td]					
 	(
@@ -583,6 +595,7 @@ interface_definition [TypeMemberCollection container]
 	{
 		InterfaceDefinition itf = null;
 		TypeMemberCollection members = null;
+		GenericParameterDeclarationCollection genericParameters = null;
 	} :
 	INTERFACE id:ID
 	{
@@ -592,7 +605,12 @@ interface_definition [TypeMemberCollection container]
 		AddAttributes(itf.Attributes);
 		container.Add(itf);
 		members = itf.Members;
+		genericParameters = itf.GenericParameters;
 	}
+	(
+		(LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK) |
+		(OF generic_parameter_declaration[genericParameters])
+	)?
 	(base_types[itf.BaseTypes])?
 	begin_with_doc[itf]
 	(

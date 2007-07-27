@@ -449,7 +449,7 @@
     <Compile Include="TypeSystem\GenericConstructedMethod.cs" />
     <Compile Include="TypeSystem\GenericConstructedType.cs" />
     <Compile Include="TypeSystem\GenericMappedMembers.cs" />
-    <Compile Include="TypeSystem\GenericTypeMapper.cs" />
+    <Compile Include="TypeSystem\GenericMapping.cs" />
     <Compile Include="TypeSystem\IEntity.cs" />
     <Compile Include="TypeSystem\INameSpace.cs" />
     <Compile Include="TypeSystem\InternalCallableType.cs" />
@@ -461,6 +461,7 @@
     <Compile Include="TypeSystem\InternalField.cs" />
     <Compile Include="TypeSystem\InternalGenericMethod.cs" />
     <Compile Include="TypeSystem\InternalGenericParameter.cs" />
+    <Compile Include="TypeSystem\InternalGenericTypeInfo.cs" />
     <Compile Include="TypeSystem\InternalInterface.cs" />
     <Compile Include="TypeSystem\InternalLabel.cs" />
     <Compile Include="TypeSystem\InternalLocal.cs" />

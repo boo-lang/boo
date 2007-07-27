@@ -4205,7 +4205,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (method.GenericParameters.Count != 0)
 			{
-				DefineGenericParameters(builder, method.GenericParameters);
+				DefineGenericParameters(builder, method.GenericParameters.ToArray());
 			}
 			
 			builder.SetParameters(GetParameterTypes(parameters));
@@ -4225,27 +4225,45 @@ namespace Boo.Lang.Compiler.Steps
 			return builder;
 		}
 
-		void DefineGenericParameters(MethodBuilder builder, GenericParameterDeclarationCollection parameters)
+		/// <summary>
+		/// Defines the generic parameters of an internal generic type.
+		/// </summary>
+		void DefineGenericParameters(TypeBuilder builder, GenericParameterDeclaration[] parameters)
 		{
-			string[] names = new string[parameters.Count];
-			int i = 0;
-			
-			foreach (GenericParameterDeclaration gpd in parameters)
-			{
-				names[i] = gpd.Name;
-				i++;
-			}
-			
-			builder.DefineGenericParameters(names);
+			string[] names = Array.ConvertAll<GenericParameterDeclaration, string>(
+				parameters,
+				delegate(GenericParameterDeclaration gpd) { return gpd.Name; });
 
-			Type[] parameterBuilders = builder.GetGenericArguments();			
-			i = 0;
-			foreach (GenericParameterDeclaration gpd in parameters)
-			{
-				SetBuilder(gpd, parameterBuilders[i++]); 
-			}		
+			GenericTypeParameterBuilder[] builders = builder.DefineGenericParameters(names);
+
+			DefineGenericParameters(builders, parameters);
 		}
-		
+
+		/// <summary>
+		/// Defines the generic parameters of an internal generic method.
+		/// </summary>
+		void DefineGenericParameters(MethodBuilder builder, GenericParameterDeclaration[] parameters)
+		{
+			string[] names = Array.ConvertAll<GenericParameterDeclaration, string>(
+				parameters,
+				delegate(GenericParameterDeclaration gpd) { return gpd.Name; });
+
+			GenericTypeParameterBuilder[] builders = builder.DefineGenericParameters(names);
+
+			DefineGenericParameters(builders, parameters);
+		}
+
+		void DefineGenericParameters(GenericTypeParameterBuilder[] builders, GenericParameterDeclaration[] declarations)
+		{
+			// Set builders
+			for (int i = 0; i < builders.Length; i++)
+			{
+				SetBuilder(declarations[i], builders[i]);
+			}
+
+			// TODO: Set constraints
+		}
+
 		private CustomAttributeBuilder CreateDuckTypedCustomAttribute()
 		{
 			return new CustomAttributeBuilder(DuckTypedAttribute_Constructor, new object[0]);
@@ -4272,6 +4290,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			TypeBuilder typeBuilder = CreateTypeBuilder(typeDefinition);
 			SetBuilder(typeDefinition, typeBuilder);
+
+			if (typeDefinition.GenericParameters.Count > 0)
+			{
+				DefineGenericParameters(typeBuilder, typeDefinition.GenericParameters.ToArray());
+			}
 		}
 		
 		bool IsValueType(TypeMember type)

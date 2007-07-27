@@ -36,19 +36,40 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// <summary>
 	/// Maps entities onto their constructed counterparts, substituting type arguments for generic parameters.
 	/// </summary>
-	public class GenericTypeMapper
+	public class GenericMapping
 	{
 		TypeSystemServices _tss;
 		IDictionary<IGenericParameter, IType> _map = new Dictionary<IGenericParameter, IType>();
         IDictionary<IEntity, IEntity> _cache = new Dictionary<IEntity, IEntity>();
-		
+		IEntity _constructedOwner = null;
+		IEntity _genericSource = null;
+
+		/// <summary>
+		/// Constructs a new generic mapping between a generic type and one of its constructed types.
+		/// </summary>
+		public GenericMapping(TypeSystemServices tss, IType constructedType, IType[] arguments)
+			: this(tss, constructedType.ConstructedInfo.GenericDefinition.GenericInfo.GenericParameters, arguments)
+		{
+			_constructedOwner = constructedType;
+			_genericSource = constructedType.ConstructedInfo.GenericDefinition;
+		}
+
+		/// <summary>
+		/// Constructs a new generic mapping between a generic method and one of its constructed methods.
+		/// </summary>
+		public GenericMapping(TypeSystemServices tss, IMethod constructedMethod, IType[] arguments)
+			: this(tss, constructedMethod.ConstructedInfo.GenericDefinition.GenericInfo.GenericParameters, arguments)
+		{
+			_constructedOwner = constructedMethod;
+			_genericSource = constructedMethod.ConstructedInfo.GenericDefinition;
+		}
+
         /// <summary>
-        /// Constrcuts a new GenericTypeMapper for a specific mapping of generic parameters to type arguments.
+		/// Constrcuts a new GenericMapping for a specific mapping of generic parameters to type arguments.
         /// </summary>
-        /// <param name="tss">A TypeSystemServices instance.</param>
         /// <param name="parameters">The generic parameters that should be mapped.</param>
         /// <param name="arguments">The type arguments to map generic parameters to.</param>
-		public GenericTypeMapper(TypeSystemServices tss, IGenericParameter[] parameters, IType[] arguments)
+		protected GenericMapping(TypeSystemServices tss, IGenericParameter[] parameters, IType[] arguments)
 		{
 			_tss = tss;
 			for (int i = 0; i < parameters.Length; i++)
@@ -72,8 +93,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return null;
 			}
-			
-			// If sourceType is a reference type, map its element type 
+
+			// Strip reference types
 			if (sourceType.IsByRef)
 			{
 				return MapType(sourceType.GetElementType());
@@ -141,13 +162,20 @@ namespace Boo.Lang.Compiler.TypeSystem
             if (source == null)
                 return null;
 
+			// Map generic source to the constructed owner of this mapping
+			if (source == _genericSource)
+			{
+				return _constructedOwner;
+			}
+
+			// Use cache if possible
             if (_cache.ContainsKey(source))
             {
                 return _cache[source];
             }
 
+			// Map entity based on its entity type
             IEntity mapped = null;
-
             switch (source.EntityType)
             {
                 case EntityType.Method:
@@ -183,15 +211,9 @@ namespace Boo.Lang.Compiler.TypeSystem
                     return source;
             }
 
-            if (mapped != null)
-            {
-                _cache[source] = mapped;
-                return mapped;
-            }
-            else
-            {
-                return source;
-            }
+			// Cache mapped result and return it
+            _cache[source] = mapped;
+            return mapped;
         }
 
         /// <summary>
@@ -258,3 +280,4 @@ namespace Boo.Lang.Compiler.TypeSystem
         }
 	}
 }
+

@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem
         protected TypeSystemServices _tss;
         protected IType _definition;
         IType[] _arguments;
-        GenericTypeMapper _typeMapper;
+        GenericMapping _genericMapping;
         bool _fullyConstructed;
         
         string _fullName = null;
@@ -58,10 +58,7 @@ namespace Boo.Lang.Compiler.TypeSystem
             _definition = definition;
             _arguments = arguments;
             _fullyConstructed = IsFullyConstructed();
-            _typeMapper = new GenericTypeMapper(
-                tss, 
-                definition.GenericInfo.GenericParameters, 
-                arguments);
+            _genericMapping = new GenericMapping(tss, this, arguments);
         }
 
         protected bool IsFullyConstructed()
@@ -85,9 +82,9 @@ namespace Boo.Lang.Compiler.TypeSystem
             return string.Format("{0}[{1}]", _definition.FullName, string.Join(", ", argumentNames));
         }
 
-        public GenericTypeMapper TypeMapper
+        public GenericMapping GenericMapping
         {
-            get { return _typeMapper; }
+            get { return _genericMapping; }
         }
 
         public bool IsClass
@@ -137,31 +134,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public IType GetElementType()
         {
-            return TypeMapper.Map(_definition.GetElementType());
+            return GenericMapping.Map(_definition.GetElementType());
         }
 
         public IType BaseType
         {
-            get { return TypeMapper.Map(_definition.BaseType); }
+            get { return GenericMapping.Map(_definition.BaseType); }
         }
 
         public IEntity GetDefaultMember()
         {
-            return TypeMapper.Map(_definition.GetDefaultMember());
+            return GenericMapping.Map(_definition.GetDefaultMember());
         }
 
         public IConstructor[] GetConstructors()
         {
             return Array.ConvertAll<IConstructor, IConstructor>(
                 _definition.GetConstructors(),
-                delegate(IConstructor c) { return TypeMapper.Map(c); });
+                delegate(IConstructor c) { return GenericMapping.Map(c); });
         }
 
         public IType[] GetInterfaces()
         {
             return Array.ConvertAll<IType, IType>(
                 _definition.GetInterfaces(), 
-                TypeMapper.Map);
+                GenericMapping.Map);
         }
 
         public bool IsSubclassOf(IType other)
@@ -215,7 +212,7 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             get 
             {              
-                return TypeMapper.Map(_definition.ParentNamespace as IEntity) as INamespace; 
+                return GenericMapping.Map(_definition.ParentNamespace as IEntity) as INamespace; 
             }
         }
 
@@ -227,7 +224,7 @@ namespace Boo.Lang.Compiler.TypeSystem
             {
                 foreach (IEntity match in definitionMatches)
                 {
-                    targetList.AddUnique(TypeMapper.Map(match));
+                    targetList.AddUnique(GenericMapping.Map(match));
                 }
                 return true;
             }
@@ -236,7 +233,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public IEntity[] GetMembers()
         {
-            return Array.ConvertAll<IEntity, IEntity>(_definition.GetMembers(), TypeMapper.Map);
+            return Array.ConvertAll<IEntity, IEntity>(_definition.GetMembers(), GenericMapping.Map);
         }
 
         public string Name
@@ -268,6 +265,11 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             get { return _fullyConstructed; }
         }
+
+		public override string ToString()
+		{
+			return FullName;
+		}
     }
 
     public class GenericConstructedCallableType : GenericConstructedType, ICallableType
@@ -285,8 +287,8 @@ namespace Boo.Lang.Compiler.TypeSystem
             {
                 CallableSignature definitionSignature = ((ICallableType)_definition).GetSignature();
                 
-                IParameter[] parameters = TypeMapper.Map(definitionSignature.Parameters);
-                IType returnType = TypeMapper.Map(definitionSignature.ReturnType);
+                IParameter[] parameters = GenericMapping.Map(definitionSignature.Parameters);
+                IType returnType = GenericMapping.Map(definitionSignature.ReturnType);
                 
                 _signature = new CallableSignature(parameters, returnType);
             }

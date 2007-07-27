@@ -1594,16 +1594,19 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteKeyword(keyword);
 			Write(" ");
 			Write(td.Name);
+
+			if (td.GenericParameters.Count != 0)
+			{
+				WriteGenericParameterList(td.GenericParameters);
+			}
+
 			if (td.BaseTypes.Count > 0)
 			{
 				Write("(");
-				for (int i=0; i<td.BaseTypes.Count; ++i)
-				{
-					if (i > 0) { Write(", "); }
-					Write(((SimpleTypeReference)td.BaseTypes[i]).Name);
-				}
+				WriteCommaSeparatedList<TypeReference>(td.BaseTypes);
 				Write(")");
 			}
+
 			WriteLine(":");
 			BeginBlock();
 			if (td.Members.Count > 0)

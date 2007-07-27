@@ -33,19 +33,21 @@ namespace Boo.Lang.Compiler.TypeSystem
     using Boo.Lang.Compiler.TypeSystem;
     using Boo.Lang.Compiler.Ast;
 
-    public abstract class GenericMappedMember<T> : IMember
-        where T : IMember
+	/// <summary>
+	/// A base class for a member mapped from a generic type onto a constructed type.
+	/// </summary>
+    public abstract class GenericMappedMember<T> : IMember where T : IMember
     {
         protected readonly TypeSystemServices _tss;
         readonly T _source;
-        readonly GenericTypeMapper _typeMapper;
+        readonly GenericMapping _genericMapping;
         string _fullName = null;
 
-        protected GenericMappedMember(TypeSystemServices tss, T source, GenericTypeMapper typeMapper)
+        protected GenericMappedMember(TypeSystemServices tss, T source, GenericMapping genericMapping)
         {
             _tss = tss;
             _source = source;
-            _typeMapper = typeMapper;
+            _genericMapping = genericMapping;
         }
 
         public T Source
@@ -58,9 +60,9 @@ namespace Boo.Lang.Compiler.TypeSystem
             return DeclaringType.FullName + "." + Name;
         }
 
-        public GenericTypeMapper TypeMapper
+        public GenericMapping GenericMapping
         {
-            get { return _typeMapper; }
+            get { return _genericMapping; }
         }
 
         public bool IsDuckTyped
@@ -70,7 +72,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public IType DeclaringType
         {
-            get { return TypeMapper.Map(Source.DeclaringType); }
+            get { return GenericMapping.Map(Source.DeclaringType); }
         }
 
         public bool IsStatic
@@ -80,7 +82,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public IType Type
         {
-            get { return TypeMapper.Map(Source.Type); }
+            get { return GenericMapping.Map(Source.Type); }
         }
 
         public EntityType EntityType
@@ -105,12 +107,21 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             get { return Source.IsPublic; }
         }
+
+		public override string ToString()
+		{
+			return FullName;
+		}
     }
 
+	/// <summary>
+	/// A base class for an accessible member mapped from a generic type onto a constructed type.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
     public abstract class GenericMappedAccessibleMember<T> : GenericMappedMember<T> where T : IAccessibleMember
     {
-        protected GenericMappedAccessibleMember(TypeSystemServices tss, T source, GenericTypeMapper typeMapper)
-            : base(tss, source, typeMapper)
+        protected GenericMappedAccessibleMember(TypeSystemServices tss, T source, GenericMapping genericMapping)
+            : base(tss, source, genericMapping)
         {
         }
 
@@ -140,8 +151,8 @@ namespace Boo.Lang.Compiler.TypeSystem
         IParameter[] _parameters = null;
         ICallableType _callableType = null;
 
-        public GenericMappedMethod(TypeSystemServices tss, IMethod source, GenericTypeMapper typeMapper)
-            : base(tss, source, typeMapper)
+        public GenericMappedMethod(TypeSystemServices tss, IMethod source, GenericMapping genericMapping)
+            : base(tss, source, genericMapping)
         {
         }
 
@@ -201,12 +212,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public IType ReturnType
         {
-            get { return TypeMapper.Map(Source.ReturnType); }
+            get { return GenericMapping.Map(Source.ReturnType); }
         }
 
         public IParameter[] GetParameters()
         {
-            return _parameters ?? (_parameters = TypeMapper.Map(Source.GetParameters()));
+            return _parameters ?? (_parameters = GenericMapping.Map(Source.GetParameters()));
         }
     }
 
@@ -219,8 +230,8 @@ namespace Boo.Lang.Compiler.TypeSystem
     /// </summary>
     public class GenericMappedConstructor : GenericMappedMethod, IConstructor
     {
-        public GenericMappedConstructor(TypeSystemServices tss, IConstructor source, GenericTypeMapper typeMapper)
-            : base(tss, (IMethod)source, typeMapper)
+        public GenericMappedConstructor(TypeSystemServices tss, IConstructor source, GenericMapping genericMapping)
+            : base(tss, (IMethod)source, genericMapping)
         {
         }
     }
@@ -236,24 +247,24 @@ namespace Boo.Lang.Compiler.TypeSystem
     {
         IParameter[] _parameters;
 
-        public GenericMappedProperty(TypeSystemServices tss, IProperty source, GenericTypeMapper typeMapper)
-            : base(tss, source, typeMapper)
+        public GenericMappedProperty(TypeSystemServices tss, IProperty source, GenericMapping genericMapping)
+            : base(tss, source, genericMapping)
         {
         }
 
         public IParameter[] GetParameters()
         {
-            return _parameters ?? (_parameters = TypeMapper.Map(Source.GetParameters()));
+            return _parameters ?? (_parameters = GenericMapping.Map(Source.GetParameters()));
         }
 
         public IMethod GetGetMethod()
         {
-            return TypeMapper.Map(Source.GetGetMethod());
+            return GenericMapping.Map(Source.GetGetMethod());
         }
 
         public IMethod GetSetMethod()
         {
-            return TypeMapper.Map(Source.GetSetMethod());
+            return GenericMapping.Map(Source.GetSetMethod());
         }
 
         public override string ToString()
@@ -281,24 +292,24 @@ namespace Boo.Lang.Compiler.TypeSystem
     /// </summary>
     public class GenericMappedEvent : GenericMappedMember<IEvent>, IEvent
     {
-        public GenericMappedEvent(TypeSystemServices tss, IEvent source, GenericTypeMapper typeMapper)
-            : base(tss, source, typeMapper)
+        public GenericMappedEvent(TypeSystemServices tss, IEvent source, GenericMapping genericMapping)
+            : base(tss, source, genericMapping)
         {
         }
 
         public IMethod GetAddMethod()
         {
-            return TypeMapper.Map(Source.GetAddMethod());
+            return GenericMapping.Map(Source.GetAddMethod());
         }
 
         public IMethod GetRemoveMethod()
         {
-            return TypeMapper.Map(Source.GetRemoveMethod());
+            return GenericMapping.Map(Source.GetRemoveMethod());
         }
 
         public IMethod GetRaiseMethod()
         {
-            return TypeMapper.Map(Source.GetRemoveMethod());
+            return GenericMapping.Map(Source.GetRemoveMethod());
         }
 
         public bool IsAbstract
@@ -321,8 +332,8 @@ namespace Boo.Lang.Compiler.TypeSystem
     /// </summary>
     public class GenericMappedField : GenericMappedAccessibleMember<IField>, IField
     {
-        public GenericMappedField(TypeSystemServices tss, IField source, GenericTypeMapper typeMapper)
-            : base(tss, source, typeMapper)
+        public GenericMappedField(TypeSystemServices tss, IField source, GenericMapping genericMapping)
+            : base(tss, source, genericMapping)
         {
         }
 
@@ -347,16 +358,17 @@ namespace Boo.Lang.Compiler.TypeSystem
     #region class GenericMappedParameter
 	
     /// <summary>
-    /// A parameter in a generic mapped method or a generic constructed method.
+    /// A parameter in a method constructed from a generic method, or a mapped onto a type constructed 
+	/// from a generic type.
 	/// </summary>
 	public class GenericMappedParameter : IParameter
 	{
-		private GenericTypeMapper _typeMapper;
+		private GenericMapping _genericMapping;
 		private IParameter _baseParameter;
 		
-		public GenericMappedParameter(IParameter parameter, GenericTypeMapper typeMapper)
+		public GenericMappedParameter(IParameter parameter, GenericMapping genericMapping)
 		{
-			_typeMapper = typeMapper;
+			_genericMapping = genericMapping;
 			_baseParameter = parameter;
 		}
 		
@@ -367,7 +379,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType Type
 		{
-			get { return _typeMapper.Map(_baseParameter.Type); }
+			get { return _genericMapping.Map(_baseParameter.Type); }
 		}
 		
 		public string Name

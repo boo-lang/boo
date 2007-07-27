@@ -78,6 +78,7 @@ class CallableDefinition(TypeMember, INodeWithParameters):
 abstract class TypeDefinition(TypeMember):
 	Members as TypeMemberCollection
 	BaseTypes as TypeReferenceCollection
+	GenericParameters as GenericParameterDeclarationCollection
 
 [collection(TypeDefinition)]
 class TypeDefinitionCollection:

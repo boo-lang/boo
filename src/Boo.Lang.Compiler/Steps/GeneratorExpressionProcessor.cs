@@ -340,11 +340,11 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			// For constructed types which aren't external we can use the TypeMapper to 
+			// For constructed types which aren't external we can use the GenericMapping to 
 			// (maybe) optimize things a little
             if (type.ConstructedInfo != null)
             {
-                return ((GenericConstructedType)type).TypeMapper.Map(
+                return ((GenericConstructedType)type).GenericMapping.Map(
                     GetMember(type.ConstructedInfo.GenericDefinition, name, entityType));
             }
 

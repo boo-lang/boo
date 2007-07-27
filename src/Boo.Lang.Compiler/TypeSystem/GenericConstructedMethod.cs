@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IType[] _genericArguments;
 		IMethod _definition;
 		
-		GenericTypeMapper _typeMapper;		
+		GenericMapping _genericMapping;		
 		ICallableType _callableType;		
 		bool _fullyConstructed;
 		string _fullName = null;
@@ -58,10 +58,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_definition = definition;
 			_genericArguments = arguments;
 			
-			_typeMapper = new GenericTypeMapper(
-				tss, 
-				definition.GenericInfo.GenericParameters, 
-				arguments);
+			_genericMapping = new GenericMapping(tss, this, arguments);
 				
 			_fullyConstructed = IsFullyConstructed();
 		}
@@ -90,19 +87,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 				string.Join(", ", argumentNames));
 		}
 
-        protected GenericTypeMapper TypeMapper
+        protected GenericMapping GenericMapping
         {
-            get { return _typeMapper; }
+            get { return _genericMapping; }
         }
 
 		public IParameter[] GetParameters()
 		{
-            return _parameters ?? (_parameters = TypeMapper.Map(_definition.GetParameters()));
+            return _parameters ?? (_parameters = GenericMapping.Map(_definition.GetParameters()));
 		}
 
 		public IType ReturnType
 		{
-			get { return TypeMapper.Map(_definition.ReturnType); }
+			get { return GenericMapping.Map(_definition.ReturnType); }
 		}
 		
 		public bool IsAbstract

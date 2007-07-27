@@ -1378,7 +1378,7 @@ namespace Boo.Lang.Compiler.TypeSystem
             GenericConstructedType constructedType = iteratorType as GenericConstructedType;
             if (constructedType != null)
             {
-                return constructedType.TypeMapper.Map(
+                return constructedType.GenericMapping.Map(
                     GetEnumeratorItemTypeFromAttribute(constructedType.GenericDefinition));
             }
 

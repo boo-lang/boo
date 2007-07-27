@@ -44,18 +44,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected INamespace _parentNamespace;
 
+		protected InternalGenericTypeInfo _genericInfo = null;
+
+		private string _fullName = null;
+
 		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition)
 		{
 			_typeSystemServices = typeSystemServices;
 			_typeDefinition = typeDefinition;
+			
+			if (typeDefinition.GenericParameters.Count > 0)
+			{
+				_genericInfo = new InternalGenericTypeInfo(typeSystemServices, this, typeDefinition.GenericParameters);
+			}
+		}
+
+		protected virtual string BuildFullName()
+		{
+			string fullName = _typeDefinition.FullName;
+
+			if (_genericInfo != null)
+			{
+				fullName = string.Format("{0}`{1}", fullName, _genericInfo.GenericParameters.Length);
+			}
+
+			return fullName;
 		}
 
 		public string FullName
 		{
-			get
-			{
-				return _typeDefinition.FullName;
-			}
+			get { return _fullName ?? (_fullName = BuildFullName());  }
 		}
 
 		public string Name
@@ -98,6 +116,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			bool found = false;
 
+			// Try to resolve name as a generic parameter if applicable
+			if (_genericInfo != null && NameResolutionService.IsFlagSet(flags, EntityType.Type))
+			{
+				IType genericParameter = _genericInfo.GetGenericParameter(name);
+				if (genericParameter != null)
+				{
+					targetList.AddUnique(genericParameter);
+					found = true;
+				}
+			}
+
+			// Try to resolve name as a member
 			foreach (IEntity entity in GetMembers())
 			{
 				if (entity.Name == name && NameResolutionService.IsFlagSet(flags, entity.EntityType))
@@ -312,7 +342,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		IGenericTypeInfo IType.GenericInfo
 		{
-			get { return null; }
+			get { return _genericInfo; }
 		}
 
 		IConstructedTypeInfo IType.ConstructedInfo

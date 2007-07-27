@@ -406,7 +406,7 @@
     <File name="TypeSystem/GenericConstructedMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericConstructedType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMappedMembers.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GenericTypeMapper.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/GenericMapping.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/INameSpace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalCallableType.cs" buildaction="Compile" subtype="Code" />
@@ -418,6 +418,7 @@
     <File name="TypeSystem/InternalField.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalGenericMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalGenericParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/InternalGenericTypeInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalInterface.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalLabel.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalLocal.cs" buildaction="Compile" subtype="Code" />
