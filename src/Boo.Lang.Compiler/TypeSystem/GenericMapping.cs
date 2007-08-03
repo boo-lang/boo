@@ -121,7 +121,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				
 				return mapped;
 			}
-			
+
+			// TODO: Map nested types
+			// GenericType[of T].NestedType => GenericType[of int].NestedType
+
 			// Map array types
 			IArrayType array = (sourceType as IArrayType);
 			if (array != null)

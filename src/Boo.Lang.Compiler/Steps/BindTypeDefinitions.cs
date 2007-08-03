@@ -52,6 +52,7 @@ namespace Boo.Lang.Compiler.Steps
 			cd.Attributes = node.Attributes;
 			cd.Modifiers = node.Modifiers;
 			cd.Members = node.Members;
+			cd.GenericParameters = node.GenericParameters;
 			cd.BaseTypes = node.BaseTypes;
 			cd.BaseTypes.Insert(0, CodeBuilder.CreateTypeReference(TypeSystemServices.ValueTypeType));
 			foreach (TypeMember member in cd.Members)

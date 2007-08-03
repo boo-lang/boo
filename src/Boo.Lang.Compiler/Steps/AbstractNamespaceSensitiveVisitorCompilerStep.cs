@@ -72,6 +72,20 @@ namespace Boo.Lang.Compiler.Steps
 			VisitTypeDefinitionBody(node);
 			LeaveNamespace();
 		}
+
+		public override void OnInterfaceDefinition(InterfaceDefinition node)
+		{
+			EnterNamespace((INamespace)GetEntity(node));
+			VisitTypeDefinitionBody(node);
+			LeaveNamespace();
+		}
+
+		public override void OnStructDefinition(StructDefinition node)
+		{
+			EnterNamespace((INamespace)GetEntity(node));
+			VisitTypeDefinitionBody(node);
+			LeaveNamespace();
+		}
 		
 		void VisitTypeDefinitionBody(TypeDefinition node)
 		{

@@ -51,8 +51,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
+			// Visit type definition's members to resolve base types on nested types
 			base.OnClassDefinition(node);
-			
+
+			// Resolve and check base types
 			ResolveBaseTypes(new Boo.Lang.List(), node);
 			CheckBaseTypes(node);
 			
@@ -121,21 +123,30 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ResolveBaseTypes(Boo.Lang.List visited, TypeDefinition node)
 		{
+			// If type is generic, enter a special namespace to allow 
+			// correct resolution of generic parameters
+			IType type = (IType)TypeSystemServices.GetEntity(node);
+			if (type.GenericInfo != null)
+			{
+				EnterNamespace(new GenericParametersNamespaceExtender(
+					type, NameResolutionService.CurrentNamespace));
+			}
+
 			visited.Add(node);
-			
+
 			int removed = 0;
 			int index = 0;
-			foreach (SimpleTypeReference type in node.BaseTypes.ToArray())
+			foreach (SimpleTypeReference baseType in node.BaseTypes.ToArray())
 			{
-				NameResolutionService.ResolveSimpleTypeReference(type);
+				NameResolutionService.ResolveSimpleTypeReference(baseType);
 
-				AbstractInternalType internalType = type.Entity as AbstractInternalType;
+				AbstractInternalType internalType = baseType.Entity as AbstractInternalType;
 				if (null != internalType)
 				{
 					if (visited.Contains(internalType.TypeDefinition))
 					{
-						Error(CompilerErrorFactory.InheritanceCycle(type, internalType.FullName));
-						node.BaseTypes.RemoveAt(index-removed);
+						Error(CompilerErrorFactory.InheritanceCycle(baseType, internalType.FullName));
+						node.BaseTypes.RemoveAt(index - removed);
 						++removed;
 					}
 					else
@@ -145,6 +156,61 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				++index;
 			}
+
+			// Leave special namespace if we entered it before
+			if (type.GenericInfo != null)
+			{
+				LeaveNamespace();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Provides a quasi-namespace that can resolve a type's generic parameters before its base types are bound.
+	/// </summary>
+	internal class GenericParametersNamespaceExtender : INamespace
+	{
+		IType _type;
+		INamespace _parent;
+
+		public GenericParametersNamespaceExtender(IType type, INamespace currentNamespace)
+		{
+			_type = type;
+			_parent = currentNamespace;
+		}
+
+		public INamespace ParentNamespace
+		{
+			get 
+			{ 
+				return _parent; 
+			}
+		}
+
+		public bool Resolve(List targetList, string name, EntityType filter)
+		{
+			if (_type.GenericInfo != null && filter == EntityType.Type)
+			{
+				IGenericParameter match = Array.Find(
+					_type.GenericInfo.GenericParameters,
+					delegate(IGenericParameter gp) { return gp.Name == name; });
+
+				if (match != null)
+				{
+					targetList.AddUnique(match);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public IEntity[] GetMembers()
+		{
+			if (_type.GenericInfo != null)
+			{
+				return _type.GenericInfo.GenericParameters;
+			}
+			return NullNamespace.EmptyEntityArray;
 		}
 	}
 }
