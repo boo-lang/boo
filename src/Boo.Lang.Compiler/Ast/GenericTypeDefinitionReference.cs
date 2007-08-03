@@ -39,6 +39,11 @@ namespace Boo.Lang.Compiler.Ast
 		public GenericTypeDefinitionReference(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
+
+		public override string ToString()
+		{
+			return ToCodeString();
+		}
 	}
 }
 
