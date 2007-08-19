@@ -3184,7 +3184,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected virtual void BindBinaryExpression(BinaryExpression node)
 		{
-			if(IsEnumOperation(node))
+			if (IsEnumOperation(node))
 			{
 				BindEnumOperation(node);
 				return;
@@ -3306,57 +3306,53 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsEnumOperation(BinaryExpression node)
 		{
-			switch(node.Operator)
+			switch (node.Operator)
 			{
 				case BinaryOperatorType.Addition:
 				case BinaryOperatorType.Subtraction:
 				case BinaryOperatorType.BitwiseAnd:
 				case BinaryOperatorType.BitwiseOr:
 				case BinaryOperatorType.ExclusiveOr:
-					return (GetExpressionType(node.Left).IsEnum || 
-					        GetExpressionType(node.Right).IsEnum);
-				default:
-					return false;
+					IType lhs = GetExpressionType(node.Left);
+					IType rhs = GetExpressionType(node.Right);
+					if (lhs.IsEnum) return IsValidEnumOperand(lhs, rhs);
+					if (rhs.IsEnum) return IsValidEnumOperand(rhs, lhs);
+					break;
 			}
-//			switch(node.Operator)
-//			{
-//				case BinaryOperatorType.Addition:
-//					return lhs.IsEnum != rhs.IsEnum;
-//				case BinaryOperatorType.Subtraction:
-//					return lhs.IsEnum && !rhs.IsEnum || lhs == rhs;
-//				case BinaryOperatorType.BitwiseAnd:
-//				case BinaryOperatorType.BitwiseOr:
-//				case BinaryOperatorType.ExclusiveOr:
-//					return lhs == rhs;
-//				default:
-//					return false;
-//			}
+			return false;
+		}
+
+		bool IsValidEnumOperand(IType expected, IType actual)
+		{
+			if (expected == actual) return true;
+			if (actual.IsEnum) return true;
+			return TypeSystemServices.IsIntegerNumber(actual);
 		}
 		
 		void BindEnumOperation(BinaryExpression node)
 		{
 			IType lhs = GetExpressionType(node.Left);
 			IType rhs = GetExpressionType(node.Right);
-			
 			switch(node.Operator)
 			{
 				case BinaryOperatorType.Addition:
 					if (lhs.IsEnum != rhs.IsEnum)
 					{
-						BindExpressionType(node, lhs.IsEnum?lhs:rhs);
+						BindExpressionType(node, lhs.IsEnum ? lhs : rhs);
+						return;
 					}
-					else goto default;
 					break;
 				case BinaryOperatorType.Subtraction:
 					if (lhs == rhs)
 					{
 						BindExpressionType(node, TypeSystemServices.IntType);
+						return;
 					}
 					else if (lhs.IsEnum && !rhs.IsEnum)
 					{
 						BindExpressionType(node, lhs);
+						return;
 					}
-					else goto default;
 					break;
 				case BinaryOperatorType.BitwiseAnd:
 				case BinaryOperatorType.BitwiseOr:
@@ -3364,15 +3360,13 @@ namespace Boo.Lang.Compiler.Steps
 					if (lhs == rhs)
 					{
 						BindExpressionType(node, lhs);
-					}
-					else goto default;
-					break;
-				default:
-					if (!ResolveOperator(node))
-					{
-						InvalidOperatorForTypes(node);
+						return;
 					}
 					break;
+			}
+			if (!ResolveOperator(node))
+			{
+				InvalidOperatorForTypes(node);
 			}
 		}
 		
