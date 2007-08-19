@@ -1906,6 +1906,16 @@ namespace Boo.Lang.Runtime
 		{
 			return 0 != value;
 		}
+
+		public static bool ToBool(System.Single value)
+		{
+			return 0 != value;
+		}
+
+		public static bool ToBool(System.Double value)
+		{
+			return 0 != value;
+		}
 		
 		static BoolConverter GetBoolConverter(Type type)
 		{

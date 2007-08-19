@@ -74,6 +74,10 @@ namespace Boo.Lang.Compiler.Steps
 		static MethodInfo RuntimeServices_ToBool_Object = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Object });
 
 		static MethodInfo RuntimeServices_ToBool_Decimal = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Decimal });
+		
+		static MethodInfo RuntimeServices_ToBool_Single = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Single });
+		
+		static MethodInfo RuntimeServices_ToBool_Double = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Double });
 
 		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
 		
@@ -1626,6 +1630,16 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.DecimalType == type)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Decimal, null);
+				return true;
+			}
+			if (TypeSystemServices.SingleType == type)
+			{
+				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Single, null);
+				return true;
+			}
+			if (TypeSystemServices.DoubleType == type)
+			{
+				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Double, null);
 				return true;
 			}
 			return false;
