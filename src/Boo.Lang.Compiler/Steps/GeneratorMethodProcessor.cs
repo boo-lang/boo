@@ -160,21 +160,21 @@ namespace Boo.Lang.Compiler.Steps
 		Method CreateFieldSetter(IField member)
 		{
 			BooCodeBuilder builder = _context.CodeBuilder;
-			Method method = builder.CreateMethod("___" + member.Name, _context.TypeSystemServices.VoidType, TypeMemberModifiers.None);
+			Method method = builder.CreateMethod("$" + member.Name, member.Type, TypeMemberModifiers.None);
 			ParameterDeclaration value = builder.CreateParameterDeclaration(1, "value", member.Type);
 			method.Parameters.Add(value);					
 			method.Body.Add(
-					builder.CreateFieldAssignment(
-						LexicalInfo.Empty,
+				new ReturnStatement(
+					builder.CreateFieldAssignmentExpression(
 						member,
-						builder.CreateReference(value)));
+						builder.CreateReference(value))));
 			return method;
 		}
 		
 		Method CreateFieldAccessor(IField member)
 		{
 			BooCodeBuilder builder = _context.CodeBuilder;
-			Method method = builder.CreateMethod("___" + member.Name, member.Type, TypeMemberModifiers.None);
+			Method method = builder.CreateMethod("$" + member.Name, member.Type, TypeMemberModifiers.None);
 			method.Body.Add(
 				new ReturnStatement(
 					builder.CreateReference(member)));
@@ -185,7 +185,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			BooCodeBuilder builder = _context.CodeBuilder;
 			Method method = builder.CreateMethodFromPrototype(LexicalInfo.Empty, member, TypeMemberModifiers.None);			
-			method.Name = "___" + member.Name;
+			method.Name = "$" + member.Name;
 			MethodInvocationExpression mie = builder.CreateMethodInvocation(member);
 			foreach (ParameterDeclaration p in method.Parameters)
 			{
@@ -396,7 +396,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				InternalLocal entity = (InternalLocal)local.Entity;
 				
-				Field field = _enumerator.AddInternalField("___" + entity.Name + _context.AllocIndex(), entity.Type);
+				Field field = _enumerator.AddInternalField("$" + entity.Name + "$" + _context.AllocIndex(), entity.Type);
 				_mapping[entity] = field.Entity;
 			}
 			generator.Locals.Clear();
@@ -443,7 +443,7 @@ namespace Boo.Lang.Compiler.Steps
 													string parameterName,
 													IType parameterType)
 		{
-			Field field = type.AddInternalField("___" + parameterName + _context.AllocIndex(), parameterType);
+			Field field = type.AddInternalField("$" + parameterName + _context.AllocIndex(), parameterType);
 			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
 			return field;
 		}
@@ -514,7 +514,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null == _nullValueField)
 				{
-					_nullValueField = _enumerator.AddField("______empty", _generatorItemType);
+					_nullValueField = _enumerator.AddField("$empty", _generatorItemType);
 				}
 				return CodeBuilder.CreateReference(_nullValueField);
 			}
@@ -523,7 +523,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		LabelStatement CreateLabel(Node sourceNode)
 		{
-			InternalLabel label = CodeBuilder.CreateLabel(sourceNode, "___state_" + _labels.Count);
+			InternalLabel label = CodeBuilder.CreateLabel(sourceNode, "$state$" + _labels.Count);
 			_labels.Add(label.LabelStatement);
 			return label.LabelStatement;
 		}

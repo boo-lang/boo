@@ -68,12 +68,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public Statement CreateFieldAssignment(LexicalInfo lexicalInfo, IField fieldEntity, Expression initializer)
 		{
-			return new ExpressionStatement(
-				CreateAssignment(initializer.LexicalInfo,
-					CreateReference(fieldEntity),
-					initializer));
+			return new ExpressionStatement(lexicalInfo,
+				CreateFieldAssignmentExpression(fieldEntity, initializer));
 		}
-		
+
+		public Expression CreateFieldAssignmentExpression(IField fieldEntity, Expression initializer)
+		{
+			return CreateAssignment(initializer.LexicalInfo, CreateReference(fieldEntity), initializer);
+		}
+
 		public Attribute CreateAttribute(System.Type type)
 		{
 			return CreateAttribute(_tss.Map(type));
