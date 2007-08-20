@@ -142,6 +142,8 @@ BCE0140=Yield statement type '{0}' does not match generator element type '{1}'.
 BCE0141=Duplicate parameter name '{0}' in '{1}'.
 BCE0142=Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.
 BCE0143=Cannot return from an ensure block.
+BCE0144='{0}' is obsolete. {1}
+
 
 ;Compiler warnings
 BCW0000=WARNING: {0}
@@ -155,6 +157,8 @@ BCW0007=WARNING: Assignment inside a conditional. Did you mean == instead of = h
 BCW0008=WARNING: Duplicate namespace: '{0}'.
 BCW0009=WARNING: The -keyfile option will override your AssemblyKeyFile attribute.
 BCW0010=WARNING: The -keycontainer option will override your AssemblyKeyName attribute.
+BCW0011=WARNING: Type '{0}' does not provide an implementation for '{1}', a stub has been created.
+BCW0012=WARNING: '{0}' is obsolete. {1}
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' indicato piu' di una volta nella lista.

@@ -5,7 +5,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	public interface IExternalEntity : IEntity
 	{
-		System.Reflection.MemberInfo Member
+		System.Reflection.MemberInfo MemberInfo
 		{
 			get;
 		}
@@ -26,7 +26,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_memberInfo = memberInfo;
 		}
 
-		public MemberInfo Member
+		public MemberInfo MemberInfo
 		{
 			get { return _memberInfo;  }
 		}

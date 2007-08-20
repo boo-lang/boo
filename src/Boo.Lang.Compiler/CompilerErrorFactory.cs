@@ -770,6 +770,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0143", node.LexicalInfo);
 		}
 		
+		public static CompilerError Obsolete(Node node, string memberName, string message)
+		{
+			return new CompilerError("BCE0144", node.LexicalInfo, memberName, message);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

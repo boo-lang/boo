@@ -103,5 +103,10 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerWarning("BCW0011", node.LexicalInfo, typeName, memberName);
 		}
+		
+		public static CompilerWarning Obsolete(Node node, string memberName, string message)
+		{
+			return new CompilerWarning("BCW0012", node.LexicalInfo, memberName, message);
+		}
 	}
 }

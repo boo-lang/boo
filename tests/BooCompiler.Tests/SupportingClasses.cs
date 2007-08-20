@@ -30,6 +30,23 @@ namespace BooCompiler.Tests
 {
 	using System;
 	
+	public class ObsoleteClass
+	{
+		[Obsolete("It is." )]
+		public static int Bar = 42;
+		
+		[Obsolete("Indeed it is." )]
+		public static void Foo()
+		{
+		}
+		
+		[Obsolete("We said so.")]
+		public static int Baz
+		{
+			get { return 42; }
+		}
+	}
+	
 	public class ReturnDucks
 	{
 		public class DuckBase {}
