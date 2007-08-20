@@ -394,6 +394,7 @@
     <File name="TypeSystem/ExternalConstructedMethodInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalConstructedTypeInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalConstructor.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ExternalEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalEvent.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalField.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalGenericMethodInfo.cs" buildaction="Compile" subtype="Code" />

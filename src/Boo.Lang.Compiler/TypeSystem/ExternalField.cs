@@ -28,39 +28,17 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {	
-	public class ExternalField : IField
+	public class ExternalField : ExternalEntity<System.Reflection.FieldInfo>, IField
 	{
-		protected TypeSystemServices _typeSystemServices;
-		
-		System.Reflection.FieldInfo _field;
-		
-		public ExternalField(TypeSystemServices tagManager, System.Reflection.FieldInfo field)
-		{
-			_typeSystemServices = tagManager;
-			_field = field;
+		public ExternalField(TypeSystemServices typeSystemServices, System.Reflection.FieldInfo field) : base(typeSystemServices, field)
+		{	
 		}
 		
 		public virtual IType DeclaringType
 		{
 			get
 			{
-				return _typeSystemServices.Map(_field.DeclaringType);
-			}
-		}
-		
-		public string Name
-		{
-			get
-			{
-				return _field.Name;
-			}
-		}
-		
-		public string FullName
-		{
-			get
-			{
-				return DeclaringType.FullName + "." + _field.Name;
+				return _typeSystemServices.Map(_memberInfo.DeclaringType);
 			}
 		}
 		
@@ -68,7 +46,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.IsPublic;
+				return _memberInfo.IsPublic;
 			}
 		}
 		
@@ -76,7 +54,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.IsFamily || _field.IsFamilyOrAssembly;
+				return _memberInfo.IsFamily || _memberInfo.IsFamilyOrAssembly;
 			}
 		}
 
@@ -84,7 +62,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.IsPrivate;
+				return _memberInfo.IsPrivate;
 			}
 		}
 
@@ -92,7 +70,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.IsAssembly;
+				return _memberInfo.IsAssembly;
 			}
 		}
 		
@@ -100,7 +78,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.IsStatic;
+				return _memberInfo.IsStatic;
 			}
 		}
 		
@@ -108,7 +86,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.IsLiteral;
+				return _memberInfo.IsLiteral;
 			}
 		}
 		
@@ -116,11 +94,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.IsInitOnly;
+				return _memberInfo.IsInitOnly;
 			}
 		}
 		
-		public EntityType EntityType
+		override public EntityType EntityType
 		{
 			get
 			{
@@ -132,7 +110,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _typeSystemServices.Map(_field.FieldType);
+				return _typeSystemServices.Map(_memberInfo.FieldType);
 			}
 		}
 		
@@ -140,7 +118,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.GetValue(null);
+				return _memberInfo.GetValue(null);
 			}
 		}
 		
@@ -148,15 +126,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field;
+				return _memberInfo;
 			}
 		}
 		
-		override public string ToString()
-		{
-			return _field.ToString();
-		}
-
 		public bool IsDuckTyped
 		{
 			get { return false; }

@@ -28,25 +28,19 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public class ExternalEvent : IEvent
+	public class ExternalEvent : ExternalEntity<System.Reflection.EventInfo>, IEvent
 	{
-		protected TypeSystemServices _typeSystemServices;
-		
-		private System.Reflection.EventInfo _event;
-
 	    private IMethod _add;
 
 	    private IMethod _remove;
 		
-		public ExternalEvent(TypeSystemServices tagManager, System.Reflection.EventInfo event_)
+		public ExternalEvent(TypeSystemServices typeSystemServices, System.Reflection.EventInfo event_) : base(typeSystemServices, event_)
 		{
-			_typeSystemServices = tagManager;
-			_event = event_;
 		}
 		
 		public virtual IType DeclaringType
 		{
-			get { return _typeSystemServices.Map(_event.DeclaringType); }
+			get { return _typeSystemServices.Map(_memberInfo.DeclaringType); }
 		}
 		
 		public virtual IMethod GetAddMethod()
@@ -57,7 +51,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	    private IMethod FindAddMethod()
 	    {
-	        return _typeSystemServices.Map(_event.GetAddMethod(true));
+	        return _typeSystemServices.Map(_memberInfo.GetAddMethod(true));
 	    }
 
 	    public virtual IMethod GetRemoveMethod()
@@ -68,17 +62,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	    private IMethod FindRemoveMethod()
 	    {
-	        return _typeSystemServices.Map(_event.GetRemoveMethod(true));
+	        return _typeSystemServices.Map(_memberInfo.GetRemoveMethod(true));
 	    }
 
 	    public virtual IMethod GetRaiseMethod()
 		{
-			return _typeSystemServices.Map(_event.GetRaiseMethod(true));
+			return _typeSystemServices.Map(_memberInfo.GetRaiseMethod(true));
 		}
 		
 		public System.Reflection.EventInfo EventInfo
 		{
-			get { return _event; }
+			get { return _memberInfo; }
 		}
 		
 		public bool IsPublic
@@ -86,29 +80,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return GetAddMethod().IsPublic; }
 		}
 		
-		public string Name
+		override public EntityType EntityType
 		{
-			get { return _event.Name; }
-		}
-		
-		public string FullName
-		{
-			get { return _event.DeclaringType.FullName + "." + _event.Name; }
-		}
-		
-		public EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Event;
-			}
+			get { return EntityType.Event; }
 		}
 		
 		public virtual IType Type
 		{
 			get
 			{
-				return _typeSystemServices.Map(_event.EventHandlerType);
+				return _typeSystemServices.Map(_memberInfo.EventHandlerType);
 			}
 		}
 		
@@ -135,11 +116,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return GetAddMethod().IsVirtual;
 			}
-		}
-		
-		override public string ToString()
-		{
-			return _event.ToString();
 		}
 
 		public bool IsDuckTyped

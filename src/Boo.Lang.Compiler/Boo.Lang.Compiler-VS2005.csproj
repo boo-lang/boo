@@ -437,6 +437,7 @@
     <Compile Include="TypeSystem\ExternalConstructedMethodInfo.cs" />
     <Compile Include="TypeSystem\ExternalConstructedTypeInfo.cs" />
     <Compile Include="TypeSystem\ExternalConstructor.cs" />
+    <Compile Include="TypeSystem\ExternalEntity.cs" />
     <Compile Include="TypeSystem\ExternalEvent.cs" />
     <Compile Include="TypeSystem\ExternalField.cs" />
     <Compile Include="TypeSystem\ExternalGenericMethodInfo.cs" />

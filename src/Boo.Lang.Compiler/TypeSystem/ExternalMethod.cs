@@ -31,12 +31,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using System.Reflection;
 
-	public class ExternalMethod : IMethod
+	public class ExternalMethod : ExternalEntity<MethodBase>, IMethod
 	{
-		protected TypeSystemServices _typeSystemServices;
-		
-		MethodBase _mi;
-		
 		IParameter[] _parameters;
 		
 		ICallableType _type;
@@ -52,15 +48,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		int _isPInvoke = -1;
 
 		private int _isMeta = -1;
-
-		private string _name = null;
-
-		private string _fullName = null;
 		
-		internal ExternalMethod(TypeSystemServices manager, MethodBase mi)
+		internal ExternalMethod(TypeSystemServices manager, MethodBase mi) : base(manager, mi)
 		{
-			_typeSystemServices = manager;
-			_mi = mi;
 		}
 
 		public bool IsMeta
@@ -69,7 +59,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (-1 == _isMeta)
 				{
-					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_mi, typeof(Boo.Lang.Compiler.MetaProgramming.MetaAttribute))
+					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, typeof(Boo.Lang.Compiler.MetaProgramming.MetaAttribute))
 					          	? 1
 					          	: 0;
 				}
@@ -83,7 +73,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (-1 == _isExtension)
 				{
-					_isExtension = IsStatic && MetadataUtil.IsAttributeDefined(_mi,  Types.ExtensionAttribute)
+					_isExtension = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.ExtensionAttribute)
 						? 1
 						: 0;
 				}
@@ -98,7 +88,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (-1 == _isDuckTyped)
 				{
 					_isDuckTyped =
-						!ReturnType.IsValueType && MetadataUtil.IsAttributeDefined(_mi, Types.DuckTypedAttribute)
+						!ReturnType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, Types.DuckTypedAttribute)
 						? 1
 						: 0;
 				}
@@ -112,7 +102,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (-1 == _isPInvoke)
 				{
-					_isPInvoke = IsStatic && MetadataUtil.IsAttributeDefined(_mi,  Types.DllImportAttribute)
+					_isPInvoke = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.DllImportAttribute)
 						? 1
 						: 0;
 				}
@@ -124,7 +114,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _typeSystemServices.Map(_mi.DeclaringType);
+				return _typeSystemServices.Map(_memberInfo.DeclaringType);
 			}
 		}
 		
@@ -132,7 +122,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsStatic;
+				return _memberInfo.IsStatic;
 			}
 		}
 		
@@ -140,7 +130,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsPublic;
+				return _memberInfo.IsPublic;
 			}
 		}
 		
@@ -148,7 +138,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsFamily || _mi.IsFamilyOrAssembly;
+				return _memberInfo.IsFamily || _memberInfo.IsFamilyOrAssembly;
 			}
 		}
 
@@ -156,7 +146,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsPrivate;
+				return _memberInfo.IsPrivate;
 			}
 		}
 		
@@ -164,7 +154,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsAbstract;
+				return _memberInfo.IsAbstract;
 			}
 		}
 
@@ -172,7 +162,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsAssembly;
+				return _memberInfo.IsAssembly;
 			}
 		}
 		
@@ -180,7 +170,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsVirtual;
+				return _memberInfo.IsVirtual;
 			}
 		}
 		
@@ -188,35 +178,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _mi.IsSpecialName;
+				return _memberInfo.IsSpecialName;
 			}
 		}
 		
-		public virtual string Name
-		{
-			get
-			{
-				if (_name != null) return _name;
-				return _name = _mi.Name;
-			}
-		}
-		
-		public virtual string FullName
-		{
-			get
-			{
-				if (_fullName != null) return _fullName;
-				return _fullName = (DeclaringType + "." + _mi.Name);
-			}
-		}
-
 		public bool AcceptVarArgs
 		{
 			get
 			{
 				if (_acceptVarArgs == -1)
 				{
-					ParameterInfo[] parameters = _mi.GetParameters();
+					ParameterInfo[] parameters = _memberInfo.GetParameters();
 
 					_acceptVarArgs =
 						parameters.Length > 0 && IsParamArray(parameters[parameters.Length-1]) ? 1 : 0;
@@ -235,7 +207,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		
-		public virtual EntityType EntityType
+		override public EntityType EntityType
 		{
 			get
 			{
@@ -264,14 +236,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual IParameter[] GetParameters()
 		{
             if (null != _parameters) return _parameters;
-            return _parameters = _typeSystemServices.Map(_mi.GetParameters());
+            return _parameters = _typeSystemServices.Map(_memberInfo.GetParameters());
 		}
 		
 		public virtual IType ReturnType
 		{
 			get
 			{
-				MethodInfo mi = _mi as MethodInfo;
+				MethodInfo mi = _memberInfo as MethodInfo;
 				if (null != mi)
 				{
 					return _typeSystemServices.Map(mi.ReturnType);
@@ -282,19 +254,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public MethodBase MethodInfo
 		{
-			get { return _mi; }
+			get { return _memberInfo; }
 		}
 		
 		override public bool Equals(object other)
 		{
 			ExternalMethod rhs = other as ExternalMethod;
 			if (null == rhs) return false;
-			return _mi.MethodHandle.Value == rhs._mi.MethodHandle.Value;
+			return _memberInfo.MethodHandle.Value == rhs._memberInfo.MethodHandle.Value;
 		}
 		
 		override public int GetHashCode()
 		{
-			return _mi.MethodHandle.Value.GetHashCode();
+			return _memberInfo.MethodHandle.Value.GetHashCode();
 		}
 		
 		override public string ToString()
