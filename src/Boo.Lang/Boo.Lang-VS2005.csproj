@@ -52,31 +52,31 @@
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AbstractGenerator.cs" />
     <Compile Include="AbstractGeneratorEnumerator.cs" />
-    <Compile Include="DuckTypedAttribute.cs" />
-    <Compile Include="ResourceManager.cs" />
-    <Compile Include="GenericGenerator.cs" />
-    <Compile Include="Hash.cs" />
-    <Compile Include="GenericGeneratorEnumerator.cs" />
-    <Compile Include="EnumeratorItemTypeAttribute.cs" />
-    <Compile Include="BooHashCodeProvider.cs" />
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="ExtensionAttribute.cs" />
     <Compile Include="BooComparer.cs" />
+    <Compile Include="BooHashCodeProvider.cs" />
+    <Compile Include="Builtins.cs" />
+    <Compile Include="DuckTypedAttribute.cs" />
+    <Compile Include="EnumeratorItemTypeAttribute.cs" />
+    <Compile Include="ExtensionAttribute.cs" />
+    <Compile Include="GenericGenerator.cs" />
+    <Compile Include="GenericGeneratorEnumerator.cs" />
+    <Compile Include="Hash.cs" />
     <Compile Include="ICallable.cs" />
     <Compile Include="IQuackFu.cs" />
-    <Compile Include="ModuleAttribute.cs" />
-    <Compile Include="AbstractGenerator.cs" />
     <Compile Include="List.cs" />
-    <Compile Include="Builtins.cs" />
+    <Compile Include="ModuleAttribute.cs" />
+    <Compile Include="ResourceManager.cs" />
     <Compile Include="Runtime\AssertionFailedException.cs" />
     <Compile Include="Runtime\CandidateMethod.cs" />
     <Compile Include="Runtime\MethodDispatcherEmitter.cs" />
+    <Compile Include="Runtime\MethodInvoker.cs" />
     <Compile Include="Runtime\MethodResolver.cs" />
     <Compile Include="Runtime\RuntimeException.cs" />
-    <Compile Include="Runtime\TextReaderEnumerator.cs" />
-    <Compile Include="Runtime\MethodInvoker.cs" />
     <Compile Include="Runtime\RuntimeServices.cs" />
+    <Compile Include="Runtime\TextReaderEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\strings.resx">

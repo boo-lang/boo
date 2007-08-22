@@ -39,35 +39,23 @@ namespace Boo.Lang.Compiler.Resources
 		
 		public FileResource(string fname)
 		{
-			if (null == fname)
-			{
-				throw new ArgumentNullException("fname");
-			}
+			if (null == fname) throw new ArgumentNullException("fname");
 			_fname = fname;
 		}
 		
 		public string FileName
 		{
-			get
-			{
-				return _fname;
-			}
+			get { return _fname; }
 		}
 		
 		public virtual string Name
 		{
-			get
-			{
-				return System.IO.Path.GetFileName(_fname);
-			}
+			get { return System.IO.Path.GetFileName(_fname); }
 		}
 		
 		public virtual string Description
 		{
-			get
-			{
-				return null;
-			}
+			get { return null; }
 		}
 		
 		public void WriteResource(IResourceService service)

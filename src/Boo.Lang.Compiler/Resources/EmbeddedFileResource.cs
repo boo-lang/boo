@@ -37,10 +37,7 @@ namespace Boo.Lang.Compiler.Resources
 		
 		public EmbeddedFileResource(string fname)
 		{
-			if (null == fname)
-			{
-				throw new ArgumentNullException("fname");
-			}
+			if (null == fname) throw new ArgumentNullException("fname");
 			_fname = fname;
 		}
 		
@@ -54,10 +51,7 @@ namespace Boo.Lang.Compiler.Resources
 		
 		public virtual string Name
 		{
-			get
-			{
-				return System.IO.Path.GetFileName(_fname);
-			}
+			get { return System.IO.Path.GetFileName(_fname); }
 		}
 		
 		public void WriteResource(IResourceService resourceService)
