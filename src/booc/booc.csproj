@@ -55,17 +55,19 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.ico" />
-    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
-      <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
-      <Name>Boo.Lang.Compiler</Name>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2005.csproj">
+      <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
+      <Name>Boo.Lang.Compiler-VS2005</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
-      <Project>{8F36FEA8-5EC9-46D3-BE8D-39AE484C1266}</Project>
-      <Name>Boo.Lang</Name>
+    <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser-VS2005.csproj">
+      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
+      <Name>Boo.Lang.Parser-VS2005</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
-      <Project>{C1943936-DBBD-4331-94C3-BE4F7E6229DA}</Project>
-      <Name>Boo.Lang.Parser</Name>
+    <ProjectReference Include="..\Boo.Lang\Boo.Lang-VS2005.csproj">
+      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
+      <Name>Boo.Lang-VS2005</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />

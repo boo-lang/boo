@@ -333,21 +333,9 @@ namespace BooC
 							switch (arg.Substring(1, 8))
 							{
 								case "resource":
-								{
-									string resourceFile;
+								{	
 									int start = arg.IndexOf(":") + 1;
-									resourceFile = StripQuotes(arg.Substring(start));
-									int comma = resourceFile.LastIndexOf(',');
-									if (comma >= 0)
-									{
-										string resourceName = resourceFile.Substring(comma+1);
-										resourceFile = resourceFile.Substring(0, comma);
-										_options.Resources.Add(new NamedFileResource(resourceFile, resourceName));
-									}
-									else
-									{
-										_options.Resources.Add(new FileResource(resourceFile));
-									}
+									AddResource(StripQuotes(arg.Substring(start)));
 									break;
 								}
 
@@ -588,21 +576,12 @@ namespace BooC
 						{
 							case "embedres":
 							{
-								// TODO: Add check for runtime support for "mono resources"
-								string resourceFile;
+								if (!IsMono)
+								{
+									throw new ApplicationException("-embedres is only supported on mono. Try -resource.");
+								}
 								int start = arg.IndexOf(":") + 1;
-								resourceFile = StripQuotes(arg.Substring(start));
-								int comma = resourceFile.LastIndexOf(',');
-								if (comma >= 0)
-								{
-									string resourceName = resourceFile.Substring(comma+1);
-									resourceFile = resourceFile.Substring(0, comma);
-									_options.Resources.Add(new NamedEmbeddedFileResource(resourceFile, resourceName));
-								}
-								else
-								{
-									_options.Resources.Add(new EmbeddedFileResource(resourceFile));
-								}
+								EmbedResource(StripQuotes(arg.Substring(start)));
 								break;
 							}
 
@@ -628,7 +607,43 @@ namespace BooC
 				DoLogo();
 			}
 		}
-		
+
+		private bool IsMono
+		{
+			get { return Type.GetType("System.MonoType", false) != null;  }
+		}
+
+		private void EmbedResource(string resourceFile)
+		{
+
+			int comma = resourceFile.LastIndexOf(',');
+			if (comma >= 0)
+			{
+				string resourceName = resourceFile.Substring(comma+1);
+				resourceFile = resourceFile.Substring(0, comma);
+				_options.Resources.Add(new NamedEmbeddedFileResource(resourceFile, resourceName));
+			}
+			else
+			{
+				_options.Resources.Add(new EmbeddedFileResource(resourceFile));
+			}
+		}
+
+		private void AddResource(string resourceFile)
+		{
+			int comma = resourceFile.LastIndexOf(',');
+			if (comma >= 0)
+			{
+				string resourceName = resourceFile.Substring(comma+1);
+				resourceFile = resourceFile.Substring(0, comma);
+				_options.Resources.Add(new NamedFileResource(resourceFile, resourceName));
+			}
+			else
+			{
+				_options.Resources.Add(new FileResource(resourceFile));
+			}
+		}
+
 		private void ConfigurePipeline()
 		{
 			if (null != _pipelineName)
