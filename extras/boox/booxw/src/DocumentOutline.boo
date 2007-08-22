@@ -179,7 +179,7 @@ class TreeViewVisitor(DepthFirstVisitor):
 	override def OnModule(node as Module):
 
 		_current = TreeNode("root")
-		Visit(node.Members)
+		VisitCollection(node.Members)
 
 		_tree.BeginUpdate()
 		
@@ -217,10 +217,10 @@ class TreeViewVisitor(DepthFirstVisitor):
 		saved = _current
 
 		_current = Add(node.Name, imageIndex, imageIndex, node)
-		Visit(node.Members)
+		VisitCollection(node.Members)
 
 		_current = saved
-
+		
 	override def OnConstructor(node as Constructor):
 		OnMethod(node)
 
@@ -247,7 +247,7 @@ class TreeViewVisitor(DepthFirstVisitor):
 		return SaveTreeViewState([], _tree.Nodes)
 		
 	def SaveTreeViewState(state as List, nodes as TreeNodeCollection):
-		for node in nodes:
+		for node as TreeNode in nodes:
 			SaveTreeViewState(state, node)
 		return state
 		
