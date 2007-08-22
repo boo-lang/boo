@@ -33,6 +33,7 @@ using Boo.Lang;
 
 namespace Boo.Lang.Compiler.Ast
 {
+	
 	/// <summary>
 	/// Node collection base class.
 	/// </summary>

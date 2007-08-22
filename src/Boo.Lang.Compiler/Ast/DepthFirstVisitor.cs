@@ -69,6 +69,14 @@ namespace Boo.Lang.Compiler.Ast
 				}
 			}
 		}
+		
+		public void VisitCollection(System.Collections.IEnumerable collection)
+		{
+			foreach (Node node in collection)
+			{
+				Visit(node);
+			}
+		}
 
 		public bool Visit<T>(NodeCollection<T> collection, NodeType nodeType) where T : Node
 		{
