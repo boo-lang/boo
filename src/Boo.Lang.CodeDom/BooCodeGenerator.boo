@@ -471,7 +471,8 @@ class BooCodeGenerator(CodeGenerator):
 		elif typeRef.BaseType in primitives:
 			out = primitives[typeRef.BaseType]
 		else:
-			out = typeRef.BaseType
+			// BaseType uses .NET syntax for inner classes, so we have to replace '+' with '.'
+			out = typeRef.BaseType.Replace('+', '.')
 		
 		if typeRef.ArrayRank == 0:
 			return out

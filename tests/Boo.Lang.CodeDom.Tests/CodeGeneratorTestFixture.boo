@@ -44,6 +44,13 @@ class CodeGeneratorTestFixture:
 	def SetUp():		
 		_generator = BooCodeProvider().CreateGenerator()
 		Assert.IsNotNull(_generator)
+
+	[Test]
+	def TestNestedTypeReference():
+		buffer = StringWriter()
+		_generator.GenerateCodeFromExpression(CodeTypeReferenceExpression(System.Environment.SpecialFolder), buffer, CodeGeneratorOptions())
+		Assert.AreEqual("System.Environment.SpecialFolder", buffer.ToString().Trim())
+
 	
 	[Test]
 	def TestArrayType():
