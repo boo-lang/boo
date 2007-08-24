@@ -8,7 +8,7 @@ class Customer:
 			return _fname
 		set:
 			raise System.ArgumentNullException('value') if (value is null)
-			_fname = value
+			self._fname = value
 
 """
 class Customer:

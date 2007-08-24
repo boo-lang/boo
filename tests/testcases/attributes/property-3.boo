@@ -7,7 +7,7 @@ class Customer:
 		get:
 			return _fname
 		set:
-			_fname = value
+			self._fname = value
 			FirstNameChanged(self, System.EventArgs.Empty)
 
 	event FirstNameChanged as System.EventHandler

@@ -7,7 +7,7 @@ class Customer:
 		get:
 			return _fname
 		set:
-			_fname = value
+			self._fname = value
 """
 class Customer:
 	[property(FirstName)] _fname as string

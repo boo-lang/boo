@@ -228,7 +228,9 @@ namespace Boo.Lang
 				new BinaryExpression(
 					base.LexicalInfo,
 					BinaryOperatorType.Assign,
-					new ReferenceExpression(f.Name),
+					new MemberReferenceExpression(
+						CreateRefTarget(f),
+						f.Name),
 					new ReferenceExpression("value")
 					)
 				);
@@ -247,6 +249,12 @@ namespace Boo.Lang
 				setter.Body.Add(mie);
 			}
 			return setter;
+		}
+		
+		private Expression CreateRefTarget(Field f)
+		{
+			if (f.IsStatic) return new ReferenceExpression(LexicalInfo, f.DeclaringType.Name);
+			return new SelfLiteralExpression(LexicalInfo);
 		}
 		
 		protected Event CreateChangedEvent(Field f)
