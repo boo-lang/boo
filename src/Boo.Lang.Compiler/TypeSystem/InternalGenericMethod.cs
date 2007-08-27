@@ -36,28 +36,15 @@ namespace Boo.Lang.Compiler.TypeSystem
     /// <summary>
     /// A generic method definition on an internal type.
     /// </summary>
-	public class InternalGenericMethod : InternalMethod, IGenericMethodInfo
+	internal class InternalGenericMethod : InternalMethod, IGenericMethodInfo
 	{
-		InternalGenericParameter[] _genericParameters = null;
-		Dictionary<IType[], IMethod> _instances = new Dictionary<IType[], IMethod>(new ArrayEqualityComparer<IType>());
+		IGenericParameter[] _genericParameters = null;
+		Dictionary<IType[], IMethod> _constructedMethods = new Dictionary<IType[], IMethod>(ArrayEqualityComparer<IType>.Default);
 		
 		public InternalGenericMethod(TypeSystemServices tss, Method method) : base(tss, method)
 		{
-			BuildGenericParameters(method.GenericParameters);
 		}
-	
-		private void BuildGenericParameters(GenericParameterDeclarationCollection declarations)
-		{
-			_genericParameters = new InternalGenericParameter[declarations.Count];
-			
-			int i = 0;
-			foreach (GenericParameterDeclaration gpd in declarations)
-			{	
-				gpd.Entity = _genericParameters[i] = new InternalGenericParameter(_typeSystemServices, gpd, this, i);
-				i++;
-			}
-		}
-	
+
 		public override IGenericMethodInfo GenericInfo 
 		{
 			get { return this; }
@@ -69,7 +56,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{ 
 				if (_genericParameters == null)
 				{
-					BuildGenericParameters(_method.GenericParameters);
+					_genericParameters = Array.ConvertAll<GenericParameterDeclaration, IGenericParameter>(
+						Method.GenericParameters.ToArray(),
+						delegate(GenericParameterDeclaration gpd) { return (IGenericParameter)gpd.Entity; });
 				}
 				return _genericParameters; 
 			}
@@ -78,10 +67,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IMethod ConstructMethod(IType[] arguments)
 		{
 			IMethod constructed = null;
-			if (!_instances.TryGetValue(arguments, out constructed))
+			if (!_constructedMethods.TryGetValue(arguments, out constructed))
 			{
 				constructed = new GenericConstructedMethod(_typeSystemServices, this, arguments);
-				_instances.Add(arguments, constructed);
+				_constructedMethods.Add(arguments, constructed);
 			}
 			
 			return constructed;
@@ -91,17 +80,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get 
 			{
-				return string.Format("{0}`{1}", base.FullName, _genericParameters.Length);
+				return string.Format("{0}`{1}", base.FullName, GenericParameters.Length);
 			}
-		}
-		
-		private IGenericParameter GetGenericParameter(string name)
-		{
-			// This can be optimized using a hash, but generally we'll have 
-			// very few generic parameters, so it isn't worth the bother
-			return Array.Find(
-				_genericParameters, 
-				delegate(InternalGenericParameter gp) { return gp.Name == name; });
 		}
 		
 		public override bool Resolve(List targetList, string name, EntityType flags)
@@ -109,11 +89,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// Try to resolve name as a generic parameter
 			if (NameResolutionService.IsFlagSet(flags, EntityType.Type))
 			{
-				IGenericParameter gp = GetGenericParameter(name);
-				if (gp != null)
+				foreach (GenericParameterDeclaration gpd in Method.GenericParameters)
 				{
-					targetList.Add(gp);
-					return true;
+					if (gpd.Name == name)
+					{
+						targetList.AddUnique(gpd.Entity);
+						return true;
+					}
 				}
 			}
 			

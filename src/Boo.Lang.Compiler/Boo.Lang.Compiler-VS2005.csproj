@@ -360,6 +360,7 @@
     <Compile Include="Steps\BindAndApplyAttributes.cs" />
     <Compile Include="Steps\BindBaseTypes.cs" />
     <Compile Include="Steps\BindEnumMembers.cs" />
+    <Compile Include="Steps\BindGenericParameters.cs" />
     <Compile Include="Steps\BindMethods.cs" />
     <Compile Include="Steps\BindNamespaces.cs" />
     <Compile Include="Steps\BindTypeDefinitions.cs" />
@@ -421,6 +422,7 @@
     <Compile Include="TypeSystem\AbstractInternalType.cs" />
     <Compile Include="TypeSystem\AbstractLocalEntity.cs" />
     <Compile Include="TypeSystem\Ambiguous.cs" />
+    <Compile Include="TypeSystem\AnonymousCallablesManager.cs" />
     <Compile Include="TypeSystem\AnonymousCallableType.cs" />
     <Compile Include="TypeSystem\ArrayEqualityComparer.cs" />
     <Compile Include="TypeSystem\ArrayType.cs" />
@@ -463,7 +465,6 @@
     <Compile Include="TypeSystem\InternalField.cs" />
     <Compile Include="TypeSystem\InternalGenericMethod.cs" />
     <Compile Include="TypeSystem\InternalGenericParameter.cs" />
-    <Compile Include="TypeSystem\InternalGenericTypeInfo.cs" />
     <Compile Include="TypeSystem\InternalInterface.cs" />
     <Compile Include="TypeSystem\InternalLabel.cs" />
     <Compile Include="TypeSystem\InternalLocal.cs" />

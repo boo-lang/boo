@@ -58,9 +58,12 @@ namespace Boo.Lang.Compiler.Steps
 
 			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(node.Name);
 			cd.LexicalInfo = node.LexicalInfo;
+			cd.GenericParameters = node.GenericParameters;
+
 			cd.Members.Add(CreateInvokeMethod(node));
 			cd.Members.Add(CreateBeginInvokeMethod(node));
 			cd.Members.Add(CreateEndInvokeMethod(node));
+
 			ReplaceCurrentNode(cd);
 		}
 

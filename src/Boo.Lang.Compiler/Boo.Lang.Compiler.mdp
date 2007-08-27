@@ -317,6 +317,7 @@
     <File name="Steps/BindAndApplyAttributes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindBaseTypes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindEnumMembers.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/BindGenericParameters.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindMethods.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindNamespaces.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindTypeDefinitions.cs" buildaction="Compile" subtype="Code" />
@@ -378,6 +379,7 @@
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Ambiguous.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/AnonymousCallablesManager.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AnonymousCallableType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ArrayType.cs" buildaction="Compile" subtype="Code" />
@@ -420,7 +422,6 @@
     <File name="TypeSystem/InternalField.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalGenericMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalGenericParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalGenericTypeInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalInterface.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalLabel.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalLocal.cs" buildaction="Compile" subtype="Code" />

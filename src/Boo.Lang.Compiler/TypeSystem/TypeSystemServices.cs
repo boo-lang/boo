@@ -134,8 +134,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected Hashtable _arrayCache = new Hashtable();
 		
-		protected Hashtable _anonymousCallableTypes = new Hashtable();
-		
 		public static readonly IType ErrorEntity = Error.Default;
 		
 		public readonly BooCodeBuilder CodeBuilder;
@@ -149,6 +147,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		ClassDefinition _compilerGeneratedExtensionsClass;
 		
 		CompilerContext _context;
+
+		AnonymousCallablesManager _anonymousCallablesManager; 
 		
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -162,6 +162,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			
 			_context = context;
+			_anonymousCallablesManager = new AnonymousCallablesManager(this);
 
 			CodeBuilder = new BooCodeBuilder(this);
 			
@@ -423,8 +424,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		bool IsCallableType(IType type)
 		{
-			return (ICallableType.IsAssignableFrom(type)) ||
-				(type is ICallableType);
+			return (ICallableType.IsAssignableFrom(type)) || (type is ICallableType);
 		}
 		
 		public AnonymousCallableType GetCallableType(IMethod method)
@@ -435,19 +435,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public AnonymousCallableType GetCallableType(CallableSignature signature)
 		{
-			AnonymousCallableType type = (AnonymousCallableType)_anonymousCallableTypes[signature];
-			if (null == type)
-			{
-				type = new AnonymousCallableType(this, signature);
-				_anonymousCallableTypes.Add(signature, type);
-			}
-			return type;
+			return _anonymousCallablesManager.GetCallableType(signature);
 		}
-		
+
 		public IType GetConcreteCallableType(Node sourceNode, CallableSignature signature)
 		{
-			AnonymousCallableType type = GetCallableType(signature);
-			return GetConcreteCallableType(sourceNode, type);
+			return _anonymousCallablesManager.GetConcreteCallableType(sourceNode, signature);
+		}
+
+		public IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		{
+			return _anonymousCallablesManager.GetConcreteCallableType(sourceNode, anonymousType);
 		}
 		
 		public IType GetEnumeratorItemType(IType iteratorType)
@@ -1247,100 +1245,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_entityCache[key] = tag;
 		}
 		
-		Method CreateBeginInvokeMethod(ICallableType anonymousType)
-		{
-			Method method = CodeBuilder.CreateRuntimeMethod("BeginInvoke", Map(typeof(IAsyncResult)),
-			                                                anonymousType.GetSignature().Parameters, false);
-												
-			int delta=method.Parameters.Count;
-			method.Parameters.Add(
-					CodeBuilder.CreateParameterDeclaration(delta+1, "callback", Map(typeof(AsyncCallback))));
-			method.Parameters.Add(
-					CodeBuilder.CreateParameterDeclaration(delta+1, "asyncState", ObjectType));
-			return method;
-		}
-		
-		Method CreateBeginInvokeExtension(ICallableType anonymousType, Method beginInvoke, out MethodInvocationExpression mie)
-		{
-			InternalMethod beginInvokeEntity = (InternalMethod)beginInvoke.Entity;
-			
-			Method extension = CodeBuilder.CreateMethod("BeginInvoke", Map(typeof(IAsyncResult)),
-										TypeMemberModifiers.Public|TypeMemberModifiers.Static);
-			extension.Attributes.Add(CodeBuilder.CreateAttribute(Types.ExtensionAttribute));
-
-			ParameterDeclaration self = CodeBuilder.CreateParameterDeclaration(0, "self", beginInvokeEntity.DeclaringType);
-			
-			extension.Parameters.Add(self);
-			CodeBuilder.DeclareParameters(extension, 1, anonymousType.GetSignature().Parameters);
-			
-			mie = CodeBuilder.CreateMethodInvocation(
-						CodeBuilder.CreateReference(self),
-						beginInvokeEntity);
-
-			ParameterDeclarationCollection parameters = extension.Parameters;
-			for (int i=1; i<parameters.Count; ++i)
-			{
-				mie.Arguments.Add(CodeBuilder.CreateReference(parameters[i]));
-			}
-			extension.Body.Add(new ReturnStatement(mie));
-			return extension;
-		}
-		
-		Method CreateBeginInvokeSimplerExtension(ICallableType anonymousType, Method beginInvoke)
-		{
-			MethodInvocationExpression mie;
-			Method overload = CreateBeginInvokeExtension(anonymousType, beginInvoke, out mie);
-			
-			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
-			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
-			
-			return overload;
-		}
-		
-		Method CreateBeginInvokeCallbackOnlyExtension(ICallableType anonymousType, Method beginInvoke)
-		{
-			MethodInvocationExpression mie;
-			
-			Method overload = CreateBeginInvokeExtension(anonymousType, beginInvoke, out mie);
-			ParameterDeclaration callback = CodeBuilder.CreateParameterDeclaration(overload.Parameters.Count,
-										"callback", Map(typeof(AsyncCallback)));
-			overload.Parameters.Add(callback);
-
-			mie.Arguments.Add(CodeBuilder.CreateReference(callback));
-			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
-			
-			return overload;
-		}
-	
-		public Method CreateEndInvokeMethod(ICallableType anonymousType)
-		{
-			CallableSignature signature = anonymousType.GetSignature();
-			Method method = CodeBuilder.CreateRuntimeMethod("EndInvoke", signature.ReturnType);
-			
-			int delta=1;
-			foreach(IParameter p in signature.Parameters)
-			{
-				if (p.IsByRef)
-				{
-					method.Parameters.Add(
-						CodeBuilder.CreateParameterDeclaration(++delta,
-								p.Name,
-								p.Type,
-								true));
-				}			
-			}
-			delta=method.Parameters.Count;
-			method.Parameters.Add(
-				CodeBuilder.CreateParameterDeclaration(delta+1, "result", Map(typeof(IAsyncResult))));
-			return method;
-		}
-		
-		Method CreateInvokeMethod(AnonymousCallableType anonymousType)
-		{
-			CallableSignature signature = anonymousType.GetSignature();
-			return CodeBuilder.CreateRuntimeMethod("Invoke", signature.ReturnType, signature.Parameters, signature.AcceptVarArgs);
-		}
-		
 		public IConstructor GetDefaultConstructor(IType type)
 		{
 			IConstructor[] constructors = type.GetConstructors();
@@ -1472,15 +1376,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 						                                         
-		public virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
-		{
-			if (null == anonymousType.ConcreteType)
-			{
-				anonymousType.ConcreteType = CreateConcreteCallableType(sourceNode, anonymousType);
-			}
-			return anonymousType.ConcreteType;
-		}
-
 		public IEntity GetMemberEntity(TypeMember member)
 		{
 			if (null == member.Entity)
@@ -1513,35 +1408,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		
-		protected virtual IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
-		{
-			Module module = GetCompilerGeneratedTypesModule();
-			
-			string name = string.Format("___callable{0}", module.Members.Count);
-			ClassDefinition cd = CreateCallableDefinition(name);
-			cd.Modifiers |= TypeMemberModifiers.Public;
-			cd.LexicalInfo = sourceNode.LexicalInfo;
-			
-			cd.Members.Add(CreateInvokeMethod(anonymousType));
-			
-			Method beginInvoke = CreateBeginInvokeMethod(anonymousType);
-			cd.Members.Add(beginInvoke);
-			
-			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
-			_compilerGeneratedTypesModule.Members.Add(cd);
-
-			CreateCallableTypeBeginInvokeExtensions(anonymousType, beginInvoke);
-
-			return (IType)cd.Entity;
-		}
-
-		private void CreateCallableTypeBeginInvokeExtensions(AnonymousCallableType anonymousType, Method beginInvoke)
-		{
-			ClassDefinition extensions = GetCompilerGeneratedExtensionsClass();
-			extensions.Members.Add(CreateBeginInvokeCallbackOnlyExtension(anonymousType, beginInvoke));
-			extensions.Members.Add(CreateBeginInvokeSimplerExtension(anonymousType, beginInvoke));
-		}
-
 		private static void InvalidNode(Node node)
 		{
 			throw CompilerErrorFactory.InvalidNode(node);

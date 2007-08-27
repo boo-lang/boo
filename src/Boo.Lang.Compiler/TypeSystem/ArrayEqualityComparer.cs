@@ -36,6 +36,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// </summary>
 	internal class ArrayEqualityComparer<T>: IEqualityComparer<T[]>
 	{
+		private static ArrayEqualityComparer<T> _default = null;
+
+		private ArrayEqualityComparer()
+		{
+		}
+
+		public static ArrayEqualityComparer<T> Default
+		{
+			get { return _default ?? (_default = new ArrayEqualityComparer<T>()); }
+		}
+
 		public bool Equals(T[] x, T[] y)
 		{
 			// Null equals null, and nothing else
@@ -68,4 +79,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			return hash;
 		}
-	}	}
+	}	
+}

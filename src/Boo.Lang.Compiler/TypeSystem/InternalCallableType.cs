@@ -49,6 +49,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _signature;
 		}
+
+		protected override IType CreateConstructedType(IType[] arguments)
+		{
+			return new GenericConstructedCallableType(_typeSystemServices, this, arguments);
+		}
 		
 		public IMethod GetInvokeMethod()
 		{

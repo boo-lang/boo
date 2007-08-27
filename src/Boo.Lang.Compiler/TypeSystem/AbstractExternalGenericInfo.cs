@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		protected TypeSystemServices _tss;
 		private IGenericParameter[] _parameters;
-		private Dictionary<IType[], T> _instances = new Dictionary<IType[], T>(new ArrayEqualityComparer<IType>());
+		private Dictionary<IType[], T> _instances = new Dictionary<IType[], T>(ArrayEqualityComparer<IType>.Default);
 
 		public AbstractExternalGenericInfo(TypeSystemServices tss)
 		{	

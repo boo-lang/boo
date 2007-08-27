@@ -1,10 +1,10 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, 2005, 2006, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,51 +26,31 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Pipelines
+namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Steps;
-	
-	public class ResolveExpressions : Parse 
+	using System;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler;
+	using Boo.Lang.Compiler.TypeSystem;
+
+	[Serializable]
+	public class BindGenericParameters : AbstractVisitorCompilerStep
 	{
-		public ResolveExpressions()
+		public BindGenericParameters()
 		{
-			Add(new InitializeTypeSystemServices());
-			Add(new PreErrorChecking());
+		}
 
-			Add(new ExpandAstLiterals());
-			
-			Add(new MergePartialClasses());
-			
-			Add(new InitializeNameResolutionService());
-			Add(new IntroduceGlobalNamespaces());
-			Add(new TransformCallableDefinitions());
+		override public void Run()
+		{
+			Visit(CompileUnit.Modules);
+		}
 
-			Add(new BindTypeDefinitions());
-			Add(new BindGenericParameters());
-			Add(new BindNamespaces());
-			Add(new BindBaseTypes());
-			Add(new BindAndApplyAttributes());
-			
-			Add(new ExpandMacros());
-			Add(new IntroduceModuleClasses());
-			Add(new NormalizeStatementModifiers());
-			Add(new NormalizeTypeAndMemberDefinitions());
-			
-			Add(new BindTypeDefinitions());
-			Add(new BindGenericParameters());
-			Add(new BindEnumMembers());
-			Add(new BindBaseTypes());
-
-			Add(new BindMethods());
-			Add(new ResolveTypeReferences());
-			Add(new BindTypeMembers());
-			
-			Add(new ProcessInheritedAbstractMembers());
-			Add(new CheckMemberNames());
-			
-			Add(new ProcessMethodBodiesWithDuckTyping());
-			
-			Add(new PreProcessExtensionMethods());
+		public override void OnGenericParameterDeclaration(GenericParameterDeclaration node)
+		{
+			if (node.Entity == null)
+			{
+				node.Entity = new InternalGenericParameter(TypeSystemServices, node);
+			}
 		}
 	}
 }
