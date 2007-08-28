@@ -3379,7 +3379,15 @@ namespace Boo.Lang.Compiler.Steps
 					_il.EmitCall(OpCodes.Call, GetMethodInfo(method), null);
 					return;
 				}
-				if (expectedType.IsValueType)
+				
+				if (expectedType is IGenericParameter)
+				{
+					// Since expected type is a generic parameter, we don't know whether to emit 
+					// an unbox opcode or a castclass opcode; so we emit an unbox.any opcode which
+					// works as either of those at runtime
+					_il.Emit(OpCodes.Unbox_Any, GetSystemType(expectedType));
+				}
+				else if (expectedType.IsValueType)
 				{
 					if (actualType.IsValueType)
 					{
@@ -3399,6 +3407,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
+						// To get a value type out of a reference type we emit an unbox opcode
 						EmitUnbox(expectedType);
 					}
 				}
@@ -3406,6 +3415,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					EmitDuckImplicitCastIfNeeded(expectedType, actualType);
 
+					// In order to cast to a reference type we emit a castclass opcode
 					_context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
 					_il.Emit(OpCodes.Castclass, GetSystemType(expectedType));
 				}
