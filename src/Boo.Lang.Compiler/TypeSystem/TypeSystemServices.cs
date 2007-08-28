@@ -146,9 +146,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		ClassDefinition _compilerGeneratedExtensionsClass;
 		
-		CompilerContext _context;
+		protected readonly CompilerContext _context;
 
-		AnonymousCallablesManager _anonymousCallablesManager; 
+		private readonly AnonymousCallablesManager _anonymousCallablesManager; 
 		
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -438,12 +438,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _anonymousCallablesManager.GetCallableType(signature);
 		}
 
-		public IType GetConcreteCallableType(Node sourceNode, CallableSignature signature)
+		public virtual IType GetConcreteCallableType(Node sourceNode, CallableSignature signature)
 		{
 			return _anonymousCallablesManager.GetConcreteCallableType(sourceNode, signature);
 		}
 
-		public IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		public virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			return _anonymousCallablesManager.GetConcreteCallableType(sourceNode, anonymousType);
 		}

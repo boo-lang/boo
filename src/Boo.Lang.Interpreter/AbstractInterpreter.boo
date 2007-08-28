@@ -359,18 +359,32 @@ class AbstractInterpreter:
 		def constructor(context, cache):
 			super(context)
 			_cachedCallableTypes = cache			
+			
+		override def GetConcreteCallableType(sourceNode as Node, 
+											signature as CallableSignature):
+												
+			cached = GetCachedCallableType(signature)
+			if cached is not null: return cached
+			
+			return CacheCallableType(super(sourceNode, signature))
 		
-		override def CreateConcreteCallableType(sourceNode as Node, 
+		override def GetConcreteCallableType(sourceNode as Node, 
 											anonymousType as AnonymousCallableType):
 												
+			cached = GetCachedCallableType(anonymousType.GetSignature())
+			if cached is not null: return cached
+			
+			return CacheCallableType(super(sourceNode, anonymousType))
+			
+		private def CacheCallableType(type as IType):			
+			_generatedCallableTypes.Add(type)
+			return type
+			
+		private def GetCachedCallableType(signature as CallableSignature):
 			for type as System.Type in _cachedCallableTypes:
 				cached = Map(type) as ExternalCallableType
-				if anonymousType.GetSignature() == cached.GetSignature():
+				if signature == cached.GetSignature():
 					return cached
-					
-			new = super(sourceNode, anonymousType)
-			_generatedCallableTypes.Add(new)
-			return new
 			
 	class InitializeTypeSystemServices(Steps.AbstractCompilerStep):
 		

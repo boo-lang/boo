@@ -29,10 +29,7 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	using System.Collections;
 	using System.Collections.Generic;
-	using System.Reflection;
-	using System.Text;
 	using Boo.Lang.Compiler.Ast;
 	using Module = Boo.Lang.Compiler.Ast.Module;
 
@@ -81,7 +78,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return GetConcreteCallableType(sourceNode, type);
 		}
 
-		public virtual IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		public IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			if (null == anonymousType.ConcreteType)
 			{
@@ -90,7 +87,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return anonymousType.ConcreteType;
 		}
 
-		protected virtual IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
+		private IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			Module module = TypeSystemServices.GetCompilerGeneratedTypesModule();
 
