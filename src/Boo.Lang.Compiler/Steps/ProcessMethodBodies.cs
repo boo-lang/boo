@@ -294,20 +294,17 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnField(Field node)
 		{
-			if (WasVisited(node))
-			{
-				return;
-			}
+			if (WasVisited(node)) return;
 			MarkVisited(node);
 			
-			InternalField tag = (InternalField)GetEntity(node);
+			InternalField entity = (InternalField)GetEntity(node);
 			
 			Visit(node.Attributes);
 			Visit(node.Type);
 			
 			if (null != node.Initializer)
 			{
-				if (tag.DeclaringType.IsValueType && !node.IsStatic)
+				if (entity.DeclaringType.IsValueType && !node.IsStatic)
 				{
 					Error(
 						CompilerErrorFactory.ValueTypeFieldsCannotHaveInitializers(
@@ -327,8 +324,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null == node.Type)
 				{
-					node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
-					node.Type.LexicalInfo = node.LexicalInfo;
+					node.Type = CreateTypeReference(node.LexicalInfo, TypeSystemServices.ObjectType);
 				}
 			}
 			CheckFieldType(node.Type);
@@ -362,16 +358,22 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Type)
 			{
-				node.Type = CodeBuilder.CreateTypeReference(initializerType);
-				node.Type.LexicalInfo = node.LexicalInfo;
+				node.Type = CreateTypeReference(node.LexicalInfo, initializerType);
 			}
 			else
 			{
 				AssertTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
 			}
 		}
-		
-		void PreProcessFieldInitializer(Field node)
+
+		private TypeReference CreateTypeReference(LexicalInfo info, IType type)
+		{
+			TypeReference reference = CodeBuilder.CreateTypeReference(type);
+			reference.LexicalInfo = info;
+			return reference;
+		}
+
+		private void PreProcessFieldInitializer(Field node)
 		{
 			Expression initializer = node.Initializer;
 			if (node.IsFinal && node.IsStatic)
@@ -395,8 +397,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			ProcessNodeInMethodContext(entity, entity, assignment);
 			method.Locals.RemoveByEntity(temp.Entity);
-			
-			IType initializerType = ((ITypedEntity)temp.Entity).Type;
+
+			IType initializerType = GetExpressionType(assignment.Right);
 			ProcessFieldInitializerType(node, initializerType);
 			node.Initializer = assignment.Right;
 		}
