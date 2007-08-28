@@ -450,23 +450,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType GetEnumeratorItemType(IType iteratorType)
 		{
-			if (iteratorType.IsArray) return ((IArrayType)iteratorType).GetElementType();
+			if (iteratorType.IsArray) return iteratorType.GetElementType();
 			if (StringType == iteratorType) return CharType;
 			
 			if (iteratorType.IsClass)
 			{
 				IType enumeratorItemType = GetEnumeratorItemTypeFromAttribute(iteratorType);
-				if (null != enumeratorItemType)
-				{
-					return enumeratorItemType;
-				}
+				if (null != enumeratorItemType) return enumeratorItemType;
 			}
 
 			IType genericItemType = GetGenericEnumerableItemType(iteratorType);
-			if (null != genericItemType)
-			{
-				return genericItemType;
-			}
+			if (null != genericItemType) return genericItemType;
+
 			return ObjectType;
 		}
 		

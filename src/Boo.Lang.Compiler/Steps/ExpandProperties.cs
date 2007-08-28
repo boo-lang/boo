@@ -44,15 +44,23 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			if (null != node.Entity && EntityType.Property == node.Entity.EntityType)
+			if (null == node.Entity) return;
+			if (EntityType.Property != node.Entity.EntityType) return;
+			if (AstUtil.IsLhsOfAssignment(node)) return;
+			
+			IProperty property = (IProperty)node.Entity;
+			MethodInvocationExpression getter = CodeBuilder.CreatePropertyGet(node.Target, property);
+
+			// preserve duck typing...
+			if (property.IsDuckTyped)
 			{
-				if (!AstUtil.IsLhsOfAssignment(node))
-				{
-					ReplaceCurrentNode(
-						CodeBuilder.CreatePropertyGet(
-						node.Target,
-						(IProperty)node.Entity));	
-				}
+				ReplaceCurrentNode(
+					CodeBuilder.CreateCast(
+						TypeSystemServices.DuckType, getter));
+			}
+			else
+			{
+				ReplaceCurrentNode(getter);
 			}
 		}
 	}
