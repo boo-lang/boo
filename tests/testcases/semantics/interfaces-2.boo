@@ -1,13 +1,19 @@
 """
 public interface IFoo:
 
-	public abstract def Bar() as object:
-		pass
+	def Bar() as object
 
-	public abstract def Baz() as object:
-		pass
+	def Baz() as object
 
-public class Foo(object, IFoo):
+	event Zeng as System.EventHandler
+
+	Ding as string:
+		get
+		set
+
+public abstract class Foo(object, IFoo):
+
+	public event Zeng as System.EventHandler
 
 	public virtual def Bar() as object:
 		return 'Foo.Bar'
@@ -15,13 +21,28 @@ public class Foo(object, IFoo):
 	public def constructor():
 		super()
 
+	protected ___Zeng as System.EventHandler
+
 	public virtual def Baz() as object:
 		raise System.NotImplementedException()
+
+	public abstract Ding as string:
+		public abstract get:
+			pass
+		public abstract set:
+			pass
 """
 interface IFoo:
 	def Bar() as object
 	def Baz() as object
+	event Zeng as System.EventHandler
+	Ding as string:
+		get
+		set
 	
 class Foo(IFoo):
+	event Zeng as System.EventHandler
+	
 	def Bar():
 		return "Foo.Bar"
+		

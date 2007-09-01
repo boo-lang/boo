@@ -1,8 +1,7 @@
 """
 public interface IFoo:
 
-	public abstract def Bar() as object:
-		pass
+	def Bar() as object
 
 public class Foo(object, IFoo):
 

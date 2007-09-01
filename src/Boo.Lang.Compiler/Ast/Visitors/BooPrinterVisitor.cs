@@ -245,11 +245,16 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnEvent(Event node)
 		{
 			WriteAttributes(node.Attributes, true);
-			WriteModifiers(node);
+			WriteOptionalModifiers(node);
 			WriteKeyword("event ");
 			Write(node.Name);
 			WriteTypeReference(node.Type);
 			WriteLine();
+		}
+
+		private static bool IsInterfaceMember(TypeMember node)
+		{
+			return node.DeclaringType != null && node.DeclaringType.NodeType == NodeType.InterfaceDefinition;
 		}
 
 		override public void OnField(Field f)
@@ -274,8 +279,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnProperty(Property node)
 		{
+			bool interfaceMember = IsInterfaceMember(node);
+
 			WriteAttributes(node.Attributes, true);
-			WriteModifiers(node);
+			WriteOptionalModifiers(node);
 			WriteIndented("");
 			Visit(node.ExplicitInfo);
 			Write(node.Name);
@@ -286,25 +293,36 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteTypeReference(node.Type);
 			WriteLine(":");
 			BeginBlock();
-			if (null != node.Getter)
-			{
-				WriteAttributes(node.Getter.Attributes, true);
-				WriteModifiers(node.Getter);
-				WriteKeyword("get");
-				WriteLine(":");
-				WriteBlock(node.Getter.Body);
-			}
-			if (null != node.Setter)
-			{
-				WriteAttributes(node.Setter.Attributes, true);
-				WriteModifiers(node.Setter);
-				WriteKeyword("set");
-				WriteLine(":");
-				WriteBlock(node.Setter.Body);
-			}
+			WritePropertyAccessor(node.Getter, "get", interfaceMember);
+			WritePropertyAccessor(node.Setter, "set", interfaceMember);
 			EndBlock();
 		}
-		
+
+		private void WritePropertyAccessor(Method method, string name, bool interfaceMember)
+		{
+			if (null == method) return;
+			WriteAttributes(method.Attributes, true);
+			if (interfaceMember)
+			{
+				WriteIndented();
+			}
+			else
+			{
+				WriteModifiers(method);
+			}
+			WriteKeyword(name);
+			if (interfaceMember)
+			{
+				WriteLine();
+			}
+			else
+			{
+				WriteLine(":");
+				WriteBlock(method.Body);
+			}
+			
+		}
+
 		override public void OnEnumMember(EnumMember node)
 		{
 			WriteAttributes(node.Attributes, true);
@@ -381,7 +399,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		void WriteCallableDefinitionHeader(string keyword, CallableDefinition node)
 		{
 			WriteAttributes(node.Attributes, true);
-			WriteModifiers(node);
+			WriteOptionalModifiers(node);
+
 			WriteKeyword(keyword);
 
 			IExplicitMember em = node as IExplicitMember;
@@ -402,7 +421,19 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteAttributes(node.ReturnTypeAttributes, false);
 			}
 		}
-		
+
+		private void WriteOptionalModifiers(TypeMember node)
+		{
+			if (IsInterfaceMember(node))
+			{
+				WriteIndented();
+			}
+			else
+			{
+				WriteModifiers(node);
+			}
+		}
+
 		override public void OnCallableDefinition(CallableDefinition node)
 		{
 			WriteCallableDefinitionHeader("callable ", node);
@@ -410,14 +441,19 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		override public void OnMethod(Method m)
 		{
-			if (m.IsRuntime)
-			{
-				WriteImplementationComment("runtime");
-			}
+			if (m.IsRuntime) WriteImplementationComment("runtime");
+
 			WriteCallableDefinitionHeader("def ", m);
-			WriteLine(":");
-			WriteLocals(m);
-			WriteBlock(m.Body);
+			if (IsInterfaceMember(m))
+			{
+				WriteLine();
+			}
+			else
+			{
+				WriteLine(":");
+				WriteLocals(m);
+				WriteBlock(m.Body);
+			}
 		}
 		
 		private void WriteImplementationComment(string comment)
