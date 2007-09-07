@@ -8,7 +8,7 @@ def stackTrace(code as callable()):
 		return firstLines(x)
 
 def firstLines(o):
-	return join(/\n/.Split(o.ToString())[:3], "\n")
+	return join(/\n/.Split(o.ToString())[:3], "\n").Trim()
 	
 class My:
 	[extension] static def to_s(a as System.Array):

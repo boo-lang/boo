@@ -14,7 +14,7 @@ def stackTrace(code as callable()):
 		return firstLines(x)
 
 def firstLines(o):
-	return join(/\n/.Split(o.ToString())[:3], "\n")
+	return join(/\n/.Split(o.ToString())[:3], "\n").Trim()
 	
 se = stackTrace({ print Foo().bar })
 de = stackTrace({ print( (Foo() as duck).bar ) })
