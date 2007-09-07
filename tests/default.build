@@ -43,6 +43,23 @@
 			</sources>
 		</booc>
 		-->
+		
+		<csc
+			target="library"
+			output="build/Boo.Lang.Runtime.Tests.dll"
+			unsafe="true">
+
+			<sources basedir="Boo.Lang.Runtime.Tests">
+				<include name="**/*.cs" />
+			</sources>
+
+			<references basedir="build">
+				<include name="${nunit.framework.dll}" />
+				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Parser.dll" />
+			</references>
+		</csc>
 
 		<csc
 			target="library"

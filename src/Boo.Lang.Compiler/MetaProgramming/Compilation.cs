@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			return compile(new CompileUnit(module), references);
 		}
 
-		private static Assembly compile(CompileUnit unit, params Assembly[] references)
+		public static Assembly compile(CompileUnit unit, params Assembly[] references)
 		{
 			BooCompiler compiler = CreateLibraryCompiler(references);
 			CompilerContext result = compiler.Run(unit);

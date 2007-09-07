@@ -18,7 +18,7 @@ class Foo:
 	static def bar(d as double):
 		print "double:", d
 		
-d as duck = Foo # prepare for static dispatching on the type
+d as duck = Foo # prepare for dynamic dispatching on the type
 d.bar(DoubleWrapper(42.0))
 d.bar(1)
 

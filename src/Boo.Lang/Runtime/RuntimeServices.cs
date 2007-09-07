@@ -37,56 +37,12 @@ namespace Boo.Lang.Runtime
 {
 	public class RuntimeServices
 	{
-		public enum TargetInvocationExceptionAction
-		{
-			Rethrow,
-			ThrowInner,
-			PassThrough
-		}
-		
-		public class TargetInvocationExceptionThrownEventArgs
-		{
-			TargetInvocationException _exception;
-			TargetInvocationExceptionAction _action;
-			
-			public TargetInvocationExceptionThrownEventArgs(
-				TargetInvocationException exception,
-				TargetInvocationExceptionAction action)
-			{
-				_exception = exception;
-				_action = action;
-			}
-			
-			public TargetInvocationException Exception
-			{
-				get { return _exception; }
-			}
-			
-			public TargetInvocationExceptionAction Action
-			{
-				get { return _action; }
-				set { _action = value; }
-			}
-		}
-		
-		public delegate void TargetInvocationExceptionThrownEvent(object sender, TargetInvocationExceptionThrownEventArgs args);
-		
-		public static event TargetInvocationExceptionThrownEvent TargetInvocationExceptionThrown;
-		
-		public static TargetInvocationExceptionAction DefaultTargetInvocationExceptionAction
-		{
-			get { return _defaultTargetInvocationExceptionAction; }
-			set { _defaultTargetInvocationExceptionAction = value; }
-		}
-		
-		private static TargetInvocationExceptionAction _defaultTargetInvocationExceptionAction = TargetInvocationExceptionAction.ThrowInner;
-		
 		private static readonly Type RuntimeServicesType = typeof(RuntimeServices);
 
 		internal const BindingFlags InstanceMemberFlags = BindingFlags.Public |
-		                                                 BindingFlags.NonPublic |
-		                                                 BindingFlags.Instance;
-		
+														 BindingFlags.NonPublic |
+														 BindingFlags.Instance;
+
 		internal const BindingFlags DefaultBindingFlags = InstanceMemberFlags |
 												BindingFlags.OptionalParamBinding |
 												BindingFlags.Static |
@@ -110,74 +66,46 @@ namespace Boo.Lang.Runtime
 												BindingFlags.GetProperty |
 												BindingFlags.GetField;
 
-		private const BindingFlags InvokeExtensionBindingFlags = InvokeOperatorBindingFlags;
-		
-		private const BindingFlags GetPropertyExtensionBindingFlags = StaticMemberBindingFlags |
-		                                                      BindingFlags.GetProperty |
-		                                                      BindingFlags.GetField;
-		
-		
-		private static List _extensions = new List();
-		
-		public static void RegisterExtensions(System.Type extensionContainer)
+		private static DispatcherCache _cache = new DispatcherCache();
+		private static ExtensionRegistry _extensions = new ExtensionRegistry();
+
+		public delegate void Action();
+
+		public static void WithExtensions(System.Type extensions, Action a)
 		{
-			if (null == extensionContainer) throw new ArgumentNullException("extensionContainer");
-			lock (_extensions.SyncRoot)
+			RegisterExtensions(extensions);
+			try
 			{
-				_extensions.AddUnique(extensionContainer);
+				a();
+			}
+			finally
+			{
+				UnRegisterExtensions(extensions);
 			}
 		}
-		
-		public static void UnRegisterExtensions(System.Type extensionContainer)
+
+		public static void RegisterExtensions(System.Type extensions)
 		{
-			if (null == extensionContainer) throw new ArgumentNullException("extensionContainer");
-			lock (_extensions.SyncRoot)
-			{
-				_extensions.Remove(extensionContainer);
-			}
+			_extensions.Register(extensions);
 		}
-		
-		internal static bool HasRegisteredExtensions
+
+		public static void UnRegisterExtensions(System.Type extensions)
 		{
-			get { return _extensions.Count > 0; }
+			_extensions.UnRegister(extensions);
 		}
-		
-		internal static Type[] RegisteredExtensions
-		{
-			get
-			{
-				lock (_extensions.SyncRoot)
-				{
-					return (Type[]) _extensions.ToArray(typeof(Type));
-				}
-			}
-		}
-		
-		static bool PassThroughExceptions
-		{
-			get { return _defaultTargetInvocationExceptionAction == TargetInvocationExceptionAction.PassThrough; }
-		}
-		                                                      
+
 		public static object Invoke(object target, string name, object[] args)
 		{
 			IQuackFu duck = target as IQuackFu;
 			if (null != duck) return duck.QuackInvoke(name, args);
-			
-			if (PassThroughExceptions) return DoInvoke(target, name, args);
 
-			try
+			Type type = target as Type;
+			if (null != type)
 			{
-				return DoInvoke(target, name, args);
+				// static method
+				return DoInvoke(null, type, name, args);
 			}
-			catch (TargetInvocationException x)
-			{	
-				OnTargetInvocationExceptionThrown(x);
-				throw;
-			}
-		}
-		
-		private static object InvokeMethod(object target, string name, object[] args)
-		{
+
 			Type targetType = target.GetType();
 			if (targetType.IsCOMObject)
 			{
@@ -187,80 +115,48 @@ namespace Boo.Lang.Runtime
 				// which knows the boo conversion rules
 				return targetType.InvokeMember(name, InvokeBindingFlags, null, target, args);
 			}
-			return ResolveAndInvokeMethod(target, targetType, name, args);
+			return DoInvoke(target, targetType, name, args);
 		}
 
-		private static object ResolveAndInvokeMethod(object target, Type targetType, string name, object[] args)
+		private static object DoInvoke(object target, Type targetType, string name, object[] args)
 		{
-			MethodInvoker invoker = new MethodInvoker(target, targetType, name, args);
-			return invoker.InvokeResolvedMethod();
+			DispatcherKey key = new DispatcherKey(targetType, name, args);
+			Dispatcher dispatcher = _cache.Get(key, delegate { return new MethodDispatcherFactory(_extensions, target, targetType, name, args).Create(); });
+			return dispatcher(target, args);
 		}
 
-		private static object DoInvoke(object target, string name, object[] args)
+		public static object GetProperty(object target, string name)
 		{
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck) return duck.QuackGet(name, null);
+
 			Type type = target as Type;
-			if (null != type)
-			{	
-				// static method
-				return ResolveAndInvokeMethod(null, type, name, args);
-			}
-			
-			if (!HasRegisteredExtensions)
+			if (null != type) return DoGetProperty(null, type, name);
+
+			Type targetType = target.GetType();
+			if (targetType.IsCOMObject)
 			{
-				return InvokeMethod(target, name, args);
+				return targetType.InvokeMember(name, GetPropertyBindingFlags, null, target, null);
 			}
-			
-			try
-			{
-				return InvokeMethod(target, name, args);
-			}
-			catch (System.MissingMemberException)
-			{
-				object[] extensionArgs = GetExtensionArgs(target, args);
-				foreach (Type extension in RegisteredExtensions)
-				{
-					try
-					{
-						return extension.InvokeMember(name,
-											   InvokeExtensionBindingFlags,
-											   null,
-											   null,
-											   extensionArgs);
-					}
-					catch (System.MissingMemberException)
-					{
-					}
-				}
-				throw;
-			}
+
+			return DoGetProperty(target, targetType, name);
 		}
 
-		private static object[] GetExtensionArgs(object target, object[] args)
+		private static object DoGetProperty(object target, Type type, string name)
 		{
-			object[] extensionArgs = new object[args.Length + 1];
-			extensionArgs[0] = target;
-			Array.Copy(args, 0, extensionArgs, 1, args.Length);
-			return extensionArgs;
+			DispatcherKey key = new DispatcherKey(type, name);
+			Dispatcher dispatcher = _cache.Get(key, delegate { return new PropertyDispatcherFactory(_extensions, target, type, name).Create(); });
+			return dispatcher(target, null);
 		}
 
 		public static object SetProperty(object target, string name, object value)
 		{
 			IQuackFu duck = target as IQuackFu;
 			if (null != duck) return duck.QuackSet(name, null, value);
-			
-			if (PassThroughExceptions) return DoSetProperty(target, name, value);
-			
-			try
-			{
-				return DoSetProperty(target, name, value);
-			}
-			catch (TargetInvocationException x)
-			{
-				OnTargetInvocationExceptionThrown(x);
-				throw;
-			}
+
+			return DoSetProperty(target, name, value);
 		}
-		
+
 		private static object DoSetProperty(object target, string name, object value)
 		{
 			Type type = target as Type;
@@ -304,7 +200,7 @@ namespace Boo.Lang.Runtime
 				if (!(change.Value is ValueType)) break;
 				try
 				{
-					SetProperty(change.Target,  change.Member, change.Value);
+					SetProperty(change.Target, change.Member, change.Value);
 				}
 				catch (System.MissingFieldException)
 				{
@@ -313,135 +209,50 @@ namespace Boo.Lang.Runtime
 				}
 			}
 		}
-		
-		public static object GetProperty(object target, string name)
-		{
-			IQuackFu duck = target as IQuackFu;
-			if (null != duck) return duck.QuackGet(name, null);
-			
-			if (PassThroughExceptions) return DoGetProperty(target, name);
-			
-			try
-			{
-				return DoGetProperty(target, name);
-			}
-			catch (TargetInvocationException x)
-			{
-				OnTargetInvocationExceptionThrown(x);
-				throw;
-			}
-		}
-		
-		private static object DoGetProperty(object target, string name)
-		{
-			Type type = target as Type;
-			if (null == type)
-			{
-				try
-				{
-					return target.GetType().InvokeMember(name,
-														 GetPropertyBindingFlags,
-														 null,
-														 target,
-														 null);
-				}
-				catch (System.MissingMemberException)
-				{
-					object[] extensionArgs = new object[] { target };
-					foreach (Type extension in RegisteredExtensions)
-					{
-						try
-						{
-							
-							return extension.InvokeMember(name,
-												   GetPropertyExtensionBindingFlags,
-												   null,
-												   null,
-												   extensionArgs);
-						}
-						catch (System.MissingMemberException)
-						{	
-						}
-					}
-					throw;
-				}
-			}
-			else
-			{	// static member
-				return type.InvokeMember(name,
-										 GetPropertyBindingFlags,
-										 null,
-										 null,
-										 null);
-			}
-		}
-		
+
 		public static object DuckImplicitCast(object value, Type toType)
 		{
 			if (value == null) return null;
 			MethodInfo method = FindImplicitConversionOperator(value.GetType(), toType);
 			if (null == method) return value;
-			return method.Invoke(null, new object[] {value});
+			return method.Invoke(null, new object[] { value });
 		}
-		
-		private static void OnTargetInvocationExceptionThrown(TargetInvocationException x)
-		{
-			TargetInvocationExceptionAction action = _defaultTargetInvocationExceptionAction;
-			if (null != TargetInvocationExceptionThrown)
-			{
-				TargetInvocationExceptionThrownEventArgs args = new TargetInvocationExceptionThrownEventArgs(x, action);
-				TargetInvocationExceptionThrown(null, args);
-				action = args.Action;
-			}
-			if (TargetInvocationExceptionAction.ThrowInner == action)
-			{
-				throw x.InnerException;
-			}
-		}
-		
+
 		public static object GetSlice(object target, string name, object[] args)
 		{
-            IQuackFu duck = target as IQuackFu;
-            if (null != duck) return duck.QuackGet(name, args);
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck) return duck.QuackGet(name, args);
 
 			Type type = target.GetType();
 			if ("" == name)
-			{	
+			{
 				if (IsGetArraySlice(target, args))
 				{
-				    return GetArraySlice(target, args);
+					return GetArraySlice(target, args);
 				}
 				name = GetDefaultMemberName(type);
 			}
 
-			try
-			{
-				MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Get);
-			    return GetSlice(target, member, args);
-			}
-			catch (TargetInvocationException x)
-			{
-				OnTargetInvocationExceptionThrown(x);
-				throw;
-			}
+			MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Get);
+			return GetSlice(target, member, args);
 		}
 
-        private static object GetSlice(object target, MemberInfo member, object[] args)
-        {
-            switch (member.MemberType)
-            {
-                case MemberTypes.Field:
-                    {
-                        FieldInfo field = (FieldInfo)member;
-                        return GetSlice(field.GetValue(target), "", args);
-                    }
-                case MemberTypes.Method:
-                    {
-                        MethodInfo method = (MethodInfo)member;
-                        return method.Invoke(target, args);
-                    }
-                case MemberTypes.Property:
-                    {
+		private static object GetSlice(object target, MemberInfo member, object[] args)
+		{
+			switch (member.MemberType)
+			{
+				case MemberTypes.Field:
+					{
+						FieldInfo field = (FieldInfo)member;
+						return GetSlice(field.GetValue(target), "", args);
+					}
+				case MemberTypes.Method:
+					{
+						MethodInfo method = (MethodInfo)member;
+						return method.Invoke(target, args);
+					}
+				case MemberTypes.Property:
+					{
 						MethodInfo getter = GetGetMethod((PropertyInfo)member);
 						if (getter.GetParameters().Length > 0)
 						{
@@ -451,27 +262,27 @@ namespace Boo.Lang.Runtime
 						// otherwise its a simple property and the slice
 						// should be applied to the return value
 						return GetSlice(getter.Invoke(target, null), "", args);
-                    }
-                default:
-                    {
-                        MemberNotSupported(member);
-                        return null; // this line is never reached
-                    }
-            }
-        }
+					}
+				default:
+					{
+						MemberNotSupported(member);
+						return null; // this line is never reached
+					}
+			}
+		}
 
-	    private static object GetArraySlice(object target, object[] args)
-	    {
-	        IList list = (IList)target;
-	        return list[NormalizeIndex(list.Count, (int)args[0])];
-	    }
+		private static object GetArraySlice(object target, object[] args)
+		{
+			IList list = (IList)target;
+			return list[NormalizeIndex(list.Count, (int)args[0])];
+		}
 
-	    private static bool IsGetArraySlice(object target, object[] args)
-	    {
-	        return args.Length == 1 && target is System.Array;
-	    }
+		private static bool IsGetArraySlice(object target, object[] args)
+		{
+			return args.Length == 1 && target is System.Array;
+		}
 
-	    private static MethodInfo GetGetMethod(PropertyInfo property)
+		private static MethodInfo GetGetMethod(PropertyInfo property)
 		{
 			MethodInfo method = property.GetGetMethod(true);
 			if (null == method) MemberNotSupported(property);
@@ -480,49 +291,42 @@ namespace Boo.Lang.Runtime
 
 		public static object SetSlice(object target, string name, object[] args)
 		{
-            IQuackFu duck = target as IQuackFu;
-            if (null != duck) return duck.QuackSet(name, (object[])GetRange2(args, 0, args.Length-1), args[args.Length-1]);
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck) return duck.QuackSet(name, (object[])GetRange2(args, 0, args.Length - 1), args[args.Length - 1]);
 
 			Type type = target.GetType();
 			if ("" == name)
 			{
 				if (IsSetArraySlice(target, args))
 				{
-				    return SetArraySlice(target, args);
+					return SetArraySlice(target, args);
 				}
 				name = GetDefaultMemberName(type);
 			}
-			try
-			{
-				MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Set);
-			    return SetSlice(target, member, args);
-			}
-			catch (TargetInvocationException x)
-			{
-				OnTargetInvocationExceptionThrown(x);
-				throw;
-			}
+
+			MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Set);
+			return SetSlice(target, member, args);
 		}
 
-	    private static object SetSlice(object target, MemberInfo member, object[] args)
-	    {
-	        switch (member.MemberType)
-	        {
-	            case MemberTypes.Field:
-	                {
-	                    FieldInfo field = (FieldInfo) member;
-	                    SetSlice(field.GetValue(target), "", args);
-	                    break;
-	                }
-	            case MemberTypes.Method:
-	                {
-	                    MethodInfo method = (MethodInfo) member;
-	                    method.Invoke(target, args);
-	                    break;
-	                }
-	            case MemberTypes.Property:
-	                {
-						PropertyInfo property = (PropertyInfo) member;
+		private static object SetSlice(object target, MemberInfo member, object[] args)
+		{
+			switch (member.MemberType)
+			{
+				case MemberTypes.Field:
+					{
+						FieldInfo field = (FieldInfo)member;
+						SetSlice(field.GetValue(target), "", args);
+						break;
+					}
+				case MemberTypes.Method:
+					{
+						MethodInfo method = (MethodInfo)member;
+						method.Invoke(target, args);
+						break;
+					}
+				case MemberTypes.Property:
+					{
+						PropertyInfo property = (PropertyInfo)member;
 						MethodInfo setter = property.GetSetMethod(true);
 						if (null != setter && setter.GetParameters().Length > 0)
 						{
@@ -532,18 +336,18 @@ namespace Boo.Lang.Runtime
 						{
 							SetSlice(GetPropertyValue(target, property), "", args);
 						}
-	                    break;
-	                }
-	            default:
-	                {
-	                    MemberNotSupported(member);
-	                    break;
-	                }
-	        }
-	        // last argument is the value
-	        return args[args.Length-1];
-	    }
-		
+						break;
+					}
+				default:
+					{
+						MemberNotSupported(member);
+						break;
+					}
+			}
+			// last argument is the value
+			return args[args.Length - 1];
+		}
+
 		private static object GetPropertyValue(object target, PropertyInfo property)
 		{
 			MethodInfo getter = property.GetGetMethod(true);
@@ -554,19 +358,19 @@ namespace Boo.Lang.Runtime
 			return getter.Invoke(target, new object[0]);
 		}
 
-	    private static object SetArraySlice(object target, object[] args)
-	    {
-	        IList list = (IList)target;
-	        list[NormalizeIndex(list.Count, (int)args[0])] = args[1];
-	        return args[1];
-	    }
+		private static object SetArraySlice(object target, object[] args)
+		{
+			IList list = (IList)target;
+			list[NormalizeIndex(list.Count, (int)args[0])] = args[1];
+			return args[1];
+		}
 
-	    private static bool IsSetArraySlice(object target, object[] args)
-	    {
-	        return args.Length == 2 && target is System.Array;
-	    }
+		private static bool IsSetArraySlice(object target, object[] args)
+		{
+			return args.Length == 2 && target is System.Array;
+		}
 
-	    private static MemberInfo[] GetMember(Type type, string name)
+		private static MemberInfo[] GetMember(Type type, string name)
 		{
 			MemberInfo[] found = type.GetMember(name, DefaultBindingFlags);
 			if (null == found || 0 == found.Length)
@@ -582,7 +386,7 @@ namespace Boo.Lang.Runtime
 		}
 
 		enum SetOrGet { Set, Get };
-		
+
 		private static MemberInfo SelectSliceMember(MemberInfo[] found, ref object[] args, SetOrGet sliceKind)
 		{
 			if (1 == found.Length) return found[0];
@@ -611,31 +415,21 @@ namespace Boo.Lang.Runtime
 			DefaultMemberAttribute attribute = (DefaultMemberAttribute)Attribute.GetCustomAttribute(type, typeof(DefaultMemberAttribute));
 			return attribute != null ? attribute.MemberName : "";
 		}
-		
+
 		public static object InvokeCallable(object target, object[] args)
 		{
-			if (null == target)
-			{
-				throw new ArgumentNullException("target");
-			}
-			if (null == args)
-			{
-				throw new ArgumentNullException("args");
-			}
-			
+			if (null == target) throw new ArgumentNullException("target");
+			if (null == args) throw new ArgumentNullException("args");
+
 			ICallable c = target as ICallable;
-			if (null != c)
-			{
-				return c.Call(args);
-			}
+			if (null != c) return c.Call(args);
+
 			Delegate d = target as Delegate;
-			if (null != c)
-			{
-				return d.DynamicInvoke(args);
-			}
+			if (null != c) return d.DynamicInvoke(args);
+
 			return Activator.CreateInstance((Type)target, args);
 		}
-		
+
 		private static bool IsNumeric(TypeCode code)
 		{
 			switch (code)
@@ -722,13 +516,13 @@ namespace Boo.Lang.Runtime
 					// TODO: first resolve the right method on either
 					// lhs and rhs
 					// and then cache the final information
-					return ResolveAndInvokeMethod(null, lhsType, operatorName, args);
+					return DoInvoke(null, lhsType, operatorName, args);
 				}
 				catch (MissingMethodException)
 				{
 					try
 					{
-						return ResolveAndInvokeMethod(null, rhsType, operatorName, args);
+						return DoInvoke(null, rhsType, operatorName, args);
 					}
 					catch (MissingMethodException)
 					{
@@ -806,14 +600,8 @@ namespace Boo.Lang.Runtime
 
 		public static object MoveNext(IEnumerator enumerator)
 		{
-			if (null == enumerator)
-			{
-				Error("CantUnpackNull");
-			}
-			if (!enumerator.MoveNext())
-			{
-				Error("UnpackListOfWrongSize");
-			}
+			if (null == enumerator) Error("CantUnpackNull");
+			if (!enumerator.MoveNext()) Error("UnpackListOfWrongSize");
 			return enumerator.Current;
 		}
 
@@ -822,15 +610,10 @@ namespace Boo.Lang.Runtime
 			if (null != obj)
 			{
 				ICollection collection = obj as ICollection;
-				if (null != collection)
-				{
-					return collection.Count;
-				}
+				if (null != collection) return collection.Count;
+
 				string s = obj as string;
-				if (null != s)
-				{
-					return s.Length;
-				}
+				if (null != s) return s.Length;
 			}
 			return 0;
 		}
@@ -839,7 +622,7 @@ namespace Boo.Lang.Runtime
 		{
 			begin = NormalizeStringIndex(s, begin);
 			end = NormalizeStringIndex(s, end);
-			return s.Substring(begin, end-begin);
+			return s.Substring(begin, end - begin);
 		}
 
 		public static Array GetRange1(Array source, int begin)
@@ -852,25 +635,25 @@ namespace Boo.Lang.Runtime
 			int sourceLen = source.Length;
 			begin = NormalizeIndex(sourceLen, begin);
 			end = NormalizeIndex(sourceLen, end);
-			int targetLen = Math.Max(0, end-begin);
+			int targetLen = Math.Max(0, end - begin);
 			Array target = Array.CreateInstance(source.GetType().GetElementType(), targetLen);
 			Array.Copy(source, begin, target, 0, targetLen);
 			return target;
 		}
 
-	        public static void SetMultiDimensionalRange1 (Array source, Array dest, int[] ranges, bool[] collapse)
-	        {
-	                if (dest.Rank != ranges.Length / 2)
+		public static void SetMultiDimensionalRange1(Array source, Array dest, int[] ranges, bool[] collapse)
+		{
+			if (dest.Rank != ranges.Length / 2)
 			{
-	                        throw new Exception("invalid range passed: " + ranges.Length/2 + ", expected " + dest.Rank * 2);
+				throw new Exception("invalid range passed: " + ranges.Length / 2 + ", expected " + dest.Rank * 2);
 			}
-	
+
 			for (int i = 0; i < dest.Rank; i++)
 			{
-				if (ranges[2*i] > 0 ||
-					ranges[2*i] > dest.GetLength(i) ||
-					ranges[2*i+1] > dest.GetLength(i) ||
-					ranges[2*i+1] < ranges[2*i])
+				if (ranges[2 * i] > 0 ||
+					ranges[2 * i] > dest.GetLength(i) ||
+					ranges[2 * i + 1] > dest.GetLength(i) ||
+					ranges[2 * i + 1] < ranges[2 * i])
 				{
 					// FIXME: Better error reporting
 					Error("InvalidArray");
@@ -897,10 +680,10 @@ namespace Boo.Lang.Runtime
 			int rankIndex = 0;
 			for (int i = 0; i < dest.Rank; i++)
 			{
-				lensDest[i]= ranges[2*i+1] - ranges[2*i];
+				lensDest[i] = ranges[2 * i + 1] - ranges[2 * i];
 				if (!collapse[i])
 				{
-					lensSrc[rankIndex]= lensDest[i] - ranges[2*i];
+					lensSrc[rankIndex] = lensDest[i] - ranges[2 * i];
 					if (lensSrc[rankIndex] != source.GetLength(rankIndex))
 					{
 						// FIXME: Better error reporting
@@ -919,7 +702,7 @@ namespace Boo.Lang.Runtime
 				}
 				else
 				{
-					modInd[i] = modInd[i-1] / lensDest[i - 1];
+					modInd[i] = modInd[i - 1] / lensDest[i - 1];
 				}
 			}
 
@@ -935,13 +718,13 @@ namespace Boo.Lang.Runtime
 					indexDest[j] = index;
 					if (!collapse[j])
 					{
-						indexSrc[counter] = indexDest[j] + ranges[2*j];
+						indexSrc[counter] = indexDest[j] + ranges[2 * j];
 						counter++;
 					}
-	                        	dest.SetValue(source.GetValue(indexSrc), indexDest);
+					dest.SetValue(source.GetValue(indexSrc), indexDest);
 				}
 			}
-	        }
+		}
 
 		public static Array GetMultiDimensionalRange1(Array source, int[] ranges, bool[] collapse)
 		{
@@ -959,21 +742,21 @@ namespace Boo.Lang.Runtime
 			int rankDest = rankSrc - collapseSize;
 			int[] lensDest = new int[rankDest];
 			int[] lensSrc = new int[rankSrc];
-	
+
 			int rankIndex = 0;
 			for (int i = 0; i < rankSrc; i++)
 			{
-				ranges[2*i] = NormalizeIndex(source.GetLength(i), ranges[2*i]);
-				ranges[2*i+1] = NormalizeIndex(source.GetLength(i), ranges[2*i+1]);
+				ranges[2 * i] = NormalizeIndex(source.GetLength(i), ranges[2 * i]);
+				ranges[2 * i + 1] = NormalizeIndex(source.GetLength(i), ranges[2 * i + 1]);
 
-				lensSrc[i]=ranges[2*i+1]-ranges[2*i];
+				lensSrc[i] = ranges[2 * i + 1] - ranges[2 * i];
 				if (!collapse[i])
 				{
-					lensDest[rankIndex]=ranges[2*i+1]-ranges[2*i];
+					lensDest[rankIndex] = ranges[2 * i + 1] - ranges[2 * i];
 					rankIndex++;
 				}
 			}
-	
+
 			Array dest = Array.CreateInstance(source.GetType().GetElementType(), lensDest);
 
 			int[] modInd = new int[rankSrc];
@@ -988,7 +771,7 @@ namespace Boo.Lang.Runtime
 				}
 				else
 				{
-					modInd[i] = modInd[i-1] / lensSrc[i - 1];
+					modInd[i] = modInd[i - 1] / lensSrc[i - 1];
 				}
 			}
 
@@ -998,16 +781,16 @@ namespace Boo.Lang.Runtime
 				for (int j = 0; j < rankSrc; j++)
 				{
 					int index = (i % modInd[j]) / (modInd[j] / lensSrc[j]);
-					indicesSrc[j]= ranges[2*j] + index;
+					indicesSrc[j] = ranges[2 * j] + index;
 					if (!collapse[j])
 					{
-						indicesDest[destIndex]= indicesSrc[j] - ranges[2*j];
+						indicesDest[destIndex] = indicesSrc[j] - ranges[2 * j];
 						destIndex++;
 					}
 				}
 				dest.SetValue(source.GetValue(indicesSrc), indicesDest);
 			}
-	
+
 			return dest;
 		}
 
@@ -1028,17 +811,10 @@ namespace Boo.Lang.Runtime
 			if (index < 0)
 			{
 				index += len;
-
-				if (index < 0)
-				{
-					return 0;
-				}
+				if (index < 0) return 0;
 			}
 
-			if (index > len)
-			{
-				return len;
-			}
+			if (index > len) return len;
 
 			return index;
 		}
@@ -1062,7 +838,7 @@ namespace Boo.Lang.Runtime
 
 			TextReader reader = enumerable as TextReader;
 			if (null != reader) return TextReaderEnumerator.lines(reader);
-			
+
 			Error("ArgumentNotEnumerable");
 			return null;
 		}
@@ -1107,9 +883,9 @@ namespace Boo.Lang.Runtime
 			}
 
 			int length = lhs.Length;
-			Array result = Array.CreateInstance(type.GetElementType(), length*count);
+			Array result = Array.CreateInstance(type.GetElementType(), length * count);
 			int destinationIndex = 0;
-			for (int i=0; i<count; ++i)
+			for (int i = 0; i < count; ++i)
 			{
 				Array.Copy(lhs, 0, result, destinationIndex, length);
 				destinationIndex += length;
@@ -1133,7 +909,7 @@ namespace Boo.Lang.Runtime
 			if (null != lhs)
 			{
 				StringBuilder builder = new StringBuilder(lhs.Length * count);
-				for (int i=0; i<count; ++i)
+				for (int i = 0; i < count; ++i)
 				{
 					builder.Append(lhs);
 				}
@@ -1169,7 +945,7 @@ namespace Boo.Lang.Runtime
 
 		public static bool op_Match(string input, string pattern)
 		{
-            return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
+			return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
 		}
 
 		public static bool op_NotMatch(string input, string pattern)
@@ -1179,9 +955,9 @@ namespace Boo.Lang.Runtime
 #endif
 
 		public static string op_Modulus(string lhs, IEnumerable rhs)
- 		{
+		{
 			return string.Format(lhs, Boo.Lang.Builtins.array(rhs));
- 		}
+		}
 
 		public static string op_Modulus(string lhs, object[] rhs)
 		{
@@ -1240,10 +1016,10 @@ namespace Boo.Lang.Runtime
 		public static bool EqualityOperator(object lhs, object rhs)
 		{
 			if (lhs == rhs) return true;
-			
+
 			// Some types do overload Equals to compare
 			// against null values
-			if (null == lhs) return rhs.Equals(lhs);			
+			if (null == lhs) return rhs.Equals(lhs);
 			if (null == rhs) return lhs.Equals(rhs);
 
 			TypeCode lhsTypeCode = Type.GetTypeCode(lhs.GetType());
@@ -1291,7 +1067,7 @@ namespace Boo.Lang.Runtime
 				return false;
 			}
 
-			for (int i=0; i<lhs.Length; ++i)
+			for (int i = 0; i < lhs.Length; ++i)
 			{
 				if (!EqualityOperator(lhs.GetValue(i), rhs.GetValue(i)))
 				{
@@ -1305,33 +1081,33 @@ namespace Boo.Lang.Runtime
 		#region dynamic operator for primitive types
 		private static TypeCode GetConvertTypeCode(TypeCode lhsTypeCode, TypeCode rhsTypeCode)
 		{
-/* C# ECMA Spec V2
- * 14.2.6.2 Binary numeric promotions
- * This clause is informative.
- * Binary numeric promotion occurs for the operands of the predefined +, ?, *, /, %, &, |, ^, ==, !=, >, <, >=,
- * and <= binary operators. Binary numeric promotion implicitly converts both operands to a common type
- * which, in case of the non-relational operators, also becomes the result type of the operation. Binary numeric
- * promotion consists of applying the following rules, in the order they appear here:
- * � If either operand is of type decimal, the other operand is converted to type decimal, or a compiletime
- *   error occurs if the other operand is of type float or double.
- * � Otherwise, if either operand is of type double, the other operand is converted to type double.
- * � Otherwise, if either operand is of type float, the other operand is converted to type float.
- * � Otherwise, if either operand is of type ulong, the other operand is converted to type ulong, or a
- *   compile-time error occurs if the other operand is of type sbyte, short, int, or long.
- * � Otherwise, if either operand is of type long, the other operand is converted to type long.
- * � Otherwise, if either operand is of type uint and the other operand is of type sbyte, short, or int,
- *   both operands are converted to type long.
- * � Otherwise, if either operand is of type uint, the other operand is converted to type uint.
- * � Otherwise, both operands are converted to type int.
- * [Note: The first rule disallows any operations that mix the decimal type with the double and float types.
- *  The rule follows from the fact that there are no implicit conversions between the decimal type and the
- *  double and float types. end note]
- * [Note: Also note that it is not possible for an operand to be of type ulong when the other operand is of a
- *  signed integral type. The reason is that no integral type exists that can represent the full range of ulong as
- *  well as the signed integral types. end note]
- * In both of the above cases, a cast expression can be used to explicitly convert one operand to a type that is
- * compatible with the other operand.
- */
+			/* C# ECMA Spec V2
+			 * 14.2.6.2 Binary numeric promotions
+			 * This clause is informative.
+			 * Binary numeric promotion occurs for the operands of the predefined +, ?, *, /, %, &, |, ^, ==, !=, >, <, >=,
+			 * and <= binary operators. Binary numeric promotion implicitly converts both operands to a common type
+			 * which, in case of the non-relational operators, also becomes the result type of the operation. Binary numeric
+			 * promotion consists of applying the following rules, in the order they appear here:
+			 * � If either operand is of type decimal, the other operand is converted to type decimal, or a compiletime
+			 *	 error occurs if the other operand is of type float or double.
+			 * � Otherwise, if either operand is of type double, the other operand is converted to type double.
+			 * � Otherwise, if either operand is of type float, the other operand is converted to type float.
+			 * � Otherwise, if either operand is of type ulong, the other operand is converted to type ulong, or a
+			 *	 compile-time error occurs if the other operand is of type sbyte, short, int, or long.
+			 * � Otherwise, if either operand is of type long, the other operand is converted to type long.
+			 * � Otherwise, if either operand is of type uint and the other operand is of type sbyte, short, or int,
+			 *	 both operands are converted to type long.
+			 * � Otherwise, if either operand is of type uint, the other operand is converted to type uint.
+			 * � Otherwise, both operands are converted to type int.
+			 * [Note: The first rule disallows any operations that mix the decimal type with the double and float types.
+			 *	The rule follows from the fact that there are no implicit conversions between the decimal type and the
+			 *	double and float types. end note]
+			 * [Note: Also note that it is not possible for an operand to be of type ulong when the other operand is of a
+			 *	signed integral type. The reason is that no integral type exists that can represent the full range of ulong as
+			 *	well as the signed integral types. end note]
+			 * In both of the above cases, a cast expression can be used to explicitly convert one operand to a type that is
+			 * compatible with the other operand.
+			 */
 			if (TypeCode.Decimal == lhsTypeCode || TypeCode.Decimal == rhsTypeCode)
 			{
 				return TypeCode.Decimal;	// not per ECMA spec
@@ -1349,7 +1125,7 @@ namespace Boo.Lang.Runtime
 				if (TypeCode.SByte == rhsTypeCode || TypeCode.Int16 == rhsTypeCode ||
 					TypeCode.Int32 == rhsTypeCode || TypeCode.Int64 == rhsTypeCode)
 				{
-//					throw new ArgumentException("ulong <op> " + rhsTypeCode);
+					//					throw new ArgumentException("ulong <op> " + rhsTypeCode);
 					return TypeCode.Int64;	// not per Ecma spec
 				}
 				return TypeCode.UInt64;
@@ -1359,7 +1135,7 @@ namespace Boo.Lang.Runtime
 				if (TypeCode.SByte == lhsTypeCode || TypeCode.Int16 == lhsTypeCode ||
 					TypeCode.Int32 == lhsTypeCode || TypeCode.Int64 == lhsTypeCode)
 				{
-//					throw new ArgumentException(lhsTypeCode + " <op> ulong");
+					//					throw new ArgumentException(lhsTypeCode + " <op> ulong");
 					return TypeCode.Int64;	// not per Ecma spec
 				}
 				return TypeCode.UInt64;
@@ -1758,7 +1534,7 @@ namespace Boo.Lang.Runtime
 			IConvertible convertible = (IConvertible)value;
 			return CheckNumericPromotion(convertible);
 		}
-		
+
 		public static IConvertible CheckNumericPromotion(IConvertible convertible)
 		{
 			if (IsPromotableNumeric(convertible.GetTypeCode()))
@@ -1884,8 +1660,8 @@ namespace Boo.Lang.Runtime
 			}
 			return CheckNumericPromotion(value).ToBoolean(null);
 		}
-		
-#region bool conversion
+
+		#region bool conversion
 		private static IDictionary _converterCache = Hashtable.Synchronized(new Hashtable());
 
 		private delegate bool BoolConverter(object value);
@@ -1896,7 +1672,7 @@ namespace Boo.Lang.Runtime
 			BoolConverter converter = GetBoolConverter(value.GetType());
 			return converter(value);
 		}
-		
+
 		private static bool ToBoolTrue(object value)
 		{
 			return true;
@@ -1916,16 +1692,16 @@ namespace Boo.Lang.Runtime
 		{
 			return 0 != value;
 		}
-		
+
 		static BoolConverter GetBoolConverter(Type type)
 		{
-			BoolConverter converter = (BoolConverter) _converterCache[type];
+			BoolConverter converter = (BoolConverter)_converterCache[type];
 			if (null == converter)
 			{
-				lock(_converterCache)
+				lock (_converterCache)
 				{
-					converter = (BoolConverter) _converterCache[type];
-					if(null == converter)
+					converter = (BoolConverter)_converterCache[type];
+					if (null == converter)
 					{
 						converter = CreateBoolConverter(type);
 						_converterCache.Add(type, converter);
@@ -1934,7 +1710,7 @@ namespace Boo.Lang.Runtime
 			}
 			return converter;
 		}
-		
+
 		static BoolConverter CreateBoolConverter(Type type)
 		{
 			MethodInfo method = FindImplicitConversionOperator(type, typeof(bool));
@@ -1945,13 +1721,13 @@ namespace Boo.Lang.Runtime
 
 		private static BoolConverter EmitBoolConverter(Type from, MethodInfo conversion)
 		{
-			MethodInfo generatedMethod = EmitConversionProxy(from, typeof (bool), conversion);
+			MethodInfo generatedMethod = EmitConversionProxy(from, typeof(bool), conversion);
 			return (BoolConverter)Delegate.CreateDelegate(typeof(BoolConverter), generatedMethod);
 		}
 
-#endregion
+		#endregion
 
-#region conversion proxy helpers
+		#region conversion proxy helpers
 		private static MethodInfo EmitConversionProxy(Type from, Type to, MethodInfo conversion)
 		{
 			AssemblyName name = new AssemblyName();
@@ -1960,10 +1736,10 @@ namespace Boo.Lang.Runtime
 			ModuleBuilder module = builder.DefineDynamicModule(name.Name);
 			TypeBuilder type = module.DefineType("ConverterProxy", TypeAttributes.Public);
 			MethodBuilder m = type.DefineMethod("Invoke", MethodAttributes.Static | MethodAttributes.Public, to,
-			                                    new Type[] {typeof (object)});
+												new Type[] { typeof(object) });
 			ILGenerator il = m.GetILGenerator();
 			il.Emit(OpCodes.Ldarg_0);
-	
+
 			if (from.IsValueType)
 			{
 				il.Emit(OpCodes.Unbox, from);
@@ -1973,7 +1749,7 @@ namespace Boo.Lang.Runtime
 			{
 				il.Emit(OpCodes.Castclass, from);
 			}
-	
+
 			il.EmitCall(OpCodes.Call, conversion, null);
 			il.Emit(OpCodes.Ret);
 
@@ -1995,7 +1771,7 @@ namespace Boo.Lang.Runtime
 			}
 			return null;
 		}
-#endregion
+		#endregion
 
 		static void Error(string name, params object[] args)
 		{

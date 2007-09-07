@@ -1,19 +1,19 @@
 ﻿#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
-//     * Redistributions of source code must retain the above copyright notice,
-//     this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright notice,
-//     this list of conditions and the following disclaimer in the documentation
-//     and/or other materials provided with the distribution.
-//     * Neither the name of Rodrigo B. de Oliveira nor the names of its
-//     contributors may be used to endorse or promote products derived from this
-//     software without specific prior written permission.
-// 
+//
+//	   * Redistributions of source code must retain the above copyright notice,
+//	   this list of conditions and the following disclaimer.
+//	   * Redistributions in binary form must reproduce the above copyright notice,
+//	   this list of conditions and the following disclaimer in the documentation
+//	   and/or other materials provided with the distribution.
+//	   * Neither the name of Rodrigo B. de Oliveira nor the names of its
+//	   contributors may be used to endorse or promote products derived from this
+//	   software without specific prior written permission.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -37,7 +37,7 @@ namespace Boo.Lang.Runtime
 	{
 		public static Type[] GetArgumentTypes(object[] arguments)
 		{
-			if (arguments.Length == 0) return NoArguments;
+			if (arguments.Length == 0) return DispatcherKey.NoArguments;
 
 			Type[] types = new Type[arguments.Length];
 			for (int i = 0; i < types.Length; ++i)
@@ -53,8 +53,6 @@ namespace Boo.Lang.Runtime
 			return arg.GetType();
 		}
 
-		private static Type[] NoArguments = new Type[0];
-
 		private readonly Type[] _arguments;
 
 		public MethodResolver(Type[] argumentTypes)
@@ -64,16 +62,16 @@ namespace Boo.Lang.Runtime
 
 		public CandidateMethod ResolveMethod(IEnumerable<MethodInfo> candidates)
 		{
-			List applicable = FindApplicableMethods(candidates);
+			List<CandidateMethod> applicable = FindApplicableMethods(candidates);
 			if (applicable.Count == 0) return null;
-			if (applicable.Count == 1) return ((CandidateMethod)applicable[0]);
+			if (applicable.Count == 1) return applicable[0];
 			return BestMethod(applicable);
 		}
 
-		private CandidateMethod BestMethod(List applicable)
+		private CandidateMethod BestMethod(List<CandidateMethod> applicable)
 		{
-			applicable.Sort(new Comparer(BetterCandidate));
-			return ((CandidateMethod)applicable[-1]);
+			applicable.Sort(BetterCandidate);
+			return applicable[applicable.Count - 1];
 		}
 
 		private int TotalScore(CandidateMethod c1)
@@ -86,11 +84,6 @@ namespace Boo.Lang.Runtime
 			return total;
 		}
 
-		private int BetterCandidate(object lhs, object rhs)
-		{
-			return BetterCandidate((CandidateMethod)lhs, (CandidateMethod)rhs);
-		}
-
 		private int BetterCandidate(CandidateMethod c1, CandidateMethod c2)
 		{
 			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
@@ -100,9 +93,9 @@ namespace Boo.Lang.Runtime
 			return c2.VarArgs ? 1 : 0;
 		}
 
-		private List FindApplicableMethods(IEnumerable<MethodInfo> candidates)
+		private List<CandidateMethod> FindApplicableMethods(IEnumerable<MethodInfo> candidates)
 		{
-			List applicable = new List();
+			List<CandidateMethod> applicable = new List<CandidateMethod>();
 			foreach (MethodInfo method in candidates)
 			{
 				CandidateMethod candidateMethod = IsApplicableMethod(method);

@@ -66,29 +66,6 @@ class RuntimeServicesTestFixture:
 	[ExpectedException(InvalidCastException)]
 	def CheckNumericPromotionWithDate():
 		CNP(date.Now)
-		
-	[Test]
-	def DefaultTargetInvocationExceptionAction():
-		action = RuntimeServices.DefaultTargetInvocationExceptionAction
-		assert action == RuntimeServices.TargetInvocationExceptionAction.ThrowInner
-		try:
-			foo as duck = Foo()
-			try:
-				foo.bar()
-			except x as ApplicationException:
-				pass
-				
-			if Environment.Version >= Version(2, 0, 0, 0):
-				// under 2.0 boo does not use reflection
-				return
-				
-			RuntimeServices.DefaultTargetInvocationExceptionAction = RuntimeServices.TargetInvocationExceptionAction.Rethrow
-			try:
-				foo.bar()
-			except x as TargetInvocationException:
-				assert x.InnerException isa ApplicationException
-		ensure:
-			RuntimeServices.DefaultTargetInvocationExceptionAction = action
 			
 	class Foo:
 		def bar():
