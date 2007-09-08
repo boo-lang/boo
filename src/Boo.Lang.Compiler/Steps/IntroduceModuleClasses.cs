@@ -50,15 +50,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public bool ForceModuleClass
 		{
-			get
-			{
-				return _forceModuleClass;
-			}
+			get { return _forceModuleClass; }
 			
-			set
-			{
-				_forceModuleClass = true;
-			}
+			set { _forceModuleClass = value; }
 		}
 		
 		override public void Initialize(CompilerContext context)

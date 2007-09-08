@@ -244,7 +244,13 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
+		[Obsolete("Use Coerce instead.")]
 		public static object DuckImplicitCast(object value, Type toType)
+		{
+			return Coerce(value, toType);
+		}
+
+		public static object Coerce(object value, Type toType)
 		{
 			if (value == null) return null;
 			if (toType.IsInstanceOfType(value)) return value;

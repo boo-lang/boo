@@ -3413,7 +3413,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					EmitDuckImplicitCastIfNeeded(expectedType, actualType);
+					EmitRuntimeCoercionIfNeeded(expectedType, actualType);
 
 					// In order to cast to a reference type we emit a castclass opcode
 					_context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
@@ -3426,21 +3426,23 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		virtual protected void EmitDuckImplicitCastIfNeeded(IType expectedType, IType actualType)
+		private void EmitRuntimeCoercionIfNeeded(IType expectedType, IType actualType)
 		{
 			if (TypeSystemServices.IsDuckType(actualType))
 			{
-				EmitGetTypeFromHandle(GetSystemType(expectedType));
-				PopType();
-				_il.EmitCall(OpCodes.Call, RuntimeServices_DuckImplicitCast, null);
+				EmitGetTypeFromHandle(GetSystemType(expectedType)); PopType();
+				_il.EmitCall(OpCodes.Call, RuntimeServices_Coerce, null);
 			}
 		}
+
+		private MethodInfo _RuntimeServices_Coerce;
 		
-		virtual protected MethodInfo RuntimeServices_DuckImplicitCast
+		private MethodInfo RuntimeServices_Coerce
 		{
 			get
 			{
-				return Types.RuntimeServices.GetMethod("DuckImplicitCast", new Type[] { Types.Object, Types.Type });
+				if (_RuntimeServices_Coerce != null) return _RuntimeServices_Coerce;
+				return _RuntimeServices_Coerce = Types.RuntimeServices.GetMethod("Coerce", new Type[] { Types.Object, Types.Type });
 			}
 		}
 
