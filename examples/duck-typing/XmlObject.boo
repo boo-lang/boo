@@ -71,7 +71,7 @@ class XmlObject(IQuackFu):
 		elements = _element.SelectNodes(name)
 		if elements is not null:
 			return XmlObject(elements[0]) if elements.Count == 1
-			return XmlObject(e) for e in elements
+			return XmlObject(e) for e as XmlElement in elements
 			
 	def GetAttribute(name as string):
 		item = _element.Attributes.GetNamedItem(name)
