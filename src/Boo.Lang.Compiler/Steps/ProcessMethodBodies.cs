@@ -358,7 +358,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Type)
 			{
-				node.Type = CreateTypeReference(node.LexicalInfo, initializerType);
+				node.Type = CreateTypeReference(node.LexicalInfo, MapNullToObject(initializerType));
 			}
 			else
 			{
