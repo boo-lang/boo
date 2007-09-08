@@ -9,9 +9,9 @@ namespace Boo.Lang.Runtime
 		protected readonly DynamicMethod _method;
 		protected readonly ILGenerator _il;
 
-		public DispatcherEmitter(Type owner)
+		public DispatcherEmitter(Type owner, string dynamicMethodName)
 		{
-			_method = new DynamicMethod(string.Empty, typeof(object), new Type[] { typeof(object), typeof(object[]) }, owner);
+			_method = new DynamicMethod(owner.Name + "$" + dynamicMethodName, typeof(object), new Type[] { typeof(object), typeof(object[]) }, owner);
 			_il = _method.GetILGenerator();
 		}
 

@@ -10,7 +10,7 @@ namespace Boo.Lang.Runtime
 
 		protected readonly FieldInfo _field;
 
-		public GetFieldEmitter(FieldInfo field) : base(field.DeclaringType)
+		public GetFieldEmitter(FieldInfo field) : base(field.DeclaringType, field.Name)
 		{
 			_field = field;
 		}

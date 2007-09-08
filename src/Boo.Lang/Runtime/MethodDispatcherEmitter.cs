@@ -43,7 +43,7 @@ namespace Boo.Lang.Runtime
 		{	
 		}
 
-		public MethodDispatcherEmitter(Type owner, CandidateMethod found, Type[] argumentTypes) : base(owner)
+		public MethodDispatcherEmitter(Type owner, CandidateMethod found, Type[] argumentTypes) : base(owner, found.Method.Name + "$" + Builtins.join(argumentTypes, "$"))
 		{
 			_found = found;
 			_argumentTypes = argumentTypes;

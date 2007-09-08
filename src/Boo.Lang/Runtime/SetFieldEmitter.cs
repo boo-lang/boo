@@ -8,7 +8,7 @@ namespace Boo.Lang.Runtime
 		private readonly FieldInfo _field;
 
 		public SetFieldEmitter(FieldInfo field)
-			: base(field.DeclaringType)
+			: base(field.DeclaringType, field.Name + "=")
 		{
 			_field = field;
 		}
