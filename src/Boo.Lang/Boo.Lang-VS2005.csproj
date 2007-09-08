@@ -87,6 +87,7 @@
     <Compile Include="Runtime\SetFieldEmitter.cs" />
     <Compile Include="Runtime\SetOrGet.cs" />
     <Compile Include="Runtime\SetPropEmitter.cs" />
+    <Compile Include="Runtime\SliceDispatcherFactory.cs" />
     <Compile Include="Runtime\TextReaderEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>

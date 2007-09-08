@@ -261,55 +261,24 @@ namespace Boo.Lang.Runtime
 
 		public static object GetSlice(object target, string name, object[] args)
 		{
-			IQuackFu duck = target as IQuackFu;
-			if (null != duck) return duck.QuackGet(name, args);
-
-			Type type = target.GetType();
-			if ("" == name)
-			{
-				if (IsGetArraySlice(target, args))
-				{
-					return GetArraySlice(target, args);
-				}
-				name = GetDefaultMemberName(type);
-			}
-
-			MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Get);
-			return GetSlice(target, member, args);
+			return Dispatch(target, name, args, delegate { return CreateGetSliceDispatcher(target, name, args); });
 		}
 
-		private static object GetSlice(object target, MemberInfo member, object[] args)
+		private static Dispatcher CreateGetSliceDispatcher(object target, string name, object[] args)
 		{
-			switch (member.MemberType)
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck)
 			{
-				case MemberTypes.Field:
-					{
-						FieldInfo field = (FieldInfo)member;
-						return GetSlice(field.GetValue(target), "", args);
-					}
-				case MemberTypes.Method:
-					{
-						MethodInfo method = (MethodInfo)member;
-						return method.Invoke(target, args);
-					}
-				case MemberTypes.Property:
-					{
-						MethodInfo getter = GetGetMethod((PropertyInfo)member);
-						if (getter.GetParameters().Length > 0)
-						{
-							// is this a indexed property?
-							return getter.Invoke(target, args);
-						}
-						// otherwise its a simple property and the slice
-						// should be applied to the return value
-						return GetSlice(getter.Invoke(target, null), "", args);
-					}
-				default:
-					{
-						MemberNotSupported(member);
-						return null; // this line is never reached
-					}
+				return delegate(object o, object[] arguments) { return ((IQuackFu) o).QuackGet(name, arguments); };
 			}
+
+			Type type = target.GetType();
+			if ("" == name && args.Length == 1)
+			{
+				if (target is System.Array) return GetArraySlice;
+				if (target is System.Collections.IList) return GetListSlice;
+			}
+			return new SliceDispatcherFactory(_extensions, target, type, name, args).Create();
 		}
 
 		private static object GetArraySlice(object target, object[] args)
@@ -318,9 +287,10 @@ namespace Boo.Lang.Runtime
 			return list[NormalizeIndex(list.Count, (int)args[0])];
 		}
 
-		private static bool IsGetArraySlice(object target, object[] args)
+		private static object GetListSlice(object target, object[] args)
 		{
-			return args.Length == 1 && target is System.Array;
+			IList list = (IList)target;
+			return list[(int)args[0]];
 		}
 
 		private static MethodInfo GetGetMethod(PropertyInfo property)
@@ -411,7 +381,7 @@ namespace Boo.Lang.Runtime
 			return args.Length == 2 && target is System.Array;
 		}
 
-		private static MemberInfo[] GetMember(Type type, string name)
+		internal static MemberInfo[] GetMember(Type type, string name)
 		{
 			MemberInfo[] found = type.GetMember(name, DefaultBindingFlags);
 			if (null == found || 0 == found.Length)
@@ -421,12 +391,12 @@ namespace Boo.Lang.Runtime
 			return found;
 		}
 
-		private static void MemberNotSupported(MemberInfo member)
+		internal static void MemberNotSupported(MemberInfo member)
 		{
 			throw new ArgumentException(string.Format("Member not supported: {0}", member));
 		}
 
-		private static MemberInfo SelectSliceMember(MemberInfo[] found, ref object[] args, SetOrGet sliceKind)
+		internal static MemberInfo SelectSliceMember(MemberInfo[] found, ref object[] args, SetOrGet sliceKind)
 		{
 			if (1 == found.Length) return found[0];
 			MethodBase[] candidates = new MethodBase[found.Length];
@@ -449,7 +419,7 @@ namespace Boo.Lang.Runtime
 			return method;
 		}
 
-		private static String GetDefaultMemberName(Type type)
+		internal static String GetDefaultMemberName(Type type)
 		{
 			DefaultMemberAttribute attribute = (DefaultMemberAttribute)Attribute.GetCustomAttribute(type, typeof(DefaultMemberAttribute));
 			return attribute != null ? attribute.MemberName : "";
@@ -607,11 +577,7 @@ namespace Boo.Lang.Runtime
 
 				try
 				{
-					return operandType.InvokeMember(operatorName,
-										InvokeOperatorBindingFlags,
-										null,
-										null,
-										args);
+					return Invoke(operandType, operatorName, args);
 				}
 				catch (MissingMethodException)
 				{
@@ -630,11 +596,7 @@ namespace Boo.Lang.Runtime
 
 		private static object InvokeRuntimeServicesOperator(string operatorName, object[] args)
 		{
-			return RuntimeServicesType.InvokeMember(operatorName,
-										InvokeOperatorBindingFlags,
-										null,
-										null,
-										args);
+			return Invoke(RuntimeServicesType, operatorName, args);
 		}
 
 		public static object MoveNext(IEnumerator enumerator)

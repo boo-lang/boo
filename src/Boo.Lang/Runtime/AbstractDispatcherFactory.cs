@@ -70,5 +70,10 @@ namespace Boo.Lang.Runtime
 				yield return (T)m;
 			}
 		}
+
+		protected static CandidateMethod ResolveMethod(Type[] argumentTypes, IEnumerable<MethodInfo> candidates)
+		{
+			return new MethodResolver(argumentTypes).ResolveMethod(candidates);
+		}
 	}
 }

@@ -60,7 +60,7 @@ namespace Boo.Lang.Runtime
 
 		private CandidateMethod ResolveMethod(Type[] argumentTypes)
 		{
-			return new MethodResolver(argumentTypes).ResolveMethod(GetCandidates());
+			return ResolveMethod(argumentTypes, GetCandidates());
 		}
 
 		private IEnumerable<MethodInfo> GetCandidates()

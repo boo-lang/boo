@@ -77,10 +77,10 @@ namespace Boo.Lang.Runtime
 		private Dispatcher EmitPropertyDispatcher(PropertyInfo property, SetOrGet gos)
 		{
 			Type[] argumentTypes = GetArgumentTypes();
-			MethodResolver resolver = new MethodResolver(argumentTypes);
 			MethodInfo accessor = Accessor(property, gos);
 			if (null == accessor) throw MissingField();
-			CandidateMethod found = resolver.ResolveMethod(new MethodInfo[] { accessor });
+			CandidateMethod found = ResolveMethod(argumentTypes, new MethodInfo[] { accessor });
+			if (null == found) throw MissingField();
 			if (SetOrGet.Get == gos) return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 			return new SetPropEmitter(_type, found, argumentTypes).Emit();
 		}
