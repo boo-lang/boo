@@ -411,6 +411,7 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = GetFieldsInitializerMethod(node);
 			method.Body.Add(
 				CodeBuilder.CreateAssignment(
+					initializer.LexicalInfo,
 					CodeBuilder.CreateReference(node),
 					initializer));
 			node.Initializer = null;

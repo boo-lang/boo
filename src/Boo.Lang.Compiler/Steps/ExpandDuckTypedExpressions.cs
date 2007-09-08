@@ -135,6 +135,7 @@ namespace Boo.Lang.Compiler.Steps
 		private void ExpandCallableInvocation(MethodInvocationExpression node)
 		{
 			MethodInvocationExpression invoke = CodeBuilder.CreateMethodInvocation(
+				node.LexicalInfo,
 				RuntimeServices_InvokeCallable,
 				node.Target,
 				CodeBuilder.CreateObjectArray(node.Arguments));
@@ -152,6 +153,7 @@ namespace Boo.Lang.Compiler.Steps
 			// RuntimeServices.GetSlice(a, "", (foo,))
 
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+				node.LexicalInfo,
 				RuntimeServices_GetSlice,
 				GetSlicingTarget(node),
 				CodeBuilder.CreateStringLiteral(GetSlicingMemberName(node)),
@@ -202,6 +204,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Operator == UnaryOperatorType.UnaryNegation)
 			{
 				MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+					node.LexicalInfo,
 					RuntimeServices_InvokeUnaryOperator,
 					CodeBuilder.CreateStringLiteral(
 					AstUtil.GetMethodNameForOperator(node.Operator)),
@@ -223,6 +226,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (!IsDuckTyped(node.Left) && !IsDuckTyped(node.Right)) return;
 
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+				node.LexicalInfo,
 				RuntimeServices_InvokeBinaryOperator,
 				CodeBuilder.CreateStringLiteral(
 				AstUtil.GetMethodNameForOperator(node.Operator)),
@@ -254,6 +258,7 @@ namespace Boo.Lang.Compiler.Steps
 				|| AstUtil.IsTargetOfSlicing(node)) return;
 
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+				node.LexicalInfo,
 				GetGetPropertyMethod(),
 				node.Target,
 				CodeBuilder.CreateStringLiteral(node.Name));
@@ -268,6 +273,7 @@ namespace Boo.Lang.Compiler.Steps
 			args.Items.Add(node.Right);
 			
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+				node.LexicalInfo,
 				RuntimeServices_SetSlice,
 				GetSlicingTarget(slice),
 				CodeBuilder.CreateStringLiteral(GetSlicingMemberName(slice)),
@@ -279,6 +285,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MemberReferenceExpression target = (MemberReferenceExpression)node.Left;
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+				node.LexicalInfo,
 				GetSetPropertyMethod(),
 				target.Target,
 				CodeBuilder.CreateStringLiteral(target.Name),

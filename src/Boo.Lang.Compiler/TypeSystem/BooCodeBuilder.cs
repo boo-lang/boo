@@ -243,6 +243,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			mie.Arguments.Add(arg2);
 			return mie;
 		}
+
+		public MethodInvocationExpression CreateMethodInvocation(LexicalInfo li, IMethod staticMethod, Expression arg0, Expression arg1)
+		{
+			MethodInvocationExpression expression = CreateMethodInvocation(staticMethod, arg0, arg1);
+			expression.LexicalInfo = li;
+			return expression;
+		}
 		
 		public MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1)
 		{
@@ -250,7 +257,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			mie.Arguments.Add(arg1);
 			return mie;
 		}
-		
+
+		public MethodInvocationExpression CreateMethodInvocation(LexicalInfo li, IMethod staticMethod, Expression arg0, Expression arg1, Expression arg2)
+		{
+			MethodInvocationExpression expression = CreateMethodInvocation(staticMethod, arg0, arg1, arg2);
+			expression.LexicalInfo = li;
+			return expression;
+		}
+
 		public MethodInvocationExpression CreateMethodInvocation(IMethod staticMethod, Expression arg0, Expression arg1, Expression arg2)
 		{
 			MethodInvocationExpression mie = CreateMethodInvocation(staticMethod, arg0, arg1);
