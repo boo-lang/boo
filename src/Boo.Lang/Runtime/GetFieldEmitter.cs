@@ -1,13 +1,11 @@
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 namespace Boo.Lang.Runtime
 {
 	internal class GetFieldEmitter : DispatcherEmitter
 	{
-		private static readonly MethodInfo RunClassConstructor =
-			typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("RunClassConstructor");
-
 		protected readonly FieldInfo _field;
 
 		public GetFieldEmitter(FieldInfo field) : base(field.DeclaringType, field.Name)
@@ -21,8 +19,7 @@ namespace Boo.Lang.Runtime
 			{
 				// make sure type is initialized before
 				// accessing any static fields
-				_il.Emit(OpCodes.Ldtoken, _field.DeclaringType);
-				_il.Emit(OpCodes.Call, RunClassConstructor);
+				RuntimeHelpers.RunClassConstructor(_field.DeclaringType.TypeHandle);
 				_il.Emit(OpCodes.Ldsfld, _field);
 			}
 			else
