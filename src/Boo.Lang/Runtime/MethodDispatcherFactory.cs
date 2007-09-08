@@ -38,7 +38,7 @@ namespace Boo.Lang.Runtime
 		{
 		}
 
-		public override Dispatcher Create()
+		public Dispatcher Create()
 		{
 			Type[] types = GetArgumentTypes();
 			CandidateMethod found = ResolveMethod(types);

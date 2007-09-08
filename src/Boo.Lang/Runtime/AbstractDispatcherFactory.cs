@@ -21,8 +21,6 @@ namespace Boo.Lang.Runtime
 			_arguments = arguments;
 		}
 
-		public abstract Dispatcher Create();
-
 		protected IEnumerable<MemberInfo> Extensions
 		{
 			get { return _extensions.Extensions;  }

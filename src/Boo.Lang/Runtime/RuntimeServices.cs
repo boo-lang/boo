@@ -37,6 +37,8 @@ namespace Boo.Lang.Runtime
 {
 	public class RuntimeServices
 	{
+		private static readonly object[] NoArguments = new object[0];
+
 		private static readonly Type RuntimeServicesType = typeof(RuntimeServices);
 
 		internal const BindingFlags InstanceMemberFlags = BindingFlags.Public |
@@ -69,14 +71,14 @@ namespace Boo.Lang.Runtime
 		private static DispatcherCache _cache = new DispatcherCache();
 		private static ExtensionRegistry _extensions = new ExtensionRegistry();
 
-		public delegate void Action();
+		public delegate void CodeBlock();
 
-		public static void WithExtensions(System.Type extensions, Action a)
+		public static void WithExtensions(System.Type extensions, CodeBlock block)
 		{
 			RegisterExtensions(extensions);
 			try
 			{
-				a();
+				block();
 			}
 			finally
 			{
@@ -95,15 +97,23 @@ namespace Boo.Lang.Runtime
 		}
 
 		public static object Invoke(object target, string name, object[] args)
+		{	
+			return Dispatch(target, name, args, delegate { return CreateMethodDispatcher(target, name, args); });
+		}
+
+		private static Dispatcher CreateMethodDispatcher(object target, string name, object[] args)
 		{
 			IQuackFu duck = target as IQuackFu;
-			if (null != duck) return duck.QuackInvoke(name, args);
+			if (null != duck)
+			{
+				return delegate(object o, object[] arguments) { return ((IQuackFu) o).QuackInvoke(name, arguments); };
+			}
 
 			Type type = target as Type;
 			if (null != type)
 			{
 				// static method
-				return DoInvoke(null, type, name, args);
+				return DoCreateMethodDispatcher(null, type, name, args);
 			}
 
 			Type targetType = target.GetType();
@@ -113,70 +123,94 @@ namespace Boo.Lang.Runtime
 				// so maybe the proper way to support parameter conversions
 				// is indeed by creating a specific Binder object
 				// which knows the boo conversion rules
-				return targetType.InvokeMember(name, InvokeBindingFlags, null, target, args);
+				return
+					delegate(object o, object[] arguments) { return o.GetType().InvokeMember(name, InvokeBindingFlags, null, target, arguments); };
 			}
-			return DoInvoke(target, targetType, name, args);
+			
+			return DoCreateMethodDispatcher(target, targetType, name, args);
 		}
 
-		private static object DoInvoke(object target, Type targetType, string name, object[] args)
+		private static Dispatcher DoCreateMethodDispatcher(object target, Type targetType, string name, object[] args)
 		{
+			return new MethodDispatcherFactory(_extensions, target, targetType, name, args).Create();
+		}
+
+		private static object Dispatch(object target, string name, object[] args, DispatcherCache.DispatcherFactory factory)
+		{
+			Type targetType = (target as Type) ?? target.GetType();
 			DispatcherKey key = new DispatcherKey(targetType, name, args);
-			Dispatcher dispatcher = _cache.Get(key, delegate { return new MethodDispatcherFactory(_extensions, target, targetType, name, args).Create(); });
+			Dispatcher dispatcher = _cache.Get(key, factory);
 			return dispatcher(target, args);
 		}
 
 		public static object GetProperty(object target, string name)
 		{
+			return Dispatch(target, name, NoArguments, delegate { return CreatePropGetDispatcher(target, name);  });
+		}
+
+		private static Dispatcher CreatePropGetDispatcher(object target, string name)
+		{
 			IQuackFu duck = target as IQuackFu;
-			if (null != duck) return duck.QuackGet(name, null);
+			if (null != duck)
+			{
+				return delegate(object o, object[] args) { return ((IQuackFu)o).QuackGet(name, null); };
+			}
 
 			Type type = target as Type;
-			if (null != type) return DoGetProperty(null, type, name);
+			if (null != type) return DoCreatePropGetDispatcher(null, type, name);
 
 			Type targetType = target.GetType();
 			if (targetType.IsCOMObject)
 			{
-				return targetType.InvokeMember(name, GetPropertyBindingFlags, null, target, null);
+				return delegate(object o, object[] args)
+		       	{
+		       		return o.GetType().InvokeMember(name, GetPropertyBindingFlags, null, o, null);
+		       	};
 			}
 
-			return DoGetProperty(target, targetType, name);
+			return DoCreatePropGetDispatcher(target, target.GetType(), name);
 		}
 
-		private static object DoGetProperty(object target, Type type, string name)
+		private static Dispatcher DoCreatePropGetDispatcher(object target, Type type, string name)
 		{
-			DispatcherKey key = new DispatcherKey(type, name);
-			Dispatcher dispatcher = _cache.Get(key, delegate { return new PropertyDispatcherFactory(_extensions, target, type, name).Create(); });
-			return dispatcher(target, null);
+			return new PropertyDispatcherFactory(_extensions, target, type, name).CreateGetter();
 		}
 
 		public static object SetProperty(object target, string name, object value)
 		{
-			IQuackFu duck = target as IQuackFu;
-			if (null != duck) return duck.QuackSet(name, null, value);
-
-			return DoSetProperty(target, name, value);
+			return Dispatch(target, name, new object[] { value }, delegate { return CreatePropSetDispatcher(target, name, value); });
 		}
 
-		private static object DoSetProperty(object target, string name, object value)
+		private static Dispatcher CreatePropSetDispatcher(object target, string name, object value)
 		{
-			Type type = target as Type;
-			if (null == type)
+			IQuackFu duck = target as IQuackFu;
+			if (null != duck)
 			{
-				target.GetType().InvokeMember(name,
-											  SetPropertyBindingFlags,
-											  null,
-											  target,
-											  new object[] { value });
+				return delegate(object o, object[] args) { return ((IQuackFu) o).QuackSet(name, null, args[0]); };
 			}
-			else
-			{	// static member
-				type.InvokeMember(name,
-								  SetPropertyBindingFlags,
-								  null,
-								  null,
-								  new object[] { value });
+
+			Type type = target as Type;
+			if (null != type) return DoCreatePropSetDispatcher(null, type, name, value);
+
+			Type targetType = target.GetType();
+			if (targetType.IsCOMObject)
+			{
+				return delegate(object o, object[] args)
+		       	{
+		       		return o.GetType().InvokeMember(name,
+		       		                                SetPropertyBindingFlags,
+		       		                                null,
+		       		                                o,
+		       		                                args);
+		       	};
 			}
-			return value;
+
+			return DoCreatePropSetDispatcher(target, targetType, name, value);
+		}
+
+		private static Dispatcher DoCreatePropSetDispatcher(object target, Type type, string name, object value)
+		{
+			return new PropertyDispatcherFactory(_extensions, target, type, name, value).CreateSetter();
 		}
 
 		public struct ValueTypeChange
@@ -213,6 +247,7 @@ namespace Boo.Lang.Runtime
 		public static object DuckImplicitCast(object value, Type toType)
 		{
 			if (value == null) return null;
+			if (toType.IsInstanceOfType(value)) return value;
 			MethodInfo method = FindImplicitConversionOperator(value.GetType(), toType);
 			if (null == method) return value;
 			return method.Invoke(null, new object[] { value });
@@ -425,7 +460,7 @@ namespace Boo.Lang.Runtime
 			if (null != c) return c.Call(args);
 
 			Delegate d = target as Delegate;
-			if (null != c) return d.DynamicInvoke(args);
+			if (null != d) return d.DynamicInvoke(args);
 
 			return Activator.CreateInstance((Type)target, args);
 		}
@@ -516,13 +551,13 @@ namespace Boo.Lang.Runtime
 					// TODO: first resolve the right method on either
 					// lhs and rhs
 					// and then cache the final information
-					return DoInvoke(null, lhsType, operatorName, args);
+					return Invoke(lhsType, operatorName, args);
 				}
 				catch (MissingMethodException)
 				{
 					try
 					{
-						return DoInvoke(null, rhsType, operatorName, args);
+						return Invoke(rhsType, operatorName, args);
 					}
 					catch (MissingMethodException)
 					{

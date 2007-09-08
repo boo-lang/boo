@@ -51,10 +51,15 @@ namespace Boo.Lang.Runtime
 
 		protected override void EmitMethodBody()
 		{
+			EmitInvocation();
+			EmitMethodReturn();
+		}
+
+		protected void EmitInvocation()
+		{
 			EmitLoadTargetObject();
 			EmitMethodArguments();
 			EmitMethodCall();
-			EmitMethodReturn();
 		}
 
 		private void EmitMethodCall()
@@ -93,7 +98,7 @@ namespace Boo.Lang.Runtime
 			_il.Emit(OpCodes.Newarr, varArgType);
 			for (int i = 0; i < varArgCount; ++i)
 			{
-				_il.Emit(OpCodes.Dup);
+				Dup();
 				_il.Emit(OpCodes.Ldc_I4, i);
 				if (IsStobj(storeOpCode))
 				{
@@ -140,25 +145,21 @@ namespace Boo.Lang.Runtime
 			return OpCodes.Stelem_Ref;
 		}
 
-		private void EmitMethodArgument(int argumentIndex, Type paramType)
+		protected void EmitMethodArgument(int argumentIndex, Type expectedType)
 		{
-			_il.Emit(OpCodes.Ldarg_1);
-			_il.Emit(OpCodes.Ldc_I4, argumentIndex);
-			_il.Emit(OpCodes.Ldelem_Ref);
+			EmitArgArrayElement(argumentIndex);
 
 			switch (_found.ArgumentScores[argumentIndex])
 			{
 				case CandidateMethod.PromotionScore:
-					_il.Emit(OpCodes.Castclass, typeof(IConvertible));
-					_il.Emit(OpCodes.Ldnull);
-					_il.Emit(OpCodes.Callvirt, GetPromotionMethod(paramType));
+					EmitPromotion(expectedType);
 					break;
 				case CandidateMethod.ImplicitConversionScore:
 					EmitCastOrUnbox(_argumentTypes[argumentIndex]);
 					_il.Emit(OpCodes.Call, _found.GetArgumentConversion(argumentIndex));
 					break;
 				default:
-					EmitCastOrUnbox(paramType);
+					EmitCastOrUnbox(expectedType);
 					break;
 			}
 		}
@@ -172,11 +173,6 @@ namespace Boo.Lang.Runtime
 		private void EmitMethodReturn()
 		{
 			EmitReturn(_found.Method.ReturnType);
-		}
-
-		private MethodInfo GetPromotionMethod(Type type)
-		{
-			return typeof(IConvertible).GetMethod("To" + Type.GetTypeCode(type));
 		}
 	}
 }

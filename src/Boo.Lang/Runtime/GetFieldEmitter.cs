@@ -3,14 +3,14 @@ using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	internal class FieldDispatcherEmitter : DispatcherEmitter
+	internal class GetFieldEmitter : DispatcherEmitter
 	{
 		private static readonly MethodInfo RunClassConstructor =
 			typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("RunClassConstructor");
 
-		private FieldInfo _field;
+		protected readonly FieldInfo _field;
 
-		public FieldDispatcherEmitter(FieldInfo field) : base(field.DeclaringType)
+		public GetFieldEmitter(FieldInfo field) : base(field.DeclaringType)
 		{
 			_field = field;
 		}

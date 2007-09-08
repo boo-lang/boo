@@ -18,6 +18,7 @@ namespace Boo.Lang.Runtime.Tests
 		public string Name
 		{
 			get { return _name; }
+			set { _name = value; }
 		}
 
 		private static string _zeng = "Static property";
@@ -25,6 +26,7 @@ namespace Boo.Lang.Runtime.Tests
 		public static string Zeng
 		{
 			get { return _zeng;  }
+			set { _zeng = value; }
 		}
 	}
 
@@ -35,13 +37,13 @@ namespace Boo.Lang.Runtime.Tests
 		public void InstanceProperty()
 		{
 			Bar o = new Bar("John Cleese");
-			Assert.AreEqual(o.Name, Dispatch(o, "Name"));
+			Assert.AreEqual(o.Name, Get(o, "Name"));
 		}
 
 		[Test]
 		public void StaticProperty()
 		{
-			Assert.AreEqual(Bar.Zeng, Dispatch(new Bar("foo"), "Zeng"));
+			Assert.AreEqual(Bar.Zeng, Get(new Bar("foo"), "Zeng"));
 		}
 
 		[Test]
@@ -58,7 +60,7 @@ class Extensions:
 			_extensions.Register(compile(code).GetType("Extensions"));
 
 			Bar b = new Bar("Eric Idle");
-			Assert.AreEqual(b.Name, Dispatch(b, "DaName"));
+			Assert.AreEqual(b.Name, Get(b, "DaName"));
 		}
 
 		private Assembly compile(string code)
@@ -70,25 +72,69 @@ class Extensions:
 		public void InstanceField()
 		{
 			Bar o = new Bar("John Cleese");
-			Assert.AreEqual(o.Name, Dispatch(o, "_name"));
+			Assert.AreEqual(o.Name, Get(o, "_name"));
 		}
 
 		[Test]
 		public void StaticField()
 		{
-			Assert.AreEqual(Bar.Zeng, Dispatch(new Bar("foo"), "_zeng"));
-			Assert.AreEqual(Bar.Zeng, Dispatch(null, typeof(Bar), "_zeng"));
+			Assert.AreEqual(Bar.Zeng, Get(new Bar("foo"), "_zeng"));
+			Assert.AreEqual(Bar.Zeng, Get(null, typeof(Bar), "_zeng"));
 		}
 
-		private object Dispatch(object o, string name)
+		[Test]
+		public void SetInstanceProperty()
 		{
-			return Dispatch(o, o.GetType(), name);
+			TestSetName("Name");
 		}
 
-		private object Dispatch(object o, Type type, string name)
+		[Test]
+		public void SetInstanceField()
 		{
-			PropertyDispatcherFactory factory = new PropertyDispatcherFactory(_extensions, o, type, name);
-			return factory.Create()(o, null);
+			TestSetName("_name");
+		}
+		
+		[Test]
+		public void SetStaticField()
+		{
+			string expected = "42";
+			Assert.AreEqual(expected, Set(new Bar("foo"), "_zeng", expected));
+			Assert.AreEqual(expected, Bar.Zeng);
+
+			expected = "75";
+			Assert.AreEqual(expected, Set(null, typeof(Bar), "_zeng", expected));
+			Assert.AreEqual(expected, Bar.Zeng);
+		}
+
+		private void TestSetName(string name)
+		{
+			Bar o = new Bar("John Cleese");
+			string expected = "Eric Idle";
+			object value = Set(o, name, expected);
+			Assert.AreEqual(expected, value);
+			Assert.AreEqual(expected, o.Name);
+		}
+
+		private object Set(object o, string name, object value)
+		{
+			return Set(o, o.GetType(), name, value);
+		}
+
+		private object Set(object o, Type type, string name, object value)
+		{
+			Dispatcher dispatcher = new PropertyDispatcherFactory(_extensions, o, type, name, value).CreateSetter();
+			return dispatcher(o, new object[] { value });
+		}
+
+		private object Get(object o, string name)
+		{
+			return Get(o, o.GetType(), name);
+		}
+
+		private object Get(object o, Type type, string name)
+		{
+			Dispatcher dispatcher = new PropertyDispatcherFactory(_extensions, o, type, name).CreateGetter();
+			return dispatcher(o, null);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
@@ -77,6 +78,30 @@ namespace Boo.Lang.Runtime
 				BoxIfNeeded(typeOnStack);
 			}
 			_il.Emit(OpCodes.Ret);
+		}
+
+		protected void EmitPromotion(Type expectedType)
+		{
+			_il.Emit(OpCodes.Castclass, typeof(IConvertible));
+			_il.Emit(OpCodes.Ldnull);
+			_il.Emit(OpCodes.Callvirt, GetPromotionMethod(expectedType));
+		}
+
+		protected void EmitArgArrayElement(int argumentIndex)
+		{
+			_il.Emit(OpCodes.Ldarg_1);
+			_il.Emit(OpCodes.Ldc_I4, argumentIndex);
+			_il.Emit(OpCodes.Ldelem_Ref);
+		}
+
+		private MethodInfo GetPromotionMethod(Type type)
+		{
+			return typeof(IConvertible).GetMethod("To" + Type.GetTypeCode(type));
+		}
+
+		protected void Dup()
+		{
+			_il.Emit(OpCodes.Dup);
 		}
 	}
 }
