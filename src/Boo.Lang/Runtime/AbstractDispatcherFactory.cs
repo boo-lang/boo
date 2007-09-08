@@ -75,5 +75,10 @@ namespace Boo.Lang.Runtime
 		{
 			return new MethodResolver(argumentTypes).ResolveMethod(candidates);
 		}
+
+		protected MissingFieldException MissingField()
+		{
+			return new MissingFieldException(_type.FullName, _name);
+		}
 	}
 }

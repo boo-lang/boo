@@ -32,13 +32,7 @@ namespace Boo.Lang.Runtime
 		{
 			CandidateMethod found = ResolveExtension(candidates);
 			if (null != found) return EmitExtensionDispatcher(found);
-
 			throw MissingField();
-		}
-
-		private MissingFieldException MissingField()
-		{
-			return new MissingFieldException(_type.FullName, _name);
 		}
 
 		private IEnumerable<MethodInfo> GetCandidateExtensions(SetOrGet gos)

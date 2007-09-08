@@ -135,10 +135,10 @@ namespace Boo.Lang.Runtime
 			return new MethodDispatcherFactory(_extensions, target, targetType, name, args).Create();
 		}
 
-		private static object Dispatch(object target, string name, object[] args, DispatcherCache.DispatcherFactory factory)
+		private static object Dispatch(object target, string cacheKeyName, object[] args, DispatcherCache.DispatcherFactory factory)
 		{
 			Type targetType = (target as Type) ?? target.GetType();
-			DispatcherKey key = new DispatcherKey(targetType, name, args);
+			DispatcherKey key = new DispatcherKey(targetType, cacheKeyName, args);
 			Dispatcher dispatcher = _cache.Get(key, factory);
 			return dispatcher(target, args);
 		}
@@ -261,7 +261,7 @@ namespace Boo.Lang.Runtime
 
 		public static object GetSlice(object target, string name, object[] args)
 		{
-			return Dispatch(target, name, args, delegate { return CreateGetSliceDispatcher(target, name, args); });
+			return Dispatch(target, name + "[]", args, delegate { return CreateGetSliceDispatcher(target, name, args); });
 		}
 
 		private static Dispatcher CreateGetSliceDispatcher(object target, string name, object[] args)
@@ -272,13 +272,12 @@ namespace Boo.Lang.Runtime
 				return delegate(object o, object[] arguments) { return ((IQuackFu) o).QuackGet(name, arguments); };
 			}
 
-			Type type = target.GetType();
 			if ("" == name && args.Length == 1)
 			{
 				if (target is System.Array) return GetArraySlice;
 				if (target is System.Collections.IList) return GetListSlice;
 			}
-			return new SliceDispatcherFactory(_extensions, target, type, name, args).Create();
+			return new SliceDispatcherFactory(_extensions, target, target.GetType(), name, args).CreateGetter();
 		}
 
 		private static object GetArraySlice(object target, object[] args)
@@ -293,80 +292,29 @@ namespace Boo.Lang.Runtime
 			return list[(int)args[0]];
 		}
 
-		private static MethodInfo GetGetMethod(PropertyInfo property)
-		{
-			MethodInfo method = property.GetGetMethod(true);
-			if (null == method) MemberNotSupported(property);
-			return method;
-		}
-
 		public static object SetSlice(object target, string name, object[] args)
 		{
+			return Dispatch(target, name + "[]=", args, delegate { return CreateSetSliceDispatcher(target, name, args); });
+		}
+
+		static Dispatcher CreateSetSliceDispatcher(object target, string name, object[] args)
+		{
 			IQuackFu duck = target as IQuackFu;
-			if (null != duck) return duck.QuackSet(name, (object[])GetRange2(args, 0, args.Length - 1), args[args.Length - 1]);
-
-			Type type = target.GetType();
-			if ("" == name)
+			if (null != duck)
 			{
-				if (IsSetArraySlice(target, args))
+				return delegate(object o, object[] arguments)
 				{
-					return SetArraySlice(target, args);
-				}
-				name = GetDefaultMemberName(type);
+					return ((IQuackFu) o).QuackSet(name, (object[]) GetRange2(arguments, 0, arguments.Length - 1), arguments[arguments.Length - 1]);
+				};
 			}
 
-			MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Set);
-			return SetSlice(target, member, args);
-		}
-
-		private static object SetSlice(object target, MemberInfo member, object[] args)
-		{
-			switch (member.MemberType)
+			if ("" == name && 2 == args.Length)
 			{
-				case MemberTypes.Field:
-					{
-						FieldInfo field = (FieldInfo)member;
-						SetSlice(field.GetValue(target), "", args);
-						break;
-					}
-				case MemberTypes.Method:
-					{
-						MethodInfo method = (MethodInfo)member;
-						method.Invoke(target, args);
-						break;
-					}
-				case MemberTypes.Property:
-					{
-						PropertyInfo property = (PropertyInfo)member;
-						MethodInfo setter = property.GetSetMethod(true);
-						if (null != setter && setter.GetParameters().Length > 0)
-						{
-							setter.Invoke(target, args);
-						}
-						else
-						{
-							SetSlice(GetPropertyValue(target, property), "", args);
-						}
-						break;
-					}
-				default:
-					{
-						MemberNotSupported(member);
-						break;
-					}
+				if (target is System.Array) return SetArraySlice;
+				if (target is System.Collections.IList) return SetListSlice;
 			}
-			// last argument is the value
-			return args[args.Length - 1];
-		}
 
-		private static object GetPropertyValue(object target, PropertyInfo property)
-		{
-			MethodInfo getter = property.GetGetMethod(true);
-			if (null == getter || getter.GetParameters().Length > 0)
-			{
-				MemberNotSupported(property);
-			}
-			return getter.Invoke(target, new object[0]);
+			return new SliceDispatcherFactory(_extensions, target, target.GetType(), name, args).CreateSetter();
 		}
 
 		private static object SetArraySlice(object target, object[] args)
@@ -376,47 +324,16 @@ namespace Boo.Lang.Runtime
 			return args[1];
 		}
 
-		private static bool IsSetArraySlice(object target, object[] args)
+		private static object SetListSlice(object target, object[] args)
 		{
-			return args.Length == 2 && target is System.Array;
+			IList list = (IList)target;
+			list[(int)args[0]] = args[1];
+			return args[1];
 		}
 
-		internal static MemberInfo[] GetMember(Type type, string name)
-		{
-			MemberInfo[] found = type.GetMember(name, DefaultBindingFlags);
-			if (null == found || 0 == found.Length)
-			{
-				throw new System.MissingMemberException(type.FullName, name);
-			}
-			return found;
-		}
-
-		internal static void MemberNotSupported(MemberInfo member)
+		private static void MemberNotSupported(MemberInfo member)
 		{
 			throw new ArgumentException(string.Format("Member not supported: {0}", member));
-		}
-
-		internal static MemberInfo SelectSliceMember(MemberInfo[] found, ref object[] args, SetOrGet sliceKind)
-		{
-			if (1 == found.Length) return found[0];
-			MethodBase[] candidates = new MethodBase[found.Length];
-			for (int i = 0; i < found.Length; ++i)
-			{
-				MemberInfo member = found[i];
-				PropertyInfo property = member as PropertyInfo;
-				if (null == property) MemberNotSupported(member);
-				MethodInfo method = sliceKind == SetOrGet.Get ? GetGetMethod(property) : GetSetMethod(property);
-				candidates[i] = method;
-			}
-			object state = null;
-			return Type.DefaultBinder.BindToMethod(DefaultBindingFlags | BindingFlags.OptionalParamBinding, candidates, ref args, null, null, null, out state);
-		}
-
-		private static MethodInfo GetSetMethod(PropertyInfo property)
-		{
-			MethodInfo method = property.GetSetMethod(true);
-			if (null == method) MemberNotSupported(property);
-			return method;
 		}
 
 		internal static String GetDefaultMemberName(Type type)
