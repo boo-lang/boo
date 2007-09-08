@@ -6,9 +6,6 @@ namespace Boo.Lang.Runtime
 {
 	class SetFieldEmitter : DispatcherEmitter
 	{
-		private static readonly MethodInfo Type_GetTypeFromHandle = typeof(Type).GetMethod("GetTypeFromHandle");
-		private static readonly MethodInfo RuntimeServices_Coerce = typeof(RuntimeServices).GetMethod("Coerce");
-
 		private readonly FieldInfo _field;
 		private Type _argumentType;
 
