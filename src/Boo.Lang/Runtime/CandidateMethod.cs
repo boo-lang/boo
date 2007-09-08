@@ -40,10 +40,32 @@ namespace Boo.Lang.Runtime
 		public const int PromotionScore = 4;
 		public const int DowncastScore = 3;
 
-		private MethodInfo _method;
-		private int[] _argumentScores;
-		private MethodInfo[] _argumentConversions;
-		private bool _varArgs;
+		public static int CalculateArgumentScore(Type paramType, Type argType)
+		{
+			if (null == argType)
+			{
+				if (paramType.IsValueType) return -1;
+				return CandidateMethod.ExactMatchScore;
+			}
+			else
+			{
+				if (paramType == argType) return CandidateMethod.ExactMatchScore;
+
+				if (paramType.IsAssignableFrom(argType)) return CandidateMethod.UpCastScore;
+
+				if (argType.IsAssignableFrom(paramType)) return CandidateMethod.DowncastScore;
+
+				if (IsNumericPromotion(paramType, argType)) return CandidateMethod.PromotionScore;
+
+				MethodInfo conversion = RuntimeServices.FindImplicitConversionOperator(argType, paramType);
+				if (null != conversion) return CandidateMethod.ImplicitConversionScore;
+			}
+			return -1;
+		}
+
+		private readonly MethodInfo _method;
+		private readonly int[] _argumentScores;
+		private readonly bool _varArgs;
 
 		public CandidateMethod(MethodInfo method, int argumentCount, bool varArgs)
 		{
@@ -69,10 +91,7 @@ namespace Boo.Lang.Runtime
 
 		public int MinimumArgumentCount
 		{
-			get
-			{
-				return _varArgs ? Parameters.Length - 1 : Parameters.Length;
-			}
+			get { return _varArgs ? Parameters.Length - 1 : Parameters.Length; }
 		}
 
 		public ParameterInfo[] Parameters
@@ -90,18 +109,10 @@ namespace Boo.Lang.Runtime
 			return Parameters[i].ParameterType;
 		}
 
-		public void RememberArgumentConversion(int argumentIndex, MethodInfo conversion)
+		private static bool IsNumericPromotion(Type paramType, Type argType)
 		{
-			if (null == _argumentConversions)
-			{
-				_argumentConversions = new MethodInfo[_argumentScores.Length];
-			}
-			_argumentConversions[argumentIndex] = conversion;
-		}
-
-		public MethodInfo GetArgumentConversion(int argumentIndex)
-		{
-			return _argumentConversions[argumentIndex];
+			return RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(paramType))
+			       && RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(argType));
 		}
 	}
 }

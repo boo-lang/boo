@@ -148,20 +148,12 @@ namespace Boo.Lang.Runtime
 		protected void EmitMethodArgument(int argumentIndex, Type expectedType)
 		{
 			EmitArgArrayElement(argumentIndex);
+			EmitCoercion(argumentIndex, expectedType, _found.ArgumentScores[argumentIndex]);
+		}
 
-			switch (_found.ArgumentScores[argumentIndex])
-			{
-				case CandidateMethod.PromotionScore:
-					EmitPromotion(expectedType);
-					break;
-				case CandidateMethod.ImplicitConversionScore:
-					EmitCastOrUnbox(_argumentTypes[argumentIndex]);
-					_il.Emit(OpCodes.Call, _found.GetArgumentConversion(argumentIndex));
-					break;
-				default:
-					EmitCastOrUnbox(expectedType);
-					break;
-			}
+		private void EmitCoercion(int argumentIndex, Type expectedType, int score)
+		{
+			EmitCoercion(_argumentTypes[argumentIndex], expectedType, score);
 		}
 
 		protected virtual void EmitLoadTargetObject()

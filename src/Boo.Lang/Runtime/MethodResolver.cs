@@ -167,45 +167,11 @@ namespace Boo.Lang.Runtime
 
 		private bool CalculateCandidateArgumentScore(CandidateMethod candidateMethod, int argumentIndex, Type paramType)
 		{
-			int score = CalculateArgumentScore(candidateMethod, argumentIndex, paramType, _arguments[argumentIndex]);
+			int score = CandidateMethod.CalculateArgumentScore(paramType, _arguments[argumentIndex]);
 			if (score < 0) return false;
 
 			candidateMethod.ArgumentScores[argumentIndex] = score;
 			return true;
 		}
-
-		private int CalculateArgumentScore(CandidateMethod candidateMethod, int argumentIndex, Type paramType, Type argType)
-		{
-			if (null == argType)
-			{
-				if (paramType.IsValueType) return -1;
-				return CandidateMethod.ExactMatchScore;
-			}
-			else
-			{
-				if (paramType == argType) return CandidateMethod.ExactMatchScore;
-
-				if (paramType.IsAssignableFrom(argType)) return CandidateMethod.UpCastScore;
-
-				if (argType.IsAssignableFrom(paramType)) return CandidateMethod.DowncastScore;
-
-				if (IsNumericPromotion(paramType, argType)) return CandidateMethod.PromotionScore;
-
-				MethodInfo conversion = RuntimeServices.FindImplicitConversionOperator(argType, paramType);
-				if (null != conversion)
-				{
-					candidateMethod.RememberArgumentConversion(argumentIndex, conversion);
-					return CandidateMethod.ImplicitConversionScore;
-				}
-			}
-			return -1;
-		}
-
-		private bool IsNumericPromotion(Type paramType, Type argType)
-		{
-			return RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(paramType))
-				&& RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(argType));
-		}
-
 	}
 }

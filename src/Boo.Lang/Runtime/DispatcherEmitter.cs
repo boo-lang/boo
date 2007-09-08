@@ -103,5 +103,22 @@ namespace Boo.Lang.Runtime
 		{
 			_il.Emit(OpCodes.Dup);
 		}
+
+		protected void EmitCoercion(Type actualType, Type expectedType, int score)
+		{
+			switch (score)
+			{
+				case CandidateMethod.PromotionScore:
+					EmitPromotion(expectedType);
+					break;
+				case CandidateMethod.ImplicitConversionScore:
+					EmitCastOrUnbox(actualType);
+					_il.Emit(OpCodes.Call, RuntimeServices.FindImplicitConversionOperator(actualType, expectedType));
+					break;
+				default:
+					EmitCastOrUnbox(expectedType);
+					break;
+			}
+		}
 	}
 }

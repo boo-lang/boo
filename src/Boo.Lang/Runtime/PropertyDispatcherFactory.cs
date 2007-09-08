@@ -71,7 +71,7 @@ namespace Boo.Lang.Runtime
 		{
 			return SetOrGet.Get == gos
 			       	? new GetFieldEmitter(field).Emit()
-			       	: new SetFieldEmitter(field).Emit();
+			       	: new SetFieldEmitter(field, GetArgumentTypes()[0]).Emit();
 		}
 
 		private Dispatcher EmitPropertyDispatcher(PropertyInfo property, SetOrGet gos)

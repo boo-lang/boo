@@ -10,11 +10,13 @@ namespace Boo.Lang.Runtime
 		private static readonly MethodInfo RuntimeServices_Coerce = typeof(RuntimeServices).GetMethod("Coerce");
 
 		private readonly FieldInfo _field;
+		private Type _argumentType;
 
-		public SetFieldEmitter(FieldInfo field)
+		public SetFieldEmitter(FieldInfo field, Type argumentType)
 			: base(field.DeclaringType, field.Name + "=")
 		{
 			_field = field;
+			_argumentType = argumentType;
 		}
 
 		protected override void EmitMethodBody()
@@ -57,15 +59,7 @@ namespace Boo.Lang.Runtime
 		private void EmitLoadValue()
 		{
 			EmitArgArrayElement(0);
-			EmitLoadType(_field.FieldType);
-			_il.Emit(OpCodes.Call, RuntimeServices_Coerce);
-			EmitCastOrUnbox(_field.FieldType);
-		}
-
-		private void EmitLoadType(Type type)
-		{
-			_il.Emit(OpCodes.Ldtoken, type);
-			_il.Emit(OpCodes.Call, Type_GetTypeFromHandle);
+			EmitCoercion(_argumentType, _field.FieldType, CandidateMethod.CalculateArgumentScore(_field.FieldType, _argumentType));
 		}
 	}
 }
