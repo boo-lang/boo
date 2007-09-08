@@ -420,8 +420,6 @@ namespace Boo.Lang.Runtime
 			throw new ArgumentException(string.Format("Member not supported: {0}", member));
 		}
 
-		enum SetOrGet { Set, Get };
-
 		private static MemberInfo SelectSliceMember(MemberInfo[] found, ref object[] args, SetOrGet sliceKind)
 		{
 			if (1 == found.Length) return found[0];

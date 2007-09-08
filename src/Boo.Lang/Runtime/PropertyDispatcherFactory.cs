@@ -12,15 +12,15 @@ namespace Boo.Lang.Runtime
 
 		public Dispatcher CreateSetter()
 		{
-			return Create(GetOrSet.Set);
+			return Create(SetOrGet.Set);
 		}
 
 		public Dispatcher CreateGetter()
 		{
-			return Create(GetOrSet.Get);
+			return Create(SetOrGet.Get);
 		}
 
-		private Dispatcher Create(GetOrSet gos)
+		private Dispatcher Create(SetOrGet gos)
 		{
 			MemberInfo[] candidates = _type.GetMember(_name, MemberTypes.Property|MemberTypes.Field, RuntimeServices.DefaultBindingFlags);
 			if (candidates.Length == 0) return FindExtension(GetCandidateExtensions(gos));
@@ -41,7 +41,7 @@ namespace Boo.Lang.Runtime
 			return new MissingFieldException(_type.FullName, _name);
 		}
 
-		private IEnumerable<MethodInfo> GetCandidateExtensions(GetOrSet gos)
+		private IEnumerable<MethodInfo> GetCandidateExtensions(SetOrGet gos)
 		{
 			foreach (PropertyInfo p in GetExtensions<PropertyInfo>(MemberTypes.Property))
 			{
@@ -51,12 +51,12 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
-		private static MethodInfo Accessor(PropertyInfo p, GetOrSet gos)
+		private static MethodInfo Accessor(PropertyInfo p, SetOrGet gos)
 		{
-			return gos == GetOrSet.Get ? p.GetGetMethod(true) : p.GetSetMethod(true);
+			return gos == SetOrGet.Get ? p.GetGetMethod(true) : p.GetSetMethod(true);
 		}
 
-		private Dispatcher EmitDispatcherFor(MemberInfo info, GetOrSet gos)
+		private Dispatcher EmitDispatcherFor(MemberInfo info, SetOrGet gos)
 		{
 			switch (info.MemberType)
 			{
@@ -67,28 +67,22 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
-		private Dispatcher EmitFieldDispatcher(FieldInfo field, GetOrSet gos)
+		private Dispatcher EmitFieldDispatcher(FieldInfo field, SetOrGet gos)
 		{
-			return GetOrSet.Get == gos
+			return SetOrGet.Get == gos
 			       	? new GetFieldEmitter(field).Emit()
 			       	: new SetFieldEmitter(field).Emit();
 		}
 
-		private Dispatcher EmitPropertyDispatcher(PropertyInfo property, GetOrSet gos)
+		private Dispatcher EmitPropertyDispatcher(PropertyInfo property, SetOrGet gos)
 		{
 			Type[] argumentTypes = GetArgumentTypes();
 			MethodResolver resolver = new MethodResolver(argumentTypes);
 			MethodInfo accessor = Accessor(property, gos);
 			if (null == accessor) throw MissingField();
 			CandidateMethod found = resolver.ResolveMethod(new MethodInfo[] { accessor });
-			if (GetOrSet.Get == gos) return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
+			if (SetOrGet.Get == gos) return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 			return new SetPropEmitter(_type, found, argumentTypes).Emit();
 		}
-	}
-
-	enum GetOrSet
-	{
-		Get,
-		Set
 	}
 }
