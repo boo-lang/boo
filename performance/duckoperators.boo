@@ -6,6 +6,10 @@ def benchmark(label, method as callable()):
 		method()		
 	print "${label}\t", (date.Now-start).TotalSeconds
 	
+class Item:
+	[property(Name)]
+	public name = ""
+	
 class ListExtensions:
 	[extension]
 	static def addX(l as List, value):
@@ -62,4 +66,24 @@ benchmark "static property":
 	b = []
 	c = b.Count
 	
+benchmark "indexer":
+	b as duck = [1]
+	c = b[0]
+	
+benchmark "static indexer":
+	b = [1]
+	c = b[0]
+	
+benchmark "set field":
+	(Item() as duck).name = "foo"
+	
+benchmark "static set field":
+	Item().name = "foo"
+	
+benchmark "set property":
+	(Item() as duck).name = "foo"
+	
+benchmark "static set property":
+	Item().name = "foo"
+
 
