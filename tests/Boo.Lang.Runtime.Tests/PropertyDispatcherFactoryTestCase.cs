@@ -51,16 +51,27 @@ namespace Boo.Lang.Runtime.Tests
 		{
 			// c# does not allow indexed properties
 			string code = @"
-class Extensions:
-	[extension]
-	static DaName[b as Boo.Lang.Runtime.Tests.Bar]:
-		get:
-			return b.Name
-";
-			_extensions.Register(compile(code).GetType("Extensions"));
+class ArrayExtensions:
 
-			Bar b = new Bar("Eric Idle");
-			Assert.AreEqual(b.Name, Get(b, "DaName"));
+	[Extension]
+	static length[a as System.Array]:
+		get:
+			return a.Length
+
+class StringExtensions:
+			
+	[Extension]
+	static length[s as string]:
+		get:
+			return s.Length
+";
+			Assembly assembly = compile(code);
+			_extensions.Register(assembly.GetType("ArrayExtensions"));
+			_extensions.Register(assembly.GetType("StringExtensions"));
+
+			string name = "Eric Idle";
+			Assert.AreEqual(name.Length, Get(name, "length"));
+			Assert.AreEqual(name.Length, Get(name.ToCharArray(), "length"));
 		}
 
 		private Assembly compile(string code)
