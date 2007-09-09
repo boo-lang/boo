@@ -18,7 +18,7 @@ namespace Boo.Lang.Runtime
 
 		public IEnumerable<MemberInfo> Extensions
 		{
-			get { return _extensions;  }
+			get { lock(this) { return _extensions; }  }
 		}
 
 		public void UnRegister(Type type)

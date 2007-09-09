@@ -8,7 +8,7 @@ namespace Boo.Lang.Runtime
 	{
 		private MethodInfo _conversion;
 
-		public ImplicitConversionEmitter(Type owner, string dynamicMethodName, MethodInfo conversion) : base(owner, dynamicMethodName)
+		public ImplicitConversionEmitter(MethodInfo conversion) : base(conversion.DeclaringType, conversion.Name)
 		{
 			_conversion = conversion;
 		}

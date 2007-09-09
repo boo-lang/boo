@@ -278,7 +278,7 @@ namespace Boo.Lang.Runtime
 			MethodInfo method = FindImplicitConversionOperator(fromType, toType);
 			if (null == method) return IdentityDispatcher;
 
-			return EmitImplicitConversionDispatcher(fromType, method);
+			return EmitImplicitConversionDispatcher(method);
 		}
 
 		private static bool IsPromotableNumeric(Type fromType)
@@ -286,9 +286,9 @@ namespace Boo.Lang.Runtime
 			return IsPromotableNumeric(Type.GetTypeCode(fromType));
 		}
 
-		private static Dispatcher EmitImplicitConversionDispatcher(Type fromType, MethodInfo method)
+		private static Dispatcher EmitImplicitConversionDispatcher(MethodInfo method)
 		{
-			return new ImplicitConversionEmitter(fromType, method.Name, method).Emit();
+			return new ImplicitConversionEmitter(method).Emit();
 		}
 
 		private static object CoercibleDispatcher(object o, object[] args)
@@ -314,11 +314,10 @@ namespace Boo.Lang.Runtime
 				return delegate(object o, object[] arguments) { return ((IQuackFu) o).QuackGet(name, arguments); };
 			}
 
-			if ("" == name && args.Length == 1)
-			{
-				if (target is System.Array) return GetArraySlice;
-				if (target is System.Collections.IList) return GetListSlice;
-			}
+			if ("" == name
+				&& args.Length == 1
+				&& target is System.Array) return GetArraySlice;
+			
 			return new SliceDispatcherFactory(_extensions, target, target.GetType(), name, args).CreateGetter();
 		}
 
@@ -326,12 +325,6 @@ namespace Boo.Lang.Runtime
 		{
 			IList list = (IList)target;
 			return list[NormalizeIndex(list.Count, (int)args[0])];
-		}
-
-		private static object GetListSlice(object target, object[] args)
-		{
-			IList list = (IList)target;
-			return list[(int)args[0]];
 		}
 
 		public static object SetSlice(object target, string name, object[] args)
@@ -350,11 +343,9 @@ namespace Boo.Lang.Runtime
 				};
 			}
 
-			if ("" == name && 2 == args.Length)
-			{
-				if (target is System.Array) return SetArraySlice;
-				if (target is System.Collections.IList) return SetListSlice;
-			}
+			if ("" == name
+				&& 2 == args.Length
+				&& target is System.Array) return SetArraySlice;
 
 			return new SliceDispatcherFactory(_extensions, target, target.GetType(), name, args).CreateSetter();
 		}
@@ -363,13 +354,6 @@ namespace Boo.Lang.Runtime
 		{
 			IList list = (IList)target;
 			list[NormalizeIndex(list.Count, (int)args[0])] = args[1];
-			return args[1];
-		}
-
-		private static object SetListSlice(object target, object[] args)
-		{
-			IList list = (IList)target;
-			list[(int)args[0]] = args[1];
 			return args[1];
 		}
 
@@ -1657,7 +1641,7 @@ namespace Boo.Lang.Runtime
 		static Dispatcher CreateBoolConverter(Type type)
 		{
 			MethodInfo method = FindImplicitConversionOperator(type, typeof(bool));
-			if (null != method) return EmitImplicitConversionDispatcher(type, method);
+			if (null != method) return EmitImplicitConversionDispatcher(method);
 			if (type.IsValueType) return UnboxBooleanDispatcher;
 			return ToBoolTrue;
 		}
