@@ -55,7 +55,7 @@ namespace Boo.Lang.Runtime
 
 		private readonly Type[] _arguments;
 
-		public MethodResolver(Type[] argumentTypes)
+		public MethodResolver(params Type[] argumentTypes)
 		{
 			_arguments = argumentTypes;
 		}

@@ -39,7 +39,7 @@ namespace Boo.Lang.Runtime
 		protected readonly CandidateMethod _found;
 		protected readonly Type[] _argumentTypes;
 
-		public MethodDispatcherEmitter(CandidateMethod found, Type[] argumentTypes) : this(found.Method.DeclaringType, found, argumentTypes)
+		public MethodDispatcherEmitter(CandidateMethod found, params  Type[] argumentTypes) : this(found.Method.DeclaringType, found, argumentTypes)
 		{	
 		}
 

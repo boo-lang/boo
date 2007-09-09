@@ -6,13 +6,13 @@ namespace Boo.Lang.Runtime
 {
 	public abstract class DispatcherEmitter
 	{
-		protected readonly DynamicMethod _method;
+		private DynamicMethod _dynamicMethod;
 		protected readonly ILGenerator _il;
 
 		public DispatcherEmitter(Type owner, string dynamicMethodName)
 		{
-			_method = new DynamicMethod(owner.Name + "$" + dynamicMethodName, typeof(object), new Type[] { typeof(object), typeof(object[]) }, owner);
-			_il = _method.GetILGenerator();
+			_dynamicMethod = new DynamicMethod(owner.Name + "$" + dynamicMethodName, typeof(object), new Type[] { typeof(object), typeof(object[]) }, owner);
+			_il = _dynamicMethod.GetILGenerator();
 		}
 
 		public Dispatcher Emit()
@@ -25,7 +25,7 @@ namespace Boo.Lang.Runtime
 
 		protected Dispatcher CreateMethodDispatcher()
 		{
-			return (Dispatcher)_method.CreateDelegate(typeof(Dispatcher));
+			return (Dispatcher)_dynamicMethod.CreateDelegate(typeof(Dispatcher));
 		}
 
 		protected bool IsStobj(OpCode code)
@@ -80,11 +80,13 @@ namespace Boo.Lang.Runtime
 			_il.Emit(OpCodes.Ret);
 		}
 
-		protected void EmitPromotion(Type expectedType)
+		protected MethodInfo EmitPromotion(Type expectedType)
 		{
 			_il.Emit(OpCodes.Castclass, typeof(IConvertible));
 			_il.Emit(OpCodes.Ldnull);
-			_il.Emit(OpCodes.Callvirt, GetPromotionMethod(expectedType));
+			MethodInfo method = GetPromotionMethod(expectedType);
+			_il.Emit(OpCodes.Callvirt, method);
+			return method;
 		}
 
 		protected void EmitArgArrayElement(int argumentIndex)

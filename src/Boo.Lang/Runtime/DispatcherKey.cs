@@ -24,10 +24,6 @@ namespace Boo.Lang.Runtime
 			_arguments = arguments;
 		}
 
-		public DispatcherKey(Type type, string name, object[] arguments) : this(type, name, MethodResolver.GetArgumentTypes(arguments))
-		{	
-		}
-
 		public Type[] Arguments
 		{
 			get { return _arguments;  }

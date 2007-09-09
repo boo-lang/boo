@@ -78,9 +78,12 @@
     <Compile Include="Runtime\ExtensionMethodDispatcherEmitter.cs" />
     <Compile Include="Runtime\ExtensionRegistry.cs" />
     <Compile Include="Runtime\GetFieldEmitter.cs" />
+    <Compile Include="Runtime\ICoercible.cs" />
+    <Compile Include="Runtime\ImplicitConversionEmitter.cs" />
     <Compile Include="Runtime\MethodDispatcherEmitter.cs" />
     <Compile Include="Runtime\MethodDispatcherFactory.cs" />
     <Compile Include="Runtime\MethodResolver.cs" />
+    <Compile Include="Runtime\PromotionEmitter.cs" />
     <Compile Include="Runtime\PropertyDispatcherFactory.cs" />
     <Compile Include="Runtime\RuntimeException.cs" />
     <Compile Include="Runtime\RuntimeServices.cs" />
