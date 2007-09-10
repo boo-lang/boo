@@ -57,14 +57,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (null == _method.ReturnType)
 				{
-					if (_method.DeclaringType.NodeType == NodeType.ClassDefinition)
-					{
-						_method.ReturnType = _typeSystemServices.CodeBuilder.CreateTypeReference(Unknown.Default);
-					}
-					else
-					{
-						_method.ReturnType = _typeSystemServices.CodeBuilder.CreateTypeReference(_typeSystemServices.VoidType);
-					}
+					IType returnType = _method.DeclaringType.NodeType == NodeType.ClassDefinition
+						? Unknown.Default
+						: (IType)_typeSystemServices.VoidType;
+					_method.ReturnType = _typeSystemServices.CodeBuilder.CreateTypeReference(method.LexicalInfo, returnType);
 				}
 			}
 		}

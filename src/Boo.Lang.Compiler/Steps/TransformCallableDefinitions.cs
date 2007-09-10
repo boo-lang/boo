@@ -99,14 +99,14 @@ namespace Boo.Lang.Compiler.Steps
 		Method CreateBeginInvokeMethod(CallableDefinition node)
 		{
 			Method method = CreateRuntimeMethod("BeginInvoke",
-						CodeBuilder.CreateTypeReference(typeof(IAsyncResult)));
+						CodeBuilder.CreateTypeReference(node.LexicalInfo, typeof(IAsyncResult)));
 			method.Parameters.ExtendWithClones(node.Parameters);
 			method.Parameters.Add(
 				new ParameterDeclaration("callback",
-					CodeBuilder.CreateTypeReference(typeof(AsyncCallback))));
+					CodeBuilder.CreateTypeReference(node.LexicalInfo, typeof(AsyncCallback))));
 			method.Parameters.Add(
 				new ParameterDeclaration("asyncState",
-					CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType)));
+					CodeBuilder.CreateTypeReference(node.LexicalInfo, TypeSystemServices.ObjectType)));
 			return method;
 		}
 		
@@ -124,7 +124,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			method.Parameters.Add(
 				new ParameterDeclaration("asyncResult",
-					CodeBuilder.CreateTypeReference(typeof(IAsyncResult))));
+					CodeBuilder.CreateTypeReference(node.LexicalInfo, typeof(IAsyncResult))));
 			return method;
 		}
 		

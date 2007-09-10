@@ -292,7 +292,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return CreateTypeReference(_tss.Map(type));
 		}
-		
+
+		public TypeReference CreateTypeReference(LexicalInfo li, Type type)
+		{
+			return CreateTypeReference(li, _tss.Map(type));
+		}
+
+		public TypeReference CreateTypeReference(LexicalInfo li, IType type)
+		{
+			TypeReference reference = CreateTypeReference(type);
+			reference.LexicalInfo = li;
+			return reference;
+		}
+
 		public TypeReference CreateTypeReference(IType tag)
 		{
 			TypeReference typeReference = null;

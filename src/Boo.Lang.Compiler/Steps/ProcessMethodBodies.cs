@@ -269,14 +269,14 @@ namespace Boo.Lang.Compiler.Steps
 					if (typeInfo == TypeSystemServices.VoidType)
 					{
 						typeInfo = TypeSystemServices.ObjectType;
-						node.Getter.ReturnType = CodeBuilder.CreateTypeReference(typeInfo);
+						node.Getter.ReturnType = CodeBuilder.CreateTypeReference(getter.LexicalInfo, typeInfo);
 					}
 				}
 				else
 				{
 					typeInfo = TypeSystemServices.ObjectType;
 				}
-				node.Type = CodeBuilder.CreateTypeReference(typeInfo);
+				node.Type = CodeBuilder.CreateTypeReference(node.LexicalInfo, typeInfo);
 			}
 			
 			if (null != setter)
@@ -815,7 +815,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (TypeSystemServices.IsUnknown(entity.ReturnType))
 			{
-				entity.Method.ReturnType = CodeBuilder.CreateTypeReference(baseMethod.ReturnType);
+				entity.Method.ReturnType = CodeBuilder.CreateTypeReference(entity.Method.LexicalInfo, baseMethod.ReturnType);
 			}
 			else
 			{
@@ -986,7 +986,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (DontHaveReturnExpressionsNorYield(node))
 					{
-						node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
+						node.ReturnType = CodeBuilder.CreateTypeReference(node.LexicalInfo, TypeSystemServices.VoidType);
 					}
 				}
 			}

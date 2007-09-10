@@ -261,7 +261,7 @@ namespace Boo.Lang
 		{
 			Event e = new Event(_observable.LexicalInfo);
 			e.Name = ChangedEventName;
-			e.Type = CodeBuilder.CreateTypeReference(typeof(System.EventHandler));
+			e.Type = CodeBuilder.CreateTypeReference(f.LexicalInfo, typeof(System.EventHandler));
 			return e;
 		}
 	}

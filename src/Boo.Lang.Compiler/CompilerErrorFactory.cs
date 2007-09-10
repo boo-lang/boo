@@ -52,23 +52,23 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError ClassAlreadyHasBaseType(Node node, string className, string baseType)
 		{
-			return new CompilerError("BCE0001", node.LexicalInfo, className, baseType);
+			return new CompilerError("BCE0001", SafeLexicalInfo(node), className, baseType);
 		}
 		
 		public static CompilerError NamedParameterMustBeIdentifier(ExpressionPair pair)
 		{
-			return new CompilerError("BCE0002", pair.First.LexicalInfo);
+			return new CompilerError("BCE0002", SafeLexicalInfo(pair.First));
 		}
 		
 		public static CompilerError NamedArgumentsNotAllowed(Node node)
 		{
-			return new CompilerError("BCE0003", node.LexicalInfo);
+			return new CompilerError("BCE0003", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError AmbiguousReference(ReferenceExpression reference, System.Reflection.MemberInfo[] members)
 		{
 			return new CompilerError("BCE0004",
-									  reference.LexicalInfo,
+									  SafeLexicalInfo(reference),
 									  reference.Name,
 									  ToNameList(members)
 									  );
@@ -76,27 +76,27 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError AmbiguousReference(Node node, string name, System.Collections.IEnumerable names)
 		{
-			return new CompilerError("BCE0004", node.LexicalInfo, name, ToStringList(names));
+			return new CompilerError("BCE0004", SafeLexicalInfo(node), name, ToStringList(names));
 		}
 		
 		public static CompilerError UnknownIdentifier(Node node, string name)
 		{
-			return new CompilerError("BCE0005", node.LexicalInfo, name);
+			return new CompilerError("BCE0005", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError CantCastToValueType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0006", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0006", SafeLexicalInfo(node), typeName);
 		}
 
 		public static CompilerError NotAPublicFieldOrProperty(Node node, string name, string typeName)
 		{
-			return new CompilerError("BCE0007", node.LexicalInfo, typeName, name);
+			return new CompilerError("BCE0007", SafeLexicalInfo(node), typeName, name);
 		}
 		
 		public static CompilerError MissingConstructor(Exception error, Node node, Type type, object[] parameters)
 		{
-			return new CompilerError("BCE0008", node.LexicalInfo, error, type, GetSignature(parameters));
+			return new CompilerError("BCE0008", SafeLexicalInfo(node), error, type, GetSignature(parameters));
 		}
 		
 		public static CompilerError AttributeApplicationError(Exception error, Boo.Lang.Compiler.Ast.Attribute attribute, Type attributeType)
@@ -110,7 +110,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError AstAttributeMustBeExternal(Node node, string attributeType)
 		{
-			return new CompilerError("BCE0010", node.LexicalInfo, attributeType);
+			return new CompilerError("BCE0010", SafeLexicalInfo(node), attributeType);
 		}
 		
 		public static CompilerError StepExecutionError(Exception error, ICompilerStep step)
@@ -130,37 +130,37 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError InvalidAssemblySetUp(Node node)
 		{
-			return new CompilerError("BCE0014", node.LexicalInfo);
+			return new CompilerError("BCE0014", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError InvalidNode(Node node)
 		{
-			return new CompilerError("BCE0015", node.LexicalInfo, node);
+			return new CompilerError("BCE0015", SafeLexicalInfo(node), node);
 		}
 		
 		public static CompilerError MethodArgumentCount(Node node, string name, int count)
 		{
-			return new CompilerError("BCE0016", node.LexicalInfo, name, count);
+			return new CompilerError("BCE0016", SafeLexicalInfo(node), name, count);
 		}
 		
 		public static CompilerError MethodSignature(Node node, string expectedSignature, string actualSignature)
 		{
-			return new CompilerError("BCE0017", node.LexicalInfo, expectedSignature, actualSignature);
+			return new CompilerError("BCE0017", SafeLexicalInfo(node), expectedSignature, actualSignature);
 		}
 		
 		public static CompilerError NameNotType(Node node, string name)
 		{
-			return new CompilerError("BCE0018", node.LexicalInfo, name);
+			return new CompilerError("BCE0018", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError MemberNotFound(MemberReferenceExpression node, string namespace_)
 		{
-			return new CompilerError("BCE0019", node.LexicalInfo, node.Name, namespace_);
+			return new CompilerError("BCE0019", SafeLexicalInfo(node), node.Name, namespace_);
 		}
 
 		public static CompilerError InstanceRequired(Node node, string typeName, string memberName)
 		{
-			return new CompilerError("BCE0020", node.LexicalInfo, typeName, memberName);
+			return new CompilerError("BCE0020", SafeLexicalInfo(node), typeName, memberName);
 		}
 		
 		public static CompilerError InvalidNamespace(Import import)
@@ -170,27 +170,27 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError IncompatibleExpressionType(Node node, string expectedType, string actualType)
 		{
-			return new CompilerError("BCE0022", node.LexicalInfo, expectedType, actualType);
+			return new CompilerError("BCE0022", SafeLexicalInfo(node), expectedType, actualType);
 		}
 		
 		public static CompilerError NoApropriateOverloadFound(Node node, string signature, string memberName)
 		{
-			return new CompilerError("BCE0023", node.LexicalInfo, signature, memberName);
+			return new CompilerError("BCE0023", SafeLexicalInfo(node), signature, memberName);
 		}
 		
 		public static CompilerError NoApropriateConstructorFound(Node node, string typeName, string signature)
 		{
-			return new CompilerError("BCE0024", node.LexicalInfo, typeName, signature);
+			return new CompilerError("BCE0024", SafeLexicalInfo(node), typeName, signature);
 		}
 		
 		public static CompilerError InvalidArray(Node node)
 		{
-			return new CompilerError("BCE0025", node.LexicalInfo);
+			return new CompilerError("BCE0025", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError BoolExpressionRequired(Node node, string typeName)
 		{
-			return new CompilerError("BCE0026", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0026", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError NoEntryPoint()
@@ -200,57 +200,57 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError MoreThanOneEntryPoint(Method method)
 		{
-			return new CompilerError("BCE0029", method.LexicalInfo);
+			return new CompilerError("BCE0029", SafeLexicalInfo(method));
 		}
 		
 		public static CompilerError NotImplemented(Node node, string message)
 		{
-			return new CompilerError("BCE0031", node.LexicalInfo, message);
+			return new CompilerError("BCE0031", SafeLexicalInfo(node), message);
 		}
 		
 		public static CompilerError EventArgumentMustBeAMethod(Node node, string eventName, string eventType)
 		{
-			return new CompilerError("BCE0032", node.LexicalInfo, eventName, eventType);
+			return new CompilerError("BCE0032", SafeLexicalInfo(node), eventName, eventType);
 		}
 		
 		public static CompilerError TypeNotAttribute(Node node, string attributeType)
 		{
-			return new CompilerError("BCE0033", node.LexicalInfo, attributeType);
+			return new CompilerError("BCE0033", SafeLexicalInfo(node), attributeType);
 		}
 		
 		public static CompilerError ExpressionMustBeExecutedForItsSideEffects(Node node)
 		{
-			return new CompilerError("BCE0034", node.LexicalInfo);
+			return new CompilerError("BCE0034", SafeLexicalInfo(node));
 		}
 
 		public static CompilerError ConflictWithInheritedMember(Node node, string member, string baseMember)
 		{
-			return new CompilerError("BCE0035", node.LexicalInfo, member, baseMember);
+			return new CompilerError("BCE0035", SafeLexicalInfo(node), member, baseMember);
 		}
 		
 		public static CompilerError InvalidTypeof(Node node)
 		{
-			return new CompilerError("BCE0036", node.LexicalInfo);
+			return new CompilerError("BCE0036", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError UnknownMacro(Node node, string name)
 		{
-			return new CompilerError("BCE0037", node.LexicalInfo, name);
+			return new CompilerError("BCE0037", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError InvalidMacro(Node node, string name)
 		{
-			return new CompilerError("BCE0038", node.LexicalInfo, name);
+			return new CompilerError("BCE0038", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError AstMacroMustBeExternal(Node node, string typeName)
 		{
-			return new CompilerError("BCE0039", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0039", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError UnableToLoadAssembly(Node node, string name, Exception error)
 		{
-			return new CompilerError("BCE0041", node.LexicalInfo, error, name);
+			return new CompilerError("BCE0041", SafeLexicalInfo(node), error, name);
 		}
 		
 		public static CompilerError InputError(string inputName, Exception error)
@@ -270,52 +270,52 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError MacroExpansionError(Node node, Exception error)
 		{
-			return new CompilerError("BCE0045", node.LexicalInfo, error, error.Message);
+			return new CompilerError("BCE0045", SafeLexicalInfo(node), error, error.Message);
 		}
 		
 		public static CompilerError OperatorCantBeUsedWithValueType(Node node, string operatorName, string typeName)
 		{
-			return new CompilerError("BCE0046", node.LexicalInfo, operatorName, typeName);
+			return new CompilerError("BCE0046", SafeLexicalInfo(node), operatorName, typeName);
 		}
 		
 		public static CompilerError CantOverrideNonVirtual(Node node, string fullName)
 		{
-			return new CompilerError("BCE0047", node.LexicalInfo, fullName);
+			return new CompilerError("BCE0047", SafeLexicalInfo(node), fullName);
 		}
 		
 		public static CompilerError TypeDoesNotSupportSlicing(Node node, string fullName)
 		{
-			return new CompilerError("BCE0048", node.LexicalInfo, fullName);
+			return new CompilerError("BCE0048", SafeLexicalInfo(node), fullName);
 		}
 		
 		public static CompilerError LValueExpected(Node node)
 		{
-			return new CompilerError("BCE0049", node.LexicalInfo);
+			return new CompilerError("BCE0049", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError InvalidOperatorForType(Node node, string operatorName, string typeName)
 		{
-			return new CompilerError("BCE0050", node.LexicalInfo, operatorName, typeName);
+			return new CompilerError("BCE0050", SafeLexicalInfo(node), operatorName, typeName);
 		}
 		
 		public static CompilerError InvalidOperatorForTypes(Node node, string operatorName, string lhs, string rhs)
 		{
-			return new CompilerError("BCE0051", node.LexicalInfo, operatorName, lhs, rhs);
+			return new CompilerError("BCE0051", SafeLexicalInfo(node), operatorName, lhs, rhs);
 		}
 		
 		public static CompilerError InvalidLen(Node node, string typeName)
 		{
-			return new CompilerError("BCE0052", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0052", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError PropertyIsReadOnly(Node node, string propertyName)
 		{
-			return new CompilerError("BCE0053", node.LexicalInfo, propertyName);
+			return new CompilerError("BCE0053", SafeLexicalInfo(node), propertyName);
 		}
 		
 		public static CompilerError IsaArgument(Node node)
 		{
-			return new CompilerError("BCE0054", node.LexicalInfo);
+			return new CompilerError("BCE0054", SafeLexicalInfo(node));
 		}
 
 		public static CompilerError InternalError(Node node, Exception error)
@@ -326,7 +326,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError InternalError(Node node, string message, Exception cause)
 		{
-			return new CompilerError("BCE0055", node.LexicalInfo, cause, message);
+			return new CompilerError("BCE0055", SafeLexicalInfo(node), cause, message);
 		}
 
 		public static CompilerError FileNotFound(string fname)
@@ -336,47 +336,47 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError CantRedefinePrimitive(Node node, string name)
 		{
-			return new CompilerError("BCE0057", node.LexicalInfo, name);
+			return new CompilerError("BCE0057", SafeLexicalInfo(node), name);
 		}
 
 		public static CompilerError ObjectRequired(Node node)
 		{
-			return new CompilerError("BCE0058", node.LexicalInfo);
+			return new CompilerError("BCE0058", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError InvalidLockMacroArguments(Node node)
 		{
-			return new CompilerError("BCE0059", node.LexicalInfo);
+			return new CompilerError("BCE0059", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError NoMethodToOverride(Node node, string signature)
 		{
-			return new CompilerError("BCE0060", node.LexicalInfo, signature);
+			return new CompilerError("BCE0060", SafeLexicalInfo(node), signature);
 		}
 		
 		public static CompilerError MethodIsNotOverride(Node node, string signature)
 		{
-			return new CompilerError("BCE0061", node.LexicalInfo, signature);
+			return new CompilerError("BCE0061", SafeLexicalInfo(node), signature);
 		}
 		
 		public static CompilerError CouldNotInferReturnType(Node node, string signature)
 		{
-			return new CompilerError("BCE0062", node.LexicalInfo, signature);
+			return new CompilerError("BCE0062", SafeLexicalInfo(node), signature);
 		}
 		
 		public static CompilerError NoEnclosingLoop(Node node)
 		{
-			return new CompilerError("BCE0063", node.LexicalInfo);
+			return new CompilerError("BCE0063", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError UnknownAttribute(Node node, string attributeName)
 		{
-			return new CompilerError("BCE0064", node.LexicalInfo, attributeName);
+			return new CompilerError("BCE0064", SafeLexicalInfo(node), attributeName);
 		}
 		
 		public static CompilerError InvalidIteratorType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0065", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0065", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError InvalidNodeForAttribute(LexicalInfo info, string attributeName, string expectedNodeTypes)
@@ -386,197 +386,197 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError LocalAlreadyExists(Node node, string name)
 		{
-			return new CompilerError("BCE0067", node.LexicalInfo, name);
+			return new CompilerError("BCE0067", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError PropertyRequiresParameters(Node node, string name)
 		{
-			return new CompilerError("BCE0068", node.LexicalInfo, name);
+			return new CompilerError("BCE0068", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError InterfaceCanOnlyInheritFromInterface(Node node, string interfaceName, string baseType)
 		{
-			return new CompilerError("BCE0069", node.LexicalInfo, interfaceName, baseType);
+			return new CompilerError("BCE0069", SafeLexicalInfo(node), interfaceName, baseType);
 		}
 		
 		public static CompilerError UnresolvedDependency(Node node, string source, string target)
 		{
-			return new CompilerError("BCE0070", node.LexicalInfo, source, target);
+			return new CompilerError("BCE0070", SafeLexicalInfo(node), source, target);
 		}
 		
 		public static CompilerError InheritanceCycle(Node node, string typeName)
 		{
-			return new CompilerError("BCE0071", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0071", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError InvalidOverrideReturnType(Node node, string methodName, string expectedReturnType, string actualReturnType)
 		{
-			return new CompilerError("BCE0072", node.LexicalInfo, methodName, expectedReturnType, actualReturnType);
+			return new CompilerError("BCE0072", SafeLexicalInfo(node), methodName, expectedReturnType, actualReturnType);
 		}
 		
 		public static CompilerError AbstractMethodCantHaveBody(Node node, string methodName)
 		{
-			return new CompilerError("BCE0073", node.LexicalInfo, methodName);
+			return new CompilerError("BCE0073", SafeLexicalInfo(node), methodName);
 		}
 		
 		public static CompilerError SelfOutsideMethod(Node node)
 		{
-			return new CompilerError("BCE0074", node.LexicalInfo);
+			return new CompilerError("BCE0074", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError NamespaceIsNotAnExpression(Node node, string name)
 		{
-			return new CompilerError("BCE0075", node.LexicalInfo, name);
+			return new CompilerError("BCE0075", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError RuntimeMethodBodyMustBeEmpty(Node node, string name)
 		{
-			return new CompilerError("BCE0076", node.LexicalInfo, name);
+			return new CompilerError("BCE0076", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError TypeIsNotCallable(Node node, string name)
 		{
-			return new CompilerError("BCE0077", node.LexicalInfo, name);
+			return new CompilerError("BCE0077", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError MethodReferenceExpected(Node node)
 		{
-			return new CompilerError("BCE0078", node.LexicalInfo);
+			return new CompilerError("BCE0078", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError AddressOfOutsideDelegateConstructor(Node node)
 		{
-			return new CompilerError("BCE0079", node.LexicalInfo);
+			return new CompilerError("BCE0079", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError BuiltinCannotBeUsedAsExpression(Node node, string name)
 		{
-			return new CompilerError("BCE0080", node.LexicalInfo, name);
+			return new CompilerError("BCE0080", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError ReRaiseOutsideExceptionHandler(Node node)
 		{
-			return new CompilerError("BCE0081", node.LexicalInfo);
+			return new CompilerError("BCE0081", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError EventTypeIsNotCallable(Node node, string typeName)
 		{
-			return new CompilerError("BCE0082", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0082", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError StaticConstructorMustBePublic(Node node)
 		{
-			return new CompilerError("BCE0083", node.LexicalInfo);
+			return new CompilerError("BCE0083", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError StaticConstructorCannotDeclareParameters(Node node)
 		{
-			return new CompilerError("BCE0084", node.LexicalInfo);
+			return new CompilerError("BCE0084", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError CantCreateInstanceOfAbstractType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0085", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0085", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError CantCreateInstanceOfInterface(Node node, string typeName)
 		{
-			return new CompilerError("BCE0086", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0086", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError CantCreateInstanceOfEnum(Node node, string typeName)
 		{
-			return new CompilerError("BCE0087", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0087", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError ReservedPrefix(Node node, string prefix)
 		{
-			return new CompilerError("BCE0088", node.LexicalInfo, prefix);
+			return new CompilerError("BCE0088", SafeLexicalInfo(node), prefix);
 		}
 		
 		public static CompilerError MemberNameConflict(Node node, string typeName, string memberName)
 		{
-			return new CompilerError("BCE0089", node.LexicalInfo, typeName, memberName);
+			return new CompilerError("BCE0089", SafeLexicalInfo(node), typeName, memberName);
 		}
 		
 		public static CompilerError DerivedMethodCannotReduceAccess(Node node, string derivedMethod, string superMethod, TypeMemberModifiers derivedAccess, TypeMemberModifiers superAccess)
 		{
-			return new CompilerError("BCE0090", node.LexicalInfo, derivedMethod, superMethod, superAccess.ToString().ToLower(), derivedAccess.ToString().ToLower());
+			return new CompilerError("BCE0090", SafeLexicalInfo(node), derivedMethod, superMethod, superAccess.ToString().ToLower(), derivedAccess.ToString().ToLower());
 		}
 		
 		public static CompilerError EventIsNotAnExpression(Node node, string eventName)
 		{
-			return new CompilerError("BCE0091", node.LexicalInfo, eventName);
+			return new CompilerError("BCE0091", SafeLexicalInfo(node), eventName);
 		}
 		
 		public static CompilerError InvalidRaiseArgument(Node node, string typeName)
 		{
-			return new CompilerError("BCE0092", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0092", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError CannotBranchIntoEnsure(Node node)
 		{
-			return new CompilerError("BCE0093", node.LexicalInfo);
+			return new CompilerError("BCE0093", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError CannotBranchIntoExcept(Node node)
 		{
-			return new CompilerError("BCE0094", node.LexicalInfo);
+			return new CompilerError("BCE0094", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError NoSuchLabel(Node node, string label)
 		{
-			return new CompilerError("BCE0095", node.LexicalInfo, label);
+			return new CompilerError("BCE0095", SafeLexicalInfo(node), label);
 		}
 		
 		public static CompilerError LabelAlreadyDefined(Node node, string methodName, string label)
 		{
-			return new CompilerError("BCE0096", node.LexicalInfo, methodName, label);
+			return new CompilerError("BCE0096", SafeLexicalInfo(node), methodName, label);
 		}
 		
 		public static CompilerError CannotBranchIntoTry(Node node)
 		{
-			return new CompilerError("BCE0097", node.LexicalInfo);
+			return new CompilerError("BCE0097", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError InvalidSwitch(Node node)
 		{
-			return new CompilerError("BCE0098", node.LexicalInfo);
+			return new CompilerError("BCE0098", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError YieldInsideTryBlock(Node node)
 		{
-			return new CompilerError("BCE0099", node.LexicalInfo);
+			return new CompilerError("BCE0099", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError YieldInsideConstructor(Node node)
 		{
-			return new CompilerError("BCE0100", node.LexicalInfo);
+			return new CompilerError("BCE0100", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError InvalidGeneratorReturnType(Node node)
 		{
-			return new CompilerError("BCE0101", node.LexicalInfo);
+			return new CompilerError("BCE0101", SafeLexicalInfo(node));
 		}
-		
+
 		public static CompilerError GeneratorCantReturnValue(Node node)
 		{
-			return new CompilerError("BCE0102", node.LexicalInfo);
+			return new CompilerError("BCE0102", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError CannotExtendFinalType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0103", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0103", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError CantBeMarkedTransient(Node node)
 		{
-			return new CompilerError("BCE0104", node.LexicalInfo);
+			return new CompilerError("BCE0104", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError CantBeMarkedAbstract(Node node)
 		{
-			return new CompilerError("BCE0105", node.LexicalInfo);
+			return new CompilerError("BCE0105", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError FailedToLoadTypesFromAssembly(string assemblyName, Exception x)
@@ -586,193 +586,193 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError ValueTypesCannotDeclareParameterlessConstructors(Node node)
 		{
-			return new CompilerError("BCE0107", node.LexicalInfo);
+			return new CompilerError("BCE0107", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError ValueTypeFieldsCannotHaveInitializers(Node node)
 		{
-			return new CompilerError("BCE0108", node.LexicalInfo);
+			return new CompilerError("BCE0108", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError InvalidArrayRank(Node node, string arrayName, int real, int given)
 		{
-			return new CompilerError("BCE0109", node.LexicalInfo, arrayName, real, given);
+			return new CompilerError("BCE0109", SafeLexicalInfo(node), arrayName, real, given);
 		}
 		
 		public static CompilerError NotANamespace(Node node, string name)
 		{
-			return new CompilerError("BCE0110", node.LexicalInfo, name);
+			return new CompilerError("BCE0110", SafeLexicalInfo(node), name);
 		}
 
 		public static CompilerError InvalidDestructorModifier(Node node)
 		{
-			return new CompilerError("BCE0111", node.LexicalInfo);
+			return new CompilerError("BCE0111", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError CantHaveDestructorParameters(Node node)
 		{
-			return new CompilerError("BCE0112", node.LexicalInfo);
+			return new CompilerError("BCE0112", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError InvalidCharLiteral(Node node, string value)
 		{
-			return new CompilerError("BCE0113", node.LexicalInfo, value);
+			return new CompilerError("BCE0113", SafeLexicalInfo(node), value);
 		}
 		
 		public static CompilerError InvalidInterfaceForInterfaceMember(Node node, string value)
 		{
-			return new CompilerError("BCE0114", node.LexicalInfo, value);
+			return new CompilerError("BCE0114", SafeLexicalInfo(node), value);
 		}
 
 		public static CompilerError InterfaceImplForInvalidInterface(Node node, string iface, string item)
 		{
-			return new CompilerError("BCE0115", node.LexicalInfo, iface, item);
+			return new CompilerError("BCE0115", SafeLexicalInfo(node), iface, item);
 		}
 		
 		public static CompilerError ExplicitImplMustNotHaveModifiers(Node node, string iface, string item)
 		{
-			return new CompilerError("BCE0116", node.LexicalInfo, iface, item);
+			return new CompilerError("BCE0116", SafeLexicalInfo(node), iface, item);
 		}
 
 		public static CompilerError FieldIsReadonly(Node node, string name)
 		{
-			return new CompilerError("BCE0117", node.LexicalInfo, name);
+			return new CompilerError("BCE0117", SafeLexicalInfo(node), name);
 		}
 
 		public static CompilerError ExplodedExpressionMustBeArray(Node node)
 		{
-			return new CompilerError("BCE0118", node.LexicalInfo);
+			return new CompilerError("BCE0118", SafeLexicalInfo(node));
 		}
 
 		public static CompilerError ExplodeExpressionMustMatchVarArgCall(Node node)
 		{
-			return new CompilerError("BCE0119", node.LexicalInfo);
+			return new CompilerError("BCE0119", SafeLexicalInfo(node));
 		}
 
 		public static CompilerError UnaccessibleMember(Node node, string name)
 		{
-			return new CompilerError("BCE0120", node.LexicalInfo, name);
+			return new CompilerError("BCE0120", SafeLexicalInfo(node), name);
 		}
 
 		public static CompilerError InvalidSuper(Node node)
 		{
-			return new CompilerError("BCE0121", node.LexicalInfo);
+			return new CompilerError("BCE0121", SafeLexicalInfo(node));
 		}
 
 		public static CompilerError ValueTypeCantHaveAbstractMember(Node node, string typeName, string memberName)
 		{
-			return new CompilerError("BCE0122", node.LexicalInfo, typeName, memberName);
+			return new CompilerError("BCE0122", SafeLexicalInfo(node), typeName, memberName);
 		}
 
 		public static CompilerError InvalidParameterType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0123", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0123", SafeLexicalInfo(node), typeName);
 		}
 
 		public static CompilerError InvalidFieldType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0124", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0124", SafeLexicalInfo(node), typeName);
 		}
 
 		public static CompilerError InvalidDeclarationType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0125", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0125", SafeLexicalInfo(node), typeName);
 		}
 
 		public static CompilerError InvalidExpressionType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0126", node.LexicalInfo, typeName);
+			return new CompilerError("BCE0126", SafeLexicalInfo(node), typeName);
 		}
 		
 		public static CompilerError RefArgTakesLValue(Node node)
 		{
-			return new CompilerError("BCE0127", node.LexicalInfo, node.ToString());
+			return new CompilerError("BCE0127", SafeLexicalInfo(node), node.ToString());
 		}
 
 		public static CompilerError InvalidTryStatement(Node node)
 		{
-			return new CompilerError("BCE0128", node.LexicalInfo);
+			return new CompilerError("BCE0128", SafeLexicalInfo(node));
 		}
 
 		public static CompilerError InvalidExtensionDefinition(Node node)
 		{
-			return new CompilerError("BCE0129", node.LexicalInfo);
+			return new CompilerError("BCE0129", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError CantBeMarkedPartial(Node node)
 		{
-			return new CompilerError("BCE0130", node.LexicalInfo);
+			return new CompilerError("BCE0130", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError InvalidCombinationOfModifiers(Node node, string name, string modifiers)
 		{
-			return new CompilerError("BCE0131", node.LexicalInfo, name, modifiers);
+			return new CompilerError("BCE0131", SafeLexicalInfo(node), name, modifiers);
 		}
 		
 		public static CompilerError NamespaceAlreadyContainsMember(Node node, string container, string member)
 		{
-			return new CompilerError("BCE0132", node.LexicalInfo, container, member);
+			return new CompilerError("BCE0132", SafeLexicalInfo(node), container, member);
 		}
 
 		public static CompilerError InvalidEntryPoint(Node node)
 		{
-			return new CompilerError("BCE0133", node.LexicalInfo);
+			return new CompilerError("BCE0133", SafeLexicalInfo(node));
 		}
 
 		public static CompilerError CannotReturnValue(Method node)
 		{
-			return new CompilerError("BCE0134", node.LexicalInfo, node);
+			return new CompilerError("BCE0134", SafeLexicalInfo(node), node);
 		}
 		
 		public static CompilerError InvalidName(Node node, string name)
 		{
-			return new CompilerError("BCE0135", node.LexicalInfo, name);
+			return new CompilerError("BCE0135", SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerError ColonInsteadOfEquals(Node node)
 		{
-			return new CompilerError("BCE0136", node.LexicalInfo);
+			return new CompilerError("BCE0136", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError PropertyIsWriteOnly(Node node, string propertyName)
 		{
-			return new CompilerError("BCE0137", node.LexicalInfo, propertyName);
+			return new CompilerError("BCE0137", SafeLexicalInfo(node), propertyName);
 		}
 
 		public static CompilerError NotAGenericDefinition(Node node, string name)
 		{
-			return new CompilerError("BCE0138", node.LexicalInfo, name);
+			return new CompilerError("BCE0138", SafeLexicalInfo(node), name);
 		}
 
 		public static CompilerError GenericDefinitionArgumentCount(Node node, string name, int expectedCount)
 		{
-			return new CompilerError("BCE0139", node.LexicalInfo, name, expectedCount);
+			return new CompilerError("BCE0139", SafeLexicalInfo(node), name, expectedCount);
 		}
 				
 		public static CompilerError YieldTypeDoesNotMatchReturnType(Node node, string yieldType, string returnType)
 		{
-			return new CompilerError("BCE0140", node.LexicalInfo, yieldType, returnType);
+			return new CompilerError("BCE0140", SafeLexicalInfo(node), yieldType, returnType);
 		}
 		
 		public static CompilerError DuplicateParameterName(Node node, string parameter, string method)
 		{
-			return new CompilerError("BCE0141", node.LexicalInfo, parameter, method);
+			return new CompilerError("BCE0141", SafeLexicalInfo(node), parameter, method);
 		}
 		
 		public static CompilerError ValueTypeParameterCannotUseDefaultAttribute(Node node, string parameter)
 		{
 			string method = (null != node as Method) ? (node as Method).Name : (node as Property).Name;  
-			return new CompilerError("BCE0142", node.LexicalInfo, parameter, method);
+			return new CompilerError("BCE0142", SafeLexicalInfo(node), parameter, method);
 		}
 		
 		public static CompilerError CantReturnFromEnsure(Node node)
 		{
-			return new CompilerError("BCE0143", node.LexicalInfo);
+			return new CompilerError("BCE0143", SafeLexicalInfo(node));
 		}
 		
 		public static CompilerError Obsolete(Node node, string memberName, string message)
 		{
-			return new CompilerError("BCE0144", node.LexicalInfo, memberName, message);
+			return new CompilerError("BCE0144", SafeLexicalInfo(node), memberName, message);
 		}
 		
 		public static string ToStringList(System.Collections.IEnumerable names)
@@ -831,5 +831,14 @@ namespace Boo.Lang.Compiler
 			}
 			return sb.ToString();
 		}
+
+		private static LexicalInfo SafeLexicalInfo(Node node)
+		{
+			if (null == node) return Boo.Lang.Compiler.Ast.LexicalInfo.Empty;
+			LexicalInfo info = node.LexicalInfo;
+			if (info.IsValid) return info;
+			return SafeLexicalInfo(node.ParentNode);
+		}
+
 	}
 }
