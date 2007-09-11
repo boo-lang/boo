@@ -15,4 +15,5 @@ literal = [|
 			print message
 |]
 
+assert literal isa Boo.Lang.Compiler.Ast.ClassDefinition
 print literal.ToCodeString()

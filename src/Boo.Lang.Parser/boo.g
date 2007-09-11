@@ -36,6 +36,8 @@ using Boo.Lang.Parser.Util;
 using System.Globalization;
 
 public delegate void ParserErrorHandler(antlr.RecognitionException x);
+
+abstract
 }
 
 class BooParserBase extends Parser;
@@ -248,6 +250,8 @@ tokens
 		}
 		return s;
 	}
+	
+	protected abstract Module NewQuasiquoteModule(LexicalInfo li);
 
 	protected bool IsValidMacroArgument(int token)
 	{
@@ -347,15 +351,26 @@ eos : (options { greedy = true; }: (EOL|EOS))+;
 
 protected
 import_directive[Module container]
+{
+	Import node = null;
+}: 
+	node=import_directive_
 	{
-		IToken id;
-		Import usingNode = null;
-	}: 
+		container.Imports.Add(node);
+	}
+	eos
+;
+
+protected
+import_directive_ returns [Import returnValue]
+{
+	IToken id;
+	returnValue = null;
+}:
 	IMPORT id=identifier
 	{
-		usingNode = new Import(ToLexicalInfo(id));
-		usingNode.Namespace = id.getText();
-		container.Imports.Add(usingNode);
+		returnValue = new Import(ToLexicalInfo(id));
+		returnValue.Namespace = id.getText();
 	}
 	(
 		FROM
@@ -365,19 +380,18 @@ import_directive[Module container]
 					sqs:SINGLE_QUOTED_STRING { id=sqs; }
 			)
 		{
-			usingNode.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id));
-			usingNode.AssemblyReference.Name = id.getText();
+			returnValue.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id));
+			returnValue.AssemblyReference.Name = id.getText();
 		}				
 	)?
 	(
 		AS alias:ID
 		{
-			usingNode.Alias = new ReferenceExpression(ToLexicalInfo(alias));
-			usingNode.Alias.Name = alias.getText();
+			returnValue.Alias = new ReferenceExpression(ToLexicalInfo(alias));
+			returnValue.Alias.Name = alias.getText();
 		}
 	)?
-	eos
-	;
+;
 
 protected
 namespace_directive[Module container]
@@ -2051,7 +2065,7 @@ type_definition_member_prediction:
 
 ast_literal_module[QuasiquoteExpression e]
 {
-	Module m = new Module(e.LexicalInfo);
+	Module m = NewQuasiquoteModule(e.LexicalInfo);
 	e.Node = m;
 }:
 	parse_module[m]
@@ -2065,7 +2079,17 @@ ast_literal_block[QuasiquoteExpression e]
 	StatementCollection statements = block.Statements;
 	Node node = null;
 }: 
-	(type_definition_member_prediction)=>(type_definition_member[collection] { e.Node = collection[0]; })
+	(type_definition_member_prediction)=>(
+		(type_definition_member[collection])+ {
+			if (collection.Count == 1) {
+				e.Node = collection[0];
+			} else {
+				Module m = NewQuasiquoteModule(e.LexicalInfo);
+				m.Members = collection;
+				e.Node = m;
+			}
+		}
+	)
 	| (ast_literal_module_prediction)=>(ast_literal_module[e])
 	| ((stmt[statements])+ { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
 ;
@@ -2081,7 +2105,7 @@ ast_literal_module_prediction
 ast_literal_closure[QuasiquoteExpression e]
 {
 	Block block = null;
-	Expression node = null;
+	Node node = null;
 }:
 	(expression (COLON | QQ_END))=>(
 		node=expression { e.Node = node; }
@@ -2091,10 +2115,16 @@ ast_literal_closure[QuasiquoteExpression e]
 				e.Node = new ExpressionPair(
 								ToLexicalInfo(c),
 								(Expression)e.Node,
-								node);
+								(Expression)node);
 			}
 		)?
 	) 
+	| (
+		node=import_directive_
+		{
+			e.Node = node;
+		}
+	)
 	|(
 		{ block = new Block(); }
 		internal_closure_stmt[block]

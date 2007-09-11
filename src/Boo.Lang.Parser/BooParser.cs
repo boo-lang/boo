@@ -131,7 +131,14 @@ namespace Boo.Lang.Parser
 				base.reportError(x);
 			}
 		}
-
+		
+		override protected Module NewQuasiquoteModule(LexicalInfo li)
+		{
+			Module m = new Module(li);
+			m.Name = CreateModuleName(li.FileName) + "$" + li.Line;
+			return m;
+		}
+		
 		public static string CreateModuleName(string readerName)
 		{
 			if (readerName.IndexOfAny(Path.InvalidPathChars) > -1)
@@ -140,7 +147,7 @@ namespace Boo.Lang.Parser
 			}
 			return Path.GetFileNameWithoutExtension(Path.GetFileName(readerName));
 		}
-
+	
 		static string EncodeModuleName(string name)
 		{
 			StringBuilder buffer = new StringBuilder(name.Length);
