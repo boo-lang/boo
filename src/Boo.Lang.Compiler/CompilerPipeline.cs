@@ -209,11 +209,8 @@ namespace Boo.Lang.Compiler
 		public ICompilerStep Get(Type stepExactType)
 		{
 			int index = Find(stepExactType);
-			if (-1 != index)
-			{
-				return (ICompilerStep)_items[index];
-			}
-			return null;
+			if (-1 == index) return null;
+			return (ICompilerStep)_items[index];
 		}
 
 		public int Count
