@@ -546,6 +546,7 @@ class AbstractInterpreter:
 										name as string,
 										value as Expression):
 			mie = CreateInterpreterInvocation(method, name)
+			mie.LexicalInfo = value.LexicalInfo
 			mie.Arguments.Add(value)
 			return mie
 			
@@ -561,6 +562,7 @@ class AbstractInterpreter:
 						
 		def CreateSetLastValue(value as Expression):
 			return CodeBuilder.CreateMethodInvocation(
+							value.LexicalInfo,
 							CreateInterpreterReference(),
 							TypeSystemServices.Map(AbstractInterpreter_SetLastValue),
 							value)
