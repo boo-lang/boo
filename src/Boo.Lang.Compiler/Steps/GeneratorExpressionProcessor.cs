@@ -112,8 +112,8 @@ namespace Boo.Lang.Compiler.Steps
 			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(IDisposable)));
 			
 			// Add fields
-			_enumeratorField = _enumerator.AddField("____enumerator", _sourceEnumeratorType);
-			_current = _enumerator.AddField("____current", _resultItemType);
+			_enumeratorField = _enumerator.AddField("$$enumerator", _sourceEnumeratorType);
+			_current = _enumerator.AddField("$$current", _resultItemType);
 			
 			// Add methods 
 			CreateReset();

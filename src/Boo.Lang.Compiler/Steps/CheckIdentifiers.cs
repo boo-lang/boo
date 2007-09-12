@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
-	using System.Collections;
+
 	public class CheckIdentifiers : AbstractVisitorCompilerStep
 	{
 		override public void Run()
@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (name == null || name == string.Empty) return false;
 			char c = name[0];
-			return char.IsLetter(c) || c=='(' || c=='_';
+			return char.IsLetter(c) || c=='(' || c=='_' || c == '$';
 		}
 		
 		private void CheckName(Node node, string name)

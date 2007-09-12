@@ -433,7 +433,7 @@ namespace Boo.Lang.Compiler.Steps
 		Method GetFieldsInitializerMethod(Field node)
 		{
 			TypeDefinition type = node.DeclaringType;
-			string methodName = node.IsStatic ? "___static_initializer" : "___initializer";
+			string methodName = node.IsStatic ? "$static_initializer$" : "$initializer$";
 			Method method = (Method)type[methodName];
 			if (null == method)
 			{
@@ -1139,8 +1139,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual IType GetGeneratorReturnType(IType itemType)
 		{
 			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
-			IType returnType = enumerableType.GenericInfo.ConstructType(itemType);
-			return returnType;
+			return enumerableType.GenericInfo.ConstructType(itemType);
 		}
 		
 		void TryToResolveReturnType(InternalMethod entity)
@@ -1842,7 +1841,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
-				string.Format("{0}___generator{1}", method.Name, _context.AllocIndex()),
+				string.Format("{0}$generator${1}", method.Name, _context.AllocIndex()),
 				TypeMemberModifiers.Internal|TypeMemberModifiers.Final);
 			builder.LexicalInfo = sourceNode.LexicalInfo;
 			
@@ -2090,7 +2089,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (NodeType.Field != node.ParentNode.NodeType)
 			{
-				ReplaceByStaticFieldReference(node, "___re" + _context.AllocIndex(), type);
+				ReplaceByStaticFieldReference(node, "$re$" + _context.AllocIndex(), type);
 			}
 		}
 		

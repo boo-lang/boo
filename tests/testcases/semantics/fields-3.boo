@@ -7,13 +7,13 @@ public class Foo(object):
 
 	public def constructor():
 		super()
-		self.___initializer()
+		self.$initializer$()
 
 	public def constructor(bar as object):
 		super()
-		self.___initializer()
+		self.$initializer$()
 
-	def ___initializer() as void:
+	def $initializer$() as void:
 		self._first = 14
 		self._second = (self._first * 2)
 """

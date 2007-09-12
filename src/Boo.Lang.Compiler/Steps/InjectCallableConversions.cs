@@ -355,14 +355,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		ClassDefinition CreateAdaptor(ICallableType to, ICallableType from)
 		{
-			BooClassBuilder adaptor = CodeBuilder.CreateClass("___adaptor" + _adaptors.Count);
+			BooClassBuilder adaptor = CodeBuilder.CreateClass("$adaptor$" + from.Name + "$" + to.Name + "$" + _adaptors.Count);
 			adaptor.AddBaseType(TypeSystemServices.ObjectType);
 			adaptor.Modifiers = TypeMemberModifiers.Final|TypeMemberModifiers.Internal;
 			
-			Field callable = adaptor.AddField("__callable", from);
+			Field callable = adaptor.AddField("$from", from);
 			
 			BooMethodBuilder constructor = adaptor.AddConstructor();
-			ParameterDeclaration param = constructor.AddParameter("from_", from);
+			ParameterDeclaration param = constructor.AddParameter("from", from);
 			constructor.Body.Add(
 				CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));
 			constructor.Body.Add(
@@ -397,7 +397,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			BooMethodBuilder adapt = adaptor.AddMethod("Adapt", to);
 			adapt.Modifiers = TypeMemberModifiers.Static|TypeMemberModifiers.Public;
-			param = adapt.AddParameter("from_", from);
+			param = adapt.AddParameter("from", from);
 			adapt.Body.Add(
 				new ReturnStatement(
 					CodeBuilder.CreateConstructorInvocation(

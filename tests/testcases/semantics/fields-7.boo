@@ -3,7 +3,7 @@ public class B(object):
 
 	public def constructor():
 		super()
-		self.___initializer()
+		self.$initializer$()
 		System.Console.WriteLine(self.a)
 		System.Console.WriteLine(self.b)
 
@@ -11,7 +11,7 @@ public class B(object):
 
 	protected a as string
 
-	def ___initializer() as void:
+	def $initializer$() as void:
 		self.b = 'foo'
 		self.a = 'bar'
 """

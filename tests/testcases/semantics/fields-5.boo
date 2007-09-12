@@ -3,11 +3,11 @@ public class ClassWithField(object):
 
 	public def constructor():
 		super()
-		self.___initializer()
+		self.$initializer$()
 
 	protected _name as string
 
-	def ___initializer() as void:
+	def $initializer$() as void:
 		self._name = ''
 """
 

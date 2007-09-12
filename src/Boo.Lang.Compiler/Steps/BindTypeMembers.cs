@@ -174,7 +174,7 @@ namespace Boo.Lang.Compiler.Steps
 			node.Remove = CreateInterfaceEventRemoveMethod(node);
 		}
 
-		private void BindClassEvent (Event node, IType type, bool typeIsCallable)
+		private void BindClassEvent(Event node, IType type, bool typeIsCallable)
 		{
 			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
 			if (node.IsTransient)
