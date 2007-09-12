@@ -627,21 +627,14 @@ namespace Boo.Lang.Compiler.Steps
 			if (WasVisited(node)) return;
 			MarkVisited(node);
 
-			TypeMemberModifiers modifiers = TypeMemberModifiers.Internal;
-			if (_currentMethod.IsStatic)
-			{
-				modifiers |= TypeMemberModifiers.Static;
-			}
-
 			Method closure = CodeBuilder.CreateMethod(
-				"___closure" + _context.AllocIndex(),
+				NewClosureName(),
 				Unknown.Default,
-				modifiers);
+				ClosureModifiers());
 
 			MarkVisited(closure);
 
 			InternalMethod closureEntity = (InternalMethod)closure.Entity;
-			
 			closure.LexicalInfo = node.LexicalInfo;
 			closure.Parameters = node.Parameters;
 			closure.Body = node.Body;
@@ -666,6 +659,21 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+		}
+
+		private TypeMemberModifiers ClosureModifiers()
+		{
+			TypeMemberModifiers modifiers = TypeMemberModifiers.Internal;
+			if (_currentMethod.IsStatic)
+			{
+				modifiers |= TypeMemberModifiers.Static;
+			}
+			return modifiers;
+		}
+
+		private string NewClosureName()
+		{
+			return _currentMethod.Name + "$closure$" + _context.AllocIndex();
 		}
 
 		private void AddOptionalReturnStatement(Block body)
